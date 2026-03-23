@@ -21,7 +21,12 @@ export class KeycloakAuthGuard implements CanActivate {
     constructor(
         private readonly keycloak: KeycloakService,
     ) { }
-
+    
+    /**
+     * Can activate.
+     * @param context - Execution context.
+     * @returns Promise of boolean.
+     */
     async canActivate(context: ExecutionContext): Promise<boolean> {
         // Extract request and Authorization header.
         const http = context.switchToHttp()
@@ -34,7 +39,8 @@ export class KeycloakAuthGuard implements CanActivate {
         }
 
         // Parse Bearer token.
-        const [scheme, token] = authHeader.split(" ")
+        const [scheme,
+            token] = authHeader.split(" ")
         if (scheme !== "Bearer" || !token) {
             throw new UnauthorizedException("Invalid Authorization header format")
         }

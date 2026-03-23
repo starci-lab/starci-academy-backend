@@ -54,12 +54,14 @@ export class KeycloakService {
 
     private getIssuer(): string {
         if (this.options.issuer) return this.options.issuer
-        const base = this.options.serverUrl.replace(/\/+$/, "")
+        const base = this.options.serverUrl.replace(/\/+$/,
+            "")
         return `${base}/realms/${this.options.realm}`
     }
 
     private getJwksUrl(): string {
-        const base = this.options.serverUrl.replace(/\/+$/, "")
+        const base = this.options.serverUrl.replace(/\/+$/,
+            "")
         return `${base}/realms/${this.options.realm}/protocol/openid-connect/certs`
     }
 
@@ -89,30 +91,34 @@ export class KeycloakService {
                 (res) => {
                     let raw = ""
                     res.setEncoding("utf8")
-                    res.on("data", (chunk) => {
-                        raw += chunk
-                    })
-                    res.on("end", () => {
-                        if (!res.statusCode || res.statusCode < 200 || res.statusCode >= 300) {
-                            return reject(
-                                new Error(
-                                    `Keycloak JWKS request failed: ${res.statusCode} ${res.statusMessage ?? ""}`.trim(),
-                                ),
-                            )
-                        }
-                        try {
-                            resolve(JSON.parse(raw) as T)
-                        } catch (err) {
-                            reject(err)
-                        }
-                    })
+                    res.on("data",
+                        (chunk) => {
+                            raw += chunk
+                        })
+                    res.on("end",
+                        () => {
+                            if (!res.statusCode || res.statusCode < 200 || res.statusCode >= 300) {
+                                return reject(
+                                    new Error(
+                                        `Keycloak JWKS request failed: ${res.statusCode} ${res.statusMessage ?? ""}`.trim(),
+                                    ),
+                                )
+                            }
+                            try {
+                                resolve(JSON.parse(raw) as T)
+                            } catch (err) {
+                                reject(err)
+                            }
+                        })
                 },
             )
 
-            req.on("timeout", () => {
-                req.destroy(new Error("Keycloak JWKS request timeout"))
-            })
-            req.on("error", reject)
+            req.on("timeout",
+                () => {
+                    req.destroy(new Error("Keycloak JWKS request timeout"))
+                })
+            req.on("error",
+                reject)
             req.end()
         })
     }
@@ -144,7 +150,10 @@ export class KeycloakService {
      */
     async verifyAccessToken(token: string): Promise<VerifiedKeycloakToken> {
         try {
-            const decoded = jwt.decode(token, { complete: true }) as KeycloakJwtDecodedComplete | null
+            const decoded = jwt.decode(token,
+                {
+                    complete: true 
+                }) as KeycloakJwtDecodedComplete | null
 
             const kid = decoded?.header?.kid
             const alg = decoded?.header?.alg
@@ -171,15 +180,21 @@ export class KeycloakService {
                 throw new UnauthorizedException("JWT signing key not found")
             }
 
-            const publicKey = createPublicKey({ key: jwkToUse, format: "jwk" })
-            const pem = publicKey.export({ format: "pem", type: "spki" }).toString()
+            const publicKey = createPublicKey({
+                key: jwkToUse, format: "jwk" 
+            })
+            const pem = publicKey.export({
+                format: "pem", type: "spki" 
+            }).toString()
 
             const algorithms = this.options.algorithms ?? DEFAULT_ALGORITHMS
-            const payload = jwt.verify(token, pem, {
-                algorithms,
-                issuer: this.getIssuer(),
-                audience: this.options.clientId,
-            }) as JwtPayload
+            const payload = jwt.verify(token,
+                pem,
+                {
+                    algorithms,
+                    issuer: this.getIssuer(),
+                    audience: this.options.clientId,
+                }) as JwtPayload
 
             return {
                 header: {
