@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/starci-academy-backend/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/starci-academy-backend/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/starci-academy-backend",
+  "projects": {
+    "api": {
+      "type": "application",
+      "root": "apps/api",
+      "entryFile": "main",
+      "sourceRoot": "apps/api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/api/tsconfig.app.json"
+      }
+    },
+    "starci-academy-backend": {
+      "type": "application",
+      "root": "apps/starci-academy-backend",
+      "entryFile": "main",
+      "sourceRoot": "apps/starci-academy-backend/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/starci-academy-backend/tsconfig.app.json"
+      }
+    }
+  }
+}

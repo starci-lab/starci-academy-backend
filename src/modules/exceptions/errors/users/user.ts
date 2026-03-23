@@ -1,0 +1,206 @@
+/**
+ * User Exceptions
+ * Errors related to user operations
+ */
+
+import type {
+    AbstractExceptionMetadata 
+} from "../abstract"
+import {
+    AbstractException 
+} from "../abstract"
+
+/** Thrown when user cannot be found */
+export interface UserNotFoundExceptionMetadata extends AbstractExceptionMetadata {
+    id?: string
+    privyUserId?: string
+}
+
+/** Thrown when user cannot be found. */
+export class UserNotFoundException extends AbstractException {
+    constructor(
+        {
+            id,
+            privyUserId,
+            originalError,
+        }: UserNotFoundExceptionMetadata
+    ) {
+        super(
+            "User not found",
+            "USER_NOT_FOUND_EXCEPTION",
+            {
+                id,
+                privyUserId,
+                originalError,
+            }
+        )
+    }
+}
+
+/** Thrown when user TOTP secret is not found */
+export interface UserTotpSecretNotFoundExceptionMetadata extends AbstractExceptionMetadata {
+    id: string
+}
+
+/** Thrown when user TOTP secret is not found. */
+export class UserTotpSecretNotFoundException extends AbstractException {
+    constructor(
+        {
+            id,
+            originalError,
+        }: UserTotpSecretNotFoundExceptionMetadata
+    ) {
+        super(
+            "User totp secret not found",
+            "USER_TOTP_SECRET_NOT_FOUND_EXCEPTION",
+            {
+                id,
+                originalError,
+            }
+        )
+    }
+}
+
+/** Thrown when TOTP code is invalid */
+export interface InvalidTOTPCodeExceptionMetadata extends AbstractExceptionMetadata {
+    id?: string
+}
+
+/** Thrown when TOTP code is invalid. */
+export class InvalidTOTPCodeException extends AbstractException {
+    constructor(
+        {
+            id,
+            originalError,
+        }: InvalidTOTPCodeExceptionMetadata
+    ) {
+        super(
+            "Invalid TOTP code",
+            "INVALID_TOTP_CODE_EXCEPTION",
+            {
+                id,
+                originalError,
+            }
+        )
+    }
+}
+
+/** Thrown when user MFA is already enabled */
+export interface UserMfaAlreadyEnabledExceptionMetadata extends AbstractExceptionMetadata {
+    id: string
+}
+
+/** Thrown when user MFA is already enabled. */
+export class UserMfaAlreadyEnabledException extends AbstractException {
+    constructor(
+        {
+            id,
+            originalError,
+        }: UserMfaAlreadyEnabledExceptionMetadata
+    ) {
+        super(
+            "User MFA already enabled",
+            "USER_MFA_ALREADY_ENABLED_EXCEPTION",
+            {
+                id,
+                originalError,
+            }
+        )
+    }
+}
+
+/** Thrown when user authenticator app is already enabled */
+export interface UserAuthenticatorAppEnabledExceptionMetadata extends AbstractExceptionMetadata {
+    id: string
+}
+
+/** Thrown when user authenticator app is already enabled. */
+export class UserAuthenticatorAppEnabledException extends AbstractException {
+    constructor(
+        {
+            id,
+            originalError,
+        }: UserAuthenticatorAppEnabledExceptionMetadata
+    ) {
+        super(
+            "User authenticator app already enabled",
+            "USER_AUTHENTICATOR_APP_ENABLED_EXCEPTION",
+            {
+                id,
+                originalError,
+            }
+        )
+    }
+}
+
+/** Thrown when user authenticator app is not enabled */
+export interface UserAuthenticatorAppNotEnabledExceptionMetadata extends AbstractExceptionMetadata {
+    id: string
+}
+
+/** Thrown when user authenticator app is not enabled. */
+export class UserAuthenticatorAppNotEnabledException extends AbstractException {
+    constructor(
+        {
+            id,
+            originalError,
+        }: UserAuthenticatorAppNotEnabledExceptionMetadata
+    ) {
+        super(
+            "User authenticator app is not enabled",
+            "USER_AUTHENTICATOR_APP_NOT_ENABLED_EXCEPTION",
+            {
+                id,
+                originalError,
+            }
+        )
+    }
+}
+
+/** Thrown when failed to generate referral code */
+export interface FailedToGenerateReferralCodeExceptionMetadata extends AbstractExceptionMetadata {
+    email: string
+}
+
+/** Thrown when failed to generate referral code. */
+export class FailedToGenerateReferralCodeException extends AbstractException {
+    constructor(
+        {
+            email,
+            originalError,
+        }: FailedToGenerateReferralCodeExceptionMetadata
+    ) {
+        super(
+            "Failed to generate referral code",
+            "FAILED_TO_GENERATE_REFERRAL_CODE_EXCEPTION",
+            {
+                email,
+                originalError,
+            }
+        )
+    }
+}
+
+/** Thrown when email is not found for a user */
+export interface EmailNotFoundExceptionMetadata extends AbstractExceptionMetadata {
+    privyUserId: string
+}
+
+/** Thrown when email is not found for a user. */
+export class EmailNotFoundException extends AbstractException {
+    constructor(
+        {
+            privyUserId,
+            originalError,
+        }: EmailNotFoundExceptionMetadata
+    ) {
+        super(
+            "Email not found",
+            "EMAIL_NOT_FOUND_EXCEPTION",
+            {
+                privyUserId,
+                originalError,
+            }
+        )
+    }
+}

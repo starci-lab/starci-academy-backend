@@ -1,0 +1,81 @@
+import {
+    DynamicModule,
+    Module,
+    Provider
+} from "@nestjs/common"
+import {
+    ConfigurableModuleClass,
+    OPTIONS_TYPE
+} from "./mixin.module-definition"
+import {
+    RetryService
+} from "./retry.service"
+import {
+    WaitService
+} from "./wait.service"
+import {
+    NextJsQueryService
+} from "./nextjs-query.service"
+import {
+    ReadinessWatcherFactoryService
+} from "./readiness-watcher-factory.service"
+import {
+    InstanceService
+} from "./instance.service"
+import {
+    createSuperJsonServiceProvider
+} from "./superjson.providers"
+import {
+    AsyncService
+} from "./async.service"
+import {
+    DayjsService
+} from "./dayjs.service"
+import {
+    createFakerServiceProvider
+} from "./faker.providers"
+import {
+    LokiJSService
+} from "./lokijs.service"
+import {
+    JitterService
+} from "./jitter.service"
+
+/**
+ * Module for the Mixin service.
+ */
+@Module({
+})
+export class MixinModule extends ConfigurableModuleClass {
+    /**
+     * Register the Mixin module.
+     * @param options - The options for the Mixin module.
+     * @returns The DynamicModule for the Mixin module.
+     */
+    static register(options: typeof OPTIONS_TYPE): DynamicModule {
+        const dynamicModule = super.register(options)
+        const providers: Array<Provider> = [
+            RetryService,
+            WaitService,
+            JitterService,
+            ReadinessWatcherFactoryService,
+            InstanceService,
+            DayjsService,
+            createSuperJsonServiceProvider(),
+            createFakerServiceProvider(),
+            AsyncService,
+            LokiJSService,
+        ]
+        if (options.loadNextJsQueryService) {
+            providers.push(NextJsQueryService)
+        }
+        return {
+            ...dynamicModule,
+            providers: [
+                ...(dynamicModule.providers ?? []),
+                ...providers,
+            ],
+            exports: [...providers],
+        }
+    }
+}
