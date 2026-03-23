@@ -1,0 +1,14 @@
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
+
+version: "3.9"
+
+services:
+  grafana-loki:
+    image: docker.io/bitnamilegacy/grafana-loki
+    container_name: grafana-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./grafana-loki-config.yaml:/bitnami/grafana-loki/conf/loki.yaml
+    restart: unless-stopped

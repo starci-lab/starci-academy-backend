@@ -68,7 +68,7 @@ export const envConfig = () => ({
             }),
             password: parseEnvString({
                 key: "REDIS_BULLMQ_PASSWORD",
-                defaultValue: "",
+                defaultValue: "Cuong123_A",
             }),
             useCluster: parseEnvBoolean({
                 key: "REDIS_BULLMQ_USE_CLUSTER",
@@ -87,7 +87,7 @@ export const envConfig = () => ({
             }),
             password: parseEnvString({
                 key: "REDIS_THROTTLER_PASSWORD",
-                defaultValue: "",
+                defaultValue: "Cuong123_A",
             }),
             useCluster: parseEnvBoolean({
                 key: "REDIS_THROTTLER_USE_CLUSTER",
@@ -106,7 +106,7 @@ export const envConfig = () => ({
             }),
             password: parseEnvString({
                 key: "REDIS_ADAPTER_PASSWORD",
-                defaultValue: "",
+                defaultValue: "Cuong123_A",
             }),
             useCluster: parseEnvBoolean({
                 key: "REDIS_ADAPTER_USE_CLUSTER",
@@ -125,7 +125,7 @@ export const envConfig = () => ({
             }),
             password: parseEnvString({
                 key: "REDIS_CACHE_PASSWORD",
-                defaultValue: "",
+                defaultValue: "Cuong123_A",
             }),
             useCluster: parseEnvBoolean({
                 key: "REDIS_CACHE_USE_CLUSTER",
@@ -207,6 +207,35 @@ export const envConfig = () => ({
                 key: "RETRY_BASE_RANDOMIZE",
                 defaultValue: true,
             }),
+        },
+    },
+    /** Databases configuration. */
+    databases: {
+        /** PostgreSQL configuration. */
+        postgresql: {
+            /** Primary PostgreSQL configuration. */
+            primary: {
+                host: parseEnvString({
+                    key: "POSTGRESQL_PRIMARY_HOST",
+                    defaultValue: "localhost",
+                }),
+                port: parseEnvInt({
+                    key: "POSTGRESQL_PRIMARY_PORT",
+                    defaultValue: 5432,
+                }),
+                username: parseEnvString({
+                    key: "POSTGRESQL_PRIMARY_USERNAME",
+                    defaultValue: "postgres",
+                }),
+                password: parseEnvString({
+                    key: "POSTGRESQL_PRIMARY_PASSWORD",
+                    defaultValue: "Cuong123_A",
+                }),
+                database: parseEnvString({
+                    key: "POSTGRESQL_PRIMARY_DATABASE",
+                    defaultValue: "postgres",
+                }),
+            },
         },
     },
 }

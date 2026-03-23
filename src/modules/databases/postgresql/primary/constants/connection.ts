@@ -1,0 +1,1 @@
+export const POSTGRESQL_PRIMARY = "primary"

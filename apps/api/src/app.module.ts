@@ -27,6 +27,9 @@ import {
 import {
     MixinModule 
 } from "@modules/mixin"
+import {
+    PrimaryPostgresqlModule
+} from "@modules/databases"
 
 /**
  * The main module for the application.
@@ -55,6 +58,12 @@ import {
             ),
             /** Mount filesystem module. */
             FilesystemModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Primary PostgreSQL module. */
+            PrimaryPostgresqlModule.register(
                 {
                     isGlobal: true,
                 }

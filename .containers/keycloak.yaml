@@ -1,0 +1,17 @@
+
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
+
+services:
+  keycloak:
+    image: docker.io/bitnamilegacy/keycloak:latest
+    ports:
+      - "80:8080"
+    environment:
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=bitnami123
+      - KC_DB=postgres
+      - KC_DB_USERNAME=postgres
+      - KC_DB_PASSWORD=Cuong123_A
+      - KC_DB_NAME=postgres
+      - KC_DB_PORT=5432
+      - KC_DB_HOST=host.docker.internal
