@@ -15,12 +15,17 @@ import type {
 import {
     InjectS3,
 } from "./s3.decorators"
-
+import {
+    InjectSuperJson 
+} from "@modules/mixin"
+import SuperJSON from "superjson"
 @Injectable()
 export class S3ReadService {
     constructor(
         @InjectS3()
         private readonly s3: S3Client,
+        @InjectSuperJson()
+        private readonly superJson: SuperJSON,
     ) {}
 
     /**
@@ -64,7 +69,7 @@ export class S3ReadService {
     ): Promise<T | null> {
         const content = await this.text(key)
         if (content === null) return null
-        return JSON.parse(content) as T
+        return this.superJson.parse(content) as T
     }
 }
 

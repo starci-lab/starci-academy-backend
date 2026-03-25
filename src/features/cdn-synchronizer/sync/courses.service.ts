@@ -28,6 +28,10 @@ import {
     EntityManager 
 } from "typeorm"
 import _ from "lodash"
+import {
+    InjectSuperJson 
+} from "@modules/mixin"
+import SuperJSON from "superjson"
   
 /**
  * Service for synchronizing courses to the CDN.
@@ -40,6 +44,8 @@ export class CoursesSyncService implements OnApplicationBootstrap {
       private readonly s3UploadService: S3UploadService,
       private readonly s3BuildService: S3BuildService,
       private readonly s3ReadService: S3ReadService,
+      @InjectSuperJson()
+      private readonly superJson: SuperJSON,
       @InjectPrimaryPostgresqlEntityManager()
       private readonly entityManager: EntityManager,
       private readonly winstonService: WinstonService,
@@ -194,7 +200,7 @@ export class CoursesSyncService implements OnApplicationBootstrap {
             // If the course is not found, return null.
             if (!course) return null
             // Serialize the course to JSON.
-            const courseJson = JSON.stringify(course.toPlain())
+            const courseJson = this.superJson.stringify(course.toPlain())
             // Create the S3 object name.
             const s3ObjectName = `courses-${id}.json`
             // Build the CDN URL.
@@ -206,7 +212,7 @@ export class CoursesSyncService implements OnApplicationBootstrap {
                 // If both contents are the same, return the CDN URL.
                 if (_.isEqual(
                     content, 
-                    course
+                    course.toPlain()
                 )) {
                     return cdnUrl
                 }
