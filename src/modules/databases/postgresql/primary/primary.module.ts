@@ -30,6 +30,9 @@ import {
     SubmissionEntity,
     UserEntity 
 } from "./entities"
+import {
+    SeedersModule 
+} from "./seeders"
 
 /**
  * Primary PostgreSQL module for the primary PostgreSQL connection.
@@ -48,6 +51,11 @@ export class PrimaryPostgresqlModule extends ConfigurableModuleClass {
     ): DynamicModule {
         const dynamicModule = super.register(options)
         const extraModules: Array<DynamicModule> = []
+        if (options.withSeeders) {
+            extraModules.push(
+                SeedersModule.register(options.withSeeders)
+            )
+        }
         // If mongoose is a boolean, use it as the connectionFactory value
         return {
             ...dynamicModule,

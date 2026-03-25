@@ -66,6 +66,9 @@ import {
             PrimaryPostgresqlModule.register(
                 {
                     isGlobal: true,
+                    withSeeders: {
+                        manualSeed: false,
+                    }
                 }
             ),
             /** IoRedis module. */

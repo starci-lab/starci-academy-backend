@@ -256,5 +256,26 @@ export const envConfig = () => ({
             },
         },
     },
+    /** Computation configuration. */
+    computation: {
+        round: {
+            fractionDigits: parseEnvInt({
+                key: "COMPUTATION_ROUND_FRACTION_DIGITS",
+                defaultValue: 2,
+            }),
+        },
+        operation: {
+            fractionDigits: parseEnvInt({
+                key: "COMPUTATION_OPERATION_FRACTION_DIGITS",
+                defaultValue: 2,
+            }),
+        },
+        amount: {
+            fractionDigits: parseEnvInt({
+                key: "COMPUTATION_AMOUNT_FRACTION_DIGITS",
+                defaultValue: 2,
+            }),
+        },
+    },
 }
 )

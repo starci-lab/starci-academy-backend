@@ -8,14 +8,14 @@ import {
     MODULE_OPTIONS_TOKEN, OPTIONS_TYPE 
 } from "./seeders.module-definition"
 import {
-    InjectEntityManager 
-} from "@nestjs/typeorm"
-import {
     EntityManager 
 } from "typeorm"
 import {
     CoursesService 
 } from "./courses"
+import {
+    InjectPrimaryPostgresqlEntityManager 
+} from "../primary.decorators"
 
 /**
  * The service for the Seeders.
@@ -25,7 +25,7 @@ export class SeedersService implements OnModuleInit {
     constructor(
         @Inject(MODULE_OPTIONS_TOKEN)
         private readonly options: typeof OPTIONS_TYPE,
-        @InjectEntityManager()
+        @InjectPrimaryPostgresqlEntityManager()
         private readonly entityManager: EntityManager,
         private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
         private readonly coursesService: CoursesService

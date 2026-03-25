@@ -9,8 +9,8 @@ import {
  * How the learner attached their work: local folder paths vs a Git remote URL.
  */
 export enum ResourceType {
-    Folders = "folders",
-    GitUrl = "giturl",
+    DriverUrl = "driverUrl",
+    GitUrl = "gitUrl",
 }
 
 /**
@@ -25,13 +25,13 @@ registerEnumType(
     resourceTypeEnum,
     {
         name: "ResourceType",
-        description: "Resource payload kind: folder paths or Git URL.",
+        description: "Resource payload kind: driver URL or Git URL.",
         valuesMap: {
-            folders: {
-                description: "Folder paths when type is folders."
+            driverUrl: {
+                description: "Driver URL when type is driverUrl."
             },
-            giturl: {
-                description: "Git remote URL when type is giturl."
+            gitUrl: {
+                description: "Git remote URL when type is gitUrl."
             }
         }
     })

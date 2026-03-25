@@ -2,9 +2,6 @@ import {
     Injectable 
 } from "@nestjs/common"
 import {
-    InjectEntityManager 
-} from "@nestjs/typeorm"
-import {
     EntityManager, 
     In
 } from "typeorm"
@@ -24,9 +21,9 @@ import {
 @Injectable()
 export class CoursesService implements Seeder {
     constructor(
-        @InjectEntityManager()
-        private readonly entityManager: EntityManager
-    ) { }
+    ) { 
+        console.log("CoursesService constructor")
+    }
 
     /**
      * Seed the courses.

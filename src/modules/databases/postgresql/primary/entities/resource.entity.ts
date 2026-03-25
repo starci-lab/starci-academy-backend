@@ -2,7 +2,7 @@ import {
     Field, ObjectType 
 } from "@nestjs/graphql"
 import {
-    Check, Column, Entity, JoinColumn, ManyToOne 
+    Column, Entity, JoinColumn, ManyToOne 
 } from "typeorm"
 import {
     ResourceType 
@@ -18,14 +18,9 @@ import {
  * A single submission resource: either a list of folder paths or a Git URL.
  */
 @ObjectType({
-    description: "Submission resource item (folders or git URL)."
+    description: "Resource item (driver URL or Git URL)."
 })
-@Check(`(
-    ("type" = 'folders' AND git_url IS NULL AND folders_json IS NOT NULL AND jsonb_array_length(folders_json) > 0)
-    OR
-    ("type" = 'giturl' AND folders_json IS NULL AND git_url IS NOT NULL)
-)`)
-@Entity("submission_resources")
+@Entity("resources")
 export class ResourceEntity extends UuidAbstractEntity {
     @Field(() => ResourceType,
         {
