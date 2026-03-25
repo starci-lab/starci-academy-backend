@@ -30,6 +30,13 @@ export const envConfig = () => ({
                 defaultValue: 3001,
             }),
         },
+        /** Github Worker service configuration. */
+        githubWorker: {
+            port: parseEnvInt({
+                key: "GITHUB_WORKER_PORT",
+                defaultValue: 3002,
+            }),
+        },
     },
     /** Loki configuration. */
     loki: {
@@ -211,6 +218,17 @@ export const envConfig = () => ({
     },
     /** Databases configuration. */
     databases: {
+        /** Qdrant configuration. */
+        qdrant: {
+            url: parseEnvString({
+                key: "QDRANT_URL",
+                defaultValue: "http://localhost:6333",
+            }),
+            apiKey: parseEnvString({
+                key: "QDRANT_API_KEY",
+                defaultValue: "Cuong123_A",
+            }),
+        },
         /** PostgreSQL configuration. */
         postgresql: {
             /** Primary PostgreSQL configuration. */

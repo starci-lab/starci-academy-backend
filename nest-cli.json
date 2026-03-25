@@ -19,6 +19,15 @@
         "tsConfigPath": "apps/api/tsconfig.app.json"
       }
     },
+    "github-worker": {
+      "type": "application",
+      "root": "apps/github-worker",
+      "entryFile": "main",
+      "sourceRoot": "apps/github-worker/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/github-worker/tsconfig.app.json"
+      }
+    },
     "starci-academy-backend": {
       "type": "application",
       "root": "apps/starci-academy-backend",

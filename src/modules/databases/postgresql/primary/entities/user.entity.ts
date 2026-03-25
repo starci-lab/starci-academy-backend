@@ -3,11 +3,14 @@ import {
     ObjectType 
 } from "@nestjs/graphql"
 import {
-    Column, Entity 
+    Column, Entity, OneToMany 
 } from "typeorm"
 import {
     UuidAbstractEntity 
 } from "./abstract"
+import {
+    SubmissionEntity 
+} from "./submission.entity"
 
 /**
  * Represents an application-level user.
@@ -94,4 +97,15 @@ export class UserEntity extends UuidAbstractEntity {
         default: false
     })
         isDeleted: boolean
+
+    @Field(() => [SubmissionEntity],
+        {
+            nullable: true
+        })
+    @OneToMany(() => SubmissionEntity,
+        (sub: SubmissionEntity) => sub.user,
+        {
+            cascade: true
+        })
+        submissions: Array<SubmissionEntity>
 }

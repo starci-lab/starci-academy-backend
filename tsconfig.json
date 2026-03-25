@@ -22,11 +22,11 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@modules/*": [
-        "./src/modules/*"
-      ],
       "@features/*": [
         "./src/features/*"
+      ],
+      "@modules/*": [
+        "./src/modules/*"
       ]
     }
   }

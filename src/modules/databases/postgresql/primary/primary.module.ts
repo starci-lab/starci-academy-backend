@@ -15,6 +15,19 @@ import {
     POSTGRESQL_PRIMARY 
 } from "./constants"
 import {
+    AdvancedContentEntity,
+    AdvancedContentSectionEntity,
+    ContentEntity,
+    CourseEntity,
+    PrerequisiteEntity,
+    QnaEntity,
+    ExclusiveLessonVideoEntity,
+    GeneralContentEntity,
+    GeneralContentSectionEntity,
+    ModuleEntity,
+    OutcomeEntity,
+    ResourceEntity,
+    SubmissionEntity,
     UserEntity 
 } from "./entities"
 
@@ -57,7 +70,22 @@ export class PrimaryPostgresqlModule extends ConfigurableModuleClass {
                                 username,
                                 password,
                                 database,
-                                entities: [UserEntity],
+                                entities: [
+                                    UserEntity,
+                                    CourseEntity,
+                                    PrerequisiteEntity,
+                                    QnaEntity,
+                                    AdvancedContentEntity,
+                                    AdvancedContentSectionEntity,
+                                    GeneralContentEntity,
+                                    GeneralContentSectionEntity,
+                                    ModuleEntity,
+                                    ContentEntity,
+                                    ExclusiveLessonVideoEntity,
+                                    OutcomeEntity,
+                                    ResourceEntity,
+                                    SubmissionEntity,
+                                ],
                                 synchronize: true,
                                 logging: false,
                             }
@@ -86,6 +114,19 @@ export class PrimaryPostgresqlModule extends ConfigurableModuleClass {
                 NestTypeOrmModule.forFeature(
                     [
                         UserEntity,
+                        CourseEntity,
+                        PrerequisiteEntity,
+                        QnaEntity,
+                        AdvancedContentEntity,
+                        AdvancedContentSectionEntity,
+                        GeneralContentEntity,
+                        GeneralContentSectionEntity,
+                        ModuleEntity,
+                        ContentEntity,
+                        ExclusiveLessonVideoEntity,
+                        OutcomeEntity,
+                        ResourceEntity,
+                        SubmissionEntity,
                     ], 
                     POSTGRESQL_PRIMARY
                 ),

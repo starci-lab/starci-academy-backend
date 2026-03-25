@@ -7,15 +7,20 @@ import {
 import {
     ConfigurableModuleClass 
 } from "./seeders.module-definition"
+import {
+    CoursesService 
+} from "./courses"
 /**
  * The module for the Seeders.
  */
 @Module({
     providers: [
-        SeedersService
+        SeedersService,
+        CoursesService
     ],
     exports: [
-        SeedersService
+        SeedersService,
+        CoursesService
     ]
 })
 export class SeedersModule extends ConfigurableModuleClass {

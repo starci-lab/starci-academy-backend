@@ -13,6 +13,9 @@ import {
 import {
     EntityManager 
 } from "typeorm"
+import {
+    CoursesService 
+} from "./courses"
 
 /**
  * The service for the Seeders.
@@ -25,6 +28,7 @@ export class SeedersService implements OnModuleInit {
         @InjectEntityManager()
         private readonly entityManager: EntityManager,
         private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
+        private readonly coursesService: CoursesService
     ) { }
 
     /**
@@ -34,8 +38,10 @@ export class SeedersService implements OnModuleInit {
     private async process() {
         // drop and seed in a transaction
         await this.entityManager.transaction(
-            async () => {
-                // do nothing
+            async (entityManager) => {
+                // drop and seed the courses
+                await this.coursesService.drop(entityManager)
+                await this.coursesService.seed(entityManager)
             }
         )
     }
