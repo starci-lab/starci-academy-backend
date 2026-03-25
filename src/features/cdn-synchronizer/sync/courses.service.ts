@@ -168,6 +168,7 @@ export class CoursesSyncService implements OnApplicationBootstrap {
      */
     async syncOne(id: string): Promise<string | null> {
         try {
+            // Get the course from the database.
             const course = await this.entityManager.findOne(CourseEntity,
                 {
                     where: {
@@ -185,18 +186,25 @@ export class CoursesSyncService implements OnApplicationBootstrap {
                     },
                 })
   
+            // If the course is not found, return null.
             if (!course) return null
-  
+
+            // Serialize the course to JSON.
             const courseJson = JSON.stringify(course)
+
+            // Create the S3 object name.
             const s3ObjectName = `courses-${id}.json`
   
+            // Upload the course JSON to S3.
             await this.s3UploadService.json(
                 s3ObjectName,
                 courseJson,
             )
   
+            // Build the CDN URL.
             const cdnUrl = this.s3BuildService.buildPublicObjectUrl(s3ObjectName)
   
+            // Update the course in the database with the CDN URL.
             await this.entityManager.update(
                 CourseEntity,
                 {
@@ -207,8 +215,10 @@ export class CoursesSyncService implements OnApplicationBootstrap {
                 },
             )
   
+            // Return the CDN URL.
             return cdnUrl
         } catch (error) {
+            // Log the error.
             this.winstonService.log(
                 WinstonLog.CdnSynchronizerCoursesSyncFailed,
                 {
@@ -217,6 +227,7 @@ export class CoursesSyncService implements OnApplicationBootstrap {
                 },
             )
   
+            // Return null because the course was not synced successfully.
             return null
         }
     }
