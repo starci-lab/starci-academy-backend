@@ -11,6 +11,7 @@ import {
 import {
     S3BuildService,
     S3UploadService,
+    S3ReadService,
 } from "@modules/s3"
 import {
     WinstonLog,
@@ -26,6 +27,7 @@ import {
 import {
     EntityManager 
 } from "typeorm"
+import _ from "lodash"
   
 /**
  * Service for synchronizing courses to the CDN.
@@ -37,6 +39,7 @@ export class CoursesSyncService implements OnApplicationBootstrap {
     constructor(
       private readonly s3UploadService: S3UploadService,
       private readonly s3BuildService: S3BuildService,
+      private readonly s3ReadService: S3ReadService,
       @InjectPrimaryPostgresqlEntityManager()
       private readonly entityManager: EntityManager,
       private readonly winstonService: WinstonService,
@@ -123,7 +126,6 @@ export class CoursesSyncService implements OnApplicationBootstrap {
         // Retry the sync operation up to a maximum number of times.
         const maxRetries = envConfig().services.cdnSynchronizer.retries.courses.maxRetries
         const retryDelayMs = envConfig().services.cdnSynchronizer.retries.courses.retryDelayMs
-        
         // Iterate through the retry attempts.
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             // Sync the course.
@@ -189,25 +191,31 @@ export class CoursesSyncService implements OnApplicationBootstrap {
                     },
                 }
             )
-  
             // If the course is not found, return null.
             if (!course) return null
-
             // Serialize the course to JSON.
-            const courseJson = JSON.stringify(course)
-
+            const courseJson = JSON.stringify(course.toPlain())
             // Create the S3 object name.
             const s3ObjectName = `courses-${id}.json`
-  
+            // Build the CDN URL.
+            const cdnUrl = this.s3BuildService.buildPublicObjectUrl(s3ObjectName)
+            // Take the content if found.
+            const content = await this.s3ReadService.json<CourseEntity>(s3ObjectName)
+            // If the content is not found, return null.
+            if (content) {
+                // If both contents are the same, return the CDN URL.
+                if (_.isEqual(
+                    content, 
+                    course
+                )) {
+                    return cdnUrl
+                }
+            }
             // Upload the course JSON to S3.
             await this.s3UploadService.json(
                 s3ObjectName,
                 courseJson,
             )
-  
-            // Build the CDN URL.
-            const cdnUrl = this.s3BuildService.buildPublicObjectUrl(s3ObjectName)
-  
             // Update the course in the database with the CDN URL.
             await this.entityManager.update(
                 CourseEntity,
@@ -218,7 +226,6 @@ export class CoursesSyncService implements OnApplicationBootstrap {
                     cdnUrl 
                 },
             )
-  
             // Return the CDN URL.
             return cdnUrl
         } catch (error) {
@@ -230,7 +237,6 @@ export class CoursesSyncService implements OnApplicationBootstrap {
                     error: error.message,
                 },
             )
-  
             // Return null because the course was not synced successfully.
             return null
         }

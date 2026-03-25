@@ -9,6 +9,12 @@ export interface CdnSynchronizerCourseSyncedSuccessfullyMessage {
     id: string
 }
 
+/** Message for when a course is already synced (no upload needed). */
+export interface CdnSynchronizerCourseAlreadySyncedMessage {
+    id: string
+    cdnUrl: string
+}
+
 /** Message for when CDN synchronizer fails an attempt for a single course. */
 export interface CdnSynchronizerCourseSyncFailedAttemptMessage {
     id?: string

@@ -14,6 +14,9 @@ import {
 import {
     S3BuildService,
 } from "./s3-build.service"
+import {
+    S3ReadService,
+} from "./s3-read.service"
 
 @Module({
 })
@@ -28,11 +31,13 @@ export class S3Module extends ConfigurableModuleClass {
                 s3ServiceProvider,
                 S3UploadService,
                 S3BuildService,
+                S3ReadService,
             ],
             exports: [
                 s3ServiceProvider,
                 S3UploadService,
                 S3BuildService,
+                S3ReadService,
             ],
         }
     }

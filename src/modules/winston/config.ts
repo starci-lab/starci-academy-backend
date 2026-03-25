@@ -7,6 +7,7 @@ import {
     CoursesSeededSuccessfullyMessage,
 } from "./types"
 import type {
+    CdnSynchronizerCourseAlreadySyncedMessage,
     CdnSynchronizerCourseSyncFailedAttemptMessage,
     CdnSynchronizerCourseSyncFailedMessage,
     CdnSynchronizerCoursesSyncingMessage,
@@ -41,6 +42,14 @@ export const configMap = {
         console: true,
         messageType: {
         } as CdnSynchronizerCourseSyncedSuccessfullyMessage,
+    },
+    [WinstonLog.CdnSynchronizerCourseAlreadySynced]: {
+        name: WinstonLog.CdnSynchronizerCourseAlreadySynced,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as CdnSynchronizerCourseAlreadySyncedMessage,
     },
     [WinstonLog.CdnSynchronizerCourseSyncFailed]: {
         name: WinstonLog.CdnSynchronizerCourseSyncFailed,
