@@ -74,7 +74,7 @@ export class CoursesSyncService implements OnApplicationBootstrap {
             await this.syncSequentially()
         } catch (error) {
             this.winstonService.log(
-                WinstonLog.CdnSynchronizerCoursesSyncFailed,
+                WinstonLog.CdnSynchronizerCourseSyncFailed,
                 {
                     error: error.message,
                 },
@@ -96,12 +96,14 @@ export class CoursesSyncService implements OnApplicationBootstrap {
                 },
             })
   
+        // Iterate through the courses.
         for (const course of courses) {
+            // Sync the course with retry.
             const success = await this.syncOneWithRetry(course.id)
-  
             if (success) {
+                // Log the successful sync.
                 this.winstonService.log(
-                    WinstonLog.CdnSynchronizerCoursesSyncedSuccessfully,
+                    WinstonLog.CdnSynchronizerCourseSyncedSuccessfully,
                     {
                         id: course.id,
                     },
@@ -134,7 +136,7 @@ export class CoursesSyncService implements OnApplicationBootstrap {
   
             // Log the failed attempt.
             this.winstonService.log(
-                WinstonLog.CdnSynchronizerCoursesSyncFailedAttempt,
+                WinstonLog.CdnSynchronizerCourseSyncFailedAttempt,
                 {
                     id,
                     attempt,
@@ -150,7 +152,7 @@ export class CoursesSyncService implements OnApplicationBootstrap {
   
         // Log that the course was not synced successfully because the maximum number of retries was reached.
         this.winstonService.log(
-            WinstonLog.CdnSynchronizerCoursesSyncFailedMaxRetriesReached,
+            WinstonLog.CdnSynchronizerCourseSyncFailedMaxRetriesReached,
             {
                 id,
                 maxRetries,
@@ -222,7 +224,7 @@ export class CoursesSyncService implements OnApplicationBootstrap {
         } catch (error) {
             // Log the error.
             this.winstonService.log(
-                WinstonLog.CdnSynchronizerCoursesSyncFailed,
+                WinstonLog.CdnSynchronizerCourseSyncFailed,
                 {
                     id,
                     error: error.message,

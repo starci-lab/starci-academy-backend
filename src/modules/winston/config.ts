@@ -7,11 +7,11 @@ import {
     CoursesSeededSuccessfullyMessage,
 } from "./types"
 import type {
-    CdnSynchronizerCoursesSyncFailedAttemptMessage,
-    CdnSynchronizerCoursesSyncFailedMessage,
+    CdnSynchronizerCourseSyncFailedAttemptMessage,
+    CdnSynchronizerCourseSyncFailedMessage,
     CdnSynchronizerCoursesSyncingMessage,
-    CdnSynchronizerCoursesSyncFailedMaxRetriesReachedMessage,
-    CdnSynchronizerCoursesSyncedSuccessfullyMessage,
+    CdnSynchronizerCourseSyncFailedMaxRetriesReachedMessage,
+    CdnSynchronizerCourseSyncedSuccessfullyMessage,
 } from "./types"
 
 /** Map of Winston log names to level, Loki flag, and message type. */
@@ -34,36 +34,36 @@ export const configMap = {
         messageType: {
         } as CdnSynchronizerCoursesSyncingMessage,
     },
-    [WinstonLog.CdnSynchronizerCoursesSyncedSuccessfully]: {
-        name: WinstonLog.CdnSynchronizerCoursesSyncedSuccessfully,
+    [WinstonLog.CdnSynchronizerCourseSyncedSuccessfully]: {
+        name: WinstonLog.CdnSynchronizerCourseSyncedSuccessfully,
         level: WinstonLevel.Verbose,
         loki: true,
         console: true,
         messageType: {
-        } as CdnSynchronizerCoursesSyncedSuccessfullyMessage,
+        } as CdnSynchronizerCourseSyncedSuccessfullyMessage,
     },
-    [WinstonLog.CdnSynchronizerCoursesSyncFailed]: {
-        name: WinstonLog.CdnSynchronizerCoursesSyncFailed,
+    [WinstonLog.CdnSynchronizerCourseSyncFailed]: {
+        name: WinstonLog.CdnSynchronizerCourseSyncFailed,
         level: WinstonLevel.Error,
         loki: true,
         console: true,
         messageType: {
-        } as CdnSynchronizerCoursesSyncFailedMessage,
+        } as CdnSynchronizerCourseSyncFailedMessage,
     },
-    [WinstonLog.CdnSynchronizerCoursesSyncFailedAttempt]: {
-        name: WinstonLog.CdnSynchronizerCoursesSyncFailedAttempt,
+    [WinstonLog.CdnSynchronizerCourseSyncFailedAttempt]: {
+        name: WinstonLog.CdnSynchronizerCourseSyncFailedAttempt,
         level: WinstonLevel.Warn,
         loki: true,
         console: true,
         messageType: {
-        } as CdnSynchronizerCoursesSyncFailedAttemptMessage,
+        } as CdnSynchronizerCourseSyncFailedAttemptMessage,
     },
-    [WinstonLog.CdnSynchronizerCoursesSyncFailedMaxRetriesReached]: {
-        name: WinstonLog.CdnSynchronizerCoursesSyncFailedMaxRetriesReached,
+    [WinstonLog.CdnSynchronizerCourseSyncFailedMaxRetriesReached]: {
+        name: WinstonLog.CdnSynchronizerCourseSyncFailedMaxRetriesReached,
         level: WinstonLevel.Error,
         loki: true,
         console: true,
         messageType: {
-        } as CdnSynchronizerCoursesSyncFailedMaxRetriesReachedMessage,
+        } as CdnSynchronizerCourseSyncFailedMaxRetriesReachedMessage,
     },
 }

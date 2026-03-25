@@ -2,8 +2,8 @@
 export enum WinstonLog {
     CoursesSeededSuccessfully = "CoursesSeededSuccessfully",
     CdnSynchronizerCoursesSyncing = "CdnSynchronizerCoursesSyncing",
-    CdnSynchronizerCoursesSyncedSuccessfully = "CdnSynchronizerCoursesSyncedSuccessfully",
-    CdnSynchronizerCoursesSyncFailed = "CdnSynchronizerCoursesSyncFailed",
-    CdnSynchronizerCoursesSyncFailedMaxRetriesReached = "CdnSynchronizerCoursesSyncFailedMaxRetriesReached",
-    CdnSynchronizerCoursesSyncFailedAttempt = "CdnSynchronizerCoursesSyncFailedAttempt",
+    CdnSynchronizerCourseSyncedSuccessfully = "CdnSynchronizerCourseSyncedSuccessfully",
+    CdnSynchronizerCourseSyncFailed = "CdnSynchronizerCourseSyncFailed",
+    CdnSynchronizerCourseSyncFailedMaxRetriesReached = "CdnSynchronizerCourseSyncFailedMaxRetriesReached",
+    CdnSynchronizerCourseSyncFailedAttempt = "CdnSynchronizerCourseSyncFailedAttempt",
 }
