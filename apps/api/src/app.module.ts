@@ -30,6 +30,15 @@ import {
 import {
     PrimaryPostgresqlModule
 } from "@modules/databases"
+import {
+    S3Module
+} from "@modules/s3"
+import {
+    CdnSynchronizerModule
+} from "@features/cdn-synchronizer"
+import {
+    ScheduleModule
+} from "@nestjs/schedule"
 
 /**
  * The main module for the application.
@@ -56,8 +65,24 @@ import {
                     isGlobal: true,
                 }
             ),
+            /** Schedule module. */
+            ScheduleModule.forRoot(),
+            /** Winston module. */
+            WinstonModule.register(
+                {
+                    serviceName: ServiceName.Api,
+                    level: WinstonLevel.Info,
+                    isGlobal: true,
+                }
+            ),
             /** Mount filesystem module. */
             FilesystemModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** S3 module. */
+            S3Module.register(
                 {
                     isGlobal: true,
                 }
@@ -82,6 +107,12 @@ import {
             ),
             /** Throttler module. */
             ThrottlerModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Cdn Synchronizer module. */
+            CdnSynchronizerModule.register(
                 {
                     isGlobal: true,
                 }

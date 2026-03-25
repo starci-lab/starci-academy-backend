@@ -6,6 +6,7 @@ import {
     parseEnvInt,
     parseEnvBoolean,
     parseEnvFloat,
+    parseEnvMs,
 } from "./utils/parse-env"
 
 /**
@@ -36,6 +37,15 @@ export const envConfig = () => ({
                 key: "GITHUB_WORKER_PORT",
                 defaultValue: 3002,
             }),
+        },
+        /** Cdn Synchronizer service configuration. */
+        cdnSynchronizer: {
+            syncIntervalMs: {
+                courses: parseEnvMs({
+                    key: "CDN_SYNCHRONIZER_COURSES_SYNC_INTERVAL_MS",
+                    defaultValue: "10s",
+                }),
+            },
         },
     },
     /** Loki configuration. */
@@ -276,6 +286,29 @@ export const envConfig = () => ({
                 defaultValue: 2,
             }),
         },
+    },
+    /** S3 configuration. */
+    s3: {
+        endpoint: parseEnvString({
+            key: "S3_ENDPOINT",
+            defaultValue: "https://sgp1.digitaloceanspaces.com",
+        }),
+        region: parseEnvString({
+            key: "S3_REGION",
+            defaultValue: "",
+        }),
+        accessKeyId: parseEnvString({
+            key: "S3_ACCESS_KEY_ID",
+            defaultValue: "",
+        }),
+        secretAccessKey: parseEnvString({
+            key: "S3_SECRET_ACCESS_KEY",
+            defaultValue: "",
+        }),
+        bucket: parseEnvString({
+            key: "S3_BUCKET",
+            defaultValue: "starci-academy",
+        }),
     },
 }
 )
