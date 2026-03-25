@@ -1,12 +1,16 @@
 import {
+    sleep 
+} from "@modules/common"
+import {
     CourseEntity,
-    InjectPrimaryPostgresqlEntityManager 
+    InjectPrimaryPostgresqlEntityManager,
 } from "@modules/databases"
 import {
     envConfig 
 } from "@modules/env"
 import {
-    S3UploadService 
+    S3BuildService,
+    S3UploadService,
 } from "@modules/s3"
 import {
     WinstonLog,
@@ -14,7 +18,7 @@ import {
 } from "@modules/winston"
 import {
     Injectable,
-    OnApplicationBootstrap
+    OnApplicationBootstrap,
 } from "@nestjs/common"
 import {
     Interval 
@@ -22,34 +26,153 @@ import {
 import {
     EntityManager 
 } from "typeorm"
-
+  
 /**
- * Service for syncing courses to S3.
+ * Service for synchronizing courses to the CDN.
  */
 @Injectable()
 export class CoursesSyncService implements OnApplicationBootstrap {
+    private isSyncing = false
+  
     constructor(
-        private readonly s3UploadService: S3UploadService,
-        @InjectPrimaryPostgresqlEntityManager()
-        private readonly entityManager: EntityManager,
-        private readonly winstonService: WinstonService,
+      private readonly s3UploadService: S3UploadService,
+      private readonly s3BuildService: S3BuildService,
+      @InjectPrimaryPostgresqlEntityManager()
+      private readonly entityManager: EntityManager,
+      private readonly winstonService: WinstonService,
     ) {}
-
+  
     /**
-     * On application bootstrap.
+     * Run the sync cycle on application bootstrap.
      */
     async onApplicationBootstrap() {
-        await this.sync()
+        await this.runSyncCycle()
     }
 
     /**
-     * Sync courses to S3.
+     * Run the sync cycle on a regular interval.
      */
-    async sync() {
-        try {
-            const courses = await this.entityManager.find(
-                CourseEntity,
+    @Interval(envConfig().services.cdnSynchronizer.syncIntervalMs.courses)
+    async handleSyncInterval() {
+        await this.runSyncCycle()
+    }
+  
+    /**
+     * Run the sync cycle.
+     */
+    private async runSyncCycle() {
+        if (this.isSyncing) {
+            this.winstonService.log(
+                WinstonLog.CdnSynchronizerCoursesSyncing,
                 {
+                },
+            )
+            return
+        }
+        this.isSyncing = true
+        try {
+            await this.syncSequentially()
+        } catch (error) {
+            this.winstonService.log(
+                WinstonLog.CdnSynchronizerCoursesSyncFailed,
+                {
+                    error: error.message,
+                },
+            )
+        } finally {
+            this.isSyncing = false
+        }
+    }
+  
+    /**
+     * Sync all courses sequentially.
+     */
+    private async syncSequentially() {
+        const courses = await this.entityManager.find(CourseEntity,
+            {
+                select: ["id"],
+                order: {
+                    id: "ASC",  
+                },
+            })
+  
+        for (const course of courses) {
+            const success = await this.syncOneWithRetry(course.id)
+  
+            if (success) {
+                this.winstonService.log(
+                    WinstonLog.CdnSynchronizerCoursesSyncedSuccessfully,
+                    {
+                        id: course.id,
+                    },
+                )
+            }
+        }
+    }
+  
+    /**
+     * Sync one course to S3 and update the database with retry.
+     * @param id - The ID of the course to sync.
+     * @returns True if the course was synced successfully, false otherwise.
+     */
+    private async syncOneWithRetry(
+        id: string
+    ): Promise<boolean> {
+        // Retry the sync operation up to a maximum number of times.
+        const maxRetries = envConfig().services.cdnSynchronizer.retries.courses.maxRetries
+        const retryDelayMs = envConfig().services.cdnSynchronizer.retries.courses.retryDelayMs
+        
+        // Iterate through the retry attempts.
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            // Sync the course.
+            const cdnUrl = await this.syncOne(id)
+  
+            if (cdnUrl) {
+                // If the course was synced successfully, return true.
+                return true
+            }
+  
+            // Log the failed attempt.
+            this.winstonService.log(
+                WinstonLog.CdnSynchronizerCoursesSyncFailedAttempt,
+                {
+                    id,
+                    attempt,
+                    maxRetries,
+                },
+            )
+  
+            if (attempt < maxRetries) {
+                // Wait for the retry delay.
+                await sleep(retryDelayMs)
+            }
+        }
+  
+        // Log that the course was not synced successfully because the maximum number of retries was reached.
+        this.winstonService.log(
+            WinstonLog.CdnSynchronizerCoursesSyncFailedMaxRetriesReached,
+            {
+                id,
+                maxRetries,
+            },
+        )
+
+        // Return false because the course was not synced successfully.
+        return false
+    }
+  
+    /**
+     * Sync one course to S3 and update the database.
+     * @param id - The ID of the course to sync.
+     * @returns The CDN URL of the course.
+     */
+    async syncOne(id: string): Promise<string | null> {
+        try {
+            const course = await this.entityManager.findOne(CourseEntity,
+                {
+                    where: {
+                        id 
+                    },
                     relations: {
                         prerequisites: true,
                         qnas: true,
@@ -60,29 +183,41 @@ export class CoursesSyncService implements OnApplicationBootstrap {
                             submissions: true,
                         },
                     },
-                }
-            )
-            const coursesJson = JSON.stringify(courses)
+                })
+  
+            if (!course) return null
+  
+            const courseJson = JSON.stringify(course)
+            const s3ObjectName = `courses-${id}.json`
+  
             await this.s3UploadService.json(
-                "courses",
-                coursesJson
+                s3ObjectName,
+                courseJson,
             )
+  
+            const cdnUrl = this.s3BuildService.buildPublicObjectUrl(s3ObjectName)
+  
+            await this.entityManager.update(
+                CourseEntity,
+                {
+                    id 
+                },
+                {
+                    cdnUrl 
+                },
+            )
+  
+            return cdnUrl
         } catch (error) {
             this.winstonService.log(
                 WinstonLog.CdnSynchronizerCoursesSyncFailed,
                 {
-                    error:  error.message,
-                }
+                    id,
+                    error: error.message,
+                },
             )
+  
+            return null
         }
     }
-
-    /**
-     * Sync courses to S3 every interval.
-     */
-    @Interval(envConfig().services.cdnSynchronizer.syncIntervalMs.courses)
-    async handleSyncInterval() {
-        await this.sync()
-    }
 }
-

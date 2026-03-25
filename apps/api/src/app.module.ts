@@ -71,7 +71,7 @@ import {
             WinstonModule.register(
                 {
                     serviceName: ServiceName.Api,
-                    level: WinstonLevel.Info,
+                    level: WinstonLevel.Verbose,
                     isGlobal: true,
                 }
             ),

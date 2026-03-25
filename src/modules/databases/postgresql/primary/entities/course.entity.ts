@@ -54,6 +54,19 @@ export class CourseEntity extends StringAbstractEntity {
     })
         description: string | null
 
+    @Field(() => String,
+        {
+            nullable: true,
+            description: "Public CDN URL pointing to the course JSON on S3."
+        })
+    @Column({
+        name: "cdn_url",
+        type: "varchar",
+        length: 2048,
+        nullable: true
+    })
+        cdnUrl: string | null
+
     @Field(() => [PrerequisiteEntity])
     @OneToMany(() => PrerequisiteEntity,
         (row: PrerequisiteEntity) => row.course,

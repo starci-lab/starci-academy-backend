@@ -36,7 +36,7 @@ export class S3UploadService {
         return this.s3.send(
             new PutObjectCommand({
                 Bucket: envConfig().s3.bucket,
-                Key: `${name}.json`,
+                Key: name,
                 Body: json,
                 ACL: "public-read",
                 ContentType: "application/json",

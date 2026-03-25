@@ -46,6 +46,18 @@ export const envConfig = () => ({
                     defaultValue: "10s",
                 }),
             },
+            retries: {
+                courses: {
+                    maxRetries: parseEnvInt({
+                        key: "CDN_SYNCHRONIZER_COURSES_SYNC_MAX_RETRIES",
+                        defaultValue: 3,
+                    }),
+                    retryDelayMs: parseEnvMs({
+                        key: "CDN_SYNCHRONIZER_COURSES_SYNC_RETRY_DELAY_MS",
+                        defaultValue: "5s",
+                    }),
+                },
+            },
         },
     },
     /** Loki configuration. */
