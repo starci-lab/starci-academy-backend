@@ -169,7 +169,8 @@ export class CoursesSyncService implements OnApplicationBootstrap {
     async syncOne(id: string): Promise<string | null> {
         try {
             // Get the course from the database.
-            const course = await this.entityManager.findOne(CourseEntity,
+            const course = await this.entityManager.findOne(
+                CourseEntity,
                 {
                     where: {
                         id 
@@ -184,7 +185,8 @@ export class CoursesSyncService implements OnApplicationBootstrap {
                             submissions: true,
                         },
                     },
-                })
+                }
+            )
   
             // If the course is not found, return null.
             if (!course) return null
