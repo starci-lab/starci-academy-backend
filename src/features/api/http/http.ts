@@ -1,0 +1,29 @@
+/**
+ * Configuration for the HTTP module.
+ * @returns The configuration for the HTTP module.
+ */
+export const httpConfig = () => ({
+    // keycloak configuration
+    keycloak: () => {
+        // tags for the keycloak module
+        const keycloakTags = "keycloak"
+        return {
+            tags: keycloakTags,
+            // google configuration
+            google: () => {
+                // tags for the google module
+                const googleTags = `${keycloakTags}/google`
+                return {
+                    tags: googleTags,
+                    // callback configuration
+                    callback: () => {
+                        // path for the callback endpoint
+                        return {
+                            path: "callback",
+                        }
+                    }
+                }
+            }
+        }
+    }
+})

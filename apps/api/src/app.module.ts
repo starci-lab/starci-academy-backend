@@ -39,6 +39,9 @@ import {
 import {
     ScheduleModule
 } from "@nestjs/schedule"
+import {
+    ApiModule
+} from "@features/api"
 
 /**
  * The main module for the application.
@@ -113,6 +116,12 @@ import {
             ),
             /** Cdn Synchronizer module. */
             CdnSynchronizerModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Api module. */
+            ApiModule.register(
                 {
                     isGlobal: true,
                 }

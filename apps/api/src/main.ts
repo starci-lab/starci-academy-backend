@@ -49,6 +49,7 @@ const bootstrap = async () => {
         description: "Starci Academy API provides secure and structured access to the core backend services.",
         version: "1.0.0",
         basePath: "/api",
+        useScalarDocs: true,
         swaggerEndpoint: "/swagger",
         scalarDocsEndpoint: "/scalar",
         enableAuthentication: true,

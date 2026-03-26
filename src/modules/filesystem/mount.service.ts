@@ -6,6 +6,8 @@ import {
 } from "./types"
 import {
     getAppConfig,
+    getKeycloakClientSecret,
+    getS3SecretAccessKey,
 } from "./utils"
 /**
  * Service responsible for reading secrets mounted into the container filesystem.
@@ -19,7 +21,24 @@ import {
  */
 @Injectable()
 export class MountFilesystemService {
+    /**
+     * Get app config (from mount path or provided value).
+     */
     appConfig(): AppConfig {
         return getAppConfig()
+    }
+
+    /**
+     * Get keycloak client secret (from mount path or provided value).
+     */
+    keycloakClientSecret(): string {
+        return getKeycloakClientSecret()
+    }
+
+    /**
+     * Get S3 secret access key (from mount path or provided value).
+     */
+    s3SecretAccessKey(): string {
+        return getS3SecretAccessKey()
     }
 }

@@ -53,6 +53,7 @@
     "ioredis": "^5.10.1",
     "iovalkey": "^0.3.3",
     "jsonwebtoken": "^9.0.3",
+    "keycloak-js": "^26.2.3",
     "langchain": "^0.3.37",
     "lodash": "^4.17.23",
     "lokijs": "^1.5.12",

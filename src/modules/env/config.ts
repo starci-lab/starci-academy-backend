@@ -176,8 +176,8 @@ export const envConfig = () => ({
         },
     },
     /** Mount path configuration. */
-    /** File paths: app config. */
     mountPath: {
+        /** File paths: app config. */
         config: {
             app: parseEnvString({
                 key: "CONFIG_APP_MOUNT_PATH",
@@ -186,6 +186,23 @@ export const envConfig = () => ({
                     "config",
                     "app.json"),
             })
+        },
+        /** File paths: terraform secrets. */
+        terraform: {
+            s3SecretAccessKey: parseEnvString({
+                key: "TERRAFORM_S3_SECRET_ACCESS_KEY_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "s3-secret-access-key.key"),
+            }),
+            keycloakClientSecret: parseEnvString({
+                key: "TERRAFORM_KEYCLOAK_CLIENT_SECRET_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "keycloak-client-secret.key"),
+            }),
         },
     },
     /** CORS: allowed origins (CORS_ORIGIN_1 … CORS_ORIGIN_10, empty skipped). */
@@ -320,6 +337,21 @@ export const envConfig = () => ({
         bucket: parseEnvString({
             key: "S3_BUCKET",
             defaultValue: "starci-academy",
+        }),
+    },
+    /** Keycloak configuration. */
+    keycloak: {
+        url: parseEnvString({
+            key: "KEYCLOAK_URL",
+            defaultValue: "https://localhost:8089",
+        }),
+        realm: parseEnvString({
+            key: "KEYCLOAK_REALM",
+            defaultValue: "master",
+        }),
+        clientId: parseEnvString({
+            key: "KEYCLOAK_CLIENT_ID",
+            defaultValue: "academy-web",
         }),
     },
 }
