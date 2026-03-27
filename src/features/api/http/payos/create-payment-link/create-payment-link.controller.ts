@@ -23,6 +23,10 @@ import {
     RestSuccessMessage,
     RestTransformInterceptor,
 } from "@modules/api"
+import {
+    ApiOperation 
+} from "@nestjs/swagger"
+
 
 /**
  * payOS create payment link HTTP route.
@@ -45,6 +49,11 @@ export class CreatePaymentLinkController {
      */
     @RestSuccessMessage("Payment link has been created successfully.")
     @UseInterceptors(RestTransformInterceptor)
+    @ApiOperation({
+        summary: "Create payment link",
+        description: "Create a payment link for development purposes.",
+        deprecated: true,
+    })
     @ApiResponse(
         {
             status: 201,

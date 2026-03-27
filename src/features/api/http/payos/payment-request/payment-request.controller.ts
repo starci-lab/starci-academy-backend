@@ -6,6 +6,7 @@ import {
 } from "@nestjs/common"
 import {
     ApiResponse,
+    ApiOperation,
 } from "@nestjs/swagger"
 import {
     RestSuccessMessage,
@@ -44,6 +45,11 @@ export class PaymentRequestController {
     @UseInterceptors(
         RestTransformInterceptor,
     )
+    @ApiOperation({
+        summary: "Get payment request information from payOS",
+        description: "Get payment request information from payOS for development purposes.",
+        deprecated: true,
+    })
     @ApiResponse(
         {
             status: 200,

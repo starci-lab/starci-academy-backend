@@ -6,6 +6,7 @@ import {
 } from "@nestjs/common"
 import {
     ApiResponse,
+    ApiOperation,
 } from "@nestjs/swagger"
 import {
     RestTransformInterceptor,
@@ -38,6 +39,10 @@ export class PayosWebhookController {
     @UseInterceptors(
         RestTransformInterceptor,
     )
+    @ApiOperation({
+        summary: "Webhook from payOS",
+        description: "Webhook from payOS to verify the payment request.",
+    })
     @ApiResponse(
         {
             status: 201,

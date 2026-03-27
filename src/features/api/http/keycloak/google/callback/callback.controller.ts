@@ -20,6 +20,9 @@ import {
 import {
     httpConfig,
 } from "../../../http"
+import {
+    ApiOperation 
+} from "@nestjs/swagger"
 /**
  * Controller for the Keycloak Google callback.
  */
@@ -45,6 +48,10 @@ export class KeycloakGoogleCallbackController {
     @UseInterceptors(
         RestTransformInterceptor,
     )
+    @ApiOperation({
+        summary: "Google Keycloak callback (Development Only)",
+        description: "Google Keycloak callback for development purposes.",
+    })
     @ApiResponse(
         {
             status: 200,
