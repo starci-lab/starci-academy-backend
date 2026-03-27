@@ -12,7 +12,8 @@ import {
 } from "@modules/env"
 import {
     KeycloakExchangeCodeForTokenParams,
-    KeycloakExchangeCodeForTokenResponse 
+    KeycloakExchangeCodeForTokenResponse,
+    KeycloakTokenIntrospectResponse,
 } from "./types"
 import {
     MountStorageService 
@@ -59,6 +60,28 @@ export class KeycloakTokenService {
                     "Content-Type": "application/x-www-form-urlencoded",
                 },
             }
+        )
+        return response.data
+    }
+
+    /**
+     * Verifies an access token.
+     * @param token - The access token.
+     * @returns The payload of the token.
+     */
+    async verifyAccessToken(token: string): Promise<KeycloakTokenIntrospectResponse> {
+        const response = await this.axiosInstance.post<KeycloakTokenIntrospectResponse>(
+            `${envConfig().keycloak.url}/realms/${envConfig().keycloak.realm}/protocol/openid-connect/token/introspect`,
+            new URLSearchParams({
+                token,
+                client_id: envConfig().keycloak.clientId,
+                client_secret: this.mountStorageService.keycloakClientSecret,
+            }),
+            {
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+            },
         )
         return response.data
     }

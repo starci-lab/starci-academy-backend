@@ -8,5 +8,5 @@ export interface AppConfigPayos {
 export interface AppConfig {
     sentryDsn: string
     /** Optional; when set, overrides {@link envConfig}.payos for client id and checksum key. */
-    payos?: AppConfigPayos
+    payos: AppConfigPayos
 }

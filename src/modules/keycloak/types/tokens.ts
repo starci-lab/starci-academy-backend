@@ -131,4 +131,26 @@ export interface KeycloakJwtPayload {
         roles: Array<string>
       }
     }
-  }
+}
+
+/**
+ * Response payload from Keycloak token introspection endpoint.
+ */
+export interface KeycloakTokenIntrospectResponse extends Partial<KeycloakJwtPayload> {
+    /**
+     * Whether token is active.
+     */
+    active: boolean
+    /**
+     * Client id that issued/owns the token.
+     */
+    client_id?: string
+    /**
+     * Username associated with the token.
+     */
+    username?: string
+    /**
+     * Token type (typically "Bearer").
+     */
+    token_type?: string
+}

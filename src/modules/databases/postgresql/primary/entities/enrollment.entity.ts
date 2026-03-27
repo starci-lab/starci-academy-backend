@@ -7,6 +7,7 @@ import {
     JoinColumn,
     ManyToOne,
     Unique,
+    Column,
 } from "typeorm"
 import {
     UuidAbstractEntity,
@@ -62,4 +63,24 @@ export class EnrollmentEntity extends UuidAbstractEntity {
         name: "course_id",
     })
         course: CourseEntity
+
+    @Field(() => String,
+        {
+            description: "The ID of the user who enrolled in the course."
+        })
+    @Column({
+        name: "user_id",
+        type: "varchar",
+    })
+        userId: string
+
+    @Field(() => String,
+        {
+            description: "The ID of the course that the user enrolled in."
+        })
+    @Column({
+        name: "course_id",
+        type: "varchar",
+    })
+        courseId: string
 }
