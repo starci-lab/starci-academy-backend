@@ -339,6 +339,33 @@ export const envConfig = () => ({
             defaultValue: "starci-academy",
         }),
     },
+    /** PayOS (merchant API + S3 snapshots). */
+    payos: {
+        s3Prefix: parseEnvString({
+            key: "PAYOS_S3_PREFIX",
+            defaultValue: "payos/",
+        }),
+        clientId: parseEnvString({
+            key: "PAYOS_CLIENT_ID",
+            defaultValue: "",
+        }),
+        apiKey: parseEnvString({
+            key: "PAYOS_API_KEY",
+            defaultValue: "",
+        }),
+        checksumKey: parseEnvString({
+            key: "PAYOS_CHECKSUM_KEY",
+            defaultValue: "",
+        }),
+        baseUrl: parseEnvString({
+            key: "PAYOS_API_BASE_URL",
+            defaultValue: "https://api-merchant.payos.vn",
+        }),
+        partnerCode: parseEnvString({
+            key: "PAYOS_PARTNER_CODE",
+            defaultValue: "",
+        }),
+    },
     /** Keycloak configuration. */
     keycloak: {
         url: parseEnvString({
@@ -370,6 +397,17 @@ export const envConfig = () => ({
                 defaultValue: "1s",
             }),
         },
+    },
+    /** BullMQ configuration. */
+    bullmq: {
+        attempts: parseEnvInt({
+            key: "BULLMQ_ATTEMPTS",
+            defaultValue: 3,
+        }),
+        delay: parseEnvMs({
+            key: "BULLMQ_DELAY",
+            defaultValue: "1s",
+        }),
     },
 }
 )

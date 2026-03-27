@@ -7,6 +7,9 @@ import {
 import {
     KeycloakModule,
 } from "./keycloak"
+import {
+    PayosModule,
+} from "./payos"
 
 /**
  * Module for the HTTP.
@@ -14,6 +17,9 @@ import {
 @Module({
     imports: [
         KeycloakModule.register({
+            isGlobal: true,
+        }),
+        PayosModule.register({
             isGlobal: true,
         }),
     ],

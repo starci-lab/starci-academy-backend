@@ -3,6 +3,22 @@
  * @returns The configuration for the HTTP module.
  */
 export const httpConfig = () => ({
+    /** payOS HTTP routes (under global `/api`, version `v1`). */
+    payos: () => {
+        const tags = "payos"
+        return {
+            tags,
+            createPaymentLink: () => ({
+                path: "create-payment-link",
+            }),
+            paymentRequest: () => ({
+                path: "payment-requests",
+            }),
+            webhook: () => ({
+                path: "webhook",
+            }),
+        }
+    },
     // keycloak configuration
     keycloak: () => {
         // tags for the keycloak module

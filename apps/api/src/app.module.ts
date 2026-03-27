@@ -37,6 +37,9 @@ import {
     S3Module
 } from "@modules/s3"
 import {
+    PayOSModule
+} from "@modules/payos"
+import {
     CdnSynchronizerModule
 } from "@features/cdn-synchronizer"
 import {
@@ -57,6 +60,9 @@ import {
 import {
     APP_PIPE 
 } from "@nestjs/core"
+import {
+    BullModule
+} from "@modules/bullmq"
 
 /**
  * The main module for the application.
@@ -115,6 +121,12 @@ import {
                     isGlobal: true,
                 }
             ),
+            /** PayOS module (uses S3 for snapshots). */
+            PayOSModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
             /** Primary PostgreSQL module. */
             PrimaryPostgresqlModule.register(
                 {
@@ -141,6 +153,12 @@ import {
             ),
             /** Throttler module. */
             ThrottlerModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** BullMQ module. */
+            BullModule.forRoot(
                 {
                     isGlobal: true,
                 }
