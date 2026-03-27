@@ -7,23 +7,25 @@ import {
     OPTIONS_TYPE,
 } from "./payos.module-definition"
 import {
-    PayOSService,
-} from "./payos.service"
+    createPayosProvider,
+} from "./payos.providers"
 
-@Module({})
+@Module({
+})
 export class PayOSModule extends ConfigurableModuleClass {
     static register(
         options: typeof OPTIONS_TYPE,
     ): DynamicModule {
         const dynamicModule = super.register(options)
+        const payosSdkProvider = createPayosProvider()
         return {
             ...dynamicModule,
             providers: [
                 ...(dynamicModule.providers ?? []),
-                PayOSService,
+                payosSdkProvider,
             ],
             exports: [
-                PayOSService,
+                payosSdkProvider,
             ],
         }
     }

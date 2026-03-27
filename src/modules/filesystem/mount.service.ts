@@ -51,4 +51,14 @@ export class MountFilesystemService {
             "utf8"
         )
     }
+
+    /**
+     * Get payos api key from mount path.
+     */
+    payosApiKey(): string {
+        return readFileSync(
+            envConfig().mountPath.terraform.payosApiKey,
+            "utf8"
+        )
+    }
 }

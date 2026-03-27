@@ -203,6 +203,13 @@ export const envConfig = () => ({
                     "terraform",
                     "keycloak-client-secret.key"),
             }),
+            payosApiKey: parseEnvString({
+                key: "TERRAFORM_PAYOS_API_KEY_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "payos-api-key.key"),
+            }),
         },
     },
     /** CORS: allowed origins (CORS_ORIGIN_1 … CORS_ORIGIN_10, empty skipped). */
@@ -357,14 +364,6 @@ export const envConfig = () => ({
             key: "PAYOS_CHECKSUM_KEY",
             defaultValue: "",
         }),
-        baseUrl: parseEnvString({
-            key: "PAYOS_API_BASE_URL",
-            defaultValue: "https://api-merchant.payos.vn",
-        }),
-        partnerCode: parseEnvString({
-            key: "PAYOS_PARTNER_CODE",
-            defaultValue: "",
-        }),
     },
     /** Keycloak configuration. */
     keycloak: {
@@ -408,6 +407,27 @@ export const envConfig = () => ({
             key: "BULLMQ_DELAY",
             defaultValue: "1s",
         }),
+    },
+    /** Apollo configuration. */
+    apollo: {
+        timeout: parseEnvMs({
+            key: "APOLLO_TIMEOUT",
+            defaultValue: "10s",
+        }),
+        retry: {
+            initial: parseEnvMs({
+                key: "APOLLO_RETRY_INITIAL",
+                defaultValue: "1s",
+            }),
+            max: parseEnvMs({
+                key: "APOLLO_RETRY_MAX",
+                defaultValue: "10s",
+            }),
+            jitter: parseEnvBoolean({
+                key: "APOLLO_RETRY_JITTER",
+                defaultValue: true,
+            }),
+        },
     },
 }
 )

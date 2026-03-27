@@ -2,10 +2,21 @@ import {
     Controller,
     Get,
     Query,
+    UseInterceptors,
 } from "@nestjs/common"
+import {
+    ApiResponse,
+} from "@nestjs/swagger"
+import {
+    RestSuccessMessage,
+    RestTransformInterceptor,
+} from "@modules/api"
 import {
     KeycloakGoogleCallbackService 
 } from "./callback.service"
+import {
+    KeycloakGoogleCallbackResponse,
+} from "./dtos"
 import {
     httpConfig,
 } from "../../../http"
@@ -30,6 +41,17 @@ export class KeycloakGoogleCallbackController {
      * @param res - The response object.
      * @returns The result of the callback.
      */
+    @RestSuccessMessage("User tokens after successful OAuth exchange.")
+    @UseInterceptors(
+        RestTransformInterceptor,
+    )
+    @ApiResponse(
+        {
+            status: 200,
+            description: "User tokens after successful OAuth exchange.",
+            type: KeycloakGoogleCallbackResponse,
+        },
+    )
     @Get(httpConfig().keycloak().google().callback().path)
     async callback(
         /**

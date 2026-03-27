@@ -16,6 +16,7 @@ export class MountStorageService implements OnModuleInit {
     public appConfig: AppConfig 
     public s3SecretAccessKey: string
     public keycloakClientSecret: string
+    public payosApiKey: string
     constructor(
         private readonly mountFilesystemService: MountFilesystemService,
         private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
@@ -29,6 +30,8 @@ export class MountStorageService implements OnModuleInit {
         this.s3SecretAccessKey = this.mountFilesystemService.s3SecretAccessKey()
         // get keycloak client secret from mount filesystem service
         this.keycloakClientSecret = this.mountFilesystemService.keycloakClientSecret()
+        // get payos api key from mount filesystem service
+        this.payosApiKey = this.mountFilesystemService.payosApiKey()
         // set readiness watcher to true
         this.readinessWatcherFactoryService.setReady(MountStorageService.name)
     }

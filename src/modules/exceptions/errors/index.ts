@@ -1,2 +1,3 @@
 export * from "./abstract"
 export * from "./mixin"
+export * from "./pagination"

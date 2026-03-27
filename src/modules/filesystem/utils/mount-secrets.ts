@@ -28,3 +28,13 @@ export const getS3SecretAccessKey = (): string => {
     return readFileSync(envConfig().mountPath.terraform.s3SecretAccessKey,
         "utf8")
 }
+
+/**
+ * Get PayOS API key (from terraform mount path).
+ */
+export const getPayosApiKey = (): string => {
+    return readFileSync(
+        envConfig().mountPath.terraform.payosApiKey,
+        "utf8",
+    )
+}

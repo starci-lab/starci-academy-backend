@@ -1,62 +1,51 @@
 import {
-    PayOSService,
-} from "@modules/payos"
-import {
-    envConfig,
-} from "@modules/env"
-import {
     BadRequestException,
     Injectable,
-    ServiceUnavailableException,
 } from "@nestjs/common"
 import {
-    verifyPaymentWebhookSignature,
-} from "../utils/payos-signature"
+    InjectPayOS,
+} from "@modules/payos"
+import {
+    PayOS,
+    WebhookError,
+} from "@payos/node"
 import {
     PayosWebhookRequest,
     PayosWebhookResponse,
 } from "./dtos"
 
 /**
- * Verifies payOS webhook signatures and persists payloads via {@link PayOSService}.
+ * Verifies payOS webhooks via {@link PayOS#webhooks#verify} (checksum/signature handled by the SDK).
+ *
+ * @see https://payos.vn/docs/tich-hop-webhook/kiem-tra-du-lieu-voi-signature/ — SDK: `payOS.webhooks.verify(req.body)`
  */
 @Injectable()
 export class PayosWebhookService {
     constructor(
-        private readonly payosModuleService: PayOSService,
+        @InjectPayOS()
+        private readonly payos: PayOS,
     ) {}
 
     /**
-     * Webhook: verify HMAC signature, then store full payload on S3 keyed by `data.orderCode`.
+     * Validates the webhook payload; throws {@link BadRequestException} when verification fails.
      */
     async webhook(
         body: PayosWebhookRequest,
     ): Promise<PayosWebhookResponse> {
-        const cfg = envConfig().payos
-        if (!cfg.checksumKey) {
-            throw new ServiceUnavailableException(
-                "PAYOS_CHECKSUM_KEY is not configured",
+        try {
+            await this.payos.webhooks.verify(
+                body as Parameters<
+                    PayOS["webhooks"]["verify"]
+                >[0],
             )
+        } catch (unknownError) {
+            if (unknownError instanceof WebhookError) {
+                throw new BadRequestException(
+                    unknownError.message,
+                )
+            }
+            throw unknownError
         }
-        const valid = verifyPaymentWebhookSignature(
-            body.data,
-            body.signature,
-            cfg.checksumKey,
-        )
-        if (!valid) {
-            throw new BadRequestException(
-                "Invalid PayOS webhook signature",
-            )
-        }
-        const rawCode = body.data["orderCode"]
-        const orderId =
-            typeof rawCode === "number" || typeof rawCode === "string"
-                ? String(rawCode)
-                : "unknown"
-        await this.payosModuleService.saveOrderSnapshot(
-            orderId,
-            body,
-        )
         return {
             ok: true,
         }
