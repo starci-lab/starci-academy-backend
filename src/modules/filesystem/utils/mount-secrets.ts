@@ -38,3 +38,4 @@ export const getPayosApiKey = (): string => {
         "utf8",
     )
 }
+

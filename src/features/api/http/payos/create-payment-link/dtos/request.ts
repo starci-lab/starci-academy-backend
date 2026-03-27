@@ -17,30 +17,30 @@ export class CreatePaymentLinkRequest {
     @Type(() => Number)
     @IsInt()
     @Min(1)
-        orderCode!: number
+        orderCode: number
 
     @Type(() => Number)
     @IsInt()
     @Min(1)
-        amount!: number
+        amount: number
 
     @IsString()
     @MaxLength(255)
-        description!: string
+        description: string
 
     @IsUrl(
         {
             require_tld: false,
         },
     )
-        returnUrl!: string
+        returnUrl: string
 
     @IsUrl(
         {
             require_tld: false,
         },
     )
-        cancelUrl!: string
+        cancelUrl: string
 
     @IsOptional()
     @IsString()

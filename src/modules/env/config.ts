@@ -346,25 +346,7 @@ export const envConfig = () => ({
             defaultValue: "starci-academy",
         }),
     },
-    /** PayOS (merchant API + S3 snapshots). */
-    payos: {
-        s3Prefix: parseEnvString({
-            key: "PAYOS_S3_PREFIX",
-            defaultValue: "payos/",
-        }),
-        clientId: parseEnvString({
-            key: "PAYOS_CLIENT_ID",
-            defaultValue: "",
-        }),
-        apiKey: parseEnvString({
-            key: "PAYOS_API_KEY",
-            defaultValue: "",
-        }),
-        checksumKey: parseEnvString({
-            key: "PAYOS_CHECKSUM_KEY",
-            defaultValue: "",
-        }),
-    },
+
     /** Keycloak configuration. */
     keycloak: {
         url: parseEnvString({

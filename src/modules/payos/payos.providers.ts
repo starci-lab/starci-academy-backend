@@ -6,9 +6,7 @@ import {
     PayOS,
 } from "@payos/node"
 import {
-    envConfig,
-} from "@modules/env"
-import {
+    getAppConfig,
     getPayosApiKey,
 } from "@modules/filesystem"
 import {
@@ -22,11 +20,12 @@ export const InjectPayOS = () => Inject(
 export const createPayosProvider = (): Provider<PayOS> => ({
     provide: PAYOS,
     useFactory: (): PayOS => {
+        const app = getAppConfig()
         return new PayOS(
             {
                 apiKey: getPayosApiKey().trim(),
-                checksumKey: envConfig().payos.checksumKey,
-                clientId: envConfig().payos.clientId,
+                checksumKey: app.payos?.checksumKey?.trim(),
+                clientId: app.payos?.clientId?.trim()
             },
         )
     },
