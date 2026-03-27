@@ -12,21 +12,28 @@ import {
     envConfig 
 } from "@modules/env"
 import {
+    getS3SecretAccessKey,
     MountStorageService 
 } from "@modules/filesystem"
+import {
+    ReadinessWatcherFactoryService 
+} from "@modules/mixin"
 
 export const InjectS3 = () => Inject(S3)
 
 export const createS3ServiceProvider = (): Provider<S3Client> => ({
     provide: S3,
-    inject: [MountStorageService],
-    useFactory: (mountStorageService: MountStorageService) => {
+    inject: [
+        MountStorageService,
+        ReadinessWatcherFactoryService
+    ],
+    useFactory: () => {
         return new S3Client({
             endpoint: envConfig().s3.endpoint,
             region: envConfig().s3.region,
             credentials: {
                 accessKeyId: envConfig().s3.accessKeyId,
-                secretAccessKey: mountStorageService.s3SecretAccessKey,
+                secretAccessKey: getS3SecretAccessKey(),
             },
         })
     },

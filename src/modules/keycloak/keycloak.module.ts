@@ -7,14 +7,12 @@ import {
     ConfigurableModuleClass,
     OPTIONS_TYPE,
 } from "./keycloak.module-definition"
-
-import {
-    KeycloakService,
-} from "./keycloak.service"
-
 import {
     KeycloakAuthGuard,
 } from "./keycloak-auth.guard"
+import {
+    KeycloakTokenService
+} from "./token.service"
 
 /**
  * Module for verifying Keycloak-issued access tokens (JWT) via realm JWKS.
@@ -29,11 +27,11 @@ export class KeycloakModule extends ConfigurableModuleClass {
             ...dynamicModule,
             providers: [
                 ...(dynamicModule.providers ?? []),
-                KeycloakService,
+                KeycloakTokenService,
                 KeycloakAuthGuard,
             ],
             exports: [
-                KeycloakService,
+                KeycloakTokenService,
                 KeycloakAuthGuard,
             ],
         }

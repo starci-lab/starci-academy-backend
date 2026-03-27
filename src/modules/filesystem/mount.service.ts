@@ -6,9 +6,13 @@ import {
 } from "./types"
 import {
     getAppConfig,
-    getKeycloakClientSecret,
-    getS3SecretAccessKey,
 } from "./utils"
+import {
+    envConfig 
+} from "@modules/env"
+import {
+    readFileSync 
+} from "fs"
 /**
  * Service responsible for reading secrets mounted into the container filesystem.
  *
@@ -29,16 +33,22 @@ export class MountFilesystemService {
     }
 
     /**
-     * Get keycloak client secret (from mount path or provided value).
+     * Get s3 secret access key from mount path.
      */
-    keycloakClientSecret(): string {
-        return getKeycloakClientSecret()
+    s3SecretAccessKey(): string {
+        return readFileSync(
+            envConfig().mountPath.terraform.s3SecretAccessKey,
+            "utf8"
+        )
     }
 
     /**
-     * Get S3 secret access key (from mount path or provided value).
+     * Get keycloak client secret from mount path.
      */
-    s3SecretAccessKey(): string {
-        return getS3SecretAccessKey()
+    keycloakClientSecret(): string {
+        return readFileSync(
+            envConfig().mountPath.terraform.keycloakClientSecret,
+            "utf8"
+        )
     }
 }

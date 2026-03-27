@@ -1,37 +1,134 @@
-import type {
-    JwtPayload,
-} from "jsonwebtoken"
-
-import type {
-    KeycloakJwtClaims,
-} from "./claims"
-
 /**
- * JWT header information extracted from the access token.
+ * Request body for exchanging a code for a token.
  */
-export interface KeycloakJwtHeader {
-    kid?: string
-    alg?: string
+export interface KeycloakExchangeCodeForTokenParams {
+    /**
+     * The code parameter received from the Google OAuth2 authorization flow.
+     */
+    code: string
 }
 
 /**
- * Result of `jsonwebtoken.decode(token, { complete: true })`.
- * We only care about the `header` part.
+ * Response from Keycloak for exchanging a code for a token.
  */
-export interface KeycloakJwtDecodedComplete {
-    header?: KeycloakJwtHeader
+export interface KeycloakExchangeCodeForTokenResponse {
+    /**
+     * The access token.
+     */
+    access_token: string
+    /**
+     * The expiration time of the access token.
+     */
+    expires_in: number
+    /**
+     * The refresh token.
+     */
+    refresh_token: string
+    /**
+     * The scope of the access token.
+     */
+    scope: string
+    /**
+     * The type of the token.
+     */
+    token_type: string
+    /**
+     * The session state of the token.
+     */
+    session_state: string
 }
 
 /**
- * Verified token returned by `KeycloakService.verifyAccessToken()`.
+ * Payload of the JWT token.
  */
-export interface VerifiedKeycloakToken {
-    claims: KeycloakJwtClaims
-    header: KeycloakJwtHeader
-}
-
-/**
- * Convenience alias for JWT payload type used during verification.
- */
-export type KeycloakJwtPayload = JwtPayload
-
+export interface KeycloakJwtPayload {
+    /**
+     * The expiration time of the token.
+     */
+    exp: number
+    /**
+     * The issuance time of the token.
+     */
+    iat: number
+    /**
+     * The authentication time of the token.
+     */
+    auth_time: number
+    /**
+     * The JWT ID of the token.
+     */
+    jti: string
+    /**
+     * The issuer of the token.
+     */
+    iss: string
+    /**
+     * The audience of the token.
+     */
+    aud: string | Array<string>
+    /**
+     * The subject of the token.
+     */
+    sub: string
+    /**
+     * The type of the token.
+     */
+    typ: string
+    /**
+     * The authorized party of the token.
+     */
+    azp: string
+    /**
+     * The session ID of the token.
+     */
+    sid: string
+    /**
+     * The authentication context class of the token.
+     */
+    acr: string
+    /**
+     * The scope of the token.
+     */
+    scope: string
+    /**
+     * Whether the email is verified.
+     */
+    email_verified: boolean
+    /**
+     * The name of the user.
+     */
+    name: string
+    /**
+     * The preferred username of the user.
+     */
+    preferred_username: string
+    /**
+     * The given name of the user.
+     */
+    given_name: string
+    /**
+     * The family name of the user.
+     */
+    family_name: string
+    /**
+     * The email of the user.
+     */
+    email: string
+    /**
+     * The realm access of the token.
+     */
+    realm_access?: {
+      roles: Array<string>
+    }
+    /**
+     * The resource access of the token.
+     */
+    resource_access?: {
+      [client: string]: {
+        /**
+         * The roles of the client.
+         */
+        roles: Array<string>
+      }
+    }
+  }

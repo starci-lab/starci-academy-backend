@@ -6,12 +6,8 @@ import {
 } from "@nestjs/common"
 
 import {
-    KeycloakService,
-} from "./keycloak.service"
-
-import type {
-    KeycloakRequest,
-} from "./types"
+    KeycloakTokenService,
+} from "./token.service"
 
 @Injectable()
 /**
@@ -19,7 +15,7 @@ import type {
  */
 export class KeycloakAuthGuard implements CanActivate {
     constructor(
-        private readonly keycloak: KeycloakService,
+        private readonly keycloakTokenService: KeycloakTokenService,
     ) { }
     
     /**
@@ -30,7 +26,7 @@ export class KeycloakAuthGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         // Extract request and Authorization header.
         const http = context.switchToHttp()
-        const request = http.getRequest<KeycloakRequest>()
+        const request = http.getRequest()
 
         // Validate Authorization header format.
         const authHeader = request.headers["authorization"]
@@ -46,8 +42,8 @@ export class KeycloakAuthGuard implements CanActivate {
         }
 
         // Verify token and attach claims to request context.
-        const verified = await this.keycloak.verifyAccessToken(token)
-        request.keycloak = verified
+        // const verified = await this.keycloak.verifyAccessToken(token)
+        // request.keycloak = verified
         return true
     }
 }

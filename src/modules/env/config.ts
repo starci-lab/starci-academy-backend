@@ -343,7 +343,7 @@ export const envConfig = () => ({
     keycloak: {
         url: parseEnvString({
             key: "KEYCLOAK_URL",
-            defaultValue: "https://localhost:8089",
+            defaultValue: "http://localhost:8089",
         }),
         realm: parseEnvString({
             key: "KEYCLOAK_REALM",
@@ -353,6 +353,23 @@ export const envConfig = () => ({
             key: "KEYCLOAK_CLIENT_ID",
             defaultValue: "academy-web",
         }),
+        redirectUri: parseEnvString({
+            key: "KEYCLOAK_REDIRECT_URI",
+            defaultValue: "http://localhost:3001/api/v1/keycloak/google/callback",
+        }),
+    },
+    /** Axios configuration. */
+    axios: {
+        retry: {
+            maxRetries: parseEnvInt({
+                key: "AXIOS_RETRY_MAX_RETRIES",
+                defaultValue: 3,
+            }),
+            delay: parseEnvMs({
+                key: "AXIOS_RETRY_DELAY",
+                defaultValue: "1s",
+            }),
+        },
     },
 }
 )

@@ -54,14 +54,16 @@ export class UserEntity extends UuidAbstractEntity {
      */
     @Field(() => String,
         {
-            description: "Email of the user."
+            description: "Email of the user.",
+            nullable: true
         })
     @Column({
         name: "email",
         type: "varchar",
-        length: 255
+        length: 255,
+        nullable: true
     })
-        email: string
+        email?: string
     
     /**
      * Unique identifier of the user in Keycloak.

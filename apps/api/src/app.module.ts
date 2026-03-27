@@ -5,6 +5,9 @@ import {
     Module
 } from "@nestjs/common"
 import {
+    ValidationPipe 
+} from "@nestjs/common"
+import {
     WinstonModule,
     WinstonLevel
 } from "@modules/winston"
@@ -42,6 +45,18 @@ import {
 import {
     ApiModule
 } from "@features/api"
+import {
+    AxiosModule
+} from "@modules/axios"
+import {
+    KeycloakModule
+} from "@modules/keycloak"
+import {
+    JwtModule
+} from "@nestjs/jwt"
+import {
+    APP_PIPE 
+} from "@nestjs/core"
 
 /**
  * The main module for the application.
@@ -68,6 +83,12 @@ import {
                     isGlobal: true,
                 }
             ),
+            /** Axios module. */
+            AxiosModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
             /** Schedule module. */
             ScheduleModule.forRoot(),
             /** Winston module. */
@@ -78,6 +99,10 @@ import {
                     isGlobal: true,
                 }
             ),
+            /** Jwt module. */
+            JwtModule.register({
+                global: true,
+            }),
             /** Mount filesystem module. */
             FilesystemModule.register(
                 {
@@ -97,6 +122,12 @@ import {
                     withSeeders: {
                         manualSeed: false,
                     }
+                }
+            ),
+            /** Keycloak module. */
+            KeycloakModule.register(
+                {
+                    isGlobal: true,
                 }
             ),
             /** IoRedis module. */
@@ -126,6 +157,12 @@ import {
                     isGlobal: true,
                 }
             ),
+        ],
+        providers: [
+            {
+                provide: APP_PIPE,
+                useClass: ValidationPipe,
+            },
         ],
     }
 )

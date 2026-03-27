@@ -14,8 +14,8 @@ import {
 @Injectable()
 export class MountStorageService implements OnModuleInit {
     public appConfig: AppConfig 
-    public keycloakClientSecret: string
     public s3SecretAccessKey: string
+    public keycloakClientSecret: string
     constructor(
         private readonly mountFilesystemService: MountFilesystemService,
         private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
@@ -25,10 +25,10 @@ export class MountStorageService implements OnModuleInit {
         this.readinessWatcherFactoryService.createWatcher(MountStorageService.name)
         // get app config from mount filesystem service
         this.appConfig = this.mountFilesystemService.appConfig()
+        // get s3 secret access key from mount filesystem service
+        this.s3SecretAccessKey = this.mountFilesystemService.s3SecretAccessKey()
         // get keycloak client secret from mount filesystem service
         this.keycloakClientSecret = this.mountFilesystemService.keycloakClientSecret()
-        // get S3 secret access key from mount filesystem service
-        this.s3SecretAccessKey = this.mountFilesystemService.s3SecretAccessKey()
         // set readiness watcher to true
         this.readinessWatcherFactoryService.setReady(MountStorageService.name)
     }
