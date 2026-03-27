@@ -219,8 +219,11 @@ export class CoursesSyncService implements OnApplicationBootstrap {
             }
             // Upload the course JSON to S3.
             await this.s3UploadService.json(
-                s3ObjectName,
-                courseJson,
+                {
+                    name: s3ObjectName,
+                    json: courseJson,
+                    acl: "public-read",
+                },
             )
             // Update the course in the database with the CDN URL.
             await this.entityManager.update(

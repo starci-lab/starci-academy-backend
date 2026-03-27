@@ -355,6 +355,10 @@ export const envConfig = () => ({
     },
     /** S3 configuration. */
     s3: {
+        signedUrlExpiration: parseEnvMs({
+            key: "S3_SIGNED_URL_EXPIRATION",
+            defaultValue: "15m",
+        }),
         endpoint: parseEnvString({
             key: "S3_ENDPOINT",
             defaultValue: "https://sgp1.digitaloceanspaces.com",

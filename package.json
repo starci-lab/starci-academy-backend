@@ -23,6 +23,7 @@
     "@apollo/client": "^4.1.6",
     "@apollo/server": "^5.5.0",
     "@aws-sdk/client-s3": "^3.1016.0",
+    "@aws-sdk/s3-request-presigner": "^3.1018.0",
     "@faker-js/faker": "^10.3.0",
     "@langchain/community": "^0.3.59",
     "@langchain/core": "^0.3.80",
