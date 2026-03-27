@@ -127,6 +127,12 @@ import {
                     isGlobal: true,
                 }
             ),
+            /** BullMQ module. */
+            BullModule.forRoot(
+                {
+                    isGlobal: true,
+                }
+            ),
             /** Primary PostgreSQL module. */
             PrimaryPostgresqlModule.register(
                 {

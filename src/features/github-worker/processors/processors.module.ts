@@ -5,12 +5,27 @@ import {
     ConfigurableModuleClass,
 } from "./processors.module-definition"
 import {
-    TestService,
-} from "./test.service"
+    EnrollModule,
+} from "./enroll"
+import {
+    ProccessGitUrlModule,
+} from "./proccess-git-url"
 
+/**
+ * Module for the processors.
+ */
 @Module({
-    providers: [
-        TestService,
+    imports: [
+        EnrollModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
+        ProccessGitUrlModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
     ],
 })
 export class ProcessorsModule extends ConfigurableModuleClass {}

@@ -11,6 +11,9 @@ import {
 import {
     SubmissionEntity 
 } from "./submission.entity"
+import {
+    EnrollmentEntity,
+} from "./enrollment.entity"
 
 /**
  * Represents an application-level user.
@@ -110,4 +113,15 @@ export class UserEntity extends UuidAbstractEntity {
             cascade: true
         })
         submissions: Array<SubmissionEntity>
+
+    @Field(() => [EnrollmentEntity],
+        {
+            nullable: true,
+        })
+    @OneToMany(() => EnrollmentEntity,
+        (enrollment: EnrollmentEntity) => enrollment.user,
+        {
+            cascade: true,
+        })
+        enrollments: Array<EnrollmentEntity>
 }

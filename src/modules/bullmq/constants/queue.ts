@@ -20,10 +20,16 @@ export function formatWithBraces(prefix: string): string {
  * Each queue has its own prefix and name derived from executor id.
  */
 export const bullData: Record<BullQueueName, BullQueueData> = {
-    [BullQueueName.EnrollCourse]: {
+    [BullQueueName.Enroll]: {
         prefix: formatWithBraces(
             "enroll-course"
         ),
         name: "enroll-course",
+    },
+    [BullQueueName.ProccessGitUrl]: {
+        prefix: formatWithBraces(
+            "proccess-git-url",
+        ),
+        name: "proccess-git-url",
     },
 }

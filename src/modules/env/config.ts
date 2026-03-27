@@ -37,6 +37,36 @@ export const envConfig = () => ({
                 key: "GITHUB_WORKER_PORT",
                 defaultValue: 3002,
             }),
+            processGitUrl: {
+                branch: parseEnvString({
+                    key: "GITHUB_WORKER_PROCESS_GIT_URL_BRANCH",
+                    defaultValue: "main",
+                }),
+                githubAccessToken: parseEnvString({
+                    key: "GITHUB_WORKER_PROCESS_GIT_URL_GITHUB_ACCESS_TOKEN",
+                    defaultValue: "",
+                }),
+                chunkSize: parseEnvInt({
+                    key: "GITHUB_WORKER_PROCESS_GIT_URL_CHUNK_SIZE",
+                    defaultValue: 1000,
+                }),
+                chunkOverlap: parseEnvInt({
+                    key: "GITHUB_WORKER_PROCESS_GIT_URL_CHUNK_OVERLAP",
+                    defaultValue: 200,
+                }),
+                collectionName: parseEnvString({
+                    key: "GITHUB_WORKER_PROCESS_GIT_URL_COLLECTION_NAME",
+                    defaultValue: "test-google-genai",
+                }),
+                embeddingModel: parseEnvString({
+                    key: "GITHUB_WORKER_PROCESS_GIT_URL_EMBEDDING_MODEL",
+                    defaultValue: "gemini-embedding-001",
+                }),
+                genAiApiKey: parseEnvString({
+                    key: "GITHUB_WORKER_PROCESS_GIT_URL_GENAI_API_KEY",
+                    defaultValue: "",
+                }),
+            },
         },
         /** Cdn Synchronizer service configuration. */
         cdnSynchronizer: {
@@ -381,6 +411,22 @@ export const envConfig = () => ({
     },
     /** BullMQ configuration. */
     bullmq: {
+        concurrency: parseEnvInt({
+            key: "BULLMQ_CONCURRENCY",
+            defaultValue: 1,
+        }),
+        lockDuration: parseEnvMs({
+            key: "BULLMQ_LOCK_DURATION",
+            defaultValue: "10s",
+        }),
+        stalledInterval: parseEnvMs({
+            key: "BULLMQ_STALLED_INTERVAL",
+            defaultValue: "10s",
+        }),
+        maxStalledCount: parseEnvInt({
+            key: "BULLMQ_MAX_STALLED_COUNT",
+            defaultValue: 3,
+        }),
         attempts: parseEnvInt({
             key: "BULLMQ_ATTEMPTS",
             defaultValue: 3,
@@ -388,6 +434,13 @@ export const envConfig = () => ({
         delay: parseEnvMs({
             key: "BULLMQ_DELAY",
             defaultValue: "1s",
+        }),
+    },
+    /** Job tracking configuration. */
+    job: {
+        stalled: parseEnvMs({
+            key: "JOB_STALLED",
+            defaultValue: "10m",
         }),
     },
     /** Apollo configuration. */

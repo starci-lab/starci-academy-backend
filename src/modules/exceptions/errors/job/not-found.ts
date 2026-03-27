@@ -4,10 +4,6 @@ import type {
 import {
     AbstractException 
 } from "../abstract"
-import type {
-    LiquidityPoolId,
-    TaskType,
-} from "@modules/databases"
 /** Metadata for job not found. */
 export interface JobNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     jobId: string
@@ -29,145 +25,29 @@ export class JobNotFoundException extends AbstractException {
     }
 }
 
-/** Thrown when sign result is not found. */
-export interface SignResultNotFoundExceptionMetadata extends AbstractExceptionMetadata {
-    botId: string
-    jobId: string
-    liquidityPoolId: LiquidityPoolId
-    taskIndex: number
-    stepIndex: number
+/** Metadata when no valid selector is provided to target a job. */
+export interface JobTargetRequiredExceptionMetadata extends AbstractExceptionMetadata {
+    queueName?: string
+    bullmqJobId?: string
 }
 
-/** Thrown when sign result is not found. */
-export class SignResultNotFoundException extends AbstractException {
-    constructor({
-        botId,
-        jobId,
-        liquidityPoolId,
-        taskIndex,
-        stepIndex,
-    }: SignResultNotFoundExceptionMetadata) {
+/** Thrown when job target selector is missing (id or queueName+bullmqJobId required). */
+export class JobTargetRequiredException extends AbstractException {
+    constructor(
+        {
+            queueName,
+            bullmqJobId,
+            originalError,
+        }: JobTargetRequiredExceptionMetadata,
+    ) {
         super(
-            "Sign result not found",
-            "SIGN_RESULT_NOT_FOUND_EXCEPTION",
+            "Job target requires id, or queueName + bullmqJobId",
+            "JOB_TARGET_REQUIRED_EXCEPTION",
             {
-                botId,
-                jobId,
-                liquidityPoolId,
-                taskIndex,
-                stepIndex,
-            }
-        )
-    }
-}
-
-/** Thrown when prepare result is not found. */
-export interface PrepareResultNotFoundExceptionMetadata extends AbstractExceptionMetadata {
-    botId: string
-    jobId: string
-    liquidityPoolId: LiquidityPoolId
-    taskIndex: number
-}
-
-/** Thrown when prepare result is not found. */
-export class PrepareResultNotFoundException extends AbstractException {
-    constructor({
-        botId,
-        jobId,
-        liquidityPoolId,
-        taskIndex,
-    }: PrepareResultNotFoundExceptionMetadata) {
-        super(
-            "Prepare result not found",
-            "PREPARE_RESULT_NOT_FOUND_EXCEPTION",
-            {
-                botId,  
-                jobId,
-                liquidityPoolId,
-                taskIndex,
-            }
-        )
-    }
-}
-
-/** Thrown when task prepare result is not found (e.g. task.prepareResult is missing). */
-export interface TaskPrepareResultNotFoundExceptionMetadata extends AbstractExceptionMetadata {
-    botId: string
-    taskIndex: number
-    taskType: TaskType
-}
-
-export class TaskPrepareResultNotFoundException extends AbstractException {
-    constructor({
-        botId,
-        taskIndex,
-        taskType,
-        originalError,
-    }: TaskPrepareResultNotFoundExceptionMetadata) {
-        super(
-            "Task prepare result not found",
-            "TASK_PREPARE_RESULT_NOT_FOUND_EXCEPTION",
-            {
-                botId,
-                taskIndex,
-                taskType,
+                queueName,
+                bullmqJobId,
                 originalError,
-            }
-        )
-    }
-}
-
-/** Thrown when signed tx is not found. */
-export interface SignedTxNotFoundExceptionMetadata extends AbstractExceptionMetadata {
-    botId: string
-    jobId: string
-    liquidityPoolId?: LiquidityPoolId
-    taskIndex: number
-    stepIndex: number
-}
-
-/** Thrown when signed tx is not found. */
-export class SignedTxNotFoundException extends AbstractException {
-    constructor({
-        botId,
-        jobId,
-        liquidityPoolId,
-        taskIndex,
-        stepIndex,
-    }: SignedTxNotFoundExceptionMetadata) {
-        super(
-            "Signed tx not found",
-            "SIGNED_TX_NOT_FOUND_EXCEPTION",
-            {
-                botId,  
-                jobId,
-                liquidityPoolId,
-                taskIndex,
-                stepIndex,
-            }
-        )
-    }
-}
-
-/** Thrown when job context is not found. */
-export interface JobContextNotFoundExceptionMetadata extends AbstractExceptionMetadata {
-    jobId: string
-    botId: string
-}
-
-/** Thrown when job context is not found. */
-export class JobContextNotFoundException extends AbstractException {
-    constructor({
-        jobId,
-        botId,
-    }: JobContextNotFoundExceptionMetadata) {
-        super(
-            "Job context not found",
-            "JOB_CONTEXT_NOT_FOUND_EXCEPTION",
-            {
-                jobId,
-                botId,
-            }
+            },
         )
     }
 }

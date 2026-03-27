@@ -5,6 +5,8 @@ import {
 import {
     WinstonLevel,
     CoursesSeededSuccessfullyMessage,
+    EnrollmentAlreadyExistsMessage,
+    EnrollmentCreatedMessage,
 } from "./types"
 import type {
     CdnSynchronizerCourseAlreadySyncedMessage,
@@ -25,6 +27,23 @@ export const configMap = {
         console: true,
         messageType: {
         } as CoursesSeededSuccessfullyMessage,
+    },
+    // Enrollment worker logs.
+    [WinstonLog.EnrollmentCreated]: {
+        name: WinstonLog.EnrollmentCreated,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as EnrollmentCreatedMessage,
+    },
+    [WinstonLog.EnrollmentAlreadyExists]: {
+        name: WinstonLog.EnrollmentAlreadyExists,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as EnrollmentAlreadyExistsMessage,
     },
     // CDN synchronizer: errors.
     [WinstonLog.CdnSynchronizerCoursesSyncing]: {

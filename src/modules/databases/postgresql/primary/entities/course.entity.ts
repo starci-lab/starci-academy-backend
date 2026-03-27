@@ -14,6 +14,9 @@ import {
     ModuleEntity 
 } from "./module.entity"
 import {
+    EnrollmentEntity,
+} from "./enrollment.entity"
+import {
     StringAbstractEntity 
 } from "./abstract"
 
@@ -90,4 +93,15 @@ export class CourseEntity extends StringAbstractEntity {
             cascade: true
         })
         modules: Array<ModuleEntity>
+
+    @Field(() => [EnrollmentEntity],
+        {
+            nullable: true,
+        })
+    @OneToMany(() => EnrollmentEntity,
+        (enrollment: EnrollmentEntity) => enrollment.course,
+        {
+            cascade: true,
+        })
+        enrollments: Array<EnrollmentEntity>
 }

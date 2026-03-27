@@ -3,6 +3,8 @@
  * Each name corresponds to a specific type of background job queue.
  */
 export enum BullQueueName {
-    /** Queue name for enroll course jobs. */
-    EnrollCourse = "enroll-course"
+    /** Queue name for enroll jobs. */
+    Enroll = "enroll",
+    /** Queue name for processing git repository URLs. */
+    ProccessGitUrl = "proccess-git-url",
 }

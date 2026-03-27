@@ -16,21 +16,21 @@ export enum ResourceType {
 /**
  * Create the resource type enum.
  */
-export const resourceTypeEnum = createEnumType(ResourceType)
+export const GraphQLTypeResourceType = createEnumType(ResourceType)
 
 /**
  * Register the resource type enum with the GraphQL schema.
  */
 registerEnumType(
-    resourceTypeEnum,
+    GraphQLTypeResourceType,
     {
         name: "ResourceType",
         description: "Resource payload kind: driver URL or Git URL.",
         valuesMap: {
-            driverUrl: {
+            [ResourceType.DriverUrl]: {
                 description: "Driver URL when type is driverUrl."
             },
-            gitUrl: {
+            [ResourceType.GitUrl]: {
                 description: "Git remote URL when type is gitUrl."
             }
         }
