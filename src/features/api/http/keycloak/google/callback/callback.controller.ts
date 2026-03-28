@@ -71,7 +71,7 @@ export class KeycloakGoogleCallbackController {
         @Query("session_state") sessionState: string,
         @Query("iss") iss: string,
     ) {
-        return this.keycloakGoogleCallbackService.callback({
+        return this.keycloakGoogleCallbackService.execute({
             code,
             sessionState,
             iss,

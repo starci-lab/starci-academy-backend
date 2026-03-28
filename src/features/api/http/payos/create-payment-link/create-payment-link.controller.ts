@@ -68,6 +68,6 @@ export class CreatePaymentLinkController {
         @Body()
             body: CreatePaymentLinkRequest,
     ) {
-        return this.createPaymentLinkService.createPaymentLink(body)
+        return this.createPaymentLinkService.execute(body)
     }
 }

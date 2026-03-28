@@ -24,11 +24,11 @@ export class PaymentRequestService {
     ) {}
 
     /**
-     * Get payment request by id.
+     * Entry: get payment request by id.
      * @param id - The ID of the payment request.
      * @returns The payment request.
      */
-    async getPaymentRequest(
+    async execute(
         id: string,
     ): Promise<PaymentRequestResponseData> {
         return await this.payos.paymentRequests.get(

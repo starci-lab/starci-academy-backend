@@ -30,6 +30,28 @@ export const envConfig = () => ({
                 key: "API_PORT",
                 defaultValue: 3001,
             }),
+            pagination: {
+                page: {
+                    limit: parseEnvInt({
+                        key: "API_PAGINATION_PAGE_LIMIT",
+                        defaultValue: 20,
+                    }),
+                    pageNumber: parseEnvInt({
+                        key: "API_PAGINATION_PAGE_NUMBER",
+                        defaultValue: 1,
+                    }),
+                },
+                cursor: {
+                    limit: parseEnvInt({
+                        key: "API_PAGINATION_CURSOR_LIMIT",
+                        defaultValue: 20,
+                    }),
+                    cursor: parseEnvString({
+                        key: "API_PAGINATION_CURSOR",
+                        defaultValue: "",
+                    }),
+                },
+            },
         },
         /** Github Worker service configuration. */
         githubWorker: {

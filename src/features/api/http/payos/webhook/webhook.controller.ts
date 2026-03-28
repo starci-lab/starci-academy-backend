@@ -58,6 +58,6 @@ export class PayosWebhookController {
             body: PayosWebhookRequest,
     ) {
         console.log(body)
-        return this.payosWebhookService.webhook(body)
+        return this.payosWebhookService.execute(body)
     }
 }

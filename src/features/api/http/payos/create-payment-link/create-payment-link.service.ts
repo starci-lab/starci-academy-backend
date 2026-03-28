@@ -25,11 +25,11 @@ export class CreatePaymentLinkService {
     ) {}
 
     /**
-     * Creates a payOS payment link.
+     * Entry: creates a payOS payment link.
      * @param dto - The request body.
      * @returns The response from the payOS merchant API.
      */
-    async createPaymentLink(
+    async execute(
         {
             amount,
             cancelUrl,

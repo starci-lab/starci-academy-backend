@@ -3,13 +3,16 @@ import {
     InputType,
     Int,
 } from "@nestjs/graphql"
+import {
+    SortInput 
+} from "./sort"
 
 /** GraphQL input for page-based pagination (pageNumber, limit). */
 @InputType({
     isAbstract: true,
     description: "Input for page-based pagination (pageNumber, limit).",
 })
-export class PaginationPageFilters {
+export abstract class PaginationPageFilters<T extends string> {
     @Field(() => Int,
         {
             description: "Page number",
@@ -22,4 +25,6 @@ export class PaginationPageFilters {
             nullable: true,
         })
         limit?: number
+
+    abstract sorts?: Array<SortInput<T>>
 }

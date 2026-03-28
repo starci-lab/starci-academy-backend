@@ -5,7 +5,8 @@ import {
     Column, Entity, JoinColumn, ManyToOne 
 } from "typeorm"
 import {
-    ResourceType 
+    GraphQLTypeResourceType,
+    ResourceType,
 } from "../enums/resource-type"
 import {
     SubmissionEntity 
@@ -22,7 +23,7 @@ import {
 })
 @Entity("resources")
 export class ResourceEntity extends UuidAbstractEntity {
-    @Field(() => ResourceType,
+    @Field(() => GraphQLTypeResourceType,
         {
             description: "Resource payload kind: folders path list or a Git URL."
         })

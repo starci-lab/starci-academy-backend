@@ -5,9 +5,9 @@ import {
     ConfigurableModuleClass,
     OPTIONS_TYPE,
 } from "./monolithic-apollo-server.module-definition"
-import {
-    GraphQLJSON,
-} from "graphql-type-json"
+// import {
+//     GraphQLJSON,
+// } from "graphql-type-json"
 import {
     ApolloDriver,
 } from "@nestjs/apollo"
@@ -34,9 +34,9 @@ export class MonolithicApolloServerModule extends ConfigurableModuleClass {
                     playground: false,
                     autoSchemaFile: true,
                     plugins: [ApolloServerPluginLandingPageLocalDefault()],
-                    resolvers: {
-                        JSON: GraphQLJSON,
-                    },
+                    // resolvers: {
+                    //     JSON: GraphQLJSON,
+                    // },
                     context: ({ req, res }) => ({
                         req,
                         res,

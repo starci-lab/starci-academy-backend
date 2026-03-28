@@ -32,11 +32,11 @@ export class KeycloakGoogleCallbackService {
         private readonly jwtService: JwtService,
     ) {}
     /**
-     * Handle the Google Keycloak callback.
+     * Entry: handle the Google Keycloak callback.
      * @param query - The query parameters.
      * @returns The result of the callback.
      */
-    async callback(
+    async execute(
         {
             code
         }: KeycloakGoogleCallbackQuery

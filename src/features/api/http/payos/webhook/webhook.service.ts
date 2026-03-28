@@ -27,9 +27,9 @@ export class PayosWebhookService {
     ) {}
 
     /**
-     * Validates the webhook payload; throws {@link BadRequestException} when verification fails.
+     * Entry: validates the webhook payload; throws {@link BadRequestException} when verification fails.
      */
-    async webhook(
+    async execute(
         body: PayosWebhookRequest,
     ): Promise<PayosWebhookResponse> {
         try {

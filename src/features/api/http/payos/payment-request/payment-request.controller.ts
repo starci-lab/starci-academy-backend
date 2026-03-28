@@ -64,6 +64,6 @@ export class PaymentRequestController {
         @Param("id")
             id: string,
     ) {
-        return this.paymentRequestService.getPaymentRequest(id)
+        return this.paymentRequestService.execute(id)
     }
 }
