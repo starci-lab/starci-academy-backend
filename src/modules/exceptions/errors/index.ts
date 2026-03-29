@@ -1,4 +1,5 @@
 export * from "./abstract"
+export * from "./courses"
 export * from "./keycloak"
 export * from "./mixin"
 export * from "./pagination"

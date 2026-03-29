@@ -3,6 +3,9 @@ import {
     InjectPrimaryPostgresqlEntityManager,
 } from "@modules/databases"
 import {
+    CourseNotFoundException,
+} from "@modules/exceptions"
+import {
     Injectable,
 } from "@nestjs/common"
 import type {
@@ -10,7 +13,6 @@ import type {
 } from "typeorm"
 import {
     CourseRequest,
-    CourseResponseData,
 } from "./graphql-types"
 
 /**
@@ -24,24 +26,38 @@ export class CourseService {
     ) {}
 
     /**
-     * Entry: returns one course by primary id, or null when missing.
+     * Entry: returns one course by primary id.
      *
      * @param request - Wrapper with course id
-     * @param request.filters.id - Course id
+     * @param request.id - Course id
+     * @throws {CourseNotFoundException} When no course exists for `id`.
      */
     async execute({
         id,
-    }: CourseRequest): Promise<CourseResponseData> {
+    }: CourseRequest): Promise<CourseEntity> {
         const course = await this.entityManager.findOne(
             CourseEntity,
             {
                 where: {
                     id,
                 },
+                relations: {
+                    prerequisites: true,
+                    qnas: true,
+                    modules: {
+                        generalContent: true,
+                        advancedContent: true,
+                    },
+                },
             },
         )
-        return {
-            data: course,
+        if (!course) {
+            throw new CourseNotFoundException(
+                {
+                    id,
+                }
+            )
         }
+        return course
     }
 }

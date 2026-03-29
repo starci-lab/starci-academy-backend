@@ -17,11 +17,13 @@ import {
 import {
     CourseRequest,
     CourseResponse,
-    CourseResponseData,
 } from "./graphql-types"
 import {
     CourseService,
 } from "./course.service"
+import type {
+    CourseEntity,
+} from "@modules/databases"
 
 @Resolver()
 export class CourseResolver {
@@ -46,7 +48,7 @@ export class CourseResolver {
             }
         )
             request: CourseRequest,
-    ): Promise<CourseResponseData> {
+    ): Promise<CourseEntity> {
         return this.courseService.execute(request)
     }
 }
