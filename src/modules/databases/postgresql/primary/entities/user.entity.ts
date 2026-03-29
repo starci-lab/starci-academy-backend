@@ -87,6 +87,21 @@ export class UserEntity extends UuidAbstractEntity {
         keycloakId: string
 
     /**
+     * Avatar of the user.
+     */
+    @Field(() => String,
+        {
+            description: "Avatar of the user.",
+            nullable: true
+        })
+    @Column({
+        name: "avatar",
+        type: "varchar",
+        length: 255,
+        nullable: true
+    })
+        avatar?: string
+    /**
      * Soft delete flag.
      *
      * Indicates whether the user is logically deleted in the application.

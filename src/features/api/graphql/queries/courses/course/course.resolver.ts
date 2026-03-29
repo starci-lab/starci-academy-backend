@@ -15,7 +15,7 @@ import {
     ThrottlerConfig,
 } from "@modules/throttler"
 import {
-    CourseInput,
+    CourseRequest,
     CourseResponse,
     CourseResponseData,
 } from "./graphql-types"
@@ -40,13 +40,13 @@ export class CourseResolver {
             description: "Returns a single course by id.",
         })
     async course(
-        @Args("input",
+        @Args("request",
             {
-                description: "Course id input.",
+                description: "Course lookup request.",
             }
         )
-            input: CourseInput,
+            request: CourseRequest,
     ): Promise<CourseResponseData> {
-        return this.courseService.execute(input)
+        return this.courseService.execute(request)
     }
 }

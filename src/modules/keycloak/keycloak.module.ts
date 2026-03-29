@@ -8,10 +8,14 @@ import {
     OPTIONS_TYPE,
 } from "./keycloak.module-definition"
 import {
-    KeycloakAuthGuard,
-} from "./keycloak-auth.guard"
+    KeycloakAuthGraphQLGuard,
+    KeycloakAuthRestGuard,
+} from "./guards"
 import {
-    KeycloakTokenService
+    KeycloakJwksService,
+} from "./jwks.service"
+import {
+    KeycloakTokenService,
 } from "./token.service"
 
 /**
@@ -27,12 +31,16 @@ export class KeycloakModule extends ConfigurableModuleClass {
             ...dynamicModule,
             providers: [
                 ...(dynamicModule.providers ?? []),
+                KeycloakJwksService,
                 KeycloakTokenService,
-                KeycloakAuthGuard,
+                KeycloakAuthRestGuard,
+                KeycloakAuthGraphQLGuard,
             ],
             exports: [
+                KeycloakJwksService,
                 KeycloakTokenService,
-                KeycloakAuthGuard,
+                KeycloakAuthRestGuard,
+                KeycloakAuthGraphQLGuard,
             ],
         }
     }

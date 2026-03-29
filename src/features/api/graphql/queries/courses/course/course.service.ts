@@ -9,7 +9,7 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    CourseInput,
+    CourseRequest,
     CourseResponseData,
 } from "./graphql-types"
 
@@ -26,14 +26,12 @@ export class CourseService {
     /**
      * Entry: returns one course by primary id, or null when missing.
      *
-     * @param input - Wrapper with course id
-     * @param input.filters.id - Course id
+     * @param request - Wrapper with course id
+     * @param request.filters.id - Course id
      */
     async execute({
-        filters: {
-            id,
-        },
-    }: CourseInput): Promise<CourseResponseData> {
+        id,
+    }: CourseRequest): Promise<CourseResponseData> {
         const course = await this.entityManager.findOne(
             CourseEntity,
             {

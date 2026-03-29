@@ -10,7 +10,7 @@ import type {
     FindOptionsOrder,
 } from "typeorm"
 import {
-    CoursesInput,
+    CoursesRequest,
     CoursesResponseData,
 } from "./graphql-types"
 import {
@@ -28,14 +28,14 @@ export class CoursesService {
     ) {}
 
     /**
-     * Entry: returns a page of courses ordered by sort input.
+     * Entry: returns a page of courses ordered by sort request.
      *
-     * @param input - Pagination and sort options
-     * @param input.filters.limit - Number of courses to return
-     * @param input.filters.pageNumber - Page number
-     * @param input.filters.sorts - Sorts
-     * @param input.filters.sorts.by - Sort by
-     * @param input.filters.sorts.order - Sort order
+     * @param request - Pagination and sort options
+     * @param request.filters.limit - Number of courses to return
+     * @param request.filters.pageNumber - Page number
+     * @param request.filters.sorts - Sorts
+     * @param request.filters.sorts.by - Sort by
+     * @param request.filters.sorts.order - Sort order
      * @returns Paginated courses
      */
     async execute({
@@ -44,7 +44,7 @@ export class CoursesService {
             pageNumber = 0,
             sorts,
         },
-    }: CoursesInput): Promise<CoursesResponseData> {
+    }: CoursesRequest): Promise<CoursesResponseData> {
         const order: FindOptionsOrder<CourseEntity> = {
         }
         for (const sort of sorts) {

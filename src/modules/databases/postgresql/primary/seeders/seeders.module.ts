@@ -8,6 +8,7 @@ import {
     ConfigurableModuleClass 
 } from "./seeders.module-definition"
 import {
+    CourseLoaderService,
     CoursesService 
 } from "./courses"
 /**
@@ -15,6 +16,7 @@ import {
  */
 @Module({
     providers: [
+        CourseLoaderService,
         SeedersService,
         CoursesService
     ],

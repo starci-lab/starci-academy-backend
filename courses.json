@@ -1,0 +1,285 @@
+[
+  {
+    "id": "fullstack-mastery",
+    "title": "Fullstack Mastery",
+    "slug": null,
+    "cdnUrl": null,
+    "description": "Khóa học dành cho học sinh và sinh viên muốn tích lũy tư duy, kiến thức và kỹ năng cần thiết để có thể đi thực tập hoặc làm việc ở vị trí Fresher/Junior Developer. Chương trình bao quát đầy đủ kiến thức Fullstack với tất cả các khái niệm cơ bản từ frontend đến backend, giúp bạn hiểu nền tảng và có thể bắt đầu làm việc thực tế.",
+    "prerequisites": [
+      {
+        "id": "fullstack-mastery-prerequisite-1",
+        "content": "Nắm được JavaScript cơ bản: hiểu về biến, function, async/await, promise và cách xử lý logic đơn giản. Không cần quá nâng cao, nhưng cần đủ để đọc hiểu và viết code.",
+        "orderIndex": 0
+      },
+      {
+        "id": "fullstack-mastery-prerequisite-2",
+        "content": "Có tư duy lập trình backend ở mức cơ bản: hiểu API là gì, request/response hoạt động ra sao, và từng làm qua các bài toán CRUD hoặc project nhỏ. Khóa học sẽ đào sâu hơn, nên bạn cần nền tảng để theo kịp.",
+        "orderIndex": 1
+      }
+    ],
+    "qnas": [
+      {
+        "id": "fullstack-mastery-qna-1",
+        "question": "Em theo Java, .NET, Python, có thể học khóa học này không?",
+        "answer": "Hoàn toàn phù hợp. Khóa học sử dụng NestJS để giảng dạy vì đây là một framework hiện đại, giúp truyền tải rõ ràng các khái niệm backend. Tuy nhiên, bản chất backend không nằm ở ngôn ngữ hay framework, mà nằm ở tư duy xây dựng hệ thống. Mentor có nền tảng backend vững (đa stack), nên có thể hỗ trợ bạn mapping kiến thức sang Java, .NET, Python khi cần.",
+        "orderIndex": 0
+      },
+      {
+        "id": "fullstack-mastery-qna-2",
+        "question": "Có rất nhiều khóa học về lập trình backend, em có nên học khóa học này không?",
+        "answer": "Nếu bạn đang tìm một khóa học chỉ dừng lại ở CRUD và kiến thức bề nổi, thì khóa này không dành cho bạn. Khóa học đi thẳng vào bản chất của backend — từ tư duy thiết kế hệ thống, cách xử lý bài toán thực tế đến những vấn đề mà developer thường gặp khi làm production. Giáo án được xây dựng theo hướng nhanh, trực diện, không lòng vòng, giúp bạn hiểu sâu và áp dụng được ngay, thay vì chỉ học để biết.",
+        "orderIndex": 1
+      }
+    ],
+    "modules": [
+      {
+        "id": "fullstack-mastery-module-1",
+        "title": "Backend Environment & NestJS Introduction",
+        "description": "Thiết lập môi trường Node.js, cài đặt NestJS, hiểu Dependency Injection, Module System, Request Lifecycle, Exception Handling, Logging, Validation, và cách tạo API basic.",
+        "orderIndex": 0,
+        "generalContent": {
+          "id": "fullstack-mastery-general-1",
+          "title": "Nội dung chung (demo)",
+          "body": null,
+          "orderIndex": 0,
+          "sections": [
+            {
+              "id": "fullstack-mastery-general-1-section-1",
+              "title": "Giới thiệu",
+              "body": "## Giới thiệu\n\nNội dung markdown cho học viên (general).",
+              "orderIndex": 0
+            }
+          ]
+        },
+        "advancedContent": {
+          "id": "fullstack-mastery-advanced-1",
+          "orderIndex": 0,
+          "sections": [
+            {
+              "id": "fullstack-mastery-advanced-1-section-1",
+              "title": "Giới thiệu",
+              "body": "## Giới thiệu\n\nNội dung markdown cho học viên (advanced).",
+              "orderIndex": 0
+            }
+          ]
+        },
+        "contents": [
+          {
+            "id": "fullstack-mastery-module-1-content-1",
+            "title": "Tổng quan backend & các tech stack phổ biến",
+            "description": "Hiểu bức tranh tổng thể backend và vai trò của các ngôn ngữ/framework như Java, C#, NodeJS, Golang, Python trong thực tế.",
+            "orderIndex": 0
+          },
+          {
+            "id": "fullstack-mastery-module-1-content-2",
+            "title": "Cài đặt môi trường & khởi tạo project NestJS",
+            "description": "Setup Node.js, cài đặt NestJS CLI, tạo project và cấu hình môi trường làm việc chuẩn.",
+            "orderIndex": 1
+          },
+          {
+            "id": "fullstack-mastery-module-1-content-3",
+            "title": "Dependency Injection & Module System",
+            "description": "Hiểu cách NestJS quản lý dependency và tổ chức module để xây dựng hệ thống scalable.",
+            "orderIndex": 2
+          },
+          {
+            "id": "fullstack-mastery-module-1-content-4",
+            "title": "Request Lifecycle trong NestJS",
+            "description": "Nắm rõ luồng xử lý request: Middleware → Guard → Pipe → Controller → Service → Interceptor → Exception Filter.",
+            "orderIndex": 3
+          },
+          {
+            "id": "fullstack-mastery-module-1-content-5",
+            "title": "Controller & Service pattern",
+            "description": "Tách biệt xử lý request và business logic để code dễ maintain và mở rộng.",
+            "orderIndex": 4
+          },
+          {
+            "id": "fullstack-mastery-module-1-content-6",
+            "title": "Chuẩn hóa config, logging & response",
+            "description": "Sử dụng env config, logging với Winston và chuẩn hóa response để hệ thống production-ready.",
+            "orderIndex": 5
+          }
+        ],
+        "exclusiveLessonVideos": [
+          {
+            "id": "fullstack-mastery-module-1-exclusive-lesson-video-1",
+            "title": "Video bài giảng livestream",
+            "description": "Video bài giảng trong lúc livestream.",
+            "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "durationMs": 5400000,
+            "orderIndex": 0
+          }
+        ],
+        "outcomes": [
+          {
+            "id": "fullstack-mastery-module-1-outcome-1",
+            "title": "Tự build được backend hoàn chỉnh",
+            "description": "Có thể tự tạo một backend với cấu trúc rõ ràng, chạy được end-to-end từ request đến response.",
+            "orderIndex": 0
+          },
+          {
+            "id": "fullstack-mastery-module-1-outcome-2",
+            "title": "Viết code dễ scale và maintain",
+            "description": "Biết cách tổ chức module, tách layer hợp lý để hệ thống không bị rối khi phát triển lớn.",
+            "orderIndex": 1
+          },
+          {
+            "id": "fullstack-mastery-module-1-outcome-3",
+            "title": "Debug và hiểu flow hệ thống",
+            "description": "Có khả năng trace và debug request từ đầu đến cuối trong hệ thống backend.",
+            "orderIndex": 2
+          },
+          {
+            "id": "fullstack-mastery-module-1-outcome-4",
+            "title": "Áp dụng chuẩn production vào project thực tế",
+            "description": "Biết cách áp dụng logging, config, error handling để project sẵn sàng deploy thực tế.",
+            "orderIndex": 3
+          },
+          {
+            "id": "fullstack-mastery-module-1-outcome-5",
+            "title": "Chuyển đổi kiến thức sang các tech stack khác",
+            "description": "Hiểu bản chất backend để áp dụng sang Java, .NET, Python mà không bị phụ thuộc framework.",
+            "orderIndex": 4
+          }
+        ]
+      },
+      {
+        "id": "fullstack-mastery-module-2",
+        "title": "Database Integration, ORM/ODM & Caching",
+        "description": "Tích hợp PostgreSQL với TypeORM, MongoDB với Mongoose, hiểu schema, relations, indexing, transaction, caching với Redis, và cách chọn SQL hay NoSQL phù hợp.",
+        "orderIndex": 1,
+        "generalContent": {
+          "id": "fullstack-mastery-general-2",
+          "title": "Nội dung chung",
+          "body": null,
+          "orderIndex": 0,
+          "sections": [
+            {
+              "id": "fullstack-mastery-general-2-section-1",
+              "title": "Bài giảng",
+              "body": "## Bài giảng\n\nModule này giúp bạn hiểu và làm chủ tầng dữ liệu của hệ thống backend.\n\n- Tích hợp **PostgreSQL** với **TypeORM** và **MongoDB** với **Mongoose**\n- Thiết kế **schema**, **relations** và chiến lược **indexing** hợp lý\n- Hiểu **transaction** và cách tối ưu truy vấn cơ bản\n- Tích hợp **Redis** để caching và giảm tải database\n- Phân biệt rõ khi nào nên sử dụng **SQL** và khi nào nên dùng **NoSQL**",
+              "orderIndex": 0
+            },
+            {
+              "id": "fullstack-mastery-general-2-section-2",
+              "title": "Sau module này, bạn sẽ",
+              "body": "## Sau module này, bạn sẽ\n\n- Thiết kế được cấu trúc database rõ ràng và dễ mở rộng\n- Biết cách tối ưu truy vấn thay vì chỉ tập trung vào việc “chạy được”\n- Hiểu vai trò của caching trong việc cải thiện hiệu năng hệ thống\n- Tự tin tích hợp nhiều loại database trong cùng một dự án",
+              "orderIndex": 1
+            },
+            {
+              "id": "fullstack-mastery-general-2-section-3",
+              "title": "Cam kết",
+              "body": "## Cam kết\n\nSau khi hoàn tất module này, bạn có thể thiết kế và triển khai tầng dữ liệu cho backend một cách có tổ chức, tối ưu hiệu năng và phù hợp với môi trường production.",
+              "orderIndex": 2
+            },
+            {
+              "id": "fullstack-mastery-general-2-section-4",
+              "title": "Tài liệu tham khảo & Source Code",
+              "body": "## Tài liệu tham khảo & Source Code\n\n- PostgreSQL Docs: https://www.postgresql.org/docs/\n- TypeORM Docs: https://typeorm.io/\n- MongoDB Docs: https://www.mongodb.com/docs/\n- Mongoose Docs: https://mongoosejs.com/docs/\n- Redis Docs: https://redis.io/docs/",
+              "orderIndex": 3
+            },
+            {
+              "id": "fullstack-mastery-general-2-section-5",
+              "title": "Thử thách để hoàn thiện Module",
+              "body": "## Thử thách để hoàn thiện Module\n\n- Tích hợp **PostgreSQL + TypeORM** và implement CRUD cho 1 domain (ví dụ: User/Product/Order).\n- Thiết kế **relations** (one-to-one, one-to-many, many-to-many) và chọn **index** phù hợp cho các truy vấn chính.\n- Triển khai ít nhất 1 luồng **transaction** (ví dụ: tạo Order + OrderItems) và xử lý rollback khi lỗi.\n- Tích hợp **MongoDB + Mongoose** cho 1 use case phù hợp (ví dụ: logs, audit trail, activity feed).\n- Tích hợp **Redis caching** cho một API read-heavy, có TTL, và cơ chế invalidate cache khi dữ liệu thay đổi.\n- Viết checklist ngắn mô tả khi nào nên chọn **SQL** và khi nào nên chọn **NoSQL** trong dự án của bạn.",
+              "orderIndex": 4
+            }
+          ]
+        },
+        "advancedContent": {
+          "id": "fullstack-mastery-advanced-2",
+          "orderIndex": 0,
+          "sections": [
+            {
+              "id": "fullstack-mastery-advanced-2-section-1",
+              "title": "Kiến thức nâng cao",
+              "body": "## Kiến thức nâng cao\n\nN/A",
+              "orderIndex": 0
+            }
+          ]
+        },
+        "contents": [
+          {
+            "id": "fullstack-mastery-module-2-content-1",
+            "title": "PostgreSQL + TypeORM integration",
+            "description": "Tích hợp PostgreSQL vào dự án NestJS và làm việc với ORM thông qua TypeORM.",
+            "orderIndex": 0
+          },
+          {
+            "id": "fullstack-mastery-module-2-content-2",
+            "title": "MongoDB + Mongoose integration",
+            "description": "Tích hợp MongoDB và sử dụng Mongoose để xây dựng ODM cho các use case phù hợp.",
+            "orderIndex": 1
+          },
+          {
+            "id": "fullstack-mastery-module-2-content-3",
+            "title": "Schema design, relations & indexing",
+            "description": "Thiết kế schema, quan hệ dữ liệu và chiến lược indexing để tối ưu truy vấn và khả năng mở rộng.",
+            "orderIndex": 2
+          },
+          {
+            "id": "fullstack-mastery-module-2-content-4",
+            "title": "Transaction & query optimization",
+            "description": "Hiểu transaction, rollback và các nguyên tắc tối ưu truy vấn cơ bản trong backend thực tế.",
+            "orderIndex": 3
+          },
+          {
+            "id": "fullstack-mastery-module-2-content-5",
+            "title": "Redis caching",
+            "description": "Tích hợp Redis để caching, giảm tải database, tăng tốc các API read-heavy và xử lý TTL/invalidation.",
+            "orderIndex": 4
+          },
+          {
+            "id": "fullstack-mastery-module-2-content-6",
+            "title": "SQL vs NoSQL in real projects",
+            "description": "Phân biệt khi nào nên dùng SQL và khi nào nên dùng NoSQL dựa trên bài toán và yêu cầu hệ thống.",
+            "orderIndex": 5
+          }
+        ],
+        "exclusiveLessonVideos": [
+          {
+            "id": "fullstack-mastery-module-2-exclusive-lesson-video-1",
+            "title": "Video bài giảng livestream",
+            "description": "Video bài giảng trong lúc livestream.",
+            "url": "",
+            "durationMs": 10800000,
+            "orderIndex": 0
+          }
+        ],
+        "outcomes": [
+          {
+            "id": "fullstack-mastery-module-2-outcome-1",
+            "title": "Thiết kế được database rõ ràng và dễ mở rộng",
+            "description": "Biết cách tổ chức schema, relations và dữ liệu để hệ thống phát triển lâu dài mà không bị rối.",
+            "orderIndex": 0
+          },
+          {
+            "id": "fullstack-mastery-module-2-outcome-2",
+            "title": "Tối ưu truy vấn thay vì chỉ chạy được",
+            "description": "Hiểu cách suy nghĩ về indexing, transaction và hiệu năng dữ liệu trong backend thực tế.",
+            "orderIndex": 1
+          },
+          {
+            "id": "fullstack-mastery-module-2-outcome-3",
+            "title": "Hiểu và áp dụng caching vào hệ thống",
+            "description": "Biết vai trò của Redis trong việc giảm tải database và tăng tốc các API đọc nhiều.",
+            "orderIndex": 2
+          },
+          {
+            "id": "fullstack-mastery-module-2-outcome-4",
+            "title": "Tích hợp được nhiều loại database trong cùng một project",
+            "description": "Có thể kết hợp SQL, NoSQL và cache layer trong một backend có tổ chức.",
+            "orderIndex": 3
+          },
+          {
+            "id": "fullstack-mastery-module-2-outcome-5",
+            "title": "Chọn đúng loại database theo bài toán",
+            "description": "Biết khi nào nên dùng SQL, khi nào nên dùng NoSQL, thay vì chọn theo cảm tính hoặc xu hướng.",
+            "orderIndex": 4
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -41,39 +41,44 @@ export class KeycloakGoogleCallbackService {
             code
         }: KeycloakGoogleCallbackQuery
     ): Promise<KeycloakGoogleCallbackResponse> {
+        try {
         // exchange the code for a token
-        const response = await this.keycloakTokenService.exchangeCodeForToken(
-            {
-                code,
-            }
-        )
-        const decoded = this.jwtService.decode<KeycloakJwtPayload>(response.access_token)
-        // find the user by the keycloak id
-        let user = await this.entityManager.findOne(
-            UserEntity,
-            {
-                where: {
-                    keycloakId: decoded.sub,
-                },
-            }
-        )
-        // if user not found, create a new user
-        if (!user) {
-            user = this.entityManager.create(
-                UserEntity, 
+            const response = await this.keycloakTokenService.exchangeCodeForToken(
                 {
-                    username: decoded.preferred_username,
-                    email: decoded.email,
-                    keycloakId: decoded.sub,
+                    code,
                 }
             )
-            await this.entityManager.save(user)
-        }
-        // return the tokens
-        return {
-            id: user.id,
-            accessToken: response.access_token,
-            refreshToken: response.refresh_token,
+            const decoded = this.jwtService.decode<KeycloakJwtPayload>(response.access_token)
+            // find the user by the keycloak id
+            let user = await this.entityManager.findOne(
+                UserEntity,
+                {
+                    where: {
+                        keycloakId: decoded.sub,
+                    },
+                }
+            )
+            // if user not found, create a new user
+            if (!user) {
+                user = this.entityManager.create(
+                    UserEntity, 
+                    {
+                        username: decoded.preferred_username,
+                        email: decoded.email,
+                        keycloakId: decoded.sub,
+                    }
+                )
+                await this.entityManager.save(user)
+            }
+            // return the tokens
+            return {
+                id: user.id,
+                accessToken: response.access_token,
+                refreshToken: response.refresh_token,
+            }
+        } catch (error) {
+            console.error(error)
+            throw error
         }
     }
 }

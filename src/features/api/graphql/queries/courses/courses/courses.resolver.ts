@@ -15,7 +15,7 @@ import {
     ThrottlerConfig,
 } from "@modules/throttler"
 import {
-    CoursesInput,
+    CoursesRequest,
     CoursesResponse,
     CoursesResponseData,
 } from "./graphql-types"
@@ -40,13 +40,13 @@ export class CoursesResolver {
             description: "Lists courses with page-based pagination.",
         })
     async courses(
-        @Args("input",
+        @Args("request",
             {
-                description: "Pagination and sort input.",
+                description: "Pagination and sort request.",
             }
         )
-            input: CoursesInput,
+            request: CoursesRequest,
     ): Promise<CoursesResponseData> {
-        return this.coursesService.execute(input)
+        return this.coursesService.execute(request)
     }
 }

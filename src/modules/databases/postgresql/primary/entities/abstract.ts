@@ -41,7 +41,8 @@ export abstract class AbstractEntity {
 })
 export abstract class UuidAbstractEntity extends AbstractEntity {
     @Field(() => ID)
-    @PrimaryGeneratedColumn("uuid",
+    @PrimaryGeneratedColumn(
+        "uuid",
         {
             name: "id"
         })
@@ -54,7 +55,10 @@ export abstract class UuidAbstractEntity extends AbstractEntity {
 export abstract class StringAbstractEntity extends AbstractEntity {
     @Field(() => ID)
     @PrimaryColumn({
-        name: "id", type: "varchar", length: 36
+        name: "id",
+        type: "varchar",
+        length: 255,
+        nullable: false,
     })
         id: string
 }

@@ -9,8 +9,9 @@ import {
     SortOrder,
 } from "@modules/api"
 import {
-    createEnumType 
+    createEnumType,
 } from "@modules/common"
+
 
 /** Sort by. */
 export enum SortBy {
@@ -41,11 +42,13 @@ registerEnumType(GraphQLTypeSortBy,
     }
 )
 
-/** Input for sort. */
+
+
+/** Sort line in a courses list request. */
 @InputType({
-    description: "Input for sort.",
+    description: "Sort field and order for listing courses.",
 })
-export class CoursesSortInput extends SortInput<SortBy>{
+export class CoursesRequestSort extends SortInput<SortBy> {
     /** Sort by. */
     @Field(
         () => GraphQLTypeSortBy,
@@ -56,12 +59,14 @@ export class CoursesSortInput extends SortInput<SortBy>{
         by: SortBy
 }
 
-/** Pagination filters for the courses query. */
+/** Pagination and sort filters for the courses query. */
 @InputType({
     description: "Pagination and sort options for listing courses.",
 })
-export class CoursesPaginationFilters extends PaginationPageFilters<SortBy> {
-    @Field(() => [CoursesSortInput],
+/** Pagination and sort filters for the courses query. */
+export class CoursesRequestPaginationFilters extends PaginationPageFilters<SortBy> {
+    /** Sorts. */
+    @Field(() => [CoursesRequestSort],
         {
             defaultValue: [
                 {
@@ -71,17 +76,22 @@ export class CoursesPaginationFilters extends PaginationPageFilters<SortBy> {
             ],
             description: "Sorts",
         })
-        sorts: Array<CoursesSortInput>
+        sorts: Array<CoursesRequestSort>
 }
 
-/** Input for the courses GraphQL query. */
+
+
+/** Request for the courses GraphQL query. */
+
 @InputType({
-    description: "Request input for listing courses.",
+    description: "Request for listing courses with pagination.",
 })
-export class CoursesInput {
-    @Field(() => CoursesPaginationFilters,
+export class CoursesRequest {
+    @Field(() => CoursesRequestPaginationFilters,
         {
             description: "Pagination and sort filters.",
         })
-        filters: CoursesPaginationFilters
+        filters: CoursesRequestPaginationFilters
 }
+
+

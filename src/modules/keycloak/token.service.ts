@@ -18,9 +18,12 @@ import {
 import {
     MountStorageService 
 } from "@modules/filesystem"
+import {
+    KeycloakJwksService 
+} from "./jwks.service"
 
 /**
- * Service responsible for verifying Keycloak-issued access tokens (JWT) via realm JWKS.
+ * Keycloak OIDC: code exchange (client secret) and access-token verification via {@link KeycloakJwksService}.
  */
 @Injectable()
 export class KeycloakTokenService {
@@ -28,6 +31,7 @@ export class KeycloakTokenService {
     constructor(
         private readonly axiosService: AxiosService,
         private readonly mountStorageService: MountStorageService,
+        private readonly keycloakJwksService: KeycloakJwksService,
     ) {
         this.axiosInstance = this.axiosService.create({
             key: "keycloak",
@@ -65,11 +69,22 @@ export class KeycloakTokenService {
     }
 
     /**
-     * Verifies an access token.
-     * @param token - The access token.
-     * @returns The payload of the token.
+     * Verifies an access token with realm JWKS (no introspection round-trip).
+     *
+     * @param token - The access token (JWT).
+     * @returns Introspection-compatible shape (`active`, `sub`, claims).
      */
     async verifyAccessToken(token: string): Promise<KeycloakTokenIntrospectResponse> {
+        return this.keycloakJwksService.verifyAccessToken(token)
+    }
+
+    /**
+     * Verifies an access token via Keycloak token introspection (requires client secret).
+     *
+     * @param token - The access token.
+     * @returns Raw introspection JSON.
+     */
+    async verifyAccessTokenIntrospect(token: string): Promise<KeycloakTokenIntrospectResponse> {
         const response = await this.axiosInstance.post<KeycloakTokenIntrospectResponse>(
             `${envConfig().keycloak.url}/realms/${envConfig().keycloak.realm}/protocol/openid-connect/token/introspect`,
             new URLSearchParams({

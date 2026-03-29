@@ -229,6 +229,16 @@ export const envConfig = () => ({
     },
     /** Mount path configuration. */
     mountPath: {
+        /** File paths: seeders courses. */
+        seeders: {
+            coursesDir: parseEnvString({
+                key: "SEEDERS_COURSES_DIR_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "seeders",
+                    "courses"),
+            }),
+        },
         /** File paths: app config. */
         config: {
             app: parseEnvString({
@@ -349,7 +359,7 @@ export const envConfig = () => ({
                 }),
                 database: parseEnvString({
                     key: "POSTGRESQL_PRIMARY_DATABASE",
-                    defaultValue: "postgres",
+                    defaultValue: "starci-academy",
                 }),
             },
         },

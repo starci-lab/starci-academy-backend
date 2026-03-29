@@ -1,4 +1,6 @@
 export * from "./types"
 export * from "./keycloak.module"
-export * from "./keycloak-auth.guard"
+export * from "./keycloak.decorators"
+export * from "./guards"
+export * from "./jwks.service"
 export * from "./token.service"
