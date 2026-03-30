@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     GithubWorkerModule
-} from "@features/github-worker"
+} from "@features/worker"
 import {
     ScheduleModule 
 } from "@nestjs/schedule"

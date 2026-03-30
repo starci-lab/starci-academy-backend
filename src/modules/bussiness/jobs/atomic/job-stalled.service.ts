@@ -25,6 +25,9 @@ import {
 import type {
     EntityManager,
 } from "typeorm"
+import {
+    JobNotFoundException,
+} from "@modules/exceptions"
 
 /**
  * Service for querying stalled jobs based on queue time threshold.
@@ -65,24 +68,40 @@ export class JobStalledService {
 
     /**
      * Requeue a job.
-     * @param job - The job entity.
+     * @param id - The ID of the job.
      * @param entityManager - The entity manager.
      * @returns The job.
      */
     async requeueJob(
         {
-            job,
+            id,
             entityManager,
         }: RequeueJobParams
     ): Promise<JobEntity> {
         // get the manager
         const manager = entityManager ?? this.primaryEntityManager
         // reset the queue at time
+        const job = await manager.findOne(
+            JobEntity,
+            {
+                where: {
+                    id,
+                },
+            },
+        )
+        if (!job) {
+            throw new JobNotFoundException(
+                {
+                    id,
+                }
+            )
+        }
         job.queueAt = this.dayjsService.now().toDate()
         // save the job record
-        return manager.save(
-            JobEntity,
+        await manager.save(
             job,
         )
+        // return the job
+        return job
     }
 }

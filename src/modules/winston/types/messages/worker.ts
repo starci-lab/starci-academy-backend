@@ -28,8 +28,6 @@ export interface JobExecutedMessage<TPayload = unknown> {
     queueName?: string
     /** Payload for the job (optional; can be large). */
     payload?: TPayload
-    /** Whether job completed successfully. */
-    success?: boolean
     /** Error message if failed. */
     error?: string
     /** Total duration (ms) if measured by the caller. */

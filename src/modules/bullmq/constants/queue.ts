@@ -22,9 +22,9 @@ export function formatWithBraces(prefix: string): string {
 export const bullData: Record<BullQueueName, BullQueueData> = {
     [BullQueueName.Enroll]: {
         prefix: formatWithBraces(
-            "enroll-course"
+            "enroll"
         ),
-        name: "enroll-course",
+        name: "enroll",
     },
     [BullQueueName.ProccessGitUrl]: {
         prefix: formatWithBraces(

@@ -21,7 +21,7 @@ export interface TransactionNotFoundExceptionMetadata
 }
 
 /**
- * Thrown when no preflight transaction row matches a webhook request.
+ * Thrown when no transaction row matches a webhook request.
  */
 export class TransactionNotFoundException extends AbstractException {
     constructor({
@@ -30,7 +30,7 @@ export class TransactionNotFoundException extends AbstractException {
         originalError,
     }: TransactionNotFoundExceptionMetadata) {
         super(
-            "Preflight transaction not found",
+            "Transaction not found",
             "PREFLIGHT_TRANSACTION_NOT_FOUND_EXCEPTION",
             {
                 referenceId,

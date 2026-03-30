@@ -6,7 +6,6 @@ import {
 } from "@nestjs/common"
 import type {
     UpdateTransactionStatusParams,
-    UpdateTransactionStatusResult,
 } from "../types"
 import {
     EntityManager,
@@ -41,7 +40,7 @@ export class TransactionActionService {
         id,
         status,
         entityManager,
-    }: UpdateTransactionStatusParams): Promise<UpdateTransactionStatusResult> {
+    }: UpdateTransactionStatusParams): Promise<void> {
         // get the manager
         const manager = entityManager ?? this.primaryEntityManager
         // get the transaction
@@ -62,10 +61,6 @@ export class TransactionActionService {
         }
         // update the transaction status
         transaction.status = status
-        const updatedTransaction = await manager.save(transaction)
-        // return the transaction
-        return {
-            transaction: updatedTransaction,
-        }
+        await manager.save(transaction)
     }
 }

@@ -36,7 +36,10 @@ export interface GetJobParams extends Omit<JobTargetParams, "job"> {
 }
 
 /** Params for queuing a job. */
-export type RequeueJobParams = JobTargetParams
+export interface RequeueJobParams extends Omit<JobTargetParams, "job"> {
+    /** The ID of the job. */
+    id: string
+}
 
 /** Params for increasing the current step of a job. */
 export interface IncreaseJobParams extends JobTargetParams {

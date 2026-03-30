@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     ConfigurableModuleClass,
-} from "./github-worker.module-definition"
+} from "./worker.module-definition"
 import {
     ProcessorsModule,
 } from "./processors"
@@ -15,4 +15,4 @@ import {
         }),
     ],
 })
-export class GithubWorkerModule extends ConfigurableModuleClass {}
+export class WorkerModule extends ConfigurableModuleClass {}

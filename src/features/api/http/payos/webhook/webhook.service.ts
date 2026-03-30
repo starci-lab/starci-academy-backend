@@ -80,7 +80,7 @@ export class PayosWebhookService {
             this.dayjsService.from(transaction?.createdAt),
             "milliseconds",
         )
-        if (timeSinceCreationMs < envConfig().services.api.transaction.timeSinceCreationMs) {
+        if (timeSinceCreationMs > envConfig().services.api.transaction.timeSinceCreationMs) {
             throw new TransactionExpiredError(
                 {
                     id: transaction.id,

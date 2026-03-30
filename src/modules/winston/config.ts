@@ -55,9 +55,17 @@ export const configMap = {
         messageType: {
         } as StepExecutedMessage,
     },
-    [WinstonLog.JobExecuted]: {
-        name: WinstonLog.JobExecuted,
+    [WinstonLog.JobExecutedSuccessfully]: {
+        name: WinstonLog.JobExecutedSuccessfully,
         level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as JobExecutedMessage,
+    },
+    [WinstonLog.JobExecutedFailed]: {
+        name: WinstonLog.JobExecutedFailed,
+        level: WinstonLevel.Error,
         loki: true,
         console: true,
         messageType: {

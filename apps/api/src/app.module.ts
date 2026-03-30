@@ -66,6 +66,9 @@ import {
 import {
     BussinessModule 
 } from "@modules/bussiness"
+import {
+    WorkerModule
+} from "@features/worker"
 /**
  * The main module for the application.
  */
@@ -179,6 +182,12 @@ import {
             ),
             /** Api module. */
             ApiModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Worker module. */
+            WorkerModule.register(
                 {
                     isGlobal: true,
                 }
