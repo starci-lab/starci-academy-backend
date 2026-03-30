@@ -1,6 +1,6 @@
 export * from "./resource-type"
 export * from "./job-type"
 export * from "./pricing-phase"
-export * from "./preflight-transaction-status"
+export * from "./transaction-status"
 export * from "./payment-type"
 export * from "./action-type"

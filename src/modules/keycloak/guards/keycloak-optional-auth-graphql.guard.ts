@@ -7,7 +7,7 @@ import {
     GqlExecutionContext,
 } from "@nestjs/graphql"
 import {
-    InjectPrimaryPostgresqlEntityManager,
+    InjectPrimaryPostgreSQLEntityManager,
     UserEntity,
 } from "@modules/databases"
 import {
@@ -28,7 +28,7 @@ import type {
 export class KeycloakOptionalAuthGraphQLGuard {
     constructor(
         private readonly keycloakJwksService: KeycloakJwksService,
-        @InjectPrimaryPostgresqlEntityManager()
+        @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
     ) {}
 

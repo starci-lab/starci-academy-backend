@@ -28,7 +28,7 @@ import {
     JobEntity,
     ModuleEntity,
     OutcomeEntity,
-    PreflightTransactionEntity,
+    TransactionEntity,
     EnrollmentEntity,
     ResourceEntity,
     SubmissionEntity,
@@ -44,7 +44,7 @@ import {
  */
 @Module({
 })
-export class PrimaryPostgresqlModule extends ConfigurableModuleClass {
+export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
     /**
      * Register.
      * @param options - Options.
@@ -99,7 +99,7 @@ export class PrimaryPostgresqlModule extends ConfigurableModuleClass {
                                     ContentEntity,
                                     ExclusiveLessonVideoEntity,
                                     OutcomeEntity,
-                                    PreflightTransactionEntity,
+                                    TransactionEntity,
                                     EnrollmentEntity,
                                     ResourceEntity,
                                     SubmissionEntity,
@@ -127,7 +127,7 @@ export class PrimaryPostgresqlModule extends ConfigurableModuleClass {
     private static forFeature(
     ): DynamicModule {
         return {
-            module: PrimaryPostgresqlModule,
+            module: PrimaryPostgreSQLModule,
             imports: [
                 NestTypeOrmModule.forFeature(
                     [
@@ -146,7 +146,7 @@ export class PrimaryPostgresqlModule extends ConfigurableModuleClass {
                         ContentEntity,
                         ExclusiveLessonVideoEntity,
                         OutcomeEntity,
-                        PreflightTransactionEntity,
+                        TransactionEntity,
                         EnrollmentEntity,
                         ResourceEntity,
                         SubmissionEntity,

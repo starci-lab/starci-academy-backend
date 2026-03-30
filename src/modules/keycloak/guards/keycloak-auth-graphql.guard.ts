@@ -7,7 +7,7 @@ import {
     GqlExecutionContext,
 } from "@nestjs/graphql"
 import {
-    InjectPrimaryPostgresqlEntityManager,
+    InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
     KeycloakJwksService,
@@ -29,7 +29,7 @@ import type {
 export class KeycloakAuthGraphQLGuard extends AbstractKeycloakAuthGuard {
     constructor(
         keycloakJwksService: KeycloakJwksService,
-        @InjectPrimaryPostgresqlEntityManager()
+        @InjectPrimaryPostgreSQLEntityManager()
         entityManager: EntityManager,
     ) {
         super(

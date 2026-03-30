@@ -9,7 +9,7 @@ import {
 import {
     JobActionService,
     JobCommonService,
-} from "@modules/job"
+} from "@modules/bussiness/jobs"
 import {
     InjectSuperJson,
 } from "@modules/mixin"

@@ -10,7 +10,7 @@ import {
     KeycloakTokenService
 } from "@modules/keycloak"
 import {
-    InjectPrimaryPostgresqlEntityManager, 
+    InjectPrimaryPostgreSQLEntityManager, 
     UserEntity
 } from "@modules/databases"
 import {
@@ -27,7 +27,7 @@ import {
 export class KeycloakGoogleCallbackService {
     constructor(
         private readonly keycloakTokenService: KeycloakTokenService,
-        @InjectPrimaryPostgresqlEntityManager()
+        @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly jwtService: JwtService,
     ) {}

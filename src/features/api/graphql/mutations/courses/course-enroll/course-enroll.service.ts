@@ -1,7 +1,7 @@
 import {
     CourseEntity,
     EnrollmentEntity,
-    InjectPrimaryPostgresqlEntityManager,
+    InjectPrimaryPostgreSQLEntityManager,
     PaymentType,
 } from "@modules/databases"
 import {
@@ -34,7 +34,7 @@ import type {
 @Injectable()
 export class CourseEnrollService {
     constructor(
-        @InjectPrimaryPostgresqlEntityManager()
+        @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly courseEnrollPayOsService: CourseEnrollPayOsService,
         private readonly courseEnrollSepayService: CourseEnrollSepayService,

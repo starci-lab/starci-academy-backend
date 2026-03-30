@@ -1,6 +1,6 @@
 import {
     CourseEntity,
-    InjectPrimaryPostgresqlEntityManager,
+    InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
     CourseNotFoundException,
@@ -21,7 +21,7 @@ import {
 @Injectable()
 export class CourseService {
     constructor(
-        @InjectPrimaryPostgresqlEntityManager()
+        @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
     ) {}
 

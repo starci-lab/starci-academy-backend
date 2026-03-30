@@ -1,7 +1,6 @@
 import {
     Field,
     ID,
-    Int,
     ObjectType,
 } from "@nestjs/graphql"
 import {
@@ -17,7 +16,7 @@ export class CourseEnrollResponseData {
     @Field(
         () => String,
         {
-            description: "PayOS hosted checkout URL.",
+            description: "The checkout URL for the preflight transaction.",
         },
     )
         checkoutUrl: string
@@ -25,29 +24,21 @@ export class CourseEnrollResponseData {
     @Field(
         () => String,
         {
-            description: "PayOS order code (string form).",
+            description: "The reference ID of the preflight transaction.",
         },
     )
-        orderCode: string
+        referenceId: string
 
     @Field(
         () => ID,
         {
-            description: "Primary key of the `preflight_transactions` row.",
+            description: "Primary key of the `transactions` row.",
         },
     )
-        preflightTransactionId: string
+        transactionId: string
 
     @Field(
         () => String,
-        {
-            description: "PayOS payment link id.",
-        },
-    )
-        paymentLinkId: string
-
-    @Field(
-        () => Int,
         {
             description: "Charged amount (VND).",
         },

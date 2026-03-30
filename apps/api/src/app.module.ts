@@ -31,7 +31,7 @@ import {
     MixinModule 
 } from "@modules/mixin"
 import {
-    PrimaryPostgresqlModule
+    PrimaryPostgreSQLModule
 } from "@modules/databases"
 import {
     S3Module
@@ -63,7 +63,9 @@ import {
 import {
     BullModule
 } from "@modules/bullmq"
-
+import {
+    BussinessModule 
+} from "@modules/bussiness"
 /**
  * The main module for the application.
  */
@@ -134,12 +136,18 @@ import {
                 }
             ),
             /** Primary PostgreSQL module. */
-            PrimaryPostgresqlModule.register(
+            PrimaryPostgreSQLModule.register(
                 {
                     isGlobal: true,
                     withSeeders: {
                         manualSeed: false,
                     }
+                }
+            ),
+            /** Bussiness module. */
+            BussinessModule.register(
+                {
+                    isGlobal: true,
                 }
             ),
             /** Keycloak module. */
@@ -159,12 +167,6 @@ import {
             ),
             /** Throttler module. */
             ThrottlerModule.register(
-                {
-                    isGlobal: true,
-                }
-            ),
-            /** BullMQ module. */
-            BullModule.forRoot(
                 {
                     isGlobal: true,
                 }

@@ -1,8 +1,8 @@
 import {
     ActionType,
-    InjectPrimaryPostgresqlEntityManager,
+    InjectPrimaryPostgreSQLEntityManager,
     PaymentType,
-    PreflightTransactionEntity,
+    TransactionEntity,
     PreflightTransactionStatus,
 } from "@modules/databases"
 import {
@@ -43,7 +43,7 @@ import {
 @Injectable()
 export class CourseEnrollPayOsService {
     constructor(
-        @InjectPrimaryPostgresqlEntityManager()
+        @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         @InjectPayOS()
         private readonly payos: PayOS,
@@ -66,9 +66,9 @@ export class CourseEnrollPayOsService {
             payosCancelUrl,
         }: ExecutePayOsParams,
     ): Promise<CourseEnrollResponseData> {
-        // find the preflight transaction for the user and course
-        let preflightTransaction = await this.entityManager.findOne(
-            PreflightTransactionEntity,
+        // find the transaction for the user and course
+        let transaction = await this.entityManager.findOne(
+            TransactionEntity,
             {
                 where: {
                     userId: user.id,
@@ -76,19 +76,18 @@ export class CourseEnrollPayOsService {
                 },
             },
         )
-        if (preflightTransaction) {
-            // check the timestamp of the preflight transaction
+        if (transaction) {
+            // check the timestamp of the transaction
             const timeSinceCreationMs = this.dayjsService.now().diff(
-                this.dayjsService.from(preflightTransaction.createdAt),
+                this.dayjsService.from(transaction.createdAt),
                 "milliseconds",
             )
             if (timeSinceCreationMs < envConfig().services.api.preflightTransaction.timeSinceCreationMs) {
                 return {
-                    checkoutUrl: preflightTransaction.checkoutUrl,
-                    orderCode: String(preflightTransaction.orderCode),
-                    preflightTransactionId: preflightTransaction.id,
-                    paymentLinkId: preflightTransaction.paymentLinkId,
-                    amount: preflightTransaction.amount,
+                    checkoutUrl: transaction.checkoutUrl,
+                    referenceId: transaction.referenceId,
+                    transactionId: transaction.id,
+                    amount: transaction.amount,
                 }
             }
         }
@@ -124,32 +123,30 @@ export class CourseEnrollPayOsService {
                 },
             }
         )
-        // create preflight transaction
-        preflightTransaction = this.entityManager.create(  
-            PreflightTransactionEntity,
+        // create transaction row
+        transaction = this.entityManager.create(
+            TransactionEntity,
             {
                 userId: user.id,
                 courseId: course.id,
                 user,
                 course,
-                orderCode: String(paymentLink.orderCode),
+                referenceId: String(paymentLink.orderCode),
                 amount: paymentLink.amount,
                 pricingPhase: currentPhase,
                 paymentType: PaymentType.PayOS,
-                paymentLinkId: paymentLink.paymentLinkId,
                 checkoutUrl: paymentLink.checkoutUrl,
                 status: PreflightTransactionStatus.Pending,
                 actionType: ActionType.Enroll,
             },
         )
-        // save preflight transaction
-        await this.entityManager.save(preflightTransaction)
+        // save transaction
+        await this.entityManager.save(transaction)
         // return result
         return {
             checkoutUrl: paymentLink.checkoutUrl,
-            orderCode: String(paymentLink.orderCode),
-            preflightTransactionId: preflightTransaction.id,
-            paymentLinkId: paymentLink.paymentLinkId,
+            referenceId: String(paymentLink.orderCode),
+            transactionId: transaction.id,
             amount: paymentLink.amount,
         }
     }

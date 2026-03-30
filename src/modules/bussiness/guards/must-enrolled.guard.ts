@@ -1,5 +1,5 @@
 import {
-    InjectPrimaryPostgresqlEntityManager,
+    InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
     EnrollmentEntity,
@@ -23,7 +23,7 @@ import {
 @Injectable()
 export class MustEnrolledGuard implements CanActivate {
     constructor(
-        @InjectPrimaryPostgresqlEntityManager()
+        @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
     ) {}
 

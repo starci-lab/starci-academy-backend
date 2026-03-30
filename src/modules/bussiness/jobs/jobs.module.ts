@@ -5,34 +5,35 @@ import {
 import {
     ConfigurableModuleClass,
     OPTIONS_TYPE,
-} from "./job.module-definition"
+} from "./jobs.module-definition"
 import {
-    JobActionService,
-} from "./job-action.service"
+    EnqueueEnrollJobService,
+} from "./enqueue"
 import {
-    JobCommonService,
-} from "./job-common.service"
-import {
-    JobStalledService,
-} from "./job-stalled.service"
+    JobActionService, 
+    JobStalledService 
+} from "./atomic"
 
+/**
+ * Module for job management.
+ */
 @Module({
 })
-export class JobModule extends ConfigurableModuleClass {
+export class JobsModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)
         return {
             ...dynamicModule,
             providers: [
                 ...(dynamicModule.providers ?? []),
-                JobCommonService,
                 JobActionService,
                 JobStalledService,
+                EnqueueEnrollJobService,
             ],
             exports: [
-                JobCommonService,
                 JobActionService,
                 JobStalledService,
+                EnqueueEnrollJobService,
             ],
         }
     }

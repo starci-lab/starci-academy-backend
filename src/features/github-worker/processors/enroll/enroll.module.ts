@@ -9,13 +9,13 @@ import {
 } from "./enroll.module-definition"
 import {
     JobModule,
-} from "@modules/job"
+} from "@modules/bussiness/jobs"
 import {
     EnrollFindExistingStepService,
 } from "./enroll-find-existing-step.service"
 import {
     EnrollCreateRelationStepService,
-} from "./enroll-create-relation-step.service"
+} from "./execute-step.service"
 
 /**
  * Module for enrolling a user in a course.

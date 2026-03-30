@@ -3,7 +3,7 @@ import {
 } from "@modules/common"
 import {
     CourseEntity,
-    InjectPrimaryPostgresqlEntityManager,
+    InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
     envConfig 
@@ -46,7 +46,7 @@ export class CoursesSyncService implements OnApplicationBootstrap {
       private readonly s3ReadService: S3ReadService,
       @InjectSuperJson()
       private readonly superJson: SuperJSON,
-      @InjectPrimaryPostgresqlEntityManager()
+      @InjectPrimaryPostgreSQLEntityManager()
       private readonly entityManager: EntityManager,
       private readonly winstonService: WinstonService,
     ) {}

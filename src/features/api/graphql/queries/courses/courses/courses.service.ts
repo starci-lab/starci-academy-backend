@@ -1,6 +1,6 @@
 import {
     CourseEntity,
-    InjectPrimaryPostgresqlEntityManager,
+    InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
     Injectable,
@@ -23,7 +23,7 @@ import {
 @Injectable()
 export class CoursesService {
     constructor(
-        @InjectPrimaryPostgresqlEntityManager()
+        @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
     ) {}
 

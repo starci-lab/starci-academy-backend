@@ -3,7 +3,7 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    InjectPrimaryPostgresqlEntityManager,
+    InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
     KeycloakJwksService,
@@ -25,7 +25,7 @@ import type {
 export class KeycloakAuthRestGuard extends AbstractKeycloakAuthGuard {
     constructor(
         keycloakJwksService: KeycloakJwksService,
-        @InjectPrimaryPostgresqlEntityManager()
+        @InjectPrimaryPostgreSQLEntityManager()
         entityManager: EntityManager,
     ) {
         super(

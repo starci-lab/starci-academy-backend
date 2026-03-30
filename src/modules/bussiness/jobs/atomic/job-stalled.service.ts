@@ -17,12 +17,17 @@ import {
 import type {
     GetStalledJobsParams,
     GetStalledJobsResult,
-    UpdateQueueAtParams,
-    UpdateQueueAtResult,
-} from "./types"
+    RequeueJobParams,
+} from "../types"
 import {
-    JobCommonService,
-} from "./job-common.service"
+    JobNotFoundException,
+} from "@modules/exceptions"
+import {
+    InjectPrimaryPostgreSQLEntityManager 
+} from "@modules/databases"
+import type {
+    EntityManager,
+} from "typeorm"
 
 /**
  * Service for querying stalled jobs based on queue time threshold.
@@ -30,8 +35,9 @@ import {
 @Injectable()
 export class JobStalledService {
     constructor(
-        private readonly jobCommonService: JobCommonService,
         private readonly dayjsService: DayjsService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly primaryEntityManager: EntityManager,
     ) {}
 
     /**
@@ -44,9 +50,7 @@ export class JobStalledService {
         entityManager,
     }: GetStalledJobsParams = {
     }): Promise<GetStalledJobsResult> {
-        const manager = this.jobCommonService.getManager({
-            entityManager,
-        })
+        const manager = entityManager ?? this.primaryEntityManager
         const staleBefore = this.dayjsService.now().subtract(
             envConfig().job.stalled,
             "millisecond",
@@ -63,27 +67,39 @@ export class JobStalledService {
     }
 
     /**
-     * Update the queue at time of a job.
-     * @param job - The job to update.
-     * @returns The updated job.
+     * Requeue a job.
+     * @param id - The ID of the job.
+     * @param entityManager - The entity manager.
+     * @returns The job.
      */
-    async updateQueueAt({
+    async requeueJob({
+        id,
         entityManager,
-    }: UpdateQueueAtParams): Promise<UpdateQueueAtResult> {
-        const manager = this.jobCommonService.getManager({
-            entityManager,
-        })
-        const now = this.dayjsService.now().toDate()
-        const updateResult = await manager.update(
+    }: RequeueJobParams): Promise<JobEntity> {
+        // get the manager
+        const manager = entityManager ?? this.primaryEntityManager
+        // get the job record
+        const job = await manager.findOne(
             JobEntity,
             {
-                status: JobStatus.Processing,
-                queueAt: LessThan(now),
-            },
-            {
-                queueAt: now,
+                where: {
+                    id,
+                },
             },
         )
-        return updateResult.affected ?? 0
+        if (!job) {
+            throw new JobNotFoundException(
+                {
+                    id,
+                },
+            )
+        }
+        // reset the queue at time
+        job.queueAt = this.dayjsService.now().toDate()
+        // save the job record
+        return manager.save(
+            JobEntity,
+            job,
+        )
     }
 }

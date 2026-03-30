@@ -6,19 +6,19 @@ import {
 } from "../abstract"
 /** Metadata for job not found. */
 export interface JobNotFoundExceptionMetadata extends AbstractExceptionMetadata {
-    jobId: string
+    id: string
 }
 
 /** Thrown when job cannot be found. */
 export class JobNotFoundException extends AbstractException {
     constructor(
-        { jobId, originalError }: JobNotFoundExceptionMetadata
+        { id, originalError }: JobNotFoundExceptionMetadata
     ) {
         super(
             "Job not found", 
             "JOB_NOT_FOUND_EXCEPTION", 
             {
-                jobId,
+                id,
                 originalError,
             }
         )

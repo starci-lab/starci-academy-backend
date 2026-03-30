@@ -1,5 +1,4 @@
 import {
-    BadRequestException,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -7,12 +6,32 @@ import {
 } from "@modules/payos"
 import {
     PayOS,
-    WebhookError,
 } from "@payos/node"
 import {
     PayosWebhookRequest,
-    PayosWebhookResponse,
 } from "./dtos"
+import {
+    EnqueueEnrollJobService 
+} from "@modules/bussiness"
+import {
+    InjectPrimaryPostgreSQLEntityManager, 
+    TransactionEntity,
+    TransactionStatus
+} from "@modules/databases"
+import type {
+    EntityManager 
+} from "typeorm"
+import {
+    DayjsService 
+} from "@modules/mixin"
+import {
+    envConfig 
+} from "@modules/env"
+import {
+    TransactionNotFoundException,
+    TransactionCourseNotFoundException,
+    TransactionExpiredError,
+} from "@modules/exceptions"
 
 /**
  * Verifies payOS webhooks via {@link PayOS#webhooks#verify} (checksum/signature handled by the SDK).
@@ -24,30 +43,64 @@ export class PayosWebhookService {
     constructor(
         @InjectPayOS()
         private readonly payos: PayOS,
+        private readonly enqueueEnrollJobService: EnqueueEnrollJobService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
+        private readonly dayjsService: DayjsService,
     ) {}
 
     /**
-     * Entry: validates the webhook payload; throws {@link BadRequestException} when verification fails.
+     * Entry: Verifies the webhook payload.
+     * @param body - The webhook payload.
      */
     async execute(
         body: PayosWebhookRequest,
-    ): Promise<PayosWebhookResponse> {
-        try {
-            await this.payos.webhooks.verify(
-                body as Parameters<
-                    PayOS["webhooks"]["verify"]
-                >[0],
+    ) {
+        // verify the webhook payload
+        await this.payos.webhooks.verify(body)
+        // retrieve the user and course from transaction
+        const transaction = await this.entityManager.findOne(
+            TransactionEntity,
+            {
+                where: {
+                    referenceId: body.data.orderCode.toString(),
+                    status: TransactionStatus.Pending,
+                },
+            },
+        )
+        if (!transaction) {
+            throw new TransactionNotFoundException(
+                {
+                    referenceId: body.data.orderCode.toString(),
+                },
             )
-        } catch (unknownError) {
-            if (unknownError instanceof WebhookError) {
-                throw new BadRequestException(
-                    unknownError.message,
-                )
+        }
+        // check if the transaction is still in time
+        const timeSinceCreationMs = this.dayjsService.now().diff(
+            this.dayjsService.from(transaction?.createdAt),
+            "milliseconds",
+        )
+        if (timeSinceCreationMs < envConfig().services.api.transaction.timeSinceCreationMs) {
+            throw new TransactionExpiredError(
+                {
+                    id: transaction.id,
+                },
+            )
+        }
+        if (!transaction.courseId) {
+            throw new TransactionCourseNotFoundException(
+                {
+                    id: transaction.id,
+                },
+            )
+        }
+        // enqueue the enroll job
+        await this.enqueueEnrollJobService.enqueue(
+            {
+                userId: transaction.userId,
+                courseId: transaction.courseId,
+                transactionId: transaction.id,
             }
-            throw unknownError
-        }
-        return {
-            ok: true,
-        }
+        ) 
     }
 }

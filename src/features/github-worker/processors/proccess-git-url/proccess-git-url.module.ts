@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     JobModule,
-} from "@modules/job"
+} from "@modules/bussiness/jobs"
 import {
     ConfigurableModuleClass,
 } from "./proccess-git-url.module-definition"

@@ -11,8 +11,8 @@ import {
 } from "@nestjs/graphql"
 import {
     GraphQLTypeActionType,
-    GraphQLTypePreflightTransactionStatus,
-    PreflightTransactionStatus,
+    GraphQLTypeTransactionStatus,
+    TransactionStatus,
 } from "../enums"
 import {
     CourseEntity,
@@ -32,13 +32,13 @@ import {
 } from "../enums"
 
 /**
- * PayOS checkout preflight: one user may have many attempts per course over time.
+ * Transaction entity: capture the payment details of a user for a course (course may be null).
  */
 @ObjectType({
-    description: "PayOS checkout preflight: one user may have many attempts per course over time.",
+    description: "Transaction capture the payment details of a user for a course (course may be null).",
 })
-@Entity("preflight_transactions")
-export class PreflightTransactionEntity extends UuidAbstractEntity {
+@Entity("transactions")
+export class TransactionEntity extends UuidAbstractEntity {
     /**
      * The user who made the preflight transaction.
      */
@@ -55,9 +55,11 @@ export class PreflightTransactionEntity extends UuidAbstractEntity {
             onDelete: "CASCADE",
         },
     )
-    @JoinColumn({
-        name: "user_id",
-    })
+    @JoinColumn(
+        {
+            name: "user_id",
+        }
+    )
         user: UserEntity
 
     /**
@@ -66,7 +68,7 @@ export class PreflightTransactionEntity extends UuidAbstractEntity {
     @Field(
         () => CourseEntity,
         {
-            nullable: false,
+            nullable: true,
             description: "The course associated with the preflight transaction.",
         },
     )
@@ -74,12 +76,13 @@ export class PreflightTransactionEntity extends UuidAbstractEntity {
         () => CourseEntity,
         {
             onDelete: "CASCADE",
+            nullable: true,
         },
     )
     @JoinColumn({
         name: "course_id",
     })
-        course: CourseEntity
+        course?: CourseEntity
 
     /**
      * The ID of the user who made the preflight transaction.
@@ -92,7 +95,7 @@ export class PreflightTransactionEntity extends UuidAbstractEntity {
     )
     @Column({
         name: "user_id",
-        type: "varchar",
+        type: "uuid",
     })
         userId: string
 
@@ -108,8 +111,9 @@ export class PreflightTransactionEntity extends UuidAbstractEntity {
     @Column({
         name: "course_id",
         type: "varchar",
+        nullable: true,
     })
-        courseId: string
+        courseId?: string
 
     /**
      * The order code of the preflight transaction.
@@ -117,15 +121,15 @@ export class PreflightTransactionEntity extends UuidAbstractEntity {
     @Field(
         () => String,
         {
-            description: "The order code of the preflight transaction.",
+            description: "The reference ID of the preflight transaction.",
         },
     )
     @Column({
-        name: "order_code",
+        name: "reference_id",
         type: "varchar",
         length: 64,
     })
-        orderCode: string
+        referenceId: string
 
     /**
      * The payment amount of the preflight transaction.
@@ -159,22 +163,6 @@ export class PreflightTransactionEntity extends UuidAbstractEntity {
         pricingPhase: PricingPhase
 
     /**
-     * The payment link ID returned by the payment provider.
-     */
-    @Field(
-        () => String,
-        {
-            description: "The payment link ID returned by the payment provider.",
-        },
-    )
-    @Column({
-        name: "payment_link_id",
-        type: "varchar",
-        length: 255,
-    })
-        paymentLinkId: string
-
-    /**
      * The checkout URL for the preflight transaction.
      */
     @Field(
@@ -190,20 +178,20 @@ export class PreflightTransactionEntity extends UuidAbstractEntity {
         checkoutUrl: string
 
     /**
-     * The current status of the preflight transaction.
+     * The current status of the transaction.
      */
     @Field(
-        () => GraphQLTypePreflightTransactionStatus,
+        () => GraphQLTypeTransactionStatus,
         {
-            description: "The current status of the preflight transaction.",
+            description: "The current status of the transaction.",
         },
     )
     @Column({
         name: "status",
         type: "enum",
-        enum: PreflightTransactionStatus,
+        enum: TransactionStatus,
     })
-        status: PreflightTransactionStatus
+        status: TransactionStatus
 
     /**
      * The payment provider type of the preflight transaction.

@@ -6,7 +6,6 @@ import {
 import {
     Column,
     Entity,
-    Unique,
 } from "typeorm"
 import {
     UuidAbstractEntity,
@@ -14,6 +13,8 @@ import {
 import {
     JobStatus,
     GraphQLTypeJobStatus,
+    ActionType,
+    GraphQLTypeActionType,
 } from "../enums"
 
 /**
@@ -23,13 +24,6 @@ import {
     description: "Worker job status record.",
 })
 @Entity("jobs")
-@Unique(
-    "UQ_jobs_queue_bullmq_job_id",
-    [
-        "queueName",
-        "bullmqJobId",
-    ],
-)
 export class JobEntity extends UuidAbstractEntity {
     @Field(
         () => Date,
@@ -48,43 +42,11 @@ export class JobEntity extends UuidAbstractEntity {
     )
     @Column(
         {
-            name: "queue_name",
-            type: "varchar",
-            length: 128,
-        },
-    )
-        queueName: string
-
-    @Field(
-        () => String,
-        {
-            nullable: true,
-        },
-    )
-    @Column(
-        {
-            name: "bullmq_job_id",
-            type: "varchar",
-            length: 128,
-            nullable: true,
-        },
-    )
-        bullmqJobId: string | null
-
-    @Field(
-        () => String,
-        {
-            nullable: true,
-        },
-    )
-    @Column(
-        {
             name: "payload",
             type: "text",
-            nullable: true,
         },
     )
-        payload: string | null
+        payload: string
 
     @Field(
         () => GraphQLTypeJobStatus,
@@ -138,4 +100,16 @@ export class JobEntity extends UuidAbstractEntity {
         },
     )
         currentStep: number
+
+    @Field(
+        () => GraphQLTypeActionType,
+    )
+    @Column(
+        {
+            name: "action_type",
+            type: "enum",
+            enum: ActionType,
+        },
+    )
+        actionType: ActionType
 }

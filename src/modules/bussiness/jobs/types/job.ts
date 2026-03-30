@@ -1,5 +1,6 @@
 import {
     JobEntity,
+    ActionType,
 } from "@modules/databases"
 import type {
     EntityManager,
@@ -8,20 +9,24 @@ import type {
 
 /** Target selector for an existing job record. */
 export interface JobTargetParams {
-    id?: string
-    queueName?: string
-    bullmqJobId?: string
+    id: string
     entityManager?: EntityManager
 }
 
 /** Params for creating a job tracking record. */
-export interface CreateJobParams {
-    queueName: string
-    bullmqJobId?: string | null
-    payload?: string | null
-    maxSteps?: number
+export interface CreateJobParams extends JobTargetParams {
+    /** The type of action to perform. */
+    actionType: ActionType
+    /** The payload for the job. */
+    payload: string
+    /** The maximum number of steps for the job. */
+    maxSteps: number
+    /** The entity manager to use. */
     entityManager?: EntityManager
 }
+
+/** Params for queuing a job. */
+export type RequeueJobParams = JobTargetParams
 
 /** Result of creating a job tracking record. */
 export type CreateJobResult = JobEntity

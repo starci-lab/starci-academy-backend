@@ -4,7 +4,7 @@ import {
     UnauthorizedException,
 } from "@nestjs/common"
 import {
-    InjectPrimaryPostgresqlEntityManager,
+    InjectPrimaryPostgreSQLEntityManager,
     UserEntity,
 } from "@modules/databases"
 import {
@@ -23,7 +23,7 @@ import type {
 export abstract class AbstractKeycloakAuthGuard implements CanActivate {
     constructor(
         protected readonly keycloakJwksService: KeycloakJwksService,
-        @InjectPrimaryPostgresqlEntityManager()
+        @InjectPrimaryPostgreSQLEntityManager()
         protected readonly entityManager: EntityManager,
     ) { }
 

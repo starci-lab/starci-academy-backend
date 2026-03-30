@@ -14,7 +14,7 @@ import {
     CoursesService,
 } from "./courses"
 import {
-    InjectPrimaryPostgresqlEntityManager 
+    InjectPrimaryPostgreSQLEntityManager 
 } from "../primary.decorators"
 
 /**
@@ -25,7 +25,7 @@ export class SeedersService implements OnModuleInit {
     constructor(
         @Inject(MODULE_OPTIONS_TOKEN)
         private readonly options: typeof OPTIONS_TYPE,
-        @InjectPrimaryPostgresqlEntityManager()
+        @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
         private readonly coursesService: CoursesService,

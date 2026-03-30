@@ -26,10 +26,10 @@ export const envConfig = () => ({
     services: {
         /** API service configuration. */
         api: {
-            /** Preflight transaction configuration. */
-            preflightTransaction: {
+            /** Transaction configuration. */
+            transaction: {
                 timeSinceCreationMs: parseEnvMs({
-                    key: "API_PREFLIGHT_TRANSACTION_TIME_SINCE_CREATION_MS",
+                    key: "API_TRANSACTION_TIME_SINCE_CREATION_MS",
                     defaultValue: "15m",
                 }),
             },
@@ -483,6 +483,12 @@ export const envConfig = () => ({
     },
     /** Job tracking configuration. */
     job: {
+        enroll: {
+            maxSteps: parseEnvInt({
+                key: "JOB_ENROLL_MAX_STEPS",
+                defaultValue: 1,
+            }),
+        },
         stalled: parseEnvMs({
             key: "JOB_STALLED",
             defaultValue: "10m",

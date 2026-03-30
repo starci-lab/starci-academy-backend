@@ -4,7 +4,7 @@ import {
     bullData 
 } from "@modules/bullmq"
 import {
-    InjectPrimaryPostgresqlEntityManager 
+    InjectPrimaryPostgreSQLEntityManager 
 } from "@modules/databases"
 import {
     envConfig 
@@ -12,7 +12,7 @@ import {
 import { 
     JobActionService, 
     JobCommonService 
-} from "@modules/job"
+} from "@modules/bussiness/jobs"
 import {
     InjectSuperJson 
 } from "@modules/mixin"
@@ -33,7 +33,7 @@ import {
 } from "typeorm"
 import {
     EnrollCreateRelationStepService,
-} from "./enroll-create-relation-step.service"
+} from "./execute-step.service"
 import {
     EnrollFindExistingStepService,
 } from "./enroll-find-existing-step.service"
@@ -54,7 +54,7 @@ export class EnrollWorker extends WorkerHost {
     constructor(
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
-        @InjectPrimaryPostgresqlEntityManager()
+        @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly winstonService: WinstonService,    
         private readonly jobActionService: JobActionService,

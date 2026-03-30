@@ -16,7 +16,6 @@ import {
 } from "../../http"
 import {
     PayosWebhookRequest,
-    PayosWebhookResponseDto
 } from "./dtos"
 import {
     PayosWebhookService,
@@ -47,7 +46,6 @@ export class PayosWebhookController {
         {
             status: 201,
             description: "Webhook verified and snapshot stored.",
-            type: PayosWebhookResponseDto,
         },
     )
     @Post(
@@ -57,7 +55,6 @@ export class PayosWebhookController {
         @Body()
             body: PayosWebhookRequest,
     ) {
-        console.log(body)
         return this.payosWebhookService.execute(body)
     }
 }
