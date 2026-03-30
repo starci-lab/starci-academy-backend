@@ -66,6 +66,7 @@ export class CourseEnrollService {
                 },
             },
         )
+        // reject duplicate enrollment before hitting payment APIs
         if (alreadyEnrolled) {
             throw new CourseAlreadyEnrolledError(
                 {
@@ -74,6 +75,7 @@ export class CourseEnrollService {
                 },
             )
         }
+        // find the course
         const course = await this.entityManager.findOne(
             CourseEntity,
             {
@@ -85,6 +87,7 @@ export class CourseEnrollService {
                 },
             },
         )
+        // reject if course not found
         if (!course) {
             throw new CourseNotFoundException(
                 {
@@ -92,23 +95,32 @@ export class CourseEnrollService {
                 },
             )
         }
+        // delegate to the appropriate payment service
         switch (paymentType) {
-        case PaymentType.PayOS:
-            return this.courseEnrollPayOsService.execute(
+        // delegate to PayOS payment service
+        case PaymentType.PayOS: {
+            // set default URLs if not provided
+            const payosReturnUrl = request.payosReturnUrl || "https://www.google.com"
+            const payosCancelUrl = request.payosCancelUrl || "https://www.google.com"
+            return await this.courseEnrollPayOsService.execute(
                 {
                     course,
                     user,
-                    payosReturnUrl: request.payosReturnUrl,
-                    payosCancelUrl: request.payosCancelUrl,
+                    payosReturnUrl,
+                    payosCancelUrl,
                 },
             )
-        case PaymentType.Sepay:
-            return this.courseEnrollSepayService.execute(
+        }
+        // delegate to Sepay payment service
+        case PaymentType.Sepay: {
+            return await this.courseEnrollSepayService.execute(
                 {
                     course,
                     user,
                 },
             )
+        }
+        // reject if payment type is not supported
         default:
             throw new BadRequestException(
                 `Unsupported payment type: ${String(paymentType)}`,

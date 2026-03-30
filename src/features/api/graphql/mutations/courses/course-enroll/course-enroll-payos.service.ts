@@ -64,7 +64,7 @@ export class CourseEnrollPayOsService {
         }: ExecutePayOsParams,
     ): Promise<CourseEnrollResponseData> {
         // find the preflight transaction for the user and course
-        const preflightTransaction = await this.entityManager.findOne(
+        let preflightTransaction = await this.entityManager.findOne(
             PreflightTransactionEntity,
             {
                 where: {
@@ -117,7 +117,7 @@ export class CourseEnrollPayOsService {
             },
         )
         // create preflight transaction
-        const row = this.entityManager.create(  
+        preflightTransaction = this.entityManager.create(  
             PreflightTransactionEntity,
             {
                 userId: user.id,
@@ -134,12 +134,12 @@ export class CourseEnrollPayOsService {
             },
         )
         // save preflight transaction
-        await this.entityManager.save(row)
+        await this.entityManager.save(preflightTransaction)
         // return result
         return {
             checkoutUrl: paymentLink.checkoutUrl,
             orderCode: String(paymentLink.orderCode),
-            preflightTransactionId: row.id,
+            preflightTransactionId: preflightTransaction.id,
             paymentLinkId: paymentLink.paymentLinkId,
             amount: paymentLink.amount,
         }
