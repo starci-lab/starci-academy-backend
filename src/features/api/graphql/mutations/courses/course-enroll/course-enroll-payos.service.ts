@@ -1,4 +1,5 @@
 import {
+    ActionType,
     InjectPrimaryPostgresqlEntityManager,
     PaymentType,
     PreflightTransactionEntity,
@@ -26,7 +27,8 @@ import type {
     CourseEnrollResponseData,
 } from "./graphql-types"
 import {
-    DayjsService 
+    DayjsService, 
+    RetryService
 } from "@modules/mixin"
 import {
     envConfig 
@@ -47,6 +49,7 @@ export class CourseEnrollPayOsService {
         private readonly payos: PayOS,
         private readonly dayjsService: DayjsService,
         private readonly coursePricingService: CoursePricingService,
+        private readonly retryService: RetryService,
     ) {}
 
     /**
@@ -100,21 +103,26 @@ export class CourseEnrollPayOsService {
         }
         // generate order code
         const orderCode = this.generatePayOsOrderCode()
-        // generate description - userId + courseId
-        const description = `${user.id}-${course.id}`
+
         // get current pricing phase
         const currentPhase = this.coursePricingService.getCurrentPricingPhase(course)
         // create payment link
-        const paymentLink = await this.payos.paymentRequests.create(
+        const paymentLink = await this.retryService.retry(
             {
-                amount: this.coursePricingService.resolveAmountVnd({
-                    course 
-                }),
-                cancelUrl: payosCancelUrl,
-                description,
-                orderCode,
-                returnUrl: payosReturnUrl,
-            },
+                action: async () => {
+                    return await this.payos.paymentRequests.create(
+                        {
+                            amount: this.coursePricingService.resolveAmountVnd({
+                                course 
+                            }),
+                            cancelUrl: payosCancelUrl,
+                            description: "EN",
+                            orderCode,
+                            returnUrl: payosReturnUrl,
+                        },
+                    )
+                },
+            }
         )
         // create preflight transaction
         preflightTransaction = this.entityManager.create(  
@@ -131,6 +139,7 @@ export class CourseEnrollPayOsService {
                 paymentLinkId: paymentLink.paymentLinkId,
                 checkoutUrl: paymentLink.checkoutUrl,
                 status: PreflightTransactionStatus.Pending,
+                actionType: ActionType.Enroll,
             },
         )
         // save preflight transaction

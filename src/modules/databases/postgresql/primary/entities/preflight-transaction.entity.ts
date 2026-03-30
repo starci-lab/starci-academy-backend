@@ -10,6 +10,7 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 import {
+    GraphQLTypeActionType,
     GraphQLTypePreflightTransactionStatus,
     PreflightTransactionStatus,
 } from "../enums"
@@ -27,6 +28,7 @@ import {
     GraphQLTypePaymentType,
     PaymentType,
     PricingPhase,
+    ActionType,
 } from "../enums"
 
 /**
@@ -218,4 +220,20 @@ export class PreflightTransactionEntity extends UuidAbstractEntity {
         enum: PaymentType,
     })
         paymentType: PaymentType
+
+    /**
+     * The action type of the preflight transaction.
+     */
+    @Field(
+        () => GraphQLTypeActionType,
+        {
+            description: "The action type of the preflight transaction.",
+        },
+    )
+    @Column({
+        name: "action_type",
+        type: "enum",
+        enum: ActionType,
+    })
+        actionType: ActionType
 }
