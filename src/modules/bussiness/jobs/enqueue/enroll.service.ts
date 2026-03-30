@@ -68,6 +68,7 @@ export class EnqueueEnrollJobService implements OnApplicationBootstrap {
      */
     async enqueue(
         {
+            transactionId,
             userId,
             courseId,
             jobId,
@@ -90,6 +91,7 @@ export class EnqueueEnrollJobService implements OnApplicationBootstrap {
                 maxSteps: envConfig().job.enroll.maxSteps,
                 payload: this.superJson.stringify(
                     {
+                        transactionId,
                         userId,
                         courseId,
                     }
