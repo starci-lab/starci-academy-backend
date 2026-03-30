@@ -2,6 +2,8 @@
 export enum WinstonLog {
     CoursesSeededSuccessfully = "CoursesSeededSuccessfully",
     EnrollmentCreated = "EnrollmentCreated",
+    EnrollStepExecuted = "EnrollStepExecuted",
+    JobExecuted = "JobExecuted",
     EnrollmentAlreadyExists = "EnrollmentAlreadyExists",
     CdnSynchronizerCoursesSyncing = "CdnSynchronizerCoursesSyncing",
     CdnSynchronizerCourseSyncedSuccessfully = "CdnSynchronizerCourseSyncedSuccessfully",

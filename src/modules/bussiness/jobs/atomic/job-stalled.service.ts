@@ -20,9 +20,6 @@ import type {
     RequeueJobParams,
 } from "../types"
 import {
-    JobNotFoundException,
-} from "@modules/exceptions"
-import {
     InjectPrimaryPostgreSQLEntityManager 
 } from "@modules/databases"
 import type {
@@ -68,32 +65,18 @@ export class JobStalledService {
 
     /**
      * Requeue a job.
-     * @param id - The ID of the job.
+     * @param job - The job entity.
      * @param entityManager - The entity manager.
      * @returns The job.
      */
-    async requeueJob({
-        id,
-        entityManager,
-    }: RequeueJobParams): Promise<JobEntity> {
+    async requeueJob(
+        {
+            job,
+            entityManager,
+        }: RequeueJobParams
+    ): Promise<JobEntity> {
         // get the manager
         const manager = entityManager ?? this.primaryEntityManager
-        // get the job record
-        const job = await manager.findOne(
-            JobEntity,
-            {
-                where: {
-                    id,
-                },
-            },
-        )
-        if (!job) {
-            throw new JobNotFoundException(
-                {
-                    id,
-                },
-            )
-        }
         // reset the queue at time
         job.queueAt = this.dayjsService.now().toDate()
         // save the job record

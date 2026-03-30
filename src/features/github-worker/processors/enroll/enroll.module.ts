@@ -8,28 +8,19 @@ import {
     ConfigurableModuleClass 
 } from "./enroll.module-definition"
 import {
-    JobModule,
-} from "@modules/bussiness/jobs"
+    StepMappingService 
+} from "./step-mapping.service"
 import {
-    EnrollFindExistingStepService,
-} from "./enroll-find-existing-step.service"
-import {
-    EnrollCreateRelationStepService,
-} from "./execute-step.service"
-
+    EnrollStepService 
+} from "./steps"
 /**
  * Module for enrolling a user in a course.
  */
 @Module({
-    imports: [
-        JobModule.register({
-            isGlobal: true,
-        }),
-    ],
     providers: [
         EnrollWorker,
-        EnrollFindExistingStepService,
-        EnrollCreateRelationStepService,
+        StepMappingService,
+        EnrollStepService,
     ],
 })
 export class EnrollModule extends ConfigurableModuleClass {

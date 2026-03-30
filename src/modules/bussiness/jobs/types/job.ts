@@ -9,12 +9,16 @@ import type {
 
 /** Target selector for an existing job record. */
 export interface JobTargetParams {
-    id: string
+    /** The job entity. */
+    job: JobEntity
+    /** The entity manager to use. */
     entityManager?: EntityManager
 }
 
 /** Params for creating a job tracking record. */
-export interface CreateJobParams extends JobTargetParams {
+export interface CreateJobParams extends Omit<JobTargetParams, "job"> {
+    /** The ID of the job. */
+    id: string
     /** The type of action to perform. */
     actionType: ActionType
     /** The payload for the job. */
@@ -25,33 +29,30 @@ export interface CreateJobParams extends JobTargetParams {
     entityManager?: EntityManager
 }
 
+/** Params for getting a job. */
+export interface GetJobParams extends Omit<JobTargetParams, "job"> {
+    /** The ID of the job. */
+    id: string
+}
+
 /** Params for queuing a job. */
 export type RequeueJobParams = JobTargetParams
 
-/** Result of creating a job tracking record. */
-export type CreateJobResult = JobEntity
-
 /** Params for increasing the current step of a job. */
 export interface IncreaseJobParams extends JobTargetParams {
+    /** The step to increase. */
     step?: number
+    /** The entity manager to use. */
+    entityManager?: EntityManager
 }
-
-/** Result of increasing a job step. */
-export type IncreaseJobResult = JobEntity
 
 /** Params for marking a job as completed. */
 export type CompleteJobParams = JobTargetParams
-
-/** Result of marking a job as completed. */
-export type CompleteJobResult = JobEntity
 
 /** Params for marking a job as failed. */
 export interface FailJobParams extends JobTargetParams {
     error?: string | null
 }
-
-/** Result of marking a job as failed. */
-export type FailJobResult = JobEntity
 
 /** Params for querying stalled jobs. */
 export interface GetStalledJobsParams {
@@ -66,5 +67,10 @@ export interface UpdateQueueAtParams {
     entityManager?: EntityManager
 }
 
-/** Number of affected jobs after refreshing `queueAt`. */
-export type UpdateQueueAtResult = number
+/** Params for storing the result of a job. */
+export interface SaveExecutionResultParams<T> extends JobTargetParams {
+    /** The key of the execution result. */
+    key: string
+    /** The execution result of the job. */
+    executionResult: T
+}

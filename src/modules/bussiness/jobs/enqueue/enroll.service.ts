@@ -68,7 +68,9 @@ export class EnqueueEnrollJobService {
             // requeue the job
             job = await this.jobStalledService.requeueJob(
                 {
-                    id: jobId,
+                    job: await this.jobActionService.getJob({
+                        id: jobId,
+                    }),
                 }
             )
         } else {

@@ -9,3 +9,10 @@ export interface EnrollmentAlreadyExistsMessage {
     userId: string
     courseId: string
 }
+
+/** Message for when an enroll step is executed in the worker pipeline. */
+export interface EnrollStepExecutedMessage {
+    jobId: string
+    userId: string
+    courseId: string
+}

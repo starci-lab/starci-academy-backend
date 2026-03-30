@@ -4,22 +4,14 @@ import {
     bullData 
 } from "@modules/bullmq"
 import {
-    InjectPrimaryPostgreSQLEntityManager 
-} from "@modules/databases"
-import {
     envConfig 
 } from "@modules/env"
 import { 
     JobActionService, 
-    JobCommonService 
-} from "@modules/bussiness/jobs"
+} from "@modules/bussiness"
 import {
     InjectSuperJson 
 } from "@modules/mixin"
-import {
-    WinstonLog,
-    WinstonService,
-} from "@modules/winston"
 import {
     Processor as Worker,
     WorkerHost,
@@ -28,15 +20,19 @@ import {
     Job 
 } from "bullmq"
 import SuperJSON from "superjson"
+import type {
+    JobContext
+} from "../types"
 import {
-    EntityManager 
-} from "typeorm"
+    StepMappingService 
+} from "./step-mapping.service"
 import {
-    EnrollCreateRelationStepService,
-} from "./execute-step.service"
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
-    EnrollFindExistingStepService,
-} from "./enroll-find-existing-step.service"
+    DayjsService,
+} from "@modules/mixin"
 
 /**
  * Worker for enrolling a user in a course.
@@ -52,15 +48,12 @@ import {
 )
 export class EnrollWorker extends WorkerHost {
     constructor(
-        @InjectSuperJson()
-        private readonly superJson: SuperJSON,
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
-        private readonly winstonService: WinstonService,    
         private readonly jobActionService: JobActionService,
-        private readonly jobCommonService: JobCommonService,
-        private readonly enrollFindExistingStepService: EnrollFindExistingStepService,
-        private readonly enrollCreateRelationStepService: EnrollCreateRelationStepService,
+        @InjectSuperJson()
+        private readonly superJson: SuperJSON,  
+        private readonly stepMappingService: StepMappingService,
+        private readonly winstonService: WinstonService,
+        private readonly dayjsService: DayjsService,
     ) {
         super()
     }
@@ -69,58 +62,42 @@ export class EnrollWorker extends WorkerHost {
      * @param bullmqJob - The BullMQ job.
      * @returns A promise that resolves when the job is processed.
      */
-    async process(bullmqJob: Job<string>) {
+    async process(bullmqJob: Job<JobContext<string>>) {
+        const startedAt = Date.now()
         // get the payload from the job
-        const payload = this.superJson.parse<EnrollPayload>(bullmqJob.data)
+        const payload = this.superJson.parse<EnrollPayload>(bullmqJob.data.payload)
+        // get the step map
+        const stepMap = this.stepMappingService.getStepMap()
         // get the job record
-        const jobRecord = await this.jobCommonService.getJobOrThrow({
-            id: payload.jobId,
-        })
-        try {
-            const existed = await this.enrollFindExistingStepService.execute({
-                userId: payload.userId,
-                courseId: payload.courseId,
-                entityManager: this.entityManager,
-            })
-            await this.jobActionService.increaseJob({
-                id: jobRecord.id,
-            })
-            // if the enrollment already exists, log and return
-            if (existed) {
-                this.winstonService.log(
-                    WinstonLog.EnrollmentAlreadyExists,
-                    {
-                        userId: payload.userId,
-                        courseId: payload.courseId,
-                    },
-                )
-                await this.jobActionService.completeJob({
-                    id: jobRecord.id,
-                })
-            } else {
-                await this.enrollCreateRelationStepService.execute({
-                    userId: payload.userId,
-                    courseId: payload.courseId,
-                    entityManager: this.entityManager,
-                })
-                // log the enrollment
-                this.winstonService.log(
-                    WinstonLog.EnrollmentCreated,
-                    {
-                        userId: payload.userId,
-                        courseId: payload.courseId,
-                    },
-                )
-                await this.jobActionService.increaseJob({
-                    id: jobRecord.id,
-                })
+        const job = await this.jobActionService.getJob(
+            {
+                id: bullmqJob.id ?? "",
             }
-        } catch (error) {
-            await this.jobActionService.failJob({
-                id: jobRecord.id,
-                error: error instanceof Error ? error.message : "Unknown error",
-            })
-            throw error
+        )
+        // process the steps
+        while (job.currentStep < job.maxSteps) {
+            await stepMap.get(job.currentStep)?.process(
+                {
+                    job,
+                    queueName: bullmqJob.queueName,
+                    payload: {
+                        userId: payload.userId,
+                        courseId: payload.courseId,
+                        transactionId: payload.transactionId,
+                    },
+                }
+            )
         }
+        // log the job executed
+        this.winstonService.log(
+            WinstonLog.JobExecuted,
+            {
+                jobId: job.id ?? "",
+                queueName: bullmqJob.queueName,
+                payload,
+                success: true,
+                durationMs: this.dayjsService.now().diff(this.dayjsService.from(startedAt)),
+            },
+        )
     }
 }

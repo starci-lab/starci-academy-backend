@@ -112,4 +112,19 @@ export class JobEntity extends UuidAbstractEntity {
         },
     )
         actionType: ActionType
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+        },
+    )
+    @Column(
+        {
+            name: "execution_results",
+            type: "text",
+            nullable: true,
+        },
+    )
+        executionResults?: string
 }

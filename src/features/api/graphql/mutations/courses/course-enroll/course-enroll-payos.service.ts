@@ -3,7 +3,7 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
     PaymentType,
     TransactionEntity,
-    PreflightTransactionStatus,
+    TransactionStatus,
 } from "@modules/databases"
 import {
     PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError,
@@ -82,7 +82,7 @@ export class CourseEnrollPayOsService {
                 this.dayjsService.from(transaction.createdAt),
                 "milliseconds",
             )
-            if (timeSinceCreationMs < envConfig().services.api.preflightTransaction.timeSinceCreationMs) {
+            if (timeSinceCreationMs < envConfig().services.api.transaction.timeSinceCreationMs) {
                 return {
                     checkoutUrl: transaction.checkoutUrl,
                     referenceId: transaction.referenceId,
@@ -136,7 +136,7 @@ export class CourseEnrollPayOsService {
                 pricingPhase: currentPhase,
                 paymentType: PaymentType.PayOS,
                 checkoutUrl: paymentLink.checkoutUrl,
-                status: PreflightTransactionStatus.Pending,
+                status: TransactionStatus.Pending,
                 actionType: ActionType.Enroll,
             },
         )

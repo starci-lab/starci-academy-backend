@@ -11,19 +11,21 @@ import type {
 } from "typeorm"
 import type {
     CompleteJobParams,
-    CompleteJobResult,
+    GetJobParams,
     CreateJobParams,
-    CreateJobResult,
     FailJobParams,
-    FailJobResult,
     IncreaseJobParams,
-    IncreaseJobResult,
-} from "../types"   
+    SaveExecutionResultParams,
+} from "../types"
 import {
-    DayjsService 
+    DayjsService,
+    InjectSuperJson
 } from "@modules/mixin"
 import {
-    JobNotFoundException,
+    SuperJSON,
+} from "superjson"
+import {
+    JobNotFoundException 
 } from "@modules/exceptions"
 
 /**
@@ -37,7 +39,40 @@ export class JobActionService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly primaryEntityManager: EntityManager,
         private readonly dayjsService: DayjsService,
-    ) {}
+        @InjectSuperJson()
+        private readonly superJson: SuperJSON,
+    ) { }
+
+    /**
+     * Get the job.
+     * @param id - The ID of the job.
+     * @param entityManager - The entity manager.
+     * @returns The job.
+     */
+    async getJob(
+        {
+            entityManager,
+            id,
+        }: GetJobParams
+    ): Promise<JobEntity> {
+        const manager = entityManager ?? this.primaryEntityManager
+        const job = await manager.findOne(
+            JobEntity,
+            {
+                where: {
+                    id,
+                },
+            },
+        )
+        if (!job) {
+            throw new JobNotFoundException(
+                {
+                    id,
+                },
+            )
+        }
+        return job
+    }
 
     /**
      * Create a job.
@@ -54,7 +89,7 @@ export class JobActionService {
         payload,
         maxSteps = 0,
         entityManager,
-    }: CreateJobParams): Promise<CreateJobResult> {
+    }: CreateJobParams): Promise<JobEntity> {
         const manager = entityManager ?? this.primaryEntityManager
         const job = manager.create(
             JobEntity,
@@ -74,43 +109,28 @@ export class JobActionService {
         )
     }
 
-    
+
 
     /**
      * Increase the job step.
      * @param step - The step to increase.
      * @param entityManager - The entity manager.
-     * @param id - The ID of the job.
+     * @param job - The job entity.
      * @returns The job.
      */
     async increaseJob({
         step = 1,
         entityManager,
-        id,
-    }: IncreaseJobParams): Promise<IncreaseJobResult> {
+        job,
+    }: IncreaseJobParams): Promise<void> {
         const manager = entityManager ?? this.primaryEntityManager
-        const job = await manager.findOne(
-            JobEntity,
-            {
-                where: {
-                    id,
-                },
-            },
-        )
-        if (!job) {
-            throw new JobNotFoundException(
-                {
-                    id,
-                },
-            )
-        }
         job.currentStep += step
         if (job.maxSteps > 0 && job.currentStep >= job.maxSteps) {
             job.currentStep = job.maxSteps
             job.status = JobStatus.Completed
             job.error = null
         }
-        return manager.save(
+        await manager.save(
             JobEntity,
             job,
         )
@@ -124,30 +144,15 @@ export class JobActionService {
      */
     async completeJob({
         entityManager,
-        id,
-    }: CompleteJobParams): Promise<CompleteJobResult> {
+        job,
+    }: CompleteJobParams): Promise<void> {
         const manager = entityManager ?? this.primaryEntityManager
-        const job = await manager.findOne(
-            JobEntity,
-            {
-                where: {
-                    id,
-                },
-            },
-        )
-        if (!job) {
-            throw new JobNotFoundException(
-                {
-                    id,
-                },
-            )
-        }
         job.status = JobStatus.Completed
         if (job.maxSteps > 0 && job.currentStep < job.maxSteps) {
             job.currentStep = job.maxSteps
         }
         job.error = null
-        return manager.save(
+        await manager.save(
             JobEntity,
             job,
         )
@@ -163,27 +168,38 @@ export class JobActionService {
     async failJob({
         error = null,
         entityManager,
-        id,
-    }: FailJobParams): Promise<FailJobResult> {
+        job,
+    }: FailJobParams): Promise<void> {
         const manager = entityManager ?? this.primaryEntityManager
-        const job = await manager.findOne(
-            JobEntity,
-            {
-                where: {
-                    id,
-                },
-            },
-        )
-        if (!job) {
-            throw new JobNotFoundException(
-                {
-                    id,
-                },
-            )
-        }
         job.status = JobStatus.Failed
         job.error = error
-        return manager.save(
+        await manager.save(
+            JobEntity,
+            job,
+        )
+    }
+
+    /**
+     * Store the job result.
+     * @param entityManager - The entity manager.
+     * @param job - The job entity.
+     * @param result - The result.
+     * @returns The job.
+     */
+    async saveExecutionResult<T>({
+        entityManager,
+        job,
+        key,
+        executionResult,
+    }: SaveExecutionResultParams<T>): Promise<void> {
+        const manager = entityManager ?? this.primaryEntityManager
+        const executionResults = job.executionResults ? this.superJson.parse<
+            Record<string, unknown>
+        >(job.executionResults) : {
+        }
+        executionResults[key] = executionResult
+        job.executionResults = this.superJson.stringify(executionResults)
+        await manager.save(
             JobEntity,
             job,
         )

@@ -7,6 +7,8 @@ import {
     CoursesSeededSuccessfullyMessage,
     EnrollmentAlreadyExistsMessage,
     EnrollmentCreatedMessage,
+    StepExecutedMessage,
+    JobExecutedMessage,
 } from "./types"
 import type {
     CdnSynchronizerCourseAlreadySyncedMessage,
@@ -44,6 +46,22 @@ export const configMap = {
         console: true,
         messageType: {
         } as EnrollmentAlreadyExistsMessage,
+    },
+    [WinstonLog.EnrollStepExecuted]: {
+        name: WinstonLog.EnrollStepExecuted,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as StepExecutedMessage,
+    },
+    [WinstonLog.JobExecuted]: {
+        name: WinstonLog.JobExecuted,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as JobExecutedMessage,
     },
     // CDN synchronizer: errors.
     [WinstonLog.CdnSynchronizerCoursesSyncing]: {
