@@ -1,6 +1,9 @@
 import {
+    CourseEntity,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
+    nextPricingPhase,
+    PricingPhase,
     TransactionStatus,
 } from "@modules/databases"
 import {
@@ -26,6 +29,9 @@ import {
     WinstonLog,
     WinstonService 
 } from "@modules/winston"
+import {
+    CourseNotFoundException 
+} from "@modules/exceptions"
 /**
  * Step service: create enrollment relation between user and course.
  */
@@ -78,23 +84,61 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload> {
             },
         }: JobContext<EnrollPayload>
     ): Promise<void> {
+        // process the transaction
         await this.entityManager.transaction(
             async (entityManager) => {
+                // get the course
+                const course = await entityManager.findOne(
+                    CourseEntity,
+                    {
+                        where: {
+                            id: courseId 
+                        },
+                        lock: {
+                            mode: "pessimistic_write" 
+                        },
+                    }
+                )
+                // throw error if course not found
+                if (!course) {
+                    throw new CourseNotFoundException(
+                        {
+                            id: courseId,
+                        },
+                    )
+                }
+                // get the current pricing phase
+                const currentPhase = course?.currentPhase ?? PricingPhase.Regular
                 // create the enrollment
                 const enrollment = entityManager.create(
                     EnrollmentEntity,
                     {
-                        user: {
-                            id: userId,
-                        },
-                        course: {
-                            id: courseId,
-                        },
+                        userId,
+                        courseId,
+                        pricingPhase: currentPhase,
                     }
                 )
                 await entityManager.save(
                     enrollment,
                 )
+                // check if the pricing phase is exceeded
+                const phase = course?.pricingPhases.find(
+                    (phase) => phase.phase === currentPhase,
+                )
+                // get the enrollment count
+                const enrollmentCount = await entityManager.count(
+                    EnrollmentEntity,
+                    {
+                        where: {
+                            courseId,
+                        },
+                    },
+                )
+                if (!phase?.slotAvailable || enrollmentCount > phase.slotAvailable) {
+                    // update the course
+                    course.currentPhase = nextPricingPhase(currentPhase)
+                    await entityManager.save(course)
+                }
                 // update the transaction status
                 await this.transactionActionService.updateTransactionStatus(
                     {

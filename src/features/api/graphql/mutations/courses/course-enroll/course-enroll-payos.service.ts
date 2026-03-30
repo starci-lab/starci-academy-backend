@@ -73,6 +73,7 @@ export class CourseEnrollPayOsService {
                 where: {
                     userId: user.id,
                     courseId: course.id,
+                    status: TransactionStatus.Pending,
                 },
             },
         )

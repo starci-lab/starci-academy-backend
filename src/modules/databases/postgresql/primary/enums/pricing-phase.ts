@@ -43,3 +43,25 @@ registerEnumType(
         },
     },
 )
+
+/**
+ * Get the next pricing phase of a course.
+ */
+export const nextPricingPhase = (
+    currentPhase: PricingPhase,
+): PricingPhase => {
+    switch (currentPhase) {
+    // Pioneer -> EarlyBird
+    case PricingPhase.Pioneer: {
+        return PricingPhase.EarlyBird
+    }
+    // EarlyBird -> Regular
+    case PricingPhase.EarlyBird: {
+        return PricingPhase.Regular
+    }
+    // Regular -> Regular
+    default: {
+        return PricingPhase.Regular
+    }
+    }
+}

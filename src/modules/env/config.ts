@@ -458,7 +458,7 @@ export const envConfig = () => ({
     bullmq: {
         concurrency: parseEnvInt({
             key: "BULLMQ_CONCURRENCY",
-            defaultValue: 1,
+            defaultValue: 1000,
         }),
         lockDuration: parseEnvMs({
             key: "BULLMQ_LOCK_DURATION",
@@ -470,11 +470,11 @@ export const envConfig = () => ({
         }),
         maxStalledCount: parseEnvInt({
             key: "BULLMQ_MAX_STALLED_COUNT",
-            defaultValue: 3,
+            defaultValue: 1,
         }),
         attempts: parseEnvInt({
             key: "BULLMQ_ATTEMPTS",
-            defaultValue: 3,
+            defaultValue: 1,
         }),
         delay: parseEnvMs({
             key: "BULLMQ_DELAY",

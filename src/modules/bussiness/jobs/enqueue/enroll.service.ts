@@ -4,7 +4,6 @@ import {
 } from "../atomic"
 import {
     Injectable,
-    OnApplicationBootstrap
 } from "@nestjs/common"
 import {
     ActionType,
@@ -38,7 +37,7 @@ import {
  * Service for enqueuing an enroll job.
  */
 @Injectable()
-export class EnqueueEnrollJobService implements OnApplicationBootstrap {
+export class EnqueueEnrollJobService {
     constructor(
         private readonly jobActionService: JobActionService,
         private readonly jobStalledService: JobStalledService,
@@ -47,16 +46,6 @@ export class EnqueueEnrollJobService implements OnApplicationBootstrap {
         @InjectQueue(bullData[BullQueueName.Enroll].name)
         private readonly enrollQueue: Queue<string>,
     ) { }
-
-    async onApplicationBootstrap() {
-        await this.enqueue(
-            {
-                transactionId: "fe2b51a6-666f-4bb1-94a0-b87a7f08a091",
-                userId: "3e0be200-fc83-4804-a0b5-118981b94a7e",
-                courseId: "fullstack-mastery",
-            }
-        )
-    }
 
     /**
      * Enqueue an enroll job.

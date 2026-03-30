@@ -18,6 +18,10 @@ import {
 import {
     UserEntity,
 } from "./user.entity"
+import {
+    GraphQLTypePricingPhase,
+    PricingPhase,
+} from "../enums"
 
 /**
  * Join entity representing many-to-many enrollment between users and courses.
@@ -83,4 +87,15 @@ export class EnrollmentEntity extends UuidAbstractEntity {
         type: "varchar",
     })
         courseId: string
+
+    @Field(() => GraphQLTypePricingPhase,
+        {
+            description: "The pricing phase that the user enrolled in."
+        })
+    @Column({
+        name: "pricing_phase",
+        type: "enum",
+        enum: PricingPhase,
+    })
+        pricingPhase: PricingPhase
 }
