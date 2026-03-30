@@ -9,7 +9,7 @@ import {
 } from "./seeders.module-definition"
 import {
     CourseLoaderService,
-    CoursesService 
+    CoursesService,
 } from "./courses"
 /**
  * The module for the Seeders.
@@ -18,11 +18,11 @@ import {
     providers: [
         CourseLoaderService,
         SeedersService,
-        CoursesService
+        CoursesService,
     ],
     exports: [
         SeedersService,
-        CoursesService
+        CoursesService,
     ]
 })
 export class SeedersModule extends ConfigurableModuleClass {

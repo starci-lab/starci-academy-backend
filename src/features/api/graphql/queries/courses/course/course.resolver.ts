@@ -21,11 +21,11 @@ import {
 import {
     CourseService,
 } from "./course.service"
-import type {
+import {
     CourseEntity,
 } from "@modules/databases"
 
-@Resolver()
+@Resolver(() => CourseEntity)
 export class CourseResolver {
     constructor(
         private readonly courseService: CourseService,

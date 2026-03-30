@@ -11,7 +11,7 @@ import {
     EntityManager 
 } from "typeorm"
 import {
-    CoursesService 
+    CoursesService,
 } from "./courses"
 import {
     InjectPrimaryPostgresqlEntityManager 
@@ -28,7 +28,7 @@ export class SeedersService implements OnModuleInit {
         @InjectPrimaryPostgresqlEntityManager()
         private readonly entityManager: EntityManager,
         private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
-        private readonly coursesService: CoursesService
+        private readonly coursesService: CoursesService,
     ) { }
 
     /**
@@ -39,7 +39,6 @@ export class SeedersService implements OnModuleInit {
         // drop and seed in a transaction
         await this.entityManager.transaction(
             async (entityManager) => {
-                // drop and seed the courses
                 await this.coursesService.drop(entityManager)
                 await this.coursesService.seed(entityManager)
             }

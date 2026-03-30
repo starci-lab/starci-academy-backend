@@ -21,22 +21,11 @@ import {
 export class ContentEntity extends StringAbstractEntity {
     @Field(() => String)
     @Column({
-        name: "title",
+        name: "data",
         type: "varchar",
         length: 500
     })
-        title: string
-
-    @Field(() => String,
-        {
-            nullable: true
-        })
-    @Column({
-        name: "description",
-        type: "text",
-        nullable: true
-    })
-        description: string | null
+        data: string
 
     @Field(() => Int)
     @Column({

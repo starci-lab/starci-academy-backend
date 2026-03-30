@@ -5,6 +5,9 @@ import {
     ConfigurableModuleClass,
 } from "./courses.module-definition"
 import {
+    CourseEnrollmentStatusQueryModule,
+} from "./course-enrollment-status"
+import {
     CourseSingleQueryModule,
 } from "./course"
 import {
@@ -19,6 +22,7 @@ import {
         CourseSingleQueryModule.register({
             isGlobal: true,
         }),
+        CourseEnrollmentStatusQueryModule,
     ],
 })
 export class CoursesQueriesModule extends ConfigurableModuleClass {}

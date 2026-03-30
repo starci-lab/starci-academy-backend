@@ -195,7 +195,9 @@ export class CourseLoaderService {
      * @param root - Mount courses root directory.
      * @returns Folder names in load order.
      */
-    private listCourseDirNames(root: string): Array<string> {
+    private listCourseDirNames(
+        root: string
+    ): Array<string> {
         const indexPath = join(root,
             "data.json")
         if (existsSync(indexPath) && statSync(indexPath).isFile()) {
@@ -226,9 +228,11 @@ export class CourseLoaderService {
      * @param param - Mount root and folder name from manifest.
      * @returns Whether the course dir is loadable.
      */
-    private isValidManifestCourseDir({
-        root, name,
-    }: IsValidManifestCourseDirParams): boolean {
+    private isValidManifestCourseDir(
+        {
+            root, name,
+        }: IsValidManifestCourseDirParams
+    ): boolean {
         const courseDir = join(root,
             name)
         if (!existsSync(courseDir) || !statSync(courseDir).isDirectory()) {

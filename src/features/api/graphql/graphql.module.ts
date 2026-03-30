@@ -2,6 +2,9 @@ import {
     Module,
 } from "@nestjs/common"
 import {
+    MutationsModule,
+} from "./mutations"
+import {
     QueriesModule,
 } from "./queries"
 import {
@@ -14,6 +17,9 @@ import {
 @Module({
     imports: [
         QueriesModule.register({
+            isGlobal: true,
+        }),
+        MutationsModule.register({
             isGlobal: true,
         }),
     ],

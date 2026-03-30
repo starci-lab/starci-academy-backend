@@ -26,10 +26,19 @@ export const envConfig = () => ({
     services: {
         /** API service configuration. */
         api: {
+            /** Preflight transaction configuration. */
+            preflightTransaction: {
+                timeSinceCreationMs: parseEnvMs({
+                    key: "API_PREFLIGHT_TRANSACTION_TIME_SINCE_CREATION_MS",
+                    defaultValue: "15m",
+                }),
+            },
+            /** API port configuration. */
             port: parseEnvInt({
                 key: "API_PORT",
                 defaultValue: 3001,
             }),
+            /** API pagination configuration. */
             pagination: {
                 page: {
                     limit: parseEnvInt({

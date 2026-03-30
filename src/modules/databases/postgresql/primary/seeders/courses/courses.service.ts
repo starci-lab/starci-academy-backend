@@ -9,7 +9,7 @@ import {
     CourseLoaderService 
 } from "./course-loader.service"
 import {
-    CourseEntity 
+    CourseEntity,
 } from "../../entities"
 import {
     Seeder 

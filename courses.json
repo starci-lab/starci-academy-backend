@@ -20,14 +20,14 @@
     "qnas": [
       {
         "id": "fullstack-mastery-qna-1",
-        "question": "Em theo Java, .NET, Python, có thể học khóa học này không?",
-        "answer": "Hoàn toàn phù hợp. Khóa học sử dụng NestJS để giảng dạy vì đây là một framework hiện đại, giúp truyền tải rõ ràng các khái niệm backend. Tuy nhiên, bản chất backend không nằm ở ngôn ngữ hay framework, mà nằm ở tư duy xây dựng hệ thống. Mentor có nền tảng backend vững (đa stack), nên có thể hỗ trợ bạn mapping kiến thức sang Java, .NET, Python khi cần.",
+        "question": "I'm using Java, .NET, or Python — can I still take this course?",
+        "answer": "Absolutely. This course uses NestJS as the teaching framework because it is modern and helps explain backend concepts clearly. However, backend development is not about a specific language or framework — it’s about system thinking and problem-solving. The mentor has a strong multi-stack background, so you’ll be guided on how to map these concepts to Java, .NET, or Python when needed.",
         "orderIndex": 0
       },
       {
         "id": "fullstack-mastery-qna-2",
-        "question": "Có rất nhiều khóa học về lập trình backend, em có nên học khóa học này không?",
-        "answer": "Nếu bạn đang tìm một khóa học chỉ dừng lại ở CRUD và kiến thức bề nổi, thì khóa này không dành cho bạn. Khóa học đi thẳng vào bản chất của backend — từ tư duy thiết kế hệ thống, cách xử lý bài toán thực tế đến những vấn đề mà developer thường gặp khi làm production. Giáo án được xây dựng theo hướng nhanh, trực diện, không lòng vòng, giúp bạn hiểu sâu và áp dụng được ngay, thay vì chỉ học để biết.",
+        "question": "There are many backend courses out there — should I take this one?",
+        "answer": "If you're looking for a course that only covers basic CRUD and surface-level knowledge, this is not for you. This course goes straight to the core of backend engineering — from system design thinking to solving real-world problems and handling production-level challenges. The curriculum is designed to be fast, direct, and practical, helping you truly understand and apply what you learn, rather than just knowing it superficially.",
         "orderIndex": 1
       }
     ],
@@ -147,7 +147,7 @@
       {
         "id": "fullstack-mastery-module-2",
         "title": "Database Integration, ORM/ODM & Caching",
-        "description": "Tích hợp PostgreSQL với TypeORM, MongoDB với Mongoose, hiểu schema, relations, indexing, transaction, caching với Redis, và cách chọn SQL hay NoSQL phù hợp.",
+        "description": "Integrate PostgreSQL with TypeORM, MongoDB with Mongoose, understand schemas, relationships, indexing, transactions, caching with Redis, and how to choose the right database approach between SQL and NoSQL.",
         "orderIndex": 1,
         "generalContent": {
           "id": "fullstack-mastery-general-2",

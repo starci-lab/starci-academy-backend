@@ -57,6 +57,10 @@ export class CoursesService {
             CourseEntity,
             {
                 order,
+                relations: {
+                    pricingPhases: true,
+                    valuePropositions: true,
+                },
                 take: limit,
                 skip: pageNumber * limit,
             },

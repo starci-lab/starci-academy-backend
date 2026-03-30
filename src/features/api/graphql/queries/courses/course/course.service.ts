@@ -43,10 +43,13 @@ export class CourseService {
                 },
                 relations: {
                     prerequisites: true,
+                    valuePropositions: true,
                     qnas: true,
+                    pricingPhases: true,
                     modules: {
                         generalContent: true,
                         advancedContent: true,
+                        contents: true,
                     },
                 },
             },

@@ -10,6 +10,7 @@ import {
 import {
     KeycloakAuthGraphQLGuard,
     KeycloakAuthRestGuard,
+    KeycloakOptionalAuthGraphQLGuard,
 } from "./guards"
 import {
     KeycloakJwksService,
@@ -35,12 +36,14 @@ export class KeycloakModule extends ConfigurableModuleClass {
                 KeycloakTokenService,
                 KeycloakAuthRestGuard,
                 KeycloakAuthGraphQLGuard,
+                KeycloakOptionalAuthGraphQLGuard,
             ],
             exports: [
                 KeycloakJwksService,
                 KeycloakTokenService,
                 KeycloakAuthRestGuard,
                 KeycloakAuthGraphQLGuard,
+                KeycloakOptionalAuthGraphQLGuard,
             ],
         }
     }

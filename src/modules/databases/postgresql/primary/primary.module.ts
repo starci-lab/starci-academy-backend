@@ -19,6 +19,7 @@ import {
     AdvancedContentSectionEntity,
     ContentEntity,
     CourseEntity,
+    PricingPhaseEntity,
     PrerequisiteEntity,
     QnaEntity,
     ExclusiveLessonVideoEntity,
@@ -27,10 +28,12 @@ import {
     JobEntity,
     ModuleEntity,
     OutcomeEntity,
+    PreflightTransactionEntity,
     EnrollmentEntity,
     ResourceEntity,
     SubmissionEntity,
-    UserEntity 
+    UserEntity,
+    ValuePropositionEntity,
 } from "./entities"
 import {
     SeedersModule 
@@ -82,7 +85,9 @@ export class PrimaryPostgresqlModule extends ConfigurableModuleClass {
                                 database,
                                 entities: [
                                     UserEntity,
+                                    ValuePropositionEntity,
                                     CourseEntity,
+                                    PricingPhaseEntity,
                                     PrerequisiteEntity,
                                     QnaEntity,
                                     AdvancedContentEntity,
@@ -94,6 +99,7 @@ export class PrimaryPostgresqlModule extends ConfigurableModuleClass {
                                     ContentEntity,
                                     ExclusiveLessonVideoEntity,
                                     OutcomeEntity,
+                                    PreflightTransactionEntity,
                                     EnrollmentEntity,
                                     ResourceEntity,
                                     SubmissionEntity,
@@ -126,7 +132,9 @@ export class PrimaryPostgresqlModule extends ConfigurableModuleClass {
                 NestTypeOrmModule.forFeature(
                     [
                         UserEntity,
+                        ValuePropositionEntity,
                         CourseEntity,
+                        PricingPhaseEntity,
                         PrerequisiteEntity,
                         QnaEntity,
                         AdvancedContentEntity,
@@ -138,6 +146,7 @@ export class PrimaryPostgresqlModule extends ConfigurableModuleClass {
                         ContentEntity,
                         ExclusiveLessonVideoEntity,
                         OutcomeEntity,
+                        PreflightTransactionEntity,
                         EnrollmentEntity,
                         ResourceEntity,
                         SubmissionEntity,
