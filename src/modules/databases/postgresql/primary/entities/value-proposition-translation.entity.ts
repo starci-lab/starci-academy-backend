@@ -45,7 +45,12 @@ export class ValuePropositionTranslationEntity extends UuidAbstractEntity {
     /**
      * Target value proposition ID.
      */
-    @Field(() => String)
+    @Field(
+        () => String,
+        {
+            description: "Target value proposition ID.",
+        },
+    )
     @Column({
         name: "value_proposition_id",
         type: "varchar",
@@ -68,7 +73,12 @@ export class ValuePropositionTranslationEntity extends UuidAbstractEntity {
     /**
      * Target field name being translated (e.g., content).
      */
-    @Field(() => String)
+    @Field(
+        () => String,
+        {
+            description: "Target field name being translated.",
+        },
+    )
     @Column({
         name: "field",
         type: "varchar",
@@ -79,7 +89,12 @@ export class ValuePropositionTranslationEntity extends UuidAbstractEntity {
     /**
      * Translated value for the field.
      */
-    @Field(() => String)
+    @Field(
+        () => String,
+        {
+            description: "Translated value for the field.",
+        },
+    )
     @Column({
         name: "value",
         type: "text",

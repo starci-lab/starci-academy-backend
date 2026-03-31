@@ -47,7 +47,12 @@ export class CourseTranslationEntity extends UuidAbstractEntity {
     /**
      * Target course ID.
      */
-    @Field(() => String)
+    @Field(
+        () => String,
+        {
+            description: "Target course ID.",
+        },
+    )
     @Column({
         name: "course_id",
         type: "varchar",
@@ -70,7 +75,12 @@ export class CourseTranslationEntity extends UuidAbstractEntity {
     /**
      * Target field name being translated (e.g., title, description).
      */
-    @Field(() => String)
+    @Field(
+        () => String,
+        {
+            description: "Target field name being translated.",
+        },
+    )
     @Column({
         name: "field",
         type: "varchar",
@@ -81,7 +91,12 @@ export class CourseTranslationEntity extends UuidAbstractEntity {
     /**
      * Translated value for the field.
      */
-    @Field(() => String)
+    @Field(
+        () => String,
+        {
+            description: "Translated value for the field.",
+        },
+    )
     @Column({
         name: "value",
         type: "text",

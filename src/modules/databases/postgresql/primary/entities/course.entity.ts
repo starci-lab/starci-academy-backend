@@ -51,7 +51,12 @@ export class CourseEntity extends StringAbstractEntity {
     /**
      * Human-readable course title.
      */
-    @Field(() => String)
+    @Field(
+        () => String,
+        {
+            description: "Human-readable course title.",
+        },
+    )
     @Column({
         name: "title",
         type: "varchar",
@@ -91,6 +96,24 @@ export class CourseEntity extends StringAbstractEntity {
         type: "text",
     })
         description: string
+
+    /**
+     * Public CDN URL of the serialized course payload (if synced).
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+        },
+    )
+    @Column({
+        name: "cdn_url",
+        type: "varchar",
+        length: 2048,
+        nullable: true,
+    })
+        cdnUrl?: string | null
+
     /**
      * Original list price of the course before pricing phase discounts.
      */

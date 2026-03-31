@@ -12,16 +12,7 @@ export {
     fullstackMasteryCourse,
 } from "./fullstack-mastery"
 
-/**
- * All course seeds (TS), nested per course: course + `modules[]`.
- * When non-empty, `CourseLoaderService` uses this instead of `.mount/seeders/courses`.
- */
-export const coursesSeedData: Array<DeepPartial<CourseEntity>> = [
+/** All courses data. */
+export const courses: Array<DeepPartial<CourseEntity>> = [
     fullstackMasteryCourse,
 ]
-
-export const coursesSeedManifest = {
-    courses: coursesSeedData.map(
-        (c) => c.id as string,
-    ),
-}

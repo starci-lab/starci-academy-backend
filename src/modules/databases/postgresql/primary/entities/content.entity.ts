@@ -11,8 +11,8 @@ import {
     Column,
     Entity,
     JoinColumn,
+    ManyToOne,
     OneToMany,
-    OneToOne,
 } from "typeorm"
 import {
     StringAbstractEntity,
@@ -35,7 +35,12 @@ export class ContentEntity extends StringAbstractEntity {
     /**
      * Content title.
      */
-    @Field(() => String)
+    @Field(
+        () => String,
+        {
+            description: "Content title.",
+        },
+    )
     @Column({
         name: "title",
         type: "varchar",
@@ -49,15 +54,14 @@ export class ContentEntity extends StringAbstractEntity {
     @Field(
         () => String,
         {
-            nullable: true,
+            description: "Markdown body content.",
         },
     )
     @Column({
         name: "body",
         type: "text",
-        nullable: true,
     })
-        body: string | null
+        body: string
 
     /**
      * Display order within the module content list.
@@ -86,9 +90,9 @@ export class ContentEntity extends StringAbstractEntity {
      * Parent module this content belongs to.
      */
     @Field(() => ModuleEntity)
-    @OneToOne(
+    @ManyToOne(
         () => ModuleEntity,
-        (module: ModuleEntity) => module.content,
+        (module: ModuleEntity) => module.contents,
         {
             onDelete: "CASCADE",
         },

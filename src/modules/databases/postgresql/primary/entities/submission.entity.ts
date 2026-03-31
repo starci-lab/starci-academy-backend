@@ -30,6 +30,9 @@ import {
         "module",
     ])
 export class SubmissionEntity extends UuidAbstractEntity {
+    /**
+     * User who submitted the work.
+     */
     @Field(() => UserEntity,
         {
             description: "User who submitted the work."
@@ -44,12 +47,15 @@ export class SubmissionEntity extends UuidAbstractEntity {
     })
         user: UserEntity
 
+    /**
+     * Module/course unit the submission belongs to.
+     */
     @Field(() => ModuleEntity,
         {
             description: "Module/course unit the submission belongs to."
         })
     @ManyToOne(() => ModuleEntity,
-        (mod: ModuleEntity) => mod.submissions,
+        (module: ModuleEntity) => module.submissions,
         {
             onDelete: "CASCADE"
         })
@@ -58,13 +64,16 @@ export class SubmissionEntity extends UuidAbstractEntity {
     })
         module: ModuleEntity
 
+    /**
+     * Submitted resources (folder list or Git URL).
+     */
     @Field(() => [ResourceEntity],
         {
             nullable: true,
             description: "Submitted resources (folder list or Git URL)."
         })
     @OneToMany(() => ResourceEntity,
-        (res: ResourceEntity) => res.submission,
+        (resource: ResourceEntity) => resource.submission,
         {
             cascade: true
         })

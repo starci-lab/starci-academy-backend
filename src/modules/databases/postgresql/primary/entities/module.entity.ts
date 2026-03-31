@@ -6,7 +6,7 @@ import {
     Locale,
 } from "../enums"
 import {
-    Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne 
+    Column, Entity, JoinColumn, ManyToOne, OneToMany 
 } from "typeorm"
 import {
     CourseEntity 
@@ -21,9 +21,6 @@ import {
     LessonVideoEntity,
 } from "./lesson-video.entity"
 import {
-    OutcomeEntity 
-} from "./outcome.entity"
-import {
     SubmissionEntity 
 } from "./submission.entity"
 import {
@@ -34,14 +31,19 @@ import {
 } from "./module-translation.entity"
 
 @ObjectType({
-    description: "A module belonging to a course; contains learning outcomes."
+    description: "A module belonging to a course."
 })
 @Entity("modules")
 export class ModuleEntity extends StringAbstractEntity {
     /**
      * Human-readable module title.
      */
-    @Field(() => String)
+    @Field(
+        () => String,
+        {
+            description: "Human-readable module title.",
+        },
+    )
     @Column({
         name: "title",
         type: "varchar",
@@ -54,6 +56,7 @@ export class ModuleEntity extends StringAbstractEntity {
      */
     @Field(() => String,
         {
+            description: "Optional short description of the module.",
             nullable: true
         })
     @Column({
@@ -101,29 +104,34 @@ export class ModuleEntity extends StringAbstractEntity {
         course: CourseEntity
 
     /**
-     * Content attached to the module (optional).
+     * Ordered contents attached to the module.
      */
     @Field(
-        () => ContentEntity,
+        () => [ContentEntity],
         {
-            nullable: true,
+            description: "Ordered contents (title/body) attached to the module.",
         },
     )
-    @OneToOne(
+    @OneToMany(
         () => ContentEntity,
-        (row: ContentEntity) => row.module,
+        (content: ContentEntity) => content.module,
         {
             cascade: true,
         },
     )
-        content?: ContentEntity
+        contents: Array<ContentEntity>
 
     /**
      * Ordered preview content line items belonging to the module.
      */
-    @Field(() => [PreviewContentEntity])
+    @Field(
+        () => [PreviewContentEntity],
+        {
+            description: "Ordered preview content line items belonging to the module.",
+        },
+    )
     @OneToMany(() => PreviewContentEntity,
-        (row: PreviewContentEntity) => row.module,
+        (previewContent: PreviewContentEntity) => previewContent.module,
         {
             cascade: true
         })
@@ -132,24 +140,18 @@ export class ModuleEntity extends StringAbstractEntity {
     /**
      * Lesson videos attached to the module.
      */
-    @Field(() => [LessonVideoEntity])
+    @Field(
+        () => [LessonVideoEntity],
+        {
+            description: "Lesson videos attached to the module.",
+        },
+    )
     @OneToMany(() => LessonVideoEntity,
-        (row: LessonVideoEntity) => row.module,
+        (lessonVideo: LessonVideoEntity) => lessonVideo.module,
         {
             cascade: true
         })
         lessonVideos: Array<LessonVideoEntity>
-
-    /**
-     * Ordered learning outcomes belonging to the module.
-     */
-    @Field(() => [OutcomeEntity])
-    @OneToMany(() => OutcomeEntity,
-        (outcome: OutcomeEntity) => outcome.module,
-        {
-            cascade: true
-        })
-        outcomes: Array<OutcomeEntity>
 
     /**
      * Submissions associated with the module.
@@ -159,7 +161,7 @@ export class ModuleEntity extends StringAbstractEntity {
             nullable: true
         })
     @OneToMany(() => SubmissionEntity,
-        (sub: SubmissionEntity) => sub.module,
+        (submission: SubmissionEntity) => submission.module,
         {
             cascade: true
         })

@@ -238,13 +238,13 @@ export const envConfig = () => ({
     },
     /** Mount path configuration. */
     mountPath: {
-        /** File paths: seeders courses. */
-        seeders: {
-            coursesDir: parseEnvString({
-                key: "SEEDERS_COURSES_DIR_MOUNT_PATH",
+        /** File paths: data courses. */
+        data: {
+            courses: parseEnvString({
+                key: "DATA_COURSES_MOUNT_PATH",
                 defaultValue: join(process.cwd(),
                     ".mount",
-                    "seeders",
+                    "data",
                     "courses"),
             }),
         },

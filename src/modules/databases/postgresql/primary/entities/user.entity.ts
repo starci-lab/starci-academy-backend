@@ -123,7 +123,7 @@ export class UserEntity extends UuidAbstractEntity {
             nullable: true
         })
     @OneToMany(() => SubmissionEntity,
-        (sub: SubmissionEntity) => sub.user,
+        (submission: SubmissionEntity) => submission.user,
         {
             cascade: true
         })

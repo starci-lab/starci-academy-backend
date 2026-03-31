@@ -45,7 +45,12 @@ export class ContentTranslationEntity extends UuidAbstractEntity {
     /**
      * Target content ID.
      */
-    @Field(() => String)
+    @Field(
+        () => String,
+        {
+            description: "Target content ID.",
+        },
+    )
     @Column({
         name: "content_id",
         type: "varchar",
@@ -68,7 +73,12 @@ export class ContentTranslationEntity extends UuidAbstractEntity {
     /**
      * Target field name being translated (e.g., title, body).
      */
-    @Field(() => String)
+    @Field(
+        () => String,
+        {
+            description: "Target field name being translated.",
+        },
+    )
     @Column({
         name: "field",
         type: "varchar",
@@ -79,7 +89,12 @@ export class ContentTranslationEntity extends UuidAbstractEntity {
     /**
      * Translated value for the field.
      */
-    @Field(() => String)
+    @Field(
+        () => String,
+        {
+            description: "Translated value for the field.",
+        },
+    )
     @Column({
         name: "value",
         type: "text",

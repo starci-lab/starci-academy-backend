@@ -65,7 +65,7 @@ export class ResourceEntity extends UuidAbstractEntity {
             description: "Parent submission that owns this resource."
         })
     @ManyToOne(() => SubmissionEntity,
-        (sub: SubmissionEntity) => sub.resources,
+        (submission: SubmissionEntity) => submission.resources,
         {
             onDelete: "CASCADE"
         })

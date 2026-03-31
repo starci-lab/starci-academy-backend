@@ -6,14 +6,14 @@ import {
     In
 } from "typeorm"
 import {
-    coursesSeedData,
-} from "@data/courses"
-import {
     CourseEntity,
 } from "../../entities"
 import {
     Seeder 
 } from "../types"
+import {
+    courses 
+} from "@data/courses"
 /**
  * The service for the Courses.
  */
@@ -24,7 +24,6 @@ export class CoursesService implements Seeder {
      * @returns void.
      */
     async seed(entityManager: EntityManager) {
-        const courses = structuredClone(coursesSeedData)
         // if no courses, return
         if (courses.length === 0) {
             return
@@ -43,7 +42,6 @@ export class CoursesService implements Seeder {
      * @returns void.
      */
     async drop(entityManager: EntityManager) {
-        const courses = structuredClone(coursesSeedData)
         // get the courses ids
         const ids = courses.map(
             (course) => course.id

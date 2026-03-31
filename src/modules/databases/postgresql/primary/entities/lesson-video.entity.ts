@@ -24,6 +24,9 @@ import {
 })
 @Entity("lesson_videos")
 export class LessonVideoEntity extends StringAbstractEntity {
+    /**
+     * Video title.
+     */
     @Field(() => String)
     @Column({
         name: "title",
@@ -32,6 +35,9 @@ export class LessonVideoEntity extends StringAbstractEntity {
     })
         title: string
 
+    /**
+     * Optional video description.
+     */
     @Field(
         () => String,
         {
@@ -45,6 +51,9 @@ export class LessonVideoEntity extends StringAbstractEntity {
     })
         description: string | null
 
+    /**
+     * Video URL (e.g. YouTube watch or embed link).
+     */
     @Field(
         () => String,
         {
@@ -58,6 +67,9 @@ export class LessonVideoEntity extends StringAbstractEntity {
     })
         url: string
 
+    /**
+     * Video duration in milliseconds.
+     */
     @Field(
         () => Int,
         {
@@ -70,6 +82,9 @@ export class LessonVideoEntity extends StringAbstractEntity {
     })
         durationMs: number
 
+    /**
+     * Display order within the module lesson video list.
+     */
     @Field(() => Int)
     @Column({
         name: "order_index",
@@ -78,6 +93,9 @@ export class LessonVideoEntity extends StringAbstractEntity {
     })
         orderIndex: number
 
+    /**
+     * Parent module this lesson video belongs to.
+     */
     @Field(() => ModuleEntity)
     @ManyToOne(
         () => ModuleEntity,

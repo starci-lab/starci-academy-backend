@@ -35,7 +35,12 @@ export class PreviewContentEntity extends StringAbstractEntity {
     /**
      * Content line text/body.
      */
-    @Field(() => String)
+    @Field(
+        () => String,
+        {
+            description: "Content line text/body.",
+        },
+    )
     @Column({
         name: "data",
         type: "text",
