@@ -1,7 +1,6 @@
 import {
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
-    UserEntity,
 } from "@modules/databases"
 import {
     Injectable,
@@ -13,6 +12,12 @@ import type {
     CourseEnrollmentStatusData,
     CourseEnrollmentStatusRequest,
 } from "./graphql-types"
+import {
+    ExecuteParams,
+} from "../../../../types"
+import {
+    UserNotFoundException,
+} from "@modules/exceptions"
 
 /**
  * Loads enrollment aggregate for a course and whether a user is enrolled.
@@ -30,10 +35,19 @@ export class CourseEnrollmentStatusService {
      */
     async execute(
         {
-            courseId,
-        }: CourseEnrollmentStatusRequest,
-        user: UserEntity,
+            request,
+            user,
+        }: ExecuteParams<CourseEnrollmentStatusRequest>,
     ): Promise<CourseEnrollmentStatusData> {
+        if (!user) {
+            throw new UserNotFoundException(
+                {
+                }
+            )
+        }
+        const {
+            courseId,
+        } = request
         const enrollmentCount = await this.entityManager.count(
             EnrollmentEntity,
             {
@@ -42,18 +56,15 @@ export class CourseEnrollmentStatusService {
                 },
             },
         )
-        let isEnrolled = false
-        if (user.id) {
-            isEnrolled = await this.entityManager.exists(
-                EnrollmentEntity,
-                {
-                    where: {
-                        courseId,
-                        userId: user.id,
-                    },
+        const isEnrolled = await this.entityManager.exists(
+            EnrollmentEntity,
+            {
+                where: {
+                    courseId,
+                    userId: user.id,
                 },
-            )
-        }
+            },
+        )
         return {
             enrollmentCount,
             isEnrolled,

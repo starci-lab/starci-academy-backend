@@ -10,7 +10,7 @@ import {
 } from "@nestjs/common"
 import type {
     ResolveCourseAmountVndParams,
-} from "./types/course-pricing"
+} from "./types"
 /**
  * Resolves course checkout amounts in VND from `originalPrice` and `pricing_phases`.
  */

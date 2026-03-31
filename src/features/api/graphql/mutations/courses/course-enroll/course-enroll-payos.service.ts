@@ -1,5 +1,6 @@
 import {
     ActionType,
+    CourseEntity,
     InjectPrimaryPostgreSQLEntityManager,
     PaymentType,
     TransactionEntity,
@@ -7,6 +8,8 @@ import {
 } from "@modules/databases"
 import {
     PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError,
+    CourseNotFoundException,
+    UserNotFoundException,
 } from "@modules/exceptions"
 import {
     InjectPayOS,
@@ -21,9 +24,6 @@ import type {
     EntityManager,
 } from "typeorm"
 import type {
-    ExecutePayOsParams,
-} from "./types"
-import type {
     CourseEnrollResponseData,
 } from "./graphql-types"
 import {
@@ -36,6 +36,12 @@ import {
 import {
     CoursePricingService 
 } from "./course-pricing.service"
+import {
+    ExecuteParams,
+} from "../../../../types"
+import {
+    CourseEnrollRequest,
+} from "./graphql-types"
 
 /**
  * PayOS-specific course enrollment: payment link + preflight row.
@@ -60,12 +66,36 @@ export class CourseEnrollPayOsService {
      */
     async execute(
         {
-            course,
+            request: {
+                courseId,
+                payosReturnUrl,
+                payosCancelUrl,
+            },
             user,
-            payosReturnUrl,
-            payosCancelUrl,
-        }: ExecutePayOsParams,
+        }: ExecuteParams<CourseEnrollRequest>,
     ): Promise<CourseEnrollResponseData> {
+        if (!user) {
+            throw new UserNotFoundException(
+                {
+                }
+            )
+        }
+        // find the course
+        const course = await this.entityManager.findOne(
+            CourseEntity,
+            {
+                where: {
+                    id: courseId,
+                },
+            },
+        )
+        if (!course) {
+            throw new CourseNotFoundException(
+                {
+                    id: courseId,
+                },
+            )
+        }
         // find the transaction for the user and course
         let transaction = await this.entityManager.findOne(
             TransactionEntity,

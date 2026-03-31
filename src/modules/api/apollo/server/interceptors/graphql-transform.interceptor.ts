@@ -15,6 +15,12 @@ import {
     map,
     catchError,
 } from "rxjs/operators"
+import {
+    Locale,
+} from "@modules/databases"
+import {
+    resolveLocale,
+} from "@modules/locale"
 
 /** Internal shape of the transformed GraphQL response (data, message, success, error). */
 interface GraphQLResponse<T = unknown> {
@@ -26,8 +32,11 @@ interface GraphQLResponse<T = unknown> {
 
 const SUCCESS_MESSAGE_METADATA = "graphqlSuccessMessage"
 
+/** Success message can be localized by passing a Record<Locale, string>. */
+export type GraphQLSuccessMessage = Record<Locale, string>
+
 /** Sets the success message for the next resolver/handler. */
-export const GraphQLSuccessMessage = (message: string) =>
+export const GraphQLSuccessMessage = (message: GraphQLSuccessMessage) =>
     SetMetadata(SUCCESS_MESSAGE_METADATA,
         message)
 
@@ -42,16 +51,34 @@ export class GraphQLTransformInterceptor<T = unknown>
 implements NestInterceptor<T, GraphQLResponse<T>> {
     constructor(private readonly reflector: Reflector) {}
 
+    /**
+ * Intercept the request and transform the response.
+ * @param context - The execution context.
+ * @param next - The next handler.
+ * @returns The transformed response.
+ */
     intercept(
         context: ExecutionContext,
         next: CallHandler<T>,
     ): Observable<GraphQLResponse<T>> {
-        // get custom message from metadata (resolver or class)
+    // get custom message from metadata (resolver or class)
+        const messageMeta =
+        this.reflector.get<GraphQLSuccessMessage>(
+            SUCCESS_MESSAGE_METADATA,
+            context.getHandler(),
+        ) ??
+        this.reflector.get<GraphQLSuccessMessage>(
+            SUCCESS_MESSAGE_METADATA,
+            context.getClass(),
+        )
+
+        const locale = resolveLocale(context)
+
         const message =
-            this.reflector.get<string>(SUCCESS_MESSAGE_METADATA,
-                context.getHandler()) ??
-            this.reflector.get<string>(SUCCESS_MESSAGE_METADATA,
-                context.getClass())
+        messageMeta?.[locale] ??
+        messageMeta?.[Locale.En] ??
+        "Success"
+
         return next.handle().pipe(
             map((data): GraphQLResponse<T> => ({
                 data,
@@ -62,8 +89,8 @@ implements NestInterceptor<T, GraphQLResponse<T>> {
                 return new Observable<GraphQLResponse<T>>((observer) => {
                     observer.next({
                         success: false,
-                        message: err.message,
-                        error: err.name,
+                        message: err?.message ?? "Internal server error",
+                        error: err?.name ?? "Error",
                     })
                     observer.complete()
                 })

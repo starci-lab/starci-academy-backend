@@ -18,8 +18,9 @@ import {
     UseThrottler,
     ThrottlerConfig,
 } from "@modules/throttler"
-import type {
+import {
     UserEntity,
+    Locale 
 } from "@modules/databases"
 import {
     MeResponse,
@@ -39,7 +40,10 @@ export class MeResolver {
      */
     @UseThrottler(ThrottlerConfig.Soft)
     @UseGuards(KeycloakAuthGraphQLGuard)
-    @GraphQLSuccessMessage("Me fetched successfully")
+    @GraphQLSuccessMessage({
+        [Locale.En]: "Me fetched successfully",
+        [Locale.Vi]: "Lấy thông tin người dùng thành công",
+    })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(() => MeResponse,
         {
@@ -49,10 +53,6 @@ export class MeResolver {
         @KeycloakGraphQLUser()
             user: UserEntity,
     ): Promise<UserEntity> {
-        return this.meService.execute(
-            {
-                user,
-            }
-        )
+        return this.meService.execute(user)
     }
 }

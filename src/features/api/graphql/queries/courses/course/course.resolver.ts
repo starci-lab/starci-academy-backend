@@ -9,6 +9,7 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
+    GraphQLLocale,
 } from "@modules/api"
 import {
     UseThrottler,
@@ -23,6 +24,7 @@ import {
 } from "./course.service"
 import {
     CourseEntity,
+    Locale,
 } from "@modules/databases"
 
 @Resolver(() => CourseEntity)
@@ -35,7 +37,10 @@ export class CourseResolver {
      * Returns a single course by id.
      */
     @UseThrottler(ThrottlerConfig.Soft)
-    @GraphQLSuccessMessage("Course fetched successfully")
+    @GraphQLSuccessMessage({
+        [Locale.En]: "Course fetched successfully",
+        [Locale.Vi]: "Lấy khóa học thành công",
+    })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(() => CourseResponse,
         {
@@ -48,7 +53,14 @@ export class CourseResolver {
             }
         )
             request: CourseRequest,
+        @GraphQLLocale()
+            locale: Locale,
     ): Promise<CourseEntity> {
-        return this.courseService.execute(request)
+        return this.courseService.execute(
+            {
+                request,
+                locale,
+            },
+        )
     }
 }

@@ -9,6 +9,7 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
+    GraphQLLocale,
 } from "@modules/api"
 import {
     UseThrottler,
@@ -22,6 +23,9 @@ import {
 import {
     CoursesService,
 } from "./courses.service"
+import {
+    Locale 
+} from "@modules/databases"
 
 @Resolver()
 export class CoursesResolver {
@@ -33,7 +37,10 @@ export class CoursesResolver {
      * Lists courses with page-based pagination.
      */
     @UseThrottler(ThrottlerConfig.Soft)
-    @GraphQLSuccessMessage("Courses fetched successfully")
+    @GraphQLSuccessMessage({
+        [Locale.En]: "Courses fetched successfully",
+        [Locale.Vi]: "Lấy danh sách khóa học thành công",
+    })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(() => CoursesResponse,
         {
@@ -46,7 +53,14 @@ export class CoursesResolver {
             }
         )
             request: CoursesRequest,
+        @GraphQLLocale()
+            locale: Locale,
     ): Promise<CoursesResponseData> {
-        return this.coursesService.execute(request)
+        return this.coursesService.execute(
+            {
+                request,
+                locale,
+            },
+        )
     }
 }

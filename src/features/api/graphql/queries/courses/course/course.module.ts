@@ -10,10 +10,14 @@ import {
 import {
     CourseService,
 } from "./course.service"
+import {
+    CourseTransformerService,
+} from "../../../utils"
 
 @Module({
     providers: [
         CourseService,
+        CourseTransformerService,
         CourseResolver,
     ],
 })

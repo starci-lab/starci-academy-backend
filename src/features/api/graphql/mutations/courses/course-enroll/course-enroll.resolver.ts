@@ -10,6 +10,7 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
+    GraphQLLocale,
 } from "@modules/api"
 import {
     KeycloakAuthGraphQLGuard,
@@ -21,6 +22,7 @@ import {
 } from "@modules/throttler"
 import {
     UserEntity,
+    Locale,
 } from "@modules/databases"
 import {
     CourseEnrollRequest,
@@ -49,7 +51,10 @@ export class CourseEnrollResolver {
      */
     @UseThrottler(ThrottlerConfig.Medium)
     @UseGuards(KeycloakAuthGraphQLGuard)
-    @GraphQLSuccessMessage("Course checkout created successfully")
+    @GraphQLSuccessMessage({
+        [Locale.En]: "Course checkout created successfully",
+        [Locale.Vi]: "Tạo liên kết thanh toán khóa học thành công",
+    })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(
         () => CourseEnrollResponse,
@@ -67,11 +72,14 @@ export class CourseEnrollResolver {
             },
         )
             request: CourseEnrollRequest,
+        @GraphQLLocale()
+            locale: Locale,
     ): Promise<CourseEnrollResponseData> {
         return this.courseEnrollService.execute(
             {
                 request,
                 user,
+                locale,
             },
         )
     }

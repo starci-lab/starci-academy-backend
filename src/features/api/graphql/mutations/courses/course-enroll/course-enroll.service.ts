@@ -7,6 +7,7 @@ import {
 import {
     CourseAlreadyEnrolledError,
     CourseNotFoundException,
+    UserNotFoundException,
 } from "@modules/exceptions"
 import {
     BadRequestException,
@@ -21,12 +22,13 @@ import {
 import {
     CourseEnrollSepayService,
 } from "./course-enroll-sepay.service"
-import {
-    CourseEnrollParams,
-} from "./types"
 import type {
+    CourseEnrollRequest,
     CourseEnrollResponseData,
 } from "./graphql-types"
+import {
+    ExecuteParams,
+} from "../../../../types"
 
 /**
  * Orchestrates course enrollment checkout: validation, pricing (VND), then PayOS or Sepay service.
@@ -47,11 +49,18 @@ export class CourseEnrollService {
      * @returns Checkout payload and preflight transaction id
      */
     async execute(
-        {
+        params: ExecuteParams<CourseEnrollRequest>,
+    ): Promise<CourseEnrollResponseData> {
+        const {
             request,
             user,
-        }: CourseEnrollParams,
-    ): Promise<CourseEnrollResponseData> {
+        } = params
+        if (!user) {
+            throw new UserNotFoundException(
+                {
+                }
+            )
+        }
         const {
             courseId,
             paymentType,
@@ -99,25 +108,14 @@ export class CourseEnrollService {
         switch (paymentType) {
         // delegate to PayOS payment service
         case PaymentType.PayOS: {
-            // set default URLs if not provided
-            const payosReturnUrl = request.payosReturnUrl || "https://www.google.com"
-            const payosCancelUrl = request.payosCancelUrl || "https://www.google.com"
             return await this.courseEnrollPayOsService.execute(
-                {
-                    course,
-                    user,
-                    payosReturnUrl,
-                    payosCancelUrl,
-                },
+                params,
             )
         }
         // delegate to Sepay payment service
         case PaymentType.Sepay: {
             return await this.courseEnrollSepayService.execute(
-                {
-                    course,
-                    user,
-                },
+                params,
             )
         }
         // reject if payment type is not supported

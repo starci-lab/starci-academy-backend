@@ -16,6 +16,12 @@ import {
 import {
     envConfig 
 } from "@modules/env"
+import {
+    CourseTransformerService,
+} from "../../../utils"
+import {
+    ExecuteParams,
+} from "../../../../types"
 
 /**
  * Loads courses from primary PostgreSQL for GraphQL.
@@ -25,26 +31,32 @@ export class CoursesService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly courseTransformer: CourseTransformerService,
     ) {}
 
     /**
      * Entry: returns a page of courses ordered by sort request.
      *
-     * @param request - Pagination and sort options
-     * @param request.filters.limit - Number of courses to return
-     * @param request.filters.pageNumber - Page number
-     * @param request.filters.sorts - Sorts
-     * @param request.filters.sorts.by - Sort by
-     * @param request.filters.sorts.order - Sort order
+     * @param params - The parameters for the courses service.
+     * @param params.locale - The locale to use for the translations.
+     * @param params.request - Pagination and sort options
+     * @param params.request.filters.limit - Number of courses to return
+     * @param params.request.filters.pageNumber - Page number
+     * @param params.request.filters.sorts - Sorts
+     * @param params.request.filters.sorts.by - Sort by
+     * @param params.request.filters.sorts.order - Sort order
      * @returns Paginated courses
      */
     async execute({
-        filters: {
-            limit = envConfig().services.api.pagination.page.limit,
-            pageNumber = 0,
-            sorts,
+        request: {
+            filters: {
+                limit = envConfig().services.api.pagination.page.limit,
+                pageNumber = 0,
+                sorts,
+            },
         },
-    }: CoursesRequest): Promise<CoursesResponseData> {
+        locale,
+    }: ExecuteParams<CoursesRequest>): Promise<CoursesResponseData> {
         const order: FindOptionsOrder<CourseEntity> = {
         }
         for (const sort of sorts) {
@@ -67,7 +79,11 @@ export class CoursesService {
         )
         return {
             count,
-            data,
+            data: data.map((course) => this.courseTransformer.transform(
+                course,
+                locale
+            )
+            ),
         }
     }
 }

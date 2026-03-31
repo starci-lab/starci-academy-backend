@@ -10,6 +10,7 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
+    GraphQLLocale,
 } from "@modules/api"
 import {
     KeycloakAuthGraphQLGuard,
@@ -28,7 +29,8 @@ import {
     CourseEnrollmentStatusService,
 } from "./course-enrollment-status.service"
 import {
-    UserEntity 
+    UserEntity,
+    Locale,
 } from "@modules/databases"
 
 
@@ -43,7 +45,10 @@ export class CourseEnrollmentStatusResolver {
      */
     @UseThrottler(ThrottlerConfig.Soft)
     @UseGuards(KeycloakAuthGraphQLGuard)
-    @GraphQLSuccessMessage("Course enrollment status fetched successfully")
+    @GraphQLSuccessMessage({
+        [Locale.En]: "Course enrollment status fetched successfully",
+        [Locale.Vi]: "Lấy trạng thái đăng ký khóa học thành công",
+    })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(
         () => CourseEnrollmentStatusResponse,
@@ -61,10 +66,15 @@ export class CourseEnrollmentStatusResolver {
             },
         )
             request: CourseEnrollmentStatusRequest,
+        @GraphQLLocale()
+            locale: Locale,
     ): Promise<CourseEnrollmentStatusData> {
         return this.courseEnrollmentStatusService.execute(
-            request,
-            user,
+            {
+                request,
+                user,
+                locale,
+            },
         )
     }
 }
