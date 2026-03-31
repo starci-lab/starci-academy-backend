@@ -82,7 +82,7 @@ export const configMap = {
     },
     [WinstonLog.CdnSynchronizerCourseSyncedSuccessfully]: {
         name: WinstonLog.CdnSynchronizerCourseSyncedSuccessfully,
-        level: WinstonLevel.Verbose,
+        level: WinstonLevel.Debug,
         loki: true,
         console: true,
         messageType: {

@@ -22,7 +22,7 @@ import {
 } from "./module.entity"
 import {
     PreviewContentTranslationEntity,
-} from "./preview-content-translation.entity.js"
+} from "./preview-content-translation.entity"
 
 /**
  * A preview content line item in a module (typically bullet/paragraph data).

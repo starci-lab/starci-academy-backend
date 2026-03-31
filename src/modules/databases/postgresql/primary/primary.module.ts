@@ -41,6 +41,9 @@ import {
 import {
     SeedersModule 
 } from "./seeders"
+import {
+    ResolversModule,
+} from "./resolvers"
 
 /**
  * Primary PostgreSQL module for the primary PostgreSQL connection.
@@ -61,10 +64,21 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
         const extraModules: Array<DynamicModule> = []
         if (options.withSeeders) {
             extraModules.push(
-                SeedersModule.register(options.withSeeders)
+                SeedersModule.register(
+                    {
+                        ...options.withSeeders,
+                        isGlobal: options.isGlobal,
+                    }
+                )
             )
         }
-        // If mongoose is a boolean, use it as the connectionFactory value
+        if (options.withResolvers) {
+            extraModules.push(
+                ResolversModule.register({
+                    isGlobal: options.isGlobal,
+                })
+            )
+        }
         return {
             ...dynamicModule,
             imports: [

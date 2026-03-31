@@ -3,10 +3,10 @@ import type {
 } from "typeorm"
 import type {
     ModuleEntity,
-} from "@modules/databases"
+} from "../../../../../entities"
 import {
     Locale,
-} from "@modules/databases"
+} from "../../../../../enums"
 import {
     envConfig,
 } from "@modules/env"
@@ -27,6 +27,7 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
         courseId: CourseId.FullstackMastery,
         moduleIndex: 2,
     }),
+    defaultLocale: Locale.En,
     title: "Database Integration, ORM/ODM & Caching",
     description:
         "Integrate PostgreSQL with TypeORM, MongoDB with Mongoose, understand schema design, relationships, indexing, transactions, Redis caching, and when to choose SQL or NoSQL.",

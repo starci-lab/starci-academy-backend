@@ -14,7 +14,7 @@ import {
 } from "./abstract"
 import {
     PreviewContentEntity,
-} from "./preview-content.entity.js"
+} from "./preview-content.entity"
 import {
     GraphQLTypeLocale,
     Locale,

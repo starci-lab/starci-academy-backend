@@ -13,7 +13,7 @@ import {
 } from "../types"
 import {
     courses 
-} from "src/data/courses"
+} from "@modules/databases/postgresql/primary/data/courses"
 /**
  * The service for the Courses.
  */
@@ -23,7 +23,9 @@ export class CoursesService implements Seeder {
      * Seed the courses.
      * @returns void.
      */
-    async seed(entityManager: EntityManager) {
+    async seed(
+        entityManager: EntityManager
+    ) {
         // if no courses, return
         if (courses.length === 0) {
             return
@@ -41,7 +43,9 @@ export class CoursesService implements Seeder {
      * Drop the courses.
      * @returns void.
      */
-    async drop(entityManager: EntityManager) {
+    async drop(
+        entityManager: EntityManager
+    ) {
         // get the courses ids
         const ids = courses.map(
             (course) => course.id

@@ -3,7 +3,7 @@ import type {
 } from "typeorm"
 import type {
     ModuleEntity,
-} from "@modules/databases"
+} from "../../../../entities"
 import {
     fullstackMasteryModule1,
 } from "./1"

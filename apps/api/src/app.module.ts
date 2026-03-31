@@ -144,7 +144,8 @@ import {
                     isGlobal: true,
                     withSeeders: {
                         manualSeed: false,
-                    }
+                    },
+                    withResolvers: true,
                 }
             ),
             /** Bussiness module. */

@@ -3,10 +3,10 @@ import type {
 } from "typeorm"
 import type {
     ModuleEntity,
-} from "@modules/databases"
+} from "../../../../../entities"
 import {
     Locale,
-} from "@modules/databases"
+} from "../../../../../enums"
 import {
     envConfig 
 } from "@modules/env"
@@ -27,6 +27,7 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
         courseId: CourseId.FullstackMastery,
         moduleIndex: 1,
     }),
+    defaultLocale: Locale.En,
     title: "Backend Environment & NestJS Introduction",
     description:
         "Set up the Node.js environment, install NestJS, understand Dependency Injection, the Module System, the Request Lifecycle, Exception Handling, Logging, Validation, and how to build basic APIs.",

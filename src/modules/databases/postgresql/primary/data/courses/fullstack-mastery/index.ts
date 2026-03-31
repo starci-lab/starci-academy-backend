@@ -3,11 +3,11 @@ import type {
 } from "typeorm"
 import type {
     CourseEntity,
-} from "@modules/databases"
+} from "../../../entities"
 import {
     Locale,
     PricingPhase,
-} from "@modules/databases"
+} from "../../../enums"
 import {
     fullstackMasteryModules,
 } from "./modules"
@@ -26,6 +26,7 @@ export const fullstackMasteryCourse: DeepPartial<CourseEntity> = {
     id: CourseId.FullstackMastery,
     title: "Fullstack Mastery",
     slug: "fullstack-mastery",
+    defaultLocale: Locale.En,
     description:
         "Build strong fundamentals, practical skills, and an engineering mindset to land your first internship or Fresher/Junior Developer role. Learn fullstack development from frontend to backend with real-world focus.",
     translations: [
@@ -87,6 +88,7 @@ export const fullstackMasteryCourse: DeepPartial<CourseEntity> = {
                 valuePropositionIndex: 0,
             }),
             content: "Modular curriculum from foundations to hands-on delivery.",
+            defaultLocale: Locale.En,
             orderIndex: 0,
             translations: [
                 {
@@ -106,6 +108,7 @@ export const fullstackMasteryCourse: DeepPartial<CourseEntity> = {
                 valuePropositionIndex: 1,
             }),
             content: "High-quality lessons with direct explanations—no fluff.",
+            defaultLocale: Locale.En,
             orderIndex: 1,
             translations: [
                 {
@@ -125,6 +128,7 @@ export const fullstackMasteryCourse: DeepPartial<CourseEntity> = {
                 valuePropositionIndex: 2,
             }),
             content: "Hands-on exercises to sharpen engineering mindset and skills.",
+            defaultLocale: Locale.En,
             orderIndex: 2,
             translations: [
                 {
@@ -144,6 +148,7 @@ export const fullstackMasteryCourse: DeepPartial<CourseEntity> = {
                 valuePropositionIndex: 3,
             }),
             content: "1:1 CV review and help distributing your CV to hiring networks.",
+            defaultLocale: Locale.En,
             orderIndex: 3,
             translations: [
                 {
@@ -165,6 +170,7 @@ export const fullstackMasteryCourse: DeepPartial<CourseEntity> = {
                 courseId: CourseId.FullstackMastery,
                 prerequisiteIndex: 0,
             }),
+            defaultLocale: Locale.En,
             content: "JavaScript/TypeScript Basics: variables, functions, async/await.",
             orderIndex: 0,
             translations: [
@@ -186,6 +192,7 @@ export const fullstackMasteryCourse: DeepPartial<CourseEntity> = {
             }),
             content:
                 "Backend basics: API, request/response, and simple CRUD features.",
+            defaultLocale: Locale.En,
             orderIndex: 1,
             translations: [
                 {
@@ -208,6 +215,7 @@ export const fullstackMasteryCourse: DeepPartial<CourseEntity> = {
                 qnaIndex: 0,
             }),
             question: "I'm using Java, .NET, or Python — can I still take this course?",
+            defaultLocale: Locale.En,
             answer:
                 "Absolutely. This course uses NestJS to teach core backend concepts clearly. However, backend engineering is about system thinking, not a specific language. You will be guided on how to apply these concepts across different stacks.",
             orderIndex: 0,
@@ -239,6 +247,7 @@ export const fullstackMasteryCourse: DeepPartial<CourseEntity> = {
                 qnaIndex: 1,
             }),
             question: "There are many backend courses — why this one?",
+            defaultLocale: Locale.En,
             answer:
                 "This is not a basic CRUD course. It focuses on real backend engineering: system thinking, real-world problem solving, and production-level challenges. The goal is to help you truly understand and apply knowledge.",
             orderIndex: 1,
