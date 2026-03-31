@@ -47,9 +47,8 @@ export class CourseService {
                     qnas: true,
                     pricingPhases: true,
                     modules: {
-                        generalContent: true,
-                        advancedContent: true,
-                        contents: true,
+                        content: true,
+                        previewContents: true,
                     },
                 },
             },

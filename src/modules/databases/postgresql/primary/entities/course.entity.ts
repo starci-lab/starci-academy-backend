@@ -9,13 +9,13 @@ import {
     OneToMany,
 } from "typeorm"
 import {
-    PrerequisiteEntity 
+    PrerequisiteEntity,
 } from "./prerequisite.entity"
 import {
-    QnaEntity 
+    QnaEntity,
 } from "./qna.entity"
 import {
-    ModuleEntity 
+    ModuleEntity,
 } from "./module.entity"
 import {
     EnrollmentEntity,
@@ -24,7 +24,9 @@ import {
     ValuePropositionEntity,
 } from "./value-proposition.entity"
 import {
+    GraphQLTypeLocale,
     GraphQLTypePricingPhase,
+    Locale,
     PricingPhase,
 } from "../enums"
 import {
@@ -33,88 +35,105 @@ import {
 import {
     StringAbstractEntity,
 } from "./abstract"
+import {
+    CourseTranslationEntity,
+} from "./course-translation.entity"
 
+/**
+ * Course entity representing a sellable learning program
+ * with ordered modules, pricing phases, and localized content.
+ */
 @ObjectType({
-    description: "A course containing ordered modules."
+    description: "Course entity representing a sellable learning program with ordered modules, pricing phases, and localized content.",
 })
 @Entity("courses")
 export class CourseEntity extends StringAbstractEntity {
+    /**
+     * Human-readable course title.
+     */
     @Field(() => String)
     @Column({
         name: "title",
         type: "varchar",
-        length: 255
+        length: 255,
     })
         title: string
 
-    @Field(() => String,
+    /**
+     * SEO-friendly slug used for public routing.
+     */
+    @Field(
+        () => String,
         {
-            nullable: true
-        })
+            nullable: true,
+        },
+    )
     @Column({
         name: "slug",
         type: "varchar",
         length: 255,
         unique: true,
-        nullable: true
+        nullable: true,
     })
-        slug: string | null
+        slug?: string
 
-    @Field(() => String,
+    /**
+     * Short public description of the course.
+     */
+    @Field(
+        () => String,
         {
-            nullable: true
-        })
+            nullable: true,
+        },
+    )
     @Column({
         name: "description",
         type: "text",
-        nullable: true
     })
-        description: string | null
-
-    @Field(() => String,
-        {
-            nullable: true,
-            description: "Public CDN URL pointing to the course JSON on S3."
-        })
-    @Column({
-        name: "cdn_url",
-        type: "varchar",
-        length: 2048,
-        nullable: true
-    })
-        cdnUrl: string | null
-
+        description: string
+    /**
+     * Original list price of the course before pricing phase discounts.
+     */
     @Field(
         () => Float,
         {
-            nullable: true,
-            description: "List / Regular price; tier Regular row has null `regular` — use this.",
+            description: "Original list price of the course before pricing phase discounts.",
         },
     )
     @Column({
         name: "original_price",
         type: "double precision",
-        nullable: true,
     })
-        originalPrice: number | null
+        originalPrice: number
 
     /**
-     * Bậc giá đang áp dụng (enum; không FK — tránh vòng phụ thuộc với `pricing_phases` khi sync DB).
+     * Current pricing phase applied to the course.
+     *
+     * Stored as enum string instead of foreign key
+     * to avoid circular dependency with pricing phase rows.
      */
     @Field(
         () => GraphQLTypePricingPhase,
         {
-            nullable: true,
+            description: "Current pricing phase applied to the course.",
         },
     )
     @Column({
         name: "current_phase",
-        type: "varchar",
-        length: 32,
-        nullable: true,
+        type: "enum",
+        enum: PricingPhase,
+        enumName: "pricing_phase",
     })
-        currentPhase: PricingPhase | null
+        currentPhase: PricingPhase
 
+    /**
+     * Ordered pricing phase rows of the course.
+     *
+     * Expected tiers:
+     * - Pioneer
+     * - EarlyBird
+     * - Regular
+     */
     @Field(
         () => [PricingPhaseEntity],
         {
@@ -124,22 +143,31 @@ export class CourseEntity extends StringAbstractEntity {
     )
     @OneToMany(
         () => PricingPhaseEntity,
-        (row: PricingPhaseEntity) => row.course,
+        (pricingPhase: PricingPhaseEntity) => pricingPhase.course,
         {
             cascade: true,
         },
     )
         pricingPhases: Array<PricingPhaseEntity>
 
+    /**
+     * Ordered prerequisites required before joining the course.
+     */
     @Field(() => [PrerequisiteEntity])
-    @OneToMany(() => PrerequisiteEntity,
-        (row: PrerequisiteEntity) => row.course,
+    @OneToMany(
+        () => PrerequisiteEntity,
+        (prerequisite: PrerequisiteEntity) => prerequisite.course,
         {
-            cascade: true
-        })
+            cascade: true,
+        },
+    )
         prerequisites: Array<PrerequisiteEntity>
 
-    @Field(() => [ValuePropositionEntity],
+    /**
+     * Ordered value proposition lines shown in landing or sales pages.
+     */
+    @Field(
+        () => [ValuePropositionEntity],
         {
             name: "valuePropositions",
             description: "Value proposition lines, ordered by orderIndex.",
@@ -147,37 +175,84 @@ export class CourseEntity extends StringAbstractEntity {
     )
     @OneToMany(
         () => ValuePropositionEntity,
-        (row: ValuePropositionEntity) => row.course,
+        (valueProposition: ValuePropositionEntity) => valueProposition.course,
         {
             cascade: true,
         },
     )
         valuePropositions: Array<ValuePropositionEntity>
 
+    /**
+     * Ordered frequently asked questions of the course.
+     */
     @Field(() => [QnaEntity])
-    @OneToMany(() => QnaEntity,
-        (row: QnaEntity) => row.course,
+    @OneToMany(
+        () => QnaEntity,
+        (qna: QnaEntity) => qna.course,
         {
-            cascade: true
-        })
+            cascade: true,
+        },
+    )
         qnas: Array<QnaEntity>
 
+    /**
+     * Ordered learning modules belonging to the course.
+     */
     @Field(() => [ModuleEntity])
-    @OneToMany(() => ModuleEntity,
-        (mod: ModuleEntity) => mod.course,
+    @OneToMany(
+        () => ModuleEntity,
+        (module: ModuleEntity) => module.course,
         {
-            cascade: true
-        })
+            cascade: true,
+        },
+    )
         modules: Array<ModuleEntity>
 
-    @Field(() => [EnrollmentEntity],
+    /**
+     * Enrollments associated with the course.
+     */
+    @Field(
+        () => [EnrollmentEntity],
         {
             nullable: true,
-        })
-    @OneToMany(() => EnrollmentEntity,
+        },
+    )
+    @OneToMany(
+        () => EnrollmentEntity,
         (enrollment: EnrollmentEntity) => enrollment.course,
         {
             cascade: true,
-        })
+        },
+    )
         enrollments: Array<EnrollmentEntity>
+
+    /**
+     * Localized translations of course fields such as title and description.
+     */
+    @Field(
+        () => [CourseTranslationEntity],
+        {
+            nullable: true,
+        },
+    )
+    @OneToMany(
+        () => CourseTranslationEntity,
+        (courseTranslation: CourseTranslationEntity) => courseTranslation.course,
+        {
+            cascade: true,
+        },
+    )
+        translations?: Array<CourseTranslationEntity>
+
+    /**
+     * Default locale for the course.
+     */
+    @Field(() => GraphQLTypeLocale)
+    @Column({
+        name: "default_locale",
+        type: "enum",
+        enum: Locale,
+        enumName: "locale",
+    })
+        defaultLocale: Locale
 }

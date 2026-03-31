@@ -2,7 +2,14 @@ import {
     Field, Int, ObjectType
 } from "@nestjs/graphql"
 import {
+    GraphQLTypeLocale,
+    Locale,
+} from "../enums"
+import {
     Column, Entity, JoinColumn, ManyToOne
+} from "typeorm"
+import {
+    OneToMany,
 } from "typeorm"
 import {
     CourseEntity
@@ -10,6 +17,9 @@ import {
 import {
     StringAbstractEntity
 } from "./abstract"
+import {
+    QnaTranslationEntity,
+} from "./qna-translation.entity"
 
 /**
  * Frequently asked question and answer pair for a course landing page.
@@ -19,6 +29,9 @@ import {
 })
 @Entity("qnas")
 export class QnaEntity extends StringAbstractEntity {
+    /**
+     * FAQ question text.
+     */
     @Field(() => String,
         {
             description: "FAQ question text."
@@ -29,6 +42,9 @@ export class QnaEntity extends StringAbstractEntity {
     })
         question: string
 
+    /**
+     * FAQ answer text.
+     */
     @Field(() => String,
         {
             description: "FAQ answer text."
@@ -39,6 +55,9 @@ export class QnaEntity extends StringAbstractEntity {
     })
         answer: string
 
+    /**
+     * Display order within the course Q&A list.
+     */
     @Field(() => Int,
         {
             description: "Display order within the course Q&A list."
@@ -50,6 +69,21 @@ export class QnaEntity extends StringAbstractEntity {
     })
         orderIndex: number
 
+    /**
+     * Default locale for the Q&A.
+     */
+    @Field(() => GraphQLTypeLocale)
+    @Column({
+        name: "default_locale",
+        type: "enum",
+        enum: Locale,
+        enumName: "locale",
+    })
+        defaultLocale: Locale
+
+    /**
+     * Course this Q&A belongs to.
+     */
     @Field(() => CourseEntity,
         {
             description: "Course this Q&A belongs to."
@@ -63,4 +97,22 @@ export class QnaEntity extends StringAbstractEntity {
         name: "course_id"
     })
         course: CourseEntity
+
+    /**
+     * Localized translations of Q&A fields such as question and answer.
+     */
+    @Field(
+        () => [QnaTranslationEntity],
+        {
+            nullable: true,
+        },
+    )
+    @OneToMany(
+        () => QnaTranslationEntity,
+        (qnaTranslation: QnaTranslationEntity) => qnaTranslation.qna,
+        {
+            cascade: true,
+        },
+    )
+        translations?: Array<QnaTranslationEntity>
 }

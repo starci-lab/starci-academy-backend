@@ -6,8 +6,8 @@ import {
     In
 } from "typeorm"
 import {
-    CourseLoaderService 
-} from "./course-loader.service"
+    coursesSeedData,
+} from "@data/courses"
 import {
     CourseEntity,
 } from "../../entities"
@@ -19,18 +19,12 @@ import {
  */
 @Injectable()
 export class CoursesService implements Seeder {
-    constructor(
-        private readonly courseLoader: CourseLoaderService,
-    ) { 
-    }
-
     /**
      * Seed the courses.
      * @returns void.
      */
     async seed(entityManager: EntityManager) {
-        // load the courses
-        const courses = this.courseLoader.load()
+        const courses = structuredClone(coursesSeedData)
         // if no courses, return
         if (courses.length === 0) {
             return
@@ -49,8 +43,7 @@ export class CoursesService implements Seeder {
      * @returns void.
      */
     async drop(entityManager: EntityManager) {
-        // get the courses ids
-        const courses = this.courseLoader.load()
+        const courses = structuredClone(coursesSeedData)
         // get the courses ids
         const ids = courses.map(
             (course) => course.id

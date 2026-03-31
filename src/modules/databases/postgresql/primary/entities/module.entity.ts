@@ -2,23 +2,24 @@ import {
     Field, Int, ObjectType 
 } from "@nestjs/graphql"
 import {
+    GraphQLTypeLocale,
+    Locale,
+} from "../enums"
+import {
     Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne 
 } from "typeorm"
-import {
-    AdvancedContentEntity 
-} from "./advanced-content.entity"
 import {
     CourseEntity 
 } from "./course.entity"
 import {
-    ContentEntity 
+    ContentEntity,
 } from "./content.entity"
 import {
-    GeneralContentEntity 
-} from "./general-content.entity"
+    PreviewContentEntity,
+} from "./preview-content.entity"
 import {
-    ExclusiveLessonVideoEntity 
-} from "./exclusive-lesson-video.entity"
+    LessonVideoEntity,
+} from "./lesson-video.entity"
 import {
     OutcomeEntity 
 } from "./outcome.entity"
@@ -28,12 +29,18 @@ import {
 import {
     StringAbstractEntity 
 } from "./abstract"
+import {
+    ModuleTranslationEntity,
+} from "./module-translation.entity"
 
 @ObjectType({
     description: "A module belonging to a course; contains learning outcomes."
 })
 @Entity("modules")
 export class ModuleEntity extends StringAbstractEntity {
+    /**
+     * Human-readable module title.
+     */
     @Field(() => String)
     @Column({
         name: "title",
@@ -42,6 +49,9 @@ export class ModuleEntity extends StringAbstractEntity {
     })
         title: string
 
+    /**
+     * Optional short description of the module.
+     */
     @Field(() => String,
         {
             nullable: true
@@ -53,6 +63,9 @@ export class ModuleEntity extends StringAbstractEntity {
     })
         description: string | null
 
+    /**
+     * Display order within the parent course module list.
+     */
     @Field(() => Int)
     @Column({
         name: "order_index",
@@ -61,6 +74,21 @@ export class ModuleEntity extends StringAbstractEntity {
     })
         orderIndex: number
 
+    /**
+     * Default locale for the module.
+     */
+    @Field(() => GraphQLTypeLocale)
+    @Column({
+        name: "default_locale",
+        type: "enum",
+        enum: Locale,
+        enumName: "locale",
+    })
+        defaultLocale: Locale
+
+    /**
+     * Parent course this module belongs to.
+     */
     @Field(() => CourseEntity)
     @ManyToOne(() => CourseEntity,
         (course: CourseEntity) => course.modules,
@@ -72,44 +100,49 @@ export class ModuleEntity extends StringAbstractEntity {
     })
         course: CourseEntity
 
-    @Field(() => GeneralContentEntity,
+    /**
+     * Content attached to the module (optional).
+     */
+    @Field(
+        () => ContentEntity,
         {
-            nullable: true
-        })
-    @OneToOne(() => GeneralContentEntity,
-        (row: GeneralContentEntity) => row.module,
-        {
-            cascade: true
-        })
-        generalContent: GeneralContentEntity
-
-    @Field(() => AdvancedContentEntity,
-        {
-            nullable: true
-        })
-    @OneToOne(() => AdvancedContentEntity,
-        (row: AdvancedContentEntity) => row.module,
-        {
-            cascade: true
-        })
-        advancedContent: AdvancedContentEntity
-
-    @Field(() => [ContentEntity])
-    @OneToMany(() => ContentEntity,
+            nullable: true,
+        },
+    )
+    @OneToOne(
+        () => ContentEntity,
         (row: ContentEntity) => row.module,
         {
-            cascade: true
-        })
-        contents: Array<ContentEntity>
+            cascade: true,
+        },
+    )
+        content?: ContentEntity
 
-    @Field(() => [ExclusiveLessonVideoEntity])
-    @OneToMany(() => ExclusiveLessonVideoEntity,
-        (row: ExclusiveLessonVideoEntity) => row.module,
+    /**
+     * Ordered preview content line items belonging to the module.
+     */
+    @Field(() => [PreviewContentEntity])
+    @OneToMany(() => PreviewContentEntity,
+        (row: PreviewContentEntity) => row.module,
         {
             cascade: true
         })
-        exclusiveLessonVideos: Array<ExclusiveLessonVideoEntity>
+        previewContents: Array<PreviewContentEntity>
 
+    /**
+     * Lesson videos attached to the module.
+     */
+    @Field(() => [LessonVideoEntity])
+    @OneToMany(() => LessonVideoEntity,
+        (row: LessonVideoEntity) => row.module,
+        {
+            cascade: true
+        })
+        lessonVideos: Array<LessonVideoEntity>
+
+    /**
+     * Ordered learning outcomes belonging to the module.
+     */
     @Field(() => [OutcomeEntity])
     @OneToMany(() => OutcomeEntity,
         (outcome: OutcomeEntity) => outcome.module,
@@ -118,6 +151,9 @@ export class ModuleEntity extends StringAbstractEntity {
         })
         outcomes: Array<OutcomeEntity>
 
+    /**
+     * Submissions associated with the module.
+     */
     @Field(() => [SubmissionEntity],
         {
             nullable: true
@@ -128,4 +164,22 @@ export class ModuleEntity extends StringAbstractEntity {
             cascade: true
         })
         submissions: Array<SubmissionEntity>
+
+    /**
+     * Localized translations of module fields such as title and description.
+     */
+    @Field(
+        () => [ModuleTranslationEntity],
+        {
+            nullable: true,
+        },
+    )
+    @OneToMany(
+        () => ModuleTranslationEntity,
+        (moduleTranslation: ModuleTranslationEntity) => moduleTranslation.module,
+        {
+            cascade: true,
+        },
+    )
+        translations?: Array<ModuleTranslationEntity>
 }

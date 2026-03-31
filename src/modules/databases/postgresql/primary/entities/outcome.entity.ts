@@ -2,7 +2,14 @@ import {
     Field, Int, ObjectType 
 } from "@nestjs/graphql"
 import {
+    GraphQLTypeLocale,
+    Locale,
+} from "../enums"
+import {
     Column, Entity, JoinColumn, ManyToOne 
+} from "typeorm"
+import {
+    OneToMany,
 } from "typeorm"
 import {
     ModuleEntity 
@@ -10,12 +17,18 @@ import {
 import {
     StringAbstractEntity 
 } from "./abstract"
+import {
+    OutcomeTranslationEntity,
+} from "./outcome-translation.entity"
 
 @ObjectType({
     description: "A learning outcome for a course module."
 })
 @Entity("outcomes")
 export class OutcomeEntity extends StringAbstractEntity {
+    /**
+     * Outcome title.
+     */
     @Field(() => String)
     @Column({
         name: "title",
@@ -24,6 +37,9 @@ export class OutcomeEntity extends StringAbstractEntity {
     })
         title: string
 
+    /**
+     * Optional outcome description.
+     */
     @Field(() => String,
         {
             nullable: true
@@ -35,6 +51,9 @@ export class OutcomeEntity extends StringAbstractEntity {
     })
         description: string | null
 
+    /**
+     * Display order within the parent module outcome list.
+     */
     @Field(() => Int)
     @Column({
         name: "order_index",
@@ -43,6 +62,21 @@ export class OutcomeEntity extends StringAbstractEntity {
     })
         orderIndex: number
 
+    /**
+     * Default locale for the outcome.
+     */
+    @Field(() => GraphQLTypeLocale)
+    @Column({
+        name: "default_locale",
+        type: "enum",
+        enum: Locale,
+        enumName: "locale",
+    })
+        defaultLocale: Locale
+
+    /**
+     * Parent module this outcome belongs to.
+     */
     @Field(() => ModuleEntity)
     @ManyToOne(() => ModuleEntity,
         (mod: ModuleEntity) => mod.outcomes,
@@ -53,4 +87,22 @@ export class OutcomeEntity extends StringAbstractEntity {
         name: "course_module_id"
     })
         module: ModuleEntity
+
+    /**
+     * Localized translations of outcome fields such as title and description.
+     */
+    @Field(
+        () => [OutcomeTranslationEntity],
+        {
+            nullable: true,
+        },
+    )
+    @OneToMany(
+        () => OutcomeTranslationEntity,
+        (outcomeTranslation: OutcomeTranslationEntity) => outcomeTranslation.outcome,
+        {
+            cascade: true,
+        },
+    )
+        translations?: Array<OutcomeTranslationEntity>
 }

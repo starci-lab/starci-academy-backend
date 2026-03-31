@@ -5,16 +5,26 @@ import {
     ManyToOne,
 } from "typeorm"
 import {
+    OneToMany,
+} from "typeorm"
+import {
     CourseEntity,
 } from "./course.entity"
 import {
     StringAbstractEntity,
 } from "./abstract"
 import {
+    ValuePropositionTranslationEntity,
+} from "./value-proposition-translation.entity"
+import {
     Field,
     Int,
     ObjectType,
 } from "@nestjs/graphql"
+import {
+    GraphQLTypeLocale,
+    Locale,
+} from "../enums"
 
 /**
  * Bullet value proposition line for a course (1:N from {@link CourseEntity}).
@@ -24,6 +34,9 @@ import {
 })
 @Entity("value_propositions")
 export class ValuePropositionEntity extends StringAbstractEntity {
+    /**
+     * Value proposition line content.
+     */
     @Field(() => String,
         {
             description: "Value proposition line content."
@@ -34,6 +47,9 @@ export class ValuePropositionEntity extends StringAbstractEntity {
     })
         content: string
 
+    /**
+     * Display order within the course value proposition list.
+     */
     @Field(() => Int,
         {
             description: "Display order within the course value proposition list."
@@ -45,6 +61,21 @@ export class ValuePropositionEntity extends StringAbstractEntity {
     })
         orderIndex: number
 
+    /**
+     * Default locale for the value proposition.
+     */
+    @Field(() => GraphQLTypeLocale)
+    @Column({
+        name: "default_locale",
+        type: "enum",
+        enum: Locale,
+        enumName: "locale",
+    })
+        defaultLocale: Locale
+
+    /**
+     * Course this value proposition belongs to.
+     */
     @Field(() => CourseEntity,
         {
             description: "Course this value proposition belongs to."
@@ -60,4 +91,22 @@ export class ValuePropositionEntity extends StringAbstractEntity {
         name: "course_id",
     })
         course: CourseEntity
+
+    /**
+     * Localized translations of value proposition fields such as content.
+     */
+    @Field(
+        () => [ValuePropositionTranslationEntity],
+        {
+            nullable: true,
+        },
+    )
+    @OneToMany(
+        () => ValuePropositionTranslationEntity,
+        (valuePropositionTranslation: ValuePropositionTranslationEntity) => valuePropositionTranslation.valueProposition,
+        {
+            cascade: true,
+        },
+    )
+        translations?: Array<ValuePropositionTranslationEntity>
 }

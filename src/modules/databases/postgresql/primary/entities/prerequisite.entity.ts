@@ -2,7 +2,14 @@ import {
     Field, Int, ObjectType 
 } from "@nestjs/graphql"
 import {
+    GraphQLTypeLocale,
+    Locale,
+} from "../enums"
+import {
     Column, Entity, JoinColumn, ManyToOne 
+} from "typeorm"
+import {
+    OneToMany,
 } from "typeorm"
 import {
     CourseEntity 
@@ -10,6 +17,9 @@ import {
 import {
     StringAbstractEntity 
 } from "./abstract"
+import {
+    PrerequisiteTranslationEntity,
+} from "./prerequisite-translation.entity"
 
 /**
  * A single prerequisite line item for a course (e.g. prior knowledge).
@@ -19,6 +29,9 @@ import {
 })
 @Entity("prerequisites")
 export class PrerequisiteEntity extends StringAbstractEntity {
+    /**
+     * Requirement or prior knowledge description.
+     */
     @Field(() => String,
         {
             description: "Requirement or prior knowledge description."
@@ -29,6 +42,9 @@ export class PrerequisiteEntity extends StringAbstractEntity {
     })
         content: string
 
+    /**
+     * Display order within the course prerequisite list.
+     */
     @Field(() => Int,
         {
             description: "Display order within the course prerequisite list."
@@ -40,6 +56,21 @@ export class PrerequisiteEntity extends StringAbstractEntity {
     })
         orderIndex: number
 
+    /**
+     * Default locale for the prerequisite.
+     */
+    @Field(() => GraphQLTypeLocale)
+    @Column({
+        name: "default_locale",
+        type: "enum",
+        enum: Locale,
+        enumName: "locale",
+    })
+        defaultLocale: Locale
+
+    /**
+     * Course this prerequisite belongs to.
+     */
     @Field(() => CourseEntity,
         {
             description: "Course this prerequisite belongs to."
@@ -53,4 +84,22 @@ export class PrerequisiteEntity extends StringAbstractEntity {
         name: "course_id"
     })
         course: CourseEntity
+
+    /**
+     * Localized translations of prerequisite fields such as content.
+     */
+    @Field(
+        () => [PrerequisiteTranslationEntity],
+        {
+            nullable: true,
+        },
+    )
+    @OneToMany(
+        () => PrerequisiteTranslationEntity,
+        (prerequisiteTranslation: PrerequisiteTranslationEntity) => prerequisiteTranslation.prerequisite,
+        {
+            cascade: true,
+        },
+    )
+        translations?: Array<PrerequisiteTranslationEntity>
 }

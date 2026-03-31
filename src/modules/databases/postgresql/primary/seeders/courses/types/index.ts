@@ -1,1 +1,1 @@
-export * from "./course-loader"
+export {}

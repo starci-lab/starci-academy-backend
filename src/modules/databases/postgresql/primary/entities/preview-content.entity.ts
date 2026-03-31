@@ -11,8 +11,8 @@ import {
     Column,
     Entity,
     JoinColumn,
+    ManyToOne,
     OneToMany,
-    OneToOne,
 } from "typeorm"
 import {
     StringAbstractEntity,
@@ -21,46 +21,29 @@ import {
     ModuleEntity,
 } from "./module.entity"
 import {
-    ContentTranslationEntity,
-} from "./content-translation.entity"
+    PreviewContentTranslationEntity,
+} from "./preview-content-translation.entity.js"
 
 /**
- * Content attached to a module (title + body).
+ * A preview content line item in a module (typically bullet/paragraph data).
  */
 @ObjectType({
-    description: "Content attached to a module.",
+    description: "A preview content line item in a module.",
 })
-@Entity("contents")
-export class ContentEntity extends StringAbstractEntity {
+@Entity("preview_contents")
+export class PreviewContentEntity extends StringAbstractEntity {
     /**
-     * Content title.
+     * Content line text/body.
      */
     @Field(() => String)
     @Column({
-        name: "title",
-        type: "varchar",
-        length: 500,
-    })
-        title: string
-
-    /**
-     * Optional markdown body.
-     */
-    @Field(
-        () => String,
-        {
-            nullable: true,
-        },
-    )
-    @Column({
-        name: "body",
+        name: "data",
         type: "text",
-        nullable: true,
     })
-        body: string | null
+        data: string
 
     /**
-     * Display order within the module content list.
+     * Display order within the parent module preview content list.
      */
     @Field(() => Int)
     @Column({
@@ -71,7 +54,7 @@ export class ContentEntity extends StringAbstractEntity {
         orderIndex: number
 
     /**
-     * Default locale for this content row.
+     * Default locale for this preview content row.
      */
     @Field(() => GraphQLTypeLocale)
     @Column({
@@ -83,12 +66,12 @@ export class ContentEntity extends StringAbstractEntity {
         defaultLocale: Locale
 
     /**
-     * Parent module this content belongs to.
+     * Parent module this preview content belongs to.
      */
     @Field(() => ModuleEntity)
-    @OneToOne(
+    @ManyToOne(
         () => ModuleEntity,
-        (module: ModuleEntity) => module.content,
+        (module: ModuleEntity) => module.previewContents,
         {
             onDelete: "CASCADE",
         },
@@ -99,20 +82,21 @@ export class ContentEntity extends StringAbstractEntity {
         module: ModuleEntity
 
     /**
-     * Localized translations for fields such as `title` and `body`.
+     * Localized translations for fields such as `data`.
      */
     @Field(
-        () => [ContentTranslationEntity],
+        () => [PreviewContentTranslationEntity],
         {
             nullable: true,
         },
     )
     @OneToMany(
-        () => ContentTranslationEntity,
-        (contentTranslation: ContentTranslationEntity) => contentTranslation.content,
+        () => PreviewContentTranslationEntity,
+        (previewContentTranslation: PreviewContentTranslationEntity) => previewContentTranslation.previewContent,
         {
             cascade: true,
         },
     )
-        translations?: Array<ContentTranslationEntity>
+        translations?: Array<PreviewContentTranslationEntity>
 }
+
