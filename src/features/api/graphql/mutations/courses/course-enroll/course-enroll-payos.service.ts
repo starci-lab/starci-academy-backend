@@ -87,6 +87,9 @@ export class CourseEnrollPayOsService {
                 where: {
                     id: courseId,
                 },
+                relations: {
+                    pricingPhases: true,
+                },
             },
         )
         if (!course) {

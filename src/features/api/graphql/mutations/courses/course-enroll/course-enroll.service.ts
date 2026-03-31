@@ -1,12 +1,10 @@
 import {
-    CourseEntity,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     PaymentType,
 } from "@modules/databases"
 import {
     CourseAlreadyEnrolledError,
-    CourseNotFoundException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -84,30 +82,11 @@ export class CourseEnrollService {
                 },
             )
         }
-        // find the course
-        const course = await this.entityManager.findOne(
-            CourseEntity,
-            {
-                where: {
-                    id: courseId,
-                },
-                relations: {
-                    pricingPhases: true,
-                },
-            },
-        )
-        // reject if course not found
-        if (!course) {
-            throw new CourseNotFoundException(
-                {
-                    id: courseId,
-                },
-            )
-        }
         // delegate to the appropriate payment service
         switch (paymentType) {
         // delegate to PayOS payment service
         case PaymentType.PayOS: {
+
             return await this.courseEnrollPayOsService.execute(
                 params,
             )
@@ -115,7 +94,7 @@ export class CourseEnrollService {
         // delegate to Sepay payment service
         case PaymentType.Sepay: {
             return await this.courseEnrollSepayService.execute(
-                params,
+                params
             )
         }
         // reject if payment type is not supported
