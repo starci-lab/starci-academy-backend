@@ -13,7 +13,7 @@ import {
 } from "../types"
 import {
     courses 
-} from "@data/courses"
+} from "src/data/courses"
 /**
  * The service for the Courses.
  */

@@ -12,26 +12,40 @@ import {
 } from "@modules/env"
 import {
     readFileOrDefault,
+    readMetadataOrDefault,
+    buildContentId,
+    buildPreviewContentId,
+    CourseId,
+    buildModuleId,
 } from "../../../../utils"
 
 /**
  * Fullstack Mastery Module 2 data.
  */
 export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
-    id: "fullstack-mastery-module-2",
+    id: buildModuleId({
+        courseId: CourseId.FullstackMastery,
+        moduleIndex: 2,
+    }),
     title: "Database Integration, ORM/ODM & Caching",
     description:
         "Integrate PostgreSQL with TypeORM, MongoDB with Mongoose, understand schema design, relationships, indexing, transactions, Redis caching, and when to choose SQL or NoSQL.",
     orderIndex: 1,
     translations: [
         {
-            moduleId: "fullstack-mastery-module-2",
+            moduleId: buildModuleId({
+                courseId: CourseId.FullstackMastery,
+                moduleIndex: 2,
+            }),
             locale: Locale.Vi,
             field: "title",
             value: "Database Integration, ORM/ODM & Caching",
         },
         {
-            moduleId: "fullstack-mastery-module-2",
+            moduleId: buildModuleId({
+                courseId: CourseId.FullstackMastery,
+                moduleIndex: 2,
+            }),
             locale: Locale.Vi,
             field: "description",
             value:
@@ -40,8 +54,20 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
     ],
     contents: [
         {
-            id: "fullstack-mastery-module-2-content",
-            title: "Content",
+            id: buildContentId({
+                courseId: CourseId.FullstackMastery,
+                moduleIndex: 2,
+                contentIndex: 1,
+            }),
+            title: readMetadataOrDefault(
+                buildContentId({
+                    courseId: CourseId.FullstackMastery,
+                    moduleIndex: 2,
+                    contentIndex: 1,
+                }),
+                Locale.En,
+                ""
+            ),
             body: readFileOrDefault(
                 `${envConfig().mountPath.data.courses}/fullstack-mastery/modules/2/content/body.en.md`,
                 ""
@@ -50,13 +76,29 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
             defaultLocale: Locale.En,
             translations: [
                 {
-                    contentId: "fullstack-mastery-module-2-content",
+                    contentId: buildContentId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 2,
+                        contentIndex: 1,
+                    }),
                     locale: Locale.Vi,
                     field: "title",
-                    value: "Nội dung",
+                    value: readMetadataOrDefault(
+                        buildContentId({
+                            courseId: CourseId.FullstackMastery,
+                            moduleIndex: 2,
+                            contentIndex: 1,
+                        }),
+                        Locale.Vi,
+                        ""
+                    ),
                 },
                 {
-                    contentId: "fullstack-mastery-module-2-content",
+                    contentId: buildContentId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 2,
+                        contentIndex: 1,
+                    }),
                     locale: Locale.Vi,
                     field: "body",
                     value: readFileOrDefault(
@@ -72,13 +114,21 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
     ],
     previewContents: [
         {
-            id: "fullstack-mastery-module-2-content-1",
+            id: buildPreviewContentId({
+                courseId: CourseId.FullstackMastery,
+                moduleIndex: 2,
+                previewContentIndex: 1,
+            }),
             data: "Integrate PostgreSQL into a NestJS project and work with an ORM using TypeORM.",
             orderIndex: 0,
             defaultLocale: Locale.En,
             translations: [
                 {
-                    previewContentId: "fullstack-mastery-module-2-content-1",
+                    previewContentId: buildPreviewContentId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 2,
+                        previewContentIndex: 1,
+                    }),
                     locale: Locale.Vi,
                     field: "data",
                     value: "Tích hợp PostgreSQL vào dự án NestJS và làm việc với ORM thông qua TypeORM.",
@@ -86,13 +136,21 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
             ],
         },
         {
-            id: "fullstack-mastery-module-2-content-2",
+            id: buildPreviewContentId({
+                courseId: CourseId.FullstackMastery,
+                moduleIndex: 2,
+                previewContentIndex: 2,
+            }),
             data: "Integrate MongoDB and use Mongoose to build an ODM for suitable use cases.",
             orderIndex: 1,
             defaultLocale: Locale.En,
             translations: [
                 {
-                    previewContentId: "fullstack-mastery-module-2-content-2",
+                    previewContentId: buildPreviewContentId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 2,
+                        previewContentIndex: 2,
+                    }),
                     locale: Locale.Vi,
                     field: "data",
                     value: "Tích hợp MongoDB và sử dụng Mongoose để xây dựng ODM cho các use case phù hợp.",
@@ -100,13 +158,21 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
             ],
         },
         {
-            id: "fullstack-mastery-module-2-content-3",
+            id: buildPreviewContentId({
+                courseId: CourseId.FullstackMastery,
+                moduleIndex: 2,
+                previewContentIndex: 3,
+            }),
             data: "Design schemas, define data relationships, and apply indexing strategies to optimize queries and scalability.",
             orderIndex: 2,
             defaultLocale: Locale.En,
             translations: [
                 {
-                    previewContentId: "fullstack-mastery-module-2-content-3",
+                    previewContentId: buildPreviewContentId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 2,
+                        previewContentIndex: 3,
+                    }),
                     locale: Locale.Vi,
                     field: "data",
                     value: "Thiết kế schema, định nghĩa quan hệ dữ liệu và áp dụng indexing để tối ưu query và khả năng scale.",
@@ -114,13 +180,21 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
             ],
         },
         {
-            id: "fullstack-mastery-module-2-content-4",
+            id: buildPreviewContentId({
+                courseId: CourseId.FullstackMastery,
+                moduleIndex: 2,
+                previewContentIndex: 4,
+            }),
             data: "Understand transactions, rollbacks, and fundamental query optimization principles in real-world backend systems.",
             orderIndex: 3,
             defaultLocale: Locale.En,
             translations: [
                 {
-                    previewContentId: "fullstack-mastery-module-2-content-4",
+                    previewContentId: buildPreviewContentId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 2,
+                        previewContentIndex: 4,
+                    }),
                     locale: Locale.Vi,
                     field: "data",
                     value: "Hiểu transaction, rollback và các nguyên lý tối ưu query trong hệ thống backend thực tế.",
@@ -128,13 +202,21 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
             ],
         },
         {
-            id: "fullstack-mastery-module-2-content-5",
+            id: buildPreviewContentId({
+                courseId: CourseId.FullstackMastery,
+                moduleIndex: 2,
+                previewContentIndex: 5,
+            }),
             data: "Integrate Redis for caching to reduce database load, accelerate read-heavy APIs, and handle TTL/invalidation.",
             orderIndex: 4,
             defaultLocale: Locale.En,
             translations: [
                 {
-                    previewContentId: "fullstack-mastery-module-2-content-5",
+                    previewContentId: buildPreviewContentId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 2,
+                        previewContentIndex: 5,
+                    }),
                     locale: Locale.Vi,
                     field: "data",
                     value: "Tích hợp Redis để caching nhằm giảm tải database, tăng tốc API read-heavy và xử lý TTL/invalidation.",
@@ -142,13 +224,21 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
             ],
         },
         {
-            id: "fullstack-mastery-module-2-content-6",
+            id: buildPreviewContentId({
+                courseId: CourseId.FullstackMastery,
+                moduleIndex: 2,
+                previewContentIndex: 6,
+            }),
             data: "Understand when to use SQL vs NoSQL based on system requirements and real-world use cases.",
             orderIndex: 5,
             defaultLocale: Locale.En,
             translations: [
                 {
-                    previewContentId: "fullstack-mastery-module-2-content-6",
+                    previewContentId: buildPreviewContentId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 2,
+                        previewContentIndex: 6,
+                    }),
                     locale: Locale.Vi,
                     field: "data",
                     value: "Hiểu khi nào nên dùng SQL vs NoSQL dựa trên yêu cầu hệ thống và use case thực tế.",

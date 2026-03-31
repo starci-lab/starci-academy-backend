@@ -256,7 +256,14 @@ export const envConfig = () => ({
                     ".mount",
                     "config",
                     "app.json"),
-            })
+            }),
+            metadata: parseEnvString({
+                key: "CONFIG_METADATA_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "config",
+                    "metadata.json"),
+            }),
         },
         /** File paths: terraform secrets. */
         terraform: {

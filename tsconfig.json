@@ -29,7 +29,7 @@
         "./src/modules/*"
       ],
       "@data/*": [
-        "./src/data/*"
+        "src/data/*"
       ]
     }
   }
