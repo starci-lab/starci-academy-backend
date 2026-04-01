@@ -5,7 +5,7 @@ import {
     ClassConstructor, Exclude, instanceToPlain, plainToInstance
 } from "class-transformer"
 import {
-    CreateDateColumn, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn
+    CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn
 } from "typeorm"
 
 @ObjectType({
@@ -13,14 +13,24 @@ import {
 })
 export abstract class AbstractEntity {
     @Exclude()
-    @Field(() => Date)
+    @Field(
+        () => Date,
+        {
+            description: "Row creation timestamp (UTC).",
+        },
+    )
     @CreateDateColumn({
         type: "timestamptz", name: "created_at"
     })
         createdAt: Date
 
     @Exclude()
-    @Field(() => Date)
+    @Field(
+        () => Date,
+        {
+            description: "Row last update timestamp (UTC).",
+        },
+    )
     @UpdateDateColumn({
         type: "timestamptz", name: "updated_at"
     })
@@ -40,25 +50,16 @@ export abstract class AbstractEntity {
     isAbstract: true
 })
 export abstract class UuidAbstractEntity extends AbstractEntity {
-    @Field(() => ID)
+    @Field(
+        () => ID,
+        {
+            description: "Primary key (UUID).",
+        },
+    )
     @PrimaryGeneratedColumn(
         "uuid",
         {
             name: "id"
         })
-        id: string
-}
-
-@ObjectType({
-    isAbstract: true
-})
-export abstract class StringAbstractEntity extends AbstractEntity {
-    @Field(() => ID)
-    @PrimaryColumn({
-        name: "id",
-        type: "varchar",
-        length: 255,
-        nullable: false,
-    })
         id: string
 }

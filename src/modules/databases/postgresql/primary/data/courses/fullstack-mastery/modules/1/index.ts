@@ -1,7 +1,4 @@
 import type {
-    DeepPartial,
-} from "typeorm"
-import type {
     ModuleEntity,
 } from "../../../../../entities"
 import {
@@ -11,22 +8,22 @@ import {
     envConfig 
 } from "@modules/env"
 import {
+    DeepPartial 
+} from "typeorm"
+import {
+    buildModuleId, 
+    CourseId, 
+    buildLessonVideoId, 
+    buildContentId, 
+    readMetadataOrDefault, 
     readFileOrDefault, 
-    readMetadataOrDefault,
-    buildContentId,
-    buildPreviewContentId,
-    CourseId,
-    buildModuleId,
-    buildLessonVideoId
+    buildPreviewContentId 
 } from "../../../../utils"
 
-/**
- * Fullstack Mastery Module 1 data.
- */
 export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
     id: buildModuleId({
         courseId: CourseId.FullstackMastery,
-        moduleIndex: 1,
+        moduleIndex: 0,
     }),
     defaultLocale: Locale.En,
     title: "Backend Environment & NestJS Introduction",
@@ -37,7 +34,8 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
         {
             id: buildLessonVideoId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 1,
+                moduleIndex: 0,
+                lessonVideoIndex: 0,
             }),
             title: "Backend Environment & NestJS Introduction",
             description: "Set up the Node.js environment, install NestJS, understand Dependency Injection, the Module System, the Request Lifecycle, Exception Handling, Logging, Validation, and how to build basic APIs.",
@@ -49,7 +47,8 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
                 {
                     lessonVideoId: buildLessonVideoId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 1,
+                        moduleIndex: 0,
+                        lessonVideoIndex: 0,
                     }),
                     locale: Locale.Vi,
                     field: "title",
@@ -58,7 +57,8 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
                 {
                     lessonVideoId: buildLessonVideoId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 1,
+                        moduleIndex: 0,
+                        lessonVideoIndex: 0,
                     }),
                     locale: Locale.Vi,
                     field: "description",
@@ -67,7 +67,8 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
                 {
                     lessonVideoId: buildLessonVideoId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 1,
+                        moduleIndex: 0,
+                        lessonVideoIndex: 0,
                     }),
                     locale: Locale.En,
                     field: "title",
@@ -76,7 +77,8 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
                 {
                     lessonVideoId: buildLessonVideoId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 1,
+                        moduleIndex: 0,
+                        lessonVideoIndex: 0,
                     }),
                     locale: Locale.En,
                     field: "description",
@@ -89,7 +91,7 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
         {
             moduleId: buildModuleId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 1,
+                moduleIndex: 0,
             }),
             locale: Locale.En,
             field: "title",
@@ -98,7 +100,7 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
         {
             moduleId: buildModuleId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 1,
+                moduleIndex: 0,
             }),
             locale: Locale.En,
             field: "description",
@@ -109,20 +111,20 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
         {
             id: buildContentId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 1,
-                contentIndex: 1,
+                moduleIndex: 0,
+                contentIndex: 0,
             }),
             title: readMetadataOrDefault(
                 buildContentId({
                     courseId: CourseId.FullstackMastery,
-                    moduleIndex: 1,
-                    contentIndex: 1,
+                    moduleIndex: 0,
+                    contentIndex: 0,
                 }),
                 Locale.En,
                 ""
             ),
             body: readFileOrDefault(
-                `${envConfig().mountPath.data.courses}/fullstack-mastery/modules/1/content/body.en.md`, 
+                `${envConfig().mountPath.data.courses}/fullstack-mastery/modules/0/content/body.en.md`,
                 ""
             ),
             orderIndex: 0,
@@ -131,16 +133,16 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
                 {
                     contentId: buildContentId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 1,
-                        contentIndex: 1,
+                        moduleIndex: 0,
+                        contentIndex: 0,
                     }),
                     locale: Locale.Vi,
                     field: "title",
                     value: readMetadataOrDefault(
                         buildContentId({
                             courseId: CourseId.FullstackMastery,
-                            moduleIndex: 1,
-                            contentIndex: 1,
+                            moduleIndex: 0,
+                            contentIndex: 0,
                         }),
                         Locale.Vi,
                         ""
@@ -149,13 +151,13 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
                 {
                     contentId: buildContentId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 1,
-                        contentIndex: 1,
+                        moduleIndex: 0,
+                        contentIndex: 0,
                     }),
                     locale: Locale.Vi,
                     field: "body",
                     value: readFileOrDefault(
-                        `${envConfig().mountPath.data.courses}/fullstack-mastery/modules/1/content/body.vi.md`, 
+                        `${envConfig().mountPath.data.courses}/fullstack-mastery/modules/0/content/body.vi.md`,
                         ""
                     ),
                 },
@@ -166,8 +168,8 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
         {
             id: buildPreviewContentId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 1,
-                previewContentIndex: 1,
+                moduleIndex: 0,
+                previewContentIndex: 0,
             }),
             data: "Understand the backend ecosystem and how languages/frameworks like Java, C#, Node.js, Golang, and Python are used in real-world systems.",
             orderIndex: 0,
@@ -176,8 +178,8 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
                 {
                     previewContentId: buildPreviewContentId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 1,
-                        previewContentIndex: 1,
+                        moduleIndex: 0,
+                        previewContentIndex: 0,
                     }),
                     locale: Locale.Vi,
                     field: "data",
@@ -188,8 +190,8 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
         {
             id: buildPreviewContentId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 1,
-                previewContentIndex: 2,
+                moduleIndex: 0,
+                previewContentIndex: 1,
             }),
             data: "Set up Node.js, install NestJS CLI, and structure a production-ready project from scratch.",
             orderIndex: 1,
@@ -198,8 +200,8 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
                 {
                     previewContentId: buildPreviewContentId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 1,
-                        previewContentIndex: 2,
+                        moduleIndex: 0,
+                        previewContentIndex: 1,
                     }),
                     locale: Locale.Vi,
                     field: "data",
@@ -210,8 +212,8 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
         {
             id: buildPreviewContentId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 1,
-                previewContentIndex: 3,
+                moduleIndex: 0,
+                previewContentIndex: 2,
             }),
             data: "Understand Dependency Injection and the Module System to build scalable and maintainable architectures.",
             orderIndex: 2,
@@ -220,8 +222,8 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
                 {
                     previewContentId: buildPreviewContentId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 1,
-                        previewContentIndex: 3,
+                        moduleIndex: 0,
+                        previewContentIndex: 2,
                     }),
                     locale: Locale.Vi,
                     field: "data",
@@ -232,8 +234,8 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
         {
             id: buildPreviewContentId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 1,
-                previewContentIndex: 4,
+                moduleIndex: 0,
+                previewContentIndex: 3,
             }),
             data: "Master the NestJS request lifecycle: Middleware → Guards → Pipes → Controllers → Services → Interceptors → Exception Filters.",
             orderIndex: 3,
@@ -242,8 +244,8 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
                 {
                     previewContentId: buildPreviewContentId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 1,
-                        previewContentIndex: 4,
+                        moduleIndex: 0,
+                        previewContentIndex: 3,
                     }),
                     locale: Locale.Vi,
                     field: "data",
@@ -254,8 +256,8 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
         {
             id: buildPreviewContentId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 1,
-                previewContentIndex: 5,
+                moduleIndex: 0,
+                previewContentIndex: 4,
             }),
             data: "Apply clean architecture principles by separating transport layer from business logic.",
             orderIndex: 4,
@@ -264,8 +266,8 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
                 {
                     previewContentId: buildPreviewContentId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 1,
-                        previewContentIndex: 5,
+                        moduleIndex: 0,
+                        previewContentIndex: 4,
                     }),
                     locale: Locale.Vi,
                     field: "data",
@@ -276,8 +278,8 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
         {
             id: buildPreviewContentId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 1,
-                previewContentIndex: 6,
+                moduleIndex: 0,
+                previewContentIndex: 5,
             }),
             data: "Prepare for production with environment config, structured logging (Winston), and standardized API responses.",
             orderIndex: 5,
@@ -286,8 +288,8 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
                 {
                     previewContentId: buildPreviewContentId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 1,
-                        previewContentIndex: 6,
+                        moduleIndex: 0,
+                        previewContentIndex: 5,
                     }),
                     locale: Locale.Vi,
                     field: "data",

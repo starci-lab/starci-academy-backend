@@ -377,6 +377,18 @@ export const envConfig = () => ({
                     key: "POSTGRESQL_PRIMARY_DATABASE",
                     defaultValue: "starci-academy",
                 }),
+                /**
+                 * When true, TypeORM auto-creates/updates tables from entities on startup.
+                 * Default: true in non-production (local dev); set POSTGRESQL_PRIMARY_SYNCHRONIZE=false to disable.
+                 * Production should use migrations and keep this false.
+                 */
+                synchronize: parseEnvBoolean({
+                    key: "POSTGRESQL_PRIMARY_SYNCHRONIZE",
+                    defaultValue: parseEnvString({
+                        key: "NODE_ENV",
+                        defaultValue: "development",
+                    }) !== "production",
+                }),
             },
         },
     },

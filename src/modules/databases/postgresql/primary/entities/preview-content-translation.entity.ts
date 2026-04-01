@@ -5,12 +5,12 @@ import {
 import {
     Column,
     Entity,
-    Index,
     JoinColumn,
     ManyToOne,
+    PrimaryColumn,
 } from "typeorm"
 import {
-    UuidAbstractEntity,
+    AbstractEntity,
 } from "./abstract"
 import {
     PreviewContentEntity,
@@ -21,48 +21,33 @@ import {
 } from "../enums"
 
 /**
- * Translation entity storing localized values for preview content fields.
- *
- * Each row represents:
- * (previewContentId, locale, field) -> translated value
+ * Translation entity for preview content fields.
+ * Primary key: (previewContentId, locale, field).
  */
 @ObjectType({
     description: "Localized value for a specific preview content field.",
 })
 @Entity("preview_content_translations")
-@Index(
-    "uq_preview_content_translation",
-    [
-        "previewContentId",
-        "locale",
-        "field",
-    ],
-    {
-        unique: true,
-    },
-)
-export class PreviewContentTranslationEntity extends UuidAbstractEntity {
-    /**
-     * Target preview content ID.
-     */
+export class PreviewContentTranslationEntity extends AbstractEntity {
     @Field(
         () => String,
         {
             description: "Target preview content ID.",
         },
     )
-    @Column({
+    @PrimaryColumn({
         name: "preview_content_id",
-        type: "varchar",
-        length: 255,
+        type: "uuid",
     })
         previewContentId: string
 
-    /**
-     * Locale of the translation (e.g., vi, en).
-     */
-    @Field(() => GraphQLTypeLocale)
-    @Column({
+    @Field(
+        () => GraphQLTypeLocale,
+        {
+            description: "Locale of the translation (e.g. vi, en).",
+        },
+    )
+    @PrimaryColumn({
         name: "locale",
         type: "enum",
         enum: Locale,
@@ -70,25 +55,19 @@ export class PreviewContentTranslationEntity extends UuidAbstractEntity {
     })
         locale: Locale
 
-    /**
-     * Target field name being translated (e.g., data).
-     */
     @Field(
         () => String,
         {
             description: "Target field name being translated.",
         },
     )
-    @Column({
+    @PrimaryColumn({
         name: "field",
         type: "varchar",
         length: 128,
     })
         field: string
 
-    /**
-     * Translated value for the field.
-     */
     @Field(
         () => String,
         {
@@ -101,10 +80,6 @@ export class PreviewContentTranslationEntity extends UuidAbstractEntity {
     })
         value: string
 
-    /**
-     * Reference to the parent preview content.
-     * Cascade delete ensures translations are removed when preview content is deleted.
-     */
     @ManyToOne(
         () => PreviewContentEntity,
         {
@@ -117,4 +92,3 @@ export class PreviewContentTranslationEntity extends UuidAbstractEntity {
     })
         previewContent: PreviewContentEntity
 }
-

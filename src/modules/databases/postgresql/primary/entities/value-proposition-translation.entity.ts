@@ -5,64 +5,49 @@ import {
 import {
     Column,
     Entity,
-    Index,
     JoinColumn,
     ManyToOne,
+    PrimaryColumn,
 } from "typeorm"
 import {
     GraphQLTypeLocale,
     Locale,
 } from "../enums"
 import {
-    UuidAbstractEntity,
+    AbstractEntity,
 } from "./abstract"
 import {
     ValuePropositionEntity,
 } from "./value-proposition.entity"
 
 /**
- * Translation entity storing localized values for value proposition fields.
- *
- * Each row represents:
- * (valuePropositionId, locale, field) -> translated value
+ * Translation entity for value proposition fields.
+ * Primary key: (valuePropositionId, locale, field).
  */
 @ObjectType({
     description: "Localized value for a specific value proposition field.",
 })
 @Entity("value_proposition_translations")
-@Index(
-    "uq_value_proposition_translation",
-    [
-        "valuePropositionId",
-        "locale",
-        "field",
-    ],
-    {
-        unique: true,
-    },
-)
-export class ValuePropositionTranslationEntity extends UuidAbstractEntity {
-    /**
-     * Target value proposition ID.
-     */
+export class ValuePropositionTranslationEntity extends AbstractEntity {
     @Field(
         () => String,
         {
             description: "Target value proposition ID.",
         },
     )
-    @Column({
+    @PrimaryColumn({
         name: "value_proposition_id",
-        type: "varchar",
-        length: 255,
+        type: "uuid",
     })
         valuePropositionId: string
 
-    /**
-     * Locale of the translation (e.g., vi, en).
-     */
-    @Field(() => GraphQLTypeLocale)
-    @Column({
+    @Field(
+        () => GraphQLTypeLocale,
+        {
+            description: "Locale of the translation (e.g. vi, en).",
+        },
+    )
+    @PrimaryColumn({
         name: "locale",
         type: "enum",
         enum: Locale,
@@ -70,25 +55,19 @@ export class ValuePropositionTranslationEntity extends UuidAbstractEntity {
     })
         locale: Locale
 
-    /**
-     * Target field name being translated (e.g., content).
-     */
     @Field(
         () => String,
         {
             description: "Target field name being translated.",
         },
     )
-    @Column({
+    @PrimaryColumn({
         name: "field",
         type: "varchar",
         length: 128,
     })
         field: string
 
-    /**
-     * Translated value for the field.
-     */
     @Field(
         () => String,
         {
@@ -101,10 +80,6 @@ export class ValuePropositionTranslationEntity extends UuidAbstractEntity {
     })
         value: string
 
-    /**
-     * Reference to the parent value proposition.
-     * Cascade delete ensures translations are removed when value proposition is deleted.
-     */
     @ManyToOne(
         () => ValuePropositionEntity,
         {
@@ -117,4 +92,3 @@ export class ValuePropositionTranslationEntity extends UuidAbstractEntity {
     })
         valueProposition: ValuePropositionEntity
 }
-

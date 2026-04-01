@@ -13,6 +13,6 @@ export {
 } from "./fullstack-mastery"
 
 /** All courses data. */
-export const courses: Array<DeepPartial<CourseEntity>> = [
+export const seedCourses: Array<DeepPartial<CourseEntity>> = [
     fullstackMasteryCourse,
 ]

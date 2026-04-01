@@ -15,7 +15,7 @@ import {
     OneToMany,
 } from "typeorm"
 import {
-    StringAbstractEntity,
+    UuidAbstractEntity,
 } from "./abstract"
 import {
     ModuleEntity,
@@ -31,7 +31,7 @@ import {
     description: "A preview content line item in a module.",
 })
 @Entity("preview_contents")
-export class PreviewContentEntity extends StringAbstractEntity {
+export class PreviewContentEntity extends UuidAbstractEntity {
     /**
      * Content line text/body.
      */
@@ -50,7 +50,12 @@ export class PreviewContentEntity extends StringAbstractEntity {
     /**
      * Display order within the parent module preview content list.
      */
-    @Field(() => Int)
+    @Field(
+        () => Int,
+        {
+            description: "Display order within the parent module preview content list.",
+        },
+    )
     @Column({
         name: "order_index",
         type: "int",
@@ -61,7 +66,12 @@ export class PreviewContentEntity extends StringAbstractEntity {
     /**
      * Default locale for this preview content row.
      */
-    @Field(() => GraphQLTypeLocale)
+    @Field(
+        () => GraphQLTypeLocale,
+        {
+            description: "Default locale for this preview content row.",
+        },
+    )
     @Column({
         name: "default_locale",
         type: "enum",
@@ -73,7 +83,12 @@ export class PreviewContentEntity extends StringAbstractEntity {
     /**
      * Parent module this preview content belongs to.
      */
-    @Field(() => ModuleEntity)
+    @Field(
+        () => ModuleEntity,
+        {
+            description: "Parent module this preview content belongs to.",
+        },
+    )
     @ManyToOne(
         () => ModuleEntity,
         (module: ModuleEntity) => module.previewContents,
@@ -92,7 +107,7 @@ export class PreviewContentEntity extends StringAbstractEntity {
     @Field(
         () => [PreviewContentTranslationEntity],
         {
-            nullable: true,
+            description: "Localized overrides for preview content fields (e.g. data).",
         },
     )
     @OneToMany(
@@ -102,6 +117,6 @@ export class PreviewContentEntity extends StringAbstractEntity {
             cascade: true,
         },
     )
-        translations?: Array<PreviewContentTranslationEntity>
+        translations: Array<PreviewContentTranslationEntity>
 }
 

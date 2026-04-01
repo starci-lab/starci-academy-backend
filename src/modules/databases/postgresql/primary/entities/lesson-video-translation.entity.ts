@@ -5,64 +5,49 @@ import {
 import {
     Column,
     Entity,
-    Index,
     JoinColumn,
     ManyToOne,
+    PrimaryColumn,
 } from "typeorm"
 import {
     GraphQLTypeLocale,
     Locale,
 } from "../enums"
 import {
-    UuidAbstractEntity,
+    AbstractEntity,
 } from "./abstract"
 import {
     LessonVideoEntity,
 } from "./lesson-video.entity"
 
 /**
- * Translation entity storing localized values for lesson video fields.
- *
- * Each row represents:
- * (lessonVideoId, locale, field) -> translated value
+ * Translation entity for lesson video fields.
+ * Primary key: (lessonVideoId, locale, field).
  */
 @ObjectType({
     description: "Localized value for a specific lesson video field.",
 })
 @Entity("lesson_video_translations")
-@Index(
-    "uq_lesson_video_translation",
-    [
-        "lessonVideoId",
-        "locale",
-        "field",
-    ],
-    {
-        unique: true,
-    },
-)
-export class LessonVideoTranslationEntity extends UuidAbstractEntity {
-    /**
-     * Target lesson video ID.
-     */
+export class LessonVideoTranslationEntity extends AbstractEntity {
     @Field(
         () => String,
         {
             description: "Target lesson video ID.",
         },
     )
-    @Column({
+    @PrimaryColumn({
         name: "lesson_video_id",
-        type: "varchar",
-        length: 255,
+        type: "uuid",
     })
         lessonVideoId: string
 
-    /**
-     * Locale of the translation (e.g., vi, en).
-     */
-    @Field(() => GraphQLTypeLocale)
-    @Column({
+    @Field(
+        () => GraphQLTypeLocale,
+        {
+            description: "Locale of the translation (e.g. vi, en).",
+        },
+    )
+    @PrimaryColumn({
         name: "locale",
         type: "enum",
         enum: Locale,
@@ -70,25 +55,19 @@ export class LessonVideoTranslationEntity extends UuidAbstractEntity {
     })
         locale: Locale
 
-    /**
-     * Target field name being translated (e.g., title, description).
-     */
     @Field(
         () => String,
         {
             description: "Target field name being translated.",
         },
     )
-    @Column({
+    @PrimaryColumn({
         name: "field",
         type: "varchar",
         length: 128,
     })
         field: string
 
-    /**
-     * Translated value for the field.
-     */
     @Field(
         () => String,
         {
@@ -101,10 +80,6 @@ export class LessonVideoTranslationEntity extends UuidAbstractEntity {
     })
         value: string
 
-    /**
-     * Reference to the parent lesson video.
-     * Cascade delete ensures translations are removed when lesson video is deleted.
-     */
     @ManyToOne(
         () => LessonVideoEntity,
         {
@@ -117,4 +92,3 @@ export class LessonVideoTranslationEntity extends UuidAbstractEntity {
     })
         lessonVideo: LessonVideoEntity
 }
-

@@ -92,7 +92,8 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                 host, 
                                 password, 
                                 port, 
-                                username 
+                                username,
+                                synchronize,
                             } = envConfig().databases.postgresql.primary
                             return {
                                 type: "postgres",
@@ -126,7 +127,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     ResourceEntity,
                                     SubmissionEntity,
                                 ],
-                                synchronize: false,
+                                synchronize,
                                 logging: false,
                             }
                         },

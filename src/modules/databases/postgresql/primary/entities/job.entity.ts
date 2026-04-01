@@ -27,6 +27,9 @@ import {
 export class JobEntity extends UuidAbstractEntity {
     @Field(
         () => Date,
+        {
+            description: "When the job was queued for processing.",
+        },
     )
     @Column(
         {
@@ -39,6 +42,9 @@ export class JobEntity extends UuidAbstractEntity {
 
     @Field(
         () => String,
+        {
+            description: "Serialized job payload (worker input).",
+        },
     )
     @Column(
         {
@@ -50,6 +56,9 @@ export class JobEntity extends UuidAbstractEntity {
 
     @Field(
         () => GraphQLTypeJobStatus,
+        {
+            description: "Current lifecycle status of the job.",
+        },
     )
     @Column(
         {
@@ -66,6 +75,7 @@ export class JobEntity extends UuidAbstractEntity {
         () => String,
         {
             nullable: true,
+            description: "Error message when the job failed.",
         },
     )
     @Column(
@@ -79,6 +89,9 @@ export class JobEntity extends UuidAbstractEntity {
 
     @Field(
         () => Int,
+        {
+            description: "Maximum number of steps the worker may execute.",
+        },
     )
     @Column(
         {
@@ -91,6 +104,9 @@ export class JobEntity extends UuidAbstractEntity {
 
     @Field(
         () => Int,
+        {
+            description: "Current step index within the job workflow.",
+        },
     )
     @Column(
         {
@@ -103,6 +119,9 @@ export class JobEntity extends UuidAbstractEntity {
 
     @Field(
         () => GraphQLTypeActionType,
+        {
+            description: "Domain action type this job performs.",
+        },
     )
     @Column(
         {
@@ -117,6 +136,7 @@ export class JobEntity extends UuidAbstractEntity {
         () => String,
         {
             nullable: true,
+            description: "Serialized results after successful or partial execution.",
         },
     )
     @Column(

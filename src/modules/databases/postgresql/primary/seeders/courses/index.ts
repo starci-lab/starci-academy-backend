@@ -1,1 +1,1 @@
-export * from "./courses.service"
+export * from "./course.service"

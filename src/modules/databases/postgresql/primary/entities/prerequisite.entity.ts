@@ -15,7 +15,7 @@ import {
     CourseEntity 
 } from "./course.entity"
 import {
-    StringAbstractEntity 
+    UuidAbstractEntity 
 } from "./abstract"
 import {
     PrerequisiteTranslationEntity,
@@ -28,7 +28,7 @@ import {
     description: "Prerequisite text belonging to a course."
 })
 @Entity("prerequisites")
-export class PrerequisiteEntity extends StringAbstractEntity {
+export class PrerequisiteEntity extends UuidAbstractEntity {
     /**
      * Requirement or prior knowledge description.
      */
@@ -59,7 +59,12 @@ export class PrerequisiteEntity extends StringAbstractEntity {
     /**
      * Default locale for the prerequisite.
      */
-    @Field(() => GraphQLTypeLocale)
+    @Field(
+        () => GraphQLTypeLocale,
+        {
+            description: "Default locale for this prerequisite row.",
+        },
+    )
     @Column({
         name: "default_locale",
         type: "enum",
@@ -91,7 +96,7 @@ export class PrerequisiteEntity extends StringAbstractEntity {
     @Field(
         () => [PrerequisiteTranslationEntity],
         {
-            nullable: true,
+            description: "Localized overrides for prerequisite fields (e.g. content).",
         },
     )
     @OneToMany(
@@ -101,5 +106,5 @@ export class PrerequisiteEntity extends StringAbstractEntity {
             cascade: true,
         },
     )
-        translations?: Array<PrerequisiteTranslationEntity>
+        translations: Array<PrerequisiteTranslationEntity>
 }

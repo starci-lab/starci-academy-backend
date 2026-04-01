@@ -5,12 +5,12 @@ import {
 import {
     Column,
     Entity,
-    Index,
     JoinColumn,
     ManyToOne,
+    PrimaryColumn,
 } from "typeorm"
 import {
-    UuidAbstractEntity,
+    AbstractEntity,
 } from "./abstract"
 import {
     ContentEntity,
@@ -25,25 +25,16 @@ import {
  *
  * Each row represents:
  * (contentId, locale, field) -> translated value
+ *
+ * Primary key is the composite (contentId, locale, field).
  */
 @ObjectType({
     description: "Localized value for a specific content field.",
 })
 @Entity("content_translations")
-@Index(
-    "uq_content_translation",
-    [
-        "contentId",
-        "locale",
-        "field",
-    ],
-    {
-        unique: true,
-    },
-)
-export class ContentTranslationEntity extends UuidAbstractEntity {
+export class ContentTranslationEntity extends AbstractEntity {
     /**
-     * Target content ID.
+     * Target content ID (part of composite primary key).
      */
     @Field(
         () => String,
@@ -51,18 +42,22 @@ export class ContentTranslationEntity extends UuidAbstractEntity {
             description: "Target content ID.",
         },
     )
-    @Column({
+    @PrimaryColumn({
         name: "content_id",
-        type: "varchar",
-        length: 255,
+        type: "uuid",
     })
         contentId: string
 
     /**
      * Locale of the translation (e.g., vi, en).
      */
-    @Field(() => GraphQLTypeLocale)
-    @Column({
+    @Field(
+        () => GraphQLTypeLocale,
+        {
+            description: "Locale of the translation (e.g. vi, en).",
+        },
+    )
+    @PrimaryColumn({
         name: "locale",
         type: "enum",
         enum: Locale,
@@ -79,7 +74,7 @@ export class ContentTranslationEntity extends UuidAbstractEntity {
             description: "Target field name being translated.",
         },
     )
-    @Column({
+    @PrimaryColumn({
         name: "field",
         type: "varchar",
         length: 128,
@@ -117,4 +112,3 @@ export class ContentTranslationEntity extends UuidAbstractEntity {
     })
         content: ContentEntity
 }
-

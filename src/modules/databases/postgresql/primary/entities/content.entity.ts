@@ -15,7 +15,7 @@ import {
     OneToMany,
 } from "typeorm"
 import {
-    StringAbstractEntity,
+    UuidAbstractEntity,
 } from "./abstract"
 import {
     ModuleEntity,
@@ -31,7 +31,7 @@ import {
     description: "Content attached to a module.",
 })
 @Entity("contents")
-export class ContentEntity extends StringAbstractEntity {
+export class ContentEntity extends UuidAbstractEntity {
     /**
      * Content title.
      */
@@ -66,7 +66,12 @@ export class ContentEntity extends StringAbstractEntity {
     /**
      * Display order within the module content list.
      */
-    @Field(() => Int)
+    @Field(
+        () => Int,
+        {
+            description: "Display order within the module content list.",
+        },
+    )
     @Column({
         name: "order_index",
         type: "int",
@@ -77,7 +82,12 @@ export class ContentEntity extends StringAbstractEntity {
     /**
      * Default locale for this content row.
      */
-    @Field(() => GraphQLTypeLocale)
+    @Field(
+        () => GraphQLTypeLocale,
+        {
+            description: "Default locale for this content row.",
+        },
+    )
     @Column({
         name: "default_locale",
         type: "enum",
@@ -89,7 +99,12 @@ export class ContentEntity extends StringAbstractEntity {
     /**
      * Parent module this content belongs to.
      */
-    @Field(() => ModuleEntity)
+    @Field(
+        () => ModuleEntity,
+        {
+            description: "Parent module this content belongs to.",
+        },
+    )
     @ManyToOne(
         () => ModuleEntity,
         (module: ModuleEntity) => module.contents,
@@ -108,7 +123,7 @@ export class ContentEntity extends StringAbstractEntity {
     @Field(
         () => [ContentTranslationEntity],
         {
-            nullable: true,
+            description: "Localized overrides for content fields (e.g. title, body).",
         },
     )
     @OneToMany(
@@ -118,5 +133,5 @@ export class ContentEntity extends StringAbstractEntity {
             cascade: true,
         },
     )
-        translations?: Array<ContentTranslationEntity>
+        translations: Array<ContentTranslationEntity>
 }

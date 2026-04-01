@@ -118,10 +118,13 @@ export class UserEntity extends UuidAbstractEntity {
     })
         isDeleted: boolean
 
-    @Field(() => [SubmissionEntity],
+    @Field(
+        () => [SubmissionEntity],
         {
-            nullable: true
-        })
+            nullable: true,
+            description: "Learner submissions by this user.",
+        },
+    )
     @OneToMany(() => SubmissionEntity,
         (submission: SubmissionEntity) => submission.user,
         {
@@ -129,10 +132,13 @@ export class UserEntity extends UuidAbstractEntity {
         })
         submissions: Array<SubmissionEntity>
 
-    @Field(() => [EnrollmentEntity],
+    @Field(
+        () => [EnrollmentEntity],
         {
             nullable: true,
-        })
+            description: "Course enrollments for this user.",
+        },
+    )
     @OneToMany(() => EnrollmentEntity,
         (enrollment: EnrollmentEntity) => enrollment.user,
         {

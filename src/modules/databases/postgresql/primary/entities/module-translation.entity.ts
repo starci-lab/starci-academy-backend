@@ -5,12 +5,12 @@ import {
 import {
     Column,
     Entity,
-    Index,
     JoinColumn,
     ManyToOne,
+    PrimaryColumn,
 } from "typeorm"
 import {
-    UuidAbstractEntity,
+    AbstractEntity,
 } from "./abstract"
 import {
     ModuleEntity,
@@ -21,48 +21,33 @@ import {
 } from "../enums"
 
 /**
- * Translation entity storing localized values for module fields.
- *
- * Each row represents:
- * (moduleId, locale, field) -> translated value
+ * Translation entity for module fields.
+ * Primary key: (moduleId, locale, field).
  */
 @ObjectType({
     description: "Localized value for a specific module field.",
 })
 @Entity("module_translations")
-@Index(
-    "uq_module_translation",
-    [
-        "moduleId",
-        "locale",
-        "field",
-    ],
-    {
-        unique: true,
-    },
-)
-export class ModuleTranslationEntity extends UuidAbstractEntity {
-    /**
-     * Target module ID.
-     */
+export class ModuleTranslationEntity extends AbstractEntity {
     @Field(
         () => String,
         {
             description: "Target module ID.",
         },
     )
-    @Column({
+    @PrimaryColumn({
         name: "module_id",
-        type: "varchar",
-        length: 255,
+        type: "uuid",
     })
         moduleId: string
 
-    /**
-     * Locale of the translation (e.g., vi, en).
-     */
-    @Field(() => GraphQLTypeLocale)
-    @Column({
+    @Field(
+        () => GraphQLTypeLocale,
+        {
+            description: "Locale of the translation (e.g. vi, en).",
+        },
+    )
+    @PrimaryColumn({
         name: "locale",
         type: "enum",
         enum: Locale,
@@ -70,25 +55,19 @@ export class ModuleTranslationEntity extends UuidAbstractEntity {
     })
         locale: Locale
 
-    /**
-     * Target field name being translated (e.g., title, description).
-     */
     @Field(
         () => String,
         {
             description: "Target field name being translated.",
         },
     )
-    @Column({
+    @PrimaryColumn({
         name: "field",
         type: "varchar",
         length: 128,
     })
         field: string
 
-    /**
-     * Translated value for the field.
-     */
     @Field(
         () => String,
         {
@@ -101,10 +80,6 @@ export class ModuleTranslationEntity extends UuidAbstractEntity {
     })
         value: string
 
-    /**
-     * Reference to the parent module.
-     * Cascade delete ensures translations are removed when module is deleted.
-     */
     @ManyToOne(
         () => ModuleEntity,
         {
@@ -117,4 +92,3 @@ export class ModuleTranslationEntity extends UuidAbstractEntity {
     })
         module: ModuleEntity
 }
-

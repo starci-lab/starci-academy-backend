@@ -24,7 +24,7 @@ import {
     SubmissionEntity 
 } from "./submission.entity"
 import {
-    StringAbstractEntity 
+    UuidAbstractEntity 
 } from "./abstract"
 import {
     ModuleTranslationEntity,
@@ -34,7 +34,7 @@ import {
     description: "A module belonging to a course."
 })
 @Entity("modules")
-export class ModuleEntity extends StringAbstractEntity {
+export class ModuleEntity extends UuidAbstractEntity {
     /**
      * Human-readable module title.
      */
@@ -69,7 +69,12 @@ export class ModuleEntity extends StringAbstractEntity {
     /**
      * Display order within the parent course module list.
      */
-    @Field(() => Int)
+    @Field(
+        () => Int,
+        {
+            description: "Display order within the parent course module list.",
+        },
+    )
     @Column({
         name: "order_index",
         type: "int",
@@ -80,7 +85,12 @@ export class ModuleEntity extends StringAbstractEntity {
     /**
      * Default locale for the module.
      */
-    @Field(() => GraphQLTypeLocale)
+    @Field(
+        () => GraphQLTypeLocale,
+        {
+            description: "Default locale for module copy when no translation applies.",
+        },
+    )
     @Column({
         name: "default_locale",
         type: "enum",
@@ -92,7 +102,12 @@ export class ModuleEntity extends StringAbstractEntity {
     /**
      * Parent course this module belongs to.
      */
-    @Field(() => CourseEntity)
+    @Field(
+        () => CourseEntity,
+        {
+            description: "Parent course this module belongs to.",
+        },
+    )
     @ManyToOne(() => CourseEntity,
         (course: CourseEntity) => course.modules,
         {
@@ -156,10 +171,13 @@ export class ModuleEntity extends StringAbstractEntity {
     /**
      * Submissions associated with the module.
      */
-    @Field(() => [SubmissionEntity],
+    @Field(
+        () => [SubmissionEntity],
         {
-            nullable: true
-        })
+            nullable: true,
+            description: "Learner submissions associated with this module.",
+        },
+    )
     @OneToMany(() => SubmissionEntity,
         (submission: SubmissionEntity) => submission.module,
         {
@@ -173,7 +191,7 @@ export class ModuleEntity extends StringAbstractEntity {
     @Field(
         () => [ModuleTranslationEntity],
         {
-            nullable: true,
+            description: "Localized overrides for module fields (e.g. title, description).",
         },
     )
     @OneToMany(
@@ -183,5 +201,5 @@ export class ModuleEntity extends StringAbstractEntity {
             cascade: true,
         },
     )
-        translations?: Array<ModuleTranslationEntity>
+        translations: Array<ModuleTranslationEntity>
 }

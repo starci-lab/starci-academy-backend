@@ -16,6 +16,12 @@ import {
 import {
     InjectPrimaryPostgreSQLEntityManager 
 } from "../primary.decorators"
+import {
+    CourseEntity 
+} from "@modules/databases"
+import {
+    seedCourses 
+} from "../data"
 
 /**
  * The service for the Seeders.
@@ -39,7 +45,15 @@ export class SeedersService implements OnModuleInit {
         // seed in a transaction (do not drop: prevents cascade deletes like enrollments)
         await this.entityManager.transaction(
             async (entityManager) => {
-                await this.coursesService.seed(entityManager)
+                const previousCourses = await entityManager.find(CourseEntity)
+                const updatedCourses = seedCourses
+                await this.coursesService.updateCourses(
+                    {
+                        previous: previousCourses,
+                        updated: updatedCourses as Array<CourseEntity>,
+                        entityManager,
+                    }
+                )
             }
         )
     }

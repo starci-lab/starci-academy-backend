@@ -40,6 +40,9 @@ import {
 export class EnrollmentEntity extends UuidAbstractEntity {
     @Field(
         () => UserEntity,
+        {
+            description: "User who enrolled.",
+        },
     )
     @ManyToOne(
         () => UserEntity,
@@ -55,6 +58,9 @@ export class EnrollmentEntity extends UuidAbstractEntity {
 
     @Field(
         () => CourseEntity,
+        {
+            description: "Course the user enrolled in.",
+        },
     )
     @ManyToOne(
         () => CourseEntity,
@@ -74,7 +80,7 @@ export class EnrollmentEntity extends UuidAbstractEntity {
         })
     @Column({
         name: "user_id",
-        type: "varchar",
+        type: "uuid",
     })
         userId: string
 
@@ -84,7 +90,7 @@ export class EnrollmentEntity extends UuidAbstractEntity {
         })
     @Column({
         name: "course_id",
-        type: "varchar",
+        type: "uuid",
     })
         courseId: string
 

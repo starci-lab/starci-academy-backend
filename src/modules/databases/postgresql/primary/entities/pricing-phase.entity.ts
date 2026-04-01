@@ -9,7 +9,6 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
-    Unique,
 } from "typeorm"
 import {
     GraphQLTypePricingPhase,
@@ -19,24 +18,20 @@ import {
     CourseEntity,
 } from "./course.entity"
 import {
-    StringAbstractEntity,
+    UuidAbstractEntity,
 } from "./abstract"
 
 /**
  * Each course has exactly three pricing tiers: Pioneer, EarlyBird, Regular. 
  */
 @ObjectType({
-    description: "Per-course tier row; `regular` is tier price (null for Regular — use course.originalPrice).",
+    description: "Each course has exactly three pricing tiers: Pioneer, EarlyBird, Regular.",
 })
 @Entity("pricing_phases")
-@Unique(
-    "UQ_pricing_phases_course_phase",
-    [
-        "course",
-        "phase",
-    ],
-)
-export class PricingPhaseEntity extends StringAbstractEntity {
+export class PricingPhaseEntity extends UuidAbstractEntity {
+    /**
+     * Course this pricing phase belongs to.
+     */
     @ManyToOne(
         () => CourseEntity,
         (course: CourseEntity) => course.pricingPhases,
@@ -49,6 +44,9 @@ export class PricingPhaseEntity extends StringAbstractEntity {
     })
         course: CourseEntity
 
+    /**
+     * Tier key (pioneer, earlybird, regular).
+     */
     @Field(
         () => GraphQLTypePricingPhase,
         {
@@ -62,11 +60,15 @@ export class PricingPhaseEntity extends StringAbstractEntity {
     })
         phase: PricingPhase 
 
+    /**
+     * Tier price for this phase; null for Regular tier (use course originalPrice).
+     */
     @Field(
         () => Float,
         {
             name: "price",
             nullable: true,
+            description: "Tier price for this phase; null for Regular tier (use course originalPrice).",
         },
     )
     @Column({
@@ -83,6 +85,7 @@ export class PricingPhaseEntity extends StringAbstractEntity {
         () => Int,
         {
             nullable: true,
+            description: "Remaining seats for this tier; null means unlimited.",
         },
     )
     @Column({
@@ -90,10 +93,16 @@ export class PricingPhaseEntity extends StringAbstractEntity {
         type: "int",
         nullable: true,
     })
-        slotAvailable: number | null
+        slotAvailable?: number
 
+    /**
+     * Display order among pricing tiers for the course.
+     */
     @Field(
         () => Int,
+        {
+            description: "Display order among pricing tiers for the course.",
+        },
     )
     @Column({
         name: "order_index",

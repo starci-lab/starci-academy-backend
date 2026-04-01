@@ -5,64 +5,49 @@ import {
 import {
     Column,
     Entity,
-    Index,
     JoinColumn,
     ManyToOne,
+    PrimaryColumn,
 } from "typeorm"
 import {
     GraphQLTypeLocale,
     Locale,
 } from "../enums"
 import {
-    UuidAbstractEntity,
+    AbstractEntity,
 } from "./abstract"
 import {
     PrerequisiteEntity,
 } from "./prerequisite.entity"
 
 /**
- * Translation entity storing localized values for prerequisite fields.
- *
- * Each row represents:
- * (prerequisiteId, locale, field) -> translated value
+ * Translation entity for prerequisite fields.
+ * Primary key: (prerequisiteId, locale, field).
  */
 @ObjectType({
     description: "Localized value for a specific prerequisite field.",
 })
 @Entity("prerequisite_translations")
-@Index(
-    "uq_prerequisite_translation",
-    [
-        "prerequisiteId",
-        "locale",
-        "field",
-    ],
-    {
-        unique: true,
-    },
-)
-export class PrerequisiteTranslationEntity extends UuidAbstractEntity {
-    /**
-     * Target prerequisite ID.
-     */
+export class PrerequisiteTranslationEntity extends AbstractEntity {
     @Field(
         () => String,
         {
             description: "Target prerequisite ID.",
         },
     )
-    @Column({
+    @PrimaryColumn({
         name: "prerequisite_id",
-        type: "varchar",
-        length: 255,
+        type: "uuid",
     })
         prerequisiteId: string
 
-    /**
-     * Locale of the translation (e.g., vi, en).
-     */
-    @Field(() => GraphQLTypeLocale)
-    @Column({
+    @Field(
+        () => GraphQLTypeLocale,
+        {
+            description: "Locale of the translation (e.g. vi, en).",
+        },
+    )
+    @PrimaryColumn({
         name: "locale",
         type: "enum",
         enum: Locale,
@@ -70,25 +55,19 @@ export class PrerequisiteTranslationEntity extends UuidAbstractEntity {
     })
         locale: Locale
 
-    /**
-     * Target field name being translated (e.g., content).
-     */
     @Field(
         () => String,
         {
             description: "Target field name being translated.",
         },
     )
-    @Column({
+    @PrimaryColumn({
         name: "field",
         type: "varchar",
         length: 128,
     })
         field: string
 
-    /**
-     * Translated value for the field.
-     */
     @Field(
         () => String,
         {
@@ -101,10 +80,6 @@ export class PrerequisiteTranslationEntity extends UuidAbstractEntity {
     })
         value: string
 
-    /**
-     * Reference to the parent prerequisite.
-     * Cascade delete ensures translations are removed when prerequisite is deleted.
-     */
     @ManyToOne(
         () => PrerequisiteEntity,
         {
@@ -117,4 +92,3 @@ export class PrerequisiteTranslationEntity extends UuidAbstractEntity {
     })
         prerequisite: PrerequisiteEntity
 }
-

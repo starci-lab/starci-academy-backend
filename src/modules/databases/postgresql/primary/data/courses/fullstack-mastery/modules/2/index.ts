@@ -26,7 +26,7 @@ import {
 export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
     id: buildModuleId({
         courseId: CourseId.FullstackMastery,
-        moduleIndex: 2,
+        moduleIndex: 1,
     }),
     defaultLocale: Locale.En,
     title: "Database Integration, ORM/ODM & Caching",
@@ -37,7 +37,7 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
         {
             moduleId: buildModuleId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 2,
+                moduleIndex: 1,
             }),
             locale: Locale.Vi,
             field: "title",
@@ -46,7 +46,7 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
         {
             moduleId: buildModuleId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 2,
+                moduleIndex: 1,
             }),
             locale: Locale.Vi,
             field: "description",
@@ -58,10 +58,12 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
         {
             id: buildLessonVideoId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 2,
+                moduleIndex: 1,
+                lessonVideoIndex: 0,
             }),
             title: "Database Integration, ORM/ODM & Caching",
-            description: "Integrate PostgreSQL with TypeORM, MongoDB with Mongoose, understand schema design, relationships, indexing, transactions, Redis caching, and when to choose SQL or NoSQL.",
+            description:
+                "Integrate PostgreSQL with TypeORM, MongoDB with Mongoose, understand schema design, relationships, indexing, transactions, Redis caching, and when to choose SQL or NoSQL.",
             url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
             durationMs: 5400000,
             orderIndex: 0,
@@ -70,7 +72,8 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
                 {
                     lessonVideoId: buildLessonVideoId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 2,
+                        moduleIndex: 1,
+                        lessonVideoIndex: 0,
                     }),
                     locale: Locale.Vi,
                     field: "title",
@@ -79,11 +82,13 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
                 {
                     lessonVideoId: buildLessonVideoId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 2,
+                        moduleIndex: 1,
+                        lessonVideoIndex: 0,
                     }),
                     locale: Locale.Vi,
                     field: "description",
-                    value: "Tích hợp PostgreSQL với TypeORM, MongoDB với Mongoose, hiểu thiết kế schema, quan hệ dữ liệu, indexing, transaction, caching với Redis và khi nào nên chọn SQL hoặc NoSQL.",
+                    value:
+                        "Tích hợp PostgreSQL với TypeORM, MongoDB với Mongoose, hiểu thiết kế schema, quan hệ dữ liệu, indexing, transaction, caching với Redis và khi nào nên chọn SQL hoặc NoSQL.",
                 },
             ],
         },
@@ -92,14 +97,14 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
         {
             id: buildContentId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 2,
-                contentIndex: 1,
+                moduleIndex: 1,
+                contentIndex: 0,
             }),
             title: readMetadataOrDefault(
                 buildContentId({
                     courseId: CourseId.FullstackMastery,
-                    moduleIndex: 2,
-                    contentIndex: 1,
+                    moduleIndex: 1,
+                    contentIndex: 0,
                 }),
                 Locale.En,
                 ""
@@ -114,16 +119,16 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
                 {
                     contentId: buildContentId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 2,
-                        contentIndex: 1,
+                        moduleIndex: 1,
+                        contentIndex: 0,
                     }),
                     locale: Locale.Vi,
                     field: "title",
                     value: readMetadataOrDefault(
                         buildContentId({
                             courseId: CourseId.FullstackMastery,
-                            moduleIndex: 2,
-                            contentIndex: 1,
+                            moduleIndex: 1,
+                            contentIndex: 0,
                         }),
                         Locale.Vi,
                         ""
@@ -132,8 +137,8 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
                 {
                     contentId: buildContentId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 2,
-                        contentIndex: 1,
+                        moduleIndex: 1,
+                        contentIndex: 0,
                     }),
                     locale: Locale.Vi,
                     field: "body",
@@ -152,8 +157,8 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
         {
             id: buildPreviewContentId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 2,
-                previewContentIndex: 1,
+                moduleIndex: 1,
+                previewContentIndex: 0,
             }),
             data: "Integrate PostgreSQL into a NestJS project and work with an ORM using TypeORM.",
             orderIndex: 0,
@@ -162,8 +167,8 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
                 {
                     previewContentId: buildPreviewContentId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 2,
-                        previewContentIndex: 1,
+                        moduleIndex: 1,
+                        previewContentIndex: 0,
                     }),
                     locale: Locale.Vi,
                     field: "data",
@@ -174,8 +179,8 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
         {
             id: buildPreviewContentId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 2,
-                previewContentIndex: 2,
+                moduleIndex: 1,
+                previewContentIndex: 1,
             }),
             data: "Integrate MongoDB and use Mongoose to build an ODM for suitable use cases.",
             orderIndex: 1,
@@ -184,8 +189,8 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
                 {
                     previewContentId: buildPreviewContentId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 2,
-                        previewContentIndex: 2,
+                        moduleIndex: 1,
+                        previewContentIndex: 1,
                     }),
                     locale: Locale.Vi,
                     field: "data",
@@ -196,8 +201,8 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
         {
             id: buildPreviewContentId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 2,
-                previewContentIndex: 3,
+                moduleIndex: 1,
+                previewContentIndex: 2,
             }),
             data: "Design schemas, define data relationships, and apply indexing strategies to optimize queries and scalability.",
             orderIndex: 2,
@@ -206,8 +211,8 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
                 {
                     previewContentId: buildPreviewContentId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 2,
-                        previewContentIndex: 3,
+                        moduleIndex: 1,
+                        previewContentIndex: 2,
                     }),
                     locale: Locale.Vi,
                     field: "data",
@@ -218,8 +223,8 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
         {
             id: buildPreviewContentId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 2,
-                previewContentIndex: 4,
+                moduleIndex: 1,
+                previewContentIndex: 3,
             }),
             data: "Understand transactions, rollbacks, and fundamental query optimization principles in real-world backend systems.",
             orderIndex: 3,
@@ -228,8 +233,8 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
                 {
                     previewContentId: buildPreviewContentId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 2,
-                        previewContentIndex: 4,
+                        moduleIndex: 1,
+                        previewContentIndex: 3,
                     }),
                     locale: Locale.Vi,
                     field: "data",
@@ -240,8 +245,8 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
         {
             id: buildPreviewContentId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 2,
-                previewContentIndex: 5,
+                moduleIndex: 1,
+                previewContentIndex: 4,
             }),
             data: "Integrate Redis for caching to reduce database load, accelerate read-heavy APIs, and handle TTL/invalidation.",
             orderIndex: 4,
@@ -250,8 +255,8 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
                 {
                     previewContentId: buildPreviewContentId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 2,
-                        previewContentIndex: 5,
+                        moduleIndex: 1,
+                        previewContentIndex: 4,
                     }),
                     locale: Locale.Vi,
                     field: "data",
@@ -262,8 +267,8 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
         {
             id: buildPreviewContentId({
                 courseId: CourseId.FullstackMastery,
-                moduleIndex: 2,
-                previewContentIndex: 6,
+                moduleIndex: 1,
+                previewContentIndex: 5,
             }),
             data: "Understand when to use SQL vs NoSQL based on system requirements and real-world use cases.",
             orderIndex: 5,
@@ -272,8 +277,8 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
                 {
                     previewContentId: buildPreviewContentId({
                         courseId: CourseId.FullstackMastery,
-                        moduleIndex: 2,
-                        previewContentIndex: 6,
+                        moduleIndex: 1,
+                        previewContentIndex: 5,
                     }),
                     locale: Locale.Vi,
                     field: "data",

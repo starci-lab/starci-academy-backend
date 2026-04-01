@@ -18,7 +18,7 @@ import {
     ModuleEntity,
 } from "./module.entity"
 import {
-    StringAbstractEntity,
+    UuidAbstractEntity,
 } from "./abstract"
 import {
     LessonVideoTranslationEntity,
@@ -31,11 +31,16 @@ import {
     description: "Lesson video link (typically YouTube) attached to a module.",
 })
 @Entity("lesson_videos")
-export class LessonVideoEntity extends StringAbstractEntity {
+export class LessonVideoEntity extends UuidAbstractEntity {
     /**
      * Video title.
      */
-    @Field(() => String)
+    @Field(
+        () => String,
+        {
+            description: "Video title.",
+        },
+    )
     @Column({
         name: "title",
         type: "varchar",
@@ -50,6 +55,7 @@ export class LessonVideoEntity extends StringAbstractEntity {
         () => String,
         {
             nullable: true,
+            description: "Optional video description.",
         },
     )
     @Column({
@@ -93,7 +99,12 @@ export class LessonVideoEntity extends StringAbstractEntity {
     /**
      * Display order within the module lesson video list.
      */
-    @Field(() => Int)
+    @Field(
+        () => Int,
+        {
+            description: "Display order within the module lesson video list.",
+        },
+    )
     @Column({
         name: "order_index",
         type: "int",
@@ -104,7 +115,12 @@ export class LessonVideoEntity extends StringAbstractEntity {
     /**
      * Default locale for this lesson video row.
      */
-    @Field(() => GraphQLTypeLocale)
+    @Field(
+        () => GraphQLTypeLocale,
+        {
+            description: "Default locale for this lesson video row.",
+        },
+    )
     @Column({
         name: "default_locale",
         type: "enum",
@@ -116,7 +132,12 @@ export class LessonVideoEntity extends StringAbstractEntity {
     /**
      * Parent module this lesson video belongs to.
      */
-    @Field(() => ModuleEntity)
+    @Field(
+        () => ModuleEntity,
+        {
+            description: "Parent module this lesson video belongs to.",
+        },
+    )
     @ManyToOne(
         () => ModuleEntity,
         (module: ModuleEntity) => module.lessonVideos,
@@ -135,7 +156,7 @@ export class LessonVideoEntity extends StringAbstractEntity {
     @Field(
         () => [LessonVideoTranslationEntity],
         {
-            nullable: true,
+            description: "Localized overrides for lesson video fields (e.g. title, description).",
         },
     )
     @OneToMany(
@@ -145,6 +166,6 @@ export class LessonVideoEntity extends StringAbstractEntity {
             cascade: true,
         },
     )
-        translations?: Array<LessonVideoTranslationEntity>
+        translations: Array<LessonVideoTranslationEntity>
 }
 

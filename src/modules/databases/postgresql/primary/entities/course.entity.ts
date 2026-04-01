@@ -33,7 +33,7 @@ import {
     PricingPhaseEntity,
 } from "./pricing-phase.entity"
 import {
-    StringAbstractEntity,
+    UuidAbstractEntity,
 } from "./abstract"
 import {
     CourseTranslationEntity,
@@ -47,7 +47,7 @@ import {
     description: "Course entity representing a sellable learning program with ordered modules, pricing phases, and localized content.",
 })
 @Entity("courses")
-export class CourseEntity extends StringAbstractEntity {
+export class CourseEntity extends UuidAbstractEntity {
     /**
      * Human-readable course title.
      */
@@ -71,6 +71,7 @@ export class CourseEntity extends StringAbstractEntity {
         () => String,
         {
             nullable: true,
+            description: "SEO-friendly slug used for public routing.",
         },
     )
     @Column({
@@ -89,6 +90,7 @@ export class CourseEntity extends StringAbstractEntity {
         () => String,
         {
             nullable: true,
+            description: "Short public description of the course.",
         },
     )
     @Column({
@@ -104,6 +106,7 @@ export class CourseEntity extends StringAbstractEntity {
         () => String,
         {
             nullable: true,
+            description: "Public CDN URL of the serialized course payload (if synced).",
         },
     )
     @Column({
@@ -176,7 +179,12 @@ export class CourseEntity extends StringAbstractEntity {
     /**
      * Ordered prerequisites required before joining the course.
      */
-    @Field(() => [PrerequisiteEntity])
+    @Field(
+        () => [PrerequisiteEntity],
+        {
+            description: "Ordered prerequisites required before joining the course.",
+        },
+    )
     @OneToMany(
         () => PrerequisiteEntity,
         (prerequisite: PrerequisiteEntity) => prerequisite.course,
@@ -208,7 +216,12 @@ export class CourseEntity extends StringAbstractEntity {
     /**
      * Ordered frequently asked questions of the course.
      */
-    @Field(() => [QnaEntity])
+    @Field(
+        () => [QnaEntity],
+        {
+            description: "Ordered frequently asked questions for the course.",
+        },
+    )
     @OneToMany(
         () => QnaEntity,
         (qna: QnaEntity) => qna.course,
@@ -221,7 +234,12 @@ export class CourseEntity extends StringAbstractEntity {
     /**
      * Ordered learning modules belonging to the course.
      */
-    @Field(() => [ModuleEntity])
+    @Field(
+        () => [ModuleEntity],
+        {
+            description: "Ordered learning modules belonging to the course.",
+        },
+    )
     @OneToMany(
         () => ModuleEntity,
         (module: ModuleEntity) => module.course,
@@ -238,6 +256,7 @@ export class CourseEntity extends StringAbstractEntity {
         () => [EnrollmentEntity],
         {
             nullable: true,
+            description: "User enrollments for this course.",
         },
     )
     @OneToMany(
@@ -255,7 +274,7 @@ export class CourseEntity extends StringAbstractEntity {
     @Field(
         () => [CourseTranslationEntity],
         {
-            nullable: true,
+            description: "Localized overrides for course fields (e.g. title, description).",
         },
     )
     @OneToMany(
@@ -265,12 +284,17 @@ export class CourseEntity extends StringAbstractEntity {
             cascade: true,
         },
     )
-        translations?: Array<CourseTranslationEntity>
+        translations: Array<CourseTranslationEntity>
 
     /**
      * Default locale for the course.
      */
-    @Field(() => GraphQLTypeLocale)
+    @Field(
+        () => GraphQLTypeLocale,
+        {
+            description: "Default locale for course copy when no translation applies.",
+        },
+    )
     @Column({
         name: "default_locale",
         type: "enum",

@@ -15,7 +15,7 @@ import {
     CourseEntity
 } from "./course.entity"
 import {
-    StringAbstractEntity
+    UuidAbstractEntity
 } from "./abstract"
 import {
     QnaTranslationEntity,
@@ -28,7 +28,7 @@ import {
     description: "Question and answer entry for a course."
 })
 @Entity("qnas")
-export class QnaEntity extends StringAbstractEntity {
+export class QnaEntity extends UuidAbstractEntity {
     /**
      * FAQ question text.
      */
@@ -72,7 +72,12 @@ export class QnaEntity extends StringAbstractEntity {
     /**
      * Default locale for the Q&A.
      */
-    @Field(() => GraphQLTypeLocale)
+    @Field(
+        () => GraphQLTypeLocale,
+        {
+            description: "Default locale for this Q&A row.",
+        },
+    )
     @Column({
         name: "default_locale",
         type: "enum",
@@ -104,7 +109,7 @@ export class QnaEntity extends StringAbstractEntity {
     @Field(
         () => [QnaTranslationEntity],
         {
-            nullable: true,
+            description: "Localized overrides for Q&A fields (e.g. question, answer).",
         },
     )
     @OneToMany(
@@ -114,5 +119,5 @@ export class QnaEntity extends StringAbstractEntity {
             cascade: true,
         },
     )
-        translations?: Array<QnaTranslationEntity>
+        translations: Array<QnaTranslationEntity>
 }

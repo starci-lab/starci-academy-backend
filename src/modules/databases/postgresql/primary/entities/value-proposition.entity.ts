@@ -11,7 +11,7 @@ import {
     CourseEntity,
 } from "./course.entity"
 import {
-    StringAbstractEntity,
+    UuidAbstractEntity,
 } from "./abstract"
 import {
     ValuePropositionTranslationEntity,
@@ -33,7 +33,7 @@ import {
     description: "Value proposition line for a course."
 })
 @Entity("value_propositions")
-export class ValuePropositionEntity extends StringAbstractEntity {
+export class ValuePropositionEntity extends UuidAbstractEntity {
     /**
      * Value proposition line content.
      */
@@ -64,7 +64,12 @@ export class ValuePropositionEntity extends StringAbstractEntity {
     /**
      * Default locale for the value proposition.
      */
-    @Field(() => GraphQLTypeLocale)
+    @Field(
+        () => GraphQLTypeLocale,
+        {
+            description: "Default locale for this value proposition row.",
+        },
+    )
     @Column({
         name: "default_locale",
         type: "enum",
@@ -99,6 +104,7 @@ export class ValuePropositionEntity extends StringAbstractEntity {
         () => [ValuePropositionTranslationEntity],
         {
             nullable: true,
+            description: "Localized overrides for value proposition fields (e.g. content).",
         },
     )
     @OneToMany(

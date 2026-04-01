@@ -110,7 +110,7 @@ export class TransactionEntity extends UuidAbstractEntity {
     )
     @Column({
         name: "course_id",
-        type: "varchar",
+        type: "uuid",
         nullable: true,
     })
         courseId?: string
