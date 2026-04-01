@@ -126,7 +126,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     ResourceEntity,
                                     SubmissionEntity,
                                 ],
-                                synchronize: true,
+                                synchronize: false,
                                 logging: false,
                             }
                         },

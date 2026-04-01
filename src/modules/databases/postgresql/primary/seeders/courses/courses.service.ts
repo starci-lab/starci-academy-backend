@@ -30,11 +30,28 @@ export class CoursesService implements Seeder {
         if (courses.length === 0) {
             return
         }
-        // insert() only writes course columns; relations need save() + cascade
+        /**
+         * Keep seeding idempotent.
+         *
+         * IMPORTANT: Do not `save()` the full course graph here because relations use `cascade: true`
+         * and translation rows have unique constraints (e.g. uq_course_translation). Re-seeding would
+         * attempt to insert duplicate translation rows and crash.
+         *
+         * We only upsert the scalar columns on `courses` table.
+         */
         for (const course of courses) {
             await entityManager.save(
                 CourseEntity,
-                course,
+                {
+                    id: course.id,
+                    title: course.title,
+                    slug: course.slug,
+                    description: course.description,
+                    cdnUrl: course.cdnUrl,
+                    originalPrice: course.originalPrice,
+                    currentPhase: course.currentPhase,
+                    defaultLocale: course.defaultLocale,
+                },
             )
         }
     }

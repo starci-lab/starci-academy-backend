@@ -36,10 +36,9 @@ export class SeedersService implements OnModuleInit {
      * @returns void.
      */
     private async process() {
-        // drop and seed in a transaction
+        // seed in a transaction (do not drop: prevents cascade deletes like enrollments)
         await this.entityManager.transaction(
             async (entityManager) => {
-                await this.coursesService.drop(entityManager)
                 await this.coursesService.seed(entityManager)
             }
         )
