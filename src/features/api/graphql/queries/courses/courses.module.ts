@@ -11,6 +11,9 @@ import {
     CourseSingleQueryModule,
 } from "./course"
 import {
+    ModuleSingleQueryModule,
+} from "./module"
+import {
     CoursesSingleQueryModule,
 } from "./courses"
 
@@ -20,6 +23,9 @@ import {
             isGlobal: true,
         }),
         CourseSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        ModuleSingleQueryModule.register({
             isGlobal: true,
         }),
         CourseEnrollmentStatusQueryModule,

@@ -16,12 +16,15 @@ import {
 import {
     EntityManager 
 } from "typeorm"
+import {
+    GqlExecutionContext 
+} from "@nestjs/graphql"
 
 /**
  * Guard that checks if the user is enrolled in the course.
  */ 
 @Injectable()
-export class MustEnrolledGuard implements CanActivate {
+export class GraphQLMustEnrolledGuard implements CanActivate {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
@@ -33,9 +36,9 @@ export class MustEnrolledGuard implements CanActivate {
      * @returns Promise of boolean.
      */
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const request = context.switchToHttp().getRequest()
+        const request = GqlExecutionContext.create(context).getContext().req
         const user = request.user as UserEntity
-        const courseId = request.body.courseId
+        const courseId = request.headers["x-course-id"]
         if (!courseId) {
             throw new BadRequestException("Course ID is required")
         }

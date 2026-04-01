@@ -16,7 +16,8 @@ import {
     buildContentId,
     buildPreviewContentId,
     CourseId,
-    buildModuleId
+    buildModuleId,
+    buildLessonVideoId
 } from "../../../../utils"
 
 /**
@@ -32,6 +33,58 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
     description:
         "Set up the Node.js environment, install NestJS, understand Dependency Injection, the Module System, the Request Lifecycle, Exception Handling, Logging, Validation, and how to build basic APIs.",
     orderIndex: 0,
+    lessonVideos: [
+        {
+            id: buildLessonVideoId({
+                courseId: CourseId.FullstackMastery,
+                moduleIndex: 1,
+            }),
+            title: "Backend Environment & NestJS Introduction",
+            description: "Set up the Node.js environment, install NestJS, understand Dependency Injection, the Module System, the Request Lifecycle, Exception Handling, Logging, Validation, and how to build basic APIs.",
+            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            durationMs: 5400000,
+            orderIndex: 0,
+            defaultLocale: Locale.En,
+            translations: [
+                {
+                    lessonVideoId: buildLessonVideoId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 1,
+                    }),
+                    locale: Locale.Vi,
+                    field: "title",
+                    value: "Môi trường Backend & Giới thiệu NestJS",
+                },
+                {
+                    lessonVideoId: buildLessonVideoId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 1,
+                    }),
+                    locale: Locale.Vi,
+                    field: "description",
+                    value: "Thiết lập môi trường Node.js, cài đặt NestJS, hiểu Dependency Injection, Module System, Request Lifecycle, Exception Handling, Logging, Validation và cách xây dựng các API cơ bản.",
+                },
+                {
+                    lessonVideoId: buildLessonVideoId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 1,
+                    }),
+                    locale: Locale.En,
+                    field: "title",
+                    value: "Backend Environment & NestJS Introduction",
+                },
+                {
+                    lessonVideoId: buildLessonVideoId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 1,
+                    }),
+                    locale: Locale.En,
+                    field: "description",
+                    value: "Set up the Node.js environment, install NestJS, understand Dependency Injection, the Module System, the Request Lifecycle, Exception Handling, Logging, Validation, and how to build basic APIs.",
+                },
+            ],
+        },
+    ],
     translations: [
         {
             moduleId: buildModuleId({

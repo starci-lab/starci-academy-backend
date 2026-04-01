@@ -185,3 +185,28 @@ export interface BuildQnaIdParams {
 export const buildQnaId = (params: BuildQnaIdParams) => {
     return `${params.courseId}-qna-${params.qnaIndex}`
 }
+
+/**
+ * Parameters for building a lesson video ID.
+ */
+export interface BuildLessonVideoIdParams {
+    /**
+     * The course ID.
+     */
+    courseId: CourseId
+    /**
+     * The module index.
+     */
+    moduleIndex: number
+}
+
+/**
+ * Build a lesson video ID.
+ * @param params - The parameters for building the lesson video ID.
+ * @param params.courseId - The course ID.
+ * @param params.moduleIndex - The module index.
+ * @returns The lesson video ID.
+ */
+export const buildLessonVideoId = (params: BuildLessonVideoIdParams) => {
+    return `${params.courseId}-lesson-video-${params.moduleIndex}`
+}

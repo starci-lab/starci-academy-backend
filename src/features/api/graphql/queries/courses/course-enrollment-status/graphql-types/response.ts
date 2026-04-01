@@ -39,6 +39,9 @@ export class CourseEnrollmentStatusResponse
 {
     @Field(
         () => CourseEnrollmentStatusData,
+        {
+            nullable: true,
+        },
     )
-        data: CourseEnrollmentStatusData
+        data?: CourseEnrollmentStatusData
 }

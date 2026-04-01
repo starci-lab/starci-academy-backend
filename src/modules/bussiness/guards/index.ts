@@ -1,1 +1,1 @@
-export * from "./must-enrolled.guard"
+export * from "./graphql-must-enrolled.guard"

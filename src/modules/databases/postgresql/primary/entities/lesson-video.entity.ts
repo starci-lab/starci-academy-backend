@@ -4,10 +4,15 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 import {
+    GraphQLTypeLocale,
+    Locale,
+} from "../enums"
+import {
     Column,
     Entity,
     JoinColumn,
     ManyToOne,
+    OneToMany,
 } from "typeorm"
 import {
     ModuleEntity,
@@ -15,6 +20,9 @@ import {
 import {
     StringAbstractEntity,
 } from "./abstract"
+import {
+    LessonVideoTranslationEntity,
+} from "./lesson-video-translation.entity"
 
 /**
  * Lesson video for a module (e.g. YouTube URL with metadata).
@@ -94,6 +102,18 @@ export class LessonVideoEntity extends StringAbstractEntity {
         orderIndex: number
 
     /**
+     * Default locale for this lesson video row.
+     */
+    @Field(() => GraphQLTypeLocale)
+    @Column({
+        name: "default_locale",
+        type: "enum",
+        enum: Locale,
+        enumName: "locale",
+    })
+        defaultLocale: Locale
+
+    /**
      * Parent module this lesson video belongs to.
      */
     @Field(() => ModuleEntity)
@@ -108,5 +128,23 @@ export class LessonVideoEntity extends StringAbstractEntity {
         name: "module_id",
     })
         module: ModuleEntity
+
+    /**
+     * Localized translations for fields such as `title` and `description`.
+     */
+    @Field(
+        () => [LessonVideoTranslationEntity],
+        {
+            nullable: true,
+        },
+    )
+    @OneToMany(
+        () => LessonVideoTranslationEntity,
+        (lessonVideoTranslation: LessonVideoTranslationEntity) => lessonVideoTranslation.lessonVideo,
+        {
+            cascade: true,
+        },
+    )
+        translations?: Array<LessonVideoTranslationEntity>
 }
 

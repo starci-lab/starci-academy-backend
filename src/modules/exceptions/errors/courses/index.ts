@@ -1,5 +1,6 @@
 export * from "./course-already-enrolled"
 export * from "./course-no-regular-price"
 export * from "./course-not-found"
+export * from "./module-not-found"
 export * from "./payos-return-url-and-payos-cancel-url-must-be-required"
 export * from "./pricing-phase-no-price"

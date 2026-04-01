@@ -17,6 +17,7 @@ import {
     buildPreviewContentId,
     CourseId,
     buildModuleId,
+    buildLessonVideoId,
 } from "../../../../utils"
 
 /**
@@ -51,6 +52,40 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
             field: "description",
             value:
                 "Tích hợp PostgreSQL với TypeORM, MongoDB với Mongoose, hiểu thiết kế schema, quan hệ dữ liệu, indexing, transaction, caching với Redis và khi nào nên chọn SQL hoặc NoSQL.",
+        },
+    ],
+    lessonVideos: [
+        {
+            id: buildLessonVideoId({
+                courseId: CourseId.FullstackMastery,
+                moduleIndex: 2,
+            }),
+            title: "Database Integration, ORM/ODM & Caching",
+            description: "Integrate PostgreSQL with TypeORM, MongoDB with Mongoose, understand schema design, relationships, indexing, transactions, Redis caching, and when to choose SQL or NoSQL.",
+            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            durationMs: 5400000,
+            orderIndex: 0,
+            defaultLocale: Locale.En,
+            translations: [
+                {
+                    lessonVideoId: buildLessonVideoId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 2,
+                    }),
+                    locale: Locale.Vi,
+                    field: "title",
+                    value: "Tích hợp Database, ORM/ODM & Caching",
+                },
+                {
+                    lessonVideoId: buildLessonVideoId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 2,
+                    }),
+                    locale: Locale.Vi,
+                    field: "description",
+                    value: "Tích hợp PostgreSQL với TypeORM, MongoDB với Mongoose, hiểu thiết kế schema, quan hệ dữ liệu, indexing, transaction, caching với Redis và khi nào nên chọn SQL hoặc NoSQL.",
+                },
+            ],
         },
     ],
     contents: [

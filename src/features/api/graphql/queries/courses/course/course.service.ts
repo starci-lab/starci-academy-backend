@@ -78,7 +78,9 @@ export class CourseService {
                         previewContents: {
                             translations: true,
                         },
-                        lessonVideos: true,
+                        lessonVideos: {
+                            translations: true,
+                        },
                     },
                 },
             },

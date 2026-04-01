@@ -191,7 +191,9 @@ export class CoursesSyncService implements OnApplicationBootstrap {
                         modules: {
                             contents: true,
                             previewContents: true,
-                            lessonVideos: true,
+                            lessonVideos: {
+                                translations: true,
+                            },
                             submissions: true,
                         },
                     },

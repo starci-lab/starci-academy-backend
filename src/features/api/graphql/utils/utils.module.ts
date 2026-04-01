@@ -10,6 +10,9 @@ import {
     CourseTransformerService 
 } from "./course-transformer.service"
 import {
+    ModuleTransformerService,
+} from "./module-transformer.service"
+import {
     OPTIONS_TYPE,
 } from "./utils.module-definition"
 
@@ -23,6 +26,7 @@ export class UtilsModule extends ConfigurableModuleClass {
         const dynamicModule = super.register(options)
         const providers: Array<Provider> = [
             CourseTransformerService,
+            ModuleTransformerService,
         ]
         return {
             ...dynamicModule,
