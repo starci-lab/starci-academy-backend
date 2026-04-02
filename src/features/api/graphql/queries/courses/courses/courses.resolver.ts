@@ -44,9 +44,10 @@ export class CoursesResolver {
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(() => CoursesResponse,
         {
+            name: "courses",
             description: "Lists courses with page-based pagination.",
         })
-    async courses(
+    async execute(
         @Args("request",
             {
                 description: "Pagination and sort request.",

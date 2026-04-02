@@ -23,12 +23,15 @@ import {
 import {
     ContentTranslationEntity,
 } from "./content-translation.entity"
+import {
+    ContentReferenceEntity,
+} from "./content-reference.entity"
 
 /**
- * Content attached to a module (title + body).
+ * Content attached to a module (title, optional description, body).
  */
 @ObjectType({
-    description: "Content attached to a module.",
+    description: "Content attached to a module (title, description, body).",
 })
 @Entity("contents")
 export class ContentEntity extends UuidAbstractEntity {
@@ -49,6 +52,23 @@ export class ContentEntity extends UuidAbstractEntity {
         title: string
 
     /**
+     * Optional short summary shown before the body (plain text or light markdown).
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Optional short summary shown before the body.",
+        },
+    )
+    @Column({
+        name: "description",
+        type: "text",
+        nullable: true,
+    })
+        description: string | null
+
+    /**
      * Optional markdown body.
      */
     @Field(
@@ -62,6 +82,24 @@ export class ContentEntity extends UuidAbstractEntity {
         type: "text",
     })
         body: string
+
+    /**
+     * Optional thumbnail image URL (e.g. hero or inline figure).
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Optional thumbnail image URL (e.g. hero or inline figure).",
+        },
+    )
+    @Column({
+        name: "thumbnail_url",
+        type: "varchar",
+        length: 2048,
+        nullable: true,
+    })
+        thumbnailUrl: string | null
 
     /**
      * Display order within the module content list.
@@ -118,12 +156,28 @@ export class ContentEntity extends UuidAbstractEntity {
         module: ModuleEntity
 
     /**
+     * Estimated minutes to read content text content (articles, docs, etc.).
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Estimated minutes to read content text content.",
+        },
+    )
+    @Column({
+        name: "minutes_read",
+        type: "int",
+        default: 0,
+    })
+        minutesRead: number
+
+    /**
      * Localized translations for fields such as `title` and `body`.
      */
     @Field(
         () => [ContentTranslationEntity],
         {
-            description: "Localized overrides for content fields (e.g. title, body).",
+            description: "Localized overrides for content fields (e.g. title, description, body).",
         },
     )
     @OneToMany(
@@ -134,4 +188,22 @@ export class ContentEntity extends UuidAbstractEntity {
         },
     )
         translations: Array<ContentTranslationEntity>
+
+    /**
+     * External URL references (docs, repos, etc.).
+     */
+    @Field(
+        () => [ContentReferenceEntity],
+        {
+            description: "External URL references linked to this content.",
+        },
+    )
+    @OneToMany(
+        () => ContentReferenceEntity,
+        (reference: ContentReferenceEntity) => reference.content,
+        {
+            cascade: true,
+        },
+    )
+        references: Array<ContentReferenceEntity>
 }

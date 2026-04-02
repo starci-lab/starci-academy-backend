@@ -17,36 +17,33 @@ import {
     ThrottlerConfig,
 } from "@modules/throttler"
 import {
+    LessonVideoEntity,
     Locale,
-    ModuleEntity,
 } from "@modules/databases"
 import {
-    ModuleRequest,
-    ModuleResponse,
+    LessonVideoRequest,
+    LessonVideoResponse,
 } from "./graphql-types"
 import {
-    ModuleService,
-} from "./module.service"
+    LessonVideoQueryService,
+} from "./lesson-video.service"
 import {
-    KeycloakAuthGraphQLGuard 
+    KeycloakAuthGraphQLGuard
 } from "@modules/keycloak"
 import {
-    GraphQLMustEnrolledGuard 
+    GraphQLMustEnrolledGuard
 } from "@modules/bussiness"
 
-@Resolver(() => ModuleEntity)
-export class ModuleResolver {
+@Resolver(() => LessonVideoEntity)
+export class LessonVideoResolver {
     constructor(
-        private readonly moduleService: ModuleService,
+        private readonly lessonVideoQueryService: LessonVideoQueryService,
     ) {}
 
-    /**
-     * Returns a single module by id.
-     */
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
-        [Locale.En]: "Module fetched successfully",
-        [Locale.Vi]: "Lấy module thành công",
+        [Locale.En]: "Lesson video fetched successfully",
+        [Locale.Vi]: "Lấy video bài học thành công",
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,
@@ -54,23 +51,19 @@ export class ModuleResolver {
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(
-        () => ModuleResponse,
+        () => LessonVideoResponse,
         {
-            description: "Returns a single module by id.",
+            name: "lessonVideo",
+            description: "Returns a single lesson video by primary id.",
         },
     )
-    async module(
-        @Args(
-            "request",
-            {
-                description: "Module lookup request.",
-            },
-        )
-            request: ModuleRequest,
+    async execute(
+        @Args("request")
+            request: LessonVideoRequest,
         @GraphQLLocale()
             locale: Locale,
-    ): Promise<ModuleEntity> {
-        return this.moduleService.execute(
+    ): Promise<LessonVideoEntity> {
+        return this.lessonVideoQueryService.execute(
             {
                 request,
                 locale,
@@ -78,4 +71,3 @@ export class ModuleResolver {
         )
     }
 }
-

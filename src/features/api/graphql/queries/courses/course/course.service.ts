@@ -47,12 +47,18 @@ export class CourseService {
     ): Promise<CourseEntity> {
         const {
             id,
+            displayId,
         } = request
         const course = await this.entityManager.findOne(
             CourseEntity,
             {
                 where: {
-                    id,
+                    ...(id && {
+                        id 
+                    }),
+                    ...(displayId && {
+                        displayId 
+                    }),
                 },
                 /**
                  * Nested relations load children in one query tree (not entity `cascade`,
@@ -72,13 +78,7 @@ export class CourseService {
                     pricingPhases: true,
                     modules: {
                         translations: true,
-                        contents: {
-                            translations: true,
-                        },
                         previewContents: {
-                            translations: true,
-                        },
-                        lessonVideos: {
                             translations: true,
                         },
                     },
@@ -88,9 +88,23 @@ export class CourseService {
         if (!course) {
             throw new CourseNotFoundException(
                 {
-                    id,
+                    ...(
+                        id && {
+                            id 
+                        }
+                    ),
+                    ...(
+                        displayId && {
+                            displayId 
+                        }
+                    ),
                 }
             )
+        }
+        for (const mod of course.modules ?? []) {
+            mod.contents = []
+            mod.lessonVideos = []
+            mod.challenges = []
         }
         return this.courseTransformer.transform(
             course,

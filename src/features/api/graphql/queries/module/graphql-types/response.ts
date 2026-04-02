@@ -10,7 +10,6 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** GraphQL envelope for the module by id query. */
 @ObjectType({
     description: "Response wrapper for the module query.",
 })
@@ -27,4 +26,3 @@ export class ModuleResponse
     )
         data?: ModuleEntity
 }
-

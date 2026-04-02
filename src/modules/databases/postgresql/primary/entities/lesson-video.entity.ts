@@ -82,6 +82,24 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         url: string
 
     /**
+     * Optional thumbnail image URL (e.g. poster frame or CDN asset).
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Optional thumbnail image URL (e.g. poster frame or CDN asset).",
+        },
+    )
+    @Column({
+        name: "thumbnail_url",
+        type: "varchar",
+        length: 2048,
+        nullable: true,
+    })
+        thumbnailUrl: string | null
+
+    /**
      * Video duration in milliseconds.
      */
     @Field(

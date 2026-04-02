@@ -47,9 +47,10 @@ export class MeResolver {
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(() => MeResponse,
         {
+            name: "me",
             description: "Returns the authenticated user (Bearer access token).",
         })
-    async me(
+    async execute(
         @KeycloakGraphQLUser()
             user: UserEntity,
     ): Promise<UserEntity> {

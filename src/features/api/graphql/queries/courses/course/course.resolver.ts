@@ -44,9 +44,10 @@ export class CourseResolver {
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(() => CourseResponse,
         {
+            name: "course",
             description: "Returns a single course by id.",
         })
-    async course(
+    async execute(
         @Args("request",
             {
                 description: "Course lookup request.",

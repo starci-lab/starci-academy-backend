@@ -59,10 +59,11 @@ export class CourseEnrollResolver {
     @Mutation(
         () => CourseEnrollResponse,
         {
+            name: "courseEnroll",
             description: "Start PayOS checkout for a course; persists a preflight transaction (many per user/course).",
         },
     )
-    async courseEnroll(
+    async execute(
         @KeycloakGraphQLUser()
             user: UserEntity,
         @Args(

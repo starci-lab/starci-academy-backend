@@ -16,6 +16,9 @@ import {
     contentTranslationKey,
     sanitizePrimitiveFields,
 } from "./utils"
+import {
+    ContentReferenceService,
+} from "./content-reference.service"
 
 /**
  * The service for Contents.
@@ -23,6 +26,7 @@ import {
 @Injectable()
 export class ContentService {
     constructor(
+        private readonly contentReferenceService: ContentReferenceService,
     ) {}
 
     /**
@@ -145,6 +149,13 @@ export class ContentService {
             {
                 previous: previous.translations,
                 updated: updated.translations,
+                entityManager,
+            },
+        )
+        await this.contentReferenceService.updateContentReferences(
+            {
+                previous: previous.references ?? [],
+                updated: updated.references ?? [],
                 entityManager,
             },
         )

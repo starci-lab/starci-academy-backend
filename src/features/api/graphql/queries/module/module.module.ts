@@ -18,4 +18,3 @@ import {
     ],
 })
 export class ModuleSingleQueryModule extends ConfigurableModuleClass {}
-

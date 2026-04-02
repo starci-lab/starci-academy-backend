@@ -6,16 +6,30 @@ import {
     ModuleEntity,
     TranslationResolverService,
 } from "@modules/databases"
+import {
+    ChallengeTransformerService,
+} from "./challenge-transformer.service"
+import {
+    ContentTransformerService,
+} from "./content-transformer.service"
+import {
+    LessonVideoTransformerService,
+} from "./lesson-video-transformer.service"
+import {
+    PreviewContentTransformerService,
+} from "./preview-content-transformer.service"
 
 /**
- * Applies loaded `translations` onto base fields for a module tree.
- *
- * Mutates the passed entities in-place (safe for request-scoped GraphQL reads).
+ * Applies loaded translations for a module row and delegates nested entities to focused transformers.
  */
 @Injectable()
 export class ModuleTransformerService {
     constructor(
         private readonly translationResolver: TranslationResolverService,
+        private readonly contentTransformer: ContentTransformerService,
+        private readonly lessonVideoTransformer: LessonVideoTransformerService,
+        private readonly challengeTransformer: ChallengeTransformerService,
+        private readonly previewContentTransformer: PreviewContentTransformerService,
     ) {}
 
     transform(
@@ -43,21 +57,10 @@ export class ModuleTransformerService {
 
         if (moduleEntity.contents?.length) {
             moduleEntity.contents = moduleEntity.contents.map((content) => {
-                content.title = this.translationResolver.resolve(
-                    {
-                        translations: content.translations,
-                        field: "title",
-                        locale,
-                        fallbackLocale,
-                    },
-                )
-                content.body = this.translationResolver.resolve(
-                    {
-                        translations: content.translations,
-                        field: "body",
-                        locale,
-                        fallbackLocale,
-                    },
+                this.contentTransformer.transform(
+                    content,
+                    locale,
+                    fallbackLocale,
                 )
                 return content
             })
@@ -65,13 +68,10 @@ export class ModuleTransformerService {
 
         if (moduleEntity.previewContents?.length) {
             moduleEntity.previewContents = moduleEntity.previewContents.map((previewContent) => {
-                previewContent.data = this.translationResolver.resolve(
-                    {
-                        translations: previewContent.translations,
-                        field: "data",
-                        locale,
-                        fallbackLocale,
-                    },
+                this.previewContentTransformer.transform(
+                    previewContent,
+                    locale,
+                    fallbackLocale,
                 )
                 return previewContent
             })
@@ -79,27 +79,26 @@ export class ModuleTransformerService {
 
         if (moduleEntity.lessonVideos?.length) {
             moduleEntity.lessonVideos = moduleEntity.lessonVideos.map((lessonVideo) => {
-                lessonVideo.title = this.translationResolver.resolve(
-                    {
-                        translations: lessonVideo.translations,
-                        field: "title",
-                        locale,
-                        fallbackLocale,
-                    },
-                )
-                lessonVideo.description = this.translationResolver.resolve(
-                    {
-                        translations: lessonVideo.translations,
-                        field: "description",
-                        locale,
-                        fallbackLocale,
-                    },
+                this.lessonVideoTransformer.transform(
+                    lessonVideo,
+                    locale,
+                    fallbackLocale,
                 )
                 return lessonVideo
+            })
+        }
+
+        if (moduleEntity.challenges?.length) {
+            moduleEntity.challenges = moduleEntity.challenges.map((challenge) => {
+                this.challengeTransformer.transform(
+                    challenge,
+                    locale,
+                    fallbackLocale,
+                )
+                return challenge
             })
         }
 
         return moduleEntity
     }
 }
-

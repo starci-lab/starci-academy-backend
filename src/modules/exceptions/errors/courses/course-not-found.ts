@@ -7,13 +7,15 @@ import {
 
 /** Metadata when a course id does not exist. */
 export interface CourseNotFoundExceptionMetadata extends AbstractExceptionMetadata {
-    id: string
+    id?: string
+    displayId?: string
 }
 
 /** Thrown when no course matches the requested id. */
 export class CourseNotFoundException extends AbstractException {
     constructor({
         id,
+        displayId,
         originalError,
     }: CourseNotFoundExceptionMetadata) {
         super(
@@ -21,6 +23,7 @@ export class CourseNotFoundException extends AbstractException {
             "COURSE_NOT_FOUND_EXCEPTION",
             {
                 id,
+                displayId,
                 originalError,
             },
         )

@@ -53,10 +53,11 @@ export class CourseEnrollmentStatusResolver {
     @Query(
         () => CourseEnrollmentStatusResponse,
         {
+            name: "courseEnrollmentStatus",
             description: "Enrollment count for a course; optional `isEnrolled` when Authorization Bearer is sent.",
         },
     )
-    async courseEnrollmentStatus(
+    async execute(
         @KeycloakGraphQLUser()
             user: UserEntity,
         @Args(

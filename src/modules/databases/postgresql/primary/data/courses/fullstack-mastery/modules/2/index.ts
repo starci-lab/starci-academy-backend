@@ -18,6 +18,7 @@ import {
     CourseId,
     buildModuleId,
     buildLessonVideoId,
+    buildContentReferenceId,
 } from "../../../../utils"
 
 /**
@@ -28,6 +29,7 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
         courseId: CourseId.FullstackMastery,
         moduleIndex: 1,
     }),
+    displayId: "database-integration-orm-odm-caching",
     defaultLocale: Locale.En,
     title: "Database Integration, ORM/ODM & Caching",
     description:
@@ -61,6 +63,7 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
                 moduleIndex: 1,
                 lessonVideoIndex: 0,
             }),
+            thumbnailUrl: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
             title: "Database Integration, ORM/ODM & Caching",
             description:
                 "Integrate PostgreSQL with TypeORM, MongoDB with Mongoose, understand schema design, relationships, indexing, transactions, Redis caching, and when to choose SQL or NoSQL.",
@@ -100,6 +103,8 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
                 moduleIndex: 1,
                 contentIndex: 0,
             }),
+            thumbnailUrl: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+            minutesRead: 35,
             title: readMetadataOrDefault(
                 buildContentId({
                     courseId: CourseId.FullstackMastery,
@@ -107,8 +112,9 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
                     contentIndex: 0,
                 }),
                 Locale.En,
-                ""
+                "Integrate PostgreSQL with TypeORM, MongoDB with Mongoose, understand schema design, relationships, indexing, transactions, Redis caching, and when to choose SQL or NoSQL."
             ),
+            description: "Integrate PostgreSQL with TypeORM, MongoDB with Mongoose, understand schema design, relationships, indexing, transactions, Redis caching, and when to choose SQL or NoSQL.",
             body: readFileOrDefault(
                 `${envConfig().mountPath.data.courses}/fullstack-mastery/modules/2/content/body.en.md`,
                 ""
@@ -131,7 +137,7 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
                             contentIndex: 0,
                         }),
                         Locale.Vi,
-                        ""
+                        "Integrate PostgreSQL with TypeORM, MongoDB with Mongoose, understand schema design, relationships, indexing, transactions, Redis caching, and when to choose SQL or NoSQL."
                     ),
                 },
                 {
@@ -149,6 +155,60 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
                             ""
                         )
                     ),
+                },
+                {
+                    contentId: buildContentId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 1,
+                        contentIndex: 0,
+                    }),
+                    locale: Locale.En,
+                    field: "description",
+                    value: "Integrate PostgreSQL with TypeORM, MongoDB with Mongoose, understand schema design, relationships, indexing, transactions, Redis caching, and when to choose SQL or NoSQL.",
+                },
+                {
+                    contentId: buildContentId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 1,
+                        contentIndex: 0,
+                    }),
+                    locale: Locale.Vi,
+                    field: "description",
+                    value: "Tích hợp PostgreSQL với TypeORM, MongoDB với Mongoose, hiểu thiết kế schema, quan hệ dữ liệu, indexing, transaction, caching với Redis và khi nào nên chọn SQL hoặc NoSQL.",
+                },
+            ],
+            references: [
+                {
+                    id: buildContentReferenceId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 1,
+                        contentIndex: 0,
+                        referenceIndex: 0,
+                    }),
+                    alias: "TypeORM documentation",
+                    url: "https://typeorm.io/",
+                    orderIndex: 0,
+                    defaultLocale: Locale.En,
+                    content: {
+                        id: buildContentId({
+                            courseId: CourseId.FullstackMastery,
+                            moduleIndex: 1,
+                            contentIndex: 0,
+                        }),
+                    },
+                    translations: [
+                        {
+                            contentReferenceId: buildContentReferenceId({
+                                courseId: CourseId.FullstackMastery,
+                                moduleIndex: 1,
+                                contentIndex: 0,
+                                referenceIndex: 0,
+                            }),
+                            locale: Locale.Vi,
+                            field: "alias",
+                            value: "Tài liệu TypeORM",
+                        },
+                    ],
                 },
             ],
         },

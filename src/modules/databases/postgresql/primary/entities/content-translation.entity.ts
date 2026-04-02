@@ -66,7 +66,7 @@ export class ContentTranslationEntity extends AbstractEntity {
         locale: Locale
 
     /**
-     * Target field name being translated (e.g., title, body).
+     * Target field name being translated (e.g., title, description, body).
      */
     @Field(
         () => String,

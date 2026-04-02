@@ -21,6 +21,9 @@ import {
     LessonVideoEntity,
 } from "./lesson-video.entity"
 import {
+    ChallengeEntity,
+} from "./challenge.entity"
+import {
     SubmissionEntity 
 } from "./submission.entity"
 import {
@@ -52,19 +55,34 @@ export class ModuleEntity extends UuidAbstractEntity {
         title: string
 
     /**
+     * Human-facing stable identifier for display and external references (not the primary key).
+     */
+    @Field(
+        () => String,
+        {
+            description: "Human-facing stable identifier for display and external references (not the primary key).",
+        },
+    )
+    @Column({
+        name: "display_id",
+        type: "varchar",
+        length: 255,
+        unique: true,
+    })
+        displayId: string
+
+    /**
      * Optional short description of the module.
      */
     @Field(() => String,
         {
             description: "Optional short description of the module.",
-            nullable: true
         })
     @Column({
         name: "description",
         type: "text",
-        nullable: true
     })
-        description: string | null
+        description: string
 
     /**
      * Display order within the parent course module list.
@@ -167,6 +185,24 @@ export class ModuleEntity extends UuidAbstractEntity {
             cascade: true
         })
         lessonVideos: Array<LessonVideoEntity>
+
+    /**
+     * Challenges (exercises) attached to the module.
+     */
+    @Field(
+        () => [ChallengeEntity],
+        {
+            description: "Ordered challenges attached to the module.",
+        },
+    )
+    @OneToMany(
+        () => ChallengeEntity,
+        (challenge: ChallengeEntity) => challenge.module,
+        {
+            cascade: true,
+        },
+    )
+        challenges: Array<ChallengeEntity>
 
     /**
      * Submissions associated with the module.

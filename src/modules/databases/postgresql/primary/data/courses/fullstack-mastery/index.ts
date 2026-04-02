@@ -25,6 +25,7 @@ import {
 export const fullstackMasteryCourse: DeepPartial<CourseEntity> = {
     id: CourseId.FullstackMastery,
     title: "Fullstack Mastery",
+    displayId: "fullstack-mastery",
     slug: "fullstack-mastery",
     defaultLocale: Locale.En,
     description:

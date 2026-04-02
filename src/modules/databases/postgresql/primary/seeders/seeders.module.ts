@@ -23,8 +23,23 @@ import {
     ContentService,
 } from "./courses/content.service"
 import {
+    ContentReferenceService,
+} from "./courses/content-reference.service"
+import {
     LessonVideoService,
 } from "./courses/lesson-video.service"
+import {
+    ChallengeInputService,
+} from "./courses/challenge-input.service"
+import {
+    ChallengeStepService,
+} from "./courses/challenge-step.service"
+import {
+    ChallengeReferenceService,
+} from "./courses/challenge-reference.service"
+import {
+    ChallengeService,
+} from "./courses/challenge.service"
 import {
     ModuleService,
 } from "./courses/module.service"
@@ -45,7 +60,12 @@ import {
         PreviewContentService,
         PrerequisiteService,
         ContentService,
+        ContentReferenceService,
         LessonVideoService,
+        ChallengeInputService,
+        ChallengeStepService,
+        ChallengeReferenceService,
+        ChallengeService,
         ModuleService,
         PricingPhaseService,
         ValuePropositionService,
@@ -57,7 +77,12 @@ import {
         PreviewContentService,
         PrerequisiteService,
         ContentService,
+        ContentReferenceService,
         LessonVideoService,
+        ChallengeInputService,
+        ChallengeStepService,
+        ChallengeReferenceService,
+        ChallengeService,
         ModuleService,
         PricingPhaseService,
         ValuePropositionService,

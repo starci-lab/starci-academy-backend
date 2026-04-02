@@ -23,6 +23,9 @@ import {
     LessonVideoService,
 } from "./lesson-video.service"
 import {
+    ChallengeService,
+} from "./challenge.service"
+import {
     PreviewContentService,
 } from "./preview-content.service"
 
@@ -35,6 +38,7 @@ export class ModuleService {
         private readonly contentService: ContentService,
         private readonly previewContentService: PreviewContentService,
         private readonly lessonVideoService: LessonVideoService,
+        private readonly challengeService: ChallengeService,
     ) {}
 
     /**
@@ -174,6 +178,13 @@ export class ModuleService {
             {
                 previous: previous.lessonVideos,
                 updated: updated.lessonVideos,
+                entityManager,
+            },
+        )
+        await this.challengeService.updateChallenges(
+            {
+                previous: previous.challenges ?? [],
+                updated: updated.challenges ?? [],
                 entityManager,
             },
         )

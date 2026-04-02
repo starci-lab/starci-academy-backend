@@ -17,9 +17,22 @@ export class CourseRequest {
         () => ID,
         {
             description: "Course id to fetch.",
+            nullable: true,
         }
     )
-        id: string
+        id?: string
+
+    /**
+     * Course display id to fetch.
+     */
+    @Field(
+        () => ID,
+        {
+            description: "Course display id to fetch.",
+            nullable: true,
+        }
+    )
+        displayId?: string
 }
 
 

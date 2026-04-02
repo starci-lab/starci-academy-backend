@@ -65,6 +65,23 @@ export class CourseEntity extends UuidAbstractEntity {
         title: string
 
     /**
+     * Human-facing stable identifier for display and external references (not the primary key).
+     */
+    @Field(
+        () => String,
+        {
+            description: "Human-facing stable identifier for display and external references (not the primary key).",
+        },
+    )
+    @Column({
+        name: "display_id",
+        type: "varchar",
+        length: 255,
+        unique: true,
+    })
+        displayId: string
+
+    /**
      * SEO-friendly slug used for public routing.
      */
     @Field(

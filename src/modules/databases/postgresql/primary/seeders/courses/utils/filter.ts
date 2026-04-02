@@ -2,9 +2,14 @@ import {
     AbstractEntity 
 } from "../../../entities"
 
+/**
+ * Sanitize the primitive fields of an object.
+ * @param obj - The object to sanitize. It must be an instance of AbstractEntity.
+ * @returns The sanitized object.
+ */
 export const sanitizePrimitiveFields = <T extends AbstractEntity>(
     obj: T
-): Partial<T> => {
+): Omit<T, "createdAt" | "updatedAt" | "id"> => {
     // remove all entries that are key or object
     const sanitized = Object.fromEntries(
         Object.entries(obj).filter(([, value]) => {
@@ -22,5 +27,5 @@ export const sanitizePrimitiveFields = <T extends AbstractEntity>(
     if (sanitized.updatedAt) {
         delete sanitized.updatedAt
     }
-    return sanitized as Partial<T>
+    return sanitized as Omit<T, "createdAt" | "updatedAt" | "id">
 }

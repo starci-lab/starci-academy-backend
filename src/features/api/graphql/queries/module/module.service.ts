@@ -10,7 +10,7 @@ import {
 } from "@nestjs/common"
 import {
     ModuleTransformerService,
-} from "../../../utils"
+} from "../../utils"
 import type {
     EntityManager,
 } from "typeorm"
@@ -19,10 +19,10 @@ import type {
 } from "./graphql-types"
 import type {
     ExecuteParams,
-} from "../../../../types"
+} from "../../../types"
 
 /**
- * Loads a single module from primary PostgreSQL for GraphQL.
+ * Loads module shell data (no contents, lesson videos, or challenges — fetch those by id).
  */
 @Injectable()
 export class ModuleService {
@@ -32,12 +32,6 @@ export class ModuleService {
         private readonly moduleTransformer: ModuleTransformerService,
     ) { }
 
-    /**
-     * Executes the module service.
-     * @param request - The request object.
-     * @param locale - The locale object.
-     * @returns The module object.
-     */
     async execute(
         {
             request,
@@ -46,23 +40,23 @@ export class ModuleService {
     ): Promise<ModuleEntity> {
         const {
             id,
+            displayId,
         } = request
 
         const moduleEntity = await this.entityManager.findOne(
             ModuleEntity,
             {
                 where: {
-                    id,
+                    ...(id && {
+                        id,
+                    }),
+                    ...(displayId && {
+                        displayId,
+                    }),
                 },
                 relations: {
                     translations: true,
-                    contents: {
-                        translations: true,
-                    },
                     previewContents: {
-                        translations: true,
-                    },
-                    lessonVideos: {
                         translations: true,
                     },
                     submissions: true,
@@ -73,14 +67,27 @@ export class ModuleService {
         if (!moduleEntity) {
             throw new ModuleNotFoundException(
                 {
-                    id,
+                    ...(
+                        id && {
+                            id,
+                        }
+                    ),
+                    ...(
+                        displayId && {
+                            displayId,
+                        }
+                    ),
                 },
             )
         }
+
+        moduleEntity.contents = []
+        moduleEntity.lessonVideos = []
+        moduleEntity.challenges = []
+
         return this.moduleTransformer.transform(
             moduleEntity,
             locale,
         )
     }
 }
-
