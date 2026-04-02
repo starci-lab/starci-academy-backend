@@ -35,6 +35,9 @@ import {
     ChallengeStepEntity,
 } from "./challenge-step.entity"
 import {
+    ChallengePromptEntity,
+} from "./challenge-prompt.entity"
+import {
     ChallengeSubmissionEntity,
 } from "./challenge-submission.entity"
 
@@ -266,4 +269,16 @@ export class ChallengeEntity extends UuidAbstractEntity {
         },
     )
         submissions: Array<ChallengeSubmissionEntity>
+
+    /**
+     * Prompts for this challenge (internal / server-side only; not exposed via GraphQL).
+     */
+    @OneToMany(
+        () => ChallengePromptEntity,
+        (prompt: ChallengePromptEntity) => prompt.challenge,
+        {
+            cascade: true,
+        },
+    )
+        prompts: Array<ChallengePromptEntity>
 }

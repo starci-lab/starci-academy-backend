@@ -41,6 +41,9 @@ import {
     ChallengeSubmissionService,
 } from "./courses/challenge-submission.service"
 import {
+    ChallengePromptService,
+} from "./courses/challenge-prompt.service"
+import {
     ChallengeService,
 } from "./courses/challenge.service"
 import {
@@ -69,6 +72,7 @@ import {
         ChallengeStepService,
         ChallengeReferenceService,
         ChallengeSubmissionService,
+        ChallengePromptService,
         ChallengeService,
         ModuleService,
         PricingPhaseService,
@@ -87,6 +91,7 @@ import {
         ChallengeStepService,
         ChallengeReferenceService,
         ChallengeSubmissionService,
+        ChallengePromptService,
         ChallengeService,
         ModuleService,
         PricingPhaseService,

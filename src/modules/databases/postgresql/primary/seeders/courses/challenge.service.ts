@@ -26,6 +26,9 @@ import {
     ChallengeSubmissionService,
 } from "./challenge-submission.service"
 import {
+    ChallengePromptService,
+} from "./challenge-prompt.service"
+import {
     ChallengeStepService,
 } from "./challenge-step.service"
 
@@ -36,6 +39,7 @@ export class ChallengeService {
         private readonly challengeStepService: ChallengeStepService,
         private readonly challengeReferenceService: ChallengeReferenceService,
         private readonly challengeSubmissionService: ChallengeSubmissionService,
+        private readonly challengePromptService: ChallengePromptService,
     ) {}
 
     async updateTranslation(
@@ -151,6 +155,13 @@ export class ChallengeService {
             {
                 previous: previous.submissions ?? [],
                 updated: updated.submissions ?? [],
+                entityManager,
+            },
+        )
+        await this.challengePromptService.updateChallengePrompts(
+            {
+                previous: previous.prompts ?? [],
+                updated: updated.prompts ?? [],
                 entityManager,
             },
         )

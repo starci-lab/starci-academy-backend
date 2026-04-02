@@ -2,35 +2,34 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    JobModule,
-} from "@modules/bussiness/jobs"
-import {
     ConfigurableModuleClass,
 } from "./proccess-git-url.module-definition"
+import {
+    ProccessGitUrlStepMappingService,
+} from "./step-mapping.service"
 import {
     ProccessGitUrlWorker,
 } from "./proccess-git-url.worker"
 import {
+    ProccessGitUrlGradeStepService,
     ProccessGitUrlLoadDocsStepService,
-} from "./proccess-git-url-load-docs-step.service"
-import {
+    ProccessGitUrlResolveContextStepService,
     ProccessGitUrlSplitDocsStepService,
-} from "./proccess-git-url-split-docs-step.service"
-import {
     ProccessGitUrlVectorizeStepService,
-} from "./proccess-git-url-vectorize-step.service"
+} from "./steps"
 
+/**
+ * Module for the process-git-url BullMQ worker (resolve → load → split → vectorize → grade).
+ */
 @Module({
-    imports: [
-        JobModule.register({
-            isGlobal: true,
-        }),
-    ],
     providers: [
         ProccessGitUrlWorker,
+        ProccessGitUrlStepMappingService,
+        ProccessGitUrlResolveContextStepService,
         ProccessGitUrlLoadDocsStepService,
         ProccessGitUrlSplitDocsStepService,
         ProccessGitUrlVectorizeStepService,
+        ProccessGitUrlGradeStepService,
     ],
 })
 export class ProccessGitUrlModule extends ConfigurableModuleClass {}

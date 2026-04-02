@@ -8,9 +8,9 @@ import {
 } from "@modules/env"
 import {
     JobActionService,
-    JobCommonService,
-} from "@modules/bussiness/jobs"
+} from "@modules/bussiness"
 import {
+    DayjsService,
     InjectSuperJson,
 } from "@modules/mixin"
 import {
@@ -22,15 +22,20 @@ import {
 } from "bullmq"
 import SuperJSON from "superjson"
 import {
-    ProccessGitUrlLoadDocsStepService,
-} from "./proccess-git-url-load-docs-step.service"
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
-    ProccessGitUrlSplitDocsStepService,
-} from "./proccess-git-url-split-docs-step.service"
-import {
-    ProccessGitUrlVectorizeStepService,
-} from "./proccess-git-url-vectorize-step.service"
+    ProccessGitUrlStepMappingService,
+} from "./step-mapping.service"
+import type {
+    ProccessGitUrlPipelineContext,
+} from "./types"
 
+/**
+ * Worker: resolve DB (submission URL + prompts) → clone repo → split → embed → grade with Gemini → update `user_challenge_submissions`.
+ * Enqueued jobs must use `maxSteps: 5`.
+ */
 @Worker(
     bullData[BullQueueName.ProccessGitUrl].name,
     {
@@ -42,50 +47,80 @@ import {
 )
 export class ProccessGitUrlWorker extends WorkerHost {
     constructor(
+        private readonly jobActionService: JobActionService,
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
-        private readonly jobActionService: JobActionService,
-        private readonly jobCommonService: JobCommonService,
-        private readonly proccessGitUrlLoadDocsStepService: ProccessGitUrlLoadDocsStepService,
-        private readonly proccessGitUrlSplitDocsStepService: ProccessGitUrlSplitDocsStepService,
-        private readonly proccessGitUrlVectorizeStepService: ProccessGitUrlVectorizeStepService,
+        private readonly stepMappingService: ProccessGitUrlStepMappingService,
+        private readonly winstonService: WinstonService,
+        private readonly dayjsService: DayjsService,
     ) {
         super()
     }
 
+    /**
+     * Process the BullMQ job: run each pipeline step until `currentStep` reaches `maxSteps`.
+     * @param bullmqJob - The BullMQ job.
+     */
     async process(bullmqJob: Job<string>) {
-        const payload = this.superJson.parse<ProccessGitUrlPayload>(bullmqJob.data)
-        const jobRecord = await this.jobCommonService.getJobOrThrow({
-            id: payload.jobId,
-        })
+        const startedAt = this.dayjsService.now()
+        let payload: ProccessGitUrlPayload | undefined
+        let jobId = ""
         try {
-            const docs = await this.proccessGitUrlLoadDocsStepService.execute({
-                githubUrl: payload.githubUrl,
-                branch: payload.branch,
-            })
-            await this.jobActionService.increaseJob({
-                id: jobRecord.id,
-            })
-
-            const chunks = await this.proccessGitUrlSplitDocsStepService.execute({
-                docs,
-            })
-            await this.jobActionService.increaseJob({
-                id: jobRecord.id,
-            })
-
-            await this.proccessGitUrlVectorizeStepService.execute({
-                chunks,
-                collectionName: payload.collectionName,
-            })
-            await this.jobActionService.increaseJob({
-                id: jobRecord.id,
-            })
+            payload = this.superJson.parse<ProccessGitUrlPayload>(bullmqJob.data)
+            const stepMap = this.stepMappingService.getStepMap()
+            const job = await this.jobActionService.getJob(
+                {
+                    id: payload.jobId,
+                },
+            )
+            jobId = job.id ?? ""
+            const context: ProccessGitUrlPipelineContext = {
+                job,
+                queueName: bullmqJob.queueName,
+                payload,
+            }
+            while (job.currentStep < job.maxSteps) {
+                await stepMap.get(job.currentStep)?.process(
+                    context,
+                )
+            }
+            this.winstonService.log(
+                WinstonLog.JobExecutedSuccessfully,
+                {
+                    jobId,
+                    queueName: bullmqJob.queueName,
+                    payload,
+                    durationMs: this.dayjsService.now().diff(this.dayjsService.from(startedAt)),
+                },
+            )
         } catch (error) {
-            await this.jobActionService.failJob({
-                id: jobRecord.id,
-                error: error instanceof Error ? error.message : "Unknown error",
-            })
+            this.winstonService.log(
+                WinstonLog.JobExecutedFailed,
+                {
+                    jobId: jobId || (bullmqJob.id ?? ""),
+                    queueName: bullmqJob.queueName,
+                    payload,
+                    error: error instanceof Error ? error.message : String(error),
+                    durationMs: this.dayjsService.now().diff(this.dayjsService.from(startedAt)),
+                },
+            )
+            if (payload?.jobId) {
+                try {
+                    const job = await this.jobActionService.getJob(
+                        {
+                            id: payload.jobId,
+                        },
+                    )
+                    await this.jobActionService.failJob(
+                        {
+                            job,
+                            error: error instanceof Error ? error.message : "Unknown error",
+                        },
+                    )
+                } catch {
+                    // job record missing or already failed
+                }
+            }
             throw error
         }
     }

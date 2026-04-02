@@ -1,10 +1,12 @@
 export interface ProccessGitUrlPayload {
     /** The ID of the tracked job record. */
     jobId: string
-    /** Public git repository URL to process. */
-    githubUrl: string
-    /** Branch to load (default is configured in env). */
+    /** The ID of the challenge to process. */
+    challengeId: string
+    /** The ID of the user that submitted the challenge. */
+    userId: string
+    /** Challenge submission definition id (`challenge_submissions.id`). */
+    submissionId: string
+    /** Optional Git branch when cloning the submitted repository. */
     branch?: string
-    /** Optional collection name override for Qdrant. */
-    collectionName?: string
 }

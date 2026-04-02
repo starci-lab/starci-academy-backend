@@ -26,6 +26,7 @@ import {
     buildChallengeReferenceId,
     buildChallengeStepId,
     buildChallengeSubmissionId,
+    buildChallengePromptId,
 } from "../../../../utils"
 
 export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
@@ -399,6 +400,88 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
                                 "Đẩy dự án NestJS lên kho GitHub công khai và nộp URL kho (HTTPS).",
                         },
                     ],
+                },
+            ],
+            prompts: [
+                {
+                    id: buildChallengePromptId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 0,
+                        challengeIndex: 0,
+                        promptIndex: 0,
+                    }),
+                    name: "Correctness (1-4 pts)",
+                    orderIndex: 0,
+                    promptEn: [
+                        "You grade a learner's submitted GitHub source for this challenge.",
+                        "Criterion — Correctness: Does the NestJS project install, build, and start without errors? Is there an HTTP route (e.g. GET /health) that returns JSON as required?",
+                        "Assign an integer score from 1 to 4 for this criterion only (1 = fails requirements, 4 = fully satisfies).",
+                        "There are five criteria; each is scored 1-4. The sum of all five scores is the total score on a 1-20 point scale.",
+                    ].join("\n"),
+                },
+                {
+                    id: buildChallengePromptId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 0,
+                        challengeIndex: 0,
+                        promptIndex: 1,
+                    }),
+                    name: "NestJS structure (1-4 pts)",
+                    orderIndex: 1,
+                    promptEn: [
+                        "You grade a learner's submitted GitHub source for this challenge.",
+                        "Criterion — NestJS structure: Are modules, controllers, and providers used sensibly? Is dependency injection applied instead of ad-hoc singletons?",
+                        "Assign an integer score from 1 to 4 for this criterion only (1 = poor structure, 4 = clear NestJS layout).",
+                        "The five criteria scores sum to a maximum of 20 points.",
+                    ].join("\n"),
+                },
+                {
+                    id: buildChallengePromptId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 0,
+                        challengeIndex: 0,
+                        promptIndex: 2,
+                    }),
+                    name: "Robustness & config (1-4 pts)",
+                    orderIndex: 2,
+                    promptEn: [
+                        "You grade a learner's submitted GitHub source for this challenge.",
+                        "Criterion — Robustness: Is basic error handling or validation present where appropriate? Is configuration (ports, env) handled cleanly for local runs?",
+                        "Assign an integer score from 1 to 4 for this criterion only (1 = missing or fragile, 4 = solid for a small homework).",
+                        "The five criteria scores sum to a maximum of 20 points.",
+                    ].join("\n"),
+                },
+                {
+                    id: buildChallengePromptId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 0,
+                        challengeIndex: 0,
+                        promptIndex: 3,
+                    }),
+                    name: "Code quality (1-4 pts)",
+                    orderIndex: 3,
+                    promptEn: [
+                        "You grade a learner's submitted GitHub source for this challenge.",
+                        "Criterion — Code quality: Are names, file layout, and TypeScript usage readable and consistent with typical NestJS style?",
+                        "Assign an integer score from 1 to 4 for this criterion only (1 = hard to follow, 4 = clear and maintainable).",
+                        "The five criteria scores sum to a maximum of 20 points.",
+                    ].join("\n"),
+                },
+                {
+                    id: buildChallengePromptId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 0,
+                        challengeIndex: 0,
+                        promptIndex: 4,
+                    }),
+                    name: "Documentation & repo hygiene (1-4 pts)",
+                    orderIndex: 4,
+                    promptEn: [
+                        "You grade a learner's submitted GitHub source for this challenge.",
+                        "Criterion — Documentation: Is there a short README or comments explaining how to install, run, and hit the health endpoint? Is the repo free of obvious noise (e.g. committed node_modules)?",
+                        "Assign an integer score from 1 to 4 for this criterion only (1 = no guidance, 4 = easy for a reviewer to run).",
+                        "The five criteria scores sum to a maximum of 20 points (minimum total 5 if each criterion is at least 1).",
+                    ].join("\n"),
                 },
             ],
             translations: [

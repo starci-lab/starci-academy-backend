@@ -97,6 +97,14 @@ export const envConfig = () => ({
                     key: "GITHUB_WORKER_PROCESS_GIT_URL_GENAI_API_KEY",
                     defaultValue: "",
                 }),
+                gradingModel: parseEnvString({
+                    key: "GITHUB_WORKER_PROCESS_GIT_URL_GRADING_MODEL",
+                    defaultValue: "gemini-2.0-flash",
+                }),
+                gradingMaxSourceChars: parseEnvInt({
+                    key: "GITHUB_WORKER_PROCESS_GIT_URL_GRADING_MAX_SOURCE_CHARS",
+                    defaultValue: 120000,
+                }),
             },
         },
         /** Cdn Synchronizer service configuration. */

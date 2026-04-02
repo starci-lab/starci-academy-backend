@@ -6,7 +6,10 @@ import {
 } from "../abstracts"
 import {
     EnrollStepService 
-} from "./steps/enroll-step.service"
+} from "./steps"
+import type {
+    EnrollPayload,
+} from "@modules/bullmq"
 
 /**
  * Service for mapping steps.
@@ -21,8 +24,8 @@ export class StepMappingService {
      * Get the step map.
      * @returns The step map.
      */
-    getStepMap(): Map<number, AbstractStepService<unknown>> {
-        return new Map(
+    getStepMap(): Map<number, AbstractStepService<EnrollPayload>> {
+        return new Map<number, AbstractStepService<EnrollPayload>>(
             [
                 [
                     this.enrollStepService.stepIndex,

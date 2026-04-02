@@ -55,6 +55,14 @@ export const configMap = {
         messageType: {
         } as StepExecutedMessage,
     },
+    [WinstonLog.ProcessGitUrlStepExecuted]: {
+        name: WinstonLog.ProcessGitUrlStepExecuted,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as StepExecutedMessage,
+    },
     [WinstonLog.JobExecutedSuccessfully]: {
         name: WinstonLog.JobExecutedSuccessfully,
         level: WinstonLevel.Verbose,
