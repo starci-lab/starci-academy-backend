@@ -2,6 +2,9 @@ import {
     Module,
 } from "@nestjs/common"
 import {
+    ChallengeSubmissionsMutationsModule,
+} from "./challenge-submissions"
+import {
     CoursesMutationsModule,
 } from "./courses"
 import {
@@ -14,6 +17,9 @@ import {
 @Module({
     imports: [
         CoursesMutationsModule.register({
+            isGlobal: true,
+        }),
+        ChallengeSubmissionsMutationsModule.register({
             isGlobal: true,
         }),
     ],

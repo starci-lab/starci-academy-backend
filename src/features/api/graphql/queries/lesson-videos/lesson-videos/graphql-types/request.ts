@@ -62,14 +62,6 @@ export class LessonVideosRequestSort extends SortInput<LessonVideosSortBy> {
 })
 export class LessonVideosRequestPaginationFilters extends PaginationPageFilters<LessonVideosSortBy> {
     @Field(
-        () => ID,
-        {
-            description: "Parent module id; only lesson videos in this module are returned.",
-        },
-    )
-        moduleId: string
-
-    @Field(
         () => [LessonVideosRequestSort],
         {
             defaultValue: [
@@ -88,6 +80,14 @@ export class LessonVideosRequestPaginationFilters extends PaginationPageFilters<
     description: "Request for listing lesson videos in a module with pagination.",
 })
 export class LessonVideosRequest {
+    @Field(
+        () => ID,
+        {
+            description: "Module id; only lesson videos in this module are returned.",
+        },
+    )
+        moduleId: string
+
     @Field(
         () => LessonVideosRequestPaginationFilters,
         {

@@ -62,14 +62,6 @@ export class ChallengesRequestSort extends SortInput<ChallengesSortBy> {
 })
 export class ChallengesRequestPaginationFilters extends PaginationPageFilters<ChallengesSortBy> {
     @Field(
-        () => ID,
-        {
-            description: "Parent module id; only challenges in this module are returned.",
-        },
-    )
-        moduleId: string
-
-    @Field(
         () => [ChallengesRequestSort],
         {
             defaultValue: [
@@ -88,6 +80,14 @@ export class ChallengesRequestPaginationFilters extends PaginationPageFilters<Ch
     description: "Request for listing challenges in a module with pagination.",
 })
 export class ChallengesRequest {
+    @Field(
+        () => ID,
+        {
+            description: "Module id; only challenges in this module are returned.",
+        },
+    )
+        moduleId: string
+
     @Field(
         () => ChallengesRequestPaginationFilters,
         {

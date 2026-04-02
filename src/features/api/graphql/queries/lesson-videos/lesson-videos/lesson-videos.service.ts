@@ -39,8 +39,8 @@ export class LessonVideosService {
     async execute(
         {
             request: {
+                moduleId,
                 filters: {
-                    moduleId,
                     limit = envConfig().services.api.pagination.page.limit,
                     pageNumber = 0,
                     sorts,

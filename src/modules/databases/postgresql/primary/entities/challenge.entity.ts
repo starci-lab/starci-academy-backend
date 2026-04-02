@@ -34,6 +34,9 @@ import {
 import {
     ChallengeStepEntity,
 } from "./challenge-step.entity"
+import {
+    ChallengeSubmissionEntity,
+} from "./challenge-submission.entity"
 
 /**
  * Hands-on challenge attached to a module (title, brief, description, ordered inputs).
@@ -121,24 +124,6 @@ export class ChallengeEntity extends UuidAbstractEntity {
         enumName: "challenge_difficulty",
     })
         difficulty: ChallengeDifficulty
-
-    /**
-     * Optional thumbnail image URL for the challenge card.
-     */
-    @Field(
-        () => String,
-        {
-            nullable: true,
-            description: "Optional thumbnail image URL.",
-        },
-    )
-    @Column({
-        name: "thumbnail_url",
-        type: "varchar",
-        length: 2048,
-        nullable: true,
-    })
-        thumbnailUrl: string | null
 
     /**
      * Display order within the module challenge list.
@@ -265,4 +250,20 @@ export class ChallengeEntity extends UuidAbstractEntity {
         },
     )
         translations: Array<ChallengeTranslationEntity>
+
+    @Field(
+        () => [ChallengeSubmissionEntity],
+        {
+            nullable: true,
+            description: "Submission definitions attached to this challenge.",
+        },
+    )
+    @OneToMany(
+        () => ChallengeSubmissionEntity,
+        (submission: ChallengeSubmissionEntity) => submission.challenge,
+        {
+            cascade: true,
+        },
+    )
+        submissions: Array<ChallengeSubmissionEntity>
 }

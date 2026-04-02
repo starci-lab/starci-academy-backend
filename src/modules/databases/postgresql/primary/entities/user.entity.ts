@@ -14,6 +14,9 @@ import {
 import {
     EnrollmentEntity,
 } from "./enrollment.entity"
+import {
+    UserChallengeSubmissionEntity,
+} from "./user-challenge-submission.entity"
 
 /**
  * Represents an application-level user.
@@ -145,4 +148,20 @@ export class UserEntity extends UuidAbstractEntity {
             cascade: true,
         })
         enrollments: Array<EnrollmentEntity>
+
+    @Field(
+        () => [UserChallengeSubmissionEntity],
+        {
+            nullable: true,
+            description: "Join rows between this user and challenge submissions.",
+        },
+    )
+    @OneToMany(
+        () => UserChallengeSubmissionEntity,
+        (userSubmission: UserChallengeSubmissionEntity) => userSubmission.user,
+        {
+            cascade: true,
+        },
+    )
+        userSubmissions: Array<UserChallengeSubmissionEntity>
 }

@@ -1,4 +1,6 @@
 export * from "./challenge-not-found"
+export * from "./challenge-submission-not-found"
+export * from "./submission-url-invalid"
 export * from "./content-not-found"
 export * from "./course-already-enrolled"
 export * from "./course-no-regular-price"

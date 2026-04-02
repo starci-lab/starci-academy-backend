@@ -84,24 +84,6 @@ export class ContentEntity extends UuidAbstractEntity {
         body: string
 
     /**
-     * Optional thumbnail image URL (e.g. hero or inline figure).
-     */
-    @Field(
-        () => String,
-        {
-            nullable: true,
-            description: "Optional thumbnail image URL (e.g. hero or inline figure).",
-        },
-    )
-    @Column({
-        name: "thumbnail_url",
-        type: "varchar",
-        length: 2048,
-        nullable: true,
-    })
-        thumbnailUrl: string | null
-
-    /**
      * Display order within the module content list.
      */
     @Field(

@@ -62,14 +62,6 @@ export class ContentsRequestSort extends SortInput<ContentsSortBy> {
 })
 export class ContentsRequestPaginationFilters extends PaginationPageFilters<ContentsSortBy> {
     @Field(
-        () => ID,
-        {
-            description: "Parent module id; only contents in this module are returned.",
-        },
-    )
-        moduleId: string
-
-    @Field(
         () => [ContentsRequestSort],
         {
             defaultValue: [
@@ -88,6 +80,14 @@ export class ContentsRequestPaginationFilters extends PaginationPageFilters<Cont
     description: "Request for listing contents in a module with pagination.",
 })
 export class ContentsRequest {
+    @Field(
+        () => ID,
+        {
+            description: "Module id; only contents in this module are returned.",
+        },
+    )
+        moduleId: string
+
     @Field(
         () => ContentsRequestPaginationFilters,
         {

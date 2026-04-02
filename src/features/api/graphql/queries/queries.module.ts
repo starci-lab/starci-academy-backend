@@ -22,6 +22,9 @@ import {
 import {
     ModulesModule,
 } from "./modules"
+import {
+    ChallengeSubmissionsModule,
+} from "./challenge-submissions"
 
 @Module({
     imports: [
@@ -41,6 +44,9 @@ import {
             isGlobal: true,
         }),
         ModulesModule.register({
+            isGlobal: true,
+        }),
+        ChallengeSubmissionsModule.register({
             isGlobal: true,
         }),
     ],

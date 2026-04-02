@@ -39,8 +39,8 @@ export class ChallengesService {
     async execute(
         {
             request: {
+                moduleId,
                 filters: {
-                    moduleId,
                     limit = envConfig().services.api.pagination.page.limit,
                     pageNumber = 0,
                     sorts,
@@ -68,15 +68,8 @@ export class ChallengesService {
                 order,
                 relations: {
                     translations: true,
-                    inputs: {
-                        translations: true,
-                    },
-                    steps: {
-                        translations: true,
-                    },
-                    references: {
-                        translations: true,
-                    },
+                    inputs: true,
+                    steps: true,
                 },
                 take: limit,
                 skip: pageNumber * limit,

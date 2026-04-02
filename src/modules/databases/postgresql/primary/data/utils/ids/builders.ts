@@ -12,4 +12,5 @@ export * from "./challenge"
 export * from "./challenge-input"
 export * from "./challenge-step"
 export * from "./challenge-reference"
+export * from "./challenge-submission"
 

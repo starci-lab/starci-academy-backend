@@ -103,7 +103,6 @@ export const fullstackMasteryModule2: DeepPartial<ModuleEntity> = {
                 moduleIndex: 1,
                 contentIndex: 0,
             }),
-            thumbnailUrl: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
             minutesRead: 35,
             title: readMetadataOrDefault(
                 buildContentId({

@@ -4,6 +4,7 @@ import type {
 import {
     ChallengeDifficulty,
     Locale,
+    SubmissionType,
 } from "../../../../../enums"
 import {
     envConfig 
@@ -24,6 +25,7 @@ import {
     buildChallengeInputId,
     buildChallengeReferenceId,
     buildChallengeStepId,
+    buildChallengeSubmissionId,
 } from "../../../../utils"
 
 export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
@@ -352,6 +354,53 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
                     ],
                 },
             ],
+            submissions: [
+                {
+                    id: buildChallengeSubmissionId({
+                        courseId: CourseId.FullstackMastery,
+                        moduleIndex: 0,
+                        challengeIndex: 0,
+                        submissionIndex: 0,
+                    }),
+                    type: SubmissionType.GithubUrl,
+                    orderIndex: 0,
+                    name: "Submit your homework (GitHub repository)",
+                    description:
+                        "Push your NestJS project to a public GitHub repository and submit the repository URL (HTTPS).",
+                    challenge: {
+                        id: buildChallengeId({
+                            courseId: CourseId.FullstackMastery,
+                            moduleIndex: 0,
+                            challengeIndex: 0,
+                        }),
+                    },
+                    translations: [
+                        {
+                            challengeSubmissionId: buildChallengeSubmissionId({
+                                courseId: CourseId.FullstackMastery,
+                                moduleIndex: 0,
+                                challengeIndex: 0,
+                                submissionIndex: 0,
+                            }),
+                            locale: Locale.Vi,
+                            field: "name",
+                            value: "Nộp bài: kho GitHub",
+                        },
+                        {
+                            challengeSubmissionId: buildChallengeSubmissionId({
+                                courseId: CourseId.FullstackMastery,
+                                moduleIndex: 0,
+                                challengeIndex: 0,
+                                submissionIndex: 0,
+                            }),
+                            locale: Locale.Vi,
+                            field: "description",
+                            value:
+                                "Đẩy dự án NestJS lên kho GitHub công khai và nộp URL kho (HTTPS).",
+                        },
+                    ],
+                },
+            ],
             translations: [
                 {
                     challengeId: buildChallengeId({
@@ -419,7 +468,6 @@ export const fullstackMasteryModule1: DeepPartial<ModuleEntity> = {
                 contentIndex: 0,
             }),
             minutesRead: 25,
-            thumbnailUrl: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
             title: readMetadataOrDefault(
                 buildContentId({
                     courseId: CourseId.FullstackMastery,
