@@ -17,53 +17,53 @@ import {
     ThrottlerConfig,
 } from "@modules/throttler"
 import {
-    LessonVideoEntity,
+    ChallengeEntity,
     Locale,
 } from "@modules/databases"
 import {
-    LessonVideoRequest,
-    LessonVideoResponse,
+    ChallengeRequest,
+    ChallengeResponse,
 } from "./graphql-types"
 import {
-    LessonVideoQueryService,
-} from "./lesson-video.service"
+    ChallengeQueryService,
+} from "./challenge.service"
 import {
-    KeycloakAuthGraphQLGuard
+    KeycloakAuthGraphQLGuard,
 } from "@modules/keycloak"
 import {
-    GraphQLMustEnrolledGuard
+    GraphQLMustEnrolledGuard,
 } from "@modules/bussiness"
 
-@Resolver(() => LessonVideoEntity)
-export class LessonVideoResolver {
+@Resolver(() => ChallengeEntity)
+export class ChallengeResolver {
     constructor(
-        private readonly lessonVideoQueryService: LessonVideoQueryService,
+        private readonly challengeQueryService: ChallengeQueryService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
-        [Locale.En]: "Lesson video fetched successfully",
-        [Locale.Vi]: "Lấy video bài học thành công",
+        [Locale.En]: "Challenge fetched successfully",
+        [Locale.Vi]: "Lấy challenge thành công",
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,
-        GraphQLMustEnrolledGuard
+        GraphQLMustEnrolledGuard,
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(
-        () => LessonVideoResponse,
+        () => ChallengeResponse,
         {
-            name: "lessonVideo",
-            description: "Returns a single lesson video by primary id.",
+            name: "challenge",
+            description: "Returns a single challenge by primary id.",
         },
     )
     async execute(
         @Args("request")
-            request: LessonVideoRequest,
+            request: ChallengeRequest,
         @GraphQLLocale()
             locale: Locale,
-    ): Promise<LessonVideoEntity> {
-        return this.lessonVideoQueryService.execute(
+    ): Promise<ChallengeEntity> {
+        return this.challengeQueryService.execute(
             {
                 request,
                 locale,

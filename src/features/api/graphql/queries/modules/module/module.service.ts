@@ -10,7 +10,7 @@ import {
 } from "@nestjs/common"
 import {
     ModuleTransformerService,
-} from "../../utils"
+} from "../../../utils"
 import type {
     EntityManager,
 } from "typeorm"
@@ -19,7 +19,7 @@ import type {
 } from "./graphql-types"
 import type {
     ExecuteParams,
-} from "../../../types"
+} from "../../../../types"
 
 /**
  * Loads module shell data (no contents, lesson videos, or challenges — fetch those by id).

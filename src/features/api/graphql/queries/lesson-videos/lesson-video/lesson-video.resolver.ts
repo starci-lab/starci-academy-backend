@@ -17,53 +17,53 @@ import {
     ThrottlerConfig,
 } from "@modules/throttler"
 import {
-    ChallengeEntity,
+    LessonVideoEntity,
     Locale,
 } from "@modules/databases"
 import {
-    ChallengeRequest,
-    ChallengeResponse,
+    LessonVideoRequest,
+    LessonVideoResponse,
 } from "./graphql-types"
 import {
-    ChallengeQueryService,
-} from "./challenge.service"
+    LessonVideoQueryService,
+} from "./lesson-video.service"
 import {
-    KeycloakAuthGraphQLGuard
+    KeycloakAuthGraphQLGuard,
 } from "@modules/keycloak"
 import {
-    GraphQLMustEnrolledGuard
+    GraphQLMustEnrolledGuard,
 } from "@modules/bussiness"
 
-@Resolver(() => ChallengeEntity)
-export class ChallengeResolver {
+@Resolver(() => LessonVideoEntity)
+export class LessonVideoResolver {
     constructor(
-        private readonly challengeQueryService: ChallengeQueryService,
+        private readonly lessonVideoQueryService: LessonVideoQueryService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
-        [Locale.En]: "Challenge fetched successfully",
-        [Locale.Vi]: "Lấy challenge thành công",
+        [Locale.En]: "Lesson video fetched successfully",
+        [Locale.Vi]: "Lấy video bài học thành công",
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,
-        GraphQLMustEnrolledGuard
+        GraphQLMustEnrolledGuard,
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(
-        () => ChallengeResponse,
+        () => LessonVideoResponse,
         {
-            name: "challenge",
-            description: "Returns a single challenge by primary id.",
+            name: "lessonVideo",
+            description: "Returns a single lesson video by primary id.",
         },
     )
     async execute(
         @Args("request")
-            request: ChallengeRequest,
+            request: LessonVideoRequest,
         @GraphQLLocale()
             locale: Locale,
-    ): Promise<ChallengeEntity> {
-        return this.challengeQueryService.execute(
+    ): Promise<LessonVideoEntity> {
+        return this.lessonVideoQueryService.execute(
             {
                 request,
                 locale,

@@ -11,7 +11,7 @@ import {
 } from "@nestjs/common"
 import {
     LessonVideoTransformerService,
-} from "../../utils"
+} from "../../../utils"
 import type {
     EntityManager,
 } from "typeorm"
@@ -20,7 +20,8 @@ import type {
 } from "./graphql-types"
 import type {
     ExecuteParams,
-} from "../../../types"
+} from "../../../../types"
+
 /**
  * Loads lesson video shell data (no translations — fetch those by id).
  */

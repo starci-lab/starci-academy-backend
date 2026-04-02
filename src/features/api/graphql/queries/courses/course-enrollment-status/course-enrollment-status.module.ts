@@ -7,6 +7,9 @@ import {
 import {
     CourseEnrollmentStatusService,
 } from "./course-enrollment-status.service"
+import {
+    ConfigurableModuleClass,
+} from "./course-enrollment-status.module-definition"
 
 @Module({
     providers: [
@@ -14,4 +17,4 @@ import {
         CourseEnrollmentStatusResolver,
     ],
 })
-export class CourseEnrollmentStatusQueryModule {}
+export class CourseEnrollmentStatusQueryModule extends ConfigurableModuleClass {}

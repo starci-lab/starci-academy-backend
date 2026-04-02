@@ -10,6 +10,18 @@ import {
 import {
     CoursesQueriesModule,
 } from "./courses"
+import {
+    ContentsModule,
+} from "./contents"
+import {
+    ChallengesModule,
+} from "./challenges"
+import {
+    LessonVideosModule,
+} from "./lesson-videos"
+import {
+    ModulesModule,
+} from "./modules"
 
 @Module({
     imports: [
@@ -17,6 +29,18 @@ import {
             isGlobal: true,
         }),
         CoursesQueriesModule.register({
+            isGlobal: true,
+        }),
+        ContentsModule.register({
+            isGlobal: true,
+        }),
+        ChallengesModule.register({
+            isGlobal: true,
+        }),
+        LessonVideosModule.register({
+            isGlobal: true,
+        }),
+        ModulesModule.register({
             isGlobal: true,
         }),
     ],

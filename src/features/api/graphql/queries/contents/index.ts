@@ -1,1 +1,1 @@
-export * from "./content.module"
+export * from "./contents.module"

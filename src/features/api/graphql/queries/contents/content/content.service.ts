@@ -1,74 +1,68 @@
 import {
-    ChallengeEntity,
+    ContentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
 } from "@modules/databases"
 import {
-    ChallengeNotFoundException,
+    ContentNotFoundException,
 } from "@modules/exceptions"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
-    ChallengeTransformerService,
-} from "../../utils"
+    ContentTransformerService,
+} from "../../../utils"
 import type {
     EntityManager,
 } from "typeorm"
 import type {
-    ChallengeRequest,
+    ContentRequest,
 } from "./graphql-types"
 import type {
     ExecuteParams,
-} from "../../../types"
+} from "../../../../types"
 
 @Injectable()
-export class ChallengeQueryService {
+export class ContentQueryService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
-        private readonly challengeTransformer: ChallengeTransformerService,
+        private readonly contentTransformer: ContentTransformerService,
     ) {}
 
     async execute(
         {
             request,
             locale,
-        }: ExecuteParams<ChallengeRequest>,
-    ): Promise<ChallengeEntity> {
-        const challenge = await this.entityManager.findOne(
-            ChallengeEntity,
+        }: ExecuteParams<ContentRequest>,
+    ): Promise<ContentEntity> {
+        const content = await this.entityManager.findOne(
+            ContentEntity,
             {
                 where: {
                     id: request.id,
                 },
                 relations: {
                     translations: true,
-                    inputs: {
-                        translations: true,
-                    },
-                    steps: {
-                        translations: true,
-                    },
                     references: {
                         translations: true,
                     },
                 },
             },
         )
-        if (!challenge) {
-            throw new ChallengeNotFoundException(
+        if (!content) {
+            throw new ContentNotFoundException(
                 {
                     id: request.id,
                 },
             )
         }
-        const moduleFallbackLocale = challenge.defaultLocale ?? Locale.En
-        this.challengeTransformer.transform(
-            challenge,
+        const fallbackLocale = content.defaultLocale ?? Locale.En
+        this.contentTransformer.transform(
+            content,
             locale,
-            moduleFallbackLocale,
+            fallbackLocale,
         )
-        return challenge
+        return content
     }
 }

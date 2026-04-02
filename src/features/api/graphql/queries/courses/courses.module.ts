@@ -13,18 +13,6 @@ import {
 import {
     CoursesSingleQueryModule,
 } from "./courses"
-import {
-    ChallengeSingleQueryModule,
-} from "../challenges"
-import {
-    ContentSingleQueryModule,
-} from "../contents"
-import {
-    LessonVideoSingleQueryModule,
-} from "../lesson-videos"
-import {
-    ModuleSingleQueryModule,
-} from "../module"
 
 @Module({
     imports: [
@@ -34,19 +22,9 @@ import {
         CourseSingleQueryModule.register({
             isGlobal: true,
         }),
-        ModuleSingleQueryModule.register({
+        CourseEnrollmentStatusQueryModule.register({
             isGlobal: true,
         }),
-        ContentSingleQueryModule.register({
-            isGlobal: true,
-        }),
-        LessonVideoSingleQueryModule.register({
-            isGlobal: true,
-        }),
-        ChallengeSingleQueryModule.register({
-            isGlobal: true,
-        }),
-        CourseEnrollmentStatusQueryModule,
     ],
 })
 export class CoursesQueriesModule extends ConfigurableModuleClass {}
