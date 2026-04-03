@@ -31,6 +31,6 @@ services:
       REDIS_CACHE_PORT: ${REDIS_CACHE_PORT}
       REDIS_CACHE_PASSWORD: ${REDIS_CACHE_PASSWORD}
 
-      CORS_ORIGIN_1: ${CORS_ORIGIN_1}
+      CORS_ORIGIN_1: ${CORS_ORIGIN_1} 
     volumes:
       - /root/academy/.mount:/usr/src/app/.mount
