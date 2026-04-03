@@ -24,8 +24,8 @@ export class StepMappingService {
      * Get the step map.
      * @returns The step map.
      */
-    getStepMap(): Map<number, AbstractStepService<EnrollPayload>> {
-        return new Map<number, AbstractStepService<EnrollPayload>>(
+    getStepMap(): Map<number, AbstractStepService<EnrollPayload, undefined>> {
+        return new Map<number, AbstractStepService<EnrollPayload, undefined>>(
             [
                 [
                     this.enrollStepService.stepIndex,

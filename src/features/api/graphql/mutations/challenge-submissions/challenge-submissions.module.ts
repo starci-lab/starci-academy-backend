@@ -5,12 +5,12 @@ import {
     ConfigurableModuleClass,
 } from "./challenge-submissions.module-definition"
 import {
-    SyncSubmissionUrlsMutationModule,
-} from "./sync-submission-urls"
+    SyncSubmissionsMutationModule,
+} from "./sync-submissions"
 
 @Module({
     imports: [
-        SyncSubmissionUrlsMutationModule,
+        SyncSubmissionsMutationModule,
     ],
 })
 export class ChallengeSubmissionsMutationsModule extends ConfigurableModuleClass {}

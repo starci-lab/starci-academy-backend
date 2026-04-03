@@ -55,8 +55,8 @@ export const configMap = {
         messageType: {
         } as StepExecutedMessage,
     },
-    [WinstonLog.ProcessGitUrlStepExecuted]: {
-        name: WinstonLog.ProcessGitUrlStepExecuted,
+    [WinstonLog.ProcessGitSubmissionStepExecuted]: {
+        name: WinstonLog.ProcessGitSubmissionStepExecuted,
         level: WinstonLevel.Verbose,
         loki: true,
         console: true,

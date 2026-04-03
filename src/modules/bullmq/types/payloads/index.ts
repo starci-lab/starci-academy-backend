@@ -1,2 +1,2 @@
 export * from "./enroll"
-export * from "./proccess-git-url"
+export * from "./process-git-submission"

@@ -1,5 +1,5 @@
-export interface ExecuteStepPayload {
-    userId: string
-    courseId: string
-    transactionId: string
-}
+import {
+    EmptyObject,
+} from "@modules/common"
+/** Execution result of the enroll step. */
+export type EnrollStepExecutionResult = EmptyObject

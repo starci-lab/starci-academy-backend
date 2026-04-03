@@ -8,8 +8,8 @@ import {
     EnrollModule,
 } from "./enroll"
 import {
-    ProccessGitUrlModule,
-} from "./proccess-git-url"
+    ProcessGitSubmissionModule,
+} from "./process-git-submission"
 
 /**
  * Module for the processors.
@@ -21,7 +21,7 @@ import {
                 isGlobal: true,
             }
         ),
-        ProccessGitUrlModule.register(
+        ProcessGitSubmissionModule.register(
             {
                 isGlobal: true,
             }

@@ -13,10 +13,13 @@ import {
 
 @Injectable()
 export class MountStorageService implements OnModuleInit {
+    public githubAccessToken: string
     public appConfig: AppConfig 
     public s3SecretAccessKey: string
     public keycloakClientSecret: string
     public payosApiKey: string
+    public geminiApiKey: string
+    public openAiApiKey: string
     constructor(
         private readonly mountFilesystemService: MountFilesystemService,
         private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
@@ -24,6 +27,8 @@ export class MountStorageService implements OnModuleInit {
 
     onModuleInit() {
         this.readinessWatcherFactoryService.createWatcher(MountStorageService.name)
+        // get github access token from mount filesystem service
+        this.githubAccessToken = this.mountFilesystemService.githubAccessToken()
         // get app config from mount filesystem service
         this.appConfig = this.mountFilesystemService.appConfig()
         // get s3 secret access key from mount filesystem service
@@ -32,6 +37,10 @@ export class MountStorageService implements OnModuleInit {
         this.keycloakClientSecret = this.mountFilesystemService.keycloakClientSecret()
         // get payos api key from mount filesystem service
         this.payosApiKey = this.mountFilesystemService.payosApiKey()
+        // get gemini api key from mount filesystem service
+        this.geminiApiKey = this.mountFilesystemService.geminiApiKey()
+        // get openai api key from mount filesystem service
+        this.openAiApiKey = this.mountFilesystemService.openAiApiKey()
         // set readiness watcher to true
         this.readinessWatcherFactoryService.setReady(MountStorageService.name)
     }

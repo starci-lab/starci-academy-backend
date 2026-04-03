@@ -81,11 +81,7 @@ export class EnrollWorker extends WorkerHost {
                     {
                         job,
                         queueName: bullmqJob.queueName,
-                        payload: {
-                            userId: payload.userId,
-                            courseId: payload.courseId,
-                            transactionId: payload.transactionId,
-                        },
+                        payload,
                     }
                 )
             }

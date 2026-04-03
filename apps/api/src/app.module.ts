@@ -31,7 +31,8 @@ import {
     MixinModule 
 } from "@modules/mixin"
 import {
-    PrimaryPostgreSQLModule
+    PrimaryPostgreSQLModule,
+    QdrantModule
 } from "@modules/databases"
 import {
     S3Module
@@ -69,6 +70,9 @@ import {
 import {
     WorkerModule
 } from "@features/worker"
+import {
+    LangchainModule
+} from "@modules/langchain"
 /**
  * The main module for the application.
  */
@@ -177,6 +181,18 @@ import {
             ),
             /** Cdn Synchronizer module. */
             CdnSynchronizerModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Qdrant module. */
+            QdrantModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** LangChain module. */
+            LangchainModule.register(
                 {
                     isGlobal: true,
                 }

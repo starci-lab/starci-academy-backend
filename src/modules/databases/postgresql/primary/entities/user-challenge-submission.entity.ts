@@ -165,6 +165,23 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
         default: 0,
     })
         score: number
+
+    /**
+     * Grading feedback text (e.g. concatenated model feedback items).
+     */
+    @Field(
+        () => String,
+        {
+            description: "Grading feedback from the automated review.",
+            nullable: true,
+        },
+    )
+    @Column({
+        name: "feedback",
+        type: "text",
+        nullable: true,
+    })
+        feedback?: string | null
 }
 
 

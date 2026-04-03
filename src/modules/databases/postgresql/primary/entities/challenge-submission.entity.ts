@@ -147,5 +147,14 @@ export class ChallengeSubmissionEntity extends UuidAbstractEntity {
         },
     )
         userSubmission?: UserChallengeSubmissionEntity
+
+    /**
+     * The challenge that the submission belongs to.
+     */
+    @Column({
+        name: "challenge_id",
+        type: "uuid",
+    })
+        challengeId: string
 }
 

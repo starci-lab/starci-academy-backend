@@ -26,10 +26,16 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
         ),
         name: "enroll",
     },
-    [BullQueueName.ProccessGitUrl]: {
+    [BullQueueName.ProcessGitSubmission]: {
         prefix: formatWithBraces(
-            "proccess-git-url",
+            "process-git-submission",
         ),
-        name: "proccess-git-url",
+        name: "process-git-submission",
+    },
+    [BullQueueName.ProcessGoogleDocsSubmission]: {
+        prefix: formatWithBraces(
+            "process-google-docs-submission",
+        ),
+        name: "process-google-docs-submission",
     },
 }

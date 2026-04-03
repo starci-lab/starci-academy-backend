@@ -5,6 +5,8 @@
 export enum BullQueueName {
     /** Queue name for enroll jobs. */
     Enroll = "enroll",
-    /** Queue name for processing git repository URLs. */
-    ProccessGitUrl = "proccess-git-url",
+    /** Queue for grading a GitHub-linked challenge submission. */
+    ProcessGitSubmission = "process-git-submission",
+    /** Queue for grading a Google Docs/Sheets-linked challenge submission. */
+    ProcessGoogleDocsSubmission = "process-google-docs-submission",
 }

@@ -39,3 +39,42 @@ export const getPayosApiKey = (): string => {
     )
 }
 
+/**
+ * Get Gemini API key (from terraform mount path).
+ */
+export const getGeminiApiKey = (): string => {
+    return readFileSync(
+        envConfig().mountPath.terraform.geminiApiKey,
+        "utf8",
+    )
+}
+
+/**
+ * Get OpenAI API key (from terraform mount path).
+ */
+export const getOpenAiApiKey = (): string => {
+    return readFileSync(
+        envConfig().mountPath.terraform.openAiApiKey,
+        "utf8",
+    )
+}
+
+/**
+ * Get keycloak client secret (from terraform mount path).
+ */
+export const getKeycloakClientSecret = (): string => {
+    return readFileSync(
+        envConfig().mountPath.terraform.keycloakClientSecret,
+        "utf8",
+    )
+}
+
+/**
+ * Get github access token (from terraform mount path).
+ */
+export const getGithubAccessToken = (): string => {
+    return readFileSync(
+        envConfig().mountPath.terraform.githubAccessToken,
+        "utf8",
+    )
+}

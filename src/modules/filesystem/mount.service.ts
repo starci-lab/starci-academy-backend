@@ -6,13 +6,13 @@ import {
 } from "./types"
 import {
     getAppConfig,
+    getS3SecretAccessKey,
+    getPayosApiKey,
+    getGeminiApiKey,
+    getOpenAiApiKey,
+    getKeycloakClientSecret,
+    getGithubAccessToken,
 } from "./utils"
-import {
-    envConfig 
-} from "@modules/env"
-import {
-    readFileSync 
-} from "fs"
 /**
  * Service responsible for reading secrets mounted into the container filesystem.
  *
@@ -36,30 +36,41 @@ export class MountFilesystemService {
      * Get s3 secret access key from mount path.
      */
     s3SecretAccessKey(): string {
-        return readFileSync(
-            envConfig().mountPath.terraform.s3SecretAccessKey,
-            "utf8"
-        )
+        return getS3SecretAccessKey()
     }
 
     /**
      * Get keycloak client secret from mount path.
      */
     keycloakClientSecret(): string {
-        return readFileSync(
-            envConfig().mountPath.terraform.keycloakClientSecret,
-            "utf8"
-        )
+        return getKeycloakClientSecret()
     }
 
     /**
      * Get payos api key from mount path.
      */
     payosApiKey(): string {
-        return readFileSync(
-            envConfig().mountPath.terraform.payosApiKey,
-            "utf8"
-        )
+        return getPayosApiKey()
     }
 
+    /**
+     * Get gemini api key from mount path.
+     */
+    geminiApiKey(): string {
+        return getGeminiApiKey()
+    }
+
+    /**
+     * Get openai api key from mount path.
+     */
+    openAiApiKey(): string {
+        return getOpenAiApiKey()
+    }
+
+    /**
+     * Get github access token from mount path.
+     */
+    githubAccessToken(): string {
+        return getGithubAccessToken()
+    }
 }

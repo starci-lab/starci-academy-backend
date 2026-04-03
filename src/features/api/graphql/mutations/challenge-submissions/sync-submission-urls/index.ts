@@ -1,5 +1,0 @@
-export * from "./graphql-types"
-export * from "./sync-submission-urls.module"
-export * from "./sync-submission-urls.resolver"
-export * from "./sync-submission-urls.service"
-export * from "./types"

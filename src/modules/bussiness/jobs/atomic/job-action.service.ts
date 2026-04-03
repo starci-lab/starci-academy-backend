@@ -16,6 +16,7 @@ import type {
     FailJobParams,
     IncreaseJobParams,
     SaveExecutionResultParams,
+    LoadExecutionResultParams,
 } from "../types"
 import {
     DayjsService,
@@ -203,5 +204,24 @@ export class JobActionService {
             JobEntity,
             job,
         )
+    }
+
+    /**
+     * Load the execution result.
+     * @param job - The job entity.
+     * @param key - The key of the execution result.
+     * @returns The execution result.
+     */
+    async loadExecutionResult<T>(
+        {
+            job,
+            key,
+        }: LoadExecutionResultParams
+    ): Promise<T> {
+        const executionResults = job.executionResults ? this.superJson.parse<
+            Record<string, unknown>
+        >(job.executionResults) : {
+        }
+        return executionResults[key] as T
     }
 }

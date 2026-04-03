@@ -60,4 +60,14 @@ export class ChallengePromptEntity extends UuidAbstractEntity {
         name: "challenge_id",
     })
         challenge: ChallengeEntity
+
+
+    /**
+     * The challenge that the prompt belongs to.
+     */
+    @Column({
+        name: "challenge_id",
+        type: "uuid",
+    })
+        challengeId: string
 }

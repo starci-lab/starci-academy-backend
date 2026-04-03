@@ -17,9 +17,6 @@ import {
     TransactionActionService,
 } from "@modules/bussiness"
 import type {
-    JobContext 
-} from "../../types"
-import {
     EnrollPayload 
 } from "@modules/bullmq"
 import {
@@ -32,11 +29,17 @@ import {
 import {
     CourseNotFoundException 
 } from "@modules/exceptions"
+import {
+    JobExtendedContext 
+} from "../../types"
+import {
+    EnrollStepExecutionResult 
+} from "../types"
 /**
  * Step service: create enrollment relation between user and course.
  */
 @Injectable()
-export class EnrollStepService extends AbstractStepService<EnrollPayload> {
+export class EnrollStepService extends AbstractStepService<EnrollPayload, undefined> {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
@@ -62,17 +65,20 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload> {
      * @returns A promise that resolves when the step is executed.
      */
     async process(
-        context: JobContext<EnrollPayload>
+        context: JobExtendedContext<EnrollPayload, undefined>
     ): Promise<void> {
         // execute the step
-        await this.execute(context)
+        const executionResult = await this.execute(context)
         // finalize the step
-        await this.finalize(context)
+        await this.finalize(
+            executionResult,
+            context
+        )
     }
 
     /**
      * Execute the step.
-     * @param payload - The payload of the job.
+     * @param context - The context of the job.
      * @returns A promise that resolves when the action is executed.
      */
     private async execute(
@@ -82,8 +88,8 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload> {
                 userId,
                 transactionId,
             },
-        }: JobContext<EnrollPayload>
-    ): Promise<void> {
+        }: JobExtendedContext<EnrollPayload, undefined>
+    ): Promise<EnrollStepExecutionResult> {
         // process the transaction
         await this.entityManager.transaction(
             async (entityManager) => {
@@ -149,6 +155,8 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload> {
                 )
             }
         )
+        return {
+        }
     }
     /**
      * Finalize the step.
@@ -156,11 +164,12 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload> {
      * @returns A promise that resolves when the step is finalized.
      */
     private async finalize(
+        executionResult: EnrollStepExecutionResult,
         {
             payload,
             queueName,
             job,
-        }: JobContext<EnrollPayload>
+        }: JobExtendedContext<EnrollPayload, undefined>
     ): Promise<void> {
         // update the job and store the result
         await this.entityManager.transaction(
@@ -177,8 +186,7 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload> {
                     {
                         job,
                         key: this.stepName,
-                        executionResult: {
-                        },
+                        executionResult,
                         entityManager,
                     }
                 )

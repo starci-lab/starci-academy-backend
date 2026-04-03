@@ -1,11 +1,11 @@
 import {
-    JobContext 
+    JobExtendedContext 
 } from "../types"
 
 /**
  * Abstract step service.
  */
-export abstract class AbstractStepService<T> {
+export abstract class AbstractStepService<T, E> {
     /**
      * The index of the step.
      */
@@ -19,5 +19,5 @@ export abstract class AbstractStepService<T> {
      * @param context - The context of the step.
      * @returns A promise that resolves when the step is processed.
      */
-    abstract process(context: JobContext<T>): Promise<void>
+    abstract process(context: JobExtendedContext<T, E>): Promise<void>
 }

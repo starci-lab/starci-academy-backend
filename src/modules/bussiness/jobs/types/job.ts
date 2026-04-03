@@ -77,3 +77,9 @@ export interface SaveExecutionResultParams<T> extends JobTargetParams {
     /** The execution result of the job. */
     executionResult: T
 }
+
+/** Params for loading the result of a job. */
+export interface LoadExecutionResultParams extends JobTargetParams {
+    /** The key of the execution result. */
+    key: string
+}

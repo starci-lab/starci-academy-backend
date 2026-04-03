@@ -32,4 +32,5 @@ registerEnumType(
                 description: "English locale.",
             },
         },
-    })
+    }
+)

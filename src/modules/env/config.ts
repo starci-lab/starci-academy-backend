@@ -68,43 +68,43 @@ export const envConfig = () => ({
                 key: "GITHUB_WORKER_PORT",
                 defaultValue: 3002,
             }),
-            processGitUrl: {
+            processGitSubmission: {
                 branch: parseEnvString({
-                    key: "GITHUB_WORKER_PROCESS_GIT_URL_BRANCH",
+                    key: "GITHUB_WORKER_PROCESS_GIT_SUBMISSION_BRANCH",
                     defaultValue: "main",
                 }),
-                githubAccessToken: parseEnvString({
-                    key: "GITHUB_WORKER_PROCESS_GIT_URL_GITHUB_ACCESS_TOKEN",
-                    defaultValue: "",
-                }),
                 chunkSize: parseEnvInt({
-                    key: "GITHUB_WORKER_PROCESS_GIT_URL_CHUNK_SIZE",
+                    key: "GITHUB_WORKER_PROCESS_GIT_SUBMISSION_CHUNK_SIZE",
                     defaultValue: 1000,
                 }),
                 chunkOverlap: parseEnvInt({
-                    key: "GITHUB_WORKER_PROCESS_GIT_URL_CHUNK_OVERLAP",
+                    key: "GITHUB_WORKER_PROCESS_GIT_SUBMISSION_CHUNK_OVERLAP",
                     defaultValue: 200,
                 }),
-                collectionName: parseEnvString({
-                    key: "GITHUB_WORKER_PROCESS_GIT_URL_COLLECTION_NAME",
-                    defaultValue: "test-google-genai",
-                }),
-                embeddingModel: parseEnvString({
-                    key: "GITHUB_WORKER_PROCESS_GIT_URL_EMBEDDING_MODEL",
-                    defaultValue: "gemini-embedding-001",
-                }),
-                genAiApiKey: parseEnvString({
-                    key: "GITHUB_WORKER_PROCESS_GIT_URL_GENAI_API_KEY",
-                    defaultValue: "",
-                }),
-                gradingModel: parseEnvString({
-                    key: "GITHUB_WORKER_PROCESS_GIT_URL_GRADING_MODEL",
-                    defaultValue: "gemini-2.0-flash",
-                }),
                 gradingMaxSourceChars: parseEnvInt({
-                    key: "GITHUB_WORKER_PROCESS_GIT_URL_GRADING_MAX_SOURCE_CHARS",
+                    key: "GITHUB_WORKER_PROCESS_GIT_SUBMISSION_GRADING_MAX_SOURCE_CHARS",
                     defaultValue: 120000,
                 }),
+                embedding: {
+                    model: parseEnvString({
+                        key: "GITHUB_WORKER_PROCESS_GIT_SUBMISSION_EMBEDDING_MODEL",
+                        defaultValue: "gemini-2.5-flash",
+                    }),
+                    provider: parseEnvString({
+                        key: "GITHUB_WORKER_PROCESS_GIT_SUBMISSION_EMBEDDING_MODEL_PROVIDER",
+                        defaultValue: "gemini",
+                    }),
+                },
+                grading: {
+                    model: parseEnvString({
+                        key: "GITHUB_WORKER_PROCESS_GIT_SUBMISSION_GRADING_MODEL",
+                        defaultValue: "gemini-2.5-flash",
+                    }),
+                    provider: parseEnvString({
+                        key: "GITHUB_WORKER_PROCESS_GIT_SUBMISSION_GRADING_MODEL_PROVIDER",
+                        defaultValue: "gemini",
+                    }),
+                },
             },
         },
         /** Cdn Synchronizer service configuration. */
@@ -275,6 +275,13 @@ export const envConfig = () => ({
         },
         /** File paths: terraform secrets. */
         terraform: {
+            githubAccessToken: parseEnvString({
+                key: "TERRAFORM_GITHUB_ACCESS_TOKEN_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "github-access-token.key"),
+            }),
             s3SecretAccessKey: parseEnvString({
                 key: "TERRAFORM_S3_SECRET_ACCESS_KEY_MOUNT_PATH",
                 defaultValue: join(process.cwd(),
@@ -295,6 +302,20 @@ export const envConfig = () => ({
                     ".mount",
                     "terraform",
                     "payos-api-key.key"),
+            }),
+            geminiApiKey: parseEnvString({
+                key: "TERRAFORM_GEMINI_API_KEY_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "gemini-api-key.key"),
+            }),
+            openAiApiKey: parseEnvString({
+                key: "TERRAFORM_OPENAI_API_KEY_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "openai-api-key.key"),
             }),
         },
     },
