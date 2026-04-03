@@ -28,9 +28,6 @@
       "@modules/*": [
         "./src/modules/*"
       ],
-      "@data/*": [
-        "src/modules/databases/postgresql/primary/data/*"
-      ]
     }
   }
 }

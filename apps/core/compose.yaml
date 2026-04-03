@@ -1,0 +1,13 @@
+
+services:
+  core:
+    build:
+      context: ../..
+      dockerfile: apps/core/Dockerfile
+    env_file:
+      - ../../.env.docker
+    volumes:
+      - ../../.mount:/usr/src/app/.mount
+
+# docker build -t kanibot/core:latest -f apps/core/Dockerfile . && docker push kanibot/core:latest
+# docker compose -f apps/core/compose.yaml up --build -d

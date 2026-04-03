@@ -186,10 +186,12 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                     envConfig().services.githubWorker.processGitSubmission.grading.provider) as ModelProvider,
         })
 
-        const response = await model.invoke([
-            new SystemMessage(systemText),
-            new HumanMessage(humanText),
-        ])
+        const response = await model.invoke(
+            [
+                new SystemMessage(systemText),
+                new HumanMessage(humanText),
+            ]
+        )
 
         const raw =
             typeof response.content === "string"

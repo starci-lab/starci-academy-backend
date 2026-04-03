@@ -1,0 +1,33 @@
+# .github/workflows/deploy-core-vps.yml
+name: Deploy Core VPS
+# Trigger the workflow when a push is made to the main branch or when the workflow is manually triggered
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Define the job to deploy the core application on the VPS
+jobs:
+  deploy:
+    # Run the job on the self-hosted runner
+    runs-on: self-hosted
+
+    steps:
+      # Checkout the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Show the docker info
+      - name: Show docker info
+        run: |
+          docker --version
+          docker compose version
+
+      # Stop the old containers
+      - name: Stop old containers
+        run: docker compose -f apps/core/compose.yaml down || true
+
+      # Build and start the core application
+      - name: Build and start core
+        run: docker compose -f apps/core/compose.yaml up --build -d
