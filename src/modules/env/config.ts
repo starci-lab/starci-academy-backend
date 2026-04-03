@@ -378,7 +378,7 @@ export const envConfig = () => ({
     /** Databases configuration. */
     databases: {
         /** Qdrant configuration. */
-        qdrant: {
+        qdrant: { 
             url: parseEnvString({
                 key: "QDRANT_URL",
                 defaultValue: "http://localhost:6333",
