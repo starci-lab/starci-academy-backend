@@ -24,6 +24,7 @@ import type {
 } from "../../types"
 import type {
     ExtendedProcessGitSubmissionContext,
+    ProcessGitSubmissionLoadDocsStepExecuteResult,
     ProcessGitSubmissionSplitDocsStepExecuteResult,
 } from "../types"
 import {
@@ -94,13 +95,13 @@ export class ProcessGitSubmissionSplitDocsStepService extends AbstractStepServic
             ExtendedProcessGitSubmissionContext
         >,
     ): Promise<ProcessGitSubmissionSplitDocsStepExecuteResult> {
-        const jsonDocs = await this.jobActionService.loadExecutionResult<Array<Document>>(
+        const executionResult = await this.jobActionService.loadExecutionResult<ProcessGitSubmissionLoadDocsStepExecuteResult>(
             {
                 job: context.job,
                 key: this.processGitSubmissionLoadDocsStepService.stepName,
             }
         )
-        const docs = jsonDocs.map((doc) => new Document(
+        const docs = executionResult.docs.map((doc) => new Document(
             {
                 pageContent: doc.pageContent,
                 metadata: doc.metadata,

@@ -7,11 +7,16 @@ import {
 
 export interface UserChallengeSubmissionNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     userChallengeSubmissionId?: string
+    /** `challenge_submissions.id` when the join row is missing for this user. */
+    challengeSubmissionId?: string
+    userId?: string
 }
 
 export class UserChallengeSubmissionNotFoundException extends AbstractException {
     constructor({
         userChallengeSubmissionId,
+        challengeSubmissionId,
+        userId,
         originalError,
     }: UserChallengeSubmissionNotFoundExceptionMetadata) {
         super(
@@ -19,6 +24,8 @@ export class UserChallengeSubmissionNotFoundException extends AbstractException 
             "USER_CHALLENGE_SUBMISSION_NOT_FOUND_EXCEPTION",
             {
                 userChallengeSubmissionId,
+                challengeSubmissionId,
+                userId,
                 originalError,
             },
         )

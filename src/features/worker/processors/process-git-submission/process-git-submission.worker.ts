@@ -38,6 +38,7 @@ import {
     ChallengePromptEntity, 
     ChallengeSubmissionEntity, 
     InjectPrimaryPostgreSQLEntityManager, 
+    JobEntity, 
     UserChallengeSubmissionEntity 
 } from "@modules/databases"
 import {
@@ -50,7 +51,7 @@ import {
 
 /**
  * Worker: GitHub submission → split → embed → grade (DB prompts) → update `user_challenge_submissions`.
- * Enqueued jobs must use `maxSteps: 6`.
+ * Enqueued jobs must use `maxSteps` matching the pipeline (default `5`, see `JOB_PROCESS_GIT_SUBMISSION_MAX_STEPS`).
  */
 @Worker(
     bullData[BullQueueName.ProcessGitSubmission].name,
@@ -83,16 +84,15 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
     async process(bullmqJob: Job<string>) {
         const startedAt = this.dayjsService.now()
         let payload: ProcessGitSubmissionPayload | undefined
-        let jobId = ""
+        let job: JobEntity | undefined
         try {
-            payload = this.superJson.parse<ProcessGitSubmissionPayload>(bullmqJob.data)
-            const stepMap = this.stepMappingService.getStepMap()
-            const job = await this.jobActionService.getJob(
+            job = await this.jobActionService.getJob(
                 {
-                    id: payload.jobId,
+                    id: bullmqJob.id ?? "",
                 },
             )
-            jobId = job.id ?? ""
+            payload = this.superJson.parse<ProcessGitSubmissionPayload>(bullmqJob.data)
+            const stepMap = this.stepMappingService.getStepMap()
             const userChallengeSubmission = await this.entityManager.findOne(
                 UserChallengeSubmissionEntity,
                 {
@@ -141,14 +141,22 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
                 },
             }
             while (job.currentStep < job.maxSteps) {
-                await stepMap.get(job.currentStep)?.process(
+                // refresh the job record
+                const syncedJob = await this.jobActionService.getJob(
+                    {
+                        id: job.id,
+                    },
+                )
+                context.job = syncedJob
+                // process the step
+                await stepMap.get(syncedJob.currentStep)?.process(
                     context,
                 )
             }
             this.winstonService.log(
                 WinstonLog.JobExecutedSuccessfully,
                 {
-                    jobId,
+                    jobId: job.id ?? "",
                     queueName: bullmqJob.queueName,
                     payload,
                     durationMs: this.dayjsService.now().diff(this.dayjsService.from(startedAt)),
@@ -158,7 +166,7 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
             this.winstonService.log(
                 WinstonLog.JobExecutedFailed,
                 {
-                    jobId: jobId || (bullmqJob.id ?? ""),
+                    jobId: job?.id ?? "",
                     queueName: bullmqJob.queueName,
                     payload,
                     error: error instanceof Error ? error.message : String(error),

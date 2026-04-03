@@ -3,7 +3,7 @@ export enum WinstonLog {
     CoursesSeededSuccessfully = "CoursesSeededSuccessfully",
     EnrollmentCreated = "EnrollmentCreated",
     EnrollStepExecuted = "EnrollStepExecuted",
-    ProcessGitSubmissionStepExecuted = "processgitsubmissionstepexecuted",
+    ProcessGitSubmissionStepExecuted = "ProcessGitSubmissionStepExecuted",
     JobExecutedSuccessfully = "JobExecutedSuccessfully",
     JobExecutedFailed = "JobExecutedFailed",
     EnrollmentAlreadyExists = "EnrollmentAlreadyExists",

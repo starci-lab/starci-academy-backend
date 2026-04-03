@@ -8,7 +8,6 @@ export const estimateMemoryUsage = (object: unknown): string => {
     let result = 0
     // estimate the memory usage of a Map
     if (object instanceof Map) {
-        console.log(`Estimating memory usage of Map: ${object.size}`)
         result = estimateMapMemory(object)
     }
     // estimate the memory usage of a Set

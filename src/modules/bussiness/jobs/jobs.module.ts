@@ -8,6 +8,7 @@ import {
 } from "./jobs.module-definition"
 import {
     EnqueueEnrollJobService,
+    EnqueueProcessGitSubmissionJobService,
 } from "./enqueue"
 import {
     JobActionService, 
@@ -29,11 +30,13 @@ export class JobsModule extends ConfigurableModuleClass {
                 JobActionService,
                 JobStalledService,
                 EnqueueEnrollJobService,
+                EnqueueProcessGitSubmissionJobService,
             ],
             exports: [
                 JobActionService,
                 JobStalledService,
                 EnqueueEnrollJobService,
+                EnqueueProcessGitSubmissionJobService,
             ],
         }
     }

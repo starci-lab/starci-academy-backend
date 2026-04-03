@@ -13,6 +13,10 @@ export enum ActionType {
      * The action type for a course enrollment.
      */
     Enroll = "enroll",
+    /**
+     * Grade a learner GitHub submission (worker pipeline).
+     */
+    ProcessGitSubmission = "processGitSubmission",
 }
 
 export const GraphQLTypeActionType = createEnumType(ActionType)
@@ -28,6 +32,9 @@ registerEnumType(
         valuesMap: {
             [ActionType.Enroll]: {
                 description: "The action type for a course enrollment.",
+            },
+            [ActionType.ProcessGitSubmission]: {
+                description: "Process and grade a GitHub challenge submission.",
             },
         },
     },

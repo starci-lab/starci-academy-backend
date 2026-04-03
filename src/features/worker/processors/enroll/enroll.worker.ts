@@ -30,6 +30,12 @@ import {
 import {
     DayjsService,
 } from "@modules/mixin"
+import {
+    JobEntity,
+} from "@modules/databases"
+import type {
+    JobExtendedContext,
+} from "../types"
 
 /**
  * Worker for enrolling a user in a course.
@@ -62,24 +68,38 @@ export class EnrollWorker extends WorkerHost {
     async process(bullmqJob: Job<string>) {
         const startedAt = this.dayjsService.now()
         let payload: EnrollPayload | undefined
-        let jobId = ""
-        try {
-            // get the payload from the job
-            payload = this.superJson.parse<EnrollPayload>(bullmqJob.data)
-            // get the step map
-            const stepMap = this.stepMappingService.getStepMap()
-            // get the job record
-            const job = await this.jobActionService.getJob(
+        let job: JobEntity | undefined
+        try {   
+            job = await this.jobActionService.getJob(
                 {
                     id: bullmqJob.id ?? "",
                 }
             )
-            jobId = job.id ?? ""
+            // get the payload from the job
+            payload = this.superJson.parse<EnrollPayload>(bullmqJob.data)
+            // get the step map
+            const stepMap = this.stepMappingService.getStepMap()
+            const context: JobExtendedContext<
+            EnrollPayload, 
+            undefined
+            > = {
+                job,
+                queueName: bullmqJob.queueName,
+                payload,
+            }
             // process the steps
             while (job.currentStep < job.maxSteps) {
-                await stepMap.get(job.currentStep)?.process(
+                // refresh the job record
+                const syncedJob = await this.jobActionService.getJob(
                     {
-                        job,
+                        id: job.id,
+                    },
+                )
+                context.job = syncedJob
+                // process the step
+                await stepMap.get(syncedJob.currentStep)?.process(
+                    {
+                        job: syncedJob,
                         queueName: bullmqJob.queueName,
                         payload,
                     }
@@ -89,7 +109,7 @@ export class EnrollWorker extends WorkerHost {
             this.winstonService.log(
                 WinstonLog.JobExecutedSuccessfully,
                 {
-                    jobId,
+                    jobId: job?.id ?? "",
                     queueName: bullmqJob.queueName,
                     payload,
                     durationMs: this.dayjsService.now().diff(this.dayjsService.from(startedAt)),
@@ -100,7 +120,7 @@ export class EnrollWorker extends WorkerHost {
             this.winstonService.log(
                 WinstonLog.JobExecutedFailed,
                 {
-                    jobId: bullmqJob.id ?? "",
+                    jobId: job?.id ?? "",
                     queueName: bullmqJob.queueName,
                     payload,
                     error: error.message,

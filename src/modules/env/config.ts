@@ -88,21 +88,21 @@ export const envConfig = () => ({
                 embedding: {
                     model: parseEnvString({
                         key: "GITHUB_WORKER_PROCESS_GIT_SUBMISSION_EMBEDDING_MODEL",
-                        defaultValue: "gemini-2.5-flash",
+                        defaultValue: "text-embedding-3-large",
                     }),
                     provider: parseEnvString({
                         key: "GITHUB_WORKER_PROCESS_GIT_SUBMISSION_EMBEDDING_MODEL_PROVIDER",
-                        defaultValue: "gemini",
+                        defaultValue: "openai",
                     }),
                 },
                 grading: {
                     model: parseEnvString({
                         key: "GITHUB_WORKER_PROCESS_GIT_SUBMISSION_GRADING_MODEL",
-                        defaultValue: "gemini-2.5-flash",
+                        defaultValue: "gpt-4o-mini",
                     }),
                     provider: parseEnvString({
                         key: "GITHUB_WORKER_PROCESS_GIT_SUBMISSION_GRADING_MODEL_PROVIDER",
-                        defaultValue: "gemini",
+                        defaultValue: "openai",
                     }),
                 },
             },
@@ -535,6 +535,12 @@ export const envConfig = () => ({
             maxSteps: parseEnvInt({
                 key: "JOB_ENROLL_MAX_STEPS",
                 defaultValue: 1,
+            }),
+        },
+        processGitSubmission: {
+            maxSteps: parseEnvInt({
+                key: "JOB_PROCESS_GIT_SUBMISSION_MAX_STEPS",
+                defaultValue: 5,
             }),
         },
         stalled: parseEnvMs({

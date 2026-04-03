@@ -1,5 +1,6 @@
 export * from "./challenge-not-found"
 export * from "./challenge-submission-not-found"
+export * from "./challenge-submission-submit-type-not-supported"
 export * from "./user-challenge-submission-not-found"
 export * from "./submission-url-invalid"
 export * from "./content-not-found"

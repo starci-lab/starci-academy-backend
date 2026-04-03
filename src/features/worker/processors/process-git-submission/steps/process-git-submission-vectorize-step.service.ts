@@ -24,6 +24,7 @@ import {
 } from "@modules/winston"
 import {
     ExtendedProcessGitSubmissionContext,
+    ProcessGitSubmissionSplitDocsStepExecuteResult,
     ProcessGitSubmissionVectorizeStepExecuteResult
 } from "../types"
 import {
@@ -108,14 +109,14 @@ export class ProcessGitSubmissionVectorizeStepService extends AbstractStepServic
         >,
     ): Promise<ProcessGitSubmissionVectorizeStepExecuteResult> {
         // load the chunks
-        const jsonChunks = await this.jobActionService.loadExecutionResult<Array<Document>>(
+        const executionResult = await this.jobActionService.loadExecutionResult<ProcessGitSubmissionSplitDocsStepExecuteResult>(
             {
                 job: context.job,
                 key: this.processGitSubmissionSplitDocsStepService.stepName,
             }
         )
         // convert the chunks to documents
-        const chunks = jsonChunks.map((chunk) => new Document(
+        const chunks = executionResult.chunks.map((chunk) => new Document(
             {
                 pageContent: chunk.pageContent,
                 metadata: chunk.metadata,
