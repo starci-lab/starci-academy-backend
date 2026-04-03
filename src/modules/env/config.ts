@@ -413,10 +413,7 @@ export const envConfig = () => ({
                  */
                 synchronize: parseEnvBoolean({
                     key: "POSTGRESQL_PRIMARY_SYNCHRONIZE",
-                    defaultValue: parseEnvString({
-                        key: "NODE_ENV",
-                        defaultValue: "development",
-                    }) !== "production",
+                    defaultValue: true,
                 }),
             },
         },
