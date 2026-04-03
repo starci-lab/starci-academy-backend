@@ -49,4 +49,4 @@ jobs:
           CORS_ORIGIN_1: ${{ vars.CORS_ORIGIN_1 }}
         run: |
           docker compose -f apps/core/vps-compose.yaml down || true
-          docker compose -f apps/core/vps-compose.yaml up --build -d
+          docker compose -f apps/core/vps-compose.yaml up --build -d 
