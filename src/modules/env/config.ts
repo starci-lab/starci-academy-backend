@@ -454,11 +454,11 @@ export const envConfig = () => ({
         }),
         region: parseEnvString({
             key: "S3_REGION",
-            defaultValue: "",
+            defaultValue: "sgp1",
         }),
         accessKeyId: parseEnvString({
             key: "S3_ACCESS_KEY_ID",
-            defaultValue: "",
+            defaultValue: "DO00GFR73437G09734790",
         }),
         secretAccessKey: parseEnvString({
             key: "S3_SECRET_ACCESS_KEY",

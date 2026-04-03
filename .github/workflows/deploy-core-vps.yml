@@ -46,6 +46,7 @@ jobs:
           REDIS_CACHE_PORT: ${{ secrets.REDIS_CACHE_PORT }}
           REDIS_CACHE_PASSWORD: ${{ secrets.REDIS_CACHE_PASSWORD }}
 
+          CORS_ORIGIN_1: ${{ vars.CORS_ORIGIN_1 }}
         run: |
           docker compose -f apps/core/vps-compose.yaml down || true
           docker compose -f apps/core/vps-compose.yaml up --build -d
