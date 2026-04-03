@@ -4,6 +4,8 @@ services:
     build:
       context: ../..
       dockerfile: apps/core/Dockerfile
+    ports:
+      - "${CORE_PORT}:${CORE_PORT}"
     environment:
       # PostgreSQL
       POSTGRESQL_PRIMARY_HOST: ${POSTGRESQL_PRIMARY_HOST}
