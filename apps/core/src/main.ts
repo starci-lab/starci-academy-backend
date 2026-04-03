@@ -68,6 +68,6 @@ const bootstrap = async () => {
     redisIoAdapter.setClient(redis)
     await redisIoAdapter.connect()
     app.useWebSocketAdapter(redisIoAdapter)
-    await app.listen(envConfig().services.api.port)
+    await app.listen(envConfig().services.core.port)
 }
 bootstrap()

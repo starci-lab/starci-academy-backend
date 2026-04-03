@@ -24,6 +24,12 @@ export const envConfig = () => ({
     ) === "production",
     /** Services configuration. */
     services: {
+        core: {
+            port: parseEnvInt({
+                key: "CORE_PORT",
+                defaultValue: 3001,
+            }),
+        },
         /** API service configuration. */
         api: {
             /** Transaction configuration. */
