@@ -8,7 +8,7 @@ import {
 } from "@modules/databases"
 
 /**
- * Applies translations to a challenge and nested inputs, steps, references.
+ * Applies translations to a challenge and nested steps and references.
  */
 @Injectable()
 export class ChallengeTransformerService {
@@ -30,10 +30,10 @@ export class ChallengeTransformerService {
                 fallbackLocale: challengeFallback,
             },
         )
-        challenge.brief = this.translationResolver.resolve(
+        challenge.prerequisites = this.translationResolver.resolve(
             {
                 translations: challenge.translations,
-                field: "brief",
+                field: "prerequisites",
                 locale,
                 fallbackLocale: challengeFallback,
             },
@@ -46,20 +46,6 @@ export class ChallengeTransformerService {
                 fallbackLocale: challengeFallback,
             },
         )
-        if (challenge.inputs?.length) {
-            challenge.inputs = challenge.inputs.map((input) => {
-                const inputFallback = input.defaultLocale ?? challengeFallback
-                input.description = this.translationResolver.resolve(
-                    {
-                        translations: input.translations,
-                        field: "description",
-                        locale,
-                        fallbackLocale: inputFallback,
-                    },
-                )
-                return input
-            })
-        }
         if (challenge.steps?.length) {
             challenge.steps = challenge.steps.map((step) => {
                 const stepFallback = step.defaultLocale ?? challengeFallback
@@ -71,15 +57,7 @@ export class ChallengeTransformerService {
                         fallbackLocale: stepFallback,
                     },
                 )
-                step.description = this.translationResolver.resolve(
-                    {
-                        translations: step.translations,
-                        field: "description",
-                        locale,
-                        fallbackLocale: stepFallback,
-                    },
-                )
-                const translatedBody = this.translationResolver.resolve(
+                step.body = this.translationResolver.resolve(
                     {
                         translations: step.translations,
                         field: "body",
@@ -87,9 +65,6 @@ export class ChallengeTransformerService {
                         fallbackLocale: stepFallback,
                     },
                 )
-                step.body = translatedBody !== ""
-                    ? translatedBody
-                    : step.body
                 return step
             })
         }

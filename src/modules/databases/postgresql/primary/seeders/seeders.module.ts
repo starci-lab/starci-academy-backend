@@ -29,9 +29,6 @@ import {
     LessonVideoService,
 } from "./courses/lesson-video.service"
 import {
-    ChallengeInputService,
-} from "./courses/challenge-input.service"
-import {
     ChallengeStepService,
 } from "./courses/challenge-step.service"
 import {
@@ -68,7 +65,6 @@ import {
         ContentService,
         ContentReferenceService,
         LessonVideoService,
-        ChallengeInputService,
         ChallengeStepService,
         ChallengeReferenceService,
         ChallengeSubmissionService,
@@ -87,7 +83,6 @@ import {
         ContentService,
         ContentReferenceService,
         LessonVideoService,
-        ChallengeInputService,
         ChallengeStepService,
         ChallengeReferenceService,
         ChallengeSubmissionService,

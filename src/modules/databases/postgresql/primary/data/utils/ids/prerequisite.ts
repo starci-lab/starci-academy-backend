@@ -5,6 +5,9 @@ import type {
     CourseId,
 } from "./course-id"
 import {
+    buildCourseId,
+} from "./course"
+import {
     COURSE_UUID_NAMESPACE,
 } from "./namespace"
 
@@ -29,7 +32,9 @@ export interface BuildPrerequisiteIdParams {
  */
 export const buildPrerequisiteId = (params: BuildPrerequisiteIdParams) => {
     return uuidv5(
-        `${params.courseId}-prerequisite-${params.prerequisiteIndex}`,
+        `${buildCourseId({
+            courseId: params.courseId,
+        })}-prerequisite-${params.prerequisiteIndex}`,
         COURSE_UUID_NAMESPACE,
     )
 }

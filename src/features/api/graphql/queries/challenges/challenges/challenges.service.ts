@@ -68,7 +68,6 @@ export class ChallengesService {
                 order,
                 relations: {
                     translations: true,
-                    inputs: true,
                     steps: true,
                 },
                 take: limit,

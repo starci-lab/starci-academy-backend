@@ -52,15 +52,15 @@ export class ChallengeSubmissionEntity extends UuidAbstractEntity {
     @Field(
         () => String,
         {
-            description: "Submission name/title.",
+            description: "Submission title.",
         },
     )
     @Column({
-        name: "name",
+        name: "title",
         type: "varchar",
         length: 500,
     })
-        name: string
+        title: string
 
     @Field(
         () => String,

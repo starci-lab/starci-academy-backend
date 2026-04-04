@@ -17,13 +17,16 @@ import {
     buildValuePropositionId,
     buildPrerequisiteId,
     buildQnaId,
+    buildCourseId,
 } from "../../utils"
 
 /**
  * Fullstack Mastery course data.
  */
 export const fullstackMasteryCourse: DeepPartial<CourseEntity> = {
-    id: CourseId.FullstackMastery,
+    id: buildCourseId({
+        courseId: CourseId.FullstackMastery,
+    }),
     title: "Fullstack Mastery",
     displayId: "fullstack-mastery",
     slug: "fullstack-mastery",
@@ -32,13 +35,17 @@ export const fullstackMasteryCourse: DeepPartial<CourseEntity> = {
         "Build strong fundamentals, practical skills, and an engineering mindset to land your first internship or Fresher/Junior Developer role. Learn fullstack development from frontend to backend with real-world focus.",
     translations: [
         {
-            courseId: CourseId.FullstackMastery,
+            courseId: buildCourseId({
+                courseId: CourseId.FullstackMastery,
+            }),
             locale: Locale.Vi,
             field: "title",
             value: "Fullstack Mastery",
         },
         {
-            courseId: CourseId.FullstackMastery,
+            courseId: buildCourseId({
+                courseId: CourseId.FullstackMastery,
+            }),
             locale: Locale.Vi,
             field: "description",
             value:

@@ -44,9 +44,6 @@ export class ChallengeQueryService {
                 },
                 relations: {
                     translations: true,
-                    inputs: {
-                        translations: true,
-                    },
                     steps: {
                         translations: true,
                     },

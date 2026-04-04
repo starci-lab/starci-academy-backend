@@ -26,9 +26,6 @@ import {
     ChallengeTranslationEntity,
 } from "./challenge-translation.entity"
 import {
-    ChallengeInputEntity,
-} from "./challenge-input.entity"
-import {
     ChallengeReferenceEntity,
 } from "./challenge-reference.entity"
 import {
@@ -42,10 +39,10 @@ import {
 } from "./challenge-submission.entity"
 
 /**
- * Hands-on challenge attached to a module (title, brief, description, ordered inputs).
+ * Hands-on challenge attached to a module (title, prerequisites, description, steps, references).
  */
 @ObjectType({
-    description: "Challenge attached to a module with localized copy and inputs.",
+    description: "Challenge attached to a module with localized copy, steps, and references.",
 })
 @Entity("challenges")
 export class ChallengeEntity extends UuidAbstractEntity {
@@ -66,34 +63,52 @@ export class ChallengeEntity extends UuidAbstractEntity {
         title: string
 
     /**
-     * Short summary in Markdown, shown before the full description.
+     * Challenge prerequisites (Markdown).
      */
     @Field(
         () => String,
         {
-            description: "Short challenge brief (Markdown).",
+            description: "Challenge prerequisites (Markdown).",
         },
     )
     @Column({
-        name: "brief",
+        name: "prerequisites",
         type: "text",
+        default: "",
     })
-        brief: string
+        prerequisites: string
 
     /**
-     * Full challenge description (e.g. instructions, markdown).
+     * Challenge description.
      */
     @Field(
         () => String,
         {
-            description: "Full challenge description (Markdown supported).",
+            description: "Challenge description.",
         },
     )
     @Column({
         name: "description",
         type: "text",
+        default: "",
     })
         description: string
+
+    /**
+     * Challenge requirements (e.g. instructions, markdown).
+     */
+    @Field(
+        () => String,
+        {
+            description: "Challenge requirements (Markdown).",
+        },
+    )
+    @Column({
+        name: "requirements",
+        type: "text",
+        default: "",
+    })
+        requirements: string
 
     /**
      * Points awarded when the challenge is completed successfully.
@@ -181,24 +196,6 @@ export class ChallengeEntity extends UuidAbstractEntity {
         name: "module_id",
     })
         module: ModuleEntity
-
-    /**
-     * Ordered inputs for this challenge.
-     */
-    @Field(
-        () => [ChallengeInputEntity],
-        {
-            description: "Ordered inputs belonging to this challenge.",
-        },
-    )
-    @OneToMany(
-        () => ChallengeInputEntity,
-        (input: ChallengeInputEntity) => input.challenge,
-        {
-            cascade: true,
-        },
-    )
-        inputs: Array<ChallengeInputEntity>
 
     /**
      * Ordered instruction steps.

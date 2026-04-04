@@ -1,5 +1,4 @@
 import type {
-    ChallengeInputTranslationEntity,
     ChallengeReferenceTranslationEntity,
     ChallengeSubmissionTranslationEntity,
     ChallengeStepTranslationEntity,
@@ -37,12 +36,6 @@ export const challengeTranslationKey = (
     t: Pick<ChallengeTranslationEntity, "challengeId" | "locale" | "field">,
 ): string => {
     return `${t.challengeId}:${t.locale}:${t.field}`
-}
-
-export const challengeInputTranslationKey = (
-    t: Pick<ChallengeInputTranslationEntity, "challengeInputId" | "locale" | "field">,
-): string => {
-    return `${t.challengeInputId}:${t.locale}:${t.field}`
 }
 
 export const challengeStepTranslationKey = (

@@ -17,9 +17,6 @@ import {
 } from "./utils"
 import _ from "lodash"
 import {
-    ChallengeInputService,
-} from "./challenge-input.service"
-import {
     ChallengeReferenceService,
 } from "./challenge-reference.service"
 import {
@@ -35,7 +32,6 @@ import {
 @Injectable()
 export class ChallengeService {
     constructor(
-        private readonly challengeInputService: ChallengeInputService,
         private readonly challengeStepService: ChallengeStepService,
         private readonly challengeReferenceService: ChallengeReferenceService,
         private readonly challengeSubmissionService: ChallengeSubmissionService,
@@ -127,13 +123,6 @@ export class ChallengeService {
             {
                 previous: previous.translations ?? [],
                 updated: updated.translations ?? [],
-                entityManager,
-            },
-        )
-        await this.challengeInputService.updateChallengeInputs(
-            {
-                previous: previous.inputs ?? [],
-                updated: updated.inputs ?? [],
                 entityManager,
             },
         )

@@ -5,6 +5,9 @@ import type {
     CourseId,
 } from "./course-id"
 import {
+    buildCourseId,
+} from "./course"
+import {
     COURSE_UUID_NAMESPACE,
 } from "./namespace"
 
@@ -29,7 +32,9 @@ export interface BuildQnaIdParams {
  */
 export const buildQnaId = (params: BuildQnaIdParams) => {
     return uuidv5(
-        `${params.courseId}-qna-${params.qnaIndex}`,
+        `${buildCourseId({
+            courseId: params.courseId,
+        })}-qna-${params.qnaIndex}`,
         COURSE_UUID_NAMESPACE,
     )
 }

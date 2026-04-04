@@ -145,10 +145,10 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                     prompt,
                     index,
                 ) => {
-                    const label = prompt.name
-                        ? ` (${prompt.name})`
+                    const label = prompt.titleEn
+                        ? ` (${prompt.titleEn})`
                         : ""
-                    return `### Criterion ${index + 1}${label}\n${prompt.promptEn}`
+                    return `### Criterion ${index + 1}${label}\n${prompt.textEn}`
                 },
             )
             .join("\n\n")

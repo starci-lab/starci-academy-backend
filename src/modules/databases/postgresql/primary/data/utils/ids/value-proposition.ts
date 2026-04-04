@@ -5,6 +5,9 @@ import type {
     CourseId,
 } from "./course-id"
 import {
+    buildCourseId,
+} from "./course"
+import {
     COURSE_UUID_NAMESPACE,
 } from "./namespace"
 
@@ -29,7 +32,9 @@ export interface BuildValuePropositionIdParams {
  */
 export const buildValuePropositionId = (params: BuildValuePropositionIdParams) => {
     return uuidv5(
-        `${params.courseId}-value-proposition-${params.valuePropositionIndex}`,
+        `${buildCourseId({
+            courseId: params.courseId,
+        })}-value-proposition-${params.valuePropositionIndex}`,
         COURSE_UUID_NAMESPACE,
     )
 }

@@ -45,18 +45,6 @@ export class ChallengeStepEntity extends UuidAbstractEntity {
     })
         title: string
 
-    @Field(
-        () => String,
-        {
-            description: "Short step summary (plain text); use `body` for Markdown.",
-        },
-    )
-    @Column({
-        name: "description",
-        type: "text",
-    })
-        description: string
-
     /**
      * Main step content as Markdown.
      */
