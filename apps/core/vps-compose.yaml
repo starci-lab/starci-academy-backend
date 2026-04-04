@@ -36,5 +36,8 @@ services:
       CORS_ORIGIN_1: ${CORS_ORIGIN_1} 
 
       CORE_PORT: ${CORE_PORT}
+
+      KEYCLOAK_URL: ${KEYCLOAK_URL}
+      KEYCLOAK_REDIRECT_URI: ${KEYCLOAK_REDIRECT_URI}
     volumes:
       - /root/academy/.mount:/usr/src/app/.mount
