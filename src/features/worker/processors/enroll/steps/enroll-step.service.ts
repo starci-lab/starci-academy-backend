@@ -103,9 +103,6 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                         relations: {
                             pricingPhases: true,
                         },
-                        lock: {
-                            mode: "pessimistic_write" 
-                        },
                     }
                 )
                 // throw error if course not found
