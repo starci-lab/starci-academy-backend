@@ -100,6 +100,9 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                         where: {
                             id: courseId 
                         },
+                        relations: {
+                            pricingPhases: true,
+                        },
                         lock: {
                             mode: "pessimistic_write" 
                         },
