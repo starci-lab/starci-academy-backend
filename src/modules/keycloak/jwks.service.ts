@@ -135,7 +135,8 @@ export class KeycloakJwksService {
                 username: claims.preferred_username,
                 email: claims.email,
             }
-        } catch {
+        } catch (error) {
+            console.error(error)
             return {
                 active: false,
             }
