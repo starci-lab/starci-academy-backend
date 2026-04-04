@@ -49,7 +49,7 @@ jobs:
           CORS_ORIGIN_1: ${{ vars.CORS_ORIGIN_1 }}
 
           CORE_PORT: ${{ vars.CORE_PORT }}
-
+ 
           KEYCLOAK_URL: ${{ secrets.KEYCLOAK_URL }}
           KEYCLOAK_REDIRECT_URI: ${{ secrets.KEYCLOAK_REDIRECT_URI }}
         run: |
