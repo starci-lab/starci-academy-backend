@@ -14,11 +14,13 @@ import {
 export const createCorsOptions = (): CorsOptions => ({
     origin: envConfig().cors.origins,
     credentials: true,
-    methods: ["GET",
+    methods: [
+        "GET",
         "POST",
         "PUT",
         "DELETE",
-        "OPTIONS"],
+        "OPTIONS"
+    ],
 })
 
 /**

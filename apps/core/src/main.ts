@@ -42,6 +42,7 @@ const bootstrap = async () => {
     )
     // set the app to the globalThis object
     globalThis.__APP__ = app
+    console.log(envConfig().cors.origins)
     setupCors(app)
     setupSwagger({
         app,
