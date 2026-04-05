@@ -1,6 +1,7 @@
 import {
     Field,
     Float,
+    ID,
     Int,
     ObjectType,
 } from "@nestjs/graphql"
@@ -43,6 +44,18 @@ export class PricingPhaseEntity extends UuidAbstractEntity {
         name: "course_id",
     })
         course: CourseEntity
+
+    @Field(
+        () => ID,
+        {
+            description: "Parent course ID.",
+        },
+    )
+    @Column({
+        name: "course_id",
+        type: "uuid",
+    })
+        courseId: string
 
     /**
      * Tier key (pioneer, earlybird, regular).

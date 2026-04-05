@@ -1,5 +1,6 @@
 import {
     Field,
+    ID,
     Int,
     ObjectType,
 } from "@nestjs/graphql"
@@ -119,7 +120,21 @@ export class ContentReferenceEntity extends UuidAbstractEntity {
         content: ContentEntity
 
     /**
-     * Localized overrides for `alias` only (`field`: alias).
+     * Parent content ID.
+     */
+    @Field(
+        () => ID,
+        {
+            description: "Parent content ID.",
+        },
+    )
+    @Column({
+        name: "content_id",
+        type: "uuid",
+    })
+        contentId: string
+
+    /**
      */
     @Field(
         () => [ContentReferenceTranslationEntity],

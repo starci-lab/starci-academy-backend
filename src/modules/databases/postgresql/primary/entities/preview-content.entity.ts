@@ -1,5 +1,6 @@
 import {
     Field,
+    ID,
     Int,
     ObjectType,
 } from "@nestjs/graphql"
@@ -100,6 +101,21 @@ export class PreviewContentEntity extends UuidAbstractEntity {
         name: "module_id",
     })
         module: ModuleEntity
+
+    /**
+     * Parent module ID.
+     */
+    @Field(
+        () => ID,
+        {
+            description: "Parent module ID.",
+        },
+    )
+    @Column({
+        name: "module_id",
+        type: "uuid",
+    })
+        moduleId: string
 
     /**
      * Localized translations for fields such as `data`.

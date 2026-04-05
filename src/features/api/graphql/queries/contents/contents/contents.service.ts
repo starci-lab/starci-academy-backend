@@ -1,5 +1,6 @@
 import {
     ContentEntity,
+    ContentReferenceEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
 } from "@modules/databases"
@@ -55,7 +56,7 @@ export class ContentsService {
             order[sort.by as ContentsSortBy] = sort.order
         }
         const [
-            rows,
+            contents,
             count,
         ] = await this.entityManager.findAndCount(
             ContentEntity,
@@ -76,17 +77,30 @@ export class ContentsService {
                 skip: pageNumber * limit,
             },
         )
-        for (const content of rows) {
-            const fallbackLocale = content.defaultLocale ?? Locale.En
+        for (const content of contents) {
+            content.references = await this.entityManager.find(
+                ContentReferenceEntity,
+                {
+                    where: {
+                        contentId: content.id,
+                    },
+                    relations: {
+                        translations: true,
+                    },
+                    order: {
+                        orderIndex: "ASC",
+                    },
+                },
+            )
             this.contentTransformer.transform(
                 content,
                 locale,
-                fallbackLocale,
+                content.defaultLocale ?? Locale.En,
             )
         }
         return {
             count,
-            data: rows,
+            data: contents,
         }
     }
 }

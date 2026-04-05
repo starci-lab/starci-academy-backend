@@ -1,5 +1,6 @@
 import {
     ChallengeEntity,
+    ChallengeStepEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
 } from "@modules/databases"
@@ -55,7 +56,7 @@ export class ChallengesService {
             order[sort.by as ChallengesSortBy] = sort.order
         }
         const [
-            rows,
+            challenges,
             count,
         ] = await this.entityManager.findAndCount(
             ChallengeEntity,
@@ -68,23 +69,35 @@ export class ChallengesService {
                 order,
                 relations: {
                     translations: true,
-                    steps: true,
                 },
                 take: limit,
                 skip: pageNumber * limit,
             },
         )
-        for (const challenge of rows) {
-            const fallbackLocale = challenge.defaultLocale ?? Locale.En
+        for (const challenge of challenges) {
+            challenge.steps = await this.entityManager.find(
+                ChallengeStepEntity,
+                {
+                    where: {
+                        challengeId: challenge.id,
+                    },
+                    relations: {
+                        translations: true,
+                    },
+                    order: {
+                        orderIndex: "ASC",
+                    },
+                },
+            )
             this.challengeTransformer.transform(
                 challenge,
                 locale,
-                fallbackLocale,
+                challenge.defaultLocale ?? Locale.En,
             )
         }
         return {
             count,
-            data: rows,
+            data: challenges,
         }
     }
 }

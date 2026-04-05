@@ -1,6 +1,12 @@
 import {
     CourseEntity,
     InjectPrimaryPostgreSQLEntityManager,
+    ModuleEntity,
+    PreviewContentEntity,
+    PricingPhaseEntity,
+    PrerequisiteEntity,
+    QnaEntity,
+    ValuePropositionEntity,
 } from "@modules/databases"
 import {
     CourseNotFoundException,
@@ -54,34 +60,14 @@ export class CourseService {
             {
                 where: {
                     ...(id && {
-                        id 
+                        id,
                     }),
                     ...(displayId && {
-                        displayId 
+                        displayId,
                     }),
                 },
-                /**
-                 * Nested relations load children in one query tree (not entity `cascade`,
-                 * which only applies to persist operations).
-                 */
                 relations: {
                     translations: true,
-                    prerequisites: {
-                        translations: true,
-                    },
-                    valuePropositions: {
-                        translations: true,
-                    },
-                    qnas: {
-                        translations: true,
-                    },
-                    pricingPhases: true,
-                    modules: {
-                        translations: true,
-                        previewContents: {
-                            translations: true,
-                        },
-                    },
                 },
             },
         )
@@ -90,22 +76,106 @@ export class CourseService {
                 {
                     ...(
                         id && {
-                            id 
+                            id,
                         }
                     ),
                     ...(
                         displayId && {
-                            displayId 
+                            displayId,
                         }
                     ),
-                }
+                },
             )
         }
-        for (const mod of course.modules ?? []) {
-            mod.contents = []
-            mod.lessonVideos = []
-            mod.challenges = []
+        const courseId = course.id
+        const prerequisites = await this.entityManager.find(
+            PrerequisiteEntity,
+            {
+                where: {
+                    courseId,
+                },
+                relations: {
+                    translations: true,
+                },
+                order: {
+                    orderIndex: "ASC",
+                },
+            },
+        )
+        const valuePropositions = await this.entityManager.find(
+            ValuePropositionEntity,
+            {
+                where: {
+                    courseId,
+                },
+                relations: {
+                    translations: true,
+                },
+                order: {
+                    orderIndex: "ASC",
+                },
+            },
+        )
+        const qnas = await this.entityManager.find(
+            QnaEntity,
+            {
+                where: {
+                    courseId,
+                },
+                relations: {
+                    translations: true,
+                },
+                order: {
+                    orderIndex: "ASC",
+                },
+            },
+        )
+        const pricingPhases = await this.entityManager.find(
+            PricingPhaseEntity,
+            {
+                where: {
+                    courseId,
+                },
+                order: {
+                    orderIndex: "ASC",
+                },
+            },
+        )
+        const modules = await this.entityManager.find(
+            ModuleEntity,
+            {
+                where: {
+                    courseId,
+                },
+                relations: {
+                    translations: true,
+                },
+                order: {
+                    orderIndex: "ASC",
+                },
+            },
+        )
+        for (const module of modules) {
+            module.previewContents = await this.entityManager.find(
+                PreviewContentEntity,
+                {
+                    where: {
+                        moduleId: module.id,
+                    },
+                    relations: {
+                        translations: true,
+                    },
+                    order: {
+                        orderIndex: "ASC",
+                    },
+                },
+            )
         }
+        course.prerequisites = prerequisites
+        course.valuePropositions = valuePropositions
+        course.qnas = qnas
+        course.pricingPhases = pricingPhases
+        course.modules = modules
         return this.courseTransformer.transform(
             course,
             locale,

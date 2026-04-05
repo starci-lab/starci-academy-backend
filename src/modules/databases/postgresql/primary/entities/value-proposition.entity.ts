@@ -18,6 +18,7 @@ import {
 } from "./value-proposition-translation.entity"
 import {
     Field,
+    ID,
     Int,
     ObjectType,
 } from "@nestjs/graphql"
@@ -96,6 +97,18 @@ export class ValuePropositionEntity extends UuidAbstractEntity {
         name: "course_id",
     })
         course: CourseEntity
+
+    @Field(
+        () => ID,
+        {
+            description: "Parent course ID.",
+        },
+    )
+    @Column({
+        name: "course_id",
+        type: "uuid",
+    })
+        courseId: string
 
     /**
      * Localized translations of value proposition fields such as content.

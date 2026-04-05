@@ -1,5 +1,5 @@
 import {
-    Field, Int, ObjectType 
+    Field, ID, Int, ObjectType 
 } from "@nestjs/graphql"
 import {
     GraphQLTypeLocale,
@@ -135,6 +135,18 @@ export class ModuleEntity extends UuidAbstractEntity {
         name: "course_id"
     })
         course: CourseEntity
+
+    @Field(
+        () => ID,
+        {
+            description: "Parent course ID.",
+        },
+    )
+    @Column({
+        name: "course_id",
+        type: "uuid",
+    })
+        courseId: string
 
     /**
      * Ordered contents attached to the module.

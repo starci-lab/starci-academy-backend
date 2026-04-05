@@ -1,5 +1,5 @@
 import {
-    Field, Int, ObjectType
+    Field, ID, Int, ObjectType
 } from "@nestjs/graphql"
 import {
     GraphQLTypeLocale,
@@ -102,6 +102,18 @@ export class QnaEntity extends UuidAbstractEntity {
         name: "course_id"
     })
         course: CourseEntity
+
+    @Field(
+        () => ID,
+        {
+            description: "Parent course ID.",
+        },
+    )
+    @Column({
+        name: "course_id",
+        type: "uuid",
+    })
+        courseId: string
 
     /**
      * Localized translations of Q&A fields such as question and answer.

@@ -1,7 +1,8 @@
 import {
     ChallengeEntity,
+    ChallengeReferenceEntity,
+    ChallengeStepEntity,
     InjectPrimaryPostgreSQLEntityManager,
-    Locale,
 } from "@modules/databases"
 import {
     ChallengeNotFoundException,
@@ -12,8 +13,8 @@ import {
 import {
     ChallengeTransformerService,
 } from "../../../utils"
-import type {
-    EntityManager,
+import {
+    type EntityManager,
 } from "typeorm"
 import type {
     ChallengeRequest,
@@ -22,6 +23,9 @@ import type {
     ExecuteParams,
 } from "../../../../types"
 
+/**
+ * Service for querying challenges.
+ */
 @Injectable()
 export class ChallengeQueryService {
     constructor(
@@ -30,6 +34,13 @@ export class ChallengeQueryService {
         private readonly challengeTransformer: ChallengeTransformerService,
     ) {}
 
+    /**
+     * Entry: returns one challenge by primary id.
+     *
+     * @param request - Wrapper with challenge id
+     * @param request.id - Challenge id
+     * @throws {ChallengeNotFoundException} When no challenge exists for `id`.
+     */
     async execute(
         {
             request,
@@ -44,12 +55,6 @@ export class ChallengeQueryService {
                 },
                 relations: {
                     translations: true,
-                    steps: {
-                        translations: true,
-                    },
-                    references: {
-                        translations: true,
-                    },
                 },
             },
         )
@@ -60,11 +65,41 @@ export class ChallengeQueryService {
                 },
             )
         }
-        const moduleFallbackLocale = challenge.defaultLocale ?? Locale.En
+        const challengeId = challenge.id
+        const steps = await this.entityManager.find(
+            ChallengeStepEntity,
+            {
+                where: {
+                    challengeId,
+                },
+                relations: {
+                    translations: true,
+                },
+                order: {
+                    orderIndex: "ASC",
+                },
+            },
+        )
+        const references = await this.entityManager.find(
+            ChallengeReferenceEntity,
+            {
+                where: {
+                    challengeId,
+                },
+                relations: {
+                    translations: true,
+                },
+                order: {
+                    orderIndex: "ASC",
+                },
+            },
+        )
+        challenge.steps = steps
+        challenge.references = references
         this.challengeTransformer.transform(
             challenge,
             locale,
-            moduleFallbackLocale,
+            challenge.defaultLocale,
         )
         return challenge
     }

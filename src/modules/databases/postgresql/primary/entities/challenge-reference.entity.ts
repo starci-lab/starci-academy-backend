@@ -1,5 +1,6 @@
 import {
     Field,
+    ID,
     Int,
     ObjectType,
 } from "@nestjs/graphql"
@@ -104,6 +105,18 @@ export class ChallengeReferenceEntity extends UuidAbstractEntity {
         name: "challenge_id",
     })
         challenge: ChallengeEntity
+
+    @Field(
+        () => ID,
+        {
+            description: "Parent challenge ID.",
+        },
+    )
+    @Column({
+        name: "challenge_id",
+        type: "uuid",
+    })
+        challengeId: string
 
     @Field(
         () => [ChallengeReferenceTranslationEntity],

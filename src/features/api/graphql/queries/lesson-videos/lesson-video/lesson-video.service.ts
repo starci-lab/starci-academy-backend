@@ -33,6 +33,13 @@ export class LessonVideoQueryService {
         private readonly lessonVideoTransformer: LessonVideoTransformerService,
     ) {}
 
+    /**
+     * Entry: returns one lesson video by primary id.
+     *
+     * @param request - Wrapper with lesson video id
+     * @param request.id - Lesson video id
+     * @throws {LessonVideoNotFoundException} When no lesson video exists for `id`.
+     */
     async execute(
         {
             request,
@@ -57,11 +64,10 @@ export class LessonVideoQueryService {
                 },
             )
         }
-        const fallbackLocale = lessonVideo.defaultLocale ?? Locale.En
         this.lessonVideoTransformer.transform(
             lessonVideo,
             locale,
-            fallbackLocale,
+            lessonVideo.defaultLocale ?? Locale.En,
         )
         return lessonVideo
     }

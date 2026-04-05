@@ -1,5 +1,6 @@
 import {
     ContentEntity,
+    ContentReferenceEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
 } from "@modules/databases"
@@ -22,6 +23,9 @@ import type {
     ExecuteParams,
 } from "../../../../types"
 
+/**
+ * Service for querying content.
+ */
 @Injectable()
 export class ContentQueryService {
     constructor(
@@ -30,6 +34,13 @@ export class ContentQueryService {
         private readonly contentTransformer: ContentTransformerService,
     ) {}
 
+    /**
+     * Entry: returns one content by primary id.
+     *
+     * @param request - Wrapper with content id
+     * @param request.id - Content id
+     * @throws {ContentNotFoundException} When no content exists for `id`.
+     */
     async execute(
         {
             request,
@@ -44,9 +55,6 @@ export class ContentQueryService {
                 },
                 relations: {
                     translations: true,
-                    references: {
-                        translations: true,
-                    },
                 },
             },
         )
@@ -57,11 +65,24 @@ export class ContentQueryService {
                 },
             )
         }
-        const fallbackLocale = content.defaultLocale ?? Locale.En
+        content.references = await this.entityManager.find(
+            ContentReferenceEntity,
+            {
+                where: {
+                    contentId: content.id,
+                },
+                relations: {
+                    translations: true,
+                },
+                order: {
+                    orderIndex: "ASC",
+                },
+            },
+        )
         this.contentTransformer.transform(
             content,
             locale,
-            fallbackLocale,
+            content.defaultLocale ?? Locale.En,
         )
         return content
     }
