@@ -11,7 +11,8 @@ import {
     EntityManager 
 } from "typeorm"
 import {
-    CoursesService,
+    CourseParserService,
+    CoursesUpdaterService,
 } from "./courses"
 import {
     InjectPrimaryPostgreSQLEntityManager 
@@ -19,9 +20,6 @@ import {
 import {
     CourseEntity 
 } from "@modules/databases"
-import {
-    seedCourses 
-} from "../data"
 
 /**
  * The service for the Seeders.
@@ -34,7 +32,8 @@ export class SeedersService implements OnModuleInit {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
-        private readonly coursesService: CoursesService,
+        private readonly coursesUpdaterService: CoursesUpdaterService,
+        private readonly courseParserService: CourseParserService,
     ) { }
 
     /**
@@ -46,8 +45,12 @@ export class SeedersService implements OnModuleInit {
         await this.entityManager.transaction(
             async (entityManager) => {
                 const previousCourses = await entityManager.find(CourseEntity)
-                const updatedCourses = seedCourses
-                await this.coursesService.updateCourses(
+                const updatedCourses = this.courseParserService.parse(
+                    {
+                        courseIndex: 0,
+                    }
+                )
+                await this.coursesUpdaterService.updateCourses(
                     {
                         previous: previousCourses,
                         updated: updatedCourses as Array<CourseEntity>,

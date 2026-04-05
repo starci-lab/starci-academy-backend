@@ -1,97 +1,118 @@
 import {
-    Module 
+    DynamicModule,
+    Module,
 } from "@nestjs/common"
+import {
+    ExtractBlockService,
+    ExtractBulletListItemsService,
+    ExtractQnaItemsService,
+    ExtractReferencesService,
+    ExtractStepsService,
+    ExtractSubmissionsService,
+    ChallengeIdFactoryService,
+    ChallengePromptIdFactoryService,
+    ChallengeReferenceIdFactoryService,
+    ChallengeStepIdFactoryService,
+    ChallengeSubmissionIdFactoryService,
+    ContentIdFactoryService,
+    ContentReferenceIdFactoryService,
+    CourseIdFactoryService,
+    LessonVideoIdFactoryService,
+    ModuleIdFactoryService,
+    PrerequisiteIdFactoryService,
+    PreviewContentIdFactoryService,
+    PricingPhaseIdFactoryService,
+    QnaIdFactoryService,
+    ValuePropositionIdFactoryService,
+    ChallengeParserService,
+    ContentParserService,
+    CourseParserService,
+    LessonVideoParserService,
+    ModuleParserService,
+    ChallengePromptUpdaterService,
+    ChallengeReferenceUpdaterService,
+    ChallengeStepUpdaterService,
+    ChallengeSubmissionUpdaterService,
+    ChallengeUpdaterService,
+    ContentReferenceUpdaterService,
+    ContentUpdaterService,
+    CoursesUpdaterService,
+    LessonVideoUpdaterService,
+    ModuleUpdaterService,
+    PrerequisiteUpdaterService,
+    PreviewContentUpdaterService,
+    PricingPhaseUpdaterService,
+    QnaUpdaterService,
+    ValuePropositionUpdaterService,
+} from "./courses"
 import {
     SeedersService 
 } from "./seeders.service"
 import {
-    ConfigurableModuleClass 
+    ConfigurableModuleClass, OPTIONS_TYPE 
 } from "./seeders.module-definition"
-import {
-    CoursesService,
-} from "./courses"
-import {
-    QnaService,
-} from "./courses/qna.service"
-import {
-    PreviewContentService,
-} from "./courses/preview-content.service"
-import {
-    PrerequisiteService,
-} from "./courses/prerequisite.service"
-import {
-    ContentService,
-} from "./courses/content.service"
-import {
-    ContentReferenceService,
-} from "./courses/content-reference.service"
-import {
-    LessonVideoService,
-} from "./courses/lesson-video.service"
-import {
-    ChallengeStepService,
-} from "./courses/challenge-step.service"
-import {
-    ChallengeReferenceService,
-} from "./courses/challenge-reference.service"
-import {
-    ChallengeSubmissionService,
-} from "./courses/challenge-submission.service"
-import {
-    ChallengePromptService,
-} from "./courses/challenge-prompt.service"
-import {
-    ChallengeService,
-} from "./courses/challenge.service"
-import {
-    ModuleService,
-} from "./courses/module.service"
-import {
-    PricingPhaseService,
-} from "./courses/pricing-phase.service"
-import {
-    ValuePropositionService,
-} from "./courses/value-proposition.service"
+
 /**
- * The module for the Seeders.
+ * Module for the Seeders.
  */
 @Module({
-    providers: [
-        SeedersService,
-        CoursesService,
-        QnaService,
-        PreviewContentService,
-        PrerequisiteService,
-        ContentService,
-        ContentReferenceService,
-        LessonVideoService,
-        ChallengeStepService,
-        ChallengeReferenceService,
-        ChallengeSubmissionService,
-        ChallengePromptService,
-        ChallengeService,
-        ModuleService,
-        PricingPhaseService,
-        ValuePropositionService,
-    ],
-    exports: [
-        SeedersService,
-        CoursesService,
-        QnaService,
-        PreviewContentService,
-        PrerequisiteService,
-        ContentService,
-        ContentReferenceService,
-        LessonVideoService,
-        ChallengeStepService,
-        ChallengeReferenceService,
-        ChallengeSubmissionService,
-        ChallengePromptService,
-        ChallengeService,
-        ModuleService,
-        PricingPhaseService,
-        ValuePropositionService,
-    ]
 })
 export class SeedersModule extends ConfigurableModuleClass {
+    static register(options: typeof OPTIONS_TYPE): DynamicModule {
+        const providers = [
+            ExtractBlockService,
+            ExtractBulletListItemsService,
+            ExtractQnaItemsService,
+            ExtractReferencesService,
+            ExtractStepsService,
+            ExtractSubmissionsService,
+            CourseIdFactoryService,
+            ModuleIdFactoryService,
+            ContentIdFactoryService,
+            ContentReferenceIdFactoryService,
+            PreviewContentIdFactoryService,
+            PricingPhaseIdFactoryService,
+            ValuePropositionIdFactoryService,
+            PrerequisiteIdFactoryService,
+            QnaIdFactoryService,
+            LessonVideoIdFactoryService,
+            ChallengeIdFactoryService,
+            ChallengeStepIdFactoryService,
+            ChallengeReferenceIdFactoryService,
+            ChallengeSubmissionIdFactoryService,
+            ChallengePromptIdFactoryService,
+            CourseParserService,
+            ModuleParserService,
+            ContentParserService,
+            LessonVideoParserService,
+            ChallengeParserService,
+            CoursesUpdaterService,
+            QnaUpdaterService,
+            PreviewContentUpdaterService,
+            PrerequisiteUpdaterService,
+            ContentUpdaterService,
+            ContentReferenceUpdaterService,
+            LessonVideoUpdaterService,
+            ChallengeStepUpdaterService,
+            ChallengeReferenceUpdaterService,
+            ChallengeSubmissionUpdaterService,
+            ChallengePromptUpdaterService,
+            ChallengeUpdaterService,
+            ModuleUpdaterService,
+            PricingPhaseUpdaterService,
+            ValuePropositionUpdaterService,
+        ]
+        const dynamicModule = super.register(options)
+        return {
+            ...dynamicModule,
+            providers: [
+                ...dynamicModule.providers ?? [],
+                ...providers,
+                SeedersService
+            ],
+            exports: [
+                ...providers,
+            ],
+        }
+    }
 }

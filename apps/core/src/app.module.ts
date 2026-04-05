@@ -73,6 +73,9 @@ import {
 import {
     LangchainModule
 } from "@modules/langchain"
+import {
+    CryptoModule
+} from "@modules/crypto"
 /**
  * The main module for the application.
  */
@@ -111,6 +114,12 @@ import {
                 {
                     serviceName: ServiceName.Api,
                     level: WinstonLevel.Verbose,
+                    isGlobal: true,
+                }
+            ),
+            /** Crypto module. */
+            CryptoModule.register(
+                {
                     isGlobal: true,
                 }
             ),
