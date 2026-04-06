@@ -243,7 +243,9 @@ export class CourseParserService {
                             )
                         )
                         .flat()
+                    
                     return {
+                        courseId,
                         id: prerequisiteId,
                         defaultLocale,
                         text,
@@ -286,6 +288,7 @@ export class CourseParserService {
                             })))
                         .flat()
                     return {
+                        courseId,
                         id: valuePropositionId,
                         defaultLocale,
                         text,

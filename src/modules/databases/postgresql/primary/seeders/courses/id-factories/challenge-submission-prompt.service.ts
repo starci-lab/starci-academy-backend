@@ -8,54 +8,51 @@ import {
     envConfig,
 } from "@modules/env"
 import {
-    ChallengeIdFactoryService,
-} from "./challenge.service"
+    ChallengeSubmissionIdFactoryService,
+} from "./challenge-submission.service"
 import {
     v5 as uuidv5,
 } from "uuid"
 
 /**
- * Input for {@link ChallengePromptIdFactoryService.generate}.
+ * Input for {@link ChallengeSubmissionPromptIdFactoryService.generate}.
  */
-export interface GenerateChallengePromptIdParams {
-    /** Locates the parent challenge. */
+export interface GenerateChallengeSubmissionPromptIdParams {
     courseIndex: number
     moduleIndex: number
     challengeIndex: number
-    /** Zero-based LLM / grader prompt attached to the challenge. */
+    submissionIndex: number
     promptIndex: number
 }
 
 /**
- * Challenge prompt records; parent id is {@link ChallengeIdFactoryService}.
+ * Grading prompt rows; parent id is {@link ChallengeSubmissionIdFactoryService}.
  */
 @Injectable()
-export class ChallengePromptIdFactoryService {
+export class ChallengeSubmissionPromptIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,
-        private readonly challengeIdFactoryService: ChallengeIdFactoryService,
+        private readonly challengeSubmissionIdFactoryService: ChallengeSubmissionIdFactoryService,
     ) {}
 
-    /**
-     * @param params - Challenge coordinates plus prompt index.
-     * @returns UUID v5 string.
-     */
     generate(
         {
             courseIndex,
             moduleIndex,
             challengeIndex,
+            submissionIndex,
             promptIndex,
-        }: GenerateChallengePromptIdParams,
+        }: GenerateChallengeSubmissionPromptIdParams,
     ): string {
         return uuidv5(
             this.sha256Service.hash(
-                "challenge-prompt",
-                this.challengeIdFactoryService.generate(
+                "challenge-submission-prompt",
+                this.challengeSubmissionIdFactoryService.generate(
                     {
                         courseIndex,
                         moduleIndex,
                         challengeIndex,
+                        submissionIndex,
                     },
                 ),
                 promptIndex.toString(),

@@ -1,10 +1,7 @@
 import {
-    ChallengeSubmissionEntity,
-    ChallengeSubmissionTranslationEntity,
+    ChallengeSubmissionPromptEntity,
+    ChallengeSubmissionPromptTranslationEntity,
 } from "@modules/databases"
-import {
-    ChallengeSubmissionPromptUpdaterService,
-} from "./challenge-submission-prompt.updater.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -15,27 +12,24 @@ import type {
     UpdateParams,
 } from "../types"
 import {
-    challengeSubmissionTranslationKey,
+    challengeSubmissionPromptTranslationKey,
     sanitizePrimitiveFields,
 } from "../utils"
 import _ from "lodash"
 
 @Injectable()
-export class ChallengeSubmissionUpdaterService {
-    constructor(
-        private readonly challengeSubmissionPromptService: ChallengeSubmissionPromptUpdaterService,
-    ) {}
+export class ChallengeSubmissionPromptUpdaterService {
     async updateTranslation(
         {
             previous,
             updated,
             entityManager,
-        }: UpdateParams<ChallengeSubmissionTranslationEntity>
+        }: UpdateParams<ChallengeSubmissionPromptTranslationEntity>,
     ) {
         await entityManager.update(
-            ChallengeSubmissionTranslationEntity,
+            ChallengeSubmissionPromptTranslationEntity,
             {
-                challengeSubmissionId: previous.challengeSubmissionId,
+                challengeSubmissionPromptId: previous.challengeSubmissionPromptId,
                 locale: previous.locale,
                 field: previous.field,
             },
@@ -48,35 +42,35 @@ export class ChallengeSubmissionUpdaterService {
             previous,
             updated,
             entityManager,
-        }: UpdateParams<Array<ChallengeSubmissionTranslationEntity>>
+        }: UpdateParams<Array<ChallengeSubmissionPromptTranslationEntity>>,
     ) {
         const deletedTranslations = _.differenceBy(
             previous,
             updated,
-            challengeSubmissionTranslationKey,
+            challengeSubmissionPromptTranslationKey,
         )
         const createdTranslations = _.differenceBy(
             updated,
             previous,
-            challengeSubmissionTranslationKey,
+            challengeSubmissionPromptTranslationKey,
         )
         const updatedTranslations = _.intersectionBy(
             previous,
             updated,
-            challengeSubmissionTranslationKey,
+            challengeSubmissionPromptTranslationKey,
         )
         for (const translation of deletedTranslations) {
             await entityManager.delete(
-                ChallengeSubmissionTranslationEntity,
+                ChallengeSubmissionPromptTranslationEntity,
                 {
-                    challengeSubmissionId: translation.challengeSubmissionId,
+                    challengeSubmissionPromptId: translation.challengeSubmissionPromptId,
                     locale: translation.locale,
                     field: translation.field,
                 },
             )
         }
         await entityManager.save(
-            ChallengeSubmissionTranslationEntity,
+            ChallengeSubmissionPromptTranslationEntity,
             createdTranslations,
         )
         for (const translation of updatedTranslations) {
@@ -84,7 +78,7 @@ export class ChallengeSubmissionUpdaterService {
                 {
                     previous: translation,
                     updated: updated.find(
-                        (candidate) => challengeSubmissionTranslationKey(candidate) === challengeSubmissionTranslationKey(translation),
+                        (candidate) => challengeSubmissionPromptTranslationKey(candidate) === challengeSubmissionPromptTranslationKey(translation),
                     )!,
                     entityManager,
                 },
@@ -92,15 +86,15 @@ export class ChallengeSubmissionUpdaterService {
         }
     }
 
-    async updateChallengeSubmission(
+    async updateChallengeSubmissionPrompt(
         {
             previous,
             updated,
             entityManager,
-        }: UpdateParams<ChallengeSubmissionEntity>,
+        }: UpdateParams<ChallengeSubmissionPromptEntity>,
     ) {
         await entityManager.update(
-            ChallengeSubmissionEntity,
+            ChallengeSubmissionPromptEntity,
             {
                 id: previous.id,
             },
@@ -113,21 +107,14 @@ export class ChallengeSubmissionUpdaterService {
                 entityManager,
             },
         )
-        await this.challengeSubmissionPromptService.updateChallengeSubmissionPrompts(
-            {
-                previous: previous.prompts ?? [],
-                updated: updated.prompts ?? [],
-                entityManager,
-            },
-        )
     }
 
-    async updateChallengeSubmissions(
+    async updateChallengeSubmissionPrompts(
         {
             previous,
             updated,
             entityManager,
-        }: UpdateParams<Array<ChallengeSubmissionEntity>>,
+        }: UpdateParams<Array<ChallengeSubmissionPromptEntity>>,
     ) {
         const deleted = _.differenceBy(
             previous,
@@ -145,17 +132,17 @@ export class ChallengeSubmissionUpdaterService {
             "id",
         )
         await entityManager.delete(
-            ChallengeSubmissionEntity,
+            ChallengeSubmissionPromptEntity,
             {
                 id: In(deleted.map((row) => row.id)),
             },
         )
         await entityManager.save(
-            ChallengeSubmissionEntity,
+            ChallengeSubmissionPromptEntity,
             created,
         )
         for (const prevRow of toUpdate) {
-            await this.updateChallengeSubmission(
+            await this.updateChallengeSubmissionPrompt(
                 {
                     previous: prevRow,
                     updated: updated.find((candidate) => candidate.id === prevRow.id)!,

@@ -1,4 +1,4 @@
-export * from "./challenge-prompt.updater.service"
+export * from "./challenge-submission-prompt.updater.service"
 export * from "./challenge-reference.updater.service"
 export * from "./challenge-step.updater.service"
 export * from "./challenge-submission.updater.service"

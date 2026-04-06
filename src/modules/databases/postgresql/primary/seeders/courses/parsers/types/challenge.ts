@@ -34,8 +34,8 @@ export interface ExtractChallengeBlockBothResult {
     vi: string
 }
 
-/** One prompt row from challenge `data.json`. */
-export interface ChallengePromptJson {
+/** One grading-prompt row from challenge `data.json` (stored per challenge submission slot). */
+export interface ChallengeSubmissionPromptJson {
     /** Title of the prompt in English. */
     titleEn: string
     /** Order index of the prompt. */
@@ -43,11 +43,15 @@ export interface ChallengePromptJson {
     score: number
     /** Prompt body in English. */
     textEn: string
+    /** Optional Vietnamese title (stored as a translation row). */
+    titleVi?: string
+    /** Optional Vietnamese body (stored as a translation row). */
+    textVi?: string
 }
 
 /** Shape of challenge `data.json` beside markdown files. */
 export interface ChallengeDataJson {
     difficulty: ChallengeDifficulty
     score: number
-    prompts: Array<ChallengePromptJson>
+    prompts: Array<ChallengeSubmissionPromptJson>
 }

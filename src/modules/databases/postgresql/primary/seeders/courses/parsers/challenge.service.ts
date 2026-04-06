@@ -25,7 +25,7 @@ import {
 } from "../extracts"
 import {
     ChallengeIdFactoryService,
-    ChallengePromptIdFactoryService,
+    ChallengeSubmissionPromptIdFactoryService,
     ChallengeStepIdFactoryService,
     ChallengeSubmissionIdFactoryService,
     ChallengeReferenceIdFactoryService,
@@ -35,7 +35,8 @@ import {
 } from "typeorm"
 import {
     ChallengeEntity,
-    ChallengePromptEntity,
+    ChallengeSubmissionPromptEntity,
+    ChallengeSubmissionPromptTranslationEntity,
     ChallengeTranslationEntity,
 } from "../../../entities"
 import {
@@ -52,7 +53,7 @@ export class ChallengeParserService {
         private readonly extractBlockService: ExtractBlockService,
         private readonly extractSubmissionsService: ExtractSubmissionsService,
         private readonly challengeIdFactoryService: ChallengeIdFactoryService,
-        private readonly challengePromptIdFactoryService: ChallengePromptIdFactoryService,
+        private readonly challengeSubmissionPromptIdFactoryService: ChallengeSubmissionPromptIdFactoryService,
         private readonly challengeSubmissionIdFactoryService: ChallengeSubmissionIdFactoryService,
         private readonly extractStepsService: ExtractStepsService,
         private readonly challengeStepIdFactoryService: ChallengeStepIdFactoryService,
@@ -247,16 +248,6 @@ export class ChallengeParserService {
             })(),
             references: (referencesMap.get(Locale.En) ?? []).map(
                 (reference) => {
-                    const translations = Array.from(referencesMap.entries()).map((
-                        [
-                            locale,
-                            references
-                        ]
-                    ) => references.map((reference) => ({
-                        locale,
-                        field: "alias",
-                        value: reference.alias,
-                    }))).flat().flat()
                     const referenceId = this.challengeReferenceIdFactoryService.generate(
                         {
                             courseIndex,
@@ -265,6 +256,17 @@ export class ChallengeParserService {
                             referenceIndex: reference.orderIndex,
                         },
                     )
+                    const translations = Array.from(referencesMap.entries()).map((
+                        [
+                            locale,
+                            references
+                        ]
+                    ) => references.map((reference) => ({
+                        referenceId,
+                        locale,
+                        field: "alias",
+                        value: reference.alias,
+                    }))).flat().flat()
                     return {
                         id: referenceId,
                         orderIndex: reference.orderIndex,
@@ -349,38 +351,62 @@ export class ChallengeParserService {
                             submissionIndex: submission.orderIndex,
                         },
                     )
+                    const prompts: Array<DeepPartial<ChallengeSubmissionPromptEntity>> = []
+                    for (const prompt of dataJson.prompts) {
+                        const promptId = this.challengeSubmissionPromptIdFactoryService.generate(
+                            {
+                                courseIndex,
+                                moduleIndex,
+                                challengeIndex,
+                                submissionIndex: submission.orderIndex,
+                                promptIndex: prompt.orderIndex,
+                            },
+                        )
+                        const translations: Array<DeepPartial<ChallengeSubmissionPromptTranslationEntity>> = []
+                        const titleVi = prompt.titleVi?.trim()
+                        if (titleVi) {
+                            translations.push(
+                                {
+                                    challengeSubmissionPromptId: promptId,
+                                    locale: Locale.Vi,
+                                    field: "title",
+                                    value: titleVi,
+                                },
+                            )
+                        }
+                        const textVi = prompt.textVi?.trim()
+                        if (textVi) {
+                            translations.push(
+                                {
+                                    challengeSubmissionPromptId: promptId,
+                                    locale: Locale.Vi,
+                                    field: "text",
+                                    value: textVi,
+                                },
+                            )
+                        }
+                        prompts.push(
+                            {
+                                id: promptId,
+                                challengeSubmissionId: submissionId,
+                                orderIndex: prompt.orderIndex,
+                                titleEn: prompt.titleEn,
+                                textEn: prompt.textEn,
+                                score: prompt.score,
+                                translations,
+                            },
+                        )
+                    }
                     return {
                         id: submissionId,
                         orderIndex: submission.orderIndex,
                         title: submission.title,
                         description: submission.description,
                         translations,
+                        prompts,
                     }
                 }
             ),
-            prompts: (() => {
-                const prompts: Array<DeepPartial<ChallengePromptEntity>> = []
-                for (const prompt of dataJson.prompts) {
-                    const promptId = this.challengePromptIdFactoryService.generate(
-                        {
-                            courseIndex,
-                            moduleIndex,
-                            challengeIndex,
-                            promptIndex: prompt.orderIndex,
-                        },
-                    )
-                    prompts.push(
-                        {
-                            id: promptId,
-                            orderIndex: prompt.orderIndex,
-                            titleEn: prompt.titleEn,
-                            textEn: prompt.textEn,
-                            score: prompt.score,
-                        }
-                    )
-                }
-                return prompts
-            })(),
         }
     }
 }
