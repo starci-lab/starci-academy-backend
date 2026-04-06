@@ -43,10 +43,10 @@ export class ValuePropositionEntity extends UuidAbstractEntity {
             description: "Value proposition line content."
         })
     @Column({
-        name: "content",
+        name: "text",
         type: "text",
     })
-        content: string
+        text: string
 
     /**
      * Display order within the course value proposition list.

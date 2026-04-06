@@ -30,7 +30,8 @@ import {
 } from "typeorm"
 import {
     ModuleEntity, 
-    ModuleTranslationEntity, 
+    ModuleTranslationEntity,
+    PreviewContentTranslationEntity, 
 } from "../../../entities"
 import {
     ModuleDirService 
@@ -148,13 +149,6 @@ export class ModuleParserService {
                         orderIndex,
                     },
                 ) => {
-                    const translations = Array.from(previewContentsMap.entries()).map(([locale,
-                        items]) => items.map((item) => ({
-                        locale,
-                        text: item.text,
-                        orderIndex: item.orderIndex,
-                        field: "text",
-                    }))).flat()
                     const previewContentId = this.previewContentIdFactoryService.generate(
                         {
                             courseIndex,
@@ -162,6 +156,22 @@ export class ModuleParserService {
                             previewContentIndex: orderIndex,
                         },
                     )
+                    const translations = Array.from(previewContentsMap.entries())
+                        .filter((
+                            [, items]
+                        ) => items.some((item) => item.orderIndex === orderIndex))
+                        .map(([locale,
+                            items]) => items.map<DeepPartial<PreviewContentTranslationEntity>>(
+                                (item) => ({
+                                    previewContentId,
+                                    locale,
+                                    text: item.text,
+                                    field: "text",
+                                })
+                            )
+                        )
+                        .flat()
+                    
                     return {
                         id: previewContentId,
                         defaultLocale: Locale.En,

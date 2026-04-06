@@ -13,6 +13,7 @@ import {
 import {
     CourseParserService,
     CoursesUpdaterService,
+    CourseDirService
 } from "./courses"
 import {
     InjectPrimaryPostgreSQLEntityManager 
@@ -34,6 +35,7 @@ export class SeedersService implements OnModuleInit {
         private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
         private readonly coursesUpdaterService: CoursesUpdaterService,
         private readonly courseParserService: CourseParserService,
+        private readonly courseDirService: CourseDirService,
     ) { }
 
     /**
@@ -45,7 +47,7 @@ export class SeedersService implements OnModuleInit {
         await this.entityManager.transaction(
             async (entityManager) => {
                 const previousCourses = await entityManager.find(CourseEntity)
-                const courseMounts = this.courseParserService.indexes()
+                const courseMounts = this.courseDirService.indexes()
                 const updatedCourses = courseMounts.map((courseIndex) => {
                     return this.courseParserService.parse(
                         {
