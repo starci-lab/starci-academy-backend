@@ -173,11 +173,6 @@ export class ModuleParserService {
                     const translations = Array.from(
                         previewContentsMap.entries()
                     )
-                        .filter((
-                            [, items]
-                        ) => items.filter(
-                            (item) => item.orderIndex === orderIndex)
-                        )
                         .map((
                             [
                                 locale,

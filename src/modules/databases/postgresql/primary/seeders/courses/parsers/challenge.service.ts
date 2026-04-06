@@ -262,13 +262,6 @@ export class ChallengeParserService {
                             },
                         )
                         const translations = Array.from(referencesMap.entries())
-                            .filter((
-                                [
-                                    , references
-                                ]
-                            ) => references.filter(
-                                (reference) => reference.orderIndex === orderIndex)
-                            )
                             .map((
                                 [
                                     locale,
@@ -314,12 +307,6 @@ export class ChallengeParserService {
                         },
                     )
                     const translations = Array.from(stepsMap.entries())
-                        .filter(
-                            (
-                                [,
-                                    steps
-                                ]
-                            ) => steps.filter((step) => step.orderIndex === orderIndex))
                         .map((
                             [
                                 locale,
@@ -379,11 +366,6 @@ export class ChallengeParserService {
                     const translations = Array.from(
                         submissionsMap.entries()
                     )
-                        .filter((
-                            [,
-                                submissions
-                            ]
-                        ) => submissions.filter((submission) => submission.orderIndex === orderIndex))
                         .map((
                             [
                                 locale,
@@ -428,11 +410,6 @@ export class ChallengeParserService {
                                     },
                                 )
                                 const translations = Array.from(submissionsMap.entries())
-                                    .filter((
-                                        [,
-                                            submissions
-                                        ]
-                                    ) => submissions.filter((submission) => submission.orderIndex === orderIndex))
                                     .map((
                                         [
                                             locale,

@@ -28,12 +28,7 @@ export class ExtractQnaItemsService {
             markdown,
         }: ExtractQnaItemsParams,
     ): ExtractQnaItemsResult {
-        const block = this.extractBlockService.extract({
-            key: "Q&A",
-            markdown,
-            numHashs: 1,
-        })
-        const lines = block.split("\n")
+        const lines = markdown.split("\n")
         const items: ExtractQnaItemsResult = []
         let current: MarkdownQnaItem | null = null
         const bodyLines: Array<string> = []

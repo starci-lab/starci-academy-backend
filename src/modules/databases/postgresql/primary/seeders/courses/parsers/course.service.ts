@@ -158,7 +158,7 @@ export class CourseParserService {
         }
         const qnasTextMap = this.extract(
             {
-                key: "Q&A",
+                key: "QnA",
                 markdownMap,
             },
         )
@@ -178,12 +178,11 @@ export class CourseParserService {
                 courseIndex,
             },
         )
-        const defaultLocale = Locale.En
         return {
             id: courseId,
-            defaultLocale,
-            title: titleMap.get(defaultLocale) ?? "",
-            description: descriptionMap.get(defaultLocale) ?? "",
+            defaultLocale: Locale.En,
+            title: titleMap.get(Locale.En) ?? "",
+            description: descriptionMap.get(Locale.En) ?? "",
             displayId,
             originalPrice: dataJson.originalPrice ?? 0,
             orderIndex: courseIndex,
@@ -221,10 +220,7 @@ export class CourseParserService {
                         },
                     )
                     const translations = Array.from(
-                        prerequisitesItemsMap.entries()
-                    ).filter((
-                        [, items]
-                    ) => items.some((item) => item.orderIndex === orderIndex))
+                        prerequisitesItemsMap.entries())
                         .map(
                             (
                                 [
@@ -247,7 +243,7 @@ export class CourseParserService {
                     return {
                         courseId,
                         id: prerequisiteId,
-                        defaultLocale,
+                        defaultLocale: Locale.En,
                         text,
                         orderIndex,
                         translations
@@ -268,12 +264,6 @@ export class CourseParserService {
                         },
                     )
                     const translations = Array.from(valuePropositionsMap.entries())
-                        .filter((
-                            [
-                                ,
-                                items
-                            ]
-                        ) => items.some((item) => item.orderIndex === orderIndex))
                         .map((
                             [
                                 locale,
@@ -290,7 +280,7 @@ export class CourseParserService {
                     return {
                         courseId,
                         id: valuePropositionId,
-                        defaultLocale,
+                        defaultLocale: Locale.En,
                         text,
                         orderIndex,
                         translations
@@ -313,9 +303,6 @@ export class CourseParserService {
                     )
                     const translations = Array.from(
                         qnasMap.entries())
-                        .filter((
-                            [, items]
-                        ) => items.some((item) => item.orderIndex === orderIndex))
                         .map((
                             [locale,
                                 items]
@@ -340,9 +327,10 @@ export class CourseParserService {
                         .flat()
                     return {
                         id: qnaId,
-                        defaultLocale,
+                        defaultLocale: Locale.En,
                         question,
                         answer,
+                        courseId,
                         orderIndex,
                         translations
                     }
