@@ -12,6 +12,7 @@ import {
     getOpenAiApiKey,
     getKeycloakClientSecret,
     getGithubAccessToken,
+    getSepayApiKey,
 } from "./utils"
 /**
  * Service responsible for reading secrets mounted into the container filesystem.
@@ -72,5 +73,12 @@ export class MountFilesystemService {
      */
     githubAccessToken(): string {
         return getGithubAccessToken()
+    }
+
+    /**
+     * Get sepay api key from mount path.
+     */
+    sepayApiKey(): string {
+        return getSepayApiKey()
     }
 }

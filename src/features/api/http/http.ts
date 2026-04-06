@@ -19,6 +19,15 @@ export const httpConfig = () => ({
             }),
         }
     },
+    sepay: () => {
+        const tags = "sepay"
+        return {
+            tags,
+            webhook: () => ({
+                path: "webhook",
+            }),
+        }
+    },
     // keycloak configuration
     keycloak: () => {
         // tags for the keycloak module

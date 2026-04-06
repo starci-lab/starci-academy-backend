@@ -73,6 +73,7 @@ import {
 import {
     LangchainModule
 } from "@modules/langchain"
+import { SepayModule } from "@modules/sepay"
 /**
  * The main module for the application.
  */
@@ -134,6 +135,11 @@ import {
             PayOSModule.register(
                 {
                     isGlobal: true,
+                }
+            ),
+            SepayModule.register(
+                {
+                    isGlobal: true
                 }
             ),
             /** BullMQ module. */

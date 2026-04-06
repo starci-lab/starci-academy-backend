@@ -44,6 +44,17 @@ export const envConfig = () => ({
                 key: "API_PORT",
                 defaultValue: 3001,
             }),
+            /** SePay configuration. */
+            sepay: {
+                bank: parseEnvString({
+                    key: "API_SEPAY_BANK",
+                    defaultValue: "MB",
+                }),
+                accountNumber: parseEnvString({
+                    key: "API_SEPAY_ACCOUNT_NUMBER",
+                    defaultValue: "0969998024",
+                }),
+            },
             /** API pagination configuration. */
             pagination: {
                 page: {
@@ -323,6 +334,13 @@ export const envConfig = () => ({
                     "terraform",
                     "openai-api-key.key"),
             }),
+            sepayApiKey: parseEnvString({
+                key: "TERRAFORM_SEPAY_API_KEY_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "sepay-api-key.key"),
+            }),
         },
     },
     /** CORS: allowed origins (CORS_ORIGIN_1 … CORS_ORIGIN_10, empty skipped). */
@@ -333,7 +351,7 @@ export const envConfig = () => ({
         (_, i) =>
             parseEnvString({
                 key: `CORS_ORIGIN_${i + 1}`,
-                defaultValue: ""
+                defaultValue: "http://localhost:3000"
             }),
         ).filter((url) => url !== "")
     },
