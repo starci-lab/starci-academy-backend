@@ -73,6 +73,12 @@ export class CoursesService {
                     metadata: true,
                     pricingPhases: true,
                     valuePropositions: true,
+                    translations: true
+                },
+                where: {
+                    translations: {
+                        locale,
+                    }
                 },
                 take: limit,
                 skip: pageNumber * limit,

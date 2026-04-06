@@ -148,7 +148,7 @@ export class CourseEntity extends UuidAbstractEntity {
     )
     @Column({
         name: "order_index",
-        type: "int",
+        type: "int", 
         default: 0,
     })
         orderIndex: number

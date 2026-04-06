@@ -10,6 +10,10 @@ import {
 import {
     PayosModule,
 } from "./payos"
+import {
+    SepayModule,
+} from "./sepay"
+
 
 /**
  * Module for the HTTP.
@@ -20,6 +24,9 @@ import {
             isGlobal: true,
         }),
         PayosModule.register({
+            isGlobal: true,
+        }),
+        SepayModule.register({
             isGlobal: true,
         }),
     ],

@@ -76,6 +76,9 @@ import {
 import {
     CryptoModule
 } from "@modules/crypto"
+import { 
+    SepayModule 
+} from "@modules/sepay"
 /**
  * The main module for the application.
  */
@@ -143,6 +146,11 @@ import {
             PayOSModule.register(
                 {
                     isGlobal: true,
+                }
+            ),
+            SepayModule.register(
+                {
+                    isGlobal: true
                 }
             ),
             /** BullMQ module. */

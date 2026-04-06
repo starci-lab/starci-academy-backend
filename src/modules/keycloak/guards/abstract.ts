@@ -41,6 +41,7 @@ export abstract class AbstractKeycloakAuthGuard implements CanActivate {
         context: ExecutionContext
     ): Promise<boolean> {
         const request = this.getRequest(context)
+
         const authHeader = request.headers["authorization"]
         if (!authHeader || typeof authHeader !== "string") {
             throw new UnauthorizedException("Missing Authorization header")

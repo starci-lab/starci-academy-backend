@@ -78,3 +78,13 @@ export const getGithubAccessToken = (): string => {
         "utf8",
     )
 }
+
+/**
+ * Get Sepay API key (from terraform mount path).
+ */
+export const getSepayApiKey = (): string => {
+    return readFileSync(
+        envConfig().mountPath.terraform.sepayApiKey,
+        "utf8",
+    )
+}

@@ -20,6 +20,7 @@ export class MountStorageService implements OnModuleInit {
     public payosApiKey: string
     public geminiApiKey: string
     public openAiApiKey: string
+    public sepayApiKey: string
     constructor(
         private readonly mountFilesystemService: MountFilesystemService,
         private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
@@ -41,6 +42,8 @@ export class MountStorageService implements OnModuleInit {
         this.geminiApiKey = this.mountFilesystemService.geminiApiKey()
         // get openai api key from mount filesystem service
         this.openAiApiKey = this.mountFilesystemService.openAiApiKey()
+        // get sepay api key from mount filesystem service
+        this.sepayApiKey = this.mountFilesystemService.sepayApiKey()
         // set readiness watcher to true
         this.readinessWatcherFactoryService.setReady(MountStorageService.name)
     }

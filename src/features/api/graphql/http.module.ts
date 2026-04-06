@@ -4,12 +4,15 @@ import {
 import {
     ConfigurableModuleClass,
 } from "./graphql.module-definition"
-import {
-    KeycloakModule,
-} from "./keycloak"
-import {
-    PayosModule,
-} from "./payos"
+import { 
+    KeycloakModule 
+} from "@modules/keycloak"
+import { 
+    PayosModule 
+} from "../http/payos"
+import { 
+    SepayModule 
+} from "@modules/sepay"
 
 /**
  * Module for the HTTP.
@@ -20,6 +23,9 @@ import {
             isGlobal: true,
         }),
         PayosModule.register({
+            isGlobal: true,
+        }),
+        SepayModule.register({
             isGlobal: true,
         }),
     ],
