@@ -55,28 +55,28 @@ export interface ExtractSubmissionsParams {
 
 /** Parsed submission slot from challenge markdown. */
 export interface MarkdownSubmission {
+    /** Submission type. */
     type: SubmissionType
+    /** Submission title. */
     title: string
+    /** Submission description. */
     description: string
+    /** Submission order index. */
     orderIndex: number
+    /** Submission prompts. */
+    prompts: Array<MarkdownSubmissionPrompt>
 }
 
 export type ExtractSubmissionsResult = Array<MarkdownSubmission>
 
-/** One rubric line parsed from `### N. Title (Xpts)` under a submission block. */
+/** One rubric block parsed from `### N. Title (Xpts)` under a submission `##` block. */
 export interface MarkdownSubmissionPrompt {
-    /** Zero-based order, derived from the `N` in `### N.`. */
+    /** Zero-based order: `N` from `### N.` minus one. */
     orderIndex: number
     score: number
     title: string
+    /** Body under the heading until the next `###` or end of block. */
     text: string
-}
-
-export type ExtractSubmissionPromptsResult = Array<MarkdownSubmissionPrompt>
-
-/** Params for parsing `### N. Title (Xpts)` rubric headings inside submission markdown. */
-export interface ExtractSubmissionPromptsParams {
-    markdown: string
 }
 
 /** One top-level `- item` bullet line. */

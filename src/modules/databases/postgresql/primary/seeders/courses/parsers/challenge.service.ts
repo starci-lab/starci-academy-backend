@@ -20,8 +20,6 @@ import {
     ExtractReferencesService,
     ExtractStepsResult,
     ExtractStepsService,
-    ExtractSubmissionPromptsResult,
-    ExtractSubmissionPromptsService,
     ExtractSubmissionsResult,
     ExtractSubmissionsService,
 } from "../extracts"
@@ -37,9 +35,9 @@ import {
 } from "typeorm"
 import {
     ChallengeEntity,
+    ChallengeReferenceTranslationEntity,
     ChallengeStepTranslationEntity,
     ChallengeSubmissionPromptEntity,
-    ChallengeSubmissionPromptTranslationEntity,
     ChallengeTranslationEntity,
 } from "../../../entities"
 import {
@@ -55,7 +53,6 @@ export class ChallengeParserService {
         private readonly challengeDirService: ChallengeDirService,
         private readonly extractBlockService: ExtractBlockService,
         private readonly extractSubmissionsService: ExtractSubmissionsService,
-        private readonly extractSubmissionPromptsService: ExtractSubmissionPromptsService,
         private readonly challengeIdFactoryService: ChallengeIdFactoryService,
         private readonly challengeSubmissionPromptIdFactoryService: ChallengeSubmissionPromptIdFactoryService,
         private readonly challengeSubmissionIdFactoryService: ChallengeSubmissionIdFactoryService,
@@ -85,7 +82,7 @@ export class ChallengeParserService {
                     {
                         key,
                         markdown: markdownMap.get(locale) ?? "",
-                        numHashs: 3,
+                        numHashs: 1,
                     },
                 )
             )
@@ -135,13 +132,6 @@ export class ChallengeParserService {
             },
         )
 
-        const submissionsTextMap = this.extract(
-            {
-                key: "Submissions",
-                markdownMap,
-            },
-        )
-
         const requirementsMap = this.extract(
             {
                 key: "Requirements",
@@ -155,7 +145,13 @@ export class ChallengeParserService {
                 markdownMap,
             },
         )
-
+        
+        const submissionsTextMap = this.extract(
+            {
+                key: "Submissions",
+                markdownMap,
+            },
+        )
         const submissionsMap = new Map<Locale, ExtractSubmissionsResult>()
         for (const locale of Object.values(Locale)) {
             submissionsMap.set(
@@ -197,17 +193,6 @@ export class ChallengeParserService {
                 this.extractReferencesService.extract(
                     {
                         markdown: referencesTextMap.get(locale) ?? "",
-                    },
-                )
-            )
-        }
-        const promptsMap = new Map<Locale, ExtractSubmissionPromptsResult>()
-        for (const locale of Object.values(Locale)) {
-            promptsMap.set(
-                locale,
-                this.extractSubmissionPromptsService.extract(
-                    {
-                        markdown: submissionsTextMap.get(locale) ?? "",
                     },
                 )
             )
@@ -290,15 +275,15 @@ export class ChallengeParserService {
                                     references
                                 ]
                             ) => references
-                                .map(
-                                    (reference) => (
-                                        {
-                                            referenceId,
+                                .map<DeepPartial<ChallengeReferenceTranslationEntity>>(
+                                    (reference) => {
+                                        return {
+                                            challengeReferenceId: referenceId,
                                             locale,
                                             field: "alias",
-                                            value: reference.alias,
+                                            value: reference.alias ?? "",
                                         }
-                                    )
+                                    }
                                 )
                             )
                             .flat()
@@ -376,7 +361,13 @@ export class ChallengeParserService {
             ),
             submissions: (
                 submissionsMap.get(Locale.En) ?? []).map(
-                ({ orderIndex, title, description, type }) => {
+                ({
+                    orderIndex,
+                    title,
+                    description,
+                    type,
+                    prompts,
+                }) => {
                     const submissionId = this.challengeSubmissionIdFactoryService.generate(
                         {
                             courseIndex,
@@ -421,61 +412,59 @@ export class ChallengeParserService {
                         id: submissionId,
                         orderIndex,
                         title,
+                        type,
                         description,
                         defaultLocale: Locale.En,
                         translations,
-                        prompts: (promptsMap.get(Locale.En) ?? [])
-                            .map<DeepPartial<ChallengeSubmissionPromptEntity>>(
-                                (prompt) => {
-                                    const promptId = this.challengeSubmissionPromptIdFactoryService.generate(
-                                        {
-                                            courseIndex,
-                                            moduleIndex, 
-                                            challengeIndex,
-                                            submissionIndex: orderIndex,
-                                            promptIndex: prompt.orderIndex,
-                                        },
-                                    )
-                                    const translations = Array.from(promptsMap.entries())
-                                        .filter((
-                                            [,
-                                                prompts
-                                            ]
-                                        ) => prompts.filter((prompt) => prompt.orderIndex === prompt.orderIndex))
-                                        .map((
-                                            [
-                                                locale,
-                                                prompts
-                                            ]
-                                        ) => prompts.map<Array<DeepPartial<ChallengeSubmissionPromptTranslationEntity>>>((prompt) => [
-                                            {
-                                                challengeSubmissionPromptId: promptId,
-                                                locale,
-                                                field: "title",
-                                                value: prompt.title,
-                                            },
-                                            {
-                                                challengeSubmissionPromptId: promptId,
-                                                locale,
-                                                field: "promptText",
-                                                value: prompt.text,
-                                            }
+                        prompts: prompts.map<DeepPartial<ChallengeSubmissionPromptEntity>>(
+                            (prompt) => {
+                                const promptId = this.challengeSubmissionPromptIdFactoryService.generate(
+                                    {
+                                        courseIndex,
+                                        moduleIndex,
+                                        challengeIndex,
+                                        submissionIndex: orderIndex,
+                                        promptIndex: prompt.orderIndex,
+                                    },
+                                )
+                                const translations = Array.from(submissionsMap.entries())
+                                    .filter((
+                                        [,
+                                            submissions
                                         ]
-                                        )
-                                        ).flat().flat()
-                                    return {
-                                        id: promptId,
-                                        orderIndex,
-                                        score: prompt.score,
-                                        challengeSubmissionId: submissionId,
-                                        title: prompt.title,
-                                        promptText: prompt.text,
-                                        defaultLocale: Locale.En,
-                                        translations,
-                                        type,
-                                    }
+                                    ) => submissions.filter((submission) => submission.orderIndex === orderIndex))
+                                    .map((
+                                        [
+                                            locale,
+                                            submissions
+                                        ]
+                                    ) => submissions.map((submission) => [
+                                        {
+                                            challengeSubmissionPromptId: promptId,
+                                            locale,
+                                            field: "title",
+                                            value: submission.title,
+                                        },
+                                        {
+                                            challengeSubmissionPromptId: promptId,
+                                            locale,
+                                            field: "description",
+                                            value: submission.description,
+                                        }
+                                    ]
+                                    )).flat().flat()
+                                return {
+                                    id: promptId,
+                                    orderIndex: prompt.orderIndex,
+                                    score: prompt.score,
+                                    challengeSubmissionId: submissionId,
+                                    title: prompt.title,
+                                    promptText: prompt.text,
+                                    defaultLocale: Locale.En,
+                                    translations,
                                 }
-                            )
+                            },
+                        )
                     }
                 }
             )

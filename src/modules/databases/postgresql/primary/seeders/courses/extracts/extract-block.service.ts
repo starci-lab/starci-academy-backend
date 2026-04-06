@@ -7,8 +7,18 @@ import type {
 } from "./types"
 
 /**
- * Slices markdown from the line after `#… key` until the next top-level `#` heading,
- * ignoring fenced code blocks.
+ * Escapes regex special characters in plain text.
+ */
+const escapeRegex = (
+    value: string,
+): string => {
+    return value.replace(/[.*+?^${}()|[\]\\]/g,
+        "\\$&")
+}
+
+/**
+ * Slices markdown from the line after `#… key` until the next heading
+ * at the same or higher level, ignoring fenced code blocks.
  */
 @Injectable()
 export class ExtractBlockService {
@@ -24,14 +34,22 @@ export class ExtractBlockService {
         }: ExtractBlockParams,
     ): ExtractBlockResult {
         const lines = markdown.split("\n")
+        const headingRegex = new RegExp(
+            `^#{${numHashs}}\\s+${escapeRegex(key)}\\s*$`,
+        )
+        const nextHeadingRegex = new RegExp(
+            `^#{1,${numHashs}}\\s+`,
+        )
+
         let inCodeBlock = false
         let startIndex = -1
         let endIndex = lines.length
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i]
+            const trimmed = line.trim()
 
-            if (line.trim().startsWith("```")) {
+            if (trimmed.startsWith("```")) {
                 inCodeBlock = !inCodeBlock
             }
 
@@ -39,9 +57,10 @@ export class ExtractBlockService {
                 continue
             }
 
-            const trimmed = line.trim()
-
-            if (startIndex === -1 && trimmed === `${"#".repeat(numHashs)} ${key}`) {
+            if (
+                startIndex === -1 &&
+                headingRegex.test(trimmed)
+            ) {
                 startIndex = i + 1
                 continue
             }
@@ -49,7 +68,7 @@ export class ExtractBlockService {
             if (
                 startIndex !== -1 &&
                 i > startIndex &&
-                /^#\s+/.test(trimmed)
+                nextHeadingRegex.test(trimmed)
             ) {
                 endIndex = i
                 break
