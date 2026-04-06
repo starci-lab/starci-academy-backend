@@ -76,7 +76,9 @@ import {
 import {
     CryptoModule
 } from "@modules/crypto"
-import { SepayModule } from "@modules/sepay"
+import { 
+    SepayModule 
+} from "@modules/sepay"
 /**
  * The main module for the application.
  */
