@@ -1,2 +1,1 @@
-export * from "./mount-courses"
-export * from "./numeric-dirs"
+export * from "./mount-dirs"

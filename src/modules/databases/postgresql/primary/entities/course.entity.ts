@@ -1,12 +1,14 @@
 import {
     Field,
     Float,
+    Int,
     ObjectType,
 } from "@nestjs/graphql"
 import {
     Column,
     Entity,
     OneToMany,
+    OneToOne,
 } from "typeorm"
 import {
     PrerequisiteEntity,
@@ -25,9 +27,7 @@ import {
 } from "./value-proposition.entity"
 import {
     GraphQLTypeLocale,
-    GraphQLTypePricingPhase,
     Locale,
-    PricingPhase,
 } from "../enums"
 import {
     PricingPhaseEntity,
@@ -38,6 +38,9 @@ import {
 import {
     CourseTranslationEntity,
 } from "./course-translation.entity"
+import {
+    CourseMetadataEntity,
+} from "./course-metadata.entity"
 
 /**
  * Course entity representing a sellable learning program
@@ -135,6 +138,39 @@ export class CourseEntity extends UuidAbstractEntity {
         cdnUrl?: string | null
 
     /**
+     * Display order within the parent course list.
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Display order within the parent course list.",
+        },
+    )
+    @Column({
+        name: "order_index",
+        type: "int",
+        default: 0,
+    })
+        orderIndex: number
+
+    /**
+     * Thumbnail URL of the course.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Cover image URL of the course.",
+        },
+    )
+    @Column({
+        name: "thumbnail_url",
+        type: "varchar",
+        length: 2048,
+        nullable: true,
+    })
+        coverImageUrl?: string
+    /**
      * Original list price of the course before pricing phase discounts.
      */
     @Field(
@@ -150,24 +186,16 @@ export class CourseEntity extends UuidAbstractEntity {
         originalPrice: number
 
     /**
-     * Current pricing phase applied to the course.
-     *
-     * Stored as enum string instead of foreign key
-     * to avoid circular dependency with pricing phase rows.
+     * One-to-one operational metadata (e.g. {@link CourseMetadataEntity.currentPhase}).
      */
-    @Field(
-        () => GraphQLTypePricingPhase,
+    @OneToOne(
+        () => CourseMetadataEntity,
+        (metadata: CourseMetadataEntity) => metadata.course,
         {
-            description: "Current pricing phase applied to the course.",
+            cascade: true,
         },
     )
-    @Column({
-        name: "current_phase",
-        type: "enum",
-        enum: PricingPhase,
-        enumName: "pricing_phase",
-    })
-        currentPhase: PricingPhase
+        metadata?: CourseMetadataEntity
 
     /**
      * Ordered pricing phase rows of the course.

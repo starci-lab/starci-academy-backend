@@ -8,7 +8,7 @@ export type ExtractLessonVideoBlockBothParams = ExtractChallengeBlockBothParams
 
 export type ExtractLessonVideoBlockBothResult = ExtractChallengeBlockBothResult
 
-/** Ordinals locating `modules/{moduleIndex}/lession-videos/{lessonVideoIndex}/` on the mount. */
+/** Ordinals locating `modules/{module}/lession-videos/{lessonVideoIndex}-{slug}/` on the mount. */
 export interface ParseLessonVideoParams {
     courseIndex: number
     moduleIndex: number

@@ -88,6 +88,7 @@ export class CourseEnrollPayOsService {
                     id: courseId,
                 },
                 relations: {
+                    metadata: true,
                     pricingPhases: true,
                 },
             },

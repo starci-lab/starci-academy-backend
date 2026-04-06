@@ -4,32 +4,31 @@ import {
 import {
     PricingPhase,
 } from "../../../../enums"
-import type {
-    ExtractChallengeBlockBothParams,
-    ExtractChallengeBlockBothResult,
-} from "./challenge"
 import {
     PricingPhaseEntity,
 } from "../../../../entities"
 
-/** Dual-locale markdown sections for course landing copy. */
-export type ExtractCourseBlockBothParams = ExtractChallengeBlockBothParams
-
-export type ExtractCourseBlockBothResult = ExtractChallengeBlockBothResult
-
 /** Root `data.json` beside course `en.md` / `vi.md` (pricing tiers). */
+export interface CoursePricingJson {
+    /** The phase of the pricing. */
+    phase: string
+    /** The price of the pricing. */
+    price?: number
+    /** The slot available of the pricing. */
+    slotAvailable?: number
+    /** The order index of the pricing. */
+    orderIndex: number
+}
 export interface CourseDataJson {
+    /** The original price of the course. */
     originalPrice: number
-    currentPhase: string
-    pricingPhases: Array<{
-        phase: string
-        price: number | null
-        slotAvailable: number | null
-        orderIndex: number
-    }>
+    /** The cover image URL of the course. */
+    coverImageUrl: string
+    /** The pricing phases of the course. */
+    pricingPhases: Array<CoursePricingJson>
 }
 
-/** Ordinal of the course in the seed list (mount folder via `courseStorageDirName`). */
+/** Ordinal of the course in the seed list (mount folder `{courseIndex}-{slug}`). */
 export interface ParseCourseParams {
     courseIndex: number
 }

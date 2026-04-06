@@ -1,6 +1,8 @@
 import {
     Args,
+    Parent,
     Query,
+    ResolveField,
     Resolver,
 } from "@nestjs/graphql"
 import {
@@ -24,7 +26,9 @@ import {
 } from "./course.service"
 import {
     CourseEntity,
+    GraphQLTypePricingPhase,
     Locale,
+    PricingPhase,
 } from "@modules/databases"
 
 @Resolver(() => CourseEntity)
@@ -32,6 +36,19 @@ export class CourseResolver {
     constructor(
         private readonly courseService: CourseService,
     ) {}
+
+    @ResolveField(
+        () => GraphQLTypePricingPhase,
+        {
+            description: "Current pricing phase applied to the course.",
+        },
+    )
+        currentPhase(
+            @Parent()
+                course: CourseEntity,
+        ): PricingPhase {
+            return course.metadata?.currentPhase ?? PricingPhase.Regular
+        }
 
     /**
      * Returns a single course by id.

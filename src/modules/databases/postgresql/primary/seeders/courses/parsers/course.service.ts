@@ -1,8 +1,7 @@
 import type {
     CourseDataJson,
-    ExtractCourseBlockBothParams,
-    ExtractCourseBlockBothResult,
-    ListCourseIndexesResult,
+    ExtractParams,
+    ExtractResult,
     ParseCourseParams,
 } from "./types"
 import {
@@ -13,15 +12,6 @@ import {
     readMdFileOrDefault,
 } from "@modules/common"
 import {
-    CourseSeedPricingDataInvalidException,
-    CourseSeedPrerequisiteViMissingException,
-    CourseSeedQnaViMissingException,
-    CourseSeedValuePropositionViMissingException,
-} from "@modules/exceptions"
-import {
-    envConfig,
-} from "@modules/env"
-import {
     Locale,
     PricingPhase,
 } from "../../../enums"
@@ -29,6 +19,8 @@ import {
     ExtractBlockService,
     ExtractBulletListItemsService,
     ExtractQnaItemsService,
+    MarkdownBulletListItem,
+    MarkdownQnaItem,
 } from "../extracts"
 import {
     CourseIdFactoryService,
@@ -38,23 +30,19 @@ import {
     ValuePropositionIdFactoryService,
 } from "../id-factories"
 import {
-    courseAlias,
-} from "../utils"
-import {
-    ModuleParserService,
-} from "./module.service"
-import {
     DeepPartial,
 } from "typeorm"
 import {
     CourseEntity,
+    CourseTranslationEntity,
+    QnaTranslationEntity,
 } from "../../../entities"
 import {
-    listMountedCourseIndices,
-} from "./utils"
+    CourseDirService
+} from "../dir"
 
 /**
- * Parses a course root (`en.md`, `vi.md`, `data.json`) and nested `modules/{index}/` trees.
+ * Parses a course root (`en.md`, `vi.md`, `data.json`) under `courses/{index}-{slug}/`.
  */
 @Injectable()
 export class CourseParserService {
@@ -67,87 +55,37 @@ export class CourseParserService {
         private readonly qnaIdFactoryService: QnaIdFactoryService,
         private readonly valuePropositionIdFactoryService: ValuePropositionIdFactoryService,
         private readonly pricingPhaseIdFactoryService: PricingPhaseIdFactoryService,
-        private readonly moduleParserService: ModuleParserService,
-    ) {}
+        private readonly courseDirService: CourseDirService,
+    ) { }
 
     /**
-     * Extract the block both from the markdown file.
-     * @param param - The key, enMarkdown, viMarkdown, and numHashs.
-     * @returns The extracted block both.
+     * Reads the same top-level markdown section in many locales.
+     *
+     * @param param - Heading key and both locale documents
+     * @returns Trimmed section bodies per locale
      */
-    private extractBlockBoth(
+    private extract(
         {
             key,
-            enMarkdown,
-            viMarkdown,
-            numHashs = 1,
-        }: ExtractCourseBlockBothParams,
-    ): ExtractCourseBlockBothResult {
-        return {
-            en: this.extractBlockService.extract(
-                {
-                    key,
-                    markdown: enMarkdown,
-                    numHashs,
-                },
-            ),
-            vi: this.extractBlockService.extract(
-                {
-                    key,
-                    markdown: viMarkdown,
-                    numHashs,
-                },
-            ),
+            markdownMap,
+        }: ExtractParams,
+    ): ExtractResult {
+        const result = new Map<Locale, string>()
+        for (const locale of Object.values(Locale)) {
+            result.set(locale,
+                this.extractBlockService.extract(
+                    {
+                        key,
+                        markdown: markdownMap.get(locale) ?? "",
+                    },
+                )
+            )
         }
+        return result
     }
 
     /**
-     * @param param - Course ordinal
-     * @returns Path to `courses/{storageDir}/`
-     */
-    private path(
-        {
-            courseIndex,
-        }: ParseCourseParams,
-    ): string {
-        return `${
-            envConfig().mountPath.data.courses}/${courseAlias(courseIndex)}`
-    }
-
-    /**
-     * Normalize the pricing phase.
-     * @param courseIndex - The index of the course.
-     * @param raw - The raw pricing phase.
-     * @returns The normalized pricing phase.
-     */
-    private normalizePricingPhase(
-        courseIndex: number,
-        raw: string,
-    ): PricingPhase {
-        const compact = raw.trim().toLowerCase().replace(
-            /[-_\s]/g,
-            "",
-        )
-        if (compact === "pioneer") {
-            return PricingPhase.Pioneer
-        }
-        if (compact === "earlybird") {
-            return PricingPhase.EarlyBird
-        }
-        if (compact === "regular") {
-            return PricingPhase.Regular
-        }
-        throw new CourseSeedPricingDataInvalidException(
-            {
-                courseIndex,
-                field: "phase",
-                invalidValue: raw,
-            },
-        )
-    }
-
-    /**
-     * Builds a partial course entity (pricing, lists, translations) and nested modules from the mount.
+     * Builds a partial course entity (pricing, lists, translations) from the mount.
      *
      * @param param - Course ordinal
      * @returns Entity-shaped graph for TypeORM cascade save
@@ -157,88 +95,98 @@ export class CourseParserService {
             courseIndex,
         }: ParseCourseParams,
     ): DeepPartial<CourseEntity> {
-        const path = this.path(
-            {
-                courseIndex,
-            },
+        const {
+            displayId,
+            path,
+        } = this.courseDirService.path(
+            courseIndex,
         )
-        const storageName = courseAlias(courseIndex)
-
-        const enMarkdown = readMdFileOrDefault(`${path}/en.md`)
-        const viMarkdown = readMdFileOrDefault(`${path}/vi.md`)
+        const markdownMap = new Map<Locale, string>()
+        for (const locale of Object.values(Locale)) {
+            markdownMap.set(
+                locale,
+                readMdFileOrDefault(`${path}/${locale}.md`)
+            )
+        }
         const dataJson = readJsonFileOrDefault<CourseDataJson>(`${path}/data.json`)
 
-        const title = this.extractBlockBoth(
+        const titleMap = this.extract(
             {
                 key: "Title",
-                enMarkdown,
-                viMarkdown,
+                markdownMap,
             },
         )
-        const description = this.extractBlockBoth(
+        const descriptionMap = this.extract(
             {
                 key: "Description",
-                enMarkdown,
-                viMarkdown,
+                markdownMap,
             },
         )
 
-        const prerequisitesText = this.extractBlockBoth(
+        const prerequisitesMap = this.extract(
             {
                 key: "Prerequisites",
-                enMarkdown,
-                viMarkdown,
+                markdownMap,
             },
         )
-        const enPrerequisites = this.extractBulletListItemsService.extract(
-            prerequisitesText.en,
-        )
-        const viPrerequisites = this.extractBulletListItemsService.extract(
-            prerequisitesText.vi,
-        )
+        const prerequisitesItemsMap = new Map<Locale, Array<MarkdownBulletListItem>>()
+        for (const locale of Object.values(Locale)) {
+            prerequisitesItemsMap.set(
+                locale,
+                this.extractBulletListItemsService.extract(
+                    prerequisitesMap.get(locale) ?? "",
+                )
+            )
+        }
 
-        const valuePropsText = this.extractBlockBoth(
+        const valuePropositionsTextMap = this.extract(
             {
                 key: "Value Propositions",
-                enMarkdown,
-                viMarkdown,
+                markdownMap,
             },
         )
-        const enValueProps = this.extractBulletListItemsService.extract(
-            valuePropsText.en,
-        )
-        const viValueProps = this.extractBulletListItemsService.extract(
-            valuePropsText.vi,
-        )
-
-        const enQnas = this.extractQnaItemsService.extract(
+        const valuePropositionsMap = new Map<Locale, Array<MarkdownBulletListItem>>()
+        for (const locale of Object.values(Locale)) {
+            valuePropositionsMap.set(
+                locale,
+                this.extractBulletListItemsService.extract(
+                    valuePropositionsTextMap.get(locale) ?? "",
+                )
+            )
+        }
+        const qnasTextMap = this.extract(
             {
-                markdown: enMarkdown,
+                key: "Q&A",
+                markdownMap,
             },
         )
-        const viQnas = this.extractQnaItemsService.extract(
-            {
-                markdown: viMarkdown,
-            },
-        )
-
+        const qnasMap = new Map<Locale, Array<MarkdownQnaItem>>()
+        for (const locale of Object.values(Locale)) {
+            qnasMap.set(
+                locale,
+                this.extractQnaItemsService.extract(
+                    {
+                        markdown: qnasTextMap.get(locale) ?? "",
+                    },
+                )
+            )
+        }
         const courseId = this.courseIdFactoryService.generate(
             {
                 courseIndex,
             },
         )
-
+        const defaultLocale = Locale.En
         return {
             id: courseId,
-            defaultLocale: Locale.En,
-            title: title.en,
-            description: description.en,
-            displayId: storageName,
-            slug: storageName,
+            defaultLocale,
+            title: titleMap.get(defaultLocale) ?? "",
+            description: descriptionMap.get(defaultLocale) ?? "",
+            displayId,
             originalPrice: dataJson.originalPrice ?? 0,
-            currentPhase: this.normalizePricingPhase(courseIndex,
-                dataJson.currentPhase ?? PricingPhase.Regular),
-            pricingPhases: dataJson.pricingPhases.map(
+            orderIndex: courseIndex,
+            coverImageUrl: dataJson.coverImageUrl?.trim(),
+            pricingPhases: (dataJson.pricingPhases ?? []).map(
                 (phase) => {
                     return {
                         id: this.pricingPhaseIdFactoryService.generate(
@@ -247,32 +195,33 @@ export class CourseParserService {
                                 phaseIndex: phase.orderIndex,
                             },
                         ),
-                        phase: this.normalizePricingPhase(courseIndex,
-                            phase.phase),
+                        phase: phase.phase as PricingPhase,
                         orderIndex: phase.orderIndex,
                         price: phase.price ?? 0,
                         slotAvailable: phase.slotAvailable ?? 0,
                     }
                 },
             ),
-            prerequisites: enPrerequisites.map(
+            prerequisites: (prerequisitesItemsMap.get(Locale.En) ?? []).map(
                 (
                     {
                         text,
                         orderIndex,
                     },
                 ) => {
-                    const viItem = viPrerequisites.find(
-                        (item) => item.orderIndex === orderIndex,
-                    )
-                    if (!viItem) {
-                        throw new CourseSeedPrerequisiteViMissingException(
-                            {
-                                courseIndex,
-                                orderIndex,
-                            },
-                        )
-                    }
+                    const translations = Array.from(
+                        prerequisitesItemsMap.entries()
+                    ).map((
+                        [
+                            locale,
+                            items
+                        ]
+                    ) => items.map((item) => ({
+                        locale,
+                        text: item.text,
+                        orderIndex: item.orderIndex,
+                        field: "text",
+                    }))).flat()
                     const prerequisiteId = this.prerequisiteIdFactoryService.generate(
                         {
                             courseIndex,
@@ -281,38 +230,36 @@ export class CourseParserService {
                     )
                     return {
                         id: prerequisiteId,
-                        defaultLocale: Locale.En,
-                        content: text,
+                        defaultLocale,
+                        text,
                         orderIndex,
-                        translations: [
-                            {
-                                prerequisiteId,
-                                locale: Locale.Vi,
-                                field: "content",
-                                value: viItem.text,
+                        translations: translations.map(
+                            (translation) => {
+                                return {
+                                    prerequisiteId,
+                                    locale: translation.locale,
+                                    field: translation.field,
+                                    value: translation.text,
+                                }
                             },
-                        ],
+                        ),
                     }
                 },
             ),
-            valuePropositions: enValueProps.map(
+            valuePropositions: (valuePropositionsMap.get(Locale.En) ?? []).map(
                 (
                     {
                         text,
                         orderIndex,
                     },
                 ) => {
-                    const viItem = viValueProps.find(
-                        (item) => item.orderIndex === orderIndex,
-                    )
-                    if (!viItem) {
-                        throw new CourseSeedValuePropositionViMissingException(
-                            {
-                                courseIndex,
-                                orderIndex,
-                            },
-                        )
-                    }
+                    const translations = Array.from(valuePropositionsMap.entries()).map(([locale,
+                        items]) => items.map((item) => ({
+                        locale,
+                        text: item.text,
+                        orderIndex: item.orderIndex,
+                        field: "text",
+                    }))).flat()
                     const valuePropositionId = this.valuePropositionIdFactoryService.generate(
                         {
                             courseIndex,
@@ -321,90 +268,81 @@ export class CourseParserService {
                     )
                     return {
                         id: valuePropositionId,
-                        defaultLocale: Locale.En,
-                        content: text,
+                        defaultLocale,
+                        text,
                         orderIndex,
-                        translations: [
-                            {
-                                valuePropositionId,
-                                locale: Locale.Vi,
-                                field: "content",
-                                value: viItem.text,
-                            },
-                        ],
+                        translations
                     }
                 },
             ),
-            qnas: enQnas.map(
+            qnas: (qnasMap.get(Locale.En) ?? []).map(
                 (
-                    enItem,
-                    qnaIndex,
+                    {
+                        question,
+                        answer,
+                        orderIndex,
+                    },
                 ) => {
-                    const viItem = viQnas.find(
-                        (item) => item.orderIndex === enItem.orderIndex,
-                    )
-                    if (!viItem) {
-                        throw new CourseSeedQnaViMissingException(
-                            {
-                                courseIndex,
-                                orderIndex: enItem.orderIndex,
-                            },
-                        )
-                    }
+                    const translations = Array.from(
+                        qnasMap.entries()).map((
+                        [locale,
+                            items]
+                    ) => items.map((item) => {
+                        const translations: Array<DeepPartial<QnaTranslationEntity>> = []
+                        translations.push({
+                            qnaId,
+                            locale,
+                            field: "question",
+                            value: item.question,
+                        })
+                        translations.push({
+                            qnaId,
+                            locale,
+                            field: "answer",
+                            value: item.answer,
+                        })
+                        return translations
+                    })).flat().flat()
                     const qnaId = this.qnaIdFactoryService.generate(
                         {
                             courseIndex,
-                            qnaIndex,
+                            qnaIndex: orderIndex,
                         },
                     )
                     return {
                         id: qnaId,
-                        defaultLocale: Locale.En,
-                        question: enItem.question,
-                        answer: enItem.answer,
-                        orderIndex: enItem.orderIndex,
-                        translations: [
-                            {
-                                qnaId,
-                                locale: Locale.Vi,
-                                field: "question",
-                                value: viItem.question,
-                            },
-                            {
-                                qnaId,
-                                locale: Locale.Vi,
-                                field: "answer",
-                                value: viItem.answer,
-                            },
-                        ],
+                        defaultLocale,
+                        question,
+                        answer,
+                        orderIndex,
+                        translations
                     }
                 },
             ),
-            translations: [
-                {
-                    courseId,
-                    locale: Locale.Vi,
-                    field: "title",
-                    value: title.vi,
-                },
-                {
-                    courseId,
-                    locale: Locale.Vi,
-                    field: "description",
-                    value: description.vi,
-                },
-            ],
+            translations: (
+                () => {
+                    const translations: Array<DeepPartial<CourseTranslationEntity>> = []
+                    for (const locale of Object.values(Locale)) {
+                        translations.push(
+                            {
+                                courseId,
+                                locale,
+                                field: "title",
+                                value: titleMap.get(locale) ?? "",
+                            }
+                        )
+                        translations.push(
+                            {
+                                courseId,
+                                locale,
+                                field: "description",
+                                value: descriptionMap.get(locale) ?? "",
+                            }
+                        )
+                    }
+                    return translations
+                }
+            )()
         }
-    }
-
-    /**
-     * Lists course ordinals whose mount folders exist (slug names via {@link courseAlias}).
-     *
-     * @returns Sorted course indices
-     */
-    indexes(): ListCourseIndexesResult {
-        return listMountedCourseIndices(
-            envConfig().mountPath.data.courses,
-        )
     }
 }

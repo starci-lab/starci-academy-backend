@@ -54,6 +54,6 @@ export class CoursePricingService {
     getCurrentPricingPhase(
         course: CourseEntity,
     ): PricingPhase {
-        return course.currentPhase ?? PricingPhase.Regular
+        return course.metadata?.currentPhase ?? PricingPhase.Regular
     }
 }

@@ -9,7 +9,7 @@ export type ExtractContentBlockBothParams = ExtractChallengeBlockBothParams
 /** English and Vietnamese bodies for one content markdown section. */
 export type ExtractContentBlockBothResult = ExtractChallengeBlockBothResult
 
-/** Ordinals locating `modules/{moduleIndex}/contents/{contentIndex}/` on the course mount. */
+/** Ordinals locating `modules/{module}/contents/{contentIndex}-{slug}/` on the course mount. */
 export interface ParseContentParams {
     courseIndex: number
     moduleIndex: number
@@ -23,11 +23,9 @@ export interface ContentDataJson {
     minutesRead?: number
 }
 
-/** Ordinals locating `modules/{moduleIndex}/contents/` on the course mount. */
+/** Ordinals locating `modules/{module}/contents/` on the course mount. */
 export interface ContentIndexesParams {
-    /** Index of the course. */
     courseIndex: number
-    /** Index of the module. */
     moduleIndex: number
 }
 

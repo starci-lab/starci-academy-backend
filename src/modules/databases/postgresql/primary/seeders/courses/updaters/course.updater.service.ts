@@ -1,6 +1,8 @@
 import {
     CourseEntity,
+    CourseMetadataEntity,
     CourseTranslationEntity,
+    PricingPhase,
 } from "@modules/databases"
 import {
     Injectable,
@@ -159,6 +161,44 @@ export class CoursesUpdaterService {
             },
             sanitizePrimitiveFields(updated),
         )
+
+        const nextPhase = updated.metadata?.currentPhase ?? PricingPhase.Regular
+        const existingMetadata = await entityManager.findOne(
+            CourseMetadataEntity,
+            {
+                where: {
+                    course: {
+                        id: previous.id,
+                    },
+                },
+            },
+        )
+        if (existingMetadata) {
+            if (existingMetadata.currentPhase !== nextPhase) {
+                await entityManager.update(
+                    CourseMetadataEntity,
+                    {
+                        id: existingMetadata.id,
+                    },
+                    {
+                        currentPhase: nextPhase,
+                    },
+                )
+            }
+        } else {
+            await entityManager.save(
+                CourseMetadataEntity,
+                entityManager.create(
+                    CourseMetadataEntity,
+                    {
+                        course: {
+                            id: previous.id,
+                        },
+                        currentPhase: nextPhase,
+                    },
+                ),
+            )
+        }
 
         // translations: nested children
         await this.updateTranslations(

@@ -186,6 +186,7 @@ export class CoursesSyncService implements OnApplicationBootstrap {
                         id 
                     },
                     relations: {
+                        metadata: true,
                         prerequisites: true,
                         qnas: true,
                         modules: {

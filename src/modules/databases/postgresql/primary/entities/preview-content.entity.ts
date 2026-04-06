@@ -39,14 +39,14 @@ export class PreviewContentEntity extends UuidAbstractEntity {
     @Field(
         () => String,
         {
-            description: "Content line text/body.",
+            description: "Content line text.",
         },
     )
     @Column({
-        name: "data",
+        name: "text",
         type: "text",
     })
-        data: string
+        text: string
 
     /**
      * Display order within the parent module preview content list.

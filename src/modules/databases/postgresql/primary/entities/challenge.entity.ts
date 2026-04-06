@@ -63,6 +63,22 @@ export class ChallengeEntity extends UuidAbstractEntity {
         title: string
 
     /**
+     * Human-facing stable identifier from the mount folder (`{index}-{slug}` slug segment).
+     */
+    @Field(
+        () => String,
+        {
+            description: "Human-facing stable identifier from the challenge mount folder slug.",
+        },
+    )
+    @Column({
+        name: "display_id",
+        type: "varchar",
+        length: 255,
+    })
+        displayId: string
+
+    /**
      * Challenge prerequisites (Markdown).
      */
     @Field(

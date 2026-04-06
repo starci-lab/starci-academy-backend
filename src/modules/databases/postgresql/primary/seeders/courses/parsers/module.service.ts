@@ -1,49 +1,40 @@
-import type {
-    ExtractModuleBlockBothParams,
-    ExtractModuleBlockBothResult,
-    ListModuleIndexesResult,
-    ModuleDataJson,
-    ModuleIndexesParams,
-} from "./types"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
     readMdFileOrDefault,
-    readJsonFileOrDefault,
 } from "@modules/common"
-import {
-    ModuleSeedPreviewViMissingException,
-} from "@modules/exceptions"
-import {
-    envConfig,
-} from "@modules/env"
 import {
     Locale,
 } from "../../../enums"
 import {
     ExtractBlockService,
     ExtractBulletListItemsService,
+    MarkdownBulletListItem,
 } from "../extracts"
 import {
     ModuleIdFactoryService,
     PreviewContentIdFactoryService,
 } from "../id-factories"
 import {
-    courseAlias,
-} from "../utils"
-import {
-    listNumericChildDirectoryIndices,
-} from "./utils"
-import {
     ParseModuleParams 
+} from "./types"
+import {
+    ExtractParams,
+} from "./types"
+import {
+    ExtractResult,
 } from "./types"
 import {
     DeepPartial 
 } from "typeorm"
 import {
-    ModuleEntity 
+    ModuleEntity, 
+    ModuleTranslationEntity, 
 } from "../../../entities"
+import {
+    ModuleDirService 
+} from "../dir"
 
 /**
  * Parses module lesson video from `en.md`, `vi.md`, and `data.json` (Title, Description + stream metadata).
@@ -55,58 +46,38 @@ export class ModuleParserService {
         private readonly extractBulletListItemsService: ExtractBulletListItemsService,
         private readonly previewContentIdFactoryService: PreviewContentIdFactoryService,
         private readonly moduleIdFactoryService: ModuleIdFactoryService,
+        private readonly moduleDirService: ModuleDirService,
     ) {}
 
     /**
-     * Reads the same top-level markdown section in English and Vietnamese.
+     * Reads the same top-level markdown section in many locales.
      *
-     * @param param - Heading key and both locale documents
+     * @param param - Heading key and locale markdown map
      * @returns Trimmed section bodies per locale
      */
-    private extractBlockBoth(
+    private extract(
         {
             key,
-            enMarkdown,
-            viMarkdown,
-            numHashs = 1,
-        }: ExtractModuleBlockBothParams,
-    ): ExtractModuleBlockBothResult {
-        return {
-            en: this.extractBlockService.extract(
-                {
-                    key,
-                    markdown: enMarkdown,
-                    numHashs,
-                },
-            ),
-            vi: this.extractBlockService.extract(
-                {
-                    key,
-                    markdown: viMarkdown,
-                    numHashs,
-                },
-            ),
+            markdownMap,
+        }: ExtractParams,
+    ): ExtractResult {
+        const result = new Map<Locale, string>()
+        for (const locale of Object.values(Locale)) {
+            result.set(locale,
+                this.extractBlockService.extract(
+                    {
+                        key,
+                        markdown: markdownMap.get(locale) ?? "",
+                    },
+                )
+            )
         }
+        return result
     }
 
-    /**
-     * Directory containing `en.md`, `vi.md`, and `data.json` for one lesson video.
-     *
-     * @param param - Course, module, and lesson video indices
-     * @returns Absolute path to that folder
-     */
-    private path(
-        {
-            courseIndex,
-            moduleIndex,
-        }: ParseModuleParams,
-    ): string {
-        return `${
-            envConfig().mountPath.data.courses}/${courseAlias(courseIndex)}/modules/${moduleIndex}`
-    }
 
     /**
-     * Builds a partial lesson video entity from mounted course files.
+     * Builds a partial module entity from mounted course files.
      *
      * @param param - Course, module, and lesson video indices
      * @returns Entity-shaped object suitable for TypeORM cascade save
@@ -117,47 +88,46 @@ export class ModuleParserService {
             moduleIndex,
         }: ParseModuleParams,
     ): DeepPartial<ModuleEntity> {
-        const path = this.path(
+        const {
+            path,
+            displayId,
+        } = this.moduleDirService.path(
             {
                 courseIndex,
                 moduleIndex,
             },
         )
 
-        const enMarkdown = readMdFileOrDefault(`${path}/en.md`)
-        const viMarkdown = readMdFileOrDefault(`${path}/vi.md`)
-        const dataJson = readJsonFileOrDefault<ModuleDataJson>(`${path}/data.json`)
+        const markdownMap = new Map<Locale, string>()
+        for (const locale of Object.values(Locale)) {
+            markdownMap.set(locale,
+                readMdFileOrDefault(`${path}/${locale}.md`))
+        }
 
-        const title = this.extractBlockBoth(
+        const titleMap = this.extract(
             {
                 key: "Title",
-                enMarkdown,
-                viMarkdown,
+                markdownMap,
             },
         )
-        const description = this.extractBlockBoth(
+        const descriptionMap = this.extract(
             {
                 key: "Description",
-                enMarkdown,
-                viMarkdown,
+                markdownMap,
             },
         )
 
-        const previewContentsText = this.extractBlockBoth(
+        const previewContentsTextMap = this.extract(
             {
-                key: "Preview Contents",
-                enMarkdown,
-                viMarkdown,
+                key: "Preview Contents",    
+                markdownMap,
             },
         )
-
-        const enPreviewContents = this.extractBulletListItemsService.extract(
-            previewContentsText.en,
-        )
-        const viPreviewContents = this.extractBulletListItemsService.extract(
-            previewContentsText.vi,
-        )
-
+        const previewContentsMap = new Map<Locale, Array<MarkdownBulletListItem>>()
+        for (const locale of Object.values(Locale)) {
+            previewContentsMap.set(locale,
+                this.extractBulletListItemsService.extract(previewContentsTextMap.get(locale) ?? ""))
+        }
         const moduleId = this.moduleIdFactoryService.generate(
             {
                 courseIndex,
@@ -166,27 +136,25 @@ export class ModuleParserService {
         )
         return {
             id: moduleId,
-            displayId: dataJson.displayId,
+            displayId,
             orderIndex: moduleIndex,
             defaultLocale: Locale.En,
-            title: title.en,
-            description: description.en,
-            previewContents: enPreviewContents.map(
+            title: titleMap.get(Locale.En) ?? "",
+            description: descriptionMap.get(Locale.En) ?? "",
+            previewContents: (previewContentsMap.get(Locale.En) ?? []).map(
                 (
-                    { text, orderIndex }
+                    {
+                        text,
+                        orderIndex,
+                    },
                 ) => {
-                    const viPreviewContent = viPreviewContents.find(
-                        (viPreviewContent) => viPreviewContent.orderIndex === orderIndex,
-                    )
-                    if (!viPreviewContent) {
-                        throw new ModuleSeedPreviewViMissingException(
-                            {
-                                courseIndex,
-                                moduleIndex,
-                                orderIndex,
-                            },
-                        )
-                    }
+                    const translations = Array.from(previewContentsMap.entries()).map(([locale,
+                        items]) => items.map((item) => ({
+                        locale,
+                        text: item.text,
+                        orderIndex: item.orderIndex,
+                        field: "text",
+                    }))).flat()
                     const previewContentId = this.previewContentIdFactoryService.generate(
                         {
                             courseIndex,
@@ -197,48 +165,32 @@ export class ModuleParserService {
                     return {
                         id: previewContentId,
                         defaultLocale: Locale.En,
-                        data: text,
+                        text,
                         orderIndex,
-                        translations: [
-                            {
-                                previewContentId,
-                                locale: Locale.Vi,
-                                field: "data",
-                                value: viPreviewContent.text,
-                            },
-                        ],
+                        translations
                     }
-                }),
-            translations: [
-                {
-                    moduleId,
-                    locale: Locale.Vi,
-                    field: "title",
-                    value: title.vi,
                 },
-                {
-                    moduleId,
-                    locale: Locale.Vi,
-                    field: "description",
-                    value: description.vi,
-                },
-            ],
+            ),
+            translations: (
+                () => {
+                    const translations: Array<DeepPartial<ModuleTranslationEntity>> = []
+                    for (const locale of Object.values(Locale)) {
+                        translations.push({
+                            moduleId,
+                            locale,
+                            field: "title",
+                            value: titleMap.get(locale) ?? "",
+                        })
+                        translations.push({
+                            moduleId,
+                            locale,
+                            field: "description",
+                            value: descriptionMap.get(locale) ?? "",
+                        })
+                    }
+                    return translations
+                }
+            )()
         }
-    }
-
-    /**
-     * Lists numeric `modules/{n}/` indices on the mount for a course.
-     *
-     * @param param - Course ordinal
-     * @returns Sorted module folder indices
-     */
-    indexes(
-        {
-            courseIndex,
-        }: ModuleIndexesParams,
-    ): ListModuleIndexesResult {
-        return listNumericChildDirectoryIndices(
-            `${envConfig().mountPath.data.courses}/${courseAlias(courseIndex)}/modules`,
-        )
     }
 }

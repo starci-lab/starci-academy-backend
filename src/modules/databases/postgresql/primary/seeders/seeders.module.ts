@@ -44,6 +44,11 @@ import {
     PricingPhaseUpdaterService,
     QnaUpdaterService,
     ValuePropositionUpdaterService,
+    ChallengeDirService,
+    ContentDirService,
+    CourseDirService,
+    LessonVideoDirService,
+    ModuleDirService,
 } from "./courses"
 import {
     SeedersService 
@@ -60,6 +65,11 @@ import {
 export class SeedersModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const providers = [
+            CourseDirService,
+            ModuleDirService,
+            ContentDirService,
+            LessonVideoDirService,
+            ChallengeDirService,
             ExtractBlockService,
             ExtractBulletListItemsService,
             ExtractQnaItemsService,

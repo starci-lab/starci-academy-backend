@@ -45,11 +45,14 @@ export class SeedersService implements OnModuleInit {
         await this.entityManager.transaction(
             async (entityManager) => {
                 const previousCourses = await entityManager.find(CourseEntity)
-                const updatedCourses = this.courseParserService.parse(
-                    {
-                        courseIndex: 0,
-                    }
-                )
+                const courseMounts = this.courseParserService.indexes()
+                const updatedCourses = courseMounts.map((courseIndex) => {
+                    return this.courseParserService.parse(
+                        {
+                            courseIndex,
+                        },
+                    )
+                })
                 await this.coursesUpdaterService.updateCourses(
                     {
                         previous: previousCourses,

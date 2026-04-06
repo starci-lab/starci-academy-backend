@@ -1,9 +1,7 @@
 import type {
-    ExtractLessonVideoBlockBothParams,
-    ExtractLessonVideoBlockBothResult,
+    ExtractParams,
+    ExtractResult,
     LessonVideoDataJson,
-    LessonVideoIndexesParams,
-    ListLessonVideoIndexesResult,
     ParseLessonVideoParams,
 } from "./types"
 import {
@@ -14,12 +12,6 @@ import {
     readMdFileOrDefault,
 } from "@modules/common"
 import {
-    LessonVideoSeedDataInvalidException,
-} from "@modules/exceptions"
-import {
-    envConfig,
-} from "@modules/env"
-import {
     Locale,
 } from "../../../enums"
 import {
@@ -29,88 +21,56 @@ import {
     LessonVideoIdFactoryService,
 } from "../id-factories"
 import {
-    courseAlias,
-} from "../utils"
-import {
-    listNumericChildDirectoryIndices,
-} from "./utils"
-import {
-    DeepPartial 
+    DeepPartial,
 } from "typeorm"
 import {
-    LessonVideoEntity 
+    LessonVideoEntity,
+    LessonVideoTranslationEntity,
 } from "../../../entities"
+import {
+    LessonVideoDirService,
+} from "../dir"
 
 /**
- * Folder name on the course mount for lesson videos.
- * Spelling matches existing `.mount/.../lession-videos/` directories.
- */
-const LESSON_VIDEOS_MOUNT_SEGMENT = "lession-videos"
-
-/**
- * Parses module lesson video from `en.md`, `vi.md`, and `data.json` (Title, Description + stream metadata).
+ * Parses lesson video from mounted course files.
  */
 @Injectable()
 export class LessonVideoParserService {
     constructor(
+        private readonly lessonVideoDirService: LessonVideoDirService,
         private readonly extractBlockService: ExtractBlockService,
         private readonly lessonVideoIdFactoryService: LessonVideoIdFactoryService,
     ) {}
 
     /**
-     * Reads the same top-level markdown section in English and Vietnamese.
+     * Reads the same top-level markdown section in many locales.
      *
-     * @param param - Heading key and both locale documents
+     * @param param - Heading key and locale markdown map
      * @returns Trimmed section bodies per locale
      */
-    private extractBlockBoth(
+    private extract(
         {
             key,
-            enMarkdown,
-            viMarkdown,
-            numHashs = 1,
-        }: ExtractLessonVideoBlockBothParams,
-    ): ExtractLessonVideoBlockBothResult {
-        return {
-            en: this.extractBlockService.extract(
-                {
-                    key,
-                    markdown: enMarkdown,
-                    numHashs,
-                },
-            ),
-            vi: this.extractBlockService.extract(
-                {
-                    key,
-                    markdown: viMarkdown,
-                    numHashs,
-                },
-            ),
+            markdownMap,
+        }: ExtractParams,
+    ): ExtractResult {
+        const result = new Map<Locale, string>()
+        for (const locale of Object.values(Locale)) {
+            result.set(
+                locale,
+                this.extractBlockService.extract(
+                    {
+                        key,
+                        markdown: markdownMap.get(locale) ?? "",
+                    },
+                )
+            )
         }
-    }
-
-    /**
-     * Directory containing `en.md`, `vi.md`, and `data.json` for one lesson video.
-     *
-     * @param param - Course, module, and lesson video indices
-     * @returns Absolute path to that folder
-     */
-    private path(
-        {
-            courseIndex,
-            moduleIndex,
-            lessonVideoIndex,
-        }: ParseLessonVideoParams,
-    ): string {
-        return `${
-            envConfig().mountPath.data.courses}/${courseAlias(courseIndex)}/modules/${moduleIndex}/${LESSON_VIDEOS_MOUNT_SEGMENT}/${lessonVideoIndex}`
+        return result
     }
 
     /**
      * Builds a partial lesson video entity from mounted course files.
-     *
-     * @param param - Course, module, and lesson video indices
-     * @returns Entity-shaped object suitable for TypeORM cascade save
      */
     parse(
         {
@@ -119,47 +79,35 @@ export class LessonVideoParserService {
             lessonVideoIndex,
         }: ParseLessonVideoParams,
     ): DeepPartial<LessonVideoEntity> {
-        const path = this.path(
+        const {
+            path,
+            displayId,
+        } = this.lessonVideoDirService.path(
             {
                 courseIndex,
                 moduleIndex,
                 lessonVideoIndex,
             },
         )
-
-        const enMarkdown = readMdFileOrDefault(`${path}/en.md`)
-        const viMarkdown = readMdFileOrDefault(`${path}/vi.md`)
-        const dataJson = readJsonFileOrDefault<Partial<LessonVideoDataJson>>(`${path}/data.json`)
-
-        if (typeof dataJson.url !== "string" || !dataJson.url.trim()) {
-            throw new LessonVideoSeedDataInvalidException(
-                {
-                    path,
-                    field: "url",
-                },
+        const markdownMap = new Map<Locale, string>()
+        for (const locale of Object.values(Locale)) {
+            markdownMap.set(
+                locale,
+                readMdFileOrDefault(`${path}/${locale}.md`)
             )
         }
-        if (typeof dataJson.durationMs !== "number" || !Number.isFinite(dataJson.durationMs)) {
-            throw new LessonVideoSeedDataInvalidException(
-                {
-                    path,
-                    field: "durationMs",
-                },
-            )
-        }
+        const dataJson = readJsonFileOrDefault<LessonVideoDataJson>(`${path}/data.json`)
 
-        const title = this.extractBlockBoth(
+        const titleMap = this.extract(
             {
                 key: "Title",
-                enMarkdown,
-                viMarkdown,
+                markdownMap,
             },
         )
-        const description = this.extractBlockBoth(
+        const descriptionMap = this.extract(
             {
                 key: "Description",
-                enMarkdown,
-                viMarkdown,
+                markdownMap,
             },
         )
 
@@ -174,43 +122,31 @@ export class LessonVideoParserService {
         return {
             id: lessonVideoId,
             defaultLocale: Locale.En,
-            title: title.en,
-            description: description.en || null,
-            url: dataJson.url.trim(),
-            thumbnailUrl: dataJson.thumbnailUrl?.trim() || null,
-            durationMs: dataJson.durationMs,
+            displayId,
+            title: titleMap.get(Locale.En) ?? "",
+            description: descriptionMap.get(Locale.En) ?? "",
+            url: dataJson.url ?? "",
             orderIndex: lessonVideoIndex,
-            translations: [
-                {
-                    lessonVideoId,
-                    locale: Locale.Vi,
-                    field: "title",
-                    value: title.vi,
-                },
-                {
-                    lessonVideoId,
-                    locale: Locale.Vi,
-                    field: "description",
-                    value: description.vi,
-                },
-            ],
+            durationMs: dataJson.durationMs ?? 0,
+            translations: (() => {
+                const translations: Array<DeepPartial<LessonVideoTranslationEntity>> = []
+                for (const locale of Object.values(Locale)) {
+                    translations.push({
+                        lessonVideoId,
+                        locale,
+                        field: "title",
+                        value: titleMap.get(locale) ?? "",
+                    })
+                    translations.push({
+                        lessonVideoId,
+                        locale,
+                        field: "description",
+                        value: descriptionMap.get(locale) ?? "",
+                    })
+                }
+                return translations
+            })(),
+            thumbnailUrl: dataJson.thumbnailUrl ?? null,
         }
-    }
-
-    /**
-     * Lists numeric `lession-videos/{n}/` indices on the mount for a module.
-     *
-     * @param param - Course and module ordinals
-     * @returns Sorted lesson-video folder indices
-     */
-    indexes(
-        {
-            courseIndex,
-            moduleIndex,
-        }: LessonVideoIndexesParams,
-    ): ListLessonVideoIndexesResult {
-        return listNumericChildDirectoryIndices(
-            `${envConfig().mountPath.data.courses}/${courseAlias(courseIndex)}/modules/${moduleIndex}/${LESSON_VIDEOS_MOUNT_SEGMENT}`,
-        )
     }
 }
