@@ -55,7 +55,7 @@ export class CourseDirService {
 
         // map to consumer shape (displayId = slug segment)
         return {
-            displayId: dirName.split("-")[1],
+            displayId: dirName.slice(dirName.indexOf("-") + 1),
             path: `${root}/${dirName}`,
         }
     }

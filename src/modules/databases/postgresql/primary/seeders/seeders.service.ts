@@ -8,18 +8,24 @@ import {
     MODULE_OPTIONS_TOKEN, OPTIONS_TYPE 
 } from "./seeders.module-definition"
 import {
+    DeepPartial,
     EntityManager 
 } from "typeorm"
 import {
     CourseParserService,
     CoursesUpdaterService,
-    CourseDirService
+    CourseDirService,
+    ModuleDirService,
+    ModuleParserService,
+    ChallengeParserService,
+    ChallengeDirService
 } from "./courses"
 import {
     InjectPrimaryPostgreSQLEntityManager 
 } from "../primary.decorators"
 import {
-    CourseEntity 
+    CourseEntity, 
+    ModuleEntity
 } from "@modules/databases"
 
 /**
@@ -36,6 +42,10 @@ export class SeedersService implements OnModuleInit {
         private readonly coursesUpdaterService: CoursesUpdaterService,
         private readonly courseParserService: CourseParserService,
         private readonly courseDirService: CourseDirService,
+        private readonly moduleDirService: ModuleDirService,
+        private readonly moduleParserService: ModuleParserService,
+        private readonly challengeParserService: ChallengeParserService,
+        private readonly challengeDirService: ChallengeDirService,
     ) { }
 
     /**
@@ -48,12 +58,50 @@ export class SeedersService implements OnModuleInit {
             async (entityManager) => {
                 const previousCourses = await entityManager.find(CourseEntity)
                 const courseMounts = this.courseDirService.indexes()
-                const updatedCourses = courseMounts.map((courseIndex) => {
-                    return this.courseParserService.parse(
+                const updatedCourses: Array<DeepPartial<CourseEntity>> = courseMounts.map((courseIndex) => {
+                    const course = this.courseParserService.parse(
                         {
                             courseIndex,
                         },
                     )
+                    const moduleMounts = this.moduleDirService.indexes({
+                        courseIndex,
+                    })
+                    const updatedModules: Array<DeepPartial<ModuleEntity>> = moduleMounts.map(
+                        (moduleIndex) => {
+                            const module = this.moduleParserService.parse(
+                                {
+                                    courseIndex,
+                                    moduleIndex,
+                                },
+                            )
+                            return {
+                                ...module,
+                                challenges: (() => {
+                                    const challengeMounts = this.challengeDirService.indexes(
+                                        {
+                                            courseIndex,
+                                            moduleIndex,
+                                        }
+                                    )
+                                    const challenges = challengeMounts.map(
+                                        (challengeIndex) => this.challengeParserService.parse(
+                                            {
+                                                courseIndex,
+                                                moduleIndex,
+                                                challengeIndex,
+                                            },
+                                        )
+                                    )
+                                    return challenges
+                                })(),
+                            }
+                        }
+                    )
+                    return {
+                        ...course,
+                        modules: updatedModules,
+                    }
                 })
                 await this.coursesUpdaterService.updateCourses(
                     {

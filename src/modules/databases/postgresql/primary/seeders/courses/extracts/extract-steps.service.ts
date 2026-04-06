@@ -54,7 +54,7 @@ export class ExtractStepsService {
                     }
 
                     currentStep = {
-                        index: Number(match[1]),
+                        orderIndex: Number(match[1]),
                         title: match[2].trim(),
                         body: "",
                     }

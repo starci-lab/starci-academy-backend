@@ -16,6 +16,13 @@ export class ChallengeTransformerService {
         private readonly translationResolver: TranslationResolverService,
     ) {}
 
+    /**
+     * Applies translations to a challenge and nested steps and references.
+     * @param challenge - The challenge to transform.
+     * @param locale - The locale to transform the challenge to.
+     * @param parentFallbackLocale - The fallback locale to use for the challenge.
+     * @returns void.
+     */
     transform(
         challenge: ChallengeEntity,
         locale: Locale,

@@ -51,7 +51,13 @@ export interface ChallengeSubmissionPromptJson {
 
 /** Shape of challenge `data.json` beside markdown files. */
 export interface ChallengeDataJson {
+    /** Difficulty level of the challenge. */
     difficulty: ChallengeDifficulty
+    /** Total score for the challenge. */
     score: number
-    prompts: Array<ChallengeSubmissionPromptJson>
+    /**
+     * Optional rubric prompts. When omitted or unused, prompts are taken from `# Submissions`
+     * bodies (`### N. Title (Xpts)` in `en.md` / `vi.md`) when present.
+     */
+    prompts?: Array<ChallengeSubmissionPromptJson>
 }

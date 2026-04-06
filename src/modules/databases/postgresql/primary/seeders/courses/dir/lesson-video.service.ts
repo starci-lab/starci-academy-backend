@@ -70,7 +70,7 @@ export class LessonVideoDirService {
                 },
             )
         }
-        const displayId = dirName.split("-")[1]
+        const displayId = dirName.slice(dirName.indexOf("-") + 1)
         return {
             displayId,
             path: `${root}/${dirName}`,

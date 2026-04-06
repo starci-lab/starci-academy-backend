@@ -17,3 +17,11 @@ export interface ModuleDirPathResult {
     /** Absolute path to the module root on the mount. */
     path: string
 }
+
+/**
+ * Params for listing indexed module folders.
+ */
+export interface ModuleDirIndexesParams {
+    /** Course order index on the mount. */
+    courseIndex: number
+}

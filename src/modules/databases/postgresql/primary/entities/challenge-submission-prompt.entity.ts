@@ -21,17 +21,17 @@ import {
 @Entity("challenge_submission_prompts")
 export class ChallengeSubmissionPromptEntity extends UuidAbstractEntity {
     /**
-     * The English text of the prompt.
+     * The text of the prompt.
      */
     @Column({
-        name: "text_en",
+        name: "prompt_text",
         type: "text",
         default: "",
     })
-        textEn: string
+        promptText: string
 
     /**
-     * English title / label for this prompt.
+     * Title / label for this prompt.
      */
     @Column({
         name: "title_en",
@@ -39,7 +39,7 @@ export class ChallengeSubmissionPromptEntity extends UuidAbstractEntity {
         length: 200,
         default: "",
     })
-        titleEn: string
+        title: string
 
     /**
      * Weight or points for this prompt.

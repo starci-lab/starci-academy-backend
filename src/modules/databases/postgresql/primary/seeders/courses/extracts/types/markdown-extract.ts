@@ -24,9 +24,11 @@ export interface ExtractStepsParams {
 
 /** One numbered step block under a challenge-style section. */
 export interface MarkdownStep {
-    /** Index from the `## N.` heading. */
-    index: number
+    /** Display order from the `## N.` heading. */
+    orderIndex: number
+    /** Step title. */
     title: string
+    /** Step body. */
     body: string
 }
 
@@ -60,6 +62,22 @@ export interface MarkdownSubmission {
 }
 
 export type ExtractSubmissionsResult = Array<MarkdownSubmission>
+
+/** One rubric line parsed from `### N. Title (Xpts)` under a submission block. */
+export interface MarkdownSubmissionPrompt {
+    /** Zero-based order, derived from the `N` in `### N.`. */
+    orderIndex: number
+    score: number
+    title: string
+    text: string
+}
+
+export type ExtractSubmissionPromptsResult = Array<MarkdownSubmissionPrompt>
+
+/** Params for parsing `### N. Title (Xpts)` rubric headings inside submission markdown. */
+export interface ExtractSubmissionPromptsParams {
+    markdown: string
+}
 
 /** One top-level `- item` bullet line. */
 export interface MarkdownBulletListItem {
