@@ -21,10 +21,10 @@ export class PreviewContentTransformerService {
         locale: Locale,
         fallbackLocale: Locale,
     ): void {
-        previewContent.data = this.translationResolver.resolve(
+        previewContent.text = this.translationResolver.resolve(
             {
                 translations: previewContent.translations,
-                field: "data",
+                field: "text",
                 locale,
                 fallbackLocale,
             },

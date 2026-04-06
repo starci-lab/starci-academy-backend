@@ -34,13 +34,13 @@ export class PrerequisiteEntity extends UuidAbstractEntity {
      */
     @Field(() => String,
         {
-            description: "Requirement or prior knowledge description."
+            description: "Requirement or prior knowledge text."
         })
     @Column({
-        name: "content",
+        name: "text",
         type: "text"
     })
-        content: string
+        text: string
 
     /**
      * Display order within the course prerequisite list.

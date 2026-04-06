@@ -32,9 +32,6 @@ import {
     ChallengeStepEntity,
 } from "./challenge-step.entity"
 import {
-    ChallengePromptEntity,
-} from "./challenge-prompt.entity"
-import {
     ChallengeSubmissionEntity,
 } from "./challenge-submission.entity"
 
@@ -61,6 +58,22 @@ export class ChallengeEntity extends UuidAbstractEntity {
         length: 500,
     })
         title: string
+
+    /**
+     * Human-facing stable identifier from the mount folder (`{index}-{slug}` slug segment).
+     */
+    @Field(
+        () => String,
+        {
+            description: "Human-facing stable identifier from the challenge mount folder slug.",
+        },
+    )
+    @Column({
+        name: "display_id",
+        type: "varchar",
+        length: 255,
+    })
+        displayId: string
 
     /**
      * Challenge prerequisites (Markdown).
@@ -266,16 +279,4 @@ export class ChallengeEntity extends UuidAbstractEntity {
         },
     )
         submissions: Array<ChallengeSubmissionEntity>
-
-    /**
-     * Prompts for this challenge (internal / server-side only; not exposed via GraphQL).
-     */
-    @OneToMany(
-        () => ChallengePromptEntity,
-        (prompt: ChallengePromptEntity) => prompt.challenge,
-        {
-            cascade: true,
-        },
-    )
-        prompts: Array<ChallengePromptEntity>
 }

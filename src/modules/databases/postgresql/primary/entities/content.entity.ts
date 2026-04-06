@@ -52,6 +52,22 @@ export class ContentEntity extends UuidAbstractEntity {
         title: string
 
     /**
+     * Human-facing stable identifier from the mount folder (`{index}-{slug}` slug segment).
+     */
+    @Field(
+        () => String,
+        {
+            description: "Human-facing stable identifier from the content mount folder slug.",
+        },
+    )
+    @Column({
+        name: "display_id",
+        type: "varchar",
+        length: 255,
+    })
+        displayId: string
+
+    /**
      * Optional short summary shown before the body (plain text or light markdown).
      */
     @Field(

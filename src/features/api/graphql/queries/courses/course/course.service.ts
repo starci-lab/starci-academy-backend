@@ -67,6 +67,7 @@ export class CourseService {
                     }),
                 },
                 relations: {
+                    metadata: true,
                     translations: true,
                 },
             },

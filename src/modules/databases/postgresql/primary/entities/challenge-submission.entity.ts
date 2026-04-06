@@ -26,6 +26,9 @@ import {
 import {
     UserChallengeSubmissionEntity,
 } from "./user-challenge-submission.entity"
+import {
+    ChallengeSubmissionPromptEntity,
+} from "./challenge-submission-prompt.entity"
 
 @ObjectType(
     "Submission",
@@ -137,6 +140,15 @@ export class ChallengeSubmissionEntity extends UuidAbstractEntity {
         },
     )
         userSubmissions: Array<UserChallengeSubmissionEntity>
+
+    @OneToMany(
+        () => ChallengeSubmissionPromptEntity,
+        (prompt: ChallengeSubmissionPromptEntity) => prompt.challengeSubmission,
+        {
+            cascade: true,
+        },
+    )
+        prompts: Array<ChallengeSubmissionPromptEntity>
 
     // graphql only fields, not stored in the database
     @Field(

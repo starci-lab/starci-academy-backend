@@ -70,6 +70,7 @@ export class CoursesService {
             {
                 order,
                 relations: {
+                    metadata: true,
                     pricingPhases: true,
                     valuePropositions: true,
                 },

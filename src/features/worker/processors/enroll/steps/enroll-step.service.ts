@@ -1,5 +1,6 @@
 import {
     CourseEntity,
+    CourseMetadataEntity,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     nextPricingPhase,
@@ -101,6 +102,7 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                             id: courseId 
                         },
                         relations: {
+                            metadata: true,
                             pricingPhases: true,
                         },
                     }
@@ -114,7 +116,7 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                     )
                 }
                 // get the current pricing phase
-                const currentPhase = course?.currentPhase ?? PricingPhase.Regular
+                const currentPhase = course?.metadata?.currentPhase ?? PricingPhase.Regular
                 // create the enrollment
                 const enrollment = entityManager.create(
                     EnrollmentEntity,
@@ -141,8 +143,18 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                     },
                 )
                 if (!phase?.slotAvailable || enrollmentCount > phase.slotAvailable) {
-                    // update the course
-                    course.currentPhase = nextPricingPhase(currentPhase)
+                    const nextPhase = nextPricingPhase(currentPhase)
+                    if (!course.metadata) {
+                        course.metadata = entityManager.create(
+                            CourseMetadataEntity,
+                            {
+                                currentPhase: nextPhase,
+                                course,
+                            },
+                        )
+                    } else {
+                        course.metadata.currentPhase = nextPhase
+                    }
                     await entityManager.save(course)
                 }
                 // update the transaction status

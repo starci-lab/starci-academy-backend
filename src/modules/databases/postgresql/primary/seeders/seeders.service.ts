@@ -8,20 +8,25 @@ import {
     MODULE_OPTIONS_TOKEN, OPTIONS_TYPE 
 } from "./seeders.module-definition"
 import {
+    DeepPartial,
     EntityManager 
 } from "typeorm"
 import {
-    CoursesService,
+    CourseParserService,
+    CoursesUpdaterService,
+    CourseDirService,
+    ModuleDirService,
+    ModuleParserService,
+    ChallengeParserService,
+    ChallengeDirService
 } from "./courses"
 import {
     InjectPrimaryPostgreSQLEntityManager 
 } from "../primary.decorators"
 import {
-    CourseEntity 
+    CourseEntity, 
+    ModuleEntity
 } from "@modules/databases"
-import {
-    seedCourses 
-} from "../data"
 
 /**
  * The service for the Seeders.
@@ -34,7 +39,13 @@ export class SeedersService implements OnModuleInit {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
-        private readonly coursesService: CoursesService,
+        private readonly coursesUpdaterService: CoursesUpdaterService,
+        private readonly courseParserService: CourseParserService,
+        private readonly courseDirService: CourseDirService,
+        private readonly moduleDirService: ModuleDirService,
+        private readonly moduleParserService: ModuleParserService,
+        private readonly challengeParserService: ChallengeParserService,
+        private readonly challengeDirService: ChallengeDirService,
     ) { }
 
     /**
@@ -46,8 +57,53 @@ export class SeedersService implements OnModuleInit {
         await this.entityManager.transaction(
             async (entityManager) => {
                 const previousCourses = await entityManager.find(CourseEntity)
-                const updatedCourses = seedCourses
-                await this.coursesService.updateCourses(
+                const courseMounts = this.courseDirService.indexes()
+                const updatedCourses: Array<DeepPartial<CourseEntity>> = courseMounts.map((courseIndex) => {
+                    const course = this.courseParserService.parse(
+                        {
+                            courseIndex,
+                        },
+                    )
+                    const moduleMounts = this.moduleDirService.indexes({
+                        courseIndex,
+                    })
+                    const updatedModules: Array<DeepPartial<ModuleEntity>> = moduleMounts.map(
+                        (moduleIndex) => {
+                            const module = this.moduleParserService.parse(
+                                {
+                                    courseIndex,
+                                    moduleIndex,
+                                },
+                            )
+                            return {
+                                ...module,
+                                challenges: (() => {
+                                    const challengeMounts = this.challengeDirService.indexes(
+                                        {
+                                            courseIndex,
+                                            moduleIndex,
+                                        }
+                                    )
+                                    const challenges = challengeMounts.map(
+                                        (challengeIndex) => this.challengeParserService.parse(
+                                            {
+                                                courseIndex,
+                                                moduleIndex,
+                                                challengeIndex,
+                                            },
+                                        )
+                                    )
+                                    return challenges
+                                })(),
+                            }
+                        }
+                    )
+                    return {
+                        ...course,
+                        modules: updatedModules,
+                    }
+                })
+                await this.coursesUpdaterService.updateCourses(
                     {
                         previous: previousCourses,
                         updated: updatedCourses as Array<CourseEntity>,

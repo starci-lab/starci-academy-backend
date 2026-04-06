@@ -35,7 +35,7 @@ import {
     JobExtendedContext 
 } from "../types"
 import {
-    ChallengePromptEntity, 
+    ChallengeSubmissionPromptEntity, 
     ChallengeSubmissionEntity, 
     InjectPrimaryPostgreSQLEntityManager, 
     JobEntity, 
@@ -120,10 +120,13 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
                 })
             }
             const prompts = await this.entityManager.find(
-                ChallengePromptEntity,
+                ChallengeSubmissionPromptEntity,
                 {
                     where: {
-                        challengeId: challengeSubmission.challengeId,
+                        challengeSubmissionId: challengeSubmission.id,
+                    },
+                    order: {
+                        orderIndex: "ASC",
                     },
                 },
             )

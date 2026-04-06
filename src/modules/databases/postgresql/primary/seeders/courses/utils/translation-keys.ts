@@ -1,5 +1,6 @@
 import type {
     ChallengeReferenceTranslationEntity,
+    ChallengeSubmissionPromptTranslationEntity,
     ChallengeSubmissionTranslationEntity,
     ChallengeStepTranslationEntity,
     ChallengeTranslationEntity,
@@ -54,6 +55,12 @@ export const challengeSubmissionTranslationKey = (
     t: Pick<ChallengeSubmissionTranslationEntity, "challengeSubmissionId" | "locale" | "field">,
 ): string => {
     return `${t.challengeSubmissionId}:${t.locale}:${t.field}`
+}
+
+export const challengeSubmissionPromptTranslationKey = (
+    t: Pick<ChallengeSubmissionPromptTranslationEntity, "challengeSubmissionPromptId" | "locale" | "field">,
+): string => {
+    return `${t.challengeSubmissionPromptId}:${t.locale}:${t.field}`
 }
 
 /**

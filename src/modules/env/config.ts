@@ -15,6 +15,11 @@ import {
  * Called at runtime; defaults apply when the corresponding env var is unset.
  */
 export const envConfig = () => ({
+    /** UUID namespace configuration. */
+    uuidNamespace: {
+        /** UUID namespace for course. */
+        course: "d32d2da9-ad2e-44b4-b412-a97de455b8e4",
+    },
     /** True when NODE_ENV === "production". */
     isProduction: parseEnvString(
         {

@@ -22,10 +22,10 @@ export class PrerequisiteTransformerService {
         courseFallbackLocale: Locale,
     ): void {
         const fallbackLocale = prerequisite.defaultLocale ?? courseFallbackLocale
-        prerequisite.content = this.translationResolver.resolve(
+        prerequisite.text = this.translationResolver.resolve(
             {
                 translations: prerequisite.translations,
-                field: "content",
+                field: "text",
                 locale,
                 fallbackLocale,
             },
