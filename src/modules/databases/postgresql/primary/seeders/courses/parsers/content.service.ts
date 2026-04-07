@@ -170,18 +170,28 @@ export class ContentParserService {
                         field: "description",
                         value: descriptionMap.get(locale) ?? "",
                     })
+                    translations.push({
+                        contentId,
+                        locale,
+                        field: "body",
+                        value: bodyMap.get(locale) ?? "",
+                    })
                 }
                 return translations
             })(),
             references: (
                 referencesMap.get(Locale.En) ?? []
-            ).map((reference) => {
+            ).map(({
+                orderIndex,
+                alias,
+                url,
+            }) => {
                 const referenceId = this.contentReferenceIdFactoryService.generate(
                     {
                         courseIndex,
                         moduleIndex,
                         contentIndex,
-                        referenceIndex: reference.orderIndex,
+                        referenceIndex: orderIndex,
                     },
                 )
                 const translations = Array.from(referencesMap.entries()).map(
@@ -189,20 +199,31 @@ export class ContentParserService {
                         locale,
                         references
                     ]) => (
-                        references.map((reference) => ({
-                            contentReferenceId: referenceId,
-                            locale,
-                            field: "alias",
-                            value: reference.alias,
-                        }
-                        )
-                        ))).flat()
+                        references
+                            .filter((reference) => reference.orderIndex === orderIndex)
+                            .map((reference) => [
+                                {
+                                    contentReferenceId: referenceId,
+                                    locale,
+                                    field: "alias",
+                                    value: reference.alias,
+                                },
+                                {
+                                    contentReferenceId: referenceId,
+                                    locale,
+                                    field: "url",
+                                    value: reference.url,
+                                },
+                            ]
+                            )
+                    )
+                ).flat().flat()
                 return {
                     id: referenceId,
-                    orderIndex: reference.orderIndex,
-                    alias: reference.alias,
+                    orderIndex,
+                    alias,
+                    url,
                     defaultLocale: Locale.En,
-                    url: reference.url,
                     content: {
                         id: contentId,
                     },

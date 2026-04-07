@@ -126,7 +126,6 @@ export class CourseParserService {
                 markdownMap,
             },
         )
-
         const prerequisitesMap = this.extract(
             {
                 key: "Prerequisites",
