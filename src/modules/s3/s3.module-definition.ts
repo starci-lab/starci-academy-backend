@@ -2,9 +2,12 @@
 import {
     ConfigurableModuleBuilder 
 } from "@nestjs/common"
+import { 
+    S3ModuleOptions 
+} from "./interfaces"
 
 export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN, OPTIONS_TYPE } =
-    new ConfigurableModuleBuilder().setExtras({
+    new ConfigurableModuleBuilder<S3ModuleOptions>().setExtras({
         isGlobal: false
     },
     (definition, extras) => ({

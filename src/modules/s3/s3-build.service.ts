@@ -6,14 +6,18 @@ import {
     getSignedUrl,
 } from "@aws-sdk/s3-request-presigner"
 import {
+    Inject,
     Injectable,
 } from "@nestjs/common"
 import {
-    envConfig,
-} from "@modules/env"
-import {
     InjectS3,
 } from "./s3.decorators"
+import {
+    MODULE_OPTIONS_TOKEN,
+} from "./s3.module-definition"
+import {
+    type S3ModuleOptions,
+} from "./interfaces"
 
 /**
  * Helpers for building public URLs for objects in the configured S3-compatible bucket.
@@ -23,7 +27,19 @@ export class S3BuildService {
     constructor(
         @InjectS3()
         private readonly s3: S3Client,
+        @Inject(MODULE_OPTIONS_TOKEN)
+        private readonly options: S3ModuleOptions,
     ) {}
+
+    /**
+     * Get the active configuration based on defaultProvider.
+     */
+    private get config() {
+        if (this.options.defaultProvider === "minio") {
+            return this.options.minio ?? this.options.aws
+        }
+        return this.options.aws ?? this.options.minio
+    }
 
     /**
      * Build the public URL for an S3 object key.
@@ -33,8 +49,11 @@ export class S3BuildService {
     buildPublicObjectUrl(
         objectKey: string,
     ): string {
-        const endpoint = envConfig().s3.endpoint
-        const bucket = envConfig().s3.bucket
+        const config = this.config
+        if (!config) {
+            return ""
+        }
+        const { endpoint, bucket } = config
         let base = endpoint
         if (endpoint.endsWith("/")) {
             base = endpoint.slice(0,
@@ -49,14 +68,18 @@ export class S3BuildService {
     async buildSignedGetObjectUrl(
         objectKey: string
     ): Promise<string> {
+        const config = this.config
+        if (!config) {
+            return ""
+        }
         return getSignedUrl(
             this.s3,
             new GetObjectCommand({
-                Bucket: envConfig().s3.bucket,
+                Bucket: config.bucket,
                 Key: objectKey,
             }),
             {
-                expiresIn: envConfig().s3.signedUrlExpiration,
+                expiresIn: config.signedUrlExpiration ?? 900,
             },
         )
     }

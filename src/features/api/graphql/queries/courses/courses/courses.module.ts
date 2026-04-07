@@ -10,11 +10,15 @@ import {
 import {
     CoursesService,
 } from "./courses.service"
+import {
+    CourseCdnResolver,
+} from "./course-cdn.resolver"
 
 @Module({
     providers: [
         CoursesService,
         CoursesResolver,
+        CourseCdnResolver,
     ],
 })
 export class CoursesSingleQueryModule extends ConfigurableModuleClass {}
