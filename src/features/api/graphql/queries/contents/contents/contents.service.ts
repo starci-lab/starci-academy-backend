@@ -25,6 +25,7 @@ import {
 import {
     ExecuteParams,
 } from "../../../../types"
+import _ from "lodash"
 
 /**
  * Lists module contents from primary PostgreSQL for GraphQL.
@@ -69,21 +70,22 @@ export class ContentsService {
                 order,
                 relations: {
                     translations: true,
-                    references: {
-                        translations: true,
-                    },
                 },
                 take: limit,
                 skip: pageNumber * limit,
             },
         )
-        for (const content of contents) {
-            content.references = await this.entityManager.find(
+        const hydratedContents = _.cloneDeep(contents)
+        for (const hydratedContent of hydratedContents) {
+            const references = await this.entityManager.find(
                 ContentReferenceEntity,
                 {
                     where: {
                         content: {
-                            id: content.id,
+                            id: hydratedContent.id,
+                        },
+                        translations: {
+                            locale,
                         },
                     },
                     relations: {
@@ -94,15 +96,17 @@ export class ContentsService {
                     },
                 },
             )
+            const hydratedReferences = _.cloneDeep(references)
+            hydratedContent.references = hydratedReferences
             this.contentTransformer.transform(
-                content,
+                hydratedContent,
                 locale,
-                content.defaultLocale ?? Locale.En,
+                hydratedContent.defaultLocale ?? Locale.En,
             )
         }
         return {
             count,
-            data: contents,
+            data: hydratedContents,
         }
     }
 }

@@ -97,6 +97,12 @@ export class CourseService {
                     course: {
                         id: hydratedCourse.id,
                     },
+                    translations: {
+                        locale,
+                    },
+                },
+                relations: {
+                    translations: true,
                 },
             },
         )

@@ -20,6 +20,8 @@ import {
     ChallengeDirService,
     LessonVideoDirService,
     LessonVideoParserService,
+    ContentDirService,
+    ContentParserService,
 } from "./courses"
 import {
     InjectPrimaryPostgreSQLEntityManager 
@@ -48,6 +50,8 @@ export class SeedersService implements OnModuleInit {
         private readonly challengeDirService: ChallengeDirService,
         private readonly lessonVideoDirService: LessonVideoDirService,
         private readonly lessonVideoParserService: LessonVideoParserService,
+        private readonly contentDirService: ContentDirService,
+        private readonly contentParserService: ContentParserService,
     ) { }
 
     /**
@@ -109,6 +113,23 @@ export class SeedersService implements OnModuleInit {
                                                 courseIndex,
                                                 moduleIndex,
                                                 lessonVideoIndex,
+                                            },
+                                        )
+                                    )
+                                })(),
+                                contents: (() => {
+                                    const contentMounts = this.contentDirService.indexes(
+                                        {
+                                            courseIndex,
+                                            moduleIndex,
+                                        }
+                                    )
+                                    return contentMounts.map(
+                                        (contentIndex) => this.contentParserService.parse(
+                                            {
+                                                courseIndex,
+                                                moduleIndex,
+                                                contentIndex,
                                             },
                                         )
                                     )
