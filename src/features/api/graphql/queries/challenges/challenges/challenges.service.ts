@@ -25,6 +25,7 @@ import {
 import {
     ExecuteParams,
 } from "../../../../types"
+import _ from "lodash"
 
 /**
  * Lists module challenges from primary PostgreSQL for GraphQL.
@@ -74,12 +75,15 @@ export class ChallengesService {
                 skip: pageNumber * limit,
             },
         )
-        for (const challenge of challenges) {
-            challenge.steps = await this.entityManager.find(
+        const hydratedChallenges = _.cloneDeep(challenges)
+        for (const hydratedChallenge of hydratedChallenges) {
+            const steps = await this.entityManager.find(
                 ChallengeStepEntity,
                 {
                     where: {
-                        challengeId: challenge.id,
+                        challenge: {
+                            id: hydratedChallenge.id,
+                        },
                     },
                     relations: {
                         translations: true,
@@ -89,15 +93,17 @@ export class ChallengesService {
                     },
                 },
             )
+            const hydratedSteps = _.cloneDeep(steps)
+            hydratedChallenge.steps = hydratedSteps
             this.challengeTransformer.transform(
-                challenge,
+                hydratedChallenge,
                 locale,
-                challenge.defaultLocale ?? Locale.En,
+                hydratedChallenge.defaultLocale ?? Locale.En,
             )
         }
         return {
             count,
-            data: challenges,
+            data: hydratedChallenges,
         }
     }
 }

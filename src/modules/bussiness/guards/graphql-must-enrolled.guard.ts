@@ -47,8 +47,12 @@ export class GraphQLMustEnrolledGuard implements CanActivate {
             EnrollmentEntity,
             {
                 where: {
-                    userId: user.id,
-                    courseId: courseId,
+                    user: {
+                        id: user.id,
+                    },
+                    course: {
+                        id: courseId,
+                    },
                 },
             },
         )

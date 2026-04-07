@@ -22,6 +22,7 @@ import type {
 import type {
     ExecuteParams,
 } from "../../../../types"
+import _ from "lodash"
 
 /**
  * Service for querying challenges.
@@ -65,12 +66,14 @@ export class ChallengeQueryService {
                 },
             )
         }
-        const challengeId = challenge.id
+        const hydratedChallenge = _.cloneDeep(challenge)
         const steps = await this.entityManager.find(
             ChallengeStepEntity,
             {
                 where: {
-                    challengeId,
+                    challenge: {
+                        id: hydratedChallenge.id,
+                    },
                 },
                 relations: {
                     translations: true,
@@ -84,7 +87,9 @@ export class ChallengeQueryService {
             ChallengeReferenceEntity,
             {
                 where: {
-                    challengeId,
+                    challenge: {
+                        id: hydratedChallenge.id,
+                    },
                 },
                 relations: {
                     translations: true,
@@ -94,13 +99,15 @@ export class ChallengeQueryService {
                 },
             },
         )
-        challenge.steps = steps
-        challenge.references = references
+        const hydratedSteps = _.cloneDeep(steps)
+        hydratedChallenge.steps = hydratedSteps
+        const hydratedReferences = _.cloneDeep(references)
+        hydratedChallenge.references = hydratedReferences
         this.challengeTransformer.transform(
-            challenge,
+            hydratedChallenge,
             locale,
             challenge.defaultLocale,
         )
-        return challenge
+        return hydratedChallenge
     }
 }

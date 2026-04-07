@@ -82,7 +82,9 @@ export class ContentsService {
                 ContentReferenceEntity,
                 {
                     where: {
-                        contentId: content.id,
+                        content: {
+                            id: content.id,
+                        },
                     },
                     relations: {
                         translations: true,

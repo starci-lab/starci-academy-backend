@@ -52,7 +52,9 @@ export class CourseEnrollmentStatusService {
             EnrollmentEntity,
             {
                 where: {
-                    courseId,
+                    course: {
+                        id: courseId,
+                    },
                 },
             },
         )
@@ -60,8 +62,12 @@ export class CourseEnrollmentStatusService {
             EnrollmentEntity,
             {
                 where: {
-                    courseId,
-                    userId: user.id,
+                    course: {
+                        id: courseId,
+                    },
+                    user: {
+                        id: user.id,
+                    },
                 },
             },
         )

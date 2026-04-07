@@ -55,7 +55,7 @@ export class LivestreamSessionsService {
             order[sort.by as LivestreamSessionsSortBy] = sort.order
         }
         const [
-            rows,
+            livestreamSessions,
             count,
         ] = await this.entityManager.findAndCount(
             LivestreamSessionEntity,
@@ -68,23 +68,22 @@ export class LivestreamSessionsService {
                 order,
                 relations: {
                     translations: true,
-                    course: true,
                 },
                 take: limit,
                 skip: pageNumber * limit,
             },
         )
-        for (const session of rows) {
-            const fallbackLocale = session.course?.defaultLocale ?? Locale.En
+        for (const livestreamSession of livestreamSessions) {
+            const fallbackLocale = livestreamSession.course?.defaultLocale ?? Locale.En
             this.livestreamSessionTransformer.transform(
-                session,
+                livestreamSession,
                 locale,
                 fallbackLocale,
             )
         }
         return {
             count,
-            data: rows,
+            data: livestreamSessions,
         }
     }
 }

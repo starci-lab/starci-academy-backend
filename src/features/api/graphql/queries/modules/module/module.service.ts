@@ -42,7 +42,6 @@ export class ModuleService {
             id,
             displayId,
         } = request
-
         const moduleEntity = await this.entityManager.findOne(
             ModuleEntity,
             {
@@ -80,11 +79,6 @@ export class ModuleService {
                 },
             )
         }
-
-        moduleEntity.contents = []
-        moduleEntity.lessonVideos = []
-        moduleEntity.challenges = []
-
         return this.moduleTransformer.transform(
             moduleEntity,
             locale,

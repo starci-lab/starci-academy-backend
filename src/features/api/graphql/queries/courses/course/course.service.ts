@@ -26,6 +26,7 @@ import {
 import {
     CourseTransformerService,
 } from "../../../utils"
+import _ from "lodash"
 
 /**
  * Loads a single course from primary PostgreSQL for GraphQL.
@@ -88,26 +89,26 @@ export class CourseService {
                 },
             )
         }
-        const courseId = course.id
+        const hydratedCourse = _.cloneDeep(course)
         const prerequisites = await this.entityManager.find(
             PrerequisiteEntity,
             {
                 where: {
-                    courseId,
-                },
-                relations: {
-                    translations: true,
-                },
-                order: {
-                    orderIndex: "ASC",
+                    course: {
+                        id: hydratedCourse.id,
+                    },
                 },
             },
         )
+        const hydratedPrerequisites = _.cloneDeep(prerequisites)
+        hydratedCourse.prerequisites = hydratedPrerequisites
         const valuePropositions = await this.entityManager.find(
             ValuePropositionEntity,
             {
                 where: {
-                    courseId,
+                    course: {
+                        id: hydratedCourse.id,
+                    },
                 },
                 relations: {
                     translations: true,
@@ -117,11 +118,15 @@ export class CourseService {
                 },
             },
         )
+        const hydratedValuePropositions = _.cloneDeep(valuePropositions)
+        hydratedCourse.valuePropositions = hydratedValuePropositions
         const qnas = await this.entityManager.find(
             QnaEntity,
             {
                 where: {
-                    courseId,
+                    course: {
+                        id: hydratedCourse.id,
+                    },
                 },
                 relations: {
                     translations: true,
@@ -131,22 +136,30 @@ export class CourseService {
                 },
             },
         )
+        const hydratedQnas = _.cloneDeep(qnas)
+        hydratedCourse.qnas = hydratedQnas
         const pricingPhases = await this.entityManager.find(
             PricingPhaseEntity,
             {
                 where: {
-                    courseId,
+                    course: {
+                        id: hydratedCourse.id,
+                    },
                 },
                 order: {
                     orderIndex: "ASC",
                 },
             },
         )
+        const hydratedPricingPhases = _.cloneDeep(pricingPhases)
+        hydratedCourse.pricingPhases = hydratedPricingPhases
         const modules = await this.entityManager.find(
             ModuleEntity,
             {
                 where: {
-                    courseId,
+                    course: {
+                        id: hydratedCourse.id,
+                    },
                 },
                 relations: {
                     translations: true,
@@ -156,12 +169,15 @@ export class CourseService {
                 },
             },
         )
-        for (const module of modules) {
-            module.previewContents = await this.entityManager.find(
+        const hydratedModules = _.cloneDeep(modules)
+        for (const module of hydratedModules) {
+            const previewContents = await this.entityManager.find(
                 PreviewContentEntity,
                 {
                     where: {
-                        moduleId: module.id,
+                        module: {
+                            id: module.id,
+                        },
                     },
                     relations: {
                         translations: true,
@@ -171,14 +187,12 @@ export class CourseService {
                     },
                 },
             )
+            const hydratedPreviewContents = _.cloneDeep(previewContents)
+            module.previewContents = hydratedPreviewContents
         }
-        course.prerequisites = prerequisites
-        course.valuePropositions = valuePropositions
-        course.qnas = qnas
-        course.pricingPhases = pricingPhases
-        course.modules = modules
+        hydratedCourse.modules = _.cloneDeep(hydratedModules)
         return this.courseTransformer.transform(
-            course,
+            hydratedCourse,
             locale,
         )
     }
