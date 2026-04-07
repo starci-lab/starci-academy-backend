@@ -149,7 +149,9 @@ export class ModuleParserService {
         return {
             id: moduleId,
             displayId,
-            courseId,
+            course: {
+                id: courseId,
+            },
             orderIndex: moduleIndex,
             defaultLocale: Locale.En,
             title: titleMap.get(Locale.En) ?? "",
@@ -178,18 +180,22 @@ export class ModuleParserService {
                                 locale,
                                 items
                             ]
-                        ) => items.map<DeepPartial<PreviewContentTranslationEntity>>(
-                            (item) => ({
-                                previewContentId,
-                                locale,
-                                value: item.text,
-                                field: "text",
-                            })
-                        )
+                        ) => items
+                            .filter((item) => item.orderIndex === orderIndex)
+                            .map<DeepPartial<PreviewContentTranslationEntity>>(
+                                (item) => ({
+                                    previewContentId,
+                                    locale,
+                                    value: item.text,
+                                    field: "text",
+                                })
+                            )
                         )
                         .flat()
                     return {
-                        moduleId,
+                        module: {
+                            id: moduleId,
+                        },
                         id: previewContentId,
                         defaultLocale: Locale.En,
                         text,

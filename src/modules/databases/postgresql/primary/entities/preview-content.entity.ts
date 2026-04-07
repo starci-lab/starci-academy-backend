@@ -14,6 +14,7 @@ import {
     JoinColumn,
     ManyToOne,
     OneToMany,
+    RelationId,
 } from "typeorm"
 import {
     UuidAbstractEntity,
@@ -99,6 +100,8 @@ export class PreviewContentEntity extends UuidAbstractEntity {
     )
     @JoinColumn({
         name: "module_id",
+        foreignKeyConstraintName:
+            "fk_module_id_preview_contents_modules",
     })
         module: ModuleEntity
 
@@ -111,10 +114,9 @@ export class PreviewContentEntity extends UuidAbstractEntity {
             description: "Parent module ID.",
         },
     )
-    @Column({
-        name: "module_id",
-        type: "uuid",
-    })
+    @RelationId(
+        (pc: PreviewContentEntity) => pc.module,
+    )
         moduleId: string
 
     /**

@@ -89,6 +89,8 @@ export class QnaTranslationEntity extends AbstractEntity {
     @JoinColumn({
         name: "qna_id",
         referencedColumnName: "id",
+        foreignKeyConstraintName:
+            "fk_qna_id_qna_translations_qnas",
     })
         qna: QnaEntity
 }

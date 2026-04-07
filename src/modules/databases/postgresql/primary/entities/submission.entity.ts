@@ -43,7 +43,8 @@ export class SubmissionEntity extends UuidAbstractEntity {
             onDelete: "CASCADE"
         })
     @JoinColumn({
-        name: "user_id"
+        name: "user_id",
+        foreignKeyConstraintName: "fk_user_id_submissions_users",
     })
         user: UserEntity
 
@@ -60,7 +61,8 @@ export class SubmissionEntity extends UuidAbstractEntity {
             onDelete: "CASCADE"
         })
     @JoinColumn({
-        name: "module_id"
+        name: "module_id",
+        foreignKeyConstraintName: "fk_module_id_submissions_modules",
     })
         module: ModuleEntity
 

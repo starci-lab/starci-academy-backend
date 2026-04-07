@@ -89,6 +89,8 @@ export class PrerequisiteTranslationEntity extends AbstractEntity {
     @JoinColumn({
         name: "prerequisite_id",
         referencedColumnName: "id",
+        foreignKeyConstraintName:
+            "fk_prerequisite_id_prerequisite_translations_prerequisites",
     })
         prerequisite: PrerequisiteEntity
 }

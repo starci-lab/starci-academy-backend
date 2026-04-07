@@ -14,6 +14,7 @@ import {
     JoinColumn,
     ManyToOne,
     OneToMany,
+    RelationId,
 } from "typeorm"
 import {
     UuidAbstractEntity,
@@ -116,6 +117,8 @@ export class ContentReferenceEntity extends UuidAbstractEntity {
     )
     @JoinColumn({
         name: "content_id",
+        foreignKeyConstraintName:
+            "fk_content_id_content_references_contents",
     })
         content: ContentEntity
 
@@ -128,10 +131,9 @@ export class ContentReferenceEntity extends UuidAbstractEntity {
             description: "Parent content ID.",
         },
     )
-    @Column({
-        name: "content_id",
-        type: "uuid",
-    })
+    @RelationId(
+        (ref: ContentReferenceEntity) => ref.content,
+    )
         contentId: string
 
     /**

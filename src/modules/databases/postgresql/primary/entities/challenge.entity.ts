@@ -1,5 +1,6 @@
 import {
     Field,
+    ID,
     Int,
     ObjectType,
 } from "@nestjs/graphql"
@@ -15,6 +16,7 @@ import {
     JoinColumn,
     ManyToOne,
     OneToMany,
+    RelationId,
 } from "typeorm"
 import {
     UuidAbstractEntity,
@@ -207,8 +209,20 @@ export class ChallengeEntity extends UuidAbstractEntity {
     )
     @JoinColumn({
         name: "module_id",
+        foreignKeyConstraintName: "fk_module_id_challenges_modules",
     })
         module: ModuleEntity
+
+    @Field(
+        () => ID,
+        {
+            description: "Parent module ID.",
+        },
+    )
+    @RelationId(
+        (ch: ChallengeEntity) => ch.module,
+    )
+        moduleId: string
 
     /**
      * Ordered instruction steps.

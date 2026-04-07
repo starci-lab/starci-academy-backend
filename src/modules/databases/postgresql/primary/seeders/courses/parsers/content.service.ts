@@ -203,6 +203,9 @@ export class ContentParserService {
                     alias: reference.alias,
                     defaultLocale: Locale.En,
                     url: reference.url,
+                    content: {
+                        id: contentId,
+                    },
                     translations
                 }
             }),

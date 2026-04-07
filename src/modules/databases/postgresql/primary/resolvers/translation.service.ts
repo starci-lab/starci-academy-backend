@@ -39,7 +39,7 @@ export class TranslationResolverService {
         const pick = (locale: Locale): string | undefined =>
             translations.find(
                 (translation) => translation.field === field && translation.locale === locale,
-            )?.value
+            )?.value       
         // return the translation for the given locale or the fallback locale
         return pick(locale) ?? pick(fallbackLocale) ?? ""
     }

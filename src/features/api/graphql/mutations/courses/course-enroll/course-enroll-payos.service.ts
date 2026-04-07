@@ -162,8 +162,6 @@ export class CourseEnrollPayOsService {
         transaction = this.entityManager.create(
             TransactionEntity,
             {
-                userId: user.id,
-                courseId: course.id,
                 user,
                 course,
                 referenceId: String(paymentLink.orderCode),

@@ -34,12 +34,13 @@ export class LessonVideoDirService {
         courseIndex: number,
         moduleIndex: number,
     ): string {
-        return `${this.moduleDirService.path(
-            {
-                courseIndex,
-                moduleIndex,
-            },
-        ).path}/lesson-videos`
+        return `${
+            this.moduleDirService.path(
+                {
+                    courseIndex,
+                    moduleIndex,
+                },
+            ).path}/lesson-videos`
     }
 
     /**

@@ -19,6 +19,9 @@ import {
     LessonVideoTransformerService,
 } from "./lesson-video-transformer.service"
 import {
+    LivestreamSessionTransformerService,
+} from "./livestream-session-transformer.service"
+import {
     ModuleTransformerService,
 } from "./module-transformer.service"
 import {
@@ -48,6 +51,7 @@ export class UtilsModule extends ConfigurableModuleClass {
         const providers: Array<Provider> = [
             ContentTransformerService,
             LessonVideoTransformerService,
+            LivestreamSessionTransformerService,
             ChallengeTransformerService,
             PreviewContentTransformerService,
             PrerequisiteTransformerService,

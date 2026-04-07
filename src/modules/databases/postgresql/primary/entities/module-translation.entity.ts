@@ -89,6 +89,8 @@ export class ModuleTranslationEntity extends AbstractEntity {
     @JoinColumn({
         name: "module_id",
         referencedColumnName: "id",
+        foreignKeyConstraintName:
+            "fk_module_id_module_translations_modules",
     })
         module: ModuleEntity
 }

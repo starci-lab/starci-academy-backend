@@ -1,11 +1,16 @@
 import {
     Field,
+    ID,
     Int,
     ObjectType,
 } from "@nestjs/graphql"
 import {
+    GraphQLTypeLessonVideoKind,
     GraphQLTypeLocale,
+    GraphQLTypeVideoHostPlatform,
+    LessonVideoKind,
     Locale,
+    VideoHostPlatform,
 } from "../enums"
 import {
     Column,
@@ -13,6 +18,7 @@ import {
     JoinColumn,
     ManyToOne,
     OneToMany,
+    RelationId,
 } from "typeorm"
 import {
     ModuleEntity,
@@ -79,7 +85,60 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         type: "text",
         nullable: true,
     })
-        description: string | null
+        description?: string
+
+    /**
+     * Production type (raw, edited, or premium recording).
+     */
+    @Field(
+        () => GraphQLTypeLessonVideoKind,
+        {
+            description: "Lesson video production type (raw, edited, or premium recording).",
+        },
+    )
+    @Column({
+        name: "kind",
+        type: "enum",
+        enum: LessonVideoKind,
+        enumName: "lesson_video_kind",
+        default: LessonVideoKind.RawStream,
+    })
+        kind: LessonVideoKind
+
+    /**
+     * Optional short caption / note shown next to the video (default locale column).
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Optional caption or note for the video (localized via translations).",
+        },
+    )
+    @Column({
+        name: "caption",
+        type: "text",
+        nullable: true,
+    })
+        caption?: string
+
+    /**
+     * Host platform for the video URL (YouTube, Google Drive, etc.).
+     */
+    @Field(
+        () => GraphQLTypeVideoHostPlatform,
+        {
+            description: "Host or delivery platform for the video URL.",
+        },
+    )
+    @Column({
+        name: "host_platform",
+        type: "enum",
+        enum: VideoHostPlatform,
+        enumName: "video_host_platform",
+        default: VideoHostPlatform.Youtube,
+    })
+        hostPlatform: VideoHostPlatform
 
     /**
      * Video URL (e.g. YouTube watch or embed link).
@@ -113,7 +172,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         length: 2048,
         nullable: true,
     })
-        thumbnailUrl: string | null
+        thumbnailUrl?: string
 
     /**
      * Video duration in milliseconds.
@@ -181,8 +240,38 @@ export class LessonVideoEntity extends UuidAbstractEntity {
     )
     @JoinColumn({
         name: "module_id",
+        foreignKeyConstraintName:
+            "fk_module_id_lesson_videos_modules",
     })
         module: ModuleEntity
+
+    @Field(
+        () => ID,
+        {
+            description: "Parent module ID.",
+        },
+    )
+    @RelationId(
+        (lv: LessonVideoEntity) => lv.module,
+    )
+        moduleId: string
+
+    /**
+     * Optional minimum pricing tier required to access this video; null means no extra tier gate.
+     */
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Parent pricing phase ID required to access this video.",
+        },
+    )
+    @Column({
+        name: "pricing_phase_id",
+        type: "uuid",
+        nullable: true,
+    })
+        pricingPhaseId?: string | null
 
     /**
      * Localized translations for fields such as `title` and `description`.
@@ -190,7 +279,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
     @Field(
         () => [LessonVideoTranslationEntity],
         {
-            description: "Localized overrides for lesson video fields (e.g. title, description).",
+            description: "Localized overrides for lesson video fields (e.g. title, description, caption).",
         },
     )
     @OneToMany(

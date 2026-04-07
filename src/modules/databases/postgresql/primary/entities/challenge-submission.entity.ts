@@ -9,6 +9,7 @@ import {
     JoinColumn,
     ManyToOne,
     OneToMany,
+    RelationId,
 } from "typeorm"
 import {
     GraphQLTypeSubmissionType,
@@ -106,8 +107,15 @@ export class ChallengeSubmissionEntity extends UuidAbstractEntity {
     )
     @JoinColumn({
         name: "challenge_id",
+        foreignKeyConstraintName:
+            "fk_challenge_id_challenge_submissions_challenges",
     })
         challenge: ChallengeEntity
+
+    @RelationId(
+        (s: ChallengeSubmissionEntity) => s.challenge,
+    )
+        challengeId: string
 
     @Field(
         () => [ChallengeSubmissionTranslationEntity],
@@ -159,14 +167,5 @@ export class ChallengeSubmissionEntity extends UuidAbstractEntity {
         },
     )
         userSubmission?: UserChallengeSubmissionEntity
-
-    /**
-     * The challenge that the submission belongs to.
-     */
-    @Column({
-        name: "challenge_id",
-        type: "uuid",
-    })
-        challengeId: string
 }
 

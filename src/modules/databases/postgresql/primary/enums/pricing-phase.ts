@@ -11,7 +11,7 @@ import {
  */
 export enum PricingPhase {
     Pioneer = "pioneer",
-    EarlyBird = "earlybird",
+    EarlyBird = "earlyBird",
     Regular = "regular",
 }
 

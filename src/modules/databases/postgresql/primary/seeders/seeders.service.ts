@@ -13,12 +13,13 @@ import {
 } from "typeorm"
 import {
     CourseParserService,
-    CoursesUpdaterService,
     CourseDirService,
     ModuleDirService,
     ModuleParserService,
     ChallengeParserService,
-    ChallengeDirService
+    ChallengeDirService,
+    LessonVideoDirService,
+    LessonVideoParserService,
 } from "./courses"
 import {
     InjectPrimaryPostgreSQLEntityManager 
@@ -26,7 +27,7 @@ import {
 import {
     CourseEntity, 
     ModuleEntity
-} from "@modules/databases"
+} from "../entities"
 
 /**
  * The service for the Seeders.
@@ -39,13 +40,14 @@ export class SeedersService implements OnModuleInit {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
-        private readonly coursesUpdaterService: CoursesUpdaterService,
         private readonly courseParserService: CourseParserService,
         private readonly courseDirService: CourseDirService,
         private readonly moduleDirService: ModuleDirService,
         private readonly moduleParserService: ModuleParserService,
         private readonly challengeParserService: ChallengeParserService,
         private readonly challengeDirService: ChallengeDirService,
+        private readonly lessonVideoDirService: LessonVideoDirService,
+        private readonly lessonVideoParserService: LessonVideoParserService,
     ) { }
 
     /**
@@ -56,7 +58,6 @@ export class SeedersService implements OnModuleInit {
         // seed in a transaction (do not drop: prevents cascade deletes like enrollments)
         await this.entityManager.transaction(
             async (entityManager) => {
-                const previousCourses = await entityManager.find(CourseEntity)
                 const courseMounts = this.courseDirService.indexes()
                 const updatedCourses: Array<DeepPartial<CourseEntity>> = courseMounts.map((courseIndex) => {
                     const course = this.courseParserService.parse(
@@ -95,6 +96,23 @@ export class SeedersService implements OnModuleInit {
                                     )
                                     return challenges
                                 })(),
+                                lessonVideos: (() => {
+                                    const lessonVideoMounts = this.lessonVideoDirService.indexes(
+                                        {
+                                            courseIndex,
+                                            moduleIndex,
+                                        }
+                                    )
+                                    return lessonVideoMounts.map(
+                                        (lessonVideoIndex) => this.lessonVideoParserService.parse(
+                                            {
+                                                courseIndex,
+                                                moduleIndex,
+                                                lessonVideoIndex,
+                                            },
+                                        )
+                                    )
+                                })(),
                             }
                         }
                     )
@@ -103,12 +121,9 @@ export class SeedersService implements OnModuleInit {
                         modules: updatedModules,
                     }
                 })
-                await this.coursesUpdaterService.updateCourses(
-                    {
-                        previous: previousCourses,
-                        updated: updatedCourses as Array<CourseEntity>,
-                        entityManager,
-                    }
+                await entityManager.save(
+                    CourseEntity,
+                    updatedCourses
                 )
             }
         )

@@ -27,6 +27,9 @@ import {
 import {
     ValuePropositionTransformerService,
 } from "./value-proposition-transformer.service"
+import {
+    LivestreamSessionTransformerService,
+} from "./livestream-session-transformer.service"
 
 /**
  * Applies loaded translations for a course tree; nested module payloads use shared transformers.
@@ -42,14 +45,20 @@ export class CourseTransformerService {
         private readonly lessonVideoTransformer: LessonVideoTransformerService,
         private readonly challengeTransformer: ChallengeTransformerService,
         private readonly previewContentTransformer: PreviewContentTransformerService,
+        private readonly livestreamSessionTransformer: LivestreamSessionTransformerService,
     ) {}
 
+    /**
+     * Applies translations to a course and nested entities.
+     * @param course - The course to transform.
+     * @param locale - The locale to transform the course to.
+     * @returns The transformed course.
+     */
     transform(
         course: CourseEntity,
         locale: Locale,
     ): CourseEntity {
         const courseFallback = course.defaultLocale
-
         course.title = this.translationResolver.resolve(
             {
                 translations: course.translations,
@@ -97,6 +106,19 @@ export class CourseTransformerService {
                 )
                 return qna
             })
+        }
+
+        if (course.livestreamSessions?.length) {
+            course.livestreamSessions = course.livestreamSessions.map(
+                (session) => {
+                    this.livestreamSessionTransformer.transform(
+                        session,
+                        locale,
+                        courseFallback,
+                    )
+                    return session
+                },
+            )
         }
 
         if (course.modules && course.modules.length > 0) {

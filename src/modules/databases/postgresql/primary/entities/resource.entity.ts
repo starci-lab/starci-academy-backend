@@ -70,7 +70,8 @@ export class ResourceEntity extends UuidAbstractEntity {
             onDelete: "CASCADE"
         })
     @JoinColumn({
-        name: "submission_id"
+        name: "submission_id",
+        foreignKeyConstraintName: "fk_submission_id_resources_submissions",
     })
         submission: SubmissionEntity
 }

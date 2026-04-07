@@ -29,6 +29,8 @@ export class CourseMetadataEntity extends UuidAbstractEntity {
     @JoinColumn({
         name: "course_id",
         referencedColumnName: "id",
+        foreignKeyConstraintName:
+            "fk_course_id_course_metadata_courses",
     })
         course: CourseEntity
 

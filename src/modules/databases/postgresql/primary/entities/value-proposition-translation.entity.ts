@@ -89,6 +89,8 @@ export class ValuePropositionTranslationEntity extends AbstractEntity {
     @JoinColumn({
         name: "value_proposition_id",
         referencedColumnName: "id",
+        foreignKeyConstraintName:
+            "fk_value_proposition_id_value_proposition_translations_value_propositions",
     })
         valueProposition: ValuePropositionEntity
 }

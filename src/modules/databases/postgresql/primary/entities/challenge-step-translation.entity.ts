@@ -89,6 +89,8 @@ export class ChallengeStepTranslationEntity extends AbstractEntity {
     @JoinColumn({
         name: "challenge_step_id",
         referencedColumnName: "id",
+        foreignKeyConstraintName:
+            "fk_challenge_step_id_challenge_step_translations_challenge_steps",
     })
         challengeStep: ChallengeStepEntity
 }

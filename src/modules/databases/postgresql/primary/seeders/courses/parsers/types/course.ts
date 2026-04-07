@@ -2,6 +2,7 @@ import {
     DeepPartial,
 } from "typeorm"
 import {
+    DayOfWeek,
     PricingPhase,
 } from "../../../../enums"
 import {
@@ -19,6 +20,7 @@ export interface CoursePricingJson {
     /** The order index of the pricing. */
     orderIndex: number
 }
+
 export interface CourseDataJson {
     /** The original price of the course. */
     originalPrice: number
@@ -26,11 +28,27 @@ export interface CourseDataJson {
     coverImageUrl: string
     /** The pricing phases of the course. */
     pricingPhases: Array<CoursePricingJson>
+    /** The livestream sessions of the course. */
+    livestreamSessions: Array<LivestreamSessionJson>
 }
 
 /** Ordinal of the course in the seed list (mount folder `{courseIndex}-{slug}`). */
 export interface ParseCourseParams {
     courseIndex: number
+}
+
+/** One livestream session row from course `data.json`. */
+export interface LivestreamSessionJson {
+    /** Day of week for the livestream session. */
+    dayOfWeek: DayOfWeek
+    /** Start time of the livestream session. */
+    startTime: string
+    /** Expected end time of the livestream session. */
+    expectedEndTime: string
+    /** If true, this livestream session can be overridden by a newer override. */
+    isOverridable?: boolean
+    /** Display order within the livestream session list. */
+    orderIndex: number
 }
 
 /** Course ordinals whose mount folders exist under `data/courses/`. */

@@ -13,6 +13,9 @@ import {
 import {
     CoursesSingleQueryModule,
 } from "./courses"
+import {
+    LivestreamSessionsSingleQueryModule,
+} from "./livestream-sessions"
 
 @Module({
     imports: [
@@ -23,6 +26,9 @@ import {
             isGlobal: true,
         }),
         CourseEnrollmentStatusQueryModule.register({
+            isGlobal: true,
+        }),
+        LivestreamSessionsSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

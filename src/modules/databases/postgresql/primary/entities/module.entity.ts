@@ -6,7 +6,7 @@ import {
     Locale,
 } from "../enums"
 import {
-    Column, Entity, JoinColumn, ManyToOne, OneToMany 
+    Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId,
 } from "typeorm"
 import {
     CourseEntity 
@@ -132,7 +132,8 @@ export class ModuleEntity extends UuidAbstractEntity {
             onDelete: "CASCADE"
         })
     @JoinColumn({
-        name: "course_id"
+        name: "course_id",
+        foreignKeyConstraintName: "fk_course_id_modules_courses",
     })
         course: CourseEntity
 
@@ -142,10 +143,9 @@ export class ModuleEntity extends UuidAbstractEntity {
             description: "Parent course ID.",
         },
     )
-    @Column({
-        name: "course_id",
-        type: "uuid",
-    })
+    @RelationId(
+        (mod: ModuleEntity) => mod.course,
+    )
         courseId: string
 
     /**

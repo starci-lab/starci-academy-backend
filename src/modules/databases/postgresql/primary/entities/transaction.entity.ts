@@ -3,6 +3,7 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
+    RelationId,
 } from "typeorm"
 import {
     Field,
@@ -55,11 +56,10 @@ export class TransactionEntity extends UuidAbstractEntity {
             onDelete: "CASCADE",
         },
     )
-    @JoinColumn(
-        {
-            name: "user_id",
-        }
-    )
+    @JoinColumn({
+        name: "user_id",
+        foreignKeyConstraintName: "fk_user_id_transactions_users",
+    })
         user: UserEntity
 
     /**
@@ -81,6 +81,7 @@ export class TransactionEntity extends UuidAbstractEntity {
     )
     @JoinColumn({
         name: "course_id",
+        foreignKeyConstraintName: "fk_course_id_transactions_courses",
     })
         course?: CourseEntity
 
@@ -93,10 +94,9 @@ export class TransactionEntity extends UuidAbstractEntity {
             description: "The ID of the user who made the preflight transaction.",
         },
     )
-    @Column({
-        name: "user_id",
-        type: "uuid",
-    })
+    @RelationId(
+        (t: TransactionEntity) => t.user,
+    )
         userId: string
 
     /**
@@ -108,11 +108,9 @@ export class TransactionEntity extends UuidAbstractEntity {
             description: "The ID of the course associated with the preflight transaction.",
         },
     )
-    @Column({
-        name: "course_id",
-        type: "uuid",
-        nullable: true,
-    })
+    @RelationId(
+        (t: TransactionEntity) => t.course,
+    )
         courseId?: string
 
     /**

@@ -19,6 +19,7 @@ import {
 } from "../extracts"
 import {
     LessonVideoIdFactoryService,
+    ModuleIdFactoryService,
 } from "../id-factories"
 import {
     DeepPartial,
@@ -40,6 +41,7 @@ export class LessonVideoParserService {
         private readonly lessonVideoDirService: LessonVideoDirService,
         private readonly extractBlockService: ExtractBlockService,
         private readonly lessonVideoIdFactoryService: LessonVideoIdFactoryService,
+        private readonly moduleIdFactoryService: ModuleIdFactoryService,
     ) {}
 
     /**
@@ -110,6 +112,12 @@ export class LessonVideoParserService {
                 markdownMap,
             },
         )
+        const captionMap = this.extract(
+            {
+                key: "Caption",
+                markdownMap,
+            },
+        )
 
         const lessonVideoId = this.lessonVideoIdFactoryService.generate(
             {
@@ -119,13 +127,28 @@ export class LessonVideoParserService {
             },
         )
 
+        const url = (dataJson.url ?? "").trim()
+        const kind = dataJson.kind
+        const hostPlatform = dataJson.hostPlatform
+        const moduleId = this.moduleIdFactoryService.generate(
+            {
+                courseIndex,
+                moduleIndex,
+            },
+        )
         return {
             id: lessonVideoId,
             defaultLocale: Locale.En,
             displayId,
             title: titleMap.get(Locale.En) ?? "",
             description: descriptionMap.get(Locale.En) ?? "",
-            url: dataJson.url ?? "",
+            caption: captionMap.get(Locale.En) ?? "",
+            kind,
+            module: {
+                id: moduleId,
+            },
+            hostPlatform,
+            url,
             orderIndex: lessonVideoIndex,
             durationMs: dataJson.durationMs ?? 0,
             translations: (() => {
@@ -143,10 +166,16 @@ export class LessonVideoParserService {
                         field: "description",
                         value: descriptionMap.get(locale) ?? "",
                     })
+                    translations.push({
+                        lessonVideoId,
+                        locale,
+                        field: "caption",
+                        value: captionMap.get(locale) ?? "",
+                    })
                 }
                 return translations
             })(),
-            thumbnailUrl: dataJson.thumbnailUrl ?? null,
+            thumbnailUrl: dataJson.thumbnailUrl,
         }
     }
 }

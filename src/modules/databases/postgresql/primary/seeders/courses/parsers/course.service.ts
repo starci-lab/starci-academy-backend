@@ -24,6 +24,7 @@ import {
 } from "../extracts"
 import {
     CourseIdFactoryService,
+    LivestreamSessionIdFactoryService,
     PrerequisiteIdFactoryService,
     PricingPhaseIdFactoryService,
     QnaIdFactoryService,
@@ -57,6 +58,7 @@ export class CourseParserService {
         private readonly qnaIdFactoryService: QnaIdFactoryService,
         private readonly valuePropositionIdFactoryService: ValuePropositionIdFactoryService,
         private readonly pricingPhaseIdFactoryService: PricingPhaseIdFactoryService,
+        private readonly livestreamSessionIdFactoryService: LivestreamSessionIdFactoryService,
         private readonly courseDirService: CourseDirService,
     ) { }
 
@@ -186,6 +188,27 @@ export class CourseParserService {
             displayId,
             originalPrice: dataJson.originalPrice ?? 0,
             orderIndex: courseIndex,
+            livestreamSessions: (
+                dataJson.livestreamSessions ?? []
+            ).map((livestreamSession) => {
+                return {
+                    id: this.livestreamSessionIdFactoryService.generate(
+                        {
+                            courseIndex,
+                            sessionIndex: livestreamSession.orderIndex,
+                        },
+                    ),
+                    course: {
+                        id: courseId,
+                    },
+                    dayOfWeek: livestreamSession.dayOfWeek,
+                    startTime: livestreamSession.startTime,
+                    expectedEndTime: livestreamSession.expectedEndTime,
+                    isOverridable: livestreamSession.isOverridable,
+                    orderIndex: livestreamSession.orderIndex,
+                    translations: [],
+                }
+            }),
             coverImageUrl: dataJson.coverImageUrl?.trim(),
             pricingPhases: (
                 dataJson.pricingPhases ?? []).map(
@@ -227,21 +250,25 @@ export class CourseParserService {
                                     locale,
                                     items
                                 ]
-                            ) => items.map<DeepPartial<PrerequisiteTranslationEntity>>(
-                                (item) => (
-                                    {
-                                        prerequisiteId,
-                                        locale,
-                                        value: item.text,
-                                        field: "text",
-                                    }
+                            ) => items
+                                .filter((item) => item.orderIndex === orderIndex)
+                                .map<DeepPartial<PrerequisiteTranslationEntity>>(
+                                    (item) => (
+                                        {
+                                            prerequisiteId,
+                                            locale,
+                                            value: item.text,
+                                            field: "text",
+                                        }
+                                    )
                                 )
-                            )
                         )
                         .flat()
                     
                     return {
-                        courseId,
+                        course: {
+                            id: courseId,
+                        },
                         id: prerequisiteId,
                         defaultLocale: Locale.En,
                         text,
@@ -269,16 +296,20 @@ export class CourseParserService {
                                 locale,
                                 items
                             ]
-                        ) => items.map<DeepPartial<ValuePropositionTranslationEntity>>(
-                            (item) => ({
-                                valuePropositionId,
-                                locale,
-                                value: item.text,
-                                field: "text",
-                            })))
+                        ) => items
+                            .filter((item) => item.orderIndex === orderIndex)
+                            .map<DeepPartial<ValuePropositionTranslationEntity>>(
+                                (item) => ({
+                                    valuePropositionId,
+                                    locale,
+                                    value: item.text,
+                                    field: "text",
+                                })))
                         .flat()
                     return {
-                        courseId,
+                        course: {
+                            id: courseId,
+                        },
                         id: valuePropositionId,
                         defaultLocale: Locale.En,
                         text,
@@ -306,22 +337,24 @@ export class CourseParserService {
                         .map((
                             [locale,
                                 items]
-                        ) => items.map<Array<DeepPartial<QnaTranslationEntity>>>(
-                            (item) => (
-                                [{
-                                    qnaId,
-                                    locale,
-                                    field: "question",
-                                    value: item.question,
-                                },
-                                {
-                                    qnaId,
-                                    locale,
-                                    field: "answer",
-                                    value: item.answer,
-                                }
-                                ]
-                            ))
+                        ) => items
+                            .filter((item) => item.orderIndex === orderIndex)
+                            .map<Array<DeepPartial<QnaTranslationEntity>>>(
+                                (item) => (
+                                    [{
+                                        qnaId,
+                                        locale,
+                                        field: "question",
+                                        value: item.question,
+                                    },
+                                    {
+                                        qnaId,
+                                        locale,
+                                        field: "answer",
+                                        value: item.answer,
+                                    }
+                                    ]
+                                ))
                         )
                         .flat()
                         .flat()
@@ -330,7 +363,9 @@ export class CourseParserService {
                         defaultLocale: Locale.En,
                         question,
                         answer,
-                        courseId,
+                        course: {
+                            id: courseId,
+                        },
                         orderIndex,
                         translations
                     }

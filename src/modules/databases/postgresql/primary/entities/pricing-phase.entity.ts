@@ -10,6 +10,7 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
+    RelationId,
 } from "typeorm"
 import {
     GraphQLTypePricingPhase,
@@ -42,6 +43,8 @@ export class PricingPhaseEntity extends UuidAbstractEntity {
     )
     @JoinColumn({
         name: "course_id",
+        foreignKeyConstraintName:
+            "fk_course_id_pricing_phases_courses",
     })
         course: CourseEntity
 
@@ -51,10 +54,9 @@ export class PricingPhaseEntity extends UuidAbstractEntity {
             description: "Parent course ID.",
         },
     )
-    @Column({
-        name: "course_id",
-        type: "uuid",
-    })
+    @RelationId(
+        (phase: PricingPhaseEntity) => phase.course,
+    )
         courseId: string
 
     /**

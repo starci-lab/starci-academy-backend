@@ -8,6 +8,7 @@ import {
     ManyToOne,
     Unique,
     Column,
+    RelationId,
 } from "typeorm"
 import {
     UuidAbstractEntity,
@@ -53,6 +54,7 @@ export class EnrollmentEntity extends UuidAbstractEntity {
     )
     @JoinColumn({
         name: "user_id",
+        foreignKeyConstraintName: "fk_user_id_enrollments_users",
     })
         user: UserEntity
 
@@ -71,6 +73,7 @@ export class EnrollmentEntity extends UuidAbstractEntity {
     )
     @JoinColumn({
         name: "course_id",
+        foreignKeyConstraintName: "fk_course_id_enrollments_courses",
     })
         course: CourseEntity
 
@@ -78,20 +81,18 @@ export class EnrollmentEntity extends UuidAbstractEntity {
         {
             description: "The ID of the user who enrolled in the course."
         })
-    @Column({
-        name: "user_id",
-        type: "uuid",
-    })
+    @RelationId(
+        (e: EnrollmentEntity) => e.user,
+    )
         userId: string
 
     @Field(() => String,
         {
             description: "The ID of the course that the user enrolled in."
         })
-    @Column({
-        name: "course_id",
-        type: "uuid",
-    })
+    @RelationId(
+        (e: EnrollmentEntity) => e.course,
+    )
         courseId: string
 
     @Field(() => GraphQLTypePricingPhase,

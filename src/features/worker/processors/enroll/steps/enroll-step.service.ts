@@ -121,8 +121,12 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                 const enrollment = entityManager.create(
                     EnrollmentEntity,
                     {
-                        userId,
-                        courseId,
+                        user: {
+                            id: userId,
+                        },
+                        course: {
+                            id: courseId,
+                        },
                         pricingPhase: currentPhase,
                     }
                 )

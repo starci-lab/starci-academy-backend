@@ -41,6 +41,9 @@ import {
 import {
     CourseMetadataEntity,
 } from "./course-metadata.entity"
+import {
+    LivestreamSessionEntity,
+} from "./livestream-session.entity"
 
 /**
  * Course entity representing a sellable learning program
@@ -135,7 +138,7 @@ export class CourseEntity extends UuidAbstractEntity {
         length: 2048,
         nullable: true,
     })
-        cdnUrl?: string | null
+        cdnUrl?: string
 
     /**
      * Display order within the parent course list.
@@ -330,6 +333,25 @@ export class CourseEntity extends UuidAbstractEntity {
         },
     )
         translations: Array<CourseTranslationEntity>
+
+    /**
+     * Recurring weekly livestream slots (calendar); superseded rows are ignored when overridden.
+     */
+    @Field(
+        () => [LivestreamSessionEntity],
+        {
+            description:
+                "Recurring livestream schedule slots for this course; superseded entries are ignored.",
+        },
+    )
+    @OneToMany(
+        () => LivestreamSessionEntity,
+        (session: LivestreamSessionEntity) => session.course,
+        {
+            cascade: true,
+        },
+    )
+        livestreamSessions: Array<LivestreamSessionEntity>
 
     /**
      * Default locale for the course.

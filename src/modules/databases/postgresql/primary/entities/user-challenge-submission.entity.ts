@@ -8,6 +8,7 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
+    RelationId,
 } from "typeorm"
 import {
     UuidAbstractEntity,
@@ -45,6 +46,8 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
     )
     @JoinColumn({
         name: "user_id",
+        foreignKeyConstraintName:
+            "fk_user_id_user_challenge_submissions_users",
     })
         user: UserEntity
 
@@ -54,9 +57,9 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
             description: "User ID.",
         },
     )
-    @Column({
-        name: "user_id",
-    })
+    @RelationId(
+        (ucs: UserChallengeSubmissionEntity) => ucs.user,
+    )
         userId: string
 
     @Field(
@@ -104,6 +107,8 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
     )
     @JoinColumn({
         name: "submission_id",
+        foreignKeyConstraintName:
+            "fk_submission_id_user_challenge_submissions_challenge_submissions",
     })
         submission: ChallengeSubmissionEntity
 
@@ -113,9 +118,9 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
             description: "Submission ID.",
         },
     )
-    @Column({
-        name: "submission_id",
-    })
+    @RelationId(
+        (ucs: UserChallengeSubmissionEntity) => ucs.submission,
+    )
         submissionId: string
 
     /**

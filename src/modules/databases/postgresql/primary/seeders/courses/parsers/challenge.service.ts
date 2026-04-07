@@ -287,7 +287,9 @@ export class ChallengeParserService {
                             url,
                             defaultLocale: Locale.En,
                             translations,
-                            challengeId
+                            challenge: {
+                                id: challengeId,
+                            },
                         }
                     }
                 ),
@@ -312,35 +314,37 @@ export class ChallengeParserService {
                                 locale,
                                 steps
                             ]
-                        ) => steps.map<Array<DeepPartial<ChallengeStepTranslationEntity>>>((step) => {
-                            return [
-                                (
-                                    {
-                                        challengeStepId: stepId,
-                                        locale,
-                                        title: step.title,
-                                        value: step.body,
-                                        field: "title",
-                                    }
-                                ),
-                                (
-                                    {
-                                        challengeStepId: stepId,
-                                        locale,
-                                        title: step.title,
-                                        value: step.body,
-                                        field: "body",
-                                    }
-                                )
-                            ]
-                        }
-                        )).flat().flat()
+                        ) => steps
+                            .filter((step) => step.orderIndex === orderIndex)
+                            .map<Array<DeepPartial<ChallengeStepTranslationEntity>>>((step) => {
+                                return [
+                                    (
+                                        {
+                                            challengeStepId: stepId,
+                                            locale,
+                                            value: step.title,
+                                            field: "title",
+                                        }
+                                    ),
+                                    (
+                                        {
+                                            challengeStepId: stepId,
+                                            locale,
+                                            value: step.body,
+                                            field: "body",
+                                        }
+                                    )
+                                ]
+                            }
+                            )).flat().flat()
                     return {
                         id: stepId,
                         orderIndex,
                         title,
                         defaultLocale: Locale.En,
-                        challengeId,
+                        challenge: {
+                            id: challengeId,
+                        },
                         body,
                         translations,
                     }
@@ -434,7 +438,9 @@ export class ChallengeParserService {
                                     id: promptId,
                                     orderIndex: prompt.orderIndex,
                                     score: prompt.score,
-                                    challengeSubmissionId: submissionId,
+                                    challengeSubmission: {
+                                        id: submissionId,
+                                    },
                                     title: prompt.title,
                                     promptText: prompt.text,
                                     defaultLocale: Locale.En,

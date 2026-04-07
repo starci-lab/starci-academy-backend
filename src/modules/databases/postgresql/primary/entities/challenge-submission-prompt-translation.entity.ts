@@ -90,6 +90,8 @@ export class ChallengeSubmissionPromptTranslationEntity extends AbstractEntity {
     @JoinColumn({
         name: "challenge_submission_prompt_id",
         referencedColumnName: "id",
+        foreignKeyConstraintName:
+            "fk_challenge_submission_prompt_id_challenge_submission_prompt_translations_challenge_submission_prompts",
     })
         challengeSubmissionPrompt: ChallengeSubmissionPromptEntity
 }

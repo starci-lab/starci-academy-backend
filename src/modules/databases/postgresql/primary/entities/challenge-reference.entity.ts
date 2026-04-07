@@ -14,6 +14,7 @@ import {
     JoinColumn,
     ManyToOne,
     OneToMany,
+    RelationId,
 } from "typeorm"
 import {
     UuidAbstractEntity,
@@ -103,6 +104,8 @@ export class ChallengeReferenceEntity extends UuidAbstractEntity {
     )
     @JoinColumn({
         name: "challenge_id",
+        foreignKeyConstraintName:
+            "fk_challenge_id_challenge_references_challenges",
     })
         challenge: ChallengeEntity
 
@@ -112,10 +115,9 @@ export class ChallengeReferenceEntity extends UuidAbstractEntity {
             description: "Parent challenge ID.",
         },
     )
-    @Column({
-        name: "challenge_id",
-        type: "uuid",
-    })
+    @RelationId(
+        (ref: ChallengeReferenceEntity) => ref.challenge,
+    )
         challengeId: string
 
     @Field(

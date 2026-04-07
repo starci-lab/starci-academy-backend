@@ -89,6 +89,8 @@ export class LessonVideoTranslationEntity extends AbstractEntity {
     @JoinColumn({
         name: "lesson_video_id",
         referencedColumnName: "id",
+        foreignKeyConstraintName:
+            "fk_lesson_video_id_lesson_video_translations_lesson_videos",
     })
         lessonVideo: LessonVideoEntity
 }

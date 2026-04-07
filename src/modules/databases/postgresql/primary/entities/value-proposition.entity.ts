@@ -3,9 +3,8 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
-} from "typeorm"
-import {
     OneToMany,
+    RelationId,
 } from "typeorm"
 import {
     CourseEntity,
@@ -95,6 +94,8 @@ export class ValuePropositionEntity extends UuidAbstractEntity {
     )
     @JoinColumn({
         name: "course_id",
+        foreignKeyConstraintName:
+            "fk_course_id_value_propositions_courses",
     })
         course: CourseEntity
 
@@ -104,10 +105,9 @@ export class ValuePropositionEntity extends UuidAbstractEntity {
             description: "Parent course ID.",
         },
     )
-    @Column({
-        name: "course_id",
-        type: "uuid",
-    })
+    @RelationId(
+        (vp: ValuePropositionEntity) => vp.course,
+    )
         courseId: string
 
     /**

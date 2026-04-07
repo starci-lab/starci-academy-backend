@@ -1,5 +1,6 @@
 import {
     Field,
+    ID,
     Int,
     ObjectType,
 } from "@nestjs/graphql"
@@ -13,6 +14,7 @@ import {
     JoinColumn,
     ManyToOne,
     OneToMany,
+    RelationId,
 } from "typeorm"
 import {
     UuidAbstractEntity,
@@ -150,8 +152,20 @@ export class ContentEntity extends UuidAbstractEntity {
     )
     @JoinColumn({
         name: "module_id",
+        foreignKeyConstraintName: "fk_module_id_contents_modules",
     })
         module: ModuleEntity
+
+    @Field(
+        () => ID,
+        {
+            description: "Parent module ID.",
+        },
+    )
+    @RelationId(
+        (c: ContentEntity) => c.module,
+    )
+        moduleId: string
 
     /**
      * Estimated minutes to read content text content (articles, docs, etc.).

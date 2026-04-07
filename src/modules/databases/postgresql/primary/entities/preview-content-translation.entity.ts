@@ -89,6 +89,8 @@ export class PreviewContentTranslationEntity extends AbstractEntity {
     @JoinColumn({
         name: "preview_content_id",
         referencedColumnName: "id",
+        foreignKeyConstraintName:
+            "fk_preview_content_id_preview_content_translations_preview_contents",
     })
         previewContent: PreviewContentEntity
 }

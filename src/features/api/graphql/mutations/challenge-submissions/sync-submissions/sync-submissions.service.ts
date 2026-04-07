@@ -129,8 +129,12 @@ export class SyncSubmissionsService {
             userChallengeSubmission = entityManager.create(
                 UserChallengeSubmissionEntity,
                 {
-                    userId: user.id,
-                    submissionId: challengeSubmissionId,
+                    user: {
+                        id: user.id,
+                    },
+                    submission: {
+                        id: challengeSubmissionId,
+                    },
                     submissionUrl: url,
                     attempts: 0,
                     score: 0,

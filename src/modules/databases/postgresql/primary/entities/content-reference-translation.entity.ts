@@ -89,6 +89,8 @@ export class ContentReferenceTranslationEntity extends AbstractEntity {
     @JoinColumn({
         name: "content_reference_id",
         referencedColumnName: "id",
+        foreignKeyConstraintName:
+            "fk_content_reference_id_content_reference_translations_content_references",
     })
         contentReference: ContentReferenceEntity
 }
