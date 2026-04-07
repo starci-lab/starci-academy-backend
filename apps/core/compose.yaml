@@ -8,6 +8,7 @@ services:
       - ../../.env.docker
     volumes:
       - ../../.mount:/usr/src/app/.mount
+    restart: always
 
 # docker build -t kanibot/core:latest -f apps/core/Dockerfile . && docker push kanibot/core:latest
 # docker compose -f apps/core/compose.yaml up --build -d
