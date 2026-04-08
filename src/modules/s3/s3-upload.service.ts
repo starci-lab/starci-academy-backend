@@ -82,44 +82,38 @@ export class S3UploadService {
                                 Key: name,
                                 Body: this.superJson.stringify(payload),
                                 ACL: acl,
-                                ContentType: "application/json",
+                                ContentType: 'application/json',
                             }),
-                        )
+                        );    
                     })())
                 break
             }
             case S3Provider.Minio: {
                 promises.push(
                     (async () => {
-                        const readResult = await this.s3ReadService.json<UploadPayload>({
+                    try {
+                        const readResult =
+                          await this.s3ReadService.json<UploadPayload>({
                             key: name,
                             provider: S3Provider.Minio,
-                        })
-                        const hash = readResult?.hash
-                        // if the hash is the same as the payload hash, return the existing result
-                        if (hash !== payload.hash) {
-                            return 
+                        });
+                        if(Boolean(readResult)) {
+                            if (readResult?.hash === payload.hash) {
+                              return;
+                            }
                         }
-                        this.minioS3.send(
-                            new PutObjectCommand({
-                                Bucket: envConfig().s3.minio.bucket,
-                                Key: name,
-                                Body: this.superJson.stringify(payload),
-                                ACL: acl,
-                                ContentType: "application/json",
-                            }),
-                        )
                         await this.minioS3.send(
-                            new PutObjectCommand(
-                                {
-                                    Bucket: envConfig().s3.minio.bucket,
-                                    Key: name,
-                                    Body: this.superJson.stringify(payload),
-                                    ACL: acl,
-                                    ContentType: "application/json",
-                                }
-                            ),
-                        )
+                          new PutObjectCommand({
+                            Bucket: envConfig().s3.minio.bucket,
+                            Key: name,
+                            Body: this.superJson.stringify(payload),
+                            ACL: acl,
+                            ContentType: 'application/json',
+                          }),
+                        );
+                    } catch (error) {
+                        console.error("Error reading from S3 Minio", error)
+                    }
                     })())
                 break
             }

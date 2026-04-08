@@ -119,8 +119,10 @@ export class S3ReadService {
         const content = await this.text({
             key, provider 
         })
-        /** If the content is null, return null. */
-        if (content === null) return null
+        /** If the content is null, throw an error. */
+        if (content === null) {
+            return null
+        }
         /** Parse the content as JSON. */
         return this.superJson.parse<T>(content)
     }
