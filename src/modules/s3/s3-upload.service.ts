@@ -8,10 +8,14 @@ import {
 } from "@nestjs/common"
 import type {
     UploadJsonParams,
-    UploadJsonResult,
+    UploadPayload,
 } from "./types"
 import {
-    InjectS3,
+    S3ProviderNotFoundException,
+} from "./exceptions/s3-provider-not-found.exception"
+import {
+    InjectDigitalOceanS3,
+    InjectMinioS3,
 } from "./s3.decorators"
 import {
     MODULE_OPTIONS_TOKEN,
@@ -19,6 +23,20 @@ import {
 import {
     type S3ModuleOptions,
 } from "./interfaces"
+import {
+    S3Provider 
+} from "./enums"
+import {
+    envConfig 
+} from "@modules/env"
+import {
+    AsyncService, 
+    InjectSuperJson
+} from "@modules/mixin"
+import SuperJSON from "superjson"
+import {
+    S3ReadService 
+} from "./s3-read.service"
 
 /**
  * Service for uploading files to S3.
@@ -26,10 +44,16 @@ import {
 @Injectable()
 export class S3UploadService {
     constructor(
-        @InjectS3()
-        private readonly s3: S3Client,
+        @InjectDigitalOceanS3()
+        private readonly digitalOceanS3: S3Client,
+        @InjectMinioS3()
+        private readonly minioS3: S3Client,
         @Inject(MODULE_OPTIONS_TOKEN)
         private readonly options: S3ModuleOptions,
+        private readonly asyncService: AsyncService,
+        @InjectSuperJson()
+        private readonly superJson: SuperJSON,
+        private readonly s3ReadService: S3ReadService,
     ) {}
 
     /**
@@ -47,52 +71,84 @@ export class S3UploadService {
      * @param param - Upload JSON parameters.
      * @returns The command output.
      */
-    async json(
+    async json<T extends UploadPayload>(
         {
             name,
-            json,
+            payload,
             acl,
-        }: UploadJsonParams,
-    ): Promise<UploadJsonResult> {
-        const config = this.config
-        if (!config) {
-            throw new Error("No S3 configuration found")
+            providers,
+        }: UploadJsonParams<T>,
+    ) {
+        const promises = Array<Promise<void>>()
+        for (const provider of providers) {
+            switch (provider) {
+            case S3Provider.DigitalOcean: {
+                promises.push(
+                    (async () => {
+                        const readResult = await this.s3ReadService.json<UploadPayload>({
+                            key: name,
+                            provider: S3Provider.DigitalOcean,
+                        })
+                        const hash = readResult?.hash
+                        // if the hash is the same as the payload hash, return the existing result
+                        if (hash !== payload.hash) {
+                            return 
+                        }
+                        this.digitalOceanS3.send(
+                            new PutObjectCommand({
+                                Bucket: envConfig().s3.digitalOcean.bucket,
+                                Key: name,
+                                Body: this.superJson.stringify(payload),
+                                ACL: acl,
+                                ContentType: "application/json",
+                            }),
+                        )
+                    })())
+                break
+            }
+            case S3Provider.Minio: {
+                promises.push(
+                    (async () => {
+                        const readResult = await this.s3ReadService.json<UploadPayload>({
+                            key: name,
+                            provider: S3Provider.Minio,
+                        })
+                        const hash = readResult?.hash
+                        // if the hash is the same as the payload hash, return the existing result
+                        if (hash !== payload.hash) {
+                            return 
+                        }
+                        this.minioS3.send(
+                            new PutObjectCommand({
+                                Bucket: envConfig().s3.minio.bucket,
+                                Key: name,
+                                Body: this.superJson.stringify(payload),
+                                ACL: acl,
+                                ContentType: "application/json",
+                            }),
+                        )
+                        await this.minioS3.send(
+                            new PutObjectCommand(
+                                {
+                                    Bucket: envConfig().s3.minio.bucket,
+                                    Key: name,
+                                    Body: this.superJson.stringify(payload),
+                                    ACL: acl,
+                                    ContentType: "application/json",
+                                }
+                            ),
+                        )
+                    })())
+                break
+            }
+            default: {
+                throw new S3ProviderNotFoundException({
+                    provider,
+                    supportedProviders: Object.values(S3Provider),
+                })
+            }
+            }
         }
-        return this.s3.send(
-            new PutObjectCommand({
-                Bucket: config.bucket,
-                Key: name,
-                Body: json,
-                ACL: acl,
-                ContentType: "application/json",
-            }),
-        )
-    }
-
-    /**
-     * Upload a JSON file with custom ACL.
-     * @param name - The name of the file.
-     * @param json - The JSON content to upload.
-     * @param acl - Access control list for object.
-     * @returns The command output.
-     */
-    async uploadJson({
-        name,
-        json,
-        acl = "private",
-    }: UploadJsonParams): Promise<UploadJsonResult> {
-        const config = this.config
-        if (!config) {
-            throw new Error("No S3 configuration found")
-        }
-        return this.s3.send(
-            new PutObjectCommand({
-                Bucket: config.bucket,
-                Key: name,
-                Body: json,
-                ACL: acl,
-                ContentType: "application/json",
-            }),
-        )
+        await this.asyncService.allIgnoreError(promises)
     }
 }

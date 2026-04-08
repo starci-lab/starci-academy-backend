@@ -1,5 +1,4 @@
 import {
-    envConfig,
     EnvModule
 } from "@modules/env"
 import {
@@ -24,7 +23,6 @@ import {
 } from "@modules/throttler"
 import {
     FilesystemModule,
-    getS3SecretAccessKey
 } from "@modules/filesystem"
 import {
     SentryModule
@@ -142,15 +140,6 @@ import {
             S3Module.register(
                 {
                     isGlobal: true,
-                    defaultProvider: envConfig().s3.defaultProvider,
-                    aws: {
-                        ...envConfig().s3.aws,
-                        secretAccessKey: getS3SecretAccessKey(),
-                    },
-                    minio: {
-                        ...envConfig().s3.minio,
-                        forcePathStyle: true,
-                    },
                 }
             ),
             /** PayOS module (uses S3 for snapshots). */

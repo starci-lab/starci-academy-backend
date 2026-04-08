@@ -10,7 +10,8 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    InjectS3,
+    InjectDigitalOceanS3,
+    InjectMinioS3,
 } from "./s3.decorators"
 import {
     MODULE_OPTIONS_TOKEN,
@@ -25,8 +26,10 @@ import {
 @Injectable()
 export class S3BuildService {
     constructor(
-        @InjectS3()
+        @InjectDigitalOceanS3()
         private readonly s3: S3Client,
+        @InjectMinioS3()
+        private readonly minioS3: S3Client,
         @Inject(MODULE_OPTIONS_TOKEN)
         private readonly options: S3ModuleOptions,
     ) {}

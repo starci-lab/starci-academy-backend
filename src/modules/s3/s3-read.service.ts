@@ -11,11 +11,9 @@ import type {
     Readable,
 } from "stream"
 import {
-    InjectS3,
+    InjectDigitalOceanS3,
+    InjectMinioS3,
 } from "./s3.decorators"
-import {
-    InjectSuperJson 
-} from "@modules/mixin"
 import SuperJSON from "superjson"
 import {
     MODULE_OPTIONS_TOKEN,
@@ -23,27 +21,44 @@ import {
 import {
     type S3ModuleOptions,
 } from "./interfaces"
+import {
+    ReadJsonParams, ReadTextParams 
+} from "./types/read"
+import {
+    UploadPayload 
+} from "./types"
+import {
+    InjectSuperJson 
+} from "@modules/mixin"
+import {
+    envConfig 
+} from "@modules/env"
+import {
+    S3Provider 
+} from "./enums"
 
+/**
+ * Service for reading objects from S3.
+ */
 @Injectable()
 export class S3ReadService {
+    /**
+     * Constructor.
+     * @param s3 - The S3 client.
+     * @param minioS3 - The Minio S3 client.
+     * @param options - The S3 module options.
+     * @param superJson - The SuperJSON instance.
+     */
     constructor(
-        @InjectS3()
+        @InjectDigitalOceanS3()
         private readonly s3: S3Client,
-        @InjectSuperJson()
-        private readonly superJson: SuperJSON,
+        @InjectMinioS3()
+        private readonly minioS3: S3Client,
         @Inject(MODULE_OPTIONS_TOKEN)
         private readonly options: S3ModuleOptions,
+        @InjectSuperJson()
+        private readonly superJson: SuperJSON,
     ) {}
-
-    /**
-     * Get the active configuration based on defaultProvider.
-     */
-    private get config() {
-        if (this.options.defaultProvider === "minio") {
-            return this.options.minio ?? this.options.aws
-        }
-        return this.options.aws ?? this.options.minio
-    }
 
     /**
      * Read an object from S3 as string.
@@ -51,16 +66,25 @@ export class S3ReadService {
      * @returns String body or null when key not found.
      */
     async text(
-        key: string,
+        {
+            key,
+            provider,
+        }: ReadTextParams,
     ): Promise<string | null> {
+        // take the appropriate S3 client based on the provider
+        let s3Client: S3Client
+        switch (provider) {
+        case S3Provider.DigitalOcean:
+            s3Client = this.s3
+            break
+        case S3Provider.Minio:
+            s3Client = this.minioS3
+            break
+        }
         try {
-            const config = this.config
-            if (!config) {
-                return null
-            }
-            const result = await this.s3.send(
+            const result = await s3Client.send(
                 new GetObjectCommand({
-                    Bucket: config.bucket,
+                    Bucket: envConfig().s3.digitalOcean.bucket,
                     Key: key,
                 }),
             )
@@ -85,12 +109,20 @@ export class S3ReadService {
      *
      * @returns Parsed value or null when key not found.
      */
-    async json<T>(
-        key: string,
+    async json<T extends UploadPayload>(
+        {
+            key,
+            provider,
+        }: ReadJsonParams,
     ): Promise<T | null> {
-        const content = await this.text(key)
+        /** Read the content as string. */
+        const content = await this.text({
+            key, provider 
+        })
+        /** If the content is null, return null. */
         if (content === null) return null
-        return this.superJson.parse(content) as T
+        /** Parse the content as JSON. */
+        return this.superJson.parse<T>(content)
     }
 }
 

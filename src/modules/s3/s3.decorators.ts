@@ -2,16 +2,12 @@ import {
     Inject,
 } from "@nestjs/common"
 import {
-    S3,
-    AWS_S3,
-    MINIO,
+    DIGITAL_OCEAN_S3,
+    MINIO_S3,
 } from "./constants"
 
 /** Inject the default S3 configuration. */
-export const InjectS3 = () => Inject(S3)
+export const InjectDigitalOceanS3 = () => Inject(DIGITAL_OCEAN_S3)
 
 /** Inject the AWS S3 configuration specifically. */
-export const InjectAwsS3 = () => Inject(AWS_S3)
-
-/** Inject the MinIO configuration specifically. */
-export const InjectMinio = () => Inject(MINIO)
+export const InjectMinioS3 = () => Inject(MINIO_S3)

@@ -1,8 +1,5 @@
-/** Injection token for default S3 instance. */
-export const S3 = "S3"
-
-/** Injection token for AWS S3 instance specifically. */
-export const AWS_S3 = "AWS_S3"
+/** Injection token for DigitalOcean S3 instance specifically. */
+export const DIGITAL_OCEAN_S3 = "DIGITAL_OCEAN_S3"
 
 /** Injection token for MinIO instance specifically. */
-export const MINIO = "MINIO"
+export const MINIO_S3 = "MINIO_S3"

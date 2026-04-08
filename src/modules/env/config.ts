@@ -136,6 +136,16 @@ export const envConfig = () => ({
                     key: "CDN_SYNCHRONIZER_COURSES_SYNC_INTERVAL_MS",
                     defaultValue: "10s",
                 }),
+                challenges: {
+                    factory: parseEnvMs({
+                        key: "CDN_SYNCHRONIZER_CHALLENGES_FACTORY_SYNC_INTERVAL_MS",
+                        defaultValue: "10s",
+                    }),
+                    runtime: parseEnvMs({
+                        key: "CDN_SYNCHRONIZER_CHALLENGES_RUNTIME_SYNC_INTERVAL_MS",
+                        defaultValue: "1s",
+                    }),
+                },
             },
             retries: {
                 courses: {
@@ -470,13 +480,8 @@ export const envConfig = () => ({
     },
     /** S3 configuration. */
     s3: {
-        /** The default provider to use (aws or minio). */
-        defaultProvider: parseEnvString({
-            key: "S3_DEFAULT_PROVIDER",
-            defaultValue: "minio",
-        }),
         /** AWS S3 configuration. */
-        aws: {
+        digitalOcean: {
             endpoint: parseEnvString({
                 key: "S3_ENDPOINT",
                 defaultValue: "https://sgp1.digitaloceanspaces.com",
@@ -493,10 +498,12 @@ export const envConfig = () => ({
                 key: "S3_BUCKET",
                 defaultValue: "starci-academy",
             }),
-            signedUrlExpiration: parseEnvMs({
-                key: "S3_SIGNED_URL_EXPIRATION",
-                defaultValue: "15m",
-            }),
+            presignedUrl: {
+                expiration: parseEnvMs({
+                    key: "S3_PRESIGNED_URL_EXPIRATION",
+                    defaultValue: "15m",
+                }),
+            },
         },
         /** MinIO configuration. */
         minio: {
@@ -520,10 +527,12 @@ export const envConfig = () => ({
                 key: "S3_MINIO_BUCKET",
                 defaultValue: "starci-academy",
             }),
-            signedUrlExpiration: parseEnvMs({
-                key: "S3_MINIO_SIGNED_URL_EXPIRATION",
-                defaultValue: "15m",
-            }),
+            presignedUrl: {
+                expiration: parseEnvMs({
+                    key: "S3_MINIO_PRESIGNED_URL_EXPIRATION",
+                    defaultValue: "15m",
+                }),
+            },
         },
     },
 

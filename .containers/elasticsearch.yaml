@@ -1,0 +1,22 @@
+services:
+  elasticsearch:
+    image: docker.io/bitnami/elasticsearch:latest
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch-data:/bitnami/elasticsearch/data
+    environment:
+      # single-node dev setup
+      - ELASTICSEARCH_NODE_NAME=es01
+      - ELASTICSEARCH_CLUSTER_NAME=es-docker
+      - ELASTICSEARCH_NETWORK_HOST=0.0.0.0
+      - ELASTICSEARCH_DISCOVERY_TYPE=single-node
+      # disable security for local/dev
+      - ELASTICSEARCH_ENABLE_SECURITY=false
+    restart: unless-stopped
+
+volumes:
+  elasticsearch-data:
+    driver: local

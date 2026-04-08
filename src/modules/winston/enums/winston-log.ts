@@ -13,4 +13,5 @@ export enum WinstonLog {
     CdnSynchronizerCourseSyncFailed = "CdnSynchronizerCourseSyncFailed",
     CdnSynchronizerCourseSyncFailedMaxRetriesReached = "CdnSynchronizerCourseSyncFailedMaxRetriesReached",
     CdnSynchronizerCourseSyncFailedAttempt = "CdnSynchronizerCourseSyncFailedAttempt",
+    CdnSynchronizerChallengeRuntimeSyncFailed = "CdnSynchronizerChallengeRuntimeSyncFailed",
 }

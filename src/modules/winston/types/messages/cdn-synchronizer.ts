@@ -33,3 +33,14 @@ export interface CdnSynchronizerCourseSyncFailedMaxRetriesReachedMessage {
     id?: string
     maxRetries: number
 }
+
+/** Message for when CDN synchronizer fails to sync a challenge runtime payload. */
+export interface CdnSynchronizerChallengeRuntimeSyncFailedMessage {
+    id: string
+    error: string
+    errorName?: string
+    errorStack?: string
+    objectKey?: string
+    providers?: string[]
+    context?: string
+}

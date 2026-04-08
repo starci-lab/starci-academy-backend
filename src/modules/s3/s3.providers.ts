@@ -2,71 +2,46 @@ import {
     Provider,
 } from "@nestjs/common"
 import {
-    S3,
-    AWS_S3,
-    MINIO,
+    DIGITAL_OCEAN_S3,
+    MINIO_S3,
 } from "./constants"
 import {
     S3Client,
 } from "@aws-sdk/client-s3"
 import {
-    MODULE_OPTIONS_TOKEN,
-} from "./s3.module-definition"
+    envConfig 
+} from "@modules/env"
 import {
-    S3ModuleOptions,
-    S3Config,
-} from "./interfaces"
-
-/**
- * Helper to create an S3Client from configuration.
- */
-const createS3Client = (config?: S3Config): S3Client | null => {
-    if (!config) {
-        return null
-    }
-    return new S3Client({
-        endpoint: config.endpoint,
-        region: config.region,
-        forcePathStyle: config.forcePathStyle,
-        credentials: {
-            accessKeyId: config.accessKeyId,
-            secretAccessKey: config.secretAccessKey,
-        },
-    })
-}
+    getS3SecretAccessKey 
+} from "@modules/filesystem"
 
 /**
  * Provider for AWS S3 specifically.
  */
-export const createAwsS3Provider = (): Provider<S3Client | null> => ({
-    provide: AWS_S3,
-    inject: [MODULE_OPTIONS_TOKEN],
-    useFactory: (options: S3ModuleOptions) => createS3Client(options.aws),
+export const createDigitalOceanS3Provider = (): Provider<S3Client | null> => ({
+    provide: DIGITAL_OCEAN_S3,
+    useFactory: () => new S3Client({
+        endpoint: envConfig().s3.digitalOcean.endpoint,
+        region: envConfig().s3.digitalOcean.region,
+        credentials: {
+            accessKeyId: envConfig().s3.digitalOcean.accessKeyId,
+            secretAccessKey: getS3SecretAccessKey(),
+        },
+    }),
 })
 
 /**
  * Provider for MinIO specifically.
  */
 export const createMinioProvider = (): Provider<S3Client | null> => ({
-    provide: MINIO,
-    inject: [MODULE_OPTIONS_TOKEN],
-    useFactory: (options: S3ModuleOptions) => createS3Client(options.minio),
-})
-
-/**
- * Provider for the default S3 instance (resolves to AWS or MinIO based on config).
- */
-export const createS3ServiceProvider = (): Provider<S3Client | null> => ({
-    provide: S3,
-    inject: [MODULE_OPTIONS_TOKEN, AWS_S3, MINIO],
-    useFactory: (
-        options: S3ModuleOptions,
-        awsS3: S3Client | null,
-        minio: S3Client | null,
-    ) => {
-        if (options.defaultProvider === "minio") {
-            return minio ?? awsS3
-        }
-        return awsS3 ?? minio
-    },
+    provide: MINIO_S3,
+    useFactory: () => new S3Client({
+        endpoint: envConfig().s3.minio.endpoint,
+        region: envConfig().s3.minio.region,
+        credentials: {
+            accessKeyId: envConfig().s3.minio.accessKeyId,
+            secretAccessKey: envConfig().s3.minio.secretAccessKey,
+        },
+        forcePathStyle: true,
+    }),
 })

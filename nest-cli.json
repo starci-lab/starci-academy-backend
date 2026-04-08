@@ -18,6 +18,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/core/tsconfig.app.json"
       }
+    },
+    "ml-sucvat": {
+      "type": "application",
+      "root": "apps/ml-sucvat",
+      "entryFile": "main",
+      "sourceRoot": "apps/ml-sucvat/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/ml-sucvat/tsconfig.app.json"
+      }
     }
   }
 }
