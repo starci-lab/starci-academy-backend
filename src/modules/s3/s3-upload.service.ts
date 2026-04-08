@@ -18,12 +18,6 @@ import {
     InjectMinioS3,
 } from "./s3.decorators"
 import {
-    MODULE_OPTIONS_TOKEN,
-} from "./s3.module-definition"
-import {
-    type S3ModuleOptions,
-} from "./interfaces"
-import {
     S3Provider 
 } from "./enums"
 import {
@@ -48,23 +42,11 @@ export class S3UploadService {
         private readonly digitalOceanS3: S3Client,
         @InjectMinioS3()
         private readonly minioS3: S3Client,
-        @Inject(MODULE_OPTIONS_TOKEN)
-        private readonly options: S3ModuleOptions,
         private readonly asyncService: AsyncService,
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
         private readonly s3ReadService: S3ReadService,
     ) {}
-
-    /**
-     * Get the active configuration based on defaultProvider.
-     */
-    private get config() {
-        if (this.options.defaultProvider === "minio") {
-            return this.options.minio ?? this.options.aws
-        }
-        return this.options.aws ?? this.options.minio
-    }
 
     /**
      * Upload a JSON file to S3.
