@@ -24,7 +24,7 @@ import {
 import type {
     ExtendedProcessGitSubmissionContext,
     ProcessGitSubmissionGradeStepExecuteResult,
-    ProcessGitSubmissionPrepareDocsStepExecuteResult,
+    ProcessGitSubmissionSplitDocsStepExecuteResult,
 } from "../types"
 import {
     JobExtendedContext,
@@ -33,8 +33,8 @@ import {
     Document,
 } from "@langchain/core/documents"
 import {
-    ProcessGitSubmissionPrepareDocsStepService,
-} from "./process-git-submission-prepare-docs-step.service"
+    ProcessGitSubmissionSplitDocsStepService,
+} from "./process-submission-split-docs-step.service"
 import {
     envConfig,
 } from "@modules/env"
@@ -49,7 +49,6 @@ import {
     InvalidModelGradeScoreException,
     ParsingScoreFromModelTextException,
 } from "@modules/exceptions"
-import fs from "fs"
 
 /**
  * Step 4: grade the submission.
@@ -64,7 +63,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         private readonly entityManager: EntityManager,
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
-        private readonly processGitSubmissionPrepareDocsStepService: ProcessGitSubmissionPrepareDocsStepService,
+        private readonly processGitSubmissionSplitDocsStepService: ProcessGitSubmissionSplitDocsStepService,
         private readonly modelService: ModelService,
     ) {
         super()
@@ -73,7 +72,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
     /**
      * The index of the step.
      */
-    stepIndex = 1
+    stepIndex = 3
 
     /**
      * The name of the step.
@@ -109,14 +108,13 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             ExtendedProcessGitSubmissionContext
         >,
     ): Promise<ProcessGitSubmissionGradeStepExecuteResult> {
-        const executionResult = await this.jobActionService.loadExecutionResult<ProcessGitSubmissionPrepareDocsStepExecuteResult>(
+        const executionResult = await this.jobActionService.loadExecutionResult<ProcessGitSubmissionSplitDocsStepExecuteResult>(
             {
                 job: context.job,
-                key: this.processGitSubmissionPrepareDocsStepService.stepName,
+                key: this.processGitSubmissionSplitDocsStepService.stepName,
             },
         )
-        fs.writeFileSync("executionResult.json", JSON.stringify(executionResult, null, 2))
-        throw new Error("test")
+
         const chunks = executionResult.chunks.map(
             (chunk) =>
                 new Document({

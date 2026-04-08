@@ -20,6 +20,7 @@ import {
     ObjectLiteral 
 } from "typeorm"
 import {
+    AsyncService, 
     ReadinessWatcherFactoryService 
 } from "@modules/mixin"
 
@@ -36,6 +37,7 @@ export class ElasticsearchService implements OnModuleInit {
         private readonly entityManager: EntityManager,
         @InjectElasticsearch()
         private readonly client: Client,
+        private readonly asyncService: AsyncService,
         private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
     ) { }
 
@@ -47,11 +49,13 @@ export class ElasticsearchService implements OnModuleInit {
             ElasticsearchService.name
         )
         // ensure the indices exist
-        for (const index of this.indices) {
-            const metadata = this.entityManager.connection.getMetadata(index)
-            const tableName = metadata.tableName
-            await this.ensureIndexExists(tableName)
-        }
+        await this.asyncService.allMustDone(
+            this.indices.map(index => {
+                const metadata = this.entityManager.connection.getMetadata(index)
+                const tableName = metadata.tableName
+                return this.ensureIndexExists(tableName)
+            }),
+        )
         // set the readiness watcher to ready
         this.readinessWatcherFactoryService.setReady(
             ElasticsearchService.name

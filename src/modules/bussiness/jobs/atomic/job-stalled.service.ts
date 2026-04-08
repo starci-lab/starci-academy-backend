@@ -42,17 +42,20 @@ export class JobStalledService {
 
     /**
      * Get all jobs still processing but queued longer than `envConfig().job.stalled`.
-     *
-     * @param param - Optional transactional entity manager.
+     * @param params - The parameters.
+     * @param params.entityManager - The entity manager.
+     * @param params.actionType - The action type to filter by.
      * @returns Stalled jobs.
      */
-    async getStalledJobs({
-        entityManager,
-    }: GetStalledJobsParams = {
-    }): Promise<GetStalledJobsResult> {
+    async getStalledJobs(
+        {
+            entityManager,
+            actionType,
+        }: GetStalledJobsParams
+    ): Promise<GetStalledJobsResult> {
         const manager = entityManager ?? this.primaryEntityManager
         const staleBefore = this.dayjsService.now().subtract(
-            envConfig().job.stalled,
+            envConfig().job.stalled.threshold,
             "millisecond",
         ).toDate()
         return manager.find(
@@ -61,6 +64,7 @@ export class JobStalledService {
                 where: {
                     status: JobStatus.Processing,
                     queueAt: LessThan(staleBefore),
+                    actionType,
                 },
             },
         )
@@ -68,8 +72,9 @@ export class JobStalledService {
 
     /**
      * Requeue a job.
-     * @param id - The ID of the job.
-     * @param entityManager - The entity manager.
+     * @param params - The parameters.
+     * @param params.id - The ID of the job.
+     * @param params.entityManager - The entity manager.
      * @returns The job.
      */
     async requeueJob(

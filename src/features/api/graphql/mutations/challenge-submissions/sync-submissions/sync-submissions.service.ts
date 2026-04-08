@@ -36,7 +36,8 @@ export class SyncSubmissionsService {
     /**
      * Execute the service.
      * @param params - The parameters.
-     * @returns The void.
+     * @param user - The authenticated user.
+     * @returns The result.
      */
     async execute(
         {
@@ -44,18 +45,21 @@ export class SyncSubmissionsService {
             user,
         }: SyncSubmissionsParams,
     ): Promise<SyncSubmissionsResult> {
+        // Validate user
         if (!user) {
             throw new UserNotFoundException(
                 {
                 },
             )
         }
+        // Validate items
         const {
             items,
         } = request
         if (!items?.length) {
             return
         }
+        // Upsert submissions
         await this.entityManager.transaction(
             async (entityManager) => {
                 for (const item of items) {
@@ -75,7 +79,10 @@ export class SyncSubmissionsService {
     /**
      * Upsert a user challenge submission.
      * @param params - The parameters.
-     * @returns The user challenge submission.
+     * @param user - The authenticated user.
+     * @param challengeSubmissionId - The challenge submission id.
+     * @param url - The submission URL to store.
+     * @returns The void.
      */
     private async upsertOne(
         {
@@ -85,6 +92,7 @@ export class SyncSubmissionsService {
             url,
         }: UpsertSubmissionParams,
     ): Promise<void> {
+        // Validate challenge submission
         const challengeSubmission = await entityManager.findOne(
             ChallengeSubmissionEntity,
             {
@@ -100,6 +108,7 @@ export class SyncSubmissionsService {
                 },
             )
         }
+        // Validate submission URL
         if (
             !isSubmissionUrlValidForType(
                 challengeSubmission.type,
@@ -114,12 +123,17 @@ export class SyncSubmissionsService {
                 },
             )
         }
+        // Upsert user challenge submission
         let userChallengeSubmission = await entityManager.findOne(
             UserChallengeSubmissionEntity,
             {
                 where: {
-                    userId: user.id,
-                    submissionId: challengeSubmissionId,
+                    user: {
+                        id: user.id,
+                    },
+                    submission: {
+                        id: challengeSubmissionId,
+                    },
                 },
             },
         )

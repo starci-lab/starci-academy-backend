@@ -3,7 +3,8 @@ import type {
 } from "@modules/bullmq"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserChallengeSubmissionEntity,
+    ModelProvider,
+    InjectQdrantClient,
 } from "@modules/databases"
 import {
     JobActionService,
@@ -21,39 +22,47 @@ import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
-import type {
+import {
     ExtendedProcessGitSubmissionContext,
-    ProcessGitSubmissionCompleteStepExecuteResult,
-    ProcessGitSubmissionGradeStepExecuteResult,
+    ProcessGitSubmissionSplitDocsStepExecuteResult,
+    ProcessGitSubmissionVectorizeStepExecuteResult
 } from "../types"
-import type {
-    JobExtendedContext,
+import {
+    JobExtendedContext
 } from "../../types"
 import {
-    DayjsService,
-} from "@modules/mixin"
+    Document
+} from "@langchain/core/documents"
 import {
-    MissingOrInvalidGradeExecutionResultException,
-} from "@modules/exceptions"
+    ProcessGitSubmissionSplitDocsStepService
+} from "./process-submission-split-docs-step.service"
 import {
-    ProcessGitSubmissionGradeStepService,
-} from "./process-git-submission-grade-step.service"
+    QdrantVectorStore,
+} from "@langchain/qdrant"
+import {
+    type QdrantClient,
+} from "@qdrant/qdrant-js"
+import {
+    EmbeddingModelService
+} from "@modules/langchain"
+import {
+    envConfig 
+} from "@modules/env"
 
 /**
- * Step 5: persist grade and feedback to `user_challenge_submissions`.
+ * Step 3: vectorize the chunks.
  */
 @Injectable()
-export class ProcessGitSubmissionCompleteStepService extends AbstractStepService<
-    ProcessGitSubmissionPayload,
-    ExtendedProcessGitSubmissionContext
-> {
+export class ProcessGitSubmissionVectorizeStepService extends AbstractStepService<ProcessGitSubmissionPayload, ExtendedProcessGitSubmissionContext> {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
-        private readonly dayjsService: DayjsService,
-        private readonly processGitSubmissionGradeStepService: ProcessGitSubmissionGradeStepService,
+        private readonly embeddingModelService: EmbeddingModelService,
+        private readonly processGitSubmissionSplitDocsStepService: ProcessGitSubmissionSplitDocsStepService,
+        @InjectQdrantClient()
+        private readonly qdrantClient: QdrantClient,
     ) {
         super()
     }
@@ -62,15 +71,15 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
      * The index of the step.
      */
     stepIndex = 2
+
     /**
      * The name of the step.
      */
-
-    stepName = "complete"
+    stepName = "vectorize"
 
     /**
      * Process the step.
-     * @param context - Context of the step.
+     * @param context - The context of the step.
      * @returns A promise that resolves when the step is processed.
      */
     async process(
@@ -79,16 +88,18 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
             ExtendedProcessGitSubmissionContext
         >,
     ): Promise<void> {
+        // execute the step
         const executionResult = await this.execute(context)
-        await this.finalize(
-            executionResult,
-            context,
-        )
+        // finalize the step
+        await this.finalize(executionResult,
+            context)
     }
+
+
 
     /**
      * Execute the step.
-     * @param context - Context of the step.
+     * @param context - The context of the step.
      * @returns A promise that resolves when the step is executed.
      */
     private async execute(
@@ -96,53 +107,51 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
             ProcessGitSubmissionPayload,
             ExtendedProcessGitSubmissionContext
         >,
-    ): Promise<ProcessGitSubmissionCompleteStepExecuteResult> {
-        const grade = await this.jobActionService.loadExecutionResult<
-            ProcessGitSubmissionGradeStepExecuteResult
-        >(
+    ): Promise<ProcessGitSubmissionVectorizeStepExecuteResult> {
+        // load the chunks
+        const executionResult = await this.jobActionService.loadExecutionResult<ProcessGitSubmissionSplitDocsStepExecuteResult>(
             {
                 job: context.job,
-                key: this.processGitSubmissionGradeStepService.stepName,
-            },
+                key: this.processGitSubmissionSplitDocsStepService.stepName,
+            }
         )
-        if (
-            !grade
-            || typeof grade.score !== "number"
-            || !Array.isArray(grade.feedbacks)
-        ) {
-            throw new MissingOrInvalidGradeExecutionResultException({
-                grade,
-            })
-        }
-        const feedbackText =
-            grade.feedbacks.length
-                ? grade.feedbacks.join("\n\n")
-                : null
-        await this.entityManager.update(
-            UserChallengeSubmissionEntity,
+        // convert the chunks to documents
+        const chunks = executionResult.chunks.map((chunk) => new Document(
             {
-                id: context.payload.userChallengeSubmissionId,
-                userId: context.payload.userId,
-            },
+                pageContent: chunk.pageContent,
+                metadata: chunk.metadata,
+            }
+        ))
+        // get the collection name
+        const collectionName = `grading-${context.payload.userChallengeSubmissionId}`
+        // get the embedding model
+        const embeddingModel = this.embeddingModelService.get({
+            model: context.payload.embeddingModel ?? envConfig().services.githubWorker.processGitSubmission.embedding.model,
+            provider: (context.payload.embeddingProvider ?? envConfig().services.githubWorker.processGitSubmission.embedding.provider) as ModelProvider,
+        })
+        // remove the existing collection
+        await this.qdrantClient.deleteCollection(collectionName)
+        // vectorize the chunks
+        await QdrantVectorStore.fromDocuments(
+            chunks,
+            embeddingModel,
             {
-                score: grade.score,
-                processed: true,
-                processedAt: this.dayjsService.now().toDate(),
-                feedback: feedbackText,
+                client: this.qdrantClient,
+                collectionName,
             },
         )
         return {
         }
     }
-
     /**
      * Finalize the step.
-     * @param executionResult - Execution result of the step.
-     * @param context - Context of the step.
+     * @param context - The context of the step.
      * @returns A promise that resolves when the step is finalized.
      */
     private async finalize(
-        executionResult: ProcessGitSubmissionCompleteStepExecuteResult,
+        /** Execution result of the step. */
+        executionResult: ProcessGitSubmissionVectorizeStepExecuteResult,
+        /** Context of the step. */
         context: JobExtendedContext<
             ProcessGitSubmissionPayload,
             ExtendedProcessGitSubmissionContext

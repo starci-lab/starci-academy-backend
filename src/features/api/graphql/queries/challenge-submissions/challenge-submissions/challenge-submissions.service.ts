@@ -48,34 +48,39 @@ export class ChallengeSubmissionsService {
             user,
         }: ExecuteParams<ChallengeSubmissionsRequest>,
     ): Promise<ChallengeSubmissionsResponseData> {
-        const order: FindOptionsOrder<ChallengeSubmissionEntity> = {
-        }
-        for (const sort of sorts) {
-            order[sort.by as ChallengeSubmissionsSortBy] = sort.order
-        }
-        const challengeSubmissions = await this.entityManager.find(
-            ChallengeSubmissionEntity,
-            {
-                where: {
-                    challenge: {
-                        id: challengeId,
+        try {
+            const order: FindOptionsOrder<ChallengeSubmissionEntity> = {
+            }
+            for (const sort of sorts) {
+                order[sort.by as ChallengeSubmissionsSortBy] = sort.order
+            }
+            const challengeSubmissions = await this.entityManager.find(
+                ChallengeSubmissionEntity,
+                {
+                    where: {
+                        challenge: {
+                            id: challengeId,
+                        },
+                    },
+                    order,
+                    relations: {
+                        translations: true,
+                        challenge: true,
                     },
                 },
-                order,
-                relations: {
-                    translations: true,
-                    challenge: true,
-                },
-            },
-        )
-        if (user && challengeSubmissions.length) {
-            await this.attachUserSubmissionForCurrentUser(
-                challengeSubmissions,
-                user,
             )
-        }
-        return {
-            data: challengeSubmissions,
+            if (user && challengeSubmissions.length) {
+                await this.attachUserSubmissionForCurrentUser(
+                    challengeSubmissions,
+                    user,
+                )
+            }
+            return {
+                data: challengeSubmissions,
+            }
+        } catch (error) {
+            console.error(error)
+            throw error
         }
     }
 
@@ -94,11 +99,12 @@ export class ChallengeSubmissionsService {
             UserChallengeSubmissionEntity,
             {
                 where: {
-                    userId: user.id,
-                    submissionId: In(submissionIds),
-                },
-                relations: {
-                    user: true,
+                    user: {
+                        id: user.id,
+                    },
+                    submission: {
+                        id: In(submissionIds),
+                    },
                 },
             },
         )

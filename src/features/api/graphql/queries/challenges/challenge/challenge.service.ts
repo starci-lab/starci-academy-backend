@@ -102,7 +102,7 @@ export class ChallengeQueryService {
         const hydratedSteps = _.cloneDeep(steps)
         hydratedChallenge.steps = hydratedSteps
         const hydratedReferences = _.cloneDeep(references)
-        hydratedChallenge.references = hydratedReferences
+        hydratedChallenge.references = hydratedReferences   
         this.challengeTransformer.transform(
             hydratedChallenge,
             locale,

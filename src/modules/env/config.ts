@@ -618,22 +618,31 @@ export const envConfig = () => ({
     },
     /** Job tracking configuration. */
     job: {
+        /** Enroll job configuration. */
         enroll: {
             maxSteps: parseEnvInt({
                 key: "JOB_ENROLL_MAX_STEPS",
                 defaultValue: 1,
             }),
         },
+        /** Process Git Submission job configuration. */
         processGitSubmission: {
             maxSteps: parseEnvInt({
                 key: "JOB_PROCESS_GIT_SUBMISSION_MAX_STEPS",
-                defaultValue: 5,
+                defaultValue: 3,
             }),
         },
-        stalled: parseEnvMs({
-            key: "JOB_STALLED",
-            defaultValue: "10m",
-        }),
+        /** Job stalled configuration. */
+        stalled: {
+            threshold: parseEnvMs({
+                key: "JOB_STALLED_RETRY_THRESHOLD",
+                defaultValue: "10s",
+            }),
+            intervalMs: parseEnvMs({
+                key: "JOB_STALLED_INTERVAL_MS",
+                defaultValue: "5s",
+            }),
+        },
     },
     /** Apollo configuration. */
     apollo: {

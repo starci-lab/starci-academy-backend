@@ -33,13 +33,14 @@ import {
 } from "@modules/winston"
 import {
     ProcessGitSubmissionLoadDocsStepService
-} from "./process-git-submission-load-docs-step.service"
+} from "./process-submission-load-docs-step.service"
 import {
     Document,
 } from "@langchain/core/documents"
 import {
     envConfig 
 } from "@modules/env"
+import fs from "fs"
 
 /**
  * Step 2: split loaded documents into chunks for embedding.
@@ -112,6 +113,11 @@ export class ProcessGitSubmissionSplitDocsStepService extends AbstractStepServic
             chunkOverlap: envConfig().services.githubWorker.processGitSubmission.chunkOverlap,
         })
         const chunks = await splitter.splitDocuments(docs)
+        fs.writeFileSync("chunks.json",
+            JSON.stringify(chunks,
+                null,
+                2))
+        throw new Error("test")
         return {
             chunks,
         }

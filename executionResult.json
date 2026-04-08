@@ -1,0 +1,1222 @@
+{
+  "chunks": [
+    {
+      "pageContent": "��#\u0000 \u0000s\u0000y\u0000s\u0000-\u0000d\u0000e\u0000s\u0000i\u0000g\u0000n\u0000\r\u0000\n\u0000",
+      "metadata": {
+        "source": "README.md",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 2
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "# compiled output\n/dist\n/node_modules\n/build\n\n# Logs\nlogs\n*.log\nnpm-debug.log*\npnpm-debug.log*\nyarn-debug.log*\nyarn-error.log*\nlerna-debug.log*\n\n# OS\n.DS_Store\n\n# Tests\n/coverage\n/.nyc_output\n\n# IDEs and editors\n/.idea\n.project\n.classpath\n.c9/\n*.launch\n.settings/\n*.sublime-workspace\n\n# IDE - VSCode\n.vscode/*\n!.vscode/settings.json\n!.vscode/tasks.json\n!.vscode/launch.json\n!.vscode/extensions.json\n\n# dotenv environment variable files\n.env\n.env.development.local\n.env.test.local\n.env.production.local\n.env.local\n\n# temp directory\n.temp\n.tmp\n\n# Runtime data\npids\n*.pid\n*.seed\n*.pid.lock\n\n# Diagnostic reports (https://nodejs.org/api/report.html)\nreport.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json",
+      "metadata": {
+        "source": "app/.gitignore",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 56
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"singleQuote\": true,\n  \"trailingComma\": \"all\"\n}",
+      "metadata": {
+        "source": "app/.prettierrc",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 4
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "<p align=\"center\">\n  <a href=\"http://nestjs.com/\" target=\"blank\"><img src=\"https://nestjs.com/img/logo-small.svg\" width=\"120\" alt=\"Nest Logo\" /></a>\n</p>\n\n[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456\n[circleci-url]: https://circleci.com/gh/nestjs/nest",
+      "metadata": {
+        "source": "app/README.md",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 6
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "<p align=\"center\">A progressive <a href=\"http://nodejs.org\" target=\"_blank\">Node.js</a> framework for building efficient and scalable server-side applications.</p>\n    <p align=\"center\">\n<a href=\"https://www.npmjs.com/~nestjscore\" target=\"_blank\"><img src=\"https://img.shields.io/npm/v/@nestjs/core.svg\" alt=\"NPM Version\" /></a>\n<a href=\"https://www.npmjs.com/~nestjscore\" target=\"_blank\"><img src=\"https://img.shields.io/npm/l/@nestjs/core.svg\" alt=\"Package License\" /></a>\n<a href=\"https://www.npmjs.com/~nestjscore\" target=\"_blank\"><img src=\"https://img.shields.io/npm/dm/@nestjs/common.svg\" alt=\"NPM Downloads\" /></a>\n<a href=\"https://circleci.com/gh/nestjs/nest\" target=\"_blank\"><img src=\"https://img.shields.io/circleci/build/github/nestjs/nest/master\" alt=\"CircleCI\" /></a>\n<a href=\"https://discord.gg/G7Qnnhy\" target=\"_blank\"><img src=\"https://img.shields.io/badge/discord-online-brightgreen.svg\" alt=\"Discord\"/></a>",
+      "metadata": {
+        "source": "app/README.md",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 8,
+            "to": 14
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "<a href=\"https://discord.gg/G7Qnnhy\" target=\"_blank\"><img src=\"https://img.shields.io/badge/discord-online-brightgreen.svg\" alt=\"Discord\"/></a>\n<a href=\"https://opencollective.com/nest#backer\" target=\"_blank\"><img src=\"https://opencollective.com/nest/backers/badge.svg\" alt=\"Backers on Open Collective\" /></a>\n<a href=\"https://opencollective.com/nest#sponsor\" target=\"_blank\"><img src=\"https://opencollective.com/nest/sponsors/badge.svg\" alt=\"Sponsors on Open Collective\" /></a>\n  <a href=\"https://paypal.me/kamilmysliwiec\" target=\"_blank\"><img src=\"https://img.shields.io/badge/Donate-PayPal-ff3f59.svg\" alt=\"Donate us\"/></a>\n    <a href=\"https://opencollective.com/nest#sponsor\"  target=\"_blank\"><img src=\"https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg\" alt=\"Support us\"></a>\n  <a href=\"https://twitter.com/nestframework\" target=\"_blank\"><img src=\"https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow\" alt=\"Follow us on Twitter\"></a>\n</p>",
+      "metadata": {
+        "source": "app/README.md",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 14,
+            "to": 20
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "<a href=\"https://twitter.com/nestframework\" target=\"_blank\"><img src=\"https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow\" alt=\"Follow us on Twitter\"></a>\n</p>\n  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)\n  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->",
+      "metadata": {
+        "source": "app/README.md",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 19,
+            "to": 22
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "## Description\n\n[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.\n\n## Project setup\n\n```bash\n$ npm install\n```\n\n## Compile and run the project\n\n```bash\n# development\n$ npm run start\n\n# watch mode\n$ npm run start:dev\n\n# production mode\n$ npm run start:prod\n```\n\n## Run tests\n\n```bash\n# unit tests\n$ npm run test\n\n# e2e tests\n$ npm run test:e2e\n\n# test coverage\n$ npm run test:cov\n```\n\n## Deployment\n\nWhen you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.\n\nIf you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:",
+      "metadata": {
+        "source": "app/README.md",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 24,
+            "to": 64
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "```bash\n$ npm install -g @nestjs/mau\n$ mau deploy\n```\n\nWith Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.\n\n## Resources\n\nCheck out a few resources that may come in handy when working with NestJS:",
+      "metadata": {
+        "source": "app/README.md",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 66,
+            "to": 75
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.\n- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).\n- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).\n- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.\n- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).\n- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).\n- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).\n- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).\n\n## Support",
+      "metadata": {
+        "source": "app/README.md",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 77,
+            "to": 86
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "## Support\n\nNest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).\n\n## Stay in touch\n\n- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)\n- Website - [https://nestjs.com](https://nestjs.com/)\n- Twitter - [@nestframework](https://twitter.com/nestframework)\n\n## License\n\nNest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).",
+      "metadata": {
+        "source": "app/README.md",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 86,
+            "to": 98
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "// @ts-check\nimport eslint from '@eslint/js';\nimport eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';\nimport globals from 'globals';\nimport tseslint from 'typescript-eslint';\n\nexport default tseslint.config(\n  {\n    ignores: ['eslint.config.mjs'],\n  },\n  eslint.configs.recommended,\n  ...tseslint.configs.recommendedTypeChecked,\n  eslintPluginPrettierRecommended,\n  {\n    languageOptions: {\n      globals: {\n        ...globals.node,\n        ...globals.jest,\n      },\n      sourceType: 'commonjs',\n      parserOptions: {\n        projectService: true,\n        tsconfigRootDir: import.meta.dirname,\n      },\n    },\n  },\n  {\n    rules: {\n      '@typescript-eslint/no-explicit-any': 'off',\n      '@typescript-eslint/no-floating-promises': 'warn',\n      '@typescript-eslint/no-unsafe-argument': 'warn',\n      \"prettier/prettier\": [\"error\", { endOfLine: \"auto\" }],\n    },\n  },\n);",
+      "metadata": {
+        "source": "app/eslint.config.mjs",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 35
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"$schema\": \"https://json.schemastore.org/nest-cli\",\n  \"collection\": \"@nestjs/schematics\",\n  \"sourceRoot\": \"apps/app/src\",\n  \"compilerOptions\": {\n    \"deleteOutDir\": true,\n    \"webpack\": false,\n    \"tsConfigPath\": \"apps/app/tsconfig.app.json\"\n  },\n  \"monorepo\": true,\n  \"root\": \"apps/app\",\n  \"projects\": {\n    \"app\": {\n      \"type\": \"application\",\n      \"root\": \"apps/app\",\n      \"entryFile\": \"main\",\n      \"sourceRoot\": \"apps/app/src\",\n      \"compilerOptions\": {\n        \"tsConfigPath\": \"apps/app/tsconfig.app.json\"\n      }\n    },\n    \"apple\": {\n      \"type\": \"application\",\n      \"root\": \"apps/apple\",\n      \"entryFile\": \"main\",\n      \"sourceRoot\": \"apps/apple/src\",\n      \"compilerOptions\": {\n        \"tsConfigPath\": \"apps/apple/tsconfig.app.json\"\n      }\n    },\n    \"banana\": {\n      \"type\": \"application\",\n      \"root\": \"apps/banana\",\n      \"entryFile\": \"main\",\n      \"sourceRoot\": \"apps/banana/src\",\n      \"compilerOptions\": {\n        \"tsConfigPath\": \"apps/banana/tsconfig.app.json\"\n      }",
+      "metadata": {
+        "source": "app/nest-cli.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 38
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "\"root\": \"apps/banana\",\n      \"entryFile\": \"main\",\n      \"sourceRoot\": \"apps/banana/src\",\n      \"compilerOptions\": {\n        \"tsConfigPath\": \"apps/banana/tsconfig.app.json\"\n      }\n    },\n    \"kafka-server\": {\n      \"type\": \"application\",\n      \"root\": \"apps/kafka-server\",\n      \"entryFile\": \"main\",\n      \"sourceRoot\": \"apps/kafka-server/src\",\n      \"compilerOptions\": {\n        \"tsConfigPath\": \"apps/kafka-server/tsconfig.app.json\"\n      }\n    },\n    \"nats-client\": {\n      \"type\": \"application\",\n      \"root\": \"apps/nats-client\",\n      \"entryFile\": \"main\",\n      \"sourceRoot\": \"apps/nats-client/src\",\n      \"compilerOptions\": {\n        \"tsConfigPath\": \"apps/nats-client/tsconfig.app.json\"\n      }\n    },\n    \"nats-server\": {\n      \"type\": \"application\",\n      \"root\": \"apps/nats-server\",\n      \"entryFile\": \"main\",\n      \"sourceRoot\": \"apps/nats-server/src\",\n      \"compilerOptions\": {\n        \"tsConfigPath\": \"apps/nats-server/tsconfig.app.json\"\n      }\n    },\n    \"potato\": {",
+      "metadata": {
+        "source": "app/nest-cli.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 33,
+            "to": 67
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "\"entryFile\": \"main\",\n      \"sourceRoot\": \"apps/nats-server/src\",\n      \"compilerOptions\": {\n        \"tsConfigPath\": \"apps/nats-server/tsconfig.app.json\"\n      }\n    },\n    \"potato\": {\n      \"type\": \"application\",\n      \"root\": \"apps/potato\",\n      \"entryFile\": \"main\",\n      \"sourceRoot\": \"apps/potato/src\",\n      \"compilerOptions\": {\n        \"tsConfigPath\": \"apps/potato/tsconfig.app.json\"\n      }\n    }\n  }\n}",
+      "metadata": {
+        "source": "app/nest-cli.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 61,
+            "to": 77
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"name\": \"app\",\n  \"version\": \"0.0.1\",\n  \"description\": \"\",\n  \"author\": \"\",\n  \"private\": true,\n  \"license\": \"UNLICENSED\",\n  \"scripts\": {\n    \"build\": \"nest build\",\n    \"format\": \"prettier --write \\\"apps/**/*.ts\\\" \\\"libs/**/*.ts\\\"\",\n    \"start\": \"nest start\",\n    \"start:dev\": \"nest start --watch\",\n    \"start:debug\": \"nest start --debug --watch\",\n    \"start:prod\": \"node dist/apps/app/main\",\n    \"lint\": \"eslint \\\"{src,apps,libs,test}/**/*.ts\\\" --fix\",\n    \"test\": \"jest\",\n    \"test:watch\": \"jest --watch\",\n    \"test:cov\": \"jest --coverage\",\n    \"test:debug\": \"node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand\",\n    \"test:e2e\": \"jest --config ./apps/app/test/jest-e2e.json\"\n  },\n  \"dependencies\": {\n    \"@grpc/grpc-js\": \"^1.14.3\",\n    \"@grpc/proto-loader\": \"^0.8.0\",\n    \"@nestjs/common\": \"^11.0.1\",\n    \"@nestjs/core\": \"^11.0.1\",\n    \"@nestjs/microservices\": \"^11.1.18\",\n    \"@nestjs/platform-express\": \"^11.0.1\",\n    \"kafkajs\": \"^2.2.4\",",
+      "metadata": {
+        "source": "app/package.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 29
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "\"@nestjs/common\": \"^11.0.1\",\n    \"@nestjs/core\": \"^11.0.1\",\n    \"@nestjs/microservices\": \"^11.1.18\",\n    \"@nestjs/platform-express\": \"^11.0.1\",\n    \"kafkajs\": \"^2.2.4\",\n    \"nats\": \"^2.29.3\",\n    \"reflect-metadata\": \"^0.2.2\",\n    \"rxjs\": \"^7.8.1\"\n  },\n  \"devDependencies\": {\n    \"@eslint/eslintrc\": \"^3.2.0\",\n    \"@eslint/js\": \"^9.18.0\",\n    \"@nestjs/cli\": \"^11.0.0\",\n    \"@nestjs/schematics\": \"^11.0.0\",\n    \"@nestjs/testing\": \"^11.0.1\",\n    \"@types/express\": \"^5.0.0\",\n    \"@types/jest\": \"^30.0.0\",\n    \"@types/node\": \"^22.10.7\",\n    \"@types/supertest\": \"^6.0.2\",\n    \"eslint\": \"^9.18.0\",\n    \"eslint-config-prettier\": \"^10.0.1\",\n    \"eslint-plugin-prettier\": \"^5.2.2\",\n    \"globals\": \"^16.0.0\",\n    \"jest\": \"^30.0.0\",\n    \"prettier\": \"^3.4.2\",\n    \"source-map-support\": \"^0.5.21\",\n    \"supertest\": \"^7.0.0\",\n    \"ts-jest\": \"^29.2.5\",\n    \"ts-loader\": \"^9.5.2\",\n    \"ts-node\": \"^10.9.2\",\n    \"tsconfig-paths\": \"^4.2.0\",\n    \"typescript\": \"^5.7.3\",\n    \"typescript-eslint\": \"^8.20.0\"\n  },",
+      "metadata": {
+        "source": "app/package.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 25,
+            "to": 58
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "\"ts-jest\": \"^29.2.5\",\n    \"ts-loader\": \"^9.5.2\",\n    \"ts-node\": \"^10.9.2\",\n    \"tsconfig-paths\": \"^4.2.0\",\n    \"typescript\": \"^5.7.3\",\n    \"typescript-eslint\": \"^8.20.0\"\n  },\n  \"jest\": {\n    \"moduleFileExtensions\": [\n      \"js\",\n      \"json\",\n      \"ts\"\n    ],\n    \"rootDir\": \".\",\n    \"testRegex\": \".*\\\\.spec\\\\.ts$\",\n    \"transform\": {\n      \"^.+\\\\.(t|j)s$\": \"ts-jest\"\n    },\n    \"collectCoverageFrom\": [\n      \"**/*.(t|j)s\"\n    ],\n    \"coverageDirectory\": \"./coverage\",\n    \"testEnvironment\": \"node\",\n    \"roots\": [\n      \"<rootDir>/apps/\"\n    ]\n  }\n}",
+      "metadata": {
+        "source": "app/package.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 52,
+            "to": 79
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"extends\": \"./tsconfig.json\",\n  \"exclude\": [\"node_modules\", \"test\", \"dist\", \"**/*spec.ts\"]\n}",
+      "metadata": {
+        "source": "app/tsconfig.build.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 4
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"compilerOptions\": {\n    \"module\": \"nodenext\",\n    \"moduleResolution\": \"nodenext\",\n    \"resolvePackageJsonExports\": true,\n    \"esModuleInterop\": true,\n    \"isolatedModules\": true,\n    \"declaration\": true,\n    \"removeComments\": true,\n    \"emitDecoratorMetadata\": true,\n    \"experimentalDecorators\": true,\n    \"allowSyntheticDefaultImports\": true,\n    \"target\": \"ES2023\",\n    \"sourceMap\": true,\n    \"outDir\": \"./dist\",\n    \"baseUrl\": \"./\",\n    \"incremental\": true,\n    \"skipLibCheck\": true,\n    \"strictNullChecks\": true,\n    \"forceConsistentCasingInFileNames\": true,\n    \"noImplicitAny\": false,\n    \"strictBindCallApply\": false,\n    \"noFallthroughCasesInSwitch\": false,\n    \"paths\": {}\n  }\n}",
+      "metadata": {
+        "source": "app/tsconfig.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 26
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"extends\": \"../../tsconfig.json\",\n  \"compilerOptions\": {\n    \"declaration\": false,\n    \"outDir\": \"../../dist/apps/app\"\n  },\n  \"include\": [\"src/**/*\"],\n  \"exclude\": [\"node_modules\", \"dist\", \"test\", \"**/*spec.ts\"]\n}",
+      "metadata": {
+        "source": "app/apps/app/tsconfig.app.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 9
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Test, TestingModule } from '@nestjs/testing';\nimport { AppController } from './app.controller';\nimport { AppService } from './app.service';\n\ndescribe('AppController', () => {\n  let appController: AppController;\n\n  beforeEach(async () => {\n    const app: TestingModule = await Test.createTestingModule({\n      controllers: [AppController],\n      providers: [AppService],\n    }).compile();\n\n    appController = app.get<AppController>(AppController);\n  });\n\n  describe('root', () => {\n    it('should return \"Hello World!\"', () => {\n      expect(appController.getHello()).toBe('Hello World!');\n    });\n  });\n});",
+      "metadata": {
+        "source": "app/apps/app/src/app.controller.spec.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 22
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}",
+      "metadata": {
+        "source": "app/apps/app/src/app.controller.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 12
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Module } from '@nestjs/common';\nimport { AppController } from './app.controller';\nimport { AppService } from './app.service';\n\n@Module({\n  imports: [],\n  controllers: [AppController],\n  providers: [AppService],\n})\nexport class AppModule {}",
+      "metadata": {
+        "source": "app/apps/app/src/app.module.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 10
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}",
+      "metadata": {
+        "source": "app/apps/app/src/app.service.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 8
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(process.env.PORT ?? 3000);\n}\nvoid bootstrap();",
+      "metadata": {
+        "source": "app/apps/app/src/main.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 8
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Test, TestingModule } from '@nestjs/testing';\nimport { INestApplication } from '@nestjs/common';\nimport request from 'supertest';\nimport { App } from 'supertest/types';\nimport { AppModule } from './../src/app.module';\n\ndescribe('AppController (e2e)', () => {\n  let app: INestApplication<App>;\n\n  beforeEach(async () => {\n    const moduleFixture: TestingModule = await Test.createTestingModule({\n      imports: [AppModule],\n    }).compile();\n\n    app = moduleFixture.createNestApplication();\n    await app.init();\n  });\n\n  it('/ (GET)', () => {\n    return request(app.getHttpServer())\n      .get('/')\n      .expect(200)\n      .expect('Hello World!');\n  });\n});",
+      "metadata": {
+        "source": "app/apps/app/test/app.e2e-spec.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 25
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"moduleFileExtensions\": [\"js\", \"json\", \"ts\"],\n  \"rootDir\": \".\",\n  \"testEnvironment\": \"node\",\n  \"testRegex\": \".e2e-spec.ts$\",\n  \"transform\": {\n    \"^.+\\\\.(t|j)s$\": \"ts-jest\"\n  }\n}",
+      "metadata": {
+        "source": "app/apps/app/test/jest-e2e.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 9
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"extends\": \"../../tsconfig.json\",\n  \"compilerOptions\": {\n    \"declaration\": false,\n    \"outDir\": \"../../dist/apps/apple\"\n  },\n  \"include\": [\"src/**/*\"],\n  \"exclude\": [\"node_modules\", \"dist\", \"test\", \"**/*spec.ts\"]\n}",
+      "metadata": {
+        "source": "app/apps/apple/tsconfig.app.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 9
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Test, TestingModule } from '@nestjs/testing';\nimport { AppleController } from './apple.controller';\nimport { AppleService } from './apple.service';\n\ndescribe('AppleController', () => {\n  let appleController: AppleController;\n\n  beforeEach(async () => {\n    const app: TestingModule = await Test.createTestingModule({\n      controllers: [AppleController],\n      providers: [AppleService],\n    }).compile();\n\n    appleController = app.get<AppleController>(AppleController);\n  });\n\n  describe('root', () => {\n    it('should return \"Hello World!\"', () => {\n      expect(appleController.getHello()).toBe('Hello World!');\n    });\n  });\n});",
+      "metadata": {
+        "source": "app/apps/apple/src/apple.controller.spec.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 22
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Controller, Get, Query } from '@nestjs/common';\nimport { AppleService } from './apple.service';\n\n@Controller()\nexport class AppleController {\n  constructor(private readonly appleService: AppleService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appleService.getHello();\n  }\n\n  @Get('/banana-grpc')\n  async bananaGrpc(@Query('name') name?: string): Promise<string> {\n    return await this.appleService.callBanana(name);\n  }\n}",
+      "metadata": {
+        "source": "app/apps/apple/src/apple.controller.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 17
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Module } from '@nestjs/common';\nimport { ClientsModule, Transport } from '@nestjs/microservices';\nimport { join } from 'path';\nimport { AppleController } from './apple.controller';\nimport { AppleService } from './apple.service';\n\n@Module({\n  imports: [\n    ClientsModule.register([\n      {\n        name: 'BANANA_GRPC',\n        transport: Transport.GRPC,\n        options: {\n          package: 'fruit',\n          protoPath: join(process.cwd(), 'proto', 'fruit.proto'),\n          url: '127.0.0.1:50051',\n        },\n      },\n    ]),\n  ],\n  controllers: [AppleController],\n  providers: [AppleService],\n})\nexport class AppleModule {}",
+      "metadata": {
+        "source": "app/apps/apple/src/apple.module.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 24
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Inject, Injectable, OnModuleInit } from '@nestjs/common';\nimport type { ClientGrpc } from '@nestjs/microservices';\nimport { lastValueFrom, Observable } from 'rxjs';\n\n@Injectable()\nexport class AppleService implements OnModuleInit {\n  private bananaGrpc!: BananaGrpc;\n\n  constructor(@Inject('BANANA_GRPC') private readonly client: ClientGrpc) {}\n\n  onModuleInit() {\n    this.bananaGrpc = this.client.getService(\n      'BananaService',\n    ) as unknown as BananaGrpc;\n  }\n\n  getHello(): string {\n    return 'Tao cua anh Cuong';\n  }\n\n  async callBanana(name?: string): Promise<string> {\n    // nó sẽ call đến backend banana thông qua gRPC\n    const res = await lastValueFrom(this.bananaGrpc.getBanana({ name }));\n    return res.message;\n  }\n}\n\ntype GetBananaRequest = {\n  name?: string;\n};\n\ntype GetBananaResponse = {\n  message: string;\n};\n\ntype BananaGrpc = {\n  getBanana(data: GetBananaRequest): Observable<GetBananaResponse>;\n};",
+      "metadata": {
+        "source": "app/apps/apple/src/apple.service.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 38
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { NestFactory } from '@nestjs/core';\nimport { AppleModule } from './apple.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppleModule);\n  // backend apple chạy ở cổng 3001\n  await app.listen(3001);\n}\nvoid bootstrap();",
+      "metadata": {
+        "source": "app/apps/apple/src/main.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 9
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Test, TestingModule } from '@nestjs/testing';\nimport { INestApplication } from '@nestjs/common';\nimport request from 'supertest';\nimport { AppleModule } from './../src/apple.module';\n\ndescribe('AppleController (e2e)', () => {\n  let app: INestApplication;\n\n  beforeEach(async () => {\n    const moduleFixture: TestingModule = await Test.createTestingModule({\n      imports: [AppleModule],\n    }).compile();\n\n    app = moduleFixture.createNestApplication();\n    await app.init();\n  });\n\n  it('/ (GET)', () => {\n    return request(app.getHttpServer())\n      .get('/')\n      .expect(200)\n      .expect('Hello World!');\n  });\n});",
+      "metadata": {
+        "source": "app/apps/apple/test/app.e2e-spec.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 24
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"moduleFileExtensions\": [\"js\", \"json\", \"ts\"],\n  \"rootDir\": \".\",\n  \"testEnvironment\": \"node\",\n  \"testRegex\": \".e2e-spec.ts$\",\n  \"transform\": {\n    \"^.+\\\\.(t|j)s$\": \"ts-jest\"\n  }\n}",
+      "metadata": {
+        "source": "app/apps/apple/test/jest-e2e.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 9
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"extends\": \"../../tsconfig.json\",\n  \"compilerOptions\": {\n    \"declaration\": false,\n    \"outDir\": \"../../dist/apps/banana\"\n  },\n  \"include\": [\"src/**/*\"],\n  \"exclude\": [\"node_modules\", \"dist\", \"test\", \"**/*spec.ts\"]\n}",
+      "metadata": {
+        "source": "app/apps/banana/tsconfig.app.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 9
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Test, TestingModule } from '@nestjs/testing';\nimport { BananaController } from './banana.controller';\nimport { BananaService } from './banana.service';\n\ndescribe('BananaController', () => {\n  let bananaController: BananaController;\n\n  beforeEach(async () => {\n    const app: TestingModule = await Test.createTestingModule({\n      controllers: [BananaController],\n      providers: [BananaService],\n    }).compile();\n\n    bananaController = app.get<BananaController>(BananaController);\n  });\n\n  describe('root', () => {\n    it('should return \"Hello World!\"', () => {\n      expect(bananaController.getHello()).toBe('Hello World!');\n    });\n  });\n});",
+      "metadata": {
+        "source": "app/apps/banana/src/banana.controller.spec.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 22
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Controller, Get } from '@nestjs/common';\nimport { BananaService } from './banana.service';\n\n@Controller()\nexport class BananaController {\n  constructor(private readonly bananaService: BananaService) {}\n\n  @Get('/banana')\n  getHello(): string {\n    return this.bananaService.getHello();\n  }\n}",
+      "metadata": {
+        "source": "app/apps/banana/src/banana.controller.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 12
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Controller } from '@nestjs/common';\nimport { GrpcMethod } from '@nestjs/microservices';\nimport { BananaService } from './banana.service';\n\ntype GetBananaRequest = {\n  name?: string;\n};\n\ntype GetBananaResponse = {\n  message: string;\n};\n\n@Controller()\nexport class BananaGrpcController {\n  constructor(private readonly bananaService: BananaService) {}\n\n  @GrpcMethod('BananaService', 'GetBanana')\n  getBanana(data: GetBananaRequest): GetBananaResponse {\n    return { message: this.bananaService.getHelloWithName(data.name) };\n  }\n}",
+      "metadata": {
+        "source": "app/apps/banana/src/banana.grpc.controller.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 21
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Module } from '@nestjs/common';\nimport { BananaController } from './banana.controller';\nimport { BananaGrpcController } from './banana.grpc.controller';\nimport { BananaService } from './banana.service';\n\n@Module({\n  imports: [],\n  controllers: [BananaController, BananaGrpcController],\n  providers: [BananaService],\n})\nexport class BananaModule {}",
+      "metadata": {
+        "source": "app/apps/banana/src/banana.module.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 11
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class BananaService {\n  getHello(): string {\n    return 'Chuối cua anh Huy';\n  }\n\n  getHelloWithName(name?: string): string {\n    const n = name?.trim();\n    if (!n) return this.getHello();\n    return `Chuối cua anh Huy, gửi ${n}`;\n  }\n}",
+      "metadata": {
+        "source": "app/apps/banana/src/banana.service.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 14
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { NestFactory } from '@nestjs/core';\nimport { Transport } from '@nestjs/microservices';\nimport type { MicroserviceOptions } from '@nestjs/microservices';\nimport { join } from 'path';\nimport { BananaModule } from './banana.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(BananaModule);\n\n  app.connectMicroservice<MicroserviceOptions>({\n    transport: Transport.GRPC,\n    options: {\n      package: 'fruit',\n      protoPath: join(process.cwd(), 'proto', 'fruit.proto'),\n      url: '0.0.0.0:50051',\n    },\n  } as MicroserviceOptions);\n\n  // backend banana chạy ở cổng 3002\n  await app.startAllMicroservices();\n  await app.listen(3002);\n}\nvoid bootstrap();",
+      "metadata": {
+        "source": "app/apps/banana/src/main.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 23
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Test, TestingModule } from '@nestjs/testing';\nimport { INestApplication } from '@nestjs/common';\nimport request from 'supertest';\nimport { BananaModule } from './../src/banana.module';\n\ndescribe('BananaController (e2e)', () => {\n  let app: INestApplication;\n\n  beforeEach(async () => {\n    const moduleFixture: TestingModule = await Test.createTestingModule({\n      imports: [BananaModule],\n    }).compile();\n\n    app = moduleFixture.createNestApplication();\n    await app.init();\n  });\n\n  it('/ (GET)', () => {\n    return request(app.getHttpServer())\n      .get('/')\n      .expect(200)\n      .expect('Hello World!');\n  });\n});",
+      "metadata": {
+        "source": "app/apps/banana/test/app.e2e-spec.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 24
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"moduleFileExtensions\": [\"js\", \"json\", \"ts\"],\n  \"rootDir\": \".\",\n  \"testEnvironment\": \"node\",\n  \"testRegex\": \".e2e-spec.ts$\",\n  \"transform\": {\n    \"^.+\\\\.(t|j)s$\": \"ts-jest\"\n  }\n}",
+      "metadata": {
+        "source": "app/apps/banana/test/jest-e2e.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 9
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"extends\": \"../../tsconfig.json\",\n  \"compilerOptions\": {\n    \"declaration\": false,\n    \"outDir\": \"../../dist/apps/kafka-server\"\n  },\n  \"include\": [\"src/**/*\"],\n  \"exclude\": [\"node_modules\", \"dist\", \"test\", \"**/*spec.ts\"]\n}",
+      "metadata": {
+        "source": "app/apps/kafka-server/tsconfig.app.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 9
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Test, TestingModule } from '@nestjs/testing';\nimport { KafkaServerController } from './kafka-server.controller';\nimport { KafkaServerService } from './kafka-server.service';\n\ndescribe('KafkaServerController', () => {\n  let kafkaServerController: KafkaServerController;\n\n  beforeEach(async () => {\n    const app: TestingModule = await Test.createTestingModule({\n      controllers: [KafkaServerController],\n      providers: [KafkaServerService],\n    }).compile();\n\n    kafkaServerController = app.get<KafkaServerController>(KafkaServerController);\n  });\n\n  describe('root', () => {\n    it('should return \"Hello World!\"', () => {\n      expect(kafkaServerController.getHello()).toBe('Hello World!');\n    });\n  });\n});",
+      "metadata": {
+        "source": "app/apps/kafka-server/src/kafka-server.controller.spec.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 22
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Controller } from '@nestjs/common';\nimport { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';\nimport { KafkaServerService } from './kafka-server.service';\n\n@Controller()\nexport class KafkaServerController {\n  constructor(private readonly kafkaServerService: KafkaServerService) {}\n\n  // Kafka request/reply (needs reply topic + correlation headers from client)\n  @MessagePattern('fruit.ping')\n  ping(@Payload() data: unknown) {\n    return {\n      ok: true,\n      service: 'kafka-server',\n      data,\n      message: this.kafkaServerService.getHello(),\n      at: new Date().toISOString(),\n    };\n  }\n\n  // Kafka fire-and-forget event\n  @EventPattern('fruit.events')\n  onFruitEvent(@Payload() data: unknown) {\n    // Keep it side-effect only; returning is ignored for EventPattern.\n    // You can add persistence/logging here later.\n    void data;\n  }\n}",
+      "metadata": {
+        "source": "app/apps/kafka-server/src/kafka-server.controller.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 28
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Module } from '@nestjs/common';\nimport { KafkaServerController } from './kafka-server.controller';\nimport { KafkaServerService } from './kafka-server.service';\n\n@Module({\n  imports: [],\n  controllers: [KafkaServerController],\n  providers: [KafkaServerService],\n})\nexport class KafkaServerModule {}",
+      "metadata": {
+        "source": "app/apps/kafka-server/src/kafka-server.module.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 10
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class KafkaServerService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}",
+      "metadata": {
+        "source": "app/apps/kafka-server/src/kafka-server.service.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 8
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { NestFactory } from '@nestjs/core';\nimport { Transport } from '@nestjs/microservices';\nimport type { MicroserviceOptions } from '@nestjs/microservices';\nimport { KafkaServerModule } from './kafka-server.module';\n\nasync function bootstrap() {\n  const brokers = (process.env.KAFKA_BROKERS ?? 'host.docker.internal:19092')\n    .split(',')\n    .map((s) => s.trim())\n    .filter(Boolean);",
+      "metadata": {
+        "source": "app/apps/kafka-server/src/main.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 10
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "async function bootstrap() {\n  const brokers = (process.env.KAFKA_BROKERS ?? 'host.docker.internal:19092')\n    .split(',')\n    .map((s) => s.trim())\n    .filter(Boolean);\n\n  const app = await NestFactory.createMicroservice<MicroserviceOptions>(\n    KafkaServerModule,\n    {\n      transport: Transport.KAFKA,\n      options: {\n        client: {\n          clientId: process.env.KAFKA_CLIENT_ID ?? 'kafka-server',\n          brokers,\n          ...(process.env.KAFKA_USERNAME && process.env.KAFKA_PASSWORD\n            ? {\n                sasl: {\n                  mechanism: 'scram-sha-256',\n                  username: process.env.KAFKA_USERNAME,\n                  password: process.env.KAFKA_PASSWORD,\n                },\n                ssl: false,\n              }\n            : {}),\n        },\n        consumer: {\n          groupId: process.env.KAFKA_GROUP_ID ?? 'kafka-server-group',\n        },\n      },\n    },\n  );\n\n  await app.listen();\n}\nbootstrap();",
+      "metadata": {
+        "source": "app/apps/kafka-server/src/main.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 6,
+            "to": 40
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Test, TestingModule } from '@nestjs/testing';\nimport { INestApplication } from '@nestjs/common';\nimport * as request from 'supertest';\nimport { KafkaServerModule } from './../src/kafka-server.module';\n\ndescribe('KafkaServerController (e2e)', () => {\n  let app: INestApplication;\n\n  beforeEach(async () => {\n    const moduleFixture: TestingModule = await Test.createTestingModule({\n      imports: [KafkaServerModule],\n    }).compile();\n\n    app = moduleFixture.createNestApplication();\n    await app.init();\n  });\n\n  it('/ (GET)', () => {\n    return request(app.getHttpServer())\n      .get('/')\n      .expect(200)\n      .expect('Hello World!');\n  });\n});",
+      "metadata": {
+        "source": "app/apps/kafka-server/test/app.e2e-spec.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 24
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"moduleFileExtensions\": [\"js\", \"json\", \"ts\"],\n  \"rootDir\": \".\",\n  \"testEnvironment\": \"node\",\n  \"testRegex\": \".e2e-spec.ts$\",\n  \"transform\": {\n    \"^.+\\\\.(t|j)s$\": \"ts-jest\"\n  }\n}",
+      "metadata": {
+        "source": "app/apps/kafka-server/test/jest-e2e.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 9
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"extends\": \"../../tsconfig.json\",\n  \"compilerOptions\": {\n    \"declaration\": false,\n    \"outDir\": \"../../dist/apps/nats-client\"\n  },\n  \"include\": [\"src/**/*\"],\n  \"exclude\": [\"node_modules\", \"dist\", \"test\", \"**/*spec.ts\"]\n}",
+      "metadata": {
+        "source": "app/apps/nats-client/tsconfig.app.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 9
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { NestFactory } from '@nestjs/core';\nimport { NatsClientModule } from './nats-client.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(NatsClientModule);\n  await app.listen(process.env.port ?? 3005);\n}\nbootstrap();",
+      "metadata": {
+        "source": "app/apps/nats-client/src/main.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 8
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Test, TestingModule } from '@nestjs/testing';\nimport { NatsClientController } from './nats-client.controller';\nimport { NatsClientService } from './nats-client.service';\n\ndescribe('NatsClientController', () => {\n  let natsClientController: NatsClientController;\n\n  beforeEach(async () => {\n    const app: TestingModule = await Test.createTestingModule({\n      controllers: [NatsClientController],\n      providers: [NatsClientService],\n    }).compile();\n\n    natsClientController = app.get<NatsClientController>(NatsClientController);\n  });\n\n  describe('root', () => {\n    it('should return \"Hello World!\"', () => {\n      expect(natsClientController.getHello()).toBe('Hello World!');\n    });\n  });\n});",
+      "metadata": {
+        "source": "app/apps/nats-client/src/nats-client.controller.spec.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 22
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Body, Controller, Get, Post } from '@nestjs/common';\nimport { NatsClientService } from './nats-client.service';\n\n@Controller()\nexport class NatsClientController {\n  constructor(private readonly natsClientService: NatsClientService) {}\n\n  @Get()\n  getHello(): string {\n    return this.natsClientService.getHello();\n  }\n\n  @Post('ping')\n  async ping(@Body() body: unknown) {\n    return await this.natsClientService.ping(body);\n  }\n}",
+      "metadata": {
+        "source": "app/apps/nats-client/src/nats-client.controller.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 17
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Module } from '@nestjs/common';\nimport { ClientsModule, Transport } from '@nestjs/microservices';\nimport { NatsClientController } from './nats-client.controller';\nimport { NatsClientService } from './nats-client.service';\n\n@Module({\n  imports: [\n    ClientsModule.register([\n      {\n        name: 'NATS',\n        transport: Transport.NATS,\n        options: {\n          servers: ['nats://localhost:4222'],\n          token: 'starci@2026',\n        },\n      },\n    ]),\n  ],\n  controllers: [NatsClientController],\n  providers: [NatsClientService],\n})\nexport class NatsClientModule {}",
+      "metadata": {
+        "source": "app/apps/nats-client/src/nats-client.module.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 22
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Injectable } from '@nestjs/common';\nimport { Inject } from '@nestjs/common';\nimport { ClientProxy } from '@nestjs/microservices';\nimport { firstValueFrom, timeout } from 'rxjs';\n\n@Injectable()\nexport class NatsClientService {\n  constructor(@Inject('NATS') private readonly nats: ClientProxy) {}\n\n  getHello(): string {\n    return 'Hello World!';\n  }\n\n  async ping(data: unknown) {\n    const res$ = this.nats.send('fruit.ping', data).pipe(timeout(3000));\n    return await firstValueFrom(res$);\n  }\n}",
+      "metadata": {
+        "source": "app/apps/nats-client/src/nats-client.service.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 18
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Test, TestingModule } from '@nestjs/testing';\nimport { INestApplication } from '@nestjs/common';\nimport * as request from 'supertest';\nimport { NatsClientModule } from './../src/nats-client.module';\n\ndescribe('NatsClientController (e2e)', () => {\n  let app: INestApplication;\n\n  beforeEach(async () => {\n    const moduleFixture: TestingModule = await Test.createTestingModule({\n      imports: [NatsClientModule],\n    }).compile();\n\n    app = moduleFixture.createNestApplication();\n    await app.init();\n  });\n\n  it('/ (GET)', () => {\n    return request(app.getHttpServer())\n      .get('/')\n      .expect(200)\n      .expect('Hello World!');\n  });\n});",
+      "metadata": {
+        "source": "app/apps/nats-client/test/app.e2e-spec.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 24
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"moduleFileExtensions\": [\"js\", \"json\", \"ts\"],\n  \"rootDir\": \".\",\n  \"testEnvironment\": \"node\",\n  \"testRegex\": \".e2e-spec.ts$\",\n  \"transform\": {\n    \"^.+\\\\.(t|j)s$\": \"ts-jest\"\n  }\n}",
+      "metadata": {
+        "source": "app/apps/nats-client/test/jest-e2e.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 9
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"extends\": \"../../tsconfig.json\",\n  \"compilerOptions\": {\n    \"declaration\": false,\n    \"outDir\": \"../../dist/apps/nats-server\"\n  },\n  \"include\": [\"src/**/*\"],\n  \"exclude\": [\"node_modules\", \"dist\", \"test\", \"**/*spec.ts\"]\n}",
+      "metadata": {
+        "source": "app/apps/nats-server/tsconfig.app.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 9
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { NestFactory } from '@nestjs/core';\nimport { Transport } from '@nestjs/microservices';\nimport type { MicroserviceOptions } from '@nestjs/microservices';\nimport { NatsServerModule } from './nats-server.module';\n\n// nestjs server cho chúng ta 1 server NATS chạy thành công\nasync function bootstrap() {\n  const natsUrl = process.env.NATS_URL ?? 'nats://localhost:4222';\n\n  const app = await NestFactory.createMicroservice<MicroserviceOptions>(\n    NatsServerModule,\n    {\n      transport: Transport.NATS,\n      options: {\n        servers: [natsUrl],\n        token: 'starci@2026',\n      },\n    },\n  );\n\n  await app.listen();\n}\nbootstrap();",
+      "metadata": {
+        "source": "app/apps/nats-server/src/main.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 23
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Test, TestingModule } from '@nestjs/testing';\nimport { NatsServerController } from './nats-server.controller';\nimport { NatsServerService } from './nats-server.service';\n\ndescribe('NatsServerController', () => {\n  let natsServerController: NatsServerController;\n\n  beforeEach(async () => {\n    const app: TestingModule = await Test.createTestingModule({\n      controllers: [NatsServerController],\n      providers: [NatsServerService],\n    }).compile();\n\n    natsServerController = app.get<NatsServerController>(NatsServerController);\n  });\n\n  describe('root', () => {\n    it('should return \"Hello World!\"', () => {\n      expect(natsServerController.getHello()).toBe('Hello World!');\n    });\n  });\n});",
+      "metadata": {
+        "source": "app/apps/nats-server/src/nats-server.controller.spec.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 22
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Controller } from '@nestjs/common';\nimport { MessagePattern, Payload } from '@nestjs/microservices';\nimport { NatsServerService } from './nats-server.service';\n\n@Controller()\nexport class NatsServerController {\n  constructor(private readonly natsServerService: NatsServerService) {}\n\n  // NATS request/reply\n  @MessagePattern('fruit.ping')\n  ping(@Payload() data: unknown) {\n    // nó sẽ tiêu thụ các messsage có dạng fruit.ping\n    console.log('data', data);\n    return {\n      ok: true,\n      service: 'nats-server',\n      data,\n      message: this.natsServerService.getHello(),\n      at: new Date().toISOString(),\n    };\n  }\n}",
+      "metadata": {
+        "source": "app/apps/nats-server/src/nats-server.controller.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 22
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Module } from '@nestjs/common';\nimport { NatsServerController } from './nats-server.controller';\nimport { NatsServerService } from './nats-server.service';\n\n@Module({\n  imports: [],\n  controllers: [NatsServerController],\n  providers: [NatsServerService],\n})\nexport class NatsServerModule {}",
+      "metadata": {
+        "source": "app/apps/nats-server/src/nats-server.module.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 10
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class NatsServerService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}",
+      "metadata": {
+        "source": "app/apps/nats-server/src/nats-server.service.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 8
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Test, TestingModule } from '@nestjs/testing';\nimport { INestApplication } from '@nestjs/common';\nimport * as request from 'supertest';\nimport { NatsServerModule } from './../src/nats-server.module';\n\ndescribe('NatsServerController (e2e)', () => {\n  let app: INestApplication;\n\n  beforeEach(async () => {\n    const moduleFixture: TestingModule = await Test.createTestingModule({\n      imports: [NatsServerModule],\n    }).compile();\n\n    app = moduleFixture.createNestApplication();\n    await app.init();\n  });\n\n  it('/ (GET)', () => {\n    return request(app.getHttpServer())\n      .get('/')\n      .expect(200)\n      .expect('Hello World!');\n  });\n});",
+      "metadata": {
+        "source": "app/apps/nats-server/test/app.e2e-spec.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 24
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"moduleFileExtensions\": [\"js\", \"json\", \"ts\"],\n  \"rootDir\": \".\",\n  \"testEnvironment\": \"node\",\n  \"testRegex\": \".e2e-spec.ts$\",\n  \"transform\": {\n    \"^.+\\\\.(t|j)s$\": \"ts-jest\"\n  }\n}",
+      "metadata": {
+        "source": "app/apps/nats-server/test/jest-e2e.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 9
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"extends\": \"../../tsconfig.json\",\n  \"compilerOptions\": {\n    \"declaration\": false,\n    \"outDir\": \"../../dist/apps/potato\"\n  },\n  \"include\": [\"src/**/*\"],\n  \"exclude\": [\"node_modules\", \"dist\", \"test\", \"**/*spec.ts\"]\n}",
+      "metadata": {
+        "source": "app/apps/potato/tsconfig.app.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 9
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { NestFactory } from '@nestjs/core';\nimport { PotatoModule } from './potato.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(PotatoModule);\n  // backend potato chạy ở cổng 3003\n  await app.listen(3003);\n}\nvoid bootstrap();",
+      "metadata": {
+        "source": "app/apps/potato/src/main.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 9
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Test, TestingModule } from '@nestjs/testing';\nimport { PotatoController } from './potato.controller';\nimport { PotatoService } from './potato.service';\n\ndescribe('PotatoController', () => {\n  let potatoController: PotatoController;\n\n  beforeEach(async () => {\n    const app: TestingModule = await Test.createTestingModule({\n      controllers: [PotatoController],\n      providers: [PotatoService],\n    }).compile();\n\n    potatoController = app.get<PotatoController>(PotatoController);\n  });\n\n  describe('root', () => {\n    it('should return \"Hello World!\"', () => {\n      expect(potatoController.getHello()).toBe('Hello World!');\n    });\n  });\n});",
+      "metadata": {
+        "source": "app/apps/potato/src/potato.controller.spec.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 22
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Controller, Get } from '@nestjs/common';\nimport { PotatoService } from './potato.service';\n\n@Controller()\nexport class PotatoController {\n  constructor(private readonly potatoService: PotatoService) {}\n\n  @Get('/potato')\n  getHello(): string {\n    return this.potatoService.getHello();\n  }\n}",
+      "metadata": {
+        "source": "app/apps/potato/src/potato.controller.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 12
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Module } from '@nestjs/common';\nimport { PotatoController } from './potato.controller';\nimport { PotatoService } from './potato.service';\n\n@Module({\n  imports: [],\n  controllers: [PotatoController],\n  providers: [PotatoService],\n})\nexport class PotatoModule {}",
+      "metadata": {
+        "source": "app/apps/potato/src/potato.module.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 10
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class PotatoService {\n  getHello(): string {\n    return 'Khoai cua anh Cuong';\n  }\n}",
+      "metadata": {
+        "source": "app/apps/potato/src/potato.service.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 8
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "import { Test, TestingModule } from '@nestjs/testing';\nimport { INestApplication } from '@nestjs/common';\nimport request from 'supertest';\nimport { PotatoModule } from './../src/potato.module';\n\ndescribe('PotatoController (e2e)', () => {\n  let app: INestApplication;\n\n  beforeEach(async () => {\n    const moduleFixture: TestingModule = await Test.createTestingModule({\n      imports: [PotatoModule],\n    }).compile();\n\n    app = moduleFixture.createNestApplication();\n    await app.init();\n  });\n\n  it('/ (GET)', () => {\n    return request(app.getHttpServer())\n      .get('/')\n      .expect(200)\n      .expect('Hello World!');\n  });\n});",
+      "metadata": {
+        "source": "app/apps/potato/test/app.e2e-spec.ts",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 24
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "{\n  \"moduleFileExtensions\": [\"js\", \"json\", \"ts\"],\n  \"rootDir\": \".\",\n  \"testEnvironment\": \"node\",\n  \"testRegex\": \".e2e-spec.ts$\",\n  \"transform\": {\n    \"^.+\\\\.(t|j)s$\": \"ts-jest\"\n  }\n}",
+      "metadata": {
+        "source": "app/apps/potato/test/jest-e2e.json",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 9
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "# Copyright Broadcom, Inc. All Rights Reserved.\n# SPDX-License-Identifier: APACHE-2.0",
+      "metadata": {
+        "source": "app/containers/kafka-cluster.yaml",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 2
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "services:\n  kafka:\n    image: docker.io/bitnamilegacy/kafka:3.9\n    ports:\n      - \"9092:9092\"\n      - \"19092:19092\"\n    volumes:\n      - \"kafka_data:/bitnami\"\n    \n    environment:\n      # Listeners\n      # KRaft settings\n      - KAFKA_CFG_NODE_ID=0\n      - KAFKA_CFG_PROCESS_ROLES=controller,broker\n      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093\n      # Listeners\n      - KAFKA_CFG_LISTENERS=INTERNAL://:9094,CONTROLLER://:9093,LOCAL://:9092,DOCKER://:19092\n      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka:9094,CONTROLLER://kafka:9093,LOCAL://localhost:9092,DOCKER://host.docker.internal:19092\n      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:SASL_PLAINTEXT,INTERNAL:PLAINTEXT,LOCAL:SASL_PLAINTEXT,DOCKER:SASL_PLAINTEXT\n      - KAFKA_CFG_SASL_MECHANISM_CONTROLLER_PROTOCOL=PLAIN\n      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false\n      - KAFKA_CLIENT_USERS=kafka\n      - KAFKA_CLIENT_PASSWORDS=Cuong123_A",
+      "metadata": {
+        "source": "app/containers/kafka-cluster.yaml",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 4,
+            "to": 26
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "- KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER\n      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL\n      - KAFKA_CLIENT_LISTENER_NAME=LOCAL\n\n      # - KAFKA_CERTIFICATE_PASSWORD=456\n  kafka-ui:\n    image: provectuslabs/kafka-ui:latest\n    container_name: kafka-ui\n    restart: always\n    ports:\n      - \"888:8080\"\n    environment:\n      KAFKA_CLUSTERS_0_NAME: \"kafka\"\n      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: \"host.docker.internal:19092\"\n      KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL: \"SASL_PLAINTEXT\"\n      KAFKA_CLUSTERS_0_PROPERTIES_SASL_MECHANISM: \"SCRAM-SHA-256\"\n      KAFKA_CLUSTERS_0_PROPERTIES_SASL_JAAS_CONFIG: 'org.apache.kafka.common.security.scram.ScramLoginModule required username=\"kafka\" password=\"Cuong123_A\";'\n      KAFKA_CLUSTERS_0_PROPERTIES_PROTOCOL: \"SASL\"\nvolumes:\n  kafka_data:\n    driver: local",
+      "metadata": {
+        "source": "app/containers/kafka-cluster.yaml",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 28,
+            "to": 48
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "# là API gateway dựa vào thằng postgresql để điều hướng các request đến các backend\n# lưu các con service điều hướng vào DB\nservices:\n  # chạy lệnh kong migrations bootstrap để tạo bảng migrations\n  kong-migrations:\n    image: kong:latest\n    command: kong migrations bootstrap\n    environment:\n      - KONG_DATABASE=postgres\n      - KONG_PG_HOST=host.docker.internal\n      - KONG_PG_PORT=5432\n      - KONG_PG_USER=postgres\n      - KONG_PG_PASSWORD=Cuong123_A\n      - KONG_PG_DATABASE=kong\n  # service chính\n  kong:\n    image: kong:latest\n    depends_on:\n      - kong-migrations\n    ports:\n      # 8000 là cổng để người dùng gửi request đến kong\n      - \"8000:8000\"\n      # 8001 là cổng của admin để quản ly Kong\n      - \"8001:8001\"\n    environment:\n      - KONG_DATABASE=postgres\n      - KONG_PG_HOST=host.docker.internal\n      - KONG_PG_PORT=5432\n      - KONG_PG_USER=postgres\n      - KONG_PG_PASSWORD=Cuong123_A\n      - KONG_PG_DATABASE=kong\n      - KONG_ADMIN_LISTEN=0.0.0.0:8001",
+      "metadata": {
+        "source": "app/containers/kong.yaml",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 32
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "- KONG_PG_PORT=5432\n      - KONG_PG_USER=postgres\n      - KONG_PG_PASSWORD=Cuong123_A\n      - KONG_PG_DATABASE=kong\n      - KONG_ADMIN_LISTEN=0.0.0.0:8001\n    restart: unless-stopped\n  # UI để quản lý kong\n  konga:\n    image: pantsel/konga:latest\n    ports:\n      - \"1337:1337\"\n    environment:\n      - NODE_ENV=production\n    restart: unless-stopped",
+      "metadata": {
+        "source": "app/containers/kong.yaml",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 28,
+            "to": 41
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "# =========================\n# Core server config\n# =========================\n\nport: 4222\n\n# HTTP monitoring\nhttp: 8222\n\n# Server name\nserver_name: nats-1\n\n# =========================\n# Authentication\n# =========================\n\nauthorization {\n  token: \"starci@2026\"\n}\n\n# =========================\n# Logging\n# =========================\n\ndebug: false\ntrace: false\nlogtime: true\n\n# =========================\n# Cluster config\n# =========================\n\ncluster {\n  name: nats-cluster\n  port: 6222\n}",
+      "metadata": {
+        "source": "app/containers/nats-server.conf",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 36
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "# Copyright Broadcom, Inc. All Rights Reserved.\n# SPDX-License-Identifier: APACHE-2.0\n\nservices:\n  nats:\n    image: docker.io/bitnamilegacy/nats:latest\n    ports:\n      - '4222:4222'\n      - '6222:6222'\n      - '8222:8222'\n    volumes:\n      - ./nats-server.conf:/etc/nats-server.conf:ro\n    command: [\"-c\", \"/etc/nats-server.conf\"]",
+      "metadata": {
+        "source": "app/containers/nats.yaml",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 2,
+            "to": 14
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "# Copyright Broadcom, Inc. All Rights Reserved.\n# SPDX-License-Identifier: APACHE-2.0\n# cài postgresql vào docker với username là postgres và password là Cuong123_A\nservices:\n  postgresql:\n    image: docker.io/bitnamilegacy/postgresql:latest\n    ports:\n      - '5432:5432'\n    volumes:\n      - 'postgresql_data:/bitnami/postgresql'\n    environment:\n      - 'ALLOW_EMPTY_PASSWORD=false'\n      - 'POSTGRESQL_USERNAME=postgres'\n      - 'POSTGRESQL_DATABASE=postgres'\n      - 'POSTGRESQL_PASSWORD=Cuong123_A'\n\nvolumes:\n  postgresql_data:\n    driver: local",
+      "metadata": {
+        "source": "app/containers/postgresql.yaml",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 2,
+            "to": 20
+          }
+        }
+      }
+    },
+    {
+      "pageContent": "syntax = \"proto3\";\n\npackage fruit;\n\nservice BananaService {\n  rpc GetBanana (GetBananaRequest) returns (GetBananaResponse);\n}\n\nmessage GetBananaRequest {\n  string name = 1;\n}\n\nmessage GetBananaResponse {\n  string message = 1;\n}",
+      "metadata": {
+        "source": "app/proto/fruit.proto",
+        "repository": "https://github.com/StarCi-Academy/sys-design",
+        "branch": "main",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 15
+          }
+        }
+      }
+    }
+  ]
+}

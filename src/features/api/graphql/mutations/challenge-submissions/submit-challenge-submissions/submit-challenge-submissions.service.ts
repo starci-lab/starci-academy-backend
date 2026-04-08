@@ -71,7 +71,9 @@ export class SubmitChallengeSubmissionsService {
             ChallengeSubmissionEntity,
             {
                 where: {
-                    challengeId,
+                    challenge: {
+                        id: challengeId,
+                    },
                 },
             },
         )
@@ -80,8 +82,12 @@ export class SubmitChallengeSubmissionsService {
                 UserChallengeSubmissionEntity,
                 {
                     where: {
-                        userId: user.id,
-                        submissionId: challengeSubmission.id,
+                        user: {
+                            id: user.id,
+                        },
+                        submission: {
+                            id: challengeSubmission.id,
+                        },
                     },
                 },
             )
@@ -106,7 +112,6 @@ export class SubmitChallengeSubmissionsService {
             await this.enqueueProcessGitSubmissionJobService.enqueue(
                 {
                     userId: user.id,
-                    
                     userChallengeSubmissionId: userChallengeSubmission.id,
                 },
             )

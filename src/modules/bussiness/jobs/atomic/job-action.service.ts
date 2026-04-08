@@ -129,7 +129,7 @@ export class JobActionService {
         if (job.maxSteps > 0 && job.currentStep >= job.maxSteps) {
             job.currentStep = job.maxSteps
             job.status = JobStatus.Completed
-            job.error = null
+            job.error = undefined
         }
         await manager.save(
             JobEntity,
@@ -152,7 +152,7 @@ export class JobActionService {
         if (job.maxSteps > 0 && job.currentStep < job.maxSteps) {
             job.currentStep = job.maxSteps
         }
-        job.error = null
+        job.error = undefined
         await manager.save(
             JobEntity,
             job,
@@ -167,7 +167,7 @@ export class JobActionService {
      * @returns The job.
      */
     async failJob({
-        error = null,
+        error,
         entityManager,
         job,
     }: FailJobParams): Promise<void> {
