@@ -3,11 +3,9 @@ import {
     S3Client,
 } from "@aws-sdk/client-s3"
 import {
+    Inject,
     Injectable,
 } from "@nestjs/common"
-import {
-    envConfig,
-} from "@modules/env"
 import type {
     UploadJsonParams,
     UploadJsonResult,
@@ -15,6 +13,12 @@ import type {
 import {
     InjectS3,
 } from "./s3.decorators"
+import {
+    MODULE_OPTIONS_TOKEN,
+} from "./s3.module-definition"
+import {
+    type S3ModuleOptions,
+} from "./interfaces"
 
 /**
  * Service for uploading files to S3.
@@ -24,7 +28,19 @@ export class S3UploadService {
     constructor(
         @InjectS3()
         private readonly s3: S3Client,
+        @Inject(MODULE_OPTIONS_TOKEN)
+        private readonly options: S3ModuleOptions,
     ) {}
+
+    /**
+     * Get the active configuration based on defaultProvider.
+     */
+    private get config() {
+        if (this.options.defaultProvider === "minio") {
+            return this.options.minio ?? this.options.aws
+        }
+        return this.options.aws ?? this.options.minio
+    }
 
     /**
      * Upload a JSON file to S3.
@@ -38,9 +54,13 @@ export class S3UploadService {
             acl,
         }: UploadJsonParams,
     ): Promise<UploadJsonResult> {
+        const config = this.config
+        if (!config) {
+            throw new Error("No S3 configuration found")
+        }
         return this.s3.send(
             new PutObjectCommand({
-                Bucket: envConfig().s3.bucket,
+                Bucket: config.bucket,
                 Key: name,
                 Body: json,
                 ACL: acl,
@@ -61,9 +81,13 @@ export class S3UploadService {
         json,
         acl = "private",
     }: UploadJsonParams): Promise<UploadJsonResult> {
+        const config = this.config
+        if (!config) {
+            throw new Error("No S3 configuration found")
+        }
         return this.s3.send(
             new PutObjectCommand({
-                Bucket: envConfig().s3.bucket,
+                Bucket: config.bucket,
                 Key: name,
                 Body: json,
                 ACL: acl,

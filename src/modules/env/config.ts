@@ -470,30 +470,61 @@ export const envConfig = () => ({
     },
     /** S3 configuration. */
     s3: {
-        signedUrlExpiration: parseEnvMs({
-            key: "S3_SIGNED_URL_EXPIRATION",
-            defaultValue: "15m",
+        /** The default provider to use (aws or minio). */
+        defaultProvider: parseEnvString({
+            key: "S3_DEFAULT_PROVIDER",
+            defaultValue: "minio",
         }),
-        endpoint: parseEnvString({
-            key: "S3_ENDPOINT",
-            defaultValue: "https://sgp1.digitaloceanspaces.com",
-        }),
-        region: parseEnvString({
-            key: "S3_REGION",
-            defaultValue: "sgp1",
-        }),
-        accessKeyId: parseEnvString({
-            key: "S3_ACCESS_KEY_ID",
-            defaultValue: "DO00GFR73437G09734790",
-        }),
-        secretAccessKey: parseEnvString({
-            key: "S3_SECRET_ACCESS_KEY",
-            defaultValue: "",
-        }),
-        bucket: parseEnvString({
-            key: "S3_BUCKET",
-            defaultValue: "starci-academy",
-        }),
+        /** AWS S3 configuration. */
+        aws: {
+            endpoint: parseEnvString({
+                key: "S3_ENDPOINT",
+                defaultValue: "https://sgp1.digitaloceanspaces.com",
+            }),
+            region: parseEnvString({
+                key: "S3_REGION",
+                defaultValue: "sgp1",
+            }),
+            accessKeyId: parseEnvString({
+                key: "S3_ACCESS_KEY_ID",
+                defaultValue: "",
+            }),
+            bucket: parseEnvString({
+                key: "S3_BUCKET",
+                defaultValue: "starci-academy",
+            }),
+            signedUrlExpiration: parseEnvMs({
+                key: "S3_SIGNED_URL_EXPIRATION",
+                defaultValue: "15m",
+            }),
+        },
+        /** MinIO configuration. */
+        minio: {
+            endpoint: parseEnvString({
+                key: "S3_MINIO_ENDPOINT",
+                defaultValue: "http://localhost:9000",
+            }),
+            region: parseEnvString({
+                key: "S3_MINIO_REGION",
+                defaultValue: "us-east-1",
+            }),
+            accessKeyId: parseEnvString({
+                key: "S3_MINIO_ACCESS_KEY_ID",
+                defaultValue: "minioadmin",
+            }),
+            secretAccessKey: parseEnvString({
+                key: "S3_MINIO_SECRET_ACCESS_KEY",
+                defaultValue: "minioadmin123",
+            }),
+            bucket: parseEnvString({
+                key: "S3_MINIO_BUCKET",
+                defaultValue: "starci-academy",
+            }),
+            signedUrlExpiration: parseEnvMs({
+                key: "S3_MINIO_SIGNED_URL_EXPIRATION",
+                defaultValue: "15m",
+            }),
+        },
     },
 
     /** Keycloak configuration. */

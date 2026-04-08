@@ -7,10 +7,14 @@ import {
 import {
     CoursesSyncService,
 } from "./courses.service"
+import {
+    CoursesSyncV2Service
+} from "./courses.v2.service"
 
 @Module({
     providers: [
-        CoursesSyncService,
+        // CoursesSyncService,
+        CoursesSyncV2Service,
     ],
 })
 export class SyncModule extends ConfigurableModuleClass {}

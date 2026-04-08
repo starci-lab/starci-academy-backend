@@ -4,9 +4,7 @@ import {
     S3Client,
 } from "@aws-sdk/client-s3"
 import {
-    envConfig,
-} from "@modules/env"
-import {
+    Inject,
     Injectable,
 } from "@nestjs/common"
 import type {
@@ -19,6 +17,13 @@ import {
     InjectSuperJson 
 } from "@modules/mixin"
 import SuperJSON from "superjson"
+import {
+    MODULE_OPTIONS_TOKEN,
+} from "./s3.module-definition"
+import {
+    type S3ModuleOptions,
+} from "./interfaces"
+
 @Injectable()
 export class S3ReadService {
     constructor(
@@ -26,7 +31,19 @@ export class S3ReadService {
         private readonly s3: S3Client,
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
+        @Inject(MODULE_OPTIONS_TOKEN)
+        private readonly options: S3ModuleOptions,
     ) {}
+
+    /**
+     * Get the active configuration based on defaultProvider.
+     */
+    private get config() {
+        if (this.options.defaultProvider === "minio") {
+            return this.options.minio ?? this.options.aws
+        }
+        return this.options.aws ?? this.options.minio
+    }
 
     /**
      * Read an object from S3 as string.
@@ -37,9 +54,13 @@ export class S3ReadService {
         key: string,
     ): Promise<string | null> {
         try {
+            const config = this.config
+            if (!config) {
+                return null
+            }
             const result = await this.s3.send(
                 new GetObjectCommand({
-                    Bucket: envConfig().s3.bucket,
+                    Bucket: config.bucket,
                     Key: key,
                 }),
             )
