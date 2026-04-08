@@ -10,7 +10,9 @@ import type {
 import {
     ProcessGitSubmissionCompleteStepService,
     ProcessGitSubmissionGradeStepService,
-    ProcessGitSubmissionPrepareDocsStepService,
+    ProcessGitSubmissionLoadDocsStepService,
+    ProcessGitSubmissionSplitDocsStepService,
+    ProcessGitSubmissionVectorizeStepService,
 } from "./steps"
 import type {
     ExtendedProcessGitSubmissionContext,
@@ -22,7 +24,9 @@ import type {
 @Injectable()
 export class ProcessGitSubmissionStepMappingService {
     constructor(
-        private readonly prepareDocsStepService: ProcessGitSubmissionPrepareDocsStepService,
+        private readonly loadDocsStepService: ProcessGitSubmissionLoadDocsStepService,
+        private readonly splitDocsStepService: ProcessGitSubmissionSplitDocsStepService,
+        private readonly vectorizeStepService: ProcessGitSubmissionVectorizeStepService,
         private readonly gradeStepService: ProcessGitSubmissionGradeStepService,
         private readonly completeStepService: ProcessGitSubmissionCompleteStepService,
     ) {}
@@ -44,8 +48,16 @@ export class ProcessGitSubmissionStepMappingService {
         >>(
             [
                 [
-                    this.prepareDocsStepService.stepIndex,
-                    this.prepareDocsStepService,
+                    this.loadDocsStepService.stepIndex,
+                    this.loadDocsStepService,
+                ],
+                [
+                    this.splitDocsStepService.stepIndex,
+                    this.splitDocsStepService,
+                ],
+                [
+                    this.vectorizeStepService.stepIndex,
+                    this.vectorizeStepService,
                 ],
                 [
                     this.gradeStepService.stepIndex,

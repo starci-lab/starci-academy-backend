@@ -17,12 +17,6 @@ export interface ProcessGitSubmissionSplitDocsStepExecuteResult {
 /** Result of the process-git-submission vectorize step. */
 export type ProcessGitSubmissionVectorizeStepExecuteResult = EmptyObject
 
-/** Result of the process-git-submission prepare docs step (load → split → vectorize). */
-export interface ProcessGitSubmissionPrepareDocsStepExecuteResult {
-    /** Documents split into chunks for grading and embedding. */
-    chunks: Array<Document>
-}
-
 /** Result of the process-git-submission grade step. */
 export interface ProcessGitSubmissionGradeStepExecuteResult {
     /** Score of the submission. */

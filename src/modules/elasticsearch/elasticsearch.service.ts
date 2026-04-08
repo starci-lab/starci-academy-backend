@@ -1,15 +1,28 @@
-import type { Client } from '@elastic/elasticsearch';
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { InjectElasticsearch } from './elasticsearch.decorators';
+import type {
+    Client,
+} from "@elastic/elasticsearch"
 import {
-  ChallengeEntity,
-  ContentEntity,
-  CourseEntity,
-  LessonVideoEntity,
-} from '@modules/databases';
-import { ObjectLiteral } from 'typeorm';
-import { ReadinessWatcherFactoryService } from '@modules/mixin';
-import { configMap } from './config';
+    Injectable,
+    OnModuleInit,
+} from "@nestjs/common"
+import {
+    InjectElasticsearch,
+} from "./elasticsearch.decorators"
+import { 
+    ChallengeEntity, 
+    ContentEntity, 
+    CourseEntity, 
+    InjectPrimaryPostgreSQLEntityManager, 
+    LessonVideoEntity
+} from "@modules/databases"
+import {
+    EntityManager,
+    ObjectLiteral 
+} from "typeorm"
+import {
+    AsyncService, 
+    ReadinessWatcherFactoryService 
+} from "@modules/mixin"
 
 @Injectable()
 export class ElasticsearchService implements OnModuleInit {
@@ -34,20 +47,26 @@ export class ElasticsearchService implements OnModuleInit {
     return configMap[entity].indices;
   }
 
-  /**
-   * On application bootstrap, ensure the index exists.
-   */
-  async onModuleInit() {
-    this.readinessWatcherFactoryService.createWatcher(
-      ElasticsearchService.name,
-    );
-    // ensure the indices exist
-    for (const index of this.indices) {
-      await this.ensureIndexExists(this.indicateName(index));
+    /**
+     * On application bootstrap, ensure the index exists.
+     */
+    async onModuleInit() {
+        this.readinessWatcherFactoryService.createWatcher(
+            ElasticsearchService.name
+        )
+        // ensure the indices exist
+        await this.asyncService.allMustDone(
+            this.indices.map(index => {
+                const metadata = this.entityManager.connection.getMetadata(index)
+                const tableName = metadata.tableName
+                return this.ensureIndexExists(tableName)
+            }),
+        )
+        // set the readiness watcher to ready
+        this.readinessWatcherFactoryService.setReady(
+            ElasticsearchService.name
+        )
     }
-    // set the readiness watcher to ready
-    this.readinessWatcherFactoryService.setReady(ElasticsearchService.name);
-  }
 
   /**
    * Ensure the index exists.

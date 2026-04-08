@@ -13,6 +13,9 @@ import {
 import {
     EnrollStepService 
 } from "./steps"
+import {
+    EnrollRequeueService,
+} from "./requeue.service"
 /**
  * Module for enrolling a user in a course.
  */
@@ -21,6 +24,7 @@ import {
         EnrollWorker,
         StepMappingService,
         EnrollStepService,
+        EnrollRequeueService,
     ],
 })
 export class EnrollModule extends ConfigurableModuleClass {

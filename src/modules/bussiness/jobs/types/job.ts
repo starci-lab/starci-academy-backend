@@ -54,12 +54,16 @@ export type CompleteJobParams = JobTargetParams
 
 /** Params for marking a job as failed. */
 export interface FailJobParams extends JobTargetParams {
-    error?: string | null
+    /** The error message. */
+    error?: string
 }
 
 /** Params for querying stalled jobs. */
 export interface GetStalledJobsParams {
+    /** The entity manager to use. */
     entityManager?: EntityManager
+    /** The action type to filter by. */
+    actionType: ActionType
 }
 
 /** Result for querying stalled jobs. */

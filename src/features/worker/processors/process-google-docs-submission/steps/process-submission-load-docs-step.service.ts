@@ -3,7 +3,6 @@ import type {
 } from "@modules/bullmq"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserChallengeSubmissionEntity,
 } from "@modules/databases"
 import {
     JobActionService,
@@ -11,6 +10,9 @@ import {
 import {
     Injectable,
 } from "@nestjs/common"
+import {
+    GithubRepoLoader,
+} from "@langchain/community/document_loaders/web/github"
 import type {
     EntityManager,
 } from "typeorm"
@@ -21,39 +23,28 @@ import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
-import type {
-    ExtendedProcessGitSubmissionContext,
-    ProcessGitSubmissionCompleteStepExecuteResult,
-    ProcessGitSubmissionGradeStepExecuteResult,
+import {
+    ProcessGitSubmissionLoadDocsStepExecuteResult,
+    ExtendedProcessGitSubmissionContext 
 } from "../types"
-import type {
-    JobExtendedContext,
+import {
+    JobExtendedContext 
 } from "../../types"
 import {
-    DayjsService,
-} from "@modules/mixin"
-import {
-    MissingOrInvalidGradeExecutionResultException,
-} from "@modules/exceptions"
-import {
-    ProcessGitSubmissionGradeStepService,
-} from "./process-git-submission-grade-step.service"
+    MountStorageService 
+} from "@modules/filesystem"
 
 /**
- * Step 5: persist grade and feedback to `user_challenge_submissions`.
+ * Step 1: load documents from the submitted GitHub repository.
  */
 @Injectable()
-export class ProcessGitSubmissionCompleteStepService extends AbstractStepService<
-    ProcessGitSubmissionPayload,
-    ExtendedProcessGitSubmissionContext
-> {
+export class ProcessGitSubmissionLoadDocsStepService extends AbstractStepService<ProcessGitSubmissionPayload, ExtendedProcessGitSubmissionContext> {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
-        private readonly dayjsService: DayjsService,
-        private readonly processGitSubmissionGradeStepService: ProcessGitSubmissionGradeStepService,
+        private readonly mountStorageService: MountStorageService,
     ) {
         super()
     }
@@ -61,90 +52,74 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
     /**
      * The index of the step.
      */
-    stepIndex = 2
+    stepIndex = 0
+
     /**
      * The name of the step.
      */
-
-    stepName = "complete"
+    stepName = "load-docs"
 
     /**
      * Process the step.
-     * @param context - Context of the step.
+     * @param context - The context of the step.
      * @returns A promise that resolves when the step is processed.
      */
     async process(
         context: JobExtendedContext<
-            ProcessGitSubmissionPayload,
-            ExtendedProcessGitSubmissionContext
+        ProcessGitSubmissionPayload, 
+        ExtendedProcessGitSubmissionContext
         >,
     ): Promise<void> {
+        // execute the step
         const executionResult = await this.execute(context)
-        await this.finalize(
-            executionResult,
-            context,
-        )
+        // finalize the step
+        await this.finalize(executionResult,
+            context)
     }
 
     /**
      * Execute the step.
-     * @param context - Context of the step.
+     * @param context - The context of the step.
      * @returns A promise that resolves when the step is executed.
      */
     private async execute(
         context: JobExtendedContext<
-            ProcessGitSubmissionPayload,
+            ProcessGitSubmissionPayload, 
             ExtendedProcessGitSubmissionContext
         >,
-    ): Promise<ProcessGitSubmissionCompleteStepExecuteResult> {
-        const grade = await this.jobActionService.loadExecutionResult<
-            ProcessGitSubmissionGradeStepExecuteResult
-        >(
+    ): Promise<ProcessGitSubmissionLoadDocsStepExecuteResult> {
+        const branch = context.payload.branch ?? "main"
+        console.log(branch)
+        const gitLoader = new GithubRepoLoader(
+            context.extended?.userChallengeSubmission.submissionUrl ?? "",
             {
-                job: context.job,
-                key: this.processGitSubmissionGradeStepService.stepName,
+                branch,
+                recursive: true,
+                accessToken: this.mountStorageService.githubAccessToken,
+                verbose: true,
+                ignorePaths: [
+                    "package-lock.json",
+                    "dist",
+                    "node_modules",
+                ],
             },
         )
-        if (
-            !grade
-            || typeof grade.score !== "number"
-            || !Array.isArray(grade.feedbacks)
-        ) {
-            throw new MissingOrInvalidGradeExecutionResultException({
-                grade,
-            })
-        }
-        const feedbackText =
-            grade.feedbacks.length
-                ? grade.feedbacks.join("\n\n")
-                : null
-        await this.entityManager.update(
-            UserChallengeSubmissionEntity,
-            {
-                id: context.payload.userChallengeSubmissionId,
-                userId: context.payload.userId,
-            },
-            {
-                score: grade.score,
-                processed: true,
-                processedAt: this.dayjsService.now().toDate(),
-                feedback: feedbackText,
-            },
-        )
+        const docs = await gitLoader.load()
         return {
+            docs,
         }
     }
-
     /**
      * Finalize the step.
-     * @param executionResult - Execution result of the step.
-     * @param context - Context of the step.
+     * @param context - The context of the step.
      * @returns A promise that resolves when the step is finalized.
      */
     private async finalize(
-        executionResult: ProcessGitSubmissionCompleteStepExecuteResult,
+        /** Execution result of the step. */
+        executionResult: ProcessGitSubmissionLoadDocsStepExecuteResult,
+        /** Context of the step. */
         context: JobExtendedContext<
-            ProcessGitSubmissionPayload,
+            ProcessGitSubmissionPayload, 
             ExtendedProcessGitSubmissionContext
         >,
     ): Promise<void> {

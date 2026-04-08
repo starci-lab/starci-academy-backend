@@ -3,8 +3,8 @@ import type {
 } from "@modules/bullmq"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    ModelProvider,
     InjectQdrantClient,
+    ModelProvider,
 } from "@modules/databases"
 import {
     JobActionService,
@@ -18,120 +18,128 @@ import type {
 import {
     AbstractStepService,
 } from "../../abstracts"
+import type {
+    JobExtendedContext,
+} from "../../types"
 import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
 import {
-    ExtendedProcessGitSubmissionContext,
-    ProcessGitSubmissionSplitDocsStepExecuteResult,
-    ProcessGitSubmissionVectorizeStepExecuteResult
-} from "../types"
+    GithubRepoLoader,
+} from "@langchain/community/document_loaders/web/github"
 import {
-    JobExtendedContext
-} from "../../types"
+    RecursiveCharacterTextSplitter,
+} from "langchain/text_splitter"
 import {
-    Document
+    Document,
 } from "@langchain/core/documents"
-import {
-    ProcessGitSubmissionSplitDocsStepService
-} from "./process-git-submission-split-docs-step.service"
 import {
     QdrantVectorStore,
 } from "@langchain/qdrant"
-import {
-    type QdrantClient,
+import type {
+    QdrantClient,
 } from "@qdrant/qdrant-js"
 import {
-    EmbeddingModelService
+    EmbeddingModelService,
 } from "@modules/langchain"
 import {
-    envConfig 
+    envConfig,
 } from "@modules/env"
+import {
+    MountStorageService,
+} from "@modules/filesystem"
+import type {
+    ExtendedProcessGitSubmissionContext,
+    ProcessGitSubmissionPrepareDocsStepExecuteResult,
+} from "../types"
 
 /**
- * Step 3: vectorize the chunks.
+ * Step 1: load repo docs → split into chunks → vectorize into Qdrant.
  */
 @Injectable()
-export class ProcessGitSubmissionVectorizeStepService extends AbstractStepService<ProcessGitSubmissionPayload, ExtendedProcessGitSubmissionContext> {
+export class ProcessGitSubmissionPrepareDocsStepService extends AbstractStepService<
+    ProcessGitSubmissionPayload,
+    ExtendedProcessGitSubmissionContext
+> {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
+        private readonly mountStorageService: MountStorageService,
         private readonly embeddingModelService: EmbeddingModelService,
-        private readonly processGitSubmissionSplitDocsStepService: ProcessGitSubmissionSplitDocsStepService,
         @InjectQdrantClient()
         private readonly qdrantClient: QdrantClient,
     ) {
         super()
     }
 
-    /**
-     * The index of the step.
-     */
-    stepIndex = 2
+    stepIndex = 0
 
-    /**
-     * The name of the step.
-     */
-    stepName = "vectorize"
+    stepName = "prepare-docs"
 
-    /**
-     * Process the step.
-     * @param context - The context of the step.
-     * @returns A promise that resolves when the step is processed.
-     */
     async process(
         context: JobExtendedContext<
             ProcessGitSubmissionPayload,
             ExtendedProcessGitSubmissionContext
         >,
     ): Promise<void> {
-        // execute the step
         const executionResult = await this.execute(context)
-        // finalize the step
-        await this.finalize(executionResult,
-            context)
+        await this.finalize(
+            executionResult,
+            context
+        )
     }
 
-
-
-    /**
-     * Execute the step.
-     * @param context - The context of the step.
-     * @returns A promise that resolves when the step is executed.
-     */
     private async execute(
         context: JobExtendedContext<
             ProcessGitSubmissionPayload,
             ExtendedProcessGitSubmissionContext
         >,
-    ): Promise<ProcessGitSubmissionVectorizeStepExecuteResult> {
-        // load the chunks
-        const executionResult = await this.jobActionService.loadExecutionResult<ProcessGitSubmissionSplitDocsStepExecuteResult>(
+    ): Promise<ProcessGitSubmissionPrepareDocsStepExecuteResult> {
+        const branch = context.payload.branch ?? "main"
+        const repoUrl = context.extended?.userChallengeSubmission.submissionUrl ?? ""
+
+        const gitLoader = new GithubRepoLoader(
+            repoUrl,
             {
-                job: context.job,
-                key: this.processGitSubmissionSplitDocsStepService.stepName,
-            }
+                branch,
+                recursive: true,
+                accessToken: this.mountStorageService.githubAccessToken,
+                verbose: true,
+                ignorePaths: [
+                    "package-lock.json",
+                    "dist",
+                    "node_modules",
+                ],
+            },
         )
-        // convert the chunks to documents
-        const chunks = executionResult.chunks.map((chunk) => new Document(
-            {
-                pageContent: chunk.pageContent,
-                metadata: chunk.metadata,
-            }
-        ))
-        // get the collection name
+
+        const loadedDocs = await gitLoader.load()
+
+        const docs = loadedDocs.map(
+            (doc) =>
+                new Document({
+                    pageContent: doc.pageContent,
+                    metadata: doc.metadata,
+                    id: doc.id,
+                }),
+        )
+
+        const splitter = new RecursiveCharacterTextSplitter({
+            chunkSize: envConfig().services.githubWorker.processGitSubmission.chunkSize,
+            chunkOverlap: envConfig().services.githubWorker.processGitSubmission.chunkOverlap,
+        })
+        const chunks = await splitter.splitDocuments(docs)
+
         const collectionName = `grading-${context.payload.userChallengeSubmissionId}`
-        // get the embedding model
         const embeddingModel = this.embeddingModelService.get({
             model: context.payload.embeddingModel ?? envConfig().services.githubWorker.processGitSubmission.embedding.model,
             provider: (context.payload.embeddingProvider ?? envConfig().services.githubWorker.processGitSubmission.embedding.provider) as ModelProvider,
         })
-        // remove the existing collection
+
         await this.qdrantClient.deleteCollection(collectionName)
-        // vectorize the chunks
         await QdrantVectorStore.fromDocuments(
             chunks,
             embeddingModel,
@@ -140,18 +148,14 @@ export class ProcessGitSubmissionVectorizeStepService extends AbstractStepServic
                 collectionName,
             },
         )
+
         return {
+            chunks,
         }
     }
-    /**
-     * Finalize the step.
-     * @param context - The context of the step.
-     * @returns A promise that resolves when the step is finalized.
-     */
+
     private async finalize(
-        /** Execution result of the step. */
-        executionResult: ProcessGitSubmissionVectorizeStepExecuteResult,
-        /** Context of the step. */
+        executionResult: ProcessGitSubmissionPrepareDocsStepExecuteResult,
         context: JobExtendedContext<
             ProcessGitSubmissionPayload,
             ExtendedProcessGitSubmissionContext
@@ -162,24 +166,22 @@ export class ProcessGitSubmissionVectorizeStepService extends AbstractStepServic
             payload,
             queueName,
         } = context
+
         await this.entityManager.transaction(
             async (entityManager) => {
-                await this.jobActionService.increaseJob(
-                    {
-                        job,
-                        entityManager,
-                    },
-                )
-                await this.jobActionService.saveExecutionResult(
-                    {
-                        job,
-                        key: this.stepName,
-                        executionResult,
-                        entityManager,
-                    },
-                )
+                await this.jobActionService.increaseJob({
+                    job,
+                    entityManager,
+                })
+                await this.jobActionService.saveExecutionResult({
+                    job,
+                    key: this.stepName,
+                    executionResult,
+                    entityManager,
+                })
             },
         )
+
         this.winstonService.log(
             WinstonLog.ProcessGitSubmissionStepExecuted,
             {

@@ -51,7 +51,7 @@ import {
 
 /**
  * Worker: GitHub submission → split → embed → grade (DB prompts) → update `user_challenge_submissions`.
- * Enqueued jobs must use `maxSteps` matching the pipeline (default `3`, see `JOB_PROCESS_GIT_SUBMISSION_MAX_STEPS`).
+ * Enqueued jobs must use `maxSteps` matching the pipeline (default `5`, see `JOB_PROCESS_GIT_SUBMISSION_MAX_STEPS`).
  */
 @Worker(
     bullData[BullQueueName.ProcessGitSubmission].name,
