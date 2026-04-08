@@ -13,8 +13,14 @@ import {
 import {
     CourseCdnResolver,
 } from "./course-cdn.resolver"
+import {
+    ElasticsearchModule,
+} from "@modules/elasticsearch"
 
 @Module({
+    imports: [
+        ElasticsearchModule,
+    ],
     providers: [
         CoursesService,
         CoursesResolver,

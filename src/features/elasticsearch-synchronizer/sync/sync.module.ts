@@ -8,11 +8,17 @@ import {
     ChallengeFactorySyncService,
     ChallengeRuntimeContextService,
 } from "./challenges"
+import {
+    CourseFactorySyncService,
+    CourseRuntimeContextService,
+} from "./courses"
 
 @Module({
     providers: [
         ChallengeFactorySyncService,
-        ChallengeRuntimeContextService
+        ChallengeRuntimeContextService,
+        CourseFactorySyncService,
+        CourseRuntimeContextService,
     ],
 })
 export class SyncModule extends ConfigurableModuleClass {}

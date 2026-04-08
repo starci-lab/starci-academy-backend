@@ -10,6 +10,7 @@ import {
 import {
     ChallengesSingleQueryModule,
 } from "./challenges"
+import { ElasticsearchModule } from "@modules/elasticsearch"
 
 @Module({
     imports: [

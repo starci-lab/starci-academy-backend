@@ -199,11 +199,11 @@ export const envConfig = () => ({
                 }),
                 challenges: parseEnvMs({
                     key: "ELASTICSEARCH_SYNCHRONIZER_CHALLENGES_SYNC_INTERVAL_MS",
-                    defaultValue: "30s",
+                    defaultValue: "5m",
                 }),
                 contents: parseEnvMs({
                     key: "ELASTICSEARCH_SYNCHRONIZER_CONTENTS_SYNC_INTERVAL_MS",
-                    defaultValue: "30s",
+                    defaultValue: "5m",
                 }),
             },
         },

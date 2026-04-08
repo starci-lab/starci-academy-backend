@@ -10,8 +10,14 @@ import {
 import {
     ChallengesService,
 } from "./challenges.service"
+import {
+    ElasticsearchModule,
+} from "@modules/elasticsearch"
 
 @Module({
+    imports: [
+        ElasticsearchModule,
+    ],
     providers: [
         ChallengesService,
         ChallengesResolver,
