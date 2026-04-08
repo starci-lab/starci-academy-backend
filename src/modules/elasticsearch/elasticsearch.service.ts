@@ -12,17 +12,18 @@ import {
     ChallengeEntity, 
     ContentEntity, 
     CourseEntity, 
-    InjectPrimaryPostgreSQLEntityManager, 
     LessonVideoEntity
 } from "@modules/databases"
 import {
-    EntityManager,
     ObjectLiteral 
 } from "typeorm"
 import {
     AsyncService, 
     ReadinessWatcherFactoryService 
 } from "@modules/mixin"
+import { 
+  configMap 
+} from "@modules/winston"
 
 @Injectable()
 export class ElasticsearchService implements OnModuleInit {
@@ -35,6 +36,7 @@ export class ElasticsearchService implements OnModuleInit {
   constructor(
     @InjectElasticsearch()
     public readonly client: Client,
+    private readonly asyncService: AsyncService,
     private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
   ) {}
 
@@ -57,9 +59,7 @@ export class ElasticsearchService implements OnModuleInit {
         // ensure the indices exist
         await this.asyncService.allMustDone(
             this.indices.map(index => {
-                const metadata = this.entityManager.connection.getMetadata(index)
-                const tableName = metadata.tableName
-                return this.ensureIndexExists(tableName)
+                return this.ensureIndexExists(index)
             }),
         )
         // set the readiness watcher to ready
