@@ -8,6 +8,9 @@ import {
     ValidationPipe 
 } from "@nestjs/common"
 import {
+    ElasticsearchModule
+} from "@modules/elasticsearch"
+import {
     WinstonModule,
     WinstonLevel
 } from "@modules/winston"
@@ -43,6 +46,9 @@ import {
 import {
     CdnSynchronizerModule
 } from "@features/cdn-synchronizer"
+import {
+    ElasticsearchSynchronizerModule,
+} from "@features/elasticsearch-synchronizer"
 import {
     ScheduleModule
 } from "@nestjs/schedule"
@@ -92,6 +98,12 @@ import {
                 {
                     serviceName: ServiceName.Api,
                     level: WinstonLevel.Info,
+                }
+            ),
+            /** Elasticsearch module. */
+            ElasticsearchModule.register(
+                {
+                    isGlobal: true,
                 }
             ),
             /** Mixin module. */
@@ -198,6 +210,12 @@ import {
             ),
             /** Cdn Synchronizer module. */
             CdnSynchronizerModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Elasticsearch Synchronizer module. */
+            ElasticsearchSynchronizerModule.register(
                 {
                     isGlobal: true,
                 }

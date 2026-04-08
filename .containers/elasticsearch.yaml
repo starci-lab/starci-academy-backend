@@ -1,22 +1,32 @@
+version: "3.8"
+
 services:
   elasticsearch:
-    image: docker.io/bitnami/elasticsearch:latest
-    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: es
+    environment:
+      - node.name=es-node-1
+      - cluster.name=es-cluster
+      - discovery.type=single-node
+      # security (ES 8 enabled)
+      - ELASTIC_PASSWORD=123456
+      # JVM
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      # disable TLS
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
     ports:
       - "9200:9200"
-      - "9300:9300"
     volumes:
-      - elasticsearch-data:/bitnami/elasticsearch/data
+      - es_data:/usr/share/elasticsearch/data
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.0
+    ports:
+      - "5601:5601"
     environment:
-      # single-node dev setup
-      - ELASTICSEARCH_NODE_NAME=es01
-      - ELASTICSEARCH_CLUSTER_NAME=es-docker
-      - ELASTICSEARCH_NETWORK_HOST=0.0.0.0
-      - ELASTICSEARCH_DISCOVERY_TYPE=single-node
-      # disable security for local/dev
-      - ELASTICSEARCH_ENABLE_SECURITY=false
-    restart: unless-stopped
-
+      - ELASTICSEARCH_HOSTS=http://host.docker.internal:9200
+      - ELASTICSEARCH_SERVICEACCOUNTTOKEN=AAEAAWVsYXN0aWMva2liYW5hL2tpYmFuYS10b2tlbjpJTWtqZFFuRlEtV2prUk9rNFBFOVVB
 volumes:
-  elasticsearch-data:
-    driver: local
+  es_data:
+
+# docker exec -it es bin/elasticsearch-service-tokens create elastic/kibana kibana-token
