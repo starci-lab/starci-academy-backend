@@ -160,6 +160,27 @@ export const envConfig = () => ({
                 },
             },
         },
+        /** Elasticsearch Synchronizer service configuration. */
+        elasticsearchSynchronizer: {
+            syncIntervalMs: {
+                courses: parseEnvMs({
+                    key: "ELASTICSEARCH_SYNCHRONIZER_COURSES_SYNC_INTERVAL_MS",
+                    defaultValue: "30s",
+                }),
+                lessonVideos: parseEnvMs({
+                    key: "ELASTICSEARCH_SYNCHRONIZER_LESSON_VIDEOS_SYNC_INTERVAL_MS",
+                    defaultValue: "30s",
+                }),
+                challenges: parseEnvMs({
+                    key: "ELASTICSEARCH_SYNCHRONIZER_CHALLENGES_SYNC_INTERVAL_MS",
+                    defaultValue: "30s",
+                }),
+                contents: parseEnvMs({
+                    key: "ELASTICSEARCH_SYNCHRONIZER_CONTENTS_SYNC_INTERVAL_MS",
+                    defaultValue: "30s",
+                }),
+            },
+        },
     },
     /** Loki configuration. */
     loki: {
@@ -634,6 +655,21 @@ export const envConfig = () => ({
                 defaultValue: true,
             }),
         },
+    },
+    /** Elasticsearch configuration. */
+    elasticsearch: {
+        node: parseEnvString({
+            key: "ELASTICSEARCH_NODE",
+            defaultValue: "http://localhost:9200",
+        }),
+        username: parseEnvString({
+            key: "ELASTICSEARCH_USERNAME",
+            defaultValue: "elastic",
+        }),
+        password: parseEnvString({
+            key: "ELASTICSEARCH_PASSWORD",
+            defaultValue: "123456",
+        }),
     },
 }
 )
