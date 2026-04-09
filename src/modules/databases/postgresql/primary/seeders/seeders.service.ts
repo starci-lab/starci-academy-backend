@@ -30,7 +30,6 @@ import {
     CourseEntity, 
     ModuleEntity
 } from "../entities"
-
 /**
  * The service for the Seeders.
  */
@@ -59,94 +58,89 @@ export class SeedersService implements OnModuleInit {
      * @returns void.
      */
     private async process() {
-        // seed in a transaction (do not drop: prevents cascade deletes like enrollments)
-        await this.entityManager.transaction(
-            async (entityManager) => {
-                const courseMounts = this.courseDirService.indexes()
-                const updatedCourses: Array<DeepPartial<CourseEntity>> = courseMounts.map((courseIndex) => {
-                    const course = this.courseParserService.parse(
+        const courseMounts = this.courseDirService.indexes()
+        const updatedCourses: Array<DeepPartial<CourseEntity>> = courseMounts.map((courseIndex) => {
+            const course = this.courseParserService.parse(
+                {
+                    courseIndex,
+                },
+            )
+            const moduleMounts = this.moduleDirService.indexes({
+                courseIndex,
+            })
+            const updatedModules: Array<DeepPartial<ModuleEntity>> = moduleMounts.map(
+                (moduleIndex) => {
+                    const module = this.moduleParserService.parse(
                         {
                             courseIndex,
+                            moduleIndex,
                         },
                     )
-                    const moduleMounts = this.moduleDirService.indexes({
-                        courseIndex,
-                    })
-                    const updatedModules: Array<DeepPartial<ModuleEntity>> = moduleMounts.map(
-                        (moduleIndex) => {
-                            const module = this.moduleParserService.parse(
+                    return {
+                        ...module,
+                        challenges: (() => {
+                            const challengeMounts = this.challengeDirService.indexes(
                                 {
                                     courseIndex,
                                     moduleIndex,
-                                },
+                                }
                             )
-                            return {
-                                ...module,
-                                challenges: (() => {
-                                    const challengeMounts = this.challengeDirService.indexes(
-                                        {
-                                            courseIndex,
-                                            moduleIndex,
-                                        }
-                                    )
-                                    const challenges = challengeMounts.map(
-                                        (challengeIndex) => this.challengeParserService.parse(
-                                            {
-                                                courseIndex,
-                                                moduleIndex,
-                                                challengeIndex,
-                                            },
-                                        )
-                                    )
-                                    return challenges
-                                })(),
-                                lessonVideos: (() => {
-                                    const lessonVideoMounts = this.lessonVideoDirService.indexes(
-                                        {
-                                            courseIndex,
-                                            moduleIndex,
-                                        }
-                                    )
-                                    return lessonVideoMounts.map(
-                                        (lessonVideoIndex) => this.lessonVideoParserService.parse(
-                                            {
-                                                courseIndex,
-                                                moduleIndex,
-                                                lessonVideoIndex,
-                                            },
-                                        )
-                                    )
-                                })(),
-                                contents: (() => {
-                                    const contentMounts = this.contentDirService.indexes(
-                                        {
-                                            courseIndex,
-                                            moduleIndex,
-                                        }
-                                    )
-                                    return contentMounts.map(
-                                        (contentIndex) => this.contentParserService.parse(
-                                            {
-                                                courseIndex,
-                                                moduleIndex,
-                                                contentIndex,
-                                            },
-                                        )
-                                    )
-                                })(),
-                            }
-                        }
-                    )
-                    return {
-                        ...course,
-                        modules: updatedModules,
+                            const challenges = challengeMounts.map(
+                                (challengeIndex) => this.challengeParserService.parse(
+                                    {
+                                        courseIndex,
+                                        moduleIndex,
+                                        challengeIndex,
+                                    },
+                                )
+                            )
+                            return challenges
+                        })(),
+                        lessonVideos: (() => {
+                            const lessonVideoMounts = this.lessonVideoDirService.indexes(
+                                {
+                                    courseIndex,
+                                    moduleIndex,
+                                }
+                            )
+                            return lessonVideoMounts.map(
+                                (lessonVideoIndex) => this.lessonVideoParserService.parse(
+                                    {
+                                        courseIndex,
+                                        moduleIndex,
+                                        lessonVideoIndex,
+                                    },
+                                )
+                            )
+                        })(),
+                        contents: (() => {
+                            const contentMounts = this.contentDirService.indexes(
+                                {
+                                    courseIndex,
+                                    moduleIndex,
+                                }
+                            )
+                            return contentMounts.map(
+                                (contentIndex) => this.contentParserService.parse(
+                                    {
+                                        courseIndex,
+                                        moduleIndex,
+                                        contentIndex,
+                                    },
+                                )
+                            )
+                        })(),
                     }
-                })
-                await entityManager.save(
-                    CourseEntity,
-                    updatedCourses
-                )
+                }
+            )
+            return {
+                ...course,
+                modules: updatedModules,
             }
+        })                          
+        await this.entityManager.save(
+            CourseEntity,
+            updatedCourses
         )
     }
 

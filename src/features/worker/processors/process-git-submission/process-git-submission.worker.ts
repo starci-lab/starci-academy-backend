@@ -35,23 +35,25 @@ import {
     JobExtendedContext 
 } from "../types"
 import {
-    ChallengeSubmissionPromptEntity, 
-    ChallengeSubmissionEntity, 
-    InjectPrimaryPostgreSQLEntityManager, 
-    JobEntity, 
-    UserChallengeSubmissionEntity 
+    ChallengeEntity,
+    ChallengeSubmissionPromptEntity,
+    ChallengeSubmissionEntity,
+    InjectPrimaryPostgreSQLEntityManager,
+    JobEntity,
+    UserChallengeSubmissionEntity,
 } from "@modules/databases"
 import {
     EntityManager 
 } from "typeorm"
 import {
+    ChallengeNotFoundException,
     ChallengeSubmissionNotFoundException,
     UserChallengeSubmissionNotFoundException,
 } from "@modules/exceptions"
 
 /**
  * Worker: GitHub submission → split → embed → grade (DB prompts) → update `user_challenge_submissions`.
- * Enqueued jobs must use `maxSteps` matching the pipeline (default `3`, see `JOB_PROCESS_GIT_SUBMISSION_MAX_STEPS`).
+ * Enqueued jobs must use `maxSteps` matching the pipeline (default `2`, see `JOB_PROCESS_GIT_SUBMISSION_MAX_STEPS`).
  */
 @Worker(
     bullData[BullQueueName.ProcessGitSubmission].name,
@@ -119,6 +121,19 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
                     submissionId: userChallengeSubmission.submissionId,
                 })
             }
+            const challenge = await this.entityManager.findOne(
+                ChallengeEntity,
+                {
+                    where: {
+                        id: challengeSubmission.challengeId,
+                    },
+                },
+            )
+            if (!challenge) {
+                throw new ChallengeNotFoundException({
+                    id: challengeSubmission.challengeId,
+                })
+            }
             const prompts = await this.entityManager.find(
                 ChallengeSubmissionPromptEntity,
                 {
@@ -140,6 +155,7 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
                 queueName: bullmqJob.queueName,
                 payload,
                 extended: {
+                    challenge,
                     challengeSubmission,
                     prompts,
                     userChallengeSubmission,

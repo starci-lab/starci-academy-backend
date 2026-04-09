@@ -83,6 +83,19 @@ export class ChallengeSubmissionEntity extends UuidAbstractEntity {
     @Field(
         () => Int,
         {
+            description: "Points / weight for this submission requirement (course config).",
+        },
+    )
+    @Column({
+        name: "score",
+        type: "int",
+        default: 0,
+    })
+        score: number
+
+    @Field(
+        () => Int,
+        {
             description: "Display order within the challenge submission list.",
         },
     )

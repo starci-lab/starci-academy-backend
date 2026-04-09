@@ -10,7 +10,6 @@ import type {
 import {
     ProcessGitSubmissionCompleteStepService,
     ProcessGitSubmissionGradeStepService,
-    ProcessGitSubmissionPrepareDocsStepService,
 } from "./steps"
 import type {
     ExtendedProcessGitSubmissionContext,
@@ -22,7 +21,6 @@ import type {
 @Injectable()
 export class ProcessGitSubmissionStepMappingService {
     constructor(
-        private readonly prepareDocsStepService: ProcessGitSubmissionPrepareDocsStepService,
         private readonly gradeStepService: ProcessGitSubmissionGradeStepService,
         private readonly completeStepService: ProcessGitSubmissionCompleteStepService,
     ) {}
@@ -43,10 +41,6 @@ export class ProcessGitSubmissionStepMappingService {
             ExtendedProcessGitSubmissionContext
         >>(
             [
-                [
-                    this.prepareDocsStepService.stepIndex,
-                    this.prepareDocsStepService,
-                ],
                 [
                     this.gradeStepService.stepIndex,
                     this.gradeStepService,

@@ -69,7 +69,7 @@ export class UserEntity extends UuidAbstractEntity {
         length: 255,
         nullable: true
     })
-        email?: string
+        email: string | null
     
     /**
      * Unique identifier of the user in Keycloak.
@@ -103,7 +103,7 @@ export class UserEntity extends UuidAbstractEntity {
         length: 255,
         nullable: true
     })
-        avatar?: string
+        avatar: string | null
     /**
      * Soft delete flag.
      *

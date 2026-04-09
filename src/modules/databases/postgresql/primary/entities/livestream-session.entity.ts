@@ -128,7 +128,7 @@ export class LivestreamSessionEntity extends UuidAbstractEntity {
         type: "text",
         nullable: true,
     })
-        note?: string | null
+        note: string | null
 
     /**
      * When true, this row is treated as inactive (e.g. superseded by an override) and should be ignored in UI/API.

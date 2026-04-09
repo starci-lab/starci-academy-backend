@@ -1,21 +1,20 @@
 import type {
-    ExtractParams,
-    ExtractResult,
-    LessonVideoDataJson,
     ParseLessonVideoParams,
 } from "./types"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
-    readJsonFileOrDefault,
     readMdFileOrDefault,
 } from "@modules/common"
 import {
     Locale,
+    LessonVideoKind,
+    VideoHostPlatform,
 } from "../../../enums"
 import {
-    ExtractBlockService,
+    ExtractJsonFromMdService,
+    CoerceMdScalarService,
 } from "../extracts"
 import {
     LessonVideoIdFactoryService,
@@ -33,43 +32,17 @@ import {
 } from "../dir"
 
 /**
- * Parses lesson video from mounted course files.
+ * Parses lesson video from `en.md` / `vi.md` with camelCase `#` headings (or optional `data.json`).
  */
 @Injectable()
 export class LessonVideoParserService {
     constructor(
         private readonly lessonVideoDirService: LessonVideoDirService,
-        private readonly extractBlockService: ExtractBlockService,
+        private readonly extractJsonFromMdService: ExtractJsonFromMdService,
+        private readonly coerceMdScalarService: CoerceMdScalarService,
         private readonly lessonVideoIdFactoryService: LessonVideoIdFactoryService,
         private readonly moduleIdFactoryService: ModuleIdFactoryService,
     ) {}
-
-    /**
-     * Reads the same top-level markdown section in many locales.
-     *
-     * @param param - Heading key and locale markdown map
-     * @returns Trimmed section bodies per locale
-     */
-    private extract(
-        {
-            key,
-            markdownMap,
-        }: ExtractParams,
-    ): ExtractResult {
-        const result = new Map<Locale, string>()
-        for (const locale of Object.values(Locale)) {
-            result.set(
-                locale,
-                this.extractBlockService.extract(
-                    {
-                        key,
-                        markdown: markdownMap.get(locale) ?? "",
-                    },
-                )
-            )
-        }
-        return result
-    }
 
     /**
      * Builds a partial lesson video entity from mounted course files.
@@ -91,34 +64,15 @@ export class LessonVideoParserService {
                 lessonVideoIndex,
             },
         )
-        const markdownMap = new Map<Locale, string>()
+        const jsonMap = new Map<Locale, Partial<LessonVideoEntity>>()
         for (const locale of Object.values(Locale)) {
-            markdownMap.set(
+            jsonMap.set(
                 locale,
-                readMdFileOrDefault(`${path}/${locale}.md`)
+                this.extractJsonFromMdService.extract(
+                    readMdFileOrDefault(`${path}/${locale}.md`)
+                )
             )
         }
-        const dataJson = readJsonFileOrDefault<LessonVideoDataJson>(`${path}/data.json`)
-
-        const titleMap = this.extract(
-            {
-                key: "Title",
-                markdownMap,
-            },
-        )
-        const descriptionMap = this.extract(
-            {
-                key: "Description",
-                markdownMap,
-            },
-        )
-        const captionMap = this.extract(
-            {
-                key: "Caption",
-                markdownMap,
-            },
-        )
-
         const lessonVideoId = this.lessonVideoIdFactoryService.generate(
             {
                 courseIndex,
@@ -126,31 +80,42 @@ export class LessonVideoParserService {
                 lessonVideoIndex,
             },
         )
-
-        const url = (dataJson.url ?? "").trim()
-        const kind = dataJson.kind
-        const hostPlatform = dataJson.hostPlatform
-        const moduleId = this.moduleIdFactoryService.generate(
-            {
-                courseIndex,
-                moduleIndex,
-            },
-        )
         return {
             id: lessonVideoId,
             defaultLocale: Locale.En,
             displayId,
-            title: titleMap.get(Locale.En) ?? "",
-            description: descriptionMap.get(Locale.En) ?? "",
-            caption: captionMap.get(Locale.En) ?? "",
-            kind,
+            title: jsonMap.get(Locale.En)?.title ?? "",
+            description: this.coerceMdScalarService.toNullableStringColumn(
+                jsonMap.get(Locale.En)?.description,
+            ),
+            caption: this.coerceMdScalarService.toNullableStringColumn(
+                jsonMap.get(Locale.En)?.caption,
+            ),
+            kind: this.coerceMdScalarService.toNullableEnum(
+                jsonMap.get(Locale.En)?.kind,
+                LessonVideoKind,
+            ),
             module: {
-                id: moduleId,
+                id: this.moduleIdFactoryService.generate(
+                    {
+                        courseIndex,
+                        moduleIndex,
+                    },
+                ),
             },
-            hostPlatform,
-            url,
+            hostPlatform: this.coerceMdScalarService.toNullableEnum(
+                jsonMap.get(Locale.En)?.hostPlatform,
+                VideoHostPlatform,
+            ),
+            url: this.coerceMdScalarService.toRequiredString(
+                jsonMap.get(Locale.En)?.url,
+                "",
+            ),
             orderIndex: lessonVideoIndex,
-            durationMs: dataJson.durationMs ?? 0,
+            durationMs: this.coerceMdScalarService.toRequiredNumber(
+                jsonMap.get(Locale.En)?.durationMs,
+                0,
+            ),
             translations: (() => {
                 const translations: Array<DeepPartial<LessonVideoTranslationEntity>> = []
                 for (const locale of Object.values(Locale)) {
@@ -158,24 +123,26 @@ export class LessonVideoParserService {
                         lessonVideoId,
                         locale,
                         field: "title",
-                        value: titleMap.get(locale) ?? "",
+                        value: jsonMap.get(locale)?.title ?? "",
                     })
                     translations.push({
                         lessonVideoId,
                         locale,
                         field: "description",
-                        value: descriptionMap.get(locale) ?? "",
+                        value: jsonMap.get(locale)?.description ?? "",
                     })
                     translations.push({
                         lessonVideoId,
                         locale,
                         field: "caption",
-                        value: captionMap.get(locale) ?? "",
+                        value: jsonMap.get(locale)?.caption ?? "",
                     })
                 }
                 return translations
             })(),
-            thumbnailUrl: dataJson.thumbnailUrl,
+            thumbnailUrl: this.coerceMdScalarService.toNullableStringColumn(
+                jsonMap.get(Locale.En)?.thumbnailUrl,
+            ),
         }
     }
 }

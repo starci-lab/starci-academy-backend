@@ -24,20 +24,26 @@ import {
 import { configMap } from "./config"
 import { SearchParam } from "./types"
 
+/**
+ * The service for the Elasticsearch.
+ */
 @Injectable()
 export class ElasticsearchService implements OnModuleInit {
-  private readonly indices: Array<string> = [
-    CourseEntity.name,
-    LessonVideoEntity.name,
-    ChallengeEntity.name,
-    ContentEntity.name,
-  ];
-  constructor(
+    /**
+     * The indices to create.
+     */
+    private readonly indices: Array<string> = [
+        CourseEntity.name,
+        LessonVideoEntity.name,
+        ChallengeEntity.name,
+        ContentEntity.name,
+    ]
+    constructor(
     @InjectElasticsearch()
     public readonly client: Client,
     private readonly asyncService: AsyncService,
     private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
-  ) {}
+    ) {}
 
     /**
      * Indicate the index name.
@@ -56,45 +62,42 @@ export class ElasticsearchService implements OnModuleInit {
             ElasticsearchService.name
         )
         // ensure the indices exist
-        await this.asyncService.allMustDone(
+        await this.asyncService.allIgnoreError(
             this.indices.map(index => {
                 return this.ensureIndexExists(this.indicateName(index))
             }),
         )
-        // set the readiness watcher to ready
-        this.readinessWatcherFactoryService.setReady(
-            ElasticsearchService.name
-        )
     }
 
-  /**
+    /**
    * Ensure the index exists.
    */
-  async ensureIndexExists(
-    index: string,
-    create?: Omit<Parameters<Client['indices']['create']>[0], 'index'>,
-  ): Promise<void> {
-    const existsResult = await this.client.indices.exists({
-      index,
-    });
-    const exists =
-      typeof existsResult === 'boolean'
-        ? existsResult
-        : (
+    async ensureIndexExists(
+        index: string,
+        create?: Omit<Parameters<Client["indices"]["create"]>[0], "index">,
+    ): Promise<void> {
+        const existsResult = await this.client.indices.exists({
+            index,
+        })
+        const exists =
+      typeof existsResult === "boolean"
+          ? existsResult
+          : (
             existsResult as {
               body: boolean;
             }
-          ).body;
+          ).body
 
-    if (exists) return;
+        if (exists) return
 
-    await this.client.indices.create({
-      index,
-      ...(create ?? {}),
-    });
-  }
+        await this.client.indices.create({
+            index,
+            ...(create ?? {
+            }),
+        })
+    }
 
-  /**
+    /**
    * Index the entity.
    */
   async indexEntity<T extends ObjectLiteral>(entity: T, data: ObjectLiteral) {
@@ -105,7 +108,7 @@ export class ElasticsearchService implements OnModuleInit {
     });
   }
 
-  /**
+    /**
    * Index the entities.
    */
   async indexEntities<T extends ObjectLiteral>(

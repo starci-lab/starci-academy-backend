@@ -3,12 +3,6 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    ExtractBlockService,
-    ExtractBulletListItemsService,
-    ExtractQnaItemsService,
-    ExtractReferencesService,
-    ExtractStepsService,
-    ExtractSubmissionsService,
     ChallengeIdFactoryService,
     ChallengeSubmissionPromptIdFactoryService,
     ChallengeReferenceIdFactoryService,
@@ -35,6 +29,8 @@ import {
     CourseDirService,
     LessonVideoDirService,
     ModuleDirService,
+    ExtractJsonFromMdService,
+    CoerceMdScalarService,
 } from "./courses"
 import {
     SeedersService 
@@ -51,17 +47,13 @@ import {
 export class SeedersModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const providers = [
+            ExtractJsonFromMdService,
+            CoerceMdScalarService,
             CourseDirService,
             ModuleDirService,
             ContentDirService,
             LessonVideoDirService,
             ChallengeDirService,
-            ExtractBlockService,
-            ExtractBulletListItemsService,
-            ExtractQnaItemsService,
-            ExtractReferencesService,
-            ExtractStepsService,
-            ExtractSubmissionsService,
             CourseIdFactoryService,
             ModuleIdFactoryService,
             ContentIdFactoryService,

@@ -3,6 +3,7 @@ import type {
 } from "@modules/bullmq"
 import {
     InjectPrimaryPostgreSQLEntityManager,
+    InjectQdrantClient,
     ModelProvider,
 } from "@modules/databases"
 import {
@@ -24,7 +25,6 @@ import {
 import type {
     ExtendedProcessGitSubmissionContext,
     ProcessGitSubmissionGradeStepExecuteResult,
-    ProcessGitSubmissionPrepareDocsStepExecuteResult,
 } from "../types"
 import {
     JobExtendedContext,
@@ -33,12 +33,10 @@ import {
     Document,
 } from "@langchain/core/documents"
 import {
-    ProcessGitSubmissionPrepareDocsStepService,
-} from "./process-git-submission-prepare-docs-step.service"
-import {
     envConfig,
 } from "@modules/env"
 import {
+    EmbeddingModelService,
     ModelService,
 } from "@modules/langchain"
 import {
@@ -49,10 +47,24 @@ import {
     InvalidModelGradeScoreException,
     ParsingScoreFromModelTextException,
 } from "@modules/exceptions"
-import fs from "fs"
+import {
+    GithubRepoLoader,
+} from "@langchain/community/document_loaders/web/github"
+import {
+    RecursiveCharacterTextSplitter,
+} from "langchain/text_splitter"
+import {
+    QdrantVectorStore,
+} from "@langchain/qdrant"
+import type {
+    QdrantClient,
+} from "@qdrant/qdrant-js"
+import {
+    MountStorageService,
+} from "@modules/filesystem"
 
 /**
- * Step 4: grade the submission.
+ * Load repo docs → split → vectorize → grade the submission.
  */
 @Injectable()
 export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
@@ -64,27 +76,19 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         private readonly entityManager: EntityManager,
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
-        private readonly processGitSubmissionPrepareDocsStepService: ProcessGitSubmissionPrepareDocsStepService,
+        private readonly mountStorageService: MountStorageService,
+        private readonly embeddingModelService: EmbeddingModelService,
+        @InjectQdrantClient()
+        private readonly qdrantClient: QdrantClient,
         private readonly modelService: ModelService,
     ) {
         super()
     }
 
-    /**
-     * The index of the step.
-     */
-    stepIndex = 1
+    stepIndex = 0
 
-    /**
-     * The name of the step.
-     */
     stepName = "grade"
 
-    /**
-     * Process the step.
-     * @param context - The context of the step.
-     * @returns A promise that resolves when the step is processed.
-     */
     async process(
         context: JobExtendedContext<
             ProcessGitSubmissionPayload,
@@ -98,32 +102,63 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         )
     }
 
-    /**
-     * Execute the step.
-     * @param context - The context of the step.
-     * @returns A promise that resolves when the step is executed.
-     */
     private async execute(
         context: JobExtendedContext<
             ProcessGitSubmissionPayload,
             ExtendedProcessGitSubmissionContext
         >,
     ): Promise<ProcessGitSubmissionGradeStepExecuteResult> {
-        const executionResult = await this.jobActionService.loadExecutionResult<ProcessGitSubmissionPrepareDocsStepExecuteResult>(
+        const branch = context.payload.branch ?? "main"
+        const repoUrl = context.extended?.userChallengeSubmission.submissionUrl ?? ""
+
+        const gitLoader = new GithubRepoLoader(
+            repoUrl,
             {
-                job: context.job,
-                key: this.processGitSubmissionPrepareDocsStepService.stepName,
+                branch,
+                recursive: true,
+                accessToken: this.mountStorageService.githubAccessToken,
+                verbose: true,
+                ignorePaths: [
+                    "package-lock.json",
+                    "dist",
+                    "node_modules",
+                ],
             },
         )
-        fs.writeFileSync("executionResult.json", JSON.stringify(executionResult, null, 2))
-        throw new Error("test")
-        const chunks = executionResult.chunks.map(
-            (chunk) =>
+
+        const loadedDocs = await gitLoader.load()
+
+        const docs = loadedDocs.map(
+            (doc) =>
                 new Document({
-                    pageContent: chunk.pageContent,
-                    metadata: chunk.metadata,
-                    id: chunk.id,
+                    pageContent: doc.pageContent,
+                    metadata: doc.metadata,
+                    id: doc.id,
                 }),
+        )
+
+        const splitter = new RecursiveCharacterTextSplitter({
+            chunkSize: envConfig().services.githubWorker.processGitSubmission.chunkSize,
+            chunkOverlap: envConfig().services.githubWorker.processGitSubmission.chunkOverlap,
+        })
+        const chunks = await splitter.splitDocuments(docs)
+
+        const collectionName = `grading-${context.payload.userChallengeSubmissionId}`
+        const embeddingModel = this.embeddingModelService.get(
+            {
+                model: context.payload.embeddingModel ?? envConfig().services.githubWorker.processGitSubmission.embedding.model,
+                provider: (context.payload.embeddingProvider ?? envConfig().services.githubWorker.processGitSubmission.embedding.provider) as ModelProvider,
+            }
+        )
+
+        await this.qdrantClient.deleteCollection(collectionName)
+        await QdrantVectorStore.fromDocuments(
+            chunks,
+            embeddingModel,
+            {
+                client: this.qdrantClient,
+                collectionName,
+            },
         )
 
         let sourceExcerpt = chunks
@@ -141,7 +176,14 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             )
         }
 
-        const rubric = (context.extended?.prompts ?? [])
+        const challenge = context.extended?.challenge
+        const challengeSubmission = context.extended?.challengeSubmission
+        const challengeTitle = (challenge?.title ?? "").trim()
+        const requirements = (challenge?.requirements ?? "").trim()
+        const submissionTitle = challengeSubmission?.title ?? ""
+        const submissionDescription = (challengeSubmission?.description ?? "").trim()
+        const submissionScore = challengeSubmission?.score ?? 0
+        const extraPromptSections = (context.extended?.prompts ?? [])
             .map(
                 (
                     prompt,
@@ -150,16 +192,34 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                     const label = prompt.title
                         ? ` (${prompt.title})`
                         : ""
-                    return `### Criterion ${index + 1}${label}\n${prompt.promptText}`
+                    const body = (prompt.promptText ?? "").trim()
+                    return `### Extra criterion ${index + 1}${label}\n${body || "(empty)"}`
                 },
             )
             .join("\n\n")
 
         const systemText = [
-            "You are an expert principal developer grading a learner's submitted GitHub repository for a programming course.",
-            "Apply the following rubric (stored in the course database).",
+            "You are a principal engineer reviewing and grading a learner's GitHub submission.",
+            "Use the challenge requirements, submission instructions, and extra criteria below to assign the score and feedback.",
             "",
-            rubric || "No rubric provided.",
+            challengeTitle
+                ? `### Challenge\n${challengeTitle}`
+                : "### Challenge\n(untitled)",
+            "",
+            "### Challenge requirements",
+            requirements || "(none provided)",
+            "",
+            "### This submission slot (what the learner was asked to submit)",
+            submissionTitle
+                ? `Title: ${submissionTitle}`
+                : "(no title)",
+            `\nPoints configured for this submission slot: ${submissionScore}`,
+            submissionDescription
+                ? `\nInstructions / description:\n${submissionDescription}`
+                : "",
+            "",
+            "### Extra grading criteria (from the course database; each item has promptText you must apply)",
+            extraPromptSections || "(none provided)",
             "",
             "Respond with JSON only — no markdown fences, no extra text.",
             "Shape:",
@@ -171,7 +231,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             "- do not invent files, features, or behaviors not present in the excerpt.",
             "- return 2 to 5 feedback items.",
             "- each feedback item should be a single sentence when possible.",
-        ].join("\n")
+        ].filter(Boolean).join("\n")
 
         const humanText = [
             "Below is an excerpt of files loaded from the submitted GitHub repository (may be truncated):",
@@ -192,7 +252,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             [
                 new SystemMessage(systemText),
                 new HumanMessage(humanText),
-            ]
+            ],
         )
 
         const raw = (typeof response.content === "string"
@@ -204,8 +264,8 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
 
     /**
      * Finalize the step.
-     * @param executionResult - Execution result of the step.
-     * @param context - Context of the step.
+     * @param executionResult - The execution result.
+     * @param context - The context.
      * @returns A promise that resolves when the step is finalized.
      */
     private async finalize(
@@ -283,9 +343,9 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
     }
 
     /**
-     * Parse score from unknown model output.
-     * @param value - Raw score value.
-     * @returns Parsed and clamped score.
+     * Parse the score from the model text.
+     * @param value - The value to parse the score from.
+     * @returns The parsed score.
      */
     private parseScore(
         value: unknown,
@@ -310,9 +370,9 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
     }
 
     /**
-     * Parse feedbacks from unknown model output.
-     * @param value - Raw feedbacks value.
-     * @returns Normalized feedback array.
+     * Parse the feedbacks from the model text.
+     * @param value - The value to parse the feedbacks from.
+     * @returns The parsed feedbacks.
      */
     private parseFeedbacks(
         value: unknown,
@@ -335,8 +395,8 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
     }
 
     /**
-     * Clamp the score to the range of 1 to 20.
-     * @param value - The score to clamp.
+     * Clamp the score.
+     * @param value - The value to clamp.
      * @returns The clamped score.
      */
     private clampScore(

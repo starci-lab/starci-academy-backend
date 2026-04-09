@@ -83,7 +83,7 @@ export class TransactionEntity extends UuidAbstractEntity {
         name: "course_id",
         foreignKeyConstraintName: "fk_course_id_transactions_courses",
     })
-        course?: CourseEntity
+        course: CourseEntity | null
 
     /**
      * The ID of the user who made the preflight transaction.
@@ -109,9 +109,9 @@ export class TransactionEntity extends UuidAbstractEntity {
         },
     )
     @RelationId(
-        (t: TransactionEntity) => t.course,
+        (transaction: TransactionEntity) => transaction.course,
     )
-        courseId?: string
+        courseId: string | null
 
     /**
      * The order code of the preflight transaction.

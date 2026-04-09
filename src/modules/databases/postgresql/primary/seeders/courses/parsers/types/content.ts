@@ -17,7 +17,7 @@ export interface ParseContentParams {
     contentIndex: number
 }
 
-/** Optional fields in content `data.json` (headings and references come from markdown). */
+/** Optional structured fields from `# Content Data` in `en.md` or content `data.json`. */
 export interface ContentDataJson {
     /** Estimated minutes to read the article. */
     minutesRead?: number

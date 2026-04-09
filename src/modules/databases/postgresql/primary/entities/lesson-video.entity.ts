@@ -85,7 +85,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         type: "text",
         nullable: true,
     })
-        description?: string
+        description: string | null
 
     /**
      * Production type (raw, edited, or premium recording).
@@ -120,7 +120,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         type: "text",
         nullable: true,
     })
-        caption?: string
+        caption: string | null
 
     /**
      * Host platform for the video URL (YouTube, Google Drive, etc.).
@@ -172,7 +172,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         length: 2048,
         nullable: true,
     })
-        thumbnailUrl?: string
+        thumbnailUrl: string | null
 
     /**
      * Video duration in milliseconds.
@@ -271,7 +271,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         type: "uuid",
         nullable: true,
     })
-        pricingPhaseId?: string | null
+        pricingPhaseId: string | null
 
     /**
      * Localized translations for fields such as `title` and `description`.

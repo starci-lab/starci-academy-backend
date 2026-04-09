@@ -87,7 +87,7 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
         type: "timestamptz",
         nullable: true,
     })
-        processedAt?: Date
+        processedAt: Date | null
 
     /**
      * Submission definition linked to the user.
@@ -186,7 +186,7 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
         type: "text",
         nullable: true,
     })
-        feedback?: string | null
+        feedback: string | null
 }
 
 

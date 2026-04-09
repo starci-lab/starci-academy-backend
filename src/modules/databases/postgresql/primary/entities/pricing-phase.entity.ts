@@ -91,7 +91,7 @@ export class PricingPhaseEntity extends UuidAbstractEntity {
         type: "double precision",
         nullable: true,
     })
-        price?: number
+        price: number | null
 
     /**
      * null = không giới hạn chỗ (FE có thể hiển thị “không giới hạn”).
@@ -108,7 +108,7 @@ export class PricingPhaseEntity extends UuidAbstractEntity {
         type: "int",
         nullable: true,
     })
-        slotAvailable?: number
+        slotAvailable: number | null
 
     /**
      * Display order among pricing tiers for the course.
