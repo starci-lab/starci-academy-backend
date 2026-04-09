@@ -30,7 +30,7 @@ import {
     CourseEntity, 
     ModuleEntity
 } from "../entities"
-
+import fs from "fs"
 /**
  * The service for the Seeders.
  */
@@ -141,7 +141,14 @@ export class SeedersService implements OnModuleInit {
                         ...course,
                         modules: updatedModules,
                     }
-                })
+                })  
+                fs.writeFileSync(
+                    "updatedCourses.json",
+                    JSON.stringify(updatedCourses,
+                        null,
+                        2
+                    )
+                )                             
                 await entityManager.save(
                     CourseEntity,
                     updatedCourses

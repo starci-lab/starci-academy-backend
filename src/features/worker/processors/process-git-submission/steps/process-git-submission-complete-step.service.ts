@@ -40,7 +40,7 @@ import {
 } from "./process-git-submission-grade-step.service"
 
 /**
- * Step 5: persist grade and feedback to `user_challenge_submissions`.
+ * Step 2: persist grade and feedback to `user_challenge_submissions`.
  */
 @Injectable()
 export class ProcessGitSubmissionCompleteStepService extends AbstractStepService<
@@ -61,7 +61,7 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
     /**
      * The index of the step.
      */
-    stepIndex = 2
+    stepIndex = 1
     /**
      * The name of the step.
      */

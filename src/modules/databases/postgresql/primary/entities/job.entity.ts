@@ -85,7 +85,7 @@ export class JobEntity extends UuidAbstractEntity {
             nullable: true,
         },
     )
-        error?: string
+        error: string | null
 
     @Field(
         () => Int,
@@ -146,7 +146,7 @@ export class JobEntity extends UuidAbstractEntity {
             nullable: true,
         },
     )
-        executionResults?: string
+        executionResults: string | null
 
     @Field(
         () => String,
@@ -162,5 +162,5 @@ export class JobEntity extends UuidAbstractEntity {
             nullable: true,
         },
     )
-        executionState?: string
+        executionState: string | null
 }

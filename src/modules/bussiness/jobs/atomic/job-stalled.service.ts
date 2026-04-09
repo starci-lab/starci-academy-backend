@@ -55,7 +55,7 @@ export class JobStalledService {
     ): Promise<GetStalledJobsResult> {
         const manager = entityManager ?? this.primaryEntityManager
         const staleBefore = this.dayjsService.now().subtract(
-            envConfig().job.stalled.threshold,
+            envConfig().job.stalled.thresholdMs,
             "millisecond",
         ).toDate()
         return manager.find(

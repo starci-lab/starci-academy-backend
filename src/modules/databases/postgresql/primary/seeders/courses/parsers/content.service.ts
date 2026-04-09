@@ -1,23 +1,18 @@
 import type {
-    ContentDataJson,
-    ExtractParams,
-    ExtractResult,
     ParseContentParams,
 } from "./types"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
-    readJsonFileOrDefault,
     readMdFileOrDefault,
 } from "@modules/common"
 import {
     Locale,
 } from "../../../enums"
 import {
-    ExtractBlockService,
-    ExtractReferencesResult,
-    ExtractReferencesService,
+    ExtractJsonFromMdService,
+    CoerceMdScalarService,
 } from "../extracts"
 import {
     ContentIdFactoryService,
@@ -35,44 +30,18 @@ import {
 } from "../dir"
 
 /**
- * Parses content from mounted course files.
+ * Parses content from mounted course files (`en.md`, `vi.md`).
+ * Scalar fields like `minutesRead` use camelCase `#` headings in `en.md`.
  */
 @Injectable()
 export class ContentParserService {
     constructor(
-        private readonly extractBlockService: ExtractBlockService,
-        private readonly extractReferencesService: ExtractReferencesService,
+        private readonly extractJsonFromMdService: ExtractJsonFromMdService,
+        private readonly coerceMdScalarService: CoerceMdScalarService,
         private readonly contentIdFactoryService: ContentIdFactoryService,
         private readonly contentReferenceIdFactoryService: ContentReferenceIdFactoryService,
         private readonly contentDirService: ContentDirService,
     ) {}
-
-    /**
-     * Reads the same top-level markdown section in English and Vietnamese.
-     *
-     * @param param - Heading key and locale markdown map
-     * @returns Trimmed section bodies per locale
-     */
-    private extract(
-        {
-            key,
-            markdownMap,
-        }: ExtractParams,
-    ): ExtractResult {
-        const result = new Map<Locale, string>()
-        for (const locale of Object.values(Locale)) {
-            result.set(
-                locale,
-                this.extractBlockService.extract(
-                    {
-                        key,
-                        markdown: markdownMap.get(locale) ?? "",
-                    },
-                )
-            )
-        }
-        return result
-    }
 
     /**
      * Builds a partial content entity from mounted course files.
@@ -94,50 +63,16 @@ export class ContentParserService {
                 contentIndex,
             },
         )
-        const markdownMap = new Map<Locale, string>()
+        const jsonMap = new Map<Locale, Partial<ContentEntity>>()
         for (const locale of Object.values(Locale)) {
-            markdownMap.set(
+            jsonMap.set(
                 locale,
-                readMdFileOrDefault(`${path}/${locale}.md`)
-            )
-        }
-        const dataJson = readJsonFileOrDefault<ContentDataJson>(`${path}/data.json`)
-
-        const titleMap = this.extract(
-            {
-                key: "Title",
-                markdownMap,
-            },
-        )
-        const descriptionMap = this.extract(
-            {
-                key: "Description",
-                markdownMap,
-            },
-        )
-        const bodyMap = this.extract(
-            {
-                key: "Body",
-                markdownMap,
-            },
-        )
-
-        const referencesTextMap = this.extract(
-            {
-                key: "References",
-                markdownMap,
-            },
-        )
-        const referencesMap = new Map<Locale, ExtractReferencesResult>()
-        for (const locale of Object.values(Locale)) {
-            referencesMap.set(locale, 
-                this.extractReferencesService.extract(
-                    {
-                        markdown: referencesTextMap.get(locale) ?? "",
-                    },
+                this.extractJsonFromMdService.extract(
+                    readMdFileOrDefault(`${path}/${locale}.md`)
                 )
             )
         }
+
         const contentId = this.contentIdFactoryService.generate(
             {
                 courseIndex,
@@ -150,11 +85,16 @@ export class ContentParserService {
             id: contentId,
             defaultLocale: Locale.En,
             displayId,
-            title: titleMap.get(Locale.En) ?? "",
-            description: descriptionMap.get(Locale.En) ?? "",
-            body: bodyMap.get(Locale.En) ?? "",
+            title: jsonMap.get(Locale.En)?.title ?? "",
+            description: this.coerceMdScalarService.toNullableStringColumn(
+                jsonMap.get(Locale.En)?.description,
+            ),
+            body: jsonMap.get(Locale.En)?.body ?? "",
             orderIndex: contentIndex,
-            minutesRead: dataJson.minutesRead ?? 0,
+            minutesRead: this.coerceMdScalarService.toRequiredNumber(
+                jsonMap.get(Locale.En)?.minutesRead,
+                0,
+            ),
             translations: (() => {
                 const translations: Array<DeepPartial<ContentTranslationEntity>> = []
                 for (const locale of Object.values(Locale)) {
@@ -162,25 +102,25 @@ export class ContentParserService {
                         contentId,
                         locale,
                         field: "title",
-                        value: titleMap.get(locale) ?? "",
+                        value: jsonMap.get(locale)?.title ?? "",
                     })
                     translations.push({
                         contentId,
                         locale,
                         field: "description",
-                        value: descriptionMap.get(locale) ?? "",
+                        value: jsonMap.get(locale)?.description ?? "",
                     })
                     translations.push({
                         contentId,
                         locale,
                         field: "body",
-                        value: bodyMap.get(locale) ?? "",
+                        value: jsonMap.get(locale)?.body ?? "",
                     })
                 }
                 return translations
             })(),
             references: (
-                referencesMap.get(Locale.En) ?? []
+                jsonMap.get(Locale.En)?.references ?? []
             ).map(({
                 orderIndex,
                 alias,
@@ -194,12 +134,12 @@ export class ContentParserService {
                         referenceIndex: orderIndex,
                     },
                 )
-                const translations = Array.from(referencesMap.entries()).map(
+                const translations = Array.from(jsonMap.entries()).map(
                     ([
                         locale,
-                        references
+                        content
                     ]) => (
-                        references
+                        (content.references ?? [])
                             .filter((reference) => reference.orderIndex === orderIndex)
                             .map((reference) => [
                                 {

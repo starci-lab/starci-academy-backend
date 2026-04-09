@@ -8,78 +8,39 @@ import {
     Locale,
 } from "../../../enums"
 import {
-    ExtractBlockService,
-    ExtractBulletListItemsService,
-    MarkdownBulletListItem,
+    ExtractJsonFromMdService,
 } from "../extracts"
 import {
+    CourseIdFactoryService,
     ModuleIdFactoryService,
     PreviewContentIdFactoryService,
 } from "../id-factories"
 import {
-    ParseModuleParams 
+    ParseModuleParams,
 } from "./types"
 import {
-    ExtractParams,
-} from "./types"
-import {
-    ExtractResult,
-} from "./types"
-import {
-    DeepPartial 
+    DeepPartial,
 } from "typeorm"
 import {
-    ModuleEntity, 
+    ModuleEntity,
     ModuleTranslationEntity,
-    PreviewContentTranslationEntity, 
+    PreviewContentTranslationEntity,
 } from "../../../entities"
 import {
-    ModuleDirService 
+    ModuleDirService,
 } from "../dir"
-import {
-    CourseIdFactoryService,
-} from "../id-factories"
-
 /**
- * Parses module lesson video from `en.md`, `vi.md`, and `data.json` (Title, Description + stream metadata).
+ * Parses module readme from `en.md` / `vi.md` with camelCase `#` headings and indexed lists.
  */
 @Injectable()
 export class ModuleParserService {
     constructor(
-        private readonly extractBlockService: ExtractBlockService,
-        private readonly extractBulletListItemsService: ExtractBulletListItemsService,
+        private readonly extractJsonFromMdService: ExtractJsonFromMdService,
         private readonly previewContentIdFactoryService: PreviewContentIdFactoryService,
         private readonly moduleIdFactoryService: ModuleIdFactoryService,
         private readonly moduleDirService: ModuleDirService,
         private readonly courseIdFactoryService: CourseIdFactoryService,
     ) {}
-
-    /**
-     * Reads the same top-level markdown section in many locales.
-     *
-     * @param param - Heading key and locale markdown map
-     * @returns Trimmed section bodies per locale
-     */
-    private extract(
-        {
-            key,
-            markdownMap,
-        }: ExtractParams,
-    ): ExtractResult {
-        const result = new Map<Locale, string>()
-        for (const locale of Object.values(Locale)) {
-            result.set(locale,
-                this.extractBlockService.extract(
-                    {
-                        key,
-                        markdown: markdownMap.get(locale) ?? "",
-                    },
-                )
-            )
-        }
-        return result
-    }
-
 
     /**
      * Builds a partial module entity from mounted course files.
@@ -107,37 +68,12 @@ export class ModuleParserService {
                 courseIndex,
             },
         )
-        const markdownMap = new Map<Locale, string>()
+        const jsonMap = new Map<Locale, Partial<ModuleEntity>>()
         for (const locale of Object.values(Locale)) {
-            markdownMap.set(locale,
-                readMdFileOrDefault(`${path}/${locale}.md`))
-        }
-
-        const titleMap = this.extract(
-            {
-                key: "Title",
-                markdownMap,
-            },
-        )
-        const descriptionMap = this.extract(
-            {
-                key: "Description",
-                markdownMap,
-            },
-        )
-
-        const previewContentsTextMap = this.extract(
-            {
-                key: "Preview Contents",    
-                markdownMap,
-            },
-        )
-        const previewContentsMap = new Map<Locale, Array<MarkdownBulletListItem>>()
-        for (const locale of Object.values(Locale)) {
-            previewContentsMap.set(
-                locale,
-                this.extractBulletListItemsService.extract(
-                    previewContentsTextMap.get(locale) ?? "")
+            jsonMap.set(locale,
+                this.extractJsonFromMdService.extract(
+                    readMdFileOrDefault(`${path}/${locale}.md`)
+                )
             )
         }
         const moduleId = this.moduleIdFactoryService.generate(
@@ -154,10 +90,10 @@ export class ModuleParserService {
             },
             orderIndex: moduleIndex,
             defaultLocale: Locale.En,
-            title: titleMap.get(Locale.En) ?? "",
-            description: descriptionMap.get(Locale.En) ?? "",
+            title: jsonMap.get(Locale.En)?.title ?? "",
+            description: jsonMap.get(Locale.En)?.description ?? "",
             previewContents: (
-                previewContentsMap.get(Locale.En) ?? []
+                jsonMap.get(Locale.En)?.previewContents ?? []
             ).map(
                 (
                     {
@@ -173,24 +109,23 @@ export class ModuleParserService {
                         },
                     )
                     const translations = Array.from(
-                        previewContentsMap.entries()
+                        jsonMap.entries()
                     )
                         .map((
                             [
                                 locale,
-                                items
+                                module
                             ]
-                        ) => items
-                            .filter((item) => item.orderIndex === orderIndex)
+                        ) => (module.previewContents ?? [])
+                            .filter((previewContent) => previewContent.orderIndex === orderIndex)
                             .map<DeepPartial<PreviewContentTranslationEntity>>(
-                                (item) => ({
+                                (previewContent) => ({
                                     previewContentId,
                                     locale,
-                                    value: item.text,
+                                    value: previewContent.text,
                                     field: "text",
                                 })
-                            )
-                        )
+                            ))
                         .flat()
                     return {
                         module: {
@@ -213,7 +148,7 @@ export class ModuleParserService {
                                 moduleId,
                                 locale,
                                 field: "title",
-                                value: titleMap.get(locale) ?? "",
+                                value: jsonMap.get(locale)?.title ?? "",
                             }
                         )
                         translations.push(
@@ -221,7 +156,7 @@ export class ModuleParserService {
                                 moduleId,
                                 locale,
                                 field: "description",
-                                value: descriptionMap.get(locale) ?? "",
+                                value: jsonMap.get(locale)?.description ?? "",
                             }
                         )
                     }

@@ -104,7 +104,7 @@ export class CourseEntity extends UuidAbstractEntity {
         unique: true,
         nullable: true,
     })
-        slug?: string
+        slug: string | null
 
     /**
      * Short public description of the course.
@@ -138,7 +138,7 @@ export class CourseEntity extends UuidAbstractEntity {
         length: 2048,
         nullable: true,
     })
-        cdnUrl?: string
+        cdnUrl: string | null
 
     /**
      * Display order within the parent course list.
@@ -172,7 +172,7 @@ export class CourseEntity extends UuidAbstractEntity {
         length: 2048,
         nullable: true,
     })
-        coverImageUrl?: string
+        coverImageUrl: string | null
     /**
      * Original list price of the course before pricing phase discounts.
      */

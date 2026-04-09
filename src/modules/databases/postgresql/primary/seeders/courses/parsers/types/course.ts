@@ -9,7 +9,7 @@ import {
     PricingPhaseEntity,
 } from "../../../../entities"
 
-/** Root `data.json` beside course `en.md` / `vi.md` (pricing tiers). */
+/** One pricing phase from course `# Course Data` JSON or root `data.json`. */
 export interface CoursePricingJson {
     /** The phase of the pricing. */
     phase: string
@@ -21,6 +21,7 @@ export interface CoursePricingJson {
     orderIndex: number
 }
 
+/** Course pricing, cover, and livestream config from `# Course Data` in `en.md` or `data.json`. */
 export interface CourseDataJson {
     /** The original price of the course. */
     originalPrice: number
@@ -37,7 +38,7 @@ export interface ParseCourseParams {
     courseIndex: number
 }
 
-/** One livestream session row from course `data.json`. */
+/** One livestream session row from course structured data (markdown or `data.json`). */
 export interface LivestreamSessionJson {
     /** Day of week for the livestream session. */
     dayOfWeek: DayOfWeek

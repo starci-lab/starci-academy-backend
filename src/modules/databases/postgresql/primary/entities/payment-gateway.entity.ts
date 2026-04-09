@@ -137,5 +137,5 @@ export class PaymentGatewayEntity extends UuidAbstractEntity {
         type: "timestamp",
         nullable: true,
     })
-        resetDate?: Date
+        resetDate: Date | null
 }

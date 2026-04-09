@@ -78,21 +78,26 @@ export class EnqueueProcessGitSubmissionJobService {
                 jobId: id,
                 userId,
                 userChallengeSubmissionId,
-            }
-            if (branch !== undefined) {
-                payloadBody.branch = branch
-            }
-            if (gradingModel !== undefined) {
-                payloadBody.gradingModel = gradingModel
-            }
-            if (gradingProvider !== undefined) {
-                payloadBody.gradingProvider = gradingProvider
-            }
-            if (embeddingModel !== undefined) {
-                payloadBody.embeddingModel = embeddingModel
-            }
-            if (embeddingProvider !== undefined) {
-                payloadBody.embeddingProvider = embeddingProvider
+                ...(branch !== undefined ? {
+                    branch 
+                } : {
+                }),
+                ...(gradingModel !== undefined ? {
+                    gradingModel 
+                } : {
+                }),
+                ...(gradingProvider !== undefined ? {
+                    gradingProvider 
+                } : {
+                }),
+                ...(embeddingModel !== undefined ? {
+                    embeddingModel 
+                } : {
+                }),
+                ...(embeddingProvider !== undefined ? {
+                    embeddingProvider 
+                } : {
+                }),
             }
             job = await this.jobActionService.createJob(
                 {

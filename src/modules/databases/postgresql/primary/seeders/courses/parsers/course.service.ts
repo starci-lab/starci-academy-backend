@@ -1,14 +1,10 @@
 import type {
-    CourseDataJson,
-    ExtractParams,
-    ExtractResult,
     ParseCourseParams,
 } from "./types"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
-    readJsonFileOrDefault,
     readMdFileOrDefault,
 } from "@modules/common"
 import {
@@ -16,11 +12,8 @@ import {
     PricingPhase,
 } from "../../../enums"
 import {
-    ExtractBlockService,
-    ExtractBulletListItemsService,
-    ExtractQnaItemsService,
-    MarkdownBulletListItem,
-    MarkdownQnaItem,
+    ExtractJsonFromMdService,
+    CoerceMdScalarService,
 } from "../extracts"
 import {
     CourseIdFactoryService,
@@ -41,18 +34,18 @@ import {
     ValuePropositionTranslationEntity,
 } from "../../../entities"
 import {
-    CourseDirService
+    CourseDirService,
 } from "../dir"
 
 /**
- * Parses a course root (`en.md`, `vi.md`, `data.json`) under `courses/{index}-{slug}/`.
+ * Parses a course root (`en.md`, `vi.md`, optional `data.json`) under `courses/{index}-{slug}/`.
+ * Structured fields use camelCase `#` headings in `en.md`; `data.json` fills gaps when present.
  */
 @Injectable()
 export class CourseParserService {
     constructor(
-        private readonly extractBlockService: ExtractBlockService,
-        private readonly extractBulletListItemsService: ExtractBulletListItemsService,
-        private readonly extractQnaItemsService: ExtractQnaItemsService,
+        private readonly extractJsonFromMdService: ExtractJsonFromMdService,
+        private readonly coerceMdScalarService: CoerceMdScalarService,
         private readonly courseIdFactoryService: CourseIdFactoryService,
         private readonly prerequisiteIdFactoryService: PrerequisiteIdFactoryService,
         private readonly qnaIdFactoryService: QnaIdFactoryService,
@@ -61,32 +54,6 @@ export class CourseParserService {
         private readonly livestreamSessionIdFactoryService: LivestreamSessionIdFactoryService,
         private readonly courseDirService: CourseDirService,
     ) { }
-
-    /**
-     * Reads the same top-level markdown section in many locales.
-     *
-     * @param param - Heading key and both locale documents
-     * @returns Trimmed section bodies per locale
-     */
-    private extract(
-        {
-            key,
-            markdownMap,
-        }: ExtractParams,
-    ): ExtractResult {
-        const result = new Map<Locale, string>()
-        for (const locale of Object.values(Locale)) {
-            result.set(locale,
-                this.extractBlockService.extract(
-                    {
-                        key,
-                        markdown: markdownMap.get(locale) ?? "",
-                    },
-                )
-            )
-        }
-        return result
-    }
 
     /**
      * Builds a partial course entity (pricing, lists, translations) from the mount.
@@ -105,72 +72,12 @@ export class CourseParserService {
         } = this.courseDirService.path(
             courseIndex,
         )
-        const markdownMap = new Map<Locale, string>()
+        const jsonMap = new Map<Locale, Partial<CourseEntity>>()
         for (const locale of Object.values(Locale)) {
-            markdownMap.set(
+            jsonMap.set(
                 locale,
-                readMdFileOrDefault(`${path}/${locale}.md`)
-            )
-        }
-        const dataJson = readJsonFileOrDefault<CourseDataJson>(`${path}/data.json`)
-
-        const titleMap = this.extract(
-            {
-                key: "Title",
-                markdownMap,
-            },
-        )
-        const descriptionMap = this.extract(
-            {
-                key: "Description",
-                markdownMap,
-            },
-        )
-        const prerequisitesMap = this.extract(
-            {
-                key: "Prerequisites",
-                markdownMap,
-            },
-        )
-        const prerequisitesItemsMap = new Map<Locale, Array<MarkdownBulletListItem>>()
-        for (const locale of Object.values(Locale)) {
-            prerequisitesItemsMap.set(
-                locale,
-                this.extractBulletListItemsService.extract(
-                    prerequisitesMap.get(locale) ?? "",
-                )
-            )
-        }
-
-        const valuePropositionsTextMap = this.extract(
-            {
-                key: "Value Propositions",
-                markdownMap,
-            },
-        )
-        const valuePropositionsMap = new Map<Locale, Array<MarkdownBulletListItem>>()
-        for (const locale of Object.values(Locale)) {
-            valuePropositionsMap.set(
-                locale,
-                this.extractBulletListItemsService.extract(
-                    valuePropositionsTextMap.get(locale) ?? "",
-                )
-            )
-        }
-        const qnasTextMap = this.extract(
-            {
-                key: "QnA",
-                markdownMap,
-            },
-        )
-        const qnasMap = new Map<Locale, Array<MarkdownQnaItem>>()
-        for (const locale of Object.values(Locale)) {
-            qnasMap.set(
-                locale,
-                this.extractQnaItemsService.extract(
-                    {
-                        markdown: qnasTextMap.get(locale) ?? "",
-                    },
+                this.extractJsonFromMdService.extract(
+                    readMdFileOrDefault(`${path}/${locale}.md`)
                 )
             )
         }
@@ -182,13 +89,16 @@ export class CourseParserService {
         return {
             id: courseId,
             defaultLocale: Locale.En,
-            title: titleMap.get(Locale.En) ?? "",
-            description: descriptionMap.get(Locale.En) ?? "",
+            title: jsonMap.get(Locale.En)?.title ?? "",
+            description: jsonMap.get(Locale.En)?.description ?? "",
             displayId,
-            originalPrice: dataJson.originalPrice ?? 0,
+            originalPrice: this.coerceMdScalarService.toRequiredNumber(
+                jsonMap.get(Locale.En)?.originalPrice,
+                0,
+            ),
             orderIndex: courseIndex,
             livestreamSessions: (
-                dataJson.livestreamSessions ?? []
+                jsonMap.get(Locale.En)?.livestreamSessions ?? []
             ).map((livestreamSession) => {
                 return {
                     id: this.livestreamSessionIdFactoryService.generate(
@@ -208,9 +118,9 @@ export class CourseParserService {
                     translations: [],
                 }
             }),
-            coverImageUrl: dataJson.coverImageUrl?.trim(),
+            coverImageUrl: jsonMap.get(Locale.En)?.coverImageUrl?.trim(),
             pricingPhases: (
-                dataJson.pricingPhases ?? []).map(
+                jsonMap.get(Locale.En)?.pricingPhases ?? []).map(
                 (phase) => {
                     return {
                         id: this.pricingPhaseIdFactoryService.generate(
@@ -221,13 +131,17 @@ export class CourseParserService {
                         ),
                         phase: phase.phase as PricingPhase,
                         orderIndex: phase.orderIndex,
-                        price: phase.price ?? 0,
-                        slotAvailable: phase.slotAvailable ?? 0,
+                        price: this.coerceMdScalarService.toNullableNumericColumn(
+                            phase.price,
+                        ),
+                        slotAvailable: this.coerceMdScalarService.toNullableNumericColumn(
+                            phase.slotAvailable,
+                        ),
                     }
                 },
             ),
             prerequisites: (
-                prerequisitesItemsMap.get(Locale.En) ?? []
+                jsonMap.get(Locale.En)?.prerequisites ?? []
             ).map(
                 (
                     {
@@ -242,15 +156,15 @@ export class CourseParserService {
                         },
                     )
                     const translations = Array.from(
-                        prerequisitesItemsMap.entries())
+                        jsonMap.entries())
                         .map(
                             (
                                 [
                                     locale,
-                                    items
+                                    course
                                 ]
-                            ) => items
-                                .filter((item) => item.orderIndex === orderIndex)
+                            ) => (course.prerequisites ?? [])
+                                .filter((prerequisite) => prerequisite.orderIndex === orderIndex)
                                 .map<DeepPartial<PrerequisiteTranslationEntity>>(
                                     (item) => (
                                         {
@@ -276,7 +190,7 @@ export class CourseParserService {
                     }
                 },
             ),
-            valuePropositions: (valuePropositionsMap.get(Locale.En) ?? []).map(
+            valuePropositions: (jsonMap.get(Locale.En)?.valuePropositions ?? []).map(
                 (
                     {
                         text,
@@ -289,21 +203,25 @@ export class CourseParserService {
                             valuePropositionIndex: orderIndex,
                         },
                     )
-                    const translations = Array.from(valuePropositionsMap.entries())
+                    const translations = Array.from(jsonMap.entries())
                         .map((
                             [
                                 locale,
-                                items
+                                course
                             ]
-                        ) => items
-                            .filter((item) => item.orderIndex === orderIndex)
+                        ) => (course.valuePropositions ?? [])
+                            .filter((valueProposition) => valueProposition.orderIndex === orderIndex)
                             .map<DeepPartial<ValuePropositionTranslationEntity>>(
-                                (item) => ({
-                                    valuePropositionId,
-                                    locale,
-                                    value: item.text,
-                                    field: "text",
-                                })))
+                                (valueProposition) => (
+                                    {
+                                        valuePropositionId,
+                                        locale,
+                                        value: valueProposition.text,
+                                        field: "text",
+                                    }
+                                )
+                            )
+                        )
                         .flat()
                     return {
                         course: {
@@ -317,7 +235,7 @@ export class CourseParserService {
                     }
                 },
             ),
-            qnas: (qnasMap.get(Locale.En) ?? []).map(
+            qnas: (jsonMap.get(Locale.En)?.qnas ?? []).map(
                 (
                     {
                         question,
@@ -332,28 +250,30 @@ export class CourseParserService {
                         },
                     )
                     const translations = Array.from(
-                        qnasMap.entries())
+                        jsonMap.entries())
                         .map((
                             [locale,
-                                items]
-                        ) => items
-                            .filter((item) => item.orderIndex === orderIndex)
+                                course
+                            ]
+                        ) => (course.qnas ?? [])
+                            .filter((qna) => qna.orderIndex === orderIndex)
                             .map<Array<DeepPartial<QnaTranslationEntity>>>(
-                                (item) => (
+                                (qna) => (
                                     [{
                                         qnaId,
                                         locale,
                                         field: "question",
-                                        value: item.question,
+                                        value: qna.question,
                                     },
                                     {
                                         qnaId,
                                         locale,
                                         field: "answer",
-                                        value: item.answer,
+                                        value: qna.answer,
                                     }
                                     ]
-                                ))
+                                )
+                            )
                         )
                         .flat()
                         .flat()
@@ -379,7 +299,7 @@ export class CourseParserService {
                                 courseId,
                                 locale,
                                 field: "title",
-                                value: titleMap.get(locale) ?? "",
+                                value: jsonMap.get(locale)?.title ?? "",
                             }
                         )
                         translations.push(
@@ -387,7 +307,7 @@ export class CourseParserService {
                                 courseId,
                                 locale,
                                 field: "description",
-                                value: descriptionMap.get(locale) ?? "",
+                                value: jsonMap.get(locale)?.description ?? "",
                             }
                         )
                     }

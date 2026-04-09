@@ -629,13 +629,13 @@ export const envConfig = () => ({
         processGitSubmission: {
             maxSteps: parseEnvInt({
                 key: "JOB_PROCESS_GIT_SUBMISSION_MAX_STEPS",
-                defaultValue: 3,
+                defaultValue: 2,
             }),
         },
         /** Job stalled configuration. */
         stalled: {
-            threshold: parseEnvMs({
-                key: "JOB_STALLED_RETRY_THRESHOLD",
+            thresholdMs: parseEnvMs({
+                key: "JOB_STALLED_RETRY_THRESHOLD_MS",
                 defaultValue: "10s",
             }),
             intervalMs: parseEnvMs({
