@@ -18,6 +18,9 @@ import type {
     CdnSynchronizerCourseSyncFailedMaxRetriesReachedMessage,
     CdnSynchronizerCourseSyncedSuccessfullyMessage,
     CdnSynchronizerChallengeRuntimeSyncFailedMessage,
+    CdnSynchronizerCourseRuntimeSyncFailedMessage,
+    CdnSynchronizerLessonVideoRuntimeSyncFailedMessage,
+    CdnSynchronizerModuleRuntimeSyncFailedMessage,
 } from "./types"
 
 /** Map of Winston log names to level, Loki flag, and message type. */
@@ -136,5 +139,29 @@ export const configMap = {
         console: true,
         messageType: {
         } as CdnSynchronizerChallengeRuntimeSyncFailedMessage,
+    },
+    [WinstonLog.CdnSynchronizerCourseRuntimeSyncFailed]: {
+        name: WinstonLog.CdnSynchronizerCourseRuntimeSyncFailed,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as CdnSynchronizerCourseRuntimeSyncFailedMessage,
+    },
+    [WinstonLog.CdnSynchronizerLessonVideoRuntimeSyncFailed]: {
+        name: WinstonLog.CdnSynchronizerLessonVideoRuntimeSyncFailed,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as CdnSynchronizerLessonVideoRuntimeSyncFailedMessage,
+    },
+    [WinstonLog.CdnSynchronizerModuleRuntimeSyncFailed]: {
+        name: WinstonLog.CdnSynchronizerModuleRuntimeSyncFailed,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as CdnSynchronizerModuleRuntimeSyncFailedMessage,
     },
 }

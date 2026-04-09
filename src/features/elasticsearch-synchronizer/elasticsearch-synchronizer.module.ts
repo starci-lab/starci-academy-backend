@@ -12,6 +12,9 @@ import {
     imports: [
         SyncModule,
     ],
+    exports: [
+        SyncModule,
+    ],
 })
 export class ElasticsearchSynchronizerModule extends ConfigurableModuleClass {}
 

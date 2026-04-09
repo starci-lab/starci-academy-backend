@@ -132,10 +132,16 @@ export const envConfig = () => ({
         /** Cdn Synchronizer service configuration. */
         cdnSynchronizer: {
             syncIntervalMs: {
-                courses: parseEnvMs({
-                    key: "CDN_SYNCHRONIZER_COURSES_SYNC_INTERVAL_MS",
-                    defaultValue: "10s",
-                }),
+                courses: {
+                    factory: parseEnvMs({
+                        key: "CDN_SYNCHRONIZER_COURSES_FACTORY_SYNC_INTERVAL_MS",
+                        defaultValue: "10s",
+                    }),
+                    runtime: parseEnvMs({
+                        key: "CDN_SYNCHRONIZER_COURSES_RUNTIME_SYNC_INTERVAL_MS",
+                        defaultValue: "10s",
+                    }),
+                },
                 challenges: {
                     factory: parseEnvMs({
                         key: "CDN_SYNCHRONIZER_CHALLENGES_FACTORY_SYNC_INTERVAL_MS",
@@ -143,7 +149,27 @@ export const envConfig = () => ({
                     }),
                     runtime: parseEnvMs({
                         key: "CDN_SYNCHRONIZER_CHALLENGES_RUNTIME_SYNC_INTERVAL_MS",
-                        defaultValue: "1s",
+                        defaultValue: "10s",
+                    }),
+                },
+                lessons: {
+                    factory: parseEnvMs({
+                        key: "CDN_SYNCHRONIZER_LESSONS_FACTORY_SYNC_INTERVAL_MS",
+                        defaultValue: "10s",
+                    }),
+                    runtime: parseEnvMs({
+                        key: "CDN_SYNCHRONIZER_LESSONS_RUNTIME_SYNC_INTERVAL_MS",
+                        defaultValue: "10s",
+                    }),
+                },
+                modules: {
+                    factory: parseEnvMs({
+                        key: "CDN_SYNCHRONIZER_MODULES_FACTORY_SYNC_INTERVAL_MS",
+                        defaultValue: "10s",
+                    }),
+                    runtime: parseEnvMs({
+                        key: "CDN_SYNCHRONIZER_MODULES_RUNTIME_SYNC_INTERVAL_MS",
+                        defaultValue: "10s",
                     }),
                 },
             },
@@ -173,11 +199,11 @@ export const envConfig = () => ({
                 }),
                 challenges: parseEnvMs({
                     key: "ELASTICSEARCH_SYNCHRONIZER_CHALLENGES_SYNC_INTERVAL_MS",
-                    defaultValue: "30s",
+                    defaultValue: "5m",
                 }),
                 contents: parseEnvMs({
                     key: "ELASTICSEARCH_SYNCHRONIZER_CONTENTS_SYNC_INTERVAL_MS",
-                    defaultValue: "30s",
+                    defaultValue: "5m",
                 }),
             },
         },
