@@ -3,6 +3,8 @@ import type {
 } from "@modules/bullmq"
 import {
     InjectPrimaryPostgreSQLEntityManager,
+    InjectQdrantClient,
+    SubmissionFeedbackEntity,
     UserChallengeSubmissionEntity,
 } from "@modules/databases"
 import {
@@ -12,6 +14,7 @@ import {
     Injectable,
 } from "@nestjs/common"
 import type {
+    DeepPartial,
     EntityManager,
 } from "typeorm"
 import {
@@ -38,6 +41,9 @@ import {
 import {
     ProcessGitSubmissionGradeStepService,
 } from "./process-git-submission-grade-step.service"
+import {
+    QdrantClient,
+} from "@qdrant/qdrant-js"
 
 /**
  * Step 2: persist grade and feedback to `user_challenge_submissions`.
@@ -54,6 +60,8 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
         private readonly winstonService: WinstonService,
         private readonly dayjsService: DayjsService,
         private readonly processGitSubmissionGradeStepService: ProcessGitSubmissionGradeStepService,
+        @InjectQdrantClient()
+        private readonly qdrantClient: QdrantClient,
     ) {
         super()
     }
@@ -108,29 +116,60 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
         if (
             !grade
             || typeof grade.score !== "number"
-            || !Array.isArray(grade.feedbacks)
+            || typeof grade.shortFeedback !== "string" && grade.shortFeedback !== null
+            || !Array.isArray(grade.submissionFeedbacks)
         ) {
             throw new MissingOrInvalidGradeExecutionResultException({
                 grade,
             })
         }
-        const feedbackText =
-            grade.feedbacks.length
-                ? grade.feedbacks.join("\n\n")
-                : null
-        await this.entityManager.update(
-            UserChallengeSubmissionEntity,
-            {
-                id: context.payload.userChallengeSubmissionId,
-                userId: context.payload.userId,
-            },
-            {
-                score: grade.score,
-                processed: true,
-                processedAt: this.dayjsService.now().toDate(),
-                feedback: feedbackText,
-            },
-        )
+        const feedbacks: Array<DeepPartial<SubmissionFeedbackEntity>> = grade.submissionFeedbacks
+            .map((feedback, index) => ({
+                message: feedback.message,
+                detail: feedback.detail?.trim() || null,
+                location: feedback.location?.trim() || null,
+                suggestion: feedback.suggestion?.trim() || null,
+                severity: feedback.severity,
+                orderIndex: index,
+                userChallengeSubmission: {
+                    id: context.payload.userChallengeSubmissionId,
+                },
+            })
+            )
+        // Update scalar fields
+        await this.entityManager.transaction(
+            async (entityManager) => {
+                // Update scalar fields
+                await entityManager.update(
+                    UserChallengeSubmissionEntity,
+                    {
+                        id: context.payload.userChallengeSubmissionId,
+                    },
+                    {
+                        score: grade.score,
+                        processed: true,
+                        processedAt: this.dayjsService.now().toDate(),
+                        shortFeedback: grade.shortFeedback,
+                    },
+                )
+
+                // Replace structured feedback rows
+                await entityManager.delete(
+                    SubmissionFeedbackEntity,
+                    {
+                        userChallengeSubmission: {
+                            id: context.payload.userChallengeSubmissionId,
+                        },
+                    },
+                )
+                // Replace structured feedback rows
+                if (feedbacks.length) {
+                    await entityManager.save(
+                        SubmissionFeedbackEntity,
+                        feedbacks,
+                    )
+                }
+            })
         return {
         }
     }

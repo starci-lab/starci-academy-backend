@@ -5,6 +5,7 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
     InjectQdrantClient,
     ModelProvider,
+    SubmissionFeedbackSeverity,
 } from "@modules/databases"
 import {
     JobActionService,
@@ -25,6 +26,7 @@ import {
 import type {
     ExtendedProcessGitSubmissionContext,
     ProcessGitSubmissionGradeStepExecuteResult,
+    ProcessGitSubmissionGradeStepSubmissionFeedback,
 } from "../types"
 import {
     JobExtendedContext,
@@ -62,6 +64,7 @@ import type {
 import {
     MountStorageService,
 } from "@modules/filesystem"
+import template from "./template.json"
 
 /**
  * Load repo docs → split → vectorize → grade the submission.
@@ -189,11 +192,11 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                     prompt,
                     index,
                 ) => {
-                    const label = prompt.title
+                    const title = prompt.title
                         ? ` (${prompt.title})`
                         : ""
                     const body = (prompt.promptText ?? "").trim()
-                    return `### Extra criterion ${index + 1}${label}\n${body || "(empty)"}`
+                    return `### Extra criterion ${index + 1}${title}\n${body || "(empty)"}`
                 },
             )
             .join("\n\n")
@@ -223,21 +226,31 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             "",
             "Respond with JSON only — no markdown fences, no extra text.",
             "Shape:",
-            "{\"score\": <integer from 1 to 20>, \"feedbacks\": [\"<short actionable feedback>\"]}",
+            `{"score": <integer from 1 to ${submissionScore}>, "shortFeedback": "<one short sentence>", "submissionFeedbacks": [{"message": "...", "detail": "...", "severity": "low|medium|high", "location": "file.ts:line", "suggestion": "..."}]}`,
+            "",
+            "Example output (copy the structure, replace content):",
+            JSON.stringify(template),
             "Rules:",
-            "- score must be a whole number from 1 (poor) to 20 (excellent).",
-            "- feedbacks must be an array of concise, specific, actionable comments.",
-            "- every feedback item must be grounded only in the submitted repository excerpt.",
+            `- score must be a whole number from 1 (poor) to ${submissionScore} (excellent).`,
+            "- shortFeedback must be a single short sentence (no lists).",
+            "- submissionFeedbacks must be an array of structured feedback items aligned with the excerpt; 2 to 6 items.",
+            "- each submissionFeedbacks item must include: message, severity; detail/location/suggestion are optional.",
+            "- every submissionFeedbacks item must be grounded only in the submitted repository excerpt.",
+            "- output must be STRICT JSON (double quotes only).",
+            "- do not include trailing commas.",
+            "- do not include unescaped newlines inside strings; use \\n if needed.",
+            "- if you include double quotes inside strings, they must be escaped as \\\".",
             "- do not invent files, features, or behaviors not present in the excerpt.",
-            "- return 2 to 5 feedback items.",
-            "- each feedback item should be a single sentence when possible.",
+            "- keep submissionFeedbacks messages actionable and specific.",
         ].filter(Boolean).join("\n")
-
+        console.log(systemText)
+        
         const humanText = [
             "Below is an excerpt of files loaded from the submitted GitHub repository (may be truncated):",
             "",
             sourceExcerpt || "(empty repository excerpt)",
         ].join("\n")
+
 
         const model = this.modelService.get({
             model:
@@ -258,7 +271,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         const raw = (typeof response.content === "string"
             ? response.content
             : String(response.content)) as string
-
+        console.log(raw)
         return this.parseGradeFromModelText(raw)
     }
 
@@ -316,27 +329,39 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
     private parseGradeFromModelText(
         text: string,
     ): ProcessGitSubmissionGradeStepExecuteResult {
-        const brace = text.match(/\{[\s\S]*?\}/)
-
-        if (brace) {
+        const first = text.indexOf("{")
+        const last = text.lastIndexOf("}")
+        if (
+            first !== -1 &&
+            last !== -1 &&
+            last > first
+        ) {
             try {
-                const parsed = JSON.parse(brace[0]) as {
+                const jsonText = text.slice(
+                    first,
+                    last + 1,
+                )
+                const parsed = JSON.parse(jsonText) as {
                     score?: unknown
-                    feedbacks?: unknown
+                    shortFeedback?: unknown
+                    submissionFeedbacks?: unknown
                 }
 
                 const score = this.parseScore(parsed.score)
-                const feedbacks = this.parseFeedbacks(parsed.feedbacks)
+                const shortFeedback = this.parseShortFeedback(parsed.shortFeedback)
+                const submissionFeedbacks = this.parseSubmissionFeedbacks(
+                    parsed.submissionFeedbacks,
+                )
 
                 return {
                     score,
-                    feedbacks,
+                    shortFeedback,
+                    submissionFeedbacks,
                 }
             } catch {
                 // fall through
             }
         }
-
         throw new ParsingScoreFromModelTextException({
             text,
         })
@@ -370,28 +395,73 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
     }
 
     /**
-     * Parse the feedbacks from the model text.
-     * @param value - The value to parse the feedbacks from.
-     * @returns The parsed feedbacks.
+     * Parse the short feedback from the model text.
+     * @param value - The value to parse the short feedback from.
+     * @returns The parsed short feedback.
      */
-    private parseFeedbacks(
+    private parseShortFeedback(
         value: unknown,
-    ): Array<string> {
-        if (Array.isArray(value)) {
-            return value
-                .filter((item): item is string => typeof item === "string")
-                .map((item) => item.trim())
-                .filter(Boolean)
+    ): string | null {
+        if (typeof value !== "string") {
+            return null
         }
+        const t = value.trim()
+        return t ? t : null
+    }
 
-        if (typeof value === "string") {
-            const trimmed = value.trim()
-            return trimmed
-                ? [trimmed]
-                : []
+    /**
+     * Parse the submission feedbacks from the model text.
+     * @param value - The value to parse the submission feedbacks from.
+     * @returns The parsed submission feedbacks.
+     */
+    private parseSubmissionFeedbacks(
+        value: unknown,
+    ): Array<ProcessGitSubmissionGradeStepSubmissionFeedback> {
+        if (!Array.isArray(value)) {
+            return []
         }
-
-        return []
+        const items = value
+            .filter((v): v is Record<string, unknown> => (
+                typeof v === "object" && v !== null && !Array.isArray(v)
+            ))
+            .map((v) => {
+                const message =
+                    typeof v.message === "string"
+                        ? v.message.trim()
+                        : ""
+                if (!message) {
+                    return null
+                }
+                const severityRaw =
+                    typeof v.severity === "string"
+                        ? v.severity.trim().toLowerCase()
+                        : SubmissionFeedbackSeverity.Medium
+                const severity: SubmissionFeedbackSeverity =
+                    severityRaw === SubmissionFeedbackSeverity.Low || severityRaw === SubmissionFeedbackSeverity.High
+                        ? severityRaw
+                        : SubmissionFeedbackSeverity.Medium
+                const detail =
+                    typeof v.detail === "string"
+                        ? v.detail.trim()
+                        : undefined
+                const location =
+                    typeof v.location === "string"
+                        ? v.location.trim()
+                        : undefined
+                const suggestion =
+                    typeof v.suggestion === "string"
+                        ? v.suggestion.trim()
+                        : undefined
+                return {
+                    message,
+                    severity,
+                    detail: detail || undefined,
+                    location: location || undefined,
+                    suggestion: suggestion || undefined,
+                }
+            })
+            .filter((x): x is NonNullable<typeof x> => x !== null)
+        return items
     }
 
     /**

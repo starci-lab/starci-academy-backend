@@ -54,6 +54,7 @@ import {
     UserEntity,
     ValuePropositionEntity,
     ValuePropositionTranslationEntity,
+    SubmissionFeedbackEntity,
 } from "./entities"
 import {
     SeedersModule 
@@ -158,6 +159,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     ChallengeSubmissionEntity,
                                     ChallengeSubmissionTranslationEntity,
                                     UserChallengeSubmissionEntity,
+                                    SubmissionFeedbackEntity,
                                 ],
                                 synchronize,
                                 logging: false,
@@ -225,6 +227,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         ChallengeSubmissionEntity,
                         ChallengeSubmissionTranslationEntity,
                         UserChallengeSubmissionEntity,
+                        SubmissionFeedbackEntity,
                     ], 
                     POSTGRESQL_PRIMARY
                 ),

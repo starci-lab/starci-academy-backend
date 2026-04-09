@@ -21,8 +21,12 @@ import {
     AsyncService, 
     ReadinessWatcherFactoryService 
 } from "@modules/mixin"
-import { configMap } from "./config"
-import { SearchParam } from "./types"
+import {
+    configMap 
+} from "./config"
+import {
+    SearchParam 
+} from "./types"
 
 /**
  * The service for the Elasticsearch.
@@ -51,7 +55,7 @@ export class ElasticsearchService implements OnModuleInit {
      * @returns Index name.
      */
     private indicateName(entity: string) {
-      return configMap[entity].indices;
+        return configMap[entity].indices
     }
 
     /**
@@ -100,52 +104,55 @@ export class ElasticsearchService implements OnModuleInit {
     /**
    * Index the entity.
    */
-  async indexEntity<T extends ObjectLiteral>(entity: T, data: ObjectLiteral) {
-    await this.client.index({
-      index: this.indicateName(entity.name),
-      id: data.id,
-      body: data,
-    });
-  }
+    async indexEntity<T extends ObjectLiteral>(entity: T, data: ObjectLiteral) {
+        await this.client.index({
+            index: this.indicateName(entity.name),
+            id: data.id,
+            body: data,
+        })
+    }
 
     /**
    * Index the entities.
    */
-  async indexEntities<T extends ObjectLiteral>(
-    entity: T,
-    data: Array<ObjectLiteral>,
-  ) {
-    await this.client.bulk({
-      body: data.map((data) => ({
-        index: {
-          _index: this.indicateName(entity.name),
-          _id: data.id,
-        },
-        document: data,
-      })),
-    });
-  }
-
-  async search<T>(
-    entityName: string, 
-    params: SearchParam
-  ) {
-    const response = await this.client.search({
-      index: this.indicateName(entityName),
-      from: params.from,
-      size: params.size,
-      query: params.query || { match_all: {} },
-      sort: params.sort,
-    });
-
-    const total = response.hits.total;
-    const count = typeof total === 'number' ? total : total?.value || 0;
-
-    const data = response.hits.hits.map((hit) => hit._source as T)
-    
-    return {
-      data,
-      count,
+    async indexEntities<T extends ObjectLiteral>(
+        entity: T,
+        data: Array<ObjectLiteral>,
+    ) {
+        await this.client.bulk({
+            body: data.map((data) => ({
+                index: {
+                    _index: this.indicateName(entity.name),
+                    _id: data.id,
+                },
+                document: data,
+            })),
+        })
     }
-  }
+
+    async search<T>(
+        entityName: string, 
+        params: SearchParam
+    ) {
+        const response = await this.client.search({
+            index: this.indicateName(entityName),
+            from: params.from,
+            size: params.size,
+            query: params.query || {
+                match_all: {
+                } 
+            },
+            sort: params.sort,
+        })
+
+        const total = response.hits.total
+        const count = typeof total === "number" ? total : total?.value || 0
+
+        const data = response.hits.hits.map((hit) => hit._source as T)
+    
+        return {
+            data,
+            count,
+        }
+    }
 }

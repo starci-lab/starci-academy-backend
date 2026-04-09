@@ -8,6 +8,7 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
+    OneToMany,
     RelationId,
 } from "typeorm"
 import {
@@ -19,6 +20,9 @@ import {
 import {
     ChallengeSubmissionEntity,
 } from "./challenge-submission.entity"
+import {
+    SubmissionFeedbackEntity,
+} from "./submission-feedback.entity"
 
 /**
  * Join table between user and a challenge submission.
@@ -177,7 +181,7 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
     @Field(
         () => String,
         {
-            description: "Grading feedback from the automated review.",
+            description: "Short summary message for the grading feedback.",
             nullable: true,
         },
     )
@@ -186,7 +190,23 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
         type: "text",
         nullable: true,
     })
-        feedback: string | null
+        shortFeedback: string | null
+
+    @Field(
+        () => [SubmissionFeedbackEntity],
+        {
+            nullable: true,
+            description: "Structured feedback items for this submission.",
+        },
+    )
+    @OneToMany(
+        () => SubmissionFeedbackEntity,
+        (submissionFeedback: SubmissionFeedbackEntity) => submissionFeedback.userChallengeSubmission,
+        {
+            cascade: true,
+        },
+    )
+        submissionFeedbacks: Array<SubmissionFeedbackEntity>
 }
 
 

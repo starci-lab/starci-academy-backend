@@ -35,7 +35,7 @@ export class ChallengeSubmissionPromptEntity extends UuidAbstractEntity {
      * Title / label for this prompt.
      */
     @Column({
-        name: "title_en",
+        name: "title",
         type: "varchar",
         length: 200,
         default: "",
