@@ -1,29 +1,24 @@
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     LessonVideoEntity,
-    Locale,
+    Locale
 } from "@modules/databases"
-import {
-    Injectable,
-} from "@nestjs/common"
-import type {
-    EntityManager,
-    FindOptionsOrder,
-} from "typeorm"
-import {
-    LessonVideosRequest,
-    LessonVideosResponseData,
-    LessonVideosSortBy,
-} from "./graphql-types"
+import { ElasticsearchQueryBuilder, ElasticsearchService } from "@modules/elasticsearch"
 import {
     envConfig,
 } from "@modules/env"
 import {
-    LessonVideoTransformerService,
-} from "../../../utils"
+    Injectable,
+} from "@nestjs/common"
 import {
     ExecuteParams,
 } from "../../../../types"
+import {
+    LessonVideoTransformerService,
+} from "../../../utils"
+import {
+    LessonVideosRequest,
+    LessonVideosResponseData
+} from "./graphql-types"
 
 /**
  * Lists module lesson videos from primary PostgreSQL for GraphQL.
@@ -31,9 +26,8 @@ import {
 @Injectable()
 export class LessonVideosService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
         private readonly lessonVideoTransformer: LessonVideoTransformerService,
+        private readonly elasticsearch: ElasticsearchService
     ) {}
 
     async execute(
@@ -44,33 +38,34 @@ export class LessonVideosService {
                     limit = envConfig().services.api.pagination.page.limit,
                     pageNumber = 0,
                     sorts,
+                    search
                 },
             },
             locale,
         }: ExecuteParams<LessonVideosRequest>,
     ): Promise<LessonVideosResponseData> {
-        const order: FindOptionsOrder<LessonVideoEntity> = {
-        }
-        for (const sort of sorts) {
-            order[sort.by as LessonVideosSortBy] = sort.order
-        }
-        const [
-            rows,
-            count,
-        ] = await this.entityManager.findAndCount(
-            LessonVideoEntity,
-            {
-                where: {
-                    module: {
-                        id: moduleId,
+        const sort = sorts.map(s => ({
+            [s.by]: {order: s.order.toLowerCase()},
+        }))
+        const query = ElasticsearchQueryBuilder.buildSearchQuery({
+            filters: [
+                {
+                    term: {
+                        "moduleId.keyword": moduleId,
                     },
                 },
-                order,
-                relations: {
-                    translations: true,
-                },
-                take: limit,
-                skip: pageNumber * limit,
+            ],
+            search,
+            searchFields: ["title^3", "description", "caption"],
+        });
+
+        const { data: rows, count } = await this.elasticsearch.search<LessonVideoEntity>(
+            LessonVideoEntity.name,
+            {
+                query,
+                sort,
+                from: pageNumber * limit,
+                size: limit,
             },
         )
         for (const lessonVideo of rows) {

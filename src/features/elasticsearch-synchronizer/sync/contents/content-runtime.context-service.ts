@@ -80,7 +80,10 @@ export class ContentRuntimeContextService {
           },
         },
         select: {
-          id: true
+          id: true,
+          alias: true,
+          url: true,
+          orderIndex: true
         }
       });
       const hydratedReferences = references?.map((reference) =>

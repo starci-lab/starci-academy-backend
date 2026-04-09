@@ -1,32 +1,27 @@
 import {
     ContentEntity,
-    ContentReferenceEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    Locale,
+    Locale
 } from "@modules/databases"
-import {
-    Injectable,
-} from "@nestjs/common"
-import type {
-    EntityManager,
-    FindOptionsOrder,
-} from "typeorm"
-import {
-    ContentsRequest,
-    ContentsResponseData,
-    ContentsSortBy,
-} from "./graphql-types"
+import { 
+    ElasticsearchQueryBuilder, 
+    ElasticsearchService 
+} from "@modules/elasticsearch"
 import {
     envConfig,
 } from "@modules/env"
 import {
-    ContentTransformerService,
-} from "../../../utils"
+    Injectable,
+} from "@nestjs/common"
 import {
     ExecuteParams,
 } from "../../../../types"
-import _ from "lodash"
-import { ElasticsearchService } from "@modules/elasticsearch"
+import {
+    ContentTransformerService,
+} from "../../../utils"
+import {
+    ContentsRequest,
+    ContentsResponseData
+} from "./graphql-types"
 
 /**
  * Lists module contents from primary PostgreSQL for GraphQL.
@@ -34,8 +29,6 @@ import { ElasticsearchService } from "@modules/elasticsearch"
 @Injectable()
 export class ContentsService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
         private readonly contentTransformer: ContentTransformerService,
         private readonly  elasticsearch: ElasticsearchService,
     ) {}
@@ -54,62 +47,42 @@ export class ContentsService {
             locale,
         }: ExecuteParams<ContentsRequest>,
     ): Promise<ContentsResponseData> {
-        const order: FindOptionsOrder<ContentEntity> = {
-        }
-        for (const sort of sorts) {
-            order[sort.by as ContentsSortBy] = sort.order
-        }
-        const [
-            contents,
-            count,
-        ] = await this.entityManager.findAndCount(
-            ContentEntity,
-            {
-                where: {
-                    module: {
-                        id: moduleId,
+        const sort = sorts.map(s => ({
+            [s.by]: {order: s.order.toLowerCase()},
+        }))
+        const query = ElasticsearchQueryBuilder.buildSearchQuery({
+            filters: [
+                {
+                    term: {
+                        "moduleId.keyword": moduleId,
                     },
                 },
-                order,
-                relations: {
-                    translations: true,
-                },
-                take: limit,
-                skip: pageNumber * limit,
+            ],
+            search,
+            searchFields: ["title^3", "description", "body"],
+        });
+
+        const { data, count } = await this.elasticsearch.search<ContentEntity>(
+            ContentEntity.name,
+            {
+                query,
+                sort,
+                from: pageNumber * limit,
+                size: limit,
             },
         )
-        const hydratedContents = _.cloneDeep(contents)
-        for (const hydratedContent of hydratedContents) {
-            const references = await this.entityManager.find(
-                ContentReferenceEntity,
-                {
-                    where: {
-                        content: {
-                            id: hydratedContent.id,
-                        },
-                        translations: {
-                            locale,
-                        },
-                    },
-                    relations: {
-                        translations: true,
-                    },
-                    order: {
-                        orderIndex: "ASC",
-                    },
-                },
-            )
-            const hydratedReferences = _.cloneDeep(references)
-            hydratedContent.references = hydratedReferences
-            this.contentTransformer.transform(
-                hydratedContent,
-                locale,
-                hydratedContent.defaultLocale ?? Locale.En,
-            )
+
+        for (const content of data) {
+          this.contentTransformer.transform(
+            content,
+            locale,
+            content.defaultLocale ?? Locale.En,
+          );
         }
+
         return {
             count,
-            data: hydratedContents,
+            data,
         }
     }
 }

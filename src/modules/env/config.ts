@@ -212,31 +212,31 @@ export const envConfig = () => ({
                 lessonVideos: {
                     factory: parseEnvMs({
                         key: "ELASTICSEARCH_SYNCHRONIZER_LESSON_VIDEOS_FACTORY_SYNC_INTERVAL_MS",
-                        defaultValue: "60m",
+                        defaultValue: "30s",
                     }),
                     runtime: parseEnvMs({
                         key: "ELASTICSEARCH_SYNCHRONIZER_LESSON_VIDEOS_RUNTIME_SYNC_INTERVAL_MS",
-                        defaultValue: "60m",
+                        defaultValue: "30s",
                     }),
                 },
                 challenges: {
                     factory: parseEnvMs({
                         key: "ELASTICSEARCH_SYNCHRONIZER_CHALLENGES_FACTORY_SYNC_INTERVAL_MS",
-                        defaultValue: "1m",
+                        defaultValue: "30s",
                     }),
                     runtime: parseEnvMs({
                         key: "ELASTICSEARCH_SYNCHRONIZER_CHALLENGES_RUNTIME_SYNC_INTERVAL_MS",
-                        defaultValue: "1m",
+                        defaultValue: "30s",
                     }),
                 },
                 contents: {
                     factory: parseEnvMs({
                         key: "ELASTICSEARCH_SYNCHRONIZER_CONTENTS_FACTORY_SYNC_INTERVAL_MS",
-                        defaultValue: "1m",
+                        defaultValue: "30s",
                     }),
                     runtime: parseEnvMs({
                         key: "ELASTICSEARCH_SYNCHRONIZER_CONTENTS_RUNTIME_SYNC_INTERVAL_MS",
-                        defaultValue: "1m",
+                        defaultValue: "30s",
                     }),
                 },
             },

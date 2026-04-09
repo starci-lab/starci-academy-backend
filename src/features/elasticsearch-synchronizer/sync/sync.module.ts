@@ -25,12 +25,12 @@ import {
     providers: [
         ChallengeFactorySyncService,
         ChallengeRuntimeContextService,
-        // CourseFactorySyncService,
-        // CourseRuntimeContextService,
-        // LessonVideoFactorySyncService,
-        // LessonVideoRuntimeContextService,
-        // ContentFactorySyncService,
-        // ContentRuntimeContextService,
+        CourseFactorySyncService,
+        CourseRuntimeContextService,
+        LessonVideoFactorySyncService,
+        LessonVideoRuntimeContextService,
+        ContentFactorySyncService,
+        ContentRuntimeContextService,
     ],
 })
 export class SyncModule extends ConfigurableModuleClass {}

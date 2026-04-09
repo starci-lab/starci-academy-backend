@@ -21,6 +21,15 @@ import type {
 import type {
     ExecuteParams,
 } from "../../../../types"
+import { 
+    S3NameResolverService, 
+    S3Provider, 
+    S3ReadService, 
+    UploadPayload} from "@modules/s3"
+import { 
+    InjectSuperJson 
+} from "@modules/mixin"
+import SuperJSON from "superjson"
 
 /**
  * Loads lesson video shell data (no translations — fetch those by id).
@@ -28,9 +37,11 @@ import type {
 @Injectable()
 export class LessonVideoQueryService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
         private readonly lessonVideoTransformer: LessonVideoTransformerService,
+        private readonly s3ReadService: S3ReadService,
+        private readonly s3NameResolverService: S3NameResolverService,
+        @InjectSuperJson()
+        private readonly superJson: SuperJSON,
     ) {}
 
     /**
@@ -46,29 +57,27 @@ export class LessonVideoQueryService {
             locale,
         }: ExecuteParams<LessonVideoRequest>,
     ): Promise<LessonVideoEntity> {
-        const lessonVideo = await this.entityManager.findOne(
-            LessonVideoEntity,
-            {
-                where: {
-                    id: request.id,
-                },
-                relations: {
-                    translations: true,
-                },
-            },
-        )
-        if (!lessonVideo) {
+        const objectKey = this.s3NameResolverService.lessonVideo(request.id)
+
+        const cdnPayload = await this.s3ReadService.json<UploadPayload>({
+            key: objectKey,
+            provider: S3Provider.Minio,
+        }).catch(() => null)
+
+        if (!cdnPayload) {
             throw new LessonVideoNotFoundException(
                 {
                     id: request.id,
                 },
             )
         }
+
+        const hydratedLessonVideo = this.superJson.parse<LessonVideoEntity>(cdnPayload.data)
         this.lessonVideoTransformer.transform(
-            lessonVideo,
+            hydratedLessonVideo,
             locale,
-            lessonVideo.defaultLocale ?? Locale.En,
+            hydratedLessonVideo.defaultLocale ?? Locale.En,
         )
-        return lessonVideo
+        return hydratedLessonVideo
     }
 }

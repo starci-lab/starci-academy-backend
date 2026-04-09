@@ -1,27 +1,32 @@
 import {
     ContentEntity,
-    ContentReferenceEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    Locale,
+    Locale
 } from "@modules/databases"
 import {
     ContentNotFoundException,
 } from "@modules/exceptions"
 import {
+    InjectSuperJson
+} from "@modules/mixin"
+import {
+    S3NameResolverService,
+    S3Provider,
+    S3ReadService,
+    UploadPayload
+} from "@modules/s3"
+import {
     Injectable,
 } from "@nestjs/common"
+import SuperJSON from "superjson"
+import type {
+    ExecuteParams,
+} from "../../../../types"
 import {
     ContentTransformerService,
 } from "../../../utils"
 import type {
-    EntityManager,
-} from "typeorm"
-import type {
     ContentRequest,
 } from "./graphql-types"
-import type {
-    ExecuteParams,
-} from "../../../../types"
 
 /**
  * Service for querying content.
@@ -29,9 +34,11 @@ import type {
 @Injectable()
 export class ContentQueryService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
         private readonly contentTransformer: ContentTransformerService,
+        private readonly s3ReadService: S3ReadService,
+        private readonly s3NameResolverService: S3NameResolverService,
+        @InjectSuperJson()
+        private readonly superJson: SuperJSON,
     ) {}
 
     /**
@@ -47,45 +54,26 @@ export class ContentQueryService {
             locale,
         }: ExecuteParams<ContentRequest>,
     ): Promise<ContentEntity> {
-        const content = await this.entityManager.findOne(
-            ContentEntity,
-            {
-                where: {
-                    id: request.id,
-                },
-                relations: {
-                    translations: true,
-                },
-            },
-        )
-        if (!content) {
+        const objectKey = this.s3NameResolverService.content(request.id)
+        const cdnPayload = await this.s3ReadService.json<UploadPayload>({
+            key: objectKey,
+            provider: S3Provider.Minio,
+        }).catch(() => null)
+
+        if (!cdnPayload) {
             throw new ContentNotFoundException(
                 {
                     id: request.id,
                 },
             )
         }
-        content.references = await this.entityManager.find(
-            ContentReferenceEntity,
-            {
-                where: {
-                    content: {
-                        id: content.id,
-                    },
-                },
-                relations: {
-                    translations: true,
-                },
-                order: {
-                    orderIndex: "ASC",
-                },
-            },
-        )
+
+        const hydratedContent = this.superJson.parse<ContentEntity>(cdnPayload.data)
         this.contentTransformer.transform(
-            content,
+            hydratedContent,
             locale,
-            content.defaultLocale ?? Locale.En,
+            hydratedContent.defaultLocale ?? Locale.En,
         )
-        return content
+        return hydratedContent
     }
 }

@@ -1,31 +1,27 @@
 import {
     ChallengeEntity,
-    ChallengeStepEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    Locale,
+    Locale
 } from "@modules/databases"
 import {
-    Injectable,
-} from "@nestjs/common"
-import type {
-    EntityManager,
-    FindOptionsOrder,
-} from "typeorm"
-import {
-    ChallengesRequest,
-    ChallengesResponseData,
-    ChallengesSortBy,
-} from "./graphql-types"
+    ElasticsearchQueryBuilder,
+    ElasticsearchService
+} from "@modules/elasticsearch"
 import {
     envConfig,
 } from "@modules/env"
 import {
-    ChallengeTransformerService,
-} from "../../../utils"
+    Injectable,
+} from "@nestjs/common"
 import {
     ExecuteParams,
 } from "../../../../types"
-import _ from "lodash"
+import {
+    ChallengeTransformerService,
+} from "../../../utils"
+import {
+    ChallengesRequest,
+    ChallengesResponseData
+} from "./graphql-types"
 
 /**
  * Lists module challenges from primary PostgreSQL for GraphQL.
@@ -33,9 +29,8 @@ import _ from "lodash"
 @Injectable()
 export class ChallengesService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
         private readonly challengeTransformer: ChallengeTransformerService,
+        private readonly elasticsearch: ElasticsearchService,
     ) {}
 
     async execute(
@@ -46,64 +41,48 @@ export class ChallengesService {
                     limit = envConfig().services.api.pagination.page.limit,
                     pageNumber = 0,
                     sorts,
+                    search,
                 },
             },
             locale,
         }: ExecuteParams<ChallengesRequest>,
     ): Promise<ChallengesResponseData> {
-        const order: FindOptionsOrder<ChallengeEntity> = {
-        }
-        for (const sort of sorts) {
-            order[sort.by as ChallengesSortBy] = sort.order
-        }
-        const [
-            challenges,
-            count,
-        ] = await this.entityManager.findAndCount(
-            ChallengeEntity,
-            {
-                where: {
-                    module: {
-                        id: moduleId,
+        const sort = sorts.map(s => ({
+            [s.by]: {order: s.order.toLowerCase()},
+        }))
+        const query = ElasticsearchQueryBuilder.buildSearchQuery({
+            filters: [
+                {
+                    term: {
+                        "moduleId.keyword": moduleId,
                     },
                 },
-                order,
-                relations: {
-                    translations: true,
-                },
-                take: limit,
-                skip: pageNumber * limit,
+            ],
+            search,
+            searchFields: ["title^3", "description", "requirements"],
+        });
+
+        const { data, count } = await this.elasticsearch.search<ChallengeEntity>(
+            ChallengeEntity.name,
+            {
+                query,
+                sort,
+                from: pageNumber * limit,
+                size: limit,
             },
         )
-        const hydratedChallenges = _.cloneDeep(challenges)
-        for (const hydratedChallenge of hydratedChallenges) {
-            const steps = await this.entityManager.find(
-                ChallengeStepEntity,
-                {
-                    where: {
-                        challenge: {
-                            id: hydratedChallenge.id,
-                        },
-                    },
-                    relations: {
-                        translations: true,
-                    },
-                    order: {
-                        orderIndex: "ASC",
-                    },
-                },
-            )
-            const hydratedSteps = _.cloneDeep(steps)
-            hydratedChallenge.steps = hydratedSteps
-            this.challengeTransformer.transform(
-                hydratedChallenge,
-                locale,
-                hydratedChallenge.defaultLocale ?? Locale.En,
-            )
+
+        for (const challenge of data) {
+          this.challengeTransformer.transform(
+            challenge,
+            locale,
+            challenge.defaultLocale ?? Locale.En,
+          );
         }
+
         return {
             count,
-            data: hydratedChallenges,
+            data,
         }
     }
 }

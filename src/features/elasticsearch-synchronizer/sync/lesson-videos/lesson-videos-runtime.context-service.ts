@@ -71,7 +71,6 @@ export class LessonVideoRuntimeContextService {
                 },
                 relations: {
                     translations: true,
-                    module: true,
                 },
             }
         )
