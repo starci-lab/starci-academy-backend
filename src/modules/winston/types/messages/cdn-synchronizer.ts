@@ -77,3 +77,14 @@ export interface CdnSynchronizerModuleRuntimeSyncFailedMessage {
     providers?: string[]
     context?: string
 }
+
+/** Message for when CDN synchronizer fails to sync a content runtime payload. */
+export interface CdnSynchronizerContentRuntimeSyncFailedMessage {
+    id: string
+    error: string
+    errorName?: string
+    errorStack?: string
+    objectKey?: string
+    providers?: string[]
+    context?: string
+}

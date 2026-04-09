@@ -195,10 +195,9 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             ]
         )
 
-        const raw =
-            typeof response.content === "string"
-                ? response.content
-                : String(response.content)
+        const raw = (typeof response.content === "string"
+            ? response.content
+            : String(response.content)) as string
 
         return this.parseGradeFromModelText(raw)
     }

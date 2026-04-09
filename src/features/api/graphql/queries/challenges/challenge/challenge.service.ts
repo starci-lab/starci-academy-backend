@@ -1,8 +1,5 @@
 import {
     ChallengeEntity,
-    ChallengeReferenceEntity,
-    ChallengeStepEntity,
-    InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
     ChallengeNotFoundException,
@@ -13,16 +10,22 @@ import {
 import {
     ChallengeTransformerService,
 } from "../../../utils"
-import {
-    type EntityManager,
-} from "typeorm"
 import type {
     ChallengeRequest,
 } from "./graphql-types"
 import type {
     ExecuteParams,
 } from "../../../../types"
-import _ from "lodash"
+import {
+    S3NameResolverService,
+    S3Provider,
+    S3ReadService,
+    UploadPayload,
+} from "@modules/s3"
+import {
+    InjectSuperJson,
+} from "@modules/mixin"
+import SuperJSON from "superjson"
 
 /**
  * Service for querying challenges.
@@ -30,9 +33,11 @@ import _ from "lodash"
 @Injectable()
 export class ChallengeQueryService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
         private readonly challengeTransformer: ChallengeTransformerService,
+        private readonly s3ReadService: S3ReadService,
+        private readonly s3NameResolverService: S3NameResolverService,
+        @InjectSuperJson()
+        private readonly superJson: SuperJSON,
     ) {}
 
     /**
@@ -48,65 +53,26 @@ export class ChallengeQueryService {
             locale,
         }: ExecuteParams<ChallengeRequest>,
     ): Promise<ChallengeEntity> {
-        const challenge = await this.entityManager.findOne(
-            ChallengeEntity,
-            {
-                where: {
-                    id: request.id,
-                },
-                relations: {
-                    translations: true,
-                },
-            },
-        )
-        if (!challenge) {
+        const objectKey = this.s3NameResolverService.challenge(request.id)
+
+        const cdnPayload = await this.s3ReadService.json<UploadPayload>({
+            key: objectKey,
+            provider: S3Provider.Minio,
+        }).catch(() => null)
+
+        if (!cdnPayload) {
             throw new ChallengeNotFoundException(
                 {
                     id: request.id,
                 },
             )
         }
-        const hydratedChallenge = _.cloneDeep(challenge)
-        const steps = await this.entityManager.find(
-            ChallengeStepEntity,
-            {
-                where: {
-                    challenge: {
-                        id: hydratedChallenge.id,
-                    },
-                },
-                relations: {
-                    translations: true,
-                },
-                order: {
-                    orderIndex: "ASC",
-                },
-            },
-        )
-        const references = await this.entityManager.find(
-            ChallengeReferenceEntity,
-            {
-                where: {
-                    challenge: {
-                        id: hydratedChallenge.id,
-                    },
-                },
-                relations: {
-                    translations: true,
-                },
-                order: {
-                    orderIndex: "ASC",
-                },
-            },
-        )
-        const hydratedSteps = _.cloneDeep(steps)
-        hydratedChallenge.steps = hydratedSteps
-        const hydratedReferences = _.cloneDeep(references)
-        hydratedChallenge.references = hydratedReferences   
+
+        const hydratedChallenge = this.superJson.parse<ChallengeEntity>(cdnPayload.data)
         this.challengeTransformer.transform(
             hydratedChallenge,
             locale,
-            challenge.defaultLocale,
+            hydratedChallenge.defaultLocale,
         )
         return hydratedChallenge
     }

@@ -12,14 +12,19 @@ import {
     CourseRuntimeContextService,
     CourseFactorySyncService
 } from "./courses"
-// import { 
-//     ModuleRuntimeContextService,
-//     ModuleFactorySyncService
-// } from "./modules"
+import { 
+    ModuleFactorySyncService,
+    ModuleRuntimeContextService,
+    
+} from "./modules"
 import { 
     LessonVideoRuntimeContextService,
     LessonVideoFactorySyncService
 } from "./lesson-videos"
+import { 
+    ContentRuntimeContextService,
+    ContentFactorySyncService
+} from "./contents"
 
 @Module({
     providers: [
@@ -27,10 +32,12 @@ import {
         ChallengeFactorySyncService,
         CourseRuntimeContextService,
         CourseFactorySyncService,
-        // ModuleRuntimeContextService,
-        // ModuleFactorySyncService,
+        ModuleRuntimeContextService,
+        ModuleFactorySyncService,
         LessonVideoRuntimeContextService,
         LessonVideoFactorySyncService,
+        ContentRuntimeContextService,
+        ContentFactorySyncService,
     ],
 })
 export class SyncModule extends ConfigurableModuleClass {}

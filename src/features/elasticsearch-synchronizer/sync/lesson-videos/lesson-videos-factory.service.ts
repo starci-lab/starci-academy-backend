@@ -1,18 +1,18 @@
 import {
-  ChallengeEntity,
+  LessonVideoEntity,
   InjectPrimaryPostgreSQLEntityManager,
 } from '@modules/databases';
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { ContextIdFactory } from '@nestjs/core';
 import { ModuleRef } from '@nestjs/core';
-import { ChallengeRuntimeContextRequest } from './types';
-import { ChallengeRuntimeContextService } from './runtime.context-service';
+import { LessonVideoRuntimeContextRequest } from './types';
+import { LessonVideoRuntimeContextService } from './lesson-videos-runtime.context-service';
 import { envConfig } from '@modules/env';
 import { sleep } from '@modules/common';
 
 @Injectable()
-export class ChallengeFactorySyncService implements OnApplicationBootstrap {
+export class LessonVideoFactorySyncService implements OnApplicationBootstrap {
   constructor(
     @InjectPrimaryPostgreSQLEntityManager()
     private readonly entityManager: EntityManager,
@@ -20,25 +20,28 @@ export class ChallengeFactorySyncService implements OnApplicationBootstrap {
   ) {}
 
   /**
-   * On application bootstrap, take all challenges ids and sync them to S3.
+   * On application bootstrap, take all lesson_videos ids and sync them to Elasticsearch.
    */
   onApplicationBootstrap() {
         setTimeout(async () => {    
-        // take all challenges ids
-        const challenges = await this.entityManager.find(ChallengeEntity, {
+        // take all lesson videos ids
+        const lessonVideos = await this.entityManager.find(LessonVideoEntity, {
           select: {
             id: true,
           },
         });
         // calculate the delay per sync
         const syncIntervalMs =
-          envConfig().services.elasticsearchSynchronizer.syncIntervalMs.challenges;
-        const syncSpacingMs = syncIntervalMs.factory / challenges.length;
-        for (const { id } of challenges) {
+          envConfig().services.elasticsearchSynchronizer.syncIntervalMs
+            .lessonVideos;
+        // ensure division by non-zero
+        const count = lessonVideos.length || 1;
+        const syncSpacingMs = syncIntervalMs.factory / count;
+        for (const { id } of lessonVideos) {
           // create the context id
           const contextId = ContextIdFactory.create();
           // register the request by context id
-          this.moduleRef.registerRequestByContextId<ChallengeRuntimeContextRequest>(
+          this.moduleRef.registerRequestByContextId<LessonVideoRuntimeContextRequest>(
             {
               id,
             }, // fake request object
@@ -46,7 +49,7 @@ export class ChallengeFactorySyncService implements OnApplicationBootstrap {
           );
           // resolve the service
           const service = await this.moduleRef.resolve(
-            ChallengeRuntimeContextService,
+            LessonVideoRuntimeContextService,
             contextId,
             {
               strict: false,

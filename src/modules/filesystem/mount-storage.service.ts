@@ -26,7 +26,7 @@ export class MountStorageService implements OnModuleInit {
         private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
     ) {}
 
-    onModuleInit() {
+    onModuleInit() {   
         this.readinessWatcherFactoryService.createWatcher(MountStorageService.name)
         // get github access token from mount filesystem service
         this.githubAccessToken = this.mountFilesystemService.githubAccessToken()

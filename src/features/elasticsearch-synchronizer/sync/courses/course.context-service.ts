@@ -17,7 +17,10 @@ import {
 import {
     CourseEntity,
     InjectPrimaryPostgreSQLEntityManager,
-    PricingPhaseEntity
+    LivestreamSessionEntity,
+    ModuleEntity,
+    PricingPhaseEntity,
+    QnaEntity
 } from "@modules/databases"
 import {
     EntityManager,
@@ -28,7 +31,9 @@ import {
 import type {
     CourseRuntimeContextRequest,
 } from "./types"
-import { CourseNotFoundException } from "@modules/exceptions"
+import { 
+    CourseNotFoundException 
+} from "@modules/exceptions"
 
 @Injectable({
     scope: Scope.REQUEST,
@@ -55,7 +60,7 @@ export class CourseRuntimeContextService {
                     async () => await this.process()
                 )
             },
-            envConfig().services.cdnSynchronizer.syncIntervalMs.courses.runtime
+            envConfig().services.elasticsearchSynchronizer.syncIntervalMs.courses.runtime
         )
     }
 
@@ -83,20 +88,64 @@ export class CourseRuntimeContextService {
                 },
             )
         }
-        const hydratedCourse = course.toPlain<CourseEntity>()  
-        // take the pricing phases
-        const pricingPhases = await this.entityManager.find(
-            PricingPhaseEntity,
-            {
-                where: {
-                    courseId: this.request.id,
-                },
-            }
-        )
-        hydratedCourse.pricingPhases = pricingPhases
+       const [pricingPhases, modules, livestreamSessions, qnas] =
+         await Promise.all([
+           this.entityManager.find(PricingPhaseEntity, {
+             where: { courseId: course.id },
+           }),
+           this.entityManager.find(ModuleEntity, {
+             where: { courseId: course.id },
+             select: ['title'],
+           }),
+           this.entityManager.find(LivestreamSessionEntity, {
+             where: { courseId: course.id, isOverridable: false },
+           }),
+           this.entityManager.find(QnaEntity, {
+             where: { courseId: course.id },
+           }),
+         ]);
+
+         const searchDocument = {
+           id: course.id,
+           displayId: course.displayId,
+           slug: course.slug,
+           title: course.title,
+           description: course.description,
+           coverImageUrl: course.coverImageUrl,
+           originalPrice: course.originalPrice,
+           defaultLocale: course.defaultLocale,
+           orderIndex: course.orderIndex,
+
+           // Flattening Modules
+           moduleKeywords: modules.map((m) => m.title).join(' '),
+
+           // Pricing
+           pricing: pricingPhases.map((p) => ({
+             phase: p.phase,
+             price: p.price,
+             slots: p.slotAvailable,
+           })),
+
+           // Livestream
+           schedule: livestreamSessions.map((s) => ({
+             day: s.dayOfWeek,
+             start: s.startTime,
+             end: s.expectedEndTime,
+           })),
+
+           // QNA & Value Props
+           contentBoost: qnas.map((q) => q.question + ' ' + q.answer).join(' '),
+
+           // Map Translations  
+           translations: course.translations.map((t) => ({
+             locale: t.locale,
+             field: t.field,
+             value: t.value,
+           })),
+         };
         await this.elasticsearch.indexEntity(
             CourseEntity,
-            hydratedCourse
+            searchDocument
         )
     }
 }

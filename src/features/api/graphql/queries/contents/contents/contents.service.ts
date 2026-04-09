@@ -26,6 +26,7 @@ import {
     ExecuteParams,
 } from "../../../../types"
 import _ from "lodash"
+import { ElasticsearchService } from "@modules/elasticsearch"
 
 /**
  * Lists module contents from primary PostgreSQL for GraphQL.
@@ -36,6 +37,7 @@ export class ContentsService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly contentTransformer: ContentTransformerService,
+        private readonly  elasticsearch: ElasticsearchService,
     ) {}
 
     async execute(
@@ -46,6 +48,7 @@ export class ContentsService {
                     limit = envConfig().services.api.pagination.page.limit,
                     pageNumber = 0,
                     sorts,
+                    search
                 },
             },
             locale,

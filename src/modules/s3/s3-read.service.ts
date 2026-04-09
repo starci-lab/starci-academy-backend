@@ -54,8 +54,6 @@ export class S3ReadService {
         private readonly s3: S3Client,
         @InjectMinioS3()
         private readonly minioS3: S3Client,
-        @Inject(MODULE_OPTIONS_TOKEN)
-        private readonly options: S3ModuleOptions,
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
     ) {}
@@ -117,7 +115,8 @@ export class S3ReadService {
     ): Promise<T | null> {
         /** Read the content as string. */
         const content = await this.text({
-            key, provider 
+            key, 
+            provider 
         })
         /** If the content is null, throw an error. */
         if (content === null) {

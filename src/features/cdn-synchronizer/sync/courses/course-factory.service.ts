@@ -37,41 +37,43 @@ export class CourseFactorySyncService implements OnApplicationBootstrap {
     /**
      * On application bootstrap, take all courses ids and sync them to S3.
      */
-    async onApplicationBootstrap() {
-        // take all courses ids
-        const courses = await this.entityManager.find(
-            CourseEntity,
-            {
-                select: {
-                    id: true,
+    onApplicationBootstrap() {
+        setTimeout(async () => {    
+            // take all courses ids
+            const courses = await this.entityManager.find(
+                CourseEntity,
+                {
+                    select: {
+                        id: true,
+                    }
                 }
+            )
+            // calculate the delay per sync
+            const syncIntervalMs = envConfig().services.cdnSynchronizer.syncIntervalMs.courses
+            const syncSpacingMs = syncIntervalMs.factory / courses.length
+            for (const { id } of courses) {
+                // create the context id
+                const contextId = ContextIdFactory.create()
+                // register the request by context id
+                this.moduleRef.registerRequestByContextId<CourseRuntimeContextRequest>(
+                    {
+                        id, 
+                    }, // fake request object
+                    contextId,
+                )
+                // resolve the service
+                const service = await this.moduleRef.resolve(
+                    CourseRuntimeContextService,
+                    contextId,
+                    {
+                        strict: false 
+                    },
+                )
+                // execute the service
+                await service.run()
+                // sleep for the delay per sync
+                await sleep(syncSpacingMs)
             }
-        )
-        // calculate the delay per sync
-        const syncIntervalMs = envConfig().services.cdnSynchronizer.syncIntervalMs.courses
-        const syncSpacingMs = syncIntervalMs.factory / courses.length
-        for (const { id } of courses) {
-            // create the context id
-            const contextId = ContextIdFactory.create()
-            // register the request by context id
-            this.moduleRef.registerRequestByContextId<CourseRuntimeContextRequest>(
-                {
-                    id, 
-                }, // fake request object
-                contextId,
-            )
-            // resolve the service
-            const service = await this.moduleRef.resolve(
-                CourseRuntimeContextService,
-                contextId,
-                {
-                    strict: false 
-                },
-            )
-            // execute the service
-            await service.run()
-            // sleep for the delay per sync
-            await sleep(syncSpacingMs)
-        }
+                }, 0);
     }
 }

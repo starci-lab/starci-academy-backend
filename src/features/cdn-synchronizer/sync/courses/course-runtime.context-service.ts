@@ -16,14 +16,10 @@ import {
     REQUEST 
 } from "@nestjs/core"
 import {
-    ChallengeEntity,
-    ChallengeReferenceEntity,
-    ChallengeStepEntity,
     CourseEntity,
     InjectPrimaryPostgreSQLEntityManager,
     ModuleEntity,
     PrerequisiteEntity,
-    PreviewContentEntity,
     PricingPhaseEntity,
     QnaEntity,
     ValuePropositionEntity
@@ -32,7 +28,6 @@ import {
     EntityManager
 } from "typeorm"
 import {
-    ChallengeNotFoundException, 
     CourseNotFoundException
 } from "@modules/exceptions"
 import SuperJSON from "superjson"

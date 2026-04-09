@@ -21,6 +21,7 @@ import type {
     CdnSynchronizerCourseRuntimeSyncFailedMessage,
     CdnSynchronizerLessonVideoRuntimeSyncFailedMessage,
     CdnSynchronizerModuleRuntimeSyncFailedMessage,
+    CdnSynchronizerContentRuntimeSyncFailedMessage,
 } from "./types"
 
 /** Map of Winston log names to level, Loki flag, and message type. */
@@ -163,5 +164,13 @@ export const configMap = {
         console: true,
         messageType: {
         } as CdnSynchronizerModuleRuntimeSyncFailedMessage,
+    },
+    [WinstonLog.CdnSynchronizerContentRuntimeSyncFailed]: {
+        name: WinstonLog.CdnSynchronizerContentRuntimeSyncFailed,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as CdnSynchronizerContentRuntimeSyncFailedMessage,
     },
 }

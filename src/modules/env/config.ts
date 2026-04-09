@@ -172,6 +172,16 @@ export const envConfig = () => ({
                         defaultValue: "10s",
                     }),
                 },
+                contents: {
+                    factory: parseEnvMs({
+                        key: "CDN_SYNCHRONIZER_CONTENTS_FACTORY_SYNC_INTERVAL_MS",
+                        defaultValue: "10s",
+                    }),
+                    runtime: parseEnvMs({
+                        key: "CDN_SYNCHRONIZER_CONTENTS_RUNTIME_SYNC_INTERVAL_MS",
+                        defaultValue: "10s",
+                    }),
+                },
             },
             retries: {
                 courses: {
@@ -189,22 +199,46 @@ export const envConfig = () => ({
         /** Elasticsearch Synchronizer service configuration. */
         elasticsearchSynchronizer: {
             syncIntervalMs: {
-                courses: parseEnvMs({
-                    key: "ELASTICSEARCH_SYNCHRONIZER_COURSES_SYNC_INTERVAL_MS",
-                    defaultValue: "30s",
-                }),
-                lessonVideos: parseEnvMs({
-                    key: "ELASTICSEARCH_SYNCHRONIZER_LESSON_VIDEOS_SYNC_INTERVAL_MS",
-                    defaultValue: "30s",
-                }),
-                challenges: parseEnvMs({
-                    key: "ELASTICSEARCH_SYNCHRONIZER_CHALLENGES_SYNC_INTERVAL_MS",
-                    defaultValue: "5m",
-                }),
-                contents: parseEnvMs({
-                    key: "ELASTICSEARCH_SYNCHRONIZER_CONTENTS_SYNC_INTERVAL_MS",
-                    defaultValue: "5m",
-                }),
+                courses: {
+                    factory: parseEnvMs({
+                        key: "ELASTICSEARCH_SYNCHRONIZER_COURSES_FACTORY_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                    runtime: parseEnvMs({
+                        key: "ELASTICSEARCH_SYNCHRONIZER_COURSES_RUNTIME_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                lessonVideos: {
+                    factory: parseEnvMs({
+                        key: "ELASTICSEARCH_SYNCHRONIZER_LESSON_VIDEOS_FACTORY_SYNC_INTERVAL_MS",
+                        defaultValue: "60m",
+                    }),
+                    runtime: parseEnvMs({
+                        key: "ELASTICSEARCH_SYNCHRONIZER_LESSON_VIDEOS_RUNTIME_SYNC_INTERVAL_MS",
+                        defaultValue: "60m",
+                    }),
+                },
+                challenges: {
+                    factory: parseEnvMs({
+                        key: "ELASTICSEARCH_SYNCHRONIZER_CHALLENGES_FACTORY_SYNC_INTERVAL_MS",
+                        defaultValue: "1m",
+                    }),
+                    runtime: parseEnvMs({
+                        key: "ELASTICSEARCH_SYNCHRONIZER_CHALLENGES_RUNTIME_SYNC_INTERVAL_MS",
+                        defaultValue: "1m",
+                    }),
+                },
+                contents: {
+                    factory: parseEnvMs({
+                        key: "ELASTICSEARCH_SYNCHRONIZER_CONTENTS_FACTORY_SYNC_INTERVAL_MS",
+                        defaultValue: "1m",
+                    }),
+                    runtime: parseEnvMs({
+                        key: "ELASTICSEARCH_SYNCHRONIZER_CONTENTS_RUNTIME_SYNC_INTERVAL_MS",
+                        defaultValue: "1m",
+                    }),
+                },
             },
         },
     },

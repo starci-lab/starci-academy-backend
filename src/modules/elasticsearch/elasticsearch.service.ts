@@ -21,9 +21,8 @@ import {
     AsyncService, 
     ReadinessWatcherFactoryService 
 } from "@modules/mixin"
-import { 
-  configMap 
-} from "@modules/winston"
+import { configMap } from "./config"
+import { SearchParam } from "./types"
 
 @Injectable()
 export class ElasticsearchService implements OnModuleInit {
@@ -40,14 +39,14 @@ export class ElasticsearchService implements OnModuleInit {
     private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
   ) {}
 
-  /**
-   * Indicate the index name.
-   * @param entity - Entity to indicate the index name.
-   * @returns Index name.
-   */
-  private indicateName(entity: string) {
-    return configMap[entity].indices;
-  }
+    /**
+     * Indicate the index name.
+     * @param entity - Entity to indicate the index name.
+     * @returns Index name.
+     */
+    private indicateName(entity: string) {
+      return configMap[entity].indices;
+    }
 
     /**
      * On application bootstrap, ensure the index exists.
@@ -59,7 +58,7 @@ export class ElasticsearchService implements OnModuleInit {
         // ensure the indices exist
         await this.asyncService.allMustDone(
             this.indices.map(index => {
-                return this.ensureIndexExists(index)
+                return this.ensureIndexExists(this.indicateName(index))
             }),
         )
         // set the readiness watcher to ready
@@ -101,7 +100,7 @@ export class ElasticsearchService implements OnModuleInit {
   async indexEntity<T extends ObjectLiteral>(entity: T, data: ObjectLiteral) {
     await this.client.index({
       index: this.indicateName(entity.name),
-      id: entity.id,
+      id: data.id,
       body: data,
     });
   }
@@ -122,5 +121,28 @@ export class ElasticsearchService implements OnModuleInit {
         document: data,
       })),
     });
+  }
+
+  async search<T>(
+    entityName: string, 
+    params: SearchParam
+  ) {
+    const response = await this.client.search({
+      index: this.indicateName(entityName),
+      from: params.from,
+      size: params.size,
+      query: params.query || { match_all: {} },
+      sort: params.sort,
+    });
+
+    const total = response.hits.total;
+    const count = typeof total === 'number' ? total : total?.value || 0;
+
+    const data = response.hits.hits.map((hit) => hit._source as T)
+    
+    return {
+      data,
+      count,
+    }
   }
 }

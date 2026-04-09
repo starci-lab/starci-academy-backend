@@ -3,14 +3,14 @@ import {
 } from "@modules/crypto"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    LessonVideoEntity,
-    ModuleEntity
+    ModuleEntity,
+    PreviewContentEntity,
+    SubmissionEntity
 } from "@modules/databases"
 import {
     envConfig
 } from "@modules/env"
 import {
-    LessonVideoNotFoundException,
     ModuleNotFoundException
 } from "@modules/exceptions"
 import {
@@ -42,7 +42,6 @@ import {
 import { 
     type RuntimeContextRequest 
 } from "../types"
-import { LessonVideoRuntimeContextService } from "../lesson-videos"
 
 @Injectable({
   scope: Scope.REQUEST,
@@ -102,14 +101,45 @@ export class ModuleRuntimeContextService {
                 },
             )
         }
+        const hydratedModule = module.toPlain<ModuleEntity>()
+
+        // take all preview contents related to the module
+        const previewContents = await this.entityManager.find(
+            PreviewContentEntity,
+            {
+                where: {
+                    module: {
+                        id: hydratedModule.id,
+                    },
+                },
+                relations: {
+                    translations: true,
+                },
+            }
+        )
+        const hydratedPreviewContents = previewContents?.map((previewContent) => previewContent.toPlain<PreviewContentEntity>())  
+        //take all submissions related to the module
+        const submissions = await this.entityManager.find(
+            SubmissionEntity,
+            {
+                where: {
+                    module: {
+                        id: hydratedModule.id,
+                    },
+                },
+            }
+        )
+        const hydratedSubmissions = submissions?.map((submission) => submission.toPlain<SubmissionEntity>())  
+        hydratedModule.submissions = hydratedSubmissions
+        hydratedModule.previewContents = hydratedPreviewContents
         // upload the module to the CDN
-        const data = this.superJson.stringify(module);
+        const data = this.superJson.stringify(hydratedModule);
         const hash = this.sha256Service.hash(data)
         const payload: UploadPayload = {
             data,
             hash,
         }
-        objectKey = this.s3NameResolverService.module(module.id)
+        objectKey = this.s3NameResolverService.module(hydratedModule.id)
         await this.s3UploadService.json({
             name: objectKey,
             payload,

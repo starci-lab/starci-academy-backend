@@ -15,8 +15,7 @@ import {
     REQUEST 
 } from "@nestjs/core"
 import {
-    ChallengeEntity,
-    ChallengeStepEntity,
+    LessonVideoEntity,
     InjectPrimaryPostgreSQLEntityManager
 } from "@modules/databases"
 import {
@@ -26,20 +25,20 @@ import {
     ElasticsearchService,
 } from "@modules/elasticsearch"
 import type {
-    ChallengeRuntimeContextRequest,
+    LessonVideoRuntimeContextRequest,
 } from "./types"
-import { ChallengeNotFoundException } from "@modules/exceptions"
+import { LessonVideoNotFoundException } from "@modules/exceptions"
 
 @Injectable({
     scope: Scope.REQUEST,
     durable: true,
 })
-export class ChallengeRuntimeContextService {
+export class LessonVideoRuntimeContextService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         @Inject(REQUEST)
-        private readonly request: ChallengeRuntimeContextRequest,
+        private readonly request: LessonVideoRuntimeContextRequest,
         private readonly asyncService: AsyncService,
         private readonly elasticsearch: ElasticsearchService,
     ) {
@@ -55,53 +54,40 @@ export class ChallengeRuntimeContextService {
                     async () => await this.process()
                 )
             },
-            envConfig().services.elasticsearchSynchronizer.syncIntervalMs.challenges.runtime
+            envConfig().services.elasticsearchSynchronizer.syncIntervalMs.lessonVideos.runtime
         )
     }
 
     /**
-     * Sync the challenge to the CDN.
+     * Sync the lesson video to Elasticsearch.
      */
     async process() {
-        // take the challenge
-        const challenge = await this.entityManager.findOne(
-            ChallengeEntity,
+        // take the lesson video
+        const lessonVideo = await this.entityManager.findOne(
+            LessonVideoEntity,
             {
                 where: {
                     id: this.request.id,
                 },
-
                 relations: {
                     translations: true,
+                    module: true,
                 },
             }
         )
-        if (!challenge) {
-            throw new ChallengeNotFoundException(
+        if (!lessonVideo) {
+            throw new LessonVideoNotFoundException(
                 {
                     id: this.request.id,
                 },
             )
         }
 
-        const hydratedChallenge = challenge.toPlain<ChallengeEntity>();
-        // take all steps related to the challenge
-        const steps = await this.entityManager.find(ChallengeStepEntity, {
-            where: {
-                challenge: {
-                    id: hydratedChallenge.id,
-                },
-            },
-            select: {
-                id: true
-            }
-        });
-        hydratedChallenge.steps = steps?.map((step) =>
-            step.toPlain<ChallengeStepEntity>(),
-        );
+        const hydratedLessonVideo = lessonVideo.toPlain<LessonVideoEntity>();
+        
         await this.elasticsearch.indexEntity(
-            ChallengeEntity,
-            hydratedChallenge,
+            LessonVideoEntity,
+            hydratedLessonVideo,
         );
     }
 }

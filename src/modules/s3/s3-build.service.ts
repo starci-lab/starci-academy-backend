@@ -27,7 +27,7 @@ import {
 export class S3BuildService {
     constructor(
         @InjectDigitalOceanS3()
-        private readonly s3: S3Client,
+        private readonly digitalOceanS3: S3Client,
         @InjectMinioS3()
         private readonly minioS3: S3Client,
         @Inject(MODULE_OPTIONS_TOKEN)
@@ -76,15 +76,15 @@ export class S3BuildService {
             return ""
         }
         return getSignedUrl(
-            this.s3,
-            new GetObjectCommand({
-                Bucket: config.bucket,
-                Key: objectKey,
-            }),
-            {
-                expiresIn: config.signedUrlExpiration ?? 900,
-            },
-        )
+          this.digitalOceanS3,
+          new GetObjectCommand({
+            Bucket: config.bucket,
+            Key: objectKey,
+          }),
+          {
+            expiresIn: config.signedUrlExpiration ?? 900,
+          },
+        );
     }
 }
 

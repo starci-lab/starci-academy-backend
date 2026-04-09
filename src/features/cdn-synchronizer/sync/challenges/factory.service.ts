@@ -39,41 +39,43 @@ export class ChallengeFactorySyncService implements OnApplicationBootstrap {
     /**
      * On application bootstrap, take all challenges ids and sync them to S3.
      */
-    async onApplicationBootstrap() {
-        // take all challenges ids
-        const challenges = await this.entityManager.find(
-            ChallengeEntity,
-            {
-                select: {
-                    id: true,
+    onApplicationBootstrap() {
+        setTimeout(async () => {    
+            // take all challenges ids
+            const challenges = await this.entityManager.find(
+                ChallengeEntity,
+                {
+                    select: {
+                        id: true,
+                    }
                 }
+            )
+            // calculate the delay per sync
+            const syncIntervalMs = envConfig().services.cdnSynchronizer.syncIntervalMs.challenges
+            const syncSpacingMs = syncIntervalMs.factory / challenges.length
+            for (const { id } of challenges) {
+                // create the context id
+                const contextId = ContextIdFactory.create()
+                // register the request by context id
+                this.moduleRef.registerRequestByContextId<ChallengeRuntimeContextRequest>(
+                    {
+                        id, 
+                    }, // fake request object
+                    contextId,
+                )
+                // resolve the service
+                const service = await this.moduleRef.resolve(
+                    ChallengeRuntimeContextService,
+                    contextId,
+                    {
+                        strict: false 
+                    },
+                )
+                // execute the service
+                await service.run()
+                // sleep for the delay per sync
+                await sleep(syncSpacingMs)
             }
-        )
-        // calculate the delay per sync
-        const syncIntervalMs = envConfig().services.cdnSynchronizer.syncIntervalMs.challenges
-        const syncSpacingMs = syncIntervalMs.factory / challenges.length
-        for (const { id } of challenges) {
-            // create the context id
-            const contextId = ContextIdFactory.create()
-            // register the request by context id
-            this.moduleRef.registerRequestByContextId<ChallengeRuntimeContextRequest>(
-                {
-                    id, 
-                }, // fake request object
-                contextId,
-            )
-            // resolve the service
-            const service = await this.moduleRef.resolve(
-                ChallengeRuntimeContextService,
-                contextId,
-                {
-                    strict: false 
-                },
-            )
-            // execute the service
-            await service.run()
-            // sleep for the delay per sync
-            await sleep(syncSpacingMs)
-        }
+                }, 0);
     }
 }

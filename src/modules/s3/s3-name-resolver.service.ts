@@ -44,4 +44,13 @@ export class S3NameResolverService {
     module(id: string): string {
         return `modules/${id}.json`
     }
+
+    /**
+     * Resolve the name for a content.
+     * @param id - The id of the content.
+     * @returns The name for the content.
+     */
+    content(id: string): string {
+        return `contents/${id}.json`
+    }
 }

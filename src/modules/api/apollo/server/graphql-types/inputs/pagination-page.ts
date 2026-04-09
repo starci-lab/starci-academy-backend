@@ -26,5 +26,12 @@ export abstract class PaginationPageFilters<T extends string> {
         })
         limit?: number
 
+    @Field(() => String,
+        {
+            description: "Optional search string to filter results",
+            nullable: true,
+        })
+        search?: string
+
     abstract sorts?: Array<SortInput<T>>
 }

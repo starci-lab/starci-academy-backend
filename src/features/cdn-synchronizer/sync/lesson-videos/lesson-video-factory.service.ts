@@ -37,41 +37,43 @@ export class LessonVideoFactorySyncService implements OnApplicationBootstrap {
     /**
      * On application bootstrap, take all lesson videos ids and sync them to S3.
      */
-    async onApplicationBootstrap() {
-        // take all lesson videos ids
-        const lessonVideos = await this.entityManager.find(
-            LessonVideoEntity,
-            {
-                select: {
-                    id: true,
+    onApplicationBootstrap() {
+        setTimeout(async () => {    
+            // take all lesson videos ids
+            const lessonVideos = await this.entityManager.find(
+                LessonVideoEntity,
+                {
+                    select: {
+                        id: true,
+                    }
                 }
+            )
+            // calculate the delay per sync
+            const syncIntervalMs = envConfig().services.cdnSynchronizer.syncIntervalMs.lessons
+            const syncSpacingMs = syncIntervalMs.factory / lessonVideos.length
+            for (const { id } of lessonVideos) {
+                // create the context id
+                const contextId = ContextIdFactory.create()
+                // register the request by context id
+                this.moduleRef.registerRequestByContextId<LessonVideoRuntimeContextRequest>(
+                    {
+                        id, 
+                    }, // fake request object
+                    contextId,
+                )
+                // resolve the service
+                const service = await this.moduleRef.resolve(
+                    LessonVideoRuntimeContextService,
+                    contextId,
+                    {
+                        strict: false 
+                    },
+                )
+                // execute the service
+                await service.run()
+                // sleep for the delay per sync
+                await sleep(syncSpacingMs)
             }
-        )
-        // calculate the delay per sync
-        const syncIntervalMs = envConfig().services.cdnSynchronizer.syncIntervalMs.lessons
-        const syncSpacingMs = syncIntervalMs.factory / lessonVideos.length
-        for (const { id } of lessonVideos) {
-            // create the context id
-            const contextId = ContextIdFactory.create()
-            // register the request by context id
-            this.moduleRef.registerRequestByContextId<LessonVideoRuntimeContextRequest>(
-                {
-                    id, 
-                }, // fake request object
-                contextId,
-            )
-            // resolve the service
-            const service = await this.moduleRef.resolve(
-                LessonVideoRuntimeContextService,
-                contextId,
-                {
-                    strict: false 
-                },
-            )
-            // execute the service
-            await service.run()
-            // sleep for the delay per sync
-            await sleep(syncSpacingMs)
-        }
+                }, 0);
     }
 }
