@@ -25,9 +25,9 @@ export class ExtractJsonFromMdService {
      * @param markdown - The markdown string to extract from.
      * @returns The extracted JSON object.
      */
-    extract(
+    extract<T extends Record<string, unknown>>(
         markdown: string,
-    ): Record<string, unknown> {
+    ): T {
         const result = this.parseAtLevel(
             markdown,
             1,
@@ -37,10 +37,10 @@ export class ExtractJsonFromMdService {
             result !== null &&
             !Array.isArray(result)
         ) {
-            return result as Record<string, unknown>
+            return result as T
         }
         return {
-        }
+        } as T
     }
 
     /**

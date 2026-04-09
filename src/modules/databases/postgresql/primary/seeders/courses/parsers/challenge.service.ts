@@ -80,7 +80,7 @@ export class ChallengeParserService {
                 locale,
                 this.extractJsonFromMdService.extract(
                     readMdFileOrDefault(`${path}/${locale}.md`),
-                ) as Partial<ChallengeEntity>,
+                ),
             )
         }
         const challengeId = this.challengeIdFactoryService.generate(
