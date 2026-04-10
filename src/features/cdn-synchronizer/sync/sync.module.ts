@@ -12,11 +12,10 @@ import {
     CourseRuntimeContextService,
     CourseFactorySyncService
 } from "./courses"
-import { 
-    ModuleFactorySyncService,
-    ModuleRuntimeContextService,
-    
-} from "./modules"
+// import { 
+    // ModuleFactorySyncService,
+    // ModuleRuntimeContextService,
+// } from "./modules"
 import { 
     LessonVideoRuntimeContextService,
     LessonVideoFactorySyncService
@@ -32,8 +31,8 @@ import {
         ChallengeFactorySyncService,
         CourseRuntimeContextService,
         CourseFactorySyncService,
-        ModuleRuntimeContextService,
-        ModuleFactorySyncService,
+        // ModuleRuntimeContextService,
+        // ModuleFactorySyncService,
         LessonVideoRuntimeContextService,
         LessonVideoFactorySyncService,
         ContentRuntimeContextService,

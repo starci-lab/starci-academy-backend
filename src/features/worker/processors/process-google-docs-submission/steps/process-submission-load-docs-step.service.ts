@@ -1,5 +1,5 @@
 import type {
-    ProcessGitSubmissionPayload,
+    ProcessGoogleDocsSubmissionPayload,
 } from "@modules/bullmq"
 import {
     InjectPrimaryPostgreSQLEntityManager,
@@ -11,8 +11,8 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    GithubRepoLoader,
-} from "@langchain/community/document_loaders/web/github"
+    LangchainService,
+} from "@modules/langchain"
 import type {
     EntityManager,
 } from "typeorm"
@@ -24,39 +24,33 @@ import {
     WinstonService,
 } from "@modules/winston"
 import {
-    ProcessGitSubmissionLoadDocsStepExecuteResult,
-    ExtendedProcessGitSubmissionContext 
+    ProcessGoogleDocsSubmissionLoadDocsStepExecuteResult,
+    ExtendedProcessGoogleDocsSubmissionContext,
 } from "../types"
 import {
-    JobExtendedContext 
+    JobExtendedContext,
 } from "../../types"
-import {
-    MountStorageService 
-} from "@modules/filesystem"
 
 /**
- * Step 1: load documents from the submitted GitHub repository.
+ * Step 1: load document content from Google Docs (Plan B: public export).
  */
 @Injectable()
-export class ProcessGitSubmissionLoadDocsStepService extends AbstractStepService<ProcessGitSubmissionPayload, ExtendedProcessGitSubmissionContext> {
+export class ProcessGoogleDocsSubmissionLoadDocsStepService extends AbstractStepService<
+    ProcessGoogleDocsSubmissionPayload,
+    ExtendedProcessGoogleDocsSubmissionContext
+> {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
-        private readonly mountStorageService: MountStorageService,
+        private readonly langchainService: LangchainService,
     ) {
         super()
     }
 
-    /**
-     * The index of the step.
-     */
     stepIndex = 0
 
-    /**
-     * The name of the step.
-     */
     stepName = "load-docs"
 
     /**
@@ -66,15 +60,14 @@ export class ProcessGitSubmissionLoadDocsStepService extends AbstractStepService
      */
     async process(
         context: JobExtendedContext<
-        ProcessGitSubmissionPayload, 
-        ExtendedProcessGitSubmissionContext
+            ProcessGoogleDocsSubmissionPayload,
+            ExtendedProcessGoogleDocsSubmissionContext
         >,
     ): Promise<void> {
         // execute the step
         const executionResult = await this.execute(context)
         // finalize the step
-        await this.finalize(executionResult,
-            context)
+        await this.finalize(executionResult, context)
     }
 
     /**
@@ -84,43 +77,31 @@ export class ProcessGitSubmissionLoadDocsStepService extends AbstractStepService
      */
     private async execute(
         context: JobExtendedContext<
-            ProcessGitSubmissionPayload, 
-            ExtendedProcessGitSubmissionContext
+            ProcessGoogleDocsSubmissionPayload,
+            ExtendedProcessGoogleDocsSubmissionContext
         >,
-    ): Promise<ProcessGitSubmissionLoadDocsStepExecuteResult> {
-        const branch = context.payload.branch ?? "main"
-        console.log(branch)
-        const gitLoader = new GithubRepoLoader(
-            context.extended?.userChallengeSubmission.submissionUrl ?? "",
-            {
-                branch,
-                recursive: true,
-                accessToken: this.mountStorageService.githubAccessToken,
-                verbose: true,
-                ignorePaths: [
-                    "package-lock.json",
-                    "dist",
-                    "node_modules",
-                ],
-            },
-        )
-        const docs = await gitLoader.load()
+    ): Promise<ProcessGoogleDocsSubmissionLoadDocsStepExecuteResult> {
+        const url = context.extended?.userChallengeSubmission.submissionUrl ?? ""
+        
+        // Use the centralized LangChain service to load Google Docs via public export
+        const docs = await this.langchainService.loadGoogleDocs(url)
+        
         return {
             docs,
         }
     }
+
     /**
      * Finalize the step.
+     * @param executionResult - Execution result of the step.
      * @param context - The context of the step.
      * @returns A promise that resolves when the step is finalized.
      */
     private async finalize(
-        /** Execution result of the step. */
-        executionResult: ProcessGitSubmissionLoadDocsStepExecuteResult,
-        /** Context of the step. */
+        executionResult: ProcessGoogleDocsSubmissionLoadDocsStepExecuteResult,
         context: JobExtendedContext<
-            ProcessGitSubmissionPayload, 
-            ExtendedProcessGitSubmissionContext
+            ProcessGoogleDocsSubmissionPayload,
+            ExtendedProcessGoogleDocsSubmissionContext
         >,
     ): Promise<void> {
         const {
@@ -128,26 +109,23 @@ export class ProcessGitSubmissionLoadDocsStepService extends AbstractStepService
             payload,
             queueName,
         } = context
-        await this.entityManager.transaction(
-            async (entityManager) => {
-                await this.jobActionService.increaseJob(
-                    {
-                        job,
-                        entityManager,
-                    },
-                )
-                await this.jobActionService.saveExecutionResult(
-                    {
-                        job,
-                        key: this.stepName,
-                        executionResult,
-                        entityManager,
-                    },
-                )
-            },
-        )
+
+        await this.entityManager.transaction(async (entityManager) => {
+            await this.jobActionService.increaseJob({
+                job,
+                entityManager,
+            })
+
+            await this.jobActionService.saveExecutionResult({
+                job,
+                key: this.stepName,
+                executionResult,
+                entityManager,
+            })
+        })
+
         this.winstonService.log(
-            WinstonLog.ProcessGitSubmissionStepExecuted,
+            WinstonLog.ProcessGitSubmissionStepExecuted, // Reusing generic log constant
             {
                 jobId: job.id ?? "",
                 queueName,

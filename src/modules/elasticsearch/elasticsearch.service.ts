@@ -104,10 +104,10 @@ export class ElasticsearchService implements OnModuleInit {
     /**
    * Index the entity.
    */
-    async indexEntity<T extends ObjectLiteral>(entity: T, data: ObjectLiteral) {
+    async indexEntity<T extends ObjectLiteral>(entity: T, data: ObjectLiteral, docId?: string) {
         await this.client.index({
             index: this.indicateName(entity.name),
-            id: data.id,
+            id: docId ?? data.id,
             body: data,
         })
     }

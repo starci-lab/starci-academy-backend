@@ -5,20 +5,20 @@ import {
     EmptyObject 
 } from "@modules/common"
 /** Result of the process-git-submission load docs step. */
-export interface ProcessGitSubmissionLoadDocsStepExecuteResult {
+export interface ProcessGoogleDocsSubmissionLoadDocsStepExecuteResult {
     /** Documents loaded from the submitted GitHub repository. */
     docs: Array<Document>
 }
 /** Result of the process-git-submission split docs step. */
-export interface ProcessGitSubmissionSplitDocsStepExecuteResult {
+export interface ProcessGoogleDocsSubmissionSplitDocsStepExecuteResult {
     /** Documents split into chunks for embedding. */
     chunks: Array<Document>
 }
 /** Result of the process-git-submission vectorize step. */
-export type ProcessGitSubmissionVectorizeStepExecuteResult = EmptyObject
+export type ProcessGoogleDocsSubmissionVectorizeStepExecuteResult = EmptyObject
 
 /** Result of the process-git-submission grade step. */
-export interface ProcessGitSubmissionGradeStepExecuteResult {
+export interface ProcessGoogleDocsSubmissionGradeStepExecuteResult {
     /** Score of the submission. */
     score: number
     /** Feedbacks of the submission. */
@@ -26,4 +26,4 @@ export interface ProcessGitSubmissionGradeStepExecuteResult {
 }
 
 /** Result of the process-git-submission complete step. */
-export type ProcessGitSubmissionCompleteStepExecuteResult = EmptyObject
+export type ProcessGoogleDocsSubmissionCompleteStepExecuteResult = EmptyObject

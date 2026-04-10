@@ -53,6 +53,14 @@ export class ChallengeTransformerService {
                 fallbackLocale: challengeFallback,
             },
         )
+        challenge.requirements = this.translationResolver.resolve(
+            {
+                translations: challenge.translations,
+                field: "requirements",
+                locale,
+                fallbackLocale: challengeFallback,
+            },
+        )
         if (challenge.steps?.length) {
             challenge.steps = challenge.steps.map((step) => {
                 const stepFallback = step.defaultLocale ?? challengeFallback

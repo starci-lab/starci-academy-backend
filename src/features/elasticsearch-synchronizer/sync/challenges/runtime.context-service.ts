@@ -17,7 +17,8 @@ import {
 import {
     ChallengeEntity,
     ChallengeStepEntity,
-    InjectPrimaryPostgreSQLEntityManager
+    InjectPrimaryPostgreSQLEntityManager,
+    Locale,
 } from "@modules/databases"
 import {
     EntityManager,
@@ -29,6 +30,10 @@ import type {
     ChallengeRuntimeContextRequest,
 } from "./types"
 import { ChallengeNotFoundException } from "@modules/exceptions"
+import {
+    ChallengeTransformerService 
+} from "@features/api/graphql/utils/challenge-transformer.service"
+import _ from "lodash"
 
 @Injectable({
     scope: Scope.REQUEST,
@@ -42,6 +47,7 @@ export class ChallengeRuntimeContextService {
         private readonly request: ChallengeRuntimeContextRequest,
         private readonly asyncService: AsyncService,
         private readonly elasticsearch: ElasticsearchService,
+        private readonly challengeTransformer: ChallengeTransformerService,
     ) {
     }
 
@@ -60,7 +66,7 @@ export class ChallengeRuntimeContextService {
     }
 
     /**
-     * Sync the challenge to the CDN.
+     * Sync the challenge to the Elasticsearch.
      */
     async process() {
         // take the challenge
@@ -70,7 +76,6 @@ export class ChallengeRuntimeContextService {
                 where: {
                     id: this.request.id,
                 },
-
                 relations: {
                     translations: true,
                 },
@@ -83,25 +88,51 @@ export class ChallengeRuntimeContextService {
                 },
             )
         }
+        const plainChallenge = challenge.toPlain<ChallengeEntity>()
 
-        const hydratedChallenge = challenge.toPlain<ChallengeEntity>();
         // take all steps related to the challenge
         const steps = await this.entityManager.find(ChallengeStepEntity, {
             where: {
                 challenge: {
-                    id: hydratedChallenge.id,
+                    id: plainChallenge.id,
                 },
             },
             select: {
-                id: true
-            }
+                id: true,
+            },
         });
-        hydratedChallenge.steps = steps?.map((step) =>
-            step.toPlain<ChallengeStepEntity>(),
-        );
-        await this.elasticsearch.indexEntity(
-            ChallengeEntity,
-            hydratedChallenge,
-        );
+
+        // hydrate to plain objects once
+        const hydratedSteps = steps?.map((step) => step.toPlain<ChallengeStepEntity>())
+        plainChallenge.steps = hydratedSteps
+
+        // Sync each locale separately
+        const locales = [Locale.Vi, Locale.En]
+        for (const locale of locales) {
+            // deep clone the plain objects to avoid mutating the original
+            const hydratedChallenge = _.cloneDeep(plainChallenge)
+
+            // transform the challenge clone for the current locale
+            this.challengeTransformer.transform(
+                hydratedChallenge,
+                locale,
+                hydratedChallenge.defaultLocale ?? Locale.En,
+            )
+
+            const { translations, ...dataToIndex } = hydratedChallenge;
+
+            // Use the original UUID for the 'id' field in the document body,
+            // but use a composite key (uuid-locale) for the Elasticsearch document ID (_id).
+            const indexedData = {
+                ...dataToIndex,
+                locale,
+            }
+
+            await this.elasticsearch.indexEntity(
+                ChallengeEntity,
+                indexedData,
+                `${hydratedChallenge.id}-${locale}`,
+            );
+        }
     }
 }

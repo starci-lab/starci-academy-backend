@@ -21,8 +21,8 @@ import {
     ChallengeSubmissionEntity,
 } from "./challenge-submission.entity"
 import {
-    SubmissionFeedbackEntity,
-} from "./submission-feedback.entity"
+    SubmissionAttemptEntity,
+} from "./submission-attempt.entity"
 
 /**
  * Join table between user and a challenge submission.
@@ -66,32 +66,6 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
     )
         userId: string
 
-    @Field(
-        () => Boolean,
-        {
-            description: "Whether the submission has been processed.",
-        },
-    )
-    @Column({
-        name: "processed",
-        type: "boolean",
-        default: false,
-    })
-        processed: boolean
-
-    @Field(
-        () => Date,
-        {
-            description: "The date and time the submission was processed.",
-            nullable: true,
-        },
-    )
-    @Column({
-        name: "processed_at",
-        type: "timestamptz",
-        nullable: true,
-    })
-        processedAt: Date | null
 
     /**
      * Submission definition linked to the user.
@@ -143,70 +117,23 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
     })
         submissionUrl: string
 
-    /**
-     * The number of attempts made by the user to complete the submission.
-     */
-    @Field(
-        () => Int,
-        {
-            description: "The number of attempts made by the user to complete the submission.",
-        },
-    )
-    @Column({
-        name: "attempts",
-        type: "int",
-        default: 0,
-    })
-        attempts: number
 
-    /**
-     * The score achieved by the user for the submission.
-     */
-    @Field(
-        () => Int,
-        {
-            description: "The score achieved by the user for the submission.",
-        },
-    )
-    @Column({
-        name: "score",
-        type: "int",
-        default: 0,
-    })
-        score: number
-
-    /**
-     * Grading feedback text (e.g. concatenated model feedback items).
-     */
-    @Field(
-        () => String,
-        {
-            description: "Short summary message for the grading feedback.",
-            nullable: true,
-        },
-    )
-    @Column({
-        name: "feedback",
-        type: "text",
-        nullable: true,
-    })
-        shortFeedback: string | null
 
     @Field(
-        () => [SubmissionFeedbackEntity],
+        () => [SubmissionAttemptEntity],
         {
             nullable: true,
-            description: "Structured feedback items for this submission.",
+            description: "History of submission attempts.",
         },
     )
     @OneToMany(
-        () => SubmissionFeedbackEntity,
-        (submissionFeedback: SubmissionFeedbackEntity) => submissionFeedback.userChallengeSubmission,
+        () => SubmissionAttemptEntity,
+        (attempt: SubmissionAttemptEntity) => attempt.userChallengeSubmission,
         {
             cascade: true,
         },
     )
-        submissionFeedbacks: Array<SubmissionFeedbackEntity>
+        attempts: Array<SubmissionAttemptEntity>
 }
 
 

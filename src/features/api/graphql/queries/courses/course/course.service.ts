@@ -1,205 +1,66 @@
+import { CourseEntity } from '@modules/databases';
+import { CourseNotFoundException } from '@modules/exceptions';
+import { InjectSuperJson } from '@modules/mixin';
 import {
-    CourseEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    ModuleEntity,
-    PreviewContentEntity,
-    PricingPhaseEntity,
-    PrerequisiteEntity,
-    QnaEntity,
-    ValuePropositionEntity,
-} from "@modules/databases"
-import {
-    CourseNotFoundException,
-} from "@modules/exceptions"
-import {
-    Injectable,
-} from "@nestjs/common"
-import type {
-    EntityManager,
-} from "typeorm"
-import {
-    CourseRequest,
-} from "./graphql-types"
-import {
-    ExecuteParams,
-} from "../../../../types"
-import {
-    CourseTransformerService,
-} from "../../../utils"
-import _ from "lodash"
+  S3NameResolverService,
+  S3Provider,
+  S3ReadService,
+  UploadPayload,
+} from '@modules/s3';
+import { Injectable } from '@nestjs/common';
+import SuperJSON from 'superjson';
+import { ExecuteParams } from '../../../../types';
+import { CourseRequest } from './graphql-types';
 
 /**
  * Loads a single course from primary PostgreSQL for GraphQL.
  */
 @Injectable()
 export class CourseService {
-    constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
-        private readonly courseTransformer: CourseTransformerService,
-    ) { }
+  constructor(
+    private readonly s3ReadService: S3ReadService,
+    private readonly s3NameResolverService: S3NameResolverService,
+    @InjectSuperJson()
+    private readonly superJson: SuperJSON,
+  ) {}
 
-    /**
-     * Entry: returns one course by primary id.
-     *
-     * @param request - Wrapper with course id
-     * @param request.id - Course id
-     * @throws {CourseNotFoundException} When no course exists for `id`.
-     */
-    async execute(
-        {
-            request,
-            locale,
-        }: ExecuteParams<CourseRequest>,
-    ): Promise<CourseEntity> {
-        const {
-            id,
-            displayId,
-        } = request
-        const course = await this.entityManager.findOne(
-            CourseEntity,
+  /**
+   * Entry: returns one challenge by primary id.
+   *
+   * @param request - Wrapper with challenge id
+   * @param request.id - Challenge id
+   * @throws {CourseNotFoundException} When no challenge exists for `id`.
+   */
+  async execute({
+    request,
+    locale,
+  }: ExecuteParams<CourseRequest>): Promise<CourseEntity> {
+    if (!request.displayId) {
+        throw new CourseNotFoundException(
             {
-                where: {
-                    ...(id && {
-                        id,
-                    }),
-                    ...(displayId && {
-                        displayId,
-                    }),
-                },
-                relations: {
-                    metadata: true,
-                    translations: true,
-                },
-            },
-        )
-        if (!course) {
-            throw new CourseNotFoundException(
-                {
-                    ...(
-                        id && {
-                            id,
-                        }
-                    ),
-                    ...(
-                        displayId && {
-                            displayId,
-                        }
-                    ),
-                },
-            )
-        }
-        const hydratedCourse = _.cloneDeep(course)
-        const prerequisites = await this.entityManager.find(
-            PrerequisiteEntity,
-            {
-                where: {
-                    course: {
-                        id: hydratedCourse.id,
-                    },
-                    translations: {
-                        locale,
-                    },
-                },
-                relations: {
-                    translations: true,
-                },
-            },
-        )
-        const hydratedPrerequisites = _.cloneDeep(prerequisites)
-        hydratedCourse.prerequisites = hydratedPrerequisites
-        const valuePropositions = await this.entityManager.find(
-            ValuePropositionEntity,
-            {
-                where: {
-                    course: {
-                        id: hydratedCourse.id,
-                    },
-                },
-                relations: {
-                    translations: true,
-                },
-                order: {
-                    orderIndex: "ASC",
-                },
-            },
-        )
-        const hydratedValuePropositions = _.cloneDeep(valuePropositions)
-        hydratedCourse.valuePropositions = hydratedValuePropositions
-        const qnas = await this.entityManager.find(
-            QnaEntity,
-            {
-                where: {
-                    course: {
-                        id: hydratedCourse.id,
-                    },
-                },
-                relations: {
-                    translations: true,
-                },
-                order: {
-                    orderIndex: "ASC",
-                },
-            },
-        )
-        const hydratedQnas = _.cloneDeep(qnas)
-        hydratedCourse.qnas = hydratedQnas
-        const pricingPhases = await this.entityManager.find(
-            PricingPhaseEntity,
-            {
-                where: {
-                    course: {
-                        id: hydratedCourse.id,
-                    },
-                },
-                order: {
-                    orderIndex: "ASC",
-                },
-            },
-        )
-        const hydratedPricingPhases = _.cloneDeep(pricingPhases)
-        hydratedCourse.pricingPhases = hydratedPricingPhases
-        const modules = await this.entityManager.find(
-            ModuleEntity,
-            {
-                where: {
-                    course: {
-                        id: hydratedCourse.id,
-                    },
-                },
-                relations: {
-                    translations: true,
-                },
-                order: {
-                    orderIndex: "ASC",
-                },
-            },
-        )
-        const hydratedModules = _.cloneDeep(modules)
-        for (const module of hydratedModules) {
-            const previewContents = await this.entityManager.find(
-                PreviewContentEntity,
-                {
-                    where: {
-                        module: {
-                            id: module.id,
-                        },
-                    },
-                    relations: {
-                        translations: true,
-                    },
-                    order: {
-                        orderIndex: "ASC",
-                    },
-                },
-            )
-            const hydratedPreviewContents = _.cloneDeep(previewContents)
-            module.previewContents = hydratedPreviewContents
-        }
-        hydratedCourse.modules = _.cloneDeep(hydratedModules)
-        return this.courseTransformer.transform(
-            hydratedCourse,
-            locale,
-        )
+                id: request.id,
+            }
+        );
     }
+
+    const objectKey = this.s3NameResolverService.course(request.displayId, locale);
+    const cdnPayload = await this.s3ReadService
+      .json<UploadPayload>({
+        key: objectKey,
+        provider: S3Provider.Minio,
+      })
+      .catch(() => null);
+
+    if (!cdnPayload) {
+        throw new CourseNotFoundException(
+            { 
+                id: 
+                request.id 
+            }
+        );
+    }
+
+    const hydratedCourse = this.superJson.parse<CourseEntity>(cdnPayload.data);
+    return hydratedCourse;
+  }
 }

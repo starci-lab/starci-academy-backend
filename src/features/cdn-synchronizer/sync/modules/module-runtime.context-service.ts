@@ -5,7 +5,6 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
     ModuleEntity,
     PreviewContentEntity,
-    SubmissionEntity
 } from "@modules/databases"
 import {
     envConfig
@@ -117,20 +116,7 @@ export class ModuleRuntimeContextService {
                 },
             }
         )
-        const hydratedPreviewContents = previewContents?.map((previewContent) => previewContent.toPlain<PreviewContentEntity>())  
-        //take all submissions related to the module
-        const submissions = await this.entityManager.find(
-            SubmissionEntity,
-            {
-                where: {
-                    module: {
-                        id: hydratedModule.id,
-                    },
-                },
-            }
-        )
-        const hydratedSubmissions = submissions?.map((submission) => submission.toPlain<SubmissionEntity>())  
-        hydratedModule.submissions = hydratedSubmissions
+        const hydratedPreviewContents = previewContents?.map((previewContent) => previewContent.toPlain<PreviewContentEntity>())
         hydratedModule.previewContents = hydratedPreviewContents
         // upload the module to the CDN
         const data = this.superJson.stringify(hydratedModule);

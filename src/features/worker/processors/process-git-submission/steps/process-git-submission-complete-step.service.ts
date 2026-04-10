@@ -4,6 +4,8 @@ import type {
 import {
     InjectPrimaryPostgreSQLEntityManager,
     InjectQdrantClient,
+    JobStatus,
+    SubmissionAttemptEntity,
     SubmissionFeedbackEntity,
     UserChallengeSubmissionEntity,
 } from "@modules/databases"
@@ -132,38 +134,40 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
                 suggestion: feedback.suggestion?.trim() || null,
                 severity: feedback.severity,
                 orderIndex: index,
-                userChallengeSubmission: {
-                    id: context.payload.userChallengeSubmissionId,
+                attempt: {
+                    id: context.payload.submissionAttemptId,
                 },
             })
             )
         // Update scalar fields
         await this.entityManager.transaction(
             async (entityManager) => {
-                // Update scalar fields
+                // 1. Update the attempt record
                 await entityManager.update(
-                    UserChallengeSubmissionEntity,
+                    SubmissionAttemptEntity,
                     {
-                        id: context.payload.userChallengeSubmissionId,
+                        id: context.payload.submissionAttemptId,
                     },
                     {
                         score: grade.score,
-                        processed: true,
+                        status: JobStatus.Completed,
                         processedAt: this.dayjsService.now().toDate(),
                         shortFeedback: grade.shortFeedback,
                     },
                 )
 
-                // Replace structured feedback rows
+
+                // 3. Clear existing feedbacks for this attempt
                 await entityManager.delete(
                     SubmissionFeedbackEntity,
                     {
-                        userChallengeSubmission: {
-                            id: context.payload.userChallengeSubmissionId,
+                        attempt: {
+                            id: context.payload.submissionAttemptId,
                         },
                     },
                 )
-                // Replace structured feedback rows
+
+                // 4. Save new feedbacks linked to attempt
                 if (feedbacks.length) {
                     await entityManager.save(
                         SubmissionFeedbackEntity,

@@ -1,15 +1,20 @@
 import {
+    ChallengeEntity,
     ChallengeSubmissionEntity,
     ChallengeSubmissionPromptEntity,
     UserChallengeSubmissionEntity,
 } from "@modules/databases"
 
-/** Extended context for the process-git-submission pipeline. */
-export interface ExtendedProcessGitSubmissionContext {
+/**
+ * Context extension for the Process Google Docs Submission job.
+ */
+export interface ExtendedProcessGoogleDocsSubmissionContext {
     /** Grading rubric rows from `challenge_submission_prompts`. */
     prompts: Array<ChallengeSubmissionPromptEntity>
-    /** Challenge submission. */
+    /** Challenge submission requirement. */
     challengeSubmission: ChallengeSubmissionEntity
-    /** User challenge submission. */
+    /** Parent challenge. */
+    challenge: ChallengeEntity
+    /** The user submission record. */
     userChallengeSubmission: UserChallengeSubmissionEntity
 }

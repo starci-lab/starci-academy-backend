@@ -16,9 +16,6 @@ import {
     ExecuteParams,
 } from "../../../../types"
 import {
-    ContentTransformerService,
-} from "../../../utils"
-import {
     ContentsRequest,
     ContentsResponseData
 } from "./graphql-types"
@@ -29,7 +26,6 @@ import {
 @Injectable()
 export class ContentsService {
     constructor(
-        private readonly contentTransformer: ContentTransformerService,
         private readonly  elasticsearch: ElasticsearchService,
     ) {}
 
@@ -57,6 +53,11 @@ export class ContentsService {
                         "moduleId.keyword": moduleId,
                     },
                 },
+                {
+                    term: {
+                        "locale": locale,
+                    },
+                },
             ],
             search,
             searchFields: ["title^3", "description", "body"],
@@ -71,14 +72,6 @@ export class ContentsService {
                 size: limit,
             },
         )
-
-        for (const content of data) {
-          this.contentTransformer.transform(
-            content,
-            locale,
-            content.defaultLocale ?? Locale.En,
-          );
-        }
 
         return {
             count,

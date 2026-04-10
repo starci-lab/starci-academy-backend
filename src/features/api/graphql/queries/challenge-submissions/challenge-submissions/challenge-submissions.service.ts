@@ -106,6 +106,16 @@ export class ChallengeSubmissionsService {
                         id: In(submissionIds),
                     },
                 },
+                relations: {
+                    attempts: {
+                        feedbacks: true,
+                    },
+                },
+                order: {
+                    attempts: {
+                        createdAt: "DESC",
+                    },
+                },
             },
         )
         const bySubmissionId = new Map(

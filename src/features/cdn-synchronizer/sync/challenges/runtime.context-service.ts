@@ -19,7 +19,8 @@ import {
     ChallengeEntity,
     ChallengeReferenceEntity,
     ChallengeStepEntity,
-    InjectPrimaryPostgreSQLEntityManager
+    InjectPrimaryPostgreSQLEntityManager,
+    Locale
 } from "@modules/databases"
 import {
     EntityManager
@@ -44,6 +45,10 @@ import {
     WinstonLog, 
     WinstonService 
 } from "@modules/winston"
+import {
+    ChallengeTransformerService 
+} from "@features/api/graphql/utils/challenge-transformer.service"
+import _ from "lodash"
 
 @Injectable({
     scope: Scope.REQUEST,
@@ -61,7 +66,8 @@ export class ChallengeRuntimeContextService {
         private readonly sha256Service: Sha256Service,
         private readonly s3UploadService: S3UploadService,
         private readonly s3NameResolverService: S3NameResolverService,
-        private readonly winstonService: WinstonService
+        private readonly winstonService: WinstonService,
+        private readonly challengeTransformer: ChallengeTransformerService,
     ) {
     }
 
@@ -104,7 +110,7 @@ export class ChallengeRuntimeContextService {
                     },
                 )
             }
-            const hydratedChallenge = challenge.toPlain<ChallengeEntity>()
+            const plainChallenge = challenge.toPlain<ChallengeEntity>()
         
             // take all steps related to the challenge
             const steps = await this.entityManager.find(
@@ -112,7 +118,7 @@ export class ChallengeRuntimeContextService {
                 {
                     where: {
                         challenge: {
-                            id: hydratedChallenge.id,
+                            id: plainChallenge.id,
                         },
                     },
                     relations: {
@@ -120,14 +126,13 @@ export class ChallengeRuntimeContextService {
                     },
                 }
             )
-            const hydratedSteps = steps?.map((step) => step.toPlain<ChallengeStepEntity>())
             // take all references related to the challenge
             const references = await this.entityManager.find(
                 ChallengeReferenceEntity,
                 {
                     where: {
                         challenge: {
-                            id: hydratedChallenge.id,
+                            id: plainChallenge.id,
                         },
                     },
                     relations: {
@@ -135,26 +140,44 @@ export class ChallengeRuntimeContextService {
                     },
                 }
             )
+
+            // hydrate to plain objects once
+            const hydratedSteps = steps?.map((step) => step.toPlain<ChallengeStepEntity>())
             const hydratedReferences = references?.map((reference) => reference.toPlain<ChallengeReferenceEntity>())
-            hydratedChallenge.steps = hydratedSteps
-            hydratedChallenge.references = hydratedReferences
-            // upload the challenge to the CDN
-            const data = this.superJson.stringify(hydratedChallenge)
-            const hash = this.sha256Service.hash(data)
-            const payload: UploadPayload = {
-                data,
-                hash,
-            }
-            objectKey = this.s3NameResolverService.challenge(hydratedChallenge.id)
-            await this.s3UploadService.json({
-                name: objectKey,
-                payload,
-                acl: "private",
-                providers: [
-                    S3Provider.DigitalOcean,
-                    S3Provider.Minio,
-                ],
-            })
+            plainChallenge.steps = hydratedSteps
+            plainChallenge.references = hydratedReferences
+
+            // Sync each locale separately
+            const locales = [Locale.Vi, Locale.En]
+            await Promise.all(locales.map(async (locale) => {
+                // deep clone the plain objects to avoid mutating the original
+                const hydratedChallenge = _.cloneDeep(plainChallenge)
+
+                // transform the challenge clone for the current locale
+                this.challengeTransformer.transform(
+                    hydratedChallenge,
+                    locale,
+                    hydratedChallenge.defaultLocale ?? Locale.En,
+                )
+
+                // upload the challenge to the CDN
+                const data = this.superJson.stringify(hydratedChallenge)
+                const hash = this.sha256Service.hash(data)
+                const payload: UploadPayload = {
+                    data,
+                    hash,
+                }
+                objectKey = this.s3NameResolverService.challenge(hydratedChallenge.id, locale)
+                await this.s3UploadService.json({
+                    name: objectKey,
+                    payload,
+                    acl: "private",
+                    providers: [
+                        S3Provider.DigitalOcean,
+                        S3Provider.Minio,
+                    ],
+                })
+            }))
         } catch (error) {
             this.winstonService.log(
                 WinstonLog.CdnSynchronizerChallengeRuntimeSyncFailed,

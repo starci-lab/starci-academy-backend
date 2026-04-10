@@ -55,6 +55,9 @@ export class CourseEnrollResponse
 {
     @Field(
         () => CourseEnrollResponseData,
+        {
+            nullable: true,
+        },
     )
         data: CourseEnrollResponseData
 }

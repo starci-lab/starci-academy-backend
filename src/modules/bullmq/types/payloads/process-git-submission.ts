@@ -12,6 +12,8 @@ export interface ProcessGitSubmissionPayload {
     userId: string
     /** `user_challenge_submissions.id`. */
     userChallengeSubmissionId: string
+    /** `submission_attempts.id`. */
+    submissionAttemptId: string
     /** Branch override. */
     branch?: string
     /** Model to use for grading. */
@@ -23,3 +25,8 @@ export interface ProcessGitSubmissionPayload {
     /** Provider of the embedding model. */
     embeddingProvider?: ModelProvider
 }
+
+/**
+ * BODY body for Google Doc submission grading pipelines.
+ */
+export type ProcessGoogleDocsSubmissionPayload = ProcessGitSubmissionPayload

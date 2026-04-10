@@ -9,9 +9,6 @@ import {
     UuidAbstractEntity 
 } from "./abstract"
 import {
-    SubmissionEntity 
-} from "./submission.entity"
-import {
     EnrollmentEntity,
 } from "./enrollment.entity"
 import {
@@ -121,19 +118,6 @@ export class UserEntity extends UuidAbstractEntity {
     })
         isDeleted: boolean
 
-    @Field(
-        () => [SubmissionEntity],
-        {
-            nullable: true,
-            description: "Learner submissions by this user.",
-        },
-    )
-    @OneToMany(() => SubmissionEntity,
-        (submission: SubmissionEntity) => submission.user,
-        {
-            cascade: true
-        })
-        submissions: Array<SubmissionEntity>
 
     @Field(
         () => [EnrollmentEntity],

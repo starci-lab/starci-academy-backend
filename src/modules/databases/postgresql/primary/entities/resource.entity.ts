@@ -9,8 +9,8 @@ import {
     ResourceType,
 } from "../enums/resource-type"
 import {
-    SubmissionEntity 
-} from "./submission.entity"
+    ChallengeSubmissionEntity 
+} from "./challenge-submission.entity"
 import {
     UuidAbstractEntity 
 } from "./abstract"
@@ -60,19 +60,19 @@ export class ResourceEntity extends UuidAbstractEntity {
     })
         gitUrl: string | null
 
-    @Field(() => SubmissionEntity,
+    @Field(() => ChallengeSubmissionEntity,
         {
-            description: "Parent submission that owns this resource."
+            description: "Parent submission requirement that owns this resource."
         })
-    @ManyToOne(() => SubmissionEntity,
-        (submission: SubmissionEntity) => submission.resources,
+    @ManyToOne(() => ChallengeSubmissionEntity,
+        (submission: ChallengeSubmissionEntity) => submission.resources,
         {
             onDelete: "CASCADE"
         })
     @JoinColumn({
-        name: "submission_id",
-        foreignKeyConstraintName: "fk_submission_id_resources_submissions",
+        name: "challenge_submission_id",
+        foreignKeyConstraintName: "fk_challenge_submission_id_resources",
     })
-        submission: SubmissionEntity
+        challengeSubmission: ChallengeSubmissionEntity
 }
 

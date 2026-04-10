@@ -16,8 +16,13 @@ import {
 } from "@nestjs/core"
 import {
     LessonVideoEntity,
-    InjectPrimaryPostgreSQLEntityManager
+    InjectPrimaryPostgreSQLEntityManager,
+    Locale,
 } from "@modules/databases"
+import _ from "lodash"
+import {
+    LessonVideoTransformerService,
+} from "../../../api/graphql/utils"
 import {
     EntityManager,
 } from "typeorm"
@@ -41,6 +46,7 @@ export class LessonVideoRuntimeContextService {
         private readonly request: LessonVideoRuntimeContextRequest,
         private readonly asyncService: AsyncService,
         private readonly elasticsearch: ElasticsearchService,
+        private readonly lessonVideoTransformer: LessonVideoTransformerService,
     ) {
     }
 
@@ -82,11 +88,34 @@ export class LessonVideoRuntimeContextService {
             )
         }
 
-        const hydratedLessonVideo = lessonVideo.toPlain<LessonVideoEntity>();
-        
-        await this.elasticsearch.indexEntity(
-            LessonVideoEntity,
-            hydratedLessonVideo,
-        );
+        const plainLessonVideo = lessonVideo.toPlain<LessonVideoEntity>();
+        const locales = [Locale.Vi, Locale.En]
+
+        for (const locale of locales) {
+            // deep clone the plain object to avoid mutating the original
+            const hydratedLessonVideo = _.cloneDeep(plainLessonVideo)
+
+            // transform the lesson video clone for the current locale
+            this.lessonVideoTransformer.transform(
+                hydratedLessonVideo,
+                locale,
+                hydratedLessonVideo.defaultLocale ?? Locale.En,
+            )
+
+            const { translations, ...dataToIndex } = hydratedLessonVideo;
+
+            // Use the original UUID for the 'id' field in the document body,
+            // but use a composite key (uuid-locale) for the Elasticsearch document ID (_id).
+            const indexedData = {
+                ...dataToIndex,
+                locale,
+            }
+
+            await this.elasticsearch.indexEntity(
+                LessonVideoEntity,
+                indexedData,
+                `${hydratedLessonVideo.id}-${locale}`,
+            );
+        }
     }
 }

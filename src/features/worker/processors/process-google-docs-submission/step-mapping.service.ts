@@ -1,34 +1,34 @@
 import {
     Injectable,
 } from "@nestjs/common"
-import {
-    AbstractStepService,
-} from "../abstracts"
 import type {
-    ProcessGitSubmissionPayload,
+    ProcessGoogleDocsSubmissionPayload,
 } from "@modules/bullmq"
-import {
-    ProcessGitSubmissionCompleteStepService,
-    ProcessGitSubmissionGradeStepService,
-    ProcessGitSubmissionLoadDocsStepService,
-    ProcessGitSubmissionSplitDocsStepService,
-    ProcessGitSubmissionVectorizeStepService,
-} from "./steps"
 import type {
-    ExtendedProcessGitSubmissionContext,
+    ExtendedProcessGoogleDocsSubmissionContext,
 } from "./types"
+import {
+    ProcessGoogleDocsSubmissionCompleteStepService,
+    ProcessGoogleDocsSubmissionGradeStepService,
+    ProcessGoogleDocsSubmissionLoadDocsStepService,
+    ProcessGoogleDocsSubmissionSplitDocsStepService,
+    ProcessGoogleDocsSubmissionVectorizeStepService,
+} from "./steps"
+import { 
+    AbstractStepService
+} from "../abstracts"
 
 /**
- * Git submission pipeline: load repo → split → vectorize → grade → complete.
+ * Google Docs submission pipeline: load docs → split → vectorize → grade → complete.
  */
 @Injectable()
-export class ProcessGitSubmissionStepMappingService {
+export class ProcessGoogleDocsSubmissionStepMappingService {
     constructor(
-        private readonly loadDocsStepService: ProcessGitSubmissionLoadDocsStepService,
-        private readonly splitDocsStepService: ProcessGitSubmissionSplitDocsStepService,
-        private readonly vectorizeStepService: ProcessGitSubmissionVectorizeStepService,
-        private readonly gradeStepService: ProcessGitSubmissionGradeStepService,
-        private readonly completeStepService: ProcessGitSubmissionCompleteStepService,
+        private readonly loadDocsStepService: ProcessGoogleDocsSubmissionLoadDocsStepService,
+        private readonly splitDocsStepService: ProcessGoogleDocsSubmissionSplitDocsStepService,
+        private readonly vectorizeStepService: ProcessGoogleDocsSubmissionVectorizeStepService,
+        private readonly gradeStepService: ProcessGoogleDocsSubmissionGradeStepService,
+        private readonly completeStepService: ProcessGoogleDocsSubmissionCompleteStepService,
     ) {}
 
     /**
@@ -38,13 +38,13 @@ export class ProcessGitSubmissionStepMappingService {
     getStepMap(): Map<
         number,
         AbstractStepService<
-            ProcessGitSubmissionPayload,
-            ExtendedProcessGitSubmissionContext
+            ProcessGoogleDocsSubmissionPayload,
+            ExtendedProcessGoogleDocsSubmissionContext
         >
-        > {
+    > {
         return new Map<number, AbstractStepService<
-            ProcessGitSubmissionPayload,
-            ExtendedProcessGitSubmissionContext
+            ProcessGoogleDocsSubmissionPayload,
+            ExtendedProcessGoogleDocsSubmissionContext
         >>(
             [
                 [

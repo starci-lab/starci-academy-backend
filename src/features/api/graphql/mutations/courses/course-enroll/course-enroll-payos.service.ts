@@ -105,9 +105,14 @@ export class CourseEnrollPayOsService {
             TransactionEntity,
             {
                 where: {
-                    userId: user.id,
-                    courseId: course.id,
+                    user: {
+                        id: user.id,
+                    },
+                    course: {
+                        id: course.id,
+                    },
                     status: TransactionStatus.Pending,
+                    paymentType: PaymentType.PayOS,
                 },
             },
         )

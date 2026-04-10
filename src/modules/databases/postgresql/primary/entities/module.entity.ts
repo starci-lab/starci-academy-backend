@@ -24,9 +24,6 @@ import {
     ChallengeEntity,
 } from "./challenge.entity"
 import {
-    SubmissionEntity 
-} from "./submission.entity"
-import {
     UuidAbstractEntity 
 } from "./abstract"
 import {
@@ -215,23 +212,6 @@ export class ModuleEntity extends UuidAbstractEntity {
         },
     )
         challenges: Array<ChallengeEntity>
-
-    /**
-     * Submissions associated with the module.
-     */
-    @Field(
-        () => [SubmissionEntity],
-        {
-            nullable: true,
-            description: "Learner submissions associated with this module.",
-        },
-    )
-    @OneToMany(() => SubmissionEntity,
-        (submission: SubmissionEntity) => submission.module,
-        {
-            cascade: true
-        })
-        submissions: Array<SubmissionEntity>
 
     /**
      * Localized translations of module fields such as title and description.

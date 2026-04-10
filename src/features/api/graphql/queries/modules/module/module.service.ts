@@ -58,7 +58,6 @@ export class ModuleService {
                     previewContents: {
                         translations: true,
                     },
-                    submissions: true,
                 },
             },
         )

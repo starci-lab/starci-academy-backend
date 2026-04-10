@@ -2,6 +2,7 @@ import {
   ContentEntity,
   ContentReferenceEntity,
   InjectPrimaryPostgreSQLEntityManager,
+  Locale,
 } from "@modules/databases";
 import { ElasticsearchService } from "@modules/elasticsearch";
 import { envConfig } from "@modules/env";
@@ -17,9 +18,13 @@ import {
   Scope,
 } from "@nestjs/common";
 import { REQUEST } from "@nestjs/core";
+import _ from "lodash";
 import {
   EntityManager
 } from "typeorm";
+import {
+  ContentTransformerService,
+} from "../../../api/graphql/utils";
 import type {
   ContentRuntimeContextRequest
 } from "./types";
@@ -36,6 +41,7 @@ export class ContentRuntimeContextService {
         private readonly request: ContentRuntimeContextRequest,
         private readonly asyncService: AsyncService,
         private readonly elasticsearch: ElasticsearchService,
+        private readonly contentTransformer: ContentTransformerService,
     ) {}
 
     /**
@@ -58,42 +64,74 @@ export class ContentRuntimeContextService {
     async process() {
 
       // take the content
-      const content = await this.entityManager.findOne(ContentEntity, {
-        where: {
-          id: this.request.id,
-        },
-        relations: {
-          translations: true,
-        },
-      });
-      if (!content) {
-        throw new ContentNotFoundException({
-          id: this.request.id,
-        });
-      }
-      const hydratedContent = content.toPlain<ContentEntity>();
-      // take all references related to the content
-      const references = await this.entityManager.find(ContentReferenceEntity, {
-        where: {
-          content: {
-            id: hydratedContent.id,
+      const content = await this.entityManager.findOne(
+        ContentEntity, 
+        {
+          where: {
+            id: this.request.id,
           },
-        },
-        select: {
-          id: true,
-          alias: true,
-          url: true,
-          orderIndex: true
+          relations: {
+            translations: true,
+          },
         }
-      });
+      );
+
+      if (!content) {
+        throw new ContentNotFoundException(
+          {
+            id: this.request.id,
+          },
+        );
+      }
+      const plainContent = content.toPlain<ContentEntity>();
+      // take all references related to the content
+      const references = await this.entityManager.find(
+        ContentReferenceEntity, 
+        {
+          where: {
+            content: {
+              id: plainContent.id,
+            },
+          },
+          select: {
+            id: true,
+            alias: true,
+            url: true,
+            orderIndex: true
+          }
+        }
+      );
+
       const hydratedReferences = references?.map((reference) =>
         reference.toPlain<ContentReferenceEntity>(),
       );
 
-      hydratedContent.references = hydratedReferences;
-      await this.elasticsearch.indexEntity(
-        ContentEntity,
-        hydratedContent,
-      );
+      plainContent.references = hydratedReferences;
+
+      const locales = [Locale.Vi, Locale.En];
+
+      await Promise.all(locales.map(async (locale) => {
+          const hydratedContent = _.cloneDeep(plainContent);
+
+          this.contentTransformer.transform(
+              hydratedContent,
+              locale,
+              hydratedContent.defaultLocale ?? Locale.En,
+          );
+
+          const { translations, ...dataToIndex } = hydratedContent;
+
+          const indexedData = {
+            ...dataToIndex,
+            locale,
+          }
+
+          // Index each locale separately with a composite ID
+          await this.elasticsearch.indexEntity(
+              ContentEntity,
+              indexedData,
+              `${hydratedContent.id}-${locale}`,
+          );
+      }));
     }
 }
