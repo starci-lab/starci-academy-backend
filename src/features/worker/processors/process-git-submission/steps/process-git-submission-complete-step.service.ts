@@ -113,6 +113,7 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
                 key: this.processGitSubmissionGradeStepService.stepName,
             },
         )
+        console.log(grade)
         if (
             !grade
             || typeof grade.score !== "number"
