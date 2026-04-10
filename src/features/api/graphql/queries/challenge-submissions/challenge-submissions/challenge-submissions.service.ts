@@ -30,7 +30,7 @@ export class ChallengeSubmissionsService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
-    ) {}
+    ) { }
 
     /**
      * Loads all challenge submissions for a challenge; sets userSubmission per row for the current user.
@@ -123,7 +123,7 @@ export class ChallengeSubmissionsService {
             {
                 where: {
                     userChallengeSubmission: {
-                        id: In(submissionIds),
+                        id: In(joins.map((join) => join.id)),
                     },
                 },
                 order: {
