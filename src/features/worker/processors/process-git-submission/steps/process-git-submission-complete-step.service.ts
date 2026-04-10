@@ -7,7 +7,6 @@ import {
     JobStatus,
     SubmissionAttemptEntity,
     SubmissionFeedbackEntity,
-    UserChallengeSubmissionEntity,
 } from "@modules/databases"
 import {
     JobActionService,

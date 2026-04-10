@@ -243,7 +243,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             "- do not invent files, features, or behaviors not present in the excerpt.",
             "- keep submissionFeedbacks messages actionable and specific.",
         ].filter(Boolean).join("\n")
-        console.log(systemText)
+        //console.log(systemText)
         
         const humanText = [
             "Below is an excerpt of files loaded from the submitted GitHub repository (may be truncated):",
@@ -271,7 +271,6 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         const raw = (typeof response.content === "string"
             ? response.content
             : String(response.content)) as string
-        console.log(raw)
         return this.parseGradeFromModelText(raw)
     }
 
