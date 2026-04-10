@@ -1,6 +1,7 @@
 import {
     InjectPrimaryPostgreSQLEntityManager,
     SubmissionAttemptEntity,
+    UserChallengeSubmissionEntity,
 } from "@modules/databases"
 import {
     envConfig,
@@ -40,7 +41,7 @@ export class SubmissionAttemptsService {
     async execute(
         {
             request: {
-                userChallengeSubmissionId,
+                challengeSubmissionId,
                 filters: {
                     limit = envConfig().services.api.pagination.page.limit,
                     pageNumber = 0,
@@ -49,28 +50,44 @@ export class SubmissionAttemptsService {
             },
         }: ExecuteParams<SubmissionAttemptsRequest>,
     ): Promise<SubmissionAttemptsResponseData> {
-        const order: FindOptionsOrder<SubmissionAttemptEntity> = {}
+        const order: FindOptionsOrder<SubmissionAttemptEntity> = {
+        }
         for (const sort of sorts) {
             order[sort.by as SubmissionAttemptsSortBy] = sort.order
         }
 
-        const [data, count] = await this.entityManager.findAndCount(
+        const userChallengeSubmission = await this.entityManager.findOne(
+            UserChallengeSubmissionEntity,
+            {
+                where: {
+                    submission: {
+                        id: challengeSubmissionId,
+                    },
+                },
+            },
+        )
+        if (!userChallengeSubmission) {
+            return {
+                data: [],
+                count: 0,
+            }
+        }
+        const [
+            data,
+            count
+        ] = await this.entityManager.findAndCount(
             SubmissionAttemptEntity,
             {
                 where: {
-                    ...(userChallengeSubmissionId && {
-                        userChallengeSubmissionId,
-                    }),
+                    userChallengeSubmission: {
+                        id: userChallengeSubmission.id,
+                    },
                 },
                 order,
                 skip: pageNumber * limit,
                 take: limit,
-                relations: {
-                    feedbacks: true,
-                },
             },
         )
-
         return {
             data,
             count,

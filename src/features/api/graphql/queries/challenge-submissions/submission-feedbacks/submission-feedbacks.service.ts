@@ -50,18 +50,22 @@ export class SubmissionFeedbacksService {
             },
         }: ExecuteParams<SubmissionFeedbacksRequest>,
     ): Promise<SubmissionFeedbacksResponseData> {
-        const order: FindOptionsOrder<SubmissionFeedbackEntity> = {}
+        const order: FindOptionsOrder<SubmissionFeedbackEntity> = {
+        }
         for (const sort of sorts) {
             order[sort.by as SubmissionFeedbacksSortBy] = sort.order
         }
 
-        const [data, count] = await this.entityManager.findAndCount(
+        const [
+            data,
+            count
+        ] = await this.entityManager.findAndCount(
             SubmissionFeedbackEntity,
             {
                 where: {
-                    ...(submissionAttemptId && {
-                        attemptId: submissionAttemptId,
-                    }),
+                    attempt: {
+                        id: submissionAttemptId,
+                    },
                 },
                 order,
                 skip: pageNumber * limit,

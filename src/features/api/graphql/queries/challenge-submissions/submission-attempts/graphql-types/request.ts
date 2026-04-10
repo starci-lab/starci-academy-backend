@@ -87,11 +87,10 @@ export class SubmissionAttemptsRequest {
     @Field(
         () => ID,
         {
-            description: "User challenge submission id; if provided, only attempts for this submission are returned.",
-            nullable: true,
+            description: "Challenge submission id; if provided, only attempts for this submission are returned.",
         },
     )
-        userChallengeSubmissionId?: string
+        challengeSubmissionId: string
 
     @Field(
         () => SubmissionAttemptsRequestPaginationFilters,
