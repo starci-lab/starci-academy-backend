@@ -68,8 +68,12 @@ export class CourseEnrollService {
             EnrollmentEntity,
             {
                 where: {
-                    courseId,
-                    userId: user.id,
+                    course: {
+                        id: courseId,
+                    },
+                    user: {
+                        id: user.id,
+                    },
                 },
             },
         )
@@ -83,6 +87,7 @@ export class CourseEnrollService {
             )
         }
         // delegate to the appropriate payment service
+        console.log(paymentType);
         switch (paymentType) {
         // delegate to PayOS payment service
         case PaymentType.PayOS: {

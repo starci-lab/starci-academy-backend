@@ -8,8 +8,14 @@ import {
     ChallengeSubmissionQueryModule,
 } from "./challenge-submission"
 import {
-    ChallengeSubmissionsSingleQueryModule,
-} from "./challenge-submissions"
+    SubmissionAttemptsModule,
+} from "./submission-attempts"
+import {
+    SubmissionFeedbacksModule,
+} from "./submission-feedbacks"
+import {
+    ChallengeSubmissionsSingleQueryModule 
+} from "./challenge-submissions/challenge-submissions.module"
 
 @Module({
     imports: [
@@ -17,6 +23,12 @@ import {
             isGlobal: true,
         }),
         ChallengeSubmissionsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        SubmissionAttemptsModule.register({
+            isGlobal: true,
+        }),
+        SubmissionFeedbacksModule.register({
             isGlobal: true,
         }),
     ],

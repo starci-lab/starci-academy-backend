@@ -80,11 +80,17 @@ export class CourseEnrollSepayService {
         let transaction = await this.entityManager.findOne(TransactionEntity,
             {
                 where: {
-                    userId: user.id,
-                    courseId: course.id,
+                    user: {
+                        id: user.id,
+                    },
+                    course: {
+                        id: course.id,
+                    },
                     status: TransactionStatus.Pending,
+                    paymentType: PaymentType.Sepay,
                 },
             })
+        console.log("Find transaction Sepay", transaction?.id);
         if (transaction) {
             // check the timestamp of the transaction
             const timeSinceCreationMs = this.dayjsService
