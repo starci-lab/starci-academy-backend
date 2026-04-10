@@ -13,7 +13,12 @@ import {
     ContentEntity,
     ContentReferenceEntity,
     InjectPrimaryPostgreSQLEntityManager,
+    Locale,
 } from "@modules/databases";
+import _ from "lodash";
+import {
+    ContentTransformerService,
+} from "../../../api/graphql/utils";
 import { 
     EntityManager 
 } from "typeorm";
@@ -53,6 +58,7 @@ export class ContentRuntimeContextService {
         private readonly s3UploadService: S3UploadService,
         private readonly s3NameResolverService: S3NameResolverService,
         private readonly winstonService: WinstonService,
+        private readonly contentTransformer: ContentTransformerService,
     ) {}
 
     /**
@@ -89,12 +95,12 @@ export class ContentRuntimeContextService {
                     id: this.request.id,
                 });
             }
-            const hydratedContent = content.toPlain<ContentEntity>();
+            const plainContent = content.toPlain<ContentEntity>();
             // take all references related to the content
             const references = await this.entityManager.find(ContentReferenceEntity, {
                 where: {
                     content: {
-                        id: hydratedContent.id,
+                        id: plainContent.id,
                     },
                 },
                 relations: {
@@ -108,21 +114,37 @@ export class ContentRuntimeContextService {
                 reference.toPlain<ContentReferenceEntity>(),
             );
 
-            hydratedContent.references = hydratedReferences;
-            // upload the content to the CDN
-            const data = this.superJson.stringify(hydratedContent);
-            const hash = this.sha256Service.hash(data);
-            const payload: UploadPayload = {
-                data,
-                hash,
-            };
-            objectKey = this.s3NameResolverService.content(hydratedContent.id);
-            await this.s3UploadService.json({
-                name: objectKey,
-                payload,
-                acl: "private",
-                providers: [S3Provider.DigitalOcean, S3Provider.Minio],
-            });
+            plainContent.references = hydratedReferences;
+
+            const locales = [Locale.Vi, Locale.En]
+
+            await Promise.all(locales.map(async (locale) => {
+                // deep clone the plain object to avoid mutating the original
+                const hydratedContent = _.cloneDeep(plainContent)
+
+                // transform the content clone for the current locale
+                this.contentTransformer.transform(
+                    hydratedContent,
+                    locale,
+                    hydratedContent.defaultLocale ?? Locale.En,
+                )
+
+                // upload the content to the CDN
+                const data = this.superJson.stringify(hydratedContent);
+                const hash = this.sha256Service.hash(data);
+                const payload: UploadPayload = {
+                    data,
+                    hash,
+                };
+                const currentObjectKey = this.s3NameResolverService.content(hydratedContent.id, locale);
+                
+                await this.s3UploadService.json({
+                    name: currentObjectKey,
+                    payload,
+                    acl: "private",
+                    providers: [S3Provider.DigitalOcean, S3Provider.Minio],
+                });
+            }))
         } catch (error) {
             this.winstonService.log(
                 WinstonLog.CdnSynchronizerContentRuntimeSyncFailed,

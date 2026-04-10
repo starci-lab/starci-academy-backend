@@ -20,6 +20,8 @@ export interface EnqueueProcessGitSubmissionJobParams {
     userId: string
     /** `user_challenge_submissions.id`. */
     userChallengeSubmissionId: string
+    /** `submission_attempts.id`. */
+    submissionAttemptId: string
     /** Existing `jobs.id` to requeue (optional). */
     jobId?: string
     /** Git branch override for repo loader. */

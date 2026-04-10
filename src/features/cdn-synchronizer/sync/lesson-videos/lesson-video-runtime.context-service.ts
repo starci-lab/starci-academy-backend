@@ -1,59 +1,50 @@
 import {
-    envConfig 
+    Sha256Service
+} from "@modules/crypto"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+    LessonVideoEntity,
+    Locale,
+} from "@modules/databases"
+import {
+    envConfig
 } from "@modules/env"
 import {
-    AsyncService, 
+    LessonVideoNotFoundException
+} from "@modules/exceptions"
+import {
+    AsyncService,
     InjectSuperJson
 } from "@modules/mixin"
 import {
+    S3NameResolverService,
+    S3Provider,
+    S3UploadService,
+    UploadPayload
+} from "@modules/s3"
+import {
+    WinstonLog,
+    WinstonService
+} from "@modules/winston"
+import {
     Inject,
-    Injectable 
+    Injectable,
+    Scope
 } from "@nestjs/common"
 import {
-    Scope 
-} from "@nestjs/common"
-import {
-    REQUEST 
+    REQUEST
 } from "@nestjs/core"
-import {
-    ChallengeEntity,
-    ChallengeReferenceEntity,
-    ChallengeStepEntity,
-    CourseEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    LessonVideoEntity,
-    ModuleEntity,
-    PrerequisiteEntity,
-    PreviewContentEntity,
-    PricingPhaseEntity,
-    QnaEntity,
-    ValuePropositionEntity
-} from "@modules/databases"
+import _ from "lodash"
+import SuperJSON from "superjson"
 import {
     EntityManager
 } from "typeorm"
 import {
-    ChallengeNotFoundException, 
-    CourseNotFoundException,
-    LessonVideoNotFoundException
-} from "@modules/exceptions"
-import SuperJSON from "superjson"
+    LessonVideoTransformerService,
+} from "../../../api/graphql/utils"
 import type {
     LessonVideoRuntimeContextRequest
 } from "./types"
-import {
-    Sha256Service 
-} from "@modules/crypto"
-import {
-    S3UploadService, 
-    UploadPayload,
-    S3Provider,
-    S3NameResolverService
-} from "@modules/s3"
-import {
-    WinstonLog, 
-    WinstonService 
-} from "@modules/winston"
 
 @Injectable({
   scope: Scope.REQUEST,
@@ -72,6 +63,7 @@ export class LessonVideoRuntimeContextService {
     private readonly s3UploadService: S3UploadService,
     private readonly s3NameResolverService: S3NameResolverService,
     private readonly winstonService: WinstonService,
+    private readonly lessonVideoTransformer: LessonVideoTransformerService,
   ) {}
 
   /**
@@ -113,24 +105,40 @@ export class LessonVideoRuntimeContextService {
                 },
             )
         }
-        const hydratedLessonVideo = lessonVideo.toPlain<LessonVideoEntity>();
-        // upload the lesson video to the CDN
-        const data = this.superJson.stringify(hydratedLessonVideo);
-        const hash = this.sha256Service.hash(data)
-        const payload: UploadPayload = {
-            data,
-            hash,
-        }
-        objectKey = this.s3NameResolverService.lessonVideo(lessonVideo.id)
-        await this.s3UploadService.json({
-            name: objectKey,
-            payload,
-            acl: "private",
-            providers: [
-                S3Provider.DigitalOcean,
-                S3Provider.Minio,
-            ],
-        })
+        
+        const plainLessonVideo = lessonVideo.toPlain<LessonVideoEntity>();
+        const locales = [Locale.Vi, Locale.En]
+
+        await Promise.all(locales.map(async (locale) => {
+            // deep clone the plain object to avoid mutating the original
+            const hydratedLessonVideo = _.cloneDeep(plainLessonVideo)
+
+            // transform the lesson video clone for the current locale
+            this.lessonVideoTransformer.transform(
+                hydratedLessonVideo,
+                locale,
+                hydratedLessonVideo.defaultLocale ?? Locale.En,
+            )
+
+            // upload the lesson video to the CDN
+            const data = this.superJson.stringify(hydratedLessonVideo);
+            const hash = this.sha256Service.hash(data)
+            const payload: UploadPayload = {
+                data,
+                hash,
+            }
+            const currentObjectKey = this.s3NameResolverService.lessonVideo(lessonVideo.id, locale)
+            
+            await this.s3UploadService.json({
+                name: currentObjectKey,
+                payload,
+                acl: "private",
+                providers: [
+                    S3Provider.DigitalOcean,
+                    S3Provider.Minio,
+                ],
+            })
+        }))
     } catch (error) {
         this.winstonService.log(
             WinstonLog.CdnSynchronizerLessonVideoRuntimeSyncFailed,

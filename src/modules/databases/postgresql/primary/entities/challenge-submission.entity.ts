@@ -30,6 +30,9 @@ import {
 import {
     ChallengeSubmissionPromptEntity,
 } from "./challenge-submission-prompt.entity"
+import {
+    ResourceEntity,
+} from "./resource.entity"
 
 @ObjectType(
     "Submission",
@@ -170,6 +173,22 @@ export class ChallengeSubmissionEntity extends UuidAbstractEntity {
         },
     )
         prompts: Array<ChallengeSubmissionPromptEntity>
+
+    @Field(
+        () => [ResourceEntity],
+        {
+            nullable: true,
+            description: "Resources (git URLs or folder paths) attached to this submission requirement.",
+        },
+    )
+    @OneToMany(
+        () => ResourceEntity,
+        (resource: ResourceEntity) => resource.challengeSubmission,
+        {
+            cascade: true,
+        },
+    )
+        resources: Array<ResourceEntity>
 
     // graphql only fields, not stored in the database
     @Field(

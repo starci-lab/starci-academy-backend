@@ -1,5 +1,5 @@
 import type {
-    ProcessGitSubmissionPayload,
+    ProcessGoogleDocsSubmissionPayload,
 } from "@modules/bullmq"
 import {
     InjectPrimaryPostgreSQLEntityManager,
@@ -10,129 +10,112 @@ import {
 import {
     Injectable,
 } from "@nestjs/common"
-import {
-    RecursiveCharacterTextSplitter,
-} from "langchain/text_splitter"
 import type {
     EntityManager,
 } from "typeorm"
 import {
     AbstractStepService,
 } from "../../abstracts"
-import type {
-    JobExtendedContext,
-} from "../../types"
-import type {
-    ExtendedProcessGitSubmissionContext,
-    ProcessGitSubmissionLoadDocsStepExecuteResult,
-    ProcessGitSubmissionSplitDocsStepExecuteResult,
-} from "../types"
 import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
 import {
-    ProcessGitSubmissionLoadDocsStepService
-} from "./process-submission-load-docs-step.service"
+    ProcessGoogleDocsSubmissionLoadDocsStepExecuteResult,
+    ProcessGoogleDocsSubmissionSplitDocsStepExecuteResult,
+    ExtendedProcessGoogleDocsSubmissionContext,
+} from "../types"
 import {
-    Document,
-} from "@langchain/core/documents"
+    JobExtendedContext,
+} from "../../types"
 import {
-    envConfig 
+    envConfig,
 } from "@modules/env"
-import fs from "fs"
+import {
+    RecursiveCharacterTextSplitter,
+} from "langchain/text_splitter"
+import {
+    ProcessGoogleDocsSubmissionLoadDocsStepService,
+} from "./process-submission-load-docs-step.service"
 
 /**
- * Step 2: split loaded documents into chunks for embedding.
+ * Step 2: split document into chunks for embedding/grading.
  */
 @Injectable()
-export class ProcessGitSubmissionSplitDocsStepService extends AbstractStepService<ProcessGitSubmissionPayload, ExtendedProcessGitSubmissionContext> {
+export class ProcessGoogleDocsSubmissionSplitDocsStepService extends AbstractStepService<
+    ProcessGoogleDocsSubmissionPayload,
+    ExtendedProcessGoogleDocsSubmissionContext
+> {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
-        private readonly processGitSubmissionLoadDocsStepService: ProcessGitSubmissionLoadDocsStepService,
+        private readonly processGoogleDocsSubmissionLoadDocsStepService: ProcessGoogleDocsSubmissionLoadDocsStepService,
     ) {
         super()
     }
 
-    /**
-     * The index of the step.
-     */
     stepIndex = 1
 
-    /**
-     * The name of the step.
-     */
     stepName = "split-docs"
 
     /**
-     * Process the step: split loaded documents into chunks for embedding.
-     * @param context - The context.
-     * @returns The void.
+     * Process the step.
+     * @param context - The context of the step.
+     * @returns A promise that resolves when the step is processed.
      */
     async process(
         context: JobExtendedContext<
-            ProcessGitSubmissionPayload, 
-            ExtendedProcessGitSubmissionContext
+            ProcessGoogleDocsSubmissionPayload,
+            ExtendedProcessGoogleDocsSubmissionContext
         >,
     ): Promise<void> {
         // execute the step
         const executionResult = await this.execute(context)
         // finalize the step
-        await this.finalize(executionResult,
-            context)
+        await this.finalize(executionResult, context)
     }
 
     /**
-     * Execute the step: split loaded documents into chunks for embedding.
-     * @param context - The context.
-     * @returns The void.
+     * Execute the step.
+     * @param context - The context of the step.
+     * @returns A promise that resolves when the step is executed.
      */
     private async execute(
         context: JobExtendedContext<
-            ProcessGitSubmissionPayload, 
-            ExtendedProcessGitSubmissionContext
+            ProcessGoogleDocsSubmissionPayload,
+            ExtendedProcessGoogleDocsSubmissionContext
         >,
-    ): Promise<ProcessGitSubmissionSplitDocsStepExecuteResult> {
-        const executionResult = await this.jobActionService.loadExecutionResult<ProcessGitSubmissionLoadDocsStepExecuteResult>(
-            {
-                job: context.job,
-                key: this.processGitSubmissionLoadDocsStepService.stepName,
-            }
-        )
-        const docs = executionResult.docs.map((doc) => new Document(
-            {
-                pageContent: doc.pageContent,
-                metadata: doc.metadata,
-            }
-        ))
+    ): Promise<ProcessGoogleDocsSubmissionSplitDocsStepExecuteResult> {
+        const loadResult = await this.jobActionService.loadExecutionResult<ProcessGoogleDocsSubmissionLoadDocsStepExecuteResult>({
+            job: context.job,
+            key: this.processGoogleDocsSubmissionLoadDocsStepService.stepName,
+        })
+
         const splitter = new RecursiveCharacterTextSplitter({
-            chunkSize: envConfig().services.githubWorker.processGitSubmission.chunkSize,
+            chunkSize: envConfig().services.githubWorker.processGitSubmission.chunkSize, // Reusing git worker config
             chunkOverlap: envConfig().services.githubWorker.processGitSubmission.chunkOverlap,
         })
-        const chunks = await splitter.splitDocuments(docs)
-        fs.writeFileSync("chunks.json",
-            JSON.stringify(chunks,
-                null,
-                2))
-        throw new Error("test")
+
+        const chunks = await splitter.splitDocuments(loadResult.docs)
+
         return {
             chunks,
         }
     }
 
     /**
-     * Finalize the step: save the result to the database.
-     * @param context - The context.
-     * @returns The void.
+     * Finalize the step.
+     * @param executionResult - Execution result of the step.
+     * @param context - The context of the step.
+     * @returns A promise that resolves when the step is finalized.
      */
     private async finalize(
-        executionResult: ProcessGitSubmissionSplitDocsStepExecuteResult,
+        executionResult: ProcessGoogleDocsSubmissionSplitDocsStepExecuteResult,
         context: JobExtendedContext<
-            ProcessGitSubmissionPayload, 
-            ExtendedProcessGitSubmissionContext
+            ProcessGoogleDocsSubmissionPayload,
+            ExtendedProcessGoogleDocsSubmissionContext
         >,
     ): Promise<void> {
         const {
@@ -140,24 +123,21 @@ export class ProcessGitSubmissionSplitDocsStepService extends AbstractStepServic
             payload,
             queueName,
         } = context
-        await this.entityManager.transaction(
-            async (entityManager) => {
-                await this.jobActionService.increaseJob(
-                    {
-                        job,
-                        entityManager,
-                    },
-                )
-                await this.jobActionService.saveExecutionResult(
-                    {
-                        job,
-                        key: this.stepName,
-                        executionResult,
-                        entityManager,
-                    },
-                )
-            },
-        )
+
+        await this.entityManager.transaction(async (entityManager) => {
+            await this.jobActionService.increaseJob({
+                job,
+                entityManager,
+            })
+
+            await this.jobActionService.saveExecutionResult({
+                job,
+                key: this.stepName,
+                executionResult,
+                entityManager,
+            })
+        })
+
         this.winstonService.log(
             WinstonLog.ProcessGitSubmissionStepExecuted,
             {

@@ -1,16 +1,9 @@
 import {
     BullQueueName,
-    ProcessGitSubmissionPayload,
+    ProcessGoogleDocsSubmissionPayload,
     bullData,
 } from "@modules/bullmq"
 import {
-    envConfig,
-} from "@modules/env"
-import {
-    JobActionService,
-} from "@modules/bussiness"
-import {
-    DayjsService,
     InjectSuperJson,
 } from "@modules/mixin"
 import {
@@ -20,41 +13,51 @@ import {
 import {
     Job,
 } from "bullmq"
-import SuperJSON from "superjson"
+import {
+    JobActionService,
+} from "@modules/bussiness"
+import {
+    DayjsService,
+} from "@modules/mixin"
+import {
+    envConfig,
+} from "@modules/env"
 import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
 import {
-    ProcessGitSubmissionStepMappingService,
+    ProcessGoogleDocsSubmissionStepMappingService,
 } from "./step-mapping.service"
 import type {
-    ExtendedProcessGitSubmissionContext,
+    ExtendedProcessGoogleDocsSubmissionContext,
 } from "./types"
 import {
-    JobExtendedContext 
+    JobExtendedContext,
 } from "../types"
 import {
-    ChallengeSubmissionPromptEntity, 
-    ChallengeSubmissionEntity, 
-    InjectPrimaryPostgreSQLEntityManager, 
-    JobEntity, 
-    UserChallengeSubmissionEntity 
+    ChallengeSubmissionPromptEntity,
+    ChallengeSubmissionEntity,
+    InjectPrimaryPostgreSQLEntityManager,
+    JobEntity,
+    UserChallengeSubmissionEntity,
+    ChallengeEntity,
 } from "@modules/databases"
 import {
-    EntityManager 
+    EntityManager,
 } from "typeorm"
 import {
+    ChallengeNotFoundException,
     ChallengeSubmissionNotFoundException,
     UserChallengeSubmissionNotFoundException,
 } from "@modules/exceptions"
+import SuperJSON from "superjson"
 
 /**
- * Worker: GitHub submission → split → embed → grade (DB prompts) → update `user_challenge_submissions`.
- * Enqueued jobs must use `maxSteps` matching the pipeline (default `5`, see `JOB_PROCESS_GIT_SUBMISSION_MAX_STEPS`).
+ * Worker: Google Docs submission -> split -> vectorize -> grade (DB prompts) -> update `submission_attempts`.
  */
 @Worker(
-    bullData[BullQueueName.ProcessGitSubmission].name,
+    bullData[BullQueueName.ProcessGoogleDocsSubmission].name,
     {
         concurrency: envConfig().bullmq.concurrency,
         lockDuration: envConfig().bullmq.lockDuration,
@@ -62,12 +65,12 @@ import {
         maxStalledCount: envConfig().bullmq.maxStalledCount,
     },
 )
-export class ProcessGitSubmissionWorker extends WorkerHost {
+export class ProcessGoogleDocsSubmissionWorker extends WorkerHost {
     constructor(
         private readonly jobActionService: JobActionService,
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
-        private readonly stepMappingService: ProcessGitSubmissionStepMappingService,
+        private readonly stepMappingService: ProcessGoogleDocsSubmissionStepMappingService,
         private readonly winstonService: WinstonService,
         private readonly dayjsService: DayjsService,
         @InjectPrimaryPostgreSQLEntityManager()
@@ -78,12 +81,12 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
 
     /**
      * Process the job.
-     * @param bullmqJob - The bullmq job.
+     * @param bullmqJob - The BullMQ job.
      * @returns A promise that resolves when the job is processed.
      */
     async process(bullmqJob: Job<string>) {
         const startedAt = this.dayjsService.now()
-        let payload: ProcessGitSubmissionPayload | undefined
+        let payload: ProcessGoogleDocsSubmissionPayload | undefined
         let job: JobEntity | undefined
         try {
             job = await this.jobActionService.getJob(
@@ -91,7 +94,8 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
                     id: bullmqJob.id ?? "",
                 },
             )
-            payload = this.superJson.parse<ProcessGitSubmissionPayload>(bullmqJob.data)
+            payload = this.superJson.parse<ProcessGoogleDocsSubmissionPayload>(bullmqJob.data)
+            
             const stepMap = this.stepMappingService.getStepMap()
             const userChallengeSubmission = await this.entityManager.findOne(
                 UserChallengeSubmissionEntity,
@@ -101,11 +105,13 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
                     },
                 },
             )
+
             if (!userChallengeSubmission) {
                 throw new UserChallengeSubmissionNotFoundException({
                     userChallengeSubmissionId: payload.userChallengeSubmissionId,
                 })
             }
+
             const challengeSubmission = await this.entityManager.findOne(
                 ChallengeSubmissionEntity,
                 {
@@ -114,11 +120,29 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
                     },
                 },
             )
+            
             if (!challengeSubmission) {
                 throw new ChallengeSubmissionNotFoundException({
                     submissionId: userChallengeSubmission.submissionId,
                 })
             }
+
+            const challenge = await this.entityManager.findOne(
+                ChallengeEntity,
+                {
+                    where: {
+                        id: challengeSubmission.challengeId,
+                    },
+                },
+            )
+
+            if (!challenge) {
+                throw new ChallengeNotFoundException({
+                    id: challengeSubmission.challengeId,
+                })
+            }
+
+            // Fetch prompts from the database for this specific submission requirement
             const prompts = await this.entityManager.find(
                 ChallengeSubmissionPromptEntity,
                 {
@@ -132,32 +156,39 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
                     },
                 },
             )
+
             const context: JobExtendedContext<
-            ProcessGitSubmissionPayload, 
-            ExtendedProcessGitSubmissionContext
+                ProcessGoogleDocsSubmissionPayload,
+                ExtendedProcessGoogleDocsSubmissionContext
             > = {
                 job,
                 queueName: bullmqJob.queueName,
                 payload,
                 extended: {
-                    challengeSubmission,
                     prompts,
+                    challengeSubmission,
+                    challenge,
                     userChallengeSubmission,
                 },
             }
+
             while (job.currentStep < job.maxSteps) {
-                // refresh the job record
-                const syncedJob = await this.jobActionService.getJob(
-                    {
-                        id: job.id,
-                    },
-                )
+                // Refresh the job record to ensure we have the latest step index
+                const syncedJob = await this.jobActionService.getJob({
+                    id: job.id,
+                })
                 context.job = syncedJob
-                // process the step
-                await stepMap.get(syncedJob.currentStep)?.process(
-                    context,
-                )
+
+                // Process the current step
+                const step = stepMap.get(syncedJob.currentStep)
+                if (step) {
+                    await step.process(context)
+                } else {
+                    // Safety break if a step is missing to prevent infinite loop
+                    break
+                }
             }
+
             this.winstonService.log(
                 WinstonLog.JobExecutedSuccessfully,
                 {
@@ -174,10 +205,11 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
                     jobId: job?.id ?? "",
                     queueName: bullmqJob.queueName,
                     payload,
-                    error: error.message,
+                    error: error instanceof Error ? error.message : String(error),
                     durationMs: this.dayjsService.now().diff(this.dayjsService.from(startedAt)),
                 },
             )
+            // Rethrow to let BullMQ handle retries if configured
             throw error
         }
     }

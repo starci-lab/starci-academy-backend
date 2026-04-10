@@ -1,35 +1,28 @@
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-    LessonVideoEntity,
-    Locale,
+    LessonVideoEntity
 } from "@modules/databases"
 import {
     LessonVideoNotFoundException,
 } from "@modules/exceptions"
 import {
+    InjectSuperJson
+} from "@modules/mixin"
+import {
+    S3NameResolverService,
+    S3Provider,
+    S3ReadService,
+    UploadPayload
+} from "@modules/s3"
+import {
     Injectable,
 } from "@nestjs/common"
-import {
-    LessonVideoTransformerService,
-} from "../../../utils"
-import type {
-    EntityManager,
-} from "typeorm"
-import type {
-    LessonVideoRequest,
-} from "./graphql-types"
+import SuperJSON from "superjson"
 import type {
     ExecuteParams,
 } from "../../../../types"
-import { 
-    S3NameResolverService, 
-    S3Provider, 
-    S3ReadService, 
-    UploadPayload} from "@modules/s3"
-import { 
-    InjectSuperJson 
-} from "@modules/mixin"
-import SuperJSON from "superjson"
+import type {
+    LessonVideoRequest,
+} from "./graphql-types"
 
 /**
  * Loads lesson video shell data (no translations — fetch those by id).
@@ -37,7 +30,6 @@ import SuperJSON from "superjson"
 @Injectable()
 export class LessonVideoQueryService {
     constructor(
-        private readonly lessonVideoTransformer: LessonVideoTransformerService,
         private readonly s3ReadService: S3ReadService,
         private readonly s3NameResolverService: S3NameResolverService,
         @InjectSuperJson()
@@ -57,8 +49,7 @@ export class LessonVideoQueryService {
             locale,
         }: ExecuteParams<LessonVideoRequest>,
     ): Promise<LessonVideoEntity> {
-        const objectKey = this.s3NameResolverService.lessonVideo(request.id)
-
+        const objectKey = this.s3NameResolverService.lessonVideo(request.id, locale)
         const cdnPayload = await this.s3ReadService.json<UploadPayload>({
             key: objectKey,
             provider: S3Provider.Minio,
@@ -73,11 +64,6 @@ export class LessonVideoQueryService {
         }
 
         const hydratedLessonVideo = this.superJson.parse<LessonVideoEntity>(cdnPayload.data)
-        this.lessonVideoTransformer.transform(
-            hydratedLessonVideo,
-            locale,
-            hydratedLessonVideo.defaultLocale ?? Locale.En,
-        )
         return hydratedLessonVideo
     }
 }

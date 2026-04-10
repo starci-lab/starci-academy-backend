@@ -54,6 +54,11 @@ export class LessonVideosService {
                         "moduleId.keyword": moduleId,
                     },
                 },
+                {
+                    term: {
+                        "locale": locale,
+                    },
+                },
             ],
             search,
             searchFields: ["title^3", "description", "caption"],
@@ -68,14 +73,6 @@ export class LessonVideosService {
                 size: limit,
             },
         )
-        for (const lessonVideo of rows) {
-            const fallbackLocale = lessonVideo.defaultLocale ?? Locale.En
-            this.lessonVideoTransformer.transform(
-                lessonVideo,
-                locale,
-                fallbackLocale,
-            )
-        }
         return {
             count,
             data: rows,

@@ -691,6 +691,10 @@ export const envConfig = () => ({
                 key: "JOB_PROCESS_GIT_SUBMISSION_MAX_STEPS",
                 defaultValue: 2,
             }),
+            cooldownMs: parseEnvMs({
+                key: "CHALLENGE_SUBMISSION_COOLDOWN_MS",
+                defaultValue: "2h",
+            }),
         },
         /** Job stalled configuration. */
         stalled: {

@@ -7,9 +7,6 @@ import {
 import {
     Injectable,
 } from "@nestjs/common"
-import {
-    ChallengeTransformerService,
-} from "../../../utils"
 import type {
     ChallengeRequest,
 } from "./graphql-types"
@@ -33,7 +30,6 @@ import SuperJSON from "superjson"
 @Injectable()
 export class ChallengeQueryService {
     constructor(
-        private readonly challengeTransformer: ChallengeTransformerService,
         private readonly s3ReadService: S3ReadService,
         private readonly s3NameResolverService: S3NameResolverService,
         @InjectSuperJson()
@@ -53,7 +49,7 @@ export class ChallengeQueryService {
             locale,
         }: ExecuteParams<ChallengeRequest>,
     ): Promise<ChallengeEntity> {
-        const objectKey = this.s3NameResolverService.challenge(request.id)
+        const objectKey = this.s3NameResolverService.challenge(request.id, locale)
 
         const cdnPayload = await this.s3ReadService.json<UploadPayload>({
             key: objectKey,
@@ -69,11 +65,6 @@ export class ChallengeQueryService {
         }
 
         const hydratedChallenge = this.superJson.parse<ChallengeEntity>(cdnPayload.data)
-        this.challengeTransformer.transform(
-            hydratedChallenge,
-            locale,
-            hydratedChallenge.defaultLocale,
-        )
         return hydratedChallenge
     }
 }

@@ -1,1 +1,1 @@
-export * from "./process-submission.module"
+export * from "./process-google-docs-submission.module"

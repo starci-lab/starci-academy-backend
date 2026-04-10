@@ -21,9 +21,6 @@ import SuperJSON from "superjson"
 import type {
     ExecuteParams,
 } from "../../../../types"
-import {
-    ContentTransformerService,
-} from "../../../utils"
 import type {
     ContentRequest,
 } from "./graphql-types"
@@ -34,7 +31,6 @@ import type {
 @Injectable()
 export class ContentQueryService {
     constructor(
-        private readonly contentTransformer: ContentTransformerService,
         private readonly s3ReadService: S3ReadService,
         private readonly s3NameResolverService: S3NameResolverService,
         @InjectSuperJson()
@@ -54,7 +50,7 @@ export class ContentQueryService {
             locale,
         }: ExecuteParams<ContentRequest>,
     ): Promise<ContentEntity> {
-        const objectKey = this.s3NameResolverService.content(request.id)
+        const objectKey = this.s3NameResolverService.content(request.id, locale)
         const cdnPayload = await this.s3ReadService.json<UploadPayload>({
             key: objectKey,
             provider: S3Provider.Minio,
@@ -65,15 +61,10 @@ export class ContentQueryService {
                 {
                     id: request.id,
                 },
-            )
+            );
         }
 
         const hydratedContent = this.superJson.parse<ContentEntity>(cdnPayload.data)
-        this.contentTransformer.transform(
-            hydratedContent,
-            locale,
-            hydratedContent.defaultLocale ?? Locale.En,
-        )
         return hydratedContent
     }
 }

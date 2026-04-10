@@ -1,5 +1,5 @@
 import type {
-    ProcessGitSubmissionPayload,
+    ProcessGoogleDocsSubmissionPayload,
 } from "@modules/bullmq"
 import {
     InjectPrimaryPostgreSQLEntityManager,
@@ -21,20 +21,14 @@ import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
-import type {
-    ExtendedProcessGitSubmissionContext,
-    ProcessGitSubmissionGradeStepExecuteResult,
-    ProcessGitSubmissionSplitDocsStepExecuteResult,
+import {
+    ProcessGoogleDocsSubmissionGradeStepExecuteResult,
+    ProcessGoogleDocsSubmissionSplitDocsStepExecuteResult,
+    ExtendedProcessGoogleDocsSubmissionContext,
 } from "../types"
 import {
     JobExtendedContext,
 } from "../../types"
-import {
-    Document,
-} from "@langchain/core/documents"
-import {
-    ProcessGitSubmissionSplitDocsStepService,
-} from "./process-submission-split-docs-step.service"
 import {
     envConfig,
 } from "@modules/env"
@@ -49,45 +43,37 @@ import {
     InvalidModelGradeScoreException,
     ParsingScoreFromModelTextException,
 } from "@modules/exceptions"
+import {
+    ProcessGoogleDocsSubmissionSplitDocsStepService,
+} from "./process-submission-split-docs-step.service"
 
 /**
- * Step 4: grade the submission.
+ * Step 4: grade the submission using database prompts.
  */
 @Injectable()
-export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
-    ProcessGitSubmissionPayload,
-    ExtendedProcessGitSubmissionContext
+export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepService<
+    ProcessGoogleDocsSubmissionPayload,
+    ExtendedProcessGoogleDocsSubmissionContext
 > {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
-        private readonly processGitSubmissionSplitDocsStepService: ProcessGitSubmissionSplitDocsStepService,
+        private readonly processGoogleDocsSubmissionSplitDocsStepService: ProcessGoogleDocsSubmissionSplitDocsStepService,
         private readonly modelService: ModelService,
     ) {
         super()
     }
 
-    /**
-     * The index of the step.
-     */
     stepIndex = 3
 
-    /**
-     * The name of the step.
-     */
     stepName = "grade"
 
-    /**
-     * Process the step.
-     * @param context - The context of the step.
-     * @returns A promise that resolves when the step is processed.
-     */
     async process(
         context: JobExtendedContext<
-            ProcessGitSubmissionPayload,
-            ExtendedProcessGitSubmissionContext
+            ProcessGoogleDocsSubmissionPayload,
+            ExtendedProcessGoogleDocsSubmissionContext
         >,
     ): Promise<void> {
         const executionResult = await this.execute(context)
@@ -97,121 +83,87 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         )
     }
 
-    /**
-     * Execute the step.
-     * @param context - The context of the step.
-     * @returns A promise that resolves when the step is executed.
-     */
     private async execute(
         context: JobExtendedContext<
-            ProcessGitSubmissionPayload,
-            ExtendedProcessGitSubmissionContext
+            ProcessGoogleDocsSubmissionPayload,
+            ExtendedProcessGoogleDocsSubmissionContext
         >,
-    ): Promise<ProcessGitSubmissionGradeStepExecuteResult> {
-        const executionResult = await this.jobActionService.loadExecutionResult<ProcessGitSubmissionSplitDocsStepExecuteResult>(
+    ): Promise<ProcessGoogleDocsSubmissionGradeStepExecuteResult> {
+        const splitResult = await this.jobActionService.loadExecutionResult<ProcessGoogleDocsSubmissionSplitDocsStepExecuteResult>(
             {
                 job: context.job,
-                key: this.processGitSubmissionSplitDocsStepService.stepName,
+                key: this.processGoogleDocsSubmissionSplitDocsStepService.stepName,
             },
         )
 
-        const chunks = executionResult.chunks.map(
-            (chunk) =>
-                new Document({
-                    pageContent: chunk.pageContent,
-                    metadata: chunk.metadata,
-                    id: chunk.id,
-                }),
-        )
-
-        let sourceExcerpt = chunks
+        let sourceExcerpt = splitResult.chunks
             .map((chunk) => chunk.pageContent)
             .join("\n\n")
 
-        const maxChars =
-            envConfig().services.githubWorker.processGitSubmission
-                .gradingMaxSourceChars
+        const maxChars = envConfig().services.githubWorker.processGitSubmission.gradingMaxSourceChars
 
         if (sourceExcerpt.length > maxChars) {
-            sourceExcerpt = sourceExcerpt.slice(
-                0,
-                maxChars,
-            )
+            sourceExcerpt = sourceExcerpt.slice(0, maxChars)
         }
+
+        const challenge = context.extended?.challenge
+        const challengeSubmission = context.extended?.challengeSubmission
+        const submissionScore = challengeSubmission?.score ?? 100
 
         const rubric = (context.extended?.prompts ?? [])
             .map(
-                (
-                    prompt,
-                    index,
-                ) => {
-                    const label = prompt.title
-                        ? ` (${prompt.title})`
-                        : ""
+                (prompt, index) => {
+                    const label = prompt.title ? ` (${prompt.title})` : ""
                     return `### Criterion ${index + 1}${label}\n${prompt.promptText}`
                 },
             )
             .join("\n\n")
 
         const systemText = [
-            "You are an expert principal developer grading a learner's submitted GitHub repository for a programming course.",
+            "You are an expert principal educator grading a learner's submitted document for a specific course requirement.",
             "Apply the following rubric (stored in the course database).",
             "",
-            rubric || "No rubric provided.",
+            rubric || "No specific criteria provided. Grade based on overall quality and completeness.",
             "",
             "Respond with JSON only — no markdown fences, no extra text.",
             "Shape:",
-            "{\"score\": <integer from 1 to 20>, \"feedbacks\": [\"<short actionable feedback>\"]}",
+            `{"score": <integer from 1 to ${submissionScore}>, "feedbacks": ["..."]}`,
+            "",
             "Rules:",
-            "- score must be a whole number from 1 (poor) to 20 (excellent).",
+            `- score must be a whole number from 1 (poor) to ${submissionScore} (excellent).`,
             "- feedbacks must be an array of concise, specific, actionable comments.",
-            "- every feedback item must be grounded only in the submitted repository excerpt.",
-            "- do not invent files, features, or behaviors not present in the excerpt.",
+            "- every feedback item must be grounded only in the submitted document content.",
+            "- do not invent information, sections, or behavior not present in the excerpt.",
             "- return 2 to 5 feedback items.",
             "- each feedback item should be a single sentence when possible.",
         ].join("\n")
 
         const humanText = [
-            "Below is an excerpt of files loaded from the submitted GitHub repository (may be truncated):",
+            "Below is the content loaded from the submitted document (may be truncated):",
             "",
-            sourceExcerpt || "(empty repository excerpt)",
+            sourceExcerpt || "(empty document content)",
         ].join("\n")
 
         const model = this.modelService.get({
-            model:
-                context.payload.gradingModel ??
-                envConfig().services.githubWorker.processGitSubmission.grading.model,
-            provider:
-                (context.payload.gradingProvider ??
-                    envConfig().services.githubWorker.processGitSubmission.grading.provider) as ModelProvider,
+            model: context.payload.gradingModel ?? envConfig().services.githubWorker.processGitSubmission.grading.model,
+            provider: (context.payload.gradingProvider ?? envConfig().services.githubWorker.processGitSubmission.grading.provider) as ModelProvider,
         })
 
-        const response = await model.invoke(
-            [
-                new SystemMessage(systemText),
-                new HumanMessage(humanText),
-            ]
-        )
+        const response = await model.invoke([
+            new SystemMessage(systemText),
+            new HumanMessage(humanText),
+        ])
 
-        const raw =
-            typeof response.content === "string"
-                ? response.content
-                : String(response.content)
-
-        return this.parseGradeFromModelText(raw)
+        const raw = (typeof response.content === "string" ? response.content : String(response.content)) as string
+        
+        return this.parseGradeFromModelText(raw, submissionScore)
     }
 
-    /**
-     * Finalize the step.
-     * @param executionResult - Execution result of the step.
-     * @param context - Context of the step.
-     * @returns A promise that resolves when the step is finalized.
-     */
     private async finalize(
-        executionResult: ProcessGitSubmissionGradeStepExecuteResult,
+        executionResult: ProcessGoogleDocsSubmissionGradeStepExecuteResult,
         context: JobExtendedContext<
-            ProcessGitSubmissionPayload,
-            ExtendedProcessGitSubmissionContext
+            ProcessGoogleDocsSubmissionPayload,
+            ExtendedProcessGoogleDocsSubmissionContext
         >,
     ): Promise<void> {
         const {
@@ -247,14 +199,10 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         )
     }
 
-    /**
-     * Parse the grade from the model text.
-     * @param text - The text to parse the grade from.
-     * @returns The parsed grade result.
-     */
     private parseGradeFromModelText(
         text: string,
-    ): ProcessGitSubmissionGradeStepExecuteResult {
+        maxScore: number,
+    ): ProcessGoogleDocsSubmissionGradeStepExecuteResult {
         const brace = text.match(/\{[\s\S]*?\}/)
 
         if (brace) {
@@ -264,7 +212,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                     feedbacks?: unknown
                 }
 
-                const score = this.parseScore(parsed.score)
+                const score = this.parseScore(parsed.score, maxScore)
                 const feedbacks = this.parseFeedbacks(parsed.feedbacks)
 
                 return {
@@ -275,31 +223,20 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                 // fall through
             }
         }
-
         throw new ParsingScoreFromModelTextException({
             text,
         })
     }
 
-    /**
-     * Parse score from unknown model output.
-     * @param value - Raw score value.
-     * @returns Parsed and clamped score.
-     */
-    private parseScore(
-        value: unknown,
-    ): number {
+    private parseScore(value: unknown, maxScore: number): number {
         if (typeof value === "number") {
-            return this.clampScore(value)
+            return this.clampScore(value, maxScore)
         }
 
         if (typeof value === "string") {
-            const parsed = Number.parseInt(
-                value,
-                10,
-            )
+            const parsed = Number.parseInt(value, 10)
             if (!Number.isNaN(parsed)) {
-                return this.clampScore(parsed)
+                return this.clampScore(parsed, maxScore)
             }
         }
 
@@ -308,41 +245,16 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         })
     }
 
-    /**
-     * Parse feedbacks from unknown model output.
-     * @param value - Raw feedbacks value.
-     * @returns Normalized feedback array.
-     */
-    private parseFeedbacks(
-        value: unknown,
-    ): Array<string> {
-        if (Array.isArray(value)) {
-            return value
-                .filter((item): item is string => typeof item === "string")
-                .map((item) => item.trim())
-                .filter(Boolean)
+    private parseFeedbacks(value: unknown): string[] {
+        if (!Array.isArray(value)) {
+            return []
         }
-
-        if (typeof value === "string") {
-            const trimmed = value.trim()
-            return trimmed
-                ? [trimmed]
-                : []
-        }
-
-        return []
+        return value.filter((v): v is string => typeof v === "string" && !!v.trim())
     }
 
-    /**
-     * Clamp the score to the range of 1 to 20.
-     * @param value - The score to clamp.
-     * @returns The clamped score.
-     */
-    private clampScore(
-        value: number,
-    ): number {
+    private clampScore(value: number, maxScore: number): number {
         return Math.min(
-            20,
+            maxScore,
             Math.max(
                 1,
                 Math.round(value),

@@ -1,9 +1,11 @@
 import type {
-    ProcessGitSubmissionPayload,
+    ProcessGoogleDocsSubmissionPayload,
 } from "@modules/bullmq"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserChallengeSubmissionEntity,
+    SubmissionAttemptEntity,
+    SubmissionFeedbackEntity,
+    JobStatus,
 } from "@modules/databases"
 import {
     JobActionService,
@@ -22,9 +24,9 @@ import {
     WinstonService,
 } from "@modules/winston"
 import type {
-    ExtendedProcessGitSubmissionContext,
-    ProcessGitSubmissionCompleteStepExecuteResult,
-    ProcessGitSubmissionGradeStepExecuteResult,
+    ExtendedProcessGoogleDocsSubmissionContext,
+    ProcessGoogleDocsSubmissionCompleteStepExecuteResult,
+    ProcessGoogleDocsSubmissionGradeStepExecuteResult,
 } from "../types"
 import type {
     JobExtendedContext,
@@ -34,18 +36,19 @@ import {
 } from "@modules/mixin"
 import {
     MissingOrInvalidGradeExecutionResultException,
+    SubmissionAttemptNotFoundException,
 } from "@modules/exceptions"
 import {
-    ProcessGitSubmissionGradeStepService,
+    ProcessGoogleDocsSubmissionGradeStepService,
 } from "./process-submission-grade-step.service"
 
 /**
- * Step 5: persist grade and feedback to `user_challenge_submissions`.
+ * Step 5: persist grade and feedback to `submission_attempts`.
  */
 @Injectable()
-export class ProcessGitSubmissionCompleteStepService extends AbstractStepService<
-    ProcessGitSubmissionPayload,
-    ExtendedProcessGitSubmissionContext
+export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStepService<
+    ProcessGoogleDocsSubmissionPayload,
+    ExtendedProcessGoogleDocsSubmissionContext
 > {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
@@ -53,30 +56,19 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
         private readonly dayjsService: DayjsService,
-        private readonly processGitSubmissionGradeStepService: ProcessGitSubmissionGradeStepService,
+        private readonly processGoogleDocsSubmissionGradeStepService: ProcessGoogleDocsSubmissionGradeStepService,
     ) {
         super()
     }
 
-    /**
-     * The index of the step.
-     */
     stepIndex = 4
-    /**
-     * The name of the step.
-     */
 
     stepName = "complete"
 
-    /**
-     * Process the step.
-     * @param context - Context of the step.
-     * @returns A promise that resolves when the step is processed.
-     */
     async process(
         context: JobExtendedContext<
-            ProcessGitSubmissionPayload,
-            ExtendedProcessGitSubmissionContext
+            ProcessGoogleDocsSubmissionPayload,
+            ExtendedProcessGoogleDocsSubmissionContext
         >,
     ): Promise<void> {
         const executionResult = await this.execute(context)
@@ -86,66 +78,90 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
         )
     }
 
-    /**
-     * Execute the step.
-     * @param context - Context of the step.
-     * @returns A promise that resolves when the step is executed.
-     */
     private async execute(
         context: JobExtendedContext<
-            ProcessGitSubmissionPayload,
-            ExtendedProcessGitSubmissionContext
+            ProcessGoogleDocsSubmissionPayload,
+            ExtendedProcessGoogleDocsSubmissionContext
         >,
-    ): Promise<ProcessGitSubmissionCompleteStepExecuteResult> {
+    ): Promise<ProcessGoogleDocsSubmissionCompleteStepExecuteResult> {
         const grade = await this.jobActionService.loadExecutionResult<
-            ProcessGitSubmissionGradeStepExecuteResult
+            ProcessGoogleDocsSubmissionGradeStepExecuteResult
         >(
             {
                 job: context.job,
-                key: this.processGitSubmissionGradeStepService.stepName,
+                key: this.processGoogleDocsSubmissionGradeStepService.stepName,
             },
         )
-        if (
-            !grade
-            || typeof grade.score !== "number"
-            || !Array.isArray(grade.feedbacks)
-        ) {
+
+        if (!grade || typeof grade.score !== "number" || !Array.isArray(grade.feedbacks)) {
             throw new MissingOrInvalidGradeExecutionResultException({
                 grade,
             })
         }
-        const feedbackText =
-            grade.feedbacks.length
-                ? grade.feedbacks.join("\n\n")
-                : null
-        await this.entityManager.update(
-            UserChallengeSubmissionEntity,
+
+        // Find the specific attempt associated with this job
+        const attempt = await this.entityManager.findOne(
+            SubmissionAttemptEntity,
             {
-                id: context.payload.userChallengeSubmissionId,
-                userId: context.payload.userId,
-            },
-            {
-                score: grade.score,
-                processed: true,
-                processedAt: this.dayjsService.now().toDate(),
-                feedback: feedbackText,
+                where: {
+                    id: context.payload.submissionAttemptId,
+                },
             },
         )
-        return {
+
+        if (!attempt) {
+            throw new SubmissionAttemptNotFoundException({
+                id: context.payload.submissionAttemptId,
+            })
         }
+
+        const feedbackSummary = grade.feedbacks.length ? grade.feedbacks[0] : null
+
+        await this.entityManager.transaction(async (em) => {
+            // 1. Update the attempt with final score and status
+            await em.update(
+                SubmissionAttemptEntity,
+                {
+                    id: attempt.id,
+                },
+                {
+                    score: grade.score,
+                    status: JobStatus.Completed,
+                    processedAt: this.dayjsService.now().toDate(),
+                    shortFeedback: feedbackSummary,
+                },
+            )
+
+            // 2. Clear old detailed feedbacks (if any) and save new ones
+            await em.delete(
+                SubmissionFeedbackEntity,
+                {
+                    attempt: { id: attempt.id },
+                },
+            )
+
+            const feedbackEntities = grade.feedbacks.map((msg, index) => {
+                const entity = new SubmissionFeedbackEntity()
+                entity.attempt = attempt
+                entity.message = msg
+                entity.orderIndex = index
+                return entity
+            })
+
+            await em.save(
+                SubmissionFeedbackEntity,
+                feedbackEntities,
+            )
+        })
+
+        return {}
     }
 
-    /**
-     * Finalize the step.
-     * @param executionResult - Execution result of the step.
-     * @param context - Context of the step.
-     * @returns A promise that resolves when the step is finalized.
-     */
     private async finalize(
-        executionResult: ProcessGitSubmissionCompleteStepExecuteResult,
+        executionResult: ProcessGoogleDocsSubmissionCompleteStepExecuteResult,
         context: JobExtendedContext<
-            ProcessGitSubmissionPayload,
-            ExtendedProcessGitSubmissionContext
+            ProcessGoogleDocsSubmissionPayload,
+            ExtendedProcessGoogleDocsSubmissionContext
         >,
     ): Promise<void> {
         const {
@@ -153,24 +169,21 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
             payload,
             queueName,
         } = context
-        await this.entityManager.transaction(
-            async (entityManager) => {
-                await this.jobActionService.increaseJob(
-                    {
-                        job,
-                        entityManager,
-                    },
-                )
-                await this.jobActionService.saveExecutionResult(
-                    {
-                        job,
-                        key: this.stepName,
-                        executionResult,
-                        entityManager,
-                    },
-                )
-            },
-        )
+
+        await this.entityManager.transaction(async (entityManager) => {
+            await this.jobActionService.increaseJob({
+                job,
+                entityManager,
+            })
+
+            await this.jobActionService.saveExecutionResult({
+                job,
+                key: this.stepName,
+                executionResult,
+                entityManager,
+            })
+        })
+
         this.winstonService.log(
             WinstonLog.ProcessGitSubmissionStepExecuted,
             {

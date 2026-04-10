@@ -1,6 +1,5 @@
 import {
     ChallengeEntity,
-    Locale
 } from "@modules/databases"
 import {
     ElasticsearchQueryBuilder,
@@ -16,20 +15,16 @@ import {
     ExecuteParams,
 } from "../../../../types"
 import {
-    ChallengeTransformerService,
-} from "../../../utils"
-import {
     ChallengesRequest,
     ChallengesResponseData
 } from "./graphql-types"
 
 /**
- * Lists module challenges from primary PostgreSQL for GraphQL.
+ * Lists module challenges from Elasticsearch for GraphQL.
  */
 @Injectable()
 export class ChallengesService {
     constructor(
-        private readonly challengeTransformer: ChallengeTransformerService,
         private readonly elasticsearch: ElasticsearchService,
     ) {}
 
@@ -57,6 +52,11 @@ export class ChallengesService {
                         "moduleId.keyword": moduleId,
                     },
                 },
+                {
+                    term: {
+                        "locale": locale,
+                    },
+                },
             ],
             search,
             searchFields: ["title^3", "description", "requirements"],
@@ -71,14 +71,6 @@ export class ChallengesService {
                 size: limit,
             },
         )
-
-        for (const challenge of data) {
-          this.challengeTransformer.transform(
-            challenge,
-            locale,
-            challenge.defaultLocale ?? Locale.En,
-          );
-        }
 
         return {
             count,

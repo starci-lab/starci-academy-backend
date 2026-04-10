@@ -15,8 +15,8 @@ import {
     UuidAbstractEntity,
 } from "./abstract"
 import {
-    UserChallengeSubmissionEntity,
-} from "./user-challenge-submission.entity"
+    SubmissionAttemptEntity,
+} from "./submission-attempt.entity"
 import {
     SubmissionFeedbackSeverity,
     GraphQLTypeSubmissionFeedbackSeverity,
@@ -113,34 +113,34 @@ export class SubmissionFeedbackEntity extends UuidAbstractEntity {
         orderIndex: number
 
     @Field(
-        () => UserChallengeSubmissionEntity,
+        () => SubmissionAttemptEntity,
         {
-            description: "Parent user challenge submission.",
+            description: "Parent submission attempt.",
         },
     )
     @ManyToOne(
-        () => UserChallengeSubmissionEntity,
-        (userChallengeSubmission: UserChallengeSubmissionEntity) => userChallengeSubmission.submissionFeedbacks,
+        () => SubmissionAttemptEntity,
+        (attempt: SubmissionAttemptEntity) => attempt.feedbacks,
         {
             onDelete: "CASCADE",
         },
     )
     @JoinColumn({
-        name: "user_challenge_submission_id",
+        name: "submission_attempt_id",
         foreignKeyConstraintName:
-            "fk_user_challenge_submission_id_submission_feedbacks_user_challenge_submissions",
+            "fk_submission_attempt_id_submission_feedbacks",
     })
-        userChallengeSubmission: UserChallengeSubmissionEntity
+        attempt: SubmissionAttemptEntity
 
     @Field(
         () => ID,
         {
-            description: "Parent user challenge submission ID.",
+            description: "Parent submission attempt ID.",
         },
     )
     @RelationId(
-        (submissionFeedback: SubmissionFeedbackEntity) => submissionFeedback.userChallengeSubmission,
+        (submissionFeedback: SubmissionFeedbackEntity) => submissionFeedback.attempt,
     )
-        userChallengeSubmissionId: string
+        attemptId: string
 }
 

@@ -68,6 +68,16 @@ export class ChallengeSubmissionQueryService {
                     userId: user.id,
                     submissionId: request.challengeSubmissionId,
                 },
+                relations: {
+                    attempts: {
+                        feedbacks: true,
+                    },
+                },
+                order: {
+                    attempts: {
+                        createdAt: "DESC",
+                    },
+                },
             },
         )
 

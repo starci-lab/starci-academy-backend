@@ -1,96 +1,80 @@
 import {
     CourseEntity,
-    InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
+import {
+    ElasticsearchQueryBuilder,
+    ElasticsearchService
+} from "@modules/elasticsearch"
 import {
     Injectable,
 } from "@nestjs/common"
-import type {
-    EntityManager,
-    FindOptionsOrder,
-} from "typeorm"
-import {
-    CoursesRequest,
-    CoursesResponseData,
-} from "./graphql-types"
 import {
     envConfig 
 } from "@modules/env"
 import {
-    CourseTransformerService,
-} from "../../../utils"
-import {
     ExecuteParams,
 } from "../../../../types"
+import {
+    CoursesRequest,
+    CoursesResponseData,
+} from "./graphql-types"
 
 /**
- * Loads courses from primary PostgreSQL for GraphQL.
+ * Loads courses from Elasticsearch for GraphQL.
  */
 @Injectable()
 export class CoursesService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
-        private readonly courseTransformer: CourseTransformerService,
+        private readonly elasticsearch: ElasticsearchService,
     ) {}
 
     /**
-     * Entry: returns a page of courses ordered by sort request.
+     * Entry: returns a page of courses ordered by sort request from Elasticsearch.
      *
      * @param params - The parameters for the courses service.
-     * @param params.locale - The locale to use for the translations.
-     * @param params.request - Pagination and sort options
-     * @param params.request.filters.limit - Number of courses to return
-     * @param params.request.filters.pageNumber - Page number
-     * @param params.request.filters.sorts - Sorts
-     * @param params.request.filters.sorts.by - Sort by
-     * @param params.request.filters.sorts.order - Sort order
      * @returns Paginated courses
      */
-    async execute({
-        request: {
-            filters: {
-                limit = envConfig().services.api.pagination.page.limit,
-                pageNumber = 0,
-                sorts,
+    async execute(
+        {
+            request: {
+                filters: {
+                    limit = envConfig().services.api.pagination.page.limit,
+                    pageNumber = 0,
+                    sorts,
+                    search
+                },
             },
-        },
-        locale,
-    }: ExecuteParams<CoursesRequest>): Promise<CoursesResponseData> {
-        const order: FindOptionsOrder<CourseEntity> = {
-        }
-        for (const sort of sorts) {
-            order[sort.by] = sort.order
-        }
-        const [
-            data,
-            count,
-        ] = await this.entityManager.findAndCount(
-            CourseEntity,
+            locale,
+        }: ExecuteParams<CoursesRequest>,
+    ): Promise<CoursesResponseData> {
+        const sort = sorts.map(s => ({
+            [s.by]: {order: s.order.toLowerCase()},
+        }))
+        const query = ElasticsearchQueryBuilder.buildSearchQuery({
+            filters: [
+                {
+                    term: {
+                        "locale": locale,
+                    },
+                },
+            ],
+            search,
+            searchFields: ["title^3", "description"],
+        })
+
+        const {data, count} = await this.elasticsearch.search<CourseEntity>(
+            CourseEntity.name,
             {
-                order,
-                relations: {
-                    metadata: true,
-                    pricingPhases: true,
-                    valuePropositions: true,
-                    translations: true
-                },
-                where: {
-                    translations: {
-                        locale,
-                    }
-                },
-                take: limit,
-                skip: pageNumber * limit,
+                query,
+                sort,
+                from: pageNumber * limit,
+                size: limit,
             },
         )
+
         return {
             count,
-            data: data.map((course) => this.courseTransformer.transform(
-                course,
-                locale
-            )
-            ),
+            data,
         }
     }
 }
