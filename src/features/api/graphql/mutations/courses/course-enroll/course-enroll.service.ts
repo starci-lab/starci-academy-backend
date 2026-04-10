@@ -87,7 +87,6 @@ export class CourseEnrollService {
             )
         }
         // delegate to the appropriate payment service
-        console.log(paymentType);
         switch (paymentType) {
         // delegate to PayOS payment service
         case PaymentType.PayOS: {

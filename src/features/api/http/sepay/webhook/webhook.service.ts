@@ -71,14 +71,14 @@ export class SepayWebhookService {
         // Fallback: search by partial match on transaction_content if not found
         if (!transaction) {
              const pendingTransactions = await this.entityManager.find(
-                 TransactionEntity,
-                 {
-                     where: {
-                         status: TransactionStatus.Pending,
-                     }
-                 }
-             )
-             transaction = pendingTransactions.find(t => body.content.includes(t.referenceId)) || null;
+                TransactionEntity,
+                {
+                    where: {
+                        status: TransactionStatus.Pending,
+                    }
+                }
+            )
+            transaction = pendingTransactions.find(t => body.content.includes(t.referenceId)) || null;
         }
 
         if (!transaction) {

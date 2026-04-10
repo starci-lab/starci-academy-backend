@@ -1,7 +1,6 @@
 import {
     Field,
     ObjectType,
-    Int,
 } from "@nestjs/graphql"
 import {
     Column,
@@ -119,13 +118,6 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
 
 
 
-    @Field(
-        () => [SubmissionAttemptEntity],
-        {
-            nullable: true,
-            description: "History of submission attempts.",
-        },
-    )
     @OneToMany(
         () => SubmissionAttemptEntity,
         (attempt: SubmissionAttemptEntity) => attempt.userChallengeSubmission,
@@ -133,7 +125,23 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
             cascade: true,
         },
     )
+    @Field(
+        () => [SubmissionAttemptEntity],
+        {
+            nullable: true,
+            description: "History of submission attempts.",
+        },
+    )
         attempts: Array<SubmissionAttemptEntity>
+
+    @Field(
+        () => SubmissionAttemptEntity,
+        {
+            nullable: true,
+            description: "The latest attempt for this submission.",
+        },
+    )
+        lastAttempt?: SubmissionAttemptEntity
 }
 
 

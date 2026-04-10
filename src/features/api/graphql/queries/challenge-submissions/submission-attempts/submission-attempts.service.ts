@@ -70,7 +70,6 @@ export class SubmissionAttemptsService {
                 },
             },
         )
-
         return {
             data,
             count,

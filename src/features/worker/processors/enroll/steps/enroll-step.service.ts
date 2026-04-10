@@ -142,7 +142,9 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                     EnrollmentEntity,
                     {
                         where: {
-                            courseId,
+                            course: {
+                                id: courseId,
+                            },
                         },
                     },
                 )

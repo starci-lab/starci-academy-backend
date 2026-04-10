@@ -90,7 +90,6 @@ export class CourseEnrollSepayService {
                     paymentType: PaymentType.Sepay,
                 },
             })
-        console.log("Find transaction Sepay", transaction?.id);
         if (transaction) {
             // check the timestamp of the transaction
             const timeSinceCreationMs = this.dayjsService

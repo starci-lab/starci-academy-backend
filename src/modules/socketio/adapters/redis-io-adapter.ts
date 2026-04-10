@@ -30,7 +30,7 @@ export class RedisIoAdapter extends IoAdapter {
             ]
         )
         this.adapterConstructor = createAdapter(
-            this.redisClient,
+            pubClient,
             subClient
         )
     }

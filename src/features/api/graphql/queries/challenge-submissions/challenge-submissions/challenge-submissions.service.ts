@@ -1,6 +1,7 @@
 import {
     ChallengeSubmissionEntity,
     InjectPrimaryPostgreSQLEntityManager,
+    SubmissionAttemptEntity,
     UserChallengeSubmissionEntity,
     UserEntity,
 } from "@modules/databases"
@@ -65,10 +66,10 @@ export class ChallengeSubmissionsService {
                     order,
                     relations: {
                         translations: true,
-                        challenge: true,
                     },
                 },
             )
+
             if (user && challengeSubmissions.length) {
                 await this.attachUserSubmissionForCurrentUser(
                     challengeSubmissions,
@@ -106,16 +107,6 @@ export class ChallengeSubmissionsService {
                         id: In(submissionIds),
                     },
                 },
-                relations: {
-                    attempts: {
-                        feedbacks: true,
-                    },
-                },
-                order: {
-                    attempts: {
-                        createdAt: "DESC",
-                    },
-                },
             },
         )
         const bySubmissionId = new Map(
@@ -124,8 +115,34 @@ export class ChallengeSubmissionsService {
                 join,
             ]),
         )
+
+        // Lấy tất cả attempts với attemptNumber cao nhất 
+        // có user challenge submission ID thuộc tập join
+        const lastAttempts = await this.entityManager.find(
+            SubmissionAttemptEntity,
+            {
+                where: {
+                    userChallengeSubmission: {
+                        id: In(submissionIds),
+                    },
+                },
+                order: {
+                    attemptNumber: "DESC",
+                },
+            },
+        )
+
+        const byUserChallengeSubmissionId = new Map(
+            lastAttempts.map((attempt) => [
+                attempt.userChallengeSubmissionId,
+                attempt,
+            ]),
+        )
         for (const submission of submissions) {
             submission.userSubmission = bySubmissionId.get(submission.id)
+            if (submission.userSubmission) {
+                submission.userSubmission.lastAttempt = byUserChallengeSubmissionId.get(submission.userSubmission.id)
+            }
         }
     }
 }

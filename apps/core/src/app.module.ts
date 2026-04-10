@@ -85,6 +85,7 @@ import {
 import { 
     SepayModule 
 } from "@modules/sepay"
+import { SocketIoModule } from "@modules/socketio"
 /**
  * The main module for the application.
  */
@@ -240,6 +241,12 @@ import {
             ),
             /** Worker module. */
             WorkerModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Socket module. */
+            SocketIoModule.register(
                 {
                     isGlobal: true,
                 }
