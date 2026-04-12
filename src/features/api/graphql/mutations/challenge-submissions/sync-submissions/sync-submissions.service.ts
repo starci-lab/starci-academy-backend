@@ -31,7 +31,7 @@ export class SyncSubmissionsService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
-    ) {}
+    ) { }
 
     /**
      * Execute the service.
@@ -150,8 +150,6 @@ export class SyncSubmissionsService {
                         id: challengeSubmissionId,
                     },
                     submissionUrl: url,
-                    attempts: 0,
-                    score: 0,
                     processed: false,
                 },
             )
