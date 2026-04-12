@@ -1,15 +1,15 @@
 import {
-    Inject, Injectable, OnModuleInit 
+    Inject, Injectable, OnModuleInit
 } from "@nestjs/common"
 import {
     ReadinessWatcherFactoryService,
 } from "@modules/mixin"
 import {
-    MODULE_OPTIONS_TOKEN, OPTIONS_TYPE 
+    MODULE_OPTIONS_TOKEN, OPTIONS_TYPE
 } from "./seeders.module-definition"
 import {
     DeepPartial,
-    EntityManager 
+    EntityManager
 } from "typeorm"
 import {
     CourseParserService,
@@ -24,10 +24,10 @@ import {
     ContentParserService,
 } from "./courses"
 import {
-    InjectPrimaryPostgreSQLEntityManager 
+    InjectPrimaryPostgreSQLEntityManager
 } from "../primary.decorators"
 import {
-    CourseEntity, 
+    CourseEntity,
     ModuleEntity
 } from "../entities"
 /**
@@ -137,7 +137,7 @@ export class SeedersService implements OnModuleInit {
                 ...course,
                 modules: updatedModules,
             }
-        })                          
+        })
         await this.entityManager.save(
             CourseEntity,
             updatedCourses
