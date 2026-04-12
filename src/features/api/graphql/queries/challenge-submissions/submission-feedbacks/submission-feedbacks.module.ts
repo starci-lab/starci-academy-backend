@@ -15,6 +15,6 @@ import {
     providers: [
         SubmissionFeedbacksService,
         SubmissionFeedbacksResolver,
-    ],
-})
+    ],  
+})  
 export class SubmissionFeedbacksModule extends ConfigurableModuleClass {}
