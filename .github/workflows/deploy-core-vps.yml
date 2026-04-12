@@ -52,6 +52,12 @@ jobs:
  
           KEYCLOAK_URL: ${{ secrets.KEYCLOAK_URL }}
           KEYCLOAK_REDIRECT_URI: ${{ secrets.KEYCLOAK_REDIRECT_URI }}
+
+          MINIO_ENDPOINT: ${{ secrets.MINIO_ENDPOINT }}
+          MINIO_SECRET_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+
+          ELASTICSEARCH_NODE: ${{ secrets.ELASTICSEARCH_NODE }}
+          ELASTICSEARCH_PASSWORD: ${{ secrets.ELASTICSEARCH_PASSWORD }}
         run: |
           docker compose -f apps/core/vps-compose.yaml down || true
           docker compose -f apps/core/vps-compose.yaml up --build -d 
