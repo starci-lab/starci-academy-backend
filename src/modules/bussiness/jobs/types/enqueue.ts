@@ -35,3 +35,21 @@ export interface EnqueueProcessGitSubmissionJobParams {
     /** Embedding model provider override. */
     embeddingProvider?: ModelProvider
 }
+
+/** Params for enqueuing a process-cv-submission job. */
+export interface EnqueueProcessCvSubmissionJobParams {
+    /** `users.id`. */
+    userId: string
+    /** `cv_submissions.id`. */
+    cvSubmissionId: string
+    /** Existing `jobs.id` to requeue (optional). */
+    jobId?: string
+    /** Analyze model id override. */
+    analyzeModel?: string
+    /** Analyze model provider override. */
+    analyzeProvider?: ModelProvider
+    /** Embedding model id override. */
+    embeddingModel?: string
+    /** Embedding model provider override. */
+    embeddingProvider?: ModelProvider
+}

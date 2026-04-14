@@ -28,6 +28,15 @@ export const httpConfig = () => ({
             }),
         }
     },
+    minio: () => {
+        const tags = "minio"
+        return {
+            tags,
+            webhook: () => ({
+                path: "webhook",
+            }),
+        }
+    },
     // keycloak configuration
     keycloak: () => {
         // tags for the keycloak module

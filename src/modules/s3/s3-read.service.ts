@@ -4,38 +4,33 @@ import {
     S3Client,
 } from "@aws-sdk/client-s3"
 import {
-    Inject,
-    Injectable,
+    envConfig
+} from "@modules/env"
+import {
+    InjectSuperJson
+} from "@modules/mixin"
+import {
+    Injectable
 } from "@nestjs/common"
 import type {
     Readable,
 } from "stream"
+import SuperJSON from "superjson"
+import {
+    S3Provider
+} from "./enums"
 import {
     InjectDigitalOceanS3,
     InjectMinioS3,
 } from "./s3.decorators"
-import SuperJSON from "superjson"
 import {
-    MODULE_OPTIONS_TOKEN,
-} from "./s3.module-definition"
-import {
-    type S3ModuleOptions,
-} from "./interfaces"
-import {
-    ReadJsonParams, ReadTextParams 
-} from "./types/read"
-import {
-    UploadPayload 
+    UploadPayload
 } from "./types"
 import {
-    InjectSuperJson 
-} from "@modules/mixin"
-import {
-    envConfig 
-} from "@modules/env"
-import {
-    S3Provider 
-} from "./enums"
+    ReadBufferParams,
+    ReadJsonParams,
+    ReadTextParams,
+} from "./types/read"
 
 /**
  * Service for reading objects from S3.
@@ -103,7 +98,7 @@ export class S3ReadService {
     }
 
     /**
-     * Read JSON from S3 and parse it.
+     * Read an object from S3 and parse it as JSON.
      *
      * @returns Parsed value or null when key not found.
      */
@@ -115,15 +110,63 @@ export class S3ReadService {
     ): Promise<T | null> {
         /** Read the content as string. */
         const content = await this.text({
-            key, 
-            provider 
+            key,
+            provider,
         })
-        /** If the content is null, throw an error. */
+        /** If the content is null, return null. */
         if (content === null) {
             return null
         }
         /** Parse the content as JSON. */
         return this.superJson.parse<T>(content)
+    }
+
+    /**
+     * Read an object from S3 as Buffer.
+     *
+     * @returns Buffer or null when key not found.
+     */
+    async buffer(
+        {
+            key,
+            provider,
+        }: ReadBufferParams,
+    ): Promise<Buffer | null> {
+        // take the appropriate S3 client based on the provider
+        let s3Client: S3Client
+        switch (provider) {
+        case S3Provider.DigitalOcean:
+            s3Client = this.s3
+            break
+        case S3Provider.Minio:
+            s3Client = this.minioS3
+            break
+        }
+        try {
+            const bucket =
+                provider === S3Provider.DigitalOcean
+                    ? envConfig().s3.digitalOcean.bucket
+                    : envConfig().s3.minio.bucket
+
+            const result = await s3Client.send(
+                new GetObjectCommand({
+                    Bucket: bucket,
+                    Key: key,
+                }),
+            )
+
+            const body = result.Body as unknown as Readable | undefined
+            if (!body) return Buffer.alloc(0)
+
+            const chunks: Array<Buffer> = []
+            for await (const chunk of body) {
+                chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
+            }
+            return Buffer.concat(chunks)
+        } catch (error) {
+            if (error instanceof NoSuchKey) return null
+            return null
+        }
     }
 }
 

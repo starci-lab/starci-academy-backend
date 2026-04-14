@@ -10,6 +10,9 @@ import {
 import {
     ProcessGitSubmissionModule,
 } from "./process-git-submission"
+import {
+    ProcessCvSubmissionModule,
+} from "./process-cv-submission"
 
 /**
  * Module for the processors.
@@ -22,6 +25,11 @@ import {
             }
         ),
         ProcessGitSubmissionModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
+        ProcessCvSubmissionModule.register(
             {
                 isGlobal: true,
             }

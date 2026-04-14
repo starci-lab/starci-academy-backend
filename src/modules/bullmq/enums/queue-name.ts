@@ -9,4 +9,6 @@ export enum BullQueueName {
     ProcessGitSubmission = "process-git-submission",
     /** Queue for grading a Google Docs/Sheets-linked challenge submission. */
     ProcessGoogleDocsSubmission = "process-google-docs-submission",
+    /** Queue for grading a CV submission. */
+    ProcessCvSubmission = "process-cv-submission",
 }

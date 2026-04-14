@@ -696,6 +696,17 @@ export const envConfig = () => ({
                 defaultValue: "2h",
             }),
         },
+        /** Process CV Submission job configuration. */
+        processCvSubmission: {
+            maxSteps: parseEnvInt({
+                key: "JOB_PROCESS_CV_SUBMISSION_MAX_STEPS",
+                defaultValue: 2,
+            }),
+            cooldownMs: parseEnvMs({
+                key: "CV_SUBMISSION_COOLDOWN_MS",
+                defaultValue: "3h",
+            }),
+        },
         /** Job stalled configuration. */
         stalled: {
             thresholdMs: parseEnvMs({

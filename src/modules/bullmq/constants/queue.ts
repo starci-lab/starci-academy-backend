@@ -38,4 +38,10 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
         ),
         name: "process-google-docs-submission",
     },
+    [BullQueueName.ProcessCvSubmission]: {
+        prefix: formatWithBraces(
+            "process-cv-submission",
+        ),
+        name: "process-cv-submission",
+    },
 }

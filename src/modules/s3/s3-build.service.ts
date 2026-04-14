@@ -1,5 +1,6 @@
 import {
     GetObjectCommand,
+    PutObjectCommand,
     S3Client,
 } from "@aws-sdk/client-s3"
 import {
@@ -75,16 +76,42 @@ export class S3BuildService {
         if (!config) {
             return ""
         }
+        const s3Client = this.options.defaultProvider === "minio" ? this.minioS3 : this.digitalOceanS3
         return getSignedUrl(
-          this.digitalOceanS3,
-          new GetObjectCommand({
-            Bucket: config.bucket,
-            Key: objectKey,
-          }),
-          {
-            expiresIn: config.signedUrlExpiration ?? 900,
-          },
-        );
+            s3Client,
+            new GetObjectCommand({
+                Bucket: config.bucket,
+                Key: objectKey,
+            }),
+            {
+                expiresIn: config.signedUrlExpiration ?? 900,
+            },
+        )
+    }
+
+    /**
+     * Build a time-limited signed URL for uploading an object (PUT).
+     */
+    async buildSignedPutObjectUrl(
+        objectKey: string,
+        contentType?: string,
+    ): Promise<string> {
+        const config = this.config
+        if (!config) {
+            return ""
+        }
+        const s3Client = this.options.defaultProvider === "minio" ? this.minioS3 : this.digitalOceanS3
+        return getSignedUrl(
+            s3Client,
+            new PutObjectCommand({
+                Bucket: config.bucket,
+                Key: objectKey,
+                ContentType: contentType,
+            }),
+            {
+                expiresIn: config.signedUrlExpiration ?? 900,
+            },
+        )
     }
 }
 

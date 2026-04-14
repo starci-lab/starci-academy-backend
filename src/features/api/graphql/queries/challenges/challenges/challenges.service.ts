@@ -43,7 +43,9 @@ export class ChallengesService {
         }: ExecuteParams<ChallengesRequest>,
     ): Promise<ChallengesResponseData> {
         const sort = sorts.map(s => ({
-            [s.by]: {order: s.order.toLowerCase()},
+            [s.by]: {
+                order: s.order.toLowerCase()
+            },
         }))
         const query = ElasticsearchQueryBuilder.buildSearchQuery({
             filters: [
@@ -59,8 +61,10 @@ export class ChallengesService {
                 },
             ],
             search,
-            searchFields: ["title^3", "description", "requirements"],
-        });
+            searchFields: ["title^3",
+                "description",
+                "requirements"],
+        })
 
         const { data, count } = await this.elasticsearch.search<ChallengeEntity>(
             ChallengeEntity.name,
