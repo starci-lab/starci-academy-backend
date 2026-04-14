@@ -75,6 +75,7 @@ export class CourseFactorySyncService implements OnApplicationBootstrap {
                 // sleep for the delay per sync
                 await sleep(syncSpacingMs)
             }
-                }, 0);
+        },
+        0)
     }
 }

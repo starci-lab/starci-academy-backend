@@ -29,7 +29,9 @@ import {
 import type {
     ChallengeRuntimeContextRequest,
 } from "./types"
-import { ChallengeNotFoundException } from "@modules/exceptions"
+import {
+    ChallengeNotFoundException 
+} from "@modules/exceptions"
 import {
     ChallengeTransformerService 
 } from "@features/api/graphql/utils/challenge-transformer.service"
@@ -91,23 +93,25 @@ export class ChallengeRuntimeContextService {
         const plainChallenge = challenge.toPlain<ChallengeEntity>()
 
         // take all steps related to the challenge
-        const steps = await this.entityManager.find(ChallengeStepEntity, {
-            where: {
-                challenge: {
-                    id: plainChallenge.id,
+        const steps = await this.entityManager.find(ChallengeStepEntity,
+            {
+                where: {
+                    challenge: {
+                        id: plainChallenge.id,
+                    },
                 },
-            },
-            select: {
-                id: true,
-            },
-        });
+                select: {
+                    id: true,
+                },
+            })
 
         // hydrate to plain objects once
         const hydratedSteps = steps?.map((step) => step.toPlain<ChallengeStepEntity>())
         plainChallenge.steps = hydratedSteps
 
         // Sync each locale separately
-        const locales = [Locale.Vi, Locale.En]
+        const locales = [Locale.Vi,
+            Locale.En]
         for (const locale of locales) {
             // deep clone the plain objects to avoid mutating the original
             const hydratedChallenge = _.cloneDeep(plainChallenge)
@@ -119,7 +123,7 @@ export class ChallengeRuntimeContextService {
                 hydratedChallenge.defaultLocale ?? Locale.En,
             )
 
-            const { translations, ...dataToIndex } = hydratedChallenge;
+            const { translations, ...dataToIndex } = hydratedChallenge
 
             // Use the original UUID for the 'id' field in the document body,
             // but use a composite key (uuid-locale) for the Elasticsearch document ID (_id).
@@ -132,7 +136,7 @@ export class ChallengeRuntimeContextService {
                 ChallengeEntity,
                 indexedData,
                 `${hydratedChallenge.id}-${locale}`,
-            );
+            )
         }
     }
 }

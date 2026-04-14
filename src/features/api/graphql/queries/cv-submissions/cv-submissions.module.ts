@@ -2,12 +2,6 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    GetSubmitCvPresignedUrlResolver,
-} from "./get-submit-cv-presigned-url/get-submit-cv-presigned-url.resolver"
-import {
-    GetSubmitCvPresignedUrlService,
-} from "./get-submit-cv-presigned-url/get-submit-cv-presigned-url.service"
-import {
     S3Module,
 } from "@modules/s3"
 import {
@@ -16,6 +10,9 @@ import {
 import {
     ConfigurableModuleClass 
 } from "./cv-submissions.module-definition"
+import {
+    SubmitCvSinglePresignedUrlModule 
+} from "./submit-cv-presigned-url/submit-cv-presigned-url.module"
 
 /**
  * Module for CV submission related queries.
@@ -24,13 +21,11 @@ import {
     imports: [
         S3Module,
         MixinModule,
+        SubmitCvSinglePresignedUrlModule.register({
+            isGlobal: true
+        })
+        ,
     ],
-    providers: [
-        GetSubmitCvPresignedUrlResolver,
-        GetSubmitCvPresignedUrlService,
-    ],
-    exports: [
-        GetSubmitCvPresignedUrlService,
-    ],
+
 })
 export class CvSubmissionsQueriesModule extends ConfigurableModuleClass {}

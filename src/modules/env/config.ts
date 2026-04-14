@@ -635,6 +635,12 @@ export const envConfig = () => ({
             key: "KEYCLOAK_REDIRECT_URI",
             defaultValue: "http://localhost:3001/api/v1/keycloak/google/callback",
         }),
+        refreshToken: {
+            expiration: parseEnvMs({
+                key: "KEYCLOAK_REFRESH_TOKEN_EXPIRATION",
+                defaultValue: "7d",
+            }),
+        },
     },
     /** Axios configuration. */
     axios: {

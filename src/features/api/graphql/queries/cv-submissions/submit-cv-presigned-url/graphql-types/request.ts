@@ -9,7 +9,7 @@ import {
 @InputType({
     description: "Input for getting a CV submission pre-signed URL.",
 })
-export class GetSubmitCvPresignedUrlRequest {
+export class SubmitCvPresignedUrlRequest {
     /**
      * Original filename (used to determine extension).
      */

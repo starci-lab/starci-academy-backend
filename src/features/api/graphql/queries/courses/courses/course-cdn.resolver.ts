@@ -1,4 +1,8 @@
 import {
+    S3BuildService,
+    S3Provider,
+} from "@modules/s3"
+import {
     Parent,
     ResolveField,
     Resolver,
@@ -6,9 +10,6 @@ import {
 import {
     CourseEntity,
 } from "@modules/databases"
-import {
-    S3BuildService,
-} from "@modules/s3"
 
 /**
  * Resolver for Course entity to handle secure CDN URLs.
@@ -22,10 +23,11 @@ export class CourseCdnResolver {
     /**
      * Resolve the cdnUrl field to a time-limited pre-signed URL.
      */
-    @ResolveField(() => String, {
-        nullable: true,
-        description: "Secure, time-limited pre-signed URL for the course JSON payload.",
-    })
+    @ResolveField(() => String,
+        {
+            nullable: true,
+            description: "Secure, time-limited pre-signed URL for the course JSON payload.",
+        })
     async cdnUrl(
         @Parent() course: CourseEntity,
     ): Promise<string | null> {
@@ -42,6 +44,9 @@ export class CourseCdnResolver {
         }
 
         // Generate a pre-signed URL for private objects.
-        return this.s3BuildService.buildSignedGetObjectUrl(objectKey)
+        return this.s3BuildService.buildSignedGetObjectUrl({
+            key: objectKey,
+            provider: S3Provider.DigitalOcean,
+        })
     }
 }

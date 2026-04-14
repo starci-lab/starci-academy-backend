@@ -33,6 +33,7 @@ import type {
 } from "./types"
 import {
     CVSubmissionEntity,
+    CvSubmissionStatus,
     InjectPrimaryPostgreSQLEntityManager,
     JobEntity,
 } from "@modules/databases"
@@ -105,6 +106,18 @@ export class ProcessCvSubmissionWorker extends WorkerHost {
                 throw new Error(`CV Submission ${payload.cvSubmissionId} not found.`)
             }
 
+            // Mark processing early so API/DB reflects worker progress.
+            if (cvSubmission.status === CvSubmissionStatus.Pending) {
+                cvSubmission.status = CvSubmissionStatus.Processing
+                await this.entityManager.update(
+                    CVSubmissionEntity,
+                    cvSubmission.id,
+                    {
+                        status: CvSubmissionStatus.Processing,
+                    },
+                )
+            }
+
             const context: JobExtendedContext<
             ProcessCVSubmissionPayload,
             ExtendedProcessCvSubmissionContext
@@ -148,13 +161,28 @@ export class ProcessCvSubmissionWorker extends WorkerHost {
                 },
             )
         } catch (error) {
+            if (jobRecord) {
+                await this.jobActionService.failJob({
+                    job: jobRecord,
+                })
+            }
+
+            if (payload?.cvSubmissionId) {
+                await this.entityManager.update(
+                    CVSubmissionEntity,
+                    payload.cvSubmissionId,
+                    {
+                        status: CvSubmissionStatus.Failed,
+                    },
+                )
+            }
+
             this.winstonService.log(
                 WinstonLog.JobExecutedFailed,
                 {
                     jobId: jobRecord?.id ?? "",
                     queueName: bullmqJob.queueName,
                     payload,
-                    error: error.message,
                     durationMs: this.dayjsService.now().diff(this.dayjsService.from(startedAt)),
                 },
             )

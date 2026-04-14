@@ -154,7 +154,7 @@ export class ProcessCvSubmissionExtractStepService extends AbstractStepService<
         })
 
         this.winstonService.log(
-            WinstonLog.ProcessGitSubmissionStepExecuted,
+            WinstonLog.ProcessCVSubmissionStepExecuted,
             {
                 jobId: job.id ?? "",
                 queueName,

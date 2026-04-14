@@ -1,37 +1,35 @@
 import {
-    Args,
-    Query,
-    Resolver,
-} from "@nestjs/graphql"
-import {
-    UseGuards,
-    UseInterceptors,
-} from "@nestjs/common"
-import {
-    GraphQLTransformInterceptor,
 } from "@modules/api"
+import {
+    UserEntity,
+} from "@modules/databases"
 import {
     KeycloakAuthGraphQLGuard,
     KeycloakGraphQLUser,
 } from "@modules/keycloak"
 import {
-    UserEntity,
-} from "@modules/databases"
+    UseGuards,
+} from "@nestjs/common"
 import {
-    GetSubmitCvPresignedUrlRequest,
-    GetSubmitCvPresignedUrlResponse,
+    Args,
+    Query,
+    Resolver,
+} from "@nestjs/graphql"
+import {
+    SubmitCvPresignedUrlRequest,
+    SubmitCvPresignedUrlResponse,
 } from "./graphql-types"
 import {
-    GetSubmitCvPresignedUrlService,
-} from "./get-submit-cv-presigned-url.service"
+    SubmitCvPresignedUrlService,
+} from "./submit-cv-presigned-url.service"
 
 /**
  * Resolver for getting a pre-signed URL to upload a CV (Query-based).
  */
 @Resolver()
-export class GetSubmitCvPresignedUrlResolver {
+export class SubmitCvPresignedUrlResolver {
     constructor(
-        private readonly getPresignedUrlService: GetSubmitCvPresignedUrlService,
+        private readonly PresignedUrlService: SubmitCvPresignedUrlService,
     ) {}
 
     /**
@@ -41,12 +39,11 @@ export class GetSubmitCvPresignedUrlResolver {
      * @returns Pre-signed URL and submission record ID.
      */
     @UseGuards(KeycloakAuthGraphQLGuard)
-    @UseInterceptors(GraphQLTransformInterceptor)
     @Query(
-        () => GetSubmitCvPresignedUrlResponse,
+        () => SubmitCvPresignedUrlResponse,
         {
-            name: "getSubmitCvPresignedUrl",
-            description: "Get a time-limited pre-signed URL for uploading a CV file via PUT.",
+            name: "SubmitCvPresignedUrl",
+            description: " a time-limited pre-signed URL for uploading a CV file via PUT.",
         },
     )
     async execute(
@@ -58,9 +55,9 @@ export class GetSubmitCvPresignedUrlResolver {
                 description: "CV submission preparation input.",
             },
         )
-            request: GetSubmitCvPresignedUrlRequest,
-    ): Promise<GetSubmitCvPresignedUrlResponse> {
-        return this.getPresignedUrlService.execute(
+            request: SubmitCvPresignedUrlRequest,
+    ): Promise<SubmitCvPresignedUrlResponse> {
+        return this.PresignedUrlService.execute(
             {
                 user,
                 request,

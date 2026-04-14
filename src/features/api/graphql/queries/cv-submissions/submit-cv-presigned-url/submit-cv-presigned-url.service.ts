@@ -10,6 +10,7 @@ import {
 } from "@modules/mixin"
 import {
     S3BuildService,
+    S3Provider,
 } from "@modules/s3"
 import {
     Injectable,
@@ -19,18 +20,18 @@ import {
     MoreThanOrEqual,
 } from "typeorm"
 import {
-    GetSubmitCvPresignedUrlRequest,
-    GetSubmitCvPresignedUrlResponse,
+    SubmitCvPresignedUrlRequest,
+    SubmitCvPresignedUrlResponse,
 } from "./graphql-types"
 import {
     v4 as uuidv4,
 } from "uuid"
 
 /**
- * Service for getting a pre-signed URL to upload a CV (Query-based).
+ * Service for ting a pre-signed URL to upload a CV (Query-based).
  */
 @Injectable()
-export class GetSubmitCvPresignedUrlService {
+export class SubmitCvPresignedUrlService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
@@ -49,9 +50,9 @@ export class GetSubmitCvPresignedUrlService {
             request,
         }: {
             user: UserEntity
-            request: GetSubmitCvPresignedUrlRequest
+            request: SubmitCvPresignedUrlRequest
         },
-    ): Promise<GetSubmitCvPresignedUrlResponse> {
+    ): Promise<SubmitCvPresignedUrlResponse> {
         // 1. Rate Limiting: 1 submission per calendar day
         const todayStart = this.dayjsService.now().startOf("day").toDate()
         const submissionCount = await this.entityManager.count(
@@ -80,13 +81,14 @@ export class GetSubmitCvPresignedUrlService {
             throw new Error("Invalid file type. Only PDF and DOCX are allowed.")
         }
 
-        // 3. Selection: Get the latest CVPrompt
-        const prompt = await this.entityManager.findOne(
+        // 3. Selection:  the latest CVPrompt
+        const [prompt] = await this.entityManager.find(
             CVPromptEntity,
             {
                 order: {
                     createdAt: "DESC",
                 },
+                take: 1,
             },
         )
 
@@ -111,10 +113,11 @@ export class GetSubmitCvPresignedUrlService {
         await this.entityManager.save(submission)
 
         // 5. Presign: Generate PUT URL
-        const url = await this.s3BuildService.buildSignedPutObjectUrl(
-            fileKey,
-            extension === "pdf" ? "application/pdf" : "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        )
+        const url = await this.s3BuildService.buildSignedPutObjectUrl({
+            key: fileKey,
+            contentType: extension === "pdf" ? "application/pdf" : "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            provider: S3Provider.Minio,
+        })
 
         return {
             url,

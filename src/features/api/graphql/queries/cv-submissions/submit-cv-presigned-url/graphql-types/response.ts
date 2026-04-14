@@ -9,7 +9,7 @@ import {
 @ObjectType({
     description: "Response for getting a CV submission pre-signed URL.",
 })
-export class GetSubmitCvPresignedUrlResponse {
+export class SubmitCvPresignedUrlResponse {
     /**
      * The pre-signed PUT URL.
      */

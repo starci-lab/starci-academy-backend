@@ -74,7 +74,8 @@ export class ProcessGoogleDocsSubmissionSplitDocsStepService extends AbstractSte
         // execute the step
         const executionResult = await this.execute(context)
         // finalize the step
-        await this.finalize(executionResult, context)
+        await this.finalize(executionResult,
+            context)
     }
 
     /**
