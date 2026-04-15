@@ -148,7 +148,8 @@ export class ChallengeRuntimeContextService {
             plainChallenge.references = hydratedReferences
 
             // Sync each locale separately
-            const locales = [Locale.Vi, Locale.En]
+            const locales = [Locale.Vi,
+                Locale.En]
             await Promise.all(locales.map(async (locale) => {
                 // deep clone the plain objects to avoid mutating the original
                 const hydratedChallenge = _.cloneDeep(plainChallenge)
@@ -167,7 +168,8 @@ export class ChallengeRuntimeContextService {
                     data,
                     hash,
                 }
-                objectKey = this.s3NameResolverService.challenge(hydratedChallenge.id, locale)
+                objectKey = this.s3NameResolverService.challenge(hydratedChallenge.id,
+                    locale)
                 await this.s3UploadService.json({
                     name: objectKey,
                     payload,

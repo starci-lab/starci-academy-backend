@@ -52,7 +52,6 @@ export class PgSyncCommand extends CommandRunner {
         description: "The URL of the PostgreSQL database",
         defaultValue: "postgres://postgres:Cuong123_A@localhost:5432/postgres",
         required: true,
-        name: "source-url",
     })
     parseSourceUrl(
         value: string
@@ -70,7 +69,6 @@ export class PgSyncCommand extends CommandRunner {
         description: "The URL of the destination PostgreSQL database",
         defaultValue: "postgres://postgres:Cuong123_A@localhost:5432/postgres",
         required: true,
-        name: "destination-url",
     })
     parseDestinationUrl(
         value: string
@@ -188,12 +186,6 @@ export class PgSyncCommand extends CommandRunner {
             )
             process.exit(1)
         }
-        this.winstonService.log(
-            WinstonLog.CommandSuccess,
-            {
-                message: "Running pg_restore into destination...",
-            },
-        )
         /**
          * Run the pg_restore command
          */

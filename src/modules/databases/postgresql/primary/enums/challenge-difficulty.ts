@@ -14,6 +14,7 @@ export enum ChallengeDifficulty {
     Medium = "medium",
     Hard = "hard",
     Insane = "insane",
+    Expert = "expert",
 }
 
 export const GraphQLTypeChallengeDifficulty = createEnumType(
@@ -37,6 +38,9 @@ registerEnumType(
             },
             [ChallengeDifficulty.Insane]: {
                 description: "Insane challenge.",
+            },
+            [ChallengeDifficulty.Expert]: {
+                description: "Expert challenge.",
             },
         },
     },

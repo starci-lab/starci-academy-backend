@@ -31,8 +31,8 @@ import {
         EnvModule.forRoot(),
         /** Winston module. */
         WinstonModule.register({
-            serviceName: ServiceName.Api,
-            level: WinstonLevel.Info,
+            serviceName: ServiceName.Cli,
+            level: WinstonLevel.Debug,
             isGlobal: true,
         }),
         /** Execa module (for running external commands). */
