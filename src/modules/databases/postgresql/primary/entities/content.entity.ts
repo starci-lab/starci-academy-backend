@@ -28,6 +28,9 @@ import {
 import {
     ContentReferenceEntity,
 } from "./content-reference.entity"
+import {
+    ChallengeEntity,
+} from "./challenge.entity"
 
 /**
  * Content attached to a module (title, optional description, body).
@@ -218,4 +221,20 @@ export class ContentEntity extends UuidAbstractEntity {
         },
     )
         references: Array<ContentReferenceEntity>
+
+    /**
+     * Challenges derived from this content.
+     */
+    @Field(
+        () => [ChallengeEntity],
+        {
+            nullable: true,
+            description: "Challenges associated with this content.",
+        },
+    )
+    @OneToMany(
+        () => ChallengeEntity,
+        (challenge: ChallengeEntity) => challenge.content,
+    )
+        challenges: Array<ChallengeEntity>
 }

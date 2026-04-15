@@ -27,6 +27,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/ml-sucvat/tsconfig.app.json"
       }
+    },
+    "scripts": {
+      "type": "application",
+      "root": "apps/scripts",
+      "entryFile": "main",
+      "sourceRoot": "apps/scripts/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/scripts/tsconfig.app.json"
+      }
     }
   }
 }
