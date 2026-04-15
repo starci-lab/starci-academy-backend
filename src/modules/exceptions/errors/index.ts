@@ -1,5 +1,7 @@
 export * from "./abstract"
+export * from "./cli"
 export * from "./courses"
+export * from "./execa"
 export * from "./transaction"
 export * from "./keycloak"
 export * from "./mixin"

@@ -11,6 +11,7 @@ import {
     JobExecutedMessage,
 } from "./types"
 import type {
+    CommandLogMessage,
     CdnSynchronizerCourseAlreadySyncedMessage,
     CdnSynchronizerCourseSyncFailedAttemptMessage,
     CdnSynchronizerCourseSyncFailedMessage,
@@ -172,5 +173,21 @@ export const configMap = {
         console: true,
         messageType: {
         } as CdnSynchronizerContentRuntimeSyncFailedMessage,
+    },
+    [WinstonLog.CommandError]: {
+        name: WinstonLog.CommandError,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as CommandLogMessage,
+    },
+    [WinstonLog.CommandSuccess]: {
+        name: WinstonLog.CommandSuccess,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as CommandLogMessage,
     },
 }
