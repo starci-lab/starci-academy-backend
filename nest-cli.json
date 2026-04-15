@@ -10,22 +10,27 @@
   "monorepo": true,
   "root": "apps/core",
   "projects": {
+    "cli": {
+      "type": "application",
+      "root": "apps/cli",
+      "entryFile": "main",
+      "sourceRoot": "apps/cli/src",
+
+      "compilerOptions": {
+        "tsConfigPath": "apps/cli/tsconfig.app.json",
+        "webpack": true,
+        "webpackConfigPath": "apps/cli/webpack.config.cjs"
+      }
+    },
     "core": {
       "type": "application",
       "root": "apps/core",
       "entryFile": "main",
       "sourceRoot": "apps/core/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/core/tsconfig.app.json"
-      }
-    },
-    "ml-sucvat": {
-      "type": "application",
-      "root": "apps/ml-sucvat",
-      "entryFile": "main",
-      "sourceRoot": "apps/ml-sucvat/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/ml-sucvat/tsconfig.app.json"
+        "tsConfigPath": "apps/core/tsconfig.app.json",
+        "webpack": true,
+        "webpackConfigPath": "apps/core/webpack.config.cjs"
       }
     }
   }

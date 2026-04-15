@@ -1,45 +1,51 @@
-import { envConfig } from "@modules/env";
+import {
+    envConfig 
+} from "@modules/env"
 import {
     AsyncService,
     InjectSuperJson,
-} from "@modules/mixin";
+} from "@modules/mixin"
 import {
     Inject,
     Injectable,
     Scope,
-} from "@nestjs/common";
-import { REQUEST } from "@nestjs/core";
+} from "@nestjs/common"
+import {
+    REQUEST 
+} from "@nestjs/core"
 import {
     ContentEntity,
     ContentReferenceEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
-} from "@modules/databases";
-import _ from "lodash";
+} from "@modules/databases"
+import _ from "lodash"
 import {
     ContentTransformerService,
-} from "../../../api/graphql/utils";
+} from "../../../api/graphql/utils"
 import { 
     EntityManager 
-} from "typeorm";
+} from "typeorm"
 import { 
     ContentNotFoundException 
-} from "@modules/exceptions";
-import SuperJSON from "superjson";
-import type { ContentRuntimeContextRequest } from "./types";
+} from "@modules/exceptions"
+import SuperJSON from "superjson"
+import type {
+    ContentRuntimeContextRequest 
+} from "./types"
 import { 
     Sha256Service 
-} from "@modules/crypto";
+} from "@modules/crypto"
 import {
     S3UploadService,
     UploadPayload,
     S3Provider,
     S3NameResolverService,
-} from "@modules/s3";
+} from "@modules/s3"
 import {
     WinstonLog,
     WinstonService,
-} from "@modules/winston";
+} from "@modules/winston"
 
 @Injectable({
     scope: Scope.REQUEST,
@@ -69,54 +75,57 @@ export class ContentRuntimeContextService {
             async () => {
                 await this.asyncService.safeRun(
                     async () => await this.process(),
-                );
+                )
             },
             envConfig().services.cdnSynchronizer.syncIntervalMs.contents.runtime,
-        );
+        )
     }
 
     /**
      * Sync the content to the CDN.
      */
     async process() {
-        let objectKey: string | undefined;
+        let objectKey: string | undefined
         try {
             // take the content
-            const content = await this.entityManager.findOne(ContentEntity, {
-                where: {
-                    id: this.request.id,
-                },
-                relations: {
-                    translations: true,
-                },
-            });
+            const content = await this.entityManager.findOne(ContentEntity,
+                {
+                    where: {
+                        id: this.request.id,
+                    },
+                    relations: {
+                        translations: true,
+                    },
+                })
             if (!content) {
                 throw new ContentNotFoundException({
                     id: this.request.id,
-                });
+                })
             }
-            const plainContent = content.toPlain<ContentEntity>();
+            const plainContent = content.toPlain<ContentEntity>()
             // take all references related to the content
-            const references = await this.entityManager.find(ContentReferenceEntity, {
-                where: {
-                    content: {
-                        id: plainContent.id,
+            const references = await this.entityManager.find(ContentReferenceEntity,
+                {
+                    where: {
+                        content: {
+                            id: plainContent.id,
+                        },
                     },
-                },
-                relations: {
-                    translations: true,
-                },
-                order: {
-                    orderIndex: "ASC",
-                },
-            });
+                    relations: {
+                        translations: true,
+                    },
+                    order: {
+                        orderIndex: "ASC",
+                    },
+                })
             const hydratedReferences = references?.map((reference) =>
                 reference.toPlain<ContentReferenceEntity>(),
-            );
+            )
 
-            plainContent.references = hydratedReferences;
+            plainContent.references = hydratedReferences
 
-            const locales = [Locale.Vi, Locale.En]
+            const locales = [Locale.Vi,
+                Locale.En]
 
             await Promise.all(locales.map(async (locale) => {
                 // deep clone the plain object to avoid mutating the original
@@ -130,20 +139,22 @@ export class ContentRuntimeContextService {
                 )
 
                 // upload the content to the CDN
-                const data = this.superJson.stringify(hydratedContent);
-                const hash = this.sha256Service.hash(data);
+                const data = this.superJson.stringify(hydratedContent)
+                const hash = this.sha256Service.hash(data)
                 const payload: UploadPayload = {
                     data,
                     hash,
-                };
-                const currentObjectKey = this.s3NameResolverService.content(hydratedContent.id, locale);
+                }
+                const currentObjectKey = this.s3NameResolverService.content(hydratedContent.id,
+                    locale)
                 
                 await this.s3UploadService.json({
                     name: currentObjectKey,
                     payload,
                     acl: "private",
-                    providers: [S3Provider.DigitalOcean, S3Provider.Minio],
-                });
+                    providers: [S3Provider.DigitalOcean,
+                        S3Provider.Minio],
+                })
             }))
         } catch (error) {
             this.winstonService.log(
@@ -151,11 +162,12 @@ export class ContentRuntimeContextService {
                 {
                     id: this.request.id,
                     objectKey,
-                    providers: [S3Provider.DigitalOcean, S3Provider.Minio],
+                    providers: [S3Provider.DigitalOcean,
+                        S3Provider.Minio],
                     error: error.message,
                     context: ContentRuntimeContextService.name,
                 },
-            );
+            )
         }
     }
 }

@@ -25,6 +25,9 @@ import {
     ModuleEntity,
 } from "./module.entity"
 import {
+    ContentEntity,
+} from "./content.entity"
+import {
     ChallengeTranslationEntity,
 } from "./challenge-translation.entity"
 import {
@@ -293,4 +296,57 @@ export class ChallengeEntity extends UuidAbstractEntity {
         },
     )
         submissions: Array<ChallengeSubmissionEntity>
+
+    /**
+     * Optional hint text (Markdown) to nudge the student without revealing the full solution.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Optional hint (Markdown) for the challenge.",
+        },
+    )
+    @Column({
+        name: "hint",
+        type: "text",
+        nullable: true,
+    })
+        hint: string | null
+
+    /**
+     * Optional parent content this challenge is derived from.
+     */
+    @Field(
+        () => ContentEntity,
+        {
+            nullable: true,
+            description: "Optional content this challenge is associated with.",
+        },
+    )
+    @ManyToOne(
+        () => ContentEntity,
+        "challenges",
+        {
+            onDelete: "SET NULL",
+            nullable: true,
+        },
+    )
+    @JoinColumn({
+        name: "content_id",
+        foreignKeyConstraintName: "fk_content_id_challenges_contents",
+    })
+        content: ContentEntity | null
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Optional parent content ID.",
+        },
+    )
+    @RelationId(
+        (ch: ChallengeEntity) => ch.content,
+    )
+        contentId: string | null
 }

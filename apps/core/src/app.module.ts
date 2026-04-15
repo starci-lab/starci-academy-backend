@@ -85,7 +85,9 @@ import {
 import { 
     SepayModule 
 } from "@modules/sepay"
-import { SocketIoModule } from "@modules/socketio"
+import {
+    SocketIoModule 
+} from "@modules/socketio"
 /**
  * The main module for the application.
  */

@@ -19,4 +19,8 @@ export enum WinstonLog {
     CdnSynchronizerLessonVideoRuntimeSyncFailed = "CdnSynchronizerLessonVideoRuntimeSyncFailed",
     CdnSynchronizerModuleRuntimeSyncFailed = "CdnSynchronizerModuleRuntimeSyncFailed",
     CdnSynchronizerContentRuntimeSyncFailed = "CdnSynchronizerContentRuntimeSyncFailed",
+    /** CLI: missing subcommand or invalid invocation. */
+    CommandError = "CommandError",
+    /** CLI: command finished successfully. */
+    CommandSuccess = "CommandSuccess",
 }

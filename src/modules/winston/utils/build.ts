@@ -9,6 +9,7 @@ export const buildAppName = (
 ) => {
     const map = {
         [ServiceName.Api]: "API",
+        [ServiceName.Cli]: "CLI",
     }
     const name = map[serviceName]
     return id ? `${name} ${id}` : name

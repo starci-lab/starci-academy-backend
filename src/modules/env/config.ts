@@ -135,7 +135,7 @@ export const envConfig = () => ({
                 courses: {
                     factory: parseEnvMs({
                         key: "CDN_SYNCHRONIZER_COURSES_FACTORY_SYNC_INTERVAL_MS",
-                        defaultValue: "10s",
+                        defaultValue: "2m",
                     }),
                     runtime: parseEnvMs({
                         key: "CDN_SYNCHRONIZER_COURSES_RUNTIME_SYNC_INTERVAL_MS",
@@ -145,7 +145,7 @@ export const envConfig = () => ({
                 challenges: {
                     factory: parseEnvMs({
                         key: "CDN_SYNCHRONIZER_CHALLENGES_FACTORY_SYNC_INTERVAL_MS",
-                        defaultValue: "10s",
+                        defaultValue: "2m",
                     }),
                     runtime: parseEnvMs({
                         key: "CDN_SYNCHRONIZER_CHALLENGES_RUNTIME_SYNC_INTERVAL_MS",
@@ -165,7 +165,7 @@ export const envConfig = () => ({
                 modules: {
                     factory: parseEnvMs({
                         key: "CDN_SYNCHRONIZER_MODULES_FACTORY_SYNC_INTERVAL_MS",
-                        defaultValue: "10s",
+                        defaultValue: "2m",
                     }),
                     runtime: parseEnvMs({
                         key: "CDN_SYNCHRONIZER_MODULES_RUNTIME_SYNC_INTERVAL_MS",
@@ -175,7 +175,7 @@ export const envConfig = () => ({
                 contents: {
                     factory: parseEnvMs({
                         key: "CDN_SYNCHRONIZER_CONTENTS_FACTORY_SYNC_INTERVAL_MS",
-                        defaultValue: "10s",
+                        defaultValue: "2m",
                     }),
                     runtime: parseEnvMs({
                         key: "CDN_SYNCHRONIZER_CONTENTS_RUNTIME_SYNC_INTERVAL_MS",
