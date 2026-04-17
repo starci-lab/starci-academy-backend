@@ -7,6 +7,7 @@ import {
     parseEnvBoolean,
     parseEnvFloat,
     parseEnvMs,
+    parseEnvJson,
 } from "./utils/parse-env"
 
 /**
@@ -83,6 +84,20 @@ export const envConfig = () => ({
                     }),
                 },
             },
+        },
+        /** GitHub Organization service configuration. */
+        github: {
+            organization: parseEnvString({
+                key: "GITHUB_ORGANIZATION",
+                defaultValue: "test-academy-org",
+            }),
+            teamSlugsByCourseSlug: parseEnvJson<Record<string, string>>({
+                key: "GITHUB_TEAM_SLUGS_BY_COURSE_SLUG",
+                defaultValue: JSON.stringify({
+                    "fullstack-mastery": "fullstack-mastery",
+                    "system-design-mastery": "system-design-mastery",
+                }),
+            }),
         },
         /** Github Worker service configuration. */
         githubWorker: {
@@ -631,10 +646,16 @@ export const envConfig = () => ({
             key: "KEYCLOAK_CLIENT_ID",
             defaultValue: "academy-web",
         }),
-        redirectUri: parseEnvString({
-            key: "KEYCLOAK_REDIRECT_URI",
-            defaultValue: "http://localhost:3001/api/v1/keycloak/google/callback",
-        }),
+        redirectUri: {
+            google: parseEnvString({
+                key: "KEYCLOAK_GOOGLE_REDIRECT_URI",
+                defaultValue: "http://localhost:3001/api/v1/keycloak/google/callback",
+            }),
+            github: parseEnvString({
+                key: "KEYCLOAK_GITHUB_REDIRECT_URI",
+                defaultValue: "http://localhost:3001/api/v1/keycloak/github/callback",
+            }),
+        },
     },
     /** Axios configuration. */
     axios: {

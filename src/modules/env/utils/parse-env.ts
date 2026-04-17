@@ -2,6 +2,7 @@ import ms from "ms"
 import type {
     ParseEnvBooleanParams,
     ParseEnvFloatParams,
+    ParseEnvJsonParams,
     ParseEnvIntParams,
     ParseEnvMsParams,
     ParseEnvSecondParams,
@@ -71,6 +72,16 @@ export const parseEnvMs = ({ key, defaultValue }: ParseEnvMsParams): number => {
 export const parseEnvSecond = ({ key, defaultValue }: ParseEnvSecondParams): number => {
     const msValue = ms((process.env[key] ?? defaultValue) as ms.StringValue)
     return Math.floor(Number(msValue) / 1000)
+}
+
+/**
+ * Parse an env var as JSON. Uses default when unset.
+ *
+ * @param params - key and defaultValue
+ * @returns Parsed JSON value
+ */
+export const parseEnvJson = <T>({ key, defaultValue }: ParseEnvJsonParams): T => {
+    return JSON.parse(process.env[key] ?? defaultValue) as T
 }
 
 /**

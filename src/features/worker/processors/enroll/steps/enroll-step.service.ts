@@ -6,6 +6,7 @@ import {
     nextPricingPhase,
     PricingPhase,
     TransactionStatus,
+    UserEntity,
 } from "@modules/databases"
 import {
     Injectable,
@@ -14,6 +15,7 @@ import {
     type EntityManager,
 } from "typeorm"
 import {
+    EnqueueInviteGithubJobService,
     JobActionService,
     TransactionActionService,
 } from "@modules/bussiness"
@@ -46,6 +48,7 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
         private readonly entityManager: EntityManager,
         private readonly transactionActionService: TransactionActionService,
         private readonly jobActionService: JobActionService,
+        private readonly enqueueInviteGithubJobService: EnqueueInviteGithubJobService,
         private readonly winstonService: WinstonService,
     ) {
         super()
@@ -173,6 +176,26 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                 )
             }
         )
+
+        const user = await this.entityManager.findOne(
+            UserEntity,
+            {
+                where: {
+                    id: userId,
+                },
+            },
+        )
+        if (user?.githubUsername) {
+            try {
+                await this.enqueueInviteGithubJobService.enqueue({
+                    userId,
+                    courseId,
+                    githubUsername: user.githubUsername,
+                })
+            } catch (error) {
+                console.error(error)
+            }
+        }
         return {
         }
     }

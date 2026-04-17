@@ -37,3 +37,9 @@ export interface ParseEnvSecondParams {
     key: string
     defaultValue: string
 }
+
+/** Params for parsing an env var as JSON. */
+export interface ParseEnvJsonParams {
+    key: string
+    defaultValue: string
+}

@@ -48,6 +48,16 @@ export const httpConfig = () => ({
                         }
                     }
                 }
+            },
+            // github configuration
+            github: () => {
+                const githubTags = `${keycloakTags}/github`
+                return {
+                    tags: githubTags,
+                    callback: () => ({
+                        path: "callback",
+                    }),
+                }
             }
         }
     }

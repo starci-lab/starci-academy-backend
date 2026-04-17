@@ -1,0 +1,28 @@
+import {
+    Field,
+    ObjectType,
+} from "@nestjs/graphql"
+import {
+    UserEntity,
+} from "@modules/databases"
+import {
+    AbstractGraphQLResponse,
+    IAbstractGraphQLResponse,
+} from "@modules/api"
+
+/**
+ * GraphQL envelope for the connectGithubAccount mutation.
+ */
+@ObjectType({
+    description: "Response wrapper for the connectGithubAccount mutation.",
+})
+export class ConnectGithubAccountResponse
+    extends AbstractGraphQLResponse
+    implements IAbstractGraphQLResponse<UserEntity>
+{
+    @Field(() => UserEntity,
+        {
+            description: "Payload containing the updated user with GitHub username.",
+        })
+        data: UserEntity
+}

@@ -2,6 +2,9 @@ import {
     Module,
 } from "@nestjs/common"
 import {
+    AuthenticationMutationsModule,
+} from "./authentication"
+import {
     ChallengeSubmissionsMutationsModule,
 } from "./challenge-submissions"
 import {
@@ -12,10 +15,13 @@ import {
 } from "./mutations.module-definition"
 
 /**
- * GraphQL mutations (courses, etc.).
+ * GraphQL mutations (courses, authentication, etc.).
  */
 @Module({
     imports: [
+        AuthenticationMutationsModule.register({
+            isGlobal: true,
+        }),
         CoursesMutationsModule.register({
             isGlobal: true,
         }),

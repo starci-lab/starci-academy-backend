@@ -101,6 +101,23 @@ export class UserEntity extends UuidAbstractEntity {
         nullable: true
     })
         avatar: string | null
+
+    /**
+     * GitHub username used for repository/team automation.
+     */
+    @Field(() => String,
+        {
+            description: "GitHub username of the user.",
+            nullable: true
+        })
+    @Column({
+        name: "github_username",
+        type: "varchar",
+        length: 39,
+        nullable: true
+    })
+        githubUsername: string | null
+
     /**
      * Soft delete flag.
      *

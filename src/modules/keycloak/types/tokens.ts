@@ -6,6 +6,17 @@ export interface KeycloakExchangeCodeForTokenParams {
      * The code parameter received from the Google OAuth2 authorization flow.
      */
     code: string
+
+    /**
+     * Identity provider used for this callback flow.
+     */
+    provider: KeycloakIdentityProvider
+}
+
+/** Supported identity providers for Keycloak broker callback flows. */
+export enum KeycloakIdentityProvider {
+    Google = "google",
+    Github = "github",
 }
 
 /**

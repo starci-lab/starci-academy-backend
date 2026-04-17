@@ -2,8 +2,8 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    KeycloakGoogleCallbackQuery, 
-    KeycloakGoogleCallbackResponse
+    KeycloakGithubCallbackQuery,
+    KeycloakGithubCallbackResponse
 } from "./dtos"
 import {
     KeycloakIdentityProvider,
@@ -11,7 +11,7 @@ import {
     KeycloakTokenService
 } from "@modules/keycloak"
 import {
-    InjectPrimaryPostgreSQLEntityManager, 
+    InjectPrimaryPostgreSQLEntityManager,
     UserEntity
 } from "@modules/databases"
 import {
@@ -22,10 +22,10 @@ import {
 } from "@nestjs/jwt"
 
 /**
- * Service for handling the Google Keycloak callback.
+ * Service for handling the GitHub Keycloak callback.
  */
 @Injectable()
-export class KeycloakGoogleCallbackService {
+export class KeycloakGithubCallbackService {
     constructor(
         private readonly keycloakTokenService: KeycloakTokenService,
         @InjectPrimaryPostgreSQLEntityManager()
@@ -33,25 +33,23 @@ export class KeycloakGoogleCallbackService {
         private readonly jwtService: JwtService,
     ) {}
     /**
-     * Entry: handle the Google Keycloak callback.
+     * Entry: handle the GitHub Keycloak callback.
      * @param query - The query parameters.
      * @returns The result of the callback.
      */
     async execute(
         {
-            code
-        }: KeycloakGoogleCallbackQuery
-    ): Promise<KeycloakGoogleCallbackResponse> {
+            code,
+        }: KeycloakGithubCallbackQuery
+    ): Promise<KeycloakGithubCallbackResponse> {
         try {
-        // exchange the code for a token
             const response = await this.keycloakTokenService.exchangeCodeForToken(
                 {
                     code,
-                    provider: KeycloakIdentityProvider.Google,
+                    provider: KeycloakIdentityProvider.Github,
                 }
             )
             const decoded = this.jwtService.decode<KeycloakJwtPayload>(response.access_token)
-            // find the user by the keycloak id
             let user = await this.entityManager.findOne(
                 UserEntity,
                 {
@@ -60,19 +58,22 @@ export class KeycloakGoogleCallbackService {
                     },
                 }
             )
-            // if user not found, create a new user
+            const githubUsername = decoded.preferred_username ?? null
             if (!user) {
                 user = this.entityManager.create(
-                    UserEntity, 
+                    UserEntity,
                     {
-                        username: decoded.preferred_username,
+                        username: githubUsername ?? decoded.sub,
                         email: decoded.email,
                         keycloakId: decoded.sub,
+                        githubUsername,
                     }
                 )
                 await this.entityManager.save(user)
+            } else if (!user.githubUsername && githubUsername) {
+                user.githubUsername = githubUsername
+                await this.entityManager.save(user)
             }
-            // return the tokens
             return {
                 id: user.id,
                 accessToken: response.access_token,

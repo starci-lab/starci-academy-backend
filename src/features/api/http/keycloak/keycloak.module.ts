@@ -7,6 +7,9 @@ import {
 import {
     KeycloakGoogleModule,
 } from "./google"
+import {
+    KeycloakGithubModule,
+} from "./github"
 
 /**
  * Module for the Keycloak.
@@ -14,6 +17,9 @@ import {
 @Module({
     imports: [
         KeycloakGoogleModule.register({
+            isGlobal: true,
+        }),
+        KeycloakGithubModule.register({
             isGlobal: true,
         }),
     ],

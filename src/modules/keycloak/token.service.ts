@@ -11,6 +11,7 @@ import {
     envConfig 
 } from "@modules/env"
 import {
+    KeycloakIdentityProvider,
     KeycloakExchangeCodeForTokenParams,
     KeycloakExchangeCodeForTokenResponse,
     KeycloakTokenIntrospectResponse,
@@ -49,7 +50,9 @@ export class KeycloakTokenService {
     async exchangeCodeForToken(
         { 
             code,
+            provider,
         }: KeycloakExchangeCodeForTokenParams) {
+        const redirectUri = this.resolveRedirectUri(provider)
         const response = await axios.post<KeycloakExchangeCodeForTokenResponse>(
             `${envConfig().keycloak.url}/realms/${envConfig().keycloak.realm}/protocol/openid-connect/token`,
             new URLSearchParams({
@@ -57,7 +60,7 @@ export class KeycloakTokenService {
                 client_id: envConfig().keycloak.clientId,
                 client_secret: this.mountStorageService.keycloakClientSecret,
                 code,
-                redirect_uri: envConfig().keycloak.redirectUri,
+                redirect_uri: redirectUri,
             }),
             {
                 headers: {
@@ -66,6 +69,22 @@ export class KeycloakTokenService {
             }
         )
         return response.data
+    }
+
+    /**
+     * Resolve redirect URI by provider.
+     * @param provider - The provider handling the callback.
+     * @returns Redirect URI configured for provider.
+     */
+    private resolveRedirectUri(provider: KeycloakIdentityProvider): string {
+        switch (provider) {
+        case KeycloakIdentityProvider.Google:
+            return envConfig().keycloak.redirectUri.google
+        case KeycloakIdentityProvider.Github:
+            return envConfig().keycloak.redirectUri.github
+        default:
+            return envConfig().keycloak.redirectUri.google
+        }
     }
 
     /**
