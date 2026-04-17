@@ -706,6 +706,13 @@ export const envConfig = () => ({
                 defaultValue: 1,
             }),
         },
+        /** Process CV Submission job configuration. */
+        processCvSubmission: {
+            maxSteps: parseEnvInt({
+                key: "JOB_PROCESS.CV_SUBMISSION_MAX_STEPS",
+                defaultValue: 2,
+            }),
+        },
         /** Process Git Submission job configuration. */
         processGitSubmission: {
             maxSteps: parseEnvInt({

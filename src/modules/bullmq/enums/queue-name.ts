@@ -11,4 +11,6 @@ export enum BullQueueName {
     ProcessGoogleDocsSubmission = "process-google-docs-submission",
     /** Queue for inviting users to GitHub organization/team. */
     InviteGithub = "invite-github",
+    /** Queue for grading a CV challenge submission. */
+    ProcessCvSubmission = "process-cv-submission",
 }

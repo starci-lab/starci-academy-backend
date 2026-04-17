@@ -21,6 +21,10 @@ export enum ActionType {
      * Invite a user to a GitHub organization/team.
      */
     InviteGithub = "inviteGithub",
+    /**
+     * Grade a CV submission (worker pipeline).
+     */
+    ProcessCvSubmission = "processCvSubmission",
 }
 
 export const GraphQLTypeActionType = createEnumType(ActionType)

@@ -44,4 +44,10 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
         ),
         name: "invite-github",
     },
+    [BullQueueName.ProcessCvSubmission]: {
+        prefix: formatWithBraces(
+            "process-cv-submission",
+        ),
+        name: "process-cv-submission",
+    },
 }
