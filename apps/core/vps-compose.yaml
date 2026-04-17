@@ -47,4 +47,5 @@ services:
       ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD}
     volumes:
       - /root/academy/.mount:/usr/src/app/.mount
+    restart: always
       
