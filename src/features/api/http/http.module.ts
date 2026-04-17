@@ -13,6 +13,9 @@ import {
 import {
     SepayModule,
 } from "./sepay"
+import {
+    MinioWebhookModule,
+} from "./minio"
 
 
 /**
@@ -29,6 +32,7 @@ import {
         SepayModule.register({
             isGlobal: true,
         }),
+        MinioWebhookModule,
     ],
 })
 export class HttpModule extends ConfigurableModuleClass {}

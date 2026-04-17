@@ -16,3 +16,11 @@ export interface ReadJsonParams {
     /** The provider to use for reading. */
     provider: S3Provider
 }
+
+/** Params for reading from S3 as Buffer. */
+export interface ReadBufferParams {
+    /** The key of the object to read. */
+    key: string
+    /** The provider to use for reading. */
+    provider: S3Provider
+}

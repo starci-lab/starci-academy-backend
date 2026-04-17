@@ -2,15 +2,14 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    ConfigurableModuleClass,
-} from "./challenges.module-definition"
-import {
     ChallengeSingleQueryModule,
 } from "./challenge"
 import {
     ChallengesSingleQueryModule,
 } from "./challenges"
-import { ElasticsearchModule } from "@modules/elasticsearch"
+import {
+    ConfigurableModuleClass,
+} from "./challenges.module-definition"
 
 @Module({
     imports: [

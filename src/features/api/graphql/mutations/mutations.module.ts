@@ -8,6 +8,9 @@ import {
     ChallengeSubmissionsMutationsModule,
 } from "./challenge-submissions"
 import {
+    CvSubmissionsMutationsModule,
+} from "./cv-submissions"
+import {
     CoursesMutationsModule,
 } from "./courses"
 import {
@@ -28,6 +31,7 @@ import {
         ChallengeSubmissionsMutationsModule.register({
             isGlobal: true,
         }),
+        CvSubmissionsMutationsModule,
     ],
 })
 export class MutationsModule extends ConfigurableModuleClass {}

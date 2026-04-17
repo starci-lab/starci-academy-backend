@@ -6,6 +6,7 @@ import {
     Injectable,
 } from "@nestjs/common"
 import type {
+    UploadBufferParams,
     UploadJsonParams,
     UploadPayload,
 } from "./types"
@@ -81,38 +82,39 @@ export class S3UploadService {
                                 Key: name,
                                 Body: this.superJson.stringify(payload),
                                 ACL: acl,
-                                ContentType: 'application/json',
+                                ContentType: "application/json",
                             }),
-                        );    
+                        )    
                     })())
                 break
             }
             case S3Provider.Minio: {
                 promises.push(
                     (async () => {
-                    try {
-                        const readResult =
+                        try {
+                            const readResult =
                           await this.s3ReadService.json<UploadPayload>({
-                            key: name,
-                            provider: S3Provider.Minio,
-                        });
-                        if(Boolean(readResult)) {
-                            if (readResult?.hash === payload.hash) {
-                              return;
+                              key: name,
+                              provider: S3Provider.Minio,
+                          })
+                            if(readResult) {
+                                if (readResult?.hash === payload.hash) {
+                                    return
+                                }
                             }
+                            await this.minioS3.send(
+                                new PutObjectCommand({
+                                    Bucket: envConfig().s3.minio.bucket,
+                                    Key: name,
+                                    Body: this.superJson.stringify(payload),
+                                    ACL: acl,
+                                    ContentType: "application/json",
+                                }),
+                            )
+                        } catch (error) {
+                            console.error("Error reading from S3 Minio",
+                                error)
                         }
-                        await this.minioS3.send(
-                          new PutObjectCommand({
-                            Bucket: envConfig().s3.minio.bucket,
-                            Key: name,
-                            Body: this.superJson.stringify(payload),
-                            ACL: acl,
-                            ContentType: 'application/json',
-                          }),
-                        );
-                    } catch (error) {
-                        console.error("Error reading from S3 Minio", error)
-                    }
                     })())
                 break
             }
@@ -125,5 +127,47 @@ export class S3UploadService {
             }
         }
         await this.asyncService.allIgnoreError(promises)
+    }
+
+    /**
+     * Upload a raw buffer to S3.
+     * @param param - Upload buffer parameters.
+     */
+    async buffer(
+        {
+            name,
+            buffer,
+            acl,
+            provider,
+            contentType,
+        }: UploadBufferParams,
+    ): Promise<void> {
+        let s3Client: S3Client
+        let bucket: string
+        switch (provider) {
+        case S3Provider.DigitalOcean:
+            s3Client = this.digitalOceanS3
+            bucket = envConfig().s3.digitalOcean.bucket
+            break
+        case S3Provider.Minio:
+            s3Client = this.minioS3
+            bucket = envConfig().s3.minio.bucket
+            break
+        default:
+            throw new S3ProviderNotFoundException({
+                provider,
+                supportedProviders: Object.values(S3Provider),
+            })
+        }
+
+        await s3Client.send(
+            new PutObjectCommand({
+                Bucket: bucket,
+                Key: name,
+                Body: buffer,
+                ACL: acl,
+                ContentType: contentType,
+            }),
+        )
     }
 }
