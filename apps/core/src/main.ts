@@ -15,6 +15,9 @@ import {
     setupCors 
 } from "@modules/cors"
 import {
+    setupCookie
+} from "@modules/cookie"
+import {
     setupSwagger 
 } from "@modules/docs"
 import {
@@ -42,6 +45,7 @@ const bootstrap = async () => {
     // set the app to the globalThis object
     globalThis.__APP__ = app
     setupCors(app)
+    setupCookie(app)
     setupSwagger({
         app,
         title: "Starci Academy API",

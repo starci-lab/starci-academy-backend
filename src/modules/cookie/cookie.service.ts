@@ -2,7 +2,8 @@ import {
     Injectable
 } from "@nestjs/common"
 import type {
-    CookieOptions
+    CookieOptions,
+    Request
 } from "express"
 import {
     envConfig
@@ -13,6 +14,7 @@ import type {
     ClearCookieParams,
     ClearCookieResult
 } from "./types"
+
 
 /**
  * Service for attaching and clearing HttpOnly cookies on Express response.
@@ -89,7 +91,7 @@ export class CookieService {
      * @param name - The name of the cookie to retrieve.
      * @returns The cookie value if found, undefined otherwise.
      */
-    getCookie(req, name: string): string | undefined {
+    getCookie(req: Request, name: string): string | undefined {
         if (!req) return undefined
 
         // 1. Try req.cookies (populated by cookie-parser middleware)
