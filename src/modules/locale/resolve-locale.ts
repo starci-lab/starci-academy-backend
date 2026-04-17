@@ -20,6 +20,7 @@ export const getLocaleFromCookie = (context: ExecutionContext): Locale | undefin
         const req = ctx?.req
 
         const cookies = req?.cookies
+        console.log(req.cookies)
         const cookieLocale = cookies?.locale
 
         if (

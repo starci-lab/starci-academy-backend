@@ -6,9 +6,6 @@ import type {
     Request
 } from "express"
 import {
-    envConfig
-} from "@modules/env"
-import type {
     AttachHttpOnlyCookieParams,
     AttachHttpOnlyCookieResult,
     ClearCookieParams,
@@ -49,7 +46,7 @@ export class CookieService {
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
             path: "/",
-            maxAge: envConfig().keycloak.refreshToken.expiration,
+            maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
         }
 
         res.cookie(name,
