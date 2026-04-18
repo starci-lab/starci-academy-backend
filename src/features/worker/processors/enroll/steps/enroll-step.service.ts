@@ -20,23 +20,23 @@ import {
     TransactionActionService,
 } from "@modules/bussiness"
 import type {
-    EnrollPayload 
+    EnrollPayload
 } from "@modules/bullmq"
 import {
     AbstractStepService,
-} from "../../abstracts"
+} from "@modules/bullmq"
 import {
     WinstonLog,
-    WinstonService 
+    WinstonService
 } from "@modules/winston"
 import {
-    CourseNotFoundException 
+    CourseNotFoundException
 } from "@modules/exceptions"
 import {
-    JobExtendedContext 
+    JobExtendedContext
 } from "../../types"
 import {
-    EnrollStepExecutionResult 
+    EnrollStepExecutionResult
 } from "../types"
 /**
  * Step service: create enrollment relation between user and course.
@@ -102,7 +102,7 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                     CourseEntity,
                     {
                         where: {
-                            id: courseId 
+                            id: courseId
                         },
                         relations: {
                             metadata: true,

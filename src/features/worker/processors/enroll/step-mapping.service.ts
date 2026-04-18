@@ -1,11 +1,11 @@
 import {
-    Injectable 
+    Injectable
 } from "@nestjs/common"
 import {
-    AbstractStepService 
-} from "../abstracts"
+    AbstractStepService
+} from "@modules/bullmq"
 import {
-    EnrollStepService 
+    EnrollStepService
 } from "./steps"
 import type {
     EnrollPayload,
@@ -18,7 +18,7 @@ import type {
 export class StepMappingService {
     constructor(
         private readonly enrollStepService: EnrollStepService,
-    ) {}
+    ) { }
 
     /**
      * Get the step map.

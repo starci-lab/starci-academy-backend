@@ -29,7 +29,7 @@ import type {
 } from "typeorm"
 import {
     AbstractStepService,
-} from "../../abstracts"
+} from "@modules/bullmq"
 import {
     JobExtendedContext,
 } from "../../types"
@@ -136,7 +136,7 @@ export class ProcessCvSubmissionAnalyzeStepService extends AbstractStepService<
         const raw = (typeof response.content === "string"
             ? response.content
             : String(response.content)) as string
-        
+
         const result = this.parseJsonResult(raw)
 
         return {

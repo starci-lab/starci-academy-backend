@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     AbstractStepService,
-} from "../abstracts"
+} from "@modules/bullmq"
 import type {
     ProcessGitSubmissionPayload,
 } from "@modules/bullmq"
@@ -23,7 +23,7 @@ export class ProcessGitSubmissionStepMappingService {
     constructor(
         private readonly gradeStepService: ProcessGitSubmissionGradeStepService,
         private readonly completeStepService: ProcessGitSubmissionCompleteStepService,
-    ) {}
+    ) { }
 
     /**
      * Get the step map.
@@ -35,7 +35,7 @@ export class ProcessGitSubmissionStepMappingService {
             ProcessGitSubmissionPayload,
             ExtendedProcessGitSubmissionContext
         >
-        > {
+    > {
         return new Map<number, AbstractStepService<
             ProcessGitSubmissionPayload,
             ExtendedProcessGitSubmissionContext

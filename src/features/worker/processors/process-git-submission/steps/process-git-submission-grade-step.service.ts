@@ -18,7 +18,7 @@ import type {
 } from "typeorm"
 import {
     AbstractStepService,
-} from "../../abstracts"
+} from "@modules/bullmq"
 import {
     WinstonLog,
     WinstonService,
@@ -244,7 +244,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             "- keep submissionFeedbacks messages actionable and specific.",
         ].filter(Boolean).join("\n")
         //console.log(systemText)
-        
+
         const humanText = [
             "Below is an excerpt of files loaded from the submitted GitHub repository (may be truncated):",
             "",

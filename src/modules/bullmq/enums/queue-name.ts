@@ -13,4 +13,6 @@ export enum BullQueueName {
     InviteGithub = "invite-github",
     /** Queue for grading a CV challenge submission. */
     ProcessCvSubmission = "process-cv-submission",
+    /** Queue for processing video (encode mp4/mkv to mpeg-dash and hls). */
+    ProcessVideo = "process-video",
 }

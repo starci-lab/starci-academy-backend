@@ -50,4 +50,10 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
         ),
         name: "process-cv-submission",
     },
+    [BullQueueName.ProcessVideo]: {
+        prefix: formatWithBraces(
+            "process-video",
+        ),
+        name: "process-video",
+    },
 }

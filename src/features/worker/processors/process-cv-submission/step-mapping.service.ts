@@ -6,13 +6,13 @@ import {
 } from "@nestjs/common"
 import {
     AbstractStepService,
-} from "../abstracts"
+} from "@modules/bullmq"
 import {
     ProcessCvSubmissionAnalyzeStepService,
     ProcessCvSubmissionExtractStepService
 } from "./steps"
 import {
-    ExtendedProcessCvSubmissionContext 
+    ExtendedProcessCvSubmissionContext
 } from "./types"
 
 /**
@@ -23,7 +23,7 @@ export class ProcessCVSubmissionStepMappingService {
     constructor(
         private readonly extractStepService: ProcessCvSubmissionExtractStepService,
         private readonly analyzeStepService: ProcessCvSubmissionAnalyzeStepService,
-    ) {}
+    ) { }
 
     /**
      * Get the step map.
@@ -35,7 +35,7 @@ export class ProcessCVSubmissionStepMappingService {
             ProcessCVSubmissionPayload,
             ExtendedProcessCvSubmissionContext
         >
-        > {
+    > {
         return new Map<number, AbstractStepService<
             ProcessCVSubmissionPayload,
             ExtendedProcessCvSubmissionContext

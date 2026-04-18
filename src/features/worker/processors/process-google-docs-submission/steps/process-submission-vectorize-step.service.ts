@@ -17,7 +17,7 @@ import type {
 } from "typeorm"
 import {
     AbstractStepService,
-} from "../../abstracts"
+} from "@modules/bullmq"
 import {
     WinstonLog,
     WinstonService,
@@ -105,7 +105,7 @@ export class ProcessGoogleDocsSubmissionVectorizeStepService extends AbstractSte
         })
 
         const collectionName = `grading-${context.payload.userChallengeSubmissionId}`
-        
+
         const embeddingModel = this.embeddingModelService.get({
             model: context.payload.embeddingModel ?? envConfig().services.githubWorker.processGitSubmission.embedding.model,
             provider: (context.payload.embeddingProvider ?? envConfig().services.githubWorker.processGitSubmission.embedding.provider) as ModelProvider,

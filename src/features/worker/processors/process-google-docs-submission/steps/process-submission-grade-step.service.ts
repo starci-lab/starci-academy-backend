@@ -16,7 +16,7 @@ import type {
 } from "typeorm"
 import {
     AbstractStepService,
-} from "../../abstracts"
+} from "@modules/bullmq"
 import {
     WinstonLog,
     WinstonService,
@@ -155,7 +155,7 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         ])
 
         const raw = (typeof response.content === "string" ? response.content : String(response.content)) as string
-        
+
         return this.parseGradeFromModelText(raw, submissionScore)
     }
 

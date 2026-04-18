@@ -12,7 +12,7 @@ import type {
 } from "typeorm"
 import {
     AbstractStepService,
-} from "../../abstracts"
+} from "@modules/bullmq"
 import {
     WinstonLog,
     WinstonService,

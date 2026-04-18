@@ -15,7 +15,6 @@
       "root": "apps/cli",
       "entryFile": "main",
       "sourceRoot": "apps/cli/src",
-
       "compilerOptions": {
         "tsConfigPath": "apps/cli/tsconfig.app.json",
         "webpack": true,
@@ -31,6 +30,15 @@
         "tsConfigPath": "apps/core/tsconfig.app.json",
         "webpack": true,
         "webpackConfigPath": "apps/core/webpack.config.cjs"
+      }
+    },
+    "ffmpeg-service": {
+      "type": "application",
+      "root": "apps/ffmpeg-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/ffmpeg-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/ffmpeg-service/tsconfig.app.json"
       }
     }
   }

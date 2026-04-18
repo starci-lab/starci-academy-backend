@@ -18,7 +18,7 @@ import type {
 } from "typeorm"
 import {
     AbstractStepService,
-} from "../../abstracts"
+} from "@modules/bullmq"
 import {
     WinstonLog,
     WinstonService,
@@ -82,10 +82,10 @@ export class ProcessGoogleDocsSubmissionLoadDocsStepService extends AbstractStep
         >,
     ): Promise<ProcessGoogleDocsSubmissionLoadDocsStepExecuteResult> {
         const url = context.extended?.userChallengeSubmission.submissionUrl ?? ""
-        
+
         // Use the centralized LangChain service to load Google Docs via public export
         const docs = await this.langchainService.loadGoogleDocs(url)
-        
+
         return {
             docs,
         }
