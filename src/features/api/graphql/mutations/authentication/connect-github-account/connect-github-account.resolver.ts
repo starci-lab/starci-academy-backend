@@ -10,7 +10,6 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-    GraphQLLocale,
 } from "@modules/api"
 import {
     KeycloakAuthGraphQLGuard,
@@ -26,7 +25,7 @@ import {
 } from "./graphql-types"
 import {
     ConnectGithubAccountService,
-} from "./connect-github-account.service"
+} from "@features/api/cqrs"
 
 /**
  * GraphQL mutation for connecting GitHub account to authenticated user.

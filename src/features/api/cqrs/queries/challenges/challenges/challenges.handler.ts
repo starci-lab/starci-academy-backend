@@ -1,35 +1,42 @@
 import {
+    BadRequestException,
+} from "@nestjs/common"
+import {
+    ICqrsHandler,
+} from "@modules/bussiness"
+import {
     ChallengeEntity,
 } from "@modules/databases"
 import {
     ElasticsearchQueryBuilder,
-    ElasticsearchService
+    ElasticsearchService,
 } from "@modules/elasticsearch"
 import {
     envConfig,
 } from "@modules/env"
 import {
-    Injectable,
-} from "@nestjs/common"
+    ChallengesResponseData,
+} from "@features/api/graphql/queries/challenges/challenges/graphql-types"
 import {
-    ExecuteParams,
-} from "../../../../types"
-import {
-    ChallengesRequest,
-    ChallengesResponseData
-} from "./graphql-types"
+    ChallengesQuery,
+} from "./challenges.query"
 
-/**
- * Lists module challenges from Elasticsearch for GraphQL.
- */
-@Injectable()
-export class ChallengesService {
+export class ChallengesHandler extends ICqrsHandler<ChallengesResponseData> {
     constructor(
+        private readonly query: ChallengesQuery,
         private readonly elasticsearch: ElasticsearchService,
-    ) {}
+    ) {
+        super()
+    }
 
-    async execute(
-        {
+    protected async validate(): Promise<void> {
+        if (!this.query.params.request.moduleId?.trim()) {
+            throw new BadRequestException("moduleId is required")
+        }
+    }
+
+    protected async process(): Promise<ChallengesResponseData> {
+        const {
             request: {
                 moduleId,
                 filters: {
@@ -40,14 +47,15 @@ export class ChallengesService {
                 },
             },
             locale,
-        }: ExecuteParams<ChallengesRequest>,
-    ): Promise<ChallengesResponseData> {
-        const sort = sorts.map(s => ({
+        } = this.query.params
+
+        const sort = sorts.map((s) => ({
             [s.by]: {
-                order: s.order.toLowerCase()
+                order: s.order.toLowerCase(),
             },
         }))
-        const query = ElasticsearchQueryBuilder.buildSearchQuery({
+
+        const esQuery = ElasticsearchQueryBuilder.buildSearchQuery({
             filters: [
                 {
                     term: {
@@ -56,20 +64,22 @@ export class ChallengesService {
                 },
                 {
                     term: {
-                        "locale": locale,
+                        locale,
                     },
                 },
             ],
             search,
-            searchFields: ["title^3",
+            searchFields: [
+                "title^3",
                 "description",
-                "requirements"],
+                "requirements",
+            ],
         })
 
         const { data, count } = await this.elasticsearch.search<ChallengeEntity>(
             ChallengeEntity.name,
             {
-                query,
+                query: esQuery,
                 sort,
                 from: pageNumber * limit,
                 size: limit,

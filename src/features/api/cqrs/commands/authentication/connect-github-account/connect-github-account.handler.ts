@@ -1,11 +1,9 @@
 import {
-    Injectable,
-} from "@nestjs/common"
+    ICqrsHandler,
+    EventBus,
+    EnqueueInviteGithubJobService,
+} from "@modules/bussiness"
 import {
-    Octokit,
-} from "octokit"
-import {
-    InjectPrimaryPostgreSQLEntityManager,
     EnrollmentEntity,
     UserEntity,
 } from "@modules/databases"
@@ -16,47 +14,40 @@ import {
     MountStorageService,
 } from "@modules/filesystem"
 import {
-    ConnectGithubAccountInput,
-} from "./graphql-types"
-import {
-    EnqueueInviteGithubJobService 
-} from "@modules/bussiness"
+    Octokit,
+} from "octokit"
 import {
     GithubUserNotFoundException,
     GithubUserVerificationFailedException,
 } from "@modules/exceptions"
+import {
+    ConnectGithubAccountCommand,
+} from "./connect-github-account.command"
 
-/**
- * Service for connecting a GitHub account to a user.
- */
-@Injectable()
-export class ConnectGithubAccountService {
+export class ConnectGithubAccountHandler extends ICqrsHandler<UserEntity> {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly command: ConnectGithubAccountCommand,
         private readonly entityManager: EntityManager,
         private readonly mountStorageService: MountStorageService,
         private readonly enqueueInviteGithubJobService: EnqueueInviteGithubJobService,
-    ) {}
+        private readonly eventBus: EventBus,
+    ) {
+        super()
+    }
 
-    /**
-     * Verify GitHub username exists and update user entity.
-     * @param user - Current authenticated user
-     * @param input - Input containing GitHub username
-     * @returns Updated user entity
-     */
-    async execute(
-        user: UserEntity,
-        input: ConnectGithubAccountInput,
-    ): Promise<UserEntity> {
-        const { githubUsername } = input
+    protected async process(): Promise<UserEntity> {
+        const {
+            user,
+            input: {
+                githubUsername,
+            },
+        } = this.command
 
-        // Initialize Octokit with GitHub token from mounted secret
         const octokit = new Octokit({
             auth: this.mountStorageService.githubAccessToken,
         })
 
         try {
-            // Verify the GitHub username exists
             await octokit.rest.users.getByUsername({
                 username: githubUsername,
             })
@@ -77,9 +68,19 @@ export class ConnectGithubAccountService {
             )
         }
 
-        // Update user with GitHub username
         user.githubUsername = githubUsername
         await this.entityManager.save(user)
+
+        return user
+    }
+
+    protected async emit(): Promise<void> {
+        const {
+            user,
+            input: {
+                githubUsername,
+            },
+        } = this.command
 
         const enrollments = await this.entityManager.find(
             EnrollmentEntity,
@@ -91,18 +92,22 @@ export class ConnectGithubAccountService {
                 },
             },
         )
-        for (const enrollment of enrollments) {
-            try {
-                await this.enqueueInviteGithubJobService.enqueue({
-                    userId: user.id,
-                    courseId: enrollment.courseId,
-                    githubUsername,
-                })
-            } catch (error) {
-                console.error(error)
-            }
-        }
 
-        return user
+        for (const enrollment of enrollments) {
+            await this.eventBus.execute(
+                {
+                    name: `connect-github-account.invite.${user.id}.${enrollment.courseId}`,
+                    execute: async () => {
+                        await this.enqueueInviteGithubJobService.enqueue(
+                            {
+                                userId: user.id,
+                                courseId: enrollment.courseId,
+                                githubUsername,
+                            },
+                        )
+                    },
+                },
+            )
+        }
     }
 }

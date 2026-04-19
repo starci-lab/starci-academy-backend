@@ -9,7 +9,7 @@ import {
 } from "./challenge.resolver"
 import {
     ChallengeQueryService,
-} from "./challenge.service"
+} from "@features/api/cqrs"
 
 @Module({
     providers: [

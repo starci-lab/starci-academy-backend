@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     ConnectGithubAccountService,
-} from "./connect-github-account.service"
+} from "@features/api/cqrs"
 import {
     ConnectGithubAccountResolver,
 } from "./connect-github-account.resolver"

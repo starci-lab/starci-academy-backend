@@ -9,7 +9,7 @@ import {
 } from "./challenges.resolver"
 import {
     ChallengesService,
-} from "./challenges.service"
+} from "@features/api/cqrs"
 import {
     ElasticsearchModule,
 } from "@modules/elasticsearch"
