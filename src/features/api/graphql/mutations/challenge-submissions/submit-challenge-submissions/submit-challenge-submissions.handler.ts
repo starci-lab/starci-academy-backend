@@ -1,7 +1,9 @@
 import {
     EnqueueProcessGitSubmissionJobService,
-    ICQRSHandler,
 } from "@modules/bussiness"
+import {
+    ICQRSHandler,
+} from "@modules/cqrs"
 import {
     ChallengeEntity,
     ChallengeSubmissionEntity,

@@ -1,7 +1,9 @@
 import {
     EnqueueProcessCvSubmissionJobService,
-    ICQRSHandler,
 } from "@modules/bussiness"
+import {
+    ICQRSHandler,
+} from "@modules/cqrs"
 import {
     CVSubmissionEntity,
     CvSubmissionStatus,

@@ -15,9 +15,6 @@ import {
 import {
     TransactionsModule,
 } from "./transactions"
-import {
-    CqrsModule,
-} from "./cqrs"
 
 /**
  * The module for the bussiness logics.
@@ -32,8 +29,6 @@ export class BussinessModule extends ConfigurableModuleClass {
             JobsModule.register(options),
             // import the transactions module
             TransactionsModule.register(options),
-            // import lightweight cqrs module
-            CqrsModule,
         ]
         return {
             ...dynamicModule,

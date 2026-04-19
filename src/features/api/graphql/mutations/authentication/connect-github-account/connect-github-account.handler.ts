@@ -1,6 +1,6 @@
 import {
     ICQRSHandler,
-} from "@modules/bussiness"
+} from "@modules/cqrs"
 import {
     AddGithubUserToTeamEventHandler,
 } from "@modules/cqrs"
@@ -42,7 +42,6 @@ export class ConnectGithubAccountHandler
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly mountStorageService: MountStorageService,
-        private readonly addGithubUserToTeamEventHandler: AddGithubUserToTeamEventHandler,
     ) {
         super()
     }
@@ -86,7 +85,6 @@ export class ConnectGithubAccountHandler
 
     protected override async emit(
         command: ConnectGithubAccountCommand,
-        _response: UserEntity,
     ): Promise<void> {
         const {
             user,
@@ -106,12 +104,12 @@ export class ConnectGithubAccountHandler
             },
         )
 
-        for (const enrollment of enrollments) {
-            await this.addGithubUserToTeamEventHandler.publish({
-                userId: user.id,
-                courseId: enrollment.courseId,
-                githubUsername,
-            })
-        }
+        // for (const enrollment of enrollments) {
+        //     await this.addGithubUserToTeamEventHandler.publish({
+        //         userId: user.id,
+        //         courseId: enrollment.courseId,
+        //         githubUsername,
+        //     })
+        // }
     }
 }

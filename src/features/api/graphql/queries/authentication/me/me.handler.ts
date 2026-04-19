@@ -1,6 +1,6 @@
 import {
     ICQRSHandler,
-} from "@modules/bussiness"
+} from "@modules/cqrs"
 import {
     UserEntity,
 } from "@modules/databases"
@@ -45,7 +45,9 @@ export class MeHandler
      * @param query - The query.
      * @returns The user.
      */
-    protected override async process(query: MeQuery): Promise<UserEntity> {
+    protected override async process(
+        query: MeQuery
+    ): Promise<UserEntity> {
         const {
             user,
         } = query.params

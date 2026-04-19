@@ -1,15 +1,16 @@
 /**
  * Interface for a CQRS handler.
+ * @template TParams - The parameters type.
  * @template TResponse - The response type.
  */
-export abstract class ICQRSHandler<TResponse = unknown> {
+export abstract class ICQRSHandler<TParams, TResponse = unknown> {
     /**
      * Execute the handler.
      * @returns The response.
      */
-    async execute(): Promise<TResponse> {
+    async execute(params: TParams): Promise<TResponse> {
         await this.validate()
-        const response = await this.process()
+        const response = await this.process(params)
         await this.emit(response)
         return response
     }
@@ -22,9 +23,10 @@ export abstract class ICQRSHandler<TResponse = unknown> {
 
     /**
      * Process the request.
+     * @param params - The parameters.
      * @returns The response.
      */
-    protected abstract process(): Promise<TResponse>
+    protected abstract process(params: TParams): Promise<TResponse>
 
     /**
      * Emit the response.

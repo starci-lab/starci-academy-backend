@@ -1,6 +1,8 @@
 import {
-    EnqueueEnrollJobService,
     ICQRSHandler,
+} from "@modules/cqrs"
+import {
+    EnqueueEnrollJobService,
 } from "@modules/bussiness"
 import {
     InjectPrimaryPostgreSQLEntityManager,

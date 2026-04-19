@@ -1,6 +1,6 @@
 import {
     ICQRSHandler,
-} from "@modules/bussiness"
+} from "@modules/cqrs"
 import {
     ContentEntity,
 } from "@modules/databases"

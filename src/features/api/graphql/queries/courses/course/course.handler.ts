@@ -1,6 +1,6 @@
 import {
-    ICQRSHandler,
-} from "@modules/bussiness"
+    ICQRSHandler
+} from "@modules/cqrs"
 import {
     CourseEntity,
 } from "@modules/databases"

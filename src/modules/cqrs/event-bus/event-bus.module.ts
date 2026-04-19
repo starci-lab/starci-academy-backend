@@ -7,7 +7,7 @@ import {
     OPTIONS_TYPE,
 } from "./event-bus.module-definition"
 import {
-    AddGithubUserToTeamEventHandler,
+    AddGithubUserToTeamHandler,
 } from "./add-github-user-to-team"
 import {
     SendMailEventHandler,
@@ -29,11 +29,11 @@ export class EventBusModule extends ConfigurableModuleClass {
             ...dynamicModule,
             providers: [
                 ...(dynamicModule.providers ?? []),
-                AddGithubUserToTeamEventHandler,
+                AddGithubUserToTeamHandler,
                 SendMailEventHandler,
             ],
             exports: [
-                AddGithubUserToTeamEventHandler,
+                AddGithubUserToTeamHandler,
                 SendMailEventHandler,
             ],
         }
