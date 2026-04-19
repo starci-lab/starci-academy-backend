@@ -26,7 +26,7 @@ import {
 } from "./graphql-types"
 import {
     ChallengesService,
-} from "@features/api/cqrs"
+} from "./challenges.service"
 import {
     KeycloakAuthGraphQLGuard,
 } from "@modules/keycloak"

@@ -1,23 +1,26 @@
 import {
-    Module 
+    Module,
 } from "@nestjs/common"
 import {
-    KeycloakGithubCallbackService 
+    KeycloakGithubCallbackService,
 } from "./callback.service"
 import {
-    ConfigurableModuleClass 
+    ConfigurableModuleClass,
 } from "./callback.module-definition"
 import {
-    KeycloakGithubCallbackController 
+    KeycloakGithubCallbackController,
 } from "./callback.controller"
+import {
+    KeycloakGithubCallbackHandler,
+} from "./callback.handler"
 
-/**
- * Module for the Keycloak GitHub callback.
- */
 @Module({
-    controllers: [KeycloakGithubCallbackController],
+    controllers: [
+        KeycloakGithubCallbackController,
+    ],
     providers: [
         KeycloakGithubCallbackService,
+        KeycloakGithubCallbackHandler,
     ],
 })
 export class KeycloakGithubCallbackModule extends ConfigurableModuleClass {}

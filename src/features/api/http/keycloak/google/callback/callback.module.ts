@@ -1,23 +1,26 @@
 import {
-    Module 
+    Module,
 } from "@nestjs/common"
 import {
-    KeycloakGoogleCallbackService 
+    KeycloakGoogleCallbackService,
 } from "./callback.service"
 import {
-    ConfigurableModuleClass 
+    ConfigurableModuleClass,
 } from "./callback.module-definition"
 import {
-    KeycloakGoogleCallbackController 
+    KeycloakGoogleCallbackController,
 } from "./callback.controller"
+import {
+    KeycloakGoogleCallbackHandler,
+} from "./callback.handler"
 
-/**
- * Module for the Keycloak Google callback.
- */
 @Module({
-    controllers: [KeycloakGoogleCallbackController],
+    controllers: [
+        KeycloakGoogleCallbackController,
+    ],
     providers: [
         KeycloakGoogleCallbackService,
+        KeycloakGoogleCallbackHandler,
     ],
 })
 export class KeycloakGoogleCallbackModule extends ConfigurableModuleClass {}

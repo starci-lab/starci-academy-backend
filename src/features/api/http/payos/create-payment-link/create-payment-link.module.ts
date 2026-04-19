@@ -10,18 +10,17 @@ import {
 import {
     CreatePaymentLinkService,
 } from "./create-payment-link.service"
+import {
+    CreatePaymentLinkHandler,
+} from "./create-payment-link.handler"
 
-/**
- * Module for the payOS create payment link endpoint.
- */
-@Module(
-    {
-        controllers: [
-            CreatePaymentLinkController,
-        ],
-        providers: [
-            CreatePaymentLinkService,
-        ],
-    },
-)
+@Module({
+    controllers: [
+        CreatePaymentLinkController,
+    ],
+    providers: [
+        CreatePaymentLinkService,
+        CreatePaymentLinkHandler,
+    ],
+})
 export class CreatePaymentLinkModule extends ConfigurableModuleClass {}

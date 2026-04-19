@@ -16,6 +16,9 @@ import {
 import {
     CoursePricingService,
 } from "./course-pricing.service"
+import {
+    CourseEnrollHandler,
+} from "./course-enroll.handler"
 
 @Module({
     providers: [
@@ -24,6 +27,7 @@ import {
         CourseEnrollSepayService,
         CourseEnrollService,
         CourseEnrollResolver,
+        CourseEnrollHandler,
     ],
 })
 export class CourseEnrollMutationModule {}

@@ -25,6 +25,10 @@ export enum ActionType {
      * Grade a CV submission (worker pipeline).
      */
     ProcessCvSubmission = "processCvSubmission",
+    /**
+     * Send an email via the Mailcow SMTP gateway.
+     */
+    SendMail = "sendMail",
 }
 
 export const GraphQLTypeActionType = createEnumType(ActionType)

@@ -10,11 +10,15 @@ import {
 import {
     LivestreamSessionsService,
 } from "./livestream-sessions.service"
+import {
+    LivestreamSessionsHandler,
+} from "./livestream-sessions.handler"
 
 @Module({
     providers: [
         LivestreamSessionsService,
         LivestreamSessionsResolver,
+        LivestreamSessionsHandler,
     ],
 })
 export class LivestreamSessionsSingleQueryModule extends ConfigurableModuleClass {}

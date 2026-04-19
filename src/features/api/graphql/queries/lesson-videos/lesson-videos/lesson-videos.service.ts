@@ -1,81 +1,31 @@
 import {
-    LessonVideoEntity,
-    Locale
-} from "@modules/databases"
-import { ElasticsearchQueryBuilder, ElasticsearchService } from "@modules/elasticsearch"
-import {
-    envConfig,
-} from "@modules/env"
-import {
     Injectable,
 } from "@nestjs/common"
 import {
-    ExecuteParams,
-} from "../../../../types"
+    QueryBus,
+} from "@nestjs/cqrs"
 import {
-    LessonVideoTransformerService,
-} from "../../../utils"
+    ExecuteParams,
+} from "@features/api/types"
+import {
+    LessonVideosQuery,
+} from "./lesson-videos.query"
 import {
     LessonVideosRequest,
-    LessonVideosResponseData
+    LessonVideosResponseData,
 } from "./graphql-types"
 
-/**
- * Lists module lesson videos from primary PostgreSQL for GraphQL.
- */
 @Injectable()
 export class LessonVideosService {
     constructor(
-        private readonly lessonVideoTransformer: LessonVideoTransformerService,
-        private readonly elasticsearch: ElasticsearchService
+        private readonly queryBus: QueryBus,
     ) {}
 
     async execute(
-        {
-            request: {
-                moduleId,
-                filters: {
-                    limit = envConfig().services.api.pagination.page.limit,
-                    pageNumber = 0,
-                    sorts,
-                    search
-                },
-            },
-            locale,
-        }: ExecuteParams<LessonVideosRequest>,
+        params: ExecuteParams<LessonVideosRequest>,
     ): Promise<LessonVideosResponseData> {
-        const sort = sorts.map(s => ({
-            [s.by]: {order: s.order.toLowerCase()},
-        }))
-        const query = ElasticsearchQueryBuilder.buildSearchQuery({
-            filters: [
-                {
-                    term: {
-                        "moduleId.keyword": moduleId,
-                    },
-                },
-                {
-                    term: {
-                        "locale": locale,
-                    },
-                },
-            ],
-            search,
-            searchFields: ["title^3", "description", "caption"],
-        });
-
-        const { data: rows, count } = await this.elasticsearch.search<LessonVideoEntity>(
-            LessonVideoEntity.name,
-            {
-                query,
-                sort,
-                from: pageNumber * limit,
-                size: limit,
-            },
+        return this.queryBus.execute(
+            new LessonVideosQuery(params),
         )
-        return {
-            count,
-            data: rows,
-        }
     }
 }

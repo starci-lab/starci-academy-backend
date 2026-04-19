@@ -10,18 +10,17 @@ import {
 import {
     PaymentRequestService,
 } from "./payment-request.service"
+import {
+    PaymentRequestHandler,
+} from "./payment-request.handler"
 
-/**
- * Module for the payOS GET payment request endpoint.
- */
-@Module(
-    {
-        controllers: [
-            PaymentRequestController,
-        ],
-        providers: [
-            PaymentRequestService,
-        ],
-    },
-)
+@Module({
+    controllers: [
+        PaymentRequestController,
+    ],
+    providers: [
+        PaymentRequestService,
+        PaymentRequestHandler,
+    ],
+})
 export class PaymentRequestModule extends ConfigurableModuleClass {}

@@ -25,7 +25,7 @@ import {
 } from "./graphql-types"
 import {
     ConnectGithubAccountService,
-} from "@features/api/cqrs"
+} from "./connect-github-account.service"
 
 /**
  * GraphQL mutation for connecting GitHub account to authenticated user.

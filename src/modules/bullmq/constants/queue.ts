@@ -56,4 +56,10 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
         ),
         name: "process-video",
     },
+    [BullQueueName.SendMail]: {
+        prefix: formatWithBraces(
+            "send-mail",
+        ),
+        name: "send-mail",
+    },
 }

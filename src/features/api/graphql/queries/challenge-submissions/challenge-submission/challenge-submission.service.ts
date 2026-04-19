@@ -1,89 +1,33 @@
 import {
-    ChallengeSubmissionEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    UserChallengeSubmissionEntity,
-} from "@modules/databases"
-import {
-    ChallengeSubmissionNotFoundException,
-    UserNotFoundException,
-} from "@modules/exceptions"
-import {
     Injectable,
 } from "@nestjs/common"
-import type {
-    EntityManager,
-} from "typeorm"
-import type {
+import {
+    QueryBus,
+} from "@nestjs/cqrs"
+import {
+    ChallengeSubmissionEntity,
+} from "@modules/databases"
+import {
+    ExecuteParams,
+} from "@features/api/types"
+import {
+    ChallengeSubmissionQuery,
+} from "./challenge-submission.query"
+import {
     ChallengeSubmissionRequest,
 } from "./graphql-types"
-import type {
-    ExecuteParams,
-} from "../../../../types"
 
-/**
- * Service for querying challenge submissions.
- */
 @Injectable()
 export class ChallengeSubmissionQueryService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
+        private readonly queryBus: QueryBus,
     ) {}
 
-    /**
-     * Get a challenge submission by ID.
-     * @param request - The request object containing the challenge submission ID.
-     * @param user - The user object.
-     * @returns The challenge submission entity.
-     */
     async execute(
-        {
-            request,
-            user
-        }: ExecuteParams<ChallengeSubmissionRequest>,
+        params: ExecuteParams<ChallengeSubmissionRequest>,
     ): Promise<ChallengeSubmissionEntity> {
-        if (!user) {
-            throw new UserNotFoundException({
-            })
-        }
-        const submission = await this.entityManager.findOne(
-            ChallengeSubmissionEntity,
-            {
-                where: {
-                    id: request.challengeSubmissionId,
-                },
-            },
+        return this.queryBus.execute(
+            new ChallengeSubmissionQuery(params),
         )
-        if (!submission) {
-            throw new ChallengeSubmissionNotFoundException(
-                {
-                    submissionId: request.challengeSubmissionId,
-                },
-            )
-        }
-        const userSubmission = await this.entityManager.findOne(
-            UserChallengeSubmissionEntity,
-            {
-                where: {
-                    userId: user.id,
-                    submissionId: request.challengeSubmissionId,
-                },
-                relations: {
-                    attempts: {
-                        feedbacks: true,
-                    },
-                },
-                order: {
-                    attempts: {
-                        createdAt: "DESC",
-                    },
-                },
-            },
-        )
-
-        if (userSubmission) {
-            submission.userSubmission = userSubmission
-        }
-        return submission
     }
 }

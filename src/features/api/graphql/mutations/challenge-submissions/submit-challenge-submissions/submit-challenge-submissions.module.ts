@@ -7,11 +7,15 @@ import {
 import {
     SubmitChallengeSubmissionsService,
 } from "./submit-challenge-submissions.service"
+import {
+    SubmitChallengeSubmissionsHandler,
+} from "./submit-challenge-submissions.handler"
 
 @Module({
     providers: [
         SubmitChallengeSubmissionsService,
         SubmitChallengeSubmissionsResolver,
+        SubmitChallengeSubmissionsHandler,
     ],
 })
 export class SubmitChallengeSubmissionsMutationModule {}

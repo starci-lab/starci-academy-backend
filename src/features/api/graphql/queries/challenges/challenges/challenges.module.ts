@@ -9,7 +9,10 @@ import {
 } from "./challenges.resolver"
 import {
     ChallengesService,
-} from "@features/api/cqrs"
+} from "./challenges.service"
+import {
+    ChallengesHandler,
+} from "./challenges.handler"
 import {
     ElasticsearchModule,
 } from "@modules/elasticsearch"
@@ -21,6 +24,7 @@ import {
     providers: [
         ChallengesService,
         ChallengesResolver,
+        ChallengesHandler,
     ],
 })
 export class ChallengesSingleQueryModule extends ConfigurableModuleClass {}

@@ -10,11 +10,15 @@ import {
 import {
     SubmissionAttemptsService,
 } from "./submission-attempts.service"
+import {
+    SubmissionAttemptsHandler,
+} from "./submission-attempts.handler"
 
 @Module({
     providers: [
         SubmissionAttemptsService,
         SubmissionAttemptsResolver,
+        SubmissionAttemptsHandler,
     ],
 })
 export class SubmissionAttemptsModule extends ConfigurableModuleClass {}

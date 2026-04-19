@@ -10,11 +10,15 @@ import {
 import {
     ChallengeSubmissionQueryService,
 } from "./challenge-submission.service"
+import {
+    ChallengeSubmissionHandler,
+} from "./challenge-submission.handler"
 
 @Module({
     providers: [
         ChallengeSubmissionQueryService,
         ChallengeSubmissionResolver,
+        ChallengeSubmissionHandler,
     ],
 })
 export class ChallengeSubmissionQueryModule extends ConfigurableModuleClass {}

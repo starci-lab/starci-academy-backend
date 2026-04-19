@@ -7,6 +7,7 @@ import {
     UseInterceptors,
 } from "@nestjs/common"
 import {
+    GraphQLLocale,
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
 } from "@modules/api"
@@ -19,8 +20,8 @@ import {
     ThrottlerConfig,
 } from "@modules/throttler"
 import {
+    Locale,
     UserEntity,
-    Locale 
 } from "@modules/databases"
 import {
     MeResponse,
@@ -53,7 +54,13 @@ export class MeResolver {
     async execute(
         @KeycloakGraphQLUser()
             user: UserEntity,
+        @GraphQLLocale()
+            locale: Locale,
     ): Promise<UserEntity> {
-        return this.meService.execute(user)
+        return this.meService.execute({
+            request: undefined,
+            locale,
+            user,
+        })
     }
 }

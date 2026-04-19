@@ -8,6 +8,9 @@ import {
     CourseEnrollmentStatusService,
 } from "./course-enrollment-status.service"
 import {
+    CourseEnrollmentStatusHandler,
+} from "./course-enrollment-status.handler"
+import {
     ConfigurableModuleClass,
 } from "./course-enrollment-status.module-definition"
 
@@ -15,6 +18,7 @@ import {
     providers: [
         CourseEnrollmentStatusService,
         CourseEnrollmentStatusResolver,
+        CourseEnrollmentStatusHandler,
     ],
 })
 export class CourseEnrollmentStatusQueryModule extends ConfigurableModuleClass {}

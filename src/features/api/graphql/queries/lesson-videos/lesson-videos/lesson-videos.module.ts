@@ -10,11 +10,15 @@ import {
 import {
     LessonVideosService,
 } from "./lesson-videos.service"
+import {
+    LessonVideosHandler,
+} from "./lesson-videos.handler"
 
 @Module({
     providers: [
         LessonVideosService,
         LessonVideosResolver,
+        LessonVideosHandler,
     ],
 })
 export class LessonVideosSingleQueryModule extends ConfigurableModuleClass {}

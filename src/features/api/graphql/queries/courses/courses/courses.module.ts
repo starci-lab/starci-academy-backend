@@ -14,6 +14,9 @@ import {
     CourseCdnResolver,
 } from "./course-cdn.resolver"
 import {
+    CoursesHandler,
+} from "./courses.handler"
+import {
     ElasticsearchModule,
 } from "@modules/elasticsearch"
 
@@ -25,6 +28,7 @@ import {
         CoursesService,
         CoursesResolver,
         CourseCdnResolver,
+        CoursesHandler,
     ],
 })
 export class CoursesSingleQueryModule extends ConfigurableModuleClass {}

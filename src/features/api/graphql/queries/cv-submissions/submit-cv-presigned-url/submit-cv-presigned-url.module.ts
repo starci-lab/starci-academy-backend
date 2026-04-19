@@ -2,20 +2,24 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    ConfigurableModuleClass
+    ConfigurableModuleClass,
 } from "../cv-submissions.module-definition"
 import {
-    SubmitCvPresignedUrlResolver 
+    SubmitCvPresignedUrlResolver,
 } from "./submit-cv-presigned-url.resolver"
 import {
-    SubmitCvPresignedUrlService 
+    SubmitCvPresignedUrlService,
 } from "./submit-cv-presigned-url.service"
+import {
+    SubmitCvPresignedUrlHandler,
+} from "./submit-cv-presigned-url.handler"
 
 @Module({
     imports: [],
     providers: [
         SubmitCvPresignedUrlResolver,
         SubmitCvPresignedUrlService,
+        SubmitCvPresignedUrlHandler,
     ],
 })
 export class SubmitCvSinglePresignedUrlModule extends ConfigurableModuleClass {}

@@ -10,18 +10,17 @@ import {
 import {
     SepayWebhookService,
 } from "./webhook.service"
+import {
+    SepayWebhookHandler,
+} from "./webhook.handler"
 
-/**
- * Module for the SePay webhook.
- */
-@Module(
-    {
-        controllers: [
-            SepayWebhookController,
-        ],
-        providers: [
-            SepayWebhookService,
-        ],
-    },
-)
+@Module({
+    controllers: [
+        SepayWebhookController,
+    ],
+    providers: [
+        SepayWebhookService,
+        SepayWebhookHandler,
+    ],
+})
 export class SepayWebhookModule extends ConfigurableModuleClass {}

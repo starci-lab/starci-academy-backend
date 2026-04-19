@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common"
-import { AbstractStepService } from "../abstracts"
+import { AbstractStepService } from "@modules/bullmq"
 import { JobExtendedContext } from "../types"
 import { FilenameProcessData } from "@modules/bullmq"
 import { JobActionService } from "@modules/bussiness"
@@ -23,14 +23,14 @@ export class ProcessVideoPackageStepService extends AbstractStepService<Filename
     async process(context: JobExtendedContext<FilenameProcessData, undefined>): Promise<void> {
         const { payload: { assetId }, job } = context
         this.logger.verbose(`3/5. Fragmenting videos and Generating MPEG-DASH & HLS manifest for asset ${assetId}...`)
-        
+
         // TODO: call bento4Service
         // Fragment video
         // await this.bento4Service.fragmentVideo(assetId, videoName)
-        
+
         // Generate DASH
         // await this.bento4Service.generateMpegDashManifestFromFragments(assetId, videoConfig().videoNames)
-        
+
         // Generate HLS
         // await this.bento4Service.generateHlsManifestFromFragments(assetId, videoConfig().videoNames)
 

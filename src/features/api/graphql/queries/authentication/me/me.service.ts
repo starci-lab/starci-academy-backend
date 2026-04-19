@@ -2,21 +2,32 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
+    QueryBus,
+} from "@nestjs/cqrs"
+import {
     UserEntity,
 } from "@modules/databases"
+import {
+    ExecuteParams,
+} from "@features/api/types"
+import {
+    MeQuery,
+} from "./me.query"
 
 /**
- * Returns the authenticated user attached by {@link KeycloakAuthGraphqlGuard}.
+ * Thin facade over the `@nestjs/cqrs` {@link QueryBus} that wraps the
+ * raw resolver params in a {@link MeQuery} and dispatches it. The
+ * actual logic lives in {@link MeHandler}.
  */
 @Injectable()
 export class MeService {
-    /**
-     * Entry: returns the user from the request context.
-     *
-     * @param param - Loaded {@link UserEntity} (possibly just created when auto-provision is on).
-     * @returns Same user wrapped for the standard GraphQL response shape.
-     */
-    async execute(user: UserEntity): Promise<UserEntity> {
-        return user
+    constructor(
+        private readonly queryBus: QueryBus,
+    ) {}
+
+    async execute(params: ExecuteParams<undefined>): Promise<UserEntity> {
+        return this.queryBus.execute(
+            new MeQuery(params),
+        )
     }
 }

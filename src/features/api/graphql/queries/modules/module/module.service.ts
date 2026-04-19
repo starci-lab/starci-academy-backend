@@ -1,86 +1,33 @@
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-    ModuleEntity,
-} from "@modules/databases"
-import {
-    ModuleNotFoundException,
-} from "@modules/exceptions"
-import {
     Injectable,
 } from "@nestjs/common"
 import {
-    ModuleTransformerService,
-} from "../../../utils"
-import type {
-    EntityManager,
-} from "typeorm"
-import type {
+    QueryBus,
+} from "@nestjs/cqrs"
+import {
+    ModuleEntity,
+} from "@modules/databases"
+import {
+    ExecuteParams,
+} from "@features/api/types"
+import {
+    ModuleQuery,
+} from "./module.query"
+import {
     ModuleRequest,
 } from "./graphql-types"
-import type {
-    ExecuteParams,
-} from "../../../../types"
 
-/**
- * Loads module shell data (no contents, lesson videos, or challenges — fetch those by id).
- */
 @Injectable()
 export class ModuleService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
-        private readonly moduleTransformer: ModuleTransformerService,
-    ) { }
+        private readonly queryBus: QueryBus,
+    ) {}
 
     async execute(
-        {
-            request,
-            locale,
-        }: ExecuteParams<ModuleRequest>,
+        params: ExecuteParams<ModuleRequest>,
     ): Promise<ModuleEntity> {
-        const {
-            id,
-            displayId,
-        } = request
-        const moduleEntity = await this.entityManager.findOne(
-            ModuleEntity,
-            {
-                where: {
-                    ...(id && {
-                        id,
-                    }),
-                    ...(displayId && {
-                        displayId,
-                    }),
-                },
-                relations: {
-                    translations: true,
-                    previewContents: {
-                        translations: true,
-                    },
-                },
-            },
-        )
-
-        if (!moduleEntity) {
-            throw new ModuleNotFoundException(
-                {
-                    ...(
-                        id && {
-                            id,
-                        }
-                    ),
-                    ...(
-                        displayId && {
-                            displayId,
-                        }
-                    ),
-                },
-            )
-        }
-        return this.moduleTransformer.transform(
-            moduleEntity,
-            locale,
+        return this.queryBus.execute(
+            new ModuleQuery(params),
         )
     }
 }

@@ -15,4 +15,6 @@ export enum BullQueueName {
     ProcessCvSubmission = "process-cv-submission",
     /** Queue for processing video (encode mp4/mkv to mpeg-dash and hls). */
     ProcessVideo = "process-video",
+    /** Queue for sending transactional emails via SMTP (Mailcow). */
+    SendMail = "send-mail",
 }

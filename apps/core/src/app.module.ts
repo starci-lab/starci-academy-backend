@@ -88,6 +88,12 @@ import {
 import {
     SocketIoModule 
 } from "@modules/socketio"
+import {
+    CQRSModule
+} from "@modules/cqrs"
+import {
+    CqrsModule
+} from "@nestjs/cqrs"
 /**
  * The main module for the application.
  */
@@ -141,6 +147,11 @@ import {
                     isGlobal: true,
                 }
             ),
+            /** CQRS module. */
+            CqrsModule.forRoot(),
+            CQRSModule.register({
+                isGlobal: true,
+            }),
             /** Jwt module. */
             JwtModule.register({
                 global: true,

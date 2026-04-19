@@ -7,11 +7,15 @@ import {
 import {
     SyncSubmissionsService,
 } from "./sync-submissions.service"
+import {
+    SyncSubmissionsHandler,
+} from "./sync-submissions.handler"
 
 @Module({
     providers: [
         SyncSubmissionsService,
         SyncSubmissionsResolver,
+        SyncSubmissionsHandler,
     ],
 })
 export class SyncSubmissionsMutationModule {}

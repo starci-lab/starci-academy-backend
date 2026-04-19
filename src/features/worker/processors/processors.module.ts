@@ -13,6 +13,9 @@ import {
 import {
     InviteGithubModule,
 } from "./invite-github"
+import {
+    SendMailModule,
+} from "./send-mail"
 
 /**
  * Module for the processors.
@@ -30,6 +33,11 @@ import {
             }
         ),
         InviteGithubModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
+        SendMailModule.register(
             {
                 isGlobal: true,
             }

@@ -11,6 +11,7 @@ import {
     EnqueueProcessGitSubmissionJobService,
     EnqueueInviteGithubJobService,
     EnqueueProcessCvSubmissionJobService,
+    EnqueueSendMailJobService,
 } from "./enqueue"
 import {
     JobActionService, 
@@ -34,7 +35,8 @@ export class JobsModule extends ConfigurableModuleClass {
                 EnqueueEnrollJobService,
                 EnqueueProcessGitSubmissionJobService,
                 EnqueueInviteGithubJobService,
-                EnqueueProcessCvSubmissionJobService
+                EnqueueProcessCvSubmissionJobService,
+                EnqueueSendMailJobService,
             ],
             exports: [
                 JobActionService,
@@ -42,7 +44,8 @@ export class JobsModule extends ConfigurableModuleClass {
                 EnqueueEnrollJobService,
                 EnqueueProcessGitSubmissionJobService,
                 EnqueueInviteGithubJobService,
-                EnqueueProcessCvSubmissionJobService
+                EnqueueProcessCvSubmissionJobService,
+                EnqueueSendMailJobService,
             ],
         }
     }

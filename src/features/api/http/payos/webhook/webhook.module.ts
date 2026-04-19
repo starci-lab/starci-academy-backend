@@ -10,18 +10,17 @@ import {
 import {
     PayosWebhookService,
 } from "./webhook.service"
+import {
+    PayosWebhookHandler,
+} from "./webhook.handler"
 
-/**
- * Module for the payOS webhook.
- */
-@Module(
-    {
-        controllers: [
-            PayosWebhookController,
-        ],
-        providers: [
-            PayosWebhookService,
-        ],
-    },
-)
+@Module({
+    controllers: [
+        PayosWebhookController,
+    ],
+    providers: [
+        PayosWebhookService,
+        PayosWebhookHandler,
+    ],
+})
 export class PayosWebhookModule extends ConfigurableModuleClass {}

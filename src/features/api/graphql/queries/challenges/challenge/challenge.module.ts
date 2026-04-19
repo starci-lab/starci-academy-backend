@@ -9,12 +9,16 @@ import {
 } from "./challenge.resolver"
 import {
     ChallengeQueryService,
-} from "@features/api/cqrs"
+} from "./challenge.service"
+import {
+    ChallengeHandler,
+} from "./challenge.handler"
 
 @Module({
     providers: [
         ChallengeQueryService,
         ChallengeResolver,
+        ChallengeHandler,
     ],
 })
 export class ChallengeSingleQueryModule extends ConfigurableModuleClass {}

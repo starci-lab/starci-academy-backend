@@ -1,6 +1,6 @@
 import {
-    JobExtendedContext 
-} from "../types"
+    JobExtendedContext
+} from "./context"
 
 /**
  * Abstract step service.

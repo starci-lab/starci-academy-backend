@@ -85,6 +85,49 @@ export const envConfig = () => ({
                 },
             },
         },
+        /** Mailcow SMTP gateway configuration. */
+        mailcow: {
+            /** SMTP server hostname, e.g. `mail.example.com`. */
+            host: parseEnvString({
+                key: "MAILCOW_SMTP_HOST",
+                defaultValue: "localhost",
+            }),
+            /** SMTP port (465 for implicit TLS, 587 for STARTTLS). */
+            port: parseEnvInt({
+                key: "MAILCOW_SMTP_PORT",
+                defaultValue: 587,
+            }),
+            /** Whether to use implicit TLS (true on port 465). */
+            secure: parseEnvBoolean({
+                key: "MAILCOW_SMTP_SECURE",
+                defaultValue: false,
+            }),
+            /** SMTP login username (full mailbox address for Mailcow). */
+            username: parseEnvString({
+                key: "MAILCOW_SMTP_USERNAME",
+                defaultValue: "noreply@localhost",
+            }),
+            /** SMTP login password. */
+            password: parseEnvString({
+                key: "MAILCOW_SMTP_PASSWORD",
+                defaultValue: "",
+            }),
+            /** Default sender address used when the payload does not override it. */
+            fromAddress: parseEnvString({
+                key: "MAILCOW_FROM_ADDRESS",
+                defaultValue: "noreply@localhost",
+            }),
+            /** Default sender display name. */
+            fromName: parseEnvString({
+                key: "MAILCOW_FROM_NAME",
+                defaultValue: "Starci Academy",
+            }),
+            /** Reject unauthorised TLS certificates (set to false for self-signed certs). */
+            rejectUnauthorized: parseEnvBoolean({
+                key: "MAILCOW_SMTP_REJECT_UNAUTHORIZED",
+                defaultValue: true,
+            }),
+        },
         /** GitHub Organization service configuration. */
         github: {
             organization: parseEnvString({
@@ -722,6 +765,13 @@ export const envConfig = () => ({
             cooldownMs: parseEnvMs({
                 key: "CHALLENGE_SUBMISSION_COOLDOWN_MS",
                 defaultValue: "2h",
+            }),
+        },
+        /** Send Mail job configuration. */
+        sendMail: {
+            maxSteps: parseEnvInt({
+                key: "JOB_SEND_MAIL_MAX_STEPS",
+                defaultValue: 1,
             }),
         },
         /** Job stalled configuration. */

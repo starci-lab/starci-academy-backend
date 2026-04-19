@@ -10,11 +10,15 @@ import {
 import {
     SubmissionFeedbacksService,
 } from "./submission-feedbacks.service"
+import {
+    SubmissionFeedbacksHandler,
+} from "./submission-feedbacks.handler"
 
 @Module({
     providers: [
         SubmissionFeedbacksService,
         SubmissionFeedbacksResolver,
-    ],  
-})  
+        SubmissionFeedbacksHandler,
+    ],
+})
 export class SubmissionFeedbacksModule extends ConfigurableModuleClass {}

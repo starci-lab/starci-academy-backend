@@ -10,11 +10,15 @@ import {
 import {
     ContentsService,
 } from "./contents.service"
+import {
+    ContentsHandler,
+} from "./contents.handler"
 
 @Module({
     providers: [
         ContentsService,
         ContentsResolver,
+        ContentsHandler,
     ],
 })
 export class ContentsSingleQueryModule extends ConfigurableModuleClass {}

@@ -1,79 +1,31 @@
 import {
-    EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
-import {
     Injectable,
 } from "@nestjs/common"
-import type {
-    EntityManager,
-} from "typeorm"
+import {
+    QueryBus,
+} from "@nestjs/cqrs"
+import {
+    ExecuteParams,
+} from "@features/api/types"
+import {
+    CourseEnrollmentStatusQuery,
+} from "./course-enrollment-status.query"
 import type {
     CourseEnrollmentStatusData,
     CourseEnrollmentStatusRequest,
 } from "./graphql-types"
-import {
-    ExecuteParams,
-} from "../../../../types"
-import {
-    UserNotFoundException,
-} from "@modules/exceptions"
 
-/**
- * Loads enrollment aggregate for a course and whether a user is enrolled.
- */
 @Injectable()
 export class CourseEnrollmentStatusService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
+        private readonly queryBus: QueryBus,
     ) {}
 
-    /**
-     * @param courseId - Course id
-     * @param userId - Local user id when authenticated; omit when anonymous
-     */
     async execute(
-        {
-            request,
-            user,
-        }: ExecuteParams<CourseEnrollmentStatusRequest>,
+        params: ExecuteParams<CourseEnrollmentStatusRequest>,
     ): Promise<CourseEnrollmentStatusData> {
-        if (!user) {
-            throw new UserNotFoundException(
-                {
-                }
-            )
-        }
-        const {
-            courseId,
-        } = request
-        const enrollmentCount = await this.entityManager.count(
-            EnrollmentEntity,
-            {
-                where: {
-                    course: {
-                        id: courseId,
-                    },
-                },
-            },
+        return this.queryBus.execute(
+            new CourseEnrollmentStatusQuery(params),
         )
-        const isEnrolled = await this.entityManager.exists(
-            EnrollmentEntity,
-            {
-                where: {
-                    course: {
-                        id: courseId,
-                    },
-                    user: {
-                        id: user.id,
-                    },
-                },
-            },
-        )
-        return {
-            enrollmentCount,
-            isEnrolled,
-        }
     }
 }
