@@ -88,3 +88,13 @@ export const getSepayApiKey = (): string => {
         "utf8",
     )
 }
+
+/**
+ * Get Brevo SMTP password/API key (from terraform mount path).
+ */
+export const getBrevoSmtpPassword = (): string => {
+    return readFileSync(
+        envConfig().mountPath.terraform.brevoSmtpPassword,
+        "utf8",
+    )
+}

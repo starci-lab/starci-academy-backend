@@ -13,6 +13,7 @@ import {
     getKeycloakClientSecret,
     getGithubAccessToken,
     getSepayApiKey,
+    getBrevoSmtpPassword,
 } from "./utils"
 /**
  * Service responsible for reading secrets mounted into the container filesystem.
@@ -80,5 +81,12 @@ export class MountFilesystemService {
      */
     sepayApiKey(): string {
         return getSepayApiKey()
+    }
+
+    /**
+     * Get Brevo SMTP password from mount path.
+     */
+    brevoSmtpPassword(): string {
+        return getBrevoSmtpPassword()
     }
 }

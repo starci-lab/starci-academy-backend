@@ -21,16 +21,17 @@ import {
     Logger,
 } from "@nestjs/common"
 import {
+    MailerService,
+} from "@nestjs-modules/mailer"
+import {
     Job,
 } from "bullmq"
 import SuperJSON from "superjson"
-import {
-    MailcowService,
-} from "./mailcow.service"
 
 /**
  * BullMQ worker that drains the `send-mail` queue by handing payloads
- * to {@link MailcowService}. Job state is mirrored to the `jobs` table
+ * to `MailerService` (Nest Mailer -> nodemailer -> Brevo SMTP relay).
+ * Job state is mirrored to the `jobs` table
  * via {@link JobActionService} so operators can inspect failures.
  */
 @Worker(
@@ -50,7 +51,7 @@ export class SendMailWorker extends WorkerHost {
         private readonly jobActionService: JobActionService,
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
-        private readonly mailcowService: MailcowService,
+        private readonly mailerService: MailerService,
     ) {
         super()
     }
@@ -69,7 +70,34 @@ export class SendMailWorker extends WorkerHost {
                 id: bullmqJob.id ?? "",
             })
 
-            await this.mailcowService.send(payload)
+            await this.mailerService.sendMail({
+                from: payload.from
+                    ? this.formatAddress(payload.from)
+                    : undefined,
+                to: payload.to.map((r) => this.formatAddress(r)),
+                cc: payload.cc?.map((r) => this.formatAddress(r)),
+                bcc: payload.bcc?.map((r) => this.formatAddress(r)),
+                replyTo: payload.replyTo
+                    ? this.formatAddress(payload.replyTo)
+                    : undefined,
+                subject: payload.subject,
+                text: payload.text,
+                html: payload.html,
+                template: payload.template,
+                context: payload.context,
+                headers: payload.headers,
+                attachments: payload.attachments?.map((attachment) => ({
+                    filename: attachment.filename,
+                    contentType: attachment.contentType,
+                    cid: attachment.cid,
+                    content: attachment.contentBase64
+                        ? Buffer.from(attachment.contentBase64,
+                            "base64")
+                        : undefined,
+                    path: attachment.path,
+                    href: attachment.href,
+                })),
+            })
 
             await this.jobActionService.completeJob({
                 job,
@@ -86,5 +114,12 @@ export class SendMailWorker extends WorkerHost {
             )
             throw error
         }
+    }
+
+    private formatAddress(recipient: SendMailPayload["to"][number]): string {
+        return recipient.name
+            ? `"${recipient.name.replace(/"/g,
+                "'")}" <${recipient.address}>`
+            : recipient.address
     }
 }

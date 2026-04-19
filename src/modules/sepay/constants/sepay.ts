@@ -1,1 +1,1 @@
-export const SEPAY = 'SEPAY';
+export const SEPAY = "SEPAY"

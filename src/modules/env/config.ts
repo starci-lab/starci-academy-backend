@@ -85,47 +85,33 @@ export const envConfig = () => ({
                 },
             },
         },
-        /** Mailcow SMTP gateway configuration. */
-        mailcow: {
-            /** SMTP server hostname, e.g. `mail.example.com`. */
+        /** Brevo SMTP relay configuration. */
+        brevo: {
             host: parseEnvString({
-                key: "MAILCOW_SMTP_HOST",
-                defaultValue: "localhost",
+                key: "BREVO_SMTP_HOST",
+                defaultValue: "smtp-relay.brevo.com",
             }),
-            /** SMTP port (465 for implicit TLS, 587 for STARTTLS). */
             port: parseEnvInt({
-                key: "MAILCOW_SMTP_PORT",
+                key: "BREVO_SMTP_PORT",
                 defaultValue: 587,
             }),
-            /** Whether to use implicit TLS (true on port 465). */
             secure: parseEnvBoolean({
-                key: "MAILCOW_SMTP_SECURE",
+                key: "BREVO_SMTP_SECURE",
                 defaultValue: false,
             }),
-            /** SMTP login username (full mailbox address for Mailcow). */
             username: parseEnvString({
-                key: "MAILCOW_SMTP_USERNAME",
-                defaultValue: "noreply@localhost",
+                key: "BREVO_SMTP_USERNAME",
+                defaultValue: "leducminhdhqt@gmail.com",
             }),
-            /** SMTP login password. */
-            password: parseEnvString({
-                key: "MAILCOW_SMTP_PASSWORD",
-                defaultValue: "",
-            }),
-            /** Default sender address used when the payload does not override it. */
+            /** Default sender email address. */
             fromAddress: parseEnvString({
-                key: "MAILCOW_FROM_ADDRESS",
-                defaultValue: "noreply@localhost",
+                key: "BREVO_FROM_ADDRESS",
+                defaultValue: "noreply@starci.academy.org",
             }),
             /** Default sender display name. */
             fromName: parseEnvString({
-                key: "MAILCOW_FROM_NAME",
+                key: "BREVO_FROM_NAME",
                 defaultValue: "Starci Academy",
-            }),
-            /** Reject unauthorised TLS certificates (set to false for self-signed certs). */
-            rejectUnauthorized: parseEnvBoolean({
-                key: "MAILCOW_SMTP_REJECT_UNAUTHORIZED",
-                defaultValue: true,
             }),
         },
         /** GitHub Organization service configuration. */
@@ -494,6 +480,13 @@ export const envConfig = () => ({
                     ".mount",
                     "terraform",
                     "sepay-api-key.key"),
+            }),
+            brevoSmtpPassword: parseEnvString({
+                key: "TERRAFORM_BREVO_SMTP_PASSWORD_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "brevo-smtp-password.key"),
             }),
         },
     },

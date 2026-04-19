@@ -89,11 +89,15 @@ import {
     SocketIoModule 
 } from "@modules/socketio"
 import {
-    CQRSModule
+    CQRSModule,
+    EventBusModule
 } from "@modules/cqrs"
 import {
     CqrsModule
 } from "@nestjs/cqrs"
+import {
+    MailModule
+} from "@modules/mailer"
 /**
  * The main module for the application.
  */
@@ -260,6 +264,18 @@ import {
             ),
             /** Socket module. */
             SocketIoModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Event Bus module. */
+            EventBusModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Mail module (Brevo SMTP + Pug templates). */
+            MailModule.register(
                 {
                     isGlobal: true,
                 }

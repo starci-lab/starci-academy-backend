@@ -26,7 +26,7 @@ export enum ActionType {
      */
     ProcessCvSubmission = "processCvSubmission",
     /**
-     * Send an email via the Mailcow SMTP gateway.
+     * Send an email via the Brevo SMTP gateway.
      */
     SendMail = "sendMail",
 }

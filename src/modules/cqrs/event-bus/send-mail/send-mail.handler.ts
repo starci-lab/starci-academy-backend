@@ -5,6 +5,16 @@ import {
 import {
     EnqueueSendMailJobService,
 } from "@modules/bussiness"
+import {
+    EventsHandler,
+    ICommandHandler,
+} from "@nestjs/cqrs"
+import {
+    ICQRSHandler,
+} from "../../icqrs-handler"
+import {
+    SendMailEvent,
+} from "./send-mail.event"
 
 /**
  * Event-bus handler that enqueues a `send-mail` BullMQ job for every
@@ -13,13 +23,25 @@ import {
  * Runtime flow:
  *   caller -> publish(event) -> EventBus (in-memory retry)
  *          -> EnqueueSendMailJobService.enqueue -> BullMQ queue
- *          -> SendMailWorker -> MailcowService (SMTP)
+ *          -> SendMailWorker -> Nest Mailer (nodemailer + Brevo SMTP)
  */
 @Injectable()
-export class SendMailEventHandler {
+@EventsHandler(SendMailEvent)
+export class SendMailEventHandler
+    extends ICQRSHandler<SendMailEvent, void>
+    implements ICommandHandler<SendMailEvent, void> {
     private readonly logger = new Logger(SendMailEventHandler.name)
 
     constructor(
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
-    ) {}
+    ) {
+        super()
+    }
+
+    protected override async process(event: SendMailEvent): Promise<void> {
+        await this.enqueueSendMailJobService.enqueue(event.payload)
+        this.logger.log(
+            `Queued send-mail event for ${event.payload.to.map((r) => r.address).join(", ")}`,
+        )
+    }
 }

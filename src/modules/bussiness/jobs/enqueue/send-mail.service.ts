@@ -39,7 +39,7 @@ export type EnqueueSendMailParams = SendMailPayload
 /**
  * Service for enqueuing a transactional email job onto the `send-mail`
  * BullMQ queue. The actual delivery happens in {@link SendMailWorker}
- * which relays through the Mailcow SMTP gateway configured in env.
+ * which relays through the Brevo SMTP gateway configured in env.
  */
 @Injectable()
 export class EnqueueSendMailJobService {

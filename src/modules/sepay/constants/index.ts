@@ -1,1 +1,1 @@
-export * from './sepay';
+export * from "./sepay"
