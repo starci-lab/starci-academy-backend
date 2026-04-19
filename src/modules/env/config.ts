@@ -822,5 +822,145 @@ export const envConfig = () => ({
             defaultValue: "123456",
         }),
     },
+    readPolicy: {
+        sources: [
+            {
+                priority: parseEnvInt({
+                    key: "READ_POLICY_ELASTICSEARCH_PRIORITY",
+                    defaultValue: 1,
+                }),
+                type: "elasticsearch",
+                maxRetries: parseEnvInt({
+                    key: "READ_POLICY_ELASTICSEARCH_MAX_RETRIES",
+                    defaultValue: 3,
+                }),
+                enabled: parseEnvBoolean({
+                    key: "READ_POLICY_ELASTICSEARCH_ENABLED",
+                    defaultValue: true,
+                }),
+                retryDelayMs: parseEnvMs({
+                    key: "READ_POLICY_ELASTICSEARCH_RETRY_DELAY_MS",
+                    defaultValue: "1s",
+                }),
+                timeoutMs: {
+                    min: parseEnvMs({
+                        key: "READ_POLICY_ELASTICSEARCH_TIMEOUT_MS_MIN",
+                        defaultValue: "1s",
+                    }),
+                    max: parseEnvMs({
+                        key: "READ_POLICY_ELASTICSEARCH_TIMEOUT_MS_MAX",
+                        defaultValue: "10s",
+                    }),
+                }
+            },
+            {
+                priority: parseEnvInt({
+                    key: "READ_POLICY_CASSANDRA_PRIORITY",
+                    defaultValue: 2,
+                }),
+                type: "cassandra",
+                maxRetries: parseEnvInt({
+                    key: "READ_POLICY_CASSANDRA_MAX_RETRIES",
+                    defaultValue: 3,
+                }),
+                enabled: parseEnvBoolean({
+                    key: "READ_POLICY_CASSANDRA_ENABLED",
+                    defaultValue: true,
+                }),
+                retryDelayMs: parseEnvMs({
+                    key: "READ_POLICY_CASSANDRA_RETRY_DELAY_MS",
+                    defaultValue: "1s",
+                }),
+                timeoutMs: {
+                    min: parseEnvMs({
+                        key: "READ_POLICY_CASSANDRA_TIMEOUT_MS_MIN",
+                        defaultValue: "1s",
+                    }),
+                    max: parseEnvMs({
+                        key: "READ_POLICY_CASSANDRA_TIMEOUT_MS_MAX",
+                        defaultValue: "10s",
+                    }),
+                }
+            },
+            {
+                priority: 3,
+                type: "scylladb",
+                maxRetries: parseEnvInt({
+                    key: "READ_POLICY_SCYLLA_MAX_RETRIES",
+                    defaultValue: 3,
+                }),
+                enabled: parseEnvBoolean({
+                    key: "READ_POLICY_SCYLLA_ENABLED",
+                    defaultValue: true,
+                }),
+                retryDelayMs: parseEnvMs({
+                    key: "READ_POLICY_SCYLLA_RETRY_DELAY_MS",
+                    defaultValue: "1s",
+                }),
+                timeoutMs: {
+                    min: parseEnvMs({
+                        key: "READ_POLICY_SCYLLA_TIMEOUT_MS_MIN",
+                        defaultValue: "1s",
+                    }),
+                    max: parseEnvMs({
+                        key: "READ_POLICY_SCYLLA_TIMEOUT_MS_MAX",
+                        defaultValue: "10s",
+                    }),
+                }
+            },
+            {
+                priority: 4,
+                type: "mongodb",
+                maxRetries: parseEnvInt({
+                    key: "READ_POLICY_MONGODB_MAX_RETRIES",
+                    defaultValue: 3,
+                }),
+                enabled: parseEnvBoolean({
+                    key: "READ_POLICY_MONGODB_ENABLED",
+                    defaultValue: true,
+                }),
+                retryDelayMs: parseEnvMs({
+                    key: "READ_POLICY_MONGODB_RETRY_DELAY_MS",
+                    defaultValue: "1s",
+                }),
+                timeoutMs: {
+                    min: parseEnvMs({
+                        key: "READ_POLICY_MONGODB_TIMEOUT_MS_MIN",
+                        defaultValue: "1s",
+                    }),
+                    max: parseEnvMs({
+                        key: "READ_POLICY_MONGODB_TIMEOUT_MS_MAX",
+                        defaultValue: "10s",
+                    }),
+                }
+            },
+            {
+                priority: 5,
+                type: "postgresql",
+                maxRetries: parseEnvInt({
+                    key: "READ_POLICY_POSTGRESQL_MAX_RETRIES",
+                    defaultValue: 3,
+                }),
+                enabled: parseEnvBoolean({
+                    key: "READ_POLICY_POSTGRESQL_ENABLED",
+                    defaultValue: true,
+                }),
+                retryDelayMs: parseEnvMs({
+                    key: "READ_POLICY_POSTGRESQL_RETRY_DELAY_MS",
+                    defaultValue: "1s",
+                }),
+                timeoutMs: {
+                    min: parseEnvMs({
+                        key: "READ_POLICY_POSTGRESQL_TIMEOUT_MS_MIN",
+                        defaultValue: "1s",
+                    }),
+                    max: parseEnvMs({
+                        key: "READ_POLICY_POSTGRESQL_TIMEOUT_MS_MAX",
+                        defaultValue: "10s",
+                    }),
+                }
+            }
+        ]
+    }
 }
 )
