@@ -34,7 +34,6 @@ Nếu phần này mang tính chất giải thích 2 luồng khái niệm song so
 > Thay vì client A gọi API HTTP đồng bộ sang service B và phải treo connection chờ xử lý, chúng ta đẩy payload data vào ***Message Queue***. 
 > ***Producer*** (kẻ phát hành) ném trực tiếp event lên bộ nhớ đệm của Queue và ngắt kết nối trả kết quả ngay. Ở đầu bên kia, đám ***Consumer*** sẽ duy trì khe cắp TCP để pull data rớt từ luồng Queue về xử lý theo rãnh thời gian độc lập.
 > 
-> **Bộ từ vựng cốt lõi:**
 > - ***Asynchronous***: Tính bất đồng bộ. Tách rời pha ghi data và pha xử lý data qua hai khung thời gian riêng biệt.
 > - ***Broker***: Công cụ mã nguồn mở (VD: RabbitMQ, hệ NATS) đứng giữa làm điểm neo (routing node) của hệ thống message.
 
