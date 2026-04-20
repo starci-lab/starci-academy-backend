@@ -117,6 +117,13 @@ Nếu chủ đề bài học đi kèm với mã nguồn (source code) để demo
 3. **Thêm tiêu đề H3 `### Chuẩn bị Môi trường và Luồng Cài đặt`:**
    Tác giả bắt buộc tạo header cấp 3 này, liệt kê rõ các công cụ hạ tầng học viên cần chuẩn bị trước và hướng dẫn khởi chạy dự án:
    - **Quy ước trình bày:** KHÔNG dùng block quote (`>`). Mỗi bước phải viết dạng **danh sách gạch đầu dòng** (`- **1. Prerequisites:**`, `- **2. Lệnh khởi chạy:**`...). Code block và nội dung bổ sung thụt lề bên trong gạch đầu dòng đó.
+   - **Bổ sung bắt buộc ngay sau Prerequisites:** thêm bước clone source theo đúng mẫu:
+     ```bash
+     git clone https://github.com/StarCi-Academy/resources.git
+     cd resources/system-design-mastery/<lesson-slug>
+     git pull origin main
+     ```
+     Dòng tiêu đề của bước phải là: `- **2. Clone source demo:** Clone/pull source để đọc đúng context code:`
    - **Prerequisites:** Yêu cầu đã cài đặt sẵn công nghệ gì? (Ví dụ: Cài đặt **Minikube** cục bộ, chạy **Docker Desktop**, hay dùng file `docker-compose.yml` để nhấc cụm instance cơ sở dữ liệu lên).
    - **Cài đặt dependency:** Chỉ dẫn chính xác cách cài môi trường cho codebase. (Ví dụ: *"Di chuyển vào từng thư mục microservice tương ứng và chạy lệnh `npm install`"*).
    - **Lệnh khởi chạy:** Đưa ra lệnh Run code cụ thể (Ví dụ: *"Khởi động đồng loạt các worker bằng lệnh `nest start ten-dich-vu --watch`"*).
@@ -132,22 +139,28 @@ Nếu chủ đề bài học đi kèm với mã nguồn (source code) để demo
 
    **Ví dụ 2 (Hướng dẫn cài đặt bài K8s Minikube):**
    - **1. Prerequisites:** Cần có Docker Desktop (làm driver cho Minikube). Cài Minikube theo hệ điều hành: `https://minikube.sigs.k8s.io/docs/start`. Cài `kubectl`: `https://kubernetes.io/docs/tasks/tools`.
-   - **2. Lệnh khởi chạy:** Khởi tạo single-node cluster:
+   - **2. Clone source demo:** Clone/pull source để đọc đúng context code:
+     ```bash
+     git clone https://github.com/StarCi-Academy/resources.git
+     cd resources/system-design-mastery/introduction-to-kubernetes
+     git pull origin main
+     ```
+   - **3. Lệnh khởi chạy:** Khởi tạo single-node cluster:
      ```bash
      minikube start --driver=docker
      ```
-   - **3. Xác nhận cụm đã sẵn sàng:**
+   - **4. Xác nhận cụm đã sẵn sàng:**
      ```bash
      kubectl cluster-info
      kubectl get nodes
      ```
-   - **4. Apply ba Manifest Pod:**
+   - **5. Apply ba Manifest Pod:**
      ```bash
      kubectl apply -f mysql-pod.yaml
      kubectl apply -f nginx-pod.yaml
      kubectl apply -f game-2048-pod.yaml
      ```
-   - **5. Tín hiệu thành công:** `kubectl get nodes` trả về node `minikube` ở trạng thái `Ready`. `kubectl get pods -o wide` hiển thị ba Pod `mysql-pod`, `nginx-pod`, `game-2048-pod` đều `Running`, mỗi Pod có IP cluster-internal riêng.
+   - **6. Tín hiệu thành công:** `kubectl get nodes` trả về node `minikube` ở trạng thái `Ready`. `kubectl get pods -o wide` hiển thị ba Pod `mysql-pod`, `nginx-pod`, `game-2048-pod` đều `Running`, mỗi Pod có IP cluster-internal riêng.
 
    **Ví dụ 3 (Hướng dẫn cài đặt bài HA Database / Helm Chart):**
    - **1. Prerequisites:** Tương tự cần Minikube và Docker. Lần này bạn phải cài đặt thêm công cụ quản lý Helm (`choco install kubernetes-helm` nếu dùng Window).
@@ -155,23 +168,24 @@ Nếu chủ đề bài học đi kèm với mã nguồn (source code) để demo
    - **3. Lệnh khởi chạy:** *Không có lệnh khởi chạy cục bộ do Deploy Helm Chart xong thì hệ sinh thái Database đã tự run ngầm trong cụm phân mảnh Pod của Kubernetes.* 
    - **4. Tín hiệu thành công:** Gõ `kubectl get pods -n database`. Nếu terminal trả về list danh sách 22 con Pod (gồm HA Postgres, MongoDB Sharded, Redis Cluster) đồng loạt sáng đèn ở trạng thái **Running**, hệ thống Multi-Database của bạn đã 100% được bật và sẵn sàng cho những bài test siêu khắc nghiệt.
 
-4. **Thêm tiêu đề H3 `### Kiểm thử ứng dụng (Kiểm tra Flow)`:**
+4. **Thêm tiêu đề H3 `### Kiểm thử ứng dụng`:**
    Tác giả bắt buộc tạo header cấp 3 này, viết hướng dẫn cụ thể từng bước (Flow) để học viên chạy thử ứng dụng và quan sát hành vi. Chú ý vì phần lớn học viên dùng hệ điều hành Windows nên nội dung cần thân thiện và dễ cấu hình:
    - **Quy ước trình bày:** KHÔNG dùng block quote (`>`). Mỗi bước phải viết dạng **danh sách gạch đầu dòng** (`- **Bước X:**`). Code block và nội dung bổ sung thụt lề bên trong gạch đầu dòng đó.
+   - **Quy tắc đặt tiêu đề:** Chỉ dùng đúng `### Kiểm thử ứng dụng`; không dùng các biến thể cũ như `### Kiểm tra Flow` hoặc `### Kiểm thử ứng dụng (Kiểm tra Flow)`.
    - **Quy tắc BẮT BUỘC — mô tả từng lần gọi API (Postman + JSON + `curl`):** Mỗi **một** request HTTP cần test/ghi trong bài (GET/POST/PUT/PATCH/DELETE…) **không** được viết sơ sài một dòng; phải lặp đủ **bốn lớp** sau (trừ khi không có body — bỏ lớp JSON nhưng vẫn giữ Postman + `curl`):
 
-     1. **Dòng tiêu đề tối thiểu (1 dòng, không bọc code block):**  
-        `**{Ngữ cảnh ngắn} — {hành động} — {METHOD} {URL đầy đủ}:**`  
-        *Ví dụ:* `**Order — route — POST http://localhost:8001/services/order-service/routes:**`  
+     1. **Tiêu đề API (1 dòng, không bọc code block):**  
+        `**Tiêu đề API:** **{Ngữ cảnh ngắn} — {hành động} — {METHOD} {URL đầy đủ}**`  
+        *Ví dụ:* `**Tiêu đề API:** **Order — route — POST http://localhost:8001/services/order-service/routes**`  
         Mục đích: học viên nhìn một phát biết **đang gọi cái gì**, **endpoint nào**, **verb nào**.
 
-     2. **Hướng dẫn Postman / Insomnia / Bruno (1–2 câu):**  
-        Viết đúng mẫu: *"Dùng **Postman** gửi **POST** vào `http://...` với body:"* (thay **POST** / URL theo thực tế).  
+     2. **Hướng dẫn gọi API (Postman / Insomnia / Bruno, 1–2 câu):**  
+        Viết đúng mẫu: `**Hướng dẫn gọi API:** Dùng **Postman** gửi **POST** vào \`http://...\`` (thay **POST** / URL theo thực tế).  
         Nếu là **GET**, không nói "với body"; thay bằng *"gửi **GET** vào `http://...`"* (có thể thêm query nếu có).
 
-     3. **Body (nếu có):** block fenced **`json`**, JSON **pretty-print** (xuống dòng, thụt dòng), **không** nhét nguyên JSON vào inline trừ khi chỉ là một field đơn giản.
+     3. **Body JSON (nếu có):** dùng nhãn `**Body JSON:**` rồi block fenced **`json`**, JSON **pretty-print** (xuống dòng, thụt dòng), **không** nhét nguyên JSON vào inline trừ khi chỉ là một field đơn giản.
 
-     4. **`curl` tương đương:** dòng dẫn *"Hoặc dùng **curl** (WSL2 / Bash / macOS):"* rồi block fenced **`bash`**, lệnh copy-paste được. Trên Windows native PowerShell, nếu JSON quoting khác, có thể thêm một block `powershell` **riêng** — không được để học viên đoán.
+     4. **Câu dẫn curl:** dùng đúng câu `Hoặc dùng **curl** (WSL2 / Bash / macOS):` rồi block fenced **`bash`**, lệnh copy-paste được. Trên Windows native PowerShell, nếu JSON quoting khác, có thể thêm một block `powershell` **riêng** — không được để học viên đoán.
 
      **Cấm / tránh:** chỉ liệt một dãi `curl` dài không có tiêu đề từng API; gộp nhiều request khác endpoint vào một đoạn mà không tách **(1)–(4)**; nhét body JSON chỉ trong `-d "..."` của `curl` mà không có block `json` ở trên (trừ GET không body).
 
