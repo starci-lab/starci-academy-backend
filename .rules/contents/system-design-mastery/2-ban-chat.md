@@ -6,6 +6,24 @@ Tài liệu này quy định cấu trúc và văn phong bắt buộc đối vớ
 Phần 2 của bài học bắt buộc phải bắt đầu bằng tiêu đề (Heading 2):
 `## II. Bản chất`
 
+### Quy tắc dịch EN bắt buộc (áp dụng cho `contents/**/en.md`)
+
+- `en.md` phải được dịch từ `vi.md` tương ứng trong cùng thư mục.
+- Bắt buộc thống nhất header tiếng Anh như sau:
+  - `## I. Lời mở đầu` -> `## I. Introduction`
+  - `## II. Bản chất` -> `## II. Essence`
+  - `### Chuẩn bị Môi trường và Luồng Cài đặt` -> `### Environment Setup and Run Flow`
+  - `### Kiểm thử ứng dụng` -> `### Application Testing`
+  - `## III. Các khái niệm cốt lõi` -> `## III. Core Concepts`
+  - `## IV. Kỹ thuật nâng cao` -> `## IV. Advanced Techniques`
+  - `## V. Các mẫu câu phỏng vấn` -> `## V. Interview Questions`
+- Nhãn con phải dùng tiếng Anh nhất quán:
+  - `Tiêu đề API` -> `API Title`
+  - `Hướng dẫn gọi API` -> `How to call API`
+  - `Kết quả mong đợi` -> `Expected result`
+  - `Kết luận` -> `Conclusion`
+  - `Câu hỏi phỏng vấn` -> `Interview Question`
+
 ---
 
 ### Cấu trúc Nội dung: (Trường hợp 1 - Có Source Code Demo)

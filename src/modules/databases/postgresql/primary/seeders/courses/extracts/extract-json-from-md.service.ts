@@ -28,8 +28,12 @@ export class ExtractJsonFromMdService {
     extract<T extends Record<string, unknown>>(
         markdown: string,
     ): T {
+        const normalizedMarkdown = markdown.replace(
+            /^\uFEFF/,
+            "",
+        )
         const result = this.parseAtLevel(
-            markdown,
+            normalizedMarkdown,
             1,
         )
         if (

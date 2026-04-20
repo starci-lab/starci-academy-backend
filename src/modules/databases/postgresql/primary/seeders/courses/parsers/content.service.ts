@@ -72,7 +72,6 @@ export class ContentParserService {
                 )
             )
         }
-
         const contentId = this.contentIdFactoryService.generate(
             {
                 courseIndex,

@@ -6,6 +6,29 @@ Tài liệu này quy định cấu trúc bắt buộc cho **Phần II** theo tư
 Phần 2 phải bắt đầu bằng:
 `## II. Bản chất`
 
+**Strict mode (bắt buộc):**
+- Không dùng `## II. Nội dung chính`.
+- Không dùng section `## III. Thực hành` kiểu cũ.
+- Thay bằng đúng 2 heading H3: `### Chuẩn bị Môi trường và Luồng Cài đặt` và `### Kiểm thử ứng dụng`.
+
+### Quy tắc dịch EN bắt buộc (áp dụng cho `contents/**/en.md`)
+
+- `en.md` phải được dịch từ `vi.md` tương ứng trong cùng thư mục.
+- Bắt buộc thống nhất header tiếng Anh như sau:
+  - `## I. Lời mở đầu` -> `## I. Introduction`
+  - `## II. Bản chất` -> `## II. Essence`
+  - `### Chuẩn bị Môi trường và Luồng Cài đặt` -> `### Environment Setup and Run Flow`
+  - `### Kiểm thử ứng dụng` -> `### Application Testing`
+  - `## III. Các khái niệm cốt lõi` -> `## III. Core Concepts`
+  - `## IV. Kỹ thuật nâng cao` -> `## IV. Advanced Techniques`
+  - `## V. Các mẫu câu phỏng vấn` -> `## V. Interview Questions`
+- Nhãn con trong phần test/phỏng vấn phải dùng tiếng Anh nhất quán:
+  - `Tiêu đề API` -> `API Title`
+  - `Hướng dẫn gọi API` -> `How to call API`
+  - `Kết quả mong đợi` -> `Expected result`
+  - `Kết luận` -> `Conclusion`
+  - `Câu hỏi phỏng vấn` -> `Interview Question`
+
 ---
 
 ### Cấu trúc Nội dung (Trường hợp 1 - Có Source Code Demo)
@@ -157,6 +180,7 @@ Sau mỗi flow API, thêm một cụm “giải thích code execution”:
 - Chỉ rõ nơi orchestration, nơi persist, và đường dữ liệu trả ngược về client.
 - Block `ts` phải dùng nội dung hàm thật từ source (copy đúng tên hàm, tham số, return), không đổi tên hàm cho "đẹp docs".
 - **BẮT BUỘC đồng bộ trace <-> code block:** mọi hàm đã liệt kê trong mục `Trace code execution` phải xuất hiện trong cùng block `ts` (đúng thứ tự chạy), không bỏ sót.
+- **BẮT BUỘC format theo paragraph cho từng trace trong block `ts`:** mỗi dòng trace trong danh sách phải có đúng 1 đoạn code tương ứng (phân tách bằng dòng trống), mở đầu bằng comment ngữ cảnh như `// Phase X - ...` + `// src/...:line`, rồi mới tới hàm thật; không gộp nhiều trace vào một paragraph mơ hồ.
 - Ưu tiên format dễ đọc:
   1. Danh sách trace theo file (kèm link).
   2. Một block `ts` duy nhất, tách từng hàm bằng comment `// src/...`.
