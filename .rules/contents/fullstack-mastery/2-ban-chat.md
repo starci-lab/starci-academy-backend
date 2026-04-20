@@ -10,6 +10,10 @@ Phần 2 phải bắt đầu bằng:
 - Không dùng `## II. Nội dung chính`.
 - Không dùng section `## III. Thực hành` kiểu cũ.
 - Thay bằng đúng 2 heading H3: `### Chuẩn bị Môi trường và Luồng Cài đặt` và `### Kiểm thử ứng dụng`.
+- BẮT BUỘC cho mọi bài `contents/**/{vi,en}.md` của Fullstack: phải có đủ 2 heading sau trong phần II:
+  - `### Sơ đồ phụ thuộc runtime` kèm block `mermaid` mô tả dependency runtime.
+  - `### Sơ đồ cây source code (file-level)` kèm block `mermaid` dạng `treeView-beta`.
+- Không được bỏ qua 2 sơ đồ trên khi dịch sang `en.md`; cấu trúc phải giữ tương đương `vi.md`.
 
 ### Quy tắc dịch EN bắt buộc (áp dụng cho `contents/**/en.md`)
 
