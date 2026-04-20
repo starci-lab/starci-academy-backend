@@ -1,6 +1,6 @@
 # Quy định soạn thảo Phần V (Ứng dụng trong hệ thống thực tế)
 
-Tài liệu này quy định cấu trúc cho đoạn kết của toàn bộ module học (Phần V). Đây là phần minh họa để chứng minh rằng: Những lý thuyết, mô hình và công nghệ sinh viên vừa nhồi nhét đều là vũ khí tối thượng đang được các tập đoàn tỷ đô sử dụng để càn quét thị trường.
+Tài liệu này quy định cấu trúc cho đoạn kết của toàn bộ module học (Phần V). Đây là phần minh hoạ để chứng minh rằng: Những lý thuyết, mô hình và công nghệ trong bài học có **ứng dụng quy mô lớn** trong ngành — đồng thời tránh hiểu nhầm là “tiết lộ kiến trúc nội bộ” của một công ty cụ thể.
 
 ### Tiêu đề bắt buộc
 Phần 5 của bài học bắt buộc phải bắt đầu bằng tiêu đề (Heading 2):
@@ -10,33 +10,46 @@ Phần 5 của bài học bắt buộc phải bắt đầu bằng tiêu đề (H
 
 ### Nguyên tắc & Cấu trúc Nội dung
 
-**1. Áp đặt 3 đến 5 "Case Studies" kinh điển:**
-Tác giả BẮT BUỘC phải cung cấp một danh sách từ 3 đến 5 tình huống thực chiến chuẩn mức từ các nền tảng công nghệ phổ biến nhất thế giới (Ví dụ: Facebook, Grab, Shopee, Netflix, Tinder).
+**1. Áp đặt 3 đến 5 "Case Studies" kinh điển:**  
+Tác giả **BẮT BUỘC** cung cấp một danh sách từ **3 đến 5** tình huống, thường lấy **tên nền tảng công nghệ quen thuộc** làm **neo nhận diện** (ví dụ: Grab, Shopee, Netflix) — mục đích là **định hướng tư duy**, không phải báo cáo kiến trúc đã được doanh nghiệp công bố.
 
-**2. Phân tích cấu trúc mỗi Case Study:**
-Mỗi tình huống không được liệt kê xuông bằng 1 dòng, mà phải tuân thủ form phân tách 3 lớp sau:
-- **Tình huống (The Context):** Pain-point khổng lồ của nền tảng đó là gì?
-- **Bài toán hệ thống (The Technical Challenge):** Đòi hỏi kỹ thuật ngầm phía sau màn hình điện thoại người dùng.
-- **Tiêm lý thuyết (Applying the Pattern):** Áp dụng đúng công nghệ/lý thuyết của trọn bộ bài học này vào để giải quyết vấn đề đó như thế nào. Nêu rõ nó đóng vai trò cốt lõi ra sao. 
+**2. Phân tích cấu trúc mỗi Case Study:**  
+Mỗi tình huống **không** được liệt kê xuông một dòng; phải tách **ba lớp** với **nhãn tiếng Việt thuần** (KHÔNG gắn thêm giải thích song ngữ trong dấu ngoặc kiểu *(The Context)*):
+
+- **Tình huống:** Pain-point hoặc áp lực vận hành/UX mà nền tảng đó (hoặc loại hệ thống tương tự) thường gặp. **Ưu tiên** câu chữ **góc người dùng** (ai ở đâu, thấy gì, chờ gì) rồi mới thu gọn sang thuật ngữ hạ tầng.
+- **Bài toán hệ thống:** Đòi hỏi kỹ thuật ngầm phía sau màn hình người dùng (latency, fan-out, consistency, v.v.).
+- **Vận dụng lý thuyết:** Áp dụng đúng công nghệ/lý thuyết **của trọn bộ bài học** để giải thích **cách xử lý định hướng**; nêu rõ vai trò cốt lõi của pattern đó. Khi cần làm rõ **luồng triển khai** (kiến trúc dịch vụ, RPC, v.v.), **được phép** thêm một cụm ngắn dạng *luồng minh hoạ*: ví dụ ***Checkout Service*** gọi ***Inventory Service*** qua **gRPC** / **HTTP** — vẫn ghi rõ là **minh hoạ — giả định**, không khẳng định stack thật của doanh nghiệp.
+
+**Tham chiếu chéo tới các mục trong bài:** Dùng cách gọi rõ ràng như **mục II–III**, **mục IV**, hoặc **Sections II–III** (bản tiếng Anh) — **không** dùng ký hiệu `§` (ví dụ `§II`, `§IV`) vì dễ lệch format khi render và không thống nhất với phần còn lại của khóa học.
+
+**3. Minh hoạ — giả định (bắt buộc ghi rõ):**  
+Khi dùng tên thương hiệu làm ví dụ **mà không trích dẫn bài báo/tài liệu chính thức** của chính doanh nghiệp, tác giả **BẮT BUỘC** đánh dấu từng mục là **minh hoạ — giả định**, ví dụ tiêu đề dạng: **`Grab (minh hoạ — giả định)`**, hoặc một dòng dẫn ngay dưới `## V. ...` nêu rõ *toàn bộ case dưới đây là ví dụ định hướng, không khẳng định kiến trúc thực tế*.  
+**Cấm** diễn đạt kiểu “hệ thống X chắc chắn làm Y” nếu không có **nguồn công khai** đi kèm.
+
+**4. Không lặp disclaimer ngay trước `# references`:**  
+Sau khi đã có **đoạn dẫn ngay dưới `## V. ...`** (nêu rõ các case là **minh hoạ — giả định**) và **nhãn `(minh hoạ — giả định)`** trên từng mục theo mục 3, **không** thêm một đoạn kết riêng ngay trước `# references` kiểu *“các tình huống trên… không phải mô tả kiến trúc nội bộ…”* — tránh lặp ý. Nếu khóa học có **chính sách trích dẫn** tập trung với URL cố định, có thể dùng **một mục** trong `# references` (`### alias` / `### url`); **không** bắt buộc thêm đoạn disclaimer thứ hai trong body.
 
 ---
 
 ### Ví dụ tham khảo chuẩn mực
 
-**Ví dụ bài: Message Queue (Kafka/RabbitMQ)**
-> Dưới đây là 3 tình huống thực tiễn giải thích tại sao Message Queue phân tán là nền tảng sống còn của các Big Tech:
+**Ví dụ bài: Message Queue (Kafka/RabbitMQ)**  
+*(Lưu ý: ví dụ dưới mang tính **văn phong minh hoạ**; khi áp dụng vào bài thật cần bổ sung dấu **(minh hoạ — giả định)** theo mục 3.)*
+
+> Dưới đây là 3 tình huống giải thích tại sao Message Queue phân tán là nền tảng quan trọng ở quy mô lớn:
 >
-> 1. **Grab (Tính toán Cước phí & Điều phối xe trực tiếp)**
->    - **Tình huống:** Sau khi người dùng chốt điểm đến, Grab phải vừa tính cước, vừa khớp mã khuyến mãi, vừa dò quét tài xế gần nhất.
->    - **Bài toán hệ thống:** Nếu đợi API chạy hết 3 khâu này mới phản hồi cho người dùng, app trên điện thoại sẽ quay chong chóng 30s không ra màn hình nhận cuốc.
->    - **Áp dụng Message Queue:** Node đặt xe chỉ nhận lệnh rồi ném tức thời mã `Order_ID` vào ***Kafka*** (chưa tới `1ms`) và trả về giao diện Đang tìm xế. Ở sau lưng, 3 cụm AI Consumer khổng lồ sẽ sục sôi xử lý gói hàng `Order_ID` trên để tìm xế cho khách.
+> 1. **Grab (minh hoạ — giả định) — tính cước & điều phối**
+>    - **Tình huống:** Sau khi người dùng chốt điểm đến, hệ thống phải vừa tính cước, vừa khớp khuyến mãi, vừa tìm tài xế gần.
+>    - **Bài toán hệ thống:** Nếu đợi API chạy hết các khâu này mới phản hồi, app có thể “quay” lâu trước khi hiển thị trạng thái nhận cuốc.
+>    - **Vận dụng lý thuyết:** Tách bước nặng sang worker qua ***Kafka*** (hoặc queue tương đương), phản hồi sớm cho client và xử lý nền song song.
 >
-> 2. **Shopee (Dàn trận Flash Sale Mùng Mười)**
->    - **Tình huống:** 1 triệu máy điện thoại ồ ạt ấn nút "Thanh toán" vào đúng 00h00 để giật cái iPhone giả mây.
->    - **Bài toán hệ thống:** Cơ sở dữ liệu Primary lớn đến mấy cũng chỉ đỡ được `50.000 write/sec`. Nó sẽ nổ banh xác.
->    - **Áp dụng Message Queue:** Sử dụng Queue như cái hố đen nuốt toàn quyền các request. Toàn bộ 1 triệu request bị ném vào hầm chứa ***RabbitMQ*** (đóng vai trò như vùng đệm Shock-Absorber). Hệ thống Database chầm chậm tự động lôi 50.000 đơn mỗi giây ra ghi từ trong hầm chứa mà không sợ bị sụp đổ.
+> 2. **Shopee (minh hoạ — giả định) — flash sale**
+>    - **Tình huống:** Lưu lượng thanh toán đổ dồn trong vài phút mở sale.
+>    - **Bài toán hệ thống:** Ghi trực tiếp hết vào DB primary có thể vượt ngưỡng write/s.
+>    - **Vận dụng lý thuyết:** Dùng queue làm vùng đệm (ví dụ ***RabbitMQ***), tách **ingest** khỏi **ghi DB** theo tốc độ an toàn.
 >
-> 3. **Netflix (Stream phân giải thời gian thực)**
->    - **Tình huống:** Người dùng liên tục tăng giảm âm lượng, dừng phim, tua phim, hoặc đánh giá phim. Netflix thu thập lượng thao tác bấm chạm này lên tới nhiều TeraBytes mỗi phút.
->    - **Bài toán hệ thống:** Luồng log dày đặc này không có ích lợi phục vụ giao diện, nhưng bộ phận Data Science cần để phân tích học thói quen người dùng để recommend phim rác tiếp theo.
->    - **Áp dụng Message Queue:** Mọi hành vi chạm màn hình của 1 tỷ người dùng trên toàn bộ smartTV văng liên tục vào đường truyền ống nước siêu to ***Apache Kafka***. Các worker nhàn rỗi ở tận bên Mỹ của Netflix Data Pipelines sẽ liên túc hút từ đường ống đó phân giải ra báo cáo Real-time Dashboard không làm gián đoạn chút nào hệ thống truyền phát Video của người dùng.
+> 3. **Netflix (minh hoạ — giả định) — telemetry phía client**
+>    - **Tình huống:** Khối lượng lớn sự kiện tương tác (tua, dừng, đánh giá) cần đưa về pipeline phân tích.
+>    - **Bài toán hệ thống:** Luồng log không phục vụ trực tiếp UX từng frame nhưng cần cho hệ thống gợi ý/analytics.
+>    - **Vận dụng lý thuyết:** Đổ sự kiện vào đường ống kiểu ***Kafka*** để consumer xử lý không chặn đường truyền phát chính.
+

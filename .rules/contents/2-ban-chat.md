@@ -114,8 +114,8 @@ Nếu chủ đề bài học đi kèm với mã nguồn (source code) để demo
        end
    ```
 
-4. **Chuẩn bị Môi trường (Prerequisites) và Luồng Cài đặt:**
-   Tác giả phải liệt kê rõ các công cụ hạ tầng học viên cần chuẩn bị trước và hướng dẫn khởi chạy dự án:
+3. **Thêm tiêu đề H3 `### Chuẩn bị Môi trường và Luồng Cài đặt`:**
+   Tác giả bắt buộc tạo header cấp 3 này, liệt kê rõ các công cụ hạ tầng học viên cần chuẩn bị trước và hướng dẫn khởi chạy dự án:
    - **Quy ước trình bày:** KHÔNG dùng block quote (`>`). Mỗi bước phải viết dạng **danh sách gạch đầu dòng** (`- **1. Prerequisites:**`, `- **2. Lệnh khởi chạy:**`...). Code block và nội dung bổ sung thụt lề bên trong gạch đầu dòng đó.
    - **Prerequisites:** Yêu cầu đã cài đặt sẵn công nghệ gì? (Ví dụ: Cài đặt **Minikube** cục bộ, chạy **Docker Desktop**, hay dùng file `docker-compose.yml` để nhấc cụm instance cơ sở dữ liệu lên).
    - **Cài đặt dependency:** Chỉ dẫn chính xác cách cài môi trường cho codebase. (Ví dụ: *"Di chuyển vào từng thư mục microservice tương ứng và chạy lệnh `npm install`"*).
@@ -155,29 +155,52 @@ Nếu chủ đề bài học đi kèm với mã nguồn (source code) để demo
    - **3. Lệnh khởi chạy:** *Không có lệnh khởi chạy cục bộ do Deploy Helm Chart xong thì hệ sinh thái Database đã tự run ngầm trong cụm phân mảnh Pod của Kubernetes.* 
    - **4. Tín hiệu thành công:** Gõ `kubectl get pods -n database`. Nếu terminal trả về list danh sách 22 con Pod (gồm HA Postgres, MongoDB Sharded, Redis Cluster) đồng loạt sáng đèn ở trạng thái **Running**, hệ thống Multi-Database của bạn đã 100% được bật và sẵn sàng cho những bài test siêu khắc nghiệt.
 
-5. **Viết luồng kiểm thử ứng dụng (Kiểm tra Flow và đưa ra Kết luận):**
-   Tác giả cần viết hướng dẫn cụ thể từng bước (Flow) để học viên chạy thử ứng dụng và quan sát hành vi. Chú ý vì phần lớn học viên dùng hệ điều hành Windows nên nội dung cần thân thiện và dễ cấu hình:
+4. **Thêm tiêu đề H3 `### Kiểm thử ứng dụng (Kiểm tra Flow)`:**
+   Tác giả bắt buộc tạo header cấp 3 này, viết hướng dẫn cụ thể từng bước (Flow) để học viên chạy thử ứng dụng và quan sát hành vi. Chú ý vì phần lớn học viên dùng hệ điều hành Windows nên nội dung cần thân thiện và dễ cấu hình:
    - **Quy ước trình bày:** KHÔNG dùng block quote (`>`). Mỗi bước phải viết dạng **danh sách gạch đầu dòng** (`- **Bước X:**`). Code block và nội dung bổ sung thụt lề bên trong gạch đầu dòng đó.
-   - Nếu gọi API: Khuyến khích gửi yêu cầu API (như POST/GET) với payload body rõ ràng, cung cấp sẵn một block code chứa lệnh `curl` minh họa để họ copy paste thẳng vào terminal.
+   - **Quy tắc BẮT BUỘC — mô tả từng lần gọi API (Postman + JSON + `curl`):** Mỗi **một** request HTTP cần test/ghi trong bài (GET/POST/PUT/PATCH/DELETE…) **không** được viết sơ sài một dòng; phải lặp đủ **bốn lớp** sau (trừ khi không có body — bỏ lớp JSON nhưng vẫn giữ Postman + `curl`):
+
+     1. **Dòng tiêu đề tối thiểu (1 dòng, không bọc code block):**  
+        `**{Ngữ cảnh ngắn} — {hành động} — {METHOD} {URL đầy đủ}:**`  
+        *Ví dụ:* `**Order — route — POST http://localhost:8001/services/order-service/routes:**`  
+        Mục đích: học viên nhìn một phát biết **đang gọi cái gì**, **endpoint nào**, **verb nào**.
+
+     2. **Hướng dẫn Postman / Insomnia / Bruno (1–2 câu):**  
+        Viết đúng mẫu: *"Dùng **Postman** gửi **POST** vào `http://...` với body:"* (thay **POST** / URL theo thực tế).  
+        Nếu là **GET**, không nói "với body"; thay bằng *"gửi **GET** vào `http://...`"* (có thể thêm query nếu có).
+
+     3. **Body (nếu có):** block fenced **`json`**, JSON **pretty-print** (xuống dòng, thụt dòng), **không** nhét nguyên JSON vào inline trừ khi chỉ là một field đơn giản.
+
+     4. **`curl` tương đương:** dòng dẫn *"Hoặc dùng **curl** (WSL2 / Bash / macOS):"* rồi block fenced **`bash`**, lệnh copy-paste được. Trên Windows native PowerShell, nếu JSON quoting khác, có thể thêm một block `powershell` **riêng** — không được để học viên đoán.
+
+     **Cấm / tránh:** chỉ liệt một dãi `curl` dài không có tiêu đề từng API; gộp nhiều request khác endpoint vào một đoạn mà không tách **(1)–(4)**; nhét body JSON chỉ trong `-d "..."` của `curl` mà không có block `json` ở trên (trừ GET không body).
+
    - Nếu thao tác với Database: Khuyến nghị người học dùng các phần mềm giao diện đồ họa trực quan như **pgAdmin4**, **MySQL Workbench**, hoặc **DBeaver** để kết nối xem dữ liệu, kết hợp kèm theo các lệnh CLI nếu cần.
-   - **Quy tắc BẮT BUỘC:** Sau khi kết thúc một flow thao tác, luôn luôn phải viết ra cụm từ `*Kết luận:*` (in nghiêng, chữ `K` viết hoa, KHÔNG dùng bold `**`) để chốt lại bài học hệ thống vừa xảy ra điều gì, giới hạn/ưu điểm của luồng đó ra sao.
+   - **Quy tắc BẮT BUỘC (kết quả trước kết luận):** Khi một nhóm bước cần nêu rõ **điều quan sát được** (HTTP code, trạng thái DB, log…), dùng cụm `*Kết quả mong đợi:*` — **in nghiêng**, chữ **`K` viết hoa**, **không** dùng bold `**` (cùng phong cách với `*Kết luận:*` bên dưới).
+   - **Quy tắc BẮT BUỘC (chốt flow):** Sau khi kết thúc một flow thao tác, luôn luôn phải viết ra cụm từ `*Kết luận:*` (in nghiêng, chữ `K` viết hoa, KHÔNG dùng bold `**`) để chốt lại bài học hệ thống vừa xảy ra điều gì, giới hạn/ưu điểm của luồng đó ra sao.
    
-   *Dưới đây là 3 ví dụ cho 3 kịch bản viết luồng kiểm thử chuẩn mực:*
+   *Dưới đây là các ví dụ minh hoạ luồng kiểm thử chuẩn mực (gồm ví dụ REST → DB và ví dụ chỉ đọc/ghi DB/Redis):*
 
    **Ví dụ 1 (Test gọi API & Giới hạn kiến trúc NATS):**
 
-   - **Bước 1:** Gửi một event đăng ký qua ***Publisher API***. Bạn có thể dùng **Postman** gửi `POST` vào `http://localhost:3001/events` với body:
+   - **Bước 1:** Gửi một event đăng ký qua ***Publisher API***. Quan sát log trên 3 màn hình terminal của các worker.
+
+     **Publisher — đăng ký event — POST http://localhost:3001/events:**
+
+     Dùng **Postman** gửi **POST** vào `http://localhost:3001/events` với body:
+
      ```json
      {
        "userId": 5,
        "event": "REGISTER"
      }
      ```
-     Hoặc copy lệnh `curl` sau dán trực tiếp vào Terminal (WSL2 / Bash):
+
+     Hoặc dùng **curl** (WSL2 / Bash / macOS):
+
      ```bash
-     curl -X POST http://localhost:3001/events -H "Content-Type: application/json" -d '{ "userId": 5, "event": "REGISTER" }'
+     curl -X POST http://localhost:3001/events -H "Content-Type: application/json" -d '{"userId":5,"event":"REGISTER"}'
      ```
-     Quan sát log trên 3 màn hình terminal của các worker.
 
      *Kết luận:* Ngay khi bắn API, bạn sẽ thấy 3 terminal đồng loạt chớp nháy đón nhận data. Flow này chứng minh tốc độ phân phát chớp nhoáng của ***NATS***.
 
@@ -185,17 +208,52 @@ Nếu chủ đề bài học đi kèm với mã nguồn (source code) để demo
 
      *Kết luận:* Worker Audit đã bị ngắt kết nối. Lúc này mạng lưới Pub/Sub chỉ còn 2 máy lắng nghe (**Analytics** và **Notification**).
 
-   - **Bước 3:** Tiếp tục dùng công cụ ban nãy bắn thêm một API thứ hai (VD: User mua hàng):
-     ```bash
-     curl -X POST http://localhost:3001/events -H "Content-Type: application/json" -d '{ "userId": 5, "event": "PURCHASED" }'
+   - **Bước 3:** Tiếp tục gửi event **PURCHASED** (User mua hàng). Quan sát phản ứng ở các terminal đang chạy.
+
+     **Publisher — event mua hàng — POST http://localhost:3001/events:**
+
+     Dùng **Postman** gửi **POST** vào `http://localhost:3001/events` với body:
+
+     ```json
+     {
+       "userId": 5,
+       "event": "PURCHASED"
+     }
      ```
-     Quan sát phản ứng ở các terminal đang chạy.
+
+     Hoặc dùng **curl** (WSL2 / Bash / macOS):
+
+     ```bash
+     curl -X POST http://localhost:3001/events -H "Content-Type: application/json" -d '{"userId":5,"event":"PURCHASED"}'
+     ```
 
      *Kết luận:* Hai terminal còn lại vẫn ghi nhận gói purchase bình thường. Toàn mạng lưới của bạn sống linh động, không quan tâm xem cái worker thứ ba sụp đổ khi nào.
 
    - **Bước 4:** Khởi động lại ***Audit Sub***, quan sát xem nó có in ra dòng log purchase đã bị bỏ lỡ ban nãy hay không.
 
      *Kết luận:* Luồng log lỡ nhịp hoàn toàn biến mất vĩnh viễn! Đây là ranh giới sống còn của ***fire-and-forget***: Lượng data đã bắn trong thời gian worker sập không ai thèm lưu hộ. Đánh đổi sự bền vững để có tốc độ.
+
+   **Ví dụ 1b (Một lần gọi API ghi dữ liệu — REST → MySQL):**
+
+   - **Bước 1 (Tạo dữ liệu):** Ghi một bản ghi mới vào **MySQL** thông qua API ứng dụng.
+
+     **Items API — tạo item — POST http://localhost:3000/items:**
+
+     Dùng **Postman** gửi **POST** vào `http://localhost:3000/items` với body:
+
+     ```json
+     {
+       "name": "kubernetes"
+     }
+     ```
+
+     Hoặc dùng **curl** (WSL2 / Bash / macOS):
+
+     ```bash
+     curl -X POST http://localhost:3000/items -H "Content-Type: application/json" -d '{"name":"kubernetes"}'
+     ```
+
+     *Kết luận:* Nếu API trả **201/200** và không lỗi validation, request đã đi qua service và xuống MySQL — bước kế có thể **SELECT** để đối chiếu.
 
    **Ví dụ 2 (Test thao tác Database tĩnh - PostgreSQL):**
 
