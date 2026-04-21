@@ -53,7 +53,7 @@ export class ContentParserService {
         private readonly challengeParserService: ChallengeParserService,
         private readonly lessonVideoDirService: LessonVideoDirService,
         private readonly lessonVideoParserService: LessonVideoParserService,
-    ) {}
+    ) { }
 
     /**
      * Builds a partial content entity from mounted course files.
@@ -92,7 +92,7 @@ export class ContentParserService {
             },
         )
 
-        return {
+        const content: DeepPartial<ContentEntity> = {
             id: contentId,
             defaultLocale: Locale.En,
             displayId,
@@ -219,6 +219,12 @@ export class ContentParserService {
                     )
                 )
             })(),
+        }
+
+        return {
+            ...content,
+            numChallenges: content.challenges?.length ?? 0,
+            numLessons: content.lessons?.length ?? 0,
         }
     }
 }

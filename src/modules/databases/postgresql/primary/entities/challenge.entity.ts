@@ -62,7 +62,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
         type: "varchar",
         length: 500,
     })
-        title: string
+    title: string
 
     /**
      * Human-facing stable identifier from the mount folder (`{index}-{slug}` slug segment).
@@ -78,7 +78,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
         type: "varchar",
         length: 255,
     })
-        displayId: string
+    displayId: string
 
     /**
      * Challenge prerequisites (Markdown).
@@ -94,7 +94,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
         type: "text",
         default: "",
     })
-        prerequisites: string
+    prerequisites: string
 
     /**
      * Challenge description.
@@ -110,7 +110,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
         type: "text",
         default: "",
     })
-        description: string
+    description: string
 
     /**
      * Challenge requirements (e.g. instructions, markdown).
@@ -126,7 +126,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
         type: "text",
         default: "",
     })
-        requirements: string
+    requirements: string
 
     /**
      * Points awarded when the challenge is completed successfully.
@@ -142,7 +142,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
         type: "int",
         default: 0,
     })
-        score: number
+    score: number
 
     /**
      * Relative difficulty.
@@ -159,7 +159,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
         enum: ChallengeDifficulty,
         enumName: "challenge_difficulty",
     })
-        difficulty: ChallengeDifficulty
+    difficulty: ChallengeDifficulty
 
     /**
      * Display order within the module challenge list.
@@ -175,7 +175,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
         type: "int",
         default: 0,
     })
-        orderIndex: number
+    orderIndex: number
 
     /**
      * Default locale for this challenge row.
@@ -192,7 +192,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
         enum: Locale,
         enumName: "locale",
     })
-        defaultLocale: Locale
+    defaultLocale: Locale
 
     /**
      * Ordered instruction steps.
@@ -210,7 +210,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
             cascade: true,
         },
     )
-        steps: Array<ChallengeStepEntity>
+    steps: Array<ChallengeStepEntity>
 
     /**
      * External URL references (docs, repos, etc.).
@@ -228,7 +228,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
             cascade: true,
         },
     )
-        references: Array<ChallengeReferenceEntity>
+    references: Array<ChallengeReferenceEntity>
 
     /**
      * Localized overrides for title, brief, and description.
@@ -246,7 +246,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
             cascade: true,
         },
     )
-        translations: Array<ChallengeTranslationEntity>
+    translations: Array<ChallengeTranslationEntity>
 
     @Field(
         () => [ChallengeSubmissionEntity],
@@ -262,7 +262,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
             cascade: true,
         },
     )
-        submissions: Array<ChallengeSubmissionEntity>
+    submissions: Array<ChallengeSubmissionEntity>
 
     /**
      * Optional hint text (Markdown) to nudge the student without revealing the full solution.
@@ -279,7 +279,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
         type: "text",
         nullable: true,
     })
-        hint: string | null
+    hint: string | null
 
     /**
      * Optional parent content this challenge is derived from.
@@ -303,7 +303,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
         name: "content_id",
         foreignKeyConstraintName: "fk_content_id_challenges_contents",
     })
-        content: ContentEntity | null
+    content: ContentEntity
 
     @Field(
         () => ID,
@@ -315,5 +315,5 @@ export class ChallengeEntity extends UuidAbstractEntity {
     @RelationId(
         (ch: ChallengeEntity) => ch.content,
     )
-        contentId: string | null
+    contentId: string
 }

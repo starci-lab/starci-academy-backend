@@ -196,4 +196,18 @@ export class ModuleEntity extends UuidAbstractEntity {
         },
     )
         translations: Array<ModuleTranslationEntity>
+
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Number of contents associated with this module.",
+        },
+    )
+    @Column({
+        name: "num_contents",
+        type: "int",
+        default: 0,
+    })
+    numContents: number
 }

@@ -76,25 +76,27 @@ export class SeedersService implements OnModuleInit {
                             moduleIndex,
                         },
                     )
-                    return {
-                        ...module,
-                        contents: (() => {
-                            const contentMounts = this.contentDirService.indexes(
+                    const contents = (() => {
+                        const contentMounts = this.contentDirService.indexes(
+                            {
+                                courseIndex,
+                                moduleIndex,
+                            }
+                        )
+                        return contentMounts.map(
+                            (contentIndex) => this.contentParserService.parse(
                                 {
                                     courseIndex,
                                     moduleIndex,
-                                }
+                                    contentIndex,
+                                },
                             )
-                            return contentMounts.map(
-                                (contentIndex) => this.contentParserService.parse(
-                                    {
-                                        courseIndex,
-                                        moduleIndex,
-                                        contentIndex,
-                                    },
-                                )
-                            )
-                        })(),
+                        )
+                    })()
+                    return {
+                        ...module,
+                        contents,
+                        numContents: contents.length,
                     }
                 }
             )

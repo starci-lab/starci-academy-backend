@@ -22,6 +22,7 @@ import {
     ChallengeStepIdFactoryService,
     ChallengeSubmissionIdFactoryService,
     ChallengeReferenceIdFactoryService,
+    ContentIdFactoryService,
 } from "../id-factories"
 import {
     DeepPartial,
@@ -52,6 +53,7 @@ export class ChallengeParserService {
         private readonly challengeSubmissionIdFactoryService: ChallengeSubmissionIdFactoryService,
         private readonly challengeStepIdFactoryService: ChallengeStepIdFactoryService,
         private readonly challengeReferenceIdFactoryService: ChallengeReferenceIdFactoryService,
+        private readonly contentIdFactoryService: ContentIdFactoryService,
     ) { }
 
     /**
@@ -97,6 +99,13 @@ export class ChallengeParserService {
             id: challengeId,
             defaultLocale: Locale.En,
             displayId,
+            contentId: this.contentIdFactoryService.generate(
+                {
+                    courseIndex,
+                    moduleIndex,
+                    contentIndex,
+                },
+            ),
             title: jsonMap.get(Locale.En)?.title ?? "",
             description: jsonMap.get(Locale.En)?.description ?? "",
             requirements: jsonMap.get(Locale.En)?.requirements ?? "",
