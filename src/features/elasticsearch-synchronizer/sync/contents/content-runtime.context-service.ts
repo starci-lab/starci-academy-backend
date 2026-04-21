@@ -1,33 +1,42 @@
 import {
-  ContentEntity,
-  ContentReferenceEntity,
-  InjectPrimaryPostgreSQLEntityManager,
-  Locale,
-} from "@modules/databases";
-import { ElasticsearchService } from "@modules/elasticsearch";
-import { envConfig } from "@modules/env";
+    ContentEntity,
+    ContentReferenceEntity,
+    InjectPrimaryPostgreSQLEntityManager,
+    Locale,
+    SyncStateService,
+    SyncStateSourceType,
+    SyncStateTarget,
+} from "@modules/databases"
 import {
-  ContentNotFoundException
-} from "@modules/exceptions";
+    ElasticsearchService 
+} from "@modules/elasticsearch"
 import {
-  AsyncService,
-} from "@modules/mixin";
+    envConfig 
+} from "@modules/env"
 import {
-  Inject,
-  Injectable,
-  Scope,
-} from "@nestjs/common";
-import { REQUEST } from "@nestjs/core";
-import _ from "lodash";
+    ContentNotFoundException
+} from "@modules/exceptions"
 import {
-  EntityManager
-} from "typeorm";
+    AsyncService,
+} from "@modules/mixin"
 import {
-  ContentTransformerService,
-} from "../../../api/graphql/utils";
+    Inject,
+    Injectable,
+    Scope,
+} from "@nestjs/common"
+import {
+    REQUEST 
+} from "@nestjs/core"
+import _ from "lodash"
+import {
+    EntityManager
+} from "typeorm"
+import {
+    ContentTransformerService,
+} from "../../../api/graphql/utils"
 import type {
-  ContentRuntimeContextRequest
-} from "./types";
+    ContentRuntimeContextRequest
+} from "./types"
 
 @Injectable({
     scope: Scope.REQUEST,
@@ -41,6 +50,7 @@ export class ContentRuntimeContextService {
         private readonly request: ContentRuntimeContextRequest,
         private readonly asyncService: AsyncService,
         private readonly elasticsearch: ElasticsearchService,
+        private readonly syncStateService: SyncStateService,
         private readonly contentTransformer: ContentTransformerService,
     ) {}
 
@@ -52,10 +62,10 @@ export class ContentRuntimeContextService {
             async () => {
                 await this.asyncService.safeRun(
                     async () => await this.process(),
-                );
+                )
             },
             envConfig().services.elasticsearchSynchronizer.syncIntervalMs.contents.runtime,
-        );
+        )
     }
 
     /**
@@ -63,75 +73,114 @@ export class ContentRuntimeContextService {
      */
     async process() {
 
-      // take the content
-      const content = await this.entityManager.findOne(
-        ContentEntity, 
-        {
-          where: {
-            id: this.request.id,
-          },
-          relations: {
-            translations: true,
-          },
-        }
-      );
+        // take the content
+        const content = await this.entityManager.findOne(
+            ContentEntity, 
+            {
+                where: {
+                    id: this.request.id,
+                },
+                relations: {
+                    translations: true,
+                },
+            }
+        )
 
-      if (!content) {
-        throw new ContentNotFoundException(
-          {
-            id: this.request.id,
-          },
-        );
-      }
-      const plainContent = content.toPlain<ContentEntity>();
-      // take all references related to the content
-      const references = await this.entityManager.find(
-        ContentReferenceEntity, 
-        {
-          where: {
-            content: {
-              id: plainContent.id,
+        if (!content) {
+            throw new ContentNotFoundException(
+                {
+                    id: this.request.id,
+                },
+            )
+        }
+        const sourceUpdatedAt = content.updatedAt
+        const shouldSync = await this.syncStateService.shouldSync(
+            {
+                target: SyncStateTarget.Elasticsearch,
+                sourceType: SyncStateSourceType.Content,
+                sourceId: this.request.id,
+                sourceUpdatedAt,
             },
-          },
-          select: {
-            id: true,
-            alias: true,
-            url: true,
-            orderIndex: true
-          }
+        )
+        if (!shouldSync) {
+            return
         }
-      );
 
-      const hydratedReferences = references?.map((reference) =>
-        reference.toPlain<ContentReferenceEntity>(),
-      );
+        try {
+            const plainContent = content.toPlain<ContentEntity>()
+            // take all references related to the content
+            const references = await this.entityManager.find(
+                ContentReferenceEntity, 
+                {
+                    where: {
+                        content: {
+                            id: plainContent.id,
+                        },
+                    },
+                    select: {
+                        id: true,
+                        alias: true,
+                        url: true,
+                        orderIndex: true
+                    }
+                }
+            )
 
-      plainContent.references = hydratedReferences;
+            const hydratedReferences = references?.map((reference) =>
+                reference.toPlain<ContentReferenceEntity>(),
+            )
 
-      const locales = [Locale.Vi, Locale.En];
+            plainContent.references = hydratedReferences
 
-      await Promise.all(locales.map(async (locale) => {
-          const hydratedContent = _.cloneDeep(plainContent);
+            const locales = [Locale.Vi,
+                Locale.En]
 
-          this.contentTransformer.transform(
-              hydratedContent,
-              locale,
-              hydratedContent.defaultLocale ?? Locale.En,
-          );
+            await Promise.all(locales.map(async (locale) => {
+                const hydratedContent = _.cloneDeep(plainContent)
 
-          const { translations, ...dataToIndex } = hydratedContent;
+                this.contentTransformer.transform(
+                    hydratedContent,
+                    locale,
+                    hydratedContent.defaultLocale ?? Locale.En,
+                )
 
-          const indexedData = {
-            ...dataToIndex,
-            locale,
-          }
+                const dataToIndex = _.omit(
+                    hydratedContent,
+                    ["translations"],
+                )
 
-          // Index each locale separately with a composite ID
-          await this.elasticsearch.indexEntity(
-              ContentEntity,
-              indexedData,
-              `${hydratedContent.id}-${locale}`,
-          );
-      }));
+                const indexedData = {
+                    ...dataToIndex,
+                    locale,
+                }
+
+                // Index each locale separately with a composite ID
+                await this.elasticsearch.indexEntity(
+                    ContentEntity,
+                    indexedData,
+                    `${hydratedContent.id}-${locale}`,
+                )
+            }))
+
+            await this.syncStateService.markSynced(
+                {
+                    target: SyncStateTarget.Elasticsearch,
+                    sourceType: SyncStateSourceType.Content,
+                    sourceId: this.request.id,
+                    sourceUpdatedAt,
+                },
+            )
+        } catch (error) {
+            await this.syncStateService.markFailed(
+                {
+                    target: SyncStateTarget.Elasticsearch,
+                    sourceType: SyncStateSourceType.Content,
+                    sourceId: this.request.id,
+                    sourceUpdatedAt,
+                    error,
+                },
+            )
+            throw error
+        }
     }
 }

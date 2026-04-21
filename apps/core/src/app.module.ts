@@ -35,7 +35,8 @@ import {
 } from "@modules/mixin"
 import {
     PrimaryPostgreSQLModule,
-    QdrantModule
+    QdrantModule,
+    ScyllaDBModule,
 } from "@modules/databases"
 import {
     S3Module
@@ -49,6 +50,9 @@ import {
 import {
     ElasticsearchSynchronizerModule,
 } from "@features/elasticsearch-synchronizer"
+import {
+    ScyllaDBSynchronizerModule,
+} from "@features/scylladb-synchronizer"
 import {
     ScheduleModule
 } from "@nestjs/schedule"
@@ -238,8 +242,20 @@ import {
                     isGlobal: true,
                 }
             ),
+            /** ScyllaDB Synchronizer module. */
+            ScyllaDBSynchronizerModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
             /** Qdrant module. */
             QdrantModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** ScyllaDB module. */
+            ScyllaDBModule.register(
                 {
                     isGlobal: true,
                 }

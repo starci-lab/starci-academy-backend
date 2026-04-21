@@ -16,6 +16,9 @@ import {
 import {
     SendMailModule,
 } from "./send-mail"
+import {
+    SyncScyllaDBModule,
+} from "./sync-scylladb"
 
 /**
  * Module for the processors.
@@ -41,6 +44,11 @@ import {
             {
                 isGlobal: true,
             }
+        ),
+        SyncScyllaDBModule.register(
+            {
+                isGlobal: true,
+            },
         ),
     ],
 })

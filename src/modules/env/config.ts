@@ -285,6 +285,51 @@ export const envConfig = () => ({
                 },
             },
         },
+        /** ScyllaDB Synchronizer service configuration. */
+        scylladbSynchronizer: {
+            syncIntervalMs: {
+                courses: {
+                    factory: parseEnvMs({
+                        key: "SCYLLADB_SYNCHRONIZER_COURSES_FACTORY_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                    runtime: parseEnvMs({
+                        key: "SCYLLADB_SYNCHRONIZER_COURSES_RUNTIME_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                lessonVideos: {
+                    factory: parseEnvMs({
+                        key: "SCYLLADB_SYNCHRONIZER_LESSON_VIDEOS_FACTORY_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                    runtime: parseEnvMs({
+                        key: "SCYLLADB_SYNCHRONIZER_LESSON_VIDEOS_RUNTIME_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                challenges: {
+                    factory: parseEnvMs({
+                        key: "SCYLLADB_SYNCHRONIZER_CHALLENGES_FACTORY_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                    runtime: parseEnvMs({
+                        key: "SCYLLADB_SYNCHRONIZER_CHALLENGES_RUNTIME_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                contents: {
+                    factory: parseEnvMs({
+                        key: "SCYLLADB_SYNCHRONIZER_CONTENTS_FACTORY_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                    runtime: parseEnvMs({
+                        key: "SCYLLADB_SYNCHRONIZER_CONTENTS_RUNTIME_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+            },
+        },
     },
     /** Loki configuration. */
     loki: {
@@ -542,6 +587,36 @@ export const envConfig = () => ({
     },
     /** Databases configuration. */
     databases: {
+        /** ScyllaDB configuration. */
+        scylladb: {
+            contactPoints: parseEnvString({
+                key: "SCYLLADB_CONTACT_POINTS",
+                defaultValue: "localhost",
+            })
+                .split(",")
+                .map((host) => host.trim())
+                .filter((host) => host !== ""),
+            port: parseEnvInt({
+                key: "SCYLLADB_PORT",
+                defaultValue: 9042,
+            }),
+            keyspace: parseEnvString({
+                key: "SCYLLADB_KEYSPACE",
+                defaultValue: "starci",
+            }),
+            localDataCenter: parseEnvString({
+                key: "SCYLLADB_LOCAL_DATACENTER",
+                defaultValue: "datacenter1",
+            }),
+            username: parseEnvString({
+                key: "SCYLLADB_USERNAME",
+                defaultValue: "scylla",
+            }),
+            password: parseEnvString({
+                key: "SCYLLADB_PASSWORD",
+                defaultValue: "Cuong123_A",
+            }),
+        },
         /** Qdrant configuration. */
         qdrant: { 
             url: parseEnvString({
@@ -858,7 +933,7 @@ export const envConfig = () => ({
                 }),
                 enabled: parseEnvBoolean({
                     key: "READ_POLICY_CASSANDRA_ENABLED",
-                    defaultValue: true,
+                    defaultValue: false,
                 }),
                 retryDelayMs: parseEnvMs({
                     key: "READ_POLICY_CASSANDRA_RETRY_DELAY_MS",

@@ -17,4 +17,6 @@ export enum BullQueueName {
     ProcessVideo = "process-video",
     /** Queue for sending transactional emails via SMTP (Brevo). */
     SendMail = "send-mail",
+    /** Queue for synchronizing source entities into ScyllaDB. */
+    SyncScyllaDB = "sync-scylladb",
 }
