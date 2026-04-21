@@ -38,7 +38,7 @@ import {
 export class ChallengesResolver {
     constructor(
         private readonly challengesService: ChallengesService,
-    ) {}
+    ) { }
 
     /**
      * Lists challenges for a module with page-based pagination.
@@ -57,19 +57,19 @@ export class ChallengesResolver {
         () => ChallengesResponse,
         {
             name: "challenges",
-            description: "Lists challenges for a module with page-based pagination.",
+            description: "Lists challenges for a content item with page-based pagination.",
         },
     )
     async execute(
         @Args(
             "request",
             {
-                description: "Module id, pagination, and sort request.",
+                description: "Content id, pagination, and sort request.",
             },
         )
-            request: ChallengesRequest,
+        request: ChallengesRequest,
         @GraphQLLocale()
-            locale: Locale,
+        locale: Locale,
     ): Promise<ChallengesResponseData> {
         return this.challengesService.execute(
             {

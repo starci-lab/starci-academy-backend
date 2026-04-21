@@ -8,6 +8,7 @@ import {
 export interface ChallengeDirNameNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     courseIndex: number
     moduleIndex: number
+    contentIndex: number
     challengeIndex: number
 }
 
@@ -19,16 +20,18 @@ export class ChallengeDirNameNotFoundException extends AbstractException {
         {
             courseIndex,
             moduleIndex,
+            contentIndex,
             challengeIndex,
             originalError,
         }: ChallengeDirNameNotFoundExceptionMetadata,
     ) {
         super(
-            `Challenge dir: no mount directory for index ${challengeIndex} (course ${courseIndex}, module ${moduleIndex})`,
+            `Challenge dir: no mount directory for index ${challengeIndex} (course ${courseIndex}, module ${moduleIndex}, content ${contentIndex})`,
             "CHALLENGE_DIR_NAME_NOT_FOUND_EXCEPTION",
             {
                 courseIndex,
                 moduleIndex,
+                contentIndex,
                 challengeIndex,
                 originalError,
             },

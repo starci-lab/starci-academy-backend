@@ -8,8 +8,8 @@ import {
     envConfig,
 } from "@modules/env"
 import {
-    ModuleIdFactoryService,
-} from "./module.service"
+    ContentIdFactoryService,
+} from "./content.service"
 import {
     v5 as uuidv5,
 } from "uuid"
@@ -22,7 +22,9 @@ export interface GenerateChallengeIdParams {
     courseIndex: number
     /** Parent module ordinal. */
     moduleIndex: number
-    /** Zero-based challenge folder under `modules/{m}/challenges/{challengeIndex}`. */
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Zero-based challenge folder under `modules/{m}/contents/{c}/challenges/{challengeIndex}`. */
     challengeIndex: number
 }
 
@@ -33,27 +35,29 @@ export interface GenerateChallengeIdParams {
 export class ChallengeIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,
-        private readonly moduleIdFactoryService: ModuleIdFactoryService,
-    ) {}
+        private readonly contentIdFactoryService: ContentIdFactoryService,
+    ) { }
 
     /**
-     * @param params - Course / module ordinals and challenge index.
+     * @param params - Course / module / content ordinals and challenge index.
      * @returns UUID v5 string.
      */
     generate(
         {
             courseIndex,
             moduleIndex,
+            contentIndex,
             challengeIndex,
         }: GenerateChallengeIdParams,
     ): string {
         return uuidv5(
             this.sha256Service.hash(
                 "challenge",
-                this.moduleIdFactoryService.generate(
+                this.contentIdFactoryService.generate(
                     {
                         courseIndex,
                         moduleIndex,
+                        contentIndex,
                     },
                 ),
                 challengeIndex.toString(),

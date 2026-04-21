@@ -6,6 +6,7 @@ import type {
 export interface ParseChallengeParams {
     courseIndex: number
     moduleIndex: number
+    contentIndex: number
     challengeIndex: number
 }
 
@@ -13,6 +14,7 @@ export interface ParseChallengeParams {
 export interface ChallengeIndexesParams {
     courseIndex: number
     moduleIndex: number
+    contentIndex: number
 }
 
 /** Sorted `challengeIndex` values found under `modules/{moduleIndex}/challenges/`. */

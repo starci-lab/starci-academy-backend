@@ -8,8 +8,8 @@ import {
     envConfig,
 } from "@modules/env"
 import {
-    ModuleIdFactoryService,
-} from "./module.service"
+    ContentIdFactoryService,
+} from "./content.service"
 import {
     v5 as uuidv5,
 } from "uuid"
@@ -22,7 +22,9 @@ export interface GenerateLessonVideoIdParams {
     courseIndex: number
     /** Parent module ordinal. */
     moduleIndex: number
-    /** Zero-based video in the module’s `lessonVideos` list. */
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Zero-based video in the content’s `lesson-videos` list. */
     lessonVideoIndex: number
 }
 
@@ -33,27 +35,29 @@ export interface GenerateLessonVideoIdParams {
 export class LessonVideoIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,
-        private readonly moduleIdFactoryService: ModuleIdFactoryService,
+        private readonly contentIdFactoryService: ContentIdFactoryService,
     ) {}
 
     /**
-     * @param params - Course / module ordinals and video index.
+     * @param params - Course / module / content ordinals and video index.
      * @returns UUID v5 string.
      */
     generate(
         {
             courseIndex,
             moduleIndex,
+            contentIndex,
             lessonVideoIndex,
         }: GenerateLessonVideoIdParams,
     ): string {
         return uuidv5(
             this.sha256Service.hash(
                 "lesson-video",
-                this.moduleIdFactoryService.generate(
+                this.contentIdFactoryService.generate(
                     {
                         courseIndex,
                         moduleIndex,
+                        contentIndex,
                     },
                 ),
                 lessonVideoIndex.toString(),

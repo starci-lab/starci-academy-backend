@@ -18,6 +18,8 @@ export interface ParseLessonVideoParams {
     courseIndex: number
     /** Module index. */
     moduleIndex: number
+    /** Content index. */
+    contentIndex: number
     /** Lesson video index. */
     lessonVideoIndex: number
 }
@@ -28,6 +30,8 @@ export interface LessonVideoIndexesParams {
     courseIndex: number
     /** Module index. */
     moduleIndex: number
+    /** Content index. */
+    contentIndex: number
 }
 
 /** Sorted `lessonVideoIndex` values under `lession-videos/`. */

@@ -11,17 +11,17 @@ import {
 } from "@nestjs/common"
 import fs from "fs"
 import {
-    ModuleDirService,
-} from "./module.service"
+    ContentDirService,
+} from "./content.service"
 
 /**
- * Resolves indexed content folders under a module’s `contents/` directory (`{index}-{slug}` or legacy `{index}`).
+ * Resolves indexed content folders under a content’s `challenges/` directory (`{index}-{slug}` or legacy `{index}`).
  */
 @Injectable()
 export class ChallengeDirService {
     constructor(
-        private readonly moduleDirService: ModuleDirService,
-    ) {}
+        private readonly contentDirService: ContentDirService,
+    ) { }
 
     /**
      * Absolute path to `challenges/` for the given course and module index.
@@ -33,11 +33,13 @@ export class ChallengeDirService {
     private root(
         courseIndex: number,
         moduleIndex: number,
+        contentIndex: number,
     ): string {
-        return `${this.moduleDirService.path(
+        return `${this.contentDirService.path(
             {
                 courseIndex,
                 moduleIndex,
+                contentIndex,
             },
         ).path}/challenges`
     }
@@ -49,12 +51,14 @@ export class ChallengeDirService {
         {
             courseIndex,
             moduleIndex,
+            contentIndex,
             challengeIndex,
         }: ChallengeDirPathParams,
     ): ChallengeDirPathResult {
         const root = this.root(
             courseIndex,
             moduleIndex,
+            contentIndex,
         )
         // list valid `{n}-{slug}` children (validates uniqueness of indices)
         const dirNames = fs.readdirSync(root)
@@ -66,6 +70,7 @@ export class ChallengeDirService {
                 {
                     courseIndex,
                     moduleIndex,
+                    contentIndex,
                     challengeIndex,
                 },
             )
@@ -83,13 +88,18 @@ export class ChallengeDirService {
         {
             courseIndex,
             moduleIndex,
+            contentIndex,
         }: ChallengeDirIndexesParams,
     ): Array<number> {
-        return fs.readdirSync(
-            this.root(
-                courseIndex,
-                moduleIndex,
-            )).map(
+        const root = this.root(
+            courseIndex,
+            moduleIndex,
+            contentIndex,
+        )
+        if (!fs.existsSync(root)) {
+            return []
+        }
+        return fs.readdirSync(root).map(
             (dirName) => {
                 const [index] = dirName.split("-")
                 return parseInt(index)

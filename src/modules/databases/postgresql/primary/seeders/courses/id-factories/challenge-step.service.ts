@@ -21,6 +21,7 @@ export interface GenerateChallengeStepIdParams {
     /** Locates the parent challenge (same as {@link GenerateChallengeIdParams}). */
     courseIndex: number
     moduleIndex: number
+    contentIndex: number
     challengeIndex: number
     /** Zero-based step from the challenge markdown (`## N. Title` ordering). */
     stepIndex: number
@@ -44,6 +45,7 @@ export class ChallengeStepIdFactoryService {
         {
             courseIndex,
             moduleIndex,
+            contentIndex,
             challengeIndex,
             stepIndex,
         }: GenerateChallengeStepIdParams,
@@ -55,6 +57,7 @@ export class ChallengeStepIdFactoryService {
                     {
                         courseIndex,
                         moduleIndex,
+                        contentIndex,
                         challengeIndex,
                     },
                 ),

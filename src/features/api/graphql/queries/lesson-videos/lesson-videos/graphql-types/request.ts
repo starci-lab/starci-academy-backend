@@ -26,13 +26,13 @@ const GraphQLTypeLessonVideosSortBy = createEnumType(LessonVideosSortBy)
 registerEnumType(GraphQLTypeLessonVideosSortBy,
     {
         name: "LessonVideosSortBy",
-        description: "Sort field for listing module lesson videos.",
+        description: "Sort field for listing lesson videos within a content item.",
         valuesMap: {
             [LessonVideosSortBy.Title]: {
                 description: "Sort by title",
             },
             [LessonVideosSortBy.OrderIndex]: {
-                description: "Sort by display order within the module",
+                description: "Sort by display order within the content",
             },
             [LessonVideosSortBy.CreatedAt]: {
                 description: "Sort by created at",
@@ -45,7 +45,7 @@ registerEnumType(GraphQLTypeLessonVideosSortBy,
 )
 
 @InputType({
-    description: "Sort field and order for listing module lesson videos.",
+    description: "Sort field and order for listing lesson videos within a content item.",
 })
 export class LessonVideosRequestSort extends SortInput<LessonVideosSortBy> {
     @Field(
@@ -58,7 +58,7 @@ export class LessonVideosRequestSort extends SortInput<LessonVideosSortBy> {
 }
 
 @InputType({
-    description: "Pagination, sort, and module scope for listing lesson videos.",
+    description: "Pagination, sort, and content scope for listing lesson videos.",
 })
 export class LessonVideosRequestPaginationFilters extends PaginationPageFilters<LessonVideosSortBy> {
     @Field(
@@ -77,16 +77,16 @@ export class LessonVideosRequestPaginationFilters extends PaginationPageFilters<
 }
 
 @InputType({
-    description: "Request for listing lesson videos in a module with pagination.",
+    description: "Request for listing lesson videos in a content item with pagination.",
 })
 export class LessonVideosRequest {
     @Field(
         () => ID,
         {
-            description: "Module id; only lesson videos in this module are returned.",
+            description: "Content id; only lesson videos associated with this content are returned.",
         },
     )
-        moduleId: string
+        contentId: string
 
     @Field(
         () => LessonVideosRequestPaginationFilters,

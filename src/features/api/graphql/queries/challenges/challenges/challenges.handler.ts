@@ -41,7 +41,7 @@ export class ChallengesHandler
     ): Promise<ChallengesResponseData> {
         const {
             request: {
-                moduleId,
+                contentId,
                 filters: {
                     limit = envConfig().services.api.pagination.page.limit,
                     pageNumber = 0,
@@ -61,7 +61,7 @@ export class ChallengesHandler
             filters: [
                 {
                     term: {
-                        "moduleId.keyword": moduleId,
+                        "contentId.keyword": contentId,
                     },
                 },
                 {
