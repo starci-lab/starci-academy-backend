@@ -229,7 +229,7 @@ export class CourseRuntimeContextService {
                     ) => {
                         const pm = m.toPlain<ModuleEntity>()
 
-                        // Nested: Content
+                        // Nested: Content (including lessons and challenges)
                         const contents = await this.entityManager.find(
                             ContentEntity,
                             {
@@ -240,6 +240,12 @@ export class CourseRuntimeContextService {
                                 },
                                 relations: {
                                     translations: true,
+                                    lessons: {
+                                        translations: true,
+                                    },
+                                    challenges: {
+                                        translations: true,
+                                    },
                                 },
                                 order: {
                                     orderIndex: "ASC",
@@ -250,7 +256,10 @@ export class CourseRuntimeContextService {
                             (
                                 c,
                             ) => {
-                                return c.toPlain<ContentEntity>()
+                                const pc = c.toPlain<ContentEntity>()
+                                pc.lessons = c.lessons?.map(l => l.toPlain<LessonVideoEntity>())
+                                pc.challenges = c.challenges?.map(ch => ch.toPlain<ChallengeEntity>())
+                                return pc
                             },
                         )
 
@@ -279,55 +288,7 @@ export class CourseRuntimeContextService {
                             },
                         )
 
-                        // Nested: Lesson Videos
-                        const lessonVideos = await this.entityManager.find(
-                            LessonVideoEntity,
-                            {
-                                where: {
-                                    module: {
-                                        id: pm.id,
-                                    },
-                                },
-                                relations: {
-                                    translations: true,
-                                },
-                                order: {
-                                    orderIndex: "ASC",
-                                },
-                            },
-                        )
-                        pm.lessonVideos = lessonVideos.map(
-                            (
-                                lv,
-                            ) => {
-                                return lv.toPlain<LessonVideoEntity>()
-                            },
-                        )
 
-                        // Nested: Challenges
-                        const challenges = await this.entityManager.find(
-                            ChallengeEntity,
-                            {
-                                where: {
-                                    module: {
-                                        id: pm.id,
-                                    },
-                                },
-                                relations: {
-                                    translations: true,
-                                },
-                                order: {
-                                    orderIndex: "ASC",
-                                },
-                            },
-                        )
-                        pm.challenges = challenges.map(
-                            (
-                                ch,
-                            ) => {
-                                return ch.toPlain<ChallengeEntity>()
-                            },
-                        )
 
                         return pm
                     },

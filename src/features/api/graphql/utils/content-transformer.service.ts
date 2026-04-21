@@ -6,6 +6,12 @@ import {
     Locale,
     TranslationResolverService,
 } from "@modules/databases"
+import {
+    LessonVideoTransformerService,
+} from "./lesson-video-transformer.service"
+import {
+    ChallengeTransformerService,
+} from "./challenge-transformer.service"
 
 /**
  * Applies translations to a content row and its references (GraphQL read path).
@@ -14,6 +20,8 @@ import {
 export class ContentTransformerService {
     constructor(
         private readonly translationResolver: TranslationResolverService,
+        private readonly lessonVideoTransformer: LessonVideoTransformerService,
+        private readonly challengeTransformer: ChallengeTransformerService,
     ) {}
 
     transform(
@@ -61,6 +69,26 @@ export class ContentTransformerService {
                     ? translatedAlias
                     : reference.alias
                 return reference
+            })
+        }
+        if (content.lessons?.length) {
+            content.lessons = content.lessons.map((lesson) => {
+                this.lessonVideoTransformer.transform(
+                    lesson,
+                    locale,
+                    contentFallback,
+                )
+                return lesson
+            })
+        }
+        if (content.challenges?.length) {
+            content.challenges = content.challenges.map((challenge) => {
+                this.challengeTransformer.transform(
+                    challenge,
+                    locale,
+                    contentFallback,
+                )
+                return challenge
             })
         }
     }

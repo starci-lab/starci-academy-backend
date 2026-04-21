@@ -78,41 +78,6 @@ export class SeedersService implements OnModuleInit {
                     )
                     return {
                         ...module,
-                        challenges: (() => {
-                            const challengeMounts = this.challengeDirService.indexes(
-                                {
-                                    courseIndex,
-                                    moduleIndex,
-                                }
-                            )
-                            const challenges = challengeMounts.map(
-                                (challengeIndex) => this.challengeParserService.parse(
-                                    {
-                                        courseIndex,
-                                        moduleIndex,
-                                        challengeIndex,
-                                    },
-                                )
-                            )
-                            return challenges
-                        })(),
-                        lessonVideos: (() => {
-                            const lessonVideoMounts = this.lessonVideoDirService.indexes(
-                                {
-                                    courseIndex,
-                                    moduleIndex,
-                                }
-                            )
-                            return lessonVideoMounts.map(
-                                (lessonVideoIndex) => this.lessonVideoParserService.parse(
-                                    {
-                                        courseIndex,
-                                        moduleIndex,
-                                        lessonVideoIndex,
-                                    },
-                                )
-                            )
-                        })(),
                         contents: (() => {
                             const contentMounts = this.contentDirService.indexes(
                                 {

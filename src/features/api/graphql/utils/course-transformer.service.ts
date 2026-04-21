@@ -7,14 +7,8 @@ import {
     TranslationResolverService,
 } from "@modules/databases"
 import {
-    ChallengeTransformerService,
-} from "./challenge-transformer.service"
-import {
     ContentTransformerService,
 } from "./content-transformer.service"
-import {
-    LessonVideoTransformerService,
-} from "./lesson-video-transformer.service"
 import {
     PrerequisiteTransformerService,
 } from "./prerequisite-transformer.service"
@@ -42,8 +36,6 @@ export class CourseTransformerService {
         private readonly valuePropositionTransformer: ValuePropositionTransformerService,
         private readonly qnaTransformer: QnaTransformerService,
         private readonly contentTransformer: ContentTransformerService,
-        private readonly lessonVideoTransformer: LessonVideoTransformerService,
-        private readonly challengeTransformer: ChallengeTransformerService,
         private readonly previewContentTransformer: PreviewContentTransformerService,
         private readonly livestreamSessionTransformer: LivestreamSessionTransformerService,
     ) {}
@@ -159,26 +151,7 @@ export class CourseTransformerService {
                         return previewContent
                     })
                 }
-                if (module.lessonVideos && module.lessonVideos.length > 0) {
-                    module.lessonVideos = module.lessonVideos.map((lessonVideo) => {
-                        this.lessonVideoTransformer.transform(
-                            lessonVideo,
-                            locale,
-                            courseFallback,
-                        )
-                        return lessonVideo
-                    })
-                }
-                if (module.challenges?.length) {
-                    module.challenges = module.challenges.map((challenge) => {
-                        this.challengeTransformer.transform(
-                            challenge,
-                            locale,
-                            courseFallback,
-                        )
-                        return challenge
-                    })
-                }
+
                 return module
             })
         }

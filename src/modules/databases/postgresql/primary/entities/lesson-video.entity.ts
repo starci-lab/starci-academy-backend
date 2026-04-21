@@ -226,40 +226,6 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         defaultLocale: Locale
 
     /**
-     * Parent module this lesson video belongs to.
-     */
-    @Field(
-        () => ModuleEntity,
-        {
-            description: "Parent module this lesson video belongs to.",
-        },
-    )
-    @ManyToOne(
-        () => ModuleEntity,
-        (module: ModuleEntity) => module.lessonVideos,
-        {
-            onDelete: "CASCADE",
-        },
-    )
-    @JoinColumn({
-        name: "module_id",
-        foreignKeyConstraintName:
-            "fk_module_id_lesson_videos_modules",
-    })
-        module: ModuleEntity
-
-    @Field(
-        () => ID,
-        {
-            description: "Parent module ID.",
-        },
-    )
-    @RelationId(
-        (lv: LessonVideoEntity) => lv.module,
-    )
-        moduleId: string
-
-    /**
      * Optional parent content this lesson is derived from.
      */
     @Field(

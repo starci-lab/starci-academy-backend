@@ -195,39 +195,6 @@ export class ChallengeEntity extends UuidAbstractEntity {
         defaultLocale: Locale
 
     /**
-     * Parent module.
-     */
-    @Field(
-        () => ModuleEntity,
-        {
-            description: "Parent module this challenge belongs to.",
-        },
-    )
-    @ManyToOne(
-        () => ModuleEntity,
-        (module: ModuleEntity) => module.challenges,
-        {
-            onDelete: "CASCADE",
-        },
-    )
-    @JoinColumn({
-        name: "module_id",
-        foreignKeyConstraintName: "fk_module_id_challenges_modules",
-    })
-        module: ModuleEntity
-
-    @Field(
-        () => ID,
-        {
-            description: "Parent module ID.",
-        },
-    )
-    @RelationId(
-        (ch: ChallengeEntity) => ch.module,
-    )
-        moduleId: string
-
-    /**
      * Ordered instruction steps.
      */
     @Field(

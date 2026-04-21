@@ -6,6 +6,8 @@ export interface ChallengeDirPathParams {
     courseIndex: number
     /** Module order index on the mount. */
     moduleIndex: number
+    /** Content order index on the mount. */
+    contentIndex: number
     /** Challenge order index on the mount. */
     challengeIndex: number
 }
@@ -18,6 +20,8 @@ export interface ChallengeDirIndexesParams {
     courseIndex: number
     /** Module order index on the mount. */
     moduleIndex: number
+    /** Content order index on the mount. */
+    contentIndex: number
 }
 
 /**

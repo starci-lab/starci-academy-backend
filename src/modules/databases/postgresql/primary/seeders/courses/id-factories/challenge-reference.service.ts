@@ -18,11 +18,12 @@ import {
  * Input for {@link ChallengeReferenceIdFactoryService.generate}.
  */
 export interface GenerateChallengeReferenceIdParams {
-    /** Locates the parent challenge. */
+    /** Locates the parent challenge (same as {@link GenerateChallengeIdParams}). */
     courseIndex: number
     moduleIndex: number
+    contentIndex: number
     challengeIndex: number
-    /** Zero-based reference in the challenge “References” block. */
+    /** Zero-based reference from the challenge markdown (`## References` indexed list). */
     referenceIndex: number
 }
 
@@ -44,6 +45,7 @@ export class ChallengeReferenceIdFactoryService {
         {
             courseIndex,
             moduleIndex,
+            contentIndex,
             challengeIndex,
             referenceIndex,
         }: GenerateChallengeReferenceIdParams,
@@ -55,6 +57,7 @@ export class ChallengeReferenceIdFactoryService {
                     {
                         courseIndex,
                         moduleIndex,
+                        contentIndex,
                         challengeIndex,
                     },
                 ),

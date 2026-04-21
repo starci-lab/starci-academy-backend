@@ -14,8 +14,8 @@ import {
 export class LessonVideoTransformerService {
     constructor(
         private readonly translationResolver: TranslationResolverService,
-    ) {}
-    
+    ) { }
+
     /**
      * Applies translations to a lesson video row.
      * @param lessonVideo - The lesson video entity to transform.

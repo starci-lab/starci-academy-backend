@@ -180,40 +180,6 @@ export class ModuleEntity extends UuidAbstractEntity {
         previewContents: Array<PreviewContentEntity>
 
     /**
-     * Lesson videos attached to the module.
-     */
-    @Field(
-        () => [LessonVideoEntity],
-        {
-            description: "Lesson videos attached to the module.",
-        },
-    )
-    @OneToMany(() => LessonVideoEntity,
-        (lessonVideo: LessonVideoEntity) => lessonVideo.module,
-        {
-            cascade: true
-        })
-        lessonVideos: Array<LessonVideoEntity>
-
-    /**
-     * Challenges (exercises) attached to the module.
-     */
-    @Field(
-        () => [ChallengeEntity],
-        {
-            description: "Ordered challenges attached to the module.",
-        },
-    )
-    @OneToMany(
-        () => ChallengeEntity,
-        (challenge: ChallengeEntity) => challenge.module,
-        {
-            cascade: true,
-        },
-    )
-        challenges: Array<ChallengeEntity>
-
-    /**
      * Localized translations of module fields such as title and description.
      */
     @Field(

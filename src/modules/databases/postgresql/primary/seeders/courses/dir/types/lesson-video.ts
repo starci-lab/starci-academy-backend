@@ -6,6 +6,8 @@ export interface LessonVideoDirPathParams {
     courseIndex: number
     /** Module order index on the mount. */
     moduleIndex: number
+    /** Content order index on the mount. */
+    contentIndex: number
     /** Lesson-video order index on the mount. */
     lessonVideoIndex: number
 }
@@ -18,6 +20,8 @@ export interface LessonVideoDirIndexesParams {
     courseIndex: number
     /** Module order index on the mount. */
     moduleIndex: number
+    /** Content order index on the mount. */
+    contentIndex: number
 }
 
 /**

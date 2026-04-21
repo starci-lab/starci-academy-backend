@@ -14,6 +14,9 @@ import {
     CoursesMutationsModule,
 } from "./courses"
 import {
+    ContentsMutationModule,
+} from "./contents"
+import {
     ConfigurableModuleClass,
 } from "./mutations.module-definition"
 
@@ -32,6 +35,9 @@ import {
             isGlobal: true,
         }),
         CvSubmissionsMutationsModule,
+        ContentsMutationModule.register({
+            isGlobal: true,
+        }),
     ],
 })
-export class MutationsModule extends ConfigurableModuleClass {}
+export class MutationsModule extends ConfigurableModuleClass { }
