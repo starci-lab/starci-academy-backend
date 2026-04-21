@@ -31,6 +31,9 @@ import {
 import {
     ChallengeEntity,
 } from "./challenge.entity"
+import {
+    LessonVideoEntity,
+} from "./lesson-video.entity"
 
 /**
  * Content attached to a module (title, optional description, body).
@@ -221,6 +224,22 @@ export class ContentEntity extends UuidAbstractEntity {
         },
     )
         references: Array<ContentReferenceEntity>
+
+    /**
+     * Lessons derived from this content.
+     */
+    @Field(
+        () => [LessonVideoEntity],
+        {
+            nullable: true,
+            description: "Lesson videos associated with this content.",
+        },
+    )
+    @OneToMany(
+        () => LessonVideoEntity,
+        (lesson: LessonVideoEntity) => lesson.content,
+    )
+        lessons: Array<LessonVideoEntity>
 
     /**
      * Challenges derived from this content.

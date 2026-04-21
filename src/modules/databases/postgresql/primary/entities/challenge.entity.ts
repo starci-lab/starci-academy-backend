@@ -326,7 +326,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
     )
     @ManyToOne(
         () => ContentEntity,
-        "challenges",
+        (content: ContentEntity) => content.challenges,
         {
             onDelete: "SET NULL",
             nullable: true,
