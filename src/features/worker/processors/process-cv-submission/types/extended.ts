@@ -1,4 +1,5 @@
 import {
+    CVSubmissionAttemptEntity,
     CVSubmissionEntity,
     CVPromptEntity,
     UserEntity,
@@ -8,6 +9,8 @@ import {
 export interface ExtendedProcessCvSubmissionContext {
     /** The CV submission being processed. */
     cvSubmission: CVSubmissionEntity
+    /** The specific version attempt being processed. */
+    cvSubmissionAttempt: CVSubmissionAttemptEntity
     /** The user who submitted the CV. */
     user: UserEntity
     /** The prompt template used for analysis. */

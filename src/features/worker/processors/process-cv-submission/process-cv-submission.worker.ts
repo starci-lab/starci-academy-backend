@@ -32,6 +32,7 @@ import type {
     ExtendedProcessCvSubmissionContext,
 } from "./types"
 import {
+    CVSubmissionAttemptEntity,
     CVSubmissionEntity,
     CvSubmissionStatus,
     InjectPrimaryPostgreSQLEntityManager,
@@ -80,12 +81,31 @@ export class ProcessCvSubmissionWorker extends WorkerHost {
         let payload: ProcessCVSubmissionPayload | undefined
         let jobRecord: JobEntity | undefined
         try {
+            console.log(
+                "[CV][worker] picked",
+                {
+                    bullmqJobId: bullmqJob.id ?? null,
+                    queueName: bullmqJob.queueName,
+                },
+            )
+
             jobRecord = await this.jobActionService.getJob(
                 {
                     id: bullmqJob.id ?? "",
                 },
             )
             payload = this.superJson.parse<ProcessCVSubmissionPayload>(bullmqJob.data)
+
+            console.log(
+                "[CV][worker] payload",
+                {
+                    jobId: jobRecord.id,
+                    cvSubmissionId: payload.cvSubmissionId,
+                    cvSubmissionAttemptId: payload.cvSubmissionAttemptId,
+                    currentStep: jobRecord.currentStep,
+                    maxSteps: jobRecord.maxSteps,
+                },
+            )
             
             const stepMap = this.stepMappingService.getStepMap()
             
@@ -106,12 +126,28 @@ export class ProcessCvSubmissionWorker extends WorkerHost {
                 throw new Error(`CV Submission ${payload.cvSubmissionId} not found.`)
             }
 
+            const cvSubmissionAttempt = await this.entityManager.findOne(
+                CVSubmissionAttemptEntity,
+                {
+                    where: {
+                        id: payload.cvSubmissionAttemptId,
+                        cvSubmission: {
+                            id: cvSubmission.id,
+                        },
+                    },
+                },
+            )
+
+            if (!cvSubmissionAttempt) {
+                throw new Error(`CV Submission Attempt ${payload.cvSubmissionAttemptId} not found.`)
+            }
+
             // Mark processing early so API/DB reflects worker progress.
-            if (cvSubmission.status === CvSubmissionStatus.Pending) {
-                cvSubmission.status = CvSubmissionStatus.Processing
+            if (cvSubmissionAttempt.status === CvSubmissionStatus.Pending) {
+                cvSubmissionAttempt.status = CvSubmissionStatus.Processing
                 await this.entityManager.update(
-                    CVSubmissionEntity,
-                    cvSubmission.id,
+                    CVSubmissionAttemptEntity,
+                    cvSubmissionAttempt.id,
                     {
                         status: CvSubmissionStatus.Processing,
                     },
@@ -127,6 +163,7 @@ export class ProcessCvSubmissionWorker extends WorkerHost {
                 payload,
                 extended: {
                     cvSubmission,
+                    cvSubmissionAttempt,
                     user: cvSubmission.user,
                     cvPrompt: cvSubmission.cvPrompt!,
                 },
@@ -147,9 +184,36 @@ export class ProcessCvSubmissionWorker extends WorkerHost {
                 if (!step) {
                     throw new Error(`Step ${syncedJob.currentStep} not found for ProcessCvSubmission pipeline.`)
                 }
+
+                console.log(
+                    "[CV][worker] step.start",
+                    {
+                        jobId: syncedJob.id,
+                        stepIndex: syncedJob.currentStep,
+                        stepName: step.stepName,
+                    },
+                )
                 
                 await step.process(context)
+
+                console.log(
+                    "[CV][worker] step.done",
+                    {
+                        jobId: syncedJob.id,
+                        stepIndex: syncedJob.currentStep,
+                        stepName: step.stepName,
+                    },
+                )
             }
+
+            console.log(
+                "[CV][worker] completed",
+                {
+                    jobId: jobRecord.id,
+                    currentStep: jobRecord.currentStep,
+                    maxSteps: jobRecord.maxSteps,
+                },
+            )
 
             this.winstonService.log(
                 WinstonLog.JobExecutedSuccessfully,
@@ -161,10 +225,31 @@ export class ProcessCvSubmissionWorker extends WorkerHost {
                 },
             )
         } catch (error) {
+            console.error(
+                "[CV][worker] failed",
+                {
+                    jobId: jobRecord?.id ?? null,
+                    cvSubmissionId: payload?.cvSubmissionId ?? null,
+                    cvSubmissionAttemptId: payload?.cvSubmissionAttemptId ?? null,
+                    message: error instanceof Error ? error.message : String(error),
+                },
+            )
+
             if (jobRecord) {
                 await this.jobActionService.failJob({
                     job: jobRecord,
                 })
+            }
+
+            if (payload?.cvSubmissionAttemptId) {
+                await this.entityManager.update(
+                    CVSubmissionAttemptEntity,
+                    payload.cvSubmissionAttemptId,
+                    {
+                        status: CvSubmissionStatus.Failed,
+                        processedAt: this.dayjsService.now().toDate(),
+                    },
+                )
             }
 
             if (payload?.cvSubmissionId) {

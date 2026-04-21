@@ -57,6 +57,8 @@ import {
     SubmissionFeedbackEntity,
     CVSubmissionEntity,
     CVPromptEntity,
+    CVSubmissionAttemptEntity,
+    CVSubmissionFeedbackEntity,
 } from "./entities"
 import {
     SeedersModule 
@@ -164,6 +166,8 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     SubmissionFeedbackEntity,
                                     CVPromptEntity,
                                     CVSubmissionEntity,
+                                    CVSubmissionAttemptEntity,
+                                    CVSubmissionFeedbackEntity,
                                 ],
                                 synchronize,
                                 logging: false,
@@ -232,6 +236,10 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         UserChallengeSubmissionEntity,
                         SubmissionAttemptEntity,
                         SubmissionFeedbackEntity,
+                        CVPromptEntity,
+                        CVSubmissionEntity,
+                        CVSubmissionAttemptEntity,
+                        CVSubmissionFeedbackEntity,
                     ], 
                     POSTGRESQL_PRIMARY
                 ),

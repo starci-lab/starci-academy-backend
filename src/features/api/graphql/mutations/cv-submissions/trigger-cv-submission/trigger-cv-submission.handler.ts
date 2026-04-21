@@ -5,6 +5,7 @@ import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
+    CVSubmissionAttemptEntity,
     CVSubmissionEntity,
     CvSubmissionStatus,
     InjectPrimaryPostgreSQLEntityManager,
@@ -66,9 +67,48 @@ export class TriggerCvSubmissionHandler
             throw new Error("CV submission not found.")
         }
 
-        if (cvSubmission.status !== CvSubmissionStatus.Pending) {
-            throw new Error(`CV submission is already ${cvSubmission.status}.`)
+        const cvSubmissionAttempt = request.cvSubmissionAttemptId
+            ? await this.entityManager.findOne(
+                CVSubmissionAttemptEntity,
+                {
+                    where: {
+                        id: request.cvSubmissionAttemptId,
+                        cvSubmission: {
+                            id: cvSubmission.id,
+                        },
+                    },
+                },
+            )
+            : await this.entityManager.findOne(
+                CVSubmissionAttemptEntity,
+                {
+                    where: {
+                        cvSubmission: {
+                            id: cvSubmission.id,
+                        },
+                    },
+                    order: {
+                        attemptNumber: "DESC",
+                    },
+                },
+            )
+
+        if (!cvSubmissionAttempt) {
+            throw new Error("CV submission attempt not found.")
         }
+
+        if (cvSubmissionAttempt.status !== CvSubmissionStatus.Pending) {
+            throw new Error(`CV submission attempt is already ${cvSubmissionAttempt.status}.`)
+        }
+
+        await this.entityManager.update(
+            CVSubmissionAttemptEntity,
+            cvSubmissionAttempt.id,
+            {
+                status: CvSubmissionStatus.Processing,
+                processedAt: null,
+            },
+        )
 
         await this.entityManager.update(
             CVSubmissionEntity,
@@ -81,6 +121,7 @@ export class TriggerCvSubmissionHandler
         await this.enqueueProcessCvSubmissionJobService.enqueue({
             userId: user.id,
             cvSubmissionId: cvSubmission.id,
+            cvSubmissionAttemptId: cvSubmissionAttempt.id,
         })
 
         return {

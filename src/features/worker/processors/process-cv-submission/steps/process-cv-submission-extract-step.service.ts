@@ -76,9 +76,9 @@ export class ProcessCvSubmissionExtractStepService extends AbstractStepService<
         >,
     ): Promise<ProcessCvSubmissionExtractStepExecuteResult> {
         const {
-            cvSubmission,
+            cvSubmissionAttempt,
         } = context.extended!
-        const key = cvSubmission.fileUrl
+        const key = cvSubmissionAttempt.fileUrl
 
         // 1. Download from MinIO using S3ReadService
         const buffer = await this.s3ReadService.buffer({
@@ -131,8 +131,8 @@ export class ProcessCvSubmissionExtractStepService extends AbstractStepService<
         await this.entityManager.transaction(async (entityManager) => {
             // Update the entity with extracted text
             await entityManager.update(
-                context.extended!.cvSubmission.constructor,
-                context.extended!.cvSubmission.id,
+                context.extended!.cvSubmissionAttempt.constructor,
+                context.extended!.cvSubmissionAttempt.id,
                 {
                     originalText: executionResult.originalText,
                 },

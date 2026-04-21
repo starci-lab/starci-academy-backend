@@ -31,4 +31,15 @@ export class SubmitCvPresignedUrlResponse {
         },
     )
         cvSubmissionId: string
+
+    /**
+     * The ID of the created attempt (version) row.
+     */
+    @Field(
+        () => String,
+        {
+            description: "The ID of the pending CV submission attempt.",
+        },
+    )
+        cvSubmissionAttemptId: string
 }

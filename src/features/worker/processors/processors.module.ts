@@ -16,6 +16,12 @@ import {
 import {
     SendMailModule,
 } from "./send-mail"
+import {
+    ProcessCvSubmissionModule,
+} from "./process-cv-submission"
+import {
+    ProcessGoogleDocsSubmissionModule,
+} from "./process-google-docs-submission"
 
 /**
  * Module for the processors.
@@ -38,6 +44,16 @@ import {
             }
         ),
         SendMailModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
+        ProcessCvSubmissionModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
+        ProcessGoogleDocsSubmissionModule.register(
             {
                 isGlobal: true,
             }
