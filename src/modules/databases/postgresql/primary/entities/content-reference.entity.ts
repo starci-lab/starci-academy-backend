@@ -149,6 +149,7 @@ export class ContentReferenceEntity extends UuidAbstractEntity {
         (translation: ContentReferenceTranslationEntity) => translation.contentReference,
         {
             cascade: true,
+            orphanedRowAction: "delete",
         },
     )
         translations: Array<ContentReferenceTranslationEntity>
