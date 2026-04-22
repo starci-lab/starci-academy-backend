@@ -9,6 +9,7 @@ import {
  * The status of a job.
  */
 export enum JobStatus {
+    Queued = "queued",
     Processing = "processing",
     Completed = "completed",
     Failed = "failed",
@@ -25,6 +26,9 @@ registerEnumType(
         name: "JobStatus",
         description: "The status of a job.",
         valuesMap: {
+            [JobStatus.Queued]: {
+                description: "The job is queued.",
+            },
             [JobStatus.Processing]: {
                 description: "The job is processing.",
             },

@@ -1,4 +1,6 @@
-import { JobEntity } from "@modules/databases"
+import {
+    JobEntity 
+} from "@modules/databases"
 
 export interface JobContext<T> {
     payload: T
@@ -7,5 +9,5 @@ export interface JobContext<T> {
 }
 
 export interface JobExtendedContext<T, E> extends JobContext<T> {
-    executionResult: E
+    extended: E
 }

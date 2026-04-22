@@ -21,6 +21,112 @@ export const envConfig = () => ({
         /** UUID namespace for course. */
         course: "d32d2da9-ad2e-44b4-b412-a97de455b8e4",
     },
+    /** Cache configuration. */
+    /** Cache: debug flags/TTL, key TTLs (withdraw, session, pool analytics, etc.), stale price max age. */
+    cache: {
+        debug: {
+            enabled: parseEnvBoolean({
+                key: "CACHE_DEBUG_ENABLED", defaultValue: true
+            }),
+            ttl: parseEnvMs({
+                key: "CACHE_DEBUG_TTL", defaultValue: "5000"
+            }),
+            ok: {
+                redis: parseEnvString({
+                    key: "CACHE_DEBUG_OK_REDIS", defaultValue: "ok-redis"
+                }),
+                memory: parseEnvString({
+                    key: "CACHE_DEBUG_OK_MEMORY", defaultValue: "ok-memory"
+                }),
+            },
+        },
+        ttl: {
+            activePriceCex: parseEnvMs({
+                key: "CACHE_TTL_ACTIVE_PRICE_CEX",
+                defaultValue: "100years"
+            }),
+            activeVolumeCex: parseEnvMs({
+                key: "CACHE_TTL_ACTIVE_VOLUME_CEX",
+                defaultValue: "100years"
+            }),
+            cexTokenPriceUpdated: parseEnvMs({
+                key: "CACHE_TTL_CEX_TOKEN_PRICE_UPDATED",
+                defaultValue: "100years"
+            }),
+            cexTokenVolumeUpdated: parseEnvMs({
+                key: "CACHE_TTL_CEX_TOKEN_VOLUME_UPDATED",
+                defaultValue: "100years"
+            }),
+            rotationBotAssignments: parseEnvMs({
+                key: "CACHE_TTL_ROTATION_BOT_ASSIGNMENTS",
+                defaultValue: "100years"
+            }),
+            natsMessageDigest: parseEnvMs({
+                key: "CACHE_TTL_NATS_MESSAGE_DIGEST",
+                defaultValue: "3s",
+            }),
+            withdraw: parseEnvMs({
+                key: "CACHE_TTL_WITHDRAW",
+                defaultValue: "30m"
+            }),
+            sendOtpCode: parseEnvMs({
+                key: "CACHE_TTL_SEND_OTP_CODE",
+                defaultValue: "10m"
+            }),
+            sessionId: parseEnvMs({
+                key: "CACHE_TTL_SESSION_ID",
+                defaultValue: "15m"
+            }),
+            aggregatedTokenPrice: parseEnvMs({
+                key: "CACHE_TTL_AGGREGATED_TOKEN_PRICE",
+                defaultValue: "100years"
+            }),
+            aggregatedTokenPriceTwap: parseEnvMs({
+                key: "CACHE_TTL_AGGREGATED_TOKEN_PRICE_TWAP",
+                defaultValue: "100years"
+            }),
+            dynamicClmmLiquidityPoolInfo: parseEnvMs({
+                key: "CACHE_TTL_DYNAMIC_CLMM_LIQUIDITY_POOL_INFO",
+                defaultValue: "100years"
+            }),
+            dynamicDlmmLiquidityPoolInfo: parseEnvMs({
+                key: "CACHE_TTL_DYNAMIC_DLMM_LIQUIDITY_POOL_INFO",
+                defaultValue: "100years"
+            }),
+            poolAnalytics: parseEnvMs({
+                key: "CACHE_TTL_POOL_ANALYTICS",
+                defaultValue: "100years"
+            }),
+            liquidityPoolsSyncedDiagnosticReadiness: parseEnvMs(
+                {
+                    key: "CACHE_TTL_LIQUIDITY_POOLS_SYNCED_DIAGNOSTIC_READINESS",
+                    defaultValue: "100years"
+                }
+            ),
+            violateIndicatorResults: parseEnvMs({
+                key: "CACHE_TTL_VIOLATE_INDICATOR_RESULTS",
+                defaultValue: "100years"
+            }),
+            closePositionSettlements: parseEnvMs({
+                key: "CACHE_TTL_CLOSE_POSITION_SETTLEMENTS",
+                defaultValue: "100years"
+            }),
+        },
+        stale: {
+            priceMaxAgeMs: parseEnvMs(
+                {
+                    key: "CACHE_STALE_PRICE_MAX_AGE_MS",
+                    defaultValue: "10s"
+                }
+            ),
+            rotationBotAssignmentsMaxAgeMs: parseEnvMs(
+                {
+                    key: "CACHE_STALE_ROTATION_BOT_ASSIGNMENTS_MAX_AGE_MS",
+                    defaultValue: "10s"
+                }
+            ),
+        },
+    },
     /** True when NODE_ENV === "production". */
     isProduction: parseEnvString(
         {
@@ -550,7 +656,7 @@ export const envConfig = () => ({
     /** Databases configuration. */
     databases: {
         /** Qdrant configuration. */
-        qdrant: { 
+        qdrant: {
             url: parseEnvString({
                 key: "QDRANT_URL",
                 defaultValue: "http://localhost:6333",
@@ -821,6 +927,51 @@ export const envConfig = () => ({
             key: "ELASTICSEARCH_PASSWORD",
             defaultValue: "123456",
         }),
+    },
+    /** NATS configuration. */
+    nats: {
+        servers: Array.from({
+            length: parseEnvInt({
+                key: "NATS_SERVERS_COUNT", defaultValue: 1
+            })
+        },
+        (_, i) => ({
+            host: parseEnvString({
+                key: `NATS_SERVER_${i + 1}_HOST`,
+                defaultValue: "localhost"
+            }),
+            port: parseEnvInt({
+                key: `NATS_SERVER_${i + 1}_PORT`,
+                defaultValue: 4222
+            }),
+        })),
+        reconnect: parseEnvBoolean({
+            key: "NATS_RECONNECT", defaultValue: true
+        }),
+        maxReconnectAttempts: parseEnvInt({
+            key: "NATS_MAX_RECONNECT_ATTEMPTS", defaultValue: 10
+        }),
+        pingIntervalMs: parseEnvInt({
+            key: "NATS_PING_INTERVAL_MS", defaultValue: 120000
+        }),
+        consumer: {
+            idleTimeout: parseEnvMs({
+                key: "NATS_CONSUMER_IDLE_TIMEOUT", defaultValue: "3m"
+            }),
+        },
+        ping: {
+            interval: parseEnvMs({
+                key: "NATS_PING_INTERVAL", defaultValue: "10s"
+            }),
+        },
+        auth: {
+            enabled: parseEnvBoolean({
+                key: "NATS_AUTH_ENABLED", defaultValue: true
+            }),
+            token: parseEnvString({
+                key: "NATS_AUTH_TOKEN", defaultValue: "starci@2026"
+            }),
+        }
     },
     readPolicy: {
         sources: [

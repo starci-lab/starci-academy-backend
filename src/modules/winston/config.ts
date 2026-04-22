@@ -23,6 +23,14 @@ import type {
     CdnSynchronizerLessonVideoRuntimeSyncFailedMessage,
     CdnSynchronizerModuleRuntimeSyncFailedMessage,
     CdnSynchronizerContentRuntimeSyncFailedMessage,
+    NatsConsumerClosedMessage,
+    NatsConsumerErrorMessage,
+    NatsConsumerOpenedMessage,
+    ErrorDeletingCacheMessage,
+    ErrorGettingCacheMessage,
+    ErrorSettingCacheMessage,
+    CacheDebugOkMemoryMessage,
+    CacheDebugOkRedisMessage,
 } from "./types"
 
 /** Map of Winston log names to level, Loki flag, and message type. */
@@ -197,5 +205,71 @@ export const configMap = {
         console: true,
         messageType: {
         } as CommandLogMessage,
+    },
+    // NATS bridge logs.
+    [WinstonLog.NatsConsumerOpened]: {
+        name: WinstonLog.NatsConsumerOpened,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as NatsConsumerOpenedMessage,
+    },
+    [WinstonLog.NatsConsumerClosed]: {
+        name: WinstonLog.NatsConsumerClosed,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as NatsConsumerClosedMessage,
+    },
+    [WinstonLog.NatsConsumerError]: {
+        name: WinstonLog.NatsConsumerError,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as NatsConsumerErrorMessage,
+    },
+    // Cache service logs.
+    [WinstonLog.ErrorGettingCache]: {
+        name: WinstonLog.ErrorGettingCache,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as ErrorGettingCacheMessage,
+    },
+    [WinstonLog.ErrorSettingCache]: {
+        name: WinstonLog.ErrorSettingCache,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as ErrorSettingCacheMessage,
+    },
+    [WinstonLog.ErrorDeletingCache]: {
+        name: WinstonLog.ErrorDeletingCache,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as ErrorDeletingCacheMessage,
+    },
+    [WinstonLog.CacheDebugOkRedis]: {
+        name: WinstonLog.CacheDebugOkRedis,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as CacheDebugOkRedisMessage,
+    },
+    [WinstonLog.CacheDebugOkMemory]: {
+        name: WinstonLog.CacheDebugOkMemory,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as CacheDebugOkMemoryMessage,
     },
 }

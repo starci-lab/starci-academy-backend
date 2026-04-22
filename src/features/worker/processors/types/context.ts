@@ -11,8 +11,3 @@ export interface JobContext<T> {
     /** The job entity. */
     job: JobEntity
 }
-
-export type JobExtendedContext<T, E> = JobContext<T> & {
-    /** The extended context of the job. */
-    extended?: E
-}

@@ -97,6 +97,19 @@ import {
 import {
     SocketIoModule as SocketIoFeatureModule 
 } from "@features/socketio"
+import {
+    EventModule, 
+    EventName
+} from "@modules/event"
+import {
+    EventEmitterModule 
+} from "@nestjs/event-emitter"
+import {
+    CacheModule 
+} from "@modules/cache"
+import {
+    StreamAsyncIteratorModule 
+} from "@modules/stream-async-iterator"
 /**
  * The main module for the application.
  */
@@ -214,11 +227,17 @@ import {
                     isGlobal: true,
                 }
             ),
+            StreamAsyncIteratorModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
             /** IoRedis module. */
             RedisModule.register(
                 {
                     instanceKeys: [
                         RedisInstanceKey.Adapter,
+                        RedisInstanceKey.Cache,
                     ],
                     isGlobal: true,
                 }
@@ -251,6 +270,24 @@ import {
             LangchainModule.register(
                 {
                     isGlobal: true,
+                }
+            ),
+            /** Cache module. */
+            CacheModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Event module. */
+            EventEmitterModule.forRoot(),
+            EventModule.register(
+                {
+                    isGlobal: true,
+                    nats: {
+                        subjects: [
+                            EventName.JobStatusUpdated,
+                        ],
+                    },
                 }
             ),
             /** Api module. */

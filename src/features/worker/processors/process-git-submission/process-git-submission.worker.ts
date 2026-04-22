@@ -33,7 +33,7 @@ import type {
 } from "./types"
 import {
     JobExtendedContext 
-} from "../types"
+} from "@modules/bullmq"
 import {
     ChallengeEntity,
     ChallengeSubmissionPromptEntity,
@@ -93,6 +93,9 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
                     id: bullmqJob.id ?? "",
                 },
             )
+            await this.jobActionService.processingJob({
+                job,
+            })
             payload = this.superJson.parse<ProcessGitSubmissionPayload>(bullmqJob.data)
             const stepMap = this.stepMappingService.getStepMap()
             const userChallengeSubmission = await this.entityManager.findOne(
@@ -171,7 +174,7 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
                 context.job = syncedJob
                 // process the step
                 await stepMap.get(syncedJob.currentStep)?.process(
-                    context,
+                    context
                 )
             }
             this.winstonService.log(

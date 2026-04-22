@@ -30,7 +30,7 @@ import type {
 } from "../types"
 import {
     JobExtendedContext,
-} from "../../types"
+} from "@modules/bullmq"
 import {
     Document,
 } from "@langchain/core/documents"
@@ -92,6 +92,11 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
 
     stepName = "grade"
 
+    /**
+     * Process the step.
+     * @param context - The context of the step.
+     * @returns A promise that resolves when the step is processed.
+     */
     async process(
         context: JobExtendedContext<
             ProcessGitSubmissionPayload,
@@ -105,6 +110,11 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         )
     }
 
+    /**
+     * Execute the step.
+     * @param context - The context of the step.
+     * @returns A promise that resolves when the step is executed.
+     */
     private async execute(
         context: JobExtendedContext<
             ProcessGitSubmissionPayload,
