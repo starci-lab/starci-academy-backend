@@ -94,6 +94,7 @@ export class EnqueueProcessGoogleDocsSubmissionJobService {
             job = await this.jobActionService.createJob(
                 {
                     id,
+                    userId,
                     actionType: ActionType.ProcessGoogleDocsSubmission,
                     maxSteps: envConfig().job.processGitSubmission.maxSteps,
                     payload: this.superJson.stringify(payloadBody),

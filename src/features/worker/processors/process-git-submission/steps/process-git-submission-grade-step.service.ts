@@ -103,11 +103,22 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             ExtendedProcessGitSubmissionContext
         >,
     ): Promise<void> {
-        const executionResult = await this.execute(context)
-        await this.finalize(
-            executionResult,
-            context,
-        )
+        try {
+            const executionResult = await this.execute(context)
+            await this.finalize(
+                executionResult,
+                context,
+            )
+        } catch (error) {
+            // update the job status to failed
+            await this.jobActionService.failJob(
+                {
+                    job: context.job,
+                    error: error.message,
+                },
+            )
+            throw error
+        }
     }
 
     /**

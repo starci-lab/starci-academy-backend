@@ -62,11 +62,21 @@ export class EventEmitterService {
             this.eventEmitter.emit(eventName,
                 payload)
         }
-
         if (useNats) {
+            console.log(
+                {
+                    eventName,
+                    payload,
+                },
+            )
             const serialized = this.natsMessageFactoryService.create({
                 message: payload,
             })
+            console.log(
+                {
+                    serialized,
+                },
+            )
             this.natsProducerService.publish({
                 subject: eventName,
                 payload: serialized,

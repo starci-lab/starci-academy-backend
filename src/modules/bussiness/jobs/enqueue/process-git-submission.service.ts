@@ -57,6 +57,7 @@ export class EnqueueProcessGitSubmissionJobService {
         {
             userId,
             userChallengeSubmissionId,
+            challengeSubmissionId,
             jobId,
             branch,
             gradingModel,
@@ -102,9 +103,11 @@ export class EnqueueProcessGitSubmissionJobService {
             job = await this.jobActionService.createJob(
                 {
                     id,
+                    userId,
                     actionType: ActionType.ProcessGitSubmission,
                     maxSteps: envConfig().job.processGitSubmission.maxSteps,
                     payload: this.superJson.stringify(payloadBody),
+                    challengeSubmissionId,
                 },
             )
         }

@@ -33,6 +33,9 @@ import {
 import {
     ResourceEntity,
 } from "./resource.entity"
+import {
+    JobEntity,
+} from "./job.entity"
 
 @ObjectType(
     "Submission",
@@ -189,6 +192,19 @@ export class ChallengeSubmissionEntity extends UuidAbstractEntity {
         },
     )
         resources: Array<ResourceEntity>
+
+    @Field(
+        () => [JobEntity],
+        {
+            nullable: true,
+            description: "Worker jobs associated with this submission requirement.",
+        },
+    )
+    @OneToMany(
+        () => JobEntity,
+        (job: JobEntity) => job.challengeSubmission,
+    )
+        jobs: Array<JobEntity>
 
     // graphql only fields, not stored in the database
     @Field(

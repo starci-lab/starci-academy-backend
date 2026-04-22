@@ -12,6 +12,7 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
+    In,
     LessThan,
 } from "typeorm"
 import type {
@@ -62,7 +63,12 @@ export class JobStalledService {
             JobEntity,
             {
                 where: {
-                    status: JobStatus.Processing,
+                    status: In(
+                        [
+                            JobStatus.Processing,
+                            JobStatus.Queued
+                        ]
+                    ),
                     queueAt: LessThan(staleBefore),
                     actionType,
                 },

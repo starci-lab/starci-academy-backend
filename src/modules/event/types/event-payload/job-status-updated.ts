@@ -10,6 +10,8 @@ import {
 export interface JobStatusUpdatedEventPayload {
     /** The job ID. */
     jobId: string
+    /** The challenge submission id. */
+    challengeSubmissionId?: string
     /** The job type. */
     jobType?: string
     /** The job status. */

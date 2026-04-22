@@ -18,6 +18,8 @@ export interface EnqueueEnrollJobParams {
 export interface EnqueueProcessGitSubmissionJobParams {
     /** `users.id`. */
     userId: string
+    /** `challenge_submissions.id`. */
+    challengeSubmissionId: string
     /** `user_challenge_submissions.id`. */
     userChallengeSubmissionId: string
     /** Existing `jobs.id` to requeue (optional). */

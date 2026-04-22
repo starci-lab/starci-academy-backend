@@ -67,20 +67,14 @@ export class SubcribeJobNotificationGateway implements OnModuleInit {
     /**
      * Handle job notification subscription.
      */
-    @SubscribeMessage(PublicationEvent.SubcribeJobNotification)
+    @SubscribeMessage(PublicationEvent.SubscribeJobNotification)
     async handleSubcribeJobNotification(
         @ConnectedSocket() client: TypedSocket,
         @MessageBody() payload: SubcribeJobNotificationSocketIoPayload,
     ) {
-        const result = await this.subcribeJobNotificationService.execute({
+        await this.subcribeJobNotificationService.execute({
             payload,
             client,
-        })
-        this.wsResponseService.success({
-            message: "Job notification subscription registered successfully",
-            data: result,
-            client,
-            eventName: PublicationEvent.SubcribeJobNotification,
         })
     }
 
@@ -91,24 +85,19 @@ export class SubcribeJobNotificationGateway implements OnModuleInit {
         this.eventEmitterService.on({
             event: EventName.JobStatusUpdated,
             listener: (payload: JobStatusUpdatedEventPayload) => {
-                /** Send the job status updated event to the room. */
-                this.server.to(
-                    this.jobRoomService.name(payload.jobId)
-                ).emit(
-                    SubscriptionEvent.JobStatusUpdated, 
-                    this.wsResponseService.successToRoom<JobStatusUpdatedSocketIoMessage>(
-                        {
-                            message: "Job status updated",
-                            data: {
-                                jobId: payload.jobId,
-                                status: payload.status,
-                                error: payload.error,
-                            },
-                            room: this.jobRoomService.name(payload.jobId),
-                            namespace: this.server,
-                            eventName: SubscriptionEvent.JobStatusUpdated,
-                        }
-                    )
+                this.wsResponseService.successToRoom<JobStatusUpdatedSocketIoMessage>(
+                    {
+                        message: "Job status updated",
+                        data: {
+                            jobId: payload.jobId,
+                            challengeSubmissionId: payload.challengeSubmissionId,
+                            status: payload.status,
+                            error: payload.error,
+                        },
+                        room: this.jobRoomService.name(payload.jobId),
+                        namespace: this.server,
+                        eventName: SubscriptionEvent.JobStatusUpdated,
+                    },
                 )
             },
         })

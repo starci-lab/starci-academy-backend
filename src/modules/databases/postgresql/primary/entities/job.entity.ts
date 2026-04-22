@@ -1,11 +1,15 @@
 import {
     Field,
+    ID,
     Int,
     ObjectType,
 } from "@nestjs/graphql"
 import {
     Column,
     Entity,
+    JoinColumn,
+    ManyToOne,
+    RelationId,
 } from "typeorm"
 import {
     UuidAbstractEntity,
@@ -16,6 +20,12 @@ import {
     ActionType,
     GraphQLTypeActionType,
 } from "../enums"
+import {
+    UserEntity,
+} from "./user.entity"
+import {
+    ChallengeSubmissionEntity,
+} from "./challenge-submission.entity"
 
 /**
  * Tracks lifecycle status of worker jobs.
@@ -25,6 +35,70 @@ import {
 })
 @Entity("jobs")
 export class JobEntity extends UuidAbstractEntity {
+    @Field(
+        () => UserEntity,
+        {
+            description: "User this job is associated with (when applicable).",
+        },
+    )
+    @ManyToOne(
+        () => UserEntity,
+        {
+            onDelete: "SET NULL",
+        },
+    )
+    @JoinColumn({
+        name: "user_id",
+        foreignKeyConstraintName: "fk_jobs_user_id_users",
+    })
+        user: UserEntity
+
+    @Field(
+        () => ID,
+        {
+            description: "Foreign key to `users.id` when this job is scoped to a user.",
+        },
+    )
+    @RelationId(
+        (job: JobEntity) => job.user,
+    )
+        userId: string
+
+    @Field(
+        () => ChallengeSubmissionEntity,
+        {
+            nullable: true,
+            description: "Challenge submission requirement this job targets (when applicable).",
+        },
+    )
+    @ManyToOne(
+        () => ChallengeSubmissionEntity,
+        (submission: ChallengeSubmissionEntity) => submission.jobs,
+        {
+            nullable: true,
+            onDelete: "SET NULL",
+        },
+    )
+    @JoinColumn({
+        name: "challenge_submission_id",
+        foreignKeyConstraintName:
+            "fk_jobs_challenge_submission_id_challenge_submissions",
+    })
+        challengeSubmission: ChallengeSubmissionEntity | null
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description:
+                "Foreign key to `challenge_submissions.id` when this job targets a submission requirement.",
+        },
+    )
+    @RelationId(
+        (job: JobEntity) => job.challengeSubmission,
+    )
+        challengeSubmissionId: string | null
+
     @Field(
         () => Date,
         {

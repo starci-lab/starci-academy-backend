@@ -28,6 +28,9 @@ import {
 import {
     CvSubmissionsQueriesModule,
 } from "./cv-submissions/cv-submissions.module"
+import {
+    JobsModule,
+} from "./jobs"
 
 @Module({
     imports: [
@@ -54,6 +57,9 @@ import {
         }),
         CvSubmissionsQueriesModule.register({
             isGlobal: true
+        }),
+        JobsModule.register({
+            isGlobal: true,
         }),
     ],
 })

@@ -171,12 +171,19 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
                         id: job.id,
                     },
                 )
-                context.job = syncedJob
+                // update the job record
+                job = syncedJob
+                // update the context
+                context.job = job
                 // process the step
                 await stepMap.get(syncedJob.currentStep)?.process(
                     context
                 )
             }
+            // complete the job
+            await this.jobActionService.completeJob({
+                job,
+            })
             this.winstonService.log(
                 WinstonLog.JobExecutedSuccessfully,
                 {

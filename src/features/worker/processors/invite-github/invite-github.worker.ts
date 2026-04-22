@@ -88,12 +88,10 @@ export class InviteGithubWorker extends WorkerHost {
                 username: payload.githubUsername,
                 role: "member",
             })
-
             // Mark job as completed
             await this.jobActionService.completeJob({
                 job,
             })
-
             this.logger.log(
                 `Successfully invited ${payload.githubUsername} to ${org}/${teamSlug}`
             )

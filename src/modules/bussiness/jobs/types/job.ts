@@ -1,6 +1,6 @@
 import {
-    JobEntity,
     ActionType,
+    JobEntity,
 } from "@modules/databases"
 import type {
     EntityManager,
@@ -25,8 +25,15 @@ export interface CreateJobParams extends Omit<JobTargetParams, "job"> {
     payload: string
     /** The maximum number of steps for the job. */
     maxSteps: number
+    /**
+     * Optional user this job is associated with (persists `jobs.user_id`).
+     * Omit for system jobs (e.g. outbound email with no end-user id).
+     */
+    userId?: string | null
     /** The entity manager to use. */
     entityManager?: EntityManager
+    /** The challenge submission id to target. */
+    challengeSubmissionId?: string | null
 }
 
 /** Params for getting a job. */

@@ -97,7 +97,9 @@ export class JobActionService {
         actionType,
         payload,
         maxSteps = 0,
+        userId,
         entityManager,
+        challengeSubmissionId,
     }: CreateJobParams): Promise<JobEntity> {
         const manager = entityManager ?? this.primaryEntityManager
         const job = manager.create(
@@ -110,6 +112,17 @@ export class JobActionService {
                 currentStep: 0,
                 maxSteps,
                 queueAt: this.dayjsService.now().toDate(),
+                user: {
+                    id: userId ?? undefined,
+                },
+                ...(
+                    challengeSubmissionId ? {
+                        challengeSubmission: {
+                            id: challengeSubmissionId,
+                        },
+                    } : {
+                    }
+                ),
             },
         )
         return manager.save(
@@ -117,8 +130,6 @@ export class JobActionService {
             job,
         )
     }
-
-
 
     /**
      * Increase the job step.
@@ -134,11 +145,6 @@ export class JobActionService {
     }: IncreaseJobParams): Promise<void> {
         const manager = entityManager ?? this.primaryEntityManager
         job.currentStep += step
-        if (job.maxSteps > 0 && job.currentStep >= job.maxSteps) {
-            job.currentStep = job.maxSteps
-            job.status = JobStatus.Completed
-            job.error = null
-        }
         await manager.save(
             JobEntity,
             job,
@@ -169,6 +175,7 @@ export class JobActionService {
             event: EventName.JobStatusUpdated,
             payload: {
                 jobId: job.id,
+                challengeSubmissionId: job.challengeSubmissionId ?? undefined,
                 status: job.status,
             },
         })
@@ -197,6 +204,7 @@ export class JobActionService {
             event: EventName.JobStatusUpdated,
             payload: {
                 jobId: job.id,
+                challengeSubmissionId: job.challengeSubmissionId ?? undefined,
                 status: job.status,
                 error: job.error ?? undefined,
             },
@@ -223,6 +231,7 @@ export class JobActionService {
             event: EventName.JobStatusUpdated,
             payload: {
                 jobId: job.id,
+                challengeSubmissionId: job.challengeSubmissionId ?? undefined,
                 status: job.status,
             },
         })

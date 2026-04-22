@@ -76,6 +76,7 @@ export class EnqueueEnrollJobService {
             // create a new job record
             job = await this.jobActionService.createJob({
                 id: uuidv4(),
+                userId,
                 actionType: ActionType.Enroll,
                 maxSteps: envConfig().job.enroll.maxSteps,
                 payload: this.superJson.stringify(

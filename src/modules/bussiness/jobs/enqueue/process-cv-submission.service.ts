@@ -100,6 +100,7 @@ export class EnqueueProcessCvSubmissionJobService {
             job = await this.jobActionService.createJob(
                 {
                     id,
+                    userId,
                     actionType: ActionType.ProcessCvSubmission,
                     maxSteps: envConfig().job.processCvSubmission.maxSteps,
                     payload: this.superJson.stringify(payloadBody),

@@ -170,6 +170,7 @@ export class SubmitChallengeSubmissionHandler
             job = await this.enqueueProcessGitSubmissionJobService.enqueue({
                 userId: user.id,
                 userChallengeSubmissionId: userChallengeSubmission.id,
+                challengeSubmissionId: challengeSubmission.id,
             })
             break
         case SubmissionType.GoogleDocsUrl:

@@ -20,7 +20,7 @@ import {
 } from "./constants"
 import {
     envConfig
-} from "@modules/env/config"
+} from "@modules/env"
 import {
     createIoRedisKey,
     IoRedisInstanceKey,

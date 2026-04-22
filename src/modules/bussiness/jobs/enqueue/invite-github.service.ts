@@ -115,6 +115,7 @@ export class EnqueueInviteGithubJobService {
         // Create a new job record
         const job = await this.jobActionService.createJob({
             id: uuidv4(),
+            userId,
             actionType: ActionType.InviteGithub,
             maxSteps: 1,
             payload: this.superJson.stringify({

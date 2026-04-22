@@ -1,5 +1,5 @@
 /** Socket.IO subscription event names. */
 export enum SubscriptionEvent {
     GlobalSearch = "autocomplete.global_search.subscription",
-    JobStatusUpdated = "jobs.status_updated.subscription",
+    JobStatusUpdated = "job_notifications.job_status_updated.subscription",
 }
