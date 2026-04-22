@@ -76,60 +76,27 @@ export class SeedersService implements OnModuleInit {
                             moduleIndex,
                         },
                     )
+                    const contents = (() => {
+                        const contentMounts = this.contentDirService.indexes(
+                            {
+                                courseIndex,
+                                moduleIndex,
+                            }
+                        )
+                        return contentMounts.map(
+                            (contentIndex) => this.contentParserService.parse(
+                                {
+                                    courseIndex,
+                                    moduleIndex,
+                                    contentIndex,
+                                },
+                            )
+                        )
+                    })()
                     return {
                         ...module,
-                        challenges: (() => {
-                            const challengeMounts = this.challengeDirService.indexes(
-                                {
-                                    courseIndex,
-                                    moduleIndex,
-                                }
-                            )
-                            const challenges = challengeMounts.map(
-                                (challengeIndex) => this.challengeParserService.parse(
-                                    {
-                                        courseIndex,
-                                        moduleIndex,
-                                        challengeIndex,
-                                    },
-                                )
-                            )
-                            return challenges
-                        })(),
-                        lessonVideos: (() => {
-                            const lessonVideoMounts = this.lessonVideoDirService.indexes(
-                                {
-                                    courseIndex,
-                                    moduleIndex,
-                                }
-                            )
-                            return lessonVideoMounts.map(
-                                (lessonVideoIndex) => this.lessonVideoParserService.parse(
-                                    {
-                                        courseIndex,
-                                        moduleIndex,
-                                        lessonVideoIndex,
-                                    },
-                                )
-                            )
-                        })(),
-                        contents: (() => {
-                            const contentMounts = this.contentDirService.indexes(
-                                {
-                                    courseIndex,
-                                    moduleIndex,
-                                }
-                            )
-                            return contentMounts.map(
-                                (contentIndex) => this.contentParserService.parse(
-                                    {
-                                        courseIndex,
-                                        moduleIndex,
-                                        contentIndex,
-                                    },
-                                )
-                            )
-                        })(),
+                        contents,
+                        numContents: contents.length,
                     }
                 }
             )

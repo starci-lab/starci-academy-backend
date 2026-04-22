@@ -26,13 +26,13 @@ const GraphQLTypeChallengesSortBy = createEnumType(ChallengesSortBy)
 registerEnumType(GraphQLTypeChallengesSortBy,
     {
         name: "ChallengesSortBy",
-        description: "Sort field for listing module challenges.",
+        description: "Sort field for listing challenges within a content item.",
         valuesMap: {
             [ChallengesSortBy.Title]: {
                 description: "Sort by title",
             },
             [ChallengesSortBy.OrderIndex]: {
-                description: "Sort by display order within the module",
+                description: "Sort by display order within the content",
             },
             [ChallengesSortBy.CreatedAt]: {
                 description: "Sort by created at",
@@ -45,7 +45,7 @@ registerEnumType(GraphQLTypeChallengesSortBy,
 )
 
 @InputType({
-    description: "Sort field and order for listing module challenges.",
+    description: "Sort field and order for listing challenges within a content item.",
 })
 export class ChallengesRequestSort extends SortInput<ChallengesSortBy> {
     @Field(
@@ -58,7 +58,7 @@ export class ChallengesRequestSort extends SortInput<ChallengesSortBy> {
 }
 
 @InputType({
-    description: "Pagination, sort, and module scope for listing challenges.",
+    description: "Pagination, sort, and content scope for listing challenges.",
 })
 export class ChallengesRequestPaginationFilters extends PaginationPageFilters<ChallengesSortBy> {
     @Field(
@@ -77,16 +77,16 @@ export class ChallengesRequestPaginationFilters extends PaginationPageFilters<Ch
 }
 
 @InputType({
-    description: "Request for listing challenges in a module with pagination.",
+    description: "Request for listing challenges in a content item with pagination.",
 })
 export class ChallengesRequest {
     @Field(
         () => ID,
         {
-            description: "Module id; only challenges in this module are returned.",
+            description: "Content id; only challenges associated with this content is returned.",
         },
     )
-        moduleId: string
+        contentId: string
 
     @Field(
         () => ChallengesRequestPaginationFilters,

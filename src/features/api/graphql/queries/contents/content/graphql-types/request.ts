@@ -12,7 +12,17 @@ export class ContentRequest {
         () => ID,
         {
             description: "Content id to fetch.",
+            nullable: true,
         },
     )
-        id: string
+    id?: string
+
+    @Field(
+        () => String,
+        {
+            description: "Content display id to fetch.",
+            nullable: true,
+        },
+    )
+    displayId?: string
 }

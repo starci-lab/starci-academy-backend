@@ -27,7 +27,15 @@ import {
 } from "../../../entities"
 import {
     ContentDirService,
+    ChallengeDirService,
+    LessonVideoDirService,
 } from "../dir"
+import {
+    ChallengeParserService,
+} from "./challenge.service"
+import {
+    LessonVideoParserService,
+} from "./lesson-video.service"
 
 /**
  * Parses content from mounted course files (`en.md`, `vi.md`).
@@ -41,7 +49,11 @@ export class ContentParserService {
         private readonly contentIdFactoryService: ContentIdFactoryService,
         private readonly contentReferenceIdFactoryService: ContentReferenceIdFactoryService,
         private readonly contentDirService: ContentDirService,
-    ) {}
+        private readonly challengeDirService: ChallengeDirService,
+        private readonly challengeParserService: ChallengeParserService,
+        private readonly lessonVideoDirService: LessonVideoDirService,
+        private readonly lessonVideoParserService: LessonVideoParserService,
+    ) { }
 
     /**
      * Builds a partial content entity from mounted course files.
@@ -80,7 +92,7 @@ export class ContentParserService {
             },
         )
 
-        return {
+        const content: DeepPartial<ContentEntity> = {
             id: contentId,
             defaultLocale: Locale.En,
             displayId,
@@ -169,6 +181,50 @@ export class ContentParserService {
                     translations
                 }
             }),
+            challenges: (() => {
+                const challengeMounts = this.challengeDirService.indexes(
+                    {
+                        courseIndex,
+                        moduleIndex,
+                        contentIndex,
+                    }
+                )
+                return challengeMounts.map(
+                    (challengeIndex) => this.challengeParserService.parse(
+                        {
+                            courseIndex,
+                            moduleIndex,
+                            contentIndex,
+                            challengeIndex,
+                        },
+                    )
+                )
+            })(),
+            lessons: (() => {
+                const lessonVideoMounts = this.lessonVideoDirService.indexes(
+                    {
+                        courseIndex,
+                        moduleIndex,
+                        contentIndex,
+                    }
+                )
+                return lessonVideoMounts.map(
+                    (lessonVideoIndex) => this.lessonVideoParserService.parse(
+                        {
+                            courseIndex,
+                            moduleIndex,
+                            contentIndex,
+                            lessonVideoIndex,
+                        },
+                    )
+                )
+            })(),
+        }
+
+        return {
+            ...content,
+            numChallenges: content.challenges?.length ?? 0,
+            numLessons: content.lessons?.length ?? 0,
         }
     }
 }

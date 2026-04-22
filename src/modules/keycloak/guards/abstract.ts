@@ -42,21 +42,6 @@ export abstract class AbstractKeycloakAuthGuard implements CanActivate {
     ): Promise<boolean> {
         const request = this.getRequest(context)
 
-        // --- TEMPORARY AUTH BYPASS START ---
-        // Automatically inject a mock user so you don't need Authorization headers
-        let mockUser = await this.entityManager.findOne(UserEntity, { where: {} });
-        if (!mockUser) {
-            mockUser = this.entityManager.create(UserEntity, {
-                keycloakId: "temporary-mock-id",
-                username: "mock-user",
-                email: "mock@example.com",
-            });
-            await this.entityManager.save(mockUser);
-        }
-        request.user = mockUser;
-        return true;
-        // --- TEMPORARY AUTH BYPASS END ---
-
         const authHeader = request.headers["authorization"]
         if (!authHeader || typeof authHeader !== "string") {
             throw new UnauthorizedException("Missing Authorization header")

@@ -41,4 +41,8 @@ export * from "./enrollment.entity"
 export * from "./job.entity"
 export * from "./cv-prompt.entity"
 export * from "./cv-submission.entity"
+export * from "./cv-submission-attempt.entity"
+export * from "./cv-submission-feedback.entity"
+export * from "./user-content.entity"
+
 export * from "./sync-state.entity"

@@ -12,6 +12,8 @@ export interface ProcessCVSubmissionPayload {
     userId: string
     /** `cv_submissions.id`. */
     cvSubmissionId: string
+    /** `cv_submission_attempts.id`. */
+    cvSubmissionAttemptId: string
     /** Provider of the analyze model. */
     analyzeProvider?: ModelProvider
     /** Model to use for analyze. */

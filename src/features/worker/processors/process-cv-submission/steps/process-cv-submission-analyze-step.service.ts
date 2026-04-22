@@ -9,10 +9,12 @@ import {
     JobActionService,
 } from "@modules/bussiness"
 import {
+    CVSubmissionFeedbackEntity,
+    CVSpellError,
+    CVSubmissionEntity,
     CvSubmissionStatus,
     InjectPrimaryPostgreSQLEntityManager,
     ModelProvider,
-    SpellError,
 } from "@modules/databases"
 import {
     ModelService,
@@ -46,7 +48,7 @@ interface CVAnalysisResponse {
     strength: string[]
     weakness: string[]
     suggested_jobs: string[]
-    spell_errors: SpellError[]
+    spell_errors: CVSpellError[]
     score: number
 }
 
@@ -94,11 +96,11 @@ export class ProcessCvSubmissionAnalyzeStepService extends AbstractStepService<
         >,
     ): Promise<ProcessCvSubmissionAnalyzeStepExecuteResult> {
         const {
-            cvSubmission,
+            cvSubmissionAttempt,
             cvPrompt,
         } = context.extended!
 
-        let text = cvSubmission.originalText || ""
+        let text = cvSubmissionAttempt.originalText || ""
         if (text.length > MAX_CV_CHARS) {
             text = text.slice(0,
                 MAX_CV_CHARS) + "..."
@@ -124,8 +126,8 @@ export class ProcessCvSubmissionAnalyzeStepService extends AbstractStepService<
                 text) || text
 
         const model = this.modelService.get({
-            model: context.payload.analyzeModel || "gpt-4o-mini",
-            provider: context.payload.analyzeProvider || ModelProvider.OpenAI,
+            model: context.payload.analyzeModel || "gemini-2.5-flash",
+            provider: context.payload.analyzeProvider || ModelProvider.Gemini,
         })
 
         const response = await model.invoke([
@@ -140,15 +142,20 @@ export class ProcessCvSubmissionAnalyzeStepService extends AbstractStepService<
         const result = this.parseJsonResult(raw)
 
         return {
-            cvSubmission: {
+            cvSubmissionAttempt: {
+                status: CvSubmissionStatus.Done,
+                processedAt: new Date(),
+            },
+            cvSubmissionFeedback: {
                 summary: result.summary,
                 strength: result.strength,
                 weakness: result.weakness,
                 suggestedJobs: result.suggested_jobs,
                 spellErrors: result.spell_errors,
                 score: result.score,
-                status: CvSubmissionStatus.Done,
+                orderIndex: 0,
             },
+            feedback: result.summary,
         }
     }
 
@@ -166,11 +173,32 @@ export class ProcessCvSubmissionAnalyzeStepService extends AbstractStepService<
         } = context
 
         await this.entityManager.transaction(async (entityManager) => {
-            // Update CVSubmissionEntity with results and status=Done
+            // Update the processed attempt status.
             await entityManager.update(
-                context.extended!.cvSubmission.constructor,
+                context.extended!.cvSubmissionAttempt.constructor,
+                context.extended!.cvSubmissionAttempt.id,
+                executionResult.cvSubmissionAttempt,
+            )
+
+            // Insert structured feedback for this attempt.
+            await entityManager.save(
+                entityManager.create(
+                    CVSubmissionFeedbackEntity,
+                    {
+                        ...executionResult.cvSubmissionFeedback,
+                        attempt: context.extended!.cvSubmissionAttempt,
+                    },
+                ),
+            )
+
+            // Mirror the latest summary to root submission for quick UI display.
+            await entityManager.update(
+                CVSubmissionEntity,
                 context.extended!.cvSubmission.id,
-                executionResult.cvSubmission,
+                {
+                    status: CvSubmissionStatus.Done,
+                    feedback: executionResult.feedback,
+                },
             )
 
             // Advance the job (it will reach maxSteps and finish)

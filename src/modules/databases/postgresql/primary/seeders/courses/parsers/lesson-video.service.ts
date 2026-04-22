@@ -18,7 +18,7 @@ import {
 } from "../extracts"
 import {
     LessonVideoIdFactoryService,
-    ModuleIdFactoryService,
+    ContentIdFactoryService,
 } from "../id-factories"
 import {
     DeepPartial,
@@ -41,7 +41,7 @@ export class LessonVideoParserService {
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,
         private readonly coerceMdScalarService: CoerceMdScalarService,
         private readonly lessonVideoIdFactoryService: LessonVideoIdFactoryService,
-        private readonly moduleIdFactoryService: ModuleIdFactoryService,
+        private readonly contentIdFactoryService: ContentIdFactoryService,
     ) {}
 
     /**
@@ -51,6 +51,7 @@ export class LessonVideoParserService {
         {
             courseIndex,
             moduleIndex,
+            contentIndex,
             lessonVideoIndex,
         }: ParseLessonVideoParams,
     ): DeepPartial<LessonVideoEntity> {
@@ -61,6 +62,7 @@ export class LessonVideoParserService {
             {
                 courseIndex,
                 moduleIndex,
+                contentIndex,
                 lessonVideoIndex,
             },
         )
@@ -77,6 +79,7 @@ export class LessonVideoParserService {
             {
                 courseIndex,
                 moduleIndex,
+                contentIndex,
                 lessonVideoIndex,
             },
         )
@@ -95,11 +98,12 @@ export class LessonVideoParserService {
                 jsonMap.get(Locale.En)?.kind,
                 LessonVideoKind,
             ),
-            module: {
-                id: this.moduleIdFactoryService.generate(
+            content: {
+                id: this.contentIdFactoryService.generate(
                     {
                         courseIndex,
                         moduleIndex,
+                        contentIndex,
                     },
                 ),
             },

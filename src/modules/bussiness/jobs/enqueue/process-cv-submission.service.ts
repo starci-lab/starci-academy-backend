@@ -57,6 +57,7 @@ export class EnqueueProcessCvSubmissionJobService {
         {
             userId,
             cvSubmissionId,
+            cvSubmissionAttemptId,
             jobId,
             analyzeModel,
             analyzeProvider,
@@ -64,6 +65,7 @@ export class EnqueueProcessCvSubmissionJobService {
             embeddingProvider,
         }: EnqueueProcessCvSubmissionJobParams,
     ): Promise<JobEntity> {
+
         let job: JobEntity | null = null
         if (jobId) {
             job = await this.jobStalledService.requeueJob(
@@ -77,6 +79,7 @@ export class EnqueueProcessCvSubmissionJobService {
                 jobId: id,
                 userId,
                 cvSubmissionId,
+                cvSubmissionAttemptId,
                 ...(analyzeModel !== undefined ? {
                     analyzeModel 
                 } : {

@@ -57,6 +57,8 @@ import {
     SubmissionFeedbackEntity,
     CVSubmissionEntity,
     CVPromptEntity,
+    CVSubmissionAttemptEntity,
+    CVSubmissionFeedbackEntity,
     SyncStateEntity,
 } from "./entities"
 import {
@@ -168,6 +170,8 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     SubmissionFeedbackEntity,
                                     CVPromptEntity,
                                     CVSubmissionEntity,
+                                    CVSubmissionAttemptEntity,
+                                    CVSubmissionFeedbackEntity,
                                     SyncStateEntity,
                                 ],
                                 synchronize,
@@ -241,6 +245,10 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         UserChallengeSubmissionEntity,
                         SubmissionAttemptEntity,
                         SubmissionFeedbackEntity,
+                        CVPromptEntity,
+                        CVSubmissionEntity,
+                        CVSubmissionAttemptEntity,
+                        CVSubmissionFeedbackEntity,
                         SyncStateEntity,
                     ], 
                     POSTGRESQL_PRIMARY

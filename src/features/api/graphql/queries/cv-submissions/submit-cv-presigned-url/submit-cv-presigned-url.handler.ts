@@ -3,13 +3,11 @@ import {
 } from "@modules/cqrs"
 import {
     CVPromptEntity,
+    CVSubmissionAttemptEntity,
     CVSubmissionEntity,
     CvSubmissionStatus,
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
-import {
-    DayjsService,
-} from "@modules/mixin"
 import {
     S3BuildService,
     S3Provider,
@@ -23,7 +21,6 @@ import {
 } from "@nestjs/cqrs"
 import {
     EntityManager,
-    MoreThanOrEqual,
 } from "typeorm"
 import {
     v4 as uuidv4,
@@ -43,7 +40,6 @@ export class SubmitCvPresignedUrlHandler
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
-        private readonly dayjsService: DayjsService,
         private readonly s3BuildService: S3BuildService,
     ) {
         super()
@@ -56,23 +52,6 @@ export class SubmitCvPresignedUrlHandler
             user,
             request,
         } = query.params
-
-        const todayStart = this.dayjsService.now().startOf("day").toDate()
-        const submissionCount = await this.entityManager.count(
-            CVSubmissionEntity,
-            {
-                where: {
-                    user: {
-                        id: user.id,
-                    },
-                    createdAt: MoreThanOrEqual(todayStart),
-                },
-            },
-        )
-
-        if (submissionCount >= 1) {
-            throw new Error("You have already submitted a CV today. Please try again tomorrow.")
-        }
 
         const allowedExtensions = [
             "pdf",
@@ -97,20 +76,69 @@ export class SubmitCvPresignedUrlHandler
             throw new Error("No active CV analysis prompt found in the system.")
         }
 
-        const submissionId = uuidv4()
-        const fileKey = `cv-submissions/${user.id}/${submissionId}.${extension}`
-
-        const submission = this.entityManager.create(
+        const [lastSubmission] = await this.entityManager.find(
             CVSubmissionEntity,
             {
-                id: submissionId,
-                user,
-                cvPrompt: prompt,
+                where: {
+                    user: {
+                        id: user.id,
+                    },
+                },
+                order: {
+                    createdAt: "DESC",
+                },
+                take: 1,
+            },
+        )
+
+        const submission = lastSubmission ?? await this.entityManager.save(
+            this.entityManager.create(
+                CVSubmissionEntity,
+                {
+                    user,
+                    cvPrompt: prompt,
+                    status: CvSubmissionStatus.Pending,
+                    feedback: null,
+                },
+            ),
+        )
+
+        if (submission.status !== CvSubmissionStatus.Pending) {
+            await this.entityManager.update(
+                CVSubmissionEntity,
+                submission.id,
+                {
+                    status: CvSubmissionStatus.Pending,
+                },
+            )
+        }
+
+        const attemptCount = await this.entityManager.count(
+            CVSubmissionAttemptEntity,
+            {
+                where: {
+                    cvSubmission: {
+                        id: submission.id,
+                    },
+                },
+            },
+        )
+
+        const attemptId = uuidv4()
+        const attemptNumber = attemptCount + 1
+        const fileKey = `cv-submissions/${user.id}/${submission.id}/${request.fileName}-v${attemptNumber}.${extension}`
+
+        const attempt = this.entityManager.create(
+            CVSubmissionAttemptEntity,
+            {
+                id: attemptId,
+                cvSubmission: submission,
                 fileUrl: fileKey,
+                attemptNumber,
                 status: CvSubmissionStatus.Pending,
             },
         )
-        await this.entityManager.save(submission)
+        await this.entityManager.save(attempt)
 
         const url = await this.s3BuildService.buildSignedPutObjectUrl({
             key: fileKey,
@@ -123,6 +151,7 @@ export class SubmitCvPresignedUrlHandler
         return {
             url,
             cvSubmissionId: submission.id,
+            cvSubmissionAttemptId: attempt.id,
         }
     }
 }

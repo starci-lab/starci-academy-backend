@@ -13,6 +13,9 @@ import {
 import {
     SubmitCvSinglePresignedUrlModule 
 } from "./submit-cv-presigned-url/submit-cv-presigned-url.module"
+import {
+    CvReviewHistoryQueryModule,
+} from "./cv-review-history"
 
 /**
  * Module for CV submission related queries.
@@ -25,6 +28,9 @@ import {
             isGlobal: true
         })
         ,
+        CvReviewHistoryQueryModule.register({
+            isGlobal: true,
+        }),
     ],
 
 })

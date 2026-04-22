@@ -57,14 +57,14 @@ export class LessonVideosResolver {
         () => LessonVideosResponse,
         {
             name: "lessonVideos",
-            description: "Lists lesson videos for a module with page-based pagination.",
+            description: "Lists lesson videos for a content item with page-based pagination.",
         },
     )
     async execute(
         @Args(
             "request",
             {
-                description: "Module id, pagination, and sort request.",
+                description: "Content id, pagination, and sort request.",
             },
         )
             request: LessonVideosRequest,

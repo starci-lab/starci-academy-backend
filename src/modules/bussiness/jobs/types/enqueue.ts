@@ -42,6 +42,8 @@ export interface EnqueueProcessCvSubmissionJobParams {
     userId: string
     /** `cv_submissions.id`. */
     cvSubmissionId: string
+    /** `cv_submission_attempts.id`. */
+    cvSubmissionAttemptId: string
     /** Existing `jobs.id` to requeue (optional). */
     jobId?: string
     /** Analyze model id override. */

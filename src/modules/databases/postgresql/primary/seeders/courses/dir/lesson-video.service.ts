@@ -11,16 +11,16 @@ import {
 } from "@nestjs/common"
 import fs from "fs"
 import {
-    ModuleDirService,
-} from "./module.service"
+    ContentDirService,
+} from "./content.service"
 
 /**
- * Resolves indexed content folders under a module’s `contents/` directory (`{index}-{slug}` or legacy `{index}`).
+ * Resolves indexed content folders under a content’s `lesson-videos/` directory (`{index}-{slug}` or legacy `{index}`).
  */
 @Injectable()
 export class LessonVideoDirService {
     constructor(
-        private readonly moduleDirService: ModuleDirService,
+        private readonly contentDirService: ContentDirService,
     ) {}
 
     /**
@@ -33,12 +33,14 @@ export class LessonVideoDirService {
     private root(
         courseIndex: number,
         moduleIndex: number,
+        contentIndex: number,
     ): string {
         return `${
-            this.moduleDirService.path(
+            this.contentDirService.path(
                 {
                     courseIndex,
                     moduleIndex,
+                    contentIndex,
                 },
             ).path}/lesson-videos`
     }
@@ -50,12 +52,14 @@ export class LessonVideoDirService {
         {
             courseIndex,
             moduleIndex,
+            contentIndex,
             lessonVideoIndex,
         }: LessonVideoDirPathParams,
     ): LessonVideoDirPathResult {
         const root = this.root(
             courseIndex,
             moduleIndex,
+            contentIndex,
         )
         // list valid `{n}-{slug}` children (validates uniqueness of indices)
         const dirNames = fs.readdirSync(root)
@@ -84,13 +88,18 @@ export class LessonVideoDirService {
         {
             courseIndex,
             moduleIndex,
+            contentIndex,
         }: LessonVideoDirIndexesParams,
     ): Array<number> {
-        return fs.readdirSync(
-            this.root(
-                courseIndex,
-                moduleIndex,
-            )).map(
+        const root = this.root(
+            courseIndex,
+            moduleIndex,
+            contentIndex,
+        )
+        if (!fs.existsSync(root)) {
+            return []
+        }
+        return fs.readdirSync(root).map(
             (dirName) => {
                 const [index] = dirName.split("-")
                 return parseInt(index)

@@ -100,6 +100,9 @@ import {
     CqrsModule
 } from "@nestjs/cqrs"
 import {
+    SocketIoModule as SocketIoFeatureModule 
+} from "@features/socketio"
+import {
     MailModule
 } from "@modules/mailer"
 /**
@@ -163,6 +166,10 @@ import {
             /** Jwt module. */
             JwtModule.register({
                 global: true,
+            }),
+            /** Socket.IO module. */
+            SocketIoModule.register({
+                isGlobal: true,
             }),
             /** Mount filesystem module. */
             FilesystemModule.register(

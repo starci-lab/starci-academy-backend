@@ -41,7 +41,7 @@ export class LessonVideosHandler
     ): Promise<LessonVideosResponseData> {
         const {
             request: {
-                moduleId,
+                contentId,
                 filters: {
                     limit = envConfig().services.api.pagination.page.limit,
                     pageNumber = 0,
@@ -62,7 +62,7 @@ export class LessonVideosHandler
             filters: [
                 {
                     term: {
-                        "moduleId.keyword": moduleId,
+                        "contentId.keyword": contentId,
                     },
                 },
                 {

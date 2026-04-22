@@ -18,11 +18,12 @@ import {
  * Input for {@link ChallengeSubmissionIdFactoryService.generate}.
  */
 export interface GenerateChallengeSubmissionIdParams {
-    /** Locates the parent challenge. */
+    /** Locates the parent challenge (same as {@link GenerateChallengeIdParams}). */
     courseIndex: number
     moduleIndex: number
+    contentIndex: number
     challengeIndex: number
-    /** Zero-based submission type block in the challenge markdown. */
+    /** Zero-based submission definition from the challenge markdown (`## Submissions` indexed list). */
     submissionIndex: number
 }
 
@@ -44,6 +45,7 @@ export class ChallengeSubmissionIdFactoryService {
         {
             courseIndex,
             moduleIndex,
+            contentIndex,
             challengeIndex,
             submissionIndex,
         }: GenerateChallengeSubmissionIdParams,
@@ -55,6 +57,7 @@ export class ChallengeSubmissionIdFactoryService {
                     {
                         courseIndex,
                         moduleIndex,
+                        contentIndex,
                         challengeIndex,
                     },
                 ),

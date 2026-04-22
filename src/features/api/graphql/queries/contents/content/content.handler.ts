@@ -2,9 +2,13 @@ import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
+    ChallengeEntity,
     ContentEntity,
+    InjectPrimaryPostgreSQLEntityManager,
+    LessonVideoEntity,
 } from "@modules/databases"
 import {
+    ContentContextNotFound,
     ContentNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -27,6 +31,7 @@ import SuperJSON from "superjson"
 import {
     ContentQuery,
 } from "./content.query"
+import { EntityManager } from "typeorm"
 
 @QueryHandler(ContentQuery)
 @Injectable()
@@ -38,18 +43,49 @@ export class ContentHandler
         private readonly s3NameResolverService: S3NameResolverService,
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) {
         super()
     }
 
-    protected override async process(query: ContentQuery): Promise<ContentEntity> {
+    protected override async process(
+        query: ContentQuery
+    ): Promise<ContentEntity> {
         const {
             request,
             locale,
         } = query.params
+        if (!request.id && !request.displayId) {
+            throw new ContentContextNotFound(
+                {
+                    displayId: request.displayId,
+                    id: request.id,
+                }
+            )
+        }
 
+        let id = request.id
+        if (!id) {
+            const content = await this.entityManager.findOne(
+                ContentEntity,
+                {
+                    where: {
+                        displayId: request.displayId,
+                    },
+                    select: {
+                        id: true,
+                    },
+                })
+            if (!content) {
+                throw new ContentNotFoundException({
+                    id: request.id,
+                })
+            }
+            id = content.id
+        }
         const objectKey = this.s3NameResolverService.content(
-            request.id,
+            id,
             locale
         )
         const cdnPayload = await this.s3ReadService.json<UploadPayload>({
@@ -63,6 +99,8 @@ export class ContentHandler
             })
         }
 
-        return this.superJson.parse<ContentEntity>(cdnPayload.data)
+        const content = this.superJson.parse<ContentEntity>(cdnPayload.data)
+
+        return content
     }
 }

@@ -24,6 +24,9 @@ import {
     ModuleEntity,
 } from "./module.entity"
 import {
+    ContentEntity,
+} from "./content.entity"
+import {
     UuidAbstractEntity,
 } from "./abstract"
 import {
@@ -223,38 +226,40 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         defaultLocale: Locale
 
     /**
-     * Parent module this lesson video belongs to.
+     * Optional parent content this lesson is derived from.
      */
     @Field(
-        () => ModuleEntity,
+        () => ContentEntity,
         {
-            description: "Parent module this lesson video belongs to.",
+            nullable: true,
+            description: "Optional content this lesson video is associated with.",
         },
     )
     @ManyToOne(
-        () => ModuleEntity,
-        (module: ModuleEntity) => module.lessonVideos,
+        () => ContentEntity,
+        (content: ContentEntity) => content.lessons,
         {
-            onDelete: "CASCADE",
+            onDelete: "SET NULL",
+            nullable: true,
         },
     )
     @JoinColumn({
-        name: "module_id",
-        foreignKeyConstraintName:
-            "fk_module_id_lesson_videos_modules",
+        name: "content_id",
+        foreignKeyConstraintName: "fk_content_id_lesson_videos_contents",
     })
-        module: ModuleEntity
+        content: ContentEntity | null
 
     @Field(
         () => ID,
         {
-            description: "Parent module ID.",
+            nullable: true,
+            description: "Optional parent content ID.",
         },
     )
     @RelationId(
-        (lv: LessonVideoEntity) => lv.module,
+        (lv: LessonVideoEntity) => lv.content,
     )
-        moduleId: string
+        contentId: string | null
 
     /**
      * Optional minimum pricing tier required to access this video; null means no extra tier gate.
