@@ -59,7 +59,8 @@ export class LivestreamSessionsHandler
             locale,
         } = query.params
 
-        const order: FindOptionsOrder<LivestreamSessionEntity> = {}
+        const order: FindOptionsOrder<LivestreamSessionEntity> = {
+        }
         for (const sort of sorts) {
             order[sort.by as LivestreamSessionsSortBy] = sort.order
         }

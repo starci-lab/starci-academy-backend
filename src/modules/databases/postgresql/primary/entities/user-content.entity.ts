@@ -27,7 +27,8 @@ import {
     description: "User's interaction state with a specific content (read, favorite).",
 })
 @Entity("user_contents")
-@Unique(["userId", "contentId"])
+@Unique(["userId",
+    "contentId"])
 export class UserContentEntity extends UuidAbstractEntity {
     /**
      * User who owns this state.

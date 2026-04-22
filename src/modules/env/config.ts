@@ -65,6 +65,14 @@ export const envConfig = () => ({
                 key: "CACHE_TTL_NATS_MESSAGE_DIGEST",
                 defaultValue: "3s",
             }),
+            jobTrackByJobId: parseEnvMs({
+                key: "CACHE_TTL_JOB_TRACK_BY_JOB_ID",
+                defaultValue: "15m",
+            }),
+            jobSubscriberClientId: parseEnvMs({
+                key: "CACHE_TTL_JOB_SUBSCRIBER_CLIENT_ID",
+                defaultValue: "15m",
+            }),
             withdraw: parseEnvMs({
                 key: "CACHE_TTL_WITHDRAW",
                 defaultValue: "30m"

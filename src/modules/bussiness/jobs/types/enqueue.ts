@@ -20,12 +20,28 @@ export interface EnqueueProcessGitSubmissionJobParams {
     userId: string
     /** `user_challenge_submissions.id`. */
     userChallengeSubmissionId: string
-    /** `submission_attempts.id`. */
-    submissionAttemptId: string
     /** Existing `jobs.id` to requeue (optional). */
     jobId?: string
     /** Git branch override for repo loader. */
     branch?: string
+    /** Grading model id override. */
+    gradingModel?: string
+    /** Grading model provider override. */
+    gradingProvider?: ModelProvider
+    /** Embedding model id override. */
+    embeddingModel?: string
+    /** Embedding model provider override. */
+    embeddingProvider?: ModelProvider
+}
+
+/** Params for enqueuing a process-google-docs-submission job. */
+export interface EnqueueProcessGoogleDocsSubmissionJobParams {
+    /** `users.id`. */
+    userId: string
+    /** `user_challenge_submissions.id`. */
+    userChallengeSubmissionId: string
+    /** Existing `jobs.id` to requeue (optional). */
+    jobId?: string
     /** Grading model id override. */
     gradingModel?: string
     /** Grading model provider override. */

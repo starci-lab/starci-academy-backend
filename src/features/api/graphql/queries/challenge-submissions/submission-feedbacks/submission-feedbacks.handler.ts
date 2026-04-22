@@ -53,7 +53,8 @@ export class SubmissionFeedbacksHandler
             },
         } = query.params
 
-        const order: FindOptionsOrder<SubmissionFeedbackEntity> = {}
+        const order: FindOptionsOrder<SubmissionFeedbackEntity> = {
+        }
         for (const sort of sorts) {
             order[sort.by as SubmissionFeedbacksSortBy] = sort.order
         }

@@ -43,11 +43,11 @@ import {
 } from "../types"
 
 @Injectable({
-  scope: Scope.REQUEST,
-  durable: true,
+    scope: Scope.REQUEST,
+    durable: true,
 })
 export class ModuleRuntimeContextService {
-  constructor(
+    constructor(
     @InjectPrimaryPostgreSQLEntityManager()
     private readonly entityManager: EntityManager,
     @Inject(REQUEST)
@@ -59,96 +59,96 @@ export class ModuleRuntimeContextService {
     private readonly s3UploadService: S3UploadService,
     private readonly s3NameResolverService: S3NameResolverService,
     private readonly winstonService: WinstonService,
-  ) {}
+    ) {}
 
-  /**
+    /**
    * Run the sync cycle.
   */
-  async run() {
-    setInterval(
-        async () => {
-            await this.asyncService.safeRun(
-                async () => await this.process()
-            )
-        },
-        envConfig().services.cdnSynchronizer.syncIntervalMs.modules.runtime
-    )
-  }
+    async run() {
+        setInterval(
+            async () => {
+                await this.asyncService.safeRun(
+                    async () => await this.process()
+                )
+            },
+            envConfig().services.cdnSynchronizer.syncIntervalMs.modules.runtime
+        )
+    }
 
-  /**
+    /**
    * Sync the modules to the CDN.
    */
-  async process() {
-    let objectKey: string | undefined
-    try {
+    async process() {
+        let objectKey: string | undefined
+        try {
         // take the modules
-        const module = await this.entityManager.findOne(
-            ModuleEntity,
-            {
-                where: {
-                    id: this.request.id,
-                },
-                relations: {
-                    translations: true,
-                },
-            }
-        )
-        if (!module) {
-            throw new ModuleNotFoundException(
+            const module = await this.entityManager.findOne(
+                ModuleEntity,
                 {
-                    id: this.request.id,
-                },
-            )
-        }
-        const hydratedModule = module.toPlain<ModuleEntity>()
-
-        // take all preview contents related to the module
-        const previewContents = await this.entityManager.find(
-            PreviewContentEntity,
-            {
-                where: {
-                    module: {
-                        id: hydratedModule.id,
+                    where: {
+                        id: this.request.id,
                     },
-                },
-                relations: {
-                    translations: true,
-                },
+                    relations: {
+                        translations: true,
+                    },
+                }
+            )
+            if (!module) {
+                throw new ModuleNotFoundException(
+                    {
+                        id: this.request.id,
+                    },
+                )
             }
-        )
-        const hydratedPreviewContents = previewContents?.map((previewContent) => previewContent.toPlain<PreviewContentEntity>())
-        hydratedModule.previewContents = hydratedPreviewContents
-        // upload the module to the CDN
-        const data = this.superJson.stringify(hydratedModule);
-        const hash = this.sha256Service.hash(data)
-        const payload: UploadPayload = {
-            data,
-            hash,
-        }
-        objectKey = this.s3NameResolverService.module(hydratedModule.id)
-        await this.s3UploadService.json({
-            name: objectKey,
-            payload,
-            acl: "private",
-            providers: [
-                S3Provider.DigitalOcean,
-                S3Provider.Minio,
-            ],
-        })
-    } catch (error) {
-        this.winstonService.log(
-            WinstonLog.CdnSynchronizerModuleRuntimeSyncFailed,
-            {
-                id: this.request.id,
-                objectKey,
+            const hydratedModule = module.toPlain<ModuleEntity>()
+
+            // take all preview contents related to the module
+            const previewContents = await this.entityManager.find(
+                PreviewContentEntity,
+                {
+                    where: {
+                        module: {
+                            id: hydratedModule.id,
+                        },
+                    },
+                    relations: {
+                        translations: true,
+                    },
+                }
+            )
+            const hydratedPreviewContents = previewContents?.map((previewContent) => previewContent.toPlain<PreviewContentEntity>())
+            hydratedModule.previewContents = hydratedPreviewContents
+            // upload the module to the CDN
+            const data = this.superJson.stringify(hydratedModule)
+            const hash = this.sha256Service.hash(data)
+            const payload: UploadPayload = {
+                data,
+                hash,
+            }
+            objectKey = this.s3NameResolverService.module(hydratedModule.id)
+            await this.s3UploadService.json({
+                name: objectKey,
+                payload,
+                acl: "private",
                 providers: [
                     S3Provider.DigitalOcean,
                     S3Provider.Minio,
                 ],
-                error: error.message,
-                context: ModuleRuntimeContextService.name,
-            },
-        )
+            })
+        } catch (error) {
+            this.winstonService.log(
+                WinstonLog.CdnSynchronizerModuleRuntimeSyncFailed,
+                {
+                    id: this.request.id,
+                    objectKey,
+                    providers: [
+                        S3Provider.DigitalOcean,
+                        S3Provider.Minio,
+                    ],
+                    error: error.message,
+                    context: ModuleRuntimeContextService.name,
+                },
+            )
+        }
     }
-  }
 }

@@ -49,7 +49,8 @@ export class MarkAsReadedHandler
         } = command.params
 
         if (!user) {
-            throw new UserNotFoundException({})
+            throw new UserNotFoundException({
+            })
         }
 
         let userContent = await this.entityManager.findOne(

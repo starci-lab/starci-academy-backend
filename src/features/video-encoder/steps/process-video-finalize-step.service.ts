@@ -1,10 +1,24 @@
-import { Injectable, Logger } from "@nestjs/common"
-import { AbstractStepService } from "../abstracts"
-import { JobExtendedContext } from "../types"
-import { FilenameProcessData } from "@modules/bullmq"
-import { JobActionService } from "@modules/bussiness"
-import { InjectPrimaryPostgreSQLEntityManager } from "@modules/databases"
-import { EntityManager } from "typeorm"
+import {
+    Injectable, Logger 
+} from "@nestjs/common"
+import {
+    AbstractStepService 
+} from "../abstracts"
+import {
+    JobExtendedContext 
+} from "../types"
+import {
+    FilenameProcessData 
+} from "@modules/bullmq"
+import {
+    JobActionService 
+} from "@modules/bussiness"
+import {
+    InjectPrimaryPostgreSQLEntityManager 
+} from "@modules/databases"
+import {
+    EntityManager 
+} from "typeorm"
 
 @Injectable()
 export class ProcessVideoFinalizeStepService extends AbstractStepService<FilenameProcessData, undefined> {
@@ -30,15 +44,19 @@ export class ProcessVideoFinalizeStepService extends AbstractStepService<Filenam
         // Query At End
         const { queryAtEnd } = callbackQueries
         if (queryAtEnd && queryAtEnd.length === 2) {
-            await this.entityManager.query(queryAtEnd[0], queryAtEnd[1])
+            await this.entityManager.query(queryAtEnd[0],
+                queryAtEnd[1])
         }
 
         await this.entityManager.transaction(async (em) => {
-            await this.jobActionService.increaseJob({ job, entityManager: em })
+            await this.jobActionService.increaseJob({
+                job, entityManager: em 
+            })
             await this.jobActionService.saveExecutionResult({
                 job,
                 key: this.stepName,
-                executionResult: {},
+                executionResult: {
+                },
                 entityManager: em,
             })
         })

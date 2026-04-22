@@ -6,7 +6,7 @@ import {
 } from "@modules/cors"
 
 export const AUTOCOMPLETE_NAMESPACE = "autocomplete"
-export const JOB_PIPELINE_NAMESPACE = "jobs"
+export const JOB_NOTIFICATIONS_NAMESPACE = "job_notifications"
 
 /**
  * Decorator to mark a class as a WebSocket gateway for the autocomplete namespace.
@@ -24,11 +24,11 @@ export const AutocompleteWebSocketGateway = () => WebSocketGateway(
 )
 
 /**
- * Decorator to mark a class as a WebSocket gateway for the job pipeline namespace.
+ * Decorator to mark a class as a WebSocket gateway for the job notifications namespace.
  */
-export const JobPipelineWebSocketGateway = () => WebSocketGateway(
+export const JobNotificationsWebSocketGateway = () => WebSocketGateway(
     {
-        namespace: JOB_PIPELINE_NAMESPACE,
+        namespace: JOB_NOTIFICATIONS_NAMESPACE,
         transports: [
             "websocket",
             "polling"

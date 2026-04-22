@@ -3,15 +3,31 @@ import {
     FilenameProcessData,
     bullData
 } from "@modules/bullmq"
-import { envConfig } from "@modules/env"
-import { JobActionService } from "@modules/bussiness"
-import { InjectSuperJson, DayjsService } from "@modules/mixin"
-import { WinstonLog, WinstonService } from "@modules/winston"
-import { JobEntity } from "@modules/databases"
-import { Processor as Worker, WorkerHost } from "@nestjs/bullmq"
-import { Job } from "bullmq"
+import {
+    envConfig 
+} from "@modules/env"
+import {
+    JobActionService 
+} from "@modules/bussiness"
+import {
+    InjectSuperJson, DayjsService 
+} from "@modules/mixin"
+import {
+    WinstonLog, WinstonService 
+} from "@modules/winston"
+import {
+    JobEntity 
+} from "@modules/databases"
+import {
+    Processor as Worker, WorkerHost 
+} from "@nestjs/bullmq"
+import {
+    Job 
+} from "bullmq"
 import SuperJSON from "superjson"
-import { StepMappingService } from "./step-mapping.service"
+import {
+    StepMappingService 
+} from "./step-mapping.service"
 
 @Worker(
     bullData[BullQueueName.ProcessVideo].name,
@@ -39,7 +55,9 @@ export class VideoEncoderWorker extends WorkerHost {
         let payload: FilenameProcessData | undefined
         let job: JobEntity | undefined
         try {
-            job = await this.jobActionService.getJob({ id: bullmqJob.id ?? "" })
+            job = await this.jobActionService.getJob({
+                id: bullmqJob.id ?? "" 
+            })
             payload = this.superJson.parse<FilenameProcessData>(bullmqJob.data)
 
             const stepMap = this.stepMappingService.getStepMap()
@@ -50,7 +68,9 @@ export class VideoEncoderWorker extends WorkerHost {
             }
 
             while (job.currentStep < job.maxSteps) {
-                const syncedJob = await this.jobActionService.getJob({ id: job.id })
+                const syncedJob = await this.jobActionService.getJob({
+                    id: job.id 
+                })
                 context.job = syncedJob
 
                 await stepMap.get(syncedJob.currentStep)?.process({

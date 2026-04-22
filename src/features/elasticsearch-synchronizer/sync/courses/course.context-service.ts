@@ -234,7 +234,8 @@ export class CourseRuntimeContextService {
         plainCourse.livestreamSessions = hydratedLivestreamSessions
         plainCourse.modules = hydratedModules
 
-        const locales = [Locale.Vi, Locale.En]
+        const locales = [Locale.Vi,
+            Locale.En]
         await Promise.all(locales.map(async (locale) => {
             // Clone the course tree and attach the relations needed for transformation
             const hydratedCourse = _.cloneDeep(plainCourse)
@@ -250,12 +251,24 @@ export class CourseRuntimeContextService {
             const indexedData = {
                 ...dataToIndex,
                 locale,
-                prerequisites: hydratedCourse.prerequisites?.map(p => ({ id: p.id })),
-                valuePropositions: hydratedCourse.valuePropositions?.map(v => ({ id: v.id })),
-                qnas: hydratedCourse.qnas?.map(q => ({ id: q.id })),
-                pricingPhases: hydratedCourse.pricingPhases?.map(p => ({ id: p.id })),
-                livestreamSessions: hydratedCourse.livestreamSessions?.map(l => ({ id: l.id })),
-                modules: hydratedCourse.modules?.map(m => ({ id: m.id })),
+                prerequisites: hydratedCourse.prerequisites?.map(p => ({
+                    id: p.id 
+                })),
+                valuePropositions: hydratedCourse.valuePropositions?.map(v => ({
+                    id: v.id 
+                })),
+                qnas: hydratedCourse.qnas?.map(q => ({
+                    id: q.id 
+                })),
+                pricingPhases: hydratedCourse.pricingPhases?.map(p => ({
+                    id: p.id 
+                })),
+                livestreamSessions: hydratedCourse.livestreamSessions?.map(l => ({
+                    id: l.id 
+                })),
+                modules: hydratedCourse.modules?.map(m => ({
+                    id: m.id 
+                })),
             }
 
             await this.elasticsearch.indexEntity(

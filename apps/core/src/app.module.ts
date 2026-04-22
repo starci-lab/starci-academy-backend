@@ -110,6 +110,10 @@ import {
 import {
     StreamAsyncIteratorModule 
 } from "@modules/stream-async-iterator"
+import {
+    VaildatorsModule
+} from "@modules/vaildators"
+import { GoogleApisModule } from "@modules/googleapis"
 /**
  * The main module for the application.
  */
@@ -184,6 +188,12 @@ import {
             ),
             /** S3 module. */
             S3Module.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Google APIs module. */
+            GoogleApisModule.register(
                 {
                     isGlobal: true,
                 }
@@ -274,6 +284,12 @@ import {
             ),
             /** Cache module. */
             CacheModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Vaildators module. */
+            VaildatorsModule.register(
                 {
                     isGlobal: true,
                 }

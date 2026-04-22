@@ -9,6 +9,7 @@ import {
 import {
     EnqueueEnrollJobService,
     EnqueueProcessGitSubmissionJobService,
+    EnqueueProcessGoogleDocsSubmissionJobService,
     EnqueueInviteGithubJobService,
     EnqueueProcessCvSubmissionJobService,
     EnqueueSendMailJobService,
@@ -34,6 +35,7 @@ export class JobsModule extends ConfigurableModuleClass {
                 JobStalledService,
                 EnqueueEnrollJobService,
                 EnqueueProcessGitSubmissionJobService,
+                EnqueueProcessGoogleDocsSubmissionJobService,
                 EnqueueInviteGithubJobService,
                 EnqueueProcessCvSubmissionJobService,
                 EnqueueSendMailJobService,
@@ -43,6 +45,7 @@ export class JobsModule extends ConfigurableModuleClass {
                 JobStalledService,
                 EnqueueEnrollJobService,
                 EnqueueProcessGitSubmissionJobService,
+                EnqueueProcessGoogleDocsSubmissionJobService,
                 EnqueueInviteGithubJobService,
                 EnqueueProcessCvSubmissionJobService,
                 EnqueueSendMailJobService,

@@ -117,8 +117,10 @@ export class CacheService {
         cacheResult,
         cacheType = CacheType.Redis,
     }: SetParams<K>): Promise<void> {
-        const cacheKey = this.getCacheKey(key,
-            args)
+        const cacheKey = this.getCacheKey(
+            key,
+            args
+        )
         try {
             const serializedCachedResult =
                 this.superjson.stringify(cacheResult)

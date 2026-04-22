@@ -16,7 +16,8 @@ export class CourseTranslationsNotFoundException extends AbstractException {
     constructor({
         courseId,
         originalError,
-    }: CourseTranslationsNotFoundExceptionMetadata = {}) {
+    }: CourseTranslationsNotFoundExceptionMetadata = {
+    }) {
         super(
             "Course translations not found",
             "COURSE_TRANSLATIONS_NOT_FOUND_EXCEPTION",

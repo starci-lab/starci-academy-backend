@@ -3,7 +3,6 @@ import type {
 } from "@modules/bullmq"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    JobStatus,
     SubmissionAttemptEntity,
     SubmissionFeedbackEntity,
 } from "@modules/databases"
@@ -139,44 +138,48 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
                 suggestion: feedback.suggestion?.trim() || null,
                 severity: feedback.severity,
                 orderIndex: index,
-                attempt: {
-                    id: context.payload.submissionAttemptId,
-                },
-            })
-            )
+            }))
         // Update scalar fields
         await this.entityManager.transaction(
             async (entityManager) => {
-                // 1. Update the attempt record
-                await entityManager.update(
+                // Create a new attempt only after we have a valid grade result
+                const attemptCount = await entityManager.count(
                     SubmissionAttemptEntity,
                     {
-                        id: context.payload.submissionAttemptId,
+                        where: {
+                            userChallengeSubmission: {
+                                id: context.payload.userChallengeSubmissionId,
+                            },
+                        },
                     },
+                )
+                const attempt = await entityManager.save(
+                    SubmissionAttemptEntity,
                     {
+                        userChallengeSubmission: {
+                            id: context.payload.userChallengeSubmissionId,
+                        },
+                        submissionUrl:
+                            context.extended?.userChallengeSubmission.submissionUrl ?? "",
+                        attemptNumber: attemptCount + 1,
                         score: grade.score,
-                        status: JobStatus.Completed,
                         processedAt: this.dayjsService.now().toDate(),
                         shortFeedback: grade.shortFeedback,
                     },
                 )
-
-
-                // 3. Clear existing feedbacks for this attempt
-                await entityManager.delete(
-                    SubmissionFeedbackEntity,
-                    {
-                        attempt: {
-                            id: context.payload.submissionAttemptId,
-                        },
-                    },
-                )
-
-                // 4. Save new feedbacks linked to attempt
+                // Save feedbacks linked to attempt
                 if (feedbacks.length) {
                     await entityManager.save(
                         SubmissionFeedbackEntity,
-                        feedbacks,
+                        feedbacks.map(
+                            (feedback) => ({
+                                ...feedback,
+                                attempt: {
+                                    id: attempt.id,
+                                },
+                            }
+                            )
+                        ),
                     )
                 }
             })

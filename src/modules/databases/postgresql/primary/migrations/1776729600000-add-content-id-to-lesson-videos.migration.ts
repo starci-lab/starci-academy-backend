@@ -10,10 +10,10 @@ export class AddContentIdToLessonVideos1776729600000 implements MigrationInterfa
         queryRunner: QueryRunner,
     ): Promise<void> {
         await queryRunner.query(
-            `ALTER TABLE "lesson_videos" ADD COLUMN "content_id" uuid`,
+            "ALTER TABLE \"lesson_videos\" ADD COLUMN \"content_id\" uuid",
         )
         await queryRunner.query(
-            `ALTER TABLE "lesson_videos" ADD CONSTRAINT "fk_content_id_lesson_videos_contents" FOREIGN KEY ("content_id") REFERENCES "contents"("id") ON DELETE SET NULL ON UPDATE NO ACTION`,
+            "ALTER TABLE \"lesson_videos\" ADD CONSTRAINT \"fk_content_id_lesson_videos_contents\" FOREIGN KEY (\"content_id\") REFERENCES \"contents\"(\"id\") ON DELETE SET NULL ON UPDATE NO ACTION",
         )
     }
 
@@ -21,10 +21,10 @@ export class AddContentIdToLessonVideos1776729600000 implements MigrationInterfa
         queryRunner: QueryRunner,
     ): Promise<void> {
         await queryRunner.query(
-            `ALTER TABLE "lesson_videos" DROP CONSTRAINT "fk_content_id_lesson_videos_contents"`,
+            "ALTER TABLE \"lesson_videos\" DROP CONSTRAINT \"fk_content_id_lesson_videos_contents\"",
         )
         await queryRunner.query(
-            `ALTER TABLE "lesson_videos" DROP COLUMN "content_id"`,
+            "ALTER TABLE \"lesson_videos\" DROP COLUMN \"content_id\"",
         )
     }
 }

@@ -97,7 +97,8 @@ export class MailcowService implements OnModuleInit, OnModuleDestroy {
 
     private formatAddress(recipient: SendMailRecipient): string {
         return recipient.name
-            ? `"${recipient.name.replace(/"/g, "'")}" <${recipient.address}>`
+            ? `"${recipient.name.replace(/"/g,
+                "'")}" <${recipient.address}>`
             : recipient.address
     }
 

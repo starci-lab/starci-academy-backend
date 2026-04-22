@@ -72,7 +72,9 @@ export class LessonVideosHandler
                 },
             ],
             search,
-            searchFields: ["title^3", "description", "caption"],
+            searchFields: ["title^3",
+                "description",
+                "caption"],
         })
 
         const {

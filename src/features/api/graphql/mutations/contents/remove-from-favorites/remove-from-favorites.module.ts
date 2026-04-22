@@ -13,7 +13,9 @@ import {
 import {
     RemoveFromFavoritesHandler,
 } from "./remove-from-favorites.handler"
-import { ConfigurableModuleClass } from "./remove-from-favorites.module-definition"
+import {
+    ConfigurableModuleClass 
+} from "./remove-from-favorites.module-definition"
 
 @Module({
     imports: [

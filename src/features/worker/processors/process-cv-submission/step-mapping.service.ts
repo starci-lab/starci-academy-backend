@@ -35,7 +35,7 @@ export class ProcessCVSubmissionStepMappingService {
             ProcessCVSubmissionPayload,
             ExtendedProcessCvSubmissionContext
         >
-    > {
+        > {
         return new Map<number, AbstractStepService<
             ProcessCVSubmissionPayload,
             ExtendedProcessCvSubmissionContext

@@ -10,7 +10,9 @@ import {
 import {
     RemoveFromFavoritesSingleMutationModule,
 } from "./remove-from-favorites"
-import { ConfigurableModuleClass } from "./contents.module-definition"
+import {
+    ConfigurableModuleClass 
+} from "./contents.module-definition"
 
 @Module({
     imports: [

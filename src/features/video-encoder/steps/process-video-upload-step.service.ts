@@ -1,10 +1,24 @@
-import { Injectable, Logger } from "@nestjs/common"
-import { AbstractStepService } from "../abstracts"
-import { JobExtendedContext } from "../types"
-import { FilenameProcessData } from "@modules/bullmq"
-import { JobActionService } from "@modules/bussiness"
-import { InjectPrimaryPostgreSQLEntityManager } from "@modules/databases"
-import { EntityManager } from "typeorm"
+import {
+    Injectable, Logger 
+} from "@nestjs/common"
+import {
+    AbstractStepService 
+} from "../abstracts"
+import {
+    JobExtendedContext 
+} from "../types"
+import {
+    FilenameProcessData 
+} from "@modules/bullmq"
+import {
+    JobActionService 
+} from "@modules/bussiness"
+import {
+    InjectPrimaryPostgreSQLEntityManager 
+} from "@modules/databases"
+import {
+    EntityManager 
+} from "typeorm"
 
 @Injectable()
 export class ProcessVideoUploadStepService extends AbstractStepService<FilenameProcessData, undefined> {
@@ -29,11 +43,14 @@ export class ProcessVideoUploadStepService extends AbstractStepService<FilenameP
         // await this.uploadHlsManifest(assetId)
 
         await this.entityManager.transaction(async (em) => {
-            await this.jobActionService.increaseJob({ job, entityManager: em })
+            await this.jobActionService.increaseJob({
+                job, entityManager: em 
+            })
             await this.jobActionService.saveExecutionResult({
                 job,
                 key: this.stepName,
-                executionResult: {},
+                executionResult: {
+                },
                 entityManager: em,
             })
         })

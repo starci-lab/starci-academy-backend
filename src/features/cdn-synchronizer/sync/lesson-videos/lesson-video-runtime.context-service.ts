@@ -47,11 +47,11 @@ import type {
 } from "./types"
 
 @Injectable({
-  scope: Scope.REQUEST,
-  durable: true,
+    scope: Scope.REQUEST,
+    durable: true,
 })
 export class LessonVideoRuntimeContextService {
-  constructor(
+    constructor(
     @InjectPrimaryPostgreSQLEntityManager()
     private readonly entityManager: EntityManager,
     @Inject(REQUEST)
@@ -64,95 +64,97 @@ export class LessonVideoRuntimeContextService {
     private readonly s3NameResolverService: S3NameResolverService,
     private readonly winstonService: WinstonService,
     private readonly lessonVideoTransformer: LessonVideoTransformerService,
-  ) {}
+    ) {}
 
-  /**
+    /**
    * Run the sync cycle.
   */
-  async run() {
-    setInterval(
-        async () => {
-            await this.asyncService.safeRun(
-                async () => await this.process()
-            )
-        },
-        envConfig().services.cdnSynchronizer.syncIntervalMs.lessons.runtime
-    )
-  }
+    async run() {
+        setInterval(
+            async () => {
+                await this.asyncService.safeRun(
+                    async () => await this.process()
+                )
+            },
+            envConfig().services.cdnSynchronizer.syncIntervalMs.lessons.runtime
+        )
+    }
 
-  /**
+    /**
    * Sync the lesson video to the CDN.
    */
-  async process() {
-    let objectKey: string | undefined
-    try {
+    async process() {
+        let objectKey: string | undefined
+        try {
         // take the lesson video
-        const lessonVideo = await this.entityManager.findOne(
-            LessonVideoEntity,
-            {
-                where: {
-                    id: this.request.id,
-                },
-                relations: {
-                    translations: true,
-                },
+            const lessonVideo = await this.entityManager.findOne(
+                LessonVideoEntity,
+                {
+                    where: {
+                        id: this.request.id,
+                    },
+                    relations: {
+                        translations: true,
+                    },
+                }
+            )
+            if (!lessonVideo) {
+                throw new LessonVideoNotFoundException(
+                    {
+                        id: this.request.id,
+                    },
+                )
             }
-        )
-        if (!lessonVideo) {
-            throw new LessonVideoNotFoundException(
+        
+            const plainLessonVideo = lessonVideo.toPlain<LessonVideoEntity>()
+            const locales = [Locale.Vi,
+                Locale.En]
+
+            await Promise.all(locales.map(async (locale) => {
+            // deep clone the plain object to avoid mutating the original
+                const hydratedLessonVideo = _.cloneDeep(plainLessonVideo)
+
+                // transform the lesson video clone for the current locale
+                this.lessonVideoTransformer.transform(
+                    hydratedLessonVideo,
+                    locale,
+                    hydratedLessonVideo.defaultLocale ?? Locale.En,
+                )
+
+                // upload the lesson video to the CDN
+                const data = this.superJson.stringify(hydratedLessonVideo)
+                const hash = this.sha256Service.hash(data)
+                const payload: UploadPayload = {
+                    data,
+                    hash,
+                }
+                const currentObjectKey = this.s3NameResolverService.lessonVideo(lessonVideo.id,
+                    locale)
+            
+                await this.s3UploadService.json({
+                    name: currentObjectKey,
+                    payload,
+                    acl: "private",
+                    providers: [
+                        S3Provider.DigitalOcean,
+                        S3Provider.Minio,
+                    ],
+                })
+            }))
+        } catch (error) {
+            this.winstonService.log(
+                WinstonLog.CdnSynchronizerLessonVideoRuntimeSyncFailed,
                 {
                     id: this.request.id,
+                    objectKey,
+                    providers: [
+                        S3Provider.DigitalOcean,
+                        S3Provider.Minio,
+                    ],
+                    error: error.message,
+                    context: LessonVideoRuntimeContextService.name,
                 },
             )
         }
-        
-        const plainLessonVideo = lessonVideo.toPlain<LessonVideoEntity>();
-        const locales = [Locale.Vi, Locale.En]
-
-        await Promise.all(locales.map(async (locale) => {
-            // deep clone the plain object to avoid mutating the original
-            const hydratedLessonVideo = _.cloneDeep(plainLessonVideo)
-
-            // transform the lesson video clone for the current locale
-            this.lessonVideoTransformer.transform(
-                hydratedLessonVideo,
-                locale,
-                hydratedLessonVideo.defaultLocale ?? Locale.En,
-            )
-
-            // upload the lesson video to the CDN
-            const data = this.superJson.stringify(hydratedLessonVideo);
-            const hash = this.sha256Service.hash(data)
-            const payload: UploadPayload = {
-                data,
-                hash,
-            }
-            const currentObjectKey = this.s3NameResolverService.lessonVideo(lessonVideo.id, locale)
-            
-            await this.s3UploadService.json({
-                name: currentObjectKey,
-                payload,
-                acl: "private",
-                providers: [
-                    S3Provider.DigitalOcean,
-                    S3Provider.Minio,
-                ],
-            })
-        }))
-    } catch (error) {
-        this.winstonService.log(
-            WinstonLog.CdnSynchronizerLessonVideoRuntimeSyncFailed,
-            {
-                id: this.request.id,
-                objectKey,
-                providers: [
-                    S3Provider.DigitalOcean,
-                    S3Provider.Minio,
-                ],
-                error: error.message,
-                context: LessonVideoRuntimeContextService.name,
-            },
-        )
     }
-  }
 }

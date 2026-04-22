@@ -3,6 +3,7 @@ import type {
 } from "@modules/bullmq"
 import {
     InjectPrimaryPostgreSQLEntityManager,
+    InjectQdrantClient,
     ModelProvider,
 } from "@modules/databases"
 import {
@@ -23,18 +24,21 @@ import {
 } from "@modules/winston"
 import {
     ProcessGoogleDocsSubmissionGradeStepExecuteResult,
-    ProcessGoogleDocsSubmissionSplitDocsStepExecuteResult,
     ExtendedProcessGoogleDocsSubmissionContext,
 } from "../types"
 import {
     JobExtendedContext,
-} from "../../types"
+} from "@modules/bullmq"
 import {
     envConfig,
 } from "@modules/env"
 import {
     ModelService,
+    EmbeddingModelService,
 } from "@modules/langchain"
+import {
+    GoogleDriverAPIService,
+} from "@modules/googleapis"
 import {
     HumanMessage,
     SystemMessage,
@@ -44,11 +48,17 @@ import {
     ParsingScoreFromModelTextException,
 } from "@modules/exceptions"
 import {
-    ProcessGoogleDocsSubmissionSplitDocsStepService,
-} from "./process-submission-split-docs-step.service"
+    RecursiveCharacterTextSplitter,
+} from "langchain/text_splitter"
+import {
+    QdrantVectorStore,
+} from "@langchain/qdrant"
+import type {
+    QdrantClient,
+} from "@qdrant/qdrant-js"
 
 /**
- * Step 4: grade the submission using database prompts.
+ * Step 1: grade the submission using database prompts.
  */
 @Injectable()
 export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepService<
@@ -60,16 +70,18 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         private readonly entityManager: EntityManager,
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
-        private readonly processGoogleDocsSubmissionSplitDocsStepService: ProcessGoogleDocsSubmissionSplitDocsStepService,
+        private readonly googleDriverApiService: GoogleDriverAPIService,
+        private readonly embeddingModelService: EmbeddingModelService,
+        @InjectQdrantClient()
+        private readonly qdrantClient: QdrantClient,
         private readonly modelService: ModelService,
     ) {
         super()
     }
 
-    stepIndex = 3
-
+    stepIndex = 0
     stepName = "grade"
-
+    /** Process the step. */
     async process(
         context: JobExtendedContext<
             ProcessGoogleDocsSubmissionPayload,
@@ -83,30 +95,70 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         )
     }
 
+    /** Execute the step. */
     private async execute(
         context: JobExtendedContext<
             ProcessGoogleDocsSubmissionPayload,
             ExtendedProcessGoogleDocsSubmissionContext
         >,
     ): Promise<ProcessGoogleDocsSubmissionGradeStepExecuteResult> {
-        const splitResult = await this.jobActionService.loadExecutionResult<ProcessGoogleDocsSubmissionSplitDocsStepExecuteResult>(
+        /** Submission URL. */
+        const url = context.extended?.userChallengeSubmission.submissionUrl ?? ""
+        const {
+            text,
+        } = await this.googleDriverApiService.fetchGoogleDocsText(
             {
-                job: context.job,
-                key: this.processGoogleDocsSubmissionSplitDocsStepService.stepName,
+                urlOrId: url,
+            }
+        )
+
+        const splitter = new RecursiveCharacterTextSplitter({
+            chunkSize: envConfig().services.githubWorker.processGitSubmission.chunkSize,
+            chunkOverlap: envConfig().services.githubWorker.processGitSubmission.chunkOverlap,
+        })
+        const docs = await splitter.createDocuments(
+            [
+                text,
+            ],
+            [
+                {
+                    source: url,
+                },
+            ],
+        )
+        const chunks = await splitter.splitDocuments(docs)
+
+        // Optional: vectorize into Qdrant for later inspection (not required for grading)
+        const collectionName = `grading-${context.payload.userChallengeSubmissionId}`
+        const embeddingModel = this.embeddingModelService.get({
+            model:
+                context.payload.embeddingModel ??
+                envConfig().services.githubWorker.processGitSubmission.embedding.model,
+            provider:
+                (context.payload.embeddingProvider ??
+                    envConfig().services.githubWorker.processGitSubmission.embedding.provider) as ModelProvider,
+        })
+        await this.qdrantClient.deleteCollection(collectionName)
+        await QdrantVectorStore.fromDocuments(
+            chunks,
+            embeddingModel,
+            {
+                client: this.qdrantClient,
+                collectionName,
             },
         )
 
-        let sourceExcerpt = splitResult.chunks
+        let sourceExcerpt = chunks
             .map((chunk) => chunk.pageContent)
             .join("\n\n")
 
         const maxChars = envConfig().services.githubWorker.processGitSubmission.gradingMaxSourceChars
 
         if (sourceExcerpt.length > maxChars) {
-            sourceExcerpt = sourceExcerpt.slice(0, maxChars)
+            sourceExcerpt = sourceExcerpt.slice(0,
+                maxChars)
         }
 
-        const challenge = context.extended?.challenge
         const challengeSubmission = context.extended?.challengeSubmission
         const submissionScore = challengeSubmission?.score ?? 100
 
@@ -156,7 +208,8 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
 
         const raw = (typeof response.content === "string" ? response.content : String(response.content)) as string
 
-        return this.parseGradeFromModelText(raw, submissionScore)
+        return this.parseGradeFromModelText(raw,
+            submissionScore)
     }
 
     private async finalize(
@@ -212,7 +265,8 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                     feedbacks?: unknown
                 }
 
-                const score = this.parseScore(parsed.score, maxScore)
+                const score = this.parseScore(parsed.score,
+                    maxScore)
                 const feedbacks = this.parseFeedbacks(parsed.feedbacks)
 
                 return {
@@ -230,13 +284,16 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
 
     private parseScore(value: unknown, maxScore: number): number {
         if (typeof value === "number") {
-            return this.clampScore(value, maxScore)
+            return this.clampScore(value,
+                maxScore)
         }
 
         if (typeof value === "string") {
-            const parsed = Number.parseInt(value, 10)
+            const parsed = Number.parseInt(value,
+                10)
             if (!Number.isNaN(parsed)) {
-                return this.clampScore(parsed, maxScore)
+                return this.clampScore(parsed,
+                    maxScore)
             }
         }
 

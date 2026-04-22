@@ -54,7 +54,8 @@ export class SubmissionAttemptsHandler
             },
         } = query.params
 
-        const order: FindOptionsOrder<SubmissionAttemptEntity> = {}
+        const order: FindOptionsOrder<SubmissionAttemptEntity> = {
+        }
         for (const sort of sorts) {
             order[sort.by as SubmissionAttemptsSortBy] = sort.order
         }

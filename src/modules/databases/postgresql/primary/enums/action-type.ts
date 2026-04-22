@@ -18,6 +18,10 @@ export enum ActionType {
      */
     ProcessGitSubmission = "processGitSubmission",
     /**
+     * Grade a learner Google Docs submission (worker pipeline).
+     */
+    ProcessGoogleDocsSubmission = "processGoogleDocsSubmission",
+    /**
      * Invite a user to a GitHub organization/team.
      */
     InviteGithub = "inviteGithub",
@@ -48,6 +52,9 @@ registerEnumType(
             [ActionType.ProcessGitSubmission]: {
                 description: "Process and grade a GitHub challenge submission.",
             },
+                [ActionType.ProcessGoogleDocsSubmission]: {
+                    description: "Process and grade a Google Docs challenge submission.",
+                },
         },
     },
 )

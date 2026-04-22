@@ -5,7 +5,6 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
     SubmissionAttemptEntity,
     SubmissionFeedbackEntity,
-    JobStatus,
 } from "@modules/databases"
 import {
     JobActionService,
@@ -30,13 +29,12 @@ import type {
 } from "../types"
 import type {
     JobExtendedContext,
-} from "../../types"
+} from "@modules/bullmq"
 import {
     DayjsService,
 } from "@modules/mixin"
 import {
     MissingOrInvalidGradeExecutionResultException,
-    SubmissionAttemptNotFoundException,
 } from "@modules/exceptions"
 import {
     ProcessGoogleDocsSubmissionGradeStepService,
@@ -61,10 +59,10 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
         super()
     }
 
-    stepIndex = 4
+    stepIndex = 1
 
     stepName = "complete"
-
+    /** Process the step. */
     async process(
         context: JobExtendedContext<
             ProcessGoogleDocsSubmissionPayload,
@@ -78,12 +76,14 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
         )
     }
 
+    /** Execute the step. */
     private async execute(
         context: JobExtendedContext<
             ProcessGoogleDocsSubmissionPayload,
             ExtendedProcessGoogleDocsSubmissionContext
         >,
     ): Promise<ProcessGoogleDocsSubmissionCompleteStepExecuteResult> {
+        /** Grade. */
         const grade = await this.jobActionService.loadExecutionResult<
             ProcessGoogleDocsSubmissionGradeStepExecuteResult
         >(
@@ -99,44 +99,31 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
             })
         }
 
-        // Find the specific attempt associated with this job
-        const attempt = await this.entityManager.findOne(
-            SubmissionAttemptEntity,
-            {
-                where: {
-                    id: context.payload.submissionAttemptId,
-                },
-            },
-        )
-
-        if (!attempt) {
-            throw new SubmissionAttemptNotFoundException({
-                id: context.payload.submissionAttemptId,
-            })
-        }
-
         const feedbackSummary = grade.feedbacks.length ? grade.feedbacks[0] : null
 
         await this.entityManager.transaction(async (em) => {
-            // 1. Update the attempt with final score and status
-            await em.update(
+            const attemptCount = await em.count(
                 SubmissionAttemptEntity,
                 {
-                    id: attempt.id,
-                },
-                {
-                    score: grade.score,
-                    status: JobStatus.Completed,
-                    processedAt: this.dayjsService.now().toDate(),
-                    shortFeedback: feedbackSummary,
+                    where: {
+                        userChallengeSubmission: {
+                            id: context.payload.userChallengeSubmissionId,
+                        },
+                    },
                 },
             )
-
-            // 2. Clear old detailed feedbacks (if any) and save new ones
-            await em.delete(
-                SubmissionFeedbackEntity,
+            const attempt = await em.save(
+                SubmissionAttemptEntity,
                 {
-                    attempt: { id: attempt.id },
+                    userChallengeSubmission: {
+                        id: context.payload.userChallengeSubmissionId,
+                    },
+                    submissionUrl:
+                        context.extended?.userChallengeSubmission.submissionUrl ?? "",
+                    attemptNumber: attemptCount + 1,
+                    score: grade.score,
+                    processedAt: this.dayjsService.now().toDate(),
+                    shortFeedback: feedbackSummary,
                 },
             )
 
@@ -154,7 +141,8 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
             )
         })
 
-        return {}
+        return {
+        }
     }
 
     private async finalize(

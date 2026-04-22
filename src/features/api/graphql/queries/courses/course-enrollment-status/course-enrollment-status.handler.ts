@@ -46,7 +46,8 @@ export class CourseEnrollmentStatusHandler
         } = query.params
 
         if (!user) {
-            throw new UserNotFoundException({})
+            throw new UserNotFoundException({
+            })
         }
 
         const {

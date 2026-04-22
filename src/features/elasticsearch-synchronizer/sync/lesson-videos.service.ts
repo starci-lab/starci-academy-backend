@@ -31,7 +31,8 @@ export class ElasticsearchLessonVideosSyncService extends BaseElasticsearchSyncS
         @InjectPrimaryPostgreSQLEntityManager()
         entityManager: EntityManager,
     ) {
-        super(elasticsearchService, entityManager)
+        super(elasticsearchService,
+            entityManager)
     }
 
     protected get entityType() { return LessonVideoEntity }

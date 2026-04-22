@@ -15,9 +15,9 @@ import {
     LangchainModule,
 } from "@modules/langchain"
 import {
-    ProcessGoogleDocsSubmissionLoadDocsStepService,
-    ProcessGoogleDocsSubmissionSplitDocsStepService,
-    ProcessGoogleDocsSubmissionVectorizeStepService,
+    GoogleApisModule,
+} from "@modules/googleapis"
+import {
     ProcessGoogleDocsSubmissionGradeStepService,
     ProcessGoogleDocsSubmissionCompleteStepService,
 } from "./steps"
@@ -25,13 +25,11 @@ import {
 @Module({
     imports: [
         LangchainModule,
+        GoogleApisModule.register({}),
     ],
     providers: [
         ProcessGoogleDocsSubmissionWorker,
         ProcessGoogleDocsSubmissionStepMappingService,
-        ProcessGoogleDocsSubmissionLoadDocsStepService,
-        ProcessGoogleDocsSubmissionSplitDocsStepService,
-        ProcessGoogleDocsSubmissionVectorizeStepService,
         ProcessGoogleDocsSubmissionGradeStepService,
         ProcessGoogleDocsSubmissionCompleteStepService,
     ],

@@ -31,7 +31,9 @@ import SuperJSON from "superjson"
 import {
     ContentQuery,
 } from "./content.query"
-import { EntityManager } from "typeorm"
+import {
+    EntityManager 
+} from "typeorm"
 
 @QueryHandler(ContentQuery)
 @Injectable()

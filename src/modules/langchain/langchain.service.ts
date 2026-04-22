@@ -10,9 +10,6 @@ import {
     PromptTemplate,
 } from "@langchain/core/prompts"
 import {
-    Document,
-} from "@langchain/core/documents"
-import {
     MODULE_OPTIONS_TOKEN,
 } from "./langchain.module-definition"
 import type {
@@ -75,47 +72,5 @@ export class LangchainService {
      */
     getStringOutputParser(): StringOutputParser {
         return new StringOutputParser()
-    }
-
-    /**
-     * Loads text content from a Google Doc using a public export URL (Plan B).
-     *
-     * @param url - The Google Doc URL.
-     * @returns Array of Document objects.
-     */
-    async loadGoogleDocs(url: string): Promise<Document[]> {
-        // extract document ID from URL
-        const match = url.match(/[-\w]{25,}/)
-        if (!match) {
-            throw new Error(`Invalid Google Doc URL: ${url}`)
-        }
-        const documentId = match[0]
-
-        // use the public export URL
-        const exportUrl = `https://docs.google.com/document/d/${documentId}/export?format=txt`
-
-        const response = await fetch(exportUrl)
-        if (!response.ok) {
-            if (response.status === 401 || response.status === 403) {
-                throw new Error(
-                    "Google Doc is not public. Please share it as 'Anyone with the link can view'."
-                )
-            }
-            throw new Error(
-                `Failed to fetch Google Doc (Status: ${response.status}). Ensure ID is correct and doc is public.`
-            )
-        }
-
-        const text = await response.text()
-
-        return [
-            new Document({
-                pageContent: text,
-                metadata: {
-                    source: url,
-                    documentId,
-                },
-            }),
-        ]
     }
 }

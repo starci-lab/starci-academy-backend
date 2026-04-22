@@ -1,7 +1,13 @@
-import { Injectable } from "@nestjs/common"
+import {
+    Injectable 
+} from "@nestjs/common"
 import ffmpeg from "fluent-ffmpeg"
-import { join } from "path"
-import type { EncodeProfile } from "./types"
+import {
+    join 
+} from "path"
+import type {
+    EncodeProfile 
+} from "./types"
 
 /**
  * Service for encoding video.
@@ -37,8 +43,10 @@ export class FfmpegService {
                     `-bufsize ${profile.bufSize}`
                 ])
                 .save(profile.outputPath)
-                .on("end", resolve)
-                .on("error", reject)
+                .on("end",
+                    resolve)
+                .on("error",
+                    reject)
         })
     }
 

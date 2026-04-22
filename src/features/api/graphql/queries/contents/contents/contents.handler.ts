@@ -72,7 +72,9 @@ export class ContentsHandler
                 },
             ],
             search,
-            searchFields: ["title^3", "description", "body"],
+            searchFields: ["title^3",
+                "description",
+                "body"],
         })
 
         const {

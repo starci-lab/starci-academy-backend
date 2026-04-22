@@ -13,10 +13,6 @@ import {
     RelationId,
 } from "typeorm"
 import {
-    GraphQLTypeJobStatus,
-    JobStatus,
-} from "../enums"
-import {
     UuidAbstractEntity,
 } from "./abstract"
 import {
@@ -31,21 +27,6 @@ import {
 })
 @Entity("submission_attempts")
 export class SubmissionAttemptEntity extends UuidAbstractEntity {
-    @Field(
-        () => GraphQLTypeJobStatus,
-        {
-            description: "Current status of the attempt.",
-        },
-    )
-    @Column({
-        name: "status",
-        type: "enum",
-        enum: JobStatus,
-        enumName: "job_status",
-        default: JobStatus.Processing,
-    })
-        status: JobStatus
-
     @Field(
         () => Int,
         {

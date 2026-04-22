@@ -4,4 +4,5 @@
  */
 export enum CacheKey {
     NatsMessageDigest = "nats.message.digest",
+    JobSubscriberClientId = "job.subscriber.client_id",
 }

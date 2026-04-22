@@ -27,6 +27,9 @@ import {
     IoRedisModule,
     RedisOrCluster
 } from "@modules/native"
+import {
+    JobRoomService,
+} from "./rooms"
 
 /**
  * NestJS module for BullMQ queue registration and Redis connection.
@@ -92,6 +95,7 @@ export class BullModule extends ConfigurableModuleClass {
             )
 
         return {
+            global: true,
             ...dynamicModule,
             imports: [
                 NestBullModule.forRootAsync({
@@ -108,6 +112,12 @@ export class BullModule extends ConfigurableModuleClass {
                     }),
                 }),
                 ...queueModules,
+            ],
+            providers: [
+                JobRoomService,
+            ],
+            exports: [
+                JobRoomService,
             ],
         }
     }

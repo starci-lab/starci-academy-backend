@@ -66,7 +66,8 @@ export class CoursesHandler
                 },
             ],
             search,
-            searchFields: ["title^3", "description"],
+            searchFields: ["title^3",
+                "description"],
         })
 
         const {

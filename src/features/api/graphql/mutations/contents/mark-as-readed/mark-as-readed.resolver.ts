@@ -63,11 +63,11 @@ export class MarkAsReadedResolver {
     )
     async execute(
         @Args("request")
-        request: MarkAsReadedRequest,
+            request: MarkAsReadedRequest,
         @GraphQLLocale()
-        locale: Locale,
+            locale: Locale,
         @KeycloakGraphQLUser()
-        user: UserEntity,
+            user: UserEntity,
     ): Promise<MarkAsReadedResponse> {
         return this.markAsReadedService.execute(
             {

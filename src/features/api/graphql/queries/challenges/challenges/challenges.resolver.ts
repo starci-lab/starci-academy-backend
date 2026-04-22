@@ -67,9 +67,9 @@ export class ChallengesResolver {
                 description: "Content id, pagination, and sort request.",
             },
         )
-        request: ChallengesRequest,
+            request: ChallengesRequest,
         @GraphQLLocale()
-        locale: Locale,
+            locale: Locale,
     ): Promise<ChallengesResponseData> {
         return this.challengesService.execute(
             {

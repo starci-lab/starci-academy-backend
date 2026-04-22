@@ -10,6 +10,9 @@ import {
 import {
     TypedSocket 
 } from "./types"
+import type {
+    Namespace,
+} from "socket.io"
 
 /** Params for sending a success WS message. */
 export interface SuccessParams<T = unknown> {
@@ -17,6 +20,15 @@ export interface SuccessParams<T = unknown> {
     data?: T
     client: TypedSocket
     eventName: string
+}
+
+/** Params for sending a success WS message to a room. */
+export interface SuccessToRoomParams<T = unknown> {
+    message: string
+    data?: T
+    eventName: string
+    room: string
+    namespace: Namespace
 }
 
 /** Params for sending a error WS message. */
@@ -32,6 +44,25 @@ export class WsResponseService {
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
     ) {}
+
+    successToRoom<T = unknown>(
+        { 
+            message, 
+            data, 
+            room, 
+            namespace, 
+            eventName 
+        }: SuccessToRoomParams<T>,
+    ): void {
+        namespace.to(room).emit(
+            eventName,
+            {
+                success: true,
+                message,
+                data,
+            },
+        )
+    }
 
     /**
      * Send a success WS message.

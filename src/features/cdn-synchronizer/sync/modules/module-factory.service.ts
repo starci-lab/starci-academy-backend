@@ -1,28 +1,30 @@
 import {
     sleep
-} from "@modules/common";
+} from "@modules/common"
 import {
     InjectPrimaryPostgreSQLEntityManager,
     ModuleEntity
-} from "@modules/databases";
-import { envConfig } from "@modules/env";
+} from "@modules/databases"
+import {
+    envConfig 
+} from "@modules/env"
 import {
     Injectable,
     OnApplicationBootstrap
-} from "@nestjs/common";
+} from "@nestjs/common"
 import {
     ContextIdFactory,
     ModuleRef
-} from "@nestjs/core";
+} from "@nestjs/core"
 import {
     EntityManager
-} from "typeorm";
+} from "typeorm"
 import {
     RuntimeContextRequest
-} from "../types";
+} from "../types"
 import {
     ModuleRuntimeContextService
-} from "./module-runtime.context-service";
+} from "./module-runtime.context-service"
 
 @Injectable()
 export class ModuleFactorySyncService implements OnApplicationBootstrap {
@@ -69,7 +71,8 @@ export class ModuleFactorySyncService implements OnApplicationBootstrap {
                 // sleep for the delay per sync
                 await sleep(syncSpacingMs)
             }
-                }, 0);
+        },
+        0)
     }
 }
 

@@ -48,7 +48,8 @@ export class LessonVideoHandler
             locale,
         } = query.params
 
-        const objectKey = this.s3NameResolverService.lessonVideo(request.id, locale)
+        const objectKey = this.s3NameResolverService.lessonVideo(request.id,
+            locale)
         const cdnPayload = await this.s3ReadService.json<UploadPayload>({
             key: objectKey,
             provider: S3Provider.Minio,

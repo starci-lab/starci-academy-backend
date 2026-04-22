@@ -1,8 +1,16 @@
 // @ts-nocheck
-import { pathsConfig } from "@config"
-import { Injectable, Logger } from "@nestjs/common"
-import { join } from "path"
-import { execaCommand } from "execa"
+import {
+    pathsConfig 
+} from "@config"
+import {
+    Injectable, Logger 
+} from "@nestjs/common"
+import {
+    join 
+} from "path"
+import {
+    execaCommand 
+} from "execa"
 
 /**
  * Bento4 service.
@@ -26,7 +34,9 @@ export class Bento4Service {
 
         const { stdout, stderr } = await execaCommand(
             `mp4info "${videoPath}"`,
-            { shell: true }
+            {
+                shell: true 
+            }
         )
         const execResult = stdout || stderr
         const lines = execResult.split("\n")
@@ -68,7 +78,9 @@ export class Bento4Service {
 
         const { stdout, stderr } = await execaCommand(
             `mp4fragment --fragment-duration 4000 "${videoPath}" "${outputDir}"`,
-            { shell: true }
+            {
+                shell: true 
+            }
         )
         const execResult = stdout || stderr
         const lines = execResult.split("\n")
@@ -106,7 +118,9 @@ export class Bento4Service {
 
         const { stdout, stderr } = await execaCommand(
             `mp4dash --mpd-name manifest.mpd ${line} -o "${outputDir}" --use-segment-timeline --subtitles --force`,
-            { shell: true }
+            {
+                shell: true 
+            }
         )
         const execResult = stdout || stderr
         const lines = execResult.split("\n")

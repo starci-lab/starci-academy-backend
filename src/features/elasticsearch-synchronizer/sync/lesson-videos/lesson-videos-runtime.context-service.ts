@@ -32,7 +32,9 @@ import {
 import type {
     LessonVideoRuntimeContextRequest,
 } from "./types"
-import { LessonVideoNotFoundException } from "@modules/exceptions"
+import {
+    LessonVideoNotFoundException 
+} from "@modules/exceptions"
 
 @Injectable({
     scope: Scope.REQUEST,
@@ -88,8 +90,9 @@ export class LessonVideoRuntimeContextService {
             )
         }
 
-        const plainLessonVideo = lessonVideo.toPlain<LessonVideoEntity>();
-        const locales = [Locale.Vi, Locale.En]
+        const plainLessonVideo = lessonVideo.toPlain<LessonVideoEntity>()
+        const locales = [Locale.Vi,
+            Locale.En]
 
         for (const locale of locales) {
             // deep clone the plain object to avoid mutating the original
@@ -102,7 +105,7 @@ export class LessonVideoRuntimeContextService {
                 hydratedLessonVideo.defaultLocale ?? Locale.En,
             )
 
-            const { translations, ...dataToIndex } = hydratedLessonVideo;
+            const { translations, ...dataToIndex } = hydratedLessonVideo
 
             // Use the original UUID for the 'id' field in the document body,
             // but use a composite key (uuid-locale) for the Elasticsearch document ID (_id).
@@ -115,7 +118,7 @@ export class LessonVideoRuntimeContextService {
                 LessonVideoEntity,
                 indexedData,
                 `${hydratedLessonVideo.id}-${locale}`,
-            );
+            )
         }
     }
 }

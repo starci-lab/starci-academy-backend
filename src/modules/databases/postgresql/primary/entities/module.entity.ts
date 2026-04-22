@@ -209,5 +209,5 @@ export class ModuleEntity extends UuidAbstractEntity {
         type: "int",
         default: 0,
     })
-    numContents: number
+        numContents: number
 }

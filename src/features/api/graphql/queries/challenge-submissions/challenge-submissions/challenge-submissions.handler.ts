@@ -53,7 +53,8 @@ export class ChallengeSubmissionsHandler
             user,
         } = query.params
 
-        const order: FindOptionsOrder<ChallengeSubmissionEntity> = {}
+        const order: FindOptionsOrder<ChallengeSubmissionEntity> = {
+        }
         for (const sort of sorts) {
             order[sort.by as ChallengeSubmissionsSortBy] = sort.order
         }

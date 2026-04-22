@@ -15,7 +15,7 @@ export class ContentRequest {
             nullable: true,
         },
     )
-    id?: string
+        id?: string
 
     @Field(
         () => String,
@@ -24,5 +24,5 @@ export class ContentRequest {
             nullable: true,
         },
     )
-    displayId?: string
+        displayId?: string
 }

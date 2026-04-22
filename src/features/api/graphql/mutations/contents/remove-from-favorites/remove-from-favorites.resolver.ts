@@ -63,11 +63,11 @@ export class RemoveFromFavoritesResolver {
     )
     async execute(
         @Args("request")
-        request: RemoveFromFavoritesRequest,
+            request: RemoveFromFavoritesRequest,
         @GraphQLLocale()
-        locale: Locale,
+            locale: Locale,
         @KeycloakGraphQLUser()
-        user: UserEntity,
+            user: UserEntity,
     ): Promise<RemoveFromFavoritesResponse> {
         return this.removeFromFavoritesService.execute(
             {

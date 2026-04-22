@@ -1,3 +1,3 @@
-export * from './constants';
-export * from './sepay.module';
-export * from './sepay.providers';
+export * from "./constants"
+export * from "./sepay.module"
+export * from "./sepay.providers"

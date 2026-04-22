@@ -1,10 +1,24 @@
-import { Injectable, Logger } from "@nestjs/common"
-import { AbstractStepService } from "@modules/bullmq"
-import { JobExtendedContext } from "../types"
-import { FilenameProcessData } from "@modules/bullmq"
-import { JobActionService } from "@modules/bussiness"
-import { InjectPrimaryPostgreSQLEntityManager } from "@modules/databases"
-import { EntityManager } from "typeorm"
+import {
+    Injectable, Logger 
+} from "@nestjs/common"
+import {
+    AbstractStepService 
+} from "@modules/bullmq"
+import {
+    JobExtendedContext 
+} from "../types"
+import {
+    FilenameProcessData 
+} from "@modules/bullmq"
+import {
+    JobActionService 
+} from "@modules/bussiness"
+import {
+    InjectPrimaryPostgreSQLEntityManager 
+} from "@modules/databases"
+import {
+    EntityManager 
+} from "typeorm"
 
 @Injectable()
 export class ProcessVideoPackageStepService extends AbstractStepService<FilenameProcessData, undefined> {
@@ -35,11 +49,14 @@ export class ProcessVideoPackageStepService extends AbstractStepService<Filename
         // await this.bento4Service.generateHlsManifestFromFragments(assetId, videoConfig().videoNames)
 
         await this.entityManager.transaction(async (em) => {
-            await this.jobActionService.increaseJob({ job, entityManager: em })
+            await this.jobActionService.increaseJob({
+                job, entityManager: em 
+            })
             await this.jobActionService.saveExecutionResult({
                 job,
                 key: this.stepName,
-                executionResult: {},
+                executionResult: {
+                },
                 entityManager: em,
             })
         })

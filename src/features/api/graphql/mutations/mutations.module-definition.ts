@@ -7,9 +7,9 @@ export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN, OPTIONS_TYPE } =
         .setExtras({
             isGlobal: false
         },
-            (definition, extras) => ({
-                ...definition,
-                global: extras.isGlobal,
-            })
+        (definition, extras) => ({
+            ...definition,
+            global: extras.isGlobal,
+        })
         )
         .build()

@@ -196,61 +196,61 @@ export class ChallengeParserService {
                 ),
             steps: (
                 jsonMap.get(Locale.En)?.steps ?? []).map(
-                    ({
+                ({
+                    orderIndex,
+                    title,
+                    body,
+                }) => {
+                    const stepId = this.challengeStepIdFactoryService.generate(
+                        {
+                            courseIndex,
+                            moduleIndex,
+                            contentIndex,
+                            challengeIndex,
+                            stepIndex: orderIndex,
+                        },
+                    )
+                    const translations = Array.from(jsonMap.entries())
+                        .map(
+                            (
+                                [
+                                    locale,
+                                    challenge,
+                                ]
+                            ) => (challenge.steps ?? [])
+                                .filter((step) => step.orderIndex === orderIndex)
+                                .map<Array<DeepPartial<ChallengeStepTranslationEntity>>>((step) => {
+                                    return [
+                                        {
+                                            challengeStepId: stepId,
+                                            locale,
+                                            value: step.title,
+                                            field: "title",
+                                        },
+                                        {
+                                            challengeStepId: stepId,
+                                            locale,
+                                            value: step.body,
+                                            field: "body",
+                                        },
+                                    ]
+                                }),
+                        )
+                        .flat()
+                        .flat()
+                    return {
+                        id: stepId,
                         orderIndex,
                         title,
+                        defaultLocale: Locale.En,
+                        challenge: {
+                            id: challengeId,
+                        },
                         body,
-                    }) => {
-                        const stepId = this.challengeStepIdFactoryService.generate(
-                            {
-                                courseIndex,
-                                moduleIndex,
-                                contentIndex,
-                                challengeIndex,
-                                stepIndex: orderIndex,
-                            },
-                        )
-                        const translations = Array.from(jsonMap.entries())
-                            .map(
-                                (
-                                    [
-                                        locale,
-                                        challenge,
-                                    ]
-                                ) => (challenge.steps ?? [])
-                                    .filter((step) => step.orderIndex === orderIndex)
-                                    .map<Array<DeepPartial<ChallengeStepTranslationEntity>>>((step) => {
-                                        return [
-                                            {
-                                                challengeStepId: stepId,
-                                                locale,
-                                                value: step.title,
-                                                field: "title",
-                                            },
-                                            {
-                                                challengeStepId: stepId,
-                                                locale,
-                                                value: step.body,
-                                                field: "body",
-                                            },
-                                        ]
-                                    }),
-                            )
-                            .flat()
-                            .flat()
-                        return {
-                            id: stepId,
-                            orderIndex,
-                            title,
-                            defaultLocale: Locale.En,
-                            challenge: {
-                                id: challengeId,
-                            },
-                            body,
-                            translations,
-                        }
+                        translations,
                     }
-                ),
+                }
+            ),
             submissions: (
                 jsonMap.get(Locale.En)?.submissions ?? []
             ).map(

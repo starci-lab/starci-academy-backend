@@ -54,7 +54,8 @@ export class CourseHandler
             })
         }
 
-        const objectKey = this.s3NameResolverService.course(request.displayId, locale)
+        const objectKey = this.s3NameResolverService.course(request.displayId,
+            locale)
         const cdnPayload = await this.s3ReadService.json<UploadPayload>({
             key: objectKey,
             provider: S3Provider.Minio,

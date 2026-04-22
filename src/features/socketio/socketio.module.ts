@@ -7,6 +7,9 @@ import {
 import {
     AutocompleteModule 
 } from "./autocomplete"
+import {
+    JobNotificationsModule,
+} from "./job-notifications"
 
 /**
  * Feature module bundling all real-time Socket.IO gateways of the app.
@@ -16,6 +19,9 @@ import {
 @Module({
     imports: [
         AutocompleteModule.register({
+            isGlobal: true,
+        }),
+        JobNotificationsModule.register({
             isGlobal: true,
         }),
     ],

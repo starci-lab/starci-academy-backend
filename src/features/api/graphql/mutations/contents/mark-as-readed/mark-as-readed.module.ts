@@ -13,7 +13,9 @@ import {
 import {
     MarkAsReadedHandler,
 } from "./mark-as-readed.handler"
-import { ConfigurableModuleClass } from "./mark-as-readed.module-definition"
+import {
+    ConfigurableModuleClass 
+} from "./mark-as-readed.module-definition"
 
 @Module({
     imports: [

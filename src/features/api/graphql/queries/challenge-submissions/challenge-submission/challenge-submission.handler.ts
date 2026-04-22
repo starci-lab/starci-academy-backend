@@ -45,7 +45,8 @@ export class ChallengeSubmissionHandler
         } = query.params
 
         if (!user) {
-            throw new UserNotFoundException({})
+            throw new UserNotFoundException({
+            })
         }
 
         const submission = await this.entityManager.findOne(

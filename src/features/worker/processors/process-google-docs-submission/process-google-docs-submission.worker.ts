@@ -34,7 +34,7 @@ import type {
 } from "./types"
 import {
     JobExtendedContext,
-} from "../types"
+} from "@modules/bullmq"
 import {
     ChallengeSubmissionPromptEntity,
     ChallengeSubmissionEntity,

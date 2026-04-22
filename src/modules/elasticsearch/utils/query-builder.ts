@@ -1,4 +1,6 @@
-import { estypes } from "@elastic/elasticsearch";
+import {
+    estypes 
+} from "@elastic/elasticsearch"
 
 export interface BuildSearchQueryParams {
     filters?: estypes.QueryDslQueryContainer[];
@@ -16,19 +18,19 @@ export class ElasticsearchQueryBuilder {
             bool: {
                 must: [...filters],
             },
-        };
+        }
 
         if (search && searchFields.length > 0) {
-            query.bool!.must = Array.isArray(query.bool!.must) ? query.bool!.must : [query.bool!.must as estypes.QueryDslQueryContainer];
+            query.bool!.must = Array.isArray(query.bool!.must) ? query.bool!.must : [query.bool!.must as estypes.QueryDslQueryContainer]
             query.bool!.must.push({
                 multi_match: {
                     query: search,
                     fields: searchFields,
                     fuzziness: "AUTO",
                 },
-            });
+            })
         }
 
-        return query;
+        return query
     }
 }

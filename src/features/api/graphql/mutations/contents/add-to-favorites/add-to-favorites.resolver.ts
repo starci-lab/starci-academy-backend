@@ -63,11 +63,11 @@ export class AddToFavoritesResolver {
     )
     async execute(
         @Args("request")
-        request: AddToFavoritesRequest,
+            request: AddToFavoritesRequest,
         @GraphQLLocale()
-        locale: Locale,
+            locale: Locale,
         @KeycloakGraphQLUser()
-        user: UserEntity,
+            user: UserEntity,
     ): Promise<AddToFavoritesResponse> {
         return this.addToFavoritesService.execute(
             {

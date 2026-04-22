@@ -13,7 +13,9 @@ import {
 import {
     AddToFavoritesHandler,
 } from "./add-to-favorites.handler"
-import { ConfigurableModuleClass } from "./add-to-favorites.module-definition"
+import {
+    ConfigurableModuleClass 
+} from "./add-to-favorites.module-definition"
 
 @Module({
     imports: [

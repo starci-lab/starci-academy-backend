@@ -43,12 +43,12 @@ export class CourseResolver {
             description: "Current pricing phase applied to the course.",
         },
     )
-        currentPhase(
+    currentPhase(
             @Parent()
                 course: CourseEntity,
-        ): PricingPhase {
-            return course.metadata?.currentPhase ?? PricingPhase.Regular
-        }
+    ): PricingPhase {
+        return course.metadata?.currentPhase ?? PricingPhase.Regular
+    }
 
     /**
      * Returns a single course by id.

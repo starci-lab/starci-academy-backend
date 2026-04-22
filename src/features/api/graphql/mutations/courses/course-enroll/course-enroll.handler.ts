@@ -58,7 +58,8 @@ export class CourseEnrollHandler
         } = params
 
         if (!user) {
-            throw new UserNotFoundException({})
+            throw new UserNotFoundException({
+            })
         }
 
         const {
