@@ -5,12 +5,15 @@ import {
     createCorsOptions 
 } from "@modules/cors"
 
-export const CALLBACK_NAMESPACE = "callback"
-export const DEMO_NAMESPACE = "demo"
+export const AUTOCOMPLETE_NAMESPACE = "autocomplete"
+export const JOB_PIPELINE_NAMESPACE = "jobs"
 
-export const CallbackWebSocketGateway = () => WebSocketGateway(
+/**
+ * Decorator to mark a class as a WebSocket gateway for the autocomplete namespace.
+ */
+export const AutocompleteWebSocketGateway = () => WebSocketGateway(
     {
-        namespace: CALLBACK_NAMESPACE,
+        namespace: AUTOCOMPLETE_NAMESPACE,
         transports: [
             "websocket",
             "polling"
@@ -20,9 +23,12 @@ export const CallbackWebSocketGateway = () => WebSocketGateway(
     }
 )
 
-export const DemoWebSocketGateway = () => WebSocketGateway(
+/**
+ * Decorator to mark a class as a WebSocket gateway for the job pipeline namespace.
+ */
+export const JobPipelineWebSocketGateway = () => WebSocketGateway(
     {
-        namespace: DEMO_NAMESPACE,
+        namespace: JOB_PIPELINE_NAMESPACE,
         transports: [
             "websocket",
             "polling"

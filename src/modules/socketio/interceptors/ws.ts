@@ -1,12 +1,18 @@
 import {
     SUCCESS_MESSAGE_METADATA
 } from "../constants"
+import type {
+    WsSuccessMessageValue,
+} from "../decorators/success"
 import {
     InjectSuperJson 
 } from "@modules/mixin"
 import {
     TypedSocket 
 } from "@modules/socketio"
+import {
+    Locale,
+} from "@modules/databases"
 import {
     Injectable, 
     NestInterceptor, 
@@ -37,13 +43,18 @@ implements NestInterceptor<T, void>
     intercept(context: ExecutionContext, next: CallHandler<T>): Observable<void> {
         const client = context.switchToWs().getClient<TypedSocket>()
  
-        const message =
-      this.reflector.get<string>(
+        const messageValue =
+      this.reflector.get<WsSuccessMessageValue>(
           SUCCESS_MESSAGE_METADATA,
           context.getHandler()) ??
-      this.reflector.get<string>(
+      this.reflector.get<WsSuccessMessageValue>(
           SUCCESS_MESSAGE_METADATA,
           context.getClass())
+
+        const resolvedMessage = this.resolveMessage(
+            messageValue,
+            client,
+        )
         const eventName = this.reflector.get<string>(
             MESSAGE_METADATA,
             context.getHandler())
@@ -53,7 +64,7 @@ implements NestInterceptor<T, void>
                     eventName,
                     {
                         success: true,
-                        message,
+                        message: resolvedMessage,
                         data: this.superJson.serialize(data),
                     },
                     
@@ -73,5 +84,38 @@ implements NestInterceptor<T, void>
                 })
             }),
         )
+    }
+
+    private resolveMessage(
+        value: WsSuccessMessageValue | undefined,
+        client: TypedSocket,
+    ): string | undefined {
+        if (!value) return undefined
+        if (typeof value === "string") return value
+
+        // resolve locale from socket data first, then accept-language header
+        const dataLocale = (client.data as { locale?: string } | undefined)?.locale
+        const locale = (
+            (dataLocale === Locale.Vi || dataLocale === Locale.En
+                ? dataLocale
+                : undefined) ??
+      this.resolveAcceptLanguage(client) ??
+      Locale.En
+        ) as Locale
+
+        return value[locale] ?? value[Locale.En] ?? value[Locale.Vi]
+    }
+
+    private resolveAcceptLanguage(client: TypedSocket): Locale | undefined {
+        const raw = (client.handshake?.headers as Record<string, unknown> | undefined)?.["accept-language"]
+        if (typeof raw !== "string") return undefined
+
+        const parts = raw.split(",").map((p) => p.trim().toLowerCase())
+        for (const part of parts) {
+            const lang = part.split(";")[0]
+            if (lang.startsWith("vi")) return Locale.Vi
+            if (lang.startsWith("en")) return Locale.En
+        }
+        return undefined
     }
 }
