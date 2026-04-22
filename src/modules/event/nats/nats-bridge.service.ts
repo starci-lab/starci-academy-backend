@@ -109,7 +109,6 @@ export class NatsBridgeService implements OnModuleInit {
                     (metadata as NatsConfigMapEntryMetadata).useNats,
             )
             .map(([eventName]) => eventName)
-
         // get all subjects from config and intersection with options subjects
         this.subjects = _.intersection(
             allNatsSubjects,

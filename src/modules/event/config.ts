@@ -10,8 +10,8 @@ import {
 export const configMap = {
     /** Event name: job status updated. */
     [EventName.JobStatusUpdated]: {
-        useNats: false,
-        useLocal: true,
+        useNats: true,
+        useLocal: false,
         eventPayload: {
         } as JobStatusUpdatedEventPayload,
     },
