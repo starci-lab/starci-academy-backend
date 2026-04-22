@@ -58,6 +58,9 @@ jobs:
 
           ELASTICSEARCH_NODE: ${{ secrets.ELASTICSEARCH_NODE }}
           ELASTICSEARCH_PASSWORD: ${{ secrets.ELASTICSEARCH_PASSWORD }}
+
+          NATS_SERVER_1_HOST: ${{ secrets.NATS_SERVER_1_HOST }}
+          NATS_AUTH_TOKEN: ${{ secrets.NATS_AUTH_TOKEN }}
         run: |
           docker compose -f apps/core/vps-compose.yaml down || true
           docker compose -f apps/core/vps-compose.yaml up --build -d 

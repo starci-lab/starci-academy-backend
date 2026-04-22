@@ -45,6 +45,9 @@ services:
 
       ELASTICSEARCH_NODE: ${ELASTICSEARCH_NODE}
       ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD}
+
+      NATS_SERVER_1_HOST: ${NATS_SERVER_1_HOST}
+      NATS_AUTH_TOKEN: ${NATS_AUTH_TOKEN}
     volumes:
       - /root/academy/.mount:/usr/src/app/.mount
     restart: always
