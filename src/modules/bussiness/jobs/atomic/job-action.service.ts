@@ -17,6 +17,7 @@ import type {
     IncreaseJobParams,
     SaveExecutionResultParams,
     LoadExecutionResultParams,
+    ProcessingJobParams,
 } from "../types"
 import {
     DayjsService,
@@ -28,6 +29,12 @@ import {
 import {
     JobNotFoundException 
 } from "@modules/exceptions"
+import {
+    EventName 
+} from "@modules/event"
+import {
+    EventEmitterService 
+} from "@modules/event"
 
 /**
  * Service for job lifecycle management:
@@ -42,6 +49,7 @@ export class JobActionService {
         private readonly dayjsService: DayjsService,
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
+        private readonly eventEmitterService: EventEmitterService,
     ) { }
 
     /**
@@ -98,7 +106,7 @@ export class JobActionService {
                 id,
                 actionType,
                 payload,
-                status: JobStatus.Processing,
+                status: JobStatus.Queued,
                 currentStep: 0,
                 maxSteps,
                 queueAt: this.dayjsService.now().toDate(),
@@ -157,6 +165,13 @@ export class JobActionService {
             JobEntity,
             job,
         )
+        await this.eventEmitterService.emit({
+            event: EventName.JobStatusUpdated,
+            payload: {
+                jobId: job.id,
+                status: job.status,
+            },
+        })
     }
 
     /**
@@ -178,6 +193,39 @@ export class JobActionService {
             JobEntity,
             job,
         )
+        await this.eventEmitterService.emit({
+            event: EventName.JobStatusUpdated,
+            payload: {
+                jobId: job.id,
+                status: job.status,
+                error: job.error ?? undefined,
+            },
+        })
+    }
+    
+    /**
+     * Update the job status to processing.
+     * @param entityManager - The entity manager.
+     * @param job - The job entity.
+     * @returns The job.
+     */
+    async processingJob({
+        entityManager,
+        job,
+    }: ProcessingJobParams): Promise<void> {
+        const manager = entityManager ?? this.primaryEntityManager
+        job.status = JobStatus.Processing
+        await manager.save(
+            JobEntity,
+            job,
+        )
+        await this.eventEmitterService.emit({
+            event: EventName.JobStatusUpdated,
+            payload: {
+                jobId: job.id,
+                status: job.status,
+            },
+        })
     }
 
     /**

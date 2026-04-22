@@ -87,3 +87,9 @@ export interface LoadExecutionResultParams extends JobTargetParams {
     /** The key of the execution result. */
     key: string
 }
+
+/** Params for updating the status of a job. */
+export interface ProcessingJobParams extends JobTargetParams {
+    /** The entity manager to use. */
+    entityManager?: EntityManager
+}

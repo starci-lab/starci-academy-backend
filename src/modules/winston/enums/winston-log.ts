@@ -23,4 +23,20 @@ export enum WinstonLog {
     CommandError = "CommandError",
     /** CLI: command finished successfully. */
     CommandSuccess = "CommandSuccess",
+    /** NATS consumer opened (bridge). */
+    NatsConsumerOpened = "NatsConsumerOpened",
+    /** NATS consumer closed (bridge). */
+    NatsConsumerClosed = "NatsConsumerClosed",
+    /** NATS consumer error (bridge). */
+    NatsConsumerError = "NatsConsumerError",
+    /** Cache: error while getting a cache entry. */
+    ErrorGettingCache = "ErrorGettingCache",
+    /** Cache: error while setting a cache entry. */
+    ErrorSettingCache = "ErrorSettingCache",
+    /** Cache: error while deleting a cache entry. */
+    ErrorDeletingCache = "ErrorDeletingCache",
+    /** Cache debug: Redis manager is OK. */
+    CacheDebugOkRedis = "CacheDebugOkRedis",
+    /** Cache debug: Memory manager is OK. */
+    CacheDebugOkMemory = "CacheDebugOkMemory",
 }

@@ -66,7 +66,7 @@ export class JobEntity extends UuidAbstractEntity {
             type: "enum",
             enum: JobStatus,
             enumName: "job_status",
-            default: JobStatus.Processing,
+            default: JobStatus.Queued,
         },
     )
         status: JobStatus

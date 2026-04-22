@@ -35,7 +35,7 @@ export class ProcessGitSubmissionStepMappingService {
             ProcessGitSubmissionPayload,
             ExtendedProcessGitSubmissionContext
         >
-    > {
+        > {
         return new Map<number, AbstractStepService<
             ProcessGitSubmissionPayload,
             ExtendedProcessGitSubmissionContext

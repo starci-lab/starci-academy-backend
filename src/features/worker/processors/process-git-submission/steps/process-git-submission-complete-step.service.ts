@@ -3,7 +3,6 @@ import type {
 } from "@modules/bullmq"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    InjectQdrantClient,
     JobStatus,
     SubmissionAttemptEntity,
     SubmissionFeedbackEntity,
@@ -32,7 +31,7 @@ import type {
 } from "../types"
 import type {
     JobExtendedContext,
-} from "../../types"
+} from "@modules/bullmq"
 import {
     DayjsService,
 } from "@modules/mixin"
@@ -42,9 +41,6 @@ import {
 import {
     ProcessGitSubmissionGradeStepService,
 } from "./process-git-submission-grade-step.service"
-import {
-    QdrantClient,
-} from "@qdrant/qdrant-js"
 
 /**
  * Step 2: persist grade and feedback to `user_challenge_submissions`.
@@ -61,8 +57,6 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
         private readonly winstonService: WinstonService,
         private readonly dayjsService: DayjsService,
         private readonly processGitSubmissionGradeStepService: ProcessGitSubmissionGradeStepService,
-        @InjectQdrantClient()
-        private readonly qdrantClient: QdrantClient,
     ) {
         super()
     }
@@ -88,11 +82,24 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
             ExtendedProcessGitSubmissionContext
         >,
     ): Promise<void> {
-        const executionResult = await this.execute(context)
-        await this.finalize(
-            executionResult,
-            context,
-        )
+        try {
+            // Execute the step
+            const executionResult = await this.execute(context)
+            // Finalize the step
+            await this.finalize(
+                executionResult,
+                context,
+            )
+        } catch (error) {
+            // update the job status to failed
+            await this.jobActionService.failJob(
+                {
+                    job: context.job,
+                    error: error.message,
+                },
+            )
+            throw error
+        }
     }
 
     /**

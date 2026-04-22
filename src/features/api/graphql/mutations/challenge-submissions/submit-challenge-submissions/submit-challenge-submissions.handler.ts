@@ -63,7 +63,8 @@ export class SubmitChallengeSubmissionsHandler
         } = command.params
 
         if (!user) {
-            throw new UserNotFoundException({})
+            throw new UserNotFoundException({
+            })
         }
 
         const {
@@ -133,7 +134,8 @@ export class SubmitChallengeSubmissionsHandler
 
             if (lastAttempt) {
                 const cooldownMs = envConfig().job.processGitSubmission.cooldownMs
-                const nextAllowedAt = this.dayjsService.from(lastAttempt.createdAt).add(cooldownMs, "ms")
+                const nextAllowedAt = this.dayjsService.from(lastAttempt.createdAt).add(cooldownMs,
+                    "ms")
                 if (nextAllowedAt.isAfter(this.dayjsService.now())) {
                     throw new SubmissionCooldownException({
                         nextAllowedAt: nextAllowedAt.toDate(),

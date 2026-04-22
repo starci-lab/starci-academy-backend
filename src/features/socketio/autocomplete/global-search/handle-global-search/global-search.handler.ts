@@ -46,6 +46,8 @@ import {
     TITLE_FIELD,
     DESCRIPTION_FIELD,
 } from "./constants"
+
+const DEFAULT_LOCALE = "en"
 /**
  * Handler that performs fuzzy search across multiple Elasticsearch indices
  * (contents, challenges, courses, lesson-videos) and merges results by score.
@@ -75,6 +77,7 @@ export class GlobalSearchHandler
             },
             locale
         } = payload
+        const resolvedLocale = locale ?? DEFAULT_LOCALE
         // sanitize input
         const term = termRaw?.trim() ?? ""
         if (term.length === 0) {
@@ -146,13 +149,13 @@ export class GlobalSearchHandler
         // ES-only scoping: derive moduleIds from enrolled courses (courses index stores `modules: [{ id }]`)
         const moduleIds = await this.resolveModuleIdsFromCoursesEs({
             courseIds,
-            locale,
+            locale: resolvedLocale,
         })
 
         // ES-only scoping: derive contentIds from moduleIds (contents index stores `moduleId`)
         const contentIds = await this.resolveContentIdsFromModulesEs({
             moduleIds,
-            locale,
+            locale: resolvedLocale,
         })
 
 
@@ -181,7 +184,7 @@ export class GlobalSearchHandler
                     index: "courses",
                     term,
                     size,
-                    locale,
+                    locale: resolvedLocale,
                     must: [
                         {
                             terms: {
@@ -203,7 +206,7 @@ export class GlobalSearchHandler
                     index: "challenges",
                     term,
                     size,
-                    locale,
+                    locale: resolvedLocale,
                     must: contentIds.length
                         ? [
                             {
@@ -220,7 +223,7 @@ export class GlobalSearchHandler
                     index: "lesson-videos",
                     term,
                     size,
-                    locale,
+                    locale: resolvedLocale,
                     must: contentIds.length
                         ? [
                             {
@@ -236,7 +239,7 @@ export class GlobalSearchHandler
                 ? this.searchContentsFullText({
                     term,
                     size,
-                    locale,
+                    locale: resolvedLocale,
                     must: moduleIds.length
                         ? [
                             {
@@ -251,12 +254,35 @@ export class GlobalSearchHandler
         ])
 
         return {
-            courses,
-            modules,
-            challenges,
-            lessonVideos,
-            contents,
+            courses: this.dedupeItems(courses),
+            modules: this.dedupeItems(modules),
+            challenges: this.dedupeItems(challenges),
+            lessonVideos: this.dedupeItems(lessonVideos),
+            contents: this.dedupeItems(contents),
         }
+    }
+
+    /**
+     * Dedupe search results by stable identity to avoid duplicates across locales.
+     */
+    private dedupeItems(items: Array<GlobalSearchItem>): Array<GlobalSearchItem> {
+        const map = new Map<string, GlobalSearchItem>()
+        for (const item of items) {
+            const key = `${item.id}::${item.displayId}`
+            if (!map.has(key)) {
+                map.set(key,
+                    item)
+                continue
+            }
+            const prev = map.get(key)!
+            const prevScore = prev.texts?.length ?? 0
+            const nextScore = item.texts?.length ?? 0
+            if (nextScore > prevScore) {
+                map.set(key,
+                    item)
+            }
+        }
+        return Array.from(map.values())
     }
 
     /**
