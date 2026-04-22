@@ -3,7 +3,6 @@ import {
 } from "@modules/cqrs"
 import {
     ChallengeEntity,
-    ScyllaDBService,
 } from "@modules/databases"
 import {
     ElasticsearchQueryBuilder,
@@ -12,9 +11,6 @@ import {
 import {
     envConfig,
 } from "@modules/env"
-import {
-    ScyllaSyncTables,
-} from "@features/scylladb-synchronizer/sync/tables"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -30,7 +26,6 @@ import {
 } from "./graphql-types"
 import {
     executeElasticScyllaFallback,
-    searchScyllaLocalizedDocuments,
 } from "../../utils/read-policy-fallback.util"
 
 @QueryHandler(ChallengesQuery)
@@ -40,7 +35,6 @@ export class ChallengesHandler
     implements IQueryHandler<ChallengesQuery, ChallengesResponseData> {
     constructor(
         private readonly elasticsearch: ElasticsearchService,
-        private readonly scylladb: ScyllaDBService,
     ) {
         super()
     }
@@ -96,19 +90,6 @@ export class ChallengesHandler
                     size: limit,
                 },
             ),
-            scylladb: () => searchScyllaLocalizedDocuments<ChallengeEntity>({
-                scylladb: this.scylladb,
-                tableName: ScyllaSyncTables.challenges,
-                locale,
-                limit,
-                pageNumber,
-                sorts,
-                searchFields: ["title",
-                    "description"],
-                exactFilters: {
-                    contentId,
-                },
-            }),
         })
 
         return {

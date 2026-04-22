@@ -2,15 +2,12 @@ import {
     sleep,
 } from "@modules/common"
 import {
-    ScyllaDBService,
-} from "@modules/databases"
-import {
     envConfig,
 } from "@modules/env"
 
 interface ReadPolicySource {
     priority: number
-    type: "elasticsearch" | "scylladb"
+    type: "elasticsearch"
     maxRetries: number
     enabled: boolean
     retryDelayMs: number
@@ -24,23 +21,6 @@ type ReadPolicySourceType = ReadPolicySource["type"]
 
 interface ExecuteElasticScyllaFallbackParams<T> {
     elasticsearch: () => Promise<T>
-    scylladb: () => Promise<T>
-}
-
-interface SearchScyllaLocalizedDocumentsParams<T extends object> {
-    scylladb: ScyllaDBService
-    tableName: string
-    locale: string
-    limit: number
-    pageNumber: number
-    sorts: Array<{
-        by: string
-        order: string
-    }>
-    search?: string
-    searchFields?: Array<string>
-    exactFilters?: Record<string, unknown>
-    postFilter?: (row: T) => boolean
 }
 
 const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
@@ -93,7 +73,6 @@ const executeWithPolicy = async <T>(
 const getElasticScyllaReadSources = (): Array<ReadPolicySource> => {
     const sourceTypes = new Set<ReadPolicySourceType>([
         "elasticsearch",
-        "scylladb",
     ])
 
     return envConfig().readPolicy.sources
@@ -115,126 +94,12 @@ export const executeElasticScyllaFallback = async <T>(
     let lastError: unknown
     for (const source of sources) {
         try {
-            if (source.type === "elasticsearch") {
-                return await executeWithPolicy(source,
-                    params.elasticsearch)
-            }
             return await executeWithPolicy(source,
-                params.scylladb)
+                params.elasticsearch)
         } catch (error) {
             lastError = error
         }
     }
 
     throw lastError ?? new Error("All read sources failed")
-}
-
-const comparePrimitiveValues = (left: unknown, right: unknown): number => {
-    if (left === right) {
-        return 0
-    }
-
-    if (left == null) {
-        return 1
-    }
-
-    if (right == null) {
-        return -1
-    }
-
-    if (typeof left === "number" && typeof right === "number") {
-        return left - right
-    }
-
-    return String(left).localeCompare(String(right))
-}
-
-const applySorts = <T extends object>(
-    rows: Array<T>,
-    sorts: SearchScyllaLocalizedDocumentsParams<T>["sorts"],
-): Array<T> => {
-    return rows.sort((left,
-        right) => {
-        const leftRecord = left as Record<string, unknown>
-        const rightRecord = right as Record<string, unknown>
-
-        for (const sort of sorts) {
-            const by = sort.by
-            const order = sort.order.toLowerCase() === "desc" ? "desc" : "asc"
-            const comparison = comparePrimitiveValues(leftRecord[by],
-                rightRecord[by])
-
-            if (comparison !== 0) {
-                return order === "desc" ? -comparison : comparison
-            }
-        }
-        return 0
-    })
-}
-
-export const searchScyllaLocalizedDocuments = async <T extends object>(
-    params: SearchScyllaLocalizedDocumentsParams<T>,
-): Promise<{
-    data: Array<T>
-    count: number
-}> => {
-    const {
-        scylladb,
-        tableName,
-        locale,
-        limit,
-        pageNumber,
-        sorts,
-        search,
-        searchFields = [],
-        exactFilters = {
-        },
-        postFilter,
-    } = params
-
-    const sourceRows = await scylladb.findLocalizedDocuments<T>(tableName,
-        locale)
-
-    const exactFilteredRows = sourceRows.filter((row) => {
-        const rowRecord = row as Record<string, unknown>
-        return Object.entries(exactFilters).every(([key,
-            value]) => {
-            if (value === undefined) {
-                return true
-            }
-            return rowRecord[key] === value
-        })
-    })
-
-    const searchTerm = search?.trim().toLowerCase()
-    const searchFilteredRows = !searchTerm
-        ? exactFilteredRows
-        : exactFilteredRows.filter((row) => {
-            const rowRecord = row as Record<string, unknown>
-            return searchFields.some((field) => {
-                const value = rowRecord[field]
-                if (value == null) {
-                    return false
-                }
-                return String(value).toLowerCase().includes(searchTerm)
-            })
-        })
-
-    const finalFilteredRows = postFilter
-        ? searchFilteredRows.filter(postFilter)
-        : searchFilteredRows
-
-    const sortedRows = applySorts(finalFilteredRows,
-        sorts)
-    const count = sortedRows.length
-    const from = Math.max(0,
-        pageNumber * limit)
-    const to = from + Math.max(0,
-        limit)
-
-    return {
-        count,
-        data: sortedRows.slice(from,
-            to),
-    }
 }

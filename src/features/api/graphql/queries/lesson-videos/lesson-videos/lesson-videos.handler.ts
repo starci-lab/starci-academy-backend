@@ -3,7 +3,6 @@ import {
 } from "@modules/cqrs"
 import {
     LessonVideoEntity,
-    ScyllaDBService,
 } from "@modules/databases"
 import {
     ElasticsearchQueryBuilder,
@@ -12,9 +11,6 @@ import {
 import {
     envConfig,
 } from "@modules/env"
-import {
-    ScyllaSyncTables,
-} from "@features/scylladb-synchronizer/sync/tables"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -30,7 +26,6 @@ import {
 } from "./graphql-types"
 import {
     executeElasticScyllaFallback,
-    searchScyllaLocalizedDocuments,
 } from "../../utils/read-policy-fallback.util"
 
 @QueryHandler(LessonVideosQuery)
@@ -40,7 +35,6 @@ export class LessonVideosHandler
     implements IQueryHandler<LessonVideosQuery, LessonVideosResponseData> {
     constructor(
         private readonly elasticsearch: ElasticsearchService,
-        private readonly scylladb: ScyllaDBService,
     ) {
         super()
     }
@@ -99,21 +93,6 @@ export class LessonVideosHandler
                     size: limit,
                 },
             ),
-            scylladb: () => searchScyllaLocalizedDocuments<LessonVideoEntity>({
-                scylladb: this.scylladb,
-                tableName: ScyllaSyncTables.lessonVideos,
-                locale,
-                limit,
-                pageNumber,
-                sorts,
-                search,
-                searchFields: ["title",
-                    "description",
-                    "caption"],
-                exactFilters: {
-                    contentId,
-                },
-            }),
         })
 
         return {

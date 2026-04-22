@@ -959,7 +959,7 @@ export const envConfig = () => ({
                 }),
                 enabled: parseEnvBoolean({
                     key: "READ_POLICY_SCYLLA_ENABLED",
-                    defaultValue: true,
+                    defaultValue: false,
                 }),
                 retryDelayMs: parseEnvMs({
                     key: "READ_POLICY_SCYLLA_RETRY_DELAY_MS",

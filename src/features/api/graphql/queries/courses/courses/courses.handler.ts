@@ -3,7 +3,6 @@ import {
 } from "@modules/cqrs"
 import {
     CourseEntity,
-    ScyllaDBService,
 } from "@modules/databases"
 import {
     ElasticsearchQueryBuilder,
@@ -12,9 +11,6 @@ import {
 import {
     envConfig,
 } from "@modules/env"
-import {
-    ScyllaSyncTables,
-} from "@features/scylladb-synchronizer/sync/tables"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -30,7 +26,6 @@ import {
 } from "./graphql-types"
 import {
     executeElasticScyllaFallback,
-    searchScyllaLocalizedDocuments,
 } from "../../utils/read-policy-fallback.util"
 
 @QueryHandler(CoursesQuery)
@@ -40,7 +35,6 @@ export class CoursesHandler
     implements IQueryHandler<CoursesQuery, CoursesResponseData> {
     constructor(
         private readonly elasticsearch: ElasticsearchService,
-        private readonly scylladb: ScyllaDBService,
     ) {
         super()
     }
@@ -92,17 +86,6 @@ export class CoursesHandler
                     size: limit,
                 },
             ),
-            scylladb: () => searchScyllaLocalizedDocuments<CourseEntity>({
-                scylladb: this.scylladb,
-                tableName: ScyllaSyncTables.courses,
-                locale,
-                limit,
-                pageNumber,
-                sorts,
-                search,
-                searchFields: ["title",
-                    "description"],
-            }),
         })
 
         return {

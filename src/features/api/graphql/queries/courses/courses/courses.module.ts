@@ -19,14 +19,10 @@ import {
 import {
     ElasticsearchModule,
 } from "@modules/elasticsearch"
-import {
-    ScyllaDBModule,
-} from "@modules/databases"
 
 @Module({
     imports: [
         ElasticsearchModule,
-        ScyllaDBModule,
     ],
     providers: [
         CoursesService,

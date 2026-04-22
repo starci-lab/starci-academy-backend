@@ -22,9 +22,6 @@ import {
 import {
     ProcessGoogleDocsSubmissionModule,
 } from "./process-google-docs-submission"
-import {
-    SyncScyllaDBModule,
-} from "./sync-scylladb"
 
 /**
  * Module for the processors.
@@ -60,11 +57,6 @@ import {
             {
                 isGlobal: true,
             }
-        ),
-        SyncScyllaDBModule.register(
-            {
-                isGlobal: true,
-            },
         ),
     ],
 })

@@ -3,7 +3,6 @@ import {
 } from "@modules/cqrs"
 import {
     ContentEntity,
-    ScyllaDBService,
 } from "@modules/databases"
 import {
     ElasticsearchQueryBuilder,
@@ -12,9 +11,6 @@ import {
 import {
     envConfig,
 } from "@modules/env"
-import {
-    ScyllaSyncTables,
-} from "@features/scylladb-synchronizer/sync/tables"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -30,7 +26,6 @@ import {
 } from "./graphql-types"
 import {
     executeElasticScyllaFallback,
-    searchScyllaLocalizedDocuments,
 } from "../../utils/read-policy-fallback.util"
 
 @QueryHandler(ContentsQuery)
@@ -40,7 +35,6 @@ export class ContentsHandler
     implements IQueryHandler<ContentsQuery, ContentsResponseData> {
     constructor(
         private readonly elasticsearch: ElasticsearchService,
-        private readonly scylladb: ScyllaDBService,
     ) {
         super()
     }
@@ -99,21 +93,6 @@ export class ContentsHandler
                     size: limit,
                 },
             ),
-            scylladb: () => searchScyllaLocalizedDocuments<ContentEntity>({
-                scylladb: this.scylladb,
-                tableName: ScyllaSyncTables.contents,
-                locale,
-                limit,
-                pageNumber,
-                sorts,
-                search,
-                searchFields: ["title",
-                    "description",
-                    "body"],
-                exactFilters: {
-                    moduleId,
-                },
-            }),
         })
 
         return {
