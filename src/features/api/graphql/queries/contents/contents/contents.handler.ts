@@ -3,6 +3,7 @@ import {
 } from "@modules/cqrs"
 import {
     ContentEntity,
+    ScyllaDBService,
 } from "@modules/databases"
 import {
     ElasticsearchQueryBuilder,
@@ -11,6 +12,9 @@ import {
 import {
     envConfig,
 } from "@modules/env"
+import {
+    ScyllaSyncTables,
+} from "@features/scylladb-synchronizer/sync/tables"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -24,6 +28,10 @@ import {
 import {
     ContentsResponseData,
 } from "./graphql-types"
+import {
+    executeElasticScyllaFallback,
+    searchScyllaLocalizedDocuments,
+} from "../../utils/read-policy-fallback.util"
 
 @QueryHandler(ContentsQuery)
 @Injectable()
@@ -32,6 +40,7 @@ export class ContentsHandler
     implements IQueryHandler<ContentsQuery, ContentsResponseData> {
     constructor(
         private readonly elasticsearch: ElasticsearchService,
+        private readonly scylladb: ScyllaDBService,
     ) {
         super()
     }
@@ -72,21 +81,40 @@ export class ContentsHandler
                 },
             ],
             search,
-            searchFields: ["title^3", "description", "body"],
+            searchFields: ["title^3",
+                "description",
+                "body"],
         })
 
         const {
             data,
             count,
-        } = await this.elasticsearch.search<ContentEntity>(
-            ContentEntity.name,
-            {
-                query: esQuery,
-                sort,
-                from: pageNumber * limit,
-                size: limit,
-            },
-        )
+        } = await executeElasticScyllaFallback({
+            elasticsearch: () => this.elasticsearch.search<ContentEntity>(
+                ContentEntity.name,
+                {
+                    query: esQuery,
+                    sort,
+                    from: pageNumber * limit,
+                    size: limit,
+                },
+            ),
+            scylladb: () => searchScyllaLocalizedDocuments<ContentEntity>({
+                scylladb: this.scylladb,
+                tableName: ScyllaSyncTables.contents,
+                locale,
+                limit,
+                pageNumber,
+                sorts,
+                search,
+                searchFields: ["title",
+                    "description",
+                    "body"],
+                exactFilters: {
+                    moduleId,
+                },
+            }),
+        })
 
         return {
             count,

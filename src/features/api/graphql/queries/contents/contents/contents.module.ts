@@ -13,8 +13,18 @@ import {
 import {
     ContentsHandler,
 } from "./contents.handler"
+import {
+    ElasticsearchModule,
+} from "@modules/elasticsearch"
+import {
+    ScyllaDBModule,
+} from "@modules/databases"
 
 @Module({
+    imports: [
+        ElasticsearchModule,
+        ScyllaDBModule,
+    ],
     providers: [
         ContentsService,
         ContentsResolver,

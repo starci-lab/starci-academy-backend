@@ -168,7 +168,7 @@ import {
                 global: true,
             }),
             /** Socket.IO module. */
-            SocketIoModule.register({
+            SocketIoFeatureModule.register({
                 isGlobal: true,
             }),
             /** Mount filesystem module. */

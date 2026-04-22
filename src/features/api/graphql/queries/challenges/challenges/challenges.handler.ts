@@ -3,6 +3,7 @@ import {
 } from "@modules/cqrs"
 import {
     ChallengeEntity,
+    ScyllaDBService,
 } from "@modules/databases"
 import {
     ElasticsearchQueryBuilder,
@@ -11,6 +12,9 @@ import {
 import {
     envConfig,
 } from "@modules/env"
+import {
+    ScyllaSyncTables,
+} from "@features/scylladb-synchronizer/sync/tables"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -24,6 +28,10 @@ import {
 import {
     ChallengesResponseData,
 } from "./graphql-types"
+import {
+    executeElasticScyllaFallback,
+    searchScyllaLocalizedDocuments,
+} from "../../utils/read-policy-fallback.util"
 
 @QueryHandler(ChallengesQuery)
 @Injectable()
@@ -32,6 +40,7 @@ export class ChallengesHandler
     implements IQueryHandler<ChallengesQuery, ChallengesResponseData> {
     constructor(
         private readonly elasticsearch: ElasticsearchService,
+        private readonly scylladb: ScyllaDBService,
     ) {
         super()
     }
@@ -70,21 +79,37 @@ export class ChallengesHandler
                     },
                 },
             ],
-            searchFields: ["title^3", "description"],
+            searchFields: ["title^3",
+                "description"],
         })
 
         const {
             data,
             count,
-        } = await this.elasticsearch.search<ChallengeEntity>(
-            ChallengeEntity.name,
-            {
-                query: esQuery,
-                sort,
-                from: pageNumber * limit,
-                size: limit,
-            },
-        )
+        } = await executeElasticScyllaFallback({
+            elasticsearch: () => this.elasticsearch.search<ChallengeEntity>(
+                ChallengeEntity.name,
+                {
+                    query: esQuery,
+                    sort,
+                    from: pageNumber * limit,
+                    size: limit,
+                },
+            ),
+            scylladb: () => searchScyllaLocalizedDocuments<ChallengeEntity>({
+                scylladb: this.scylladb,
+                tableName: ScyllaSyncTables.challenges,
+                locale,
+                limit,
+                pageNumber,
+                sorts,
+                searchFields: ["title",
+                    "description"],
+                exactFilters: {
+                    contentId,
+                },
+            }),
+        })
 
         return {
             count,

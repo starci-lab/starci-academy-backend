@@ -13,8 +13,18 @@ import {
 import {
     LessonVideosHandler,
 } from "./lesson-videos.handler"
+import {
+    ElasticsearchModule,
+} from "@modules/elasticsearch"
+import {
+    ScyllaDBModule,
+} from "@modules/databases"
 
 @Module({
+    imports: [
+        ElasticsearchModule,
+        ScyllaDBModule,
+    ],
     providers: [
         LessonVideosService,
         LessonVideosResolver,

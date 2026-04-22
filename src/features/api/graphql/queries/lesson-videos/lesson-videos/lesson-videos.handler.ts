@@ -3,6 +3,7 @@ import {
 } from "@modules/cqrs"
 import {
     LessonVideoEntity,
+    ScyllaDBService,
 } from "@modules/databases"
 import {
     ElasticsearchQueryBuilder,
@@ -11,6 +12,9 @@ import {
 import {
     envConfig,
 } from "@modules/env"
+import {
+    ScyllaSyncTables,
+} from "@features/scylladb-synchronizer/sync/tables"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -24,6 +28,10 @@ import {
 import {
     LessonVideosResponseData,
 } from "./graphql-types"
+import {
+    executeElasticScyllaFallback,
+    searchScyllaLocalizedDocuments,
+} from "../../utils/read-policy-fallback.util"
 
 @QueryHandler(LessonVideosQuery)
 @Injectable()
@@ -32,6 +40,7 @@ export class LessonVideosHandler
     implements IQueryHandler<LessonVideosQuery, LessonVideosResponseData> {
     constructor(
         private readonly elasticsearch: ElasticsearchService,
+        private readonly scylladb: ScyllaDBService,
     ) {
         super()
     }
@@ -72,21 +81,40 @@ export class LessonVideosHandler
                 },
             ],
             search,
-            searchFields: ["title^3", "description", "caption"],
+            searchFields: ["title^3",
+                "description",
+                "caption"],
         })
 
         const {
             data,
             count,
-        } = await this.elasticsearch.search<LessonVideoEntity>(
-            LessonVideoEntity.name,
-            {
-                query: esQuery,
-                sort,
-                from: pageNumber * limit,
-                size: limit,
-            },
-        )
+        } = await executeElasticScyllaFallback({
+            elasticsearch: () => this.elasticsearch.search<LessonVideoEntity>(
+                LessonVideoEntity.name,
+                {
+                    query: esQuery,
+                    sort,
+                    from: pageNumber * limit,
+                    size: limit,
+                },
+            ),
+            scylladb: () => searchScyllaLocalizedDocuments<LessonVideoEntity>({
+                scylladb: this.scylladb,
+                tableName: ScyllaSyncTables.lessonVideos,
+                locale,
+                limit,
+                pageNumber,
+                sorts,
+                search,
+                searchFields: ["title",
+                    "description",
+                    "caption"],
+                exactFilters: {
+                    contentId,
+                },
+            }),
+        })
 
         return {
             count,

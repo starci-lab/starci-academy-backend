@@ -48,6 +48,41 @@ export class ScyllaDBService {
         )
     }
 
+    /**
+     * Reads all localized documents for a locale from a sync table.
+     */
+    async findLocalizedDocuments<T>(
+        tableName: string,
+        locale: string,
+    ): Promise<Array<T>> {
+        const keyspace = this.sanitizeIdentifier(envConfig().databases.scylladb.keyspace)
+        const table = this.sanitizeIdentifier(tableName)
+        await this.ensureSyncTable(table)
+
+        const response = await this.client.execute(
+            `SELECT payload FROM ${keyspace}.${table} WHERE locale = ? ALLOW FILTERING`,
+            [
+                locale,
+            ],
+            {
+                prepare: true,
+            },
+        )
+
+        return response.rows.flatMap((row) => {
+            const payload = row.get("payload")
+            if (typeof payload !== "string") {
+                return []
+            }
+
+            try {
+                return [JSON.parse(payload) as T]
+            } catch {
+                return []
+            }
+        })
+    }
+
     private async ensureSyncTable(tableName: string) {
         if (this.ensuredTables.has(tableName)) {
             return
