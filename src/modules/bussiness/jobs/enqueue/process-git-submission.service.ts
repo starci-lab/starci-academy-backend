@@ -79,6 +79,7 @@ export class EnqueueProcessGitSubmissionJobService {
                 jobId: id,
                 userId,
                 userChallengeSubmissionId,
+                challengeSubmissionId,
                 ...(branch !== undefined ? {
                     branch 
                 } : {

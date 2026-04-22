@@ -12,6 +12,8 @@ export interface ProcessGitSubmissionPayload {
     userId: string
     /** `user_challenge_submissions.id`. */
     userChallengeSubmissionId: string
+    /** `challenge_submissions.id`. */
+    challengeSubmissionId: string
     /** Branch override. */
     branch?: string
     /** Model to use for grading. */

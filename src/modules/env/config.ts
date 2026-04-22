@@ -282,7 +282,7 @@ export const envConfig = () => ({
                 embedding: {
                     model: parseEnvString({
                         key: "GITHUB_WORKER_PROCESS_GIT_SUBMISSION_EMBEDDING_MODEL",
-                        defaultValue: "text-embedding-3-large",
+                        defaultValue: "text-embedding-3-small",
                     }),
                     provider: parseEnvString({
                         key: "GITHUB_WORKER_PROCESS_GIT_SUBMISSION_EMBEDDING_MODEL_PROVIDER",

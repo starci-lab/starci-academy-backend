@@ -42,6 +42,8 @@ export interface EnqueueProcessGoogleDocsSubmissionJobParams {
     userId: string
     /** `user_challenge_submissions.id`. */
     userChallengeSubmissionId: string
+    /** `challenge_submissions.id`. */
+    challengeSubmissionId: string
     /** Existing `jobs.id` to requeue (optional). */
     jobId?: string
     /** Grading model id override. */

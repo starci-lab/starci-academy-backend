@@ -177,6 +177,7 @@ export class SubmitChallengeSubmissionHandler
             job = await this.enqueueProcessGoogleDocsSubmissionJobService.enqueue({
                 userId: user.id,
                 userChallengeSubmissionId: userChallengeSubmission.id,
+                challengeSubmissionId: challengeSubmission.id,
             })
             break
         }

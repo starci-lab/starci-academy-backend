@@ -55,6 +55,7 @@ export class EnqueueProcessGoogleDocsSubmissionJobService {
     async enqueue({
         userId,
         userChallengeSubmissionId,
+        challengeSubmissionId,
         jobId,
         gradingModel,
         gradingProvider,
@@ -74,6 +75,7 @@ export class EnqueueProcessGoogleDocsSubmissionJobService {
                 jobId: id,
                 userId,
                 userChallengeSubmissionId,
+                challengeSubmissionId,
                 ...(gradingModel !== undefined ? {
                     gradingModel,
                 } : {
@@ -98,6 +100,7 @@ export class EnqueueProcessGoogleDocsSubmissionJobService {
                     actionType: ActionType.ProcessGoogleDocsSubmission,
                     maxSteps: envConfig().job.processGitSubmission.maxSteps,
                     payload: this.superJson.stringify(payloadBody),
+                    challengeSubmissionId,
                 },
             )
         }
