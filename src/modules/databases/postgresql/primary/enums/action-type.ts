@@ -30,9 +30,13 @@ export enum ActionType {
      */
     ProcessCvSubmission = "processCvSubmission",
     /**
-     * Send an email via the Mailcow SMTP gateway.
+     * Send an email via the Brevo SMTP gateway.
      */
     SendMail = "sendMail",
+    /**
+     * Sync a source entity into ScyllaDB.
+     */
+    SyncScyllaDB = "syncScyllaDB",
 }
 
 export const GraphQLTypeActionType = createEnumType(ActionType)
@@ -52,9 +56,12 @@ registerEnumType(
             [ActionType.ProcessGitSubmission]: {
                 description: "Process and grade a GitHub challenge submission.",
             },
-                [ActionType.ProcessGoogleDocsSubmission]: {
-                    description: "Process and grade a Google Docs challenge submission.",
-                },
+            [ActionType.ProcessGoogleDocsSubmission]: {
+                description: "Process and grade a Google Docs challenge submission.",
+            },
+            [ActionType.SyncScyllaDB]: {
+                description: "Synchronize an entity to ScyllaDB.",
+            },
         },
     },
 )

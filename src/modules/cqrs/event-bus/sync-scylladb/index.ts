@@ -1,2 +1,2 @@
-export * from "./send-mail.event"
-export * from "./send-mail.handler"
+export * from "./sync-scylladb.event"
+export * from "./sync-scylladb.handler"

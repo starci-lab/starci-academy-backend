@@ -9,9 +9,10 @@ export abstract class ICQRSHandler<TParams, TResponse = unknown> {
      * @returns The response.
      */
     async execute(params: TParams): Promise<TResponse> {
-        await this.validate()
+        await this.validate(params)
         const response = await this.process(params)
-        await this.emit(response)
+        await this.emit(params,
+            response)
         return response
     }
 
@@ -19,7 +20,9 @@ export abstract class ICQRSHandler<TParams, TResponse = unknown> {
      * Validate the request.
      * @returns void.
      */
-    protected async validate(): Promise<void> {}
+    protected async validate(params: TParams): Promise<void> {
+        void params
+    }
 
     /**
      * Process the request.
@@ -30,10 +33,12 @@ export abstract class ICQRSHandler<TParams, TResponse = unknown> {
 
     /**
      * Emit the response.
+     * @param request - The request.
      * @param response - The response.
      * @returns void.
      */
-    protected async emit(response: TResponse): Promise<void> {
+    protected async emit(request: TParams, response: TResponse): Promise<void> {
+        void request
         void response
     }
 }

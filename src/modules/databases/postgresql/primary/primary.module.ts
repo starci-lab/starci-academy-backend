@@ -59,6 +59,7 @@ import {
     CVPromptEntity,
     CVSubmissionAttemptEntity,
     CVSubmissionFeedbackEntity,
+    SyncStateEntity,
 } from "./entities"
 import {
     SeedersModule 
@@ -66,6 +67,9 @@ import {
 import {
     ResolversModule,
 } from "./resolvers"
+import {
+    SyncStateService,
+} from "./sync-state.service"
 
 /**
  * Primary PostgreSQL module for the primary PostgreSQL connection.
@@ -168,6 +172,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     CVSubmissionEntity,
                                     CVSubmissionAttemptEntity,
                                     CVSubmissionFeedbackEntity,
+                                    SyncStateEntity,
                                 ],
                                 synchronize,
                                 logging: false,
@@ -178,8 +183,12 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                 this.forFeature(),
                 ...extraModules,
             ],
+            providers: [
+                SyncStateService,
+            ],
             exports: [
-                ...extraModules, 
+                ...extraModules,
+                SyncStateService,
             ],
         }
     }
@@ -240,6 +249,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         CVSubmissionEntity,
                         CVSubmissionAttemptEntity,
                         CVSubmissionFeedbackEntity,
+                        SyncStateEntity,
                     ], 
                     POSTGRESQL_PRIMARY
                 ),

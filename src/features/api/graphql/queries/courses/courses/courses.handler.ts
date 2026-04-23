@@ -24,6 +24,9 @@ import {
 import {
     CoursesResponseData,
 } from "./graphql-types"
+import {
+    executeElasticScyllaFallback,
+} from "../../utils/read-policy-fallback.util"
 
 @QueryHandler(CoursesQuery)
 @Injectable()
@@ -73,15 +76,17 @@ export class CoursesHandler
         const {
             data,
             count,
-        } = await this.elasticsearch.search<CourseEntity>(
-            CourseEntity.name,
-            {
-                query: esQuery,
-                sort,
-                from: pageNumber * limit,
-                size: limit,
-            },
-        )
+        } = await executeElasticScyllaFallback({
+            elasticsearch: () => this.elasticsearch.search<CourseEntity>(
+                CourseEntity.name,
+                {
+                    query: esQuery,
+                    sort,
+                    from: pageNumber * limit,
+                    size: limit,
+                },
+            ),
+        })
 
         return {
             count,

@@ -31,8 +31,8 @@ export interface SendMailAttachment {
 /**
  * Payload for a send-mail BullMQ job.
  *
- * The worker serialises this payload, resolves Mailcow SMTP credentials
- * from {@link envConfig}, and hands the message to nodemailer.
+ * The worker serialises this payload and hands it to Nest Mailer
+ * (which uses nodemailer) configured with Brevo SMTP + Pug templates.
  */
 export interface SendMailPayload {
     /** Primary recipients (`To` header). */
@@ -47,12 +47,16 @@ export interface SendMailPayload {
     from?: SendMailRecipient
     /** Email subject line. */
     subject: string
+    /** Optional template name (without `.pug`) resolved by Nest Mailer. */
+    template?: string
+    /** Variables passed into the selected Pug template. */
+    context?: Record<string, unknown>
     /** HTML body. When provided, it takes precedence over `text`. */
     html?: string
     /** Plain-text body; used as a fallback and for text-only clients. */
     text?: string
     /** Optional file/inline attachments. */
     attachments?: Array<SendMailAttachment>
-    /** Arbitrary additional SMTP headers (e.g. `X-Mailcow-Tag`). */
+    /** Arbitrary additional SMTP headers (e.g. `X-Brevo-Tag`). */
     headers?: Record<string, string>
 }

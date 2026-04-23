@@ -21,6 +21,7 @@ export class MountStorageService implements OnModuleInit {
     public geminiApiKey: string
     public openAiApiKey: string
     public sepayApiKey: string
+    public brevoSmtpPassword: string
     constructor(
         private readonly mountFilesystemService: MountFilesystemService,
         private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
@@ -44,6 +45,8 @@ export class MountStorageService implements OnModuleInit {
         this.openAiApiKey = this.mountFilesystemService.openAiApiKey()
         // get sepay api key from mount filesystem service
         this.sepayApiKey = this.mountFilesystemService.sepayApiKey()
+        // get brevo smtp password from mount filesystem service
+        this.brevoSmtpPassword = this.mountFilesystemService.brevoSmtpPassword()
         // set readiness watcher to true
         this.readinessWatcherFactoryService.setReady(MountStorageService.name)
     }

@@ -24,6 +24,9 @@ import {
 import {
     ChallengesResponseData,
 } from "./graphql-types"
+import {
+    executeElasticScyllaFallback,
+} from "../../utils/read-policy-fallback.util"
 
 @QueryHandler(ChallengesQuery)
 @Injectable()
@@ -77,15 +80,17 @@ export class ChallengesHandler
         const {
             data,
             count,
-        } = await this.elasticsearch.search<ChallengeEntity>(
-            ChallengeEntity.name,
-            {
-                query: esQuery,
-                sort,
-                from: pageNumber * limit,
-                size: limit,
-            },
-        )
+        } = await executeElasticScyllaFallback({
+            elasticsearch: () => this.elasticsearch.search<ChallengeEntity>(
+                ChallengeEntity.name,
+                {
+                    query: esQuery,
+                    sort,
+                    from: pageNumber * limit,
+                    size: limit,
+                },
+            ),
+        })
 
         return {
             count,

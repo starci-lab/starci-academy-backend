@@ -24,6 +24,9 @@ import {
 import {
     ContentsResponseData,
 } from "./graphql-types"
+import {
+    executeElasticScyllaFallback,
+} from "../../utils/read-policy-fallback.util"
 
 @QueryHandler(ContentsQuery)
 @Injectable()
@@ -80,15 +83,17 @@ export class ContentsHandler
         const {
             data,
             count,
-        } = await this.elasticsearch.search<ContentEntity>(
-            ContentEntity.name,
-            {
-                query: esQuery,
-                sort,
-                from: pageNumber * limit,
-                size: limit,
-            },
-        )
+        } = await executeElasticScyllaFallback({
+            elasticsearch: () => this.elasticsearch.search<ContentEntity>(
+                ContentEntity.name,
+                {
+                    query: esQuery,
+                    sort,
+                    from: pageNumber * limit,
+                    size: limit,
+                },
+            ),
+        })
 
         return {
             count,

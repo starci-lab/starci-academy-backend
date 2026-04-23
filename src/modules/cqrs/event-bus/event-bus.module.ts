@@ -12,6 +12,9 @@ import {
 import {
     SendMailEventHandler,
 } from "./send-mail"
+import {
+    SyncScyllaDBEventHandler,
+} from "./sync-scylladb"
 
 /**
  * Module that exposes typed event-bus handlers built on top of the
@@ -31,10 +34,12 @@ export class EventBusModule extends ConfigurableModuleClass {
                 ...(dynamicModule.providers ?? []),
                 AddGithubUserToTeamHandler,
                 SendMailEventHandler,
+                SyncScyllaDBEventHandler,
             ],
             exports: [
                 AddGithubUserToTeamHandler,
                 SendMailEventHandler,
+                SyncScyllaDBEventHandler,
             ],
         }
     }

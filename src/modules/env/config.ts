@@ -199,47 +199,33 @@ export const envConfig = () => ({
                 },
             },
         },
-        /** Mailcow SMTP gateway configuration. */
-        mailcow: {
-            /** SMTP server hostname, e.g. `mail.example.com`. */
+        /** Brevo SMTP relay configuration. */
+        brevo: {
             host: parseEnvString({
-                key: "MAILCOW_SMTP_HOST",
-                defaultValue: "localhost",
+                key: "BREVO_SMTP_HOST",
+                defaultValue: "smtp-relay.brevo.com",
             }),
-            /** SMTP port (465 for implicit TLS, 587 for STARTTLS). */
             port: parseEnvInt({
-                key: "MAILCOW_SMTP_PORT",
+                key: "BREVO_SMTP_PORT",
                 defaultValue: 587,
             }),
-            /** Whether to use implicit TLS (true on port 465). */
             secure: parseEnvBoolean({
-                key: "MAILCOW_SMTP_SECURE",
+                key: "BREVO_SMTP_SECURE",
                 defaultValue: false,
             }),
-            /** SMTP login username (full mailbox address for Mailcow). */
             username: parseEnvString({
-                key: "MAILCOW_SMTP_USERNAME",
-                defaultValue: "noreply@localhost",
+                key: "BREVO_SMTP_USERNAME",
+                defaultValue: "991795001@smtp-brevo.com",
             }),
-            /** SMTP login password. */
-            password: parseEnvString({
-                key: "MAILCOW_SMTP_PASSWORD",
-                defaultValue: "",
-            }),
-            /** Default sender address used when the payload does not override it. */
+            /** Default sender email address. */
             fromAddress: parseEnvString({
-                key: "MAILCOW_FROM_ADDRESS",
-                defaultValue: "noreply@localhost",
+                key: "BREVO_FROM_ADDRESS",
+                defaultValue: "noreply@starci.academy.org",
             }),
             /** Default sender display name. */
             fromName: parseEnvString({
-                key: "MAILCOW_FROM_NAME",
+                key: "BREVO_FROM_NAME",
                 defaultValue: "Starci Academy",
-            }),
-            /** Reject unauthorised TLS certificates (set to false for self-signed certs). */
-            rejectUnauthorized: parseEnvBoolean({
-                key: "MAILCOW_SMTP_REJECT_UNAUTHORIZED",
-                defaultValue: true,
             }),
         },
         /** GitHub Organization service configuration. */
@@ -408,6 +394,51 @@ export const envConfig = () => ({
                     }),
                     runtime: parseEnvMs({
                         key: "ELASTICSEARCH_SYNCHRONIZER_CONTENTS_RUNTIME_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+            },
+        },
+        /** ScyllaDB Synchronizer service configuration. */
+        scylladbSynchronizer: {
+            syncIntervalMs: {
+                courses: {
+                    factory: parseEnvMs({
+                        key: "SCYLLADB_SYNCHRONIZER_COURSES_FACTORY_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                    runtime: parseEnvMs({
+                        key: "SCYLLADB_SYNCHRONIZER_COURSES_RUNTIME_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                lessonVideos: {
+                    factory: parseEnvMs({
+                        key: "SCYLLADB_SYNCHRONIZER_LESSON_VIDEOS_FACTORY_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                    runtime: parseEnvMs({
+                        key: "SCYLLADB_SYNCHRONIZER_LESSON_VIDEOS_RUNTIME_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                challenges: {
+                    factory: parseEnvMs({
+                        key: "SCYLLADB_SYNCHRONIZER_CHALLENGES_FACTORY_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                    runtime: parseEnvMs({
+                        key: "SCYLLADB_SYNCHRONIZER_CHALLENGES_RUNTIME_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                contents: {
+                    factory: parseEnvMs({
+                        key: "SCYLLADB_SYNCHRONIZER_CONTENTS_FACTORY_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                    runtime: parseEnvMs({
+                        key: "SCYLLADB_SYNCHRONIZER_CONTENTS_RUNTIME_SYNC_INTERVAL_MS",
                         defaultValue: "30s",
                     }),
                 },
@@ -609,6 +640,13 @@ export const envConfig = () => ({
                     "terraform",
                     "sepay-api-key.key"),
             }),
+            brevoSmtpPassword: parseEnvString({
+                key: "TERRAFORM_BREVO_SMTP_PASSWORD_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "brevo-smtp-api-key.key"),
+            }),
         },
     },
     /** CORS: allowed origins (CORS_ORIGIN_1 … CORS_ORIGIN_10, empty skipped). */
@@ -663,6 +701,36 @@ export const envConfig = () => ({
     },
     /** Databases configuration. */
     databases: {
+        /** ScyllaDB configuration. */
+        scylladb: {
+            contactPoints: parseEnvString({
+                key: "SCYLLADB_CONTACT_POINTS",
+                defaultValue: "localhost",
+            })
+                .split(",")
+                .map((host) => host.trim())
+                .filter((host) => host !== ""),
+            port: parseEnvInt({
+                key: "SCYLLADB_PORT",
+                defaultValue: 9042,
+            }),
+            keyspace: parseEnvString({
+                key: "SCYLLADB_KEYSPACE",
+                defaultValue: "starci",
+            }),
+            localDataCenter: parseEnvString({
+                key: "SCYLLADB_LOCAL_DATACENTER",
+                defaultValue: "datacenter1",
+            }),
+            username: parseEnvString({
+                key: "SCYLLADB_USERNAME",
+                defaultValue: "scylla",
+            }),
+            password: parseEnvString({
+                key: "SCYLLADB_PASSWORD",
+                defaultValue: "Cuong123_A",
+            }),
+        },
         /** Qdrant configuration. */
         qdrant: {
             url: parseEnvString({
@@ -803,6 +871,20 @@ export const envConfig = () => ({
             key: "KEYCLOAK_CLIENT_ID",
             defaultValue: "academy-web",
         }),
+        admin: {
+            clientId: parseEnvString({
+                key: "KEYCLOAK_ADMIN_CLIENT_ID",
+                defaultValue: "admin-cli",
+            }),
+            username: parseEnvString({
+                key: "KEYCLOAK_ADMIN_USERNAME",
+                defaultValue: "admin",
+            }),
+            password: parseEnvString({
+                key: "KEYCLOAK_ADMIN_PASSWORD",
+                defaultValue: "bitnami123",
+            }),
+        },
         redirectUri: {
             google: parseEnvString({
                 key: "KEYCLOAK_GOOGLE_REDIRECT_URI",
@@ -1024,7 +1106,7 @@ export const envConfig = () => ({
                 }),
                 enabled: parseEnvBoolean({
                     key: "READ_POLICY_CASSANDRA_ENABLED",
-                    defaultValue: true,
+                    defaultValue: false,
                 }),
                 retryDelayMs: parseEnvMs({
                     key: "READ_POLICY_CASSANDRA_RETRY_DELAY_MS",
@@ -1050,7 +1132,7 @@ export const envConfig = () => ({
                 }),
                 enabled: parseEnvBoolean({
                     key: "READ_POLICY_SCYLLA_ENABLED",
-                    defaultValue: true,
+                    defaultValue: false,
                 }),
                 retryDelayMs: parseEnvMs({
                     key: "READ_POLICY_SCYLLA_RETRY_DELAY_MS",

@@ -24,6 +24,9 @@ import {
 import {
     LessonVideosResponseData,
 } from "./graphql-types"
+import {
+    executeElasticScyllaFallback,
+} from "../../utils/read-policy-fallback.util"
 
 @QueryHandler(LessonVideosQuery)
 @Injectable()
@@ -80,15 +83,17 @@ export class LessonVideosHandler
         const {
             data,
             count,
-        } = await this.elasticsearch.search<LessonVideoEntity>(
-            LessonVideoEntity.name,
-            {
-                query: esQuery,
-                sort,
-                from: pageNumber * limit,
-                size: limit,
-            },
-        )
+        } = await executeElasticScyllaFallback({
+            elasticsearch: () => this.elasticsearch.search<LessonVideoEntity>(
+                LessonVideoEntity.name,
+                {
+                    query: esQuery,
+                    sort,
+                    from: pageNumber * limit,
+                    size: limit,
+                },
+            ),
+        })
 
         return {
             count,

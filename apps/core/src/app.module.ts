@@ -35,7 +35,7 @@ import {
 } from "@modules/mixin"
 import {
     PrimaryPostgreSQLModule,
-    QdrantModule
+    QdrantModule,
 } from "@modules/databases"
 import {
     S3Module
@@ -89,7 +89,8 @@ import {
     SocketIoModule 
 } from "@modules/socketio"
 import {
-    CQRSModule
+    CQRSModule,
+    EventBusModule
 } from "@modules/cqrs"
 import {
     CqrsModule
@@ -113,7 +114,12 @@ import {
 import {
     VaildatorsModule
 } from "@modules/vaildators"
-import { GoogleApisModule } from "@modules/googleapis"
+import {
+    GoogleApisModule
+} from "@modules/googleapis"
+import {
+    MailModule
+} from "@modules/mailer"
 /**
  * The main module for the application.
  */
@@ -177,7 +183,7 @@ import { GoogleApisModule } from "@modules/googleapis"
                 global: true,
             }),
             /** Socket.IO module. */
-            SocketIoModule.register({
+            SocketIoFeatureModule.register({
                 isGlobal: true,
             }),
             /** Mount filesystem module. */
@@ -319,7 +325,19 @@ import { GoogleApisModule } from "@modules/googleapis"
                 }
             ),
             /** Socket module. */
-            SocketIoFeatureModule.register(
+            SocketIoModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Event Bus module. */
+            EventBusModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Mail module (Brevo SMTP + Pug templates). */
+            MailModule.register(
                 {
                     isGlobal: true,
                 }

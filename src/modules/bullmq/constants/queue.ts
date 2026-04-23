@@ -62,4 +62,10 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
         ),
         name: "send-mail",
     },
+    [BullQueueName.SyncScyllaDB]: {
+        prefix: formatWithBraces(
+            "sync-scylladb",
+        ),
+        name: "sync-scylladb",
+    },
 }

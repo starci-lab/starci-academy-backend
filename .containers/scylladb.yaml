@@ -1,0 +1,23 @@
+services:
+  scylladb:
+    image: scylladb/scylla:latest
+    container_name: scylla-node
+    restart: always
+    command: --smp 1 --memory 2G --overprovisioned 1 --api-address 0.0.0.0
+    ports:
+      - "9042:9042" # CQL native transport port
+      - "7000:7000" # Inter-node communication
+      - "7001:7001" # SSL inter-node communication
+      - "9160:9160" # Thrift port (legacy)
+      - "10000:10000" # REST API
+    volumes:
+      - scylla_data:/var/lib/scylla
+    networks:
+      - scylla-network
+
+networks:
+  scylla-network:
+    driver: bridge
+
+volumes:
+  scylla_data:

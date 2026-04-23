@@ -1,4 +1,22 @@
 /**
+ * Request body for exchanging username/password for a token.
+ */
+export interface KeycloakPasswordLoginParams {
+    username: string
+    password: string
+}
+
+/**
+ * Parameters for creating a Keycloak user with password credentials.
+ */
+export interface KeycloakRegisterUserParams {
+    username: string
+    email: string
+    password: string
+    firstName?: string
+    lastName?: string
+}
+/**
  * Request body for exchanging a code for a token.
  */
 export interface KeycloakExchangeCodeForTokenParams {
@@ -47,6 +65,10 @@ export interface KeycloakExchangeCodeForTokenResponse {
      * The session state of the token.
      */
     session_state: string
+    /**
+     * Optional ID token (present when openid scope is included).
+     */
+    id_token?: string
 }
 
 import type {

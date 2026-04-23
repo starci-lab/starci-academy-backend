@@ -15,6 +15,8 @@ import {
     KeycloakExchangeCodeForTokenParams,
     KeycloakExchangeCodeForTokenResponse,
     KeycloakTokenIntrospectResponse,
+    KeycloakPasswordLoginParams,
+    KeycloakRegisterUserParams,
 } from "./types"
 import {
     MountStorageService 
@@ -69,6 +71,174 @@ export class KeycloakTokenService {
             }
         )
         return response.data
+    }
+
+    /**
+     * Exchanges username/password (direct grant) for Keycloak tokens.
+     */
+    async exchangePasswordForToken(
+        params: KeycloakPasswordLoginParams,
+    ): Promise<KeycloakExchangeCodeForTokenResponse> {
+        const response = await this.axiosInstance.post<KeycloakExchangeCodeForTokenResponse>(
+            `/realms/${envConfig().keycloak.realm}/protocol/openid-connect/token`,
+            new URLSearchParams({
+                grant_type: "password",
+                client_id: envConfig().keycloak.clientId,
+                client_secret: this.mountStorageService.keycloakClientSecret,
+                username: params.username,
+                password: params.password,
+                scope: "openid profile email",
+            }),
+            {
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+            },
+        )
+
+        return response.data
+    }
+
+    private async requestAdminAccessToken(): Promise<string> {
+        const response = await this.axiosInstance.post<{
+            access_token: string
+        }>(
+            `/realms/${envConfig().keycloak.realm}/protocol/openid-connect/token`,
+            new URLSearchParams({
+                grant_type: "password",
+                client_id: envConfig().keycloak.admin.clientId,
+                username: envConfig().keycloak.admin.username,
+                password: envConfig().keycloak.admin.password,
+            }),
+            {
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+            },
+        )
+
+        return response.data.access_token
+    }
+
+    /**
+     * Creates a Keycloak user and sets permanent password.
+     */
+    async registerUserWithPassword(params: KeycloakRegisterUserParams): Promise<string> {
+        const adminAccessToken = await this.requestAdminAccessToken()
+        
+        const createResponse = await this.axiosInstance.post(
+            `/admin/realms/${envConfig().keycloak.realm}/users`,
+            {
+                username: params.username,
+                email: params.email,
+                firstName: params.firstName,
+                lastName: params.lastName,
+                enabled: true,
+                emailVerified: false,
+                credentials: [
+                    {
+                        type: "password",
+                        value: params.password,
+                        temporary: false,
+                    },
+                ],
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${adminAccessToken}`,
+                },
+            },
+        )
+
+        const location = createResponse.headers?.location as string | undefined
+        if (location) {
+            return location.split("/").pop() ?? ""
+        }
+
+        const usersResponse = await this.axiosInstance.get<Array<{
+            id: string
+        }>>(
+            `/admin/realms/${envConfig().keycloak.realm}/users`,
+            {
+                headers: {
+                    Authorization: `Bearer ${adminAccessToken}`,
+                },
+                params: {
+                    username: params.username,
+                    exact: true,
+                },
+            },
+        )
+
+        const userId = usersResponse.data[0]?.id
+        if (!userId) {
+            throw new Error("Could not resolve user id after Keycloak user creation")
+        }
+
+        return userId
+    }
+
+    /**
+     * Triggers Keycloak verify-email email action for a user.
+     */
+    async sendVerifyEmail(userId: string): Promise<void> {
+        const adminAccessToken = await this.requestAdminAccessToken()
+
+        await this.axiosInstance.put(
+            `/admin/realms/${envConfig().keycloak.realm}/users/${userId}/execute-actions-email`,
+            [
+                "VERIFY_EMAIL",
+            ],
+            {
+                headers: {
+                    Authorization: `Bearer ${adminAccessToken}`,
+                },
+            },
+        )
+    }
+
+    /**
+     * Applies Brevo SMTP settings to current Keycloak realm.
+     */
+    async configureRealmBrevoSmtpAdapter(): Promise<void> {
+        const adminAccessToken = await this.requestAdminAccessToken()
+
+        const realmResponse = await this.axiosInstance.get<Record<string, unknown>>(
+            `/admin/realms/${envConfig().keycloak.realm}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${adminAccessToken}`,
+                },
+            },
+        )
+
+        const secure = envConfig().services.brevo.secure
+        const smtpServer = {
+            host: envConfig().services.brevo.host,
+            port: String(envConfig().services.brevo.port),
+            from: envConfig().services.brevo.fromAddress,
+            fromDisplayName: envConfig().services.brevo.fromName,
+            replyTo: envConfig().services.brevo.fromAddress,
+            replyToDisplayName: envConfig().services.brevo.fromName,
+            auth: "true",
+            user: envConfig().services.brevo.username,
+            password: this.mountStorageService.brevoSmtpPassword.trim(),
+            starttls: secure ? "false" : "true",
+            ssl: secure ? "true" : "false",
+        }
+
+        await this.axiosInstance.put(
+            `/admin/realms/${envConfig().keycloak.realm}`,
+            {
+                ...realmResponse.data,
+                smtpServer,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${adminAccessToken}`,
+                },
+            },
+        )
     }
 
     /**

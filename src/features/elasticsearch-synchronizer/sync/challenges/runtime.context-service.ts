@@ -123,7 +123,10 @@ export class ChallengeRuntimeContextService {
                 hydratedChallenge.defaultLocale ?? Locale.En,
             )
 
-            const { translations, ...dataToIndex } = hydratedChallenge
+            const dataToIndex = _.omit(
+                hydratedChallenge,
+                ["translations"],
+            )
 
             // Use the original UUID for the 'id' field in the document body,
             // but use a composite key (uuid-locale) for the Elasticsearch document ID (_id).

@@ -13,8 +13,14 @@ import {
 import {
     LessonVideosHandler,
 } from "./lesson-videos.handler"
+import {
+    ElasticsearchModule,
+} from "@modules/elasticsearch"
 
 @Module({
+    imports: [
+        ElasticsearchModule,
+    ],
     providers: [
         LessonVideosService,
         LessonVideosResolver,

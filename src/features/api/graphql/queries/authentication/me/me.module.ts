@@ -2,6 +2,9 @@ import {
     Module,
 } from "@nestjs/common"
 import {
+    MeHandler,
+} from "./me.handler"
+import {
     ConfigurableModuleClass,
 } from "./me.module-definition"
 import {
@@ -10,9 +13,6 @@ import {
 import {
     MeService,
 } from "./me.service"
-import {
-    MeHandler,
-} from "./me.handler"
 
 @Module({
     providers: [
