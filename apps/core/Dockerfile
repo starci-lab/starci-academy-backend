@@ -7,7 +7,7 @@
 
 # Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
 
-ARG NODE_VERSION=20-alpine
+ARG NODE_VERSION=25.2.1
 
 ################################################################################
 # Use node image for base image for all stages.
@@ -27,7 +27,7 @@ FROM base as deps
 RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=package-lock.json,target=package-lock.json \
     --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev
+    npm i
 
 ################################################################################
 # Create a stage for building the application.
@@ -38,7 +38,7 @@ FROM deps as build
 RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=package-lock.json,target=package-lock.json \
     --mount=type=cache,target=/root/.npm \
-    npm ci
+    npm i
 
 # Copy the rest of the source files into the image.
 COPY . .
