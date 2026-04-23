@@ -1,6 +1,8 @@
 import {
     CallHandler,
     ExecutionContext,
+    HttpException,
+    HttpStatus,
     Injectable,
     NestInterceptor,
     SetMetadata,
@@ -10,6 +12,7 @@ import {
 } from "@nestjs/core"
 import {
     Observable,
+    throwError,
 } from "rxjs"
 import {
     map,
@@ -70,14 +73,27 @@ implements NestInterceptor<T, RestTransformResponseDto<T>>
             ),
             // handle errors and wrap in consistent error shape
             catchError((err) => {
-                return new Observable<RestTransformResponseDto<T>>((observer) => {
-                    observer.next({
-                        success: false,
-                        message: err?.message ?? "Unknown error",
-                        error: err?.name ?? "Error",
-                    })
-                    observer.complete()
-                })
+                const axiosStatus = err?.response?.status
+                const httpStatus =
+                    err instanceof HttpException
+                        ? err.getStatus()
+                        : axiosStatus ?? HttpStatus.INTERNAL_SERVER_ERROR
+
+                const responseMessage = err?.response?.data?.message
+                const message = Array.isArray(responseMessage)
+                    ? responseMessage.join(", ")
+                    : responseMessage ?? err?.message ?? "Unknown error"
+
+                return throwError(
+                    () => new HttpException(
+                        {
+                            success: false,
+                            message,
+                            error: err?.response?.data?.error ?? err?.name ?? "Error",
+                        },
+                        httpStatus,
+                    ),
+                )
             }),
         )
     }

@@ -10,6 +10,9 @@ import {
 import {
     KeycloakGithubModule,
 } from "./github"
+import {
+    KeycloakAuthModule,
+} from "./auth"
 
 /**
  * Module for the Keycloak.
@@ -20,6 +23,9 @@ import {
             isGlobal: true,
         }),
         KeycloakGithubModule.register({
+            isGlobal: true,
+        }),
+        KeycloakAuthModule.register({
             isGlobal: true,
         }),
     ],

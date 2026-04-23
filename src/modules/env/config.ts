@@ -207,7 +207,7 @@ export const envConfig = () => ({
             }),
             username: parseEnvString({
                 key: "BREVO_SMTP_USERNAME",
-                defaultValue: "leducminhdhqt@gmail.com",
+                defaultValue: "991795001@smtp-brevo.com",
             }),
             /** Default sender email address. */
             fromAddress: parseEnvString({
@@ -637,7 +637,7 @@ export const envConfig = () => ({
                 defaultValue: join(process.cwd(),
                     ".mount",
                     "terraform",
-                    "brevo-smtp-password.key"),
+                    "brevo-smtp-api-key.key"),
             }),
         },
     },
@@ -863,6 +863,20 @@ export const envConfig = () => ({
             key: "KEYCLOAK_CLIENT_ID",
             defaultValue: "academy-web",
         }),
+        admin: {
+            clientId: parseEnvString({
+                key: "KEYCLOAK_ADMIN_CLIENT_ID",
+                defaultValue: "admin-cli",
+            }),
+            username: parseEnvString({
+                key: "KEYCLOAK_ADMIN_USERNAME",
+                defaultValue: "admin",
+            }),
+            password: parseEnvString({
+                key: "KEYCLOAK_ADMIN_PASSWORD",
+                defaultValue: "bitnami123",
+            }),
+        },
         redirectUri: {
             google: parseEnvString({
                 key: "KEYCLOAK_GOOGLE_REDIRECT_URI",

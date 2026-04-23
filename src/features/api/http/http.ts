@@ -67,6 +67,21 @@ export const httpConfig = () => ({
                         path: "callback",
                     }),
                 }
+            },
+            auth: () => {
+                const authTags = `${keycloakTags}/auth`
+                return {
+                    tags: authTags,
+                    login: () => ({
+                        path: "login",
+                    }),
+                    register: () => ({
+                        path: "register",
+                    }),
+                    configureMailAdapter: () => ({
+                        path: "configure-mail-adapter",
+                    }),
+                }
             }
         }
     }
