@@ -27,6 +27,9 @@ import {
     SubmissionAttemptsResponseData,
     SubmissionAttemptsSortBy,
 } from "./graphql-types"
+import {
+    UserNotFoundException 
+} from "@modules/exceptions"
 
 @QueryHandler(SubmissionAttemptsQuery)
 @Injectable()
@@ -44,6 +47,7 @@ export class SubmissionAttemptsHandler
         query: SubmissionAttemptsQuery,
     ): Promise<SubmissionAttemptsResponseData> {
         const {
+            user,
             request: {
                 challengeSubmissionId,
                 filters: {
@@ -53,7 +57,10 @@ export class SubmissionAttemptsHandler
                 },
             },
         } = query.params
-
+        if (!user) {
+            throw new UserNotFoundException({
+            })
+        }
         const order: FindOptionsOrder<SubmissionAttemptEntity> = {
         }
         for (const sort of sorts) {
@@ -67,9 +74,13 @@ export class SubmissionAttemptsHandler
                     submission: {
                         id: challengeSubmissionId,
                     },
+                    user: {
+                        id: user.id,
+                    },
                 },
             },
         )
+        console.log(userChallengeSubmission)
         if (!userChallengeSubmission) {
             return {
                 data: [],

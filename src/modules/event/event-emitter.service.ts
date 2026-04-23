@@ -72,11 +72,6 @@ export class EventEmitterService {
             const serialized = this.natsMessageFactoryService.create({
                 message: payload,
             })
-            console.log(
-                {
-                    serialized,
-                },
-            )
             this.natsProducerService.publish({
                 subject: eventName,
                 payload: serialized,

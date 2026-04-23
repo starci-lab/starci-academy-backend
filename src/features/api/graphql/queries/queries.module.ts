@@ -31,6 +31,9 @@ import {
 import {
     JobsModule,
 } from "./jobs"
+import {
+    SystemModule,
+} from "./system"
 
 @Module({
     imports: [
@@ -59,6 +62,9 @@ import {
             isGlobal: true
         }),
         JobsModule.register({
+            isGlobal: true,
+        }),
+        SystemModule.register({
             isGlobal: true,
         }),
     ],

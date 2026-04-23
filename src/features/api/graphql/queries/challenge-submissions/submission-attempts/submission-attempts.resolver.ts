@@ -18,9 +18,11 @@ import {
 } from "@modules/throttler"
 import {
     Locale,
+    UserEntity,
 } from "@modules/databases"
 import {
     KeycloakAuthGraphQLGuard,
+    KeycloakGraphQLUser,
 } from "@modules/keycloak"
 import {
     SubmissionAttemptsService,
@@ -63,11 +65,14 @@ export class SubmissionAttemptsResolver {
             request: SubmissionAttemptsRequest,
         @GraphQLLocale()
             locale: Locale,
+        @KeycloakGraphQLUser()
+            user: UserEntity,
     ): Promise<SubmissionAttemptsResponseData> {
         return this.submissionAttemptsService.execute(
             {
                 request,
                 locale,
+                user,
             },
         )
     }

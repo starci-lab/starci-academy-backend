@@ -1,8 +1,8 @@
 import {
-    Injectable 
+    Injectable,
 } from "@nestjs/common"
 import {
-    AppConfig
+    AppConfig,
 } from "./types"
 import {
     getAppConfig,
