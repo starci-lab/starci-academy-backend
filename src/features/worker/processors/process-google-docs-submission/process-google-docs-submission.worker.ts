@@ -94,8 +94,10 @@ export class ProcessGoogleDocsSubmissionWorker extends WorkerHost {
                     id: bullmqJob.id ?? "",
                 },
             )
+            await this.jobActionService.processingJob({
+                job,
+            })
             payload = this.superJson.parse<ProcessGoogleDocsSubmissionPayload>(bullmqJob.data)
-            
             const stepMap = this.stepMappingService.getStepMap()
             const userChallengeSubmission = await this.entityManager.findOne(
                 UserChallengeSubmissionEntity,
@@ -173,22 +175,25 @@ export class ProcessGoogleDocsSubmissionWorker extends WorkerHost {
             }
 
             while (job.currentStep < job.maxSteps) {
-                // Refresh the job record to ensure we have the latest step index
-                const syncedJob = await this.jobActionService.getJob({
-                    id: job.id,
-                })
-                context.job = syncedJob
-
-                // Process the current step
-                const step = stepMap.get(syncedJob.currentStep)
-                if (step) {
-                    await step.process(context)
-                } else {
-                    // Safety break if a step is missing to prevent infinite loop
-                    break
-                }
+                // refresh the job record
+                const syncedJob = await this.jobActionService.getJob(
+                    {
+                        id: job.id,
+                    },
+                )
+                // update the job record
+                job = syncedJob
+                // update the context
+                context.job = job
+                // process the step
+                await stepMap.get(syncedJob.currentStep)?.process(
+                    context
+                )
             }
-
+            // complete the job
+            await this.jobActionService.completeJob({
+                job,
+            })
             this.winstonService.log(
                 WinstonLog.JobExecutedSuccessfully,
                 {

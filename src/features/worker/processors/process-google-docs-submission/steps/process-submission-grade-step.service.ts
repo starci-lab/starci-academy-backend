@@ -88,11 +88,22 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
             ExtendedProcessGoogleDocsSubmissionContext
         >,
     ): Promise<void> {
-        const executionResult = await this.execute(context)
-        await this.finalize(
-            executionResult,
-            context,
-        )
+        try {
+            const executionResult = await this.execute(context)
+            await this.finalize(
+                executionResult,
+                context,
+            )
+        } catch (error) {
+            // update the job status to failed
+            await this.jobActionService.failJob(
+                {
+                    job: context.job,
+                    error: error.message,
+                },
+            )
+            throw error
+        }
     }
 
     /** Execute the step. */
@@ -111,7 +122,7 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 urlOrId: url,
             }
         )
-
+        console.log(text)
         const splitter = new RecursiveCharacterTextSplitter({
             chunkSize: envConfig().services.githubWorker.processGitSubmission.chunkSize,
             chunkOverlap: envConfig().services.githubWorker.processGitSubmission.chunkOverlap,

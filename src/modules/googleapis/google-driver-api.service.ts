@@ -20,6 +20,9 @@ import type {
     FetchGoogleDocsTextResult,
     GoogleApisModuleOptions,
 } from "./types"
+import {
+    getGcpServiceAccountCredentials,
+} from "@modules/filesystem"
 
 /**
  * Google APIs helper focused on fetching Google Docs content via Drive export (text/plain).
@@ -38,7 +41,8 @@ export class GoogleDriverAPIService {
             scopes: this.options?.scopes ?? [
                 "https://www.googleapis.com/auth/drive.readonly",
             ],
-            credentials: this.options?.credentials,
+            credentials: this.options?.credentials
+                ?? getGcpServiceAccountCredentials(),
         })
 
         this.drive = google.drive({

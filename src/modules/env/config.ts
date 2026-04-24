@@ -647,6 +647,13 @@ export const envConfig = () => ({
                     "terraform",
                     "brevo-smtp-api-key.key"),
             }),
+            gcpServiceAccountJson: parseEnvString({
+                key: "TERRAFORM_GCP_SERVICE_ACCOUNT_JSON_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "gcp-service-account.json"),
+            }),
         },
     },
     /** CORS: allowed origins (CORS_ORIGIN_1 … CORS_ORIGIN_10, empty skipped). */

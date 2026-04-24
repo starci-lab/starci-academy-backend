@@ -1,5 +1,6 @@
 import {
-    readFileSync
+    existsSync,
+    readFileSync,
 } from "fs"
 import {
     envConfig
@@ -97,4 +98,24 @@ export const getBrevoSmtpPassword = (): string => {
         envConfig().mountPath.terraform.brevoSmtpPassword,
         "utf8",
     )
+}
+
+/**
+ * Service account credentials for Google APIs (google-auth-library / googleapis).
+ * Precedence: {@link envConfig.googleapis.serviceAccountJson} (full JSON string) then mount file
+ * {@link envConfig.mountPath.terraform.gcpServiceAccountJson}. If neither is usable, returns undefined (ADC / GOOGLE_APPLICATION_CREDENTIALS).
+ */
+export const getGcpServiceAccountCredentials = ():
+    | Record<string, unknown>
+    | undefined => {
+    const path = envConfig().mountPath.terraform.gcpServiceAccountJson
+    if (!existsSync(path)) {
+        return undefined
+    }
+    try {
+        return JSON.parse(readFileSync(path,
+            "utf8")) as Record<string, unknown>
+    } catch {
+        return undefined
+    }
 }
