@@ -15,14 +15,14 @@ import {
     tmpdir 
 } from "os"
 import {
-    execa 
-} from "execa"
-import {
     WinstonLog, WinstonService 
 } from "@modules/winston"
 import {
     BackupEncryptionPasswordNotSetException,
 } from "@modules/exceptions"
+import {
+    ExecaService
+} from "@modules/execa"
 
 export interface PgBackupParams {
     postgresUrl: string
@@ -37,6 +37,7 @@ export interface PgBackupParams {
 export class PgBackupService {
     constructor(
         private readonly s3UploadService: S3UploadService,
+        private readonly execaService: ExecaService,
         private readonly winstonService: WinstonService,
     ) {}
 
@@ -74,25 +75,30 @@ export class PgBackupService {
 
         try {
             // 1. pg_dump → file
-            await execa("pg_dump",
-                [
+            await this.execaService.exec({
+                command: "pg_dump",
+                args: [
                     "--format=custom",
                     "--file",
                     dumpPath,
                     "--dbname",
                     postgresUrl,
-                ])
+                ],
+            })
 
-            // 2. gzip → FIXED (output file phải redirect)
-            await execa("gzip",
-                [
+            // 2. gzip
+            await this.execaService.exec({
+                command: "gzip",
+                args: [
                     "-f",
-                    dumpPath, // tạo dump.gz
-                ])
+                    dumpPath,
+                ],
+            })
 
             // 3. openssl encrypt
-            await execa("openssl",
-                [
+            await this.execaService.exec({
+                command: "openssl",
+                args: [
                     "enc",
                     "-aes-256-cbc",
                     "-salt",
@@ -104,17 +110,16 @@ export class PgBackupService {
                     "-pass",
                     "env:BACKUP_ENCRYPT_PASSWORD",
                 ],
-                {
-                    env: {
-                        ...process.env,
-                        BACKUP_ENCRYPT_PASSWORD: encryptPassword,
-                    },
-                })
+                env: {
+                    ...process.env,
+                    BACKUP_ENCRYPT_PASSWORD: encryptPassword,
+                },
+            })
 
             // 4. upload S3
             await this.s3UploadService.buffer({
-                buffer: await readFile(encPath),
                 name: s3Key,
+                buffer: await readFile(encPath),
                 acl: "private",
                 provider: S3Provider.DigitalOcean,
             })

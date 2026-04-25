@@ -4,6 +4,7 @@ export interface ExecParams {
     args?: Array<string>
     /** When set and positive, passed to execa as `timeout` (milliseconds). */
     timeoutMs?: number
+    env?: Record<string, string>
 }
 
 /** Result of exec (stdout as string). */

@@ -37,7 +37,7 @@ export class ExecaService {
      * const version = await execaService.exec({ command: "node", args: ["-e", "process.stdout.write('ok')"] })
      */
     async exec(
-        { command, args = [], timeoutMs }: ExecParams
+        { command, args = [], timeoutMs, env }: ExecParams
     ): Promise<ExecResult> {
         // reject invalid input before touching the filesystem or spawning
         this.assertValidExecParams({
@@ -59,9 +59,12 @@ export class ExecaService {
                     }
 
             const subprocess = execa(
-                command,
+                command, 
                 args,
-                execaOptions
+                {
+                    ...execaOptions,
+                    env,
+                }
             )
             const { stdout, stderr } = await subprocess
 
