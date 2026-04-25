@@ -73,7 +73,6 @@ export class PrimaryBackupService {
                 ],
                 timeoutMs: 30000,
             })
-
             // 3. Upload to S3
             await this.s3UploadService.buffer(
                 {

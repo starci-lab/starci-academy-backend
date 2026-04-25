@@ -50,6 +50,17 @@ RUN npx nest build core
 # where the necessary files are copied from the build stage.
 FROM base as final
 
+# Download and install MongoDB Database Tools
+RUN apk add --no-cache \
+    --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing \
+    mongodb-tools \
+ && chmod +x /usr/bin/mongo* || true
+
+# Download pg_dump and pg_restore
+RUN apk add --no-cache postgresql17-client
+# Download 7z
+RUN apk update && apk add --no-cache p7zip
+
 # Use production node environment by default.
 ENV NODE_ENV production
 
