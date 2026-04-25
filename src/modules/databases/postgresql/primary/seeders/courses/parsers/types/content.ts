@@ -26,8 +26,6 @@ export interface ParseContentParams {
 
 /** Ordinals locating `modules/{module}/contents/` on the course mount. */
 export interface ParseContentManyParams {
-    /** The relative path of the course. */
-    courseRelativePath: string
     /** The relative path of the module. */
     moduleRelativePath: string
     /** The index of the course. */

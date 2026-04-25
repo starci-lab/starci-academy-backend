@@ -22,10 +22,6 @@ export interface ParseLessonVideoParams {
 
 /** Ordinals locating `modules/{module}/lession-videos/{lessonVideoIndex}-{slug}/` on the mount. */
 export interface ParseLessonVideoManyParams {
-    /** The relative path of the course. */
-    courseRelativePath: string
-    /** The relative path of the module. */
-    moduleRelativePath: string
     /** The relative path of the content. */
     contentRelativePath: string
     /** The index of the course. */

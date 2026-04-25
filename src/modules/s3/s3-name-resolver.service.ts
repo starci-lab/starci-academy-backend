@@ -32,6 +32,7 @@ export class S3NameResolverService {
      * @returns The name for the course.
      */
     course(id: string, locale?: Locale): string {
+        //
         if (locale) {
             return `courses/${id}-${locale}.json`
         }
