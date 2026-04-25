@@ -170,7 +170,10 @@ import {
                 }
             ),
             /** Schedule module. */
-            ScheduleModule.forRoot(),
+            ScheduleModule.forRoot({
+                cronJobs: true,
+                intervals: true,
+            }),
             /** Winston module. */
             WinstonModule.register(
                 {
