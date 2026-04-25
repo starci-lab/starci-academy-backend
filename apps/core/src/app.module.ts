@@ -123,6 +123,9 @@ import {
 import {
     BackupModule 
 } from "@features/backup"
+import {
+    ExecaModule
+} from "@modules/execa"
 /**
  * The main module for the application.
  */
@@ -156,6 +159,12 @@ import {
             ),
             /** Axios module. */
             AxiosModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Execa module. */
+            ExecaModule.register(
                 {
                     isGlobal: true,
                 }
