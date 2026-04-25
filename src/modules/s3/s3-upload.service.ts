@@ -9,6 +9,7 @@ import type {
     UploadBufferParams,
     UploadJsonParams,
     UploadPayload,
+    UploadStreamParams,
 } from "./types"
 import {
     S3ProviderNotFoundException,
@@ -165,6 +166,51 @@ export class S3UploadService {
                 Bucket: bucket,
                 Key: name,
                 Body: buffer,
+                ACL: acl,
+                ContentType: contentType,
+            }),
+        )
+    }
+
+    /**
+     * Upload a stream to S3.
+     * @param param - Upload stream parameters.
+     */
+    async stream(
+        {
+            name,
+            stream,
+            acl,
+            provider,
+            contentType,
+        }: UploadStreamParams,
+    ): Promise<void> {
+        let s3Client: S3Client
+        let bucket: string
+    
+        switch (provider) {
+        case S3Provider.DigitalOcean:
+            s3Client = this.digitalOceanS3
+            bucket = envConfig().s3.digitalOcean.bucket
+            break
+    
+        case S3Provider.Minio:
+            s3Client = this.minioS3
+            bucket = envConfig().s3.minio.bucket
+            break
+    
+        default:
+            throw new S3ProviderNotFoundException({
+                provider,
+                supportedProviders: Object.values(S3Provider),
+            })
+        }
+    
+        await s3Client.send(
+            new PutObjectCommand({
+                Bucket: bucket,
+                Key: name,
+                Body: stream,
                 ACL: acl,
                 ContentType: contentType,
             }),

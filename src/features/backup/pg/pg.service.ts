@@ -23,6 +23,7 @@ import {
 import {
     ExecaService
 } from "@modules/execa"
+import { createReadStream } from "node:fs"
 
 export interface PgBackupParams {
     postgresUrl: string
@@ -116,9 +117,9 @@ export class PgBackupService {
             })
 
             // 4. upload S3
-            await this.s3UploadService.buffer({
+            await this.s3UploadService.stream({
                 name: s3Key,
-                buffer: await readFile(encPath),
+                stream: createReadStream(encPath),
                 acl: "private",
                 provider: S3Provider.DigitalOcean,
             })
