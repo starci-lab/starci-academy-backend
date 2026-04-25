@@ -48,7 +48,7 @@ export class KeycloakBackupService {
     /**
      * Handle the cron job.
      */
-    @Cron(CronExpression.EVERY_HOUR)
+    @Cron(CronExpression.EVERY_3_HOURS)
     async handleCron() {
         await this.process()
     }
