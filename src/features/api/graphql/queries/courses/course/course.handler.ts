@@ -53,20 +53,21 @@ export class CourseHandler
                 id: request.id,
             })
         }
-
-        const objectKey = this.s3NameResolverService.course(request.displayId,
-            locale)
+        const objectKey = this.s3NameResolverService.course(
+            request.displayId,
+            locale
+        )
         const cdnPayload = await this.s3ReadService.json<UploadPayload>({
             key: objectKey,
             provider: S3Provider.Minio,
-        }).catch(() => null)
-
+        })
         if (!cdnPayload) {
-            throw new CourseNotFoundException({
-                id: request.id,
-            })
+            throw new CourseNotFoundException(
+                {
+                    id: request.id,
+                }
+            )
         }
-
         return this.superJson.parse<CourseEntity>(cdnPayload.data)
     }
 }

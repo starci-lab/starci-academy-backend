@@ -46,7 +46,7 @@ export class CourseCdnResolver {
         // Generate a pre-signed URL for private objects.
         return this.s3BuildService.buildSignedGetObjectUrl({
             key: objectKey,
-            provider: S3Provider.DigitalOcean,
+            provider: S3Provider.Minio,
         })
     }
 }

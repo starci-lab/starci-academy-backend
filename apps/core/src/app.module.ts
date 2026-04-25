@@ -225,9 +225,6 @@ import {
             PrimaryPostgreSQLModule.register(
                 {
                     isGlobal: true,
-                    withSeeders: {
-                        manualSeed: false,
-                    },
                     withResolvers: true,
                 }
             ),
