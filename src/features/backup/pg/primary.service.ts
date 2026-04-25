@@ -36,7 +36,6 @@ export class PrimaryBackupService {
             port,
             database,
         } = envConfig().databases.postgresql.primary
-
         const sourceUrl = `postgresql://${username}:${password}@${host}:${port}/${database}`
         await this.pgBackupService.backup({
             postgresUrl: sourceUrl,
@@ -50,6 +49,7 @@ export class PrimaryBackupService {
      */
     @Cron(CronExpression.EVERY_30_SECONDS)
     async handleCron() {
+        console.log("Primary backup cron job started")
         await this.process()
     }
 }
