@@ -32,7 +32,9 @@ export class ContextLoaderService {
         /** Get the enabled contexts and sort them by priority. */
         const contexts = envConfig().contexts.filter(context => context.enabled)
         /** Sort the contexts by priority. */
-        const sorted = contexts.sort((prev, next) => prev.priority - next.priority)
+        const sorted = contexts
+            .filter(context => context.enabled)
+            .sort((prev, next) => prev.priority - next.priority)
         /** Loop through the sorted contexts and load the file. */
         for (const context of sorted) {
             switch (context.type) {
