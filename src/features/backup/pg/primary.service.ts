@@ -47,7 +47,7 @@ export class PrimaryBackupService {
     /**
      * Handle the cron job.
      */
-    @Cron(CronExpression.EVERY_30_SECONDS)
+    @Cron(CronExpression.EVERY_HOUR)
     async handleCron() {
         await this.process()
     }

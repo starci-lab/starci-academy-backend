@@ -216,59 +216,57 @@ export class ExecaService {
                     stdout: "",
                 })
             }
-        } catch (err: unknown) {
-            if (err instanceof ExecaExecutionFailedException) {
-                throw err
+        } catch (error) {
+            if (error instanceof ExecaExecutionFailedException) {
+                throw error
             }
 
-            if (err instanceof ExecaError) {
-                if (err.timedOut) {
+            if (error instanceof ExecaError) {
+                if (error.timedOut) {
                     throw new ExecaCommandTimedOutException({
                         command,
                         args,
                         timeoutMs: typeof timeoutMs === "number" && timeoutMs > 0
                             ? timeoutMs
                             : 0,
-                        stdout: this.stringifyStdio(err.stdout),
-                        stderr: this.stringifyStdio(err.stderr),
-                        originalError: err,
+                        stdout: this.stringifyStdio(error.stdout),
+                        stderr: this.stringifyStdio(error.stderr),
+                        originalError: error,
                     })
                 }
 
-                if (err.isCanceled) {
+                if (error.isCanceled) {
                     throw new ExecaCommandCanceledException({
                         command,
                         args,
-                        isGracefullyCanceled: err.isGracefullyCanceled,
-                        stdout: this.stringifyStdio(err.stdout),
-                        stderr: this.stringifyStdio(err.stderr),
-                        originalError: err,
+                        isGracefullyCanceled: error.isGracefullyCanceled,
+                        stdout: this.stringifyStdio(error.stdout),
+                        stderr: this.stringifyStdio(error.stderr),
+                        originalError: error,
                     })
                 }
 
-                if (err.code === "ENOENT" || err.exitCode === 127) {
+                if (error.code === "ENOENT" || error.exitCode === 127) {
                     throw new ExecaCommandNotFoundException({
                         command,
                         args,
-                        nodeErrorCode: err.code,
-                        exitCode: err.exitCode,
-                        stderr: this.stringifyStdio(err.stderr),
-                        stdout: this.stringifyStdio(err.stdout),
-                        originalError: err,
+                        nodeErrorCode: error.code,
+                        exitCode: error.exitCode,
+                        stderr: this.stringifyStdio(error.stderr),
+                        stdout: this.stringifyStdio(error.stdout),
+                        originalError: error,
                     })
                 }
             }
 
-            const execaErr = err as ExecaUnknownProcessError
+            const execaErr = error as ExecaUnknownProcessError
             throw new ExecaExecutionFailedException({
                 command,
                 args,
-                stderr: execaErr.stderr ?? String(err),
+                stderr: execaErr.stderr ?? "",
                 stdout: execaErr.stdout,
                 exitCode: execaErr.exitCode,
-                originalError: err instanceof Error
-                    ? err
-                    : undefined,
+                originalError: error.originalError,
             })
         }
     }
@@ -299,7 +297,7 @@ export class ExecaService {
             })
         }
 
-        if (!args.every((a) => typeof a === "string")) {
+        if (!args.every((arg) => typeof arg === "string")) {
             throw new ExecaInvalidParamsException({
                 command,
                 args,
