@@ -1,3 +1,6 @@
+import {
+    ResolvedFilePath 
+} from "../../path"
 import type {
     ExtractChallengeBlockBothParams,
     ExtractChallengeBlockBothResult,
@@ -11,12 +14,27 @@ export type ExtractContentBlockBothResult = ExtractChallengeBlockBothResult
 
 /** Ordinals locating `modules/{module}/contents/{contentIndex}-{slug}/` on the course mount. */
 export interface ParseContentParams {
+    /** The paths of the content. */
+    paths: Array<ResolvedFilePath>
+    /** The index of the course. */
     courseIndex: number
+    /** The index of the module. */
     moduleIndex: number
-    /** Folder index under `contents/` (matches `orderIndex` on the entity). */
+    /** The index of the content. */
     contentIndex: number
 }
 
+/** Ordinals locating `modules/{module}/contents/` on the course mount. */
+export interface ParseContentManyParams {
+    /** The relative path of the course. */
+    courseRelativePath: string
+    /** The relative path of the module. */
+    moduleRelativePath: string
+    /** The index of the course. */
+    courseIndex: number
+    /** The index of the module. */
+    moduleIndex: number
+}
 /** Optional structured fields from `# Content Data` in `en.md` or content `data.json`. */
 export interface ContentDataJson {
     /** Estimated minutes to read the article. */

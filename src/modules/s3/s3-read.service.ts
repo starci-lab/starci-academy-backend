@@ -1,5 +1,6 @@
 import {
     GetObjectCommand,
+    ListObjectsV2Command,
     NoSuchKey,
     S3Client,
 } from "@aws-sdk/client-s3"
@@ -24,13 +25,12 @@ import {
     InjectMinioS3,
 } from "./s3.decorators"
 import {
-    UploadPayload
-} from "./types"
-import {
+    ListParams,
     ReadBufferParams,
     ReadJsonParams,
     ReadTextParams,
-} from "./types/read"
+    UploadPayload
+} from "./types"
 
 /**
  * Service for reading objects from S3.
@@ -51,7 +51,7 @@ export class S3ReadService {
         private readonly minioS3: S3Client,
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
-    ) {}
+    ) { }
 
     /**
      * Read an object from S3 as string.
@@ -168,5 +168,52 @@ export class S3ReadService {
             return null
         }
     }
-}
 
+    /**
+     * List objects from S3.
+     *
+     * @returns List of objects.
+     */
+    async list(
+        {
+            key,
+            provider,
+        }: ListParams,
+    ): Promise<Array<string>> {
+        // take the appropriate S3 client based on the provider
+        let s3Client: S3Client
+        switch (provider) {
+        case S3Provider.DigitalOcean:
+            s3Client = this.s3
+            break
+        case S3Provider.Minio:
+            s3Client = this.minioS3
+            break
+        }
+        const prefix = key.endsWith("/") ? key : `${key}/`
+        const bucket =
+            provider === S3Provider.DigitalOcean
+                ? envConfig().s3.digitalOcean.bucket
+                : envConfig().s3.minio.bucket
+        const result = await s3Client.send(
+            new ListObjectsV2Command(
+                {
+                    Bucket: bucket,
+                    Prefix: prefix,
+                    Delimiter: "/",
+                }
+            ),
+        )
+        return (
+            result.CommonPrefixes ?? []).map(
+            p =>
+            p.Prefix!.replace(
+                prefix,
+                ""
+            ).replace(
+                "/",
+                ""
+            )
+        ) ?? []
+    }
+}

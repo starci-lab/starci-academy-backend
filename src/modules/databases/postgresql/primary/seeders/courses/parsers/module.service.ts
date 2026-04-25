@@ -2,9 +2,6 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    readMdFileOrDefault,
-} from "@modules/common"
-import {
     Locale,
 } from "../../../enums"
 import {
@@ -16,6 +13,7 @@ import {
     PreviewContentIdFactoryService,
 } from "../id-factories"
 import {
+    ParseModuleManyParams,
     ParseModuleParams,
 } from "./types"
 import {
@@ -27,8 +25,15 @@ import {
     PreviewContentTranslationEntity,
 } from "../../../entities"
 import {
-    ModuleDirService,
-} from "../dir"
+    ContextLoaderService,
+} from "../contexts"
+import {
+    ModulePathNotFoundException,
+} from "@modules/exceptions"
+import {
+    ModulePathService,
+    ResolvedFileResult,
+} from "../path"
 /**
  * Parses module readme from `en.md` / `vi.md` with camelCase `#` headings and indexed lists.
  */
@@ -38,8 +43,9 @@ export class ModuleParserService {
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,
         private readonly previewContentIdFactoryService: PreviewContentIdFactoryService,
         private readonly moduleIdFactoryService: ModuleIdFactoryService,
-        private readonly moduleDirService: ModuleDirService,
+        private readonly contextLoaderService: ContextLoaderService,
         private readonly courseIdFactoryService: CourseIdFactoryService,
+        private readonly modulePathService: ModulePathService,
     ) {}
 
     /**
@@ -48,34 +54,39 @@ export class ModuleParserService {
      * @param param - Course, module, and lesson video indices
      * @returns Entity-shaped object suitable for TypeORM cascade save
      */
-    parse(
+    async parse(
         {
-            courseIndex,
+            paths,
             moduleIndex,
+            courseIndex,
         }: ParseModuleParams,
-    ): DeepPartial<ModuleEntity> {
-        const {
-            path,
-            displayId,
-        } = this.moduleDirService.path(
-            {
-                courseIndex,
-                moduleIndex,
-            },
+    ): Promise<DeepPartial<ModuleEntity>> {
+        const path = paths.find(
+            (path) => path.orderIndex === moduleIndex
         )
+        if (!path) {
+            throw new ModulePathNotFoundException(
+                {
+                    moduleIndex,
+                },
+            )
+        }
+        const jsonMap = new Map<Locale, Partial<ModuleEntity>>()
+        for (const locale of Object.values(Locale)) {
+            jsonMap.set(
+                locale,
+                this.extractJsonFromMdService.extract(
+                    await this.contextLoaderService.load(
+                        `${path.relativePath}/${locale}.md`,
+                    ),
+                ),
+            )
+        }
         const courseId = this.courseIdFactoryService.generate(
             {
                 courseIndex,
             },
         )
-        const jsonMap = new Map<Locale, Partial<ModuleEntity>>()
-        for (const locale of Object.values(Locale)) {
-            jsonMap.set(locale,
-                this.extractJsonFromMdService.extract(
-                    readMdFileOrDefault(`${path}/${locale}.md`)
-                )
-            )
-        }
         const moduleId = this.moduleIdFactoryService.generate(
             {
                 courseIndex,
@@ -84,7 +95,7 @@ export class ModuleParserService {
         )
         return {
             id: moduleId,
-            displayId,
+            displayId: path.displayId,
             course: {
                 id: courseId,
             },
@@ -164,5 +175,39 @@ export class ModuleParserService {
                 }
             )()
         }
+    }
+
+    /**
+     * Parses many modules from the mount.
+     *
+     * @returns Entities-shaped graphs for TypeORM cascade save
+     */
+    async parseMany(
+        {
+            courseRelativePath,
+            courseIndex,
+        }: ParseModuleManyParams,
+    ): Promise<Array<ResolvedFileResult<DeepPartial<ModuleEntity>>>> {
+        const paths = await this.modulePathService.paths(
+            {
+                courseRelativePath,
+            },
+        )
+        const data: Array<ResolvedFileResult<DeepPartial<ModuleEntity>>> = []
+        for (const path of paths) {
+            const module = await this.parse(
+                {
+                    paths,
+                    moduleIndex: path.orderIndex,
+                    courseIndex,
+                },
+            )
+            data.push({
+                data: module,
+                index: path.orderIndex,
+                relativePath: path.relativePath,
+            })
+        }
+        return data
     }
 }

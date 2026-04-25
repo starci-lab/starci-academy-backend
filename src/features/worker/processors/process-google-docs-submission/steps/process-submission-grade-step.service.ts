@@ -122,7 +122,6 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 urlOrId: url,
             }
         )
-        console.log(text)
         const splitter = new RecursiveCharacterTextSplitter({
             chunkSize: envConfig().services.githubWorker.processGitSubmission.chunkSize,
             chunkOverlap: envConfig().services.githubWorker.processGitSubmission.chunkOverlap,

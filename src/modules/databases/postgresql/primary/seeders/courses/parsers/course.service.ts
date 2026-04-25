@@ -5,9 +5,6 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    readMdFileOrDefault,
-} from "@modules/common"
-import {
     Locale,
     PricingPhase,
 } from "../../../enums"
@@ -34,8 +31,15 @@ import {
     ValuePropositionTranslationEntity,
 } from "../../../entities"
 import {
-    CourseDirService,
-} from "../dir"
+    ContextLoaderService,
+} from "../contexts"
+import {
+    CoursePathNotFoundException,
+} from "@modules/exceptions"
+import {
+    CoursePathService,
+    ResolvedFileResult,
+} from "../path"
 
 /**
  * Parses a course root (`en.md`, `vi.md`, optional `data.json`) under `courses/{index}-{slug}/`.
@@ -52,7 +56,8 @@ export class CourseParserService {
         private readonly valuePropositionIdFactoryService: ValuePropositionIdFactoryService,
         private readonly pricingPhaseIdFactoryService: PricingPhaseIdFactoryService,
         private readonly livestreamSessionIdFactoryService: LivestreamSessionIdFactoryService,
-        private readonly courseDirService: CourseDirService,
+        private readonly contextLoaderService: ContextLoaderService,
+        private readonly coursePathService: CoursePathService,
     ) { }
 
     /**
@@ -61,23 +66,30 @@ export class CourseParserService {
      * @param param - Course ordinal
      * @returns Entity-shaped graph for TypeORM cascade save
      */
-    parse(
+    async parse(
         {
+            paths,
             courseIndex,
         }: ParseCourseParams,
-    ): DeepPartial<CourseEntity> {
-        const {
-            displayId,
-            path,
-        } = this.courseDirService.path(
-            courseIndex,
-        )
+    ): Promise<DeepPartial<CourseEntity>> {
         const jsonMap = new Map<Locale, Partial<CourseEntity>>()
+        const path = paths.find(
+            (path) => path.orderIndex === courseIndex
+        )
+        if (!path) {
+            throw new CoursePathNotFoundException(
+                {
+                    courseIndex,
+                },
+            )
+        }
         for (const locale of Object.values(Locale)) {
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(
-                    readMdFileOrDefault(`${path}/${locale}.md`)
+                    await this.contextLoaderService.load(
+                        `${path.relativePath}/${locale}.md`
+                    ),
                 )
             )
         }
@@ -91,7 +103,7 @@ export class CourseParserService {
             defaultLocale: Locale.En,
             title: jsonMap.get(Locale.En)?.title ?? "",
             description: jsonMap.get(Locale.En)?.description ?? "",
-            displayId,
+            displayId: path.displayId,
             originalPrice: this.coerceMdScalarService.toRequiredNumber(
                 jsonMap.get(Locale.En)?.originalPrice,
                 0,
@@ -315,5 +327,30 @@ export class CourseParserService {
                 }
             )()
         }
+    }
+
+    /**
+     * Parses many courses from the mount.
+     *
+     * @returns Entities-shaped graphs for TypeORM cascade save
+     */
+    async parseMany(
+    ): Promise<Array<ResolvedFileResult<DeepPartial<CourseEntity>>>> {
+        const paths = await this.coursePathService.paths()
+        const data: Array<ResolvedFileResult<DeepPartial<CourseEntity>>> = []
+        for (const path of paths) {
+            const course = await this.parse(
+                {
+                    paths,
+                    courseIndex: path.orderIndex,
+                },
+            )
+            data.push({
+                data: course,
+                index: path.orderIndex,
+                relativePath: path.relativePath,
+            })
+        }
+        return data
     }
 }

@@ -1,12 +1,10 @@
 import type {
+    ParseLessonVideoManyParams,
     ParseLessonVideoParams,
 } from "./types"
 import {
     Injectable,
 } from "@nestjs/common"
-import {
-    readMdFileOrDefault,
-} from "@modules/common"
 import {
     Locale,
     LessonVideoKind,
@@ -28,8 +26,15 @@ import {
     LessonVideoTranslationEntity,
 } from "../../../entities"
 import {
-    LessonVideoDirService,
-} from "../dir"
+    LessonVideoPathService,
+    ResolvedFileResult,
+} from "../path"
+import {
+    ContextLoaderService,
+} from "../contexts"
+import {
+    LessonVideoPathNotFoundException,
+} from "@modules/exceptions"
 
 /**
  * Parses lesson video from `en.md` / `vi.md` with camelCase `#` headings (or optional `data.json`).
@@ -37,41 +42,44 @@ import {
 @Injectable()
 export class LessonVideoParserService {
     constructor(
-        private readonly lessonVideoDirService: LessonVideoDirService,
+        private readonly lessonVideoPathService: LessonVideoPathService,
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,
         private readonly coerceMdScalarService: CoerceMdScalarService,
         private readonly lessonVideoIdFactoryService: LessonVideoIdFactoryService,
         private readonly contentIdFactoryService: ContentIdFactoryService,
+        private readonly contextLoaderService: ContextLoaderService,
     ) {}
 
     /**
      * Builds a partial lesson video entity from mounted course files.
      */
-    parse(
+    async parse(
         {
+            paths,
             courseIndex,
             moduleIndex,
             contentIndex,
             lessonVideoIndex,
         }: ParseLessonVideoParams,
-    ): DeepPartial<LessonVideoEntity> {
-        const {
-            path,
-            displayId,
-        } = this.lessonVideoDirService.path(
-            {
-                courseIndex,
-                moduleIndex,
-                contentIndex,
-                lessonVideoIndex,
-            },
+    ): Promise<DeepPartial<LessonVideoEntity>> {
+        const path = paths.find(
+            (path) => path.orderIndex === lessonVideoIndex
         )
+        if (!path) {
+            throw new LessonVideoPathNotFoundException(
+                {
+                    lessonVideoIndex,
+                },
+            )
+        }
         const jsonMap = new Map<Locale, Partial<LessonVideoEntity>>()
         for (const locale of Object.values(Locale)) {
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(
-                    readMdFileOrDefault(`${path}/${locale}.md`)
+                    await this.contextLoaderService.load(
+                        `${path.relativePath}/${locale}.md`,
+                    ),
                 )
             )
         }
@@ -86,7 +94,7 @@ export class LessonVideoParserService {
         return {
             id: lessonVideoId,
             defaultLocale: Locale.En,
-            displayId,
+            displayId: path.displayId,
             title: jsonMap.get(Locale.En)?.title ?? "",
             description: this.coerceMdScalarService.toNullableStringColumn(
                 jsonMap.get(Locale.En)?.description,
@@ -148,5 +156,47 @@ export class LessonVideoParserService {
                 jsonMap.get(Locale.En)?.thumbnailUrl,
             ),
         }
+    }
+
+    /**
+     * Parses many lesson videos from the mount.
+     *
+     * @param contentRelativePath - Content relative path
+     * @param courseIndex - Course index
+     * @param moduleIndex - Module index
+     * @param contentIndex - Content index
+     * @returns Entities-shaped graphs for TypeORM cascade save
+     */
+    async parseMany(
+        {
+            contentRelativePath,
+            courseIndex,
+            moduleIndex,
+            contentIndex,
+        }: ParseLessonVideoManyParams,
+    ): Promise<Array<ResolvedFileResult<DeepPartial<LessonVideoEntity>>>> {
+        const paths = await this.lessonVideoPathService.paths(
+            {
+                contentRelativePath,
+            },
+        )
+        const data: Array<ResolvedFileResult<DeepPartial<LessonVideoEntity>>> = []
+        for (const path of paths) {
+            const lessonVideo = await this.parse(
+                {
+                    paths,
+                    courseIndex,
+                    moduleIndex,
+                    contentIndex,
+                    lessonVideoIndex: path.orderIndex,
+                },
+            )
+            data.push({
+                data: lessonVideo,
+                index: path.orderIndex,
+                relativePath: path.relativePath,
+            })
+        }
+        return data
     }
 }

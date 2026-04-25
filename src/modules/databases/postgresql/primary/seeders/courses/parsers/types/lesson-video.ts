@@ -1,19 +1,15 @@
 import type {
-    ExtractChallengeBlockBothParams,
-    ExtractChallengeBlockBothResult,
-} from "./challenge"
-import type {
     LessonVideoKind,
     VideoHostPlatform,
 } from "../../../../enums"
-
-/** Dual-locale block extraction for lesson video markdown (Title, Description). */
-export type ExtractLessonVideoBlockBothParams = ExtractChallengeBlockBothParams
-
-export type ExtractLessonVideoBlockBothResult = ExtractChallengeBlockBothResult
+import {
+    ResolvedFilePath,
+} from "../../path"
 
 /** Ordinals locating `modules/{module}/lession-videos/{lessonVideoIndex}-{slug}/` on the mount. */
 export interface ParseLessonVideoParams {
+    /** The paths of the lesson video. */
+    paths: Array<ResolvedFilePath>
     /** Course index. */
     courseIndex: number
     /** Module index. */
@@ -22,6 +18,22 @@ export interface ParseLessonVideoParams {
     contentIndex: number
     /** Lesson video index. */
     lessonVideoIndex: number
+}
+
+/** Ordinals locating `modules/{module}/lession-videos/{lessonVideoIndex}-{slug}/` on the mount. */
+export interface ParseLessonVideoManyParams {
+    /** The relative path of the course. */
+    courseRelativePath: string
+    /** The relative path of the module. */
+    moduleRelativePath: string
+    /** The relative path of the content. */
+    contentRelativePath: string
+    /** The index of the course. */
+    courseIndex: number
+    /** The index of the module. */
+    moduleIndex: number
+    /** The index of the content. */
+    contentIndex: number
 }
 
 /** Params for listing lesson-video folder indices. */

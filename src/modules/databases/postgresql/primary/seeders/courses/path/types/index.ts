@@ -1,4 +1,3 @@
-export * from "./course"
 export * from "./module"
 export * from "./content"
 export * from "./lesson-video"

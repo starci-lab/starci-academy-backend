@@ -1,13 +1,34 @@
+import {
+    ResolvedFilePath,
+} from "../../path"
 import type {
     ChallengeDifficulty,
 } from "../../../../enums"
 
 /** Indices that locate a challenge under mounted course data. */
 export interface ParseChallengeParams {
+    /** The paths of the challenge. */
+    paths: Array<ResolvedFilePath>
+    /** The index of the course. */
     courseIndex: number
+    /** The index of the module. */
     moduleIndex: number
+    /** The index of the content. */
     contentIndex: number
+    /** The index of the challenge. */
     challengeIndex: number
+}
+
+/** Ordinals locating `modules/{module}/contents/{contentIndex}-{slug}/challenges/` on the course mount. */
+export interface ParseChallengeManyParams {
+    /** The relative path of the content. */
+    contentRelativePath: string
+    /** The index of the course. */
+    courseIndex: number
+    /** The index of the module. */
+    moduleIndex: number
+    /** The index of the content. */
+    contentIndex: number
 }
 
 /** Params for listing `challenges/{n}/` folder indices on the mount. */

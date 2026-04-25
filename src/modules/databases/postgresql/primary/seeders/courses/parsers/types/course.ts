@@ -6,8 +6,12 @@ import {
     PricingPhase,
 } from "../../../../enums"
 import {
+    CourseEntity,
     PricingPhaseEntity,
 } from "../../../../entities"
+import {
+    ResolvedFilePath 
+} from "../../path"
 
 /** One pricing phase from course `# Course Data` JSON or root `data.json`. */
 export interface CoursePricingJson {
@@ -35,6 +39,9 @@ export interface CourseDataJson {
 
 /** Ordinal of the course in the seed list (mount folder `{courseIndex}-{slug}`). */
 export interface ParseCourseParams {
+    /** The paths of the course. */
+    paths: Array<ResolvedFilePath>
+    /** The index of the course. */
     courseIndex: number
 }
 
@@ -63,4 +70,18 @@ export interface ParsePricingResult {
     currentPhase: PricingPhase
     /** The pricing phases of the course. */
     pricingPhases: Array<DeepPartial<PricingPhaseEntity>>
+}
+
+export interface ParseCourseResult {
+    /** The course of the course. */
+    data: DeepPartial<CourseEntity>
+    /** The index of the course. */
+    index: number
+    /** The relative path of the course. */
+    relativePath: string
+}
+/** Parsed courses from the mount. */
+export interface ParseCourseManyResult {
+    /** The courses of the course. */
+    courses: Array<DeepPartial<CourseEntity>>
 }

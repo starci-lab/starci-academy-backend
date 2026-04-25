@@ -1,12 +1,10 @@
 import type {
+    ParseChallengeManyParams,
     ParseChallengeParams,
 } from "./types"
 import {
     Injectable,
 } from "@nestjs/common"
-import {
-    readMdFileOrDefault,
-} from "@modules/common"
 import {
     ChallengeDifficulty,
     Locale,
@@ -36,8 +34,15 @@ import {
     ChallengeTranslationEntity,
 } from "../../../entities"
 import {
-    ChallengeDirService,
-} from "../dir"
+    ChallengePathService,
+    ResolvedFileResult,
+} from "../path"
+import {
+    ContextLoaderService,
+} from "../contexts"
+import {
+    ChallengePathNotFoundException,
+} from "@modules/exceptions"
 
 /**
  * Parses challenge from mounted course files (`en.md` / `vi.md`, optional `data.json`).
@@ -45,7 +50,8 @@ import {
 @Injectable()
 export class ChallengeParserService {
     constructor(
-        private readonly challengeDirService: ChallengeDirService,
+        private readonly challengePathService: ChallengePathService,
+        private readonly contextLoaderService: ContextLoaderService,
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,
         private readonly coerceMdScalarService: CoerceMdScalarService,
         private readonly challengeIdFactoryService: ChallengeIdFactoryService,
@@ -59,31 +65,33 @@ export class ChallengeParserService {
     /**
      * Builds a partial challenge entity from mounted course files.
      */
-    parse(
+    async parse(
         {
+            paths,
             courseIndex,
             moduleIndex,
             contentIndex,
             challengeIndex,
         }: ParseChallengeParams,
-    ): DeepPartial<ChallengeEntity> {
-        const {
-            path,
-            displayId,
-        } = this.challengeDirService.path(
-            {
-                courseIndex,
-                moduleIndex,
-                contentIndex,
-                challengeIndex,
-            },
+    ): Promise<DeepPartial<ChallengeEntity>> {
+        const path = paths.find(
+            (path) => path.orderIndex === challengeIndex
         )
+        if (!path) {
+            throw new ChallengePathNotFoundException(
+                {
+                    challengeIndex,
+                },
+            )
+        }
         const jsonMap = new Map<Locale, Partial<ChallengeEntity>>()
         for (const locale of Object.values(Locale)) {
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(
-                    readMdFileOrDefault(`${path}/${locale}.md`),
+                    await this.contextLoaderService.load(
+                        `${path.relativePath}/${locale}.md`,
+                    ),
                 ),
             )
         }
@@ -98,7 +106,7 @@ export class ChallengeParserService {
         return {
             id: challengeId,
             defaultLocale: Locale.En,
-            displayId,
+            displayId: path.displayId,
             contentId: this.contentIdFactoryService.generate(
                 {
                     courseIndex,
@@ -393,5 +401,49 @@ export class ChallengeParserService {
                 }
             ),
         }
+    }
+
+    /**
+     * Parses many challenges from the mount.
+     *
+     * @param courseRelativePath - Course relative path
+     * @param moduleRelativePath - Module relative path
+     * @param contentRelativePath - Content relative path
+     * @param courseIndex - Course index
+     * @param moduleIndex - Module index
+     * @param contentIndex - Content index
+     * @returns Entities-shaped graphs for TypeORM cascade save
+     */
+    async parseMany(
+        {
+            contentRelativePath,
+            courseIndex,
+            moduleIndex,
+            contentIndex,
+        }: ParseChallengeManyParams,
+    ): Promise<Array<ResolvedFileResult<DeepPartial<ChallengeEntity>>>> {
+        const paths = await this.challengePathService.paths(
+            {
+                contentRelativePath,
+            },
+        )
+        const data: Array<ResolvedFileResult<DeepPartial<ChallengeEntity>>> = []
+        for (const path of paths) {
+            const challenge = await this.parse(
+                {
+                    paths,
+                    courseIndex,
+                    moduleIndex,
+                    contentIndex,
+                    challengeIndex: path.orderIndex,
+                },
+            )
+            data.push({
+                data: challenge,
+                index: path.orderIndex,
+                relativePath: path.relativePath,
+            })
+        }
+        return data
     }
 }

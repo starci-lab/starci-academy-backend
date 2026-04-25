@@ -24,3 +24,11 @@ export interface ReadBufferParams {
     /** The provider to use for reading. */
     provider: S3Provider
 }
+
+/** Params for listing objects from S3. */
+export interface ListParams {
+    /** The key of the object to list. */
+    key: string
+    /** The provider to use for listing. */
+    provider: S3Provider
+}

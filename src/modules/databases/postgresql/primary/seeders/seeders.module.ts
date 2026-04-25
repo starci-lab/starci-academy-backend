@@ -24,19 +24,24 @@ import {
     CourseParserService,
     LessonVideoParserService,
     ModuleParserService,
-    ChallengeDirService,
-    ContentDirService,
-    CourseDirService,
-    LessonVideoDirService,
-    ModuleDirService,
+    ContextLoaderService,
+    FilesystemContextService,
+    S3ContextService,
     ExtractJsonFromMdService,
     CoerceMdScalarService,
+    CoursePathService,
+    ModulePathService,
+    ContentPathService,
+    LessonVideoPathService,
+    ChallengePathService,
+    PathResolverService,
 } from "./courses"
 import {
-    SeedersService 
+    SeedersService,
 } from "./seeders.service"
 import {
-    ConfigurableModuleClass, OPTIONS_TYPE 
+    ConfigurableModuleClass,
+    OPTIONS_TYPE,
 } from "./seeders.module-definition"
 
 /**
@@ -49,11 +54,9 @@ export class SeedersModule extends ConfigurableModuleClass {
         const providers = [
             ExtractJsonFromMdService,
             CoerceMdScalarService,
-            CourseDirService,
-            ModuleDirService,
-            ContentDirService,
-            LessonVideoDirService,
-            ChallengeDirService,
+            S3ContextService,
+            FilesystemContextService,
+            ContextLoaderService,
             CourseIdFactoryService,
             ModuleIdFactoryService,
             ContentIdFactoryService,
@@ -65,6 +68,11 @@ export class SeedersModule extends ConfigurableModuleClass {
             QnaIdFactoryService,
             LessonVideoIdFactoryService,
             LivestreamSessionIdFactoryService,
+            CoursePathService,
+            ModulePathService,
+            ContentPathService,
+            LessonVideoPathService,
+            ChallengePathService,
             ChallengeIdFactoryService,
             ChallengeStepIdFactoryService,
             ChallengeReferenceIdFactoryService,
@@ -75,6 +83,7 @@ export class SeedersModule extends ConfigurableModuleClass {
             ContentParserService,
             LessonVideoParserService,
             ChallengeParserService,
+            PathResolverService
         ]
         const dynamicModule = super.register(options)
         return {

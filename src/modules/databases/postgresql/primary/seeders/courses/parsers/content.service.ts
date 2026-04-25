@@ -1,12 +1,10 @@
 import type {
     ParseContentParams,
+    ParseContentManyParams,
 } from "./types"
 import {
     Injectable,
 } from "@nestjs/common"
-import {
-    readMdFileOrDefault,
-} from "@modules/common"
 import {
     Locale,
 } from "../../../enums"
@@ -26,16 +24,15 @@ import {
     ContentTranslationEntity,
 } from "../../../entities"
 import {
-    ContentDirService,
-    ChallengeDirService,
-    LessonVideoDirService,
-} from "../dir"
+    ContextLoaderService,
+} from "../contexts"
 import {
-    ChallengeParserService,
-} from "./challenge.service"
+    ContentPathNotFoundException,
+} from "@modules/exceptions"
 import {
-    LessonVideoParserService,
-} from "./lesson-video.service"
+    ContentPathService,
+    ResolvedFileResult,
+} from "../path"
 
 /**
  * Parses content from mounted course files (`en.md`, `vi.md`).
@@ -48,40 +45,38 @@ export class ContentParserService {
         private readonly coerceMdScalarService: CoerceMdScalarService,
         private readonly contentIdFactoryService: ContentIdFactoryService,
         private readonly contentReferenceIdFactoryService: ContentReferenceIdFactoryService,
-        private readonly contentDirService: ContentDirService,
-        private readonly challengeDirService: ChallengeDirService,
-        private readonly challengeParserService: ChallengeParserService,
-        private readonly lessonVideoDirService: LessonVideoDirService,
-        private readonly lessonVideoParserService: LessonVideoParserService,
+        private readonly contextLoaderService: ContextLoaderService,
+        private readonly contentPathService: ContentPathService,
     ) { }
 
     /**
      * Builds a partial content entity from mounted course files.
      */
-    parse(
+    async parse(
         {
+            paths,
             courseIndex,
             moduleIndex,
             contentIndex,
         }: ParseContentParams,
-    ): DeepPartial<ContentEntity> {
-        const {
-            path,
-            displayId,
-        } = this.contentDirService.path(
-            {
-                courseIndex,
-                moduleIndex,
-                contentIndex,
-            },
+    ): Promise<DeepPartial<ContentEntity>> {
+        const path = paths.find(
+            (path) => path.orderIndex === contentIndex
         )
+        if (!path) {
+            throw new ContentPathNotFoundException(
+                {
+                    contentIndex,
+                },
+            )
+        }
         const jsonMap = new Map<Locale, Partial<ContentEntity>>()
         for (const locale of Object.values(Locale)) {
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(
-                    readMdFileOrDefault(`${path}/${locale}.md`)
-                )
+                    await this.contextLoaderService.load(`${path.relativePath}/${locale}.md`),
+                ),
             )
         }
         const contentId = this.contentIdFactoryService.generate(
@@ -91,11 +86,10 @@ export class ContentParserService {
                 contentIndex,
             },
         )
-
-        const content: DeepPartial<ContentEntity> = {
+        return {
             id: contentId,
             defaultLocale: Locale.En,
-            displayId,
+            displayId: path.displayId,
             title: jsonMap.get(Locale.En)?.title ?? "",
             description: this.coerceMdScalarService.toNullableStringColumn(
                 jsonMap.get(Locale.En)?.description,
@@ -181,50 +175,44 @@ export class ContentParserService {
                     translations
                 }
             }),
-            challenges: (() => {
-                const challengeMounts = this.challengeDirService.indexes(
-                    {
-                        courseIndex,
-                        moduleIndex,
-                        contentIndex,
-                    }
-                )
-                return challengeMounts.map(
-                    (challengeIndex) => this.challengeParserService.parse(
-                        {
-                            courseIndex,
-                            moduleIndex,
-                            contentIndex,
-                            challengeIndex,
-                        },
-                    )
-                )
-            })(),
-            lessons: (() => {
-                const lessonVideoMounts = this.lessonVideoDirService.indexes(
-                    {
-                        courseIndex,
-                        moduleIndex,
-                        contentIndex,
-                    }
-                )
-                return lessonVideoMounts.map(
-                    (lessonVideoIndex) => this.lessonVideoParserService.parse(
-                        {
-                            courseIndex,
-                            moduleIndex,
-                            contentIndex,
-                            lessonVideoIndex,
-                        },
-                    )
-                )
-            })(),
         }
+    }
 
-        return {
-            ...content,
-            numChallenges: content.challenges?.length ?? 0,
-            numLessons: content.lessons?.length ?? 0,
+    /**
+     * Parses many contents from the mount.
+     *
+     * @param moduleRelativePath - Module relative path
+     * @param courseIndex - Course index
+     * @returns Entities-shaped graphs for TypeORM cascade save
+     */
+    async parseMany(
+        {
+            moduleRelativePath,
+            moduleIndex,
+            courseIndex
+        }: ParseContentManyParams,
+    ): Promise<Array<ResolvedFileResult<DeepPartial<ContentEntity>>>> {
+        const paths = await this.contentPathService.paths(
+            {
+                moduleRelativePath,
+            },
+        )
+        const data: Array<ResolvedFileResult<DeepPartial<ContentEntity>>> = []
+        for (const path of paths) {
+            const content = await this.parse(
+                {
+                    paths,
+                    courseIndex,
+                    moduleIndex,
+                    contentIndex: path.orderIndex,
+                },
+            )
+            data.push({
+                data: content,
+                index: path.orderIndex,
+                relativePath: path.relativePath,
+            })
         }
+        return data
     }
 }

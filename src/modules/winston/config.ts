@@ -5,6 +5,7 @@ import {
 import {
     WinstonLevel,
     CoursesSeededSuccessfullyMessage,
+    ContextFileLoadedSuccessfullyMessage,
     EnrollmentAlreadyExistsMessage,
     EnrollmentCreatedMessage,
     StepExecutedMessage,
@@ -43,6 +44,14 @@ export const configMap = {
         console: true,
         messageType: {
         } as CoursesSeededSuccessfullyMessage,
+    },
+    [WinstonLog.ContextFileLoadedSuccessfully]: {
+        name: WinstonLog.ContextFileLoadedSuccessfully,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as ContextFileLoadedSuccessfullyMessage,
     },
     // Enrollment worker logs.
     [WinstonLog.EnrollmentCreated]: {

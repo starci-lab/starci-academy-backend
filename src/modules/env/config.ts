@@ -8,7 +8,10 @@ import {
     parseEnvFloat,
     parseEnvMs,
     parseEnvJson,
-} from "./utils/parse-env"
+} from "./utils"
+import {
+    ContextType 
+} from "./enums"
 
 /**
  * Builds the application config from environment variables.
@@ -560,6 +563,45 @@ export const envConfig = () => ({
             }),
         },
     },
+    /** Context configuration. */
+    contexts: [
+        /** S3 context. */
+        {
+            index: 0,
+            priority: parseEnvInt({
+                key: "CONTEXT_0_PRIORITY",
+                defaultValue: 0,
+            }),
+            type: ContextType.S3,
+            enabled: parseEnvBoolean({
+                key: "CONTEXT_0_ENABLED",
+                defaultValue: false,
+            }),
+            path: parseEnvString({
+                key: "CONTEXT_0_PATH",
+                defaultValue: "https://starci-academy-resources.sfo3.cdn.digitaloceanspaces.com/courses",
+            }),
+            provider: "digitalOcean",
+        },
+        /** Filesystem context. */
+        {
+            priority: 1,
+            index: 1,
+            type: ContextType.Filesystem,
+            enabled: parseEnvBoolean({
+                key: "CONTEXT_1_ENABLED",
+                defaultValue: true,
+            }),
+            path: parseEnvString({
+                key: "CONTEXT_1_URL",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "data",
+                    "courses"
+                ),
+            }),
+        },
+    ],
     /** Mount path configuration. */
     mountPath: {
         /** File paths: data courses. */
@@ -812,11 +854,11 @@ export const envConfig = () => ({
         digitalOcean: {
             endpoint: parseEnvString({
                 key: "S3_ENDPOINT",
-                defaultValue: "https://sgp1.digitaloceanspaces.com",
+                defaultValue: "https://sfo3.digitaloceanspaces.com",
             }),
             region: parseEnvString({
                 key: "S3_REGION",
-                defaultValue: "sgp1",
+                defaultValue: "sfo3",
             }),
             accessKeyId: parseEnvString({
                 key: "S3_ACCESS_KEY_ID",
@@ -824,7 +866,7 @@ export const envConfig = () => ({
             }),
             bucket: parseEnvString({
                 key: "S3_BUCKET",
-                defaultValue: "starci-academy",
+                defaultValue: "starci-academy-resources",
             }),
             presignedUrl: {
                 expiration: parseEnvMs({
