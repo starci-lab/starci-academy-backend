@@ -120,6 +120,9 @@ import {
 import {
     MailModule
 } from "@modules/mailer"
+import {
+    BackupModule 
+} from "@features/backup"
 /**
  * The main module for the application.
  */
@@ -245,6 +248,10 @@ import {
                     isGlobal: true,
                 }
             ),
+            /** Backup module. */
+            BackupModule.register({
+                isGlobal: true,
+            }),
             /** IoRedis module. */
             RedisModule.register(
                 {

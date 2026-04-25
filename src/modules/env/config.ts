@@ -825,6 +825,29 @@ export const envConfig = () => ({
                     defaultValue: true,
                 }),
             },
+            /** Keycloak PostgreSQL configuration. */
+            keycloak: {
+                host: parseEnvString({
+                    key: "POSTGRESQL_KEYCLOAK_HOST",
+                    defaultValue: "localhost",
+                }),
+                port: parseEnvInt({
+                    key: "POSTGRESQL_KEYCLOAK_PORT",
+                    defaultValue: 5432,
+                }),
+                username: parseEnvString({
+                    key: "POSTGRESQL_KEYCLOAK_USERNAME",
+                    defaultValue: "postgres",
+                }),
+                password: parseEnvString({
+                    key: "POSTGRESQL_KEYCLOAK_PASSWORD",
+                    defaultValue: "Cuong123_A",
+                }),
+                database: parseEnvString({
+                    key: "POSTGRESQL_KEYCLOAK_DATABASE",
+                    defaultValue: "keycloak",
+                }),
+            },
         },
     },
     /** Computation configuration. */

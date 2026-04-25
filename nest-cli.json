@@ -10,6 +10,15 @@
   "monorepo": true,
   "root": "apps/core",
   "projects": {
+    "backup": {
+      "type": "application",
+      "root": "apps/backup",
+      "entryFile": "main",
+      "sourceRoot": "apps/backup/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/backup/tsconfig.app.json"
+      }
+    },
     "cli": {
       "type": "application",
       "root": "apps/cli",
