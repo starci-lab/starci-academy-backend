@@ -44,4 +44,4 @@ export const createMinioProvider = (): Provider<S3Client | null> => ({
         },
         forcePathStyle: true,
     }),
-})
+}) 
