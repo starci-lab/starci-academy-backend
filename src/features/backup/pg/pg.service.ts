@@ -8,7 +8,8 @@ import {
     envConfig 
 } from "@modules/env"
 import {
-    mkdtemp, readFile, rm 
+    mkdtemp, 
+    rm 
 } from "node:fs/promises"
 import path from "path"
 import {
@@ -23,7 +24,9 @@ import {
 import {
     ExecaService
 } from "@modules/execa"
-import { createReadStream } from "node:fs"
+import {
+    createReadStream 
+} from "node:fs"
 
 export interface PgBackupParams {
     postgresUrl: string
@@ -117,12 +120,14 @@ export class PgBackupService {
             })
 
             // 4. upload S3
-            await this.s3UploadService.stream({
-                name: s3Key,
-                stream: createReadStream(encPath),
-                acl: "private",
-                provider: S3Provider.DigitalOcean,
-            })
+            await this.s3UploadService.stream(
+                {
+                    name: s3Key,
+                    stream: createReadStream(encPath),
+                    acl: "private",
+                    provider: S3Provider.DigitalOcean,
+                }
+            )
 
             this.winstonService.log(
                 WinstonLog.PgBackupCompletedSuccessfully,

@@ -200,10 +200,12 @@ export class S3UploadService {
             break
     
         default:
-            throw new S3ProviderNotFoundException({
-                provider,
-                supportedProviders: Object.values(S3Provider),
-            })
+            throw new S3ProviderNotFoundException(
+                {
+                    provider,
+                    supportedProviders: Object.values(S3Provider),
+                }
+            )
         }
     
         await s3Client.send(
