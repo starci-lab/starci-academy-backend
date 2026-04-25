@@ -68,14 +68,16 @@ export class S3ReadService {
         let s3Client: S3Client
         let bucket: string
         switch (provider) {
-        case S3Provider.DigitalOcean:
+        case S3Provider.DigitalOcean: {
             s3Client = this.s3
             bucket = envConfig().s3.digitalOcean.bucket
             break
-        case S3Provider.Minio:
+        }
+        case S3Provider.Minio: {
             s3Client = this.minioS3
             bucket = envConfig().s3.minio.bucket
             break
+        }
         }
         try {
             const result = await s3Client.send(
