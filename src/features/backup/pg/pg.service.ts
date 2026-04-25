@@ -75,6 +75,9 @@ export class PgBackupService {
             artifactBaseName,
         }: PgBackupParams,
     ): Promise<void> {
+        if (!envConfig().isProduction) {
+            return
+        }
         const encryptPassword = envConfig().backup.encrypt.password
         if (!encryptPassword) {
             throw new Error("BACKUP_ENCRYPT_PASSWORD is required for encrypted backups.")
@@ -209,7 +212,6 @@ export class PgBackupService {
                     error: error.message,
                 },
             )
-            throw error
         } finally {
             await rm(
                 tempDir,
