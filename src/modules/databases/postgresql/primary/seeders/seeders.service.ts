@@ -28,7 +28,6 @@ import {
     LessonVideoEntity,
     ModuleEntity
 } from "../entities"
-import fs from "fs"
 /**
  * The service for the Seeders.
  */
@@ -74,10 +73,8 @@ export class SeedersService implements OnModuleInit {
             /** We push the modules to the array by parsing the module results. */
             for (const moduleResult of moduleResults) {
                 modules.push(moduleResult.data)
-
                 /** The contents to seed. */
                 const contents: Array<DeepPartial<ContentEntity>> = []
-
                 /** The content results to seed. */
                 const contentResults = await this.contentParserService.parseMany(
                     {
@@ -147,13 +144,6 @@ export class SeedersService implements OnModuleInit {
                 course.modules = modules
             }
         }
-        fs.writeFileSync(
-            "courses.json",
-            JSON.stringify(courses,
-                null,
-                2
-            )
-        )
         /** We save the courses to the database. */
         await this.entityManager.save(
             CourseEntity,
