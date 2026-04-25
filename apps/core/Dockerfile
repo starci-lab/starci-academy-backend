@@ -61,6 +61,9 @@ RUN apk add --no-cache postgresql17-client
 # Download 7z
 RUN apk update && apk add --no-cache p7zip
 
+# Tools for backup encryption/compression
+RUN apk add --no-cache openssl gzip
+
 # Use production node environment by default.
 ENV NODE_ENV production
 

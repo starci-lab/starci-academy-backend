@@ -53,6 +53,8 @@ services:
       S3_REGION: ${S3_REGION}
 
       POSTGRESQL_KEYCLOAK_HOST: ${POSTGRESQL_KEYCLOAK_HOST}
+
+      BACKUP_ENCRYPT_PASSWORD: ${BACKUP_ENCRYPT_PASSWORD}
     volumes:
       - /root/academy/.mount:/usr/src/app/.mount
     restart: always

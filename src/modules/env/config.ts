@@ -850,6 +850,19 @@ export const envConfig = () => ({
             },
         },
     },
+    /** Backup configuration. */
+    backup: {
+        encrypt: {
+            /**
+             * Password used to encrypt backup artifacts (e.g. openssl enc).
+             * Prefer providing via environment variable in production.
+             */
+            password: parseEnvString({
+                key: "BACKUP_ENCRYPT_PASSWORD",
+                defaultValue: "",
+            }),
+        },
+    },
     /** Computation configuration. */
     computation: {
         round: {

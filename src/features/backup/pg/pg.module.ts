@@ -8,11 +8,15 @@ import {
     PrimaryBackupService
 } from "./primary.service"
 import {
+    PgBackupService 
+} from "./pg.service"
+import {
     ConfigurableModuleClass,
 } from "./pg.module-definition"
 
 @Module({
     providers: [
+        PgBackupService,
         KeycloakBackupService,
         PrimaryBackupService,
     ],

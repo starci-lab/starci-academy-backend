@@ -60,6 +60,9 @@ RUN apk add --no-cache postgresql17-client
 # Download 7z
 RUN apk update && apk add --no-cache p7zip
 
+# Tools for backup encryption/compression
+RUN apk add --no-cache openssl gzip
+
 # Set the path to the MongoDB Database Tools
 ENV PATH="/usr/bin:/usr/local/bin:${PATH}"
 
