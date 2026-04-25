@@ -42,4 +42,6 @@ export enum WinstonLog {
     CacheDebugOkMemory = "CacheDebugOkMemory",
     /** Backup: PostgreSQL backup completed successfully. */
     PgBackupCompletedSuccessfully = "PgBackupCompletedSuccessfully",
+    /** Backup: PostgreSQL backup failed. */
+    PgBackupFailed = "PgBackupFailed",
 }

@@ -200,6 +200,16 @@ export class PgBackupService {
                     s3Key: `${s3KeyPrefix}/${Date.now()}.dump.gz.enc`,
                 },
             )
+        } catch (error) {
+            this.winstonService.log(
+                WinstonLog.PgBackupFailed,
+                {
+                    name: artifactBaseName,
+                    s3KeyPrefix,
+                    error: error.message,
+                },
+            )
+            throw error
         } finally {
             await rm(
                 tempDir,

@@ -33,6 +33,7 @@ import type {
     CacheDebugOkMemoryMessage,
     CacheDebugOkRedisMessage,
     PgBackupCompletedSuccessfullyMessage,
+    PgBackupFailedMessage,
 } from "./types"
 
 /** Map of Winston log names to level, Loki flag, and message type. */
@@ -290,5 +291,13 @@ export const configMap = {
         console: true,
         messageType: {
         } as PgBackupCompletedSuccessfullyMessage,
+    },
+    [WinstonLog.PgBackupFailed]: {
+        name: WinstonLog.PgBackupFailed,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as PgBackupFailedMessage,
     },
 }
