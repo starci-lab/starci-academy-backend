@@ -29,6 +29,10 @@ import {
 import {
     pipeline 
 } from "node:stream/promises"
+import { 
+    WinstonLog,
+    WinstonService 
+} from "@modules/winston"
 
 /**
  * Parameters for backing up a PostgreSQL database.
@@ -56,6 +60,7 @@ export class PgBackupService {
     constructor(
         private readonly s3UploadService: S3UploadService,
         private readonly execaService: ExecaService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /**
@@ -188,6 +193,13 @@ export class PgBackupService {
                 acl: "private",
                 provider: S3Provider.DigitalOcean,
             })
+            this.winstonService.log(
+                WinstonLog.PgBackupCompletedSuccessfully,
+                {
+                    name: artifactBaseName,
+                    s3Key: `${s3KeyPrefix}/${Date.now()}.dump.gz.enc`,
+                },
+            )
         } finally {
             await rm(
                 tempDir,

@@ -40,4 +40,6 @@ export enum WinstonLog {
     CacheDebugOkRedis = "CacheDebugOkRedis",
     /** Cache debug: Memory manager is OK. */
     CacheDebugOkMemory = "CacheDebugOkMemory",
+    /** Backup: PostgreSQL backup completed successfully. */
+    PgBackupCompletedSuccessfully = "PgBackupCompletedSuccessfully",
 }
