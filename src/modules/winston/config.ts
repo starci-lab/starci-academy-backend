@@ -47,7 +47,7 @@ export const configMap = {
     },
     [WinstonLog.ContextFileLoadedSuccessfully]: {
         name: WinstonLog.ContextFileLoadedSuccessfully,
-        level: WinstonLevel.Verbose,
+        level: WinstonLevel.Debug,
         loki: true,
         console: true,
         messageType: {
