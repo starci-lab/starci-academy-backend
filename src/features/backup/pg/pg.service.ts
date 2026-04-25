@@ -2,57 +2,31 @@ import {
     Injectable 
 } from "@nestjs/common"
 import {
-    S3Provider,
-    S3UploadService 
+    S3UploadService, S3Provider 
 } from "@modules/s3"
-import {
-    ExecaService 
-} from "@modules/execa"
 import {
     envConfig 
 } from "@modules/env"
 import {
-    mkdtemp,
-    readFile,
-    rm 
+    mkdtemp, readFile, rm 
 } from "node:fs/promises"
-import {
-    createWriteStream 
-} from "node:fs"
 import path from "path"
 import {
     tmpdir 
 } from "os"
 import {
-    spawn 
-} from "node:child_process"
+    execa 
+} from "execa"
 import {
-    pipeline 
-} from "node:stream/promises"
-import { 
-    WinstonLog,
-    WinstonService 
+    WinstonLog, WinstonService 
 } from "@modules/winston"
 import {
     BackupEncryptionPasswordNotSetException,
-    PgBackupGzipFailedException,
 } from "@modules/exceptions"
 
-/**
- * Parameters for backing up a PostgreSQL database.
- */
 export interface PgBackupParams {
-    /**
-     * The URL of the PostgreSQL database to backup.
-     */
     postgresUrl: string
-    /**
-     * The prefix for the S3 key.
-     */
     s3KeyPrefix: string
-    /**
-     * The base name for the artifact.
-     */
     artifactBaseName: string
 }
 
@@ -63,114 +37,61 @@ export interface PgBackupParams {
 export class PgBackupService {
     constructor(
         private readonly s3UploadService: S3UploadService,
-        private readonly execaService: ExecaService,
         private readonly winstonService: WinstonService,
     ) {}
 
     /**
-     * Backup a PostgreSQL database.
-     * @param params - The parameters for the backup.
-     * @returns void
+     * Backup the PostgreSQL database.
+     * @param postgresUrl - The URL of the PostgreSQL database.
+     * @param s3KeyPrefix - The prefix of the S3 key.
+     * @param artifactBaseName - The base name of the artifact.
      */
-    async backup(
-        {
-            postgresUrl,
-            s3KeyPrefix,
-            artifactBaseName,
-        }: PgBackupParams,
-    ): Promise<void> {
-        console.log("backup",
-            {
-                postgresUrl,
-                s3KeyPrefix,
-                artifactBaseName,
-            })
-        console.log("isProduction",
-            envConfig().isProduction)
-        if (!envConfig().isProduction) {
-            return
-        }
+    async backup({
+        postgresUrl,
+        s3KeyPrefix,
+        artifactBaseName,
+    }: PgBackupParams): Promise<void> {
+
+        if (!envConfig().isProduction) return
+
         const encryptPassword = envConfig().backup.encrypt.password
         if (!encryptPassword) {
             throw new BackupEncryptionPasswordNotSetException({
             })
         }
+
         const tempDir = await mkdtemp(
-            path.join(
-                tmpdir(),
-                `${artifactBaseName}-`,
-            ),
+            path.join(tmpdir(),
+                `${artifactBaseName}-`)
         )
-        console.log("tempDir",
-            tempDir)
-        const dumpPath = path.join(
-            tempDir,
-            `${artifactBaseName}.dump`,
-        )
-        console.log("dumpPath",
-            dumpPath)
+
+        const dumpPath = path.join(tempDir,
+            `${artifactBaseName}.dump`)
         const gzPath = `${dumpPath}.gz`
         const encPath = `${gzPath}.enc`
+
+        const s3Key = `${s3KeyPrefix}/${Date.now()}.dump.gz.enc`
+
         try {
-            await this.execaService.exec({
-                command: "pg_dump",
-                args: [
+            // 1. pg_dump → file
+            await execa("pg_dump",
+                [
                     "--format=custom",
                     "--file",
                     dumpPath,
                     "--dbname",
                     postgresUrl,
-                ],
-            })
-            console.log("gzip",
-                {
-                    command: "gzip",
-                    args: [
-                        "-c",
-                        dumpPath,
-                    ],
-                })
-            const gzip = spawn(
-                "gzip",
+                ])
+
+            // 2. gzip → FIXED (output file phải redirect)
+            await execa("gzip",
                 [
-                    "-c",
-                    dumpPath,
-                ],
-                {
-                    stdio: [
-                        "ignore",
-                        "pipe",
-                        "pipe",
-                    ],
-                },
-            )
-            console.log("pipeline",
-                {
-                    stdout: gzip.stdout,
-                    gzPath,
-                })
-            await pipeline(
-                gzip.stdout,
-                createWriteStream(gzPath),
-            )   
-            const gzipExitCode = await new Promise((resolve, reject) => {
-                gzip.once(
-                    "error",
-                    reject,
-                )
-                gzip.once(
-                    "close",
-                    resolve,
-                )
-            })
-            console.log("gzipExitCode", gzipExitCode)
-            if (gzipExitCode !== 0) {
-                throw new PgBackupGzipFailedException({
-                    exitCode: gzipExitCode,
-                })
-            }
-            const openssl = spawn(
-                "openssl",
+                    "-f",
+                    dumpPath, // tạo dump.gz
+                ])
+
+            // 3. openssl encrypt
+            await execa("openssl",
                 [
                     "enc",
                     "-aes-256-cbc",
@@ -184,79 +105,44 @@ export class PgBackupService {
                     "env:BACKUP_ENCRYPT_PASSWORD",
                 ],
                 {
-                    stdio: [
-                        "ignore",
-                        "ignore",
-                        "pipe",
-                    ],
                     env: {
                         ...process.env,
                         BACKUP_ENCRYPT_PASSWORD: encryptPassword,
                     },
-                },
-            )
-            console.log("openssl", {
-                command: "openssl",
-                args: [
-                    "enc",
-                    "-aes-256-cbc",
-                    "-salt",
-                    "-pbkdf2",
-                ],
-            })
-            const opensslStderr: Array<Buffer> = []
-            openssl.stderr?.on(
-                "data",
-                (chunk: Buffer) => opensslStderr.push(chunk),
-            )
-            const opensslExitCode = await new Promise((resolve, reject) => {
-                openssl.once(
-                    "error",
-                    reject,
-                )
-                openssl.once(
-                    "close",
-                    resolve,
-                )
-            })
-            if (opensslExitCode !== 0) {
-                const stderr = Buffer.concat(opensslStderr).toString("utf8").trim()
-                throw new Error(`openssl failed with exit code ${opensslExitCode}${stderr
-                    ? `: ${stderr}`
-                    : ""}`)
-            }
+                })
 
+            // 4. upload S3
             await this.s3UploadService.buffer({
                 buffer: await readFile(encPath),
-                name: `${s3KeyPrefix}/${Date.now()}.dump.gz.enc`,
+                name: s3Key,
                 acl: "private",
                 provider: S3Provider.DigitalOcean,
             })
+
             this.winstonService.log(
                 WinstonLog.PgBackupCompletedSuccessfully,
                 {
                     name: artifactBaseName,
-                    s3Key: `${s3KeyPrefix}/${Date.now()}.dump.gz.enc`,
+                    s3Key,
                 },
             )
+
         } catch (error) {
             this.winstonService.log(
                 WinstonLog.PgBackupFailed,
                 {
                     name: artifactBaseName,
                     s3KeyPrefix,
-                    error: error.message,
+                    error: error instanceof Error ? error.message : String(error),
                 },
             )
+            throw error
         } finally {
-            await rm(
-                tempDir,
+            await rm(tempDir,
                 {
                     recursive: true,
                     force: true,
-                },
-            )
+                })
         }
     }
 }
-

@@ -5,22 +5,22 @@ import {
     AbstractException,
 } from "../abstract"
 
-export interface PgBackupGzipFailedExceptionMetadata extends AbstractExceptionMetadata {
+export interface PgBackupOpenSslFailedExceptionMetadata extends AbstractExceptionMetadata {
     exitCode: unknown
     stderr?: string
 }
 
-export class PgBackupGzipFailedException extends AbstractException {
+export class PgBackupOpenSslFailedException extends AbstractException {
     constructor(
         {
             exitCode,
             stderr,
             originalError,
-        }: PgBackupGzipFailedExceptionMetadata,
+        }: PgBackupOpenSslFailedExceptionMetadata,
     ) {
         super(
-            "Postgres backup gzip failed",
-            "PG_BACKUP_GZIP_FAILED_EXCEPTION",
+            "Postgres backup openssl encryption failed",
+            "PG_BACKUP_OPENSSL_FAILED_EXCEPTION",
             {
                 exitCode,
                 stderr,
