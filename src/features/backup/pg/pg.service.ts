@@ -79,6 +79,14 @@ export class PgBackupService {
             artifactBaseName,
         }: PgBackupParams,
     ): Promise<void> {
+        console.log("backup",
+            {
+                postgresUrl,
+                s3KeyPrefix,
+                artifactBaseName,
+            })
+        console.log("isProduction",
+            envConfig().isProduction)
         if (!envConfig().isProduction) {
             return
         }
@@ -87,21 +95,22 @@ export class PgBackupService {
             throw new BackupEncryptionPasswordNotSetException({
             })
         }
-
         const tempDir = await mkdtemp(
             path.join(
                 tmpdir(),
                 `${artifactBaseName}-`,
             ),
         )
-
+        console.log("tempDir",
+            tempDir)
         const dumpPath = path.join(
             tempDir,
             `${artifactBaseName}.dump`,
         )
+        console.log("dumpPath",
+            dumpPath)
         const gzPath = `${dumpPath}.gz`
         const encPath = `${gzPath}.enc`
-
         try {
             await this.execaService.exec({
                 command: "pg_dump",
@@ -112,9 +121,15 @@ export class PgBackupService {
                     "--dbname",
                     postgresUrl,
                 ],
-                timeoutMs: 30000,
             })
-
+            console.log("gzip",
+                {
+                    command: "gzip",
+                    args: [
+                        "-c",
+                        dumpPath,
+                    ],
+                })
             const gzip = spawn(
                 "gzip",
                 [
@@ -129,10 +144,15 @@ export class PgBackupService {
                     ],
                 },
             )
+            console.log("pipeline",
+                {
+                    stdout: gzip.stdout,
+                    gzPath,
+                })
             await pipeline(
                 gzip.stdout,
                 createWriteStream(gzPath),
-            )
+            )   
             const gzipExitCode = await new Promise((resolve, reject) => {
                 gzip.once(
                     "error",
@@ -143,6 +163,7 @@ export class PgBackupService {
                     resolve,
                 )
             })
+            console.log("gzipExitCode", gzipExitCode)
             if (gzipExitCode !== 0) {
                 throw new PgBackupGzipFailedException({
                     exitCode: gzipExitCode,
@@ -174,6 +195,15 @@ export class PgBackupService {
                     },
                 },
             )
+            console.log("openssl", {
+                command: "openssl",
+                args: [
+                    "enc",
+                    "-aes-256-cbc",
+                    "-salt",
+                    "-pbkdf2",
+                ],
+            })
             const opensslStderr: Array<Buffer> = []
             openssl.stderr?.on(
                 "data",

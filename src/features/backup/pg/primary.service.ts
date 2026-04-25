@@ -49,7 +49,6 @@ export class PrimaryBackupService {
      */
     @Cron(CronExpression.EVERY_30_SECONDS)
     async handleCron() {
-        console.log("Primary backup cron job started")
         await this.process()
     }
 }
