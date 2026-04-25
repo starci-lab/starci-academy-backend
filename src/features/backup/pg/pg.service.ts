@@ -33,6 +33,10 @@ import {
     WinstonLog,
     WinstonService 
 } from "@modules/winston"
+import {
+    BackupEncryptionPasswordNotSetException,
+    PgBackupGzipFailedException,
+} from "@modules/exceptions"
 
 /**
  * Parameters for backing up a PostgreSQL database.
@@ -80,7 +84,8 @@ export class PgBackupService {
         }
         const encryptPassword = envConfig().backup.encrypt.password
         if (!encryptPassword) {
-            throw new Error("BACKUP_ENCRYPT_PASSWORD is required for encrypted backups.")
+            throw new BackupEncryptionPasswordNotSetException({
+            })
         }
 
         const tempDir = await mkdtemp(
@@ -128,7 +133,7 @@ export class PgBackupService {
                 gzip.stdout,
                 createWriteStream(gzPath),
             )
-            const gzipExitCode: number = await new Promise((resolve, reject) => {
+            const gzipExitCode = await new Promise((resolve, reject) => {
                 gzip.once(
                     "error",
                     reject,
@@ -139,9 +144,10 @@ export class PgBackupService {
                 )
             })
             if (gzipExitCode !== 0) {
-                throw new Error(`gzip failed with exit code ${gzipExitCode}`)
+                throw new PgBackupGzipFailedException({
+                    exitCode: gzipExitCode,
+                })
             }
-
             const openssl = spawn(
                 "openssl",
                 [
@@ -173,7 +179,7 @@ export class PgBackupService {
                 "data",
                 (chunk: Buffer) => opensslStderr.push(chunk),
             )
-            const opensslExitCode: number = await new Promise((resolve, reject) => {
+            const opensslExitCode = await new Promise((resolve, reject) => {
                 openssl.once(
                     "error",
                     reject,

@@ -14,3 +14,14 @@ export interface PgBackupFailedMessage {
     error: string
 }
 
+export interface PgBackupStepFailedMessage {
+    /** Backup artifact name (e.g. primary-backup, keycloak-backup). */
+    name: string
+    /** S3 key prefix targeted for the upload. */
+    s3KeyPrefix: string
+    /** Which step failed. */
+    step: "pg_dump" | "gzip" | "openssl" | "s3_upload"
+    /** Error message. */
+    error: string
+}
+

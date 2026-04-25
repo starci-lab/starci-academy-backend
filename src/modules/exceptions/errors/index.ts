@@ -1,4 +1,5 @@
 export * from "./abstract"
+export * from "./backup"
 export * from "./cli"
 export * from "./courses"
 export * from "./execa"

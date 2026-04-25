@@ -44,4 +44,12 @@ export enum WinstonLog {
     PgBackupCompletedSuccessfully = "PgBackupCompletedSuccessfully",
     /** Backup: PostgreSQL backup failed. */
     PgBackupFailed = "PgBackupFailed",
+    /** Backup: pg_dump failed. */
+    PgBackupDumpFailed = "PgBackupDumpFailed",
+    /** Backup: gzip compression failed. */
+    PgBackupCompressFailed = "PgBackupCompressFailed",
+    /** Backup: openssl encryption failed. */
+    PgBackupEncryptFailed = "PgBackupEncryptFailed",
+    /** Backup: S3 upload failed. */
+    PgBackupUploadFailed = "PgBackupUploadFailed",
 }
