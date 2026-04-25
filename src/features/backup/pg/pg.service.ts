@@ -70,9 +70,7 @@ export class PgBackupService {
             `${artifactBaseName}.dump`)
         const gzPath = `${dumpPath}.gz`
         const encPath = `${gzPath}.enc`
-
         const s3Key = `${s3KeyPrefix}/${Date.now()}.dump.gz.enc`
-
         try {
             // 1. pg_dump → file
             await this.execaService.exec({
@@ -85,16 +83,16 @@ export class PgBackupService {
                     postgresUrl,
                 ],
             })
-
-            // 2. gzip
-            await this.execaService.exec({
+            // 2. gzip (stream stdout → file; avoid buffering large outputs)
+            await this.execaService.execToFile({
                 command: "gzip",
                 args: [
-                    "-f",
+                    "-c",
                     dumpPath,
                 ],
+                stdoutPath: gzPath,
+                timeoutMs: 10 * 60 * 1000,
             })
-
             // 3. openssl encrypt
             await this.execaService.exec({
                 command: "openssl",
@@ -110,6 +108,7 @@ export class PgBackupService {
                     "-pass",
                     "env:BACKUP_ENCRYPT_PASSWORD",
                 ],
+                timeoutMs: 10 * 60 * 1000,
                 env: {
                     ...process.env,
                     BACKUP_ENCRYPT_PASSWORD: encryptPassword,
@@ -138,16 +137,17 @@ export class PgBackupService {
                 {
                     name: artifactBaseName,
                     s3KeyPrefix,
-                    error: error instanceof Error ? error.message : String(error),
+                    error: error.message,
                 },
             )
-            throw error
         } finally {
-            await rm(tempDir,
+            await rm(
+                tempDir,
                 {
                     recursive: true,
                     force: true,
-                })
+                }
+            )
         }
     }
 }

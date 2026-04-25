@@ -12,10 +12,17 @@ import {
     execa,
     ExecaError
 } from "execa"
+import {
+    createWriteStream,
+} from "node:fs"
+import {
+    pipeline,
+} from "node:stream/promises"
 import type {
     AssertValidExecParams,
     ExecParams,
     ExecResult,
+    ExecToFileParams,
     ExecaUnknownProcessError
 } from "./types"
 
@@ -137,6 +144,121 @@ export class ExecaService {
             }
 
             // generic failure path for non-execa errors or unclassified ExecaError
+            const execaErr = err as ExecaUnknownProcessError
+            throw new ExecaExecutionFailedException({
+                command,
+                args,
+                stderr: execaErr.stderr ?? String(err),
+                stdout: execaErr.stdout,
+                exitCode: execaErr.exitCode,
+                originalError: err instanceof Error
+                    ? err
+                    : undefined,
+            })
+        }
+    }
+
+    /**
+     * Runs a command and streams stdout to a file. Avoids buffering stdout in memory.
+     * Throws on non-zero exit, timeout, or any stderr output.
+     */
+    async execToFile(
+        { command, args = [], timeoutMs, env, stdoutPath }: ExecToFileParams
+    ): Promise<void> {
+        this.assertValidExecParams({
+            command,
+            args,
+            timeoutMs,
+        })
+        try {
+            const execaOptions =
+                typeof timeoutMs === "number" && timeoutMs > 0
+                    ? {
+                        shell: false as const,
+                        timeout: timeoutMs,
+                    }
+                    : {
+                        shell: false as const,
+                    }
+
+            const subprocess = execa(
+                command,
+                args,
+                {
+                    ...execaOptions,
+                    env,
+                    stdout: "pipe",
+                    stderr: "pipe",
+                },
+            )
+
+            const stderrChunks: Array<Buffer> = []
+            subprocess.stderr?.on(
+                "data",
+                (chunk: Buffer) => stderrChunks.push(chunk),
+            )
+
+            await pipeline(
+                subprocess.stdout!,
+                createWriteStream(stdoutPath),
+            )
+
+            const { stderr } = await subprocess
+            const stderrText = stderr
+                ? String(stderr).trim()
+                : Buffer.concat(stderrChunks).toString("utf8").trim()
+
+            if (stderrText) {
+                throw new ExecaExecutionFailedException({
+                    command,
+                    args,
+                    stderr: stderrText,
+                    stdout: "",
+                })
+            }
+        } catch (err: unknown) {
+            if (err instanceof ExecaExecutionFailedException) {
+                throw err
+            }
+
+            if (err instanceof ExecaError) {
+                if (err.timedOut) {
+                    throw new ExecaCommandTimedOutException({
+                        command,
+                        args,
+                        timeoutMs: typeof timeoutMs === "number" && timeoutMs > 0
+                            ? timeoutMs
+                            : 0,
+                        stdout: this.stringifyStdio(err.stdout),
+                        stderr: this.stringifyStdio(err.stderr),
+                        originalError: err,
+                    })
+                }
+
+                if (err.isCanceled) {
+                    throw new ExecaCommandCanceledException({
+                        command,
+                        args,
+                        isGracefullyCanceled: err.isGracefullyCanceled,
+                        stdout: this.stringifyStdio(err.stdout),
+                        stderr: this.stringifyStdio(err.stderr),
+                        originalError: err,
+                    })
+                }
+
+                if (err.code === "ENOENT" || err.exitCode === 127) {
+                    throw new ExecaCommandNotFoundException({
+                        command,
+                        args,
+                        nodeErrorCode: err.code,
+                        exitCode: err.exitCode,
+                        stderr: this.stringifyStdio(err.stderr),
+                        stdout: this.stringifyStdio(err.stdout),
+                        originalError: err,
+                    })
+                }
+            }
+
             const execaErr = err as ExecaUnknownProcessError
             throw new ExecaExecutionFailedException({
                 command,

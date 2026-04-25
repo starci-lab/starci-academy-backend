@@ -7,6 +7,12 @@ export interface ExecParams {
     env?: Record<string, string>
 }
 
+/** Params for running a command and streaming stdout to a file (no buffering). */
+export interface ExecToFileParams extends ExecParams {
+    /** Destination path for stdout stream. */
+    stdoutPath: string
+}
+
 /** Result of exec (stdout as string). */
 export type ExecResult = string
 
