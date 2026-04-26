@@ -18,6 +18,9 @@ import type {
 import type {
     LocalizedElasticsearchEntity,
 } from "./types"
+import {
+    ElasticsearchService,
+} from "@modules/elasticsearch"
 
 /**
  * Loads a challenge (steps + references) from PostgreSQL and materializes **per-locale** plain objects
@@ -29,6 +32,7 @@ export class ElasticsearchChallengesBuildService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly challengeResolver: ChallengeResolverService,
+        private readonly elasticsearchService: ElasticsearchService,
     ) {}
 
     /**
@@ -130,5 +134,28 @@ export class ElasticsearchChallengesBuildService {
         hydratedChallenge.steps = hydratedSteps
         hydratedChallenge.references = hydratedReferences
         return hydratedChallenge
+    }
+
+    /**
+     * Builds the index by challenge id.
+     * @param id - The challenge id.
+     * @returns The index by challenge id.
+     */
+    async buildIndexById(
+        id: string,
+    ): Promise<void> {
+        const multilingualEntities = await this.buildMultilingualByChallengeId(id)
+        const entities = multilingualEntities.map(
+            (
+                multilingualEntity,
+            ) => ({
+                ...multilingualEntity.entity,
+                elasticsearchLocale: multilingualEntity.locale,
+            })
+        )
+        await this.elasticsearchService.indexEntities(
+            ChallengeEntity,
+            entities
+        )
     }
 }

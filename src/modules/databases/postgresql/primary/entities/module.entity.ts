@@ -18,12 +18,6 @@ import {
     PreviewContentEntity,
 } from "./preview-content.entity"
 import {
-    LessonVideoEntity,
-} from "./lesson-video.entity"
-import {
-    ChallengeEntity,
-} from "./challenge.entity"
-import {
     UuidAbstractEntity 
 } from "./abstract"
 import {
@@ -210,4 +204,9 @@ export class ModuleEntity extends UuidAbstractEntity {
         default: 0,
     })
         numContents: number
+
+    /**
+     * Locale for Elasticsearch indexing.
+     */
+    elasticsearchLocale: Locale
 }

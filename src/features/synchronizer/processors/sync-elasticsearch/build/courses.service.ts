@@ -29,7 +29,9 @@ import type {
 import {
     AsyncService 
 } from "@modules/mixin"
-
+import {
+    ElasticsearchService,
+} from "@modules/elasticsearch"
 /**
  * Loads the full course graph from PostgreSQL and materializes **per-locale** plain objects
  * (after `CourseResolverService`) for Elasticsearch JSON.
@@ -41,6 +43,7 @@ export class ElasticsearchCoursesBuildService {
         private readonly entityManager: EntityManager,
         private readonly courseResolver: CourseResolverService,
         private readonly asyncService: AsyncService,
+        private readonly elasticsearchService: ElasticsearchService,
     ) {}
 
     /**
@@ -288,5 +291,28 @@ export class ElasticsearchCoursesBuildService {
         hydratedCourse.livestreamSessions = hydratedLivestreamSessions
         hydratedCourse.modules = hydratedModules
         return hydratedCourse
+    }
+
+    /**
+     * Builds the index by course id.
+     * @param id - The course id.
+     * @returns The index by course id.
+     */
+    async buildIndexById(
+        id: string,
+    ): Promise<void> {
+        const multilingualEntities = await this.buildMultilingualByCourseId(id)
+        const entities = multilingualEntities.map(
+            (
+                multilingualEntity,
+            ) => ({
+                ...multilingualEntity.entity,
+                elasticsearchLocale: multilingualEntity.locale,
+            })
+        )
+        await this.elasticsearchService.indexEntities(
+            CourseEntity,
+            entities
+        )
     }
 }

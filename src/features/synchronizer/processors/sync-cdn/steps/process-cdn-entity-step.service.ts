@@ -142,8 +142,14 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     CourseEntity,
                     {
                         where: {
-                            id: MoreThan(executionResult.resumeAfterEntityId),
+                            ...(executionResult.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId) 
+                            } : {
+                            }),
                             updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                        },
+                        order: {
+                            updatedAt: "ASC",
                         },
                     },
                 )
@@ -171,8 +177,14 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     ChallengeEntity,
                     {
                         where: {
-                            id: MoreThan(executionResult.resumeAfterEntityId),
+                            ...(executionResult.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId) 
+                            } : {
+                            }),
                             updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                        },
+                        order: {
+                            updatedAt: "ASC",
                         },
                     },
                 )
@@ -200,8 +212,14 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     ContentEntity,
                     {
                         where: {
-                            id: MoreThan(executionResult.resumeAfterEntityId),
+                            ...(executionResult.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId) 
+                            } : {
+                            }),
                             updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                        },
+                        order: {
+                            updatedAt: "ASC",
                         },
                     },
                 )
@@ -229,8 +247,14 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     LessonVideoEntity,
                     {
                         where: {
-                            id: MoreThan(executionResult.resumeAfterEntityId),
+                            ...(executionResult.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId) 
+                            } : {
+                            }),
                             updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                        },
+                        order: {
+                            updatedAt: "ASC",
                         },
                     },
                 )
@@ -258,8 +282,14 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     ModuleEntity,
                     {
                         where: {
-                            id: MoreThan(executionResult.resumeAfterEntityId),
+                            ...(executionResult.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId) 
+                            } : {
+                            }),
                             updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                        },
+                        order: {
+                            updatedAt: "ASC",
                         },
                     },
                 )
@@ -312,7 +342,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
             locale: Locale,
         ) => string,
     ): Promise<void> {
-        const cdnJsonProviders = [
+        const providers: Array<S3Provider> = [
             S3Provider.DigitalOcean,
             S3Provider.Minio,
         ]
@@ -347,7 +377,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
             await this.s3UploadService.json(
                 {
                     acl: "private",
-                    providers: cdnJsonProviders,
+                    providers,
                     name: keyByEntityId,
                     payload: snapshotPayload,
                 },
@@ -355,7 +385,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
             await this.s3UploadService.json(
                 {
                     acl: "private",
-                    providers: cdnJsonProviders,
+                    providers,
                     name: resolveObjectKey(
                         entity.displayId,
                         locale,

@@ -17,6 +17,9 @@ import type {
 import type {
     LocalizedElasticsearchEntity,
 } from "./types"
+import {
+    ElasticsearchService,
+} from "@modules/elasticsearch"
 
 /**
  * Loads content (with references) from PostgreSQL and materializes **per-locale** plain objects
@@ -28,6 +31,7 @@ export class ElasticsearchContentsBuildService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly contentResolver: ContentResolverService,
+        private readonly elasticsearchService: ElasticsearchService,
     ) {}
 
     /**
@@ -106,5 +110,28 @@ export class ElasticsearchContentsBuildService {
             ) => reference.toPlain<ContentReferenceEntity>()
         )
         return hydratedContent
+    }
+
+    /**
+     * Builds the index by content id.
+     * @param id - The content id.
+     * @returns The index by content id.
+     */
+    async buildIndexById(
+        id: string,
+    ): Promise<void> {
+        const multilingualEntities = await this.buildMultilingualByContentId(id)
+        const entities = multilingualEntities.map(
+            (
+                multilingualEntity,
+            ) => ({
+                ...multilingualEntity.entity,
+                elasticsearchLocale: multilingualEntity.locale,
+            })
+        )
+        await this.elasticsearchService.indexEntities(
+            ContentEntity,
+            entities
+        )
     }
 }

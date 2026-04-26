@@ -17,12 +17,15 @@ import {
     CourseEntity,
     InjectPrimaryPostgreSQLEntityManager,
     LessonVideoEntity,
+    ModuleEntity,
 } from "@modules/databases"
 import {
     Injectable,
 } from "@nestjs/common"
-import type {
+import {
     EntityManager,
+    LessThanOrEqual,
+    MoreThan,
 } from "typeorm"
 import {
     WinstonLog,
@@ -33,7 +36,11 @@ import type {
     ElasticsearchContentsBuildService,
     ElasticsearchCoursesBuildService,
     ElasticsearchLessonVideosBuildService,
+    ElasticsearchModulesBuildService,
 } from "../build"
+import {
+    SyncElasticsearchEntityStepContextExecutionResult 
+} from "../types"
 
 /**
  * Step 0: index the target entity into Elasticsearch using the same build-inject pattern as sync-cdn.
@@ -52,6 +59,7 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
         private readonly elasticsearchChallengesBuildService: ElasticsearchChallengesBuildService,
         private readonly elasticsearchContentsBuildService: ElasticsearchContentsBuildService,
         private readonly elasticsearchLessonVideosBuildService: ElasticsearchLessonVideosBuildService,
+        private readonly elasticsearchModulesBuildService: ElasticsearchModulesBuildService,
     ) {
         super()
     }
@@ -93,33 +101,155 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
     private async execute(
         context: JobExtendedContext<SyncElasticsearchPayload, EmptyObject>,
     ): Promise<EmptyObject> {
-        const { payload } = context
-        switch (payload.entityKind) {
-        case CourseEntity.name: {
-            await this.elasticsearchCoursesBuildService.buildIndexById(
-                payload.id,
-            )
-            break
+        let done = false
+        let resumeAfterEntityId: string | null = null
+        while (!done) {
+            const { payload } = context
+            const executionResult = await this.jobActionService.loadExecutionResult<
+        SyncElasticsearchEntityStepContextExecutionResult
+        >(
+            {
+                job: context.job,
+                key: this.stepContextKey,
+            }
+        )
+            switch (payload.entityKind) {
+            case CourseEntity.name: {
+                const course = await this.entityManager.findOne(
+                    CourseEntity,
+                    {
+                        where: {
+                            ...(executionResult.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId) 
+                            } : {
+                            }),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                        },
+                        order: {
+                            updatedAt: "ASC",
+                        },
+                    },
+                )
+                if (!course) {
+                    done = true
+                    break
+                }
+                resumeAfterEntityId = course.id
+                await this.elasticsearchCoursesBuildService.buildIndexById(
+                    course.id,
+                )
+                break
+            }
+            case ChallengeEntity.name: {
+                const challenge = await this.entityManager.findOne(
+                    ChallengeEntity,
+                    {
+                        where: {
+                            ...(executionResult.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId) 
+                            } : {
+                            }),
+                        },
+                        order: {
+                            updatedAt: "ASC",
+                        },
+                    },
+                )
+                if (!challenge) {
+                    done = true
+                    break
+                }
+                resumeAfterEntityId = challenge.id
+                await this.elasticsearchChallengesBuildService.buildIndexById(
+                    challenge.id,
+                )
+                break
+            }
+            case ContentEntity.name: {
+                const content = await this.entityManager.findOne(
+                    ContentEntity,
+                    {
+                        where: {
+                            ...(executionResult.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId) 
+                            } : {
+                            }),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                        },
+                        order: {
+                            updatedAt: "ASC",
+                        },
+                    },
+                )
+                if (!content) {
+                    done = true
+                    break
+                }
+                resumeAfterEntityId = content.id
+                await this.elasticsearchContentsBuildService.buildIndexById(
+                    content.id,
+                )
+                break
+            }
+            case LessonVideoEntity.name: {
+                const lessonVideo = await this.entityManager.findOne(
+                    LessonVideoEntity,
+                    {
+                        where: {
+                            ...(executionResult.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId) 
+                            } : {
+                            }),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                        },
+                    },
+                )
+                if (!lessonVideo) {
+                    done = true
+                    break
+                }
+                resumeAfterEntityId = lessonVideo.id
+                await this.elasticsearchLessonVideosBuildService.buildIndexById(
+                    lessonVideo.id,
+                )
+                break
+            }
+            case ModuleEntity.name: {
+                const module = await this.entityManager.findOne(
+                    ModuleEntity,
+                    {
+                        where: {
+                            ...(executionResult.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId) 
+                            } : {
+                            }),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                        },
+                        order: {
+                            updatedAt: "ASC",
+                        },
+                    },
+                )
+                if (!module) {
+                    break
+                }
+                resumeAfterEntityId = module.id
+                await this.elasticsearchModulesBuildService.buildIndexById(
+                    module.id,
+                )
+                break
+            }
+            }
         }
-        case ChallengeEntity.name: {
-            await this.elasticsearchChallengesBuildService.buildIndexById(
-                payload.id,
-            )
-            break
-        }
-        case ContentEntity.name: {
-            await this.elasticsearchContentsBuildService.buildIndexById(
-                payload.id,
-            )
-            break
-        }
-        case LessonVideoEntity.name: {
-            await this.elasticsearchLessonVideosBuildService.buildIndexById(
-                payload.id,
-            )
-            break
-        }
-        }
+        await this.jobActionService.saveExecutionResult(
+            {
+                job: context.job,
+                key: this.stepContextKey,
+                executionResult: {
+                    resumeAfterEntityId,
+                },
+            }
+        )
         return {
         }
     }

@@ -16,6 +16,9 @@ import type {
 import type {
     LocalizedElasticsearchEntity,
 } from "./types"
+import {
+    ElasticsearchService,
+} from "@modules/elasticsearch"
 
 /**
  * Loads a lesson video row from PostgreSQL and materializes **per-locale** plain objects
@@ -27,6 +30,7 @@ export class ElasticsearchLessonVideosBuildService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly lessonVideoResolver: LessonVideoResolverService,
+        private readonly elasticsearchService: ElasticsearchService,
     ) {}
 
     /**
@@ -83,5 +87,28 @@ export class ElasticsearchLessonVideosBuildService {
             )
         }
         return lessonVideo.toPlain<LessonVideoEntity>()
+    }
+
+    /**
+     * Builds the index by lesson video id.
+     * @param id - The lesson video id.
+     * @returns The index by lesson video id.
+     */
+    async buildIndexById(
+        id: string,
+    ): Promise<void> {
+        const multilingualEntities = await this.buildMultilingualByLessonVideoId(id)
+        const entities = multilingualEntities.map(
+            (
+                multilingualEntity,
+            ) => ({
+                ...multilingualEntity.entity,
+                elasticsearchLocale: multilingualEntity.locale,
+            })
+        )
+        await this.elasticsearchService.indexEntities(
+            LessonVideoEntity,
+            entities
+        )
     }
 }

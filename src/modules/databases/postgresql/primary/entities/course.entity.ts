@@ -369,4 +369,9 @@ export class CourseEntity extends UuidAbstractEntity {
         enumName: "locale",
     })
         defaultLocale: Locale
+
+    /**
+     * Locale for Elasticsearch indexing.
+     */
+    elasticsearchLocale: Locale
 }

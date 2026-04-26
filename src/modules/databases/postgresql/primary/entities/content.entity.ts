@@ -290,4 +290,9 @@ export class ContentEntity extends UuidAbstractEntity {
         default: 0,
     })
         numLessons: number
+
+    /**
+     * Locale for Elasticsearch indexing.
+     */
+    elasticsearchLocale: Locale
 }

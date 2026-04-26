@@ -22,9 +22,6 @@ import {
     UuidAbstractEntity,
 } from "./abstract"
 import {
-    ModuleEntity,
-} from "./module.entity"
-import {
     ContentEntity,
 } from "./content.entity"
 import {
@@ -316,4 +313,10 @@ export class ChallengeEntity extends UuidAbstractEntity {
         (ch: ChallengeEntity) => ch.content,
     )
         contentId: string
+
+    
+    /**
+     * Locale for Elasticsearch indexing.
+     */
+    elasticsearchLocale: Locale
 }

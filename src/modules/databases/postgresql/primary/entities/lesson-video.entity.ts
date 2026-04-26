@@ -21,9 +21,6 @@ import {
     RelationId,
 } from "typeorm"
 import {
-    ModuleEntity,
-} from "./module.entity"
-import {
     ContentEntity,
 } from "./content.entity"
 import {
@@ -295,5 +292,10 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         },
     )
         translations: Array<LessonVideoTranslationEntity>
+
+    /**
+     * Locale for Elasticsearch indexing.
+     */
+    elasticsearchLocale: Locale
 }
 
