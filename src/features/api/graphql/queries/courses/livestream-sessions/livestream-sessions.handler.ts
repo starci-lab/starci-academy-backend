@@ -4,6 +4,7 @@ import {
 import {
     InjectPrimaryPostgreSQLEntityManager,
     LivestreamSessionEntity,
+    LivestreamSessionResolverService,
     Locale,
 } from "@modules/databases"
 import {
@@ -21,9 +22,6 @@ import type {
     FindOptionsOrder,
 } from "typeorm"
 import {
-    LivestreamSessionTransformerService,
-} from "../../../utils"
-import {
     LivestreamSessionsQuery,
 } from "./livestream-sessions.query"
 import {
@@ -39,7 +37,7 @@ export class LivestreamSessionsHandler
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
-        private readonly livestreamSessionTransformer: LivestreamSessionTransformerService,
+        private readonly livestreamSessionResolver: LivestreamSessionResolverService,
     ) {
         super()
     }
@@ -87,7 +85,7 @@ export class LivestreamSessionsHandler
 
         for (const livestreamSession of livestreamSessions) {
             const fallbackLocale = livestreamSession.course?.defaultLocale ?? Locale.En
-            this.livestreamSessionTransformer.transform(
+            this.livestreamSessionResolver.transform(
                 livestreamSession,
                 locale,
                 fallbackLocale,

@@ -14,6 +14,9 @@ import dayjs, {
 import {
     SUPERJSON
 } from "./constants"
+import {
+    ScalableBloomFilter 
+} from "bloom-filters"
 
 /**
  * Inject the SuperJSON service.
@@ -71,6 +74,16 @@ export const createSuperJsonServiceProvider = (): Provider<SuperJSON> => ({
                 deserialize: (v) => dayjs(v),
             },
             "dayjs" // identifier
+        )
+        superjson.registerCustom<ScalableBloomFilter, string>(
+            {
+                isApplicable: (v): v is ScalableBloomFilter => {
+                    return v instanceof ScalableBloomFilter
+                },
+                serialize: (v) => JSON.stringify(v.saveAsJSON()),
+                deserialize: (v) => ScalableBloomFilter.fromJSON(JSON.parse(v)),
+            },
+            "bloom-filters.ScalableBloomFilter" // identifier
         )
         return superjson
     },

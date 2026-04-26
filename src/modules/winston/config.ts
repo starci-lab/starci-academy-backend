@@ -89,6 +89,14 @@ export const configMap = {
         messageType: {
         } as StepExecutedMessage,
     },
+    [WinstonLog.ProcessStepExecuted]: {
+        name: WinstonLog.ProcessStepExecuted,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as StepExecutedMessage,
+    },
     [WinstonLog.ProcessCVSubmissionStepExecuted]: {
         name: WinstonLog.ProcessCVSubmissionStepExecuted,
         level: WinstonLevel.Verbose,

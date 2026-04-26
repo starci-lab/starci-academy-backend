@@ -5,6 +5,8 @@ export enum WinstonLog {
     EnrollmentCreated = "EnrollmentCreated",
     EnrollStepExecuted = "EnrollStepExecuted",
     ProcessGitSubmissionStepExecuted = "ProcessGitSubmissionStepExecuted",
+    /** Generic worker / pipeline step completed (reusable across processors). */
+    ProcessStepExecuted = "ProcessStepExecuted",
     ProcessCVSubmissionStepExecuted = "ProcessCVSubmissionStepExecuted",
     JobExecutedSuccessfully = "JobExecutedSuccessfully",
     JobExecutedFailed = "JobExecutedFailed",

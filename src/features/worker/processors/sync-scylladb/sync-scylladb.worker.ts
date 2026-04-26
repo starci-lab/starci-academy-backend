@@ -30,28 +30,28 @@ import {
 import SuperJSON from "superjson"
 import {
     ChallengeRuntimeContextService,
-} from "@features/scylladb-synchronizer/sync/challenges/runtime.context-service"
+} from "@features/synchronizer/scylladb-synchronizer/sync/challenges/runtime.context-service"
 import {
     ContentRuntimeContextService,
-} from "@features/scylladb-synchronizer/sync/contents/content-runtime.context-service"
+} from "@features/synchronizer/scylladb-synchronizer/sync/contents/content-runtime.context-service"
 import {
     CourseRuntimeContextService,
-} from "@features/scylladb-synchronizer/sync/courses/course-runtime.context-service"
+} from "@features/synchronizer/scylladb-synchronizer/sync/courses/course-runtime.context-service"
 import {
     LessonVideoRuntimeContextService,
-} from "@features/scylladb-synchronizer/sync/lesson-videos/runtime.context-service"
+} from "@features/synchronizer/scylladb-synchronizer/sync/lesson-videos/runtime.context-service"
 import type {
     ChallengeRuntimeContextRequest,
-} from "@features/scylladb-synchronizer/sync/challenges/types"
+} from "@features/synchronizer/scylladb-synchronizer/sync/challenges/types"
 import type {
     ContentRuntimeContextRequest,
-} from "@features/scylladb-synchronizer/sync/contents/types"
+} from "@features/synchronizer/scylladb-synchronizer/sync/contents/types"
 import type {
     CourseRuntimeContextRequest,
-} from "@features/scylladb-synchronizer/sync/courses/types"
+} from "@features/synchronizer/scylladb-synchronizer/sync/courses/types"
 import type {
     LessonVideoRuntimeContextRequest,
-} from "@features/scylladb-synchronizer/sync/lesson-videos/types"
+} from "@features/synchronizer/scylladb-synchronizer/sync/lesson-videos/types"
 
 @Worker(
     bullData[BullQueueName.SyncScyllaDB].name,

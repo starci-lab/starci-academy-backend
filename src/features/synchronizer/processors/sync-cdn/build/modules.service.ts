@@ -1,0 +1,108 @@
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+    Locale,
+    ModuleEntity,
+    ModuleResolverService,
+    PreviewContentEntity,
+} from "@modules/databases"
+import {
+    ModuleNotFoundException,
+} from "@modules/exceptions"
+import {
+    Injectable,
+} from "@nestjs/common"
+import type {
+    EntityManager,
+} from "typeorm"
+import type {
+    LocalizedCdnEntity,
+} from "./types"
+
+/**
+ * Loads a module (with preview contents) from PostgreSQL and materializes **per-locale** plain objects
+ * (after `ModuleResolverService`) for CDN JSON.
+ */
+@Injectable()
+export class CdnModulesBuildService {
+    constructor(
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
+        private readonly moduleResolver: ModuleResolverService,
+    ) {}
+
+    /**
+     * @returns One entry per [[Locale]] with the transformed module tree.
+     */
+    async buildMultilingualByModuleId(
+        moduleId: string,
+    ): Promise<Array<LocalizedCdnEntity<ModuleEntity>>> {
+        const hydratedModule = await this.loadHydratedModulePlain(
+            moduleId,
+        )
+        return Object.values(Locale).map(
+            (
+                locale,
+            ) => {
+                this.moduleResolver.transform(
+                    hydratedModule,
+                    locale,
+                )
+                return {
+                    locale,
+                    entity: hydratedModule,
+                }
+            },
+        )
+    }
+
+    /**
+     * Loads the hydrated module plain object from PostgreSQL.
+     * @param id - The module id.
+     * @returns The hydrated module plain object.
+     */
+    private async loadHydratedModulePlain(
+        id: string,
+    ): Promise<ModuleEntity> {
+        const moduleRow = await this.entityManager.findOne(
+            ModuleEntity,
+            {
+                where: {
+                    id,
+                },
+                relations: {
+                    translations: true,
+                },
+            },
+        )
+        if (!moduleRow) {
+            throw new ModuleNotFoundException(
+                {
+                    id,
+                }
+            )
+        }
+        const hydratedModule = moduleRow.toPlain<ModuleEntity>()
+        const previewContents = await this.entityManager.find(
+            PreviewContentEntity,
+            {
+                where: {
+                    module: {
+                        id: hydratedModule.id,
+                    },
+                },
+                relations: {
+                    translations: true,
+                },
+                order: {
+                    orderIndex: "ASC",
+                },
+            },
+        )
+        hydratedModule.previewContents = previewContents.map(
+            (
+                previewContent,
+            ) => previewContent.toPlain<PreviewContentEntity>()
+        )
+        return hydratedModule
+    }
+}

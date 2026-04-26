@@ -68,4 +68,16 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
         ),
         name: "sync-scylladb",
     },
+    [BullQueueName.SyncEmailBloomFilter]: {
+        prefix: formatWithBraces(
+            "sync-email-bloom-filter",
+        ),
+        name: "sync-email-bloom-filter",
+    },
+    [BullQueueName.SyncCdn]: {
+        prefix: formatWithBraces(
+            "sync-cdn",
+        ),
+        name: "sync-cdn",
+    },
 }

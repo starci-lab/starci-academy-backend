@@ -44,6 +44,10 @@ export const envConfig = () => ({
             },
         },
         ttl: {
+            bloomFilter: parseEnvMs({
+                key: "CACHE_TTL_BLOOM_FILTER",
+                defaultValue: "100years"
+            }),
             activePriceCex: parseEnvMs({
                 key: "CACHE_TTL_ACTIVE_PRICE_CEX",
                 defaultValue: "100years"
@@ -198,6 +202,25 @@ export const envConfig = () => ({
                     cursor: parseEnvString({
                         key: "API_PAGINATION_CURSOR",
                         defaultValue: "",
+                    }),
+                },
+            },
+        },
+        /** Synchronizer service configuration. */
+        synchronizer: {
+            emailBloomFilter: {
+                process: {
+                    batchSize: parseEnvInt({
+                        key: "SYNCHRONIZER_PROCESS_EMAIL_BLOOM_FILTER_BATCH_SIZE",
+                        defaultValue: 1000,
+                    }),
+                },
+            },
+            cdn: {
+                process: {
+                    batchSize: parseEnvInt({
+                        key: "SYNCHRONIZER_PROCESS_CDN_BATCH_SIZE",
+                        defaultValue: 1000,
                     }),
                 },
             },

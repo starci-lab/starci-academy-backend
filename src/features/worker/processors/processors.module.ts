@@ -22,12 +22,28 @@ import {
 import {
     ProcessGoogleDocsSubmissionModule,
 } from "./process-google-docs-submission"
+import {
+    SyncEmailBloomFilterModule,
+} from "@features/synchronizer/processors/sync-email-bloom-filter"
+import {
+    SyncCdnModule,
+} from "@features/synchronizer/processors/sync-cdn"
 
 /**
  * Module for the processors.
  */
 @Module({
     imports: [
+        SyncCdnModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
+        SyncEmailBloomFilterModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
         EnrollModule.register(
             {
                 isGlobal: true,

@@ -19,4 +19,8 @@ export enum BullQueueName {
     SendMail = "send-mail",
     /** Queue for synchronizing source entities into ScyllaDB. */
     SyncScyllaDB = "sync-scylladb",
+    /** Rebuild the shared email ScalableBloomFilter from PostgreSQL users (batched). */
+    SyncEmailBloomFilter = "sync-email-bloom-filter",
+    /** On-demand sync of one course/challenge/content/lessonVideo to CDN storage. */
+    SyncCdn = "sync-cdn",
 }

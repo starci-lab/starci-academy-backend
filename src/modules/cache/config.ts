@@ -5,6 +5,7 @@ import {
     CacheKey 
 } from "./enums"
 import type {
+    BloomFilterCacheResult,
     JobSubscriberClientIdCacheResult,
 } from "./types"
 
@@ -13,6 +14,11 @@ import type {
  * Used by CacheService for get/set TTL and type inference.
  */
 export const configMap = {
+    [CacheKey.BloomFilter]: {
+        ttl: envConfig().cache.ttl.bloomFilter,
+        cacheResult: {
+        } as BloomFilterCacheResult,
+    },
     [CacheKey.NatsMessageDigest]: {
         ttl: envConfig().cache.ttl.natsMessageDigest,
         cacheResult: true,

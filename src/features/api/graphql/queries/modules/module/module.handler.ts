@@ -4,6 +4,7 @@ import {
 import {
     InjectPrimaryPostgreSQLEntityManager,
     ModuleEntity,
+    ModuleResolverService,
 } from "@modules/databases"
 import {
     ModuleNotFoundException,
@@ -19,9 +20,6 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    ModuleTransformerService,
-} from "../../../utils"
-import {
     ModuleQuery,
 } from "./module.query"
 
@@ -33,7 +31,7 @@ export class ModuleHandler
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
-        private readonly moduleTransformer: ModuleTransformerService,
+        private readonly moduleResolver: ModuleResolverService,
     ) {
         super()
     }
@@ -79,7 +77,7 @@ export class ModuleHandler
             })
         }
 
-        return this.moduleTransformer.transform(
+        return this.moduleResolver.transform(
             moduleEntity,
             locale,
         )

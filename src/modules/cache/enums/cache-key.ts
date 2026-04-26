@@ -3,6 +3,17 @@
  * Each key corresponds to a cache namespace and its result type.
  */
 export enum CacheKey {
+    BloomFilter = "bloom.filter",
     NatsMessageDigest = "nats.message.digest",
     JobSubscriberClientId = "job.subscriber.client_id",
+}
+
+/**
+ * Enum of bloom filter types.
+ */
+export enum BloomFilterType {
+    /**
+     * Email bloom filter.
+     */
+    Email = "email",
 }

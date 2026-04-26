@@ -18,6 +18,8 @@ import {
     ServiceName
 } from "@modules/common"
 import {
+    IoRedisInstanceKey,
+    IoRedisModule,
     RedisInstanceKey,
     RedisModule
 } from "@modules/native"
@@ -44,11 +46,8 @@ import {
     PayOSModule
 } from "@modules/payos"
 import {
-    CdnSynchronizerModule
-} from "@features/cdn-synchronizer"
-import {
-    ElasticsearchSynchronizerModule,
-} from "@features/elasticsearch-synchronizer"
+    SynchronizerModule
+} from "@features/synchronizer"
 import {
     ScheduleModule
 } from "@nestjs/schedule"
@@ -274,20 +273,22 @@ import {
                     isGlobal: true,
                 }
             ),
+            IoRedisModule.register(
+                {
+                    instanceKeys: [
+                        IoRedisInstanceKey.Cache,
+                    ],
+                    isGlobal: true,
+                }
+            ),
             /** Throttler module. */
             ThrottlerModule.register(
                 {
                     isGlobal: true,
                 }
             ),
-            /** Cdn Synchronizer module. */
-            CdnSynchronizerModule.register(
-                {
-                    isGlobal: true,
-                }
-            ),
-            /** Elasticsearch Synchronizer module. */
-            ElasticsearchSynchronizerModule.register(
+            /** CDN, Elasticsearch, and ScyllaDB synchronizers. */
+            SynchronizerModule.register(
                 {
                     isGlobal: true,
                 }

@@ -38,11 +38,13 @@ export class KeycloakBackupService {
         } = envConfig().databases.postgresql.keycloak
 
         const sourceUrl = `postgresql://${username}:${password}@${host}:${port}/${database}`
-        await this.pgBackupService.backup({
-            postgresUrl: sourceUrl,
-            s3KeyPrefix: "keycloak-backups",
-            artifactBaseName: "keycloak-backup",
-        })
+        await this.pgBackupService.backup(
+            {
+                postgresUrl: sourceUrl,
+                s3KeyPrefix: "keycloak-backups",
+                artifactBaseName: "keycloak-backup",
+            }
+        )
     }
 
     /**

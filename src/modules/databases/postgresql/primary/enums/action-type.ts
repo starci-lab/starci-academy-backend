@@ -37,6 +37,14 @@ export enum ActionType {
      * Sync a source entity into ScyllaDB.
      */
     SyncScyllaDB = "syncScyllaDB",
+    /**
+     * Rebuild the email bloom filter from PostgreSQL user emails (background job).
+     */
+    SyncEmailBloomFilter = "syncEmailBloomFilter",
+    /**
+     * Sync one entity to the CDN (background job).
+     */
+    SyncCdn = "syncCdn",
 }
 
 export const GraphQLTypeActionType = createEnumType(ActionType)
@@ -61,6 +69,12 @@ registerEnumType(
             },
             [ActionType.SyncScyllaDB]: {
                 description: "Synchronize an entity to ScyllaDB.",
+            },
+            [ActionType.SyncEmailBloomFilter]: {
+                description: "Rebuild the email bloom filter from user rows (batched).",
+            },
+            [ActionType.SyncCdn]: {
+                description: "Synchronize one entity to the CDN (S3 / static assets).",
             },
         },
     },
