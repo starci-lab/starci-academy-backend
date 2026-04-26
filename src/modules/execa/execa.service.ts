@@ -14,10 +14,10 @@ import {
 } from "execa"
 import {
     createWriteStream,
-} from "node:fs"
+} from "fs"
 import {
     pipeline,
-} from "node:stream/promises"
+} from "stream/promises"
 import type {
     AssertValidExecParams,
     ExecParams,

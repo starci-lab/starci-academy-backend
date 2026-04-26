@@ -31,12 +31,12 @@ import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
-import type {
-    ElasticsearchChallengesBuildService,
-    ElasticsearchContentsBuildService,
-    ElasticsearchCoursesBuildService,
-    ElasticsearchLessonVideosBuildService,
-    ElasticsearchModulesBuildService,
+import {
+    ElasticsearchChallengeBuildService,
+    ElasticsearchContentBuildService,
+    ElasticsearchCourseBuildService,
+    ElasticsearchLessonVideoBuildService,
+    ElasticsearchModuleBuildService,
 } from "../build"
 import {
     SyncElasticsearchEntityStepContextExecutionResult 
@@ -55,11 +55,11 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
         private readonly entityManager: EntityManager,
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
-        private readonly elasticsearchCoursesBuildService: ElasticsearchCoursesBuildService,
-        private readonly elasticsearchChallengesBuildService: ElasticsearchChallengesBuildService,
-        private readonly elasticsearchContentsBuildService: ElasticsearchContentsBuildService,
-        private readonly elasticsearchLessonVideosBuildService: ElasticsearchLessonVideosBuildService,
-        private readonly elasticsearchModulesBuildService: ElasticsearchModulesBuildService,
+        private readonly elasticsearchCourseBuildService: ElasticsearchCourseBuildService,
+        private readonly elasticsearchChallengeBuildService: ElasticsearchChallengeBuildService,
+        private readonly elasticsearchContentBuildService: ElasticsearchContentBuildService,
+        private readonly elasticsearchLessonVideoBuildService: ElasticsearchLessonVideoBuildService,
+        private readonly elasticsearchModuleBuildService: ElasticsearchModuleBuildService,
     ) {
         super()
     }
@@ -135,7 +135,7 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                     break
                 }
                 resumeAfterEntityId = course.id
-                await this.elasticsearchCoursesBuildService.buildIndexById(
+                await this.elasticsearchCourseBuildService.buildIndexById(
                     course.id,
                 )
                 break
@@ -160,7 +160,7 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                     break
                 }
                 resumeAfterEntityId = challenge.id
-                await this.elasticsearchChallengesBuildService.buildIndexById(
+                await this.elasticsearchChallengeBuildService.buildIndexById(
                     challenge.id,
                 )
                 break
@@ -186,7 +186,7 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                     break
                 }
                 resumeAfterEntityId = content.id
-                await this.elasticsearchContentsBuildService.buildIndexById(
+                await this.elasticsearchContentBuildService.buildIndexById(
                     content.id,
                 )
                 break
@@ -209,7 +209,7 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                     break
                 }
                 resumeAfterEntityId = lessonVideo.id
-                await this.elasticsearchLessonVideosBuildService.buildIndexById(
+                await this.elasticsearchLessonVideoBuildService.buildIndexById(
                     lessonVideo.id,
                 )
                 break
@@ -234,7 +234,7 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                     break
                 }
                 resumeAfterEntityId = module.id
-                await this.elasticsearchModulesBuildService.buildIndexById(
+                await this.elasticsearchModuleBuildService.buildIndexById(
                     module.id,
                 )
                 break

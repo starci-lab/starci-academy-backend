@@ -12,7 +12,8 @@ import type {
 } from "typeorm"
 import {
     AbstractStepService,
-} from "@modules/bullmq"
+    JobExtendedContext,
+} from "@modules/bussiness"
 import {
     WinstonLog,
     WinstonService,
@@ -21,9 +22,6 @@ import type {
     ExtendedProcessCvSubmissionContext,
     ProcessCvSubmissionExtractStepExecuteResult,
 } from "../types"
-import {
-    JobExtendedContext,
-} from "../../types"
 import {
     ProcessCVSubmissionPayload,
 } from "@modules/bullmq"

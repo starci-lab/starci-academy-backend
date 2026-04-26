@@ -17,8 +17,8 @@ export type SyncElasticsearchEntityKind =
 
 /** Payload for a sync-elasticsearch BullMQ job (one entity by id). */
 export interface SyncElasticsearchPayload {
+    /** Entity kind that determines which runtime sync service to invoke. */
     entityKind: SyncElasticsearchEntityKind
-    /** Primary key of the source row to index. */
-    id: string
+    /** The timestamp of the sync. */
     syncAt: Dayjs
 }

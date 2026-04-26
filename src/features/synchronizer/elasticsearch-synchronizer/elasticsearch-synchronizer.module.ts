@@ -5,15 +5,28 @@ import {
     ConfigurableModuleClass,
 } from "./elasticsearch-synchronizer.module-definition"
 import {
-    SyncModule,
-} from "./sync"
+    CourseElasticsearchSynchronizerService,
+} from "./course.service"
+import {
+    ChallengeElasticsearchSynchronizerService,
+} from "./challenge.service"
+import {
+    ContentElasticsearchSynchronizerService,
+} from "./content.service"
+import {
+    LessonVideoElasticsearchSynchronizerService,
+} from "./lesson-video.service"
+import {
+    ModuleElasticsearchSynchronizerService,
+} from "./module.service"
 
 @Module({
-    imports: [
-        SyncModule,
-    ],
-    exports: [
-        SyncModule,
+    providers: [
+        CourseElasticsearchSynchronizerService,
+        ChallengeElasticsearchSynchronizerService,
+        ContentElasticsearchSynchronizerService,
+        LessonVideoElasticsearchSynchronizerService,
+        ModuleElasticsearchSynchronizerService,
     ],
 })
 export class ElasticsearchSynchronizerModule extends ConfigurableModuleClass {}

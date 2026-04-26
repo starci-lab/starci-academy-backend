@@ -5,14 +5,12 @@ import {
     ConfigurableModuleClass,
 } from "./bloom-filters-synchronizer.module-definition"
 import {
-    SyncModule,
-} from "./sync"
+    EmailBloomFiltersSynchronizerService,
+} from "./email.service"
 
 @Module({
-    imports: [
-        SyncModule.register({
-            isGlobal: true,
-        }),
+    providers: [
+        EmailBloomFiltersSynchronizerService,
     ],
 })
-export class CdnSynchronizerModule extends ConfigurableModuleClass {}
+export class BloomFiltersSynchronizerModule extends ConfigurableModuleClass {}

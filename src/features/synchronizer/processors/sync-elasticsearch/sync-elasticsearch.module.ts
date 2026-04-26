@@ -5,10 +5,11 @@ import {
     ConfigurableModuleClass,
 } from "./sync-elasticsearch.module-definition"
 import {
-    ElasticsearchChallengesBuildService,
-    ElasticsearchContentsBuildService,
-    ElasticsearchCoursesBuildService,
-    ElasticsearchLessonVideosBuildService,
+    ElasticsearchChallengeBuildService,
+    ElasticsearchContentBuildService,
+    ElasticsearchCourseBuildService,
+    ElasticsearchLessonVideoBuildService,
+    ElasticsearchModuleBuildService,
 } from "./build"
 import {
     ProcessSyncElasticsearchCompleteStepService,
@@ -23,20 +24,22 @@ import {
 
 @Module({
     providers: [
-        ElasticsearchCoursesBuildService,
-        ElasticsearchChallengesBuildService,
-        ElasticsearchContentsBuildService,
-        ElasticsearchLessonVideosBuildService,
+        ElasticsearchCourseBuildService,
+        ElasticsearchChallengeBuildService,
+        ElasticsearchContentBuildService,
+        ElasticsearchLessonVideoBuildService,
         ProcessSyncElasticsearchEntityStepService,
         ProcessSyncElasticsearchCompleteStepService,
         SyncElasticsearchStepMappingService,
         SyncElasticsearchWorker,
+        ElasticsearchModuleBuildService,
     ],
     exports: [
-        ElasticsearchCoursesBuildService,
-        ElasticsearchChallengesBuildService,
-        ElasticsearchContentsBuildService,
-        ElasticsearchLessonVideosBuildService,
+        ElasticsearchCourseBuildService,
+        ElasticsearchChallengeBuildService,
+        ElasticsearchContentBuildService,
+        ElasticsearchLessonVideoBuildService,
+        ElasticsearchModuleBuildService,
     ],
 })
 export class SyncElasticsearchModule extends ConfigurableModuleClass {

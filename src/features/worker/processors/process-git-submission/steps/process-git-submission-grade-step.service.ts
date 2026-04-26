@@ -17,9 +17,6 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    AbstractStepService,
-} from "@modules/bullmq"
-import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
@@ -29,8 +26,9 @@ import type {
     ProcessGitSubmissionGradeStepSubmissionFeedback,
 } from "../types"
 import {
+    AbstractStepService,
     JobExtendedContext,
-} from "@modules/bullmq"
+} from "@modules/bussiness"
 import {
     Document,
 } from "@langchain/core/documents"

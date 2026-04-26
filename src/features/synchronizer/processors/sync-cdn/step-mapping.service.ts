@@ -25,7 +25,7 @@ export class SyncCdnStepMappingService {
     getStepMap(): Map<
         number,
         AbstractStepService<SyncCdnPayload, EmptyObject>
-    > {
+        > {
         const steps: Array<
             [number, AbstractStepService<SyncCdnPayload, EmptyObject>]
         > = [

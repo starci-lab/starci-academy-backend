@@ -3,9 +3,6 @@ import {
     SystemMessage,
 } from "@langchain/core/messages"
 import {
-    ProcessCVSubmissionPayload
-} from "@modules/bullmq"
-import {
     JobActionService,
 } from "@modules/bussiness"
 import {
@@ -31,14 +28,17 @@ import type {
 } from "typeorm"
 import {
     AbstractStepService,
-} from "@modules/bullmq"
-import {
     JobExtendedContext,
-} from "../../types"
-import type {
-    ExtendedProcessCvSubmissionContext,
+} from "@modules/bussiness"
+import {
     ProcessCvSubmissionAnalyzeStepExecuteResult,
 } from "../types"
+import type {
+    ExtendedProcessCvSubmissionContext,
+} from "../types"
+import {
+    ProcessCVSubmissionPayload 
+} from "@modules/bullmq"
 
 /**
  * Shape of the JSON response expected from the LLM.

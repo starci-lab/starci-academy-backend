@@ -10,11 +10,11 @@ import {
 } from "@modules/winston"
 import {
     mkdtemp,
-} from "node:fs/promises"
+} from "fs/promises"
 import {
     tmpdir,
-} from "node:os"
-import path from "node:path"
+} from "os"
+import path from "path"
 import {
     AsyncService
 } from "@modules/mixin"

@@ -10,7 +10,7 @@ import {
 import {
     mkdtemp, 
     rm 
-} from "node:fs/promises"
+} from "fs/promises"
 import path from "path"
 import {
     tmpdir 
@@ -26,7 +26,7 @@ import {
 } from "@modules/execa"
 import {
     createReadStream 
-} from "node:fs"
+} from "fs"
 
 export interface PgBackupParams {
     postgresUrl: string

@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     createHash,
-} from "node:crypto"
+} from "crypto"
 
 export interface BloomFilterOptions {
     /**

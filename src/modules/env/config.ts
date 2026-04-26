@@ -307,114 +307,80 @@ export const envConfig = () => ({
         },
         /** Cdn Synchronizer service configuration. */
         cdnSynchronizer: {
-            syncIntervalMs: {
-                courses: {
-                    factory: parseEnvMs({
-                        key: "CDN_SYNCHRONIZER_COURSES_FACTORY_SYNC_INTERVAL_MS",
-                        defaultValue: "2m",
-                    }),
-                    runtime: parseEnvMs({
-                        key: "CDN_SYNCHRONIZER_COURSES_RUNTIME_SYNC_INTERVAL_MS",
-                        defaultValue: "10s",
-                    }),
-                },
-                challenges: {
-                    factory: parseEnvMs({
-                        key: "CDN_SYNCHRONIZER_CHALLENGES_FACTORY_SYNC_INTERVAL_MS",
-                        defaultValue: "2m",
-                    }),
-                    runtime: parseEnvMs({
-                        key: "CDN_SYNCHRONIZER_CHALLENGES_RUNTIME_SYNC_INTERVAL_MS",
-                        defaultValue: "10s",
-                    }),
-                },
-                lessons: {
-                    factory: parseEnvMs({
-                        key: "CDN_SYNCHRONIZER_LESSONS_FACTORY_SYNC_INTERVAL_MS",
-                        defaultValue: "10s",
-                    }),
-                    runtime: parseEnvMs({
-                        key: "CDN_SYNCHRONIZER_LESSONS_RUNTIME_SYNC_INTERVAL_MS",
-                        defaultValue: "10s",
-                    }),
-                },
-                modules: {
-                    factory: parseEnvMs({
-                        key: "CDN_SYNCHRONIZER_MODULES_FACTORY_SYNC_INTERVAL_MS",
-                        defaultValue: "2m",
-                    }),
-                    runtime: parseEnvMs({
-                        key: "CDN_SYNCHRONIZER_MODULES_RUNTIME_SYNC_INTERVAL_MS",
-                        defaultValue: "10s",
-                    }),
-                },
-                contents: {
-                    factory: parseEnvMs({
-                        key: "CDN_SYNCHRONIZER_CONTENTS_FACTORY_SYNC_INTERVAL_MS",
-                        defaultValue: "2m",
-                    }),
-                    runtime: parseEnvMs({
-                        key: "CDN_SYNCHRONIZER_CONTENTS_RUNTIME_SYNC_INTERVAL_MS",
-                        defaultValue: "10s",
-                    }),
-                },
+            course: {
+                interval: parseEnvMs({
+                    key: "CDN_SYNCHRONIZER_COURSE_SYNC_INTERVAL_MS",
+                    defaultValue: "30s",
+                }),
             },
-            retries: {
-                courses: {
-                    maxRetries: parseEnvInt({
-                        key: "CDN_SYNCHRONIZER_COURSES_SYNC_MAX_RETRIES",
-                        defaultValue: 3,
-                    }),
-                    retryDelayMs: parseEnvMs({
-                        key: "CDN_SYNCHRONIZER_COURSES_SYNC_RETRY_DELAY_MS",
-                        defaultValue: "5s",
-                    }),
-                },
+            challenge: {
+                interval: parseEnvMs({
+                    key: "CDN_SYNCHRONIZER_CHALLENGE_SYNC_INTERVAL_MS",
+                    defaultValue: "30s",
+                }),     
+            },
+            lessonVideo: {
+                interval: parseEnvMs({
+                    key: "CDN_SYNCHRONIZER_LESSON_VIDEO_SYNC_INTERVAL_MS",
+                    defaultValue: "30s",
+                }),
+            },
+            module: {
+                interval: parseEnvMs({
+                    key: "CDN_SYNCHRONIZER_MODULE_SYNC_INTERVAL_MS",
+                    defaultValue: "30s",
+                }),
+            },
+            content: {
+                interval: parseEnvMs({
+                    key: "CDN_SYNCHRONIZER_CONTENT_SYNC_INTERVAL_MS",
+                    defaultValue: "30s",
+                }),
+            },
+        },
+        retries: {
+            courses: {
+                maxRetries: parseEnvInt({
+                    key: "CDN_SYNCHRONIZER_COURSES_SYNC_MAX_RETRIES",
+                    defaultValue: 3,
+                }),
+                retryDelayMs: parseEnvMs({
+                    key: "CDN_SYNCHRONIZER_COURSES_SYNC_RETRY_DELAY_MS",
+                    defaultValue: "5s",
+                }),
             },
         },
         /** Elasticsearch Synchronizer service configuration. */
         elasticsearchSynchronizer: {
-            syncIntervalMs: {
-                courses: {
-                    factory: parseEnvMs({
-                        key: "ELASTICSEARCH_SYNCHRONIZER_COURSES_FACTORY_SYNC_INTERVAL_MS",
-                        defaultValue: "30s",
-                    }),
-                    runtime: parseEnvMs({
-                        key: "ELASTICSEARCH_SYNCHRONIZER_COURSES_RUNTIME_SYNC_INTERVAL_MS",
-                        defaultValue: "30s",
-                    }),
-                },
-                lessonVideos: {
-                    factory: parseEnvMs({
-                        key: "ELASTICSEARCH_SYNCHRONIZER_LESSON_VIDEOS_FACTORY_SYNC_INTERVAL_MS",
-                        defaultValue: "30s",
-                    }),
-                    runtime: parseEnvMs({
-                        key: "ELASTICSEARCH_SYNCHRONIZER_LESSON_VIDEOS_RUNTIME_SYNC_INTERVAL_MS",
-                        defaultValue: "30s",
-                    }),
-                },
-                challenges: {
-                    factory: parseEnvMs({
-                        key: "ELASTICSEARCH_SYNCHRONIZER_CHALLENGES_FACTORY_SYNC_INTERVAL_MS",
-                        defaultValue: "30s",
-                    }),
-                    runtime: parseEnvMs({
-                        key: "ELASTICSEARCH_SYNCHRONIZER_CHALLENGES_RUNTIME_SYNC_INTERVAL_MS",
-                        defaultValue: "30s",
-                    }),
-                },
-                contents: {
-                    factory: parseEnvMs({
-                        key: "ELASTICSEARCH_SYNCHRONIZER_CONTENTS_FACTORY_SYNC_INTERVAL_MS",
-                        defaultValue: "30s",
-                    }),
-                    runtime: parseEnvMs({
-                        key: "ELASTICSEARCH_SYNCHRONIZER_CONTENTS_RUNTIME_SYNC_INTERVAL_MS",
-                        defaultValue: "30s",
-                    }),
-                },
+            challenge: {
+                interval: parseEnvMs({
+                    key: "ELASTICSEARCH_SYNCHRONIZER_CHALLENGE_SYNC_INTERVAL_MS",
+                    defaultValue: "30s",
+                }),
+            },
+            content: {
+                interval: parseEnvMs({
+                    key: "ELASTICSEARCH_SYNCHRONIZER_CONTENT_SYNC_INTERVAL_MS",
+                    defaultValue: "30s",
+                }),
+            },
+            course: {
+                interval: parseEnvMs({  
+                    key: "ELASTICSEARCH_SYNCHRONIZER_COURSE_SYNC_INTERVAL_MS",
+                    defaultValue: "30s",
+                }),
+            },
+            lessonVideo: {
+                interval: parseEnvMs({
+                    key: "ELASTICSEARCH_SYNCHRONIZER_LESSON_VIDEO_SYNC_INTERVAL_MS",
+                    defaultValue: "30s",
+                }),
+            },
+            module: {
+                interval: parseEnvMs({
+                    key: "ELASTICSEARCH_SYNCHRONIZER_MODULE_SYNC_INTERVAL_MS",
+                    defaultValue: "30s",
+                }),
             },
         },
         /** ScyllaDB Synchronizer service configuration. */

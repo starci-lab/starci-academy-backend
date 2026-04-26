@@ -23,9 +23,6 @@ import type {
     EnrollPayload
 } from "@modules/bullmq"
 import {
-    AbstractStepService,
-} from "@modules/bullmq"
-import {
     WinstonLog,
     WinstonService
 } from "@modules/winston"
@@ -33,9 +30,10 @@ import {
     CourseNotFoundException
 } from "@modules/exceptions"
 import {
+    AbstractStepService,
     JobExtendedContext
-} from "../../types"
-import {
+} from "@modules/bussiness"
+import type {
     EnrollStepExecutionResult
 } from "../types"
 /**

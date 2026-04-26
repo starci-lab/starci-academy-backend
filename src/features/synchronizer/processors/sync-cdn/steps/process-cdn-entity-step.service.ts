@@ -31,25 +31,13 @@ import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
-import type {
-    CdnCoursesBuildService,
-    CdnChallengesBuildService,
-    CdnContentsBuildService,
-    CdnLessonVideosBuildService,
-    CdnModulesBuildService,
+import {
+    CdnCourseBuildService,
+    CdnChallengeBuildService,
+    CdnContentBuildService,
+    CdnLessonVideoBuildService,
+    CdnModuleBuildService,
 } from "../build"
-import { 
-    S3NameResolverService,
-    S3ReadService,
-    S3UploadService 
-} from "@modules/s3"
-import {
-    InjectSuperJson 
-} from "@modules/mixin"
-import SuperJSON from "superjson"
-import {
-    Sha256Service,
-} from "@modules/crypto"
 import type {
     SyncCdnEntityStepContextExecutionResult,
 } from "../types"
@@ -63,21 +51,15 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
     EmptyObject
 > {
     constructor(
-        private readonly s3UploadService: S3UploadService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
-        private readonly cdnCoursesBuildService: CdnCoursesBuildService,
-        private readonly cdnChallengesBuildService: CdnChallengesBuildService,
-        private readonly cdnContentsBuildService: CdnContentsBuildService,
-        private readonly cdnLessonVideosBuildService: CdnLessonVideosBuildService,
-        private readonly cdnModulesBuildService: CdnModulesBuildService,
-        private readonly s3NameResolverService: S3NameResolverService,
-        @InjectSuperJson()
-        private readonly superJson: SuperJSON,
-        private readonly sha256Service: Sha256Service,
-        private readonly s3ReadService: S3ReadService,
+        private readonly cdnCourseBuildService: CdnCourseBuildService,
+        private readonly cdnChallengeBuildService: CdnChallengeBuildService,
+        private readonly cdnContentBuildService: CdnContentBuildService,
+        private readonly cdnLessonVideoBuildService: CdnLessonVideoBuildService,
+        private readonly cdnModuleBuildService: CdnModuleBuildService,
     ) {
         super()
     }
@@ -153,7 +135,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     break
                 }
                 resumeAfterEntityId = course.id
-                await this.cdnCoursesBuildService.materializeAndUpload(
+                await this.cdnCourseBuildService.materializeAndUpload(
                     course.id,
                 )
                 break
@@ -179,7 +161,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     break
                 }
                 resumeAfterEntityId = challenge.id
-                await this.cdnChallengesBuildService.materializeAndUpload(
+                await this.cdnChallengeBuildService.materializeAndUpload(
                     challenge.id,
                 )
                 break
@@ -205,7 +187,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     break
                 }
                 resumeAfterEntityId = content.id
-                await this.cdnContentsBuildService.materializeAndUpload(
+                await this.cdnContentBuildService.materializeAndUpload(
                     content.id,
                 )
                 break
@@ -231,7 +213,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     break
                 }
                 resumeAfterEntityId = lessonVideo.id
-                await this.cdnLessonVideosBuildService.materializeAndUpload(
+                await this.cdnLessonVideoBuildService.materializeAndUpload(
                     lessonVideo.id,
                 )
                 break
@@ -257,7 +239,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     break
                 }
                 resumeAfterEntityId = module.id
-                await this.cdnModulesBuildService.materializeAndUpload(
+                await this.cdnModuleBuildService.materializeAndUpload(
                     module.id,
                 )
                 break

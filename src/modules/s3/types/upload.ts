@@ -7,7 +7,7 @@ import type {
 } from "../enums"
 import {
     Readable 
-} from "node:stream"
+} from "stream"
 
 /** Payload for uploading to S3. */
 export interface UploadPayload {

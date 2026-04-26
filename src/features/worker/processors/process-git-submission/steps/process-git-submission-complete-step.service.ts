@@ -18,7 +18,8 @@ import type {
 } from "typeorm"
 import {
     AbstractStepService,
-} from "@modules/bullmq"
+    JobExtendedContext,
+} from "@modules/bussiness"
 import {
     WinstonLog,
     WinstonService,
@@ -28,9 +29,6 @@ import type {
     ProcessGitSubmissionCompleteStepExecuteResult,
     ProcessGitSubmissionGradeStepExecuteResult,
 } from "../types"
-import type {
-    JobExtendedContext,
-} from "@modules/bullmq"
 import {
     DayjsService,
 } from "@modules/mixin"
