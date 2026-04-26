@@ -1,4 +1,9 @@
 import {
+    BullQueueName,
+    type SyncElasticsearchPayload,
+    bullData,
+} from "@modules/bullmq"
+import {
     JobActionService,
     JobExtendedContext,
 } from "@modules/bussiness"
@@ -30,19 +35,14 @@ import {
     WinstonService,
 } from "@modules/winston"
 import {
-    SyncCdnStepMappingService,
+    SyncElasticsearchStepMappingService,
 } from "./step-mapping.service"
-import {
-    BullQueueName, 
-    SyncCdnPayload, 
-    bullData,
-} from "@modules/bullmq"
 
 /**
- * CDN on-demand sync: `sync-cdn-entity` → `complete` (same control flow as sync-email-bloom-filter).
+ * Elasticsearch on-demand sync: `sync-elasticsearch-entity` → `complete` (same control flow as sync-cdn / sync-email-bloom-filter).
  */
 @Worker(
-    bullData[BullQueueName.SyncCdn].name,
+    bullData[BullQueueName.SyncElasticsearch].name,
     {
         concurrency: envConfig().bullmq.concurrency,
         lockDuration: envConfig().bullmq.lockDuration,
@@ -50,12 +50,12 @@ import {
         maxStalledCount: envConfig().bullmq.maxStalledCount,
     },
 )
-export class SyncCdnWorker extends WorkerHost {
+export class SyncElasticsearchWorker extends WorkerHost {
     constructor(
         private readonly jobActionService: JobActionService,
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
-        private readonly stepMappingService: SyncCdnStepMappingService,
+        private readonly stepMappingService: SyncElasticsearchStepMappingService,
         private readonly winstonService: WinstonService,
         private readonly dayjsService: DayjsService,
     ) {
@@ -69,7 +69,7 @@ export class SyncCdnWorker extends WorkerHost {
         bullmqJob: Job<string>,
     ): Promise<void> {
         const startedAt = this.dayjsService.now()
-        let payload: SyncCdnPayload | undefined
+        let payload: SyncElasticsearchPayload | undefined
         let job: JobEntity | undefined
         try {
             job = await this.jobActionService.getJob(
@@ -79,12 +79,12 @@ export class SyncCdnWorker extends WorkerHost {
             )
             await this.jobActionService.processingJob(
                 {
-                    job 
+                    job
                 }
             )
-            payload = this.superJson.parse<SyncCdnPayload>(bullmqJob.data)
+            payload = this.superJson.parse<SyncElasticsearchPayload>(bullmqJob.data)
             const stepMap = this.stepMappingService.getStepMap()
-            const context: JobExtendedContext<SyncCdnPayload, EmptyObject> = {
+            const context: JobExtendedContext<SyncElasticsearchPayload, EmptyObject> = {
                 job,
                 queueName: bullmqJob.queueName,
                 payload,
@@ -107,7 +107,7 @@ export class SyncCdnWorker extends WorkerHost {
             }
             await this.jobActionService.completeJob(
                 {
-                    job 
+                    job
                 }
             )
             this.winstonService.log(
@@ -130,7 +130,9 @@ export class SyncCdnWorker extends WorkerHost {
                     jobId: job?.id ?? "",
                     queueName: bullmqJob.queueName,
                     payload,
-                    error: error.message,
+                    error: error instanceof Error
+                        ? error.message
+                        : String(error),
                     durationMs: this.dayjsService.now().diff(
                         this.dayjsService.from(
                             startedAt

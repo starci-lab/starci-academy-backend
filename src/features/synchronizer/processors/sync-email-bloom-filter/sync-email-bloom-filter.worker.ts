@@ -31,7 +31,7 @@ import {
 } from "./step-mapping.service"
 import {
     JobExtendedContext,
-} from "@modules/bullmq"
+} from "@modules/bussiness"
 import {
     InjectPrimaryPostgreSQLEntityManager,
     JobEntity,

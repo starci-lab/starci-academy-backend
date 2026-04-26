@@ -18,14 +18,12 @@ import {
 } from "typeorm"
 import {
     AbstractStepService,
-} from "@modules/bullmq"
+    JobExtendedContext,
+} from "@modules/bussiness"
 import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
-import {
-    JobExtendedContext,
-} from "@modules/bullmq"
 import {
     envConfig,
 } from "@modules/env"

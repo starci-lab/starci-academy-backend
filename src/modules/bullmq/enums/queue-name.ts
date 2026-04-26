@@ -23,4 +23,6 @@ export enum BullQueueName {
     SyncEmailBloomFilter = "sync-email-bloom-filter",
     /** On-demand sync of one course/challenge/content/lessonVideo to CDN storage. */
     SyncCdn = "sync-cdn",
+    /** On-demand index of one course/challenge/content/lessonVideo into Elasticsearch. */
+    SyncElasticsearch = "sync-elasticsearch",
 }

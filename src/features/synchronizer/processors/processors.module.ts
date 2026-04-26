@@ -28,6 +28,9 @@ import {
 import {
     SyncCdnModule,
 } from "./sync-cdn"
+import {
+    SyncElasticsearchModule,
+} from "./sync-elasticsearch"
 
 /**
  * Module for the processors.
@@ -35,6 +38,11 @@ import {
 @Module({
     imports: [
         SyncCdnModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
+        SyncElasticsearchModule.register(
             {
                 isGlobal: true,
             }

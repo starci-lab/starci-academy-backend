@@ -14,15 +14,13 @@ import {
     type EntityManager,
 } from "typeorm"
 import {
+    JobExtendedContext,
     AbstractStepService,
-} from "@modules/bullmq"
+} from "@modules/bussiness"
 import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
-import {
-    JobExtendedContext,
-} from "@modules/bullmq"
 import {
     EmptyObject 
 } from "@modules/common"

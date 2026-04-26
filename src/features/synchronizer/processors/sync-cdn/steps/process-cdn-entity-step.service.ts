@@ -7,7 +7,7 @@ import {
 import {
     AbstractStepService,
     JobExtendedContext,
-} from "@modules/bullmq"
+} from "@modules/bussiness"
 import {
     EmptyObject,
 } from "@modules/common"

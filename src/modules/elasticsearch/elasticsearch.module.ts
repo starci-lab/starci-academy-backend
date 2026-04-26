@@ -10,6 +10,12 @@ import {
     createElasticsearchProvider,
 } from "./elasticsearch.providers"
 import {
+    ElasticsearchEntityChallengesService,
+    ElasticsearchEntityContentsService,
+    ElasticsearchEntityCoursesService,
+    ElasticsearchEntityLessonVideosService,
+} from "./entity-index"
+import {
     ElasticsearchService,
 } from "./elasticsearch.service"
 
@@ -29,10 +35,18 @@ export class ElasticsearchModule extends ConfigurableModuleClass {
                 ...(dynamicModule.providers ?? []),
                 elasticsearchProvider,
                 ElasticsearchService,
+                ElasticsearchEntityCoursesService,
+                ElasticsearchEntityChallengesService,
+                ElasticsearchEntityContentsService,
+                ElasticsearchEntityLessonVideosService,
             ],
             exports: [
                 elasticsearchProvider,
                 ElasticsearchService,
+                ElasticsearchEntityCoursesService,
+                ElasticsearchEntityChallengesService,
+                ElasticsearchEntityContentsService,
+                ElasticsearchEntityLessonVideosService,
             ],
         }
     }

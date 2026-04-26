@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     AbstractStepService,
-} from "@modules/bullmq"
+} from "@modules/bussiness"
 import type {
     SyncEmailBloomFilterPayload,
 } from "@modules/bullmq"

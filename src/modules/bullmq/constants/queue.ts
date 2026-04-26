@@ -80,4 +80,10 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
         ),
         name: "sync-cdn",
     },
+    [BullQueueName.SyncElasticsearch]: {
+        prefix: formatWithBraces(
+            "sync-elasticsearch",
+        ),
+        name: "sync-elasticsearch",
+    },
 }

@@ -1,5 +1,5 @@
 import type {
-    SyncCdnPayload,
+    SyncElasticsearchPayload,
 } from "@modules/bullmq"
 import {
     JobActionService,
@@ -29,8 +29,8 @@ import {
  * Step 1: last pipeline step (persist execution slice + advance job).
  */
 @Injectable()
-export class ProcessCdnCompleteStepService extends AbstractStepService<
-    SyncCdnPayload,
+export class ProcessSyncElasticsearchCompleteStepService extends AbstractStepService<
+    SyncElasticsearchPayload,
     EmptyObject
 > {
     constructor(
@@ -46,10 +46,9 @@ export class ProcessCdnCompleteStepService extends AbstractStepService<
     stepName = "complete"
 
     async process(
-        context: JobExtendedContext<SyncCdnPayload, EmptyObject>,
+        context: JobExtendedContext<SyncElasticsearchPayload, EmptyObject>,
     ): Promise<void> {
-        const executionResult = await this.execute(
-        )
+        const executionResult = await this.execute()
         await this.finalize(
             executionResult,
             context,
@@ -61,9 +60,10 @@ export class ProcessCdnCompleteStepService extends AbstractStepService<
         }
     }
 
+    /** Finalize the step. */
     private async finalize(
         executionResult: EmptyObject,
-        context: JobExtendedContext<SyncCdnPayload, EmptyObject>,
+        context: JobExtendedContext<SyncElasticsearchPayload, EmptyObject>,
     ): Promise<void> {
         const {
             job,

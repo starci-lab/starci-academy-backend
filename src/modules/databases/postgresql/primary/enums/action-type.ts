@@ -45,6 +45,10 @@ export enum ActionType {
      * Sync one entity to the CDN (background job).
      */
     SyncCdn = "syncCdn",
+    /**
+     * Index one entity into Elasticsearch (background job).
+     */
+    SyncElasticsearch = "syncElasticsearch",
 }
 
 export const GraphQLTypeActionType = createEnumType(ActionType)
@@ -75,6 +79,9 @@ registerEnumType(
             },
             [ActionType.SyncCdn]: {
                 description: "Synchronize one entity to the CDN (S3 / static assets).",
+            },
+            [ActionType.SyncElasticsearch]: {
+                description: "Index one entity into Elasticsearch for search.",
             },
         },
     },

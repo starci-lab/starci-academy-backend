@@ -5,11 +5,11 @@ import {
     ConfigurableModuleClass,
 } from "./sync-cdn.module-definition"
 import {
-    CdnChallengeBuildService,
-    CdnContentBuildService,
-    CdnCourseBuildService,
-    CdnLessonVideoBuildService,
-    CdnModuleBuildService,
+    CdnChallengesBuildService,
+    CdnContentsBuildService,
+    CdnCoursesBuildService,
+    CdnLessonVideosBuildService,
+    CdnModulesBuildService,
 } from "./build"
 import {
     ProcessCdnEntityStepService,
@@ -24,22 +24,22 @@ import {
 
 @Module({
     providers: [
-        CdnCourseBuildService,
-        CdnModuleBuildService,
-        CdnChallengeBuildService,
-        CdnContentBuildService,
-        CdnLessonVideoBuildService,
+        CdnCoursesBuildService,
+        CdnModulesBuildService,
+        CdnChallengesBuildService,
+        CdnContentsBuildService,
+        CdnLessonVideosBuildService,
         ProcessCdnEntityStepService,
         ProcessCdnCompleteStepService,
         SyncCdnStepMappingService,
         SyncCdnWorker,
     ],
     exports: [
-        CdnCourseBuildService,
-        CdnModuleBuildService,
-        CdnChallengeBuildService,
-        CdnContentBuildService,
-        CdnLessonVideoBuildService,
+        CdnCoursesBuildService,
+        CdnModulesBuildService,
+        CdnChallengesBuildService,
+        CdnContentsBuildService,
+        CdnLessonVideosBuildService,
     ],
 })
 export class SyncCdnModule extends ConfigurableModuleClass {

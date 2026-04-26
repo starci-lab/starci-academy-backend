@@ -17,7 +17,8 @@ import type {
 } from "typeorm"
 import {
     AbstractStepService,
-} from "@modules/bullmq"
+    JobExtendedContext,
+} from "@modules/bussiness"
 import {
     WinstonLog,
     WinstonService,
@@ -26,9 +27,6 @@ import {
     ProcessGoogleDocsSubmissionGradeStepExecuteResult,
     ExtendedProcessGoogleDocsSubmissionContext,
 } from "../types"
-import {
-    JobExtendedContext,
-} from "@modules/bullmq"
 import {
     envConfig,
 } from "@modules/env"
