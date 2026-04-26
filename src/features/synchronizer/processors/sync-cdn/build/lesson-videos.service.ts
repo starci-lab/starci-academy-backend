@@ -16,6 +16,12 @@ import type {
 import type {
     LocalizedCdnEntity,
 } from "./types"
+import {
+    S3NameResolverService,
+} from "@modules/s3"
+import {
+    MaterializeAndUploadService,
+} from "./materialize-and-upload.service"
 
 /**
  * Loads a lesson video row from PostgreSQL and materializes **per-locale** plain objects
@@ -27,6 +33,8 @@ export class CdnLessonVideosBuildService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly lessonVideoResolver: LessonVideoResolverService,
+        private readonly s3NameResolverService: S3NameResolverService,
+        private readonly materializeAndUploadService: MaterializeAndUploadService,
     ) {}
 
     /**
@@ -83,5 +91,27 @@ export class CdnLessonVideosBuildService {
             )
         }
         return lessonVideo.toPlain<LessonVideoEntity>()
+    }
+
+    /**
+     * Materialize and upload the lesson videos to the CDN.
+     * @param lessonVideoId - The lesson video id to materialize and upload.
+     */
+    async materializeAndUpload(
+        lessonVideoId: string,
+    ): Promise<void> {
+        const lessonVideos = await this.buildMultilingualByLessonVideoId(
+            lessonVideoId,
+        )
+        await this.materializeAndUploadService.process(
+            lessonVideos,
+            (
+                id,
+                locale,
+            ) => this.s3NameResolverService.lessonVideo(
+                id,
+                locale,
+            ),
+        )
     }
 }

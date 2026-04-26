@@ -47,6 +47,8 @@ export class EmailBloomFilterService implements OnModuleInit {
                 10_000, //10,000 users
                 0.001  //0.1% false positive rate
             )
+            //iterate over all users and add them to the bloom filter
+            
             await this.redis.set(bloomFilterKey, bloomFilter.toJSON())
         }
     }

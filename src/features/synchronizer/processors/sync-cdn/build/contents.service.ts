@@ -17,6 +17,12 @@ import type {
 import type {
     LocalizedCdnEntity,
 } from "./types"
+import {
+    S3NameResolverService,
+} from "@modules/s3"
+import {
+    MaterializeAndUploadService,
+} from "./materialize-and-upload.service"
 
 /**
  * Loads content (with references) from PostgreSQL and materializes **per-locale** plain objects
@@ -28,6 +34,8 @@ export class CdnContentsBuildService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly contentResolver: ContentResolverService,
+        private readonly s3NameResolverService: S3NameResolverService,
+        private readonly materializeAndUploadService: MaterializeAndUploadService,
     ) {}
 
     /**
@@ -106,5 +114,27 @@ export class CdnContentsBuildService {
             ) => reference.toPlain<ContentReferenceEntity>()
         )
         return hydratedContent
+    }
+
+    /**
+     * Materialize and upload the contents to the CDN.
+     * @param contentId - The content id to materialize and upload.
+     */
+    async materializeAndUpload(
+        contentId: string,
+    ): Promise<void> {
+        const contents = await this.buildMultilingualByContentId(
+            contentId,  
+        )
+        await this.materializeAndUploadService.process(
+            contents,
+            (
+                id,
+                locale,
+            ) => this.s3NameResolverService.content(
+                id,
+                locale,
+            ),
+        )
     }
 }

@@ -29,6 +29,12 @@ import type {
 import {
     AsyncService 
 } from "@modules/mixin"
+import {
+    S3NameResolverService,
+} from "@modules/s3"
+import {
+    MaterializeAndUploadService,
+} from "./materialize-and-upload.service"
 
 /**
  * Loads the full course graph from PostgreSQL and materializes **per-locale** plain objects
@@ -41,6 +47,8 @@ export class CdnCoursesBuildService {
         private readonly entityManager: EntityManager,
         private readonly courseResolver: CourseResolverService,
         private readonly asyncService: AsyncService,
+        private readonly s3NameResolverService: S3NameResolverService,
+        private readonly materializeAndUploadService: MaterializeAndUploadService,
     ) {}
 
     /**
@@ -288,5 +296,27 @@ export class CdnCoursesBuildService {
         hydratedCourse.livestreamSessions = hydratedLivestreamSessions
         hydratedCourse.modules = hydratedModules
         return hydratedCourse
+    }
+
+    /**
+     * Materialize and upload the courses to the CDN.
+     * @param courseId - The course id to materialize and upload.
+     */
+    async materializeAndUpload(
+        courseId: string,
+    ): Promise<void> {
+        const courses = await this.buildMultilingualByCourseId(
+            courseId,
+        )
+        await this.materializeAndUploadService.process(
+            courses,
+            (
+                id,
+                locale,
+            ) => this.s3NameResolverService.course(
+                id,
+                locale,
+            ),
+        )
     }
 }

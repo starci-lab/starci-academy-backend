@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     ConfigurableModuleClass,
-} from "./cdn-synchronizer.module-definition"
+} from "./bloom-filters-synchronizer.module-definition"
 import {
     SyncModule,
 } from "./sync"

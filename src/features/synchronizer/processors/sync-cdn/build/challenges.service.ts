@@ -18,6 +18,12 @@ import type {
 import type {
     LocalizedCdnEntity,
 } from "./types"
+import {
+    S3NameResolverService,
+} from "@modules/s3"
+import {
+    MaterializeAndUploadService,
+} from "./materialize-and-upload.service"
 
 /**
  * Loads a challenge (steps + references) from PostgreSQL and materializes **per-locale** plain objects
@@ -29,6 +35,8 @@ export class CdnChallengesBuildService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly challengeResolver: ChallengeResolverService,
+        private readonly s3NameResolverService: S3NameResolverService,
+        private readonly materializeAndUploadService: MaterializeAndUploadService,
     ) {}
 
     /**
@@ -128,5 +136,27 @@ export class CdnChallengesBuildService {
             ) => reference.toPlain<ChallengeReferenceEntity>()
         )
         return hydratedChallenge
+    }
+
+    /**
+     * Materialize and upload the challenges to the CDN.
+     * @param challengeId - The challenge id to materialize and upload.
+     */
+    async materializeAndUpload(
+        challengeId: string,
+    ): Promise<void> {
+        const challenges = await this.buildMultilingualByChallengeId(
+            challengeId,
+        )
+        await this.materializeAndUploadService.process(
+            challenges,
+            (
+                id,
+                locale,
+            ) => this.s3NameResolverService.challenge(
+                id,
+                locale,
+            ),
+        )
     }
 }

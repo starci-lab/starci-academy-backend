@@ -17,7 +17,6 @@ import {
     CourseEntity,
     InjectPrimaryPostgreSQLEntityManager,
     LessonVideoEntity,
-    Locale,
     ModuleEntity,
 } from "@modules/databases"
 import {
@@ -33,9 +32,6 @@ import {
     WinstonService,
 } from "@modules/winston"
 import type {
-    LocalizedCdnEntity,
-} from "../build/types"
-import type {
     CdnCoursesBuildService,
     CdnChallengesBuildService,
     CdnContentsBuildService,
@@ -44,7 +40,6 @@ import type {
 } from "../build"
 import { 
     S3NameResolverService,
-    S3Provider,
     S3ReadService,
     S3UploadService 
 } from "@modules/s3"
@@ -158,17 +153,8 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     break
                 }
                 resumeAfterEntityId = course.id
-                await this.materializeAndUploadDualKeyCdnSnapshots(
-                    await this.cdnCoursesBuildService.buildMultilingualByCourseId(
-                        course.id,
-                    ),
-                    (
-                        id,
-                        locale,
-                    ) => this.s3NameResolverService.course(
-                        id,
-                        locale,
-                    ),
+                await this.cdnCoursesBuildService.materializeAndUpload(
+                    course.id,
                 )
                 break
             }
@@ -193,17 +179,8 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     break
                 }
                 resumeAfterEntityId = challenge.id
-                await this.materializeAndUploadDualKeyCdnSnapshots(
-                    await this.cdnChallengesBuildService.buildMultilingualByChallengeId(
-                        challenge.id,
-                    ),
-                    (
-                        id,
-                        locale,
-                    ) => this.s3NameResolverService.challenge(
-                        id,
-                        locale,
-                    ),
+                await this.cdnChallengesBuildService.materializeAndUpload(
+                    challenge.id,
                 )
                 break
             }
@@ -228,17 +205,8 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     break
                 }
                 resumeAfterEntityId = content.id
-                await this.materializeAndUploadDualKeyCdnSnapshots(
-                    await this.cdnContentsBuildService.buildMultilingualByContentId(
-                        content.id,
-                    ),
-                    (
-                        id,
-                        locale,
-                    ) => this.s3NameResolverService.content(
-                        id,
-                        locale,
-                    ),
+                await this.cdnContentsBuildService.materializeAndUpload(
+                    content.id,
                 )
                 break
             }
@@ -263,17 +231,8 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     break
                 }
                 resumeAfterEntityId = lessonVideo.id
-                await this.materializeAndUploadDualKeyCdnSnapshots(
-                    await this.cdnLessonVideosBuildService.buildMultilingualByLessonVideoId(
-                        lessonVideo.id,
-                    ),
-                    (
-                        id,
-                        locale,
-                    ) => this.s3NameResolverService.lessonVideo(
-                        id,
-                        locale,
-                    ),
+                await this.cdnLessonVideosBuildService.materializeAndUpload(
+                    lessonVideo.id,
                 )
                 break
             }
@@ -298,17 +257,8 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     break
                 }
                 resumeAfterEntityId = module.id
-                await this.materializeAndUploadDualKeyCdnSnapshots(
-                    await this.cdnModulesBuildService.buildMultilingualByModuleId(
-                        module.id,
-                    ),
-                    (
-                        id,
-                        locale,
-                    ) => this.s3NameResolverService.module(
-                        id,
-                        locale,
-                    ),
+                await this.cdnModulesBuildService.materializeAndUpload(
+                    module.id,
                 )
                 break
             }
@@ -330,71 +280,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
     /**
      * Build per-locale entity JSON, skip when the Minio snapshot hash is unchanged, upload by id and display id.
      */
-    private async materializeAndUploadDualKeyCdnSnapshots<
-        T extends {
-            displayId: string
-            id: string
-        },
-    >(
-        localizedRows: Array<LocalizedCdnEntity<T>>,
-        resolveObjectKey: (
-            id: string,
-            locale: Locale,
-        ) => string,
-    ): Promise<void> {
-        const providers: Array<S3Provider> = [
-            S3Provider.DigitalOcean,
-            S3Provider.Minio,
-        ]
-        for (const localized of localizedRows) {
-            const {
-                entity,
-                locale,
-            } = localized
-            const data = this.superJson.stringify(
-                entity,
-            )
-            const hash = this.sha256Service.hash(
-                data,
-            )
-            const keyByEntityId = resolveObjectKey(
-                entity.id,
-                locale,
-            )
-            const currentSnapshot = await this.s3ReadService.json(
-                {
-                    key: keyByEntityId,
-                    provider: S3Provider.Minio,
-                },
-            )
-            if (currentSnapshot?.hash === hash) {
-                continue
-            }
-            const snapshotPayload = {
-                data,
-                hash,
-            }
-            await this.s3UploadService.json(
-                {
-                    acl: "private",
-                    providers,
-                    name: keyByEntityId,
-                    payload: snapshotPayload,
-                },
-            )
-            await this.s3UploadService.json(
-                {
-                    acl: "private",
-                    providers,
-                    name: resolveObjectKey(
-                        entity.displayId,
-                        locale,
-                    ),
-                    payload: snapshotPayload,
-                },
-            )
-        }
-    }
+    
 
     /** Finalize the step. */
     private async finalize(

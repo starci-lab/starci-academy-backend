@@ -216,14 +216,6 @@ export const envConfig = () => ({
                     }),
                 },
             },
-            cdn: {
-                process: {
-                    batchSize: parseEnvInt({
-                        key: "SYNCHRONIZER_PROCESS_CDN_BATCH_SIZE",
-                        defaultValue: 1000,
-                    }),
-                },
-            },
         },
         /** Brevo SMTP relay configuration. */
         brevo: {
