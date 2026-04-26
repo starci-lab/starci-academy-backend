@@ -25,7 +25,7 @@ export class SyncElasticsearchStepMappingService {
     getStepMap(): Map<
         number,
         AbstractStepService<SyncElasticsearchPayload, EmptyObject>
-    > {
+        > {
         const steps: Array<
             [number, AbstractStepService<SyncElasticsearchPayload, EmptyObject>]
         > = [
