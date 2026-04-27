@@ -52,14 +52,16 @@ export class KeycloakTokenService {
     async exchangeCodeForToken(
         { 
             code,
-            provider,
+            redirectUri,
+            codeVerifier,
         }: KeycloakExchangeCodeForTokenParams) {
         console.log({
             grant_type: "authorization_code",
             client_id: envConfig().keycloak.clientId,
             client_secret: this.mountStorageService.keycloakClientSecret,
             code,
-            redirect_uri: "http://localhost:3000/vi",
+            redirect_uri: redirectUri,
+            code_verifier: codeVerifier,
         })
         const response = await axios.post<KeycloakExchangeCodeForTokenResponse>(
             `${envConfig().keycloak.url}/realms/${envConfig().keycloak.realm}/protocol/openid-connect/token`,
@@ -68,7 +70,8 @@ export class KeycloakTokenService {
                 client_id: envConfig().keycloak.clientId,
                 client_secret: this.mountStorageService.keycloakClientSecret,
                 code,
-                redirect_uri: "http://localhost:3000/vi",
+                redirect_uri: redirectUri,
+                code_verifier: codeVerifier,
             }),
             {
                 headers: {

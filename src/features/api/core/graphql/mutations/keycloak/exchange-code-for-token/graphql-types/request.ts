@@ -32,11 +32,20 @@ export class ExchangeCodeForTokenRequest {
     @Field(
         () => String,
         {
-            nullable: true,
             description: "Redirect URI used when the authorization code was issued (must match exactly).",
         },
     )
     @IsString()
-        redirectUri?: string
+        redirectUri: string
+
+    @Field(
+        () => String,
+        {
+            description: "Code verifier used for the code exchange.",
+        },
+    )
+    @IsString()
+    @MinLength(1)
+        codeVerifier: string
 }
 

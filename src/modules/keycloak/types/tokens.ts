@@ -40,7 +40,12 @@ export interface KeycloakExchangeCodeForTokenParams {
      * Override redirect URI (must match the one used to obtain the code).
      * When omitted, it is resolved from envConfig() by provider.
      */
-    redirectUri?: string
+    redirectUri: string
+
+    /**
+     * Code verifier used for the code exchange.
+     */
+    codeVerifier: string
 }
 
 /** Supported identity providers for Keycloak broker callback flows. */

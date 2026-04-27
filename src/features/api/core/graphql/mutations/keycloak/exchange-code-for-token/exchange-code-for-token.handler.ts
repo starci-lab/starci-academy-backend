@@ -37,10 +37,14 @@ export class ExchangeCodeForTokenHandler
             const {
                 code,
                 provider,
+                redirectUri,
+                codeVerifier,
             } = command.params.request
             const token = await this.keycloakTokenService.exchangeCodeForToken({
                 code,
                 provider,
+                redirectUri,
+                codeVerifier,
             })
             return {
                 accessToken: token.access_token,

@@ -54,6 +54,8 @@ export class KeycloakGoogleCallbackHandler
         const response = await this.keycloakTokenService.exchangeCodeForToken({
             code,
             provider: KeycloakIdentityProvider.Google,
+            redirectUri: "http://localhost:3000/vi",
+            codeVerifier: "",
         })
         const decoded = this.jwtService.decode<KeycloakJwtPayload>(response.access_token)
 
