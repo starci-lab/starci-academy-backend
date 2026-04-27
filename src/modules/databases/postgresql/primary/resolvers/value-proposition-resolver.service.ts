@@ -34,5 +34,6 @@ export class ValuePropositionResolverService {
                 fallbackLocale,
             },
         )
+        delete (valueProposition as Partial<ValuePropositionEntity>).translations
     }
 }

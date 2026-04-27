@@ -33,5 +33,6 @@ export class PreviewContentResolverService {
                 fallbackLocale,
             },
         )
+        delete (previewContent as Partial<PreviewContentEntity>).translations
     }
 }

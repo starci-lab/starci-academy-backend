@@ -3,6 +3,8 @@ import {
 } from "@nestjs/common"
 import {
     ChallengeEntity,
+    ChallengeReferenceEntity,
+    ChallengeStepEntity,
 } from "../entities"
 import {
     Locale,
@@ -58,6 +60,7 @@ export class ChallengeResolverService {
                 fallbackLocale: challengeFallback,
             },
         )
+        delete (challenge as Partial<ChallengeEntity>).translations
         if (challenge.steps?.length) {
             challenge.steps = challenge.steps.map((step) => {
                 const stepFallback = step.defaultLocale ?? challengeFallback
@@ -77,6 +80,7 @@ export class ChallengeResolverService {
                         fallbackLocale: stepFallback,
                     },
                 )
+                delete (step as Partial<ChallengeStepEntity>).translations
                 return step
             })
         }
@@ -94,6 +98,8 @@ export class ChallengeResolverService {
                 reference.alias = translatedAlias !== ""
                     ? translatedAlias
                     : reference.alias
+                // prevent leaking raw translations arrays to API callers
+                delete (reference as Partial<ChallengeReferenceEntity>).translations
                 return reference
             })
         }

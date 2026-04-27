@@ -125,7 +125,7 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                             updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
                         order: {
-                            updatedAt: "ASC",
+                            id: "ASC",
                         },
                     },
                 )
@@ -133,10 +133,11 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                     done = true
                     break
                 }
-                resumeAfterEntityId = course.id
+
                 await this.elasticsearchCourseBuildService.buildIndexById(
                     course.id,
                 )
+                resumeAfterEntityId = course.id   
                 break
             }
             case ChallengeEntity.name: {
@@ -144,13 +145,16 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                     ChallengeEntity,
                     {
                         where: {
-                            ...(executionResult?.resumeAfterEntityId ? {
-                                id: MoreThan(executionResult.resumeAfterEntityId) 
-                            } : {
-                            }),
+                            ...(
+                                executionResult?.resumeAfterEntityId ? {
+                                    id: MoreThan(executionResult.resumeAfterEntityId) 
+                                } : {
+                                }
+                            ),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
                         order: {
-                            updatedAt: "ASC",
+                            id: "ASC",
                         },
                     },
                 )
@@ -158,10 +162,10 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                     done = true
                     break
                 }
-                resumeAfterEntityId = challenge.id
                 await this.elasticsearchChallengeBuildService.buildIndexById(
                     challenge.id,
                 )
+                resumeAfterEntityId = challenge.id
                 break
             }
             case ContentEntity.name: {
@@ -176,7 +180,7 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                             updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
                         order: {
-                            updatedAt: "ASC",
+                            id: "ASC",
                         },
                     },
                 )
@@ -184,10 +188,10 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                     done = true
                     break
                 }
-                resumeAfterEntityId = content.id
                 await this.elasticsearchContentBuildService.buildIndexById(
                     content.id,
                 )
+                resumeAfterEntityId = content.id
                 break
             }
             case LessonVideoEntity.name: {
@@ -201,16 +205,19 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                             }),
                             updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
+                        order: {
+                            id: "ASC",
+                        },
                     },
                 )
                 if (!lessonVideo) {
                     done = true
                     break
                 }
-                resumeAfterEntityId = lessonVideo.id
                 await this.elasticsearchLessonVideoBuildService.buildIndexById(
                     lessonVideo.id,
                 )
+                resumeAfterEntityId = lessonVideo.id
                 break
             }
             case ModuleEntity.name: {
@@ -225,34 +232,34 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                             updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
                         order: {
-                            updatedAt: "ASC",
+                            id: "ASC",
                         },
                     },
                 )
                 if (!module) {
+                    done = true
                     break
                 }
-                resumeAfterEntityId = module.id
                 await this.elasticsearchModuleBuildService.buildIndexById(
                     module.id,
                 )
+                resumeAfterEntityId = module.id
                 break
             }
             }
+            await this.jobActionService.saveExecutionResult(
+                {
+                    job: context.job,
+                    key: this.stepContextKey,
+                    executionResult: {
+                        resumeAfterEntityId,
+                    },
+                }
+            )
         }
-        await this.jobActionService.saveExecutionResult(
-            {
-                job: context.job,
-                key: this.stepContextKey,
-                executionResult: {
-                    resumeAfterEntityId,
-                },
-            }
-        )
         return {
         }
     }
-
     /** Finalize the step. */
     private async finalize(
         executionResult: EmptyObject,

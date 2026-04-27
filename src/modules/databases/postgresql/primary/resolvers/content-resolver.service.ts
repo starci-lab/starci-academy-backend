@@ -3,6 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     ContentEntity,
+    ContentReferenceEntity,
 } from "../entities"
 import {
     Locale,
@@ -57,6 +58,7 @@ export class ContentResolverService {
                 fallbackLocale,
             },
         )
+        delete (content as Partial<ContentEntity>).translations
         const contentFallback = content.defaultLocale ?? fallbackLocale
         if (content.references?.length) {
             content.references = content.references.map((reference) => {
@@ -72,6 +74,7 @@ export class ContentResolverService {
                 reference.alias = translatedAlias !== ""
                     ? translatedAlias
                     : reference.alias
+                delete (reference as Partial<ContentReferenceEntity>).translations
                 return reference
             })
         }

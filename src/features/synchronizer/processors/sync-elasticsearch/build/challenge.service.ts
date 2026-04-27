@@ -145,17 +145,14 @@ export class ElasticsearchChallengeBuildService {
         id: string,
     ): Promise<void> {
         const multilingualEntities = await this.buildMultilingualByChallengeId(id)
-        const entities = multilingualEntities.map(
-            (
-                multilingualEntity,
-            ) => ({
-                ...multilingualEntity.entity,
-                elasticsearchLocale: multilingualEntity.locale,
-            })
-        )
-        await this.elasticsearchService.indexEntities(
-            ChallengeEntity,
-            entities
-        )
+        for (const multilingualEntity of multilingualEntities) {
+            await this.elasticsearchService.indexEntity(
+                {
+                    entity: ChallengeEntity,
+                    data: multilingualEntity.entity,
+                    locale: multilingualEntity.locale,
+                },
+            )
+        }
     }
 }

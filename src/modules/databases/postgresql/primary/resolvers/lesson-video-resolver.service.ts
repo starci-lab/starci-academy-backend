@@ -50,5 +50,6 @@ export class LessonVideoResolverService {
             },
         )
         lessonVideo.caption = caption?.trim()
+        delete (lessonVideo as Partial<LessonVideoEntity>).translations
     }
 }

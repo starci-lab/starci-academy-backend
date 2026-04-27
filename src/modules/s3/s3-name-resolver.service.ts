@@ -20,7 +20,7 @@ export class S3NameResolverService {
      */
     challenge(id: string, locale?: Locale): string {
         if (locale) {
-            return `challenges/${id}-${locale}.json`
+            return `challenges/${id}/${locale}.json`
         }
         return `challenges/${id}.json`
     }
@@ -34,7 +34,7 @@ export class S3NameResolverService {
     course(id: string, locale?: Locale): string {
         //
         if (locale) {
-            return `courses/${id}-${locale}.json`
+            return `courses/${id}/${locale}.json`
         }
         return `courses/${id}.json`
     }
@@ -47,7 +47,7 @@ export class S3NameResolverService {
      */
     lessonVideo(id: string, locale?: Locale): string {
         if (locale) {
-            return `lesson-videos/${id}-${locale}.json`
+            return `lesson-videos/${id}/${locale}.json`
         }
         return `lesson-videos/${id}.json`
     }
@@ -60,7 +60,7 @@ export class S3NameResolverService {
      */
     module(id: string, locale?: Locale): string {
         if (locale) {
-            return `modules/${id}-${locale}.json`
+            return `modules/${id}/${locale}.json`
         }
         return `modules/${id}.json`
     }
@@ -73,7 +73,7 @@ export class S3NameResolverService {
      */
     content(id: string, locale?: Locale): string {
         if (locale) {
-            return `contents/${id}-${locale}.json`
+            return `contents/${id}/${locale}.json`
         }
         return `contents/${id}.json`
     }

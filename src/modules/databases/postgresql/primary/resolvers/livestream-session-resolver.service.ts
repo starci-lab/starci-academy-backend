@@ -34,5 +34,6 @@ export class LivestreamSessionResolverService {
             },
         )
         session.note = note?.trim() || session.note
+        delete (session as Partial<LivestreamSessionEntity>).translations
     }
 }

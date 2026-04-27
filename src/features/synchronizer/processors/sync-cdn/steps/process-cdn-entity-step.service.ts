@@ -125,7 +125,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                             updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
                         order: {
-                            updatedAt: "ASC",
+                            id: "ASC",
                         },
                     },
                 )
@@ -133,10 +133,10 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     done = true
                     break
                 }
-                resumeAfterEntityId = course.id
                 await this.cdnCourseBuildService.materializeAndUpload(
                     course.id,
                 )
+                resumeAfterEntityId = course.id
                 break
             }
             case ChallengeEntity.name: {
@@ -151,7 +151,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                             updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
                         order: {
-                            updatedAt: "ASC",
+                            id: "ASC",
                         },
                     },
                 )
@@ -159,10 +159,10 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     done = true
                     break
                 }
-                resumeAfterEntityId = challenge.id
                 await this.cdnChallengeBuildService.materializeAndUpload(
                     challenge.id,
                 )
+                resumeAfterEntityId = challenge.id
                 break
             }
             case ContentEntity.name: {
@@ -177,7 +177,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                             updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
                         order: {
-                            updatedAt: "ASC",
+                            id: "ASC",
                         },
                     },
                 )
@@ -185,10 +185,10 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     done = true
                     break
                 }
-                resumeAfterEntityId = content.id
                 await this.cdnContentBuildService.materializeAndUpload(
                     content.id,
                 )
+                resumeAfterEntityId = content.id
                 break
             }
             case LessonVideoEntity.name: {
@@ -203,7 +203,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                             updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
                         order: {
-                            updatedAt: "ASC",
+                            id: "ASC",
                         },
                     },
                 )
@@ -211,10 +211,10 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     done = true
                     break
                 }
-                resumeAfterEntityId = lessonVideo.id
                 await this.cdnLessonVideoBuildService.materializeAndUpload(
                     lessonVideo.id,
                 )
+                resumeAfterEntityId = lessonVideo.id
                 break
             }
             case ModuleEntity.name: {
@@ -229,7 +229,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                             updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
                         order: {
-                            updatedAt: "ASC",
+                            id: "ASC",
                         },
                     },
                 )
@@ -237,10 +237,10 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     done = true
                     break
                 }
-                resumeAfterEntityId = module.id
                 await this.cdnModuleBuildService.materializeAndUpload(
                     module.id,
                 )
+                resumeAfterEntityId = module.id
                 break
             }
             }

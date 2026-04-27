@@ -292,10 +292,5 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         },
     )
         translations: Array<LessonVideoTranslationEntity>
-
-    /**
-     * Locale for Elasticsearch indexing.
-     */
-    elasticsearchLocale: Locale
 }
 

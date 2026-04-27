@@ -91,7 +91,7 @@ export const configMap = {
     },
     [WinstonLog.ProcessStepExecuted]: {
         name: WinstonLog.ProcessStepExecuted,
-        level: WinstonLevel.Verbose,
+        level: WinstonLevel.Debug,
         loki: true,
         console: true,
         messageType: {
@@ -99,7 +99,7 @@ export const configMap = {
     },
     [WinstonLog.ProcessCVSubmissionStepExecuted]: {
         name: WinstonLog.ProcessCVSubmissionStepExecuted,
-        level: WinstonLevel.Verbose,
+        level: WinstonLevel.Debug,
         loki: true,
         console: true,
         messageType: {
@@ -107,7 +107,7 @@ export const configMap = {
     },
     [WinstonLog.JobExecutedSuccessfully]: {
         name: WinstonLog.JobExecutedSuccessfully,
-        level: WinstonLevel.Verbose,
+        level: WinstonLevel.Debug,
         loki: true,
         console: true,
         messageType: {

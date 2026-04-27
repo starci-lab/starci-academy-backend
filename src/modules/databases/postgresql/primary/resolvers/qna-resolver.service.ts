@@ -10,7 +10,6 @@ import {
 import {
     TranslationResolverService,
 } from "./translation.service"
-
 /**
  * Applies translations to a course Q&A row.
  */
@@ -42,5 +41,7 @@ export class QnaResolverService {
                 fallbackLocale,
             },
         )
+        // prevent leaking raw translations arrays to API callers
+        delete (qna as Partial<QnaEntity>).translations
     }
 }

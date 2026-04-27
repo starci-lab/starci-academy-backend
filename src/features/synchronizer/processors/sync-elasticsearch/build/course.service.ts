@@ -302,17 +302,14 @@ export class ElasticsearchCourseBuildService {
         id: string,
     ): Promise<void> {
         const multilingualEntities = await this.buildMultilingualByCourseId(id)
-        const entities = multilingualEntities.map(
-            (
-                multilingualEntity,
-            ) => ({
-                ...multilingualEntity.entity,
-                elasticsearchLocale: multilingualEntity.locale,
-            })
-        )
-        await this.elasticsearchService.indexEntities(
-            CourseEntity,
-            entities
-        )
+        for (const multilingualEntity of multilingualEntities) {
+            await this.elasticsearchService.indexEntity(
+                {
+                    entity: CourseEntity,
+                    data: multilingualEntity.entity,
+                    locale: multilingualEntity.locale,
+                },
+            )
+        }
     }
 }

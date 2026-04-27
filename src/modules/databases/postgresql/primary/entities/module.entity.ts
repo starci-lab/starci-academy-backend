@@ -204,9 +204,4 @@ export class ModuleEntity extends UuidAbstractEntity {
         default: 0,
     })
         numContents: number
-
-    /**
-     * Locale for Elasticsearch indexing.
-     */
-    elasticsearchLocale: Locale
 }

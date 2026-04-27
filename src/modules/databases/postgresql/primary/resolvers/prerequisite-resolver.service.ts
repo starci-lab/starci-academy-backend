@@ -34,5 +34,6 @@ export class PrerequisiteResolverService {
                 fallbackLocale,
             },
         )
+        delete (prerequisite as Partial<PrerequisiteEntity>).translations
     }
 }

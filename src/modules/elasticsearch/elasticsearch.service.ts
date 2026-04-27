@@ -12,7 +12,8 @@ import {
     ChallengeEntity, 
     ContentEntity, 
     CourseEntity, 
-    LessonVideoEntity
+    LessonVideoEntity,
+    ModuleEntity,
 } from "@modules/databases"
 import {
     ObjectLiteral 
@@ -24,8 +25,14 @@ import {
 import {
     configMap 
 } from "./config"
-import {
-    SearchParam 
+import type {
+    IndicateNameParams,
+    IndexEntityParams,
+    IndexEntityResult,
+    IndexEntitiesParams,
+    IndexEntitiesResult,
+    SearchParams,
+    SearchResult,
 } from "./types"
 
 /**
@@ -41,6 +48,7 @@ export class ElasticsearchService implements OnModuleInit {
         LessonVideoEntity.name,
         ChallengeEntity.name,
         ContentEntity.name,
+        ModuleEntity.name,
     ]
     constructor(
     @InjectElasticsearch()
@@ -54,8 +62,21 @@ export class ElasticsearchService implements OnModuleInit {
      * @param entity - Entity to indicate the index name.
      * @returns Index name.
      */
-    private indicateName(entity: string) {
-        return configMap[entity].indices
+    private indicateName(
+        {
+            entity,
+            locale,
+        }: IndicateNameParams,
+    ): string {
+        const config = configMap[entity]
+        if (!config) {
+            throw new Error(
+                `Elasticsearch index config is missing for entity: ${entity}`,
+            )
+        }
+
+        // avoid generating `-undefined` suffix when locale is omitted
+        return locale ? `${config.indices}-${locale}` : config.indices
     }
 
     /**
@@ -68,7 +89,13 @@ export class ElasticsearchService implements OnModuleInit {
         // ensure the indices exist
         await this.asyncService.allIgnoreError(
             this.indices.map(index => {
-                return this.ensureIndexExists(this.indicateName(index))
+                return this.ensureIndexExists(
+                    this.indicateName(
+                        {
+                            entity: index,
+                        },
+                    ),
+                )
             }),
         )
     }
@@ -104,10 +131,21 @@ export class ElasticsearchService implements OnModuleInit {
     /**
    * Index the entity.
    */
-    async indexEntity<T extends ObjectLiteral>(entity: T, data: ObjectLiteral, docId?: string) {
+    async indexEntity<T extends ObjectLiteral>(
+        {
+            entity,
+            data,
+            locale,
+        }: IndexEntityParams<T>,
+    ): Promise<IndexEntityResult> {
         await this.client.index({
-            index: this.indicateName(entity.name),
-            id: docId ?? data.id,
+            index: this.indicateName(
+                {
+                    entity: entity.name,
+                    locale,
+                },
+            ),
+            id: data.id,
             body: data,
         })
     }
@@ -116,13 +154,21 @@ export class ElasticsearchService implements OnModuleInit {
    * Index the entities.
    */
     async indexEntities<T extends ObjectLiteral>(
-        entity: T,
-        data: Array<ObjectLiteral>,
-    ) {
+        {
+            entity,
+            data,
+            locale,
+        }: IndexEntitiesParams<T>,
+    ): Promise<IndexEntitiesResult> {
         await this.client.bulk({
             body: data.map((data) => ({
                 index: {
-                    _index: this.indicateName(entity.name),
+                    _index: this.indicateName(
+                        {
+                            entity: entity.name,
+                            locale,
+                        },
+                    ),
                     _id: data.id,
                 },
                 document: data,
@@ -131,11 +177,19 @@ export class ElasticsearchService implements OnModuleInit {
     }
 
     async search<T>(
-        entityName: string, 
-        params: SearchParam
-    ) {
+        {
+            entityName,
+            params,
+            locale,
+        }: SearchParams,
+    ): Promise<SearchResult<T>> {
         const response = await this.client.search({
-            index: this.indicateName(entityName),
+            index: this.indicateName(
+                {
+                    entity: entityName,
+                    locale,
+                },
+            ),
             from: params.from,
             size: params.size,
             query: params.query || {

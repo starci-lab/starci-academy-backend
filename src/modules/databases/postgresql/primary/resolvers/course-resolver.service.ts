@@ -3,6 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     CourseEntity,
+    ModuleEntity,
 } from "../entities"
 import {
     Locale,
@@ -65,6 +66,7 @@ export class CourseResolverService {
                 fallbackLocale: courseFallback,
             }
         )
+        delete (course as Partial<CourseEntity>).translations
         if (course.prerequisites && course.prerequisites.length > 0) {
             course.prerequisites = course.prerequisites.map((prerequisite) => {
                 this.prerequisiteResolver.transform(
@@ -129,6 +131,7 @@ export class CourseResolverService {
                         fallbackLocale: courseFallback,
                     }
                 )
+                delete (module as Partial<ModuleEntity>).translations
                 if (module.contents && module.contents.length > 0) {
                     module.contents = module.contents.map((content) => {
                         this.contentResolver.transform(

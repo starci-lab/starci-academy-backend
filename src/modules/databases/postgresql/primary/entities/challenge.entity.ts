@@ -313,10 +313,4 @@ export class ChallengeEntity extends UuidAbstractEntity {
         (ch: ChallengeEntity) => ch.content,
     )
         contentId: string
-
-    
-    /**
-     * Locale for Elasticsearch indexing.
-     */
-    elasticsearchLocale: Locale
 }
