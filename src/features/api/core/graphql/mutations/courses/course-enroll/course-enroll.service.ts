@@ -1,0 +1,31 @@
+import {
+    Injectable,
+} from "@nestjs/common"
+import {
+    CommandBus,
+} from "@nestjs/cqrs"
+import {
+    ExecuteParams,
+} from "@features/api/core/types"
+import {
+    CourseEnrollCommand,
+} from "./course-enroll.command"
+import type {
+    CourseEnrollRequest,
+    CourseEnrollResponseData,
+} from "./graphql-types"
+
+@Injectable()
+export class CourseEnrollService {
+    constructor(
+        private readonly commandBus: CommandBus,
+    ) {}
+
+    async execute(
+        params: ExecuteParams<CourseEnrollRequest>,
+    ): Promise<CourseEnrollResponseData> {
+        return this.commandBus.execute(
+            new CourseEnrollCommand(params),
+        )
+    }
+}

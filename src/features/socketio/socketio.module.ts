@@ -5,23 +5,14 @@ import {
     ConfigurableModuleClass,
 } from "./socketio.module-definition"
 import {
-    AutocompleteModule 
-} from "./autocomplete"
-import {
-    JobNotificationsModule,
-} from "./job-notifications"
-
+    CoreModule,
+} from "./core"
 /**
- * Feature module bundling all real-time Socket.IO gateways of the app.
- *
- * - `/autocomplete`  namespace: Elasticsearch-powered autocomplete.
+ * Module for the Socket.IO.
  */
 @Module({
     imports: [
-        AutocompleteModule.register({
-            isGlobal: true,
-        }),
-        JobNotificationsModule.register({
+        CoreModule.register({
             isGlobal: true,
         }),
     ],
