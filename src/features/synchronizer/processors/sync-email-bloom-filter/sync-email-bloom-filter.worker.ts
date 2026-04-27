@@ -33,12 +33,8 @@ import {
     JobExtendedContext,
 } from "@modules/bussiness"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     JobEntity,
 } from "@modules/databases"
-import {
-    EntityManager,
-} from "typeorm"
 import SuperJSON from "superjson"
 import {
     EmptyObject 
@@ -64,8 +60,6 @@ export class SyncEmailBloomFilterWorker extends WorkerHost {
         private readonly stepMappingService: SyncEmailBloomFilterStepMappingService,
         private readonly winstonService: WinstonService,
         private readonly dayjsService: DayjsService,
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
     ) {
         super()
     }
@@ -87,6 +81,7 @@ export class SyncEmailBloomFilterWorker extends WorkerHost {
             )
             await this.jobActionService.processingJob({
                 job,
+                emitChangeEvent: false,
             })
             payload = this.superJson.parse<SyncEmailBloomFilterPayload>(bullmqJob.data)
             const stepMap = this.stepMappingService.getStepMap()
@@ -121,6 +116,7 @@ export class SyncEmailBloomFilterWorker extends WorkerHost {
             // complete the job
             await this.jobActionService.completeJob({
                 job,
+                emitChangeEvent: false,
             })
             this.winstonService.log(
                 WinstonLog.JobExecutedSuccessfully,
@@ -138,7 +134,7 @@ export class SyncEmailBloomFilterWorker extends WorkerHost {
                     jobId: job?.id ?? "",
                     queueName: bullmqJob.queueName,
                     payload,
-                    error: error instanceof Error ? error.message : String(error),
+                    error: error.message,
                     durationMs: this.dayjsService.now().diff(this.dayjsService.from(startedAt)),
                 },
             )

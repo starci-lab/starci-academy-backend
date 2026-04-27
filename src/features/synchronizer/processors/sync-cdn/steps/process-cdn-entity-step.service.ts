@@ -84,9 +84,8 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
             await this.jobActionService.failJob(
                 {
                     job: context.job,
-                    error: error instanceof Error
-                        ? error.message
-                        : String(error),
+                    error: error.message,
+                    emitChangeEvent: false,
                 },
             )
             throw error
@@ -119,7 +118,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     CourseEntity,
                     {
                         where: {
-                            ...(executionResult.resumeAfterEntityId ? {
+                            ...(executionResult?.resumeAfterEntityId ? {
                                 id: MoreThan(executionResult.resumeAfterEntityId) 
                             } : {
                             }),
@@ -145,7 +144,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     ChallengeEntity,
                     {
                         where: {
-                            ...(executionResult.resumeAfterEntityId ? {
+                            ...(executionResult?.resumeAfterEntityId ? {
                                 id: MoreThan(executionResult.resumeAfterEntityId) 
                             } : {
                             }),
@@ -171,7 +170,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     ContentEntity,
                     {
                         where: {
-                            ...(executionResult.resumeAfterEntityId ? {
+                            ...(executionResult?.resumeAfterEntityId ? {
                                 id: MoreThan(executionResult.resumeAfterEntityId) 
                             } : {
                             }),
@@ -197,7 +196,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     LessonVideoEntity,
                     {
                         where: {
-                            ...(executionResult.resumeAfterEntityId ? {
+                            ...(executionResult?.resumeAfterEntityId ? {
                                 id: MoreThan(executionResult.resumeAfterEntityId) 
                             } : {
                             }),
@@ -223,7 +222,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     ModuleEntity,
                     {
                         where: {
-                            ...(executionResult.resumeAfterEntityId ? {
+                            ...(executionResult?.resumeAfterEntityId ? {
                                 id: MoreThan(executionResult.resumeAfterEntityId) 
                             } : {
                             }),

@@ -79,7 +79,8 @@ export class SyncElasticsearchWorker extends WorkerHost {
             )
             await this.jobActionService.processingJob(
                 {
-                    job
+                    job,
+                    emitChangeEvent: false,
                 }
             )
             payload = this.superJson.parse<SyncElasticsearchPayload>(bullmqJob.data)
@@ -107,7 +108,8 @@ export class SyncElasticsearchWorker extends WorkerHost {
             }
             await this.jobActionService.completeJob(
                 {
-                    job
+                    job,
+                    emitChangeEvent: false,
                 }
             )
             this.winstonService.log(
@@ -130,9 +132,7 @@ export class SyncElasticsearchWorker extends WorkerHost {
                     jobId: job?.id ?? "",
                     queueName: bullmqJob.queueName,
                     payload,
-                    error: error instanceof Error
-                        ? error.message
-                        : String(error),
+                    error: error.message,
                     durationMs: this.dayjsService.now().diff(
                         this.dayjsService.from(
                             startedAt

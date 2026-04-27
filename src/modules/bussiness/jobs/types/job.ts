@@ -40,6 +40,8 @@ export interface CreateJobParams extends Omit<JobTargetParams, "job"> {
 export interface GetJobParams extends Omit<JobTargetParams, "job"> {
     /** The ID of the job. */
     id: string
+    /** Whether to emit a change event. */
+    emitChangeEvent?: boolean
 }
 
 /** Params for queuing a job. */
@@ -57,10 +59,15 @@ export interface IncreaseJobParams extends JobTargetParams {
 }
 
 /** Params for marking a job as completed. */
-export type CompleteJobParams = JobTargetParams
+export interface CompleteJobParams extends JobTargetParams {
+    /** Whether to emit a change event. */
+    emitChangeEvent?: boolean
+}
 
 /** Params for marking a job as failed. */
 export interface FailJobParams extends JobTargetParams {
+    /** Whether to emit a change event. */
+    emitChangeEvent?: boolean
     /** The error message. */
     error?: string
 }
@@ -97,6 +104,8 @@ export interface LoadExecutionResultParams extends JobTargetParams {
 
 /** Params for updating the status of a job. */
 export interface ProcessingJobParams extends JobTargetParams {
+    /** Whether to emit a change event. */
+    emitChangeEvent?: boolean
     /** The entity manager to use. */
     entityManager?: EntityManager
 }

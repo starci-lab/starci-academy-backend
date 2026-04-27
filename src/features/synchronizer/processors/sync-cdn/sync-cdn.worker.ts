@@ -79,7 +79,8 @@ export class SyncCdnWorker extends WorkerHost {
             )
             await this.jobActionService.processingJob(
                 {
-                    job 
+                    job,
+                    emitChangeEvent: false,
                 }
             )
             payload = this.superJson.parse<SyncCdnPayload>(bullmqJob.data)
@@ -107,7 +108,8 @@ export class SyncCdnWorker extends WorkerHost {
             }
             await this.jobActionService.completeJob(
                 {
-                    job 
+                    job,
+                    emitChangeEvent: false,
                 }
             )
             this.winstonService.log(

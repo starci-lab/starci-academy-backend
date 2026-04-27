@@ -84,9 +84,8 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
             await this.jobActionService.failJob(
                 {
                     job: context.job,
-                    error: error instanceof Error
-                        ? error.message
-                        : String(error),
+                    error: error.message,
+                    emitChangeEvent: false,
                 },
             )
             throw error
@@ -119,7 +118,7 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                     CourseEntity,
                     {
                         where: {
-                            ...(executionResult.resumeAfterEntityId ? {
+                            ...(executionResult?.resumeAfterEntityId ? {
                                 id: MoreThan(executionResult.resumeAfterEntityId) 
                             } : {
                             }),
@@ -145,7 +144,7 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                     ChallengeEntity,
                     {
                         where: {
-                            ...(executionResult.resumeAfterEntityId ? {
+                            ...(executionResult?.resumeAfterEntityId ? {
                                 id: MoreThan(executionResult.resumeAfterEntityId) 
                             } : {
                             }),
@@ -170,7 +169,7 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                     ContentEntity,
                     {
                         where: {
-                            ...(executionResult.resumeAfterEntityId ? {
+                            ...(executionResult?.resumeAfterEntityId ? {
                                 id: MoreThan(executionResult.resumeAfterEntityId) 
                             } : {
                             }),
@@ -196,7 +195,7 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                     LessonVideoEntity,
                     {
                         where: {
-                            ...(executionResult.resumeAfterEntityId ? {
+                            ...(executionResult?.resumeAfterEntityId ? {
                                 id: MoreThan(executionResult.resumeAfterEntityId) 
                             } : {
                             }),
@@ -219,7 +218,7 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                     ModuleEntity,
                     {
                         where: {
-                            ...(executionResult.resumeAfterEntityId ? {
+                            ...(executionResult?.resumeAfterEntityId ? {
                                 id: MoreThan(executionResult.resumeAfterEntityId) 
                             } : {
                             }),

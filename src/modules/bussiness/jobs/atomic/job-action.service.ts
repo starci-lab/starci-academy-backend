@@ -160,6 +160,7 @@ export class JobActionService {
     async completeJob({
         entityManager,
         job,
+        emitChangeEvent = true,
     }: CompleteJobParams): Promise<void> {
         const manager = entityManager ?? this.primaryEntityManager
         job.status = JobStatus.Completed
@@ -171,14 +172,18 @@ export class JobActionService {
             JobEntity,
             job,
         )
-        await this.eventEmitterService.emit({
-            event: EventName.JobStatusUpdated,
-            payload: {
-                jobId: job.id,
-                challengeSubmissionId: job.challengeSubmissionId ?? undefined,
-                status: job.status,
-            },
-        })
+        if (emitChangeEvent) {
+            await this.eventEmitterService.emit(
+                {
+                    event: EventName.JobStatusUpdated,
+                    payload: {
+                        jobId: job.id,
+                        challengeSubmissionId: job.challengeSubmissionId ?? undefined,
+                        status: job.status,
+                    },
+                }
+            )
+        }
     }
 
     /**
@@ -192,6 +197,7 @@ export class JobActionService {
         error,
         entityManager,
         job,
+        emitChangeEvent = true,
     }: FailJobParams): Promise<void> {
         const manager = entityManager ?? this.primaryEntityManager
         job.status = JobStatus.Failed
@@ -200,15 +206,17 @@ export class JobActionService {
             JobEntity,
             job,
         )
-        await this.eventEmitterService.emit({
-            event: EventName.JobStatusUpdated,
-            payload: {
-                jobId: job.id,
-                challengeSubmissionId: job.challengeSubmissionId ?? undefined,
-                status: job.status,
-                error: job.error ?? undefined,
-            },
-        })
+        if (emitChangeEvent) {
+            await this.eventEmitterService.emit({
+                event: EventName.JobStatusUpdated,
+                payload: {
+                    jobId: job.id,
+                    challengeSubmissionId: job.challengeSubmissionId ?? undefined,
+                    status: job.status,
+                    error: job.error ?? undefined,
+                },
+            })
+        }
     }
     
     /**
@@ -218,6 +226,7 @@ export class JobActionService {
      * @returns The job.
      */
     async processingJob({
+        emitChangeEvent = true,
         entityManager,
         job,
     }: ProcessingJobParams): Promise<void> {
@@ -227,14 +236,16 @@ export class JobActionService {
             JobEntity,
             job,
         )
-        await this.eventEmitterService.emit({
-            event: EventName.JobStatusUpdated,
-            payload: {
-                jobId: job.id,
-                challengeSubmissionId: job.challengeSubmissionId ?? undefined,
-                status: job.status,
-            },
-        })
+        if (emitChangeEvent) {
+            await this.eventEmitterService.emit({
+                event: EventName.JobStatusUpdated,
+                payload: {
+                    jobId: job.id,
+                    challengeSubmissionId: job.challengeSubmissionId ?? undefined,
+                    status: job.status,
+                },
+            })
+        }
     }
 
     /**

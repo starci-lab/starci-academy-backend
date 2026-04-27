@@ -73,6 +73,7 @@ export class ProcessCreateBloomFilterStepService extends AbstractStepService<
                 {
                     job: context.job,
                     error: error.message,
+                    emitChangeEvent: false,
                 },
             )
             throw error
