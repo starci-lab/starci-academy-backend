@@ -19,6 +19,9 @@ import {
 import {
     ConfigurableModuleClass,
 } from "./mutations.module-definition"
+import {
+    KeycloakMutationsModule,
+} from "./keycloak"
 
 /**
  * GraphQL mutations (courses, authentication, etc.).
@@ -26,6 +29,9 @@ import {
 @Module({
     imports: [
         AuthenticationMutationsModule.register({
+            isGlobal: true,
+        }),
+        KeycloakMutationsModule.register({
             isGlobal: true,
         }),
         CoursesMutationsModule.register({

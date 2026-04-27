@@ -1,3 +1,9 @@
+import type {
+    KeycloakJwtPayload,
+} from "./jwt-jwks"
+import {
+    createEnumType 
+} from "@modules/common"
 /**
  * Request body for exchanging username/password for a token.
  */
@@ -29,13 +35,42 @@ export interface KeycloakExchangeCodeForTokenParams {
      * Identity provider used for this callback flow.
      */
     provider: KeycloakIdentityProvider
+
+    /**
+     * Override redirect URI (must match the one used to obtain the code).
+     * When omitted, it is resolved from envConfig() by provider.
+     */
+    redirectUri?: string
 }
+
+/** Supported identity providers for Keycloak broker callback flows. */
+import {
+    registerEnumType,
+} from "@nestjs/graphql"
 
 /** Supported identity providers for Keycloak broker callback flows. */
 export enum KeycloakIdentityProvider {
     Google = "google",
     Github = "github",
 }
+
+export const GraphQLKeycloakIdentityProvider = createEnumType(KeycloakIdentityProvider)
+
+registerEnumType(
+    GraphQLKeycloakIdentityProvider,
+    {
+        name: "KeycloakIdentityProvider",
+        description: "Supported identity providers for Keycloak broker callback flows.",
+        valuesMap: {
+            [KeycloakIdentityProvider.Google]: {
+                description: "Google identity provider.",
+            },
+            [KeycloakIdentityProvider.Github]: {
+                description: "Github identity provider.",
+            },
+        },
+    },
+)
 
 /**
  * Response from Keycloak for exchanging a code for a token.
@@ -70,10 +105,6 @@ export interface KeycloakExchangeCodeForTokenResponse {
      */
     id_token?: string
 }
-
-import type {
-    KeycloakJwtPayload,
-} from "./jwt-jwks"
 
 export type {
     KeycloakJwtPayload,

@@ -54,7 +54,13 @@ export class KeycloakTokenService {
             code,
             provider,
         }: KeycloakExchangeCodeForTokenParams) {
-        const redirectUri = this.resolveRedirectUri(provider)
+        console.log({
+            grant_type: "authorization_code",
+            client_id: envConfig().keycloak.clientId,
+            client_secret: this.mountStorageService.keycloakClientSecret,
+            code,
+            redirect_uri: "http://localhost:3000/vi",
+        })
         const response = await axios.post<KeycloakExchangeCodeForTokenResponse>(
             `${envConfig().keycloak.url}/realms/${envConfig().keycloak.realm}/protocol/openid-connect/token`,
             new URLSearchParams({
@@ -62,7 +68,7 @@ export class KeycloakTokenService {
                 client_id: envConfig().keycloak.clientId,
                 client_secret: this.mountStorageService.keycloakClientSecret,
                 code,
-                redirect_uri: redirectUri,
+                redirect_uri: "http://localhost:3000/vi",
             }),
             {
                 headers: {
@@ -88,6 +94,32 @@ export class KeycloakTokenService {
                 username: params.username,
                 password: params.password,
                 scope: "openid profile email",
+            }),
+            {
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+            },
+        )
+
+        return response.data
+    }
+
+    /**
+     * Exchanges refresh token for a new Keycloak token set.
+     */
+    async exchangeRefreshTokenForToken(
+        params: {
+            refreshToken: string
+        },
+    ): Promise<KeycloakExchangeCodeForTokenResponse> {
+        const response = await this.axiosInstance.post<KeycloakExchangeCodeForTokenResponse>(
+            `/realms/${envConfig().keycloak.realm}/protocol/openid-connect/token`,
+            new URLSearchParams({
+                grant_type: "refresh_token",
+                client_id: envConfig().keycloak.clientId,
+                client_secret: this.mountStorageService.keycloakClientSecret,
+                refresh_token: params.refreshToken,
             }),
             {
                 headers: {
