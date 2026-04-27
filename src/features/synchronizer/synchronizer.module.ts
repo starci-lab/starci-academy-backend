@@ -2,27 +2,27 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    ModulesModule,
-} from "./modules"
-// import {
-//     ScyllaDBSynchronizerModule,
-// } from "./scylladb-synchronizer"
+    CoreModule,
+} from "./core"
 import {
     ConfigurableModuleClass,
 } from "./synchronizer.module-definition"
+import {
+    ProcessorsModule,
+} from "./processors"
 
 @Module({
     imports: [
-        ModulesModule.register(
+        CoreModule.register(
             {
                 isGlobal: true,
             }
         ),
-        // ScyllaDBSynchronizerModule.register(
-        //     {
-        //         isGlobal: true,
-        //     }
-        // ),
+        ProcessorsModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
     ],
 })
 export class SynchronizerModule extends ConfigurableModuleClass {

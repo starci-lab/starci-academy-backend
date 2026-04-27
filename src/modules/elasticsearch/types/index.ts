@@ -1,6 +1,5 @@
 export * from "./param"
 export * from "./indicate-name"
-export * from "./entity-name"
 export * from "./index-entity"
 export * from "./index-entities"
 export * from "./search"

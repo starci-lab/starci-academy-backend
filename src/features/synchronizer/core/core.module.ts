@@ -12,7 +12,7 @@ import {
 // } from "./scylladb-synchronizer"
 import {
     ConfigurableModuleClass,
-} from "./modules.module-definition"
+} from "./core.module-definition"
 import {
     BloomFiltersSynchronizerModule 
 } from "./bloom-filters-synchronizer"
@@ -41,5 +41,5 @@ import {
         // ),
     ],
 })
-export class ModulesModule extends ConfigurableModuleClass {
+export class CoreModule extends ConfigurableModuleClass {
 }
