@@ -6,10 +6,10 @@ import {
     OnApplicationBootstrap,
 } from "@nestjs/common"
 import {
-    EnqueueSyncElasticsearchJobService,
+    EnqueueSyncIndexerJobService,
 } from "@modules/bussiness"
 import {
-    LessonVideoEntity,
+    ModuleEntity,
 } from "@modules/databases"
 import {
     envConfig 
@@ -19,35 +19,35 @@ import {
 } from "@nestjs/schedule"
 
 @Injectable()
-export class LessonVideoElasticsearchSynchronizerService implements OnApplicationBootstrap {
+export class ModuleIndexerSynchronizerService implements OnApplicationBootstrap {
     constructor(
         private readonly dayjsService: DayjsService,
-        private readonly enqueueSyncElasticsearchJobService: EnqueueSyncElasticsearchJobService,
+        private readonly enqueueSyncIndexerJobService: EnqueueSyncIndexerJobService,
     ) {}
 
     /**
-     * Process the lesson video Elasticsearch synchronization.
+     * Process the module Elasticsearch synchronization.
      */
     private async process() {
-        await this.enqueueSyncElasticsearchJobService.enqueue(
+        await this.enqueueSyncIndexerJobService.enqueue(
             {
-                entityKind: LessonVideoEntity.name,
+                entityKind: ModuleEntity.name,
                 syncAt: this.dayjsService.now(),
             }
         )
     }
 
     /**
-     * On application bootstrap process the lesson video Elasticsearch synchronization.
+     * On application bootstrap process the module Indexer synchronization.
      */
     async onApplicationBootstrap() {
         await this.process()
     }
 
     /**
-     * Handle the lesson video Elasticsearch synchronization interval.
+     * Handle the module Elasticsearch synchronization interval.
      */
-    @Interval(envConfig().services.synchronizer.elasticsearch.lessonVideo.interval)
+    @Interval(envConfig().services.synchronizer.indexer.module.interval)
     async handleInterval() {
         await this.process()
     }

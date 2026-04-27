@@ -17,6 +17,9 @@ import type {
     BuildAutocompleteGlobalSearchPayloadParams,
     BuildAutocompleteGlobalSearchPayloadResult,
 } from "./types"
+import {
+    AutocompleteGlobalSearchRequest,
+} from "./graphql-types"
 
 @Injectable()
 export class AutocompleteGlobalSearchService {
@@ -47,7 +50,7 @@ export class AutocompleteGlobalSearchService {
             user,
         }: AutocompleteGlobalSearchExecuteParams,
     ): Promise<AutocompleteGlobalSearchExecuteResult> {
-        const payload: GlobalSearchSocketIoPayload = this.buildPayload(
+        const payload: AutocompleteGlobalSearchRequest = this.buildPayload(
             {
                 request,
                 locale,

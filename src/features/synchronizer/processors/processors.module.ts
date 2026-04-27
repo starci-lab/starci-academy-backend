@@ -13,6 +13,9 @@ import {
 import {
     SyncElasticsearchModule,
 } from "./sync-elasticsearch"
+import {
+    SyncIndexerModule,
+} from "./sync-indexer"
 
 /**
  * Module for the processors.
@@ -30,6 +33,11 @@ import {
             }
         ),
         SyncEmailBloomFilterModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
+        SyncIndexerModule.register(
             {
                 isGlobal: true,
             }

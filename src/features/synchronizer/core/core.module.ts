@@ -7,9 +7,9 @@ import {
 import {
     ElasticsearchSynchronizerModule,
 } from "./elasticsearch-synchronizer"
-// import {
-//     ScyllaDBSynchronizerModule,
-// } from "./scylladb-synchronizer"
+import {
+    IndexerSynchronizerModule,
+} from "./indexer-synchronizer"
 import {
     ConfigurableModuleClass,
 } from "./core.module-definition"
@@ -34,11 +34,11 @@ import {
                 isGlobal: true,
             }
         ),
-        // ScyllaDBSynchronizerModule.register(
-        //     {
-        //         isGlobal: true,
-        //     }
-        // ),
+        IndexerSynchronizerModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
     ],
 })
 export class CoreModule extends ConfigurableModuleClass {

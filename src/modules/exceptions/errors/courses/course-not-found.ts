@@ -9,6 +9,7 @@ import {
 export interface CourseNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     id?: string
     displayId?: string
+    moduleId?: string
 }
 
 /** Thrown when no course matches the requested id. */
@@ -16,6 +17,7 @@ export class CourseNotFoundException extends AbstractException {
     constructor({
         id,
         displayId,
+        moduleId,
         originalError,
     }: CourseNotFoundExceptionMetadata) {
         super(
@@ -24,6 +26,7 @@ export class CourseNotFoundException extends AbstractException {
             {
                 id,
                 displayId,
+                moduleId,
                 originalError,
             },
         )

@@ -9,6 +9,7 @@ import {
 export interface ModuleNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     id?: string
     displayId?: string
+    contentId?: string
 }
 
 /** Thrown when no module matches the requested id or display id. */
@@ -16,6 +17,7 @@ export class ModuleNotFoundException extends AbstractException {
     constructor({
         id,
         displayId,
+        contentId,
         originalError,
     }: ModuleNotFoundExceptionMetadata) {
         super(
@@ -24,6 +26,7 @@ export class ModuleNotFoundException extends AbstractException {
             {
                 id,
                 displayId,
+                contentId,
                 originalError,
             },
         )

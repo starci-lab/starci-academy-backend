@@ -47,7 +47,7 @@ export class CourseElasticsearchSynchronizerService implements OnApplicationBoot
     /**
      * Handle the course Elasticsearch synchronization interval.
      */
-    @Interval(envConfig().services.elasticsearchSynchronizer.course.interval)
+    @Interval(envConfig().services.synchronizer.elasticsearch.course.interval)
     async handleInterval() {
         await this.process()
     }

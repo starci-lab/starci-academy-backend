@@ -6,6 +6,7 @@ export enum CacheKey {
     BloomFilter = "bloom.filter",
     NatsMessageDigest = "nats.message.digest",
     JobSubscriberClientId = "job.subscriber.client_id",
+    ParentIndex = "parent.index",
 }
 
 /**

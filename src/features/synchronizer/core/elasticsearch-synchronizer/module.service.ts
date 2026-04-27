@@ -47,7 +47,7 @@ export class ModuleElasticsearchSynchronizerService implements OnApplicationBoot
     /**
      * Handle the module Elasticsearch synchronization interval.
      */
-    @Interval(envConfig().services.elasticsearchSynchronizer.module.interval)
+    @Interval(envConfig().services.synchronizer.elasticsearch.module.interval)
     async handleInterval() {
         await this.process()
     }

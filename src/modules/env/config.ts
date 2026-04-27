@@ -80,6 +80,10 @@ export const envConfig = () => ({
                 key: "CACHE_TTL_JOB_SUBSCRIBER_CLIENT_ID",
                 defaultValue: "15m",
             }),
+            parentIndex: parseEnvMs({
+                key: "CACHE_TTL_PARENT_INDEX",
+                defaultValue: "100years",
+            }),
             withdraw: parseEnvMs({
                 key: "CACHE_TTL_WITHDRAW",
                 defaultValue: "30m"
@@ -213,6 +217,102 @@ export const envConfig = () => ({
                     batchSize: parseEnvInt({
                         key: "SYNCHRONIZER_PROCESS_EMAIL_BLOOM_FILTER_BATCH_SIZE",
                         defaultValue: 1000,
+                    }),
+                },
+            },
+            elasticsearch: {
+                challenge: {
+                    interval: parseEnvMs({
+                        key: "ELASTICSEARCH_SYNCHRONIZER_CHALLENGE_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                content: {
+                    interval: parseEnvMs({
+                        key: "ELASTICSEARCH_SYNCHRONIZER_CONTENT_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                course: {
+                    interval: parseEnvMs({
+                        key: "ELASTICSEARCH_SYNCHRONIZER_COURSE_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                lessonVideo: {
+                    interval: parseEnvMs({
+                        key: "ELASTICSEARCH_SYNCHRONIZER_LESSON_VIDEO_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                module: {
+                    interval: parseEnvMs({
+                        key: "ELASTICSEARCH_SYNCHRONIZER_MODULE_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+            },
+            cdn: {
+                course: {
+                    interval: parseEnvMs({
+                        key: "CDN_SYNCHRONIZER_COURSE_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                challenge: {
+                    interval: parseEnvMs({
+                        key: "CDN_SYNCHRONIZER_CHALLENGE_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                lessonVideo: {
+                    interval: parseEnvMs({
+                        key: "CDN_SYNCHRONIZER_LESSON_VIDEO_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                module: {
+                    interval: parseEnvMs({
+                        key: "CDN_SYNCHRONIZER_MODULE_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                content: {
+                    interval: parseEnvMs({
+                        key: "CDN_SYNCHRONIZER_CONTENT_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+            },
+            indexer: {
+                challenge: {
+                    interval: parseEnvMs({
+                        key: "INDEXER_SYNCHRONIZER_CHALLENGE_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                content: {
+                    interval: parseEnvMs({
+                        key: "INDEXER_SYNCHRONIZER_CONTENT_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                lessonVideo: {
+                    interval: parseEnvMs({
+                        key: "INDEXER_SYNCHRONIZER_LESSON_VIDEO_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                module: {
+                    interval: parseEnvMs({
+                        key: "INDEXER_SYNCHRONIZER_MODULE_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
+                    }),
+                },
+                course: {
+                    interval: parseEnvMs({
+                        key: "INDEXER_SYNCHRONIZER_COURSE_SYNC_INTERVAL_MS",
+                        defaultValue: "30s",
                     }),
                 },
             },

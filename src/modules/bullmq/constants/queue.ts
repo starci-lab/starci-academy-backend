@@ -74,6 +74,12 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
         ),
         name: "sync-email-bloom-filter",
     },
+    [BullQueueName.SyncIndexer]: {
+        prefix: formatWithBraces(
+            "sync-indexer",
+        ),
+        name: "sync-indexer",
+    },
     [BullQueueName.SyncCdn]: {
         prefix: formatWithBraces(
             "sync-cdn",

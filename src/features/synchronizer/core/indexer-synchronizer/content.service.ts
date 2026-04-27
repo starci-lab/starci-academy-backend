@@ -6,7 +6,7 @@ import {
     OnApplicationBootstrap,
 } from "@nestjs/common"
 import {
-    EnqueueSyncElasticsearchJobService 
+    EnqueueSyncIndexerJobService 
 } from "@modules/bussiness"
 import {
     ContentEntity 
@@ -19,17 +19,17 @@ import {
 } from "@nestjs/schedule"
 
 @Injectable()
-export class ContentElasticsearchSynchronizerService implements OnApplicationBootstrap {
+export class ContentIndexerSynchronizerService implements OnApplicationBootstrap {
     constructor(
         private readonly dayjsService: DayjsService,
-        private readonly enqueueSyncElasticsearchJobService: EnqueueSyncElasticsearchJobService,
+        private readonly enqueueSyncIndexerJobService: EnqueueSyncIndexerJobService,
     ) {}
     
     /**
-     * Process the content Elasticsearch synchronization.
+     * Process the content Indexer synchronization.
      */
     private async process() {
-        await this.enqueueSyncElasticsearchJobService.enqueue(
+        await this.enqueueSyncIndexerJobService.enqueue(
             {
                 entityKind: ContentEntity.name,
                 syncAt: this.dayjsService.now(),
@@ -38,16 +38,16 @@ export class ContentElasticsearchSynchronizerService implements OnApplicationBoo
     }
 
     /**
-     * On application bootstrap process the content Elasticsearch synchronization.
+     * On application bootstrap process the content Indexer synchronization.
      */
     async onApplicationBootstrap() {
         await this.process()
     }
 
     /**
-     * Handle the content Elasticsearch synchronization interval.
+     * Handle the content Indexer synchronization interval.
      */
-    @Interval(envConfig().services.synchronizer.elasticsearch.content.interval)
+    @Interval(envConfig().services.synchronizer.indexer.content.interval)
     async handleInterval() {
         await this.process()
     }

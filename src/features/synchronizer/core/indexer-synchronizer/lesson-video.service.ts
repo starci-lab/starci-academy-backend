@@ -6,7 +6,7 @@ import {
     OnApplicationBootstrap,
 } from "@nestjs/common"
 import {
-    EnqueueSyncElasticsearchJobService,
+    EnqueueSyncIndexerJobService,
 } from "@modules/bussiness"
 import {
     LessonVideoEntity,
@@ -19,17 +19,17 @@ import {
 } from "@nestjs/schedule"
 
 @Injectable()
-export class LessonVideoElasticsearchSynchronizerService implements OnApplicationBootstrap {
+export class LessonVideoIndexerSynchronizerService implements OnApplicationBootstrap {
     constructor(
         private readonly dayjsService: DayjsService,
-        private readonly enqueueSyncElasticsearchJobService: EnqueueSyncElasticsearchJobService,
+        private readonly enqueueSyncIndexerJobService: EnqueueSyncIndexerJobService,
     ) {}
 
     /**
      * Process the lesson video Elasticsearch synchronization.
      */
     private async process() {
-        await this.enqueueSyncElasticsearchJobService.enqueue(
+        await this.enqueueSyncIndexerJobService.enqueue(
             {
                 entityKind: LessonVideoEntity.name,
                 syncAt: this.dayjsService.now(),
@@ -47,7 +47,7 @@ export class LessonVideoElasticsearchSynchronizerService implements OnApplicatio
     /**
      * Handle the lesson video Elasticsearch synchronization interval.
      */
-    @Interval(envConfig().services.synchronizer.elasticsearch.lessonVideo.interval)
+    @Interval(envConfig().services.synchronizer.indexer.lessonVideo.interval)
     async handleInterval() {
         await this.process()
     }

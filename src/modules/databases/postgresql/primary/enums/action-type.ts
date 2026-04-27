@@ -49,6 +49,10 @@ export enum ActionType {
      * Index one entity into Elasticsearch (background job).
      */
     SyncElasticsearch = "syncElasticsearch",
+    /**
+     * Prime/refresh parent-index cache for entities (background job).
+     */
+    SyncIndexer = "syncIndexer",
 }
 
 export const GraphQLTypeActionType = createEnumType(ActionType)
@@ -82,6 +86,9 @@ registerEnumType(
             },
             [ActionType.SyncElasticsearch]: {
                 description: "Index one entity into Elasticsearch for search.",
+            },
+            [ActionType.SyncIndexer]: {
+                description: "Prime parent-index cache for entities (challenge/content).",
             },
         },
     },

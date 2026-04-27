@@ -15,5 +15,6 @@ import {
         }),
     ],
 })
-export class AutocompleteQueriesModule extends ConfigurableModuleClass {}
+export class AutocompleteQueriesModule extends ConfigurableModuleClass {
+}
 

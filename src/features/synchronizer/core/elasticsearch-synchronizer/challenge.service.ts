@@ -47,7 +47,7 @@ export class ChallengeElasticsearchSynchronizerService implements OnApplicationB
     /**
      * Handle the challenge Elasticsearch synchronization interval.
      */
-    @Interval(envConfig().services.elasticsearchSynchronizer.challenge.interval)
+    @Interval(envConfig().services.synchronizer.elasticsearch.challenge.interval)
     async handleInterval() {
         await this.process()
     }

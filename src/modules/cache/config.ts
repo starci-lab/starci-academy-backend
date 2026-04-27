@@ -7,6 +7,7 @@ import {
 import type {
     BloomFilterCacheResult,
     JobSubscriberClientIdCacheResult,
+    ParentIndexCacheResult,
 } from "./types"
 
 /**
@@ -27,5 +28,10 @@ export const configMap = {
         ttl: envConfig().cache.ttl.jobSubscriberClientId,
         cacheResult: {
         } as JobSubscriberClientIdCacheResult,
+    },
+    [CacheKey.ParentIndex]: {
+        ttl: envConfig().cache.ttl.parentIndex,
+        cacheResult: {
+        } as ParentIndexCacheResult,
     },
 }
