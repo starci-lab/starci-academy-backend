@@ -66,16 +66,14 @@ export class IndexerChallengeBuildService {
             ContentEntity,
             {
                 where: {
-                    challenges: {
-                        id,
-                    },
+                    id: challenge.contentId,
                 },
             },
         )
         if (!parentContent) {
             throw new ContentNotFoundException(
                 {
-                    challengeId: id,
+                    id: challenge.contentId,
                 }
             )
         }
@@ -83,16 +81,14 @@ export class IndexerChallengeBuildService {
             ModuleEntity,
             {
                 where: {
-                    contents: {
-                        id: parentContent.id,
-                    },
+                    id: parentContent.moduleId,
                 },
             },
         )
         if (!parentModule) {
             throw new ModuleNotFoundException(
                 {
-                    contentId: parentContent.id,
+                    id: parentContent.moduleId,
                 }
             )
         }
@@ -100,16 +96,14 @@ export class IndexerChallengeBuildService {
             CourseEntity,
             {
                 where: {
-                    modules: {
-                        id: parentModule.id,
-                    },
+                    id: parentModule.courseId,
                 },
             },
         )
         if (!parentCourse) {
             throw new CourseNotFoundException(
                 {
-                    moduleId: parentModule.id,
+                    id: parentModule.courseId,
                 }
             )
         }

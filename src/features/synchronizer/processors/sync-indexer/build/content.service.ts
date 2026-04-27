@@ -49,9 +49,7 @@ export class IndexerContentBuildService {
             ContentEntity,
             {
                 where: {
-                    challenges: {
-                        id,
-                    },
+                    id,
                 },
             },
         )
@@ -66,9 +64,7 @@ export class IndexerContentBuildService {
             ModuleEntity,
             {
                 where: {
-                    contents: {
-                        id: content.id,
-                    },
+                    id: content.moduleId,
                 },
             },
         )
@@ -83,16 +79,14 @@ export class IndexerContentBuildService {
             CourseEntity,
             {
                 where: {
-                    modules: {
-                        id: parentModule.id,
-                    },
+                    id: parentModule.courseId,
                 },
             },
         )
         if (!parentCourse) {
             throw new CourseNotFoundException(
                 {
-                    moduleId: parentModule.id,
+                    id: parentModule.courseId,
                 }
             )
         }

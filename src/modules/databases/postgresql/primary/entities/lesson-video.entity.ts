@@ -236,27 +236,25 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         () => ContentEntity,
         (content: ContentEntity) => content.lessons,
         {
-            onDelete: "SET NULL",
-            nullable: true,
+            onDelete: "CASCADE",
         },
     )
     @JoinColumn({
         name: "content_id",
         foreignKeyConstraintName: "fk_content_id_lesson_videos_contents",
     })
-        content: ContentEntity | null
+        content: ContentEntity
 
     @Field(
         () => ID,
         {
-            nullable: true,
             description: "Optional parent content ID.",
         },
     )
     @RelationId(
         (lv: LessonVideoEntity) => lv.content,
     )
-        contentId: string | null
+        contentId: string
 
     /**
      * Optional minimum pricing tier required to access this video; null means no extra tier gate.

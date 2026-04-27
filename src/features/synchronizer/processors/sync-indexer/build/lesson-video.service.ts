@@ -66,16 +66,14 @@ export class IndexerLessonVideoBuildService {
             ContentEntity,
             {
                 where: {
-                    lessons: {
-                        id,
-                    },
+                    id: lessonVideo.contentId,
                 },
             },
         )
         if (!parentContent) {
             throw new ContentNotFoundException(
                 {
-                    lessonVideoId: id,
+                    id: lessonVideo.contentId,
                 }
             )
         }
@@ -83,16 +81,14 @@ export class IndexerLessonVideoBuildService {
             ModuleEntity,
             {
                 where: {
-                    contents: {
-                        id: parentContent.id,
-                    },
+                    id: parentContent.moduleId,
                 },
             },
         )
         if (!parentModule) {
             throw new ModuleNotFoundException(
                 {
-                    contentId: parentContent.id,
+                    id: parentContent.moduleId,
                 }
             )
         }
@@ -100,16 +96,14 @@ export class IndexerLessonVideoBuildService {
             CourseEntity,
             {
                 where: {
-                    modules: {
-                        id: parentModule.id,
-                    },
+                    id: parentModule.courseId,
                 },
             },
         )
         if (!parentCourse) {
             throw new CourseNotFoundException(
                 {
-                    moduleId: parentModule.id,
+                    id: parentModule.courseId,
                 }
             )
         }

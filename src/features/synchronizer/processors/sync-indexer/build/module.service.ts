@@ -62,16 +62,14 @@ export class IndexerModuleBuildService {
             CourseEntity,
             {
                 where: {
-                    modules: {
-                        id: module.id,
-                    },
+                    id: module.courseId,
                 },
             },
         )
         if (!parentCourse) {
             throw new CourseNotFoundException(
                 {
-                    moduleId: module.id,
+                    id: module.courseId,
                 }
             )
         }
