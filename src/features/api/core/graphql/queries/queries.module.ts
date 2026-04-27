@@ -34,6 +34,12 @@ import {
 import {
     SystemModule,
 } from "./system"
+import {
+    ValidationsModule,
+} from "./validations"
+import {
+    AutocompleteQueriesModule,
+} from "./autocomplete"
 
 @Module({
     imports: [
@@ -65,6 +71,12 @@ import {
             isGlobal: true,
         }),
         SystemModule.register({
+            isGlobal: true,
+        }),
+        ValidationsModule.register({
+            isGlobal: true,
+        }),
+        AutocompleteQueriesModule.register({
             isGlobal: true,
         }),
     ],

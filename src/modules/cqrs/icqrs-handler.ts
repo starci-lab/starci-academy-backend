@@ -9,19 +9,10 @@ export abstract class ICQRSHandler<TParams, TResponse = unknown> {
      * @returns The response.
      */
     async execute(params: TParams): Promise<TResponse> {
-        await this.validate(params)
         const response = await this.process(params)
         await this.emit(params,
             response)
         return response
-    }
-
-    /**
-     * Validate the request.
-     * @returns void.
-     */
-    protected async validate(params: TParams): Promise<void> {
-        void params
     }
 
     /**
