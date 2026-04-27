@@ -2,34 +2,18 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    CdnSynchronizerModule,
-} from "./cdn-synchronizer"
-import {
-    ElasticsearchSynchronizerModule,
-} from "./elasticsearch-synchronizer"
+    ModulesModule,
+} from "./modules"
 // import {
 //     ScyllaDBSynchronizerModule,
 // } from "./scylladb-synchronizer"
 import {
     ConfigurableModuleClass,
 } from "./synchronizer.module-definition"
-import {
-    BloomFiltersSynchronizerModule 
-} from "./bloom-filters-synchronizer"
 
 @Module({
     imports: [
-        BloomFiltersSynchronizerModule.register(
-            {
-                isGlobal: true,
-            }
-        ),
-        CdnSynchronizerModule.register(
-            {
-                isGlobal: true,
-            }
-        ),
-        ElasticsearchSynchronizerModule.register(
+        ModulesModule.register(
             {
                 isGlobal: true,
             }
