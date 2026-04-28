@@ -57,6 +57,7 @@ export class IncompleteChallengeSubmissionJobsResponse
     @Field(
         () => IncompleteChallengeSubmissionJobsResponseData,
         {
+            nullable: true,
             description: "Payload: list of { jobId, status }.",
         },
     )

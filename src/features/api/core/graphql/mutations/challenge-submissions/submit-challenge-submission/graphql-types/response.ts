@@ -30,5 +30,5 @@ export class SubmitChallengeSubmissionResponse extends AbstractGraphQLResponse {
             nullable: true,
         },
     )
-        data?: SubmitChallengeSubmissionResponseData
+        data: SubmitChallengeSubmissionResponseData
 }

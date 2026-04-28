@@ -38,6 +38,7 @@ export class ChallengesResponse
     @Field(
         () => ChallengesResponseData,
         {
+            nullable: true,
             description: "Payload containing challenges and pagination count.",
         },
     )

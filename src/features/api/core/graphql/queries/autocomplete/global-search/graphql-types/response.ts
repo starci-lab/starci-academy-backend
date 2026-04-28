@@ -62,6 +62,6 @@ export class AutocompleteGlobalSearchResponse
             nullable: true,
         },
     )
-        data?: AutocompleteGlobalSearchData
+        data: AutocompleteGlobalSearchData
 }
 

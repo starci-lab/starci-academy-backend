@@ -1,10 +1,10 @@
 import {
     Args,
+    Context,
     Mutation,
     Resolver,
 } from "@nestjs/graphql"
 import {
-    Res,
     UseInterceptors,
 } from "@nestjs/common"
 import {
@@ -20,6 +20,7 @@ import {
 } from "@modules/databases"
 import type {
     Response,
+    Request,
 } from "express"
 import {
     CookieName,
@@ -62,18 +63,25 @@ export class SignUpVerifyOtpResolver {
             },
         )
             request: SignUpVerifyOtpInput,
-        @Res()
-            res: Response,
+        @Context()
+            ctx: {
+                req: Request,
+                res: Response,
+            },
     ): Promise<SignUpVerifyOtpData> {
-        const result = await this.signUpVerifyOtpService.execute({
-            request,
-        })
+        const result = await this.signUpVerifyOtpService.execute(
+            {
+                request,
+            }
+        )
 
-        this.cookieService.attachHttpOnlyCookie({
-            res,
-            name: CookieName.KeycloakRefreshToken,
-            value: result.refreshToken,
-        })
+        this.cookieService.attachHttpOnlyCookie(
+            {
+                res: ctx.res,
+                name: CookieName.KeycloakRefreshToken,
+                value: result.refreshToken,
+            }
+        )
 
         return result.data
     }

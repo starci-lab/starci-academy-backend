@@ -42,6 +42,7 @@ export class SubmissionAttemptsResponse
     @Field(
         () => SubmissionAttemptsResponseData,
         {
+            nullable: true,
             description: "Payload containing the list of submission attempts and total count.",
         },
     )

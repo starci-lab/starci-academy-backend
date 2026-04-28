@@ -30,6 +30,7 @@ export class SignUpResponse
     implements IAbstractGraphQLResponse<SignUpInitData>
 {
     @Field(() => SignUpInitData, {
+        nullable: true,
         description: "Sign-up init challenge payload.",
     })
         data: SignUpInitData

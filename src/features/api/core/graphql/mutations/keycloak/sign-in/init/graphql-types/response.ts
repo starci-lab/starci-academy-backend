@@ -33,6 +33,7 @@ export class SignInResponse
 {
     @Field(() => SignInInitData,
         {
+            nullable: true,
             description: "Sign-in init challenge payload.",
         })
         data: SignInInitData

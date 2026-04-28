@@ -11,7 +11,7 @@ import {
 @InputType({
     description: "Input for verifying OTP and completing sign-in.",
 })
-export class SignInVerifyOtpInput {
+export class SignInVerifyOtpRequest {
     @Field(() => String,
         {
             description: "Challenge id returned from signIn.",

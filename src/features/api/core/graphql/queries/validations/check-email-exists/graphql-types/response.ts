@@ -42,6 +42,6 @@ export class CheckEmailExistsResponse
             nullable: true,
         },
     )
-        data?: CheckEmailExistsData
+        data: CheckEmailExistsData
 }
 

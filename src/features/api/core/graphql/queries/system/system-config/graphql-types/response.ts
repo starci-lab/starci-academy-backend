@@ -44,6 +44,7 @@ export class SystemConfigResponse
     @Field(
         () => SystemConfigData,
         {
+            nullable: true,
             description: "Mounted `systemConfig` subset (challenge only).",
         },
     )

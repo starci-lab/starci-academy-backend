@@ -43,5 +43,5 @@ export class CourseEnrollmentStatusResponse
             nullable: true,
         },
     )
-        data?: CourseEnrollmentStatusData
+        data: CourseEnrollmentStatusData
 }

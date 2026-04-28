@@ -13,11 +13,9 @@ import {
 } from "@modules/env"
 import {
     createHash,
+    randomInt,
     timingSafeEqual,
 } from "crypto"
-import {
-    nanoid,
-} from "nanoid"
 import {
     v4 as uuidv4,
 } from "uuid"
@@ -58,10 +56,15 @@ export class OtpChallengeService {
         return `${this.keyPrefix}:${challengeId}`
     }
 
-    /** Generate a cryptographically secure OTP code. */
+    /** Generate a 6-digit OTP code. */
     private generateOtp(): string {
-        // crypto-secure 6-digit code (000000..999999)
-        return nanoid(6)
+        return randomInt(0,
+            1000000)
+            .toString()
+            .padStart(
+                6,
+                "0"
+            )
     }
 
     /** Hash the OTP for the challenge. */
@@ -105,8 +108,10 @@ export class OtpChallengeService {
         /** Create a new login challenge record. */
         const record: LoginChallengeRecord = {
             email: params.email,
-            otpHash: this.hashOtp(challengeId,
-                otp),
+            otpHash: this.hashOtp(
+                challengeId,
+                otp
+            ),
             attempts: 0,
             tokens: {
                 accessToken: params.tokenResponse.access_token,
@@ -120,8 +125,9 @@ export class OtpChallengeService {
         // Set the challenge only if it does not exist; expire automatically.
         // ioredis supports: set(key, value, 'PX', ttlMs, 'NX')
         /** Set the challenge in Redis. */
-        const ok = await this.redis.set(key,
-            JSON.stringify(record),
+        const ok = await this.redis.set(
+            key,
+            this.superJson.stringify(record),
             "PX",
             ttlMs,
             "NX")

@@ -38,6 +38,7 @@ export class ContentsResponse
     @Field(
         () => ContentsResponseData,
         {
+            nullable: true,
             description: "Payload containing contents and pagination count.",
         },
     )

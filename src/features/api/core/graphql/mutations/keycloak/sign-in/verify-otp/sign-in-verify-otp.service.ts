@@ -9,7 +9,7 @@ import {
 } from "./sign-in-verify-otp.command"
 import type {
     SignInVerifyOtpCommandResult,
-    SignInVerifyOtpInput,
+    SignInVerifyOtpRequest,
 } from "./graphql-types"
 import {
     ExecuteParams,
@@ -22,7 +22,7 @@ export class SignInVerifyOtpService {
     ) {}
 
     async execute(
-        params: ExecuteParams<SignInVerifyOtpInput>,
+        params: ExecuteParams<SignInVerifyOtpRequest>,
     ): Promise<SignInVerifyOtpCommandResult> {
         return this.commandBus.execute(
             new SignInVerifyOtpCommand(params),

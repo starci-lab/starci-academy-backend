@@ -24,5 +24,5 @@ export class ModuleResponse
             description: "The module for the requested id (errors if not found).",
         },
     )
-        data?: ModuleEntity
+        data: ModuleEntity
 }

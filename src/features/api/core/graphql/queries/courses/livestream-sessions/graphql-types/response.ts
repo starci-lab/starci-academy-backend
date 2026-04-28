@@ -38,6 +38,7 @@ export class LivestreamSessionsResponse
     @Field(
         () => LivestreamSessionsResponseData,
         {
+            nullable: true,
             description: "Payload containing livestream sessions and pagination count.",
         },
     )

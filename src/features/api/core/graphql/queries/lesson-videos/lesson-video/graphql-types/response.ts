@@ -24,5 +24,5 @@ export class LessonVideoResponse
             description: "The lesson video for the requested id.",
         },
     )
-        data?: LessonVideoEntity
+        data: LessonVideoEntity
 }

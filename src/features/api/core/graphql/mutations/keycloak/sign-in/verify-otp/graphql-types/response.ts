@@ -27,6 +27,7 @@ export class SignInVerifyOtpResponse
 {
     @Field(() => SignInVerifyOtpData,
         {
+            nullable: true,
             description: "Tokens payload (refresh token via cookie).",
         })
         data: SignInVerifyOtpData

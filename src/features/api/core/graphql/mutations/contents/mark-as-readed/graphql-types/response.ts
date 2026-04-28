@@ -13,6 +13,7 @@ export class MarkAsReadedResponse {
     @Field(
         () => UserContentEntity,
         {
+            nullable: true,
             description: "The updated user content state.",
         },
     )

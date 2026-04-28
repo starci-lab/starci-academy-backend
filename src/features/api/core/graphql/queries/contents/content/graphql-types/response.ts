@@ -24,5 +24,5 @@ export class ContentResponse
             description: "The content for the requested id.",
         },
     )
-        data?: ContentEntity
+        data: ContentEntity
 }

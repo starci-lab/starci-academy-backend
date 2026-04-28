@@ -36,7 +36,10 @@ export class ExchangeCodeForTokenResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<ExchangeCodeForTokenData>
 {
-    @Field(() => ExchangeCodeForTokenData)
+    @Field(() => ExchangeCodeForTokenData,
+        {
+            nullable: true,
+        })
         data: ExchangeCodeForTokenData
 }
 

@@ -11,9 +11,10 @@ import {
     description: "Tokens after OTP verification (refresh token is set as HttpOnly cookie).",
 })
 export class SignUpVerifyOtpData {
-    @Field(() => String, {
-        description: "Keycloak access token (JWT).",
-    })
+    @Field(() => String,
+        {
+            description: "Keycloak access token (JWT).",
+        })
         accessToken: string
 }
 
@@ -24,9 +25,11 @@ export class SignUpVerifyOtpResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<SignUpVerifyOtpData>
 {
-    @Field(() => SignUpVerifyOtpData, {
-        description: "Tokens payload (refresh token via cookie).",
-    })
+    @Field(() => SignUpVerifyOtpData,
+        {
+            nullable: true,
+            description: "Tokens payload (refresh token via cookie).",
+        })
         data: SignUpVerifyOtpData
 }
 

@@ -22,6 +22,7 @@ export class ConnectGithubAccountResponse
 {
     @Field(() => UserEntity,
         {
+            nullable: true,
             description: "Payload containing the updated user with GitHub username.",
         })
         data: UserEntity

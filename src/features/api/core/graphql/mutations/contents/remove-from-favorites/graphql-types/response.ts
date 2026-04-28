@@ -13,6 +13,7 @@ export class RemoveFromFavoritesResponse {
     @Field(
         () => UserContentEntity,
         {
+            nullable: true,
             description: "The updated user content state.",
         },
     )

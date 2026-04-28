@@ -61,7 +61,7 @@ implements NestInterceptor<T, GraphQLResponse<T>> {
         context: ExecutionContext,
         next: CallHandler<T>,
     ): Observable<GraphQLResponse<T>> {
-    // get custom message from metadata (resolver or class)
+        // get custom message from metadata (resolver or class)
         const messageMeta =
         this.reflector.get<GraphQLSuccessMessage>(
             SUCCESS_MESSAGE_METADATA,
@@ -86,14 +86,17 @@ implements NestInterceptor<T, GraphQLResponse<T>> {
                 success: true,
             })),
             catchError((err) => {
-                return new Observable<GraphQLResponse<T>>((observer) => {
-                    observer.next({
-                        success: false,
-                        message: err?.message ?? "Internal server error",
-                        error: err?.name ?? "Error",
-                    })
-                    observer.complete()
-                })
+                console.error(err)
+                return new Observable<GraphQLResponse<T>>(  
+                    (observer) => {
+                        observer.next({
+                            success: false,
+                            message: err?.message ?? "Internal server error",
+                            error: err?.name ?? "Error",
+                        })
+                        observer.complete()
+                    }
+                )
             }),
         )
     }

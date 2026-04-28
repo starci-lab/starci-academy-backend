@@ -38,6 +38,7 @@ export class LessonVideosResponse
     @Field(
         () => LessonVideosResponseData,
         {
+            nullable: true,
             description: "Payload containing lesson videos and pagination count.",
         },
     )

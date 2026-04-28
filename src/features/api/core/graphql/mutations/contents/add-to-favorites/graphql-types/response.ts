@@ -13,6 +13,7 @@ export class AddToFavoritesResponse {
     @Field(
         () => UserContentEntity,
         {
+            nullable: true,
             description: "The updated user content state.",
         },
     )

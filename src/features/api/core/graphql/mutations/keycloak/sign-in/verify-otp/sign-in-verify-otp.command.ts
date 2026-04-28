@@ -2,12 +2,12 @@ import {
     ExecuteParams,
 } from "../../../../../types"
 import type {
-    SignInVerifyOtpInput,
+    SignInVerifyOtpRequest,
 } from "./graphql-types"
 
 export class SignInVerifyOtpCommand {
     constructor(
-        readonly params: ExecuteParams<SignInVerifyOtpInput>
+        readonly params: ExecuteParams<SignInVerifyOtpRequest>
     ) {}
 }
 

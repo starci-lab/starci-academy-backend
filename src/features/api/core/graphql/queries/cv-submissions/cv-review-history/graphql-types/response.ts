@@ -115,6 +115,7 @@ export class CvReviewHistoryResponse
     @Field(
         () => CvReviewHistoryResponseData,
         {
+            nullable: true,
             description: "Review history payload.",
         },
     )

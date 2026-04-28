@@ -7,13 +7,13 @@ import {
 import {
     SignUpVerifyOtpCommand,
 } from "./sign-up-verify-otp.command"
-import type {
-    SignUpVerifyOtpCommandResult,
-    SignUpVerifyOtpInput,
-} from "./graphql-types"
 import {
     ExecuteParams,
 } from "../../../../../types"
+import { 
+    SignUpVerifyOtpInput, 
+    SignUpVerifyOtpCommandResult 
+} from "./graphql-types"
 
 @Injectable()
 export class SignUpVerifyOtpService {

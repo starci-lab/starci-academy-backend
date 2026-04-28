@@ -42,6 +42,7 @@ export class SubmissionFeedbacksResponse
     @Field(
         () => SubmissionFeedbacksResponseData,
         {
+            nullable: true,
             description: "Payload containing the list of submission feedbacks and total count.",
         },
     )

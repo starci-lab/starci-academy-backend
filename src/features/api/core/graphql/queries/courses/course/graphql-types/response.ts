@@ -21,6 +21,7 @@ export class CourseResponse
     /** Payload containing the course when found. */
     @Field(() => CourseEntity,
         {
+            nullable: true,
             description: "The course for the requested id (errors if not found).",
         })
         data: CourseEntity

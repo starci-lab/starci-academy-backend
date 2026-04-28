@@ -33,6 +33,7 @@ export class ChallengeSubmissionsResponse
     @Field(
         () => ChallengeSubmissionsResponseData,
         {
+            nullable: true,
             description: "Payload containing the full list of challenge submissions.",
         },
     )

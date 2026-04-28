@@ -34,7 +34,10 @@ export class RefreshTokenResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<RefreshTokenData>
 {
-    @Field(() => RefreshTokenData)
+    @Field(() => RefreshTokenData,
+        {
+            nullable: true,
+        })
         data: RefreshTokenData
 }
 

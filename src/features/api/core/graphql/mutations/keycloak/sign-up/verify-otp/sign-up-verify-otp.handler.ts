@@ -47,6 +47,7 @@ export class SignUpVerifyOtpHandler
     protected override async process(
         command: SignUpVerifyOtpCommand,
     ): Promise<SignUpVerifyOtpCommandResult> {
+        try {
         const {
             request: {
                 challengeId,
@@ -106,6 +107,10 @@ export class SignUpVerifyOtpHandler
                 accessToken: result.tokens.accessToken,
             },
             refreshToken: result.tokens.refreshToken,
+        }
+        } catch (error) {
+            console.error(error)
+            throw error
         }
     }
 }

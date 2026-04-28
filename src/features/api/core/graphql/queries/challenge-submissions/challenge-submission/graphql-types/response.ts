@@ -24,5 +24,5 @@ export class ChallengeSubmissionResponse
             description: "The challenge submission for the requested id, including userSubmissions (join rows).",
         },
     )
-        data?: ChallengeSubmissionEntity
+        data: ChallengeSubmissionEntity
 }

@@ -20,6 +20,7 @@ export class MeResponse
 {
     @Field(() => UserEntity,
         {
+            nullable: true,
             description: "Payload containing the current user.",
         })
         data: UserEntity

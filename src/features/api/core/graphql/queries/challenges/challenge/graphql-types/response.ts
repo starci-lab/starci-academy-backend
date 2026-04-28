@@ -24,5 +24,5 @@ export class ChallengeResponse
             description: "The challenge for the requested id.",
         },
     )
-        data?: ChallengeEntity
+        data: ChallengeEntity
 }

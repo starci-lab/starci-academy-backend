@@ -46,6 +46,7 @@ export class CoursesResponse
 {
     @Field(() => CoursesResponseData,
         {
+            nullable: true,
 
             description: "Payload containing courses and pagination count.",
 

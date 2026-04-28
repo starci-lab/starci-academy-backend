@@ -13,16 +13,8 @@ import {
 import {
     SignUpVerifyOtpHandler,
 } from "./sign-up-verify-otp.handler"
-import {
-    CookieModule,
-} from "@modules/cookie"
 
 @Module({
-    imports: [
-        CookieModule.register({
-            isGlobal: true,
-        }),
-    ],
     providers: [
         SignUpVerifyOtpService,
         SignUpVerifyOtpResolver,

@@ -2,9 +2,9 @@ import {
     Args,
     Mutation,
     Resolver,
+    Context,
 } from "@nestjs/graphql"
 import {
-    Res,
     UseInterceptors,
 } from "@nestjs/common"
 import {
@@ -20,13 +20,14 @@ import {
 } from "@modules/databases"
 import type {
     Response,
+    Request,
 } from "express"
 import {
     CookieName,
     CookieService,
 } from "@modules/cookie"
 import {
-    SignInVerifyOtpInput,
+    SignInVerifyOtpRequest,
     SignInVerifyOtpResponse,
     type SignInVerifyOtpData,
 } from "./graphql-types"
@@ -61,18 +62,23 @@ export class SignInVerifyOtpResolver {
                 description: "Challenge id + OTP code.",
             },
         )
-            request: SignInVerifyOtpInput,
-        @Res()
-            res: Response,
+            request: SignInVerifyOtpRequest,
+        @Context()
+            ctx: {
+                req: Request,
+                res: Response,
+            },
     ): Promise<SignInVerifyOtpData> {
         const result = await this.signInVerifyOtpService.execute({
             request,
         })
-        this.cookieService.attachHttpOnlyCookie({
-            res,
-            name: CookieName.KeycloakRefreshToken,
-            value: result.refreshToken,
-        })
+        this.cookieService.attachHttpOnlyCookie(
+            {
+                res: ctx.res,
+                name: CookieName.KeycloakRefreshToken,
+                value: result.refreshToken,
+            }
+        )
         return result.data
     }
 }
