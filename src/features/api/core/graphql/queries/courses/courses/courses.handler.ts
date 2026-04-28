@@ -78,15 +78,18 @@ export class CoursesHandler
             count,
         } = await executeElasticScyllaFallback({
             elasticsearch: () => this.elasticsearch.search<CourseEntity>(
-                CourseEntity.name,
                 {
-                    query: esQuery,
-                    sort,
-                    from: pageNumber * limit,
-                    size: limit,
+                    entityName: CourseEntity.name,
+                    locale,
+                    params: {
+                        query: esQuery,
+                        sort,
+                        from: pageNumber * limit,
+                        size: limit,
+                    },
                 },
             ),
-        })
+        }) 
 
         return {
             count,

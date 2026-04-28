@@ -85,16 +85,18 @@ export class ContentsHandler
             count,
         } = await executeElasticScyllaFallback({
             elasticsearch: () => this.elasticsearch.search<ContentEntity>(
-                ContentEntity.name,
                 {
-                    query: esQuery,
-                    sort,
-                    from: pageNumber * limit,
-                    size: limit,
+                    entityName: ContentEntity.name,
+                    locale,
+                    params: {
+                        query: esQuery,
+                        sort,
+                        from: pageNumber * limit,
+                        size: limit,
+                    },
                 },
             ),
         })
-
         return {
             count,
             data,

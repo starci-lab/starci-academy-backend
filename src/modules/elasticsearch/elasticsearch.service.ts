@@ -149,7 +149,6 @@ export class ElasticsearchService implements OnModuleInit {
             body: data,
         })
     }
-
     /**
    * Index the entities.
    */
@@ -175,7 +174,9 @@ export class ElasticsearchService implements OnModuleInit {
             })),
         })
     }
-
+    /**
+     * Search the entity.
+     */
     async search<T>(
         {
             entityName,
@@ -183,27 +184,26 @@ export class ElasticsearchService implements OnModuleInit {
             locale,
         }: SearchParams,
     ): Promise<SearchResult<T>> {
-        const response = await this.client.search({
-            index: this.indicateName(
-                {
-                    entity: entityName,
-                    locale,
+        const response = await this.client.search(
+            {
+                index: this.indicateName(
+                    {
+                        entity: entityName,
+                        locale,
+                    },
+                ),
+                from: params.from,
+                size: params.size,
+                query: params.query || {
+                    match_all: {
+                    } 
                 },
-            ),
-            from: params.from,
-            size: params.size,
-            query: params.query || {
-                match_all: {
-                } 
-            },
-            sort: params.sort,
-        })
-
+                sort: params.sort,
+            }
+        )
         const total = response.hits.total
         const count = typeof total === "number" ? total : total?.value || 0
-
         const data = response.hits.hits.map((hit) => hit._source as T)
-    
         return {
             data,
             count,
