@@ -4,13 +4,13 @@ import {
 import {
     CommandBus,
 } from "@nestjs/cqrs"
-import type {
-    RefreshTokenData,
-    RefreshTokenRequest,
-} from "./graphql-types"
 import {
     RefreshTokenCommand,
+    type RefreshTokenCommandParams,
 } from "./refresh-token.command"
+import type {
+    RefreshTokenCommandResult,
+} from "./graphql-types"
 
 @Injectable()
 export class RefreshTokenService {
@@ -19,12 +19,10 @@ export class RefreshTokenService {
     ) {}
 
     async execute(
-        request: RefreshTokenRequest,
-    ): Promise<RefreshTokenData> {
+        params: RefreshTokenCommandParams,
+    ): Promise<RefreshTokenCommandResult> {
         return this.commandBus.execute(
-            new RefreshTokenCommand({
-                request,
-            }),
+            new RefreshTokenCommand(params),
         )
     }
 }

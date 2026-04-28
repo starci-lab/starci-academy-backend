@@ -13,27 +13,18 @@ import {
 export class RefreshTokenData {
     @Field(() => String)
         accessToken: string
+}
 
-    @Field(() => String)
-        refreshToken: string
-
-    @Field(() => String)
-        tokenType: string
-
-    @Field(() => Number)
-        expiresIn: number
-
-    @Field(() => String,
-        {
-            nullable: true,
-        })
-        idToken?: string
-
-    @Field(() => String)
-        scope: string
-
-    @Field(() => String)
-        sessionState: string
+/** Result of the refreshToken command. */
+export interface RefreshTokenCommandResult {
+    /**
+     * The data returned from the command.
+     */
+    data: RefreshTokenData
+    /**
+     * The refresh token returned from the command.
+     */
+    refreshToken: string
 }
 
 @ObjectType({

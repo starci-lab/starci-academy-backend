@@ -125,6 +125,9 @@ import {
 import {
     ExecaModule
 } from "@modules/execa"
+import {
+    CookieModule,
+} from "@modules/cookie"
 /**
  * The main module for the application.
  */
@@ -152,6 +155,12 @@ import {
             }),
             /** Sentry module. */
             SentryModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Cookie module. */
+            CookieModule.register(
                 {
                     isGlobal: true,
                 }

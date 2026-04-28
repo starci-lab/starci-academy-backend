@@ -2,6 +2,7 @@ import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
+    KeycloakJwtPayload,
     KeycloakTokenService,
 } from "@modules/keycloak"
 import {
@@ -12,44 +13,74 @@ import {
     ICommandHandler,
 } from "@nestjs/cqrs"
 import {
+    JwtService,
+} from "@nestjs/jwt"
+import {
     RefreshTokenCommand,
 } from "./refresh-token.command"
 import type {
-    RefreshTokenData,
+    RefreshTokenCommandResult,
 } from "./graphql-types"
 
 @CommandHandler(RefreshTokenCommand)
 @Injectable()
 export class RefreshTokenHandler
-    extends ICQRSHandler<RefreshTokenCommand, RefreshTokenData>
-    implements ICommandHandler<RefreshTokenCommand, RefreshTokenData>
+    extends ICQRSHandler<RefreshTokenCommand, RefreshTokenCommandResult>
+    implements ICommandHandler<RefreshTokenCommand, RefreshTokenCommandResult>
 {
     constructor(
         private readonly keycloakTokenService: KeycloakTokenService,
+        private readonly jwtService: JwtService,
     ) {
         super()
     }
 
     protected override async process(
         command: RefreshTokenCommand,
-    ): Promise<RefreshTokenData> {
+    ): Promise<RefreshTokenCommandResult> {
         const {
             refreshToken,
-        } = command.params.request
+            accessToken,
+            request,
+        } = command.params
 
+        if (
+            request.minValiditySeconds !== undefined &&
+            request.minValiditySeconds !== null &&
+            typeof accessToken === "string" &&
+            accessToken.length > 0
+        ) {
+            const decoded = this.jwtService.decode<KeycloakJwtPayload>(
+                accessToken
+            )
+            if (
+                decoded &&
+                typeof decoded === "object" &&
+                typeof decoded.exp === "number"
+            ) {
+                const ttlSeconds =
+                    decoded.exp - Math.floor(
+                        Date.now() / 1000
+                    )
+                if (ttlSeconds > request.minValiditySeconds) {
+                    return {
+                        data: {
+                            accessToken,
+                        },
+                        refreshToken,
+                    }
+                }
+            }
+        }
         const token = await this.keycloakTokenService.exchangeRefreshTokenForToken({
             refreshToken,
         })
-
         return {
-            accessToken: token.access_token,
+            data: {
+                accessToken: token.access_token,
+            },
             refreshToken: token.refresh_token,
-            tokenType: token.token_type,
-            expiresIn: token.expires_in,
-            idToken: token.id_token,
-            scope: token.scope,
-            sessionState: token.session_state,
-        }
+        } 
     }
 }
 

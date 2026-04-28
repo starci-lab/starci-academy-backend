@@ -96,6 +96,10 @@ export const envConfig = () => ({
                 key: "CACHE_TTL_SESSION_ID",
                 defaultValue: "15m"
             }),
+            keycloakOidcPkce: parseEnvMs({
+                key: "CACHE_TTL_KEYCLOAK_OIDC_PKCE",
+                defaultValue: "15m",
+            }),
             aggregatedTokenPrice: parseEnvMs({
                 key: "CACHE_TTL_AGGREGATED_TOKEN_PRICE",
                 defaultValue: "100years"

@@ -55,14 +55,6 @@ export class KeycloakTokenService {
             redirectUri,
             codeVerifier,
         }: KeycloakExchangeCodeForTokenParams) {
-        console.log({
-            grant_type: "authorization_code",
-            client_id: envConfig().keycloak.clientId,
-            client_secret: this.mountStorageService.keycloakClientSecret,
-            code,
-            redirect_uri: redirectUri,
-            code_verifier: codeVerifier,
-        })
         const response = await axios.post<KeycloakExchangeCodeForTokenResponse>(
             `${envConfig().keycloak.url}/realms/${envConfig().keycloak.realm}/protocol/openid-connect/token`,
             new URLSearchParams({
@@ -130,10 +122,39 @@ export class KeycloakTokenService {
                 },
             },
         )
-
         return response.data
     }
 
+    /**
+     * Revokes a refresh token at Keycloak (OIDC token revocation endpoint).
+     *
+     * Note: realm must have revocation enabled; Keycloak returns 200 even if token already invalid.
+     */
+    async revokeRefreshToken(
+        params: {
+            refreshToken: string
+        },
+    ): Promise<void> {
+        await this.axiosInstance.post(
+            `/realms/${envConfig().keycloak.realm}/protocol/openid-connect/revoke`,
+            new URLSearchParams({
+                client_id: envConfig().keycloak.clientId,
+                client_secret: this.mountStorageService.keycloakClientSecret,
+                token: params.refreshToken,
+                token_type_hint: "refresh_token",
+            }),
+            {
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+            },
+        )
+    }
+
+    /**
+     * Requests an admin access token from Keycloak.
+     * @returns The admin access token.
+     */
     private async requestAdminAccessToken(): Promise<string> {
         const response = await this.axiosInstance.post<{
             access_token: string

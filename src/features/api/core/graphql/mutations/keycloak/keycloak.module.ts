@@ -10,6 +10,9 @@ import {
 import {
     RefreshTokenMutationModule,
 } from "./refresh-token"
+import {
+    SignOutMutationModule,
+} from "./sign-out"
 
 @Module({
     imports: [
@@ -17,6 +20,9 @@ import {
             isGlobal: true,
         }),
         RefreshTokenMutationModule.register({
+            isGlobal: true,
+        }),
+        SignOutMutationModule.register({
             isGlobal: true,
         }),
     ],

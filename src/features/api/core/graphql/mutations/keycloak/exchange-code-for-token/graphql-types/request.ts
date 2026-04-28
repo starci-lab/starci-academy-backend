@@ -32,20 +32,11 @@ export class ExchangeCodeForTokenRequest {
     @Field(
         () => String,
         {
-            description: "Redirect URI used when the authorization code was issued (must match exactly).",
-        },
-    )
-    @IsString()
-        redirectUri: string
-
-    @Field(
-        () => String,
-        {
-            description: "Code verifier used for the code exchange.",
+            description: "OAuth `state` returned by Keycloak (matches the redirect flow started on the server).",
         },
     )
     @IsString()
     @MinLength(1)
-        codeVerifier: string
+        state: string
 }
 

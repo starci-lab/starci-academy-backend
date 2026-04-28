@@ -8,6 +8,7 @@ import type {
     BloomFilterCacheResult,
     JobSubscriberClientIdCacheResult,
     ParentIndexCacheResult,
+    KeycloakOidcPkceCacheResult,
 } from "./types"
 
 /**
@@ -33,5 +34,10 @@ export const configMap = {
         ttl: envConfig().cache.ttl.parentIndex,
         cacheResult: {
         } as ParentIndexCacheResult,
+    },
+    [CacheKey.KeycloakOidcPkce]: {
+        ttl: envConfig().cache.ttl.keycloakOidcPkce,
+        cacheResult: {
+        } as KeycloakOidcPkceCacheResult,
     },
 }

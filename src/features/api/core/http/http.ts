@@ -49,6 +49,9 @@ export const httpConfig = () => ({
                 const googleTags = `${keycloakTags}/google`
                 return {
                     tags: googleTags,
+                    redirect: () => ({
+                        path: "redirect",
+                    }),
                     // callback configuration
                     callback: () => {
                         // path for the callback endpoint
@@ -63,6 +66,9 @@ export const httpConfig = () => ({
                 const githubTags = `${keycloakTags}/github`
                 return {
                     tags: githubTags,
+                    redirect: () => ({
+                        path: "redirect",
+                    }),
                     callback: () => ({
                         path: "callback",
                     }),

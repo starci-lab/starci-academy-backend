@@ -1,5 +1,6 @@
 import {
     Args,
+    Context,
     Mutation,
     Resolver,
 } from "@nestjs/graphql"
@@ -18,19 +19,33 @@ import {
     Locale,
 } from "@modules/databases"
 import {
-    RefreshTokenRequest,
     RefreshTokenResponse,
     type RefreshTokenData,
+    RefreshTokenRequest,
 } from "./graphql-types"
 import {
     RefreshTokenService,
 } from "./refresh-token.service"
+import {
+    CookieService,
+    GraphQLCookie,
+} from "@modules/cookie"
+import {
+    CookieName,
+} from "@modules/cookie"
+import type {
+    Response,
+} from "express"
+import {
+    BearerJwt
+} from "@modules/passport"
 
 @Resolver()
 export class RefreshTokenResolver {
     constructor(
         private readonly refreshTokenService: RefreshTokenService,
-    ) {}
+        private readonly cookieService: CookieService,
+    ) { }
 
     @UseThrottler(ThrottlerConfig.Strict)
     @GraphQLSuccessMessage({
@@ -41,15 +56,39 @@ export class RefreshTokenResolver {
     @Mutation(
         () => RefreshTokenResponse,
         {
-            name: "refresh",
+            name: "refreshToken",
             description: "Refresh Keycloak tokens using refresh token.",
         },
     )
     async execute(
+        @GraphQLCookie(CookieName.KeycloakRefreshToken)
+            refreshToken: string,
         @Args("request")
             request: RefreshTokenRequest,
+        @BearerJwt()
+            accessToken: string | undefined,
+        @Context()
+            ctx: {
+                req: Request
+                res: Response
+            },
     ): Promise<RefreshTokenData> {
-        return this.refreshTokenService.execute(request)
+        const {
+            data,
+            refreshToken: newRefreshToken,
+        } = await this.refreshTokenService.execute(
+            {
+                refreshToken,
+                accessToken,
+                request,
+            },
+        )
+        this.cookieService.attachHttpOnlyCookie({
+            res: ctx.res,
+            name: CookieName.KeycloakRefreshToken,
+            value: newRefreshToken,
+        })
+        return data
     }
 }
 

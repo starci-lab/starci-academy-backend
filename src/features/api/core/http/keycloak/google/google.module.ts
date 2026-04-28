@@ -7,12 +7,20 @@ import {
 import {
     KeycloakGoogleCallbackModule,
 } from "./callback"
+import {
+    KeycloakGoogleRedirectModule,
+} from "./redirect"
 
 /**
  * Module for the Keycloak Google.
  */
 @Module({
     imports: [
+        KeycloakGoogleRedirectModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
         KeycloakGoogleCallbackModule.register(
             {
                 isGlobal: true,

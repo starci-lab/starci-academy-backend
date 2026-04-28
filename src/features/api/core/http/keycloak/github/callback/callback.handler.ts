@@ -6,10 +6,12 @@ import {
     UserEntity,
 } from "@modules/databases"
 import {
-    KeycloakIdentityProvider,
     KeycloakJwtPayload,
     KeycloakTokenService,
 } from "@modules/keycloak"
+import {
+    envConfig,
+} from "@modules/env"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -53,7 +55,8 @@ export class KeycloakGithubCallbackHandler
 
         const response = await this.keycloakTokenService.exchangeCodeForToken({
             code,
-            provider: KeycloakIdentityProvider.Github,
+            redirectUri: envConfig().keycloak.redirectUri.github,
+            codeVerifier: "",
         })
         const decoded = this.jwtService.decode<KeycloakJwtPayload>(response.access_token)
 

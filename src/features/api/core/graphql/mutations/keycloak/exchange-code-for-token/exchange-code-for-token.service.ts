@@ -5,7 +5,7 @@ import {
     CommandBus,
 } from "@nestjs/cqrs"
 import type {
-    ExchangeCodeForTokenData,
+    ExchangeCodeForTokenCommandResult,
     ExchangeCodeForTokenRequest,
 } from "./graphql-types"
 import {
@@ -20,12 +20,13 @@ export class ExchangeCodeForTokenService {
 
     async execute(
         request: ExchangeCodeForTokenRequest,
-    ): Promise<ExchangeCodeForTokenData> {
-        return this.commandBus.execute(
+    ): Promise<ExchangeCodeForTokenCommandResult> {
+        const result = await this.commandBus.execute(
             new ExchangeCodeForTokenCommand({
                 request,
             }),
         )
+        return result
     }
 }
 

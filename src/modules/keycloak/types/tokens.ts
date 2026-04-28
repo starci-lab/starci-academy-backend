@@ -32,13 +32,7 @@ export interface KeycloakExchangeCodeForTokenParams {
     code: string
 
     /**
-     * Identity provider used for this callback flow.
-     */
-    provider: KeycloakIdentityProvider
-
-    /**
-     * Override redirect URI (must match the one used to obtain the code).
-     * When omitted, it is resolved from envConfig() by provider.
+     * Redirect URI (must match the one used in the authorize request exactly).
      */
     redirectUri: string
 

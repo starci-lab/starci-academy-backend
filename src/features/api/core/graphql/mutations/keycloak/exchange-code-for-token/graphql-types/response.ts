@@ -13,27 +13,20 @@ import {
 export class ExchangeCodeForTokenData {
     @Field(() => String)
         accessToken: string
+}
 
-    @Field(() => String)
-        refreshToken: string
-
-    @Field(() => String)
-        tokenType: string
-
-    @Field(() => Number)
-        expiresIn: number
-
-    @Field(() => String,
-        {
-            nullable: true,
-        })
-        idToken?: string
-
-    @Field(() => String)
-        scope: string
-
-    @Field(() => String)
-        sessionState: string
+/**
+ * Result of the exchangeCodeForToken command.
+ */
+export interface ExchangeCodeForTokenCommandResult {
+    /**
+     * The data returned from the command.
+     */
+    data: ExchangeCodeForTokenData
+    /**
+     * The refresh token returned from the command.
+     */
+    refreshToken: string
 }
 
 @ObjectType({

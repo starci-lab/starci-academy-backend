@@ -18,6 +18,9 @@ import {
 import {
     KeycloakTokenService,
 } from "./token.service"
+import {
+    KeycloakOidcRedirectService,
+} from "./keycloak-oidc-redirect.service"
 
 /**
  * Module for verifying Keycloak-issued access tokens (JWT) via realm JWKS.
@@ -34,6 +37,7 @@ export class KeycloakModule extends ConfigurableModuleClass {
                 ...(dynamicModule.providers ?? []),
                 KeycloakJwksService,
                 KeycloakTokenService,
+                KeycloakOidcRedirectService,
                 KeycloakAuthRestGuard,
                 KeycloakAuthGraphQLGuard,
                 KeycloakOptionalAuthGraphQLGuard,
@@ -41,6 +45,7 @@ export class KeycloakModule extends ConfigurableModuleClass {
             exports: [
                 KeycloakJwksService,
                 KeycloakTokenService,
+                KeycloakOidcRedirectService,
                 KeycloakAuthRestGuard,
                 KeycloakAuthGraphQLGuard,
                 KeycloakOptionalAuthGraphQLGuard,

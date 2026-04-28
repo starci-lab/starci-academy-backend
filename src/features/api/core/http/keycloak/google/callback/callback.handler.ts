@@ -6,10 +6,12 @@ import {
     UserEntity,
 } from "@modules/databases"
 import {
-    KeycloakIdentityProvider,
     KeycloakJwtPayload,
     KeycloakTokenService,
 } from "@modules/keycloak"
+import {
+    envConfig,
+} from "@modules/env"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -53,8 +55,7 @@ export class KeycloakGoogleCallbackHandler
 
         const response = await this.keycloakTokenService.exchangeCodeForToken({
             code,
-            provider: KeycloakIdentityProvider.Google,
-            redirectUri: "http://localhost:3000/vi",
+            redirectUri: envConfig().keycloak.redirectUri.google,
             codeVerifier: "",
         })
         const decoded = this.jwtService.decode<KeycloakJwtPayload>(response.access_token)

@@ -11,6 +11,9 @@ import {
     ClearCookieParams,
     ClearCookieResult
 } from "./types"
+import {
+    envConfig 
+} from "@modules/env"
 
 
 /**
@@ -43,18 +46,19 @@ export class CookieService {
     }: AttachHttpOnlyCookieParams): AttachHttpOnlyCookieResult {
         const defaultOptions: CookieOptions = {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            secure: envConfig().isProduction,
+            sameSite: "lax",
             path: "/",
             maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
         }
-
-        res.cookie(name,
+        res.cookie(
+            name,
             value,
             {
                 ...defaultOptions,
                 ...options,
-            })
+            }
+        )
     }
 
     /**
