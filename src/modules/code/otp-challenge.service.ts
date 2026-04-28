@@ -20,15 +20,11 @@ import {
     v4 as uuidv4,
 } from "uuid"
 import type {
-    CreateLoginChallengeParams,
-    CreateLoginChallengeResult,
     CreateActionChallengeParams,
     CreateActionChallengeResult,
-    LoginChallengeRecord,
     OtpActionPayloadRecord,
     VerifyActionChallengeResult,
     VerifyLoginChallengeParams,
-    VerifyLoginChallengeResult,
 } from "./types"
 import { 
     InjectSuperJson 

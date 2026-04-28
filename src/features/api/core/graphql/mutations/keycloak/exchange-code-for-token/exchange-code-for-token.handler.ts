@@ -2,6 +2,7 @@ import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
+    KeycloakJwtPayload,
     KeycloakOidcRedirectService,
     KeycloakTokenService,
 } from "@modules/keycloak"
@@ -18,6 +19,19 @@ import {
 import type {
     ExchangeCodeForTokenCommandResult,
 } from "./graphql-types"
+import type {
+    EntityManager,
+} from "typeorm"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+    UserEntity,
+} from "@modules/databases"
+import {
+    JwtService,
+} from "@nestjs/jwt"
+import {
+    InvalidJwtPayloadException 
+} from "@modules/exceptions"
 
 @CommandHandler(ExchangeCodeForTokenCommand)
 @Injectable()
@@ -28,6 +42,9 @@ export class ExchangeCodeForTokenHandler
     constructor(
         private readonly keycloakTokenService: KeycloakTokenService,
         private readonly keycloakOidcRedirectService: KeycloakOidcRedirectService,
+        private readonly jwtService: JwtService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) {
         super()
     }
@@ -53,7 +70,31 @@ export class ExchangeCodeForTokenHandler
             provider,
             state,
         )
+        const decoded = this.jwtService.decode<KeycloakJwtPayload>(token.access_token)
+        if (!decoded || typeof decoded === "string" || !decoded.sub) {
+            throw new InvalidJwtPayloadException(
+                {
+                    payload: decoded,
+                }
+            )
+        }
         /* Create user if not exists */
+        let user = await this.entityManager.findOne(
+            UserEntity,
+            {
+                where: {
+                    keycloakId: decoded.sub,
+                },
+            }
+        )
+        if (!user) {
+            user = this.entityManager.create(
+                UserEntity,
+                {
+                    keycloakId: decoded.sub,
+                }
+            )
+        }
         return {
             data: {
                 accessToken: token.access_token,
