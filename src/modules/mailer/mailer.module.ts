@@ -11,9 +11,11 @@ import {
     OPTIONS_TYPE,
 } from "./mailer.module-definition"
 import {
-    BREVO_MAILER_OPTIONS,
-    createBrevoMailerOptionsProvider,
+    createBrevoMailerProvider,
 } from "./mailer.providers"
+import {
+    BREVO_MAILER,
+} from "./constants"
 
 /**
  * Configures Nest Mailer transport and template engine.
@@ -22,31 +24,34 @@ import {
  * actual delivery through nodemailer + Brevo SMTP with Pug templates.
  */
 @Module({
-    imports: [],
-    providers: [],
-    exports: [],
 })
 export class MailModule extends ConfigurableModuleClass {
+    /**
+     * Register the mail module.
+     * @param options - The options.
+     * @returns The dynamic module.
+     */
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)
-        const brevoMailerOptionsProvider = createBrevoMailerOptionsProvider()
-
+        const brevoMailerProvider = createBrevoMailerProvider()
         return {
             ...dynamicModule,
             imports: [
                 ...(dynamicModule.imports ?? []),
                 MailerModule.forRootAsync({
-                    inject: [BREVO_MAILER_OPTIONS],
-                    useFactory: (mailerOptions: MailerOptions): MailerOptions => mailerOptions,
+                    inject: [BREVO_MAILER],
+                    useFactory: (
+                        mailerOptions: MailerOptions
+                    ): MailerOptions => mailerOptions,
                 }),
             ],
             providers: [
                 ...(dynamicModule.providers ?? []),
-                brevoMailerOptionsProvider,
+                brevoMailerProvider,
             ],
             exports: [
                 MailerModule,
-                brevoMailerOptionsProvider,
+                brevoMailerProvider,
             ],
         }
     }

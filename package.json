@@ -87,6 +87,7 @@
     "lokijs": "^1.5.12",
     "mammoth": "^1.12.0",
     "ms": "^2.1.3",
+    "nanoid": "^5.1.9",
     "nats": "^2.29.3",
     "nest-commander": "^3.20.1",
     "nest-winston": "^1.10.2",

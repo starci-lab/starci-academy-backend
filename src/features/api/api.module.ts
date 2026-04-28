@@ -7,6 +7,9 @@ import {
 import {
     ConfigurableModuleClass 
 } from "./api.module-definition"
+import {
+    ProcessorsModule 
+} from "./processors"
 
 /**
  * Module for the API.
@@ -14,6 +17,9 @@ import {
 @Module({
     imports: [
         CoreModule.register({
+            isGlobal: true,
+        }),
+        ProcessorsModule.register({
             isGlobal: true,
         }),
     ],

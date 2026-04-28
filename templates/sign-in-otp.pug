@@ -1,0 +1,9 @@
+extends layouts/base
+
+block content
+  h2(style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #111827;") Sign-in verification
+  p Use the following verification code to confirm your sign-in:
+  p(style="font-size: 28px; font-weight: 700; letter-spacing: 4px; text-align: center; margin: 20px 0; color: #111827;") #{otp}
+  p(style="margin-top: 16px; color: #374151;") This code expires in #{expiresInMinutes} minute(s).
+  p(style="margin-top: 24px; color: #6b7280; font-size: 13px;") If you didn’t request this code, you can safely ignore this email.
+

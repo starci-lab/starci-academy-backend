@@ -17,9 +17,6 @@ const nodeExternals = require("webpack-node-externals")
 // Generates a package.json file in the output directory
 const GeneratePackageJsonPlugin = require("generate-package-json-webpack-plugin")
 
-// Copies non-TS assets (e.g. Pug email templates) into the output directory
-const CopyWebpackPlugin = require("copy-webpack-plugin")
-
 /**
  * Base package.json template for core
  * This file will be generated inside dist/apps/core
@@ -96,28 +93,6 @@ module.exports = {
                 excludeDependencies: [],
             }
         ),
-        /**
-         * Copy Pug email templates so @nestjs-modules/mailer can
-         * resolve them at runtime via join(__dirname, 'templates').
-         */
-        new CopyWebpackPlugin({
-            patterns: [
-                {
-                    from: path.join(__dirname,
-                        "../..",
-                        "src",
-                        "modules",
-                        "mailer",
-                        "templates"),
-                    to: path.join(__dirname,
-                        "../..",
-                        "dist",
-                        "apps",
-                        "core",
-                        "templates"),
-                },
-            ],
-        }),
     ],
 }
 

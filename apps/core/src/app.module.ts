@@ -128,6 +128,9 @@ import {
 import {
     CookieModule,
 } from "@modules/cookie"
+import {
+    CodeModule
+} from "@modules/code"
 /**
  * The main module for the application.
  */
@@ -161,6 +164,12 @@ import {
             ),
             /** Cookie module. */
             CookieModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Code module. */
+            CodeModule.register(
                 {
                     isGlobal: true,
                 }

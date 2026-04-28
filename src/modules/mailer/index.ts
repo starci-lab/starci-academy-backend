@@ -1,2 +1,2 @@
 export * from "./mailer.module"
-export * from "./mailer.providers"
+export * from "./constants"

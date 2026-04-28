@@ -10,7 +10,7 @@ export interface ExecuteParams<T> {
     /** The request object. */
     request: T
     /** The locale. */
-    locale: Locale
+    locale?: Locale
     /** The user. */
     user?: UserEntity
 }

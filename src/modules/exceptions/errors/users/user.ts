@@ -13,7 +13,7 @@ import {
 /** Thrown when user cannot be found */
 export interface UserNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     id?: string
-    privyUserId?: string
+    keycloakId?: string
 }
 
 /** Thrown when user cannot be found. */
@@ -21,7 +21,7 @@ export class UserNotFoundException extends AbstractException {
     constructor(
         {
             id,
-            privyUserId,
+            keycloakId,
             originalError,
         }: UserNotFoundExceptionMetadata
     ) {
@@ -30,7 +30,7 @@ export class UserNotFoundException extends AbstractException {
             "USER_NOT_FOUND_EXCEPTION",
             {
                 id,
-                privyUserId,
+                keycloakId,
                 originalError,
             }
         )

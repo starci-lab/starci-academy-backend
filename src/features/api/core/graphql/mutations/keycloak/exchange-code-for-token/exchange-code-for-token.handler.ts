@@ -53,6 +53,7 @@ export class ExchangeCodeForTokenHandler
             provider,
             state,
         )
+        /* Create user if not exists */
         return {
             data: {
                 accessToken: token.access_token,

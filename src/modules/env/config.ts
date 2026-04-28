@@ -342,12 +342,12 @@ export const envConfig = () => ({
             /** Default sender email address. */
             fromAddress: parseEnvString({
                 key: "BREVO_FROM_ADDRESS",
-                defaultValue: "noreply@starci.academy.org",
+                defaultValue: "leducminhdhqt@gmail.com",
             }),
             /** Default sender display name. */
             fromName: parseEnvString({
                 key: "BREVO_FROM_NAME",
-                defaultValue: "Starci Academy",
+                defaultValue: "Lê Đức Minh",
             }),
         },
         /** GitHub Organization service configuration. */
