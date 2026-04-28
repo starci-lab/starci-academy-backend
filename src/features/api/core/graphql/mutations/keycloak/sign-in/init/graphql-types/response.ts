@@ -1,5 +1,6 @@
 import {
     Field,
+    Int,
     ObjectType,
 } from "@nestjs/graphql"
 import {
@@ -17,7 +18,7 @@ export class SignInInitData {
         })
         challengeId: string
 
-    @Field(() => Number,
+    @Field(() => Int,
         {
             description: "OTP expiry in seconds.",
         })

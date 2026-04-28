@@ -1,5 +1,6 @@
 import {
     Field,
+    Int,
     ObjectType,
 } from "@nestjs/graphql"
 import {
@@ -11,14 +12,16 @@ import {
     description: "Payload of signUp: challenge id and expiry.",
 })
 export class SignUpInitData {
-    @Field(() => String, {
-        description: "Opaque challenge id; use it for signUpVerifyOtp.",
-    })
+    @Field(() => String,
+        {
+            description: "Opaque challenge id; use it for signUpVerifyOtp.",
+        })
         challengeId: string
 
-    @Field(() => Number, {
-        description: "OTP expiry in seconds.",
-    })
+    @Field(() => Int,
+        {
+            description: "OTP expiry in seconds.",
+        })
         expiresInSeconds: number
 }
 
@@ -29,10 +32,11 @@ export class SignUpResponse
     extends AbstractGraphQLResponse
     implements IAbstractGraphQLResponse<SignUpInitData>
 {
-    @Field(() => SignUpInitData, {
-        nullable: true,
-        description: "Sign-up init challenge payload.",
-    })
+    @Field(() => SignUpInitData,
+        {
+            nullable: true,
+            description: "Sign-up init challenge payload.",
+        })
         data: SignUpInitData
 }
 

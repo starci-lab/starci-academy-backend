@@ -3,6 +3,7 @@ import {
 } from "@modules/cqrs"
 import {
     KeycloakJwtPayload,
+    KeycloakTokenService,
 } from "@modules/keycloak"
 import {
     Injectable,
@@ -28,10 +29,21 @@ import {
 } from "@modules/exceptions"
 import {
     InvalidJwtPayloadException,
+    UserNotFoundException,
 } from "@modules/exceptions"
 import {
     OtpChallengeService,
 } from "@modules/code"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+    UserEntity,
+} from "@modules/databases"
+import type {
+    EntityManager,
+} from "typeorm"
+import type {
+    SignInActionPayload,
+} from "../types"
 
 @CommandHandler(SignInVerifyOtpCommand)
 @Injectable()
@@ -42,6 +54,9 @@ export class SignInVerifyOtpHandler
     constructor(
         private readonly jwtService: JwtService,
         private readonly otpChallengeService: OtpChallengeService,
+        private readonly keycloakTokenService: KeycloakTokenService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) {
         super()
     }
@@ -60,26 +75,12 @@ export class SignInVerifyOtpHandler
                 otp,
             },
         } = command.params
-        const result = await this.otpChallengeService.verifyLoginChallenge(
+        const result = await this.otpChallengeService.verifyActionChallenge<SignInActionPayload>(
             {
                 challengeId,
                 otp,
             }
         )
-        if (!result.tokens) {
-            throw new ChallengeTokensNotFoundException(
-                {
-                    challengeId,
-                }
-            )
-        }
-        if (!result.email) {
-            throw new ChallengeEmailNotFoundException(
-                {
-                    challengeId,
-                }
-            )
-        }
         if (result.notFound) {
             throw new ChallengeNotFoundException(
                 {
@@ -94,21 +95,58 @@ export class SignInVerifyOtpHandler
                 }
             )
         }
-        const decoded = this.jwtService.decode<KeycloakJwtPayload>(
-            result.tokens.accessToken
-        )
-        if (!decoded || typeof decoded === "string" || !decoded.sub) {
-            throw new InvalidJwtPayloadException(
+        if (!result.email) {
+            throw new ChallengeEmailNotFoundException(
                 {
-                    payload: result.tokens.accessToken,
+                    challengeId,
                 }
             )
         }
+        if (!result.payload) {
+            throw new ChallengeTokensNotFoundException(
+                {
+                    challengeId,
+                }
+            )
+        }
+
+        const tokenResponse = await this.keycloakTokenService.exchangePasswordForToken(
+            {
+                username: result.payload.email,
+                password: result.payload.password,
+            }
+        )
+
+        const decoded = this.jwtService.decode<KeycloakJwtPayload>(tokenResponse.access_token)
+        if (!decoded || typeof decoded === "string" || !decoded.sub) {
+            throw new InvalidJwtPayloadException(
+                {
+                    payload: decoded,
+                }
+            )
+        }
+
+        const user = await this.entityManager.findOne(
+            UserEntity,
+            {
+                where: {
+                    keycloakId: decoded.sub,
+                },
+            }
+        )
+        if (!user) {
+            throw new UserNotFoundException(
+                {
+                    keycloakId: decoded.sub,
+                }
+            )
+        }
+
         return {
             data: {
-                accessToken: result.tokens.accessToken,
+                accessToken: tokenResponse.access_token,
             },
-            refreshToken: result.tokens.refreshToken,
+            refreshToken: tokenResponse.refresh_token,
         }
     }
 }

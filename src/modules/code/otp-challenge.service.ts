@@ -22,7 +22,11 @@ import {
 import type {
     CreateLoginChallengeParams,
     CreateLoginChallengeResult,
+    CreateActionChallengeParams,
+    CreateActionChallengeResult,
     LoginChallengeRecord,
+    OtpActionPayloadRecord,
+    VerifyActionChallengeResult,
     VerifyLoginChallengeParams,
     VerifyLoginChallengeResult,
 } from "./types"
@@ -54,6 +58,26 @@ export class OtpChallengeService {
     /** Build the key for an OTP challenge in Redis. */
     private buildKey(challengeId: string): string {
         return `${this.keyPrefix}:${challengeId}`
+    }
+
+    /** Build a base record for OTP challenges. */
+    private buildBaseRecord(
+        challengeId: string,
+        email: string,
+        otp: string,
+    ): {
+        email: string
+        otpHash: string
+        attempts: number
+    } {
+        return {
+            email,
+            otpHash: this.hashOtp(
+                challengeId,
+                otp,
+            ),
+            attempts: 0,
+        }
     }
 
     /** Generate a 6-digit OTP code. */
@@ -95,77 +119,60 @@ export class OtpChallengeService {
         )
     }
 
-    /** Create a new OTP challenge. */
-    async createLoginChallenge(
-        params: CreateLoginChallengeParams,
-    ): Promise<CreateLoginChallengeResult> {
-        /** Get the TTL in milliseconds for the challenge. */
+    /**
+     * Create an OTP challenge that stores arbitrary payload until verification.
+     */
+    async createActionChallenge<TPayload>(
+        params: CreateActionChallengeParams<TPayload>,
+    ): Promise<CreateActionChallengeResult> {
         const ttlMs = this.getTtlMs()
-        /** Generate a unique challenge ID. */
         const challengeId = uuidv4()
-        /** Generate a new OTP. */
         const otp = this.generateOtp()
-        /** Create a new login challenge record. */
-        const record: LoginChallengeRecord = {
-            email: params.email,
-            otpHash: this.hashOtp(
+
+        const record: OtpActionPayloadRecord<TPayload> = {
+            ...this.buildBaseRecord(
                 challengeId,
-                otp
+                params.email,
+                otp,
             ),
-            attempts: 0,
-            tokens: {
-                accessToken: params.tokenResponse.access_token,
-                refreshToken: params.tokenResponse.refresh_token,
-                tokenType: params.tokenResponse.token_type,
-                idToken: params.tokenResponse.id_token,
-            },
+            payload: params.payload,
         }
-        /** Build the key for the challenge in Redis. */
+
         const key = this.buildKey(challengeId)
-        // Set the challenge only if it does not exist; expire automatically.
-        // ioredis supports: set(key, value, 'PX', ttlMs, 'NX')
-        /** Set the challenge in Redis. */
         const ok = await this.redis.set(
             key,
             this.superJson.stringify(record),
             "PX",
             ttlMs,
-            "NX")
-
-        /** If the challenge was not set, retry. */
+            "NX"
+        )
         if (ok !== "OK") {
-            // Extremely unlikely given UUID keys; just retry once.
-            return this.createLoginChallenge(params)
+            return this.createActionChallenge(params)
         }
 
-        /** Return the challenge result. */
         return {
             challengeId,
             otp,
-            expiresInSeconds: Math.max(1,
-                Math.floor(ttlMs / 1000)),
+            expiresInSeconds: Math.max(
+                1,
+                Math.floor(ttlMs / 1000)
+            ),
         }
     }
 
     /**
-     * Verify OTP and return stored Keycloak tokens. Single-use on success.
-     *
-     * @returns tokens when verified, or `null` if challenge missing/expired.
-     * @throws Error when OTP mismatches too many times.
+     * Verify OTP and return stored payload. Single-use on success.
      */
-    async verifyLoginChallenge(
+    async verifyActionChallenge<TPayload>(
         {
             challengeId,
             otp,
         }: VerifyLoginChallengeParams,
-    ): Promise<VerifyLoginChallengeResult> {
-        /** Build the key for the OTP challenge in Redis. */
+    ): Promise<VerifyActionChallengeResult<TPayload>> {
         const key = this.buildKey(
             challengeId
         )
-        /** Get the raw data from Redis. */
         const data = await this.redis.get(key)
-        /** If the challenge is not found, return a failure result. */
         if (!data) {
             return {
                 mismatch: false,
@@ -173,49 +180,46 @@ export class OtpChallengeService {
                 notFound: true,
             }
         }
-        /** Parse the data from Redis into a LoginChallengeRecord. */
-        const record = this.superJson.parse<LoginChallengeRecord>(data)
-        /** Calculate the expected hash for the OTP. */
+
+        const record = this.superJson.parse<OtpActionPayloadRecord<TPayload>>(data)
         const expectedHash = record.otpHash
-        /** Calculate the actual hash for the OTP. */
         const actualHash = this.hashOtp(
             challengeId,
             otp
         )
-        /** Check if the expected hash matches the actual hash. */
-        const matches = this.safeEqualsHex(expectedHash,
-            actualHash)
+        const matches = this.safeEqualsHex(
+            expectedHash,
+            actualHash
+        )
+
         if (!matches) {
-            /** Increment the number of attempts. */
             const attempts = (record.attempts ?? 0) + 1
             record.attempts = attempts
-            /** Save the updated record back to Redis. */
             await this.redis.set(
                 key,
                 this.superJson.stringify(record),
                 "KEEPTTL"
             )
-            /** Calculate the number of attempts left. */
-            const attemptsLeft = Math.max(0,
-                this.maxAttempts - attempts)
+            const attemptsLeft = Math.max(
+                0,
+                this.maxAttempts - attempts
+            )
             if (attempts >= this.maxAttempts) {
-                /** Delete the challenge from Redis. */
                 await this.redis.del(key)
             }
 
             return {
                 mismatch: true,
                 attemptsLeft,
-                notFound: true,
+                notFound: false,
             }
         }
 
-        /** Delete the challenge from Redis. */
         await this.redis.del(key)
 
         return {
             email: record.email,
-            tokens: record.tokens,
+            payload: record.payload,
             mismatch: false,
             attemptsLeft: this.maxAttempts,
             notFound: false,

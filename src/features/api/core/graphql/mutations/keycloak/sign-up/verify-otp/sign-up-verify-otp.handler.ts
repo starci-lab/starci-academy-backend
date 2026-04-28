@@ -3,6 +3,7 @@ import {
 } from "@modules/cqrs"
 import {
     KeycloakJwtPayload,
+    KeycloakTokenService,
 } from "@modules/keycloak"
 import {
     Injectable,
@@ -30,6 +31,16 @@ import {
 import {
     OtpChallengeService,
 } from "@modules/code"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+    UserEntity,
+} from "@modules/databases"
+import type {
+    EntityManager,
+} from "typeorm"
+import type {
+    SignUpActionPayload,
+} from "../types"
 
 @CommandHandler(SignUpVerifyOtpCommand)
 @Injectable()
@@ -40,6 +51,9 @@ export class SignUpVerifyOtpHandler
     constructor(
         private readonly jwtService: JwtService,
         private readonly otpChallengeService: OtpChallengeService,
+        private readonly keycloakTokenService: KeycloakTokenService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) {
         super()
     }
@@ -47,7 +61,6 @@ export class SignUpVerifyOtpHandler
     protected override async process(
         command: SignUpVerifyOtpCommand,
     ): Promise<SignUpVerifyOtpCommandResult> {
-        try {
         const {
             request: {
                 challengeId,
@@ -55,27 +68,13 @@ export class SignUpVerifyOtpHandler
             },
         } = command.params
 
-        const result = await this.otpChallengeService.verifyLoginChallenge(
+        const result = await this.otpChallengeService.verifyActionChallenge<SignUpActionPayload>(
             {
                 challengeId,
                 otp,
             }
         )
 
-        if (!result.tokens) {
-            throw new ChallengeTokensNotFoundException(
-                {
-                    challengeId,
-                }
-            )
-        }
-        if (!result.email) {
-            throw new ChallengeEmailNotFoundException(
-                {
-                    challengeId,
-                }
-            )
-        }
         if (result.notFound) {
             throw new ChallengeNotFoundException(
                 {
@@ -90,27 +89,80 @@ export class SignUpVerifyOtpHandler
                 }
             )
         }
-
-        const decoded = this.jwtService.decode<KeycloakJwtPayload>(
-            result.tokens.accessToken
-        )
-        if (!decoded || typeof decoded === "string" || !decoded.sub) {
-            throw new InvalidJwtPayloadException(
+        if (!result.email) {
+            throw new ChallengeEmailNotFoundException(
                 {
-                    payload: result.tokens.accessToken,
+                    challengeId,
+                }
+            )
+        }
+        if (!result.payload) {
+            throw new ChallengeTokensNotFoundException(
+                {
+                    challengeId,
                 }
             )
         }
 
+        const keycloakUsername = result.payload.username ?? result.payload.email
+
+        const keycloakUserId = await this.keycloakTokenService.registerUserWithPassword(
+            {
+                username: keycloakUsername,
+                email: result.payload.email,
+                password: result.payload.password,
+                firstName: result.payload.firstName,
+                lastName: result.payload.lastName,
+            }
+        )
+
+        await this.keycloakTokenService.sendVerifyEmail(keycloakUserId)
+
+        const tokenResponse = await this.keycloakTokenService.exchangePasswordForToken(
+            {
+                username: keycloakUsername,
+                password: result.payload.password,
+            }
+        )
+
+        const decoded = this.jwtService.decode<KeycloakJwtPayload>(
+            tokenResponse.access_token
+        )
+        if (!decoded || typeof decoded === "string" || !decoded.sub) {
+            throw new InvalidJwtPayloadException(
+                {
+                    payload: decoded,
+                }
+            )
+        }
+
+        const keycloakId = decoded.sub ?? keycloakUserId
+
+        let user = await this.entityManager.findOne(
+            UserEntity,
+            {
+                where: {
+                    keycloakId,
+                },
+            }
+        )
+        if (!user) {
+            user = this.entityManager.create(
+                UserEntity,
+                {
+                    username: decoded.preferred_username ?? keycloakUsername,
+                    email: decoded.email ?? result.payload.email,
+                    keycloakId,
+                }
+            )
+            await this.entityManager.save(user)
+        }
+
         return {
             data: {
-                accessToken: result.tokens.accessToken,
+                accessToken: tokenResponse.access_token,
             },
-            refreshToken: result.tokens.refreshToken,
-        }
-        } catch (error) {
-            console.error(error)
-            throw error
+            refreshToken: tokenResponse.refresh_token,
         }
     }
 }

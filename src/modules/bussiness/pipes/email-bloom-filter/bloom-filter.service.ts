@@ -49,7 +49,8 @@ export class EmailBloomFilterService implements OnModuleInit {
             )
             //iterate over all users and add them to the bloom filter
             
-            await this.redis.set(bloomFilterKey, bloomFilter.toJSON())
+            await this.redis.set(bloomFilterKey,
+                bloomFilter.toJSON())
         }
     }
 }
