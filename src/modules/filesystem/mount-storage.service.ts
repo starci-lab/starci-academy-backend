@@ -15,8 +15,10 @@ import {
 @Injectable()
 export class MountStorageService implements OnModuleInit {
     public githubAccessToken: string
+    public githubSecretKey: string
     public appConfig: AppConfig 
     public s3SecretAccessKey: string
+    public encryptionKey: string
     public keycloakClientSecret: string
     public payosApiKey: string
     public geminiApiKey: string
@@ -33,10 +35,14 @@ export class MountStorageService implements OnModuleInit {
         this.readinessWatcherFactoryService.createWatcher(MountStorageService.name)
         // get github access token from mount filesystem service
         this.githubAccessToken = this.mountFilesystemService.githubAccessToken()
+        // get github secret key from mount filesystem service
+        this.githubSecretKey = this.mountFilesystemService.githubSecretKey()
         // get app config from mount filesystem service
         this.appConfig = this.mountFilesystemService.appConfig()
         // get s3 secret access key from mount filesystem service
         this.s3SecretAccessKey = this.mountFilesystemService.s3SecretAccessKey()
+        // get AES encryption key from mount filesystem service
+        this.encryptionKey = this.mountFilesystemService.encryptionKey()
         // get keycloak client secret from mount filesystem service
         this.keycloakClientSecret = this.mountFilesystemService.keycloakClientSecret()
         // get payos api key from mount filesystem service

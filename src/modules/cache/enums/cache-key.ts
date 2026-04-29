@@ -8,6 +8,8 @@ export enum CacheKey {
     JobSubscriberClientId = "job.subscriber.client_id",
     ParentIndex = "parent.index",
     KeycloakOidcPkce = "keycloak.oidc.pkce",
+    KeycloakUser = "keycloak.user",
+    CourseEnrollment = "course.enrollment",
 }
 
 /**

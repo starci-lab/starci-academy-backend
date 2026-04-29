@@ -100,6 +100,14 @@ export const envConfig = () => ({
                 key: "CACHE_TTL_KEYCLOAK_OIDC_PKCE",
                 defaultValue: "15m",
             }),
+            keycloakUser: parseEnvMs({
+                key: "CACHE_TTL_KEYCLOAK_USER",
+                defaultValue: "100years",
+            }),
+            courseEnrollment: parseEnvMs({
+                key: "CACHE_TTL_COURSE_ENROLLMENT",
+                defaultValue: "100years",
+            }),
             aggregatedTokenPrice: parseEnvMs({
                 key: "CACHE_TTL_AGGREGATED_TOKEN_PRICE",
                 defaultValue: "100years"
@@ -354,7 +362,7 @@ export const envConfig = () => ({
         github: {
             organization: parseEnvString({
                 key: "GITHUB_ORGANIZATION",
-                defaultValue: "test-academy-org",
+                defaultValue: "StarCi-Academy",
             }),
             teamSlugsByCourseSlug: parseEnvJson<Record<string, string>>({
                 key: "GITHUB_TEAM_SLUGS_BY_COURSE_SLUG",
@@ -733,6 +741,13 @@ export const envConfig = () => ({
                     "terraform",
                     "github-access-token.key"),
             }),
+            githubSecretKey: parseEnvString({
+                key: "TERRAFORM_GITHUB_SECRET_KEY_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "github-secret-key.key"),
+            }),
             s3SecretAccessKey: parseEnvString({
                 key: "TERRAFORM_S3_SECRET_ACCESS_KEY_MOUNT_PATH",
                 defaultValue: join(process.cwd(),
@@ -781,6 +796,13 @@ export const envConfig = () => ({
                     ".mount",
                     "terraform",
                     "brevo-smtp-api-key.key"),
+            }),
+            encryptionKey: parseEnvString({
+                key: "TERRAFORM_ENCRYPTION_KEY_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "encryption-key.key"),
             }),
             gcpServiceAccountJson: parseEnvString({
                 key: "TERRAFORM_GCP_SERVICE_ACCOUNT_JSON_MOUNT_PATH",
@@ -1071,6 +1093,19 @@ export const envConfig = () => ({
             github: parseEnvString({
                 key: "KEYCLOAK_GITHUB_REDIRECT_URI",
                 defaultValue: "http://localhost:3001/api/v1/keycloak/github/callback",
+            }),
+        },
+    },
+    /** GitHub configuration. */
+    github: {
+        oauth: {
+            redirectUri: parseEnvString({
+                key: "GITHUB_OAUTH_REDIRECT_URI",
+                defaultValue: "http://localhost:3001/api/v1/github/oauth/callback",
+            }),
+            clientId: parseEnvString({
+                key: "GITHUB_CLIENT_ID",
+                defaultValue: "Ov23li5w0Z4OaI4lyjgf",
             }),
         },
     },

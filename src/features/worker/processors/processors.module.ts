@@ -11,9 +11,6 @@ import {
     ProcessGitSubmissionModule,
 } from "./process-git-submission"
 import {
-    InviteGithubModule,
-} from "./invite-github"
-import {
     ProcessCvSubmissionModule,
 } from "./process-cv-submission"
 import {
@@ -30,11 +27,6 @@ import {
             }
         ),
         ProcessGitSubmissionModule.register(
-            {
-                isGlobal: true,
-            }
-        ),
-        InviteGithubModule.register(
             {
                 isGlobal: true,
             }

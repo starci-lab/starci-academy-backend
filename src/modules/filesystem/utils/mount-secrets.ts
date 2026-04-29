@@ -72,11 +72,31 @@ export const getKeycloakClientSecret = (): string => {
 }
 
 /**
+ * Get AES encryption key (from terraform mount path).
+ */
+export const getEncryptionKey = (): string => {
+    return readFileSync(
+        envConfig().mountPath.terraform.encryptionKey,
+        "utf8",
+    )
+}
+
+/**
  * Get github access token (from terraform mount path).
  */
 export const getGithubAccessToken = (): string => {
     return readFileSync(
         envConfig().mountPath.terraform.githubAccessToken,
+        "utf8",
+    )
+}
+
+/**
+ * Get github secret key (from terraform mount path).
+ */
+export const getGithubSecretKey = (): string => {
+    return readFileSync(
+        envConfig().mountPath.terraform.githubSecretKey,
         "utf8",
     )
 }

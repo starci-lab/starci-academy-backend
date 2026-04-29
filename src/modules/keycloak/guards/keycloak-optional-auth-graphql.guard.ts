@@ -7,18 +7,14 @@ import {
     GqlExecutionContext,
 } from "@nestjs/graphql"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-    UserEntity,
-} from "@modules/databases"
+    UserService,
+} from "@modules/bussiness/user"
 import {
     KeycloakJwksService,
 } from "../jwks.service"
 import type {
     KeycloakAuthGuardRequest,
 } from "../types"
-import type {
-    EntityManager,
-} from "typeorm"
 
 /**
  * Like {@link KeycloakAuthGraphQLGuard}, but allows requests without `Authorization` (`req.user` unset).
@@ -28,8 +24,7 @@ import type {
 export class KeycloakOptionalAuthGraphQLGuard {
     constructor(
         private readonly keycloakJwksService: KeycloakJwksService,
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
+        private readonly userService: UserService,
     ) {}
 
     /**
@@ -71,26 +66,8 @@ export class KeycloakOptionalAuthGraphQLGuard {
                 "Invalid or inactive token",
             )
         }
-        let user = await this.entityManager.findOne(
-            UserEntity,
-            {
-                where: {
-                    keycloakId: verified.sub,
-                },
-            },
-        )
-        if (!user) {
-            user = this.entityManager.create(
-                UserEntity,
-                {
-                    keycloakId: verified.sub,
-                    username: verified.preferred_username,
-                    email: verified.email,
-                    avatar: verified.avatar,
-                },
-            )
-            await this.entityManager.save(user)
-        }
+        const keycloakId = verified.sub
+        const user = await this.userService.getUserByKeycloakId(keycloakId)
         request.user = user
         return true
     }

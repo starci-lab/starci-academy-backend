@@ -16,6 +16,9 @@ import {
 import {
     MinioWebhookModule,
 } from "./minio"
+import {
+    GithubModule,
+} from "./github"
 
 
 /**
@@ -23,16 +26,31 @@ import {
  */
 @Module({
     imports: [
-        KeycloakModule.register({
-            isGlobal: true,
-        }),
-        PayosModule.register({
-            isGlobal: true,
-        }),
-        SepayModule.register({
-            isGlobal: true,
-        }),
-        MinioWebhookModule,
+        KeycloakModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
+        PayosModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
+        SepayModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
+        GithubModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
+        MinioWebhookModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
     ],
 })
 export class HttpModule extends ConfigurableModuleClass {}

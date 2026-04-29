@@ -12,7 +12,9 @@ import {
     getGeminiApiKey,
     getOpenAiApiKey,
     getKeycloakClientSecret,
+    getEncryptionKey,
     getGithubAccessToken,
+    getGithubSecretKey,
     getSepayApiKey,
     getBrevoSmtpPassword,
     getKeycloakAdmin,
@@ -51,6 +53,13 @@ export class MountFilesystemService {
     }
 
     /**
+     * Get AES encryption key from mount path.
+     */
+    encryptionKey(): string {
+        return getEncryptionKey()
+    }
+
+    /**
      * Get payos api key from mount path.
      */
     payosApiKey(): string {
@@ -76,6 +85,13 @@ export class MountFilesystemService {
      */
     githubAccessToken(): string {
         return getGithubAccessToken()
+    }
+
+    /**
+     * Get github secret key from mount path.
+     */
+    githubSecretKey(): string {
+        return getGithubSecretKey()
     }
 
     /**

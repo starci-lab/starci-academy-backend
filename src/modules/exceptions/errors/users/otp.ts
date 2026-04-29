@@ -107,17 +107,17 @@ export class ChallengeEmailNotFoundException extends AbstractException {
 }
 
 /** Thrown when a login challenge id is missing/expired. */
-export interface ChallengeNotFoundExceptionMetadata extends AbstractExceptionMetadata {
+export interface ChallengeOtpNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     challengeId: string
 }
 
 /** Thrown when the challenge is not found. */
-export class ChallengeNotFoundException extends AbstractException {
+export class ChallengeOtpNotFoundException extends AbstractException {
     constructor(
         {
             challengeId,
             originalError,
-        }: ChallengeNotFoundExceptionMetadata
+        }: ChallengeOtpNotFoundExceptionMetadata
     ) {
         super(
             "Challenge not found",

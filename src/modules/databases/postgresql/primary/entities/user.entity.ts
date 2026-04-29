@@ -14,6 +14,10 @@ import {
 import {
     UserChallengeSubmissionEntity,
 } from "./user-challenge-submission.entity"
+import {
+    AuthenticationType, 
+    GraphQLTypeAuthenticationType 
+} from "../enums"
 
 /**
  * Represents an application-level user.
@@ -165,4 +169,18 @@ export class UserEntity extends UuidAbstractEntity {
         },
     )
         userSubmissions: Array<UserChallengeSubmissionEntity>
+
+    @Field(() => GraphQLTypeAuthenticationType,
+        {
+            description: "The type of authentication used by the user.",
+        },
+    )
+    @Column({
+        type: "enum",
+        name: "authentication_type",
+        enum: AuthenticationType,
+        enumName: "authentication_type",
+        default: AuthenticationType.Google
+    })
+        authenticationType: AuthenticationType
 }

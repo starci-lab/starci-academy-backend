@@ -263,18 +263,52 @@ export class KeycloakTokenService {
     }
 
     /**
+     * Verifies a refresh token with Keycloak token introspection.
+     *
+     * @param token - The refresh token (JWT).
+     * @returns Introspection response (`active`, `sub` => Keycloak user id, claims).
+     */
+    async verifyRefreshToken(
+        token: string
+    ): Promise<KeycloakTokenIntrospectResponse> {
+        return await this.verifyTokenIntrospect(
+            token,
+            "refresh_token",
+        )
+    }
+
+    /**
      * Verifies an access token via Keycloak token introspection (requires client secret).
      *
      * @param token - The access token.
      * @returns Raw introspection JSON.
      */
-    async verifyAccessTokenIntrospect(token: string): Promise<KeycloakTokenIntrospectResponse> {
+    async verifyAccessTokenIntrospect(
+        token: string
+    ): Promise<KeycloakTokenIntrospectResponse> {
+        return await this.verifyTokenIntrospect(
+            token,
+            "access_token",
+        )
+    }
+
+    /**
+     * Shared implementation for Keycloak token introspection.
+     *
+     * Note: Keycloak refresh tokens are not always locally verifiable via JWKS,
+     * so introspection is used for validity checks.
+     */
+    private async verifyTokenIntrospect(
+        token: string,
+        tokenTypeHint: "access_token" | "refresh_token",
+    ): Promise<KeycloakTokenIntrospectResponse> {
         const response = await this.axiosInstance.post<KeycloakTokenIntrospectResponse>(
             `${envConfig().keycloak.url}/realms/${envConfig().keycloak.realm}/protocol/openid-connect/token/introspect`,
             new URLSearchParams({
                 token,
                 client_id: envConfig().keycloak.clientId,
                 client_secret: this.mountStorageService.keycloakClientSecret,
+                token_type_hint: tokenTypeHint,
             }),
             {
                 headers: {
@@ -282,6 +316,7 @@ export class KeycloakTokenService {
                 },
             },
         )
+        // `sub` is the Keycloak subject, used as `keycloakUserId` in downstream cache mapping.
         return response.data
     }
 }

@@ -5,6 +5,7 @@ import {
     KeycloakJwtPayload,
     KeycloakOidcRedirectService,
     KeycloakTokenService,
+    KeycloakIdentityProvider,
 } from "@modules/keycloak"
 import {
     Injectable,
@@ -25,6 +26,7 @@ import type {
 import {
     InjectPrimaryPostgreSQLEntityManager,
     UserEntity,
+    AuthenticationType,
 } from "@modules/databases"
 import {
     JwtService,
@@ -91,11 +93,21 @@ export class ExchangeCodeForTokenHandler
                 },
             }
         )
+        /* Map Keycloak identity provider to authentication type */
+        const typeToProvider: Record<
+            KeycloakIdentityProvider, 
+            AuthenticationType
+        > = {
+            [KeycloakIdentityProvider.Google]: AuthenticationType.Google,
+            [KeycloakIdentityProvider.Github]: AuthenticationType.Github,
+        }
+        /* Create user if not exists */
         if (!user) {
             user = this.entityManager.create(
                 UserEntity,
                 {
                     keycloakId: decoded.sub,
+                    authenticationType: typeToProvider[provider],
                 }
             )
             await this.entityManager.save(user)

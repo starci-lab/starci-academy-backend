@@ -37,6 +37,22 @@ export const httpConfig = () => ({
             }),
         }
     },
+    // github configuration (OAuth directly from GitHub)
+    github: () => {
+        const githubTags = "github"
+        return {
+            tags: githubTags,
+            oauth: () => ({
+                tags: `${githubTags}/oauth`,
+                redirect: () => ({
+                    path: "redirect",
+                }),
+                callback: () => ({
+                    path: "callback",
+                }),
+            }),
+        }
+    },
     // keycloak configuration
     keycloak: () => {
         // tags for the keycloak module

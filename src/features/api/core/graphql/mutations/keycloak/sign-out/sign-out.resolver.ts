@@ -22,7 +22,7 @@ import type {
 } from "express"
 import {
     CookieName,
-    Cookie,
+    GraphQLCookie,
     CookieService,
 } from "@modules/cookie"
 import {
@@ -53,7 +53,7 @@ export class SignOutResolver {
         },
     )
     async execute(
-        @Cookie(CookieName.KeycloakRefreshToken)
+        @GraphQLCookie(CookieName.KeycloakRefreshToken)
             refreshToken: string,
         @Context()
             ctx: {

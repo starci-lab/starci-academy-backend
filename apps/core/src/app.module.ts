@@ -131,6 +131,9 @@ import {
 import {
     CodeModule
 } from "@modules/code"
+import {
+    GithubModule,
+} from "@modules/github"
 /**
  * The main module for the application.
  */
@@ -164,6 +167,12 @@ import {
             ),
             /** Cookie module. */
             CookieModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Github module. */
+            GithubModule.register(
                 {
                     isGlobal: true,
                 }

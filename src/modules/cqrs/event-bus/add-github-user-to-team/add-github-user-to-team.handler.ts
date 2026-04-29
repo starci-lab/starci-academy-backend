@@ -2,7 +2,7 @@ import {
     Logger,
 } from "@nestjs/common"
 import {
-    EnqueueInviteGithubJobService,
+    EnqueueResolveGithubJobService,
 } from "@modules/bussiness"
 import {
     AddGithubUserToTeamEvent,
@@ -20,7 +20,7 @@ import {
  * into a queued `invite-github` BullMQ job.
  *
  * Callers should prefer {@link publish} over talking to
- * {@link EnqueueInviteGithubJobService} directly: the handler absorbs
+ * {@link EnqueueResolveGithubJobService} directly: the handler absorbs
  * the in-memory retry loop provided by {@link EventBus} so a transient
  * enqueue failure (e.g. Redis blip) does not drop the intent.
  */
@@ -31,7 +31,7 @@ export class AddGithubUserToTeamHandler
     private readonly logger = new Logger(AddGithubUserToTeamHandler.name)
 
     constructor(
-        private readonly enqueueInviteGithubJobService: EnqueueInviteGithubJobService,
+        private readonly enqueueResolveGithubJobService: EnqueueResolveGithubJobService,
     ) {
         super()
     }
@@ -42,7 +42,7 @@ export class AddGithubUserToTeamHandler
      * retry.
      */
     protected override async process(event: AddGithubUserToTeamEvent): Promise<void> {
-        await this.enqueueInviteGithubJobService.enqueue({
+        await this.enqueueResolveGithubJobService.enqueue({
             userId: event.payload.userId,
             courseId: "!2",
             githubUsername: event.payload.githubUsername,

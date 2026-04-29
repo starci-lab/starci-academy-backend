@@ -18,6 +18,9 @@ import {
 import {
     BloomFiltersModule,
 } from "./bloom-filters"
+import {
+    UserModule,
+} from "./user"
 
 /**
  * The module for the bussiness logics.
@@ -34,6 +37,8 @@ export class BussinessModule extends ConfigurableModuleClass {
             TransactionsModule.register(options),
             // import the bloom filters module
             BloomFiltersModule.register(options),
+            // import the user module
+            UserModule.register(options),
         ]
         return {
             ...dynamicModule,

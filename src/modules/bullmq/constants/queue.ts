@@ -38,11 +38,11 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
         ),
         name: "process-google-docs-submission",
     },
-    [BullQueueName.InviteGithub]: {
+    [BullQueueName.ResolveGithub]: {
         prefix: formatWithBraces(
-            "invite-github",
+            "resolve-github",
         ),
-        name: "invite-github",
+        name: "resolve-github",
     },
     [BullQueueName.ProcessCvSubmission]: {
         prefix: formatWithBraces(

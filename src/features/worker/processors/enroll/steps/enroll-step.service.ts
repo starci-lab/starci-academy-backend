@@ -15,7 +15,7 @@ import {
     type EntityManager,
 } from "typeorm"
 import {
-    EnqueueInviteGithubJobService,
+    EnqueueResolveGithubJobService,
     JobActionService,
     TransactionActionService,
 } from "@modules/bussiness"
@@ -46,7 +46,7 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
         private readonly entityManager: EntityManager,
         private readonly transactionActionService: TransactionActionService,
         private readonly jobActionService: JobActionService,
-        private readonly enqueueInviteGithubJobService: EnqueueInviteGithubJobService,
+        private readonly enqueueResolveGithubJobService: EnqueueResolveGithubJobService,
         private readonly winstonService: WinstonService,
     ) {
         super()
@@ -184,15 +184,11 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
             },
         )
         if (user?.githubUsername) {
-            try {
-                await this.enqueueInviteGithubJobService.enqueue({
-                    userId,
-                    courseId,
-                    githubUsername: user.githubUsername,
-                })
-            } catch (error) {
-                console.error(error)
-            }
+            await this.enqueueResolveGithubJobService.enqueue({
+                userId,
+                courseId,
+                githubUsername: user.githubUsername,
+            })
         }
         return {
         }

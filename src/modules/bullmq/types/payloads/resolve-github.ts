@@ -1,7 +1,7 @@
 /**
  * Payload for GitHub team invitation job.
  */
-export interface InviteGithubPayload {
+export interface EnqueueResolveGithubPayload {
     /**
      * User ID to invite to GitHub organization.
      */

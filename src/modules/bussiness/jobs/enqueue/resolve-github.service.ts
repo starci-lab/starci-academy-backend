@@ -1,0 +1,159 @@
+import {
+    Injectable,
+} from "@nestjs/common"
+import {
+    InjectQueue,
+} from "@nestjs/bullmq"
+import {
+    Queue,
+} from "bullmq"
+import {
+    ActionType,
+    CourseEntity,
+    InjectPrimaryPostgreSQLEntityManager,
+    JobEntity,
+} from "@modules/databases"
+import {
+    envConfig,
+} from "@modules/env"
+import {
+    InjectSuperJson,
+} from "@modules/mixin"
+import {
+    bullData,
+    BullQueueName,
+    EnqueueResolveGithubPayload,
+} from "@modules/bullmq"
+import SuperJSON from "superjson"
+import {
+    EntityManager,
+} from "typeorm"
+import {
+    v4 as uuidv4,
+} from "uuid"
+import {
+    JobActionService,
+} from "../atomic"
+import {
+    CourseGithubTeamSlugNotMappedException,
+    CourseNotFoundException,
+    MissingRequiredParameterException,
+} from "@modules/exceptions"
+
+/**
+ * Params for enqueueing a resolve-github job.
+ */
+export interface EnqueueResolveGithubParams {
+    /**
+     * User ID to invite.
+     */
+    userId: string
+
+    /**
+     * Course ID used to resolve the GitHub team slug.
+     * Optional when `teamSlug` is provided directly.
+     */
+    courseId?: string
+
+    /**
+     * Team slug override for direct enqueuing flows (e.g. OAuth callback).
+     */
+    teamSlug?: string
+
+    /**
+     * GitHub username to add to organization/team.
+     */
+    githubUsername: string
+}
+
+/**
+ * Service for enqueueing resolve-github jobs.
+ */
+@Injectable()
+export class EnqueueResolveGithubJobService {
+    constructor(
+        private readonly jobActionService: JobActionService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
+        @InjectSuperJson()
+        private readonly superJson: SuperJSON,
+        @InjectQueue(bullData[BullQueueName.ResolveGithub].name)
+        private readonly resolveGithubQueue: Queue<string>,
+    ) {}
+
+    /**
+     * Enqueue a resolve-github job.
+     * @param params - User ID and GitHub username to invite.
+     * @returns The created job.
+     */
+    async enqueue(
+        {
+            userId,
+            courseId,
+            githubUsername,
+            teamSlug: inputTeamSlug,
+        }: EnqueueResolveGithubParams,
+    ): Promise<JobEntity> {
+        let teamSlug = inputTeamSlug
+        if (!teamSlug) {
+            if (!courseId) {
+                throw new MissingRequiredParameterException(
+                    {
+                        parameter: "courseId",
+                    },
+                )
+            }
+            const course = await this.entityManager.findOne(
+                CourseEntity,
+                {
+                    where: {
+                        id: courseId,
+                    },
+                },
+            )
+            if (!course) {
+                throw new CourseNotFoundException(
+                    {
+                        id: courseId,
+                    },
+                )
+            }
+            const courseSlug = course.displayId
+            teamSlug = envConfig().services.github.teamSlugsByCourseSlug[courseSlug]
+            if (!teamSlug) {
+                throw new CourseGithubTeamSlugNotMappedException(
+                    {
+                        courseSlug,
+                    },
+                )
+            }
+        }
+
+        const payload: EnqueueResolveGithubPayload = {
+            userId,
+            githubUsername,
+            teamSlug,
+        }
+
+        // Create a new job record
+        const job = await this.jobActionService.createJob({
+            id: uuidv4(),
+            userId,
+            actionType: ActionType.ResolveGithub,
+            maxSteps: 1,
+            payload: this.superJson.stringify(payload),
+        })
+
+        // Push the job to the queue
+        await this.resolveGithubQueue.add(
+            job.id,
+            job.payload,
+            {
+                jobId: job.id,
+            },
+        )
+
+        return job
+    }
+}
+

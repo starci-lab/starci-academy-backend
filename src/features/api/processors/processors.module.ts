@@ -7,6 +7,9 @@ import {
 import {
     SendMailModule,
 } from "./send-mail"
+import {
+    ResolveGithubModule,
+} from "./resolve-github"
 
 /**
  * Module for API-side BullMQ processors.
@@ -14,6 +17,9 @@ import {
 @Module({
     imports: [
         SendMailModule.register({
+            isGlobal: true,
+        }),
+        ResolveGithubModule.register({
             isGlobal: true,
         }),
     ],

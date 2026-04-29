@@ -83,7 +83,6 @@ export class ProcessSendMailStepService extends AbstractStepService<
         context: JobExtendedContext<SendMailPayload, EmptyObject>,
     ): Promise<EmptyObject> {
         const { payload } = context
-        console.log(payload)
         await this.mailerService.sendMail(
             {
                 to: payload.to.map((recipient) => recipient.address),
@@ -97,12 +96,7 @@ export class ProcessSendMailStepService extends AbstractStepService<
         return {
         }
     }
-
-    /**
-     * Build per-locale entity JSON, skip when the Minio snapshot hash is unchanged, upload by id and display id.
-     */
     
-
     /** Finalize the step. */
     private async finalize(
         executionResult: EmptyObject,

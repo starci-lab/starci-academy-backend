@@ -25,7 +25,7 @@ import type {
 import {
     ChallengeTokensNotFoundException,
     ChallengeEmailNotFoundException,
-    ChallengeNotFoundException,
+    ChallengeOtpNotFoundException,
     ChallengeOtpMismatchException,
     InvalidJwtPayloadException,
     UserNotFoundException,
@@ -78,7 +78,7 @@ export class ForgotPasswordVerifyOtpHandler
             },
         )
         if (result.notFound) {
-            throw new ChallengeNotFoundException({
+            throw new ChallengeOtpNotFoundException({
                 challengeId,
             })
         }

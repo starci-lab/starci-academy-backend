@@ -1,12 +1,8 @@
 import {
     Module,
-    DynamicModule,
 } from "@nestjs/common"
 import {
     ConfigurableModuleClass 
-} from "./bloom-filters.module-definition"
-import {
-    OPTIONS_TYPE,
 } from "./bloom-filters.module-definition"
 import {
     EmailBloomFilterService,
@@ -16,25 +12,12 @@ import {
  * The module for the bussiness logics.
  */
 @Module({
+    providers: [
+        EmailBloomFilterService,
+    ],
+    exports: [
+        EmailBloomFilterService,
+    ],
 })
 export class BloomFiltersModule extends ConfigurableModuleClass {
-    static register(options: typeof OPTIONS_TYPE): DynamicModule {
-        const dynamicModule = super.register(options)
-        const modules: Array<DynamicModule> = [
-        ]
-        return {
-            ...dynamicModule,
-            imports: [
-                ...modules,
-            ],
-            providers: [
-                ...(dynamicModule.providers ?? []),
-                EmailBloomFilterService,
-            ],
-            exports: [
-                ...modules,
-                EmailBloomFilterService,
-            ],
-        }
-    }
 }

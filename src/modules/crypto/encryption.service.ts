@@ -11,6 +11,9 @@ import type {
     EncryptParams,
     EncryptResult
 } from "./types"
+import { 
+    MountStorageService 
+} from "@modules/filesystem"
 
 /**
  * Service for AES-256-GCM encryption and decryption (authenticated encryption).
@@ -21,7 +24,24 @@ import type {
  */
 @Injectable()
 export class EncryptionService {
-    constructor() {}
+
+    constructor(
+        private readonly mountStorageService: MountStorageService,
+    ) {}
+
+    /**
+     * Get the encryption key.
+     * @returns The encryption key.
+     */
+    getEncryptionKey(): Buffer {
+        return crypto.pbkdf2Sync(
+            this.mountStorageService.encryptionKey.trim(),
+            "starci-academy-backend:aes-256-gcm",
+            100_000,
+            32,
+            "sha256",
+        )
+    }
 
     /**
      * Encrypts plaintext using AES-256-GCM (random IV per call, auth tag for integrity).
@@ -32,15 +52,18 @@ export class EncryptionService {
      * @example
      * const payload = encryptionService.encrypt({ plainText: "secret", key })
      */
-    encrypt({
-        plainText,
-        key,
-    }: EncryptParams): EncryptResult {
+    encrypt(
+        {
+            plainText,
+        }: EncryptParams
+    ): EncryptResult {
         const iv = crypto.randomBytes(IV_LENGTH)
 
-        const cipher = crypto.createCipheriv("aes-256-gcm",
-            key,
-            iv)
+        const cipher = crypto.createCipheriv(
+            "aes-256-gcm",
+            this.getEncryptionKey(),
+            iv
+        )
 
         const encrypted = Buffer.concat([
             cipher.update(plainText,
@@ -67,7 +90,6 @@ export class EncryptionService {
      */
     decrypt({
         payload,
-        key,
     }: DecryptParams): DecryptResult {
         const { iv, authTag, ciphertext } = payload
 
@@ -84,7 +106,7 @@ export class EncryptionService {
             }
 
             const decipher = crypto.createDecipheriv("aes-256-gcm",
-                key,
+                this.getEncryptionKey(),
                 ivBuffer)
             decipher.setAuthTag(authTagBuffer)
 

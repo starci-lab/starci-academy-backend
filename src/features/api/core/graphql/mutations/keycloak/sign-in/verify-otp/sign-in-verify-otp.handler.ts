@@ -23,7 +23,7 @@ import type {
 import {
     ChallengeTokensNotFoundException,
     ChallengeEmailNotFoundException,
-    ChallengeNotFoundException,
+    ChallengeOtpNotFoundException,
     ChallengeOtpMismatchException,
 } from "@modules/exceptions"
 import {
@@ -80,7 +80,7 @@ export class SignInVerifyOtpHandler
             }
         )
         if (result.notFound) {
-            throw new ChallengeNotFoundException(
+            throw new ChallengeOtpNotFoundException(
                 {
                     challengeId,
                 }

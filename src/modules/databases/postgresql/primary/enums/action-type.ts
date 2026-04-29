@@ -24,7 +24,7 @@ export enum ActionType {
     /**
      * Invite a user to a GitHub organization/team.
      */
-    InviteGithub = "inviteGithub",
+    ResolveGithub = "resolveGithub",
     /**
      * Grade a CV submission (worker pipeline).
      */
@@ -74,6 +74,9 @@ registerEnumType(
             },
             [ActionType.ProcessGoogleDocsSubmission]: {
                 description: "Process and grade a Google Docs challenge submission.",
+            },
+            [ActionType.ResolveGithub]: {
+                description: "Resolve GitHub account and enqueue organization/team membership update.",
             },
             [ActionType.SyncScyllaDB]: {
                 description: "Synchronize an entity to ScyllaDB.",

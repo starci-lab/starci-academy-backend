@@ -6,7 +6,9 @@ import {
 } from "./enums"
 import type {
     BloomFilterCacheResult,
+    CourseEnrollmentCacheResult,
     JobSubscriberClientIdCacheResult,
+    KeycloakUserCacheResult,
     ParentIndexCacheResult,
     KeycloakOidcPkceCacheResult,
 } from "./types"
@@ -39,5 +41,14 @@ export const configMap = {
         ttl: envConfig().cache.ttl.keycloakOidcPkce,
         cacheResult: {
         } as KeycloakOidcPkceCacheResult,
+    },
+    [CacheKey.KeycloakUser]: {
+        ttl: envConfig().cache.ttl.keycloakUser,
+        cacheResult: {
+        } as KeycloakUserCacheResult,
+    },
+    [CacheKey.CourseEnrollment]: {
+        ttl: 100 * 365 * 24 * 60 * 60 * 1000,
+        cacheResult: true as CourseEnrollmentCacheResult,
     },
 }

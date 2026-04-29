@@ -86,7 +86,6 @@ implements NestInterceptor<T, GraphQLResponse<T>> {
                 success: true,
             })),
             catchError((err) => {
-                console.error(err)
                 return new Observable<GraphQLResponse<T>>(  
                     (observer) => {
                         observer.next({

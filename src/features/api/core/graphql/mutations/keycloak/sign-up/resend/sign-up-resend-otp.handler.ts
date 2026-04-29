@@ -15,7 +15,7 @@ import type {
     SignUpInitData,
 } from "../init/graphql-types"
 import {
-    ChallengeNotFoundException,
+    ChallengeOtpNotFoundException,
 } from "@modules/exceptions"
 import {
     OtpChallengeService,
@@ -50,7 +50,7 @@ export class SignUpResendOtpHandler
             challengeId,
         )
         if (!refreshed) {
-            throw new ChallengeNotFoundException(
+            throw new ChallengeOtpNotFoundException(
                 {
                     challengeId,
                 }

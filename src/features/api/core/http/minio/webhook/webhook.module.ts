@@ -13,7 +13,13 @@ import {
 import {
     MinioWebhookService,
 } from "./webhook.service"
+import {
+    ConfigurableModuleClass,
+} from "./webhook.module-definition"
 
+/**
+ * Module for the Minio webhook.
+ */
 @Module({
     imports: [
         JobsModule,
@@ -29,4 +35,4 @@ import {
         MinioWebhookService,
     ],
 })
-export class MinioWebhookModule {}
+export class MinioWebhookModule extends ConfigurableModuleClass {}

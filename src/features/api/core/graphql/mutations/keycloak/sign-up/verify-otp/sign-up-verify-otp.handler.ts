@@ -25,7 +25,7 @@ import type {
 import {
     ChallengeTokensNotFoundException,
     ChallengeEmailNotFoundException,
-    ChallengeNotFoundException,
+    ChallengeOtpNotFoundException,
     ChallengeOtpMismatchException,
     InvalidJwtPayloadException,
 } from "@modules/exceptions"
@@ -35,6 +35,7 @@ import {
 import {
     InjectPrimaryPostgreSQLEntityManager,
     UserEntity,
+    AuthenticationType
 } from "@modules/databases"
 import type {
     EntityManager,
@@ -87,7 +88,7 @@ export class SignUpVerifyOtpHandler
         )
 
         if (result.notFound) {
-            throw new ChallengeNotFoundException(
+            throw new ChallengeOtpNotFoundException(
                 {
                     challengeId,
                 }
@@ -150,6 +151,7 @@ export class SignUpVerifyOtpHandler
                     username: decoded.preferred_username ?? keycloakUsername,
                     email: decoded.email ?? result.payload.email,
                     keycloakId,
+                    authenticationType: AuthenticationType.Credentials,
                 }
             )
             await this.entityManager.save(user)
