@@ -23,7 +23,13 @@ import {
 @Injectable()
 export class KeycloakUserService {
     private readonly axiosInstance: AxiosInstance
-
+    private readonly baseUrl = envConfig().keycloak.url.replace(/\/$/,
+        "")
+    /**
+     * Constructor.
+     * @param axiosService - The Axios service.
+     * @param mountStorageService - The mount storage service.
+     */
     constructor(
         private readonly axiosService: AxiosService,
         private readonly mountStorageService: MountStorageService,
@@ -31,7 +37,7 @@ export class KeycloakUserService {
         this.axiosInstance = this.axiosService.create({
             key: "keycloak",
             config: {
-                baseURL: envConfig().keycloak.url,
+                baseURL: this.baseUrl,
             },
         })
     }

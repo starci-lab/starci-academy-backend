@@ -25,6 +25,15 @@ import type {
  */
 @Injectable()
 export class KeycloakOidcRedirectService {
+    /**
+     * The Keycloak base URL.
+     */
+    private readonly baseUrl = envConfig().keycloak.url.replace(/\/$/,
+        "")
+    /**
+     * Constructor.
+     * @param cacheService - The cache service.
+     */
     constructor(
         private readonly cacheService: CacheService,
     ) {}
@@ -97,12 +106,11 @@ export class KeycloakOidcRedirectService {
             }
         )
         const {
-            url: keycloakUrl,
             realm,
             clientId,
         } = envConfig().keycloak
         const authUrl = new URL(
-            `${keycloakUrl}/realms/${realm}/protocol/openid-connect/auth`
+            `${this.baseUrl}/realms/${realm}/protocol/openid-connect/auth`
         )
         const params: Record<string, string> = {
             client_id: clientId,

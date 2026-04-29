@@ -29,7 +29,21 @@ import {
  */
 @Injectable()
 export class KeycloakTokenService {
+    /**
+     * The Axios instance.
+     */
     private readonly axiosInstance: AxiosInstance
+    /**
+     * The Keycloak base URL.
+     */
+    private readonly baseUrl = envConfig().keycloak.url.replace(/\/$/,
+        "")
+    /**
+     * Constructor.
+     * @param axiosService - The Axios service.
+     * @param mountStorageService - The mount storage service.
+     * @param keycloakJwksService - The Keycloak JWKS service.
+     */
     constructor(
         private readonly axiosService: AxiosService,
         private readonly mountStorageService: MountStorageService,
@@ -38,7 +52,7 @@ export class KeycloakTokenService {
         this.axiosInstance = this.axiosService.create({
             key: "keycloak",
             config: {
-                baseURL: envConfig().keycloak.url,
+                baseURL: this.baseUrl,
             },
         })
     }
@@ -55,7 +69,7 @@ export class KeycloakTokenService {
             codeVerifier,
         }: KeycloakExchangeCodeForTokenParams) {
         const response = await axios.post<KeycloakExchangeCodeForTokenResponse>(
-            `${envConfig().keycloak.url}/realms/${envConfig().keycloak.realm}/protocol/openid-connect/token`,
+            `${this.baseUrl}/realms/${envConfig().keycloak.realm}/protocol/openid-connect/token`,
             new URLSearchParams({
                 grant_type: "authorization_code",
                 client_id: envConfig().keycloak.clientId,
