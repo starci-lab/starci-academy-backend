@@ -1059,7 +1059,7 @@ export const envConfig = () => ({
                 }),
             },
         },
-    },
+    }, 
 
     /** Keycloak configuration. */
     keycloak: {
