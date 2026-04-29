@@ -37,7 +37,7 @@ import {
     CdnContentBuildService,
     CdnLessonVideoBuildService,
     CdnModuleBuildService,
-} from "../build"
+} from "../builder"
 import type {
     SyncCdnEntityStepContextExecutionResult,
 } from "../types"

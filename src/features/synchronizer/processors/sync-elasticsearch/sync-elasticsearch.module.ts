@@ -10,7 +10,7 @@ import {
     ElasticsearchCourseBuildService,
     ElasticsearchLessonVideoBuildService,
     ElasticsearchModuleBuildService,
-} from "./build"
+} from "./builder"
 import {
     ProcessSyncElasticsearchCompleteStepService,
     ProcessSyncElasticsearchEntityStepService,

@@ -37,7 +37,7 @@ import {
     ElasticsearchCourseBuildService,
     ElasticsearchLessonVideoBuildService,
     ElasticsearchModuleBuildService,
-} from "../build"
+} from "../builder"
 import {
     SyncElasticsearchEntityStepContextExecutionResult 
 } from "../types"

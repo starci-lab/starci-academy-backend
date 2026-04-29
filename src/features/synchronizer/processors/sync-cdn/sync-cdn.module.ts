@@ -11,7 +11,7 @@ import {
     CdnLessonVideoBuildService,
     CdnModuleBuildService,
     MaterializeAndUploadService
-} from "./build"
+} from "./builder"
 import {
     ProcessCdnEntityStepService,
     ProcessCdnCompleteStepService,
