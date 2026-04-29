@@ -168,6 +168,7 @@ import {
                     isGlobal: true,
                 }
             ),
+            /** Bloom filters module. */
             /** Code module. */
             CodeModule.register(
                 {

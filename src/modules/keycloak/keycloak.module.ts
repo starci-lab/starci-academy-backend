@@ -19,6 +19,9 @@ import {
     KeycloakTokenService,
 } from "./token.service"
 import {
+    KeycloakUserService,
+} from "./user.service"
+import {
     KeycloakOidcRedirectService,
 } from "./keycloak-oidc-redirect.service"
 
@@ -37,6 +40,7 @@ export class KeycloakModule extends ConfigurableModuleClass {
                 ...(dynamicModule.providers ?? []),
                 KeycloakJwksService,
                 KeycloakTokenService,
+                KeycloakUserService,
                 KeycloakOidcRedirectService,
                 KeycloakAuthRestGuard,
                 KeycloakAuthGraphQLGuard,
@@ -45,6 +49,7 @@ export class KeycloakModule extends ConfigurableModuleClass {
             exports: [
                 KeycloakJwksService,
                 KeycloakTokenService,
+                KeycloakUserService,
                 KeycloakOidcRedirectService,
                 KeycloakAuthRestGuard,
                 KeycloakAuthGraphQLGuard,

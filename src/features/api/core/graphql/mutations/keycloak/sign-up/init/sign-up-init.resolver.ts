@@ -41,7 +41,7 @@ export class SignUpInitResolver {
     @Mutation(
         () => SignUpResponse,
         {
-            name: "signUp",
+            name: "signUpInit",
             description: "Creates a Keycloak user then sends OTP to email (tokens returned only after OTP).",
         },
     )

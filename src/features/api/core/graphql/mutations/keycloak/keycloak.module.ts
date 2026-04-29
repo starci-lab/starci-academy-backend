@@ -16,14 +16,16 @@ import {
 import {
     SignInVerifyOtpMutationModule,
     SignInInitMutationModule,
+    SignInResendOtpMutationModule,
+    ForgotPasswordInitMutationModule,
+    ForgotPasswordResendOtpMutationModule,
+    ForgotPasswordVerifyOtpMutationModule,
 } from "./sign-in"
 import {
     SignUpInitMutationModule,
-} from "./sign-up/init/sign-up-init.module"
-import {
     SignUpVerifyOtpMutationModule,
-} from "./sign-up/verify-otp/sign-up-verify-otp.module"
-
+    SignUpResendOtpMutationModule,
+} from "./sign-up"
 @Module({
     imports: [
         ExchangeCodeForTokenMutationModule.register({
@@ -41,13 +43,27 @@ import {
         SignInVerifyOtpMutationModule.register({
             isGlobal: true,
         }),
+        SignInResendOtpMutationModule.register({
+            isGlobal: true,
+        }),
+        ForgotPasswordInitMutationModule.register({
+            isGlobal: true,
+        }),
+        ForgotPasswordResendOtpMutationModule.register({
+            isGlobal: true,
+        }),
+        ForgotPasswordVerifyOtpMutationModule.register({
+            isGlobal: true,
+        }),
         SignUpInitMutationModule.register({
             isGlobal: true,
         }),
         SignUpVerifyOtpMutationModule.register({
             isGlobal: true,
         }),
+        SignUpResendOtpMutationModule.register({
+            isGlobal: true,
+        }),
     ],
 })
 export class KeycloakMutationsModule extends ConfigurableModuleClass {}
-

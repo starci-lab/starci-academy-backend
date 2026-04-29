@@ -2,6 +2,9 @@ import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
+    KeycloakTokenService,
+} from "@modules/keycloak"
+import {
     Injectable,
 } from "@nestjs/common"
 import {
@@ -33,6 +36,7 @@ export class SignInInitHandler
     constructor(
         private readonly otpChallengeService: OtpChallengeService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
+        private readonly keycloakTokenService: KeycloakTokenService,
     ) {
         super()
     }
@@ -52,13 +56,19 @@ export class SignInInitHandler
             },
         } = command.params
 
-        // OTP-gated sign-in: do not hit Keycloak until OTP is verified.
+        const tokenResponse = await this.keycloakTokenService.exchangePasswordForToken(
+            {
+                username: email,
+                password,
+            }
+        )
         const challenge = await this.otpChallengeService.createActionChallenge<SignInActionPayload>(
             {
                 email,
                 payload: {
                     email,
-                    password,
+                    accessToken: tokenResponse.access_token,
+                    refreshToken: tokenResponse.refresh_token,
                 },
             }
         )

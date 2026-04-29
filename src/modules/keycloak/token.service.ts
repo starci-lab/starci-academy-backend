@@ -11,7 +11,6 @@ import {
     envConfig 
 } from "@modules/env"
 import {
-    KeycloakIdentityProvider,
     KeycloakExchangeCodeForTokenParams,
     KeycloakExchangeCodeForTokenResponse,
     KeycloakTokenIntrospectResponse,
@@ -251,66 +250,6 @@ export class KeycloakTokenService {
                 },
             },
         )
-    }
-
-    /**
-     * Applies Brevo SMTP settings to current Keycloak realm.
-     */
-    async configureRealmBrevoSmtpAdapter(): Promise<void> {
-        const adminAccessToken = await this.requestAdminAccessToken()
-
-        const realmResponse = await this.axiosInstance.get<Record<string, unknown>>(
-            `/admin/realms/${envConfig().keycloak.realm}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${adminAccessToken}`,
-                },
-            },
-        )
-
-        const secure = envConfig().services.brevo.secure
-        const smtpServer = {
-            host: envConfig().services.brevo.host,
-            port: String(envConfig().services.brevo.port),
-            from: envConfig().services.brevo.fromAddress,
-            fromDisplayName: envConfig().services.brevo.fromName,
-            replyTo: envConfig().services.brevo.fromAddress,
-            replyToDisplayName: envConfig().services.brevo.fromName,
-            auth: "true",
-            user: envConfig().services.brevo.username,
-            password: this.mountStorageService.brevoSmtpPassword.trim(),
-            starttls: secure ? "false" : "true",
-            ssl: secure ? "true" : "false",
-        }
-
-        await this.axiosInstance.put(
-            `/admin/realms/${envConfig().keycloak.realm}`,
-            {
-                ...realmResponse.data,
-                smtpServer,
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${adminAccessToken}`,
-                },
-            },
-        )
-    }
-
-    /**
-     * Resolve redirect URI by provider.
-     * @param provider - The provider handling the callback.
-     * @returns Redirect URI configured for provider.
-     */
-    private resolveRedirectUri(provider: KeycloakIdentityProvider): string {
-        switch (provider) {
-        case KeycloakIdentityProvider.Google:
-            return envConfig().keycloak.redirectUri.google
-        case KeycloakIdentityProvider.Github:
-            return envConfig().keycloak.redirectUri.github
-        default:
-            return envConfig().keycloak.redirectUri.google
-        }
     }
 
     /**

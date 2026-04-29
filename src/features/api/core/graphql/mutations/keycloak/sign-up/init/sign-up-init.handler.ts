@@ -2,6 +2,10 @@ import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
+    KeycloakTokenService,
+    KeycloakUserService,
+} from "@modules/keycloak"
+import {
     Injectable,
 } from "@nestjs/common"
 import {
@@ -23,7 +27,13 @@ import type {
 import type {
     SignUpActionPayload,
 } from "../types"
+import {
+    UserEmailAlreadyVerifiedException,
+} from "@modules/exceptions"
 
+/**
+ * Handler for the sign up init command.
+ */
 @CommandHandler(SignUpInitCommand)
 @Injectable()
 export class SignUpInitHandler
@@ -33,10 +43,17 @@ export class SignUpInitHandler
     constructor(
         private readonly otpChallengeService: OtpChallengeService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
+        private readonly keycloakTokenService: KeycloakTokenService,
+        private readonly keycloakUserService: KeycloakUserService,
     ) {
         super()
     }
 
+    /**
+     * Process the sign up init command.
+     * @param command - The sign up init command.
+     * @returns The sign up init data.
+     */
     protected override async process(
         command: SignUpInitCommand,
     ): Promise<SignUpInitData> {
@@ -50,12 +67,38 @@ export class SignUpInitHandler
             },
         } = command.params
 
-        // OTP-gated sign-up: create Keycloak user only after OTP is verified.
-        // NOTE: payload is stored in Redis for a short TTL until verification.
+        const keycloakUsername = username ?? email
+
+        let keycloakUserId: string
+        const user = await this.keycloakUserService.getUserByUsername(
+            keycloakUsername
+        )
+        if (user?.emailVerified) {
+            throw new UserEmailAlreadyVerifiedException(
+                {
+                    email,
+                }
+            )
+        }
+        if (user) {
+            keycloakUserId = user.id
+        } else {
+            //create a new user
+            keycloakUserId = await this.keycloakTokenService.registerUserWithPassword(
+                {
+                    username: keycloakUsername,
+                    email,
+                    password,
+                    firstName,
+                    lastName,
+                }
+            )
+        }
         const challenge = await this.otpChallengeService.createActionChallenge<SignUpActionPayload>(
             {
                 email,
                 payload: {
+                    keycloakUserId,
                     email,
                     password,
                     username,

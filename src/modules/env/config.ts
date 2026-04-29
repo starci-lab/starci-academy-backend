@@ -718,6 +718,14 @@ export const envConfig = () => ({
         },
         /** File paths: terraform secrets. */
         terraform: {
+            keycloakAdmin: parseEnvString({
+                key: "TERRAFORM_KEYCLOAK_ADMIN_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "keycloak-admin.json"
+                ),
+            }),
             githubAccessToken: parseEnvString({
                 key: "TERRAFORM_GITHUB_ACCESS_TOKEN_MOUNT_PATH",
                 defaultValue: join(process.cwd(),

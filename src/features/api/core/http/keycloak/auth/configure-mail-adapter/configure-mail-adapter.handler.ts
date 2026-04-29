@@ -3,6 +3,7 @@ import {
 } from "@modules/cqrs"
 import {
     KeycloakTokenService,
+    KeycloakUserService,
 } from "@modules/keycloak"
 import {
     Injectable,
@@ -25,6 +26,7 @@ export class KeycloakConfigureMailAdapterHandler
     implements ICommandHandler<KeycloakConfigureMailAdapterCommand, KeycloakConfigureMailAdapterResponse> {
     constructor(
         private readonly keycloakTokenService: KeycloakTokenService,
+        private readonly keycloakUserService: KeycloakUserService,
     ) {
         super()
     }
@@ -32,12 +34,6 @@ export class KeycloakConfigureMailAdapterHandler
     protected override async process(
         command: KeycloakConfigureMailAdapterCommand,
     ): Promise<KeycloakConfigureMailAdapterResponse> {
-        await this.keycloakTokenService.configureRealmBrevoSmtpAdapter()
-
-        if (command.params.verifyEmailUserId) {
-            await this.keycloakTokenService.sendVerifyEmail(command.params.verifyEmailUserId)
-        }
-
         return {
             configured: true,
             message: command.params.verifyEmailUserId

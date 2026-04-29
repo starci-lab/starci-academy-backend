@@ -4,6 +4,7 @@ import {
 import {
     KeycloakJwtPayload,
     KeycloakTokenService,
+    KeycloakUserService,
 } from "@modules/keycloak"
 import {
     Injectable,
@@ -41,6 +42,9 @@ import type {
 import type {
     SignUpActionPayload,
 } from "../types"
+import {
+    EmailBloomFilterService 
+} from "@modules/bussiness"
 
 @CommandHandler(SignUpVerifyOtpCommand)
 @Injectable()
@@ -52,12 +56,19 @@ export class SignUpVerifyOtpHandler
         private readonly jwtService: JwtService,
         private readonly otpChallengeService: OtpChallengeService,
         private readonly keycloakTokenService: KeycloakTokenService,
+        private readonly keycloakUserService: KeycloakUserService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly emailBloomFilterService: EmailBloomFilterService,
     ) {
         super()
     }
 
+    /**
+     * Process the sign up verify OTP command.
+     * @param command - The sign up verify OTP command.
+     * @returns The sign up verify OTP command result.
+     */
     protected override async process(
         command: SignUpVerifyOtpCommand,
     ): Promise<SignUpVerifyOtpCommandResult> {
@@ -103,28 +114,16 @@ export class SignUpVerifyOtpHandler
                 }
             )
         }
-
         const keycloakUsername = result.payload.username ?? result.payload.email
-
-        const keycloakUserId = await this.keycloakTokenService.registerUserWithPassword(
-            {
-                username: keycloakUsername,
-                email: result.payload.email,
-                password: result.payload.password,
-                firstName: result.payload.firstName,
-                lastName: result.payload.lastName,
-            }
+        await this.keycloakUserService.setUserEmailVerified(
+            result.payload.keycloakUserId,
         )
-
-        await this.keycloakTokenService.sendVerifyEmail(keycloakUserId)
-
         const tokenResponse = await this.keycloakTokenService.exchangePasswordForToken(
             {
                 username: keycloakUsername,
                 password: result.payload.password,
             }
         )
-
         const decoded = this.jwtService.decode<KeycloakJwtPayload>(
             tokenResponse.access_token
         )
@@ -135,9 +134,7 @@ export class SignUpVerifyOtpHandler
                 }
             )
         }
-
-        const keycloakId = decoded.sub ?? keycloakUserId
-
+        const keycloakId = decoded.sub ?? result.payload.keycloakUserId
         let user = await this.entityManager.findOne(
             UserEntity,
             {
@@ -156,8 +153,8 @@ export class SignUpVerifyOtpHandler
                 }
             )
             await this.entityManager.save(user)
+            await this.emailBloomFilterService.add(user.email ?? "")
         }
-
         return {
             data: {
                 accessToken: tokenResponse.access_token,

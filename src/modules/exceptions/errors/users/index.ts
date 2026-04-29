@@ -1,4 +1,5 @@
 export * from "./user"
 export * from "./session"
 export * from "./otp"
+export * from "./sign-up"
 export * from "./github"

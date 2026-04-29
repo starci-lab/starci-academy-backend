@@ -7,19 +7,17 @@ import {
 import type {
     SyncEmailBloomFilterPayload,
 } from "@modules/bullmq"
-import type {
-} from "./types"
-import {
-    EmptyObject 
-} from "@modules/common"
 import {
     ProcessCreateBloomFilterStepService, 
     ProcessSyncBatchEmailsStepService,
     ProcessCompleteStepService,
 } from "./steps"
+import {
+    EmptyObject,
+} from "@modules/common"
 
 /**
- * Google Docs submission pipeline: grade → complete (2-step).
+ * Sync email bloom filter: create → batch emails → complete (3 steps).
  */
 @Injectable()
 export class SyncEmailBloomFilterStepMappingService {

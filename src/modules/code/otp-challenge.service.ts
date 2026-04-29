@@ -23,6 +23,7 @@ import type {
     CreateActionChallengeParams,
     CreateActionChallengeResult,
     OtpActionPayloadRecord,
+    RefreshActionChallengeOtpResult,
     VerifyActionChallengeResult,
     VerifyLoginChallengeParams,
 } from "./types"
@@ -149,6 +150,45 @@ export class OtpChallengeService {
         return {
             challengeId,
             otp,
+            expiresInSeconds: Math.max(
+                1,
+                Math.floor(ttlMs / 1000)
+            ),
+        }
+    }
+
+    /**
+     * Rotates the OTP for an existing challenge, resets attempt count, and extends the TTL.
+     * Payload and email are unchanged. Returns null if the challenge is missing or expired.
+     */
+    async refreshActionChallengeOtp(
+        challengeId: string,
+    ): Promise<RefreshActionChallengeOtpResult | null> {
+        const ttlMs = this.getTtlMs()
+        const key = this.buildKey(challengeId)
+        const data = await this.redis.get(key)
+        if (!data) {
+            return null
+        }
+
+        const record = this.superJson.parse<OtpActionPayloadRecord<unknown>>(data)
+        const otp = this.generateOtp()
+        record.otpHash = this.hashOtp(
+            challengeId,
+            otp,
+        )
+        record.attempts = 0
+
+        await this.redis.set(
+            key,
+            this.superJson.stringify(record),
+            "PX",
+            ttlMs,
+        )
+
+        return {
+            otp,
+            email: record.email,
             expiresInSeconds: Math.max(
                 1,
                 Math.floor(ttlMs / 1000)

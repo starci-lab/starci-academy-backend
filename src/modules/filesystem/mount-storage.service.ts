@@ -2,7 +2,8 @@ import {
     Injectable, OnModuleInit 
 } from "@nestjs/common"
 import {
-    AppConfig
+    AppConfig,
+    SecretKeycloakAdmin,
 } from "./types"
 import {
     MountFilesystemService
@@ -22,6 +23,7 @@ export class MountStorageService implements OnModuleInit {
     public openAiApiKey: string
     public sepayApiKey: string
     public brevoSmtpPassword: string
+    public keycloakAdmin: SecretKeycloakAdmin
     constructor(
         private readonly mountFilesystemService: MountFilesystemService,
         private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
@@ -47,6 +49,8 @@ export class MountStorageService implements OnModuleInit {
         this.sepayApiKey = this.mountFilesystemService.sepayApiKey()
         // get brevo smtp password from mount filesystem service
         this.brevoSmtpPassword = this.mountFilesystemService.brevoSmtpPassword()
+        // get keycloak admin credentials from mount filesystem service
+        this.keycloakAdmin = this.mountFilesystemService.keycloakAdmin()
         // set readiness watcher to true
         this.readinessWatcherFactoryService.setReady(MountStorageService.name)
     }

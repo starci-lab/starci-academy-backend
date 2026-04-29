@@ -22,9 +22,6 @@ import {
     WinstonService,
 } from "@modules/winston"
 import {
-    EmptyObject 
-} from "@modules/common"
-import {
     ScalableBloomFilter 
 } from "bloom-filters"
 import {
@@ -33,6 +30,12 @@ import {
 import {
     CacheKey 
 } from "@modules/cache"
+import type { 
+    ProcessEmailBloomFilterStepExecuteResult 
+} from "../types"
+import {
+    EmptyObject,
+} from "@modules/common"
 
 /**
  * Step 1: Create the bloom filter and persist it to the cache if it doesn't exist.
@@ -68,7 +71,6 @@ export class ProcessCreateBloomFilterStepService extends AbstractStepService<
                 context,
             )
         } catch (error) {
-            // update the job status to failed
             await this.jobActionService.failJob(
                 {
                     job: context.job,
@@ -82,8 +84,7 @@ export class ProcessCreateBloomFilterStepService extends AbstractStepService<
 
     /** Execute the step. */
     private async execute(
-    ): Promise<EmptyObject> {
-        // Check if the bloom filter exists in the cache.
+    ): Promise<ProcessEmailBloomFilterStepExecuteResult> {
         const cached = await this.cacheService.get(
             {
                 key: CacheKey.BloomFilter,
@@ -92,11 +93,10 @@ export class ProcessCreateBloomFilterStepService extends AbstractStepService<
         )
         if (cached) {
             return {
+                isEmailBloomFilterReady: true,
             }
         }
-        // Check if the bloom filter exists in the cache.
         const scalableBloomFilter = new ScalableBloomFilter()
-        // Persist the bloom filter to the cache.
         await this.cacheService.set(
             {
                 key: CacheKey.BloomFilter,
@@ -107,12 +107,13 @@ export class ProcessCreateBloomFilterStepService extends AbstractStepService<
             }
         )
         return {
+            isEmailBloomFilterReady: false,
         }
     }
 
     /** Finalize the step. */
     private async finalize(
-        executionResult: EmptyObject,
+        executionResult: ProcessEmailBloomFilterStepExecuteResult,
         context: JobExtendedContext<
             SyncEmailBloomFilterPayload,
             EmptyObject

@@ -3,6 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     AppConfig,
+    SecretKeycloakAdmin,
 } from "./types"
 import {
     getAppConfig,
@@ -14,6 +15,7 @@ import {
     getGithubAccessToken,
     getSepayApiKey,
     getBrevoSmtpPassword,
+    getKeycloakAdmin,
 } from "./utils"
 /**
  * Service responsible for reading secrets mounted into the container filesystem.
@@ -88,5 +90,12 @@ export class MountFilesystemService {
      */
     brevoSmtpPassword(): string {
         return getBrevoSmtpPassword()
+    }
+
+    /**
+     * Get keycloak admin credentials from mount path.
+     */
+    keycloakAdmin(): SecretKeycloakAdmin {
+        return getKeycloakAdmin()
     }
 }

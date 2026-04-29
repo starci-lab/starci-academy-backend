@@ -1,0 +1,1 @@
+export * from "./forgot-password-verify-otp.module"

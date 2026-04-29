@@ -26,7 +26,7 @@ import {
 } from "@modules/common"
 
 /**
- * Step 3: Finalize the sync-email-bloom-filter step.
+ * Step 3: Finalize the sync-email-bloom-filter job.
  */
 @Injectable()
 export class ProcessCompleteStepService extends AbstractStepService<

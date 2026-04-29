@@ -110,7 +110,7 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
             ExtendedProcessGitSubmissionContext
         >,
     ): Promise<ProcessGitSubmissionCompleteStepExecuteResult> {
-        const grade = await this.jobActionService.loadExecutionResult<
+        const executionResult = await this.jobActionService.loadExecutionResult<
             ProcessGitSubmissionGradeStepExecuteResult
         >(
             {
@@ -119,16 +119,16 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
             },
         )
         if (
-            !grade
-            || typeof grade.score !== "number"
-            || typeof grade.shortFeedback !== "string" && grade.shortFeedback !== null
-            || !Array.isArray(grade.submissionFeedbacks)
+            !executionResult
+            || typeof executionResult.score !== "number"
+            || typeof executionResult.shortFeedback !== "string" && executionResult.shortFeedback !== null
+            || !Array.isArray(executionResult.submissionFeedbacks)
         ) {
             throw new MissingOrInvalidGradeExecutionResultException({
-                grade,
+                grade: executionResult,
             })
         }
-        const feedbacks: Array<DeepPartial<SubmissionFeedbackEntity>> = grade.submissionFeedbacks
+        const feedbacks: Array<DeepPartial<SubmissionFeedbackEntity>> = executionResult.submissionFeedbacks
             .map((feedback, index) => ({
                 message: feedback.message,
                 detail: feedback.detail?.trim() || null,
@@ -160,9 +160,9 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
                         submissionUrl:
                             context.extended?.userChallengeSubmission.submissionUrl ?? "",
                         attemptNumber: attemptCount + 1,
-                        score: grade.score,
+                        score: executionResult.score,
                         processedAt: this.dayjsService.now().toDate(),
-                        shortFeedback: grade.shortFeedback,
+                        shortFeedback: executionResult.shortFeedback,
                     },
                 )
                 // Save feedbacks linked to attempt
@@ -180,7 +180,8 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
                         ),
                     )
                 }
-            })
+            }
+        )
         return {
         }
     }

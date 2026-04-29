@@ -32,6 +32,9 @@ import {
 import {
     InvalidJwtPayloadException 
 } from "@modules/exceptions"
+import { 
+    EmailBloomFilterService 
+} from "@modules/bussiness"
 
 @CommandHandler(ExchangeCodeForTokenCommand)
 @Injectable()
@@ -45,6 +48,7 @@ export class ExchangeCodeForTokenHandler
         private readonly jwtService: JwtService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly emailBloomFilterService: EmailBloomFilterService,
     ) {
         super()
     }
@@ -94,6 +98,8 @@ export class ExchangeCodeForTokenHandler
                     keycloakId: decoded.sub,
                 }
             )
+            await this.entityManager.save(user)
+            await this.emailBloomFilterService.add(user.email ?? "")
         }
         return {
             data: {

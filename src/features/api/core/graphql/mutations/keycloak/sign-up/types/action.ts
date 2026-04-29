@@ -1,5 +1,7 @@
 /** Payload for sign up action. */
 export interface SignUpActionPayload {
+    /** Keycloak user id (created at init, unverified until OTP completes). */
+    keycloakUserId: string
     /** Email of the user. */
     email: string
     /** Password of the user. */

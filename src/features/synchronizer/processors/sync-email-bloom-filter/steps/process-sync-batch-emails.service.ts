@@ -6,6 +6,7 @@ import {
     UserEntity,
 } from "@modules/databases"
 import {
+    EmailBloomFilterService,
     JobActionService,
 } from "@modules/bussiness"
 import {
@@ -30,17 +31,16 @@ import {
 import {
     EmptyObject 
 } from "@modules/common"
-import { 
-    BloomFilterType, 
-    CacheKey, 
+import {    
     CacheService 
 } from "@modules/cache"
 import {
-    CacheNotFoundException,
-} from "@modules/exceptions"
-import {
-    SyncEmailBloomFilterStepContextExecuteResult 
+    ProcessEmailBloomFilterStepExecuteResult,
+    SyncEmailBloomFilterStepContextExecuteResult,
 } from "../types"
+import {
+    ProcessCreateBloomFilterStepService 
+} from "./process-create-bloom-filter.service"
 
 /**
  * Step 2: Sync a batch of emails to the bloom filter.
@@ -56,6 +56,8 @@ export class ProcessSyncBatchEmailsStepService extends AbstractStepService<
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
         private readonly cacheService: CacheService,
+        private readonly processCreateBloomFilterStepService: ProcessCreateBloomFilterStepService,
+        private readonly emailBloomFilterService: EmailBloomFilterService,
     ) {
         super()
     }
@@ -77,7 +79,6 @@ export class ProcessSyncBatchEmailsStepService extends AbstractStepService<
                 context,
             )
         } catch (error) {
-            // update the job status to failed
             await this.jobActionService.failJob(
                 {
                     job: context.job,
@@ -96,9 +97,22 @@ export class ProcessSyncBatchEmailsStepService extends AbstractStepService<
             EmptyObject
         >,
     ): Promise<EmptyObject> {
+        const executionResult = await this.jobActionService.loadExecutionResult<
+            ProcessEmailBloomFilterStepExecuteResult
+        >(
+            {
+                job: context.job,
+                key: this.processCreateBloomFilterStepService.stepName,
+            }
+        )
+        const { isEmailBloomFilterReady } = executionResult
+        if (!isEmailBloomFilterReady) {
+            return {
+            }
+        }
         let done = false
         while (!done) {
-            const executionResult = await this.jobActionService.loadExecutionResult<
+            const contextExecuteResult = await this.jobActionService.loadExecutionResult<
             SyncEmailBloomFilterStepContextExecuteResult
             >(
                 {
@@ -106,19 +120,6 @@ export class ProcessSyncBatchEmailsStepService extends AbstractStepService<
                     key: this.stepContextKey,
                 }
             )
-            const cached = await this.cacheService.get(
-                {
-                    key: CacheKey.BloomFilter,
-                    args: [BloomFilterType.Email],
-                }
-            )
-            if (!cached) {
-                throw new CacheNotFoundException({
-                    key: CacheKey.BloomFilter,
-                    args: [BloomFilterType.Email],
-                })
-            }
-            // Retrieve a batch of users from the database.
             const users = await this.entityManager.find(
                 UserEntity, 
                 {
@@ -126,9 +127,9 @@ export class ProcessSyncBatchEmailsStepService extends AbstractStepService<
                         updatedAt: LessThanOrEqual(
                             context.payload.syncAt.toDate()
                         ),
-                        ...(executionResult?.resumeAfterUserId ? 
+                        ...(contextExecuteResult?.resumeAfterUserId ? 
                             {
-                                id: MoreThan(executionResult.resumeAfterUserId),
+                                id: MoreThan(contextExecuteResult.resumeAfterUserId),
                             }
                             : {
                             }
@@ -144,21 +145,9 @@ export class ProcessSyncBatchEmailsStepService extends AbstractStepService<
                 done = true
                 break
             }
-            /** Sync the emails to the bloom filter. */
-            for (const user of users) {
-                const email = user.email
-                if (email) {
-                    cached.scalableBloomFilter.add(email)
-                }
-            }
-            await this.cacheService.set(
-                {
-                    key: CacheKey.BloomFilter,
-                    args: [BloomFilterType.Email],
-                    cacheResult: cached,
-                }
+            await this.emailBloomFilterService.addMultiple(
+                users.map((user) => user.email ?? "")
             )
-            /** Update the job context. */
             await this.jobActionService.saveExecutionResult({
                 job: context.job,
                 key: this.stepContextKey,

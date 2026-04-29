@@ -7,6 +7,7 @@ import {
 } from "@modules/env"
 import type {
     AppConfig,
+    SecretKeycloakAdmin,
 } from "../types"
 
 /**
@@ -118,4 +119,16 @@ export const getGcpServiceAccountCredentials = ():
     } catch {
         return undefined
     }
+}
+
+/**
+ * Get keycloak admin credentials from mount path.
+ */
+export const getKeycloakAdmin = (): SecretKeycloakAdmin => {
+    return JSON.parse(
+        readFileSync(
+            envConfig().mountPath.terraform.keycloakAdmin,
+            "utf8"
+        ),
+    ) as SecretKeycloakAdmin
 }

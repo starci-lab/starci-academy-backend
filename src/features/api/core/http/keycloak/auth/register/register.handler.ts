@@ -8,6 +8,7 @@ import {
 import {
     KeycloakJwtPayload,
     KeycloakTokenService,
+    KeycloakUserService,
 } from "@modules/keycloak"
 import {
     Injectable,
@@ -37,6 +38,7 @@ export class KeycloakRegisterHandler
     implements ICommandHandler<KeycloakRegisterCommand, KeycloakAuthResponse> {
     constructor(
         private readonly keycloakTokenService: KeycloakTokenService,
+        private readonly keycloakUserService: KeycloakUserService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly jwtService: JwtService,
@@ -49,7 +51,7 @@ export class KeycloakRegisterHandler
     ): Promise<KeycloakAuthResponse> {
         const keycloakUsername = command.params.email
 
-        const keycloakUserId = await this.keycloakTokenService.registerUserWithPassword({
+        const keycloakUserId = await this.keycloakUserService.registerUserWithPassword({
             username: keycloakUsername,
             email: command.params.email,
             password: command.params.password,
@@ -57,7 +59,7 @@ export class KeycloakRegisterHandler
             lastName: command.params.lastName,
         })
 
-        await this.keycloakTokenService.sendVerifyEmail(keycloakUserId)
+        await this.keycloakUserService.sendVerifyEmail(keycloakUserId)
 
         const tokenResponse = await this.keycloakTokenService.exchangePasswordForToken({
             username: keycloakUsername,

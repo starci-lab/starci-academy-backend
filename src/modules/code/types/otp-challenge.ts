@@ -30,6 +30,16 @@ export interface CreateActionChallengeResult {
     expiresInSeconds: number
 }
 
+/** Result of refreshing the OTP for an existing challenge (same challenge id, new code, TTL reset). */
+export interface RefreshActionChallengeOtpResult {
+    /** New OTP (plaintext for email only). */
+    otp: string
+    /** OTP expiration time in seconds (full window). */
+    expiresInSeconds: number
+    /** Email on the challenge record. */
+    email: string
+}
+
 /** Result of verifying an OTP-gated action challenge. */
 export interface VerifyActionChallengeResult<TPayload = unknown> {
     /** Email of the user. */

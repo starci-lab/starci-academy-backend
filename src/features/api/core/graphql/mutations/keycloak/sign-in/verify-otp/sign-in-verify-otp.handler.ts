@@ -3,7 +3,6 @@ import {
 } from "@modules/cqrs"
 import {
     KeycloakJwtPayload,
-    KeycloakTokenService,
 } from "@modules/keycloak"
 import {
     Injectable,
@@ -54,7 +53,6 @@ export class SignInVerifyOtpHandler
     constructor(
         private readonly jwtService: JwtService,
         private readonly otpChallengeService: OtpChallengeService,
-        private readonly keycloakTokenService: KeycloakTokenService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
     ) {
@@ -110,14 +108,12 @@ export class SignInVerifyOtpHandler
             )
         }
 
-        const tokenResponse = await this.keycloakTokenService.exchangePasswordForToken(
-            {
-                username: result.payload.email,
-                password: result.payload.password,
-            }
-        )
+        const {
+            accessToken,
+            refreshToken,
+        } = result.payload
 
-        const decoded = this.jwtService.decode<KeycloakJwtPayload>(tokenResponse.access_token)
+        const decoded = this.jwtService.decode<KeycloakJwtPayload>(accessToken)
         if (!decoded || typeof decoded === "string" || !decoded.sub) {
             throw new InvalidJwtPayloadException(
                 {
@@ -144,9 +140,9 @@ export class SignInVerifyOtpHandler
 
         return {
             data: {
-                accessToken: tokenResponse.access_token,
+                accessToken,
             },
-            refreshToken: tokenResponse.refresh_token,
+            refreshToken,
         }
     }
 }

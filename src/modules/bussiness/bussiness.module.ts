@@ -15,6 +15,9 @@ import {
 import {
     TransactionsModule,
 } from "./transactions"
+import {
+    BloomFiltersModule,
+} from "./bloom-filters"
 
 /**
  * The module for the bussiness logics.
@@ -29,6 +32,8 @@ export class BussinessModule extends ConfigurableModuleClass {
             JobsModule.register(options),
             // import the transactions module
             TransactionsModule.register(options),
+            // import the bloom filters module
+            BloomFiltersModule.register(options),
         ]
         return {
             ...dynamicModule,
