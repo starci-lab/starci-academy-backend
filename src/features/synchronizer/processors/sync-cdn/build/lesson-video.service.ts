@@ -22,6 +22,7 @@ import {
 import {
     MaterializeAndUploadService,
 } from "./materialize-and-upload.service"
+import _ from "lodash"
 
 /**
  * Loads a lesson video row from PostgreSQL and materializes **per-locale** plain objects
@@ -51,14 +52,15 @@ export class CdnLessonVideoBuildService {
             (
                 locale,
             ) => {
+                const localizedLessonVideo = _.cloneDeep(hydratedLessonVideo)
                 this.lessonVideoResolver.transform(
-                    hydratedLessonVideo,
+                    localizedLessonVideo,
                     locale,
                     defaultLocale,
                 )
                 return {
                     locale,
-                    entity: hydratedLessonVideo,
+                    entity: localizedLessonVideo,
                 }
             },
         )

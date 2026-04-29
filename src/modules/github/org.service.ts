@@ -46,7 +46,7 @@ export class GithubApiOrgService {
             {
                 org: envConfig().services.github.organization,
                 team_slug: teamSlug,
-                username: "LeHuyTuong",
+                username: githubUsername,
                 role,
             },
         )

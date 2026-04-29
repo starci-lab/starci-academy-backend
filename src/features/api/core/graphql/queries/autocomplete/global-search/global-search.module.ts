@@ -10,11 +10,23 @@ import {
 import {
     AutocompleteGlobalSearchService,
 } from "./autocomplete-global-search.service"
+import {
+    ChallengeGlobalSearchService,
+    ContentGlobalSearchService,
+    CourseGlobalSearchService,
+    LessonVideoGlobalSearchService,
+    ModuleGlobalSearchService,
+} from "./entities"
 
 @Module({
     providers: [
         AutocompleteGlobalSearchResolver,
         AutocompleteGlobalSearchService,
+        CourseGlobalSearchService,
+        ModuleGlobalSearchService,
+        ChallengeGlobalSearchService,
+        LessonVideoGlobalSearchService,
+        ContentGlobalSearchService,
     ],
 })
 export class AutocompleteGlobalSearchQueryModule extends ConfigurableModuleClass {}

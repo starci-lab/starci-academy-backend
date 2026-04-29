@@ -1,28 +1,19 @@
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
-import {
-    EnrollmentEntity,
-} from "@modules/databases"
-import {
     BadRequestException,
     CanActivate,
     ExecutionContext,
+    ForbiddenException,
     Injectable,
 } from "@nestjs/common"
 import {
     UserEntity,
 } from "@modules/databases"
 import {
-    EntityManager 
-} from "typeorm"
-import {
     GqlExecutionContext 
 } from "@nestjs/graphql"
 import {
-    CacheKey,
-    CacheService,
-} from "@modules/cache"
+    UserService,
+} from "../user"
 
 /**
  * Guard that checks if the user is enrolled in the course.
@@ -30,9 +21,7 @@ import {
 @Injectable()
 export class GraphQLMustEnrolledGuard implements CanActivate {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
-        private readonly cacheService: CacheService,
+        private readonly userService: UserService,
     ) {}
 
     /**
@@ -50,39 +39,13 @@ export class GraphQLMustEnrolledGuard implements CanActivate {
         if (!courseId) {
             throw new BadRequestException("Course ID is required")
         }
-        const cachedEnrollment = await this.cacheService.get({
-            key: CacheKey.CourseEnrollment,
-            args: [
-                user.id,
-                courseId,
-            ],
-        })
-        if (cachedEnrollment !== undefined) {
-            return cachedEnrollment
-        }
-        // Check if the user is enrolled in the course
-        const exists = await this.entityManager.exists(
-            EnrollmentEntity,
-            {
-                where: {
-                    user: {
-                        id: user.id,
-                    },
-                    course: {
-                        id: courseId,
-                    },
-                },
-            },
+        const isEnrolled = await this.userService.checkEnrollment(
+            user.id,
+            courseId,
         )
-        await this.cacheService.set({
-            key: CacheKey.CourseEnrollment,
-            args: [
-                user.id,
-                courseId,
-            ],
-            cacheResult: exists,
-        })
-        // Return true if the user is enrolled in the course, false otherwise
-        return exists
+        if (!isEnrolled) {
+            throw new ForbiddenException("User is not enrolled in the course")
+        }
+        return true
     }
 }

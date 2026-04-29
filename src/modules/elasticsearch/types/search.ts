@@ -7,8 +7,11 @@ import type {
 
 /** Params for searching Elasticsearch index by entity name. */
 export interface SearchParams {
+    /** The entity name. */
     entityName: string
+    /** The search parameters. */
     params: SearchParam
+    /** The locale. */
     locale?: Locale
 }
 

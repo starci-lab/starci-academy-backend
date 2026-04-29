@@ -23,6 +23,7 @@ import {
 import {
     MaterializeAndUploadService,
 } from "./materialize-and-upload.service"
+import _ from "lodash"
 
 /**
  * Loads content (with references) from PostgreSQL and materializes **per-locale** plain objects
@@ -52,14 +53,15 @@ export class CdnContentBuildService {
             (
                 locale,
             ) => {
+                const localizedContent = _.cloneDeep(hydratedContent)
                 this.contentResolver.transform(
-                    hydratedContent,
+                    localizedContent,
                     locale,
                     defaultLocale,
                 )
                 return {
                     locale,
-                    entity: hydratedContent,
+                    entity: localizedContent,
                 }
             },
         )

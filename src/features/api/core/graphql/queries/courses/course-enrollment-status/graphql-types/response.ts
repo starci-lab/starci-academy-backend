@@ -1,6 +1,5 @@
 import {
     Field,
-    Int,
     ObjectType,
 } from "@nestjs/graphql"
 import {
@@ -8,23 +7,15 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
-/** Payload: total enrollments and whether the caller is enrolled (false if anonymous). */
+/** Payload: whether the caller is enrolled. */
 @ObjectType({
-    description: "Enrollment count for a course and enrollment flag for the current user.",
+    description: "Enrollment flag for the current user on a course.",
 })
 export class CourseEnrollmentStatusData {
     @Field(
-        () => Int,
-        {
-            description: "Number of enrollments for this course.",
-        },
-    )
-        enrollmentCount: number
-
-    @Field(
         () => Boolean,
         {
-            description: "True when an Authorization Bearer is valid and the user is enrolled; false otherwise.",
+            description: "True when the current authenticated user is enrolled in the course.",
         },
     )
         isEnrolled: boolean

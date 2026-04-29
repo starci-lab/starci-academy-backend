@@ -62,7 +62,7 @@ export class ElasticsearchService implements OnModuleInit {
      * @param entity - Entity to indicate the index name.
      * @returns Index name.
      */
-    private indicateName(
+    public indicateName(
         {
             entity,
             locale,
@@ -74,7 +74,6 @@ export class ElasticsearchService implements OnModuleInit {
                 `Elasticsearch index config is missing for entity: ${entity}`,
             )
         }
-
         // avoid generating `-undefined` suffix when locale is omitted
         return locale ? `${config.indices}-${locale}` : config.indices
     }
@@ -174,6 +173,7 @@ export class ElasticsearchService implements OnModuleInit {
             })),
         })
     }
+
     /**
      * Search the entity.
      */
@@ -198,7 +198,9 @@ export class ElasticsearchService implements OnModuleInit {
                     match_all: {
                     } 
                 },
+                highlight: params.highlight,
                 sort: params.sort,
+                _source: params._source,
             }
         )
         const total = response.hits.total

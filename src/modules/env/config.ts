@@ -108,6 +108,10 @@ export const envConfig = () => ({
                 key: "CACHE_TTL_COURSE_ENROLLMENT",
                 defaultValue: "100years",
             }),
+            courseEnrollmentCount: parseEnvMs({
+                key: "CACHE_TTL_COURSE_ENROLLMENT_COUNT",
+                defaultValue: "5m",
+            }),
             aggregatedTokenPrice: parseEnvMs({
                 key: "CACHE_TTL_AGGREGATED_TOKEN_PRICE",
                 defaultValue: "100years"

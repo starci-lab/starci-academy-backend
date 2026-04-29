@@ -25,8 +25,8 @@ import {
     ChallengesResponseData,
 } from "./graphql-types"
 import {
-    executeElasticScyllaFallback,
-} from "../../utils/read-policy-fallback.util"
+    estypes,
+} from "@elastic/elasticsearch"
 
 @QueryHandler(ChallengesQuery)
 @Injectable()
@@ -54,11 +54,11 @@ export class ChallengesHandler
             locale,
         } = query.params
 
-        const sort = sorts.map((s) => ({
-            [s.by]: {
-                order: s.order.toLowerCase(),
-            },
-        }))
+        const sort = sorts.map((sort) => ({
+            [sort.by]: {
+                order: sort.order.toLowerCase() as estypes.SortOrder,
+            } as estypes.FieldSort,
+        })) as Array<estypes.SortCombinations>
 
         const esQuery = ElasticsearchQueryBuilder.buildSearchQuery({
             filters: [
@@ -67,30 +67,26 @@ export class ChallengesHandler
                         "contentId.keyword": contentId,
                     },
                 },
-                {
-                    term: {
-                        locale,
-                    },
-                },
             ],
-            searchFields: ["title^3",
-                "description"],
+            searchFields: [
+                "title^3",
+                "description"
+            ],
         })
 
-        const {
-            data,
-            count,
-        } = await executeElasticScyllaFallback({
-            elasticsearch: () => this.elasticsearch.search<ChallengeEntity>(
-                ChallengeEntity.name,
-                {
-                    query: esQuery,
-                    sort,
-                    from: pageNumber * limit,
-                    size: limit,
-                },
-            ),
+        const response = await this.elasticsearch.client.search<ChallengeEntity>({
+            index: this.elasticsearch.indicateName({
+                entity: ChallengeEntity.name,
+                locale,
+            }),
+            query: esQuery,
+            sort,
+            from: pageNumber * limit,
+            size: limit,
         })
+        const total = response.hits.total
+        const count = typeof total === "number" ? total : total?.value || 0
+        const data = response.hits.hits.map((hit) => hit._source as ChallengeEntity)
 
         return {
             count,

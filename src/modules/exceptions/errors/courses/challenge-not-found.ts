@@ -6,19 +6,19 @@ import {
 } from "../abstract"
 
 export interface ChallengeNotFoundExceptionMetadata extends AbstractExceptionMetadata {
-    challengeId?: string
+    id?: string
 }
 
 export class ChallengeNotFoundException extends AbstractException {
     constructor({
-        challengeId,
+        id,
         originalError,
     }: ChallengeNotFoundExceptionMetadata) {
         super(
             "Challenge not found",
             "CHALLENGE_NOT_FOUND_EXCEPTION",
             {
-                challengeId,
+                id,
                 originalError,
             },
         )

@@ -25,8 +25,8 @@ import {
     LessonVideosResponseData,
 } from "./graphql-types"
 import {
-    executeElasticScyllaFallback,
-} from "../../utils/read-policy-fallback.util"
+    estypes,
+} from "@elastic/elasticsearch"
 
 @QueryHandler(LessonVideosQuery)
 @Injectable()
@@ -55,11 +55,11 @@ export class LessonVideosHandler
             locale,
         } = query.params
 
-        const sort = sorts.map((s) => ({
-            [s.by]: {
-                order: s.order.toLowerCase(),
-            },
-        }))
+        const sort = sorts.map((sort) => ({
+            [sort.by]: {
+                order: sort.order.toLowerCase() as estypes.SortOrder,
+            } as estypes.FieldSort,
+        })) as Array<estypes.SortCombinations>
 
         const esQuery = ElasticsearchQueryBuilder.buildSearchQuery({
             filters: [
@@ -80,20 +80,19 @@ export class LessonVideosHandler
                 "caption"],
         })
 
-        const {
-            data,
-            count,
-        } = await executeElasticScyllaFallback({
-            elasticsearch: () => this.elasticsearch.search<LessonVideoEntity>(
-                LessonVideoEntity.name,
-                {
-                    query: esQuery,
-                    sort,
-                    from: pageNumber * limit,
-                    size: limit,
-                },
-            ),
+        const response = await this.elasticsearch.client.search<LessonVideoEntity>({
+            index: this.elasticsearch.indicateName({
+                entity: LessonVideoEntity.name,
+                locale,
+            }),
+            query: esQuery,
+            sort,
+            from: pageNumber * limit,
+            size: limit,
         })
+        const total = response.hits.total
+        const count = typeof total === "number" ? total : total?.value || 0
+        const data = response.hits.hits.map((hit) => hit._source as LessonVideoEntity)
 
         return {
             count,

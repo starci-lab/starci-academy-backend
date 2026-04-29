@@ -369,4 +369,15 @@ export class CourseEntity extends UuidAbstractEntity {
         enumName: "locale",
     })
         defaultLocale: Locale
+
+    /**
+     * Total number of enrollments for the course.
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Total number of enrollments for the course.",
+        },
+    )
+        enrollmentCount: number
 }

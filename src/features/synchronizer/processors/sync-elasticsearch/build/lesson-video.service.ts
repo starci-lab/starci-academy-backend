@@ -19,6 +19,7 @@ import type {
 import {
     ElasticsearchService,
 } from "@modules/elasticsearch"
+import _ from "lodash"
 
 /**
  * Loads a lesson video row from PostgreSQL and materializes **per-locale** plain objects
@@ -47,14 +48,15 @@ export class ElasticsearchLessonVideoBuildService {
             (
                 locale,
             ) => {
+                const localizedLessonVideo = _.cloneDeep(hydratedLessonVideo)
                 this.lessonVideoResolver.transform(
-                    hydratedLessonVideo,
+                    localizedLessonVideo,
                     locale,
                     defaultLocale,
                 )
                 return {
                     locale,
-                    entity: hydratedLessonVideo,
+                    entity: localizedLessonVideo,
                 }
             },
         )

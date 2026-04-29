@@ -133,7 +133,6 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                     done = true
                     break
                 }
-
                 await this.elasticsearchCourseBuildService.buildIndexById(
                     course.id,
                 )

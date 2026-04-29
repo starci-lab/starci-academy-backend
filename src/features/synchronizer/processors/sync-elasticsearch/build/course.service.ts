@@ -32,6 +32,7 @@ import {
 import {
     ElasticsearchService,
 } from "@modules/elasticsearch"
+import _ from "lodash"
 /**
  * Loads the full course graph from PostgreSQL and materializes **per-locale** plain objects
  * (after `CourseResolverService`) for Elasticsearch JSON.
@@ -59,13 +60,14 @@ export class ElasticsearchCourseBuildService {
             (
                 locale,
             ) => {
+                const clonedCourse = _.cloneDeep(hydratedCourse)
                 this.courseResolver.transform(
-                    hydratedCourse,
+                    clonedCourse,
                     locale,
                 )
                 return {
                     locale,
-                    entity: hydratedCourse,
+                    entity: clonedCourse,
                 }
             },
         )
@@ -116,6 +118,7 @@ export class ElasticsearchCourseBuildService {
                 prerequisite,
             ) => prerequisite.toPlain<PrerequisiteEntity>()
         )
+        hydratedCourse.prerequisites = hydratedPrerequisites
         const valuePropositions = await this.entityManager.find(
             ValuePropositionEntity,
             {
@@ -137,6 +140,7 @@ export class ElasticsearchCourseBuildService {
                 valueProposition,
             ) => valueProposition.toPlain<ValuePropositionEntity>()
         )
+        hydratedCourse.valuePropositions = hydratedValuePropositions
         const qnas = await this.entityManager.find(
             QnaEntity,
             {
@@ -158,6 +162,7 @@ export class ElasticsearchCourseBuildService {
                 qna,
             ) => qna.toPlain<QnaEntity>()
         )
+        hydratedCourse.qnas = hydratedQnas
         const pricingPhases = await this.entityManager.find(
             PricingPhaseEntity,
             {
@@ -176,6 +181,7 @@ export class ElasticsearchCourseBuildService {
                 pricingPhase,
             ) => pricingPhase.toPlain<PricingPhaseEntity>()
         )
+        hydratedCourse.pricingPhases = hydratedPricingPhases
         const livestreamSessions = await this.entityManager.find(
             LivestreamSessionEntity,
             {
@@ -197,6 +203,7 @@ export class ElasticsearchCourseBuildService {
                 livestreamSession,
             ) => livestreamSession.toPlain<LivestreamSessionEntity>()
         )
+        hydratedCourse.livestreamSessions = hydratedLivestreamSessions
         const modules = await this.entityManager.find(
             ModuleEntity,
             {
@@ -284,11 +291,6 @@ export class ElasticsearchCourseBuildService {
                 },
             ),
         )
-        hydratedCourse.prerequisites = hydratedPrerequisites
-        hydratedCourse.valuePropositions = hydratedValuePropositions
-        hydratedCourse.qnas = hydratedQnas
-        hydratedCourse.pricingPhases = hydratedPricingPhases
-        hydratedCourse.livestreamSessions = hydratedLivestreamSessions
         hydratedCourse.modules = hydratedModules
         return hydratedCourse
     }

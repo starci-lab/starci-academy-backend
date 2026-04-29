@@ -21,6 +21,7 @@ import type {
 import {
     ElasticsearchService,
 } from "@modules/elasticsearch"
+import _ from "lodash"
 
 /**
  * Loads a challenge (steps + references) from PostgreSQL and materializes **per-locale** plain objects
@@ -49,14 +50,15 @@ export class ElasticsearchChallengeBuildService {
             (
                 locale,
             ) => {
+                const localizedChallenge = _.cloneDeep(hydratedChallenge)
                 this.challengeResolver.transform(
-                    hydratedChallenge,
+                    localizedChallenge,
                     locale,
                     defaultLocale,
                 )
                 return {
                     locale,
-                    entity: hydratedChallenge,
+                    entity: localizedChallenge,
                 }
             },
         )

@@ -52,7 +52,7 @@ export class AutocompleteGlobalSearchResolver {
         () => AutocompleteGlobalSearchResponse,
         {
             name: "autocompleteGlobalSearch",
-            description: "Returns grouped autocomplete results scoped to the caller's enrolled courses.",
+            description: "Returns grouped autocomplete results across indexed entities using Elasticsearch fuzzy search.",
         },
     )
     async execute(

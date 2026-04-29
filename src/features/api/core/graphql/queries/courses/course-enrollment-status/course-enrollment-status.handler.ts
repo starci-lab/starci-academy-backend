@@ -2,10 +2,6 @@ import {
     ICQRSHandler
 } from "@modules/cqrs"
 import {
-    EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
-import {
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -15,28 +11,40 @@ import {
     IQueryHandler,
     QueryHandler,
 } from "@nestjs/cqrs"
-import type {
-    EntityManager,
-} from "typeorm"
 import {
     CourseEnrollmentStatusQuery,
 } from "./course-enrollment-status.query"
 import type {
     CourseEnrollmentStatusData,
 } from "./graphql-types"
+import {
+    UserService,
+} from "@modules/bussiness"
 
+/**
+ * Handler for the course enrollment status query.
+ */
 @QueryHandler(CourseEnrollmentStatusQuery)
 @Injectable()
 export class CourseEnrollmentStatusHandler
     extends ICQRSHandler<CourseEnrollmentStatusQuery, CourseEnrollmentStatusData>
     implements IQueryHandler<CourseEnrollmentStatusQuery, CourseEnrollmentStatusData> {
+        
+    /**
+     * Constructor.
+     * @param userService - The user service.
+     */
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
+        private readonly userService: UserService,
     ) {
         super()
     }
 
+    /**
+     * Processes the course enrollment status query.
+     * @param query - The query.
+     * @returns The course enrollment status data.
+     */
     protected override async process(
         query: CourseEnrollmentStatusQuery,
     ): Promise<CourseEnrollmentStatusData> {
@@ -54,31 +62,11 @@ export class CourseEnrollmentStatusHandler
             courseId,
         } = request
 
-        const enrollmentCount = await this.entityManager.count(
-            EnrollmentEntity,
-            {
-                where: {
-                    course: {
-                        id: courseId,
-                    },
-                },
-            },
-        )
-        const isEnrolled = await this.entityManager.exists(
-            EnrollmentEntity,
-            {
-                where: {
-                    course: {
-                        id: courseId,
-                    },
-                    user: {
-                        id: user.id,
-                    },
-                },
-            },
+        const isEnrolled = await this.userService.checkEnrollment(
+            user.id,
+            courseId,
         )
         return {
-            enrollmentCount,
             isEnrolled,
         }
     }

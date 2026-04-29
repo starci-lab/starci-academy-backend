@@ -41,7 +41,7 @@ export class CourseEnrollmentStatusResolver {
     ) {}
 
     /**
-     * Total enrollments for the course; `isEnrolled` when Bearer token is sent and user has a row.
+     * Returns whether the current user is enrolled in the course.
      */
     @UseThrottler(ThrottlerConfig.Soft)
     @UseGuards(KeycloakAuthGraphQLGuard)
@@ -54,7 +54,7 @@ export class CourseEnrollmentStatusResolver {
         () => CourseEnrollmentStatusResponse,
         {
             name: "courseEnrollmentStatus",
-            description: "Enrollment count for a course; optional `isEnrolled` when Authorization Bearer is sent.",
+            description: "Returns whether the current user is enrolled in a course.",
         },
     )
     async execute(
@@ -63,7 +63,7 @@ export class CourseEnrollmentStatusResolver {
         @Args(
             "request",
             {
-                description: "Course id for the enrollment summary.",
+                description: "Course id for enrollment check.",
             },
         )
             request: CourseEnrollmentStatusRequest,

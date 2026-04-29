@@ -35,6 +35,7 @@ import {
 import {
     MaterializeAndUploadService,
 } from "./materialize-and-upload.service"
+import _ from "lodash"
 
 /**
  * Loads the full course graph from PostgreSQL and materializes **per-locale** plain objects
@@ -64,13 +65,14 @@ export class CdnCourseBuildService {
             (
                 locale,
             ) => {
+                const localizedCourse = _.cloneDeep(hydratedCourse)
                 this.courseResolver.transform(
-                    hydratedCourse,
+                    localizedCourse,
                     locale,
                 )
                 return {
                     locale,
-                    entity: hydratedCourse,
+                    entity: localizedCourse,
                 }
             },
         )

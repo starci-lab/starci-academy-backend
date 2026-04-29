@@ -7,6 +7,7 @@ import {
 import type {
     BloomFilterCacheResult,
     CourseEnrollmentCacheResult,
+    CourseEnrollmentCountCacheResult,
     JobSubscriberClientIdCacheResult,
     KeycloakUserCacheResult,
     ParentIndexCacheResult,
@@ -48,7 +49,11 @@ export const configMap = {
         } as KeycloakUserCacheResult,
     },
     [CacheKey.CourseEnrollment]: {
-        ttl: 100 * 365 * 24 * 60 * 60 * 1000,
+        ttl: envConfig().cache.ttl.courseEnrollment,
         cacheResult: true as CourseEnrollmentCacheResult,
+    },
+    [CacheKey.CourseEnrollmentCount]: {
+        ttl: envConfig().cache.ttl.courseEnrollmentCount,
+        cacheResult: 0 as CourseEnrollmentCountCacheResult,
     },
 }

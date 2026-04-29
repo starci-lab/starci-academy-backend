@@ -19,15 +19,18 @@ import {
     QueryHandler,
 } from "@nestjs/cqrs"
 import {
+    estypes,
+} from "@elastic/elasticsearch"
+import {
     CoursesQuery,
 } from "./courses.query"
 import {
     CoursesResponseData,
 } from "./graphql-types"
-import {
-    executeElasticScyllaFallback,
-} from "../../utils/read-policy-fallback.util"
 
+/**
+ * Handles the courses query.
+ */
 @QueryHandler(CoursesQuery)
 @Injectable()
 export class CoursesHandler
@@ -39,6 +42,11 @@ export class CoursesHandler
         super()
     }
 
+    /**
+     * Processes the courses query.
+     * @param query - The courses query.
+     * @returns The courses response data.
+     */
     protected override async process(
         query: CoursesQuery,
     ): Promise<CoursesResponseData> {
@@ -54,42 +62,33 @@ export class CoursesHandler
             locale,
         } = query.params
 
-        const sort = sorts.map((s) => ({
-            [s.by]: {
-                order: s.order.toLowerCase(),
-            },
-        }))
+        const sort = sorts.map((sort) => ({
+            [sort.by]: {
+                order: sort.order.toLowerCase() as estypes.SortOrder,
+            } as estypes.FieldSort,
+        })) as Array<estypes.SortCombinations>
 
         const esQuery = ElasticsearchQueryBuilder.buildSearchQuery({
-            filters: [
-                {
-                    term: {
-                        locale,
-                    },
-                },
-            ],
             search,
-            searchFields: ["title^3",
-                "description"],
+            searchFields: [
+                "title^3",
+                "description"
+            ],
         })
 
-        const {
-            data,
-            count,
-        } = await executeElasticScyllaFallback({
-            elasticsearch: () => this.elasticsearch.search<CourseEntity>(
-                {
-                    entityName: CourseEntity.name,
-                    locale,
-                    params: {
-                        query: esQuery,
-                        sort,
-                        from: pageNumber * limit,
-                        size: limit,
-                    },
-                },
-            ),
-        }) 
+        const response = await this.elasticsearch.client.search<CourseEntity>({
+            index: this.elasticsearch.indicateName({
+                entity: CourseEntity.name,
+                locale,
+            }),
+            query: esQuery,
+            sort,
+            from: pageNumber * limit,
+            size: limit,
+        })
+        const total = response.hits.total
+        const count = typeof total === "number" ? total : total?.value || 0
+        const data = response.hits.hits.map((hit) => hit._source as CourseEntity)
 
         return {
             count,

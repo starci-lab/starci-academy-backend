@@ -10,6 +10,12 @@ import {
 import {
     GlobalSearchHandler,
     GlobalSearchService,
+    CourseGlobalSearchService,
+    ModuleGlobalSearchService,
+    ChallengeGlobalSearchService,
+    LessonVideoGlobalSearchService,
+    ContentGlobalSearchService,
+    GlobalSearchEntityUtilsService,
 } from "./handle-global-search"
 
 /**
@@ -20,6 +26,12 @@ import {
         GlobalSearchGateway,
         GlobalSearchService,
         GlobalSearchHandler,
+        CourseGlobalSearchService,
+        ModuleGlobalSearchService,
+        ChallengeGlobalSearchService,
+        LessonVideoGlobalSearchService,
+        ContentGlobalSearchService,
+        GlobalSearchEntityUtilsService,
     ],
     exports: [
         GlobalSearchGateway,

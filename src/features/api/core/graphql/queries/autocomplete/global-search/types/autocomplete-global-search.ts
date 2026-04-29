@@ -10,10 +10,10 @@ import type {
 } from "../graphql-types"
 import type {
     SearchableEntity,
-} from "@features/socketio/core/autocomplete/global-search/handle-global-search"
+} from "./entity-search"
 import type {
-    GlobalSearchSocketIoMessage,
-} from "@features/socketio/core/autocomplete/global-search/handle-global-search"
+    GlobalSearchMessage,
+} from "./message"
 
 /** Minimal socket client shape required by the global-search handler. */
 export interface AutocompleteGlobalSearchClientData {
@@ -48,5 +48,5 @@ export type AutocompleteGlobalSearchExecuteParams =
     }
 
 /** Result of global search autocomplete query. */
-export type AutocompleteGlobalSearchExecuteResult = GlobalSearchSocketIoMessage
+export type AutocompleteGlobalSearchExecuteResult = GlobalSearchMessage
 

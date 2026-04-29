@@ -7,10 +7,16 @@ import {
 import {
     ModuleSingleQueryModule,
 } from "./module"
+import {
+    ModulesSingleQueryModule,
+} from "./modules"
 
 @Module({
     imports: [
         ModuleSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        ModulesSingleQueryModule.register({
             isGlobal: true,
         }),
     ],
