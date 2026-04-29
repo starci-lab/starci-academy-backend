@@ -55,6 +55,8 @@ services:
       POSTGRESQL_KEYCLOAK_HOST: ${POSTGRESQL_KEYCLOAK_HOST}
 
       BACKUP_ENCRYPT_PASSWORD: ${BACKUP_ENCRYPT_PASSWORD}
+
+      GITHUB_OAUTH_REDIRECT_URI: ${GITHUB_OAUTH_REDIRECT_URI}
     volumes:
       - /root/academy/.mount:/usr/src/app/.mount
     restart: always

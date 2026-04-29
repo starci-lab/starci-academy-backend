@@ -1109,7 +1109,7 @@ export const envConfig = () => ({
             }),
             clientId: parseEnvString({
                 key: "GITHUB_CLIENT_ID",
-                defaultValue: "Ov23li5w0Z4OaI4lyjgf",
+                defaultValue: "Ov23lithVLvZKXe5crUR",
             }),
         },
     },

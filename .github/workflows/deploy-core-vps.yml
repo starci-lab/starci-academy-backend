@@ -67,6 +67,8 @@ jobs:
 
           POSTGRESQL_KEYCLOAK_HOST: ${{ secrets.POSTGRESQL_KEYCLOAK_HOST }}
           BACKUP_ENCRYPT_PASSWORD: ${{ secrets.BACKUP_ENCRYPT_PASSWORD }}
+
+          GITHUB_OAUTH_REDIRECT_URI: ${{ secrets._GITHUB_OAUTH_REDIRECT_URI }}
         run: |
           docker compose -f apps/core/vps-compose.yaml down || true
           docker compose -f apps/core/vps-compose.yaml up --build -d 
