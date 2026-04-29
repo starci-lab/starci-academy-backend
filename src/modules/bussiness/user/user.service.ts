@@ -107,8 +107,12 @@ export class UserService {
             EnrollmentEntity,
             {
                 where: {
-                    userId,
-                    courseId,
+                    user: {
+                        id: userId,
+                    },
+                    course: {
+                        id: courseId,
+                    },
                 },
             }
         )
