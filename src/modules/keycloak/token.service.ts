@@ -23,6 +23,9 @@ import {
 import {
     KeycloakJwksService 
 } from "./jwks.service"
+import {
+    KeycloakUserService 
+} from "./user.service"
 
 /**
  * Keycloak OIDC: code exchange (client secret) and access-token verification via {@link KeycloakJwksService}.
@@ -43,11 +46,13 @@ export class KeycloakTokenService {
      * @param axiosService - The Axios service.
      * @param mountStorageService - The mount storage service.
      * @param keycloakJwksService - The Keycloak JWKS service.
+     * @param keycloakUserService - The Keycloak user service.
      */
     constructor(
         private readonly axiosService: AxiosService,
         private readonly mountStorageService: MountStorageService,
         private readonly keycloakJwksService: KeycloakJwksService,
+        private readonly keycloakUserService: KeycloakUserService,
     ) {
         this.axiosInstance = this.axiosService.create({
             key: "keycloak",
@@ -165,35 +170,10 @@ export class KeycloakTokenService {
     }
 
     /**
-     * Requests an admin access token from Keycloak.
-     * @returns The admin access token.
-     */
-    private async requestAdminAccessToken(): Promise<string> {
-        const response = await this.axiosInstance.post<{
-            access_token: string
-        }>(
-            `/realms/${envConfig().keycloak.realm}/protocol/openid-connect/token`,
-            new URLSearchParams({
-                grant_type: "password",
-                client_id: envConfig().keycloak.admin.clientId,
-                username: envConfig().keycloak.admin.username,
-                password: envConfig().keycloak.admin.password,
-            }),
-            {
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-            },
-        )
-
-        return response.data.access_token
-    }
-
-    /**
      * Creates a Keycloak user and sets permanent password.
      */
     async registerUserWithPassword(params: KeycloakRegisterUserParams): Promise<string> {
-        const adminAccessToken = await this.requestAdminAccessToken()
+        const adminAccessToken = await this.keycloakUserService.getAdminToken()
         
         const createResponse = await this.axiosInstance.post(
             `/admin/realms/${envConfig().keycloak.realm}/users`,
@@ -251,7 +231,7 @@ export class KeycloakTokenService {
      * Triggers Keycloak verify-email email action for a user.
      */
     async sendVerifyEmail(userId: string): Promise<void> {
-        const adminAccessToken = await this.requestAdminAccessToken()
+        const adminAccessToken = await this.keycloakUserService.getAdminToken()
 
         await this.axiosInstance.put(
             `/admin/realms/${envConfig().keycloak.realm}/users/${userId}/execute-actions-email`,
