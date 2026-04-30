@@ -3,6 +3,9 @@ import {
 } from "@nestjs/common"
 import {
     ChallengeEntity,
+    ChallengeOutputEntity,
+    ChallengePrerequisiteEntity,
+    ChallengeRequirementEntity,
     ChallengeReferenceEntity,
     ChallengeStepEntity,
 } from "../entities"
@@ -36,14 +39,6 @@ export class ChallengeResolverService {
                 fallbackLocale: challengeFallback,
             },
         )
-        challenge.prerequisites = this.translationResolver.resolve(
-            {
-                translations: challenge.translations,
-                field: "prerequisites",
-                locale,
-                fallbackLocale: challengeFallback,
-            },
-        )
         challenge.description = this.translationResolver.resolve(
             {
                 translations: challenge.translations,
@@ -52,15 +47,64 @@ export class ChallengeResolverService {
                 fallbackLocale: challengeFallback,
             },
         )
-        challenge.requirements = this.translationResolver.resolve(
-            {
-                translations: challenge.translations,
-                field: "requirements",
-                locale,
-                fallbackLocale: challengeFallback,
-            },
-        )
         delete (challenge as Partial<ChallengeEntity>).translations
+        if (challenge.challengeRequirements?.length) {
+            challenge.challengeRequirements = challenge.challengeRequirements.map((requirement) => {
+                const fallback = requirement.defaultLocale ?? challengeFallback
+                requirement.text = this.translationResolver.resolve(
+                    {
+                        translations: requirement.translations,
+                        field: "text",
+                        locale,
+                        fallbackLocale: fallback,
+                    },
+                )
+                delete (requirement as Partial<ChallengeRequirementEntity>).translations
+                return requirement
+            })
+        }
+        if (challenge.challengeOutputs?.length) {
+            challenge.challengeOutputs = challenge.challengeOutputs.map((output) => {
+                const fallback = output.defaultLocale ?? challengeFallback
+                output.text = this.translationResolver.resolve(
+                    {
+                        translations: output.translations,
+                        field: "text",
+                        locale,
+                        fallbackLocale: fallback,
+                    },
+                )
+                delete (output as Partial<ChallengeOutputEntity>).translations
+                return output
+            })
+        }
+        if (challenge.challengePrerequisites?.length) {
+            challenge.challengePrerequisites = challenge.challengePrerequisites.map((prerequisite) => {
+                const fallback = prerequisite.defaultLocale ?? challengeFallback
+                prerequisite.text = this.translationResolver.resolve(
+                    {
+                        translations: prerequisite.translations,
+                        field: "text",
+                        locale,
+                        fallbackLocale: fallback,
+                    },
+                )
+                delete (prerequisite as Partial<ChallengePrerequisiteEntity>).translations
+                return prerequisite
+            })
+        }
+        challenge.requirements = (challenge.challengeRequirements ?? [])
+            .map((requirement) => requirement.text)
+            .filter(Boolean)
+            .join("\n")
+        challenge.outputs = (challenge.challengeOutputs ?? [])
+            .map((output) => output.text)
+            .filter(Boolean)
+            .join("\n")
+        challenge.prerequisites = (challenge.challengePrerequisites ?? [])
+            .map((prerequisite) => prerequisite.text)
+            .filter(Boolean)
+            .join("\n")
         if (challenge.steps?.length) {
             challenge.steps = challenge.steps.map((step) => {
                 const stepFallback = step.defaultLocale ?? challengeFallback

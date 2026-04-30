@@ -268,6 +268,9 @@ import {
                 {
                     isGlobal: true,
                     withResolvers: true,
+                    withSeeders: {
+                        manualSeed: false,
+                    },
                 }
             ),
             /** Bussiness module. */

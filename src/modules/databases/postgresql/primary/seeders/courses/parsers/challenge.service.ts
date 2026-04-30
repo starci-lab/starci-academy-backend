@@ -16,7 +16,10 @@ import {
 } from "../extracts"
 import {
     ChallengeIdFactoryService,
+    ChallengeOutputIdFactoryService,
+    ChallengePrerequisiteIdFactoryService,
     ChallengeSubmissionPromptIdFactoryService,
+    ChallengeRequirementIdFactoryService,
     ChallengeStepIdFactoryService,
     ChallengeSubmissionIdFactoryService,
     ChallengeReferenceIdFactoryService,
@@ -27,7 +30,10 @@ import {
 } from "typeorm"
 import {
     ChallengeEntity,
+    ChallengeOutputTranslationEntity,
+    ChallengePrerequisiteTranslationEntity,
     ChallengeReferenceTranslationEntity,
+    ChallengeRequirementTranslationEntity,
     ChallengeStepTranslationEntity,
     ChallengeSubmissionPromptEntity,
     ChallengeSubmissionTranslationEntity,
@@ -59,8 +65,65 @@ export class ChallengeParserService {
         private readonly challengeSubmissionIdFactoryService: ChallengeSubmissionIdFactoryService,
         private readonly challengeStepIdFactoryService: ChallengeStepIdFactoryService,
         private readonly challengeReferenceIdFactoryService: ChallengeReferenceIdFactoryService,
+        private readonly challengeRequirementIdFactoryService: ChallengeRequirementIdFactoryService,
+        private readonly challengeOutputIdFactoryService: ChallengeOutputIdFactoryService,
+        private readonly challengePrerequisiteIdFactoryService: ChallengePrerequisiteIdFactoryService,
         private readonly contentIdFactoryService: ContentIdFactoryService,
     ) { }
+
+    private extractStructuredTextItems(
+        value: unknown,
+    ): Array<{ orderIndex: number; text: string }> {
+        if (Array.isArray(value)) {
+            return value
+                .map((item, index) => {
+                    if (typeof item === "string") {
+                        return {
+                            orderIndex: index,
+                            text: item.trim(),
+                        }
+                    }
+                    if (typeof item === "object" && item !== null) {
+                        const record = item as Record<string, unknown>
+                        const orderIndex = typeof record.orderIndex === "number"
+                            ? record.orderIndex
+                            : index
+                        const text = [
+                            record.text,
+                            record.body,
+                            record.value,
+                            record.__content__,
+                        ].find((entry) => typeof entry === "string" && entry.trim().length > 0)
+                        return {
+                            orderIndex,
+                            text: typeof text === "string" ? text.trim() : "",
+                        }
+                    }
+                    return {
+                        orderIndex: index,
+                        text: "",
+                    }
+                })
+                .filter((item) => item.text.length > 0)
+        }
+        if (typeof value === "string" && value.trim().length > 0) {
+            return [
+                {
+                    orderIndex: 0,
+                    text: value.trim(),
+                },
+            ]
+        }
+        return []
+    }
+
+    private resolveItemTextByOrderIndex(
+        value: unknown,
+        orderIndex: number,
+    ): string {
+        const items = this.extractStructuredTextItems(value)
+        return items.find((item) => item.orderIndex === orderIndex)?.text ?? ""
+    }
 
     /**
      * Builds a partial challenge entity from mounted course files.
@@ -116,8 +179,6 @@ export class ChallengeParserService {
             ),
             title: jsonMap.get(Locale.En)?.title ?? "",
             description: jsonMap.get(Locale.En)?.description ?? "",
-            requirements: jsonMap.get(Locale.En)?.requirements ?? "",
-            prerequisites: jsonMap.get(Locale.En)?.prerequisites ?? "",
             difficulty: jsonMap.get(Locale.En)?.difficulty ?? ChallengeDifficulty.Easy,
             score: this.coerceMdScalarService.toRequiredNumber(
                 jsonMap.get(Locale.En)?.score,
@@ -139,20 +200,128 @@ export class ChallengeParserService {
                         field: "description",
                         value: jsonMap.get(locale)?.description ?? "",
                     })
-                    translations.push({
-                        challengeId,
-                        locale,
-                        field: "requirements",
-                        value: jsonMap.get(locale)?.requirements ?? "",
-                    })
-                    translations.push({
-                        challengeId,
-                        locale,
-                        field: "prerequisites",
-                        value: jsonMap.get(locale)?.prerequisites ?? "",
-                    })
                 }
                 return translations
+            })(),
+            challengeRequirements: (() => {
+                const requirementItems = this.extractStructuredTextItems(
+                    jsonMap.get(Locale.En)?.requirements,
+                )
+                return requirementItems.map((item) => {
+                    const requirementId = this.challengeRequirementIdFactoryService.generate(
+                        {
+                            courseIndex,
+                            moduleIndex,
+                            contentIndex,
+                            challengeIndex,
+                            requirementIndex: item.orderIndex,
+                        },
+                    )
+                    const translations = Array.from(jsonMap.entries()).map(
+                        ([
+                            locale,
+                            challenge,
+                        ]) => ({
+                            challengeRequirementId: requirementId,
+                            locale,
+                            field: "text",
+                            value: this.resolveItemTextByOrderIndex(
+                                challenge.requirements,
+                                item.orderIndex,
+                            ),
+                        } as DeepPartial<ChallengeRequirementTranslationEntity>),
+                    )
+                    return {
+                        id: requirementId,
+                        orderIndex: item.orderIndex,
+                        text: item.text,
+                        defaultLocale: Locale.En,
+                        challenge: {
+                            id: challengeId,
+                        },
+                        translations,
+                    }
+                })
+            })(),
+            challengeOutputs: (() => {
+                const outputItems = this.extractStructuredTextItems(
+                    jsonMap.get(Locale.En)?.outputs ?? jsonMap.get(Locale.En)?.output,
+                )
+                return outputItems.map((item) => {
+                    const outputId = this.challengeOutputIdFactoryService.generate(
+                        {
+                            courseIndex,
+                            moduleIndex,
+                            contentIndex,
+                            challengeIndex,
+                            outputIndex: item.orderIndex,
+                        },
+                    )
+                    const translations = Array.from(jsonMap.entries()).map(
+                        ([
+                            locale,
+                            challenge,
+                        ]) => ({
+                            challengeOutputId: outputId,
+                            locale,
+                            field: "text",
+                            value: this.resolveItemTextByOrderIndex(
+                                challenge.outputs ?? challenge.output,
+                                item.orderIndex,
+                            ),
+                        } as DeepPartial<ChallengeOutputTranslationEntity>),
+                    )
+                    return {
+                        id: outputId,
+                        orderIndex: item.orderIndex,
+                        text: item.text,
+                        defaultLocale: Locale.En,
+                        challenge: {
+                            id: challengeId,
+                        },
+                        translations,
+                    }
+                })
+            })(),
+            challengePrerequisites: (() => {
+                const prerequisiteItems = this.extractStructuredTextItems(
+                    jsonMap.get(Locale.En)?.prerequisites,
+                )
+                return prerequisiteItems.map((item) => {
+                    const prerequisiteId = this.challengePrerequisiteIdFactoryService.generate(
+                        {
+                            courseIndex,
+                            moduleIndex,
+                            contentIndex,
+                            challengeIndex,
+                            prerequisiteIndex: item.orderIndex,
+                        },
+                    )
+                    const translations = Array.from(jsonMap.entries()).map(
+                        ([
+                            locale,
+                            challenge,
+                        ]) => ({
+                            challengePrerequisiteId: prerequisiteId,
+                            locale,
+                            field: "text",
+                            value: this.resolveItemTextByOrderIndex(
+                                challenge.prerequisites,
+                                item.orderIndex,
+                            ),
+                        } as DeepPartial<ChallengePrerequisiteTranslationEntity>),
+                    )
+                    return {
+                        id: prerequisiteId,
+                        orderIndex: item.orderIndex,
+                        text: item.text,
+                        defaultLocale: Locale.En,
+                        challenge: {
+                            id: challengeId,
+                        },
+                        translations,
+                    }
+                })
             })(),
             references: (jsonMap.get(Locale.En)?.references ?? [])
                 .map(

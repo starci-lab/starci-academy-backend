@@ -201,7 +201,14 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         const challenge = context.extended?.challenge
         const challengeSubmission = context.extended?.challengeSubmission
         const challengeTitle = (challenge?.title ?? "").trim()
-        const requirements = (challenge?.requirements ?? "").trim()
+        const requirements = (
+            challenge?.requirements
+            ?? (challenge?.challengeRequirements ?? [])
+                .map((item) => item.text)
+                .filter(Boolean)
+                .join("\n")
+            ?? ""
+        ).trim()
         const submissionTitle = challengeSubmission?.title ?? ""
         const submissionDescription = (challengeSubmission?.description ?? "").trim()
         const submissionScore = challengeSubmission?.score ?? 0

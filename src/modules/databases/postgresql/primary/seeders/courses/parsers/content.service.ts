@@ -71,7 +71,7 @@ export class ContentParserService {
             )
         }
         const jsonMap = new Map<Locale, Partial<ContentEntity>>()
-        for (const locale of Object.values(Locale)) {
+        for (const locale of Object.values(Locale)) {   
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(

@@ -84,6 +84,15 @@ export class CdnChallengeBuildService {
                 },
                 relations: {
                     translations: true,
+                    challengeRequirements: {
+                        translations: true,
+                    },
+                    challengeOutputs: {
+                        translations: true,
+                    },
+                    challengePrerequisites: {
+                        translations: true,
+                    },
                 },
             },
         )

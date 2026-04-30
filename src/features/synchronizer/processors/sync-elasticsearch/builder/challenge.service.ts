@@ -80,6 +80,15 @@ export class ElasticsearchChallengeBuildService {
                 },
                 relations: {
                     translations: true,
+                    challengeRequirements: {
+                        translations: true,
+                    },
+                    challengeOutputs: {
+                        translations: true,
+                    },
+                    challengePrerequisites: {
+                        translations: true,
+                    },
                 },
             },
         )

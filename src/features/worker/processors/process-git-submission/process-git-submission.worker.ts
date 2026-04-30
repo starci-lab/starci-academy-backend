@@ -130,6 +130,9 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
                     where: {
                         id: challengeSubmission.challengeId,
                     },
+                    relations: {
+                        challengeRequirements: true,
+                    },
                 },
             )
             if (!challenge) {

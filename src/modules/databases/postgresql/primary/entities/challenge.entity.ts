@@ -36,6 +36,15 @@ import {
 import {
     ChallengeSubmissionEntity,
 } from "./challenge-submission.entity"
+import {
+    ChallengeRequirementEntity,
+} from "./challenge-requirement.entity"
+import {
+    ChallengeOutputEntity,
+} from "./challenge-output.entity"
+import {
+    ChallengePrerequisiteEntity,
+} from "./challenge-prerequisite.entity"
 
 /**
  * Hands-on challenge attached to a module (title, prerequisites, description, steps, references).
@@ -78,22 +87,6 @@ export class ChallengeEntity extends UuidAbstractEntity {
         displayId: string
 
     /**
-     * Challenge prerequisites (Markdown).
-     */
-    @Field(
-        () => String,
-        {
-            description: "Challenge prerequisites (Markdown).",
-        },
-    )
-    @Column({
-        name: "prerequisites",
-        type: "text",
-        default: "",
-    })
-        prerequisites: string
-
-    /**
      * Challenge description.
      */
     @Field(
@@ -109,21 +102,32 @@ export class ChallengeEntity extends UuidAbstractEntity {
     })
         description: string
 
-    /**
-     * Challenge requirements (e.g. instructions, markdown).
-     */
     @Field(
         () => String,
         {
-            description: "Challenge requirements (Markdown).",
+            description: "Challenge requirements rendered from requirement items (Markdown).",
         },
     )
-    @Column({
-        name: "requirements",
-        type: "text",
-        default: "",
-    })
         requirements: string
+
+    @Field(
+        () => String,
+        {
+            description: "Challenge outputs rendered from output items (Markdown).",
+            nullable: true,
+        },
+    )
+        outputs?: string
+
+    output?: string
+
+    @Field(
+        () => String,
+        {
+            description: "Challenge prerequisites rendered from prerequisite items (Markdown).",
+        },
+    )
+        prerequisites: string
 
     /**
      * Points awarded when the challenge is completed successfully.
@@ -246,6 +250,51 @@ export class ChallengeEntity extends UuidAbstractEntity {
         translations: Array<ChallengeTranslationEntity>
 
     @Field(
+        () => [ChallengeRequirementEntity],
+        {
+            description: "Ordered markdown requirement items.",
+        },
+    )
+    @OneToMany(
+        () => ChallengeRequirementEntity,
+        (challengeRequirement: ChallengeRequirementEntity) => challengeRequirement.challenge,
+        {
+            cascade: true,
+        },
+    )
+        challengeRequirements: Array<ChallengeRequirementEntity>
+
+    @Field(
+        () => [ChallengeOutputEntity],
+        {
+            description: "Ordered markdown output items.",
+        },
+    )
+    @OneToMany(
+        () => ChallengeOutputEntity,
+        (challengeOutput: ChallengeOutputEntity) => challengeOutput.challenge,
+        {
+            cascade: true,
+        },
+    )
+        challengeOutputs: Array<ChallengeOutputEntity>
+
+    @Field(
+        () => [ChallengePrerequisiteEntity],
+        {
+            description: "Ordered markdown prerequisite items.",
+        },
+    )
+    @OneToMany(
+        () => ChallengePrerequisiteEntity,
+        (challengePrerequisite: ChallengePrerequisiteEntity) => challengePrerequisite.challenge,
+        {
+            cascade: true,
+        },
+    )
+        challengePrerequisites: Array<ChallengePrerequisiteEntity>
+
+    @Field(
         () => [ChallengeSubmissionEntity],
         {
             nullable: true,
@@ -310,7 +359,8 @@ export class ChallengeEntity extends UuidAbstractEntity {
         },
     )
     @RelationId(
-        (ch: ChallengeEntity) => ch.content,
+        (challenge: ChallengeEntity) => challenge.content,
     )
         contentId: string
+
 }
