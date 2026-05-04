@@ -130,6 +130,18 @@ Sau mỗi file docker phải có comment:
 
 ---
 
+### 5.5 Port Exposure (BẮT BUỘC)
+
+Với các service database trong `docker compose`, phải publish port rõ ràng để local app/test có thể kết nối trực tiếp:
+
+- PostgreSQL: bắt buộc có `ports: ["5432:5432"]` (hoặc mapping host-port khác nhưng phải ghi rõ trong README/env).
+- MongoDB: bắt buộc có `ports: ["27017:27017"]` (hoặc mapping host-port khác nhưng phải ghi rõ).
+- Redis (nếu dùng): khuyến nghị `ports: ["6379:6379"]`.
+
+Không để database chỉ chạy nội bộ container network nếu flow học tập yêu cầu gọi app từ máy local.
+
+---
+
 ## 6. README (BẮT BUỘC CHI TIẾT)
 
 README phải cover toàn bộ flow:
@@ -249,7 +261,14 @@ this.logger.log({
 
 ---
 
-## 11. AI Behavior Rules
+## 11. Lesson demos trong `.repo/fullstack-mastery-*`
+
+* **Không** thêm `eslint.config.mjs`, script `npm run lint`, hay devDependency ESLint/Prettier trong từng thư mục demo nhỏ (clone học viên).
+* ESLint thống nhất dùng **`eslint.config.mjs`** ở root repo **starci-academy-backend**; ví dụ module auth JWT/RBAC: `npm run lint:fullstack-module4-auth-demos`.
+
+---
+
+## 12. AI Behavior Rules
 
 Antigravity khi generate code phải:
 
@@ -260,6 +279,23 @@ Antigravity khi generate code phải:
 
 ---
 
+## 13. Strict Comment Rule cho Microservices Demos (BẮT BUỘC TUYỆT ĐỐI)
+
+Áp dụng **strict mode** cho 2 thư mục:
+
+- `.repo/system-design-mastery-module-4-data-and-consistency-in-microservices/1-cqrs-pattern`
+- `.repo/system-design-mastery-module-4-data-and-consistency-in-microservices/2-saga-pattern`
+
+### Rules (không có ngoại lệ):
+
+- Mọi function/method phải có block comment song ngữ `VI + EN` (mục đích, input, output, side effects).
+- Mọi bước logic quan trọng (publish/consume event, DB write/read, compensation, retry, ack) phải có comment ngay phía trên.
+- Không được dùng comment chung chung kiểu `handle event` hoặc `do process`; phải nói rõ **vì sao bước đó tồn tại**.
+- Với Kafka/RabbitMQ flow, bắt buộc comment rõ event name, producer service, consumer service, và outcome mong đợi.
+- PR sẽ bị coi là **không đạt** nếu thiếu comment ở các điểm orchestration/choreography chính.
+
+---
+
 # ✅ Summary
 
 * Comment: **song ngữ + chi tiết**
@@ -267,6 +303,8 @@ Antigravity khi generate code phải:
 * Export: **index.ts**
 * README: **full flow từ A → Z**
 * Pattern: **prepare → sign → execute → confirm**
+* Demo clones trong `.repo/`: **không nhét ESLint riêng** — lint từ root với **`eslint.config.mjs`**
+* CQRS/Saga demos module 4: **strict comment bắt buộc ở mọi flow chính**
 
 ---
 

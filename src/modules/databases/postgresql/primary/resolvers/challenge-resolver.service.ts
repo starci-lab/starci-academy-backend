@@ -51,10 +51,34 @@ export class ChallengeResolverService {
         if (challenge.challengeRequirements?.length) {
             challenge.challengeRequirements = challenge.challengeRequirements.map((requirement) => {
                 const fallback = requirement.defaultLocale ?? challengeFallback
-                requirement.text = this.translationResolver.resolve(
+                requirement.purpose = this.translationResolver.resolve(
                     {
                         translations: requirement.translations,
-                        field: "text",
+                        field: "purpose",
+                        locale,
+                        fallbackLocale: fallback,
+                    },
+                )
+                requirement.technicalConstraints = this.translationResolver.resolve(
+                    {
+                        translations: requirement.translations,
+                        field: "technicalConstraints",
+                        locale,
+                        fallbackLocale: fallback,
+                    },
+                )
+                requirement.proTipsHints = this.translationResolver.resolve(
+                    {
+                        translations: requirement.translations,
+                        field: "proTipsHints",
+                        locale,
+                        fallbackLocale: fallback,
+                    },
+                )
+                requirement.forbidden = this.translationResolver.resolve(
+                    {
+                        translations: requirement.translations,
+                        field: "forbidden",
                         locale,
                         fallbackLocale: fallback,
                     },
@@ -94,9 +118,14 @@ export class ChallengeResolverService {
             })
         }
         challenge.requirements = (challenge.challengeRequirements ?? [])
-            .map((requirement) => requirement.text)
+            .map((requirement) => [
+                `Muc tieu: ${requirement.purpose}`,
+                `Rang buoc ky thuat: ${requirement.technicalConstraints}`,
+                `Goi y: ${requirement.proTipsHints}`,
+                requirement.forbidden ? `Cam: ${requirement.forbidden}` : "",
+            ].join("\n"))
             .filter(Boolean)
-            .join("\n")
+            .join("\n\n")
         challenge.outputs = (challenge.challengeOutputs ?? [])
             .map((output) => output.text)
             .filter(Boolean)

@@ -12,7 +12,7 @@ services:
 
       - KC_DB=postgres
       - KEYCLOAK_DATABASE_HOST=host.docker.internal
-      - KEYCLOAK_DATABASE_PORT=5432
+      - KEYCLOAK_DATABASE_PORT=5433
       - KEYCLOAK_DATABASE_NAME=keycloak
       - KC_DB_USERNAME=postgres
       - KC_DB_PASSWORD=Cuong123_A

@@ -204,7 +204,11 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         const requirements = (
             challenge?.requirements
             ?? (challenge?.challengeRequirements ?? [])
-                .map((item) => item.text)
+                .map((item) => [
+                    item.purpose,
+                    item.technicalConstraints,
+                    item.proTipsHints,
+                ].filter(Boolean).join("\n"))
                 .filter(Boolean)
                 .join("\n")
             ?? ""

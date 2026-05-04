@@ -71,6 +71,36 @@ export class ChallengeParserService {
         private readonly contentIdFactoryService: ContentIdFactoryService,
     ) { }
 
+    /**
+     * Ánh xạ chuỗi `type` trong JSON challenge sang {@link SubmissionType} khớp enum Postgres `submission_type` (EN: maps markdown JSON `type` strings to DB-safe `SubmissionType` values).
+     *
+     * Template có thể dùng alias `githubRepository` / `github_repository` thay cho `githubUrl` (EN: templates may use `githubRepository` as a synonym for `githubUrl`).
+     */
+    private normalizeChallengeSubmissionType(raw: unknown): SubmissionType {
+        if (raw === SubmissionType.GithubUrl || raw === SubmissionType.GoogleDocsUrl) {
+            return raw
+        }
+        if (typeof raw !== "string") {
+            return SubmissionType.GithubUrl
+        }
+        const normalized = raw.trim()
+        if (
+            normalized === ""
+            || normalized === SubmissionType.GithubUrl
+            || normalized === "github_repository"
+            || normalized === "githubRepository"
+        ) {
+            return SubmissionType.GithubUrl
+        }
+        if (
+            normalized === SubmissionType.GoogleDocsUrl
+            || normalized === "google_docs_url"
+        ) {
+            return SubmissionType.GoogleDocsUrl
+        }
+        return SubmissionType.GithubUrl
+    }
+
     private extractStructuredTextItems(
         value: unknown,
     ): Array<{ orderIndex: number; text: string }> {
@@ -123,6 +153,117 @@ export class ChallengeParserService {
     ): string {
         const items = this.extractStructuredTextItems(value)
         return items.find((item) => item.orderIndex === orderIndex)?.text ?? ""
+    }
+
+    private getObjectStringByAliases(
+        input: Record<string, unknown>,
+        aliases: string[],
+    ): string {
+        for (const alias of aliases) {
+            const value = input[alias]
+            if (typeof value === "string" && value.trim().length > 0) {
+                return value.trim()
+            }
+        }
+        return ""
+    }
+
+    private extractRequirementItems(
+        value: unknown,
+    ): Array<{
+        orderIndex: number
+        purpose: string
+        technicalConstraints: string
+        proTipsHints: string
+        forbidden: string
+    }> {
+        if (!Array.isArray(value)) {
+            return []
+        }
+        return value
+            .map((item, index) => {
+                if (typeof item !== "object" || item === null) {
+                    return null
+                }
+                const record = item as Record<string, unknown>
+                const orderIndex = typeof record.orderIndex === "number"
+                    ? record.orderIndex
+                    : index
+                const purpose = this.getObjectStringByAliases(
+                    record,
+                    [
+                        "purpose",
+                        "Purpose",
+                        "mucTieu",
+                        "Muc_tieu",
+                        "Muc_tieu_(Goal)",
+                    ],
+                )
+                const technicalConstraints = this.getObjectStringByAliases(
+                    record,
+                    [
+                        "technicalConstraints",
+                        "Technical_Constraints",
+                        "Rang_buoc_ky_thuat",
+                        "Rang_buoc",
+                    ],
+                )
+                const proTipsHints = this.getObjectStringByAliases(
+                    record,
+                    [
+                        "proTipsHints",
+                        "Pro-tips/Hints",
+                        "Goi_y_&_Meo",
+                        "Goi_y",
+                    ],
+                )
+                const forbidden = this.getObjectStringByAliases(
+                    record,
+                    [
+                        "forbidden",
+                        "Forbidden",
+                        "Cam",
+                        "Cấm",
+                        "Prohibited",
+                        "forbiddenRules",
+                    ],
+                )
+                if (!purpose && !technicalConstraints && !proTipsHints && !forbidden) {
+                    return null
+                }
+                return {
+                    orderIndex,
+                    purpose,
+                    technicalConstraints,
+                    proTipsHints,
+                    forbidden,
+                }
+            })
+            .filter((item): item is {
+                orderIndex: number
+                purpose: string
+                technicalConstraints: string
+                proTipsHints: string
+                forbidden: string
+            } => item !== null)
+    }
+
+    private resolveRequirementItemByOrderIndex(
+        value: unknown,
+        orderIndex: number,
+    ): {
+        purpose: string
+        technicalConstraints: string
+        proTipsHints: string
+        forbidden: string
+    } {
+        const item = this.extractRequirementItems(value).find((entry) => entry.orderIndex === orderIndex)
+        return item ?? {
+            purpose: "",
+            technicalConstraints: "",
+            proTipsHints: "",
+            forbidden: "",
+        }
     }
 
     /**
@@ -204,7 +345,7 @@ export class ChallengeParserService {
                 return translations
             })(),
             challengeRequirements: (() => {
-                const requirementItems = this.extractStructuredTextItems(
+                const requirementItems = this.extractRequirementItems(
                     jsonMap.get(Locale.En)?.requirements,
                 )
                 return requirementItems.map((item) => {
@@ -221,20 +362,47 @@ export class ChallengeParserService {
                         ([
                             locale,
                             challenge,
-                        ]) => ({
-                            challengeRequirementId: requirementId,
-                            locale,
-                            field: "text",
-                            value: this.resolveItemTextByOrderIndex(
+                        ]) => {
+                            const localizedItem = this.resolveRequirementItemByOrderIndex(
                                 challenge.requirements,
                                 item.orderIndex,
-                            ),
-                        } as DeepPartial<ChallengeRequirementTranslationEntity>),
+                            )
+                            return [
+                                {
+                                    challengeRequirementId: requirementId,
+                                    locale,
+                                    field: "purpose",
+                                    value: localizedItem.purpose,
+                                },
+                                {
+                                    challengeRequirementId: requirementId,
+                                    locale,
+                                    field: "technicalConstraints",
+                                    value: localizedItem.technicalConstraints,
+                                },
+                                {
+                                    challengeRequirementId: requirementId,
+                                    locale,
+                                    field: "proTipsHints",
+                                    value: localizedItem.proTipsHints,
+                                },
+                                {
+                                    challengeRequirementId: requirementId,
+                                    locale,
+                                    field: "forbidden",
+                                    value: localizedItem.forbidden,
+                                },
+                            ] as Array<DeepPartial<ChallengeRequirementTranslationEntity>>
+                        },
                     )
+                        .flat()
                     return {
                         id: requirementId,
                         orderIndex: item.orderIndex,
-                        text: item.text,
+                        purpose: item.purpose,
+                        technicalConstraints: item.technicalConstraints,
+                        proTipsHints: item.proTipsHints,
+                        forbidden: item.forbidden,
                         defaultLocale: Locale.En,
                         challenge: {
                             id: challengeId,
@@ -486,7 +654,9 @@ export class ChallengeParserService {
                         description: this.coerceMdScalarService.toNullableStringColumn(
                             description,
                         ),
-                        type: (type ?? SubmissionType.GithubUrl) as SubmissionType,
+                        type: this.normalizeChallengeSubmissionType(
+                            type ?? SubmissionType.GithubUrl,
+                        ),
                         score: this.coerceMdScalarService.toRequiredNumber(
                             score,
                             0,

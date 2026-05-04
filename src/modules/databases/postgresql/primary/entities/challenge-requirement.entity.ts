@@ -34,14 +34,54 @@ export class ChallengeRequirementEntity extends UuidAbstractEntity {
     @Field(
         () => String,
         {
-            description: "Markdown text rendered for this requirement item.",
+            description: "Goal statement for this requirement.",
         },
     )
     @Column({
-        name: "text",
+        name: "purpose",
         type: "text",
+        default: "",
     })
-        text: string
+        purpose: string
+
+    @Field(
+        () => String,
+        {
+            description: "Technical constraints that the learner must follow.",
+        },
+    )
+    @Column({
+        name: "technical_constraints",
+        type: "text",
+        default: "",
+    })
+        technicalConstraints: string
+
+    @Field(
+        () => String,
+        {
+            description: "Hints and pro-tips for implementing the requirement.",
+        },
+    )
+    @Column({
+        name: "pro_tips_hints",
+        type: "text",
+        default: "",
+    })
+        proTipsHints: string
+
+    @Field(
+        () => String,
+        {
+            description: "Explicit forbidden rules for this requirement.",
+        },
+    )
+    @Column({
+        name: "forbidden",
+        type: "text",
+        default: "",
+    })
+        forbidden: string
 
     @Field(
         () => Int,
