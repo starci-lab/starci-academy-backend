@@ -10,7 +10,10 @@ Bài học hướng dẫn cơ chế Timeout cắt kết nối treo và Retry th�
 
 Một **Senior Engineer** hỏi ứng viên **Mid-level Developer** trong vòng phỏng vấn **Backend**: *"Hệ thống của bạn gọi sang một API Ngân hàng. Bình thường phản hồi rất nhanh, nhưng hôm nay phía Ngân hàng bị nghẽn, request gọi sang cứ treo lơ lửng mà không báo lỗi. Hệ thống của bạn cũng bị treo theo và sập luôn. Bạn xử lý thế nào?"*. Ứng viên trả lời được **try…catch** và viết vòng lặp **Retry** liên tục, nhưng chưa nêu được hai rủi ro: **(1)** không có **Timeout** thì request giữ kết nối vô thời hạn gây **Thread Exhaustion**, và **(2)** **Retry** không có độ trễ tăng dần tương đương **DDoS** nội bộ vào đối tác đang gặp sự cố.
 
-Bài học này đi theo hai mạch liên tiếp. **Phần 2.1** là **thực hành**, bám sát repository GitHub: học viên clone repo demo, khởi chạy **client-service** + **bank-service** bằng **Docker Compose**, gọi API `/pay` và quan sát hành vi **Timeout 3 giây** cùng log **Exponential Backoff + Jitter** qua hai luồng kiểm thử. **Phần 2.2** củng cố **lý thuyết** — định nghĩa chính xác **Timeout**, **Exponential Backoff**, **Jitter**, bảng so sánh chiến lược **Retry**, và các trường hợp biên cần lưu ý. Sau bài, học viên phân biệt được **Timeout** với **Circuit Breaker**, cấu hình được **Retry** có bảo vệ trong **NestJS**, và giải thích được vì sao **Jitter** ngăn **Thundering Herd**.
+Bài học này đi theo hai mạch liên tiếp:
+- **Phần 2.1**: **thực hành** bám sát repository GitHub: học viên clone repo demo, khởi chạy **client-service** + **bank-service** bằng **Docker Compose**, gọi API `/pay` và quan sát hành vi **Timeout 3 giây** cùng log **Exponential Backoff + Jitter** qua hai luồng kiểm thử.
+- **Phần 2.2**: **lý thuyết** củng cố định nghĩa chính xác **Timeout**, **Exponential Backoff**, **Jitter**, bảng so sánh chiến lược **Retry**, và các trường hợp biên cần lưu ý.
+Sau bài, học viên phân biệt được **Timeout** với **Circuit Breaker**, cấu hình được **Retry** có bảo vệ trong **NestJS**, và giải thích được vì sao **Jitter** ngăn **Thundering Herd**.
 
 ## 2. Các khái niệm cốt lõi
 

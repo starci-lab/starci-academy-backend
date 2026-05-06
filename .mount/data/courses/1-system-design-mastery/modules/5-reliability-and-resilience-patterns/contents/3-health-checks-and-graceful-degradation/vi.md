@@ -10,7 +10,10 @@ Bài viết hướng dẫn cách dùng Health Checks để báo trạng thái s�
 
 "Service NestJS của bạn đã chạy ổn trong Kubernetes, nhưng làm sao cluster biết khi nào cần restart container và khi nào chỉ cần tách container ra khỏi Load Balancer?" — một **Senior Engineer** đặt câu hỏi trong phiên phỏng vấn. Một **Mid-level Developer** trả lời: "Em sẽ cấu hình **livenessProbe** và **readinessProbe** gọi `curl /health` ạ." Câu trả lời đúng về công cụ, nhưng vẫn thiếu chiều sâu về trường hợp **Database** mất kết nối trong khi tiến trình **Node.js** vẫn còn sống — endpoint `/health` vẫn trả HTTP 200, **Kubernetes** không thấy bất thường nhưng client thì lỗi hàng loạt.
 
-Bài này dẫn qua hai mạch liên tiếp. **Phần 2.1** là **thực hành** đồng bộ với repository trên GitHub; học viên clone repo, chạy demo **NestJS** với **Terminus**, rồi kiểm thử hành vi của `/health` và cơ chế tự hạ cấp của `/products` khi bơm RAM qua ba luồng kiểm thử. **Phần 2.2** làm rõ lý thuyết — sự khác biệt giữa **Liveness** và **Readiness**, nguyên lý **Graceful Degradation**, và các tình huống biên thường gặp khi service quá tải hoặc dependency lỗi. Mục tiêu sau bài là phân biệt rõ **Liveness** vs **Readiness**, thiết lập được `/health` với **Terminus**, và đọc được logic giám sát RAM để chủ động tắt tính năng phụ trong **NestJS**.
+Bài này dẫn qua hai mạch liên tiếp:
+- **Phần 2.1**: **thực hành** đồng bộ với repository trên GitHub; học viên clone repo, chạy demo **NestJS** với **Terminus**, rồi kiểm thử hành vi của `/health` và cơ chế tự hạ cấp của `/products` khi bơm RAM qua ba luồng kiểm thử.
+- **Phần 2.2**: **lý thuyết** làm rõ sự khác biệt giữa **Liveness** và **Readiness**, nguyên lý **Graceful Degradation**, và các tình huống biên thường gặp khi service quá tải hoặc dependency lỗi.
+Mục tiêu sau bài là phân biệt rõ **Liveness** vs **Readiness**, thiết lập được `/health` với **Terminus**, và đọc được logic giám sát RAM để chủ động tắt tính năng phụ trong **NestJS**.
 
 ## 2. Các khái niệm cốt lõi
 

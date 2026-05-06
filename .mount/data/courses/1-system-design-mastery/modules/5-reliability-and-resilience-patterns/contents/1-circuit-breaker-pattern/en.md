@@ -10,7 +10,10 @@ This lesson dives into the Circuit Breaker pattern, enabling applications to aut
 
 A **Senior Engineer** asks a **Mid-level** candidate: *"A service in your microservices architecture suddenly slows down and starts timing out — how do you prevent that failure from cascading and bringing down the remaining healthy services?"* The candidate answers they would use **Timeout** and **Retry** to handle transient errors, but does not yet describe how to detect a prolonged outage in the target service — no mention of **Fast Fail**, no distinction between the **Open / Half-Open / Closed** states, and no strategy to protect the caller's **Thread Pool** from **Cascading Failure**.
 
-This lesson proceeds in two connected tracks. **Part 2.1** is **hands-on** and aligned with the GitHub repository; learners clone the demo repo, run a **NestJS** + **Opossum** stack, force the inventory service to fail, and observe the breaker transition through logs and **Fallback** responses across three test flows. **Part 2.2** reinforces the theory — the **Closed → Open → Half-Open** state machine, threshold parameters and **Reset Timeout**, and how **Circuit Breaker** relates to **Retry**, **Timeout**, and **Bulkhead**. By the end, learners can distinguish **Fast Fail** from **Retry**, configure a **Circuit Breaker** with appropriate error thresholds and **Reset Timeout**, read state-transition logs, and design safe **Fallback** functions for dependent services.
+This lesson proceeds in two connected tracks:
+- **Part 2.1**: **hands-on** and aligned with the GitHub repository; learners clone the demo repo, run a **NestJS** + **Opossum** stack, force the inventory service to fail, and observe the breaker transition through logs and **Fallback** responses across three test flows.
+- **Part 2.2**: **theory** reinforcing the **Closed → Open → Half-Open** state machine, threshold parameters and **Reset Timeout**, and how **Circuit Breaker** relates to **Retry**, **Timeout**, and **Bulkhead**.
+By the end, learners can distinguish **Fast Fail** from **Retry**, configure a **Circuit Breaker** with appropriate error thresholds and **Reset Timeout**, read state-transition logs, and design safe **Fallback** functions for dependent services.
 
 ## 2. Core concepts
 

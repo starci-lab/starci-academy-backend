@@ -10,7 +10,10 @@ This lesson analyzes the resource partitioning mechanism that prevents a localiz
 
 A **Senior Engineer** asks a **Mid-level** candidate: *"Your E-commerce system has two APIs: `GET /history` (transaction history) and `GET /checkout` (payment). Today the History API slows to a crawl due to a Database connection error, customers spam F5 on History, and suddenly the Checkout API starts failing too. Explain the root cause and how you would fix it."* The candidate answers they would use a **Circuit Breaker** to trip the History API, but does not yet explain why — before the **Circuit Breaker** can even detect the failure, thousands of hanging requests have already exhausted the server's entire **Thread Pool**, leaving no threads to process **Checkout** requests. The candidate misses the technique of isolating resources at the per-function level.
 
-This lesson proceeds in two connected tracks. **Part 2.1** is **hands-on** and aligned with the GitHub repository; learners clone the demo repo, run two APIs with different priorities, and compare behavior when one compartment is overloaded across three test flows. **Part 2.2** reinforces the theory — the definition of **Bulkhead Pattern**, the partitioning model, and edge cases when configuring concurrency limiters. By the end, learners can distinguish **Bulkhead Pattern** from **Rate Limiting** and **Circuit Breaker**, configure per-route **concurrency** limits in **NestJS**, and interpret **HTTP 429** responses when a compartment is full.
+This lesson proceeds in two connected tracks:
+- **Part 2.1**: **hands-on** and aligned with the GitHub repository; learners clone the demo repo, run two APIs with different priorities, and compare behavior when one compartment is overloaded across three test flows.
+- **Part 2.2**: **theory** reinforcing the definition of **Bulkhead Pattern**, the partitioning model, and edge cases when configuring concurrency limiters.
+By the end, learners can distinguish **Bulkhead Pattern** from **Rate Limiting** and **Circuit Breaker**, configure per-route **concurrency** limits in **NestJS**, and interpret **HTTP 429** responses when a compartment is full.
 
 ## 2. Core concepts
 

@@ -10,7 +10,10 @@ Lesson covers the Timeout mechanism to cut hanging connections and smart Retry w
 
 A **Senior Engineer** asks a **Mid-level** candidate during a **Backend** interview: *"Your system calls a Bank API. Normally it responds quickly, but today the Bank is congested — requests just hang without returning an error. Your system also hangs and eventually crashes. How do you handle this?"*. The candidate answers with **try…catch** and a continuous **Retry** loop, but still misses depth on two risks: **(1)** without a **Timeout**, requests hold connections indefinitely causing **Thread Exhaustion**, and **(2)** **Retry** without progressive delays is effectively an internal **DDoS** against a partner already under stress.
 
-This lesson runs in two beats. **Part 2.1** is **hands-on**, aligned with the GitHub repository: learners clone the demo repo, bring up **client-service** + **bank-service** with **Docker Compose**, call the `/pay` API and observe **3-second Timeout** behaviour plus **Exponential Backoff + Jitter** logs across two verification flows. **Part 2.2** consolidates **theory** — precise definitions of **Timeout**, **Exponential Backoff**, **Jitter**, a comparison table of **Retry** strategies, and edge cases to internalize. Afterwards, learners should distinguish **Timeout** from **Circuit Breaker**, configure protected **Retry** in **NestJS**, and explain why **Jitter** prevents **Thundering Herd**.
+This lesson runs in two beats:
+- **Part 2.1**: **hands-on** aligned with the GitHub repository: learners clone the demo repo, bring up **client-service** + **bank-service** with **Docker Compose**, call the `/pay` API and observe **3-second Timeout** behaviour plus **Exponential Backoff + Jitter** logs across two verification flows.
+- **Part 2.2**: **theory** consolidating precise definitions of **Timeout**, **Exponential Backoff**, **Jitter**, a comparison table of **Retry** strategies, and edge cases to internalize.
+Afterwards, learners should distinguish **Timeout** from **Circuit Breaker**, configure protected **Retry** in **NestJS**, and explain why **Jitter** prevents **Thundering Herd**.
 
 ## 2. Core concepts
 

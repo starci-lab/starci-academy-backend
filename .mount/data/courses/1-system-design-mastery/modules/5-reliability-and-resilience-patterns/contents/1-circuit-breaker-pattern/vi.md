@@ -10,7 +10,10 @@ Bài học đi sâu vào nguyên lý hoạt động của Circuit Breaker, giúp
 
 "Một service trong kiến trúc microservices của bạn đột nhiên chậm và bắt đầu timeout, làm sao bạn ngăn lỗi đó kéo sập các service đang lành lặn còn lại?" — một **Senior Engineer** đặt câu hỏi trong phiên phỏng vấn system design. Một **Mid-level Developer** trả lời: "Em sẽ dùng **Timeout** và **Retry** để xử lý lỗi tạm thời ạ." Câu trả lời đúng về kỹ thuật xử lý lỗi transient, nhưng vẫn thiếu chiều sâu về cách phát hiện service đích đang gặp sự cố kéo dài — không nhắc tới cơ chế **Fast Fail**, không phân biệt được trạng thái **Open / Half-Open / Closed**, và chưa biết cách bảo vệ **Thread Pool** của service gọi đi khỏi **Cascading Failure**.
 
-Bài này dẫn qua hai mạch liên tiếp. **Phần 2.1** là **thực hành** đồng bộ với repository trên GitHub; học viên clone repo demo, chạy stack **NestJS** + **Opossum**, ép service kho hàng lỗi và quan sát cầu dao chuyển trạng thái qua log cùng response **Fallback** qua ba luồng kiểm thử. **Phần 2.2** làm rõ lý thuyết — cỗ máy trạng thái **Closed → Open → Half-Open**, các tham số ngưỡng lỗi cùng **Reset Timeout**, và mối quan hệ giữa **Circuit Breaker** với **Retry**, **Timeout**, **Bulkhead**. Mục tiêu sau bài là phân biệt được **Fast Fail** với **Retry**, thiết lập được **Circuit Breaker** với ngưỡng lỗi và **Reset Timeout** phù hợp, đọc được log chuyển trạng thái và thiết kế hàm **Fallback** an toàn cho service phụ thuộc.
+Bài này dẫn qua hai mạch liên tiếp:
+- **Phần 2.1**: **thực hành** đồng bộ với repository trên GitHub; học viên clone repo demo, chạy stack **NestJS** + **Opossum**, ép service kho hàng lỗi và quan sát cầu dao chuyển trạng thái qua log cùng response **Fallback** qua ba luồng kiểm thử.
+- **Phần 2.2**: **lý thuyết** làm rõ cỗ máy trạng thái **Closed → Open → Half-Open**, các tham số ngưỡng lỗi cùng **Reset Timeout**, và mối quan hệ giữa **Circuit Breaker** với **Retry**, **Timeout**, **Bulkhead**.
+Mục tiêu sau bài là phân biệt được **Fast Fail** với **Retry**, thiết lập được **Circuit Breaker** với ngưỡng lỗi và **Reset Timeout** phù hợp, đọc được log chuyển trạng thái và thiết kế hàm **Fallback** an toàn cho service phụ thuộc.
 
 ## 2. Các khái niệm cốt lõi
 

@@ -10,7 +10,10 @@ Bài học phân tích cơ chế vách ngăn tài nguyên giúp một lỗi cụ
 
 "Hệ thống E-commerce của bạn có hai API là `GET /history` (xem lịch sử) và `GET /checkout` (thanh toán). Hôm nay API History chậm vì kết nối **Database** lỗi, khách hàng spam F5 vào API History, kết quả là API Checkout cũng văng lỗi theo. Bạn giải thích nguyên nhân và cách khắc phục?" — một **Senior Engineer** đặt câu hỏi trong vòng phỏng vấn **Backend**. Một **Mid-level Developer** trả lời: "Em sẽ dùng **Circuit Breaker** để ngắt mạch API History ạ." Câu trả lời đúng về kỹ thuật ngắt lỗi, nhưng vẫn thiếu chiều sâu về nguyên nhân gốc: trước khi **Circuit Breaker** kịp nhận diện lỗi, hàng ngàn request treo đã ăn sạch **Thread Pool** của Server, khiến API Checkout không còn luồng để xử lý — và chưa nêu được kỹ thuật cô lập tài nguyên ở mức từng chức năng.
 
-Bài này dẫn qua hai mạch liên tiếp. **Phần 2.1** là **thực hành** đồng bộ với repository trên GitHub; học viên clone repo demo, chạy hai API có độ ưu tiên khác nhau và đối chiếu hành vi khi một khoang bị quá tải qua ba luồng kiểm thử. **Phần 2.2** làm rõ lý thuyết — định nghĩa **Bulkhead Pattern**, mô hình vách ngăn, và các tình huống biên khi cấu hình concurrency limiter. Mục tiêu sau bài là phân biệt được **Bulkhead Pattern** với **Rate Limiting** và **Circuit Breaker**, thiết lập được giới hạn **concurrency** cho từng route trong **NestJS**, và đọc được response **HTTP 429** khi khoang đầy để biện luận về cô lập tài nguyên.
+Bài này dẫn qua hai mạch liên tiếp:
+- **Phần 2.1**: **thực hành** đồng bộ với repository trên GitHub; học viên clone repo demo, chạy hai API có độ ưu tiên khác nhau và đối chiếu hành vi khi một khoang bị quá tải qua ba luồng kiểm thử.
+- **Phần 2.2**: **lý thuyết** làm rõ định nghĩa **Bulkhead Pattern**, mô hình vách ngăn, và các tình huống biên khi cấu hình concurrency limiter.
+Mục tiêu sau bài là phân biệt được **Bulkhead Pattern** với **Rate Limiting** và **Circuit Breaker**, thiết lập được giới hạn **concurrency** cho từng route trong **NestJS**, và đọc được response **HTTP 429** khi khoang đầy để biện luận về cô lập tài nguyên.
 
 ## 2. Các khái niệm cốt lõi
 

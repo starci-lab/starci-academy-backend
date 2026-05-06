@@ -10,7 +10,10 @@ This lesson explains how to use Health Checks to report service vitality in orch
 
 A **Senior Engineer** asks a **Mid-level** candidate: *"Your NestJS service runs fine inside Kubernetes, but how does the cluster decide when to restart the container versus simply removing it from the Load Balancer?"* The candidate answers they would configure **livenessProbe** and **readinessProbe** hitting `curl /health`, but does not yet distinguish the case where **Database** loses connectivity while the **Node.js** process stays alive — `/health` still returns HTTP 200, **Kubernetes** sees nothing wrong, yet clients get errors in bulk.
 
-This lesson proceeds in two connected tracks. **Part 2.1** is **hands-on** and aligned with the GitHub repository; learners run a **NestJS** demo with **Terminus**, then verify `/health` behavior and `/products` auto-degradation under RAM pressure via three test flows. **Part 2.2** reinforces the theory — the difference between **Liveness** and **Readiness**, the core mechanics of **Graceful Degradation**, and common edge cases when services are overloaded or dependencies fail. By the end, learners can distinguish **Liveness** vs **Readiness**, implement `/health` with **Terminus**, and reason about RAM-monitoring logic that temporarily disables non-core features in **NestJS**.
+This lesson proceeds in two connected tracks:
+- **Part 2.1**: **hands-on** and aligned with the GitHub repository; learners run a **NestJS** demo with **Terminus**, then verify `/health` behavior and `/products` auto-degradation under RAM pressure via three test flows.
+- **Part 2.2**: **theory** reinforcing the difference between **Liveness** and **Readiness**, the core mechanics of **Graceful Degradation**, and common edge cases when services are overloaded or dependencies fail.
+By the end, learners can distinguish **Liveness** vs **Readiness**, implement `/health` with **Terminus**, and reason about RAM-monitoring logic that temporarily disables non-core features in **NestJS**.
 
 ## 2. Core concepts
 
