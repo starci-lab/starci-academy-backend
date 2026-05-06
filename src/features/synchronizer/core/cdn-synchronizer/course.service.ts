@@ -9,6 +9,10 @@ import {
     EnqueueSyncCdnJobService,
 } from "@modules/bussiness"
 import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
+import {
     CourseEntity,
 } from "@modules/databases"
 import {
@@ -18,10 +22,14 @@ import {
     Interval 
 } from "@nestjs/schedule"
 
+/**
+ * @deprecated Replaced by {@link CdnSynchronizerService}. Kept for reference.
+ */
 @Injectable()
 export class CourseCdnSynchronizerService implements OnApplicationBootstrap {
     constructor(
         private readonly dayjsService: DayjsService,
+        private readonly winstonService: WinstonService,
         private readonly enqueueSyncCdnJobService: EnqueueSyncCdnJobService,
     ) {}
 
@@ -29,10 +37,23 @@ export class CourseCdnSynchronizerService implements OnApplicationBootstrap {
      * Process the course CDN synchronization.
      */
     private async process() {
+        const syncAt = this.dayjsService.now()
+        this.winstonService.log(
+            WinstonLog.CdnSynchronizerCoursesSyncing,
+            {
+                dump: `Enqueue ${CourseEntity.name} sync at ${syncAt.toISOString()}`,
+            }
+        )
         await this.enqueueSyncCdnJobService.enqueue(
             {
                 entityKind: CourseEntity.name,
-                syncAt: this.dayjsService.now(),
+                syncAt,
+            }
+        )
+        this.winstonService.log(
+            WinstonLog.CdnSynchronizerCoursesSyncing,
+            {
+                dump: `Enqueued ${CourseEntity.name} sync`,
             }
         )
     }
@@ -41,6 +62,12 @@ export class CourseCdnSynchronizerService implements OnApplicationBootstrap {
      * On application bootstrap process the course CDN synchronization.
      */
     async onApplicationBootstrap() {
+        this.winstonService.log(
+            WinstonLog.CdnSynchronizerCoursesSyncing,
+            {
+                dump: `${CourseEntity.name} sync bootstrap trigger`,
+            }
+        )
         await this.process()
     }
 
@@ -49,6 +76,12 @@ export class CourseCdnSynchronizerService implements OnApplicationBootstrap {
      */
     @Interval(envConfig().services.cdnSynchronizer.course.interval)
     async handleInterval() {
+        this.winstonService.log(
+            WinstonLog.CdnSynchronizerCoursesSyncing,
+            {
+                dump: `${CourseEntity.name} sync interval trigger`,
+            }
+        )
         await this.process()
     }
 }

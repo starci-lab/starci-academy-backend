@@ -9,9 +9,9 @@ import {
     ConfigurableModuleClass,
     OPTIONS_TYPE,
 } from "./synchronizer.module-definition"
-import {
-    ProcessorsModule,
-} from "./processors"
+// import {
+//     ProcessorsModule,
+// } from "./processors"
 import { envConfig } from "@modules/env"
 
 @Module({
@@ -28,11 +28,11 @@ export class SynchronizerModule extends ConfigurableModuleClass {
                         isGlobal: true,
                     }
                 ),
-                ProcessorsModule.register(
-                    {
-                        isGlobal: true,
-                    }
-                ),
+                // ProcessorsModule.register(
+                //     {
+                //         isGlobal: true,
+                //     }
+                // ),
             ]
         ) : []
         return {

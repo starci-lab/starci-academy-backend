@@ -42,6 +42,7 @@ import {
 
 /**
  * Worker: Sync email bloom filter.
+ * @deprecated Replaced by {@link SyncOrchestratorService} in core module. Kept for reference.
  */
 @Worker(
     bullData[BullQueueName.SyncEmailBloomFilter].name,

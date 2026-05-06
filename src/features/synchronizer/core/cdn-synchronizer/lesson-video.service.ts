@@ -17,6 +17,10 @@ import {
 import {
     Interval 
 } from "@nestjs/schedule"
+
+/**
+ * @deprecated Replaced by {@link CdnSynchronizerService}. Kept for reference.
+ */
 @Injectable()
 export class LessonVideoCdnSynchronizerService implements OnApplicationBootstrap {
     constructor(

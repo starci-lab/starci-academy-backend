@@ -40,6 +40,7 @@ import {
 
 /**
  * CDN on-demand sync: `sync-cdn-entity` → `complete` (same control flow as sync-email-bloom-filter).
+ * @deprecated Replaced by {@link SyncOrchestratorService} in core module. Kept for reference.
  */
 @Worker(
     bullData[BullQueueName.SyncCdn].name,

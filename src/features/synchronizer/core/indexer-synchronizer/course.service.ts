@@ -9,6 +9,10 @@ import {
     EnqueueSyncIndexerJobService,
 } from "@modules/bussiness"
 import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
+import {
     CourseEntity,
 } from "@modules/databases"
 import {
@@ -17,30 +21,56 @@ import {
 import {
     Interval 
 } from "@nestjs/schedule"
+import {
+    IndexerSynchronizerService,
+} from "./indexer-synchronizer.service"
 
+/**
+ * @deprecated Replaced by {@link IndexerSynchronizerService}. Kept for reference.
+ */
 @Injectable()
 export class CourseIndexerSynchronizerService implements OnApplicationBootstrap {
     constructor(
         private readonly dayjsService: DayjsService,
+        private readonly winstonService: WinstonService,
         private readonly enqueueSyncIndexerJobService: EnqueueSyncIndexerJobService,
     ) {}
 
     /**
-     * Process the course Elasticsearch synchronization.
+     * Process the course Indexer synchronization.
      */
     private async process() {
+        const syncAt = this.dayjsService.now()
+        this.winstonService.log(
+            WinstonLog.IndexerSynchronizerEntitiesSyncing,
+            {
+                dump: `Enqueue ${CourseEntity.name} sync at ${syncAt.toISOString()}`,
+            }
+        )
         await this.enqueueSyncIndexerJobService.enqueue(
             {
                 entityKind: CourseEntity.name,
-                syncAt: this.dayjsService.now(),
+                syncAt,
+            }
+        )
+        this.winstonService.log(
+            WinstonLog.IndexerSynchronizerEntitiesSyncing,
+            {
+                dump: `Enqueued ${CourseEntity.name} sync`,
             }
         )
     }
 
     /**
-     * On application bootstrap process the course Elasticsearch synchronization.
+     * On application bootstrap process the course Indexer synchronization.
      */
     async onApplicationBootstrap() {
+        this.winstonService.log(
+            WinstonLog.IndexerSynchronizerEntitiesSyncing,
+            {
+                dump: `${CourseEntity.name} sync bootstrap trigger`,
+            }
+        )
         await this.process()
     }
 
@@ -49,6 +79,12 @@ export class CourseIndexerSynchronizerService implements OnApplicationBootstrap 
      */
     @Interval(envConfig().services.synchronizer.indexer.course.interval)
     async handleInterval() {
+        this.winstonService.log(
+            WinstonLog.IndexerSynchronizerEntitiesSyncing,
+            {
+                dump: `${CourseEntity.name} sync interval trigger`,
+            }
+        )
         await this.process()
     }
 }

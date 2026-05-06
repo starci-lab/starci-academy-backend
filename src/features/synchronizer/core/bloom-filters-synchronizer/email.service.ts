@@ -2,51 +2,52 @@ import {
     DayjsService,
 } from "@modules/mixin"
 import {
-    Injectable, OnApplicationBootstrap
+    Injectable,
 } from "@nestjs/common"
 import {
-    EnqueueSyncEmailBloomFilterJobService
+    EnqueueSyncEmailBloomFilterJobService,
 } from "@modules/bussiness"
 import {
-    envConfig
-} from "@modules/env"
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
 import {
-    Interval
-} from "@nestjs/schedule"
+    BloomFilterSynchronizerService,
+} from "./bloom-filter-synchronizer.service"
 
 /**
  * Service for synchronizing the email bloom filters.
+ * @deprecated Replaced by {@link BloomFilterSynchronizerService}. Kept for reference.
  */
 @Injectable()
-export class EmailBloomFiltersSynchronizerService implements OnApplicationBootstrap {
+export class EmailBloomFiltersSynchronizerService {
     constructor(
         private readonly dayjsService: DayjsService,
+        private readonly winstonService: WinstonService,
         private readonly enqueueSyncEmailBloomFilterJobService: EnqueueSyncEmailBloomFilterJobService,
     ) { }
 
     /**
      * Process the email bloom filters.
      */
-    private async process() {
-        await this.enqueueSyncEmailBloomFilterJobService.enqueue(
+    async process() {
+        const syncAt = this.dayjsService.now()
+        this.winstonService.log(
+            WinstonLog.BloomFilterSynchronizerEntitiesSyncing,
             {
-                syncAt: this.dayjsService.now(),
+                dump: `Enqueue Email Bloom Filter sync at ${syncAt.toISOString()}`,
             }
         )
-    }
-
-    /**
-     * On application bootstrap process the email bloom filters.
-     */
-    async onApplicationBootstrap() {
-        await this.process()
-    }
-
-    /**
-     * Handle the email bloom filters synchronization interval.
-     */
-    @Interval(envConfig().services.synchronizer.emailBloomFilter.interval)
-    async handleInterval() {
-        await this.process()
+        await this.enqueueSyncEmailBloomFilterJobService.enqueue(
+            {
+                syncAt,
+            }
+        )
+        this.winstonService.log(
+            WinstonLog.BloomFilterSynchronizerEntitiesSyncing,
+            {
+                dump: `Enqueued Email Bloom Filter sync`,
+            }
+        )
     }
 }

@@ -88,3 +88,27 @@ export interface CdnSynchronizerContentRuntimeSyncFailedMessage {
     providers?: string[]
     context?: string
 }
+
+/** Message for when CDN synchronizer starts a sync cycle. */
+export interface CdnSynchronizerCdnSyncStartedMessage {
+    startedAt: unknown
+}
+
+/** Message for when CDN synchronizer syncs a single entity successfully. */
+export interface CdnSynchronizerSyncedSuccessfullyMessage {
+    entityKind: string
+    entityId: string
+}
+
+/** Message for when CDN synchronizer completes a sync cycle. */
+export interface CdnSynchronizerCdnSyncDoneMessage {
+    doneAt: unknown
+    durationMs: number
+}
+
+/** Message for when CDN synchronizer fails to sync an entity after retries. */
+export interface CdnSynchronizerEntitySyncFailedMessage {
+    entityKind: string
+    entityId: string
+    error: string
+}

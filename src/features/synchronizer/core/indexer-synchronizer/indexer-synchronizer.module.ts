@@ -5,29 +5,30 @@ import {
     ConfigurableModuleClass,
 } from "./indexer-synchronizer.module-definition"
 import {
-    CourseIndexerSynchronizerService,
-} from "./course.service"
+    IndexerSynchronizerService,
+} from "./indexer-synchronizer.service"
 import {
-    ChallengeIndexerSynchronizerService,
-} from "./challenge.service"
-import {
-    ContentIndexerSynchronizerService,
-} from "./content.service"
-import {
-    LessonVideoIndexerSynchronizerService,
-} from "./lesson-video.service"
-import {
-    ModuleIndexerSynchronizerService,
-} from "./module.service"
+    IndexerCourseBuildService,
+    IndexerModuleBuildService,
+    IndexerContentBuildService,
+    IndexerChallengeBuildService,
+    IndexerLessonVideoBuildService,
+} from "./builder"
 
+/**
+ * Module for synchronizing the Indexer.
+ */
 @Module({
     providers: [
-        CourseIndexerSynchronizerService,
-        ChallengeIndexerSynchronizerService,
-        ContentIndexerSynchronizerService,
-        LessonVideoIndexerSynchronizerService,
-        ModuleIndexerSynchronizerService,
+        IndexerCourseBuildService,
+        IndexerModuleBuildService,
+        IndexerContentBuildService,
+        IndexerChallengeBuildService,
+        IndexerLessonVideoBuildService,
+        IndexerSynchronizerService,
+    ],
+    exports: [
+        IndexerSynchronizerService,
     ],
 })
-export class IndexerSynchronizerModule extends ConfigurableModuleClass {}
-
+export class IndexerSynchronizerModule extends ConfigurableModuleClass { }

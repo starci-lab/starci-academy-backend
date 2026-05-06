@@ -24,6 +24,26 @@ import type {
     CdnSynchronizerLessonVideoRuntimeSyncFailedMessage,
     CdnSynchronizerModuleRuntimeSyncFailedMessage,
     CdnSynchronizerContentRuntimeSyncFailedMessage,
+    CdnSynchronizerCdnSyncStartedMessage,
+    CdnSynchronizerSyncedSuccessfullyMessage,
+    CdnSynchronizerCdnSyncDoneMessage,
+    CdnSynchronizerEntitySyncFailedMessage,
+    EsSynchronizerSyncStartedMessage,
+    EsSynchronizerSyncedSuccessfullyMessage,
+    EsSynchronizerSyncDoneMessage,
+    EsSynchronizerEntitySyncFailedMessage,
+    IndexerSynchronizerSyncStartedMessage,
+    IndexerSynchronizerSyncedSuccessfullyMessage,
+    IndexerSynchronizerSyncDoneMessage,
+    IndexerSynchronizerEntitySyncFailedMessage,
+    BloomFilterSynchronizerSyncStartedMessage,
+    BloomFilterSynchronizerFilterCreatedMessage,
+    BloomFilterSynchronizerFilterAlreadyExistsMessage,
+    BloomFilterSynchronizerEmailsSyncedMessage,
+    BloomFilterSynchronizerSyncDoneMessage,
+    BloomFilterSynchronizerEntitySyncFailedMessage,
+    SyncOrchestratorStartedMessage,
+    SyncOrchestratorDoneMessage,
     NatsConsumerClosedMessage,
     NatsConsumerErrorMessage,
     NatsConsumerOpenedMessage,
@@ -209,6 +229,197 @@ export const configMap = {
         console: true,
         messageType: {
         } as CdnSynchronizerContentRuntimeSyncFailedMessage,
+    },
+    [WinstonLog.CdnSynchronizerCdnSyncStarted]: {
+        name: WinstonLog.CdnSynchronizerCdnSyncStarted,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as CdnSynchronizerCdnSyncStartedMessage,
+    },
+    [WinstonLog.CdnSynchronizerSyncedSuccessfully]: {
+        name: WinstonLog.CdnSynchronizerSyncedSuccessfully,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as CdnSynchronizerSyncedSuccessfullyMessage,
+    },
+    [WinstonLog.CdnSynchronizerCdnSyncDone]: {
+        name: WinstonLog.CdnSynchronizerCdnSyncDone,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as CdnSynchronizerCdnSyncDoneMessage,
+    },
+    [WinstonLog.CdnSynchronizerEntitySyncFailed]: {
+        name: WinstonLog.CdnSynchronizerEntitySyncFailed,
+        level: WinstonLevel.Warn,
+        loki: true,
+        console: true,
+        messageType: {
+        } as CdnSynchronizerEntitySyncFailedMessage,
+    },
+    // Elasticsearch synchronizer logs.
+    [WinstonLog.EsSynchronizerSyncStarted]: {
+        name: WinstonLog.EsSynchronizerSyncStarted,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as EsSynchronizerSyncStartedMessage,
+    },
+    [WinstonLog.EsSynchronizerEntitiesSyncing]: {
+        name: WinstonLog.EsSynchronizerEntitiesSyncing,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+            dump: "",
+        },
+    },
+    [WinstonLog.EsSynchronizerSyncedSuccessfully]: {
+        name: WinstonLog.EsSynchronizerSyncedSuccessfully,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as EsSynchronizerSyncedSuccessfullyMessage,
+    },
+    [WinstonLog.EsSynchronizerSyncDone]: {
+        name: WinstonLog.EsSynchronizerSyncDone,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as EsSynchronizerSyncDoneMessage,
+    },
+    [WinstonLog.EsSynchronizerEntitySyncFailed]: {
+        name: WinstonLog.EsSynchronizerEntitySyncFailed,
+        level: WinstonLevel.Warn,
+        loki: true,
+        console: true,
+        messageType: {
+        } as EsSynchronizerEntitySyncFailedMessage,
+    },
+    // Indexer synchronizer logs.
+    [WinstonLog.IndexerSynchronizerSyncStarted]: {
+        name: WinstonLog.IndexerSynchronizerSyncStarted,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as IndexerSynchronizerSyncStartedMessage,
+    },
+    [WinstonLog.IndexerSynchronizerEntitiesSyncing]: {
+        name: WinstonLog.IndexerSynchronizerEntitiesSyncing,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+            dump: "",
+        },
+    },
+    [WinstonLog.IndexerSynchronizerSyncedSuccessfully]: {
+        name: WinstonLog.IndexerSynchronizerSyncedSuccessfully,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as IndexerSynchronizerSyncedSuccessfullyMessage,
+    },
+    [WinstonLog.IndexerSynchronizerSyncDone]: {
+        name: WinstonLog.IndexerSynchronizerSyncDone,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as IndexerSynchronizerSyncDoneMessage,
+    },
+    [WinstonLog.IndexerSynchronizerEntitySyncFailed]: {
+        name: WinstonLog.IndexerSynchronizerEntitySyncFailed,
+        level: WinstonLevel.Warn,
+        loki: true,
+        console: true,
+        messageType: {
+        } as IndexerSynchronizerEntitySyncFailedMessage,
+    },
+    // Bloom filter synchronizer logs.
+    [WinstonLog.BloomFilterSynchronizerSyncStarted]: {
+        name: WinstonLog.BloomFilterSynchronizerSyncStarted,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as BloomFilterSynchronizerSyncStartedMessage,
+    },
+    [WinstonLog.BloomFilterSynchronizerEntitiesSyncing]: {
+        name: WinstonLog.BloomFilterSynchronizerEntitiesSyncing,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+            dump: "",
+        },
+    },
+    [WinstonLog.BloomFilterSynchronizerFilterCreated]: {
+        name: WinstonLog.BloomFilterSynchronizerFilterCreated,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as BloomFilterSynchronizerFilterCreatedMessage,
+    },
+    [WinstonLog.BloomFilterSynchronizerFilterAlreadyExists]: {
+        name: WinstonLog.BloomFilterSynchronizerFilterAlreadyExists,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as BloomFilterSynchronizerFilterAlreadyExistsMessage,
+    },
+    [WinstonLog.BloomFilterSynchronizerEmailsSynced]: {
+        name: WinstonLog.BloomFilterSynchronizerEmailsSynced,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as BloomFilterSynchronizerEmailsSyncedMessage,
+    },
+    [WinstonLog.BloomFilterSynchronizerSyncDone]: {
+        name: WinstonLog.BloomFilterSynchronizerSyncDone,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as BloomFilterSynchronizerSyncDoneMessage,
+    },
+    [WinstonLog.BloomFilterSynchronizerEntitySyncFailed]: {
+        name: WinstonLog.BloomFilterSynchronizerEntitySyncFailed,
+        level: WinstonLevel.Warn,
+        loki: true,
+        console: true,
+        messageType: {
+        } as BloomFilterSynchronizerEntitySyncFailedMessage,
+    },
+    // Sync orchestrator logs.
+    [WinstonLog.SyncOrchestratorStarted]: {
+        name: WinstonLog.SyncOrchestratorStarted,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as SyncOrchestratorStartedMessage,
+    },
+    [WinstonLog.SyncOrchestratorDone]: {
+        name: WinstonLog.SyncOrchestratorDone,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as SyncOrchestratorDoneMessage,
     },
     [WinstonLog.CommandError]: {
         name: WinstonLog.CommandError,

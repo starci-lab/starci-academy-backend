@@ -234,7 +234,7 @@ export const envConfig = () => ({
         synchronizer: {
             enable: parseEnvBoolean({
                 key: "SYNCHRONIZER_ENABLE",
-                defaultValue: false,
+                defaultValue: true,
             }),
             emailBloomFilter: {
                 interval: parseEnvMs({

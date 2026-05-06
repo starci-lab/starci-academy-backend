@@ -1,1 +1,7 @@
 export * from "./elasticsearch-synchronizer.module"
+export * from "./content.service"
+export * from "./module.service"
+export * from "./course.service"
+export * from "./lesson-video.service"
+export * from "./challenge.service"
+export * from "./elasticsearch-synchronizer.service"

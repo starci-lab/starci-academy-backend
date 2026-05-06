@@ -5,29 +5,30 @@ import {
     ConfigurableModuleClass,
 } from "./elasticsearch-synchronizer.module-definition"
 import {
-    CourseElasticsearchSynchronizerService,
-} from "./course.service"
+    ElasticsearchSynchronizerService,
+} from "./elasticsearch-synchronizer.service"
 import {
-    ChallengeElasticsearchSynchronizerService,
-} from "./challenge.service"
-import {
-    ContentElasticsearchSynchronizerService,
-} from "./content.service"
-import {
-    LessonVideoElasticsearchSynchronizerService,
-} from "./lesson-video.service"
-import {
-    ModuleElasticsearchSynchronizerService,
-} from "./module.service"
+    ElasticsearchCourseBuildService,
+    ElasticsearchModuleBuildService,
+    ElasticsearchContentBuildService,
+    ElasticsearchChallengeBuildService,
+    ElasticsearchLessonVideoBuildService,
+} from "./builder"
 
+/**
+ * Module for synchronizing the Elasticsearch.
+ */
 @Module({
     providers: [
-        CourseElasticsearchSynchronizerService,
-        ChallengeElasticsearchSynchronizerService,
-        ContentElasticsearchSynchronizerService,
-        LessonVideoElasticsearchSynchronizerService,
-        ModuleElasticsearchSynchronizerService,
+        ElasticsearchCourseBuildService,
+        ElasticsearchModuleBuildService,
+        ElasticsearchContentBuildService,
+        ElasticsearchChallengeBuildService,
+        ElasticsearchLessonVideoBuildService,
+        ElasticsearchSynchronizerService,
+    ],
+    exports: [
+        ElasticsearchSynchronizerService,
     ],
 })
-export class ElasticsearchSynchronizerModule extends ConfigurableModuleClass {}
-
+export class ElasticsearchSynchronizerModule extends ConfigurableModuleClass { }

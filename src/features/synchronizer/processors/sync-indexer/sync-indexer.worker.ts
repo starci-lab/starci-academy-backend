@@ -38,6 +38,7 @@ import type {
 
 /**
  * Worker: Sync indexer (parent-chain cache priming).
+ * @deprecated Replaced by {@link SyncOrchestratorService} in core module. Kept for reference.
  */
 @Worker(
     bullData[BullQueueName.SyncIndexer].name,

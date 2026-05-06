@@ -22,6 +22,52 @@ export enum WinstonLog {
     CdnSynchronizerLessonVideoRuntimeSyncFailed = "CdnSynchronizerLessonVideoRuntimeSyncFailed",
     CdnSynchronizerModuleRuntimeSyncFailed = "CdnSynchronizerModuleRuntimeSyncFailed",
     CdnSynchronizerContentRuntimeSyncFailed = "CdnSynchronizerContentRuntimeSyncFailed",
+    /** CDN synchronizer: sync cycle started. */
+    CdnSynchronizerCdnSyncStarted = "CdnSynchronizerCdnSyncStarted",
+    /** CDN synchronizer: single entity synced successfully. */
+    CdnSynchronizerSyncedSuccessfully = "CdnSynchronizerSyncedSuccessfully",
+    /** CDN synchronizer: sync cycle completed. */
+    CdnSynchronizerCdnSyncDone = "CdnSynchronizerCdnSyncDone",
+    /** CDN synchronizer: entity sync failed after retries. */
+    CdnSynchronizerEntitySyncFailed = "CdnSynchronizerEntitySyncFailed",
+    /** Elasticsearch synchronizer: sync cycle started. */
+    EsSynchronizerSyncStarted = "EsSynchronizerSyncStarted",
+    /** Elasticsearch synchronizer: old deprecated cron sync log. */
+    EsSynchronizerEntitiesSyncing = "EsSynchronizerEntitiesSyncing",
+    /** Elasticsearch synchronizer: single entity synced successfully. */
+    EsSynchronizerSyncedSuccessfully = "EsSynchronizerSyncedSuccessfully",
+    /** Elasticsearch synchronizer: sync cycle completed. */
+    EsSynchronizerSyncDone = "EsSynchronizerSyncDone",
+    /** Elasticsearch synchronizer: entity sync failed. */
+    EsSynchronizerEntitySyncFailed = "EsSynchronizerEntitySyncFailed",
+    /** Indexer synchronizer: sync cycle started. */
+    IndexerSynchronizerSyncStarted = "IndexerSynchronizerSyncStarted",
+    /** Indexer synchronizer: old deprecated cron sync log. */
+    IndexerSynchronizerEntitiesSyncing = "IndexerSynchronizerEntitiesSyncing",
+    /** Indexer synchronizer: single entity synced successfully. */
+    IndexerSynchronizerSyncedSuccessfully = "IndexerSynchronizerSyncedSuccessfully",
+    /** Indexer synchronizer: sync cycle completed. */
+    IndexerSynchronizerSyncDone = "IndexerSynchronizerSyncDone",
+    /** Indexer synchronizer: entity sync failed. */
+    IndexerSynchronizerEntitySyncFailed = "IndexerSynchronizerEntitySyncFailed",
+    /** Bloom filter synchronizer: sync cycle started. */
+    BloomFilterSynchronizerSyncStarted = "BloomFilterSynchronizerSyncStarted",
+    /** Bloom filter synchronizer: old deprecated cron sync log. */
+    BloomFilterSynchronizerEntitiesSyncing = "BloomFilterSynchronizerEntitiesSyncing",
+    /** Bloom filter synchronizer: filter created. */
+    BloomFilterSynchronizerFilterCreated = "BloomFilterSynchronizerFilterCreated",
+    /** Bloom filter synchronizer: filter already exists. */
+    BloomFilterSynchronizerFilterAlreadyExists = "BloomFilterSynchronizerFilterAlreadyExists",
+    /** Bloom filter synchronizer: emails synced. */
+    BloomFilterSynchronizerEmailsSynced = "BloomFilterSynchronizerEmailsSynced",
+    /** Bloom filter synchronizer: sync cycle completed. */
+    BloomFilterSynchronizerSyncDone = "BloomFilterSynchronizerSyncDone",
+    /** Bloom filter synchronizer: entity sync failed after retries. */
+    BloomFilterSynchronizerEntitySyncFailed = "BloomFilterSynchronizerEntitySyncFailed",
+    /** Sync orchestrator: orchestration started. */
+    SyncOrchestratorStarted = "SyncOrchestratorStarted",
+    /** Sync orchestrator: orchestration completed. */
+    SyncOrchestratorDone = "SyncOrchestratorDone",
     /** CLI: missing subcommand or invalid invocation. */
     CommandError = "CommandError",
     /** CLI: command finished successfully. */

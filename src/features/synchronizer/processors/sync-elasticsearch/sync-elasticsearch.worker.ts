@@ -40,6 +40,7 @@ import {
 
 /**
  * Elasticsearch on-demand sync: `sync-elasticsearch-entity` → `complete` (same control flow as sync-cdn / sync-email-bloom-filter).
+ * @deprecated Replaced by {@link SyncOrchestratorService} in core module. Kept for reference.
  */
 @Worker(
     bullData[BullQueueName.SyncElasticsearch].name,

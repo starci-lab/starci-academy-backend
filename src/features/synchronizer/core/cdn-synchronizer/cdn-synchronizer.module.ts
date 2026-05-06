@@ -5,30 +5,31 @@ import {
     ConfigurableModuleClass,
 } from "./cdn-synchronizer.module-definition"
 import {
-    ContentCdnSynchronizerService,
-} from "./content.service"
+    CdnSynchronizerService,
+} from "./cdn-synchronizer.service"
 import {
-    ChallengeCdnSynchronizerService 
-} from "./challenge.service"
-import {
-    CourseCdnSynchronizerService 
-} from "./course.service"
-import {
-    LessonVideoCdnSynchronizerService 
-} from "./lesson-video.service"
-import {
-    ModuleCdnSynchronizerService 
-} from "./module.service"
+    CdnCourseBuildService,
+    CdnModuleBuildService,
+    CdnContentBuildService,
+    CdnChallengeBuildService,
+    CdnLessonVideoBuildService,
+    MaterializeAndUploadService,
+} from "./builder"
 /**
  * Module for synchronizing the CDN.
  */
 @Module({
     providers: [
-        ContentCdnSynchronizerService,
-        ChallengeCdnSynchronizerService,
-        CourseCdnSynchronizerService,
-        LessonVideoCdnSynchronizerService,
-        ModuleCdnSynchronizerService,
+        MaterializeAndUploadService,
+        CdnCourseBuildService,
+        CdnModuleBuildService,
+        CdnContentBuildService,
+        CdnChallengeBuildService,
+        CdnLessonVideoBuildService,
+        CdnSynchronizerService,
+    ],
+    exports: [
+        CdnSynchronizerService,
     ],
 })
-export class CdnSynchronizerModule extends ConfigurableModuleClass {}
+export class CdnSynchronizerModule extends ConfigurableModuleClass { }

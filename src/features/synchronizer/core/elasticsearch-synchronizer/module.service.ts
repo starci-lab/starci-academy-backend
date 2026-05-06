@@ -9,6 +9,10 @@ import {
     EnqueueSyncElasticsearchJobService,
 } from "@modules/bussiness"
 import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
+import {
     ModuleEntity,
 } from "@modules/databases"
 import {
@@ -17,11 +21,18 @@ import {
 import {
     Interval 
 } from "@nestjs/schedule"
+import {
+    ElasticsearchSynchronizerService,
+} from "./elasticsearch-synchronizer.service"
 
+/**
+ * @deprecated Replaced by {@link ElasticsearchSynchronizerService}. Kept for reference.
+ */
 @Injectable()
 export class ModuleElasticsearchSynchronizerService implements OnApplicationBootstrap {
     constructor(
         private readonly dayjsService: DayjsService,
+        private readonly winstonService: WinstonService,
         private readonly enqueueSyncElasticsearchJobService: EnqueueSyncElasticsearchJobService,
     ) {}
 
@@ -29,10 +40,23 @@ export class ModuleElasticsearchSynchronizerService implements OnApplicationBoot
      * Process the module Elasticsearch synchronization.
      */
     private async process() {
+        const syncAt = this.dayjsService.now()
+        this.winstonService.log(
+            WinstonLog.EsSynchronizerEntitiesSyncing,
+            {
+                dump: `Enqueue ${ModuleEntity.name} sync at ${syncAt.toISOString()}`,
+            }
+        )
         await this.enqueueSyncElasticsearchJobService.enqueue(
             {
                 entityKind: ModuleEntity.name,
-                syncAt: this.dayjsService.now(),
+                syncAt,
+            }
+        )
+        this.winstonService.log(
+            WinstonLog.EsSynchronizerEntitiesSyncing,
+            {
+                dump: `Enqueued ${ModuleEntity.name} sync`,
             }
         )
     }
@@ -41,6 +65,12 @@ export class ModuleElasticsearchSynchronizerService implements OnApplicationBoot
      * On application bootstrap process the module Elasticsearch synchronization.
      */
     async onApplicationBootstrap() {
+        this.winstonService.log(
+            WinstonLog.EsSynchronizerEntitiesSyncing,
+            {
+                dump: `${ModuleEntity.name} sync bootstrap trigger`,
+            }
+        )
         await this.process()
     }
 
@@ -49,6 +79,12 @@ export class ModuleElasticsearchSynchronizerService implements OnApplicationBoot
      */
     @Interval(envConfig().services.synchronizer.elasticsearch.module.interval)
     async handleInterval() {
+        this.winstonService.log(
+            WinstonLog.EsSynchronizerEntitiesSyncing,
+            {
+                dump: `${ModuleEntity.name} sync interval trigger`,
+            }
+        )
         await this.process()
     }
 }

@@ -11,9 +11,16 @@ import {
 import {
     ContentEntity
 } from "@modules/databases"
-import { Interval } from "@nestjs/schedule"
-import { envConfig } from "@modules/env"
+import {
+    Interval 
+} from "@nestjs/schedule"
+import {
+    envConfig 
+} from "@modules/env"
 
+/**
+ * @deprecated Replaced by {@link CdnSynchronizerService}. Kept for reference.
+ */
 @Injectable()
 export class ContentCdnSynchronizerService implements OnApplicationBootstrap {
     constructor(

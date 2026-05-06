@@ -113,136 +113,136 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
             )
             const { payload } = context
             switch (payload.entityKind) {
-                case CourseEntity.name: {
-                    const course = await this.entityManager.findOne(
-                        CourseEntity,
-                        {
-                            where: {
-                                ...(executionResult?.resumeAfterEntityId ? {
-                                    id: MoreThan(executionResult.resumeAfterEntityId)
-                                } : {
-                                }),
-                                updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
+            case CourseEntity.name: {
+                const course = await this.entityManager.findOne(
+                    CourseEntity,
+                    {
+                        where: {
+                            ...(executionResult?.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId)
+                            } : {
+                            }),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
-                    )
-                    if (!course) {
-                        done = true
-                        break
-                    }
-                    await this.cdnCourseBuildService.materializeAndUpload(
-                        course.id,
-                    )
-                    resumeAfterEntityId = course.id
+                        order: {
+                            id: "ASC",
+                        },
+                    },
+                )
+                if (!course) {
+                    done = true
                     break
                 }
-                case ChallengeEntity.name: {
-                    const challenge = await this.entityManager.findOne(
-                        ChallengeEntity,
-                        {
-                            where: {
-                                ...(executionResult?.resumeAfterEntityId ? {
-                                    id: MoreThan(executionResult.resumeAfterEntityId)
-                                } : {
-                                }),
-                                updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
+                await this.cdnCourseBuildService.materializeAndUpload(
+                    course.id,
+                )
+                resumeAfterEntityId = course.id
+                break
+            }
+            case ChallengeEntity.name: {
+                const challenge = await this.entityManager.findOne(
+                    ChallengeEntity,
+                    {
+                        where: {
+                            ...(executionResult?.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId)
+                            } : {
+                            }),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
-                    )
-                    if (!challenge) {
-                        done = true
-                        break
-                    }
-                    await this.cdnChallengeBuildService.materializeAndUpload(
-                        challenge.id,
-                    )
-                    resumeAfterEntityId = challenge.id
+                        order: {
+                            id: "ASC",
+                        },
+                    },
+                )
+                if (!challenge) {
+                    done = true
                     break
                 }
-                case ContentEntity.name: {
-                    const content = await this.entityManager.findOne(
-                        ContentEntity,
-                        {
-                            where: {
-                                ...(executionResult?.resumeAfterEntityId ? {
-                                    id: MoreThan(executionResult.resumeAfterEntityId)
-                                } : {
-                                }),
-                                updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
+                await this.cdnChallengeBuildService.materializeAndUpload(
+                    challenge.id,
+                )
+                resumeAfterEntityId = challenge.id
+                break
+            }
+            case ContentEntity.name: {
+                const content = await this.entityManager.findOne(
+                    ContentEntity,
+                    {
+                        where: {
+                            ...(executionResult?.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId)
+                            } : {
+                            }),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
-                    )
-                    if (!content) {
-                        done = true
-                        break
-                    }
-                    await this.cdnContentBuildService.materializeAndUpload(
-                        content.id,
-                    )
-                    resumeAfterEntityId = content.id
+                        order: {
+                            id: "ASC",
+                        },
+                    },
+                )
+                if (!content) {
+                    done = true
                     break
                 }
-                case LessonVideoEntity.name: {
-                    const lessonVideo = await this.entityManager.findOne(
-                        LessonVideoEntity,
-                        {
-                            where: {
-                                ...(executionResult?.resumeAfterEntityId ? {
-                                    id: MoreThan(executionResult.resumeAfterEntityId)
-                                } : {
-                                }),
-                                updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
+                await this.cdnContentBuildService.materializeAndUpload(
+                    content.id,
+                )
+                resumeAfterEntityId = content.id
+                break
+            }
+            case LessonVideoEntity.name: {
+                const lessonVideo = await this.entityManager.findOne(
+                    LessonVideoEntity,
+                    {
+                        where: {
+                            ...(executionResult?.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId)
+                            } : {
+                            }),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
-                    )
-                    if (!lessonVideo) {
-                        done = true
-                        break
-                    }
-                    await this.cdnLessonVideoBuildService.materializeAndUpload(
-                        lessonVideo.id,
-                    )
-                    resumeAfterEntityId = lessonVideo.id
+                        order: {
+                            id: "ASC",
+                        },
+                    },
+                )
+                if (!lessonVideo) {
+                    done = true
                     break
                 }
-                case ModuleEntity.name: {
-                    const module = await this.entityManager.findOne(
-                        ModuleEntity,
-                        {
-                            where: {
-                                ...(executionResult?.resumeAfterEntityId ? {
-                                    id: MoreThan(executionResult.resumeAfterEntityId)
-                                } : {
-                                }),
-                                updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
+                await this.cdnLessonVideoBuildService.materializeAndUpload(
+                    lessonVideo.id,
+                )
+                resumeAfterEntityId = lessonVideo.id
+                break
+            }
+            case ModuleEntity.name: {
+                const module = await this.entityManager.findOne(
+                    ModuleEntity,
+                    {
+                        where: {
+                            ...(executionResult?.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId)
+                            } : {
+                            }),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
-                    )
-                    if (!module) {
-                        done = true
-                        break
-                    }
-                    await this.cdnModuleBuildService.materializeAndUpload(
-                        module.id,
-                    )
-                    resumeAfterEntityId = module.id
+                        order: {
+                            id: "ASC",
+                        },
+                    },
+                )
+                if (!module) {
+                    done = true
                     break
                 }
+                await this.cdnModuleBuildService.materializeAndUpload(
+                    module.id,
+                )
+                resumeAfterEntityId = module.id
+                break
+            }
             }
             await this.jobActionService.saveExecutionResult(
                 {

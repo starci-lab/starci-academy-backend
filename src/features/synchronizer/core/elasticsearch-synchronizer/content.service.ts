@@ -1,15 +1,19 @@
 import {
-    DayjsService 
+    DayjsService,
 } from "@modules/mixin"
 import {
     Injectable,
     OnApplicationBootstrap,
 } from "@nestjs/common"
 import {
-    EnqueueSyncElasticsearchJobService 
+    EnqueueSyncElasticsearchJobService,
 } from "@modules/bussiness"
 import {
-    ContentEntity 
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
+import {
+    ContentEntity,
 } from "@modules/databases"
 import {
     envConfig 
@@ -17,22 +21,42 @@ import {
 import {
     Interval 
 } from "@nestjs/schedule"
+import {
+    ElasticsearchSynchronizerService,
+} from "./elasticsearch-synchronizer.service"
 
+/**
+ * @deprecated Replaced by {@link ElasticsearchSynchronizerService}. Kept for reference.
+ */
 @Injectable()
 export class ContentElasticsearchSynchronizerService implements OnApplicationBootstrap {
     constructor(
         private readonly dayjsService: DayjsService,
+        private readonly winstonService: WinstonService,
         private readonly enqueueSyncElasticsearchJobService: EnqueueSyncElasticsearchJobService,
     ) {}
-    
+
     /**
      * Process the content Elasticsearch synchronization.
      */
     private async process() {
+        const syncAt = this.dayjsService.now()
+        this.winstonService.log(
+            WinstonLog.EsSynchronizerEntitiesSyncing,
+            {
+                dump: `Enqueue ${ContentEntity.name} sync at ${syncAt.toISOString()}`,
+            }
+        )
         await this.enqueueSyncElasticsearchJobService.enqueue(
             {
                 entityKind: ContentEntity.name,
-                syncAt: this.dayjsService.now(),
+                syncAt,
+            }
+        )
+        this.winstonService.log(
+            WinstonLog.EsSynchronizerEntitiesSyncing,
+            {
+                dump: `Enqueued ${ContentEntity.name} sync`,
             }
         )
     }
@@ -41,6 +65,12 @@ export class ContentElasticsearchSynchronizerService implements OnApplicationBoo
      * On application bootstrap process the content Elasticsearch synchronization.
      */
     async onApplicationBootstrap() {
+        this.winstonService.log(
+            WinstonLog.EsSynchronizerEntitiesSyncing,
+            {
+                dump: `${ContentEntity.name} sync bootstrap trigger`,
+            }
+        )
         await this.process()
     }
 
@@ -49,6 +79,12 @@ export class ContentElasticsearchSynchronizerService implements OnApplicationBoo
      */
     @Interval(envConfig().services.synchronizer.elasticsearch.content.interval)
     async handleInterval() {
+        this.winstonService.log(
+            WinstonLog.EsSynchronizerEntitiesSyncing,
+            {
+                dump: `${ContentEntity.name} sync interval trigger`,
+            }
+        )
         await this.process()
     }
 }

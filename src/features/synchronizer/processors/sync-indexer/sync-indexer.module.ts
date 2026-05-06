@@ -34,6 +34,13 @@ import {
         IndexerLessonVideoBuildService,
         IndexerModuleBuildService,
     ],
+    exports: [
+        IndexerCourseBuildService,
+        IndexerChallengeBuildService,
+        IndexerContentBuildService,
+        IndexerLessonVideoBuildService,
+        IndexerModuleBuildService,
+    ],
 })
 export class SyncIndexerModule extends ConfigurableModuleClass {}
 
