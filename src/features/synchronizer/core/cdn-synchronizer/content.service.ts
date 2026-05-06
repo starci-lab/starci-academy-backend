@@ -11,6 +11,8 @@ import {
 import {
     ContentEntity
 } from "@modules/databases"
+import { Interval } from "@nestjs/schedule"
+import { envConfig } from "@modules/env"
 
 @Injectable()
 export class ContentCdnSynchronizerService implements OnApplicationBootstrap {
@@ -35,6 +37,14 @@ export class ContentCdnSynchronizerService implements OnApplicationBootstrap {
      * On application bootstrap process the content CDN synchronization.
      */
     async onApplicationBootstrap() {
+        await this.process()
+    }
+
+    /**
+     * Handle the content CDN synchronization interval.
+     */
+    @Interval(envConfig().services.synchronizer.emailBloomFilter.interval)
+    async handleInterval() {
         await this.process()
     }
 }

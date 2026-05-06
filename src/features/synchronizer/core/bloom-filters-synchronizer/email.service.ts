@@ -2,11 +2,17 @@ import {
     DayjsService,
 } from "@modules/mixin"
 import {
-    Injectable, OnApplicationBootstrap 
+    Injectable, OnApplicationBootstrap
 } from "@nestjs/common"
 import {
-    EnqueueSyncEmailBloomFilterJobService 
+    EnqueueSyncEmailBloomFilterJobService
 } from "@modules/bussiness"
+import {
+    envConfig
+} from "@modules/env"
+import {
+    Interval
+} from "@nestjs/schedule"
 
 /**
  * Service for synchronizing the email bloom filters.
@@ -16,8 +22,8 @@ export class EmailBloomFiltersSynchronizerService implements OnApplicationBootst
     constructor(
         private readonly dayjsService: DayjsService,
         private readonly enqueueSyncEmailBloomFilterJobService: EnqueueSyncEmailBloomFilterJobService,
-    ) {}
-    
+    ) { }
+
     /**
      * Process the email bloom filters.
      */
@@ -33,6 +39,14 @@ export class EmailBloomFiltersSynchronizerService implements OnApplicationBootst
      * On application bootstrap process the email bloom filters.
      */
     async onApplicationBootstrap() {
+        await this.process()
+    }
+
+    /**
+     * Handle the email bloom filters synchronization interval.
+     */
+    @Interval(envConfig().services.synchronizer.emailBloomFilter.interval)
+    async handleInterval() {
         await this.process()
     }
 }

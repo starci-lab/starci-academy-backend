@@ -237,6 +237,10 @@ export const envConfig = () => ({
                 defaultValue: true,
             }),
             emailBloomFilter: {
+                interval: parseEnvMs({
+                    key: "SYNCHRONIZER_PROCESS_EMAIL_BLOOM_FILTER_INTERVAL_MS",
+                    defaultValue: "30s",
+                }),
                 process: {
                     batchSize: parseEnvInt({
                         key: "SYNCHRONIZER_PROCESS_EMAIL_BLOOM_FILTER_BATCH_SIZE",
