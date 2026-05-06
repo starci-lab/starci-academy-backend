@@ -15,18 +15,6 @@ import {
 import { envConfig } from "@modules/env"
 
 @Module({
-    imports: [
-        CoreModule.register(
-            {
-                isGlobal: true,
-            }
-        ),
-        ProcessorsModule.register(
-            {
-                isGlobal: true,
-            }
-        ),
-    ],
 })
 export class SynchronizerModule extends ConfigurableModuleClass {
     static register(
@@ -47,7 +35,6 @@ export class SynchronizerModule extends ConfigurableModuleClass {
                 ),
             ]
         ) : []
-
         return {
             ...dynamicModule,
             imports: [
