@@ -11,19 +11,13 @@ import {
 import {
     CourseEntity,
 } from "@modules/databases"
-import {
-    envConfig 
-} from "@modules/env"
-import {
-    Interval 
-} from "@nestjs/schedule"
 
 @Injectable()
 export class CourseElasticsearchSynchronizerService implements OnApplicationBootstrap {
     constructor(
         private readonly dayjsService: DayjsService,
         private readonly enqueueSyncElasticsearchJobService: EnqueueSyncElasticsearchJobService,
-    ) {}
+    ) { }
 
     /**
      * Process the course Elasticsearch synchronization.
@@ -41,14 +35,6 @@ export class CourseElasticsearchSynchronizerService implements OnApplicationBoot
      * On application bootstrap process the course Elasticsearch synchronization.
      */
     async onApplicationBootstrap() {
-        await this.process()
-    }
-
-    /**
-     * Handle the course Elasticsearch synchronization interval.
-     */
-    @Interval(envConfig().services.synchronizer.elasticsearch.course.interval)
-    async handleInterval() {
         await this.process()
     }
 }

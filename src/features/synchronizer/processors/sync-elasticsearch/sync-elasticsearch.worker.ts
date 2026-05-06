@@ -105,8 +105,6 @@ export class SyncElasticsearchWorker extends WorkerHost {
                 )?.process(
                     context
                 )
-                // Yield event loop so BullMQ can renew the lock
-                await new Promise((resolve) => setTimeout(resolve, 100))
             }
             await this.jobActionService.completeJob(
                 {
