@@ -1,5 +1,5 @@
 import {
-    Field, ID, Int, ObjectType 
+    Field, ID, Int, ObjectType
 } from "@nestjs/graphql"
 import {
     GraphQLTypeLocale,
@@ -9,7 +9,7 @@ import {
     Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId,
 } from "typeorm"
 import {
-    CourseEntity 
+    CourseEntity
 } from "./course.entity"
 import {
     ContentEntity,
@@ -18,7 +18,7 @@ import {
     PreviewContentEntity,
 } from "./preview-content.entity"
 import {
-    UuidAbstractEntity 
+    UuidAbstractEntity
 } from "./abstract"
 import {
     ModuleTranslationEntity,
@@ -43,7 +43,7 @@ export class ModuleEntity extends UuidAbstractEntity {
         type: "varchar",
         length: 255
     })
-        title: string
+    title: string
 
     /**
      * Human-facing stable identifier for display and external references (not the primary key).
@@ -58,9 +58,9 @@ export class ModuleEntity extends UuidAbstractEntity {
         name: "display_id",
         type: "varchar",
         length: 255,
-        unique: true,
+        //unique: true,
     })
-        displayId: string
+    displayId: string
 
     /**
      * Optional short description of the module.
@@ -73,7 +73,7 @@ export class ModuleEntity extends UuidAbstractEntity {
         name: "description",
         type: "text",
     })
-        description: string
+    description: string
 
     /**
      * Display order within the parent course module list.
@@ -89,7 +89,7 @@ export class ModuleEntity extends UuidAbstractEntity {
         type: "int",
         default: 0
     })
-        orderIndex: number
+    orderIndex: number
 
     /**
      * Default locale for the module.
@@ -106,7 +106,7 @@ export class ModuleEntity extends UuidAbstractEntity {
         enum: Locale,
         enumName: "locale",
     })
-        defaultLocale: Locale
+    defaultLocale: Locale
 
     /**
      * Parent course this module belongs to.
@@ -126,7 +126,7 @@ export class ModuleEntity extends UuidAbstractEntity {
         name: "course_id",
         foreignKeyConstraintName: "fk_course_id_modules_courses",
     })
-        course: CourseEntity
+    course: CourseEntity
 
     @Field(
         () => ID,
@@ -137,7 +137,7 @@ export class ModuleEntity extends UuidAbstractEntity {
     @RelationId(
         (mod: ModuleEntity) => mod.course,
     )
-        courseId: string
+    courseId: string
 
     /**
      * Ordered contents attached to the module.
@@ -155,7 +155,7 @@ export class ModuleEntity extends UuidAbstractEntity {
             cascade: true,
         },
     )
-        contents: Array<ContentEntity>
+    contents: Array<ContentEntity>
 
     /**
      * Ordered preview content line items belonging to the module.
@@ -171,7 +171,7 @@ export class ModuleEntity extends UuidAbstractEntity {
         {
             cascade: true
         })
-        previewContents: Array<PreviewContentEntity>
+    previewContents: Array<PreviewContentEntity>
 
     /**
      * Localized translations of module fields such as title and description.
@@ -189,7 +189,7 @@ export class ModuleEntity extends UuidAbstractEntity {
             cascade: true,
         },
     )
-        translations: Array<ModuleTranslationEntity>
+    translations: Array<ModuleTranslationEntity>
 
     @Field(
         () => Int,
@@ -203,5 +203,5 @@ export class ModuleEntity extends UuidAbstractEntity {
         type: "int",
         default: 0,
     })
-        numContents: number
+    numContents: number
 }
