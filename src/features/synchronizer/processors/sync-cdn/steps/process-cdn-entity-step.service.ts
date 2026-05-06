@@ -10,6 +10,7 @@ import {
 } from "@modules/bussiness"
 import {
     EmptyObject,
+    sleep,
 } from "@modules/common"
 import {
     ChallengeEntity,
@@ -91,7 +92,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
             throw error
         }
     }
-    
+
     /**
      * Execute the step.
      * @param context - The context.
@@ -113,136 +114,136 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
             )
             const { payload } = context
             switch (payload.entityKind) {
-            case CourseEntity.name: {
-                const course = await this.entityManager.findOne(
-                    CourseEntity,
-                    {
-                        where: {
-                            ...(executionResult?.resumeAfterEntityId ? {
-                                id: MoreThan(executionResult.resumeAfterEntityId) 
-                            } : {
-                            }),
-                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                case CourseEntity.name: {
+                    const course = await this.entityManager.findOne(
+                        CourseEntity,
+                        {
+                            where: {
+                                ...(executionResult?.resumeAfterEntityId ? {
+                                    id: MoreThan(executionResult.resumeAfterEntityId)
+                                } : {
+                                }),
+                                updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
                         },
-                        order: {
-                            id: "ASC",
-                        },
-                    },
-                )
-                if (!course) {
-                    done = true
+                    )
+                    if (!course) {
+                        done = true
+                        break
+                    }
+                    await this.cdnCourseBuildService.materializeAndUpload(
+                        course.id,
+                    )
+                    resumeAfterEntityId = course.id
                     break
                 }
-                await this.cdnCourseBuildService.materializeAndUpload(
-                    course.id,
-                )
-                resumeAfterEntityId = course.id
-                break
-            }
-            case ChallengeEntity.name: {
-                const challenge = await this.entityManager.findOne(
-                    ChallengeEntity,
-                    {
-                        where: {
-                            ...(executionResult?.resumeAfterEntityId ? {
-                                id: MoreThan(executionResult.resumeAfterEntityId) 
-                            } : {
-                            }),
-                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                case ChallengeEntity.name: {
+                    const challenge = await this.entityManager.findOne(
+                        ChallengeEntity,
+                        {
+                            where: {
+                                ...(executionResult?.resumeAfterEntityId ? {
+                                    id: MoreThan(executionResult.resumeAfterEntityId)
+                                } : {
+                                }),
+                                updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
                         },
-                        order: {
-                            id: "ASC",
-                        },
-                    },
-                )
-                if (!challenge) {
-                    done = true
+                    )
+                    if (!challenge) {
+                        done = true
+                        break
+                    }
+                    await this.cdnChallengeBuildService.materializeAndUpload(
+                        challenge.id,
+                    )
+                    resumeAfterEntityId = challenge.id
                     break
                 }
-                await this.cdnChallengeBuildService.materializeAndUpload(
-                    challenge.id,
-                )
-                resumeAfterEntityId = challenge.id
-                break
-            }
-            case ContentEntity.name: {
-                const content = await this.entityManager.findOne(
-                    ContentEntity,
-                    {
-                        where: {
-                            ...(executionResult?.resumeAfterEntityId ? {
-                                id: MoreThan(executionResult.resumeAfterEntityId) 
-                            } : {
-                            }),
-                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                case ContentEntity.name: {
+                    const content = await this.entityManager.findOne(
+                        ContentEntity,
+                        {
+                            where: {
+                                ...(executionResult?.resumeAfterEntityId ? {
+                                    id: MoreThan(executionResult.resumeAfterEntityId)
+                                } : {
+                                }),
+                                updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
                         },
-                        order: {
-                            id: "ASC",
-                        },
-                    },
-                )
-                if (!content) {
-                    done = true
+                    )
+                    if (!content) {
+                        done = true
+                        break
+                    }
+                    await this.cdnContentBuildService.materializeAndUpload(
+                        content.id,
+                    )
+                    resumeAfterEntityId = content.id
                     break
                 }
-                await this.cdnContentBuildService.materializeAndUpload(
-                    content.id,
-                )
-                resumeAfterEntityId = content.id
-                break
-            }
-            case LessonVideoEntity.name: {
-                const lessonVideo = await this.entityManager.findOne(
-                    LessonVideoEntity,
-                    {
-                        where: {
-                            ...(executionResult?.resumeAfterEntityId ? {
-                                id: MoreThan(executionResult.resumeAfterEntityId) 
-                            } : {
-                            }),
-                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                case LessonVideoEntity.name: {
+                    const lessonVideo = await this.entityManager.findOne(
+                        LessonVideoEntity,
+                        {
+                            where: {
+                                ...(executionResult?.resumeAfterEntityId ? {
+                                    id: MoreThan(executionResult.resumeAfterEntityId)
+                                } : {
+                                }),
+                                updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
                         },
-                        order: {
-                            id: "ASC",
-                        },
-                    },
-                )
-                if (!lessonVideo) {
-                    done = true
+                    )
+                    if (!lessonVideo) {
+                        done = true
+                        break
+                    }
+                    await this.cdnLessonVideoBuildService.materializeAndUpload(
+                        lessonVideo.id,
+                    )
+                    resumeAfterEntityId = lessonVideo.id
                     break
                 }
-                await this.cdnLessonVideoBuildService.materializeAndUpload(
-                    lessonVideo.id,
-                )
-                resumeAfterEntityId = lessonVideo.id
-                break
-            }
-            case ModuleEntity.name: {
-                const module = await this.entityManager.findOne(
-                    ModuleEntity,
-                    {
-                        where: {
-                            ...(executionResult?.resumeAfterEntityId ? {
-                                id: MoreThan(executionResult.resumeAfterEntityId) 
-                            } : {
-                            }),
-                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                case ModuleEntity.name: {
+                    const module = await this.entityManager.findOne(
+                        ModuleEntity,
+                        {
+                            where: {
+                                ...(executionResult?.resumeAfterEntityId ? {
+                                    id: MoreThan(executionResult.resumeAfterEntityId)
+                                } : {
+                                }),
+                                updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
                         },
-                        order: {
-                            id: "ASC",
-                        },
-                    },
-                )
-                if (!module) {
-                    done = true
+                    )
+                    if (!module) {
+                        done = true
+                        break
+                    }
+                    await this.cdnModuleBuildService.materializeAndUpload(
+                        module.id,
+                    )
+                    resumeAfterEntityId = module.id
                     break
                 }
-                await this.cdnModuleBuildService.materializeAndUpload(
-                    module.id,
-                )
-                resumeAfterEntityId = module.id
-                break
-            }
             }
             await this.jobActionService.saveExecutionResult(
                 {
@@ -253,6 +254,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     },
                 }
             )
+            await sleep(100)
         }
         return {
         }
@@ -261,7 +263,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
     /**
      * Build per-locale entity JSON, skip when the Minio snapshot hash is unchanged, upload by id and display id.
      */
-    
+
 
     /** Finalize the step. */
     private async finalize(
