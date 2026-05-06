@@ -10,7 +10,6 @@ import {
 } from "@modules/bussiness"
 import {
     EmptyObject,
-    sleep,
 } from "@modules/common"
 import {
     ChallengeEntity,
@@ -254,7 +253,6 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                     },
                 }
             )
-            await sleep(100)
         }
         return {
         }
