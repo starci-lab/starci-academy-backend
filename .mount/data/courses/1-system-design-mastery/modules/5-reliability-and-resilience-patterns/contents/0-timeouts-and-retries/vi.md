@@ -92,6 +92,7 @@ Sau khi **`docker compose up -d`** thành công: **client-service** lắng nghe 
   Invoke-RestMethod -Uri http://localhost:3000/pay
 
   # macOS / Linux
+  # → Dán cURL vào Postman: Import → Raw text
   curl -s http://localhost:3000/pay
   ```
 
@@ -99,8 +100,9 @@ Sau khi **`docker compose up -d`** thành công: **client-service** lắng nghe 
 
   ```json
   {
-    "statusCode": 504,
-    "message": "Gateway Timeout - Bank did not respond within 3s"
+    "message": "Gateway Timeout - Bank did not respond within 3s",
+    "error": "Gateway Timeout",
+    "statusCode": 504
   }
   ```
 
@@ -130,6 +132,7 @@ Sau khi **`docker compose up -d`** thành công: **client-service** lắng nghe 
   Invoke-RestMethod -Uri http://localhost:3000/pay
 
   # macOS / Linux
+  # → Dán cURL vào Postman: Import → Raw text
   curl -s http://localhost:3000/pay
   ```
 

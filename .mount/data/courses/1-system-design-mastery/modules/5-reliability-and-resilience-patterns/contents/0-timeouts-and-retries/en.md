@@ -92,6 +92,7 @@ After **`docker compose up -d`** succeeds: **client-service** listens at **`http
   Invoke-RestMethod -Uri http://localhost:3000/pay
 
   # macOS / Linux
+  # → Paste cURL into Postman: Import → Raw text
   curl -s http://localhost:3000/pay
   ```
 
@@ -99,8 +100,9 @@ After **`docker compose up -d`** succeeds: **client-service** listens at **`http
 
   ```json
   {
-    "statusCode": 504,
-    "message": "Gateway Timeout - Bank did not respond within 3s"
+    "message": "Gateway Timeout - Bank did not respond within 3s",
+    "error": "Gateway Timeout",
+    "statusCode": 504
   }
   ```
 
@@ -130,6 +132,7 @@ After **`docker compose up -d`** succeeds: **client-service** listens at **`http
   Invoke-RestMethod -Uri http://localhost:3000/pay
 
   # macOS / Linux
+  # → Paste cURL into Postman: Import → Raw text
   curl -s http://localhost:3000/pay
   ```
 
