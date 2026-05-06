@@ -1,0 +1,40 @@
+---
+description: Lesson hands-on — introduce multiple verification flows as a Markdown list before flow subsections
+globs: .mount/data/courses/**/modules/**/contents/**/*.md
+alwaysApply: false
+---
+
+# Verification flows (`Kiểm thử` / `Verification`)
+
+When a hands-on section defines **two or more distinct flows** (e.g. Luồng 1 / Luồng 2, Flow 1 / Flow 2) before `#####` subsections, introduce them as a **Markdown list**, not one paragraph with inline **(1)** **(2)**.
+
+## Pattern
+
+1. One short lead sentence stating the **shared goal** (what the flows validate together).
+2. A **bullet list** (`-`); each item starts with **bold flow label** + colon, then one concise sentence.
+
+### Vietnamese (example)
+
+```markdown
+#### 2.1.4. Kiểm thử
+
+Hai luồng kiểm thử nhằm xác nhận **auto-instrumentation** của **OpenTelemetry SDK** và export **OTLP** sang **Jaeger**:
+
+- **Luồng 1:** …
+- **Luồng 2:** …
+```
+
+### English (example)
+
+```markdown
+#### 2.1.4. Verification
+
+Two flows validate … :
+
+- **Flow 1:** …
+- **Flow 2:** …
+```
+
+## Mirror locales
+
+Apply the **same structure** in **`vi.md`** and **`en.md`** (parallel bullets, aligned intent).

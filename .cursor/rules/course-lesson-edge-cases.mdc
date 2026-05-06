@@ -1,0 +1,47 @@
+---
+description: Course lesson markdown — edge cases as plain bullet lists under a shared heading (vi/en)
+globs: .mount/data/courses/**/modules/**/contents/**/*.md
+alwaysApply: false
+---
+
+# Edge cases in lesson theory (`vi.md` / `en.md`)
+
+Do **not** scatter one-off lines like **`Edge case — …`** inside prose. Prefer one block per theory section (or per lesson subsection) with a fixed heading and bullets.
+
+## Vietnamese
+
+1. Heading (exact preferred form):
+
+   **`**Các trường hợp biên (edge cases) cần lưu ý:**`**  
+   (Use as a short standalone line immediately before the list, or as `####` title if the lesson structure needs a numbered sub-section — e.g. **`#### 2.2.4. Các trường hợp biên (edge cases) cần lưu ý`**.)
+
+2. List: each item starts with a **bold title** (no EC numbering):
+
+   `- **…:** … **Giải pháp:** …`
+
+3. Body: problem / mechanism → impact; end with **`Giải pháp:`** (mitigation, bounded labels, HA, instrumentation, etc.) when it helps interview prep.
+
+4. Cross-references in hands-on should cite the **edge-case section** as plain prose (for example **`phần 2.2.4`** / **`part 2.2.4`**), not an EC label.
+
+## English
+
+1. Heading (parallel):
+
+   **`**Edge cases to note:**`** or **`**Boundary cases (edge cases) to note:**`**
+
+2. Same list shape: **`- **Title:**`** … **`**Mitigation:**`** or inline *“Mitigation:”* matching the Vietnamese **`Giải pháp`** intent.
+
+3. Mirror **`vi.md`** bullet count and ordering.
+
+## Reference example (monitoring — `0-monitoring-and-observability`)
+
+After **`#### 2.2.3. Mô hình Pull vs Push`** and the scrape YAML, **`#### 2.2.4. Các trường hợp biên (edge cases) cần lưu ý`** lists High cardinality and network-partition pull-scrape gaps — see that file for tone and density.
+
+## Tracing lesson (`3-distributed-tracing`)
+
+Consolidate orphaned-span and non-instrumented-client warnings into **`#### 2.2.4. …`** (or equivalent) as bullet items; remove duplicate **`Edge case —`** paragraphs from **`#### 2.2.1`** / **`#### 2.2.2`**.
+
+## Do not
+
+- Do not mix **`Edge case —`** standalone paragraphs and an edge-case bullet list for the same lesson without migrating to one list.
+- Do not prepend edge-case bullets with numbered code labels.

@@ -1,0 +1,22 @@
+---
+description: Course lesson markdown — annotate when curl commands can be pasted directly into Postman
+globs: .mount/data/courses/**/modules/**/contents/**/*.md
+alwaysApply: false
+---
+
+# cURL copy/paste note (Postman)
+
+When a lesson shows terminal commands, treat **plain `curl`** commands as import-friendly for Postman.
+
+## Rule
+
+- If the command is a **standalone `curl`** request (typical GET/POST with URL, headers, body) and does **not** depend on shell-only constructs (`for`, pipes, command substitution, env interpolation, etc.), add a short note:
+  - Vietnamese: **`# → Dán cURL vào Postman: Import → Raw text`**
+  - English: **`# → Paste cURL into Postman: Import → Raw text`**
+- Keep this note near the `curl` example (same code block section).
+
+## Do not add the note for
+
+- PowerShell-native commands (`Invoke-RestMethod`, `Invoke-WebRequest`).
+- Multi-command shell flows that are not directly importable as a single HTTP request.
+- cURL snippets that rely on shell piping/looping (e.g. `| jq`, `for ...; do curl ...; done`) unless you isolate one importable request line and annotate that line only.

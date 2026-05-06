@@ -2,134 +2,331 @@
 Health Checks and Graceful Degradation
 
 # description
-Learn to use **Health Checks** to report system vitality and **Graceful Degradation** techniques to maintain core functionality when resources are depleted.
+This lesson explains how to use Health Checks to report service vitality in orchestrated systems such as Kubernetes, and how to apply Graceful Degradation to preserve core functionality when resources are constrained. The hands-on section demonstrates NestJS Terminus, Docker Compose, and a product endpoint that automatically degrades when RAM crosses a threshold.
 
 # body
-## 1. Introduction
-A "Resilient" system is not just one that never crashes, but one that knows how to "survive" in adversity. In modern architectures like **Kubernetes**, the fact that your service process is running does not necessarily mean it is serving well. If the **Database** is disconnected but the API still reports success (HTTP 200), you are deceiving the monitoring system.
 
-This lesson will guide you through two survival techniques:
-1.  **Health Checks:** Providing a standard endpoint (`/health`) so orchestrators know when to restart the application.
-2.  **Graceful Degradation:** Proactively disabling non-essential, resource-intensive features (such as AI Recommendations or Advanced Search) when the server is overloaded to protect core functions.
+## 1. Opening
 
-## 2. Core Concepts
-### 2.1. Health Checks: Liveness and Readiness
--   **Liveness:** Indicates if the application is still "alive." If this check fails, Kubernetes will kill the container and restart it.
--   **Readiness:** Indicates if the application is ready to receive traffic (e.g., has it finished connecting to the DB?).
+A **Senior Engineer** asks a **Mid-level** candidate: *"Your NestJS service runs fine inside Kubernetes, but how does the cluster decide when to restart the container versus simply removing it from the Load Balancer?"* The candidate answers they would configure **livenessProbe** and **readinessProbe** hitting `curl /health`, but does not yet distinguish the case where **Database** loses connectivity while the **Node.js** process stays alive — `/health` still returns HTTP 200, **Kubernetes** sees nothing wrong, yet clients get errors in bulk.
 
-### 2.2. Graceful Degradation: Sacrifice to Survive
-When the system is resource-constrained (high RAM/CPU usage), instead of allowing the server to crash and making the website inaccessible to everyone, we apply a "graceful degradation" mechanism:
--   **Healthy State:** Returns full features (e.g., product list with personalized AI recommendations).
--   **Overloaded State:** Automatically disables AI and only returns a default product list from the Cache. The system remains operational; users can still buy products, even if the experience is slightly degraded.
+This lesson proceeds in two connected tracks. **Part 2.1** is **hands-on** and aligned with the GitHub repository; learners run a **NestJS** demo with **Terminus**, then verify `/health` behavior and `/products` auto-degradation under RAM pressure via three test flows. **Part 2.2** reinforces the theory — the difference between **Liveness** and **Readiness**, the core mechanics of **Graceful Degradation**, and common edge cases when services are overloaded or dependencies fail. By the end, learners can distinguish **Liveness** vs **Readiness**, implement `/health` with **Terminus**, and reason about RAM-monitoring logic that temporarily disables non-core features in **NestJS**.
 
-```mermaid
-flowchart TD
-    Req[Request /products] --> Monitor[Resource Monitor]
-    Monitor -->|RAM < 120MB| Normal[Return Products + AI Suggestions]
-    Monitor -->|RAM > 120MB| Degraded[Return Default Products]
-    Degraded -.->|Warning| User[Message: AI feature temporarily disabled]
-```
-*Figure 1: Graceful Degradation mechanism automatically adjusting features based on system health.*
+## 2. Core concepts
 
-## 2.2. Practice: Implementing Health Checks and Graceful Degradation
-### 2.2.1. Codebase and Environment Setup
-Reference Source: `3-health-checks-and-graceful-degradation`
+The lesson uses **practice-led theory**. First you run **Terminus** health checks and trigger **Graceful Degradation** by stressing heap memory, then verify responses against the demo API. Then the theory section organizes concepts and edge cases — mapping directly to what you observed in **section 2.1**.
+
+### 2.1. Hands-on
+
+#### 2.1.1. Prepare source code and environment
+
+Goal: run `ecommerce-app` with `/health` (Terminus) and `/products` that applies Graceful Degradation based on heap RAM thresholds.
+
+Source: [StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns) on GitHub — lesson directory: [`3-health-checks-and-graceful-degradation`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/3-health-checks-and-graceful-degradation); **Docker Compose** and hands-on files live under [`3-health-checks-and-graceful-degradation/.docker`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/3-health-checks-and-graceful-degradation/.docker).
 
 ```bash
-# Step 1: Clone the demo repository
+# Step 1: Clone the repository locally
 git clone https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns.git
 
-# Step 2: Navigate to the lesson directory
+# Step 2: Enter the lesson folder
 cd system-design-mastery-module-6-reliability-and-resilience-patterns/3-health-checks-and-graceful-degradation
 ```
 
-### 2.2.2. Architecture and Components
--   **ecommerce-app (Port 3000):** Integrates the **Terminus** library for health checks and custom RAM monitoring logic for feature degradation.
+The repo already includes default values in **`ecommerce-app/.env`**, and **`ConfigModule`** reads those settings. When running through **Docker Compose** (`.docker/compose.yaml`), runtime variables come directly from `environment:` in Compose, so you do not need to create or edit **`.env`**. Edit **`.env`** only when running **`ecommerce-app`** directly on the host (`nest start`) or when changing default host/port/RAM-threshold values.
 
-| Component | Responsibility | Technology |
-|---|---|---|
-| **ecommerce-app** | Monitors resources and provides health endpoints | **NestJS**, **Terminus** |
+Stack: **Node.js**, **NestJS**, **Terminus**, **Docker**, **Docker Compose**.
 
-### 2.2.3. Setup
-Run the service with Docker:
+#### 2.1.2. Architecture / components (stack + flow)
 
-```bash
-# Step 0: create shared network (run once per machine)
-docker network create starci-network
+- **ecommerce-app:** a **NestJS** service exposing `/health`, `/products`, and `/stress-memory`. It uses **Terminus** for health checks and monitors `process.memoryUsage().heapUsed` to decide between AI Suggestion and default products.
+- **3-health-checks-and-graceful-degradation network:** a Compose-managed network created for this lesson.
 
-# Step 1: run the service
-docker compose -f .docker/backend.yaml up -d --build
+| Component | Host port | Role |
+| --- | --- | --- |
+| **ecommerce-app** | 3000 | Serves `/health`, `/products`, `/stress-memory`; runs **Graceful Degradation** logic with a 120MB heap threshold. |
 
-# Step 2: inspect logs
-docker compose -f .docker/backend.yaml logs -f ecommerce-app
+```mermaid
+flowchart LR
+	Client["curl / Browser"] --> Api["NestJS ecommerce-app :3000"]
+	Api --> Health["/health (Terminus)"]
+	Api --> Products["/products"]
+	Products --> Monitor["Memory Monitor"]
+	Monitor -->|heap under 120MB| Full["Products + AI Suggestion"]
+	Monitor -->|heap over 120MB| Degraded["Default products"]
+	K8s["Kubernetes Probe"] -->|GET /health| Health
 ```
 
-### 2.2.4. Testing
-#### Scenario 1 — System Health Check
-Step 1: Call the health endpoint.
+Figure 1: Client requests /products through a heap monitor; Kubernetes probes /health to drive liveness/readiness decisions.
+
+#### 2.1.3. Prerequisites and startup
+
+##### 2.1.3.1. Prerequisites
+
+- **Docker Engine** and **Docker Compose** v2.
+- **Windows:** use **`Invoke-RestMethod`** / **`Invoke-WebRequest`** in PowerShell for HTTP requests.
+
+##### 2.1.3.2. Start the stack
+
 ```bash
-curl -s http://localhost:3000/health
+# Step 1: Keep terminal at lesson root (do not cd into .docker)
+# .../3-health-checks-and-graceful-degradation
+
+# Step 2: Start ecommerce-app using compose file in .docker
+docker compose -f .docker/compose.yaml up -d
+
+# Step 3: Tail logs to ensure service readiness
+docker compose -f .docker/compose.yaml logs -f ecommerce-app
 ```
-The response returns the status of components (RAM, DB):
-```json
-{
-  "status": "ok",
-  "info": {
-    "memory_heap": { "status": "up" },
-    "database": { "status": "up" }
+
+#### 2.1.4. Verification
+
+**Three flows** validate **Terminus** on `/health`, **Graceful Degradation** on `/products`, and recovery behavior: **(1)** happy path **GET /health** returns `status=ok` for **memory_heap** and **database**; **(2)** multiple **POST /stress-memory** calls push heap above 120MB so **GET /products** switches to `status=degraded` and disables AI Suggestion; **(3)** container restart frees heap and **GET /products** returns to full AI Suggestion mode (advanced).
+
+##### 2.1.4.1. Flow 1 — Happy path /health
+
+- Step 1: Call the health endpoint.
+
+  ```bash
+  # Windows (PowerShell)
+  Invoke-RestMethod -Uri http://localhost:3000/health
+
+  # macOS / Linux
+  # → Paste cURL into Postman: Import → Raw text
+  curl -s http://localhost:3000/health
+  ```
+
+  Expected response (HTTP 200):
+
+  ```json
+  {
+    "status": "ok",
+    "info": {
+      "memory_heap": { "status": "up" },
+      "database": { "status": "up" }
+    }
   }
+  ```
+
+  *If both indicators show `"status": "up"`:*
+
+  - ***Terminus** aggregates **MemoryHealthIndicator** and **Database** indicator results into one response — matching `HealthController.check()` in `health.controller.ts`.*
+  - *Both indicators at `up` support keeping the container in **Service / Load Balancer** via **Kubernetes readinessProbe**.*
+
+##### 2.1.4.2. Flow 2 — Trigger Graceful Degradation
+
+- Step 1: Check `/products` in normal conditions.
+
+  ```bash
+  # Windows (PowerShell)
+  Invoke-RestMethod -Uri http://localhost:3000/products
+
+  # macOS / Linux
+  # → Paste cURL into Postman: Import → Raw text
+  curl -s http://localhost:3000/products
+  ```
+
+  Expected response (HTTP 200):
+
+  ```json
+  {
+    "status": "success",
+    "data": [
+      { "id": 1, "name": "AI Suggestion - Premium Product" },
+      { "id": 2, "name": "AI Suggestion - Popular Product" }
+    ]
+  }
+  ```
+
+- Step 2: Pump RAM 3 times (each `stress-memory` call allocates roughly 50MB) to cross the 120MB heap threshold.
+
+  ```bash
+  # Windows (PowerShell)
+  Invoke-RestMethod -Method Post -Uri http://localhost:3000/stress-memory
+  Invoke-RestMethod -Method Post -Uri http://localhost:3000/stress-memory
+  Invoke-RestMethod -Method Post -Uri http://localhost:3000/stress-memory
+
+  # macOS / Linux
+  # → Paste cURL into Postman: Import → Raw text
+  curl -X POST http://localhost:3000/stress-memory
+  curl -X POST http://localhost:3000/stress-memory
+  curl -X POST http://localhost:3000/stress-memory
+  ```
+
+- Step 3: Call `/products` again.
+
+  ```bash
+  # Windows (PowerShell)
+  Invoke-RestMethod -Uri http://localhost:3000/products
+
+  # macOS / Linux
+  # → Paste cURL into Postman: Import → Raw text
+  curl -s http://localhost:3000/products
+  ```
+
+  Expected response (HTTP 200):
+
+  ```json
+  {
+    "status": "degraded",
+    "message": "System is overloaded. AI Suggestion feature is temporarily disabled.",
+    "data": [
+      { "id": 1, "name": "Default Product A" },
+      { "id": 2, "name": "Default Product B" }
+    ]
+  }
+  ```
+
+  *If response switches to `"status": "degraded"` with default products:*
+
+  - *The service monitors `process.memoryUsage().heapUsed`; beyond 120MB it skips AI Suggestion and returns cached defaults — matching the threshold logic in `app.service.ts`.*
+  - *Users keep core functionality (view products), while non-core features are sacrificed to avoid full outage.*
+
+##### 2.1.4.3. Flow 3 — Return to normal state (advanced)
+
+- Step 1: Restart the container to release heap.
+
+  ```bash
+  # Windows (PowerShell)
+  docker compose -f .docker/compose.yaml restart ecommerce-app
+
+  # macOS / Linux
+  docker compose -f .docker/compose.yaml restart ecommerce-app
+  ```
+
+- Step 2: Call `/products` again.
+
+  ```bash
+  # Windows (PowerShell)
+  Invoke-RestMethod -Uri http://localhost:3000/products
+
+  # macOS / Linux
+  # → Paste cURL into Postman: Import → Raw text
+  curl -s http://localhost:3000/products
+  ```
+
+  Expected response (HTTP 200):
+
+  ```json
+  {
+    "status": "success",
+    "data": [
+      { "id": 1, "name": "AI Suggestion - Premium Product" },
+      { "id": 2, "name": "AI Suggestion - Popular Product" }
+    ]
+  }
+  ```
+
+  *If response returns to `"status": "success"` with AI Suggestion products:*
+
+  - *Once heap drops below threshold, monitoring logic in `app.service.ts` automatically re-enables AI Suggestion without code changes.*
+  - *This informs stricter **Kubernetes livenessProbe** policies (for example restart when heap exceeds 200MB) when restart is preferred over degradation.*
+
+#### 2.1.5. Cleanup
+
+When you are done, tear down to free resources. From **`.../3-health-checks-and-graceful-degradation`** (where you ran **`docker compose up`**), run **`docker compose -f .docker/compose.yaml down -v`**: **`-v`** removes **anonymous / named volumes** declared for services in this lesson's Compose project.
+
+```bash
+# Stop and remove lesson containers + volumes
+docker compose -f .docker/compose.yaml down -v
+```
+
+#### 2.1.6. Further reading
+
+- **NestJS Terminus:** official **NestJS** health-check library with memory, db, and http indicators. ([NestJS Terminus Docs](https://docs.nestjs.com/recipes/terminus))
+- **Kubernetes Probes:** official docs for **livenessProbe**, **readinessProbe**, **startupProbe**, and `httpGet`, `tcpSocket`, `exec` configuration. ([Kubernetes Probes Docs](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/))
+- **Graceful Degradation pattern:** degraded-mode framing and relation to **Throttling** / **Bulkhead** in cloud architecture. ([Azure Architecture — Throttling](https://learn.microsoft.com/en-us/azure/architecture/patterns/throttling))
+- **Node.js process.memoryUsage:** V8 heap metrics API used for service self-monitoring. ([Node.js Docs](https://nodejs.org/api/process.html#processmemoryusage))
+- **TypeOrmHealthIndicator:** **Database** indicator in **Terminus** for `pingCheck` against **PostgreSQL**. ([NestJS Terminus — Database](https://docs.nestjs.com/recipes/terminus#database-health-check))
+
+### 2.2. Theory — Health Checks and Graceful Degradation
+
+#### 2.2.1. Health Checks: Liveness, Readiness, Startup
+
+A **Health Check** endpoint (typically `/health`) reports whether a service is operating correctly. In **Kubernetes**, three probe types are common:
+
+- **Liveness Probe:** checks whether a container is still alive. On failure, **Kubernetes** kills and restarts it.
+- **Readiness Probe:** checks whether a container is ready for traffic. On failure, the container is removed from **Service / Load Balancer** but not restarted.
+- **Startup Probe:** for slow-booting services; runs first to delay **Liveness** during startup.
+
+Minimal **Terminus** example in **NestJS**:
+
+```typescript
+@Controller('health')
+export class HealthController {
+	constructor(
+		private health: HealthCheckService,
+		private memory: MemoryHealthIndicator,
+		private db: TypeOrmHealthIndicator,
+	) {}
+
+	@Get()
+	@HealthCheck()
+	check() {
+		return this.health.check([
+			() => this.memory.checkHeap('memory_heap', 200 * 1024 * 1024),
+			() => this.db.pingCheck('database'),
+		])
+	}
 }
 ```
 
-#### Scenario 2 — Triggering Graceful Degradation by Pumping RAM
-Step 1: Check the product list when the system is normal.
-```bash
-curl -s http://localhost:3000/products
-```
-Response (With AI Suggestion):
-```json
-{
-  "status": "success",
-  "data": [
-    { "id": 1, "name": "AI Suggestion - Premium Product" }
-  ]
+#### 2.2.2. Graceful Degradation
+
+**Graceful Degradation** is a proactive strategy to disable resource-heavy non-core features under overload, preserving core user paths. Instead of full failure, the app detects thresholds (RAM, CPU, latency, downstream error rate) and switches to lighter execution branches.
+
+Minimal **NestJS** example:
+
+```typescript
+@Get('products')
+async getProducts() {
+	const heapUsed = process.memoryUsage().heapUsed
+	const THRESHOLD = 120 * 1024 * 1024
+
+	if (heapUsed > THRESHOLD) {
+		return {
+			status: 'degraded',
+			message: 'System is overloaded. AI Suggestion feature is temporarily disabled.',
+			data: this.productService.getDefault(),
+		}
+	}
+
+	return {
+		status: 'success',
+		data: await this.productService.getWithAiSuggestion(),
+	}
 }
 ```
 
-Step 2: Use the `stress-memory` API to consume RAM (each call allocates 50MB). Call it about 3 times.
-```bash
-curl -X POST http://localhost:3000/stress-memory
+```mermaid
+flowchart TD
+	Req["Request /products"] --> Monitor["Memory Monitor"]
+	Monitor -->|heap under 120MB| Normal["Products + AI Suggestion"]
+	Monitor -->|heap over 120MB| Degraded["Default products"]
+	Degraded --> Notice["Response status=degraded"]
 ```
 
-Step 3: Call the product list API again. The system now detects that RAM has exceeded the 120MB threshold.
-```bash
-curl -s http://localhost:3000/products
-```
-Response (Degraded Mode):
-```json
-{
-  "status": "degraded",
-  "message": "System is overloaded. AI Suggestion feature is temporarily disabled.",
-  "data": [
-    { "id": 1, "name": "Default Product A" }
-  ]
-}
-```
-*Conclusion: The system automatically protected itself by disabling heavy features, ensuring the server does not crash completely.*
+Figure 2: Heap-based branching chooses full mode or degraded mode.
 
-### 2.2.5. Resource Cleanup
-Stop the service:
+#### 2.2.3. Edge cases to internalize
 
-```bash
-docker compose -f .docker/backend.yaml down
-```
+- **/health returns 200 while business APIs still time out:** Health checks validate process liveness only and skip critical dependencies such as **Database**, **Redis**, or **Kafka**. The impact is that **Kubernetes** keeps routing traffic to a broken pod and client-side errors spike. **Mitigation:** split `/health/live` for **Liveness** (process-only) and `/health/ready` for **Readiness** (dependency-aware checks).
+- **/products oscillates between success and degraded:** The RAM threshold is too close to normal operating usage, and **V8** GC cycles move heap usage around that boundary, causing response flicker. **Mitigation:** introduce **hysteresis** (different enter/exit thresholds) or use moving averages instead of instant heap readings.
 
-## 3. Summary
-### 3.1. Common Interview Questions
--   **Question 1: How do Liveness and Readiness differ in Kubernetes?**
-    -   **Answer:** **Liveness** determines if a container is still alive (restarts if failed). **Readiness** determines if a container is ready to accept traffic (removed from the Load Balancer if failed).
--   **Question 2: When should Graceful Degradation be applied?**
-    -   **Answer:** When the system has features that are "resource-intensive but not core." Examples include recommendation systems, advanced search, or notification emails.
+## 3. Wrap-up
+
+### 3.1. Common interview questions
+
+- **Question 1:** How do **Liveness Probe** and **Readiness Probe** differ in **Kubernetes**?
+  - What interviewers want: practical understanding of probe consequences, not just textbook definitions.
+  - Sample short answer: **Liveness** checks if a container is alive; failure triggers **Kubernetes** restart. **Readiness** checks if a container is ready for traffic; failure removes it from **Service / Load Balancer** without restart. Example: fail **Readiness** during cache warm-up to block traffic; fail **Liveness** when memory leaks freeze the process so the pod restarts.
+
+- **Question 2:** When should you apply **Graceful Degradation** instead of failing fast?
+  - What interviewers want: ability to separate core and non-core product capabilities.
+  - Sample short answer: Apply **Graceful Degradation** when features are resource-heavy but non-core, such as AI suggestions, advanced search, or notification emails. When RAM/CPU/latency exceeds thresholds, disable non-core branches while keeping checkout/login/payment alive. For strictly correct transactional operations (inventory write, ledger commit), fail-fast plus **Circuit Breaker** / **Retry** is usually safer than returning synthetic output.
+
+- **Question 3:** Why can `/health` return 200 while **Database** is disconnected, and how do you fix it?
+  - What interviewers want: depth in health-check design beyond endpoint existence.
+  - Sample short answer: This happens when `/health` checks process liveness only and does not test dependencies. Fix with **Terminus** indicators such as **TypeOrmHealthIndicator.pingCheck**, **MemoryHealthIndicator.checkHeap**, and **HttpHealthIndicator.pingCheck**. Also split `/health/live` (process only) for **Liveness** and `/health/ready` (dependency-aware) for **Readiness**, so **Kubernetes** does not make wrong restart/routing decisions during transient DB issues.
 
 # references
 ## 0
@@ -137,6 +334,21 @@ docker compose -f .docker/backend.yaml down
 NestJS Terminus (Health Checks)
 ### url
 https://docs.nestjs.com/recipes/terminus
+## 1
+### alias
+Kubernetes Liveness, Readiness and Startup Probes
+### url
+https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+## 2
+### alias
+Microsoft Azure Architecture - Throttling pattern
+### url
+https://learn.microsoft.com/en-us/azure/architecture/patterns/throttling
+## 3
+### alias
+Node.js process.memoryUsage
+### url
+https://nodejs.org/api/process.html#processmemoryusage
 
 # minutesRead
 20

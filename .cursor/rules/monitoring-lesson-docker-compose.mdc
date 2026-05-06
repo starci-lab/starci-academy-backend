@@ -1,0 +1,63 @@
+---
+description: Module 7 monitoring repository — .docker/compose.yaml uses name + network matching lesson folder slug (Compose-managed, not external)
+globs: .repo/system-design-mastery-module-7-monitoring-and-observability/**/.docker/compose.yaml
+alwaysApply: false
+---
+
+# Lesson `.docker/compose.yaml` (monitoring module — hands-on stacks in the repository)
+
+Follow the same convention as **`0-monitoring-and-observability/.docker/compose.yaml`**.
+
+## `name:` (Compose project prefix)
+
+Set **`name:`** to the **lesson folder slug** exactly (examples: **`0-monitoring-and-observability`**, **`1-centralized-logging-with-loki`**, **`2-service-discovery`**, **`3-distributed-tracing`**).
+
+## Networks
+
+- Declare **one** Compose-managed network keyed by the **same slug** (quoted YAML key), with **`networks.<slug>.name`** equal to that slug.
+- Attach every service with:
+
+```yaml
+networks:
+  - "<lesson-folder-slug>"
+```
+
+- **Do not** use **`external: true`** / **`starci-network`** for these per-lesson compose files in the repository unless there is an explicit multi-compose integration doc — learners should run **`docker compose up`** without **`docker network create`**.
+
+## Header comments
+
+Prefer a short bilingual banner (**VI** line then **EN** in parentheses on the following line or same `#` block) documenting:
+
+- Working directory (**`cd …/<lesson>/.docker`**).
+- That Compose **creates** the lesson network automatically.
+- **`docker compose up -d --build`** (when images are built).
+
+## Build `context`
+
+Paths are **relative to the `.docker/` directory** that contains **`compose.yaml`** (typically **`../logging-api`**, **`../tracing-api`**, etc.).
+
+## Jaeger host ports (lesson `3-distributed-tracing`)
+
+If another **Jaeger** (or stack) on the learner machine already binds **`:16686`** / **`:4318`**, map **host** ports instead of failing the lesson stack — e.g. **`16687:16686`** for UI and **`4319:4318`** for OTLP HTTP. Services on the **Compose network** must still use **`http://jaeger:4318`** (in-container port **4318** unchanged). Document the **host** UI/API URL in **`vi.md` / `en.md`** to match **`compose.yaml`**.
+
+## Teardown in course markdown (`vi.md` / `en.md`) — part 2.1.5 template
+
+Use the same **part 2.1.5** shape: lead (**tear down / dọn tài nguyên** + **memory**), state that **`cd …/<lesson>/.docker`** so Compose picks up **`compose.yaml`** by default, then **`docker compose down -v`**. Explain **`-v`** (**anonymous / named volumes**). Mention **PostgreSQL** when relevant; for lessons **without** named volumes (e.g. **`3-distributed-tracing`**), note the compose file defines none yet **`-v`** stays consistent module-wide.
+
+**Course command** (inside **`.docker/`**):
+
+```bash
+docker compose down -v
+```
+
+**Optional** if learners run from the lesson root instead of **`.docker/`**:
+
+```bash
+docker compose -f .docker/compose.yaml down -v
+```
+
+## Course markdown — **Source:** line (GitHub repository)
+
+Hands-on lessons under **`0-monitoring-and-observability`**, **`3-distributed-tracing`**, and siblings should use the **two-clause** **Source:** template from **`course-lesson-demo-source-links.mdc`**: **thư mục bài học** / **lesson directory** → link to **`tree/main/<lesson-slug>`**; then **Docker Compose** và file hands-on / **hands-on files** → link to **`tree/main/<lesson-slug>/.docker`**. Follow with **`git clone`** and **`cd …/<lesson-slug>/.docker`** as today.
+
+For **`3-distributed-tracing`**, do not replace that flow with an anonymous “LMS-only” path — learners **clone** the GitHub **repository**. Prefer the word **repository** (not **lab** / **repo demo**) in course copy for consistency.

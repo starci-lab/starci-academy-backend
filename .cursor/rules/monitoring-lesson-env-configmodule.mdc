@@ -1,0 +1,34 @@
+---
+description: Module 7 monitoring lessons — .env wording must align with ConfigModule/registerAs + Compose env override
+globs: .mount/data/courses/**/modules/4-monitoring-and-observability/contents/**/*.md
+alwaysApply: false
+---
+
+# `.env` wording for module 4 lessons (`vi.md` / `en.md`)
+
+Use one consistent explanation across all lessons in module **4-monitoring-and-observability** when mentioning app env files.
+
+## Required intent
+
+- The service already has default env values in repo `.env` (or equivalent config defaults).
+- **`ConfigModule`** + **`registerAs(...)`** reads env vars (e.g. `POSTGRES_*`, `LOKI_*`, `CONSUL_*`, `OTEL_*` by lesson).
+- When running via **Docker Compose**, runtime env should be treated as coming from `environment:` in `compose.yaml`; learners usually do **not** need to create/edit `.env`.
+- Learners edit `.env` only when running app directly on host (`nest start`, `npm run start:dev`) or when changing host/port/credentials/datacenter from defaults.
+
+## Vietnamese template style
+
+Write prose similar to:
+
+`File <service>/.env trong repo đã có sẵn giá trị mặc định (ConfigModule / registerAs(...) đọc các biến ...). Khi chạy qua Docker Compose (compose.yaml), không cần tạo hay sửa .env. Chỉ chỉnh .env khi chạy service trực tiếp trên máy hoặc cần đổi host/cổng/user/password/db khác mặc định.`
+
+## English template style
+
+Write prose similar to:
+
+`The repo already ships default values in <service>/.env (read by ConfigModule/registerAs(...)). When running with Docker Compose (compose.yaml), you typically do not need to create or edit .env. Update .env only for host-run execution or when you intentionally change host/port/credentials/datacenter defaults.`
+
+## Do not
+
+- Do not imply `.env` creation is mandatory before `docker compose up`.
+- Do not conflict with compose-defined runtime env in the same lesson.
+- Do not mention or introduce `.env.example` for module 4 monitoring lessons.
