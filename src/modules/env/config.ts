@@ -10,7 +10,7 @@ import {
     parseEnvJson,
 } from "./utils"
 import {
-    ContextType 
+    ContextType
 } from "./enums"
 
 /**
@@ -179,6 +179,10 @@ export const envConfig = () => ({
         },
         /** API service configuration. */
         api: {
+            enable: parseEnvBoolean({
+                key: "API_ENABLE",
+                defaultValue: true,
+            }),
             /** Transaction configuration. */
             transaction: {
                 timeSinceCreationMs: parseEnvMs({
@@ -228,6 +232,10 @@ export const envConfig = () => ({
         },
         /** Synchronizer service configuration. */
         synchronizer: {
+            enable: parseEnvBoolean({
+                key: "SYNCHRONIZER_ENABLE",
+                defaultValue: false,
+            }),
             emailBloomFilter: {
                 process: {
                     batchSize: parseEnvInt({
@@ -433,7 +441,7 @@ export const envConfig = () => ({
                 interval: parseEnvMs({
                     key: "CDN_SYNCHRONIZER_CHALLENGE_SYNC_INTERVAL_MS",
                     defaultValue: "30s",
-                }),     
+                }),
             },
             lessonVideo: {
                 interval: parseEnvMs({
@@ -481,7 +489,7 @@ export const envConfig = () => ({
                 }),
             },
             course: {
-                interval: parseEnvMs({  
+                interval: parseEnvMs({
                     key: "ELASTICSEARCH_SYNCHRONIZER_COURSE_SYNC_INTERVAL_MS",
                     defaultValue: "30s",
                 }),
@@ -822,11 +830,11 @@ export const envConfig = () => ({
         origins: Array.from({
             length: 10
         },
-        (_, i) =>
-            parseEnvString({
-                key: `CORS_ORIGIN_${i + 1}`,
-                defaultValue: "http://localhost:3000"
-            }),
+            (_, i) =>
+                parseEnvString({
+                    key: `CORS_ORIGIN_${i + 1}`,
+                    defaultValue: "http://localhost:3000"
+                }),
         ).filter((url) => url !== "")
     },
     /** Kubernetes configuration. */
@@ -1059,7 +1067,7 @@ export const envConfig = () => ({
                 }),
             },
         },
-    }, 
+    },
 
     /** Keycloak configuration. */
     keycloak: {
@@ -1242,16 +1250,16 @@ export const envConfig = () => ({
                 key: "NATS_SERVERS_COUNT", defaultValue: 1
             })
         },
-        (_, i) => ({
-            host: parseEnvString({
-                key: `NATS_SERVER_${i + 1}_HOST`,
-                defaultValue: "localhost"
-            }),
-            port: parseEnvInt({
-                key: `NATS_SERVER_${i + 1}_PORT`,
-                defaultValue: 4222
-            }),
-        })),
+            (_, i) => ({
+                host: parseEnvString({
+                    key: `NATS_SERVER_${i + 1}_HOST`,
+                    defaultValue: "localhost"
+                }),
+                port: parseEnvInt({
+                    key: `NATS_SERVER_${i + 1}_PORT`,
+                    defaultValue: 4222
+                }),
+            })),
         reconnect: parseEnvBoolean({
             key: "NATS_RECONNECT", defaultValue: true
         }),

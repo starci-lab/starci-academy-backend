@@ -5,7 +5,7 @@ import {
     Module
 } from "@nestjs/common"
 import {
-    ValidationPipe 
+    ValidationPipe
 } from "@nestjs/common"
 import {
     ElasticsearchModule
@@ -33,7 +33,7 @@ import {
     SentryModule
 } from "@modules/sentry"
 import {
-    MixinModule 
+    MixinModule
 } from "@modules/mixin"
 import {
     PrimaryPostgreSQLModule,
@@ -64,13 +64,13 @@ import {
     JwtModule
 } from "@nestjs/jwt"
 import {
-    APP_PIPE 
+    APP_PIPE
 } from "@nestjs/core"
 import {
     BullModule
 } from "@modules/bullmq"
 import {
-    BussinessModule 
+    BussinessModule
 } from "@modules/bussiness"
 import {
     WorkerModule
@@ -81,11 +81,11 @@ import {
 import {
     CryptoModule
 } from "@modules/crypto"
-import { 
-    SepayModule 
+import {
+    SepayModule
 } from "@modules/sepay"
 import {
-    SocketIoModule 
+    SocketIoModule
 } from "@modules/socketio"
 import {
     CQRSModule,
@@ -95,20 +95,20 @@ import {
     CqrsModule
 } from "@nestjs/cqrs"
 import {
-    SocketIoModule as SocketIoFeatureModule 
+    SocketIoModule as SocketIoFeatureModule
 } from "@features/socketio"
 import {
-    EventModule, 
+    EventModule,
     EventName
 } from "@modules/event"
 import {
-    EventEmitterModule 
+    EventEmitterModule
 } from "@nestjs/event-emitter"
 import {
-    CacheModule 
+    CacheModule
 } from "@modules/cache"
 import {
-    StreamAsyncIteratorModule 
+    StreamAsyncIteratorModule
 } from "@modules/stream-async-iterator"
 import {
     VaildatorsModule
@@ -120,7 +120,7 @@ import {
     MailModule
 } from "@modules/mailer"
 import {
-    BackupModule 
+    BackupModule
 } from "@features/backup"
 import {
     ExecaModule
