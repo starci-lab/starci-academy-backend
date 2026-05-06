@@ -3,9 +3,6 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    CoreModule,
-} from "./core"
-import {
     ConfigurableModuleClass,
     OPTIONS_TYPE,
 } from "./synchronizer.module-definition"
@@ -23,11 +20,6 @@ export class SynchronizerModule extends ConfigurableModuleClass {
         const dynamicModule = super.register(options)
         const imports = envConfig().services.synchronizer.enable ? (
             [
-                CoreModule.register(
-                    {
-                        isGlobal: true,
-                    }
-                ),
                 // ProcessorsModule.register(
                 //     {
                 //         isGlobal: true,

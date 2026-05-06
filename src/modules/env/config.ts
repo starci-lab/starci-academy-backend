@@ -24,6 +24,25 @@ export const envConfig = () => ({
         /** UUID namespace for course. */
         course: "d32d2da9-ad2e-44b4-b412-a97de455b8e4",
     },
+    /** Initialization configuration. */
+    init: [
+        {
+            name: "seeders",
+            order: 1,
+            enabled: parseEnvBoolean({
+                key: "ENABLE_INIT_SEEDERS",
+                defaultValue: true,
+            })
+        },
+        {
+            name: "synchronizers",
+            order: 2,
+            enabled: parseEnvBoolean({
+                key: "ENABLE_INIT_SYNCHRONIZERS",
+                defaultValue: true,
+            })
+        }
+    ],
     /** Cache configuration. */
     /** Cache: debug flags/TTL, key TTLs (withdraw, session, pool analytics, etc.), stale price max age. */
     cache: {

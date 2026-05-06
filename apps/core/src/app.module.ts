@@ -134,6 +134,9 @@ import {
 import {
     GithubModule,
 } from "@modules/github"
+import {
+    InitModule,
+} from "@modules/init"
 /**
  * The main module for the application.
  */
@@ -269,7 +272,7 @@ import {
                     isGlobal: true,
                     withResolvers: true,
                     withSeeders: {
-                        manualSeed: false,
+                        manualSeed: true,
                     },
                 }
             ),
@@ -386,6 +389,12 @@ import {
             ),
             /** Mail module (Brevo SMTP + Pug templates). */
             MailModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Init module — plugin-based initialization. */
+            InitModule.register(
                 {
                     isGlobal: true,
                 }

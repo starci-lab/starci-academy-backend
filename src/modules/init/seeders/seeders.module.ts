@@ -1,0 +1,92 @@
+import {
+    Module,
+} from "@nestjs/common"
+import {
+    ChallengeIdFactoryService,
+    ChallengeSubmissionPromptIdFactoryService,
+    ChallengeReferenceIdFactoryService,
+    ChallengeStepIdFactoryService,
+    ChallengeSubmissionIdFactoryService,
+    ChallengeRequirementIdFactoryService,
+    ChallengeOutputIdFactoryService,
+    ChallengePrerequisiteIdFactoryService,
+    ContentIdFactoryService,
+    ContentReferenceIdFactoryService,
+    CourseIdFactoryService,
+    LessonVideoIdFactoryService,
+    LivestreamSessionIdFactoryService,
+    ModuleIdFactoryService,
+    PrerequisiteIdFactoryService,
+    PreviewContentIdFactoryService,
+    PricingPhaseIdFactoryService,
+    QnaIdFactoryService,
+    ValuePropositionIdFactoryService,
+    ChallengeParserService,
+    ContentParserService,
+    CourseParserService,
+    LessonVideoParserService,
+    ModuleParserService,
+    ContextLoaderService,
+    FilesystemContextService,
+    S3ContextService,
+    ExtractJsonFromMdService,
+    CoerceMdScalarService,
+    CoursePathService,
+    ModulePathService,
+    ContentPathService,
+    LessonVideoPathService,
+    ChallengePathService,
+    PathResolverService,
+} from "./courses"
+import {
+    SeedersService,
+} from "./seeders.service"
+
+const providers = [
+    ExtractJsonFromMdService,
+    CoerceMdScalarService,
+    S3ContextService,
+    FilesystemContextService,
+    ContextLoaderService,
+    CourseIdFactoryService,
+    ModuleIdFactoryService,
+    ContentIdFactoryService,
+    ContentReferenceIdFactoryService,
+    PreviewContentIdFactoryService,
+    PricingPhaseIdFactoryService,
+    ValuePropositionIdFactoryService,
+    PrerequisiteIdFactoryService,
+    QnaIdFactoryService,
+    LessonVideoIdFactoryService,
+    LivestreamSessionIdFactoryService,
+    CoursePathService,
+    ModulePathService,
+    ContentPathService,
+    LessonVideoPathService,
+    ChallengePathService,
+    ChallengeIdFactoryService,
+    ChallengeStepIdFactoryService,
+    ChallengeReferenceIdFactoryService,
+    ChallengeSubmissionIdFactoryService,
+    ChallengeSubmissionPromptIdFactoryService,
+    ChallengeRequirementIdFactoryService,
+    ChallengeOutputIdFactoryService,
+    ChallengePrerequisiteIdFactoryService,
+    CourseParserService,
+    ModuleParserService,
+    ContentParserService,
+    LessonVideoParserService,
+    ChallengeParserService,
+    PathResolverService,
+    SeedersService,
+]
+
+/**
+ * Module for the Seeders.
+ * Provides all parser services and the SeedersService.
+ */
+@Module({
+    providers,
+    exports: providers,
+})
+export class SeedersModule { }
