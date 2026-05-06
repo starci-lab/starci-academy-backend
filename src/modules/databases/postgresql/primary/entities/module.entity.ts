@@ -58,7 +58,7 @@ export class ModuleEntity extends UuidAbstractEntity {
         name: "display_id",
         type: "varchar",
         length: 255,
-        unique: true,
+        //unique: true,
     })
     displayId: string
 
