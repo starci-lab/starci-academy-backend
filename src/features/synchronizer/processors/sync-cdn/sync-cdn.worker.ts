@@ -33,8 +33,8 @@ import {
     SyncCdnStepMappingService,
 } from "./step-mapping.service"
 import {
-    BullQueueName, 
-    SyncCdnPayload, 
+    BullQueueName,
+    SyncCdnPayload,
     bullData,
 } from "@modules/bullmq"
 
