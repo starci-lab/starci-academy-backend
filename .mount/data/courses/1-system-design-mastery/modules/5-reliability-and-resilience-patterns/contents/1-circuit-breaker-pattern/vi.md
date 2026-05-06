@@ -25,7 +25,7 @@ Cấu trúc bài học áp dụng phương pháp **Thực hành dẫn dắt Lý 
 
 Mục tiêu: clone repo demo gồm **api-gateway** (đã bọc **Opossum** quanh lệnh gọi xuống kho hàng) và **inventory-service** (giả lập service đích không ổn định) để quan sát chu trình **Closed → Open → Half-Open** trên thực tế.
 
-Source: [StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns) trên GitHub — thư mục bài học: [`1-circuit-breaker-pattern`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/1-circuit-breaker-pattern); **Docker Compose** và file hands-on nằm trong [`1-circuit-breaker-pattern/.docker`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/1-circuit-breaker-pattern/.docker).
+Source: [StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns) trên GitHub — thư mục bài học: [`1-circuit-breaker-pattern`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/1-circuit-breaker-pattern).
 
 ```bash
 # Bước 1: Clone repository demo về máy local
@@ -196,7 +196,7 @@ docker compose -f .docker/compose.yaml logs -f api-gateway
 
 #### 2.1.5. Dọn tài nguyên
 
-Sau khi kết thúc bài, bạn có thể dọn tài nguyên để tiết kiệm bộ nhớ. Trong thư mục **`.../1-circuit-breaker-pattern`** (cùng nơi đã chạy **`docker compose up`**), chạy **`docker compose -f .docker/compose.yaml down -v`**: **`-v`** xóa **anonymous / named volumes** và **Compose** tự dọn network `1-circuit-breaker-pattern`.
+Sau khi kết thúc bài, bạn có thể dọn tài nguyên để tiết kiệm bộ nhớ.
 
 ```bash
 # Dừng và xoá container + volumes + network của bài học

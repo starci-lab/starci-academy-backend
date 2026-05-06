@@ -25,7 +25,7 @@ Cấu trúc bài học áp dụng phương pháp **Thực hành dẫn dắt Lý 
 
 Mục đích: lấy mã nguồn demo **client-service** (gọi API với **Timeout** 3s + **Retry** 3 lần) và **bank-service** (giả lập chậm 10s), cùng file **`compose.yaml`** để chạy cục bộ.
 
-Source: [StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns) trên GitHub — thư mục bài học: [`0-timeouts-and-retries`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/0-timeouts-and-retries); **Docker Compose** và file thực hành nằm trong [`0-timeouts-and-retries/.docker`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/0-timeouts-and-retries/.docker).
+Source: [StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns) trên GitHub — thư mục bài học: [`0-timeouts-and-retries`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/0-timeouts-and-retries).
 
 ```bash
 # Bước 1: Clone repository về máy local
@@ -155,7 +155,7 @@ Sau khi **`docker compose up -d`** thành công: **client-service** lắng nghe 
 
 #### 2.1.5. Dọn tài nguyên
 
-Sau khi kết thúc bài, bạn có thể dọn tài nguyên để tiết kiệm bộ nhớ. Trong thư mục **`.../0-timeouts-and-retries/.docker`** (cùng nơi đã chạy **`docker compose up`**), chạy **`docker compose down -v`**: **`-v`** xóa **anonymous / named volumes** và **Compose** tự dọn network `0-timeouts-and-retries`.
+Sau khi kết thúc bài, bạn có thể dọn tài nguyên để tiết kiệm bộ nhớ.
 
 ```bash
 docker compose down -v

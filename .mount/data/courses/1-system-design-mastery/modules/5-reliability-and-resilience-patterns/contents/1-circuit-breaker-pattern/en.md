@@ -25,7 +25,7 @@ The lesson uses **practice-led theory**. First you run **api-gateway** and **inv
 
 Goal: clone the demo repo containing **api-gateway** (wrapping **Opossum** around calls to inventory) and **inventory-service** (simulating an unstable target) to observe the **Closed → Open → Half-Open** cycle in practice.
 
-Source: [StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns) on GitHub — lesson directory: [`1-circuit-breaker-pattern`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/1-circuit-breaker-pattern); **Docker Compose** and hands-on files live under [`1-circuit-breaker-pattern/.docker`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/1-circuit-breaker-pattern/.docker).
+Source: [StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns) on GitHub — lesson directory: [`1-circuit-breaker-pattern`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/1-circuit-breaker-pattern).
 
 ```bash
 # Step 1: Clone the repository locally
@@ -196,7 +196,7 @@ docker compose -f .docker/compose.yaml logs -f api-gateway
 
 #### 2.1.5. Cleanup
 
-When you are done, tear down to free resources. From **`.../1-circuit-breaker-pattern`** (where you ran **`docker compose up`**), run **`docker compose -f .docker/compose.yaml down -v`**: **`-v`** removes **anonymous / named volumes** and **Compose** cleans up the `1-circuit-breaker-pattern` network automatically.
+After completing the lesson, you can clean up resources to save memory.
 
 ```bash
 # Stop and remove lesson containers + volumes + network

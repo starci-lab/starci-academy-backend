@@ -1,5 +1,5 @@
 # title
-Độ tin cậy và Sức chịu đựng (Reliability & Resilience)
+Độ tin cậy và Sức chịu đựng
 
 # description
 Thiết kế hệ thống để đối phó với sự cố. Tìm hiểu các chiến thuật giúp ứng dụng không chết chùm khi một dịch vụ nội bộ lăn ra hỏng.

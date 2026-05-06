@@ -25,7 +25,7 @@ Cấu trúc bài học áp dụng phương pháp **Thực hành dẫn dắt Lý 
 
 Mục tiêu: clone repo demo gồm **ecommerce-api** với hai route `GET /history` (có vách ngăn, giới hạn 2 luồng đồng thời) và `GET /checkout` (không giới hạn) để quan sát cơ chế cô lập tài nguyên.
 
-Source: [StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns) trên GitHub — thư mục bài học: [`2-bulkhead-pattern`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/2-bulkhead-pattern); **Docker Compose** và file hands-on nằm trong [`2-bulkhead-pattern/.docker`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/2-bulkhead-pattern/.docker).
+Source: [StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns) trên GitHub — thư mục bài học: [`2-bulkhead-pattern`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/2-bulkhead-pattern).
 
 ```bash
 # Bước 1: Clone repository demo về máy local
@@ -178,7 +178,7 @@ docker compose -f .docker/compose.yaml logs -f ecommerce-api
 
 #### 2.1.5. Dọn tài nguyên
 
-Sau khi kết thúc bài, bạn có thể dọn tài nguyên để tiết kiệm bộ nhớ. Trong thư mục **`.../2-bulkhead-pattern`** (cùng nơi đã chạy **`docker compose up`**), chạy **`docker compose -f .docker/compose.yaml down -v`**: **`-v`** xóa **anonymous / named volumes** và **Compose** tự dọn network `2-bulkhead-pattern`.
+Sau khi kết thúc bài, bạn có thể dọn tài nguyên để tiết kiệm bộ nhớ.
 
 ```bash
 # Dừng và xoá container + volumes + network của bài học

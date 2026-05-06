@@ -25,7 +25,7 @@ The lesson uses **practice-led theory**. First you run **ecommerce-api**, fire c
 
 Goal: clone the demo repo containing **ecommerce-api** with two routes `GET /history` (bulkhead-limited to 2 concurrent) and `GET /checkout` (unlimited) to observe resource isolation in action.
 
-Source: [StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns) on GitHub — lesson directory: [`2-bulkhead-pattern`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/2-bulkhead-pattern); **Docker Compose** and hands-on files live under [`2-bulkhead-pattern/.docker`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/2-bulkhead-pattern/.docker).
+Source: [StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns) on GitHub — lesson directory: [`2-bulkhead-pattern`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/2-bulkhead-pattern).
 
 ```bash
 # Step 1: Clone the repository locally
@@ -178,7 +178,7 @@ docker compose -f .docker/compose.yaml logs -f ecommerce-api
 
 #### 2.1.5. Cleanup
 
-When you are done, tear down to free resources. From **`.../2-bulkhead-pattern`** (where you ran **`docker compose up`**), run **`docker compose -f .docker/compose.yaml down -v`**: **`-v`** removes **anonymous / named volumes** and **Compose** cleans up the `2-bulkhead-pattern` network automatically.
+After completing the lesson, you can clean up resources to save memory.
 
 ```bash
 # Stop and remove lesson containers + volumes + network

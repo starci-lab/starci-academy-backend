@@ -269,7 +269,7 @@ import {
                     isGlobal: true,
                     withResolvers: true,
                     withSeeders: {
-                        manualSeed: true,
+                        manualSeed: false,
                     },
                 }
             ),

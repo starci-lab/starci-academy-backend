@@ -25,7 +25,7 @@ The lesson uses **practice-led theory**. First you run **Terminus** health check
 
 Goal: run `ecommerce-app` with `/health` (Terminus) and `/products` that applies Graceful Degradation based on heap RAM thresholds.
 
-Source: [StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns) on GitHub — lesson directory: [`3-health-checks-and-graceful-degradation`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/3-health-checks-and-graceful-degradation); **Docker Compose** and hands-on files live under [`3-health-checks-and-graceful-degradation/.docker`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/3-health-checks-and-graceful-degradation/.docker).
+Source: [StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns) on GitHub — lesson directory: [`3-health-checks-and-graceful-degradation`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/3-health-checks-and-graceful-degradation).
 
 ```bash
 # Step 1: Clone the repository locally
@@ -226,7 +226,7 @@ docker compose -f .docker/compose.yaml logs -f ecommerce-app
 
 #### 2.1.5. Cleanup
 
-When you are done, tear down to free resources. From **`.../3-health-checks-and-graceful-degradation`** (where you ran **`docker compose up`**), run **`docker compose -f .docker/compose.yaml down -v`**: **`-v`** removes **anonymous / named volumes** declared for services in this lesson's Compose project.
+After completing the lesson, you can clean up resources to save memory.
 
 ```bash
 # Stop and remove lesson containers + volumes

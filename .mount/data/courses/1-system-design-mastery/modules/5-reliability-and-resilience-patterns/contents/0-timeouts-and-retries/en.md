@@ -25,7 +25,7 @@ The lesson uses **practice-led theory**. First you run **client-service** + **ba
 
 Goal: obtain **client-service** (calls bank API with **Timeout** 3s + **Retry** 3 times) and **bank-service** (simulates 10s delay) source code, plus **`compose.yaml`** for local execution.
 
-Source: [StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns) on GitHub — lesson directory: [`0-timeouts-and-retries`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/0-timeouts-and-retries); **Docker Compose** and hands-on files live under [`0-timeouts-and-retries/.docker`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/0-timeouts-and-retries/.docker).
+Source: [StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns) on GitHub — lesson directory: [`0-timeouts-and-retries`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/0-timeouts-and-retries).
 
 ```bash
 # Step 1: Clone the repository locally
@@ -155,7 +155,7 @@ After **`docker compose up -d`** succeeds: **client-service** listens at **`http
 
 #### 2.1.5. Cleanup
 
-When you are done, tear down to free resources. From **`.../0-timeouts-and-retries/.docker`** (where you ran **`docker compose up`**), run **`docker compose down -v`**: **`-v`** removes **anonymous / named volumes** and **Compose** cleans up the `0-timeouts-and-retries` network automatically.
+After completing the lesson, you can clean up resources to save memory.
 
 ```bash
 docker compose down -v

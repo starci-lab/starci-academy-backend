@@ -25,7 +25,7 @@ Cấu trúc bài học áp dụng phương pháp **Thực hành dẫn dắt Lý 
 
 Mục tiêu: chạy được service `ecommerce-app` có endpoint `/health` (Terminus) và endpoint `/products` áp dụng Graceful Degradation theo ngưỡng heap RAM.
 
-Source: [StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns) trên GitHub — thư mục bài học: [`3-health-checks-and-graceful-degradation`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/3-health-checks-and-graceful-degradation); **Docker Compose** và file hands-on nằm trong [`3-health-checks-and-graceful-degradation/.docker`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/3-health-checks-and-graceful-degradation/.docker).
+Source: [StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns) trên GitHub — thư mục bài học: [`3-health-checks-and-graceful-degradation`](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns/tree/main/3-health-checks-and-graceful-degradation).
 
 ```bash
 # Bước 1: Clone repository demo về máy local
@@ -226,7 +226,7 @@ docker compose -f .docker/compose.yaml logs -f ecommerce-app
 
 #### 2.1.5. Dọn tài nguyên
 
-Sau khi kết thúc bài, bạn có thể dọn tài nguyên để tiết kiệm bộ nhớ. Trong thư mục **`.../3-health-checks-and-graceful-degradation`** (cùng nơi đã chạy **`docker compose up`**), chạy **`docker compose -f .docker/compose.yaml down -v`**: **`-v`** xóa **anonymous / named volumes** mà các service khai báo trong Compose project của bài này.
+Sau khi kết thúc bài, bạn có thể dọn tài nguyên để tiết kiệm bộ nhớ.
 
 ```bash
 # Dừng và xóa container + volumes của bài học
