@@ -1,4 +1,4 @@
-# title
+﻿# title
 Socket.IO Realtime Chat
 
 # description
@@ -11,12 +11,12 @@ Hands-on building a realtime chat system with Socket.IO and NestJS, persisting m
 "Users send messages but have to refresh the page to see them — how do we deliver messages instantly?" — a **Senior Engineer** asks during a chat feature review. A **Mid-level Developer** answers: "I'll poll the API every 2 seconds." The answer shows awareness of realtime, but misses depth on **full-duplex communication**: polling creates unnecessary HTTP overhead — **WebSocket** opens a persistent connection, enabling the server to push events to clients instantly without re-requesting.
 
 This lesson runs through two tracks:
-- **Part 2.1**: **hands-on**; **stack** is **NestJS** + **PostgreSQL** (Docker) + **Socket.IO**, with **two flows** (joinRoom + chatToServer).
+- **Part 2.1**: **hands-on**; **stack** is **NestJS** + **PostgreSQL** (Docker) + **Socket.IO**, tested via the **HTML client** (`.clients/index.html`) with **two flows** (join room + send message).
 - **Part 2.2**: **theory** clarifying **WebSocket**, **Socket.IO rooms**, **event-driven architecture**, and **edge cases**.
 
 ## 2. Core concepts
 
-The lesson structure follows **practice-led theory**. First, learners clone the source, start **PostgreSQL** via **Docker Compose**, run **NestJS** via `nest start --watch`, and connect via WebSocket to observe realtime chat through Socket.IO rooms. Then the **theory** section analyzes the WebSocket protocol, room partitioning, and **edge cases**.
+The lesson structure follows **practice-led theory**. First, learners clone the source, start **PostgreSQL** via **Docker Compose**, run **NestJS** via `nest start --watch`, and open the **HTML client** on **two browser tabs** to observe realtime chat through Socket.IO rooms. Then the **theory** section analyzes the WebSocket protocol, room partitioning, and **edge cases**.
 
 ### 2.1. Hands-on
 
@@ -25,10 +25,10 @@ The lesson structure follows **practice-led theory**. First, learners clone the 
 Source: [StarCi-Academy/fullstack-mastery-module-5-websocket-and-realtime-communication](https://github.com/StarCi-Academy/fullstack-mastery-module-5-websocket-and-realtime-communication) on GitHub — lesson directory: [`0-socketio-realtime-chat`](https://github.com/StarCi-Academy/fullstack-mastery-module-5-websocket-and-realtime-communication/tree/main/0-socketio-realtime-chat).
 
 ```bash
-# Step 1: Clone the repository locally
+# Step 1: Clone the repository to local machine
 git clone https://github.com/StarCi-Academy/fullstack-mastery-module-5-websocket-and-realtime-communication.git
 
-# Step 2: Navigate to the lesson directory
+# Step 2: Navigate to the correct lesson directory
 cd fullstack-mastery-module-5-websocket-and-realtime-communication/0-socketio-realtime-chat
 ```
 
@@ -36,6 +36,7 @@ cd fullstack-mastery-module-5-websocket-and-realtime-communication/0-socketio-re
 
 | Component | File | Role |
 | --- | --- | --- |
+| **HTML Client** | `.clients/index.html` | UI chat, connects via Socket.IO |
 | **PostgreSQL** | `.docker/compose.yaml` | Stores messages |
 | **ChatGateway** | `src/modules/chat/chat.gateway.ts` | `joinRoom`, `chatToServer`, broadcast `chatToClient` |
 | **ChatService** | `src/modules/chat/chat.service.ts` | Persists messages to DB |
@@ -43,10 +44,10 @@ cd fullstack-mastery-module-5-websocket-and-realtime-communication/0-socketio-re
 
 ```mermaid
 sequenceDiagram
-    participant C1 as Client A
+    participant C1 as Browser Tab 1
     participant GW as ChatGateway
     participant DB as PostgreSQL
-    participant C2 as Client B
+    participant C2 as Browser Tab 2
     C1->>GW: joinRoom(room, nickname)
     C2->>GW: joinRoom(room, nickname)
     C1->>GW: chatToServer(text, room)
@@ -60,7 +61,10 @@ sequenceDiagram
 ##### 2.1.3.1. Prerequisites
 
 - **Node.js** LTS, **npm**, **NestJS CLI**, **Docker Desktop**.
-- **Windows:** API commands use **`Invoke-RestMethod`** (PowerShell). See parallel **`curl`** for macOS / Linux.
+- **VS Code** with the **[Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)** extension installed (to serve the HTML client).
+- A modern browser (Chrome, Firefox, Edge) with **two tabs**.
+
+> **Note:** The repo ships with env defaults via **ConfigModule**; you do not need to create or edit **.env** when running the system. Only modify this file if you want to run the service with custom ports/credentials.
 
 ##### 2.1.3.2. Start
 
@@ -75,46 +79,58 @@ npm install
 nest start --watch
 ```
 
-#### 2.1.4. Verification
+After `nest start --watch`, open `.clients/index.html` in VS Code, right-click the file and select **"Open with Live Server"**. The client auto-connects to `http://localhost:3000`.
 
-WebSocket doesn't use `curl`/`Invoke-RestMethod` directly. Use **2 browser tabs** with `index.html` (if available) or **wscat**:
+#### 2.1.4. Verification (UI Client)
 
-##### 2.1.4.1. Flow 1 — joinRoom + chatToServer (wscat)
+Open the file `.clients/index.html` in **two browser tabs** — each tab simulates one user. All operations are performed on the UI.
 
-  ```bash
-  # Windows (PowerShell) — install wscat
-  npm install -g wscat
+##### 2.1.4.1. Flow 1 — Join Room and Send Messages
 
-  # Terminal 1: Client A
-  wscat -c ws://localhost:3000
-  > {"event":"joinRoom","data":{"room":"general","nickname":"Alice"}}
+**Tab 1 — User A joins room:**
+1. Field **"Your Nickname"**: type `Alice`.
+2. Field **"Room Name"**: type `general`.
+3. Click **"Join Room"**.
 
-  # Terminal 2: Client B
-  wscat -c ws://localhost:3000
-  > {"event":"joinRoom","data":{"room":"general","nickname":"Bob"}}
+The lobby disappears. The chat screen shows header **Room: general** and **You are Alice**. The input field is focused and ready.
 
-  # Client A sends message
-  > {"event":"chatToServer","data":{"text":"Hello from Alice!","room":"general"}}
-  ```
+**Tab 2 — User B joins the same room:**
+1. Open a second tab, load `index.html` again (right-click → **"Open with Live Server"** in VS Code).
+2. Field **"Your Nickname"**: type `Bob`. Field **"Room Name"**: type `general`.
+3. Click **"Join Room"**.
 
-  Client B receives `chatToClient` event: `{ "nickname": "Alice", "text": "Hello from Alice!", "room": "general", ... }`.
+On **Tab 1**: a green system message appears — `Bob joined the room.` This confirms the `roomToClient` event with `kind: "join"` was broadcast by the server.
 
-##### 2.1.4.2. Flow 2 — Check persistence
+**Behind the scenes — `ChatGateway.handleJoinRoom()`:** the server calls `client.join(room)` to add the socket to the Socket.IO room, then emits `roomToClient` to all other clients in the room via `client.to(room).emit()`.
 
-  ```bash
-  # Windows (PowerShell)
-  Invoke-RestMethod -Uri http://localhost:3000/chat/messages
+**Tab 1 — Alice sends a message:**
+1. Type `Hello Bob!` in the message input.
+2. Click **"Send"** (or press **Enter**).
 
-  # macOS / Linux
-  curl -s http://localhost:3000/chat/messages
-  ```
+On **Tab 1** (Alice): the message appears on the **right** side (dark blue bubble — "mine"), with a timestamp below.
 
-  Response: array of messages persisted in PostgreSQL.
+On **Tab 2** (Bob): the message appears on the **left** side (grey bubble — "other"), with the sender name `Alice` shown above the text.
 
-*If the responses match:*
+**Behind the scenes — `ChatGateway.handleChatToServer()`:** the server validates the payload via `ValidationPipe`, calls `ChatService.saveMessage()` to persist the message in PostgreSQL, then broadcasts `chatToClient` to all clients in the room via `this.server.to(room).emit()`.
+
+##### 2.1.4.2. Flow 2 — Room Isolation and Disconnect
+
+**Tab 3 — different room:**
+1. Open a third tab, enter nickname `Charlie`, room `private-room`.
+2. Click **"Join Room"**, then send a message.
+
+On **Tab 1** and **Tab 2** (room `general`): **no message from Charlie** appears. This confirms Socket.IO rooms partition broadcast scope correctly.
+
+**Tab 2 — Bob leaves:**
+1. Click **"Leave Room"** on Tab 2.
+
+On **Tab 1** (Alice): an orange system message appears — `Bob left the room.` This confirms `handleDisconnect()` emits a `roomToClient` event with `kind: "leave"`.
+
+*If the UI behavior matches:*
 
 - *Socket.IO room — messages only broadcast within the same room.*
-- *Persistence — all messages saved to PostgreSQL via ChatService.*
+- *Persistence — all messages saved to PostgreSQL via ChatService (verify by reconnecting — messages persist across sessions).*
+- *Disconnect events — server notifies remaining room members when a client leaves.*
 
 #### 2.1.5. Cleanup
 

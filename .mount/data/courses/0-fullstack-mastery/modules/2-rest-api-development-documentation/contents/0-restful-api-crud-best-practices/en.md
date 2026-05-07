@@ -1,4 +1,4 @@
-# title
+﻿# title
 RESTful API and CRUD Best Practices
 
 # description
@@ -37,7 +37,7 @@ cd fullstack-mastery-module-3-rest-api-development-documentation/0-restful-api-c
 #### 2.1.2. Architecture / components (stack + flow)
 
 - **PostgreSQL (Docker):** stores the `users` table.
-- **UserController:** full REST endpoints: `POST /users/seed`, `GET /users`, `GET /users/:id`, `POST /users`, `PUT /users/:id`, `PATCH /users/:id`, `DELETE /users/:id`.
+- **UserController:** full REST endpoints: `POST /users/demo/seed-one`, `GET /users`, `GET /users/:id`, `POST /users`, `PUT /users/:id`, `PATCH /users/:id`, `DELETE /users/:id`.
 - **UserService:** CRUD via **TypeORM Repository** + faker seed.
 - **UserEntity:** entity with `id` (string, app-assigned), `name`, `email`.
 
@@ -68,6 +68,8 @@ Figure 1: RESTful API CRUD flow.
 - **Docker Desktop** (or Docker Engine) + `docker compose`.
 - **Windows:** API commands use **`Invoke-RestMethod`** (PowerShell). See parallel **`curl`** for macOS / Linux.
 
+> **Note:** The repo ships with env defaults via **ConfigModule**; you do not need to create or edit **.env** when running the system. Only modify this file if you want to run the service with custom ports/credentials.
+
 ##### 2.1.3.2. Start
 
 ```bash
@@ -76,7 +78,7 @@ docker compose -f .docker/compose.yaml up -d
 # Step 1: Install dependencies
 npm install
 
-# Step 2: Start in watch mode
+# Step 3: Start in watch mode
 nest start --watch
 ```
 
@@ -92,10 +94,10 @@ After the command above: app listens on **`http://localhost:3000`**.
 
   ```bash
   # Windows (PowerShell)
-  Invoke-RestMethod -Uri http://localhost:3000/users/seed -Method Post
+  Invoke-RestMethod -Uri http://localhost:3000/users/demo/seed-one -Method Post
 
   # macOS / Linux
-  curl -s -X POST http://localhost:3000/users/seed
+  curl -s -X POST http://localhost:3000/users/demo/seed-one
   ```
 
   Response (HTTP 201): returns seeded user.

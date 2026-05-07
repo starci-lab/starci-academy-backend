@@ -1,4 +1,4 @@
-# title
+﻿# title
 Tích hợp SMS với Twilio
 
 # description
@@ -60,6 +60,8 @@ sequenceDiagram
 - **Twilio account:** đăng ký trial tại [twilio.com](https://www.twilio.com/try-twilio).
 - Cấu hình `.env`: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`.
 - **Windows:** các lệnh API dùng **`Invoke-RestMethod`** (PowerShell). Xem song song **`curl`** cho macOS / Linux.
+
+> **Lưu ý:** Repo đã ship env defaults qua **ConfigModule**; khi chạy hệ thống không cần tạo hay sửa **.env**. Chỉ chỉnh sửa file này khi bạn muốn chạy service với các port/credential khác mặc định.
 
 ##### 2.1.3.2. Khởi động
 

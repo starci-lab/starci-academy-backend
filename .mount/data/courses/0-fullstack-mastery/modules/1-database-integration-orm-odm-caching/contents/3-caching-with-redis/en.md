@@ -1,4 +1,4 @@
-# title
+﻿# title
 Accelerating Systems with Redis Caching
 
 # description
@@ -74,6 +74,8 @@ Figure 1: Multi-layer caching flow with Redis.
 - **NestJS CLI**: `npm i -g @nestjs/cli`.
 - **Docker Desktop** (or Docker Engine) + `docker compose`.
 - **Windows:** API commands use **`Invoke-RestMethod`** (PowerShell). See parallel **`curl`** for macOS / Linux.
+
+> **Note:** The repo ships with env defaults via **ConfigModule**; you do not need to create or edit **.env** when running the system. Only modify this file if you want to run the service with custom ports/credentials.
 
 ##### 2.1.3.2. Start
 

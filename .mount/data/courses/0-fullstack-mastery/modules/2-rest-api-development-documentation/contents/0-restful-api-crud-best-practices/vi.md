@@ -1,4 +1,4 @@
-# title
+﻿# title
 RESTful API và CRUD Best Practices
 
 # description
@@ -37,7 +37,7 @@ cd fullstack-mastery-module-3-rest-api-development-documentation/0-restful-api-c
 #### 2.1.2. Kiến trúc/thành phần (stack + luồng)
 
 - **PostgreSQL (Docker):** lưu bảng `users`.
-- **UserController:** REST endpoints đầy đủ: `POST /users/seed`, `GET /users`, `GET /users/:id`, `POST /users`, `PUT /users/:id`, `PATCH /users/:id`, `DELETE /users/:id`.
+- **UserController:** REST endpoints đầy đủ: `POST /users/demo/seed-one`, `GET /users`, `GET /users/:id`, `POST /users`, `PUT /users/:id`, `PATCH /users/:id`, `DELETE /users/:id`.
 - **UserService:** nghiệp vụ CRUD qua **TypeORM Repository** + faker seed.
 - **UserEntity:** entity với `id` (string, app-assigned), `name`, `email`.
 
@@ -68,6 +68,8 @@ Hình 1: Luồng CRUD RESTful API.
 - **Docker Desktop** (hoặc Docker Engine) + `docker compose`.
 - **Windows:** các lệnh API dùng **`Invoke-RestMethod`** (PowerShell). Xem song song **`curl`** cho macOS / Linux.
 
+> **Lưu ý:** Repo đã ship env defaults qua **ConfigModule**; khi chạy hệ thống không cần tạo hay sửa **.env**. Chỉ chỉnh sửa file này khi bạn muốn chạy service với các port/credential khác mặc định.
+
 ##### 2.1.3.2. Khởi động
 
 ```bash
@@ -76,7 +78,7 @@ docker compose -f .docker/compose.yaml up -d
 # Bước 1: Cài dependency
 npm install
 
-# Bước 2: Khởi chạy ở chế độ watch
+# Bước 3: Khởi chạy ở chế độ watch
 nest start --watch
 ```
 
@@ -92,10 +94,10 @@ Sau lệnh trên: app lắng nghe tại **`http://localhost:3000`**.
 
   ```bash
   # Windows (PowerShell)
-  Invoke-RestMethod -Uri http://localhost:3000/users/seed -Method Post
+  Invoke-RestMethod -Uri http://localhost:3000/users/demo/seed-one -Method Post
 
   # macOS / Linux
-  curl -s -X POST http://localhost:3000/users/seed
+  curl -s -X POST http://localhost:3000/users/demo/seed-one
   ```
 
   Response (HTTP 201): trả user vừa seed.

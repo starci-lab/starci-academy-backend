@@ -1,4 +1,4 @@
-# title
+﻿# title
 Lưu trữ NoSQL với MongoDB và Mongoose
 
 # description
@@ -67,6 +67,8 @@ Hình 1: Luồng thao tác dữ liệu với Mongoose.
 - **NestJS CLI**: `npm i -g @nestjs/cli`.
 - **Docker Desktop** (hoặc Docker Engine) + `docker compose`.
 - **Windows:** các lệnh API dùng **`Invoke-RestMethod`** (PowerShell). Xem song song **`curl`** cho macOS / Linux.
+
+> **Lưu ý:** Repo đã ship env defaults qua **ConfigModule**; khi chạy hệ thống không cần tạo hay sửa **.env**. Chỉ chỉnh sửa file này khi bạn muốn chạy service với các port/credential khác mặc định.
 
 ##### 2.1.3.2. Khởi động
 

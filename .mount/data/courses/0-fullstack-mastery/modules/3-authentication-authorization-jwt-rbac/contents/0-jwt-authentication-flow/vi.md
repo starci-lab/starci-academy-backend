@@ -1,4 +1,4 @@
-# title
+﻿# title
 Luồng xác thực JWT trong NestJS
 
 # description
@@ -63,6 +63,8 @@ sequenceDiagram
 
 - **Node.js** LTS, **npm**, **NestJS CLI**, **Docker Desktop**.
 - **Windows:** các lệnh API dùng **`Invoke-RestMethod`** (PowerShell). Xem song song **`curl`** cho macOS / Linux.
+
+> **Lưu ý:** Repo đã ship env defaults qua **ConfigModule**; khi chạy hệ thống không cần tạo hay sửa **.env**. Chỉ chỉnh sửa file này khi bạn muốn chạy service với các port/credential khác mặc định.
 
 ##### 2.1.3.2. Khởi động
 

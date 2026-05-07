@@ -1,4 +1,4 @@
-# title
+﻿# title
 OAuth2 Google Login
 
 # description
@@ -25,7 +25,10 @@ The lesson structure follows **practice-led theory**. First, learners clone the 
 Source: [StarCi-Academy/fullstack-mastery-module-4-authentication-authorization-jwt-rbac](https://github.com/StarCi-Academy/fullstack-mastery-module-4-authentication-authorization-jwt-rbac) on GitHub — lesson directory: [`3-oauth2-google-login`](https://github.com/StarCi-Academy/fullstack-mastery-module-4-authentication-authorization-jwt-rbac/tree/main/3-oauth2-google-login).
 
 ```bash
+# Step 1: Clone the repository to local machine
 git clone https://github.com/StarCi-Academy/fullstack-mastery-module-4-authentication-authorization-jwt-rbac.git
+
+# Step 2: Navigate to the correct lesson directory
 cd fullstack-mastery-module-4-authentication-authorization-jwt-rbac/3-oauth2-google-login
 ```
 
@@ -60,6 +63,8 @@ sequenceDiagram
 - **Google Cloud Console:** create OAuth 2.0 Client ID, set callback URL `http://localhost:3000/auth/google/callback`.
 - Set environment variables: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL`.
 - **Windows:** API commands use **`Invoke-RestMethod`** (PowerShell). See parallel **`curl`** for macOS / Linux.
+
+> **Note:** The repo ships with env defaults via **ConfigModule**; you do not need to create or edit **.env** when running the system. Only modify this file if you want to run the service with custom ports/credentials.
 
 ##### 2.1.3.2. Start
 

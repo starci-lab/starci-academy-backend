@@ -1,4 +1,4 @@
-# title
+﻿# title
 Gửi email với Nodemailer
 
 # description
@@ -49,6 +49,8 @@ cd fullstack-mastery-module-6-email-sms-otp/0-sending-emails-with-nodemailer
 - **SMTP credentials:** dùng Gmail App Password hoặc Mailtrap cho testing.
 - Cấu hình `.env`: `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASS`.
 - **Windows:** các lệnh API dùng **`Invoke-RestMethod`** (PowerShell). Xem song song **`curl`** cho macOS / Linux.
+
+> **Lưu ý:** Repo đã ship env defaults qua **ConfigModule**; khi chạy hệ thống không cần tạo hay sửa **.env**. Chỉ chỉnh sửa file này khi bạn muốn chạy service với các port/credential khác mặc định.
 
 ##### 2.1.3.2. Khởi động
 

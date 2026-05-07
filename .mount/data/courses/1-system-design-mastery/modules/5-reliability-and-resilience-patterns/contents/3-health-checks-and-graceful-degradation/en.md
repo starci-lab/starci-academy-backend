@@ -68,6 +68,9 @@ Figure 1: Client requests /products through a heap monitor; Kubernetes probes /h
 - **Docker Engine** and **Docker Compose** v2.
 - **Windows:** use **`Invoke-RestMethod`** / **`Invoke-WebRequest`** in PowerShell for HTTP requests.
 
+
+> **Note:** Environment defaults are pre-configured via **`ConfigModule`** in the repository; you do not need to create or edit **`.env`** when running via **Docker Compose**. Only modify **`.env`** when running services directly outside Compose.
+
 ##### 2.1.3.2. Start the stack
 
 ```bash

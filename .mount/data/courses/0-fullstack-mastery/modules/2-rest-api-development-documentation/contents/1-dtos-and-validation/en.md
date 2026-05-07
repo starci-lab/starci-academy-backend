@@ -1,4 +1,4 @@
-# title
+﻿# title
 DTOs and Validation in NestJS
 
 # description
@@ -46,6 +46,8 @@ cd fullstack-mastery-module-3-rest-api-development-documentation/1-dtos-and-vali
 - **Node.js** LTS, **npm**, **NestJS CLI**, **Docker Desktop**.
 - **Windows:** API commands use **`Invoke-RestMethod`** (PowerShell). See parallel **`curl`** for macOS / Linux.
 
+> **Note:** The repo ships with env defaults via **ConfigModule**; you do not need to create or edit **.env** when running the system. Only modify this file if you want to run the service with custom ports/credentials.
+
 ##### 2.1.3.2. Start
 
 ```bash
@@ -54,7 +56,7 @@ docker compose -f .docker/compose.yaml up -d
 # Step 1: Install dependencies
 npm install
 
-# Step 2: Start in watch mode
+# Step 3: Start in watch mode
 nest start --watch
 ```
 

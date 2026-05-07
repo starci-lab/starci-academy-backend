@@ -1,4 +1,4 @@
-# title
+﻿# title
 OAuth2 Google Login
 
 # description
@@ -25,7 +25,10 @@ Cấu trúc bài học áp dụng phương pháp **Thực hành dẫn dắt Lý 
 Source: [StarCi-Academy/fullstack-mastery-module-4-authentication-authorization-jwt-rbac](https://github.com/StarCi-Academy/fullstack-mastery-module-4-authentication-authorization-jwt-rbac) trên GitHub — thư mục bài học: [`3-oauth2-google-login`](https://github.com/StarCi-Academy/fullstack-mastery-module-4-authentication-authorization-jwt-rbac/tree/main/3-oauth2-google-login).
 
 ```bash
+# Bước 1: Clone repository về máy local
 git clone https://github.com/StarCi-Academy/fullstack-mastery-module-4-authentication-authorization-jwt-rbac.git
+
+# Bước 2: Di chuyển vào đúng thư mục bài học
 cd fullstack-mastery-module-4-authentication-authorization-jwt-rbac/3-oauth2-google-login
 ```
 
@@ -60,6 +63,8 @@ sequenceDiagram
 - **Google Cloud Console:** tạo OAuth 2.0 Client ID, set callback URL `http://localhost:3000/auth/google/callback`.
 - Set biến môi trường: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL`.
 - **Windows:** các lệnh API dùng **`Invoke-RestMethod`** (PowerShell). Xem song song **`curl`** cho macOS / Linux.
+
+> **Lưu ý:** Repo đã ship env defaults qua **ConfigModule**; khi chạy hệ thống không cần tạo hay sửa **.env**. Chỉ chỉnh sửa file này khi bạn muốn chạy service với các port/credential khác mặc định.
 
 ##### 2.1.3.2. Khởi động
 

@@ -16,6 +16,8 @@ export default defineConfig([
     tseslint.configs.recommended,
     {
         rules: {
+            '@typescript-eslint/no-empty-object-type': 'off',
+            '@typescript-eslint/no-explicit-any': 'off',
             "array-element-newline": ["error",
                 "always"],
             "object-curly-newline": [

@@ -68,6 +68,9 @@ Hình 1: Client gọi /products đi qua bộ giám sát heap; Kubernetes probe g
 - **Docker Engine** và **Docker Compose** v2.
 - **Windows:** dùng **`Invoke-RestMethod`** / **`Invoke-WebRequest`** trong PowerShell cho các lệnh HTTP.
 
+
+> **Lưu ý:** Các biến môi trường mặc định đã được cấu hình sẵn qua **`ConfigModule`** trong repository; không cần tạo hay sửa **`.env`** khi chạy qua **Docker Compose**. Chỉ chỉnh **`.env`** khi chạy service trực tiếp ngoài Compose.
+
 ##### 2.1.3.2. Khởi động stack
 
 ```bash

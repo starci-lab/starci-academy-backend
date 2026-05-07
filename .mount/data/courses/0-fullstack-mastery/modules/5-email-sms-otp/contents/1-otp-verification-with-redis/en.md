@@ -1,4 +1,4 @@
-# title
+﻿# title
 OTP Verification with Redis
 
 # description
@@ -58,6 +58,8 @@ flowchart LR
 
 - **Node.js** LTS, **npm**, **NestJS CLI**, **Docker Desktop**.
 - **Windows:** API commands use **`Invoke-RestMethod`** (PowerShell). See parallel **`curl`** for macOS / Linux.
+
+> **Note:** The repo ships with env defaults via **ConfigModule**; you do not need to create or edit **.env** when running the system. Only modify this file if you want to run the service with custom ports/credentials.
 
 ##### 2.1.3.2. Start
 

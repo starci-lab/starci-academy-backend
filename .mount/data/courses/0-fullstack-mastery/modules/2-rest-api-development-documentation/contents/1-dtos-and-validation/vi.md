@@ -1,4 +1,4 @@
-# title
+﻿# title
 DTO và Validation trong NestJS
 
 # description
@@ -46,6 +46,8 @@ cd fullstack-mastery-module-3-rest-api-development-documentation/1-dtos-and-vali
 - **Node.js** LTS, **npm**, **NestJS CLI**, **Docker Desktop**.
 - **Windows:** các lệnh API dùng **`Invoke-RestMethod`** (PowerShell). Xem song song **`curl`** cho macOS / Linux.
 
+> **Lưu ý:** Repo đã ship env defaults qua **ConfigModule**; khi chạy hệ thống không cần tạo hay sửa **.env**. Chỉ chỉnh sửa file này khi bạn muốn chạy service với các port/credential khác mặc định.
+
 ##### 2.1.3.2. Khởi động
 
 ```bash
@@ -54,7 +56,7 @@ docker compose -f .docker/compose.yaml up -d
 # Bước 1: Cài dependency
 npm install
 
-# Bước 2: Khởi chạy ở chế độ watch
+# Bước 3: Khởi chạy ở chế độ watch
 nest start --watch
 ```
 

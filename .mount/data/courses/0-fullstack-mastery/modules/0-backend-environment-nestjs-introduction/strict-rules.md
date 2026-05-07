@@ -62,13 +62,22 @@ Mọi file content (`vi.md`, `en.md`) trong khoá **Fullstack Mastery** bắt bu
 
 ### 1.2. Clone & cd
 
-- Block clone: cd vào **thư mục lesson trực tiếp** (không có `.docker`):
+- Block clone (VI): cd vào **thư mục lesson trực tiếp** (không có `.docker`):
 
   ```bash
   # Bước 1: Clone repository về máy local
   git clone <URL>.git
 
   # Bước 2: Di chuyển vào đúng thư mục bài học
+  cd <repo>/<lesson-folder>
+  ```
+
+- Block clone (EN):
+  ```bash
+  # Step 1: Clone the repository to local machine
+  git clone <URL>.git
+
+  # Step 2: Navigate to the correct lesson directory
   cd <repo>/<lesson-folder>
   ```
 
@@ -83,6 +92,13 @@ Mọi file content (`vi.md`, `en.md`) trong khoá **Fullstack Mastery** bắt bu
 ```
 https://github.com/StarCi-Academy/fullstack-mastery-module-1-backend-environment-nestjs-introduction
 ```
+
+### 1.5. Quản lý Môi trường (.env)
+
+- Nếu bài học có sử dụng `.docker` và chứa các thông tin nhạy cảm (secrets) như connection string, password, port,... thì **BUỘC PHẢI CÓ** file `.env` đặt sẵn trong thư mục bài học (ngang hàng `package.json`).
+- Trong nội dung tài liệu, phải ghi rõ lưu ý: *"Repo đã ship env defaults qua **`ConfigModule`**; khi chạy hệ thống không cần tạo hay sửa **`.env`**. Chỉ chỉnh sửa file này khi bạn muốn chạy service với các port/credential khác mặc định."* (EN: *"The repo ships with env defaults via **`ConfigModule`**; you do not need to create or edit **`.env`** when running the system. Only modify this file if you want to run the service with custom ports/credentials."*)
+- Code bắt buộc phải sử dụng `ConfigModule` (NestJS) để đọc biến môi trường, **TUYỆT ĐỐI KHÔNG** hardcode secret vào source code.
+- Cấu trúc file config (ví dụ `database.config.ts`) và `.env` **chỉ được chứa** các biến môi trường thực sự được sử dụng trong bài học (không nhồi nhét cấu hình thừa của bài khác).
 
 ---
 
@@ -126,6 +142,7 @@ Tất cả các quy tắc sau **giữ nguyên 100%** từ `strict-rules.md` modu
 - [ ] Mọi lệnh API có dual-platform (PowerShell + curl).
 - [ ] Backend chạy bằng `nest start --watch`, **KHÔNG** chạy Docker.
 - [ ] Docker (nếu có) chỉ cho infrastructure.
+- [ ] Nếu có `.docker` và secrets, đã cung cấp sẵn file `.env` và code dùng `ConfigModule`.
 - [ ] `## 3` có `### 3.1` với 3–5 câu hỏi phỏng vấn.
 - [ ] References ≥ 2, link uy tín.
 - [ ] `# minutesRead` hợp lý (15–30).

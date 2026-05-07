@@ -1,4 +1,4 @@
-# title
+﻿# title
 BullMQ Message Queue
 
 # description
@@ -59,8 +59,10 @@ sequenceDiagram
 ##### 2.1.3.1. Prerequisites
 
 - **Node.js** LTS, **npm**, **NestJS CLI**, **Docker Desktop**.
-- **FFmpeg** installed locally (for video processing).
+- **FFmpeg** is provided automatically via `@ffmpeg-installer/ffmpeg` (installed with `npm install` — no system-level FFmpeg needed).
 - **Windows:** API commands use **`Invoke-RestMethod`** (PowerShell). See parallel **`curl`** for macOS / Linux.
+
+> **Note:** The repo ships with env defaults via **ConfigModule**; you do not need to create or edit **.env** when running the system. Only modify this file if you want to run the service with custom ports/credentials.
 
 ##### 2.1.3.2. Start
 
@@ -68,7 +70,7 @@ sequenceDiagram
 # Step 1: Start Redis
 docker compose -f .docker/compose.yaml up -d
 
-# Step 2: Install dependencies
+# Step 2: Install dependencies (includes @ffmpeg-installer/ffmpeg — provides FFmpeg binary via npm)
 npm install
 
 # Step 3: Start in watch mode

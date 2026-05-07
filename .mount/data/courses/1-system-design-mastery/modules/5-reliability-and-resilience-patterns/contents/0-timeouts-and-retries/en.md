@@ -67,6 +67,9 @@ Figure 1: Client calls client-service; client-service calls bank-service with 3s
 - **Docker Desktop** (or **Docker Engine** + **Compose** plugin).
 - **Windows:** use **`Invoke-RestMethod`** / **`Invoke-WebRequest`** in PowerShell for HTTP commands.
 
+
+> **Note:** Environment defaults are pre-configured via **`ConfigModule`** in the repository; you do not need to create or edit **`.env`** when running via **Docker Compose**. Only modify **`.env`** when running services directly outside Compose.
+
 ##### 2.1.3.2. Start the stack
 
 ```bash

@@ -1,4 +1,4 @@
-# title
+﻿# title
 BullMQ Message Queue
 
 # description
@@ -59,8 +59,10 @@ sequenceDiagram
 ##### 2.1.3.1. Điều kiện cần trước
 
 - **Node.js** LTS, **npm**, **NestJS CLI**, **Docker Desktop**.
-- **FFmpeg** cài trên máy (cho video processing).
+- **FFmpeg** được cung cấp tự động qua `@ffmpeg-installer/ffmpeg` (cài cùng `npm install` — không cần cài FFmpeg hệ thống).
 - **Windows:** các lệnh API dùng **`Invoke-RestMethod`** (PowerShell). Xem song song **`curl`** cho macOS / Linux.
+
+> **Lưu ý:** Repo đã ship env defaults qua **ConfigModule**; khi chạy hệ thống không cần tạo hay sửa **.env**. Chỉ chỉnh sửa file này khi bạn muốn chạy service với các port/credential khác mặc định.
 
 ##### 2.1.3.2. Khởi động
 
@@ -68,7 +70,7 @@ sequenceDiagram
 # Bước 1: Khởi động Redis
 docker compose -f .docker/compose.yaml up -d
 
-# Bước 2: Cài dependency
+# Bước 2: Cài dependency (bao gồm @ffmpeg-installer/ffmpeg — cung cấp binary FFmpeg qua npm)
 npm install
 
 # Bước 3: Khởi chạy ở chế độ watch
