@@ -22,7 +22,7 @@ Cấu trúc bài học áp dụng phương pháp **Thực hành dẫn dắt Lý 
 
 #### 2.1.1. Chuẩn bị source code và môi trường
 
-Source: [StarCi-Academy/fullstack-mastery-module-5-websocket-and-realtime-communication](https://github.com/StarCi-Academy/fullstack-mastery-module-5-websocket-and-realtime-communication) — thư mục: [`1-socketio-security-jwt`](https://github.com/StarCi-Academy/fullstack-mastery-module-5-websocket-and-realtime-communication/tree/main/1-socketio-security-jwt).
+Source: [StarCi-Academy/fullstack-mastery-module-5-websocket-and-realtime-communication](https://github.com/StarCi-Academy/fullstack-mastery-module-5-websocket-and-realtime-communication) trên GitHub — thư mục bài học: [`1-socketio-security-jwt`](https://github.com/StarCi-Academy/fullstack-mastery-module-5-websocket-and-realtime-communication/tree/main/1-socketio-security-jwt).
 
 ```bash
 # Bước 1: Clone repository về máy local
@@ -116,7 +116,14 @@ nest start --watch
 
 #### 2.1.5. Dọn tài nguyên
 
+Sau khi kết thúc bài, bạn có thể dọn tài nguyên để tiết kiệm bộ nhớ.
+
 ```bash
+# Bước 1: Dừng server đang chạy
+# Windows / macOS / Linux
+Ctrl + C
+
+# Bước 2: Đóng Docker (nếu bài học có dùng Docker)
 docker compose -f .docker/compose.yaml down -v
 ```
 

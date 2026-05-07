@@ -126,7 +126,14 @@ nest start --watch
 
 #### 2.1.5. Dọn tài nguyên
 
+Sau khi kết thúc bài, bạn có thể dọn tài nguyên để tiết kiệm bộ nhớ.
+
 ```bash
+# Bước 1: Dừng server đang chạy
+# Windows / macOS / Linux
+Ctrl + C
+
+# Bước 2: Đóng Docker (nếu bài học có dùng Docker)
 docker compose -f .docker/compose.yaml down -v
 ```
 

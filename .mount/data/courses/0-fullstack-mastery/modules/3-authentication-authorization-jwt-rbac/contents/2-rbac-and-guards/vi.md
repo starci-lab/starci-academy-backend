@@ -22,7 +22,7 @@ Cấu trúc bài học áp dụng phương pháp **Thực hành dẫn dắt Lý 
 
 #### 2.1.1. Chuẩn bị source code và môi trường
 
-Source: [StarCi-Academy/fullstack-mastery-module-4-authentication-authorization-jwt-rbac](https://github.com/StarCi-Academy/fullstack-mastery-module-4-authentication-authorization-jwt-rbac) — thư mục: [`2-rbac-and-guards`](https://github.com/StarCi-Academy/fullstack-mastery-module-4-authentication-authorization-jwt-rbac/tree/main/2-rbac-and-guards).
+Source: [StarCi-Academy/fullstack-mastery-module-4-authentication-authorization-jwt-rbac](https://github.com/StarCi-Academy/fullstack-mastery-module-4-authentication-authorization-jwt-rbac) trên GitHub — thư mục bài học: [`2-rbac-and-guards`](https://github.com/StarCi-Academy/fullstack-mastery-module-4-authentication-authorization-jwt-rbac/tree/main/2-rbac-and-guards).
 
 ```bash
 git clone https://github.com/StarCi-Academy/fullstack-mastery-module-4-authentication-authorization-jwt-rbac.git
@@ -111,7 +111,14 @@ nest start --watch
 
 #### 2.1.5. Dọn tài nguyên
 
+Sau khi kết thúc bài, bạn có thể dọn tài nguyên để tiết kiệm bộ nhớ.
+
 ```bash
+# Bước 1: Dừng server đang chạy
+# Windows / macOS / Linux
+Ctrl + C
+
+# Bước 2: Đóng Docker (nếu bài học có dùng Docker)
 docker compose -f .docker/compose.yaml down -v
 ```
 

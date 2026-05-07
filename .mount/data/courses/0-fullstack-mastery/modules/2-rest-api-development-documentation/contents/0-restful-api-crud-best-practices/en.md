@@ -175,7 +175,14 @@ After the command above: app listens on **`http://localhost:3000`**.
 
 #### 2.1.5. Cleanup
 
+When you are done, tear down to free resources.
+
 ```bash
+# Step 1: Stop the running server
+# Windows / macOS / Linux
+Ctrl + C
+
+# Step 2: Close Docker (if the lesson uses Docker)
 docker compose -f .docker/compose.yaml down -v
 ```
 
