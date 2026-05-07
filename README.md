@@ -1,98 +1,128 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# StarCi Academy — Backend Curriculum
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Mono-repo quản lý toàn bộ nội dung khoá học **Fullstack Mastery** và **System Design Mastery** của [StarCi Academy](https://github.com/StarCi-Academy).
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Cấu trúc thư mục
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ npm install
+```
+starci-academy-backend/
+├── .mount/data/
+│   ├── courses/
+│   │   ├── 0-fullstack-mastery/          # Khoá Fullstack Mastery
+│   │   │   └── modules/0..7/             # 8 modules, mỗi module có contents/
+│   │   └── 1-system-design-mastery/      # Khoá System Design Mastery
+│   │       └── modules/0..7/             # 8 modules
+│   └── rules/                            # Quy tắc format chung
+│       ├── fullstack-format.md           # Format tài liệu Fullstack
+│       ├── system-design-format.md       # Format tài liệu System Design
+│       └── coding-rules.md              # Quy tắc code (barrel, config, Docker)
+└── .repo/                                # Git submodules — source code bài học
+    ├── fullstack-mastery-module-*/
+    └── system-design-mastery-module-*/
 ```
 
-## Compile and run the project
+---
+
+## Khoá học
+
+### 0 — Fullstack Mastery
+
+| Module | Tên | Repos |
+| --- | --- | --- |
+| 0 | Backend Environment & NestJS Introduction | [module-1](https://github.com/StarCi-Academy/fullstack-mastery-module-1-backend-environment-nestjs-introduction) |
+| 1 | Database Integration (ORM, ODM, Caching) | [module-2](https://github.com/StarCi-Academy/fullstack-mastery-module-2-database-integration-orm-odm-caching) |
+| 2 | REST API Development & Documentation | [module-3](https://github.com/StarCi-Academy/fullstack-mastery-module-3-rest-api-development-documentation) |
+| 3 | Authentication, Authorization (JWT, RBAC) | [module-4](https://github.com/StarCi-Academy/fullstack-mastery-module-4-authentication-authorization-jwt-rbac) |
+| 4 | WebSocket & Realtime Communication | [module-5](https://github.com/StarCi-Academy/fullstack-mastery-module-5-websocket-and-realtime-communication) |
+| 5 | Email, SMS & OTP | [module-6](https://github.com/StarCi-Academy/fullstack-mastery-module-6-email-sms-otp) |
+| 6 | Workers & Cron Jobs | [module-7](https://github.com/StarCi-Academy/fullstack-mastery-module-7-workers-and-cron-jobs) |
+| 7 | React Basic | [module-8](https://github.com/StarCi-Academy/fullstack-mastery-module-8-react-basic) |
+
+### 1 — System Design Mastery
+
+| Module | Tên | Repos |
+| --- | --- | --- |
+| 0 | Fundamentals of System Design | [module-1](https://github.com/StarCi-Academy/system-design-mastery-module-1-fundamentals-of-system-design) |
+| 1 | Microservices & Kubernetes Fundamentals | [module-2](https://github.com/StarCi-Academy/system-design-mastery-module-2-microservices-kubernetes-fundamentals) |
+| 2 | Communication Patterns | [module-3](https://github.com/StarCi-Academy/system-design-mastery-module-3-communication-patterns) |
+| 3 | Data & Consistency in Microservices | [module-4](https://github.com/StarCi-Academy/system-design-mastery-module-4-data-and-consistency-in-microservices) |
+| 4 | Monitoring & Observability | [module-7](https://github.com/StarCi-Academy/system-design-mastery-module-7-monitoring-and-observability) |
+| 5 | Reliability & Resilience Patterns | [module-6](https://github.com/StarCi-Academy/system-design-mastery-module-6-reliability-and-resilience-patterns) |
+| 6 | Scalability & Performance | [module-5](https://github.com/StarCi-Academy/system-design-mastery-module-5-scalability-and-performance) |
+| 7 | Security & Identity Management | [module-8](https://github.com/StarCi-Academy/system-design-mastery-module-8-security-and-identity-management) |
+
+---
+
+## Nội dung bài học
+
+Mỗi bài học (`contents/<lesson>/`) gồm:
+
+| File | Mô tả |
+| --- | --- |
+| `en.md` | Nội dung tiếng Anh |
+| `vi.md` | Nội dung tiếng Việt |
+| `test.md` | Kết quả kiểm thử (PASSED / FAILED) |
+| `challenges/` | Bài tập thực hành (nếu có) |
+
+Cấu trúc bài tuân theo **practice-led theory**: thực hành trước (2.1) → lý thuyết sau (2.2).
+
+---
+
+## Quy tắc format
+
+Tất cả nội dung tuân theo các quy tắc strict trong `.mount/data/rules/`:
+
+- **`fullstack-format.md`** — Backend NestJS chạy local (`nest start --watch`), Docker chỉ cho infrastructure.
+- **`system-design-format.md`** — Toàn bộ stack chạy qua Docker Compose / Kubernetes.
+- **`coding-rules.md`** — Barrel imports, ConfigModule, Docker patterns.
+
+---
+
+## Cách chạy bài học
+
+### Fullstack Mastery
 
 ```bash
-# development
-$ npm run start
+# Clone repo module
+git clone https://github.com/StarCi-Academy/fullstack-mastery-module-<N>-<name>.git
+cd <repo>/<lesson>
 
-# watch mode
-$ npm run start:dev
+# Khởi động infrastructure (nếu có)
+docker compose -f .docker/compose.yaml up -d
 
-# production mode
-$ npm run start:prod
+# Cài dependency + chạy
+npm install
+nest start --watch
 ```
 
-## Run tests
+### System Design Mastery
 
 ```bash
-# unit tests
-$ npm run test
+# Clone repo module
+git clone https://github.com/StarCi-Academy/system-design-mastery-module-<N>-<name>.git
+cd <repo>/<lesson>/.docker
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+# Khởi động toàn bộ stack
+docker compose up -d
 ```
 
-## Deployment
+> **Lưu ý:** Các biến môi trường mặc định đã được cấu hình sẵn qua `ConfigModule`. Không cần tạo hay sửa `.env` khi chạy hệ thống.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+---
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Tech Stack
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+- **Backend:** NestJS, TypeScript, TypeORM, Mongoose
+- **Databases:** PostgreSQL, MongoDB, Redis
+- **Infrastructure:** Docker, Docker Compose, Kubernetes
+- **Monitoring:** Prometheus, Grafana, Jaeger, Consul
+- **Communication:** Socket.IO, gRPC, RabbitMQ, Kafka
+- **Frontend:** React, Vite
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+---
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+MIT © [StarCi Academy](https://github.com/StarCi-Academy)
