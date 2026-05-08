@@ -4,29 +4,29 @@ import {
     bullData
 } from "@modules/bullmq"
 import {
-    envConfig 
+    envConfig
 } from "@modules/env"
 import {
-    JobActionService 
+    JobActionService
 } from "@modules/bussiness"
 import {
-    InjectSuperJson, DayjsService 
+    InjectSuperJson, DayjsService
 } from "@modules/mixin"
 import {
-    WinstonLog, WinstonService 
+    WinstonLog, WinstonService
 } from "@modules/winston"
 import {
-    JobEntity 
+    JobEntity
 } from "@modules/databases"
 import {
-    Processor as Worker, WorkerHost 
+    Processor as Worker, WorkerHost
 } from "@nestjs/bullmq"
 import {
-    Job 
+    Job
 } from "bullmq"
 import SuperJSON from "superjson"
 import {
-    StepMappingService 
+    StepMappingService
 } from "./step-mapping.service"
 
 @Worker(
@@ -56,7 +56,7 @@ export class VideoEncoderWorker extends WorkerHost {
         let job: JobEntity | undefined
         try {
             job = await this.jobActionService.getJob({
-                id: bullmqJob.id ?? "" 
+                id: bullmqJob.id ?? ""
             })
             payload = this.superJson.parse<FilenameProcessData>(bullmqJob.data)
 
@@ -69,7 +69,7 @@ export class VideoEncoderWorker extends WorkerHost {
 
             while (job.currentStep < job.maxSteps) {
                 const syncedJob = await this.jobActionService.getJob({
-                    id: job.id 
+                    id: job.id
                 })
                 context.job = syncedJob
 
@@ -77,6 +77,7 @@ export class VideoEncoderWorker extends WorkerHost {
                     job: syncedJob,
                     queueName: bullmqJob.queueName,
                     payload,
+                    extended: undefined
                 })
             }
 

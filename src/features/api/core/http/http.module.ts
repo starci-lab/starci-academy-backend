@@ -19,6 +19,9 @@ import {
 import {
     GithubModule,
 } from "./github"
+import {
+    AdminModule,
+} from "./admin"
 
 
 /**
@@ -51,6 +54,11 @@ import {
                 isGlobal: true,
             }
         ),
+        AdminModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
     ],
 })
-export class HttpModule extends ConfigurableModuleClass {}
+export class HttpModule extends ConfigurableModuleClass { }

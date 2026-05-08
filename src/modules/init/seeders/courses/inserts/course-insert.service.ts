@@ -121,7 +121,9 @@ export class CourseInsertService {
                     await this.upsertService.upsertTranslation<ValuePropositionTranslationEntity>(
                         ValuePropositionTranslationEntity,
                         valuePropositionTranslations,
-                        { valuePropositionId: valueProposition.id },
+                        {
+                            valuePropositionId: valueProposition.id
+                        },
                     )
                 }
             }

@@ -137,6 +137,9 @@ import {
 import {
     InitModule,
 } from "@modules/init"
+import { FfmpegModule } from "@modules/ffmpeg"
+import { Bento4Module } from "@modules/bento4"
+import { VideoEncoderModule } from "@features/video-encoder"
 /**
  * The main module for the application.
  */
@@ -399,6 +402,24 @@ import {
                     isGlobal: true,
                 }
             ),
+            /** Ffmpeg module. */
+            FfmpegModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Bento4 module. */
+            Bento4Module.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Video encoder module. */
+            VideoEncoderModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
         ],
         providers: [
             {
@@ -408,4 +429,5 @@ import {
         ],
     }
 )
+
 export class AppModule { }

@@ -4,10 +4,10 @@ import {
     Type,
 } from "@nestjs/common"
 import {
-    ConfigurableModuleClass 
+    ConfigurableModuleClass
 } from "./bussiness.module-definition"
 import {
-    JobsModule 
+    JobsModule
 } from "./jobs"
 import {
     OPTIONS_TYPE,

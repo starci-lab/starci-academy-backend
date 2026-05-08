@@ -147,7 +147,6 @@ export class ElasticsearchSynchronizerService {
                     break
                 }
                 case ChallengeEntity.name: {
-                    // eslint-disable-next-line no-constant-condition
                     while (true) {
                         const challenge = await this.entityManager.findOne(
                             ChallengeEntity,
@@ -194,7 +193,6 @@ export class ElasticsearchSynchronizerService {
                     break
                 }
                 case ContentEntity.name: {
-                    // eslint-disable-next-line no-constant-condition
                     while (true) {
                         const content = await this.entityManager.findOne(
                             ContentEntity,
@@ -241,7 +239,6 @@ export class ElasticsearchSynchronizerService {
                     break
                 }
                 case LessonVideoEntity.name: {
-                    // eslint-disable-next-line no-constant-condition
                     while (true) {
                         const lessonVideo = await this.entityManager.findOne(
                             LessonVideoEntity,
@@ -288,7 +285,6 @@ export class ElasticsearchSynchronizerService {
                     break
                 }
                 case ModuleEntity.name: {
-                    // eslint-disable-next-line no-constant-condition
                     while (true) {
                         const module = await this.entityManager.findOne(
                             ModuleEntity,

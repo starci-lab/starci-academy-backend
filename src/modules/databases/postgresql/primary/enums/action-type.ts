@@ -53,6 +53,10 @@ export enum ActionType {
      * Prime/refresh parent-index cache for entities (background job).
      */
     SyncIndexer = "syncIndexer",
+    /**
+     * Encode and package a video into MPEG-DASH format (admin background job).
+     */
+    ProcessVideo = "processVideo",
 }
 
 export const GraphQLTypeActionType = createEnumType(ActionType)
@@ -92,6 +96,9 @@ registerEnumType(
             },
             [ActionType.SyncIndexer]: {
                 description: "Prime parent-index cache for entities (challenge/content).",
+            },
+            [ActionType.ProcessVideo]: {
+                description: "Encode and package a video into MPEG-DASH format.",
             },
         },
     },

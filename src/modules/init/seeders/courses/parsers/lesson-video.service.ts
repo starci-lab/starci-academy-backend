@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common"
 import {
     Locale,
-    LessonVideoKind,
+    LessonVideoType,
     VideoHostPlatform,
 } from "@modules/databases"
 import {
@@ -102,9 +102,9 @@ export class LessonVideoParserService {
             caption: this.coerceMdScalarService.toNullableStringColumn(
                 jsonMap.get(Locale.En)?.caption,
             ),
-            kind: this.coerceMdScalarService.toNullableEnum(
-                jsonMap.get(Locale.En)?.kind,
-                LessonVideoKind,
+            videoType: this.coerceMdScalarService.toNullableEnum(
+                jsonMap.get(Locale.En)?.videoType,
+                LessonVideoType,
             ),
             content: {
                 id: this.contentIdFactoryService.generate(

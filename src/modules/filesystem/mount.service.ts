@@ -17,6 +17,7 @@ import {
     getGithubSecretKey,
     getSepayApiKey,
     getBrevoSmtpPassword,
+    getAdminApiKey,
     getKeycloakAdmin,
 } from "./utils"
 /**
@@ -106,6 +107,13 @@ export class MountFilesystemService {
      */
     brevoSmtpPassword(): string {
         return getBrevoSmtpPassword()
+    }
+
+    /**
+     * Get admin API key from mount path.
+     */
+    adminApiKey(): string {
+        return getAdminApiKey()
     }
 
     /**

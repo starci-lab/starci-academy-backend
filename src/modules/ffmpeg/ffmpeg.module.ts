@@ -1,15 +1,18 @@
 import {
-    Module 
+    Module,
 } from "@nestjs/common"
 import {
-    ConfigurableModuleClass 
+    ConfigurableModuleClass,
 } from "./ffmpeg.module-definition"
 import {
-    FfmpegService 
+    FfmpegService,
 } from "./ffmpeg.service"
+import {
+    GpuService,
+} from "./gpu.service"
 
 @Module({
-    providers: [FfmpegService],
-    exports: [FfmpegService],
+    providers: [FfmpegService, GpuService],
+    exports: [FfmpegService, GpuService],
 })
-export class FfmpegModule extends ConfigurableModuleClass {}
+export class FfmpegModule extends ConfigurableModuleClass { }

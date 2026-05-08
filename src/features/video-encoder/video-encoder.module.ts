@@ -1,14 +1,14 @@
 import {
-    Module 
+    Module
 } from "@nestjs/common"
 import {
-    ConfigurableModuleClass 
+    ConfigurableModuleClass
 } from "./video-encoder.module-definition"
 import {
-    VideoEncoderWorker 
+    VideoEncoderWorker
 } from "./video-encoder.worker"
 import {
-    StepMappingService 
+    StepMappingService
 } from "./step-mapping.service"
 import {
     ProcessVideoInitStepService,

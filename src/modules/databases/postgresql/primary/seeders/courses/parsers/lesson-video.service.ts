@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common"
 import {
     Locale,
-    LessonVideoKind,
+    LessonVideoType,
     VideoHostPlatform,
 } from "../../../enums"
 import {
@@ -48,7 +48,7 @@ export class LessonVideoParserService {
         private readonly lessonVideoIdFactoryService: LessonVideoIdFactoryService,
         private readonly contentIdFactoryService: ContentIdFactoryService,
         private readonly contextLoaderService: ContextLoaderService,
-    ) {}
+    ) { }
 
     /**
      * Builds a partial lesson video entity from mounted course files.
@@ -101,10 +101,6 @@ export class LessonVideoParserService {
             ),
             caption: this.coerceMdScalarService.toNullableStringColumn(
                 jsonMap.get(Locale.En)?.caption,
-            ),
-            kind: this.coerceMdScalarService.toNullableEnum(
-                jsonMap.get(Locale.En)?.kind,
-                LessonVideoKind,
             ),
             content: {
                 id: this.contentIdFactoryService.generate(

@@ -112,9 +112,13 @@ export class JobActionService {
                 currentStep: 0,
                 maxSteps,
                 queueAt: this.dayjsService.now().toDate(),
-                user: {
-                    id: userId ?? undefined,
-                },
+                ...(
+                    userId ? {
+                        user: {
+                            id: userId,
+                        },
+                    } : {}
+                ),
                 ...(
                     challengeSubmissionId ? {
                         challengeSubmission: {

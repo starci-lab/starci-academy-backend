@@ -33,5 +33,6 @@
 **/dist
 !src/features/synchronizer/processors/**/build/
 !src/features/synchronizer/processors/**/build/**
+**/.exe
 LICENSE
 README.md

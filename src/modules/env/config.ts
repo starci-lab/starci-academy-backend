@@ -31,7 +31,7 @@ export const envConfig = () => ({
             order: 1,
             enabled: parseEnvBoolean({
                 key: "ENABLE_INIT_SEEDERS",
-                defaultValue: true,
+                defaultValue: false,
             })
         },
         {
@@ -39,7 +39,7 @@ export const envConfig = () => ({
             order: 2,
             enabled: parseEnvBoolean({
                 key: "ENABLE_INIT_SYNCHRONIZERS",
-                defaultValue: true,
+                defaultValue: false,
             })
         }
     ],
@@ -853,11 +853,11 @@ export const envConfig = () => ({
         origins: Array.from({
             length: 10
         },
-        (_, i) =>
-            parseEnvString({
-                key: `CORS_ORIGIN_${i + 1}`,
-                defaultValue: "http://localhost:3000"
-            }),
+            (_, i) =>
+                parseEnvString({
+                    key: `CORS_ORIGIN_${i + 1}`,
+                    defaultValue: "http://localhost:3000"
+                }),
         ).filter((url) => url !== "")
     },
     /** Kubernetes configuration. */
@@ -1273,16 +1273,16 @@ export const envConfig = () => ({
                 key: "NATS_SERVERS_COUNT", defaultValue: 1
             })
         },
-        (_, i) => ({
-            host: parseEnvString({
-                key: `NATS_SERVER_${i + 1}_HOST`,
-                defaultValue: "localhost"
-            }),
-            port: parseEnvInt({
-                key: `NATS_SERVER_${i + 1}_PORT`,
-                defaultValue: 4222
-            }),
-        })),
+            (_, i) => ({
+                host: parseEnvString({
+                    key: `NATS_SERVER_${i + 1}_HOST`,
+                    defaultValue: "localhost"
+                }),
+                port: parseEnvInt({
+                    key: `NATS_SERVER_${i + 1}_PORT`,
+                    defaultValue: 4222
+                }),
+            })),
         reconnect: parseEnvBoolean({
             key: "NATS_RECONNECT", defaultValue: true
         }),

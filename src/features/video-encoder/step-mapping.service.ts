@@ -1,11 +1,8 @@
 import {
-    Injectable, OnModuleInit 
+    Injectable, OnModuleInit
 } from "@nestjs/common"
 import {
-    AbstractStepService 
-} from "@modules/bullmq"
-import {
-    FilenameProcessData 
+    FilenameProcessData
 } from "@modules/bullmq"
 import {
     ProcessVideoInitStepService,
@@ -14,6 +11,7 @@ import {
     ProcessVideoUploadStepService,
     ProcessVideoFinalizeStepService,
 } from "./steps"
+import { AbstractStepService } from "@modules/bussiness"
 
 /**
  * Step mapping service.

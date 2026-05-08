@@ -1,2 +1,2 @@
-export * from "../../../modules/bullmq/abstracts/context"
+export { JobExtendedContext } from "@modules/bussiness"
 export type VideoEncoderStepExecutionResult = {}
