@@ -31,6 +31,9 @@ import {
 import {
     SyncCdnEntityKind
 } from "@modules/bullmq"
+import {
+    S3BucketService
+} from "@modules/s3"
 
 /**
  * CDN synchronizer — iterates all entities and calls CDN builder for each.
@@ -49,6 +52,7 @@ export class CdnSynchronizerService {
         private readonly cdnChallengeBuildService: CdnChallengeBuildService,
         private readonly cdnLessonVideoBuildService: CdnLessonVideoBuildService,
         private readonly retryService: RetryService,
+        private readonly s3BucketService: S3BucketService,  
     ) { }
 
     /** Entity kinds supported by the CDN synchronizer. */

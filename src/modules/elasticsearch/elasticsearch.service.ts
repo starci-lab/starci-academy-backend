@@ -8,22 +8,22 @@ import {
 import {
     InjectElasticsearch,
 } from "./elasticsearch.decorators"
-import { 
-    ChallengeEntity, 
-    ContentEntity, 
-    CourseEntity, 
+import {
+    ChallengeEntity,
+    ContentEntity,
+    CourseEntity,
     LessonVideoEntity,
     ModuleEntity,
 } from "@modules/databases"
 import {
-    ObjectLiteral 
+    ObjectLiteral
 } from "typeorm"
 import {
-    AsyncService, 
-    ReadinessWatcherFactoryService 
+    AsyncService,
+    ReadinessWatcherFactoryService
 } from "@modules/mixin"
 import {
-    configMap 
+    configMap
 } from "./config"
 import type {
     IndicateNameParams,
@@ -51,11 +51,11 @@ export class ElasticsearchService implements OnModuleInit {
         ModuleEntity.name,
     ]
     constructor(
-    @InjectElasticsearch()
-    public readonly client: Client,
-    private readonly asyncService: AsyncService,
-    private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
-    ) {}
+        @InjectElasticsearch()
+        public readonly client: Client,
+        private readonly asyncService: AsyncService,
+        private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
+    ) { }
 
     /**
      * Indicate the index name.
@@ -110,13 +110,13 @@ export class ElasticsearchService implements OnModuleInit {
             index,
         })
         const exists =
-      typeof existsResult === "boolean"
-          ? existsResult
-          : (
-            existsResult as {
-              body: boolean;
-            }
-          ).body
+            typeof existsResult === "boolean"
+                ? existsResult
+                : (
+                    existsResult as {
+                        body: boolean;
+                    }
+                ).body
 
         if (exists) return
 
@@ -175,40 +175,15 @@ export class ElasticsearchService implements OnModuleInit {
     }
 
     /**
-     * Search the entity.
+     * Delete the index.
      */
-    async search<T>(
-        {
-            entityName,
-            params,
-            locale,
-        }: SearchParams,
-    ): Promise<SearchResult<T>> {
-        const response = await this.client.search(
+    async deleteIndex(
+        index: string,
+    ): Promise<void> {
+        await this.client.indices.delete(
             {
-                index: this.indicateName(
-                    {
-                        entity: entityName,
-                        locale,
-                    },
-                ),
-                from: params.from,
-                size: params.size,
-                query: params.query || {
-                    match_all: {
-                    } 
-                },
-                highlight: params.highlight,
-                sort: params.sort,
-                _source: params._source,
-            }
+                index,
+            },
         )
-        const total = response.hits.total
-        const count = typeof total === "number" ? total : total?.value || 0
-        const data = response.hits.hits.map((hit) => hit._source as T)
-        return {
-            data,
-            count,
-        }
     }
 }

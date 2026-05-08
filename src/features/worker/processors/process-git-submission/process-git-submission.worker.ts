@@ -131,7 +131,7 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
                         id: challengeSubmission.challengeId,
                     },
                     relations: {
-                        challengeRequirements: true,
+                        requirements: true,
                     },
                 },
             )

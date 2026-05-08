@@ -3,7 +3,6 @@ import {
 } from "@nestjs/common"
 import {
     DeepPartial,
-    EntityManager
 } from "typeorm"
 import {
     CourseParserService,
@@ -11,6 +10,11 @@ import {
     ChallengeParserService,
     LessonVideoParserService,
     ContentParserService,
+    CourseInsertService,
+    ModuleInsertService,
+    ContentInsertService,
+    LessonVideoInsertService,
+    ChallengeInsertService,
 } from "./courses"
 import {
     ChallengeEntity,
@@ -18,7 +22,6 @@ import {
     CourseEntity,
     LessonVideoEntity,
     ModuleEntity,
-    InjectPrimaryPostgreSQLEntityManager
 } from "@modules/databases"
 import {
     RetryService
@@ -26,22 +29,27 @@ import {
 /**
  * The service for the Seeders.
  * Parses course data from the filesystem/S3 and saves to PostgreSQL.
+ * Uses per-table upsert strategy: insert new, update existing, delete stale.
  */
 @Injectable()
 export class SeedersService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
         private readonly courseParserService: CourseParserService,
         private readonly moduleParserService: ModuleParserService,
         private readonly challengeParserService: ChallengeParserService,
         private readonly lessonVideoParserService: LessonVideoParserService,
         private readonly contentParserService: ContentParserService,
+        private readonly courseInsertService: CourseInsertService,
+        private readonly moduleInsertService: ModuleInsertService,
+        private readonly contentInsertService: ContentInsertService,
+        private readonly lessonVideoInsertService: LessonVideoInsertService,
+        private readonly challengeInsertService: ChallengeInsertService,
         private readonly retryService: RetryService,
     ) { }
 
     /**
      * Initialize the seeders — parse and save all course data.
+     * Processes each table independently via upsert (insert/update/delete).
      * @returns void.
      */
     async init() {
@@ -138,14 +146,97 @@ export class SeedersService {
                 course.modules = modules
             }
         }
-        /** We save the courses to the database. */
-        await this.retryService.retry({
-            action: async () => {
-                return await this.entityManager.save(
-                    CourseEntity,
-                    courses
-                )
-            },
-        })
+
+        /** Upsert each course and its children table-by-table. */
+        for (const course of courses) {
+            const courseId = course.id as string
+
+            /** 1. Upsert course-level tables */
+            await this.retryService.retry({
+                action: async () => {
+                    await this.courseInsertService.insert(course)
+                },
+            })
+
+            /** 2. Upsert module-level tables */
+            const modules = (course.modules ?? []) as Array<DeepPartial<ModuleEntity>>
+            for (const module of modules) {
+                await this.retryService.retry({
+                    action: async () => {
+                        await this.moduleInsertService.insert(module)
+                    },
+                })
+
+                /** 3. Upsert content-level tables */
+                const moduleId = module.id as string
+                const contents = (module.contents ?? []) as Array<DeepPartial<ContentEntity>>
+                for (const content of contents) {
+                    const contentId = content.id as string
+                    /** Inject FK relation so TypeORM populates the module_id column */
+                    content.module = { id: moduleId } as DeepPartial<any>
+                    await this.retryService.retry({
+                        action: async () => {
+                            await this.contentInsertService.insert(content)
+                        },
+                    })
+
+                    /** 4. Upsert challenges */
+                    const challenges = (content.challenges ?? []) as Array<DeepPartial<ChallengeEntity>>
+                    for (const challenge of challenges) {
+                        await this.retryService.retry({
+                            action: async () => {
+                                await this.challengeInsertService.insert(challenge)
+                            },
+                        })
+                    }
+                    /** Delete stale challenges */
+                    await this.retryService.retry({
+                        action: async () => {
+                            await this.challengeInsertService.deleteStale(
+                                challenges.map((challenge) => challenge.id as string),
+                                contentId,
+                            )
+                        },
+                    })
+
+                    /** 5. Upsert lesson videos */
+                    const lessons = (content.lessons ?? []) as Array<DeepPartial<LessonVideoEntity>>
+                    for (const lesson of lessons) {
+                        await this.retryService.retry({
+                            action: async () => {
+                                await this.lessonVideoInsertService.insert(lesson)
+                            },
+                        })
+                    }
+                    /** Delete stale lesson videos */
+                    await this.retryService.retry({
+                        action: async () => {
+                            await this.lessonVideoInsertService.deleteStale(
+                                lessons.map((lesson) => lesson.id as string),
+                                contentId,
+                            )
+                        },
+                    })
+                }
+                /** Delete stale contents */
+                await this.retryService.retry({
+                    action: async () => {
+                        await this.contentInsertService.deleteStale(
+                            contents.map((content) => content.id as string),
+                            module.id as string,
+                        )
+                    },
+                })
+            }
+            /** Delete stale modules */
+            await this.retryService.retry({
+                action: async () => {
+                    await this.moduleInsertService.deleteStale(
+                        modules.map((module) => module.id as string),
+                        courseId,
+                    )
+                },
+            })
+        }
     }
 }

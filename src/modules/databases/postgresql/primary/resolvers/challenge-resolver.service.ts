@@ -48,8 +48,8 @@ export class ChallengeResolverService {
             },
         )
         delete (challenge as Partial<ChallengeEntity>).translations
-        if (challenge.challengeRequirements?.length) {
-            challenge.challengeRequirements = challenge.challengeRequirements.map((requirement) => {
+        if (challenge.requirements?.length) {
+            challenge.requirements = challenge.requirements.map((requirement) => {
                 const fallback = requirement.defaultLocale ?? challengeFallback
                 requirement.purpose = this.translationResolver.resolve(
                     {
@@ -87,8 +87,8 @@ export class ChallengeResolverService {
                 return requirement
             })
         }
-        if (challenge.challengeOutputs?.length) {
-            challenge.challengeOutputs = challenge.challengeOutputs.map((output) => {
+        if (challenge.outputs?.length) {
+            challenge.outputs = challenge.outputs.map((output) => {
                 const fallback = output.defaultLocale ?? challengeFallback
                 output.text = this.translationResolver.resolve(
                     {
@@ -102,8 +102,8 @@ export class ChallengeResolverService {
                 return output
             })
         }
-        if (challenge.challengePrerequisites?.length) {
-            challenge.challengePrerequisites = challenge.challengePrerequisites.map((prerequisite) => {
+        if (challenge.prerequisites?.length) {
+            challenge.prerequisites = challenge.prerequisites.map((prerequisite) => {
                 const fallback = prerequisite.defaultLocale ?? challengeFallback
                 prerequisite.text = this.translationResolver.resolve(
                     {
@@ -117,23 +117,7 @@ export class ChallengeResolverService {
                 return prerequisite
             })
         }
-        challenge.requirements = (challenge.challengeRequirements ?? [])
-            .map((requirement) => [
-                `Muc tieu: ${requirement.purpose}`,
-                `Rang buoc ky thuat: ${requirement.technicalConstraints}`,
-                `Goi y: ${requirement.proTipsHints}`,
-                requirement.forbidden ? `Cam: ${requirement.forbidden}` : "",
-            ].join("\n"))
-            .filter(Boolean)
-            .join("\n\n")
-        challenge.outputs = (challenge.challengeOutputs ?? [])
-            .map((output) => output.text)
-            .filter(Boolean)
-            .join("\n")
-        challenge.prerequisites = (challenge.challengePrerequisites ?? [])
-            .map((prerequisite) => prerequisite.text)
-            .filter(Boolean)
-            .join("\n")
+
         if (challenge.steps?.length) {
             challenge.steps = challenge.steps.map((step) => {
                 const stepFallback = step.defaultLocale ?? challengeFallback

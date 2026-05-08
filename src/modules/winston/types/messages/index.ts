@@ -1,6 +1,7 @@
 export * from "./cli"
 export * from "./courses"
 export * from "./cdn-synchronizer"
+export * from "./db-synchronizer"
 export * from "./elasticsearch-synchronizer"
 export * from "./indexer-synchronizer"
 export * from "./bloom-filter-synchronizer"

@@ -8,6 +8,7 @@ import {
     ContentEntity,
     ChallengeEntity,
     LessonVideoEntity,
+    Locale,
 } from "@modules/databases"
 import {
     MoreThan,
@@ -31,6 +32,7 @@ import {
 import {
     SyncElasticsearchEntityKind
 } from "@modules/bullmq"
+import { ElasticsearchService } from "@modules/elasticsearch"
 
 /**
  * Elasticsearch synchronizer — iterates all entities and calls ES builder for each.
@@ -48,6 +50,7 @@ export class ElasticsearchSynchronizerService {
         private readonly esContentBuildService: ElasticsearchContentBuildService,
         private readonly esChallengeBuildService: ElasticsearchChallengeBuildService,
         private readonly esLessonVideoBuildService: ElasticsearchLessonVideoBuildService,
+        private readonly elasticsearchService: ElasticsearchService,
         private readonly retryService: RetryService,
     ) { }
 
@@ -74,6 +77,21 @@ export class ElasticsearchSynchronizerService {
                 startedAt: start,
             }
         )
+        /**
+         * Clear ES indexes
+         */
+        for (const locale of Object.values(Locale)) {
+            for (const entityKind of this.entityKinds) {
+                await this.elasticsearchService.deleteIndex(
+                    this.elasticsearchService.indicateName(
+                        {
+                            entity: entityKind,
+                            locale,
+                        },
+                    ),
+                )
+            }
+        }
         /**
          * Synchronize the entities.
          */

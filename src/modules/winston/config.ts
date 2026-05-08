@@ -6,6 +6,7 @@ import {
     WinstonLevel,
     CoursesSeededSuccessfullyMessage,
     ContextFileLoadedSuccessfullyMessage,
+    DbSynchronizerSyncedSuccessfullyMessage,
     EnrollmentAlreadyExistsMessage,
     EnrollmentCreatedMessage,
     StepExecutedMessage,
@@ -67,6 +68,14 @@ export const configMap = {
         console: true,
         messageType: {
         } as CoursesSeededSuccessfullyMessage,
+    },
+    [WinstonLog.DbSynchronizerSyncedSuccessfully]: {
+        name: WinstonLog.DbSynchronizerSyncedSuccessfully,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as DbSynchronizerSyncedSuccessfullyMessage,
     },
     [WinstonLog.ContextFileLoadedSuccessfully]: {
         name: WinstonLog.ContextFileLoadedSuccessfully,
@@ -144,7 +153,7 @@ export const configMap = {
     // CDN synchronizer: errors.
     [WinstonLog.CdnSynchronizerCoursesSyncing]: {
         name: WinstonLog.CdnSynchronizerCoursesSyncing,
-        level: WinstonLevel.Verbose,
+        level: WinstonLevel.Debug,
         loki: true,
         console: true,
         messageType: {

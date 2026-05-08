@@ -57,7 +57,7 @@ export class ChallengePrerequisiteEntity extends UuidAbstractEntity {
 
     @ManyToOne(
         () => ChallengeEntity,
-        (challenge: ChallengeEntity) => challenge.challengePrerequisites,
+        (challenge: ChallengeEntity) => challenge.prerequisites,
         {
             onDelete: "CASCADE",
         },

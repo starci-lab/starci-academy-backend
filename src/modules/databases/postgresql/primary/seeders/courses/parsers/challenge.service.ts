@@ -344,7 +344,7 @@ export class ChallengeParserService {
                 }
                 return translations
             })(),
-            challengeRequirements: (() => {
+            requirements: (() => {
                 const requirementItems = this.extractRequirementItems(
                     jsonMap.get(Locale.En)?.requirements,
                 )
@@ -411,9 +411,9 @@ export class ChallengeParserService {
                     }
                 })
             })(),
-            challengeOutputs: (() => {
+            outputs: (() => {
                 const outputItems = this.extractStructuredTextItems(
-                    jsonMap.get(Locale.En)?.outputs ?? jsonMap.get(Locale.En)?.output,
+                    jsonMap.get(Locale.En)?.outputs,
                 )
                 return outputItems.map((item) => {
                     const outputId = this.challengeOutputIdFactoryService.generate(
@@ -434,7 +434,7 @@ export class ChallengeParserService {
                             locale,
                             field: "text",
                             value: this.resolveItemTextByOrderIndex(
-                                challenge.outputs ?? challenge.output,
+                                challenge.outputs,
                                 item.orderIndex,
                             ),
                         } as DeepPartial<ChallengeOutputTranslationEntity>),
@@ -451,7 +451,7 @@ export class ChallengeParserService {
                     }
                 })
             })(),
-            challengePrerequisites: (() => {
+            prerequisites: (() => {
                 const prerequisiteItems = this.extractStructuredTextItems(
                     jsonMap.get(Locale.En)?.prerequisites,
                 )

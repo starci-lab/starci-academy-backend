@@ -102,32 +102,6 @@ export class ChallengeEntity extends UuidAbstractEntity {
     })
         description: string
 
-    @Field(
-        () => String,
-        {
-            description: "Challenge requirements rendered from requirement items (Markdown).",
-        },
-    )
-        requirements: string
-
-    @Field(
-        () => String,
-        {
-            description: "Challenge outputs rendered from output items (Markdown).",
-            nullable: true,
-        },
-    )
-        outputs?: string
-
-    output?: string
-
-    @Field(
-        () => String,
-        {
-            description: "Challenge prerequisites rendered from prerequisite items (Markdown).",
-        },
-    )
-        prerequisites: string
 
     /**
      * Points awarded when the challenge is completed successfully.
@@ -262,7 +236,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
             cascade: true,
         },
     )
-        challengeRequirements: Array<ChallengeRequirementEntity>
+        requirements: Array<ChallengeRequirementEntity>
 
     @Field(
         () => [ChallengeOutputEntity],
@@ -277,7 +251,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
             cascade: true,
         },
     )
-        challengeOutputs: Array<ChallengeOutputEntity>
+        outputs: Array<ChallengeOutputEntity>
 
     @Field(
         () => [ChallengePrerequisiteEntity],
@@ -292,7 +266,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
             cascade: true,
         },
     )
-        challengePrerequisites: Array<ChallengePrerequisiteEntity>
+        prerequisites: Array<ChallengePrerequisiteEntity>
 
     @Field(
         () => [ChallengeSubmissionEntity],
@@ -328,21 +302,20 @@ export class ChallengeEntity extends UuidAbstractEntity {
         hint: string | null
 
     /**
-     * Optional parent content this challenge is derived from.
+     * Parent content this challenge belongs to.
      */
     @Field(
         () => ContentEntity,
         {
-            nullable: true,
-            description: "Optional content this challenge is associated with.",
+            description: "Content this challenge is associated with.",
         },
     )
     @ManyToOne(
         () => ContentEntity,
         (content: ContentEntity) => content.challenges,
         {
-            onDelete: "SET NULL",
-            nullable: true,
+            onDelete: "CASCADE",
+            nullable: false,
         },
     )
     @JoinColumn({
@@ -354,8 +327,7 @@ export class ChallengeEntity extends UuidAbstractEntity {
     @Field(
         () => ID,
         {
-            nullable: true,
-            description: "Optional parent content ID.",
+            description: "Parent content ID.",
         },
     )
     @RelationId(

@@ -37,6 +37,12 @@ import {
     LessonVideoPathService,
     ChallengePathService,
     PathResolverService,
+    UpsertService,
+    CourseInsertService,
+    ModuleInsertService,
+    ContentInsertService,
+    LessonVideoInsertService,
+    ChallengeInsertService,
 } from "./courses"
 import {
     SeedersService,
@@ -78,6 +84,12 @@ const providers = [
     LessonVideoParserService,
     ChallengeParserService,
     PathResolverService,
+    UpsertService,
+    CourseInsertService,
+    ModuleInsertService,
+    ContentInsertService,
+    LessonVideoInsertService,
+    ChallengeInsertService,
     SeedersService,
 ]
 

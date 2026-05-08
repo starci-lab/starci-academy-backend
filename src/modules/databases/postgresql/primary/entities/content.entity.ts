@@ -154,6 +154,7 @@ export class ContentEntity extends UuidAbstractEntity {
         (module: ModuleEntity) => module.contents,
         {
             onDelete: "CASCADE",
+            nullable: false,
         },
     )
     @JoinColumn({

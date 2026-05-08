@@ -1,6 +1,8 @@
 /** Log event names; each maps to a config entry in configMap (level, loki, messageType). */
 export enum WinstonLog {
     CoursesSeededSuccessfully = "CoursesSeededSuccessfully",
+    /** DB seeder: entity row added, updated, or deleted. */
+    DbSynchronizerSyncedSuccessfully = "DbSynchronizerSyncedSuccessfully",
     ContextFileLoadedSuccessfully = "ContextFileLoadedSuccessfully",
     EnrollmentCreated = "EnrollmentCreated",
     EnrollStepExecuted = "EnrollStepExecuted",

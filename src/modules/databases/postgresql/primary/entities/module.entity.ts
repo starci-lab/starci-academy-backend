@@ -120,7 +120,8 @@ export class ModuleEntity extends UuidAbstractEntity {
     @ManyToOne(() => CourseEntity,
         (course: CourseEntity) => course.modules,
         {
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
+            nullable: false,
         })
     @JoinColumn({
         name: "course_id",

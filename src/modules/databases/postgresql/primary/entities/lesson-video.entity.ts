@@ -223,13 +223,12 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         defaultLocale: Locale
 
     /**
-     * Optional parent content this lesson is derived from.
+     * Parent content this lesson video belongs to.
      */
     @Field(
         () => ContentEntity,
         {
-            nullable: true,
-            description: "Optional content this lesson video is associated with.",
+            description: "Content this lesson video is associated with.",
         },
     )
     @ManyToOne(
@@ -237,6 +236,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         (content: ContentEntity) => content.lessons,
         {
             onDelete: "CASCADE",
+            nullable: false,
         },
     )
     @JoinColumn({
@@ -248,7 +248,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
     @Field(
         () => ID,
         {
-            description: "Optional parent content ID.",
+            description: "Parent content ID.",
         },
     )
     @RelationId(
