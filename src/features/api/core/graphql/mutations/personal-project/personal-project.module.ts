@@ -13,6 +13,12 @@ import {
 import {
     ReviewPersonalProjectForTaskModule,
 } from "./review-personal-project-for-task"
+import {
+    SyncPersonalProjectGithubModule,
+} from "./sync-personal-project-github"
+import {
+    SyncIdealTextModule,
+} from "./sync-ideal-text"
 
 @Module({
     imports: [
@@ -25,6 +31,13 @@ import {
         ReviewPersonalProjectForTaskModule.register({
             isGlobal: true
         }),
+        SyncPersonalProjectGithubModule.register({
+            isGlobal: true
+        }),
+        SyncIdealTextModule.register({
+            isGlobal: true
+        }),
     ],
 })
 export class PersonalProjectMutationsModule extends ConfigurableModuleClass { }
+

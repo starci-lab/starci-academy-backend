@@ -6,6 +6,9 @@ import {
     AbstractGraphQLResponse,
     IAbstractGraphQLResponse,
 } from "@modules/api"
+import {
+    EnrollmentEntity,
+} from "@modules/databases"
 
 /** Payload: whether the caller is enrolled. */
 @ObjectType({
@@ -19,6 +22,15 @@ export class CourseEnrollmentStatusData {
         },
     )
         isEnrolled: boolean
+
+    @Field(
+        () => EnrollmentEntity,
+        {
+            nullable: true,
+            description: "The enrollment record, if the user is enrolled. Contains ideaText and personalProjectGithubUrl.",
+        },
+    )
+        enrollment?: EnrollmentEntity | null
 }
 
 @ObjectType({

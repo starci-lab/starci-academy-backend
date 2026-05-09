@@ -81,6 +81,7 @@ export class GenerateMilestonesStepService extends AbstractStepService<
     private async execute(
         context: JobExtendedContext<GeneratePersonalProjectMilestonesPayload, EmptyObject>,
     ): Promise<GenerateMilestonesExecutionResult> {
+        console.log("execute generate milestones step")
         const { payload } = context
         const enrollment = await this.entityManager.findOneOrFail(
             EnrollmentEntity,
@@ -117,6 +118,7 @@ export class GenerateMilestonesStepService extends AbstractStepService<
         const roadmap = translatedPersonalProjectContext.roadmap ?? "(no roadmap context)"
         const ideaText = enrollment.ideaText ?? "(no idea submitted)"
         const courseTitle = enrollment.course?.title ?? "Unknown Course"
+
         /** Map locale code to full language name for the LLM prompt. */
         const localeLanguageMap: Record<string, string> = {
             en: "English",
@@ -258,6 +260,28 @@ export class GenerateMilestonesStepService extends AbstractStepService<
         if (!Array.isArray(parsed)) {
             throw new Error("Generated milestones payload is not an array")
         }
+        console.log(
+            parsed.map((milestone, milestoneIndex) => ({
+                title: `${milestone?.title ?? ""}`
+                    .trim(),
+                week: Number(milestone?.week ?? milestoneIndex + 1),
+                orderIndex: Number(milestone?.orderIndex ?? milestoneIndex),
+                tasks: Array.isArray(milestone?.tasks)
+                    ? milestone.tasks.map((task, taskIndex) => ({
+                        title: `${task?.title ?? ""}`.trim(),
+                        description: `${task?.description ?? ""}`.trim(),
+                        orderIndex: Number(task?.orderIndex ?? taskIndex),
+                        passCriteria: Array.isArray(task?.passCriteria)
+                            ? task.passCriteria.map((criteria, criteriaIndex) => ({
+                                text: `${criteria?.text ?? ""}`.trim(),
+                                promptText: `${criteria?.promptText ?? ""}`.trim(),
+                                orderIndex: Number(criteria?.orderIndex ?? criteriaIndex),
+                            }))
+                            : [],
+                    }))
+                    : [],
+            }))
+        )
         return parsed.map((milestone, milestoneIndex) => ({
             title: `${milestone?.title ?? ""}`
                 .trim(),

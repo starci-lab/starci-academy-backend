@@ -1,0 +1,26 @@
+import {
+    Field,
+    ID,
+    InputType,
+} from "@nestjs/graphql"
+
+@InputType({
+    description: "Request to sync a personal project GitHub URL.",
+})
+export class SyncPersonalProjectGithubRequest {
+    @Field(
+        () => ID,
+        {
+            description: "Course ID.",
+        },
+    )
+        courseId: string
+
+    @Field(
+        () => String,
+        {
+            description: "GitHub repository URL.",
+        },
+    )
+        githubUrl: string
+}

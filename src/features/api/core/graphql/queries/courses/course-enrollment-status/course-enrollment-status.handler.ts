@@ -18,8 +18,12 @@ import type {
     CourseEnrollmentStatusData,
 } from "./graphql-types"
 import {
-    UserService,
-} from "@modules/bussiness"
+    InjectPrimaryPostgreSQLEntityManager,
+    EnrollmentEntity,
+} from "@modules/databases"
+import {
+    EntityManager,
+} from "typeorm"
 
 /**
  * Handler for the course enrollment status query.
@@ -32,10 +36,11 @@ export class CourseEnrollmentStatusHandler
         
     /**
      * Constructor.
-     * @param userService - The user service.
+     * @param entityManager - The primary PostgreSQL entity manager.
      */
     constructor(
-        private readonly userService: UserService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) {
         super()
     }
@@ -62,12 +67,24 @@ export class CourseEnrollmentStatusHandler
             courseId,
         } = request
 
-        const isEnrolled = await this.userService.checkEnrollment(
-            user.id,
-            courseId,
+        const enrollment = await this.entityManager.findOne(
+            EnrollmentEntity,
+            {
+                where: {
+                    user: {
+                        id: user.id,
+                    },
+                    course: {
+                        id: courseId,
+                    },
+                },
+            },
         )
+
         return {
-            isEnrolled,
+            isEnrolled: !!enrollment,
+            enrollment: enrollment ?? null,
         }
     }
 }
+
