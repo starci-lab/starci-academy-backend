@@ -13,6 +13,7 @@ import {
 } from "@modules/common"
 import {
     InjectPrimaryPostgreSQLEntityManager,
+    Locale,
     MilestoneTaskEntity,
     InjectQdrantClient,
     ModelProvider,
@@ -57,8 +58,9 @@ import {
     Document,
 } from "@langchain/core/documents"
 import {
-    ReviewPersonalProjectModelRouterService 
+    ReviewPersonalProjectModelRouterService
 } from "@modules/ai"
+
 /**
  * Step 0: Load GitHub repo → LLM grades per criterion → create attempt + save results.
  */
@@ -83,7 +85,7 @@ export class ReviewPersonalProjectTaskGradeStepService extends AbstractStepServi
     }
 
     stepIndex = 0
-    stepName = "grade"
+    stepName = "review-personal-project-task-grade"
 
     /** Process the step. */
     async process(
@@ -120,6 +122,13 @@ export class ReviewPersonalProjectTaskGradeStepService extends AbstractStepServi
         const provider = this.reviewPersonalProjectModelRouterService.provider ?? envConfig().services.githubWorker.processGitSubmission.grading.provider as ModelProvider
         const branch = payload.branch ?? "main"
 
+        /** Map locale code to full language name for the LLM prompt. */
+        const locale = payload.locale ?? Locale.En
+        const localeLanguageMap: Record<string, string> = {
+            en: "English",
+            vi: "Vietnamese (Tiếng Việt)",
+        }
+        const targetLanguage = localeLanguageMap[locale] ?? "English"
         /** Load the specific milestone task with its pass criteria */
         const milestoneTask = await this.entityManager.findOneOrFail(
             MilestoneTaskEntity,
@@ -210,7 +219,7 @@ export class ReviewPersonalProjectTaskGradeStepService extends AbstractStepServi
                 maxChars)
         }
         /** Grade per criteria via LLM */
-        let criteriaResults: Array<{ passCriteriaId: string, passed: boolean, feedback: string }> = []
+        let criteriaResults: Array<CriteriaResult> = []
         let allPassed = true
 
         if (passCriteria.length > 0) {
@@ -228,6 +237,10 @@ export class ReviewPersonalProjectTaskGradeStepService extends AbstractStepServi
                 "Review the code against EACH pass criterion below.",
                 "For EACH criterion, determine if the code meets the requirement (passed = true/false) and provide brief feedback.",
                 "",
+                "### IMPORTANT: Language Requirement",
+                `All feedback text MUST be written in **${targetLanguage}**.`,
+                `The JSON keys must remain in English, but all human-readable values (feedback) must be in ${targetLanguage}.`,
+                "",
                 "### Pass Criteria",
                 criteriaPromptSections || "(no criteria provided)",
                 "",
@@ -239,7 +252,7 @@ export class ReviewPersonalProjectTaskGradeStepService extends AbstractStepServi
                 "- criteriaResults must have exactly one entry per criterion, in order.",
                 "- passCriteriaId must match the criterion id provided above.",
                 "- passed: true if the code meets the criterion, false otherwise.",
-                "- feedback: 1-2 sentences explaining why it passed or failed.",
+                `- feedback: 1-2 sentences in ${targetLanguage} explaining why it passed or failed.`,
                 "- Focus on implementation completeness, NOT code style.",
                 "- Output must be STRICT JSON (double quotes only).",
             ].filter(Boolean).join("\n")
@@ -345,12 +358,54 @@ export class ReviewPersonalProjectTaskGradeStepService extends AbstractStepServi
     }
 }
 
+/**
+ * Criteria result interface.
+ */
+export interface CriteriaResult {
+    /**
+     * The ID of the pass criteria.
+     */
+    passCriteriaId: string
+    /**
+     * Whether the criterion passed.
+     */
+    passed: boolean
+    /**
+     * The feedback for the criterion.
+     */
+    feedback: string
+}
+
+/**
+ * Review personal project task grade result interface.
+ */
 export interface ReviewPersonalProjectTaskGradeResult {
+    /**
+     * The enrollment ID.
+     */
     enrollmentId: string
+    /**
+     * The milestone task ID.
+     */
     milestoneTaskId: string
+    /**
+     * The GitHub URL.
+     */
     githubUrl: string
-    criteriaResults: Array<{ passCriteriaId: string, passed: boolean, feedback: string }>
+    /**
+     * The criteria results.
+     */
+    criteriaResults: Array<CriteriaResult>
+    /**
+     * Whether the task passed.
+     */
     allPassed: boolean
+    /**
+     * The number of characters in the source excerpt.
+     */
     sourceExcerptChars: number
+    /**
+     * The criteria query text.
+     */
     criteriaQueryText: string
 }
