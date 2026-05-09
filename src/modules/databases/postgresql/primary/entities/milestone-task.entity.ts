@@ -25,6 +25,9 @@ import {
 import {
     MilestoneTaskPassCriteriaEntity,
 } from "./milestone-task-pass-criteria.entity"
+import {
+    MilestoneTaskResultEntity,
+} from "./milestone-task-result.entity"
 
 /**
  * A task belonging to a milestone (e.g. "Xác định bài toán").
@@ -152,4 +155,13 @@ export class MilestoneTaskEntity extends UuidAbstractEntity {
         },
     )
         passCriteria: Array<MilestoneTaskPassCriteriaEntity>
+
+    /**
+     * Grading results for this task across all attempts.
+     */
+    @OneToMany(
+        () => MilestoneTaskResultEntity,
+        (taskResult: MilestoneTaskResultEntity) => taskResult.milestoneTask,
+    )
+        taskResults: Array<MilestoneTaskResultEntity>
 }

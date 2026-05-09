@@ -11,14 +11,14 @@ import {
     SubmitPersonalGithubUrlModule,
 } from "./submit-personal-github-url"
 import {
-    ReviewPersonalProjectForTaskModule,
-} from "./review-personal-project-for-task"
-import {
     SyncPersonalProjectGithubModule,
 } from "./sync-personal-project-github"
 import {
     SyncIdealTextModule,
 } from "./sync-ideal-text"
+import {
+    ReviewPersonalProjectTaskMutationModule,
+} from "./review-personal-project-task"
 
 @Module({
     imports: [
@@ -28,16 +28,15 @@ import {
         SubmitPersonalGithubUrlModule.register({
             isGlobal: true
         }),
-        ReviewPersonalProjectForTaskModule.register({
-            isGlobal: true
-        }),
         SyncPersonalProjectGithubModule.register({
             isGlobal: true
         }),
         SyncIdealTextModule.register({
             isGlobal: true
         }),
+        ReviewPersonalProjectTaskMutationModule.register({
+            isGlobal: true
+        }),
     ],
 })
 export class PersonalProjectMutationsModule extends ConfigurableModuleClass { }
-

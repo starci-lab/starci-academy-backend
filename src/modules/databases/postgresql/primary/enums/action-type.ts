@@ -65,6 +65,10 @@ export enum ActionType {
      * Generate personalised milestones for a personal project from the learner's idea.
      */
     GeneratePersonalProjectMilestones = "generatePersonalProjectMilestones",
+    /**
+     * Review a single milestone task against its pass criteria via AI.
+     */
+    ReviewPersonalProjectTask = "reviewPersonalProjectTask",
 }
 
 export const GraphQLTypeActionType = createEnumType(ActionType)
@@ -113,6 +117,9 @@ registerEnumType(
             },
             [ActionType.GeneratePersonalProjectMilestones]: {
                 description: "Generate personalised milestones for a personal project from the learner's idea.",
+            },
+            [ActionType.ReviewPersonalProjectTask]: {
+                description: "Review a single milestone task against its pass criteria via AI.",
             },
         },
     },

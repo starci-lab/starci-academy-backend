@@ -14,6 +14,9 @@ import {
     GradeModelRouterService,
 } from "./grade-model-router.service"
 import {
+    ReviewPersonalProjectModelRouterService,
+} from "./review-personal-project-router.service"
+import {
     ConfigurableModuleClass 
 } from "./ai.module-definition"
 
@@ -26,12 +29,14 @@ import {
         AiPingService,
         GenerateMilestoneModelRouterService,
         GradeModelRouterService,
+        ReviewPersonalProjectModelRouterService,
     ],
     exports: [
         AISecretService,
         AiPingService,
         GenerateMilestoneModelRouterService,
         GradeModelRouterService,
+        ReviewPersonalProjectModelRouterService,
     ],
 })
 export class AiModule extends ConfigurableModuleClass { }

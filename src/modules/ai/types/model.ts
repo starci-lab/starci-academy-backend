@@ -32,4 +32,6 @@ export enum AiTaskKind {
     Grade = "grade",
     /** Generating personalized project milestones. */
     GenerateMilestone = "generateMilestone",
+    /** Reviewing personal project tasks. */
+    ReviewPersonalProject = "reviewPersonalProject",
 }

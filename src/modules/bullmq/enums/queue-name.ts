@@ -31,4 +31,6 @@ export enum BullQueueName {
     ProcessPersonalProject = "process-personal-project",
     /** Queue for AI-generating personalized milestones from course context + user idea. */
     GeneratePersonalProjectMilestones = "generate-personal-project-milestones",
+    /** Queue for AI-reviewing a single milestone task against its pass criteria. */
+    ReviewPersonalProjectTask = "review-personal-project-task",
 }

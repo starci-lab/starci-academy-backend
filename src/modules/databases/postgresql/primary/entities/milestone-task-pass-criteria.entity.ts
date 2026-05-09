@@ -13,6 +13,7 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
+    OneToMany,
     RelationId,
 } from "typeorm"
 import {
@@ -21,6 +22,9 @@ import {
 import {
     UuidAbstractEntity,
 } from "./abstract"
+import {
+    MilestoneTaskCriteriaResultEntity,
+} from "./milestone-task-criteria-result.entity"
 
 
 /**
@@ -122,4 +126,13 @@ export class MilestoneTaskPassCriteriaEntity extends UuidAbstractEntity {
         (c: MilestoneTaskPassCriteriaEntity) => c.milestoneTask,
     )
         milestoneTaskId: string
+
+    /**
+     * Grading results for this criterion across all attempts.
+     */
+    @OneToMany(
+        () => MilestoneTaskCriteriaResultEntity,
+        (criteriaResult: MilestoneTaskCriteriaResultEntity) => criteriaResult.passCriteria,
+    )
+        criteriaResults: Array<MilestoneTaskCriteriaResultEntity>
 }

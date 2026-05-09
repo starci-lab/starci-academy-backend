@@ -21,6 +21,9 @@ import {
 import {
     PersonalProjectFeedbackEntity,
 } from "./personal-project-feedback.entity"
+import {
+    MilestoneTaskResultEntity,
+} from "./milestone-task-result.entity"
 
 /**
  * A single review attempt of a personal project (enrollment-level).
@@ -143,4 +146,23 @@ export class PersonalProjectAttemptEntity extends UuidAbstractEntity {
         },
     )
         feedbacks: Array<PersonalProjectFeedbackEntity>
+
+    /**
+     * Per-task grading results for this attempt.
+     */
+    @Field(
+        () => [MilestoneTaskResultEntity],
+        {
+            nullable: true,
+            description: "Per-task grading results for this attempt.",
+        },
+    )
+    @OneToMany(
+        () => MilestoneTaskResultEntity,
+        (taskResult: MilestoneTaskResultEntity) => taskResult.attempt,
+        {
+            cascade: true,
+        },
+    )
+        taskResults: Array<MilestoneTaskResultEntity>
 }

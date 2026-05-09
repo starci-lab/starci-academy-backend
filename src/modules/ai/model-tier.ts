@@ -82,4 +82,33 @@ export const modelTierMatrix: Record<
             },
         ],
     },
+    /**
+     * Review personal project task: same grading profile as challenge grading.
+     */
+    [AiTaskKind.ReviewPersonalProject]: {
+        [ModelRecommendation.Low]: [
+            {
+                model: "gpt-4o-mini", provider: ModelProvider.OpenAI
+            },
+            {
+                model: "gemini-2.0-flash", provider: ModelProvider.Gemini
+            },
+        ],
+        [ModelRecommendation.Medium]: [
+            {
+                model: "gpt-4o-mini", provider: ModelProvider.OpenAI
+            },
+            {
+                model: "gemini-2.0-flash", provider: ModelProvider.Gemini
+            },
+        ],
+        [ModelRecommendation.High]: [
+            {
+                model: "gpt-4o", provider: ModelProvider.OpenAI
+            },
+            {
+                model: "gemini-2.0-flash", provider: ModelProvider.Gemini
+            },
+        ],
+    },
 }
