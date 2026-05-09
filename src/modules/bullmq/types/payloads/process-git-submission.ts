@@ -1,4 +1,5 @@
 import {
+    Locale,
     ModelProvider 
 } from "@modules/databases"
 
@@ -24,6 +25,8 @@ export interface ProcessGitSubmissionPayload {
     embeddingModel?: string
     /** Provider of the embedding model. */
     embeddingProvider?: ModelProvider
+    /** Locale hint for filtering/prompting (e.g. "en", "vi"). */
+    locale?: Locale
 }
 
 /**

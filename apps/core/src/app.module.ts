@@ -73,9 +73,6 @@ import {
     BussinessModule
 } from "@modules/bussiness"
 import {
-    WorkerModule
-} from "@features/worker"
-import {
     LangchainModule
 } from "@modules/langchain"
 import {
@@ -137,9 +134,18 @@ import {
 import {
     InitModule,
 } from "@modules/init"
-import { FfmpegModule } from "@modules/ffmpeg"
-import { Bento4Module } from "@modules/bento4"
-import { VideoEncoderModule } from "@features/video-encoder"
+import {
+    FfmpegModule
+} from "@modules/ffmpeg"
+import {
+    Bento4Module
+} from "@modules/bento4"
+import {
+    VideoEncoderModule
+} from "@features/video-encoder"
+import {
+    AiModule
+} from "@modules/ai"
 /**
  * The main module for the application.
  */
@@ -171,6 +177,10 @@ import { VideoEncoderModule } from "@features/video-encoder"
                     isGlobal: true,
                 }
             ),
+            /** AI module. */
+            AiModule.register({
+                isGlobal: true,
+            }),
             /** Cookie module. */
             CookieModule.register(
                 {
@@ -370,12 +380,8 @@ import { VideoEncoderModule } from "@features/video-encoder"
             ApiModule.register(
                 {
                     isGlobal: true,
-                }
-            ),
-            /** Worker module. */
-            WorkerModule.register(
-                {
-                    isGlobal: true,
+                    useCore: true,
+                    useProcessors: true,
                 }
             ),
             /** Socket module. */
@@ -418,6 +424,8 @@ import { VideoEncoderModule } from "@features/video-encoder"
             VideoEncoderModule.register(
                 {
                     isGlobal: true,
+                    useProcessors: true,
+                    useCore: true,
                 }
             ),
         ],

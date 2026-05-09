@@ -57,6 +57,14 @@ export enum ActionType {
      * Encode and package a video into MPEG-DASH format (admin background job).
      */
     ProcessVideo = "processVideo",
+    /**
+     * Grade a personal project GitHub submission against milestone passCriteria.
+     */
+    ProcessPersonalProject = "processPersonalProject",
+    /**
+     * Generate personalised milestones for a personal project from the learner's idea.
+     */
+    GeneratePersonalProjectMilestones = "generatePersonalProjectMilestones",
 }
 
 export const GraphQLTypeActionType = createEnumType(ActionType)
@@ -99,6 +107,12 @@ registerEnumType(
             },
             [ActionType.ProcessVideo]: {
                 description: "Encode and package a video into MPEG-DASH format.",
+            },
+            [ActionType.ProcessPersonalProject]: {
+                description: "Grade a personal project GitHub submission against milestone passCriteria.",
+            },
+            [ActionType.GeneratePersonalProjectMilestones]: {
+                description: "Generate personalised milestones for a personal project from the learner's idea.",
             },
         },
     },

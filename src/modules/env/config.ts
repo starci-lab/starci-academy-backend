@@ -131,6 +131,10 @@ export const envConfig = () => ({
                 key: "CACHE_TTL_COURSE_ENROLLMENT_COUNT",
                 defaultValue: "5m",
             }),
+            enrollmentMilestones: parseEnvMs({
+                key: "CACHE_TTL_ENROLLMENT_MILESTONES",
+                defaultValue: "15m",
+            }),
             aggregatedTokenPrice: parseEnvMs({
                 key: "CACHE_TTL_AGGREGATED_TOKEN_PRICE",
                 defaultValue: "100years"
@@ -853,11 +857,11 @@ export const envConfig = () => ({
         origins: Array.from({
             length: 10
         },
-            (_, i) =>
-                parseEnvString({
-                    key: `CORS_ORIGIN_${i + 1}`,
-                    defaultValue: "http://localhost:3000"
-                }),
+        (_, i) =>
+            parseEnvString({
+                key: `CORS_ORIGIN_${i + 1}`,
+                defaultValue: "http://localhost:3000"
+            }),
         ).filter((url) => url !== "")
     },
     /** Kubernetes configuration. */
@@ -1273,16 +1277,16 @@ export const envConfig = () => ({
                 key: "NATS_SERVERS_COUNT", defaultValue: 1
             })
         },
-            (_, i) => ({
-                host: parseEnvString({
-                    key: `NATS_SERVER_${i + 1}_HOST`,
-                    defaultValue: "localhost"
-                }),
-                port: parseEnvInt({
-                    key: `NATS_SERVER_${i + 1}_PORT`,
-                    defaultValue: 4222
-                }),
-            })),
+        (_, i) => ({
+            host: parseEnvString({
+                key: `NATS_SERVER_${i + 1}_HOST`,
+                defaultValue: "localhost"
+            }),
+            port: parseEnvInt({
+                key: `NATS_SERVER_${i + 1}_PORT`,
+                defaultValue: 4222
+            }),
+        })),
         reconnect: parseEnvBoolean({
             key: "NATS_RECONNECT", defaultValue: true
         }),
@@ -1450,6 +1454,19 @@ export const envConfig = () => ({
                 }
             }
         ]
-    }
+    },
+    /** AI model routing configuration. */
+    ai: {
+        /** "low" | "medium" | "high" — controls which model tier routers pick. */
+        modelRecommendation: parseEnvString({
+            key: "AI_MODEL_RECOMMENDATION",
+            defaultValue: "low",
+        }),
+        /** Interval (ms) between provider quota re-check for unavailable providers. */
+        quotaCheckIntervalMs: parseEnvMs({
+            key: "AI_QUOTA_CHECK_INTERVAL_MS",
+            defaultValue: "5m",
+        }),
+    },
 }
 )

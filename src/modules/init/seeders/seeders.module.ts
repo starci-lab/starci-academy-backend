@@ -43,6 +43,10 @@ import {
     ContentInsertService,
     LessonVideoInsertService,
     ChallengeInsertService,
+    PersonalProjectContextIdFactoryService,
+    PersonalProjectContextPathService,
+    PersonalProjectContextParserService,
+    PersonalProjectContextInsertService,
 } from "./courses"
 import {
     SeedersService,
@@ -90,6 +94,10 @@ const providers = [
     ContentInsertService,
     LessonVideoInsertService,
     ChallengeInsertService,
+    PersonalProjectContextIdFactoryService,
+    PersonalProjectContextPathService,
+    PersonalProjectContextParserService,
+    PersonalProjectContextInsertService,
     SeedersService,
 ]
 

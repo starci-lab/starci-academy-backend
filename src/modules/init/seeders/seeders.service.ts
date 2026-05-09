@@ -15,6 +15,8 @@ import {
     ContentInsertService,
     LessonVideoInsertService,
     ChallengeInsertService,
+    PersonalProjectContextParserService,
+    PersonalProjectContextInsertService,
 } from "./courses"
 import {
     ChallengeEntity,
@@ -22,6 +24,7 @@ import {
     CourseEntity,
     LessonVideoEntity,
     ModuleEntity,
+    PersonalProjectContextEntity,
 } from "@modules/databases"
 import {
     RetryService
@@ -44,6 +47,8 @@ export class SeedersService {
         private readonly contentInsertService: ContentInsertService,
         private readonly lessonVideoInsertService: LessonVideoInsertService,
         private readonly challengeInsertService: ChallengeInsertService,
+        private readonly personalProjectContextParserService: PersonalProjectContextParserService,
+        private readonly personalProjectContextInsertService: PersonalProjectContextInsertService,
         private readonly retryService: RetryService,
     ) { }
 
@@ -233,6 +238,36 @@ export class SeedersService {
                 action: async () => {
                     await this.moduleInsertService.deleteStale(
                         modules.map((module) => module.id as string),
+                        courseId,
+                    )
+                },
+            })
+
+
+            /** 7. Upsert personal project contexts */
+            const personalProjectContexts =
+                await this.personalProjectContextParserService.parseMany(
+                    {
+                        courseRelativePath: courseResults.find(
+                            (cr) => cr.data.id === courseId
+                        )?.relativePath ?? "",
+                        courseIndex: courseResults.find(
+                            (cr) => cr.data.id === courseId
+                        )?.index ?? 0,
+                    },
+                ) as Array<DeepPartial<PersonalProjectContextEntity>>
+            for (const context of personalProjectContexts) {
+                await this.retryService.retry({
+                    action: async () => {
+                        await this.personalProjectContextInsertService.insert(context)
+                    },
+                })
+            }
+            /** Delete stale personal project contexts */
+            await this.retryService.retry({
+                action: async () => {
+                    await this.personalProjectContextInsertService.deleteStale(
+                        personalProjectContexts.map((c) => c.id as string),
                         courseId,
                     )
                 },

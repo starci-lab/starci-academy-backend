@@ -34,6 +34,8 @@ export interface EnqueueProcessGitSubmissionJobParams {
     embeddingModel?: string
     /** Embedding model provider override. */
     embeddingProvider?: ModelProvider
+    /** Locale hint for filtering/prompting (e.g. "en", "vi"). */
+    locale?: string
 }
 
 /** Params for enqueuing a process-google-docs-submission job. */
@@ -74,4 +76,6 @@ export interface EnqueueProcessCvSubmissionJobParams {
     embeddingModel?: string
     /** Embedding model provider override. */
     embeddingProvider?: ModelProvider
+    /** Locale hint for filtering/prompting (e.g. "en", "vi"). */
+    locale?: string
 }

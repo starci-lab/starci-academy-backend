@@ -3,6 +3,7 @@ import {
     ContentEntity,
     CourseEntity,
     LessonVideoEntity,
+    MilestoneEntity,
     ModuleEntity,
 } from "@modules/databases"
 import {
@@ -15,6 +16,7 @@ export type SyncElasticsearchEntityKind =
     | typeof ChallengeEntity.name
     | typeof ContentEntity.name
     | typeof LessonVideoEntity.name
+    | typeof MilestoneEntity.name
     | typeof ModuleEntity.name
 
 /** Payload for a sync-elasticsearch BullMQ job (one entity by id). */

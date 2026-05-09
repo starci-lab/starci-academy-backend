@@ -40,6 +40,12 @@ import {
 import {
     AutocompleteQueriesModule,
 } from "./autocomplete"
+import {
+    MilestonesModule,
+} from "./milestones"
+import {
+    PersonalProjectQueriesModule,
+} from "./personal-project"
 
 @Module({
     imports: [
@@ -77,6 +83,12 @@ import {
             isGlobal: true,
         }),
         AutocompleteQueriesModule.register({
+            isGlobal: true,
+        }),
+        MilestonesModule.register({
+            isGlobal: true,
+        }),
+        PersonalProjectQueriesModule.register({
             isGlobal: true,
         }),
     ],

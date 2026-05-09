@@ -1,0 +1,13 @@
+{
+    "score": "<integer from 1-100 | type: number | eg: 85>",
+    "shortFeedback": "<one short overall summary sentence | type: string | eg: Good structure but needs better error handling>",
+    "submissionFeedbacks": [
+        {
+            "message": "<short actionable issue title | type: string | eg: Missing error handling>",
+            "detail": "<detailed explanation (optional) | type: string | eg: API call does not handle exceptions properly>",
+            "severity": "<severity level | type: 'low' | 'medium' | 'high' | eg: high>",
+            "location": "<file path with line number | type: string | eg: src/controllers/user.controller.ts:27>",
+            "suggestion": "<suggested fix (optional) | type: string | eg: Wrap logic in try-catch and return proper error response>"
+        }
+    ]
+}

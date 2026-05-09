@@ -10,6 +10,12 @@ import {
 import {
     ResolveGithubModule,
 } from "./resolve-github"
+import {
+    ProcessPersonalProjectModule,
+} from "./process-personal-project"
+import {
+    GeneratePersonalProjectMilestonesModule,
+} from "./generate-personal-project-milestones"
 
 /**
  * Module for API-side BullMQ processors.
@@ -22,7 +28,12 @@ import {
         ResolveGithubModule.register({
             isGlobal: true,
         }),
+        ProcessPersonalProjectModule.register({
+            isGlobal: true,
+        }),
+        GeneratePersonalProjectMilestonesModule.register({
+            isGlobal: true,
+        }),
     ],
 })
 export class ProcessorsModule extends ConfigurableModuleClass {}
-

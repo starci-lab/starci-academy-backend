@@ -102,4 +102,12 @@ export enum WinstonLog {
     PgBackupEncryptFailed = "PgBackupEncryptFailed",
     /** Backup: S3 upload failed. */
     PgBackupUploadFailed = "PgBackupUploadFailed",
+    /** AI model router: model resolved/switched. */
+    AiModelRouterResolved = "AiModelRouterResolved",
+    /** AI model router: provider marked unavailable (quota/error). */
+    AiModelRouterFailure = "AiModelRouterFailure",
+    /** AI model router: proactive re-check cleared unavailable providers. */
+    AiModelRouterRecheck = "AiModelRouterRecheck",
+    /** AI ping: provider ping result (success/failure). */
+    AiPingResult = "AiPingResult",
 }

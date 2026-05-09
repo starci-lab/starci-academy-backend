@@ -8,6 +8,7 @@ import type {
     BloomFilterCacheResult,
     CourseEnrollmentCacheResult,
     CourseEnrollmentCountCacheResult,
+    EnrollmentMilestonesCacheResult,
     JobSubscriberClientIdCacheResult,
     KeycloakUserCacheResult,
     ParentIndexCacheResult,
@@ -55,5 +56,9 @@ export const configMap = {
     [CacheKey.CourseEnrollmentCount]: {
         ttl: envConfig().cache.ttl.courseEnrollmentCount,
         cacheResult: 0 as CourseEnrollmentCountCacheResult,
+    },
+    [CacheKey.EnrollmentMilestones]: {
+        ttl: envConfig().cache.ttl.enrollmentMilestones,
+        cacheResult: [] as EnrollmentMilestonesCacheResult,
     },
 }

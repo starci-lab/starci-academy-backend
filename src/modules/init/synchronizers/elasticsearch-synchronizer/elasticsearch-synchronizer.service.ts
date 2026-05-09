@@ -8,6 +8,7 @@ import {
     ContentEntity,
     ChallengeEntity,
     LessonVideoEntity,
+    MilestoneEntity,
     Locale,
 } from "@modules/databases"
 import {
@@ -20,6 +21,7 @@ import {
     ElasticsearchContentBuildService,
     ElasticsearchChallengeBuildService,
     ElasticsearchLessonVideoBuildService,
+    ElasticsearchMilestoneBuildService,
 } from "./builder"
 import {
     WinstonLog,
@@ -50,6 +52,7 @@ export class ElasticsearchSynchronizerService {
         private readonly esContentBuildService: ElasticsearchContentBuildService,
         private readonly esChallengeBuildService: ElasticsearchChallengeBuildService,
         private readonly esLessonVideoBuildService: ElasticsearchLessonVideoBuildService,
+        private readonly esMilestoneBuildService: ElasticsearchMilestoneBuildService,
         private readonly elasticsearchService: ElasticsearchService,
         private readonly retryService: RetryService,
     ) { }
@@ -61,6 +64,7 @@ export class ElasticsearchSynchronizerService {
         ContentEntity.name,
         LessonVideoEntity.name,
         ModuleEntity.name,
+        MilestoneEntity.name,
     ]
 
     /**
@@ -327,6 +331,52 @@ export class ElasticsearchSynchronizerService {
                             )
                         }
                         resumeEntityId = module.id
+                    }
+                    break
+                }
+                case MilestoneEntity.name: {
+                    while (true) {
+                        const milestone = await this.entityManager.findOne(
+                            MilestoneEntity,
+                            {
+                                where: {
+                                    ...(resumeEntityId ? {
+                                        id: MoreThan(resumeEntityId)
+                                    } : {
+                                    }),
+                                },
+                                order: {
+                                    id: "ASC",
+                                },
+                            },
+                        )
+                        if (!milestone) {
+                            break
+                        }
+                        try {
+                            await this.retryService.retry({
+                                action: () => this.esMilestoneBuildService.buildIndexById(
+                                    milestone.id,
+                                ),
+                            })
+                            this.winstonService.log(
+                                WinstonLog.EsSynchronizerSyncedSuccessfully,
+                                {
+                                    entityKind,
+                                    entityId: milestone.id,
+                                }
+                            )
+                        } catch (error) {
+                            this.winstonService.log(
+                                WinstonLog.EsSynchronizerEntitySyncFailed,
+                                {
+                                    entityKind,
+                                    entityId: milestone.id,
+                                    error: error.message,
+                                }
+                            )
+                        }
+                        resumeEntityId = milestone.id
                     }
                     break
                 }

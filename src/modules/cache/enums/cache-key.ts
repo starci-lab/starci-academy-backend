@@ -11,6 +11,7 @@ export enum CacheKey {
     KeycloakUser = "keycloak.user",
     CourseEnrollment = "course.enrollment",
     CourseEnrollmentCount = "course.enrollment.count",
+    EnrollmentMilestones = "enrollment.milestones",
 }
 
 /**

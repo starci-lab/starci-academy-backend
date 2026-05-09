@@ -3,6 +3,7 @@ import {
     LessonVideoEntity,
     ChallengeEntity,
     ContentEntity,
+    MilestoneEntity,
     ModuleEntity,
 } from "@modules/databases"
 
@@ -39,5 +40,8 @@ export const configMap: ConfigMap = {
     },
     [ModuleEntity.name]: {
         indices: "modules",
+    },
+    [MilestoneEntity.name]: {
+        indices: "milestones",
     },
 }

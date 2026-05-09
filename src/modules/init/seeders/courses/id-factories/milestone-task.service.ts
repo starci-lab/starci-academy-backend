@@ -1,0 +1,58 @@
+import {
+    Injectable,
+} from "@nestjs/common"
+import {
+    Sha256Service,
+} from "@modules/crypto"
+import {
+    envConfig,
+} from "@modules/env"
+import {
+    MilestoneIdFactoryService,
+} from "./milestone.service"
+import {
+    v5 as uuidv5,
+} from "uuid"
+
+/**
+ * Input for {@link MilestoneTaskIdFactoryService.generate}.
+ */
+export interface GenerateMilestoneTaskIdParams {
+    courseIndex: number
+    milestoneIndex: number
+    /** Zero-based task index within the milestone. */
+    taskIndex: number
+}
+
+/**
+ * Milestone task UUIDs chain from the parent milestone id string.
+ */
+@Injectable()
+export class MilestoneTaskIdFactoryService {
+    constructor(
+        private readonly sha256Service: Sha256Service,
+        private readonly milestoneIdFactoryService: MilestoneIdFactoryService,
+    ) {}
+
+    generate(
+        {
+            courseIndex,
+            milestoneIndex,
+            taskIndex,
+        }: GenerateMilestoneTaskIdParams,
+    ): string {
+        return uuidv5(
+            this.sha256Service.hash(
+                "milestone-task",
+                this.milestoneIdFactoryService.generate(
+                    {
+                        courseIndex,
+                        milestoneIndex,
+                    },
+                ),
+                taskIndex.toString(),
+            ),
+            envConfig().uuidNamespace.course,
+        )
+    }
+}

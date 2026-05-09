@@ -13,6 +13,7 @@ import {
     ElasticsearchContentBuildService,
     ElasticsearchChallengeBuildService,
     ElasticsearchLessonVideoBuildService,
+    ElasticsearchMilestoneBuildService,
 } from "./builder"
 
 /**
@@ -25,6 +26,7 @@ import {
         ElasticsearchContentBuildService,
         ElasticsearchChallengeBuildService,
         ElasticsearchLessonVideoBuildService,
+        ElasticsearchMilestoneBuildService,
         ElasticsearchSynchronizerService,
     ],
     exports: [

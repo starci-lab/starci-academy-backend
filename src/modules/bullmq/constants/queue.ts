@@ -1,8 +1,8 @@
 import type {
-    BullQueueData 
+    BullQueueData
 } from "../types"
 import {
-    BullQueueName 
+    BullQueueName
 } from "../enums"
 
 /**
@@ -11,9 +11,7 @@ import {
  * @param prefix - Raw prefix string
  * @returns Formatted string like "{prefix}"
  */
-export function formatWithBraces(prefix: string): string {
-    return `{${prefix}}`
-}
+const formatWithBraces = (prefix: string): string => ` {${prefix}} `
 
 /**
  * Centralized configuration for all BullMQ queues.
@@ -91,5 +89,17 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
             "sync-elasticsearch",
         ),
         name: "sync-elasticsearch",
+    },
+    [BullQueueName.ProcessPersonalProject]: {
+        prefix: formatWithBraces(
+            "process-personal-project",
+        ),
+        name: "process-personal-project",
+    },
+    [BullQueueName.GeneratePersonalProjectMilestones]: {
+        prefix: formatWithBraces(
+            "generate-personal-project-milestones",
+        ),
+        name: "generate-personal-project-milestones",
     },
 }

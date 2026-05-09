@@ -27,4 +27,8 @@ export enum BullQueueName {
     SyncCdn = "sync-cdn",
     /** On-demand index of one course/challenge/content/lessonVideo into Elasticsearch. */
     SyncElasticsearch = "sync-elasticsearch",
+    /** Queue for grading a personal project GitHub submission against milestone passCriteria. */
+    ProcessPersonalProject = "process-personal-project",
+    /** Queue for AI-generating personalized milestones from course context + user idea. */
+    GeneratePersonalProjectMilestones = "generate-personal-project-milestones",
 }

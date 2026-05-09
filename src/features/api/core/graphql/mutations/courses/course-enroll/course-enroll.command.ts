@@ -1,6 +1,6 @@
 import {
     ExecuteParams,
-} from "@features/api/core/types"
+} from "../../../../types"
 import {
     CourseEnrollRequest,
 } from "./graphql-types"
@@ -8,5 +8,5 @@ import {
 export class CourseEnrollCommand {
     constructor(
         readonly params: ExecuteParams<CourseEnrollRequest>,
-    ) {}
+    ) { }
 }

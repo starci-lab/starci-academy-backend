@@ -56,6 +56,10 @@ import type {
     PgBackupCompletedSuccessfullyMessage,
     PgBackupFailedMessage,
     PgBackupStepFailedMessage,
+    AiModelRouterResolvedMessage,
+    AiModelRouterFailureMessage,
+    AiModelRouterRecheckMessage,
+    AiPingResultMessage,
 } from "./types"
 
 /** Map of Winston log names to level, Loki flag, and message type. */
@@ -560,5 +564,38 @@ export const configMap = {
         console: true,
         messageType: {
         } as PgBackupStepFailedMessage,
+    },
+    // AI model router logs.
+    [WinstonLog.AiModelRouterResolved]: {
+        name: WinstonLog.AiModelRouterResolved,
+        level: WinstonLevel.Verbose,
+        loki: true,
+        console: true,
+        messageType: {
+        } as AiModelRouterResolvedMessage,
+    },
+    [WinstonLog.AiModelRouterFailure]: {
+        name: WinstonLog.AiModelRouterFailure,
+        level: WinstonLevel.Warn,
+        loki: true,
+        console: true,
+        messageType: {
+        } as AiModelRouterFailureMessage,
+    },
+    [WinstonLog.AiModelRouterRecheck]: {
+        name: WinstonLog.AiModelRouterRecheck,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as AiModelRouterRecheckMessage,
+    },
+    [WinstonLog.AiPingResult]: {
+        name: WinstonLog.AiPingResult,
+        level: WinstonLevel.Debug,
+        loki: true,
+        console: true,
+        messageType: {
+        } as AiPingResultMessage,
     },
 }
