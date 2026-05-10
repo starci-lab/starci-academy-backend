@@ -44,6 +44,7 @@ export class UserEntity extends UuidAbstractEntity {
      */
     @Field(() => String,
         {
+            nullable: true,
             description: "Username of the user."
         })
     @Column({
