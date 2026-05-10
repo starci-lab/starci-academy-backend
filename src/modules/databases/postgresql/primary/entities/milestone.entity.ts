@@ -20,59 +20,65 @@ import {
     UuidAbstractEntity,
 } from "./abstract"
 import {
+    CourseEntity,
+} from "./course.entity"
+import {
+    MilestoneTranslationEntity,
+} from "./milestone-translation.entity"
+import {
     MilestoneTaskEntity,
 } from "./milestone-task.entity"
-import {
-    EnrollmentEntity,
-} from "./enrollment.entity"
 
 /**
- * A milestone belonging to a user's enrollment.
- * AI-generated directly in the target locale — no translation table needed.
+ * A milestone (batch) belonging to a course.
+ * Seeded from `.mount/data/courses/{course}/tasks/{milestone}/`.
+ * Translatable fields (title, description) live in translations.
  */
 @ObjectType({
-    description: "A milestone belonging to a user's enrollment.",
+    description: "A milestone belonging to a course.",
 })
 @Entity("milestones")
 export class MilestoneEntity extends UuidAbstractEntity {
     /**
-     * Human-readable milestone title (in the generated locale).
+     * Milestone title.
      */
     @Field(
         () => String,
         {
-            description: "Human-readable milestone title.",
+            description: "Milestone title.",
         },
     )
     @Column({
         name: "title",
         type: "varchar",
-        length: 255,
+        length: 500,
+        default: "",
     })
         title: string
 
     /**
-     * Week number for this milestone (1-based).
+     * Optional short description of the milestone.
      */
     @Field(
-        () => Int,
+        () => String,
         {
-            description: "Week number for this milestone (1-based).",
+            description: "Milestone description.",
         },
     )
     @Column({
-        name: "week",
-        type: "int",
+        name: "description",
+        type: "text",
+        default: "",
     })
-        week: number
+        description: string
 
     /**
-     * Display order within the enrollment's milestone list.
+     * Display order within the course's milestone list.
      */
     @Field(
         () => Int,
         {
-            description: "Display order within the enrollment's milestone list.",
+            description: "Display order within the course's milestone list.",
         },
     )
     @Column({
@@ -83,12 +89,12 @@ export class MilestoneEntity extends UuidAbstractEntity {
         orderIndex: number
 
     /**
-     * Locale in which this milestone was generated.
+     * Default locale for this milestone.
      */
     @Field(
         () => GraphQLTypeLocale,
         {
-            description: "Locale in which this milestone was generated.",
+            description: "Default locale for this milestone.",
         },
     )
     @Column({
@@ -100,12 +106,63 @@ export class MilestoneEntity extends UuidAbstractEntity {
         defaultLocale: Locale
 
     /**
-     * Ordered tasks belonging to this milestone.
+     * Course this milestone belongs to.
+     */
+    @Field(
+        () => CourseEntity,
+        {
+            description: "Course this milestone belongs to.",
+        },
+    )
+    @ManyToOne(
+        () => CourseEntity,
+        {
+            onDelete: "CASCADE",
+        },
+    )
+    @JoinColumn({
+        name: "course_id",
+        foreignKeyConstraintName:
+            "fk_course_id_milestones_courses",
+    })
+        course: CourseEntity
+
+    @Field(
+        () => ID,
+        {
+            description: "Parent course ID.",
+        },
+    )
+    @RelationId(
+        (m: MilestoneEntity) => m.course,
+    )
+        courseId: string
+
+    /**
+     * Localized translations of milestone fields (title, description).
+     */
+    @Field(
+        () => [MilestoneTranslationEntity],
+        {
+            description: "Localized translations of milestone fields.",
+        },
+    )
+    @OneToMany(
+        () => MilestoneTranslationEntity,
+        (translation: MilestoneTranslationEntity) => translation.milestone,
+        {
+            cascade: true,
+        },
+    )
+        translations: Array<MilestoneTranslationEntity>
+
+    /**
+     * Tasks belonging to this milestone.
      */
     @Field(
         () => [MilestoneTaskEntity],
         {
-            description: "Ordered tasks belonging to this milestone.",
+            description: "Tasks belonging to this milestone.",
         },
     )
     @OneToMany(
@@ -116,37 +173,4 @@ export class MilestoneEntity extends UuidAbstractEntity {
         },
     )
         tasks: Array<MilestoneTaskEntity>
-
-    /**
-     * Enrollment that this milestone belongs to.
-     */
-    @Field(
-        () => EnrollmentEntity,
-        {
-            description: "Enrollment that this milestone belongs to.",
-        },
-    )
-    @ManyToOne(
-        () => EnrollmentEntity,
-        (enrollment: EnrollmentEntity) => enrollment.milestones,
-        {
-            onDelete: "CASCADE",
-        },
-    )
-    @JoinColumn({
-        name: "enrollment_id",
-        foreignKeyConstraintName: "fk_enrollment_id_milestones_enrollments",
-    })
-        enrollment: EnrollmentEntity
-
-    @Field(
-        () => ID,
-        {
-            description: "Enrollment ID.",
-        },
-    )
-    @RelationId(
-        (milestone: MilestoneEntity) => milestone.enrollment,
-    )
-        enrollmentId: string
 }

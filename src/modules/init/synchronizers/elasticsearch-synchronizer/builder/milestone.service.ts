@@ -2,6 +2,7 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
     MilestoneEntity,
+    MilestoneTaskEntity,
     MilestoneResolverService,
 } from "@modules/databases"
 import {
@@ -19,8 +20,8 @@ import {
 import _ from "lodash"
 
 /**
- * Loads a milestone (with tasks + pass criteria + translations) from PostgreSQL
- * and materializes **per-locale** plain objects for Elasticsearch JSON.
+ * Loads a milestone (with tasks + criteria) from PostgreSQL and materializes **per-locale** plain objects
+ * for Elasticsearch JSON.
  */
 @Injectable()
 export class ElasticsearchMilestoneBuildService {
@@ -59,40 +60,48 @@ export class ElasticsearchMilestoneBuildService {
 
     /**
      * Loads the hydrated milestone plain object from PostgreSQL.
+     * Separately queries tasks (with translations + criteria translations) like module queries previewContents.
      */
     private async loadHydratedMilestonePlain(
         id: string,
     ): Promise<MilestoneEntity> {
-        const milestoneRow = await this.entityManager.findOne(
+        const milestoneRow = await this.entityManager.findOneOrFail(
             MilestoneEntity,
             {
                 where: {
                     id,
                 },
                 relations: {
-                    course: true,
                     translations: true,
-                    tasks: {
-                        translations: true,
-                        passCriteria: {
-                            translations: true,
-                        },
-                    },
-                },
-                order: {
-                    tasks: {
-                        orderIndex: "ASC",
-                        passCriteria: {
-                            orderIndex: "ASC",
-                        },
-                    },
                 },
             },
         )
-        if (!milestoneRow) {
-            throw new Error(`Milestone not found: ${id}`)
-        }
-        return milestoneRow.toPlain<MilestoneEntity>()
+        const hydratedMilestone = milestoneRow.toPlain<MilestoneEntity>()
+        const tasks = await this.entityManager.find(
+            MilestoneTaskEntity,
+            {
+                where: {
+                    milestone: {
+                        id: hydratedMilestone.id,
+                    },
+                },
+                relations: {
+                    translations: true,
+                    criteria: {
+                        translations: true,
+                    },
+                },
+                order: {
+                    orderIndex: "ASC",
+                },
+            },
+        )
+        hydratedMilestone.tasks = tasks.map(
+            (
+                task,
+            ) => task.toPlain<MilestoneTaskEntity>()
+        )
+        return hydratedMilestone
     }
 
     /**

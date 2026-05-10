@@ -9,9 +9,6 @@ import {
     ElasticsearchService,
 } from "@modules/elasticsearch"
 import {
-    envConfig,
-} from "@modules/env"
-import {
     Injectable,
 } from "@nestjs/common"
 import {
@@ -24,9 +21,6 @@ import {
 import {
     ModulesResponseData,
 } from "./graphql-types"
-import {
-    estypes,
-} from "@elastic/elasticsearch"
 
 @QueryHandler(ModulesQuery)
 @Injectable()
@@ -45,21 +39,9 @@ export class ModulesHandler
         const {
             request: {
                 courseId,
-                filters: {
-                    limit = envConfig().services.api.pagination.page.limit,
-                    pageNumber = 0,
-                    sorts,
-                    search,
-                },
             },
             locale,
         } = query.params
-
-        const sort = sorts.map((sort) => ({
-            [sort.by]: {
-                order: sort.order.toLowerCase() as estypes.SortOrder,
-            } as estypes.FieldSort,
-        })) as Array<estypes.SortCombinations>
 
         const esQuery = ElasticsearchQueryBuilder.buildSearchQuery({
             filters: [
@@ -68,16 +50,6 @@ export class ModulesHandler
                         "courseId.keyword": courseId,
                     },
                 },
-                {
-                    term: {
-                        locale,
-                    },
-                },
-            ],
-            search,
-            searchFields: [
-                "title^3",
-                "description",
             ],
         })
 
@@ -87,16 +59,18 @@ export class ModulesHandler
                 locale,
             }),
             query: esQuery,
-            sort,
-            from: pageNumber * limit,
-            size: limit,
+            sort: [
+                {
+                    orderIndex: {
+                        order: "asc",
+                    },
+                },
+            ],
+            size: 1000,
         })
-        const total = response.hits.total
-        const count = typeof total === "number" ? total : total?.value || 0
         const data = response.hits.hits.map((hit) => hit._source as ModuleEntity)
 
         return {
-            count,
             data,
         }
     }

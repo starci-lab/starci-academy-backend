@@ -2,10 +2,12 @@ import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
-    EnrollmentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
     MilestoneEntity,
 } from "@modules/databases"
+import {
+    ElasticsearchQueryBuilder,
+    ElasticsearchService,
+} from "@modules/elasticsearch"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -13,79 +15,63 @@ import {
     IQueryHandler,
     QueryHandler,
 } from "@nestjs/cqrs"
-import type {
-    EntityManager,
-} from "typeorm"
 import {
-    MilestonesSingleQuery,
+    MilestonesQuery,
 } from "./milestones.query"
+import {
+    MilestonesResponseData,
+} from "./graphql-types"
 
-@QueryHandler(MilestonesSingleQuery)
+@QueryHandler(MilestonesQuery)
 @Injectable()
 export class MilestonesHandler
-    extends ICQRSHandler<MilestonesSingleQuery, Array<MilestoneEntity>>
-    implements IQueryHandler<MilestonesSingleQuery, Array<MilestoneEntity>> {
+    extends ICQRSHandler<MilestonesQuery, MilestonesResponseData>
+    implements IQueryHandler<MilestonesQuery, MilestonesResponseData> {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
+        private readonly elasticsearch: ElasticsearchService,
     ) {
         super()
     }
 
-    protected override async process(query: MilestonesSingleQuery): Promise<Array<MilestoneEntity>> {
+    protected override async process(
+        query: MilestonesQuery,
+    ): Promise<MilestonesResponseData> {
         const {
-            request,
-            user,
+            request: {
+                courseId,
+            },
+            locale,
         } = query.params
 
-        const { courseId } = request
-        if (!courseId || !user?.id) {
-            return []
+        const esQuery = ElasticsearchQueryBuilder.buildSearchQuery({
+            filters: [
+                {
+                    term: {
+                        "courseId.keyword": courseId,
+                    },
+                },
+            ],
+        })
+
+        const response = await this.elasticsearch.client.search<MilestoneEntity>({
+            index: this.elasticsearch.indicateName({
+                entity: MilestoneEntity.name,
+                locale,
+            }),
+            query: esQuery,
+            sort: [
+                {
+                    orderIndex: {
+                        order: "asc",
+                    },
+                },
+            ],
+            size: 1000,
+        })
+        const data = response.hits.hits.map((hit) => hit._source as MilestoneEntity)
+
+        return {
+            data,
         }
-
-        /** Find the user's enrollment for this course. */
-        const enrollment = await this.entityManager.findOne(
-            EnrollmentEntity,
-            {
-                where: {
-                    course: {
-                        id: courseId,
-                    },
-                    user: {
-                        id: user.id,
-                    },
-                },
-            },
-        )
-
-        if (!enrollment) {
-            return []
-        }
-
-        /** Load milestones with nested tasks and pass criteria. */
-        return this.entityManager.find(
-            MilestoneEntity,
-            {
-                where: {
-                    enrollment: {
-                        id: enrollment.id,
-                    },
-                },
-                relations: {
-                    tasks: {
-                        passCriteria: true,
-                    },
-                },
-                order: {
-                    orderIndex: "ASC",
-                    tasks: {
-                        orderIndex: "ASC",
-                        passCriteria: {
-                            orderIndex: "ASC",
-                        },
-                    },
-                },
-            },
-        )
     }
 }

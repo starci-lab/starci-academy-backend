@@ -36,6 +36,9 @@ import {
     ValuePropositionResolverService,
 } from "./value-proposition-resolver.service"
 import {
+    PersonalProjectContextResolverService,
+} from "./personal-project-context-resolver.service"
+import {
     MilestoneResolverService,
 } from "./milestone-resolver.service"
 import {
@@ -44,9 +47,6 @@ import {
 import {
     MilestoneTaskPassCriteriaResolverService,
 } from "./milestone-task-pass-criteria-resolver.service"
-import {
-    PersonalProjectContextResolverService,
-} from "./personal-project-context-resolver.service"
 import {
     ConfigurableModuleClass
 } from "./resolvers.module-definition"
@@ -63,10 +63,10 @@ const resolverProviders: Array<Provider> = [
     ContentResolverService,
     CourseResolverService,
     ModuleResolverService,
+    PersonalProjectContextResolverService,
     MilestoneResolverService,
     MilestoneTaskResolverService,
     MilestoneTaskPassCriteriaResolverService,
-    PersonalProjectContextResolverService,
 ]
 
 /**

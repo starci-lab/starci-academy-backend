@@ -31,7 +31,7 @@ export const envConfig = () => ({
             order: 1,
             enabled: parseEnvBoolean({
                 key: "ENABLE_INIT_SEEDERS",
-                defaultValue: false,
+                defaultValue: true,
             })
         },
         {
@@ -39,7 +39,7 @@ export const envConfig = () => ({
             order: 2,
             enabled: parseEnvBoolean({
                 key: "ENABLE_INIT_SYNCHRONIZERS",
-                defaultValue: false,
+                defaultValue: true,
             })
         }
     ],

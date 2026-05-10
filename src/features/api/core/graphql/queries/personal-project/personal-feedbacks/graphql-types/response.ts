@@ -3,7 +3,7 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 import {
-    PersonalProjectAttemptEntity,
+    UserMilestoneTaskAttemptEntity,
 } from "@modules/databases"
 import {
     AbstractGraphQLResponse,
@@ -15,12 +15,12 @@ import {
 })
 export class PersonalFeedbacksResponse
     extends AbstractGraphQLResponse
-    implements IAbstractGraphQLResponse<Array<PersonalProjectAttemptEntity>>
+    implements IAbstractGraphQLResponse<Array<UserMilestoneTaskAttemptEntity>>
 {
-    @Field(() => [PersonalProjectAttemptEntity],
+    @Field(() => [UserMilestoneTaskAttemptEntity],
         {
             nullable: true,
             description: "Review attempts with feedback history.",
         })
-        data: Array<PersonalProjectAttemptEntity>
+        data: Array<UserMilestoneTaskAttemptEntity>
 }

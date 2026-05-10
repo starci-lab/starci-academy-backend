@@ -1,2 +1,6 @@
+export * from "./generate-tasks-missing-context"
+export * from "./generate-tasks-not-array"
+export * from "./generate-tasks-parse"
 export * from "./missing-or-invalid-grade-execution-result"
+export * from "./parsing-criteria-results-from-model-text"
 export * from "./parsing-score-from-model-text"

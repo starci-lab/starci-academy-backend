@@ -58,15 +58,15 @@ export enum ActionType {
      */
     ProcessVideo = "processVideo",
     /**
-     * Grade a personal project GitHub submission against milestone passCriteria.
+     * Grade a personal project GitHub submission against task criteria.
      */
     ProcessPersonalProject = "processPersonalProject",
     /**
-     * Generate personalised milestones for a personal project from the learner's idea.
+     * Generate personalised tasks for a personal project from the learner's idea.
      */
-    GeneratePersonalProjectMilestones = "generatePersonalProjectMilestones",
+    GeneratePersonalProjectTasks = "generatePersonalProjectTasks",
     /**
-     * Review a single milestone task against its pass criteria via AI.
+     * Review a single personal project task against its criteria via AI.
      */
     ReviewPersonalProjectTask = "reviewPersonalProjectTask",
 }
@@ -113,13 +113,13 @@ registerEnumType(
                 description: "Encode and package a video into MPEG-DASH format.",
             },
             [ActionType.ProcessPersonalProject]: {
-                description: "Grade a personal project GitHub submission against milestone passCriteria.",
+                description: "Grade a personal project GitHub submission against task criteria.",
             },
-            [ActionType.GeneratePersonalProjectMilestones]: {
-                description: "Generate personalised milestones for a personal project from the learner's idea.",
+            [ActionType.GeneratePersonalProjectTasks]: {
+                description: "Generate personalised tasks for a personal project from the learner's idea.",
             },
             [ActionType.ReviewPersonalProjectTask]: {
-                description: "Review a single milestone task against its pass criteria via AI.",
+                description: "Review a single personal project task against its criteria via AI.",
             },
         },
     },

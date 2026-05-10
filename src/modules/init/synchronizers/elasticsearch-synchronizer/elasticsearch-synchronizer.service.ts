@@ -8,8 +8,9 @@ import {
     ContentEntity,
     ChallengeEntity,
     LessonVideoEntity,
-    MilestoneEntity,
     Locale,
+    MilestoneEntity,
+    MilestoneTaskEntity,
 } from "@modules/databases"
 import {
     MoreThan,
@@ -22,6 +23,7 @@ import {
     ElasticsearchChallengeBuildService,
     ElasticsearchLessonVideoBuildService,
     ElasticsearchMilestoneBuildService,
+    ElasticsearchMilestoneTaskBuildService,
 } from "./builder"
 import {
     WinstonLog,
@@ -34,7 +36,9 @@ import {
 import {
     SyncElasticsearchEntityKind
 } from "@modules/bullmq"
-import { ElasticsearchService } from "@modules/elasticsearch"
+import {
+    ElasticsearchService 
+} from "@modules/elasticsearch"
 
 /**
  * Elasticsearch synchronizer — iterates all entities and calls ES builder for each.
@@ -53,6 +57,7 @@ export class ElasticsearchSynchronizerService {
         private readonly esChallengeBuildService: ElasticsearchChallengeBuildService,
         private readonly esLessonVideoBuildService: ElasticsearchLessonVideoBuildService,
         private readonly esMilestoneBuildService: ElasticsearchMilestoneBuildService,
+        private readonly esMilestoneTaskBuildService: ElasticsearchMilestoneTaskBuildService,
         private readonly elasticsearchService: ElasticsearchService,
         private readonly retryService: RetryService,
     ) { }
@@ -65,6 +70,7 @@ export class ElasticsearchSynchronizerService {
         LessonVideoEntity.name,
         ModuleEntity.name,
         MilestoneEntity.name,
+        MilestoneTaskEntity.name,
     ]
 
     /**
@@ -102,286 +108,333 @@ export class ElasticsearchSynchronizerService {
         for (const entityKind of this.entityKinds) {
             let resumeEntityId: string | null = null
             switch (entityKind) {
-                case CourseEntity.name: {
-                    while (true) {
-                        const course = await this.entityManager.findOne(
-                            CourseEntity,
-                            {
-                                where: {
-                                    ...(
-                                        resumeEntityId ? {
-                                            id: MoreThan(resumeEntityId)
-                                        } : {
-                                        }
-                                    ),
-                                },
-                                order: {
-                                    id: "ASC",
-                                },
-                            },
-                        )
-                        if (!course) {
-                            break
-                        }
-                        try {
-                            await this.retryService.retry({
-                                action: () => this.esCourseBuildService.buildIndexById(
-                                    course.id,
-                                ),
-                            })
-                            this.winstonService.log(
-                                WinstonLog.EsSynchronizerSyncedSuccessfully,
-                                {
-                                    entityKind,
-                                    entityId: course.id,
-                                }
-                            )
-                        } catch (error) {
-                            this.winstonService.log(
-                                WinstonLog.EsSynchronizerEntitySyncFailed,
-                                {
-                                    entityKind,
-                                    entityId: course.id,
-                                    error: error.message,
-                                }
-                            )
-                        }
-                        resumeEntityId = course.id
-                    }
-                    break
-                }
-                case ChallengeEntity.name: {
-                    while (true) {
-                        const challenge = await this.entityManager.findOne(
-                            ChallengeEntity,
-                            {
-                                where: {
-                                    ...(resumeEntityId ? {
+            case CourseEntity.name: {
+                while (true) {
+                    const course = await this.entityManager.findOne(
+                        CourseEntity,
+                        {
+                            where: {
+                                ...(
+                                    resumeEntityId ? {
                                         id: MoreThan(resumeEntityId)
                                     } : {
-                                    }),
-                                },
-                                order: {
-                                    id: "ASC",
-                                },
-                            },
-                        )
-                        if (!challenge) {
-                            break
-                        }
-                        try {
-                            await this.retryService.retry({
-                                action: () => this.esChallengeBuildService.buildIndexById(
-                                    challenge.id,
+                                    }
                                 ),
-                            })
-                            this.winstonService.log(
-                                WinstonLog.EsSynchronizerSyncedSuccessfully,
-                                {
-                                    entityKind,
-                                    entityId: challenge.id,
-                                }
-                            )
-                        } catch (error) {
-                            this.winstonService.log(
-                                WinstonLog.EsSynchronizerEntitySyncFailed,
-                                {
-                                    entityKind,
-                                    entityId: challenge.id,
-                                    error: error.message,
-                                }
-                            )
-                        }
-                        resumeEntityId = challenge.id
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!course) {
+                        break
                     }
-                    break
-                }
-                case ContentEntity.name: {
-                    while (true) {
-                        const content = await this.entityManager.findOne(
-                            ContentEntity,
+                    try {
+                        await this.retryService.retry({
+                            action: () => this.esCourseBuildService.buildIndexById(
+                                course.id,
+                            ),
+                        })
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerSyncedSuccessfully,
                             {
-                                where: {
-                                    ...(resumeEntityId ? {
-                                        id: MoreThan(resumeEntityId)
-                                    } : {
-                                    }),
-                                },
-                                order: {
-                                    id: "ASC",
-                                },
-                            },
+                                entityKind,
+                                entityId: course.id,
+                            }
                         )
-                        if (!content) {
-                            break
-                        }
-                        try {
-                            await this.retryService.retry({
-                                action: () => this.esContentBuildService.buildIndexById(
-                                    content.id,
-                                ),
-                            })
-                            this.winstonService.log(
-                                WinstonLog.EsSynchronizerSyncedSuccessfully,
-                                {
-                                    entityKind,
-                                    entityId: content.id,
-                                }
-                            )
-                        } catch (error) {
-                            this.winstonService.log(
-                                WinstonLog.EsSynchronizerEntitySyncFailed,
-                                {
-                                    entityKind,
-                                    entityId: content.id,
-                                    error: error.message,
-                                }
-                            )
-                        }
-                        resumeEntityId = content.id
-                    }
-                    break
-                }
-                case LessonVideoEntity.name: {
-                    while (true) {
-                        const lessonVideo = await this.entityManager.findOne(
-                            LessonVideoEntity,
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerEntitySyncFailed,
                             {
-                                where: {
-                                    ...(resumeEntityId ? {
-                                        id: MoreThan(resumeEntityId)
-                                    } : {
-                                    }),
-                                },
-                                order: {
-                                    id: "ASC",
-                                },
-                            },
+                                entityKind,
+                                entityId: course.id,
+                                error: error.message,
+                            }
                         )
-                        if (!lessonVideo) {
-                            break
-                        }
-                        try {
-                            await this.retryService.retry({
-                                action: () => this.esLessonVideoBuildService.buildIndexById(
-                                    lessonVideo.id,
-                                ),
-                            })
-                            this.winstonService.log(
-                                WinstonLog.EsSynchronizerSyncedSuccessfully,
-                                {
-                                    entityKind,
-                                    entityId: lessonVideo.id,
-                                }
-                            )
-                        } catch (error) {
-                            this.winstonService.log(
-                                WinstonLog.EsSynchronizerEntitySyncFailed,
-                                {
-                                    entityKind,
-                                    entityId: lessonVideo.id,
-                                    error: error.message,
-                                }
-                            )
-                        }
-                        resumeEntityId = lessonVideo.id
                     }
-                    break
+                    resumeEntityId = course.id
                 }
-                case ModuleEntity.name: {
-                    while (true) {
-                        const module = await this.entityManager.findOne(
-                            ModuleEntity,
+                break
+            }
+            case ChallengeEntity.name: {
+                while (true) {
+                    const challenge = await this.entityManager.findOne(
+                        ChallengeEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId)
+                                } : {
+                                }),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!challenge) {
+                        break
+                    }
+                    try {
+                        await this.retryService.retry({
+                            action: () => this.esChallengeBuildService.buildIndexById(
+                                challenge.id,
+                            ),
+                        })
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerSyncedSuccessfully,
                             {
-                                where: {
-                                    ...(resumeEntityId ? {
-                                        id: MoreThan(resumeEntityId)
-                                    } : {
-                                    }),
-                                },
-                                order: {
-                                    id: "ASC",
-                                },
-                            },
+                                entityKind,
+                                entityId: challenge.id,
+                            }
                         )
-                        if (!module) {
-                            break
-                        }
-                        try {
-                            await this.retryService.retry({
-                                action: () => this.esModuleBuildService.buildIndexById(
-                                    module.id,
-                                ),
-                            })
-                            this.winstonService.log(
-                                WinstonLog.EsSynchronizerSyncedSuccessfully,
-                                {
-                                    entityKind,
-                                    entityId: module.id,
-                                }
-                            )
-                        } catch (error) {
-                            this.winstonService.log(
-                                WinstonLog.EsSynchronizerEntitySyncFailed,
-                                {
-                                    entityKind,
-                                    entityId: module.id,
-                                    error: error.message,
-                                }
-                            )
-                        }
-                        resumeEntityId = module.id
-                    }
-                    break
-                }
-                case MilestoneEntity.name: {
-                    while (true) {
-                        const milestone = await this.entityManager.findOne(
-                            MilestoneEntity,
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerEntitySyncFailed,
                             {
-                                where: {
-                                    ...(resumeEntityId ? {
-                                        id: MoreThan(resumeEntityId)
-                                    } : {
-                                    }),
-                                },
-                                order: {
-                                    id: "ASC",
-                                },
-                            },
+                                entityKind,
+                                entityId: challenge.id,
+                                error: error.message,
+                            }
                         )
-                        if (!milestone) {
-                            break
-                        }
-                        try {
-                            await this.retryService.retry({
-                                action: () => this.esMilestoneBuildService.buildIndexById(
-                                    milestone.id,
-                                ),
-                            })
-                            this.winstonService.log(
-                                WinstonLog.EsSynchronizerSyncedSuccessfully,
-                                {
-                                    entityKind,
-                                    entityId: milestone.id,
-                                }
-                            )
-                        } catch (error) {
-                            this.winstonService.log(
-                                WinstonLog.EsSynchronizerEntitySyncFailed,
-                                {
-                                    entityKind,
-                                    entityId: milestone.id,
-                                    error: error.message,
-                                }
-                            )
-                        }
-                        resumeEntityId = milestone.id
                     }
-                    break
+                    resumeEntityId = challenge.id
                 }
+                break
+            }
+            case ContentEntity.name: {
+                while (true) {
+                    const content = await this.entityManager.findOne(
+                        ContentEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId)
+                                } : {
+                                }),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!content) {
+                        break
+                    }
+                    try {
+                        await this.retryService.retry({
+                            action: () => this.esContentBuildService.buildIndexById(
+                                content.id,
+                            ),
+                        })
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerSyncedSuccessfully,
+                            {
+                                entityKind,
+                                entityId: content.id,
+                            }
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: content.id,
+                                error: error.message,
+                            }
+                        )
+                    }
+                    resumeEntityId = content.id
+                }
+                break
+            }
+            case LessonVideoEntity.name: {
+                while (true) {
+                    const lessonVideo = await this.entityManager.findOne(
+                        LessonVideoEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId)
+                                } : {
+                                }),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!lessonVideo) {
+                        break
+                    }
+                    try {
+                        await this.retryService.retry({
+                            action: () => this.esLessonVideoBuildService.buildIndexById(
+                                lessonVideo.id,
+                            ),
+                        })
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerSyncedSuccessfully,
+                            {
+                                entityKind,
+                                entityId: lessonVideo.id,
+                            }
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: lessonVideo.id,
+                                error: error.message,
+                            }
+                        )
+                    }
+                    resumeEntityId = lessonVideo.id
+                }
+                break
+            }
+            case ModuleEntity.name: {
+                while (true) {
+                    const module = await this.entityManager.findOne(
+                        ModuleEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId)
+                                } : {
+                                }),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!module) {
+                        break
+                    }
+                    try {
+                        await this.retryService.retry({
+                            action: () => this.esModuleBuildService.buildIndexById(
+                                module.id,
+                            ),
+                        })
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerSyncedSuccessfully,
+                            {
+                                entityKind,
+                                entityId: module.id,
+                            }
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: module.id,
+                                error: error.message,
+                            }
+                        )
+                    }
+                    resumeEntityId = module.id
+                }
+                break
+            }
+            case MilestoneEntity.name: {
+                while (true) {
+                    const milestone = await this.entityManager.findOne(
+                        MilestoneEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId)
+                                } : {
+                                }),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!milestone) {
+                        break
+                    }
+                    try {
+                        await this.retryService.retry({
+                            action: () => this.esMilestoneBuildService.buildIndexById(
+                                milestone.id,
+                            ),
+                        })
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerSyncedSuccessfully,
+                            {
+                                entityKind,
+                                entityId: milestone.id,
+                            }
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: milestone.id,
+                                error: error.message,
+                            }
+                        )
+                    }
+                    resumeEntityId = milestone.id
+                }
+                break
+            }
+            case MilestoneTaskEntity.name: {
+                while (true) {
+                    const milestoneTask = await this.entityManager.findOne(
+                        MilestoneTaskEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId)
+                                } : {
+                                }),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!milestoneTask) {
+                        break
+                    }
+                    try {
+                        await this.retryService.retry({
+                            action: () => this.esMilestoneTaskBuildService.buildIndexById(
+                                milestoneTask.id,
+                            ),
+                        })
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerSyncedSuccessfully,
+                            {
+                                entityKind,
+                                entityId: milestoneTask.id,
+                            }
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: milestoneTask.id,
+                                error: error.message,
+                            }
+                        )
+                    }
+                    resumeEntityId = milestoneTask.id
+                }
+                break
+            }
             }
         }
+
         /**
          * End the Elasticsearch synchronization.
          */

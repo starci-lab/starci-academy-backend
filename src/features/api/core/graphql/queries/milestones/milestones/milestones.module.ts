@@ -13,8 +13,14 @@ import {
 import {
     MilestonesHandler,
 } from "./milestones.handler"
+import {
+    ElasticsearchModule,
+} from "@modules/elasticsearch"
 
 @Module({
+    imports: [
+        ElasticsearchModule,
+    ],
     providers: [
         MilestonesService,
         MilestonesResolver,

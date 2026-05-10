@@ -115,7 +115,6 @@ export class ExtractJsonFromMdService {
                 const node = this.withOrderIndex(parsed,
                     index)
                 if (match![2] && typeof node === "object") {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     (node as any).title = match![2].trim()
                 }
                 

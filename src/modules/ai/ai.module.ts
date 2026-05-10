@@ -8,7 +8,7 @@ import {
     AiPingService,
 } from "./ping.service"
 import {
-    GenerateMilestoneModelRouterService,
+    GenerateTaskModelRouterService,
 } from "./generate-milestone-router.service"
 import {
     GradeModelRouterService,
@@ -27,14 +27,14 @@ import {
     providers: [
         AISecretService,
         AiPingService,
-        GenerateMilestoneModelRouterService,
+        GenerateTaskModelRouterService,
         GradeModelRouterService,
         ReviewPersonalProjectModelRouterService,
     ],
     exports: [
         AISecretService,
         AiPingService,
-        GenerateMilestoneModelRouterService,
+        GenerateTaskModelRouterService,
         GradeModelRouterService,
         ReviewPersonalProjectModelRouterService,
     ],

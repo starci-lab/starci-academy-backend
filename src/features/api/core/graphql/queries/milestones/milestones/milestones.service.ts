@@ -5,29 +5,27 @@ import {
     QueryBus,
 } from "@nestjs/cqrs"
 import {
-    MilestoneEntity,
-} from "@modules/databases"
-import {
-    ExecuteParams,
-} from "../../../../types"
-import {
-    MilestonesSingleQuery,
+    MilestonesQuery,
 } from "./milestones.query"
 import {
     MilestonesRequest,
+    MilestonesResponseData,
 } from "./graphql-types"
+import {
+    ExecuteParams,
+} from "../../../../types"
 
 @Injectable()
 export class MilestonesService {
     constructor(
         private readonly queryBus: QueryBus,
-    ) { }
+    ) {}
 
     async execute(
         params: ExecuteParams<MilestonesRequest>,
-    ): Promise<Array<MilestoneEntity>> {
+    ): Promise<MilestonesResponseData> {
         return this.queryBus.execute(
-            new MilestonesSingleQuery(params),
+            new MilestonesQuery(params),
         )
     }
 }

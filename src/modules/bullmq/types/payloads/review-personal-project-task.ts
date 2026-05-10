@@ -11,8 +11,8 @@ export interface ReviewPersonalProjectTaskPayload {
     enrollmentId: string
     /** GitHub URL submitted for review. */
     githubUrl: string
-    /** Milestone task ID to review. */
-    milestoneTaskId: string
+    /** Task ID to review. */
+    taskId: string
     /** Branch to grade (defaults to "main"). */
     branch?: string
     /** LLM model override for grading. */

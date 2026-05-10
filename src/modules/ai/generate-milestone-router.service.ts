@@ -18,13 +18,13 @@ import {
     AiTaskKind,
 } from "./types"
 /**
- * Model router for milestone generation tasks.
+ * Model router for task generation.
  *
  * Picks the most cost-effective model based on the
  * `AI_MODEL_RECOMMENDATION` env tier and provider availability.
  */
 @Injectable()
-export class GenerateMilestoneModelRouterService
+export class GenerateTaskModelRouterService
     extends AbstractModelRouterService
     implements OnModuleInit {
 

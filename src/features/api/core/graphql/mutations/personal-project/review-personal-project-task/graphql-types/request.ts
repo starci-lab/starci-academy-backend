@@ -5,7 +5,7 @@ import {
 } from "@nestjs/graphql"
 
 @InputType({
-    description: "Request to review a single milestone task of a personal project.",
+    description: "Request to review a single task of a personal project.",
 })
 export class ReviewPersonalProjectTaskRequest {
     @Field(
@@ -20,10 +20,10 @@ export class ReviewPersonalProjectTaskRequest {
         () => ID,
         {
             nullable: true,
-            description: "Milestone task ID to review. If omitted, defaults to the first task (orderIndex = 0).",
+            description: "Task ID to review. If omitted, defaults to the first task (orderIndex = 0).",
         },
     )
-        milestoneTaskId?: string
+        taskId?: string
 
     @Field(
         () => String,

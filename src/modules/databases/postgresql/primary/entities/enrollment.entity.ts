@@ -21,17 +21,14 @@ import {
     UserEntity,
 } from "./user.entity"
 import {
-    GraphQLTypeMilestoneStatus,
+    GraphQLTypeTaskPlanStatus,
     GraphQLTypePricingPhase,
-    MilestoneStatus,
+    TaskPlanStatus,
     PricingPhase,
 } from "../enums"
 import {
-    MilestoneEntity,
-} from "./milestone.entity"
-import {
-    PersonalProjectAttemptEntity,
-} from "./personal-project-attempt.entity"
+    UserMilestoneTaskEntity,
+} from "./user-milestone-task.entity"
 
 /**
  * Join entity representing many-to-many enrollment between users and courses.
@@ -116,23 +113,6 @@ export class EnrollmentEntity extends UuidAbstractEntity {
         pricingPhase: PricingPhase
 
     /**
-     * User's personal project idea text at enrollment level.
-     */
-    @Field(
-        () => String,
-        {
-            nullable: true,
-            description: "User's personal project idea text at enrollment level.",
-        },
-    )
-    @Column({
-        name: "idea_text",
-        type: "text",
-        nullable: true,
-    })
-        ideaText: string | null
-
-    /**
      * User's submitted personal project GitHub URL at enrollment level.
      */
     @Field(
@@ -151,64 +131,55 @@ export class EnrollmentEntity extends UuidAbstractEntity {
         personalProjectGithubUrl: string | null
 
     /**
-     * Current status of the milestone plan.
+     * Current status of the task plan.
      */
     @Field(
-        () => GraphQLTypeMilestoneStatus,
+        () => GraphQLTypeTaskPlanStatus,
         {
-            description: "Current progress status of the enrollment's milestone plan.",
+            description: "Current progress status of the enrollment's task plan.",
         },
     )
     @Column({
-        name: "milestone_status",
+        name: "task_plan_status",
         type: "enum",
-        enum: MilestoneStatus,
-        enumName: "milestone_status",
-        default: MilestoneStatus.Locked,
+        enum: TaskPlanStatus,
+        enumName: "task_plan_status",
+        default: TaskPlanStatus.Locked,
     })
-        milestoneStatus: MilestoneStatus
+        taskPlanStatus: TaskPlanStatus
 
     /**
-     * Timestamp when all milestones were completed (null if not yet).
+     * Timestamp when all tasks were completed (null if not yet).
      */
     @Field(
         () => Date,
         {
             nullable: true,
-            description: "Timestamp when the milestone plan was completed.",
+            description: "Timestamp when the task plan was completed.",
         },
     )
     @Column({
-        name: "milestones_completed_at",
+        name: "tasks_completed_at",
         type: "timestamptz",
         nullable: true,
     })
-        milestonesCompletedAt: Date | null
+        tasksCompletedAt: Date | null
 
     /**
-     * Milestones belonging to this enrollment.
+     * User milestone tasks belonging to this enrollment.
      */
     @Field(
-        () => [MilestoneEntity],
+        () => [UserMilestoneTaskEntity],
         {
-            description: "Milestones belonging to this enrollment.",
+            description: "User milestone tasks belonging to this enrollment.",
         },
     )
     @OneToMany(
-        () => MilestoneEntity,
-        (milestone: MilestoneEntity) => milestone.enrollment,
+        () => UserMilestoneTaskEntity,
+        (task: UserMilestoneTaskEntity) => task.enrollment,
         {
             cascade: true,
         },
     )
-        milestones: Array<MilestoneEntity>
-
-    /**
-     * Personal project review attempts linked to this enrollment.
-     */
-    @OneToMany(
-        () => PersonalProjectAttemptEntity,
-        (attempt: PersonalProjectAttemptEntity) => attempt.enrollment,
-    )
-        attempts: Array<PersonalProjectAttemptEntity>
+        userMilestoneTasks: Array<UserMilestoneTaskEntity>
 }

@@ -11,7 +11,7 @@ export interface NoPersonalProjectTasksFoundExceptionMetadata extends AbstractEx
     userId?: string
 }
 
-/** Thrown when no milestone tasks exist for the given enrollment. */
+/** Thrown when no personal project tasks exist for the given enrollment. */
 export class NoPersonalProjectTasksFoundException extends AbstractException {
     constructor({
         courseId,

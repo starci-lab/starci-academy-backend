@@ -96,11 +96,11 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
         ),
         name: "process-personal-project",
     },
-    [BullQueueName.GeneratePersonalProjectMilestones]: {
+    [BullQueueName.GeneratePersonalProjectTasks]: {
         prefix: formatWithBraces(
-            "generate-personal-project-milestones",
+            "generate-personal-project-tasks",
         ),
-        name: "generate-personal-project-milestones",
+        name: "generate-personal-project-tasks",
     },
     [BullQueueName.ReviewPersonalProjectTask]: {
         prefix: formatWithBraces(

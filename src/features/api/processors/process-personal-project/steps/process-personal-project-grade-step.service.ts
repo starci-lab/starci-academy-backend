@@ -14,7 +14,6 @@ import {
 import {
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
-    MilestoneEntity,
     ModelProvider,
     PersonalProjectAttemptEntity,
 } from "@modules/databases"
@@ -115,28 +114,24 @@ export class ProcessPersonalProjectGradeStepService extends AbstractStepService<
             {
                 where: { id: attempt.enrollmentId },
                 relations: {
-                    milestones: {
-                        tasks: {
-                            passCriteria: true,
-                        },
+                    tasks: {
+                        criteria: true,
                     },
                 },
             },
         )
 
         /**
-         * Collect pass criteria from real milestone entities.
+         * Collect criteria from flat task entities.
          */
         const passCriteria: Array<{ text: string, promptText: string, orderIndex: number }> = []
-        for (const milestone of (enrollment.milestones ?? [])) {
-            for (const task of (milestone.tasks ?? [])) {
-                for (const criteria of (task.passCriteria ?? [])) {
-                    passCriteria.push({
-                        text: criteria.text ?? "",
-                        promptText: criteria.promptText ?? "",
-                        orderIndex: criteria.orderIndex ?? 0,
-                    })
-                }
+        for (const task of (enrollment.tasks ?? [])) {
+            for (const criteria of (task.criteria ?? [])) {
+                passCriteria.push({
+                    text: criteria.text ?? "",
+                    promptText: criteria.promptText ?? "",
+                    orderIndex: criteria.orderIndex ?? 0,
+                })
             }
         }
 

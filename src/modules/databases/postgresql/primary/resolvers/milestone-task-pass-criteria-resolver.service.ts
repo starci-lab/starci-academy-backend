@@ -2,7 +2,7 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    MilestoneTaskPassCriteriaEntity,
+    MilestoneTaskCriteriaEntity,
 } from "../entities"
 import {
     Locale,
@@ -12,7 +12,7 @@ import {
 } from "./translation.service"
 
 /**
- * Applies translations to a milestone task pass criteria row.
+ * Applies translations to a milestone task criteria row.
  */
 @Injectable()
 export class MilestoneTaskPassCriteriaResolverService {
@@ -21,7 +21,7 @@ export class MilestoneTaskPassCriteriaResolverService {
     ) {}
 
     transform(
-        criteria: MilestoneTaskPassCriteriaEntity,
+        criteria: MilestoneTaskCriteriaEntity,
         locale: Locale,
         fallbackLocale: Locale,
     ): void {
@@ -33,6 +33,6 @@ export class MilestoneTaskPassCriteriaResolverService {
                 fallbackLocale,
             },
         )
-        delete (criteria as Partial<MilestoneTaskPassCriteriaEntity>).translations
+        delete (criteria as Partial<MilestoneTaskCriteriaEntity>).translations
     }
 }

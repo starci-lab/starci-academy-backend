@@ -13,7 +13,6 @@ import {
     ContentEntity,
     CourseEntity,
     LessonVideoEntity,
-    MilestoneEntity,
     ModuleEntity,
 } from "@modules/databases"
 import {
@@ -32,8 +31,6 @@ import type {
     IndexEntityResult,
     IndexEntitiesParams,
     IndexEntitiesResult,
-    SearchParams,
-    SearchResult,
 } from "./types"
 
 /**
@@ -50,7 +47,6 @@ export class ElasticsearchService implements OnModuleInit {
         ChallengeEntity.name,
         ContentEntity.name,
         ModuleEntity.name,
-        MilestoneEntity.name,
     ]
     constructor(
         @InjectElasticsearch()

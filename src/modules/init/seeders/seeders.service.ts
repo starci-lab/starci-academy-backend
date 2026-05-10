@@ -15,8 +15,10 @@ import {
     ContentInsertService,
     LessonVideoInsertService,
     ChallengeInsertService,
-    PersonalProjectContextParserService,
-    PersonalProjectContextInsertService,
+    MilestoneParserService,
+    MilestoneTaskParserService,
+    MilestoneInsertService,
+    MilestoneTaskInsertService,
 } from "./courses"
 import {
     ChallengeEntity,
@@ -24,7 +26,7 @@ import {
     CourseEntity,
     LessonVideoEntity,
     ModuleEntity,
-    PersonalProjectContextEntity,
+    MilestoneTaskEntity,
 } from "@modules/databases"
 import {
     RetryService
@@ -47,8 +49,10 @@ export class SeedersService {
         private readonly contentInsertService: ContentInsertService,
         private readonly lessonVideoInsertService: LessonVideoInsertService,
         private readonly challengeInsertService: ChallengeInsertService,
-        private readonly personalProjectContextParserService: PersonalProjectContextParserService,
-        private readonly personalProjectContextInsertService: PersonalProjectContextInsertService,
+        private readonly milestoneParserService: MilestoneParserService,
+        private readonly milestoneTaskParserService: MilestoneTaskParserService,
+        private readonly milestoneInsertService: MilestoneInsertService,
+        private readonly milestoneTaskInsertService: MilestoneTaskInsertService,
         private readonly retryService: RetryService,
     ) { }
 
@@ -178,13 +182,14 @@ export class SeedersService {
                 for (const content of contents) {
                     const contentId = content.id as string
                     /** Inject FK relation so TypeORM populates the module_id column */
-                    content.module = { id: moduleId } as DeepPartial<any>
+                    content.module = {
+                        id: moduleId 
+                    }
                     await this.retryService.retry({
                         action: async () => {
                             await this.contentInsertService.insert(content)
                         },
                     })
-
                     /** 4. Upsert challenges */
                     const challenges = (content.challenges ?? []) as Array<DeepPartial<ChallengeEntity>>
                     for (const challenge of challenges) {
@@ -243,31 +248,69 @@ export class SeedersService {
                 },
             })
 
+            /** 6. Upsert milestones */
+            const courseResult = courseResults.find(
+                (cr) => cr.data.id === courseId,
+            )
+            const milestoneResults = await this.milestoneParserService.parseMany(
+                {
+                    courseRelativePath: courseResult?.relativePath ?? "",
+                    courseIndex: courseResult?.index ?? 0,
+                },
+            )
+            for (const milestoneResult of milestoneResults) {
+                const milestone = milestoneResult.data
+                const milestoneId = milestone.id as string
 
-            /** 7. Upsert personal project contexts */
-            const personalProjectContexts =
-                await this.personalProjectContextParserService.parseMany(
-                    {
-                        courseRelativePath: courseResults.find(
-                            (cr) => cr.data.id === courseId
-                        )?.relativePath ?? "",
-                        courseIndex: courseResults.find(
-                            (cr) => cr.data.id === courseId
-                        )?.index ?? 0,
-                    },
-                ) as Array<DeepPartial<PersonalProjectContextEntity>>
-            for (const context of personalProjectContexts) {
+                /** Inject FK */
+                milestone.course = {
+                    id: courseId 
+                }
+
                 await this.retryService.retry({
                     action: async () => {
-                        await this.personalProjectContextInsertService.insert(context)
+                        await this.milestoneInsertService.insert(milestone)
+                    },
+                })
+
+                /** 7. Upsert milestone tasks */
+                const taskResults = await this.milestoneTaskParserService.parseMany(
+                    {
+                        milestoneRelativePath: milestoneResult.relativePath,
+                        courseIndex: courseResult?.index ?? 0,
+                        milestoneIndex: milestoneResult.index,
+                    },
+                )
+                const tasks: Array<DeepPartial<MilestoneTaskEntity>> = []
+                for (const taskResult of taskResults) {
+                    const task = taskResult.data
+                    /** Inject FK */
+                    task.milestone = {
+                        id: milestoneId 
+                    } as any
+                    tasks.push(task)
+
+                    await this.retryService.retry({
+                        action: async () => {
+                            await this.milestoneTaskInsertService.insert(task)
+                        },
+                    })
+                }
+                /** Delete stale tasks */
+                await this.retryService.retry({
+                    action: async () => {
+                        await this.milestoneTaskInsertService.deleteStale(
+                            tasks.map((t) => t.id as string),
+                            milestoneId,
+                        )
                     },
                 })
             }
-            /** Delete stale personal project contexts */
+            /** Delete stale milestones */
             await this.retryService.retry({
                 action: async () => {
-                    await this.personalProjectContextInsertService.deleteStale(
-                        personalProjectContexts.map((c) => c.id as string),
+                    await this.milestoneInsertService.deleteStale(
+                        milestoneResults.map((m) => m.data.id as string),
                         courseId,
                     )
                 },

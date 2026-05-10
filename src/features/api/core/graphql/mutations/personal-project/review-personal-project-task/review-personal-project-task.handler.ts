@@ -4,6 +4,7 @@ import {
 import {
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
+    MilestoneTaskEntity,
 } from "@modules/databases"
 import {
     Injectable,
@@ -52,7 +53,7 @@ export class ReviewPersonalProjectTaskHandler
             })
         }
 
-        /** Find enrollment from courseId + user, include milestones → tasks */
+        /** Find enrollment from courseId + user */
         const enrollment = await this.entityManager.findOneOrFail(
             EnrollmentEntity,
             {
@@ -66,35 +67,38 @@ export class ReviewPersonalProjectTaskHandler
                 },
                 select: {
                     id: true,
-                    milestones: {
-                        id: true,
-                        tasks: {
-                            id: true,
-                            orderIndex: true,
-                        },
-                    },
-                },
-                relations: {
-                    milestones: {
-                        tasks: true,
-                    },
                 },
             },
         )
 
-        /** Resolve milestoneTaskId: use provided or default to first task (orderIndex 0) */
-        let milestoneTaskId = request.milestoneTaskId
-        if (!milestoneTaskId) {
-            const tasks = (enrollment.milestones ?? [])
-                .flatMap((milestone) => milestone.tasks ?? [])
-                .sort((prev, next) => prev.orderIndex - next.orderIndex)
-            if (tasks.length === 0) {
+        /** Resolve taskId: use provided or default to first milestone task (orderIndex 0) */
+        let taskId = request.taskId
+        if (!taskId) {
+            const firstTask = await this.entityManager.findOne(
+                MilestoneTaskEntity,
+                {
+                    where: {
+                        milestone: {
+                            course: {
+                                id: request.courseId,
+                            },
+                        },
+                    },
+                    order: {
+                        orderIndex: "ASC",
+                    },
+                    select: {
+                        id: true,
+                    },
+                },
+            )
+            if (!firstTask) {
                 throw new NoPersonalProjectTasksFoundException({
                     courseId: request.courseId,
                     userId: user.id,
                 })
             }
-            milestoneTaskId = tasks[0].id
+            taskId = firstTask.id
         }
 
         /** Update githubUrl on enrollment */
@@ -105,7 +109,7 @@ export class ReviewPersonalProjectTaskHandler
         )
         /** Enqueue grading job */
         const job = await this.enqueueReviewPersonalProjectTaskJobService.enqueue({
-            milestoneTaskId,
+            taskId,
             branch: request.branch,
             userId: user.id,
             locale,

@@ -47,7 +47,7 @@ export class PersonalFeedbacksResolver {
         () => PersonalFeedbacksResponse,
         {
             name: "personalFeedbacks",
-            description: "Fetch review attempt history with feedback for a personal project milestone.",
+            description: "Fetch review attempt history with feedback for a personal project task.",
         },
     )
     async execute(

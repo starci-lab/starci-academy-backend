@@ -14,11 +14,8 @@ import {
     ProcessPersonalProjectModule,
 } from "./process-personal-project"
 import {
-    GeneratePersonalProjectMilestonesModule,
-} from "./generate-personal-project-milestones"
-import {
-    ReviewPersonalProjectTaskModule,
-} from "./review-personal-project-task"
+    ReviewMilestoneTaskModule,
+} from "./review-milestone-task"
 
 /**
  * Module for API-side BullMQ processors.
@@ -34,10 +31,7 @@ import {
         ProcessPersonalProjectModule.register({
             isGlobal: true,
         }),
-        GeneratePersonalProjectMilestonesModule.register({
-            isGlobal: true,
-        }),
-        ReviewPersonalProjectTaskModule.register({
+        ReviewMilestoneTaskModule.register({
             isGlobal: true,
         }),
     ],

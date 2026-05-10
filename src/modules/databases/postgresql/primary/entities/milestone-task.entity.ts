@@ -6,7 +6,9 @@ import {
 } from "@nestjs/graphql"
 import {
     GraphQLTypeLocale,
+    GraphQLTypePersonalProjectTaskType,
     Locale,
+    PersonalProjectTaskType,
 } from "../enums"
 import {
     Column,
@@ -17,20 +19,22 @@ import {
     RelationId,
 } from "typeorm"
 import {
-    MilestoneEntity,
-} from "./milestone.entity"
-import {
     UuidAbstractEntity,
 } from "./abstract"
 import {
-    MilestoneTaskPassCriteriaEntity,
-} from "./milestone-task-pass-criteria.entity"
+    MilestoneEntity,
+} from "./milestone.entity"
 import {
-    MilestoneTaskResultEntity,
-} from "./milestone-task-result.entity"
+    MilestoneTaskTranslationEntity,
+} from "./milestone-task-translation.entity"
+import {
+    MilestoneTaskCriteriaEntity,
+} from "./milestone-task-criteria.entity"
 
 /**
- * A task belonging to a milestone (e.g. "Xác định bài toán").
+ * A task belonging to a milestone.
+ * Seeded from `.mount/data/courses/{course}/tasks/{milestone}/{task}/`.
+ * Translatable fields (title, description) live in translations.
  */
 @ObjectType({
     description: "A task belonging to a milestone.",
@@ -38,45 +42,61 @@ import {
 @Entity("milestone_tasks")
 export class MilestoneTaskEntity extends UuidAbstractEntity {
     /**
-     * Human-readable task title.
+     * Task title.
      */
     @Field(
         () => String,
         {
-            description: "Human-readable task title.",
+            description: "Task title.",
         },
     )
     @Column({
         name: "title",
         type: "varchar",
         length: 500,
+        default: "",
     })
         title: string
 
     /**
-     * Detailed description of the task.
+     * Task description.
      */
     @Field(
         () => String,
         {
-            nullable: true,
-            description: "Detailed description of the task.",
+            description: "Task description.",
         },
     )
     @Column({
         name: "description",
         type: "text",
-        nullable: true,
+        default: "",
     })
-        description: string | null
+        description: string
 
     /**
-     * Display order within the milestone task list.
+     * Task hint.
+     */
+    @Field(
+        () => String,
+        {
+            description: "Task hint.",
+        },
+    )
+    @Column({
+        name: "hint",
+        type: "text",
+        default: "",
+    })
+        hint: string
+
+    /**
+     * Display order within the milestone's task list.
      */
     @Field(
         () => Int,
         {
-            description: "Display order within the milestone task list.",
+            description: "Display order within the milestone's task list.",
         },
     )
     @Column({
@@ -87,12 +107,62 @@ export class MilestoneTaskEntity extends UuidAbstractEntity {
         orderIndex: number
 
     /**
-     * Default locale for the task.
+     * Priority weight — lower values are higher priority.
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Priority weight — lower values are higher priority.",
+        },
+    )
+    @Column({
+        name: "weight",
+        type: "int",
+        default: 0,
+    })
+        weight: number
+
+    /**
+     * Task type classification (design, techIntegrate, business).
+     */
+    @Field(
+        () => GraphQLTypePersonalProjectTaskType,
+        {
+            description: "Task type classification.",
+        },
+    )
+    @Column({
+        name: "type",
+        type: "enum",
+        enum: PersonalProjectTaskType,
+        enumName: "personal_project_task_type",
+        default: PersonalProjectTaskType.Business,
+    })
+        type: PersonalProjectTaskType
+
+    /**
+     * Maximum possible score for this task (sum of all criteria scores).
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Maximum possible score for this task.",
+        },
+    )
+    @Column({
+        name: "max_score",
+        type: "int",
+        default: 0,
+    })
+        maxScore: number
+
+    /**
+     * Default locale for this task.
      */
     @Field(
         () => GraphQLTypeLocale,
         {
-            description: "Default locale for this task row.",
+            description: "Default locale for this task.",
         },
     )
     @Column({
@@ -137,31 +207,39 @@ export class MilestoneTaskEntity extends UuidAbstractEntity {
     )
         milestoneId: string
 
-
     /**
-     * Ordered pass criteria belonging to this task.
+     * Localized translations of task fields (title, description).
      */
     @Field(
-        () => [MilestoneTaskPassCriteriaEntity],
+        () => [MilestoneTaskTranslationEntity],
         {
-            description: "Ordered pass criteria for this milestone task.",
+            description: "Localized translations of task fields.",
         },
     )
     @OneToMany(
-        () => MilestoneTaskPassCriteriaEntity,
-        (criteria: MilestoneTaskPassCriteriaEntity) => criteria.milestoneTask,
+        () => MilestoneTaskTranslationEntity,
+        (translation: MilestoneTaskTranslationEntity) => translation.milestoneTask,
         {
             cascade: true,
         },
     )
-        passCriteria: Array<MilestoneTaskPassCriteriaEntity>
+        translations: Array<MilestoneTaskTranslationEntity>
 
     /**
-     * Grading results for this task across all attempts.
+     * Criteria belonging to this task.
      */
-    @OneToMany(
-        () => MilestoneTaskResultEntity,
-        (taskResult: MilestoneTaskResultEntity) => taskResult.milestoneTask,
+    @Field(
+        () => [MilestoneTaskCriteriaEntity],
+        {
+            description: "Criteria belonging to this task.",
+        },
     )
-        taskResults: Array<MilestoneTaskResultEntity>
+    @OneToMany(
+        () => MilestoneTaskCriteriaEntity,
+        (criteria: MilestoneTaskCriteriaEntity) => criteria.milestoneTask,
+        {
+            cascade: true,
+        },
+    )
+        criteria: Array<MilestoneTaskCriteriaEntity>
 }

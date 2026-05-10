@@ -15,7 +15,7 @@ import {
 } from "./milestone-task-pass-criteria-resolver.service"
 
 /**
- * Applies translations to a milestone task row and its pass criteria.
+ * Applies translations to a milestone task row and its criteria.
  */
 @Injectable()
 export class MilestoneTaskResolverService {
@@ -47,8 +47,8 @@ export class MilestoneTaskResolverService {
         )
         delete (task as Partial<MilestoneTaskEntity>).translations
 
-        if (task.passCriteria?.length) {
-            task.passCriteria = task.passCriteria.map(
+        if (task.criteria?.length) {
+            task.criteria = task.criteria.map(
                 (criteria) => {
                     this.passCriteriaResolver.transform(
                         criteria,

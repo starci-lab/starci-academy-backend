@@ -42,8 +42,8 @@ export interface EnqueueReviewPersonalProjectTaskParams {
     enrollmentId: string
     /** GitHub URL submitted for review. */
     githubUrl: string
-    /** Milestone task ID to review. */
-    milestoneTaskId: string
+    /** Task ID to review. */
+    taskId: string
     /** Branch to grade (defaults to "main"). */
     branch?: string
     /** User ID associated with the job. */
@@ -77,7 +77,7 @@ export class EnqueueReviewPersonalProjectTaskJobService {
         {
             enrollmentId,
             githubUrl,
-            milestoneTaskId,
+            taskId,
             branch,
             userId,
             model,
@@ -88,7 +88,7 @@ export class EnqueueReviewPersonalProjectTaskJobService {
         const payload: ReviewPersonalProjectTaskPayload = {
             enrollmentId,
             githubUrl,
-            milestoneTaskId,
+            taskId,
             branch: branch ?? "main",
             gradingModel: model || this.reviewPersonalProjectModelRouterService.model,
             gradingProvider: provider || this.reviewPersonalProjectModelRouterService.provider,

@@ -5,7 +5,7 @@ import {
     MilestonesRequest,
 } from "./graphql-types"
 
-export class MilestonesSingleQuery {
+export class MilestonesQuery {
     constructor(
         readonly params: ExecuteParams<MilestonesRequest>,
     ) {}

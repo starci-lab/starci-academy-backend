@@ -9,9 +9,15 @@ export interface AppConfigSystemChallenge {
     passThreshold: number
 }
 
+/** `systemConfig.task` in mounted `app.json`. */
+export interface AppConfigSystemTask {
+    passThreshold: number
+}
+
 /** `systemConfig` in mounted `app.json`. */
 export interface AppConfigSystemConfig {
     challenge: AppConfigSystemChallenge
+    task: AppConfigSystemTask
 }
 
 /** Root app config. */

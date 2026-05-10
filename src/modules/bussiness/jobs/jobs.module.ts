@@ -19,7 +19,7 @@ import {
     EnqueueSyncCdnJobService,
     EnqueueSyncElasticsearchJobService,
     EnqueueProcessPersonalProjectJobService,
-    EnqueueGeneratePersonalProjectMilestonesJobService,
+    EnqueueGeneratePersonalProjectTasksJobService,
     EnqueueReviewPersonalProjectTaskJobService,
 } from "./enqueue"
 import {
@@ -53,7 +53,7 @@ export class JobsModule extends ConfigurableModuleClass {
                 EnqueueSyncCdnJobService,
                 EnqueueSyncElasticsearchJobService,
                 EnqueueProcessPersonalProjectJobService,
-                EnqueueGeneratePersonalProjectMilestonesJobService,
+                EnqueueGeneratePersonalProjectTasksJobService,
                 EnqueueReviewPersonalProjectTaskJobService,
             ],
             exports: [
@@ -71,7 +71,7 @@ export class JobsModule extends ConfigurableModuleClass {
                 EnqueueSyncCdnJobService,
                 EnqueueSyncElasticsearchJobService,
                 EnqueueProcessPersonalProjectJobService,
-                EnqueueGeneratePersonalProjectMilestonesJobService,
+                EnqueueGeneratePersonalProjectTasksJobService,
                 EnqueueReviewPersonalProjectTaskJobService,
             ],
         }

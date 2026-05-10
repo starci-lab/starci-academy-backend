@@ -4,6 +4,7 @@ import {
     ModuleEntity,
     ModuleResolverService,
     PreviewContentEntity,
+    ContentEntity,
 } from "@modules/databases"
 import {
     ModuleNotFoundException,
@@ -23,7 +24,7 @@ import {
 import _ from "lodash"
 
 /**
- * Loads a module (with preview contents) from PostgreSQL and materializes **per-locale** plain objects
+ * Loads a module (with preview contents and contents) from PostgreSQL and materializes **per-locale** plain objects
  * (after `ModuleResolverService`) for Elasticsearch JSON.
  */
 @Injectable()
@@ -108,6 +109,27 @@ export class ElasticsearchModuleBuildService {
             (
                 previewContent,
             ) => previewContent.toPlain<PreviewContentEntity>()
+        )
+        const contents = await this.entityManager.find(
+            ContentEntity,
+            {
+                where: {
+                    module: {
+                        id: hydratedModule.id,
+                    },
+                },
+                relations: {
+                    translations: true,
+                },
+                order: {
+                    orderIndex: "ASC",
+                },
+            },
+        )
+        hydratedModule.contents = contents.map(
+            (
+                content,
+            ) => content.toPlain<ContentEntity>()
         )
         return hydratedModule
     }

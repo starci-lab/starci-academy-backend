@@ -4,20 +4,15 @@ import {
     InputType,
 } from "@nestjs/graphql"
 
-
-/** Request for the milestones GraphQL query (by courseId). */
 @InputType({
-    description: "Request for fetching milestones by course id.",
+    description: "Request for listing all milestones in a course.",
 })
 export class MilestonesRequest {
-    /**
-     * Course id to fetch milestones for.
-     */
     @Field(
         () => ID,
         {
-            description: "Course id to fetch milestones for.",
-        }
+            description: "Course id; all milestones in this course are returned.",
+        },
     )
         courseId: string
 }
