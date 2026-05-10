@@ -50,7 +50,7 @@ export class UserEntity extends UuidAbstractEntity {
         name: "username",
         type: "varchar",
         length: 50,
-        unique: false
+        nullable: false
     })
         username: string
     
