@@ -49,7 +49,8 @@ export class UserEntity extends UuidAbstractEntity {
     @Column({
         name: "username",
         type: "varchar",
-        length: 50
+        length: 50,
+        unique: false
     })
         username: string
     
