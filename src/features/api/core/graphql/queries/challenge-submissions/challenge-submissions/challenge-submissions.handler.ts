@@ -4,7 +4,7 @@ import {
 import {
     ChallengeSubmissionEntity,
     InjectPrimaryPostgreSQLEntityManager,
-    SubmissionAttemptEntity,
+    UserChallengeSubmissionAttemptEntity,
     UserChallengeSubmissionEntity,
     UserEntity,
 } from "@modules/databases"
@@ -117,7 +117,7 @@ export class ChallengeSubmissionsHandler
         )
 
         const lastAttempts = await this.entityManager.find(
-            SubmissionAttemptEntity,
+            UserChallengeSubmissionAttemptEntity,
             {
                 where: {
                     userChallengeSubmission: {

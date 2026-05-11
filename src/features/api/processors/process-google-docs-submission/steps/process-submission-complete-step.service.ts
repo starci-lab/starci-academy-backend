@@ -3,8 +3,10 @@ import type {
 } from "@modules/bullmq"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    SubmissionAttemptEntity,
-    SubmissionFeedbackEntity,
+    UserChallengeSubmissionAttemptEntity,
+    UserChallengeSubmissionFeedbackEntity,
+    Locale,
+    SubmissionFeedbackSeverity,
 } from "@modules/databases"
 import {
     JobActionService,
@@ -91,17 +93,22 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
             },
         )
 
-        if (!grade || typeof grade.score !== "number" || !Array.isArray(grade.feedbacks)) {
+        if (
+            !grade
+            || typeof grade.totalScore !== "number"
+            || typeof grade.maxScore !== "number"
+            || !Array.isArray(grade.requirementResults)
+        ) {
             throw new MissingOrInvalidGradeExecutionResultException({
                 grade,
             })
         }
 
-        const feedbackSummary = grade.feedbacks.length ? grade.feedbacks[0] : null
+        const locale = context.payload.locale ?? Locale.En
 
         await this.entityManager.transaction(async (em) => {
             const attemptCount = await em.count(
-                SubmissionAttemptEntity,
+                UserChallengeSubmissionAttemptEntity,
                 {
                     where: {
                         userChallengeSubmission: {
@@ -111,7 +118,7 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                 },
             )
             const attempt = await em.save(
-                SubmissionAttemptEntity,
+                UserChallengeSubmissionAttemptEntity,
                 {
                     userChallengeSubmission: {
                         id: context.payload.userChallengeSubmissionId,
@@ -119,22 +126,32 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                     submissionUrl:
                         context.extended?.userChallengeSubmission.submissionUrl ?? "",
                     attemptNumber: attemptCount + 1,
-                    score: grade.score,
+                    score: grade.totalScore,
                     processedAt: this.dayjsService.now().toDate(),
-                    shortFeedback: feedbackSummary,
+                    shortFeedback: grade.failedRequirements === 0
+                        ? "All criteria passed."
+                        : `${grade.failedRequirements} criteria failed.`,
+                    defaultLocale: locale,
                 },
             )
 
-            const feedbackEntities = grade.feedbacks.map((msg, index) => {
-                const entity = new SubmissionFeedbackEntity()
-                entity.attempt = attempt
-                entity.message = msg
-                entity.orderIndex = index
-                return entity
-            })
+            const feedbackEntities = grade.requirementResults
+                .filter((cr) => !cr.passed)
+                .map((msg, index) => {
+                    const entity = new UserChallengeSubmissionFeedbackEntity()
+                    entity.attempt = attempt
+                    entity.message = msg.feedback
+                    entity.detail = null
+                    entity.location = msg.location?.trim() || null
+                    entity.suggestion = msg.suggestion?.trim() || null
+                    entity.severity = SubmissionFeedbackSeverity.Medium
+                    entity.orderIndex = index
+                    entity.defaultLocale = locale
+                    return entity
+                })
 
             await em.save(
-                SubmissionFeedbackEntity,
+                UserChallengeSubmissionFeedbackEntity,
                 feedbackEntities,
             )
         })

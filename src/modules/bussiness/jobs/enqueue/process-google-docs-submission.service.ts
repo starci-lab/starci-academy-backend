@@ -8,6 +8,7 @@ import {
 import {
     ActionType,
     JobEntity,
+    Locale,
 } from "@modules/databases"
 import {
     InjectSuperJson,
@@ -61,6 +62,9 @@ export class EnqueueProcessGoogleDocsSubmissionJobService {
         gradingProvider,
         embeddingModel,
         embeddingProvider,
+        locale,
+        courseId,
+        enrollmentId,
     }: EnqueueProcessGoogleDocsSubmissionJobParams): Promise<JobEntity> {
         let job: JobEntity | null = null
         if (jobId) {
@@ -76,6 +80,8 @@ export class EnqueueProcessGoogleDocsSubmissionJobService {
                 userId,
                 userChallengeSubmissionId,
                 challengeSubmissionId,
+                courseId,
+                enrollmentId,
                 ...(gradingModel !== undefined ? {
                     gradingModel,
                 } : {
@@ -90,6 +96,10 @@ export class EnqueueProcessGoogleDocsSubmissionJobService {
                 }),
                 ...(embeddingProvider !== undefined ? {
                     embeddingProvider,
+                } : {
+                }),
+                ...(locale !== undefined ? {
+                    locale: locale as Locale,
                 } : {
                 }),
             }

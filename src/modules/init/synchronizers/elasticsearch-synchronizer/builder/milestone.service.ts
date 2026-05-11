@@ -87,7 +87,7 @@ export class ElasticsearchMilestoneBuildService {
                 },
                 relations: {
                     translations: true,
-                    criteria: {
+                    criterias: {
                         translations: true,
                     },
                 },

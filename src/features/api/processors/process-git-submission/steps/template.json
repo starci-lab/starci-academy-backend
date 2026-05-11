@@ -1,13 +1,12 @@
 {
-    "score": "<integer from 1-100 | type: number | eg: 85>",
-    "shortFeedback": "<one short overall summary sentence | type: string | eg: Good structure but needs better error handling>",
-    "submissionFeedbacks": [
+    "requirementResults": [
         {
-            "message": "<short actionable issue title | type: string | eg: Missing error handling>",
-            "detail": "<detailed explanation (optional) | type: string | eg: API call does not handle exceptions properly>",
-            "severity": "<severity level | type: 'low' | 'medium' | 'high' | eg: high>",
-            "location": "<file path with line number | type: string | eg: src/controllers/user.controller.ts:27>",
-            "suggestion": "<suggested fix (optional) | type: string | eg: Wrap logic in try-catch and return proper error response>"
+            "requirementId": "<uuid of the requirement | type: string | eg: 123e4567-e89b-12d3-a456-426614174000>",
+            "passed": "<whether the requirement is passed | type: boolean | eg: true>",
+            "feedback": "<brief explanation of why it passed or failed | type: string | eg: Code handles all edge cases correctly.>",
+            "location": "<file path with line number or null if passed | type: string | null | eg: src/utils/math.ts:42>",
+            "suggestion": "<suggested fix or null if passed | type: string | null | eg: Consider using Math.abs()>",
+            "score": "<score for this requirement | type: number | eg: 10>"
         }
     ]
 }

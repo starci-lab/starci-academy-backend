@@ -55,13 +55,11 @@ export class ChallengeHandler
             key: objectKey,
             provider: S3Provider.Minio,
         }).catch(() => null)
-
         if (!cdnPayload) {
             throw new ChallengeNotFoundException({
                 id: request.id,
             })
         }
-
         return this.superJson.parse<ChallengeEntity>(cdnPayload.data)
     }
 }

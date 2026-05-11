@@ -31,7 +31,7 @@ export const envConfig = () => ({
             order: 1,
             enabled: parseEnvBoolean({
                 key: "ENABLE_INIT_SEEDERS",
-                defaultValue: true,
+                defaultValue: false,
             })
         },
         {
@@ -39,7 +39,7 @@ export const envConfig = () => ({
             order: 2,
             enabled: parseEnvBoolean({
                 key: "ENABLE_INIT_SYNCHRONIZERS",
-                defaultValue: true,
+                defaultValue: false,
             })
         }
     ],
@@ -134,6 +134,14 @@ export const envConfig = () => ({
             enrollmentMilestones: parseEnvMs({
                 key: "CACHE_TTL_ENROLLMENT_MILESTONES",
                 defaultValue: "15m",
+            }),
+            milestoneTaskProgress: parseEnvMs({
+                key: "CACHE_TTL_MILESTONE_TASK_PROGRESS",
+                defaultValue: "100years",
+            }),
+            challengeSubmissionProgress: parseEnvMs({
+                key: "CACHE_TTL_CHALLENGE_SUBMISSION_PROGRESS",
+                defaultValue: "5m",
             }),
             aggregatedTokenPrice: parseEnvMs({
                 key: "CACHE_TTL_AGGREGATED_TOKEN_PRICE",

@@ -61,6 +61,7 @@ import type {
 import {
     MountStorageService,
 } from "@modules/filesystem"
+import template from "./template.json"
 import {
     ParsingCriteriaResultsFromModelTextException,
 } from "@modules/exceptions"
@@ -150,13 +151,13 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                     id: payload.taskId
                 },
                 relations: {
-                    criteria: {
+                    criterias: {
                         translations: true,
                     },
                 },
             },
         )
-        const criteria = milestoneTask.criteria ?? []
+        const criteria = milestoneTask.criterias ?? []
 
         /** Load GitHub repo */
         const repoUrl = payload.githubUrl
@@ -275,9 +276,10 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 "### Pass Criteria",
                 criteriaPromptSections || "(no criteria provided)",
                 "",
-                "Respond with JSON only — no markdown fences, no extra text.",
                 "Shape:",
-                "{\"criteriaResults\": [{\"criteriaId\": \"<uuid>\", \"passed\": <boolean>, \"feedback\": \"<brief explanation>\", \"location\": \"<file:line or null>\", \"suggestion\": \"<code snippet or instruction or null>\"}]}",
+                "Your output JSON must exactly match the structure and keys of the following template (replace values as needed):",
+                "",
+                JSON.stringify(template),
                 "",
                 "Rules:",
                 "- criteriaResults must have exactly one entry per criterion, in order.",

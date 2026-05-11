@@ -4,7 +4,7 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 import {
-    SubmissionFeedbackEntity,
+    UserChallengeSubmissionFeedbackEntity,
 } from "@modules/databases"
 import {
     AbstractGraphQLResponse,
@@ -16,12 +16,12 @@ import {
 })
 export class SubmissionFeedbacksResponseData {
     @Field(
-        () => [SubmissionFeedbackEntity],
+        () => [UserChallengeSubmissionFeedbackEntity],
         {
             description: "List of submission feedbacks.",
         },
     )
-        data: Array<SubmissionFeedbackEntity>
+        data: Array<UserChallengeSubmissionFeedbackEntity>
 
     @Field(
         () => Int,

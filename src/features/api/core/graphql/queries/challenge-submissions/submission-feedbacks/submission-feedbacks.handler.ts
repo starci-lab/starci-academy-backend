@@ -3,7 +3,7 @@ import {
 } from "@modules/cqrs"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    SubmissionFeedbackEntity,
+    UserChallengeSubmissionFeedbackEntity,
 } from "@modules/databases"
 import {
     envConfig,
@@ -53,7 +53,7 @@ export class SubmissionFeedbacksHandler
             },
         } = query.params
 
-        const order: FindOptionsOrder<SubmissionFeedbackEntity> = {
+        const order: FindOptionsOrder<UserChallengeSubmissionFeedbackEntity> = {
         }
         for (const sort of sorts) {
             order[sort.by as SubmissionFeedbacksSortBy] = sort.order
@@ -63,7 +63,7 @@ export class SubmissionFeedbacksHandler
             data,
             count,
         ] = await this.entityManager.findAndCount(
-            SubmissionFeedbackEntity,
+            UserChallengeSubmissionFeedbackEntity,
             {
                 where: {
                     attempt: {

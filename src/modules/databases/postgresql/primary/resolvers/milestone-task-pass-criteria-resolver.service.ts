@@ -33,6 +33,22 @@ export class MilestoneTaskPassCriteriaResolverService {
                 fallbackLocale,
             },
         )
+        criteria.hint = this.translationResolver.resolve(
+            {
+                translations: criteria.translations,
+                field: "hint",
+                locale,
+                fallbackLocale,
+            },
+        )
+        criteria.promptText = this.translationResolver.resolve(
+            {
+                translations: criteria.translations,
+                field: "promptText",
+                locale,
+                fallbackLocale,
+            },
+        )
         delete (criteria as Partial<MilestoneTaskCriteriaEntity>).translations
     }
 }

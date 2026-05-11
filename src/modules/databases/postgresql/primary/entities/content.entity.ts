@@ -290,4 +290,23 @@ export class ContentEntity extends UuidAbstractEntity {
         default: 0,
     })
     numLessons: number
+
+    /**
+     * Whether this content requires enrollment (premium content).
+     * Non-premium content is freely accessible and shareable.
+     */
+    @Field(
+        () => Boolean,
+        {
+            nullable: true,
+            defaultValue: false,
+            description: "Whether this content requires enrollment (premium). Non-premium content is freely shareable.",
+        },
+    )
+    @Column({
+        name: "is_premium",
+        type: "boolean",
+        default: false,
+    })
+    isPremium: boolean
 }

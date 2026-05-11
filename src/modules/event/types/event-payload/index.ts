@@ -1,3 +1,5 @@
 export * from "./base"
 export * from "./job-status-updated"
+export * from "./milestone-task-progress-updated"
+export * from "./challenge-submission-progress-updated"
 export * from "./ping"

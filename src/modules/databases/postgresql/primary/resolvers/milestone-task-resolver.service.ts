@@ -45,10 +45,18 @@ export class MilestoneTaskResolverService {
                 fallbackLocale,
             },
         )
+        task.hint = this.translationResolver.resolve(
+            {
+                translations: task.translations,
+                field: "hint",
+                locale,
+                fallbackLocale,
+            },
+        )
         delete (task as Partial<MilestoneTaskEntity>).translations
 
-        if (task.criteria?.length) {
-            task.criteria = task.criteria.map(
+        if (task.criterias?.length) {
+            task.criterias = task.criterias.map(
                 (criteria) => {
                     this.passCriteriaResolver.transform(
                         criteria,

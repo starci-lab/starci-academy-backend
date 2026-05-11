@@ -13,6 +13,7 @@ import {
 } from "@modules/common"
 import {
     InjectPrimaryPostgreSQLEntityManager,
+    EnrollmentEntity,
 } from "@modules/databases"
 import {
     Injectable,
@@ -24,6 +25,10 @@ import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
+import {
+    EventEmitterService,
+    EventName,
+} from "@modules/event"
 import {
     ReviewMilestoneTaskGradeStepService,
 } from "./review-milestone-task-grade-step.service"
@@ -45,6 +50,7 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
         private readonly gradeStepService: ReviewMilestoneTaskGradeStepService,
+        private readonly eventEmitterService: EventEmitterService,
     ) {
         super()
     }
@@ -132,6 +138,24 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                 success: true,
             },
         )
+
+        /** Emit event to update milestone task progress cache via NATS */
+        const enrollment = await this.entityManager.findOne(
+            EnrollmentEntity,
+            {
+                where: { id: executionResult.enrollmentId },
+                select: { id: true, courseId: true },
+            },
+        )
+        if (enrollment) {
+            await this.eventEmitterService.emit({
+                event: EventName.MilestoneTaskProgressUpdated,
+                payload: {
+                    enrollmentId: enrollment.id,
+                    courseId: enrollment.courseId,
+                },
+            })
+        }
     }
 }
 

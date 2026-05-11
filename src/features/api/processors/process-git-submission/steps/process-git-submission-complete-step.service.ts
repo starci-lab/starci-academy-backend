@@ -3,8 +3,10 @@ import type {
 } from "@modules/bullmq"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    SubmissionAttemptEntity,
-    SubmissionFeedbackEntity,
+    UserChallengeSubmissionAttemptEntity,
+    UserChallengeSubmissionFeedbackEntity,
+    SubmissionFeedbackSeverity,
+    Locale,
 } from "@modules/databases"
 import {
     JobActionService,
@@ -120,29 +122,33 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
         )
         if (
             !executionResult
-            || typeof executionResult.score !== "number"
-            || typeof executionResult.shortFeedback !== "string" && executionResult.shortFeedback !== null
-            || !Array.isArray(executionResult.submissionFeedbacks)
+            || typeof executionResult.totalScore !== "number"
+            || typeof executionResult.maxScore !== "number"
+            || !Array.isArray(executionResult.requirementResults)
         ) {
             throw new MissingOrInvalidGradeExecutionResultException({
                 grade: executionResult,
             })
         }
-        const feedbacks: Array<DeepPartial<SubmissionFeedbackEntity>> = executionResult.submissionFeedbacks
+        const locale = context.payload.locale ?? Locale.En
+
+        const feedbacks: Array<DeepPartial<UserChallengeSubmissionFeedbackEntity>> = executionResult.requirementResults
+            .filter((cr) => !cr.passed)
             .map((feedback, index) => ({
-                message: feedback.message,
-                detail: feedback.detail?.trim() || null,
+                message: feedback.feedback,
+                detail: null,
                 location: feedback.location?.trim() || null,
                 suggestion: feedback.suggestion?.trim() || null,
-                severity: feedback.severity,
+                severity: SubmissionFeedbackSeverity.Medium,
                 orderIndex: index,
+                defaultLocale: locale,
             }))
         // Update scalar fields
         await this.entityManager.transaction(
             async (entityManager) => {
                 // Create a new attempt only after we have a valid grade result
                 const attemptCount = await entityManager.count(
-                    SubmissionAttemptEntity,
+                    UserChallengeSubmissionAttemptEntity,
                     {
                         where: {
                             userChallengeSubmission: {
@@ -152,7 +158,7 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
                     },
                 )
                 const attempt = await entityManager.save(
-                    SubmissionAttemptEntity,
+                    UserChallengeSubmissionAttemptEntity,
                     {
                         userChallengeSubmission: {
                             id: context.payload.userChallengeSubmissionId,
@@ -160,15 +166,18 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
                         submissionUrl:
                             context.extended?.userChallengeSubmission.submissionUrl ?? "",
                         attemptNumber: attemptCount + 1,
-                        score: executionResult.score,
+                        score: executionResult.totalScore,
                         processedAt: this.dayjsService.now().toDate(),
-                        shortFeedback: executionResult.shortFeedback,
+                        shortFeedback: executionResult.failedRequirements === 0
+                            ? "All criteria passed."
+                            : `${executionResult.failedRequirements} criteria failed.`,
+                        defaultLocale: locale,
                     },
                 )
                 // Save feedbacks linked to attempt
                 if (feedbacks.length) {
                     await entityManager.save(
-                        SubmissionFeedbackEntity,
+                        UserChallengeSubmissionFeedbackEntity,
                         feedbacks.map(
                             (feedback) => ({
                                 ...feedback,

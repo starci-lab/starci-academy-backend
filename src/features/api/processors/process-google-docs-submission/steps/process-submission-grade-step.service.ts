@@ -10,6 +10,13 @@ import {
     JobActionService,
 } from "@modules/bussiness"
 import {
+    EventEmitterService,
+    EventName,
+} from "@modules/event"
+import {
+    GradeModelRouterService,
+} from "@modules/ai"
+import {
     Injectable,
 } from "@nestjs/common"
 import type {
@@ -25,6 +32,7 @@ import {
 } from "@modules/winston"
 import {
     ProcessGoogleDocsSubmissionGradeStepExecuteResult,
+    ProcessGoogleDocsSubmissionGradeStepRequirementResult,
     ExtendedProcessGoogleDocsSubmissionContext,
 } from "../types"
 import {
@@ -42,7 +50,6 @@ import {
     SystemMessage,
 } from "@langchain/core/messages"
 import {
-    InvalidModelGradeScoreException,
     ParsingScoreFromModelTextException,
 } from "@modules/exceptions"
 import {
@@ -54,6 +61,7 @@ import {
 import type {
     QdrantClient,
 } from "@qdrant/qdrant-js"
+import template from "./template.json"
 
 /**
  * Step 1: grade the submission using database prompts.
@@ -73,6 +81,8 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         @InjectQdrantClient()
         private readonly qdrantClient: QdrantClient,
         private readonly modelService: ModelService,
+        private readonly gradeModelRouterService: GradeModelRouterService,
+        private readonly eventEmitterService: EventEmitterService,
     ) {
         super()
     }
@@ -167,35 +177,48 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 maxChars)
         }
 
-        const challengeSubmission = context.extended?.challengeSubmission
-        const submissionScore = challengeSubmission?.score ?? 100
+        const locale = context.payload.locale ?? null
+        const challenge = context.extended?.challenge
+        const challengeTitle = (challenge?.title ?? "").trim()
+        const requirements = challenge?.requirements ?? []
 
-        const rubric = (context.extended?.prompts ?? [])
-            .map(
-                (prompt, index) => {
-                    const label = prompt.title ? ` (${prompt.title})` : ""
-                    return `### Criterion ${index + 1}${label}\n${prompt.promptText}`
-                },
-            )
+        const criteriaPromptSections = requirements
+            .sort((prev, next) => prev.orderIndex - next.orderIndex)
+            .map((req, index) => {
+                const translations = req.translations?.filter((t) => t.locale === locale) ?? []
+                const purpose = translations.find((t) => t.field === "purpose")?.value ?? req.purpose
+                const technicalConstraints = translations.find((t) => t.field === "technicalConstraints")?.value ?? req.technicalConstraints
+                const promptText = translations.find((t) => t.field === "promptText")?.value ?? req.promptText
+                return `### Criterion ${index + 1} (id: "${req.id}", score: ${req.score})\nPurpose: ${purpose}\nConstraints: ${technicalConstraints}\nGrading Prompt: ${promptText}`
+            })
             .join("\n\n")
 
         const systemText = [
-            "You are an expert principal educator grading a learner's submitted document for a specific course requirement.",
-            "Apply the following rubric (stored in the course database).",
+            `You are a senior educator reviewing a learner's submitted document for challenge: "${challengeTitle}".`,
+            "Review the document against EACH pass criterion below.",
+            "For EACH criterion, determine if the document meets the requirement (passed = true/false) and provide brief feedback.",
+            "If not passed, include a section or paragraph location and suggestion for fix.",
             "",
-            rubric || "No specific criteria provided. Grade based on overall quality and completeness.",
+            "### Pass Criteria",
+            criteriaPromptSections || "(no criteria provided)",
             "",
-            "Respond with JSON only — no markdown fences, no extra text.",
             "Shape:",
-            `{"score": <integer from 1 to ${submissionScore}>, "feedbacks": ["..."]}`,
+            "Your output JSON must exactly match the structure and keys of the following template (replace values as needed):",
+            "",
+            JSON.stringify(template),
             "",
             "Rules:",
-            `- score must be a whole number from 1 (poor) to ${submissionScore} (excellent).`,
-            "- feedbacks must be an array of concise, specific, actionable comments.",
-            "- every feedback item must be grounded only in the submitted document content.",
-            "- do not invent information, sections, or behavior not present in the excerpt.",
-            "- return 2 to 5 feedback items.",
-            "- each feedback item should be a single sentence when possible.",
+            "- requirementResults must have exactly one entry per criterion, in order.",
+            "- requirementId must match the criterion id provided above.",
+            "- passed: true if the document meets the criterion, false otherwise.",
+            "- feedback: 1-2 sentences explaining why it passed or failed.",
+            "- location: section or paragraph reference where the issue is, or null if passed.",
+            "- suggestion: instruction to fix the issue, or null if passed.",
+            "- Focus on content completeness and accuracy.",
+            "- Output must be STRICT JSON (double quotes only).",
+            "- do not include trailing commas.",
+            "- do not include unescaped newlines inside strings; use \\n if needed.",
+            "- if you include double quotes inside strings, they must be escaped as \\\".",
         ].join("\n")
 
         const humanText = [
@@ -204,9 +227,11 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
             sourceExcerpt || "(empty document content)",
         ].join("\n")
 
+        const gradeModelChoice = this.gradeModelRouterService.current
+
         const model = this.modelService.get({
-            model: context.payload.gradingModel ?? envConfig().services.githubWorker.processGitSubmission.grading.model,
-            provider: (context.payload.gradingProvider ?? envConfig().services.githubWorker.processGitSubmission.grading.provider) as ModelProvider,
+            model: context.payload.gradingModel ?? gradeModelChoice.model,
+            provider: (context.payload.gradingProvider ?? gradeModelChoice.provider) as ModelProvider,
         })
 
         const response = await model.invoke([
@@ -216,8 +241,30 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
 
         const raw = (typeof response.content === "string" ? response.content : String(response.content)) as string
 
-        return this.parseGradeFromModelText(raw,
-            submissionScore)
+        const requirementResults = this.parseGradeFromModelText(raw)
+
+        requirementResults.map((cr) => {
+            const matchingCriteria = requirements.find((c) => c.id === cr.requirementId)
+            const score = cr.passed && matchingCriteria ? matchingCriteria.score : 0
+            return {
+                ...cr,
+                score,
+            }
+        })
+        const totalScore = requirementResults.reduce((sum, cr) => sum + cr.score,
+            0)
+        const maxScore = requirements.reduce((sum, req) => sum + req.score,
+            0)
+        const passedRequirements = requirementResults.filter((cr) => cr.passed).length
+        const failedRequirements = requirementResults.filter((cr) => !cr.passed).length
+
+        return {
+            totalScore,
+            maxScore,
+            passedRequirements,
+            failedRequirements,
+            requirementResults,
+        }
     }
 
     private async finalize(
@@ -258,72 +305,62 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 success: true,
             },
         )
+
+        await this.eventEmitterService.emit({
+            event: EventName.ChallengeSubmissionProgressUpdated,
+            payload: {
+                enrollmentId: payload.enrollmentId,
+                courseId: payload.courseId,
+            },
+        })
     }
 
+    /**
+     * Parses the grade from the model text.
+     */
     private parseGradeFromModelText(
         text: string,
-        maxScore: number,
-    ): ProcessGoogleDocsSubmissionGradeStepExecuteResult {
+    ): Array<ProcessGoogleDocsSubmissionGradeStepRequirementResult> {
         const brace = text.match(/\{[\s\S]*?\}/)
 
-        if (brace) {
-            try {
-                const parsed = JSON.parse(brace[0]) as {
-                    score?: unknown
-                    feedbacks?: unknown
-                }
+        if (!brace) {
+            throw new ParsingScoreFromModelTextException({
+                text 
+            })
+        }
 
-                const score = this.parseScore(parsed.score,
-                    maxScore)
-                const feedbacks = this.parseFeedbacks(parsed.feedbacks)
+        try {
+            const parsed = JSON.parse(brace[0]) as unknown
 
-                return {
-                    score,
-                    feedbacks,
-                }
-            } catch {
-                // fall through
+            if (
+                typeof parsed !== "object" ||
+                parsed === null ||
+                !("requirementResults" in parsed) ||
+                !Array.isArray((parsed as Record<string, unknown>).requirementResults)
+            ) {
+                throw new Error("Missing requirementResults array")
             }
+            const rawResults = parsed.requirementResults as Array<unknown>
+            return rawResults.map(
+                (cr: unknown) => {
+                    if (typeof cr !== "object" || cr === null) {
+                        throw new Error("Invalid requirement result object")
+                    }
+                    const record = cr as Record<string, unknown>
+                    return {
+                        requirementId: String(record.requirementId),
+                        passed: Boolean(record.passed),
+                        feedback: String(record.feedback || ""),
+                        location: typeof record.location === "string" ? record.location : null,
+                        suggestion: typeof record.suggestion === "string" ? record.suggestion : null,
+                        score: Number(record.score) || 0,
+                    }
+                },
+            )
+        } catch {
+            throw new ParsingScoreFromModelTextException({
+                text 
+            })
         }
-        throw new ParsingScoreFromModelTextException({
-            text,
-        })
-    }
-
-    private parseScore(value: unknown, maxScore: number): number {
-        if (typeof value === "number") {
-            return this.clampScore(value,
-                maxScore)
-        }
-
-        if (typeof value === "string") {
-            const parsed = Number.parseInt(value,
-                10)
-            if (!Number.isNaN(parsed)) {
-                return this.clampScore(parsed,
-                    maxScore)
-            }
-        }
-
-        throw new InvalidModelGradeScoreException({
-            rawValue: value,
-        })
-    }
-
-    private parseFeedbacks(value: unknown): string[] {
-        if (!Array.isArray(value)) {
-            return []
-        }
-        return value.filter((v): v is string => typeof v === "string" && !!v.trim())
-    }
-
-    private clampScore(value: number, maxScore: number): number {
-        return Math.min(
-            maxScore,
-            Math.max(
-                1,
-                Math.round(value),
-            ),
-        )
     }
 }

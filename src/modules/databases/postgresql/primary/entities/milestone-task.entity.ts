@@ -241,5 +241,5 @@ export class MilestoneTaskEntity extends UuidAbstractEntity {
             cascade: true,
         },
     )
-        criteria: Array<MilestoneTaskCriteriaEntity>
+        criterias: Array<MilestoneTaskCriteriaEntity>
 }

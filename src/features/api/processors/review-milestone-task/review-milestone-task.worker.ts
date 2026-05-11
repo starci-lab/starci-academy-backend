@@ -80,7 +80,6 @@ export class ReviewMilestoneTaskWorker extends WorkerHost {
             await this.jobActionService.processingJob(
                 {
                     job,
-                    emitChangeEvent: false,
                 }
             )
             payload = this.superJson.parse<ReviewPersonalProjectTaskPayload>(bullmqJob.data)
@@ -109,7 +108,6 @@ export class ReviewMilestoneTaskWorker extends WorkerHost {
             await this.jobActionService.completeJob(
                 {
                     job,
-                    emitChangeEvent: false,
                 }
             )
             this.winstonService.log(

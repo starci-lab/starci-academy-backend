@@ -135,6 +135,11 @@ export class ProcessGoogleDocsSubmissionWorker extends WorkerHost {
                     where: {
                         id: challengeSubmission.challengeId,
                     },
+                    relations: {
+                        requirements: {
+                            translations: true,
+                        },
+                    },
                 },
             )
 

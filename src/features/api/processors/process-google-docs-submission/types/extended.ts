@@ -2,6 +2,7 @@ import {
     ChallengeEntity,
     ChallengeSubmissionEntity,
     ChallengeSubmissionPromptEntity,
+    CourseEntity,
     UserChallengeSubmissionEntity,
 } from "@modules/databases"
 

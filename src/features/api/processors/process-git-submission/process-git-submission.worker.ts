@@ -33,7 +33,7 @@ import type {
 } from "./types"
 import {
     JobExtendedContext 
-} from "@modules/bullmq"
+} from "@modules/bussiness"
 import {
     ChallengeEntity,
     ChallengeSubmissionPromptEntity,
@@ -84,6 +84,7 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
      * @returns A promise that resolves when the job is processed.
      */
     async process(bullmqJob: Job<string>) {
+        console.log("abc")
         const startedAt = this.dayjsService.now()
         let payload: ProcessGitSubmissionPayload | undefined
         let job: JobEntity | undefined
@@ -131,7 +132,9 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
                         id: challengeSubmission.challengeId,
                     },
                     relations: {
-                        requirements: true,
+                        requirements: {
+                            translations: true,
+                        },
                     },
                 },
             )

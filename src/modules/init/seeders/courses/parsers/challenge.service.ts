@@ -33,6 +33,7 @@ import {
     ChallengeOutputTranslationEntity,
     ChallengePrerequisiteTranslationEntity,
     ChallengeReferenceTranslationEntity,
+    ChallengeRequirementEntity,
     ChallengeRequirementTranslationEntity,
     ChallengeStepTranslationEntity,
     ChallengeSubmissionPromptEntity,
@@ -149,13 +150,15 @@ export class ChallengeParserService {
                 return translations
             })(),
             requirements: (
-                jsonMap.get(Locale.En)?.requirements ?? []
+                (jsonMap.get(Locale.En)?.requirements as Array<Partial<ChallengeRequirementEntity> & { score?: number, promptText?: string }>) ?? []
             ).map(({
                 orderIndex,
                 purpose,
                 technicalConstraints,
                 proTipsHints,
                 forbidden,
+                score,
+                promptText,
             }) => {
                 const requirementId = this.challengeRequirementIdFactoryService.generate(
                     {
@@ -163,14 +166,14 @@ export class ChallengeParserService {
                         moduleIndex,
                         contentIndex,
                         challengeIndex,
-                        requirementIndex: orderIndex,
+                        requirementIndex: orderIndex ?? 0,
                     },
                 )
                 const translations = Array.from(jsonMap.entries()).map(
                     ([
                         locale,
                         challenge,
-                    ]) => (challenge.requirements ?? [])
+                    ]) => ((challenge.requirements as Array<Partial<ChallengeRequirementEntity> & { score?: number, promptText?: string }>) ?? [])
                         .filter((requirement) => requirement.orderIndex === orderIndex)
                         .map((requirement) => [
                             {
@@ -197,15 +200,24 @@ export class ChallengeParserService {
                                 field: "forbidden",
                                 value: requirement.forbidden ?? "",
                             },
+                            {
+                                challengeRequirementId: requirementId,
+                                locale,
+                                field: "promptText",
+                                value: requirement.promptText ?? "",
+                            },
                         ] as Array<DeepPartial<ChallengeRequirementTranslationEntity>>)
                 ).flat().flat()
                 return {
                     id: requirementId,
-                    orderIndex,
+                    orderIndex: orderIndex ?? 0,
                     purpose,
                     technicalConstraints,
                     proTipsHints,
                     forbidden,
+                    promptText,
+                    score: this.coerceMdScalarService.toRequiredNumber(score,
+                        0),
                     defaultLocale: Locale.En,
                     challenge: {
                         id: challengeId,

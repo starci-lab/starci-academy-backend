@@ -3,7 +3,7 @@ import {
 } from "@modules/cqrs"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    SubmissionAttemptEntity,
+    UserChallengeSubmissionAttemptEntity,
     UserChallengeSubmissionEntity,
 } from "@modules/databases"
 import {
@@ -61,7 +61,7 @@ export class SubmissionAttemptsHandler
             throw new UserNotFoundException({
             })
         }
-        const order: FindOptionsOrder<SubmissionAttemptEntity> = {
+        const order: FindOptionsOrder<UserChallengeSubmissionAttemptEntity> = {
         }
         for (const sort of sorts) {
             order[sort.by as SubmissionAttemptsSortBy] = sort.order
@@ -80,7 +80,6 @@ export class SubmissionAttemptsHandler
                 },
             },
         )
-        console.log(userChallengeSubmission)
         if (!userChallengeSubmission) {
             return {
                 data: [],
@@ -92,7 +91,7 @@ export class SubmissionAttemptsHandler
             data,
             count,
         ] = await this.entityManager.findAndCount(
-            SubmissionAttemptEntity,
+            UserChallengeSubmissionAttemptEntity,
             {
                 where: {
                     userChallengeSubmission: {

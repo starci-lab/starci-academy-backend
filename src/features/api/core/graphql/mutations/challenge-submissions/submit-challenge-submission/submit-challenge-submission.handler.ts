@@ -8,6 +8,8 @@ import {
 import {
     ChallengeEntity,
     ChallengeSubmissionEntity,
+    CourseEntity,
+    EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     JobEntity,
     SubmissionType,
@@ -72,6 +74,7 @@ export class SubmitChallengeSubmissionHandler
         const {
             request,
             user,
+            locale
         } = command.params
 
         if (!user) {
@@ -163,21 +166,39 @@ export class SubmitChallengeSubmissionHandler
                 url: userChallengeSubmission.submissionUrl ?? "",
             })
         }
+        /** Look up course and enrollment to pass to enqueue. */
+        const course = await this.entityManager.findOne(CourseEntity, {
+            where: { modules: { contents: { challenges: { id: challenge.id } } } },
+            select: { id: true },
+        })
+        const courseId = course?.id ?? ""
+        const enrollment = await this.entityManager.findOne(EnrollmentEntity, {
+            where: { user: { id: user.id }, course: { id: courseId } },
+            select: { id: true },
+        })
+        const enrollmentId = enrollment?.id ?? ""
+
         /** Enqueue the process git submission job. */
         let job: JobEntity | null = null
         switch (challengeSubmission.type) {
         case SubmissionType.GithubUrl:
             job = await this.enqueueProcessGitSubmissionJobService.enqueue({
                 userId: user.id,
+                enrollmentId,
+                courseId,
                 userChallengeSubmissionId: userChallengeSubmission.id,
                 challengeSubmissionId: challengeSubmission.id,
+                locale,
             })
             break
         case SubmissionType.GoogleDocsUrl:
             job = await this.enqueueProcessGoogleDocsSubmissionJobService.enqueue({
                 userId: user.id,
+                enrollmentId,
+                courseId,
                 userChallengeSubmissionId: userChallengeSubmission.id,
                 challengeSubmissionId: challengeSubmission.id,
+                locale,
             })
             break
         }

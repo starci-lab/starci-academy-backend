@@ -4,7 +4,7 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 import {
-    SubmissionAttemptEntity,
+    UserChallengeSubmissionAttemptEntity,
 } from "@modules/databases"
 import {
     AbstractGraphQLResponse,
@@ -16,12 +16,12 @@ import {
 })
 export class SubmissionAttemptsResponseData {
     @Field(
-        () => [SubmissionAttemptEntity],
+        () => [UserChallengeSubmissionAttemptEntity],
         {
             description: "List of submission attempts.",
         },
     )
-        data: Array<SubmissionAttemptEntity>
+        data: Array<UserChallengeSubmissionAttemptEntity>
 
     @Field(
         () => Int,

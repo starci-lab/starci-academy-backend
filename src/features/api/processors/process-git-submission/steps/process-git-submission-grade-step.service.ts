@@ -4,12 +4,19 @@ import type {
 import {
     InjectPrimaryPostgreSQLEntityManager,
     InjectQdrantClient,
+    Locale,
     ModelProvider,
-    SubmissionFeedbackSeverity,
 } from "@modules/databases"
+import {
+    GradeModelRouterService,
+} from "@modules/ai"
 import {
     JobActionService,
 } from "@modules/bussiness"
+import {
+    EventEmitterService,
+    EventName,
+} from "@modules/event"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -22,8 +29,8 @@ import {
 } from "@modules/winston"
 import type {
     ExtendedProcessGitSubmissionContext,
+    ProcessGitSubmissionGradeStepRequirementResult,
     ProcessGitSubmissionGradeStepExecuteResult,
-    ProcessGitSubmissionGradeStepSubmissionFeedback,
 } from "../types"
 import {
     AbstractStepService,
@@ -44,7 +51,6 @@ import {
     SystemMessage,
 } from "@langchain/core/messages"
 import {
-    InvalidModelGradeScoreException,
     ParsingScoreFromModelTextException,
 } from "@modules/exceptions"
 import {
@@ -82,6 +88,8 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         @InjectQdrantClient()
         private readonly qdrantClient: QdrantClient,
         private readonly modelService: ModelService,
+        private readonly gradeModelRouterService: GradeModelRouterService,
+        private readonly eventEmitterService: EventEmitterService,
     ) {
         super()
     }
@@ -198,81 +206,62 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             )
         }
 
+        const locale = context.payload.locale ?? Locale.En
         const challenge = context.extended?.challenge
-        const challengeSubmission = context.extended?.challengeSubmission
         const challengeTitle = (challenge?.title ?? "").trim()
-        const requirements = (
-            (challenge?.requirements ?? [])
-                .map((item) => [
-                    item.purpose,
-                    item.technicalConstraints,
-                    item.proTipsHints,
-                ].filter(Boolean).join("\n"))
-                .filter(Boolean)
-                .join("\n")
-            ?? ""
-        ).trim()
-        const submissionTitle = challengeSubmission?.title ?? ""
-        const submissionDescription = (challengeSubmission?.description ?? "").trim()
-        const submissionScore = challengeSubmission?.score ?? 0
-        const extraPromptSections = (context.extended?.prompts ?? [])
-            .map(
-                (
-                    prompt,
-                    index,
-                ) => {
-                    const title = prompt.title
-                        ? ` (${prompt.title})`
-                        : ""
-                    const body = (prompt.promptText ?? "").trim()
-                    return `### Extra criterion ${index + 1}${title}\n${body || "(empty)"}`
-                },
-            )
+        const requirements = challenge?.requirements ?? []
+        const outputs = challenge?.outputs ?? []
+
+        const outputContext = outputs
+            .sort((prev, next) => prev.orderIndex - next.orderIndex)
+            .map((output, index) => {
+                const translations = output.translations?.filter((t) => t.locale === locale) ?? []
+                const text = translations.find((t) => t.field === "text")?.value ?? output.text
+                return `- Output ${index + 1}: ${text}`
+            })
+            .join("\n")
+
+        const criteriaPromptSections = requirements
+            .sort((prev, next) => prev.orderIndex - next.orderIndex)
+            .map((req, index) => {
+                const translations = req.translations?.filter((t) => t.locale === locale) ?? []
+                const purpose = translations.find((t) => t.field === "purpose")?.value ?? req.purpose
+                const technicalConstraints = translations.find((t) => t.field === "technicalConstraints")?.value ?? req.technicalConstraints
+                const promptText = translations.find((t) => t.field === "promptText")?.value ?? req.promptText
+                return `### Criterion ${index + 1} (id: "${req.id}", score: ${req.score})\nPurpose: ${purpose}\nConstraints: ${technicalConstraints}\nGrading Prompt: ${promptText}`
+            })
             .join("\n\n")
 
         const systemText = [
-            "You are a principal engineer reviewing and grading a learner's GitHub submission.",
-            "Use the challenge requirements, submission instructions, and extra criteria below to assign the score and feedback.",
+            `You are a senior engineer reviewing and grading a learner's personal project for challenge: "${challengeTitle}".`,
+            "Review the code against EACH pass criterion below.",
+            "For EACH criterion, determine if the code meets the requirement (passed = true/false) and provide brief feedback.",
+            "If not passed, include location (file:line) and suggestion for fix.",
             "",
-            challengeTitle
-                ? `### Challenge\n${challengeTitle}`
-                : "### Challenge\n(untitled)",
+            "### Expected Outputs (For Context)",
+            outputContext || "(no explicit outputs provided)",
             "",
-            "### Challenge requirements",
-            requirements || "(none provided)",
+            "### Pass Criteria",
+            criteriaPromptSections || "(no criteria provided)",
             "",
-            "### This submission slot (what the learner was asked to submit)",
-            submissionTitle
-                ? `Title: ${submissionTitle}`
-                : "(no title)",
-            `\nPoints configured for this submission slot: ${submissionScore}`,
-            submissionDescription
-                ? `\nInstructions / description:\n${submissionDescription}`
-                : "",
-            "",
-            "### Extra grading criteria (from the course database; each item has promptText you must apply)",
-            extraPromptSections || "(none provided)",
-            "",
-            "Respond with JSON only — no markdown fences, no extra text.",
             "Shape:",
-            `{"score": <integer from 1 to ${submissionScore}>, "shortFeedback": "<one short sentence>", "submissionFeedbacks": [{"message": "...", "detail": "...", "severity": "low|medium|high", "location": "file.ts:line", "suggestion": "..."}]}`,
+            "Your output JSON must exactly match the structure and keys of the following template (replace values as needed):",
             "",
-            "Example output (copy the structure, replace content):",
             JSON.stringify(template),
+            "",
             "Rules:",
-            `- score must be a whole number from 1 (poor) to ${submissionScore} (excellent).`,
-            "- shortFeedback must be a single short sentence (no lists).",
-            "- submissionFeedbacks must be an array of structured feedback items aligned with the excerpt; 2 to 6 items.",
-            "- each submissionFeedbacks item must include: message, severity; detail/location/suggestion are optional.",
-            "- every submissionFeedbacks item must be grounded only in the submitted repository excerpt.",
-            "- output must be STRICT JSON (double quotes only).",
+            "- requirementResults must have exactly one entry per criterion, in order.",
+            "- requirementId must match the criterion id provided above.",
+            "- passed: true if the code meets the criterion, false otherwise.",
+            "- feedback: 1-2 sentences explaining why it passed or failed.",
+            "- location: file path and line number hint where the issue is, or null if passed.",
+            "- suggestion: code snippet or instruction to fix the issue, or null if passed.",
+            "- Focus on implementation completeness, NOT code style.",
+            "- Output must be STRICT JSON (double quotes only).",
             "- do not include trailing commas.",
             "- do not include unescaped newlines inside strings; use \\n if needed.",
             "- if you include double quotes inside strings, they must be escaped as \\\".",
-            "- do not invent files, features, or behaviors not present in the excerpt.",
-            "- keep submissionFeedbacks messages actionable and specific.",
         ].filter(Boolean).join("\n")
-        //console.log(systemText)
 
         const humanText = [
             "Below is an excerpt of files loaded from the submitted GitHub repository (may be truncated):",
@@ -281,13 +270,15 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         ].join("\n")
 
 
+        const gradeModelChoice = this.gradeModelRouterService.current
+
         const model = this.modelService.get({
             model:
                 context.payload.gradingModel ??
-                envConfig().services.githubWorker.processGitSubmission.grading.model,
+                gradeModelChoice.model,
             provider:
                 (context.payload.gradingProvider ??
-                    envConfig().services.githubWorker.processGitSubmission.grading.provider) as ModelProvider,
+                    gradeModelChoice.provider) as ModelProvider,
         })
 
         const response = await model.invoke(
@@ -300,7 +291,30 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         const raw = (typeof response.content === "string"
             ? response.content
             : String(response.content)) as string
-        return this.parseGradeFromModelText(raw)
+        const parsed = this.parseGradeFromModelText(raw)
+
+        const requirementResults = parsed.map((requirementResult) => {
+            const matchingRequirement = requirements.find((requirement) => requirement.id === requirementResult.requirementId)
+            const score = requirementResult.passed && matchingRequirement ? matchingRequirement.score : 0
+            return {
+                ...requirementResult,
+                score,
+            }
+        })
+        const totalScore = requirementResults.reduce((sum, cr) => sum + cr.score,
+            0)
+        const maxScore = requirements.reduce((sum, req) => sum + req.score,
+            0)
+        const passedRequirements = requirementResults.filter((cr) => cr.passed).length
+        const failedRequirements = requirementResults.filter((cr) => !cr.passed).length
+
+        return {
+            totalScore,
+            maxScore,
+            passedRequirements,
+            failedRequirements,
+            requirementResults,
+        }
     }
 
     /**
@@ -347,6 +361,13 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                 success: true,
             },
         )
+        await this.eventEmitterService.emit({
+            event: EventName.ChallengeSubmissionProgressUpdated,
+            payload: {
+                enrollmentId: payload.enrollmentId,
+                courseId: payload.courseId,
+            },
+        })
     }
 
     /**
@@ -356,156 +377,51 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
      */
     private parseGradeFromModelText(
         text: string,
-    ): ProcessGitSubmissionGradeStepExecuteResult {
+    ): Array<ProcessGitSubmissionGradeStepRequirementResult> {
         const first = text.indexOf("{")
         const last = text.lastIndexOf("}")
-        if (
-            first !== -1 &&
-            last !== -1 &&
-            last > first
-        ) {
-            try {
-                const jsonText = text.slice(
-                    first,
-                    last + 1,
-                )
-                const parsed = JSON.parse(jsonText) as {
-                    score?: unknown
-                    shortFeedback?: unknown
-                    submissionFeedbacks?: unknown
-                }
-
-                const score = this.parseScore(parsed.score)
-                const shortFeedback = this.parseShortFeedback(parsed.shortFeedback)
-                const submissionFeedbacks = this.parseSubmissionFeedbacks(
-                    parsed.submissionFeedbacks,
-                )
-
-                return {
-                    score,
-                    shortFeedback,
-                    submissionFeedbacks,
-                }
-            } catch {
-                // fall through
-            }
-        }
-        throw new ParsingScoreFromModelTextException({
-            text,
-        })
-    }
-
-    /**
-     * Parse the score from the model text.
-     * @param value - The value to parse the score from.
-     * @returns The parsed score.
-     */
-    private parseScore(
-        value: unknown,
-    ): number {
-        if (typeof value === "number") {
-            return this.clampScore(value)
-        }
-
-        if (typeof value === "string") {
-            const parsed = Number.parseInt(
-                value,
-                10,
-            )
-            if (!Number.isNaN(parsed)) {
-                return this.clampScore(parsed)
-            }
-        }
-
-        throw new InvalidModelGradeScoreException({
-            rawValue: value,
-        })
-    }
-
-    /**
-     * Parse the short feedback from the model text.
-     * @param value - The value to parse the short feedback from.
-     * @returns The parsed short feedback.
-     */
-    private parseShortFeedback(
-        value: unknown,
-    ): string | null {
-        if (typeof value !== "string") {
-            return null
-        }
-        const t = value.trim()
-        return t ? t : null
-    }
-
-    /**
-     * Parse the submission feedbacks from the model text.
-     * @param value - The value to parse the submission feedbacks from.
-     * @returns The parsed submission feedbacks.
-     */
-    private parseSubmissionFeedbacks(
-        value: unknown,
-    ): Array<ProcessGitSubmissionGradeStepSubmissionFeedback> {
-        if (!Array.isArray(value)) {
-            return []
-        }
-        const items = value
-            .filter((v): v is Record<string, unknown> => (
-                typeof v === "object" && v !== null && !Array.isArray(v)
-            ))
-            .map((v) => {
-                const message =
-                    typeof v.message === "string"
-                        ? v.message.trim()
-                        : ""
-                if (!message) {
-                    return null
-                }
-                const severityRaw =
-                    typeof v.severity === "string"
-                        ? v.severity.trim().toLowerCase()
-                        : SubmissionFeedbackSeverity.Medium
-                const severity: SubmissionFeedbackSeverity =
-                    severityRaw === SubmissionFeedbackSeverity.Low || severityRaw === SubmissionFeedbackSeverity.High
-                        ? severityRaw
-                        : SubmissionFeedbackSeverity.Medium
-                const detail =
-                    typeof v.detail === "string"
-                        ? v.detail.trim()
-                        : undefined
-                const location =
-                    typeof v.location === "string"
-                        ? v.location.trim()
-                        : undefined
-                const suggestion =
-                    typeof v.suggestion === "string"
-                        ? v.suggestion.trim()
-                        : undefined
-                return {
-                    message,
-                    severity,
-                    detail: detail || undefined,
-                    location: location || undefined,
-                    suggestion: suggestion || undefined,
-                }
+        if (first === -1 || last === -1 || last <= first) {
+            throw new ParsingScoreFromModelTextException({
+                text 
             })
-            .filter((x): x is NonNullable<typeof x> => x !== null)
-        return items
-    }
+        }
 
-    /**
-     * Clamp the score.
-     * @param value - The value to clamp.
-     * @returns The clamped score.
-     */
-    private clampScore(
-        value: number,
-    ): number {
-        return Math.min(
-            20,
-            Math.max(
-                1,
-                Math.round(value),
-            ),
-        )
+        try {
+            const jsonText = text.slice(first,
+                last + 1)
+            const parsed = JSON.parse(jsonText) as unknown
+
+            if (
+                typeof parsed !== "object" ||
+                parsed === null ||
+                !("requirementResults" in parsed) ||
+                !Array.isArray((parsed as Record<string, unknown>).requirementResults)
+            ) {
+                throw new Error("Missing requirementResults array")
+            }
+
+            const rawResults = (parsed as { requirementResults: unknown[] }).requirementResults
+
+            return rawResults.map(
+                (cr: unknown) => {
+                    if (typeof cr !== "object" || cr === null) {
+                        throw new Error("Invalid requirement result object")
+                    }
+                    const record = cr as Record<string, unknown>
+                    return {
+                        requirementId: String(record.requirementId),
+                        passed: Boolean(record.passed),
+                        feedback: String(record.feedback || ""),
+                        location: typeof record.location === "string" ? record.location : null,
+                        suggestion: typeof record.suggestion === "string" ? record.suggestion : null,
+                        score: Number(record.score) || 0,
+                    }
+                },
+            )
+        } catch {
+            throw new ParsingScoreFromModelTextException({
+                text 
+            })
+        }
     }
 }

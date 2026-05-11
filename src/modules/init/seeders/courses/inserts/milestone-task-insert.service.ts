@@ -36,7 +36,7 @@ export class MilestoneTaskInsertService {
         /** 1. Upsert the task row (strip nested relations) */
         const {
             translations,
-            criteria,
+            criterias,
             milestone,
             ...rest
         } = task
@@ -65,8 +65,8 @@ export class MilestoneTaskInsertService {
         }
 
         /** 3. Upsert criteria + their translations */
-        if (criteria) {
-            for (const criterion of criteria) {
+        if (criterias) {
+            for (const criterion of criterias) {
                 const criterionId = criterion.id as string
                 const {
                     translations: criteriaTranslations,
@@ -92,7 +92,7 @@ export class MilestoneTaskInsertService {
             /** Delete stale criteria for this task */
             await this.upsertService.deleteStaleUuid<MilestoneTaskCriteriaEntity>(
                 MilestoneTaskCriteriaEntity,
-                criteria.map((c) => c.id as string),
+                criterias.map((c) => c.id as string),
                 {
                     milestoneTask: {
                         id: taskId,

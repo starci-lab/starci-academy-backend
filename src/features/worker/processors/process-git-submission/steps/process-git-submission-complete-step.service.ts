@@ -3,8 +3,8 @@ import type {
 } from "@modules/bullmq"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    SubmissionAttemptEntity,
-    SubmissionFeedbackEntity,
+    UserChallengeSubmissionAttemptEntity,
+    UserChallengeSubmissionFeedbackEntity,
 } from "@modules/databases"
 import {
     JobActionService,
@@ -128,7 +128,7 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
                 grade: executionResult,
             })
         }
-        const feedbacks: Array<DeepPartial<SubmissionFeedbackEntity>> = executionResult.submissionFeedbacks
+        const feedbacks: Array<DeepPartial<UserChallengeSubmissionFeedbackEntity>> = executionResult.submissionFeedbacks
             .map((feedback, index) => ({
                 message: feedback.message,
                 detail: feedback.detail?.trim() || null,
@@ -142,7 +142,7 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
             async (entityManager) => {
                 // Create a new attempt only after we have a valid grade result
                 const attemptCount = await entityManager.count(
-                    SubmissionAttemptEntity,
+                    UserChallengeSubmissionAttemptEntity,
                     {
                         where: {
                             userChallengeSubmission: {
@@ -152,7 +152,7 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
                     },
                 )
                 const attempt = await entityManager.save(
-                    SubmissionAttemptEntity,
+                    UserChallengeSubmissionAttemptEntity,
                     {
                         userChallengeSubmission: {
                             id: context.payload.userChallengeSubmissionId,
@@ -168,7 +168,7 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
                 // Save feedbacks linked to attempt
                 if (feedbacks.length) {
                     await entityManager.save(
-                        SubmissionFeedbackEntity,
+                        UserChallengeSubmissionFeedbackEntity,
                         feedbacks.map(
                             (feedback) => ({
                                 ...feedback,

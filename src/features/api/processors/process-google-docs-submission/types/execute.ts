@@ -17,12 +17,35 @@ export interface ProcessGoogleDocsSubmissionSplitDocsStepExecuteResult {
 /** Result of the process-git-submission vectorize step. */
 export type ProcessGoogleDocsSubmissionVectorizeStepExecuteResult = EmptyObject
 
+/**
+ * Process git submission grade step requirement result.
+ */
+export interface ProcessGoogleDocsSubmissionGradeStepRequirementResult {
+    /** Requirement ID */
+    requirementId: string
+    /** Whether the requirement was passed */
+    passed: boolean
+    /** Feedback for the requirement */
+    feedback: string
+    /** Location of the feedback */
+    location: string | null
+    /** Suggestion for the requirement */
+    suggestion: string | null
+    score: number
+}
+
 /** Result of the process-git-submission grade step. */
 export interface ProcessGoogleDocsSubmissionGradeStepExecuteResult {
-    /** Score of the submission. */
-    score: number
-    /** Feedbacks of the submission. */
-    feedbacks: Array<string>
+    /** Total score from all requirements. */
+    totalScore: number
+    /** Maximum possible score. */
+    maxScore: number
+    /** Total requirements passed. */
+    passedRequirements: number
+    /** Total requirements failed. */
+    failedRequirements: number
+    /** Requirement feedback array. */
+    requirementResults: Array<ProcessGoogleDocsSubmissionGradeStepRequirementResult>
 }
 
 /** Result of the process-git-submission complete step. */

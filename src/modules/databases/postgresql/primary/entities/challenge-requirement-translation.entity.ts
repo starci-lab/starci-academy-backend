@@ -8,7 +8,7 @@ import {
     JoinColumn,
     ManyToOne,
     PrimaryColumn,
-} from "typeorm"
+} from "typeorm"    
 import {
     GraphQLTypeLocale,
     Locale,

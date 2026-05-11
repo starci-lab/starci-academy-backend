@@ -11,11 +11,14 @@ import {
     ResolveGithubModule,
 } from "./resolve-github"
 import {
-    ProcessPersonalProjectModule,
-} from "./process-personal-project"
-import {
     ReviewMilestoneTaskModule,
 } from "./review-milestone-task"
+import {
+    ProcessGitSubmissionModule 
+} from "./process-git-submission"
+import {
+    ProcessGoogleDocsSubmissionModule 
+} from "./process-google-docs-submission"
 
 /**
  * Module for API-side BullMQ processors.
@@ -28,10 +31,13 @@ import {
         ResolveGithubModule.register({
             isGlobal: true,
         }),
-        ProcessPersonalProjectModule.register({
+        ReviewMilestoneTaskModule.register({
             isGlobal: true,
         }),
-        ReviewMilestoneTaskModule.register({
+        ProcessGitSubmissionModule.register({
+            isGlobal: true,
+        }),
+        ProcessGoogleDocsSubmissionModule.register({
             isGlobal: true,
         }),
     ],

@@ -226,7 +226,6 @@ export class CdnSynchronizerService {
                 break
             }
             case LessonVideoEntity.name: {
-                 
                 while (true) {
                     const lessonVideo = await this.entityManager.findOne(
                         LessonVideoEntity,
@@ -273,7 +272,6 @@ export class CdnSynchronizerService {
                 break
             }
             case ModuleEntity.name: {
-                 
                 while (true) {
                     const module = await this.entityManager.findOne(
                         ModuleEntity,

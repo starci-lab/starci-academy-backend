@@ -5,18 +5,14 @@ import normalizeNewline from "normalize-newline"
 
 const IDENT_RE = /^[a-zA-Z]\w*$/
 const NUMERIC_HEADING_RE = /^(\d+)(?:[.)]\s+(.+))?$/ // Improved to capture description if exists
-const RAW_BLOCK_KEYS = new Set(["body"])
+const RAW_BLOCK_KEYS = new Set([
+    "body",
+    "text",
+    "hint"
+])
 
 @Injectable()
 export class ExtractJsonFromMdService {
-    private readonly isDebugEnabled = process.env.MD_EXTRACT_DEBUG === "1"
-
-    private debug(message: string, payload?: unknown): void {
-        if (!this.isDebugEnabled) return
-        console.log(`[md-extract] ${message}`,
-            payload ?? "")
-    }
-
     extract<T extends Record<string, unknown>>(markdown: string): T {
         if (!markdown) return {
         } as T

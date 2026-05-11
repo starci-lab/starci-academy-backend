@@ -143,7 +143,7 @@ export class MilestoneTaskCriteriaEntity extends UuidAbstractEntity {
     )
     @ManyToOne(
         () => MilestoneTaskEntity,
-        (milestoneTask: MilestoneTaskEntity) => milestoneTask.criteria,
+        (milestoneTask: MilestoneTaskEntity) => milestoneTask.criterias,
         {
             onDelete: "CASCADE",
         },

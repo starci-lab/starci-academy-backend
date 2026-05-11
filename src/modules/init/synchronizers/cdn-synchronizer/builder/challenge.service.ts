@@ -84,15 +84,6 @@ export class CdnChallengeBuildService {
                 },
                 relations: {
                     translations: true,
-                    requirements: {
-                        translations: true,
-                    },
-                    outputs: {
-                        translations: true,
-                    },
-                    prerequisites: {
-                        translations: true,
-                    },
                 },
             },
         )
@@ -120,6 +111,7 @@ export class CdnChallengeBuildService {
                 },
             },
         )
+        console.log(steps)
         const references = await this.entityManager.find(
             ChallengeReferenceEntity,
             {

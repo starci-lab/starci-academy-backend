@@ -10,6 +10,9 @@ import {
 import {
     ConfigurableModuleClass,
 } from "./challenges.module-definition"
+import {
+    ChallengeSubmissionProgressModule,
+} from "./challenge-submission-progress"
 
 @Module({
     imports: [
@@ -19,6 +22,7 @@ import {
         ChallengeSingleQueryModule.register({
             isGlobal: true,
         }),
+        ChallengeSubmissionProgressModule,
     ],
 })
 export class ChallengesModule extends ConfigurableModuleClass {}

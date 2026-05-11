@@ -28,13 +28,36 @@ export interface ProcessGitSubmissionGradeStepSubmissionFeedback {
     location?: string
     suggestion?: string
 }
-export interface ProcessGitSubmissionGradeStepExecuteResult {
-    /** Score of the submission. */
+
+/**
+ * Process git submission grade step requirement result.
+ */
+export interface ProcessGitSubmissionGradeStepRequirementResult {
+    /** Requirement ID */
+    requirementId: string
+    /** Whether the requirement was passed */
+    passed: boolean
+    /** Feedback for the requirement */
+    feedback: string
+    /** Location of the feedback */
+    location: string | null
+    /** Suggestion for the requirement */
+    suggestion: string | null
+    /** Score for the requirement */
     score: number
-    /** One short feedback sentence (stored in `user_challenge_submissions.feedback`). */
-    shortFeedback: string | null
-    /** Structured feedback rows (stored in `submission_feedbacks`). */
-    submissionFeedbacks: Array<ProcessGitSubmissionGradeStepSubmissionFeedback>
+}
+
+export interface ProcessGitSubmissionGradeStepExecuteResult {
+    /** Total score from all requirements. */
+    totalScore: number
+    /** Maximum possible score. */
+    maxScore: number
+    /** Total requirements passed. */
+    passedRequirements: number
+    /** Total requirements failed. */
+    failedRequirements: number
+    /** Requirement feedback array. */
+    requirementResults: Array<ProcessGitSubmissionGradeStepRequirementResult>
 }
 
 /** Result of the process-git-submission complete step. */

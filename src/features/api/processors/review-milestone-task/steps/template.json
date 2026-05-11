@@ -1,0 +1,12 @@
+{
+    "criteriaResults": [
+        {
+            "criteriaId": "<uuid of the criteria | type: string | eg: 123e4567-e89b-12d3-a456-426614174000>",
+            "passed": "<whether the criteria is passed | type: boolean | eg: true>",
+            "feedback": "<brief explanation of why it passed or failed | type: string | eg: Code handles all edge cases correctly.>",
+            "location": "<file path with line number or null if passed | type: string | null | eg: src/utils/math.ts:42>",
+            "suggestion": "<suggested fix or null if passed | type: string | null | eg: Consider using Math.abs()>",
+            "score": "<score for this criteria | type: number | eg: 10>"
+        }
+    ]
+}

@@ -11,6 +11,10 @@ export interface ProcessGitSubmissionPayload {
     jobId: string
     /** `users.id`. */
     userId: string
+    /** `enrollments.id`. */
+    enrollmentId: string
+    /** `courses.id`. */
+    courseId: string
     /** `user_challenge_submissions.id`. */
     userChallengeSubmissionId: string
     /** `challenge_submissions.id`. */

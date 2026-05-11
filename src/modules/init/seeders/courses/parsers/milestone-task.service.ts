@@ -102,7 +102,7 @@ export class MilestoneTaskParserService {
                 enTask.weight,
                 0,
             ),
-            type: TASK_TYPE_MAP[enTask.type ?? "business"] ?? PersonalProjectTaskType.Business,
+            type: TASK_TYPE_MAP[enTask.type] ?? PersonalProjectTaskType.Business,
             maxScore: this.coerceMdScalarService.toRequiredNumber(
                 enTask.maxScore,
                 0,
@@ -140,7 +140,7 @@ export class MilestoneTaskParserService {
                 return translations
             })(),
             /** Parse criteria inline from the same markdown file. */
-            criteria: (() => {
+            criterias: (() => {
                 const enCriteriaArray: Array<any> = enTask.criterias ?? enTask.criteria ?? []
                 return enCriteriaArray.map(
                     (enCriteria: any, criteriaIndex: number) => {

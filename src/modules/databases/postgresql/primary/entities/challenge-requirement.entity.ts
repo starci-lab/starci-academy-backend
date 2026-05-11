@@ -84,6 +84,19 @@ export class ChallengeRequirementEntity extends UuidAbstractEntity {
         forbidden: string
 
     @Field(
+        () => String,
+        {
+            description: "Grading prompt text for the LLM.",
+        },
+    )
+    @Column({
+        name: "prompt_text",
+        type: "text",
+        default: "",
+    })
+        promptText: string
+
+    @Field(
         () => Int,
         {
             description: "Display order within challenge requirement list.",
@@ -95,6 +108,19 @@ export class ChallengeRequirementEntity extends UuidAbstractEntity {
         default: 0,
     })
         orderIndex: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Maximum score for this requirement.",
+        },
+    )
+    @Column({
+        name: "score",
+        type: "int",
+        default: 0,
+    })
+        score: number
 
     @Field(
         () => GraphQLTypeLocale,
