@@ -2,15 +2,20 @@ import type {
     ProcessGoogleDocsSubmissionPayload,
 } from "@modules/bullmq"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-    UserChallengeSubmissionAttemptEntity,
-    UserChallengeSubmissionFeedbackEntity,
-    Locale,
-    SubmissionFeedbackSeverity,
-} from "@modules/databases"
-import {
     JobActionService,
 } from "@modules/bussiness"
+import {
+    AbstractStepService,
+    JobExtendedContext,
+} from "@modules/bussiness"
+import {
+    EmptyObject,
+} from "@modules/common"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+    Locale,
+    UserChallengeSubmissionAttemptEntity,
+} from "@modules/databases"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -18,30 +23,29 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    AbstractStepService,
-    JobExtendedContext,
-} from "@modules/bussiness"
-import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
+import {
+    EventEmitterService,
+    EventName,
+} from "@modules/event"
+import {
+    ProcessGoogleDocsSubmissionGradeStepService,
+} from "./process-submission-grade-step.service"
 import type {
     ExtendedProcessGoogleDocsSubmissionContext,
-    ProcessGoogleDocsSubmissionCompleteStepExecuteResult,
     ProcessGoogleDocsSubmissionGradeStepExecuteResult,
 } from "../types"
-import {
-    DayjsService,
-} from "@modules/mixin"
 import {
     MissingOrInvalidGradeExecutionResultException,
 } from "@modules/exceptions"
 import {
-    ProcessGoogleDocsSubmissionGradeStepService,
-} from "./process-submission-grade-step.service"
+    DayjsService,
+} from "@modules/mixin"
 
 /**
- * Step 5: persist grade and feedback to `submission_attempts`.
+ * Step 1: finalize — load grade result, persist attempt + feedbacks, emit event.
  */
 @Injectable()
 export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStepService<
@@ -53,16 +57,16 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
         private readonly entityManager: EntityManager,
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
+        private readonly gradeStepService: ProcessGoogleDocsSubmissionGradeStepService,
+        private readonly eventEmitterService: EventEmitterService,
         private readonly dayjsService: DayjsService,
-        private readonly processGoogleDocsSubmissionGradeStepService: ProcessGoogleDocsSubmissionGradeStepService,
     ) {
         super()
     }
 
     stepIndex = 1
-
     stepName = "complete"
-    /** Process the step. */
+
     async process(
         context: JobExtendedContext<
             ProcessGoogleDocsSubmissionPayload,
@@ -70,98 +74,93 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
         >,
     ): Promise<void> {
         const executionResult = await this.execute(context)
-        await this.finalize(
-            executionResult,
-            context,
-        )
+        await this.finalize(executionResult,
+            context)
     }
 
-    /** Execute the step. */
     private async execute(
         context: JobExtendedContext<
             ProcessGoogleDocsSubmissionPayload,
             ExtendedProcessGoogleDocsSubmissionContext
         >,
-    ): Promise<ProcessGoogleDocsSubmissionCompleteStepExecuteResult> {
-        /** Grade. */
-        const grade = await this.jobActionService.loadExecutionResult<
-            ProcessGoogleDocsSubmissionGradeStepExecuteResult
-        >(
+    ): Promise<EmptyObject> {
+        const { payload } = context
+        const grade = await this.jobActionService.loadExecutionResult<ProcessGoogleDocsSubmissionGradeStepExecuteResult>(
             {
                 job: context.job,
-                key: this.processGoogleDocsSubmissionGradeStepService.stepName,
+                key: this.gradeStepService.stepName,
             },
         )
-
-        if (
-            !grade
-            || typeof grade.totalScore !== "number"
-            || typeof grade.maxScore !== "number"
-            || !Array.isArray(grade.requirementResults)
-        ) {
+        if (!grade) {
             throw new MissingOrInvalidGradeExecutionResultException({
                 grade,
             })
         }
-
-        const locale = context.payload.locale ?? Locale.En
-
-        await this.entityManager.transaction(async (em) => {
-            const attemptCount = await em.count(
-                UserChallengeSubmissionAttemptEntity,
-                {
-                    where: {
-                        userChallengeSubmission: {
-                            id: context.payload.userChallengeSubmissionId,
+        if (typeof grade.evaluation !== "object" || typeof grade.passed !== "boolean") {
+            throw new MissingOrInvalidGradeExecutionResultException({
+                grade,
+            })
+        }
+        await this.entityManager.transaction(
+            async (entityManager) => {
+                /** Fetch all attempts for this user challenge submission */
+                const numAttempts = await entityManager.count(
+                    UserChallengeSubmissionAttemptEntity,
+                    {
+                        where: {
+                            userChallengeSubmission: {
+                                id: payload.userChallengeSubmissionId,
+                            },
                         },
                     },
-                },
-            )
-            const attempt = await em.save(
-                UserChallengeSubmissionAttemptEntity,
-                {
-                    userChallengeSubmission: {
-                        id: context.payload.userChallengeSubmissionId,
-                    },
-                    submissionUrl:
-                        context.extended?.userChallengeSubmission.submissionUrl ?? "",
-                    attemptNumber: attemptCount + 1,
-                    score: grade.totalScore,
-                    processedAt: this.dayjsService.now().toDate(),
-                    shortFeedback: grade.failedRequirements === 0
-                        ? "All criteria passed."
-                        : `${grade.failedRequirements} criteria failed.`,
-                    defaultLocale: locale,
-                },
-            )
-
-            const feedbackEntities = grade.requirementResults
-                .filter((cr) => !cr.passed)
-                .map((msg, index) => {
-                    const entity = new UserChallengeSubmissionFeedbackEntity()
-                    entity.attempt = attempt
-                    entity.message = msg.feedback
-                    entity.detail = null
-                    entity.location = msg.location?.trim() || null
-                    entity.suggestion = msg.suggestion?.trim() || null
-                    entity.severity = SubmissionFeedbackSeverity.Medium
-                    entity.orderIndex = index
-                    entity.defaultLocale = locale
-                    return entity
-                })
-
-            await em.save(
-                UserChallengeSubmissionFeedbackEntity,
-                feedbackEntities,
-            )
-        })
-
+                )
+                /** Map the grade evaluation details to feedbacks */
+                const feedbackRaws = grade.evaluation.details.map(
+                    (detail) => {
+                        return detail.feedbacks.map((feedback) => {
+                            return {
+                                message: feedback.message,
+                                severity: feedback.severity,
+                                location: feedback.location,
+                                suggestion: feedback.suggestion,
+                            }
+                        })
+                    }).flat()
+                /** Map the feedbacks to the user challenge submission attempt */
+                const feedbacks = feedbackRaws.map(
+                    (feedback, index) => {
+                        return {
+                            ...feedback,
+                            orderIndex: index,
+                            defaultLocale: payload.locale ?? Locale.En,
+                        }
+                    }
+                )
+                /** Save the user challenge submission attempt */
+                await entityManager.save(
+                    UserChallengeSubmissionAttemptEntity,
+                    {
+                        userChallengeSubmission: {
+                            id: payload.userChallengeSubmissionId,
+                        },
+                        submissionUrl:
+                            context.extended?.userChallengeSubmission.submissionUrl ?? "",
+                        processedAt: this.dayjsService.now().toDate(),
+                        score: grade.evaluation.score,
+                        shortFeedback: grade.evaluation.shortFeedback,
+                        attemptNumber: numAttempts + 1,
+                        defaultLocale: payload.locale ?? Locale.En,
+                        feedbacks,
+                    }
+                )
+            }
+        )
         return {
         }
     }
 
     private async finalize(
-        executionResult: ProcessGoogleDocsSubmissionCompleteStepExecuteResult,
+        executionResult: EmptyObject,
         context: JobExtendedContext<
             ProcessGoogleDocsSubmissionPayload,
             ExtendedProcessGoogleDocsSubmissionContext
@@ -172,21 +171,24 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
             payload,
             queueName,
         } = context
-
-        await this.entityManager.transaction(async (entityManager) => {
-            await this.jobActionService.increaseJob({
-                job,
-                entityManager,
-            })
-
-            await this.jobActionService.saveExecutionResult({
-                job,
-                key: this.stepName,
-                executionResult,
-                entityManager,
-            })
-        })
-
+        await this.entityManager.transaction(
+            async (entityManager) => {
+                await this.jobActionService.increaseJob(
+                    {
+                        job,
+                        entityManager,
+                    }
+                )
+                await this.jobActionService.saveExecutionResult(
+                    {
+                        job,
+                        key: this.stepName,
+                        executionResult,
+                        entityManager,
+                    }
+                )
+            }
+        )
         this.winstonService.log(
             WinstonLog.ProcessGitSubmissionStepExecuted,
             {
@@ -198,5 +200,11 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                 success: true,
             },
         )
+        this.eventEmitterService.emit({
+            event: EventName.ChallengeSubmissionProgressUpdated,
+            payload: {
+                enrollmentId: payload.enrollmentId,
+            },
+        })
     }
 }

@@ -167,17 +167,40 @@ export class SubmitChallengeSubmissionHandler
             })
         }
         /** Look up course and enrollment to pass to enqueue. */
-        const course = await this.entityManager.findOne(CourseEntity, {
-            where: { modules: { contents: { challenges: { id: challenge.id } } } },
-            select: { id: true },
-        })
+        const course = await this.entityManager.findOne(
+            CourseEntity,
+            {
+                where: {
+                    modules: {
+                        contents: {
+                            challenges: {
+                                id: challenge.id 
+                            } 
+                        } 
+                    } 
+                },
+                select: {
+                    id: true 
+                },
+            }
+        )
         const courseId = course?.id ?? ""
-        const enrollment = await this.entityManager.findOne(EnrollmentEntity, {
-            where: { user: { id: user.id }, course: { id: courseId } },
-            select: { id: true },
-        })
+        const enrollment = await this.entityManager.findOne(
+            EnrollmentEntity,
+            {
+                where: {
+                    user: {
+                        id: user.id 
+                    }, course: {
+                        id: courseId 
+                    } 
+                },
+                select: {
+                    id: true 
+                },
+            }
+        )
         const enrollmentId = enrollment?.id ?? ""
-
         /** Enqueue the process git submission job. */
         let job: JobEntity | null = null
         switch (challengeSubmission.type) {

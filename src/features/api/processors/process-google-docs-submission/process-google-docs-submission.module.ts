@@ -17,6 +17,7 @@ import {
 import {
     ProcessGoogleDocsSubmissionGradeStepService,
     ProcessGoogleDocsSubmissionCompleteStepService,
+    ProcessGoogleDocsSubmissionParseService,
 } from "./steps"
 
 @Module({
@@ -28,6 +29,7 @@ import {
         ProcessGoogleDocsSubmissionStepMappingService,
         ProcessGoogleDocsSubmissionGradeStepService,
         ProcessGoogleDocsSubmissionCompleteStepService,
+        ProcessGoogleDocsSubmissionParseService,
     ],
 })
 export class ProcessGoogleDocsSubmissionModule extends ConfigurableModuleClass {}

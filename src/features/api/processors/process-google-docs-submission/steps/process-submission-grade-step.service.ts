@@ -2,56 +2,39 @@ import type {
     ProcessGoogleDocsSubmissionPayload,
 } from "@modules/bullmq"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-    InjectQdrantClient,
-    ModelProvider,
-} from "@modules/databases"
-import {
     JobActionService,
 } from "@modules/bussiness"
-import {
-    EventEmitterService,
-    EventName,
-} from "@modules/event"
-import {
-    GradeModelRouterService,
-} from "@modules/ai"
-import {
-    Injectable,
-} from "@nestjs/common"
-import type {
-    EntityManager,
-} from "typeorm"
 import {
     AbstractStepService,
     JobExtendedContext,
 } from "@modules/bussiness"
 import {
+    InjectPrimaryPostgreSQLEntityManager,
+    Locale,
+    InjectQdrantClient,
+    ModelProvider,
+} from "@modules/databases"
+import {
+    Injectable,
+} from "@nestjs/common"
+import {
+    type EntityManager,
+} from "typeorm"
+import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
 import {
-    ProcessGoogleDocsSubmissionGradeStepExecuteResult,
-    ProcessGoogleDocsSubmissionGradeStepRequirementResult,
-    ExtendedProcessGoogleDocsSubmissionContext,
-} from "../types"
-import {
     envConfig,
 } from "@modules/env"
 import {
-    ModelService,
     EmbeddingModelService,
+    ModelService,
 } from "@modules/langchain"
-import {
-    GoogleDriverAPIService,
-} from "@modules/googleapis"
 import {
     HumanMessage,
     SystemMessage,
 } from "@langchain/core/messages"
-import {
-    ParsingScoreFromModelTextException,
-} from "@modules/exceptions"
 import {
     RecursiveCharacterTextSplitter,
 } from "langchain/text_splitter"
@@ -61,10 +44,26 @@ import {
 import type {
     QdrantClient,
 } from "@qdrant/qdrant-js"
+import {
+    MountStorageService,
+} from "@modules/filesystem"
 import template from "./template.json"
+import {
+    GradeModelRouterService,
+} from "@modules/ai"
+import {
+    GoogleDriverAPIService,
+} from "@modules/googleapis"
+import {
+    ProcessGoogleDocsSubmissionParseService,
+} from "./parse.service"
+import type {
+    ExtendedProcessGoogleDocsSubmissionContext,
+    ProcessGoogleDocsSubmissionGradeStepExecuteResult,
+} from "../types"
 
 /**
- * Step 1: grade the submission using database prompts.
+ * Step 0: Fetch Google Docs text → LLM grades per requirement → evaluation + passed.
  */
 @Injectable()
 export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepService<
@@ -76,20 +75,21 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         private readonly entityManager: EntityManager,
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
-        private readonly googleDriverApiService: GoogleDriverAPIService,
+        private readonly mountStorageService: MountStorageService,
         private readonly embeddingModelService: EmbeddingModelService,
         @InjectQdrantClient()
         private readonly qdrantClient: QdrantClient,
         private readonly modelService: ModelService,
         private readonly gradeModelRouterService: GradeModelRouterService,
-        private readonly eventEmitterService: EventEmitterService,
+        private readonly googleDriverApiService: GoogleDriverAPIService,
+        private readonly processGoogleDocsSubmissionParseService: ProcessGoogleDocsSubmissionParseService,
     ) {
         super()
     }
 
     stepIndex = 0
     stepName = "grade"
-    /** Process the step. */
+
     async process(
         context: JobExtendedContext<
             ProcessGoogleDocsSubmissionPayload,
@@ -97,65 +97,79 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         >,
     ): Promise<void> {
         try {
-            const executionResult = await this.execute(context)
+            const executionResult = await this.execute(
+                context,
+            )
             await this.finalize(
                 executionResult,
                 context,
             )
         } catch (error) {
-            // update the job status to failed
             await this.jobActionService.failJob(
                 {
                     job: context.job,
                     error: error.message,
+                    emitChangeEvent: false,
                 },
             )
             throw error
         }
     }
 
-    /** Execute the step. */
     private async execute(
         context: JobExtendedContext<
             ProcessGoogleDocsSubmissionPayload,
             ExtendedProcessGoogleDocsSubmissionContext
         >,
     ): Promise<ProcessGoogleDocsSubmissionGradeStepExecuteResult> {
-        /** Submission URL. */
+        const { payload } = context
+        const model = payload.gradingModel ?? this.gradeModelRouterService.current.model
+        const provider = (payload.gradingProvider ?? this.gradeModelRouterService.current.provider) as ModelProvider
+
+        const locale = payload.locale ?? Locale.En
+        const localeLanguageMap: Record<string, string> = {
+            en: "English",
+            vi: "Vietnamese (Tiếng Việt)",
+        }
+        const targetLanguage = localeLanguageMap[locale] ?? "English"
+
+        const challenge = context.extended?.challenge
+        const challengeTitle = (challenge?.title ?? "").trim()
+        const requirements = challenge?.requirements ?? []
         const url = context.extended?.userChallengeSubmission.submissionUrl ?? ""
+
+        /** Fetch Google Docs text */
         const {
-            text,
+            text: docText,
         } = await this.googleDriverApiService.fetchGoogleDocsText(
             {
                 urlOrId: url,
             }
         )
+
+        /** Split */
         const splitter = new RecursiveCharacterTextSplitter({
             chunkSize: envConfig().services.githubWorker.processGitSubmission.chunkSize,
             chunkOverlap: envConfig().services.githubWorker.processGitSubmission.chunkOverlap,
         })
         const docs = await splitter.createDocuments(
-            [
-                text,
-            ],
+            [docText],
             [
                 {
                     source: url,
-                },
+                }
             ],
         )
         const chunks = await splitter.splitDocuments(docs)
 
-        // Optional: vectorize into Qdrant for later inspection (not required for grading)
-        const collectionName = `grading-${context.payload.userChallengeSubmissionId}`
-        const embeddingModel = this.embeddingModelService.get({
-            model:
-                context.payload.embeddingModel ??
-                envConfig().services.githubWorker.processGitSubmission.embedding.model,
-            provider:
-                (context.payload.embeddingProvider ??
-                    envConfig().services.githubWorker.processGitSubmission.embedding.provider) as ModelProvider,
-        })
+        /** Vectorize into Qdrant */
+        const collectionName = `grading-${payload.userChallengeSubmissionId}`
+        const embeddingModel = this.embeddingModelService.get(
+            {
+                model: payload.embeddingModel ?? envConfig().services.githubWorker.processGitSubmission.embedding.model,
+                provider: payload.embeddingProvider ?? envConfig().services.githubWorker.processGitSubmission.embedding.provider as ModelProvider,
+            },
+        )
         await this.qdrantClient.deleteCollection(collectionName)
         await QdrantVectorStore.fromDocuments(
             chunks,
@@ -165,61 +179,87 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 collectionName,
             },
         )
-
-        let sourceExcerpt = chunks
+        const vectorStore = await QdrantVectorStore.fromExistingCollection(
+            embeddingModel,
+            {
+                client: this.qdrantClient,
+                collectionName,
+            },
+        )
+        /** Build criteria query text for similarity search */
+        const criteriaQueryText = requirements
+            .sort((prev, next) => prev.orderIndex - next.orderIndex)
+            .map((requirement) => {
+                const purpose = requirement.purpose
+                const promptText = requirement.promptText
+                return `${purpose}\n${promptText}`
+            })
+            .join("\n\n")
+        const topChunks = await vectorStore.similaritySearch(
+            criteriaQueryText,
+            20,
+        )
+        let sourceExcerpt = (topChunks.length > 0 ? topChunks : chunks)
             .map((chunk) => chunk.pageContent)
             .join("\n\n")
-
         const maxChars = envConfig().services.githubWorker.processGitSubmission.gradingMaxSourceChars
-
         if (sourceExcerpt.length > maxChars) {
-            sourceExcerpt = sourceExcerpt.slice(0,
-                maxChars)
+            sourceExcerpt = sourceExcerpt.slice(
+                0,
+                maxChars
+            )
         }
-
-        const locale = context.payload.locale ?? null
-        const challenge = context.extended?.challenge
-        const challengeTitle = (challenge?.title ?? "").trim()
-        const requirements = challenge?.requirements ?? []
-
+        /** Build criteria prompt */
         const criteriaPromptSections = requirements
             .sort((prev, next) => prev.orderIndex - next.orderIndex)
-            .map((req, index) => {
-                const translations = req.translations?.filter((t) => t.locale === locale) ?? []
-                const purpose = translations.find((t) => t.field === "purpose")?.value ?? req.purpose
-                const technicalConstraints = translations.find((t) => t.field === "technicalConstraints")?.value ?? req.technicalConstraints
-                const promptText = translations.find((t) => t.field === "promptText")?.value ?? req.promptText
-                return `### Criterion ${index + 1} (id: "${req.id}", score: ${req.score})\nPurpose: ${purpose}\nConstraints: ${technicalConstraints}\nGrading Prompt: ${promptText}`
-            })
+            .map(
+                (requirement, index) => {
+                    const lines = [
+                        `### Requirement ${index} (id: "${requirement.id}", maxScore: ${requirement.score})`,
+                        `**Purpose:** ${requirement.purpose}`,
+                        `**Constraints:** ${requirement.technicalConstraints}`,
+                    ]
+                    if (requirement.promptText) lines.push(`**Grading Rubric:**\n${requirement.promptText}`)
+                    if (requirement.forbidden) lines.push(`**Forbidden (auto-fail if violated):**\n${requirement.forbidden}`)
+                    if (requirement.proTipsHints) lines.push(`**Hints:** ${requirement.proTipsHints}`)
+                    return lines.join("\n")
+                },
+            )
             .join("\n\n")
 
         const systemText = [
-            `You are a senior educator reviewing a learner's submitted document for challenge: "${challengeTitle}".`,
-            "Review the document against EACH pass criterion below.",
-            "For EACH criterion, determine if the document meets the requirement (passed = true/false) and provide brief feedback.",
-            "If not passed, include a section or paragraph location and suggestion for fix.",
+            `You are a strict, experienced reviewer grading a learner's submitted document for the challenge: "${challengeTitle}".`,
             "",
-            "### Pass Criteria",
-            criteriaPromptSections || "(no criteria provided)",
+            "## Task",
+            "Review the submitted document content against EVERY requirement listed below.",
+            "For each requirement, evaluate whether the document satisfies it, provide concise feedback, and assign a score based on the rubric.",
             "",
-            "Shape:",
-            "Your output JSON must exactly match the structure and keys of the following template (replace values as needed):",
+            "## IMPORTANT: Language Requirement",
+            `All feedback text MUST be written in **${targetLanguage}**.`,
+            `JSON keys must remain in English, but all human-readable values (shortFeedback, message, suggestion) must be in ${targetLanguage}.`,
             "",
-            JSON.stringify(template),
+            "## Requirements",
+            criteriaPromptSections || "(no requirements provided)",
             "",
-            "Rules:",
-            "- requirementResults must have exactly one entry per criterion, in order.",
-            "- requirementId must match the criterion id provided above.",
-            "- passed: true if the document meets the criterion, false otherwise.",
-            "- feedback: 1-2 sentences explaining why it passed or failed.",
-            "- location: section or paragraph reference where the issue is, or null if passed.",
-            "- suggestion: instruction to fix the issue, or null if passed.",
-            "- Focus on content completeness and accuracy.",
-            "- Output must be STRICT JSON (double quotes only).",
-            "- do not include trailing commas.",
-            "- do not include unescaped newlines inside strings; use \\n if needed.",
-            "- if you include double quotes inside strings, they must be escaped as \\\".",
-        ].join("\n")
+            "## Output Format",
+            "Respond with a single JSON object matching this template exactly (replace placeholder values):",
+            "",
+            JSON.stringify(
+                template,
+                null,
+                2,
+            ),
+            "## JSON Formatting",
+            "- Output STRICT JSON only — no markdown fences, no comments, no trailing commas.",
+            "- Use double quotes for all keys and string values.",
+            "- Escape newlines as \\\\n and double quotes as \\\\\" inside string values.",
+            "",
+            "## Grading Philosophy",
+            "- Focus on content completeness and accuracy, NOT formatting or style.",
+            "- If a requirement has forbidden patterns, actively search the document for violations.",
+            "- A requirement can have multiple feedback items (one per sub-rubric if the grading rubric lists multiple items).",
+            "- Requirements with maxScore: 0 still need feedback but contribute 0 to the total.",
+        ].filter(Boolean).join("\n")
 
         const humanText = [
             "Below is the content loaded from the submitted document (may be truncated):",
@@ -227,43 +267,30 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
             sourceExcerpt || "(empty document content)",
         ].join("\n")
 
-        const gradeModelChoice = this.gradeModelRouterService.current
-
-        const model = this.modelService.get({
-            model: context.payload.gradingModel ?? gradeModelChoice.model,
-            provider: (context.payload.gradingProvider ?? gradeModelChoice.provider) as ModelProvider,
+        const aiModel = this.modelService.get({
+            model,
+            provider,
         })
 
-        const response = await model.invoke([
+        const response = await aiModel.invoke([
             new SystemMessage(systemText),
             new HumanMessage(humanText),
         ])
 
-        const raw = (typeof response.content === "string" ? response.content : String(response.content)) as string
+        const raw = typeof response.content === "string"
+            ? response.content
+            : String(response.content)
 
-        const requirementResults = this.parseGradeFromModelText(raw)
-
-        requirementResults.map((cr) => {
-            const matchingCriteria = requirements.find((c) => c.id === cr.requirementId)
-            const score = cr.passed && matchingCriteria ? matchingCriteria.score : 0
-            return {
-                ...cr,
-                score,
-            }
-        })
-        const totalScore = requirementResults.reduce((sum, cr) => sum + cr.score,
-            0)
-        const maxScore = requirements.reduce((sum, req) => sum + req.score,
-            0)
-        const passedRequirements = requirementResults.filter((cr) => cr.passed).length
-        const failedRequirements = requirementResults.filter((cr) => !cr.passed).length
-
+        const parsed = this.processGoogleDocsSubmissionParseService.parse(raw)
+        const passThreshold = this.mountStorageService.appConfig.systemConfig.challenge.passThreshold
+        const maxScore = requirements.reduce(
+            (sum, requirement) => sum + requirement.score,
+            0,
+        )
+        const passed = parsed.score >= maxScore * passThreshold
         return {
-            totalScore,
-            maxScore,
-            passedRequirements,
-            failedRequirements,
-            requirementResults,
+            evaluation: parsed,
+            passed,
         }
     }
 
@@ -279,21 +306,24 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
             payload,
             queueName,
         } = context
-
-        await this.entityManager.transaction(async (entityManager) => {
-            await this.jobActionService.increaseJob({
-                job,
-                entityManager,
-            })
-
-            await this.jobActionService.saveExecutionResult({
-                job,
-                key: this.stepName,
-                executionResult,
-                entityManager,
-            })
-        })
-
+        await this.entityManager.transaction(
+            async (entityManager) => {
+                await this.jobActionService.increaseJob(
+                    {
+                        job,
+                        entityManager,
+                    }
+                )
+                await this.jobActionService.saveExecutionResult(
+                    {
+                        job,
+                        key: this.stepName,
+                        executionResult,
+                        entityManager,
+                    }
+                )
+            }
+        )
         this.winstonService.log(
             WinstonLog.ProcessGitSubmissionStepExecuted,
             {
@@ -305,62 +335,5 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 success: true,
             },
         )
-
-        await this.eventEmitterService.emit({
-            event: EventName.ChallengeSubmissionProgressUpdated,
-            payload: {
-                enrollmentId: payload.enrollmentId,
-                courseId: payload.courseId,
-            },
-        })
-    }
-
-    /**
-     * Parses the grade from the model text.
-     */
-    private parseGradeFromModelText(
-        text: string,
-    ): Array<ProcessGoogleDocsSubmissionGradeStepRequirementResult> {
-        const brace = text.match(/\{[\s\S]*?\}/)
-
-        if (!brace) {
-            throw new ParsingScoreFromModelTextException({
-                text 
-            })
-        }
-
-        try {
-            const parsed = JSON.parse(brace[0]) as unknown
-
-            if (
-                typeof parsed !== "object" ||
-                parsed === null ||
-                !("requirementResults" in parsed) ||
-                !Array.isArray((parsed as Record<string, unknown>).requirementResults)
-            ) {
-                throw new Error("Missing requirementResults array")
-            }
-            const rawResults = parsed.requirementResults as Array<unknown>
-            return rawResults.map(
-                (cr: unknown) => {
-                    if (typeof cr !== "object" || cr === null) {
-                        throw new Error("Invalid requirement result object")
-                    }
-                    const record = cr as Record<string, unknown>
-                    return {
-                        requirementId: String(record.requirementId),
-                        passed: Boolean(record.passed),
-                        feedback: String(record.feedback || ""),
-                        location: typeof record.location === "string" ? record.location : null,
-                        suggestion: typeof record.suggestion === "string" ? record.suggestion : null,
-                        score: Number(record.score) || 0,
-                    }
-                },
-            )
-        } catch {
-            throw new ParsingScoreFromModelTextException({
-                text 
-            })
-        }
     }
 }

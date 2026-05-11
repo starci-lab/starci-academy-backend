@@ -49,23 +49,6 @@ export class UserMilestoneTaskAttemptFeedbackEntity extends UuidAbstractEntity {
         message: string
 
     /**
-     * More detailed explanation of what is missing or wrong.
-     */
-    @Field(
-        () => String,
-        {
-            nullable: true,
-            description: "More detailed explanation of what is missing or wrong.",
-        },
-    )
-    @Column({
-        name: "detail",
-        type: "text",
-        nullable: true,
-    })
-        detail: string | null
-
-    /**
      * Severity of the feedback item.
      */
     @Field(

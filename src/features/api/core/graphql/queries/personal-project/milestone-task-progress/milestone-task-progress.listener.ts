@@ -10,6 +10,13 @@ import {
 import {
     PersonalProjectProgressService,
 } from "@modules/bussiness"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+    EnrollmentEntity,
+} from "@modules/databases"
+import type {
+    EntityManager,
+} from "typeorm"
 
 /**
  * Listens for MilestoneTaskProgressUpdated events (via NATS + local)
@@ -20,13 +27,25 @@ export class MilestoneTaskProgressListener implements OnModuleInit {
     constructor(
         private readonly eventEmitterService: EventEmitterService,
         private readonly personalProjectProgressService: PersonalProjectProgressService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) {}
 
     onModuleInit(): void {
         this.eventEmitterService.on({
             event: EventName.MilestoneTaskProgressUpdated,
             listener: async (payload: MilestoneTaskProgressUpdatedEventPayload) => {
-                await this.personalProjectProgressService.updateProgress(payload)
+                const enrollment = await this.entityManager.findOneOrFail(
+                    EnrollmentEntity,
+                    {
+                        where: { id: payload.enrollmentId },
+                        select: { id: true, courseId: true },
+                    },
+                )
+                await this.personalProjectProgressService.updateProgress({
+                    enrollmentId: payload.enrollmentId,
+                    courseId: enrollment.courseId,
+                })
             },
         })
     }

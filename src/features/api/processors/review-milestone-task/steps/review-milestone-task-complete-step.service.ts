@@ -13,7 +13,9 @@ import {
 } from "@modules/common"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    EnrollmentEntity,
+    Locale,
+    UserMilestoneTaskAttemptEntity,
+    UserMilestoneTaskEntity,
 } from "@modules/databases"
 import {
     Injectable,
@@ -35,6 +37,12 @@ import {
 import type {
     ReviewMilestoneTaskGradeResult,
 } from "./review-milestone-task-grade-step.service"
+import {
+    MissingOrInvalidGradeExecutionResultException 
+} from "@modules/exceptions"
+import {
+    DayjsService,
+} from "@modules/mixin"
 
 /**
  * Step 1: finalize — load grade result summary, log completion.
@@ -51,6 +59,7 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
         private readonly winstonService: WinstonService,
         private readonly gradeStepService: ReviewMilestoneTaskGradeStepService,
         private readonly eventEmitterService: EventEmitterService,
+        private readonly dayjsService: DayjsService,
     ) {
         super()
     }
@@ -58,6 +67,11 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
     stepIndex = 1
     stepName = "complete"
 
+    /**
+     * Process the review milestone task complete step.
+     * @param context - The job extended context.
+     * @returns The void.
+     */
     async process(
         context: JobExtendedContext<ReviewPersonalProjectTaskPayload, EmptyObject>,
     ): Promise<void> {
@@ -70,38 +84,124 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
         )
     }
 
+    /**
+     * Execute the review milestone task complete step.
+     * @param context - The job extended context.
+     * @returns The review milestone task complete result.
+     */
     private async execute(
         context: JobExtendedContext<ReviewPersonalProjectTaskPayload, EmptyObject>,
-    ): Promise<ReviewMilestoneTaskCompleteResult> {
+    ): Promise<EmptyObject> {
+        const { payload } = context
         const grade = await this.jobActionService.loadExecutionResult<ReviewMilestoneTaskGradeResult>(
             {
                 job: context.job,
                 key: this.gradeStepService.stepName,
             },
         )
-        if (
-            !grade
-            || !grade.enrollmentId
-            || !grade.milestoneTaskId
-            || !grade.userMilestoneTaskId
-        ) {
-            throw new Error("Missing or invalid grade execution result for review-milestone-task.")
+        if (!grade) {
+            throw new MissingOrInvalidGradeExecutionResultException({
+                grade,
+            })
         }
-
+        if (typeof grade.evaluation !== "object" || typeof grade.passed !== "boolean") {
+            throw new MissingOrInvalidGradeExecutionResultException({
+                grade,
+            })
+        }
+        await this.entityManager.transaction(
+            async (entityManager) => {
+                /** Find or create the user milestone task */
+                let userMilestoneTask = await entityManager.findOne(
+                    UserMilestoneTaskEntity,
+                    {
+                        where: {
+                            enrollment: {
+                                id: payload.enrollmentId,
+                            },
+                            milestoneTask: {
+                                id: payload.taskId,
+                            },
+                        },
+                    },
+                )
+                if (!userMilestoneTask) {
+                    /** No attempts at all */
+                    userMilestoneTask = entityManager.create(
+                        UserMilestoneTaskEntity,
+                        {
+                            enrollment: {
+                                id: payload.enrollmentId,
+                            },
+                            milestoneTask: {
+                                id: payload.taskId,
+                            },
+                        },
+                    )
+                    await entityManager.save(userMilestoneTask)
+                }
+                /** Fetch all attempts for this user milestone task */
+                const numAttempts = await entityManager.count(
+                    UserMilestoneTaskAttemptEntity,
+                    {
+                        where: {
+                            userMilestoneTask: {
+                                id: userMilestoneTask.id,
+                            },
+                        },
+                    },
+                )
+                /** Map the grade evaluation details to feedbacks */
+                const feedbackRaws = grade.evaluation.details.map(
+                    (detail) => {
+                        return detail.feedbacks.map((feedback) => {
+                            return {
+                                message: feedback.message,
+                                severity: feedback.severity,
+                                location: feedback.location,
+                                suggestion: feedback.suggestion,
+                            }
+                        })
+                    }).flat()
+                /** Map the feedbacks to the user milestone task attempt */
+                const feedbacks = feedbackRaws.map(
+                    (feedback, index) => {
+                        return {
+                            ...feedback,
+                            orderIndex: index,
+                            defaultLocale: payload.locale ?? Locale.En,
+                        }
+                    }
+                )
+                /** Save the user milestone task attempt */
+                await entityManager.save(
+                    UserMilestoneTaskAttemptEntity,
+                    {
+                        userMilestoneTask: {
+                            id: userMilestoneTask.id,
+                        },
+                        processedAt: this.dayjsService.now().toDate(),
+                        score: grade.evaluation.score,
+                        shortFeedback: grade.evaluation.shortFeedback,
+                        passed: grade.passed,
+                        attemptNumber: numAttempts + 1,
+                        feedbacks,
+                    }
+                )
+            }
+        )
         return {
-            enrollmentId: grade.enrollmentId,
-            milestoneTaskId: grade.milestoneTaskId,
-            userMilestoneTaskId: grade.userMilestoneTaskId,
-            passed: grade.passed,
-            totalScore: grade.totalScore,
-            maxScore: grade.maxScore,
-            criteriaCount: grade.criteriaCount,
-            failedCriteriaCount: grade.failedCriteriaCount,
         }
     }
 
+    /**
+     * Finalize the review milestone task complete step.
+     * @param executionResult - The review milestone task complete result.
+     * @param context - The job extended context.
+     * @returns The void.
+     */
     private async finalize(
-        executionResult: ReviewMilestoneTaskCompleteResult,
+        executionResult: EmptyObject,
         context: JobExtendedContext<ReviewPersonalProjectTaskPayload, EmptyObject>,
     ): Promise<void> {
         const {
@@ -138,34 +238,11 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                 success: true,
             },
         )
-
-        /** Emit event to update milestone task progress cache via NATS */
-        const enrollment = await this.entityManager.findOne(
-            EnrollmentEntity,
-            {
-                where: { id: executionResult.enrollmentId },
-                select: { id: true, courseId: true },
+        this.eventEmitterService.emit({
+            event: EventName.MilestoneTaskProgressUpdated,
+            payload: {
+                enrollmentId: payload.enrollmentId,
             },
-        )
-        if (enrollment) {
-            await this.eventEmitterService.emit({
-                event: EventName.MilestoneTaskProgressUpdated,
-                payload: {
-                    enrollmentId: enrollment.id,
-                    courseId: enrollment.courseId,
-                },
-            })
-        }
+        })
     }
-}
-
-interface ReviewMilestoneTaskCompleteResult {
-    enrollmentId: string
-    milestoneTaskId: string
-    userMilestoneTaskId: string
-    passed: boolean
-    totalScore: number
-    maxScore: number
-    criteriaCount: number
-    failedCriteriaCount: number
 }

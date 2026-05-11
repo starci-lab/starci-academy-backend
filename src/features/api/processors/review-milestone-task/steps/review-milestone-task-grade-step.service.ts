@@ -1,4 +1,5 @@
 import type {
+    ProjectEvaluation,
     ReviewPersonalProjectTaskPayload,
 } from "@modules/bullmq"
 import {
@@ -15,10 +16,6 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
     MilestoneTaskEntity,
-    UserMilestoneTaskEntity,
-    UserMilestoneTaskAttemptEntity,
-    UserMilestoneTaskAttemptFeedbackEntity,
-    MilestoneSeverity,
     InjectQdrantClient,
     ModelProvider,
 } from "@modules/databases"
@@ -63,14 +60,14 @@ import {
 } from "@modules/filesystem"
 import template from "./template.json"
 import {
-    ParsingCriteriaResultsFromModelTextException,
-} from "@modules/exceptions"
-import {
     Document,
 } from "@langchain/core/documents"
 import {
     ReviewPersonalProjectModelRouterService
 } from "@modules/ai"
+import {
+    ReviewMilestoneTaskParseService 
+} from "./parse.service"
 
 /**
  * Step 0: Load GitHub repo → LLM grades per criterion (yes/no + score) → persist attempt + feedback.
@@ -93,6 +90,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
         private readonly modelService: ModelService,
         private readonly reviewPersonalProjectModelRouterService: ReviewPersonalProjectModelRouterService,
         private readonly dayjsService: DayjsService,
+        private readonly reviewMilestoneTaskParseService: ReviewMilestoneTaskParseService,
     ) {
         super()
     }
@@ -117,7 +115,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 {
                     job: context.job,
                     error: error.message,
-                    emitChangeEvent: false,
+                    emitChangeEvent: true,
                 },
             )
             throw error
@@ -126,6 +124,8 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
 
     /**
      * Execute the step.
+     * @param context - Context of the step.
+     * @returns A promise that resolves when the step is executed.
      */
     private async execute(
         context: JobExtendedContext<ReviewPersonalProjectTaskPayload, EmptyObject>,
@@ -222,16 +222,13 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
         const criteriaQueryText = criteria
             .sort((prev, next) => prev.orderIndex - next.orderIndex)
             .map((criterion) => {
-                const translations = criterion.translations?.filter(
-                    (translation) => translation.locale === locale,
-                ) ?? criterion.translations ?? []
-                const text = translations.find((text) => text.field === "text")?.value ?? ""
-                const promptText = translations.find((translation) => translation.field === "promptText")?.value ?? ""
+                const text = criterion.text
+                const promptText = criterion.promptText
                 return `${text}\n${promptText}`
             })
             .join("\n\n")
         const topChunks = await vectorStore.similaritySearch(
-            criteriaQueryText || milestoneTask.title || "code review",
+            criteriaQueryText,
             20,
         )
         let sourceExcerpt = (topChunks.length > 0 ? topChunks : chunks)
@@ -242,201 +239,84 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
             sourceExcerpt = sourceExcerpt.slice(0,
                 maxChars)
         }
-        /** Grade per criteria via LLM */
-        let criteriaResults: Array<CriteriaResult> = []
-        let totalScore = 0
-
-        if (criteria.length > 0) {
-            /** Build criteria prompt */
-            const criteriaPromptSections = criteria
-                .sort((prev, next) => prev.orderIndex - next.orderIndex)
-                .map(
-                    (criterion, index) => {
-                        const translations = criterion.translations?.filter(
-                            (translation) => translation.locale === locale,
-                        ) ?? criterion.translations ?? []
-                        const text = translations.find((translation) => translation.field === "text")?.value ?? ""
-                        const promptText = translations.find((translation) => translation.field === "promptText")?.value ?? ""
-                        return `### Criterion ${index + 1} (id: "${criterion.id}", score: ${criterion.score})\nDisplay text: ${text}\nGrading prompt: ${promptText}`
-                    },
-                )
-                .join("\n\n")
-
-            const taskTitle = milestoneTask.title ?? "milestone task"
-            const systemText = [
-                `You are a senior engineer reviewing a learner's personal project for task: "${taskTitle}".`,
-                "Review the code against EACH pass criterion below.",
-                "For EACH criterion, determine if the code meets the requirement (passed = true/false) and provide brief feedback.",
-                "If not passed, include location (file:line) and suggestion for fix.",
-                "",
-                "### IMPORTANT: Language Requirement",
-                `All feedback text MUST be written in **${targetLanguage}**.`,
-                `The JSON keys must remain in English, but all human-readable values (feedback, location, suggestion) must be in ${targetLanguage}.`,
-                "",
-                "### Pass Criteria",
-                criteriaPromptSections || "(no criteria provided)",
-                "",
-                "Shape:",
-                "Your output JSON must exactly match the structure and keys of the following template (replace values as needed):",
-                "",
-                JSON.stringify(template),
-                "",
-                "Rules:",
-                "- criteriaResults must have exactly one entry per criterion, in order.",
-                "- criteriaId must match the criterion id provided above.",
-                "- passed: true if the code meets the criterion, false otherwise.",
-                `- feedback: 1-2 sentences in ${targetLanguage} explaining why it passed or failed.`,
-                "- location: file path and line number hint where the issue is, or null if passed.",
-                "- suggestion: code snippet or instruction to fix the issue, or null if passed.",
-                "- Focus on implementation completeness, NOT code style.",
-                "- Output must be STRICT JSON (double quotes only).",
-            ].filter(Boolean).join("\n")
-
-            const humanText = [
-                "Below is an excerpt of files loaded from the submitted GitHub repository (may be truncated):",
-                "",
-                sourceExcerpt || "(empty repository excerpt)",
-            ].join("\n")
-
-            const aiModel = this.modelService.get({
-                model,
-                provider: provider,
-            })
-
-            const response = await aiModel.invoke([
-                new SystemMessage(systemText),
-                new HumanMessage(humanText),
-            ])
-
-            const raw = typeof response.content === "string"
-                ? response.content
-                : String(response.content)
-
-            const gradeResult = this.parseResult(raw)
-
-            // Map parsed results and calculate scores
-            criteriaResults = gradeResult.criteriaResults.map((cr) => {
-                const matchingCriteria = criteria.find((c) => c.id === cr.criteriaId)
-                const score = cr.passed && matchingCriteria ? matchingCriteria.score : 0
-                return {
-                    criteriaId: cr.criteriaId,
-                    passed: cr.passed,
-                    feedback: cr.feedback,
-                    location: cr.location ?? null,
-                    suggestion: cr.suggestion ?? null,
-                    score,
-                }
-            })
-            totalScore = criteriaResults.reduce(
-                (sum, cr) => sum + cr.score,
-                0
+        /** Build criteria prompt */
+        const criteriaPromptSections = criteria
+            .sort((prev, next) => prev.orderIndex - next.orderIndex)
+            .map(
+                (criterion, index) => {
+                    const text = criterion.text
+                    const promptText = criterion.promptText
+                    const lines = [
+                        `### Criteria ${index} (id: "${criterion.id}", maxScore: ${criterion.score})`,
+                        `**Display text:** ${text}`,
+                    ]
+                    if (promptText) lines.push(`**Grading Rubric:**\n${promptText}`)
+                    return lines.join("\n")
+                },
             )
-        }
+            .join("\n\n")
 
+        const taskTitle = milestoneTask.title ?? "milestone task"
+        const systemText = [
+            `You are a strict, experienced code reviewer grading a learner's personal project for task: "${taskTitle}".`,
+            "",
+            "## Task",
+            "Review the submitted source code against EVERY criteria listed below.",
+            "For each criteria, evaluate whether the code satisfies it, provide concise feedback, and assign a score based on the rubric.",
+            "",
+            "## IMPORTANT: Language Requirement",
+            `All feedback text MUST be written in **${targetLanguage}**.`,
+            `JSON keys must remain in English, but all human-readable values (shortFeedback, feedback, suggestion) must be in ${targetLanguage}.`,
+            "",
+            "## Criteria",
+            criteriaPromptSections || "(no criteria provided)",
+            "",
+            "## Output Format",
+            "Respond with a single JSON object matching this template exactly (replace placeholder values):",
+            "",
+            JSON.stringify(
+                template,
+                null,
+                2
+            ),
+            "## JSON Formatting",
+            "- Output STRICT JSON only — no markdown fences, no comments, no trailing commas.",
+            "- Use double quotes for all keys and string values.",
+            "- Escape newlines as \\\\n and double quotes as \\\\\" inside string values.",
+            "",
+            "## Grading Philosophy",
+            "- Focus on implementation correctness and completeness, NOT code style or formatting.",
+            "- If a criteria has forbidden patterns, actively search the code for violations.",
+            "- A criteria can have multiple feedback items (one per sub-rubric if the grading rubric lists multiple items).",
+            "- Criteria with maxScore: 0 still need feedback but contribute 0 to the total.",
+        ].filter(Boolean).join("\n")
+
+        const humanText = [
+            "Below is an excerpt of files loaded from the submitted GitHub repository (may be truncated):",
+            "",
+            sourceExcerpt || "(empty repository excerpt)",
+        ].join("\n")
+
+        const aiModel = this.modelService.get({
+            model,
+            provider: provider,
+        })
+
+        const response = await aiModel.invoke([
+            new SystemMessage(systemText),
+            new HumanMessage(humanText),
+        ])
+
+        const raw = typeof response.content === "string"
+            ? response.content
+            : String(response.content)
+
+        const parsed = this.reviewMilestoneTaskParseService.parse(raw)
         const passThreshold = this.mountStorageService.appConfig.systemConfig.task.passThreshold
-        const passed = totalScore >= milestoneTask.maxScore * passThreshold
-
-        /** Persist userMilestoneTask + attempt + feedback in a single transaction */
-        let userMilestoneTaskId: string = ""
-        await this.entityManager.transaction(
-            async (entityManager) => {
-                /** Ensure UserMilestoneTask exists for this enrollment + milestone task */
-                let userMilestoneTask = await entityManager.findOne(
-                    UserMilestoneTaskEntity,
-                    {
-                        where: {
-                            enrollment: {
-                                id: payload.enrollmentId
-                            },
-                            milestoneTask: {
-                                id: payload.taskId
-                            },
-                        },
-                    },
-                )
-                if (!userMilestoneTask) {
-                    userMilestoneTask = await entityManager.save(
-                        UserMilestoneTaskEntity,
-                        {
-                            enrollment: {
-                                id: payload.enrollmentId
-                            },
-                            milestoneTask: {
-                                id: payload.taskId
-                            },
-                            orderIndex: 0,
-                        },
-                    )
-                }
-                userMilestoneTaskId = userMilestoneTask.id
-                /** Count existing attempts */
-                const existingAttempts = await entityManager.count(
-                    UserMilestoneTaskAttemptEntity,
-                    {
-                        where: {
-                            userMilestoneTask: {
-                                id: userMilestoneTask.id,
-                            },
-                        },
-                    },
-                )
-                /** Create the attempt */
-                const attempt = await entityManager.save(
-                    UserMilestoneTaskAttemptEntity,
-                    {
-                        userMilestoneTask: {
-                            id: userMilestoneTask.id,
-                        },
-                        attemptNumber: existingAttempts + 1,
-                        submissionUrl: payload.githubUrl,
-                        score: totalScore,
-                        shortFeedback: passed
-                            ? "All criteria passed."
-                            : `${criteriaResults.filter((cr) => !cr.passed).length} criteria failed.`,
-                        processedAt: this.dayjsService.now().toDate(),
-                        defaultLocale: locale,
-                    },
-                )
-                /** Create feedback entries for each criterion that did NOT pass */
-                const failedCriteria = criteriaResults.filter((cr) => !cr.passed)
-                if (failedCriteria.length > 0) {
-                    const feedbackEntities = failedCriteria.map(
-                        (cr, index) =>
-                            entityManager.create(
-                                UserMilestoneTaskAttemptFeedbackEntity,
-                                {
-                                    attempt: {
-                                        id: attempt.id,
-                                    },
-                                    message: cr.feedback,
-                                    detail: null,
-                                    severity: MilestoneSeverity.Medium,
-                                    orderIndex: index,
-                                    location: cr.location ?? null,
-                                    suggestion: cr.suggestion ?? null,
-                                    defaultLocale: locale,
-                                },
-                            ),
-                    )
-                    await entityManager.save(
-                        UserMilestoneTaskAttemptFeedbackEntity,
-                        feedbackEntities,
-                    )
-                }
-            })
-
+        const passed = parsed.score >= milestoneTask.maxScore * passThreshold
         return {
-            enrollmentId: payload.enrollmentId,
-            milestoneTaskId: milestoneTask.id,
-            userMilestoneTaskId,
-            githubUrl: payload.githubUrl,
-            totalScore,
-            maxScore: milestoneTask.maxScore,
-            passed,
-            criteriaCount: criteria.length,
-            failedCriteriaCount: criteriaResults.filter((cr) => !cr.passed).length,
-            sourceExcerptChars: sourceExcerpt.length,
-            locale,
+            evaluation: parsed,
+            passed
         }
     }
 
@@ -480,83 +360,15 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
             },
         )
     }
-
-    /** Parse the result. */
-    private parseResult(text: string): {
-        criteriaResults: Array<ParsedCriteriaResult>
-    } {
-        const first = text.indexOf("{")
-        const last = text.lastIndexOf("}")
-        if (first !== -1 && last !== -1 && last > first) {
-            const parsed = JSON.parse(text.slice(first,
-                last + 1))
-            if (Array.isArray(parsed.criteriaResults)) {
-                return {
-                    criteriaResults: parsed.criteriaResults
-                        .filter((cr: ParsedCriteriaResult) => typeof cr.criteriaId === "string")
-                        .map((cr: ParsedCriteriaResult) => ({
-                            criteriaId: cr.criteriaId,
-                            passed: Boolean(cr.passed),
-                            feedback: typeof cr.feedback === "string" ? cr.feedback.trim() : "",
-                            location: typeof cr.location === "string" ? cr.location.trim() : null,
-                            suggestion: typeof cr.suggestion === "string" ? cr.suggestion.trim() : null,
-                        })),
-                }
-            }
-        }
-        throw new ParsingCriteriaResultsFromModelTextException({
-            text,
-        })
-    }
-}
-
-/**
- * Parsed criteria result from LLM (before score calculation).
- */
-interface ParsedCriteriaResult {
-    criteriaId: string
-    passed: boolean
-    feedback: string
-    location: string | null
-    suggestion: string | null
-}
-
-/**
- * Criteria result with calculated score (internal only, not in execution result).
- */
-interface CriteriaResult {
-    criteriaId: string
-    passed: boolean
-    feedback: string
-    location: string | null
-    suggestion: string | null
-    score: number
 }
 
 /**
  * Review milestone task grade result interface.
  */
 export interface ReviewMilestoneTaskGradeResult {
-    /** The enrollment ID. */
-    enrollmentId: string
-    /** The milestone task ID. */
-    milestoneTaskId: string
-    /** The user milestone task ID. */
-    userMilestoneTaskId: string
-    /** The GitHub URL. */
-    githubUrl: string
-    /** Total score achieved. */
-    totalScore: number
-    /** Maximum possible score for the task. */
-    maxScore: number
-    /** Whether the task passed (totalScore >= maxScore). */
+    /** The evaluation result. */
+    evaluation: ProjectEvaluation
+    /** Whether the task passed. */
     passed: boolean
-    /** Total criteria count. */
-    criteriaCount: number
-    /** Number of failed criteria. */
-    failedCriteriaCount: number
-    /** The number of characters in the source excerpt. */
-    sourceExcerptChars: number
-    /** The locale used for grading. */
-    locale: string
 }
+

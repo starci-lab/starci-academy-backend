@@ -7,6 +7,7 @@ import {
 import {
     ProcessGitSubmissionCompleteStepService,
     ProcessGitSubmissionGradeStepService,
+    ProcessGitSubmissionParseService,
 } from "./steps"
 import {
     ProcessGitSubmissionStepMappingService,
@@ -24,6 +25,7 @@ import {
         ProcessGitSubmissionStepMappingService,
         ProcessGitSubmissionGradeStepService,
         ProcessGitSubmissionCompleteStepService,
+        ProcessGitSubmissionParseService,
         ProcessGitSubmissionRequeueService,
     ],
 })

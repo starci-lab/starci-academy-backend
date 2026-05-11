@@ -1,5 +1,6 @@
 export * from "./enroll"
 export * from "./process-git-submission"
+export * from "./process-google-docs-submission"
 export * from "./resolve-github"
 export * from "./process-cv-submission"
 export * from "./process-video"

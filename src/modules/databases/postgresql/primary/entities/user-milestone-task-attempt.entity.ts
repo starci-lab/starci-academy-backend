@@ -50,21 +50,34 @@ export class UserMilestoneTaskAttemptEntity extends UuidAbstractEntity {
         attemptNumber: number
 
     /**
+     * Whether the attempt passed.
+     */
+    @Field(
+        () => Boolean,
+        {
+            description: "Whether the attempt passed.",
+        },
+    )
+    @Column({
+        name: "passed",
+        type: "boolean",
+    })
+        passed: boolean
+
+    /**
      * Score achieved in this attempt.
      */
     @Field(
         () => Int,
         {
             description: "Score achieved in this attempt.",
-            nullable: true,
         },
     )
     @Column({
         name: "score",
         type: "int",
-        nullable: true,
     })
-        score: number | null
+        score: number
 
     /**
      * Feedback summary for this attempt.
@@ -79,9 +92,8 @@ export class UserMilestoneTaskAttemptEntity extends UuidAbstractEntity {
     @Column({
         name: "short_feedback",
         type: "text",
-        nullable: true,
     })
-        shortFeedback: string | null
+        shortFeedback: string
 
     /**
      * When the attempt was finished processing.

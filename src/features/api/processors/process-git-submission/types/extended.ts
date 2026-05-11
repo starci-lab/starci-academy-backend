@@ -1,7 +1,6 @@
 import {
     ChallengeEntity,
     ChallengeSubmissionEntity,
-    ChallengeSubmissionPromptEntity,
     UserChallengeSubmissionEntity,
 } from "@modules/databases"
 
@@ -9,8 +8,6 @@ import {
 export interface ExtendedProcessGitSubmissionContext {
     /** Parent challenge (requirements, title, etc.). */
     challenge: ChallengeEntity
-    /** Grading rubric rows from `challenge_submission_prompts`. */
-    prompts: Array<ChallengeSubmissionPromptEntity>
     /** Challenge submission. */
     challengeSubmission: ChallengeSubmissionEntity
     /** User challenge submission. */

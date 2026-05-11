@@ -36,7 +36,6 @@ import {
     JobExtendedContext,
 } from "@modules/bussiness"
 import {
-    ChallengeSubmissionPromptEntity,
     ChallengeSubmissionEntity,
     InjectPrimaryPostgreSQLEntityManager,
     JobEntity,
@@ -149,21 +148,6 @@ export class ProcessGoogleDocsSubmissionWorker extends WorkerHost {
                 })
             }
 
-            // Fetch prompts from the database for this specific submission requirement
-            const prompts = await this.entityManager.find(
-                ChallengeSubmissionPromptEntity,
-                {
-                    where: {
-                        challengeSubmission: {
-                            id: challengeSubmission.id,
-                        },
-                    },
-                    order: {
-                        orderIndex: "ASC",
-                    },
-                },
-            )
-
             const context: JobExtendedContext<
                 ProcessGoogleDocsSubmissionPayload,
                 ExtendedProcessGoogleDocsSubmissionContext
@@ -172,7 +156,6 @@ export class ProcessGoogleDocsSubmissionWorker extends WorkerHost {
                 queueName: bullmqJob.queueName,
                 payload,
                 extended: {
-                    prompts,
                     challengeSubmission,
                     challenge,
                     userChallengeSubmission,
