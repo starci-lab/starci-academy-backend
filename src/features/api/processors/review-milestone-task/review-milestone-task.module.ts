@@ -10,6 +10,7 @@ import {
 import {
     ReviewMilestoneTaskGradeStepService,
     ReviewMilestoneTaskCompleteStepService,
+    ReviewMilestoneTaskParseService,
 } from "./steps"
 import {
     ReviewMilestoneTaskStepMappingService,
@@ -21,6 +22,7 @@ import {
         ReviewMilestoneTaskCompleteStepService,
         ReviewMilestoneTaskStepMappingService,
         ReviewMilestoneTaskWorker,
+        ReviewMilestoneTaskParseService
     ],
 })
 export class ReviewMilestoneTaskModule extends ConfigurableModuleClass {}

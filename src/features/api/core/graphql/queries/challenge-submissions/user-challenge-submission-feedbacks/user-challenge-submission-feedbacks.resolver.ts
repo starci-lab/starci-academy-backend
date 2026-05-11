@@ -23,18 +23,18 @@ import {
     KeycloakAuthGraphQLGuard,
 } from "@modules/keycloak"
 import {
-    SubmissionFeedbacksService,
-} from "./submission-feedbacks.service"
+    UserChallengeSubmissionFeedbacksService,
+} from "./user-challenge-submission-feedbacks.service"
 import { 
-    SubmissionFeedbacksResponse,
-    SubmissionFeedbacksRequest, 
-    SubmissionFeedbacksResponseData 
+    UserChallengeSubmissionFeedbacksResponse,
+    UserChallengeSubmissionFeedbacksRequest, 
+    UserChallengeSubmissionFeedbacksResponseData 
 } from "./graphql-types"
 
 @Resolver()
-export class SubmissionFeedbacksResolver {
+export class UserChallengeSubmissionFeedbacksResolver {
     constructor(
-        private readonly submissionFeedbacksService: SubmissionFeedbacksService,
+        private readonly userChallengeSubmissionFeedbacksService: UserChallengeSubmissionFeedbacksService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -47,9 +47,9 @@ export class SubmissionFeedbacksResolver {
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(
-        () => SubmissionFeedbacksResponse,
+        () => UserChallengeSubmissionFeedbacksResponse,
         {
-            name: "submissionFeedbacks",
+            name: "userChallengeSubmissionFeedbacks",
             description: "Returns a paginated list of submission feedbacks, optionally filtered by attempt ID.",
         },
     )
@@ -60,11 +60,11 @@ export class SubmissionFeedbacksResolver {
                 description: "Pagination, sorts, and filters.",
             },
         )
-            request: SubmissionFeedbacksRequest,
+            request: UserChallengeSubmissionFeedbacksRequest,
         @GraphQLLocale()
             locale: Locale,
-    ): Promise<SubmissionFeedbacksResponseData> {
-        return this.submissionFeedbacksService.execute(
+    ): Promise<UserChallengeSubmissionFeedbacksResponseData> {
+        return this.userChallengeSubmissionFeedbacksService.execute(
             {
                 request,
                 locale,

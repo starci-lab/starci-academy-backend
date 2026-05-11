@@ -28,6 +28,9 @@ import {
     ChallengeQuery,
 } from "./challenge.query"
 
+/**
+ * Handler for the challenge query.
+ */
 @QueryHandler(ChallengeQuery)
 @Injectable()
 export class ChallengeHandler
@@ -42,15 +45,21 @@ export class ChallengeHandler
         super()
     }
 
+    /**
+     * Process the challenge query.
+     * @param query - Challenge query.
+     * @returns Promise of ChallengeEntity.
+     */
     protected override async process(query: ChallengeQuery): Promise<ChallengeEntity> {
         const {
             request,
             locale,
         } = query.params
 
-        const objectKey = this.s3NameResolverService.challenge(request.id,
-            locale)
-
+        const objectKey = this.s3NameResolverService.challenge(
+            request.id,
+            locale
+        )
         const cdnPayload = await this.s3ReadService.json<UploadPayload>({
             key: objectKey,
             provider: S3Provider.Minio,

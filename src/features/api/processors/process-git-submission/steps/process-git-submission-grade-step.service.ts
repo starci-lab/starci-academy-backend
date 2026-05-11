@@ -92,6 +92,9 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
     stepIndex = 0
     stepName = "grade"
 
+    /**
+     * Process the grade step
+     */
     async process(
         context: JobExtendedContext<
             ProcessGitSubmissionPayload,
@@ -111,13 +114,15 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                 {
                     job: context.job,
                     error: error.message,
-                    emitChangeEvent: false,
                 },
             )
             throw error
         }
     }
 
+    /**
+     * Execute the grade step
+     */
     private async execute(
         context: JobExtendedContext<
             ProcessGitSubmissionPayload,
@@ -140,7 +145,6 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         const challengeTitle = (challenge?.title ?? "").trim()
         const requirements = challenge?.requirements ?? []
         const repoUrl = context.extended?.userChallengeSubmission.submissionUrl ?? ""
-
         /** Load GitHub repo */
         const gitLoader = new GithubRepoLoader(
             repoUrl,
@@ -166,7 +170,6 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                     id: doc.id,
                 }),
         )
-
         /** Split */
         const splitter = new RecursiveCharacterTextSplitter({
             chunkSize: envConfig().services.githubWorker.processGitSubmission.chunkSize,
@@ -306,6 +309,9 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         }
     }
 
+    /**
+     * Finalize the grade step
+     */
     private async finalize(
         executionResult: ProcessGitSubmissionGradeStepExecuteResult,
         context: JobExtendedContext<

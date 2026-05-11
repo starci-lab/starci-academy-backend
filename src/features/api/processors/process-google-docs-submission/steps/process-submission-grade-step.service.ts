@@ -90,6 +90,11 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
     stepIndex = 0
     stepName = "grade"
 
+    /**
+     * Process the step.
+     * @param context - Context of the step.
+     * @returns A promise that resolves when the step is processed.
+     */
     async process(
         context: JobExtendedContext<
             ProcessGoogleDocsSubmissionPayload,
@@ -109,13 +114,17 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 {
                     job: context.job,
                     error: error.message,
-                    emitChangeEvent: false,
                 },
             )
             throw error
         }
     }
 
+    /**
+     * Execute the step.
+     * @param context - Context of the step.
+     * @returns A promise that resolves when the step is executed.
+     */
     private async execute(
         context: JobExtendedContext<
             ProcessGoogleDocsSubmissionPayload,
@@ -293,7 +302,13 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
             passed,
         }
     }
-
+    
+    /**
+     * Finalize the step.
+     * @param executionResult - The execution result.
+     * @param context - The context.
+     * @returns A promise that resolves when the step is finalized.
+     */
     private async finalize(
         executionResult: ProcessGoogleDocsSubmissionGradeStepExecuteResult,
         context: JobExtendedContext<

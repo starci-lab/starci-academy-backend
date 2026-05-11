@@ -25,18 +25,18 @@ import {
     KeycloakGraphQLUser,
 } from "@modules/keycloak"
 import {
-    SubmissionAttemptsService,
-} from "./submission-attempts.service"
+    UserChallengeSubmissionAttemptsService,
+} from "./user-challenge-submission-attempts.service"
 import {
-    SubmissionAttemptsRequest,
-    SubmissionAttemptsResponse,
-    SubmissionAttemptsResponseData,
+    UserChallengeSubmissionAttemptsRequest,
+    UserChallengeSubmissionAttemptsResponse,
+    UserChallengeSubmissionAttemptsResponseData,
 } from "./graphql-types"
 
 @Resolver()
-export class SubmissionAttemptsResolver {
+export class UserChallengeSubmissionAttemptsResolver {
     constructor(
-        private readonly submissionAttemptsService: SubmissionAttemptsService,
+        private readonly userChallengeSubmissionAttemptsService: UserChallengeSubmissionAttemptsService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -49,9 +49,9 @@ export class SubmissionAttemptsResolver {
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(
-        () => SubmissionAttemptsResponse,
+        () => UserChallengeSubmissionAttemptsResponse,
         {
-            name: "submissionAttempts",
+            name: "userChallengeSubmissionAttempts",
             description: "Returns a paginated list of submission attempts, optionally filtered by submission ID.",
         },
     )
@@ -62,13 +62,13 @@ export class SubmissionAttemptsResolver {
                 description: "Pagination, sorts, and filters.",
             },
         )
-            request: SubmissionAttemptsRequest,
+            request: UserChallengeSubmissionAttemptsRequest,
         @GraphQLLocale()
             locale: Locale,
         @KeycloakGraphQLUser()
             user: UserEntity,
-    ): Promise<SubmissionAttemptsResponseData> {
-        return this.submissionAttemptsService.execute(
+    ): Promise<UserChallengeSubmissionAttemptsResponseData> {
+        return this.userChallengeSubmissionAttemptsService.execute(
             {
                 request,
                 locale,

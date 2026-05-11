@@ -38,14 +38,17 @@ export class ChallengeSubmissionProgressListener implements OnModuleInit {
                 const enrollment = await this.entityManager.findOneOrFail(
                     EnrollmentEntity,
                     {
-                        where: { id: payload.enrollmentId },
-                        select: { id: true, courseId: true },
+                        where: {
+                            id: payload.enrollmentId 
+                        },
                     },
                 )
-                await this.challengeProgressService.updateProgress({
-                    enrollmentId: payload.enrollmentId,
-                    courseId: enrollment.courseId,
-                })
+                await this.challengeProgressService.updateProgress(
+                    {
+                        enrollmentId: payload.enrollmentId,
+                        courseId: enrollment.courseId,
+                    }
+                )
             },
         })
     }

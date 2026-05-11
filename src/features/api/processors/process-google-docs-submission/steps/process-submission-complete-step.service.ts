@@ -67,6 +67,11 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
     stepIndex = 1
     stepName = "complete"
 
+    /**
+     * Process the step.
+     * @param context - Context of the step.
+     * @returns A promise that resolves when the step is processed.
+     */
     async process(
         context: JobExtendedContext<
             ProcessGoogleDocsSubmissionPayload,
@@ -78,6 +83,11 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
             context)
     }
 
+    /**
+     * Execute the step.
+     * @param context - Context of the step.
+     * @returns A promise that resolves when the step is executed.
+     */
     private async execute(
         context: JobExtendedContext<
             ProcessGoogleDocsSubmissionPayload,
@@ -159,6 +169,12 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
         }
     }
 
+    /**
+     * Finalize the step.
+     * @param executionResult - The execution result.
+     * @param context - The context.
+     * @returns A promise that resolves when the step is finalized.
+     */
     private async finalize(
         executionResult: EmptyObject,
         context: JobExtendedContext<

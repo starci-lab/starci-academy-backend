@@ -36,7 +36,6 @@ import {
 } from "@modules/bussiness"
 import {
     ChallengeEntity,
-    ChallengeSubmissionPromptEntity,
     ChallengeSubmissionEntity,
     InjectPrimaryPostgreSQLEntityManager,
     JobEntity,
@@ -143,19 +142,6 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
                     id: challengeSubmission.challengeId,
                 })
             }
-            const prompts = await this.entityManager.find(
-                ChallengeSubmissionPromptEntity,
-                {
-                    where: {
-                        challengeSubmission: {
-                            id: challengeSubmission.id,
-                        },
-                    },
-                    order: {
-                        orderIndex: "ASC",
-                    },
-                },
-            )
             const context: JobExtendedContext<
             ProcessGitSubmissionPayload, 
             ExtendedProcessGitSubmissionContext
@@ -166,7 +152,6 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
                 extended: {
                     challenge,
                     challengeSubmission,
-                    prompts,
                     userChallengeSubmission,
                 },
             }

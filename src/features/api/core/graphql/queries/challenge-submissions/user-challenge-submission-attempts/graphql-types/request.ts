@@ -14,7 +14,7 @@ import {
 } from "@modules/common"
 
 /** Sort fields for listing submission attempts. */
-export enum SubmissionAttemptsSortBy {
+export enum UserChallengeSubmissionAttemptsSortBy {
     Score = "score",
     AttemptNumber = "attemptNumber",
     CreatedAt = "createdAt",
@@ -22,26 +22,26 @@ export enum SubmissionAttemptsSortBy {
     ProcessedAt = "processedAt",
 }
 
-const GraphQLTypeSubmissionAttemptsSortBy = createEnumType(SubmissionAttemptsSortBy)
+const GraphQLTypeUserChallengeSubmissionAttemptsSortBy = createEnumType(UserChallengeSubmissionAttemptsSortBy)
 
-registerEnumType(GraphQLTypeSubmissionAttemptsSortBy,
+registerEnumType(GraphQLTypeUserChallengeSubmissionAttemptsSortBy,
     {
-        name: "SubmissionAttemptsSortBy",
+        name: "UserChallengeSubmissionAttemptsSortBy",
         description: "Sort field for listing submission attempts.",
         valuesMap: {
-            [SubmissionAttemptsSortBy.Score]: {
+            [UserChallengeSubmissionAttemptsSortBy.Score]: {
                 description: "Sort by score",
             },
-            [SubmissionAttemptsSortBy.AttemptNumber]: {
+            [UserChallengeSubmissionAttemptsSortBy.AttemptNumber]: {
                 description: "Sort by attempt number",
             },
-            [SubmissionAttemptsSortBy.CreatedAt]: {
+            [UserChallengeSubmissionAttemptsSortBy.CreatedAt]: {
                 description: "Sort by created at",
             },
-            [SubmissionAttemptsSortBy.UpdatedAt]: {
+            [UserChallengeSubmissionAttemptsSortBy.UpdatedAt]: {
                 description: "Sort by updated at",
             },
-            [SubmissionAttemptsSortBy.ProcessedAt]: {
+            [UserChallengeSubmissionAttemptsSortBy.ProcessedAt]: {
                 description: "Sort by processed at",
             },
         },
@@ -51,39 +51,39 @@ registerEnumType(GraphQLTypeSubmissionAttemptsSortBy,
 @InputType({
     description: "Sort field and order for listing submission attempts.",
 })
-export class SubmissionAttemptsRequestSort extends SortInput<SubmissionAttemptsSortBy> {
+export class UserChallengeSubmissionAttemptsRequestSort extends SortInput<UserChallengeSubmissionAttemptsSortBy> {
     @Field(
-        () => GraphQLTypeSubmissionAttemptsSortBy,
+        () => GraphQLTypeUserChallengeSubmissionAttemptsSortBy,
         {
             description: "Sort by",
         },
     )
-        by: SubmissionAttemptsSortBy
+        by: UserChallengeSubmissionAttemptsSortBy
 }
 
 @InputType({
     description: "Pagination, sort, and filters for listing submission attempts.",
 })
-export class SubmissionAttemptsRequestPaginationFilters extends PaginationPageFilters<SubmissionAttemptsSortBy> {
+export class UserChallengeSubmissionAttemptsRequestPaginationFilters extends PaginationPageFilters<UserChallengeSubmissionAttemptsSortBy> {
     @Field(
-        () => [SubmissionAttemptsRequestSort],
+        () => [UserChallengeSubmissionAttemptsRequestSort],
         {
             defaultValue: [
                 {
-                    by: SubmissionAttemptsSortBy.CreatedAt,
+                    by: UserChallengeSubmissionAttemptsSortBy.CreatedAt,
                     order: SortOrder.Desc,
                 },
             ],
             description: "Sorts",
         },
     )
-        sorts: Array<SubmissionAttemptsRequestSort>
+        sorts: Array<UserChallengeSubmissionAttemptsRequestSort>
 }
 
 @InputType({
     description: "Request for listing submission attempts with pagination.",
 })
-export class SubmissionAttemptsRequest {
+export class UserChallengeSubmissionAttemptsRequest {
     @Field(
         () => ID,
         {
@@ -93,10 +93,10 @@ export class SubmissionAttemptsRequest {
         challengeSubmissionId: string
 
     @Field(
-        () => SubmissionAttemptsRequestPaginationFilters,
+        () => UserChallengeSubmissionAttemptsRequestPaginationFilters,
         {
             description: "Pagination and sort filters.",
         },
     )
-        filters: SubmissionAttemptsRequestPaginationFilters
+        filters: UserChallengeSubmissionAttemptsRequestPaginationFilters
 }

@@ -14,7 +14,7 @@ import {
 @ObjectType({
     description: "Paginated list of submission attempts.",
 })
-export class SubmissionAttemptsResponseData {
+export class UserChallengeSubmissionAttemptsResponseData {
     @Field(
         () => [UserChallengeSubmissionAttemptEntity],
         {
@@ -33,18 +33,18 @@ export class SubmissionAttemptsResponseData {
 }
 
 @ObjectType({
-    description: "Response wrapper for the submissionAttempts query.",
+    description: "Response wrapper for the userChallengeSubmissionAttempts query.",
 })
-export class SubmissionAttemptsResponse
+export class UserChallengeSubmissionAttemptsResponse
     extends AbstractGraphQLResponse
-    implements IAbstractGraphQLResponse<SubmissionAttemptsResponseData>
+    implements IAbstractGraphQLResponse<UserChallengeSubmissionAttemptsResponseData>
 {
     @Field(
-        () => SubmissionAttemptsResponseData,
+        () => UserChallengeSubmissionAttemptsResponseData,
         {
             nullable: true,
             description: "Payload containing the list of submission attempts and total count.",
         },
     )
-        data: SubmissionAttemptsResponseData
+        data: UserChallengeSubmissionAttemptsResponseData
 }

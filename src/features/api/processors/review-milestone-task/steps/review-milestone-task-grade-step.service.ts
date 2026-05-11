@@ -236,8 +236,10 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
             .join("\n\n")
         const maxChars = envConfig().services.githubWorker.processGitSubmission.gradingMaxSourceChars
         if (sourceExcerpt.length > maxChars) {
-            sourceExcerpt = sourceExcerpt.slice(0,
-                maxChars)
+            sourceExcerpt = sourceExcerpt.slice(
+                0,
+                maxChars
+            )
         }
         /** Build criteria prompt */
         const criteriaPromptSections = criteria
@@ -297,15 +299,19 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
             sourceExcerpt || "(empty repository excerpt)",
         ].join("\n")
 
-        const aiModel = this.modelService.get({
-            model,
-            provider: provider,
-        })
+        const aiModel = this.modelService.get(
+            {
+                model,
+                provider: provider,
+            }
+        )
 
-        const response = await aiModel.invoke([
-            new SystemMessage(systemText),
-            new HumanMessage(humanText),
-        ])
+        const response = await aiModel.invoke(
+            [
+                new SystemMessage(systemText),
+                new HumanMessage(humanText),
+            ]
+        )
 
         const raw = typeof response.content === "string"
             ? response.content

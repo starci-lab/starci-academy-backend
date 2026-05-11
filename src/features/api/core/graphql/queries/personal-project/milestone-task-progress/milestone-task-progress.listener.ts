@@ -38,8 +38,9 @@ export class MilestoneTaskProgressListener implements OnModuleInit {
                 const enrollment = await this.entityManager.findOneOrFail(
                     EnrollmentEntity,
                     {
-                        where: { id: payload.enrollmentId },
-                        select: { id: true, courseId: true },
+                        where: {
+                            id: payload.enrollmentId 
+                        },
                     },
                 )
                 await this.personalProjectProgressService.updateProgress({

@@ -21,21 +21,21 @@ import {
     type FindOptionsOrder,
 } from "typeorm"
 import {
-    SubmissionAttemptsQuery,
-} from "./submission-attempts.query"
+    UserChallengeSubmissionAttemptsQuery,
+} from "./user-challenge-submission-attempts.query"
 import {
-    SubmissionAttemptsResponseData,
-    SubmissionAttemptsSortBy,
+    UserChallengeSubmissionAttemptsResponseData,
+    UserChallengeSubmissionAttemptsSortBy,
 } from "./graphql-types"
 import {
     UserNotFoundException 
 } from "@modules/exceptions"
 
-@QueryHandler(SubmissionAttemptsQuery)
+@QueryHandler(UserChallengeSubmissionAttemptsQuery)
 @Injectable()
-export class SubmissionAttemptsHandler
-    extends ICQRSHandler<SubmissionAttemptsQuery, SubmissionAttemptsResponseData>
-    implements IQueryHandler<SubmissionAttemptsQuery, SubmissionAttemptsResponseData> {
+export class UserChallengeSubmissionAttemptsHandler
+    extends ICQRSHandler<UserChallengeSubmissionAttemptsQuery, UserChallengeSubmissionAttemptsResponseData>
+    implements IQueryHandler<UserChallengeSubmissionAttemptsQuery, UserChallengeSubmissionAttemptsResponseData> {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
@@ -44,8 +44,8 @@ export class SubmissionAttemptsHandler
     }
 
     protected override async process(
-        query: SubmissionAttemptsQuery,
-    ): Promise<SubmissionAttemptsResponseData> {
+        query: UserChallengeSubmissionAttemptsQuery,
+    ): Promise<UserChallengeSubmissionAttemptsResponseData> {
         const {
             user,
             request: {
@@ -64,7 +64,7 @@ export class SubmissionAttemptsHandler
         const order: FindOptionsOrder<UserChallengeSubmissionAttemptEntity> = {
         }
         for (const sort of sorts) {
-            order[sort.by as SubmissionAttemptsSortBy] = sort.order
+            order[sort.by as UserChallengeSubmissionAttemptsSortBy] = sort.order
         }
 
         const userChallengeSubmission = await this.entityManager.findOne(

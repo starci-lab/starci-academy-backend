@@ -113,22 +113,6 @@ export class UserMilestoneTaskAttemptEntity extends UuidAbstractEntity {
         processedAt: Date | null
 
     /**
-     * The GitHub URL submitted in this attempt.
-     */
-    @Field(
-        () => String,
-        {
-            description: "The GitHub URL submitted in this attempt.",
-        },
-    )
-    @Column({
-        name: "submission_url",
-        type: "varchar",
-        length: 2048,
-    })
-        submissionUrl: string
-
-    /**
      * Default locale for this attempt.
      */
     @Field(

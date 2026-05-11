@@ -20,18 +20,18 @@ import {
     type FindOptionsOrder,
 } from "typeorm"
 import {
-    SubmissionFeedbacksQuery,
-} from "./submission-feedbacks.query"
+    UserChallengeSubmissionFeedbacksQuery,
+} from "./user-challenge-submission-feedbacks.query"
 import {
-    SubmissionFeedbacksResponseData,
-    SubmissionFeedbacksSortBy,
+    UserChallengeSubmissionFeedbacksResponseData,
+    UserChallengeSubmissionFeedbacksSortBy,
 } from "./graphql-types"
 
-@QueryHandler(SubmissionFeedbacksQuery)
+@QueryHandler(UserChallengeSubmissionFeedbacksQuery)
 @Injectable()
-export class SubmissionFeedbacksHandler
-    extends ICQRSHandler<SubmissionFeedbacksQuery, SubmissionFeedbacksResponseData>
-    implements IQueryHandler<SubmissionFeedbacksQuery, SubmissionFeedbacksResponseData> {
+export class UserChallengeSubmissionFeedbacksHandler
+    extends ICQRSHandler<UserChallengeSubmissionFeedbacksQuery, UserChallengeSubmissionFeedbacksResponseData>
+    implements IQueryHandler<UserChallengeSubmissionFeedbacksQuery, UserChallengeSubmissionFeedbacksResponseData> {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
@@ -40,8 +40,8 @@ export class SubmissionFeedbacksHandler
     }
 
     protected override async process(
-        query: SubmissionFeedbacksQuery,
-    ): Promise<SubmissionFeedbacksResponseData> {
+        query: UserChallengeSubmissionFeedbacksQuery,
+    ): Promise<UserChallengeSubmissionFeedbacksResponseData> {
         const {
             request: {
                 submissionAttemptId,
@@ -56,7 +56,7 @@ export class SubmissionFeedbacksHandler
         const order: FindOptionsOrder<UserChallengeSubmissionFeedbackEntity> = {
         }
         for (const sort of sorts) {
-            order[sort.by as SubmissionFeedbacksSortBy] = sort.order
+            order[sort.by as UserChallengeSubmissionFeedbacksSortBy] = sort.order
         }
 
         const [

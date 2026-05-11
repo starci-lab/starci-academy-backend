@@ -14,30 +14,30 @@ import {
 } from "@modules/common"
 
 /** Sort fields for listing submission feedbacks. */
-export enum SubmissionFeedbacksSortBy {
+export enum UserChallengeSubmissionFeedbacksSortBy {
     OrderIndex = "orderIndex",
     Severity = "severity",
     CreatedAt = "createdAt",
     UpdatedAt = "updatedAt",
 }
 
-const GraphQLTypeSubmissionFeedbacksSortBy = createEnumType(SubmissionFeedbacksSortBy)
+const GraphQLTypeUserChallengeSubmissionFeedbacksSortBy = createEnumType(UserChallengeSubmissionFeedbacksSortBy)
 
-registerEnumType(GraphQLTypeSubmissionFeedbacksSortBy,
+registerEnumType(GraphQLTypeUserChallengeSubmissionFeedbacksSortBy,
     {
-        name: "SubmissionFeedbacksSortBy",
+        name: "UserChallengeSubmissionFeedbacksSortBy",
         description: "Sort field for listing submission feedbacks.",
         valuesMap: {
-            [SubmissionFeedbacksSortBy.OrderIndex]: {
+            [UserChallengeSubmissionFeedbacksSortBy.OrderIndex]: {
                 description: "Sort by display order index",
             },
-            [SubmissionFeedbacksSortBy.Severity]: {
+            [UserChallengeSubmissionFeedbacksSortBy.Severity]: {
                 description: "Sort by severity",
             },
-            [SubmissionFeedbacksSortBy.CreatedAt]: {
+            [UserChallengeSubmissionFeedbacksSortBy.CreatedAt]: {
                 description: "Sort by created at",
             },
-            [SubmissionFeedbacksSortBy.UpdatedAt]: {
+            [UserChallengeSubmissionFeedbacksSortBy.UpdatedAt]: {
                 description: "Sort by updated at",
             },
         },
@@ -47,39 +47,39 @@ registerEnumType(GraphQLTypeSubmissionFeedbacksSortBy,
 @InputType({
     description: "Sort field and order for listing submission feedbacks.",
 })
-export class SubmissionFeedbacksRequestSort extends SortInput<SubmissionFeedbacksSortBy> {
+export class UserChallengeSubmissionFeedbacksRequestSort extends SortInput<UserChallengeSubmissionFeedbacksSortBy> {
     @Field(
-        () => GraphQLTypeSubmissionFeedbacksSortBy,
+        () => GraphQLTypeUserChallengeSubmissionFeedbacksSortBy,
         {
             description: "Sort by",
         },
     )
-        by: SubmissionFeedbacksSortBy
+        by: UserChallengeSubmissionFeedbacksSortBy
 }
 
 @InputType({
     description: "Pagination, sort, and filters for listing submission feedbacks.",
 })
-export class SubmissionFeedbacksRequestPaginationFilters extends PaginationPageFilters<SubmissionFeedbacksSortBy> {
+export class UserChallengeSubmissionFeedbacksRequestPaginationFilters extends PaginationPageFilters<UserChallengeSubmissionFeedbacksSortBy> {
     @Field(
-        () => [SubmissionFeedbacksRequestSort],
+        () => [UserChallengeSubmissionFeedbacksRequestSort],
         {
             defaultValue: [
                 {
-                    by: SubmissionFeedbacksSortBy.OrderIndex,
+                    by: UserChallengeSubmissionFeedbacksSortBy.OrderIndex,
                     order: SortOrder.Asc,
                 },
             ],
             description: "Sorts",
         },
     )
-        sorts: Array<SubmissionFeedbacksRequestSort>
+        sorts: Array<UserChallengeSubmissionFeedbacksRequestSort>
 }
 
 @InputType({
     description: "Request for listing submission feedbacks with pagination.",
 })
-export class SubmissionFeedbacksRequest {
+export class UserChallengeSubmissionFeedbacksRequest {
     @Field(
         () => ID,
         {
@@ -90,10 +90,10 @@ export class SubmissionFeedbacksRequest {
         submissionAttemptId?: string
 
     @Field(
-        () => SubmissionFeedbacksRequestPaginationFilters,
+        () => UserChallengeSubmissionFeedbacksRequestPaginationFilters,
         {
             description: "Pagination and sort filters.",
         },
     )
-        filters: SubmissionFeedbacksRequestPaginationFilters
+        filters: UserChallengeSubmissionFeedbacksRequestPaginationFilters
 }
