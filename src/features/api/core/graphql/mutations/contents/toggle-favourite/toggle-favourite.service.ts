@@ -8,24 +8,23 @@ import {
     CommandBus,
 } from "@nestjs/cqrs"
 import {
-    RemoveFromFavoritesCommand,
-} from "./remove-from-favorites.command"
+    ToggleFavouriteCommand,
+} from "./toggle-favourite.command"
 import {
-    RemoveFromFavoritesRequest,
-    RemoveFromFavoritesResponse,
+    ToggleFavouriteRequest,
 } from "./graphql-types"
 
 @Injectable()
-export class RemoveFromFavoritesService {
+export class ToggleFavouriteService {
     constructor(
         private readonly commandBus: CommandBus,
-    ) {}
+    ) { }
 
     async execute(
-        params: ExecuteParams<RemoveFromFavoritesRequest>,
-    ): Promise<RemoveFromFavoritesResponse> {
+        params: ExecuteParams<ToggleFavouriteRequest>,
+    ): Promise<void> {
         return this.commandBus.execute(
-            new RemoveFromFavoritesCommand(params),
+            new ToggleFavouriteCommand(params),
         )
     }
 }

@@ -176,7 +176,30 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 ],
             },
         )
-        const loadedDocs = await gitLoader.load()
+        let loadedDocs: Array<Document>
+        try {
+            loadedDocs = await gitLoader.load()
+        } catch (error) {
+            const msg = error?.message ?? ""
+            if (msg.includes("404")) {
+                throw new Error(
+                    `Repository not found: "${repoUrl}" (branch: "${branch}"). Please check that the repository exists, is public (or your GitHub token has access), and the branch name is correct.`
+                )
+            }
+            if (msg.includes("403")) {
+                throw new Error(
+                    `Access denied to repository: "${repoUrl}". The GitHub token may lack permission or the rate limit has been exceeded.`
+                )
+            }
+            throw new Error(
+                `Failed to load repository "${repoUrl}" (branch: "${branch}"): ${msg}`
+            )
+        }
+        if (loadedDocs.length === 0) {
+            throw new Error(
+                `Repository "${repoUrl}" (branch: "${branch}") is empty or contains no reviewable files.`
+            )
+        }
         const docs = loadedDocs.map(
             (doc) =>
                 new Document({

@@ -19,17 +19,14 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    RemoveFromFavoritesCommand,
-} from "./remove-from-favorites.command"
-import {
-    RemoveFromFavoritesResponse,
-} from "./graphql-types"
+    ToggleFavouriteCommand,
+} from "./toggle-favourite.command"
 
-@CommandHandler(RemoveFromFavoritesCommand)
+@CommandHandler(ToggleFavouriteCommand)
 @Injectable()
-export class RemoveFromFavoritesHandler
-    extends ICQRSHandler<RemoveFromFavoritesCommand, RemoveFromFavoritesResponse>
-    implements ICommandHandler<RemoveFromFavoritesCommand, RemoveFromFavoritesResponse> {
+export class ToggleFavouriteHandler
+    extends ICQRSHandler<ToggleFavouriteCommand, void>
+    implements ICommandHandler<ToggleFavouriteCommand, void> {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
@@ -38,11 +35,12 @@ export class RemoveFromFavoritesHandler
     }
 
     protected override async process(
-        command: RemoveFromFavoritesCommand,
-    ): Promise<RemoveFromFavoritesResponse> {
+        command: ToggleFavouriteCommand,
+    ): Promise<void> {
         const {
             request: {
                 contentId,
+                isFavorite,
             },
             user,
         } = command.params
@@ -68,17 +66,12 @@ export class RemoveFromFavoritesHandler
                 {
                     userId: user.id,
                     contentId,
-                    isFavorite: false,
+                    isFavorite,
                 },
             )
         } else {
-            userContent.isFavorite = false
+            userContent.isFavorite = isFavorite
         }
-
-        const data = await this.entityManager.save(userContent)
-
-        return {
-            data,
-        }
+        await this.entityManager.save(userContent)
     }
 }

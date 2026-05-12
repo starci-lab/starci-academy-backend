@@ -10,7 +10,7 @@ import {
 import {
     GraphQLLocale,
     GraphQLSuccessMessage,
-    GraphQLTransformInterceptor
+    GraphQLTransformInterceptor,
 } from "@modules/api"
 import {
     UseThrottler,
@@ -21,12 +21,12 @@ import {
     UserEntity,
 } from "@modules/databases"
 import {
-    RemoveFromFavoritesRequest,
-    RemoveFromFavoritesResponse,
+    ToggleFavouriteRequest,
+    ToggleFavouriteResponse,
 } from "./graphql-types"
 import {
-    RemoveFromFavoritesService,
-} from "./remove-from-favorites.service"
+    ToggleFavouriteService,
+} from "./toggle-favourite.service"
 import {
     KeycloakAuthGraphQLGuard,
     KeycloakGraphQLUser,
@@ -36,18 +36,18 @@ import {
 } from "@modules/bussiness"
 
 @Resolver()
-export class RemoveFromFavoritesResolver {
+export class ToggleFavouriteResolver {
     constructor(
-        private readonly removeFromFavoritesService: RemoveFromFavoritesService,
+        private readonly toggleFavouriteService: ToggleFavouriteService,
     ) { }
 
     /**
-     * Removes a content from the user's favorites.
+     * Toggles a content's favourite state for the current user.
      */
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
-        [Locale.En]: "Content removed from favorites successfully",
-        [Locale.Vi]: "Xóa khỏi danh sách yêu thích thành công",
+        [Locale.En]: "Favourite toggled successfully",
+        [Locale.Vi]: "Cập nhật yêu thích thành công",
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,
@@ -55,21 +55,21 @@ export class RemoveFromFavoritesResolver {
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(
-        () => RemoveFromFavoritesResponse,
+        () => ToggleFavouriteResponse,
         {
-            name: "removeFromFavorites",
-            description: "Removes a content from the user's favorites.",
+            name: "toggleFavourite",
+            description: "Toggles a content's favourite state.",
         },
     )
     async execute(
         @Args("request")
-            request: RemoveFromFavoritesRequest,
+            request: ToggleFavouriteRequest,
         @GraphQLLocale()
             locale: Locale,
         @KeycloakGraphQLUser()
             user: UserEntity,
-    ): Promise<RemoveFromFavoritesResponse> {
-        return this.removeFromFavoritesService.execute(
+    ) {
+        return this.toggleFavouriteService.execute(
             {
                 request,
                 locale,

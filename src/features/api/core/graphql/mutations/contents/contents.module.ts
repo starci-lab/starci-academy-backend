@@ -5,11 +5,8 @@ import {
     MarkAsReadedSingleMutationModule,
 } from "./mark-as-readed"
 import {
-    AddToFavoritesSingleMutationModule,
-} from "./add-to-favorites"
-import {
-    RemoveFromFavoritesSingleMutationModule,
-} from "./remove-from-favorites"
+    ToggleFavouriteSingleMutationModule,
+} from "./toggle-favourite"
 import {
     ConfigurableModuleClass 
 } from "./contents.module-definition"
@@ -19,10 +16,7 @@ import {
         MarkAsReadedSingleMutationModule.register({
             isGlobal: true,
         }),
-        AddToFavoritesSingleMutationModule.register({
-            isGlobal: true,
-        }),
-        RemoveFromFavoritesSingleMutationModule.register({
+        ToggleFavouriteSingleMutationModule.register({
             isGlobal: true,
         }),
     ],

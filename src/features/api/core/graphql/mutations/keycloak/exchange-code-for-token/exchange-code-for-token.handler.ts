@@ -106,6 +106,9 @@ export class ExchangeCodeForTokenHandler
             user = this.entityManager.create(
                 UserEntity,
                 {
+                    email: decoded.email,
+                    username: decoded.preferred_username,
+                    avatarUrl: decoded.picture,
                     keycloakId: decoded.sub,
                     authenticationType: typeToProvider[provider],
                 }

@@ -75,6 +75,7 @@ import {
     MilestoneTaskTranslationEntity,
     MilestoneTaskCriteriaEntity,
     MilestoneTaskCriteriaTranslationEntity,
+    UserContentEntity,
 } from "./entities"
 import {
     SeedersModule
@@ -203,6 +204,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     MilestoneTaskTranslationEntity,
                                     MilestoneTaskCriteriaEntity,
                                     MilestoneTaskCriteriaTranslationEntity,
+                                    UserContentEntity,
                                 ],
                                 synchronize,
                                 logging: false,
@@ -295,6 +297,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         MilestoneTaskTranslationEntity,
                         MilestoneTaskCriteriaEntity,
                         MilestoneTaskCriteriaTranslationEntity,
+                        UserContentEntity,
                     ],
                     POSTGRESQL_PRIMARY
                 ),

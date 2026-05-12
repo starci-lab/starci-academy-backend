@@ -7,7 +7,7 @@ import {
 
 /** Response for syncing challenge submissions for the current user. */
 @ObjectType({
-    description: "Response for marking a content as read.",
+    description: "Response for toggling a content as favourite.",
 })
-export class MarkAsReadedResponse extends AbstractGraphQLResponse {
+export class ToggleFavouriteResponse extends AbstractGraphQLResponse {
 }
