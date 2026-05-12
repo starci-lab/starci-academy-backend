@@ -1,0 +1,161 @@
+import {
+    Field,
+    ID,
+    Int,
+    ObjectType,
+} from "@nestjs/graphql"
+import {
+    Column,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    OneToMany,
+    RelationId,
+} from "typeorm"
+import {
+    UuidAbstractEntity,
+} from "./abstract"
+import {
+    UserChallengeSubmissionEntity,
+} from "./user-challenge-submission.entity"
+import {
+    UserChallengeSubmissionFeedbackEntity,
+} from "./user-challenge-submission-feedback.entity"
+import {
+    GraphQLTypeLocale,
+    Locale,
+} from "../enums"
+
+@ObjectType({
+    description: "A single attempt of a user challenge submission.",
+})
+@Entity("user_challenge_submission_attempts")
+export class UserChallengeSubmissionAttemptEntity extends UuidAbstractEntity {
+    @Field(
+        () => Int,
+        {
+            description: "The sequence number of this attempt for this requirement.",
+        },
+    )
+    @Column({
+        name: "attempt_number",
+        type: "int",
+    })
+        attemptNumber: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Score achieved in this attempt.",
+            nullable: true,
+        },
+    )
+    @Column({
+        name: "score",
+        type: "int",
+        nullable: true,
+    })
+        score: number | null
+
+    @Field(
+        () => String,
+        {
+            description: "Feedback summary for this attempt.",
+            nullable: true,
+        },
+    )
+    @Column({
+        name: "short_feedback",
+        type: "text",
+        nullable: true,
+    })
+        shortFeedback: string | null
+
+    @Field(
+        () => Date,
+        {
+            description: "When the attempt was finished processing.",
+            nullable: true,
+        },
+    )
+    @Column({
+        name: "processed_at",
+        type: "timestamptz",
+        nullable: true,
+    })
+        processedAt: Date | null
+
+    @Field(
+        () => String,
+        {
+            description: "The URL of the source submitted in this attempt.",
+        },
+    )
+    @Column({
+        name: "submission_url",
+        type: "varchar",
+        length: 2048,
+    })
+        submissionUrl: string
+
+    @Field(
+        () => UserChallengeSubmissionEntity,
+        {
+            description: "Parent user challenge submission.",
+        },
+    )
+    @ManyToOne(
+        () => UserChallengeSubmissionEntity,
+        (ucs: UserChallengeSubmissionEntity) => ucs.attempts,
+        {
+            onDelete: "CASCADE",
+        },
+    )
+    @JoinColumn({
+        name: "user_challenge_submission_id",
+        foreignKeyConstraintName:
+            "fk_user_challenge_submission_id_user_challenge_submission_attempts",
+    })
+        userChallengeSubmission: UserChallengeSubmissionEntity
+
+    @Field(
+        () => ID,
+        {
+            description: "Parent user challenge submission ID.",
+        },
+    )
+    @RelationId(
+        (attempt: UserChallengeSubmissionAttemptEntity) => attempt.userChallengeSubmission,
+    )
+        userChallengeSubmissionId: string
+
+    @Field(
+        () => [UserChallengeSubmissionFeedbackEntity],
+        {
+            nullable: true,
+            description: "Detailed feedback items for this attempt.",
+        },
+    )
+    @OneToMany(
+        () => UserChallengeSubmissionFeedbackEntity,
+        (feedback: UserChallengeSubmissionFeedbackEntity) => feedback.attempt,
+        {
+            cascade: true,
+        },
+    )
+        feedbacks: Array<UserChallengeSubmissionFeedbackEntity>
+
+    @Field(
+        () => GraphQLTypeLocale,
+        {
+            description: "Default locale for this attempt.",
+        },
+    )
+    @Column({
+        name: "default_locale",
+        type: "enum",
+        enum: Locale,
+        enumName: "locale",
+    })
+        defaultLocale: Locale
+}

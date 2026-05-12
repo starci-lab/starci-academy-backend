@@ -38,12 +38,14 @@ export class JobEntity extends UuidAbstractEntity {
     @Field(
         () => UserEntity,
         {
+            nullable: true,
             description: "User this job is associated with (when applicable).",
         },
     )
     @ManyToOne(
         () => UserEntity,
         {
+            nullable: true,
             onDelete: "SET NULL",
         },
     )
@@ -51,18 +53,19 @@ export class JobEntity extends UuidAbstractEntity {
         name: "user_id",
         foreignKeyConstraintName: "fk_jobs_user_id_users",
     })
-        user: UserEntity
+        user: UserEntity | null
 
     @Field(
         () => ID,
         {
+            nullable: true,
             description: "Foreign key to `users.id` when this job is scoped to a user.",
         },
     )
     @RelationId(
         (job: JobEntity) => job.user,
     )
-        userId: string
+        userId: string | null
 
     @Field(
         () => ChallengeSubmissionEntity,

@@ -11,6 +11,11 @@ export enum CacheKey {
     KeycloakUser = "keycloak.user",
     CourseEnrollment = "course.enrollment",
     CourseEnrollmentCount = "course.enrollment.count",
+    EnrollmentMilestones = "enrollment.milestones",
+    Milestone = "milestone",
+    MilestoneTask = "milestone.task",
+    MilestoneTaskProgress = "milestone.task.progress",
+    ChallengeSubmissionProgress = "challenge.submission.progress",
 }
 
 /**

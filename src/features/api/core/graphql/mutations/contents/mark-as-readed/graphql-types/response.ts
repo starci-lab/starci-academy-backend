@@ -1,21 +1,13 @@
 import {
-    Field,
+    AbstractGraphQLResponse,
+} from "@modules/api"
+import {
     ObjectType,
 } from "@nestjs/graphql"
-import {
-    UserContentEntity,
-} from "@modules/databases"
 
+/** Response for syncing challenge submissions for the current user. */
 @ObjectType({
     description: "Response for marking a content as read.",
 })
-export class MarkAsReadedResponse {
-    @Field(
-        () => UserContentEntity,
-        {
-            nullable: true,
-            description: "The updated user content state.",
-        },
-    )
-        data: UserContentEntity
+export class MarkAsReadedResponse extends AbstractGraphQLResponse {
 }

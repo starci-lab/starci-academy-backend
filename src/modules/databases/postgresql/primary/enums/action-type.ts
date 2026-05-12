@@ -53,6 +53,22 @@ export enum ActionType {
      * Prime/refresh parent-index cache for entities (background job).
      */
     SyncIndexer = "syncIndexer",
+    /**
+     * Encode and package a video into MPEG-DASH format (admin background job).
+     */
+    ProcessVideo = "processVideo",
+    /**
+     * Grade a personal project GitHub submission against task criteria.
+     */
+    ProcessPersonalProject = "processPersonalProject",
+    /**
+     * Generate personalised tasks for a personal project from the learner's idea.
+     */
+    GeneratePersonalProjectTasks = "generatePersonalProjectTasks",
+    /**
+     * Review a single personal project task against its criteria via AI.
+     */
+    ReviewPersonalProjectTask = "reviewPersonalProjectTask",
 }
 
 export const GraphQLTypeActionType = createEnumType(ActionType)
@@ -92,6 +108,18 @@ registerEnumType(
             },
             [ActionType.SyncIndexer]: {
                 description: "Prime parent-index cache for entities (challenge/content).",
+            },
+            [ActionType.ProcessVideo]: {
+                description: "Encode and package a video into MPEG-DASH format.",
+            },
+            [ActionType.ProcessPersonalProject]: {
+                description: "Grade a personal project GitHub submission against task criteria.",
+            },
+            [ActionType.GeneratePersonalProjectTasks]: {
+                description: "Generate personalised tasks for a personal project from the learner's idea.",
+            },
+            [ActionType.ReviewPersonalProjectTask]: {
+                description: "Review a single personal project task against its criteria via AI.",
             },
         },
     },

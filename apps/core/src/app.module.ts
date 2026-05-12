@@ -73,9 +73,6 @@ import {
     BussinessModule
 } from "@modules/bussiness"
 import {
-    WorkerModule
-} from "@features/worker"
-import {
     LangchainModule
 } from "@modules/langchain"
 import {
@@ -137,6 +134,18 @@ import {
 import {
     InitModule,
 } from "@modules/init"
+import {
+    FfmpegModule
+} from "@modules/ffmpeg"
+import {
+    Bento4Module
+} from "@modules/bento4"
+import {
+    VideoEncoderModule
+} from "@features/video-encoder"
+import {
+    AiModule
+} from "@modules/ai"
 /**
  * The main module for the application.
  */
@@ -168,6 +177,10 @@ import {
                     isGlobal: true,
                 }
             ),
+            /** AI module. */
+            AiModule.register({
+                isGlobal: true,
+            }),
             /** Cookie module. */
             CookieModule.register(
                 {
@@ -367,12 +380,8 @@ import {
             ApiModule.register(
                 {
                     isGlobal: true,
-                }
-            ),
-            /** Worker module. */
-            WorkerModule.register(
-                {
-                    isGlobal: true,
+                    useCore: true,
+                    useProcessors: true,
                 }
             ),
             /** Socket module. */
@@ -399,6 +408,26 @@ import {
                     isGlobal: true,
                 }
             ),
+            /** Ffmpeg module. */
+            FfmpegModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Bento4 module. */
+            Bento4Module.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Video encoder module. */
+            VideoEncoderModule.register(
+                {
+                    isGlobal: true,
+                    useProcessors: true,
+                    useCore: true,
+                }
+            ),
         ],
         providers: [
             {
@@ -408,4 +437,5 @@ import {
         ],
     }
 )
+
 export class AppModule { }

@@ -2,9 +2,6 @@ import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
-    AddGithubUserToTeamEventHandler,
-} from "@modules/cqrs"
-import {
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     UserEntity,

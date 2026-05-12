@@ -1,11 +1,13 @@
 import {
-    Module 
+    Module,
+    DynamicModule,
 } from "@nestjs/common"
 import {
     CoreModule,
 } from "./core"
 import {
-    ConfigurableModuleClass 
+    ConfigurableModuleClass, 
+    OPTIONS_TYPE
 } from "./api.module-definition"
 import {
     ProcessorsModule 
@@ -25,4 +27,29 @@ import {
     ],
 })
 export class ApiModule extends ConfigurableModuleClass {
+    static register(options: typeof OPTIONS_TYPE): DynamicModule {
+        const dynamicModule = super.register(options)
+        return {
+            ...dynamicModule,
+            module: ApiModule,
+            imports: [
+                ...(dynamicModule.imports ?? []),
+                ...(
+                    options.useCore ? [
+                        CoreModule.register({
+                            isGlobal: options.isGlobal,
+                        })
+                    ] : []
+                ),
+                ...(
+                    options.useProcessors ? 
+                        [
+                            ProcessorsModule.register({
+                                isGlobal: options.isGlobal,
+                            })
+                        ] : []
+                ),
+            ],
+        }
+    }
 }

@@ -1,18 +1,18 @@
 import {
-    DynamicModule, Module 
+    DynamicModule, Module
 } from "@nestjs/common"
 import {
-    TypeOrmModule as NestTypeOrmModule 
+    TypeOrmModule as NestTypeOrmModule
 } from "@nestjs/typeorm"
 import {
     ConfigurableModuleClass,
     OPTIONS_TYPE,
 } from "./primary.module-definition"
 import {
-    envConfig 
+    envConfig
 } from "@modules/env"
 import {
-    POSTGRESQL_PRIMARY 
+    POSTGRESQL_PRIMARY
 } from "./constants"
 import {
     ContentEntity,
@@ -56,19 +56,29 @@ import {
     ChallengeSubmissionEntity,
     ChallengeSubmissionTranslationEntity,
     UserChallengeSubmissionEntity,
-    SubmissionAttemptEntity,
+    UserChallengeSubmissionAttemptEntity,
+    UserChallengeSubmissionFeedbackEntity,
     UserEntity,
     ValuePropositionEntity,
     ValuePropositionTranslationEntity,
-    SubmissionFeedbackEntity,
     CVSubmissionEntity,
     CVPromptEntity,
     CVSubmissionAttemptEntity,
     CVSubmissionFeedbackEntity,
     SyncStateEntity,
+    UserMilestoneTaskEntity,
+    UserMilestoneTaskAttemptEntity,
+    UserMilestoneTaskAttemptFeedbackEntity,
+    MilestoneEntity,
+    MilestoneTranslationEntity,
+    MilestoneTaskEntity,
+    MilestoneTaskTranslationEntity,
+    MilestoneTaskCriteriaEntity,
+    MilestoneTaskCriteriaTranslationEntity,
+    UserContentEntity,
 } from "./entities"
 import {
-    SeedersModule 
+    SeedersModule
 } from "./seeders"
 import {
     ResolversModule,
@@ -118,11 +128,11 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                     {
                         name: POSTGRESQL_PRIMARY,
                         useFactory: async () => {
-                            const { 
-                                database, 
-                                host, 
-                                password, 
-                                port, 
+                            const {
+                                database,
+                                host,
+                                password,
+                                port,
                                 username,
                                 synchronize,
                             } = envConfig().databases.postgresql.primary
@@ -178,13 +188,23 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     ChallengeSubmissionEntity,
                                     ChallengeSubmissionTranslationEntity,
                                     UserChallengeSubmissionEntity,
-                                    SubmissionAttemptEntity,
-                                    SubmissionFeedbackEntity,
+                                    UserChallengeSubmissionAttemptEntity,
+                                    UserChallengeSubmissionFeedbackEntity,
                                     CVPromptEntity,
                                     CVSubmissionEntity,
                                     CVSubmissionAttemptEntity,
                                     CVSubmissionFeedbackEntity,
                                     SyncStateEntity,
+                                    UserMilestoneTaskEntity,
+                                    UserMilestoneTaskAttemptEntity,
+                                    UserMilestoneTaskAttemptFeedbackEntity,
+                                    MilestoneEntity,
+                                    MilestoneTranslationEntity,
+                                    MilestoneTaskEntity,
+                                    MilestoneTaskTranslationEntity,
+                                    MilestoneTaskCriteriaEntity,
+                                    MilestoneTaskCriteriaTranslationEntity,
+                                    UserContentEntity,
                                 ],
                                 synchronize,
                                 logging: false,
@@ -261,14 +281,24 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         ChallengeSubmissionEntity,
                         ChallengeSubmissionTranslationEntity,
                         UserChallengeSubmissionEntity,
-                        SubmissionAttemptEntity,
-                        SubmissionFeedbackEntity,
+                        UserChallengeSubmissionAttemptEntity,
+                        UserChallengeSubmissionFeedbackEntity,
                         CVPromptEntity,
                         CVSubmissionEntity,
                         CVSubmissionAttemptEntity,
                         CVSubmissionFeedbackEntity,
                         SyncStateEntity,
-                    ], 
+                        UserMilestoneTaskEntity,
+                        UserMilestoneTaskAttemptEntity,
+                        UserMilestoneTaskAttemptFeedbackEntity,
+                        MilestoneEntity,
+                        MilestoneTranslationEntity,
+                        MilestoneTaskEntity,
+                        MilestoneTaskTranslationEntity,
+                        MilestoneTaskCriteriaEntity,
+                        MilestoneTaskCriteriaTranslationEntity,
+                        UserContentEntity,
+                    ],
                     POSTGRESQL_PRIMARY
                 ),
             ],

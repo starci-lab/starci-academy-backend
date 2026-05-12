@@ -8,21 +8,16 @@ import {
 import {
     AbstractGraphQLResponse,
     IAbstractGraphQLResponse,
-    IPaginationPageResponseData,
-    PaginationPageResponseData,
 } from "@modules/api"
 
 @ObjectType({
-    description: "Paginated list of course modules.",
+    description: "Data for the modules query.",
 })
-export class ModulesResponseData
-    extends PaginationPageResponseData
-    implements IPaginationPageResponseData<ModuleEntity>
-{
+export class ModulesResponseData {
     @Field(
         () => [ModuleEntity],
         {
-            description: "Modules for the current page.",
+            description: "All modules for the course.",
         },
     )
         data: Array<ModuleEntity>
@@ -39,7 +34,7 @@ export class ModulesResponse
         () => ModulesResponseData,
         {
             nullable: true,
-            description: "Payload containing modules and pagination count.",
+            description: "Payload containing modules.",
         },
     )
         data: ModulesResponseData

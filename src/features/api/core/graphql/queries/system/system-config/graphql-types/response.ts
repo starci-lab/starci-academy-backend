@@ -15,7 +15,20 @@ export class SystemConfigChallenge {
     @Field(
         () => Float,
         {
-            description: "Minimum score (0–1) required to pass a challenge.",
+            description: "Minimum score (0-1) required to pass a challenge.",
+        },
+    )
+        passThreshold: number
+}
+
+@ObjectType({
+    description: "Task-related tuning from mounted `app.json` (`systemConfig.task`).",
+})
+export class SystemConfigTask {
+    @Field(
+        () => Float,
+        {
+            description: "Minimum score (0-1) required to pass a personal project task.",
         },
     )
         passThreshold: number
@@ -32,6 +45,14 @@ export class SystemConfigData {
         },
     )
         challenge: SystemConfigChallenge
+
+    @Field(
+        () => SystemConfigTask,
+        {
+            description: "Personal project task thresholds and limits.",
+        },
+    )
+        task: SystemConfigTask
 }
 
 @ObjectType({

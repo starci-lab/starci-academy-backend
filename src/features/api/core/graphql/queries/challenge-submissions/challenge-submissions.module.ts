@@ -8,11 +8,11 @@ import {
     ChallengeSubmissionQueryModule,
 } from "./challenge-submission"
 import {
-    SubmissionAttemptsModule,
-} from "./submission-attempts"
+    UserChallengeSubmissionAttemptsModule,
+} from "./user-challenge-submission-attempts"
 import {
-    SubmissionFeedbacksModule,
-} from "./submission-feedbacks"
+    UserChallengeSubmissionFeedbacksModule,
+} from "./user-challenge-submission-feedbacks"
 import {
     ChallengeSubmissionsSingleQueryModule 
 } from "./challenge-submissions/challenge-submissions.module"
@@ -25,10 +25,10 @@ import {
         ChallengeSubmissionsSingleQueryModule.register({
             isGlobal: true,
         }),
-        SubmissionAttemptsModule.register({
+        UserChallengeSubmissionAttemptsModule.register({
             isGlobal: true,
         }),
-        SubmissionFeedbacksModule.register({
+        UserChallengeSubmissionFeedbacksModule.register({
             isGlobal: true,
         }),
     ],

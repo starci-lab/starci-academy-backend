@@ -21,15 +21,12 @@ import type {
 import {
     MarkAsReadedCommand,
 } from "./mark-as-readed.command"
-import {
-    MarkAsReadedResponse,
-} from "./graphql-types"
 
 @CommandHandler(MarkAsReadedCommand)
 @Injectable()
 export class MarkAsReadedHandler
-    extends ICQRSHandler<MarkAsReadedCommand, MarkAsReadedResponse>
-    implements ICommandHandler<MarkAsReadedCommand, MarkAsReadedResponse> {
+    extends ICQRSHandler<MarkAsReadedCommand, void>
+    implements ICommandHandler<MarkAsReadedCommand, void> {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
@@ -39,7 +36,7 @@ export class MarkAsReadedHandler
 
     protected override async process(
         command: MarkAsReadedCommand,
-    ): Promise<MarkAsReadedResponse> {
+    ): Promise<void> {
         const {
             request: {
                 contentId,
@@ -75,11 +72,6 @@ export class MarkAsReadedHandler
         } else {
             userContent.isRead = readed
         }
-
-        const data = await this.entityManager.save(userContent)
-
-        return {
-            data,
-        }
+        await this.entityManager.save(userContent)
     }
 }

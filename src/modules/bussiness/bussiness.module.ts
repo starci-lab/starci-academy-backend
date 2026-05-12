@@ -4,10 +4,10 @@ import {
     Type,
 } from "@nestjs/common"
 import {
-    ConfigurableModuleClass 
+    ConfigurableModuleClass
 } from "./bussiness.module-definition"
 import {
-    JobsModule 
+    JobsModule
 } from "./jobs"
 import {
     OPTIONS_TYPE,
@@ -21,6 +21,9 @@ import {
 import {
     UserModule,
 } from "./user"
+import {
+    ProgressModule,
+} from "./progress"
 
 /**
  * The module for the bussiness logics.
@@ -39,6 +42,8 @@ export class BussinessModule extends ConfigurableModuleClass {
             BloomFiltersModule.register(options),
             // import the user module
             UserModule.register(options),
+            // import the progress module
+            ProgressModule.register(options),
         ]
         return {
             ...dynamicModule,

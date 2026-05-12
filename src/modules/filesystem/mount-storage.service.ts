@@ -1,5 +1,5 @@
 import {
-    Injectable, OnModuleInit 
+    Injectable, OnModuleInit
 } from "@nestjs/common"
 import {
     AppConfig,
@@ -9,14 +9,14 @@ import {
     MountFilesystemService
 } from "./mount.service"
 import {
-    ReadinessWatcherFactoryService 
+    ReadinessWatcherFactoryService
 } from "@modules/mixin"
 
 @Injectable()
 export class MountStorageService implements OnModuleInit {
     public githubAccessToken: string
     public githubSecretKey: string
-    public appConfig: AppConfig 
+    public appConfig: AppConfig
     public s3SecretAccessKey: string
     public encryptionKey: string
     public keycloakClientSecret: string
@@ -26,12 +26,13 @@ export class MountStorageService implements OnModuleInit {
     public sepayApiKey: string
     public brevoSmtpPassword: string
     public keycloakAdmin: SecretKeycloakAdmin
+    public adminApiKey: string
     constructor(
         private readonly mountFilesystemService: MountFilesystemService,
         private readonly readinessWatcherFactoryService: ReadinessWatcherFactoryService,
-    ) {}
+    ) { }
 
-    onModuleInit() {   
+    onModuleInit() {
         this.readinessWatcherFactoryService.createWatcher(MountStorageService.name)
         // get github access token from mount filesystem service
         this.githubAccessToken = this.mountFilesystemService.githubAccessToken()
@@ -57,6 +58,8 @@ export class MountStorageService implements OnModuleInit {
         this.brevoSmtpPassword = this.mountFilesystemService.brevoSmtpPassword()
         // get keycloak admin credentials from mount filesystem service
         this.keycloakAdmin = this.mountFilesystemService.keycloakAdmin()
+        // get admin api key from mount filesystem service
+        this.adminApiKey = this.mountFilesystemService.adminApiKey()
         // set readiness watcher to true
         this.readinessWatcherFactoryService.setReady(MountStorageService.name)
     }

@@ -18,6 +18,10 @@ export interface EnqueueEnrollJobParams {
 export interface EnqueueProcessGitSubmissionJobParams {
     /** `users.id`. */
     userId: string
+    /** `enrollments.id`. */
+    enrollmentId: string
+    /** `courses.id`. */
+    courseId: string
     /** `challenge_submissions.id`. */
     challengeSubmissionId: string
     /** `user_challenge_submissions.id`. */
@@ -34,12 +38,18 @@ export interface EnqueueProcessGitSubmissionJobParams {
     embeddingModel?: string
     /** Embedding model provider override. */
     embeddingProvider?: ModelProvider
+    /** Locale hint for filtering/prompting (e.g. "en", "vi"). */
+    locale?: string
 }
 
 /** Params for enqueuing a process-google-docs-submission job. */
 export interface EnqueueProcessGoogleDocsSubmissionJobParams {
     /** `users.id`. */
     userId: string
+    /** `enrollments.id`. */
+    enrollmentId: string
+    /** `courses.id`. */
+    courseId: string
     /** `user_challenge_submissions.id`. */
     userChallengeSubmissionId: string
     /** `challenge_submissions.id`. */
@@ -54,6 +64,8 @@ export interface EnqueueProcessGoogleDocsSubmissionJobParams {
     embeddingModel?: string
     /** Embedding model provider override. */
     embeddingProvider?: ModelProvider
+    /** Locale hint for filtering/prompting (e.g. "en", "vi"). */
+    locale?: string
 }
 
 /** Params for enqueuing a process-cv-submission job. */
@@ -74,4 +86,6 @@ export interface EnqueueProcessCvSubmissionJobParams {
     embeddingModel?: string
     /** Embedding model provider override. */
     embeddingProvider?: ModelProvider
+    /** Locale hint for filtering/prompting (e.g. "en", "vi"). */
+    locale?: string
 }

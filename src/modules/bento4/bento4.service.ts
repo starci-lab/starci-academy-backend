@@ -1,19 +1,41 @@
-// @ts-nocheck
 import {
-    pathsConfig 
-} from "@config"
-import {
-    Injectable, Logger 
+    Injectable,
+    Logger,
 } from "@nestjs/common"
 import {
-    join 
+    join,
 } from "path"
 import {
-    execaCommand 
+    execaCommand,
 } from "execa"
+import {
+    platform,
+} from "os"
 
 /**
- * Bento4 service.
+ * Resolve the Bento4 binary directory based on the project root.
+ */
+function bento4BinDir(): string {
+    return join(process.cwd(), ".exe", "Bento4", "bin")
+}
+
+/**
+ * Resolve the Bento4 utils directory (Python scripts).
+ */
+function bento4UtilsDir(): string {
+    return join(process.cwd(), ".exe", "Bento4", "utils")
+}
+
+/**
+ * Get the correct executable name (with .exe on Windows).
+ */
+function exe(name: string): string {
+    return platform() === "win32" ? `${name}.exe` : name
+}
+
+/**
+ * Bento4 service for MPEG-DASH packaging.
+ * Uses binaries from .exe/Bento4/bin/ directory.
  */
 @Injectable()
 export class Bento4Service {
@@ -21,22 +43,17 @@ export class Bento4Service {
 
     /**
      * Check if video has fragments.
-     * @param assetId - Asset ID.
-     * @param videoName - Video name.
-     * @returns True if video has fragments, false otherwise.
+     * @param taskDir - Working directory for this task.
+     * @param videoName - Video file name (e.g. "1080.mp4").
+     * @returns True if fragmentation is required, false if already fragmented.
      */
-    async checkFragments(assetId: string, videoName: string) {
-        const videoPath = join(
-            pathsConfig().processMpegDashTasksDirectory,
-            assetId,
-            videoName,
-        )
+    async checkFragments(taskDir: string, videoName: string): Promise<boolean> {
+        const videoPath = join(taskDir, videoName)
+        const mp4info = join(bento4BinDir(), exe("mp4info"))
 
         const { stdout, stderr } = await execaCommand(
-            `mp4info "${videoPath}"`,
-            {
-                shell: true 
-            }
+            `"${mp4info}" "${videoPath}"`,
+            { shell: true },
         )
         const execResult = stdout || stderr
         const lines = execResult.split("\n")
@@ -47,11 +64,9 @@ export class Bento4Service {
             if (lineData.includes("fragments:  yes")) {
                 return false
             }
-
             if (lineData.includes("fragments:  no")) {
                 return true
             }
-
             if (lineData.includes("No movie found in the file")) {
                 throw new Error("No movie found in the file.")
             }
@@ -61,75 +76,57 @@ export class Bento4Service {
 
     /**
      * Fragment video.
-     * @param assetId - Asset ID.
-     * @param videoName - Video name.
+     * @param taskDir - Working directory for this task.
+     * @param videoName - Video file name (e.g. "1080.mp4").
      */
-    async fragmentVideo(assetId: string, videoName: string) {
-        const videoPath = join(
-            pathsConfig().processMpegDashTasksDirectory,
-            assetId,
-            videoName,
-        )
-        const outputDir = join(
-            pathsConfig().processMpegDashTasksDirectory,
-            assetId,
-            `${videoName}_fragmented`,
-        )
+    async fragmentVideo(taskDir: string, videoName: string): Promise<void> {
+        const videoPath = join(taskDir, videoName)
+        const outputPath = join(taskDir, `${videoName}_fragmented`)
+        const mp4fragment = join(bento4BinDir(), exe("mp4fragment"))
 
         const { stdout, stderr } = await execaCommand(
-            `mp4fragment --fragment-duration 4000 "${videoPath}" "${outputDir}"`,
-            {
-                shell: true 
-            }
+            `"${mp4fragment}" --fragment-duration 4000 "${videoPath}" "${outputPath}"`,
+            { shell: true },
         )
         const execResult = stdout || stderr
         const lines = execResult.split("\n")
 
         for (const line of lines) {
             const lineData = line.toString()
-
-            if (lineData.includes("ERROR"))
-                throw new Error("Line data includes ERROR.")
+            if (lineData.includes("ERROR")) {
+                throw new Error("mp4fragment: " + lineData)
+            }
         }
     }
 
     /**
-     * Generate MPEG-DASH manifest from fragments.
-     * @param assetId - Asset ID.
-     * @param fragmentedVideoNames - Fragmented video names.
+     * Generate MPEG-DASH manifest from fragmented videos.
+     * Uses the mp4-dash.py Python script from Bento4 utils.
+     * @param taskDir - Working directory for this task.
+     * @param videoNames - List of video file names to include.
      */
     async generateMpegDashManifestFromFragments(
-        assetId: string,
-        fragmentedVideoNames: string[],
-    ) {
-        const fragmentedPaths = fragmentedVideoNames.map((videoName) =>
-            join(
-                pathsConfig().processMpegDashTasksDirectory,
-                assetId,
-                `${videoName}_fragmented`,
-            ),
+        taskDir: string,
+        videoNames: ReadonlyArray<string>,
+    ): Promise<void> {
+        const fragmentedPaths = videoNames.map((videoName) =>
+            join(taskDir, `${videoName}_fragmented`),
         )
         const line = fragmentedPaths.map((path) => `"${path}"`).join(" ")
-
-        const outputDir = join(
-            pathsConfig().processMpegDashTasksDirectory,
-            assetId,
-        )
+        const mp4dash = join(bento4UtilsDir(), "mp4-dash.py")
 
         const { stdout, stderr } = await execaCommand(
-            `mp4dash --mpd-name manifest.mpd ${line} -o "${outputDir}" --use-segment-timeline --subtitles --force`,
-            {
-                shell: true 
-            }
+            `python "${mp4dash}" --mpd-name manifest.mpd ${line} -o "${taskDir}" --use-segment-timeline --subtitles --force --exec-dir="${bento4BinDir()}"`,
+            { shell: true },
         )
         const execResult = stdout || stderr
         const lines = execResult.split("\n")
 
         for (const line of lines) {
             const lineData = line.toString()
-
-            if (lineData.includes("ERROR"))
-                throw new Error("Line data includes error.")
+            if (lineData.includes("ERROR")) {
+                throw new Error("mp4dash: " + lineData)
+            }
         }
     }
 }

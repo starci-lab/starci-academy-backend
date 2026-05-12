@@ -18,6 +18,9 @@ import {
     EnqueueSyncIndexerJobService,
     EnqueueSyncCdnJobService,
     EnqueueSyncElasticsearchJobService,
+    EnqueueProcessPersonalProjectJobService,
+    EnqueueGeneratePersonalProjectTasksJobService,
+    EnqueueReviewPersonalProjectTaskJobService,
 } from "./enqueue"
 import {
     JobActionService, 
@@ -49,6 +52,9 @@ export class JobsModule extends ConfigurableModuleClass {
                 EnqueueSyncIndexerJobService,
                 EnqueueSyncCdnJobService,
                 EnqueueSyncElasticsearchJobService,
+                EnqueueProcessPersonalProjectJobService,
+                EnqueueGeneratePersonalProjectTasksJobService,
+                EnqueueReviewPersonalProjectTaskJobService,
             ],
             exports: [
                 JobActionService,
@@ -64,6 +70,9 @@ export class JobsModule extends ConfigurableModuleClass {
                 EnqueueSyncIndexerJobService,
                 EnqueueSyncCdnJobService,
                 EnqueueSyncElasticsearchJobService,
+                EnqueueProcessPersonalProjectJobService,
+                EnqueueGeneratePersonalProjectTasksJobService,
+                EnqueueReviewPersonalProjectTaskJobService,
             ],
         }
     }

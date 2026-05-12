@@ -1,5 +1,5 @@
 import type {
-    LessonVideoKind,
+    LessonVideoType,
     VideoHostPlatform,
 } from "@modules/databases"
 import {
@@ -53,8 +53,8 @@ export interface LessonVideoDataJson {
     durationMs?: number
     /** Optional poster / thumbnail URL. Empty string is treated as unset. */
     thumbnailUrl?: string
-    /** Production type; if omitted, inferred from folder slug when possible (e.g. `*-raw-stream`). */
-    kind?: LessonVideoKind
+    /** Video delivery format; if omitted defaults to Standard. */
+    videoType?: LessonVideoType
     /** Host platform; if omitted, inferred from `url` when possible (e.g. YouTube, Drive). */
     hostPlatform?: VideoHostPlatform
 }

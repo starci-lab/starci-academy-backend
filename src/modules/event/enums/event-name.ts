@@ -5,5 +5,7 @@
  */
 export enum EventName {
     JobStatusUpdated = "job.status.updated",
+    MilestoneTaskProgressUpdated = "milestone.task.progress.updated",
     Ping = "ping",
+    ChallengeSubmissionProgressUpdated = "challenge.submission.progress.updated",
 }

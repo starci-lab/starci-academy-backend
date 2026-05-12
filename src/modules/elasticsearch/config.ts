@@ -4,6 +4,8 @@ import {
     ChallengeEntity,
     ContentEntity,
     ModuleEntity,
+    MilestoneEntity,
+    MilestoneTaskEntity,
 } from "@modules/databases"
 
 /**
@@ -39,5 +41,11 @@ export const configMap: ConfigMap = {
     },
     [ModuleEntity.name]: {
         indices: "modules",
+    },
+    [MilestoneEntity.name]: {
+        indices: "milestones",
+    },
+    [MilestoneTaskEntity.name]: {
+        indices: "milestone-tasks",
     },
 }

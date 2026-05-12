@@ -170,5 +170,36 @@ export class CoerceMdScalarService {
             enumObject,
         ) ?? fallback
     }
+
+    /**
+     * Convert a value into a nullable boolean.
+     * Accepts `true`/`false` strings (case-insensitive), booleans, `1`/`0`.
+     */
+    toNullableBoolean(
+        value: unknown,
+    ): boolean | undefined {
+        if (value === true || value === false) {
+            return value
+        }
+        if (typeof value === "number") {
+            return value === 1 ? true : value === 0 ? false : undefined
+        }
+        if (typeof value === "string") {
+            const t = value.trim().toLowerCase()
+            if (t === "true" || t === "1") return true
+            if (t === "false" || t === "0") return false
+        }
+        return undefined
+    }
+
+    /**
+     * Convert a value into a required boolean (boolean or fallback).
+     */
+    toRequiredBoolean(
+        value: unknown,
+        fallback: boolean,
+    ): boolean {
+        return this.toNullableBoolean(value) ?? fallback
+    }
 }
 

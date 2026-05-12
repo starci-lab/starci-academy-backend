@@ -106,5 +106,21 @@ export const httpConfig = () => ({
                 }
             }
         }
-    }
+    },
+    /** Admin HTTP routes. */
+    admin: () => {
+        const tags = "admin"
+        return {
+            tags,
+            presignedUrl: () => ({
+                path: "presigned-url",
+            }),
+            processVideo: () => ({
+                path: "process-video",
+            }),
+            viewPresignedUrl: () => ({
+                path: "view-presigned-url",
+            }),
+        }
+    },
 })

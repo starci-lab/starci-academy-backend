@@ -10,6 +10,15 @@ import {
 import {
     ContentSingleQueryModule,
 } from "./content"
+import {
+    ContentStatusSingleQueryModule,
+} from "./content-status"
+import {
+    PublicContentSingleQueryModule,
+} from "./public-content"
+import {
+    SavedContentsSingleQueryModule,
+} from "./saved-contents"
 
 @Module({
     imports: [
@@ -17,6 +26,15 @@ import {
             isGlobal: true,
         }),
         ContentSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        ContentStatusSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        PublicContentSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        SavedContentsSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

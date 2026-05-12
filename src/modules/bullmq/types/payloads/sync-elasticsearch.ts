@@ -3,6 +3,8 @@ import {
     ContentEntity,
     CourseEntity,
     LessonVideoEntity,
+    MilestoneEntity,
+    MilestoneTaskEntity,
     ModuleEntity,
 } from "@modules/databases"
 import {
@@ -16,6 +18,8 @@ export type SyncElasticsearchEntityKind =
     | typeof ContentEntity.name
     | typeof LessonVideoEntity.name
     | typeof ModuleEntity.name
+    | typeof MilestoneEntity.name
+    | typeof MilestoneTaskEntity.name
 
 /** Payload for a sync-elasticsearch BullMQ job (one entity by id). */
 export interface SyncElasticsearchPayload {

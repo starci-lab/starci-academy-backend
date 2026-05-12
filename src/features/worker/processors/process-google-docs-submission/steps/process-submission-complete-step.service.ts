@@ -3,8 +3,8 @@ import type {
 } from "@modules/bullmq"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    SubmissionAttemptEntity,
-    SubmissionFeedbackEntity,
+    UserChallengeSubmissionAttemptEntity,
+    UserChallengeSubmissionFeedbackEntity,
 } from "@modules/databases"
 import {
     JobActionService,
@@ -101,7 +101,7 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
 
         await this.entityManager.transaction(async (em) => {
             const attemptCount = await em.count(
-                SubmissionAttemptEntity,
+                UserChallengeSubmissionAttemptEntity,
                 {
                     where: {
                         userChallengeSubmission: {
@@ -111,7 +111,7 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                 },
             )
             const attempt = await em.save(
-                SubmissionAttemptEntity,
+                UserChallengeSubmissionAttemptEntity,
                 {
                     userChallengeSubmission: {
                         id: context.payload.userChallengeSubmissionId,
@@ -126,7 +126,7 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
             )
 
             const feedbackEntities = grade.feedbacks.map((msg, index) => {
-                const entity = new SubmissionFeedbackEntity()
+                const entity = new UserChallengeSubmissionFeedbackEntity()
                 entity.attempt = attempt
                 entity.message = msg
                 entity.orderIndex = index
@@ -134,7 +134,7 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
             })
 
             await em.save(
-                SubmissionFeedbackEntity,
+                UserChallengeSubmissionFeedbackEntity,
                 feedbackEntities,
             )
         })

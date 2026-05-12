@@ -8,6 +8,7 @@ import {
 import {
     ActionType,
     JobEntity,
+    Locale,
 } from "@modules/databases"
 import {
     InjectSuperJson,
@@ -56,6 +57,8 @@ export class EnqueueProcessGitSubmissionJobService {
     async enqueue(
         {
             userId,
+            enrollmentId,
+            courseId,
             userChallengeSubmissionId,
             challengeSubmissionId,
             jobId,
@@ -64,6 +67,7 @@ export class EnqueueProcessGitSubmissionJobService {
             gradingProvider,
             embeddingModel,
             embeddingProvider,
+            locale,
         }: EnqueueProcessGitSubmissionJobParams,
     ): Promise<JobEntity> {
         let job: JobEntity | null = null
@@ -78,6 +82,8 @@ export class EnqueueProcessGitSubmissionJobService {
             const payloadBody: ProcessGitSubmissionPayload = {
                 jobId: id,
                 userId,
+                enrollmentId,
+                courseId,
                 userChallengeSubmissionId,
                 challengeSubmissionId,
                 ...(branch !== undefined ? {
@@ -98,6 +104,10 @@ export class EnqueueProcessGitSubmissionJobService {
                 }),
                 ...(embeddingProvider !== undefined ? {
                     embeddingProvider 
+                } : {
+                }),
+                ...(locale !== undefined ? {
+                    locale: locale as Locale,
                 } : {
                 }),
             }

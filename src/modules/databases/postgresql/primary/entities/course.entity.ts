@@ -45,6 +45,7 @@ import {
     LivestreamSessionEntity,
 } from "./livestream-session.entity"
 
+
 /**
  * Course entity representing a sellable learning program
  * with ordered modules, pricing phases, and localized content.

@@ -3,6 +3,9 @@ import {
     readFileSync,
 } from "fs"
 import {
+    join,
+} from "path"
+import {
     envConfig
 } from "@modules/env"
 import type {
@@ -117,6 +120,21 @@ export const getSepayApiKey = (): string => {
 export const getBrevoSmtpPassword = (): string => {
     return readFileSync(
         envConfig().mountPath.terraform.brevoSmtpPassword,
+        "utf8",
+    )
+}
+
+/**
+ * Get admin API key (from terraform mount path).
+ */
+export const getAdminApiKey = (): string => {
+    return readFileSync(
+        join(
+            process.cwd(),
+            ".mount",
+            "terraform",
+            "admin-api-key.key",
+        ),
         "utf8",
     )
 }

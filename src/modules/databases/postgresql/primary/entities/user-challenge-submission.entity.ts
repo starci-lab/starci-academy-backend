@@ -20,8 +20,8 @@ import {
     ChallengeSubmissionEntity,
 } from "./challenge-submission.entity"
 import {
-    SubmissionAttemptEntity,
-} from "./submission-attempt.entity"
+    UserChallengeSubmissionAttemptEntity,
+} from "./user-challenge-submission-attempt.entity"
 
 /**
  * Join table between user and a challenge submission.
@@ -119,29 +119,29 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
 
 
     @OneToMany(
-        () => SubmissionAttemptEntity,
-        (attempt: SubmissionAttemptEntity) => attempt.userChallengeSubmission,
+        () => UserChallengeSubmissionAttemptEntity,
+        (attempt: UserChallengeSubmissionAttemptEntity) => attempt.userChallengeSubmission,
         {
             cascade: true,
         },
     )
     @Field(
-        () => [SubmissionAttemptEntity],
+        () => [UserChallengeSubmissionAttemptEntity],
         {
             nullable: true,
             description: "History of submission attempts.",
         },
     )
-        attempts: Array<SubmissionAttemptEntity>
+        attempts: Array<UserChallengeSubmissionAttemptEntity>
 
     @Field(
-        () => SubmissionAttemptEntity,
+        () => UserChallengeSubmissionAttemptEntity,
         {
             nullable: true,
             description: "The latest attempt for this submission.",
         },
     )
-        lastAttempt?: SubmissionAttemptEntity
+        lastAttempt?: UserChallengeSubmissionAttemptEntity
 }
 
 

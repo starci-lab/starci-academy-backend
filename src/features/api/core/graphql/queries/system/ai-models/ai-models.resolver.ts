@@ -1,0 +1,49 @@
+import {
+    Query,
+    Resolver,
+} from "@nestjs/graphql"
+import {
+    UseInterceptors,
+} from "@nestjs/common"
+import {
+    GraphQLSuccessMessage,
+    GraphQLTransformInterceptor,
+} from "@modules/api"
+import {
+    UseThrottler,
+    ThrottlerConfig,
+} from "@modules/throttler"
+import {
+    Locale,
+} from "@modules/databases"
+import {
+    AiModelsResponse,
+    AiModelsResponseData,
+} from "./graphql-types"
+import {
+    AiModelsService,
+} from "./ai-models.service"
+
+@Resolver()
+export class AiModelsResolver {
+    constructor(
+        private readonly service: AiModelsService,
+    ) {}
+
+    @UseThrottler(ThrottlerConfig.Soft)
+    @GraphQLSuccessMessage({
+        [Locale.En]: "AI models fetched successfully",
+        [Locale.Vi]: "Lấy thông tin mô hình AI thành công",
+    })
+    @UseInterceptors(GraphQLTransformInterceptor)
+    @Query(
+        () => AiModelsResponse,
+        {
+            name: "aiModels",
+            description: "Returns the current AI model configuration and active models for each task kind.",
+        },
+    )
+    async execute(): Promise<AiModelsResponseData> {
+        return this.service.execute()
+    }
+}

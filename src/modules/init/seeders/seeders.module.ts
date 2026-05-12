@@ -43,6 +43,15 @@ import {
     ContentInsertService,
     LessonVideoInsertService,
     ChallengeInsertService,
+    MilestoneIdFactoryService,
+    MilestoneTaskIdFactoryService,
+    MilestoneTaskPassCriteriaIdFactoryService,
+    MilestonePathService,
+    MilestoneTaskPathService,
+    MilestoneParserService,
+    MilestoneTaskParserService,
+    MilestoneInsertService,
+    MilestoneTaskInsertService,
 } from "./courses"
 import {
     SeedersService,
@@ -90,6 +99,15 @@ const providers = [
     ContentInsertService,
     LessonVideoInsertService,
     ChallengeInsertService,
+    MilestoneIdFactoryService,
+    MilestoneTaskIdFactoryService,
+    MilestoneTaskPassCriteriaIdFactoryService,
+    MilestonePathService,
+    MilestoneTaskPathService,
+    MilestoneParserService,
+    MilestoneTaskParserService,
+    MilestoneInsertService,
+    MilestoneTaskInsertService,
     SeedersService,
 ]
 

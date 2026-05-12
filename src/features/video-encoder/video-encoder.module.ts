@@ -1,39 +1,36 @@
 import {
-    Module 
+    Module,
+    DynamicModule,
 } from "@nestjs/common"
 import {
-    ConfigurableModuleClass 
+    ConfigurableModuleClass,
+    OPTIONS_TYPE,
 } from "./video-encoder.module-definition"
 import {
-    VideoEncoderWorker 
-} from "./video-encoder.worker"
-import {
-    StepMappingService 
-} from "./step-mapping.service"
-import {
-    ProcessVideoInitStepService,
-    ProcessVideoEncodeStepService,
-    ProcessVideoPackageStepService,
-    ProcessVideoUploadStepService,
-    ProcessVideoFinalizeStepService,
-} from "./steps"
+    ProcessorsModule,
+} from "./processors"
 
-/**
- * Module for video encoder.
- */
 @Module({
-    providers: [
-        VideoEncoderWorker,
-        StepMappingService,
-        ProcessVideoInitStepService,
-        ProcessVideoEncodeStepService,
-        ProcessVideoPackageStepService,
-        ProcessVideoUploadStepService,
-        ProcessVideoFinalizeStepService,
-    ],
-    exports: [
-        VideoEncoderWorker,
-        StepMappingService,
-    ]
 })
-export class VideoEncoderModule extends ConfigurableModuleClass { }
+export class VideoEncoderModule extends ConfigurableModuleClass { 
+    static register(options: typeof OPTIONS_TYPE): DynamicModule {
+        const dynamicModule = super.register(options)
+        return {
+            ...dynamicModule,
+            module: VideoEncoderModule,
+            imports: [
+                ...(dynamicModule.imports ?? []),
+                ...(
+                    options.useProcessors ? [
+                        ProcessorsModule.register({
+                            isGlobal: options.isGlobal,
+                        })
+                    ] : []
+                ),
+            ],
+            exports: [
+                ...(dynamicModule.exports ?? []),
+            ],
+        }
+    }   
+}

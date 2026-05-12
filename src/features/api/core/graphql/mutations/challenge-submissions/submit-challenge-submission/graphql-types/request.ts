@@ -15,4 +15,5 @@ export class SubmitChallengeSubmissionRequest {
         },
     )
         challengeSubmissionId: string
+
 }

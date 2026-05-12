@@ -23,6 +23,11 @@ export class ChallengeQueryService {
         private readonly queryBus: QueryBus,
     ) {}
 
+    /**
+     * Execute the challenge query.
+     * @param params - Parameters for the challenge query.
+     * @returns Promise of ChallengeEntity.
+     */
     async execute(
         params: ExecuteParams<ChallengeRequest>,
     ): Promise<ChallengeEntity> {

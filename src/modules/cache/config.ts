@@ -8,10 +8,13 @@ import type {
     BloomFilterCacheResult,
     CourseEnrollmentCacheResult,
     CourseEnrollmentCountCacheResult,
+    EnrollmentMilestonesCacheResult,
     JobSubscriberClientIdCacheResult,
     KeycloakUserCacheResult,
+    MilestoneTaskProgressCacheResult,
     ParentIndexCacheResult,
     KeycloakOidcPkceCacheResult,
+    ChallengeSubmissionProgressCacheResult,
 } from "./types"
 
 /**
@@ -55,5 +58,29 @@ export const configMap = {
     [CacheKey.CourseEnrollmentCount]: {
         ttl: envConfig().cache.ttl.courseEnrollmentCount,
         cacheResult: 0 as CourseEnrollmentCountCacheResult,
+    },
+    [CacheKey.EnrollmentMilestones]: {
+        ttl: envConfig().cache.ttl.enrollmentMilestones,
+        cacheResult: [] as EnrollmentMilestonesCacheResult,
+    },
+    [CacheKey.Milestone]: {
+        ttl: envConfig().cache.ttl.enrollmentMilestones,
+        cacheResult: {
+        } as Record<string, unknown>,
+    },
+    [CacheKey.MilestoneTask]: {
+        ttl: envConfig().cache.ttl.enrollmentMilestones,
+        cacheResult: {
+        } as Record<string, unknown>,
+    },
+    [CacheKey.MilestoneTaskProgress]: {
+        ttl: envConfig().cache.ttl.milestoneTaskProgress,
+        cacheResult: {
+        } as MilestoneTaskProgressCacheResult,
+    },
+    [CacheKey.ChallengeSubmissionProgress]: {
+        ttl: envConfig().cache.ttl.challengeSubmissionProgress,
+        cacheResult: {
+        } as ChallengeSubmissionProgressCacheResult,
     },
 }

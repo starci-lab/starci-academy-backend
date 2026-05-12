@@ -100,6 +100,10 @@ export class ContentParserService {
                 jsonMap.get(Locale.En)?.minutesRead,
                 0,
             ),
+            isPremium: this.coerceMdScalarService.toRequiredBoolean(
+                (jsonMap.get(Locale.En) as Record<string, unknown>)?.isPremium,
+                false,
+            ),
             translations: (() => {
                 const translations: Array<DeepPartial<ContentTranslationEntity>> = []
                 for (const locale of Object.values(Locale)) {

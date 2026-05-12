@@ -31,7 +31,7 @@ export const envConfig = () => ({
             order: 1,
             enabled: parseEnvBoolean({
                 key: "ENABLE_INIT_SEEDERS",
-                defaultValue: true,
+                defaultValue: false,
             })
         },
         {
@@ -39,7 +39,7 @@ export const envConfig = () => ({
             order: 2,
             enabled: parseEnvBoolean({
                 key: "ENABLE_INIT_SYNCHRONIZERS",
-                defaultValue: true,
+                defaultValue: false,
             })
         }
     ],
@@ -129,6 +129,18 @@ export const envConfig = () => ({
             }),
             courseEnrollmentCount: parseEnvMs({
                 key: "CACHE_TTL_COURSE_ENROLLMENT_COUNT",
+                defaultValue: "5m",
+            }),
+            enrollmentMilestones: parseEnvMs({
+                key: "CACHE_TTL_ENROLLMENT_MILESTONES",
+                defaultValue: "15m",
+            }),
+            milestoneTaskProgress: parseEnvMs({
+                key: "CACHE_TTL_MILESTONE_TASK_PROGRESS",
+                defaultValue: "100years",
+            }),
+            challengeSubmissionProgress: parseEnvMs({
+                key: "CACHE_TTL_CHALLENGE_SUBMISSION_PROGRESS",
                 defaultValue: "5m",
             }),
             aggregatedTokenPrice: parseEnvMs({
@@ -1450,6 +1462,19 @@ export const envConfig = () => ({
                 }
             }
         ]
-    }
+    },
+    /** AI model routing configuration. */
+    ai: {
+        /** "low" | "medium" | "high" — controls which model tier routers pick. */
+        modelRecommendation: parseEnvString({
+            key: "AI_MODEL_RECOMMENDATION",
+            defaultValue: "low",
+        }),
+        /** Interval (ms) between provider quota re-check for unavailable providers. */
+        quotaCheckIntervalMs: parseEnvMs({
+            key: "AI_QUOTA_CHECK_INTERVAL_MS",
+            defaultValue: "5m",
+        }),
+    },
 }
 )

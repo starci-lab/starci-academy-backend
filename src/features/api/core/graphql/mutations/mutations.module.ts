@@ -22,6 +22,9 @@ import {
 import {
     KeycloakMutationsModule,
 } from "./keycloak"
+import {
+    PersonalProjectMutationsModule,
+} from "./personal-project"
 
 /**
  * GraphQL mutations (courses, authentication, etc.).
@@ -42,6 +45,9 @@ import {
         }),
         CvSubmissionsMutationsModule,
         ContentsMutationModule.register({
+            isGlobal: true,
+        }),
+        PersonalProjectMutationsModule.register({
             isGlobal: true,
         }),
     ],

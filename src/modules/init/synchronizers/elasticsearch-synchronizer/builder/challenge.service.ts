@@ -1,6 +1,9 @@
 import {
     ChallengeEntity,
+    ChallengeOutputEntity,
+    ChallengePrerequisiteEntity,
     ChallengeReferenceEntity,
+    ChallengeRequirementEntity,
     ChallengeResolverService,
     ChallengeStepEntity,
     InjectPrimaryPostgreSQLEntityManager,
@@ -80,15 +83,6 @@ export class ElasticsearchChallengeBuildService {
                 },
                 relations: {
                     translations: true,
-                    requirements: {
-                        translations: true,
-                    },
-                    outputs: {
-                        translations: true,
-                    },
-                    prerequisites: {
-                        translations: true,
-                    },
                 },
             },
         )
@@ -100,6 +94,7 @@ export class ElasticsearchChallengeBuildService {
             )
         }
         const hydratedChallenge = challenge.toPlain<ChallengeEntity>()
+        // load steps
         const steps = await this.entityManager.find(
             ChallengeStepEntity,
             {
@@ -121,6 +116,8 @@ export class ElasticsearchChallengeBuildService {
                 step,
             ) => step.toPlain<ChallengeStepEntity>()
         )
+        hydratedChallenge.steps = hydratedSteps
+        // load references
         const references = await this.entityManager.find(
             ChallengeReferenceEntity,
             {
@@ -142,8 +139,77 @@ export class ElasticsearchChallengeBuildService {
                 reference,
             ) => reference.toPlain<ChallengeReferenceEntity>()
         )
-        hydratedChallenge.steps = hydratedSteps
         hydratedChallenge.references = hydratedReferences
+        // load requirements
+        const requirements = await this.entityManager.find(
+            ChallengeRequirementEntity,
+            {
+                where: {
+                    challenge: {
+                        id: hydratedChallenge.id,
+                    },
+                },
+                relations: {
+                    translations: true,
+                },
+                order: {
+                    orderIndex: "ASC",
+                },
+            },
+        )
+        const hydratedRequirements = requirements.map(
+            (
+                requirement,
+            ) => requirement.toPlain<ChallengeRequirementEntity>()
+        )
+        hydratedChallenge.requirements = hydratedRequirements
+        // load outputs
+        const outputs = await this.entityManager.find(
+            ChallengeOutputEntity,
+            {
+                where: {
+                    challenge: {
+                        id: hydratedChallenge.id,
+                    },
+                },
+                relations: {
+                    translations: true,
+                },
+                order: {
+                    orderIndex: "ASC",
+                },
+            },
+        )
+        const hydratedOutputs = outputs.map(
+            (
+                output,
+            ) => output.toPlain<ChallengeOutputEntity>()
+        )
+        hydratedChallenge.outputs = hydratedOutputs
+        // load prerequisites
+        const prerequisites = await this.entityManager.find(
+            ChallengePrerequisiteEntity,
+            {
+                where: {
+                    challenge: {
+                        id: hydratedChallenge.id,
+                    },
+                },
+                relations: {
+                    translations: true,
+                },
+                order: {
+                    orderIndex: "ASC",
+                },
+            },
+        )
+        const hydratedPrerequisites = prerequisites.map(
+            (
+                prerequisite,
+            ) => prerequisite.toPlain<ChallengePrerequisiteEntity>()
+        )
+        hydratedChallenge.prerequisites = hydratedPrerequisites
+        // return hydrated challenge
         return hydratedChallenge
     }
 

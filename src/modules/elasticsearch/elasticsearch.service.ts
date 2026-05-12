@@ -31,8 +31,6 @@ import type {
     IndexEntityResult,
     IndexEntitiesParams,
     IndexEntitiesResult,
-    SearchParams,
-    SearchResult,
 } from "./types"
 
 /**
@@ -180,10 +178,21 @@ export class ElasticsearchService implements OnModuleInit {
     async deleteIndex(
         index: string,
     ): Promise<void> {
-        await this.client.indices.delete(
-            {
-                index,
-            },
-        )
+        try {
+            await this.client.indices.delete(
+                {
+                    index,
+                },
+            )
+        } catch (error) {
+            // Silently ignore if the index does not exist
+            if (
+                error?.meta?.body?.error?.type === "index_not_found_exception" ||
+                error?.message?.includes("index_not_found_exception")
+            ) {
+                return
+            }
+            throw error
+        }
     }
 }
