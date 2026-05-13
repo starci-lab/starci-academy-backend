@@ -42,8 +42,9 @@ import {
     CvSubmissionExtractEmptyTextException,
     CvSubmissionPlanEmptyTextException,
 } from "@modules/exceptions"
-
-const MAX_CV_CHARS_PLAN = 6000
+import {
+    envConfig 
+} from "@modules/env"
 
 /**
  * Step 1: LLM drafts a review plan (markdown) from rubric + CV text before structured scoring.
@@ -108,10 +109,10 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
                 key: context.extended.cvSubmission.cdnKey,
             })
         }
-        if (text.length > MAX_CV_CHARS_PLAN) {
+        if (text.length > envConfig().cv.maxCharsPlan) {
             text = text.slice(
                 0,
-                MAX_CV_CHARS_PLAN,
+                envConfig().cv.maxCharsPlan,
             ) + "..."
         }
 

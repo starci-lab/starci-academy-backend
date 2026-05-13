@@ -19,6 +19,13 @@ import {
  * Called at runtime; defaults apply when the corresponding env var is unset.
  */
 export const envConfig = () => ({
+    /** CV configuration. */
+    cv: {
+        maxCharsPlan: parseEnvInt({
+            key: "CV_MAX_CHARS_PLAN",
+            defaultValue: 10000,
+        }),
+    },
     /** UUID namespace configuration. */
     uuidNamespace: {
         /** UUID namespace for course. */

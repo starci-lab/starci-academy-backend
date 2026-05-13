@@ -19,6 +19,9 @@ import {
 import {
     ProcessGoogleDocsSubmissionModule 
 } from "./process-google-docs-submission"
+import {
+    ReviewCvSubmissionModule,
+} from "./review-cv-submission"
 
 /**
  * Module for API-side BullMQ processors.
@@ -32,6 +35,9 @@ import {
             isGlobal: true,
         }),
         ReviewMilestoneTaskModule.register({
+            isGlobal: true,
+        }),
+        ReviewCvSubmissionModule.register({
             isGlobal: true,
         }),
         ProcessGitSubmissionModule.register({
