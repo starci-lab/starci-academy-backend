@@ -5,9 +5,7 @@ import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
-    UserCVSubmissionAttemptEntity,
     UserCVSubmissionEntity,
-    CvSubmissionStatus,
     InjectPrimaryPostgreSQLEntityManager,
     TemplateCVEntity,
 } from "@modules/databases"
@@ -25,14 +23,18 @@ import {
     ReviewCvCommand,
 } from "./review-cv.command"
 import {
-    ReviewCvResponse,
+    ReviewCvResponseData,
 } from "./graphql-types"
+import {
+    TemplateCVNotFoundException,
+    UserCVSubmissionNotFoundException,
+} from "@modules/exceptions"
 
 @CommandHandler(ReviewCvCommand)
 @Injectable()
 export class ReviewCvHandler
-    extends ICQRSHandler<ReviewCvCommand, ReviewCvResponse>
-    implements ICommandHandler<ReviewCvCommand, ReviewCvResponse> {
+    extends ICQRSHandler<ReviewCvCommand, ReviewCvResponseData>
+    implements ICommandHandler<ReviewCvCommand, ReviewCvResponseData> {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
@@ -41,10 +43,16 @@ export class ReviewCvHandler
         super()
     }
 
+    /**
+     * Process the review CV command.
+     * @param command - The review CV command.
+     * @returns The review CV response data.
+     */
     protected override async process(
         command: ReviewCvCommand,
-    ): Promise<ReviewCvResponse> {
+    ): Promise<ReviewCvResponseData> {
         const {
+            locale,
             user,
             request,
         } = command.params
@@ -58,9 +66,10 @@ export class ReviewCvHandler
             },
         )
         if (!template) {
-            throw new Error("CV review level (template) not found.")
+            throw new TemplateCVNotFoundException({
+                id: request.templateCvId,
+            })
         }
-
         const cvSubmission = await this.entityManager.findOne(
             UserCVSubmissionEntity,
             {
@@ -70,72 +79,29 @@ export class ReviewCvHandler
                         id: user.id,
                     },
                 },
-                relations: [
-                    "user",
-                ],
+                relations: {
+                    user: true,
+                },
             },
         )
 
         if (!cvSubmission) {
-            throw new Error("CV submission not found.")
+            throw new UserCVSubmissionNotFoundException({
+                id: request.cvSubmissionId,
+            })
         }
 
-        const cvSubmissionAttempt = request.cvSubmissionAttemptId
-            ? await this.entityManager.findOne(
-                UserCVSubmissionAttemptEntity,
-                {
-                    where: {
-                        id: request.cvSubmissionAttemptId,
-                        cvSubmission: {
-                            id: cvSubmission.id,
-                        },
-                    },
-                },
-            )
-            : await this.entityManager.findOne(
-                UserCVSubmissionAttemptEntity,
-                {
-                    where: {
-                        cvSubmission: {
-                            id: cvSubmission.id,
-                        },
-                    },
-                    order: {
-                        attemptNumber: "DESC",
-                    },
-                },
-            )
-
-        if (!cvSubmissionAttempt) {
-            throw new Error("CV submission attempt not found.")
-        }
-
-        if (cvSubmissionAttempt.status !== CvSubmissionStatus.Pending) {
-            throw new Error(`CV submission attempt is already ${cvSubmissionAttempt.status}.`)
-        }
-
-        await this.entityManager.update(
-            UserCVSubmissionAttemptEntity,
-            cvSubmissionAttempt.id,
+        const job = await this.enqueueProcessCvSubmissionJobService.enqueue(
             {
-                status: CvSubmissionStatus.Processing,
-                processedAt: null,
+                userId: user.id,
+                cvSubmissionId: cvSubmission.id,
                 templateCvId: request.templateCvId,
-                reviewPlan: null,
-            },
+                locale,
+            }
         )
 
-        await this.enqueueProcessCvSubmissionJobService.enqueue({
-            userId: user.id,
-            cvSubmissionId: cvSubmission.id,
-            cvSubmissionAttemptId: cvSubmissionAttempt.id,
-            templateCvId: request.templateCvId,
-            persistReviewAsCanonicalAttempt: true,
-        })
-
         return {
-            success: true,
-            message: "CV review has been queued for the selected level.",
+            jobId: job.id,
         }
     }
 }

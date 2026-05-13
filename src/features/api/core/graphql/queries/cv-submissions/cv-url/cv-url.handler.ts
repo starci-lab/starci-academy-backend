@@ -118,10 +118,11 @@ export class CvUrlHandler
         /**
          * Build the CV URL.
          */
+        const cvUrlExpiresInSeconds = Math.floor(envConfig().s3.minio.presignTtl / 1000)
         const cvUrl = await this.s3BuildService.buildSignedGetObjectUrl({
             key: rawKey,
             provider: S3Provider.Minio,
-            expiresInSeconds: envConfig().s3.minio.presignTtl,
+            expiresInSeconds: cvUrlExpiresInSeconds,
         })
 
         /**
@@ -131,7 +132,7 @@ export class CvUrlHandler
             id: submission.id,
             status: submission.status,
             cvUrl,
-            cvUrlExpiresInSeconds: envConfig().s3.minio.presignTtl,
+            cvUrlExpiresInSeconds,
             detailFeedback,
         }
     }

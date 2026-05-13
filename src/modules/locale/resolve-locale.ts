@@ -21,6 +21,14 @@ export const getLocaleFromCookie = (context: ExecutionContext): Locale | undefin
 
         const cookies = req?.cookies
         const cookieLocale = cookies?.["LOCALE"]
+        const headerLocale = req?.headers?.["x-locale"]
+
+        if (
+            typeof headerLocale === "string" &&
+            Object.values(Locale).includes(headerLocale as Locale)
+        ) {
+            return headerLocale as Locale
+        }
 
         if (
             typeof cookieLocale === "string" &&

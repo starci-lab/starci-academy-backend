@@ -91,6 +91,7 @@ export class SubcribeJobNotificationGateway implements OnModuleInit {
                         data: {
                             jobId: payload.jobId,
                             challengeSubmissionId: payload.challengeSubmissionId,
+                            jobType: payload.jobType,
                             status: payload.status,
                             error: payload.error,
                         },

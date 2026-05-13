@@ -8,6 +8,7 @@ import {
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
+    GraphQLLocale,
 } from "@modules/api"
 import {
     TemplateCvsService,
@@ -44,7 +45,13 @@ export class TemplateCvsResolver {
             description: "List all available CV review template rubrics.",
         },
     )
-    async execute(): Promise<Array<TemplateCVEntity>> {
-        return this.templateCvsService.execute()
+    async execute(
+        @GraphQLLocale()
+            locale: Locale,
+    ): Promise<Array<TemplateCVEntity>> {
+        return this.templateCvsService.execute({
+            request: undefined,
+            locale,
+        })
     }
 }

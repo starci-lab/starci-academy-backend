@@ -23,4 +23,8 @@ export interface ReviewCvSubmissionPayload {
     locale?: Locale
     /** `template_cvs.id` — which review rubric level to use. */
     templateCvId?: string
+    /** `user_cv_submission_attempts.id` being reviewed. */
+    cvSubmissionAttemptId?: string
+    /** Persist final review output back onto the canonical submission attempt. */
+    persistReviewAsCanonicalAttempt?: boolean
 }

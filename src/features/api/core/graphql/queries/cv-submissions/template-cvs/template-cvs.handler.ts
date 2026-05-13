@@ -3,6 +3,7 @@ import {
 } from "@modules/cqrs"
 import {
     InjectPrimaryPostgreSQLEntityManager,
+    Locale,
     TemplateCVEntity,
 } from "@modules/databases"
 import {
@@ -32,8 +33,9 @@ export class TemplateCvsHandler
     }
 
     protected override async process(
+        query: TemplateCvsQuery,
     ): Promise<Array<TemplateCVEntity>> {
-        return this.entityManager.find(
+        const templates = await this.entityManager.find(
             TemplateCVEntity,
             {
                 order: {
@@ -44,5 +46,21 @@ export class TemplateCvsHandler
                 ],
             },
         )
+
+        const locale = query.params.locale ?? Locale.En
+        return templates.map((template) => {
+            const translations = template.translations ?? []
+            for (const field of [
+                "title",
+                "description",
+                "body",
+            ] as const) {
+                const translation = translations.find((item) => item.locale === locale && item.field === field)
+                if (translation?.value) {
+                    template[field] = translation.value
+                }
+            }
+            return template
+        })
     }
 }

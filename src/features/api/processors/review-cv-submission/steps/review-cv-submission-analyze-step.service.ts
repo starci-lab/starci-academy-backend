@@ -12,6 +12,7 @@ import {
 } from "@modules/bussiness"
 import {
     InjectPrimaryPostgreSQLEntityManager,
+    Locale,
     TemplateCVEntity,
 } from "@modules/databases"
 import {
@@ -83,6 +84,19 @@ export class ReviewCvSubmissionAnalyzeStepService extends AbstractStepService<
     stepName = "analyze"
 
     /**
+     * Build the output language instruction from locale.
+     * @param locale - Locale hint from payload.
+     * @returns Language instruction for analysis output.
+     */
+    private buildLanguageInstruction(locale?: Locale): string {
+        if (locale === Locale.Vi) {
+            return "Write all review content in Vietnamese."
+        }
+
+        return "Write all review content in English."
+    }
+
+    /**
      * Process the step.
      * @param context - Job context.
      */
@@ -92,11 +106,19 @@ export class ReviewCvSubmissionAnalyzeStepService extends AbstractStepService<
             ExtendedReviewCvSubmissionContext
         >,
     ): Promise<void> {
-        const executionResult = await this.execute(context)
-        await this.finalize(
-            executionResult,
-            context,
-        )
+        try {
+            const executionResult = await this.execute(context)
+            await this.finalize(
+                executionResult,
+                context,
+            )
+        } catch (error) {
+            await this.jobActionService.failJob({
+                job: context.job,
+                error,
+            })
+            throw error
+        }
     }
 
     /**
@@ -180,6 +202,7 @@ export class ReviewCvSubmissionAnalyzeStepService extends AbstractStepService<
                     "---",
                     "",
                     "Given the above CV review rubric, analyze the following CV text.",
+                    this.buildLanguageInstruction(context.payload.locale),
                     "",
                     this.buildJsonOutputInstructions(),
                 ].join("\n")
@@ -196,6 +219,7 @@ export class ReviewCvSubmissionAnalyzeStepService extends AbstractStepService<
                     : ""
                 systemText = [
                     planSection,
+                    this.buildLanguageInstruction(context.payload.locale),
                     this.buildDefaultSystemPrompt(),
                 ].join("\n")
             }
@@ -213,16 +237,16 @@ export class ReviewCvSubmissionAnalyzeStepService extends AbstractStepService<
 
             systemText = [
                 planSection,
+                this.buildLanguageInstruction(context.payload.locale),
                 this.buildDefaultSystemPrompt(),
             ].join("\n")
         }
 
         const humanText = text
 
-        const routed = this.reviewCvSubmissionModelRouter.current
         const model = this.modelService.get({
-            model: context.payload.analyzeModel ?? routed.model,
-            provider: context.payload.analyzeProvider ?? routed.provider,
+            model: context.payload.analyzeModel ?? this.reviewCvSubmissionModelRouter.model,
+            provider: context.payload.analyzeProvider ?? this.reviewCvSubmissionModelRouter.provider,
         })
 
         const response = await model.invoke([

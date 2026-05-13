@@ -69,11 +69,19 @@ export class ReviewCvSubmissionExtractStepService extends AbstractStepService<
             ExtendedReviewCvSubmissionContext
         >,
     ): Promise<void> {
-        const executionResult = await this.execute(context)
-        await this.finalize(
-            executionResult,
-            context,
-        )
+        try {
+            const executionResult = await this.execute(context)
+            await this.finalize(
+                executionResult,
+                context,
+            )
+        } catch (error) {
+            await this.jobActionService.failJob({
+                job: context.job,
+                error,
+            })
+            throw error
+        }
     }
 
     /**

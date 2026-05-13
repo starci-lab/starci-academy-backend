@@ -19,6 +19,8 @@ import {
     GraphQLTypeJobStatus,
     ActionType,
     GraphQLTypeActionType,
+    JobCategory,
+    GraphQLTypeJobCategory,
 } from "../enums"
 import {
     UserEntity,
@@ -208,6 +210,21 @@ export class JobEntity extends UuidAbstractEntity {
         },
     )
         actionType: ActionType
+
+    @Field(
+        () => GraphQLTypeJobCategory,
+        {
+            description: "UI-facing job category for realtime rendering.",
+        },
+    )
+    @Column(
+        {
+            name: "category",
+            type: "varchar",
+            default: JobCategory.ReviewCv,
+        },
+    )
+        category: JobCategory
 
     @Field(
         () => String,

@@ -1,4 +1,5 @@
 import {
+    GraphQLLocale,
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
 } from "@modules/api"
@@ -22,6 +23,7 @@ import {
 import {
     ReviewCvRequest,
     ReviewCvResponse,
+    ReviewCvResponseData,
 } from "./graphql-types"
 import {
     ReviewCvService,
@@ -56,10 +58,13 @@ export class ReviewCvResolver {
             },
         )
             request: ReviewCvRequest,
-    ): Promise<void> {
-        await this.reviewCvService.execute({
+        @GraphQLLocale()
+            locale: Locale,
+    ): Promise<ReviewCvResponseData> {
+        return this.reviewCvService.execute({
             user,
             request,
+            locale,
         })
     }
 }

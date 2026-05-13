@@ -8,6 +8,7 @@ import {
 import {
     ActionType,
     JobEntity,
+    JobCategory,
     Locale,
 } from "@modules/databases"
 import {
@@ -108,6 +109,7 @@ export class EnqueueProcessGoogleDocsSubmissionJobService {
                     id,
                     userId,
                     actionType: ActionType.ProcessGoogleDocsSubmission,
+                    category: JobCategory.SubmitChallenge,
                     maxSteps: envConfig().job.processGitSubmission.maxSteps,
                     payload: this.superJson.stringify(payloadBody),
                     challengeSubmissionId,

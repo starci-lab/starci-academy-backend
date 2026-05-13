@@ -7,7 +7,7 @@ import {
 } from "@modules/bussiness"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    ModelProvider,
+    Locale,
     TemplateCVEntity,
 } from "@modules/databases"
 import {
@@ -45,6 +45,9 @@ import {
 import {
     envConfig 
 } from "@modules/env"
+import {
+    ReviewCvSubmissionModelRouterService,
+} from "@modules/ai"
 
 /**
  * Step 1: LLM drafts a review plan (markdown) from rubric + CV text before structured scoring.
@@ -61,6 +64,7 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
         private readonly winstonService: WinstonService,
         private readonly modelService: ModelService,
         private readonly extractStepService: ReviewCvSubmissionExtractStepService,
+        private readonly reviewCvSubmissionModelRouter: ReviewCvSubmissionModelRouterService,
     ) {
         super()
     }
@@ -68,6 +72,19 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
     stepIndex = 1
 
     stepName = "plan"
+
+    /**
+     * Build the output language instruction from locale.
+     * @param locale - Locale hint from payload.
+     * @returns Language instruction for model output.
+     */
+    private buildLanguageInstruction(locale?: Locale): string {
+        if (locale === Locale.Vi) {
+            return "Write the entire response in Vietnamese."
+        }
+
+        return "Write the entire response in English."
+    }
 
     /**
      * Process the step.
@@ -79,11 +96,18 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
             ExtendedReviewCvSubmissionContext
         >,
     ): Promise<void> {
-        const executionResult = await this.execute(context)
-        await this.finalize(
-            executionResult,
-            context,
-        )
+        try {
+            const executionResult = await this.execute(context)
+            await this.finalize(
+                executionResult,
+                context,
+            )
+        } catch (error) {
+            await this.jobActionService.failJob({
+                job: context.job,
+                error,
+            })
+        }
     }
 
     /**
@@ -144,6 +168,7 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
         const systemText = [
             "You are a senior engineering mentor preparing for a CV review session.",
             "Your task now is ONLY to outline a review plan — do not score, do not output JSON.",
+            this.buildLanguageInstruction(context.payload.locale),
             "",
             rubricBlock,
             "",
@@ -155,8 +180,8 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
         ].join("\n")
 
         const model = this.modelService.get({
-            model: context.payload.analyzeModel || "gemini-2.5-flash",
-            provider: context.payload.analyzeProvider || ModelProvider.Gemini,
+            model: context.payload.analyzeModel || this.reviewCvSubmissionModelRouter.model,
+            provider: context.payload.analyzeProvider || this.reviewCvSubmissionModelRouter.provider,
         })
 
         const response = await model.invoke([

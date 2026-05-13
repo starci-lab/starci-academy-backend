@@ -10,6 +10,9 @@ import {
 import {
     TemplateCVEntity,
 } from "@modules/databases"
+import {
+    ExecuteParams,
+} from "../../../../types"
 
 @Injectable()
 export class TemplateCvsService {
@@ -17,13 +20,11 @@ export class TemplateCvsService {
         private readonly queryBus: QueryBus,
     ) {}
 
-    async execute(): Promise<Array<TemplateCVEntity>> {
+    async execute(
+        params: ExecuteParams<void>,
+    ): Promise<Array<TemplateCVEntity>> {
         return this.queryBus.execute(
-            new TemplateCvsQuery(
-                {
-                    request: undefined,
-                }
-            ),
+            new TemplateCvsQuery(params),
         )
     }
 }

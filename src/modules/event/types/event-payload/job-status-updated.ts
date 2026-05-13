@@ -1,5 +1,6 @@
 import {
-    JobStatus 
+    JobCategory,
+    JobStatus,
 } from "@modules/databases"
 /**
  * Payload emitted whenever a job changes state.
@@ -13,7 +14,7 @@ export interface JobStatusUpdatedEventPayload {
     /** The challenge submission id. */
     challengeSubmissionId?: string
     /** The job type. */
-    jobType?: string
+    jobType?: JobCategory
     /** The job status. */
     status: JobStatus
     /** The error message. */

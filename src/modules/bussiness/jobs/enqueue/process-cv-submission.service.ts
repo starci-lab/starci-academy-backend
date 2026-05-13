@@ -6,6 +6,7 @@ import {
 import {
     ActionType,
     JobEntity,
+    JobCategory,
 } from "@modules/databases"
 import {
     envConfig,
@@ -109,6 +110,7 @@ export class EnqueueProcessCvSubmissionJobService {
                     id,
                     userId,
                     actionType: ActionType.ProcessCvSubmission,
+                    category: JobCategory.ReviewCv,
                     maxSteps: envConfig().job.processCvSubmission.maxSteps,
                     payload: this.superJson.stringify(payloadBody),
                 },

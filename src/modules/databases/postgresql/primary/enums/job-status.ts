@@ -1,8 +1,8 @@
 import {
-    registerEnumType 
+    registerEnumType,
 } from "@nestjs/graphql"
 import {
-    createEnumType 
+    createEnumType,
 } from "@modules/common"
 
 /**
@@ -41,3 +41,4 @@ registerEnumType(
         },
     },
 )
+

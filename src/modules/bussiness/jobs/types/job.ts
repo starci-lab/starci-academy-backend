@@ -1,5 +1,6 @@
 import {
     ActionType,
+    JobCategory,
     JobEntity,
 } from "@modules/databases"
 import type {
@@ -21,6 +22,8 @@ export interface CreateJobParams extends Omit<JobTargetParams, "job"> {
     id: string
     /** The type of action to perform. */
     actionType: ActionType
+    /** UI-facing job category for realtime rendering. */
+    category: JobCategory
     /** The payload for the job. */
     payload: string
     /** The maximum number of steps for the job. */

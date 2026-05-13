@@ -10,6 +10,7 @@ import {
 import {
     ActionType,
     JobEntity,
+    JobCategory,
     Locale,
     ModelProvider,
 } from "@modules/databases"
@@ -98,6 +99,7 @@ export class EnqueueReviewPersonalProjectTaskJobService {
             id: uuidv4(),
             userId,
             actionType: ActionType.ReviewPersonalProjectTask,
+            category: JobCategory.ReviewTask,
             maxSteps: 2,
             payload: this.superJson.stringify(payload),
         })

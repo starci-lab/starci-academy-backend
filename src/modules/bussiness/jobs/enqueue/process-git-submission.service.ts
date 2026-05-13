@@ -8,6 +8,7 @@ import {
 import {
     ActionType,
     JobEntity,
+    JobCategory,
     Locale,
 } from "@modules/databases"
 import {
@@ -58,7 +59,6 @@ export class EnqueueProcessGitSubmissionJobService {
         {
             userId,
             enrollmentId,
-            courseId,
             userChallengeSubmissionId,
             challengeSubmissionId,
             jobId,
@@ -81,11 +81,8 @@ export class EnqueueProcessGitSubmissionJobService {
             const id = uuidv4()
             const payloadBody: ProcessGitSubmissionPayload = {
                 jobId: id,
-                userId,
                 enrollmentId,
-                courseId,
                 userChallengeSubmissionId,
-                challengeSubmissionId,
                 ...(branch !== undefined ? {
                     branch 
                 } : {
@@ -116,6 +113,7 @@ export class EnqueueProcessGitSubmissionJobService {
                     id,
                     userId,
                     actionType: ActionType.ProcessGitSubmission,
+                    category: JobCategory.SubmitChallenge,
                     maxSteps: envConfig().job.processGitSubmission.maxSteps,
                     payload: this.superJson.stringify(payloadBody),
                     challengeSubmissionId,

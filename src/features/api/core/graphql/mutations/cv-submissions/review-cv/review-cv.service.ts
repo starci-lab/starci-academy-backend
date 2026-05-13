@@ -9,7 +9,7 @@ import {
     ReviewCvCommandParams,
 } from "./review-cv.command"
 import {
-    ReviewCvResponse,
+    ReviewCvResponseData,
 } from "./graphql-types"
 
 @Injectable()
@@ -20,7 +20,7 @@ export class ReviewCvService {
 
     async execute(
         params: ReviewCvCommandParams,
-    ): Promise<ReviewCvResponse> {
+    ): Promise<ReviewCvResponseData> {
         return this.commandBus.execute(
             new ReviewCvCommand(params),
         )

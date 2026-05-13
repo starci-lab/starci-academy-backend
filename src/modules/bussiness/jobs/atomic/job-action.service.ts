@@ -30,7 +30,7 @@ import {
     JobNotFoundException 
 } from "@modules/exceptions"
 import {
-    EventName 
+    EventName,
 } from "@modules/event"
 import {
     EventEmitterService 
@@ -95,6 +95,7 @@ export class JobActionService {
     async createJob({
         id,
         actionType,
+        category,
         payload,
         maxSteps = 0,
         userId,
@@ -108,6 +109,10 @@ export class JobActionService {
                 id,
                 actionType,
                 payload,
+                ...(category != null ? {
+                    category,
+                } : {
+                }),
                 status: JobStatus.Queued,
                 currentStep: 0,
                 maxSteps,
@@ -117,7 +122,8 @@ export class JobActionService {
                         user: {
                             id: userId,
                         },
-                    } : {}
+                    } : {
+                    }
                 ),
                 ...(
                     challengeSubmissionId ? {
@@ -183,6 +189,7 @@ export class JobActionService {
                     payload: {
                         jobId: job.id,
                         challengeSubmissionId: job.challengeSubmissionId ?? undefined,
+                        jobType: job.category ?? undefined,
                         status: job.status,
                     },
                 }
@@ -216,6 +223,7 @@ export class JobActionService {
                 payload: {
                     jobId: job.id,
                     challengeSubmissionId: job.challengeSubmissionId ?? undefined,
+                    jobType: job.category ?? undefined,
                     status: job.status,
                     error: job.error ?? undefined,
                 },
@@ -246,6 +254,7 @@ export class JobActionService {
                 payload: {
                     jobId: job.id,
                     challengeSubmissionId: job.challengeSubmissionId ?? undefined,
+                    jobType: job.category ?? undefined,
                     status: job.status,
                 },
             })

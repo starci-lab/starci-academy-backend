@@ -8,6 +8,7 @@ import {
     parseEnvFloat,
     parseEnvMs,
     parseEnvJson,
+    parseEnvSecond,
 } from "./utils"
 import {
     ContextType
@@ -1109,7 +1110,7 @@ export const envConfig = () => ({
                     defaultValue: "15m",
                 }),
             },
-            presignTtl: parseEnvMs({
+            presignTtl: parseEnvSecond({
                 key: "S3_MINIO_PRESIGNED_URL_EXPIRATION",
                 defaultValue: "15m",
             }),

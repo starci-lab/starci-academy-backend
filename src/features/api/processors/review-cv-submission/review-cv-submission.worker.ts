@@ -87,6 +87,12 @@ export class ReviewCvSubmissionWorker extends WorkerHost {
                     id: bullmqJob.id ?? "",
                 },
             )
+            await this.jobActionService.processingJob({
+                job: jobRecord,
+            })
+            jobRecord = await this.jobActionService.getJob({
+                id: jobRecord.id,
+            })
             payload = this.superJson.parse<ReviewCvSubmissionPayload>(bullmqJob.data)
             
             const stepMap = this.stepMappingService.getStepMap()
@@ -151,10 +157,14 @@ export class ReviewCvSubmissionWorker extends WorkerHost {
                     durationMs: this.dayjsService.now().diff(this.dayjsService.from(startedAt)),
                 },
             )
+            await this.jobActionService.completeJob({
+                job: jobRecord,
+            })
         } catch (error) {
             if (jobRecord) {
                 await this.jobActionService.failJob({
                     job: jobRecord,
+                    error: error instanceof Error ? error.message : String(error),
                 })
             }
             this.winstonService.log(

@@ -27,10 +27,10 @@ import {
     SubscriptionEvent 
 } from "../../../enums"
 import {
-    JobNotFoundException 
+    JobNotFoundException,
 } from "@modules/exceptions"
 import {
-    JobActionService 
+    JobActionService,
 } from "@modules/bussiness"
 
 @QueryHandler(SubcribeJobNotificationQuery)
@@ -45,6 +45,7 @@ export class SubcribeJobNotificationHandler
     ) {
         super()
     }
+
     /** Process the query. */
     protected override async process(
         query: SubcribeJobNotificationQuery,
@@ -71,6 +72,8 @@ export class SubcribeJobNotificationHandler
                 data: {
                     jobId: job.id,
                     challengeSubmissionId: job.challengeSubmissionId ?? "",
+                    jobType: job.jobType ?? undefined,
+                    actionType: job.actionType,
                     status: job.status,
                     error: job.error ?? undefined,
                 },

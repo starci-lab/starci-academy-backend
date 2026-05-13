@@ -138,7 +138,9 @@ export class ReviewCvSubmissionCompleteStepService extends AbstractStepService<
             UserCVSubmissionAttemptEntity,
             {
                 where: {
-                    cvSubmissionId: context.payload.cvSubmissionId,
+                    cvSubmission: {
+                        id: context.payload.cvSubmissionId,
+                    },
                 },
             },
         )
@@ -168,7 +170,9 @@ export class ReviewCvSubmissionCompleteStepService extends AbstractStepService<
                 await entityManager.save(
                     UserCVSubmissionAttemptEntity,
                     {
-                        cvSubmissionId: context.payload.cvSubmissionId,
+                        cvSubmission: {
+                            id: context.payload.cvSubmissionId,
+                        },
                         attemptNumber,
                         cdnKey: destKey,
                         detailFeedback,
