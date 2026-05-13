@@ -16,7 +16,7 @@ import {
 import {
     ExtractJsonFromMdService,
     CoerceMdScalarService,
-} from "../extracts"
+} from "../../shared"
 import {
     MilestoneTaskIdFactoryService,
     MilestoneTaskPassCriteriaIdFactoryService,
@@ -28,9 +28,7 @@ import {
     MilestoneTaskPathService,
     ResolvedFileResult,
 } from "../path"
-import {
-    ContextLoaderService,
-} from "../contexts"
+import { ContextLoaderService } from "../../shared"
 
 const TASK_TYPE_MAP: Record<string, PersonalProjectTaskType> = {
     design: PersonalProjectTaskType.Design,
@@ -75,7 +73,7 @@ export class MilestoneTaskParserService {
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(
-                    await this.contextLoaderService.load(`${path.relativePath}/${locale}.md`),
+                    await this.contextLoaderService.load("courses", `${path.relativePath}/${locale}.md`),
                 ),
             )
         }
@@ -247,3 +245,4 @@ export class MilestoneTaskParserService {
         return data
     }
 }
+

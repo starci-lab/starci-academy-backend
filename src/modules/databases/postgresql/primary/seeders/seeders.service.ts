@@ -26,8 +26,9 @@ import {
     ContentEntity,
     CourseEntity,
     LessonVideoEntity,
-    ModuleEntity
+    ModuleEntity,
 } from "../entities"
+
 /**
  * The service for the Seeders.
  */

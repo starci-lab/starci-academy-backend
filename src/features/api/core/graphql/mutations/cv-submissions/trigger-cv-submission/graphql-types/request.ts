@@ -24,4 +24,13 @@ export class TriggerCvSubmissionRequest {
         },
     )
         cvSubmissionAttemptId?: string
-}
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Optional `template_cvs.id` to select which review rubric level to use (Junior/Mid/Senior). Defaults to 0-standard.",
+        },
+    )
+        templateCvId?: string
+}

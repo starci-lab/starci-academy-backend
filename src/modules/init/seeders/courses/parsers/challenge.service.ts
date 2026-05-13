@@ -13,7 +13,7 @@ import {
 import {
     ExtractJsonFromMdService,
     CoerceMdScalarService,
-} from "../extracts"
+} from "../../shared"
 import {
     ChallengeIdFactoryService,
     ChallengeOutputIdFactoryService,
@@ -44,9 +44,7 @@ import {
     ChallengePathService,
     ResolvedFileResult,
 } from "../path"
-import {
-    ContextLoaderService,
-} from "../contexts"
+import { ContextLoaderService } from "../../shared"
 import {
     ChallengePathNotFoundException,
 } from "@modules/exceptions"
@@ -100,7 +98,7 @@ export class ChallengeParserService {
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(
-                    await this.contextLoaderService.load(`${path.relativePath}/${locale}.md`),
+                    await this.contextLoaderService.load("courses", `${path.relativePath}/${locale}.md`),
                 ),
             )
         }
@@ -565,3 +563,4 @@ export class ChallengeParserService {
         return data
     }
 }
+

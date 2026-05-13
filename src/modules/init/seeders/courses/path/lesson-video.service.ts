@@ -7,7 +7,7 @@ import {
 import {
     PathResolverService,
     ResolvedFilePath,
-} from "./resolver.service"
+} from "../../shared"
 
 /**
  * Resolves indexed lesson-video mount folders under a content’s `lesson-videos/` directory (`{index}-{slug}` or legacy `{index}`).
@@ -42,10 +42,12 @@ export class LessonVideoPathService {
             contentRelativePath,
         }: LessonVideoPathsParams,
     ): Promise<Array<ResolvedFilePath>> {
-        return await this.pathResolverService.filePaths(
+        return await this.pathResolverService.filePaths("courses", 
             this.relativePath(
                 contentRelativePath,
             ),
         )
     }
 }
+
+

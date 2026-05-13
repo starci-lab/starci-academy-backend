@@ -1,2 +1,3 @@
 export * from "./cv-submissions.module"
-export * from "./cv-review-history"
+export * from "./user-cv-submission-attempts"
+export * from "./cv-url"

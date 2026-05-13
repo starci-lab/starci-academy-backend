@@ -5,3 +5,4 @@ export interface LessonVideoPathsParams {
     /** The relative path to the content. */
     contentRelativePath: string
 }
+

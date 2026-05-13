@@ -1,6 +1,6 @@
 export * from "./path"
-export * from "./contexts"
+
 export * from "./parsers"
-export * from "./extracts"
 export * from "./id-factories"
 export * from "./inserts"
+export * from "./seeder.service"

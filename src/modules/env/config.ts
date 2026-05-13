@@ -23,6 +23,8 @@ export const envConfig = () => ({
     uuidNamespace: {
         /** UUID namespace for course. */
         course: "d32d2da9-ad2e-44b4-b412-a97de455b8e4",
+        /** UUID namespace for template CV. */
+        templateCV: "d32d2da9-ad2e-44b4-b412-a97de455b8e4",
     },
     /** Initialization configuration. */
     init: [
@@ -31,7 +33,7 @@ export const envConfig = () => ({
             order: 1,
             enabled: parseEnvBoolean({
                 key: "ENABLE_INIT_SEEDERS",
-                defaultValue: true,
+                defaultValue: false,
             })
         },
         {
@@ -39,7 +41,7 @@ export const envConfig = () => ({
             order: 2,
             enabled: parseEnvBoolean({
                 key: "ENABLE_INIT_SYNCHRONIZERS",
-                defaultValue: true,
+                defaultValue: false,
             })
         }
     ],
@@ -737,7 +739,6 @@ export const envConfig = () => ({
                 defaultValue: join(process.cwd(),
                     ".mount",
                     "data",
-                    "courses"
                 ),
             }),
         },
@@ -1101,6 +1102,10 @@ export const envConfig = () => ({
                     defaultValue: "15m",
                 }),
             },
+            presignTtl: parseEnvMs({
+                key: "S3_MINIO_PRESIGNED_URL_EXPIRATION",
+                defaultValue: "15m",
+            }),
         },
     },
 
@@ -1209,7 +1214,7 @@ export const envConfig = () => ({
         processCvSubmission: {
             maxSteps: parseEnvInt({
                 key: "JOB_PROCESS.CV_SUBMISSION_MAX_STEPS",
-                defaultValue: 2,
+                defaultValue: 4,
             }),
         },
         /** Process Git Submission job configuration. */

@@ -19,7 +19,7 @@ import {
 } from "./types/model"
 
 /**
- * Model router for grading tasks (git, docs, CV submissions).
+ * Model router for grading tasks (git, Google Docs).
  *
  * Picks the most cost-effective model based on the
  * `AI_MODEL_RECOMMENDATION` env tier and provider availability.

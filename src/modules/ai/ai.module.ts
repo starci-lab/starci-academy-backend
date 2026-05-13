@@ -17,6 +17,9 @@ import {
     ReviewPersonalProjectModelRouterService,
 } from "./review-personal-project-router.service"
 import {
+    ReviewCvSubmissionModelRouterService,
+} from "./review-cv-submission-model-router.service"
+import {
     ConfigurableModuleClass 
 } from "./ai.module-definition"
 
@@ -30,6 +33,7 @@ import {
         GenerateTaskModelRouterService,
         GradeModelRouterService,
         ReviewPersonalProjectModelRouterService,
+        ReviewCvSubmissionModelRouterService,
     ],
     exports: [
         AISecretService,
@@ -37,6 +41,7 @@ import {
         GenerateTaskModelRouterService,
         GradeModelRouterService,
         ReviewPersonalProjectModelRouterService,
+        ReviewCvSubmissionModelRouterService,
     ],
 })
 export class AiModule extends ConfigurableModuleClass { }

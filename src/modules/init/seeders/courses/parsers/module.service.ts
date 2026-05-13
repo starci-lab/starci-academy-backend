@@ -6,7 +6,7 @@ import {
 } from "@modules/databases"
 import {
     ExtractJsonFromMdService,
-} from "../extracts"
+} from "../../shared"
 import {
     CourseIdFactoryService,
     ModuleIdFactoryService,
@@ -24,9 +24,7 @@ import {
     ModuleTranslationEntity,
     PreviewContentTranslationEntity,
 } from "@modules/databases"
-import {
-    ContextLoaderService,
-} from "../contexts"
+import { ContextLoaderService } from "../../shared"
 import {
     ModulePathNotFoundException,
 } from "@modules/exceptions"
@@ -76,7 +74,7 @@ export class ModuleParserService {
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(
-                    await this.contextLoaderService.load(
+                    await this.contextLoaderService.load("courses", 
                         `${path.relativePath}/${locale}.md`,
                     ),
                 ),
@@ -211,3 +209,4 @@ export class ModuleParserService {
         return data
     }
 }
+

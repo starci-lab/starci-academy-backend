@@ -8,6 +8,7 @@ import {
     GradeModelRouterService,
     GenerateTaskModelRouterService,
     ReviewPersonalProjectModelRouterService,
+    ReviewCvSubmissionModelRouterService,
     AiTaskKind,
     ModelRecommendation,
 } from "@modules/ai"
@@ -25,6 +26,7 @@ export class AiModelsHandler {
         private readonly gradeRouter: GradeModelRouterService,
         private readonly generateTaskRouter: GenerateTaskModelRouterService,
         private readonly reviewRouter: ReviewPersonalProjectModelRouterService,
+        private readonly reviewCvSubmissionRouter: ReviewCvSubmissionModelRouterService,
     ) {}
 
     execute(): AiModelsResponseData {
@@ -51,6 +53,13 @@ export class AiModelsHandler {
                 description: "Sinh ra các milestone và task cho dự án cá nhân dựa trên ý tưởng và khóa học.",
                 activeModel: this.generateTaskRouter.current,
                 fallbackChain: modelTierMatrix[AiTaskKind.GenerateMilestone][tier] ?? [],
+            },
+            {
+                taskKind: AiTaskKind.ReviewCvSubmission,
+                label: "Review CV (analyze)",
+                description: "Phân tích CV theo rubric, sinh markdown `detailFeedback` sau bước plan.",
+                activeModel: this.reviewCvSubmissionRouter.current,
+                fallbackChain: modelTierMatrix[AiTaskKind.ReviewCvSubmission][tier] ?? [],
             },
         ]
 

@@ -11,7 +11,7 @@ import {
 import {
     ExtractJsonFromMdService,
     CoerceMdScalarService,
-} from "../extracts"
+} from "../../shared"
 import {
     ContentIdFactoryService,
     ContentReferenceIdFactoryService,
@@ -23,9 +23,7 @@ import {
     ContentEntity,
     ContentTranslationEntity,
 } from "@modules/databases"
-import {
-    ContextLoaderService,
-} from "../contexts"
+import { ContextLoaderService } from "../../shared"
 import {
     ContentPathNotFoundException,
 } from "@modules/exceptions"
@@ -75,7 +73,7 @@ export class ContentParserService {
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(
-                    await this.contextLoaderService.load(`${path.relativePath}/${locale}.md`),
+                    await this.contextLoaderService.load("courses", `${path.relativePath}/${locale}.md`),
                 ),
             )
         }
@@ -220,3 +218,4 @@ export class ContentParserService {
         return data
     }
 }
+

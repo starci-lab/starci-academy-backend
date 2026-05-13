@@ -12,7 +12,7 @@ import {
 } from "@modules/databases"
 import {
     ExtractJsonFromMdService,
-} from "../extracts"
+} from "../../shared"
 import {
     CourseIdFactoryService,
     MilestoneIdFactoryService,
@@ -20,9 +20,7 @@ import {
 import {
     DeepPartial,
 } from "typeorm"
-import {
-    ContextLoaderService,
-} from "../contexts"
+import { ContextLoaderService } from "../../shared"
 import {
     MilestonePathService,
     ResolvedFileResult,
@@ -62,7 +60,7 @@ export class MilestoneParserService {
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(
-                    await this.contextLoaderService.load(`${path.relativePath}/${locale}.md`),
+                    await this.contextLoaderService.load("courses", `${path.relativePath}/${locale}.md`),
                 ),
             )
         }
@@ -150,3 +148,4 @@ export class MilestoneParserService {
         return data
     }
 }
+

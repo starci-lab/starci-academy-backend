@@ -28,10 +28,12 @@ export interface ModelChoice {
  * Task kinds for the AI router — each has its own model tier matrix.
  */
 export enum AiTaskKind {
-    /** Grading code submissions (git, docs, CV). */
+    /** Grading code submissions (git, Google Docs). */
     Grade = "grade",
     /** Generating personalized project milestones. */
     GenerateMilestone = "generateMilestone",
     /** Reviewing personal project tasks. */
     ReviewPersonalProject = "reviewPersonalProject",
+    /** CV submission review pipeline (extract → plan → analyze). */
+    ReviewCvSubmission = "reviewCvSubmission",
 }

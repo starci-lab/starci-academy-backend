@@ -7,7 +7,7 @@ import {
 import {
     PathResolverService,
     ResolvedFilePath,
-} from "./resolver.service"
+} from "../../shared"
 
 /**
  * Resolves indexed challenge mount folders under a content’s `challenges/` directory (`{index}-{slug}` or legacy `{index}`).
@@ -41,10 +41,12 @@ export class ChallengePathService {
             contentRelativePath,
         }: ChallengePathsParams,
     ): Promise<Array<ResolvedFilePath>> {
-        return await this.pathResolverService.filePaths(
+        return await this.pathResolverService.filePaths("courses", 
             this.relativePath(
                 contentRelativePath,
             ),
         )
     }
 }
+
+

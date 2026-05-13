@@ -24,6 +24,9 @@ import {
 import {
     S3BucketService,
 } from "./s3-bucket.service"
+import {
+    S3CopyService,
+} from "./s3-copy.service"
 
 /**
  * S3 module.
@@ -48,6 +51,7 @@ export class S3Module extends ConfigurableModuleClass {
                 S3BuildService,
                 S3NameResolverService,
                 S3BucketService,
+                S3CopyService,
             ],
             exports: [
                 digitalOceanS3Provider,
@@ -57,6 +61,7 @@ export class S3Module extends ConfigurableModuleClass {
                 S3BuildService,
                 S3NameResolverService,
                 S3BucketService,
+                S3CopyService,
             ],
         }
     }

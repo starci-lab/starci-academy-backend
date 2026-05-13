@@ -15,7 +15,7 @@ import {
 } from "uuid"
 
 /**
- * Input for {@link ChallengeIdFactoryService.generate}.
+ * Input for {@link ChallengeIdFactoryService["generate"]}.
  */
 export interface GenerateChallengeIdParams {
     /** Parent course ordinal. */

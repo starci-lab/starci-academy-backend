@@ -5,8 +5,8 @@ import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
-    CVSubmissionAttemptEntity,
-    CVSubmissionEntity,
+    UserCVSubmissionAttemptEntity,
+    UserCVSubmissionEntity,
     CvSubmissionStatus,
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
@@ -49,7 +49,7 @@ export class TriggerCvSubmissionHandler
         } = command.params
 
         const cvSubmission = await this.entityManager.findOne(
-            CVSubmissionEntity,
+            UserCVSubmissionEntity,
             {
                 where: {
                     id: request.cvSubmissionId,
@@ -69,7 +69,7 @@ export class TriggerCvSubmissionHandler
 
         const cvSubmissionAttempt = request.cvSubmissionAttemptId
             ? await this.entityManager.findOne(
-                CVSubmissionAttemptEntity,
+                UserCVSubmissionAttemptEntity,
                 {
                     where: {
                         id: request.cvSubmissionAttemptId,
@@ -80,7 +80,7 @@ export class TriggerCvSubmissionHandler
                 },
             )
             : await this.entityManager.findOne(
-                CVSubmissionAttemptEntity,
+                UserCVSubmissionAttemptEntity,
                 {
                     where: {
                         cvSubmission: {
@@ -102,19 +102,13 @@ export class TriggerCvSubmissionHandler
         }
 
         await this.entityManager.update(
-            CVSubmissionAttemptEntity,
+            UserCVSubmissionAttemptEntity,
             cvSubmissionAttempt.id,
             {
                 status: CvSubmissionStatus.Processing,
                 processedAt: null,
-            },
-        )
-
-        await this.entityManager.update(
-            CVSubmissionEntity,
-            cvSubmission.id,
-            {
-                status: CvSubmissionStatus.Processing,
+                templateCvId: request.templateCvId ?? null,
+                reviewPlan: null,
             },
         )
 
@@ -122,6 +116,7 @@ export class TriggerCvSubmissionHandler
             userId: user.id,
             cvSubmissionId: cvSubmission.id,
             cvSubmissionAttemptId: cvSubmissionAttempt.id,
+            templateCvId: request.templateCvId,
         })
 
         return {

@@ -1,5 +1,6 @@
 import {
     GetObjectCommand,
+    HeadObjectCommand,
     ListObjectsV2Command,
     NoSuchKey,
     S3Client,
@@ -221,5 +222,44 @@ export class S3ReadService {
                 ""
             )
         ) ?? []
+    }
+
+    /**
+     * Check whether an object exists in S3.
+     *
+     * @returns true when the key exists, false otherwise.
+     */
+    async exists(
+        {
+            key,
+            provider,
+        }: ReadTextParams,
+    ): Promise<boolean> {
+        let s3Client: S3Client
+        let bucket: string
+        switch (provider) {
+        case S3Provider.DigitalOcean: {
+            s3Client = this.s3
+            bucket = envConfig().s3.digitalOcean.bucket
+            break
+        }
+        case S3Provider.Minio: {
+            s3Client = this.minioS3
+            bucket = envConfig().s3.minio.bucket
+            break
+        }
+        }
+        try {
+            await s3Client.send(
+                new HeadObjectCommand({
+                    Bucket: bucket,
+                    Key: key,
+                }),
+            )
+            return true
+        } catch (error) {
+            if (error instanceof NoSuchKey) return false
+            throw error
+        }
     }
 }

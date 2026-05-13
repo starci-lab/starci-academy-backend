@@ -16,6 +16,11 @@ export interface BuildSignedGetUrlParams {
     key: string
     /** The provider to use. */
     provider: S3Provider
+    /**
+     * Optional TTL in seconds for the presigned URL.
+     * When omitted, uses `presignedUrl.expiration` from env (per provider).
+     */
+    expiresInSeconds?: number
 }
 
 /** Params for building a signed PUT URL. */

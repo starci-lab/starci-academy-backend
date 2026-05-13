@@ -5,3 +5,4 @@ export interface ModulePathParams {
     /** The relative path to the module. */
     courseRelativePath: string
 }
+

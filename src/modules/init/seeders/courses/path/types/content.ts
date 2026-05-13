@@ -5,3 +5,4 @@ export interface ContentPathsParams {
     /** The relative path to the module. */
     moduleRelativePath: string
 }
+

@@ -76,6 +76,7 @@ export class S3BuildService {
         {
             key,
             provider,
+            expiresInSeconds: expiresInSecondsOverride,
         }: BuildSignedGetUrlParams,
     ): Promise<string> {
         let s3Client: S3Client
@@ -95,6 +96,11 @@ export class S3BuildService {
             break
         }
 
+        const expiresIn =
+            typeof expiresInSecondsOverride === "number" && expiresInSecondsOverride > 0
+                ? expiresInSecondsOverride
+                : expiration
+
         return getSignedUrl(
             s3Client,
             new GetObjectCommand({
@@ -102,7 +108,7 @@ export class S3BuildService {
                 Key: key,
             }),
             {
-                expiresIn: expiration,
+                expiresIn,
             },
         )
     }

@@ -7,7 +7,7 @@ import {
 import {
     PathResolverService,
     ResolvedFilePath,
-} from "./resolver.service"
+} from "../../shared"
 
 /**
  * Resolves the milestone mount directory under a course's `milestones/` folder.
@@ -39,9 +39,12 @@ export class MilestonePathService {
         courseRelativePath,
     }): Promise<Array<ResolvedFilePath>> {
         const basePath = this.relativePath(courseRelativePath)
-        const dirs = await this.pathResolverService.filePaths(basePath)
+        const dirs = await this.pathResolverService.filePaths("courses",
+            basePath)
         return dirs
             .filter((d) => /^\d+$/.test(String(d.orderIndex)))
             .sort((a, b) => a.orderIndex - b.orderIndex)
     }
 }
+
+

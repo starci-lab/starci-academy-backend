@@ -37,8 +37,6 @@ export class ContentInsertService {
         const {
             translations,
             references,
-            challenges: _challenges,
-            lessons: _lessons,
             module,
             ...rest
         } = content
@@ -48,7 +46,10 @@ export class ContentInsertService {
             [{
                 ...rest,
                 /** Re-attach only the FK reference */
-                ...(module ? { module } : {}),
+                ...(module ? {
+                    module 
+                } : {
+                }),
             }],
         )
 
@@ -78,14 +79,21 @@ export class ContentInsertService {
                     await this.upsertService.upsertTranslation<ContentReferenceTranslationEntity>(
                         ContentReferenceTranslationEntity,
                         referenceTranslations,
-                        { contentReferenceId: reference.id },
+                        {
+                            contentReferenceId: reference.id 
+                        },
                     )
                 }
             }
             await this.upsertService.deleteStaleUuid<ContentReferenceEntity>(
                 ContentReferenceEntity,
-                references.map((reference) => reference.id as string),
-                { content: { id: contentId } },
+                references.map(
+                    (reference: ContentReferenceEntity) => reference.id ?? ""),
+                {
+                    content: {
+                        id: contentId 
+                    } 
+                },
             )
         }
     }
@@ -100,7 +108,11 @@ export class ContentInsertService {
         await this.upsertService.deleteStaleUuid<ContentEntity>(
             ContentEntity,
             ids,
-            { module: { id: moduleId } },
+            {
+                module: {
+                    id: moduleId 
+                } 
+            },
         )
     }
 }

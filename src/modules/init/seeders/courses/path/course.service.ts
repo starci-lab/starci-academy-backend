@@ -4,7 +4,7 @@ import {
 import {
     PathResolverService,
     ResolvedFilePath,
-} from "./resolver.service"
+} from "../../shared"
 
 /**
  * Resolves indexed course mount directories (`{index}-{slug}`) under the data courses root.
@@ -29,8 +29,10 @@ export class CoursePathService {
      * @returns Paths of the courses in the data
      */
     async paths(): Promise<Array<ResolvedFilePath>> {
-        return await this.pathResolverService.filePaths(
+        return await this.pathResolverService.filePaths("courses", 
             this.relativePath()
         )
     }
 }
+
+

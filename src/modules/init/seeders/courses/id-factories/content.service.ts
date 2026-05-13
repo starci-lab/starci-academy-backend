@@ -15,7 +15,7 @@ import {
 } from "uuid"
 
 /**
- * Input for {@link ContentIdFactoryService.generate}.
+ * Input for {@link ContentIdFactoryService["generate"]}.
  */
 export interface GenerateContentIdParams {
     /** Parent course ordinal. */

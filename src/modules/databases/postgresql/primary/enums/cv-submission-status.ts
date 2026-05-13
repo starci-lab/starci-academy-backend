@@ -11,6 +11,8 @@ import {
 export enum CvSubmissionStatus {
     /** Submission created; not yet picked up by the worker. */
     Pending = "pending",
+    /** File has been uploaded to storage; awaiting processing. */
+    Uploaded = "uploaded",
     /** Worker is currently extracting / analysing. */
     Processing = "processing",
     /** Analysis completed successfully. */
@@ -29,6 +31,9 @@ registerEnumType(
         valuesMap: {
             [CvSubmissionStatus.Pending]: {
                 description: "Submission created; not yet picked up by the worker.",
+            },
+            [CvSubmissionStatus.Uploaded]: {
+                description: "File has been uploaded to storage; awaiting processing.",
             },
             [CvSubmissionStatus.Processing]: {
                 description: "Worker is currently extracting / analysing.",

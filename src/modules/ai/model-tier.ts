@@ -111,4 +111,34 @@ export const modelTierMatrix: Record<
             },
         ],
     },
+
+    /**
+     * CV review analyze: long rubric + markdown — medium/high use flagship-tier models.
+     */
+    [AiTaskKind.ReviewCvSubmission]: {
+        [ModelRecommendation.Low]: [
+            {
+                model: "gemini-2.5-flash", provider: ModelProvider.Gemini
+            },
+            {
+                model: "gpt-4o-mini", provider: ModelProvider.OpenAI
+            },
+        ],
+        [ModelRecommendation.Medium]: [
+            {
+                model: "gpt-4o", provider: ModelProvider.OpenAI
+            },
+            {
+                model: "gemini-2.5-flash", provider: ModelProvider.Gemini
+            },
+        ],
+        [ModelRecommendation.High]: [
+            {
+                model: "gemini-2.5-pro", provider: ModelProvider.Gemini
+            },
+            {
+                model: "gpt-4o", provider: ModelProvider.OpenAI
+            },
+        ],
+    },
 }

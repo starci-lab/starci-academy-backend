@@ -11,11 +11,14 @@ import {
     ConfigurableModuleClass 
 } from "./cv-submissions.module-definition"
 import {
-    SubmitCvSinglePresignedUrlModule 
-} from "./submit-cv-presigned-url/submit-cv-presigned-url.module"
+    UserCvSubmissionAttemptsHistoryModule,
+} from "./user-cv-submission-attempts"
 import {
-    CvReviewHistoryQueryModule,
-} from "./cv-review-history"
+    TemplateCvsQueryModule,
+} from "./template-cvs"
+import {
+    CvUrlQueryModule,
+} from "./cv-url"
 
 /**
  * Module for CV submission related queries.
@@ -24,11 +27,13 @@ import {
     imports: [
         S3Module,
         MixinModule,
-        SubmitCvSinglePresignedUrlModule.register({
-            isGlobal: true
-        })
-        ,
-        CvReviewHistoryQueryModule.register({
+        UserCvSubmissionAttemptsHistoryModule.register({
+            isGlobal: true,
+        }),
+        TemplateCvsQueryModule.register({
+            isGlobal: true,
+        }),
+        CvUrlQueryModule.register({
             isGlobal: true,
         }),
     ],

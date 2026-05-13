@@ -32,7 +32,9 @@ export class InitModule extends ConfigurableModuleClass {
             ...dynamicModule,
             imports: [
                 ...(dynamicModule.imports ?? []),
-                SeedersModule,
+                SeedersModule.register({
+                    isGlobal: true,
+                }),
                 SynchronizersModule.register({
                     isGlobal: true,
                 }),

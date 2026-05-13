@@ -1,7 +1,7 @@
 import {
     bullData,
     BullQueueName,
-    ProcessCVSubmissionPayload
+    ReviewCvSubmissionPayload,
 } from "@modules/bullmq"
 import {
     ActionType,
@@ -31,11 +31,11 @@ import {
     JobStalledService,
 } from "../atomic"
 import {
-    EnqueueProcessCvSubmissionJobParams
+    EnqueueProcessCvSubmissionJobParams,
 } from "../types"
 
 /**
- * Service for enqueuing a CV challenge submission grading job.
+ * Service for enqueuing a CV review / extraction pipeline job (`process-cv-submission` queue).
  */
 @Injectable()
 export class EnqueueProcessCvSubmissionJobService {
@@ -57,12 +57,13 @@ export class EnqueueProcessCvSubmissionJobService {
         {
             userId,
             cvSubmissionId,
-            cvSubmissionAttemptId,
             jobId,
             analyzeModel,
             analyzeProvider,
             embeddingModel,
             embeddingProvider,
+            templateCvId,
+            locale,
         }: EnqueueProcessCvSubmissionJobParams,
     ): Promise<JobEntity> {
 
@@ -75,11 +76,9 @@ export class EnqueueProcessCvSubmissionJobService {
             )
         } else {
             const id = uuidv4()
-            const payloadBody: ProcessCVSubmissionPayload = {
+            const payloadBody: ReviewCvSubmissionPayload = {
                 jobId: id,
-                userId,
                 cvSubmissionId,
-                cvSubmissionAttemptId,
                 ...(analyzeModel !== undefined ? {
                     analyzeModel 
                 } : {
@@ -94,6 +93,14 @@ export class EnqueueProcessCvSubmissionJobService {
                 }),
                 ...(embeddingProvider !== undefined ? {
                     embeddingProvider 
+                } : {
+                }),
+                ...(templateCvId !== undefined ? {
+                    templateCvId 
+                } : {
+                }),
+                ...(locale !== undefined ? {
+                    locale 
                 } : {
                 }),
             }

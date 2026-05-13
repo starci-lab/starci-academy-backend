@@ -51,3 +51,26 @@ export class JobTargetRequiredException extends AbstractException {
         )
     }
 }
+
+/** Metadata when a pipeline step index has no registered handler. */
+export interface StepNotFoundExceptionMetadata extends AbstractExceptionMetadata {
+    /** Zero-based step index from the job row. */
+    stepIndex: number
+}
+
+/** Thrown when `stepMap.get(currentStep)` returns nothing. */
+export class StepNotFoundException extends AbstractException {
+    constructor({
+        stepIndex,
+        originalError,
+    }: StepNotFoundExceptionMetadata) {
+        super(
+            `Pipeline step not found for index ${stepIndex}`,
+            "STEP_NOT_FOUND_EXCEPTION",
+            {
+                stepIndex,
+                originalError,
+            },
+        )
+    }
+}

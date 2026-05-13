@@ -37,7 +37,6 @@ import {
  */
 @Injectable()
 export class CdnSynchronizerService {
-
     constructor(
         private readonly dayjsService: DayjsService,
         private readonly winstonService: WinstonService,

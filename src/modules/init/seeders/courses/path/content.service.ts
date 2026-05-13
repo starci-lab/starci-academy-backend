@@ -7,7 +7,7 @@ import {
 import {
     PathResolverService,
     ResolvedFilePath,
-} from "./resolver.service"
+} from "../../shared"
 
 /**
  * Resolves indexed content folders under a module’s `contents/` directory (`{index}-{slug}` or legacy `{index}`).
@@ -40,8 +40,10 @@ export class ContentPathService {
             moduleRelativePath,
         }: ContentPathsParams,
     ): Promise<Array<ResolvedFilePath>> {
-        return await this.pathResolverService.filePaths(
+        return await this.pathResolverService.filePaths("courses", 
             this.relativePath(moduleRelativePath)
         )
     }
 }
+
+

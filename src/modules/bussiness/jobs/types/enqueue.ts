@@ -1,4 +1,5 @@
 import type {
+    Locale,
     ModelProvider,
 } from "@modules/databases"
 
@@ -70,12 +71,10 @@ export interface EnqueueProcessGoogleDocsSubmissionJobParams {
 
 /** Params for enqueuing a process-cv-submission job. */
 export interface EnqueueProcessCvSubmissionJobParams {
-    /** `users.id`. */
+    /** `users.id`. */  
     userId: string
     /** `cv_submissions.id`. */
     cvSubmissionId: string
-    /** `cv_submission_attempts.id`. */
-    cvSubmissionAttemptId: string
     /** Existing `jobs.id` to requeue (optional). */
     jobId?: string
     /** Analyze model id override. */
@@ -87,5 +86,7 @@ export interface EnqueueProcessCvSubmissionJobParams {
     /** Embedding model provider override. */
     embeddingProvider?: ModelProvider
     /** Locale hint for filtering/prompting (e.g. "en", "vi"). */
-    locale?: string
+    locale?: Locale
+    /** `template_cvs.id` — which review rubric level to use. */
+    templateCvId?: string
 }

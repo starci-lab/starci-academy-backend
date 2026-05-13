@@ -13,7 +13,7 @@ import {
 import {
     ExtractJsonFromMdService,
     CoerceMdScalarService,
-} from "../extracts"
+} from "../../shared"
 import {
     LessonVideoIdFactoryService,
     ContentIdFactoryService,
@@ -29,9 +29,7 @@ import {
     LessonVideoPathService,
     ResolvedFileResult,
 } from "../path"
-import {
-    ContextLoaderService,
-} from "../contexts"
+import { ContextLoaderService } from "../../shared"
 import {
     LessonVideoPathNotFoundException,
 } from "@modules/exceptions"
@@ -77,7 +75,7 @@ export class LessonVideoParserService {
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(
-                    await this.contextLoaderService.load(
+                    await this.contextLoaderService.load("courses", 
                         `${path.relativePath}/${locale}.md`,
                     ),
                 )
@@ -200,3 +198,4 @@ export class LessonVideoParserService {
         return data
     }
 }
+

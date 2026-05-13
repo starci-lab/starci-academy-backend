@@ -36,8 +36,8 @@ export class TriggerCvSubmissionResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)
     @GraphQLSuccessMessage({
-        [Locale.En]: "CV processing queued successfully",
-        [Locale.Vi]: "Đã xếp hàng xử lý CV thành công",
+        [Locale.En]: "Create CV submission request successfully",
+        [Locale.Vi]: "Tạo yêu cầu nộp CV thành công",
     })
     @Mutation(
         () => TriggerCvSubmissionResponse,

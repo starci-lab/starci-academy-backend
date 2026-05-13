@@ -4,7 +4,7 @@ import {
 import {
     PathResolverService,
     ResolvedFilePath,
-} from "./resolver.service"
+} from "../../shared"
 import type {
     ModulePathParams,
 } from "./types"
@@ -47,8 +47,10 @@ export class ModulePathService {
             courseRelativePath,
         }: ModulePathParams,
     ): Promise<Array<ResolvedFilePath>> {
-        return await this.pathResolverService.filePaths(
+        return await this.pathResolverService.filePaths("courses", 
             this.relativePath(courseRelativePath)
         )
     }
 }
+
+
