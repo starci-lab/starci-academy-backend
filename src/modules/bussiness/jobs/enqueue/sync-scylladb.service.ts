@@ -26,6 +26,9 @@ import {
 import {
     JobActionService,
 } from "../atomic"
+import {
+    sleepEnqueueUxDelay,
+} from "./enqueue-ux-delay"
 
 /** Params accepted by EnqueueSyncScyllaDBJobService.enqueue. */
 export type EnqueueSyncScyllaDBParams = SyncScyllaDBPayload
@@ -49,6 +52,7 @@ export class EnqueueSyncScyllaDBJobService {
     async enqueue(
         params: EnqueueSyncScyllaDBParams,
     ): Promise<JobEntity> {
+        await sleepEnqueueUxDelay()
         const job = await this.jobActionService.createJob({
             id: uuidv4(),
             actionType: ActionType.SyncScyllaDB,

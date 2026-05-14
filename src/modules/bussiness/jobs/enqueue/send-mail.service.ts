@@ -26,6 +26,9 @@ import {
 import {
     JobActionService,
 } from "../atomic"
+import {
+    sleepEnqueueUxDelay,
+} from "./enqueue-ux-delay"
 
 /**
  * Params accepted by {@link EnqueueSendMailJobService.enqueue}.
@@ -60,6 +63,7 @@ export class EnqueueSendMailJobService {
     async enqueue(
         params: EnqueueSendMailParams,
     ): Promise<JobEntity> {
+        await sleepEnqueueUxDelay()
         const job = await this.jobActionService.createJob({
             id: uuidv4(),
             actionType: ActionType.SendMail,

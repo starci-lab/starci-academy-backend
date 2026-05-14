@@ -35,6 +35,9 @@ import {
 import {
     envConfig,
 } from "@modules/env"
+import {
+    sleepEnqueueUxDelay,
+} from "./enqueue-ux-delay"
 
 /**
  * Service for enqueuing a Git challenge submission grading job.
@@ -70,6 +73,7 @@ export class EnqueueProcessGitSubmissionJobService {
             locale,
         }: EnqueueProcessGitSubmissionJobParams,
     ): Promise<JobEntity> {
+        await sleepEnqueueUxDelay()
         let job: JobEntity | null = null
         if (jobId) {
             job = await this.jobStalledService.requeueJob(

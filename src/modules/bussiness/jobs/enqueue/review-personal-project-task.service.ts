@@ -34,6 +34,9 @@ import {
 import {
     ReviewPersonalProjectModelRouterService,
 } from "@modules/ai"
+import {
+    sleepEnqueueUxDelay,
+} from "./enqueue-ux-delay"
 
 /**
  * Params for enqueueing a review-personal-project-task job.
@@ -86,6 +89,7 @@ export class EnqueueReviewPersonalProjectTaskJobService {
             locale,
         }: EnqueueReviewPersonalProjectTaskParams,
     ): Promise<JobEntity> {
+        await sleepEnqueueUxDelay()
         const payload: ReviewPersonalProjectTaskPayload = {
             enrollmentId,
             githubUrl,

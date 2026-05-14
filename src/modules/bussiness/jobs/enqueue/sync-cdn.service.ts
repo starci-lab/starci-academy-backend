@@ -26,6 +26,9 @@ import {
 import {
     JobActionService,
 } from "../atomic"
+import {
+    sleepEnqueueUxDelay,
+} from "./enqueue-ux-delay"
 
 export type EnqueueSyncCdnParams = SyncCdnPayload
 
@@ -48,6 +51,7 @@ export class EnqueueSyncCdnJobService {
     async enqueue(
         params: EnqueueSyncCdnParams,
     ): Promise<JobEntity> {
+        await sleepEnqueueUxDelay()
         const job = await this.jobActionService.createJob(
             {
                 id: uuidv4(),

@@ -26,6 +26,9 @@ import {
 import {
     JobActionService,
 } from "../atomic"
+import {
+    sleepEnqueueUxDelay,
+} from "./enqueue-ux-delay"
 
 export type EnqueueSyncElasticsearchParams = SyncElasticsearchPayload
 
@@ -48,6 +51,7 @@ export class EnqueueSyncElasticsearchJobService {
     async enqueue(
         params: EnqueueSyncElasticsearchParams,
     ): Promise<JobEntity> {
+        await sleepEnqueueUxDelay()
         const job = await this.jobActionService.createJob(
             {
                 id: uuidv4(),

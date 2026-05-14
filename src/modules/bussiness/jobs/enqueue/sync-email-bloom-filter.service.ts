@@ -26,6 +26,9 @@ import {
 import {
     JobActionService,
 } from "../atomic"
+import {
+    sleepEnqueueUxDelay,
+} from "./enqueue-ux-delay"
 
 /**
  * Enqueue a job that rebuilds the email bloom filter from `users.email` in batches.
@@ -46,6 +49,7 @@ export class EnqueueSyncEmailBloomFilterJobService {
     async enqueue(
         params: SyncEmailBloomFilterPayload,
     ): Promise<JobEntity> {
+        await sleepEnqueueUxDelay()
         const job = await this.jobActionService.createJob({
             id: uuidv4(),
             actionType: ActionType.SyncEmailBloomFilter,

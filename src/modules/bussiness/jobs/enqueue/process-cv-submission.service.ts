@@ -34,6 +34,9 @@ import {
 import {
     EnqueueProcessCvSubmissionJobParams,
 } from "../types"
+import {
+    sleepEnqueueUxDelay,
+} from "./enqueue-ux-delay"
 
 /**
  * Service for enqueuing a CV review / extraction pipeline job (`process-cv-submission` queue).
@@ -67,6 +70,7 @@ export class EnqueueProcessCvSubmissionJobService {
             locale,
         }: EnqueueProcessCvSubmissionJobParams,
     ): Promise<JobEntity> {
+        await sleepEnqueueUxDelay()
 
         let job: JobEntity | null = null
         if (jobId) {

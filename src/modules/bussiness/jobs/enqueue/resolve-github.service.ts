@@ -39,6 +39,9 @@ import {
     CourseNotFoundException,
     MissingRequiredParameterException,
 } from "@modules/exceptions"
+import {
+    sleepEnqueueUxDelay,
+} from "./enqueue-ux-delay"
 
 /**
  * Params for enqueueing a resolve-github job.
@@ -94,6 +97,7 @@ export class EnqueueResolveGithubJobService {
             teamSlug: inputTeamSlug,
         }: EnqueueResolveGithubParams,
     ): Promise<JobEntity> {
+        await sleepEnqueueUxDelay()
         let teamSlug = inputTeamSlug
         if (!teamSlug) {
             if (!courseId) {

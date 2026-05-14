@@ -32,6 +32,9 @@ import {
 import {
     JobActionService,
 } from "../atomic"
+import {
+    sleepEnqueueUxDelay,
+} from "./enqueue-ux-delay"
 
 /**
  * Params for enqueueing a process-personal-project job.
@@ -70,6 +73,7 @@ export class EnqueueProcessPersonalProjectJobService {
             userId,
         }: EnqueueProcessPersonalProjectParams,
     ): Promise<JobEntity> {
+        await sleepEnqueueUxDelay()
         const payload: ProcessPersonalProjectPayload = {
             attemptId,
             branch: branch ?? "main",

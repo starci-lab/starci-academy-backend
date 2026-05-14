@@ -33,6 +33,9 @@ import {
 import {
     GenerateTaskModelRouterService,
 } from "@modules/ai"
+import {
+    sleepEnqueueUxDelay,
+} from "./enqueue-ux-delay"
 
 /**
  * Params for enqueueing a generate-personal-project-tasks job.
@@ -76,6 +79,7 @@ export class EnqueueGeneratePersonalProjectTasksJobService {
             locale,
         }: EnqueueGeneratePersonalProjectTasksParams,
     ): Promise<JobEntity> {
+        await sleepEnqueueUxDelay()
         const payload: GeneratePersonalProjectTasksPayload = {
             enrollmentId,
             model: model || this.generateTaskModelRouterService.model,

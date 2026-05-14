@@ -35,6 +35,9 @@ import type {
 import {
     envConfig,
 } from "@modules/env"
+import {
+    sleepEnqueueUxDelay,
+} from "./enqueue-ux-delay"
 
 /**
  * Service for enqueuing a Google Docs challenge submission grading job.
@@ -67,6 +70,7 @@ export class EnqueueProcessGoogleDocsSubmissionJobService {
         courseId,
         enrollmentId,
     }: EnqueueProcessGoogleDocsSubmissionJobParams): Promise<JobEntity> {
+        await sleepEnqueueUxDelay()
         let job: JobEntity | null = null
         if (jobId) {
             job = await this.jobStalledService.requeueJob(

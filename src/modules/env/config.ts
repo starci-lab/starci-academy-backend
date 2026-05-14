@@ -41,7 +41,7 @@ export const envConfig = () => ({
             order: 1,
             enabled: parseEnvBoolean({
                 key: "ENABLE_INIT_SEEDERS",
-                defaultValue: true,
+                defaultValue: false,
             })
         },
         {
@@ -49,7 +49,7 @@ export const envConfig = () => ({
             order: 2,
             enabled: parseEnvBoolean({
                 key: "ENABLE_INIT_SYNCHRONIZERS",
-                defaultValue: true,
+                defaultValue: false,
             })
         }
     ],
@@ -1223,6 +1223,13 @@ export const envConfig = () => ({
         delay: parseEnvMs({
             key: "BULLMQ_DELAY",
             defaultValue: "1s",
+        }),
+        /**
+         * Short pause applied at the start of every job enqueue so clients can show loading state without a flash.
+         */
+        enqueueUxDelay: parseEnvMs({
+            key: "BULLMQ_ENQUEUE_UX_DELAY",
+            defaultValue: "100ms",
         }),
     },
     /** Job tracking configuration. */

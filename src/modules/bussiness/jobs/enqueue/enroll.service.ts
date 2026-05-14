@@ -32,6 +32,9 @@ import {
 import {
     envConfig 
 } from "@modules/env"
+import {
+    sleepEnqueueUxDelay,
+} from "./enqueue-ux-delay"
 
 /**
  * Service for enqueuing an enroll job.
@@ -63,6 +66,7 @@ export class EnqueueEnrollJobService {
             jobId,
         }: EnqueueEnrollJobParams,
     ) {
+        await sleepEnqueueUxDelay()
         // get the job record
         let job: JobEntity | null = null
         if (jobId) {
