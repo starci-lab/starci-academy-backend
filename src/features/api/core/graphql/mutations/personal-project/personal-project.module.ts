@@ -8,7 +8,7 @@ import {
     SubmitPersonalGithubUrlModule,
 } from "./submit-personal-github-url"
 import {
-    SyncPersonalProjectGithubModule,
+    SyncPersonalProjectGithubMutationModule,
 } from "./sync-personal-project-github"
 import {
     ReviewPersonalProjectTaskMutationModule,
@@ -19,9 +19,7 @@ import {
         SubmitPersonalGithubUrlModule.register({
             isGlobal: true
         }),
-        SyncPersonalProjectGithubModule.register({
-            isGlobal: true
-        }),
+        SyncPersonalProjectGithubMutationModule,
         ReviewPersonalProjectTaskMutationModule.register({
             isGlobal: true
         }),

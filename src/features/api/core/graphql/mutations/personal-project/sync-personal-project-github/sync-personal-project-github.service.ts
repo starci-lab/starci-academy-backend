@@ -5,17 +5,12 @@ import {
     CommandBus,
 } from "@nestjs/cqrs"
 import {
-    ExecuteParams,
-} from "@features/api/core/types"
-import {
-    EnrollmentEntity,
-} from "@modules/databases"
-import {
     SyncPersonalProjectGithubCommand,
 } from "./sync-personal-project-github.command"
 import type {
-    SyncPersonalProjectGithubRequest,
-} from "./graphql-types"
+    SyncPersonalProjectGithubParams,
+    SyncPersonalProjectGithubResult,
+} from "./types"
 
 @Injectable()
 export class SyncPersonalProjectGithubService {
@@ -24,8 +19,8 @@ export class SyncPersonalProjectGithubService {
     ) {}
 
     async execute(
-        params: ExecuteParams<SyncPersonalProjectGithubRequest>,
-    ): Promise<EnrollmentEntity> {
+        params: SyncPersonalProjectGithubParams,
+    ): Promise<SyncPersonalProjectGithubResult> {
         return this.commandBus.execute(
             new SyncPersonalProjectGithubCommand(params),
         )

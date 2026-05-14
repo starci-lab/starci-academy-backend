@@ -131,6 +131,24 @@ export class EnrollmentEntity extends UuidAbstractEntity {
         personalProjectGithubUrl: string | null
 
     /**
+     * Git branch used for personal project AI review (optional; null defaults to main in clients).
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Git branch for personal project review (null = default branch).",
+        },
+    )
+    @Column({
+        name: "personal_project_github_branch",
+        type: "varchar",
+        length: 255,
+        nullable: true,
+    })
+        personalProjectGithubBranch: string | null
+
+    /**
      * Current status of the task plan.
      */
     @Field(

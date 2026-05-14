@@ -66,7 +66,7 @@ export class MilestoneHandler
                 },
                 relations: {
                     translations: true,
-                    criteria: {
+                    criterias: {
                         translations: true,
                     },
                 },

@@ -62,7 +62,7 @@ export class SubmitChallengeSubmissionResolver {
         () => SubmitChallengeSubmissionResponse,
         {
             name: "submitChallengeSubmission",
-            description: "Queue automated grading for GitHub URL submissions under one challenge; call after `syncSubmission`.",
+            description: "Queue automated grading for one challenge submission. Pass `githubUrl` when the user row is not created yet (replaces prior sync-only flow).",
         },
     )
     async execute(

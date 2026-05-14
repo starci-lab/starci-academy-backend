@@ -7,6 +7,7 @@ import {
     MilestoneTaskEntity,
 } from "@modules/databases"
 import {
+    BadRequestException,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -29,6 +30,12 @@ import {
 import type {
     ReviewPersonalProjectTaskResponseData,
 } from "./graphql-types"
+import {
+    UrlValidatorService,
+} from "@modules/vaildators"
+
+const BRANCH_PATTERN = /^[a-zA-Z0-9._/-]+$/
+const BRANCH_MAX = 255
 
 @CommandHandler(ReviewPersonalProjectTaskCommand)
 @Injectable()
@@ -39,6 +46,7 @@ export class ReviewPersonalProjectTaskHandler
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly enqueueReviewPersonalProjectTaskJobService: EnqueueReviewPersonalProjectTaskJobService,
+        private readonly urlValidatorService: UrlValidatorService,
     ) {
         super()
     }
@@ -53,7 +61,7 @@ export class ReviewPersonalProjectTaskHandler
             })
         }
 
-        /** Find enrollment from courseId + user */
+        /** Enrollment for this course (GitHub URL / branch may come from request or stored fields). */
         const enrollment = await this.entityManager.findOneOrFail(
             EnrollmentEntity,
             {
@@ -67,6 +75,8 @@ export class ReviewPersonalProjectTaskHandler
                 },
                 select: {
                     id: true,
+                    personalProjectGithubUrl: true,
+                    personalProjectGithubBranch: true,
                 },
             },
         )
@@ -101,20 +111,75 @@ export class ReviewPersonalProjectTaskHandler
             taskId = firstTask.id
         }
 
-        /** Update githubUrl on enrollment */
-        enrollment.personalProjectGithubUrl = request.githubUrl
-        await this.entityManager.save(
-            EnrollmentEntity,
-            enrollment
-        )
+        const urlFromRequest =
+            typeof request.githubUrl === "string"
+                ? request.githubUrl.trim()
+                : ""
+        const hasGithubUrlInRequest = urlFromRequest.length > 0
+        const resolvedGithubUrl = hasGithubUrlInRequest
+            ? urlFromRequest
+            : (enrollment.personalProjectGithubUrl?.trim() ?? "")
+        if (!resolvedGithubUrl) {
+            throw new BadRequestException(
+                "Provide githubUrl or save a personal project GitHub URL on your enrollment for this course",
+            )
+        }
+        await this.urlValidatorService.isParsable(resolvedGithubUrl)
+
+        const branchProvided =
+            request.branch !== undefined && request.branch !== null
+        const branchTrimmed = branchProvided
+            ? String(request.branch).trim()
+            : ""
+        let resolvedBranchForEnqueue: string | undefined
+        if (branchProvided) {
+            if (branchTrimmed.length > BRANCH_MAX) {
+                throw new BadRequestException(
+                    `Branch must be at most ${BRANCH_MAX} characters`,
+                )
+            }
+            if (branchTrimmed.length > 0 && !BRANCH_PATTERN.test(branchTrimmed)) {
+                throw new BadRequestException(
+                    "Invalid branch name",
+                )
+            }
+            resolvedBranchForEnqueue = branchTrimmed.length > 0
+                ? branchTrimmed
+                : undefined
+        }
+        else {
+            const fromEnrollment =
+                enrollment.personalProjectGithubBranch?.trim() ?? ""
+            resolvedBranchForEnqueue = fromEnrollment.length > 0
+                ? fromEnrollment
+                : undefined
+        }
+
+        let enrollmentDirty = false
+        if (hasGithubUrlInRequest) {
+            enrollment.personalProjectGithubUrl = urlFromRequest
+            enrollmentDirty = true
+        }
+        if (branchProvided) {
+            enrollment.personalProjectGithubBranch = branchTrimmed.length > 0
+                ? branchTrimmed
+                : null
+            enrollmentDirty = true
+        }
+        if (enrollmentDirty) {
+            await this.entityManager.save(
+                EnrollmentEntity,
+                enrollment,
+            )
+        }
         /** Enqueue grading job */
         const job = await this.enqueueReviewPersonalProjectTaskJobService.enqueue({
             taskId,
-            branch: request.branch,
+            branch: resolvedBranchForEnqueue,
             userId: user.id,
             locale,
             enrollmentId: enrollment.id,
-            githubUrl: request.githubUrl,
+            githubUrl: resolvedGithubUrl,
         })
         return {
             jobId: job.id,

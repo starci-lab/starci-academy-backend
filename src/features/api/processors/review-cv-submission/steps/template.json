@@ -1,3 +1,4 @@
 {
-    "detailFeedback": "<full CV review in Markdown | type: string | include summary, strengths, weaknesses, suggested job titles, spell notes, holistic score 0–100 with justification | eg: use headings like ## Summary, ## Strengths, ## Score>"
+  "feedbackDetails": "<full CV review in Markdown | type: string | include summary, strengths, weaknesses, suggested job titles, spell notes; do NOT duplicate the numeric score here—use the score field>",
+  "score": 85
 }

@@ -1,6 +1,9 @@
 import {
     UserEntity 
 } from "@modules/databases"
+import type {
+    KeycloakTokenIntrospectResponse,
+} from "./tokens"
 
 /**
  * Request with Keycloak user.
@@ -14,4 +17,8 @@ export interface KeycloakAuthGuardRequest {
      * User of the request.
      */
     user?: UserEntity
+    /**
+     * Introspection-shaped JWT claims after successful verification (realm roles, etc.).
+     */
+    keycloakToken?: KeycloakTokenIntrospectResponse
 }

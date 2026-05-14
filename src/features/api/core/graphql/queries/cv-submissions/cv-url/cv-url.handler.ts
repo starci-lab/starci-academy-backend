@@ -101,6 +101,8 @@ export class CvUrlHandler
          * Build the CV URL.
          */
         const detailFeedback = lastAttempt?.detailFeedback ?? null
+        const score = lastAttempt?.score ?? null
+        const submittedAt = lastAttempt?.createdAt ?? submission.createdAt
         const rawKey = submission.cdnKey ?? null
         /**
          * If the raw key is not set, return null.
@@ -112,6 +114,8 @@ export class CvUrlHandler
                 cvUrl: null,
                 cvUrlExpiresInSeconds: 0,
                 detailFeedback,
+                score,
+                submittedAt,
             }
         }
 
@@ -134,6 +138,8 @@ export class CvUrlHandler
             cvUrl,
             cvUrlExpiresInSeconds,
             detailFeedback,
+            score,
+            submittedAt,
         }
     }
 }

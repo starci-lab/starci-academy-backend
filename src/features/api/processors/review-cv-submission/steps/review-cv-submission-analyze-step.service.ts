@@ -58,7 +58,7 @@ const MAX_CV_CHARS = 8000
 
 /**
  * Step 2: LLM structured analysis using **prior step execution results** (extract + plan), not a DB
- * reload of the attempt. Persists `detailFeedback` on the job for the **complete** step.
+ * reload of the attempt. Persists `detailFeedback` + `score` on the job for the **complete** step.
  */
 @Injectable()
 export class ReviewCvSubmissionAnalyzeStepService extends AbstractStepService<
@@ -325,7 +325,7 @@ export class ReviewCvSubmissionAnalyzeStepService extends AbstractStepService<
     private buildJsonOutputInstructions(): string {
         return [
             "## Output format",
-            "Respond with a single JSON object matching this template exactly (replace the placeholder with your real review; `detailFeedback` holds the full markdown):",
+            "Respond with a single JSON object matching this template exactly (replace placeholders; `feedbackDetails` is full markdown, `score` is 0–100):",
             "",
             JSON.stringify(
                 template,
@@ -336,7 +336,8 @@ export class ReviewCvSubmissionAnalyzeStepService extends AbstractStepService<
             "## JSON formatting",
             "- Output STRICT JSON only — no prose before or after the object, no comments, no trailing commas.",
             "- Use double quotes for all keys and string values.",
-            "- The entire markdown review lives in `detailFeedback`; escape internal quotes and newlines per JSON rules.",
+            "- Put the entire markdown review in `feedbackDetails`; escape internal quotes and newlines per JSON rules.",
+            "- `score` must be an integer 0–100 (holistic rubric score).",
         ].join("\n")
     }
 }

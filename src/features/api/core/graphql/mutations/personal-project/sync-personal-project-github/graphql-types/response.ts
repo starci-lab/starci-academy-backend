@@ -1,26 +1,13 @@
 import {
-    Field,
+    AbstractGraphQLResponse,
+} from "@modules/api"
+import {
     ObjectType,
 } from "@nestjs/graphql"
-import {
-    EnrollmentEntity,
-} from "@modules/databases"
-import {
-    AbstractGraphQLResponse,
-    IAbstractGraphQLResponse,
-} from "@modules/api"
 
+/** Response for syncing the personal project GitHub URL for the current user. */
 @ObjectType({
-    description: "Response for sync personal project GitHub URL mutation.",
+    description: "Response for syncing the personal project GitHub URL for the current user.",
 })
-export class SyncPersonalProjectGithubResponse
-    extends AbstractGraphQLResponse
-    implements IAbstractGraphQLResponse<EnrollmentEntity>
-{
-    @Field(() => EnrollmentEntity,
-        {
-            nullable: true,
-            description: "The updated enrollment.",
-        })
-        data: EnrollmentEntity
+export class SyncPersonalProjectGithubResponse extends AbstractGraphQLResponse {
 }

@@ -1,12 +1,9 @@
-import {
-    ExecuteParams,
-} from "../../../../types"
-import {
-    SyncPersonalProjectGithubRequest,
-} from "./graphql-types"
+import type {
+    SyncPersonalProjectGithubParams,
+} from "./types"
 
 export class SyncPersonalProjectGithubCommand {
     constructor(
-        readonly params: ExecuteParams<SyncPersonalProjectGithubRequest>,
-    ) { }
+        readonly params: SyncPersonalProjectGithubParams,
+    ) {}
 }

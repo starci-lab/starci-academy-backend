@@ -50,7 +50,7 @@ export class TaskHandler
                 },
                 relations: {
                     translations: true,
-                    criteria: {
+                    criterias: {
                         translations: true,
                     },
                 },

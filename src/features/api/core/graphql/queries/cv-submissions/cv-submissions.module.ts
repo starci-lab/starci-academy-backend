@@ -2,16 +2,10 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    S3Module,
-} from "@modules/s3"
-import {
-    MixinModule,
-} from "@modules/mixin"
-import {
     ConfigurableModuleClass 
 } from "./cv-submissions.module-definition"
 import {
-    UserCvSubmissionAttemptsHistoryModule,
+    UserCvSubmissionAttemptsModule,
 } from "./user-cv-submission-attempts"
 import {
     TemplateCvsQueryModule,
@@ -25,9 +19,7 @@ import {
  */
 @Module({
     imports: [
-        S3Module,
-        MixinModule,
-        UserCvSubmissionAttemptsHistoryModule.register({
+        UserCvSubmissionAttemptsModule.register({
             isGlobal: true,
         }),
         TemplateCvsQueryModule.register({

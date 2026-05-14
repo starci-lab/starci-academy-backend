@@ -13,12 +13,20 @@ import {
 import {
     MilestoneTaskProgressModule,
 } from "./milestone-task-progress"
+import {
+    LastPersonalTaskAttemptModule,
+} from "./last-personal-task-attempt"
+import {
+    UserMilestoneTaskFeedbacksModule,
+} from "./user-milestone-task-feedbacks"
 
 @Module({
     imports: [
         UserPersonalTaskAttemptsModule,
         UserPersonalTaskAttemptFeedbacksModule,
+        UserMilestoneTaskFeedbacksModule,
         MilestoneTaskProgressModule,
+        LastPersonalTaskAttemptModule,
     ],
 })
 export class PersonalProjectQueriesModule extends ConfigurableModuleClass {}

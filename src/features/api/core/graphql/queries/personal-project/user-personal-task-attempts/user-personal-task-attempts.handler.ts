@@ -90,7 +90,6 @@ export class UserPersonalTaskAttemptsHandler
                 count: 0,
             }
         }
-        console.log(`enrollmentId: ${enrollment.id}, taskId: ${taskId}`)
         const userMilestoneTask = await this.entityManager.findOne(
             UserMilestoneTaskEntity,
             {

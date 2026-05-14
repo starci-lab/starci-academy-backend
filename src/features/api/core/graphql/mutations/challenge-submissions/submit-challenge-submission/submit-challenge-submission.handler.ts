@@ -12,6 +12,7 @@ import {
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     JobEntity,
+    PostgreSqlAdvisoryLockService,
     SubmissionType,
     UserChallengeSubmissionEntity,
 } from "@modules/databases"
@@ -63,6 +64,7 @@ export class SubmitChallengeSubmissionHandler
         private readonly enqueueProcessGitSubmissionJobService: EnqueueProcessGitSubmissionJobService,
         private readonly enqueueProcessGoogleDocsSubmissionJobService: EnqueueProcessGoogleDocsSubmissionJobService,
         private readonly dayjsService: DayjsService,
+        private readonly postgreSqlAdvisoryLockService: PostgreSqlAdvisoryLockService,
     ) {
         super()
     }
@@ -83,7 +85,12 @@ export class SubmitChallengeSubmissionHandler
         }
         const {
             challengeSubmissionId,
+            githubUrl,
         } = request
+        const trimmedGithubUrl =
+            typeof githubUrl === "string"
+                ? githubUrl.trim()
+                : ""
 
         /** Challenge submission. */
         const challengeSubmission = await this.entityManager.findOne(
@@ -113,30 +120,104 @@ export class SubmitChallengeSubmissionHandler
                 id: challengeSubmission.challengeId,
             })
         }
-        /** User challenge submission. */
-        const userChallengeSubmission = await this.entityManager.findOne(
-            UserChallengeSubmissionEntity,
-            {
-                where: {
-                    user: {
-                        id: user.id,
+        /** User challenge submission (upsert under advisory lock; create when `githubUrl` present). */
+        const userChallengeSubmissionFromTx =
+            await this.entityManager.transaction(
+                async (
+                    entityManager,
+                ): Promise<UserChallengeSubmissionEntity> => {
+                    await this.postgreSqlAdvisoryLockService.acquireUserChallengeSubmissionXactLock(
+                        entityManager,
+                        user.id,
+                        challengeSubmissionId,
+                    )
+                    const userChallengeSubmission = await entityManager.findOne(
+                        UserChallengeSubmissionEntity,
+                        {
+                            where: {
+                                user: {
+                                    id: user.id,
+                                },
+                                submission: {
+                                    id: challengeSubmission.id,
+                                },
+                            },
+                            relations: {
+                                attempts: true,
+                            },
+                        },
+                    )
+                    if (!userChallengeSubmission) {
+                        if (!trimmedGithubUrl) {
+                            throw new SubmissionUrlInvalidException({
+                                id: challengeSubmission.id,
+                                submissionType: challengeSubmission.type,
+                                url: "",
+                            })
+                        }
+                        const created = entityManager.create(
+                            UserChallengeSubmissionEntity,
+                            {
+                                user,
+                                submission: challengeSubmission,
+                                submissionUrl: trimmedGithubUrl,
+                            },
+                        )
+                        await entityManager.save(
+                            UserChallengeSubmissionEntity,
+                            created,
+                        )
+                        return entityManager.findOneOrFail(
+                            UserChallengeSubmissionEntity,
+                            {
+                                where: {
+                                    id: created.id,
+                                },
+                                relations: {
+                                    attempts: true,
+                                },
+                            },
+                        )
+                    }
+                    if (trimmedGithubUrl) {
+                        userChallengeSubmission.submissionUrl = trimmedGithubUrl
+                        await entityManager.save(
+                            UserChallengeSubmissionEntity,
+                            userChallengeSubmission,
+                        )
+                        return entityManager.findOneOrFail(
+                            UserChallengeSubmissionEntity,
+                            {
+                                where: {
+                                    id: userChallengeSubmission.id,
+                                },
+                                relations: {
+                                    attempts: true,
+                                },
+                            },
+                        )
+                    }
+                    return userChallengeSubmission
+                },
+            )
+        const userChallengeSubmission =
+            await this.entityManager.findOne(
+                UserChallengeSubmissionEntity,
+                {
+                    where: {
+                        id: userChallengeSubmissionFromTx.id,
                     },
-                    submission: {
-                        id: challengeSubmission.id,
+                    relations: {
+                        attempts: true,
                     },
                 },
-                relations: {
-                    attempts: true,
-                },
-            },
-        )
-        /** Check if the user challenge submission exists. */
+            )
         if (!userChallengeSubmission) {
             throw new UserChallengeSubmissionNotFoundException({
-                challengeSubmissionId: challengeSubmission.id,
-                userId: user.id,
+                challengeSubmissionId: challengeSubmissionId,
             })
         }
+        const userChallengeSubmissionId = userChallengeSubmission.id
         /** Last attempt. */
         const lastAttempt = userChallengeSubmission.attempts
             ?.sort((
@@ -209,7 +290,7 @@ export class SubmitChallengeSubmissionHandler
                 userId: user.id,
                 enrollmentId,
                 courseId,
-                userChallengeSubmissionId: userChallengeSubmission.id,
+                userChallengeSubmissionId,
                 challengeSubmissionId: challengeSubmission.id,
                 locale,
             })
@@ -219,7 +300,7 @@ export class SubmitChallengeSubmissionHandler
                 userId: user.id,
                 enrollmentId,
                 courseId,
-                userChallengeSubmissionId: userChallengeSubmission.id,
+                userChallengeSubmissionId,
                 challengeSubmissionId: challengeSubmission.id,
                 locale,
             })

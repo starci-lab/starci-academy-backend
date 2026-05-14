@@ -106,7 +106,10 @@ export class ReviewCvSubmissionCompleteStepService extends AbstractStepService<
             ExtendedReviewCvSubmissionContext
         >,
     ): Promise<EmptyObject> {
-        const { detailFeedback } = await this.jobActionService.loadExecutionResult<ReviewCvSubmissionAnalyzeStepExecuteResult>(
+        const {
+            detailFeedback,
+            score,
+        } = await this.jobActionService.loadExecutionResult<ReviewCvSubmissionAnalyzeStepExecuteResult>(
             {
                 job: context.job,
                 key: this.analyzeStepService.stepName,
@@ -176,6 +179,7 @@ export class ReviewCvSubmissionCompleteStepService extends AbstractStepService<
                         attemptNumber,
                         cdnKey: destKey,
                         detailFeedback,
+                        score: score ?? null,
                         originalText,
                         reviewPlan,
                         processedAt: this.dayjsService.now(),

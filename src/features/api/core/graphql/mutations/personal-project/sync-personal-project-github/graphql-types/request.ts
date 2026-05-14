@@ -5,7 +5,7 @@ import {
 } from "@nestjs/graphql"
 
 @InputType({
-    description: "Request to sync a personal project GitHub URL.",
+    description: "Request to sync personal project GitHub URL and/or branch on enrollment.",
 })
 export class SyncPersonalProjectGithubRequest {
     @Field(
@@ -19,8 +19,20 @@ export class SyncPersonalProjectGithubRequest {
     @Field(
         () => String,
         {
-            description: "GitHub repository URL.",
+            nullable: true,
+            description:
+                "GitHub repository URL. If omitted, the existing URL on the enrollment is kept (required on enrollment when only updating branch).",
         },
     )
-        githubUrl: string
+        githubUrl?: string | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description:
+                "Git branch for review. If omitted, the existing branch on the enrollment is kept.",
+        },
+    )
+        branch?: string | null
 }

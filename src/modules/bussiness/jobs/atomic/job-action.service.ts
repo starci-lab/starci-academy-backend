@@ -253,8 +253,11 @@ export class JobActionService {
                 event: EventName.JobStatusUpdated,
                 payload: {
                     jobId: job.id,
-                    challengeSubmissionId: job.challengeSubmissionId ?? undefined,
-                    jobType: job.category ?? undefined,
+                    ...(job.challengeSubmissionId ? {
+                        challengeSubmissionId: job.challengeSubmissionId,
+                    } : {
+                    }),
+                    jobType: job.category,
                     status: job.status,
                 },
             })

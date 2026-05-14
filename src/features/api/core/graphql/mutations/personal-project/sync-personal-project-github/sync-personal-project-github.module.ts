@@ -2,9 +2,6 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    ConfigurableModuleClass,
-} from "./sync-personal-project-github.module-definition"
-import {
     SyncPersonalProjectGithubResolver,
 } from "./sync-personal-project-github.resolver"
 import {
@@ -16,9 +13,9 @@ import {
 
 @Module({
     providers: [
-        SyncPersonalProjectGithubResolver,
         SyncPersonalProjectGithubService,
+        SyncPersonalProjectGithubResolver,
         SyncPersonalProjectGithubHandler,
     ],
 })
-export class SyncPersonalProjectGithubModule extends ConfigurableModuleClass {}
+export class SyncPersonalProjectGithubMutationModule {}

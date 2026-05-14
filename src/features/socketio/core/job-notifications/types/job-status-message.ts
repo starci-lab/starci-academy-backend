@@ -11,7 +11,7 @@ export interface JobStatusUpdatedSocketIoMessage {
     /** The challenge submission id. */
     challengeSubmissionId?: string
     /** Lightweight category used by FE to render the correct flow. */
-    jobType?: JobCategory
+    category?: JobCategory
     /** Domain action persisted on the job row. */
     actionType?: ActionType
     /** The job status. */

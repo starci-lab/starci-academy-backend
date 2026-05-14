@@ -8,9 +8,9 @@ import {
     UseInterceptors,
 } from "@nestjs/common"
 import {
+    GraphQLLocale,
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
-    GraphQLLocale,
 } from "@modules/api"
 import {
     KeycloakAuthGraphQLGuard,
@@ -23,7 +23,6 @@ import {
 import {
     Locale,
     UserEntity,
-    EnrollmentEntity,
 } from "@modules/databases"
 import {
     GraphQLMustEnrolledGuard,
@@ -36,12 +35,21 @@ import {
     SyncPersonalProjectGithubService,
 } from "./sync-personal-project-github.service"
 
-@Resolver(() => EnrollmentEntity)
+/**
+ * GraphQL entry for syncing the personal project GitHub URL for the current user.
+ */
+@Resolver()
 export class SyncPersonalProjectGithubResolver {
     constructor(
-        private readonly service: SyncPersonalProjectGithubService,
+        private readonly syncPersonalProjectGithubService: SyncPersonalProjectGithubService,
     ) {}
 
+    /**
+     * GraphQL entry for syncing the personal project GitHub URL for the current user.
+     * @param user - The user.
+     * @param request - The request.
+     * @param locale - The locale.
+     */
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "Personal project GitHub URL synced successfully",
@@ -71,11 +79,13 @@ export class SyncPersonalProjectGithubResolver {
             request: SyncPersonalProjectGithubRequest,
         @GraphQLLocale()
             locale: Locale,
-    ): Promise<EnrollmentEntity> {
-        return this.service.execute({
-            request,
-            user,
-            locale,
-        })
+    ): Promise<void> {
+        await this.syncPersonalProjectGithubService.execute(
+            {
+                request,
+                locale,
+                user,
+            },
+        )
     }
 }

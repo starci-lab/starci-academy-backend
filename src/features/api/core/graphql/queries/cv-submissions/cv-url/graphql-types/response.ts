@@ -57,10 +57,32 @@ export class CvUrlViewData {
         () => String,
         {
             nullable: true,
-            description: "Full AI review (markdown) for the latest attempt, when analyze has finished.",
+            description: "Full AI review (markdown) for the latest attempt; from analyze `feedbackDetails`.",
         },
     )
         detailFeedback: string | null
+
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Holistic score 0–100 for the latest attempt when analyze provided `score`.",
+        },
+    )
+        score: number | null
+
+    /**
+     * When the current file version was first recorded: latest `cv_submission_attempts.created_at`,
+     * or `cv_submissions.created_at` if there are no attempts yet.
+     */
+    @Field(
+        () => Date,
+        {
+            description:
+                "Upload / submission timestamp (UTC): latest attempt createdAt, else submission createdAt.",
+        },
+    )
+        submittedAt: Date
 }
 
 /**

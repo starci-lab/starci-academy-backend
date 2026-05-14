@@ -28,17 +28,20 @@ export class ReviewPersonalProjectTaskRequest {
     @Field(
         () => String,
         {
-            description: "GitHub repository URL.",
+            nullable: true,
+            description:
+                "GitHub repository URL. If omitted, uses the URL stored on the user's enrollment for this course.",
         },
     )
-        githubUrl: string
+        githubUrl?: string | null
 
     @Field(
         () => String,
         {
             nullable: true,
-            description: "Branch name (defaults to main).",
+            description:
+                "Branch name for review. If omitted, uses the branch stored on enrollment (default branch in the worker when unset).",
         },
     )
-        branch?: string
+        branch?: string | null
 }

@@ -1,1 +1,1 @@
-export * from "./user-cv-submission-attempts-history.module"
+export * from "./user-cv-submission-attempts.module"

@@ -27,8 +27,8 @@ import {
  * **Background worker pipeline (`review-cv-submission`, four steps)** runs on a **staging** attempt (the row created at upload / selected for review).
  * 1. **Extract** — read file from MinIO using `fileUrl`, extract plain text → persist `originalText` on the staging row.
  * 2. **Plan** — LLM reads rubric + `originalText` → persist `reviewPlan` (markdown) on the staging row.
- * 3. **Analyze** — LLM returns JSON with `detailFeedback`; stored on the job for the next step.
- * 4. **Complete** — server either updates the staging row in place (in-process review) or **copies** the object in MinIO to `attempts/{cv_submission_id}-{n}.{ext}`, inserts a **new** row with `detailFeedback`, `originalText`, `reviewPlan`, `status` Done, then **deletes** the staging row (canonical review).
+ * 3. **Analyze** — LLM returns JSON with `feedbackDetails` (markdown) and `score` (0–100); stored on the job for the next step.
+ * 4. **Complete** — server either updates the staging row in place (in-process review) or **copies** the object in MinIO to `attempts/{cv_submission_id}-{n}.{ext}`, inserts a **new** row with `detailFeedback`, `score`, `originalText`, `reviewPlan`, `status` Done, then **deletes** the staging row (canonical review).
  *
  * While running on staging, **`status`** moves Pending → Processing → (row removed after success) or Failed; aligned with the `jobs` (BullMQ) row referenced by `cvSubmissionAttemptId` in the job payload.
  *
@@ -109,6 +109,23 @@ export class UserCVSubmissionAttemptEntity extends UuidAbstractEntity {
         nullable: true,
     })
         detailFeedback: string | null
+
+    /**
+     * Holistic AI score (0–100) from the analyze step JSON `score` field (`score` column).
+     */
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "AI holistic score (0–100) for this attempt after review completes.",
+        },
+    )
+    @Column({
+        name: "score",
+        type: "int",
+        nullable: true,
+    })
+        score: number | null
 
     /**
      * Version ordinal within one `cv_submission` (1, 2, 3, …) — `attempt_number` column.

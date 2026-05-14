@@ -4,6 +4,7 @@ import {
 import {
     ChallengeSubmissionEntity,
     InjectPrimaryPostgreSQLEntityManager,
+    PostgreSqlAdvisoryLockService,
     UserChallengeSubmissionEntity,
 } from "@modules/databases"
 import {
@@ -41,6 +42,7 @@ export class SyncSubmissionHandler
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly urlValidatorService: UrlValidatorService,
+        private readonly postgreSqlAdvisoryLockService: PostgreSqlAdvisoryLockService,
     ) {
         super()
     }
@@ -62,6 +64,11 @@ export class SyncSubmissionHandler
             url,
         } = request
         await this.entityManager.transaction(async (entityManager) => {
+            await this.postgreSqlAdvisoryLockService.acquireUserChallengeSubmissionXactLock(
+                entityManager,
+                user.id,
+                id,
+            )
             await this.upsertOne({
                 entityManager,
                 user,

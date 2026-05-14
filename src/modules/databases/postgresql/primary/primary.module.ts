@@ -86,6 +86,9 @@ import {
 import {
     SyncStateService,
 } from "./sync-state.service"
+import {
+    PostgreSqlAdvisoryLockService,
+} from "./lock"
 
 /**
  * Primary PostgreSQL module for the primary PostgreSQL connection.
@@ -217,10 +220,12 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
             ],
             providers: [
                 SyncStateService,
+                PostgreSqlAdvisoryLockService,
             ],
             exports: [
                 ...extraModules,
                 SyncStateService,
+                PostgreSqlAdvisoryLockService,
             ],
         }
     }

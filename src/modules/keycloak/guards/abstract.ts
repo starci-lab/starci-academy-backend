@@ -57,6 +57,7 @@ export abstract class AbstractKeycloakAuthGuard implements CanActivate {
         if (!verified.active || !verified.sub) {
             throw new UnauthorizedException("Invalid or inactive token")
         }
+        request.keycloakToken = verified
         let user = await this.entityManager.findOne(
             UserEntity,
             {

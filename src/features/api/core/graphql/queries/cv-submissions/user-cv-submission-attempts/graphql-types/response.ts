@@ -13,9 +13,9 @@ import {
 } from "@modules/api"
 
 @ObjectType({
-    description: "A single row in CV review history.",
+    description: "One CV submission attempt row (uploaded version).",
 })
-export class CvReviewHistoryItem {
+export class UserCvSubmissionAttemptItem {
     @Field(
         () => String,
         {
@@ -59,7 +59,7 @@ export class CvReviewHistoryItem {
     @Field(
         () => GraphQLTypeCvSubmissionStatus,
         {
-            description: "Processing status of this version.",
+            description: "Processing status (from parent CV submission when listing attempts).",
         },
     )
         status: CvSubmissionStatus
@@ -68,46 +68,63 @@ export class CvReviewHistoryItem {
         () => String,
         {
             nullable: true,
-            description: "Full AI review for this version (markdown).",
+            description: "Full AI review for this version (markdown; from analyze JSON `feedbackDetails`).",
         },
     )
         detailFeedback: string | null
+
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Holistic score 0–100 from analyze JSON `score`, when present.",
+        },
+    )
+        score: number | null
 }
 
 @ObjectType({
-    description: "Review history data for one CV submission.",
+    description: "Paginated CV submission attempts for the current user.",
 })
-export class CvReviewHistoryResponseData {
+export class UserCvSubmissionAttemptsPayload {
     @Field(
         () => String,
         {
-            description: "The latest cv_submissions.id in current user's review history.",
+            description: "cv_submissions.id for the first row on this page (if any).",
         },
     )
         cvSubmissionId: string
 
     @Field(
-        () => [CvReviewHistoryItem],
+        () => Int,
         {
-            description: "All versions ordered by latest first.",
+            description: "Total matching attempts (all pages).",
         },
     )
-        data: Array<CvReviewHistoryItem>
+        totalCount: number
+
+    @Field(
+        () => [UserCvSubmissionAttemptItem],
+        {
+            description: "Attempts for this page, ordered per request sorts.",
+        },
+    )
+        data: Array<UserCvSubmissionAttemptItem>
 }
 
 @ObjectType({
-    description: "Response wrapper for `cvReviewHistory` (user CV submission attempts review history).",
+    description: "Response wrapper for `userCvSubmissionAttempts`.",
 })
-export class CvReviewHistoryResponse
+export class UserCvSubmissionAttemptsResponse
     extends AbstractGraphQLResponse
-    implements IAbstractGraphQLResponse<CvReviewHistoryResponseData>
+    implements IAbstractGraphQLResponse<UserCvSubmissionAttemptsPayload>
 {
     @Field(
-        () => CvReviewHistoryResponseData,
+        () => UserCvSubmissionAttemptsPayload,
         {
             nullable: true,
-            description: "Review history payload.",
+            description: "Paginated attempt rows.",
         },
     )
-        data: CvReviewHistoryResponseData
+        data: UserCvSubmissionAttemptsPayload
 }

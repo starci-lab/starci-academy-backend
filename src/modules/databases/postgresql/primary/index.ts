@@ -1,5 +1,6 @@
 export * from "./entities"
 export * from "./enums"
+export * from "./lock"
 export * from "./primary.module"
 export * from "./primary.decorators"
 export * from "./resolvers"
