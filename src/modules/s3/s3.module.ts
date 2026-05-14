@@ -3,7 +3,9 @@ import {
     Module 
 } from "@nestjs/common"
 import {
+    createDigitalOceanS3PresignProvider,
     createDigitalOceanS3Provider,
+    createMinioPresignProvider,
     createMinioProvider,
 } from "./s3.providers"
 import {
@@ -38,14 +40,18 @@ export class S3Module extends ConfigurableModuleClass {
         const dynamicModule = super.register(options)
         
         const digitalOceanS3Provider = createDigitalOceanS3Provider()
+        const digitalOceanS3PresignProvider = createDigitalOceanS3PresignProvider()
         const minioS3Provider = createMinioProvider()
+        const minioS3PresignProvider = createMinioPresignProvider()
 
         return {
             ...dynamicModule,
             providers: [
                 ...(dynamicModule.providers ?? []),
                 digitalOceanS3Provider,
+                digitalOceanS3PresignProvider,
                 minioS3Provider,
+                minioS3PresignProvider,
                 S3UploadService,
                 S3ReadService,
                 S3BuildService,
@@ -55,7 +61,9 @@ export class S3Module extends ConfigurableModuleClass {
             ],
             exports: [
                 digitalOceanS3Provider,
+                digitalOceanS3PresignProvider,
                 minioS3Provider,
+                minioS3PresignProvider,
                 S3UploadService,
                 S3ReadService,
                 S3BuildService,

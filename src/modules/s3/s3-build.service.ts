@@ -16,8 +16,8 @@ import {
     S3Provider,
 } from "./enums"
 import {
-    InjectDigitalOceanS3,
-    InjectMinioS3,
+    InjectDigitalOceanS3Presign,
+    InjectMinioS3Presign,
 } from "./s3.decorators"
 import {
     BuildPublicUrlParams,
@@ -32,14 +32,14 @@ import {
 export class S3BuildService {
     /**
      * Constructor.
-     * @param s3 - The DigitalOcean S3 client.
-     * @param minioS3 - The MinIO S3 client.
+     * @param s3Presign - DigitalOcean S3 client for presigned URLs (public endpoint when configured).
+     * @param minioS3Presign - MinIO S3 client for presigned URLs (public endpoint when configured).
      */
     constructor(
-        @InjectDigitalOceanS3()
-        private readonly s3: S3Client,
-        @InjectMinioS3()
-        private readonly minioS3: S3Client,
+        @InjectDigitalOceanS3Presign()
+        private readonly s3Presign: S3Client,
+        @InjectMinioS3Presign()
+        private readonly minioS3Presign: S3Client,
     ) {}
 
     /**
@@ -58,10 +58,14 @@ export class S3BuildService {
                 ? envConfig().s3.digitalOcean
                 : envConfig().s3.minio
 
+        const publicBase = config.publicEndpoint.trim()
         const { endpoint, bucket } = config
-        let base = endpoint
-        if (endpoint.endsWith("/")) {
-            base = endpoint.slice(0,
+        const effectiveEndpoint = publicBase.length > 0
+            ? publicBase
+            : endpoint
+        let base = effectiveEndpoint
+        if (base.endsWith("/")) {
+            base = base.slice(0,
                 -1)
         }
         return `${base}/${bucket}/${key}`
@@ -85,12 +89,12 @@ export class S3BuildService {
 
         switch (provider) {
         case S3Provider.DigitalOcean:
-            s3Client = this.s3
+            s3Client = this.s3Presign
             bucket = envConfig().s3.digitalOcean.bucket
             expiration = envConfig().s3.digitalOcean.presignedUrl.expiration / 1000
             break
         case S3Provider.Minio:
-            s3Client = this.minioS3
+            s3Client = this.minioS3Presign
             bucket = envConfig().s3.minio.bucket
             expiration = envConfig().s3.minio.presignedUrl.expiration / 1000
             break
@@ -131,12 +135,12 @@ export class S3BuildService {
 
         switch (provider) {
         case S3Provider.DigitalOcean:
-            s3Client = this.s3
+            s3Client = this.s3Presign
             bucket = envConfig().s3.digitalOcean.bucket
             expiration = envConfig().s3.digitalOcean.presignedUrl.expiration / 1000
             break
         case S3Provider.Minio:
-            s3Client = this.minioS3
+            s3Client = this.minioS3Presign
             bucket = envConfig().s3.minio.bucket
             expiration = envConfig().s3.minio.presignedUrl.expiration / 1000
             break

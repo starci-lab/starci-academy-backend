@@ -41,7 +41,7 @@ export const envConfig = () => ({
             order: 1,
             enabled: parseEnvBoolean({
                 key: "ENABLE_INIT_SEEDERS",
-                defaultValue: true,
+                defaultValue: false,
             })
         },
         {
@@ -49,7 +49,7 @@ export const envConfig = () => ({
             order: 2,
             enabled: parseEnvBoolean({
                 key: "ENABLE_INIT_SYNCHRONIZERS",
-                defaultValue: true,
+                defaultValue: false,
             })
         }
     ],
@@ -1063,6 +1063,14 @@ export const envConfig = () => ({
                 key: "S3_ENDPOINT",
                 defaultValue: "https://sfo3.digitaloceanspaces.com",
             }),
+            /**
+             * Optional public base URL for presigned GET/PUT and `buildPublicObjectUrl`.
+             * Use when the app talks to Spaces over a private/internal endpoint but browsers must use a CDN or public hostname.
+             */
+            publicEndpoint: parseEnvString({
+                key: "S3_PUBLIC_ENDPOINT",
+                defaultValue: "",
+            }),
             region: parseEnvString({
                 key: "S3_REGION",
                 defaultValue: "sfo3",
@@ -1087,7 +1095,15 @@ export const envConfig = () => ({
             endpoint: parseEnvString({
                 key: "S3_MINIO_ENDPOINT",
                 defaultValue: "http://localhost:9000",
-            }), 
+            }),
+            /**
+             * Optional public base URL for presigned URLs (e.g. reverse proxy / tunnel).
+             * When empty, presign uses `S3_MINIO_ENDPOINT` (same as internal SDK traffic).
+             */
+            publicEndpoint: parseEnvString({
+                key: "S3_MINIO_PUBLIC_ENDPOINT",
+                defaultValue: "",
+            }),
             region: parseEnvString({
                 key: "S3_MINIO_REGION",
                 defaultValue: "us-east-1",
