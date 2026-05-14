@@ -1087,7 +1087,7 @@ export const envConfig = () => ({
             endpoint: parseEnvString({
                 key: "S3_MINIO_ENDPOINT",
                 defaultValue: "http://localhost:9000",
-            }),
+            }), 
             region: parseEnvString({
                 key: "S3_MINIO_REGION",
                 defaultValue: "us-east-1",
