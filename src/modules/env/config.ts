@@ -1069,7 +1069,7 @@ export const envConfig = () => ({
              */
             publicEndpoint: parseEnvString({
                 key: "S3_PUBLIC_ENDPOINT",
-                defaultValue: "",
+                defaultValue: "https://sfo3.digitaloceanspaces.com",
             }),
             region: parseEnvString({
                 key: "S3_REGION",
@@ -1102,7 +1102,7 @@ export const envConfig = () => ({
              */
             publicEndpoint: parseEnvString({
                 key: "S3_MINIO_PUBLIC_ENDPOINT",
-                defaultValue: "",
+                defaultValue: "http://localhost:9000",
             }),
             region: parseEnvString({
                 key: "S3_MINIO_REGION",
