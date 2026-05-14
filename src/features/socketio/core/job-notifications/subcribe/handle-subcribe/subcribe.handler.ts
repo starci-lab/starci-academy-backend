@@ -72,7 +72,7 @@ export class SubcribeJobNotificationHandler
                 data: {
                     jobId: job.id,
                     challengeSubmissionId: job.challengeSubmissionId ?? "",
-                    jobType: job.jobType ?? undefined,
+                    category: job.category ?? undefined,
                     actionType: job.actionType,
                     status: job.status,
                     error: job.error ?? undefined,

@@ -52,7 +52,6 @@ export class EnqueueSyncScyllaDBJobService {
     async enqueue(
         params: EnqueueSyncScyllaDBParams,
     ): Promise<JobEntity> {
-        await sleepEnqueueUxDelay()
         const job = await this.jobActionService.createJob({
             id: uuidv4(),
             actionType: ActionType.SyncScyllaDB,
@@ -60,12 +59,14 @@ export class EnqueueSyncScyllaDBJobService {
             payload: this.superJson.stringify(params satisfies SyncScyllaDBPayload),
         })
 
-        await this.syncScyllaDBQueue.add(
-            job.id,
-            job.payload,
-            {
-                jobId: job.id,
-            },
+        void sleepEnqueueUxDelay().then(() =>
+            this.syncScyllaDBQueue.add(
+                job.id,
+                job.payload,
+                {
+                    jobId: job.id,
+                },
+            ),
         )
 
         return job

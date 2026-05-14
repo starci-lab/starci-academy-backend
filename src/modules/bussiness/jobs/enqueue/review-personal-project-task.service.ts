@@ -89,7 +89,6 @@ export class EnqueueReviewPersonalProjectTaskJobService {
             locale,
         }: EnqueueReviewPersonalProjectTaskParams,
     ): Promise<JobEntity> {
-        await sleepEnqueueUxDelay()
         const payload: ReviewPersonalProjectTaskPayload = {
             enrollmentId,
             githubUrl,
@@ -107,12 +106,14 @@ export class EnqueueReviewPersonalProjectTaskJobService {
             maxSteps: 2,
             payload: this.superJson.stringify(payload),
         })
-        await this.queue.add(
-            job.id,
-            job.payload,
-            {
-                jobId: job.id,
-            },
+        void sleepEnqueueUxDelay().then(() =>
+            this.queue.add(
+                job.id,
+                job.payload,
+                {
+                    jobId: job.id,
+                },
+            ),
         )
         return job
     }

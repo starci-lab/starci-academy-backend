@@ -6,7 +6,8 @@ import {
 } from "@modules/env"
 
 /**
- * Await a small delay before enqueueing work so UIs can render a stable loading state.
+ * Short delay used immediately before `Queue.add` so DB/requeue work is not stalled;
+ * pairs with `void sleepEnqueueUxDelay().then(() => queue.add(...))` (no await — return job immediately).
  */
 export const sleepEnqueueUxDelay = async (): Promise<void> => {
     const ms = envConfig().bullmq.enqueueUxDelay

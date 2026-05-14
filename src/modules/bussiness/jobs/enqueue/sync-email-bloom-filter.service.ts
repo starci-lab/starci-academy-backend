@@ -49,7 +49,6 @@ export class EnqueueSyncEmailBloomFilterJobService {
     async enqueue(
         params: SyncEmailBloomFilterPayload,
     ): Promise<JobEntity> {
-        await sleepEnqueueUxDelay()
         const job = await this.jobActionService.createJob({
             id: uuidv4(),
             actionType: ActionType.SyncEmailBloomFilter,
@@ -57,12 +56,14 @@ export class EnqueueSyncEmailBloomFilterJobService {
             payload: this.superJson.stringify(params satisfies SyncEmailBloomFilterPayload),
         })
 
-        await this.syncEmailBloomFilterQueue.add(
-            job.id,
-            job.payload,
-            {
-                jobId: job.id,
-            },
+        void sleepEnqueueUxDelay().then(() =>
+            this.syncEmailBloomFilterQueue.add(
+                job.id,
+                job.payload,
+                {
+                    jobId: job.id,
+                },
+            ),
         )
 
         return job

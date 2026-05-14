@@ -70,7 +70,6 @@ export class EnqueueProcessGoogleDocsSubmissionJobService {
         courseId,
         enrollmentId,
     }: EnqueueProcessGoogleDocsSubmissionJobParams): Promise<JobEntity> {
-        await sleepEnqueueUxDelay()
         let job: JobEntity | null = null
         if (jobId) {
             job = await this.jobStalledService.requeueJob(
@@ -121,12 +120,14 @@ export class EnqueueProcessGoogleDocsSubmissionJobService {
             )
         }
 
-        await this.processGoogleDocsSubmissionQueue.add(
-            job.id,
-            job.payload,
-            {
-                jobId: job.id,
-            },
+        void sleepEnqueueUxDelay().then(() =>
+            this.processGoogleDocsSubmissionQueue.add(
+                job.id,
+                job.payload,
+                {
+                    jobId: job.id,
+                },
+            ),
         )
 
         return job

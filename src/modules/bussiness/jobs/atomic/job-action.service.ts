@@ -189,7 +189,7 @@ export class JobActionService {
                     payload: {
                         jobId: job.id,
                         challengeSubmissionId: job.challengeSubmissionId ?? undefined,
-                        jobType: job.category ?? undefined,
+                        category: job.category,
                         status: job.status,
                     },
                 }
@@ -223,7 +223,7 @@ export class JobActionService {
                 payload: {
                     jobId: job.id,
                     challengeSubmissionId: job.challengeSubmissionId ?? undefined,
-                    jobType: job.category ?? undefined,
+                    category: job.category,
                     status: job.status,
                     error: job.error ?? undefined,
                 },
@@ -257,7 +257,7 @@ export class JobActionService {
                         challengeSubmissionId: job.challengeSubmissionId,
                     } : {
                     }),
-                    jobType: job.category,
+                    category: job.category ?? undefined,
                     status: job.status,
                 },
             })

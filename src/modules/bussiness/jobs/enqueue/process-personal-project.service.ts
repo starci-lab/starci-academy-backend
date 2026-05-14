@@ -73,7 +73,6 @@ export class EnqueueProcessPersonalProjectJobService {
             userId,
         }: EnqueueProcessPersonalProjectParams,
     ): Promise<JobEntity> {
-        await sleepEnqueueUxDelay()
         const payload: ProcessPersonalProjectPayload = {
             attemptId,
             branch: branch ?? "main",
@@ -87,12 +86,14 @@ export class EnqueueProcessPersonalProjectJobService {
             payload: this.superJson.stringify(payload),
         })
 
-        await this.queue.add(
-            job.id,
-            job.payload,
-            {
-                jobId: job.id,
-            },
+        void sleepEnqueueUxDelay().then(() =>
+            this.queue.add(
+                job.id,
+                job.payload,
+                {
+                    jobId: job.id,
+                },
+            ),
         )
 
         return job

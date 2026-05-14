@@ -73,7 +73,6 @@ export class EnqueueProcessGitSubmissionJobService {
             locale,
         }: EnqueueProcessGitSubmissionJobParams,
     ): Promise<JobEntity> {
-        await sleepEnqueueUxDelay()
         let job: JobEntity | null = null
         if (jobId) {
             job = await this.jobStalledService.requeueJob(
@@ -124,12 +123,14 @@ export class EnqueueProcessGitSubmissionJobService {
                 },
             )
         }
-        await this.processGitSubmissionQueue.add(
-            job.id,
-            job.payload,
-            {
-                jobId: job.id,
-            },
+        void sleepEnqueueUxDelay().then(() =>
+            this.processGitSubmissionQueue.add(
+                job.id,
+                job.payload,
+                {
+                    jobId: job.id,
+                },
+            ),
         )
         return job
     }

@@ -51,7 +51,6 @@ export class EnqueueSyncIndexerJobService {
     async enqueue(
         params: EnqueueSyncIndexerParams,
     ): Promise<JobEntity> {
-        await sleepEnqueueUxDelay()
         const job = await this.jobActionService.createJob(
             {
                 id: uuidv4(),
@@ -60,12 +59,14 @@ export class EnqueueSyncIndexerJobService {
                 payload: this.superJson.stringify(params satisfies SyncIndexerPayload),
             },
         )
-        await this.syncIndexerQueue.add(
-            job.id,
-            job.payload,
-            {
-                jobId: job.id,
-            },
+        void sleepEnqueueUxDelay().then(() =>
+            this.syncIndexerQueue.add(
+                job.id,
+                job.payload,
+                {
+                    jobId: job.id,
+                },
+            ),
         )
         return job
     }

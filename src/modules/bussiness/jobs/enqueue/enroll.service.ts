@@ -66,7 +66,6 @@ export class EnqueueEnrollJobService {
             jobId,
         }: EnqueueEnrollJobParams,
     ) {
-        await sleepEnqueueUxDelay()
         // get the job record
         let job: JobEntity | null = null
         if (jobId) {
@@ -92,13 +91,15 @@ export class EnqueueEnrollJobService {
                 ),
             })
         }
-        // push the job to the queue
-        await this.enrollQueue.add(
-            job.id,
-            job.payload,
-            {
-                jobId: job.id,
-            }
+        // push the job to the queue (UX delay immediately before BullMQ so DB work is not stalled)
+        void sleepEnqueueUxDelay().then(() =>
+            this.enrollQueue.add(
+                job.id,
+                job.payload,
+                {
+                    jobId: job.id,
+                },
+            ),
         )
         return job
     }

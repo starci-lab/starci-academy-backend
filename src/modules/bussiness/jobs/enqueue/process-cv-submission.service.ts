@@ -70,7 +70,6 @@ export class EnqueueProcessCvSubmissionJobService {
             locale,
         }: EnqueueProcessCvSubmissionJobParams,
     ): Promise<JobEntity> {
-        await sleepEnqueueUxDelay()
 
         let job: JobEntity | null = null
         if (jobId) {
@@ -120,12 +119,14 @@ export class EnqueueProcessCvSubmissionJobService {
                 },
             )
         }
-        await this.processCvSubmissionQueue.add(
-            job.id,
-            job.payload,
-            {
-                jobId: job.id,
-            },
+        void sleepEnqueueUxDelay().then(() =>
+            this.processCvSubmissionQueue.add(
+                job.id,
+                job.payload,
+                {
+                    jobId: job.id,
+                },
+            ),
         )
         return job
     }

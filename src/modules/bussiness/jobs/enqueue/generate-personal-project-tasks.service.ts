@@ -79,7 +79,6 @@ export class EnqueueGeneratePersonalProjectTasksJobService {
             locale,
         }: EnqueueGeneratePersonalProjectTasksParams,
     ): Promise<JobEntity> {
-        await sleepEnqueueUxDelay()
         const payload: GeneratePersonalProjectTasksPayload = {
             enrollmentId,
             model: model || this.generateTaskModelRouterService.model,
@@ -93,12 +92,14 @@ export class EnqueueGeneratePersonalProjectTasksJobService {
             maxSteps: 2,
             payload: this.superJson.stringify(payload),
         })
-        await this.queue.add(
-            job.id,
-            job.payload,
-            {
-                jobId: job.id,
-            },
+        void sleepEnqueueUxDelay().then(() =>
+            this.queue.add(
+                job.id,
+                job.payload,
+                {
+                    jobId: job.id,
+                },
+            ),
         )
         return job
     }

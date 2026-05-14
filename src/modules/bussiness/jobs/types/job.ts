@@ -22,8 +22,8 @@ export interface CreateJobParams extends Omit<JobTargetParams, "job"> {
     id: string
     /** The type of action to perform. */
     actionType: ActionType
-    /** UI-facing job category for realtime rendering. */
-    category: JobCategory
+    /** UI-facing job category for realtime rendering (omit or null when not tied to a learn UI bucket, e.g. enroll). */
+    category?: JobCategory
     /** The payload for the job. */
     payload: string
     /** The maximum number of steps for the job. */

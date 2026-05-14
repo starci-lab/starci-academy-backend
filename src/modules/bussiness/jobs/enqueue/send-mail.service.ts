@@ -63,7 +63,6 @@ export class EnqueueSendMailJobService {
     async enqueue(
         params: EnqueueSendMailParams,
     ): Promise<JobEntity> {
-        await sleepEnqueueUxDelay()
         const job = await this.jobActionService.createJob({
             id: uuidv4(),
             actionType: ActionType.SendMail,
@@ -71,12 +70,14 @@ export class EnqueueSendMailJobService {
             payload: this.superJson.stringify(params satisfies SendMailPayload),
         })
 
-        await this.sendMailQueue.add(
-            job.id,
-            job.payload,
-            {
-                jobId: job.id,
-            },
+        void sleepEnqueueUxDelay().then(() =>
+            this.sendMailQueue.add(
+                job.id,
+                job.payload,
+                {
+                    jobId: job.id,
+                },
+            ),
         )
 
         return job

@@ -13,8 +13,8 @@ export interface JobStatusUpdatedEventPayload {
     jobId: string
     /** The challenge submission id. */
     challengeSubmissionId?: string
-    /** The job type. */
-    jobType?: JobCategory
+    /** UI-facing job category (mirrors `jobs.category`; omit when null). */
+    category?: JobCategory | null
     /** The job status. */
     status: JobStatus
     /** The error message. */

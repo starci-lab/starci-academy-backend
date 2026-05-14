@@ -97,7 +97,6 @@ export class EnqueueResolveGithubJobService {
             teamSlug: inputTeamSlug,
         }: EnqueueResolveGithubParams,
     ): Promise<JobEntity> {
-        await sleepEnqueueUxDelay()
         let teamSlug = inputTeamSlug
         if (!teamSlug) {
             if (!courseId) {
@@ -149,12 +148,14 @@ export class EnqueueResolveGithubJobService {
         })
 
         // Push the job to the queue
-        await this.resolveGithubQueue.add(
-            job.id,
-            job.payload,
-            {
-                jobId: job.id,
-            },
+        void sleepEnqueueUxDelay().then(() =>
+            this.resolveGithubQueue.add(
+                job.id,
+                job.payload,
+                {
+                    jobId: job.id,
+                },
+            ),
         )
 
         return job

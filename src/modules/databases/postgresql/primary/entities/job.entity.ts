@@ -214,6 +214,7 @@ export class JobEntity extends UuidAbstractEntity {
     @Field(
         () => GraphQLTypeJobCategory,
         {
+            nullable: true,
             description: "UI-facing job category for realtime rendering.",
         },
     )
@@ -221,10 +222,10 @@ export class JobEntity extends UuidAbstractEntity {
         {
             name: "category",
             type: "varchar",
-            default: JobCategory.ReviewCv,
+            nullable: true,
         },
     )
-        category: JobCategory
+        category: JobCategory | null
 
     @Field(
         () => String,
