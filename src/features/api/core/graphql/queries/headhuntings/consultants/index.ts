@@ -1,0 +1,7 @@
+export * from "./consultants.module"
+export * from "./consultants.module-definition"
+export * from "./graphql-types"
+export * from "./consultants.query"
+export * from "./consultants.handler"
+export * from "./consultants.service"
+export * from "./consultants.resolver"

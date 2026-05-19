@@ -13,6 +13,8 @@ import {
     MilestoneTaskEntity,
     FoundationEntity,
     FoundationCategoryEntity,
+    ConsultantEntity,
+    HeadhuntingCompanyEntity,
 } from "@modules/databases"
 import {
     MoreThan,
@@ -28,6 +30,8 @@ import {
     ElasticsearchMilestoneTaskBuildService,
     ElasticsearchFoundationBuildService,
     ElasticsearchFoundationCategoryBuildService,
+    ElasticsearchHeadhunterCompanyBuildService,
+    ElasticsearchConsultantBuildService,
 } from "./builder"
 import {
     WinstonLog,
@@ -64,6 +68,8 @@ export class ElasticsearchSynchronizerService {
         private readonly esMilestoneTaskBuildService: ElasticsearchMilestoneTaskBuildService,
         private readonly esFoundationBuildService: ElasticsearchFoundationBuildService,
         private readonly esFoundationCategoryBuildService: ElasticsearchFoundationCategoryBuildService,
+        private readonly esHeadhunterCompanyBuildService: ElasticsearchHeadhunterCompanyBuildService,
+        private readonly esHeadhunterBuildService: ElasticsearchConsultantBuildService,
         private readonly elasticsearchService: ElasticsearchService,
         private readonly retryService: RetryService,
     ) { }
@@ -79,6 +85,8 @@ export class ElasticsearchSynchronizerService {
         MilestoneTaskEntity.name,
         FoundationCategoryEntity.name,
         FoundationEntity.name,
+        HeadhuntingCompanyEntity.name,
+        ConsultantEntity.name,
     ]
 
     /**
@@ -529,6 +537,98 @@ export class ElasticsearchSynchronizerService {
                         )
                     }
                     resumeEntityId = foundation.id
+                }
+                break
+            }
+            case HeadhuntingCompanyEntity.name: {
+                while (true) {
+                    const company = await this.entityManager.findOne(
+                        HeadhuntingCompanyEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId),
+                                } : {
+                                }),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!company) {
+                        break
+                    }
+                    try {
+                        await this.retryService.retry({
+                            action: () => this.esHeadhunterCompanyBuildService.buildIndexById(
+                                company.id,
+                            ),
+                        })
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerSyncedSuccessfully,
+                            {
+                                entityKind,
+                                entityId: company.id,
+                            },
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: company.id,
+                                error: error.message,
+                            },
+                        )
+                    }
+                    resumeEntityId = company.id
+                }
+                break
+            }
+            case ConsultantEntity.name: {
+                while (true) {
+                    const consultant = await this.entityManager.findOne(
+                        ConsultantEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId),
+                                } : {
+                                }),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!consultant) {
+                        break
+                    }
+                    try {
+                        await this.retryService.retry({
+                            action: () => this.esHeadhunterBuildService.buildIndexById(
+                                consultant.id,
+                            ),
+                        })
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerSyncedSuccessfully,
+                            {
+                                entityKind,
+                                entityId: consultant.id,
+                            },
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: consultant.id,
+                                error: error.message,
+                            },
+                        )
+                    }
+                    resumeEntityId = consultant.id
                 }
                 break
             }

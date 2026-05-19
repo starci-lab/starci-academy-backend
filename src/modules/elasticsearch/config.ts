@@ -8,6 +8,8 @@ import {
     MilestoneTaskEntity,
     FoundationEntity,
     FoundationCategoryEntity,
+    ConsultantEntity,
+    HeadhuntingCompanyEntity,
 } from "@modules/databases"
 
 /**
@@ -55,5 +57,11 @@ export const configMap: ConfigMap = {
     },
     [FoundationCategoryEntity.name]: {
         indices: "foundation-categories",
+    },
+    [HeadhuntingCompanyEntity.name]: {
+        indices: "headhunting-companies",
+    },
+    [ConsultantEntity.name]: {
+        indices: "consultants",
     },
 }

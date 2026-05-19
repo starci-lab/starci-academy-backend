@@ -54,6 +54,12 @@ import {
     FoundationCategoryResolverService,
 } from "./foundation-category-resolver.service"
 import {
+    HeadhuntingCompanyResolverService,
+} from "./headhunting-company-resolver.service"
+import {
+    ConsultantResolverService,
+} from "./consultant-resolver.service"
+import {
     ConfigurableModuleClass
 } from "./resolvers.module-definition"
 
@@ -75,6 +81,8 @@ const resolverProviders: Array<Provider> = [
     MilestoneTaskPassCriteriaResolverService,
     FoundationResolverService,
     FoundationCategoryResolverService,
+    HeadhuntingCompanyResolverService,
+    ConsultantResolverService,
 ]
 
 /**

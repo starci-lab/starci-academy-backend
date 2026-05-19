@@ -70,6 +70,17 @@ import {
     FoundationInsertService,
 } from "./foundations"
 import {
+    HeadhuntingSeederService,
+    HeadhuntingCompanyPathService,
+    ConsultantPathService,
+    HeadhuntingCompanyIdFactoryService,
+    ConsultantIdFactoryService,
+    HeadhuntingCompanyParserService,
+    ConsultantParserService,
+    HeadhuntingCompanyInsertService,
+    ConsultantInsertService,
+} from "./headhuntings"
+import {
     SeedersService,
 } from "./seeders.service"
 import {
@@ -165,6 +176,15 @@ export class SeedersModule extends ConfigurableModuleClass {
             FoundationCategoryInsertService,
             FoundationInsertService,
             FoundationSeederService,
+            HeadhuntingCompanyPathService,
+            ConsultantPathService,
+            HeadhuntingCompanyIdFactoryService,
+            ConsultantIdFactoryService,
+            HeadhuntingCompanyParserService,
+            ConsultantParserService,
+            HeadhuntingCompanyInsertService,
+            ConsultantInsertService,
+            HeadhuntingSeederService,
         ]
         
         return {

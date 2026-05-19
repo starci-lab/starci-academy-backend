@@ -35,6 +35,8 @@ export const envConfig = () => ({
         templateCV: "d32d2da9-ad2e-44b4-b412-a97de455b8e4",
         /** UUID namespace for foundation. */
         foundation: "d32d2da9-ad2e-44b4-b412-a97de455b8e4",
+        /** UUID namespace for headhunter mount data. */
+        headhunting: "d32d2da9-ad2e-44b4-b412-a97de455b8e4",
     },
     /** Initialization configuration. */
     init: [

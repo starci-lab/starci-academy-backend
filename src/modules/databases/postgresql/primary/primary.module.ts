@@ -82,6 +82,10 @@ import {
     FoundationTranslationEntity,
     FoundationTagEntity,
     FoundationTagTranslationEntity,
+    HeadhuntingCompanyEntity,
+    HeadhuntingCompanyTranslationEntity,
+    ConsultantEntity,
+    ConsultantTranslationEntity,
 } from "./entities"
 import {
     SeedersModule
@@ -220,6 +224,10 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     FoundationTranslationEntity,
                                     FoundationTagEntity,
                                     FoundationTagTranslationEntity,
+                                    HeadhuntingCompanyEntity,
+                                    HeadhuntingCompanyTranslationEntity,
+                                    ConsultantEntity,
+                                    ConsultantTranslationEntity,
                                 ],
                                 synchronize,
                                 logging: false,
@@ -321,6 +329,10 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         FoundationTranslationEntity,
                         FoundationTagEntity,
                         FoundationTagTranslationEntity,
+                        HeadhuntingCompanyEntity,
+                        HeadhuntingCompanyTranslationEntity,
+                        ConsultantEntity,
+                        ConsultantTranslationEntity,
                     ],
                     POSTGRESQL_PRIMARY
                 ),

@@ -52,6 +52,9 @@ import {
 import {
     FoundationsModule,
 } from "./foundations"
+import {
+    HeadhuntingsModule,
+} from "./headhuntings"
 
 @Module({
     imports: [
@@ -101,6 +104,9 @@ import {
             isGlobal: true,
         }),
         FoundationsModule.register({
+            isGlobal: true,
+        }),
+        HeadhuntingsModule.register({
             isGlobal: true,
         }),
     ],

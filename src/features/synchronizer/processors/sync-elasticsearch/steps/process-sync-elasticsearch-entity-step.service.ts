@@ -20,6 +20,8 @@ import {
     ModuleEntity,
     FoundationEntity,
     FoundationCategoryEntity,
+    ConsultantEntity,
+    HeadhuntingCompanyEntity,
 } from "@modules/databases"
 import {
     Injectable,
@@ -41,6 +43,8 @@ import {
     ElasticsearchModuleBuildService,
     ElasticsearchFoundationBuildService,
     ElasticsearchFoundationCategoryBuildService,
+    ElasticsearchHeadhunterCompanyBuildService,
+    ElasticsearchConsultantBuildService,
 } from "../builder"
 import {
     SyncElasticsearchEntityStepContextExecutionResult
@@ -66,6 +70,8 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
         private readonly elasticsearchModuleBuildService: ElasticsearchModuleBuildService,
         private readonly elasticsearchFoundationBuildService: ElasticsearchFoundationBuildService,
         private readonly elasticsearchFoundationCategoryBuildService: ElasticsearchFoundationCategoryBuildService,
+        private readonly elasticsearchHeadhunterCompanyBuildService: ElasticsearchHeadhunterCompanyBuildService,
+        private readonly elasticsearchHeadhunterBuildService: ElasticsearchConsultantBuildService,
     ) {
         super()
     }
@@ -301,6 +307,58 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                     foundation.id,
                 )
                 resumeAfterEntityId = foundation.id
+                break
+            }
+            case HeadhuntingCompanyEntity.name: {
+                const company = await this.entityManager.findOne(
+                    HeadhuntingCompanyEntity,
+                    {
+                        where: {
+                            ...(executionResult?.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId),
+                            } : {
+                            }),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                        },
+                        order: {
+                            id: "ASC",
+                        },
+                    },
+                )
+                if (!company) {
+                    done = true
+                    break
+                }
+                await this.elasticsearchHeadhunterCompanyBuildService.buildIndexById(
+                    company.id,
+                )
+                resumeAfterEntityId = company.id
+                break
+            }
+            case ConsultantEntity.name: {
+                const consultant = await this.entityManager.findOne(
+                    ConsultantEntity,
+                    {
+                        where: {
+                            ...(executionResult?.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId),
+                            } : {
+                            }),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                        },
+                        order: {
+                            id: "ASC",
+                        },
+                    },
+                )
+                if (!consultant) {
+                    done = true
+                    break
+                }
+                await this.elasticsearchHeadhunterBuildService.buildIndexById(
+                    consultant.id,
+                )
+                resumeAfterEntityId = consultant.id
                 break
             }
             }

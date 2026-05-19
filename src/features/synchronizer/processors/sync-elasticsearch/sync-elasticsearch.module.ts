@@ -12,6 +12,8 @@ import {
     ElasticsearchModuleBuildService,
     ElasticsearchFoundationBuildService,
     ElasticsearchFoundationCategoryBuildService,
+    ElasticsearchHeadhunterCompanyBuildService,
+    ElasticsearchConsultantBuildService,
 } from "./builder"
 import {
     ProcessSyncElasticsearchCompleteStepService,
@@ -20,9 +22,6 @@ import {
 import {
     SyncElasticsearchStepMappingService,
 } from "./step-mapping.service"
-import {
-    SyncElasticsearchWorker,
-} from "./sync-elasticsearch.worker"
 
 @Module({
     providers: [
@@ -33,10 +32,11 @@ import {
         ProcessSyncElasticsearchEntityStepService,
         ProcessSyncElasticsearchCompleteStepService,
         SyncElasticsearchStepMappingService,
-        SyncElasticsearchWorker,
         ElasticsearchModuleBuildService,
         ElasticsearchFoundationBuildService,
         ElasticsearchFoundationCategoryBuildService,
+        ElasticsearchHeadhunterCompanyBuildService,
+        ElasticsearchConsultantBuildService,
     ],
     exports: [
         ElasticsearchCourseBuildService,
@@ -46,6 +46,8 @@ import {
         ElasticsearchModuleBuildService,
         ElasticsearchFoundationBuildService,
         ElasticsearchFoundationCategoryBuildService,
+        ElasticsearchHeadhunterCompanyBuildService,
+        ElasticsearchConsultantBuildService,
     ],
 })
 export class SyncElasticsearchModule extends ConfigurableModuleClass {
