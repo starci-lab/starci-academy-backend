@@ -11,6 +11,8 @@ import {
     Locale,
     MilestoneEntity,
     MilestoneTaskEntity,
+    FoundationEntity,
+    FoundationCategoryEntity,
 } from "@modules/databases"
 import {
     MoreThan,
@@ -24,6 +26,8 @@ import {
     ElasticsearchLessonVideoBuildService,
     ElasticsearchMilestoneBuildService,
     ElasticsearchMilestoneTaskBuildService,
+    ElasticsearchFoundationBuildService,
+    ElasticsearchFoundationCategoryBuildService,
 } from "./builder"
 import {
     WinstonLog,
@@ -58,6 +62,8 @@ export class ElasticsearchSynchronizerService {
         private readonly esLessonVideoBuildService: ElasticsearchLessonVideoBuildService,
         private readonly esMilestoneBuildService: ElasticsearchMilestoneBuildService,
         private readonly esMilestoneTaskBuildService: ElasticsearchMilestoneTaskBuildService,
+        private readonly esFoundationBuildService: ElasticsearchFoundationBuildService,
+        private readonly esFoundationCategoryBuildService: ElasticsearchFoundationCategoryBuildService,
         private readonly elasticsearchService: ElasticsearchService,
         private readonly retryService: RetryService,
     ) { }
@@ -71,6 +77,8 @@ export class ElasticsearchSynchronizerService {
         ModuleEntity.name,
         MilestoneEntity.name,
         MilestoneTaskEntity.name,
+        FoundationCategoryEntity.name,
+        FoundationEntity.name,
     ]
 
     /**
@@ -429,6 +437,98 @@ export class ElasticsearchSynchronizerService {
                         )
                     }
                     resumeEntityId = milestoneTask.id
+                }
+                break
+            }
+            case FoundationCategoryEntity.name: {
+                while (true) {
+                    const category = await this.entityManager.findOne(
+                        FoundationCategoryEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId)
+                                } : {
+                                }),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!category) {
+                        break
+                    }
+                    try {
+                        await this.retryService.retry({
+                            action: () => this.esFoundationCategoryBuildService.buildIndexById(
+                                category.id,
+                            ),
+                        })
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerSyncedSuccessfully,
+                            {
+                                entityKind,
+                                entityId: category.id,
+                            }
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: category.id,
+                                error: error.message,
+                            }
+                        )
+                    }
+                    resumeEntityId = category.id
+                }
+                break
+            }
+            case FoundationEntity.name: {
+                while (true) {
+                    const foundation = await this.entityManager.findOne(
+                        FoundationEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId)
+                                } : {
+                                }),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!foundation) {
+                        break
+                    }
+                    try {
+                        await this.retryService.retry({
+                            action: () => this.esFoundationBuildService.buildIndexById(
+                                foundation.id,
+                            ),
+                        })
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerSyncedSuccessfully,
+                            {
+                                entityKind,
+                                entityId: foundation.id,
+                            }
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: foundation.id,
+                                error: error.message,
+                            }
+                        )
+                    }
+                    resumeEntityId = foundation.id
                 }
                 break
             }

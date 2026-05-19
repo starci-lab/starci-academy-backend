@@ -5,12 +5,12 @@ import {
     ConfigurableModuleClass,
 } from "./jobs.module-definition"
 import {
-    IncompleteChallengeSubmissionJobsQueryModule,
-} from "./incomplete-challenge-submission-jobs"
+    IncompletedJobsQueryModule,
+} from "./incompleted-jobs"
 
 @Module({
     imports: [
-        IncompleteChallengeSubmissionJobsQueryModule.register({
+        IncompletedJobsQueryModule.register({
             isGlobal: true,
         }),
     ],

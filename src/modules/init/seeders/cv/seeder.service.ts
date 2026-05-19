@@ -26,6 +26,8 @@ export class CvSeederService {
         const templates = templateResults.map(
             (result) => result.data,
         )
-        await this.templateCvInsertService.saveAll(templates)
+        for (const template of templates) {
+            await this.templateCvInsertService.insert(template)
+        }
     }
 }

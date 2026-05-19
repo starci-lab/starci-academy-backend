@@ -1,6 +1,0 @@
-export * from "./incomplete-challenge-submission-jobs.module"
-export * from "./incomplete-challenge-submission-jobs.resolver"
-export * from "./incomplete-challenge-submission-jobs.service"
-export * from "./incomplete-challenge-submission-jobs.handler"
-export * from "./incomplete-challenge-submission-jobs.query"
-export * from "./graphql-types"

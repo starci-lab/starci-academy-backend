@@ -76,6 +76,12 @@ import {
     UserContentEntity,
     TemplateCVEntity,
     TemplateCVTranslationEntity,
+    FoundationCategoryEntity,
+    FoundationCategoryTranslationEntity,
+    FoundationEntity,
+    FoundationTranslationEntity,
+    FoundationTagEntity,
+    FoundationTagTranslationEntity,
 } from "./entities"
 import {
     SeedersModule
@@ -208,6 +214,12 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     UserContentEntity,
                                     TemplateCVEntity,
                                     TemplateCVTranslationEntity,
+                                    FoundationCategoryEntity,
+                                    FoundationCategoryTranslationEntity,
+                                    FoundationEntity,
+                                    FoundationTranslationEntity,
+                                    FoundationTagEntity,
+                                    FoundationTagTranslationEntity,
                                 ],
                                 synchronize,
                                 logging: false,
@@ -303,6 +315,12 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         UserContentEntity,
                         TemplateCVEntity,
                         TemplateCVTranslationEntity,
+                        FoundationCategoryEntity,
+                        FoundationCategoryTranslationEntity,
+                        FoundationEntity,
+                        FoundationTranslationEntity,
+                        FoundationTagEntity,
+                        FoundationTagTranslationEntity,
                     ],
                     POSTGRESQL_PRIMARY
                 ),

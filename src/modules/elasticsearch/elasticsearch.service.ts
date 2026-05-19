@@ -14,6 +14,8 @@ import {
     CourseEntity,
     LessonVideoEntity,
     ModuleEntity,
+    FoundationEntity,
+    FoundationCategoryEntity,
 } from "@modules/databases"
 import {
     ObjectLiteral
@@ -47,6 +49,8 @@ export class ElasticsearchService implements OnModuleInit {
         ChallengeEntity.name,
         ContentEntity.name,
         ModuleEntity.name,
+        FoundationEntity.name,
+        FoundationCategoryEntity.name,
     ]
     constructor(
         @InjectElasticsearch()

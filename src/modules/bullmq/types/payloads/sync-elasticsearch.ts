@@ -6,6 +6,8 @@ import {
     MilestoneEntity,
     MilestoneTaskEntity,
     ModuleEntity,
+    FoundationEntity,
+    FoundationCategoryEntity,
 } from "@modules/databases"
 import {
     Dayjs,
@@ -20,6 +22,8 @@ export type SyncElasticsearchEntityKind =
     | typeof ModuleEntity.name
     | typeof MilestoneEntity.name
     | typeof MilestoneTaskEntity.name
+    | typeof FoundationEntity.name
+    | typeof FoundationCategoryEntity.name
 
 /** Payload for a sync-elasticsearch BullMQ job (one entity by id). */
 export interface SyncElasticsearchPayload {

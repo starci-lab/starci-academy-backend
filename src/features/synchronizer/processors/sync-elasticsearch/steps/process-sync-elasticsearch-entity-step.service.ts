@@ -18,6 +18,8 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
     LessonVideoEntity,
     ModuleEntity,
+    FoundationEntity,
+    FoundationCategoryEntity,
 } from "@modules/databases"
 import {
     Injectable,
@@ -37,6 +39,8 @@ import {
     ElasticsearchCourseBuildService,
     ElasticsearchLessonVideoBuildService,
     ElasticsearchModuleBuildService,
+    ElasticsearchFoundationBuildService,
+    ElasticsearchFoundationCategoryBuildService,
 } from "../builder"
 import {
     SyncElasticsearchEntityStepContextExecutionResult
@@ -60,6 +64,8 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
         private readonly elasticsearchContentBuildService: ElasticsearchContentBuildService,
         private readonly elasticsearchLessonVideoBuildService: ElasticsearchLessonVideoBuildService,
         private readonly elasticsearchModuleBuildService: ElasticsearchModuleBuildService,
+        private readonly elasticsearchFoundationBuildService: ElasticsearchFoundationBuildService,
+        private readonly elasticsearchFoundationCategoryBuildService: ElasticsearchFoundationCategoryBuildService,
     ) {
         super()
     }
@@ -113,138 +119,190 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                 }
             )
             switch (payload.entityKind) {
-                case CourseEntity.name: {
-                    const course = await this.entityManager.findOne(
-                        CourseEntity,
-                        {
-                            where: {
-                                ...(executionResult?.resumeAfterEntityId ? {
+            case CourseEntity.name: {
+                const course = await this.entityManager.findOne(
+                    CourseEntity,
+                    {
+                        where: {
+                            ...(executionResult?.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId)
+                            } : {
+                            }),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                        },
+                        order: {
+                            id: "ASC",
+                        },
+                    },
+                )
+                if (!course) {
+                    done = true
+                    break
+                }
+                await this.elasticsearchCourseBuildService.buildIndexById(
+                    course.id,
+                )
+                resumeAfterEntityId = course.id
+                break
+            }
+            case ChallengeEntity.name: {
+                const challenge = await this.entityManager.findOne(
+                    ChallengeEntity,
+                    {
+                        where: {
+                            ...(
+                                executionResult?.resumeAfterEntityId ? {
                                     id: MoreThan(executionResult.resumeAfterEntityId)
                                 } : {
-                                }),
-                                updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
+                                }
+                            ),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
-                    )
-                    if (!course) {
-                        done = true
-                        break
-                    }
-                    await this.elasticsearchCourseBuildService.buildIndexById(
-                        course.id,
-                    )
-                    resumeAfterEntityId = course.id
+                        order: {
+                            id: "ASC",
+                        },
+                    },
+                )
+                if (!challenge) {
+                    done = true
                     break
                 }
-                case ChallengeEntity.name: {
-                    const challenge = await this.entityManager.findOne(
-                        ChallengeEntity,
-                        {
-                            where: {
-                                ...(
-                                    executionResult?.resumeAfterEntityId ? {
-                                        id: MoreThan(executionResult.resumeAfterEntityId)
-                                    } : {
-                                    }
-                                ),
-                                updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
+                await this.elasticsearchChallengeBuildService.buildIndexById(
+                    challenge.id,
+                )
+                resumeAfterEntityId = challenge.id
+                break
+            }
+            case ContentEntity.name: {
+                const content = await this.entityManager.findOne(
+                    ContentEntity,
+                    {
+                        where: {
+                            ...(executionResult?.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId)
+                            } : {
+                            }),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
-                    )
-                    if (!challenge) {
-                        done = true
-                        break
-                    }
-                    await this.elasticsearchChallengeBuildService.buildIndexById(
-                        challenge.id,
-                    )
-                    resumeAfterEntityId = challenge.id
+                        order: {
+                            id: "ASC",
+                        },
+                    },
+                )
+                if (!content) {
+                    done = true
                     break
                 }
-                case ContentEntity.name: {
-                    const content = await this.entityManager.findOne(
-                        ContentEntity,
-                        {
-                            where: {
-                                ...(executionResult?.resumeAfterEntityId ? {
-                                    id: MoreThan(executionResult.resumeAfterEntityId)
-                                } : {
-                                }),
-                                updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
+                await this.elasticsearchContentBuildService.buildIndexById(
+                    content.id,
+                )
+                resumeAfterEntityId = content.id
+                break
+            }
+            case LessonVideoEntity.name: {
+                const lessonVideo = await this.entityManager.findOne(
+                    LessonVideoEntity,
+                    {
+                        where: {
+                            ...(executionResult?.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId)
+                            } : {
+                            }),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
-                    )
-                    if (!content) {
-                        done = true
-                        break
-                    }
-                    await this.elasticsearchContentBuildService.buildIndexById(
-                        content.id,
-                    )
-                    resumeAfterEntityId = content.id
+                        order: {
+                            id: "ASC",
+                        },
+                    },
+                )
+                if (!lessonVideo) {
+                    done = true
                     break
                 }
-                case LessonVideoEntity.name: {
-                    const lessonVideo = await this.entityManager.findOne(
-                        LessonVideoEntity,
-                        {
-                            where: {
-                                ...(executionResult?.resumeAfterEntityId ? {
-                                    id: MoreThan(executionResult.resumeAfterEntityId)
-                                } : {
-                                }),
-                                updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
+                await this.elasticsearchLessonVideoBuildService.buildIndexById(
+                    lessonVideo.id,
+                )
+                resumeAfterEntityId = lessonVideo.id
+                break
+            }
+            case ModuleEntity.name: {
+                const module = await this.entityManager.findOne(
+                    ModuleEntity,
+                    {
+                        where: {
+                            ...(executionResult?.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId)
+                            } : {
+                            }),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
-                    )
-                    if (!lessonVideo) {
-                        done = true
-                        break
-                    }
-                    await this.elasticsearchLessonVideoBuildService.buildIndexById(
-                        lessonVideo.id,
-                    )
-                    resumeAfterEntityId = lessonVideo.id
+                        order: {
+                            id: "ASC",
+                        },
+                    },
+                )
+                if (!module) {
+                    done = true
                     break
                 }
-                case ModuleEntity.name: {
-                    const module = await this.entityManager.findOne(
-                        ModuleEntity,
-                        {
-                            where: {
-                                ...(executionResult?.resumeAfterEntityId ? {
-                                    id: MoreThan(executionResult.resumeAfterEntityId)
-                                } : {
-                                }),
-                                updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
+                await this.elasticsearchModuleBuildService.buildIndexById(
+                    module.id,
+                )
+                resumeAfterEntityId = module.id
+                break
+            }
+            case FoundationCategoryEntity.name: {
+                const category = await this.entityManager.findOne(
+                    FoundationCategoryEntity,
+                    {
+                        where: {
+                            ...(executionResult?.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId)
+                            } : {
+                            }),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
                         },
-                    )
-                    if (!module) {
-                        done = true
-                        break
-                    }
-                    await this.elasticsearchModuleBuildService.buildIndexById(
-                        module.id,
-                    )
-                    resumeAfterEntityId = module.id
+                        order: {
+                            id: "ASC",
+                        },
+                    },
+                )
+                if (!category) {
+                    done = true
                     break
                 }
+                await this.elasticsearchFoundationCategoryBuildService.buildIndexById(
+                    category.id,
+                )
+                resumeAfterEntityId = category.id
+                break
+            }
+            case FoundationEntity.name: {
+                const foundation = await this.entityManager.findOne(
+                    FoundationEntity,
+                    {
+                        where: {
+                            ...(executionResult?.resumeAfterEntityId ? {
+                                id: MoreThan(executionResult.resumeAfterEntityId)
+                            } : {
+                            }),
+                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
+                        },
+                        order: {
+                            id: "ASC",
+                        },
+                    },
+                )
+                if (!foundation) {
+                    done = true
+                    break
+                }
+                await this.elasticsearchFoundationBuildService.buildIndexById(
+                    foundation.id,
+                )
+                resumeAfterEntityId = foundation.id
+                break
+            }
             }
             await this.jobActionService.saveExecutionResult(
                 {

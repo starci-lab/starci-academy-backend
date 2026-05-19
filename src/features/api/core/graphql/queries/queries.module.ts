@@ -49,6 +49,9 @@ import {
 import {
     MilestonesModule,
 } from "./milestones"
+import {
+    FoundationsModule,
+} from "./foundations"
 
 @Module({
     imports: [
@@ -95,6 +98,9 @@ import {
             isGlobal: true,
         }),
         MilestonesModule.register({
+            isGlobal: true,
+        }),
+        FoundationsModule.register({
             isGlobal: true,
         }),
     ],

@@ -21,21 +21,21 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
-    IncompleteChallengeSubmissionJobsQuery,
-} from "./incomplete-challenge-submission-jobs.query"
+    IncompletedJobsQuery,
+} from "./incompleted-jobs.query"
 import {
-    IncompleteChallengeSubmissionJobItem,
-    IncompleteChallengeSubmissionJobsResponseData,
+    IncompletedJobItem,
+    IncompletedJobsResponseData,
 } from "./graphql-types"
 import {
     UserNotFoundException
 } from "@modules/exceptions"
 
-@QueryHandler(IncompleteChallengeSubmissionJobsQuery)
+@QueryHandler(IncompletedJobsQuery)
 @Injectable()
-export class IncompleteChallengeSubmissionJobsHandler
-    extends ICQRSHandler<IncompleteChallengeSubmissionJobsQuery, IncompleteChallengeSubmissionJobsResponseData>
-    implements IQueryHandler<IncompleteChallengeSubmissionJobsQuery, IncompleteChallengeSubmissionJobsResponseData>
+export class IncompletedJobsHandler
+    extends ICQRSHandler<IncompletedJobsQuery, IncompletedJobsResponseData>
+    implements IQueryHandler<IncompletedJobsQuery, IncompletedJobsResponseData>
 {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
@@ -45,8 +45,8 @@ export class IncompleteChallengeSubmissionJobsHandler
     }
 
     protected override async process(
-        query: IncompleteChallengeSubmissionJobsQuery,
-    ): Promise<IncompleteChallengeSubmissionJobsResponseData> {
+        query: IncompletedJobsQuery,
+    ): Promise<IncompletedJobsResponseData> {
         const {
             user,
         } = query.params
@@ -54,7 +54,7 @@ export class IncompleteChallengeSubmissionJobsHandler
             throw new UserNotFoundException({
             })
         }
-        const incompleteJobs = await this.entityManager.find(
+        const jobs = await this.entityManager.find(
             JobEntity,
             {
                 where: {
@@ -85,7 +85,7 @@ export class IncompleteChallengeSubmissionJobsHandler
             },
         )
 
-        const items: Array<IncompleteChallengeSubmissionJobItem> = incompleteJobs.map(
+        const items: Array<IncompletedJobItem> = jobs.map(
             (job) => ({
                 jobId: job.id,
                 status: job.status,

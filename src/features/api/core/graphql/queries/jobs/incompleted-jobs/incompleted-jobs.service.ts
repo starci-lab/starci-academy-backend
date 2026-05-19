@@ -8,23 +8,23 @@ import {
     ExecuteParams,
 } from "@features/api/core/types"
 import {
-    IncompleteChallengeSubmissionJobsQuery,
-} from "./incomplete-challenge-submission-jobs.query"
+    IncompletedJobsQuery,
+} from "./incompleted-jobs.query"
 import {
-    IncompleteChallengeSubmissionJobsResponseData,
+    IncompletedJobsResponseData,
 } from "./graphql-types"
 
 @Injectable()
-export class IncompleteChallengeSubmissionJobsService {
+export class IncompletedJobsService {
     constructor(
         private readonly queryBus: QueryBus,
     ) {}
 
     async execute(
         params: ExecuteParams<undefined>,
-    ): Promise<IncompleteChallengeSubmissionJobsResponseData> {
+    ): Promise<IncompletedJobsResponseData> {
         return this.queryBus.execute(
-            new IncompleteChallengeSubmissionJobsQuery(params),
+            new IncompletedJobsQuery(params),
         )
     }
 }

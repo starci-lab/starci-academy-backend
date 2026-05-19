@@ -6,6 +6,8 @@ import {
     ModuleEntity,
     MilestoneEntity,
     MilestoneTaskEntity,
+    FoundationEntity,
+    FoundationCategoryEntity,
 } from "@modules/databases"
 
 /**
@@ -47,5 +49,11 @@ export const configMap: ConfigMap = {
     },
     [MilestoneTaskEntity.name]: {
         indices: "milestone-tasks",
+    },
+    [FoundationEntity.name]: {
+        indices: "foundations",
+    },
+    [FoundationCategoryEntity.name]: {
+        indices: "foundation-categories",
     },
 }

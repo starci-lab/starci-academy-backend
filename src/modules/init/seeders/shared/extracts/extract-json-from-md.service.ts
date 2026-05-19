@@ -8,7 +8,8 @@ const NUMERIC_HEADING_RE = /^(\d+)(?:[.)]\s+(.+))?$/ // Improved to capture desc
 const RAW_BLOCK_KEYS = new Set([
     "body",
     "text",
-    "hint"
+    "hint",
+    "value"
 ])
 
 @Injectable()

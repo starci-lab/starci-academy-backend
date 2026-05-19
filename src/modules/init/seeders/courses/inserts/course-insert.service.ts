@@ -51,8 +51,6 @@ export class CourseInsertService {
             qnas,
             livestreamSessions,
             metadata,
-            modules: _modules,
-            enrollments: _enrollments,
             ...rest
         } = course
 
@@ -66,7 +64,9 @@ export class CourseInsertService {
             await this.upsertService.upsertTranslation(
                 CourseTranslationEntity,
                 translations,
-                { courseId },
+                {
+                    courseId 
+                },
             )
         }
 
@@ -75,7 +75,11 @@ export class CourseInsertService {
             await this.upsertService.upsertUuid(
                 PricingPhaseEntity,
                 pricingPhases,
-                { course: { id: courseId } },
+                {
+                    course: {
+                        id: courseId 
+                    } 
+                },
             )
         }
 
@@ -94,7 +98,9 @@ export class CourseInsertService {
                     await this.upsertService.upsertTranslation<PrerequisiteTranslationEntity>(
                         PrerequisiteTranslationEntity,
                         prerequisiteTranslations,
-                        { prerequisiteId: prerequisite.id },
+                        {
+                            prerequisiteId: prerequisite.id 
+                        },
                     )
                 }
             }
@@ -102,7 +108,11 @@ export class CourseInsertService {
             await this.upsertService.deleteStaleUuid<PrerequisiteEntity>(
                 PrerequisiteEntity,
                 prerequisites.map((prerequisite) => prerequisite.id as string),
-                { course: { id: courseId } },
+                {
+                    course: {
+                        id: courseId 
+                    } 
+                },
             )
         }
 
@@ -188,7 +198,9 @@ export class CourseInsertService {
                     await this.upsertService.upsertTranslation<LivestreamSessionTranslationEntity>(
                         LivestreamSessionTranslationEntity,
                         sessionTranslations,
-                        { livestreamSessionId: session.id },
+                        {
+                            livestreamSessionId: session.id 
+                        },
                     )
                 }
             }

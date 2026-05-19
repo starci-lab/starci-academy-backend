@@ -8,6 +8,9 @@ import {
     CvSeederService,
 } from "./cv"
 import {
+    FoundationSeederService,
+} from "./foundations"
+import {
     RetryService
 } from "@modules/mixin"
 /**
@@ -20,6 +23,7 @@ export class SeedersService {
         private readonly courseSeederService: CourseSeederService,
         private readonly retryService: RetryService,
         private readonly cvSeederService: CvSeederService,
+        private readonly foundationSeederService: FoundationSeederService,
     ) { }
 
     /**
@@ -37,6 +41,13 @@ export class SeedersService {
             {
                 action: async () => {
                     await this.cvSeederService.seed()
+                },
+            }
+        )
+        await this.retryService.retry(
+            {
+                action: async () => {
+                    await this.foundationSeederService.seed()
                 },
             }
         )

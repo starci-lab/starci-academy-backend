@@ -10,6 +10,8 @@ import {
     ElasticsearchCourseBuildService,
     ElasticsearchLessonVideoBuildService,
     ElasticsearchModuleBuildService,
+    ElasticsearchFoundationBuildService,
+    ElasticsearchFoundationCategoryBuildService,
 } from "./builder"
 import {
     ProcessSyncElasticsearchCompleteStepService,
@@ -33,6 +35,8 @@ import {
         SyncElasticsearchStepMappingService,
         SyncElasticsearchWorker,
         ElasticsearchModuleBuildService,
+        ElasticsearchFoundationBuildService,
+        ElasticsearchFoundationCategoryBuildService,
     ],
     exports: [
         ElasticsearchCourseBuildService,
@@ -40,6 +44,8 @@ import {
         ElasticsearchContentBuildService,
         ElasticsearchLessonVideoBuildService,
         ElasticsearchModuleBuildService,
+        ElasticsearchFoundationBuildService,
+        ElasticsearchFoundationCategoryBuildService,
     ],
 })
 export class SyncElasticsearchModule extends ConfigurableModuleClass {

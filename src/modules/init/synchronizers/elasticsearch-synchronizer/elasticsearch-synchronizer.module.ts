@@ -15,6 +15,8 @@ import {
     ElasticsearchLessonVideoBuildService,
     ElasticsearchMilestoneBuildService,
     ElasticsearchMilestoneTaskBuildService,
+    ElasticsearchFoundationBuildService,
+    ElasticsearchFoundationCategoryBuildService,
 } from "./builder"
 
 /**
@@ -29,6 +31,8 @@ import {
         ElasticsearchLessonVideoBuildService,
         ElasticsearchMilestoneBuildService,
         ElasticsearchMilestoneTaskBuildService,
+        ElasticsearchFoundationBuildService,
+        ElasticsearchFoundationCategoryBuildService,
         ElasticsearchSynchronizerService,
     ],
     exports: [

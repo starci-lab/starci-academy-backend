@@ -33,6 +33,8 @@ export const envConfig = () => ({
         course: "d32d2da9-ad2e-44b4-b412-a97de455b8e4",
         /** UUID namespace for template CV. */
         templateCV: "d32d2da9-ad2e-44b4-b412-a97de455b8e4",
+        /** UUID namespace for foundation. */
+        foundation: "d32d2da9-ad2e-44b4-b412-a97de455b8e4",
     },
     /** Initialization configuration. */
     init: [
@@ -41,7 +43,7 @@ export const envConfig = () => ({
             order: 1,
             enabled: parseEnvBoolean({
                 key: "ENABLE_INIT_SEEDERS",
-                defaultValue: false,
+                defaultValue: true,
             })
         },
         {
@@ -49,7 +51,7 @@ export const envConfig = () => ({
             order: 2,
             enabled: parseEnvBoolean({
                 key: "ENABLE_INIT_SYNCHRONIZERS",
-                defaultValue: false,
+                defaultValue: true,
             })
         }
     ],
@@ -58,7 +60,7 @@ export const envConfig = () => ({
     cache: {
         debug: {
             enabled: parseEnvBoolean({
-                key: "CACHE_DEBUG_ENABLED", defaultValue: true
+                key: "CACHE_DEBUG_ENABLED", defaultValue: false
             }),
             ttl: parseEnvMs({
                 key: "CACHE_DEBUG_TTL", defaultValue: "5000"

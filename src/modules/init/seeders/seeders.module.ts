@@ -57,6 +57,19 @@ import {
     TemplateCvPathService,
 } from "./cv"
 import {
+    FoundationSeederService,
+    FoundationCategoryPathService,
+    FoundationPathService,
+    FoundationCategoryIdFactoryService,
+    FoundationIdFactoryService,
+    FoundationTagIdFactoryService,
+    FoundationCategoryParserService,
+    FoundationParserService,
+    FoundationTagParserService,
+    FoundationCategoryInsertService,
+    FoundationInsertService,
+} from "./foundations"
+import {
     SeedersService,
 } from "./seeders.service"
 import {
@@ -141,6 +154,17 @@ export class SeedersModule extends ConfigurableModuleClass {
             TemplateCvParserService,
             TemplateCvInsertService,
             CvSeederService,
+            FoundationCategoryPathService,
+            FoundationPathService,
+            FoundationCategoryIdFactoryService,
+            FoundationIdFactoryService,
+            FoundationTagIdFactoryService,
+            FoundationCategoryParserService,
+            FoundationParserService,
+            FoundationTagParserService,
+            FoundationCategoryInsertService,
+            FoundationInsertService,
+            FoundationSeederService,
         ]
         
         return {

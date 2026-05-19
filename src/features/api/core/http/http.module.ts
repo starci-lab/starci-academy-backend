@@ -22,6 +22,9 @@ import {
 import {
     AdminModule,
 } from "./admin"
+import {
+    MountFoundationsModule,
+} from "./mount/foundations"
 
 
 /**
@@ -55,6 +58,11 @@ import {
             }
         ),
         AdminModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
+        MountFoundationsModule.register(
             {
                 isGlobal: true,
             }

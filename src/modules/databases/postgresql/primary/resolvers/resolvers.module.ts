@@ -48,6 +48,12 @@ import {
     MilestoneTaskPassCriteriaResolverService,
 } from "./milestone-task-pass-criteria-resolver.service"
 import {
+    FoundationResolverService,
+} from "./foundation-resolver.service"
+import {
+    FoundationCategoryResolverService,
+} from "./foundation-category-resolver.service"
+import {
     ConfigurableModuleClass
 } from "./resolvers.module-definition"
 
@@ -67,6 +73,8 @@ const resolverProviders: Array<Provider> = [
     MilestoneResolverService,
     MilestoneTaskResolverService,
     MilestoneTaskPassCriteriaResolverService,
+    FoundationResolverService,
+    FoundationCategoryResolverService,
 ]
 
 /**

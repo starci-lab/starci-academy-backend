@@ -21,17 +21,14 @@ export class TemplateCvInsertService {
     ) { }
 
     /**
-     * Upsert/save all template rows in one batch (cascade translations).
+     * Insert a single CV template row (cascade translations).
      */
-    async saveAll(
-        templates: Array<DeepPartial<TemplateCVEntity>>,
+    async insert(
+        template: DeepPartial<TemplateCVEntity>,
     ): Promise<void> {
-        if (templates.length === 0) {
-            return
-        }
         await this.entityManager.save(
             TemplateCVEntity,
-            templates,
+            template
         )
     }
 }

@@ -107,6 +107,16 @@ export const httpConfig = () => ({
             }
         }
     },
+    /** Public mount files under `.mount/data/foundations`. */
+    mount: () => {
+        const tags = "mount"
+        return {
+            tags,
+            foundations: () => ({
+                path: "foundations",
+            }),
+        }
+    },
     /** Admin HTTP routes. */
     admin: () => {
         const tags = "admin"
