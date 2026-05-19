@@ -108,8 +108,14 @@ export class ConsultantParserService {
             linkedinUrl: this.coerceMdScalarService.toNullableStringColumn(
                 jsonMap.get(Locale.En)?.linkedinUrl,
             ),
-            zaloPhone: this.coerceMdScalarService.toNullableStringColumn(
-                jsonMap.get(Locale.En)?.zaloPhone,
+            email: this.coerceMdScalarService.toNullableStringColumn(
+                jsonMap.get(Locale.En)?.email,
+            ),
+            phoneNumber: this.coerceMdScalarService.toNullableStringColumn(
+                jsonMap.get(Locale.En)?.phoneNumber,
+            ),
+            zaloNumber: this.coerceMdScalarService.toNullableStringColumn(
+                jsonMap.get(Locale.En)?.zaloNumber,
             ),
             avatarUrl: this.coerceMdScalarService.toNullableStringColumn(
                 jsonMap.get(Locale.En)?.avatarUrl,

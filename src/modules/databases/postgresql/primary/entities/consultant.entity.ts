@@ -54,9 +54,17 @@ export class ConsultantEntity extends UuidAbstractEntity {
     @Column({ name: "linkedin_url", type: "varchar", length: 2048, nullable: true })
         linkedinUrl: string | null
 
-    @Field(() => String, { nullable: true, description: "Zalo phone number (E.164)." })
-    @Column({ name: "zalo_phone", type: "varchar", length: 32, nullable: true })
-        zaloPhone: string | null
+    @Field(() => String, { nullable: true, description: "Contact email." })
+    @Column({ name: "email", type: "varchar", length: 255, nullable: true })
+        email: string | null
+
+    @Field(() => String, { nullable: true, description: "Phone number for calls/SMS." })
+    @Column({ name: "phone_number", type: "varchar", length: 32, nullable: true })
+        phoneNumber: string | null
+
+    @Field(() => String, { nullable: true, description: "Zalo phone number." })
+    @Column({ name: "zalo_number", type: "varchar", length: 32, nullable: true })
+        zaloNumber: string | null
 
     @Field(() => String, { nullable: true, description: "Avatar image URL." })
     @Column({ name: "avatar_url", type: "varchar", length: 2048, nullable: true })
