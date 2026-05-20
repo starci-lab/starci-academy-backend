@@ -1,0 +1,48 @@
+# Docker Compose stack cho bài học 2-quorum-consensus-and-conflict-resolution.
+# (EN: Docker Compose stack for lesson 2-quorum-consensus-and-conflict-resolution.)
+#
+# Thư mục làm việc: 2-quorum-consensus-and-conflict-resolution/.docker
+# (EN: Working directory: 2-quorum-consensus-and-conflict-resolution/.docker)
+#
+# Khởi động: docker compose up -d --build
+# (EN: Start: docker compose up -d --build)
+#
+# Xem log: docker compose logs -f api
+# (EN: Logs: docker compose logs -f api)
+#
+# Dọn tài nguyên: docker compose down -v
+# (EN: Cleanup: docker compose down -v)
+
+# Tiền tố project Compose, dùng làm tên stack/container.
+# (EN: Compose project prefix used as stack/container name.)
+name: 2-quorum-consensus-and-conflict-resolution
+
+services:
+  # API NestJS của bài học.
+  # (EN: Lesson NestJS API.)
+  api:
+    image: starciacademy/2-quorum-consensus-and-conflict-resolution-quorum-store:latest
+    container_name: 2-quorum-consensus-and-conflict-resolution-api
+    build:
+      context: ../quorum-store
+      dockerfile: Dockerfile
+    ports:
+      # Ánh xạ cổng host 3000 sang container 3000 cho HTTP API.
+      # (EN: Map host port 3000 to container port 3000 for the HTTP API.)
+      - "3000:3000"
+    env_file:
+      - ../quorum-store/.env
+    networks:
+      - 2-quorum-consensus-and-conflict-resolution-network
+
+  # Redis mô phỏng hạ tầng cache/pub-sub thường gặp trong bài học.
+  # (EN: Redis simulates common cache/pub-sub infrastructure for the lesson.)
+  redis:
+    image: redis:7-alpine
+    container_name: 2-quorum-consensus-and-conflict-resolution-redis
+    networks:
+      - 2-quorum-consensus-and-conflict-resolution-network
+
+networks:
+  2-quorum-consensus-and-conflict-resolution-network:
+    name: 2-quorum-consensus-and-conflict-resolution-network
