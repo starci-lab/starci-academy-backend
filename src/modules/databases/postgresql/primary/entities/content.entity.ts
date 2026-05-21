@@ -34,6 +34,9 @@ import {
 import {
     LessonVideoEntity,
 } from "./lesson-video.entity"
+import {
+    CodeExplainingEntity,
+} from "./code-explaining.entity"
 
 /**
  * Content attached to a module (title, optional description, body).
@@ -270,6 +273,25 @@ export class ContentEntity extends UuidAbstractEntity {
             description: "Number of challenges associated with this content.",
         },
     )
+    /**
+     * Critical code snippets with explanations and multi-language implementations.
+     */
+    @Field(
+        () => [CodeExplainingEntity],
+        {
+            nullable: true,
+            description: "Critical code snippets with explanations and multi-language implementations.",
+        },
+    )
+    @OneToMany(
+        () => CodeExplainingEntity,
+        (codeExplaining: CodeExplainingEntity) => codeExplaining.content,
+        {
+            cascade: true,
+        },
+    )
+    codeExplainings: Array<CodeExplainingEntity>
+
     @Column({
         name: "num_challenges",
         type: "int",
