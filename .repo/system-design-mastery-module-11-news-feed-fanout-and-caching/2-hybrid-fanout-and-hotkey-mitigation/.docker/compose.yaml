@@ -1,0 +1,85 @@
+# Kiến trúc: Stack Docker lesson: hybrid fanout and hotkey mitigation.
+# (EN: Docker stack for lesson: hybrid fanout and hotkey mitigation.)
+#
+# Demo: HTTP API cổng 3000 (hoặc theo compose); xem README module.
+#
+# Thư mục làm việc: 2-hybrid-fanout-and-hotkey-mitigation/.docker
+# (EN: Working directory: 2-hybrid-fanout-and-hotkey-mitigation/.docker)
+#
+# Khởi chạy stack:
+# (EN: Start stack:)
+#   cd 2-hybrid-fanout-and-hotkey-mitigation/.docker && docker compose up -d --build
+#
+# Xem log:
+# (EN: View logs:)
+#   docker compose logs -f
+#
+# Dọn dẹp:
+# (EN: Cleanup:)
+#   docker compose down -v
+#
+name: 2-hybrid-fanout-and-hotkey-mitigation
+
+services:
+  # NestJS API Service
+  # NestJS HTTP API — entry lesson.
+  # (EN: NestJS HTTP API — lesson entrypoint.)
+  # NestJS HTTP API.
+  # (EN: NestJS HTTP API.)
+  api:
+    container_name: 2-hybrid-fanout-and-hotkey-mitigation-api
+    image: starciacademy/hybrid-fanout-and-hotkey-mitigation-hybrid-feed-service:latest
+    ports:
+      # Ánh xạ cổng host 3000 -> container 3000 (HTTP API).
+      # (EN: Map host port 3000 -> container 3000 (HTTP API).)
+      # Cổng HTTP API host → container.
+      # (EN: HTTP API host → container port.)
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=hybrid_feed_service
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    networks:
+      - 2-hybrid-fanout-and-hotkey-mitigation-network
+    depends_on:
+      - db
+      - redis
+
+  # Postgres Database
+  # PostgreSQL — persistence lesson.
+  # (EN: PostgreSQL — lesson persistence.)
+  # PostgreSQL persistence.
+  # (EN: PostgreSQL persistence.)
+  db:
+    image: postgres:16-alpine
+    container_name: 2-hybrid-fanout-and-hotkey-mitigation-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=hybrid_feed_service
+    ports:
+      - "5432:5432"
+    networks:
+      - 2-hybrid-fanout-and-hotkey-mitigation-network
+
+  # Redis cache for salted hot feed keys
+  # Redis — cache / queue / rate limit.
+  # (EN: Redis — cache / queue / rate limit.)
+  # Redis cache/queue/rate-limit.
+  # (EN: Redis cache/queue/rate-limit.)
+  redis:
+    image: redis:7-alpine
+    container_name: 2-hybrid-fanout-and-hotkey-mitigation-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - 2-hybrid-fanout-and-hotkey-mitigation-network
+
+networks:
+  2-hybrid-fanout-and-hotkey-mitigation-network:
+    name: 2-hybrid-fanout-and-hotkey-mitigation-network

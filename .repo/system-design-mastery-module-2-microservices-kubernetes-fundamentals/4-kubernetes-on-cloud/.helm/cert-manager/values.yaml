@@ -1,0 +1,62 @@
+# Cert-Manager Configuration for DigitalOcean
+# Cấu hình Cert-Manager cho DigitalOcean
+# (EN: Cert-Manager configuration for DigitalOcean)
+#
+# Chart: oci://registry-1.docker.io/bitnamicharts/cert-manager
+# File gốc: values.origin.yaml
+#
+# Dùng để tự động cấp và renew SSL/TLS certificates từ Let's Encrypt
+# (EN: Used to automatically provision and renew SSL/TLS certificates from Let's Encrypt)
+
+# =========================
+# Install CRDs
+# Cài đặt Custom Resource Definitions (Certificate, Issuer, ClusterIssuer...)
+# (EN: Install Custom Resource Definitions)
+# =========================
+installCRDs: true
+
+# =========================
+# Controller Configuration
+# Cấu hình Controller — thành phần chính quản lý certificate lifecycle
+# (EN: Controller config — main component managing certificate lifecycle)
+# =========================
+controller:
+  replicaCount: 1
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/cert-manager
+    pullPolicy: IfNotPresent
+  # ACME Solver — dùng để xác minh domain ownership qua HTTP-01 challenge
+  # (EN: ACME Solver — used to verify domain ownership via HTTP-01 challenge)
+  acmesolver:
+    image:
+      registry: docker.io
+      repository: bitnamilegacy/acmesolver
+      pullPolicy: IfNotPresent
+
+# =========================
+# Webhook Configuration
+# Cấu hình Webhook — validate và mutate Certificate resources
+# (EN: Webhook config — validates and mutates Certificate resources)
+# =========================
+webhook:
+  replicaCount: 1
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/cert-manager-webhook
+    pullPolicy: IfNotPresent
+
+# =========================
+# CA Injector Configuration
+# Cấu hình CA Injector — inject CA bundle vào webhook configurations
+# (EN: CA Injector config — injects CA bundle into webhook configurations)
+# =========================
+cainjector:
+  replicaCount: 1
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/cainjector
+    pullPolicy: IfNotPresent
+
+# Run command:
+# helm upgrade --install cert-manager oci://registry-1.docker.io/bitnamicharts/cert-manager -n cert-manager --create-namespace -f values.yaml --wait

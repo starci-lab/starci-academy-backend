@@ -1,0 +1,120 @@
+# Kiến trúc: API nhận notification → Postgres (log QUEUED/SENT) + BullMQ (Redis) → worker gửi MailHog SMTP.
+# (EN: API accepts notifications → Postgres status log + BullMQ (Redis) → worker sends via MailHog SMTP.)
+#
+# Demo gợi ý: POST /notifications/send → MailHog UI http://localhost:8025
+#
+# Thư mục làm việc: 0-notification-system-architecture/.docker
+# (EN: Working directory: 0-notification-system-architecture/.docker)
+#
+# Khởi chạy stack:
+# (EN: Start stack:)
+#   cd 0-notification-system-architecture/.docker && docker compose up -d --build
+#
+# Xem log:
+# (EN: View logs:)
+#   docker compose logs -f
+#
+# Dọn dẹp:
+# (EN: Cleanup:)
+#   docker compose down -v
+#
+name: 0-notification-system-architecture
+
+services:
+  # NestJS API + BullMQ Producer/Consumer
+  # NestJS API — nhận request, enqueue BullMQ.
+  # (EN: NestJS API — accepts requests and enqueues BullMQ jobs.)
+  # NestJS HTTP API — entry lesson.
+  # (EN: NestJS HTTP API — lesson entrypoint.)
+  # NestJS HTTP API.
+  # (EN: NestJS HTTP API.)
+  api:
+    container_name: 0-notification-system-architecture-api
+    image: starciacademy/notification-system-architecture-notification-service:latest
+    ports:
+      # Ánh xạ cổng host 3000 -> container 3000 (HTTP API).
+      # (EN: Map host port 3000 -> container 3000 (HTTP API).)
+      # HTTP API lesson.
+      # (EN: Lesson HTTP API port.)
+      # Cổng HTTP API host → container.
+      # (EN: HTTP API host → container port.)
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=notification_service
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SMTP_HOST=mailhog
+      - SMTP_PORT=1025
+      - SMTP_USER=
+      - SMTP_PASS=
+      - SMTP_FROM=noreply@starci-academy.dev
+    networks:
+      - 0-notification-system-architecture-network
+    depends_on:
+      - db
+      - redis
+      - mailhog
+
+  # PostgreSQL — Lưu trữ log thông báo.
+  # (EN: PostgreSQL — Notification log storage.)
+  # PostgreSQL — persistence lesson.
+  # (EN: PostgreSQL — lesson persistence.)
+  # PostgreSQL persistence.
+  # (EN: PostgreSQL persistence.)
+  db:
+    image: postgres:16-alpine
+    container_name: 0-notification-system-architecture-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=notification_service
+    ports:
+      - "5432:5432"
+    networks:
+      - 0-notification-system-architecture-network
+
+  # Redis — BullMQ queue backend.
+  # (EN: Redis — BullMQ queue backend.)
+  # Redis — cache / queue / rate limit.
+  # (EN: Redis — cache / queue / rate limit.)
+  # Redis cache/queue/rate-limit.
+  # (EN: Redis cache/queue/rate-limit.)
+  redis:
+    image: redis:7-alpine
+    container_name: 0-notification-system-architecture-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - 0-notification-system-architecture-network
+
+  # MailHog — Mock SMTP server có giao diện web để xem email đã gửi.
+  # (EN: MailHog — Mock SMTP server with web UI to inspect sent emails.)
+  # MailHog SMTP mock — UI http://localhost:8025.
+  # (EN: MailHog mock SMTP — UI at http://localhost:8025.)
+  # MailHog SMTP mock — inbox UI :8025.
+  # (EN: MailHog mock SMTP — inbox UI :8025.)
+  # MailHog SMTP mock :8025.
+  # (EN: MailHog SMTP mock.)
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: 0-notification-system-architecture-mailhog
+    ports:
+      # SMTP port cho ứng dụng gửi email.
+      # (EN: SMTP port for the application to send emails.)
+      - "1025:1025"
+      # Web UI port để xem email đã gửi.
+      # (EN: Web UI port to view sent emails.)
+      # MailHog web inbox.
+      # (EN: MailHog web inbox port.)
+      - "8025:8025"
+    networks:
+      - 0-notification-system-architecture-network
+
+networks:
+  0-notification-system-architecture-network:
+    name: 0-notification-system-architecture-network

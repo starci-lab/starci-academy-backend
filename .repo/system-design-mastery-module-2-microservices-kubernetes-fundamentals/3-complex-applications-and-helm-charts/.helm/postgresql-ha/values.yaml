@@ -1,0 +1,54 @@
+# Cấu hình Helm chart PostgreSQL HA với image từ bitnamilegacy
+# (EN: Helm chart configuration for PostgreSQL HA using bitnamilegacy images)
+# Chart: oci://registry-1.docker.io/bitnamicharts/postgresql-ha
+
+# Override tất cả image từ bitnami/* sang bitnamilegacy/*
+postgresql:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/postgresql-repmgr
+    tag: 17.6.0-debian-12-r2
+    pullPolicy: IfNotPresent
+  replicaCount: 3
+  username: postgres
+  password: "postgres123"
+  database: demo_db
+  repmgrUsername: repmgr
+  repmgrPassword: "repmgr123"
+  repmgrDatabase: repmgr
+
+pgpool:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/pgpool
+    tag: 4.6.2-debian-12-r1
+    pullPolicy: IfNotPresent
+  replicaCount: 2
+  adminUsername: admin
+  adminPassword: "pgpool123"
+
+volumePermissions:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/os-shell
+    tag: 12-debian-12-r51
+    pullPolicy: IfNotPresent
+
+metrics:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/postgres-exporter
+    tag: 0.17.1-debian-12-r16
+    pullPolicy: IfNotPresent
+
+witness:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/postgresql-repmgr
+    tag: 17.6.0-debian-12-r2
+    pullPolicy: IfNotPresent
+
+persistence:
+  enabled: true
+  size: 8Gi

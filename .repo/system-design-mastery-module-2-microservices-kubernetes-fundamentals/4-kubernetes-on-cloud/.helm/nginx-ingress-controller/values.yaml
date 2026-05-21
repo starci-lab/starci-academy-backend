@@ -1,0 +1,82 @@
+# NGINX Ingress Controller Configuration for DigitalOcean
+# Cấu hình NGINX Ingress Controller cho DigitalOcean
+# (EN: NGINX Ingress Controller configuration for DigitalOcean)
+#
+# Chart: oci://registry-1.docker.io/bitnamicharts/nginx-ingress-controller
+# File gốc: values.origin.yaml
+
+# =========================
+# Image Configuration
+# Chuyển image từ bitnami sang bitnamilegacy
+# (EN: Switch image from bitnami to bitnamilegacy)
+# =========================
+image:
+  registry: docker.io
+  repository: bitnamilegacy/nginx-ingress-controller
+  pullPolicy: IfNotPresent
+
+# =========================
+# Replica Count
+# Số lượng replica cho controller
+# (EN: Number of replicas for controller)
+# =========================
+replicaCount: 2
+
+# =========================
+# Node Scheduling
+# Chọn node pool cụ thể trên DigitalOcean Kubernetes (DOKS)
+# (EN: Select specific node pool on DigitalOcean Kubernetes)
+# =========================
+nodeSelector:
+  "doks.digitalocean.com/node-pool": "ingress-pool"
+
+# =========================
+# Service Configuration for DigitalOcean Load Balancer
+# Cấu hình Service với annotations cho DO Load Balancer
+# (EN: Service config with annotations for DO Load Balancer)
+# =========================
+service:
+  type: LoadBalancer
+  annotations:
+    # Kích thước Load Balancer unit — giá trị nhỏ nhất = 1
+    # (EN: Load Balancer size unit — minimum value = 1)
+    service.beta.kubernetes.io/do-loadbalancer-size-unit: "1"
+    # Loại Load Balancer — REGIONAL_NETWORK cho network LB hiệu năng cao
+    # (EN: Load Balancer type — REGIONAL_NETWORK for high-performance network LB)
+    service.beta.kubernetes.io/do-loadbalancer-type: "REGIONAL_NETWORK"
+    # Sticky sessions dùng cookies để giữ kết nối client đến cùng backend pod
+    # (EN: Sticky sessions using cookies to maintain client connection to same backend pod)
+    service.beta.kubernetes.io/do-loadbalancer-sticky-sessions-type: "cookies"
+    # Tên cookie cho sticky session
+    # (EN: Cookie name for sticky session)
+    service.beta.kubernetes.io/do-loadbalancer-sticky-sessions-cookie-name: "cookie"
+    # TTL của cookie — 300 giây = 5 phút
+    # (EN: Cookie TTL — 300 seconds = 5 minutes)
+    service.beta.kubernetes.io/do-loadbalancer-sticky-sessions-cookie-ttl: "300"
+
+# =========================
+# Default Backend Configuration
+# Cấu hình Default Backend — xử lý request khi không match Ingress rule
+# (EN: Default Backend config — handles requests when no Ingress rule matches)
+# =========================
+defaultBackend:
+  enabled: true
+  replicaCount: 1
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/nginx
+    pullPolicy: IfNotPresent
+
+# =========================
+# Ingress Class Configuration
+# Đặt IngressClass mặc định cho cluster
+# (EN: Set default IngressClass for cluster)
+# =========================
+ingressClassResource:
+  name: nginx
+  enabled: true
+  default: true
+  controllerClass: "k8s.io/ingress-nginx"
+
+# Run command:
+# helm upgrade --install nginx-ingress oci://registry-1.docker.io/bitnamicharts/nginx-ingress-controller -n ingress-nginx --create-namespace -f values.yaml --wait

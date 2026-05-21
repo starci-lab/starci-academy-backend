@@ -1,0 +1,126 @@
+# Kiến trúc: Producer HTTP ingest-api → topic platform-events; consumer-a/b cùng group chia partition.
+# (EN: HTTP producer ingest-api → platform-events topic; consumer-a/b share group partitions.)
+#
+# Demo gợi ý: POST /events + Kafka UI http://localhost:8080 (lag/offset)
+#
+# Thư mục làm việc: 0-log-based-messaging-fundamentals/.docker
+# (EN: Working directory: 0-log-based-messaging-fundamentals/.docker)
+#
+# Khởi chạy stack:
+# (EN: Start stack:)
+#   cd 0-log-based-messaging-fundamentals/.docker && docker compose up -d --build
+#
+# Xem log:
+# (EN: View logs:)
+#   docker compose logs -f
+#
+# Dọn dẹp:
+# (EN: Cleanup:)
+#   docker compose down -v
+#
+name: 0-log-based-messaging-fundamentals
+
+services:
+  # Kafka KRaft broker — log phân vùng cho lesson.
+  # (EN: Kafka KRaft broker — partitioned log for the lesson.)
+  # Kafka broker — partitioned log.
+  # (EN: Kafka broker — partitioned log.)
+  # Kafka broker.
+  # (EN: Kafka broker.)
+  kafka:
+    image: apache/kafka:3.8.0
+    container_name: kafka
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    ports:
+      # Broker Kafka PLAINTEXT.
+      # (EN: Kafka broker PLAINTEXT port.)
+      - "9092:9092"
+    restart: unless-stopped
+
+  # Kafka UI — xem topic, offset, consumer lag.
+  # (EN: Kafka UI — inspect topics, offsets, consumer lag.)
+  # Kafka UI — topic / lag / offset.
+  # (EN: Kafka UI — topics, lag, offsets.)
+  # Kafka UI — lag/offset.
+  # (EN: Kafka UI — lag/offset.)
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      # Giao diện Kafka UI.
+      # (EN: Kafka UI web port.)
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    depends_on:
+      - kafka
+    restart: unless-stopped
+
+  # HTTP producer — POST /events.
+  # (EN: HTTP producer — POST /events.)
+  ingest-api:
+    image: starciacademy/advanced-message-broker-ingest-api:latest
+    container_name: 0-log-based-messaging-fundamentals-ingest-api
+    ports:
+      # Cổng HTTP API host → container.
+      # (EN: HTTP API host → container port.)
+      - "3000:3000"
+    environment:
+      KAFKA_BROKERS: kafka:9092
+      KAFKA_TOPIC: platform-events
+      KAFKA_CLIENT_ID: ingest-api
+      PORT: 3000
+    depends_on:
+      - kafka
+    networks:
+      - 0-log-based-messaging-fundamentals
+    restart: unless-stopped
+
+  # Consumer A — group broker-lesson0-group.
+  # (EN: Consumer A — group broker-lesson0-group.)
+  consumer-a:
+    image: starciacademy/advanced-message-broker-consumer-a:latest
+    container_name: 0-log-based-messaging-fundamentals-consumer-a
+    environment:
+      KAFKA_BROKERS: kafka:9092
+      KAFKA_TOPIC: platform-events
+      KAFKA_CLIENT_ID: consumer-a
+      KAFKA_GROUP_ID: broker-lesson0-group
+    depends_on:
+      - kafka
+    networks:
+      - 0-log-based-messaging-fundamentals
+    restart: unless-stopped
+
+  # Consumer B — cùng group, chia partition.
+  # (EN: Consumer B — same group, shares partitions.)
+  consumer-b:
+    image: starciacademy/advanced-message-broker-consumer-b:latest
+    container_name: 0-log-based-messaging-fundamentals-consumer-b
+    environment:
+      KAFKA_BROKERS: kafka:9092
+      KAFKA_TOPIC: platform-events
+      KAFKA_CLIENT_ID: consumer-b
+      KAFKA_GROUP_ID: broker-lesson0-group
+    depends_on:
+      - kafka
+    networks:
+      - 0-log-based-messaging-fundamentals
+    restart: unless-stopped
+
+networks:
+  0-log-based-messaging-fundamentals:
+    name: 0-log-based-messaging-fundamentals

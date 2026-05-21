@@ -1,0 +1,43 @@
+# === 1. Service cho Backend ===
+# Service này tạo một Endpoint nội bộ (ClusterIP) ở port 3000.
+# Các thành phần khác trong cụm K8s có thể gọi tới backend qua tên miền `backend-service`.
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  type: ClusterIP # Chỉ truy cập được từ bên trong cụm (Internal Load Balancer)
+  selector:
+    app: backend # Map với label của Pod bên dưới
+  ports:
+    - protocol: TCP
+      port: 3000 # Port của Service
+      targetPort: 3000 # Port của Container thực tế
+---
+# === 2. Deployment cho Backend ===
+# Quản lý vòng đời của Pod, đảm bảo luôn có 3 bản sao đang chạy.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  replicas: 3 # Desired State: 3 bản sao để chịu lỗi và cân bằng tải
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend # Label để Service nhận diện
+    spec:
+      containers:
+      - name: backend
+        image: starciacademy/kubernetes-core-concepts-backend:latest
+        ports:
+        - containerPort: 3000
+        env:
+        # Sử dụng DNS của Kubernetes Service thay vì IP cứng
+        - name: MYSQL_HOST
+          value: mysql-service
+        - name: REDIS_HOST
+          value: redis-service

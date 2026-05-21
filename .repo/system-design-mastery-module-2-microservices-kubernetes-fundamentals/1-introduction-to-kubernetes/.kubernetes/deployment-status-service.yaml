@@ -1,0 +1,32 @@
+# Deployment — NestJS Status Service (EN: NestJS Status Service Deployment)
+#
+# Run command:
+# kubectl apply -f .kubernetes/
+#
+# Scale command (EN: scale replicas):
+# kubectl scale deployment status-service -n starci-demo --replicas=5
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: status-service
+  namespace: starci-demo
+  labels:
+    app: status-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: status-service
+  template:
+    metadata:
+      labels:
+        app: status-service
+    spec:
+      containers:
+        - name: status-service
+          image: starciacademy/introduction-to-kubernetes-status-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http

@@ -1,0 +1,42 @@
+# Cấu hình Helm chart Redis Cluster với image từ bitnamilegacy
+# (EN: Helm chart configuration for Redis Cluster using bitnamilegacy images)
+# Chart: oci://registry-1.docker.io/bitnamicharts/redis-cluster
+
+# Override tất cả image từ bitnami/* sang bitnamilegacy/*
+image:
+  registry: docker.io
+  repository: bitnamilegacy/redis-cluster
+  tag: 8.2.1-debian-12-r0
+  pullPolicy: IfNotPresent
+
+volumePermissions:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/os-shell
+    tag: 12-debian-12-r51
+    pullPolicy: IfNotPresent
+
+sysctlImage:
+  registry: docker.io
+  repository: bitnamilegacy/os-shell
+  tag: 12-debian-12-r51
+  pullPolicy: IfNotPresent
+
+metrics:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/redis-exporter
+    tag: 1.76.0-debian-12-r0
+    pullPolicy: IfNotPresent
+
+cluster:
+  nodes: 6
+  replicas: 1
+
+usePassword: true
+password: "redis123"
+
+persistence:
+  enabled: true
+  size: 8Gi

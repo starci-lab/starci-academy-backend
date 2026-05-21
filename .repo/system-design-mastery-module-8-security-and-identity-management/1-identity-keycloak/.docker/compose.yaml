@@ -1,0 +1,112 @@
+# Stack lab "Identity & Keycloak" — Keycloak SSO (Postgres-backed) + NestJS API (public & confidential client).
+# (EN: "Identity & Keycloak" lab stack — Keycloak SSO (Postgres-backed) + NestJS API (public & confidential client).)
+#
+# Thư mục làm việc: 1-identity-keycloak/.docker
+# (EN: Working directory: 1-identity-keycloak/.docker)
+#
+# Khởi chạy:  docker compose up -d --build
+# (EN: Start:  docker compose up -d --build)
+#
+# Xem log:    docker compose logs -f api-service
+# (EN: Logs:  docker compose logs -f api-service)
+#
+# Dọn dẹp:   docker compose down -v
+# (EN: Teardown: docker compose down -v)
+
+# Tiền tố project Compose (tên stack / tiền tố container).
+# (EN: Compose project prefix (stack / container name prefix).)
+name: 1-identity-keycloak
+
+services:
+  # PostgreSQL — persistence cho Keycloak realm/user data.
+  # (EN: PostgreSQL — persistence for Keycloak realm/user data.)
+  # PostgreSQL — persistence lesson.
+  # (EN: PostgreSQL — lesson persistence.)
+  # PostgreSQL persistence.
+  # (EN: PostgreSQL persistence.)
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    volumes:
+      - keycloak-pg:/var/lib/postgresql/data
+    networks:
+      - 1-identity-keycloak
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  # Keycloak — Identity Provider (dev mode), auto-import realm từ .containers/keycloak/import.
+  # (EN: Keycloak — Identity Provider (dev mode), auto-imports realm from .containers/keycloak/import.)
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0
+    command:
+      - start-dev
+      - --import-realm
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      # Ánh xạ cổng host 8080 → container 8080 (Keycloak Admin Console + OIDC endpoints).
+      # (EN: Map host port 8080 → container 8080 (Keycloak Admin Console + OIDC endpoints).)
+      - "8080:8080"
+    volumes:
+      - ./keycloak/import:/opt/keycloak/data/import
+    networks:
+      - 1-identity-keycloak
+
+  # NestJS API Service — demo xác thực Keycloak (public + confidential client, OAuth + password).
+  # (EN: NestJS API Service — Keycloak auth demo (public + confidential client, OAuth + password).)
+  api-service:
+    image: starciacademy/identity-keycloak-api-service:latest
+    build:
+      context: ../api-service
+      dockerfile: Dockerfile
+    environment:
+      PORT: "3000"
+      APP_BASE_URL: http://localhost:3000
+      KEYCLOAK_BASE_URL: http://keycloak:8080
+      KEYCLOAK_REALM: starci-realm
+      # Public client — không cần secret (Direct Access Grants + Authorization Code).
+      # (EN: Public client — no secret needed (Direct Access Grants + Authorization Code).)
+      KEYCLOAK_PUBLIC_CLIENT_ID: nestjs-app
+      # Confidential (private) client — cần secret để đổi token.
+      # (EN: Confidential (private) client — requires secret to exchange token.)
+      KEYCLOAK_PRIVATE_CLIENT_ID: nestjs-private-app
+      KEYCLOAK_PRIVATE_CLIENT_SECRET: super-secret-key
+      # Tài khoản demo mặc định cho luồng password grant.
+      # (EN: Default demo credentials for password grant flow.)
+      KEYCLOAK_DEFAULT_USERNAME: student
+      KEYCLOAK_DEFAULT_PASSWORD: student123
+      KEYCLOAK_REDIRECT_URI: http://localhost:3000/auth/callback
+    depends_on:
+      - keycloak
+    ports:
+      # Ánh xạ cổng host 3000 → container 3000 (HTTP API).
+      # (EN: Map host port 3000 → container 3000 (HTTP API).)
+      # Cổng HTTP API host → container.
+      # (EN: HTTP API host → container port.)
+      - "3000:3000"
+    networks:
+      - 1-identity-keycloak
+
+volumes:
+  keycloak-pg:
+
+# Mạng nội bộ Compose — tên trùng lesson, Compose tự tạo/xóa.
+# (EN: Compose-managed network — name matches lesson, auto created/removed.)
+networks:
+  1-identity-keycloak:
+    name: 1-identity-keycloak

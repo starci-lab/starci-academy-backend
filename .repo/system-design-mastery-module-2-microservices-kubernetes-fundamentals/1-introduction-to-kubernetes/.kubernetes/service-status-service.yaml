@@ -1,0 +1,20 @@
+# Service — expose NestJS qua ClusterIP trên Minikube (EN: ClusterIP for Minikube)
+#
+# Sau khi apply, dùng port-forward (EN: use port-forward after apply):
+# kubectl port-forward svc/status-service 3000:3000 -n starci-demo
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: status-service
+  namespace: starci-demo
+  labels:
+    app: status-service
+spec:
+  type: ClusterIP
+  selector:
+    app: status-service
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000

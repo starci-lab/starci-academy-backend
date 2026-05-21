@@ -1,0 +1,61 @@
+# So sánh kiến trúc Monolith và Microservices
+# (EN: Monolith vs Microservices Architecture Comparison)
+#
+# Thư mục làm việc: 0-monolith-vs-microservices/.docker
+#
+# Lệnh khởi chạy hệ thống Monolith:
+# (EN: Start Monolith system command:)
+# docker compose --profile monolith up -d
+#
+# Lệnh khởi chạy hệ thống Microservices:
+# (EN: Start Microservices system command:)
+# docker compose --profile microservices up -d
+#
+# Lệnh dọn dẹp:
+# (EN: Cleanup command:)
+# docker compose --profile monolith --profile microservices down -v
+
+name: 0-monolith-vs-microservices
+
+services:
+  # ==========================================
+  # PROFILE: MONOLITH
+  # ==========================================
+  # Ứng dụng nguyên khối chứa tất cả module (Search, Payment).
+  # (EN: Monolithic app containing all modules (Search, Payment).)
+  monolith-service:
+    profiles: ["monolith"]
+    image: starciacademy/monolith-vs-microservices-monolith-service:latest
+    ports:
+      - "8080-8085:3000"
+    networks:
+      - 0-monolith-vs-microservices-network
+    container_name: 0-monolith-vs-microservices-monolith-service
+  gateway:
+    profiles: ["microservices"]
+    image: nginx:alpine
+    container_name: 0-monolith-vs-microservices-gateway
+    volumes:
+      - ../gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - search-service
+      - payment-service
+    networks:
+      - 0-monolith-vs-microservices-network
+  search-service:
+    profiles: ["microservices"]
+    image: starciacademy/monolith-vs-microservices-search-service:latest
+    networks:
+      - 0-monolith-vs-microservices-network
+    container_name: 0-monolith-vs-microservices-search-service
+  payment-service:
+    profiles: ["microservices"]
+    image: starciacademy/monolith-vs-microservices-payment-service:latest
+    networks:
+      - 0-monolith-vs-microservices-network
+    container_name: 0-monolith-vs-microservices-payment-service
+networks:
+  0-monolith-vs-microservices-network:
+    name: 0-monolith-vs-microservices-network

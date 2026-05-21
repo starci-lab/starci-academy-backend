@@ -1,0 +1,34 @@
+# Thư mục làm việc: 3-system-design-process/.docker
+#
+# Lệnh khởi chạy stack:
+# (EN: Start stack command:)
+# docker compose up -d
+#
+# Lệnh xem log:
+# (EN: View logs command:)
+# docker compose logs -f
+#
+# Lệnh dọn dẹp:
+# (EN: Cleanup command:)
+# docker compose down -v
+
+name: 3-system-design-process
+
+services:
+  # Process Service — API Node cung cấp mock data cho các hệ thống phụ.
+  # (EN: Process Service — API Node providing mock data for sub-systems.)
+  process-service:
+    image: starciacademy/system-design-process-service:latest
+    container_name: 3-system-design-process-process-service
+    ports:
+      # Ánh xạ cổng host 8083 → container 3000 (HTTP API).
+      # (EN: Map host port 8083 → container 3000 (HTTP API).)
+      - "8083:3000"
+    environment:
+      - PORT=3000
+    restart: unless-stopped
+    networks:
+      - 3-system-design-process-network
+networks:
+  3-system-design-process-network:
+    name: 3-system-design-process-network

@@ -1,0 +1,21 @@
+# === 1. ClusterIssuer ===
+# Thành phần này đại diện cho một tổ chức cấp phát chứng chỉ (Certificate Authority - CA).
+# Ở đây ta dùng Let's Encrypt (môi trường staging hoặc prod).
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod # Cấp chứng chỉ thực tế (rate limit gắt, dùng cẩn thận)
+spec:
+  acme:
+    # URL của Let's Encrypt API (dùng môi trường production)
+    server: https://acme-v02.api.letsencrypt.org/directory
+    # Email để Let's Encrypt gửi thông báo sắp hết hạn (dù nó tự động gia hạn)
+    email: admin@starci.net
+    # Secret lưu private key của tài khoản ACME
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    # Cấu hình "thử thách" (challenge) để Let's Encrypt biết bạn là chủ tên miền
+    solvers:
+    - http01: # Phương thức HTTP-01 (Tạo một file ở /.well-known/acme-challenge/...)
+        ingress:
+          class: nginx # Sử dụng NGINX Ingress Controller để hứng request của Let's Encrypt

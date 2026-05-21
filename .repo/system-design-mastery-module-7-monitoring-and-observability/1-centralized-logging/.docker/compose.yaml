@@ -1,0 +1,92 @@
+# =============================================================================
+# Docker Compose — lesson `1-centralized-logging` (logging-api + Loki + Grafana).
+# (EN: Docker Compose — lesson `1-centralized-logging` (logging-api + Loki + Grafana).)
+#
+# Thư mục làm việc: `.../1-centralized-logging/.docker/`
+# (EN: Working directory: `.../1-centralized-logging/.docker/`)
+#
+# Khởi chạy nền:
+# (EN: Start detached:)
+#     docker compose up -d --build
+#
+# Xem log logging-api / loki:
+# (EN: Tail logging-api / loki logs:)
+#     docker compose logs -f logging-api
+#     docker compose logs -f loki
+#
+# Dừng và gỡ container + volume:
+# (EN: Stop/remove containers + volumes:)
+#     docker compose down -v
+# =============================================================================
+
+# Tiền tố project Compose (tên stack / tiền tố container).
+# (EN: Compose project prefix (stack / container name prefix).)
+name: 1-centralized-logging
+
+services:
+  # Loki — backend log tập trung, nhận log từ Winston qua HTTP push API (:3100).
+  # (EN: Loki — centralized log backend, receives logs from Winston via HTTP push API (:3100).)
+  loki:
+    image: grafana/loki:2.9.8
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      # Ánh xạ cổng host 3100 → container 3100 (Loki HTTP API).
+      # (EN: Map host port 3100 → container 3100 (Loki HTTP API).)
+      - "3100:3100"
+    networks:
+      - "1-centralized-logging"
+
+  # Grafana — dashboard hiển thị log từ Loki; datasource tự đăng ký qua provisioning.
+  # (EN: Grafana — dashboard displaying logs from Loki; datasource auto-provisioned.)
+  grafana:
+    image: grafana/grafana:11.1.0
+    environment:
+      # Tài khoản admin mặc định cho lab (không dùng production).
+      # (EN: Default admin credentials for lab (not for production).)
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+    volumes:
+      # Tự động đăng ký Loki làm datasource khi Grafana khởi động.
+      # (EN: Auto-register Loki as datasource when Grafana starts.)
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    ports:
+      # Ánh xạ cổng host 3001 → container 3000 (Grafana Web UI).
+      # (EN: Map host port 3001 → container 3000 (Grafana Web UI).)
+      - "3001:3000"
+    depends_on:
+      # Khởi động sau Loki để datasource sẵn sàng.
+      # (EN: Starts after Loki so datasource is available.)
+      - loki
+    networks:
+      - "1-centralized-logging"
+
+  # NestJS logging-api — đẩy log tới Loki (Winston); bắt lỗi bằng Sentry.
+  # (EN: NestJS logging-api — pushes logs to Loki (Winston); captures errors with Sentry.)
+  logging-api:
+    image: starciacademy/centralized-logging-logging-api:latest
+    environment:
+      # URL Loki nội bộ — logging-api đẩy log qua winston-loki transport.
+      # (EN: Internal Loki URL — logging-api pushes logs via winston-loki transport.)
+      LOKI_URL: http://loki:3100
+      LOG_APP_NAME: logging-api
+      LOG_ENV: lab
+      # Sentry DSN — thay bằng DSN thật từ sentry.io hoặc self-hosted Sentry.
+      # (EN: Sentry DSN — replace with real DSN from sentry.io or self-hosted Sentry.)
+      SENTRY_DSN: ${SENTRY_DSN:-}
+    depends_on:
+      # Khởi động sau Loki (thứ tự khởi tạo; không chờ healthy).
+      # (EN: Starts after Loki (startup order; no health-aware wait).)
+      - loki
+    ports:
+      # Ánh xạ cổng host 3002 → container 3000 (HTTP API logging).
+      # (EN: Map host port 3002 → container 3000 (HTTP API logging).)
+      - "3002:3000"
+    networks:
+      - "1-centralized-logging"
+
+# Network do Compose tạo; `name` đặt tên trên Docker trùng lesson (không `external`).
+# (EN: Compose-managed network; `name` sets Docker network name to match lesson (not `external`).)
+networks:
+  "1-centralized-logging":
+    name: "1-centralized-logging"

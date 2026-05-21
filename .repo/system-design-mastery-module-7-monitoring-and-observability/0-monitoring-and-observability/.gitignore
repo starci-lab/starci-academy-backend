@@ -1,0 +1,6 @@
+node_modules
+dist
+.env
+!metrics-api/.env
+coverage
+*.log

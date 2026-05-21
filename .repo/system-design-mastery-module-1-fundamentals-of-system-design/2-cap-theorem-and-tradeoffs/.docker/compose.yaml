@@ -1,0 +1,61 @@
+# Kiến trúc: Hai Database Node giả lập ở 2 khu vực địa lý khác nhau (US và SG),
+# đồng bộ dữ liệu lẫn nhau để thể hiện Định lý CAP khi bị đứt kết nối mạng.
+# (EN: Architecture: Two simulated Database Nodes in 2 different geographic regions (US and SG),
+# synchronizing data to demonstrate CAP Theorem during network partition.)
+#
+# Thư mục làm việc: 2-cap-theorem-and-tradeoffs/.docker
+#
+# Lệnh khởi chạy stack chế độ CP (Ưu tiên nhất quán - Mặc định):
+# (EN: Start stack command for CP Mode (Consistency Priority - Default):)
+# docker compose up -d
+#
+# Lệnh khởi chạy stack chế độ AP (Ưu tiên sẵn sàng):
+# (EN: Start stack command for AP Mode (Availability Priority):)
+# MODE=AP docker compose up -d
+#
+# Lệnh xem log:
+# (EN: View logs command:)
+# docker compose logs -f
+#
+# Lệnh dọn dẹp:
+# (EN: Cleanup command:)
+# docker compose down -v
+
+name: 2-cap-theorem-and-tradeoffs
+
+services:
+  # Database Node 1 (Mỹ - US) — Xử lý yêu cầu tại vùng US và đồng bộ sang SG.
+  # (EN: Database Node 1 (US) — Handles US region requests and syncs to SG.)
+  node-us:
+    image: starciacademy/cap-theorem-and-tradeoffs-cap-service:latest
+    container_name: 2-cap-theorem-and-tradeoffs-node-us
+    ports:
+      # Ánh xạ cổng host 6900 → container 3000 (HTTP API).
+      # (EN: Map host port 6900 → container 3000 (HTTP API).)
+      - "6900:3000"
+    environment:
+      - PORT=3000
+      - NODE_NAME=Node US
+      - MODE=${MODE:-CP}
+      - PEERS=http://node-sg:3000
+    restart: unless-stopped
+    networks:
+      - 2-cap-theorem-and-tradeoffs-network
+  node-sg:
+    image: starciacademy/cap-theorem-and-tradeoffs-cap-service:latest
+    container_name: 2-cap-theorem-and-tradeoffs-node-sg
+    ports:
+      # Ánh xạ cổng host 6901 → container 3000 (HTTP API).
+      # (EN: Map host port 6901 → container 3000 (HTTP API).)
+      - "6901:3000"
+    environment:
+      - PORT=3000
+      - NODE_NAME=Node SG
+      - MODE=${MODE:-CP}
+      - PEERS=http://node-us:3000
+    restart: unless-stopped
+    networks:
+      - 2-cap-theorem-and-tradeoffs-network
+networks:
+  2-cap-theorem-and-tradeoffs-network:
+    name: 2-cap-theorem-and-tradeoffs-network

@@ -1,0 +1,62 @@
+# Kiến trúc: Stack Docker lesson: service discovery.
+# (EN: Docker stack for lesson: service discovery.)
+#
+# Demo: HTTP API cổng 3000 (hoặc theo compose); xem README module.
+#
+# Thư mục làm việc: 2-service-discovery/.docker
+# (EN: Working directory: 2-service-discovery/.docker)
+#
+# Khởi chạy stack:
+# (EN: Start stack:)
+#   cd 2-service-discovery/.docker && docker compose up -d --build
+#
+# Xem log:
+# (EN: View logs:)
+#   docker compose logs -f
+#
+# Dọn dẹp:
+# (EN: Cleanup:)
+#   docker compose down -v
+#
+# =============================================================================
+# Docker Compose — lesson `2-service-discovery` (consul-api + Consul dev agent).
+# (EN: Docker Compose — lesson `2-service-discovery` (consul-api + Consul dev agent).)
+#
+# Làm việc trong thư mục chứa file này: `.../2-service-discovery/.docker/`
+# (EN: Run commands from this file's directory: `.../2-service-discovery/.docker/`)
+#
+# Compose tự tạo network `2-service-discovery` khi `up`.
+# (EN: Compose creates network `2-service-discovery` on `up`.)
+#
+#     docker compose up -d
+# =============================================================================
+
+name: 2-service-discovery
+
+services:
+  # VI: Consul agent dev — HTTP API đăng ký/discover trong lab.
+  # EN: Consul dev agent — register/discover HTTP API for lab.
+  consul:
+    image: hashicorp/consul:1.19
+    command: "agent -dev -client=0.0.0.0"
+    ports:
+      - "8500:8500"
+    networks:
+      - "2-service-discovery"
+
+  # VI: NestJS gọi Consul — `CONSUL_BASE_URL` là hostname service `consul`.
+  # EN: NestJS calls Consul — `CONSUL_BASE_URL` targets service hostname `consul`.
+  consul-api:
+    image: starciacademy/service-discovery-consul-api:latest
+    environment:
+      CONSUL_BASE_URL: http://consul:8500
+    depends_on:
+      - consul
+    ports:
+      - "3003:3000"
+    networks:
+      - "2-service-discovery"
+
+networks:
+  "2-service-discovery":
+    name: "2-service-discovery"

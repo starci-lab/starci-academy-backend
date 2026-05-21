@@ -1,0 +1,124 @@
+# Kiến trúc: SMTP primary/secondary MailHog + BullMQ retry; job failed = DLQ demo.
+# (EN: Primary/secondary MailHog SMTP failover + BullMQ retries; failed jobs as DLQ demo.)
+#
+# Demo gợi ý: docker stop mailhog-primary → gửi qua secondary
+#
+# Thư mục làm việc: 2-failover-and-delivery-guarantees/.docker
+# (EN: Working directory: 2-failover-and-delivery-guarantees/.docker)
+#
+# Khởi chạy stack:
+# (EN: Start stack:)
+#   cd 2-failover-and-delivery-guarantees/.docker && docker compose up -d --build
+#
+# Xem log:
+# (EN: View logs:)
+#   docker compose logs -f
+#
+# Dọn dẹp:
+# (EN: Cleanup:)
+#   docker compose down -v
+#
+name: 2-failover-and-delivery-guarantees
+
+services:
+  # NestJS API — BullMQ + DLQ + SMTP Failover
+  # NestJS HTTP API — entry lesson.
+  # (EN: NestJS HTTP API — lesson entrypoint.)
+  # NestJS HTTP API.
+  # (EN: NestJS HTTP API.)
+  api:
+    container_name: 2-failover-api
+    image: starciacademy/failover-and-delivery-guarantees-failover-service:latest
+    ports:
+      # HTTP API lesson.
+      # (EN: Lesson HTTP API port.)
+      # Cổng HTTP API host → container.
+      # (EN: HTTP API host → container port.)
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=failover_service
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SMTP_PRIMARY_HOST=mailhog-primary
+      - SMTP_PRIMARY_PORT=1025
+      - SMTP_SECONDARY_HOST=mailhog-secondary
+      - SMTP_SECONDARY_PORT=1025
+      - SMTP_FROM=noreply@starci-academy.dev
+      - RETRY_ATTEMPTS=5
+      - RETRY_DELAY_MS=1000
+    networks:
+      - 2-failover-network
+    depends_on:
+      - db
+      - redis
+      - mailhog-primary
+      - mailhog-secondary
+
+  # PostgreSQL — log trạng thái notification.
+  # (EN: PostgreSQL — notification status log.)
+  # PostgreSQL — persistence lesson.
+  # (EN: PostgreSQL — lesson persistence.)
+  # PostgreSQL persistence.
+  # (EN: PostgreSQL persistence.)
+  db:
+    image: postgres:16-alpine
+    container_name: 2-failover-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=failover_service
+    ports:
+      - "5432:5432"
+    networks:
+      - 2-failover-network
+
+  # Redis — BullMQ backend.
+  # (EN: Redis — BullMQ backend.)
+  # Redis — cache / queue / rate limit.
+  # (EN: Redis — cache / queue / rate limit.)
+  # Redis cache/queue/rate-limit.
+  # (EN: Redis cache/queue/rate-limit.)
+  redis:
+    image: redis:7-alpine
+    container_name: 2-failover-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - 2-failover-network
+
+  # MailHog Primary — SMTP chính (có thể dừng để giả lập failover).
+  # (EN: MailHog Primary — primary SMTP (can be stopped to simulate failover).)
+  # SMTP primary — tắt container để demo failover.
+  # (EN: Primary SMTP — stop container to demo failover.)
+  mailhog-primary:
+    image: mailhog/mailhog:latest
+    container_name: 2-failover-mailhog-primary
+    ports:
+      - "1025:1025"
+      # MailHog web inbox.
+      # (EN: MailHog web inbox port.)
+      - "8025:8025"
+    networks:
+      - 2-failover-network
+
+  # MailHog Secondary — SMTP dự phòng tự động nhận khi primary down.
+  # (EN: MailHog Secondary — backup SMTP that takes over when primary is down.)
+  # SMTP secondary — nhận khi primary lỗi.
+  # (EN: Secondary SMTP — used when primary fails.)
+  mailhog-secondary:
+    image: mailhog/mailhog:latest
+    container_name: 2-failover-mailhog-secondary
+    ports:
+      - "1026:1025"
+      - "8026:8025"
+    networks:
+      - 2-failover-network
+
+networks:
+  2-failover-network:
+    name: 2-failover-network

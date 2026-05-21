@@ -1,0 +1,91 @@
+# Kiến trúc: Stack Docker lesson: circuit breaker pattern.
+# (EN: Docker stack for lesson: circuit breaker pattern.)
+#
+# Demo: HTTP API cổng 3000 (hoặc theo compose); xem README module.
+#
+# Thư mục làm việc: 1-circuit-breaker-pattern/.docker
+# (EN: Working directory: 1-circuit-breaker-pattern/.docker)
+#
+# Khởi chạy stack:
+# (EN: Start stack:)
+#   cd 1-circuit-breaker-pattern/.docker && docker compose up -d --build
+#
+# Xem log:
+# (EN: View logs:)
+#   docker compose logs -f
+#
+# Dọn dẹp:
+# (EN: Cleanup:)
+#   docker compose down -v
+#
+# Docker Compose — lesson `1-circuit-breaker-pattern` (api-gateway + inventory-service).
+# (EN: Docker Compose — lesson `1-circuit-breaker-pattern` (api-gateway + inventory-service).)
+#
+# Làm việc trong thư mục chứa file này: `.../1-circuit-breaker-pattern/.docker/`
+# (EN: Run commands from this file's directory: `.../1-circuit-breaker-pattern/.docker/`)
+#
+# Compose tự tạo network `1-circuit-breaker-pattern` khi `up` (không cần `docker network create`).
+# (EN: Compose creates network `1-circuit-breaker-pattern` on `up` (no manual `docker network create`).)
+#
+# Khởi chạy nền:
+# (EN: Start detached:)
+#     docker compose up -d
+#
+# Xem log api-gateway / inventory-service:
+# (EN: Tail api-gateway / inventory-service logs:)
+#     docker compose logs -f api-gateway
+#     docker compose logs -f inventory-service
+#
+# Dừng và gỡ container (network do Compose quản lý thường bị xóa kèm `down`, trừ khi đang được container khác dùng).
+# (EN: Stop/remove containers (Compose-managed network is usually removed with `down`, unless another container still uses it).)
+#     docker compose down
+# =============================================================================
+
+# Tiền tố project Compose (tên stack / tiền tố container).
+# (EN: Compose project prefix (stack / container name prefix).)
+name: 1-circuit-breaker-pattern
+
+services:
+  # Inventory service — dịch vụ kho hàng giả lập, báo lỗi từ request thứ 4 để ép Circuit Breaker chuyển trạng thái.
+  # (EN: Inventory service — simulated inventory, starts failing from the 4th request to trigger Circuit Breaker state change.)
+  inventory-service:
+    image: starciacademy/reliability-and-resilience-patterns-circuit-breaker-inventory-service:latest
+    environment:
+      PORT: "3001"
+      FAILURE_AFTER_SUCCESS_COUNT: "3"
+    ports:
+      # Ánh xạ cổng host 3001 → container 3001 (HTTP API inventory).
+      # (EN: Map host port 3001 → container 3001 (HTTP API inventory).)
+      - "3001:3001"
+    networks:
+      - "1-circuit-breaker-pattern"
+
+  # API Gateway — tích hợp Opossum Circuit Breaker bọc lệnh gọi xuống inventory-service.
+  # (EN: API Gateway — integrates Opossum Circuit Breaker wrapping calls to inventory-service.)
+  api-gateway:
+    image: starciacademy/reliability-and-resilience-patterns-circuit-breaker-api-gateway:latest
+    environment:
+      PORT: "3000"
+      INVENTORY_BASE_URL: http://inventory-service:3001
+      INVENTORY_TIMEOUT_MS: "2000"
+      CB_TIMEOUT_MS: "2500"
+      CB_ERROR_THRESHOLD_PERCENTAGE: "50"
+      CB_RESET_TIMEOUT_MS: "5000"
+    depends_on:
+      # Khởi động sau inventory-service (thứ tự khởi tạo; không chờ healthy).
+      # (EN: Starts after inventory-service (startup order; no health-aware wait).)
+      - inventory-service
+    ports:
+      # Ánh xạ cổng host 3000 → container 3000 (HTTP API gateway).
+      # (EN: Map host port 3000 → container 3000 (HTTP API gateway).)
+      # Cổng HTTP API host → container.
+      # (EN: HTTP API host → container port.)
+      - "3000:3000"
+    networks:
+      - "1-circuit-breaker-pattern"
+
+# Network do Compose tạo; `name` đặt tên trên Docker trùng lesson (không `external`).
+# (EN: Compose-managed network; `name` sets Docker network name to match lesson (not `external`).)
+networks:
+  "1-circuit-breaker-pattern":
+    name: "1-circuit-breaker-pattern"

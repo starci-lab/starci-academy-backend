@@ -1,0 +1,40 @@
+# === 1. Service cho MySQL ===
+# Cung cấp tên miền nội bộ `mysql-service` cho các Pod backend gọi tới.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+spec:
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+---
+# === 2. Deployment cho MySQL ===
+# (Lưu ý: Trên production thật, DB nên dùng StatefulSet thay vì Deployment)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+spec:
+  replicas: 1 # Chỉ chạy 1 bản sao database trong bài lab này
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: password
+        - name: MYSQL_DATABASE
+          value: test
+        ports:
+        - containerPort: 3306

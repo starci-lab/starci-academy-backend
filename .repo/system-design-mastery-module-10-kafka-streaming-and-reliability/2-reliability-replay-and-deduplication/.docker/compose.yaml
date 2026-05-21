@@ -1,0 +1,137 @@
+# Kiến trúc: Dedup clientMessageId (Redis SETNX) + Postgres processed_events; simulateFailure → retry/DLQ.
+# (EN: Dedup clientMessageId (Redis SETNX) + Postgres; simulateFailure triggers retry/DLQ path.)
+#
+# Demo gợi ý: Gửi trùng clientMessageId; POST simulateFailure: true
+#
+# Thư mục làm việc: 2-reliability-replay-and-deduplication/.docker
+# (EN: Working directory: 2-reliability-replay-and-deduplication/.docker)
+#
+# Khởi chạy stack:
+# (EN: Start stack:)
+#   cd 2-reliability-replay-and-deduplication/.docker && docker compose up -d --build
+#
+# Xem log:
+# (EN: View logs:)
+#   docker compose logs -f
+#
+# Dọn dẹp:
+# (EN: Cleanup:)
+#   docker compose down -v
+#
+name: 2-reliability-replay-and-deduplication
+
+services:
+  # Kafka KRaft broker — log phân vùng cho lesson.
+  # (EN: Kafka KRaft broker — partitioned log for the lesson.)
+  # Kafka broker — partitioned log.
+  # (EN: Kafka broker — partitioned log.)
+  # Kafka broker.
+  # (EN: Kafka broker.)
+  kafka:
+    image: apache/kafka:3.8.0
+    container_name: kafka
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    ports:
+      # Broker Kafka PLAINTEXT.
+      # (EN: Kafka broker PLAINTEXT port.)
+      - "9092:9092"
+    restart: unless-stopped
+
+  # Kafka UI — xem topic, offset, consumer lag.
+  # (EN: Kafka UI — inspect topics, offsets, consumer lag.)
+  # Kafka UI — topic / lag / offset.
+  # (EN: Kafka UI — topics, lag, offsets.)
+  # Kafka UI — lag/offset.
+  # (EN: Kafka UI — lag/offset.)
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      # Giao diện Kafka UI.
+      # (EN: Kafka UI web port.)
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    depends_on:
+      - kafka
+    restart: unless-stopped
+
+  # Producer — clientMessageId + simulateFailure.
+  # (EN: Producer — clientMessageId + simulateFailure flag.)
+  ingest-api:
+    image: starciacademy/advanced-message-broker-ingest-api:latest
+    container_name: 2-reliability-replay-and-deduplication-ingest-api
+    ports:
+      # Cổng HTTP API host → container.
+      # (EN: HTTP API host → container port.)
+      - "3000:3000"
+    environment:
+      KAFKA_BROKERS: kafka:9092
+      KAFKA_TOPIC: reliability-events
+      KAFKA_CLIENT_ID: ingest-api
+      KAFKA_DLQ_TOPIC: reliability-events-dlq
+      PORT: 3000
+    depends_on:
+      - kafka
+    networks:
+      - 2-reliability-replay-and-deduplication
+    restart: unless-stopped
+
+  # Idempotent consumer — dedup + Postgres.
+  # (EN: Idempotent consumer — dedup + Postgres persistence.)
+  reliability-consumer:
+    image: starciacademy/advanced-message-broker-reliability-consumer:latest
+    container_name: 2-reliability-replay-and-deduplication-reliability-consumer
+    environment:
+      KAFKA_BROKERS: kafka:9092
+      KAFKA_TOPIC: reliability-events
+      KAFKA_CLIENT_ID: reliability-consumer
+      KAFKA_GROUP_ID: broker-lesson2-group
+      KAFKA_DLQ_TOPIC: reliability-events-dlq
+    depends_on:
+      - kafka
+    networks:
+      - 2-reliability-replay-and-deduplication
+    restart: unless-stopped
+
+  # Postgres — bảng processed_events.
+  # (EN: Postgres — processed_events table.)
+  # PostgreSQL — persistence lesson.
+  # (EN: PostgreSQL — lesson persistence.)
+  # PostgreSQL persistence.
+  # (EN: PostgreSQL persistence.)
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: reliability_lab
+    networks:
+      - 2-reliability-replay-and-deduplication
+  # Redis — dedup SETNX + sequence INCR.
+  # (EN: Redis — dedup SETNX + sequence INCR.)
+  # Redis — cache / queue / rate limit.
+  # (EN: Redis — cache / queue / rate limit.)
+  # Redis cache/queue/rate-limit.
+  # (EN: Redis cache/queue/rate-limit.)
+  redis:
+    image: redis:7-alpine
+    networks:
+      - 2-reliability-replay-and-deduplication
+
+networks:
+  2-reliability-replay-and-deduplication:
+    name: 2-reliability-replay-and-deduplication
