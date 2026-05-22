@@ -15,7 +15,7 @@ import {
     NotificationEntity,
     NotificationStatus,
     NotificationChannel,
-} from "."
+} from "../entities"
 import { NOTIFICATION_QUEUE } from "."
 
 @Processor(NOTIFICATION_QUEUE)

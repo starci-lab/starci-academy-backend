@@ -10,7 +10,7 @@ import {
 } from "@nestjs/typeorm"
 import {
     FailoverEntity,
-} from "."
+} from "../entities"
 import {
     FailoverService,
 } from "."

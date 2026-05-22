@@ -4,5 +4,5 @@
  */
 export * from "./reliability.controller"
 export * from "./reliability.service"
-export * from "./entities"
+export * from "../entities"
 export * from "./dto"

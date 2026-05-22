@@ -15,7 +15,7 @@ import {
 import {
     AuthorEntity,
     HybridPostEntity,
-} from "./entities"
+} from "../entities"
 
 @Injectable()
 export class HybridfeedSeedService implements OnModuleInit {

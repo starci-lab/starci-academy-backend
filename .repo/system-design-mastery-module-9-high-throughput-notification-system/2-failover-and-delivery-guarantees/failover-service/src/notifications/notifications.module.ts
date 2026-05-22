@@ -5,7 +5,7 @@
 import { Module } from "@nestjs/common"
 import { TypeOrmModule } from "@nestjs/typeorm"
 import { BullModule } from "@nestjs/bullmq"
-import { NotificationEntity } from "."
+import { NotificationEntity } from "../entities"
 import {
     NotificationsService,
     NOTIFICATION_QUEUE,

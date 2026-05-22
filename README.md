@@ -18,9 +18,8 @@ starci-academy-backend/
 │       ├── fullstack-format.md           # Format tài liệu Fullstack
 │       ├── system-design-format.md       # Format tài liệu System Design
 │       └── coding-rules.md              # Quy tắc code (barrel, config, Docker)
-└── .repo/                                # Git submodules — source code bài học
-    ├── fullstack-mastery-module-*/
-    └── system-design-mastery-module-*/
+├── system-design-mastery-module-*/       # Clone từng module repo (GitHub) cạnh mono-repo
+└── fullstack-mastery-module-*/
 ```
 
 ---

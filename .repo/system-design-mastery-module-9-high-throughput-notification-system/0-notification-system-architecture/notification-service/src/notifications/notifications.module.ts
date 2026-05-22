@@ -13,7 +13,7 @@ import {
 } from "@nestjs/bullmq"
 import {
     NotificationEntity,
-} from "."
+} from "../entities"
 import {
     NotificationsService,
     NOTIFICATION_QUEUE,

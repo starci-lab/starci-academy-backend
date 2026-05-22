@@ -14,7 +14,7 @@ import {
     NotificationEntity,
     NotificationStatus,
     NotificationChannel,
-} from "."
+} from "../entities"
 import { SmtpService } from "../smtp"
 import { NOTIFICATION_QUEUE } from "."
 

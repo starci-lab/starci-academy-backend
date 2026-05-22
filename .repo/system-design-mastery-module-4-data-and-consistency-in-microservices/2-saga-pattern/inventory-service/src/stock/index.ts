@@ -1,6 +1,4 @@
-export * from "./fulfillment.entity"
 export * from "./kafka-producer.service"
-export * from "./product.entity"
 export * from "./seed.service"
 export * from "./stock.controller"
 export * from "./stock.module"

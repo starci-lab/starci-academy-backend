@@ -17,7 +17,7 @@ import {
     FollowEntity,
     PostEntity,
     PushedTimelineEntity,
-} from "./entities"
+} from "../entities"
 
 /**
  * Feature module — fanout push vs pull (Postgres + seed OnModuleInit).

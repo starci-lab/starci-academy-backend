@@ -10,7 +10,7 @@ import {
 } from "@nestjs/typeorm"
 import {
     Order,
-} from "."
+} from "../entities"
 import {
     OrdersService,
 } from "."

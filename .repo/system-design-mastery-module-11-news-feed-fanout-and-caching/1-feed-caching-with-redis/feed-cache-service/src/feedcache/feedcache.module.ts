@@ -15,7 +15,7 @@ import {
 } from "./feedcache.service"
 import {
     CachedPostEntity,
-} from "./entities"
+} from "../entities"
 
 /**
  * Feature module — Postgres source + Redis ZSET feed cache.

@@ -8,7 +8,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { KafkaProducerService } from "../saga";
 import { TOPIC } from "../saga";
 import { SagaEventsController } from "../saga";
-import { OrderEntity } from ".";
+import { OrderEntity } from "../entities";
 import { OrdersController } from ".";
 import { OrdersService } from ".";
 

@@ -38,7 +38,7 @@ services:
     networks:
       - 1-scaling-strategies-network
   scaling-service:
-    image: starciacademy/scaling-strategies-scaling-service:latest
+    image: starciacademy/system-design-scaling-strategies-scaling-service:latest
     expose:
       - "3000"
     restart: unless-stopped

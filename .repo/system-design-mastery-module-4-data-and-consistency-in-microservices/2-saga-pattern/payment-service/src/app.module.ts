@@ -16,7 +16,7 @@ import {
 import {
     PaymentEntity,
     LedgerModule,
-} from "./ledger"
+} from "./entities"
 
 @Module({
     imports: [

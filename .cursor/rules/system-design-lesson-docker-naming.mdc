@@ -1,0 +1,52 @@
+---
+description: System Design lesson repositories -- strict Docker Compose naming aligned with modules 0-8
+globs: system-design-mastery-module-*/**/.docker/compose.yaml
+alwaysApply: false
+---
+
+# System Design Lesson Docker Naming
+
+Use the Docker Compose naming pattern already used by the earlier System Design modules.
+
+## Required names
+
+For each lesson folder `<lesson-slug>`:
+
+- Top-level Compose project name must be exactly:
+  - `name: <lesson-slug>`
+- Each service container name must be:
+  - `container_name: <lesson-slug>-<service-key>`
+- The per-lesson network key must be:
+  - `<lesson-slug>-network`
+- The per-lesson network name must be:
+  - `name: <lesson-slug>-network`
+- Every service in that compose file must attach to:
+  - `<lesson-slug>-network`
+
+## API service convention
+
+- The lesson API service key is usually `api`.
+- The lesson API container name is therefore:
+  - `<lesson-slug>-api`
+- Course lesson APIs must use published Docker Hub images in the `starciacademy` namespace:
+  - `image: starciacademy/<lesson-slug>-<service-folder-name>:latest`
+- Do not use `build:` in learner-facing compose files when a published lesson API image is expected.
+- Build and push the API image separately from the service Dockerfile directory.
+
+## Third-party services
+
+Third-party infrastructure services keep their upstream images:
+
+- `postgres:<version>`
+- `redis:<version>`
+- `rabbitmq:<version>`
+- `mailhog/mailhog:<version>`
+- `nginx:<version>`
+
+Their container names must still follow `<lesson-slug>-<service-key>`.
+
+## Do not
+
+- Do not use ad hoc names such as `starci-network`, shared external networks, or cross-lesson container names.
+- Do not leave `build:` as the only API startup path when the lesson should be runnable from published images.
+- Do not rename service keys casually; markdown commands and learner expectations depend on stable compose names.

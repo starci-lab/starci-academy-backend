@@ -22,7 +22,7 @@ import type {
 } from "../config"
 import {
     CachedPostEntity,
-} from "./entities"
+} from "../entities"
 
 @Injectable()
 export class FeedcacheService implements OnModuleInit, OnModuleDestroy {

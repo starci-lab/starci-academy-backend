@@ -11,7 +11,7 @@ import {
 import {
     Product,
     ProductSchema,
-} from "./schemas"
+} from "../schemas"
 import {
     InventoryService,
 } from "."

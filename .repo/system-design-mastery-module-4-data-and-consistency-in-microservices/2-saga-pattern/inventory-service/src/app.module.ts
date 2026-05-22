@@ -15,10 +15,10 @@ import {
 } from "@nestjs/typeorm"
 import {
     FulfillmentEntity,
-} from "./stock"
+} from "./entities"
 import {
     ProductEntity,
-} from "./stock"
+} from "./entities"
 import {
     StockModule,
 } from "./stock"

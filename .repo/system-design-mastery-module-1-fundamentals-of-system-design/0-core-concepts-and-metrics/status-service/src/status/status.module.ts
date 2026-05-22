@@ -7,10 +7,10 @@ import {
 } from "@nestjs/common"
 import {
     StatusController,
-} from "."
+} from "./status.controller"
 import {
     StatusService,
-} from "."
+} from "./status.service"
 
 /**
  * Module trạng thái Node API.

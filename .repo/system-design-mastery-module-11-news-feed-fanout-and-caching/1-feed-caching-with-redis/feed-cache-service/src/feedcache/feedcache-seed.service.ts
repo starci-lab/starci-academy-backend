@@ -14,7 +14,7 @@ import {
 } from "typeorm"
 import {
     CachedPostEntity,
-} from "./entities"
+} from "../entities"
 
 @Injectable()
 export class FeedcacheSeedService implements OnModuleInit {

@@ -30,5 +30,5 @@ EXPOSE 3000
 CMD ["node", "dist/main"]
 
 # Build and push command:
-# docker build -t starciacademy/core-concepts-and-metrics-status-service:latest .
-# docker push starciacademy/core-concepts-and-metrics-status-service:latest
+# docker build -t starciacademy/system-design-core-concepts-and-metrics-status-service:latest .
+# docker push starciacademy/system-design-core-concepts-and-metrics-status-service:latest

@@ -5,7 +5,7 @@
 import { Controller, Get, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '.';
+import { User } from "../entities";
 
 /**
  * Class `UsersController` — thành phần lab (controller/service/module).

@@ -21,7 +21,7 @@ import {
 } from "typeorm"
 import {
     Order,
-} from "."
+} from "../entities"
 
 @Injectable()
 /**

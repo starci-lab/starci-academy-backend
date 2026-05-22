@@ -39,13 +39,12 @@ services:
     networks:
       - 0-core-concepts-and-metrics-network
   status-service:
-    image: starciacademy/core-concepts-and-metrics-status-service:latest
+    image: starciacademy/system-design-core-concepts-and-metrics-status-service:latest
     expose:
       - "3000"
     restart: unless-stopped
     networks:
       - 0-core-concepts-and-metrics-network
-    container_name: 0-core-concepts-and-metrics-status-service
 networks:
   0-core-concepts-and-metrics-network:
     name: 0-core-concepts-and-metrics-network

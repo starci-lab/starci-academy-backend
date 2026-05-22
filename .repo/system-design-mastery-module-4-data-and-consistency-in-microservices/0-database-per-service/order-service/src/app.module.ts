@@ -16,7 +16,7 @@ import {
 import {
     OrdersModule,
     Order,
-} from "./orders"
+} from "./entities"
 
 @Module({
     imports: [

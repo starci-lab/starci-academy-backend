@@ -16,7 +16,7 @@ import {
 import {
     AuthorEntity,
     HybridPostEntity,
-} from "./entities"
+} from "../entities"
 
 /**
  * Feature module — hybrid fanout + Postgres + Redis key salting.

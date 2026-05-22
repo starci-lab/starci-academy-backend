@@ -21,7 +21,7 @@ import {
 import Redis from "ioredis"
 import {
     ProcessedEventEntity,
-} from "./entities"
+} from "../entities"
 import type {
     KafkaConfig,
     RedisConfig,

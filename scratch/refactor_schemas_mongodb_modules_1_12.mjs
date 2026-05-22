@@ -1,0 +1,298 @@
+/**
+ * Move Mongoose schemas to src/schemas/mongodb/<connection>/ for modules 1–12.
+ * Default connection folder: primary.
+ */
+import fs from "node:fs"
+import path from "node:path"
+import { fileURLToPath } from "node:url"
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const REPO_ROOT = path.join(__dirname, "..", ".repo")
+const MODULE_RE = /^system-design-mastery-module-(\d+)-/
+const DEFAULT_CONNECTION = "primary"
+const MIN_MODULE = 1
+const MAX_MODULE = 12
+
+function listModules() {
+    return fs
+        .readdirSync(REPO_ROOT, { withFileTypes: true })
+        .filter((e) => {
+            if (!e.isDirectory() || !MODULE_RE.test(e.name)) return false
+            const n = Number(e.name.match(MODULE_RE)[1])
+            return n >= MIN_MODULE && n <= MAX_MODULE
+        })
+        .map((e) => path.join(REPO_ROOT, e.name))
+}
+
+function findNestServiceRoots(moduleDir) {
+    const roots = []
+    function walk(dir) {
+        for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+            if (!e.isDirectory() || e.name === "node_modules" || e.name === "dist") continue
+            const full = path.join(dir, e.name)
+            if (fs.existsSync(path.join(full, "src", "main.ts"))) {
+                roots.push(full)
+            } else {
+                walk(full)
+            }
+        }
+    }
+    walk(moduleDir)
+    return roots
+}
+
+function walkTs(dir, out) {
+    if (!fs.existsSync(dir)) return
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, e.name)
+        if (e.isDirectory()) {
+            if (["node_modules", "dist", ".briefs"].includes(e.name)) continue
+            walkTs(full, out)
+        } else if (e.isFile() && full.endsWith(".ts")) {
+            out.push(full)
+        }
+    }
+}
+
+function isUnderSchemasMongodb(file, srcRoot) {
+    const rel = path.relative(srcRoot, file).replace(/\\/g, "/")
+    return rel.startsWith("schemas/mongodb/")
+}
+
+function findSchemaFiles(srcRoot) {
+    const out = []
+    walkTs(srcRoot, out)
+    return out.filter((f) => {
+        if (!f.endsWith(".schema.ts")) return false
+        if (isUnderSchemasMongodb(f, srcRoot)) return false
+        return true
+    })
+}
+
+function ensureBarrel(dir) {
+    if (!fs.existsSync(dir)) return
+    const tsFiles = fs
+        .readdirSync(dir)
+        .filter((f) => f.endsWith(".ts") && f !== "index.ts")
+    if (!tsFiles.length) return
+    const content = `${tsFiles.map((f) => `export * from "./${f.replace(/\.ts$/, "")}"`).join("\n")}\n`
+    const indexPath = path.join(dir, "index.ts")
+    fs.writeFileSync(indexPath, content, "utf8")
+}
+
+function schemasImportPath(fromFile, srcRoot) {
+    const schemasDir = path.join(srcRoot, "schemas")
+    let rel = path.relative(path.dirname(fromFile), schemasDir).replace(/\\/g, "/")
+    if (!rel || rel === ".") rel = "./schemas"
+    return rel
+}
+
+function patchFeatureIndex(indexPath) {
+    if (!fs.existsSync(indexPath)) return
+    let text = fs.readFileSync(indexPath, "utf8")
+    const before = text
+    text = text
+        .replace(/^export \* from "\.\/schemas"\s*\n/gm, "")
+        .replace(/^export \* from '\.\/schemas'\s*\n/gm, "")
+        .replace(/^export \* from "\.\/.*\.schema"\s*\n/gm, "")
+        .replace(/^export \* from '\.\/.*\.schema'\s*\n/gm, "")
+    if (text !== before) {
+        fs.writeFileSync(indexPath, text, "utf8")
+    }
+}
+
+function getSchemaExportNames(connDir) {
+    const names = new Set()
+    if (!fs.existsSync(connDir)) return [...names]
+    for (const f of fs.readdirSync(connDir)) {
+        if (!f.endsWith(".schema.ts")) continue
+        const content = fs.readFileSync(path.join(connDir, f), "utf8")
+        const classM = content.match(/export class (\w+)/)
+        if (classM) {
+            names.add(classM[1])
+            names.add(`${classM[1]}Schema`)
+            names.add(`${classM[1]}Document`)
+        }
+    }
+    return [...names]
+}
+
+function patchImports(file, srcRoot, schemaNames) {
+    const relSchemas = schemasImportPath(file, srcRoot)
+    const inFeature = path.dirname(file) !== srcRoot
+    let text = fs.readFileSync(file, "utf8")
+    const before = text
+
+    if (inFeature) {
+        text = text.replace(/from "\.\/schemas"/g, `from "${relSchemas}"`)
+        text = text.replace(/from '\.\/schemas'/g, `from '${relSchemas}'`)
+        text = text.replace(
+            /from "\.\/schemas\/[^"]+"/g,
+            `from "${relSchemas}"`,
+        )
+        text = text.replace(
+            /from '\.\/schemas\/[^']+'/g,
+            `from '${relSchemas}'`,
+        )
+        for (const name of schemaNames) {
+            const re = new RegExp(
+                `import\\s*\\{([^}]*\\b${name}\\b[^}]*)\\}\\s*from\\s*["']\\.["']`,
+                "g",
+            )
+            text = text.replace(re, `import {$1} from "${relSchemas}"`)
+        }
+    } else {
+        for (const name of schemaNames) {
+            const re = new RegExp(
+                `import\\s*\\{([^}]*\\b${name}\\b[^}]*)\\}\\s*from\\s*["']\\./[^"']+["']`,
+                "g",
+            )
+            text = text.replace(re, `import {$1} from "./schemas"`)
+        }
+    }
+
+    text = text.replace(
+        /from "\.\/[^"]+\/schemas\/[^"]+\.schema"/g,
+        `from "${inFeature ? relSchemas : "./schemas"}"`,
+    )
+    text = text.replace(
+        /from '\.\/[^']+\/schemas\/[^']+\.schema'/g,
+        `from '${inFeature ? relSchemas : "./schemas"}'`,
+    )
+    text = text.replace(
+        /from "\.\/[^"]+\/schemas"/g,
+        `from "${inFeature ? relSchemas : "./schemas"}"`,
+    )
+    text = text.replace(
+        /from '\.\/[^']+\/schemas'/g,
+        `from '${inFeature ? relSchemas : "./schemas"}'`,
+    )
+
+    if (text !== before) {
+        fs.writeFileSync(file, text, "utf8")
+    }
+}
+
+function removeEmptyDirs(dir) {
+    if (!fs.existsSync(dir)) return
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (e.isDirectory()) removeEmptyDirs(path.join(dir, e.name))
+    }
+    const entries = fs.readdirSync(dir)
+    if (entries.length === 0) {
+        fs.rmdirSync(dir)
+    }
+}
+
+function cleanupStaleFeatureSchemaBarrels(srcRoot) {
+    const allTs = []
+    walkTs(srcRoot, allTs)
+    let removed = 0
+    for (const f of allTs) {
+        const rel = path.relative(srcRoot, f).replace(/\\/g, "/")
+        const m = rel.match(/^([^/]+)\/schemas\/index\.ts$/)
+        if (m) {
+            fs.unlinkSync(f)
+            removeEmptyDirs(path.join(srcRoot, m[1], "schemas"))
+            removed++
+        }
+    }
+    return removed
+}
+
+function migrateService(serviceRoot) {
+    const srcRoot = path.join(serviceRoot, "src")
+    if (!fs.existsSync(srcRoot)) return { moved: 0, cleaned: 0 }
+
+    const cleaned = cleanupStaleFeatureSchemaBarrels(srcRoot)
+
+    const schemaFiles = findSchemaFiles(srcRoot)
+    if (!schemaFiles.length) return { moved: 0, cleaned }
+
+    const conn = DEFAULT_CONNECTION
+    const destDir = path.join(srcRoot, "schemas", "mongodb", conn)
+    fs.mkdirSync(destDir, { recursive: true })
+
+    let moved = 0
+    for (const file of schemaFiles) {
+        const base = path.basename(file)
+        const dest = path.join(destDir, base)
+        if (path.resolve(file) === path.resolve(dest)) continue
+        if (fs.existsSync(dest)) {
+            fs.unlinkSync(file)
+        } else {
+            fs.renameSync(file, dest)
+        }
+        moved++
+    }
+
+    const mongoDir = path.join(srcRoot, "schemas", "mongodb")
+    ensureBarrel(destDir)
+    ensureBarrel(mongoDir)
+    fs.writeFileSync(
+        path.join(mongoDir, "index.ts"),
+        `export * from "./${conn}"\n`,
+        "utf8",
+    )
+    const schemasRoot = path.join(srcRoot, "schemas")
+    fs.writeFileSync(
+        path.join(schemasRoot, "index.ts"),
+        `export * from "./mongodb"\n`,
+        "utf8",
+    )
+
+    const schemaNames = getSchemaExportNames(destDir)
+    const allTs = []
+    walkTs(srcRoot, allTs)
+    for (const f of allTs) {
+        patchImports(f, srcRoot, schemaNames)
+    }
+
+    for (const f of allTs) {
+        if (f.endsWith("index.ts") && path.dirname(f) !== srcRoot) {
+            const depth = path.relative(srcRoot, path.dirname(f)).split(path.sep).length
+            if (depth === 1) {
+                patchFeatureIndex(f)
+            }
+        }
+    }
+
+    function removeStaleSchemaDirs(dir, srcRoot) {
+        if (!fs.existsSync(dir)) return
+        for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+            const full = path.join(dir, e.name)
+            if (e.isDirectory()) {
+                const rel = path.relative(srcRoot, full).replace(/\\/g, "/")
+                if (rel.endsWith("/schemas") && !rel.startsWith("schemas/mongodb")) {
+                    removeStaleSchemaDirs(full, srcRoot)
+                    removeEmptyDirs(full)
+                } else {
+                    removeStaleSchemaDirs(full, srcRoot)
+                }
+            }
+        }
+    }
+    removeStaleSchemaDirs(srcRoot, srcRoot)
+
+    return { moved, cleaned, service: path.basename(serviceRoot) }
+}
+
+let totalMoved = 0
+const report = []
+
+for (const moduleDir of listModules()) {
+    for (const serviceRoot of findNestServiceRoots(moduleDir)) {
+        const r = migrateService(serviceRoot)
+        if (r.moved > 0 || r.cleaned > 0) {
+            totalMoved += r.moved
+            report.push(
+                `${path.relative(REPO_ROOT, serviceRoot)}: moved ${r.moved}, cleaned ${r.cleaned} stale barrel(s)`,
+            )
+        }
+    }
+}
+
+console.log(`Moved ${totalMoved} schema file(s) to schemas/mongodb/${DEFAULT_CONNECTION}/`)
+for (const line of report) {
+    console.log(`  ${line}`)
+}

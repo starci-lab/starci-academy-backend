@@ -4,7 +4,7 @@
  */
 import { Module } from "@nestjs/common"
 import { TypeOrmModule } from "@nestjs/typeorm"
-import { UserEntity } from "."
+import { UserEntity } from "../entities"
 import { UsersController } from "."
 import { UsersService } from "."
 

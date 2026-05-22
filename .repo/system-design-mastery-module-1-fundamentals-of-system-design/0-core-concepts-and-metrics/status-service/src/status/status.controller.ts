@@ -1,23 +1,27 @@
-/**
- * HTTP/Kafka controller — routes delegate to service.
- * (EN: Controller — routes delegate to service.)
- */
-}
+import {
+    Controller,
+    Get,
+    Query,
+} from "@nestjs/common"
+import { StatusService } from "./status.service"
 
-    /**
-     * GET /api/status — Trả về trạng thái server kèm hostname container.
-     * (EN: GET /api/status — Returns server status with container hostname.)
-     *
-     * Logic — Khi Nginx gọi các Node theo Round-robin, hostname trả về sẽ thay đổi.
-     * (EN Logic: When Nginx calls Nodes via Round-robin, returned hostname will change.)
-     */
+@Controller("api")
+export class StatusController {
+    constructor(private readonly statusService: StatusService) {}
+
     @Get("status")
-    /**
- * Logic — Trả health + hostname để demo load balancer / nhiều replica.
- * Code — `os.hostname()` + object `{ status, servedBy, timestamp }`.
- * (EN Logic: Return health and hostname for load-balancer demos.)
- * (EN Code: `os.hostname()` plus `{ status, servedBy, timestamp }`.)
- */
     getStatus(): ReturnType<StatusService["getStatus"]> {
         return this.statusService.getStatus()
     }
+
+    @Get("heavy")
+    handleHeavyTask(@Query("load") load: string) {
+        const iterations = parseInt(load, 10) || 10_000_000
+        return this.statusService.runHeavyCalculation(iterations)
+    }
+
+    @Get("metrics")
+    getMetrics(): ReturnType<StatusService["getMetrics"]> {
+        return this.statusService.getMetrics()
+    }
+}

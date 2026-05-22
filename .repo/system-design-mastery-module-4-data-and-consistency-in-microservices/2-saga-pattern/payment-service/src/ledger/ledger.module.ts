@@ -7,7 +7,7 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { SagaEventsController } from "../saga";
 import { KafkaProducerService } from ".";
-import { PaymentEntity } from ".";
+import { PaymentEntity } from "../entities";
 import { PaymentService } from ".";
 
 @Module({

@@ -24,7 +24,7 @@ import type {
 import {
     AuthorEntity,
     HybridPostEntity,
-} from "./entities"
+} from "../entities"
 
 @Injectable()
 export class HybridfeedService implements OnModuleInit, OnModuleDestroy {

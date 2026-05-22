@@ -18,7 +18,7 @@ import {
 } from "./customer"
 import {
     Customer,
-} from "./customer"
+} from "./entities"
 
 @Module({
     imports: [

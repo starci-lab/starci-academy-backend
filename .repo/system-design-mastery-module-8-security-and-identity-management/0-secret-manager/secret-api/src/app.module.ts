@@ -11,7 +11,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { VaultService } from './vault';
 
-import { User } from './users';
+import { User } from "./entities";
 import { UsersModule } from './users';
 
 @Module({

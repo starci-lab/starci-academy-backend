@@ -16,7 +16,7 @@ import {
 } from "."
 import {
     CatEntity,
-} from "."
+} from "../entities"
 
 @Module({
     imports: [TypeOrmModule.forFeature([CatEntity])],

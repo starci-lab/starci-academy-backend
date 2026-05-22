@@ -14,10 +14,10 @@ import {
 } from "typeorm"
 import {
     CreateCatDto,
-} from "."
+} from "./dto"
 import {
     CatEntity,
-} from "."
+} from "../entities"
 
 @Injectable()
 /**

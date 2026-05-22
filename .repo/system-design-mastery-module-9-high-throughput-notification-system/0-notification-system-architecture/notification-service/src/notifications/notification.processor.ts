@@ -26,7 +26,7 @@ import {
     NotificationEntity,
     NotificationStatus,
     NotificationChannel,
-} from "."
+} from "../entities"
 import type {
     SmtpConfig,
 } from "../config"

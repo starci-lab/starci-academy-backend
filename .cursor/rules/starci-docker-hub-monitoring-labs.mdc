@@ -1,6 +1,6 @@
 ---
 description: StarCi Docker Hub — build & push monitoring lesson lab images (starciacademy/*)
-globs: .repo/system-design-mastery-module-7-monitoring-and-observability/**/Dockerfile
+globs: system-design-mastery-module-7-monitoring-and-observability/**/Dockerfile
 alwaysApply: false
 ---
 
@@ -10,11 +10,11 @@ StarCi course demos use **Docker Hub** namespace **`starciacademy`** (see `.rule
 
 ## Lesson 0 — `metrics-api`
 
-From repo checkout (adjust path if `.repo/` layout differs):
+From module repo checkout:
 
 ```powershell
 docker build -t starciacademy/monitoring-and-observability-metrics-api:latest `
-  "c:\Repositories\ac\starci-academy-backend\.repo\system-design-mastery-module-7-monitoring-and-observability\0-monitoring-and-observability\metrics-api"
+  "c:\Repositories\ac\starci-academy-backend\system-design-mastery-module-7-monitoring-and-observability\0-monitoring-and-observability\metrics-api"
 
 docker push starciacademy/monitoring-and-observability-metrics-api:latest
 ```

@@ -1,6 +1,6 @@
 ---
 description: Module 7 monitoring repository — .docker/compose.yaml uses name + network matching lesson folder slug (Compose-managed, not external)
-globs: .repo/system-design-mastery-module-7-monitoring-and-observability/**/.docker/compose.yaml
+globs: system-design-mastery-module-7-monitoring-and-observability/**/.docker/compose.yaml
 alwaysApply: false
 ---
 

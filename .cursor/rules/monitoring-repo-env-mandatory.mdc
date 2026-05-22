@@ -1,6 +1,6 @@
 ---
 description: Module 7 monitoring repo — every lesson service must use .env + ConfigModule/registerAs; do not use .env.example
-globs: .repo/system-design-mastery-module-7-monitoring-and-observability/**/*
+globs: system-design-mastery-module-7-monitoring-and-observability/**/*
 alwaysApply: false
 ---
 

@@ -18,7 +18,7 @@ services:
   # Process Service — API Node cung cấp mock data cho các hệ thống phụ.
   # (EN: Process Service — API Node providing mock data for sub-systems.)
   process-service:
-    image: starciacademy/system-design-process-service:latest
+    image: starciacademy/system-design-system-design-process-service:latest
     container_name: 3-system-design-process-process-service
     ports:
       # Ánh xạ cổng host 8083 → container 3000 (HTTP API).

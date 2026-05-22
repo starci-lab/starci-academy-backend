@@ -15,7 +15,7 @@ import {
 } from "@nestjs/typeorm"
 import {
     OrderEntity,
-} from "./orders"
+} from "./entities"
 import {
     OrdersModule,
 } from "./orders"

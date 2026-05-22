@@ -17,7 +17,7 @@ import {
 import {
     Product,
     ProductDocument,
-} from "./schemas"
+} from "../schemas"
 
 @Injectable()
 /**
@@ -25,6 +25,8 @@ import {
  * (EN: Class `InventoryService` — lesson lab component.)
  */
 export class InventoryService {
+    private readonly logger = new Logger(InventoryService.name)
+
     constructor(
         @InjectModel(Product.name) private readonly product: Model<ProductDocument>,
     ) {}
@@ -46,13 +48,12 @@ export class InventoryService {
      * (EN Logic: Decrements stock by product name, checks availability first.)
      * (EN Code: `findOne({ name })` → check `stock >= quantity` → `doc.stock -= quantity` → `save()`.)
      */
-    private readonly logger = new Logger(InventoryService.name)
-/**
- * Logic — Xử lý nghiệp vụ `decrementStockByProductName` cho lab.
- * Code — `async decrementStockByProductName()` — gọi dependency inject / client.
- * (EN Logic: Business handler `decrementStockByProductName` for the lab.)
- * (EN Code: `async decrementStockByProductName()` — uses injected deps / clients.)
- */
+    /**
+     * Logic — trừ kho theo tên sản phẩm khi nhận event đặt hàng.
+     * Code — `findOne({ name })` → so sánh `stock` → `save()` sau khi trừ.
+     * (EN Logic: Decrement stock by product name on order event.)
+     * (EN Code: `findOne({ name })` → compare `stock` → `save()` after decrement.)
+     */
     async decrementStockByProductName(name: string, quantity: number) {
         const doc = await this.product.findOne({ name }).exec()
         if (!doc || doc.stock < quantity) return null

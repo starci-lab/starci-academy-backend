@@ -1,26 +1,45 @@
+import {
+    Body,
+    Controller,
+    Get,
+    Post,
+} from "@nestjs/common"
+import {
+    CreateCatDto,
+} from "./dto"
+import {
+    CatsService,
+} from "./cats.service"
+import {
+    CatEntity,
+} from "../entities"
+
 /**
- * HTTP/Kafka controller — routes delegate to service.
- * (EN: Controller — routes delegate to service.)
+ * HTTP controller — REST `/cats` (lesson metrics-api).
+ * (EN: HTTP controller — REST `/cats` (metrics-api lesson).)
  */
-}
+@Controller("cats")
+export class CatsController {
+    constructor(
+        private readonly catsService: CatsService,
+    ) {}
 
     /**
-     * Liệt kê mèo trong PostgreSQL (GET `/cats`).
-     * (EN: List cats from PostgreSQL (GET `/cats`).)
+     * Logic — liệt kê mèo từ Postgres.
+     * Code — GET /cats → CatsService.findAll.
+     * (EN Logic: List cats from Postgres.)
+     * (EN Code: GET /cats → findAll.)
      */
-    @Get()/**
- * Logic — Đọc/truy vấn dữ liệu qua `findAll`.
- * Code — Truy vấn in-memory / DB / cache và map response DTO.
- * (EN Logic: Read/query via `findAll`.)
- * (EN Code: Query in-memory / DB / cache and map response.)
- */
-    findAll(): Promise<CatEntity[]> {
+    @Get()
+    findAll(): Promise<Array<CatEntity>> {
         return this.catsService.findAll()
     }
 
     /**
-     * Tạo mèo từ body (POST `/cats`) — lưu DB.
-     * (EN: Create cat from body (POST `/cats`) — persisted.)
+     * Logic — tạo mèo mới từ body.
+     * Code — POST /cats + CreateCatDto → create.
+     * (EN Logic: Create cat from request body.)
+     * (EN Code: POST /cats → create.)
      */
     @Post()
     create(@Body() body: CreateCatDto): Promise<CatEntity> {

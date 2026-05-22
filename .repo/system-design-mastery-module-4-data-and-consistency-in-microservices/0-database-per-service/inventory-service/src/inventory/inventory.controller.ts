@@ -1,8 +1,23 @@
 /**
- * HTTP/Kafka controller — routes delegate to service.
- * (EN: Controller — routes delegate to service.)
+ * HTTP controller — tạo sản phẩm trong kho MongoDB.
+ * (EN: HTTP controller — create products in MongoDB inventory.)
  */
-}
+import {
+    Body,
+    Controller,
+    Post,
+} from "@nestjs/common"
+import {
+    InventoryService,
+} from "./inventory.service"
+
+@Controller("inventory")
+/**
+ * Class `InventoryController` — thành phần lab (controller/service/module).
+ * (EN: Class `InventoryController` — lesson lab component.)
+ */
+export class InventoryController {
+    constructor(private readonly inventory: InventoryService) {}
 
     /**
      * Logic — tạo sản phẩm mới với số lượng tồn kho ban đầu.
@@ -11,6 +26,9 @@
      * (EN Code: `@Post()` → `this.inventory.create(name, stock)`.)
      */
     @Post()
-    async create(@Body() body: { name: string; stock: number }: Promise<ReturnType<InventoryService["create"]>> {
+    async create(
+        @Body() body: { name: string; stock: number },
+    ): Promise<ReturnType<InventoryService["create"]>> {
         return this.inventory.create(body.name, body.stock)
     }
+}

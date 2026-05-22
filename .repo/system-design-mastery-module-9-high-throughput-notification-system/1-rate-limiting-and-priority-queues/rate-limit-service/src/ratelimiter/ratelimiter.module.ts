@@ -10,7 +10,7 @@ import {
 } from "@nestjs/typeorm"
 import {
     RatelimiterEntity,
-} from "."
+} from "../entities"
 import {
     RatelimiterService,
 } from "."

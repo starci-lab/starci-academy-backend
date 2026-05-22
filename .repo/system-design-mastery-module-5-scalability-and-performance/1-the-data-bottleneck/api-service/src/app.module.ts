@@ -16,7 +16,7 @@ import { TypeOrmModule } from "@nestjs/typeorm"
 import { AppController } from "./app.controller"
 import { HealthModule } from "./health"
 import { ReplicationModule } from "./replication"
-import { UserEntity } from "./users"
+import { UserEntity } from "./entities"
 import { UsersModule } from "./users"
 
 /**

@@ -16,7 +16,7 @@ import {
     FollowEntity,
     PostEntity,
     PushedTimelineEntity,
-} from "./entities"
+} from "../entities"
 
 @Injectable()
 export class FeedService {

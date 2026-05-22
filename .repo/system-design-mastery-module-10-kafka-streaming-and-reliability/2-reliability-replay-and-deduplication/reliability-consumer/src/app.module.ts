@@ -27,7 +27,7 @@ import {
 } from "./reliability"
 import {
     ProcessedEventEntity,
-} from "./reliability"
+} from "./entities"
 
 @Module({
     imports: [
