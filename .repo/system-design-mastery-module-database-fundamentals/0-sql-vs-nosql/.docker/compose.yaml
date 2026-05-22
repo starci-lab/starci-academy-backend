@@ -1,0 +1,111 @@
+# ──────────────────────────────────────────────
+# SQL vs NoSQL — so sanh PostgreSQL va MongoDB trong cung mot ung dung.
+# Backend dung NestJS, TypeORM (PostgreSQL) va Mongoose (MongoDB).
+# (EN: SQL vs NoSQL — compare PostgreSQL and MongoDB in the same application.
+# Backend uses NestJS, TypeORM (PostgreSQL) and Mongoose (MongoDB).)
+#
+# Thu muc lam viec / Working directory:
+#   cd system-design-mastery-module-database-fundamentals/0-sql-vs-nosql/.docker
+#
+# Khoi dong / Start:
+#   docker compose up -d
+#
+# Xem log / Logs:
+#   docker compose logs -f backend
+#
+# Don dep / Cleanup:
+#   docker compose down -v
+# ──────────────────────────────────────────────
+
+# Tien to project Compose (ten stack / tien to container).
+# (EN: Compose project prefix (stack / container name prefix).)
+name: 0-sql-vs-nosql
+
+services:
+  # ──────────────────────────────────────────────
+  # PostgreSQL — luu tru du lieu quan he (SQL).
+  # (EN: PostgreSQL — relational data storage (SQL).)
+  # ──────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    environment:
+      # Tai khoan va mat khau PostgreSQL.
+      # (EN: PostgreSQL user and password.)
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Cuong123_A
+      POSTGRES_DB: sql_nosql_db
+    ports:
+      # Anh xa cong host 5432 -> container 5432 (PostgreSQL).
+      # (EN: Map host port 5432 -> container 5432 (PostgreSQL).)
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      # Mount file seed SQL vao thu muc init cua PostgreSQL.
+      # (EN: Mount SQL seed file into PostgreSQL init directory.)
+      - ../.sql/seed.sql:/docker-entrypoint-initdb.d/seed.sql:ro
+    restart: unless-stopped
+
+  # ──────────────────────────────────────────────
+  # MongoDB — luu tru du lieu document (NoSQL).
+  # (EN: MongoDB — document data storage (NoSQL).)
+  # ──────────────────────────────────────────────
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    ports:
+      # Anh xa cong host 27017 -> container 27017 (MongoDB).
+      # (EN: Map host port 27017 -> container 27017 (MongoDB).)
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+  # ──────────────────────────────────────────────
+  # Backend — NestJS API so sanh SQL vs NoSQL.
+  # (EN: Backend — NestJS API comparing SQL vs NoSQL.)
+  # ──────────────────────────────────────────────
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    image: starciacademy/sql-vs-nosql-backend:latest
+    container_name: backend
+    ports:
+      # REST API cho client goi seed/compare/CRUD.
+      # (EN: REST API for client to call seed/compare/CRUD.)
+      - "3000:3000"
+    environment:
+      # Cong HTTP cua NestJS.
+      # (EN: NestJS HTTP port.)
+      PORT: "3000"
+      # Ket noi PostgreSQL trong mang Compose.
+      # (EN: PostgreSQL connection inside Compose network.)
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Cuong123_A
+      POSTGRES_DB: sql_nosql_db
+      # Ket noi MongoDB trong mang Compose.
+      # (EN: MongoDB connection inside Compose network.)
+      MONGO_URI: mongodb://mongo:27017/sql_nosql_db
+    depends_on:
+      - postgres
+      - mongo
+    restart: unless-stopped
+
+# ──────────────────────────────────────────────
+# Volumes — du lieu persistent cho PostgreSQL va MongoDB.
+# (EN: Volumes — persistent data for PostgreSQL and MongoDB.)
+# ──────────────────────────────────────────────
+volumes:
+  pg_data: {}
+  mongo_data: {}
+
+# ──────────────────────────────────────────────
+# Network — Compose tu quan ly, khong dung `external: true`.
+# (EN: Network — Compose-managed, no `external: true`.)
+# ──────────────────────────────────────────────
+networks:
+  default:
+    name: 0-sql-vs-nosql
