@@ -66,7 +66,7 @@ services:
   # (EN: Backend — NestJS API comparing SQL vs NoSQL.)
   # ──────────────────────────────────────────────
   backend:
-    image: starciacademy/sql-vs-nosql-backend:latest
+    image: starciacademy/system-design-sql-vs-nosql-backend:latest
     container_name: backend
     ports:
       # REST API cho client goi seed/compare/CRUD.

@@ -50,7 +50,7 @@ services:
   # (EN: Backend NestJS — REST API for index and query optimization demo.)
   # ──────────────────────────────────────────────
   backend:
-    image: starciacademy/indexing-and-query-optimization-backend:latest
+    image: starciacademy/system-design-indexing-and-query-optimization-backend:latest
     container_name: 1-indexing-backend
     ports:
       # REST API tại http://localhost:3001.
