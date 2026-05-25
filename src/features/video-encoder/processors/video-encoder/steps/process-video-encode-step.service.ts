@@ -50,26 +50,34 @@ export class ProcessVideoEncodeStepService extends AbstractStepService<FilenameP
 
     async process(context: JobExtendedContext<FilenameProcessData, undefined>): Promise<void> {
         const { payload: { assetId, filename }, job } = context
-        const taskDir = join(tmpdir(), `video-encoder-${assetId}`)
+        const taskDir = join(tmpdir(),
+            `video-encoder-${assetId}`)
 
         this.winstonService.log(
-            WinstonLog.ProcessStepExecuted, {
-            jobId: job.id,
-            step: this.stepName,
-            stepIndex: this.stepIndex,
-            meta: { assetId, message: "Encoding video at multiple bitrates..." },
-        })
+            WinstonLog.ProcessStepExecuted,
+            {
+                jobId: job.id,
+                step: this.stepName,
+                stepIndex: this.stepIndex,
+                meta: {
+                    assetId, message: "Encoding video at multiple bitrates..." 
+                },
+            })
 
-        await this.ffmpegService.encodeAtMultipleBitrates(taskDir, filename)
+        await this.ffmpegService.encodeAtMultipleBitrates(taskDir,
+            filename)
 
         this.winstonService.log(
-            WinstonLog.ProcessStepExecuted, {
-            jobId: job.id,
-            step: this.stepName,
-            stepIndex: this.stepIndex,
-            success: true,
-            meta: { assetId },
-        })
+            WinstonLog.ProcessStepExecuted,
+            {
+                jobId: job.id,
+                step: this.stepName,
+                stepIndex: this.stepIndex,
+                success: true,
+                meta: {
+                    assetId 
+                },
+            })
 
         await this.entityManager.transaction(async (em) => {
             await this.jobActionService.increaseJob({
@@ -78,7 +86,8 @@ export class ProcessVideoEncodeStepService extends AbstractStepService<FilenameP
             await this.jobActionService.saveExecutionResult({
                 job,
                 key: this.stepName,
-                executionResult: {},
+                executionResult: {
+                },
                 entityManager: em,
             })
         })

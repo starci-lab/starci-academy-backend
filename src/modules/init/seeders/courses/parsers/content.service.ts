@@ -1,4 +1,4 @@
-import type {
+﻿import type {
     ParseContentParams,
     ParseContentManyParams,
 } from "./types"
@@ -13,24 +13,37 @@ import {
     CoerceMdScalarService,
 } from "../../shared"
 import {
+    CodeExplainingIdFactoryService,
+    CodeImplementationIdFactoryService,
     ContentIdFactoryService,
     ContentReferenceIdFactoryService,
+    ModuleIdFactoryService,
 } from "../id-factories"
 import {
     DeepPartial,
 } from "typeorm"
 import {
+    CodeExplainingTranslationEntity,
+    CodeImplementationTranslationEntity,
     ContentEntity,
     ContentTranslationEntity,
 } from "@modules/databases"
-import { ContextLoaderService } from "../../shared"
+import {
+    ContextLoaderService 
+} from "../../shared"
 import {
     ContentPathNotFoundException,
 } from "@modules/exceptions"
 import {
     ContentPathService,
-    ResolvedFileResult,
 } from "../path"
+import {
+    getCodeExplainingsFromExtractJson,
+    inferLangFromCodeFence,
+} from "./utils"
+import {
+    ResolvedFileResult,
+} from "../../shared"
 
 /**
  * Parses content from mounted course files (`en.md`, `vi.md`).
@@ -42,7 +55,10 @@ export class ContentParserService {
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,
         private readonly coerceMdScalarService: CoerceMdScalarService,
         private readonly contentIdFactoryService: ContentIdFactoryService,
+        private readonly moduleIdFactoryService: ModuleIdFactoryService,
         private readonly contentReferenceIdFactoryService: ContentReferenceIdFactoryService,
+        private readonly codeExplainingIdFactoryService: CodeExplainingIdFactoryService,
+        private readonly codeImplementationIdFactoryService: CodeImplementationIdFactoryService,
         private readonly contextLoaderService: ContextLoaderService,
         private readonly contentPathService: ContentPathService,
     ) { }
@@ -73,7 +89,8 @@ export class ContentParserService {
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(
-                    await this.contextLoaderService.load("courses", `${path.relativePath}/${locale}.md`),
+                    await this.contextLoaderService.load("courses",
+                        `${path.relativePath}/${locale}.md`),
                 ),
             )
         }
@@ -84,15 +101,28 @@ export class ContentParserService {
                 contentIndex,
             },
         )
+        const moduleId = this.moduleIdFactoryService.generate(
+            {
+                courseIndex,
+                moduleIndex,
+            },
+        )
         return {
             id: contentId,
+            moduleId,
+            module: {
+                id: moduleId,
+            },
             defaultLocale: Locale.En,
             displayId: path.displayId,
             title: jsonMap.get(Locale.En)?.title ?? "",
             description: this.coerceMdScalarService.toNullableStringColumn(
                 jsonMap.get(Locale.En)?.description,
             ),
-            body: jsonMap.get(Locale.En)?.body ?? "",
+            body: this.coerceMdScalarService.toRequiredString(
+                jsonMap.get(Locale.En)?.body,
+                "",
+            ),
             orderIndex: contentIndex,
             minutesRead: this.coerceMdScalarService.toRequiredNumber(
                 jsonMap.get(Locale.En)?.minutesRead,
@@ -115,17 +145,154 @@ export class ContentParserService {
                         contentId,
                         locale,
                         field: "description",
-                        value: jsonMap.get(locale)?.description ?? "",
+                        value: this.coerceMdScalarService.toRequiredString(
+                            jsonMap.get(locale)?.description,
+                            "",
+                        ),
                     })
                     translations.push({
                         contentId,
                         locale,
                         field: "body",
-                        value: jsonMap.get(locale)?.body ?? "",
+                        value: this.coerceMdScalarService.toRequiredString(
+                            jsonMap.get(locale)?.body,
+                            "",
+                        ),
                     })
                 }
                 return translations
             })(),
+            codeExplainings: getCodeExplainingsFromExtractJson(
+                jsonMap.get(Locale.En),
+            ).map(({
+                orderIndex,
+                code,
+                explain,
+            }) => {
+                const explainingId = this.codeExplainingIdFactoryService.generate({
+                    courseIndex,
+                    moduleIndex,
+                    contentIndex,
+                    explainingIndex: orderIndex,
+                })
+                const codeMarkdown = this.coerceMdScalarService.toRequiredString(
+                    code, 
+                    "",
+                )
+                const explainMarkdown = this.coerceMdScalarService.toRequiredString(
+                    explain, 
+                    "",
+                )
+                const translations: Array<DeepPartial<CodeExplainingTranslationEntity>> = []
+                for (const locale of Object.values(Locale)) {
+                    const content = jsonMap.get(locale)
+                    const localeRow = getCodeExplainingsFromExtractJson(
+                        content,
+                    ).find(
+                        (row) => row.orderIndex === orderIndex,
+                    )
+                    if (!localeRow) {
+                        continue
+                    }
+                    translations.push({
+                        codeExplainingId: explainingId,
+                        locale,
+                        field: "code",
+                        value: this.coerceMdScalarService.toRequiredString(
+                            localeRow.code, 
+                            "",
+                        ),
+                    })
+                    translations.push({
+                        codeExplainingId: explainingId,
+                        locale,
+                        field: "explain",
+                        value: this.coerceMdScalarService.toRequiredString(
+                            localeRow.explain, 
+                            "",
+                        ),
+                    })
+                }
+                return {
+                    id: explainingId,
+                    orderIndex,
+                    code: codeMarkdown,
+                    lang: inferLangFromCodeFence(codeMarkdown),
+                    explain: explainMarkdown,
+                    defaultLocale: Locale.En,
+                    content: {
+                        id: contentId,
+                    },
+                    translations,
+                }
+            }),
+            codeImplementations: (
+                jsonMap.get(Locale.En)?.codeImplementations ?? []
+            ).map(({
+                orderIndex,
+                lang,
+                guide,
+                example,
+            }) => {
+                const implementationId = this.codeImplementationIdFactoryService.generate({
+                    courseIndex,
+                    moduleIndex,
+                    contentIndex,
+                    implementationIndex: orderIndex,
+                })
+                const langValue = this.coerceMdScalarService.toRequiredString(
+                    lang, 
+                    "text",
+                )
+                const guideMarkdown = this.coerceMdScalarService.toRequiredString(
+                    guide, 
+                    "",
+                )
+                const exampleMarkdown = this.coerceMdScalarService.toRequiredString(
+                    example, 
+                    "",
+                )
+                const translations: Array<DeepPartial<CodeImplementationTranslationEntity>> = []
+                for (const locale of Object.values(Locale)) {
+                    const content = jsonMap.get(locale)
+                    const localeRow = (content?.codeImplementations ?? []).find(
+                        (row) => row.orderIndex === orderIndex,
+                    )
+                    if (!localeRow) {
+                        continue
+                    }
+                    translations.push({
+                        codeImplementationId: implementationId,
+                        locale,
+                        field: "guide",
+                        value: this.coerceMdScalarService.toRequiredString(
+                            localeRow.guide, 
+                            "",
+                        ),
+                    })
+                    translations.push({
+                        codeImplementationId: implementationId,
+                        locale,
+                        field: "example",
+                        value: this.coerceMdScalarService.toRequiredString(
+                            localeRow.example, 
+                            "",
+                        ),
+                    })
+                }
+                return {
+                    id: implementationId,
+                    orderIndex,
+                    lang: langValue,
+                    guide: guideMarkdown,
+                    example: exampleMarkdown,
+                    defaultLocale: Locale.En,
+                    content: {
+                        id: contentId,
+                    },
+                    translations,
+                }
+            }),
             references: (
                 jsonMap.get(Locale.En)?.references ?? []
             ).map(({
@@ -161,8 +328,7 @@ export class ContentParserService {
                                     field: "url",
                                     value: reference.url,
                                 },
-                            ]
-                            )
+                            ])
                     )
                 ).flat().flat()
                 return {

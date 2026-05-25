@@ -1,4 +1,4 @@
-import type {
+﻿import type {
     ParseChallengeManyParams,
     ParseChallengeParams,
 } from "./types"
@@ -20,6 +20,7 @@ import {
     ChallengePrerequisiteIdFactoryService,
     ChallengeSubmissionPromptIdFactoryService,
     ChallengeRequirementIdFactoryService,
+    ChallengeStepCodeImplementationIdFactoryService,
     ChallengeStepIdFactoryService,
     ChallengeSubmissionIdFactoryService,
     ChallengeReferenceIdFactoryService,
@@ -35,6 +36,8 @@ import {
     ChallengeReferenceTranslationEntity,
     ChallengeRequirementEntity,
     ChallengeRequirementTranslationEntity,
+    ChallengeStepCodeImplementationEntity,
+    ChallengeStepCodeImplementationTranslationEntity,
     ChallengeStepTranslationEntity,
     ChallengeSubmissionPromptEntity,
     ChallengeSubmissionTranslationEntity,
@@ -42,9 +45,11 @@ import {
 } from "@modules/databases"
 import {
     ChallengePathService,
-    ResolvedFileResult,
 } from "../path"
-import { ContextLoaderService } from "../../shared"
+import {
+    ResolvedFileResult,
+    ContextLoaderService,
+} from "../../shared"
 import {
     ChallengePathNotFoundException,
 } from "@modules/exceptions"
@@ -64,6 +69,7 @@ export class ChallengeParserService {
         private readonly challengeSubmissionPromptIdFactoryService: ChallengeSubmissionPromptIdFactoryService,
         private readonly challengeSubmissionIdFactoryService: ChallengeSubmissionIdFactoryService,
         private readonly challengeStepIdFactoryService: ChallengeStepIdFactoryService,
+        private readonly challengeStepCodeImplementationIdFactoryService: ChallengeStepCodeImplementationIdFactoryService,
         private readonly challengeReferenceIdFactoryService: ChallengeReferenceIdFactoryService,
         private readonly challengeRequirementIdFactoryService: ChallengeRequirementIdFactoryService,
         private readonly challengeOutputIdFactoryService: ChallengeOutputIdFactoryService,
@@ -98,7 +104,8 @@ export class ChallengeParserService {
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(
-                    await this.contextLoaderService.load("courses", `${path.relativePath}/${locale}.md`),
+                    await this.contextLoaderService.load("courses",
+                        `${path.relativePath}/${locale}.md`),
                 ),
             )
         }
@@ -171,7 +178,7 @@ export class ChallengeParserService {
                     ([
                         locale,
                         challenge,
-                    ]) => ((challenge.requirements as Array<Partial<ChallengeRequirementEntity> & { score?: number, promptText?: string }>) ?? [])
+                    ]) => ((challenge.requirements as Array<Partial<ChallengeRequirementEntity>>) ?? [])
                         .filter((requirement) => requirement.orderIndex === orderIndex)
                         .map((requirement) => [
                             {
@@ -350,6 +357,7 @@ export class ChallengeParserService {
                 orderIndex,
                 title,
                 body,
+                codeImplementations,
             }) => {
                 const stepId = this.challengeStepIdFactoryService.generate(
                     {
@@ -360,6 +368,74 @@ export class ChallengeParserService {
                         stepIndex: orderIndex,
                     },
                 )
+                const bodyMarkdown = this.coerceMdScalarService.toRequiredString(body,
+                    "")
+                const codeImplementationsParsed = (
+                    (
+                        codeImplementations as Array<Partial<ChallengeStepCodeImplementationEntity>> | undefined
+                    ) ?? []
+                ).map((implementation) => {
+                    const implementationOrderIndex = implementation.orderIndex ?? 0
+                    const implementationId = this.challengeStepCodeImplementationIdFactoryService.generate({
+                        courseIndex,
+                        moduleIndex,
+                        contentIndex,
+                        challengeIndex,
+                        stepIndex: orderIndex,
+                        implementationIndex: implementationOrderIndex,
+                    })
+                    const lang = this.coerceMdScalarService.toRequiredString(implementation.lang,
+                        "text")
+                    const guide = this.coerceMdScalarService.toRequiredString(implementation.guide,
+                        "")
+                    const example = this.coerceMdScalarService.toRequiredString(implementation.example,
+                        "")
+                    const implTranslations: Array<DeepPartial<ChallengeStepCodeImplementationTranslationEntity>> = []
+                    for (const locale of Object.values(Locale)) {
+                        const challenge = jsonMap.get(locale)
+                        const localeStep = (challenge?.steps ?? []).find(
+                            (step) => step.orderIndex === orderIndex,
+                        )
+                        const localeImplementation = (
+                            localeStep?.codeImplementations as Array<Partial<ChallengeStepCodeImplementationEntity>> | undefined
+                        )?.find(
+                            (row) => row.orderIndex === implementationOrderIndex,
+                        )
+                        if (!localeImplementation) {
+                            continue
+                        }
+                        implTranslations.push({
+                            challengeStepCodeImplementationId: implementationId,
+                            locale,
+                            field: "guide",
+                            value: this.coerceMdScalarService.toRequiredString(
+                                localeImplementation.guide,
+                                ""
+                            ),
+                        })
+                        implTranslations.push({
+                            challengeStepCodeImplementationId: implementationId,
+                            locale,
+                            field: "example",
+                            value: this.coerceMdScalarService.toRequiredString(
+                                localeImplementation.example,
+                                ""
+                            ),
+                        })
+                    }
+                    return {
+                        id: implementationId,
+                        orderIndex: implementationOrderIndex,
+                        lang,
+                        guide,
+                        example,
+                        defaultLocale: Locale.En,
+                        challengeStep: {
+                            id: stepId,
+                        },
+                        translations: implTranslations,
+                    }
+                })
                 const translations = Array.from(jsonMap.entries()).map(
                     ([
                         locale,
@@ -370,13 +446,15 @@ export class ChallengeParserService {
                             {
                                 challengeStepId: stepId,
                                 locale,
-                                value: step.title,
+                                value: step.title ?? "",
                                 field: "title",
                             },
                             {
                                 challengeStepId: stepId,
                                 locale,
-                                value: step.body,
+                                value: this.coerceMdScalarService.toRequiredString(
+                                    step.body,
+                                    ""),
                                 field: "body",
                             },
                         ])
@@ -389,7 +467,8 @@ export class ChallengeParserService {
                     challenge: {
                         id: challengeId,
                     },
-                    body,
+                    body: bodyMarkdown,
+                    codeImplementations: codeImplementationsParsed,
                     translations,
                 }
             }),

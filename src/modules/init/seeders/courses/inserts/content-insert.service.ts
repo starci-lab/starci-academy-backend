@@ -5,18 +5,25 @@ import {
     DeepPartial,
 } from "typeorm"
 import {
+    CodeExplainingEntity,
+    CodeExplainingTranslationEntity,
+    CodeImplementationEntity,
+    CodeImplementationTranslationEntity,
     ContentEntity,
-    ContentTranslationEntity,
     ContentReferenceEntity,
     ContentReferenceTranslationEntity,
+    ContentTranslationEntity,
 } from "@modules/databases"
 import {
     UpsertService,
 } from "./upsert.service"
+import {
+    deleteFields,
+} from "../utils"
 
 /**
  * Inserts/updates/deletes content-level tables:
- * contents, content_translations, content_references, content_reference_translations.
+ * contents, translations, references, code_explainings, code_implementations.
  */
 @Injectable()
 export class ContentInsertService {
@@ -26,45 +33,51 @@ export class ContentInsertService {
 
     /**
      * Upsert a single content and its direct child tables.
-     * Challenges and lessons are NOT handled here.
      */
     async insert(
-        content: DeepPartial<ContentEntity>
+        content: DeepPartial<ContentEntity>,
     ): Promise<void> {
         const contentId = content.id as string
+        const translations = content.translations
+        const references = content.references
+        const codeExplainings = content.codeExplainings
+        const codeImplementations = content.codeImplementations
+        const moduleRef = content.module
 
-        /** 1. Upsert the content row (strip nested relations) */
-        const {
-            translations,
-            references,
-            module,
-            ...rest
-        } = content
+        const contentRow = deleteFields(
+            content,
+            [
+                "translations",
+                "references",
+                "codeExplainings",
+                "codeImplementations",
+                "module",
+                "challenges",
+                "lessons",
+            ],
+        )
 
         await this.upsertService.upsertUuid(
             ContentEntity,
             [{
-                ...rest,
-                /** Re-attach only the FK reference */
-                ...(module ? {
-                    module 
+                ...contentRow,
+                ...(moduleRef ? {
+                    module: moduleRef,
                 } : {
                 }),
             }],
         )
 
-        /** 2. Upsert content translations */
         if (translations) {
             await this.upsertService.upsertTranslation(
                 ContentTranslationEntity,
                 translations,
                 {
-                    contentId
+                    contentId,
                 },
             )
         }
 
-        /** 3. Upsert content references + their translations */
         if (references) {
             for (const reference of references) {
                 const {
@@ -80,21 +93,82 @@ export class ContentInsertService {
                         ContentReferenceTranslationEntity,
                         referenceTranslations,
                         {
-                            contentReferenceId: reference.id 
+                            contentReferenceId: reference.id,
                         },
                     )
                 }
             }
-            await this.upsertService.deleteStaleUuid<ContentReferenceEntity>(
-                ContentReferenceEntity,
-                references.map(
-                    (reference: ContentReferenceEntity) => reference.id ?? ""),
-                {
-                    content: {
-                        id: contentId 
-                    } 
-                },
-            )
+            // await this.upsertService.deleteStaleUuid<ContentReferenceEntity>(
+            //     ContentReferenceEntity,
+            //     references.map((reference) => reference.id ?? ""),
+            //     {
+            //         content: {
+            //             id: contentId,
+            //         },
+            //     },
+            // )
+        }
+
+        if (codeExplainings !== undefined) {
+            for (const explaining of codeExplainings) {
+                const {
+                    translations: explainingTranslations,
+                    ...explainingData
+                } = explaining
+                await this.upsertService.upsertUuid(
+                    CodeExplainingEntity,
+                    [explainingData],
+                )
+                if (explainingTranslations?.length) {
+                    await this.upsertService.upsertTranslation<CodeExplainingTranslationEntity>(
+                        CodeExplainingTranslationEntity,
+                        explainingTranslations,
+                        {
+                            codeExplainingId: explaining.id as string,
+                        },
+                    )
+                }
+            }
+            // await this.upsertService.deleteStaleUuid<CodeExplainingEntity>(
+            //     CodeExplainingEntity,
+            //     codeExplainings.map((row) => row.id ?? ""),
+            //     {
+            //         content: {
+            //             id: contentId,
+            //         },
+            //     },
+            // )
+        }
+
+        if (codeImplementations !== undefined) {
+            for (const implementation of codeImplementations) {
+                const {
+                    translations: implementationTranslations,
+                    ...implementationData
+                } = implementation
+                await this.upsertService.upsertUuid(
+                    CodeImplementationEntity,
+                    [implementationData],
+                )
+                if (implementationTranslations?.length) {
+                    await this.upsertService.upsertTranslation<CodeImplementationTranslationEntity>(
+                        CodeImplementationTranslationEntity,
+                        implementationTranslations,
+                        {
+                            codeImplementationId: implementation.id as string,
+                        },
+                    )
+                }
+            }
+            // await this.upsertService.deleteStaleUuid<CodeImplementationEntity>(
+            //     CodeImplementationEntity,
+            //     codeImplementations.map((row) => row.id ?? ""),
+            //     {
+            //         content: {
+            //             id: contentId,
+            //         },
+            //     },
+            // )
         }
     }
 
@@ -110,8 +184,8 @@ export class ContentInsertService {
             ids,
             {
                 module: {
-                    id: moduleId 
-                } 
+                    id: moduleId,
+                },
             },
         )
     }

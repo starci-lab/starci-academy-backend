@@ -1,0 +1,31 @@
+{
+  "title": "NestJS Project Initialization",
+  "description": "Scaffold a new NestJS project. The application must compile and run successfully, returning a 'Hello World!' response at the root endpoint.",
+  "type": "techIntegrate",
+  "weight": "0",
+  "orderIndex": "0",
+  "maxScore": "10",
+  "criterias": [
+    {
+      "text": "NestJS project is scaffolded using nest CLI",
+      "hint": "Use the **NestJS CLI** to scaffold a new project with all default configurations.\n\n**Step 1:** Install the CLI and create a project:\n```bash\nnpx @nestjs/cli new project-name\n```\n\n**Step 2:** Choose your package manager when prompted (npm/yarn/pnpm).\n\n**Expected directory structure:**\n```mermaid\ntreeView-beta\n  \"project-name/\"\n    \"src/\"\n      \"app.controller.ts\"\n      \"app.module.ts\"\n      \"app.service.ts\"\n      \"main.ts\"\n    \"test/\"\n    \"package.json\"\n    \"nest-cli.json\"\n    \"tsconfig.json\"\n```\n\n**Note:** The CLI automatically generates the project structure with a working controller, service, and module. Read more at [NestJS First Steps](https://docs.nestjs.com/first-steps).",
+      "promptText": "Grading rubric (max 3):\n\n- Criterion (3 points): NestJS project is scaffolded using nest CLI\n\nScoring rule: award full points only when the criterion is fully met with concrete evidence in the repository. Award 0 if not found or incomplete.",
+      "score": "3",
+      "orderIndex": 0
+    },
+    {
+      "text": "The application compiles and starts without errors",
+      "hint": "Verify the application compiles and runs correctly in development mode.\n\n**Step 1:** Install dependencies:\n```bash\nnpm install\n```\n\n**Step 2:** Start the application in watch mode:\n```bash\nnest start --watch\n```\n\n**Step 3:** Verify no errors in the console. Expected output:\n```text\n[Nest] LOG [NestFactory] Starting Nest application...\n[Nest] LOG [NestApplication] Nest application successfully started\n```\n\n**Note:** If you encounter compilation errors, check that your Node.js version is >= 18. Use `node -v` to verify. Read more at [NestJS CLI](https://docs.nestjs.com/cli/overview).",
+      "promptText": "Grading rubric (max 3):\n\n- Criterion (3 points): The application compiles and starts without errors\n\nScoring rule: award full points only when the criterion is fully met with concrete evidence in the repository. Award 0 if not found or incomplete.",
+      "score": "3",
+      "orderIndex": 1
+    },
+    {
+      "text": "GET / returns a 'Hello World!' or welcome message",
+      "hint": "Test the default root endpoint to verify it returns the expected message.\n\n**Step 1:** With the application running, test using curl:\n```bash\ncurl http://localhost:3000\n```\nExpected response:\n```text\nHello World!\n```\n\n**Step 2:** Verify the controller logic in `app.controller.ts`:\n```typescript\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n```\n\n**Note:** The default scaffolded project already includes this endpoint. Ensure `AppController` and `AppService` are properly registered in `AppModule`. Read more at [NestJS Controllers](https://docs.nestjs.com/controllers).",
+      "promptText": "Grading rubric (max 4):\n\n- Criterion (4 points): GET / returns a 'Hello World!' or welcome message\n\nScoring rule: award full points only when the criterion is fully met with concrete evidence in the repository. Award 0 if not found or incomplete.",
+      "score": "4",
+      "orderIndex": 2
+    }
+  ]
+}

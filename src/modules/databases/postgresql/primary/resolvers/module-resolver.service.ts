@@ -52,17 +52,16 @@ export class ModuleResolverService {
         )
         delete (moduleEntity as Partial<ModuleEntity>).translations
 
-        if (moduleEntity.contents?.length) {
-            moduleEntity.contents = moduleEntity.contents.map(
-                (content) => {
-                    this.contentResolver.transform(
-                        content,
-                        locale,
-                        fallbackLocale,
-                    )
-                    return content
-                })
-        }
+        moduleEntity.contents = (moduleEntity.contents ?? []).map(
+            (content) => {
+                this.contentResolver.transform(
+                    content,
+                    locale,
+                    fallbackLocale,
+                )
+                return content
+            },
+        )
 
         if (moduleEntity.previewContents?.length) {
             moduleEntity.previewContents = moduleEntity.previewContents.map(

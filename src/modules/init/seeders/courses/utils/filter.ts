@@ -3,6 +3,25 @@ import {
 } from "@modules/databases"
 
 /**
+ * Returns a shallow copy of `obj` without the given keys.
+ */
+export const deleteFields = <
+    T extends object,
+    K extends keyof T,
+>(
+        obj: T,
+        fields: Array<K>,
+    ): Omit<T, K> => {
+    const result = {
+        ...obj,
+    }
+    for (const field of fields) {
+        delete result[field]
+    }
+    return result
+}
+
+/**
  * Sanitize the primitive fields of an object.
  * @param obj - The object to sanitize. It must be an instance of AbstractEntity.
  * @returns The sanitized object.

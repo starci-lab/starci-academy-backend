@@ -1,0 +1,6 @@
+{
+  "title": "Nền tảng Docker",
+  "description": "Tìm hiểu các khái niệm cốt lõi về container hóa với Docker. Hiểu cách xây dựng, chạy và quản lý container cho ứng dụng của bạn.",
+  "thumbnailUrl": "https://StarCi.org/foundations/docker.svg",
+  "body": "Docker là nền tảng mở để phát triển, vận chuyển và chạy ứng dụng. Nó cho phép tách biệt ứng dụng khỏi cơ sở hạ tầng để phân phối phần mềm nhanh hơn.\n\nTrong nền tảng này, bạn sẽ học:\n- Container là gì và khác máy ảo (VM) như thế nào.\n- Cách viết Dockerfile để container hóa ứng dụng.\n- Quản lý image, container, volume và network.\n- Best practice xây dựng Docker image tối ưu."
+}

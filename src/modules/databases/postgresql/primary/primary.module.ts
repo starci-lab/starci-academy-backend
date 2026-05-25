@@ -21,11 +21,13 @@ import {
     ContentTranslationEntity,
     CodeExplainingEntity,
     CodeExplainingTranslationEntity,
-    CodeExplainingImplementationEntity,
-    CodeExplainingImplementationTranslationEntity,
+    CodeImplementationEntity,
+    CodeImplementationTranslationEntity,
     ChallengeEntity,
     ChallengeStepEntity,
     ChallengeStepTranslationEntity,
+    ChallengeStepCodeImplementationEntity,
+    ChallengeStepCodeImplementationTranslationEntity,
     ChallengeReferenceEntity,
     ChallengeReferenceTranslationEntity,
     ChallengeTranslationEntity,
@@ -98,6 +100,9 @@ import {
     ResolversModule,
 } from "./resolvers"
 import {
+    HydrationModule,
+} from "./hydration"
+import {
     SyncStateService,
 } from "./sync-state.service"
 import {
@@ -121,6 +126,13 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
     ): DynamicModule {
         const dynamicModule = super.register(options)
         const extraModules: Array<DynamicModule> = []
+        if (options.withHydration !== false) {
+            extraModules.push(
+                HydrationModule.register({
+                    isGlobal: options.isGlobal,
+                }),
+            )
+        }
         if (options.withSeeders) {
             extraModules.push(
                 SeedersModule.register(
@@ -181,11 +193,13 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     ContentTranslationEntity,
                                     CodeExplainingEntity,
                                     CodeExplainingTranslationEntity,
-                                    CodeExplainingImplementationEntity,
-                                    CodeExplainingImplementationTranslationEntity,
+                                    CodeImplementationEntity,
+                                    CodeImplementationTranslationEntity,
                                     ChallengeEntity,
                                     ChallengeStepEntity,
                                     ChallengeStepTranslationEntity,
+                                    ChallengeStepCodeImplementationEntity,
+                                    ChallengeStepCodeImplementationTranslationEntity,
                                     ChallengeReferenceEntity,
                                     ChallengeReferenceTranslationEntity,
                                     ChallengeTranslationEntity,
@@ -290,11 +304,13 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         ContentTranslationEntity,
                         CodeExplainingEntity,
                         CodeExplainingTranslationEntity,
-                        CodeExplainingImplementationEntity,
-                        CodeExplainingImplementationTranslationEntity,
+                        CodeImplementationEntity,
+                        CodeImplementationTranslationEntity,
                         ChallengeEntity,
                         ChallengeStepEntity,
                         ChallengeStepTranslationEntity,
+                        ChallengeStepCodeImplementationEntity,
+                        ChallengeStepCodeImplementationTranslationEntity,
                         ChallengeReferenceEntity,
                         ChallengeReferenceTranslationEntity,
                         ChallengeTranslationEntity,

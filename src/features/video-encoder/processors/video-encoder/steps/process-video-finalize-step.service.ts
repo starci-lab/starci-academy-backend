@@ -48,41 +48,53 @@ export class ProcessVideoFinalizeStepService extends AbstractStepService<Filenam
 
     async process(context: JobExtendedContext<FilenameProcessData, undefined>): Promise<void> {
         const { payload: { callbackQueries, assetId }, job } = context
-        const taskDir = join(tmpdir(), `video-encoder-${assetId}`)
+        const taskDir = join(tmpdir(),
+            `video-encoder-${assetId}`)
 
-        this.winstonService.log(WinstonLog.ProcessStepExecuted, {
-            jobId: job.id,
-            step: this.stepName,
-            stepIndex: this.stepIndex,
-            meta: { assetId, message: "Cleaning up and finalizing..." },
-        })
-
-        // Clean up temp directory
-        try {
-            await fsPromise.rm(taskDir, { recursive: true, force: true })
-        } catch (error) {
-            this.winstonService.log(WinstonLog.ProcessStepExecuted, {
+        this.winstonService.log(WinstonLog.ProcessStepExecuted,
+            {
                 jobId: job.id,
                 step: this.stepName,
                 stepIndex: this.stepIndex,
-                success: false,
-                error: `Failed to clean up: ${error.message}`,
+                meta: {
+                    assetId, message: "Cleaning up and finalizing..." 
+                },
             })
+
+        // Clean up temp directory
+        try {
+            await fsPromise.rm(taskDir,
+                {
+                    recursive: true, force: true 
+                })
+        } catch (error) {
+            this.winstonService.log(WinstonLog.ProcessStepExecuted,
+                {
+                    jobId: job.id,
+                    step: this.stepName,
+                    stepIndex: this.stepIndex,
+                    success: false,
+                    error: `Failed to clean up: ${error.message}`,
+                })
         }
 
         // Execute query at end
         const { queryAtEnd } = callbackQueries
         if (queryAtEnd && queryAtEnd.length === 2) {
-            await this.entityManager.query(queryAtEnd[0], queryAtEnd[1])
+            await this.entityManager.query(queryAtEnd[0],
+                queryAtEnd[1])
         }
 
-        this.winstonService.log(WinstonLog.ProcessStepExecuted, {
-            jobId: job.id,
-            step: this.stepName,
-            stepIndex: this.stepIndex,
-            success: true,
-            meta: { assetId },
-        })
+        this.winstonService.log(WinstonLog.ProcessStepExecuted,
+            {
+                jobId: job.id,
+                step: this.stepName,
+                stepIndex: this.stepIndex,
+                success: true,
+                meta: {
+                    assetId 
+                },
+            })
 
         await this.entityManager.transaction(async (em) => {
             await this.jobActionService.increaseJob({
@@ -91,7 +103,8 @@ export class ProcessVideoFinalizeStepService extends AbstractStepService<Filenam
             await this.jobActionService.saveExecutionResult({
                 job,
                 key: this.stepName,
-                executionResult: {},
+                executionResult: {
+                },
                 entityManager: em,
             })
         })

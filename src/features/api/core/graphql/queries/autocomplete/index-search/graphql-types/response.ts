@@ -9,19 +9,34 @@ import {
 
 @ObjectType()
 export class IndexSearchParentPath {
-    @Field(() => String, { nullable: true })
+    @Field(() => String,
+        {
+            nullable: true 
+        })
         courseDisplayId?: string
 
-    @Field(() => String, { nullable: true })
+    @Field(() => String,
+        {
+            nullable: true 
+        })
         moduleDisplayId?: string
 
-    @Field(() => String, { nullable: true })
+    @Field(() => String,
+        {
+            nullable: true 
+        })
         contentDisplayId?: string
 
-    @Field(() => String, { nullable: true })
+    @Field(() => String,
+        {
+            nullable: true 
+        })
         challengeDisplayId?: string
 
-    @Field(() => String, { nullable: true })
+    @Field(() => String,
+        {
+            nullable: true 
+        })
         lessonVideoDisplayId?: string
 }
 

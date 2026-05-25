@@ -1,18 +1,12 @@
 import {
     HeadhuntingCompanyEntity,
+    HeadhuntingCompanyHydrationService,
     HeadhuntingCompanyResolverService,
-    InjectPrimaryPostgreSQLEntityManager,
     Locale,
 } from "@modules/databases"
 import {
-    HeadhuntingCompanyNotFoundException,
-} from "@modules/exceptions"
-import {
     Injectable,
 } from "@nestjs/common"
-import type {
-    EntityManager,
-} from "typeorm"
 import type {
     LocalizedElasticsearchEntity,
 } from "./types"
@@ -24,8 +18,7 @@ import _ from "lodash"
 @Injectable()
 export class ElasticsearchHeadhunterCompanyBuildService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
+        private readonly headhuntingCompanyHydration: HeadhuntingCompanyHydrationService,
         private readonly headhuntingCompanyResolver: HeadhuntingCompanyResolverService,
         private readonly elasticsearchService: ElasticsearchService,
     ) {}
@@ -33,10 +26,12 @@ export class ElasticsearchHeadhunterCompanyBuildService {
     async buildMultilingualByCompanyId(
         companyId: string,
     ): Promise<Array<LocalizedElasticsearchEntity<HeadhuntingCompanyEntity>>> {
-        const hydratedCompany = await this.loadHydratedCompanyPlain(companyId)
+        const hydratedCompany = await this.headhuntingCompanyHydration.loadById(companyId)
         return Object.values(Locale).map(
             (locale) => {
-                const localizedCompany = _.cloneDeep(hydratedCompany)
+                const localizedCompany = _.cloneDeep(
+                    hydratedCompany,
+                )
                 this.headhuntingCompanyResolver.transform(
                     localizedCompany,
                     locale,
@@ -47,28 +42,6 @@ export class ElasticsearchHeadhunterCompanyBuildService {
                 }
             },
         )
-    }
-
-    private async loadHydratedCompanyPlain(
-        id: string,
-    ): Promise<HeadhuntingCompanyEntity> {
-        const company = await this.entityManager.findOne(
-            HeadhuntingCompanyEntity,
-            {
-                where: {
-                    id,
-                },
-                relations: {
-                    translations: true,
-                },
-            },
-        )
-        if (!company) {
-            throw new HeadhuntingCompanyNotFoundException({
-                id,
-            })
-        }
-        return company.toPlain<HeadhuntingCompanyEntity>()
     }
 
     async buildIndexById(

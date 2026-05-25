@@ -8,6 +8,12 @@ export interface ParseEnvStringParams {
     defaultValue: string
 }
 
+/** Params for parsing an env var as a list of strings. */
+export interface ParseEnvStringListParams {
+    key: string
+    defaultValue: string
+}
+
 /** Params for parsing an env var as integer. */
 export interface ParseEnvIntParams {
     key: string

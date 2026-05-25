@@ -29,7 +29,6 @@ import {
 } from "@modules/winston"
 import {
     DayjsService,
-    RetryService,
 } from "@modules/mixin"
 
 /**
@@ -44,8 +43,7 @@ export class BloomFilterSynchronizerService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly emailBloomFilterService: EmailBloomFilterService,
-        private readonly cacheService: CacheService,
-        private readonly retryService: RetryService,
+        private readonly cacheService: CacheService
     ) { }
 
     /**
@@ -101,7 +99,7 @@ export class BloomFilterSynchronizerService {
         let resumeAfterId: string | null = null
         let totalEmails = 0
 
-        // eslint-disable-next-line no-constant-condition
+         
         while (true) {
             const users = await this.entityManager.find(
                 UserEntity,
@@ -122,11 +120,9 @@ export class BloomFilterSynchronizerService {
                 break
             }
             try {
-                await this.retryService.retry({
-                    action: () => this.emailBloomFilterService.addMultiple(
+                await this.emailBloomFilterService.addMultiple(
                         users.map((user) => user.email ?? ""),
-                    ),
-                })
+                    )
                 totalEmails += users.length
                 resumeAfterId = users[users.length - 1]?.id ?? null
             } catch (error) {

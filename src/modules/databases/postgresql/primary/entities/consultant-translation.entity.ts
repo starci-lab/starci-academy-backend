@@ -25,23 +25,46 @@ import {
 })
 @Entity("consultant_translations")
 export class ConsultantTranslationEntity extends AbstractEntity {
-    @Field(() => String, { description: "Target consultant ID." })
-    @PrimaryColumn({ name: "consultant_id", type: "uuid" })
+    @Field(() => String,
+        {
+            description: "Target consultant ID." 
+        })
+    @PrimaryColumn({
+        name: "consultant_id", type: "uuid" 
+    })
         consultantId: string
 
-    @Field(() => GraphQLTypeLocale, { description: "Locale of the translation." })
-    @PrimaryColumn({ name: "locale", type: "enum", enum: Locale, enumName: "locale" })
+    @Field(() => GraphQLTypeLocale,
+        {
+            description: "Locale of the translation." 
+        })
+    @PrimaryColumn({
+        name: "locale", type: "enum", enum: Locale, enumName: "locale" 
+    })
         locale: Locale
 
-    @Field(() => String, { description: "Translated field name." })
-    @PrimaryColumn({ name: "field", type: "varchar", length: 128 })
+    @Field(() => String,
+        {
+            description: "Translated field name." 
+        })
+    @PrimaryColumn({
+        name: "field", type: "varchar", length: 128 
+    })
         field: string
 
-    @Field(() => String, { description: "Translated value." })
-    @Column({ name: "value", type: "text" })
+    @Field(() => String,
+        {
+            description: "Translated value." 
+        })
+    @Column({
+        name: "value", type: "text" 
+    })
         value: string
 
-    @ManyToOne(() => ConsultantEntity, { onDelete: "CASCADE" })
+    @ManyToOne(() => ConsultantEntity,
+        {
+            onDelete: "CASCADE" 
+        })
     @JoinColumn({
         name: "consultant_id",
         referencedColumnName: "id",

@@ -53,14 +53,18 @@ export class ProcessVideoPackageStepService extends AbstractStepService<Filename
 
     async process(context: JobExtendedContext<FilenameProcessData, undefined>): Promise<void> {
         const { payload: { assetId }, job } = context
-        const taskDir = join(tmpdir(), `video-encoder-${assetId}`)
+        const taskDir = join(tmpdir(),
+            `video-encoder-${assetId}`)
 
-        this.winstonService.log(WinstonLog.ProcessStepExecuted, {
-            jobId: job.id,
-            step: this.stepName,
-            stepIndex: this.stepIndex,
-            meta: { assetId, message: "Fragmenting and generating MPEG-DASH manifest..." },
-        })
+        this.winstonService.log(WinstonLog.ProcessStepExecuted,
+            {
+                jobId: job.id,
+                step: this.stepName,
+                stepIndex: this.stepIndex,
+                meta: {
+                    assetId, message: "Fragmenting and generating MPEG-DASH manifest..." 
+                },
+            })
 
         // Fragment each encoded video
         const videoNames = this.ffmpegService.videoNames
@@ -72,7 +76,8 @@ export class ProcessVideoPackageStepService extends AbstractStepService<Filename
                     videoName,
                 )
                 if (fragmentationRequired) {
-                    await this.bento4Service.fragmentVideo(taskDir, videoName)
+                    await this.bento4Service.fragmentVideo(taskDir,
+                        videoName)
                 }
             }
             fragmentPromises.push(promise())
@@ -85,13 +90,16 @@ export class ProcessVideoPackageStepService extends AbstractStepService<Filename
             videoNames,
         )
 
-        this.winstonService.log(WinstonLog.ProcessStepExecuted, {
-            jobId: job.id,
-            step: this.stepName,
-            stepIndex: this.stepIndex,
-            success: true,
-            meta: { assetId },
-        })
+        this.winstonService.log(WinstonLog.ProcessStepExecuted,
+            {
+                jobId: job.id,
+                step: this.stepName,
+                stepIndex: this.stepIndex,
+                success: true,
+                meta: {
+                    assetId 
+                },
+            })
 
         await this.entityManager.transaction(async (em) => {
             await this.jobActionService.increaseJob({
@@ -100,7 +108,8 @@ export class ProcessVideoPackageStepService extends AbstractStepService<Filename
             await this.jobActionService.saveExecutionResult({
                 job,
                 key: this.stepName,
-                executionResult: {},
+                executionResult: {
+                },
                 entityManager: em,
             })
         })

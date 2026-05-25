@@ -39,7 +39,6 @@ import {
 } from "@modules/winston"
 import {
     DayjsService,
-    RetryService,
 } from "@modules/mixin"
 import {
     SyncElasticsearchEntityKind
@@ -47,6 +46,19 @@ import {
 import {
     ElasticsearchService 
 } from "@modules/elasticsearch"
+import type {
+    SynchronizerSyncScope,
+} from "../../types"
+import {
+    buildElasticsearchSynchronizerSyncScope,
+    shouldSyncChallengeEntity,
+    shouldSyncContentEntity,
+    shouldSyncLessonVideoEntity,
+    shouldSyncMilestoneEntity,
+    shouldSyncMilestoneTaskEntity,
+    shouldSyncModuleEntity,
+    shouldSynchronizerSyncEntityKind,
+} from "../../utils"
 
 /**
  * Elasticsearch synchronizer — iterates all entities and calls ES builder for each.
@@ -71,7 +83,6 @@ export class ElasticsearchSynchronizerService {
         private readonly esHeadhunterCompanyBuildService: ElasticsearchHeadhunterCompanyBuildService,
         private readonly esHeadhunterBuildService: ElasticsearchConsultantBuildService,
         private readonly elasticsearchService: ElasticsearchService,
-        private readonly retryService: RetryService,
     ) { }
 
     /** Entity kinds supported by the Elasticsearch synchronizer. */
@@ -89,10 +100,22 @@ export class ElasticsearchSynchronizerService {
         ConsultantEntity.name,
     ]
 
+    private readonly foundationEntityKinds = [
+        FoundationCategoryEntity.name,
+        FoundationEntity.name,
+    ]
+
+    private readonly headhuntingEntityKinds = [
+        HeadhuntingCompanyEntity.name,
+        ConsultantEntity.name,
+    ]
+
     /**
      * Sync all entities to Elasticsearch sequentially.
      */
-    async sync(): Promise<void> {
+    async sync(
+        scope: SynchronizerSyncScope = buildElasticsearchSynchronizerSyncScope(),
+    ): Promise<void> {
         /**
          * Start the Elasticsearch synchronization.
          */
@@ -104,10 +127,18 @@ export class ElasticsearchSynchronizerService {
             }
         )
         /**
-         * Clear ES indexes
+         * Clear then re-index per entity kind (only kinds allowed by scope).
          */
-        for (const locale of Object.values(Locale)) {
-            for (const entityKind of this.entityKinds) {
+        for (const entityKind of this.entityKinds) {
+            if (!shouldSynchronizerSyncEntityKind(
+                scope,
+                entityKind,
+                this.foundationEntityKinds,
+                this.headhuntingEntityKinds,
+            )) {
+                continue
+            }
+            for (const locale of Object.values(Locale)) {
                 await this.elasticsearchService.deleteIndex(
                     this.elasticsearchService.indicateName(
                         {
@@ -117,11 +148,6 @@ export class ElasticsearchSynchronizerService {
                     ),
                 )
             }
-        }
-        /**
-         * Synchronize the entities.
-         */
-        for (const entityKind of this.entityKinds) {
             let resumeEntityId: string | null = null
             switch (entityKind) {
             case CourseEntity.name: {
@@ -146,11 +172,9 @@ export class ElasticsearchSynchronizerService {
                         break
                     }
                     try {
-                        await this.retryService.retry({
-                            action: () => this.esCourseBuildService.buildIndexById(
-                                course.id,
-                            ),
-                        })
+                        await this.esCourseBuildService.buildIndexById(
+                            course.id,
+                        )
                         this.winstonService.log(
                             WinstonLog.EsSynchronizerSyncedSuccessfully,
                             {
@@ -183,6 +207,13 @@ export class ElasticsearchSynchronizerService {
                                 } : {
                                 }),
                             },
+                            relations: {
+                                content: {
+                                    module: {
+                                        course: true,
+                                    },
+                                },
+                            },
                             order: {
                                 id: "ASC",
                             },
@@ -191,12 +222,15 @@ export class ElasticsearchSynchronizerService {
                     if (!challenge) {
                         break
                     }
+                    if (!shouldSyncChallengeEntity(scope,
+                        challenge)) {
+                        resumeEntityId = challenge.id
+                        continue
+                    }
                     try {
-                        await this.retryService.retry({
-                            action: () => this.esChallengeBuildService.buildIndexById(
-                                challenge.id,
-                            ),
-                        })
+                        await this.esChallengeBuildService.buildIndexById(
+                            challenge.id,
+                        )
                         this.winstonService.log(
                             WinstonLog.EsSynchronizerSyncedSuccessfully,
                             {
@@ -229,6 +263,11 @@ export class ElasticsearchSynchronizerService {
                                 } : {
                                 }),
                             },
+                            relations: {
+                                module: {
+                                    course: true,
+                                },
+                            },
                             order: {
                                 id: "ASC",
                             },
@@ -237,12 +276,15 @@ export class ElasticsearchSynchronizerService {
                     if (!content) {
                         break
                     }
+                    if (!shouldSyncContentEntity(scope,
+                        content)) {
+                        resumeEntityId = content.id
+                        continue
+                    }
                     try {
-                        await this.retryService.retry({
-                            action: () => this.esContentBuildService.buildIndexById(
-                                content.id,
-                            ),
-                        })
+                        await this.esContentBuildService.buildIndexById(
+                            content.id,
+                        )
                         this.winstonService.log(
                             WinstonLog.EsSynchronizerSyncedSuccessfully,
                             {
@@ -275,6 +317,13 @@ export class ElasticsearchSynchronizerService {
                                 } : {
                                 }),
                             },
+                            relations: {
+                                content: {
+                                    module: {
+                                        course: true,
+                                    },
+                                },
+                            },
                             order: {
                                 id: "ASC",
                             },
@@ -283,12 +332,15 @@ export class ElasticsearchSynchronizerService {
                     if (!lessonVideo) {
                         break
                     }
+                    if (!shouldSyncLessonVideoEntity(scope,
+                        lessonVideo)) {
+                        resumeEntityId = lessonVideo.id
+                        continue
+                    }
                     try {
-                        await this.retryService.retry({
-                            action: () => this.esLessonVideoBuildService.buildIndexById(
-                                lessonVideo.id,
-                            ),
-                        })
+                        await this.esLessonVideoBuildService.buildIndexById(
+                            lessonVideo.id,
+                        )
                         this.winstonService.log(
                             WinstonLog.EsSynchronizerSyncedSuccessfully,
                             {
@@ -321,6 +373,9 @@ export class ElasticsearchSynchronizerService {
                                 } : {
                                 }),
                             },
+                            relations: {
+                                course: true,
+                            },
                             order: {
                                 id: "ASC",
                             },
@@ -329,12 +384,15 @@ export class ElasticsearchSynchronizerService {
                     if (!module) {
                         break
                     }
+                    if (!shouldSyncModuleEntity(scope,
+                        module)) {
+                        resumeEntityId = module.id
+                        continue
+                    }
                     try {
-                        await this.retryService.retry({
-                            action: () => this.esModuleBuildService.buildIndexById(
-                                module.id,
-                            ),
-                        })
+                        await this.esModuleBuildService.buildIndexById(
+                            module.id,
+                        )
                         this.winstonService.log(
                             WinstonLog.EsSynchronizerSyncedSuccessfully,
                             {
@@ -367,6 +425,9 @@ export class ElasticsearchSynchronizerService {
                                 } : {
                                 }),
                             },
+                            relations: {
+                                course: true,
+                            },
                             order: {
                                 id: "ASC",
                             },
@@ -375,12 +436,15 @@ export class ElasticsearchSynchronizerService {
                     if (!milestone) {
                         break
                     }
+                    if (!shouldSyncMilestoneEntity(scope,
+                        milestone)) {
+                        resumeEntityId = milestone.id
+                        continue
+                    }
                     try {
-                        await this.retryService.retry({
-                            action: () => this.esMilestoneBuildService.buildIndexById(
-                                milestone.id,
-                            ),
-                        })
+                        await this.esMilestoneBuildService.buildIndexById(
+                            milestone.id,
+                        )
                         this.winstonService.log(
                             WinstonLog.EsSynchronizerSyncedSuccessfully,
                             {
@@ -413,6 +477,11 @@ export class ElasticsearchSynchronizerService {
                                 } : {
                                 }),
                             },
+                            relations: {
+                                milestone: {
+                                    course: true,
+                                },
+                            },
                             order: {
                                 id: "ASC",
                             },
@@ -421,12 +490,15 @@ export class ElasticsearchSynchronizerService {
                     if (!milestoneTask) {
                         break
                     }
+                    if (!shouldSyncMilestoneTaskEntity(scope,
+                        milestoneTask)) {
+                        resumeEntityId = milestoneTask.id
+                        continue
+                    }
                     try {
-                        await this.retryService.retry({
-                            action: () => this.esMilestoneTaskBuildService.buildIndexById(
-                                milestoneTask.id,
-                            ),
-                        })
+                        await this.esMilestoneTaskBuildService.buildIndexById(
+                            milestoneTask.id,
+                        )
                         this.winstonService.log(
                             WinstonLog.EsSynchronizerSyncedSuccessfully,
                             {
@@ -468,11 +540,9 @@ export class ElasticsearchSynchronizerService {
                         break
                     }
                     try {
-                        await this.retryService.retry({
-                            action: () => this.esFoundationCategoryBuildService.buildIndexById(
-                                category.id,
-                            ),
-                        })
+                        await this.esFoundationCategoryBuildService.buildIndexById(
+                            category.id,
+                        )
                         this.winstonService.log(
                             WinstonLog.EsSynchronizerSyncedSuccessfully,
                             {
@@ -514,11 +584,9 @@ export class ElasticsearchSynchronizerService {
                         break
                     }
                     try {
-                        await this.retryService.retry({
-                            action: () => this.esFoundationBuildService.buildIndexById(
-                                foundation.id,
-                            ),
-                        })
+                        await this.esFoundationBuildService.buildIndexById(
+                            foundation.id,
+                        )
                         this.winstonService.log(
                             WinstonLog.EsSynchronizerSyncedSuccessfully,
                             {
@@ -560,11 +628,9 @@ export class ElasticsearchSynchronizerService {
                         break
                     }
                     try {
-                        await this.retryService.retry({
-                            action: () => this.esHeadhunterCompanyBuildService.buildIndexById(
-                                company.id,
-                            ),
-                        })
+                        await this.esHeadhunterCompanyBuildService.buildIndexById(
+                            company.id,
+                        )
                         this.winstonService.log(
                             WinstonLog.EsSynchronizerSyncedSuccessfully,
                             {
@@ -606,11 +672,9 @@ export class ElasticsearchSynchronizerService {
                         break
                     }
                     try {
-                        await this.retryService.retry({
-                            action: () => this.esHeadhunterBuildService.buildIndexById(
-                                consultant.id,
-                            ),
-                        })
+                        await this.esHeadhunterBuildService.buildIndexById(
+                            consultant.id,
+                        )
                         this.winstonService.log(
                             WinstonLog.EsSynchronizerSyncedSuccessfully,
                             {

@@ -12,7 +12,9 @@ import {
 } from "./gpu.service"
 
 @Module({
-    providers: [FfmpegService, GpuService],
-    exports: [FfmpegService, GpuService],
+    providers: [FfmpegService,
+        GpuService],
+    exports: [FfmpegService,
+        GpuService],
 })
 export class FfmpegModule extends ConfigurableModuleClass { }

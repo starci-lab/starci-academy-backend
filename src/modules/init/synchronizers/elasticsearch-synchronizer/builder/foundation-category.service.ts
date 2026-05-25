@@ -1,18 +1,12 @@
 import {
     FoundationCategoryEntity,
+    FoundationCategoryHydrationService,
     FoundationCategoryResolverService,
-    InjectPrimaryPostgreSQLEntityManager,
     Locale,
 } from "@modules/databases"
 import {
-    FoundationCategoryNotFoundException,
-} from "@modules/exceptions"
-import {
     Injectable,
 } from "@nestjs/common"
-import type {
-    EntityManager,
-} from "typeorm"
 import type {
     LocalizedElasticsearchEntity,
 } from "./types"
@@ -21,25 +15,18 @@ import {
 } from "@modules/elasticsearch"
 import _ from "lodash"
 
-/**
- * Loads foundation categories from PostgreSQL and materializes per-locale plain objects for Elasticsearch.
- */
 @Injectable()
 export class ElasticsearchFoundationCategoryBuildService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
+        private readonly foundationCategoryHydration: FoundationCategoryHydrationService,
         private readonly foundationCategoryResolver: FoundationCategoryResolverService,
         private readonly elasticsearchService: ElasticsearchService,
     ) {}
 
-    /**
-     * @returns One entry per {@link Locale} with the transformed category row.
-     */
     async buildMultilingualByCategoryId(
         categoryId: string,
     ): Promise<Array<LocalizedElasticsearchEntity<FoundationCategoryEntity>>> {
-        const hydratedCategory = await this.loadHydratedCategoryPlain(
+        const hydratedCategory = await this.foundationCategoryHydration.loadById(
             categoryId,
         )
         return Object.values(Locale).map(
@@ -55,28 +42,6 @@ export class ElasticsearchFoundationCategoryBuildService {
                 }
             },
         )
-    }
-
-    private async loadHydratedCategoryPlain(
-        id: string,
-    ): Promise<FoundationCategoryEntity> {
-        const category = await this.entityManager.findOne(
-            FoundationCategoryEntity,
-            {
-                where: {
-                    id,
-                },
-                relations: {
-                    translations: true,
-                },
-            },
-        )
-        if (!category) {
-            throw new FoundationCategoryNotFoundException({
-                id,
-            })
-        }
-        return category.toPlain<FoundationCategoryEntity>()
     }
 
     async buildIndexById(

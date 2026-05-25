@@ -26,10 +26,12 @@ import {
     LessonVideoTranslationEntity,
 } from "@modules/databases"
 import {
-    LessonVideoPathService,
-    ResolvedFileResult,
+    LessonVideoPathService
 } from "../path"
-import { ContextLoaderService } from "../../shared"
+import {
+    ResolvedFileResult,
+    ContextLoaderService,
+} from "../../shared"
 import {
     LessonVideoPathNotFoundException,
 } from "@modules/exceptions"

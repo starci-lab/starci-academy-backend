@@ -13,10 +13,12 @@ import {
     MountFoundationsService,
 } from "./mount-foundations.service"
 
-@Module({})
+@Module({
+})
 export class MountFoundationsModule extends ConfigurableModuleClass {
     static register(
-        options: typeof OPTIONS_TYPE = {},
+        options: typeof OPTIONS_TYPE = {
+        },
     ): DynamicModule {
         const dynamicModule = super.register(options)
         return {

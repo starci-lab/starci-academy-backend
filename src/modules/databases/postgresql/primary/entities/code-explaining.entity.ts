@@ -25,15 +25,12 @@ import {
 import {
     CodeExplainingTranslationEntity,
 } from "./code-explaining-translation.entity"
-import {
-    CodeExplainingImplementationEntity,
-} from "./code-explaining-implementation.entity"
 
 /**
  * Critical code snippet attached to a content (lesson) with explanation.
  */
 @ObjectType({
-    description: "Critical code snippet attached to a content with explanation and multi-language implementations.",
+    description: "Critical code snippet attached to a content with explanation.",
 })
 @Entity("code_explainings")
 export class CodeExplainingEntity extends UuidAbstractEntity {
@@ -170,22 +167,4 @@ export class CodeExplainingEntity extends UuidAbstractEntity {
         },
     )
         translations: Array<CodeExplainingTranslationEntity>
-
-    /**
-     * Multi-language implementation guides for this code snippet.
-     */
-    @Field(
-        () => [CodeExplainingImplementationEntity],
-        {
-            description: "Multi-language implementation guides (Go, C#, .NET, Java).",
-        },
-    )
-    @OneToMany(
-        () => CodeExplainingImplementationEntity,
-        (implementation: CodeExplainingImplementationEntity) => implementation.codeExplaining,
-        {
-            cascade: true,
-        },
-    )
-        implementations: Array<CodeExplainingImplementationEntity>
 }

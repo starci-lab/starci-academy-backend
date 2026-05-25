@@ -9,9 +9,6 @@ import {
     FoundationEntity,
 } from "@modules/databases"
 import {
-    RetryService,
-} from "@modules/mixin"
-import {
     FoundationCategoryInsertService,
     FoundationInsertService,
 } from "./inserts"
@@ -19,6 +16,9 @@ import {
     FoundationCategoryParserService,
     FoundationParserService,
 } from "./parsers"
+import {
+    isFoundationsSeederEnabled,
+} from "../shared/scope"
 
 /**
  * Wraps the full foundations init seed pipeline (parse → upsert per table).
@@ -30,14 +30,16 @@ export class FoundationSeederService {
         private readonly foundationCategoryParserService: FoundationCategoryParserService,
         private readonly foundationParserService: FoundationParserService,
         private readonly foundationCategoryInsertService: FoundationCategoryInsertService,
-        private readonly foundationInsertService: FoundationInsertService,
-        private readonly retryService: RetryService,
+        private readonly foundationInsertService: FoundationInsertService
     ) { }
 
     /**
      * Parse foundation markdown sources and upsert PostgreSQL (categories → foundations).
      */
     async seed(): Promise<void> {
+        if (!isFoundationsSeederEnabled()) {
+            return
+        }
         /** The categories to seed. */
         const categories: Array<DeepPartial<FoundationCategoryEntity>> = []
         /** The category results to seed. */
@@ -76,11 +78,7 @@ export class FoundationSeederService {
             const categoryId = category.id as string
 
             /** 1. Upsert category-level tables */
-            await this.retryService.retry({
-                action: async () => {
-                    await this.foundationCategoryInsertService.insert(category)
-                },
-            })
+            await this.foundationCategoryInsertService.insert(category)
 
             /** 2. Upsert foundation-level tables */
             const foundations = (category.foundations ?? []) as Array<DeepPartial<FoundationEntity>>
@@ -89,21 +87,13 @@ export class FoundationSeederService {
                 foundation.category = {
                     id: categoryId,
                 }
-                await this.retryService.retry({
-                    action: async () => {
-                        await this.foundationInsertService.insert(foundation)
-                    },
-                })
+                await this.foundationInsertService.insert(foundation)
             }
-            /** Delete stale foundations */
-            await this.retryService.retry({
-                action: async () => {
-                    await this.foundationInsertService.deleteStale(
-                        foundations.map((foundation) => foundation.id as string),
-                        categoryId,
-                    )
-                },
-            })
+            // /** Delete stale foundations */
+            // await this.foundationInsertService.deleteStale(
+            //             foundations.map((foundation) => foundation.id as string),
+            //             categoryId,
+            //         )
         }
     }
 }

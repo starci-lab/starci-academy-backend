@@ -11,6 +11,9 @@ import {
 import {
     UpsertService,
 } from "./upsert.service"
+import {
+    deleteFields,
+} from "../utils"
 
 /**
  * Inserts/updates/deletes milestone-level tables:
@@ -31,24 +34,33 @@ export class MilestoneInsertService {
         milestone: DeepPartial<MilestoneEntity>,
     ): Promise<void> {
         const milestoneId = milestone.id as string
+        const translations = milestone.translations
+        const courseId = (milestone.courseId ?? milestone.course?.id) as string
+        const courseRef = milestone.course ?? {
+            id: courseId,
+        }
 
         /** 1. Upsert the milestone row (strip nested relations) */
-        const {
-            translations,
-            course,
-            ...rest
-        } = milestone
+        const milestoneRow = deleteFields(
+            milestone,
+            [
+                "translations",
+                "course",
+                "tasks",
+            ],
+        )
 
         await this.upsertService.upsertUuid(
             MilestoneEntity,
             [{
-                ...rest,
-                /** Re-attach only the FK reference */
-                ...(course ? {
-                    course 
-                } : {
-                }),
+                ...milestoneRow,
+                course: courseRef,
             }],
+            {
+                course: {
+                    id: courseId,
+                },
+            },
         )
 
         /** 2. Upsert milestone translations */

@@ -39,7 +39,8 @@ export class PresignedUrlHandler
             contentType,
         } = command.params
 
-        const [minioUrl, digitalOceanUrl] = await Promise.all([
+        const [minioUrl,
+            digitalOceanUrl] = await Promise.all([
             this.s3BuildService.buildSignedPutObjectUrl({
                 key,
                 provider: S3Provider.Minio,

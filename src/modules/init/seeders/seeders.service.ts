@@ -13,54 +13,23 @@ import {
 import {
     HeadhuntingSeederService,
 } from "./headhuntings"
-import {
-    RetryService
-} from "@modules/mixin"
 /**
- * Init seed orchestrator: delegates course/milestone pipeline to {@link CourseSeederService},
- * then CV mount templates.
+ * Init seed orchestrator: each domain seeder reads `envConfig().init` seeders context itself.
  */
 @Injectable()
 export class SeedersService {
     constructor(
         private readonly courseSeederService: CourseSeederService,
-        private readonly retryService: RetryService,
         private readonly cvSeederService: CvSeederService,
         private readonly foundationSeederService: FoundationSeederService,
         private readonly headhunterSeederService: HeadhuntingSeederService,
     ) { }
 
-    /**
-     * Initialize the seeders — parse and save all course data, then CV templates from mount.
-     */
+    /** Runs all init seed pipelines sequentially (env gates live inside each seeder). */
     async init() {
-        await this.retryService.retry(
-            {
-                action: async () => {
-                    await this.courseSeederService.seed()
-                },
-            }
-        )
-        await this.retryService.retry(
-            {
-                action: async () => {
-                    await this.cvSeederService.seed()
-                },
-            }
-        )
-        await this.retryService.retry(
-            {
-                action: async () => {
-                    await this.foundationSeederService.seed()
-                },
-            }
-        )
-        await this.retryService.retry(
-            {
-                action: async () => {
-                    await this.headhunterSeederService.seed()
-                },
-            }
-        )
+        await this.courseSeederService.seed()
+        await this.cvSeederService.seed()
+        await this.foundationSeederService.seed()
+        await this.headhunterSeederService.seed()
     }
 }

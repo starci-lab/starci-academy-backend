@@ -18,6 +18,12 @@ import {
     LessonVideoResolverService,
 } from "./lesson-video-resolver.service"
 import {
+    CodeExplainingResolverService,
+} from "./code-explaining-resolver.service"
+import {
+    CodeImplementationResolverService,
+} from "./code-implementation-resolver.service"
+import {
     LivestreamSessionResolverService,
 } from "./livestream-session-resolver.service"
 import {
@@ -67,6 +73,8 @@ const resolverProviders: Array<Provider> = [
     TranslationResolverService,
     ChallengeResolverService,
     LessonVideoResolverService,
+    CodeExplainingResolverService,
+    CodeImplementationResolverService,
     LivestreamSessionResolverService,
     PreviewContentResolverService,
     PrerequisiteResolverService,

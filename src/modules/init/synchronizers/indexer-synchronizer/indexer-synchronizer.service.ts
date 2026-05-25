@@ -26,11 +26,20 @@ import {
 } from "@modules/winston"
 import {
     DayjsService,
-    RetryService,
 } from "@modules/mixin"
 import {
     SyncIndexerEntityKind
 } from "@modules/bullmq"
+import type {
+    SynchronizerSyncScope,
+} from "../../types"
+import {
+    buildCdnSynchronizerSyncScope,
+    shouldSyncChallengeEntity,
+    shouldSyncContentEntity,
+    shouldSyncLessonVideoEntity,
+    shouldSyncModuleEntity,
+} from "../../utils"
 
 /**
  * Indexer synchronizer — iterates all entities and calls Indexer builder for each.
@@ -48,7 +57,6 @@ export class IndexerSynchronizerService {
         private readonly indexerContentBuildService: IndexerContentBuildService,
         private readonly indexerChallengeBuildService: IndexerChallengeBuildService,
         private readonly indexerLessonVideoBuildService: IndexerLessonVideoBuildService,
-        private readonly retryService: RetryService,
     ) { }
 
     /** Entity kinds supported by the Indexer synchronizer. */
@@ -63,7 +71,9 @@ export class IndexerSynchronizerService {
     /**
      * Sync all entities to Indexer sequentially.
      */
-    async sync(): Promise<void> {
+    async sync(
+        scope: SynchronizerSyncScope = buildCdnSynchronizerSyncScope(),
+    ): Promise<void> {
         /**
          * Start the Indexer synchronization.
          */
@@ -80,243 +90,275 @@ export class IndexerSynchronizerService {
         for (const entityKind of this.entityKinds) {
             let resumeEntityId: string | null = null
             switch (entityKind) {
-                case CourseEntity.name: {
-                    // eslint-disable-next-line no-constant-condition
-                    while (true) {
-                        const course = await this.entityManager.findOne(
-                            CourseEntity,
-                            {
-                                where: {
-                                    ...(
-                                        resumeEntityId ? {
-                                            id: MoreThan(resumeEntityId)
-                                        } : {
-                                        }
-                                    ),
-                                },
-                                order: {
-                                    id: "ASC",
-                                },
-                            },
-                        )
-                        if (!course) {
-                            break
-                        }
-                        try {
-                            await this.retryService.retry({
-                                action: () => this.indexerCourseBuildService.buildIndexerById(
-                                    course.id,
-                                ),
-                            })
-                            this.winstonService.log(
-                                WinstonLog.IndexerSynchronizerSyncedSuccessfully,
-                                {
-                                    entityKind,
-                                    entityId: course.id,
-                                }
-                            )
-                        } catch (error) {
-                            this.winstonService.log(
-                                WinstonLog.IndexerSynchronizerEntitySyncFailed,
-                                {
-                                    entityKind,
-                                    entityId: course.id,
-                                    error: error.message,
-                                }
-                            )
-                        }
-                        resumeEntityId = course.id
-                    }
-                    break
-                }
-                case ChallengeEntity.name: {
-                    // eslint-disable-next-line no-constant-condition
-                    while (true) {
-                        const challenge = await this.entityManager.findOne(
-                            ChallengeEntity,
-                            {
-                                where: {
-                                    ...(resumeEntityId ? {
+            case CourseEntity.name: {
+                 
+                while (true) {
+                    const course = await this.entityManager.findOne(
+                        CourseEntity,
+                        {
+                            where: {
+                                ...(
+                                    resumeEntityId ? {
                                         id: MoreThan(resumeEntityId)
                                     } : {
-                                    }),
-                                },
-                                order: {
-                                    id: "ASC",
+                                    }
+                                ),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!course) {
+                        break
+                    }
+                    try {
+                        await this.indexerCourseBuildService.buildIndexerById(
+                            course.id,
+                        )
+                        this.winstonService.log(
+                            WinstonLog.IndexerSynchronizerSyncedSuccessfully,
+                            {
+                                entityKind,
+                                entityId: course.id,
+                            }
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.IndexerSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: course.id,
+                                error: error.message,
+                            }
+                        )
+                    }
+                    resumeEntityId = course.id
+                }
+                break
+            }
+            case ChallengeEntity.name: {
+                 
+                while (true) {
+                    const challenge = await this.entityManager.findOne(
+                        ChallengeEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId)
+                                } : {
+                                }),
+                            },
+                            relations: {
+                                content: {
+                                    module: {
+                                        course: true,
+                                    },
                                 },
                             },
-                        )
-                        if (!challenge) {
-                            break
-                        }
-                        try {
-                            await this.retryService.retry({
-                                action: () => this.indexerChallengeBuildService.buildIndexerById(
-                                    challenge.id,
-                                ),
-                            })
-                            this.winstonService.log(
-                                WinstonLog.IndexerSynchronizerSyncedSuccessfully,
-                                {
-                                    entityKind,
-                                    entityId: challenge.id,
-                                }
-                            )
-                        } catch (error) {
-                            this.winstonService.log(
-                                WinstonLog.IndexerSynchronizerEntitySyncFailed,
-                                {
-                                    entityKind,
-                                    entityId: challenge.id,
-                                    error: error.message,
-                                }
-                            )
-                        }
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!challenge) {
+                        break
+                    }
+                    if (!shouldSyncChallengeEntity(scope,
+                        challenge)) {
                         resumeEntityId = challenge.id
+                        continue
                     }
-                    break
-                }
-                case ContentEntity.name: {
-                    // eslint-disable-next-line no-constant-condition
-                    while (true) {
-                        const content = await this.entityManager.findOne(
-                            ContentEntity,
+                    try {
+                        await this.indexerChallengeBuildService.buildIndexerById(
+                            challenge.id,
+                        )
+                        this.winstonService.log(
+                            WinstonLog.IndexerSynchronizerSyncedSuccessfully,
                             {
-                                where: {
-                                    ...(resumeEntityId ? {
-                                        id: MoreThan(resumeEntityId)
-                                    } : {
-                                    }),
-                                },
-                                order: {
-                                    id: "ASC",
+                                entityKind,
+                                entityId: challenge.id,
+                            }
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.IndexerSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: challenge.id,
+                                error: error.message,
+                            }
+                        )
+                    }
+                    resumeEntityId = challenge.id
+                }
+                break
+            }
+            case ContentEntity.name: {
+                 
+                while (true) {
+                    const content = await this.entityManager.findOne(
+                        ContentEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId)
+                                } : {
+                                }),
+                            },
+                            relations: {
+                                module: {
+                                    course: true,
                                 },
                             },
-                        )
-                        if (!content) {
-                            break
-                        }
-                        try {
-                            await this.retryService.retry({
-                                action: () => this.indexerContentBuildService.buildIndexerById(
-                                    content.id,
-                                ),
-                            })
-                            this.winstonService.log(
-                                WinstonLog.IndexerSynchronizerSyncedSuccessfully,
-                                {
-                                    entityKind,
-                                    entityId: content.id,
-                                }
-                            )
-                        } catch (error) {
-                            this.winstonService.log(
-                                WinstonLog.IndexerSynchronizerEntitySyncFailed,
-                                {
-                                    entityKind,
-                                    entityId: content.id,
-                                    error: error.message,
-                                }
-                            )
-                        }
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!content) {
+                        break
+                    }
+                    if (!shouldSyncContentEntity(scope,
+                        content)) {
                         resumeEntityId = content.id
+                        continue
                     }
-                    break
-                }
-                case LessonVideoEntity.name: {
-                    // eslint-disable-next-line no-constant-condition
-                    while (true) {
-                        const lessonVideo = await this.entityManager.findOne(
-                            LessonVideoEntity,
+                    try {
+                        await this.indexerContentBuildService.buildIndexerById(
+                            content.id,
+                        )
+                        this.winstonService.log(
+                            WinstonLog.IndexerSynchronizerSyncedSuccessfully,
                             {
-                                where: {
-                                    ...(resumeEntityId ? {
-                                        id: MoreThan(resumeEntityId)
-                                    } : {
-                                    }),
-                                },
-                                order: {
-                                    id: "ASC",
+                                entityKind,
+                                entityId: content.id,
+                            }
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.IndexerSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: content.id,
+                                error: error.message,
+                            }
+                        )
+                    }
+                    resumeEntityId = content.id
+                }
+                break
+            }
+            case LessonVideoEntity.name: {
+                 
+                while (true) {
+                    const lessonVideo = await this.entityManager.findOne(
+                        LessonVideoEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId)
+                                } : {
+                                }),
+                            },
+                            relations: {
+                                content: {
+                                    module: {
+                                        course: true,
+                                    },
                                 },
                             },
-                        )
-                        if (!lessonVideo) {
-                            break
-                        }
-                        try {
-                            await this.retryService.retry({
-                                action: () => this.indexerLessonVideoBuildService.buildIndexerById(
-                                    lessonVideo.id,
-                                ),
-                            })
-                            this.winstonService.log(
-                                WinstonLog.IndexerSynchronizerSyncedSuccessfully,
-                                {
-                                    entityKind,
-                                    entityId: lessonVideo.id,
-                                }
-                            )
-                        } catch (error) {
-                            this.winstonService.log(
-                                WinstonLog.IndexerSynchronizerEntitySyncFailed,
-                                {
-                                    entityKind,
-                                    entityId: lessonVideo.id,
-                                    error: error.message,
-                                }
-                            )
-                        }
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!lessonVideo) {
+                        break
+                    }
+                    if (!shouldSyncLessonVideoEntity(scope,
+                        lessonVideo)) {
                         resumeEntityId = lessonVideo.id
+                        continue
                     }
-                    break
-                }
-                case ModuleEntity.name: {
-                    // eslint-disable-next-line no-constant-condition
-                    while (true) {
-                        const module = await this.entityManager.findOne(
-                            ModuleEntity,
-                            {
-                                where: {
-                                    ...(resumeEntityId ? {
-                                        id: MoreThan(resumeEntityId)
-                                    } : {
-                                    }),
-                                },
-                                order: {
-                                    id: "ASC",
-                                },
-                            },
+                    try {
+                        await this.indexerLessonVideoBuildService.buildIndexerById(
+                            lessonVideo.id,
                         )
-                        if (!module) {
-                            break
-                        }
-                        try {
-                            await this.retryService.retry({
-                                action: () => this.indexerModuleBuildService.buildIndexerById(
-                                    module.id,
-                                ),
-                            })
-                            this.winstonService.log(
-                                WinstonLog.IndexerSynchronizerSyncedSuccessfully,
-                                {
-                                    entityKind,
-                                    entityId: module.id,
-                                }
-                            )
-                        } catch (error) {
-                            this.winstonService.log(
-                                WinstonLog.IndexerSynchronizerEntitySyncFailed,
-                                {
-                                    entityKind,
-                                    entityId: module.id,
-                                    error: error.message,
-                                }
-                            )
-                        }
-                        resumeEntityId = module.id
+                        this.winstonService.log(
+                            WinstonLog.IndexerSynchronizerSyncedSuccessfully,
+                            {
+                                entityKind,
+                                entityId: lessonVideo.id,
+                            }
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.IndexerSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: lessonVideo.id,
+                                error: error.message,
+                            }
+                        )
                     }
-                    break
+                    resumeEntityId = lessonVideo.id
                 }
+                break
+            }
+            case ModuleEntity.name: {
+                 
+                while (true) {
+                    const module = await this.entityManager.findOne(
+                        ModuleEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId)
+                                } : {
+                                }),
+                            },
+                            relations: {
+                                course: true,
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!module) {
+                        break
+                    }
+                    if (!shouldSyncModuleEntity(scope,
+                        module)) {
+                        resumeEntityId = module.id
+                        continue
+                    }
+                    try {
+                        await this.indexerModuleBuildService.buildIndexerById(
+                            module.id,
+                        )
+                        this.winstonService.log(
+                            WinstonLog.IndexerSynchronizerSyncedSuccessfully,
+                            {
+                                entityKind,
+                                entityId: module.id,
+                            }
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.IndexerSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: module.id,
+                                error: error.message,
+                            }
+                        )
+                    }
+                    resumeEntityId = module.id
+                }
+                break
+            }
             }
         }
         /**

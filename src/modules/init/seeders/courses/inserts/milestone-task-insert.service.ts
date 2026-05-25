@@ -13,6 +13,9 @@ import {
 import {
     UpsertService,
 } from "./upsert.service"
+import {
+    deleteFields,
+} from "../utils"
 
 /**
  * Inserts/updates/deletes milestone-task-level tables:
@@ -32,25 +35,34 @@ export class MilestoneTaskInsertService {
         task: DeepPartial<MilestoneTaskEntity>,
     ): Promise<void> {
         const taskId = task.id as string
+        const translations = task.translations
+        const criterias = task.criterias
+        const milestoneId = (task.milestoneId ?? task.milestone?.id) as string
+        const milestoneRef = task.milestone ?? {
+            id: milestoneId,
+        }
 
         /** 1. Upsert the task row (strip nested relations) */
-        const {
-            translations,
-            criterias,
-            milestone,
-            ...rest
-        } = task
+        const taskRow = deleteFields(
+            task,
+            [
+                "translations",
+                "criterias",
+                "milestone",
+            ],
+        )
 
         await this.upsertService.upsertUuid(
             MilestoneTaskEntity,
             [{
-                ...rest,
-                /** Re-attach only the FK reference */
-                ...(milestone ? {
-                    milestone 
-                } : {
-                }),
+                ...taskRow,
+                milestone: milestoneRef,
             }],
+            {
+                milestone: {
+                    id: milestoneId,
+                },
+            },
         )
 
         /** 2. Upsert task translations */
@@ -68,14 +80,28 @@ export class MilestoneTaskInsertService {
         if (criterias) {
             for (const criterion of criterias) {
                 const criterionId = criterion.id as string
-                const {
-                    translations: criteriaTranslations,
-                    ...criterionRest
-                } = criterion
+                const criteriaTranslations = criterion.translations
+                const criterionRow = deleteFields(
+                    criterion,
+                    [
+                        "translations",
+                        "milestoneTask",
+                    ],
+                )
 
                 await this.upsertService.upsertUuid(
                     MilestoneTaskCriteriaEntity,
-                    [criterionRest],
+                    [{
+                        ...criterionRow,
+                        milestoneTask: criterion.milestoneTask ?? {
+                            id: taskId,
+                        },
+                    }],
+                    {
+                        milestoneTask: {
+                            id: taskId,
+                        },
+                    },
                 )
 
                 if (criteriaTranslations?.length) {

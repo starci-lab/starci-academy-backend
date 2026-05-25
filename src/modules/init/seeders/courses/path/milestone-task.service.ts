@@ -32,7 +32,8 @@ export class MilestoneTaskPathService {
         milestoneRelativePath,
     }): Promise<Array<ResolvedFilePath>> {
         const basePath = `${milestoneRelativePath}/tasks`
-        const dirs = await this.pathResolverService.filePaths("courses", basePath)
+        const dirs = await this.pathResolverService.filePaths("courses",
+            basePath)
         return dirs
             .filter((d) => /^\d+$/.test(String(d.orderIndex)))
             .sort((a, b) => a.orderIndex - b.orderIndex)

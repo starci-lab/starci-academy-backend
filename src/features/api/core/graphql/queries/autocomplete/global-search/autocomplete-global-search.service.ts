@@ -127,7 +127,8 @@ export class AutocompleteGlobalSearchService {
             const key = `${item.id}::${item.displayId}`
             const previous = map.get(key)
             if (!previous || (item.texts?.length ?? 0) > (previous.texts?.length ?? 0)) {
-                map.set(key, item)
+                map.set(key,
+                    item)
             }
         }
         return Array.from(map.values())

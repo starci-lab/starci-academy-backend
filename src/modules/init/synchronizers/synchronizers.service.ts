@@ -19,8 +19,11 @@ import {
 } from "@modules/winston"
 import {
     DayjsService,
-    RetryService,
 } from "@modules/mixin"
+import {
+    buildCdnSynchronizerSyncScope,
+    buildElasticsearchSynchronizerSyncScope,
+} from "../utils"
 
 /**
  * Sequential sync orchestrator.
@@ -35,7 +38,6 @@ export class SynchronizersService {
     constructor(
         private readonly dayjsService: DayjsService,
         private readonly winstonService: WinstonService,
-        private readonly retryService: RetryService,
         private readonly cdnSynchronizerService: CdnSynchronizerService,
         private readonly elasticsearchSynchronizerService: ElasticsearchSynchronizerService,
         private readonly indexerSynchronizerService: IndexerSynchronizerService,
@@ -46,6 +48,8 @@ export class SynchronizersService {
      * Initialize — runs all sync tasks sequentially.
      */
     async init(): Promise<void> {
+        const cdnScope = buildCdnSynchronizerSyncScope()
+        const elasticsearchScope = buildElasticsearchSynchronizerSyncScope()
         /**
          * Start the sync orchestrator.
          */
@@ -56,18 +60,10 @@ export class SynchronizersService {
                 startedAt: start,
             }
         )
-        await this.retryService.retry({
-            action: () => this.cdnSynchronizerService.sync(),
-        })
-        await this.retryService.retry({
-            action: () => this.elasticsearchSynchronizerService.sync(),
-        })
-        await this.retryService.retry({
-            action: () => this.indexerSynchronizerService.sync(),
-        })
-        await this.retryService.retry({
-            action: () => this.bloomFilterSynchronizerService.sync(),
-        })
+        await this.cdnSynchronizerService.sync(cdnScope)
+        await this.elasticsearchSynchronizerService.sync(elasticsearchScope)
+        await this.indexerSynchronizerService.sync(cdnScope)
+        await this.bloomFilterSynchronizerService.sync()
         /**
          * End the sync orchestrator.
          */

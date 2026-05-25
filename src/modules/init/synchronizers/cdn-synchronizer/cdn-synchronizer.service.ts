@@ -26,7 +26,6 @@ import {
 } from "@modules/winston"
 import {
     DayjsService,
-    RetryService,
 } from "@modules/mixin"
 import {
     SyncCdnEntityKind
@@ -34,6 +33,16 @@ import {
 import {
     S3BucketService
 } from "@modules/s3"
+import type {
+    SynchronizerSyncScope,
+} from "../../types"
+import {
+    buildCdnSynchronizerSyncScope,
+    shouldSyncChallengeEntity,
+    shouldSyncContentEntity,
+    shouldSyncLessonVideoEntity,
+    shouldSyncModuleEntity,
+} from "../../utils"
 
 /**
  * CDN synchronizer — iterates all entities and calls CDN builder for each.
@@ -51,8 +60,7 @@ export class CdnSynchronizerService {
         private readonly cdnContentBuildService: CdnContentBuildService,
         private readonly cdnChallengeBuildService: CdnChallengeBuildService,
         private readonly cdnLessonVideoBuildService: CdnLessonVideoBuildService,
-        private readonly retryService: RetryService,
-        private readonly s3BucketService: S3BucketService,  
+        private readonly s3BucketService: S3BucketService,
     ) { }
 
     /** Entity kinds supported by the CDN synchronizer. */
@@ -67,7 +75,9 @@ export class CdnSynchronizerService {
     /**
      * Sync all entities to CDN sequentially.
      */
-    async sync(): Promise<void> {
+    async sync(
+        scope: SynchronizerSyncScope = buildCdnSynchronizerSyncScope(),
+    ): Promise<void> {
         /**
          * Start the CDN synchronization.
          */
@@ -106,11 +116,9 @@ export class CdnSynchronizerService {
                         break
                     }
                     try {
-                        await this.retryService.retry({
-                            action: () => this.cdnCourseBuildService.materializeAndUpload(
-                                course.id,
-                            ),
-                        })
+                        await this.cdnCourseBuildService.materializeAndUpload(
+                            course.id,
+                        )
                         this.winstonService.log(
                             WinstonLog.CdnSynchronizerSyncedSuccessfully,
                             {
@@ -143,6 +151,13 @@ export class CdnSynchronizerService {
                                 } : {
                                 }),
                             },
+                            relations: {
+                                content: {
+                                    module: {
+                                        course: true,
+                                    },
+                                },
+                            },
                             order: {
                                 id: "ASC",
                             },
@@ -151,12 +166,15 @@ export class CdnSynchronizerService {
                     if (!challenge) {
                         break
                     }
+                    if (!shouldSyncChallengeEntity(scope,
+                        challenge)) {
+                        resumeEntityId = challenge.id
+                        continue
+                    }
                     try {
-                        await this.retryService.retry({
-                            action: () => this.cdnChallengeBuildService.materializeAndUpload(
-                                challenge.id,
-                            ),
-                        })
+                        await this.cdnChallengeBuildService.materializeAndUpload(
+                            challenge.id,
+                        )
                         this.winstonService.log(
                             WinstonLog.CdnSynchronizerSyncedSuccessfully,
                             {
@@ -190,6 +208,11 @@ export class CdnSynchronizerService {
                                 } : {
                                 }),
                             },
+                            relations: {
+                                module: {
+                                    course: true,
+                                },
+                            },
                             order: {
                                 id: "ASC",
                             },
@@ -198,12 +221,15 @@ export class CdnSynchronizerService {
                     if (!content) {
                         break
                     }
+                    if (!shouldSyncContentEntity(scope,
+                        content)) {
+                        resumeEntityId = content.id
+                        continue
+                    }
                     try {
-                        await this.retryService.retry({
-                            action: () => this.cdnContentBuildService.materializeAndUpload(
-                                content.id,
-                            ),
-                        })
+                        await this.cdnContentBuildService.materializeAndUpload(
+                            content.id,
+                        )
                         this.winstonService.log(
                             WinstonLog.CdnSynchronizerSyncedSuccessfully,
                             {
@@ -236,6 +262,13 @@ export class CdnSynchronizerService {
                                 } : {
                                 }),
                             },
+                            relations: {
+                                content: {
+                                    module: {
+                                        course: true,
+                                    },
+                                },
+                            },
                             order: {
                                 id: "ASC",
                             },
@@ -244,12 +277,15 @@ export class CdnSynchronizerService {
                     if (!lessonVideo) {
                         break
                     }
+                    if (!shouldSyncLessonVideoEntity(scope,
+                        lessonVideo)) {
+                        resumeEntityId = lessonVideo.id
+                        continue
+                    }
                     try {
-                        await this.retryService.retry({
-                            action: () => this.cdnLessonVideoBuildService.materializeAndUpload(
-                                lessonVideo.id,
-                            ),
-                        })
+                        await this.cdnLessonVideoBuildService.materializeAndUpload(
+                            lessonVideo.id,
+                        )
                         this.winstonService.log(
                             WinstonLog.CdnSynchronizerSyncedSuccessfully,
                             {
@@ -282,6 +318,9 @@ export class CdnSynchronizerService {
                                 } : {
                                 }),
                             },
+                            relations: {
+                                course: true,
+                            },
                             order: {
                                 id: "ASC",
                             },
@@ -290,12 +329,15 @@ export class CdnSynchronizerService {
                     if (!module) {
                         break
                     }
+                    if (!shouldSyncModuleEntity(scope,
+                        module)) {
+                        resumeEntityId = module.id
+                        continue
+                    }
                     try {
-                        await this.retryService.retry({
-                            action: () => this.cdnModuleBuildService.materializeAndUpload(
-                                module.id,
-                            ),
-                        })
+                        await this.cdnModuleBuildService.materializeAndUpload(
+                            module.id,
+                        )
                         this.winstonService.log(
                             WinstonLog.CdnSynchronizerSyncedSuccessfully,
                             {

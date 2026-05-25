@@ -95,12 +95,18 @@ export class PublicContentHandler
             const content = await this.entityManager.findOne(
                 ContentEntity,
                 {
-                    where: { id },
-                    select: { isPremium: true },
+                    where: {
+                        id 
+                    },
+                    select: {
+                        isPremium: true 
+                    },
                 },
             )
             if (!content || content.isPremium) {
-                throw new ContentNotFoundException({ id })
+                throw new ContentNotFoundException({
+                    id 
+                })
             }
         }
 

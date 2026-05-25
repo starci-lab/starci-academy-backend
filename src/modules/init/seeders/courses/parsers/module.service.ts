@@ -24,13 +24,15 @@ import {
     ModuleTranslationEntity,
     PreviewContentTranslationEntity,
 } from "@modules/databases"
-import { ContextLoaderService } from "../../shared"
+import {
+    ResolvedFileResult,
+    ContextLoaderService 
+} from "../../shared"
 import {
     ModulePathNotFoundException,
 } from "@modules/exceptions"
 import {
     ModulePathService,
-    ResolvedFileResult,
 } from "../path"
 /**
  * Parses module readme from `en.md` / `vi.md` with camelCase `#` headings and indexed lists.
@@ -74,7 +76,8 @@ export class ModuleParserService {
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(
-                    await this.contextLoaderService.load("courses", 
+                    await this.contextLoaderService.load(
+                        "courses",
                         `${path.relativePath}/${locale}.md`,
                     ),
                 ),
@@ -103,51 +106,43 @@ export class ModuleParserService {
             description: jsonMap.get(Locale.En)?.description ?? "",
             previewContents: (
                 jsonMap.get(Locale.En)?.previewContents ?? []
-            ).map(
-                (
+            ).map(({
+                text,
+                orderIndex,
+            }) => {
+                const previewContentId = this.previewContentIdFactoryService.generate(
                     {
-                        text,
-                        orderIndex,
+                        courseIndex,
+                        moduleIndex,
+                        previewContentIndex: orderIndex,
                     },
-                ) => {
-                    const previewContentId = this.previewContentIdFactoryService.generate(
-                        {
-                            courseIndex,
-                            moduleIndex,
-                            previewContentIndex: orderIndex,
-                        },
-                    )
-                    const translations = Array.from(
-                        jsonMap.entries()
-                    )
-                        .map((
-                            [
+                )
+                const translations = Array.from(jsonMap.entries())
+                    .map(([
+                        locale,
+                        module,
+                    ]) => (module.previewContents ?? [])
+                        .filter((previewContent) => previewContent.orderIndex === orderIndex)
+                        .map<DeepPartial<PreviewContentTranslationEntity>>(
+                            (previewContent) => ({
+                                previewContentId,
                                 locale,
-                                module
-                            ]
-                        ) => (module.previewContents ?? [])
-                            .filter((previewContent) => previewContent.orderIndex === orderIndex)
-                            .map<DeepPartial<PreviewContentTranslationEntity>>(
-                                (previewContent) => ({
-                                    previewContentId,
-                                    locale,
-                                    value: previewContent.text,
-                                    field: "text",
-                                })
-                            ))
-                        .flat()
-                    return {
-                        module: {
-                            id: moduleId,
-                        },
-                        id: previewContentId,
-                        defaultLocale: Locale.En,
-                        text,
-                        orderIndex,
-                        translations
-                    }
-                },
-            ),
+                                value: previewContent.text,
+                                field: "text",
+                            }),
+                        ))
+                    .flat()
+                return {
+                    module: {
+                        id: moduleId,
+                    },
+                    id: previewContentId,
+                    defaultLocale: Locale.En,
+                    text,
+                    orderIndex,
+                    translations,
+                }
+            }),
             translations: (
                 () => {
                     const translations: Array<DeepPartial<ModuleTranslationEntity>> = []

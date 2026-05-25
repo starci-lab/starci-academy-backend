@@ -37,6 +37,9 @@ import {
 import {
     CodeExplainingEntity,
 } from "./code-explaining.entity"
+import {
+    CodeImplementationEntity,
+} from "./code-implementation.entity"
 
 /**
  * Content attached to a module (title, optional description, body).
@@ -60,7 +63,7 @@ export class ContentEntity extends UuidAbstractEntity {
         type: "varchar",
         length: 500,
     })
-    title: string
+        title: string
 
     /**
      * Human-facing stable identifier from the mount folder (`{index}-{slug}` slug segment).
@@ -76,7 +79,7 @@ export class ContentEntity extends UuidAbstractEntity {
         type: "varchar",
         length: 255,
     })
-    displayId: string
+        displayId: string
 
     /**
      * Optional short summary shown before the body (plain text or light markdown).
@@ -93,7 +96,7 @@ export class ContentEntity extends UuidAbstractEntity {
         type: "text",
         nullable: true,
     })
-    description: string | null
+        description: string | null
 
     /**
      * Optional markdown body.
@@ -108,7 +111,7 @@ export class ContentEntity extends UuidAbstractEntity {
         name: "body",
         type: "text",
     })
-    body: string
+        body: string
 
     /**
      * Display order within the module content list.
@@ -124,7 +127,7 @@ export class ContentEntity extends UuidAbstractEntity {
         type: "int",
         default: 0,
     })
-    orderIndex: number
+        orderIndex: number
 
     /**
      * Default locale for this content row.
@@ -141,7 +144,7 @@ export class ContentEntity extends UuidAbstractEntity {
         enum: Locale,
         enumName: "locale",
     })
-    defaultLocale: Locale
+        defaultLocale: Locale
 
     /**
      * Parent module this content belongs to.
@@ -163,7 +166,7 @@ export class ContentEntity extends UuidAbstractEntity {
         name: "module_id",
         foreignKeyConstraintName: "fk_module_id_contents_modules",
     })
-    module: ModuleEntity
+        module: ModuleEntity
 
     @Field(
         () => ID,
@@ -174,7 +177,7 @@ export class ContentEntity extends UuidAbstractEntity {
     @RelationId(
         (c: ContentEntity) => c.module,
     )
-    moduleId: string
+        moduleId: string
 
     /**
      * Estimated minutes to read content text content (articles, docs, etc.).
@@ -190,7 +193,7 @@ export class ContentEntity extends UuidAbstractEntity {
         type: "int",
         default: 0,
     })
-    minutesRead: number
+        minutesRead: number
 
     /**
      * Localized translations for fields such as `title` and `body`.
@@ -208,7 +211,7 @@ export class ContentEntity extends UuidAbstractEntity {
             cascade: true,
         },
     )
-    translations: Array<ContentTranslationEntity>
+        translations: Array<ContentTranslationEntity>
 
     /**
      * External URL references (docs, repos, etc.).
@@ -226,7 +229,7 @@ export class ContentEntity extends UuidAbstractEntity {
             cascade: true,
         },
     )
-    references: Array<ContentReferenceEntity>
+        references: Array<ContentReferenceEntity>
 
     /**
      * Lessons derived from this content.
@@ -245,7 +248,7 @@ export class ContentEntity extends UuidAbstractEntity {
             cascade: true,
         },
     )
-    lessons: Array<LessonVideoEntity>
+        lessons: Array<LessonVideoEntity>
 
     /**
      * Challenges derived from this content.
@@ -264,7 +267,7 @@ export class ContentEntity extends UuidAbstractEntity {
             cascade: true,
         },
     )
-    challenges: Array<ChallengeEntity>
+        challenges: Array<ChallengeEntity>
 
     @Field(
         () => Int,
@@ -280,7 +283,7 @@ export class ContentEntity extends UuidAbstractEntity {
         () => [CodeExplainingEntity],
         {
             nullable: true,
-            description: "Critical code snippets with explanations and multi-language implementations.",
+            description: "Critical code snippets with explanations (mount `# codeExplaining`).",
         },
     )
     @OneToMany(
@@ -290,14 +293,33 @@ export class ContentEntity extends UuidAbstractEntity {
             cascade: true,
         },
     )
-    codeExplainings: Array<CodeExplainingEntity>
+        codeExplainings: Array<CodeExplainingEntity>
+
+    /**
+     * Multi-language implementation guides (mount `# codeImplementations`).
+     */
+    @Field(
+        () => [CodeImplementationEntity],
+        {
+            nullable: true,
+            description: "Alternative-language implementation guides for this lesson.",
+        },
+    )
+    @OneToMany(
+        () => CodeImplementationEntity,
+        (implementation: CodeImplementationEntity) => implementation.content,
+        {
+            cascade: true,
+        },
+    )
+        codeImplementations: Array<CodeImplementationEntity>
 
     @Column({
         name: "num_challenges",
         type: "int",
         default: 0,
     })
-    numChallenges: number
+        numChallenges: number
 
     @Field(
         () => Int,
@@ -311,7 +333,7 @@ export class ContentEntity extends UuidAbstractEntity {
         type: "int",
         default: 0,
     })
-    numLessons: number
+        numLessons: number
 
     /**
      * Whether this content requires enrollment (premium content).
@@ -330,5 +352,5 @@ export class ContentEntity extends UuidAbstractEntity {
         type: "boolean",
         default: false,
     })
-    isPremium: boolean
+        isPremium: boolean
 }

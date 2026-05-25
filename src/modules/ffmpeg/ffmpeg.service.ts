@@ -15,7 +15,10 @@ import {
 } from "./gpu.service"
 
 ffmpeg.setFfmpegPath(
-    join(process.cwd(), "node_modules", "ffmpeg-static", process.platform === "win32" ? "ffmpeg.exe" : "ffmpeg"),
+    join(process.cwd(),
+        "node_modules",
+        "ffmpeg-static",
+        process.platform === "win32" ? "ffmpeg.exe" : "ffmpeg"),
 )
 
 /**
@@ -145,12 +148,15 @@ export class FfmpegService {
                 .audioBitrate(profile.audioBitrate)
                 .audioFrequency(profile.audioFrequency)
                 .audioChannels(profile.audioChannels)
-                .addOutputOptions(this.buildOutputOptions(profile, vendor))
+                .addOutputOptions(this.buildOutputOptions(profile,
+                    vendor))
                 .save(profile.outputPath)
-                .on("end", () => {
-                    resolve()
-                })
-                .on("error", reject)
+                .on("end",
+                    () => {
+                        resolve()
+                    })
+                .on("error",
+                    reject)
         })
     }
 
@@ -171,17 +177,21 @@ export class FfmpegService {
             `Encoding with ${codec} (GPU: ${name}, vendor: ${vendor})`,
         )
 
-        const inputPath = join(taskDir, filename)
+        const inputPath = join(taskDir,
+            filename)
         const profiles: Array<EncodeProfile> = this.profiles.map(
             (profile, idx) => ({
                 ...profile,
                 inputPath,
-                outputPath: join(taskDir, this.videoNames[idx]),
+                outputPath: join(taskDir,
+                    this.videoNames[idx]),
             }),
         )
 
         for (const profile of profiles) {
-            await this.encodeVideo(profile, codec, vendor)
+            await this.encodeVideo(profile,
+                codec,
+                vendor)
         }
     }
 }

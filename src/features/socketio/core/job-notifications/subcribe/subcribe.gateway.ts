@@ -88,13 +88,13 @@ export class SubcribeJobNotificationGateway implements OnModuleInit {
                 this.wsResponseService.successToRoom<JobStatusUpdatedSocketIoMessage>(
                     {
                         message: "Job status updated",
-                data: {
-                    jobId: payload.jobId,
-                    challengeSubmissionId: payload.challengeSubmissionId,
-                    category: payload.category,
-                    status: payload.status,
-                    error: payload.error,
-                },
+                        data: {
+                            jobId: payload.jobId,
+                            challengeSubmissionId: payload.challengeSubmissionId,
+                            category: payload.category,
+                            status: payload.status,
+                            error: payload.error,
+                        },
                         room: this.jobRoomService.name(payload.jobId),
                         namespace: this.server,
                         eventName: SubscriptionEvent.JobStatusUpdated,

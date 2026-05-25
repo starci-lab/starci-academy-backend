@@ -7,6 +7,9 @@ import {
 import {
     TemplateCvParserService,
 } from "./parsers"
+import {
+    isCvSeederEnabled,
+} from "../shared/scope"
 
 /**
  * CV mount seeder: parse mount markdown → upsert `template_cvs` (same orchestration role as {@link CourseSeederService} for courses).
@@ -22,6 +25,9 @@ export class CvSeederService {
      * Reads mount CV markdown and upserts template rows. No-op if the mount path is missing.
      */
     async seed(): Promise<void> {
+        if (!isCvSeederEnabled()) {
+            return
+        }
         const templateResults = await this.templateCvParserService.parseMany()
         const templates = templateResults.map(
             (result) => result.data,

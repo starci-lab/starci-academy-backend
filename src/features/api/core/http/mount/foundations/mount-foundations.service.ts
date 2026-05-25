@@ -22,7 +22,8 @@ export class MountFoundationsService {
         absolutePath: string
         buffer: Buffer
     }> {
-        const normalized = relativePath.replace(/^\/+/, "")
+        const normalized = relativePath.replace(/^\/+/,
+            "")
         if (!normalized || normalized.includes("..")) {
             throw new NotFoundException()
         }

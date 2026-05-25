@@ -9,9 +9,6 @@ import {
     ConsultantEntity,
 } from "@modules/databases"
 import {
-    RetryService,
-} from "@modules/mixin"
-import {
     HeadhuntingCompanyInsertService,
     ConsultantInsertService,
 } from "./inserts"
@@ -19,6 +16,9 @@ import {
     HeadhuntingCompanyParserService,
     ConsultantParserService,
 } from "./parsers"
+import {
+    isHeadhuntingSeederEnabled,
+} from "../shared/scope"
 
 /**
  * Parse headhuntings mount data and upsert PostgreSQL (companies → consultants).
@@ -29,11 +29,13 @@ export class HeadhuntingSeederService {
         private readonly headhuntingCompanyParserService: HeadhuntingCompanyParserService,
         private readonly consultantParserService: ConsultantParserService,
         private readonly headhuntingCompanyInsertService: HeadhuntingCompanyInsertService,
-        private readonly consultantInsertService: ConsultantInsertService,
-        private readonly retryService: RetryService,
+        private readonly consultantInsertService: ConsultantInsertService
     ) {}
 
     async seed(): Promise<void> {
+        if (!isHeadhuntingSeederEnabled()) {
+            return
+        }
         const companies: Array<DeepPartial<HeadhuntingCompanyEntity>> = []
         const companyResults = await this.headhuntingCompanyParserService.parseMany()
         for (const companyResult of companyResults) {
@@ -61,32 +63,20 @@ export class HeadhuntingSeederService {
         for (const company of companies) {
             const companyId = company.id as string
 
-            await this.retryService.retry({
-                action: async () => {
-                    await this.headhuntingCompanyInsertService.insert(company)
-                },
-            })
+            await this.headhuntingCompanyInsertService.insert(company)
 
             const consultants = (company.consultants ?? []) as Array<DeepPartial<ConsultantEntity>>
             for (const consultant of consultants) {
                 consultant.company = {
                     id: companyId,
                 }
-                await this.retryService.retry({
-                    action: async () => {
-                        await this.consultantInsertService.insert(consultant)
-                    },
-                })
+                await this.consultantInsertService.insert(consultant)
             }
 
-            await this.retryService.retry({
-                action: async () => {
-                    await this.consultantInsertService.deleteStale(
-                        consultants.map((entry) => entry.id as string),
-                        companyId,
-                    )
-                },
-            })
+            // await this.consultantInsertService.deleteStale(
+            //             consultants.map((entry) => entry.id as string),
+            //             companyId,
+            //         )
         }
     }
 }

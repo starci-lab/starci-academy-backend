@@ -101,7 +101,7 @@ export class BloomFilterSynchronizerService {
         let resumeAfterId: string | null = null
         let totalEmails = 0
 
-        // eslint-disable-next-line no-constant-condition
+         
         while (true) {
             const users = await this.entityManager.find(
                 UserEntity,

@@ -13,6 +13,9 @@ import {
 import {
     UpsertService,
 } from "./upsert.service"
+import {
+    deleteFields,
+} from "../utils"
 
 /**
  * Inserts/updates/deletes module-level tables:
@@ -32,18 +35,36 @@ export class ModuleInsertService {
         module: DeepPartial<ModuleEntity>
     ): Promise<void> {
         const moduleId = module.id as string
+        const translations = module.translations
+        const previewContents = module.previewContents
+        const courseId = (module.courseId ?? module.course?.id) as string
+        const courseRef = module.course ?? {
+            id: courseId,
+        }
 
         /** 1. Upsert the module row (strip nested relations) */
-        const {
-            translations,
-            previewContents,
-            contents: _contents,
-            ...rest
-        } = module
+        const moduleRow = deleteFields(
+            module,
+            [
+                "translations",
+                "previewContents",
+                "contents",
+                "course",
+            ],
+        )
 
         await this.upsertService.upsertUuid(
             ModuleEntity,
-            [rest],
+            [{
+                ...moduleRow,
+                /** FK column is set via @ManyToOne `course`, not @RelationId `courseId`. */
+                course: courseRef,
+            }],
+            {
+                course: {
+                    id: courseId,
+                },
+            },
         )
 
         /** 2. Upsert module translations */
@@ -51,34 +72,56 @@ export class ModuleInsertService {
             await this.upsertService.upsertTranslation(
                 ModuleTranslationEntity,
                 translations,
-                { moduleId },
+                {
+                    moduleId 
+                },
             )
         }
 
         /** 3. Upsert preview contents + their translations */
         if (previewContents) {
             for (const previewContent of previewContents) {
-                const {
-                    translations: previewContentTranslations,
-                    ...previewContentData
-                } = previewContent
+                const previewContentTranslations = previewContent.translations
+                const previewRow = deleteFields(
+                    previewContent,
+                    [
+                        "translations",
+                        "module",
+                    ],
+                )
                 await this.upsertService.upsertUuid(
                     PreviewContentEntity,
-                    [previewContentData],
+                    [{
+                        ...previewRow,
+                        module: previewContent.module ?? {
+                            id: moduleId,
+                        },
+                    }],
+                    {
+                        module: {
+                            id: moduleId,
+                        },
+                    },
                 )
                 if (previewContentTranslations?.length) {
                     await this.upsertService.upsertTranslation<PreviewContentTranslationEntity>(
                         PreviewContentTranslationEntity,
                         previewContentTranslations,
-                        { previewContentId: previewContent.id },
+                        {
+                            previewContentId: previewContent.id 
+                        },
                     )
                 }
             }
-            await this.upsertService.deleteStaleUuid<PreviewContentEntity>(
-                PreviewContentEntity,
-                (previewContents as Array<DeepPartial<PreviewContentEntity>>).map((previewContent) => previewContent.id as string),
-                { module: { id: moduleId } },
-            )
+            // await this.upsertService.deleteStaleUuid<PreviewContentEntity>(
+            //     PreviewContentEntity,
+            //     (previewContents as Array<DeepPartial<PreviewContentEntity>>).map((previewContent) => previewContent.id as string),
+            //     {
+            //         module: {
+            //             id: moduleId 
+            //         } 
+            //     },
+            // )
         }
     }
 
@@ -92,7 +135,11 @@ export class ModuleInsertService {
         await this.upsertService.deleteStaleUuid<ModuleEntity>(
             ModuleEntity,
             ids,
-            { course: { id: courseId } },
+            {
+                course: {
+                    id: courseId 
+                } 
+            },
         )
     }
 }

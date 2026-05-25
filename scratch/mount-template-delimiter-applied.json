@@ -1,0 +1,107 @@
+{
+  "appliedAt": "2026-05-25T07:44:55.750Z",
+  "filesChanged": [
+    "courses/0-fullstack-mastery/milestones/0-project-initialization-configuration/tasks/0-nestjs-project-initialization/en.md",
+    "courses/0-fullstack-mastery/milestones/0-project-initialization-configuration/tasks/0-nestjs-project-initialization/vi.md",
+    "courses/0-fullstack-mastery/milestones/0-project-initialization-configuration/tasks/1-environment-configuration-setup/en.md",
+    "courses/0-fullstack-mastery/milestones/0-project-initialization-configuration/tasks/1-environment-configuration-setup/vi.md",
+    "courses/0-fullstack-mastery/milestones/0-project-initialization-configuration/tasks/2-winston-logger-integration/en.md",
+    "courses/0-fullstack-mastery/milestones/0-project-initialization-configuration/tasks/2-winston-logger-integration/vi.md",
+    "courses/0-fullstack-mastery/milestones/0-project-initialization-configuration/tasks/3-typeorm-postgresql-integration/en.md",
+    "courses/0-fullstack-mastery/milestones/0-project-initialization-configuration/tasks/3-typeorm-postgresql-integration/vi.md",
+    "courses/0-fullstack-mastery/milestones/1-authentication-authorization/tasks/0-user-entity-design-setup/en.md",
+    "courses/0-fullstack-mastery/milestones/1-authentication-authorization/tasks/0-user-entity-design-setup/vi.md",
+    "courses/0-fullstack-mastery/milestones/1-authentication-authorization/tasks/1-jwt-authentication-register-login/en.md",
+    "courses/0-fullstack-mastery/milestones/1-authentication-authorization/tasks/1-jwt-authentication-register-login/vi.md",
+    "courses/0-fullstack-mastery/milestones/1-authentication-authorization/tasks/2-refresh-token-flow-logout/en.md",
+    "courses/0-fullstack-mastery/milestones/1-authentication-authorization/tasks/2-refresh-token-flow-logout/vi.md",
+    "courses/0-fullstack-mastery/milestones/1-authentication-authorization/tasks/3-role-based-access-control-rbac-guards/en.md",
+    "courses/0-fullstack-mastery/milestones/1-authentication-authorization/tasks/3-role-based-access-control-rbac-guards/vi.md",
+    "courses/0-fullstack-mastery/milestones/2-item-catalog/tasks/0-custom-item-entity-choose-any-database-seeding/en.md",
+    "courses/0-fullstack-mastery/milestones/2-item-catalog/tasks/0-custom-item-entity-choose-any-database-seeding/vi.md",
+    "courses/0-fullstack-mastery/milestones/2-item-catalog/tasks/1-item-catalog-api-with-pagination/en.md",
+    "courses/0-fullstack-mastery/milestones/2-item-catalog/tasks/1-item-catalog-api-with-pagination/vi.md",
+    "courses/0-fullstack-mastery/milestones/2-item-catalog/tasks/2-item-details-api-controller-caching/en.md",
+    "courses/0-fullstack-mastery/milestones/2-item-catalog/tasks/2-item-details-api-controller-caching/vi.md",
+    "courses/1-system-design-mastery/milestones/0-kubernetes-monorepo-setup/tasks/0-multi-service-setup-environment-configuration/en.md",
+    "courses/1-system-design-mastery/milestones/0-kubernetes-monorepo-setup/tasks/0-multi-service-setup-environment-configuration/vi.md",
+    "courses/1-system-design-mastery/milestones/0-kubernetes-monorepo-setup/tasks/1-docker-multi-stage-build-image-push/en.md",
+    "courses/1-system-design-mastery/milestones/0-kubernetes-monorepo-setup/tasks/1-docker-multi-stage-build-image-push/vi.md",
+    "courses/1-system-design-mastery/milestones/0-kubernetes-monorepo-setup/tasks/2-minikube-setup-kubernetes-deployment/en.md",
+    "courses/1-system-design-mastery/milestones/0-kubernetes-monorepo-setup/tasks/2-minikube-setup-kubernetes-deployment/vi.md",
+    "courses/1-system-design-mastery/milestones/1-kong-api-gateway-microservices/tasks/0-database-per-service-architecture-custom-items/en.md",
+    "courses/1-system-design-mastery/milestones/1-kong-api-gateway-microservices/tasks/0-database-per-service-architecture-custom-items/vi.md",
+    "courses/1-system-design-mastery/milestones/1-kong-api-gateway-microservices/tasks/1-kong-api-gateway-integration/en.md",
+    "courses/1-system-design-mastery/milestones/1-kong-api-gateway-microservices/tasks/1-kong-api-gateway-integration/vi.md",
+    "courses/1-system-design-mastery/milestones/2-keycloak-sso-auth/tasks/0-keycloak-deployment-standard-authentication/en.md",
+    "courses/1-system-design-mastery/milestones/2-keycloak-sso-auth/tasks/0-keycloak-deployment-standard-authentication/vi.md",
+    "courses/1-system-design-mastery/milestones/2-keycloak-sso-auth/tasks/1-google-social-login-integration/en.md",
+    "courses/1-system-design-mastery/milestones/2-keycloak-sso-auth/tasks/1-google-social-login-integration/vi.md",
+    "courses/1-system-design-mastery/milestones/2-keycloak-sso-auth/tasks/2-kong-api-gateway-sso-integration/en.md",
+    "courses/1-system-design-mastery/milestones/2-keycloak-sso-auth/tasks/2-kong-api-gateway-sso-integration/vi.md"
+  ],
+  "totalFieldsWrapped": 0,
+  "totalEnvelopesStripped": 0,
+  "byKind": {
+    "courseReadme": {
+      "changed": 0,
+      "fieldsWrapped": 0,
+      "envelopesStripped": 0
+    },
+    "milestone": {
+      "changed": 0,
+      "fieldsWrapped": 0,
+      "envelopesStripped": 0
+    },
+    "milestoneTask": {
+      "changed": 38,
+      "fieldsWrapped": 0,
+      "envelopesStripped": 0
+    },
+    "challenge": {
+      "changed": 0,
+      "fieldsWrapped": 0,
+      "envelopesStripped": 0
+    },
+    "lesson": {
+      "changed": 0,
+      "fieldsWrapped": 0,
+      "envelopesStripped": 0
+    },
+    "lessonVideo": {
+      "changed": 0,
+      "fieldsWrapped": 0,
+      "envelopesStripped": 0
+    },
+    "mountDoc": {
+      "changed": 0,
+      "fieldsWrapped": 0,
+      "envelopesStripped": 0
+    },
+    "cv": {
+      "changed": 0,
+      "fieldsWrapped": 0,
+      "envelopesStripped": 0
+    },
+    "foundationCategory": {
+      "changed": 0,
+      "fieldsWrapped": 0,
+      "envelopesStripped": 0
+    },
+    "foundationItem": {
+      "changed": 0,
+      "fieldsWrapped": 0,
+      "envelopesStripped": 0
+    },
+    "headhuntingConsultant": {
+      "changed": 0,
+      "fieldsWrapped": 0,
+      "envelopesStripped": 0
+    },
+    "headhuntingCompany": {
+      "changed": 0,
+      "fieldsWrapped": 0,
+      "envelopesStripped": 0
+    }
+  }
+}

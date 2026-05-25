@@ -46,7 +46,7 @@ export class EmailBloomFiltersSynchronizerService {
         this.winstonService.log(
             WinstonLog.BloomFilterSynchronizerEntitiesSyncing,
             {
-                dump: `Enqueued Email Bloom Filter sync`,
+                dump: "Enqueued Email Bloom Filter sync",
             }
         )
     }

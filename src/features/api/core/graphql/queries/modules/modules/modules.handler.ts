@@ -68,7 +68,13 @@ export class ModulesHandler
             ],
             size: 1000,
         })
-        const data = response.hits.hits.map((hit) => hit._source as ModuleEntity)
+        const data = response.hits.hits.map((hit) => {
+            const module = hit._source as ModuleEntity
+            return {
+                ...module,
+                contents: module.contents ?? [],
+            }
+        })
 
         return {
             data,

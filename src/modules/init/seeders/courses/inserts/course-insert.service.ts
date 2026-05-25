@@ -21,6 +21,9 @@ import {
 import {
     UpsertService,
 } from "./upsert.service"
+import {
+    deleteFields,
+} from "../utils"
 
 /**
  * Inserts/updates/deletes course-level tables:
@@ -42,21 +45,34 @@ export class CourseInsertService {
     ): Promise<void> {
         const courseId = course.id as string
 
+        const translations = course.translations
+        const pricingPhases = course.pricingPhases
+        const prerequisites = course.prerequisites
+        const valuePropositions = course.valuePropositions
+        const qnas = course.qnas
+        const livestreamSessions = course.livestreamSessions
+        const metadata = course.metadata
+
         /** 1. Upsert the course row itself (strip nested relations) */
-        const {
-            translations,
-            pricingPhases,
-            prerequisites,
-            valuePropositions,
-            qnas,
-            livestreamSessions,
-            metadata,
-            ...rest
-        } = course
+        const courseRow = deleteFields(
+            course,
+            [
+                "translations",
+                "pricingPhases",
+                "prerequisites",
+                "valuePropositions",
+                "qnas",
+                "livestreamSessions",
+                "metadata",
+                "modules",
+                "milestones",
+                "enrollments",
+            ],
+        )
 
         await this.upsertService.upsertUuid(
             CourseEntity,
-            [rest],
+            [courseRow],
         )
 
         /** 2. Upsert course translations */
@@ -104,16 +120,16 @@ export class CourseInsertService {
                     )
                 }
             }
-            /** Delete stale prerequisites */
-            await this.upsertService.deleteStaleUuid<PrerequisiteEntity>(
-                PrerequisiteEntity,
-                prerequisites.map((prerequisite) => prerequisite.id as string),
-                {
-                    course: {
-                        id: courseId 
-                    } 
-                },
-            )
+            // /** Delete stale prerequisites */
+            // await this.upsertService.deleteStaleUuid<PrerequisiteEntity>(
+            //     PrerequisiteEntity,
+            //     prerequisites.map((prerequisite) => prerequisite.id as string),
+            //     {
+            //         course: {
+            //             id: courseId 
+            //         } 
+            //     },
+            // )
         }
 
         /** 5. Upsert value propositions + their translations */
@@ -137,17 +153,17 @@ export class CourseInsertService {
                     )
                 }
             }
-            await this.upsertService.deleteStaleUuid<ValuePropositionEntity>(
-                ValuePropositionEntity,
-                (valuePropositions as Array<DeepPartial<ValuePropositionEntity>>)
-                    .map((valueProposition) => valueProposition.id as string),
-                {
-                    course:
-                    {
-                        id: courseId
-                    }
-                },
-            )
+            // await this.upsertService.deleteStaleUuid<ValuePropositionEntity>(
+            //     ValuePropositionEntity,
+            //     (valuePropositions as Array<DeepPartial<ValuePropositionEntity>>)
+            //         .map((valueProposition) => valueProposition.id as string),
+            //     {
+            //         course:
+            //         {
+            //             id: courseId
+            //         }
+            //     },
+            // )
         }
 
         /** 6. Upsert QnAs + their translations */
@@ -171,16 +187,16 @@ export class CourseInsertService {
                     )
                 }
             }
-            await this.upsertService.deleteStaleUuid<QnaEntity>(
-                QnaEntity,
-                (qnas as Array<DeepPartial<QnaEntity>>).map((qna) => qna.id as string),
-                {
-                    course:
-                    {
-                        id: courseId
-                    }
-                },
-            )
+            // await this.upsertService.deleteStaleUuid<QnaEntity>(
+            //     QnaEntity,
+            //     (qnas as Array<DeepPartial<QnaEntity>>).map((qna) => qna.id as string),
+            //     {
+            //         course:
+            //         {
+            //             id: courseId
+            //         }
+            //     },
+            // )
         }
 
         /** 7. Upsert livestream sessions + their translations */
@@ -204,17 +220,17 @@ export class CourseInsertService {
                     )
                 }
             }
-            await this.upsertService.deleteStaleUuid<LivestreamSessionEntity>(
-                LivestreamSessionEntity,
-                (livestreamSessions as Array<DeepPartial<LivestreamSessionEntity>>)
-                    .map((session) => session.id as string),
-                {
-                    course:
-                    {
-                        id: courseId
-                    }
-                },
-            )
+            // await this.upsertService.deleteStaleUuid<LivestreamSessionEntity>(
+            //     LivestreamSessionEntity,
+            //     (livestreamSessions as Array<DeepPartial<LivestreamSessionEntity>>)
+            //         .map((session) => session.id as string),
+            //     {
+            //         course:
+            //         {
+            //             id: courseId
+            //         }
+            //     },
+            // )
         }
 
         /** 8. Upsert course metadata */

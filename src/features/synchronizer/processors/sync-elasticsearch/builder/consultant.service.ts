@@ -1,18 +1,12 @@
 import {
     ConsultantEntity,
+    ConsultantHydrationService,
     ConsultantResolverService,
-    InjectPrimaryPostgreSQLEntityManager,
     Locale,
 } from "@modules/databases"
 import {
-    ConsultantNotFoundException,
-} from "@modules/exceptions"
-import {
     Injectable,
 } from "@nestjs/common"
-import type {
-    EntityManager,
-} from "typeorm"
 import type {
     LocalizedElasticsearchEntity,
 } from "./types"
@@ -24,8 +18,7 @@ import _ from "lodash"
 @Injectable()
 export class ElasticsearchConsultantBuildService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
+        private readonly consultantHydration: ConsultantHydrationService,
         private readonly headhunterResolver: ConsultantResolverService,
         private readonly elasticsearchService: ElasticsearchService,
     ) {}
@@ -33,7 +26,7 @@ export class ElasticsearchConsultantBuildService {
     async buildMultilingualByHeadhunterId(
         consultantId: string,
     ): Promise<Array<LocalizedElasticsearchEntity<ConsultantEntity>>> {
-        const hydratedHeadhunter = await this.loadHydratedHeadhunterPlain(consultantId)
+        const hydratedHeadhunter = await this.consultantHydration.loadById(consultantId)
         const fallbackLocale = hydratedHeadhunter.company?.defaultLocale
             ?? hydratedHeadhunter.defaultLocale
             ?? Locale.En
@@ -51,29 +44,6 @@ export class ElasticsearchConsultantBuildService {
                 }
             },
         )
-    }
-
-    private async loadHydratedHeadhunterPlain(
-        id: string,
-    ): Promise<ConsultantEntity> {
-        const consultant = await this.entityManager.findOne(
-            ConsultantEntity,
-            {
-                where: {
-                    id,
-                },
-                relations: {
-                    translations: true,
-                    company: true,
-                },
-            },
-        )
-        if (!consultant) {
-            throw new ConsultantNotFoundException({
-                id,
-            })
-        }
-        return consultant.toPlain<ConsultantEntity>()
     }
 
     async buildIndexById(

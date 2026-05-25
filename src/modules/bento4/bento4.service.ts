@@ -16,14 +16,20 @@ import {
  * Resolve the Bento4 binary directory based on the project root.
  */
 function bento4BinDir(): string {
-    return join(process.cwd(), ".exe", "Bento4", "bin")
+    return join(process.cwd(),
+        ".exe",
+        "Bento4",
+        "bin")
 }
 
 /**
  * Resolve the Bento4 utils directory (Python scripts).
  */
 function bento4UtilsDir(): string {
-    return join(process.cwd(), ".exe", "Bento4", "utils")
+    return join(process.cwd(),
+        ".exe",
+        "Bento4",
+        "utils")
 }
 
 /**
@@ -48,12 +54,16 @@ export class Bento4Service {
      * @returns True if fragmentation is required, false if already fragmented.
      */
     async checkFragments(taskDir: string, videoName: string): Promise<boolean> {
-        const videoPath = join(taskDir, videoName)
-        const mp4info = join(bento4BinDir(), exe("mp4info"))
+        const videoPath = join(taskDir,
+            videoName)
+        const mp4info = join(bento4BinDir(),
+            exe("mp4info"))
 
         const { stdout, stderr } = await execaCommand(
             `"${mp4info}" "${videoPath}"`,
-            { shell: true },
+            {
+                shell: true 
+            },
         )
         const execResult = stdout || stderr
         const lines = execResult.split("\n")
@@ -80,13 +90,18 @@ export class Bento4Service {
      * @param videoName - Video file name (e.g. "1080.mp4").
      */
     async fragmentVideo(taskDir: string, videoName: string): Promise<void> {
-        const videoPath = join(taskDir, videoName)
-        const outputPath = join(taskDir, `${videoName}_fragmented`)
-        const mp4fragment = join(bento4BinDir(), exe("mp4fragment"))
+        const videoPath = join(taskDir,
+            videoName)
+        const outputPath = join(taskDir,
+            `${videoName}_fragmented`)
+        const mp4fragment = join(bento4BinDir(),
+            exe("mp4fragment"))
 
         const { stdout, stderr } = await execaCommand(
             `"${mp4fragment}" --fragment-duration 4000 "${videoPath}" "${outputPath}"`,
-            { shell: true },
+            {
+                shell: true 
+            },
         )
         const execResult = stdout || stderr
         const lines = execResult.split("\n")
@@ -110,14 +125,18 @@ export class Bento4Service {
         videoNames: ReadonlyArray<string>,
     ): Promise<void> {
         const fragmentedPaths = videoNames.map((videoName) =>
-            join(taskDir, `${videoName}_fragmented`),
+            join(taskDir,
+                `${videoName}_fragmented`),
         )
         const line = fragmentedPaths.map((path) => `"${path}"`).join(" ")
-        const mp4dash = join(bento4UtilsDir(), "mp4-dash.py")
+        const mp4dash = join(bento4UtilsDir(),
+            "mp4-dash.py")
 
         const { stdout, stderr } = await execaCommand(
             `python "${mp4dash}" --mpd-name manifest.mpd ${line} -o "${taskDir}" --use-segment-timeline --subtitles --force --exec-dir="${bento4BinDir()}"`,
-            { shell: true },
+            {
+                shell: true 
+            },
         )
         const execResult = stdout || stderr
         const lines = execResult.split("\n")

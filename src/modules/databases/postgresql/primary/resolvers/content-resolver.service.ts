@@ -17,6 +17,12 @@ import {
 import {
     ChallengeResolverService,
 } from "./challenge-resolver.service"
+import {
+    CodeExplainingResolverService,
+} from "./code-explaining-resolver.service"
+import {
+    CodeImplementationResolverService,
+} from "./code-implementation-resolver.service"
 
 /**
  * Applies translations to a content row and its references.
@@ -27,6 +33,8 @@ export class ContentResolverService {
         private readonly translationResolver: TranslationResolverService,
         private readonly lessonVideoResolver: LessonVideoResolverService,
         private readonly challengeResolver: ChallengeResolverService,
+        private readonly codeExplainingResolver: CodeExplainingResolverService,
+        private readonly codeImplementationResolver: CodeImplementationResolverService,
     ) {}
 
     transform(
@@ -88,15 +96,29 @@ export class ContentResolverService {
                 return lesson
             })
         }
-        if (content.challenges?.length) {
-            content.challenges = content.challenges.map((challenge) => {
-                this.challengeResolver.transform(
-                    challenge,
-                    locale,
-                    contentFallback,
-                )
-                return challenge
-            })
-        }
+        content.challenges = (content.challenges ?? []).map((challenge) => {
+            this.challengeResolver.transform(
+                challenge,
+                locale,
+                contentFallback,
+            )
+            return challenge
+        })
+        content.codeExplainings = (content.codeExplainings ?? []).map((row) => {
+            this.codeExplainingResolver.transform(
+                row,
+                locale,
+                contentFallback,
+            )
+            return row
+        })
+        content.codeImplementations = (content.codeImplementations ?? []).map((row) => {
+            this.codeImplementationResolver.transform(
+                row,
+                locale,
+                contentFallback,
+            )
+            return row
+        })
     }
 }

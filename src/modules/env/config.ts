@@ -46,7 +46,73 @@ export const envConfig = () => ({
             enabled: parseEnvBoolean({
                 key: "ENABLE_INIT_SEEDERS",
                 defaultValue: true,
-            })
+            }),
+            context: {
+                courses: {
+                    fullstack: {
+                        modules: {
+                            indexes: parseEnvString({
+                                key: "INIT_SEEDERS_COURSES_MODULES_FULLSTACK",
+                                defaultValue: "all",
+                            }),
+                            enabled: parseEnvBoolean({
+                                key: "INIT_SEEDERS_COURSES_MODULES_FULLSTACK_ENABLED",
+                                defaultValue: true,
+                            }),
+                        },
+                        milestones: {
+                            indexes: parseEnvString({
+                                key: "INIT_SEEDERS_COURSES_MILESTONES_FULLSTACK",
+                                defaultValue: "all",
+                            }),
+                            enabled: parseEnvBoolean({
+                                key: "INIT_SEEDERS_COURSES_MILESTONES_FULLSTACK_ENABLED",
+                                defaultValue: true,
+                            }),
+                        },
+                    },
+                    systemDesign: {
+                        modules: {
+                            indexes: parseEnvString({
+                                key: "INIT_SEEDERS_COURSES_MODULES_SYSTEM_DESIGN_INDEXES",
+                                defaultValue: "all",
+                            }),
+                            enabled: parseEnvBoolean({
+                                key: "INIT_SEEDERS_COURSES_MODULES_SYSTEM_DESIGN_ENABLED",
+                                defaultValue: true,
+                            }),
+                        },
+                        milestones: {
+                            indexes: parseEnvString({
+                                key: "INIT_SEEDERS_COURSES_MILESTONES_SYSTEM_DESIGN_INDEXES",
+                                defaultValue: "all",
+                            }),
+                            enabled: parseEnvBoolean({
+                                key: "INIT_SEEDERS_COURSES_MILESTONES_SYSTEM_DESIGN_ENABLED",
+                                defaultValue: true,
+                            }),
+                        },
+                    },
+                },
+                cv: {
+                    enabled: parseEnvBoolean({
+                        key: "INIT_SEEDERS_CV",
+                        defaultValue: true,
+                    }),
+                },
+                foundations: {
+                    enabled: parseEnvBoolean({
+                        key: "INIT_SEEDERS_FOUNDATIONS",
+                        defaultValue: true,
+                    }),
+                },
+                headhunting: {
+                    enabled: parseEnvBoolean({
+                        key: "INIT_SEEDERS_HEADHUNTING",
+                        defaultValue: true,
+                    }),
+                },
+            }
         },
         {
             name: "synchronizers",
@@ -54,7 +120,121 @@ export const envConfig = () => ({
             enabled: parseEnvBoolean({
                 key: "ENABLE_INIT_SYNCHRONIZERS",
                 defaultValue: true,
-            })
+            }),
+            context: {
+                courses: {
+                    fullstack: {
+                        modules: {
+                            cdn: {
+                                indexes: parseEnvString({
+                                    key: "INIT_SYNCHRONIZERS_COURSES_MODULES_FULLSTACK_CDN_INDEXES",
+                                    defaultValue: "all",
+                                }),
+                                enabled: parseEnvBoolean({
+                                    key: "INIT_SYNCHRONIZERS_COURSES_MODULES_FULLSTACK_CDN_ENABLED",
+                                    defaultValue: true,
+                                }),
+                            },
+                            elasticsearch: {
+                                indexes: parseEnvString({
+                                    key: "INIT_SYNCHRONIZERS_COURSES_MODULES_FULLSTACK_ELASTICSEARCH_INDEXES",
+                                    defaultValue: "all",
+                                }),
+                                enabled: parseEnvBoolean({
+                                    key: "INIT_SYNCHRONIZERS_COURSES_MODULES_FULLSTACK_ELASTICSEARCH_ENABLED",
+                                    defaultValue: true,
+                                }),
+                            },
+                        },
+                        milestones: {
+                            cdn: {
+                                indexes: parseEnvString({
+                                    key: "INIT_SYNCHRONIZERS_COURSES_MILESTONES_FULLSTACK_CDN_INDEXES",
+                                    defaultValue: "all",
+                                }),
+                                enabled: parseEnvBoolean({
+                                    key: "INIT_SYNCHRONIZERS_COURSES_MILESTONES_FULLSTACK_CDN_ENABLED",
+                                    defaultValue: true,
+                                }),
+                            },
+                            elasticsearch: {
+                                indexes: parseEnvString({
+                                    key: "INIT_SYNCHRONIZERS_COURSES_MILESTONES_FULLSTACK_ELASTICSEARCH_INDEXES",
+                                    defaultValue: "all",
+                                }),
+                                enabled: parseEnvBoolean({
+                                    key: "INIT_SYNCHRONIZERS_COURSES_MILESTONES_FULLSTACK_ELASTICSEARCH_ENABLED",
+                                    defaultValue: true,
+                                }),
+                            },
+                        },
+                    },
+                    systemDesign: {
+                        modules: {
+                            cdn: {
+                                indexes: parseEnvString({
+                                    key: "INIT_SYNCHRONIZERS_COURSES_MODULES_SYSTEM_DESIGN_CDN_INDEXES",
+                                    defaultValue: "all",
+                                }),
+                                enabled: parseEnvBoolean({
+                                    key: "INIT_SYNCHRONIZERS_COURSES_MODULES_SYSTEM_DESIGN_CDN_ENABLED",
+                                    defaultValue: true,
+                                }),
+                            },
+                            elasticsearch: {
+                                indexes: parseEnvString({
+                                    key: "INIT_SYNCHRONIZERS_COURSES_MODULES_SYSTEM_DESIGN_ELASTICSEARCH_INDEXES",
+                                    defaultValue: "all",
+                                }),
+                                enabled: parseEnvBoolean({
+                                    key: "INIT_SYNCHRONIZERS_COURSES_MODULES_SYSTEM_DESIGN_ELASTICSEARCH_ENABLED",
+                                    defaultValue: true,
+                                }),
+                            },
+                        },
+                        milestones: {
+                            cdn: {
+                                indexes: parseEnvString({
+                                    key: "INIT_SYNCHRONIZERS_COURSES_MILESTONES_SYSTEM_DESIGN_CDN_INDEXES",
+                                    defaultValue: "all",
+                                }),
+                                enabled: parseEnvBoolean({
+                                    key: "INIT_SYNCHRONIZERS_COURSES_MILESTONES_SYSTEM_DESIGN_CDN_ENABLED",
+                                    defaultValue: true,
+                                }),
+                            },
+                            elasticsearch: {
+                                indexes: parseEnvString({
+                                    key: "INIT_SYNCHRONIZERS_COURSES_MILESTONES_SYSTEM_DESIGN_ELASTICSEARCH_INDEXES",
+                                    defaultValue: "all",
+                                }),
+                                enabled: parseEnvBoolean({
+                                    key: "INIT_SYNCHRONIZERS_COURSES_MILESTONES_SYSTEM_DESIGN_ELASTICSEARCH_ENABLED",
+                                    defaultValue: true,
+                                }),
+                            },
+                        },
+                    },
+                },
+                cv: {
+                    enabled: parseEnvBoolean({
+                        key: "INIT_SYNCHRONIZERS_CV",
+                        defaultValue: true,
+                    }),
+                },
+                foundations: {
+                    enabled: parseEnvBoolean({
+                        key: "INIT_SYNCHRONIZERS_FOUNDATIONS",
+                        defaultValue: true,
+                    }),
+                },
+                headhunting: {
+                    enabled: parseEnvBoolean({
+                        key: "INIT_SYNCHRONIZERS_HEADHUNTING",
+                        defaultValue: true,
+                    }),
+                },
+            }
         }
     ],
     /** Cache configuration. */

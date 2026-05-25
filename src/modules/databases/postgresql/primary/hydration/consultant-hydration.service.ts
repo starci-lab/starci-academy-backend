@@ -1,0 +1,46 @@
+import {
+    Injectable,
+} from "@nestjs/common"
+import type {
+    EntityManager,
+} from "typeorm"
+import {
+    ConsultantEntity,
+} from "../entities"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "../primary.decorators"
+import {
+    ConsultantNotFoundException,
+} from "@modules/exceptions"
+
+@Injectable()
+export class ConsultantHydrationService {
+    constructor(
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
+    ) { }
+
+    async loadById(
+        id: string,
+    ): Promise<ConsultantEntity> {
+        const consultant = await this.entityManager.findOne(
+            ConsultantEntity,
+            {
+                where: {
+                    id,
+                },
+                relations: {
+                    translations: true,
+                    company: true,
+                },
+            },
+        )
+        if (!consultant) {
+            throw new ConsultantNotFoundException({
+                id,
+            })
+        }
+        return consultant.toPlain<ConsultantEntity>()
+    }
+}

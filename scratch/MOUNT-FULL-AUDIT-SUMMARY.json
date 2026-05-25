@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-05-25T06:31:32.810Z",
+  "delimiter": "<!-- @starci/seperator -->",
+  "gates": {
+    "lessonBodyTight": true,
+    "challengeStepBodyTight": true,
+    "extractNonString": true,
+    "structureCanonical": true
+  },
+  "counts": {
+    "lessonLoose": 0,
+    "challengeLooseFiles": 0,
+    "nonStringFindings": 0
+  },
+  "scriptRuns": {
+    "lesson-body-tight": {
+      "ok": true,
+      "stdout": "{\n  \"tight\": true,\n  \"looseCount\": 0,\n  \"missingBodyCount\": 0\n}"
+    },
+    "challenge-step-body-tight": {
+      "ok": true,
+      "stdout": "{\n  \"tight\": true,\n  \"looseFileCount\": 0\n}"
+    },
+    "non-string-extract": {
+      "ok": true,
+      "stdout": "Scanned 1302 mount md files\nNon-string findings: 0 (0 files)\nbyKind: {}\nbyField: {}\nWrote C:\\Repositories\\ac\\starci-academy-backend\\scratch\\non-string-extract-fields-report.json\nWrote C:\\Repositories\\ac\\starci-academy-backend\\scratch\\NON-STRING-EXTRACT-FIELDS.md"
+    },
+    "structure": {
+      "ok": true,
+      "stdout": "Wrote C:\\Repositories\\ac\\starci-academy-backend\\scratch\\mount-structure-audit.json\nWrote C:\\Repositories\\ac\\starci-academy-backend\\scratch\\MOUNT-STRUCTURE-AUDIT.md\n{\n  \"byType\": [\n    {\n      \"type\": \"lesson\",\n      \"label\": \"Lesson (contents/<slug>/en|vi.md)\",\n      \"total\": 302,\n      \"nonCanonical\": 0,\n      \"withDelimiter\": 302,\n      \"withoutDelimiter\": 0\n    },\n    {\n      \"type\": \"lessonVideo\",\n      \"label\": \"Lesson video (contents/.../lesson-videos/<slug>/en|vi.md)\",\n      \"total\": 4,\n      \"nonCanonical\": 0,\n      \"withDelimiter\": 4,\n      \"withoutDelimiter\": 0\n    },\n    {\n      \"type\": \"challenge\",\n      \"label\": \"Challenge (contents/.../challenges/<slug>/en|vi.md)\",\n      \"total\": 946,\n      \"nonCanonical\": 0,\n      \"withDelimiter\": 946,\n      \"withoutDelimiter\": 0\n    }\n  ],\n  \"enVi\": 0\n}"
+    }
+  }
+}

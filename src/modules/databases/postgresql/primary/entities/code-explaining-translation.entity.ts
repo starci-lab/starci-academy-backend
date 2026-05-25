@@ -21,7 +21,7 @@ import {
 } from "./code-explaining.entity"
 
 /**
- * Translation for code explaining fields (explain).
+ * Translation for code explaining fields (`code`, `explain`).
  * Primary key: (codeExplainingId, locale, field).
  */
 @ObjectType({

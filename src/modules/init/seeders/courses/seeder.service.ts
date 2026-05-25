@@ -9,12 +9,10 @@ import {
     ContentEntity,
     CourseEntity,
     LessonVideoEntity,
+    MilestoneEntity,
     ModuleEntity,
     MilestoneTaskEntity,
 } from "@modules/databases"
-import {
-    RetryService,
-} from "@modules/mixin"
 import {
     ChallengeInsertService,
     ContentInsertService,
@@ -33,6 +31,20 @@ import {
     MilestoneTaskParserService,
     ModuleParserService,
 } from "./parsers"
+import {
+    MilestonePathService,
+    ModulePathService,
+} from "./path"
+import {
+    resolveCourseSeedScope,
+} from "../shared/scope"
+import {
+    ResolvedFileResult,
+} from "../shared"
+import {
+    shouldIncludeCourseModule,
+    shouldIncludeCourseMilestone,
+} from "../../utils"
 
 /**
  * Wraps the full course + milestone init seed pipeline (parse → upsert per table).
@@ -55,13 +67,19 @@ export class CourseSeederService {
         private readonly milestoneTaskParserService: MilestoneTaskParserService,
         private readonly milestoneInsertService: MilestoneInsertService,
         private readonly milestoneTaskInsertService: MilestoneTaskInsertService,
-        private readonly retryService: RetryService,
+        private readonly modulePathService: ModulePathService,
+        private readonly milestonePathService: MilestonePathService,
     ) { }
 
     /**
      * Parse course markdown/S3 sources and upsert PostgreSQL (courses → modules → … → milestones).
+     * Scope from `envConfig().init` seeders `courses` via {@link resolveCourseSeedScope}.
      */
     async seed(): Promise<void> {
+        const {
+            moduleIndexFilterByDisplayId,
+            milestoneIndexFilterByDisplayId,
+        } = resolveCourseSeedScope()
         /** The courses to seed. */
         const courses: Array<DeepPartial<CourseEntity>> = []
         /** The course results to seed. */
@@ -72,16 +90,34 @@ export class CourseSeederService {
         }
         /** We parse the modules for each course. */
         for (const courseResult of courseResults) {
+            const courseDisplayId = courseResult.data.displayId as string
             /** The modules to seed. */
             const modules: Array<DeepPartial<ModuleEntity>> = []
-            /** The module results to seed. */
-            const moduleResults = await this.moduleParserService.parseMany(
-                {
-                    courseRelativePath: courseResult.relativePath,
+            const modulePaths = await this.modulePathService.paths({
+                courseRelativePath: courseResult.relativePath,
+            })
+            const moduleResults: Array<ResolvedFileResult<DeepPartial<ModuleEntity>>> = []
+            for (const path of modulePaths) {
+                if (
+                    !shouldIncludeCourseModule(
+                        moduleIndexFilterByDisplayId,
+                        courseDisplayId,
+                        path.orderIndex,
+                    )
+                ) {
+                    continue
+                }
+                const module = await this.moduleParserService.parse({
+                    paths: modulePaths,
+                    moduleIndex: path.orderIndex,
                     courseIndex: courseResult.index,
-                },
-            )
-            /** We push the modules to the array by parsing the module results. */
+                })
+                moduleResults.push({
+                    data: module,
+                    index: path.orderIndex,
+                    relativePath: path.relativePath,
+                })
+            }
             for (const moduleResult of moduleResults) {
                 modules.push(moduleResult.data)
                 /** The contents to seed. */
@@ -159,22 +195,15 @@ export class CourseSeederService {
         /** Upsert each course and its children table-by-table. */
         for (const course of courses) {
             const courseId = course.id as string
+            const courseDisplayId = course.displayId as string
 
             /** 1. Upsert course-level tables */
-            await this.retryService.retry({
-                action: async () => {
-                    await this.courseInsertService.insert(course)
-                },
-            })
+            await this.courseInsertService.insert(course)
 
             /** 2. Upsert module-level tables */
             const modules = (course.modules ?? []) as Array<DeepPartial<ModuleEntity>>
             for (const module of modules) {
-                await this.retryService.retry({
-                    action: async () => {
-                        await this.moduleInsertService.insert(module)
-                    },
-                })
+                await this.moduleInsertService.insert(module)
 
                 /** 3. Upsert content-level tables */
                 const moduleId = module.id as string
@@ -185,79 +214,70 @@ export class CourseSeederService {
                     content.module = {
                         id: moduleId 
                     }
-                    await this.retryService.retry({
-                        action: async () => {
-                            await this.contentInsertService.insert(content)
-                        },
-                    })
+                    await this.contentInsertService.insert(content)
                     /** 4. Upsert challenges */
                     const challenges = (content.challenges ?? []) as Array<DeepPartial<ChallengeEntity>>
                     for (const challenge of challenges) {
-                        await this.retryService.retry({
-                            action: async () => {
-                                await this.challengeInsertService.insert(challenge)
-                            },
-                        })
+                        await this.challengeInsertService.insert(challenge)
                     }
-                    /** Delete stale challenges */
-                    await this.retryService.retry({
-                        action: async () => {
-                            await this.challengeInsertService.deleteStale(
-                                challenges.map((challenge) => challenge.id as string),
-                                contentId,
-                            )
-                        },
-                    })
-
+                    // /** Delete stale challenges */
+                    // await this.challengeInsertService.deleteStale(
+                    //     challenges.map((challenge) => challenge.id as string),
+                    //     contentId,
+                    // )
                     /** 5. Upsert lesson videos */
                     const lessons = (content.lessons ?? []) as Array<DeepPartial<LessonVideoEntity>>
                     for (const lesson of lessons) {
-                        await this.retryService.retry({
-                            action: async () => {
-                                await this.lessonVideoInsertService.insert(lesson)
-                            },
-                        })
+                        await this.lessonVideoInsertService.insert(lesson)
                     }
-                    /** Delete stale lesson videos */
-                    await this.retryService.retry({
-                        action: async () => {
-                            await this.lessonVideoInsertService.deleteStale(
-                                lessons.map((lesson) => lesson.id as string),
-                                contentId,
-                            )
-                        },
-                    })
+                    // /** Delete stale lesson videos */
+                    // await this.lessonVideoInsertService.deleteStale(
+                    //     lessons.map((lesson) => lesson.id as string),
+                    //     contentId,
+                    // )
                 }
-                /** Delete stale contents */
-                await this.retryService.retry({
-                    action: async () => {
-                        await this.contentInsertService.deleteStale(
-                            contents.map((content) => content.id as string),
-                            module.id as string,
-                        )
-                    },
-                })
+                // /** Delete stale contents */
+                // await this.contentInsertService.deleteStale(
+                //     contents.map((content) => content.id as string),
+                //             module.id as string,
+                // )
             }
-            /** Delete stale modules */
-            await this.retryService.retry({
-                action: async () => {
-                    await this.moduleInsertService.deleteStale(
-                        modules.map((module) => module.id as string),
-                        courseId,
-                    )
-                },
-            })
+            // /** Drop modules for this course that are not in the current seed batch (e.g. only order 0,1). */
+            // await this.moduleInsertService.deleteStale(
+            //     modules.map((module) => module.id as string),
+            //     courseId,
+            // )
 
             /** 6. Upsert milestones */
             const courseResult = courseResults.find(
                 (cr) => cr.data.id === courseId,
             )
-            const milestoneResults = await this.milestoneParserService.parseMany(
-                {
-                    courseRelativePath: courseResult?.relativePath ?? "",
+            const milestoneRelativePath = courseResult?.relativePath ?? ""
+            const milestonePaths = await this.milestonePathService.paths({
+                courseRelativePath: milestoneRelativePath,
+            })
+            const milestoneResults: Array<ResolvedFileResult<DeepPartial<MilestoneEntity>>> = []
+            for (const path of milestonePaths) {
+                if (
+                    !shouldIncludeCourseMilestone(
+                        milestoneIndexFilterByDisplayId,
+                        courseDisplayId,
+                        path.orderIndex,
+                    )
+                ) {
+                    continue
+                }
+                const milestone = await this.milestoneParserService.parse({
+                    paths: milestonePaths,
                     courseIndex: courseResult?.index ?? 0,
-                },
-            )
+                    milestoneIndex: path.orderIndex,
+                })
+                milestoneResults.push({
+                    data: milestone,
+                    index: path.orderIndex,
+                    relativePath: path.relativePath,
+                })
+            }
             for (const milestoneResult of milestoneResults) {
                 const milestone = milestoneResult.data
                 const milestoneId = milestone.id as string
@@ -267,11 +287,7 @@ export class CourseSeederService {
                     id: courseId 
                 }
 
-                await this.retryService.retry({
-                    action: async () => {
-                        await this.milestoneInsertService.insert(milestone)
-                    },
-                })
+                await this.milestoneInsertService.insert(milestone)
 
                 /** 7. Upsert milestone tasks */
                 const taskResults = await this.milestoneTaskParserService.parseMany(
@@ -290,31 +306,19 @@ export class CourseSeederService {
                     } as any
                     tasks.push(task)
 
-                    await this.retryService.retry({
-                        action: async () => {
-                            await this.milestoneTaskInsertService.insert(task)
-                        },
-                    })
+                    await this.milestoneTaskInsertService.insert(task)
                 }
-                /** Delete stale tasks */
-                await this.retryService.retry({
-                    action: async () => {
-                        await this.milestoneTaskInsertService.deleteStale(
-                            tasks.map((t) => t.id as string),
-                            milestoneId,
-                        )
-                    },
-                })
+                // /** Delete stale tasks */
+                // await this.milestoneTaskInsertService.deleteStale(
+                //     tasks.map((t) => t.id as string),
+                //     milestoneId,
+                // )
             }
-            /** Delete stale milestones */
-            await this.retryService.retry({
-                action: async () => {
-                    await this.milestoneInsertService.deleteStale(
-                        milestoneResults.map((m) => m.data.id as string),
-                        courseId,
-                    )
-                },
-            })
+            // /** Drop milestones for this course not in the current seed batch. */
+            // await this.milestoneInsertService.deleteStale(
+            //     milestoneResults.map((m) => m.data.id as string),
+            //     courseId,
+            // )
         }
     }
 }

@@ -25,6 +25,9 @@ import {
 import {
     ChallengeStepTranslationEntity,
 } from "./challenge-step-translation.entity"
+import {
+    ChallengeStepCodeImplementationEntity,
+} from "./challenge-step-code-implementation.entity"
 
 /**
  * Ordered instruction step within a challenge (optional short description + Markdown body).
@@ -134,4 +137,21 @@ export class ChallengeStepEntity extends UuidAbstractEntity {
         },
     )
         translations: Array<ChallengeStepTranslationEntity>
+
+    @Field(
+        () => [ChallengeStepCodeImplementationEntity],
+        {
+            nullable: true,
+            description: "Alternative-language guides under this step (`### codeImplementations`).",
+        },
+    )
+    @OneToMany(
+        () => ChallengeStepCodeImplementationEntity,
+        (implementation: ChallengeStepCodeImplementationEntity) =>
+            implementation.challengeStep,
+        {
+            cascade: true,
+        },
+    )
+        codeImplementations: Array<ChallengeStepCodeImplementationEntity>
 }

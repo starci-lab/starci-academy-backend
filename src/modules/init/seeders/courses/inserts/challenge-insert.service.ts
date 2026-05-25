@@ -18,6 +18,8 @@ import {
     ChallengePrerequisiteTranslationEntity,
     ChallengeStepEntity,
     ChallengeStepTranslationEntity,
+    ChallengeStepCodeImplementationEntity,
+    ChallengeStepCodeImplementationTranslationEntity,
     ChallengeReferenceEntity,
     ChallengeReferenceTranslationEntity,
     ChallengeSubmissionEntity,
@@ -29,6 +31,9 @@ import {
 import {
     UpsertService,
 } from "./upsert.service"
+import {
+    deleteFields,
+} from "../utils"
 
 /**
  * Helper to upsert an array of UUID-keyed child entities that have
@@ -40,14 +45,14 @@ async function upsertChildrenWithTranslations
         TChild extends UuidAbstractEntity,
         TTranslation extends AbstractEntity,
     >
-    (
-        upsertService: UpsertService,
-        childEntityClass: EntityTarget<TChild>,
-        translationEntityClass: EntityTarget<TTranslation>,
-        children: Array<DeepPartial<TChild>> | undefined,
-        parentFilter: FindOptionsWhere<TChild>,
-        translationParentIdKey: keyof TTranslation & string,
-    ): Promise<void> {
+(
+    upsertService: UpsertService,
+    childEntityClass: EntityTarget<TChild>,
+    translationEntityClass: EntityTarget<TTranslation>,
+    children: Array<DeepPartial<TChild>> | undefined,
+    parentFilter: FindOptionsWhere<TChild>,
+    translationParentIdKey: keyof TTranslation & string,
+): Promise<void> {
     if (!children?.length) return
 
     for (const child of children) {
@@ -65,17 +70,19 @@ async function upsertChildrenWithTranslations
             await upsertService.upsertTranslation(
                 translationEntityClass,
                 translations,
-                { [translationParentIdKey]: child.id } as FindOptionsWhere<TTranslation>,
+                {
+                    [translationParentIdKey]: child.id 
+                } as FindOptionsWhere<TTranslation>,
             )
         }
     }
 
-    /** Delete stale children for this parent */
-    await upsertService.deleteStaleUuid<TChild>(
-        childEntityClass,
-        children.map((child) => child.id as string),
-        parentFilter,
-    )
+    // /** Delete stale children for this parent */
+    // await upsertService.deleteStaleUuid<TChild>(
+    //     childEntityClass,
+    //     children.map((child) => child.id as string),
+    //     parentFilter,
+    // )
 }
 
 /**
@@ -112,12 +119,17 @@ export class ChallengeInsertService {
         } = challenge as DeepPartial<ChallengeEntity> & { contentId?: string }
 
         /** Re-attach FK as relation object for TypeORM */
-        const contentRef = content ?? (contentId ? { id: contentId } : undefined)
+        const contentRef = content ?? (contentId ? {
+            id: contentId 
+        } : undefined)
         await this.upsertService.upsertUuid(
             ChallengeEntity,
             [{
                 ...rest,
-                ...(contentRef ? { content: contentRef } : {}),
+                ...(contentRef ? {
+                    content: contentRef 
+                } : {
+                }),
             }],
         )
 
@@ -140,7 +152,11 @@ export class ChallengeInsertService {
             ChallengeRequirementEntity,
             ChallengeRequirementTranslationEntity,
             requirements,
-            { challenge: { id: challengeId } },
+            {
+                challenge: {
+                    id: challengeId 
+                } 
+            },
             "challengeRequirementId",
         )
 
@@ -150,7 +166,11 @@ export class ChallengeInsertService {
             ChallengeOutputEntity,
             ChallengeOutputTranslationEntity,
             outputs,
-            { challenge: { id: challengeId } },
+            {
+                challenge: {
+                    id: challengeId 
+                } 
+            },
             "challengeOutputId",
         )
 
@@ -160,19 +180,85 @@ export class ChallengeInsertService {
             ChallengePrerequisiteEntity,
             ChallengePrerequisiteTranslationEntity,
             prerequisites,
-            { challenge: { id: challengeId } },
+            {
+                challenge: {
+                    id: challengeId 
+                } 
+            },
             "challengePrerequisiteId",
         )
 
-        /** 6. Upsert steps + translations */
-        await upsertChildrenWithTranslations(
-            this.upsertService,
-            ChallengeStepEntity,
-            ChallengeStepTranslationEntity,
-            steps,
-            { challenge: { id: challengeId } },
-            "challengeStepId",
-        )
+        /** 6. Upsert steps, translations, and nested code implementations */
+        if (steps !== undefined) {
+            for (const step of steps) {
+                const stepTranslations = step.translations
+                const codeImplementations = step.codeImplementations
+                const stepData = deleteFields(
+                    step as DeepPartial<ChallengeStepEntity>,
+                    [
+                        "translations",
+                        "codeImplementations",
+                        "challenge",
+                    ],
+                )
+                await this.upsertService.upsertUuid(
+                    ChallengeStepEntity,
+                    [stepData],
+                )
+                if (stepTranslations?.length) {
+                    await this.upsertService.upsertTranslation(
+                        ChallengeStepTranslationEntity,
+                        stepTranslations,
+                        {
+                            challengeStepId: step.id as string,
+                        },
+                    )
+                }
+                const stepId = step.id as string
+                const implList = codeImplementations ?? []
+                for (const implementation of implList) {
+                    const implTranslations = implementation.translations
+                    const implData = deleteFields(
+                        implementation as DeepPartial<ChallengeStepCodeImplementationEntity>,
+                        [
+                            "translations",
+                            "challengeStep",
+                        ],
+                    )
+                    await this.upsertService.upsertUuid(
+                        ChallengeStepCodeImplementationEntity,
+                        [implData],
+                    )
+                    if (implTranslations?.length) {
+                        await this.upsertService.upsertTranslation(
+                            ChallengeStepCodeImplementationTranslationEntity,
+                            implTranslations,
+                            {
+                                challengeStepCodeImplementationId: implementation.id as string,
+                            },
+                        )
+                    }
+                }
+                await this.upsertService.deleteStaleUuid<ChallengeStepCodeImplementationEntity>(
+                    ChallengeStepCodeImplementationEntity,
+                    implList.map((row) => row.id ?? ""),
+                    {
+                        challengeStep: {
+                            id: stepId,
+                        },
+                    },
+                )
+            }
+            await this.upsertService.deleteStaleUuid<ChallengeStepEntity>(
+                ChallengeStepEntity,
+                steps.map((row) => row.id ?? ""),
+                {
+                    challenge: {
+                        id: challengeId 
+                    } 
+                },
+            )
+        }
 
         /** 7. Upsert references + translations */
         await upsertChildrenWithTranslations(
@@ -180,7 +266,11 @@ export class ChallengeInsertService {
             ChallengeReferenceEntity,
             ChallengeReferenceTranslationEntity,
             references,
-            { challenge: { id: challengeId } },
+            {
+                challenge: {
+                    id: challengeId 
+                } 
+            },
             "challengeReferenceId",
         )
 
@@ -225,7 +315,9 @@ export class ChallengeInsertService {
                             await this.upsertService.upsertTranslation<ChallengeSubmissionPromptTranslationEntity>(
                                 ChallengeSubmissionPromptTranslationEntity,
                                 promptTranslations,
-                                { challengeSubmissionPromptId: prompt.id },
+                                {
+                                    challengeSubmissionPromptId: prompt.id 
+                                },
                             )
                         }
                     }

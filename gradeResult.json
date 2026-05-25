@@ -1,9 +1,0 @@
-{
-  "criteriaResults": [
-    {
-      "passCriteriaId": "2f199244-3974-4a37-8c36-951ed1ed8084",
-      "passed": false,
-      "feedback": "The requirements document lacks clarity on both functional and non-functional requirements. It should explicitly mention functional requirements like product and user management, as well as non-functional aspects such as performance and security."
-    }
-  ]
-}

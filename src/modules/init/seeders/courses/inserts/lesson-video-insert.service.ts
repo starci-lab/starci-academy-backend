@@ -44,7 +44,9 @@ export class LessonVideoInsertService {
             await this.upsertService.upsertTranslation<LessonVideoTranslationEntity>(
                 LessonVideoTranslationEntity,
                 translations,
-                { lessonVideoId: lesson.id },
+                {
+                    lessonVideoId: lesson.id 
+                },
             )
         }
     }
@@ -59,7 +61,11 @@ export class LessonVideoInsertService {
         await this.upsertService.deleteStaleUuid<LessonVideoEntity>(
             LessonVideoEntity,
             seedLessonIds,
-            { content: { id: contentId } },
+            {
+                content: {
+                    id: contentId 
+                } 
+            },
         )
     }
 }

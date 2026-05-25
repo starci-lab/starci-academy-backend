@@ -69,7 +69,8 @@ export class UserCvSubmissionAttemptsResolver {
     ): Promise<UserCvSubmissionAttemptsPayload> {
         return this.userCvSubmissionAttemptsService.execute(
             {
-                request: request ?? {},
+                request: request ?? {
+                },
                 locale,
                 user,
             },

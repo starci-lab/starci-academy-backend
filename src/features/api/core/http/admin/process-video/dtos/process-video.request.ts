@@ -21,5 +21,5 @@ export class ProcessVideoRequest {
         require_tld: false,
         require_protocol: true,
     })
-    url: string
+        url: string
 }

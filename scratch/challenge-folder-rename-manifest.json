@@ -1,0 +1,81 @@
+{
+  "fixedAt": "2026-05-25T09:14:51.857Z",
+  "count": 15,
+  "renames": [
+    {
+      "from": "1-feed-caching-with-redis",
+      "to": "1-feed-caching-with-redis-easy",
+      "path": "1-system-design-mastery/modules/10-feed-ranking-and-distribution/contents/1-feed-caching-with-redis/challenges/1-feed-caching-with-redis"
+    },
+    {
+      "from": "2-hybrid-fanout-and-hotkey-mitigation",
+      "to": "2-hybrid-fanout-and-hotkey-mitigation-easy",
+      "path": "1-system-design-mastery/modules/10-feed-ranking-and-distribution/contents/2-hybrid-fanout-and-hotkey-mitigation/challenges/2-hybrid-fanout-and-hotkey-mitigation"
+    },
+    {
+      "from": "1-adaptive-bitrate-streaming-hls-dash",
+      "to": "1-adaptive-bitrate-streaming-hls-dash-easy",
+      "path": "1-system-design-mastery/modules/11-video-delivery-pipeline/contents/1-adaptive-bitrate-streaming-hls-dash/challenges/1-adaptive-bitrate-streaming-hls-dash"
+    },
+    {
+      "from": "2-cdn-caching-and-edge-delivery",
+      "to": "2-cdn-caching-and-edge-delivery-easy",
+      "path": "1-system-design-mastery/modules/11-video-delivery-pipeline/contents/2-cdn-caching-and-edge-delivery/challenges/2-cdn-caching-and-edge-delivery"
+    },
+    {
+      "from": "1-virtual-waiting-room-and-queuing",
+      "to": "1-virtual-waiting-room-and-queuing-easy",
+      "path": "1-system-design-mastery/modules/12-ecommerce-flash-sale-system/contents/1-virtual-waiting-room-and-queuing/challenges/1-virtual-waiting-room-and-queuing"
+    },
+    {
+      "from": "1-realtime-location-updates-at-scale",
+      "to": "1-realtime-location-updates-at-scale-easy",
+      "path": "1-system-design-mastery/modules/13-ride-hailing-system/contents/1-realtime-location-updates-at-scale/challenges/1-realtime-location-updates-at-scale"
+    },
+    {
+      "from": "2-matching-and-dynamic-pricing",
+      "to": "2-matching-and-dynamic-pricing-easy",
+      "path": "1-system-design-mastery/modules/13-ride-hailing-system/contents/2-matching-and-dynamic-pricing/challenges/2-matching-and-dynamic-pricing"
+    },
+    {
+      "from": "0-trie-data-structure-for-autocomplete",
+      "to": "0-trie-data-structure-for-autocomplete-easy",
+      "path": "1-system-design-mastery/modules/14-distributed-search-autocomplete-system/contents/0-inverted-index-and-bm25-from-scratch/challenges/0-trie-data-structure-for-autocomplete"
+    },
+    {
+      "from": "1-change-data-capture-cdc-with-debezium",
+      "to": "1-change-data-capture-cdc-with-debezium-easy",
+      "path": "1-system-design-mastery/modules/14-distributed-search-autocomplete-system/contents/1-vector-search-with-embeddings/challenges/1-change-data-capture-cdc-with-debezium"
+    },
+    {
+      "from": "2-distributed-search-sharding-and-relevance",
+      "to": "2-distributed-search-sharding-and-relevance-easy",
+      "path": "1-system-design-mastery/modules/14-distributed-search-autocomplete-system/contents/2-hybrid-search-with-rrf-reranking/challenges/2-distributed-search-sharding-and-relevance"
+    },
+    {
+      "from": "2-global-cdn-distribution",
+      "to": "2-global-cdn-distribution-easy",
+      "path": "1-system-design-mastery/modules/16-distributed-file-storage-content-delivery-network/contents/2-global-cdn-distribution/challenges/2-global-cdn-distribution"
+    },
+    {
+      "from": "1-url-frontier-and-bloom-filters",
+      "to": "1-url-frontier-and-bloom-filters-easy",
+      "path": "1-system-design-mastery/modules/17-high-performance-web-crawler-search-engine/contents/1-url-frontier-and-bloom-filters/challenges/1-url-frontier-and-bloom-filters"
+    },
+    {
+      "from": "2-html-parsing-indexing-and-pagerank",
+      "to": "2-html-parsing-indexing-and-pagerank-easy",
+      "path": "1-system-design-mastery/modules/17-high-performance-web-crawler-search-engine/contents/2-html-parsing-indexing-pagerank/challenges/2-html-parsing-indexing-and-pagerank"
+    },
+    {
+      "from": "0-double-entry-bookkeeping-and-acid",
+      "to": "0-double-entry-bookkeeping-and-acid-easy",
+      "path": "1-system-design-mastery/modules/19-distributed-transactions-in-wallet-system/contents/0-two-phase-commit-vs-saga/challenges/0-double-entry-bookkeeping-and-acid"
+    },
+    {
+      "from": "1-idempotency-guarantees-in-financial-apis",
+      "to": "1-idempotency-guarantees-in-financial-apis-easy",
+      "path": "1-system-design-mastery/modules/19-distributed-transactions-in-wallet-system/contents/1-idempotent-ledger-and-double-entry/challenges/1-idempotency-guarantees-in-financial-apis"
+    }
+  ]
+}

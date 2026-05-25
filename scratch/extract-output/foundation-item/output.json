@@ -1,0 +1,22 @@
+{
+  "title": "Docker Cơ bản và Ứng dụng",
+  "description": "Video hướng dẫn các khái niệm cơ bản và cách ứng dụng Docker trong thực tế.",
+  "author": "StarCi",
+  "kind": "external_link",
+  "isRecommended": "true",
+  "tags": [
+    {
+      "value": "Docker",
+      "orderIndex": 0
+    },
+    {
+      "value": "Video",
+      "orderIndex": 1
+    },
+    {
+      "value": "StarCi",
+      "orderIndex": 2
+    }
+  ],
+  "value": "https://www.youtube.com/watch?v=nWsDt5hstz4"
+}

@@ -47,7 +47,8 @@ export class FoundationInsertService {
                 /** Re-attach only the FK reference */
                 ...(category ? {
                     category,
-                } : {}),
+                } : {
+                }),
             }],
         )
 

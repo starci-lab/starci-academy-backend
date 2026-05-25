@@ -52,7 +52,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         type: "varchar",
         length: 500,
     })
-    title: string
+        title: string
 
     /**
      * Human-facing stable identifier from the mount folder (`{index}-{slug}` slug segment).
@@ -68,7 +68,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         type: "varchar",
         length: 255,
     })
-    displayId: string
+        displayId: string
 
     /**
      * Optional video description.
@@ -85,7 +85,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         type: "text",
         nullable: true,
     })
-    description: string | null
+        description: string | null
 
     /**
      * Video format (mp4, hls, etc.).
@@ -103,7 +103,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         enumName: "lesson_video_type",
         default: LessonVideoType.Standard,
     })
-    videoType: LessonVideoType
+        videoType: LessonVideoType
 
     /**
   * Optional short caption / note shown next to the video (default locale column).
@@ -120,7 +120,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         type: "text",
         nullable: true,
     })
-    format: string
+        format: string
 
     /**
      * Optional short caption / note shown next to the video (default locale column).
@@ -137,7 +137,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         type: "text",
         nullable: true,
     })
-    caption: string | null
+        caption: string | null
 
     /**
      * Host platform for the video URL (YouTube, Google Drive, etc.).
@@ -155,7 +155,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         enumName: "video_host_platform",
         default: VideoHostPlatform.Youtube,
     })
-    hostPlatform: VideoHostPlatform
+        hostPlatform: VideoHostPlatform
 
     /**
      * Video URL (e.g. YouTube watch or embed link).
@@ -171,7 +171,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         type: "varchar",
         length: 2048,
     })
-    url: string
+        url: string
 
     /**
      * Optional thumbnail image URL (e.g. poster frame or CDN asset).
@@ -189,7 +189,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         length: 2048,
         nullable: true,
     })
-    thumbnailUrl: string | null
+        thumbnailUrl: string | null
 
     /**
      * Video duration in milliseconds.
@@ -204,7 +204,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         name: "duration_ms",
         type: "int",
     })
-    durationMs: number
+        durationMs: number
 
     /**
      * Display order within the module lesson video list.
@@ -220,7 +220,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         type: "int",
         default: 0,
     })
-    orderIndex: number
+        orderIndex: number
 
     /**
      * Default locale for this lesson video row.
@@ -237,7 +237,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         enum: Locale,
         enumName: "locale",
     })
-    defaultLocale: Locale
+        defaultLocale: Locale
 
     /**
      * Parent content this lesson video belongs to.
@@ -260,7 +260,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         name: "content_id",
         foreignKeyConstraintName: "fk_content_id_lesson_videos_contents",
     })
-    content: ContentEntity
+        content: ContentEntity
 
     @Field(
         () => ID,
@@ -271,7 +271,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
     @RelationId(
         (lv: LessonVideoEntity) => lv.content,
     )
-    contentId: string
+        contentId: string
 
     /**
      * Optional minimum pricing tier required to access this video; null means no extra tier gate.
@@ -288,7 +288,7 @@ export class LessonVideoEntity extends UuidAbstractEntity {
         type: "uuid",
         nullable: true,
     })
-    pricingPhaseId: string | null
+        pricingPhaseId: string | null
 
     /**
      * Localized translations for fields such as `title` and `description`.
@@ -306,6 +306,6 @@ export class LessonVideoEntity extends UuidAbstractEntity {
             cascade: true,
         },
     )
-    translations: Array<LessonVideoTranslationEntity>
+        translations: Array<LessonVideoTranslationEntity>
 }
 

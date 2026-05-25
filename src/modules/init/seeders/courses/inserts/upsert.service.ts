@@ -53,92 +53,95 @@ export class UpsertService {
      */
     async upsertUuid
         <Entity extends UuidAbstractEntity>
-        (
-            entityClass: EntityTarget<Entity>,
-            entities: Array<DeepPartial<Entity>>,
-            where?: FindOptionsWhere<Entity>,
-        ): Promise<void> {
-        try {
+    (
+        entityClass: EntityTarget<Entity>,
+        entities: Array<DeepPartial<Entity>>,
+        where?: FindOptionsWhere<Entity>,
+    ): Promise<void> {
+            try {
             /**
              * Only run the find-and-delete-stale logic when a parent filter
              * is provided. Without a filter, find() would return ALL rows
              * globally, causing unrelated rows to be deleted.
              */
-            let existingIds: Set<string> = new Set()
-            if (where) {
+                let existingIds: Set<string> = new Set()
+                if (where) {
                 /** 1. Get existing IDs scoped to the parent */
-                const existing = await this.entityManager.find<UuidAbstractEntity>(
-                    entityClass, {
-                    select: {
-                        id: true,
-                    },
-                    where,
-                })
-                existingIds = new Set(existing.map((entity) => entity.id))
-                const ids = new Set(
-                    entities
-                        .filter((entity) => entity.id != null)
-                        .map((entity) => entity.id as string),
-                )
-
-                /** 2. Delete stale rows (exist in DB but not in seed) */
-                const toDelete = [...existingIds].filter((id) => !ids.has(id))
-                if (toDelete.length > 0) {
-                    await this.entityManager.delete(entityClass, toDelete)
-                    for (const id of toDelete) {
-                        this.winstonService.log(
-                            WinstonLog.DbSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind: this.entityName(entityClass),
-                                entityId: id,
-                                type: DbSyncType.Deleted,
-                            },
-                        )
-                    }
-                }
-            } else {
-                /**
-                 * For global upserts (no parent filter), pre-load only IDs that
-                 * appear in the incoming seed set so we can log Added vs Updated accurately.
-                 */
-                const ids = entities
-                    .filter((entity) => entity.id != null)
-                    .map((entity) => entity.id as string)
-                if (ids.length > 0) {
                     const existing = await this.entityManager.find<UuidAbstractEntity>(
                         entityClass,
                         {
                             select: {
                                 id: true,
                             },
-                            where: {
-                                id: In(ids),
-                            } as FindOptionsWhere<Entity>,
-                        }
-                    )
+                            where,
+                        })
                     existingIds = new Set(existing.map((entity) => entity.id))
-                }
-            }
+                    const ids = new Set(
+                        entities
+                            .filter((entity) => entity.id != null)
+                            .map((entity) => entity.id as string),
+                    )
 
-            /** 3. Save (upsert) each seed row */
-            for (const entity of entities) {
-                await this.entityManager.save(entityClass, entity)
-                const entityId = (entity as UuidAbstractEntity).id ?? "unknown"
-                const isNew = !existingIds.has(entityId)
-                this.winstonService.log(
-                    WinstonLog.DbSynchronizerSyncedSuccessfully,
-                    {
-                        entityKind: this.entityName(entityClass),
-                        entityId,
-                        type: isNew ? DbSyncType.Added : DbSyncType.Updated,
-                    },
-                )
+                    // /** 2. Delete stale rows (exist in DB but not in seed) */
+                    // const toDelete = [...existingIds].filter((id) => !ids.has(id))
+                    // if (toDelete.length > 0) {
+                    //     await this.entityManager.delete(entityClass,
+                    //         toDelete)
+                    //     for (const id of toDelete) {
+                    //         this.winstonService.log(
+                    //             WinstonLog.DbSynchronizerSyncedSuccessfully,
+                    //             {
+                    //                 entityKind: this.entityName(entityClass),
+                    //                 entityId: id,
+                    //                 type: DbSyncType.Deleted,
+                    //             },
+                    //         )
+                    //     }
+                    // }
+                } else {
+                /**
+                 * For global upserts (no parent filter), pre-load only IDs that
+                 * appear in the incoming seed set so we can log Added vs Updated accurately.
+                 */
+                    const ids = entities
+                        .filter((entity) => entity.id != null)
+                        .map((entity) => entity.id as string)
+                    if (ids.length > 0) {
+                        const existing = await this.entityManager.find<UuidAbstractEntity>(
+                            entityClass,
+                            {
+                                select: {
+                                    id: true,
+                                },
+                                where: {
+                                    id: In(ids),
+                                } as FindOptionsWhere<Entity>,
+                            }
+                        )
+                        existingIds = new Set(existing.map((entity) => entity.id))
+                    }
+                }
+
+                /** 3. Save (upsert) each seed row */
+                for (const entity of entities) {
+                    await this.entityManager.save(entityClass,
+                        entity)
+                    const entityId = (entity as UuidAbstractEntity).id ?? "unknown"
+                    const isNew = !existingIds.has(entityId)
+                    this.winstonService.log(
+                        WinstonLog.DbSynchronizerSyncedSuccessfully,
+                        {
+                            entityKind: this.entityName(entityClass),
+                            entityId,
+                            type: isNew ? DbSyncType.Added : DbSyncType.Updated,
+                        },
+                    )
+                }
+            } catch (error) {
+                console.error(error)
+                throw error
             }
-        } catch (error) {
-            console.error(error)
-            throw error
         }
-    }
 
     /**
      * Delete rows for a UUID-based entity whose IDs are NOT in the seed set.
@@ -150,41 +153,45 @@ export class UpsertService {
      */
     async deleteStaleUuid
         <Entity extends UuidAbstractEntity>
-        (
-            entityClass: EntityTarget<Entity>,
-            ids: Array<string>,
-            where: FindOptionsWhere<Entity>,
-        ): Promise<void> {
-        try {
-            const existing = await this.entityManager.find<UuidAbstractEntity>(
-                entityClass, {
-                select: {
-                    id: true,
-                },
-                where,
-            })
-            const existingIds = new Set(existing.map((entity) => entity.id))
-            const seedIds = new Set(ids)
+    (
+        entityClass: EntityTarget<Entity>,
+        ids: Array<string>,
+        where: FindOptionsWhere<Entity>,
+    ): Promise<void> {
+            // deleteStale disabled during init seed — re-enable when mount sync is stable
+            return
+            // try {
+            //     const existing = await this.entityManager.find<UuidAbstractEntity>(
+            //         entityClass,
+            //         {
+            //             select: {
+            //                 id: true,
+            //             },
+            //             where,
+            //         })
+            //     const existingIds = new Set(existing.map((entity) => entity.id))
+            //     const seedIds = new Set(ids)
 
-            const toDelete = [...existingIds].filter((id) => !seedIds.has(id))
-            if (toDelete.length > 0) {
-                await this.entityManager.delete(entityClass, toDelete)
-                for (const id of toDelete) {
-                    this.winstonService.log(
-                        WinstonLog.DbSynchronizerSyncedSuccessfully,
-                        {
-                            entityKind: this.entityName(entityClass),
-                            entityId: id,
-                            type: DbSyncType.Deleted,
-                        },
-                    )
-                }
-            }
-        } catch (error) {
-            console.error(error)
-            throw error
+            //     const toDelete = [...existingIds].filter((id) => !seedIds.has(id))
+            //     if (toDelete.length > 0) {
+            //         await this.entityManager.delete(entityClass,
+            //             toDelete)
+            //         for (const id of toDelete) {
+            //             this.winstonService.log(
+            //                 WinstonLog.DbSynchronizerSyncedSuccessfully,
+            //                 {
+            //                     entityKind: this.entityName(entityClass),
+            //                     entityId: id,
+            //                     type: DbSyncType.Deleted,
+            //                 },
+            //             )
+            //         }
+            //     }
+            // } catch (error) {
+            //     console.error(error)
+            //     throw error
+            // }
         }
-    }
 
     /**
      * Upsert rows for a composite-key translation entity.
@@ -198,32 +205,33 @@ export class UpsertService {
      */
     async upsertTranslation
         <Entity extends AbstractEntity>
-        (
-            entityClass: EntityTarget<Entity>,
-            entities: Array<DeepPartial<Entity>>,
-            parentWhere: FindOptionsWhere<Entity>,
-        ): Promise<void> {
-        try {
+    (
+        entityClass: EntityTarget<Entity>,
+        entities: Array<DeepPartial<Entity>>,
+        parentWhere: FindOptionsWhere<Entity>,
+    ): Promise<void> {
+            try {
             /** 1. Delete all existing translations for the parent */
-            const existing = await this.entityManager.find(
-                entityClass, {
-                where: parentWhere,
-            }
-            )
-            if (existing.length > 0) {
-                await this.entityManager.remove(existing)
-            }
-
-            /** 2. Insert all seed translations */
-            for (const entity of entities) {
-                await this.entityManager.save(
+                const existing = await this.entityManager.find(
                     entityClass,
-                    entity
+                    {
+                        where: parentWhere,
+                    }
                 )
+                if (existing.length > 0) {
+                    await this.entityManager.remove(existing)
+                }
+
+                /** 2. Insert all seed translations */
+                for (const entity of entities) {
+                    await this.entityManager.save(
+                        entityClass,
+                        entity
+                    )
+                }
+            } catch (error) {
+                console.error(error)
+                throw error
             }
-        } catch (error) {
-            console.error(error)
-            throw error
         }
-    }
 }

@@ -72,7 +72,9 @@ export class GpuService implements OnModuleInit {
                 // Windows: use PowerShell Get-CimInstance (WMIC is deprecated/removed)
                 const output = execSync(
                     "powershell -NoProfile -Command \"Get-CimInstance Win32_VideoController | Select-Object -ExpandProperty Name\"",
-                    { encoding: "utf8", timeout: 10000 },
+                    {
+                        encoding: "utf8", timeout: 10000 
+                    },
                 )
                 gpuNames = output
                     .split("\n")
@@ -82,7 +84,9 @@ export class GpuService implements OnModuleInit {
                 // Linux: use lspci
                 const output = execSync(
                     "lspci | grep -i 'vga\\|3d\\|display'",
-                    { encoding: "utf8", timeout: 5000 },
+                    {
+                        encoding: "utf8", timeout: 5000 
+                    },
                 )
                 gpuNames = output
                     .split("\n")
@@ -92,11 +96,14 @@ export class GpuService implements OnModuleInit {
                 // macOS: use system_profiler
                 const output = execSync(
                     "system_profiler SPDisplaysDataType | grep 'Chipset Model'",
-                    { encoding: "utf8", timeout: 5000 },
+                    {
+                        encoding: "utf8", timeout: 5000 
+                    },
                 )
                 gpuNames = output
                     .split("\n")
-                    .map((line) => line.replace("Chipset Model:", "").trim())
+                    .map((line) => line.replace("Chipset Model:",
+                        "").trim())
                     .filter(Boolean)
             }
 

@@ -25,10 +25,17 @@ import {
     DeepPartial,
 } from "typeorm"
 import {
+    MilestoneTaskPathNotFoundException,
+} from "@modules/exceptions"
+import {
     MilestoneTaskPathService,
-    ResolvedFileResult,
 } from "../path"
-import { ContextLoaderService } from "../../shared"
+import {
+    ContextLoaderService 
+} from "../../shared"
+import {
+    ResolvedFileResult,
+} from "../../shared"
 
 const TASK_TYPE_MAP: Record<string, PersonalProjectTaskType> = {
     design: PersonalProjectTaskType.Design,
@@ -66,14 +73,19 @@ export class MilestoneTaskParserService {
             (path) => path.orderIndex === taskIndex,
         )
         if (!path) {
-            throw new Error(`Milestone task path not found for index ${taskIndex}`)
+            throw new MilestoneTaskPathNotFoundException(
+                {
+                    taskIndex,
+                },
+            )
         }
         const jsonMap = new Map<Locale, Record<string, any>>()
         for (const locale of Object.values(Locale)) {
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(
-                    await this.contextLoaderService.load("courses", `${path.relativePath}/${locale}.md`),
+                    await this.contextLoaderService.load("courses",
+                        `${path.relativePath}/${locale}.md`),
                 ),
             )
         }

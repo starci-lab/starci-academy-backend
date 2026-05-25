@@ -1,15 +1,12 @@
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     Locale,
     MilestoneTaskEntity,
+    MilestoneTaskHydrationService,
     MilestoneTaskResolverService,
 } from "@modules/databases"
 import {
     Injectable,
 } from "@nestjs/common"
-import type {
-    EntityManager,
-} from "typeorm"
 import type {
     LocalizedElasticsearchEntity,
 } from "./types"
@@ -18,26 +15,18 @@ import {
 } from "@modules/elasticsearch"
 import _ from "lodash"
 
-/**
- * Loads a milestone task (with criteria) from PostgreSQL and materializes **per-locale** plain objects
- * for Elasticsearch JSON.
- */
 @Injectable()
 export class ElasticsearchMilestoneTaskBuildService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
+        private readonly milestoneTaskHydration: MilestoneTaskHydrationService,
         private readonly milestoneTaskResolver: MilestoneTaskResolverService,
         private readonly elasticsearchService: ElasticsearchService,
     ) {}
 
-    /**
-     * @returns One entry per [[Locale]] with the transformed milestone task tree.
-     */
     async buildMultilingualByMilestoneTaskId(
         milestoneTaskId: string,
     ): Promise<Array<LocalizedElasticsearchEntity<MilestoneTaskEntity>>> {
-        const hydratedTask = await this.loadHydratedMilestoneTaskPlain(
+        const hydratedTask = await this.milestoneTaskHydration.loadById(
             milestoneTaskId,
         )
         return Object.values(Locale).map(
@@ -58,32 +47,6 @@ export class ElasticsearchMilestoneTaskBuildService {
         )
     }
 
-    /**
-     * Loads the hydrated milestone task plain object from PostgreSQL.
-     */
-    private async loadHydratedMilestoneTaskPlain(
-        id: string,
-    ): Promise<MilestoneTaskEntity> {
-        const taskRow = await this.entityManager.findOneOrFail(
-            MilestoneTaskEntity,
-            {
-                where: {
-                    id,
-                },
-                relations: {
-                    translations: true,
-                    criterias: {
-                        translations: true,
-                    },
-                },
-            },
-        )
-        return taskRow.toPlain<MilestoneTaskEntity>()
-    }
-
-    /**
-     * Builds the index by milestone task id.
-     */
     async buildIndexById(
         id: string,
     ): Promise<void> {

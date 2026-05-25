@@ -20,12 +20,16 @@ import {
 import {
     DeepPartial,
 } from "typeorm"
-import { ContextLoaderService } from "../../shared"
+import {
+    ContextLoaderService,
+    ResolvedFileResult,
+} from "../../shared"
+import {
+    MilestonePathNotFoundException,
+} from "@modules/exceptions"
 import {
     MilestonePathService,
-    ResolvedFileResult,
 } from "../path"
-
 /**
  * Parses milestone data from mounted course files (`en.md`, `vi.md`).
  */
@@ -53,14 +57,19 @@ export class MilestoneParserService {
             (path) => path.orderIndex === milestoneIndex,
         )
         if (!path) {
-            throw new Error(`Milestone path not found for index ${milestoneIndex}`)
+            throw new MilestonePathNotFoundException(
+                {
+                    milestoneIndex,
+                },
+            )
         }
         const jsonMap = new Map<Locale, Record<string, any>>()
         for (const locale of Object.values(Locale)) {
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(
-                    await this.contextLoaderService.load("courses", `${path.relativePath}/${locale}.md`),
+                    await this.contextLoaderService.load("courses",
+                        `${path.relativePath}/${locale}.md`),
                 ),
             )
         }

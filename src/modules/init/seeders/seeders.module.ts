@@ -7,12 +7,15 @@ import {
     ChallengeSubmissionPromptIdFactoryService,
     ChallengeReferenceIdFactoryService,
     ChallengeStepIdFactoryService,
+    ChallengeStepCodeImplementationIdFactoryService,
     ChallengeSubmissionIdFactoryService,
     ChallengeRequirementIdFactoryService,
     ChallengeOutputIdFactoryService,
     ChallengePrerequisiteIdFactoryService,
     ContentIdFactoryService,
     ContentReferenceIdFactoryService,
+    CodeExplainingIdFactoryService,
+    CodeImplementationIdFactoryService,
     CourseIdFactoryService,
     LessonVideoIdFactoryService,
     LivestreamSessionIdFactoryService,
@@ -87,12 +90,12 @@ import {
     ConfigurableModuleClass, OPTIONS_TYPE 
 } from "./seeders.module-definition"
 import {
-    ExtractJsonFromMdService, 
-    CoerceMdScalarService, 
-    S3ContextService, 
-    FilesystemContextService, 
-    ContextLoaderService, 
-    PathResolverService 
+    ExtractJsonFromMdService,
+    CoerceMdScalarService,
+    S3ContextService,
+    FilesystemContextService,
+    ContextLoaderService,
+    PathResolverService,
 } from "./shared"
 
 
@@ -117,6 +120,8 @@ export class SeedersModule extends ConfigurableModuleClass {
             ModuleIdFactoryService,
             ContentIdFactoryService,
             ContentReferenceIdFactoryService,
+            CodeExplainingIdFactoryService,
+            CodeImplementationIdFactoryService,
             PreviewContentIdFactoryService,
             PricingPhaseIdFactoryService,
             ValuePropositionIdFactoryService,
@@ -131,6 +136,7 @@ export class SeedersModule extends ConfigurableModuleClass {
             ChallengePathService,
             ChallengeIdFactoryService,
             ChallengeStepIdFactoryService,
+            ChallengeStepCodeImplementationIdFactoryService,
             ChallengeReferenceIdFactoryService,
             ChallengeSubmissionIdFactoryService,
             ChallengeSubmissionPromptIdFactoryService,

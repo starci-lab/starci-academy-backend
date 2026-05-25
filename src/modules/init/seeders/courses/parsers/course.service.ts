@@ -11,6 +11,7 @@ import {
 import {
     ExtractJsonFromMdService,
     CoerceMdScalarService,
+    ResolvedFileResult,
 } from "../../shared"
 import {
     CourseIdFactoryService,
@@ -30,13 +31,14 @@ import {
     QnaTranslationEntity,
     ValuePropositionTranslationEntity,
 } from "@modules/databases"
-import { ContextLoaderService } from "../../shared"
+import {
+    ContextLoaderService 
+} from "../../shared"
 import {
     CoursePathNotFoundException,
 } from "@modules/exceptions"
 import {
     CoursePathService,
-    ResolvedFileResult,
 } from "../path"
 
 /**
@@ -85,7 +87,8 @@ export class CourseParserService {
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(
-                    await this.contextLoaderService.load("courses", 
+                    await this.contextLoaderService.load(
+                        "courses", 
                         `${path.relativePath}/${locale}.md`
                     ),
                 )

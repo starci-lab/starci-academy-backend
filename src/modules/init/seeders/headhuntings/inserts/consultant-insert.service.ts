@@ -31,14 +31,19 @@ export class ConsultantInsertService {
             ConsultantEntity,
             [{
                 ...rest,
-                ...(company ? { company } : {}),
+                ...(company ? {
+                    company 
+                } : {
+                }),
             }],
         )
         if (translations) {
             await this.upsertService.upsertTranslation(
                 ConsultantTranslationEntity,
                 translations,
-                { consultantId },
+                {
+                    consultantId 
+                },
             )
         }
     }
@@ -51,7 +56,9 @@ export class ConsultantInsertService {
             ConsultantEntity,
             ids,
             {
-                company: { id: companyId },
+                company: {
+                    id: companyId 
+                },
             },
         )
     }
