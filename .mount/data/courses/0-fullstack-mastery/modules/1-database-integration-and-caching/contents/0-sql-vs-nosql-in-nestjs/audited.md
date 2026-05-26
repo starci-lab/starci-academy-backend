@@ -250,7 +250,7 @@ codeExplaining sync verification với `.repo/` (rule mới audit.md + content r
 - Snippet 2 (write method): Type B — update vi.md + en.md: thêm `// Lưu song song...` + `// Chuẩn hóa response...` comments, expand `const [sqlRecord, noSqlRecord]` sang multi-line, expand `sql:{...}` / `noSql:{...}` từ single-line sang multi-line per-field để match source `.repo/.../modules/compare/compare.service.ts`.
 
 ### Pushed to remote
-- [x] Mount commit: pending (filled after git push)
+- [x] Mount commit: `e683316` (auto-committed by stop-hook; commit msg label "M1L1" misleading, actual content = M1L0 — files only touch `0-sql-vs-nosql-in-nestjs/`).
 - [ ] Repo commit: no code change — chỉ sync content snippets theo source.
 
 ### Outstanding
