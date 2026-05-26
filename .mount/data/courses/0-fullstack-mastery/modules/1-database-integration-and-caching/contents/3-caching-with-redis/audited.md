@@ -284,3 +284,128 @@ Tinh thần: existing chỉ tham khảo. Brainstorm fresh per tier:
 
 - Author: audit agent (Opus 4.7 1M context, full re-audit v2)
 - Date: 2026-05-26
+
+## Audit — 2026-05-26T14:00:00Z
+
+### Trigger
+
+M1L3 full migration redo per audit.md §4 "No partial defer" — fix HẾT separator+rubric+escalation+codeImpl gaps cho medium/hard/insane mà entry v2 trước carry-forward. KHÔNG re-run e2e (đã PASS 4/4 ở entry v2 12:30, reference inline).
+
+### Scope
+- **Lesson:** `3-caching-with-redis` (variant: `fullstack-backend`)
+- **Status:** FIXED + re-verified mechanical PASS (separator wrap + sum invariant). E2e re-use entry 2026-05-26T12:30:00Z.
+
+### Content compliance checklist
+- [x] Separator `<!-- @starci/seperator -->` — inherit từ entry trước, không touch lesson `vi.md`/`en.md`.
+- [x] 16 sections theo variant `fullstack-backend` — inherit.
+- [x] Strict wording — inherit (đã fix entry 00:00 + 12:30).
+- [x] Flow count 4, match `test.md` 1:1 — inherit.
+- [x] `# databases` section — inherit (Cat entity TypeORM).
+
+### Challenges brainstormed by Claude
+
+Brainstorm fresh per tier, so sánh với existing topic + scope cũ, decide:
+
+- [x] Easy: brainstorm = `Cache-aside cho Product list với TTL + MISS→HIT→invalidate chain`. Existing topic = aligned, **kept (no touch)** — verified rewritten ở entry 00:00, separator/sum OK ở entry 12:30.
+- [x] Medium: brainstorm = `Pagination cache (per-page key) + Cache Stampede Control bằng Redis SETNX lock với uuid release + SCAN-based invalidation`. Existing topic header aligned (`pagination + stampede`), nhưng nội dung legacy STUB (5 steps không có sub-headings, 0 rubric, 0 codeImpl, 0 escalation phrase). Quyết định: **kept-aligned topic, REWRITTEN full structure** — req 4+1 (10+0+15+10+5=40), 5 steps có 3 sub-heading + ≥3 Bước + ≥3 acceptance, codeImpl 4 lang ở step 0/1/2/3 (step 4 smoke-test only nên skip codeImpl).
+- [x] Hard: brainstorm = `Sliding window rate limiter ZSET + Lua atomic EVAL/EVALSHA + Guard với identity resolution + X-RateLimit-* headers + k6 p50/p95/p99 benchmark 3 scenario + JSON audit log + capacity-grade README`. Existing topic header aligned (`sliding window + Lua`), nhưng legacy: 1 step duy nhất (no sub-headings), 1 req duy nhất, nested `### prompts` ở submission, no escalation. Quyết định: **kept-aligned topic, REWRITTEN full structure** — req 5+1 (15+12+0+15+8+10=60), 6 steps với codeImpl 4 lang ở step 0/1/4 (step 2/3/5 là config/bench/doc-only nên skip).
+- [x] Insane: brainstorm = `Two-tier cache L1 (lru-cache) + L2 (Redis) + Pub/Sub invalidation cross-instance với senderId loop-prevention + capacity planning 1M user / 100K RPS + chaos test instance crash/Redis pause/network partition + 3-instance cluster bench với consistency rate ≥99% + max staleness <500ms`. Existing topic header aligned (`two-tier + pubsub`), nhưng legacy: 1 step + nested prompts + no chaos test + no capacity planning. Quyết định: **kept-aligned topic, REWRITTEN full structure + EXPANDED SCOPE** (thêm chaos test + capacity planning + cluster bench đúng tier insane spec §11.1) — req 6+1 (15+0+15+15+15+10+10=80), 7 steps với codeImpl 4 lang ở step 0/1/2 (step 3-6 là bench/chaos/doc nên skip).
+
+### Challenge compliance checklist (per tier)
+
+#### Easy
+- [x] Inherit từ entry trước — không touch, đã verified separator + sum OK.
+
+#### Medium
+- [x] File tồn tại: `1-pagination-redis-cache-stampede-control-medium/{vi,en}.md`
+- [x] Escalation: `# description` chứa `Phát triển từ bản EASY.` / `Extended from the EASY version.`
+- [x] Escalation: `# prerequisites[0]` = `` Đã hoàn thành EASY `caching-with-redis-easy`. `` / `` Completed EASY `caching-with-redis-easy`. ``
+- [x] Sum invariant: 40 — `#score=40 reqSum=40 subScore=40` (vi + en) ✓
+- [x] Step body separator wrap: `steps=5 seps=20 expected=20 OK` (vi + en) ✓
+- [x] Submission KHÔNG nested `### prompts` — chỉ type/title/description/score ✓
+- [x] EN mirror đồng bộ — cùng số H1, requirement, step, output, prerequisite, reference
+- [x] codeImpl 4 lang ở step 0/1/2/3 (step 4 = smoke test pure shell)
+- [x] forbidden ≥1 + ≥1 suffix `0 whole challenge` (fabricate raw log)
+
+#### Hard
+- [x] File tồn tại: `2-sliding-window-rate-limiter-redis-hard/{vi,en}.md`
+- [x] Escalation prereq[0] = `` Đã hoàn thành MEDIUM `pagination-redis-cache-stampede-control-medium`. `` / EN mirror
+- [x] Escalation description: `Phát triển từ bản MEDIUM.` / `Extended from the MEDIUM version.`
+- [x] Sum invariant: 60 — `#score=60 reqSum=60 subScore=60` (vi + en) ✓
+- [x] Step body separator wrap: `steps=6 seps=24 expected=24 OK` (vi + en) ✓
+- [x] Production-grade scope: Lua atomic EVAL + Guard + X-RateLimit headers + k6 benchmark 3 scenario + raw JSON evidence + JSON audit log
+- [x] codeImpl 4 lang ở step 0/1/4 (step 2 = header config pure, step 3 = k6 bench bash-only, step 5 = doc/README pure)
+- [x] forbidden ≥1 + ≥2 suffix `0 whole challenge` (fabricate benchmark JSON, counter-based mislabeled sliding window)
+- [x] EN mirror đồng bộ
+
+#### Insane
+- [x] File tồn tại: `3-two-tier-cache-pubsub-sync-insane/{vi,en}.md`
+- [x] Escalation prereq[0] = `` Đã hoàn thành HARD `sliding-window-rate-limiter-redis-hard`. `` / EN mirror
+- [x] Escalation description: `Phát triển từ bản HARD.` / `Extended from the HARD version.`
+- [x] Sum invariant: 80 — `#score=80 reqSum=80 subScore=80` (vi + en) ✓
+- [x] Step body separator wrap: `steps=7 seps=28 expected=28 OK` (vi + en) ✓
+- [x] 1M-user scope: capacity planning 4 phép tính, chaos test 3 scenario (instance crash, Redis pause, network partition), cluster bench 3 instance với consistency rate + max staleness, Pub/Sub loop-prevention với senderId
+- [x] codeImpl 4 lang ở step 0/1/2 (step 3 = bench thuần, step 4 = chaos bash, step 5 = bench thuần, step 6 = doc/README)
+- [x] forbidden ≥1 + ≥3 suffix `0 whole challenge` (fabricate chaos log, fake single-instance cluster, paraphrased bench JSON)
+- [x] EN mirror đồng bộ
+
+### Mechanical verification (paste actual output)
+
+```
+1-pagination-redis-cache-stampede-control-medium/vi.md: steps=5 seps=20 expected=20 OK
+1-pagination-redis-cache-stampede-control-medium/en.md: steps=5 seps=20 expected=20 OK
+2-sliding-window-rate-limiter-redis-hard/vi.md: steps=6 seps=24 expected=24 OK
+2-sliding-window-rate-limiter-redis-hard/en.md: steps=6 seps=24 expected=24 OK
+3-two-tier-cache-pubsub-sync-insane/vi.md: steps=7 seps=28 expected=28 OK
+3-two-tier-cache-pubsub-sync-insane/en.md: steps=7 seps=28 expected=28 OK
+
+1-pagination-redis-cache-stampede-control-medium/vi.md: #score=40 reqSum=40 subScore=40
+1-pagination-redis-cache-stampede-control-medium/en.md: #score=40 reqSum=40 subScore=40
+2-sliding-window-rate-limiter-redis-hard/vi.md: #score=60 reqSum=60 subScore=60
+2-sliding-window-rate-limiter-redis-hard/en.md: #score=60 reqSum=60 subScore=60
+3-two-tier-cache-pubsub-sync-insane/vi.md: #score=80 reqSum=80 subScore=80
+3-two-tier-cache-pubsub-sync-insane/en.md: #score=80 reqSum=80 subScore=80
+```
+
+Criterion-level sums verified by hand:
+- Medium req 0/2/3/4 → 10/15/10/5 (A+B+C+D) ✓; req 1 = 0 shared
+- Hard req 0/1/3/4/5 → 15/12/15/8/10 ✓; req 2 = 0 shared
+- Insane req 0/2/3/4/5/6 → 15/15/15/15/10/10 ✓; req 1 = 0 shared
+
+### Files rewritten
+
+- `challenges/1-pagination-redis-cache-stampede-control-medium/vi.md` — FULL REWRITE (legacy stub → v1)
+- `challenges/1-pagination-redis-cache-stampede-control-medium/en.md` — FULL REWRITE
+- `challenges/2-sliding-window-rate-limiter-redis-hard/vi.md` — FULL REWRITE (legacy 1-step → 6-step v1)
+- `challenges/2-sliding-window-rate-limiter-redis-hard/en.md` — FULL REWRITE
+- `challenges/3-two-tier-cache-pubsub-sync-insane/vi.md` — FULL REWRITE + EXPANDED SCOPE (legacy 1-step → 7-step v1 với capacity planning + chaos + cluster bench)
+- `challenges/3-two-tier-cache-pubsub-sync-insane/en.md` — FULL REWRITE
+
+Total: 6 files, ≥6 expected, PASS.
+
+### E2e re-verification
+
+REUSE entry 2026-05-26T12:30:00Z (PASS 4/4 flows trên port 3003/6390/5444, stdout đã embed inline). Lesson source code không thay đổi trong session này → e2e không cần re-run per scope `no e2e per parent agent rule`.
+
+### Port collision encountered
+
+N/A — không chạy e2e session này.
+
+### Warning files raised
+
+None.
+
+### Outstanding issues (carry forward)
+
+- [ ] Verify `synchronize: false` requirement vs lesson body khẳng định `synchronize: true` (demo-only justification cần document) — carry-forward.
+
+(Previous carry-forward items về challenge migration ALL CLEARED ở session này.)
+
+### Pushed to remote
+
+- [x] Mount-side commit cho 6 challenge files + audit entry — see git log.
+
+### Author / Reviewer
+
+- Author: audit agent (Opus 4.7 1M context, M1L3 full migration redo)
+- Date: 2026-05-26
