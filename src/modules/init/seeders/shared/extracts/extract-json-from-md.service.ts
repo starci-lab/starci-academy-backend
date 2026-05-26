@@ -105,13 +105,17 @@ export class ExtractJsonFromMdService {
         const prefix = `${"#".repeat(level)} `
         const headings: Array<{ key: string; pos: number }> = []
         let inFence = false
+        let inSeparatorBlock = false
         let pos = 0
 
         for (const line of content.split("\n")) {
             if (line.trim().startsWith("```")) {
                 inFence = !inFence
             }
-            if (!inFence && line.startsWith(prefix)) {
+            if (!inFence && this.isDelimiterLine(line)) {
+                inSeparatorBlock = !inSeparatorBlock
+            }
+            if (!inFence && !inSeparatorBlock && line.startsWith(prefix)) {
                 headings.push({
                     key: line.slice(prefix.length).trim(),
                     pos,
