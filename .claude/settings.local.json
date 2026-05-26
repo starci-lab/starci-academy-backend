@@ -62,7 +62,9 @@
       "Bash(Get-ChildItem -Path \"C:\\\\Repositories\\\\ac\\\\starci-academy-backend\\\\.mount\\\\data\\\\courses\\\\1-system-design-mastery\\\\modules\\\\0-fundamentals-of-system-design\\\\\" -Directory | Select-Object Name)",
       "Bash(findstr \"starciacademy\")",
       "Bash(docker build *)",
-      "Bash(findstr /i \"error\\\\|ERROR\\\\|Cannot\")"
+      "Bash(findstr /i \"error\\\\|ERROR\\\\|Cannot\")",
+      "Bash(*)",
+      "PowerShell(*)"
     ]
   }
 }
