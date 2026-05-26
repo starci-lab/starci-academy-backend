@@ -277,7 +277,7 @@ Tinh thần: existing challenges chỉ tham khảo. Brainstorm fresh từng tier
 - [ ] None
 
 ### Pushed to remote
-- [x] Content: commit `<hash>` pushed lên `starci-academy-backend/main` (sẽ append sau commit)
+- [x] Content: commit `acbab59` pushed lên `starci-academy-backend/main` (verified `git push origin main` -> `77975c9..acbab59 main -> main`)
 - [x] Lesson source code: reference wave-2 commit `e569c92` (không thay đổi audit này)
 
 ### Outstanding issues
