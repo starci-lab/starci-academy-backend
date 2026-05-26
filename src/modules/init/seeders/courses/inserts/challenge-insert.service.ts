@@ -198,7 +198,7 @@ export class ChallengeInsertService {
                     [
                         "translations",
                         "codeImplementations",
-                        "challenge",
+                        // KEEP "challenge" — needed để upsert set FK challenge_id; xóa nó → step.challenge_id = NULL.
                     ],
                 )
                 await this.upsertService.upsertUuid(
@@ -222,7 +222,7 @@ export class ChallengeInsertService {
                         implementation as DeepPartial<ChallengeStepCodeImplementationEntity>,
                         [
                             "translations",
-                            "challengeStep",
+                            // KEEP "challengeStep" — needed để upsert set FK challenge_step_id.
                         ],
                     )
                     await this.upsertService.upsertUuid(
