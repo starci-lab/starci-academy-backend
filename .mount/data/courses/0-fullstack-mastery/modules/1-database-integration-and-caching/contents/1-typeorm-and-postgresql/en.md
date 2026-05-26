@@ -390,22 +390,26 @@ async create(catData: Partial<Cat>): Promise<Cat> {
 constructor(
     @InjectRepository(Cat)
     private readonly catRepository: Repository<Cat>,
+    @InjectRepository(Toy)
+    private readonly toyRepository: Repository<Toy>,
 ) {}
 
-@Get(":id")
-async findOne(@Param("id", ParseIntPipe) id: number): Promise<Cat> {
+async findOne(id: number): Promise<Cat> {
     const cat = await this.catRepository.findOne({
         where: { id },
         relations: ["passport", "toys", "owners"],
     })
-    if (!cat) throw new NotFoundException(`Cat with ID ${id} not found`)
+    if (!cat) {
+        this.logger.error(`Cat with ID ${id} not found`)
+        throw new NotFoundException(`Cat with ID ${id} not found`)
+    }
     return cat
 }
 ```
 <!-- @starci/seperator -->
 ### explain
 <!-- @starci/seperator -->
-`@InjectRepository(Cat)` resolves the repository produced by **TypeOrmModule.forFeature** — no need to write a manual factory; the entity just needs to be registered in the feature module. `ParseIntPipe` converts the string URL param to a `number` and returns 400 if it isn't numeric, shielding the service from junk input. Throwing `NotFoundException` lets **NestJS** map the error to 404 — keep domain errors as HTTP exceptions instead of silently returning `null`.
+`@InjectRepository(Cat)` resolves the repository produced by **TypeOrmModule.forFeature** — no manual factory needed; the entity just needs to be registered in the feature module, and the same pattern injects `toyRepository` for the 1:N mutation flow. `findOne({ where, relations })` forces **TypeORM** to emit one `SELECT` with `LEFT JOIN`s to hydrate `passport`, `toys`, `owners` in a single round trip — avoiding the N+1 trap when callers reach into nested fields. When the row is missing the service throws `NotFoundException`, which **NestJS** maps to HTTP 404 — turning a domain error into a meaningful HTTP status rather than silently returning `null` for the controller to handle.
 <!-- @starci/seperator -->
 # codeImplementations
 

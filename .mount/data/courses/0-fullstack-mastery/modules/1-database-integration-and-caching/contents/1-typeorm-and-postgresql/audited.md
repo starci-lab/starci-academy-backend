@@ -289,3 +289,37 @@ Tinh thần: existing challenges chỉ tham khảo. Brainstorm fresh từng tier
 ### Author
 - Author: opus-followup-agent
 - Date: 2026-05-26T18:00:00Z
+
+---
+
+## Audit — 2026-05-26T20:00:00Z (codeExplaining sync verification)
+
+### Trigger
+Verify `# codeExplaining` snippets phải match `.repo/<repo>/<lesson>/backend/src/...` diff = 0, explanation describe đúng behavior. `# codeImplementations` skip (chung chung).
+
+### Scope
+- **Lesson:** `1-typeorm-and-postgresql` (variant: fullstack-backend)
+- **Files:** `vi.md` + `en.md` `# codeExplaining` block (3 snippets ## 0, ## 1, ## 2)
+- **Source:** `.repo/fullstack-mastery-module-1-database-integration-and-caching/1-typeorm-and-postgresql/backend/src/`
+
+### codeExplaining sync delta
+
+| # | Topic | Source file | Type | Action |
+| --- | --- | --- | --- | --- |
+| 0 | `Cat` entity với 1:1/1:N/N:N + cascade | `entities/postgresql/main/cat.entity.ts` | A (match) | No change — snippet là condensed view bỏ JSDoc, structure code identical |
+| 1 | `CatService.findAll` + `create` | `modules/cat/cat.service.ts` | A (match) | No change — snippet condensed, không có log calls extra, nhưng logic + signature identical |
+| 2 | Service constructor + `findOne` | `modules/cat/cat.service.ts` | **B (snippet stale)** | **FIXED** — snippet trước trộn lẫn `@Get(":id")` + `@Param("id", ParseIntPipe)` (controller-only decorators) vào method body của service. Rewrite để chỉ thể hiện service constructor (thêm `toyRepository` để khớp source) + service `findOne(id: number)` thuần. Explanation rewrite drop phần `ParseIntPipe` (không có trong snippet mới), thay bằng giải thích `findOne` với `LEFT JOIN` + tránh N+1. |
+
+### Files modified
+- `.mount/data/courses/0-fullstack-mastery/modules/1-database-integration-and-caching/contents/1-typeorm-and-postgresql/vi.md` (snippet 2 + explain)
+- `.mount/data/courses/0-fullstack-mastery/modules/1-database-integration-and-caching/contents/1-typeorm-and-postgresql/en.md` (snippet 2 + explain — mirror VI)
+
+### Pushed to remote
+- [x] Content commit pushed
+
+### Outstanding issues
+- [ ] None new (carry-forward issues từ wave-3 vẫn còn)
+
+### Author
+- Author: codeexplaining-sync-agent
+- Date: 2026-05-26T20:00:00Z

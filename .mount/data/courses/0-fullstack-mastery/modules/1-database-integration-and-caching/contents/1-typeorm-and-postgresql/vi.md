@@ -390,22 +390,26 @@ async create(catData: Partial<Cat>): Promise<Cat> {
 constructor(
     @InjectRepository(Cat)
     private readonly catRepository: Repository<Cat>,
+    @InjectRepository(Toy)
+    private readonly toyRepository: Repository<Toy>,
 ) {}
 
-@Get(":id")
-async findOne(@Param("id", ParseIntPipe) id: number): Promise<Cat> {
+async findOne(id: number): Promise<Cat> {
     const cat = await this.catRepository.findOne({
         where: { id },
         relations: ["passport", "toys", "owners"],
     })
-    if (!cat) throw new NotFoundException(`Cat with ID ${id} not found`)
+    if (!cat) {
+        this.logger.error(`Cat with ID ${id} not found`)
+        throw new NotFoundException(`Cat with ID ${id} not found`)
+    }
     return cat
 }
 ```
 <!-- @starci/seperator -->
 ### explain
 <!-- @starci/seperator -->
-`@InjectRepository(Cat)` lấy repository do **TypeOrmModule.forFeature** sinh ra — không cần khai báo thủ công factory, chỉ cần entity nằm trong `forFeature` của module. `ParseIntPipe` chuyển param string từ URL thành `number` và 400 nếu không phải số — bảo vệ tầng service khỏi input bẩn. Trả `NotFoundException` để **NestJS** map thành 404 — nguyên tắc thân thiện với REST: lỗi domain → HTTP exception, không trả `null` ngầm.
+`@InjectRepository(Cat)` lấy repository do **TypeOrmModule.forFeature** sinh ra — không cần khai báo thủ công factory, chỉ cần entity nằm trong `forFeature` của module; cùng pattern áp dụng cho `toyRepository` phục vụ luồng mutate 1:N. `findOne({ where, relations })` ép **TypeORM** sinh một câu `SELECT` kèm `LEFT JOIN` để hydrate `passport`, `toys`, `owners` trong cùng một round trip — tránh N+1 khi caller truy cập nested fields. Khi không tìm thấy bản ghi, service ném `NotFoundException` để **NestJS** map thành HTTP 404 — lỗi domain trở thành lỗi HTTP có ngữ nghĩa, không trả `null` ngầm cho controller xử lý.
 <!-- @starci/seperator -->
 # codeImplementations
 
