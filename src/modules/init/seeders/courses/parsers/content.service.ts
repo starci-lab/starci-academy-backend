@@ -9,10 +9,6 @@ import {
     Locale,
 } from "@modules/databases"
 import {
-    ExtractJsonFromMdService,
-    CoerceMdScalarService,
-} from "../../shared"
-import {
     CodeExplainingIdFactoryService,
     CodeImplementationIdFactoryService,
     ContentIdFactoryService,
@@ -29,11 +25,18 @@ import {
     ContentTranslationEntity,
 } from "@modules/databases"
 import {
-    ContextLoaderService 
+    ExtractJsonFromMdService,
+    CoerceMdScalarService,
+    ResolvedFileResult,
+    ContextLoaderService,
+    logInitSeederEntitySkipped,
 } from "../../shared"
 import {
     ContentPathNotFoundException,
 } from "@modules/exceptions"
+import {
+    WinstonService,
+} from "@modules/winston"
 import {
     ContentPathService,
 } from "../path"
@@ -41,9 +44,6 @@ import {
     getCodeExplainingsFromExtractJson,
     inferLangFromCodeFence,
 } from "./utils"
-import {
-    ResolvedFileResult,
-} from "../../shared"
 
 /**
  * Parses content from mounted course files (`en.md`, `vi.md`).
@@ -61,6 +61,7 @@ export class ContentParserService {
         private readonly codeImplementationIdFactoryService: CodeImplementationIdFactoryService,
         private readonly contextLoaderService: ContextLoaderService,
         private readonly contentPathService: ContentPathService,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -367,19 +368,28 @@ export class ContentParserService {
         )
         const data: Array<ResolvedFileResult<DeepPartial<ContentEntity>>> = []
         for (const path of paths) {
-            const content = await this.parse(
-                {
-                    paths,
-                    courseIndex,
-                    moduleIndex,
-                    contentIndex: path.orderIndex,
-                },
-            )
-            data.push({
-                data: content,
-                index: path.orderIndex,
-                relativePath: path.relativePath,
-            })
+            try {
+                const content = await this.parse(
+                    {
+                        paths,
+                        courseIndex,
+                        moduleIndex,
+                        contentIndex: path.orderIndex,
+                    },
+                )
+                data.push({
+                    data: content,
+                    index: path.orderIndex,
+                    relativePath: path.relativePath,
+                })
+            } catch (error) {
+                logInitSeederEntitySkipped(
+                    this.winstonService,
+                    ContentEntity,
+                    path.relativePath,
+                    error,
+                )
+            }
         }
         return data
     }

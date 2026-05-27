@@ -19,7 +19,11 @@ import {
     CoerceMdScalarService,
     ExtractJsonFromMdService,
     ResolvedFileResult,
+    logInitSeederEntitySkipped,
 } from "../../shared"
+import {
+    WinstonService,
+} from "@modules/winston"
 import {
     FoundationCategoryIdFactoryService,
     FoundationIdFactoryService,
@@ -48,6 +52,7 @@ export class FoundationParserService {
         private readonly foundationIdFactoryService: FoundationIdFactoryService,
         private readonly foundationCategoryIdFactoryService: FoundationCategoryIdFactoryService,
         private readonly foundationTagParserService: FoundationTagParserService,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -177,16 +182,25 @@ export class FoundationParserService {
         })
         const data: Array<ResolvedFileResult<DeepPartial<FoundationEntity>>> = []
         for (const path of paths) {
-            const foundation = await this.parse({
-                paths,
-                foundationIndex: path.orderIndex,
-                categoryIndex,
-            })
-            data.push({
-                data: foundation,
-                index: path.orderIndex,
-                relativePath: path.relativePath,
-            })
+            try {
+                const foundation = await this.parse({
+                    paths,
+                    foundationIndex: path.orderIndex,
+                    categoryIndex,
+                })
+                data.push({
+                    data: foundation,
+                    index: path.orderIndex,
+                    relativePath: path.relativePath,
+                })
+            } catch (error) {
+                logInitSeederEntitySkipped(
+                    this.winstonService,
+                    FoundationEntity,
+                    path.relativePath,
+                    error,
+                )
+            }
         }
         return data
     }

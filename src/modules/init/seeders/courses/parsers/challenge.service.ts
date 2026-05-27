@@ -49,10 +49,14 @@ import {
 import {
     ResolvedFileResult,
     ContextLoaderService,
+    logInitSeederEntitySkipped,
 } from "../../shared"
 import {
     ChallengePathNotFoundException,
 } from "@modules/exceptions"
+import {
+    WinstonService,
+} from "@modules/winston"
 
 /**
  * Parses challenge from mounted course files (`en.md` / `vi.md`).
@@ -75,6 +79,7 @@ export class ChallengeParserService {
         private readonly challengeOutputIdFactoryService: ChallengeOutputIdFactoryService,
         private readonly challengePrerequisiteIdFactoryService: ChallengePrerequisiteIdFactoryService,
         private readonly contentIdFactoryService: ContentIdFactoryService,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -368,6 +373,10 @@ export class ChallengeParserService {
                         stepIndex: orderIndex,
                     },
                 )
+                const stepTitle = this.coerceMdScalarService.toRequiredString(
+                    title,
+                    "",
+                )
                 const bodyMarkdown = this.coerceMdScalarService.toRequiredString(body,
                     "")
                 const codeImplementationsParsed = (
@@ -462,7 +471,7 @@ export class ChallengeParserService {
                 return {
                     id: stepId,
                     orderIndex,
-                    title,
+                    title: stepTitle,
                     defaultLocale: Locale.En,
                     challenge: {
                         id: challengeId,
@@ -624,20 +633,29 @@ export class ChallengeParserService {
         )
         const data: Array<ResolvedFileResult<DeepPartial<ChallengeEntity>>> = []
         for (const path of paths) {
-            const challenge = await this.parse(
-                {
-                    paths,
-                    courseIndex,
-                    moduleIndex,
-                    contentIndex,
-                    challengeIndex: path.orderIndex,
-                },
-            )
-            data.push({
-                data: challenge,
-                index: path.orderIndex,
-                relativePath: path.relativePath,
-            })
+            try {
+                const challenge = await this.parse(
+                    {
+                        paths,
+                        courseIndex,
+                        moduleIndex,
+                        contentIndex,
+                        challengeIndex: path.orderIndex,
+                    },
+                )
+                data.push({
+                    data: challenge,
+                    index: path.orderIndex,
+                    relativePath: path.relativePath,
+                })
+            } catch (error) {
+                logInitSeederEntitySkipped(
+                    this.winstonService,
+                    ChallengeEntity,
+                    path.relativePath,
+                    error,
+                )
+            }
         }
         return data
     }

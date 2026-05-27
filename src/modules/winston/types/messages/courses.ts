@@ -8,6 +8,18 @@ export interface CoursesSeededSuccessfullyMessage {
     count: number
 }
 
+/** Message for when a single mount entity is skipped during init seed. */
+export interface InitSeederEntitySkippedMessage {
+    /** Entity kind (e.g. challenge, content). */
+    entityType: string
+    /** Mount path relative to the courses root. */
+    relativePath: string
+    /** Exception code when available. */
+    errorCode?: string
+    /** Human-readable skip reason. */
+    errorMessage: string
+}
+
 /** Message for when a context file is loaded successfully (s3/filesystem). */
 export interface ContextFileLoadedSuccessfullyMessage {
     /** The index of the context. */

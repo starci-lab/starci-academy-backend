@@ -62,35 +62,4 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 .vscode
 
 .repo/*
-# System Design Mastery labs 1–11 (tracked in git)
-!.repo/system-design-mastery-module-1-fundamentals-of-system-design/
-!.repo/system-design-mastery-module-1-fundamentals-of-system-design/**
-!.repo/system-design-mastery-module-2-microservices-kubernetes-fundamentals/
-!.repo/system-design-mastery-module-2-microservices-kubernetes-fundamentals/**
-!.repo/system-design-mastery-module-3-communication-patterns/
-!.repo/system-design-mastery-module-3-communication-patterns/**
-!.repo/system-design-mastery-module-4-data-and-consistency-in-microservices/
-!.repo/system-design-mastery-module-4-data-and-consistency-in-microservices/**
-!.repo/system-design-mastery-module-5-scalability-and-performance/
-!.repo/system-design-mastery-module-5-scalability-and-performance/**
-!.repo/system-design-mastery-module-6-reliability-and-resilience-patterns/
-!.repo/system-design-mastery-module-6-reliability-and-resilience-patterns/**
-!.repo/system-design-mastery-module-7-monitoring-and-observability/
-!.repo/system-design-mastery-module-7-monitoring-and-observability/**
-!.repo/system-design-mastery-module-8-security-and-identity-management/
-!.repo/system-design-mastery-module-8-security-and-identity-management/**
-!.repo/system-design-mastery-module-9-high-throughput-notification-system/
-!.repo/system-design-mastery-module-9-high-throughput-notification-system/**
-!.repo/system-design-mastery-module-10-kafka-streaming-and-reliability/
-!.repo/system-design-mastery-module-10-kafka-streaming-and-reliability/**
-!.repo/system-design-mastery-module-11-news-feed-fanout-and-caching/
-!.repo/system-design-mastery-module-11-news-feed-fanout-and-caching/**
-!.repo/system-design-mastery-module-12-large-scale-video-streaming-platform/
-!.repo/system-design-mastery-module-12-large-scale-video-streaming-platform/**
-!.repo/system-design-mastery-module-13-flash-sale-at-scale/
-!.repo/system-design-mastery-module-13-flash-sale-at-scale/**
-!.repo/system-design-mastery-module-2-database-fundamentals/
-!.repo/system-design-mastery-module-2-database-fundamentals/**
-# Lab build artifacts (never commit under .repo modules)
-.repo/**/node_modules/
-.repo/**/dist/
+.repo

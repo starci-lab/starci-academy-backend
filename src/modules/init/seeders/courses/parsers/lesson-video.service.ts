@@ -13,6 +13,7 @@ import {
 import {
     ExtractJsonFromMdService,
     CoerceMdScalarService,
+    logInitSeederEntitySkipped,
 } from "../../shared"
 import {
     LessonVideoIdFactoryService,
@@ -35,6 +36,9 @@ import {
 import {
     LessonVideoPathNotFoundException,
 } from "@modules/exceptions"
+import {
+    WinstonService,
+} from "@modules/winston"
 
 /**
  * Parses lesson video from `en.md` / `vi.md` with camelCase `#` headings (or optional `data.json`).
@@ -48,6 +52,7 @@ export class LessonVideoParserService {
         private readonly lessonVideoIdFactoryService: LessonVideoIdFactoryService,
         private readonly contentIdFactoryService: ContentIdFactoryService,
         private readonly contextLoaderService: ContextLoaderService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     /**
@@ -182,20 +187,29 @@ export class LessonVideoParserService {
         )
         const data: Array<ResolvedFileResult<DeepPartial<LessonVideoEntity>>> = []
         for (const path of paths) {
-            const lessonVideo = await this.parse(
-                {
-                    paths,
-                    courseIndex,
-                    moduleIndex,
-                    contentIndex,
-                    lessonVideoIndex: path.orderIndex,
-                },
-            )
-            data.push({
-                data: lessonVideo,
-                index: path.orderIndex,
-                relativePath: path.relativePath,
-            })
+            try {
+                const lessonVideo = await this.parse(
+                    {
+                        paths,
+                        courseIndex,
+                        moduleIndex,
+                        contentIndex,
+                        lessonVideoIndex: path.orderIndex,
+                    },
+                )
+                data.push({
+                    data: lessonVideo,
+                    index: path.orderIndex,
+                    relativePath: path.relativePath,
+                })
+            } catch (error) {
+                logInitSeederEntitySkipped(
+                    this.winstonService,
+                    LessonVideoEntity,
+                    path.relativePath,
+                    error,
+                )
+            }
         }
         return data
     }

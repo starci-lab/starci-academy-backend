@@ -18,10 +18,14 @@ import {
 } from "@modules/databases"
 import {
     ContextLoaderService,
+    logInitSeederEntitySkipped,
 } from "../../shared"
 import type {
     ResolvedFileResult,
 } from "../../shared"
+import {
+    WinstonService,
+} from "@modules/winston"
 import {
     TemplateCvIdFactoryService,
 } from "../id-factories"
@@ -41,6 +45,7 @@ export class TemplateCvParserService {
         private readonly templateCvPathService: TemplateCvPathService,
         private readonly contextLoaderService: ContextLoaderService,
         private readonly templateCvIdFactoryService: TemplateCvIdFactoryService,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -150,24 +155,36 @@ export class TemplateCvParserService {
         const data: Array<ResolvedFileResult<DeepPartial<TemplateCVEntity>>> = []
 
         for (const path of paths) {
-            const template = await this.parse(
-                {
-                    paths,
-                    templateIndex: path.orderIndex,
-                },
-            )
-            if (!template) {
-                continue
-            }
+            try {
+                const template = await this.parse(
+                    {
+                        paths,
+                        templateIndex: path.orderIndex,
+                    },
+                )
+                if (!template) {
+                    continue
+                }
 
-            data.push({
-                data: template,
-                index: path.orderIndex,
-                relativePath: posix.join(
-                    "cv",
-                    path.relativePath,
-                ),
-            })
+                data.push({
+                    data: template,
+                    index: path.orderIndex,
+                    relativePath: posix.join(
+                        "cv",
+                        path.relativePath,
+                    ),
+                })
+            } catch (error) {
+                logInitSeederEntitySkipped(
+                    this.winstonService,
+                    TemplateCVEntity,
+                    posix.join(
+                        "cv",
+                        path.relativePath,
+                    ),
+                    error,
+                )
+            }
         }
 
         return data

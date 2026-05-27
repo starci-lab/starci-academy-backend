@@ -12,6 +12,7 @@ import {
 } from "@modules/databases"
 import {
     ExtractJsonFromMdService,
+    logInitSeederEntitySkipped,
 } from "../../shared"
 import {
     CourseIdFactoryService,
@@ -30,6 +31,9 @@ import {
 import {
     MilestonePathService,
 } from "../path"
+import {
+    WinstonService,
+} from "@modules/winston"
 /**
  * Parses milestone data from mounted course files (`en.md`, `vi.md`).
  */
@@ -41,6 +45,7 @@ export class MilestoneParserService {
         private readonly milestoneIdFactoryService: MilestoneIdFactoryService,
         private readonly contextLoaderService: ContextLoaderService,
         private readonly milestonePathService: MilestonePathService,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -141,18 +146,27 @@ export class MilestoneParserService {
         )
         const data: Array<ResolvedFileResult<DeepPartial<MilestoneEntity>>> = []
         for (const path of paths) {
-            const milestone = await this.parse(
-                {
-                    paths,
-                    courseIndex,
-                    milestoneIndex: path.orderIndex,
-                },
-            )
-            data.push({
-                data: milestone,
-                index: path.orderIndex,
-                relativePath: path.relativePath,
-            })
+            try {
+                const milestone = await this.parse(
+                    {
+                        paths,
+                        courseIndex,
+                        milestoneIndex: path.orderIndex,
+                    },
+                )
+                data.push({
+                    data: milestone,
+                    index: path.orderIndex,
+                    relativePath: path.relativePath,
+                })
+            } catch (error) {
+                logInitSeederEntitySkipped(
+                    this.winstonService,
+                    MilestoneEntity,
+                    path.relativePath,
+                    error,
+                )
+            }
         }
         return data
     }

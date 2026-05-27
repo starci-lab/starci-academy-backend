@@ -17,7 +17,11 @@ import {
     CoerceMdScalarService,
     ExtractJsonFromMdService,
     ResolvedFileResult,
+    logInitSeederEntitySkipped,
 } from "../../shared"
+import {
+    WinstonService,
+} from "@modules/winston"
 import {
     FoundationCategoryIdFactoryService,
 } from "../id-factories"
@@ -39,6 +43,7 @@ export class FoundationCategoryParserService {
         private readonly foundationCategoryPathService: FoundationCategoryPathService,
         private readonly contextLoaderService: ContextLoaderService,
         private readonly foundationCategoryIdFactoryService: FoundationCategoryIdFactoryService,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -115,15 +120,24 @@ export class FoundationCategoryParserService {
         const paths = await this.foundationCategoryPathService.paths()
         const data: Array<ResolvedFileResult<DeepPartial<FoundationCategoryEntity>>> = []
         for (const path of paths) {
-            const category = await this.parse({
-                paths,
-                categoryIndex: path.orderIndex,
-            })
-            data.push({
-                data: category,
-                index: path.orderIndex,
-                relativePath: path.relativePath,
-            })
+            try {
+                const category = await this.parse({
+                    paths,
+                    categoryIndex: path.orderIndex,
+                })
+                data.push({
+                    data: category,
+                    index: path.orderIndex,
+                    relativePath: path.relativePath,
+                })
+            } catch (error) {
+                logInitSeederEntitySkipped(
+                    this.winstonService,
+                    FoundationCategoryEntity,
+                    path.relativePath,
+                    error,
+                )
+            }
         }
         return data
     }

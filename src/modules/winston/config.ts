@@ -5,6 +5,7 @@ import {
 import {
     WinstonLevel,
     CoursesSeededSuccessfullyMessage,
+    InitSeederEntitySkippedMessage,
     ContextFileLoadedSuccessfullyMessage,
     DbSynchronizerSyncedSuccessfullyMessage,
     EnrollmentAlreadyExistsMessage,
@@ -72,6 +73,14 @@ export const configMap = {
         console: true,
         messageType: {
         } as CoursesSeededSuccessfullyMessage,
+    },
+    [WinstonLog.InitSeederEntitySkipped]: {
+        name: WinstonLog.InitSeederEntitySkipped,
+        level: WinstonLevel.Warn,
+        loki: true,
+        console: true,
+        messageType: {
+        } as InitSeederEntitySkippedMessage,
     },
     [WinstonLog.DbSynchronizerSyncedSuccessfully]: {
         name: WinstonLog.DbSynchronizerSyncedSuccessfully,

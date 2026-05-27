@@ -45,7 +45,9 @@ export class ChallengeStepEntity extends UuidAbstractEntity {
     )
     @Column({
         name: "title",
-        type: "text",
+        type: "varchar",
+        length: 500,
+        nullable: true,
     })
         title: string
 

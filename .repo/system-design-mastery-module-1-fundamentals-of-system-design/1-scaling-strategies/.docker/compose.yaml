@@ -49,8 +49,6 @@ services:
         limits:
           cpus: '0.5' # Giới hạn 0.5 CPU (Vertical Scaling demo)
           memory: 256M # Giới hạn 256MB RAM
-
-    container_name: 1-scaling-strategies-scaling-service
 networks:
   1-scaling-strategies-network:
     name: 1-scaling-strategies-network

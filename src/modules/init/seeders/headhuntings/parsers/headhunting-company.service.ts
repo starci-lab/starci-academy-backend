@@ -17,7 +17,11 @@ import {
     CoerceMdScalarService,
     ExtractJsonFromMdService,
     ResolvedFileResult,
+    logInitSeederEntitySkipped,
 } from "../../shared"
+import {
+    WinstonService,
+} from "@modules/winston"
 import {
     HeadhuntingCompanyIdFactoryService,
 } from "../id-factories"
@@ -34,6 +38,7 @@ export class HeadhuntingCompanyParserService {
         private readonly headhuntingCompanyPathService: HeadhuntingCompanyPathService,
         private readonly contextLoaderService: ContextLoaderService,
         private readonly headhuntingCompanyIdFactoryService: HeadhuntingCompanyIdFactoryService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     async parse(
@@ -127,15 +132,24 @@ export class HeadhuntingCompanyParserService {
         const paths = await this.headhuntingCompanyPathService.paths()
         const data: Array<ResolvedFileResult<DeepPartial<HeadhuntingCompanyEntity>>> = []
         for (const path of paths) {
-            const company = await this.parse(
-                path.orderIndex,
-                paths,
-            )
-            data.push({
-                data: company,
-                index: path.orderIndex,
-                relativePath: path.relativePath,
-            })
+            try {
+                const company = await this.parse(
+                    path.orderIndex,
+                    paths,
+                )
+                data.push({
+                    data: company,
+                    index: path.orderIndex,
+                    relativePath: path.relativePath,
+                })
+            } catch (error) {
+                logInitSeederEntitySkipped(
+                    this.winstonService,
+                    HeadhuntingCompanyEntity,
+                    path.relativePath,
+                    error,
+                )
+            }
         }
         return data
     }

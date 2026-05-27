@@ -1,4 +1,5 @@
 import {
+    ConflictException,
     Controller,
     Logger,
 } from "@nestjs/common"
@@ -6,6 +7,9 @@ import {
     EventPattern,
     Payload,
 } from "@nestjs/microservices"
+import {
+    QueryFailedError,
+} from "typeorm"
 import {
     ReliabilityService,
 } from "./reliability.service"
@@ -36,9 +40,31 @@ export class ReliabilityController {
         try {
             await this.reliability.processEvent(data)
         } catch (error) {
+            // Duplicate (Redis SETNX miss OR Postgres unique-constraint 23505) → idempotent skip.
+            // Commit offset by returning normally; throwing would cause KafkaJS infinite retry
+            // and head-of-line-block subsequent messages.
+            if (this.isDuplicateError(error)) {
+                const id = data?.clientMessageId ?? "<unknown>"
+                this.logger.log(`Duplicate skipped clientMessageId=${id}`)
+                return
+            }
             const message = error instanceof Error ? error.message : "Unknown error"
             this.logger.error(`Failed: ${message} — will retry / DLQ via Kafka`)
             throw error
         }
+    }
+
+    /**
+     * Detect duplicate: NestJS ConflictException (Redis SETNX miss) OR
+     * Postgres unique_violation (SQLSTATE 23505) raised by TypeORM.
+     */
+    private isDuplicateError(error: unknown): boolean {
+        if (error instanceof ConflictException) return true
+        if (error instanceof QueryFailedError) {
+            const driverErr = (error as QueryFailedError & { code?: string }).code
+                ?? (error as unknown as { driverError?: { code?: string } }).driverError?.code
+            if (driverErr === "23505") return true
+        }
+        return false
     }
 }

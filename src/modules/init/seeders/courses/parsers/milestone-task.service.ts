@@ -16,6 +16,7 @@ import {
 import {
     ExtractJsonFromMdService,
     CoerceMdScalarService,
+    logInitSeederEntitySkipped,
 } from "../../shared"
 import {
     MilestoneTaskIdFactoryService,
@@ -35,7 +36,11 @@ import {
 } from "../../shared"
 import {
     ResolvedFileResult,
+    logInitSeederEntitySkipped,
 } from "../../shared"
+import {
+    WinstonService,
+} from "@modules/winston"
 
 const TASK_TYPE_MAP: Record<string, PersonalProjectTaskType> = {
     design: PersonalProjectTaskType.Design,
@@ -56,6 +61,7 @@ export class MilestoneTaskParserService {
         private readonly criteriaIdFactoryService: MilestoneTaskPassCriteriaIdFactoryService,
         private readonly contextLoaderService: ContextLoaderService,
         private readonly milestoneTaskPathService: MilestoneTaskPathService,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -240,19 +246,28 @@ export class MilestoneTaskParserService {
         )
         const data: Array<ResolvedFileResult<DeepPartial<MilestoneTaskEntity>>> = []
         for (const path of paths) {
-            const task = await this.parse(
-                {
-                    paths,
-                    courseIndex,
-                    milestoneIndex,
-                    taskIndex: path.orderIndex,
-                },
-            )
-            data.push({
-                data: task,
-                index: path.orderIndex,
-                relativePath: path.relativePath,
-            })
+            try {
+                const task = await this.parse(
+                    {
+                        paths,
+                        courseIndex,
+                        milestoneIndex,
+                        taskIndex: path.orderIndex,
+                    },
+                )
+                data.push({
+                    data: task,
+                    index: path.orderIndex,
+                    relativePath: path.relativePath,
+                })
+            } catch (error) {
+                logInitSeederEntitySkipped(
+                    this.winstonService,
+                    MilestoneTaskEntity,
+                    path.relativePath,
+                    error,
+                )
+            }
         }
         return data
     }

@@ -40,11 +40,15 @@ import {
 } from "../shared/scope"
 import {
     ResolvedFileResult,
+    logInitSeederEntitySkipped,
 } from "../shared"
 import {
     shouldIncludeCourseModule,
     shouldIncludeCourseMilestone,
 } from "../../utils"
+import {
+    WinstonService,
+} from "@modules/winston"
 
 /**
  * Wraps the full course + milestone init seed pipeline (parse → upsert per table).
@@ -69,6 +73,7 @@ export class CourseSeederService {
         private readonly milestoneTaskInsertService: MilestoneTaskInsertService,
         private readonly modulePathService: ModulePathService,
         private readonly milestonePathService: MilestonePathService,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -107,16 +112,25 @@ export class CourseSeederService {
                 ) {
                     continue
                 }
-                const module = await this.moduleParserService.parse({
-                    paths: modulePaths,
-                    moduleIndex: path.orderIndex,
-                    courseIndex: courseResult.index,
-                })
-                moduleResults.push({
-                    data: module,
-                    index: path.orderIndex,
-                    relativePath: path.relativePath,
-                })
+                try {
+                    const module = await this.moduleParserService.parse({
+                        paths: modulePaths,
+                        moduleIndex: path.orderIndex,
+                        courseIndex: courseResult.index,
+                    })
+                    moduleResults.push({
+                        data: module,
+                        index: path.orderIndex,
+                        relativePath: path.relativePath,
+                    })
+                } catch (error) {
+                    logInitSeederEntitySkipped(
+                        this.winstonService,
+                        ModuleEntity,
+                        path.relativePath,
+                        error,
+                    )
+                }
             }
             for (const moduleResult of moduleResults) {
                 modules.push(moduleResult.data)
@@ -267,16 +281,25 @@ export class CourseSeederService {
                 ) {
                     continue
                 }
-                const milestone = await this.milestoneParserService.parse({
-                    paths: milestonePaths,
-                    courseIndex: courseResult?.index ?? 0,
-                    milestoneIndex: path.orderIndex,
-                })
-                milestoneResults.push({
-                    data: milestone,
-                    index: path.orderIndex,
-                    relativePath: path.relativePath,
-                })
+                try {
+                    const milestone = await this.milestoneParserService.parse({
+                        paths: milestonePaths,
+                        courseIndex: courseResult?.index ?? 0,
+                        milestoneIndex: path.orderIndex,
+                    })
+                    milestoneResults.push({
+                        data: milestone,
+                        index: path.orderIndex,
+                        relativePath: path.relativePath,
+                    })
+                } catch (error) {
+                    logInitSeederEntitySkipped(
+                        this.winstonService,
+                        MilestoneEntity,
+                        path.relativePath,
+                        error,
+                    )
+                }
             }
             for (const milestoneResult of milestoneResults) {
                 const milestone = milestoneResult.data

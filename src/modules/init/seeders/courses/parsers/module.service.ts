@@ -6,6 +6,7 @@ import {
 } from "@modules/databases"
 import {
     ExtractJsonFromMdService,
+    logInitSeederEntitySkipped,
 } from "../../shared"
 import {
     CourseIdFactoryService,
@@ -34,6 +35,9 @@ import {
 import {
     ModulePathService,
 } from "../path"
+import {
+    WinstonService,
+} from "@modules/winston"
 /**
  * Parses module readme from `en.md` / `vi.md` with camelCase `#` headings and indexed lists.
  */
@@ -46,6 +50,7 @@ export class ModuleParserService {
         private readonly contextLoaderService: ContextLoaderService,
         private readonly courseIdFactoryService: CourseIdFactoryService,
         private readonly modulePathService: ModulePathService,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -188,18 +193,27 @@ export class ModuleParserService {
         )
         const data: Array<ResolvedFileResult<DeepPartial<ModuleEntity>>> = []
         for (const path of paths) {
-            const module = await this.parse(
-                {
-                    paths,
-                    moduleIndex: path.orderIndex,
-                    courseIndex,
-                },
-            )
-            data.push({
-                data: module,
-                index: path.orderIndex,
-                relativePath: path.relativePath,
-            })
+            try {
+                const module = await this.parse(
+                    {
+                        paths,
+                        moduleIndex: path.orderIndex,
+                        courseIndex,
+                    },
+                )
+                data.push({
+                    data: module,
+                    index: path.orderIndex,
+                    relativePath: path.relativePath,
+                })
+            } catch (error) {
+                logInitSeederEntitySkipped(
+                    this.winstonService,
+                    ModuleEntity,
+                    path.relativePath,
+                    error,
+                )
+            }
         }
         return data
     }

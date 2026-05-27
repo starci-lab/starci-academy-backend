@@ -30,7 +30,6 @@ services:
       - "8080-8085:3000"
     networks:
       - 0-monolith-vs-microservices-network
-    container_name: 0-monolith-vs-microservices-monolith-service
   gateway:
     profiles: ["microservices"]
     image: nginx:alpine
@@ -49,7 +48,6 @@ services:
     image: starciacademy/monolith-vs-microservices-search-service:latest
     networks:
       - 0-monolith-vs-microservices-network
-    container_name: 0-monolith-vs-microservices-search-service
   payment-service:
     profiles: ["microservices"]
     image: starciacademy/monolith-vs-microservices-payment-service:latest

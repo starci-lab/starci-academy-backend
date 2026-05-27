@@ -1,6 +1,8 @@
 /** Log event names; each maps to a config entry in configMap (level, loki, messageType). */
 export enum WinstonLog {
     CoursesSeededSuccessfully = "CoursesSeededSuccessfully",
+    /** Init seeder: single mount entity skipped (parse/load error). */
+    InitSeederEntitySkipped = "InitSeederEntitySkipped",
     /** DB seeder: entity row added, updated, or deleted. */
     DbSynchronizerSyncedSuccessfully = "DbSynchronizerSyncedSuccessfully",
     ContextFileLoadedSuccessfully = "ContextFileLoadedSuccessfully",

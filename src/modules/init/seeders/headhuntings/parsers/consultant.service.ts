@@ -17,7 +17,11 @@ import {
     CoerceMdScalarService,
     ExtractJsonFromMdService,
     ResolvedFileResult,
+    logInitSeederEntitySkipped,
 } from "../../shared"
+import {
+    WinstonService,
+} from "@modules/winston"
 import {
     HeadhuntingCompanyIdFactoryService,
     ConsultantIdFactoryService,
@@ -43,6 +47,7 @@ export class ConsultantParserService {
         private readonly contextLoaderService: ContextLoaderService,
         private readonly consultantIdFactoryService: ConsultantIdFactoryService,
         private readonly headhuntingCompanyIdFactoryService: HeadhuntingCompanyIdFactoryService,
+        private readonly winstonService: WinstonService,
     ) {}
 
     async parse(
@@ -156,16 +161,25 @@ export class ConsultantParserService {
         })
         const data: Array<ResolvedFileResult<DeepPartial<ConsultantEntity>>> = []
         for (const path of paths) {
-            const consultant = await this.parse({
-                paths,
-                consultantIndex: path.orderIndex,
-                companyIndex,
-            })
-            data.push({
-                data: consultant,
-                index: path.orderIndex,
-                relativePath: path.relativePath,
-            })
+            try {
+                const consultant = await this.parse({
+                    paths,
+                    consultantIndex: path.orderIndex,
+                    companyIndex,
+                })
+                data.push({
+                    data: consultant,
+                    index: path.orderIndex,
+                    relativePath: path.relativePath,
+                })
+            } catch (error) {
+                logInitSeederEntitySkipped(
+                    this.winstonService,
+                    ConsultantEntity,
+                    path.relativePath,
+                    error,
+                )
+            }
         }
         return data
     }
