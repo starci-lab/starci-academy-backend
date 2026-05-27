@@ -7,10 +7,10 @@ import {
 } from "@nestjs/common"
 import {
     CheckoutController,
-} from "."
+} from "./checkout.controller"
 import {
     CheckoutService,
-} from "."
+} from "./checkout.service"
 
 @Module({
     controllers: [CheckoutController],

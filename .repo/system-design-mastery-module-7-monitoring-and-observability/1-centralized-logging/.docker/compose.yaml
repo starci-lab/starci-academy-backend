@@ -27,7 +27,7 @@ services:
   # Loki — backend log tập trung, nhận log từ Winston qua HTTP push API (:3100).
   # (EN: Loki — centralized log backend, receives logs from Winston via HTTP push API (:3100).)
   loki:
-    image: grafana/loki:2.9.8
+    image: grafana/loki:3.3.2
     command: -config.file=/etc/loki/local-config.yaml
     ports:
       # Ánh xạ cổng host 3100 → container 3100 (Loki HTTP API).
