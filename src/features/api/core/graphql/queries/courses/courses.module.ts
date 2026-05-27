@@ -1,11 +1,11 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
     ConfigurableModuleClass,
 } from "./courses.module-definition"
 import {
-    CourseEnrollmentStatusQueryModule,
+    CourseEnrollmentStatusSingleQueryModule,
 } from "./course-enrollment-status"
 import {
     CourseSingleQueryModule,
@@ -25,7 +25,7 @@ import {
         CourseSingleQueryModule.register({
             isGlobal: true,
         }),
-        CourseEnrollmentStatusQueryModule.register({
+        CourseEnrollmentStatusSingleQueryModule.register({
             isGlobal: true,
         }),
         LivestreamSessionsSingleQueryModule.register({

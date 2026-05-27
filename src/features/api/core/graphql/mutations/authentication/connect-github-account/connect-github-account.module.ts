@@ -1,3 +1,6 @@
+﻿import {
+    ConfigurableModuleClass,
+} from "./connect-github-account.module-definition"
 import {
     Module,
 } from "@nestjs/common"
@@ -18,4 +21,4 @@ import {
         ConnectGithubAccountHandler,
     ],
 })
-export class ConnectGithubAccountMutationModule {}
+export class ConnectGithubAccountSingleMutationModule extends ConfigurableModuleClass {}

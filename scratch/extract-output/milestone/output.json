@@ -1,4 +1,0 @@
-{
-  "title": "Project Initialization & Configuration",
-  "description": "Set up the NestJS project foundation, configure environment variables, logging, and integrate PostgreSQL with TypeORM."
-}

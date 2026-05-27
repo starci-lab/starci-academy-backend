@@ -1,3 +1,6 @@
+﻿import {
+    ConfigurableModuleClass,
+} from "./course-enroll.module-definition"
 import {
     Module,
 } from "@nestjs/common"
@@ -30,4 +33,4 @@ import {
         CourseEnrollHandler,
     ],
 })
-export class CourseEnrollMutationModule {}
+export class CourseEnrollSingleMutationModule extends ConfigurableModuleClass {}

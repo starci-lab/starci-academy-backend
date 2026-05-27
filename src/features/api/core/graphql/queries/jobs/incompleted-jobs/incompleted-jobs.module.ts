@@ -1,4 +1,4 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
@@ -21,5 +21,5 @@ import {
         IncompletedJobsHandler,
     ],
 })
-export class IncompletedJobsQueryModule
+export class IncompletedJobsSingleQueryModule
     extends ConfigurableModuleClass {}

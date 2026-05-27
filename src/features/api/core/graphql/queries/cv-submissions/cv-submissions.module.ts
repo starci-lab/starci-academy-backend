@@ -1,17 +1,17 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
     ConfigurableModuleClass 
 } from "./cv-submissions.module-definition"
 import {
-    UserCvSubmissionAttemptsModule,
+    UserCvSubmissionAttemptsSingleQueryModule,
 } from "./user-cv-submission-attempts"
 import {
-    TemplateCvsQueryModule,
+    TemplateCvsSingleQueryModule,
 } from "./template-cvs"
 import {
-    CvUrlQueryModule,
+    CvUrlSingleQueryModule,
 } from "./cv-url"
 
 /**
@@ -19,13 +19,13 @@ import {
  */
 @Module({
     imports: [
-        UserCvSubmissionAttemptsModule.register({
+        UserCvSubmissionAttemptsSingleQueryModule.register({
             isGlobal: true,
         }),
-        TemplateCvsQueryModule.register({
+        TemplateCvsSingleQueryModule.register({
             isGlobal: true,
         }),
-        CvUrlQueryModule.register({
+        CvUrlSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

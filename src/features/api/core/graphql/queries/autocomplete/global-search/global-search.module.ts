@@ -1,4 +1,4 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
@@ -29,5 +29,5 @@ import {
         ContentGlobalSearchService,
     ],
 })
-export class AutocompleteGlobalSearchQueryModule extends ConfigurableModuleClass {}
+export class AutocompleteGlobalSearchSingleQueryModule extends ConfigurableModuleClass {}
 

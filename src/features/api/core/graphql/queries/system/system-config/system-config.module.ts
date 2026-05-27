@@ -1,4 +1,4 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
@@ -21,5 +21,5 @@ import {
         SystemConfigHandler,
     ],
 })
-export class SystemConfigQueryModule
+export class SystemConfigSingleQueryModule
     extends ConfigurableModuleClass {}

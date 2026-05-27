@@ -1,3 +1,6 @@
+﻿import {
+    ConfigurableModuleClass,
+} from "./user-milestone-task-feedbacks.module-definition"
 import {
     Module,
 } from "@nestjs/common"
@@ -18,4 +21,4 @@ import {
         UserMilestoneTaskFeedbacksHandler,
     ],
 })
-export class UserMilestoneTaskFeedbacksModule {}
+export class UserMilestoneTaskFeedbacksSingleQueryModule extends ConfigurableModuleClass {}

@@ -20,6 +20,7 @@ import {
     LessonVideoInsertService,
     MilestoneInsertService,
     MilestoneTaskInsertService,
+    MindMapInsertService,
     ModuleInsertService,
 } from "./inserts"
 import {
@@ -29,6 +30,7 @@ import {
     LessonVideoParserService,
     MilestoneParserService,
     MilestoneTaskParserService,
+    MindMapParserService,
     ModuleParserService,
 } from "./parsers"
 import {
@@ -71,6 +73,8 @@ export class CourseSeederService {
         private readonly milestoneTaskParserService: MilestoneTaskParserService,
         private readonly milestoneInsertService: MilestoneInsertService,
         private readonly milestoneTaskInsertService: MilestoneTaskInsertService,
+        private readonly mindMapParserService: MindMapParserService,
+        private readonly mindMapInsertService: MindMapInsertService,
         private readonly modulePathService: ModulePathService,
         private readonly milestonePathService: MilestonePathService,
         private readonly winstonService: WinstonService,
@@ -223,7 +227,6 @@ export class CourseSeederService {
                 const moduleId = module.id as string
                 const contents = (module.contents ?? []) as Array<DeepPartial<ContentEntity>>
                 for (const content of contents) {
-                    const contentId = content.id as string
                     /** Inject FK relation so TypeORM populates the module_id column */
                     content.module = {
                         id: moduleId 
@@ -342,6 +345,27 @@ export class CourseSeederService {
             //     milestoneResults.map((m) => m.data.id as string),
             //     courseId,
             // )
+
+            /** 8. Upsert mind-map (optional per course; modules must already be inserted for entityRef lookup). */
+            const courseRelativePath = courseResult?.relativePath ?? ""
+            try {
+                const mindMapRoot = await this.mindMapParserService.parse({
+                    courseRelativePath,
+                })
+                if (mindMapRoot) {
+                    await this.mindMapInsertService.insert({
+                        courseId,
+                        root: mindMapRoot,
+                    })
+                }
+            } catch (error) {
+                logInitSeederEntitySkipped(
+                    this.winstonService,
+                    CourseEntity,
+                    `${courseRelativePath}/mind-map.yaml`,
+                    error,
+                )
+            }
         }
     }
 }

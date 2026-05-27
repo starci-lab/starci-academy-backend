@@ -1,14 +1,14 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
     ConfigurableModuleClass,
 } from "./foundations.module-definition"
 import {
-    FoundationCategoriesQueryModule,
+    FoundationCategoriesSingleQueryModule,
 } from "./foundation-categories"
 import {
-    FoundationsQueryModule,
+    FoundationsSingleQueryModule,
 } from "./foundations/foundations.module"
 import {
     FoundationSingleQueryModule,
@@ -16,10 +16,10 @@ import {
 
 @Module({
     imports: [
-        FoundationCategoriesQueryModule.register({
+        FoundationCategoriesSingleQueryModule.register({
             isGlobal: true,
         }),
-        FoundationsQueryModule.register({
+        FoundationsSingleQueryModule.register({
             isGlobal: true,
         }),
         FoundationSingleQueryModule.register({

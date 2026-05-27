@@ -1,17 +1,17 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
     ConfigurableModuleClass,
 } from "./challenge-submissions.module-definition"
 import {
-    ChallengeSubmissionQueryModule,
+    ChallengeSubmissionSingleQueryModule,
 } from "./challenge-submission"
 import {
-    UserChallengeSubmissionAttemptsModule,
+    UserChallengeSubmissionAttemptsSingleQueryModule,
 } from "./user-challenge-submission-attempts"
 import {
-    UserChallengeSubmissionFeedbacksModule,
+    UserChallengeSubmissionFeedbacksSingleQueryModule,
 } from "./user-challenge-submission-feedbacks"
 import {
     ChallengeSubmissionsSingleQueryModule 
@@ -19,16 +19,16 @@ import {
 
 @Module({
     imports: [
-        ChallengeSubmissionQueryModule.register({
+        ChallengeSubmissionSingleQueryModule.register({
             isGlobal: true,
         }),
         ChallengeSubmissionsSingleQueryModule.register({
             isGlobal: true,
         }),
-        UserChallengeSubmissionAttemptsModule.register({
+        UserChallengeSubmissionAttemptsSingleQueryModule.register({
             isGlobal: true,
         }),
-        UserChallengeSubmissionFeedbacksModule.register({
+        UserChallengeSubmissionFeedbacksSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

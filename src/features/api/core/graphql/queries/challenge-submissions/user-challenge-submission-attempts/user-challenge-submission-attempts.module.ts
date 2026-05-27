@@ -1,4 +1,4 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
@@ -21,4 +21,4 @@ import {
         UserChallengeSubmissionAttemptsHandler,
     ],
 })
-export class UserChallengeSubmissionAttemptsModule extends ConfigurableModuleClass {}
+export class UserChallengeSubmissionAttemptsSingleQueryModule extends ConfigurableModuleClass {}

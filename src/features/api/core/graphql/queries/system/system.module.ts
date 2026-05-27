@@ -1,22 +1,30 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
     ConfigurableModuleClass,
 } from "./system.module-definition"
 import {
-    SystemConfigQueryModule,
+    SystemConfigSingleQueryModule,
 } from "./system-config"
 import {
-    AiModelsModule,
+    AiModelsSingleQueryModule,
 } from "./ai-models"
+import {
+    AiBalancerHealthSingleQueryModule,
+} from "./ai-balancer-health"
 
 @Module({
     imports: [
-        SystemConfigQueryModule.register({
+        SystemConfigSingleQueryModule.register({
             isGlobal: true,
         }),
-        AiModelsModule,
+        AiModelsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        AiBalancerHealthSingleQueryModule.register({
+            isGlobal: true,
+        }),
     ],
 })
 export class SystemModule extends ConfigurableModuleClass {}

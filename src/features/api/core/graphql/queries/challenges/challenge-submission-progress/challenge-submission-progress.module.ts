@@ -1,3 +1,6 @@
+﻿import {
+    ConfigurableModuleClass,
+} from "./challenge-submission-progress.module-definition"
 import {
     Module,
 } from "@nestjs/common"
@@ -22,4 +25,4 @@ import {
         ChallengeSubmissionProgressListener,
     ],
 })
-export class ChallengeSubmissionProgressModule {}
+export class ChallengeSubmissionProgressSingleQueryModule extends ConfigurableModuleClass {}

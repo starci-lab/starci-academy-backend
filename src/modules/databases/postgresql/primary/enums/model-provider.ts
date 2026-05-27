@@ -13,6 +13,8 @@ export enum ModelProvider {
     Gemini = "gemini",
     /** OpenAI model provider. */
     OpenAI = "openai",
+    /** Anthropic Claude model provider. */
+    Claude = "claude",
 }
 
 /**
@@ -34,6 +36,9 @@ registerEnumType(
             },
             [ModelProvider.OpenAI]: {
                 description: "OpenAI model provider.",
+            },
+            [ModelProvider.Claude]: {
+                description: "Anthropic Claude model provider.",
             },
         },
     }

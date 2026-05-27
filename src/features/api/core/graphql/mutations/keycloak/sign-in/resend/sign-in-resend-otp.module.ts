@@ -1,4 +1,4 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
@@ -21,4 +21,4 @@ import {
         SignInResendOtpHandler,
     ],
 })
-export class SignInResendOtpMutationModule extends ConfigurableModuleClass {}
+export class SignInResendOtpSingleMutationModule extends ConfigurableModuleClass {}

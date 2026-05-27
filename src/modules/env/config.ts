@@ -337,6 +337,14 @@ export const envConfig = () => ({
                 key: "CACHE_TTL_CHALLENGE_SUBMISSION_PROGRESS",
                 defaultValue: "5m",
             }),
+            courseLeaderboard: parseEnvMs({
+                key: "CACHE_TTL_COURSE_LEADERBOARD",
+                defaultValue: "15m",
+            }),
+            courseLeaderboardDebounce: parseEnvMs({
+                key: "CACHE_TTL_COURSE_LEADERBOARD_DEBOUNCE",
+                defaultValue: "5s",
+            }),
             aggregatedTokenPrice: parseEnvMs({
                 key: "CACHE_TTL_AGGREGATED_TOKEN_PRICE",
                 defaultValue: "100years"
@@ -954,7 +962,7 @@ export const envConfig = () => ({
                 defaultValue: join(process.cwd(),
                     ".mount",
                     "config",
-                    "app.json"),
+                    "app.yaml"),
             }),
             metadata: parseEnvString({
                 key: "CONFIG_METADATA_MOUNT_PATH",
@@ -1050,6 +1058,33 @@ export const envConfig = () => ({
                     ".mount",
                     "terraform",
                     "gcp-service-account.json"),
+            }),
+        },
+        /**
+         * File paths: rotating API-key arrays consumed by the AI Balancer feature.
+         * Each file is a JSON array of strings — e.g. `["sk-aaa", "sk-bbb"]`.
+         */
+        aiKeys: {
+            openai: parseEnvString({
+                key: "AI_KEYS_OPENAI_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "keys",
+                    "open-api-keys.key"),
+            }),
+            gemini: parseEnvString({
+                key: "AI_KEYS_GEMINI_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "keys",
+                    "gemini-api-keys.key"),
+            }),
+            claude: parseEnvString({
+                key: "AI_KEYS_CLAUDE_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "keys",
+                    "claude-api-keys.key"),
             }),
         },
     },
@@ -1694,6 +1729,32 @@ export const envConfig = () => ({
         quotaCheckIntervalMs: parseEnvMs({
             key: "AI_QUOTA_CHECK_INTERVAL_MS",
             defaultValue: "5m",
+        }),
+    },
+    /** AI Balancer (key rotation + health) tunables. */
+    aiBalancer: {
+        /** Consecutive failures from `markFailure` that disable a key. */
+        failureThresholdToDisable: parseEnvInt({
+            key: "AI_BALANCER_FAILURE_THRESHOLD",
+            defaultValue: "3",
+        }),
+        /** Time (ms) a key stays disabled before a recovery ping is attempted. */
+        recoveryWaitMs: parseEnvMs({
+            key: "AI_BALANCER_RECOVERY_WAIT_MS",
+            defaultValue: "30m",
+        }),
+        /**
+         * Interval (ms) between recurring health-check sweeps. Recommended
+         * range: 1m..5m.
+         *
+         * The first sweep fires after a **random jitter in `[0, intervalMs)`**
+         * to spread pod boot — when N pods come up together they otherwise
+         * all hit the provider at the same instant. After the random delay
+         * the recurring `setInterval` is armed at this cadence.
+         */
+        healthCheckIntervalMs: parseEnvMs({
+            key: "AI_BALANCER_HEALTH_CHECK_INTERVAL_MS",
+            defaultValue: "1m",
         }),
     },
 }

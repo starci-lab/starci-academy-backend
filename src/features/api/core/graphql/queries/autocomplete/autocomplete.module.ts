@@ -1,22 +1,22 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
     ConfigurableModuleClass,
 } from "./autocomplete.module-definition"
 import {
-    AutocompleteGlobalSearchQueryModule,
+    AutocompleteGlobalSearchSingleQueryModule,
 } from "./global-search"
 import {
-    IndexSearchQueryModule,
+    IndexSearchSingleQueryModule,
 } from "./index-search"
 
 @Module({
     imports: [
-        AutocompleteGlobalSearchQueryModule.register({
+        AutocompleteGlobalSearchSingleQueryModule.register({
             isGlobal: true,
         }),
-        IndexSearchQueryModule.register({
+        IndexSearchSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

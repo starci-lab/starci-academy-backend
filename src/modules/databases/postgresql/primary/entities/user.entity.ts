@@ -15,8 +15,8 @@ import {
     UserChallengeSubmissionEntity,
 } from "./user-challenge-submission.entity"
 import {
-    AuthenticationType, 
-    GraphQLTypeAuthenticationType 
+    AuthenticationType,
+    GraphQLTypeAuthenticationType
 } from "../enums"
 
 /**

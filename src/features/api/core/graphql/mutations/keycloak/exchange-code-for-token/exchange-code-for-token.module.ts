@@ -1,4 +1,4 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
@@ -21,5 +21,5 @@ import {
         ExchangeCodeForTokenHandler,
     ],
 })
-export class ExchangeCodeForTokenMutationModule extends ConfigurableModuleClass {}
+export class ExchangeCodeForTokenSingleMutationModule extends ConfigurableModuleClass {}
 

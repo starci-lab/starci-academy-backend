@@ -1,16 +1,16 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
     ConfigurableModuleClass,
 } from "./jobs.module-definition"
 import {
-    IncompletedJobsQueryModule,
+    IncompletedJobsSingleQueryModule,
 } from "./incompleted-jobs"
 
 @Module({
     imports: [
-        IncompletedJobsQueryModule.register({
+        IncompletedJobsSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

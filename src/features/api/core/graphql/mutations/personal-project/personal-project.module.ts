@@ -1,26 +1,28 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
     ConfigurableModuleClass,
 } from "./personal-project.module-definition"
 import {
-    SubmitPersonalGithubUrlModule,
+    SubmitPersonalGithubUrlSingleMutationModule,
 } from "./submit-personal-github-url"
 import {
-    SyncPersonalProjectGithubMutationModule,
+    SyncPersonalProjectGithubSingleMutationModule,
 } from "./sync-personal-project-github"
 import {
-    ReviewPersonalProjectTaskMutationModule,
+    ReviewPersonalProjectTaskSingleMutationModule,
 } from "./review-personal-project-task"
 
 @Module({
     imports: [
-        SubmitPersonalGithubUrlModule.register({
+        SubmitPersonalGithubUrlSingleMutationModule.register({
             isGlobal: true
         }),
-        SyncPersonalProjectGithubMutationModule,
-        ReviewPersonalProjectTaskMutationModule.register({
+        SyncPersonalProjectGithubSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        ReviewPersonalProjectTaskSingleMutationModule.register({
             isGlobal: true
         }),
     ],

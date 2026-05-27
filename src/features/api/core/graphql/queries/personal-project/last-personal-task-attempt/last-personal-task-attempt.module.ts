@@ -1,3 +1,6 @@
+﻿import {
+    ConfigurableModuleClass,
+} from "./last-personal-task-attempt.module-definition"
 import {
     Module,
 } from "@nestjs/common"
@@ -18,4 +21,4 @@ import {
         LastPersonalTaskAttemptHandler,
     ],
 })
-export class LastPersonalTaskAttemptModule {}
+export class LastPersonalTaskAttemptSingleQueryModule extends ConfigurableModuleClass {}

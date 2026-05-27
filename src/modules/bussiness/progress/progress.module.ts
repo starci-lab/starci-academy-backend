@@ -10,6 +10,9 @@ import {
 import {
     ChallengeProgressService,
 } from "./challenge.service"
+import {
+    LeaderboardService,
+} from "./leaderboard.service"
 
 /**
  * Module for progress business logic.
@@ -18,10 +21,12 @@ import {
     providers: [
         PersonalProjectProgressService,
         ChallengeProgressService,
+        LeaderboardService,
     ],
     exports: [
         PersonalProjectProgressService,
         ChallengeProgressService,
+        LeaderboardService,
     ],
 })
 export class ProgressModule extends ConfigurableModuleClass {

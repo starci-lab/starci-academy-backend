@@ -258,6 +258,95 @@ Avoid writing code without explaining intent between major steps.
 
 ---
 
+## Unit Tests
+
+Unit tests live **next to the SUT** (system under test), one spec per service/handler/listener. Mirror the source path; do NOT collect specs under a separate `test/` folder.
+
+```
+src/modules/bussiness/progress/
+├─ leaderboard.service.ts
+└─ leaderboard.service.spec.ts          ← spec lives here
+
+src/features/api/.../leaderboard/
+├─ leaderboard.handler.ts
+├─ leaderboard.handler.spec.ts
+├─ leaderboard.listener.ts
+└─ leaderboard.listener.spec.ts
+```
+
+### Always use `Test.createTestingModule`
+
+NestJS testing docs are the source of truth: https://docs.nestjs.com/fundamentals/testing. **Never** instantiate the SUT manually (`new MyService(mockA, mockB)`) — that bypasses DI and breaks the moment a constructor signature changes.
+
+```ts
+import { Test, TestingModule } from "@nestjs/testing"
+import { getEntityManagerToken } from "@nestjs/typeorm"
+import { CacheService } from "@modules/cache"
+import { LeaderboardService } from "./leaderboard.service"
+import type { EntityManager } from "typeorm"
+
+const POSTGRESQL_PRIMARY = "primary"
+
+describe("LeaderboardService", () => {
+    let module: TestingModule
+    let service: LeaderboardService
+    let cacheService: jest.Mocked<CacheService>
+    let entityManager: jest.Mocked<Pick<EntityManager, "query">>
+
+    beforeEach(async () => {
+        cacheService = {
+            get: jest.fn(), set: jest.fn(), del: jest.fn(),
+        } as unknown as jest.Mocked<CacheService>
+        entityManager = {
+            query: jest.fn(),
+        } as unknown as jest.Mocked<Pick<EntityManager, "query">>
+
+        module = await Test.createTestingModule({
+            providers: [
+                LeaderboardService,
+                { provide: CacheService, useValue: cacheService },
+                { provide: getEntityManagerToken(POSTGRESQL_PRIMARY), useValue: entityManager },
+            ],
+        }).compile()
+
+        service = module.get<LeaderboardService>(LeaderboardService)
+    })
+
+    afterEach(async () => {
+        await module.close()
+    })
+})
+```
+
+### Rules
+
+| Rule | Detail |
+|------|--------|
+| Spec name | `<source>.spec.ts` next to `<source>.ts` |
+| `beforeEach` is `async` | Always `await Test.createTestingModule(...).compile()` |
+| `afterEach` closes the module | `await module.close()` |
+| Mocks are jest.fn()-based | `{ method: jest.fn() } as unknown as jest.Mocked<T>` |
+| Prefer `useValue` | Reserve `useFactory` for mocks needing DI |
+| Use the real injection token | e.g. `getEntityManagerToken("primary")` for `@InjectEntityManager("primary")` — not the project's decorator wrapper |
+| Lifecycle hooks called explicitly | `listener.onModuleInit()` then assert what it registered |
+| Pure unit, no real I/O | DB, cache, event bus, HTTP — always mocked. Integration tests go in `apps/<app>/test/*.e2e-spec.ts`. |
+
+### Jest config (`package.json`)
+
+- `roots: ["<rootDir>/apps/", "<rootDir>/src/"]`
+- `moduleNameMapper` for `@modules/*` and `@features/*`
+- `transformIgnorePatterns: []` — the codebase pulls many ESM-only deps (`p-retry`, `superjson`, `uuid`, …) transitively through module barrels; transforming everything is the only sustainable answer (cold runs ~30s, warm ~8s)
+- `diagnostics: false` on ts-jest so pre-existing project-wide type errors do not fail unit-test runs
+
+### Running
+
+```bash
+npx jest --testPathPatterns "<keyword>"   # single suite by name
+npx jest                                   # all specs
+```
+
+---
+
 ## ESLint
 
 When applying this convention or changing code:

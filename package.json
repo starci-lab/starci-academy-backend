@@ -81,6 +81,7 @@
     "graphql-type-json": "^0.3.2",
     "ioredis": "^5.10.1",
     "iovalkey": "^0.3.3",
+    "js-yaml": "^4.1.1",
     "jsonwebtoken": "^9.0.3",
     "jwks-rsa": "^4.0.1",
     "keycloak-js": "^26.2.3",
@@ -128,6 +129,7 @@
     "@types/express": "^5.0.0",
     "@types/fluent-ffmpeg": "^2.1.28",
     "@types/jest": "^30.0.0",
+    "@types/js-yaml": "^4.0.9",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/lodash": "^4.17.24",
     "@types/lokijs": "^1.5.14",
@@ -160,7 +162,17 @@
     "rootDir": ".",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.(t|j)s$": [
+        "ts-jest",
+        {
+          "diagnostics": false
+        }
+      ]
+    },
+    "transformIgnorePatterns": [],
+    "moduleNameMapper": {
+      "^@modules/(.*)$": "<rootDir>/src/modules/$1",
+      "^@features/(.*)$": "<rootDir>/src/features/$1"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
@@ -168,7 +180,8 @@
     "coverageDirectory": "./coverage",
     "testEnvironment": "node",
     "roots": [
-      "<rootDir>/apps/"
+      "<rootDir>/apps/",
+      "<rootDir>/src/"
     ]
   },
   "overrides": {

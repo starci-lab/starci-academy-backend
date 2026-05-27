@@ -112,4 +112,16 @@ export enum WinstonLog {
     AiModelRouterRecheck = "AiModelRouterRecheck",
     /** AI ping: provider ping result (success/failure). */
     AiPingResult = "AiPingResult",
+    /** Init seeder: finished a seeder pass with upsert count. */
+    SeederFinished = "SeederFinished",
+    /** AI Balancer: key store reloaded keys from mount file. */
+    AiBalancerKeysReloaded = "AiBalancerKeysReloaded",
+    /** AI Balancer: a key was disabled after failure threshold. */
+    AiBalancerKeyDisabled = "AiBalancerKeyDisabled",
+    /** AI Balancer: a previously-disabled key recovered on retry. */
+    AiBalancerKeyRecovered = "AiBalancerKeyRecovered",
+    /** AI Balancer: rotation selected a key. */
+    AiBalancerKeyPicked = "AiBalancerKeyPicked",
+    /** AI Balancer: no active key available for a provider. */
+    AiBalancerNoActiveKey = "AiBalancerNoActiveKey",
 }

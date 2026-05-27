@@ -1,20 +1,24 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
     ConfigurableModuleClass,
 } from "./challenge-submissions.module-definition"
 import {
-    SubmitChallengeSubmissionMutationModule,
+    SubmitChallengeSubmissionSingleMutationModule,
 } from "./submit-challenge-submission"
 import {
-    SyncSubmissionMutationModule,
+    SyncSubmissionSingleMutationModule,
 } from "./sync-submission"
 
 @Module({
     imports: [
-        SyncSubmissionMutationModule,
-        SubmitChallengeSubmissionMutationModule,
+        SyncSubmissionSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        SubmitChallengeSubmissionSingleMutationModule.register({
+            isGlobal: true,
+        }),
     ],
 })
 export class ChallengeSubmissionsMutationsModule extends ConfigurableModuleClass {}

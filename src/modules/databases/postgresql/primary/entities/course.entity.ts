@@ -44,6 +44,9 @@ import {
 import {
     LivestreamSessionEntity,
 } from "./livestream-session.entity"
+import {
+    MindMapNodeEntity,
+} from "./mind-map-node.entity"
 
 
 /**
@@ -353,6 +356,25 @@ export class CourseEntity extends UuidAbstractEntity {
         },
     )
         livestreamSessions: Array<LivestreamSessionEntity>
+
+    /**
+     * Mind-map nodes belonging to this course (tree managed via closure table).
+     */
+    @Field(
+        () => [MindMapNodeEntity],
+        {
+            nullable: true,
+            description: "Mind-map nodes belonging to this course; hierarchy maintained via closure table.",
+        },
+    )
+    @OneToMany(
+        () => MindMapNodeEntity,
+        (node: MindMapNodeEntity) => node.course,
+        {
+            cascade: true,
+        },
+    )
+        mindMapNodes: Array<MindMapNodeEntity>
 
     /**
      * Default locale for the course.

@@ -1,4 +1,4 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
@@ -21,4 +21,4 @@ import {
         HeadhuntingCompanyHandler,
     ],
 })
-export class HeadhuntingCompanyQueryModule extends ConfigurableModuleClass {}
+export class HeadhuntingCompanySingleQueryModule extends ConfigurableModuleClass {}

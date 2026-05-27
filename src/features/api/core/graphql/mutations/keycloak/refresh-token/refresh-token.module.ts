@@ -1,4 +1,4 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
@@ -21,5 +21,5 @@ import {
         RefreshTokenHandler,
     ],
 })
-export class RefreshTokenMutationModule extends ConfigurableModuleClass {}
+export class RefreshTokenSingleMutationModule extends ConfigurableModuleClass {}
 

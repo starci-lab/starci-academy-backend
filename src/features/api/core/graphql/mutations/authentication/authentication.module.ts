@@ -1,16 +1,18 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
     ConfigurableModuleClass,
 } from "./authentication.module-definition"
 import {
-    ConnectGithubAccountMutationModule,
+    ConnectGithubAccountSingleMutationModule,
 } from "./connect-github-account"
 
 @Module({
     imports: [
-        ConnectGithubAccountMutationModule,
+        ConnectGithubAccountSingleMutationModule.register({
+            isGlobal: true,
+        }),
     ],
 })
 export class AuthenticationMutationsModule extends ConfigurableModuleClass {}

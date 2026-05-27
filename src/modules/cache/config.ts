@@ -15,6 +15,7 @@ import type {
     ParentIndexCacheResult,
     KeycloakOidcPkceCacheResult,
     ChallengeSubmissionProgressCacheResult,
+    CourseLeaderboardCacheResult,
 } from "./types"
 
 /**
@@ -82,5 +83,14 @@ export const configMap = {
         ttl: envConfig().cache.ttl.challengeSubmissionProgress,
         cacheResult: {
         } as ChallengeSubmissionProgressCacheResult,
+    },
+    [CacheKey.CourseLeaderboard]: {
+        ttl: envConfig().cache.ttl.courseLeaderboard,
+        cacheResult: {
+        } as CourseLeaderboardCacheResult,
+    },
+    [CacheKey.CourseLeaderboardDebounce]: {
+        ttl: envConfig().cache.ttl.courseLeaderboardDebounce,
+        cacheResult: true,
     },
 }

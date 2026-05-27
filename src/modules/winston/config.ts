@@ -61,6 +61,12 @@ import type {
     AiModelRouterFailureMessage,
     AiModelRouterRecheckMessage,
     AiPingResultMessage,
+    SeederFinishedMessage,
+    AiBalancerKeysReloadedMessage,
+    AiBalancerKeyDisabledMessage,
+    AiBalancerKeyRecoveredMessage,
+    AiBalancerKeyPickedMessage,
+    AiBalancerNoActiveKeyMessage,
 } from "./types"
 
 /** Map of Winston log names to level, Loki flag, and message type. */
@@ -606,5 +612,53 @@ export const configMap = {
         console: true,
         messageType: {
         } as AiPingResultMessage,
+    },
+    [WinstonLog.SeederFinished]: {
+        name: WinstonLog.SeederFinished,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as SeederFinishedMessage,
+    },
+    [WinstonLog.AiBalancerKeysReloaded]: {
+        name: WinstonLog.AiBalancerKeysReloaded,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as AiBalancerKeysReloadedMessage,
+    },
+    [WinstonLog.AiBalancerKeyDisabled]: {
+        name: WinstonLog.AiBalancerKeyDisabled,
+        level: WinstonLevel.Warn,
+        loki: true,
+        console: true,
+        messageType: {
+        } as AiBalancerKeyDisabledMessage,
+    },
+    [WinstonLog.AiBalancerKeyRecovered]: {
+        name: WinstonLog.AiBalancerKeyRecovered,
+        level: WinstonLevel.Info,
+        loki: true,
+        console: true,
+        messageType: {
+        } as AiBalancerKeyRecoveredMessage,
+    },
+    [WinstonLog.AiBalancerKeyPicked]: {
+        name: WinstonLog.AiBalancerKeyPicked,
+        level: WinstonLevel.Debug,
+        loki: true,
+        console: true,
+        messageType: {
+        } as AiBalancerKeyPickedMessage,
+    },
+    [WinstonLog.AiBalancerNoActiveKey]: {
+        name: WinstonLog.AiBalancerNoActiveKey,
+        level: WinstonLevel.Error,
+        loki: true,
+        console: true,
+        messageType: {
+        } as AiBalancerNoActiveKeyMessage,
     },
 }

@@ -1,4 +1,4 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
@@ -22,4 +22,4 @@ import {
         VerifySubmitCvPresignUrlHandler,
     ],
 })
-export class VerifySubmitCvPresignUrlModule extends ConfigurableModuleClass {}
+export class VerifySubmitCvPresignUrlSingleMutationModule extends ConfigurableModuleClass {}

@@ -1,3 +1,6 @@
+﻿import {
+    ConfigurableModuleClass,
+} from "./sync-personal-project-github.module-definition"
 import {
     Module,
 } from "@nestjs/common"
@@ -18,4 +21,4 @@ import {
         SyncPersonalProjectGithubHandler,
     ],
 })
-export class SyncPersonalProjectGithubMutationModule {}
+export class SyncPersonalProjectGithubSingleMutationModule extends ConfigurableModuleClass {}

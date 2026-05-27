@@ -1,4 +1,4 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
@@ -29,5 +29,5 @@ import {
         SignOutHandler,
     ],
 })
-export class SignOutMutationModule extends ConfigurableModuleClass {}
+export class SignOutSingleMutationModule extends ConfigurableModuleClass {}
 

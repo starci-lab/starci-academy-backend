@@ -1,4 +1,4 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
@@ -33,4 +33,4 @@ import {
         IndexSearchHandler,
     ],
 })
-export class IndexSearchQueryModule extends ConfigurableModuleClass {}
+export class IndexSearchSingleQueryModule extends ConfigurableModuleClass {}

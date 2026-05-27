@@ -1,4 +1,4 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
@@ -21,4 +21,4 @@ import {
         CourseEnrollmentStatusHandler,
     ],
 })
-export class CourseEnrollmentStatusQueryModule extends ConfigurableModuleClass {}
+export class CourseEnrollmentStatusSingleQueryModule extends ConfigurableModuleClass {}

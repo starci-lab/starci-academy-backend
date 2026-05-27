@@ -6,6 +6,9 @@ import {
     join,
 } from "path"
 import {
+    load as loadYaml,
+} from "js-yaml"
+import {
     envConfig
 } from "@modules/env"
 import type {
@@ -14,14 +17,20 @@ import type {
 } from "../types"
 
 /**
- * Get app config (from mount path or provided value).
+ * Load the mounted `app.yaml` (parsed via `js-yaml`).
+ *
+ * Pass `appConfig` to short-circuit the read for tests / in-memory overrides.
+ *
+ * @param appConfig - optional pre-built config that skips the disk read
+ * @returns Parsed {@link AppConfig}
  */
 export const getAppConfig = (appConfig?: AppConfig): AppConfig => {
     if (!appConfig) {
-        appConfig = JSON.parse(
-            readFileSync(envConfig().mountPath.config.app,
-                "utf8"),
-        ) as AppConfig
+        const raw = readFileSync(
+            envConfig().mountPath.config.app,
+            "utf8",
+        )
+        appConfig = loadYaml(raw) as AppConfig
     }
     return appConfig
 }
@@ -62,6 +71,69 @@ export const getOpenAiApiKey = (): string => {
         envConfig().mountPath.terraform.openAiApiKey,
         "utf8",
     )
+}
+
+/**
+ * Parse a mount key file into an array of trimmed, non-empty keys.
+ *
+ * File format (one key per line):
+ * ```
+ * # Comment lines starting with `#` are skipped (use them to note key owner / expiry).
+ * sk-aaa
+ * sk-bbb
+ *
+ * # Blank lines and surrounding whitespace are stripped.
+ * sk-ccc
+ * ```
+ *
+ * Used by the AI Balancer feature to load rotating-key pools per provider.
+ * Missing or unreadable file returns an empty array — caller treats that
+ * as "no key for this provider" without crashing boot.
+ *
+ * @param path - absolute path to the mount key list file
+ * @returns Array of API keys; empty when file missing / empty / unreadable
+ */
+export const parseApiKeysFile = (path: string): Array<string> => {
+    if (!existsSync(path)) {
+        return []
+    }
+    try {
+        const raw = readFileSync(
+            path,
+            "utf8",
+        )
+        // split on any line break, trim, drop blanks and `#`-comments
+        return raw
+            .split(/\r?\n/)
+            .map((line) => line.trim())
+            .filter((line) => line.length > 0 && !line.startsWith("#"))
+    } catch {
+        return []
+    }
+}
+
+/**
+ * Get the OpenAI API-key pool from the mount keys file (newline-separated).
+ * Empty array when the file is missing or empty.
+ */
+export const getOpenAiApiKeys = (): Array<string> => {
+    return parseApiKeysFile(envConfig().mountPath.aiKeys.openai)
+}
+
+/**
+ * Get the Gemini API-key pool from the mount keys file (newline-separated).
+ * Empty array when the file is missing or empty.
+ */
+export const getGeminiApiKeys = (): Array<string> => {
+    return parseApiKeysFile(envConfig().mountPath.aiKeys.gemini)
+}
+
+/**
+ * Get the Anthropic Claude API-key pool from the mount keys file
+ * (newline-separated). Empty array when the file is missing or empty.
+ */
+export const getClaudeApiKeys = (): Array<string> => {
+    return parseApiKeysFile(envConfig().mountPath.aiKeys.claude)
 }
 
 /**

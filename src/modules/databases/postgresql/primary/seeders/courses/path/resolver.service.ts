@@ -26,6 +26,17 @@ export class PathResolverService {
      * @param paths - Paths to map
      * @returns Resolved file paths
      */
+    /**
+     * Keeps only entries that match the `{index}` or `{index}-{slug}` mount convention.
+     * Drops placeholder files such as `.gitkeep`, `.DS_Store`, `README.md` placed by authors
+     * to keep an otherwise empty folder under version control.
+     */
+    private filterIndexed(
+        paths: Array<string>,
+    ): Array<string> {
+        return paths.filter((p) => /^\d+(-|$)/u.test(p))
+    }
+
     private mapToResolvedFilePaths(
         relativePath: string,
         paths: Array<string>,
@@ -67,9 +78,10 @@ export class PathResolverService {
                 /** Read the files from the filesystem. */
                 case ContextType.Filesystem: {
                     try {
-                        const paths = await fs.readdir(
+                        const rawPaths = await fs.readdir(
                             `${context.path}/${relativePath}`,
                         )
+                        const paths = this.filterIndexed(rawPaths)
                         if (paths.length > 0) {
                             return this.mapToResolvedFilePaths(
                                 relativePath,
@@ -84,12 +96,13 @@ export class PathResolverService {
                 /** Read the files from S3. */
                 case ContextType.S3: {
                     try {
-                        const paths = await this.s3ReadService.list(
+                        const rawPaths = await this.s3ReadService.list(
                             {
                                 key: `courses/${relativePath}`,
                                 provider: context.provider as S3Provider,
                             },
                         )
+                        const paths = this.filterIndexed(rawPaths)
                         if (paths.length > 0) {
                             return this.mapToResolvedFilePaths(
                                 relativePath,

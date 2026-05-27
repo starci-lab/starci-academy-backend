@@ -1,32 +1,42 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
     ConfigurableModuleClass,
 } from "./personal-project.module-definition"
 import {
-    UserPersonalTaskAttemptsModule,
+    UserPersonalTaskAttemptsSingleQueryModule,
 } from "./user-personal-task-attempts"
 import {
-    UserPersonalTaskAttemptFeedbacksModule,
+    UserPersonalTaskAttemptFeedbacksSingleQueryModule,
 } from "./user-personal-task-attempt-feedbacks"
 import {
-    MilestoneTaskProgressModule,
+    MilestoneTaskProgressSingleQueryModule,
 } from "./milestone-task-progress"
 import {
-    LastPersonalTaskAttemptModule,
+    LastPersonalTaskAttemptSingleQueryModule,
 } from "./last-personal-task-attempt"
 import {
-    UserMilestoneTaskFeedbacksModule,
+    UserMilestoneTaskFeedbacksSingleQueryModule,
 } from "./user-milestone-task-feedbacks"
 
 @Module({
     imports: [
-        UserPersonalTaskAttemptsModule,
-        UserPersonalTaskAttemptFeedbacksModule,
-        UserMilestoneTaskFeedbacksModule,
-        MilestoneTaskProgressModule,
-        LastPersonalTaskAttemptModule,
+        UserPersonalTaskAttemptsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserPersonalTaskAttemptFeedbacksSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserMilestoneTaskFeedbacksSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MilestoneTaskProgressSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        LastPersonalTaskAttemptSingleQueryModule.register({
+            isGlobal: true,
+        }),
     ],
 })
 export class PersonalProjectQueriesModule extends ConfigurableModuleClass {}

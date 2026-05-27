@@ -1,4 +1,4 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
@@ -27,4 +27,4 @@ import {
         CvUrlHandler,
     ],
 })
-export class CvUrlQueryModule extends ConfigurableModuleClass {}
+export class CvUrlSingleQueryModule extends ConfigurableModuleClass {}

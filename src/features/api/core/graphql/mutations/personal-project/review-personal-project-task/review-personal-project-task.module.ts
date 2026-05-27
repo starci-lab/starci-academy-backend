@@ -1,4 +1,4 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
@@ -21,4 +21,4 @@ import {
         ReviewPersonalProjectTaskHandler,
     ],
 })
-export class ReviewPersonalProjectTaskMutationModule extends ConfigurableModuleClass {}
+export class ReviewPersonalProjectTaskSingleMutationModule extends ConfigurableModuleClass {}

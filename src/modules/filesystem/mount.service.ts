@@ -19,6 +19,9 @@ import {
     getBrevoSmtpPassword,
     getAdminApiKey,
     getKeycloakAdmin,
+    getOpenAiApiKeys,
+    getGeminiApiKeys,
+    getClaudeApiKeys,
 } from "./utils"
 /**
  * Service responsible for reading secrets mounted into the container filesystem.
@@ -121,5 +124,32 @@ export class MountFilesystemService {
      */
     keycloakAdmin(): SecretKeycloakAdmin {
         return getKeycloakAdmin()
+    }
+
+    /**
+     * Get the OpenAI API-key pool (newline-separated mount file).
+     *
+     * @returns Array of trimmed, non-empty keys; empty when the file is missing or empty
+     */
+    openAiApiKeys(): Array<string> {
+        return getOpenAiApiKeys()
+    }
+
+    /**
+     * Get the Gemini API-key pool (newline-separated mount file).
+     *
+     * @returns Array of trimmed, non-empty keys; empty when the file is missing or empty
+     */
+    geminiApiKeys(): Array<string> {
+        return getGeminiApiKeys()
+    }
+
+    /**
+     * Get the Anthropic Claude API-key pool (newline-separated mount file).
+     *
+     * @returns Array of trimmed, non-empty keys; empty when the file is missing or empty
+     */
+    claudeApiKeys(): Array<string> {
+        return getClaudeApiKeys()
     }
 }

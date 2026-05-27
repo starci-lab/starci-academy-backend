@@ -16,6 +16,8 @@ export enum CacheKey {
     MilestoneTask = "milestone.task",
     MilestoneTaskProgress = "milestone.task.progress",
     ChallengeSubmissionProgress = "challenge.submission.progress",
+    CourseLeaderboard = "course.leaderboard",
+    CourseLeaderboardDebounce = "course.leaderboard.debounce",
 }
 
 /**

@@ -1,3 +1,6 @@
+﻿import {
+    ConfigurableModuleClass,
+} from "./sync-submission.module-definition"
 import {
     Module,
 } from "@nestjs/common"
@@ -18,4 +21,4 @@ import {
         SyncSubmissionHandler,
     ],
 })
-export class SyncSubmissionMutationModule {}
+export class SyncSubmissionSingleMutationModule extends ConfigurableModuleClass {}

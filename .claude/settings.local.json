@@ -64,7 +64,9 @@
       "Bash(docker build *)",
       "Bash(findstr /i \"error\\\\|ERROR\\\\|Cannot\")",
       "Bash(*)",
-      "PowerShell(*)"
+      "PowerShell(*)",
+      "Bash(mkdir -p .claude/business-rules)",
+      "Bash(mkdir \"C:/Repositories/ac/starci-academy-backend/.claude/skills/coding-conventions\")"
     ]
   }
 }

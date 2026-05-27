@@ -1,3 +1,6 @@
+﻿import {
+    ConfigurableModuleClass,
+} from "./milestone-task-progress.module-definition"
 import {
     Module,
 } from "@nestjs/common"
@@ -22,4 +25,4 @@ import {
         MilestoneTaskProgressListener,
     ],
 })
-export class MilestoneTaskProgressModule {}
+export class MilestoneTaskProgressSingleQueryModule extends ConfigurableModuleClass {}

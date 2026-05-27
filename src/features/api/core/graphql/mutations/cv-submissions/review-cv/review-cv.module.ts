@@ -1,3 +1,6 @@
+﻿import {
+    ConfigurableModuleClass,
+} from "./review-cv.module-definition"
 import {
     Module,
 } from "@nestjs/common"
@@ -18,4 +21,4 @@ import {
         ReviewCvHandler,
     ],
 })
-export class ReviewCvMutationModule {}
+export class ReviewCvSingleMutationModule extends ConfigurableModuleClass {}

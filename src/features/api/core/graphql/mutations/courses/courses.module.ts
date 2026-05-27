@@ -1,16 +1,18 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
     ConfigurableModuleClass,
 } from "./courses.module-definition"
 import {
-    CourseEnrollMutationModule,
+    CourseEnrollSingleMutationModule,
 } from "./course-enroll"
 
 @Module({
     imports: [
-        CourseEnrollMutationModule,
+        CourseEnrollSingleMutationModule.register({
+            isGlobal: true,
+        }),
     ],
 })
 export class CoursesMutationsModule extends ConfigurableModuleClass {}

@@ -1,17 +1,17 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
     ConfigurableModuleClass,
 } from "./headhuntings.module-definition"
 import {
-    HeadhuntingCompaniesQueryModule,
+    HeadhuntingCompaniesSingleQueryModule,
 } from "./headhunting-companies"
 import {
-    HeadhuntingCompanyQueryModule,
+    HeadhuntingCompanySingleQueryModule,
 } from "./headhunting-company"
 import {
-    ConsultantsQueryModule,
+    ConsultantsSingleQueryModule,
 } from "./consultants"
 import {
     ConsultantSingleQueryModule,
@@ -19,13 +19,13 @@ import {
 
 @Module({
     imports: [
-        HeadhuntingCompaniesQueryModule.register({
+        HeadhuntingCompaniesSingleQueryModule.register({
             isGlobal: true,
         }),
-        HeadhuntingCompanyQueryModule.register({
+        HeadhuntingCompanySingleQueryModule.register({
             isGlobal: true,
         }),
-        ConsultantsQueryModule.register({
+        ConsultantsSingleQueryModule.register({
             isGlobal: true,
         }),
         ConsultantSingleQueryModule.register({

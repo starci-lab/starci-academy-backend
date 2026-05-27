@@ -1,4 +1,4 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
@@ -11,8 +11,11 @@ import {
     ConfigurableModuleClass,
 } from "./challenges.module-definition"
 import {
-    ChallengeSubmissionProgressModule,
+    ChallengeSubmissionProgressSingleQueryModule,
 } from "./challenge-submission-progress"
+import {
+    LeaderboardSingleQueryModule,
+} from "./leaderboard"
 
 @Module({
     imports: [
@@ -22,7 +25,12 @@ import {
         ChallengeSingleQueryModule.register({
             isGlobal: true,
         }),
-        ChallengeSubmissionProgressModule,
+        ChallengeSubmissionProgressSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        LeaderboardSingleQueryModule.register({
+            isGlobal: true,
+        }),
     ],
 })
 export class ChallengesModule extends ConfigurableModuleClass {}

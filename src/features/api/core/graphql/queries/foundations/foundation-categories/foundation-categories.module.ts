@@ -1,4 +1,4 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
@@ -21,4 +21,4 @@ import {
         FoundationCategoriesHandler,
     ],
 })
-export class FoundationCategoriesQueryModule extends ConfigurableModuleClass {}
+export class FoundationCategoriesSingleQueryModule extends ConfigurableModuleClass {}

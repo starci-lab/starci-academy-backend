@@ -1,3 +1,6 @@
+﻿import {
+    ConfigurableModuleClass,
+} from "./user-personal-task-attempt-feedbacks.module-definition"
 import {
     Module,
 } from "@nestjs/common"
@@ -18,4 +21,4 @@ import {
         UserPersonalTaskAttemptFeedbacksHandler,
     ],
 })
-export class UserPersonalTaskAttemptFeedbacksModule {}
+export class UserPersonalTaskAttemptFeedbacksSingleQueryModule extends ConfigurableModuleClass {}

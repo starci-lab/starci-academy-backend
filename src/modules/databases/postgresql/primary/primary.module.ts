@@ -92,6 +92,8 @@ import {
     HeadhuntingCompanyTranslationEntity,
     ConsultantEntity,
     ConsultantTranslationEntity,
+    MindMapNodeEntity,
+    MindMapNodeTranslationEntity,
 } from "./entities"
 import {
     SeedersModule
@@ -250,6 +252,8 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     HeadhuntingCompanyTranslationEntity,
                                     ConsultantEntity,
                                     ConsultantTranslationEntity,
+                                    MindMapNodeEntity,
+                                    MindMapNodeTranslationEntity,
                                 ],
                                 synchronize,
                                 logging: false,
@@ -361,6 +365,8 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         HeadhuntingCompanyTranslationEntity,
                         ConsultantEntity,
                         ConsultantTranslationEntity,
+                        MindMapNodeEntity,
+                        MindMapNodeTranslationEntity,
                     ],
                     POSTGRESQL_PRIMARY
                 ),

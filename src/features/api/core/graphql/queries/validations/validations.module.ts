@@ -1,16 +1,16 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
     ConfigurableModuleClass,
 } from "./validations.module-definition"
 import {
-    CheckEmailExistsQueryModule,
+    CheckEmailExistsSingleQueryModule,
 } from "./check-email-exists"
 
 @Module({
     imports: [
-        CheckEmailExistsQueryModule.register({
+        CheckEmailExistsSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

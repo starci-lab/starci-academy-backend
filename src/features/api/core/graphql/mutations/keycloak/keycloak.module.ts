@@ -1,67 +1,67 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
     ConfigurableModuleClass,
 } from "./keycloak.module-definition"
 import {
-    ExchangeCodeForTokenMutationModule,
+    ExchangeCodeForTokenSingleMutationModule,
 } from "./exchange-code-for-token"
 import {
-    RefreshTokenMutationModule,
+    RefreshTokenSingleMutationModule,
 } from "./refresh-token"
 import {
-    SignOutMutationModule,
+    SignOutSingleMutationModule,
 } from "./sign-out"
 import {
-    SignInVerifyOtpMutationModule,
-    SignInInitMutationModule,
-    SignInResendOtpMutationModule,
-    ForgotPasswordInitMutationModule,
-    ForgotPasswordResendOtpMutationModule,
-    ForgotPasswordVerifyOtpMutationModule,
+    SignInVerifyOtpSingleMutationModule,
+    SignInInitSingleMutationModule,
+    SignInResendOtpSingleMutationModule,
+    ForgotPasswordInitSingleMutationModule,
+    ForgotPasswordResendOtpSingleMutationModule,
+    ForgotPasswordVerifyOtpSingleMutationModule,
 } from "./sign-in"
 import {
-    SignUpInitMutationModule,
-    SignUpVerifyOtpMutationModule,
-    SignUpResendOtpMutationModule,
+    SignUpInitSingleMutationModule,
+    SignUpVerifyOtpSingleMutationModule,
+    SignUpResendOtpSingleMutationModule,
 } from "./sign-up"
 @Module({
     imports: [
-        ExchangeCodeForTokenMutationModule.register({
+        ExchangeCodeForTokenSingleMutationModule.register({
             isGlobal: true,
         }),
-        RefreshTokenMutationModule.register({
+        RefreshTokenSingleMutationModule.register({
             isGlobal: true,
         }),
-        SignOutMutationModule.register({
+        SignOutSingleMutationModule.register({
             isGlobal: true,
         }),
-        SignInInitMutationModule.register({
+        SignInInitSingleMutationModule.register({
             isGlobal: true,
         }),
-        SignInVerifyOtpMutationModule.register({
+        SignInVerifyOtpSingleMutationModule.register({
             isGlobal: true,
         }),
-        SignInResendOtpMutationModule.register({
+        SignInResendOtpSingleMutationModule.register({
             isGlobal: true,
         }),
-        ForgotPasswordInitMutationModule.register({
+        ForgotPasswordInitSingleMutationModule.register({
             isGlobal: true,
         }),
-        ForgotPasswordResendOtpMutationModule.register({
+        ForgotPasswordResendOtpSingleMutationModule.register({
             isGlobal: true,
         }),
-        ForgotPasswordVerifyOtpMutationModule.register({
+        ForgotPasswordVerifyOtpSingleMutationModule.register({
             isGlobal: true,
         }),
-        SignUpInitMutationModule.register({
+        SignUpInitSingleMutationModule.register({
             isGlobal: true,
         }),
-        SignUpVerifyOtpMutationModule.register({
+        SignUpVerifyOtpSingleMutationModule.register({
             isGlobal: true,
         }),
-        SignUpResendOtpMutationModule.register({
+        SignUpResendOtpSingleMutationModule.register({
             isGlobal: true,
         }),
     ],

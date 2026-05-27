@@ -1,3 +1,6 @@
+﻿import {
+    ConfigurableModuleClass,
+} from "./submit-challenge-submission.module-definition"
 import {
     Module,
 } from "@nestjs/common"
@@ -18,4 +21,4 @@ import {
         SubmitChallengeSubmissionHandler,
     ],
 })
-export class SubmitChallengeSubmissionMutationModule {}
+export class SubmitChallengeSubmissionSingleMutationModule extends ConfigurableModuleClass {}

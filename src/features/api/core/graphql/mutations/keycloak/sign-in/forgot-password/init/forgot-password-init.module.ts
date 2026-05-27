@@ -1,4 +1,4 @@
-import {
+﻿import {
     Module,
 } from "@nestjs/common"
 import {
@@ -21,4 +21,4 @@ import {
         ForgotPasswordInitHandler,
     ],
 })
-export class ForgotPasswordInitMutationModule extends ConfigurableModuleClass {}
+export class ForgotPasswordInitSingleMutationModule extends ConfigurableModuleClass {}

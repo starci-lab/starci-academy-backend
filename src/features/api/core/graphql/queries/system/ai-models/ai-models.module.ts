@@ -2,6 +2,9 @@ import {
     Module,
 } from "@nestjs/common"
 import {
+    ConfigurableModuleClass,
+} from "./ai-models.module-definition"
+import {
     AiModelsResolver,
 } from "./ai-models.resolver"
 import {
@@ -18,4 +21,4 @@ import {
         AiModelsHandler,
     ],
 })
-export class AiModelsModule {}
+export class AiModelsSingleQueryModule extends ConfigurableModuleClass {}

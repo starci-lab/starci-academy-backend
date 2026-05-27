@@ -1,3 +1,6 @@
+﻿import {
+    ConfigurableModuleClass,
+} from "./trigger-cv-submission.module-definition"
 import {
     Module,
 } from "@nestjs/common"
@@ -18,4 +21,4 @@ import {
         TriggerCvSubmissionHandler,
     ],
 })
-export class TriggerCvSubmissionMutationModule {}
+export class TriggerCvSubmissionSingleMutationModule extends ConfigurableModuleClass {}
