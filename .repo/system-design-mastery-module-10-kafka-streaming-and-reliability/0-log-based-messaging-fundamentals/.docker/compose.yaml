@@ -47,6 +47,8 @@ services:
       # Broker Kafka PLAINTEXT.
       # (EN: Kafka broker PLAINTEXT port.)
       - "9092:9092"
+    networks:
+      - 0-log-based-messaging-fundamentals
     restart: unless-stopped
 
   # Kafka UI — xem topic, offset, consumer lag.
@@ -61,23 +63,27 @@ services:
     ports:
       # Giao diện Kafka UI.
       # (EN: Kafka UI web port.)
-      - "8080:8080"
+      - "8081:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
     depends_on:
       - kafka
+    networks:
+      - 0-log-based-messaging-fundamentals
     restart: unless-stopped
 
   # HTTP producer — POST /events.
   # (EN: HTTP producer — POST /events.)
   ingest-api:
+    build:
+      context: ../ingest-api
     image: starciacademy/advanced-message-broker-ingest-api:latest
     container_name: 0-log-based-messaging-fundamentals-ingest-api
     ports:
       # Cổng HTTP API host → container.
       # (EN: HTTP API host → container port.)
-      - "3000:3000"
+      - "3001:3000"
     environment:
       KAFKA_BROKERS: kafka:9092
       KAFKA_TOPIC: platform-events
@@ -92,6 +98,8 @@ services:
   # Consumer A — group broker-lesson0-group.
   # (EN: Consumer A — group broker-lesson0-group.)
   consumer-a:
+    build:
+      context: ../consumer-a
     image: starciacademy/advanced-message-broker-consumer-a:latest
     container_name: 0-log-based-messaging-fundamentals-consumer-a
     environment:
@@ -108,6 +116,8 @@ services:
   # Consumer B — cùng group, chia partition.
   # (EN: Consumer B — same group, shares partitions.)
   consumer-b:
+    build:
+      context: ../consumer-b
     image: starciacademy/advanced-message-broker-consumer-b:latest
     container_name: 0-log-based-messaging-fundamentals-consumer-b
     environment:

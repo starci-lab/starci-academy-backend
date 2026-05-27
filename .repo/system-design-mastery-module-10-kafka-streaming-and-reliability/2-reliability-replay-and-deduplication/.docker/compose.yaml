@@ -47,6 +47,8 @@ services:
       # Broker Kafka PLAINTEXT.
       # (EN: Kafka broker PLAINTEXT port.)
       - "9092:9092"
+    networks:
+      - 2-reliability-replay-and-deduplication
     restart: unless-stopped
 
   # Kafka UI — xem topic, offset, consumer lag.
@@ -61,23 +63,27 @@ services:
     ports:
       # Giao diện Kafka UI.
       # (EN: Kafka UI web port.)
-      - "8080:8080"
+      - "8081:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
     depends_on:
       - kafka
+    networks:
+      - 2-reliability-replay-and-deduplication
     restart: unless-stopped
 
   # Producer — clientMessageId + simulateFailure.
   # (EN: Producer — clientMessageId + simulateFailure flag.)
   ingest-api:
+    build:
+      context: ../ingest-api
     image: starciacademy/advanced-message-broker-ingest-api:latest
     container_name: 2-reliability-replay-and-deduplication-ingest-api
     ports:
       # Cổng HTTP API host → container.
       # (EN: HTTP API host → container port.)
-      - "3000:3000"
+      - "3001:3000"
     environment:
       KAFKA_BROKERS: kafka:9092
       KAFKA_TOPIC: reliability-events
@@ -93,6 +99,8 @@ services:
   # Idempotent consumer — dedup + Postgres.
   # (EN: Idempotent consumer — dedup + Postgres persistence.)
   reliability-consumer:
+    build:
+      context: ../reliability-consumer
     image: starciacademy/advanced-message-broker-reliability-consumer:latest
     container_name: 2-reliability-replay-and-deduplication-reliability-consumer
     environment:
@@ -101,6 +109,13 @@ services:
       KAFKA_CLIENT_ID: reliability-consumer
       KAFKA_GROUP_ID: broker-lesson2-group
       KAFKA_DLQ_TOPIC: reliability-events-dlq
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: reliability_lab
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
     depends_on:
       - kafka
     networks:
