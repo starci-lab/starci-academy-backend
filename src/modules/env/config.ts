@@ -604,7 +604,7 @@ export const envConfig = () => ({
             /** Default sender display name. */
             fromName: parseEnvString({
                 key: "BREVO_FROM_NAME",
-                defaultValue: "Lê Đức Minh",
+                defaultValue: "Quan Nguyen",
             }),
         },
         /** GitHub Organization service configuration. */
