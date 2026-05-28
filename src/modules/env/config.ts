@@ -594,12 +594,12 @@ export const envConfig = () => ({
             }),
             username: parseEnvString({
                 key: "BREVO_SMTP_USERNAME",
-                defaultValue: "991795001@smtp-brevo.com",
+                defaultValue: "aca71c001@smtp-brevo.com",
             }),
             /** Default sender email address. */
             fromAddress: parseEnvString({
                 key: "BREVO_FROM_ADDRESS",
-                defaultValue: "leducminhdhqt@gmail.com",
+                defaultValue: "quannam27042004@gmail.com",
             }),
             /** Default sender display name. */
             fromName: parseEnvString({
