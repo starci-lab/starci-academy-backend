@@ -81,9 +81,11 @@ services:
       TERRAFORM_GEMINI_API_KEY_MOUNT_PATH: ${TERRAFORM_GEMINI_API_KEY_MOUNT_PATH:-/usr/src/app/.mount/terraform/gemini-api-key.key}
       TERRAFORM_OPENAI_API_KEY_MOUNT_PATH: ${TERRAFORM_OPENAI_API_KEY_MOUNT_PATH:-/usr/src/app/.mount/terraform/openai-api-key.key}
       TERRAFORM_SEPAY_API_KEY_MOUNT_PATH: ${TERRAFORM_SEPAY_API_KEY_MOUNT_PATH:-/usr/src/app/.mount/terraform/sepay-api-key.key}
-      TERRAFORM_BREVO_SMTP_PASSWORD_MOUNT_PATH: ${TERRAFORM_BREVO_SMTP_PASSWORD_MOUNT_PATH:-/usr/src/app/.mount/terraform/brevo-smtp-api-key.key}
+      TERRAFORM_BREVO_SMTP_PASSWORD_MOUNT_PATH: ${TERRAFORM_BREVO_SMTP_PASSWORD_MOUNT_PATH:-/usr/src/app/.mount/terraform/keys/brevo-smtp-api-key.key}
       TERRAFORM_ENCRYPTION_KEY_MOUNT_PATH: ${TERRAFORM_ENCRYPTION_KEY_MOUNT_PATH:-/usr/src/app/.mount/terraform/encryption-key.key}
       TERRAFORM_GCP_SERVICE_ACCOUNT_JSON_MOUNT_PATH: ${TERRAFORM_GCP_SERVICE_ACCOUNT_JSON_MOUNT_PATH:-/usr/src/app/.mount/terraform/gcp-service-account.json}
+
+      SYNCHRONIZER_ENABLE: ${SYNCHRONIZER_ENABLE:-false}
 
       CORE_PORT: ${CORE_PORT}
 
