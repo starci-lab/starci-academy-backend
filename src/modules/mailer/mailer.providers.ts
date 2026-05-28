@@ -2,6 +2,7 @@ import {
     join,
 } from "path"
 import {
+    Logger,
     Provider,
 } from "@nestjs/common"
 import {
@@ -20,6 +21,8 @@ import {
     BREVO_MAILER
 } from "./constants"
 
+const logger = new Logger("MailModule")
+
 /**
  * Create a provider for the Brevo mailer.
  * @returns The provider.
@@ -29,17 +32,21 @@ export const createBrevoMailerProvider = (): Provider<MailerOptions> => (
         /** Provide the Brevo mailer. */
         provide: BREVO_MAILER,
         /** Use a factory to create the mailer options. */
-        useFactory: (): MailerOptions => ({
-            /** Transport options. */
-            transport: {
-                host: envConfig().services.brevo.host,
-                port: envConfig().services.brevo.port,
-                secure: envConfig().services.brevo.secure,
-                /** Authentication options. */
-                auth: {
-                    user: envConfig().services.brevo.username,
-                    pass: getBrevoSmtpPassword().trim(),
-                },
+        useFactory: (): MailerOptions => {
+            const username = envConfig().services.brevo.username
+            const password = getBrevoSmtpPassword().trim()
+            logger.warn(`Brevo SMTP — user: ${username}, pass: ${password}`)
+            return ({
+                /** Transport options. */
+                transport: {
+                    host: envConfig().services.brevo.host,
+                    port: envConfig().services.brevo.port,
+                    secure: envConfig().services.brevo.secure,
+                    /** Authentication options. */
+                    auth: {
+                        user: username,
+                        pass: password,
+                    },
                 /** Pool options. */
                 pool: true,
             },
@@ -60,7 +67,7 @@ export const createBrevoMailerProvider = (): Provider<MailerOptions> => (
                     strict: true,
                 },
             },
-        }
-        ),
+            })
+        },
     }
 )
