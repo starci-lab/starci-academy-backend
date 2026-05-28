@@ -146,9 +146,6 @@ import {
 import {
     AiModule
 } from "@modules/ai"
-import {
-    AiBalancerModule
-} from "@features/ai-balancer"
 /**
  * The main module for the application.
  */
@@ -180,12 +177,8 @@ import {
                     isGlobal: true,
                 }
             ),
-            /** AI module. */
+            /** AI module — includes the rotating API-key balancer. */
             AiModule.register({
-                isGlobal: true,
-            }),
-            /** AI Balancer feature — rotates API keys across the pool per provider. */
-            AiBalancerModule.register({
                 isGlobal: true,
             }),
             /** Cookie module. */

@@ -1,15 +1,11 @@
 import {
     Injectable,
-    OnModuleInit,
 } from "@nestjs/common"
 import {
     ModelProvider,
 } from "@modules/databases"
 import {
     MountFilesystemService,
-} from "@modules/filesystem"
-import type {
-    AppConfigAiModel,
 } from "@modules/filesystem"
 import {
     WinstonLog,
@@ -22,72 +18,75 @@ import type {
     KeyState,
     ProviderKeyFile,
 } from "../types"
+import {
+    AiModelCatalogService,
+} from "./ai-model-catalog.service"
 
 /**
  * In-memory store of API keys keyed by provider.
  *
- * On boot, reads the AI catalog from `MountFilesystemService.appConfig().ai.models`,
+ * Lazily (on first {@link KeyStoreService.ensureLoaded}) reads the enabled
+ * model catalog from the `ai_models` table via {@link AiModelCatalogService},
  * de-duplicates by `(provider, keysFilePath)`, and asks the mount service to
  * parse the newline-separated key file for each provider. {@link KeyHealthService}
- * mutates `status` / `failCount` at runtime; {@link KeyRotatorService} picks
- * an active key per request.
+ * mutates `status` / `failCount` at runtime; {@link KeyRotatorService} picks an
+ * active key per request.
  *
- * The mount file format is plain text — one API key per line (empty lines
- * and `#`-comment lines are stripped):
+ * Loading is lazy (not `onModuleInit`) because the catalog is seeded into the
+ * DB by `InitModule`, which may run after this provider is constructed — the
+ * first AI call (well after boot) triggers the load.
  *
- * ```
- * # sample header comment
- * sk-aaa
- * sk-bbb
- * sk-ccc
- * ```
- *
- * Missing or empty file → empty pool (boot does not crash).
+ * The mount file format is plain text — one API key per line (empty lines and
+ * `#`-comment lines are stripped). Missing or empty file → empty pool (no crash).
  *
  * @example
+ * await keyStore.ensureLoaded()
  * const pool = keyStore.getPool(ModelProvider.OpenAI)
  * const active = pool.filter((key) => key.status === KeyStatus.Active)
  */
 @Injectable()
-export class KeyStoreService implements OnModuleInit {
+export class KeyStoreService {
     /** Provider → ordered list of key states (stable order for round-robin). */
     private readonly pool = new Map<ModelProvider, Array<KeyState>>()
     /** Provider → mount file path actually loaded (for logs / health snapshot). */
     private readonly pathByProvider = new Map<ModelProvider, string>()
+    /** Whether {@link reloadAll} has completed at least once. */
+    private loaded = false
 
     constructor(
         private readonly mountFilesystemService: MountFilesystemService,
+        private readonly aiModelCatalogService: AiModelCatalogService,
         private readonly winstonService: WinstonService,
     ) { }
 
     /**
-     * Lifecycle hook — reloads every provider's pool from the mount files
-     * when the module bootstraps.
+     * Load the pools once. No-op after the first successful load — call
+     * {@link reloadAll} directly to force a refresh (e.g. after a reseed).
      */
-    onModuleInit(): void {
-        this.reloadAll()
+    async ensureLoaded(): Promise<void> {
+        if (this.loaded) {
+            return
+        }
+        await this.reloadAll()
     }
 
     /**
-     * Reload every enabled provider's key pool from its mount file.
-     *
-     * Idempotent — safe to call again at runtime (e.g. after `app.yaml` is
-     * edited and the process is signalled to refresh).
+     * Reload every enabled provider's key pool from its mount file, driven by
+     * the DB catalog. Idempotent — safe to call again at runtime.
      */
-    reloadAll(): void {
-        // fetch enabled model rows from the mounted catalog (app.yaml)
-        const {
-            models,
-        } = this.mountFilesystemService.appConfig().ai
-        const enabled = models.filter((model) => model.enabled)
+    async reloadAll(): Promise<void> {
+        // fetch enabled model rows from the DB catalog (cached in-memory)
+        const models = await this.aiModelCatalogService.enabledModels()
 
         // de-duplicate by (provider, keysFilePath) — many models share one pool
-        const work = this.dedupeProviderFiles(enabled)
+        const work = this.dedupeProviderFiles(models)
 
         // reload each provider
         for (const item of work) {
             this.reloadProvider(item)
         }
+
+        this.loaded = true
     }
 
     /**
@@ -146,7 +145,7 @@ export class KeyStoreService implements OnModuleInit {
      * defensively copy because those services own that mutation.
      *
      * @param provider - target provider
-     * @returns Mutable pool array (empty when provider unknown)
+     * @returns Mutable pool array (empty when provider unknown / not yet loaded)
      */
     getPool(provider: ModelProvider): Array<KeyState> {
         return this.pool.get(provider) ?? []
@@ -173,7 +172,7 @@ export class KeyStoreService implements OnModuleInit {
      * Collapse the model list to one entry per `(provider, keysFilePath)`
      * pair so the same pool file is not re-read multiple times.
      */
-    private dedupeProviderFiles(models: Array<AppConfigAiModel>): Array<ProviderKeyFile> {
+    private dedupeProviderFiles(models: Array<ProviderKeyFile>): Array<ProviderKeyFile> {
         const seen = new Set<string>()
         const work: Array<ProviderKeyFile> = []
         for (const model of models) {

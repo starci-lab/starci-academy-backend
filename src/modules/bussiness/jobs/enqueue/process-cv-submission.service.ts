@@ -68,6 +68,7 @@ export class EnqueueProcessCvSubmissionJobService {
             embeddingProvider,
             templateCvId,
             locale,
+            mode,
         }: EnqueueProcessCvSubmissionJobParams,
     ): Promise<JobEntity> {
 
@@ -104,7 +105,11 @@ export class EnqueueProcessCvSubmissionJobService {
                 } : {
                 }),
                 ...(locale !== undefined ? {
-                    locale 
+                    locale
+                } : {
+                }),
+                ...(mode !== undefined ? {
+                    mode
                 } : {
                 }),
             }

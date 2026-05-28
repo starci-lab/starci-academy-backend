@@ -71,6 +71,7 @@ export class EnqueueProcessGitSubmissionJobService {
             embeddingModel,
             embeddingProvider,
             locale,
+            mode,
         }: EnqueueProcessGitSubmissionJobParams,
     ): Promise<JobEntity> {
         let job: JobEntity | null = null
@@ -108,6 +109,10 @@ export class EnqueueProcessGitSubmissionJobService {
                 }),
                 ...(locale !== undefined ? {
                     locale: locale as Locale,
+                } : {
+                }),
+                ...(mode !== undefined ? {
+                    mode
                 } : {
                 }),
             }

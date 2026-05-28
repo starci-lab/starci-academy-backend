@@ -137,6 +137,9 @@ export class KeyHealthService implements OnModuleInit, OnModuleDestroy {
      * without waiting for the next tick.
      */
     async runHealthCheck(): Promise<void> {
+        // hydrate the pool from the DB catalog on the first sweep (lazy load)
+        await this.keyStoreService.ensureLoaded()
+
         // walk every provider currently in the pool
         const providers = this.keyStoreService.listProviders()
         for (const { provider } of providers) {

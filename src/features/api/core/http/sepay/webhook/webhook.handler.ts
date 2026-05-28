@@ -5,14 +5,19 @@ import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
+    ActionType,
     InjectPrimaryPostgreSQLEntityManager,
     TransactionEntity,
     TransactionStatus,
 } from "@modules/databases"
 import {
+    AiEntitlementService,
+} from "@modules/ai"
+import {
     envConfig,
 } from "@modules/env"
 import {
+    AiSubscriptionTierNotAvailableException,
     TransactionCourseNotFoundException,
     TransactionExpiredError,
     TransactionNotFoundException,
@@ -24,10 +29,12 @@ import {
     InjectSepay,
 } from "@modules/sepay"
 import {
-    Sepay,
-} from "@modules/sepay/sepay.client"
+    SePayPgClient,
+} from "sepay-pg-node"
 import {
+    BadRequestException,
     Injectable,
+    Logger,
 } from "@nestjs/common"
 import {
     CommandHandler,
@@ -45,10 +52,13 @@ import {
 export class SepayWebhookHandler
     extends ICQRSHandler<SepayWebhookCommand, void>
     implements ICommandHandler<SepayWebhookCommand, void> {
+    private readonly logger = new Logger(SepayWebhookHandler.name)
+
     constructor(
         @InjectSepay()
-        private readonly sepay: Sepay,
+        private readonly sepay: SePayPgClient,
         private readonly enqueueEnrollJobService: EnqueueEnrollJobService,
+        private readonly aiEntitlementService: AiEntitlementService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly dayjsService: DayjsService,
@@ -60,41 +70,41 @@ export class SepayWebhookHandler
         command: SepayWebhookCommand,
     ): Promise<void> {
         const body = command.params
-        const referenceId = body.code
 
-        let transaction: TransactionEntity | null = null
+        // log the raw IPN so the exact field names can be finalised from a real
+        // SePay PG notification (payload shape is not documented yet)
+        this.logger.log(`SePay PG IPN received: ${JSON.stringify(body)}`)
 
-        if (referenceId) {
-            transaction = await this.entityManager.findOne(
-                TransactionEntity,
-                {
-                    where: {
-                        referenceId: referenceId.toString(),
-                        status: TransactionStatus.Pending,
-                    },
-                },
-            )
+        const invoice = body.order_invoice_number
+        if (!invoice) {
+            throw new TransactionNotFoundException({
+                referenceId: "missing order_invoice_number",
+            })
         }
 
-        if (!transaction) {
-            const pendingTransactions = await this.entityManager.find(
-                TransactionEntity,
-                {
-                    where: {
-                        status: TransactionStatus.Pending,
-                    },
+        const transaction = await this.entityManager.findOne(
+            TransactionEntity,
+            {
+                where: {
+                    referenceId: invoice,
+                    status: TransactionStatus.Pending,
                 },
-            )
-            transaction = pendingTransactions.find(
-                (t) => body.content.includes(t.referenceId),
-            ) || null
-        }
+            },
+        )
 
         if (!transaction) {
             throw new TransactionNotFoundException({
-                referenceId: referenceId || "unknown",
+                referenceId: invoice,
             })
         }
+
+        // authoritative verification: query the order-detail API (Basic auth
+        // merchant:secret). A non-2xx response throws → the IPN is rejected.
+        // We trust this server-to-server call, not the inbound IPN body.
+        const orderDetail = await this.sepay.order.retrieve(invoice)
+        this.logger.log(
+            `SePay PG order detail (${invoice}): ${JSON.stringify(orderDetail.data)}`,
+        )
 
         const timeSinceCreationMs = this.dayjsService.now().diff(
             this.dayjsService.from(transaction?.createdAt),
@@ -105,15 +115,39 @@ export class SepayWebhookHandler
                 id: transaction.id,
             })
         }
-        if (!transaction.courseId) {
-            throw new TransactionCourseNotFoundException({
-                id: transaction.id,
+        switch (transaction.actionType) {
+        // AI subscription purchase: grant the tier directly (no worker needed)
+        case ActionType.AiSubscriptionPurchase: {
+            if (!transaction.aiSubTier) {
+                throw new AiSubscriptionTierNotAvailableException({
+                    tier: "unknown",
+                })
+            }
+            await this.aiEntitlementService.grantTier({
+                userId: transaction.userId,
+                tier: transaction.aiSubTier,
+                transactionId: transaction.id,
             })
+            return
         }
-        await this.enqueueEnrollJobService.enqueue({
-            userId: transaction.userId,
-            courseId: transaction.courseId,
-            transactionId: transaction.id,
-        })
+        // course enrollment: hand off to the enroll worker
+        case ActionType.Enroll: {
+            if (!transaction.courseId) {
+                throw new TransactionCourseNotFoundException({
+                    id: transaction.id,
+                })
+            }
+            await this.enqueueEnrollJobService.enqueue({
+                userId: transaction.userId,
+                courseId: transaction.courseId,
+                transactionId: transaction.id,
+            })
+            return
+        }
+        default:
+            throw new BadRequestException(
+                `Unsupported transaction action type: ${String(transaction.actionType)}`,
+            )
+        }
     }
 }

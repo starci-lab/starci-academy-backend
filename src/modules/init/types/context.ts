@@ -32,6 +32,8 @@ export interface InitSeedersContext {
     cv: InitToggleContext
     foundations: InitToggleContext
     headhunting: InitToggleContext
+    aiModels: InitToggleContext
+    subscriptions: InitToggleContext
 }
 
 /** Per-track synchronizer scopes (CDN and Elasticsearch are independent). */

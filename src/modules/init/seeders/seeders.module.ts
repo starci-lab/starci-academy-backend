@@ -75,6 +75,14 @@ import {
     FoundationInsertService,
 } from "./foundations"
 import {
+    CatalogSeederService,
+    AiModelCatalogPathService,
+    SubscriptionCatalogPathService,
+    AiModelCatalogParserService,
+    SubscriptionCatalogParserService,
+    AiModelInsertService,
+} from "./catalog"
+import {
     HeadhuntingSeederService,
     HeadhuntingCompanyPathService,
     ConsultantPathService,
@@ -195,6 +203,12 @@ export class SeedersModule extends ConfigurableModuleClass {
             HeadhuntingCompanyInsertService,
             ConsultantInsertService,
             HeadhuntingSeederService,
+            AiModelCatalogPathService,
+            SubscriptionCatalogPathService,
+            AiModelCatalogParserService,
+            SubscriptionCatalogParserService,
+            AiModelInsertService,
+            CatalogSeederService,
         ]
         
         return {

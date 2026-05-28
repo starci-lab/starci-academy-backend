@@ -1,4 +1,5 @@
 import type {
+    AiMode,
     Locale,
     ModelProvider,
 } from "@modules/databases"
@@ -41,6 +42,8 @@ export interface EnqueueProcessGitSubmissionJobParams {
     embeddingProvider?: ModelProvider
     /** Locale hint for filtering/prompting (e.g. "en", "vi"). */
     locale?: string
+    /** AI lane the user picked; validated against entitlement at grade time. */
+    mode?: AiMode
 }
 
 /** Params for enqueuing a process-google-docs-submission job. */
@@ -67,6 +70,8 @@ export interface EnqueueProcessGoogleDocsSubmissionJobParams {
     embeddingProvider?: ModelProvider
     /** Locale hint for filtering/prompting (e.g. "en", "vi"). */
     locale?: string
+    /** AI lane the user picked; validated against entitlement at grade time. */
+    mode?: AiMode
 }
 
 /** Params for enqueuing a process-cv-submission job. */
@@ -89,4 +94,6 @@ export interface EnqueueProcessCvSubmissionJobParams {
     locale?: Locale
     /** `template_cvs.id` — which review rubric level to use. */
     templateCvId?: string
+    /** AI lane the user picked; validated against entitlement at grade time. */
+    mode?: AiMode
 }

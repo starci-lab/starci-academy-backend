@@ -1,4 +1,5 @@
 import {
+    AiMode,
     Locale,
     ModelProvider,
 } from "@modules/databases"
@@ -23,4 +24,12 @@ export interface ProcessGoogleDocsSubmissionPayload {
     embeddingProvider?: ModelProvider
     /** Locale hint for filtering/prompting (e.g. "en", "vi"). */
     locale?: Locale
+    /** BYOK: provider of the user-supplied key (used only in `byok` mode). */
+    byokProvider?: ModelProvider
+    /** BYOK: model to invoke with the user-supplied key. */
+    byokModel?: string
+    /** BYOK: the user's own raw API key. */
+    byokApiKey?: string
+    /** AI lane the user picked at submit time; validated against entitlement. */
+    mode?: AiMode
 }

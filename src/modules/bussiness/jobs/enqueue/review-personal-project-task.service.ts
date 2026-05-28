@@ -9,6 +9,7 @@ import {
 } from "bullmq"
 import {
     ActionType,
+    AiMode,
     JobEntity,
     JobCategory,
     Locale,
@@ -58,6 +59,8 @@ export interface EnqueueReviewPersonalProjectTaskParams {
     provider?: ModelProvider
     /** Locale hint for filtering/prompting. */
     locale?: Locale
+    /** AI lane the user picked; validated against entitlement at grade time. */
+    mode?: AiMode
 }
 
 /**
@@ -87,6 +90,7 @@ export class EnqueueReviewPersonalProjectTaskJobService {
             model,
             provider,
             locale,
+            mode,
         }: EnqueueReviewPersonalProjectTaskParams,
     ): Promise<JobEntity> {
         const payload: ReviewPersonalProjectTaskPayload = {
@@ -97,6 +101,10 @@ export class EnqueueReviewPersonalProjectTaskJobService {
             gradingModel: model || this.reviewPersonalProjectModelRouterService.model,
             gradingProvider: provider || this.reviewPersonalProjectModelRouterService.provider,
             locale,
+            ...(mode !== undefined ? {
+                mode
+            } : {
+            }),
         }
         const job = await this.jobActionService.createJob({
             id: uuidv4(),

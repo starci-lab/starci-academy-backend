@@ -44,6 +44,17 @@ export class CourseEnrollResponseData {
         },
     )
         amount: number
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description:
+                "When set (SePay PG), JSON of signed checkout fields the client "
+                + "POSTs as a form to `checkoutUrl`; null for redirect providers (PayOS).",
+        },
+    )
+        checkoutFields?: string
 }
 
 @ObjectType({

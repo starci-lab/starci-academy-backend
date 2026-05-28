@@ -9,6 +9,9 @@ import {
     MountFilesystemService
 } from "./mount.service"
 import {
+    setRuntimeAppConfig,
+} from "./utils"
+import {
     ReadinessWatcherFactoryService
 } from "@modules/mixin"
 
@@ -62,5 +65,13 @@ export class MountStorageService implements OnModuleInit {
         this.adminApiKey = this.mountFilesystemService.adminApiKey()
         // set readiness watcher to true
         this.readinessWatcherFactoryService.setReady(MountStorageService.name)
+    }
+
+    /**
+     * Apply a merged app catalog (mount data + `app.yaml`) after init seeding.
+     */
+    applyAppConfig(appConfig: AppConfig): void {
+        setRuntimeAppConfig(appConfig)
+        this.appConfig = appConfig
     }
 }

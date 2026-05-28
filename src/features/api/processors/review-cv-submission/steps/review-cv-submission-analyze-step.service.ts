@@ -1,5 +1,5 @@
 import {
-    ReviewCvSubmissionModelRouterService,
+    AiInvokeService,
 } from "@modules/ai"
 import {
     HumanMessage,
@@ -15,9 +15,6 @@ import {
     Locale,
     TemplateCVEntity,
 } from "@modules/databases"
-import {
-    ModelService,
-} from "@modules/langchain"
 import {
     WinstonLog,
     WinstonService,
@@ -44,6 +41,10 @@ import {
 } from "./review-cv-submission-extract-step.service"
 import {
     ReviewCvSubmissionPlanStepService,
+    CV_AI_INVOKE_DECISION_KEY,
+} from "./review-cv-submission-plan-step.service"
+import type {
+    CvAiInvokeDecision,
 } from "./review-cv-submission-plan-step.service"
 import {
     ReviewCvSubmissionParseService,
@@ -70,8 +71,7 @@ export class ReviewCvSubmissionAnalyzeStepService extends AbstractStepService<
         private readonly entityManager: EntityManager,
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
-        private readonly modelService: ModelService,
-        private readonly reviewCvSubmissionModelRouter: ReviewCvSubmissionModelRouterService,
+        private readonly aiInvokeService: AiInvokeService,
         private readonly extractStepService: ReviewCvSubmissionExtractStepService,
         private readonly planStepService: ReviewCvSubmissionPlanStepService,
         private readonly reviewCvSubmissionParseService: ReviewCvSubmissionParseService,
@@ -244,19 +244,25 @@ export class ReviewCvSubmissionAnalyzeStepService extends AbstractStepService<
 
         const humanText = text
 
-        const model = this.modelService.get({
-            model: context.payload.analyzeModel ?? this.reviewCvSubmissionModelRouter.model,
-            provider: context.payload.analyzeProvider ?? this.reviewCvSubmissionModelRouter.provider,
+        /**
+         * Reuse the entitlement decision the plan step already resolved +
+         * debited — do NOT consume again (1 CV review = 1 charge). Fall back
+         * to an empty decision (balancer default) if absent.
+         */
+        const decision = await this.jobActionService.loadExecutionResult<CvAiInvokeDecision>(
+            {
+                job: context.job,
+                key: CV_AI_INVOKE_DECISION_KEY,
+            },
+        ) ?? {}
+
+        const { text: raw } = await this.aiInvokeService.invoke({
+            messages: [
+                new SystemMessage(systemText),
+                new HumanMessage(humanText),
+            ],
+            ...decision,
         })
-
-        const response = await model.invoke([
-            new SystemMessage(systemText),
-            new HumanMessage(humanText),
-        ])
-
-        const raw = (typeof response.content === "string"
-            ? response.content
-            : String(response.content)) as string
 
         return this.reviewCvSubmissionParseService.parse(raw)
     }

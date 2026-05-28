@@ -25,6 +25,9 @@ import {
 import {
     PersonalProjectMutationsModule,
 } from "./personal-project"
+import {
+    AiMutationsModule,
+} from "./ai"
 
 /**
  * GraphQL mutations (courses, authentication, etc.).
@@ -48,6 +51,9 @@ import {
             isGlobal: true,
         }),
         PersonalProjectMutationsModule.register({
+            isGlobal: true,
+        }),
+        AiMutationsModule.register({
             isGlobal: true,
         }),
     ],

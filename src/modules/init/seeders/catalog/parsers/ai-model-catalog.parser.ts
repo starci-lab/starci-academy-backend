@@ -1,0 +1,236 @@
+import {
+    Injectable,
+} from "@nestjs/common"
+import type {
+    AppConfigAiModel,
+} from "@modules/filesystem"
+import {
+    AiModelCategory,
+    ModelProvider,
+} from "@modules/databases"
+import {
+    ContextLoaderService,
+    CoerceMdScalarService,
+    ExtractJsonFromMdService,
+    logInitSeederEntitySkipped,
+} from "../../shared"
+import {
+    AiModelCatalogPathService,
+} from "../path"
+import {
+    WinstonService,
+} from "@modules/winston"
+
+/** Log label for skipped mount rows (no DB entity). */
+class AiModelCatalogEntity {
+    static readonly name = "AiModelCatalog"
+}
+
+/**
+ * Mount markdown shape for `.mount/data/ai-models/<index>-<slug>/{en,vi}.md`.
+ *
+ * Index signature satisfies the `Record<string, unknown>` constraint of
+ * `ExtractJsonFromMdService.extract<T>()` (a plain interface would not).
+ */
+type AiModelCatalogMd = {
+    name?: string
+    provider?: string
+    category?: string
+    keysFilePath?: string
+    priority?: string | number
+    enabled?: string | boolean
+    complimentary?: string | boolean
+    label?: string
+    description?: string
+    [key: string]: unknown
+}
+
+/** A parsed model row together with its bilingual catalog text. */
+export interface AiModelCatalogParsed {
+    /** Runtime catalog row (feeds appConfig + key rotation). */
+    model: AppConfigAiModel
+    /** English catalog text from `en.md`. */
+    en: AiModelCatalogTranslation
+    /** Vietnamese catalog text from `vi.md` (falls back to English). */
+    vi: AiModelCatalogTranslation
+}
+
+/** Localized catalog text (label, description) for a single locale. */
+export interface AiModelCatalogTranslation {
+    label: string
+    description: string
+}
+
+/**
+ * Parses `.mount/data/ai-models/<index>-<slug>/{en,vi}.md` into catalog rows
+ * (same mount markdown convention as courses).
+ */
+@Injectable()
+export class AiModelCatalogParserService {
+    constructor(
+        private readonly aiModelCatalogPathService: AiModelCatalogPathService,
+        private readonly contextLoaderService: ContextLoaderService,
+        private readonly extractJsonFromMdService: ExtractJsonFromMdService,
+        private readonly coerceMdScalarService: CoerceMdScalarService,
+        private readonly winstonService: WinstonService,
+    ) {}
+
+    /**
+     * Loads all indexed model definitions with their bilingual catalog text;
+     * empty when mount folder has no entries.
+     */
+    async parseManyWithTranslations(): Promise<Array<AiModelCatalogParsed>> {
+        const paths = await this.aiModelCatalogPathService.paths()
+        const parsed: Array<AiModelCatalogParsed> = []
+
+        for (const entry of paths) {
+            const enRelativePath = `${entry.relativePath}/en.md`
+            let raw: string
+            try {
+                raw = await this.contextLoaderService.load(
+                    "ai-models",
+                    enRelativePath,
+                )
+            } catch {
+                logInitSeederEntitySkipped(
+                    this.winstonService,
+                    AiModelCatalogEntity,
+                    enRelativePath,
+                    new Error("en.md missing or unreadable"),
+                )
+                continue
+            }
+
+            const enMd = this.extractJsonFromMdService.extract<AiModelCatalogMd>(raw)
+            const model: AppConfigAiModel = {
+                name: this.coerceMdScalarService.toRequiredString(
+                    enMd.name,
+                    entry.displayId,
+                ),
+                provider: this.coerceMdScalarService.toRequiredEnum(
+                    enMd.provider,
+                    ModelProvider,
+                    ModelProvider.OpenAI,
+                ),
+                category: this.coerceMdScalarService.toRequiredEnum(
+                    enMd.category,
+                    AiModelCategory,
+                    AiModelCategory.Economy,
+                ),
+                keysFilePath: this.coerceMdScalarService.toRequiredString(
+                    enMd.keysFilePath,
+                    "",
+                ),
+                priority: this.coerceMdScalarService.toRequiredNumber(
+                    enMd.priority,
+                    0,
+                ),
+                enabled: this.coerceMdScalarService.toRequiredBoolean(
+                    enMd.enabled,
+                    true,
+                ),
+                complimentary: this.coerceMdScalarService.toRequiredBoolean(
+                    enMd.complimentary,
+                    false,
+                ),
+            }
+
+            if (!isValidAiModelRow(model)) {
+                logInitSeederEntitySkipped(
+                    this.winstonService,
+                    AiModelCatalogEntity,
+                    enRelativePath,
+                    new Error("invalid ai-model en.md shape"),
+                )
+                continue
+            }
+
+            const en: AiModelCatalogTranslation = {
+                label: this.coerceMdScalarService.toRequiredString(
+                    enMd.label,
+                    model.name,
+                ),
+                description: this.coerceMdScalarService.toRequiredString(
+                    enMd.description,
+                    "",
+                ),
+            }
+            const vi = await this.loadTranslation(
+                entry.relativePath,
+                en,
+            )
+
+            parsed.push({
+                model,
+                en,
+                vi,
+            })
+        }
+
+        return parsed.sort(
+            (prev, next) => next.model.priority - prev.model.priority,
+        )
+    }
+
+    /** Loads all indexed model definitions; empty when mount folder has no entries. */
+    async parseMany(): Promise<Array<AppConfigAiModel>> {
+        const parsed = await this.parseManyWithTranslations()
+        return parsed.map((entry) => entry.model)
+    }
+
+    /**
+     * Reads `vi.md` catalog text; falls back to the English translation when the
+     * file is missing or a field is empty.
+     */
+    private async loadTranslation(
+        relativePath: string,
+        fallback: AiModelCatalogTranslation,
+    ): Promise<AiModelCatalogTranslation> {
+        const viRelativePath = `${relativePath}/vi.md`
+        let raw: string
+        try {
+            raw = await this.contextLoaderService.load(
+                "ai-models",
+                viRelativePath,
+            )
+        } catch {
+            return fallback
+        }
+
+        const viMd = this.extractJsonFromMdService.extract<AiModelCatalogMd>(raw)
+        return {
+            label: this.coerceMdScalarService.toRequiredString(
+                viMd.label,
+                fallback.label,
+            ),
+            description: this.coerceMdScalarService.toRequiredString(
+                viMd.description,
+                fallback.description,
+            ),
+        }
+    }
+}
+
+const isValidAiModelRow = (
+    row: AppConfigAiModel,
+): boolean => {
+    if (!row.name || !row.provider || !row.category) {
+        return false
+    }
+    if (!Object.values(ModelProvider).includes(row.provider)) {
+        return false
+    }
+    if (!Object.values(AiModelCategory).includes(row.category)) {
+        return false
+    }
+    if (row.keysFilePath.length === 0) {
+        return false
+    }
+    if (Number.isNaN(row.priority)) {
+        return false
+    }
+    if (typeof row.complimentary !== "boolean") {
+        return false
+    }
+    return typeof row.enabled === "boolean"
+}

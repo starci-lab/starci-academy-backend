@@ -2,9 +2,6 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    MountFilesystemService,
-} from "@modules/filesystem"
-import {
     ModelProvider,
 } from "@modules/databases"
 import {
@@ -34,14 +31,17 @@ import {
 import {
     KeyStoreService,
 } from "./key-store.service"
+import {
+    AiModelCatalogService,
+} from "./ai-model-catalog.service"
 
 /**
  * High-level wrapper that hides key rotation + model fallback from the caller.
  *
  * The flow for a single `useApi` call:
  *
- * 1. Read the AI catalog from `mountFilesystemService.appConfig().ai.models`,
- *    filter by `enabled` + (optional) `category`, sort by `priority` descending.
+ * 1. Read the AI catalog from the `ai_models` table via {@link AiModelCatalogService}
+ *    (enabled rows, optionally filtered by `category`, sorted by `priority` desc).
  * 2. For each model:
  *    a. Walk the provider's key pool — try one acquire per active key.
  *    b. Call the caller's `action(context)` with that key.
@@ -74,7 +74,7 @@ import {
 @Injectable()
 export class UseApiService {
     constructor(
-        private readonly mountFilesystemService: MountFilesystemService,
+        private readonly aiModelCatalogService: AiModelCatalogService,
         private readonly aiBalancerService: AiBalancerService,
         private readonly keyStoreService: KeyStoreService,
         private readonly winstonService: WinstonService,
@@ -92,13 +92,14 @@ export class UseApiService {
         action,
         category,
     }: UseApiParams<TResult>): Promise<UseApiResult<TResult>> {
-        // build fallback chain — filtered by category when provided, sorted highest-priority first
-        const {
-            models: catalog,
-        } = this.mountFilesystemService.appConfig().ai
-        const models = catalog
-            .filter((model) => model.enabled && (!category || model.category === category))
-            .sort((prev, next) => next.priority - prev.priority)
+        // make sure the key pools are hydrated from the mount files (lazy first load)
+        await this.keyStoreService.ensureLoaded()
+
+        // build fallback chain from the DB catalog — enabled rows, filtered by
+        // category when provided, already sorted highest-priority first
+        const models = await this.aiModelCatalogService.enabledModels({
+            category,
+        })
 
         let attempts = 0
         let lastError: Error | undefined

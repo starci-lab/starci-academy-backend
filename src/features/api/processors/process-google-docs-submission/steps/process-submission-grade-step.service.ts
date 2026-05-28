@@ -9,6 +9,9 @@ import {
     JobExtendedContext,
 } from "@modules/bussiness"
 import {
+    AiMode,
+    AiModelCategory,
+    EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
     InjectQdrantClient,
@@ -29,7 +32,6 @@ import {
 } from "@modules/env"
 import {
     EmbeddingModelService,
-    ModelService,
 } from "@modules/langchain"
 import {
     HumanMessage,
@@ -49,7 +51,11 @@ import {
 } from "@modules/filesystem"
 import template from "./template.json"
 import {
-    GradeModelRouterService,
+    AiInvokeService,
+    AiEntitlementService,
+} from "@modules/ai"
+import type {
+    AiInvokeByok,
 } from "@modules/ai"
 import {
     GoogleDriverAPIService,
@@ -79,8 +85,8 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         private readonly embeddingModelService: EmbeddingModelService,
         @InjectQdrantClient()
         private readonly qdrantClient: QdrantClient,
-        private readonly modelService: ModelService,
-        private readonly gradeModelRouterService: GradeModelRouterService,
+        private readonly aiInvokeService: AiInvokeService,
+        private readonly aiEntitlementService: AiEntitlementService,
         private readonly googleDriverApiService: GoogleDriverAPIService,
         private readonly processGoogleDocsSubmissionParseService: ProcessGoogleDocsSubmissionParseService,
     ) {
@@ -132,8 +138,6 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         >,
     ): Promise<ProcessGoogleDocsSubmissionGradeStepExecuteResult> {
         const { payload } = context
-        const model = payload.gradingModel ?? this.gradeModelRouterService.current.model
-        const provider = (payload.gradingProvider ?? this.gradeModelRouterService.current.provider) as ModelProvider
 
         const locale = payload.locale ?? Locale.En
         const localeLanguageMap: Record<string, string> = {
@@ -276,19 +280,29 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
             sourceExcerpt || "(empty document content)",
         ].join("\n")
 
-        const aiModel = this.modelService.get({
-            model,
-            provider,
+        /** Resolve + debit the submitter's AI quota once for this grading job. */
+        const enrollment = await this.entityManager.findOneOrFail(
+            EnrollmentEntity,
+            {
+                where: {
+                    id: payload.enrollmentId,
+                },
+            },
+        )
+        const invokeOptions = await this.resolveInvokeOptions(
+            {
+                userId: enrollment.userId,
+                payload,
+            },
+        )
+
+        const { text: raw } = await this.aiInvokeService.invoke({
+            messages: [
+                new SystemMessage(systemText),
+                new HumanMessage(humanText),
+            ],
+            ...invokeOptions,
         })
-
-        const response = await aiModel.invoke([
-            new SystemMessage(systemText),
-            new HumanMessage(humanText),
-        ])
-
-        const raw = typeof response.content === "string"
-            ? response.content
-            : String(response.content)
 
         const parsed = this.processGoogleDocsSubmissionParseService.parse(raw)
         const passThreshold = this.mountStorageService.appConfig.systemConfig.challenge.passThreshold
@@ -303,6 +317,64 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         }
     }
     
+    /**
+     * Resolve the submitter's entitlement and derive the args to pass to
+     * {@link AiInvokeService.invoke} (once per grading job).
+     *
+     * - `byok`: build a BYOK descriptor from the payload (no quota debit).
+     * - `auto`: debit one Economy "lượt" and grade on the Economy category.
+     * - `premium`: debit + grade on the highest category the tier unlocks.
+     * @param params - The resolved `userId` and the job payload.
+     * @returns Partial `invoke` args (`byok` OR `category`), already debited.
+     * @throws AiQuotaExhaustedException when the user has no allowance left.
+     */
+    private async resolveInvokeOptions(
+        {
+            userId,
+            payload,
+        }: {
+            userId: string
+            payload: ProcessGoogleDocsSubmissionPayload
+        },
+    ): Promise<{ category?: AiModelCategory, byok?: AiInvokeByok }> {
+        const entitlement = await this.aiEntitlementService.resolve({
+            userId,
+            requestedMode: payload.mode,
+        })
+
+        if (entitlement.mode === AiMode.Byok) {
+            // TODO: fall back to the stored encrypted key on the subscription
+            // entity when the payload does not carry one.
+            if (
+                payload.byokProvider
+                && payload.byokModel
+                && payload.byokApiKey
+            ) {
+                return {
+                    byok: {
+                        provider: payload.byokProvider,
+                        model: payload.byokModel,
+                        key: payload.byokApiKey,
+                    },
+                }
+            }
+        }
+
+        const category = entitlement.mode === AiMode.Premium
+            ? pickBestCategory(entitlement.allowedCategories)
+            : AiModelCategory.Economy
+        await this.aiEntitlementService.consume({
+            userId,
+            category,
+            requestedMode: payload.mode,
+            // Auto lane only ever serves complimentary models; Premium is credit-based.
+            complimentary: entitlement.mode === AiMode.Auto,
+        })
+        return {
+            category,
+        }
+    }
+
     /**
      * Finalize the step.
      * @param executionResult - The execution result.
@@ -351,4 +423,27 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
             },
         )
     }
+}
+
+/** Rank used to pick the "best" category a Premium tier unlocks. */
+const CATEGORY_RANK: Record<AiModelCategory, number> = {
+    [AiModelCategory.Economy]: 0,
+    [AiModelCategory.Balanced]: 1,
+    [AiModelCategory.Premium]: 2,
+}
+
+/**
+ * Pick the highest-ranked category from the allowed list (economy < balanced
+ * < premium). Falls back to Economy when the list is empty.
+ * @param categories - Categories the tier currently unlocks.
+ * @returns The single best category to grade with.
+ */
+function pickBestCategory(
+    categories: Array<AiModelCategory>,
+): AiModelCategory {
+    return categories.reduce(
+        (best, candidate) =>
+            CATEGORY_RANK[candidate] > CATEGORY_RANK[best] ? candidate : best,
+        AiModelCategory.Economy,
+    )
 }

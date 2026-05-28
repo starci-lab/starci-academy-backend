@@ -69,6 +69,7 @@ export class EnqueueProcessGoogleDocsSubmissionJobService {
         locale,
         courseId,
         enrollmentId,
+        mode,
     }: EnqueueProcessGoogleDocsSubmissionJobParams): Promise<JobEntity> {
         let job: JobEntity | null = null
         if (jobId) {
@@ -104,6 +105,10 @@ export class EnqueueProcessGoogleDocsSubmissionJobService {
                 }),
                 ...(locale !== undefined ? {
                     locale: locale as Locale,
+                } : {
+                }),
+                ...(mode !== undefined ? {
+                    mode
                 } : {
                 }),
             }

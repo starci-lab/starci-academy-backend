@@ -24,15 +24,33 @@ import type {
  * @param appConfig - optional pre-built config that skips the disk read
  * @returns Parsed {@link AppConfig}
  */
+let runtimeAppConfig: AppConfig | undefined
+
+/**
+ * Replace the in-memory app catalog after init merges mount data
+ * (`.mount/data/ai-models`, `.mount/data/subcriptions`) into `app.yaml`.
+ */
+export const setRuntimeAppConfig = (appConfig: AppConfig): void => {
+    runtimeAppConfig = appConfig
+}
+
+/** Clear the runtime override (tests). */
+export const clearRuntimeAppConfig = (): void => {
+    runtimeAppConfig = undefined
+}
+
 export const getAppConfig = (appConfig?: AppConfig): AppConfig => {
-    if (!appConfig) {
-        const raw = readFileSync(
-            envConfig().mountPath.config.app,
-            "utf8",
-        )
-        appConfig = loadYaml(raw) as AppConfig
+    if (appConfig) {
+        return appConfig
     }
-    return appConfig
+    if (runtimeAppConfig) {
+        return runtimeAppConfig
+    }
+    const raw = readFileSync(
+        envConfig().mountPath.config.app,
+        "utf8",
+    )
+    return loadYaml(raw) as AppConfig
 }
 
 /**

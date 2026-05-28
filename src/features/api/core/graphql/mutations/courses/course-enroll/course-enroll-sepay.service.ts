@@ -11,50 +11,64 @@ import {
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
-    Injectable 
+    Injectable,
 } from "@nestjs/common"
 import type {
-    EntityManager 
+    EntityManager,
 } from "typeorm"
 import type {
-    CourseEnrollResponseData 
+    CourseEnrollResponseData,
 } from "./graphql-types"
 import {
-    DayjsService, RetryService 
+    DayjsService,
 } from "@modules/mixin"
 import {
-    envConfig 
+    envConfig,
 } from "@modules/env"
 import {
-    CoursePricingService 
+    InjectSepay,
+} from "@modules/sepay"
+import {
+    SePayPgClient,
+} from "sepay-pg-node"
+import {
+    CoursePricingService,
 } from "./course-pricing.service"
 import {
-    ExecuteParams 
+    ExecuteParams,
 } from "../../../../types"
 import {
-    CourseEnrollRequest 
+    CourseEnrollRequest,
 } from "./graphql-types"
+import type {
+    SignSepayFieldsParams,
+} from "./types"
 
 /**
- * Sepay-specific course enrollment
+ * Sepay-specific course enrollment via the SePay Payment Gateway. Signs the
+ * order fields (form-POST checkout) and persists a pending preflight row.
  */
 @Injectable()
 export class CourseEnrollSepayService {
     constructor(
-    @InjectPrimaryPostgreSQLEntityManager()
-    private readonly entityManager: EntityManager,
-    private readonly dayjsService: DayjsService,
-    private readonly coursePricingService: CoursePricingService,
-    private readonly retryService: RetryService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
+        @InjectSepay()
+        private readonly sepay: SePayPgClient,
+        private readonly dayjsService: DayjsService,
+        private readonly coursePricingService: CoursePricingService,
     ) {}
 
     /**
-   *
-   * @param param - Course context, user, and request
-   * @returns Checkout payload and preflight id
-   */
+     * @param param - Course context, user, and request
+     * @returns Checkout payload (form action URL + signed fields) and preflight id
+     */
     async execute({
-        request: { courseId },
+        request: {
+            courseId,
+            payosReturnUrl,
+            payosCancelUrl,
+        },
         user,
     }: ExecuteParams<CourseEnrollRequest>): Promise<CourseEnrollResponseData> {
         if (!user) {
@@ -62,7 +76,8 @@ export class CourseEnrollSepayService {
             })
         }
         // find the course
-        const course = await this.entityManager.findOne(CourseEntity,
+        const course = await this.entityManager.findOne(
+            CourseEntity,
             {
                 where: {
                     id: courseId,
@@ -70,14 +85,20 @@ export class CourseEnrollSepayService {
                 relations: {
                     pricingPhases: true,
                 },
-            })
+            },
+        )
         if (!course) {
             throw new CourseNotFoundException({
                 id: courseId,
             })
         }
-        // find the transaction for the user and course
-        let transaction = await this.entityManager.findOne(TransactionEntity,
+        const amount = this.coursePricingService.resolveAmountVnd({
+            course,
+        })
+
+        // reuse a still-fresh pending transaction (regenerate signed fields)
+        const existing = await this.entityManager.findOne(
+            TransactionEntity,
             {
                 where: {
                     user: {
@@ -89,82 +110,98 @@ export class CourseEnrollSepayService {
                     status: TransactionStatus.Pending,
                     paymentType: PaymentType.Sepay,
                 },
-            })
-        if (transaction) {
-            // check the timestamp of the transaction
-            const timeSinceCreationMs = this.dayjsService
-                .now()
-                .diff(this.dayjsService.from(transaction.createdAt),
-                    "milliseconds")
-            if (
-                timeSinceCreationMs <
-        envConfig().services.api.transaction.timeSinceCreationMs
-            ) {
-                return {
-                    checkoutUrl: transaction.checkoutUrl,
-                    referenceId: transaction.referenceId,
-                    transactionId: transaction.id,
-                    amount: transaction.amount,
-                }
+            },
+        )
+        if (existing && this.isReusable(existing)) {
+            return {
+                checkoutUrl: this.sepay.checkout.initCheckoutUrl(),
+                referenceId: existing.referenceId,
+                transactionId: existing.id,
+                amount: existing.amount,
+                checkoutFields: this.signFields({
+                    orderCode: Number(existing.referenceId),
+                    amount: existing.amount,
+                    successUrl: payosReturnUrl,
+                    cancelUrl: payosCancelUrl,
+                }),
             }
         }
 
-        // generate order code
+        // sign a fresh order + persist the pending transaction
         const orderCode = this.generateSepayOrderCode()
-
-        // get current pricing phase
-        const currentPhase =
-      this.coursePricingService.getCurrentPricingPhase(course)
-
-        // get SePay configuration
-        const sepayConfig = envConfig().services.api.sepay
-
-        // generate payment link via SePay VietQR endpoint
-        const sepayPaymentLink = await this.retryService.retry({
-            action: async () => {
-                const amount = this.coursePricingService.resolveAmountVnd({
-                    course,
-                })
-                const checkoutUrl = `https://qr.sepay.vn/img?bank=${sepayConfig.bank}&acc=${sepayConfig.accountNumber}&amount=${amount}&des=${orderCode}`
-
-                return Promise.resolve({
-                    amount,
-                    checkoutUrl: checkoutUrl,
-                    orderCode,
-                })
-            },
+        const currentPhase = this.coursePricingService.getCurrentPricingPhase(course)
+        const checkoutFields = this.signFields({
+            orderCode,
+            amount,
+            successUrl: payosReturnUrl,
+            cancelUrl: payosCancelUrl,
         })
-
-        // create transaction row
-        transaction = this.entityManager.create(TransactionEntity,
+        const transaction = this.entityManager.create(
+            TransactionEntity,
             {
                 user,
                 course,
-                referenceId: String(sepayPaymentLink.orderCode),
-                amount: sepayPaymentLink.amount,
+                referenceId: String(orderCode),
+                amount,
                 pricingPhase: currentPhase,
                 paymentType: PaymentType.Sepay,
-                checkoutUrl: sepayPaymentLink.checkoutUrl,
+                checkoutUrl: this.sepay.checkout.initCheckoutUrl(),
                 status: TransactionStatus.Pending,
                 actionType: ActionType.Enroll,
-            })
-        // save transaction
+            },
+        )
         await this.entityManager.save(transaction)
 
-        // return result
         return {
-            checkoutUrl: sepayPaymentLink.checkoutUrl,
-            referenceId: String(sepayPaymentLink.orderCode),
+            checkoutUrl: this.sepay.checkout.initCheckoutUrl(),
+            referenceId: String(orderCode),
             transactionId: transaction.id,
-            amount: sepayPaymentLink.amount,
+            amount,
+            checkoutFields,
         }
     }
 
     /**
-   * Generates a unique order code for Sepay payment requests.
-   *
-   * @returns Integer order code safe for Sepay API.
-   */
+     * Whether a pending transaction is recent enough to hand back.
+     */
+    private isReusable(
+        transaction: TransactionEntity,
+    ): boolean {
+        const timeSinceCreationMs = this.dayjsService.now().diff(
+            this.dayjsService.from(transaction.createdAt),
+            "milliseconds",
+        )
+        return timeSinceCreationMs < envConfig().services.api.transaction.timeSinceCreationMs
+    }
+
+    /**
+     * Sign SePay PG one-time-payment fields and return them JSON-encoded for the
+     * client to POST as a form. Pure local HMAC signing — no side effects.
+     */
+    private signFields({
+        orderCode,
+        amount,
+        successUrl,
+        cancelUrl,
+    }: SignSepayFieldsParams): string {
+        const fields = this.sepay.checkout.initOneTimePaymentFields({
+            operation: "PURCHASE",
+            order_invoice_number: String(orderCode),
+            order_amount: amount,
+            currency: "VND",
+            order_description: `Course enrollment ${orderCode}`,
+            success_url: successUrl,
+            cancel_url: cancelUrl,
+            error_url: cancelUrl,
+        })
+        return JSON.stringify(fields)
+    }
+
+    /**
+     * Generates a unique order code for SePay payment requests.
+     *
+     * @returns Integer order code.
+     */
     private generateSepayOrderCode(): number {
         return Date.now() * 1000 + Math.floor(Math.random() * 1000)
     }

@@ -18,7 +18,7 @@ import {
 } from "@modules/databases"
 import {
     AiBalancerService,
-} from "@features/ai-balancer"
+} from "@modules/ai"
 import {
     AiBalancerHealthResponse,
     AiBalancerHealthResponseData,

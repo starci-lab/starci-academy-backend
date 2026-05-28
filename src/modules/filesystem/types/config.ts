@@ -26,9 +26,9 @@ export interface AppConfigSystemConfig {
 }
 
 /**
- * One AI-model row defined in `app.yaml` under `ai.models`. Seeder upserts
- * each entry into the `ai_models` table; `UseApiService` reads from DB
- * (sorted by weight desc) at runtime.
+ * One AI-model row parsed from `.mount/data/ai-models/<index>-<slug>/en.md`.
+ * The catalog seeder upserts each entry into the `ai_models` table; runtime
+ * (`KeyStoreService` + `UseApiService`) reads back from DB, not from this shape.
  */
 export interface AppConfigAiModel {
     /** Concrete model name accepted by the provider SDK (e.g. "gpt-4o-mini"). */
@@ -43,12 +43,34 @@ export interface AppConfigAiModel {
     priority: number
     /** Kill-switch — `false` removes the model from rotation without deleting the row. */
     enabled: boolean
+    /** Usable on the free Auto lane — no subscription, debited by uses ("lượt"). */
+    complimentary: boolean
 }
 
-/** `ai` section in mounted `app.yaml`. */
-export interface AppConfigAi {
-    /** Ordered catalog of models seeded into `ai_models`. */
-    models: Array<AppConfigAiModel>
+/**
+ * One AI subscription tier (`plus` | `pro` | `max`) in `app.yaml` under
+ * `subscriptions.tiers`. Mount files live under `.mount/data/subcriptions/`.
+ */
+export interface AppConfigSubscriptionTier {
+    /** Stable tier id — matches {@link AiSubTier} enum values. */
+    tier: string
+    /** UI label (optional; defaults to capitalized tier). */
+    displayName?: string
+    /** Monthly price in VND. */
+    priceVnd: number
+    /** Additive credits per 5-hour rolling window. */
+    creditsPer5h: number
+    /** Additive credits per weekly rolling window. */
+    creditsPerWeek: number
+    /** Highlight as “most popular” in checkout UI. */
+    popular?: boolean
+    /** Kill-switch — `false` hides tier without deleting config. */
+    enabled: boolean
+}
+
+/** `subscriptions` section in mounted `app.yaml`. */
+export interface AppConfigSubscriptions {
+    tiers: Array<AppConfigSubscriptionTier>
 }
 
 /** Root app config. */
@@ -58,6 +80,6 @@ export interface AppConfig {
     payos: AppConfigPayos
     /** Optional public/system tuning (see `.mount/config/app.yaml`). */
     systemConfig: AppConfigSystemConfig
-    /** AI catalog — seeded into `ai_models` at boot. */
-    ai: AppConfigAi
+    /** AI subscription tiers (Plus / Pro / Max). */
+    subscriptions: AppConfigSubscriptions
 }

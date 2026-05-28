@@ -52,3 +52,13 @@ export const isFoundationsSeederEnabled = (): boolean => {
 export const isHeadhuntingSeederEnabled = (): boolean => {
     return getInitSeedersContext()?.headhunting.enabled ?? true
 }
+
+/** Whether AI model catalog mount sync is enabled (`INIT_SEEDERS_AI_MODELS`). */
+export const isAiModelsCatalogSeederEnabled = (): boolean => {
+    return getInitSeedersContext()?.aiModels.enabled ?? true
+}
+
+/** Whether subscription catalog mount sync is enabled (`INIT_SEEDERS_SUBSCRIPTIONS`). */
+export const isSubscriptionsCatalogSeederEnabled = (): boolean => {
+    return getInitSeedersContext()?.subscriptions.enabled ?? true
+}

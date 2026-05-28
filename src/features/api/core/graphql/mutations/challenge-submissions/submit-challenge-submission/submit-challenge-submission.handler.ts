@@ -86,6 +86,7 @@ export class SubmitChallengeSubmissionHandler
         const {
             challengeSubmissionId,
             githubUrl,
+            mode,
         } = request
         const trimmedGithubUrl =
             typeof githubUrl === "string"
@@ -293,6 +294,7 @@ export class SubmitChallengeSubmissionHandler
                 userChallengeSubmissionId,
                 challengeSubmissionId: challengeSubmission.id,
                 locale,
+                mode,
             })
             break
         case SubmissionType.GoogleDocsUrl:
@@ -303,6 +305,7 @@ export class SubmitChallengeSubmissionHandler
                 userChallengeSubmissionId,
                 challengeSubmissionId: challengeSubmission.id,
                 locale,
+                mode,
             })
             break
         }

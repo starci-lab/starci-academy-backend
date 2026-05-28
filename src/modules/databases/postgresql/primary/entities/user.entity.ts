@@ -1,12 +1,12 @@
 import {
-    Field, 
-    ObjectType 
+    Field,
+    ObjectType
 } from "@nestjs/graphql"
 import {
-    Column, Entity, OneToMany 
+    Column, Entity, OneToMany, OneToOne
 } from "typeorm"
 import {
-    UuidAbstractEntity 
+    UuidAbstractEntity
 } from "./abstract"
 import {
     EnrollmentEntity,
@@ -14,6 +14,9 @@ import {
 import {
     UserChallengeSubmissionEntity,
 } from "./user-challenge-submission.entity"
+import {
+    AiSubscriptionEntity,
+} from "./ai-subscription.entity"
 import {
     AuthenticationType,
     GraphQLTypeAuthenticationType
@@ -185,4 +188,24 @@ export class UserEntity extends UuidAbstractEntity {
         default: AuthenticationType.Google
     })
         authenticationType: AuthenticationType
+
+    /**
+     * AI entitlement (Auto allowance + Premium credits) for this user.
+     */
+    @Field(
+        () => AiSubscriptionEntity,
+        {
+            nullable: true,
+            description: "AI entitlement (Auto allowance + Premium credits).",
+        },
+    )
+    @OneToOne(
+        () => AiSubscriptionEntity,
+        (aiSubscription: AiSubscriptionEntity) => aiSubscription.user,
+        {
+            cascade: true,
+            nullable: true,
+        },
+    )
+        aiSubscription?: AiSubscriptionEntity
 }

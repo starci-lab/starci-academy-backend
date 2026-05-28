@@ -15,6 +15,9 @@ import {
     POSTGRESQL_PRIMARY
 } from "./constants"
 import {
+    InMemoryQueryResultCache
+} from "./cache"
+import {
     ContentEntity,
     ContentReferenceEntity,
     ContentReferenceTranslationEntity,
@@ -94,6 +97,9 @@ import {
     ConsultantTranslationEntity,
     MindMapNodeEntity,
     MindMapNodeTranslationEntity,
+    AiModelEntity,
+    AiModelTranslationEntity,
+    AiSubscriptionEntity,
 } from "./entities"
 import {
     SeedersModule
@@ -254,9 +260,17 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     ConsultantTranslationEntity,
                                     MindMapNodeEntity,
                                     MindMapNodeTranslationEntity,
+                                    AiModelEntity,
+                                    AiModelTranslationEntity,
+                                    AiSubscriptionEntity,
                                 ],
                                 synchronize,
                                 logging: false,
+                                cache: {
+                                    provider(dataSource) {
+                                        return new InMemoryQueryResultCache(dataSource)
+                                    },
+                                },
                             }
                         },
                     }
@@ -367,6 +381,9 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         ConsultantTranslationEntity,
                         MindMapNodeEntity,
                         MindMapNodeTranslationEntity,
+                        AiModelEntity,
+                        AiModelTranslationEntity,
+                        AiSubscriptionEntity,
                     ],
                     POSTGRESQL_PRIMARY
                 ),

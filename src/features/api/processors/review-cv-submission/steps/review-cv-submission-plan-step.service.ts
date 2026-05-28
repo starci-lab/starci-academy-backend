@@ -6,13 +6,19 @@ import {
     JobActionService,
 } from "@modules/bussiness"
 import {
+    AiMode,
+    AiModelCategory,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
     TemplateCVEntity,
 } from "@modules/databases"
 import {
-    ModelService,
-} from "@modules/langchain"
+    AiInvokeService,
+    AiEntitlementService,
+} from "@modules/ai"
+import type {
+    AiInvokeByok,
+} from "@modules/ai"
 import {
     WinstonLog,
     WinstonService,
@@ -43,11 +49,26 @@ import {
     CvSubmissionPlanEmptyTextException,
 } from "@modules/exceptions"
 import {
-    envConfig 
+    envConfig
 } from "@modules/env"
-import {
-    ReviewCvSubmissionModelRouterService,
-} from "@modules/ai"
+
+/**
+ * Execution-result key under which the plan step persists its entitlement
+ * decision so the analyze step can reuse it WITHOUT a second `consume`
+ * (1 CV review = 1 charge).
+ */
+export const CV_AI_INVOKE_DECISION_KEY = "ai-invoke-decision"
+
+/**
+ * The AI-invoke decision resolved once in the plan step and reused by analyze.
+ * Holds the `invoke` args (`byok` OR `category`) chosen for this CV review.
+ */
+export interface CvAiInvokeDecision {
+    /** Category to grade with (auto/premium path); omitted in byok mode. */
+    category?: AiModelCategory
+    /** BYOK descriptor (byok mode); omitted otherwise. */
+    byok?: AiInvokeByok
+}
 
 /**
  * Step 1: LLM drafts a review plan (markdown) from rubric + CV text before structured scoring.
@@ -62,9 +83,9 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
         private readonly entityManager: EntityManager,
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
-        private readonly modelService: ModelService,
+        private readonly aiInvokeService: AiInvokeService,
+        private readonly aiEntitlementService: AiEntitlementService,
         private readonly extractStepService: ReviewCvSubmissionExtractStepService,
-        private readonly reviewCvSubmissionModelRouter: ReviewCvSubmissionModelRouterService,
     ) {
         super()
     }
@@ -97,9 +118,13 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
         >,
     ): Promise<void> {
         try {
-            const executionResult = await this.execute(context)
+            const {
+                executionResult,
+                decision,
+            } = await this.execute(context)
             await this.finalize(
                 executionResult,
+                decision,
                 context,
             )
         } catch (error) {
@@ -107,6 +132,7 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
                 job: context.job,
                 error,
             })
+            throw error
         }
     }
 
@@ -120,7 +146,10 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
             ReviewCvSubmissionPayload,
             ExtendedReviewCvSubmissionContext
         >,
-    ): Promise<ReviewCvSubmissionPlanStepExecuteResult> {
+    ): Promise<{
+        executionResult: ReviewCvSubmissionPlanStepExecuteResult
+        decision: CvAiInvokeDecision
+    }> {
         const { originalText } = await this.jobActionService.loadExecutionResult<ReviewCvSubmissionExtractStepExecuteResult>(
             {
                 job: context.job,
@@ -179,19 +208,25 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
             "- No JSON, no code fences wrapping the whole answer.",
         ].join("\n")
 
-        const model = this.modelService.get({
-            model: context.payload.analyzeModel || this.reviewCvSubmissionModelRouter.model,
-            provider: context.payload.analyzeProvider || this.reviewCvSubmissionModelRouter.provider,
+        /**
+         * Resolve + debit the submitter's AI quota ONCE for the whole CV
+         * review here in the plan step; analyze reuses this decision without
+         * a second consume (1 CV review = 1 charge).
+         */
+        const decision = await this.resolveInvokeDecision(
+            {
+                userId: context.extended.user.id,
+                payload: context.payload,
+            },
+        )
+
+        const { text: raw } = await this.aiInvokeService.invoke({
+            messages: [
+                new SystemMessage(systemText),
+                new HumanMessage(text),
+            ],
+            ...decision,
         })
-
-        const response = await model.invoke([
-            new SystemMessage(systemText),
-            new HumanMessage(text),
-        ])
-
-        const raw = (typeof response.content === "string"
-            ? response.content
-            : String(response.content)) as string
 
         const reviewPlan = raw.trim()
         if (!reviewPlan) {
@@ -201,7 +236,68 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
         }
 
         return {
-            reviewPlan,
+            executionResult: {
+                reviewPlan,
+            },
+            decision,
+        }
+    }
+
+    /**
+     * Resolve the submitter's entitlement and derive + debit the AI-invoke
+     * decision for this CV review (called only here in the plan step).
+     *
+     * - `byok`: build a BYOK descriptor from the payload (no quota debit).
+     * - `auto`: debit one Economy "lượt"; grade on the Economy category.
+     * - `premium`: debit + grade on the highest category the tier unlocks.
+     * @param params - The resolved `userId` and the job payload.
+     * @returns The {@link CvAiInvokeDecision} reused by the analyze step.
+     * @throws AiQuotaExhaustedException when the user has no allowance left.
+     */
+    private async resolveInvokeDecision(
+        {
+            userId,
+            payload,
+        }: {
+            userId: string
+            payload: ReviewCvSubmissionPayload
+        },
+    ): Promise<CvAiInvokeDecision> {
+        const entitlement = await this.aiEntitlementService.resolve({
+            userId,
+            requestedMode: payload.mode,
+        })
+
+        if (entitlement.mode === AiMode.Byok) {
+            // TODO: fall back to the stored encrypted key on the subscription
+            // entity when the payload does not carry one.
+            if (
+                payload.byokProvider
+                && payload.byokModel
+                && payload.byokApiKey
+            ) {
+                return {
+                    byok: {
+                        provider: payload.byokProvider,
+                        model: payload.byokModel,
+                        key: payload.byokApiKey,
+                    },
+                }
+            }
+        }
+
+        const category = entitlement.mode === AiMode.Premium
+            ? pickBestCategory(entitlement.allowedCategories)
+            : AiModelCategory.Economy
+        await this.aiEntitlementService.consume({
+            userId,
+            category,
+            requestedMode: payload.mode,
+            // Auto lane only ever serves complimentary models; Premium is credit-based.
+            complimentary: entitlement.mode === AiMode.Auto,
+        })
+        return {
+            category,
         }
     }
 
@@ -212,6 +308,7 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
      */
     private async finalize(
         executionResult: ReviewCvSubmissionPlanStepExecuteResult,
+        decision: CvAiInvokeDecision,
         context: JobExtendedContext<
             ReviewCvSubmissionPayload,
             ExtendedReviewCvSubmissionContext
@@ -235,6 +332,14 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
                 executionResult,
                 entityManager,
             })
+
+            /** Persist the entitlement decision for the analyze step to reuse. */
+            await this.jobActionService.saveExecutionResult<CvAiInvokeDecision>({
+                job,
+                key: CV_AI_INVOKE_DECISION_KEY,
+                executionResult: decision,
+                entityManager,
+            })
         })
 
         this.winstonService.log(
@@ -249,4 +354,27 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
             },
         )
     }
+}
+
+/** Rank used to pick the "best" category a Premium tier unlocks. */
+const CATEGORY_RANK: Record<AiModelCategory, number> = {
+    [AiModelCategory.Economy]: 0,
+    [AiModelCategory.Balanced]: 1,
+    [AiModelCategory.Premium]: 2,
+}
+
+/**
+ * Pick the highest-ranked category from the allowed list (economy < balanced
+ * < premium). Falls back to Economy when the list is empty.
+ * @param categories - Categories the tier currently unlocks.
+ * @returns The single best category to grade with.
+ */
+function pickBestCategory(
+    categories: Array<AiModelCategory>,
+): AiModelCategory {
+    return categories.reduce(
+        (best, candidate) =>
+            CATEGORY_RANK[candidate] > CATEGORY_RANK[best] ? candidate : best,
+        AiModelCategory.Economy,
+    )
 }

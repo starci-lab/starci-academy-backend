@@ -55,6 +55,9 @@ import {
 import {
     HeadhuntingsModule,
 } from "./headhuntings"
+import {
+    AiQueriesModule,
+} from "./ai"
 
 @Module({
     imports: [
@@ -107,6 +110,9 @@ import {
             isGlobal: true,
         }),
         HeadhuntingsModule.register({
+            isGlobal: true,
+        }),
+        AiQueriesModule.register({
             isGlobal: true,
         }),
     ],

@@ -30,6 +30,8 @@ import {
     PaymentType,
     PricingPhase,
     ActionType,
+    AiSubTier,
+    GraphQLTypeAiSubTier,
 } from "../enums"
 
 /**
@@ -222,4 +224,24 @@ export class TransactionEntity extends UuidAbstractEntity {
         enum: ActionType,
     })
         actionType: ActionType
+
+    /**
+     * Target AI subscription tier when {@link actionType} is
+     * `aiSubscriptionPurchase`; null for every other action type.
+     */
+    @Field(
+        () => GraphQLTypeAiSubTier,
+        {
+            nullable: true,
+            description: "AI subscription tier this transaction grants (purchase only).",
+        },
+    )
+    @Column({
+        name: "ai_sub_tier",
+        type: "enum",
+        enum: AiSubTier,
+        enumName: "ai_sub_tier",
+        nullable: true,
+    })
+        aiSubTier: AiSubTier | null
 }

@@ -112,6 +112,18 @@ export const envConfig = () => ({
                         defaultValue: true,
                     }),
                 },
+                aiModels: {
+                    enabled: parseEnvBoolean({
+                        key: "INIT_SEEDERS_AI_MODELS",
+                        defaultValue: true,
+                    }),
+                },
+                subscriptions: {
+                    enabled: parseEnvBoolean({
+                        key: "INIT_SEEDERS_SUBSCRIPTIONS",
+                        defaultValue: true,
+                    }),
+                },
             }
         },
         {
@@ -437,6 +449,16 @@ export const envConfig = () => ({
                 accountNumber: parseEnvString({
                     key: "API_SEPAY_ACCOUNT_NUMBER",
                     defaultValue: "0969998024",
+                }),
+                /** SePay Payment Gateway environment ("sandbox" | "production"). */
+                env: parseEnvString({
+                    key: "API_SEPAY_ENV",
+                    defaultValue: "sandbox",
+                }),
+                /** SePay Payment Gateway merchant id (secret key comes from mount). */
+                merchantId: parseEnvString({
+                    key: "API_SEPAY_MERCHANT_ID",
+                    defaultValue: "SP-TEST-CNA92625",
                 }),
             },
             /** API pagination configuration. */
@@ -1736,7 +1758,7 @@ export const envConfig = () => ({
         /** Consecutive failures from `markFailure` that disable a key. */
         failureThresholdToDisable: parseEnvInt({
             key: "AI_BALANCER_FAILURE_THRESHOLD",
-            defaultValue: "3",
+            defaultValue: 3,
         }),
         /** Time (ms) a key stays disabled before a recovery ping is attempted. */
         recoveryWaitMs: parseEnvMs({

@@ -1,4 +1,5 @@
 import {
+    AiMode,
     Locale,
     ModelProvider,
 } from "@modules/databases"
@@ -27,4 +28,12 @@ export interface ReviewCvSubmissionPayload {
     cvSubmissionAttemptId?: string
     /** Persist final review output back onto the canonical submission attempt. */
     persistReviewAsCanonicalAttempt?: boolean
+    /** BYOK: provider of the user-supplied key (used only in `byok` mode). */
+    byokProvider?: ModelProvider
+    /** BYOK: model to invoke with the user-supplied key. */
+    byokModel?: string
+    /** BYOK: the user's own raw API key. */
+    byokApiKey?: string
+    /** AI lane the user picked at submit time; validated against entitlement. */
+    mode?: AiMode
 }

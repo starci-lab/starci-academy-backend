@@ -20,28 +20,56 @@ import {
     ReviewCvSubmissionModelRouterService,
 } from "./review-cv-submission-model-router.service"
 import {
-    ConfigurableModuleClass 
+    AiInvokeService,
+} from "./ai-invoke.service"
+import {
+    AiEntitlementService,
+} from "./ai-entitlement.service"
+import {
+    AiBalancerModule,
+} from "./balancer"
+import {
+    CryptoModule,
+} from "@modules/crypto"
+import {
+    ConfigurableModuleClass,
 } from "./ai.module-definition"
 
 /**
- * AI module — provides model routing, ping, and secret management.
+ * AI module — model routing, ping, secret management, and key-rotation balancer.
+ *
+ * Sub-modules:
+ * - {@link AiBalancerModule} — key pool, health check, UseApiService (re-exported).
+ *
+ * Consumers import from `@modules/ai` — never from sub-paths directly.
  */
 @Module({
+    imports: [
+        AiBalancerModule.register({
+        }),
+        CryptoModule.register({
+        }),
+    ],
     providers: [
         AISecretService,
         AiPingService,
+        AiInvokeService,
+        AiEntitlementService,
         GenerateTaskModelRouterService,
         GradeModelRouterService,
         ReviewPersonalProjectModelRouterService,
         ReviewCvSubmissionModelRouterService,
     ],
     exports: [
+        AiBalancerModule,
         AISecretService,
         AiPingService,
+        AiInvokeService,
+        AiEntitlementService,
         GenerateTaskModelRouterService,
         GradeModelRouterService,
         ReviewPersonalProjectModelRouterService,
         ReviewCvSubmissionModelRouterService,
     ],
 })
-export class AiModule extends ConfigurableModuleClass { }
+export class AiModule extends ConfigurableModuleClass {}

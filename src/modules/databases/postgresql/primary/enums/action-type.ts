@@ -69,6 +69,10 @@ export enum ActionType {
      * Review a single personal project task against its criteria via AI.
      */
     ReviewPersonalProjectTask = "reviewPersonalProjectTask",
+    /**
+     * Purchase an AI subscription tier (grants tier on payment success).
+     */
+    AiSubscriptionPurchase = "aiSubscriptionPurchase",
 }
 
 export const GraphQLTypeActionType = createEnumType(ActionType)
@@ -120,6 +124,9 @@ registerEnumType(
             },
             [ActionType.ReviewPersonalProjectTask]: {
                 description: "Review a single personal project task against its criteria via AI.",
+            },
+            [ActionType.AiSubscriptionPurchase]: {
+                description: "Purchase an AI subscription tier (grants tier on payment success).",
             },
         },
     },

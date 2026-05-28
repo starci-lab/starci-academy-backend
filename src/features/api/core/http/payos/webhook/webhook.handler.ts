@@ -5,14 +5,19 @@ import {
     EnqueueEnrollJobService,
 } from "@modules/bussiness"
 import {
+    ActionType,
     InjectPrimaryPostgreSQLEntityManager,
     TransactionEntity,
     TransactionStatus,
 } from "@modules/databases"
 import {
+    AiEntitlementService,
+} from "@modules/ai"
+import {
     envConfig,
 } from "@modules/env"
 import {
+    AiSubscriptionTierNotAvailableException,
     TransactionCourseNotFoundException,
     TransactionExpiredError,
     TransactionNotFoundException,
@@ -24,6 +29,7 @@ import {
     InjectPayOS,
 } from "@modules/payos"
 import {
+    BadRequestException,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -49,6 +55,7 @@ export class PayosWebhookHandler
         @InjectPayOS()
         private readonly payos: PayOS,
         private readonly enqueueEnrollJobService: EnqueueEnrollJobService,
+        private readonly aiEntitlementService: AiEntitlementService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly dayjsService: DayjsService,
@@ -84,15 +91,39 @@ export class PayosWebhookHandler
                 id: transaction.id,
             })
         }
-        if (!transaction.courseId) {
-            throw new TransactionCourseNotFoundException({
-                id: transaction.id,
+        switch (transaction.actionType) {
+        // AI subscription purchase: grant the tier directly (no worker needed)
+        case ActionType.AiSubscriptionPurchase: {
+            if (!transaction.aiSubTier) {
+                throw new AiSubscriptionTierNotAvailableException({
+                    tier: "unknown",
+                })
+            }
+            await this.aiEntitlementService.grantTier({
+                userId: transaction.userId,
+                tier: transaction.aiSubTier,
+                transactionId: transaction.id,
             })
+            return
         }
-        await this.enqueueEnrollJobService.enqueue({
-            userId: transaction.userId,
-            courseId: transaction.courseId,
-            transactionId: transaction.id,
-        })
+        // course enrollment: hand off to the enroll worker
+        case ActionType.Enroll: {
+            if (!transaction.courseId) {
+                throw new TransactionCourseNotFoundException({
+                    id: transaction.id,
+                })
+            }
+            await this.enqueueEnrollJobService.enqueue({
+                userId: transaction.userId,
+                courseId: transaction.courseId,
+                transactionId: transaction.id,
+            })
+            return
+        }
+        default:
+            throw new BadRequestException(
+                `Unsupported transaction action type: ${String(transaction.actionType)}`,
+            )
+        }
     }
 }

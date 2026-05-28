@@ -3,26 +3,40 @@ import {
     Provider,
 } from "@nestjs/common"
 import {
+    SePayPgClient,
+} from "sepay-pg-node"
+import {
     getSepayApiKey,
 } from "@modules/filesystem"
 import {
+    envConfig,
+} from "@modules/env"
+import {
     SEPAY,
 } from "./constants"
-import {
-    Sepay,
-} from "./sepay.client"
 
 export const InjectSepay = () => Inject(
     SEPAY,
 )
 
-// Function to create sepay provider
-export const createSepayProvider = (): Provider<Sepay> => ({
+/**
+ * Provide the SePay Payment Gateway client.
+ *
+ * `merchant_id` + environment come from {@link envConfig}; the `secret_key` is
+ * read from the mounted secret file (never committed).
+ */
+export const createSepayProvider = (): Provider<SePayPgClient> => ({
     provide: SEPAY,
-    useFactory: (): Sepay => {
-        return new Sepay(
+    useFactory: (): SePayPgClient => {
+        const {
+            env,
+            merchantId,
+        } = envConfig().services.api.sepay
+        return new SePayPgClient(
             {
-                apiKey: getSepayApiKey().trim(),
+                env: env === "production" ? "production" : "sandbox",
+                merchant_id: merchantId,
+                secret_key: getSepayApiKey().trim(),
             },
         )
     },
