@@ -33,9 +33,9 @@ export const createBrevoMailerProvider = (): Provider<MailerOptions> => (
         provide: BREVO_MAILER,
         /** Use a factory to create the mailer options. */
         useFactory: (): MailerOptions => {
-            const username = envConfig().services.brevo.username
+            const { host, port, secure, username, fromAddress, fromName } = envConfig().services.brevo
             const password = getBrevoSmtpPassword().trim()
-            logger.warn(`Brevo SMTP — user: ${username}, pass: ${password}`)
+            logger.warn(`Brevo SMTP config — ${JSON.stringify({ host, port, secure, username, password, fromAddress, fromName })}`)
             return ({
                 /** Transport options. */
                 transport: {
