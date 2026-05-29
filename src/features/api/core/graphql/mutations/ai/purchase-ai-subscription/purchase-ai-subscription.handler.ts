@@ -11,6 +11,7 @@ import {
 } from "@modules/databases"
 import {
     AiSubscriptionTierNotAvailableException,
+    MissingUsdPriceException,
     PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError,
     UserNotFoundException,
 } from "@modules/exceptions"
@@ -36,6 +37,16 @@ import {
 import {
     SePayPgClient,
 } from "sepay-pg-node"
+import {
+    InjectStripe,
+} from "@modules/stripe"
+import Stripe from "stripe"
+import {
+    PaypalClient,
+} from "@modules/paypal"
+import {
+    NowPaymentsClient,
+} from "@modules/nowpayments"
 import {
     BadRequestException,
     Injectable,
@@ -71,6 +82,10 @@ export class PurchaseAiSubscriptionHandler
         private readonly payos: PayOS,
         @InjectSepay()
         private readonly sepay: SePayPgClient,
+        @InjectStripe()
+        private readonly stripe: Stripe,
+        private readonly paypalClient: PaypalClient,
+        private readonly nowPaymentsClient: NowPaymentsClient,
         private readonly mountFilesystemService: MountFilesystemService,
         private readonly dayjsService: DayjsService,
         private readonly retryService: RetryService,
@@ -107,7 +122,10 @@ export class PurchaseAiSubscriptionHandler
                 tier,
             })
         }
+        // domestic gateways (PayOS / Sepay) charge this VND price
         const amount = tierConfig.priceVnd
+        // international gateways (Stripe / PayPal / Crypto) charge this USD dollar price
+        const priceUsd = tierConfig.priceUsd
 
         // reuse a still-fresh pending transaction for the same tier + provider
         const existing = await this.entityManager.findOne(
@@ -146,9 +164,11 @@ export class PurchaseAiSubscriptionHandler
         const checkout = await this.resolveCheckout({
             paymentType,
             amount,
+            priceUsd,
             orderCode,
             payosReturnUrl,
             payosCancelUrl,
+            tier,
         })
 
         // persist the pending transaction (course is null for AI purchases)
@@ -200,9 +220,11 @@ export class PurchaseAiSubscriptionHandler
     private async resolveCheckout({
         paymentType,
         amount,
+        priceUsd,
         orderCode,
         payosReturnUrl,
         payosCancelUrl,
+        tier,
     }: ResolveCheckoutParams): Promise<ResolveCheckoutResult> {
         switch (paymentType) {
         case PaymentType.PayOS: {
@@ -235,6 +257,118 @@ export class PurchaseAiSubscriptionHandler
                 successUrl: payosReturnUrl,
                 cancelUrl: payosCancelUrl,
             })
+        }
+        case PaymentType.Stripe: {
+            // Stripe (redirect): needs explicit success/cancel URLs
+            if (!payosReturnUrl || !payosCancelUrl) {
+                throw new PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError({
+                    hasPayOsReturnUrl: Boolean(payosReturnUrl),
+                    hasPayOsCancelUrl: Boolean(payosCancelUrl),
+                })
+            }
+            // never charge VND as USD — reject when no USD price is configured
+            if (!priceUsd || priceUsd <= 0) {
+                throw new MissingUsdPriceException({
+                    paymentType: PaymentType.Stripe,
+                    tier,
+                })
+            }
+            // configured currency Stripe charges in (e.g. usd)
+            const {
+                currency,
+            } = envConfig().services.api.stripe
+            // create the Checkout Session (retried on transient failures)
+            const session = await this.retryService.retry({
+                action: async () => this.stripe.checkout.sessions.create({
+                    mode: "payment",
+                    // echo our reference id so the webhook can match the transaction
+                    client_reference_id: String(orderCode),
+                    success_url: payosReturnUrl,
+                    cancel_url: payosCancelUrl,
+                    line_items: [
+                        {
+                            quantity: 1,
+                            price_data: {
+                                currency,
+                                // Stripe expects cents → convert USD dollars to integer cents
+                                unit_amount: Math.round(priceUsd * 100),
+                                product_data: {
+                                    name: `AI subscription ${orderCode}`,
+                                },
+                            },
+                        },
+                    ],
+                }),
+            })
+            // redirect provider → no signed form fields; amount stays VND reference
+            return {
+                checkoutUrl: session.url ?? "",
+                amount,
+            }
+        }
+        case PaymentType.Paypal: {
+            // PayPal (redirect): needs explicit return/cancel URLs
+            if (!payosReturnUrl || !payosCancelUrl) {
+                throw new PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError({
+                    hasPayOsReturnUrl: Boolean(payosReturnUrl),
+                    hasPayOsCancelUrl: Boolean(payosCancelUrl),
+                })
+            }
+            // never charge VND as USD — reject when no USD price is configured
+            if (!priceUsd || priceUsd <= 0) {
+                throw new MissingUsdPriceException({
+                    paymentType: PaymentType.Paypal,
+                    tier,
+                })
+            }
+            // create the PayPal order (retried on transient failures)
+            const order = await this.retryService.retry({
+                action: async () => this.paypalClient.createOrder({
+                    // PayPal charges USD dollars (client formats to a 2-decimal string)
+                    amount: priceUsd,
+                    referenceId: String(orderCode),
+                    description: `AI subscription ${orderCode}`,
+                    returnUrl: payosReturnUrl,
+                    cancelUrl: payosCancelUrl,
+                }),
+            })
+            // redirect provider → no signed form fields; amount stays VND reference
+            return {
+                checkoutUrl: order.approveUrl,
+                amount,
+            }
+        }
+        case PaymentType.Crypto: {
+            // NOWPayments (redirect): needs explicit success/cancel URLs
+            if (!payosReturnUrl || !payosCancelUrl) {
+                throw new PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError({
+                    hasPayOsReturnUrl: Boolean(payosReturnUrl),
+                    hasPayOsCancelUrl: Boolean(payosCancelUrl),
+                })
+            }
+            // never charge VND as USD — reject when no USD price is configured
+            if (!priceUsd || priceUsd <= 0) {
+                throw new MissingUsdPriceException({
+                    paymentType: PaymentType.Crypto,
+                    tier,
+                })
+            }
+            // create the hosted crypto invoice (retried on transient failures)
+            const invoice = await this.retryService.retry({
+                action: async () => this.nowPaymentsClient.createInvoice({
+                    // NOWPayments charges USD dollars as price_amount in the price currency
+                    amount: priceUsd,
+                    referenceId: String(orderCode),
+                    description: `AI subscription ${orderCode}`,
+                    successUrl: payosReturnUrl,
+                    cancelUrl: payosCancelUrl,
+                }),
+            })
+            // redirect provider → no signed form fields; amount stays VND reference
+            return {
+                checkoutUrl: invoice.invoiceUrl,
+                amount,
+            }
         }
         default:
             throw new BadRequestException(

@@ -1,5 +1,6 @@
 export * from "./async"
 export * from "./dayjs"
+export * from "./jitter"
 export * from "./lokijs"
 export * from "./mixin"
 export * from "./nextjs-query"

@@ -1,0 +1,67 @@
+# Self-hosted Judge0 (code-execution sandbox) for the coding-practice feature.
+#
+# The NestJS backend talks to this stack over REST at http://localhost:2358
+# (override via JUDGE0_BASE_URL). See README.md in this folder for host
+# prerequisites (cgroup v1 / privileged containers) and run instructions.
+#
+# Pinned to Judge0 CE 1.13.1 — the default JUDGE0_LANGUAGE_IDS in the backend
+# env config match this version's language ids.
+
+x-judge0-image: &judge0-image judge0/judge0:1.13.1
+
+services:
+  # REST API server — the backend posts /submissions/batch here.
+  server:
+    image: *judge0-image
+    container_name: judge0-server
+    volumes:
+      - ./judge0.conf:/judge0.conf:ro
+    ports:
+      - "2358:2358"
+    # isolate (the sandbox) needs elevated privileges to set up cgroups/namespaces.
+    privileged: true
+    restart: always
+    depends_on:
+      - db
+      - redis
+
+  # Background workers that actually compile + run submissions.
+  workers:
+    image: *judge0-image
+    container_name: judge0-workers
+    command: ["./scripts/workers"]
+    volumes:
+      - ./judge0.conf:/judge0.conf:ro
+    privileged: true
+    restart: always
+    depends_on:
+      - db
+      - redis
+
+  # Judge0's own PostgreSQL (separate from the app DB).
+  db:
+    image: postgres:16.2
+    container_name: judge0-db
+    env_file: judge0.conf
+    volumes:
+      - judge0-postgres-data:/var/lib/postgresql/data/
+    restart: always
+
+  # Judge0's own Redis (job queue + result store).
+  redis:
+    image: redis:7.2.4
+    container_name: judge0-redis
+    command:
+      [
+        "bash",
+        "-c",
+        'docker-entrypoint.sh --appendonly no --requirepass "$$REDIS_PASSWORD"',
+      ]
+    env_file: judge0.conf
+    volumes:
+      - judge0-redis-data:/data
+    restart: always
+
+volumes:
+  judge0-postgres-data:
+  judge0-redis-data:

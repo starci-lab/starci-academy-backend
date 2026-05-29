@@ -28,6 +28,12 @@ import {
 import {
     AiMutationsModule,
 } from "./ai"
+import {
+    QuizDecksMutationsModule,
+} from "./quiz-decks"
+import {
+    CodingMutationsModule,
+} from "./coding"
 
 /**
  * GraphQL mutations (courses, authentication, etc.).
@@ -54,6 +60,12 @@ import {
             isGlobal: true,
         }),
         AiMutationsModule.register({
+            isGlobal: true,
+        }),
+        QuizDecksMutationsModule.register({
+            isGlobal: true,
+        }),
+        CodingMutationsModule.register({
             isGlobal: true,
         }),
     ],

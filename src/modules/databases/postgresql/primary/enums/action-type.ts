@@ -73,6 +73,10 @@ export enum ActionType {
      * Purchase an AI subscription tier (grants tier on payment success).
      */
     AiSubscriptionPurchase = "aiSubscriptionPurchase",
+    /**
+     * Judge a LeetCode-style coding submission against testcases via Judge0.
+     */
+    JudgeCodingSubmission = "judgeCodingSubmission",
 }
 
 export const GraphQLTypeActionType = createEnumType(ActionType)
@@ -127,6 +131,9 @@ registerEnumType(
             },
             [ActionType.AiSubscriptionPurchase]: {
                 description: "Purchase an AI subscription tier (grants tier on payment success).",
+            },
+            [ActionType.JudgeCodingSubmission]: {
+                description: "Judge a coding submission against testcases via Judge0.",
             },
         },
     },

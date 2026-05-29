@@ -22,8 +22,11 @@ import {
     ExecaService
 } from "@modules/execa"
 import {
-    v4 
+    v4
 } from "uuid"
+import type {
+    PgSyncCommandOptions
+} from "./types"
 
 /**
  * Sync PostgreSQL database (dump from source, restore into destination).
@@ -248,19 +251,5 @@ export class PgSyncCommand extends CommandRunner {
             throw new InvalidPostgresUrlException(urlString)
         }
     }
-}
-
-/**
- * Options for the PostgreSQL sync command
- */
-interface PgSyncCommandOptions {
-    /**
-     * The URL of the source PostgreSQL database
-     */
-    sourceUrl: string
-    /**
-     * The URL of the destination PostgreSQL database
-     */
-    destinationUrl: string
 }
 

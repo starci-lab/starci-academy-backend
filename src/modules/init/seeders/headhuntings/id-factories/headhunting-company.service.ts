@@ -10,10 +10,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-export interface GenerateHeadhuntingCompanyIdParams {
-    companyIndex: number
-}
+import type {
+    GenerateHeadhuntingCompanyIdParams,
+} from "./types"
 
 @Injectable()
 export class HeadhuntingCompanyIdFactoryService {

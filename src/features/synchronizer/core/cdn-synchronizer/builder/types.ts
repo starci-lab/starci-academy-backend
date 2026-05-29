@@ -9,3 +9,13 @@ export type LocalizedCdnEntity<T> = {
     locale: Locale
     entity: T
 }
+
+/**
+ * An entity like object with a display id and an id.
+ */
+export interface EntityLike {
+    /** The display id of the entity. */
+    displayId: string
+    /** The id of the entity. */
+    id: string
+}

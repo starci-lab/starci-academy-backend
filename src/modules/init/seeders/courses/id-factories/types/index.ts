@@ -1,0 +1,409 @@
+/**
+ * Input for {@link CourseIdFactoryService.generate}.
+ */
+export interface GenerateCourseIdParams {
+    /**
+     * Zero-based position of the course in the seeded course list.
+     */
+    courseIndex: number
+}
+
+/**
+ * Input for {@link ModuleIdFactoryService.generate}.
+ */
+export interface GenerateModuleIdParams {
+    /**
+     * Zero-based course index (same as {@link GenerateCourseIdParams.courseIndex}).
+     */
+    courseIndex: number
+    /**
+     * Zero-based module index within that course (matches mount folder order).
+     */
+    moduleIndex: number
+}
+
+/**
+ * Input for {@link ContentIdFactoryService.generate}.
+ */
+export interface GenerateContentIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Zero-based content slot under `modules/{moduleIndex}/contents/{contentIndex}`. */
+    contentIndex: number
+}
+
+/**
+ * Input for {@link ContentReferenceIdFactoryService.generate}.
+ */
+export interface GenerateContentReferenceIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Zero-based reference line in the content’s References block. */
+    referenceIndex: number
+}
+
+/**
+ * Input for {@link CodeExplainingIdFactoryService.generate}.
+ */
+export interface GenerateCodeExplainingIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Zero-based code-explaining block index within the content. */
+    explainingIndex: number
+}
+
+/**
+ * Input for {@link CodeImplementationIdFactoryService.generate}.
+ */
+export interface GenerateCodeImplementationIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Zero-based code-implementation block index within the content. */
+    implementationIndex: number
+}
+
+/**
+ * Input for {@link PreviewContentIdFactoryService.generate}.
+ */
+export interface GeneratePreviewContentIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Zero-based bullet in the module markdown “Preview Contents” list. */
+    previewContentIndex: number
+}
+
+/**
+ * Input for {@link PricingPhaseIdFactoryService.generate}.
+ */
+export interface GeneratePricingPhaseIdParams {
+    /** Course that owns the pricing tier row. */
+    courseIndex: number
+    /** Tier order (e.g. 0 = pioneer, 1 = early bird, 2 = regular). */
+    phaseIndex: number
+}
+
+/**
+ * Input for {@link ValuePropositionIdFactoryService.generate}.
+ */
+export interface GenerateValuePropositionIdParams {
+    /** Owning course ordinal. */
+    courseIndex: number
+    /** Zero-based line in the course “Value Propositions” list. */
+    valuePropositionIndex: number
+}
+
+/**
+ * Input for {@link PrerequisiteIdFactoryService.generate}.
+ */
+export interface GeneratePrerequisiteIdParams {
+    /** Owning course ordinal. */
+    courseIndex: number
+    /** Zero-based line in the course “Prerequisites” list. */
+    prerequisiteIndex: number
+}
+
+/**
+ * Input for {@link QnaIdFactoryService.generate}.
+ */
+export interface GenerateQnaIdParams {
+    /** Owning course ordinal. */
+    courseIndex: number
+    /** Zero-based FAQ entry (`## 1.` → index 0 if ordered contiguously). */
+    qnaIndex: number
+}
+
+/**
+ * Input for {@link LessonVideoIdFactoryService.generate}.
+ */
+export interface GenerateLessonVideoIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Zero-based video in the content’s `lesson-videos` list. */
+    lessonVideoIndex: number
+}
+
+/**
+ * Input for {@link LivestreamSessionIdFactoryService.generate}.
+ */
+export interface GenerateLivestreamSessionIdParams {
+    /** Owning course ordinal. */
+    courseIndex: number
+    /** Session slot index from seed `data.json` (`orderIndex`). */
+    sessionIndex: number
+}
+
+/**
+ * Input for {@link ChallengeIdFactoryService.generate}.
+ */
+export interface GenerateChallengeIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Zero-based challenge folder under `modules/{m}/contents/{c}/challenges/{challengeIndex}`. */
+    challengeIndex: number
+}
+
+/**
+ * Input for {@link ChallengeRequirementIdFactoryService.generate}.
+ */
+export interface GenerateChallengeRequirementIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Parent challenge ordinal. */
+    challengeIndex: number
+    /** Zero-based requirement line within the challenge. */
+    requirementIndex: number
+}
+
+/**
+ * Input for {@link ChallengeOutputIdFactoryService.generate}.
+ */
+export interface GenerateChallengeOutputIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Parent challenge ordinal. */
+    challengeIndex: number
+    /** Zero-based output line within the challenge. */
+    outputIndex: number
+}
+
+/**
+ * Input for {@link ChallengePrerequisiteIdFactoryService.generate}.
+ */
+export interface GenerateChallengePrerequisiteIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Parent challenge ordinal. */
+    challengeIndex: number
+    /** Zero-based prerequisite line within the challenge. */
+    prerequisiteIndex: number
+}
+
+/**
+ * Input for {@link ChallengeStepIdFactoryService.generate}.
+ */
+export interface GenerateChallengeStepIdParams {
+    /** Parent course ordinal (locates the parent challenge). */
+    courseIndex: number
+    /** Parent module ordinal (locates the parent challenge). */
+    moduleIndex: number
+    /** Parent content ordinal (locates the parent challenge). */
+    contentIndex: number
+    /** Parent challenge ordinal (locates the parent challenge). */
+    challengeIndex: number
+    /** Zero-based step from the challenge markdown (`## N. Title` ordering). */
+    stepIndex: number
+}
+
+/**
+ * Input for {@link ChallengeStepCodeImplementationIdFactoryService.generate}.
+ */
+export interface GenerateChallengeStepCodeImplementationIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Parent challenge ordinal. */
+    challengeIndex: number
+    /** Parent step ordinal. */
+    stepIndex: number
+    /** Zero-based code-implementation index within the step. */
+    implementationIndex: number
+}
+
+/**
+ * Input for {@link ChallengeReferenceIdFactoryService.generate}.
+ */
+export interface GenerateChallengeReferenceIdParams {
+    /** Parent course ordinal (locates the parent challenge). */
+    courseIndex: number
+    /** Parent module ordinal (locates the parent challenge). */
+    moduleIndex: number
+    /** Parent content ordinal (locates the parent challenge). */
+    contentIndex: number
+    /** Parent challenge ordinal (locates the parent challenge). */
+    challengeIndex: number
+    /** Zero-based reference from the challenge markdown (`## References` indexed list). */
+    referenceIndex: number
+}
+
+/**
+ * Input for {@link ChallengeSubmissionIdFactoryService.generate}.
+ */
+export interface GenerateChallengeSubmissionIdParams {
+    /** Parent course ordinal (locates the parent challenge). */
+    courseIndex: number
+    /** Parent module ordinal (locates the parent challenge). */
+    moduleIndex: number
+    /** Parent content ordinal (locates the parent challenge). */
+    contentIndex: number
+    /** Parent challenge ordinal (locates the parent challenge). */
+    challengeIndex: number
+    /** Zero-based submission definition from the challenge markdown (`## Submissions` indexed list). */
+    submissionIndex: number
+}
+
+/**
+ * Input for {@link ChallengeSubmissionPromptIdFactoryService.generate}.
+ */
+export interface GenerateChallengeSubmissionPromptIdParams {
+    /** Parent course ordinal (locates the parent submission). */
+    courseIndex: number
+    /** Parent module ordinal (locates the parent submission). */
+    moduleIndex: number
+    /** Parent content ordinal (locates the parent submission). */
+    contentIndex: number
+    /** Parent challenge ordinal (locates the parent submission). */
+    challengeIndex: number
+    /** Parent submission ordinal (locates the parent submission). */
+    submissionIndex: number
+    /** Zero-based prompt in the submission definition list. */
+    promptIndex: number
+}
+
+/**
+ * Input for {@link ChallengeSubmissionPromptCriteriaIdFactoryService.generate}.
+ */
+export interface GenerateChallengeSubmissionPromptCriteriaIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Parent challenge ordinal. */
+    challengeIndex: number
+    /** Parent submission ordinal. */
+    submissionIndex: number
+    /** Parent prompt ordinal. */
+    promptIndex: number
+    /** Zero-based grading criteria index within the prompt. */
+    criteriaIndex: number
+}
+
+/**
+ * Input for {@link QuizDeckIdFactoryService.generate}.
+ */
+export interface GenerateQuizDeckIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Zero-based deck folder under `courses/{course}/quiz-decks/{quizDeckIndex}`. */
+    quizDeckIndex: number
+}
+
+/**
+ * Input for {@link QuizCardIdFactoryService.generate}.
+ */
+export interface GenerateQuizCardIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent deck ordinal. */
+    quizDeckIndex: number
+    /** Zero-based card index within the deck. */
+    quizCardIndex: number
+}
+
+/**
+ * Input for {@link QuizCardOptionIdFactoryService.generate}.
+ */
+export interface GenerateQuizCardOptionIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent deck ordinal. */
+    quizDeckIndex: number
+    /** Parent card ordinal. */
+    quizCardIndex: number
+    /** Zero-based option index within the card. */
+    quizCardOptionIndex: number
+}
+
+/**
+ * Input for {@link MilestoneIdFactoryService.generate}.
+ */
+export interface GenerateMilestoneIdParams {
+    /**
+     * Zero-based course index.
+     */
+    courseIndex: number
+    /**
+     * Zero-based milestone index within the course.
+     */
+    milestoneIndex: number
+}
+
+/**
+ * Input for {@link MilestoneTaskIdFactoryService.generate}.
+ */
+export interface GenerateMilestoneTaskIdParams {
+    /** Owning course ordinal. */
+    courseIndex: number
+    /** Owning milestone ordinal. */
+    milestoneIndex: number
+    /** Zero-based task index within the milestone. */
+    taskIndex: number
+}
+
+/**
+ * Input for {@link MilestoneTaskPassCriteriaIdFactoryService.generate}.
+ */
+export interface GenerateMilestoneTaskPassCriteriaIdParams {
+    /** Owning course ordinal. */
+    courseIndex: number
+    /** Owning milestone ordinal. */
+    milestoneIndex: number
+    /** Owning task ordinal. */
+    taskIndex: number
+    /** Zero-based pass criteria index within the task. */
+    criteriaIndex: number
+}
+
+/**
+ * Input for {@link MilestoneTaskCodeImplementationIdFactoryService.generate}.
+ */
+export interface GenerateMilestoneTaskCodeImplementationIdParams {
+    /** Owning course ordinal. */
+    courseIndex: number
+    /** Owning milestone ordinal. */
+    milestoneIndex: number
+    /** Owning task ordinal. */
+    taskIndex: number
+    /** Zero-based code-implementation index within the task. */
+    implementationIndex: number
+}

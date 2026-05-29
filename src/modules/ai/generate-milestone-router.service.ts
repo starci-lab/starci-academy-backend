@@ -10,7 +10,7 @@ import {
 } from "@modules/winston"
 import {
     AbstractModelRouterService,
-} from "./abstract-model-router"
+} from "./classes"
 import {
     AiPingService,
 } from "./ping.service"

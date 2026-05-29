@@ -87,6 +87,8 @@ export class SubmitChallengeSubmissionHandler
             challengeSubmissionId,
             githubUrl,
             mode,
+            selectedModel,
+            selectedModelProvider,
         } = request
         const trimmedGithubUrl =
             typeof githubUrl === "string"
@@ -219,6 +221,30 @@ export class SubmitChallengeSubmissionHandler
             })
         }
         const userChallengeSubmissionId = userChallengeSubmission.id
+        /**
+         * Persist the user's grading-lane + model pick on the submission row so
+         * the picker pre-fills on reopen. Only overwrite fields the client sent
+         * (undefined = leave the previous choice untouched).
+         */
+        if (
+            mode !== undefined
+            || selectedModel !== undefined
+            || selectedModelProvider !== undefined
+        ) {
+            if (mode !== undefined) {
+                userChallengeSubmission.selectedMode = mode
+            }
+            if (selectedModel !== undefined) {
+                userChallengeSubmission.selectedModel = selectedModel
+            }
+            if (selectedModelProvider !== undefined) {
+                userChallengeSubmission.selectedModelProvider = selectedModelProvider
+            }
+            await this.entityManager.save(
+                UserChallengeSubmissionEntity,
+                userChallengeSubmission,
+            )
+        }
         /** Last attempt. */
         const lastAttempt = userChallengeSubmission.attempts
             ?.sort((
@@ -295,6 +321,8 @@ export class SubmitChallengeSubmissionHandler
                 challengeSubmissionId: challengeSubmission.id,
                 locale,
                 mode,
+                gradingModel: selectedModel,
+                gradingProvider: selectedModelProvider,
             })
             break
         case SubmissionType.GoogleDocsUrl:
@@ -306,6 +334,8 @@ export class SubmitChallengeSubmissionHandler
                 challengeSubmissionId: challengeSubmission.id,
                 locale,
                 mode,
+                gradingModel: selectedModel,
+                gradingProvider: selectedModelProvider,
             })
             break
         }

@@ -15,16 +15,13 @@ import {
 } from "./utils"
 import {
     NatsMessageFactoryService,
-    NatsProducerService 
+    NatsProducerService
 } from "./nats"
-
-/** Emit options. */
-export interface EmitOptions {
-    /** Whether to use NATS. */
-    useNats?: boolean
-    /** Whether to use local. */
-    useLocal?: boolean
-}
+import {
+    EmitParams,
+    OffParams,
+    OnParams,
+} from "./types"
 
 /** Event emitter service. */
 @Injectable()
@@ -97,32 +94,4 @@ export class EventEmitterService {
         this.eventEmitter.off(eventName,
             listener)
     }
-}
-
-/** Emit parameters. */
-export interface EmitParams<T extends EventName> {
-    event: T
-    args?: Array<unknown>
-    payload: (typeof configMap)[T]["eventPayload"]
-    options?: EmitOptions
-}
-
-/** On parameters. */
-export interface OnParams<T extends EventName> {
-    /** The event name. */
-    event: T
-    /** The arguments. */
-    args?: Array<unknown>
-    /** The listener. */
-    listener: (payload: (typeof configMap)[T]["eventPayload"]) => void
-}
-
-/** Off parameters. */
-export interface OffParams<T extends EventName> {
-    /** The event name. */
-    event: T
-    /** The arguments. */
-    args?: Array<unknown>
-    /** The listener. */
-    listener: (payload: (typeof configMap)[T]["eventPayload"]) => void
 }

@@ -13,20 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link LessonVideoIdFactoryService.generate}.
- */
-export interface GenerateLessonVideoIdParams {
-    /** Parent course ordinal. */
-    courseIndex: number
-    /** Parent module ordinal. */
-    moduleIndex: number
-    /** Parent content ordinal. */
-    contentIndex: number
-    /** Zero-based video in the content’s `lesson-videos` list. */
-    lessonVideoIndex: number
-}
+import type {
+    GenerateLessonVideoIdParams,
+} from "./types"
 
 /**
  * Lesson video entities under a module; parent id is {@link ModuleIdFactoryService}.

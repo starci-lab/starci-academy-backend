@@ -13,16 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-export interface GenerateChallengeSubmissionPromptCriteriaIdParams {
-    courseIndex: number
-    moduleIndex: number
-    contentIndex: number
-    challengeIndex: number
-    submissionIndex: number
-    promptIndex: number
-    criteriaIndex: number
-}
+import type {
+    GenerateChallengeSubmissionPromptCriteriaIdParams,
+} from "./types"
 
 @Injectable()
 export class ChallengeSubmissionPromptCriteriaIdFactoryService {

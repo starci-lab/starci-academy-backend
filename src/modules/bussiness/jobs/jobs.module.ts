@@ -21,6 +21,7 @@ import {
     EnqueueProcessPersonalProjectJobService,
     EnqueueGeneratePersonalProjectTasksJobService,
     EnqueueReviewPersonalProjectTaskJobService,
+    EnqueueJudgeCodingSubmissionJobService,
 } from "./enqueue"
 import {
     JobActionService, 
@@ -55,6 +56,7 @@ export class JobsModule extends ConfigurableModuleClass {
                 EnqueueProcessPersonalProjectJobService,
                 EnqueueGeneratePersonalProjectTasksJobService,
                 EnqueueReviewPersonalProjectTaskJobService,
+                EnqueueJudgeCodingSubmissionJobService,
             ],
             exports: [
                 JobActionService,
@@ -73,6 +75,7 @@ export class JobsModule extends ConfigurableModuleClass {
                 EnqueueProcessPersonalProjectJobService,
                 EnqueueGeneratePersonalProjectTasksJobService,
                 EnqueueReviewPersonalProjectTaskJobService,
+                EnqueueJudgeCodingSubmissionJobService,
             ],
         }
     }

@@ -10,8 +10,6 @@ import {
 import {
     ActionType,
     JobEntity,
-    Locale,
-    ModelProvider,
 } from "@modules/databases"
 import {
     InjectSuperJson,
@@ -35,23 +33,10 @@ import {
 } from "@modules/ai"
 import {
     sleepEnqueueUxDelay,
-} from "./enqueue-ux-delay"
-
-/**
- * Params for enqueueing a generate-personal-project-tasks job.
- */
-export interface EnqueueGeneratePersonalProjectTasksParams {
-    /** Enrollment ID — the user's enrollment to generate tasks for. */
-    enrollmentId: string
-    /** User ID associated with the job. */
-    userId: string
-    /** LLM model name override (e.g. "gpt-4o-mini"). */
-    model?: string
-    /** LLM provider override. */
-    provider?: ModelProvider
-    /** Locale hint for filtering/prompting. */
-    locale?: Locale
-}
+} from "../utils"
+import type {
+    EnqueueGeneratePersonalProjectTasksParams,
+} from "../types"
 
 /**
  * Service for enqueueing generate-personal-project-tasks jobs.

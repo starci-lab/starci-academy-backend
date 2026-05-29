@@ -55,7 +55,7 @@ export class MilestoneHandler
             },
         )
 
-        /** Separately load tasks with translations + criteria translations */
+        /** Separately load tasks with translations + criteria + code implementation translations */
         const tasks = await this.entityManager.find(
             MilestoneTaskEntity,
             {
@@ -67,6 +67,9 @@ export class MilestoneHandler
                 relations: {
                     translations: true,
                     criterias: {
+                        translations: true,
+                    },
+                    codeImplementations: {
                         translations: true,
                     },
                 },

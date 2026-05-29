@@ -19,8 +19,23 @@ export interface InitCourseTracksContext {
 }
 
 export interface InitSeedersCoursesContext {
+    /** Master switch for the whole course seeder (modules, contents, challenges, lessons, quiz, milestones). */
+    enabled: boolean
     fullstack: InitCourseTracksContext
     systemDesign: InitCourseTracksContext
+    /** Quiz deck/card seeding (runs inside the course pipeline). */
+    quiz: InitQuizSeederContext
+}
+
+/** Quiz seeder toggles (deck + cards; optional N:N link to lesson contents). */
+export interface InitQuizSeederContext {
+    /** When false, skip all quiz deck parsing/upsert. */
+    enabled: boolean
+    /**
+     * When true, resolve `# contents` in deck markdown → `quiz_deck_contents`.
+     * When false, decks seed with no content links (no module/content seed required).
+     */
+    linkContents: boolean
 }
 
 export interface InitToggleContext {
@@ -34,6 +49,7 @@ export interface InitSeedersContext {
     headhunting: InitToggleContext
     aiModels: InitToggleContext
     subscriptions: InitToggleContext
+    codingProblems: InitToggleContext
 }
 
 /** Per-track synchronizer scopes (CDN and Elasticsearch are independent). */

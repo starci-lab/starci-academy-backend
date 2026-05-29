@@ -13,20 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link ModuleIdFactoryService.generate}.
- */
-export interface GenerateModuleIdParams {
-    /**
-     * Zero-based course index (same as {@link GenerateCourseIdParams.courseIndex}).
-     */
-    courseIndex: number
-    /**
-     * Zero-based module index within that course (matches mount folder order).
-     */
-    moduleIndex: number
-}
+import type {
+    GenerateModuleIdParams,
+} from "./types"
 
 /**
  * Module UUIDs chain from the parent course id string produced by {@link CourseIdFactoryService}.

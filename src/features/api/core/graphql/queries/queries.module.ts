@@ -58,6 +58,12 @@ import {
 import {
     AiQueriesModule,
 } from "./ai"
+import {
+    QuizDecksQueriesModule,
+} from "./quiz-decks"
+import {
+    CodingQueriesModule,
+} from "./coding"
 
 @Module({
     imports: [
@@ -113,6 +119,12 @@ import {
             isGlobal: true,
         }),
         AiQueriesModule.register({
+            isGlobal: true,
+        }),
+        QuizDecksQueriesModule.register({
+            isGlobal: true,
+        }),
+        CodingQueriesModule.register({
             isGlobal: true,
         }),
     ],

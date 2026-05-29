@@ -4,17 +4,11 @@ import {
 import normalizeNewline from "normalize-newline"
 import {
     MOUNT_SECTION_DELIMITER_LINE_RE,
-} from "./mount-delimiter.constants"
-
-interface DelimiterCut {
-    content: string
-    bounded: boolean
-}
-
-interface HeadingSlice {
-    key: string
-    body: string
-}
+} from "./constants"
+import type {
+    DelimiterCut,
+    HeadingSlice,
+} from "./types"
 
 /**
  * Mount markdown → JSON: recursive headings; delimiter cuts a trimmed string leaf.

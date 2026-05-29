@@ -14,7 +14,7 @@ export class AiModelsService {
         private readonly handler: AiModelsHandler,
     ) {}
 
-    execute(): AiModelsResponseData {
+    async execute(): Promise<AiModelsResponseData> {
         return this.handler.execute()
     }
 }

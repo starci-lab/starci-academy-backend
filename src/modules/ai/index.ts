@@ -1,5 +1,5 @@
 export * from "./ai.module"
-export * from "./ai-entitlement.constants"
+export * from "./constants/ai-entitlement.constants"
 export * from "./types"
 export * from "./generate-milestone-router.service"
 export * from "./grade-model-router.service"

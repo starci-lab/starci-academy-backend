@@ -12,6 +12,7 @@ import {
     Column,
     Entity,
     JoinColumn,
+    ManyToMany,
     ManyToOne,
     OneToMany,
     RelationId,
@@ -40,6 +41,9 @@ import {
 import {
     CodeImplementationEntity,
 } from "./code-implementation.entity"
+import {
+    QuizDeckEntity,
+} from "./quiz-deck.entity"
 
 /**
  * Content attached to a module (title, optional description, body).
@@ -268,6 +272,23 @@ export class ContentEntity extends UuidAbstractEntity {
         },
     )
         challenges: Array<ChallengeEntity>
+
+    /**
+     * Interview-prep quiz decks linked to this content (many-to-many; a deck
+     * is owned by a course and may be linked to several contents).
+     */
+    @Field(
+        () => [QuizDeckEntity],
+        {
+            nullable: true,
+            description: "Quiz decks linked to this content (many-to-many).",
+        },
+    )
+    @ManyToMany(
+        () => QuizDeckEntity,
+        (deck: QuizDeckEntity) => deck.contents,
+    )
+        quizDecks: Array<QuizDeckEntity>
 
     @Field(
         () => Int,

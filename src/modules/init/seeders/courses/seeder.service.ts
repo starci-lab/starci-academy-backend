@@ -12,6 +12,7 @@ import {
     MilestoneEntity,
     ModuleEntity,
     MilestoneTaskEntity,
+    QuizDeckEntity,
 } from "@modules/databases"
 import {
     ChallengeInsertService,
@@ -22,6 +23,7 @@ import {
     MilestoneTaskInsertService,
     MindMapInsertService,
     ModuleInsertService,
+    QuizDeckInsertService,
 } from "./inserts"
 import {
     ChallengeParserService,
@@ -32,6 +34,7 @@ import {
     MilestoneTaskParserService,
     MindMapParserService,
     ModuleParserService,
+    QuizDeckParserService,
 } from "./parsers"
 import {
     MilestonePathService,
@@ -39,6 +42,9 @@ import {
 } from "./path"
 import {
     resolveCourseSeedScope,
+    isCoursesSeederEnabled,
+    isCoursesQuizLinkContentsEnabled,
+    isCoursesQuizSeederEnabled,
 } from "../shared/scope"
 import {
     ResolvedFileResult,
@@ -62,6 +68,7 @@ export class CourseSeederService {
         private readonly courseParserService: CourseParserService,
         private readonly moduleParserService: ModuleParserService,
         private readonly challengeParserService: ChallengeParserService,
+        private readonly quizDeckParserService: QuizDeckParserService,
         private readonly lessonVideoParserService: LessonVideoParserService,
         private readonly contentParserService: ContentParserService,
         private readonly courseInsertService: CourseInsertService,
@@ -69,6 +76,7 @@ export class CourseSeederService {
         private readonly contentInsertService: ContentInsertService,
         private readonly lessonVideoInsertService: LessonVideoInsertService,
         private readonly challengeInsertService: ChallengeInsertService,
+        private readonly quizDeckInsertService: QuizDeckInsertService,
         private readonly milestoneParserService: MilestoneParserService,
         private readonly milestoneTaskParserService: MilestoneTaskParserService,
         private readonly milestoneInsertService: MilestoneInsertService,
@@ -85,6 +93,13 @@ export class CourseSeederService {
      * Scope from `envConfig().init` seeders `courses` via {@link resolveCourseSeedScope}.
      */
     async seed(): Promise<void> {
+        // master gate: skip the entire course pipeline when disabled
+        if (!isCoursesSeederEnabled()) {
+            return
+        }
+        // whether course-level quiz decks should be parsed + upserted this run
+        const quizEnabled = isCoursesQuizSeederEnabled()
+        const quizLinkContents = isCoursesQuizLinkContentsEnabled()
         const {
             moduleIndexFilterByDisplayId,
             milestoneIndexFilterByDisplayId,
@@ -102,6 +117,8 @@ export class CourseSeederService {
             const courseDisplayId = courseResult.data.displayId as string
             /** The modules to seed. */
             const modules: Array<DeepPartial<ModuleEntity>> = []
+            /** Content path → id map when `INIT_SEEDERS_COURSES_QUIZ_LINK_CONTENTS=true`. */
+            const contentIdByPath = new Map<string, string>()
             const modulePaths = await this.modulePathService.paths({
                 courseRelativePath: courseResult.relativePath,
             })
@@ -151,6 +168,17 @@ export class CourseSeederService {
                 /** We push the contents to the array by parsing the content results. */
                 for (const contentResult of contentResults) {
                     contents.push(contentResult.data)
+                    if (quizLinkContents) {
+                        const moduleDisplayId = moduleResult.data.displayId as string
+                        const contentDisplayId = contentResult.data.displayId as string
+                        const contentId = contentResult.data.id as string
+                        if (moduleDisplayId && contentDisplayId && contentId) {
+                            contentIdByPath.set(
+                                `${moduleDisplayId}/${contentDisplayId}`,
+                                contentId,
+                            )
+                        }
+                    }
                 }
 
                 /** Attach contents to the current module. */
@@ -199,6 +227,7 @@ export class CourseSeederService {
                         content.lessons = lessonVideos
                     }
                 }
+
             }
 
             /** We find the corresponding course in the courses array. */
@@ -207,6 +236,22 @@ export class CourseSeederService {
             )
             if (course) {
                 course.modules = modules
+                /** Parse course-level quiz decks (own their course, optional N:N content links). */
+                if (quizEnabled) {
+                    const quizDecks: Array<DeepPartial<QuizDeckEntity>> = []
+                    const quizDeckResults = await this.quizDeckParserService.parseMany(
+                        {
+                            courseRelativePath: courseResult.relativePath,
+                            courseIndex: courseResult.index,
+                            courseId: courseResult.data.id as string,
+                            contentIdByPath,
+                        },
+                    )
+                    for (const quizDeckResult of quizDeckResults) {
+                        quizDecks.push(quizDeckResult.data)
+                    }
+                    course.quizDecks = quizDecks
+                }
             }
         }
 
@@ -264,6 +309,12 @@ export class CourseSeederService {
             //     modules.map((module) => module.id as string),
             //     courseId,
             // )
+
+            /** 5c. Upsert course-level quiz decks (after contents exist for N:N links). */
+            const quizDecks = (course.quizDecks ?? []) as Array<DeepPartial<QuizDeckEntity>>
+            for (const quizDeck of quizDecks) {
+                await this.quizDeckInsertService.insert(quizDeck)
+            }
 
             /** 6. Upsert milestones */
             const courseResult = courseResults.find(

@@ -5,6 +5,7 @@
  * Indices are **ordinals** (0-based list positions), not `CourseId` slugs—distinct from
  * `data/utils/ids` `build*` helpers used by static markdown seeds.
  */
+export * from "./types"
 export * from "./course.service"
 export * from "./module.service"
 export * from "./content.service"
@@ -27,8 +28,12 @@ export * from "./challenge-step-code-implementation.service"
 export * from "./challenge-reference.service"
 export * from "./challenge-submission.service"
 export * from "./challenge-submission-prompt.service"
+export * from "./quiz-deck.service"
+export * from "./quiz-card.service"
+export * from "./quiz-card-option.service"
 
 
 export * from "./milestone.service"
 export * from "./milestone-task.service"
 export * from "./milestone-task-pass-criteria.service"
+export * from "./milestone-task-code-implementation.service"

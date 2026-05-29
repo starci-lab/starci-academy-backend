@@ -1,5 +1,6 @@
 import {
     Field,
+    Float,
     Int,
     ObjectType,
 } from "@nestjs/graphql"
@@ -30,12 +31,28 @@ export class AiSubscriptionTierData {
         displayName: string
 
     @Field(
+        () => String,
+        {
+            description: "Short audience/purpose tagline shown on the tier card.",
+        },
+    )
+        description: string
+
+    @Field(
         () => Int,
         {
             description: "Monthly price in VND.",
         },
     )
         priceVnd: number
+
+    @Field(
+        () => Float,
+        {
+            description: "Monthly price in USD (dollars) for international gateways.",
+        },
+    )
+        priceUsd: number
 
     @Field(
         () => Int,

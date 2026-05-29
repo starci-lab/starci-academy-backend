@@ -10,16 +10,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link TemplateCvIdFactoryService["generate"]}.
- */
-export interface GenerateTemplateCvIdParams {
-    /**
-     * Mount folder name used as `template_cvs.key` (e.g. `0-standard`).
-     */
-    key: string
-}
+import type {
+    GenerateTemplateCvIdParams,
+} from "./types"
 
 /**
  * Template CV UUIDs: SHA-256 over typed preimage segments, then UUID v5 under {@link envConfig} `uuidNamespace.course`.

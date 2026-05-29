@@ -53,6 +53,9 @@ export class TaskHandler
                     criterias: {
                         translations: true,
                     },
+                    codeImplementations: {
+                        translations: true,
+                    },
                 },
             },
         )

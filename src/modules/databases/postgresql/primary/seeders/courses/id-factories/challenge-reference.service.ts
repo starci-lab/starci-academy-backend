@@ -13,19 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link ChallengeReferenceIdFactoryService.generate}.
- */
-export interface GenerateChallengeReferenceIdParams {
-    /** Locates the parent challenge (same as {@link GenerateChallengeIdParams}). */
-    courseIndex: number
-    moduleIndex: number
-    contentIndex: number
-    challengeIndex: number
-    /** Zero-based reference from the challenge markdown (`## References` indexed list). */
-    referenceIndex: number
-}
+import type {
+    GenerateChallengeReferenceIdParams,
+} from "./types"
 
 /**
  * Reference links on a challenge; parent id is {@link ChallengeIdFactoryService}.

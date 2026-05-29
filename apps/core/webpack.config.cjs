@@ -52,7 +52,8 @@ const basePackage = {
     },
 }
 
-module.exports = {
+module.exports = (options) => ({
+    ...options,
     /**
      * TypeScript entry point for the coordinator application
      */
@@ -82,9 +83,19 @@ module.exports = {
     externals: [nodeExternals()],
 
     /**
-     * Plugins used during the build process
+     * Plugins used during the build process.
+     *
+     * When `DISABLE_FORK_TS_CHECKER=true`, the Nest-CLI default
+     * ForkTsCheckerWebpackPlugin is stripped. This is an opt-in escape hatch for
+     * local seeding/dev when repo-wide pre-existing type errors make the
+     * type-check fork run out of memory; the bundle is transpiled regardless.
+     * Default behavior (checker on) is unchanged.
      */
     plugins: [
+        ...(options.plugins ?? []).filter(
+            (plugin) => process.env.DISABLE_FORK_TS_CHECKER !== "true"
+                || !/ForkTsChecker/i.test(plugin?.constructor?.name ?? ""),
+        ),
         new GeneratePackageJsonPlugin(
             basePackage,
             {
@@ -94,5 +105,5 @@ module.exports = {
             }
         ),
     ],
-}
+})
 

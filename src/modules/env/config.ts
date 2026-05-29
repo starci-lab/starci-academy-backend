@@ -37,6 +37,8 @@ export const envConfig = () => ({
         foundation: "d32d2da9-ad2e-44b4-b412-a97de455b8e4",
         /** UUID namespace for headhunter mount data. */
         headhunting: "d32d2da9-ad2e-44b4-b412-a97de455b8e4",
+        /** UUID namespace for coding-practice problems (deterministic ids from slug). */
+        codingProblem: "d32d2da9-ad2e-44b4-b412-a97de455b8e4",
     },
     /** Initialization configuration. */
     init: [
@@ -49,6 +51,10 @@ export const envConfig = () => ({
             }),
             context: {
                 courses: {
+                    enabled: parseEnvBoolean({
+                        key: "INIT_SEEDERS_COURSES_ENABLED",
+                        defaultValue: true,
+                    }),
                     fullstack: {
                         modules: {
                             indexes: parseEnvString({
@@ -93,6 +99,16 @@ export const envConfig = () => ({
                             }),
                         },
                     },
+                    quiz: {
+                        enabled: parseEnvBoolean({
+                            key: "INIT_SEEDERS_COURSES_QUIZ_ENABLED",
+                            defaultValue: true,
+                        }),
+                        linkContents: parseEnvBoolean({
+                            key: "INIT_SEEDERS_COURSES_QUIZ_LINK_CONTENTS",
+                            defaultValue: false,
+                        }),
+                    },
                 },
                 cv: {
                     enabled: parseEnvBoolean({
@@ -121,6 +137,12 @@ export const envConfig = () => ({
                 subscriptions: {
                     enabled: parseEnvBoolean({
                         key: "INIT_SEEDERS_SUBSCRIPTIONS",
+                        defaultValue: true,
+                    }),
+                },
+                codingProblems: {
+                    enabled: parseEnvBoolean({
+                        key: "INIT_SEEDERS_CODING_PROBLEMS",
                         defaultValue: true,
                     }),
                 },
@@ -459,6 +481,57 @@ export const envConfig = () => ({
                 merchantId: parseEnvString({
                     key: "API_SEPAY_MERCHANT_ID",
                     defaultValue: "SP-TEST-CNA92625",
+                }),
+            },
+            /**
+             * Stripe (international card gateway) configuration.
+             * Secrets (STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET) are NOT env vars —
+             * they live in mount-terraform files read via {@link MountFilesystemService}.
+             */
+            stripe: {
+                /** ISO currency Stripe Checkout charges in (lowercase per Stripe API). */
+                currency: parseEnvString({
+                    key: "STRIPE_CURRENCY",
+                    defaultValue: "usd",
+                }),
+            },
+            /**
+             * PayPal (international gateway) configuration.
+             * Secrets (PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET, PAYPAL_WEBHOOK_ID) are NOT
+             * env vars — they live in mount-terraform files read via {@link MountFilesystemService}.
+             */
+            paypal: {
+                /** REST API base URL (sandbox by default; live = api-m.paypal.com). */
+                baseUrl: parseEnvString({
+                    key: "PAYPAL_BASE_URL",
+                    defaultValue: "https://api-m.sandbox.paypal.com",
+                }),
+                /** ISO currency PayPal orders are created in (uppercase per PayPal API). */
+                currency: parseEnvString({
+                    key: "PAYPAL_CURRENCY",
+                    defaultValue: "USD",
+                }),
+            },
+            /**
+             * NOWPayments (crypto gateway — USDT/USDC) configuration.
+             * Secrets (NOWPAYMENTS_API_KEY, NOWPAYMENTS_IPN_SECRET) are NOT env vars —
+             * they live in mount-terraform files read via {@link MountFilesystemService}.
+             */
+            nowpayments: {
+                /** REST API base URL (sandbox by default). */
+                baseUrl: parseEnvString({
+                    key: "NOWPAYMENTS_BASE_URL",
+                    defaultValue: "https://api.sandbox.nowpayments.io/v1",
+                }),
+                /** Fiat currency the invoice price is quoted in. */
+                priceCurrency: parseEnvString({
+                    key: "NOWPAYMENTS_PRICE_CURRENCY",
+                    defaultValue: "usd",
+                }),
+                /** Crypto asset the customer pays in (e.g. `usdttrc20`, `usdcerc20`). */
+                payCurrency: parseEnvString({
+                    key: "NOWPAYMENTS_PAY_CURRENCY",
+                    defaultValue: "usdttrc20",
                 }),
             },
             /** API pagination configuration. */
@@ -812,6 +885,47 @@ export const envConfig = () => ({
             },
         },
     },
+    /**
+     * Judge0 (self-hosted code-execution sandbox) configuration.
+     * The X-Auth-Token secret is NOT an env var — it lives in a mount-terraform
+     * file read via {@link MountFilesystemService} (see `mountPath.terraform.judge0AuthToken`).
+     */
+    judge0: {
+        /** Base URL of the Judge0 REST API (the self-hosted compose stack). */
+        baseUrl: parseEnvString({
+            key: "JUDGE0_BASE_URL",
+            defaultValue: "http://localhost:2358",
+        }),
+        /** Delay between batch-result polls while a submission is judging. */
+        pollIntervalMs: parseEnvMs({
+            key: "JUDGE0_POLL_INTERVAL_MS",
+            defaultValue: "600ms",
+        }),
+        /** Max number of poll attempts before giving up (poll interval × this = timeout). */
+        maxPollAttempts: parseEnvInt({
+            key: "JUDGE0_MAX_POLL_ATTEMPTS",
+            defaultValue: 100,
+        }),
+        /** HTTP request timeout for a single Judge0 call. */
+        requestTimeoutMs: parseEnvMs({
+            key: "JUDGE0_REQUEST_TIMEOUT_MS",
+            defaultValue: "15s",
+        }),
+        /**
+         * Map of {@link CodingLanguage} string value → Judge0 numeric `language_id`.
+         * Defaults are the Judge0 CE stable ids; override per Judge0 version.
+         */
+        languageIds: parseEnvJson<Record<string, number>>({
+            key: "JUDGE0_LANGUAGE_IDS",
+            defaultValue: JSON.stringify({
+                python: 71,
+                javascript: 63,
+                typescript: 74,
+                java: 62,
+                cpp: 54,
+            }),
+        }),
+    },
     /** Loki configuration. */
     loki: {
         /** The host of the Loki instance. */
@@ -976,6 +1090,13 @@ export const envConfig = () => ({
                     "data",
                     "courses"),
             }),
+            codingProblems: parseEnvString({
+                key: "DATA_CODING_PROBLEMS_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "data",
+                    "coding-problems"),
+            }),
         },
         /** File paths: app config. */
         config: {
@@ -1060,6 +1181,55 @@ export const envConfig = () => ({
                     "terraform",
                     "sepay-api-key.key"),
             }),
+            stripeSecretKey: parseEnvString({
+                key: "TERRAFORM_STRIPE_SECRET_KEY_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "stripe-secret-key.key"),
+            }),
+            stripeWebhookSecret: parseEnvString({
+                key: "TERRAFORM_STRIPE_WEBHOOK_SECRET_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "stripe-webhook-secret.key"),
+            }),
+            paypalClientId: parseEnvString({
+                key: "TERRAFORM_PAYPAL_CLIENT_ID_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "paypal-client-id.key"),
+            }),
+            paypalClientSecret: parseEnvString({
+                key: "TERRAFORM_PAYPAL_CLIENT_SECRET_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "paypal-client-secret.key"),
+            }),
+            paypalWebhookId: parseEnvString({
+                key: "TERRAFORM_PAYPAL_WEBHOOK_ID_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "paypal-webhook-id.key"),
+            }),
+            nowpaymentsApiKey: parseEnvString({
+                key: "TERRAFORM_NOWPAYMENTS_API_KEY_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "nowpayments-api-key.key"),
+            }),
+            nowpaymentsIpnSecret: parseEnvString({
+                key: "TERRAFORM_NOWPAYMENTS_IPN_SECRET_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "nowpayments-ipn-secret.key"),
+            }),
             brevoSmtpPassword: parseEnvString({
                 key: "TERRAFORM_BREVO_SMTP_PASSWORD_MOUNT_PATH",
                 defaultValue: join(process.cwd(),
@@ -1073,6 +1243,13 @@ export const envConfig = () => ({
                     ".mount",
                     "terraform",
                     "encryption-key.key"),
+            }),
+            judge0AuthToken: parseEnvString({
+                key: "TERRAFORM_JUDGE0_AUTH_TOKEN_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "judge0-auth-token.key"),
             }),
             gcpServiceAccountJson: parseEnvString({
                 key: "TERRAFORM_GCP_SERVICE_ACCOUNT_JSON_MOUNT_PATH",
@@ -1507,6 +1684,18 @@ export const envConfig = () => ({
                 defaultValue: 1,
             }),
         },
+        /** Judge Coding Submission job configuration. */
+        judgeCodingSubmission: {
+            maxSteps: parseEnvInt({
+                key: "JOB_JUDGE_CODING_SUBMISSION_MAX_STEPS",
+                defaultValue: 1,
+            }),
+            /** Minimum gap between a user's coding submits (anti-spam, mirrors throttler). */
+            cooldownMs: parseEnvMs({
+                key: "CODING_SUBMISSION_COOLDOWN_MS",
+                defaultValue: "3s",
+            }),
+        },
         /** Job stalled configuration. */
         stalled: {
             thresholdMs: parseEnvMs({
@@ -1777,6 +1966,17 @@ export const envConfig = () => ({
         healthCheckIntervalMs: parseEnvMs({
             key: "AI_BALANCER_HEALTH_CHECK_INTERVAL_MS",
             defaultValue: "1m",
+        }),
+    },
+    /** Quizlet-style interview-prep (SM-2 spaced repetition) tunables. */
+    quiz: {
+        /**
+         * Scheduling interval (in days) at or above which a card is considered
+         * Mastered. Cards below this stay in the Review bucket.
+         */
+        masteredIntervalDays: parseEnvInt({
+            key: "QUIZ_MASTERED_INTERVAL_DAYS",
+            defaultValue: 21,
         }),
     },
 }

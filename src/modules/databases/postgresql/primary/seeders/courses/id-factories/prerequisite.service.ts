@@ -13,16 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link PrerequisiteIdFactoryService.generate}.
- */
-export interface GeneratePrerequisiteIdParams {
-    /** Owning course ordinal. */
-    courseIndex: number
-    /** Zero-based line in the course “Prerequisites” list. */
-    prerequisiteIndex: number
-}
+import type {
+    GeneratePrerequisiteIdParams,
+} from "./types"
 
 /**
  * Prerequisite bullets on a course; parent id is {@link CourseIdFactoryService}.

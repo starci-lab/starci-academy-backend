@@ -37,7 +37,7 @@ import {
 } from "@modules/env"
 import {
     sleepEnqueueUxDelay,
-} from "./enqueue-ux-delay"
+} from "../utils"
 
 /**
  * Service for enqueuing a Git challenge submission grading job.

@@ -47,6 +47,9 @@ import {
 import {
     MindMapNodeEntity,
 } from "./mind-map-node.entity"
+import {
+    QuizDeckEntity,
+} from "./quiz-deck.entity"
 
 
 /**
@@ -191,6 +194,24 @@ export class CourseEntity extends UuidAbstractEntity {
         type: "double precision",
     })
         originalPrice: number
+
+    /**
+     * Original list price in USD (dollars) for international payment gateways
+     * (Stripe/PayPal/NOWPayments); null when no USD price has been set.
+     */
+    @Field(
+        () => Float,
+        {
+            nullable: true,
+            description: "Original list price in USD for international gateways; null when unset.",
+        },
+    )
+    @Column({
+        name: "original_price_usd",
+        type: "double precision",
+        nullable: true,
+    })
+        originalPriceUsd: number | null
 
     /**
      * One-to-one operational metadata (e.g. {@link CourseMetadataEntity.currentPhase}).
@@ -375,6 +396,25 @@ export class CourseEntity extends UuidAbstractEntity {
         },
     )
         mindMapNodes: Array<MindMapNodeEntity>
+
+    /**
+     * Interview-prep quiz decks owned by this course (shown in the quiz tab).
+     */
+    @Field(
+        () => [QuizDeckEntity],
+        {
+            nullable: true,
+            description: "Interview-prep quiz decks owned by this course.",
+        },
+    )
+    @OneToMany(
+        () => QuizDeckEntity,
+        (deck: QuizDeckEntity) => deck.course,
+        {
+            cascade: true,
+        },
+    )
+        quizDecks: Array<QuizDeckEntity>
 
     /**
      * Default locale for the course.

@@ -29,34 +29,43 @@ implements IQueryHandler<LeaderboardQuery, LeaderboardResponseData>
         const requestedLimit = request.limit ?? LeaderboardRequestDefaults.DEFAULT_LIMIT
         const limit = Math.max(
             1,
-            Math.min(requestedLimit, LeaderboardRequestDefaults.MAX_LIMIT),
+            Math.min(requestedLimit,
+                LeaderboardRequestDefaults.MAX_LIMIT),
         )
 
         const board = await this.leaderboardService.getLeaderboard(courseId)
 
-        const entries = board.entries.slice(0, limit).map((e) => ({
-            rank: e.rank,
-            enrollmentId: e.enrollmentId,
-            userId: e.userId,
-            username: e.username,
-            avatar: e.avatar,
-            totalScore: e.totalScore,
-            completedChallenges: e.completedChallenges,
+        const entries = board.entries.slice(0,
+            limit).map((entry) => ({
+            rank: entry.rank,
+            enrollmentId: entry.enrollmentId,
+            userId: entry.userId,
+            username: entry.username,
+            avatar: entry.avatar,
+            totalScore: entry.totalScore,
+            completedChallenges: entry.completedChallenges,
+            lessonsRead: entry.lessonsRead,
+            milestoneProgress: entry.milestoneProgress,
+            totalXp: entry.totalXp,
         }))
 
         let myRank: LeaderboardMyRankData | null = null
         if (user) {
             // Cheap path: user is already inside the cached window.
-            const inCache = board.entries.find((e) => e.userId === user.id)
+            const inCache = board.entries.find((entry) => entry.userId === user.id)
             if (inCache) {
                 myRank = {
                     rank: inCache.rank,
                     totalScore: inCache.totalScore,
                     completedChallenges: inCache.completedChallenges,
+                    lessonsRead: inCache.lessonsRead,
+                    milestoneProgress: inCache.milestoneProgress,
+                    totalXp: inCache.totalXp,
                 }
             } else {
                 // Outside the window — query directly.
-                const direct = await this.leaderboardService.getMyRank(courseId, user.id)
+                const direct = await this.leaderboardService.getMyRank(courseId,
+                    user.id)
                 if (direct) {
                     myRank = direct
                 }

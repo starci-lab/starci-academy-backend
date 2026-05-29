@@ -9,28 +9,12 @@ import {
 import {
     platform,
 } from "os"
-
-/**
- * GPU vendor types supported for hardware-accelerated encoding.
- */
-export enum GpuVendor {
-    Nvidia = "nvidia",
-    Amd = "amd",
-    Intel = "intel",
-    None = "none",
-}
-
-/**
- * Detected GPU information.
- */
-export interface GpuInfo {
-    /** GPU vendor (nvidia, amd, intel, none). */
-    vendor: GpuVendor
-    /** Full GPU name string (e.g. "NVIDIA GeForce RTX 4090"). */
-    name: string
-    /** The ffmpeg video codec to use for this GPU. */
-    hwEncoder: string | null
-}
+import {
+    GpuVendor,
+} from "./enums"
+import type {
+    GpuInfo,
+} from "./types"
 
 /**
  * Service for detecting the dedicated GPU on the current machine.

@@ -13,20 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link FoundationIdFactoryService.generate}.
- */
-export interface GenerateFoundationIdParams {
-    /**
-     * Zero-based category index (same as {@link GenerateFoundationCategoryIdParams.categoryIndex}).
-     */
-    categoryIndex: number
-    /**
-     * Zero-based foundation index within that category.
-     */
-    foundationIndex: number
-}
+import type {
+    GenerateFoundationIdParams,
+} from "./types"
 
 /**
  * Builds deterministic foundation UUIDs chained from the parent category ID.

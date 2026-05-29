@@ -13,17 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link MilestoneTaskPassCriteriaIdFactoryService.generate}.
- */
-export interface GenerateMilestoneTaskPassCriteriaIdParams {
-    courseIndex: number
-    milestoneIndex: number
-    taskIndex: number
-    /** Zero-based pass criteria index within the task. */
-    criteriaIndex: number
-}
+import type {
+    GenerateMilestoneTaskPassCriteriaIdParams,
+} from "./types"
 
 /**
  * Milestone task pass criteria UUIDs chain from the parent milestone task id string.

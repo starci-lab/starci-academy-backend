@@ -10,19 +10,12 @@ import {
     S3BucketCreationFailedException,
 } from "@modules/exceptions"
 import {
-    InjectDigitalOceanS3, 
-    InjectMinioS3 
+    InjectDigitalOceanS3,
+    InjectMinioS3
 } from "./s3.decorators"
-
-type S3LikeError = Error & {
-    Code?: string
-    Resource?: string
-    RequestId?: string
-    $metadata?: {
-        httpStatusCode?: number
-        requestId?: string
-    }
-}
+import {
+    S3LikeError,
+} from "./types"
 
 @Injectable()
 export class S3BucketService {

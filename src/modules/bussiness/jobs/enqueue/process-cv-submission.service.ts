@@ -36,7 +36,7 @@ import {
 } from "../types"
 import {
     sleepEnqueueUxDelay,
-} from "./enqueue-ux-delay"
+} from "../utils"
 
 /**
  * Service for enqueuing a CV review / extraction pipeline job (`process-cv-submission` queue).

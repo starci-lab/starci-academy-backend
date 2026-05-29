@@ -14,6 +14,15 @@ import {
     CourseEnrollSepayService,
 } from "./course-enroll-sepay.service"
 import {
+    CourseEnrollStripeService,
+} from "./course-enroll-stripe.service"
+import {
+    CourseEnrollPaypalService,
+} from "./course-enroll-paypal.service"
+import {
+    CourseEnrollCryptoService,
+} from "./course-enroll-crypto.service"
+import {
     CourseEnrollService,
 } from "./course-enroll.service"
 import {
@@ -28,6 +37,9 @@ import {
         CoursePricingService,
         CourseEnrollPayOsService,
         CourseEnrollSepayService,
+        CourseEnrollStripeService,
+        CourseEnrollPaypalService,
+        CourseEnrollCryptoService,
         CourseEnrollService,
         CourseEnrollResolver,
         CourseEnrollHandler,

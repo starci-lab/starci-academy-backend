@@ -19,23 +19,12 @@ import {
 import {
     WinstonService,
 } from "@modules/winston"
-
-/** Log label for skipped mount rows (no DB entity). */
-class SubscriptionCatalogEntity {
-    static readonly name = "SubscriptionCatalog"
-}
-
-/** Mount markdown shape for `.mount/data/subcriptions/<index>-<tier>/en.md`. */
-type SubscriptionCatalogMd = {
-    tier?: string
-    displayName?: string
-    priceVnd?: string | number
-    creditsPer5h?: string | number
-    creditsPerWeek?: string | number
-    popular?: string | boolean
-    enabled?: string | boolean
-    [key: string]: unknown
-}
+import type {
+    SubscriptionCatalogMd,
+} from "./types"
+import {
+    SUBSCRIPTION_CATALOG_ENTITY,
+} from "./constants"
 
 /**
  * Parses `.mount/data/subcriptions/<index>-<tier>/{en,vi}.md` into catalog rows
@@ -67,7 +56,7 @@ export class SubscriptionCatalogParserService {
             } catch {
                 logInitSeederEntitySkipped(
                     this.winstonService,
-                    SubscriptionCatalogEntity,
+                    SUBSCRIPTION_CATALOG_ENTITY,
                     enRelativePath,
                     new Error("en.md missing or unreadable"),
                 )
@@ -83,8 +72,18 @@ export class SubscriptionCatalogParserService {
             const row: AppConfigSubscriptionTier = {
                 tier: tierValue,
                 displayName: this.coerceMdScalarService.toNullableString(md.displayName),
+                // audience/purpose tagline for the tier card (empty string when absent)
+                description: this.coerceMdScalarService.toRequiredString(
+                    md.description,
+                    "",
+                ),
                 priceVnd: this.coerceMdScalarService.toRequiredNumber(
                     md.priceVnd,
+                    0,
+                ),
+                // USD dollar price for international gateways (defaults to 0 when unset)
+                priceUsd: this.coerceMdScalarService.toRequiredNumber(
+                    md.priceUsd,
                     0,
                 ),
                 creditsPer5h: this.coerceMdScalarService.toRequiredNumber(
@@ -105,7 +104,7 @@ export class SubscriptionCatalogParserService {
             if (!isValidSubscriptionTier(row)) {
                 logInitSeederEntitySkipped(
                     this.winstonService,
-                    SubscriptionCatalogEntity,
+                    SUBSCRIPTION_CATALOG_ENTITY,
                     enRelativePath,
                     new Error("invalid subscription en.md shape"),
                 )

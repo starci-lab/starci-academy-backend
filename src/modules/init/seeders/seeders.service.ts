@@ -16,6 +16,9 @@ import {
 import {
     CatalogSeederService,
 } from "./catalog"
+import {
+    CodingProblemSeederService,
+} from "./coding-problems"
 /**
  * Init seed orchestrator: each domain seeder reads `envConfig().init` seeders context itself.
  */
@@ -27,6 +30,7 @@ export class SeedersService {
         private readonly foundationSeederService: FoundationSeederService,
         private readonly headhunterSeederService: HeadhuntingSeederService,
         private readonly catalogSeederService: CatalogSeederService,
+        private readonly codingProblemSeederService: CodingProblemSeederService,
     ) { }
 
     /** Runs all init seed pipelines sequentially (env gates live inside each seeder). */
@@ -36,5 +40,6 @@ export class SeedersService {
         await this.cvSeederService.seed()
         await this.foundationSeederService.seed()
         await this.headhunterSeederService.seed()
+        await this.codingProblemSeederService.seed()
     }
 }

@@ -13,19 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link ChallengeStepIdFactoryService.generate}.
- */
-export interface GenerateChallengeStepIdParams {
-    /** Locates the parent challenge (same as {@link GenerateChallengeIdParams}). */
-    courseIndex: number
-    moduleIndex: number
-    contentIndex: number
-    challengeIndex: number
-    /** Zero-based step from the challenge markdown (`## N. Title` ordering). */
-    stepIndex: number
-}
+import type {
+    GenerateChallengeStepIdParams,
+} from "./types"
 
 /**
  * Graded steps inside a challenge; parent id is {@link ChallengeIdFactoryService}.

@@ -22,6 +22,9 @@ import {
 import {
     ReviewCvSubmissionModule,
 } from "./review-cv-submission"
+import {
+    JudgeCodingSubmissionModule,
+} from "./judge-coding-submission"
 
 /**
  * Module for API-side BullMQ processors.
@@ -44,6 +47,9 @@ import {
             isGlobal: true,
         }),
         ProcessGoogleDocsSubmissionModule.register({
+            isGlobal: true,
+        }),
+        JudgeCodingSubmissionModule.register({
             isGlobal: true,
         }),
     ],

@@ -10,6 +10,9 @@ import {
     S3Provider,
     S3ReadService
 } from "@modules/s3"
+import type {
+    ResolvedFilePath,
+} from "./types"
 /**
  * Resolves indexed content folders under a module’s `contents/` directory (`{index}-{slug}` or legacy `{index}`).
  */
@@ -123,24 +126,4 @@ export class PathResolverService {
             return []
         }
     }
-}
-
-/** The result of resolving a file path. */
-export interface ResolvedFilePath {
-    /** The relative path to the file. */
-    relativePath: string
-    /** The order index of the file. */
-    orderIndex: number
-    /** The display index of the file. */
-    displayId: string
-}
-
-/** The result of resolving a file path. */
-export interface ResolvedFileResult<T> {
-    /** The data of the file. */
-    data: T
-    /** The index of the file. */
-    index: number
-    /** The relative path of the file. */
-    relativePath: string    
 }

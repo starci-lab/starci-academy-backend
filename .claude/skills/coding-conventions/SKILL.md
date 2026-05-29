@@ -137,11 +137,14 @@ Name by **function or feature** (kebab-case):
 
 All must carry JSDoc comments.
 
-### NestJS files MUST NOT define types/enums/classes inline
+### NestJS files MUST NOT define types/enums/classes/constants inline (STRICT)
 
-A `*.service.ts` file can only **import** types, enums, and classes from `types/`, `enums/`,
-`classes/`, `dtos/`, or `graphql-types/`. Never declare an `interface`, `enum`, or non-NestJS
-`class` inside a service/controller/module file.
+A `*.service.ts` (and `*.controller.ts` / `*.resolver.ts` / `*.processor.ts` / `*.module.ts`)
+must contain **ZERO** `interface` / `type` / `enum` / non-NestJS `class` / exported `const`
+declarations. It may only **import** them from `types/`, `enums/`, `classes/`, `constants/`,
+`dtos/`, or `graphql-types/`. An inline `interface`/`type`/`enum`/`const` in a service is a
+hard violation — extract it to the matching module-root folder (with `index.ts`) and import
+back via `./types` / `./enums` / `./constants`.
 
 ```ts
 // ❌ inside user.service.ts
@@ -355,17 +358,42 @@ logical group is fine — match nearby files' formatting.
 
 ## 5. Comment / JSDoc patterns
 
-### Types, enums, classes — REQUIRED JSDoc
+### Types, enums, classes — REQUIRED JSDoc (per-member, STRICT)
+
+Every exported type/interface/enum/class needs a type-level `/** ... */` **AND a
+`/** ... */` on EVERY member** — each interface field, each type property, each
+enum member. No exceptions, including optional fields and callback fields
+(document what the callback is called for, its args, and timing). A bare member
+with no doc comment fails review.
 
 ```ts
-/** Params for creating a user. */
-export interface CreateUserParams { ... }
+/** Params for creating an async iterable stream from a connection. */
+export interface CreateStreamParams<TData> {
+    /** The live connection to wrap as an async iterable. */
+    connection: StreamConnection<TData>
+    /** Optional abort signal; aborting cancels the stream and releases the connection. */
+    signal?: AbortSignal
+    /** Called once the connection opens, before the first chunk is yielded. */
+    onOpen?: (connection: StreamConnection<TData>) => Promise<void> | void
+    /** Called when the stream errors; receives the normalized error. */
+    onError?: (error: Error) => Promise<void> | void
+    /** Called exactly once when the stream closes (success or abort). */
+    onClose?: () => Promise<void> | void
+}
 
 /** Result of user creation. */
-export type CreateUserResult = { id: string }
+export interface CreateUserResult {
+    /** Stable primary-key id of the persisted user. */
+    id: string
+}
 
 /** User role in the system. */
-export enum UserRole { Admin = "admin", Member = "member" }
+export enum UserRole {
+    /** Full access — manage users and settings. */
+    Admin = "admin",
+    /** Standard member — no admin surface. */
+    Member = "member",
+}
 
 /**
  * Service responsible for user-related business logic.
@@ -401,22 +429,54 @@ async createUser({ name, email }: CreateUserParams): Promise<CreateUserResult> {
 }
 ```
 
-### Inline `//` comments between logical steps
+### Inline `//` comments explaining logic — MANDATORY, line-by-line
 
-Use short single-line comments to explain intent at each logical step:
+Every method/function body must be densely commented: put a `//` comment on
+**every meaningful line or small block** explaining the *logic* — not what the
+code literally says, but **why** it does it / what the step achieves / what the
+condition guards / what edge case it handles. This is a hard requirement
+("have to"), not a nice-to-have. A bare line of non-trivial logic with no
+comment fails review.
 
 ```ts
-// build payload
-const payload = buildPayload(input)
+async consume({ userId, mode, cost }: ConsumeEntitlementParams): Promise<ConsumeResult> {
+    // load the user's subscription row — counters + window timestamps live here
+    const sub = await this.entityManager.findOne(AiSubscriptionEntity, { where: { userId } })
 
-// send request to API
-const response = await this.http.post(url, payload)
+    // no row yet → user has never been provisioned; treat as free Auto lane
+    if (!sub) {
+        // lazily create the row so subsequent reads are cheap
+        return this.provisionFreeLane(userId)
+    }
 
-// transform response to result type
-return mapToResult(response)
+    // roll the 5h window forward if the stored window has expired
+    if (this.isWindowExpired(sub.window5hResetAt)) {
+        // reset the per-window counter and stamp the next rollover time
+        sub.used5h = 0
+        sub.window5hResetAt = this.next5hBoundary()
+    }
+
+    // reject early when the requested cost would exceed the remaining quota
+    if (sub.used5h + cost > sub.limit5h) {
+        // surface a typed exception so callers can branch on the quota code
+        throw new AiQuotaExceededException({ userId, mode })
+    }
+
+    // commit the spend and persist atomically
+    sub.used5h += cost
+    return this.entityManager.save(sub)
+}
 ```
 
-Never write a multi-step function without inline intent markers.
+Guidelines:
+- Comment the **intent of each block**: what a branch guards against, why an
+  order matters, what an edge case is, what a magic value means.
+- Don't restate syntax (`// increment i` over `i++` is noise). Explain the
+  *why*: `// skip disabled keys so the rotator never hands one out`.
+- Loops/conditionals/early-returns/try-catch each get a lead comment.
+- Applies to services, processors, resolvers, utils — all code bodies.
+
+Never write a multi-step function without inline logic comments.
 
 ---
 
@@ -925,10 +985,10 @@ Before completing any code change:
 
 - [ ] File in correct folder (`types/`, `enums/`, `classes/`, `utils/`, `dtos/`, `graphql-types/`, or NestJS framework folder)
 - [ ] Filename matches: NestJS dotted suffix OR kebab-case feature name
-- [ ] NestJS file does NOT define type/enum/class — only imports them
-- [ ] All exported types/enums/classes have JSDoc
+- [ ] NestJS file (`*.service.ts`/`*.controller.ts`/`*.resolver.ts`/`*.processor.ts`) defines NO `interface`/`type`/`enum`/`class`/exported `const` — only imports them
+- [ ] All exported types/enums/classes have type-level JSDoc **AND a `/** */` on every field/property/enum-member** (incl. optional + callback fields)
 - [ ] All public functions/methods have JSDoc (`@param`, `@returns`, `@example` for non-trivial)
-- [ ] Inline `//` comments between logical steps
+- [ ] Inline `//` comments on EVERY meaningful line/block explaining the *logic* (the why), MANDATORY — not just between steps
 - [ ] Params object for ≥2 args, destructured in signature
 - [ ] Param types named `{ActionName}Params`, return types named `{ActionName}Result`
 - [ ] No inline type definitions in function signatures

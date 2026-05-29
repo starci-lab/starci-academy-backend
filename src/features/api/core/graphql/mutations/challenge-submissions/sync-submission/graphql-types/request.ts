@@ -3,9 +3,15 @@ import {
     ID,
     InputType,
 } from "@nestjs/graphql"
+import {
+    AiMode,
+    GraphQLTypeAiMode,
+    GraphQLTypeModelProvider,
+    ModelProvider,
+} from "@modules/databases"
 
 @InputType({
-    description: "Challenge submission id and submission URL (GitHub or Google Docs per submission type).",
+    description: "Challenge submission id; optionally the URL and/or the grading lane + model to sync onto the user row (upserts, creating the row if missing).",
 })
 export class SyncSubmissionRequest {
     @Field(
@@ -19,8 +25,36 @@ export class SyncSubmissionRequest {
     @Field(
         () => String,
         {
-            description: "Submission URL (validated against the submission type).",
+            nullable: true,
+            description: "Submission URL (validated against the submission type); omit to sync only the grading selection.",
         },
     )
-        url: string
+        url?: string
+
+    @Field(
+        () => GraphQLTypeAiMode,
+        {
+            nullable: true,
+            description: "AI grading lane to persist on the submission row (auto/premium/byok).",
+        },
+    )
+        selectedMode?: AiMode
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Concrete model name to persist on the submission row.",
+        },
+    )
+        selectedModel?: string
+
+    @Field(
+        () => GraphQLTypeModelProvider,
+        {
+            nullable: true,
+            description: "Provider serving the persisted model.",
+        },
+    )
+        selectedModelProvider?: ModelProvider
 }

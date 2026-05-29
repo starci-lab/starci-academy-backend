@@ -19,30 +19,13 @@ import {
     CacheService,
 } from "../cache.service"
 import {
-    CacheKey,
-} from "../enums"
+    GraphQLCacheConfig,
+} from "../types"
 
 /**
  * Metadata key for cached GraphQL response config.
  */
 const GRAPHQL_CACHE_METADATA = "graphqlCacheMetadata"
-
-/**
- * Configuration for the GraphQL cache interceptor.
- */
-export interface GraphQLCacheConfig {
-    /** Cache key enum to use. */
-    key: CacheKey
-    /**
-     * Extracts the cache arguments from the GraphQL resolver arguments.
-     * Receives the `request` arg object and the authenticated `user` object.
-     * Must return a stable array of primitives used to build the composite cache key.
-     *
-     * @example
-     * argsExtractor: (request, user) => [request.courseId, user?.id]
-     */
-    argsExtractor: (request: any, user: any) => Array<any>
-}
 
 /**
  * Decorator: marks a GraphQL resolver for automatic Redis caching.

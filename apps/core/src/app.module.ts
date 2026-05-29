@@ -82,6 +82,15 @@ import {
     SepayModule
 } from "@modules/sepay"
 import {
+    StripeModule
+} from "@modules/stripe"
+import {
+    PaypalModule
+} from "@modules/paypal"
+import {
+    NowPaymentsModule
+} from "@modules/nowpayments"
+import {
     SocketIoModule
 } from "@modules/socketio"
 import {
@@ -271,6 +280,24 @@ import {
             SepayModule.register(
                 {
                     isGlobal: true
+                }
+            ),
+            /** Stripe client module (international card gateway). */
+            StripeModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** PayPal client module (international gateway). */
+            PaypalModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** NOWPayments client module (crypto gateway — USDT/USDC). */
+            NowPaymentsModule.register(
+                {
+                    isGlobal: true,
                 }
             ),
             /** BullMQ module. */

@@ -11,20 +11,12 @@ import {
     SyncStateEntity,
 } from "./entities"
 import {
-    SyncStateSourceType,
     SyncStateStatus,
-    SyncStateTarget,
 } from "./enums"
-
-interface SyncStateKey {
-    target: SyncStateTarget
-    sourceType: SyncStateSourceType
-    sourceId: string
-}
-
-interface SyncStateSyncInput extends SyncStateKey {
-    sourceUpdatedAt: Date
-}
+import type {
+    SyncStateKey,
+    SyncStateSyncInput,
+} from "./types"
 
 @Injectable()
 export class SyncStateService {

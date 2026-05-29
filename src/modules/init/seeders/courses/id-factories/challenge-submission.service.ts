@@ -13,19 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link ChallengeSubmissionIdFactoryService.generate}.
- */
-export interface GenerateChallengeSubmissionIdParams {
-    /** Locates the parent challenge (same as {@link GenerateChallengeIdParams}). */
-    courseIndex: number
-    moduleIndex: number
-    contentIndex: number
-    challengeIndex: number
-    /** Zero-based submission definition from the challenge markdown (`## Submissions` indexed list). */
-    submissionIndex: number
-}
+import type {
+    GenerateChallengeSubmissionIdParams,
+} from "./types"
 
 /**
  * Expected submission artifacts (GitHub URL, etc.); parent {@link ChallengeIdFactoryService}.

@@ -205,6 +205,98 @@ export const getSepayApiKey = (): string => {
 }
 
 /**
+ * Get the Judge0 `X-Auth-Token` (from terraform mount path).
+ *
+ * Optional: Judge0 can run without authentication, so a missing file is not an
+ * error — an empty string means "no token", and the client simply omits the
+ * header. Trimmed to drop any trailing newline added by editors.
+ *
+ * @returns The Judge0 auth token, or `""` when the mount file is absent.
+ */
+export const getJudge0AuthToken = (): string => {
+    // resolve the configured mount path for the token file
+    const path = envConfig().mountPath.terraform.judge0AuthToken
+    // treat an absent file as "auth disabled" rather than throwing on boot
+    if (!existsSync(path)) {
+        return ""
+    }
+    // read + trim so a trailing newline does not corrupt the header value
+    return readFileSync(path, "utf8").trim()
+}
+
+/**
+ * Get Stripe secret API key (from terraform mount path).
+ */
+export const getStripeSecretKey = (): string => {
+    return readFileSync(
+        envConfig().mountPath.terraform.stripeSecretKey,
+        "utf8",
+    )
+}
+
+/**
+ * Get Stripe webhook signing secret (from terraform mount path).
+ */
+export const getStripeWebhookSecret = (): string => {
+    return readFileSync(
+        envConfig().mountPath.terraform.stripeWebhookSecret,
+        "utf8",
+    )
+}
+
+/**
+ * Get PayPal REST app client id (from terraform mount path).
+ */
+export const getPaypalClientId = (): string => {
+    return readFileSync(
+        envConfig().mountPath.terraform.paypalClientId,
+        "utf8",
+    )
+}
+
+/**
+ * Get PayPal REST app client secret (from terraform mount path).
+ */
+export const getPaypalClientSecret = (): string => {
+    return readFileSync(
+        envConfig().mountPath.terraform.paypalClientSecret,
+        "utf8",
+    )
+}
+
+/**
+ * Get PayPal webhook id used by the verify-webhook-signature API
+ * (from terraform mount path).
+ */
+export const getPaypalWebhookId = (): string => {
+    return readFileSync(
+        envConfig().mountPath.terraform.paypalWebhookId,
+        "utf8",
+    )
+}
+
+/**
+ * Get NOWPayments REST API key (from terraform mount path).
+ */
+export const getNowpaymentsApiKey = (): string => {
+    return readFileSync(
+        envConfig().mountPath.terraform.nowpaymentsApiKey,
+        "utf8",
+    )
+}
+
+/**
+ * Get NOWPayments IPN secret used to verify HMAC-SHA512 callback signatures
+ * (from terraform mount path).
+ */
+export const getNowpaymentsIpnSecret = (): string => {
+    return readFileSync(
+        envConfig().mountPath.terraform.nowpaymentsIpnSecret,
+        "utf8",
+    )
+}
+
+/**
  * Get Brevo SMTP password/API key (from terraform mount path).
  */
 export const getBrevoSmtpPassword = (): string => {

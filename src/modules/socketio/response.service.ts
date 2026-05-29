@@ -7,36 +7,11 @@ import {
 import {
     InjectSuperJson
 } from "@modules/mixin"
-import {
-    TypedSocket 
-} from "./types"
 import type {
-    Namespace,
-} from "socket.io"
-
-/** Params for sending a success WS message. */
-export interface SuccessParams<T = unknown> {
-    message: string
-    data?: T
-    client: TypedSocket
-    eventName: string
-}
-
-/** Params for sending a success WS message to a room. */
-export interface SuccessToRoomParams<T = unknown> {
-    message: string
-    data?: T
-    eventName: string
-    room: string
-    namespace: Namespace
-}
-
-/** Params for sending a error WS message. */
-export interface ErrorParams {
-    error: Error
-    client: TypedSocket
-    eventName: string
-}
+    SuccessParams,
+    SuccessToRoomParams,
+    ErrorParams,
+} from "./types"
 
 @Injectable()
 export class WsResponseService {

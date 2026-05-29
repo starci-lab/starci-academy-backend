@@ -47,6 +47,9 @@ export class MilestoneHydrationService {
                     criterias: {
                         translations: true,
                     },
+                    codeImplementations: {
+                        translations: true,
+                    },
                 },
                 order: {
                     orderIndex: "ASC",

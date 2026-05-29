@@ -25,14 +25,11 @@ import {
     ExecaService
 } from "@modules/execa"
 import {
-    createReadStream 
+    createReadStream
 } from "fs"
-
-export interface PgBackupParams {
-    postgresUrl: string
-    s3KeyPrefix: string
-    artifactBaseName: string
-}
+import type {
+    PgBackupParams
+} from "./types"
 
 /**
  * Service for backing up PostgreSQL databases.

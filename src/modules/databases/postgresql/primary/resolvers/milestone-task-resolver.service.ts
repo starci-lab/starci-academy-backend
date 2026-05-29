@@ -13,6 +13,9 @@ import {
 import {
     MilestoneTaskPassCriteriaResolverService,
 } from "./milestone-task-pass-criteria-resolver.service"
+import {
+    MilestoneTaskCodeImplementationResolverService,
+} from "./milestone-task-code-implementation-resolver.service"
 
 /**
  * Applies translations to a milestone task row and its criteria.
@@ -22,6 +25,7 @@ export class MilestoneTaskResolverService {
     constructor(
         private readonly translationResolver: TranslationResolverService,
         private readonly passCriteriaResolver: MilestoneTaskPassCriteriaResolverService,
+        private readonly codeImplementationResolver: MilestoneTaskCodeImplementationResolverService,
     ) {}
 
     transform(
@@ -64,6 +68,19 @@ export class MilestoneTaskResolverService {
                         fallbackLocale,
                     )
                     return criteria
+                },
+            )
+        }
+
+        if (task.codeImplementations?.length) {
+            task.codeImplementations = task.codeImplementations.map(
+                (codeImplementation) => {
+                    this.codeImplementationResolver.transform(
+                        codeImplementation,
+                        locale,
+                        fallbackLocale,
+                    )
+                    return codeImplementation
                 },
             )
         }

@@ -28,7 +28,7 @@ import {
 } from "../atomic"
 import {
     sleepEnqueueUxDelay,
-} from "./enqueue-ux-delay"
+} from "../utils"
 
 /**
  * Enqueue a job that rebuilds the email bloom filter from `users.email` in batches.

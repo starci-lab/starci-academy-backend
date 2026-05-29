@@ -13,13 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-export interface GenerateCodeExplainingIdParams {
-    courseIndex: number
-    moduleIndex: number
-    contentIndex: number
-    explainingIndex: number
-}
+import type {
+    GenerateCodeExplainingIdParams,
+} from "./types"
 
 @Injectable()
 export class CodeExplainingIdFactoryService {

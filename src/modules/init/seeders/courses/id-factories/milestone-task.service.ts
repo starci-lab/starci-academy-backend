@@ -13,16 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link MilestoneTaskIdFactoryService.generate}.
- */
-export interface GenerateMilestoneTaskIdParams {
-    courseIndex: number
-    milestoneIndex: number
-    /** Zero-based task index within the milestone. */
-    taskIndex: number
-}
+import type {
+    GenerateMilestoneTaskIdParams,
+} from "./types"
 
 /**
  * Milestone task UUIDs chain from the parent milestone id string.

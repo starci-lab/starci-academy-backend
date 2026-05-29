@@ -26,8 +26,8 @@ import {
     WinstonService
 } from "@modules/winston"
 import {
-    configMap 
-} from "./config"
+    configMap
+} from "./constants/config"
 
 /**
  * Service for get/set/del cache entries by logical key and optional args.

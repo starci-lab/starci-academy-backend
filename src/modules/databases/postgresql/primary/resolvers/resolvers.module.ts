@@ -54,6 +54,9 @@ import {
     MilestoneTaskPassCriteriaResolverService,
 } from "./milestone-task-pass-criteria-resolver.service"
 import {
+    MilestoneTaskCodeImplementationResolverService,
+} from "./milestone-task-code-implementation-resolver.service"
+import {
     FoundationResolverService,
 } from "./foundation-resolver.service"
 import {
@@ -87,6 +90,7 @@ const resolverProviders: Array<Provider> = [
     MilestoneResolverService,
     MilestoneTaskResolverService,
     MilestoneTaskPassCriteriaResolverService,
+    MilestoneTaskCodeImplementationResolverService,
     FoundationResolverService,
     FoundationCategoryResolverService,
     HeadhuntingCompanyResolverService,

@@ -13,18 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link PreviewContentIdFactoryService.generate}.
- */
-export interface GeneratePreviewContentIdParams {
-    /** Parent course ordinal. */
-    courseIndex: number
-    /** Parent module ordinal. */
-    moduleIndex: number
-    /** Zero-based bullet in the module markdown “Preview Contents” list. */
-    previewContentIndex: number
-}
+import type {
+    GeneratePreviewContentIdParams,
+} from "./types"
 
 /**
  * Module teaser bullets; parent id is the module id from {@link ModuleIdFactoryService}.

@@ -10,13 +10,13 @@ import {
 } from "@modules/winston"
 import {
     AbstractModelRouterService,
-} from "./abstract-model-router"
+} from "./classes"
 import {
     AiPingService,
 } from "./ping.service"
 import {
     AiTaskKind,
-} from "./types/model"
+} from "./types"
 
 /**
  * Model router for grading tasks (git, Google Docs).

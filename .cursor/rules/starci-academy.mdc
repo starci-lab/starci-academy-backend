@@ -111,8 +111,8 @@ user/
 **Allowed folders in module root:**  
 Only these folders are allowed at module root: `types/`, `enums/`, `classes/`, `constants/`, `utils/`, `dtos/` (for REST API), `graphql-types/` (for GraphQL), and NestJS framework folders (e.g. `interceptors/`, `guards/`, `pipes/`). **Remove any other folders** (e.g. `abstracts/`, etc.) and move their contents to the appropriate standard folders. **Pure functions** (stateless helpers, parsers, formatters) belong in **utils/** — one file per concern (e.g. `utils/parse-env.ts`). Constants can be placed in a `constants/` folder at module root (organized by feature, e.g. `constants/binance.ts`) or directly in subdirectories as `constants.ts` files (multiple constants in one file is allowed).
 
-**NestJS files must not define types, enums, or classes:**  
-Files like `*.service.ts`, `*.controller.ts`, `*.module.ts`, etc. must only **import** types, enums, and classes from `types/`, `enums/`, `classes/`, `dtos/`, or `graphql-types/`. Do not declare interfaces, enums, or classes inside NestJS framework files; put them in the correct folder and import.
+**NestJS files must not define types, enums, classes, or constants (STRICT):**
+Files like `*.service.ts`, `*.controller.ts`, `*.resolver.ts`, `*.module.ts`, `*.processor.ts`, etc. must contain **ZERO** `interface` / `type` / `enum` / non-NestJS `class` / exported `const` declarations. They may only **import** them from `types/`, `enums/`, `classes/`, `constants/`, `dtos/`, or `graphql-types/`. Any inline `interface`/`type`/`enum`/`const` in a `*.service.ts` is a hard violation — extract it to the matching module-root folder (with `index.ts` barrel) and import back via `./types` / `./enums` / `./constants`.
 
 **GraphQL schema:**  
 Put `@InputType` classes in **graphql-types/inputs/** and `@ObjectType` classes in **graphql-types/object-types/** (one file per feature). Use **graphql-types/index.ts** to re-export inputs and object-types. Keep `isAbstract: true` and a clear `description` in the decorator when the type is used as a base (e.g. extended by other DTOs).
@@ -192,17 +192,40 @@ async function createUser(param: CreateUserParams): Promise<CreateUserResult> {
 }
 ```
 
-### Type / Enum Comment
+### Type / Enum Comment (per-member, STRICT)
+
+Every exported type/interface/enum needs a type-level `/** ... */` **AND a
+`/** ... */` on EVERY member** — each field, each property, each enum member,
+including optional and callback fields. A bare member with no doc fails review.
 
 ```ts
-/** Params for creating a user. */
-export interface CreateUserParams { ... }
+/** Params for creating an async iterable stream from a connection. */
+export interface CreateStreamParams<TData> {
+    /** The live connection to wrap as an async iterable. */
+    connection: StreamConnection<TData>
+    /** Optional abort signal; aborting cancels the stream and releases the connection. */
+    signal?: AbortSignal
+    /** Called once the connection opens, before the first chunk is yielded. */
+    onOpen?: (connection: StreamConnection<TData>) => Promise<void> | void
+    /** Called when the stream errors; receives the normalized error. */
+    onError?: (error: Error) => Promise<void> | void
+    /** Called exactly once when the stream closes (success or abort). */
+    onClose?: () => Promise<void> | void
+}
 
 /** Result of user creation. */
-export type CreateUserResult = { id: string }
+export interface CreateUserResult {
+    /** Stable primary-key id of the persisted user. */
+    id: string
+}
 
 /** User role in the system. */
-export enum UserRole { Admin, Member }
+export enum UserRole {
+    /** Full access — manage users and settings. */
+    Admin = "admin",
+    /** Standard member — no admin surface. */
+    Member = "member",
+}
 ```
 
 ### Class Comment Pattern
@@ -239,22 +262,39 @@ export class UserService {
 
 ---
 
-## Inline Explanation Rule
+## Inline Explanation Rule — MANDATORY, line-by-line
 
-Use short `//` comments between logical steps to explain intent:
+Every method/function body MUST be densely commented: a `//` comment on **every
+meaningful line or small block** explaining the *logic* — the **why**, what a
+branch guards, why an order matters, what an edge case/magic value means — NOT a
+restatement of the syntax. This is a hard requirement ("have to"); a bare line
+of non-trivial logic with no comment fails review. Applies to services,
+processors, resolvers, utils — all code bodies.
 
 ```ts
-// build payload
-const payload = buildPayload(input)
+// load the subscription row — counters + window timestamps live here
+const sub = await this.entityManager.findOne(AiSubscriptionEntity, { where: { userId } })
 
-// send request to API
-const response = await this.http.post(url, payload)
+// no row yet → user never provisioned; fall back to the free Auto lane
+if (!sub) {
+    return this.provisionFreeLane(userId)
+}
 
-// transform response to result type
-return mapToResult(response)
+// roll the 5h window forward when the stored window has expired
+if (this.isWindowExpired(sub.window5hResetAt)) {
+    sub.used5h = 0                          // reset per-window counter
+    sub.window5hResetAt = this.next5hBoundary() // stamp next rollover
+}
+
+// reject early when the spend would exceed the remaining quota
+if (sub.used5h + cost > sub.limit5h) {
+    throw new AiQuotaExceededException({ userId }) // typed code for callers to branch on
+}
 ```
 
-Avoid writing code without explaining intent between major steps.
+Do NOT restate syntax (`// increment i` over `i++` is noise) — explain intent
+(`// skip disabled keys so the rotator never hands one out`). Loops,
+conditionals, early-returns, and try/catch each get a lead comment.
 
 ---
 

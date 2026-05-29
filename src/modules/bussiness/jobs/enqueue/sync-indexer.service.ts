@@ -28,9 +28,10 @@ import {
 } from "../atomic"
 import {
     sleepEnqueueUxDelay,
-} from "./enqueue-ux-delay"
-
-export type EnqueueSyncIndexerParams = SyncIndexerPayload
+} from "../utils"
+import type {
+    EnqueueSyncIndexerParams,
+} from "../types"
 
 /**
  * Enqueue a job that scans entities and caches their parent-chain refs.

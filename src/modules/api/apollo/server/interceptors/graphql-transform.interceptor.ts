@@ -21,14 +21,9 @@ import {
 import {
     resolveLocale,
 } from "@modules/locale"
-
-/** Internal shape of the transformed GraphQL response (data, message, success, error). */
-interface GraphQLResponse<T = unknown> {
-    data?: T
-    message: string
-    success: boolean
-    error?: string
-}
+import {
+    GraphQLResponse,
+} from "../types"
 
 const SUCCESS_MESSAGE_METADATA = "graphqlSuccessMessage"
 

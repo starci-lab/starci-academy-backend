@@ -24,6 +24,12 @@ import {
 import {
     ProgressModule,
 } from "./progress"
+import {
+    QuizModule,
+} from "./quiz"
+import {
+    CodingModule,
+} from "./coding"
 
 /**
  * The module for the bussiness logics.
@@ -44,6 +50,10 @@ export class BussinessModule extends ConfigurableModuleClass {
             UserModule.register(options),
             // import the progress module
             ProgressModule.register(options),
+            // import the quiz (interview-prep) module
+            QuizModule.register(options),
+            // import the coding-practice module
+            CodingModule.register(options),
         ]
         return {
             ...dynamicModule,

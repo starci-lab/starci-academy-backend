@@ -10,16 +10,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link FoundationCategoryIdFactoryService.generate}.
- */
-export interface GenerateFoundationCategoryIdParams {
-    /**
-     * Zero-based index of the category in the seeded list.
-     */
-    categoryIndex: number
-}
+import type {
+    GenerateFoundationCategoryIdParams,
+} from "./types"
 
 /**
  * Builds deterministic foundation category UUIDs using SHA-256 + UUID v5.

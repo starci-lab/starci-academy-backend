@@ -58,7 +58,6 @@ export class AiSubscriptionEntity extends UuidAbstractEntity {
         name: "tier",
         type: "enum",
         enum: AiSubTier,
-        enumName: "ai_sub_tier",
         nullable: true,
     })
         tier: AiSubTier | null
@@ -120,7 +119,6 @@ export class AiSubscriptionEntity extends UuidAbstractEntity {
         name: "byok_provider",
         type: "enum",
         enum: ModelProvider,
-        enumName: "model_provider",
         nullable: true,
     })
         byokProvider: ModelProvider | null

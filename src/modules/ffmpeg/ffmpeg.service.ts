@@ -10,8 +10,10 @@ import type {
     EncodeProfile,
 } from "./types"
 import {
-    GpuService,
     GpuVendor,
+} from "./enums"
+import {
+    GpuService,
 } from "./gpu.service"
 
 ffmpeg.setFfmpegPath(

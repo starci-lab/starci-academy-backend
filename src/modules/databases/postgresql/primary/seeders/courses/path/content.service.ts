@@ -1,12 +1,12 @@
 import type {
     ContentPathsParams,
+    ResolvedFilePath,
 } from "./types"
 import {
     Injectable,
 } from "@nestjs/common"
 import {
     PathResolverService,
-    ResolvedFilePath,
 } from "./resolver.service"
 
 /**

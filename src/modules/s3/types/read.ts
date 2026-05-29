@@ -10,6 +10,7 @@ export interface ReadTextParams {
     provider: S3Provider
 }
 
+/** Params for reading and parsing a JSON object from S3. */
 export interface ReadJsonParams {
     /** The key of the object to read. */
     key: string

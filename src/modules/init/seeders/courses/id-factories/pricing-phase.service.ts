@@ -13,16 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link PricingPhaseIdFactoryService.generate}.
- */
-export interface GeneratePricingPhaseIdParams {
-    /** Course that owns the pricing tier row. */
-    courseIndex: number
-    /** Tier order (e.g. 0 = pioneer, 1 = early bird, 2 = regular). */
-    phaseIndex: number
-}
+import type {
+    GeneratePricingPhaseIdParams,
+} from "./types"
 
 /**
  * Pricing-phase rows on a course; parent id is {@link CourseIdFactoryService}.

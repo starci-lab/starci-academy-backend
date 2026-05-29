@@ -14,6 +14,15 @@ import {
     SepayModule,
 } from "./sepay"
 import {
+    StripeModule,
+} from "./stripe"
+import {
+    PaypalModule,
+} from "./paypal"
+import {
+    NowPaymentsModule,
+} from "./nowpayments"
+import {
     MinioWebhookModule,
 } from "./minio"
 import {
@@ -43,6 +52,21 @@ import {
             }
         ),
         SepayModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
+        StripeModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
+        PaypalModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
+        NowPaymentsModule.register(
             {
                 isGlobal: true,
             }

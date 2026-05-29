@@ -1,6 +1,6 @@
 import type {
-    PersonalProjectTaskEntity,
+    MilestoneTaskEntity,
 } from "@modules/databases"
 
 /** Cached task list for a user's enrollment in a course. */
-export type EnrollmentMilestonesCacheResult = Array<PersonalProjectTaskEntity>
+export type EnrollmentMilestonesCacheResult = Array<MilestoneTaskEntity>

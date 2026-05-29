@@ -4,7 +4,9 @@ import type {
 
 /** Params for creating a LokiJS collection. */
 export interface CreateCollectionParams<T extends object> {
+    /** The name of the LokiJS collection to create. */
     name: string
+    /** Optional partial LokiJS collection options (indices, unique keys, etc.). */
     options?: Partial<CollectionOptions<T>>
 }
 

@@ -13,20 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link ChallengeSubmissionPromptIdFactoryService.generate}.
- */
-export interface GenerateChallengeSubmissionPromptIdParams {
-    /** Locates the parent submission (same as {@link GenerateChallengeSubmissionIdParams}). */
-    courseIndex: number
-    moduleIndex: number
-    contentIndex: number
-    challengeIndex: number
-    submissionIndex: number
-    /** Zero-based prompt in the submission definition list. */
-    promptIndex: number
-}
+import type {
+    GenerateChallengeSubmissionPromptIdParams,
+} from "./types"
 
 /**
  * Grading prompt rows; parent id is {@link ChallengeSubmissionIdFactoryService}.

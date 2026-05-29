@@ -15,36 +15,28 @@ import type {
     CourseLeaderboardCacheResult,
     CourseLeaderboardEntry,
 } from "@modules/cache"
-
-/** Max number of entries we keep in the cached leaderboard window. */
-const DEFAULT_TOP_LIMIT = 100
-
-/** Raw row shape returned from the leaderboard aggregate query. */
-interface LeaderboardRow {
-    enrollment_id: string
-    user_id: string
-    username: string | null
-    avatar: string | null
-    total_score: string | number
-    completed_challenges: string | number
-}
-
-/** Raw row for course-level totals (denominators). */
-interface CourseTotalsRow {
-    total_challenges: string | number
-    max_possible_score: string | number | null
-}
+import {
+    DEFAULT_TOP_LIMIT,
+} from "./constants"
+import type {
+    CourseTotalsRow,
+    GetMyRankResult,
+    LeaderboardRow,
+    MyRankRow,
+} from "./types"
 
 /**
  * Service for computing and caching per-course leaderboards.
  *
- * Total score per enrollment follows the same rule as `ChallengeProgressService`:
- *   sum over challenges in course of:
- *     sum over submissions of:
- *       max(attempt.score) for that user's submission
+ * Rank is driven by **total XP** per enrollment, summed from three sources:
+ *   - challenge score: sum over challenges of max(attempt.score) per submission
+ *   - reading:         lessons marked read in the course × 3
+ *   - milestones:      milestone tasks with ≥1 passed attempt × 10
+ * `totalXp = totalScore + lessonsRead × 3 + milestoneProgress × 10`.
  *
- * Only enrollments with `totalScore > 0` or at least one completed challenge are
- * included in the cached window — fresh enrollments are not surfaced.
+ * `totalScore` (challenge-only) is kept separate so the challenge completion
+ * ratio against `maxPossibleScore` stays valid. Only enrollments with
+ * `totalXp > 0` are surfaced — fresh enrollments with no activity are not.
  */
 @Injectable()
 export class LeaderboardService {
@@ -94,19 +86,14 @@ export class LeaderboardService {
     /**
      * Rank of a specific user within the course, even when outside the cached top window.
      *
-     * Counts how many enrollments in the course have a strictly higher totalScore than the user.
-     * Returns `null` when the user has no enrollment / no scored attempts.
+     * Counts how many enrollments in the course have a strictly higher totalXp than the user.
+     * Returns `null` when the user has no enrollment / zero XP (no activity yet).
      */
     async getMyRank(
         courseId: string,
         userId: string,
-    ): Promise<{ rank: number; totalScore: number; completedChallenges: number } | null> {
-        const rows = await this.entityManager.query<Array<{
-            user_id: string
-            total_score: string | number
-            completed_challenges: string | number
-            higher_count: string | number
-        }>>(
+    ): Promise<GetMyRankResult | null> {
+        const rows = await this.entityManager.query<Array<MyRankRow>>(
             `
             WITH per_submission_max AS (
                 SELECT ucs.user_id,
@@ -141,38 +128,85 @@ export class LeaderboardService {
                 JOIN challenges c ON c.id = pc.challenge_id
                 GROUP BY pc.user_id
             ),
+            -- +3 XP per lesson read in the course
+            read_per_user AS (
+                SELECT uc.user_id,
+                       COUNT(*)::bigint AS lessons_read
+                FROM user_contents uc
+                JOIN contents ct ON ct.id = uc.content_id
+                JOIN modules m  ON m.id  = ct.module_id
+                WHERE m.course_id = $1
+                  AND uc.is_read = true
+                GROUP BY uc.user_id
+            ),
+            -- +10 XP per milestone task with at least one passed attempt
+            milestone_per_user AS (
+                SELECT e.user_id,
+                       COUNT(DISTINCT umt.id)::bigint AS milestone_progress
+                FROM enrollments e
+                JOIN user_milestone_tasks umt ON umt.enrollment_id = e.id
+                JOIN user_milestone_task_attempts umta
+                    ON umta.user_milestone_task_id = umt.id
+                   AND umta.passed = true
+                WHERE e.course_id = $1
+                GROUP BY e.user_id
+            ),
+            -- total XP per enrolled user (built from enrollments so read-only users still rank)
+            per_user_xp AS (
+                SELECT e.user_id,
+                       COALESCE(pu.total_score, 0)          AS total_score,
+                       COALESCE(pu.completed_challenges, 0) AS completed_challenges,
+                       COALESCE(rpu.lessons_read, 0)        AS lessons_read,
+                       COALESCE(mpu.milestone_progress, 0)  AS milestone_progress,
+                       (COALESCE(pu.total_score, 0)
+                         + COALESCE(rpu.lessons_read, 0) * 3
+                         + COALESCE(mpu.milestone_progress, 0) * 10) AS total_xp
+                FROM enrollments e
+                LEFT JOIN per_user pu          ON pu.user_id  = e.user_id
+                LEFT JOIN read_per_user rpu    ON rpu.user_id = e.user_id
+                LEFT JOIN milestone_per_user mpu ON mpu.user_id = e.user_id
+                WHERE e.course_id = $1
+            ),
             me AS (
-                SELECT user_id, total_score, completed_challenges
-                FROM per_user
+                SELECT * FROM per_user_xp
                 WHERE user_id = $2
             )
             SELECT me.user_id,
                    me.total_score,
                    me.completed_challenges,
+                   me.lessons_read,
+                   me.milestone_progress,
+                   me.total_xp,
                    (
                        SELECT COUNT(*)::bigint
-                       FROM per_user pu
-                       WHERE pu.total_score > me.total_score
+                       FROM per_user_xp p
+                       WHERE p.total_xp > me.total_xp
                    ) AS higher_count
             FROM me
             `,
-            [courseId, userId],
+            [courseId,
+                userId],
         )
 
+        // no enrollment row for this user in the course → not ranked
         if (rows.length === 0) {
             return null
         }
         const row = rows[0]
-        const totalScore = Number(row.total_score) || 0
-        const completedChallenges = Number(row.completed_challenges) || 0
-        if (totalScore <= 0 && completedChallenges <= 0) {
+        // total_xp gates visibility: enrolled but zero activity should not surface a rank
+        const totalXp = Number(row.total_xp) || 0
+        if (totalXp <= 0) {
             return null
         }
+        // higher_count = users strictly above me → my 1-based rank is that + 1
         const higherCount = Number(row.higher_count) || 0
         return {
             rank: higherCount + 1,
-            totalScore,
-            completedChallenges,
+            totalScore: Number(row.total_score) || 0,
+            completedChallenges: Number(row.completed_challenges) || 0,
+            lessonsRead: Number(row.lessons_read) || 0,
+            milestoneProgress: Number(row.milestone_progress) || 0,
+            totalXp,
         }
     }
 
@@ -240,22 +274,59 @@ export class LeaderboardService {
                 FROM per_challenge pc
                 JOIN challenges c ON c.id = pc.challenge_id
                 GROUP BY pc.user_id
+            ),
+            -- +3 XP per lesson the user marked read inside this course
+            read_per_user AS (
+                SELECT uc.user_id,
+                       COUNT(*)::bigint AS lessons_read
+                FROM user_contents uc
+                JOIN contents ct ON ct.id = uc.content_id
+                JOIN modules m  ON m.id  = ct.module_id
+                WHERE m.course_id = $1
+                  AND uc.is_read = true
+                GROUP BY uc.user_id
+            ),
+            -- +10 XP per milestone task with at least one passed attempt (count the task once)
+            milestone_per_user AS (
+                SELECT e.user_id,
+                       COUNT(DISTINCT umt.id)::bigint AS milestone_progress
+                FROM enrollments e
+                JOIN user_milestone_tasks umt ON umt.enrollment_id = e.id
+                JOIN user_milestone_task_attempts umta
+                    ON umta.user_milestone_task_id = umt.id
+                   AND umta.passed = true
+                WHERE e.course_id = $1
+                GROUP BY e.user_id
+            ),
+            -- combine all 3 XP sources per enrollment + derive total_xp
+            ranked AS (
+                SELECT e.id         AS enrollment_id,
+                       e.user_id    AS user_id,
+                       u.username   AS username,
+                       u.avatar     AS avatar,
+                       e.created_at AS created_at,
+                       COALESCE(pu.total_score, 0)          AS total_score,
+                       COALESCE(pu.completed_challenges, 0) AS completed_challenges,
+                       COALESCE(rpu.lessons_read, 0)        AS lessons_read,
+                       COALESCE(mpu.milestone_progress, 0)  AS milestone_progress,
+                       (COALESCE(pu.total_score, 0)
+                         + COALESCE(rpu.lessons_read, 0) * 3
+                         + COALESCE(mpu.milestone_progress, 0) * 10) AS total_xp
+                FROM enrollments e
+                JOIN users u ON u.id = e.user_id
+                LEFT JOIN per_user pu          ON pu.user_id  = e.user_id
+                LEFT JOIN read_per_user rpu    ON rpu.user_id = e.user_id
+                LEFT JOIN milestone_per_user mpu ON mpu.user_id = e.user_id
+                WHERE e.course_id = $1
             )
-            SELECT e.id        AS enrollment_id,
-                   e.user_id   AS user_id,
-                   u.username  AS username,
-                   u.avatar    AS avatar,
-                   COALESCE(pu.total_score, 0)         AS total_score,
-                   COALESCE(pu.completed_challenges, 0) AS completed_challenges
-            FROM enrollments e
-            JOIN users u ON u.id = e.user_id
-            LEFT JOIN per_user pu ON pu.user_id = e.user_id
-            WHERE e.course_id = $1
-              AND (COALESCE(pu.total_score, 0) > 0 OR COALESCE(pu.completed_challenges, 0) > 0)
-            ORDER BY total_score DESC, e.created_at ASC
+            -- only surface enrollments with any XP; rank by total_xp, tie-break earliest enroll
+            SELECT * FROM ranked
+            WHERE total_xp > 0
+            ORDER BY total_xp DESC, created_at ASC
             LIMIT $2
             `,
-            [courseId, DEFAULT_TOP_LIMIT],
+            [courseId,
+                DEFAULT_TOP_LIMIT],
         )
 
         const entries: Array<CourseLeaderboardEntry> = rows.map(
@@ -264,8 +335,13 @@ export class LeaderboardService {
                 userId: row.user_id,
                 username: row.username,
                 avatar: row.avatar,
+                // challenge score kept separate so the completion ratio (vs maxPossibleScore) stays valid
                 totalScore: Number(row.total_score) || 0,
                 completedChallenges: Number(row.completed_challenges) || 0,
+                lessonsRead: Number(row.lessons_read) || 0,
+                milestoneProgress: Number(row.milestone_progress) || 0,
+                // total_xp is what the ORDER BY ranked on — surface it as the rank metric
+                totalXp: Number(row.total_xp) || 0,
                 rank: index + 1,
             }),
         )

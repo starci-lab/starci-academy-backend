@@ -5,6 +5,7 @@ import {
     envConfig,
 } from "@modules/env"
 import {
+    AiModelCatalogService,
     GradeModelRouterService,
     GenerateTaskModelRouterService,
     ReviewPersonalProjectModelRouterService,
@@ -14,10 +15,11 @@ import {
 } from "@modules/ai"
 import {
     modelTierMatrix,
-} from "@modules/ai/model-tier"
+} from "@modules/ai/constants"
 import type {
     AiModelsResponseData,
     AiActiveModelData,
+    AiGradableModelData,
 } from "./graphql-types"
 
 @Injectable()
@@ -27,9 +29,10 @@ export class AiModelsHandler {
         private readonly generateTaskRouter: GenerateTaskModelRouterService,
         private readonly reviewRouter: ReviewPersonalProjectModelRouterService,
         private readonly reviewCvSubmissionRouter: ReviewCvSubmissionModelRouterService,
+        private readonly modelCatalog: AiModelCatalogService,
     ) {}
 
-    execute(): AiModelsResponseData {
+    async execute(): Promise<AiModelsResponseData> {
         const tier = envConfig().ai.modelRecommendation as ModelRecommendation
 
         const models: Array<AiActiveModelData> = [
@@ -63,9 +66,20 @@ export class AiModelsHandler {
             },
         ]
 
+        // enabled rotation models the grading picker can offer (deduped by
+        // provider+name); ordered by priority (highest first) from the catalog
+        const enabled = await this.modelCatalog.enabledModels()
+        const gradableModels: Array<AiGradableModelData> = enabled.map((model) => ({
+            model: model.name,
+            provider: model.provider,
+            category: model.category,
+            complimentary: model.complimentary,
+        }))
+
         return {
             tier,
             models,
+            gradableModels,
         }
     }
 }

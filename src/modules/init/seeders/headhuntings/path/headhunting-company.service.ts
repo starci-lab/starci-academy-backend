@@ -5,9 +5,9 @@ import {
     PathResolverService,
     ResolvedFilePath,
 } from "../../shared"
-
-/** Mount folder name under `.mount/data/`. */
-export const HEADHUNTINGS_MOUNT_DIR = "headhuntings"
+import {
+    HEADHUNTINGS_MOUNT_DIR,
+} from "./constants"
 
 /**
  * Resolves indexed headhunting company directories under `.mount/data/headhuntings/`.

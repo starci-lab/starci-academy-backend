@@ -8,16 +8,9 @@ import {
 import {
     SubmissionType,
 } from "@modules/databases"
-
-/** Params for `UrlValidatorService.isValid`. */
-export interface IsUrlValidParams {
-    /** Challenge submission id. */
-    submissionId: string
-    /** Challenge submission type. */
-    submissionType: SubmissionType
-    /** Submission URL to validate. */
-    url: string
-}
+import type {
+    IsUrlValidParams,
+} from "./types"
 
 /** Service for validating URLs. */
 @Injectable()

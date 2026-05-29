@@ -28,10 +28,10 @@ import {
 } from "../atomic"
 import {
     sleepEnqueueUxDelay,
-} from "./enqueue-ux-delay"
-
-/** Params accepted by EnqueueSyncScyllaDBJobService.enqueue. */
-export type EnqueueSyncScyllaDBParams = SyncScyllaDBPayload
+} from "../utils"
+import type {
+    EnqueueSyncScyllaDBParams,
+} from "../types"
 
 /**
  * Service for enqueuing a one-off sync-scylladb job.

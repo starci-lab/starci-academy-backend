@@ -1,6 +1,6 @@
 import type {
     ResolvedFilePath,
-} from "../../../shared/path/resolver.service"
+} from "../../../shared/path/types"
 
 /** Ordinals locating `{company}/consultants/{consultantIndex}-{slug}/` on the mount. */
 export interface ParseConsultantParams {

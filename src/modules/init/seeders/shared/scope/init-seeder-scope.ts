@@ -1,18 +1,11 @@
-import type {
-    CourseIndexFilterByDisplayId,
-} from "../../../types"
 import {
     buildMilestoneIndexFilterByDisplayId,
     buildModuleIndexFilterByDisplayId,
     getInitSeedersContext,
 } from "../../../utils"
-
-/** Course seed filters from `envConfig().init` seeders `courses`. */
-export interface CourseSeedScope {
-    /** `null` = no env map (unrestricted). */
-    moduleIndexFilterByDisplayId: CourseIndexFilterByDisplayId | null
-    milestoneIndexFilterByDisplayId: CourseIndexFilterByDisplayId | null
-}
+import type {
+    CourseSeedScope,
+} from "./types"
 
 const UNRESTRICTED_SCOPE: CourseSeedScope = {
     moduleIndexFilterByDisplayId: null,
@@ -38,6 +31,21 @@ export const resolveCourseSeedScope = (): CourseSeedScope => {
     }
 }
 
+/** Whether the whole course seeder is enabled (`INIT_SEEDERS_COURSES_ENABLED`). */
+export const isCoursesSeederEnabled = (): boolean => {
+    return getInitSeedersContext()?.courses.enabled ?? true
+}
+
+/** Whether course-level quiz deck seeding is enabled (`INIT_SEEDERS_COURSES_QUIZ_ENABLED`). */
+export const isCoursesQuizSeederEnabled = (): boolean => {
+    return getInitSeedersContext()?.courses.quiz.enabled ?? true
+}
+
+/** Whether quiz decks link to lesson contents (`INIT_SEEDERS_COURSES_QUIZ_LINK_CONTENTS`). */
+export const isCoursesQuizLinkContentsEnabled = (): boolean => {
+    return getInitSeedersContext()?.courses.quiz.linkContents ?? false
+}
+
 /** Whether CV mount seeding is enabled (`INIT_SEEDERS_CV`). */
 export const isCvSeederEnabled = (): boolean => {
     return getInitSeedersContext()?.cv.enabled ?? true
@@ -61,4 +69,9 @@ export const isAiModelsCatalogSeederEnabled = (): boolean => {
 /** Whether subscription catalog mount sync is enabled (`INIT_SEEDERS_SUBSCRIPTIONS`). */
 export const isSubscriptionsCatalogSeederEnabled = (): boolean => {
     return getInitSeedersContext()?.subscriptions.enabled ?? true
+}
+
+/** Whether coding-problem mount seeding is enabled (`INIT_SEEDERS_CODING_PROBLEMS`). */
+export const isCodingProblemsSeederEnabled = (): boolean => {
+    return getInitSeedersContext()?.codingProblems.enabled ?? true
 }

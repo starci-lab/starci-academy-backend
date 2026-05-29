@@ -13,16 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link ConsultantIdFactoryService.generate}.
- */
-export interface GenerateConsultantIdParams {
-    /** Zero-based company index (same as parent company folder). */
-    companyIndex: number
-    /** Zero-based headhunter index within that company. */
-    consultantIndex: number
-}
+import type {
+    GenerateConsultantIdParams,
+} from "./types"
 
 /**
  * Builds deterministic headhunter UUIDs chained from the parent company ID.

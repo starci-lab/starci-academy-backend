@@ -12,6 +12,8 @@ export enum JobCategory {
     SubmitChallenge = "submitChallenge",
     ReviewCv = "reviewCv",
     ReviewTask = "reviewTask",
+    /** Judge a coding-practice submission against testcases. */
+    JudgeCoding = "judgeCoding",
 }
 
 /**
@@ -33,6 +35,9 @@ registerEnumType(
             },
             [JobCategory.ReviewTask]: {
                 description: "Review personal project task job.",
+            },
+            [JobCategory.JudgeCoding]: {
+                description: "Judge a coding-practice submission job.",
             },
         },
     },

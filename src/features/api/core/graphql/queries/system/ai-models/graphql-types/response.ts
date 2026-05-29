@@ -7,6 +7,8 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 import {
+    AiModelCategory,
+    GraphQLTypeAiModelCategory,
     GraphQLTypeModelProvider,
     ModelProvider,
 } from "@modules/databases"
@@ -78,6 +80,43 @@ export class AiActiveModelData {
 }
 
 @ObjectType({
+    description: "A selectable model for the grading picker (name + provider + cost category).",
+})
+export class AiGradableModelData {
+    @Field(
+        () => String,
+        {
+            description: "Concrete model name (e.g. gpt-4o, gemini-2.0-flash).",
+        },
+    )
+        model: string
+
+    @Field(
+        () => GraphQLTypeModelProvider,
+        {
+            description: "Provider serving this model.",
+        },
+    )
+        provider: ModelProvider
+
+    @Field(
+        () => GraphQLTypeAiModelCategory,
+        {
+            description: "Cost/quality category — economy / balanced / premium.",
+        },
+    )
+        category: AiModelCategory
+
+    @Field(
+        () => Boolean,
+        {
+            description: "Whether the model is usable on the free Auto lane.",
+        },
+    )
+        complimentary: boolean
+}
+
+@ObjectType({
     description: "AI models configuration data.",
 })
 export class AiModelsResponseData {
@@ -96,6 +135,14 @@ export class AiModelsResponseData {
         },
     )
         models: Array<AiActiveModelData>
+
+    @Field(
+        () => [AiGradableModelData],
+        {
+            description: "Enabled models the user can pick from in the grading picker.",
+        },
+    )
+        gradableModels: Array<AiGradableModelData>
 }
 
 @ObjectType({

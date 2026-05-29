@@ -4,20 +4,9 @@ import {
 import {
     Injectable,
 } from "@nestjs/common"
-
-/**
- * The parameters for building the GitHub OAuth authorization URL.
- */
-export interface BuildGithubAuthorizeRedirectUrlParams {
-    /**
-     * The scope for the GitHub OAuth authorization.
-     */
-    scope?: string
-    /**
-     * The state for the GitHub OAuth authorization.
-     */
-    state: string
-}
+import {
+    BuildGithubAuthorizeRedirectUrlParams,
+} from "./types"
 
 /**
  * Builds GitHub OAuth authorization URL.

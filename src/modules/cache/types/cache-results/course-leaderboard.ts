@@ -12,6 +12,12 @@ export interface CourseLeaderboardEntry {
     totalScore: number
     /** Number of challenges fully completed (challenge score == max). */
     completedChallenges: number
+    /** Number of lessons (contents) the user has marked as read in this course. */
+    lessonsRead: number
+    /** Number of milestone tasks passed (≥1 passed attempt) in this course. */
+    milestoneProgress: number
+    /** Total XP = challenge score + lessonsRead×3 + milestoneProgress×10 (drives rank). */
+    totalXp: number
     /** 1-based rank position within the cached top window. */
     rank: number
 }
@@ -24,7 +30,7 @@ export interface CourseLeaderboardCacheResult {
     totalChallenges: number
     /** Maximum possible total score (sum of challenge max scores). */
     maxPossibleScore: number
-    /** Top entries, sorted by totalScore DESC then createdAt ASC. */
+    /** Top entries, sorted by totalXp DESC then createdAt ASC. */
     entries: Array<CourseLeaderboardEntry>
     /** When this snapshot was computed. */
     computedAt: Date

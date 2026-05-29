@@ -13,18 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link ContentIdFactoryService["generate"]}.
- */
-export interface GenerateContentIdParams {
-    /** Parent course ordinal. */
-    courseIndex: number
-    /** Parent module ordinal. */
-    moduleIndex: number
-    /** Zero-based content slot under `modules/{moduleIndex}/contents/{contentIndex}`. */
-    contentIndex: number
-}
+import type {
+    GenerateContentIdParams,
+} from "./types"
 
 /**
  * Content (article) UUIDs nest under the owning {@link ModuleIdFactoryService} id.

@@ -33,4 +33,6 @@ export enum BullQueueName {
     GeneratePersonalProjectTasks = "generate-personal-project-tasks",
     /** Queue for AI-reviewing a single personal project task against its criteria. */
     ReviewPersonalProjectTask = "review-personal-project-task",
+    /** Queue for judging a coding-practice submission against testcases via Judge0. */
+    JudgeCodingSubmission = "judge-coding-submission",
 }

@@ -40,6 +40,8 @@ const bootstrap = async () => {
         AppModule,
         {
             logger: new ContextLoggerService(),
+            // keep the raw request buffer so Stripe webhook signatures can be verified
+            rawBody: true,
         }
     )
     // set the app to the globalThis object

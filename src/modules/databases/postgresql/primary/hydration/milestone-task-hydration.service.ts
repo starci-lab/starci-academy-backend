@@ -32,6 +32,9 @@ export class MilestoneTaskHydrationService {
                     criterias: {
                         translations: true,
                     },
+                    codeImplementations: {
+                        translations: true,
+                    },
                 },
             },
         )

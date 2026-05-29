@@ -13,18 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link FoundationTagIdFactoryService.generate}.
- */
-export interface GenerateFoundationTagIdParams {
-    /** Parent category ordinal. */
-    categoryIndex: number
-    /** Parent foundation ordinal. */
-    foundationIndex: number
-    /** Zero-based tag index within the foundation. */
-    tagIndex: number
-}
+import type {
+    GenerateFoundationTagIdParams,
+} from "./types"
 
 /**
  * Tag rows on a foundation entity; parent id comes from {@link FoundationIdFactoryService}.

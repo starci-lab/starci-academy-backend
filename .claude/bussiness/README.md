@@ -13,6 +13,7 @@ Tài liệu nghiệp vụ thuần (no tech). Mô tả sản phẩm, hành vi ng�
 - [06-bilingual-content.md](06-bilingual-content.md) — VI + EN parity, translation entities, content types.
 - [07-career-services.md](07-career-services.md) — CV template + submission, headhunting company, job board.
 - [08-live-and-community.md](08-live-and-community.md) — Livestream session, Q&A, consultant coaching, resources.
+- [09-xp-and-rewards.md](09-xp-and-rewards.md) — XP per-course (đọc bài/challenge/milestone) cho rank + thành tích, Coin đổi quà, chống farm.
 
 ## Nguyên tắc viết
 

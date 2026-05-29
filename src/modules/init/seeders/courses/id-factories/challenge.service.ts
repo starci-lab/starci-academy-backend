@@ -13,20 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link ChallengeIdFactoryService["generate"]}.
- */
-export interface GenerateChallengeIdParams {
-    /** Parent course ordinal. */
-    courseIndex: number
-    /** Parent module ordinal. */
-    moduleIndex: number
-    /** Parent content ordinal. */
-    contentIndex: number
-    /** Zero-based challenge folder under `modules/{m}/contents/{c}/challenges/{challengeIndex}`. */
-    challengeIndex: number
-}
+import type {
+    GenerateChallengeIdParams,
+} from "./types"
 
 /**
  * Challenge root entity; parent id is {@link ModuleIdFactoryService}.

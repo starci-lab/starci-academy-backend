@@ -10,16 +10,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link CourseIdFactoryService.generate}.
- */
-export interface GenerateCourseIdParams {
-    /**
-     * Zero-based position of the course in the seeded course list.
-     */
-    courseIndex: number
-}
+import type {
+    GenerateCourseIdParams,
+} from "./types"
 
 /**
  * Builds deterministic course UUIDs: SHA-256 over typed preimage segments, then UUID v5

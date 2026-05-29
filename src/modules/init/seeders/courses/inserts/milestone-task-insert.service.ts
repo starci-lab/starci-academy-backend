@@ -9,6 +9,8 @@ import {
     MilestoneTaskTranslationEntity,
     MilestoneTaskCriteriaEntity,
     MilestoneTaskCriteriaTranslationEntity,
+    MilestoneTaskCodeImplementationEntity,
+    MilestoneTaskCodeImplementationTranslationEntity,
 } from "@modules/databases"
 import {
     UpsertService,
@@ -37,6 +39,7 @@ export class MilestoneTaskInsertService {
         const taskId = task.id as string
         const translations = task.translations
         const criterias = task.criterias
+        const codeImplementations = task.codeImplementations
         const milestoneId = (task.milestoneId ?? task.milestone?.id) as string
         const milestoneRef = task.milestone ?? {
             id: milestoneId,
@@ -48,6 +51,7 @@ export class MilestoneTaskInsertService {
             [
                 "translations",
                 "criterias",
+                "codeImplementations",
                 "milestone",
             ],
         )
@@ -119,6 +123,57 @@ export class MilestoneTaskInsertService {
             await this.upsertService.deleteStaleUuid<MilestoneTaskCriteriaEntity>(
                 MilestoneTaskCriteriaEntity,
                 criterias.map((c) => c.id as string),
+                {
+                    milestoneTask: {
+                        id: taskId,
+                    },
+                },
+            )
+        }
+
+        /** 4. Upsert code implementations + their translations */
+        if (codeImplementations) {
+            for (const implementation of codeImplementations) {
+                const implementationId = implementation.id as string
+                const implementationTranslations = implementation.translations
+                const implementationRow = deleteFields(
+                    implementation,
+                    [
+                        "translations",
+                        "milestoneTask",
+                    ],
+                )
+
+                await this.upsertService.upsertUuid(
+                    MilestoneTaskCodeImplementationEntity,
+                    [{
+                        ...implementationRow,
+                        milestoneTask: implementation.milestoneTask ?? {
+                            id: taskId,
+                        },
+                    }],
+                    {
+                        milestoneTask: {
+                            id: taskId,
+                        },
+                    },
+                )
+
+                if (implementationTranslations?.length) {
+                    await this.upsertService.upsertTranslation<MilestoneTaskCodeImplementationTranslationEntity>(
+                        MilestoneTaskCodeImplementationTranslationEntity,
+                        implementationTranslations,
+                        {
+                            milestoneTaskCodeImplementationId: implementationId,
+                        },
+                    )
+                }
+            }
+
+            /** Delete stale code implementations for this task */
+            await this.upsertService.deleteStaleUuid<MilestoneTaskCodeImplementationEntity>(
+                MilestoneTaskCodeImplementationEntity,
+                codeImplementations.map((implementation) => implementation.id as string),
                 {
                     milestoneTask: {
                         id: taskId,

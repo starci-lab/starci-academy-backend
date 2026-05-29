@@ -13,14 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-export interface GenerateChallengeOutputIdParams {
-    courseIndex: number
-    moduleIndex: number
-    contentIndex: number
-    challengeIndex: number
-    outputIndex: number
-}
+import type {
+    GenerateChallengeOutputIdParams,
+} from "./types"
 
 @Injectable()
 export class ChallengeOutputIdFactoryService {

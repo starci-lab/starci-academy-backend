@@ -20,46 +20,14 @@ import {
 import {
     WinstonService,
 } from "@modules/winston"
-
-/** Log label for skipped mount rows (no DB entity). */
-class AiModelCatalogEntity {
-    static readonly name = "AiModelCatalog"
-}
-
-/**
- * Mount markdown shape for `.mount/data/ai-models/<index>-<slug>/{en,vi}.md`.
- *
- * Index signature satisfies the `Record<string, unknown>` constraint of
- * `ExtractJsonFromMdService.extract<T>()` (a plain interface would not).
- */
-type AiModelCatalogMd = {
-    name?: string
-    provider?: string
-    category?: string
-    keysFilePath?: string
-    priority?: string | number
-    enabled?: string | boolean
-    complimentary?: string | boolean
-    label?: string
-    description?: string
-    [key: string]: unknown
-}
-
-/** A parsed model row together with its bilingual catalog text. */
-export interface AiModelCatalogParsed {
-    /** Runtime catalog row (feeds appConfig + key rotation). */
-    model: AppConfigAiModel
-    /** English catalog text from `en.md`. */
-    en: AiModelCatalogTranslation
-    /** Vietnamese catalog text from `vi.md` (falls back to English). */
-    vi: AiModelCatalogTranslation
-}
-
-/** Localized catalog text (label, description) for a single locale. */
-export interface AiModelCatalogTranslation {
-    label: string
-    description: string
-}
+import type {
+    AiModelCatalogMd,
+    AiModelCatalogParsed,
+    AiModelCatalogTranslation,
+} from "./types"
+import {
+    AI_MODEL_CATALOG_ENTITY,
+} from "./constants"
 
 /**
  * Parses `.mount/data/ai-models/<index>-<slug>/{en,vi}.md` into catalog rows
@@ -94,7 +62,7 @@ export class AiModelCatalogParserService {
             } catch {
                 logInitSeederEntitySkipped(
                     this.winstonService,
-                    AiModelCatalogEntity,
+                    AI_MODEL_CATALOG_ENTITY,
                     enRelativePath,
                     new Error("en.md missing or unreadable"),
                 )
@@ -138,7 +106,7 @@ export class AiModelCatalogParserService {
             if (!isValidAiModelRow(model)) {
                 logInitSeederEntitySkipped(
                     this.winstonService,
-                    AiModelCatalogEntity,
+                    AI_MODEL_CATALOG_ENTITY,
                     enRelativePath,
                     new Error("invalid ai-model en.md shape"),
                 )

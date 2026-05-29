@@ -13,13 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-export interface GenerateCodeImplementationIdParams {
-    courseIndex: number
-    moduleIndex: number
-    contentIndex: number
-    implementationIndex: number
-}
+import type {
+    GenerateCodeImplementationIdParams,
+} from "./types"
 
 @Injectable()
 export class CodeImplementationIdFactoryService {

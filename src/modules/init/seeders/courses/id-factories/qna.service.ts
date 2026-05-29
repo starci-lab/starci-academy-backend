@@ -13,16 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link QnaIdFactoryService.generate}.
- */
-export interface GenerateQnaIdParams {
-    /** Owning course ordinal. */
-    courseIndex: number
-    /** Zero-based FAQ entry (`## 1.` → index 0 if ordered contiguously). */
-    qnaIndex: number
-}
+import type {
+    GenerateQnaIdParams,
+} from "./types"
 
 /**
  * Course FAQ rows; parent id is {@link CourseIdFactoryService}.

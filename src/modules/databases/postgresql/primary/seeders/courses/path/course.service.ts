@@ -3,8 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     PathResolverService,
-    ResolvedFilePath,
 } from "./resolver.service"
+import type {
+    ResolvedFilePath,
+} from "./types"
 
 /**
  * Resolves indexed course mount directories (`{index}-{slug}`) under the data courses root.

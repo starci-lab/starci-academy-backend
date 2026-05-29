@@ -69,6 +69,30 @@ export class LeaderboardEntryData {
         },
     )
         completedChallenges: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Number of lessons the user marked read in the course.",
+        },
+    )
+        lessonsRead: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Number of milestone tasks passed in the course.",
+        },
+    )
+        milestoneProgress: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Total XP (challenge + reads×3 + milestone×10) — the rank metric.",
+        },
+    )
+        totalXp: number
 }
 
 @ObjectType({
@@ -86,7 +110,7 @@ export class LeaderboardMyRankData {
     @Field(
         () => Int,
         {
-            description: "Total score for the current user.",
+            description: "Total challenge score for the current user.",
         },
     )
         totalScore: number
@@ -98,6 +122,30 @@ export class LeaderboardMyRankData {
         },
     )
         completedChallenges: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Number of lessons the current user marked read in the course.",
+        },
+    )
+        lessonsRead: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Number of milestone tasks the current user passed in the course.",
+        },
+    )
+        milestoneProgress: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Total XP for the current user (challenge + reads×3 + milestone×10).",
+        },
+    )
+        totalXp: number
 }
 
 @ObjectType({
@@ -131,7 +179,7 @@ export class LeaderboardResponseData {
     @Field(
         () => [LeaderboardEntryData],
         {
-            description: "Top entries sorted by totalScore DESC then enrollment createdAt ASC.",
+            description: "Top entries sorted by totalXp DESC then enrollment createdAt ASC.",
         },
     )
         entries: Array<LeaderboardEntryData>

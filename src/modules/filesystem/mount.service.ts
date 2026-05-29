@@ -16,6 +16,14 @@ import {
     getGithubAccessToken,
     getGithubSecretKey,
     getSepayApiKey,
+    getJudge0AuthToken,
+    getStripeSecretKey,
+    getStripeWebhookSecret,
+    getPaypalClientId,
+    getPaypalClientSecret,
+    getPaypalWebhookId,
+    getNowpaymentsApiKey,
+    getNowpaymentsIpnSecret,
     getBrevoSmtpPassword,
     getAdminApiKey,
     getKeycloakAdmin,
@@ -103,6 +111,62 @@ export class MountFilesystemService {
      */
     sepayApiKey(): string {
         return getSepayApiKey()
+    }
+
+    /**
+     * Get the Judge0 X-Auth-Token from mount path (empty when auth is disabled).
+     */
+    judge0AuthToken(): string {
+        return getJudge0AuthToken()
+    }
+
+    /**
+     * Get Stripe secret API key from mount path.
+     */
+    stripeSecretKey(): string {
+        return getStripeSecretKey()
+    }
+
+    /**
+     * Get Stripe webhook signing secret from mount path.
+     */
+    stripeWebhookSecret(): string {
+        return getStripeWebhookSecret()
+    }
+
+    /**
+     * Get PayPal REST app client id from mount path.
+     */
+    paypalClientId(): string {
+        return getPaypalClientId()
+    }
+
+    /**
+     * Get PayPal REST app client secret from mount path.
+     */
+    paypalClientSecret(): string {
+        return getPaypalClientSecret()
+    }
+
+    /**
+     * Get PayPal webhook id from mount path.
+     */
+    paypalWebhookId(): string {
+        return getPaypalWebhookId()
+    }
+
+    /**
+     * Get NOWPayments REST API key from mount path.
+     */
+    nowpaymentsApiKey(): string {
+        return getNowpaymentsApiKey()
+    }
+
+    /**
+     * Get NOWPayments IPN secret from mount path.
+     */
+    nowpaymentsIpnSecret(): string {
+        return getNowpaymentsIpnSecret()
     }
 
     /**

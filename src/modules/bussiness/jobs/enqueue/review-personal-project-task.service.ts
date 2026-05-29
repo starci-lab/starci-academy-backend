@@ -9,11 +9,8 @@ import {
 } from "bullmq"
 import {
     ActionType,
-    AiMode,
     JobEntity,
     JobCategory,
-    Locale,
-    ModelProvider,
 } from "@modules/databases"
 import {
     InjectSuperJson,
@@ -37,31 +34,10 @@ import {
 } from "@modules/ai"
 import {
     sleepEnqueueUxDelay,
-} from "./enqueue-ux-delay"
-
-/**
- * Params for enqueueing a review-personal-project-task job.
- */
-export interface EnqueueReviewPersonalProjectTaskParams {
-    /** Enrollment ID. */
-    enrollmentId: string
-    /** GitHub URL submitted for review. */
-    githubUrl: string
-    /** Task ID to review. */
-    taskId: string
-    /** Branch to grade (defaults to "main"). */
-    branch?: string
-    /** User ID associated with the job. */
-    userId: string
-    /** LLM model name override. */
-    model?: string
-    /** LLM provider override. */
-    provider?: ModelProvider
-    /** Locale hint for filtering/prompting. */
-    locale?: Locale
-    /** AI lane the user picked; validated against entitlement at grade time. */
-    mode?: AiMode
-}
+} from "../utils"
+import type {
+    EnqueueReviewPersonalProjectTaskParams,
+} from "../types"
 
 /**
  * Service for enqueueing review-personal-project-task jobs.

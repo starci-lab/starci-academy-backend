@@ -1,5 +1,5 @@
 /** Data attached to the socket (e.g. userId). */
 export interface SocketData {
-    // user id
+    /** The authenticated user id bound to this socket connection. */
     userId: string
 }

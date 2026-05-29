@@ -28,9 +28,10 @@ import {
 } from "../atomic"
 import {
     sleepEnqueueUxDelay,
-} from "./enqueue-ux-delay"
-
-export type EnqueueSyncCdnParams = SyncCdnPayload
+} from "../utils"
+import type {
+    EnqueueSyncCdnParams,
+} from "../types"
 
 /**
  * Enqueue a one-off job: sync a single entity to the CDN (see `CdnSynchronizer` runtime services).

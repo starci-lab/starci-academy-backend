@@ -1,4 +1,6 @@
 import type {
+    AiMode,
+    ModelProvider,
     UserEntity,
 } from "@modules/databases"
 import type {
@@ -26,6 +28,12 @@ export interface UpsertSubmissionParams {
     user: UserEntity
     /** Challenge submission id. */
     challengeSubmissionId: string
-    /** Submission URL to store. */
-    url: string
+    /** Submission URL to store; omit to leave it untouched (sync selection only). */
+    url?: string
+    /** Grading lane to persist; omit to leave untouched. */
+    selectedMode?: AiMode
+    /** Concrete model name to persist; omit to leave untouched. */
+    selectedModel?: string
+    /** Provider serving the persisted model; omit to leave untouched. */
+    selectedModelProvider?: ModelProvider
 }

@@ -9,6 +9,7 @@ import {
     Injectable,
 } from "@nestjs/common"
 import type {
+    ResolveCourseAmountUsdParams,
     ResolveCourseAmountVndParams,
 } from "./types"
 /**
@@ -43,6 +44,33 @@ export class CoursePricingService {
             (pricingPhase) => pricingPhase.phase === currentPhase,
         )
         return pricingPhase?.price ?? 0
+    }
+
+    /**
+     * USD (dollars) amount for international gateways (Stripe / PayPal / NOWPayments),
+     * read from the active phase's `priceUsd`. Returns `null` when no USD price is set
+     * (e.g. the Regular phase, which only carries a VND `originalPrice`) — the caller
+     * must reject the checkout rather than charge VND as USD.
+     *
+     * @param param - Course with `pricingPhases` loaded
+     * @returns USD dollar amount, or `null` when the active phase has no USD price
+     */
+    resolveAmountUsd(
+        {
+            course,
+        }: ResolveCourseAmountUsdParams,
+    ): number | null {
+        // determine which tier is currently active for this course
+        const currentPhase = this.getCurrentPricingPhase(course)
+        // Regular phase has no pricing_phases row → only a VND originalPrice exists, no USD
+        if (currentPhase === PricingPhase.Regular) {
+            return null
+        }
+        // locate the active phase row and read its USD price (null when unset)
+        const pricingPhase = course.pricingPhases.find(
+            (pricingPhase) => pricingPhase.phase === currentPhase,
+        )
+        return pricingPhase?.priceUsd ?? null
     }
 
     /**

@@ -4,6 +4,7 @@ import type {
 
 /** Params for encrypt (plaintext and key). */
 export interface EncryptParams {
+    /** The plaintext string to encrypt. */
     plainText: string
 }
 
@@ -12,6 +13,7 @@ export type EncryptResult = EncryptedPayload
 
 /** Params for decrypt (payload and key). */
 export interface DecryptParams {
+    /** The encrypted payload (iv, ciphertext, authTag) to decrypt. */
     payload: EncryptedPayload
 }
 

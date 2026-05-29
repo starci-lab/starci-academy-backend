@@ -41,33 +41,10 @@ import {
 } from "@modules/exceptions"
 import {
     sleepEnqueueUxDelay,
-} from "./enqueue-ux-delay"
-
-/**
- * Params for enqueueing a resolve-github job.
- */
-export interface EnqueueResolveGithubParams {
-    /**
-     * User ID to invite.
-     */
-    userId: string
-
-    /**
-     * Course ID used to resolve the GitHub team slug.
-     * Optional when `teamSlug` is provided directly.
-     */
-    courseId?: string
-
-    /**
-     * Team slug override for direct enqueuing flows (e.g. OAuth callback).
-     */
-    teamSlug?: string
-
-    /**
-     * GitHub username to add to organization/team.
-     */
-    githubUsername: string
-}
+} from "../utils"
+import type {
+    EnqueueResolveGithubParams,
+} from "../types"
 
 /**
  * Service for enqueueing resolve-github jobs.

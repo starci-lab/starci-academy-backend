@@ -58,7 +58,11 @@ export class AiSubscriptionTiersResolver {
             .map((tier) => ({
                 tier: tier.tier,
                 displayName: tier.displayName ?? tier.tier,
+                // audience/purpose tagline rendered on the tier card
+                description: tier.description,
                 priceVnd: tier.priceVnd,
+                // international gateways charge this USD price directly (no FX)
+                priceUsd: tier.priceUsd,
                 creditsPer5h: tier.creditsPer5h,
                 creditsPerWeek: tier.creditsPerWeek,
                 popular: Boolean(tier.popular),

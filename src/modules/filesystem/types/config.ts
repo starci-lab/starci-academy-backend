@@ -56,8 +56,12 @@ export interface AppConfigSubscriptionTier {
     tier: string
     /** UI label (optional; defaults to capitalized tier). */
     displayName?: string
+    /** Short audience/purpose tagline shown on the tier card. */
+    description: string
     /** Monthly price in VND. */
     priceVnd: number
+    /** Monthly price in USD (dollars) for international gateways. */
+    priceUsd: number
     /** Additive credits per 5-hour rolling window. */
     creditsPer5h: number
     /** Additive credits per weekly rolling window. */

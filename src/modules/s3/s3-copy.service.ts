@@ -14,14 +14,9 @@ import {
 import {
     S3Provider,
 } from "./enums"
-
-export interface S3CopySameBucketParams {
-    /** Existing object key. */
-    sourceKey: string
-    /** Destination key in the same bucket. */
-    destKey: string
-    provider: S3Provider
-}
+import {
+    S3CopySameBucketParams,
+} from "./types"
 
 /**
  * Server-side copy within one S3-compatible bucket (used to freeze CV bytes under `attempts/…`).

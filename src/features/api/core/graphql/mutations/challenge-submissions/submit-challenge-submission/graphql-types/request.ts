@@ -6,6 +6,8 @@ import {
 import {
     AiMode,
     GraphQLTypeAiMode,
+    GraphQLTypeModelProvider,
+    ModelProvider,
 } from "@modules/databases"
 
 @InputType({
@@ -41,5 +43,25 @@ export class SubmitChallengeSubmissionRequest {
         },
     )
         mode?: AiMode
+
+    /** Concrete model the user picked in the grading dropdown (e.g. "gpt-4o"). */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Concrete model name the user picked for grading; null = balancer default.",
+        },
+    )
+        selectedModel?: string
+
+    /** Provider serving {@link selectedModel}. */
+    @Field(
+        () => GraphQLTypeModelProvider,
+        {
+            nullable: true,
+            description: "Provider serving the picked model.",
+        },
+    )
+        selectedModelProvider?: ModelProvider
 
 }

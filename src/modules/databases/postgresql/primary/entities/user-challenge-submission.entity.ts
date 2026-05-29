@@ -11,6 +11,12 @@ import {
     RelationId,
 } from "typeorm"
 import {
+    AiMode,
+    GraphQLTypeAiMode,
+    GraphQLTypeModelProvider,
+    ModelProvider,
+} from "../enums"
+import {
     UuidAbstractEntity,
 } from "./abstract"
 import {
@@ -115,6 +121,62 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
         length: 2048,
     })
         submissionUrl: string
+
+    /**
+     * AI grading lane the user last chose for this submission (auto/premium/byok);
+     * null until they pick one. Persisted so the picker pre-fills on reopen.
+     */
+    @Field(
+        () => GraphQLTypeAiMode,
+        {
+            nullable: true,
+            description: "AI grading lane last chosen for this submission; null until picked.",
+        },
+    )
+    @Column({
+        name: "selected_mode",
+        type: "enum",
+        enum: AiMode,
+        enumName: "ai_mode",
+        nullable: true,
+    })
+        selectedMode: AiMode | null
+
+    /**
+     * Concrete model name the user last chose for this submission (e.g.
+     * "gpt-4o"); null = let the balancer pick. Persisted to pre-fill the picker.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Concrete model name last chosen for this submission; null = balancer default.",
+        },
+    )
+    @Column({
+        name: "selected_model",
+        type: "varchar",
+        length: 128,
+        nullable: true,
+    })
+        selectedModel: string | null
+
+    /** Provider serving {@link selectedModel}; null when no model chosen. */
+    @Field(
+        () => GraphQLTypeModelProvider,
+        {
+            nullable: true,
+            description: "Provider serving the chosen model; null when no model chosen.",
+        },
+    )
+    @Column({
+        name: "selected_model_provider",
+        type: "enum",
+        enum: ModelProvider,
+        enumName: "model_provider",
+        nullable: true,
+    })
+        selectedModelProvider: ModelProvider | null
 
 
 

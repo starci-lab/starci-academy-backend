@@ -94,6 +94,24 @@ export class PricingPhaseEntity extends UuidAbstractEntity {
         price: number | null
 
     /**
+     * Tier price in USD (dollars) for international gateways; null when no USD price is set.
+     */
+    @Field(
+        () => Float,
+        {
+            name: "priceUsd",
+            nullable: true,
+            description: "Tier price in USD (dollars) for international gateways; null when no USD price is set.",
+        },
+    )
+    @Column({
+        name: "price_usd",
+        type: "double precision",
+        nullable: true,
+    })
+        priceUsd: number | null
+
+    /**
      * null = không giới hạn chỗ (FE có thể hiển thị “không giới hạn”).
      */
     @Field(

@@ -108,4 +108,10 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
         ),
         name: "review-personal-project-task",
     },
+    [BullQueueName.JudgeCodingSubmission]: {
+        prefix: formatWithBraces(
+            "judge-coding-submission",
+        ),
+        name: "judge-coding-submission",
+    },
 }

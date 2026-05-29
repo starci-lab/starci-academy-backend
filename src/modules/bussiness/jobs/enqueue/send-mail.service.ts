@@ -28,16 +28,10 @@ import {
 } from "../atomic"
 import {
     sleepEnqueueUxDelay,
-} from "./enqueue-ux-delay"
-
-/**
- * Params accepted by {@link EnqueueSendMailJobService.enqueue}.
- *
- * Mirrors {@link SendMailPayload} — kept as a separate alias so we can
- * evolve the enqueue API (e.g. defaulting a `from` address) without
- * leaking transport concerns to callers.
- */
-export type EnqueueSendMailParams = SendMailPayload
+} from "../utils"
+import type {
+    EnqueueSendMailParams,
+} from "../types"
 
 /**
  * Service for enqueuing a transactional email job onto the `send-mail`

@@ -31,6 +31,15 @@ import {
     CourseEnrollSepayService,
 } from "./course-enroll-sepay.service"
 import {
+    CourseEnrollStripeService,
+} from "./course-enroll-stripe.service"
+import {
+    CourseEnrollPaypalService,
+} from "./course-enroll-paypal.service"
+import {
+    CourseEnrollCryptoService,
+} from "./course-enroll-crypto.service"
+import {
     CourseEnrollResponseData,
 } from "./graphql-types"
 
@@ -44,6 +53,9 @@ export class CourseEnrollHandler
         private readonly entityManager: EntityManager,
         private readonly courseEnrollPayOsService: CourseEnrollPayOsService,
         private readonly courseEnrollSepayService: CourseEnrollSepayService,
+        private readonly courseEnrollStripeService: CourseEnrollStripeService,
+        private readonly courseEnrollPaypalService: CourseEnrollPaypalService,
+        private readonly courseEnrollCryptoService: CourseEnrollCryptoService,
     ) {
         super()
     }
@@ -93,6 +105,15 @@ export class CourseEnrollHandler
         }
         case PaymentType.Sepay: {
             return this.courseEnrollSepayService.execute(params)
+        }
+        case PaymentType.Stripe: {
+            return this.courseEnrollStripeService.execute(params)
+        }
+        case PaymentType.Paypal: {
+            return this.courseEnrollPaypalService.execute(params)
+        }
+        case PaymentType.Crypto: {
+            return this.courseEnrollCryptoService.execute(params)
         }
         default:
             throw new BadRequestException(

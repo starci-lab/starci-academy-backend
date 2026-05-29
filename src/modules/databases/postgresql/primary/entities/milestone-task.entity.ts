@@ -30,6 +30,9 @@ import {
 import {
     MilestoneTaskCriteriaEntity,
 } from "./milestone-task-criteria.entity"
+import {
+    MilestoneTaskCodeImplementationEntity,
+} from "./milestone-task-code-implementation.entity"
 
 /**
  * A task belonging to a milestone.
@@ -242,4 +245,22 @@ export class MilestoneTaskEntity extends UuidAbstractEntity {
         },
     )
         criterias: Array<MilestoneTaskCriteriaEntity>
+
+    /**
+     * Multi-language implementation guides for this task.
+     */
+    @Field(
+        () => [MilestoneTaskCodeImplementationEntity],
+        {
+            description: "Multi-language implementation guides for this task.",
+        },
+    )
+    @OneToMany(
+        () => MilestoneTaskCodeImplementationEntity,
+        (implementation: MilestoneTaskCodeImplementationEntity) => implementation.milestoneTask,
+        {
+            cascade: true,
+        },
+    )
+        codeImplementations: Array<MilestoneTaskCodeImplementationEntity>
 }

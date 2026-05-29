@@ -6,14 +6,18 @@ import type {
 export interface ResolveCheckoutParams {
     /** Payment provider to create the checkout with. */
     paymentType: PaymentType
-    /** Amount to charge, in VND. */
+    /** Amount to charge for domestic gateways (PayOS / Sepay), in VND. */
     amount: number
+    /** Amount to charge for international gateways (Stripe / PayPal / Crypto), in USD dollars. */
+    priceUsd: number
     /** Provider order code (also stored as the transaction `referenceId`). */
     orderCode: number
     /** PayOS return URL (required for PayOS). */
     payosReturnUrl?: string
     /** PayOS cancel URL (required for PayOS). */
     payosCancelUrl?: string
+    /** AI subscription tier id — used in the missing-USD-price exception metadata. */
+    tier: string
 }
 
 /** Params for building a SePay PG one-time-payment checkout. */

@@ -41,11 +41,13 @@ import {
 } from "./review-cv-submission-extract-step.service"
 import {
     ReviewCvSubmissionPlanStepService,
-    CV_AI_INVOKE_DECISION_KEY,
 } from "./review-cv-submission-plan-step.service"
+import {
+    CV_AI_INVOKE_DECISION_KEY,
+} from "../constants"
 import type {
     CvAiInvokeDecision,
-} from "./review-cv-submission-plan-step.service"
+} from "../types"
 import {
     ReviewCvSubmissionParseService,
 } from "./parse.service"

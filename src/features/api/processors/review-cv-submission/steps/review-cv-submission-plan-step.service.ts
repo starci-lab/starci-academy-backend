@@ -16,9 +16,6 @@ import {
     AiInvokeService,
     AiEntitlementService,
 } from "@modules/ai"
-import type {
-    AiInvokeByok,
-} from "@modules/ai"
 import {
     WinstonLog,
     WinstonService,
@@ -34,10 +31,14 @@ import {
     JobExtendedContext,
 } from "@modules/bussiness"
 import type {
+    CvAiInvokeDecision,
     ExtendedReviewCvSubmissionContext,
     ReviewCvSubmissionExtractStepExecuteResult,
     ReviewCvSubmissionPlanStepExecuteResult,
 } from "../types"
+import {
+    CV_AI_INVOKE_DECISION_KEY,
+} from "../constants"
 import type {
     ReviewCvSubmissionPayload,
 } from "@modules/bullmq"
@@ -51,24 +52,6 @@ import {
 import {
     envConfig
 } from "@modules/env"
-
-/**
- * Execution-result key under which the plan step persists its entitlement
- * decision so the analyze step can reuse it WITHOUT a second `consume`
- * (1 CV review = 1 charge).
- */
-export const CV_AI_INVOKE_DECISION_KEY = "ai-invoke-decision"
-
-/**
- * The AI-invoke decision resolved once in the plan step and reused by analyze.
- * Holds the `invoke` args (`byok` OR `category`) chosen for this CV review.
- */
-export interface CvAiInvokeDecision {
-    /** Category to grade with (auto/premium path); omitted in byok mode. */
-    category?: AiModelCategory
-    /** BYOK descriptor (byok mode); omitted otherwise. */
-    byok?: AiInvokeByok
-}
 
 /**
  * Step 1: LLM drafts a review plan (markdown) from rubric + CV text before structured scoring.

@@ -62,6 +62,9 @@ export class SyncSubmissionHandler
         const {
             id,
             url,
+            selectedMode,
+            selectedModel,
+            selectedModelProvider,
         } = request
         await this.entityManager.transaction(async (entityManager) => {
             await this.postgreSqlAdvisoryLockService.acquireUserChallengeSubmissionXactLock(
@@ -74,6 +77,9 @@ export class SyncSubmissionHandler
                 user,
                 challengeSubmissionId: id,
                 url,
+                selectedMode,
+                selectedModel,
+                selectedModelProvider,
             })
         })
     }
@@ -85,6 +91,9 @@ export class SyncSubmissionHandler
             user,
             challengeSubmissionId,
             url,
+            selectedMode,
+            selectedModel,
+            selectedModelProvider,
         }: UpsertSubmissionParams,
     ): Promise<void> {
         const challengeSubmission = await entityManager.findOne(
@@ -101,11 +110,17 @@ export class SyncSubmissionHandler
             })
         }
 
-        await this.urlValidatorService.isValid({
-            submissionId: challengeSubmissionId,
-            submissionType: challengeSubmission.type,
-            url,
-        })
+        // only validate a URL when one is actually being synced; a
+        // selection-only sync (no url) skips validation so the row can be
+        // created before the user pastes a link
+        const hasUrl = typeof url === "string" && url.length > 0
+        if (hasUrl) {
+            await this.urlValidatorService.isValid({
+                submissionId: challengeSubmissionId,
+                submissionType: challengeSubmission.type,
+                url,
+            })
+        }
 
         let userChallengeSubmission = await entityManager.findOne(
             UserChallengeSubmissionEntity,
@@ -121,7 +136,9 @@ export class SyncSubmissionHandler
             },
         )
         if (userChallengeSubmission) {
-            userChallengeSubmission.submissionUrl = url
+            if (hasUrl) {
+                userChallengeSubmission.submissionUrl = url as string
+            }
         } else {
             userChallengeSubmission = entityManager.create(
                 UserChallengeSubmissionEntity,
@@ -132,10 +149,21 @@ export class SyncSubmissionHandler
                     submission: {
                         id: challengeSubmissionId,
                     },
-                    submissionUrl: url,
+                    // empty until the user pastes a link on a selection-only sync
+                    submissionUrl: hasUrl ? (url as string) : "",
                     processed: false,
                 },
             )
+        }
+        // persist the grading lane + model pick when provided
+        if (selectedMode !== undefined) {
+            userChallengeSubmission.selectedMode = selectedMode
+        }
+        if (selectedModel !== undefined) {
+            userChallengeSubmission.selectedModel = selectedModel
+        }
+        if (selectedModelProvider !== undefined) {
+            userChallengeSubmission.selectedModelProvider = selectedModelProvider
         }
         await entityManager.save(
             UserChallengeSubmissionEntity,

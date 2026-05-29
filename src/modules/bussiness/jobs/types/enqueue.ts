@@ -3,6 +3,13 @@ import type {
     Locale,
     ModelProvider,
 } from "@modules/databases"
+import type {
+    SendMailPayload,
+    SyncCdnPayload,
+    SyncElasticsearchPayload,
+    SyncIndexerPayload,
+    SyncScyllaDBPayload,
+} from "@modules/bullmq"
 
 /** Params for enqueuing an enroll job. */
 export interface EnqueueEnrollJobParams {
@@ -96,4 +103,113 @@ export interface EnqueueProcessCvSubmissionJobParams {
     templateCvId?: string
     /** AI lane the user picked; validated against entitlement at grade time. */
     mode?: AiMode
+}
+
+/**
+ * Params for enqueueing a process-personal-project job.
+ */
+export interface EnqueueProcessPersonalProjectParams {
+    /** Personal project attempt ID. */
+    attemptId: string
+    /** Branch to grade (defaults to "main"). */
+    branch?: string
+    /** User ID associated with the job. */
+    userId: string
+}
+
+/**
+ * Params for enqueueing a generate-personal-project-tasks job.
+ */
+export interface EnqueueGeneratePersonalProjectTasksParams {
+    /** Enrollment ID — the user's enrollment to generate tasks for. */
+    enrollmentId: string
+    /** User ID associated with the job. */
+    userId: string
+    /** LLM model name override (e.g. "gpt-4o-mini"). */
+    model?: string
+    /** LLM provider override. */
+    provider?: ModelProvider
+    /** Locale hint for filtering/prompting. */
+    locale?: Locale
+}
+
+/**
+ * Params for enqueueing a resolve-github job.
+ */
+export interface EnqueueResolveGithubParams {
+    /**
+     * User ID to invite.
+     */
+    userId: string
+
+    /**
+     * Course ID used to resolve the GitHub team slug.
+     * Optional when `teamSlug` is provided directly.
+     */
+    courseId?: string
+
+    /**
+     * Team slug override for direct enqueuing flows (e.g. OAuth callback).
+     */
+    teamSlug?: string
+
+    /**
+     * GitHub username to add to organization/team.
+     */
+    githubUsername: string
+}
+
+/**
+ * Params for enqueueing a review-personal-project-task job.
+ */
+export interface EnqueueReviewPersonalProjectTaskParams {
+    /** Enrollment ID. */
+    enrollmentId: string
+    /** GitHub URL submitted for review. */
+    githubUrl: string
+    /** Task ID to review. */
+    taskId: string
+    /** Branch to grade (defaults to "main"). */
+    branch?: string
+    /** User ID associated with the job. */
+    userId: string
+    /** LLM model name override. */
+    model?: string
+    /** LLM provider override. */
+    provider?: ModelProvider
+    /** Locale hint for filtering/prompting. */
+    locale?: Locale
+    /** AI lane the user picked; validated against entitlement at grade time. */
+    mode?: AiMode
+}
+
+/** Params accepted by EnqueueSyncScyllaDBJobService.enqueue. */
+export type EnqueueSyncScyllaDBParams = SyncScyllaDBPayload
+
+/** Params accepted by EnqueueSyncIndexerJobService.enqueue. */
+export type EnqueueSyncIndexerParams = SyncIndexerPayload
+
+/** Params accepted by EnqueueSyncElasticsearchJobService.enqueue. */
+export type EnqueueSyncElasticsearchParams = SyncElasticsearchPayload
+
+/** Params accepted by EnqueueSyncCdnJobService.enqueue. */
+export type EnqueueSyncCdnParams = SyncCdnPayload
+
+/**
+ * Params accepted by {@link EnqueueSendMailJobService.enqueue}.
+ *
+ * Mirrors {@link SendMailPayload} — kept as a separate alias so we can
+ * evolve the enqueue API (e.g. defaulting a `from` address) without
+ * leaking transport concerns to callers.
+ */
+export type EnqueueSendMailParams = SendMailPayload
+
+/** Params for enqueuing a judge-coding-submission job. */
+export interface EnqueueJudgeCodingSubmissionJobParams {
+    /** `users.id` — the submitter (job ownership / Socket.IO targeting). */
+    userId: string
+    /** `coding_submissions.id` to judge. */
+    codingSubmissionId: string
+    /** Existing `jobs.id` to requeue (optional). */
+    jobId?: string
 }

@@ -34,7 +34,7 @@ import {
 } from "@modules/env"
 import {
     sleepEnqueueUxDelay,
-} from "./enqueue-ux-delay"
+} from "../utils"
 
 /**
  * Service for enqueuing an enroll job.

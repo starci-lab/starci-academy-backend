@@ -28,9 +28,10 @@ import {
 } from "../atomic"
 import {
     sleepEnqueueUxDelay,
-} from "./enqueue-ux-delay"
-
-export type EnqueueSyncElasticsearchParams = SyncElasticsearchPayload
+} from "../utils"
+import type {
+    EnqueueSyncElasticsearchParams,
+} from "../types"
 
 /**
  * Enqueue a one-off job: index a single entity into Elasticsearch (see `ElasticsearchSynchronizer` runtime services).

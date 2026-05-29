@@ -36,7 +36,7 @@ import {
 } from "./review-milestone-task-grade-step.service"
 import type {
     ReviewMilestoneTaskGradeResult,
-} from "./review-milestone-task-grade-step.service"
+} from "../types"
 import {
     MissingOrInvalidGradeExecutionResultException 
 } from "@modules/exceptions"

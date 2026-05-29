@@ -27,6 +27,13 @@ export class MountStorageService implements OnModuleInit {
     public geminiApiKey: string
     public openAiApiKey: string
     public sepayApiKey: string
+    public stripeSecretKey: string
+    public stripeWebhookSecret: string
+    public paypalClientId: string
+    public paypalClientSecret: string
+    public paypalWebhookId: string
+    public nowpaymentsApiKey: string
+    public nowpaymentsIpnSecret: string
     public brevoSmtpPassword: string
     public keycloakAdmin: SecretKeycloakAdmin
     public adminApiKey: string
@@ -57,6 +64,20 @@ export class MountStorageService implements OnModuleInit {
         this.openAiApiKey = this.mountFilesystemService.openAiApiKey()
         // get sepay api key from mount filesystem service
         this.sepayApiKey = this.mountFilesystemService.sepayApiKey()
+        // get stripe secret api key from mount filesystem service
+        this.stripeSecretKey = this.mountFilesystemService.stripeSecretKey()
+        // get stripe webhook signing secret from mount filesystem service
+        this.stripeWebhookSecret = this.mountFilesystemService.stripeWebhookSecret()
+        // get paypal client id from mount filesystem service
+        this.paypalClientId = this.mountFilesystemService.paypalClientId()
+        // get paypal client secret from mount filesystem service
+        this.paypalClientSecret = this.mountFilesystemService.paypalClientSecret()
+        // get paypal webhook id from mount filesystem service
+        this.paypalWebhookId = this.mountFilesystemService.paypalWebhookId()
+        // get nowpayments api key from mount filesystem service
+        this.nowpaymentsApiKey = this.mountFilesystemService.nowpaymentsApiKey()
+        // get nowpayments ipn secret from mount filesystem service
+        this.nowpaymentsIpnSecret = this.mountFilesystemService.nowpaymentsIpnSecret()
         // get brevo smtp password from mount filesystem service
         this.brevoSmtpPassword = this.mountFilesystemService.brevoSmtpPassword()
         // get keycloak admin credentials from mount filesystem service

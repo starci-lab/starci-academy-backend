@@ -3,8 +3,6 @@ import {
 } from "@nestjs/common"
 import crypto from "crypto"
 
-export type Sha256DigestEncoding = "hex" | "base64"
-
 /**
  * SHA-256 over an ordered list of UTF-8 strings.
  *

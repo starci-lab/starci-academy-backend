@@ -5,3 +5,11 @@ export interface IAbstractGraphQLResponse<T = undefined> {
     data?: T
     error?: string
 }
+
+/** Internal shape of the transformed GraphQL response (data, message, success, error). */
+export interface GraphQLResponse<T = unknown> {
+    data?: T
+    message: string
+    success: boolean
+    error?: string
+}

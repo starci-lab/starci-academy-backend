@@ -28,6 +28,36 @@ export const httpConfig = () => ({
             }),
         }
     },
+    /** Stripe webhook route (under global `/api`, version `v1`). */
+    stripe: () => {
+        const tags = "stripe"
+        return {
+            tags,
+            webhook: () => ({
+                path: "webhook",
+            }),
+        }
+    },
+    /** PayPal webhook route (under global `/api`, version `v1`). */
+    paypal: () => {
+        const tags = "paypal"
+        return {
+            tags,
+            webhook: () => ({
+                path: "webhook",
+            }),
+        }
+    },
+    /** NOWPayments IPN route (under global `/api`, version `v1`). */
+    nowpayments: () => {
+        const tags = "nowpayments"
+        return {
+            tags,
+            webhook: () => ({
+                path: "webhook",
+            }),
+        }
+    },
     minio: () => {
         const tags = "minio"
         return {

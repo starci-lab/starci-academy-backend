@@ -34,19 +34,10 @@ import {
 } from "../atomic"
 import {
     sleepEnqueueUxDelay,
-} from "./enqueue-ux-delay"
-
-/**
- * Params for enqueueing a process-personal-project job.
- */
-export interface EnqueueProcessPersonalProjectParams {
-    /** Personal project attempt ID. */
-    attemptId: string
-    /** Branch to grade (defaults to "main"). */
-    branch?: string
-    /** User ID associated with the job. */
-    userId: string
-}
+} from "../utils"
+import type {
+    EnqueueProcessPersonalProjectParams,
+} from "../types"
 
 /**
  * Service for enqueueing personal project grading jobs.

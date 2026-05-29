@@ -8,25 +8,15 @@ import {
     InjectSuperJson 
 } from "@modules/mixin"
 import SuperJSON from "superjson"
-import {
-    LocalizedCdnEntity 
+import type {
+    EntityLike, LocalizedCdnEntity
 } from "./types"
 import {
-    Locale 
+    Locale
 } from "@modules/databases"
 import {
-    Sha256Service 
+    Sha256Service
 } from "@modules/crypto"
-/**
- * An entity like object with a display id and an id.
- */
-export interface EntityLike {
-    /** The display id of the entity. */
-    displayId: string
-    /** The id of the entity. */
-    id: string
-}
-
 /**
  * Service for materializing and uploading entities to the CDN.
  */

@@ -12,6 +12,8 @@ import {
     MilestoneTaskTranslationEntity,
     MilestoneTaskCriteriaEntity,
     MilestoneTaskCriteriaTranslationEntity,
+    MilestoneTaskCodeImplementationEntity,
+    MilestoneTaskCodeImplementationTranslationEntity,
 } from "@modules/databases"
 import {
     ExtractJsonFromMdService,
@@ -21,6 +23,7 @@ import {
 import {
     MilestoneTaskIdFactoryService,
     MilestoneTaskPassCriteriaIdFactoryService,
+    MilestoneTaskCodeImplementationIdFactoryService,
 } from "../id-factories"
 import {
     DeepPartial,
@@ -36,7 +39,6 @@ import {
 } from "../../shared"
 import {
     ResolvedFileResult,
-    logInitSeederEntitySkipped,
 } from "../../shared"
 import {
     WinstonService,
@@ -59,6 +61,7 @@ export class MilestoneTaskParserService {
         private readonly coerceMdScalarService: CoerceMdScalarService,
         private readonly milestoneTaskIdFactoryService: MilestoneTaskIdFactoryService,
         private readonly criteriaIdFactoryService: MilestoneTaskPassCriteriaIdFactoryService,
+        private readonly codeImplementationIdFactoryService: MilestoneTaskCodeImplementationIdFactoryService,
         private readonly contextLoaderService: ContextLoaderService,
         private readonly milestoneTaskPathService: MilestoneTaskPathService,
         private readonly winstonService: WinstonService,
@@ -221,6 +224,62 @@ export class MilestoneTaskParserService {
                     },
                 )
             })(),
+            /** Parse code implementations inline from the same markdown file (`# codeImplementations`). */
+            codeImplementations: (
+                enTask.codeImplementations ?? []
+            ).map(
+                (enImplementation: any, implementationIndex: number) => {
+                    const implementationId = this.codeImplementationIdFactoryService.generate(
+                        {
+                            courseIndex,
+                            milestoneIndex,
+                            taskIndex,
+                            implementationIndex,
+                        },
+                    )
+                    const translations: Array<DeepPartial<MilestoneTaskCodeImplementationTranslationEntity>> = []
+                    for (const locale of Object.values(Locale)) {
+                        const json = jsonMap.get(locale)
+                        const localeImplementationArray: Array<any> = json?.codeImplementations ?? []
+                        const localeImplementation = localeImplementationArray[implementationIndex]
+                        if (!localeImplementation) continue
+                        if (localeImplementation.guide) {
+                            translations.push({
+                                milestoneTaskCodeImplementationId: implementationId,
+                                locale,
+                                field: "guide",
+                                value: localeImplementation.guide as string,
+                            })
+                        }
+                        if (localeImplementation.example) {
+                            translations.push({
+                                milestoneTaskCodeImplementationId: implementationId,
+                                locale,
+                                field: "example",
+                                value: localeImplementation.example as string,
+                            })
+                        }
+                    }
+                    return {
+                        id: implementationId,
+                        lang: this.coerceMdScalarService.toRequiredString(
+                            enImplementation.lang,
+                            "text",
+                        ),
+                        guide: (enImplementation.guide as string) ?? "",
+                        example: (enImplementation.example as string) ?? "",
+                        orderIndex: this.coerceMdScalarService.toRequiredNumber(
+                            enImplementation.orderIndex,
+                            implementationIndex,
+                        ),
+                        defaultLocale: Locale.En,
+                        milestoneTask: {
+                            id: taskId,
+                        },
+                        translations,
+                    } as DeepPartial<MilestoneTaskCodeImplementationEntity>
+                },
+            ),
         }
     }
 

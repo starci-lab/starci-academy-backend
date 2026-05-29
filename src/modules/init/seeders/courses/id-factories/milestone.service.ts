@@ -13,20 +13,9 @@ import {
 import {
     v5 as uuidv5,
 } from "uuid"
-
-/**
- * Input for {@link MilestoneIdFactoryService.generate}.
- */
-export interface GenerateMilestoneIdParams {
-    /**
-     * Zero-based course index.
-     */
-    courseIndex: number
-    /**
-     * Zero-based milestone index within the course.
-     */
-    milestoneIndex: number
-}
+import type {
+    GenerateMilestoneIdParams,
+} from "./types"
 
 /**
  * Milestone UUIDs chain from the parent course id string.

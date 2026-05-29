@@ -6,9 +6,11 @@ import {
     ResolvedFilePath,
 } from "../../shared"
 import {
-    HEADHUNTINGS_MOUNT_DIR,
     HeadhuntingCompanyPathService,
 } from "./headhunting-company.service"
+import {
+    HEADHUNTINGS_MOUNT_DIR,
+} from "./constants"
 import type {
     ConsultantPathParams,
 } from "./types"
