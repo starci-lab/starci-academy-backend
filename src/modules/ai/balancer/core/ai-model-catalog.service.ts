@@ -54,7 +54,8 @@ export class AiModelCatalogService {
     async enabledModels(
         {
             category,
-        }: EnabledModelsParams = {},
+        }: EnabledModelsParams = {
+        },
     ): Promise<Array<AiModelEntity>> {
         const models = await this.entityManager.find(
             AiModelEntity,

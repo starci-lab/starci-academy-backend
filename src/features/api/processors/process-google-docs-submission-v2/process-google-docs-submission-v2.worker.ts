@@ -113,11 +113,21 @@ export class ProcessGoogleDocsSubmissionV2Worker extends WorkerHost {
                     userChallengeSubmissionId: payload.userChallengeSubmissionId,
                 })
             }
+            // load the SPECIFIC submission being graded WITH its normalized per-language grading
+            // rubric (approach + outcome criteria, each with their per-language prose rows)
             const challengeSubmission = await this.entityManager.findOne(
                 ChallengeSubmissionEntity,
                 {
                     where: {
                         id: userChallengeSubmission.submissionId,
+                    },
+                    relations: {
+                        approachCriteria: {
+                            langs: true,
+                        },
+                        outcomeCriteria: {
+                            langs: true,
+                        },
                     },
                 },
             )
@@ -126,7 +136,6 @@ export class ProcessGoogleDocsSubmissionV2Worker extends WorkerHost {
                     submissionId: userChallengeSubmission.submissionId,
                 })
             }
-            // criteria live in jsonb columns on the challenge row (auto-loaded)
             const challenge = await this.entityManager.findOne(
                 ChallengeEntity,
                 {

@@ -10,9 +10,6 @@ import {
     PrimaryColumn,
 } from "typeorm"
 import {
-    GraphQLJSON,
-} from "graphql-type-json"
-import {
     GraphQLTypeLocale,
     Locale,
 } from "../enums"
@@ -24,17 +21,16 @@ import {
 } from "./challenge-prerequisite-v2.entity"
 
 /**
- * Localized jsonb payload for a SCHEMA V2 prerequisite bucket. One row per (bucket × locale);
- * mirrors {@link ChallengePrerequisiteTranslationEntity} but the localized value is the whole
- * prerequisite jsonb `data` array instead of a per-field text value.
+ * Per-locale title for a SCHEMA V2 prerequisite item (normalized — no jsonb). Usually empty (kept
+ * for table uniformity). One row per (prerequisite item × locale).
  */
 @ObjectType({
-    description: "Localized jsonb payload for a V2 prerequisite bucket.",
+    description: "Per-locale title for a V2 prerequisite item.",
 })
 @Entity("challenge_prerequisite_v2_translations")
 export class ChallengePrerequisiteV2TranslationEntity extends AbstractEntity {
     /**
-     * Parent V2 prerequisite bucket id (composite PK part).
+     * Parent prerequisite item id (composite PK part).
      */
     @Field(() => String)
     @PrimaryColumn({
@@ -44,7 +40,7 @@ export class ChallengePrerequisiteV2TranslationEntity extends AbstractEntity {
         challengePrerequisiteV2Id: string
 
     /**
-     * Locale of this payload (composite PK part).
+     * Locale of this title (composite PK part).
      */
     @Field(() => GraphQLTypeLocale)
     @PrimaryColumn({
@@ -56,24 +52,24 @@ export class ChallengePrerequisiteV2TranslationEntity extends AbstractEntity {
         locale: Locale
 
     /**
-     * Localized prerequisite payload (array of items for this locale) stored as jsonb.
+     * Localized prerequisite title (usually null).
      */
     @Field(
-        () => GraphQLJSON,
+        () => String,
         {
             nullable: true,
-            description: "Localized prerequisite payload (array of items for this locale) stored as jsonb.",
+            description: "Localized prerequisite title (usually null).",
         },
     )
     @Column({
-        name: "data",
-        type: "jsonb",
+        name: "title",
+        type: "text",
         nullable: true,
     })
-        data: Array<Record<string, unknown>> | null
+        title: string | null
 
     /**
-     * Parent V2 prerequisite bucket this translation belongs to.
+     * Parent prerequisite item this title belongs to.
      */
     @ManyToOne(
         () => ChallengePrerequisiteV2Entity,
@@ -87,5 +83,5 @@ export class ChallengePrerequisiteV2TranslationEntity extends AbstractEntity {
         referencedColumnName: "id",
         foreignKeyConstraintName: "fk_prereq_v2_translation_challenge_prerequisites_v2",
     })
-        challengePrerequisiteV2: ChallengePrerequisiteV2Entity
+        prerequisiteV2: ChallengePrerequisiteV2Entity
 }

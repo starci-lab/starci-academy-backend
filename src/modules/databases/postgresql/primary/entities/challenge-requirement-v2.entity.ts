@@ -13,9 +13,6 @@ import {
     RelationId,
 } from "typeorm"
 import {
-    GraphQLJSON,
-} from "graphql-type-json"
-import {
     GraphQLTypeLocale,
     Locale,
 } from "../enums"
@@ -28,39 +25,28 @@ import {
 import {
     ChallengeRequirementV2TranslationEntity,
 } from "./challenge-requirement-v2-translation.entity"
+import {
+    ChallengeRequirementV2LangEntity,
+} from "./challenge-requirement-v2-lang.entity"
 
 /**
- * SCHEMA V2 per-language requirement bucket for a challenge.
- * One row per (locale × programming language); the jsonb `data` payload holds a single locale's text.
+ * SCHEMA V2 requirement ITEM for a challenge (normalized — no jsonb). One row per requirement
+ * position. The language-agnostic `title` is localized via
+ * {@link ChallengeRequirementV2TranslationEntity}; the per-programming-language `score` + `body`
+ * live under {@link ChallengeRequirementV2LangEntity}.
  */
 @ObjectType({
-    description: "Per-(locale × language) challenge requirement bucket (V2); single-locale jsonb payload.",
+    description: "A SCHEMA V2 challenge requirement item (one per position).",
 })
 @Entity("challenge_requirements_v2")
 export class ChallengeRequirementV2Entity extends UuidAbstractEntity {
     /**
-     * Programming language (e.g. typescript, java, csharp, go).
-     */
-    @Field(
-        () => String,
-        {
-            description: "Programming language for this requirement bucket (e.g. typescript, java, csharp, go).",
-        },
-    )
-    @Column({
-        name: "lang",
-        type: "varchar",
-        length: 32,
-    })
-        lang: string
-
-    /**
-     * Display order within the challenge requirement V2 list.
+     * Display order of this requirement within the challenge (agnostic position).
      */
     @Field(
         () => Int,
         {
-            description: "Display order within the challenge requirement V2 list.",
+            description: "Display order of this requirement within the challenge.",
         },
     )
     @Column({
@@ -71,30 +57,12 @@ export class ChallengeRequirementV2Entity extends UuidAbstractEntity {
         orderIndex: number
 
     /**
-     * Default-locale requirement payload (array of items) stored as jsonb; per-locale variants
-     * live in {@link translations}.
-     */
-    @Field(
-        () => GraphQLJSON,
-        {
-            nullable: true,
-            description: "Default-locale requirement payload (array of items) stored as jsonb.",
-        },
-    )
-    @Column({
-        name: "data",
-        type: "jsonb",
-        nullable: true,
-    })
-        data: Array<Record<string, unknown>> | null
-
-    /**
-     * Default locale for this requirement bucket row.
+     * Default locale for this requirement item.
      */
     @Field(
         () => GraphQLTypeLocale,
         {
-            description: "Default locale for this requirement bucket row.",
+            description: "Default locale for this requirement item.",
         },
     )
     @Column({
@@ -106,7 +74,7 @@ export class ChallengeRequirementV2Entity extends UuidAbstractEntity {
         defaultLocale: Locale
 
     /**
-     * Parent challenge this requirement bucket belongs to.
+     * Parent challenge this requirement belongs to.
      */
     @ManyToOne(
         () => ChallengeEntity,
@@ -131,25 +99,44 @@ export class ChallengeRequirementV2Entity extends UuidAbstractEntity {
         },
     )
     @RelationId(
-        (challengeRequirementV2: ChallengeRequirementV2Entity) => challengeRequirementV2.challenge,
+        (requirementV2: ChallengeRequirementV2Entity) => requirementV2.challenge,
     )
         challengeId: string
 
     /**
-     * Per-locale requirement jsonb payloads for this bucket.
+     * Per-locale title overrides (the title is agnostic across programming languages).
      */
     @Field(
         () => [ChallengeRequirementV2TranslationEntity],
         {
-            description: "Per-locale requirement jsonb payloads for this bucket.",
+            description: "Per-locale title overrides for this requirement item.",
         },
     )
     @OneToMany(
         () => ChallengeRequirementV2TranslationEntity,
-        (translation: ChallengeRequirementV2TranslationEntity) => translation.challengeRequirementV2,
+        (translation: ChallengeRequirementV2TranslationEntity) => translation.requirementV2,
+        {
+            cascade: true,
+            orphanedRowAction: "delete",
+        },
+    )
+        translations: Array<ChallengeRequirementV2TranslationEntity>
+
+    /**
+     * Per-programming-language content (score + body) for this requirement.
+     */
+    @Field(
+        () => [ChallengeRequirementV2LangEntity],
+        {
+            description: "Per-programming-language content for this requirement.",
+        },
+    )
+    @OneToMany(
+        () => ChallengeRequirementV2LangEntity,
+        (lang: ChallengeRequirementV2LangEntity) => lang.requirementV2,
         {
             cascade: true,
         },
     )
-        translations: Array<ChallengeRequirementV2TranslationEntity>
+        langs: Array<ChallengeRequirementV2LangEntity>
 }

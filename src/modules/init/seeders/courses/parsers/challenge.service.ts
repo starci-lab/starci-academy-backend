@@ -1,4 +1,4 @@
-﻿import type {
+import type {
     ParseChallengeManyParams,
     ParseChallengeParams,
 } from "./types"
@@ -13,6 +13,8 @@ import {
 import {
     ExtractJsonFromMdService,
     CoerceMdScalarService,
+    MergeJsonService,
+    MergeJsonResult,
 } from "../../shared"
 import {
     ChallengeIdFactoryService,
@@ -31,17 +33,9 @@ import {
 } from "typeorm"
 import {
     ChallengeEntity,
-    ChallengeOutputTranslationEntity,
-    ChallengePrerequisiteTranslationEntity,
-    ChallengeReferenceTranslationEntity,
-    ChallengeRequirementEntity,
-    ChallengeRequirementTranslationEntity,
     ChallengeStepCodeImplementationEntity,
     ChallengeStepCodeImplementationTranslationEntity,
-    ChallengeStepTranslationEntity,
     ChallengeSubmissionPromptEntity,
-    ChallengeSubmissionTranslationEntity,
-    ChallengeTranslationEntity,
 } from "@modules/databases"
 import {
     ChallengePathService,
@@ -60,7 +54,13 @@ import {
 
 /**
  * Parses challenge from mounted course files (`en.md` / `vi.md`).
- * Scalar fields like `difficulty`, `score` use camelCase `#` headings in `en.md`.
+ *
+ * i18n follows the same merge pattern as {@link CourseParserService} /
+ * {@link ContentParserService}: per-locale extracts are merged into one default-locale tree whose
+ * configured `translateFields` (top-level + one-level array dot-paths) carry their translation rows.
+ * Scalar fields like `difficulty` / `score` use camelCase `#` headings in `en.md`. The two-level
+ * nested rows (`steps.codeImplementations`, `submissions.prompts`) are filled per-locale from the
+ * extract map since the merge only resolves a single array level.
  */
 @Injectable()
 export class ChallengeParserService {
@@ -69,6 +69,7 @@ export class ChallengeParserService {
         private readonly contextLoaderService: ContextLoaderService,
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,
         private readonly coerceMdScalarService: CoerceMdScalarService,
+        private readonly mergeJsonService: MergeJsonService,
         private readonly challengeIdFactoryService: ChallengeIdFactoryService,
         private readonly challengeSubmissionPromptIdFactoryService: ChallengeSubmissionPromptIdFactoryService,
         private readonly challengeSubmissionIdFactoryService: ChallengeSubmissionIdFactoryService,
@@ -84,6 +85,9 @@ export class ChallengeParserService {
 
     /**
      * Builds a partial challenge entity from mounted course files.
+     *
+     * @param params - Challenge path list + course/module/content/challenge ordinals.
+     * @returns Entity-shaped graph for TypeORM cascade save.
      */
     async parse(
         {
@@ -94,8 +98,9 @@ export class ChallengeParserService {
             challengeIndex,
         }: ParseChallengeParams,
     ): Promise<DeepPartial<ChallengeEntity>> {
+        // locate the folder for this challenge ordinal
         const path = paths.find(
-            (path) => path.orderIndex === challengeIndex
+            (path) => path.orderIndex === challengeIndex,
         )
         if (!path) {
             throw new ChallengePathNotFoundException(
@@ -104,16 +109,45 @@ export class ChallengeParserService {
                 },
             )
         }
+        // extract the heading structure for every locale's markdown file
         const jsonMap = new Map<Locale, Partial<ChallengeEntity>>()
         for (const locale of Object.values(Locale)) {
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(
-                    await this.contextLoaderService.load("courses",
-                        `${path.relativePath}/${locale}.md`),
+                    await this.contextLoaderService.load(
+                        "courses",
+                        `${path.relativePath}/${locale}.md`,
+                    ),
                 ),
             )
         }
+        // merge locales into one default-locale doc + per-field translation rows; the merge resolves
+        // top-level scalars and ONE array level (each row gets its own `translations`)
+        const merged = this.mergeJsonService.merge({
+            jsons: Object.values(Locale).map((locale) => ({
+                locale,
+                json: (jsonMap.get(locale) ?? {
+                }) as Record<string, unknown>,
+            })),
+            translateFields: [
+                "title",
+                "description",
+                "requirements.purpose",
+                "requirements.technicalConstraints",
+                "requirements.proTipsHints",
+                "requirements.forbidden",
+                "requirements.promptText",
+                "outputs.text",
+                "prerequisites.text",
+                "references.alias",
+                "steps.title",
+                "steps.body",
+                "submissions.title",
+                "submissions.description",
+            ],
+        }) as MergeJsonResult<DeepPartial<ChallengeEntity>>
+        // deterministic parent challenge id reused by all child id factories
         const challengeId = this.challengeIdFactoryService.generate(
             {
                 courseIndex,
@@ -133,35 +167,27 @@ export class ChallengeParserService {
                     contentIndex,
                 },
             ),
-            title: jsonMap.get(Locale.En)?.title ?? "",
-            description: jsonMap.get(Locale.En)?.description ?? "",
-            difficulty: jsonMap.get(Locale.En)?.difficulty ?? ChallengeDifficulty.Easy,
+            title: merged.title ?? "",
+            description: merged.description ?? "",
+            difficulty: merged.difficulty ?? ChallengeDifficulty.Easy,
             score: this.coerceMdScalarService.toRequiredNumber(
-                jsonMap.get(Locale.En)?.score,
+                merged.score,
                 0,
             ),
             orderIndex: challengeIndex,
-            translations: (() => {
-                const translations: Array<DeepPartial<ChallengeTranslationEntity>> = []
-                for (const locale of Object.values(Locale)) {
-                    translations.push({
-                        challengeId,
-                        locale,
-                        field: "title",
-                        value: jsonMap.get(locale)?.title ?? "",
-                    })
-                    translations.push({
-                        challengeId,
-                        locale,
-                        field: "description",
-                        value: jsonMap.get(locale)?.description ?? "",
-                    })
-                }
-                return translations
-            })(),
-            requirements: (
-                (jsonMap.get(Locale.En)?.requirements as Array<Partial<ChallengeRequirementEntity> & { score?: number, promptText?: string }>) ?? []
-            ).map(({
+            translations: (merged.translations ?? []).map(
+                ({
+                    locale,
+                    field,
+                    value,
+                }) => ({
+                    challengeId,
+                    locale,
+                    field,
+                    value,
+                }),
+            ),
+            requirements: (merged.requirements ?? []).map(({
                 orderIndex,
                 purpose,
                 technicalConstraints,
@@ -169,6 +195,7 @@ export class ChallengeParserService {
                 forbidden,
                 score,
                 promptText,
+                translations,
             }) => {
                 const requirementId = this.challengeRequirementIdFactoryService.generate(
                     {
@@ -179,45 +206,6 @@ export class ChallengeParserService {
                         requirementIndex: orderIndex ?? 0,
                     },
                 )
-                const translations = Array.from(jsonMap.entries()).map(
-                    ([
-                        locale,
-                        challenge,
-                    ]) => ((challenge.requirements as Array<Partial<ChallengeRequirementEntity>>) ?? [])
-                        .filter((requirement) => requirement.orderIndex === orderIndex)
-                        .map((requirement) => [
-                            {
-                                challengeRequirementId: requirementId,
-                                locale,
-                                field: "purpose",
-                                value: requirement.purpose ?? "",
-                            },
-                            {
-                                challengeRequirementId: requirementId,
-                                locale,
-                                field: "technicalConstraints",
-                                value: requirement.technicalConstraints ?? "",
-                            },
-                            {
-                                challengeRequirementId: requirementId,
-                                locale,
-                                field: "proTipsHints",
-                                value: requirement.proTipsHints ?? "",
-                            },
-                            {
-                                challengeRequirementId: requirementId,
-                                locale,
-                                field: "forbidden",
-                                value: requirement.forbidden ?? "",
-                            },
-                            {
-                                challengeRequirementId: requirementId,
-                                locale,
-                                field: "promptText",
-                                value: requirement.promptText ?? "",
-                            },
-                        ] as Array<DeepPartial<ChallengeRequirementTranslationEntity>>)
-                ).flat().flat()
                 return {
                     id: requirementId,
                     orderIndex: orderIndex ?? 0,
@@ -232,14 +220,24 @@ export class ChallengeParserService {
                     challenge: {
                         id: challengeId,
                     },
-                    translations,
+                    translations: (translations ?? []).map(
+                        ({
+                            locale,
+                            field,
+                            value,
+                        }) => ({
+                            challengeRequirementId: requirementId,
+                            locale,
+                            field,
+                            value,
+                        }),
+                    ),
                 }
             }),
-            outputs: (
-                jsonMap.get(Locale.En)?.outputs ?? []
-            ).map(({
-                orderIndex,
+            outputs: (merged.outputs ?? []).map(({
+                orderIndex = 0,
                 text,
+                translations,
             }) => {
                 const outputId = this.challengeOutputIdFactoryService.generate(
                     {
@@ -247,22 +245,9 @@ export class ChallengeParserService {
                         moduleIndex,
                         contentIndex,
                         challengeIndex,
-                        outputIndex: orderIndex,
+                        outputIndex: orderIndex ?? 0,
                     },
                 )
-                const translations = Array.from(jsonMap.entries()).map(
-                    ([
-                        locale,
-                        challenge,
-                    ]) => (challenge.outputs ?? [])
-                        .filter((output) => output.orderIndex === orderIndex)
-                        .map((output) => ({
-                            challengeOutputId: outputId,
-                            locale,
-                            field: "text",
-                            value: output.text,
-                        } as DeepPartial<ChallengeOutputTranslationEntity>))
-                ).flat()
                 return {
                     id: outputId,
                     orderIndex,
@@ -271,14 +256,24 @@ export class ChallengeParserService {
                     challenge: {
                         id: challengeId,
                     },
-                    translations,
+                    translations: (translations ?? []).map(
+                        ({
+                            locale,
+                            field,
+                            value,
+                        }) => ({
+                            challengeOutputId: outputId,
+                            locale,
+                            field,
+                            value,
+                        }),
+                    ),
                 }
             }),
-            prerequisites: (
-                jsonMap.get(Locale.En)?.prerequisites ?? []
-            ).map(({
-                orderIndex,
+            prerequisites: (merged.prerequisites ?? []).map(({
+                orderIndex = 0,
                 text,
+                translations,
             }) => {
                 const prerequisiteId = this.challengePrerequisiteIdFactoryService.generate(
                     {
@@ -286,22 +281,9 @@ export class ChallengeParserService {
                         moduleIndex,
                         contentIndex,
                         challengeIndex,
-                        prerequisiteIndex: orderIndex,
+                        prerequisiteIndex: orderIndex ?? 0,
                     },
                 )
-                const translations = Array.from(jsonMap.entries()).map(
-                    ([
-                        locale,
-                        challenge,
-                    ]) => (challenge.prerequisites ?? [])
-                        .filter((prerequisite) => prerequisite.orderIndex === orderIndex)
-                        .map((prerequisite) => ({
-                            challengePrerequisiteId: prerequisiteId,
-                            locale,
-                            field: "text",
-                            value: prerequisite.text,
-                        } as DeepPartial<ChallengePrerequisiteTranslationEntity>))
-                ).flat()
                 return {
                     id: prerequisiteId,
                     orderIndex,
@@ -310,15 +292,25 @@ export class ChallengeParserService {
                     challenge: {
                         id: challengeId,
                     },
-                    translations,
+                    translations: (translations ?? []).map(
+                        ({
+                            locale,
+                            field,
+                            value,
+                        }) => ({
+                            challengePrerequisiteId: prerequisiteId,
+                            locale,
+                            field,
+                            value,
+                        }),
+                    ),
                 }
             }),
-            references: (
-                jsonMap.get(Locale.En)?.references ?? []
-            ).map(({
-                orderIndex,
+            references: (merged.references ?? []).map(({
+                orderIndex = 0,
                 alias,
                 url,
+                translations,
             }) => {
                 const referenceId = this.challengeReferenceIdFactoryService.generate(
                     {
@@ -326,24 +318,9 @@ export class ChallengeParserService {
                         moduleIndex,
                         contentIndex,
                         challengeIndex,
-                        referenceIndex: orderIndex,
+                        referenceIndex: orderIndex ?? 0,
                     },
                 )
-                const translations = Array.from(jsonMap.entries()).map(
-                    ([
-                        locale,
-                        challenge,
-                    ]) => (challenge.references ?? [])
-                        .filter((reference) => reference.orderIndex === orderIndex)
-                        .map<DeepPartial<ChallengeReferenceTranslationEntity>>(
-                            (reference) => ({
-                                challengeReferenceId: referenceId,
-                                locale,
-                                field: "alias",
-                                value: reference.alias ?? "",
-                            }),
-                        )
-                ).flat()
                 return {
                     id: referenceId,
                     orderIndex,
@@ -353,16 +330,26 @@ export class ChallengeParserService {
                     challenge: {
                         id: challengeId,
                     },
-                    translations,
+                    translations: (translations ?? []).map(
+                        ({
+                            locale,
+                            field,
+                            value,
+                        }) => ({
+                            challengeReferenceId: referenceId,
+                            locale,
+                            field,
+                            value,
+                        }),
+                    ),
                 }
             }),
-            steps: (
-                jsonMap.get(Locale.En)?.steps ?? []
-            ).map(({
-                orderIndex,
+            steps: (merged.steps ?? []).map(({
+                orderIndex = 0,
                 title,
                 body,
                 codeImplementations,
+                translations,
             }) => {
                 const stepId = this.challengeStepIdFactoryService.generate(
                     {
@@ -370,15 +357,24 @@ export class ChallengeParserService {
                         moduleIndex,
                         contentIndex,
                         challengeIndex,
-                        stepIndex: orderIndex,
+                        stepIndex: orderIndex ?? 0,
                     },
                 )
-                const stepTitle = this.coerceMdScalarService.toRequiredString(
-                    title,
-                    "",
+                // step's own title/body translations come straight from the merge
+                const stepTranslations = (translations ?? []).map(
+                    ({
+                        locale,
+                        field,
+                        value,
+                    }) => ({
+                        challengeStepId: stepId,
+                        locale,
+                        field,
+                        value,
+                    }),
                 )
-                const bodyMarkdown = this.coerceMdScalarService.toRequiredString(body,
-                    "")
+                // codeImplementations are a SECOND array level the merge does not resolve, so their
+                // per-locale guide/example rows are read from the extract map keyed by (step, impl)
                 const codeImplementationsParsed = (
                     (
                         codeImplementations as Array<Partial<ChallengeStepCodeImplementationEntity>> | undefined
@@ -390,7 +386,7 @@ export class ChallengeParserService {
                         moduleIndex,
                         contentIndex,
                         challengeIndex,
-                        stepIndex: orderIndex,
+                        stepIndex: orderIndex ?? 0,
                         implementationIndex: implementationOrderIndex,
                     })
                     const lang = this.coerceMdScalarService.toRequiredString(implementation.lang,
@@ -419,7 +415,7 @@ export class ChallengeParserService {
                             field: "guide",
                             value: this.coerceMdScalarService.toRequiredString(
                                 localeImplementation.guide,
-                                ""
+                                "",
                             ),
                         })
                         implTranslations.push({
@@ -428,7 +424,7 @@ export class ChallengeParserService {
                             field: "example",
                             value: this.coerceMdScalarService.toRequiredString(
                                 localeImplementation.example,
-                                ""
+                                "",
                             ),
                         })
                     }
@@ -445,51 +441,29 @@ export class ChallengeParserService {
                         translations: implTranslations,
                     }
                 })
-                const translations = Array.from(jsonMap.entries()).map(
-                    ([
-                        locale,
-                        challenge,
-                    ]) => (challenge.steps ?? [])
-                        .filter((step) => step.orderIndex === orderIndex)
-                        .map<Array<DeepPartial<ChallengeStepTranslationEntity>>>((step) => [
-                            {
-                                challengeStepId: stepId,
-                                locale,
-                                value: step.title ?? "",
-                                field: "title",
-                            },
-                            {
-                                challengeStepId: stepId,
-                                locale,
-                                value: this.coerceMdScalarService.toRequiredString(
-                                    step.body,
-                                    ""),
-                                field: "body",
-                            },
-                        ])
-                ).flat().flat()
                 return {
                     id: stepId,
                     orderIndex,
-                    title: stepTitle,
+                    title: this.coerceMdScalarService.toRequiredString(title,
+                        ""),
                     defaultLocale: Locale.En,
                     challenge: {
                         id: challengeId,
                     },
-                    body: bodyMarkdown,
+                    body: this.coerceMdScalarService.toRequiredString(body,
+                        ""),
                     codeImplementations: codeImplementationsParsed,
-                    translations,
+                    translations: stepTranslations,
                 }
             }),
-            submissions: (
-                jsonMap.get(Locale.En)?.submissions ?? []
-            ).map(({
-                orderIndex: submissionOrderIndex,
+            submissions: (merged.submissions ?? []).map(({
+                orderIndex: submissionOrderIndex = 0,
                 title,
                 description,
                 type,
                 score,
                 prompts,
+                translations,
             }) => {
                 const submissionId = this.challengeSubmissionIdFactoryService.generate(
                     {
@@ -497,32 +471,22 @@ export class ChallengeParserService {
                         moduleIndex,
                         contentIndex,
                         challengeIndex,
-                        submissionIndex: submissionOrderIndex,
+                        submissionIndex: submissionOrderIndex ?? 0,
                     },
                 )
-                const translations = Array.from(jsonMap.entries()).map(
-                    ([
+                // submission title/description translations come straight from the merge
+                const submissionTranslations = (translations ?? []).map(
+                    ({
                         locale,
-                        challenge,
-                    ]) => (challenge.submissions ?? [])
-                        .filter((submission) => submission.orderIndex === submissionOrderIndex)
-                        .map<Array<DeepPartial<ChallengeSubmissionTranslationEntity>>>(
-                            (submission) => [
-                                {
-                                    challengeSubmissionId: submissionId,
-                                    locale,
-                                    value: submission.title ?? "",
-                                    field: "title",
-                                },
-                                {
-                                    challengeSubmissionId: submissionId,
-                                    locale,
-                                    value: submission.description ?? "",
-                                    field: "description",
-                                },
-                            ],
-                        )
-                ).flat().flat()
+                        field,
+                        value,
+                    }) => ({
+                        challengeSubmissionId: submissionId,
+                        locale,
+                        field,
+                        value,
+                    }),
+                )
                 return {
                     id: submissionId,
                     orderIndex: submissionOrderIndex,
@@ -539,10 +503,11 @@ export class ChallengeParserService {
                     challenge: {
                         id: challengeId,
                     },
-                    translations,
+                    translations: submissionTranslations,
+                    // prompts are a SECOND array level the merge does not resolve → read per-locale
                     prompts: (prompts ?? []).map<DeepPartial<ChallengeSubmissionPromptEntity>>(
                         ({
-                            orderIndex,
+                            orderIndex = 0,
                             title,
                             score,
                             promptText,
@@ -553,11 +518,11 @@ export class ChallengeParserService {
                                     moduleIndex,
                                     contentIndex,
                                     challengeIndex,
-                                    submissionIndex: submissionOrderIndex,
-                                    promptIndex: orderIndex,
+                                    submissionIndex: submissionOrderIndex ?? 0,
+                                    promptIndex: orderIndex ?? 0,
                                 },
                             )
-                            const translations = Array.from(jsonMap.entries()).map(
+                            const promptTranslations = Array.from(jsonMap.entries()).flatMap(
                                 ([
                                     locale,
                                     challenge,
@@ -586,7 +551,7 @@ export class ChallengeParserService {
                                         },
                                     ]
                                 },
-                            ).flat()
+                            )
                             return {
                                 id: challengeSubmissionPromptId,
                                 orderIndex,
@@ -600,9 +565,9 @@ export class ChallengeParserService {
                                 challengeSubmission: {
                                     id: submissionId,
                                 },
-                                translations,
+                                translations: promptTranslations,
                             }
-                        }
+                        },
                     ),
                 }
             }),
@@ -634,6 +599,7 @@ export class ChallengeParserService {
         const data: Array<ResolvedFileResult<DeepPartial<ChallengeEntity>>> = []
         for (const path of paths) {
             try {
+                // delegate the per-challenge build to parse(); skip + log on failure
                 const challenge = await this.parse(
                     {
                         paths,
@@ -660,4 +626,3 @@ export class ChallengeParserService {
         return data
     }
 }
-

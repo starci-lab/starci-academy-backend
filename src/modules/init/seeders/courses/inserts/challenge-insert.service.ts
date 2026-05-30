@@ -26,6 +26,10 @@ import {
     ChallengeSubmissionTranslationEntity,
     ChallengeSubmissionPromptEntity,
     ChallengeSubmissionPromptTranslationEntity,
+    ChallengeRequirementV2Entity,
+    ChallengeStepV2Entity,
+    ChallengeOutputV2Entity,
+    ChallengePrerequisiteV2Entity,
     UuidAbstractEntity,
 } from "@modules/databases"
 import {
@@ -53,9 +57,17 @@ export async function upsertChildrenWithTranslations
     parentFilter: FindOptionsWhere<TChild>,
     translationParentIdKey: keyof TTranslation & string,
 ): Promise<void> {
-    if (!children?.length) return
+    const childList = children ?? []
+    if (!childList.length) {
+        await upsertService.deleteStaleUuid<TChild>(
+            childEntityClass,
+            [],
+            parentFilter,
+        )
+        return
+    }
 
-    for (const child of children) {
+    for (const child of childList) {
         const {
             translations,
             ...rest
@@ -80,7 +92,87 @@ export async function upsertChildrenWithTranslations
     /** Delete stale children for this parent (scoped to the parent filter). */
     await upsertService.deleteStaleUuid<TChild>(
         childEntityClass,
-        children.map((child) => child.id as string),
+        childList.map((child) => child.id as string),
+        parentFilter,
+    )
+}
+
+/** Parent filter scoped to one challenge row. */
+const challengeParentFilter = (
+    challengeId: string,
+): {
+    challenge: {
+        id: string
+    }
+} => ({
+    challenge: {
+        id: challengeId,
+    },
+})
+
+/**
+ * Drops every legacy (V1) child row for a challenge. Used after a SCHEMA V2 upsert so orphaned
+ * requirement/step/output/prerequisite rows from an earlier V1 seed do not linger.
+ *
+ * Submissions and references are intentionally excluded — both SCHEMA V1 and V2 persist them in
+ * the same tables and the V2 insert pass upserts them just above this purge.
+ */
+export async function purgeLegacyChallengeChildren(
+    upsertService: UpsertService,
+    challengeId: string,
+): Promise<void> {
+    const parentFilter = challengeParentFilter(challengeId)
+    const emptyIds: Array<string> = []
+    await upsertService.deleteStaleUuid<ChallengeStepEntity>(
+        ChallengeStepEntity,
+        emptyIds,
+        parentFilter,
+    )
+    await upsertService.deleteStaleUuid<ChallengeRequirementEntity>(
+        ChallengeRequirementEntity,
+        emptyIds,
+        parentFilter,
+    )
+    await upsertService.deleteStaleUuid<ChallengeOutputEntity>(
+        ChallengeOutputEntity,
+        emptyIds,
+        parentFilter,
+    )
+    await upsertService.deleteStaleUuid<ChallengePrerequisiteEntity>(
+        ChallengePrerequisiteEntity,
+        emptyIds,
+        parentFilter,
+    )
+}
+
+/**
+ * Drops every SCHEMA V2 bucket child row for a challenge. Used after a legacy upsert so V2 jsonb
+ * buckets from an earlier V2 seed do not linger.
+ */
+export async function purgeV2ChallengeChildren(
+    upsertService: UpsertService,
+    challengeId: string,
+): Promise<void> {
+    const parentFilter = challengeParentFilter(challengeId)
+    const emptyIds: Array<string> = []
+    await upsertService.deleteStaleUuid<ChallengeRequirementV2Entity>(
+        ChallengeRequirementV2Entity,
+        emptyIds,
+        parentFilter,
+    )
+    await upsertService.deleteStaleUuid<ChallengeStepV2Entity>(
+        ChallengeStepV2Entity,
+        emptyIds,
+        parentFilter,
+    )
+    await upsertService.deleteStaleUuid<ChallengeOutputV2Entity>(
+        ChallengeOutputV2Entity,
+        emptyIds,
+        parentFilter,
+    )
+    await upsertService.deleteStaleUuid<ChallengePrerequisiteV2Entity>(
+        ChallengePrerequisiteV2Entity,
+        emptyIds,
         parentFilter,
     )
 }
@@ -189,76 +281,75 @@ export class ChallengeInsertService {
         )
 
         /** 6. Upsert steps, translations, and nested code implementations */
-        if (steps !== undefined) {
-            for (const step of steps) {
-                const stepTranslations = step.translations
-                const codeImplementations = step.codeImplementations
-                const stepData = deleteFields(
+        const stepList = steps ?? []
+        for (const step of stepList) {
+            const stepTranslations = step.translations
+            const codeImplementations = step.codeImplementations
+            const stepData = deleteFields(
                     step as DeepPartial<ChallengeStepEntity>,
                     [
                         "translations",
                         "codeImplementations",
                         // KEEP "challenge" — needed để upsert set FK challenge_id; xóa nó → step.challenge_id = NULL.
                     ],
+            )
+            await this.upsertService.upsertUuid(
+                ChallengeStepEntity,
+                [stepData],
+            )
+            if (stepTranslations?.length) {
+                await this.upsertService.upsertTranslation(
+                    ChallengeStepTranslationEntity,
+                    stepTranslations,
+                    {
+                        challengeStepId: step.id as string,
+                    },
                 )
-                await this.upsertService.upsertUuid(
-                    ChallengeStepEntity,
-                    [stepData],
-                )
-                if (stepTranslations?.length) {
-                    await this.upsertService.upsertTranslation(
-                        ChallengeStepTranslationEntity,
-                        stepTranslations,
-                        {
-                            challengeStepId: step.id as string,
-                        },
-                    )
-                }
-                const stepId = step.id as string
-                const implList = codeImplementations ?? []
-                for (const implementation of implList) {
-                    const implTranslations = implementation.translations
-                    const implData = deleteFields(
+            }
+            const stepId = step.id as string
+            const implList = codeImplementations ?? []
+            for (const implementation of implList) {
+                const implTranslations = implementation.translations
+                const implData = deleteFields(
                         implementation as DeepPartial<ChallengeStepCodeImplementationEntity>,
                         [
                             "translations",
                             // KEEP "challengeStep" — needed để upsert set FK challenge_step_id.
                         ],
-                    )
-                    await this.upsertService.upsertUuid(
-                        ChallengeStepCodeImplementationEntity,
-                        [implData],
-                    )
-                    if (implTranslations?.length) {
-                        await this.upsertService.upsertTranslation(
-                            ChallengeStepCodeImplementationTranslationEntity,
-                            implTranslations,
-                            {
-                                challengeStepCodeImplementationId: implementation.id as string,
-                            },
-                        )
-                    }
-                }
-                await this.upsertService.deleteStaleUuid<ChallengeStepCodeImplementationEntity>(
-                    ChallengeStepCodeImplementationEntity,
-                    implList.map((row) => row.id ?? ""),
-                    {
-                        challengeStep: {
-                            id: stepId,
-                        },
-                    },
                 )
+                await this.upsertService.upsertUuid(
+                    ChallengeStepCodeImplementationEntity,
+                    [implData],
+                )
+                if (implTranslations?.length) {
+                    await this.upsertService.upsertTranslation(
+                        ChallengeStepCodeImplementationTranslationEntity,
+                        implTranslations,
+                        {
+                            challengeStepCodeImplementationId: implementation.id as string,
+                        },
+                    )
+                }
             }
-            await this.upsertService.deleteStaleUuid<ChallengeStepEntity>(
-                ChallengeStepEntity,
-                steps.map((row) => row.id ?? ""),
+            await this.upsertService.deleteStaleUuid<ChallengeStepCodeImplementationEntity>(
+                ChallengeStepCodeImplementationEntity,
+                implList.map((row) => row.id ?? ""),
                 {
-                    challenge: {
-                        id: challengeId 
-                    } 
+                    challengeStep: {
+                        id: stepId,
+                    },
                 },
             )
         }
+        await this.upsertService.deleteStaleUuid<ChallengeStepEntity>(
+            ChallengeStepEntity,
+            stepList.map((row) => row.id ?? ""),
+            {
+                challenge: {
+                    id: challengeId 
+                } 
+            },
+        )
 
         /** 7. Upsert references + translations */
         await upsertChildrenWithTranslations(
@@ -275,77 +366,80 @@ export class ChallengeInsertService {
         )
 
         /** 8. Upsert submissions (with nested prompts) */
-        if (submissions?.length) {
-            for (const submission of submissions) {
-                const {
-                    translations: submissionTranslations,
-                    prompts,
-                    ...submissionData
-                } = submission as DeepPartial<ChallengeSubmissionEntity> & {
-                    prompts?: Array<DeepPartial<ChallengeSubmissionPromptEntity>>
-                }
+        const submissionList = submissions ?? []
+        for (const submission of submissionList) {
+            const {
+                translations: submissionTranslations,
+                prompts,
+                ...submissionData
+            } = submission as DeepPartial<ChallengeSubmissionEntity> & {
+                prompts?: Array<DeepPartial<ChallengeSubmissionPromptEntity>>
+            }
 
-                await this.upsertService.upsertUuid(
-                    ChallengeSubmissionEntity,
-                    [submissionData],
+            await this.upsertService.upsertUuid(
+                ChallengeSubmissionEntity,
+                [submissionData],
+            )
+
+            if (submissionTranslations?.length) {
+                await this.upsertService.upsertTranslation<ChallengeSubmissionTranslationEntity>(
+                    ChallengeSubmissionTranslationEntity,
+                    submissionTranslations,
+                    {
+                        challengeSubmissionId: submission.id
+                    },
                 )
+            }
 
-                if (submissionTranslations?.length) {
-                    await this.upsertService.upsertTranslation<ChallengeSubmissionTranslationEntity>(
-                        ChallengeSubmissionTranslationEntity,
-                        submissionTranslations,
+            /** 8a. Upsert submission prompts + translations */
+            const promptList = prompts ?? []
+            for (const prompt of promptList) {
+                const {
+                    translations: promptTranslations,
+                    ...promptData
+                } = prompt
+                await this.upsertService.upsertUuid(
+                    ChallengeSubmissionPromptEntity,
+                    [promptData],
+                )
+                if (promptTranslations?.length) {
+                    await this.upsertService.upsertTranslation<ChallengeSubmissionPromptTranslationEntity>(
+                        ChallengeSubmissionPromptTranslationEntity,
+                        promptTranslations,
                         {
-                            challengeSubmissionId: submission.id
-                        },
-                    )
-                }
-
-                /** 8a. Upsert submission prompts + translations */
-                if (prompts?.length) {
-                    for (const prompt of prompts) {
-                        const {
-                            translations: promptTranslations,
-                            ...promptData
-                        } = prompt
-                        await this.upsertService.upsertUuid(
-                            ChallengeSubmissionPromptEntity,
-                            [promptData],
-                        )
-                        if (promptTranslations?.length) {
-                            await this.upsertService.upsertTranslation<ChallengeSubmissionPromptTranslationEntity>(
-                                ChallengeSubmissionPromptTranslationEntity,
-                                promptTranslations,
-                                {
-                                    challengeSubmissionPromptId: prompt.id 
-                                },
-                            )
-                        }
-                    }
-                    /** Delete stale prompts for this submission */
-                    await this.upsertService.deleteStaleUuid<ChallengeSubmissionPromptEntity>(
-                        ChallengeSubmissionPromptEntity,
-                        prompts.map((prompt) => prompt.id as string),
-                        {
-                            challengeSubmission:
-                            {
-                                id: submission.id
-                            }
+                            challengeSubmissionPromptId: prompt.id 
                         },
                     )
                 }
             }
-            /** Delete stale submissions */
-            await this.upsertService.deleteStaleUuid<ChallengeSubmissionEntity>(
-                ChallengeSubmissionEntity,
-                (submissions as Array<DeepPartial<ChallengeSubmissionEntity>>).map((submission) => submission.id as string),
+            /** Delete stale prompts for this submission */
+            await this.upsertService.deleteStaleUuid<ChallengeSubmissionPromptEntity>(
+                ChallengeSubmissionPromptEntity,
+                promptList.map((prompt) => prompt.id as string),
                 {
-                    challenge:
+                    challengeSubmission:
                     {
-                        id: challengeId
+                        id: submission.id
                     }
                 },
             )
         }
+        /** Delete stale submissions */
+        await this.upsertService.deleteStaleUuid<ChallengeSubmissionEntity>(
+            ChallengeSubmissionEntity,
+            submissionList.map((submission) => submission.id as string),
+            {
+                challenge:
+                {
+                    id: challengeId
+                }
+            },
+        )
+
+        await purgeV2ChallengeChildren(
+            this.upsertService,
+            challengeId,
+        )
     }
 
     /**

@@ -1,4 +1,5 @@
 export * from "./extracts"
+export * from "./merge"
 export * from "./contexts"
 export * from "./path"
 export * from "./scope"

@@ -73,7 +73,7 @@ import type {
     ProcessGoogleDocsSubmissionGradeStepExecuteResult,
 } from "../../process-google-docs-submission/types"
 import {
-    collectChallengeCriteria,
+    collectSubmissionCriteria,
     renderCriteriaPromptSections,
 } from "../../process-git-submission-v2/steps/criteria.util"
 
@@ -153,9 +153,12 @@ export class ProcessGoogleDocsSubmissionV2GradeStepService extends AbstractStepS
 
         const challenge = context.extended?.challenge
         const challengeTitle = (challenge?.title ?? "").trim()
-        // outcome (agnostic) + approach criteria for the learner's chosen programming language
-        const criteria = collectChallengeCriteria(challenge,
-            payload.lang)
+        // outcome + approach criteria of the SPECIFIC submission being graded, resolved to the
+        // learner's chosen programming language (per-submission, per-language — not challenge-level)
+        const criteria = collectSubmissionCriteria(
+            context.extended?.challengeSubmission,
+            payload.lang,
+        )
         const url = context.extended?.userChallengeSubmission.submissionUrl ?? ""
 
         /** Fetch Google Docs text */

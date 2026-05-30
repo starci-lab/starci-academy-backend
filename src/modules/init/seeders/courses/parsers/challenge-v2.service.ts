@@ -8,20 +8,19 @@ import {
 import {
     ChallengeDifficulty,
     Locale,
-    SubmissionType,
 } from "@modules/databases"
 import {
     ExtractJsonFromMdService,
     CoerceMdScalarService,
+    MergeJsonService,
+    MergeJsonResult,
 } from "../../shared"
 import {
     ChallengeIdFactoryService,
-    ChallengeSubmissionPromptIdFactoryService,
     ChallengeRequirementV2IdFactoryService,
     ChallengeStepV2IdFactoryService,
     ChallengeOutputV2IdFactoryService,
     ChallengePrerequisiteV2IdFactoryService,
-    ChallengeSubmissionIdFactoryService,
     ChallengeReferenceIdFactoryService,
     ContentIdFactoryService,
 } from "../id-factories"
@@ -30,18 +29,20 @@ import {
 } from "typeorm"
 import {
     ChallengeEntity,
-    ChallengeReferenceTranslationEntity,
     ChallengeRequirementV2Entity,
     ChallengeStepV2Entity,
     ChallengeOutputV2Entity,
     ChallengePrerequisiteV2Entity,
-    ChallengeSubmissionPromptEntity,
-    ChallengeSubmissionTranslationEntity,
-    ChallengeTranslationEntity,
 } from "@modules/databases"
 import {
     ChallengePathService,
 } from "../path"
+import {
+    ChallengeSubmissionCriteriaParserService,
+} from "./challenge-submission-criteria.service"
+import {
+    ChallengeSubmissionParserService,
+} from "./challenge-submission.service"
 import {
     ResolvedFileResult,
     ContextLoaderService,
@@ -53,16 +54,23 @@ import {
 import {
     WinstonService,
 } from "@modules/winston"
+import {
+    filterLangSectionBuckets,
+    findLangBucketItem,
+    getLangBucketDataItems,
+    readLangBucketItemScore,
+    readLangBucketItemString,
+} from "./utils"
 
 /**
  * SCHEMA V2 challenge parser. Mirrors {@link ChallengeParserService} for the scalar/translation/
  * submission columns but maps `requirements` / `steps` / `outputs` / `prerequisites` into the
- * per-language jsonb bucket child tables (`*V2`) and the agnostic / per-language criteria columns
+ * per-language bucket child tables (`*V2`) and the agnostic / per-language criteria columns
  * (`outcomeCriteria` / `approachCriteria`).
  *
  * It is ADDITIVE: the legacy {@link ChallengeParserService} is left untouched and continues to
- * handle V1 challenge files. The orchestrator routes a file here only when it contains the V2
- * marker heading `# approachCriteria`.
+ * handle V1 challenge files. The orchestrator routes a file here only when `# verified` parses
+ * to a non-null date.
  */
 @Injectable()
 export class ChallengeV2ParserService {
@@ -71,126 +79,137 @@ export class ChallengeV2ParserService {
         private readonly contextLoaderService: ContextLoaderService,
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,
         private readonly coerceMdScalarService: CoerceMdScalarService,
+        private readonly mergeJsonService: MergeJsonService,
         private readonly challengeIdFactoryService: ChallengeIdFactoryService,
-        private readonly challengeSubmissionPromptIdFactoryService: ChallengeSubmissionPromptIdFactoryService,
-        private readonly challengeSubmissionIdFactoryService: ChallengeSubmissionIdFactoryService,
         private readonly challengeReferenceIdFactoryService: ChallengeReferenceIdFactoryService,
         private readonly challengeRequirementV2IdFactoryService: ChallengeRequirementV2IdFactoryService,
         private readonly challengeStepV2IdFactoryService: ChallengeStepV2IdFactoryService,
         private readonly challengeOutputV2IdFactoryService: ChallengeOutputV2IdFactoryService,
         private readonly challengePrerequisiteV2IdFactoryService: ChallengePrerequisiteV2IdFactoryService,
         private readonly contentIdFactoryService: ContentIdFactoryService,
+        private readonly challengeSubmissionCriteriaParserService: ChallengeSubmissionCriteriaParserService,
+        private readonly challengeSubmissionParserService: ChallengeSubmissionParserService,
         private readonly winstonService: WinstonService,
     ) { }
 
     /**
-     * Maps the per-programming-language jsonb buckets (`{ orderIndex, lang, data }`) of a section
-     * into V2 child entity partials. One row per programming language (keyed by
-     * `langIndex === bucket.orderIndex`); the row's `data` holds the default (English) locale and
-     * a `translations` row is emitted for every locale that defines the matching bucket — mirroring
-     * the legacy default-value-plus-translation-table pattern.
+     * Maps the `# requirements` section into NORMALIZED V2 rows (no jsonb): one requirement ITEM per
+     * position, with a per-locale `title` (agnostic across programming language), a per-language
+     * `score`, and a per-(language × locale) `body`. Reads the existing per-language jsonb item data
+     * (keys `orderIndex` / `title` / `body` / `score`); the agnostic title is taken from the first
+     * language bucket of each locale.
      *
-     * @param jsonMap - Per-locale extracted challenge structures (vi + en).
-     * @param section - Section key to read (`requirements` | `steps` | `outputs` | `prerequisites`).
-     * @param challengeId - Parent challenge id used for the FK relation object.
-     * @param generateId - V2 id-factory `generate` bound to the current challenge indices.
-     * @param translationFkKey - Translation entity FK column pointing back at the bucket row.
-     * @returns Array of V2 entity partials (with nested translations) ready for cascade upsert.
+     * @param params - Per-locale extracts + ordinals + parent challenge id.
+     * @returns Requirement item entity partials (with nested title translations + language rows).
      */
-    private mapPerLanguageBuckets<TEntity extends {
-        id: string
-        lang: string
-        orderIndex: number
-        data: Array<Record<string, unknown>> | null
-        defaultLocale: Locale
-        challenge: { id: string }
-    }>(
-        jsonMap: Map<Locale, Partial<ChallengeEntity>>,
-        section: "requirements" | "steps" | "outputs" | "prerequisites",
-        challengeId: string,
-        generateId: (langIndex: number) => string,
-        translationFkKey: string,
-    ): Array<DeepPartial<TEntity>> {
-        // the default (English) document drives the set of programming-language buckets
-        const defaultBuckets = (jsonMap.get(Locale.En) as Record<string, unknown> | undefined)?.[section]
-        // absent section yields no rows
-        if (!Array.isArray(defaultBuckets)) {
-            return []
-        }
-        return defaultBuckets.map((bucket, index) => {
-            // each bucket is the `{ orderIndex, lang, data }` object emitted per language section
-            const record = (bucket ?? {
-            }) as Record<string, unknown>
-            // orderIndex doubles as the langIndex used to derive the deterministic row id
-            const orderIndex = typeof record.orderIndex === "number"
-                ? record.orderIndex
-                : index
-            // language label of the bucket; fall back to a neutral marker when missing
-            const lang = typeof record.lang === "string"
-                ? record.lang
-                : "text"
-            // default-locale jsonb payload (English); keep as-is or null when missing
-            const data = Array.isArray(record.data)
-                ? (record.data as Array<Record<string, unknown>>)
-                : null
-            // deterministic id derived from challenge id + language bucket index
-            const id = generateId(orderIndex)
-            // one translation row per locale, matched to this bucket by its orderIndex
-            const translations = Array.from(jsonMap.entries()).map(
-                ([
+    private mapRequirementsV2(
+        {
+            jsonMap,
+            courseIndex,
+            moduleIndex,
+            contentIndex,
+            challengeIndex,
+            challengeId,
+        }: {
+            jsonMap: Map<Locale, Partial<ChallengeEntity>>
+            courseIndex: number
+            moduleIndex: number
+            contentIndex: number
+            challengeIndex: number
+            challengeId: string
+        },
+    ): Array<DeepPartial<ChallengeRequirementV2Entity>> {
+        // the English document's language buckets drive the set of items + languages
+        const enBuckets = ((jsonMap.get(Locale.En) as Record<string, unknown> | undefined)?.requirements ?? []) as Array<Record<string, unknown>>
+        // item positions come from the first language bucket's jsonb item array
+        const firstData = Array.isArray(enBuckets[0]?.data)
+            ? (enBuckets[0].data as Array<Record<string, unknown>>)
+            : []
+        // read a string item field off a loosely-typed jsonb record
+        const readString = (record: Record<string, unknown> | undefined, key: string): string =>
+            (record && typeof record[key] === "string" ? record[key] as string : "")
+        // find the item with the given orderIndex inside a bucket's jsonb data
+        const findItem = (bucket: Record<string, unknown> | undefined, itemIndex: number): Record<string, unknown> | undefined =>
+            (Array.isArray(bucket?.data)
+                ? (bucket?.data as Array<Record<string, unknown>>).find(
+                    (item) => item.orderIndex === itemIndex,
+                )
+                : undefined)
+        return firstData.map((firstItem) => {
+            // agnostic item position
+            const itemIndex = typeof firstItem.orderIndex === "number" ? firstItem.orderIndex : 0
+            const itemId = this.challengeRequirementV2IdFactoryService.generate({
+                courseIndex,
+                moduleIndex,
+                contentIndex,
+                challengeIndex,
+                langIndex: itemIndex,
+            })
+            // title is agnostic across language → one row per locale (from that locale's first bucket)
+            const titleTranslations = Array.from(jsonMap.entries()).map(([locale,
+                challenge]) => {
+                const buckets = (challenge as Record<string, unknown>)?.requirements
+                const firstBucket = Array.isArray(buckets) ? (buckets[0] as Record<string, unknown>) : undefined
+                return {
+                    challengeRequirementV2Id: itemId,
                     locale,
-                    challenge,
-                ]) => {
-                    const localeBuckets = (challenge as Record<string, unknown>)?.[section]
-                    // find the same programming-language bucket in this locale's document
-                    const localeBucket = Array.isArray(localeBuckets)
-                        ? (localeBuckets as Array<Record<string, unknown>>).find(
-                            (candidate) => (
-                                typeof candidate?.orderIndex === "number"
-                                    ? candidate.orderIndex
-                                    : -1
-                            ) === orderIndex,
-                        )
+                    title: readString(findItem(firstBucket,
+                        itemIndex),
+                    "title"),
+                }
+            })
+            // one language row per English bucket (score is non-localized; body is per locale)
+            const langs = enBuckets.map((bucket, langIndex) => {
+                const lang = readString(bucket,
+                    "lang") || "text"
+                const langId = this.challengeRequirementV2IdFactoryService.generateLang({
+                    courseIndex,
+                    moduleIndex,
+                    contentIndex,
+                    challengeIndex,
+                    itemIndex,
+                    langIndex,
+                })
+                const enItem = findItem(bucket,
+                    itemIndex)
+                const score = enItem && typeof enItem.score === "number" ? enItem.score : 0
+                // body differs by language AND locale → one row per locale (same language)
+                const bodyTranslations = Array.from(jsonMap.entries()).map(([locale,
+                    challenge]) => {
+                    const buckets = (challenge as Record<string, unknown>)?.requirements
+                    const localeBucket = Array.isArray(buckets)
+                        ? (buckets as Array<Record<string, unknown>>).find((candidate) => candidate.lang === lang)
                         : undefined
                     return {
-                        [translationFkKey]: id,
+                        challengeRequirementV2LangId: langId,
                         locale,
-                        data: Array.isArray(localeBucket?.data)
-                            ? (localeBucket?.data as Array<Record<string, unknown>>)
-                            : null,
+                        body: readString(findItem(localeBucket,
+                            itemIndex),
+                        "body"),
                     }
-                },
-            )
+                })
+                return {
+                    id: langId,
+                    lang,
+                    score,
+                    defaultLocale: Locale.En,
+                    requirementV2: {
+                        id: itemId,
+                    },
+                    translations: bodyTranslations,
+                }
+            })
             return {
-                id,
-                lang,
-                orderIndex,
-                data,
+                id: itemId,
+                orderIndex: itemIndex,
                 defaultLocale: Locale.En,
-                // re-attach the FK relation so TypeORM persists challenge_id
                 challenge: {
                     id: challengeId,
                 },
-                translations,
-            } as unknown as DeepPartial<TEntity>
+                translations: titleTranslations,
+                langs,
+            }
         })
-    }
-
-    /**
-     * Coerces an agnostic criteria section (`outcomeCriteria`) or per-language criteria buckets
-     * (`approachCriteria`) into the jsonb column shape (`Array<Record<string, unknown>> | null`).
-     *
-     * @param value - Raw extracted section value.
-     * @returns Normalized jsonb array, or `null` when the section is absent.
-     */
-    private mapCriteria(
-        value: unknown,
-    ): Array<Record<string, unknown>> | null {
-        // empty / non-array sections collapse to a NULL jsonb column
-        if (!Array.isArray(value) || value.length === 0) {
-            return null
-        }
-        return value as Array<Record<string, unknown>>
     }
 
     /**
@@ -230,6 +249,20 @@ export class ChallengeV2ParserService {
                 ),
             )
         }
+        // merge locales for the i18n the merge CAN resolve (top-level scalars + the flat `references`
+        // array); the per-language jsonb bucket sections are handled by the dedicated mappers below
+        const merged = this.mergeJsonService.merge({
+            jsons: Object.values(Locale).map((locale) => ({
+                locale,
+                json: (jsonMap.get(locale) ?? {
+                }) as Record<string, unknown>,
+            })),
+            translateFields: [
+                "title",
+                "description",
+                "references.alias",
+            ],
+        }) as MergeJsonResult<DeepPartial<ChallengeEntity>>
         // deterministic parent challenge id reused by all V2 child id factories
         const challengeId = this.challengeIdFactoryService.generate(
             {
@@ -239,7 +272,7 @@ export class ChallengeV2ParserService {
                 challengeIndex,
             },
         )
-        return {
+        const challenge: DeepPartial<ChallengeEntity> = {
             id: challengeId,
             defaultLocale: Locale.En,
             displayId: path.displayId,
@@ -250,93 +283,115 @@ export class ChallengeV2ParserService {
                     contentIndex,
                 },
             ),
-            title: jsonMap.get(Locale.En)?.title ?? "",
-            description: jsonMap.get(Locale.En)?.description ?? "",
-            difficulty: jsonMap.get(Locale.En)?.difficulty ?? ChallengeDifficulty.Easy,
+            title: merged.title ?? "",
+            description: merged.description ?? "",
+            difficulty: merged.difficulty ?? ChallengeDifficulty.Easy,
             score: this.coerceMdScalarService.toRequiredNumber(
-                jsonMap.get(Locale.En)?.score,
+                merged.score,
                 0,
             ),
             // `# verified` day marks this as a SCHEMA V2 challenge (null for legacy)
             verified: this.coerceMdScalarService.toNullableDate(
-                (jsonMap.get(Locale.En) as Record<string, unknown> | undefined)?.verified,
+                (merged as Record<string, unknown>).verified,
             ),
             orderIndex: challengeIndex,
-            translations: (() => {
-                // title + description rows for every locale (mirrors legacy scalar i18n)
-                const translations: Array<DeepPartial<ChallengeTranslationEntity>> = []
-                for (const locale of Object.values(Locale)) {
-                    translations.push({
-                        challengeId,
-                        locale,
-                        field: "title",
-                        value: jsonMap.get(locale)?.title ?? "",
-                    })
-                    translations.push({
-                        challengeId,
-                        locale,
-                        field: "description",
-                        value: jsonMap.get(locale)?.description ?? "",
-                    })
-                }
-                return translations
-            })(),
-            // V2 per-language requirement buckets (default-locale jsonb data + per-locale translations)
-            requirementsV2: this.mapPerLanguageBuckets<ChallengeRequirementV2Entity>(
+            // title + description rows come straight from the merge
+            translations: (merged.translations ?? []).map(
+                ({
+                    locale,
+                    field,
+                    value,
+                }) => ({
+                    challengeId,
+                    locale,
+                    field,
+                    value,
+                }),
+            ),
+            // V2 NORMALIZED requirements: item (order_index) → translations(title) → langs(score) → lang.translations(body)
+            requirementsV2: this.mapRequirementsV2({
                 jsonMap,
-                "requirements",
+                courseIndex,
+                moduleIndex,
+                contentIndex,
+                challengeIndex,
                 challengeId,
-                (langIndex) => this.challengeRequirementV2IdFactoryService.generate({
+            }),
+            // V2 NORMALIZED steps: item → translations(title) → langs → lang.translations(body)
+            stepsV2: this.mapNormalizedBucketV2({
+                jsonMap,
+                section: "steps",
+                itemFkKey: "challengeStepV2Id",
+                langFkKey: "challengeStepV2LangId",
+                challengeId,
+                hasTitle: true,
+                hasScore: false,
+                generateItemId: (itemIndex) => this.challengeStepV2IdFactoryService.generate({
                     courseIndex,
                     moduleIndex,
                     contentIndex,
                     challengeIndex,
-                    langIndex,
+                    langIndex: itemIndex,
                 }),
-                "challengeRequirementV2Id",
-            ),
-            // V2 per-language step buckets
-            stepsV2: this.mapPerLanguageBuckets<ChallengeStepV2Entity>(
-                jsonMap,
-                "steps",
-                challengeId,
-                (langIndex) => this.challengeStepV2IdFactoryService.generate({
+                generateLangId: (itemIndex, langIndex) => this.challengeStepV2IdFactoryService.generateLang({
                     courseIndex,
                     moduleIndex,
                     contentIndex,
                     challengeIndex,
+                    itemIndex,
                     langIndex,
                 }),
-                "challengeStepV2Id",
-            ),
-            // V2 per-language output buckets
-            outputsV2: this.mapPerLanguageBuckets<ChallengeOutputV2Entity>(
+            }) as Array<DeepPartial<ChallengeStepV2Entity>>,
+            // V2 NORMALIZED outputs: item → langs → lang.translations(body) (no title)
+            outputsV2: this.mapNormalizedBucketV2({
                 jsonMap,
-                "outputs",
+                section: "outputs",
+                itemFkKey: "challengeOutputV2Id",
+                langFkKey: "challengeOutputV2LangId",
                 challengeId,
-                (langIndex) => this.challengeOutputV2IdFactoryService.generate({
+                hasTitle: false,
+                hasScore: false,
+                generateItemId: (itemIndex) => this.challengeOutputV2IdFactoryService.generate({
                     courseIndex,
                     moduleIndex,
                     contentIndex,
                     challengeIndex,
-                    langIndex,
+                    langIndex: itemIndex,
                 }),
-                "challengeOutputV2Id",
-            ),
-            // V2 per-language prerequisite buckets
-            prerequisitesV2: this.mapPerLanguageBuckets<ChallengePrerequisiteV2Entity>(
-                jsonMap,
-                "prerequisites",
-                challengeId,
-                (langIndex) => this.challengePrerequisiteV2IdFactoryService.generate({
+                generateLangId: (itemIndex, langIndex) => this.challengeOutputV2IdFactoryService.generateLang({
                     courseIndex,
                     moduleIndex,
                     contentIndex,
                     challengeIndex,
+                    itemIndex,
                     langIndex,
                 }),
-                "challengePrerequisiteV2Id",
-            ),
+            }) as Array<DeepPartial<ChallengeOutputV2Entity>>,
+            // V2 NORMALIZED prerequisites: item → langs → lang.translations(body) (no title)
+            prerequisitesV2: this.mapRequirementsV2({
+                jsonMap,
+                section: "prerequisites",
+                itemFkKey: "challengePrerequisiteV2Id",
+                langFkKey: "challengePrerequisiteV2LangId",
+                challengeId,
+                hasTitle: false,
+                hasScore: false,
+                generateItemId: (itemIndex) => this.challengePrerequisiteV2IdFactoryService.generate({
+                    courseIndex,
+                    moduleIndex,
+                    contentIndex,
+                    challengeIndex,
+                    langIndex: itemIndex,
+                }),
+                generateLangId: (itemIndex, langIndex) => this.challengePrerequisiteV2IdFactoryService.generateLang({
+                    courseIndex,
+                    moduleIndex,
+                    contentIndex,
+                    challengeIndex,
+                    itemIndex,
+                    langIndex,
+                }),
+            }) as Array<DeepPartial<ChallengePrerequisiteV2Entity>>,
             // agnostic outcome criteria → single jsonb column
             outcomeCriteria: this.mapCriteria(
                 (jsonMap.get(Locale.En) as Record<string, unknown> | undefined)?.outcomeCriteria,
@@ -345,187 +400,50 @@ export class ChallengeV2ParserService {
             approachCriteria: this.mapCriteria(
                 (jsonMap.get(Locale.En) as Record<string, unknown> | undefined)?.approachCriteria,
             ),
-            references: (
-                jsonMap.get(Locale.En)?.references ?? []
-            ).map(({
-                orderIndex,
-                alias,
-                url,
-            }) => {
-                // deterministic reference id per challenge + reference ordinal
-                const referenceId = this.challengeReferenceIdFactoryService.generate(
-                    {
-                        courseIndex,
-                        moduleIndex,
-                        contentIndex,
-                        challengeIndex,
-                        referenceIndex: orderIndex,
-                    },
-                )
-                // alias translations for every locale that defines this reference
-                const translations = Array.from(jsonMap.entries()).map(
-                    ([
-                        locale,
-                        challenge,
-                    ]) => (challenge.references ?? [])
-                        .filter((reference) => reference.orderIndex === orderIndex)
-                        .map<DeepPartial<ChallengeReferenceTranslationEntity>>(
-                            (reference) => ({
-                                challengeReferenceId: referenceId,
-                                locale,
-                                field: "alias",
-                                value: reference.alias ?? "",
-                            }),
-                        )
-                ).flat()
-                return {
-                    id: referenceId,
-                    orderIndex,
-                    alias,
-                    url,
-                    defaultLocale: Locale.En,
-                    challenge: {
-                        id: challengeId,
-                    },
-                    translations,
-                }
-            }),
-            submissions: (
-                jsonMap.get(Locale.En)?.submissions ?? []
-            ).map(({
-                orderIndex: submissionOrderIndex,
-                title,
-                description,
-                type,
-                score,
-                prompts,
-            }) => {
-                // deterministic submission id per challenge + submission ordinal
-                const submissionId = this.challengeSubmissionIdFactoryService.generate(
-                    {
-                        courseIndex,
-                        moduleIndex,
-                        contentIndex,
-                        challengeIndex,
-                        submissionIndex: submissionOrderIndex,
-                    },
-                )
-                // title + description translations for every locale
-                const translations = Array.from(jsonMap.entries()).map(
-                    ([
-                        locale,
-                        challenge,
-                    ]) => (challenge.submissions ?? [])
-                        .filter((submission) => submission.orderIndex === submissionOrderIndex)
-                        .map<Array<DeepPartial<ChallengeSubmissionTranslationEntity>>>(
-                            (submission) => [
-                                {
-                                    challengeSubmissionId: submissionId,
-                                    locale,
-                                    value: submission.title ?? "",
-                                    field: "title",
-                                },
-                                {
-                                    challengeSubmissionId: submissionId,
-                                    locale,
-                                    value: submission.description ?? "",
-                                    field: "description",
-                                },
-                            ],
-                        )
-                ).flat().flat()
-                return {
-                    id: submissionId,
-                    orderIndex: submissionOrderIndex,
-                    title,
-                    description: this.coerceMdScalarService.toNullableStringColumn(
-                        description,
-                    ),
-                    type: (type as SubmissionType) ?? SubmissionType.GithubUrl,
-                    score: this.coerceMdScalarService.toRequiredNumber(
-                        score,
-                        0,
-                    ),
-                    defaultLocale: Locale.En,
-                    challenge: {
-                        id: challengeId,
-                    },
-                    translations,
-                    prompts: (prompts ?? []).map<DeepPartial<ChallengeSubmissionPromptEntity>>(
-                        ({
-                            orderIndex,
-                            title,
-                            score,
-                            promptText,
-                        }) => {
-                            // deterministic prompt id per submission + prompt ordinal
-                            const challengeSubmissionPromptId = this.challengeSubmissionPromptIdFactoryService.generate(
-                                {
-                                    courseIndex,
-                                    moduleIndex,
-                                    contentIndex,
-                                    challengeIndex,
-                                    submissionIndex: submissionOrderIndex,
-                                    promptIndex: orderIndex,
-                                },
-                            )
-                            // title + promptText translations for every locale
-                            const translations = Array.from(jsonMap.entries()).map(
-                                ([
-                                    locale,
-                                    challenge,
-                                ]) => {
-                                    const submission = (challenge.submissions ?? []).find(
-                                        (submission) => submission.orderIndex === submissionOrderIndex,
-                                    )
-                                    const prompt = (submission?.prompts ?? []).find(
-                                        (prompt) => prompt.orderIndex === orderIndex,
-                                    )
-                                    // skip locales that don't define this prompt
-                                    if (!prompt) {
-                                        return []
-                                    }
-                                    return [
-                                        {
-                                            challengeSubmissionPromptId,
-                                            locale,
-                                            value: prompt.title ?? "",
-                                            field: "title",
-                                        },
-                                        {
-                                            challengeSubmissionPromptId,
-                                            locale,
-                                            value: prompt.promptText ?? "",
-                                            field: "promptText",
-                                        },
-                                    ]
-                                },
-                            ).flat()
-                            return {
-                                id: challengeSubmissionPromptId,
-                                orderIndex,
-                                title,
-                                score: this.coerceMdScalarService.toRequiredNumber(
-                                    score,
-                                    0,
-                                ),
-                                promptText,
-                                defaultLocale: Locale.En,
-                                challengeSubmission: {
-                                    id: submissionId,
-                                },
-                                translations,
-                            }
-                        }
-                    ),
-                }
+            submissions: await this.challengeSubmissionParserService.parseMany({
+                challengeRelativePath: path.relativePath,
+                challengeId,
+                courseIndex,
+                moduleIndex,
+                contentIndex,
+                challengeIndex,
+                jsonMap,
             }),
         }
+        // SCHEMA V2: attach each submission's approach + outcome criteria from
+        // inline `# approachCriterias` / `# outcomeCriterias` in submissions/<n>/en.md.
+        for (const submission of challenge.submissions ?? []) {
+            const {
+                approachCriteria,
+                outcomeCriteria,
+                approachScore,
+                outcomeScore,
+            } = await this.challengeSubmissionCriteriaParserService.parse({
+                challengeRelativePath: path.relativePath,
+                courseIndex,
+                moduleIndex,
+                contentIndex,
+                challengeIndex,
+                submissionOrderIndex: submission.orderIndex ?? 0,
+                submissionId: submission.id as string,
+            })
+            // cascade-save these alongside the submission (rubric tables store NO per-item score)
+            submission.approachCriteria = approachCriteria
+            submission.outcomeCriteria = outcomeCriteria
+            // the 70/30 weighting lives on the SUBMISSION (recovered from its rubric sums); the
+            // submission's total score is the sum of the two rubric weights (e.g. 70 + 30 = 100)
+            const resolvedApproachScore = approachScore || 70
+            const resolvedOutcomeScore = outcomeScore || 30
+            submission.approachScore = resolvedApproachScore
+            submission.outcomeScore = resolvedOutcomeScore
+            submission.score = resolvedApproachScore + resolvedOutcomeScore
+        }
+        return challenge
     }
 
     /**
-     * Parses many V2 challenges from the mount. Skips any file that does NOT carry the V2 marker
-     * heading `# approachCriteria` — those belong to the legacy {@link ChallengeParserService}.
+     * Parses many V2 challenges from the mount. Skips any file whose `# verified` day is absent or
+     * unparseable — those belong to the legacy {@link ChallengeParserService}.
      *
      * @param contentRelativePath - Content relative path
      * @param courseIndex - Course index
@@ -550,13 +468,13 @@ export class ChallengeV2ParserService {
         const data: Array<ResolvedFileResult<DeepPartial<ChallengeEntity>>> = []
         for (const path of paths) {
             try {
-                // detect schema from the English markdown — V2 owns files with `# approachCriteria`
+                // detect schema from the English markdown — V2 owns files with a parseable `# verified` day
                 const enMarkdown = await this.contextLoaderService.load(
                     "courses",
                     `${path.relativePath}/${Locale.En}.md`,
                 )
                 // not a V2 file → leave it to the legacy parser/insert
-                if (!ChallengeV2ParserService.isV2Markdown(enMarkdown)) {
+                if (!this.isV2(enMarkdown)) {
                     continue
                 }
                 const challenge = await this.parse(
@@ -586,14 +504,14 @@ export class ChallengeV2ParserService {
     }
 
     /**
-     * Detects whether a challenge markdown document uses SCHEMA V2. V2 files carry the H1 heading
-     * `# approachCriteria`, which the legacy schema never emits — so it doubles as the routing flag.
+     * Detects whether a challenge markdown document uses SCHEMA V2. V2 files carry `# verified`
+     * (e.g. `2026-05-30`); legacy files omit it or leave it empty.
      *
      * @param markdown - Raw challenge markdown (English document is enough).
-     * @returns `true` when the document is a V2 challenge.
+     * @returns `true` when `# verified` parses to a non-null date.
      */
-    static isV2Markdown(markdown: string): boolean {
-        // match a top-level `# approachCriteria` heading anywhere in the document
-        return /^#\s+approachCriteria\s*$/m.test(markdown)
+    isV2(markdown: string): boolean {
+        const extracted = this.extractJsonFromMdService.extract<Record<string, unknown>>(markdown)
+        return this.coerceMdScalarService.toNullableDate(extracted.verified) !== null
     }
 }

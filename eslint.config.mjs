@@ -7,14 +7,29 @@ import {
 
 export default defineConfig([
     {
-        files: ["**/*.{js,mjs,cjs,ts,mts,cts}"], plugins: {
+        ignores: [
+            "**/node_modules/**",
+            "**/dist/**",
+            ".repo/**",
+            "scratch/**",
+        ],
+    },
+    {
+        files: ["src/**/*.ts", "apps/**/*.ts", "libs/**/*.ts", "test/**/*.ts"],
+        plugins: {
             js
-        }, extends: ["js/recommended"], languageOptions: {
+        },
+        extends: ["js/recommended"],
+        languageOptions: {
             globals: globals.node
         }
     },
-    tseslint.configs.recommended,
+    ...tseslint.configs.recommended.map((config) => ({
+        ...config,
+        files: ["src/**/*.ts", "apps/**/*.ts", "libs/**/*.ts", "test/**/*.ts"],
+    })),
     {
+        files: ["src/**/*.ts", "apps/**/*.ts", "libs/**/*.ts", "test/**/*.ts"],
         rules: {
             '@typescript-eslint/no-empty-object-type': 'off',
             '@typescript-eslint/no-explicit-any': 'off',

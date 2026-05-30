@@ -121,8 +121,8 @@ export class BloomFilterSynchronizerService {
             }
             try {
                 await this.emailBloomFilterService.addMultiple(
-                        users.map((user) => user.email ?? ""),
-                    )
+                    users.map((user) => user.email ?? ""),
+                )
                 totalEmails += users.length
                 resumeAfterId = users[users.length - 1]?.id ?? null
             } catch (error) {

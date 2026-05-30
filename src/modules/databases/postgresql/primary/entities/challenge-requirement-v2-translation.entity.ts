@@ -10,9 +10,6 @@ import {
     PrimaryColumn,
 } from "typeorm"
 import {
-    GraphQLJSON,
-} from "graphql-type-json"
-import {
     GraphQLTypeLocale,
     Locale,
 } from "../enums"
@@ -24,17 +21,17 @@ import {
 } from "./challenge-requirement-v2.entity"
 
 /**
- * Localized jsonb payload for a SCHEMA V2 requirement bucket. One row per (bucket × locale);
- * mirrors {@link ChallengeRequirementTranslationEntity} but the localized value is the whole
- * requirement jsonb `data` array instead of a per-field text value.
+ * Per-locale title for a SCHEMA V2 requirement item (normalized — no jsonb). The requirement title
+ * is agnostic across programming languages, so it is localized here at the item level. One row per
+ * (requirement item × locale).
  */
 @ObjectType({
-    description: "Localized jsonb payload for a V2 requirement bucket.",
+    description: "Per-locale title for a V2 requirement item.",
 })
 @Entity("challenge_requirement_v2_translations")
 export class ChallengeRequirementV2TranslationEntity extends AbstractEntity {
     /**
-     * Parent V2 requirement bucket id (composite PK part).
+     * Parent requirement item id (composite PK part).
      */
     @Field(() => String)
     @PrimaryColumn({
@@ -44,7 +41,7 @@ export class ChallengeRequirementV2TranslationEntity extends AbstractEntity {
         challengeRequirementV2Id: string
 
     /**
-     * Locale of this payload (composite PK part).
+     * Locale of this title (composite PK part).
      */
     @Field(() => GraphQLTypeLocale)
     @PrimaryColumn({
@@ -56,24 +53,24 @@ export class ChallengeRequirementV2TranslationEntity extends AbstractEntity {
         locale: Locale
 
     /**
-     * Localized requirement payload (array of items for this locale) stored as jsonb.
+     * Localized requirement title.
      */
     @Field(
-        () => GraphQLJSON,
+        () => String,
         {
             nullable: true,
-            description: "Localized requirement payload (array of items for this locale) stored as jsonb.",
+            description: "Localized requirement title.",
         },
     )
     @Column({
-        name: "data",
-        type: "jsonb",
+        name: "title",
+        type: "text",
         nullable: true,
     })
-        data: Array<Record<string, unknown>> | null
+        title: string | null
 
     /**
-     * Parent V2 requirement bucket this translation belongs to.
+     * Parent requirement item this title belongs to.
      */
     @ManyToOne(
         () => ChallengeRequirementV2Entity,
@@ -87,5 +84,5 @@ export class ChallengeRequirementV2TranslationEntity extends AbstractEntity {
         referencedColumnName: "id",
         foreignKeyConstraintName: "fk_req_v2_translation_challenge_requirements_v2",
     })
-        challengeRequirementV2: ChallengeRequirementV2Entity
+        requirementV2: ChallengeRequirementV2Entity
 }

@@ -13,9 +13,6 @@ import {
     RelationId,
 } from "typeorm"
 import {
-    GraphQLJSON,
-} from "graphql-type-json"
-import {
     GraphQLTypeLocale,
     Locale,
 } from "../enums"
@@ -28,40 +25,27 @@ import {
 import {
     ChallengePrerequisiteV2TranslationEntity,
 } from "./challenge-prerequisite-v2-translation.entity"
+import {
+    ChallengePrerequisiteV2LangEntity,
+} from "./challenge-prerequisite-v2-lang.entity"
 
 /**
- * SCHEMA V2 per-language prerequisite bucket for a challenge.
- * One row per programming language; the jsonb `data` holds the default locale and per-locale
- * variants live in the translation table.
+ * SCHEMA V2 prerequisite ITEM for a challenge (normalized — no jsonb). One row per prerequisite
+ * position; the per-language `body` lives under {@link ChallengePrerequisiteV2LangEntity}.
+ * Prerequisites have no title, so the item-level title stays null (kept for table uniformity).
  */
 @ObjectType({
-    description: "Per-language challenge prerequisite bucket (V2); per-locale jsonb in the translation table.",
+    description: "A SCHEMA V2 challenge prerequisite item (one per position).",
 })
 @Entity("challenge_prerequisites_v2")
 export class ChallengePrerequisiteV2Entity extends UuidAbstractEntity {
     /**
-     * Programming language (e.g. typescript, java, csharp, go).
-     */
-    @Field(
-        () => String,
-        {
-            description: "Programming language for this prerequisite bucket (e.g. typescript, java, csharp, go).",
-        },
-    )
-    @Column({
-        name: "lang",
-        type: "varchar",
-        length: 32,
-    })
-        lang: string
-
-    /**
-     * Display order within the challenge prerequisite V2 list.
+     * Display order of this prerequisite within the challenge (agnostic position).
      */
     @Field(
         () => Int,
         {
-            description: "Display order within the challenge prerequisite V2 list.",
+            description: "Display order of this prerequisite within the challenge.",
         },
     )
     @Column({
@@ -72,30 +56,12 @@ export class ChallengePrerequisiteV2Entity extends UuidAbstractEntity {
         orderIndex: number
 
     /**
-     * Default-locale prerequisite payload (array of items) stored as jsonb; per-locale variants
-     * live in {@link translations}.
-     */
-    @Field(
-        () => GraphQLJSON,
-        {
-            nullable: true,
-            description: "Default-locale prerequisite payload (array of items) stored as jsonb.",
-        },
-    )
-    @Column({
-        name: "data",
-        type: "jsonb",
-        nullable: true,
-    })
-        data: Array<Record<string, unknown>> | null
-
-    /**
-     * Default locale for this prerequisite bucket row.
+     * Default locale for this prerequisite item.
      */
     @Field(
         () => GraphQLTypeLocale,
         {
-            description: "Default locale for this prerequisite bucket row.",
+            description: "Default locale for this prerequisite item.",
         },
     )
     @Column({
@@ -107,7 +73,7 @@ export class ChallengePrerequisiteV2Entity extends UuidAbstractEntity {
         defaultLocale: Locale
 
     /**
-     * Parent challenge this prerequisite bucket belongs to.
+     * Parent challenge this prerequisite belongs to.
      */
     @ManyToOne(
         () => ChallengeEntity,
@@ -132,25 +98,44 @@ export class ChallengePrerequisiteV2Entity extends UuidAbstractEntity {
         },
     )
     @RelationId(
-        (challengePrerequisiteV2: ChallengePrerequisiteV2Entity) => challengePrerequisiteV2.challenge,
+        (prerequisiteV2: ChallengePrerequisiteV2Entity) => prerequisiteV2.challenge,
     )
         challengeId: string
 
     /**
-     * Per-locale prerequisite jsonb payloads for this bucket.
+     * Per-locale title overrides (null for prerequisites; kept for table uniformity).
      */
     @Field(
         () => [ChallengePrerequisiteV2TranslationEntity],
         {
-            description: "Per-locale prerequisite jsonb payloads for this bucket.",
+            description: "Per-locale title overrides for this prerequisite item.",
         },
     )
     @OneToMany(
         () => ChallengePrerequisiteV2TranslationEntity,
-        (translation: ChallengePrerequisiteV2TranslationEntity) => translation.challengePrerequisiteV2,
+        (translation: ChallengePrerequisiteV2TranslationEntity) => translation.prerequisiteV2,
+        {
+            cascade: true,
+            orphanedRowAction: "delete",
+        },
+    )
+        translations: Array<ChallengePrerequisiteV2TranslationEntity>
+
+    /**
+     * Per-programming-language content (body) for this prerequisite.
+     */
+    @Field(
+        () => [ChallengePrerequisiteV2LangEntity],
+        {
+            description: "Per-programming-language content for this prerequisite.",
+        },
+    )
+    @OneToMany(
+        () => ChallengePrerequisiteV2LangEntity,
+        (lang: ChallengePrerequisiteV2LangEntity) => lang.prerequisiteV2,
         {
             cascade: true,
         },
     )
-        translations: Array<ChallengePrerequisiteV2TranslationEntity>
+        langs: Array<ChallengePrerequisiteV2LangEntity>
 }

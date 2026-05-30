@@ -11,8 +11,13 @@ import {
 import {
     ExtractJsonFromMdService,
     CoerceMdScalarService,
+    MergeJsonService,
     ResolvedFileResult,
+    ContextLoaderService,
     logInitSeederEntitySkipped,
+} from "../../shared"
+import type {
+    MergeJsonResult,
 } from "../../shared"
 import {
     CourseIdFactoryService,
@@ -27,14 +32,7 @@ import {
 } from "typeorm"
 import {
     CourseEntity,
-    CourseTranslationEntity,
-    PrerequisiteTranslationEntity,
-    QnaTranslationEntity,
-    ValuePropositionTranslationEntity,
 } from "@modules/databases"
-import {
-    ContextLoaderService 
-} from "../../shared"
 import {
     CoursePathNotFoundException,
 } from "@modules/exceptions"
@@ -62,6 +60,7 @@ export class CourseParserService {
         private readonly livestreamSessionIdFactoryService: LivestreamSessionIdFactoryService,
         private readonly contextLoaderService: ContextLoaderService,
         private readonly coursePathService: CoursePathService,
+        private readonly mergeJsonService: MergeJsonService,
         private readonly winstonService: WinstonService,
     ) { }
 
@@ -77,7 +76,7 @@ export class CourseParserService {
             courseIndex,
         }: ParseCourseParams,
     ): Promise<DeepPartial<CourseEntity>> {
-        const jsonMap = new Map<Locale, Partial<CourseEntity>>()
+        const jsonMap = new Map<Locale, DeepPartial<CourseEntity>>()
         const path = paths.find(
             (path) => path.orderIndex === courseIndex
         )
@@ -96,9 +95,24 @@ export class CourseParserService {
                         "courses", 
                         `${path.relativePath}/${locale}.md`
                     ),
-                )
+                ) as DeepPartial<CourseEntity>,
             )
         }
+        const merged = this.mergeJsonService.merge({
+            jsons: Object.values(Locale).map((locale) => ({
+                locale,
+                json: (jsonMap.get(locale) ?? {
+                }) as Record<string, unknown>,
+            })),
+            translateFields: [
+                "title",
+                "description",
+                "prerequisites.text",
+                "valuePropositions.text",
+                "qnas.question",
+                "qnas.answer",
+            ],
+        }) as MergeJsonResult<DeepPartial<CourseEntity>>
         const courseId = this.courseIdFactoryService.generate(
             {
                 courseIndex,
@@ -107,22 +121,22 @@ export class CourseParserService {
         return {
             id: courseId,
             defaultLocale: Locale.En,
-            title: jsonMap.get(Locale.En)?.title ?? "",
-            description: jsonMap.get(Locale.En)?.description ?? "",
+            title: merged.title ?? "",
+            description: merged.description ?? "",
             displayId: path.displayId,
             originalPrice: this.coerceMdScalarService.toRequiredNumber(
-                jsonMap.get(Locale.En)?.originalPrice,
+                merged.originalPrice,
                 0,
             ),
             orderIndex: courseIndex,
             livestreamSessions: (
-                jsonMap.get(Locale.En)?.livestreamSessions ?? []
+                merged.livestreamSessions ?? []
             ).map((livestreamSession) => {
                 return {
                     id: this.livestreamSessionIdFactoryService.generate(
                         {
                             courseIndex,
-                            sessionIndex: livestreamSession.orderIndex,
+                            sessionIndex: livestreamSession.orderIndex ?? 0,
                         },
                     ),
                     course: {
@@ -136,15 +150,15 @@ export class CourseParserService {
                     translations: [],
                 }
             }),
-            coverImageUrl: jsonMap.get(Locale.En)?.coverImageUrl?.trim(),
+            coverImageUrl: merged.coverImageUrl?.trim(),
             pricingPhases: (
-                jsonMap.get(Locale.En)?.pricingPhases ?? []).map(
+                merged.pricingPhases ?? []).map(
                 (phase) => {
                     return {
                         id: this.pricingPhaseIdFactoryService.generate(
                             {
                                 courseIndex,
-                                phaseIndex: phase.orderIndex,
+                                phaseIndex: phase.orderIndex ?? 0,
                             },
                         ),
                         phase: phase.phase as PricingPhase,
@@ -159,43 +173,21 @@ export class CourseParserService {
                 },
             ),
             prerequisites: (
-                jsonMap.get(Locale.En)?.prerequisites ?? []
+                merged.prerequisites ?? []
             ).map(
                 (
                     {
                         text,
                         orderIndex,
+                        translations,
                     },
                 ) => {
                     const prerequisiteId = this.prerequisiteIdFactoryService.generate(
                         {
                             courseIndex,
-                            prerequisiteIndex: orderIndex,
+                            prerequisiteIndex: orderIndex ?? 0,
                         },
                     )
-                    const translations = Array.from(
-                        jsonMap.entries())
-                        .map(
-                            (
-                                [
-                                    locale,
-                                    course
-                                ]
-                            ) => (course.prerequisites ?? [])
-                                .filter((prerequisite) => prerequisite.orderIndex === orderIndex)
-                                .map<DeepPartial<PrerequisiteTranslationEntity>>(
-                                    (item) => (
-                                        {
-                                            prerequisiteId,
-                                            locale,
-                                            value: item.text,
-                                            field: "text",
-                                        }
-                                    )
-                                )
-                        )
-                        .flat()
-                    
                     return {
                         course: {
                             id: courseId,
@@ -204,43 +196,35 @@ export class CourseParserService {
                         defaultLocale: Locale.En,
                         text,
                         orderIndex,
-                        translations
+                        translations: (translations ?? []).map(
+                            ({
+                                locale,
+                                field,
+                                value,
+                            }) => ({
+                                prerequisiteId,
+                                locale,
+                                field,
+                                value,
+                            }),
+                        ),
                     }
                 },
             ),
-            valuePropositions: (jsonMap.get(Locale.En)?.valuePropositions ?? []).map(
+            valuePropositions: (merged.valuePropositions ?? []).map(
                 (
                     {
                         text,
                         orderIndex,
+                        translations,
                     },
                 ) => {
                     const valuePropositionId = this.valuePropositionIdFactoryService.generate(
                         {
                             courseIndex,
-                            valuePropositionIndex: orderIndex,
+                            valuePropositionIndex: orderIndex ?? 0,
                         },
                     )
-                    const translations = Array.from(jsonMap.entries())
-                        .map((
-                            [
-                                locale,
-                                course
-                            ]
-                        ) => (course.valuePropositions ?? [])
-                            .filter((valueProposition) => valueProposition.orderIndex === orderIndex)
-                            .map<DeepPartial<ValuePropositionTranslationEntity>>(
-                                (valueProposition) => (
-                                    {
-                                        valuePropositionId,
-                                        locale,
-                                        value: valueProposition.text,
-                                        field: "text",
-                                    }
-                                )
-                            )
-                        )
-                        .flat()
                     return {
                         course: {
                             id: courseId,
@@ -249,52 +233,36 @@ export class CourseParserService {
                         defaultLocale: Locale.En,
                         text,
                         orderIndex,
-                        translations
+                        translations: (translations ?? []).map(
+                            ({
+                                locale,
+                                field,
+                                value,
+                            }) => ({
+                                valuePropositionId,
+                                locale,
+                                field,
+                                value,
+                            }),
+                        ),
                     }
                 },
             ),
-            qnas: (jsonMap.get(Locale.En)?.qnas ?? []).map(
+            qnas: (merged.qnas ?? []).map(
                 (
                     {
                         question,
                         answer,
                         orderIndex,
+                        translations,
                     },
                 ) => {
                     const qnaId = this.qnaIdFactoryService.generate(
                         {
                             courseIndex,
-                            qnaIndex: orderIndex,
+                            qnaIndex: orderIndex ?? 0,
                         },
                     )
-                    const translations = Array.from(
-                        jsonMap.entries())
-                        .map((
-                            [locale,
-                                course
-                            ]
-                        ) => (course.qnas ?? [])
-                            .filter((qna) => qna.orderIndex === orderIndex)
-                            .map<Array<DeepPartial<QnaTranslationEntity>>>(
-                                (qna) => (
-                                    [{
-                                        qnaId,
-                                        locale,
-                                        field: "question",
-                                        value: qna.question,
-                                    },
-                                    {
-                                        qnaId,
-                                        locale,
-                                        field: "answer",
-                                        value: qna.answer,
-                                    }
-                                    ]
-                                )
-                            )
-                        )
-                        .flat()
-                        .flat()
                     return {
                         id: qnaId,
                         defaultLocale: Locale.En,
@@ -304,34 +272,33 @@ export class CourseParserService {
                             id: courseId,
                         },
                         orderIndex,
-                        translations
+                        translations: (translations ?? []).map(
+                            ({
+                                locale,
+                                field,
+                                value,
+                            }) => ({
+                                qnaId,
+                                locale,
+                                field,
+                                value,
+                            }),
+                        ),
                     }
                 },
             ),
-            translations: (
-                () => {
-                    const translations: Array<DeepPartial<CourseTranslationEntity>> = []
-                    for (const locale of Object.values(Locale)) {
-                        translations.push(
-                            {
-                                courseId,
-                                locale,
-                                field: "title",
-                                value: jsonMap.get(locale)?.title ?? "",
-                            }
-                        )
-                        translations.push(
-                            {
-                                courseId,
-                                locale,
-                                field: "description",
-                                value: jsonMap.get(locale)?.description ?? "",
-                            }
-                        )
-                    }
-                    return translations
-                }
-            )()
+            translations: (merged.translations ?? []).map(
+                ({
+                    locale,
+                    field,
+                    value,
+                }) => ({
+                    courseId,
+                    locale,
+                    field,
+                    value,
+                }),
+            ),
         }
     }
 

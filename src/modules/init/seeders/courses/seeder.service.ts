@@ -95,7 +95,7 @@ export class CourseSeederService {
 
     /**
      * Parse course markdown/S3 sources and upsert PostgreSQL (courses → modules → … → milestones).
-     * Scope from `envConfig().init` seeders `courses` via {@link resolveCourseSeedScope}.
+     * Scope from envConfig().init seeders `courses` via {@link resolveCourseSeedScope}.
      */
     async seed(): Promise<void> {
         // master gate: skip the entire course pipeline when disabled
@@ -112,7 +112,7 @@ export class CourseSeederService {
         /** The courses to seed. */
         const courses: Array<DeepPartial<CourseEntity>> = []
         /**
-         * Challenge ids detected as SCHEMA V2 (markdown carries `# approachCriteria`). The insert
+         * Challenge ids detected as SCHEMA V2 (markdown carries a parseable `# verified` day). The insert
          * phase routes these through {@link ChallengeV2InsertService}; everything else stays on the
          * legacy {@link ChallengeInsertService}. Tracking by id keeps both branches independent.
          */
@@ -128,7 +128,7 @@ export class CourseSeederService {
             const courseDisplayId = courseResult.data.displayId as string
             /** The modules to seed. */
             const modules: Array<DeepPartial<ModuleEntity>> = []
-            /** Content path → id map when `INIT_SEEDERS_COURSES_QUIZ_LINK_CONTENTS=true`. */
+            /** Content path → id map when `envConfig().init` seeders `courses.quiz.linkContents` is true. */
             const contentIdByPath = new Map<string, string>()
             const modulePaths = await this.modulePathService.paths({
                 courseRelativePath: courseResult.relativePath,

@@ -20,7 +20,7 @@ import {
     CodingProblemSeederService,
 } from "./coding-problems"
 /**
- * Init seed orchestrator: each domain seeder reads `envConfig().init` seeders context itself.
+ * Init seed orchestrator: each domain seeder reads envConfig().init seeders context itself.
  */
 @Injectable()
 export class SeedersService {

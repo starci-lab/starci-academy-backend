@@ -221,7 +221,8 @@ export const getJudge0AuthToken = (): string => {
         return ""
     }
     // read + trim so a trailing newline does not corrupt the header value
-    return readFileSync(path, "utf8").trim()
+    return readFileSync(path,
+        "utf8").trim()
 }
 
 /**

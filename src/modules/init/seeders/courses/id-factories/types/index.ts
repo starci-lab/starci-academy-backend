@@ -240,7 +240,26 @@ export interface GenerateChallengeRequirementV2IdParams {
     contentIndex: number
     /** Parent challenge ordinal. */
     challengeIndex: number
-    /** Zero-based programming-language bucket index within the challenge. */
+    /** Zero-based requirement ITEM index within the challenge (normalized V2). */
+    langIndex: number
+}
+
+/**
+ * Input for {@link ChallengeRequirementV2IdFactoryService.generateLang} — one id per
+ * (requirement item × programming language).
+ */
+export interface GenerateChallengeRequirementV2LangIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Parent challenge ordinal. */
+    challengeIndex: number
+    /** Requirement item index. */
+    itemIndex: number
+    /** Zero-based programming-language index within the item. */
     langIndex: number
 }
 
@@ -374,6 +393,37 @@ export interface GenerateChallengeSubmissionPromptIdParams {
     submissionIndex: number
     /** Zero-based prompt in the submission definition list. */
     promptIndex: number
+}
+
+/**
+ * Input for {@link ChallengeSubmissionCriteriaIdFactoryService.generate} — the SCHEMA V2 grading
+ * rubric buckets authored under `criterias/<submissionIndex>/{approach,outcome}.md`. One id per
+ * (submission × kind × programming-language).
+ */
+export interface GenerateChallengeSubmissionCriteriaIdParams {
+    /** Parent course ordinal (locates the parent submission). */
+    courseIndex: number
+    /** Parent module ordinal (locates the parent submission). */
+    moduleIndex: number
+    /** Parent content ordinal (locates the parent submission). */
+    contentIndex: number
+    /** Parent challenge ordinal (locates the parent submission). */
+    challengeIndex: number
+    /** Parent submission ordinal (locates the parent submission). */
+    submissionIndex: number
+    /** Rubric kind — `approach` (per-language how-to) or `outcome` (observable behaviour). */
+    kind: "approach" | "outcome"
+    /** Zero-based criterion index within the rubric file (`# 0`, `# 1`, …). */
+    criterionIndex: number
+}
+
+/**
+ * Input for {@link ChallengeSubmissionCriteriaIdFactoryService.generateLang} — one id per
+ * (criterion × programming-language) prose row under a criterion.
+ */
+export interface GenerateChallengeSubmissionCriteriaLangIdParams extends GenerateChallengeSubmissionCriteriaIdParams {
+    /** Zero-based programming-language variant index within the criterion (0-typescript, 1-java, …). */
+    langIndex: number
 }
 
 /**

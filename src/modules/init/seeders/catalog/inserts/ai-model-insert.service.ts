@@ -68,7 +68,10 @@ export class AiModelInsertService {
             const saved = await manager.save(
                 AiModelEntity,
                 {
-                    ...(existing ? { id: existing.id } : {}),
+                    ...(existing ? {
+                        id: existing.id 
+                    } : {
+                    }),
                     name: model.name,
                     provider: model.provider,
                     category: model.category,

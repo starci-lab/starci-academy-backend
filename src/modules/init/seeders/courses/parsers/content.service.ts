@@ -1,6 +1,6 @@
-﻿import type {
-    ParseContentParams,
+import type {
     ParseContentManyParams,
+    ParseContentParams,
 } from "./types"
 import {
     Injectable,
@@ -20,19 +20,18 @@ import {
     DeepPartial,
 } from "typeorm"
 import {
-    CodeExplainingTranslationEntity,
-    CodeImplementationTranslationEntity,
     ContentBodyV2Entity,
     ContentBodyV2TranslationEntity,
     ContentEntity,
-    ContentTranslationEntity,
 } from "@modules/databases"
 import {
     ExtractJsonFromMdService,
     CoerceMdScalarService,
+    MergeJsonService,
     ResolvedFileResult,
     ContextLoaderService,
     PathResolverService,
+    MergeJsonResult,
     logInitSeederEntitySkipped,
 } from "../../shared"
 import {
@@ -47,6 +46,7 @@ import {
 import {
     getCodeExplainingsFromExtractJson,
     inferLangFromCodeFence,
+    type ContentExtractJson,
 } from "./utils"
 
 /**
@@ -67,98 +67,15 @@ export class ContentParserService {
         private readonly contextLoaderService: ContextLoaderService,
         private readonly pathResolverService: PathResolverService,
         private readonly contentPathService: ContentPathService,
+        private readonly mergeJsonService: MergeJsonService,
         private readonly winstonService: WinstonService,
     ) { }
 
     /**
-     * Loads the SCHEMA V2 per-language lesson bodies from the `<content>/bodies/<N>-<lang>/` folder.
-     * Each language folder (`0-typescript`, `1-java`, ...) holds one `vi.md` + `en.md`, each with the
-     * standard mount sections `# lang` + `# body` (body markdown wrapped in one separator block) —
-     * kept as separate files so a body never bloats the content's own `vi.md`/`en.md`. Returns one
-     * `ContentBodyV2` bucket per language (default-locale `body` = English; per-locale variants in
-     * `translations`).
+     * Builds a partial content entity (scalars, code blocks, references, bodies) from the mount.
      *
-     * @param params - Content folder path + course/module/content ordinals + parent content id.
-     * @returns The per-language body buckets (empty when the `bodies/` folder is absent).
-     */
-    private async parseBodiesV2(
-        {
-            contentRelativePath,
-            courseIndex,
-            moduleIndex,
-            contentIndex,
-            contentId,
-        }: {
-            contentRelativePath: string
-            courseIndex: number
-            moduleIndex: number
-            contentIndex: number
-            contentId: string
-        },
-    ): Promise<Array<DeepPartial<ContentBodyV2Entity>>> {
-        // list the indexed language folders (`{N}-{lang}`) under `bodies/`
-        const langPaths = await this.pathResolverService.filePaths(
-            "courses",
-            `${contentRelativePath}/bodies`,
-        )
-        const buckets: Array<DeepPartial<ContentBodyV2Entity>> = []
-        for (const langPath of langPaths) {
-            // `displayId` is the slug after the index, i.e. the programming language
-            const lang = langPath.displayId
-            const orderIndex = langPath.orderIndex
-            const contentBodyV2Id = this.contentBodyV2IdFactoryService.generate({
-                courseIndex,
-                moduleIndex,
-                contentIndex,
-                langIndex: orderIndex,
-            })
-            // each `{locale}.md` carries `# lang` + `# body` sections (standard mount format)
-            const translations: Array<DeepPartial<ContentBodyV2TranslationEntity>> = []
-            let defaultBody: string | null = null
-            let resolvedLang = lang
-            for (const locale of Object.values(Locale)) {
-                let extracted: { lang?: unknown; body?: unknown } = {
-                }
-                try {
-                    extracted = this.extractJsonFromMdService.extract(
-                        await this.contextLoaderService.load(
-                            "courses",
-                            `${langPath.relativePath}/${locale}.md`,
-                        ),
-                    )
-                } catch {
-                    // locale file absent for this language → leave body null
-                }
-                const body = this.coerceMdScalarService.toNullableStringColumn(extracted.body)
-                translations.push({
-                    contentBodyV2Id,
-                    locale,
-                    body,
-                })
-                if (locale === Locale.En) {
-                    defaultBody = body
-                    // prefer the explicit `# lang` field; fall back to the folder slug
-                    resolvedLang = this.coerceMdScalarService.toRequiredString(extracted.lang,
-                        lang)
-                }
-            }
-            buckets.push({
-                id: contentBodyV2Id,
-                orderIndex,
-                lang: resolvedLang,
-                body: defaultBody,
-                defaultLocale: Locale.En,
-                content: {
-                    id: contentId,
-                },
-                translations,
-            })
-        }
-        return buckets
-    }
-
-    /**
-     * Builds a partial content entity from mounted course files.
+     * @param params - Content path list + course/module/content ordinals.
+     * @returns Entity-shaped graph for TypeORM cascade save.
      */
     async parse(
         {
@@ -168,8 +85,9 @@ export class ContentParserService {
             contentIndex,
         }: ParseContentParams,
     ): Promise<DeepPartial<ContentEntity>> {
+        // locate the folder for this content ordinal
         const path = paths.find(
-            (path) => path.orderIndex === contentIndex
+            (path) => path.orderIndex === contentIndex,
         )
         if (!path) {
             throw new ContentPathNotFoundException(
@@ -178,16 +96,35 @@ export class ContentParserService {
                 },
             )
         }
-        const jsonMap = new Map<Locale, Partial<ContentEntity>>()
-        for (const locale of Object.values(Locale)) {   
+        // extract the heading structure for every locale's markdown file
+        const jsonMap = new Map<Locale, DeepPartial<ContentEntity>>()
+        for (const locale of Object.values(Locale)) {
             jsonMap.set(
                 locale,
                 this.extractJsonFromMdService.extract(
-                    await this.contextLoaderService.load("courses",
-                        `${path.relativePath}/${locale}.md`),
-                ),
+                    await this.contextLoaderService.load(
+                        "courses",
+                        `${path.relativePath}/${locale}.md`,
+                    ),
+                ) as DeepPartial<ContentEntity>,
             )
         }
+        // merge locales into one default-locale doc + translation rows for every i18n field;
+        // codeExplainings is normalized first since the mount key may be singular (`codeExplaining`)
+        const merged = this.mergeJsonService.merge({
+            jsons: Object.values(Locale).map((locale) => ({
+                locale,
+                json: {
+                    ...(jsonMap.get(locale) ?? {
+                    }),
+                } as Record<string, unknown>,
+            })),
+            translateFields: [
+                "title",
+                "description",
+            ],
+        }) as MergeJsonResult<DeepPartial<ContentEntity>>
+        // deterministic content id (reused as FK + id chain root) and owning module id
         const contentId = this.contentIdFactoryService.generate(
             {
                 courseIndex,
@@ -201,16 +138,57 @@ export class ContentParserService {
                 moduleIndex,
             },
         )
-        // per-language lesson bodies live in separate files under `<content>/bodies/<N>-<lang>/`
-        const bodiesV2 = await this.parseBodiesV2(
-            {
-                contentRelativePath: path.relativePath,
+        // SCHEMA V2 per-language lesson bodies under `<content>/bodies/<N>-<lang>/` (empty when absent)
+        const langPaths = await this.pathResolverService.filePaths(
+            "courses",
+            `${path.relativePath}/bodies`,
+        )
+        const bodiesV2: Array<DeepPartial<ContentBodyV2Entity>> = []
+        for (const langPath of langPaths) {
+            // extract the heading structure for every locale's markdown file
+        const bodiesJsonMap = new Map<Locale, DeepPartial<ContentBodyV2Entity>>()
+        for (const locale of Object.values(Locale)) {
+            bodiesJsonMap.set(
+                locale,
+                this.extractJsonFromMdService.extract(
+                    await this.contextLoaderService.load(
+                        "courses",
+                        `${langPath.relativePath}/${locale}.md`,
+                    ),
+                ) as DeepPartial<ContentBodyV2Entity>,
+            )
+        }
+            // folder displayId (e.g. `typescript`) is the fallback language label
+            const lang = langPath.displayId
+            // folder ordinal doubles as the deterministic langIndex + display order
+            const langOrderIndex = langPath.orderIndex
+            const contentBodyV2Id = this.contentBodyV2IdFactoryService.generate({
                 courseIndex,
                 moduleIndex,
                 contentIndex,
-                contentId,
-            },
-        )
+                langIndex: langOrderIndex,
+            })
+            const mergedBody = this.mergeJsonService.merge({
+                jsons: Object.values(Locale).map((locale) => ({
+                    locale,
+                    json: {
+                        ...(jsonMap.get(locale) ?? {
+                    },
+                })),
+            })
+            bodiesV2.push({
+                id: contentBodyV2Id,
+                orderIndex: langOrderIndex,
+                lang: resolvedLang,
+                body: defaultBody,
+                defaultLocale: Locale.En,
+                content: {
+                    id: contentId,
+                },
+                translations: bodyTranslations,
+            })
+        }
+        // assemble the entity graph for TypeORM cascade save
         return {
             id: contentId,
             moduleId,
@@ -219,137 +197,104 @@ export class ContentParserService {
             },
             defaultLocale: Locale.En,
             displayId: path.displayId,
-            title: jsonMap.get(Locale.En)?.title ?? "",
+            title: merged.title ?? "",
             description: this.coerceMdScalarService.toNullableStringColumn(
-                jsonMap.get(Locale.En)?.description,
+                merged.description,
             ),
             body: this.coerceMdScalarService.toRequiredString(
-                jsonMap.get(Locale.En)?.body,
+                merged.body,
                 "",
             ),
             orderIndex: contentIndex,
             minutesRead: this.coerceMdScalarService.toRequiredNumber(
-                jsonMap.get(Locale.En)?.minutesRead,
+                merged.minutesRead,
                 0,
             ),
             isPremium: this.coerceMdScalarService.toRequiredBoolean(
-                (jsonMap.get(Locale.En) as Record<string, unknown>)?.isPremium,
+                merged.isPremium,
                 false,
             ),
-            // `# verified` day marks this as SCHEMA V2 content (null for legacy)
+            // `# verified` day marks SCHEMA V2 content (null for legacy)
             verified: this.coerceMdScalarService.toNullableDate(
-                (jsonMap.get(Locale.En) as Record<string, unknown>)?.verified,
+                merged.verified,
             ),
-            translations: (() => {
-                const translations: Array<DeepPartial<ContentTranslationEntity>> = []
-                for (const locale of Object.values(Locale)) {
-                    translations.push({
-                        contentId,
-                        locale,
-                        field: "title",
-                        value: jsonMap.get(locale)?.title ?? "",
-                    })
-                    translations.push({
-                        contentId,
-                        locale,
-                        field: "description",
-                        value: this.coerceMdScalarService.toRequiredString(
-                            jsonMap.get(locale)?.description,
-                            "",
-                        ),
-                    })
-                    translations.push({
-                        contentId,
-                        locale,
-                        field: "body",
-                        value: this.coerceMdScalarService.toRequiredString(
-                            jsonMap.get(locale)?.body,
-                            "",
-                        ),
-                    })
-                }
-                return translations
-            })(),
-            codeExplainings: getCodeExplainingsFromExtractJson(
-                jsonMap.get(Locale.En),
+            translations: (merged.translations ?? []).map(
+                ({
+                    locale,
+                    field,
+                    value,
+                }) => ({
+                    contentId,
+                    locale,
+                    field,
+                    value,
+                }),
+            ),
+            codeExplainings: (
+                merged.codeExplainings
+                ?? getCodeExplainingsFromExtractJson(merged as ContentExtractJson)
             ).map(({
                 orderIndex,
                 code,
                 explain,
+                translations,
             }) => {
                 const explainingId = this.codeExplainingIdFactoryService.generate({
                     courseIndex,
                     moduleIndex,
                     contentIndex,
-                    explainingIndex: orderIndex,
+                    explainingIndex: orderIndex ?? 0,
                 })
                 const codeMarkdown = this.coerceMdScalarService.toRequiredString(
-                    code, 
+                    code,
                     "",
                 )
                 const explainMarkdown = this.coerceMdScalarService.toRequiredString(
-                    explain, 
+                    explain,
                     "",
                 )
-                const translations: Array<DeepPartial<CodeExplainingTranslationEntity>> = []
-                for (const locale of Object.values(Locale)) {
-                    const content = jsonMap.get(locale)
-                    const localeRow = getCodeExplainingsFromExtractJson(
-                        content,
-                    ).find(
-                        (row) => row.orderIndex === orderIndex,
-                    )
-                    if (!localeRow) {
-                        continue
-                    }
-                    translations.push({
-                        codeExplainingId: explainingId,
-                        locale,
-                        field: "code",
-                        value: this.coerceMdScalarService.toRequiredString(
-                            localeRow.code, 
-                            "",
-                        ),
-                    })
-                    translations.push({
-                        codeExplainingId: explainingId,
-                        locale,
-                        field: "explain",
-                        value: this.coerceMdScalarService.toRequiredString(
-                            localeRow.explain, 
-                            "",
-                        ),
-                    })
-                }
                 return {
                     id: explainingId,
                     orderIndex,
                     code: codeMarkdown,
+                    // language is inferred from the code fence info string
                     lang: inferLangFromCodeFence(codeMarkdown),
                     explain: explainMarkdown,
                     defaultLocale: Locale.En,
                     content: {
                         id: contentId,
                     },
-                    translations,
+                    translations: (translations ?? []).map(
+                        ({
+                            locale,
+                            field,
+                            value,
+                        }) => ({
+                            codeExplainingId: explainingId,
+                            locale,
+                            field,
+                            value,
+                        }),
+                    ),
                 }
             }),
             codeImplementations: (
-                jsonMap.get(Locale.En)?.codeImplementations ?? []
+                merged.codeImplementations ?? []
             ).map(({
                 orderIndex,
                 lang,
                 guide,
                 example,
+                translations,
             }) => {
                 const implementationId = this.codeImplementationIdFactoryService.generate({
                     courseIndex,
                     moduleIndex,
                     contentIndex,
-                    implementationIndex: orderIndex,
+                    implementationIndex: orderIndex ?? 0,
                 })
                 const langValue = this.coerceMdScalarService.toRequiredString(
-                    lang, 
+                    lang,
                     "text",
                 )
                 const guideMarkdown = this.coerceMdScalarService.toRequiredString(
@@ -357,37 +302,9 @@ export class ContentParserService {
                     "",
                 )
                 const exampleMarkdown = this.coerceMdScalarService.toRequiredString(
-                    example, 
+                    example,
                     "",
                 )
-                const translations: Array<DeepPartial<CodeImplementationTranslationEntity>> = []
-                for (const locale of Object.values(Locale)) {
-                    const content = jsonMap.get(locale)
-                    const localeRow = (content?.codeImplementations ?? []).find(
-                        (row) => row.orderIndex === orderIndex,
-                    )
-                    if (!localeRow) {
-                        continue
-                    }
-                    translations.push({
-                        codeImplementationId: implementationId,
-                        locale,
-                        field: "guide",
-                        value: this.coerceMdScalarService.toRequiredString(
-                            localeRow.guide,
-                            "",
-                        ),
-                    })
-                    translations.push({
-                        codeImplementationId: implementationId,
-                        locale,
-                        field: "example",
-                        value: this.coerceMdScalarService.toRequiredString(
-                            localeRow.example, 
-                            "",
-                        ),
-                    })
-                }
                 return {
                     id: implementationId,
                     orderIndex,
@@ -398,50 +315,37 @@ export class ContentParserService {
                     content: {
                         id: contentId,
                     },
-                    translations,
+                    translations: (translations ?? []).map(
+                        ({
+                            locale,
+                            field,
+                            value,
+                        }) => ({
+                            codeImplementationId: implementationId,
+                            locale,
+                            field,
+                            value,
+                        }),
+                    ),
                 }
             }),
-            // SCHEMA V2 per-language lesson bodies — loaded from the `bodies/<N>-<lang>/{vi,en}.md`
-            // folder (pre-computed above; kept as separate files so each body stays manageable).
             bodiesV2,
             references: (
-                jsonMap.get(Locale.En)?.references ?? []
+                merged.references ?? []
             ).map(({
                 orderIndex,
                 alias,
                 url,
+                translations,
             }) => {
                 const referenceId = this.contentReferenceIdFactoryService.generate(
                     {
                         courseIndex,
                         moduleIndex,
                         contentIndex,
-                        referenceIndex: orderIndex,
+                        referenceIndex: orderIndex ?? 0,
                     },
                 )
-                const translations = Array.from(jsonMap.entries()).map(
-                    ([
-                        locale,
-                        content
-                    ]) => (
-                        (content.references ?? [])
-                            .filter((reference) => reference.orderIndex === orderIndex)
-                            .map((reference) => [
-                                {
-                                    contentReferenceId: referenceId,
-                                    locale,
-                                    field: "alias",
-                                    value: reference.alias,
-                                },
-                                {
-                                    contentReferenceId: referenceId,
-                                    locale,
-                                    field: "url",
-                                    value: reference.url,
-                                },
-                            ])
-                    )
-                ).flat().flat()
                 return {
                     id: referenceId,
                     orderIndex,
@@ -451,7 +355,18 @@ export class ContentParserService {
                     content: {
                         id: contentId,
                     },
-                    translations
+                    translations: (translations ?? []).map(
+                        ({
+                            locale,
+                            field,
+                            value,
+                        }) => ({
+                            contentReferenceId: referenceId,
+                            locale,
+                            field,
+                            value,
+                        }),
+                    ),
                 }
             }),
         }
@@ -462,13 +377,14 @@ export class ContentParserService {
      *
      * @param moduleRelativePath - Module relative path
      * @param courseIndex - Course index
+     * @param moduleIndex - Module index
      * @returns Entities-shaped graphs for TypeORM cascade save
      */
     async parseMany(
         {
             moduleRelativePath,
             moduleIndex,
-            courseIndex
+            courseIndex,
         }: ParseContentManyParams,
     ): Promise<Array<ResolvedFileResult<DeepPartial<ContentEntity>>>> {
         const paths = await this.contentPathService.paths(
@@ -479,6 +395,7 @@ export class ContentParserService {
         const data: Array<ResolvedFileResult<DeepPartial<ContentEntity>>> = []
         for (const path of paths) {
             try {
+                // delegate the per-content build to parse(); skip + log on failure
                 const content = await this.parse(
                     {
                         paths,
@@ -504,4 +421,3 @@ export class ContentParserService {
         return data
     }
 }
-

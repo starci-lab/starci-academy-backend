@@ -10,9 +10,6 @@ import {
     PrimaryColumn,
 } from "typeorm"
 import {
-    GraphQLJSON,
-} from "graphql-type-json"
-import {
     GraphQLTypeLocale,
     Locale,
 } from "../enums"
@@ -24,17 +21,16 @@ import {
 } from "./challenge-output-v2.entity"
 
 /**
- * Localized jsonb payload for a SCHEMA V2 output bucket. One row per (bucket × locale);
- * mirrors {@link ChallengeOutputTranslationEntity} but the localized value is the whole output
- * jsonb `data` array instead of a per-field text value.
+ * Per-locale title for a SCHEMA V2 output item (normalized — no jsonb). Outputs have no title, so
+ * this is usually empty; kept for table uniformity. One row per (output item × locale).
  */
 @ObjectType({
-    description: "Localized jsonb payload for a V2 output bucket.",
+    description: "Per-locale title for a V2 output item.",
 })
 @Entity("challenge_output_v2_translations")
 export class ChallengeOutputV2TranslationEntity extends AbstractEntity {
     /**
-     * Parent V2 output bucket id (composite PK part).
+     * Parent output item id (composite PK part).
      */
     @Field(() => String)
     @PrimaryColumn({
@@ -44,7 +40,7 @@ export class ChallengeOutputV2TranslationEntity extends AbstractEntity {
         challengeOutputV2Id: string
 
     /**
-     * Locale of this payload (composite PK part).
+     * Locale of this title (composite PK part).
      */
     @Field(() => GraphQLTypeLocale)
     @PrimaryColumn({
@@ -56,24 +52,24 @@ export class ChallengeOutputV2TranslationEntity extends AbstractEntity {
         locale: Locale
 
     /**
-     * Localized output payload (array of items for this locale) stored as jsonb.
+     * Localized output title (usually null).
      */
     @Field(
-        () => GraphQLJSON,
+        () => String,
         {
             nullable: true,
-            description: "Localized output payload (array of items for this locale) stored as jsonb.",
+            description: "Localized output title (usually null).",
         },
     )
     @Column({
-        name: "data",
-        type: "jsonb",
+        name: "title",
+        type: "text",
         nullable: true,
     })
-        data: Array<Record<string, unknown>> | null
+        title: string | null
 
     /**
-     * Parent V2 output bucket this translation belongs to.
+     * Parent output item this title belongs to.
      */
     @ManyToOne(
         () => ChallengeOutputV2Entity,
@@ -87,5 +83,5 @@ export class ChallengeOutputV2TranslationEntity extends AbstractEntity {
         referencedColumnName: "id",
         foreignKeyConstraintName: "fk_output_v2_translation_challenge_outputs_v2",
     })
-        challengeOutputV2: ChallengeOutputV2Entity
+        outputV2: ChallengeOutputV2Entity
 }

@@ -36,7 +36,8 @@ import {
 })
 @Index(
     "uq_ai_models_provider_name",
-    ["provider", "name"],
+    ["provider",
+        "name"],
     {
         unique: true,
     },

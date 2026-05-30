@@ -51,7 +51,8 @@ export class QuizDeckReadService {
                                 id: contentId,
                             },
                         }
-                        : {}),
+                        : {
+                        }),
                 },
                 relations: {
                     cards: {

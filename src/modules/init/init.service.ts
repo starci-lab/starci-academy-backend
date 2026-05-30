@@ -39,11 +39,11 @@ export class InitService implements OnModuleInit {
      * Runs enabled init handlers sequentially, sorted by order.
      */
     async onModuleInit(): Promise<void> {
-        const initConfig = envConfig().init
+        const initHandlers = envConfig().init
             .filter((handler) => handler.enabled)
             .sort((prev, next) => prev.order - next.order)
 
-        for (const handlerConfig of initConfig) {
+        for (const handlerConfig of initHandlers) {
             const handler = this.handlers[handlerConfig.name]
             if (handler) {
                 await handler.init()

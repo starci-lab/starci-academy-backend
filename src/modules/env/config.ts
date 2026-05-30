@@ -40,7 +40,7 @@ export const envConfig = () => ({
         /** UUID namespace for coding-practice problems (deterministic ids from slug). */
         codingProblem: "d32d2da9-ad2e-44b4-b412-a97de455b8e4",
     },
-    /** Initialization configuration. */
+    /** Initialization configuration (seeders → synchronizers). */
     init: [
         {
             name: "seeders",
@@ -56,6 +56,14 @@ export const envConfig = () => ({
                         defaultValue: true,
                     }),
                     fullstack: {
+                        enabled: parseEnvBoolean({
+                            key: "INIT_SEEDERS_COURSES_FULLSTACK_ENABLED",
+                            defaultValue: true,
+                        }),
+                        course: parseEnvBoolean({
+                            key: "INIT_SEEDERS_COURSES_FULLSTACK_COURSE_ENABLED",
+                            defaultValue: true,
+                        }),
                         modules: {
                             indexes: parseEnvString({
                                 key: "INIT_SEEDERS_COURSES_MODULES_FULLSTACK",
@@ -78,6 +86,14 @@ export const envConfig = () => ({
                         },
                     },
                     systemDesign: {
+                        enabled: parseEnvBoolean({
+                            key: "INIT_SEEDERS_COURSES_SYSTEM_DESIGN_ENABLED",
+                            defaultValue: true,
+                        }),
+                        course: parseEnvBoolean({
+                            key: "INIT_SEEDERS_COURSES_SYSTEM_DESIGN_COURSE_ENABLED",
+                            defaultValue: true,
+                        }),
                         modules: {
                             indexes: parseEnvString({
                                 key: "INIT_SEEDERS_COURSES_MODULES_SYSTEM_DESIGN_INDEXES",
@@ -146,7 +162,7 @@ export const envConfig = () => ({
                         defaultValue: true,
                     }),
                 },
-            }
+            },
         },
         {
             name: "synchronizers",
@@ -268,8 +284,8 @@ export const envConfig = () => ({
                         defaultValue: true,
                     }),
                 },
-            }
-        }
+            },
+        },
     ],
     /** Cache configuration. */
     /** Cache: debug flags/TTL, key TTLs (withdraw, session, pool analytics, etc.), stale price max age. */

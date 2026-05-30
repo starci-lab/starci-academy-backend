@@ -3,7 +3,10 @@ import {
 } from "@nestjs/common"
 import normalizeNewline from "normalize-newline"
 import {
+    MOUNT_JSONB_DELIMITER_LINE_RE,
+    MOUNT_JSONB_ITEM_HEADING_RE,
     MOUNT_SECTION_DELIMITER_LINE_RE,
+    NUMERIC_SECTION_KEY_RE,
 } from "./constants"
 import type {
     DelimiterCut,
@@ -11,239 +14,324 @@ import type {
 } from "./types"
 
 /**
- * Mount markdown → JSON: recursive headings; delimiter cuts a trimmed string leaf.
+ * Mount markdown → JSON.
+ *
+ * The grammar is recursive and driven entirely by ATX headings. At any level
+ * the sibling headings decide the shape:
+ *
+ * - `# <number>` siblings → an **array** (each item carries its `orderIndex`).
+ * - `# <string>` siblings → an **object** (heading text is the field key).
+ * - a heading with no child headings → a **string leaf** (its trimmed body).
+ *
+ * Two inline markers escape the heading grammar inside a leaf:
+ *
+ * - `@starci/seperator` … `@starci/seperator` wraps a verbatim string leaf, so
+ *   its body may itself contain `#` lines without being parsed as headings.
+ * - `@starci/jsonb` … `@starci/jsonb` wraps an inline array-of-objects stored
+ *   as a single jsonb column; its scalar fields are type-coerced.
  */
 @Injectable()
 export class ExtractJsonFromMdService {
     /**
-     * Extracts a JSON object from a markdown string.
+     * Extracts a JSON value from a mount markdown string.
+     *
+     * @param markdown - The raw mount markdown (BOM + CRLF tolerant).
+     * @returns The parsed object; a non-object root is wrapped as `{ data }`.
+     *
+     * @example
+     * service.extract("# title\nHello") // => { title: "Hello" }
      */
     extract<T extends Record<string, unknown>>(markdown: string): T {
+        // empty input has no sections → empty object
         if (!markdown) {
             return {
             } as T
         }
-
-        const normalized = normalizeNewline(markdown.replace(/^\uFEFF/,
-            ""))
-        const result = this.parseAtLevel(normalized,
+        // strip a leading BOM and normalise CRLF so line splitting is uniform
+        const normalized = normalizeNewline(
+            markdown.replace(
+                /^\uFEFF/,
+                ""
+            )
+        )
+        // parse starting from the top heading level (h1)
+        const parsed = this.parseLevel(normalized,
             1)
-
-        if (typeof result === "object" && result !== null && !Array.isArray(result)) {
-            return result as T
+        // a plain object root satisfies the contract directly
+        if (this.isPlainObject(parsed)) {
+            return parsed as T
         }
-
+        // an array / string root is wrapped so callers always receive an object
         return {
-            data: result,
+            data: parsed 
         } as unknown as T
     }
 
     /**
-     * Checks if a line is a delimiter line.
+     * Parses the markdown owned by one heading level into an array, object, or
+     * string leaf — the recursive core of the grammar.
+     *
+     * @param content - The markdown slice owned by the current level.
+     * @param level - The heading depth to slice on (1 = h1, 2 = h2, …).
+     * @returns Array (numeric headings), object (string headings), or the
+     *          trimmed string when this level has no child headings.
      */
-    private isDelimiterLine(line: string): boolean {
-        return MOUNT_SECTION_DELIMITER_LINE_RE.test(line)
+    private parseLevel(content: string, level: number): unknown {
+        // split into the sections introduced by headings AT this level
+        const sections = this.splitSections(content,
+            level)
+        // no headings here → this slice is a plain string leaf
+        if (sections.length === 0) {
+            return content.trim()
+        }
+        // all-numeric heading keys (`# 0`, `# 1`, …) describe an ordered array
+        if (sections.every((section) => NUMERIC_SECTION_KEY_RE.test(section.key))) {
+            return this.buildArray(sections,
+                level)
+        }
+        // otherwise the heading keys are field names → build an object
+        return this.buildObject(sections,
+            level)
     }
 
     /**
-     * Cuts a delimiter bounded content from a section body.
+     * Builds an ordered array from numeric-keyed sections, injecting `orderIndex`
+     * from the heading text and sorting ascending by it.
      */
-    private cutDelimiterBoundedContent(sectionBody: string): DelimiterCut {
-        const lines = sectionBody.split("\n")
-        const firstContentLineIndex = lines.findIndex((line) => line.trim().length > 0)
+    private buildArray(
+        sections: Array<HeadingSlice>,
+        level: number,
+    ): Array<Record<string, unknown>> {
+        return sections
+            .map((section) => {
+                // the heading text IS the explicit order of this item
+                const orderIndex = Number.parseInt(section.key,
+                    10)
+                // recurse into the item body to obtain its actual value
+                const value = this.resolveSectionValue(section.body,
+                    level)
+                // an object item carries orderIndex alongside its own fields
+                if (this.isPlainObject(value)) {
+                    return {
+                        ...value, orderIndex 
+                    }
+                }
+                // a scalar / array item is wrapped so orderIndex always has a home
+                return {
+                    orderIndex, value 
+                }
+            })
+            // honour the authored order regardless of source ordering
+            .sort((prev, next) => (prev.orderIndex as number) - (next.orderIndex as number))
+    }
 
-        if (
-            firstContentLineIndex === -1
-            || !this.isDelimiterLine(lines[firstContentLineIndex])
-        ) {
+    /**
+     * Builds an object from string-keyed sections (heading text → field value).
+     */
+    private buildObject(
+        sections: Array<HeadingSlice>,
+        level: number,
+    ): Record<string, unknown> {
+        const result: Record<string, unknown> = {
+        }
+        // each heading contributes one field whose value is its resolved body
+        for (const section of sections) {
+            result[section.key] = this.resolveSectionValue(section.body,
+                level)
+        }
+        return result
+    }
+
+    /**
+     * Resolves a single section body to its value: a verbatim / jsonb leaf when
+     * delimiter-bounded, otherwise the recursively parsed next level.
+     */
+    private resolveSectionValue(body: string, level: number): unknown {
+        const { content, bounded } = this.cutBoundedLeaf(body)
+        // an unbounded body is just more nested markdown → recurse one level deeper
+        if (!bounded) {
+            return this.parseLevel(content,
+                level + 1)
+        }
+        // a jsonb-wrapped leaf parses into an inline array-of-objects
+        const jsonb = this.tryParseJsonbLeaf(content)
+        if (jsonb !== undefined) {
+            return jsonb
+        }
+        // an empty bounded block carries no value → undefined so the consumer's
+        // `?? []` / scalar fallback applies instead of receiving the empty string
+        return content === "" ? undefined : content
+    }
+
+    /**
+     * Splits markdown into the sections introduced by headings at `level`,
+     * skipping headings that sit inside a fenced code block or a delimiter leaf.
+     *
+     * @param content - The markdown slice to split.
+     * @param level - The heading depth whose `#` prefix opens a section.
+     * @returns One {@link HeadingSlice} per heading; text before the first
+     *          heading belongs to no section and is dropped.
+     */
+    private splitSections(content: string, level: number): Array<HeadingSlice> {
+        // the exact `#` run + space that opens a heading at this level
+        const headingPrefix = `${"#".repeat(level)} `
+        const sections: Array<HeadingSlice> = []
+        let currentKey: string | null = null
+        let bodyLines: Array<string> = []
+        let inFence = false
+        let inDelimiterLeaf = false
+
+        // close the section being accumulated, attaching its buffered body
+        const flush = (): void => {
+            if (currentKey !== null) {
+                sections.push({
+                    key: currentKey, body: bodyLines.join("\n") 
+                })
+            }
+            bodyLines = []
+        }
+
+        for (const line of content.split("\n")) {
+            // toggle fenced-code tracking so `#`-prefixed code lines never count
+            if (line.trim().startsWith("```")) {
+                inFence = !inFence
+            }
+            // toggle delimiter-leaf tracking so headings inside a verbatim leaf
+            // are kept as body, not promoted to sibling sections
+            if (!inFence && this.isSeparatorLine(line)) {
+                inDelimiterLeaf = !inDelimiterLeaf
+            }
+            // a real heading at THIS level opens a new section; numeric keys (e.g. `## 1`
+            // lang buckets) always boundary even inside an unclosed delimiter leaf
+            if (!inFence && line.startsWith(headingPrefix)) {
+                const sectionKey = line.slice(headingPrefix.length).trim()
+                const isNumericSectionBoundary = NUMERIC_SECTION_KEY_RE.test(sectionKey)
+                if (!inDelimiterLeaf || isNumericSectionBoundary) {
+                    flush()
+                    currentKey = sectionKey
+                    continue
+                }
+            }
+            // every other line (incl. deeper headings + delimiter markers) is
+            // body of the current section, to be resolved/recursed later
+            if (currentKey !== null) {
+                bodyLines.push(line)
+            }
+        }
+        // emit the trailing section left open at end of input
+        flush()
+        return sections
+    }
+
+    /**
+     * Cuts a delimiter-bounded leaf out of a section body. A body is bounded
+     * only when its first non-blank line is a `@starci/seperator` marker; the
+     * leaf content is everything between the opening and closing markers (or to
+     * the end when the closer is absent).
+     */
+    private cutBoundedLeaf(body: string): DelimiterCut {
+        const lines = body.split("\n")
+        // a leaf block must OPEN (first non-blank line) with a separator marker
+        const openIndex = lines.findIndex((line) => line.trim().length > 0)
+        if (openIndex === -1 || !this.isSeparatorLine(lines[openIndex])) {
+            // not bounded → hand back the trimmed body for further recursion
             return {
-                content: sectionBody.trim(),
-                bounded: false,
+                content: body.trim(), bounded: false 
             }
         }
-
-        const delimiterIndices: Array<number> = []
-        for (let index = 0; index < lines.length; index += 1) {
-            if (this.isDelimiterLine(lines[index])) {
-                delimiterIndices.push(index)
-            }
-        }
-
-        const openIndex = delimiterIndices[0]
-        const closeIndex =
-            delimiterIndices.length > 1
-                ? delimiterIndices[delimiterIndices.length - 1]
-                : -1
-
-        if (closeIndex > openIndex) {
-            return {
-                content: lines.slice(openIndex + 1,
-                    closeIndex).join("\n").trim(),
-                bounded: true,
-            }
-        }
-
+        // collect every separator index so we can pair the opener with a closer
+        const separatorIndices = this.lineIndicesMatching(lines,
+            (line) =>
+                this.isSeparatorLine(line),
+        )
+        // a trailing separator closes the block; a lone opener runs to the end
+        const closeIndex = separatorIndices.length > 1
+            ? separatorIndices[separatorIndices.length - 1]
+            : lines.length
         return {
-            content: lines.slice(openIndex + 1).join("\n").trim(),
+            content: lines.slice(separatorIndices[0] + 1,
+                closeIndex).join("\n").trim(),
             bounded: true,
         }
     }
 
     /**
-     * Collects headings from a markdown string.
+     * Parses a `@starci/jsonb` leaf into an inline array-of-objects, or returns
+     * `undefined` when `content` is not wrapped by a pair of jsonb markers.
      */
-    private collectHeadings(
-        content: string,
-        level: number,
-    ): Array<{ key: string; pos: number }> {
-        const prefix = `${"#".repeat(level)} `
-        const headings: Array<{ key: string; pos: number }> = []
-        let inFence = false
-        let inSeparatorBlock = false
-        let pos = 0
-
-        for (const line of content.split("\n")) {
-            if (line.trim().startsWith("```")) {
-                inFence = !inFence
-            }
-            if (!inFence && this.isDelimiterLine(line)) {
-                inSeparatorBlock = !inSeparatorBlock
-            }
-            if (!inFence && !inSeparatorBlock && line.startsWith(prefix)) {
-                headings.push({
-                    key: line.slice(prefix.length).trim(),
-                    pos,
-                })
-            }
-            pos += line.length + 1
-        }
-        return headings
-    }
-
-    /**
-     * Slices sections from a markdown string.
-     */
-    private sliceSections(content: string, level: number): Array<HeadingSlice> {
-        const headings = this.collectHeadings(content,
-            level)
-        return headings.map((heading, index) => {
-            const lineEnd = content.indexOf("\n",
-                heading.pos)
-            const bodyStart = lineEnd === -1 ? content.length : lineEnd + 1
-            const bodyEnd =
-                index + 1 < headings.length ? headings[index + 1].pos : content.length
-            return {
-                key: heading.key,
-                body: content.slice(bodyStart,
-                    bodyEnd),
-            }
-        })
-    }
-
-    /** Matches a `<!-- @starci/jsonb -->` wrapper line (whitespace tolerant). */
-    private static readonly JSONB_DELIMITER_LINE_RE =
-        /^\s*<!--\s*@starci\/jsonb\s*-->\s*$/
-
-    /** Matches a jsonb item heading line `# <n>` (the array index). */
-    private static readonly JSONB_ITEM_HEADING_RE = /^#\s+(\d+)\s*$/
-
-    /**
-     * Checks if a line is a `@starci/jsonb` wrapper line.
-     */
-    private isJsonbDelimiterLine(line: string): boolean {
-        return ExtractJsonFromMdService.JSONB_DELIMITER_LINE_RE.test(line)
-    }
-
-    /**
-     * Parses a section body from a markdown string.
-     */
-    private parseSectionBody(sectionBody: string, level: number): unknown {
-        const { content, bounded } = this.cutDelimiterBoundedContent(sectionBody)
-        if (bounded) {
-            const jsonb = this.tryParseJsonbBlock(content)
-            if (jsonb !== undefined) {
-                return jsonb
-            }
-            // an empty delimiter-bounded block (e.g. a placeholder array section kept with its
-            // `@starci/seperator` markers but no body) carries no value → undefined, so the consumer's
-            // `?? []` / scalar fallback applies instead of receiving the empty string "".
-            return content === "" ? undefined : content
-        }
-        return this.parseAtLevel(content,
-            level + 1)
-    }
-
-    /**
-     * If `content` is wrapped by a pair of `@starci/jsonb` markers, parse the
-     * inner heading-block into a jsonb array; otherwise return `undefined`.
-     */
-    private tryParseJsonbBlock(
+    private tryParseJsonbLeaf(
         content: string,
     ): Array<Record<string, unknown>> | undefined {
         const lines = content.split("\n")
-        const markerIndices: Array<number> = []
-        for (let index = 0; index < lines.length; index += 1) {
-            if (this.isJsonbDelimiterLine(lines[index])) {
-                markerIndices.push(index)
-            }
-        }
+        // locate the wrapping markers; a jsonb leaf needs both an open and close
+        const markerIndices = this.lineIndicesMatching(lines,
+            (line) =>
+                this.isJsonbLine(line),
+        )
         if (markerIndices.length < 2) {
             return undefined
         }
+        // the inner heading-block lives strictly between the outer markers
         const inner = lines
-            .slice(markerIndices[0] + 1, markerIndices[markerIndices.length - 1])
+            .slice(markerIndices[0] + 1,
+                markerIndices[markerIndices.length - 1])
             .join("\n")
-        return this.parseJsonbBlock(inner)
+        return this.parseJsonbItems(inner)
     }
 
     /**
      * Parses a jsonb heading-block: `# <n>` opens an array item; `## <field>`
-     * sets a field whose value is the raw text until the next `##`/`#` heading
-     * (kept as markdown, fence-aware), coerced to number/boolean when scalar.
+     * sets a scalar field whose value is the raw text until the next `#`/`##`
+     * heading (fence-aware), type-coerced to number / boolean when it is one.
      */
-    private parseJsonbBlock(inner: string): Array<Record<string, unknown>> {
+    private parseJsonbItems(inner: string): Array<Record<string, unknown>> {
         const items: Array<Record<string, unknown>> = []
         let current: Record<string, unknown> | null = null
-        let currentField: string | null = null
+        let field: string | null = null
         let buffer: Array<string> = []
         let inFence = false
 
-        // Flush the buffered lines into the current item's current field.
-        // (EN: flush buffered lines into the active item field.)
+        // commit the buffered text into the active item field, type-coerced
         const flushField = (): void => {
-            if (current && currentField) {
-                current[currentField] = this.coerceJsonbValue(buffer.join("\n").trim())
+            if (current && field) {
+                current[field] = this.coerceScalar(buffer.join("\n").trim())
             }
             buffer = []
-            currentField = null
+            field = null
         }
 
         for (const line of inner.split("\n")) {
+            // track fences so `#`/`##` code lines are never read as item/field heads
             if (line.trim().startsWith("```")) {
                 inFence = !inFence
             }
             if (!inFence) {
-                const itemMatch = ExtractJsonFromMdService.JSONB_ITEM_HEADING_RE.exec(line)
+                // `# <n>` opens a new array item keyed by its order index
+                const itemMatch = MOUNT_JSONB_ITEM_HEADING_RE.exec(line)
                 if (itemMatch) {
                     flushField()
                     if (current) {
                         items.push(current)
                     }
                     current = {
-                        orderIndex: Number.parseInt(itemMatch[1], 10),
+                        orderIndex: Number.parseInt(itemMatch[1],
+                            10) 
                     }
                     continue
                 }
+                // `## <field>` opens a new scalar field on the current item
                 if (line.startsWith("## ")) {
                     flushField()
-                    currentField = line.slice(3).trim()
+                    field = line.slice(3).trim()
                     continue
                 }
             }
-            if (currentField) {
+            // any other line is part of the active field's raw value
+            if (field) {
                 buffer.push(line)
             }
         }
+        // flush the final field + item left open at end of input
         flushField()
         if (current) {
             items.push(current)
@@ -252,84 +340,61 @@ export class ExtractJsonFromMdService {
     }
 
     /**
-     * Coerces a raw jsonb field value: integer string → number, `true`/`false`
-     * → boolean, otherwise the trimmed markdown string.
+     * Coerces a raw jsonb field value: an integer string → number, `true` /
+     * `false` → boolean, otherwise the trimmed markdown string is kept as-is.
      */
-    private coerceJsonbValue(raw: string): string | number | boolean {
+    private coerceScalar(raw: string): string | number | boolean {
+        // a pure integer literal becomes a real number
         if (/^-?\d+$/.test(raw)) {
-            return Number.parseInt(raw, 10)
+            return Number.parseInt(raw,
+                10)
         }
+        // the two boolean literals become real booleans
         if (raw === "true") {
             return true
         }
         if (raw === "false") {
             return false
         }
+        // everything else stays a verbatim markdown string
         return raw
     }
 
-    private static readonly NUMERIC_SECTION_KEY_RE = /^\d+$/
+    /**
+     * Collects the indices of the lines that satisfy `predicate`.
+     */
+    private lineIndicesMatching(
+        lines: Array<string>,
+        predicate: (line: string) => boolean,
+    ): Array<number> {
+        const indices: Array<number> = []
+        // a single pass keeps the two delimiter scans terse and identical
+        for (let index = 0; index < lines.length; index += 1) {
+            if (predicate(lines[index])) {
+                indices.push(index)
+            }
+        }
+        return indices
+    }
 
     /**
-     * Parses a content at a given level.
+     * Checks whether a line is a `@starci/seperator` delimiter marker.
      */
-    private parseAtLevel(
-        content: string, 
-        level: number
-    ): unknown {
-        const sections = this.sliceSections(
-            content, 
-            level,
-        )
+    private isSeparatorLine(line: string): boolean {
+        return MOUNT_SECTION_DELIMITER_LINE_RE.test(line)
+    }
 
-        if (sections.length === 0) {
-            return content.trim()
-        }
+    /**
+     * Checks whether a line is a `@starci/jsonb` wrapper marker.
+     */
+    private isJsonbLine(line: string): boolean {
+        return MOUNT_JSONB_DELIMITER_LINE_RE.test(line)
+    }
 
-        const allNumeric = sections.every((section) =>
-            ExtractJsonFromMdService.NUMERIC_SECTION_KEY_RE.test(section.key),
-        )
-
-        if (allNumeric) {
-            return sections
-                .map((section) => {
-                    const orderIndex = Number.parseInt(
-                        section.key, 
-                        10,
-                    )
-                    const parsed = this.parseSectionBody(
-                        section.body, 
-                        level,
-                    )
-                    if (
-                        typeof parsed === "object"
-                        && parsed !== null
-                        && !Array.isArray(parsed)
-                    ) {
-                        return {
-                            ...(parsed as Record<string, unknown>),
-                            orderIndex,
-                        }
-                    }
-                    return {
-                        orderIndex,
-                        value: parsed,
-                    }
-                })
-                .sort(
-                    (left, right) =>
-                        (left.orderIndex as number) - (right.orderIndex as number),
-                )
-        }
-
-        const result: Record<string, unknown> = {
-        }
-        for (const section of sections) {
-            result[section.key] = this.parseSectionBody(
-                section.body, 
-                level
-            )
-        }
-        return result
+    /**
+     * Narrows an unknown value to a plain (non-array, non-null) object.
+     */
+    private isPlainObject(value: unknown): value is Record<string, unknown> {
+        return typeof value === "object" && value !== null && !Array.isArray(value)
     }
 }

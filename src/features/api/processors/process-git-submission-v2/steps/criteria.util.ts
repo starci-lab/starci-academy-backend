@@ -1,80 +1,87 @@
 import type {
-    ChallengeEntity,
+    ChallengeSubmissionEntity,
 } from "@modules/databases"
 
-/** A flattened yes/no grading criterion resolved for one submission. */
+/** Minimal shape shared by approach/outcome criterion language rows (structural — either entity). */
+interface CriterionLangProse {
+    /** Programming language of this prose row. */
+    lang: string
+    /** Criterion prose text for that language. */
+    body: string | null
+}
+
+/** A flattened yes/no grading criterion resolved for one submission + language. */
 export interface ResolvedChallengeCriterion {
     /** Criterion description: what is checked / observable evidence / what fails it. */
     body: string
-    /** Points awarded when the criterion is met. */
+    /** Points awarded when the criterion is met (the rubric weight split across its criteria). */
     score: number
     /** When true, failing this criterion zeroes the whole submission. */
     critical: boolean
-    /** Where the criterion came from: language-agnostic outcome or per-language approach. */
+    /** Where the criterion came from: observable outcome or per-language approach. */
     kind: "outcome" | "approach"
 }
 
-/** Read a string field off a loosely-typed jsonb criterion record. */
-function readString(record: Record<string, unknown>, key: string): string {
-    const value = record[key]
-    return typeof value === "string" ? value : ""
-}
-
-/** Read a numeric field off a loosely-typed jsonb criterion record. */
-function readNumber(record: Record<string, unknown>, key: string): number {
-    const value = record[key]
-    return typeof value === "number" ? value : Number(value) || 0
-}
-
-/** Read a boolean field off a loosely-typed jsonb criterion record. */
-function readBoolean(record: Record<string, unknown>, key: string): boolean {
-    return Boolean(record[key])
+/**
+ * Pick a criterion's prose for the learner's chosen language; fall back to the first language bucket
+ * when the chosen language is absent (e.g. a rubric that omits Go).
+ *
+ * @param langs - The criterion's per-language prose rows.
+ * @param lang - The learner's chosen programming language.
+ * @returns The matching (or fallback) prose, or an empty string when there is none.
+ */
+function pickLangBody(
+    langs: Array<CriterionLangProse> | undefined,
+    lang: string | undefined,
+): string {
+    const list = langs ?? []
+    // exact language match first
+    const matched = list.find((entry) => entry.lang === lang)
+    // fall back to the first available language so grading never silently drops a criterion
+    return (matched ?? list[0])?.body ?? ""
 }
 
 /**
- * Collect the grading criteria for a SCHEMA V2 challenge: the language-agnostic `outcomeCriteria`
- * plus the `approachCriteria` bucket matching the learner's chosen programming language. When no
- * language is supplied (or no bucket matches), only the outcome criteria are returned.
+ * Collect the grading criteria for a SCHEMA V2 submission: the per-language `outcomeCriteria` and
+ * `approachCriteria` of the SPECIFIC submission being graded, resolved to the learner's chosen
+ * language. Per-criterion score is NOT stored — each bucket's weight (`outcomeScore` 30 /
+ * `approachScore` 70 on the submission) is split equally across its criteria.
  *
- * @param challenge - The hydrated challenge (criteria are jsonb columns).
+ * @param submission - The hydrated challenge submission (with `approachCriteria.langs` +
+ *   `outcomeCriteria.langs` loaded).
  * @param lang - The learner's chosen programming language (typescript/java/csharp/go).
- * @returns The flattened, ordered list of criteria to grade.
+ * @returns The flattened, ordered list of criteria to grade (outcome first, then approach).
  */
-export function collectChallengeCriteria(
-    challenge: ChallengeEntity | undefined,
+export function collectSubmissionCriteria(
+    submission: ChallengeSubmissionEntity | undefined,
     lang: string | undefined,
 ): Array<ResolvedChallengeCriterion> {
-    // language-agnostic outcome criteria
-    const outcome: Array<ResolvedChallengeCriterion> = (challenge?.outcomeCriteria ?? []).map(
-        (record) => ({
-            body: readString(record,
-                "body"),
-            score: readNumber(record,
-                "score"),
-            critical: readBoolean(record,
-                "critical"),
-            kind: "outcome",
-        }),
+    // observable-behaviour criteria — split the submission's outcome weight (30) across them
+    const outcomeItems = [...(submission?.outcomeCriteria ?? [])].sort(
+        (prev, next) => prev.orderIndex - next.orderIndex,
     )
-    // per-language approach bucket matching the learner's chosen language
-    const approachBucket = (challenge?.approachCriteria ?? []).find(
-        (bucket) => readString(bucket,
-            "lang") === lang,
+    const outcomeWeight = submission?.outcomeScore ?? 0
+    const outcomePerCriterion = outcomeItems.length > 0 ? outcomeWeight / outcomeItems.length : 0
+    const outcome: Array<ResolvedChallengeCriterion> = outcomeItems.map((criterion) => ({
+        body: pickLangBody(criterion.langs,
+            lang),
+        score: outcomePerCriterion,
+        critical: criterion.critical,
+        kind: "outcome",
+    }))
+    // per-language approach criteria — split the submission's approach weight (70) across them
+    const approachItems = [...(submission?.approachCriteria ?? [])].sort(
+        (prev, next) => prev.orderIndex - next.orderIndex,
     )
-    const approachData = Array.isArray(approachBucket?.data)
-        ? (approachBucket?.data as Array<Record<string, unknown>>)
-        : []
-    const approach: Array<ResolvedChallengeCriterion> = approachData.map(
-        (record) => ({
-            body: readString(record,
-                "body"),
-            score: readNumber(record,
-                "score"),
-            critical: readBoolean(record,
-                "critical"),
-            kind: "approach",
-        }),
-    )
+    const approachWeight = submission?.approachScore ?? 0
+    const approachPerCriterion = approachItems.length > 0 ? approachWeight / approachItems.length : 0
+    const approach: Array<ResolvedChallengeCriterion> = approachItems.map((criterion) => ({
+        body: pickLangBody(criterion.langs,
+            lang),
+        score: approachPerCriterion,
+        critical: criterion.critical,
+        kind: "approach",
+    }))
     return [
         ...outcome,
         ...approach,

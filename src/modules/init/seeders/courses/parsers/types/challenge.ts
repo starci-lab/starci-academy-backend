@@ -1,10 +1,9 @@
-import {
-    ResolvedFilePath,
-} from "../../path"
 import type {
     ChallengeDifficulty,
 } from "@modules/databases"
-
+import type {
+    ResolvedFilePath,
+} from "../../../shared"
 /** Indices that locate a challenge under mounted course data. */
 export interface ParseChallengeParams {
     /** The paths of the challenge. */
@@ -83,4 +82,25 @@ export interface ChallengeDataJson {
      * bodies (`### N. Title (Xpts)` in `en.md` / `vi.md`) when present.
      */
     prompts?: Array<ChallengeSubmissionPromptJson>
+}
+
+/**
+ * Inputs for parsing one submission's grading rubric under
+ * `<challenge>/submissions/<submissionOrderIndex>/en.md` (`# approachCriterias` / `# outcomeCriterias`).
+ */
+export interface ParseSubmissionCriteriaParams {
+    /** Challenge folder relative path under `courses/`. */
+    challengeRelativePath: string
+    /** Course ordinal on the mount. */
+    courseIndex: number
+    /** Module ordinal within the course. */
+    moduleIndex: number
+    /** Content ordinal within the module. */
+    contentIndex: number
+    /** Challenge ordinal within the content. */
+    challengeIndex: number
+    /** Submission ordinal — matches `submissions/<n>/` folder name. */
+    submissionOrderIndex: number
+    /** Parent submission id written into every criteria row's FK relation. */
+    submissionId: string
 }

@@ -256,7 +256,8 @@ export class ReviewCvSubmissionAnalyzeStepService extends AbstractStepService<
                 job: context.job,
                 key: CV_AI_INVOKE_DECISION_KEY,
             },
-        ) ?? {}
+        ) ?? {
+        }
 
         const { text: raw } = await this.aiInvokeService.invoke({
             messages: [

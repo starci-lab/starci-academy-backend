@@ -13,9 +13,6 @@ import {
     RelationId,
 } from "typeorm"
 import {
-    GraphQLJSON,
-} from "graphql-type-json"
-import {
     GraphQLTypeLocale,
     Locale,
 } from "../enums"
@@ -28,39 +25,27 @@ import {
 import {
     ChallengeStepV2TranslationEntity,
 } from "./challenge-step-v2-translation.entity"
+import {
+    ChallengeStepV2LangEntity,
+} from "./challenge-step-v2-lang.entity"
 
 /**
- * SCHEMA V2 per-language step bucket for a challenge.
- * One row per (locale × programming language); the jsonb `data` payload holds a single locale's text.
+ * SCHEMA V2 step ITEM for a challenge (normalized — no jsonb). One row per step position; the
+ * language-agnostic `title` is localized via {@link ChallengeStepV2TranslationEntity} and the
+ * per-language `body` lives under {@link ChallengeStepV2LangEntity}.
  */
 @ObjectType({
-    description: "Per-(locale × language) challenge step bucket (V2); single-locale jsonb payload.",
+    description: "A SCHEMA V2 challenge step item (one per position).",
 })
 @Entity("challenge_steps_v2")
 export class ChallengeStepV2Entity extends UuidAbstractEntity {
     /**
-     * Programming language (e.g. typescript, java, csharp, go).
-     */
-    @Field(
-        () => String,
-        {
-            description: "Programming language for this step bucket (e.g. typescript, java, csharp, go).",
-        },
-    )
-    @Column({
-        name: "lang",
-        type: "varchar",
-        length: 32,
-    })
-        lang: string
-
-    /**
-     * Display order within the challenge step V2 list.
+     * Display order of this step within the challenge (agnostic position).
      */
     @Field(
         () => Int,
         {
-            description: "Display order within the challenge step V2 list.",
+            description: "Display order of this step within the challenge.",
         },
     )
     @Column({
@@ -71,30 +56,12 @@ export class ChallengeStepV2Entity extends UuidAbstractEntity {
         orderIndex: number
 
     /**
-     * Default-locale step payload (array of items) stored as jsonb; per-locale variants live in
-     * {@link translations}.
-     */
-    @Field(
-        () => GraphQLJSON,
-        {
-            nullable: true,
-            description: "Default-locale step payload (array of items) stored as jsonb.",
-        },
-    )
-    @Column({
-        name: "data",
-        type: "jsonb",
-        nullable: true,
-    })
-        data: Array<Record<string, unknown>> | null
-
-    /**
-     * Default locale for this step bucket row.
+     * Default locale for this step item.
      */
     @Field(
         () => GraphQLTypeLocale,
         {
-            description: "Default locale for this step bucket row.",
+            description: "Default locale for this step item.",
         },
     )
     @Column({
@@ -106,7 +73,7 @@ export class ChallengeStepV2Entity extends UuidAbstractEntity {
         defaultLocale: Locale
 
     /**
-     * Parent challenge this step bucket belongs to.
+     * Parent challenge this step belongs to.
      */
     @ManyToOne(
         () => ChallengeEntity,
@@ -131,25 +98,44 @@ export class ChallengeStepV2Entity extends UuidAbstractEntity {
         },
     )
     @RelationId(
-        (challengeStepV2: ChallengeStepV2Entity) => challengeStepV2.challenge,
+        (stepV2: ChallengeStepV2Entity) => stepV2.challenge,
     )
         challengeId: string
 
     /**
-     * Per-locale step jsonb payloads for this bucket.
+     * Per-locale title overrides (the title is agnostic across programming languages).
      */
     @Field(
         () => [ChallengeStepV2TranslationEntity],
         {
-            description: "Per-locale step jsonb payloads for this bucket.",
+            description: "Per-locale title overrides for this step item.",
         },
     )
     @OneToMany(
         () => ChallengeStepV2TranslationEntity,
-        (translation: ChallengeStepV2TranslationEntity) => translation.challengeStepV2,
+        (translation: ChallengeStepV2TranslationEntity) => translation.stepV2,
+        {
+            cascade: true,
+            orphanedRowAction: "delete",
+        },
+    )
+        translations: Array<ChallengeStepV2TranslationEntity>
+
+    /**
+     * Per-programming-language content (body) for this step.
+     */
+    @Field(
+        () => [ChallengeStepV2LangEntity],
+        {
+            description: "Per-programming-language content for this step.",
+        },
+    )
+    @OneToMany(
+        () => ChallengeStepV2LangEntity,
+        (lang: ChallengeStepV2LangEntity) => lang.stepV2,
         {
             cascade: true,
         },
     )
-        translations: Array<ChallengeStepV2TranslationEntity>
+        langs: Array<ChallengeStepV2LangEntity>
 }

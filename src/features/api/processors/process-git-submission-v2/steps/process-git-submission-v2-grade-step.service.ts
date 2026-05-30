@@ -76,7 +76,7 @@ import type {
     ProcessGitSubmissionGradeStepExecuteResult,
 } from "../../process-git-submission/types"
 import {
-    collectChallengeCriteria,
+    collectSubmissionCriteria,
     renderCriteriaPromptSections,
 } from "./criteria.util"
 
@@ -157,9 +157,12 @@ export class ProcessGitSubmissionV2GradeStepService extends AbstractStepService<
 
         const challenge = context.extended?.challenge
         const challengeTitle = (challenge?.title ?? "").trim()
-        // outcome (agnostic) + approach criteria for the learner's chosen programming language
-        const criteria = collectChallengeCriteria(challenge,
-            payload.lang)
+        // outcome + approach criteria of the SPECIFIC submission being graded, resolved to the
+        // learner's chosen programming language (per-submission, per-language — not challenge-level)
+        const criteria = collectSubmissionCriteria(
+            context.extended?.challengeSubmission,
+            payload.lang,
+        )
         const repoUrl = context.extended?.userChallengeSubmission.submissionUrl ?? ""
 
         /** Load GitHub repo */

@@ -10,9 +10,6 @@ import {
     PrimaryColumn,
 } from "typeorm"
 import {
-    GraphQLJSON,
-} from "graphql-type-json"
-import {
     GraphQLTypeLocale,
     Locale,
 } from "../enums"
@@ -24,17 +21,15 @@ import {
 } from "./challenge-step-v2.entity"
 
 /**
- * Localized jsonb payload for a SCHEMA V2 step bucket. One row per (bucket × locale);
- * mirrors {@link ChallengeStepTranslationEntity} but the localized value is the whole step
- * jsonb `data` array instead of a per-field text value.
+ * Per-locale title for a SCHEMA V2 step item (normalized — no jsonb). One row per (step item × locale).
  */
 @ObjectType({
-    description: "Localized jsonb payload for a V2 step bucket.",
+    description: "Per-locale title for a V2 step item.",
 })
 @Entity("challenge_step_v2_translations")
 export class ChallengeStepV2TranslationEntity extends AbstractEntity {
     /**
-     * Parent V2 step bucket id (composite PK part).
+     * Parent step item id (composite PK part).
      */
     @Field(() => String)
     @PrimaryColumn({
@@ -44,7 +39,7 @@ export class ChallengeStepV2TranslationEntity extends AbstractEntity {
         challengeStepV2Id: string
 
     /**
-     * Locale of this payload (composite PK part).
+     * Locale of this title (composite PK part).
      */
     @Field(() => GraphQLTypeLocale)
     @PrimaryColumn({
@@ -56,24 +51,24 @@ export class ChallengeStepV2TranslationEntity extends AbstractEntity {
         locale: Locale
 
     /**
-     * Localized step payload (array of items for this locale) stored as jsonb.
+     * Localized step title.
      */
     @Field(
-        () => GraphQLJSON,
+        () => String,
         {
             nullable: true,
-            description: "Localized step payload (array of items for this locale) stored as jsonb.",
+            description: "Localized step title.",
         },
     )
     @Column({
-        name: "data",
-        type: "jsonb",
+        name: "title",
+        type: "text",
         nullable: true,
     })
-        data: Array<Record<string, unknown>> | null
+        title: string | null
 
     /**
-     * Parent V2 step bucket this translation belongs to.
+     * Parent step item this title belongs to.
      */
     @ManyToOne(
         () => ChallengeStepV2Entity,
@@ -87,5 +82,5 @@ export class ChallengeStepV2TranslationEntity extends AbstractEntity {
         referencedColumnName: "id",
         foreignKeyConstraintName: "fk_step_v2_translation_challenge_steps_v2",
     })
-        challengeStepV2: ChallengeStepV2Entity
+        stepV2: ChallengeStepV2Entity
 }

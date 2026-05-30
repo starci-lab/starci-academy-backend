@@ -31,6 +31,12 @@ import {
     ChallengeSubmissionPromptEntity,
 } from "./challenge-submission-prompt.entity"
 import {
+    ChallengeSubmissionApproachCriteriaEntity,
+} from "./challenge-submission-approach-criteria.entity"
+import {
+    ChallengeSubmissionOutcomeCriteriaEntity,
+} from "./challenge-submission-outcome-criteria.entity"
+import {
     ResourceEntity,
 } from "./resource.entity"
 import {
@@ -98,6 +104,32 @@ export class ChallengeSubmissionEntity extends UuidAbstractEntity {
         default: 0,
     })
         score: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Weight of the approach rubric within this submission's score (V2 split, default 70).",
+        },
+    )
+    @Column({
+        name: "approach_score",
+        type: "int",
+        default: 70,
+    })
+        approachScore: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Weight of the outcome rubric within this submission's score (V2 split, default 30).",
+        },
+    )
+    @Column({
+        name: "outcome_score",
+        type: "int",
+        default: 30,
+    })
+        outcomeScore: number
 
     @Field(
         () => Int,
@@ -176,6 +208,26 @@ export class ChallengeSubmissionEntity extends UuidAbstractEntity {
         },
     )
         prompts: Array<ChallengeSubmissionPromptEntity>
+
+    // SCHEMA V2 grading rubric: per-language approach criteria (internal — not in GraphQL)
+    @OneToMany(
+        () => ChallengeSubmissionApproachCriteriaEntity,
+        (criteria: ChallengeSubmissionApproachCriteriaEntity) => criteria.challengeSubmission,
+        {
+            cascade: true,
+        },
+    )
+        approachCriteria: Array<ChallengeSubmissionApproachCriteriaEntity>
+
+    // SCHEMA V2 grading rubric: per-language outcome criteria (internal — not in GraphQL)
+    @OneToMany(
+        () => ChallengeSubmissionOutcomeCriteriaEntity,
+        (criteria: ChallengeSubmissionOutcomeCriteriaEntity) => criteria.challengeSubmission,
+        {
+            cascade: true,
+        },
+    )
+        outcomeCriteria: Array<ChallengeSubmissionOutcomeCriteriaEntity>
 
     @Field(
         () => [ResourceEntity],

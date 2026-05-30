@@ -18,7 +18,7 @@ import {
 /**
  * Seeds the coding-practice problem bank from `.mount/data/coding-problems/`
  * into `coding_problems` (+ testcases, starter codes, translations) at boot.
- * Gated by `INIT_SEEDERS_CODING_PROBLEMS`.
+ * Gated by envConfig().init seeders `codingProblems.enabled`.
  */
 @Injectable()
 export class CodingProblemSeederService {
