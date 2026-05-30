@@ -32,6 +32,7 @@ import {
     ChallengePrerequisiteV2IdFactoryService,
     ChallengeRequirementV2IdFactoryService,
     ChallengeStepV2IdFactoryService,
+    ChallengeSubmissionCriteriaIdFactoryService,
     ChallengeSubmissionIdFactoryService,
     ContentIdFactoryService,
     CourseIdFactoryService,
@@ -145,6 +146,7 @@ describe("ChallengeParserService",
                     ChallengeOutputV2IdFactoryService,
                     ChallengePrerequisiteV2IdFactoryService,
                     ChallengeSubmissionIdFactoryService,
+                    ChallengeSubmissionCriteriaIdFactoryService,
                     {
                         provide: ContextLoaderService,
                         useValue: contextLoaderService,
@@ -247,6 +249,15 @@ describe("ChallengeParserService",
                         expect(parsed.submissions?.[0]?.type).toBe("githubUrl")
                         expect(parsed.submissions?.[0]?.title).toBe("GitHub Repository Link")
                         expect(parsed.submissions?.[0]?.score).toBe(100)
+                        // rubric: per-language `langs[]` rows on each criterion, score summed onto submission
+                        expect(parsed.submissions?.[0]?.outcomeCriteria?.length ?? 0).toBeGreaterThan(0)
+                        expect(parsed.submissions?.[0]?.approachCriteria?.length ?? 0).toBeGreaterThan(0)
+                        expect(parsed.submissions?.[0]?.outcomeCriteria?.[0]?.langs?.length ?? 0).toBeGreaterThan(0)
+                        expect(parsed.submissions?.[0]?.outcomeCriteria?.[0]?.langs?.[0]?.lang).toBe("typescript")
+                        expect(typeof parsed.submissions?.[0]?.outcomeCriteria?.[0]?.critical).toBe("boolean")
+                        // approachScore + outcomeScore are sums of each rubric's per-criterion `## score`
+                        expect((parsed.submissions?.[0]?.approachScore ?? 0) + (parsed.submissions?.[0]?.outcomeScore ?? 0))
+                            .toBeGreaterThan(0)
                         // title + description rows for both locales (4 rows total)
                         expect(parsed.submissions?.[0]?.translations).toEqual(
                             expect.arrayContaining([

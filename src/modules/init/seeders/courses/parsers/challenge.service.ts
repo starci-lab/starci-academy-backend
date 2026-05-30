@@ -31,6 +31,7 @@ import {
     ChallengePrerequisiteV2IdFactoryService,
     ChallengeRequirementV2IdFactoryService,
     ChallengeStepV2IdFactoryService,
+    ChallengeSubmissionCriteriaIdFactoryService,
     ChallengeSubmissionIdFactoryService,
     ContentIdFactoryService,
 } from "../id-factories"
@@ -43,7 +44,11 @@ import {
     ChallengePrerequisiteV2Entity,
     ChallengeRequirementV2Entity,
     ChallengeStepV2Entity,
+    ChallengeSubmissionApproachCriteriaEntity,
+    ChallengeSubmissionApproachCriteriaLangEntity,
     ChallengeSubmissionEntity,
+    ChallengeSubmissionOutcomeCriteriaEntity,
+    ChallengeSubmissionOutcomeCriteriaLangEntity,
     ChallengeSubmissionTranslationEntity,
 } from "@modules/databases"
 import {
@@ -74,6 +79,7 @@ export class ChallengeParserService {
         private readonly challengeOutputV2IdFactoryService: ChallengeOutputV2IdFactoryService,
         private readonly challengePrerequisiteV2IdFactoryService: ChallengePrerequisiteV2IdFactoryService,
         private readonly challengeSubmissionIdFactoryService: ChallengeSubmissionIdFactoryService,
+        private readonly challengeSubmissionCriteriaIdFactoryService: ChallengeSubmissionCriteriaIdFactoryService,
         private readonly pathResolverService: PathResolverService,
         private readonly contentIdFactoryService: ContentIdFactoryService,
         private readonly winstonService: WinstonService,
@@ -404,6 +410,28 @@ export class ChallengeParserService {
                         field,
                         value,
                     }))
+            // English-only rubric blocks (approach/outcome) — extract walks straight into the criteria
+            // array now that the mount drops the outer separator wrap
+            const approach = this.parseCriteria({
+                criteria: (merged as Record<string, unknown>).approachCriterias,
+                kind: "approach",
+                challengeSubmissionId,
+                courseIndex,
+                moduleIndex,
+                contentIndex,
+                challengeIndex,
+                submissionIndex: submissionOrderIndex,
+            })
+            const outcome = this.parseCriteria({
+                criteria: (merged as Record<string, unknown>).outcomeCriterias,
+                kind: "outcome",
+                challengeSubmissionId,
+                courseIndex,
+                moduleIndex,
+                contentIndex,
+                challengeIndex,
+                submissionIndex: submissionOrderIndex,
+            })
             submissions.push({
                 id: challengeSubmissionId,
                 orderIndex: submissionOrderIndex,
@@ -419,17 +447,125 @@ export class ChallengeParserService {
                 description: this.coerceMdScalarService.toNullableStringColumn(
                     merged.description,
                 ),
+                // submission.score keeps the scalar from markdown; approach/outcome scores break it down
                 score: this.coerceMdScalarService.toRequiredNumber(
                     merged.score,
                     0,
                 ),
+                approachScore: approach.totalScore,
+                outcomeScore: outcome.totalScore,
                 challenge: {
                     id: challengeId,
                 },
                 translations: submissionTranslations,
+                approachCriteria: approach.rows as Array<DeepPartial<ChallengeSubmissionApproachCriteriaEntity>>,
+                outcomeCriteria: outcome.rows as Array<DeepPartial<ChallengeSubmissionOutcomeCriteriaEntity>>,
             })
         }
         return submissions
+    }
+
+    /**
+     * Maps one rubric section (`# approachCriterias` / `# outcomeCriterias`) into normalized criterion
+     * + per-language entity partials, plus the per-section weight total (sum of every criterion's
+     * `## score`).
+     *
+     * Mount shape (no separator wrap on the outer heading): `# <n>` (criterion) → `## body` →
+     * `### <m>` (lang bucket with `#### lang` / `#### body`), `## score`, `## critical`.
+     *
+     * @param params - Extracted criteria array + rubric kind + parent submission ordinals.
+     * @returns `{ rows, totalScore }` — entity rows for cascade + the sum used as approach/outcome score.
+     */
+    private parseCriteria(
+        {
+            criteria,
+            kind,
+            challengeSubmissionId,
+            courseIndex,
+            moduleIndex,
+            contentIndex,
+            challengeIndex,
+            submissionIndex,
+        }: {
+            criteria: unknown
+            kind: "approach" | "outcome"
+            challengeSubmissionId: string
+            courseIndex: number
+            moduleIndex: number
+            contentIndex: number
+            challengeIndex: number
+            submissionIndex: number
+        },
+    ): {
+        rows: Array<DeepPartial<ChallengeSubmissionApproachCriteriaEntity>>
+        totalScore: number
+        } {
+        // absent or wrong shape → empty rubric (insert layer treats this as null jsonb / empty rows)
+        if (!Array.isArray(criteria)) {
+            return {
+                rows: [],
+                totalScore: 0,
+            }
+        }
+        let totalScore = 0
+        const rows = (criteria as Array<Record<string, unknown>>).map((criterion) => {
+            // each criterion's `orderIndex` was injected by ExtractJsonFromMdService.buildArray
+            const criterionIndex = this.coerceMdScalarService.toRequiredNumber(
+                criterion.orderIndex,
+                0,
+            )
+            const criterionId = this.challengeSubmissionCriteriaIdFactoryService.generate({
+                courseIndex,
+                moduleIndex,
+                contentIndex,
+                challengeIndex,
+                submissionIndex,
+                kind,
+                criterionIndex,
+            })
+            // `## body` is itself a numeric-keyed array → one lang bucket per `### N`
+            const langItems = Array.isArray(criterion.body)
+                ? (criterion.body as Array<Record<string, unknown>>)
+                : []
+            const langs = langItems.map((langItem, langArrayIndex) => {
+                const langIndex = this.coerceMdScalarService.toRequiredNumber(
+                    langItem.orderIndex,
+                    langArrayIndex,
+                )
+                return {
+                    id: this.challengeSubmissionCriteriaIdFactoryService.generateLang({
+                        courseIndex,
+                        moduleIndex,
+                        contentIndex,
+                        challengeIndex,
+                        submissionIndex,
+                        kind,
+                        criterionIndex,
+                        langIndex,
+                    }),
+                    lang: this.coerceMdScalarService.toRequiredString(langItem.lang,
+                        "text"),
+                    body: this.coerceMdScalarService.toNullableStringColumn(langItem.body),
+                } as DeepPartial<ChallengeSubmissionApproachCriteriaLangEntity>
+            })
+            // accumulate per-criterion `## score` into the section total (approach/outcome weight)
+            totalScore += this.coerceMdScalarService.toRequiredNumber(criterion.score,
+                0)
+            return {
+                id: criterionId,
+                orderIndex: criterionIndex,
+                critical: this.coerceMdScalarService.toRequiredBoolean(criterion.critical,
+                    false),
+                challengeSubmission: {
+                    id: challengeSubmissionId,
+                },
+                langs: langs as Array<DeepPartial<ChallengeSubmissionApproachCriteriaLangEntity | ChallengeSubmissionOutcomeCriteriaLangEntity>>,
+            }
+        })
+        return {
+            rows,
+            totalScore,
+        }
     }
 
     /**
