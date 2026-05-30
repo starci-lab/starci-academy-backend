@@ -2,10 +2,13 @@ import {
     ProjectEvaluation 
 } from "@modules/bullmq"
 import {
-    ParsingCriteriaResultsFromModelTextException 
+    ParsingCriteriaResultsFromModelTextException
 } from "@modules/exceptions"
 import {
-    Injectable 
+    extractJsonBlock,
+} from "@modules/ai"
+import {
+    Injectable
 } from "@nestjs/common"
 
 
@@ -16,7 +19,7 @@ export class ReviewMilestoneTaskParseService {
         text: string
     ) : ProjectEvaluation {
         try {
-            return JSON.parse(text)
+            return JSON.parse(extractJsonBlock(text))
         } catch (error) {
             throw new ParsingCriteriaResultsFromModelTextException({
                 text,

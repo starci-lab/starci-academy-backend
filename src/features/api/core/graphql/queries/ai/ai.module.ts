@@ -13,6 +13,9 @@ import {
 import {
     AiSubscriptionTiersSingleQueryModule,
 } from "./ai-subscription-tiers"
+import {
+    MyCreditUsageSingleQueryModule,
+} from "./my-credit-usage"
 
 /**
  * Per-user AI query group (quota snapshot, lane settings, tier catalog, …).
@@ -26,6 +29,9 @@ import {
             isGlobal: true,
         }),
         AiSubscriptionTiersSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyCreditUsageSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

@@ -14,11 +14,17 @@ import {
     ReviewMilestoneTaskModule,
 } from "./review-milestone-task"
 import {
-    ProcessGitSubmissionModule 
+    ProcessGitSubmissionModule
 } from "./process-git-submission"
 import {
-    ProcessGoogleDocsSubmissionModule 
+    ProcessGitSubmissionV2Module,
+} from "./process-git-submission-v2"
+import {
+    ProcessGoogleDocsSubmissionModule
 } from "./process-google-docs-submission"
+import {
+    ProcessGoogleDocsSubmissionV2Module,
+} from "./process-google-docs-submission-v2"
 import {
     ReviewCvSubmissionModule,
 } from "./review-cv-submission"
@@ -46,7 +52,13 @@ import {
         ProcessGitSubmissionModule.register({
             isGlobal: true,
         }),
+        ProcessGitSubmissionV2Module.register({
+            isGlobal: true,
+        }),
         ProcessGoogleDocsSubmissionModule.register({
+            isGlobal: true,
+        }),
+        ProcessGoogleDocsSubmissionV2Module.register({
             isGlobal: true,
         }),
         JudgeCodingSubmissionModule.register({

@@ -140,16 +140,132 @@ export class ExtractJsonFromMdService {
         })
     }
 
+    /** Matches a `<!-- @starci/jsonb -->` wrapper line (whitespace tolerant). */
+    private static readonly JSONB_DELIMITER_LINE_RE =
+        /^\s*<!--\s*@starci\/jsonb\s*-->\s*$/
+
+    /** Matches a jsonb item heading line `# <n>` (the array index). */
+    private static readonly JSONB_ITEM_HEADING_RE = /^#\s+(\d+)\s*$/
+
+    /**
+     * Checks if a line is a `@starci/jsonb` wrapper line.
+     */
+    private isJsonbDelimiterLine(line: string): boolean {
+        return ExtractJsonFromMdService.JSONB_DELIMITER_LINE_RE.test(line)
+    }
+
     /**
      * Parses a section body from a markdown string.
      */
     private parseSectionBody(sectionBody: string, level: number): unknown {
         const { content, bounded } = this.cutDelimiterBoundedContent(sectionBody)
         if (bounded) {
-            return content
+            const jsonb = this.tryParseJsonbBlock(content)
+            if (jsonb !== undefined) {
+                return jsonb
+            }
+            // an empty delimiter-bounded block (e.g. a placeholder array section kept with its
+            // `@starci/seperator` markers but no body) carries no value → undefined, so the consumer's
+            // `?? []` / scalar fallback applies instead of receiving the empty string "".
+            return content === "" ? undefined : content
         }
         return this.parseAtLevel(content,
             level + 1)
+    }
+
+    /**
+     * If `content` is wrapped by a pair of `@starci/jsonb` markers, parse the
+     * inner heading-block into a jsonb array; otherwise return `undefined`.
+     */
+    private tryParseJsonbBlock(
+        content: string,
+    ): Array<Record<string, unknown>> | undefined {
+        const lines = content.split("\n")
+        const markerIndices: Array<number> = []
+        for (let index = 0; index < lines.length; index += 1) {
+            if (this.isJsonbDelimiterLine(lines[index])) {
+                markerIndices.push(index)
+            }
+        }
+        if (markerIndices.length < 2) {
+            return undefined
+        }
+        const inner = lines
+            .slice(markerIndices[0] + 1, markerIndices[markerIndices.length - 1])
+            .join("\n")
+        return this.parseJsonbBlock(inner)
+    }
+
+    /**
+     * Parses a jsonb heading-block: `# <n>` opens an array item; `## <field>`
+     * sets a field whose value is the raw text until the next `##`/`#` heading
+     * (kept as markdown, fence-aware), coerced to number/boolean when scalar.
+     */
+    private parseJsonbBlock(inner: string): Array<Record<string, unknown>> {
+        const items: Array<Record<string, unknown>> = []
+        let current: Record<string, unknown> | null = null
+        let currentField: string | null = null
+        let buffer: Array<string> = []
+        let inFence = false
+
+        // Flush the buffered lines into the current item's current field.
+        // (EN: flush buffered lines into the active item field.)
+        const flushField = (): void => {
+            if (current && currentField) {
+                current[currentField] = this.coerceJsonbValue(buffer.join("\n").trim())
+            }
+            buffer = []
+            currentField = null
+        }
+
+        for (const line of inner.split("\n")) {
+            if (line.trim().startsWith("```")) {
+                inFence = !inFence
+            }
+            if (!inFence) {
+                const itemMatch = ExtractJsonFromMdService.JSONB_ITEM_HEADING_RE.exec(line)
+                if (itemMatch) {
+                    flushField()
+                    if (current) {
+                        items.push(current)
+                    }
+                    current = {
+                        orderIndex: Number.parseInt(itemMatch[1], 10),
+                    }
+                    continue
+                }
+                if (line.startsWith("## ")) {
+                    flushField()
+                    currentField = line.slice(3).trim()
+                    continue
+                }
+            }
+            if (currentField) {
+                buffer.push(line)
+            }
+        }
+        flushField()
+        if (current) {
+            items.push(current)
+        }
+        return items
+    }
+
+    /**
+     * Coerces a raw jsonb field value: integer string → number, `true`/`false`
+     * → boolean, otherwise the trimmed markdown string.
+     */
+    private coerceJsonbValue(raw: string): string | number | boolean {
+        if (/^-?\d+$/.test(raw)) {
+            return Number.parseInt(raw, 10)
+        }
+        if (raw === "true") {
+            return true
+        }
+        if (raw === "false") {
+            return false
+        }
+        return raw
     }
 
     private static readonly NUMERIC_SECTION_KEY_RE = /^\d+$/

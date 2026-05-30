@@ -120,16 +120,16 @@ export class CourseInsertService {
                     )
                 }
             }
-            // /** Delete stale prerequisites */
-            // await this.upsertService.deleteStaleUuid<PrerequisiteEntity>(
-            //     PrerequisiteEntity,
-            //     prerequisites.map((prerequisite) => prerequisite.id as string),
-            //     {
-            //         course: {
-            //             id: courseId 
-            //         } 
-            //     },
-            // )
+            /** Delete stale prerequisites (scoped to this course). */
+            await this.upsertService.deleteStaleUuid<PrerequisiteEntity>(
+                PrerequisiteEntity,
+                prerequisites.map((prerequisite) => prerequisite.id as string),
+                {
+                    course: {
+                        id: courseId,
+                    },
+                },
+            )
         }
 
         /** 5. Upsert value propositions + their translations */
@@ -153,17 +153,17 @@ export class CourseInsertService {
                     )
                 }
             }
-            // await this.upsertService.deleteStaleUuid<ValuePropositionEntity>(
-            //     ValuePropositionEntity,
-            //     (valuePropositions as Array<DeepPartial<ValuePropositionEntity>>)
-            //         .map((valueProposition) => valueProposition.id as string),
-            //     {
-            //         course:
-            //         {
-            //             id: courseId
-            //         }
-            //     },
-            // )
+            await this.upsertService.deleteStaleUuid<ValuePropositionEntity>(
+                ValuePropositionEntity,
+                (valuePropositions as Array<DeepPartial<ValuePropositionEntity>>)
+                    .map((valueProposition) => valueProposition.id as string),
+                {
+                    course:
+                    {
+                        id: courseId,
+                    },
+                },
+            )
         }
 
         /** 6. Upsert QnAs + their translations */
@@ -187,16 +187,16 @@ export class CourseInsertService {
                     )
                 }
             }
-            // await this.upsertService.deleteStaleUuid<QnaEntity>(
-            //     QnaEntity,
-            //     (qnas as Array<DeepPartial<QnaEntity>>).map((qna) => qna.id as string),
-            //     {
-            //         course:
-            //         {
-            //             id: courseId
-            //         }
-            //     },
-            // )
+            await this.upsertService.deleteStaleUuid<QnaEntity>(
+                QnaEntity,
+                (qnas as Array<DeepPartial<QnaEntity>>).map((qna) => qna.id as string),
+                {
+                    course:
+                    {
+                        id: courseId,
+                    },
+                },
+            )
         }
 
         /** 7. Upsert livestream sessions + their translations */
@@ -220,17 +220,17 @@ export class CourseInsertService {
                     )
                 }
             }
-            // await this.upsertService.deleteStaleUuid<LivestreamSessionEntity>(
-            //     LivestreamSessionEntity,
-            //     (livestreamSessions as Array<DeepPartial<LivestreamSessionEntity>>)
-            //         .map((session) => session.id as string),
-            //     {
-            //         course:
-            //         {
-            //             id: courseId
-            //         }
-            //     },
-            // )
+            await this.upsertService.deleteStaleUuid<LivestreamSessionEntity>(
+                LivestreamSessionEntity,
+                (livestreamSessions as Array<DeepPartial<LivestreamSessionEntity>>)
+                    .map((session) => session.id as string),
+                {
+                    course:
+                    {
+                        id: courseId,
+                    },
+                },
+            )
         }
 
         /** 8. Upsert course metadata */

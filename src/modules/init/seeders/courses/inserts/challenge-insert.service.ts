@@ -40,7 +40,7 @@ import {
  * composite-key translations. Each child row is upserted, its translations
  * are replaced, and stale children are deleted.
  */
-async function upsertChildrenWithTranslations
+export async function upsertChildrenWithTranslations
     <
         TChild extends UuidAbstractEntity,
         TTranslation extends AbstractEntity,
@@ -77,12 +77,12 @@ async function upsertChildrenWithTranslations
         }
     }
 
-    // /** Delete stale children for this parent */
-    // await upsertService.deleteStaleUuid<TChild>(
-    //     childEntityClass,
-    //     children.map((child) => child.id as string),
-    //     parentFilter,
-    // )
+    /** Delete stale children for this parent (scoped to the parent filter). */
+    await upsertService.deleteStaleUuid<TChild>(
+        childEntityClass,
+        children.map((child) => child.id as string),
+        parentFilter,
+    )
 }
 
 /**

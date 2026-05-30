@@ -77,6 +77,20 @@ export interface GenerateCodeImplementationIdParams {
 }
 
 /**
+ * Input for {@link ContentBodyV2IdFactoryService.generate}.
+ */
+export interface GenerateContentBodyV2IdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Zero-based programming-language bucket index within the content. */
+    langIndex: number
+}
+
+/**
  * Input for {@link PreviewContentIdFactoryService.generate}.
  */
 export interface GeneratePreviewContentIdParams {
@@ -212,6 +226,70 @@ export interface GenerateChallengePrerequisiteIdParams {
     challengeIndex: number
     /** Zero-based prerequisite line within the challenge. */
     prerequisiteIndex: number
+}
+
+/**
+ * Input for {@link ChallengeRequirementV2IdFactoryService.generate}.
+ */
+export interface GenerateChallengeRequirementV2IdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Parent challenge ordinal. */
+    challengeIndex: number
+    /** Zero-based programming-language bucket index within the challenge. */
+    langIndex: number
+}
+
+/**
+ * Input for {@link ChallengeStepV2IdFactoryService.generate}.
+ */
+export interface GenerateChallengeStepV2IdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Parent challenge ordinal. */
+    challengeIndex: number
+    /** Zero-based programming-language bucket index within the challenge. */
+    langIndex: number
+}
+
+/**
+ * Input for {@link ChallengeOutputV2IdFactoryService.generate}.
+ */
+export interface GenerateChallengeOutputV2IdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Parent challenge ordinal. */
+    challengeIndex: number
+    /** Zero-based programming-language bucket index within the challenge. */
+    langIndex: number
+}
+
+/**
+ * Input for {@link ChallengePrerequisiteV2IdFactoryService.generate}.
+ */
+export interface GenerateChallengePrerequisiteV2IdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Parent challenge ordinal. */
+    challengeIndex: number
+    /** Zero-based programming-language bucket index within the challenge. */
+    langIndex: number
 }
 
 /**

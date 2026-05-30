@@ -11,6 +11,7 @@ import {
 import {
     CodeExplainingIdFactoryService,
     CodeImplementationIdFactoryService,
+    ContentBodyV2IdFactoryService,
     ContentIdFactoryService,
     ContentReferenceIdFactoryService,
     ModuleIdFactoryService,
@@ -21,6 +22,8 @@ import {
 import {
     CodeExplainingTranslationEntity,
     CodeImplementationTranslationEntity,
+    ContentBodyV2Entity,
+    ContentBodyV2TranslationEntity,
     ContentEntity,
     ContentTranslationEntity,
 } from "@modules/databases"
@@ -29,6 +32,7 @@ import {
     CoerceMdScalarService,
     ResolvedFileResult,
     ContextLoaderService,
+    PathResolverService,
     logInitSeederEntitySkipped,
 } from "../../shared"
 import {
@@ -59,10 +63,99 @@ export class ContentParserService {
         private readonly contentReferenceIdFactoryService: ContentReferenceIdFactoryService,
         private readonly codeExplainingIdFactoryService: CodeExplainingIdFactoryService,
         private readonly codeImplementationIdFactoryService: CodeImplementationIdFactoryService,
+        private readonly contentBodyV2IdFactoryService: ContentBodyV2IdFactoryService,
         private readonly contextLoaderService: ContextLoaderService,
+        private readonly pathResolverService: PathResolverService,
         private readonly contentPathService: ContentPathService,
         private readonly winstonService: WinstonService,
     ) { }
+
+    /**
+     * Loads the SCHEMA V2 per-language lesson bodies from the `<content>/bodies/<N>-<lang>/` folder.
+     * Each language folder (`0-typescript`, `1-java`, ...) holds one `vi.md` + `en.md`, each with the
+     * standard mount sections `# lang` + `# body` (body markdown wrapped in one separator block) —
+     * kept as separate files so a body never bloats the content's own `vi.md`/`en.md`. Returns one
+     * `ContentBodyV2` bucket per language (default-locale `body` = English; per-locale variants in
+     * `translations`).
+     *
+     * @param params - Content folder path + course/module/content ordinals + parent content id.
+     * @returns The per-language body buckets (empty when the `bodies/` folder is absent).
+     */
+    private async parseBodiesV2(
+        {
+            contentRelativePath,
+            courseIndex,
+            moduleIndex,
+            contentIndex,
+            contentId,
+        }: {
+            contentRelativePath: string
+            courseIndex: number
+            moduleIndex: number
+            contentIndex: number
+            contentId: string
+        },
+    ): Promise<Array<DeepPartial<ContentBodyV2Entity>>> {
+        // list the indexed language folders (`{N}-{lang}`) under `bodies/`
+        const langPaths = await this.pathResolverService.filePaths(
+            "courses",
+            `${contentRelativePath}/bodies`,
+        )
+        const buckets: Array<DeepPartial<ContentBodyV2Entity>> = []
+        for (const langPath of langPaths) {
+            // `displayId` is the slug after the index, i.e. the programming language
+            const lang = langPath.displayId
+            const orderIndex = langPath.orderIndex
+            const contentBodyV2Id = this.contentBodyV2IdFactoryService.generate({
+                courseIndex,
+                moduleIndex,
+                contentIndex,
+                langIndex: orderIndex,
+            })
+            // each `{locale}.md` carries `# lang` + `# body` sections (standard mount format)
+            const translations: Array<DeepPartial<ContentBodyV2TranslationEntity>> = []
+            let defaultBody: string | null = null
+            let resolvedLang = lang
+            for (const locale of Object.values(Locale)) {
+                let extracted: { lang?: unknown; body?: unknown } = {
+                }
+                try {
+                    extracted = this.extractJsonFromMdService.extract(
+                        await this.contextLoaderService.load(
+                            "courses",
+                            `${langPath.relativePath}/${locale}.md`,
+                        ),
+                    )
+                } catch {
+                    // locale file absent for this language → leave body null
+                }
+                const body = this.coerceMdScalarService.toNullableStringColumn(extracted.body)
+                translations.push({
+                    contentBodyV2Id,
+                    locale,
+                    body,
+                })
+                if (locale === Locale.En) {
+                    defaultBody = body
+                    // prefer the explicit `# lang` field; fall back to the folder slug
+                    resolvedLang = this.coerceMdScalarService.toRequiredString(extracted.lang,
+                        lang)
+                }
+            }
+            buckets.push({
+                id: contentBodyV2Id,
+                orderIndex,
+                lang: resolvedLang,
+                body: defaultBody,
+                defaultLocale: Locale.En,
+                content: {
+                    id: contentId,
+                },
+                translations,
+            })
+        }
+        return buckets
+    }
 
     /**
      * Builds a partial content entity from mounted course files.
@@ -108,6 +201,16 @@ export class ContentParserService {
                 moduleIndex,
             },
         )
+        // per-language lesson bodies live in separate files under `<content>/bodies/<N>-<lang>/`
+        const bodiesV2 = await this.parseBodiesV2(
+            {
+                contentRelativePath: path.relativePath,
+                courseIndex,
+                moduleIndex,
+                contentIndex,
+                contentId,
+            },
+        )
         return {
             id: contentId,
             moduleId,
@@ -132,6 +235,10 @@ export class ContentParserService {
             isPremium: this.coerceMdScalarService.toRequiredBoolean(
                 (jsonMap.get(Locale.En) as Record<string, unknown>)?.isPremium,
                 false,
+            ),
+            // `# verified` day marks this as SCHEMA V2 content (null for legacy)
+            verified: this.coerceMdScalarService.toNullableDate(
+                (jsonMap.get(Locale.En) as Record<string, unknown>)?.verified,
             ),
             translations: (() => {
                 const translations: Array<DeepPartial<ContentTranslationEntity>> = []
@@ -246,7 +353,7 @@ export class ContentParserService {
                     "text",
                 )
                 const guideMarkdown = this.coerceMdScalarService.toRequiredString(
-                    guide, 
+                    guide,
                     "",
                 )
                 const exampleMarkdown = this.coerceMdScalarService.toRequiredString(
@@ -267,7 +374,7 @@ export class ContentParserService {
                         locale,
                         field: "guide",
                         value: this.coerceMdScalarService.toRequiredString(
-                            localeRow.guide, 
+                            localeRow.guide,
                             "",
                         ),
                     })
@@ -294,6 +401,9 @@ export class ContentParserService {
                     translations,
                 }
             }),
+            // SCHEMA V2 per-language lesson bodies — loaded from the `bodies/<N>-<lang>/{vi,en}.md`
+            // folder (pre-computed above; kept as separate files so each body stays manageable).
+            bodiesV2,
             references: (
                 jsonMap.get(Locale.En)?.references ?? []
             ).map(({

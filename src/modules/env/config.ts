@@ -371,6 +371,10 @@ export const envConfig = () => ({
                 key: "CACHE_TTL_CHALLENGE_SUBMISSION_PROGRESS",
                 defaultValue: "5m",
             }),
+            creditUsage: parseEnvMs({
+                key: "CACHE_TTL_CREDIT_USAGE",
+                defaultValue: "5m",
+            }),
             courseLeaderboard: parseEnvMs({
                 key: "CACHE_TTL_COURSE_LEADERBOARD",
                 defaultValue: "15m",
@@ -1742,6 +1746,15 @@ export const envConfig = () => ({
         password: parseEnvString({
             key: "ELASTICSEARCH_PASSWORD",
             defaultValue: "123456",
+        }),
+        /**
+         * When true, indices listed in `src/modules/elasticsearch/patches` are (re)created with their
+         * explicit mapping instead of Elasticsearch's dynamic mapping — required for SCHEMA V2
+         * challenges whose large jsonb blobs otherwise break dynamic indexing.
+         */
+        applyIndexPatches: parseEnvBoolean({
+            key: "ELASTICSEARCH_APPLY_INDEX_PATCHES",
+            defaultValue: false,
         }),
     },
     /** NATS configuration. */

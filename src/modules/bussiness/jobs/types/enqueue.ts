@@ -51,6 +51,8 @@ export interface EnqueueProcessGitSubmissionJobParams {
     locale?: string
     /** AI lane the user picked; validated against entitlement at grade time. */
     mode?: AiMode
+    /** SCHEMA V2 only: programming language the learner chose (selects approachCriteria bucket). */
+    lang?: string
 }
 
 /** Params for enqueuing a process-google-docs-submission job. */
@@ -79,6 +81,8 @@ export interface EnqueueProcessGoogleDocsSubmissionJobParams {
     locale?: string
     /** AI lane the user picked; validated against entitlement at grade time. */
     mode?: AiMode
+    /** SCHEMA V2 only: programming language the learner chose (selects approachCriteria bucket). */
+    lang?: string
 }
 
 /** Params for enqueuing a process-cv-submission job. */

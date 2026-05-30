@@ -15,6 +15,7 @@ import type {
     ParentIndexCacheResult,
     KeycloakOidcPkceCacheResult,
     ChallengeSubmissionProgressCacheResult,
+    CreditUsageCacheResult,
     CourseLeaderboardCacheResult,
 } from "../types"
 
@@ -83,6 +84,11 @@ export const configMap = {
         ttl: envConfig().cache.ttl.challengeSubmissionProgress,
         cacheResult: {
         } as ChallengeSubmissionProgressCacheResult,
+    },
+    [CacheKey.CreditUsage]: {
+        ttl: envConfig().cache.ttl.creditUsage,
+        cacheResult: {
+        } as CreditUsageCacheResult,
     },
     [CacheKey.CourseLeaderboard]: {
         ttl: envConfig().cache.ttl.courseLeaderboard,

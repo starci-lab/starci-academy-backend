@@ -4,10 +4,10 @@ import {
 } from "@langchain/core/messages"
 import {
     JobActionService,
+    CreditUsageService,
 } from "@modules/bussiness"
 import {
     AiMode,
-    AiModelCategory,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
     TemplateCVEntity,
@@ -15,6 +15,7 @@ import {
 import {
     AiInvokeService,
     AiEntitlementService,
+    pickBestCategory,
 } from "@modules/ai"
 import {
     WinstonLog,
@@ -46,6 +47,7 @@ import {
     ReviewCvSubmissionExtractStepService 
 } from "./review-cv-submission-extract-step.service"
 import {
+    AiQuotaExhaustedException,
     CvSubmissionExtractEmptyTextException,
     CvSubmissionPlanEmptyTextException,
 } from "@modules/exceptions"
@@ -69,6 +71,7 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly extractStepService: ReviewCvSubmissionExtractStepService,
+        private readonly creditUsageService: CreditUsageService,
     ) {
         super()
     }
@@ -251,9 +254,17 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
             requestedMode: payload.mode,
         })
 
+        // CV grading needs a capable model — reject the free Auto (complimentary)
+        // lane. Only BYOK or a paid Premium subscription may grade a CV.
+        if (entitlement.mode === AiMode.Auto) {
+            throw new AiQuotaExhaustedException({
+                mode: entitlement.mode,
+                window: "premium-required",
+            })
+        }
+
+        // BYOK → use the user's own key/model; no pooled quota is debited.
         if (entitlement.mode === AiMode.Byok) {
-            // TODO: fall back to the stored encrypted key on the subscription
-            // entity when the payload does not carry one.
             if (
                 payload.byokProvider
                 && payload.byokModel
@@ -269,16 +280,17 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
             }
         }
 
-        const category = entitlement.mode === AiMode.Premium
-            ? pickBestCategory(entitlement.allowedCategories)
-            : AiModelCategory.Economy
-        await this.aiEntitlementService.consume({
-            userId,
-            category,
-            requestedMode: payload.mode,
-            // Auto lane only ever serves complimentary models; Premium is credit-based.
-            complimentary: entitlement.mode === AiMode.Auto,
-        })
+        // Premium lane → block when over the credit quota, then pick the best
+        // unlocked category and debit credits.
+        const creditSnapshot = await this.creditUsageService.getSnapshot(userId)
+        if (creditSnapshot.overQuota) {
+            throw new AiQuotaExhaustedException({
+                mode: entitlement.mode,
+                window: "credit",
+            })
+        }
+        // Credits are debited from credit_usage_histories at complete time, not here.
+        const category = pickBestCategory(entitlement.allowedCategories)
         return {
             category,
         }
@@ -339,25 +351,3 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
     }
 }
 
-/** Rank used to pick the "best" category a Premium tier unlocks. */
-const CATEGORY_RANK: Record<AiModelCategory, number> = {
-    [AiModelCategory.Economy]: 0,
-    [AiModelCategory.Balanced]: 1,
-    [AiModelCategory.Premium]: 2,
-}
-
-/**
- * Pick the highest-ranked category from the allowed list (economy < balanced
- * < premium). Falls back to Economy when the list is empty.
- * @param categories - Categories the tier currently unlocks.
- * @returns The single best category to grade with.
- */
-function pickBestCategory(
-    categories: Array<AiModelCategory>,
-): AiModelCategory {
-    return categories.reduce(
-        (best, candidate) =>
-            CATEGORY_RANK[candidate] > CATEGORY_RANK[best] ? candidate : best,
-        AiModelCategory.Economy,
-    )
-}

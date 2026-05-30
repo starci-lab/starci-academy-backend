@@ -18,9 +18,17 @@ export enum ActionType {
      */
     ProcessGitSubmission = "processGitSubmission",
     /**
+     * Grade a SCHEMA V2 learner GitHub submission against outcome/approach criteria.
+     */
+    ProcessGitSubmissionV2 = "processGitSubmissionV2",
+    /**
      * Grade a learner Google Docs submission (worker pipeline).
      */
     ProcessGoogleDocsSubmission = "processGoogleDocsSubmission",
+    /**
+     * Grade a SCHEMA V2 learner Google Docs submission against outcome/approach criteria.
+     */
+    ProcessGoogleDocsSubmissionV2 = "processGoogleDocsSubmissionV2",
     /**
      * Invite a user to a GitHub organization/team.
      */
@@ -96,8 +104,14 @@ registerEnumType(
             [ActionType.ProcessGitSubmission]: {
                 description: "Process and grade a GitHub challenge submission.",
             },
+            [ActionType.ProcessGitSubmissionV2]: {
+                description: "Process and grade a SCHEMA V2 GitHub submission against criteria.",
+            },
             [ActionType.ProcessGoogleDocsSubmission]: {
                 description: "Process and grade a Google Docs challenge submission.",
+            },
+            [ActionType.ProcessGoogleDocsSubmissionV2]: {
+                description: "Process and grade a SCHEMA V2 Google Docs submission against criteria.",
             },
             [ActionType.ResolveGithub]: {
                 description: "Resolve GitHub account and enqueue organization/team membership update.",

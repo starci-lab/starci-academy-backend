@@ -13,11 +13,15 @@ import {
 import {
     CacheKey,
     CacheService,
+    ChallengeProgressStatus,
 } from "@modules/cache"
 import type {
     ChallengeSubmissionProgressCacheResult,
     ChallengeSubmissionProgressItem,
 } from "@modules/cache"
+import {
+    MountStorageService,
+} from "@modules/filesystem"
 import type {
     ProgressEnrollmentType,
 } from "./types"
@@ -32,6 +36,7 @@ export class ChallengeProgressService {
         private readonly cacheService: CacheService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly mountStorageService: MountStorageService,
     ) {}
 
     /**
@@ -126,7 +131,6 @@ export class ChallengeProgressService {
         if (challengeIds.length === 0) {
             return {
                 completionTasks: [],
-                currentTask: null,
             }
         }
 
@@ -147,45 +151,88 @@ export class ChallengeProgressService {
             },
         )
 
+        // Fraction of a submission's score the latest attempt must reach to pass it.
+        const passThreshold = this.mountStorageService.appConfig.systemConfig.challenge.passThreshold
+
         const completionTasks: Array<ChallengeSubmissionProgressItem> = challenges.map((challenge) => {
             const submissionsForChallenge = userSubmissions.filter(
                 (us) => us.submission.challengeId === challenge.id,
             )
 
-            // Total attempts across all submissions for this challenge
+            // Total attempts across all submissions for this challenge.
             const numAttempts = submissionsForChallenge.reduce(
-                (sum, us) => sum + (us.attempts?.length || 0),
+                (sum, us) => sum + (us.attempts?.length ?? 0),
                 0,
             )
 
-            // Score is the sum of the maximum score achieved in each submission
-            const lastScore = challenge.submissions.reduce((sum, submission) => {
-                const us = submissionsForChallenge.find((u) => u.submission.id === submission.id)
-                if (!us || !us.attempts || us.attempts.length === 0) {
-                    return sum
+            // Whether any user submission row exists at all (challenge has been started).
+            let anyUserSubmission = false
+            // Whether some user submission row exists but has no attempt yet (started, not submitted).
+            let hasPendingSubmission = false
+            // Whether every submission has been submitted and cleared its pass threshold.
+            let allSubmittedAndPassed = true
+            // Sum of each submission's latest-attempt score, capped at that submission's score.
+            let lastScore = 0
+
+            for (const submission of challenge.submissions) {
+                const userSubmission = submissionsForChallenge.find(
+                    (us) => us.submission.id === submission.id,
+                )
+                // Submission never created → not submitted, cannot pass.
+                if (!userSubmission) {
+                    allSubmittedAndPassed = false
+                    continue
                 }
-                const maxAttemptScore = Math.max(...us.attempts.map((a) => a.score || 0))
-                return sum + maxAttemptScore
-            },
-            0)
+                anyUserSubmission = true
+                const attempts = userSubmission.attempts ?? []
+                // User submission row exists but was never submitted for grading → in progress.
+                if (attempts.length === 0) {
+                    hasPendingSubmission = true
+                    allSubmittedAndPassed = false
+                    continue
+                }
+                // Latest attempt = the one with the highest attempt number.
+                const latestAttempt = attempts.reduce(
+                    (latest, attempt) => (attempt.attemptNumber > latest.attemptNumber ? attempt : latest),
+                )
+                const latestScore = latestAttempt.score ?? 0
+                // Earned points for this submission, capped at its own max score.
+                lastScore += Math.min(latestScore,
+                    submission.score)
+                // Pass when the latest attempt clears the submission's pass threshold.
+                if (latestScore < submission.score * passThreshold) {
+                    allSubmittedAndPassed = false
+                }
+            }
+
+            // Derive the lifecycle status from the per-submission outcomes.
+            // "In progress" wins whenever a created-but-unsubmitted submission exists.
+            let status: ChallengeProgressStatus
+            if (hasPendingSubmission) {
+                status = ChallengeProgressStatus.InProgress
+            } else if (!anyUserSubmission) {
+                status = ChallengeProgressStatus.NotStarted
+            } else if (allSubmittedAndPassed) {
+                status = ChallengeProgressStatus.Completed
+            } else {
+                status = ChallengeProgressStatus.Failed
+            }
 
             const maxScore = challenge.score
-            const completed = lastScore >= maxScore && maxScore > 0
+            const completed = status === ChallengeProgressStatus.Completed
 
             return {
                 id: challenge.id,
                 lastScore,
                 maxScore,
                 completed,
+                status,
                 numAttempts,
             }
         })
 
-        const currentTask = completionTasks.find((t) => !t.completed) || null
-
         return {
             completionTasks,
-            currentTask,
         }
     }
 }

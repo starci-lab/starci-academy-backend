@@ -32,4 +32,9 @@ export interface ProcessGoogleDocsSubmissionPayload {
     byokApiKey?: string
     /** AI lane the user picked at submit time; validated against entitlement. */
     mode?: AiMode
+    /**
+     * SCHEMA V2 only: programming language the learner chose (typescript/java/csharp/go). Selects
+     * the matching `approachCriteria` bucket at grade time.
+     */
+    lang?: string
 }

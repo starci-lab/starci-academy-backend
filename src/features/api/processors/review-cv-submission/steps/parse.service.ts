@@ -2,6 +2,9 @@ import {
     ParsingCriteriaResultsFromModelTextException,
 } from "@modules/exceptions"
 import {
+    extractJsonBlock,
+} from "@modules/ai"
+import {
     Injectable,
 } from "@nestjs/common"
 import type {
@@ -23,8 +26,7 @@ export class ReviewCvSubmissionParseService {
     parse(
         text: string,
     ): ReviewCvSubmissionAnalyzeStepExecuteResult {
-        const trimmed = text.trim()
-        const payload = this.stripOptionalMarkdownFence(trimmed)
+        const payload = extractJsonBlock(text)
         try {
             const parsed: unknown = JSON.parse(payload)
             if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
@@ -79,14 +81,5 @@ export class ReviewCvSubmissionParseService {
                 ),
             ),
         )
-    }
-
-    private stripOptionalMarkdownFence(
-        text: string,
-    ): string {
-        const match = /^```(?:json)?\s*\r?\n?([\s\S]*?)\r?\n?```$/m.exec(
-            text,
-        )
-        return match ? match[1].trim() : text
     }
 }

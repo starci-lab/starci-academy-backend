@@ -42,6 +42,9 @@ import {
     CodeImplementationEntity,
 } from "./code-implementation.entity"
 import {
+    ContentBodyV2Entity,
+} from "./content-body-v2.entity"
+import {
     QuizDeckEntity,
 } from "./quiz-deck.entity"
 
@@ -200,6 +203,24 @@ export class ContentEntity extends UuidAbstractEntity {
         minutesRead: number
 
     /**
+     * Day this content was verified/audited. Presence (non-null) marks SCHEMA V2 content; legacy
+     * content leaves it null. Sourced from the `# verified` markdown heading.
+     */
+    @Field(
+        () => Date,
+        {
+            nullable: true,
+            description: "Day this content was verified; non-null marks SCHEMA V2 content.",
+        },
+    )
+    @Column({
+        name: "verified",
+        type: "timestamptz",
+        nullable: true,
+    })
+        verified: Date | null
+
+    /**
      * Localized translations for fields such as `title` and `body`.
      */
     @Field(
@@ -334,6 +355,27 @@ export class ContentEntity extends UuidAbstractEntity {
         },
     )
         codeImplementations: Array<CodeImplementationEntity>
+
+    /**
+     * SCHEMA V2 per-language lesson bodies (mount `# bodies`). Holds the 4-language lesson content;
+     * `body` (scalar) stays empty for V2 content. (Table named `content_bodies_v2` provisionally —
+     * to be renamed once the legacy scalar `body` is dropped.)
+     */
+    @Field(
+        () => [ContentBodyV2Entity],
+        {
+            nullable: true,
+            description: "Per-language lesson bodies for this content (SCHEMA V2).",
+        },
+    )
+    @OneToMany(
+        () => ContentBodyV2Entity,
+        (contentBodyV2: ContentBodyV2Entity) => contentBodyV2.content,
+        {
+            cascade: true,
+        },
+    )
+        bodiesV2: Array<ContentBodyV2Entity>
 
     @Column({
         name: "num_challenges",

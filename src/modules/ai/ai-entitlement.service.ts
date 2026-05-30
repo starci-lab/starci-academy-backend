@@ -6,7 +6,6 @@ import {
 } from "typeorm"
 import {
     AiMode,
-    AiModelCategory,
     AiSubStatus,
     AiSubscriptionEntity,
     AiSubTier,
@@ -27,12 +26,10 @@ import {
 import {
     AiByokInvalidException,
     AiModeNotEntitledException,
-    AiQuotaExhaustedException,
 } from "@modules/exceptions"
 import {
     AUTO_LIMIT_5H,
     AUTO_LIMIT_WEEK,
-    CATEGORY_CREDIT_COST,
     SUBSCRIPTION_PERIOD_MONTHS,
     TIER_ALLOWED_CATEGORIES,
     WINDOW_5H_MS,
@@ -42,7 +39,6 @@ import type {
     AiEntitlement,
     AiQuotaSnapshot,
     AiSettings,
-    ConsumeEntitlementParams,
     GrantTierParams,
     ResolveEntitlementParams,
     UpdateAiSettingsParams,
@@ -361,133 +357,6 @@ export class AiEntitlementService {
             hasByokKey: Boolean(subscription.byokKeyEncrypted),
             tier,
         }
-    }
-
-    /**
-     * Debit the user's entitlement for a single LLM call of `category`.
-     *
-     * Resolves first, then by mode:
-     * - **byok**: no-op.
-     * - **auto**: requires the model be `complimentary` and headroom in BOTH
-     *   windows; increments both Auto counters by 1.
-     * - **premium**: requires enough credits in BOTH windows; increments both
-     *   credit counters by the category cost.
-     *
-     * @param params - the owning `userId`, the call `category`, and whether the
-     *  chosen model is `complimentary`
-     * @throws AiQuotaExhaustedException when no allowance remains or the model
-     *  is not eligible for the lane
-     */
-    async consume({
-        userId,
-        category,
-        complimentary,
-        requestedMode,
-    }: ConsumeEntitlementParams): Promise<void> {
-        await this.entityManager.transaction(
-            async (entityManager) => {
-                const subscription = await this.loadOrCreate(
-                    userId,
-                    entityManager,
-                )
-                this.applyWindowResets(subscription)
-                const entitlement = this.toEntitlement(
-                    subscription,
-                    requestedMode,
-                )
-
-                switch (entitlement.mode) {
-                case AiMode.Byok:
-                    // user's own key — no pooled quota to debit
-                    await entityManager.save(subscription)
-                    return
-                case AiMode.Auto:
-                    this.consumeAuto(
-                        subscription,
-                        complimentary,
-                        entitlement,
-                    )
-                    break
-                case AiMode.Premium:
-                    this.consumePremium(
-                        subscription,
-                        category,
-                        entitlement,
-                    )
-                    break
-                }
-
-                await entityManager.save(subscription)
-            },
-        )
-    }
-
-    /**
-     * Debit the Auto allowance (1 use against each window).
-     *
-     * @throws AiQuotaExhaustedException when the model is not `complimentary`
-     *  (not on the free lane) or either window is empty
-     */
-    private consumeAuto(
-        subscription: AiSubscriptionEntity,
-        complimentary: boolean,
-        entitlement: AiEntitlement,
-    ): void {
-        if (!complimentary) {
-            throw new AiQuotaExhaustedException({
-                mode: "auto",
-                window: "category",
-            })
-        }
-        if (entitlement.autoRemaining5h <= 0) {
-            throw new AiQuotaExhaustedException({
-                mode: "auto",
-                window: "5h",
-            })
-        }
-        if (entitlement.autoRemainingWeek <= 0) {
-            throw new AiQuotaExhaustedException({
-                mode: "auto",
-                window: "week",
-            })
-        }
-        subscription.auto5hUsed += 1
-        subscription.autoWeekUsed += 1
-    }
-
-    /**
-     * Debit the Premium credit balance by the category's cost against each
-     * window.
-     *
-     * @throws AiQuotaExhaustedException when the category is not unlocked by
-     *  the tier or either window lacks enough credits
-     */
-    private consumePremium(
-        subscription: AiSubscriptionEntity,
-        category: AiModelCategory,
-        entitlement: AiEntitlement,
-    ): void {
-        if (!entitlement.allowedCategories.includes(category)) {
-            throw new AiQuotaExhaustedException({
-                mode: "premium",
-                window: "category",
-            })
-        }
-        const cost = CATEGORY_CREDIT_COST[category]
-        if (entitlement.creditRemaining5h < cost) {
-            throw new AiQuotaExhaustedException({
-                mode: "premium",
-                window: "5h",
-            })
-        }
-        if (entitlement.creditRemainingWeek < cost) {
-            throw new AiQuotaExhaustedException({
-                mode: "premium",
-                window: "week",
-            })
-        }
-        subscription.credit5hUsed += cost
-        subscription.creditWeekUsed += cost
     }
 
     /**

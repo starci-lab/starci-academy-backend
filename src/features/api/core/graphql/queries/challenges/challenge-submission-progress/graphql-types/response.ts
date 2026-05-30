@@ -40,15 +40,23 @@ export class ChallengeSubmissionProgressItemData {
     @Field(
         () => Boolean,
         {
-            description: "Whether the challenge is completed (passed).",
+            description: "Whether the challenge is completed (every submission submitted and passed).",
         },
     )
         completed: boolean
 
     @Field(
+        () => String,
+        {
+            description: "Lifecycle state: notStarted | inProgress | failed | completed.",
+        },
+    )
+        status: string
+
+    @Field(
         () => Int,
         {
-            description: "Total number of attempts.",
+            description: "Total number of attempts across all submissions.",
         },
     )
         numAttempts: number
@@ -65,15 +73,6 @@ export class ChallengeSubmissionProgressResponseData {
         },
     )
         completionTasks: Array<ChallengeSubmissionProgressItemData>
-
-    @Field(
-        () => ChallengeSubmissionProgressItemData,
-        {
-            nullable: true,
-            description: "The current (first uncompleted) challenge, or null if all completed.",
-        },
-    )
-        currentTask: ChallengeSubmissionProgressItemData | null
 }
 
 @ObjectType({

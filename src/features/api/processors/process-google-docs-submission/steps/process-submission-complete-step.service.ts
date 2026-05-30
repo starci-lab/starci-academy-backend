@@ -3,6 +3,7 @@ import type {
 } from "@modules/bullmq"
 import {
     JobActionService,
+    CreditUsageService,
 } from "@modules/bussiness"
 import {
     AbstractStepService,
@@ -12,10 +13,20 @@ import {
     EmptyObject,
 } from "@modules/common"
 import {
+    AiMode,
+    CreditUsageHistoryEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
     UserChallengeSubmissionAttemptEntity,
+    UserChallengeSubmissionEntity,
 } from "@modules/databases"
+import {
+    ModelRecommendation,
+    resolveGradingCreditCost,
+} from "@modules/ai"
+import {
+    envConfig,
+} from "@modules/env"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -60,6 +71,7 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
         private readonly gradeStepService: ProcessGoogleDocsSubmissionGradeStepService,
         private readonly eventEmitterService: EventEmitterService,
         private readonly dayjsService: DayjsService,
+        private readonly creditUsageService: CreditUsageService,
     ) {
         super()
     }
@@ -111,6 +123,7 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                 grade,
             })
         }
+        let chargedUserId: string | undefined
         await this.entityManager.transaction(
             async (entityManager) => {
                 /** Fetch all attempts for this user challenge submission */
@@ -147,7 +160,7 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                     }
                 )
                 /** Save the user challenge submission attempt */
-                await entityManager.save(
+                const attempt = await entityManager.save(
                     UserChallengeSubmissionAttemptEntity,
                     {
                         userChallengeSubmission: {
@@ -163,10 +176,73 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                         feedbacks,
                     }
                 )
+                /** Record the AI credits charged for this grading run. */
+                chargedUserId = await this.recordCreditUsage(
+                    {
+                        entityManager,
+                        payload,
+                        attemptId: attempt.id,
+                    },
+                )
             }
         )
+        /** Refresh the cached credit total now the new charge has committed. */
+        if (chargedUserId) {
+            await this.creditUsageService.invalidate(chargedUserId)
+        }
         return {
         }
+    }
+
+    /**
+     * Persist a {@link CreditUsageHistoryEntity} row for the grading run.
+     * Credits are derived from the AI lane and the configured model tier.
+     * @param params - Transaction manager, job payload, and the saved attempt id.
+     * @returns The id of the user that was charged.
+     */
+    private async recordCreditUsage(
+        {
+            entityManager,
+            payload,
+            attemptId,
+        }: {
+            entityManager: EntityManager
+            payload: ProcessGoogleDocsSubmissionPayload
+            attemptId: string
+        },
+    ): Promise<string> {
+        /** Resolve who is being charged from the user challenge submission. */
+        const userChallengeSubmission = await entityManager.findOneOrFail(
+            UserChallengeSubmissionEntity,
+            {
+                where: {
+                    id: payload.userChallengeSubmissionId,
+                },
+            },
+        )
+        /** The lane the user submitted on (defaults to the free Auto lane). */
+        const mode = payload.mode ?? AiMode.Auto
+        /** The premium tier billed comes from the configured model recommendation. */
+        const recommendation = envConfig().ai.modelRecommendation as ModelRecommendation
+        const credits = resolveGradingCreditCost({
+            mode,
+            recommendation,
+        })
+        await entityManager.save(
+            CreditUsageHistoryEntity,
+            {
+                user: {
+                    id: userChallengeSubmission.userId,
+                },
+                attempt: {
+                    id: attemptId,
+                },
+                mode,
+                recommendation: mode === AiMode.Premium ? recommendation : null,
+                credits,
+            },
+        )
+        return userChallengeSubmission.userId
     }
 
     /**

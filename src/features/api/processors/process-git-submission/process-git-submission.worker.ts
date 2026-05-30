@@ -134,6 +134,10 @@ export class ProcessGitSubmissionWorker extends WorkerHost {
                         requirements: {
                             translations: true,
                         },
+                        requirementsV2: true,
+                        stepsV2: true,
+                        outputsV2: true,
+                        prerequisitesV2: true,
                     },
                 },
             )

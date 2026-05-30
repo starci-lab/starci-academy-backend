@@ -125,7 +125,9 @@ export class ChallengeSubmissionsHandler
                     },
                 },
                 order: {
-                    attemptNumber: "DESC",
+                    // Ascending so that when building the Map below (last write wins per key),
+                    // the final entry per submission is the highest attempt number — i.e. the latest attempt.
+                    attemptNumber: "ASC",
                 },
             },
         )

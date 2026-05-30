@@ -64,4 +64,17 @@ export class SubmitChallengeSubmissionRequest {
     )
         selectedModelProvider?: ModelProvider
 
+    /**
+     * SCHEMA V2 only: programming language the learner chose (typescript/java/csharp/go). Selects
+     * the matching approach-criteria bucket when grading a verified challenge.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "SCHEMA V2: programming language chosen by the learner (selects approach criteria).",
+        },
+    )
+        lang?: string
+
 }

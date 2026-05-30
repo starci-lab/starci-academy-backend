@@ -11,6 +11,9 @@
 
 const path = require("path")
 
+// Load .env.override so DISABLE_FORK_TS_CHECKER is visible during webpack (Nest ConfigModule only loads it at runtime).
+require("dotenv").config({ path: path.join(__dirname, "../../.env.override") })
+
 // Prevent bundling node_modules; they will be resolved at runtime
 const nodeExternals = require("webpack-node-externals")
 

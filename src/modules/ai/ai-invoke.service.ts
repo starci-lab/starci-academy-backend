@@ -47,8 +47,11 @@ export class AiInvokeService {
             messages,
             category,
             byok,
+            temperature,
         }: AiInvokeParams,
     ): Promise<AiInvokeResult> {
+        // Default to deterministic sampling so the same submission grades the same.
+        const resolvedTemperature = temperature ?? 0
         /**
          * BYOK path — skip the shared key pool / fallback chain entirely and
          * invoke the user's own key/model exactly once.
@@ -59,6 +62,7 @@ export class AiInvokeService {
                     provider: byok.provider,
                     model: byok.model,
                     apiKey: byok.key,
+                    temperature: resolvedTemperature,
                 },
             )
             const response = await chatModel.invoke(messages)
@@ -87,6 +91,7 @@ export class AiInvokeService {
                             provider: context.provider,
                             model: context.model,
                             apiKey: context.key,
+                            temperature: resolvedTemperature,
                         },
                     )
                     const response = await chatModel.invoke(messages)
@@ -118,10 +123,12 @@ export class AiInvokeService {
             provider,
             model,
             apiKey,
+            temperature,
         }: {
             provider: ModelProvider
             model: string
             apiKey: string
+            temperature: number
         },
     ): ChatOpenAI | ChatGoogleGenerativeAI {
         switch (provider) {
@@ -130,6 +137,7 @@ export class AiInvokeService {
                 {
                     model,
                     apiKey,
+                    temperature,
                 },
             )
         case ModelProvider.Gemini:
@@ -137,6 +145,7 @@ export class AiInvokeService {
                 {
                     model,
                     apiKey,
+                    temperature,
                 },
             )
         default:

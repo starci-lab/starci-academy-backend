@@ -9,6 +9,8 @@ import {
     CodeExplainingTranslationEntity,
     CodeImplementationEntity,
     CodeImplementationTranslationEntity,
+    ContentBodyV2Entity,
+    ContentBodyV2TranslationEntity,
     ContentEntity,
     ContentReferenceEntity,
     ContentReferenceTranslationEntity,
@@ -17,6 +19,9 @@ import {
 import {
     UpsertService,
 } from "./upsert.service"
+import {
+    upsertChildrenWithTranslations,
+} from "./challenge-insert.service"
 import {
     deleteFields,
 } from "../utils"
@@ -42,6 +47,7 @@ export class ContentInsertService {
         const references = content.references
         const codeExplainings = content.codeExplainings
         const codeImplementations = content.codeImplementations
+        const bodiesV2 = content.bodiesV2
         const moduleRef = content.module
 
         const contentRow = deleteFields(
@@ -51,6 +57,7 @@ export class ContentInsertService {
                 "references",
                 "codeExplainings",
                 "codeImplementations",
+                "bodiesV2",
                 "module",
                 "challenges",
                 "lessons",
@@ -98,15 +105,15 @@ export class ContentInsertService {
                     )
                 }
             }
-            // await this.upsertService.deleteStaleUuid<ContentReferenceEntity>(
-            //     ContentReferenceEntity,
-            //     references.map((reference) => reference.id ?? ""),
-            //     {
-            //         content: {
-            //             id: contentId,
-            //         },
-            //     },
-            // )
+            await this.upsertService.deleteStaleUuid<ContentReferenceEntity>(
+                ContentReferenceEntity,
+                references.map((reference) => reference.id ?? ""),
+                {
+                    content: {
+                        id: contentId,
+                    },
+                },
+            )
         }
 
         if (codeExplainings !== undefined) {
@@ -129,15 +136,15 @@ export class ContentInsertService {
                     )
                 }
             }
-            // await this.upsertService.deleteStaleUuid<CodeExplainingEntity>(
-            //     CodeExplainingEntity,
-            //     codeExplainings.map((row) => row.id ?? ""),
-            //     {
-            //         content: {
-            //             id: contentId,
-            //         },
-            //     },
-            // )
+            await this.upsertService.deleteStaleUuid<CodeExplainingEntity>(
+                CodeExplainingEntity,
+                codeExplainings.map((row) => row.id ?? ""),
+                {
+                    content: {
+                        id: contentId,
+                    },
+                },
+            )
         }
 
         if (codeImplementations !== undefined) {
@@ -160,16 +167,31 @@ export class ContentInsertService {
                     )
                 }
             }
-            // await this.upsertService.deleteStaleUuid<CodeImplementationEntity>(
-            //     CodeImplementationEntity,
-            //     codeImplementations.map((row) => row.id ?? ""),
-            //     {
-            //         content: {
-            //             id: contentId,
-            //         },
-            //     },
-            // )
+            await this.upsertService.deleteStaleUuid<CodeImplementationEntity>(
+                CodeImplementationEntity,
+                codeImplementations.map((row) => row.id ?? ""),
+                {
+                    content: {
+                        id: contentId,
+                    },
+                },
+            )
         }
+
+        // SCHEMA V2 per-language lesson bodies (mount `# bodies`) + their per-locale translations,
+        // scoped + stale-deleted per content (the helper drops removed buckets too).
+        await upsertChildrenWithTranslations(
+            this.upsertService,
+            ContentBodyV2Entity,
+            ContentBodyV2TranslationEntity,
+            bodiesV2 as Array<DeepPartial<ContentBodyV2Entity>> | undefined,
+            {
+                content: {
+                    id: contentId,
+                },
+            },
+            "contentBodyV2Id",
+        )
     }
 
     /**

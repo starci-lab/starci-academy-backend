@@ -76,13 +76,13 @@ export class UpsertService {
                             where,
                         })
                     existingIds = new Set(existing.map((entity) => entity.id))
-                    const ids = new Set(
-                        entities
-                            .filter((entity) => entity.id != null)
-                            .map((entity) => entity.id as string),
-                    )
 
                     // /** 2. Delete stale rows (exist in DB but not in seed) */
+                    // const ids = new Set(
+                    //     entities
+                    //         .filter((entity) => entity.id != null)
+                    //         .map((entity) => entity.id as string),
+                    // )
                     // const toDelete = [...existingIds].filter((id) => !ids.has(id))
                     // if (toDelete.length > 0) {
                     //     await this.entityManager.delete(entityClass,
@@ -158,39 +158,42 @@ export class UpsertService {
         ids: Array<string>,
         where: FindOptionsWhere<Entity>,
     ): Promise<void> {
-            // deleteStale disabled during init seed — re-enable when mount sync is stable
-            return
-            // try {
-            //     const existing = await this.entityManager.find<UuidAbstractEntity>(
-            //         entityClass,
-            //         {
-            //             select: {
-            //                 id: true,
-            //             },
-            //             where,
-            //         })
-            //     const existingIds = new Set(existing.map((entity) => entity.id))
-            //     const seedIds = new Set(ids)
+            try {
+                // SCOPED delete: only rows under the `where` parent (e.g. one content's challenges,
+                // one challenge's steps) are considered — never the whole table. Of those, delete the
+                // ones NOT in the current seed `ids` so the parent ends up matching source exactly.
+                const existing = await this.entityManager.find<UuidAbstractEntity>(
+                    entityClass,
+                    {
+                        select: {
+                            id: true,
+                        },
+                        where,
+                    })
+                const existingIds = new Set(existing.map((entity) => entity.id))
+                const seedIds = new Set(ids)
 
-            //     const toDelete = [...existingIds].filter((id) => !seedIds.has(id))
-            //     if (toDelete.length > 0) {
-            //         await this.entityManager.delete(entityClass,
-            //             toDelete)
-            //         for (const id of toDelete) {
-            //             this.winstonService.log(
-            //                 WinstonLog.DbSynchronizerSyncedSuccessfully,
-            //                 {
-            //                     entityKind: this.entityName(entityClass),
-            //                     entityId: id,
-            //                     type: DbSyncType.Deleted,
-            //                 },
-            //             )
-            //         }
-            //     }
-            // } catch (error) {
-            //     console.error(error)
-            //     throw error
-            // }
+                const toDelete = [...existingIds].filter((id) => !seedIds.has(id))
+                if (toDelete.length > 0) {
+                    await this.entityManager.delete(
+                        entityClass,
+                        toDelete,
+                    )
+                    for (const id of toDelete) {
+                        this.winstonService.log(
+                            WinstonLog.DbSynchronizerSyncedSuccessfully,
+                            {
+                                entityKind: this.entityName(entityClass),
+                                entityId: id,
+                                type: DbSyncType.Deleted,
+                            },
+                        )
+                    }
+                }
+            } catch (error) {
+                console.error(error)
+                throw error
+            }
         }
 
     /**

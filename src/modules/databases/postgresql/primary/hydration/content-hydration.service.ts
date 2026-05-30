@@ -8,6 +8,7 @@ import {
     ChallengeEntity,
     CodeExplainingEntity,
     CodeImplementationEntity,
+    ContentBodyV2Entity,
     ContentEntity,
     ContentReferenceEntity,
 } from "../entities"
@@ -53,6 +54,7 @@ export class ContentHydrationService {
             codeExplainings,
             codeImplementations,
             challenges,
+            bodiesV2,
         ] = await Promise.all([
             this.entityManager.find(
                 ContentReferenceEntity,
@@ -118,6 +120,23 @@ export class ContentHydrationService {
                     },
                 },
             ),
+            // SCHEMA V2 per-language lesson bodies — locale variants live in the translation relation
+            this.entityManager.find(
+                ContentBodyV2Entity,
+                {
+                    where: {
+                        content: {
+                            id: hydratedContent.id,
+                        },
+                    },
+                    relations: {
+                        translations: true,
+                    },
+                    order: {
+                        orderIndex: "ASC",
+                    },
+                },
+            ),
         ])
         hydratedContent.references = references.map(
             (reference) => reference.toPlain<ContentReferenceEntity>(),
@@ -130,6 +149,9 @@ export class ContentHydrationService {
         )
         hydratedContent.challenges = challenges.map(
             (challenge) => challenge.toPlain<ChallengeEntity>(),
+        )
+        hydratedContent.bodiesV2 = bodiesV2.map(
+            (bodyV2) => bodyV2.toPlain<ContentBodyV2Entity>(),
         )
         return hydratedContent
     }

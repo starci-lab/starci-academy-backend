@@ -5,6 +5,9 @@ import {
     ParsingCriteriaResultsFromModelTextException,
 } from "@modules/exceptions"
 import {
+    extractJsonBlock,
+} from "@modules/ai"
+import {
     Injectable,
 } from "@nestjs/common"
 
@@ -15,7 +18,7 @@ export class ProcessGoogleDocsSubmissionParseService {
         text: string,
     ): ChallengeEvaluation {
         try {
-            return JSON.parse(text)
+            return JSON.parse(extractJsonBlock(text))
         } catch (error) {
             throw new ParsingCriteriaResultsFromModelTextException({
                 text,

@@ -16,6 +16,7 @@ import {
 } from "@modules/databases"
 import {
     ChallengeInsertService,
+    ChallengeV2InsertService,
     ContentInsertService,
     CourseInsertService,
     LessonVideoInsertService,
@@ -27,6 +28,7 @@ import {
 } from "./inserts"
 import {
     ChallengeParserService,
+    ChallengeV2ParserService,
     ContentParserService,
     CourseParserService,
     LessonVideoParserService,
@@ -53,6 +55,7 @@ import {
 import {
     shouldIncludeCourseModule,
     shouldIncludeCourseMilestone,
+    isRestrictedCourseTrackSeed,
 } from "../../utils"
 import {
     WinstonService,
@@ -68,6 +71,7 @@ export class CourseSeederService {
         private readonly courseParserService: CourseParserService,
         private readonly moduleParserService: ModuleParserService,
         private readonly challengeParserService: ChallengeParserService,
+        private readonly challengeV2ParserService: ChallengeV2ParserService,
         private readonly quizDeckParserService: QuizDeckParserService,
         private readonly lessonVideoParserService: LessonVideoParserService,
         private readonly contentParserService: ContentParserService,
@@ -76,6 +80,7 @@ export class CourseSeederService {
         private readonly contentInsertService: ContentInsertService,
         private readonly lessonVideoInsertService: LessonVideoInsertService,
         private readonly challengeInsertService: ChallengeInsertService,
+        private readonly challengeV2InsertService: ChallengeV2InsertService,
         private readonly quizDeckInsertService: QuizDeckInsertService,
         private readonly milestoneParserService: MilestoneParserService,
         private readonly milestoneTaskParserService: MilestoneTaskParserService,
@@ -106,6 +111,12 @@ export class CourseSeederService {
         } = resolveCourseSeedScope()
         /** The courses to seed. */
         const courses: Array<DeepPartial<CourseEntity>> = []
+        /**
+         * Challenge ids detected as SCHEMA V2 (markdown carries `# approachCriteria`). The insert
+         * phase routes these through {@link ChallengeV2InsertService}; everything else stays on the
+         * legacy {@link ChallengeInsertService}. Tracking by id keeps both branches independent.
+         */
+        const v2ChallengeIds = new Set<string>()
         /** The course results to seed. */
         const courseResults = await this.courseParserService.parseMany()
         /** We push the courses to the array by parsing the course results. */
@@ -187,6 +198,28 @@ export class CourseSeederService {
                 /** We find challenges for each content. */
                 for (const contentResult of contentResults) {
                     const challenges: Array<DeepPartial<ChallengeEntity>> = []
+                    /**
+                     * V2 parse pass first — it skips non-V2 files internally and returns only
+                     * SCHEMA V2 graphs. Record their ids so the legacy pass can drop them.
+                     */
+                    const challengeV2Results = await this.challengeV2ParserService.parseMany(
+                        {
+                            contentRelativePath: contentResult.relativePath,
+                            courseIndex: courseResult.index,
+                            moduleIndex: moduleResult.index,
+                            contentIndex: contentResult.index,
+                        },
+                    )
+                    for (const challengeV2Result of challengeV2Results) {
+                        const challengeV2Id = challengeV2Result.data.id as string
+                        // mark this id so the insert phase routes it to the V2 insert service
+                        v2ChallengeIds.add(challengeV2Id)
+                        challenges.push(challengeV2Result.data)
+                    }
+                    /**
+                     * Legacy parse pass — parses every file (incl. V2 ones in legacy shape), so we
+                     * filter out any id already claimed by the V2 pass to avoid double handling.
+                     */
                     const challengeResults = await this.challengeParserService.parseMany(
                         {
                             contentRelativePath: contentResult.relativePath,
@@ -196,6 +229,10 @@ export class CourseSeederService {
                         },
                     )
                     for (const challengeResult of challengeResults) {
+                        // skip V2-claimed ids — they are already in `challenges` in V2 shape
+                        if (v2ChallengeIds.has(challengeResult.data.id as string)) {
+                            continue
+                        }
                         challenges.push(challengeResult.data)
                     }
                     const content = contents.find(
@@ -280,35 +317,48 @@ export class CourseSeederService {
                     /** 4. Upsert challenges */
                     const challenges = (content.challenges ?? []) as Array<DeepPartial<ChallengeEntity>>
                     for (const challenge of challenges) {
-                        await this.challengeInsertService.insert(challenge)
+                        // route V2-detected challenges to the additive V2 insert; rest stay legacy
+                        if (v2ChallengeIds.has(challenge.id as string)) {
+                            await this.challengeV2InsertService.insert(challenge)
+                        } else {
+                            await this.challengeInsertService.insert(challenge)
+                        }
                     }
-                    // /** Delete stale challenges */
-                    // await this.challengeInsertService.deleteStale(
-                    //     challenges.map((challenge) => challenge.id as string),
-                    //     contentId,
-                    // )
+                    /** Delete stale challenges — scoped to THIS content (keeps only seeded ids). */
+                    await this.challengeInsertService.deleteStale(
+                        challenges.map((challenge) => challenge.id as string),
+                        content.id as string,
+                    )
                     /** 5. Upsert lesson videos */
                     const lessons = (content.lessons ?? []) as Array<DeepPartial<LessonVideoEntity>>
                     for (const lesson of lessons) {
                         await this.lessonVideoInsertService.insert(lesson)
                     }
-                    // /** Delete stale lesson videos */
-                    // await this.lessonVideoInsertService.deleteStale(
-                    //     lessons.map((lesson) => lesson.id as string),
-                    //     contentId,
-                    // )
+                    /** Delete stale lesson videos — scoped to THIS content. */
+                    await this.lessonVideoInsertService.deleteStale(
+                        lessons.map((lesson) => lesson.id as string),
+                        content.id as string,
+                    )
                 }
-                // /** Delete stale contents */
-                // await this.contentInsertService.deleteStale(
-                //     contents.map((content) => content.id as string),
-                //             module.id as string,
-                // )
+                /** Delete stale contents — scoped to THIS module (a seeded module). */
+                await this.contentInsertService.deleteStale(
+                    contents.map((content) => content.id as string),
+                    module.id as string,
+                )
             }
-            // /** Drop modules for this course that are not in the current seed batch (e.g. only order 0,1). */
-            // await this.moduleInsertService.deleteStale(
-            //     modules.map((module) => module.id as string),
-            //     courseId,
-            // )
+            /**
+             * Delete stale modules — ONLY on a full (unrestricted) course rebuild. When the env
+             * module filter scopes the seed to a subset (e.g. only fullstack module 0), `modules`
+             * holds just that subset, so trimming would wipe every non-seeded module. The guard
+             * keeps the scoped seed safe while still pruning removed modules on a full rebuild.
+             */
+            if (!isRestrictedCourseTrackSeed(moduleIndexFilterByDisplayId,
+                courseDisplayId)) {
+                await this.moduleInsertService.deleteStale(
+                    modules.map((module) => module.id as string),
+                    courseId,
+                )
+            }
 
             /** 5c. Upsert course-level quiz decks (after contents exist for N:N links). */
             const quizDecks = (course.quizDecks ?? []) as Array<DeepPartial<QuizDeckEntity>>

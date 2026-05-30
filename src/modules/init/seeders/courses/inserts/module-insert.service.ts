@@ -113,15 +113,15 @@ export class ModuleInsertService {
                     )
                 }
             }
-            // await this.upsertService.deleteStaleUuid<PreviewContentEntity>(
-            //     PreviewContentEntity,
-            //     (previewContents as Array<DeepPartial<PreviewContentEntity>>).map((previewContent) => previewContent.id as string),
-            //     {
-            //         module: {
-            //             id: moduleId 
-            //         } 
-            //     },
-            // )
+            await this.upsertService.deleteStaleUuid<PreviewContentEntity>(
+                PreviewContentEntity,
+                (previewContents as Array<DeepPartial<PreviewContentEntity>>).map((previewContent) => previewContent.id as string),
+                {
+                    module: {
+                        id: moduleId,
+                    },
+                },
+            )
         }
     }
 

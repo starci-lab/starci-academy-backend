@@ -6,11 +6,15 @@ import type {
 } from "../types"
 import {
     JobActionService,
+    CreditUsageService,
 } from "@modules/bussiness"
 import {
     AbstractStepService,
     JobExtendedContext,
 } from "@modules/bussiness"
+import {
+    AiQuotaExhaustedException,
+} from "@modules/exceptions"
 import {
     EmptyObject,
 } from "@modules/common"
@@ -69,6 +73,7 @@ import {
 import {
     AiInvokeService,
     AiEntitlementService,
+    pickBestCategory,
 } from "@modules/ai"
 import type {
     AiInvokeByok,
@@ -99,6 +104,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly dayjsService: DayjsService,
         private readonly reviewMilestoneTaskParseService: ReviewMilestoneTaskParseService,
+        private readonly creditUsageService: CreditUsageService,
     ) {
         super()
     }
@@ -337,6 +343,14 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 },
             },
         )
+        /** Block grading once the user is over their credit quota (source of truth: credit_usage_histories). */
+        const creditSnapshot = await this.creditUsageService.getSnapshot(enrollment.userId)
+        if (creditSnapshot.overQuota) {
+            throw new AiQuotaExhaustedException({
+                mode: payload.mode ?? AiMode.Auto,
+                window: "credit",
+            })
+        }
         const invokeOptions = await this.resolveInvokeOptions(
             {
                 userId: enrollment.userId,
@@ -406,16 +420,10 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
             }
         }
 
+        // Credits are debited from credit_usage_histories at complete time, not here.
         const category = entitlement.mode === AiMode.Premium
             ? pickBestCategory(entitlement.allowedCategories)
             : AiModelCategory.Economy
-        await this.aiEntitlementService.consume({
-            userId,
-            category,
-            requestedMode: payload.mode,
-            // Auto lane only ever serves complimentary models; Premium is credit-based.
-            complimentary: entitlement.mode === AiMode.Auto,
-        })
         return {
             category,
         }
@@ -463,26 +471,4 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
     }
 }
 
-/** Rank used to pick the "best" category a Premium tier unlocks. */
-const CATEGORY_RANK: Record<AiModelCategory, number> = {
-    [AiModelCategory.Economy]: 0,
-    [AiModelCategory.Balanced]: 1,
-    [AiModelCategory.Premium]: 2,
-}
-
-/**
- * Pick the highest-ranked category from the allowed list (economy < balanced
- * < premium). Falls back to Economy when the list is empty.
- * @param categories - Categories the tier currently unlocks.
- * @returns The single best category to grade with.
- */
-function pickBestCategory(
-    categories: Array<AiModelCategory>,
-): AiModelCategory {
-    return categories.reduce(
-        (best, candidate) =>
-            CATEGORY_RANK[candidate] > CATEGORY_RANK[best] ? candidate : best,
-        AiModelCategory.Economy,
-    )
-}
 

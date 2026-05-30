@@ -139,13 +139,16 @@ export class ElasticsearchSynchronizerService {
                 continue
             }
             for (const locale of Object.values(Locale)) {
-                await this.elasticsearchService.deleteIndex(
-                    this.elasticsearchService.indicateName(
-                        {
-                            entity: entityKind,
-                            locale,
-                        },
-                    ),
+                // SCOPED sync: do NOT delete the whole index (that would wipe out-of-scope records,
+                // e.g. other courses/modules not selected in the env filter). Instead just ensure the
+                // index exists with the explicit mapping patch (additive on an existing index). The
+                // re-index loop below then OVERWRITES only the in-scope documents by id, leaving every
+                // out-of-scope document untouched.
+                await this.elasticsearchService.ensureIndexForEntity(
+                    {
+                        entity: entityKind,
+                        locale,
+                    },
                 )
             }
             let resumeEntityId: string | null = null

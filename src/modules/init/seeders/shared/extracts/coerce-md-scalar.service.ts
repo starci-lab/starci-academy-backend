@@ -201,4 +201,20 @@ export class CoerceMdScalarService {
     ): boolean {
         return this.toNullableBoolean(value) ?? fallback
     }
+
+    /**
+     * Convert a markdown scalar (e.g. a `# verified` day like `2026-05-30`) into a Date, or null
+     * for `null` / `""` / `"null"` / an unparseable value.
+     */
+    toNullableDate(
+        value: unknown,
+    ): Date | null {
+        const asString = this.toNullableString(value)
+        if (!asString) {
+            return null
+        }
+        // parse the ISO-ish day string; reject NaN dates so bad markdown becomes SQL NULL
+        const parsed = new Date(asString)
+        return Number.isNaN(parsed.getTime()) ? null : parsed
+    }
 }

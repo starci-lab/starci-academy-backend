@@ -18,6 +18,7 @@ import {
     FoundationCategoryEntity,
     ConsultantEntity,
     HeadhuntingCompanyEntity,
+    Locale,
 } from "@modules/databases"
 import {
     ObjectLiteral
@@ -29,6 +30,12 @@ import {
 import {
     configMap
 } from "./config"
+import {
+    resolveElasticsearchIndexPatch,
+} from "./patches"
+import {
+    envConfig,
+} from "@modules/env"
 import type {
     IndicateNameParams,
     IndexEntityParams,
@@ -85,24 +92,85 @@ export class ElasticsearchService implements OnModuleInit {
     }
 
     /**
-     * On application bootstrap, ensure the index exists.
+     * On application bootstrap, ensure the indices exist. For entities that have an index patch
+     * (and when `ELASTICSEARCH_APPLY_INDEX_PATCHES` is on) the per-locale indices are pre-created
+     * with the explicit mapping so documents land in a correctly-typed index.
      */
     async onModuleInit() {
         this.readinessWatcherFactoryService.createWatcher(
             ElasticsearchService.name
         )
+        const applyPatches = envConfig().elasticsearch.applyIndexPatches
         // ensure the indices exist
         await this.asyncService.allIgnoreError(
-            this.indices.map(index => {
-                return this.ensureIndexExists(
-                    this.indicateName(
-                        {
-                            entity: index,
-                        },
-                    ),
+            this.indices.flatMap(index => {
+                // patched entities also pre-create their per-locale indices with the mapping
+                const hasPatch = applyPatches && Boolean(resolveElasticsearchIndexPatch(index))
+                const locales: Array<Locale | undefined> = hasPatch
+                    ? [undefined,
+                        ...Object.values(Locale)]
+                    : [undefined]
+                return locales.map((locale) =>
+                    this.ensureIndexForEntity({
+                        entity: index,
+                        locale,
+                    }),
                 )
             }),
         )
+    }
+
+    /**
+     * Ensure the index for an entity (and optional locale) exists, applying its mapping patch when
+     * `ELASTICSEARCH_APPLY_INDEX_PATCHES` is on and a patch is registered for the entity. Falls back
+     * to Elasticsearch's dynamic mapping when no patch applies.
+     *
+     * @param params - Entity name and optional locale.
+     */
+    async ensureIndexForEntity(
+        {
+            entity,
+            locale,
+        }: IndicateNameParams,
+    ): Promise<void> {
+        const index = this.indicateName(
+            {
+                entity,
+                locale,
+            },
+        )
+        const patch = envConfig().elasticsearch.applyIndexPatches
+            ? resolveElasticsearchIndexPatch(entity)
+            : undefined
+        const existsResult = await this.client.indices.exists({
+            index,
+        })
+        const exists =
+            typeof existsResult === "boolean"
+                ? existsResult
+                : (existsResult as { body: boolean }).body
+        // missing index → create with the full patch (settings + mappings) or plain when none
+        if (!exists) {
+            await this.client.indices.create({
+                index,
+                ...((patch ?? {
+                }) as Omit<Parameters<Client["indices"]["create"]>[0], "index">),
+            })
+            return
+        }
+        // existing index → ADDITIVELY apply the mapping patch (new fields only) instead of dropping
+        // it, so out-of-scope documents are preserved. A type conflict on a pre-existing
+        // dynamically-mapped field is ignored so the sync keeps going.
+        if (patch?.mappings) {
+            try {
+                await this.client.indices.putMapping({
+                    index,
+                    ...(patch.mappings as Omit<Parameters<Client["indices"]["putMapping"]>[0], "index">),
+                })
+            } catch {
+                // ignore mapping conflicts on pre-existing fields
+            }
+        }
     }
 
     /**

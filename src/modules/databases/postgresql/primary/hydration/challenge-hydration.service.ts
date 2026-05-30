@@ -7,10 +7,14 @@ import type {
 import {
     ChallengeEntity,
     ChallengeOutputEntity,
+    ChallengeOutputV2Entity,
     ChallengePrerequisiteEntity,
+    ChallengePrerequisiteV2Entity,
     ChallengeReferenceEntity,
     ChallengeRequirementEntity,
+    ChallengeRequirementV2Entity,
     ChallengeStepEntity,
+    ChallengeStepV2Entity,
 } from "../entities"
 import {
     InjectPrimaryPostgreSQLEntityManager,
@@ -70,6 +74,10 @@ export class ChallengeHydrationService {
             outputs,
             prerequisites,
             requirements,
+            requirementsV2,
+            stepsV2,
+            outputsV2,
+            prerequisitesV2,
         ] = await Promise.all([
             this.entityManager.find(
                 ChallengeReferenceEntity,
@@ -135,6 +143,71 @@ export class ChallengeHydrationService {
                     },
                 },
             ),
+            // SCHEMA V2 per-language buckets — locale payloads live in the translation relation
+            this.entityManager.find(
+                ChallengeRequirementV2Entity,
+                {
+                    where: {
+                        challenge: {
+                            id: hydratedChallenge.id,
+                        },
+                    },
+                    relations: {
+                        translations: true,
+                    },
+                    order: {
+                        orderIndex: "ASC",
+                    },
+                },
+            ),
+            this.entityManager.find(
+                ChallengeStepV2Entity,
+                {
+                    where: {
+                        challenge: {
+                            id: hydratedChallenge.id,
+                        },
+                    },
+                    relations: {
+                        translations: true,
+                    },
+                    order: {
+                        orderIndex: "ASC",
+                    },
+                },
+            ),
+            this.entityManager.find(
+                ChallengeOutputV2Entity,
+                {
+                    where: {
+                        challenge: {
+                            id: hydratedChallenge.id,
+                        },
+                    },
+                    relations: {
+                        translations: true,
+                    },
+                    order: {
+                        orderIndex: "ASC",
+                    },
+                },
+            ),
+            this.entityManager.find(
+                ChallengePrerequisiteV2Entity,
+                {
+                    where: {
+                        challenge: {
+                            id: hydratedChallenge.id,
+                        },
+                    },
+                    relations: {
+                        translations: true,
+                    },
+                    order: {
+                        orderIndex: "ASC",
+                    },
+                },
+            ),
         ])
         hydratedChallenge.references = references.map(
             (reference) => reference.toPlain<ChallengeReferenceEntity>(),
@@ -147,6 +220,18 @@ export class ChallengeHydrationService {
         )
         hydratedChallenge.requirements = requirements.map(
             (requirement) => requirement.toPlain<ChallengeRequirementEntity>(),
+        )
+        hydratedChallenge.requirementsV2 = requirementsV2.map(
+            (requirementV2) => requirementV2.toPlain<ChallengeRequirementV2Entity>(),
+        )
+        hydratedChallenge.stepsV2 = stepsV2.map(
+            (stepV2) => stepV2.toPlain<ChallengeStepV2Entity>(),
+        )
+        hydratedChallenge.outputsV2 = outputsV2.map(
+            (outputV2) => outputV2.toPlain<ChallengeOutputV2Entity>(),
+        )
+        hydratedChallenge.prerequisitesV2 = prerequisitesV2.map(
+            (prerequisiteV2) => prerequisiteV2.toPlain<ChallengePrerequisiteV2Entity>(),
         )
         return hydratedChallenge
     }

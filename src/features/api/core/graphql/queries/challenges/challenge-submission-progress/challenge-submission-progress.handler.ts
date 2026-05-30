@@ -61,7 +61,6 @@ implements IQueryHandler<ChallengeSubmissionProgressQuery, ChallengeSubmissionPr
         if (!enrollment) {
             return {
                 completionTasks: [],
-                currentTask: null,  
             }
         }
 
