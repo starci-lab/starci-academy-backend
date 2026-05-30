@@ -8,14 +8,12 @@ import {
 export interface ContentNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     id?: string
     challengeId?: string
-    lessonVideoId?: string
 }
 
 export class ContentNotFoundException extends AbstractException {
     constructor({
         id,
         challengeId,
-        lessonVideoId,
         originalError,
     }: ContentNotFoundExceptionMetadata) {
         super(
@@ -24,7 +22,6 @@ export class ContentNotFoundException extends AbstractException {
             {
                 id,
                 challengeId,
-                lessonVideoId,
                 originalError,
             },
         )

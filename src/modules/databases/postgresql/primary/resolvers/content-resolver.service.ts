@@ -12,9 +12,6 @@ import {
     TranslationResolverService,
 } from "./translation.service"
 import {
-    LessonVideoResolverService,
-} from "./lesson-video-resolver.service"
-import {
     ChallengeResolverService,
 } from "./challenge-resolver.service"
 import {
@@ -31,7 +28,6 @@ import {
 export class ContentResolverService {
     constructor(
         private readonly translationResolver: TranslationResolverService,
-        private readonly lessonVideoResolver: LessonVideoResolverService,
         private readonly challengeResolver: ChallengeResolverService,
         private readonly codeExplainingResolver: CodeExplainingResolverService,
         private readonly codeImplementationResolver: CodeImplementationResolverService,
@@ -84,16 +80,6 @@ export class ContentResolverService {
                     : reference.alias
                 delete (reference as Partial<ContentReferenceEntity>).translations
                 return reference
-            })
-        }
-        if (content.lessons?.length) {
-            content.lessons = content.lessons.map((lesson) => {
-                this.lessonVideoResolver.transform(
-                    lesson,
-                    locale,
-                    contentFallback,
-                )
-                return lesson
             })
         }
         content.challenges = (content.challenges ?? []).map((challenge) => {

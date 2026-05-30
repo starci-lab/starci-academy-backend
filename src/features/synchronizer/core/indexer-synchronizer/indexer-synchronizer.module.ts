@@ -1,19 +1,18 @@
 import {
-    Module,
-} from "@nestjs/common"
+    Module
+    } from "@nestjs/common"
 import {
-    ConfigurableModuleClass,
-} from "./indexer-synchronizer.module-definition"
+    ConfigurableModuleClass
+    } from "./indexer-synchronizer.module-definition"
 import {
-    IndexerSynchronizerService,
-} from "./indexer-synchronizer.service"
+    IndexerSynchronizerService
+    } from "./indexer-synchronizer.service"
 import {
     IndexerCourseBuildService,
     IndexerModuleBuildService,
     IndexerContentBuildService,
     IndexerChallengeBuildService,
-    IndexerLessonVideoBuildService,
-} from "./builder"
+    } from "./builder"
 
 /**
  * Module for synchronizing the Indexer.
@@ -23,12 +22,11 @@ import {
         IndexerCourseBuildService,
         IndexerModuleBuildService,
         IndexerContentBuildService,
-        IndexerChallengeBuildService,
-        IndexerLessonVideoBuildService,
+        IndexerChallengeBuildService,
         IndexerSynchronizerService,
     ],
     exports: [
         IndexerSynchronizerService,
-    ],
-})
+    ]
+    })
 export class IndexerSynchronizerModule extends ConfigurableModuleClass { }

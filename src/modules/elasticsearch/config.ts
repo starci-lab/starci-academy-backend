@@ -1,6 +1,5 @@
 import {
     CourseEntity,
-    LessonVideoEntity,
     ChallengeEntity,
     ContentEntity,
     ModuleEntity,
@@ -33,9 +32,6 @@ export type ConfigMap = Record<string, ConfigMapData>;
 export const configMap: ConfigMap = {
     [CourseEntity.name]: {
         indices: "courses",
-    },
-    [LessonVideoEntity.name]: {
-        indices: "lesson-videos",
     },
     [ChallengeEntity.name]: {
         indices: "challenges",

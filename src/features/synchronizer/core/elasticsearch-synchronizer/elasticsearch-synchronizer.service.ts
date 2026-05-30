@@ -6,9 +6,7 @@ import {
     CourseEntity,
     ModuleEntity,
     ContentEntity,
-    ChallengeEntity,
-    LessonVideoEntity,
-} from "@modules/databases"
+    ChallengeEntity,} from "@modules/databases"
 import {
     MoreThan,
     type EntityManager,
@@ -18,7 +16,6 @@ import {
     ElasticsearchModuleBuildService,
     ElasticsearchContentBuildService,
     ElasticsearchChallengeBuildService,
-    ElasticsearchLessonVideoBuildService,
 } from "./builder"
 import {
     WinstonLog,
@@ -47,7 +44,6 @@ export class ElasticsearchSynchronizerService {
         private readonly esModuleBuildService: ElasticsearchModuleBuildService,
         private readonly esContentBuildService: ElasticsearchContentBuildService,
         private readonly esChallengeBuildService: ElasticsearchChallengeBuildService,
-        private readonly esLessonVideoBuildService: ElasticsearchLessonVideoBuildService,
         private readonly retryService: RetryService,
     ) { }
 
@@ -56,7 +52,6 @@ export class ElasticsearchSynchronizerService {
         CourseEntity.name,
         ChallengeEntity.name,
         ContentEntity.name,
-        LessonVideoEntity.name,
         ModuleEntity.name,
     ]
 
@@ -222,53 +217,7 @@ export class ElasticsearchSynchronizerService {
                 }
                 break
             }
-            case LessonVideoEntity.name: {
-                 
-                while (true) {
-                    const lessonVideo = await this.entityManager.findOne(
-                        LessonVideoEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!lessonVideo) {
-                        break
-                    }
-                    try {
-                        await this.retryService.retry({
-                            action: () => this.esLessonVideoBuildService.buildIndexById(
-                                lessonVideo.id,
-                            ),
-                        })
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: lessonVideo.id,
-                            }
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: lessonVideo.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = lessonVideo.id
-                }
-                break
-            }
+            
             case ModuleEntity.name: {
                  
                 while (true) {

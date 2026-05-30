@@ -15,9 +15,7 @@ import {
     ChallengeEntity,
     ContentEntity,
     CourseEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    LessonVideoEntity,
-    ModuleEntity,
+    InjectPrimaryPostgreSQLEntityManager,    ModuleEntity,
 } from "@modules/databases"
 import {
     Injectable,
@@ -35,7 +33,6 @@ import {
     CdnCourseBuildService,
     CdnChallengeBuildService,
     CdnContentBuildService,
-    CdnLessonVideoBuildService,
     CdnModuleBuildService,
 } from "../builder"
 import type {
@@ -58,7 +55,6 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
         private readonly cdnCourseBuildService: CdnCourseBuildService,
         private readonly cdnChallengeBuildService: CdnChallengeBuildService,
         private readonly cdnContentBuildService: CdnContentBuildService,
-        private readonly cdnLessonVideoBuildService: CdnLessonVideoBuildService,
         private readonly cdnModuleBuildService: CdnModuleBuildService,
     ) {
         super()
@@ -191,32 +187,7 @@ export class ProcessCdnEntityStepService extends AbstractStepService<
                 resumeAfterEntityId = content.id
                 break
             }
-            case LessonVideoEntity.name: {
-                const lessonVideo = await this.entityManager.findOne(
-                    LessonVideoEntity,
-                    {
-                        where: {
-                            ...(executionResult?.resumeAfterEntityId ? {
-                                id: MoreThan(executionResult.resumeAfterEntityId)
-                            } : {
-                            }),
-                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
-                        },
-                        order: {
-                            id: "ASC",
-                        },
-                    },
-                )
-                if (!lessonVideo) {
-                    done = true
-                    break
-                }
-                await this.cdnLessonVideoBuildService.materializeAndUpload(
-                    lessonVideo.id,
-                )
-                resumeAfterEntityId = lessonVideo.id
-                break
-            }
+            
             case ModuleEntity.name: {
                 const module = await this.entityManager.findOne(
                     ModuleEntity,

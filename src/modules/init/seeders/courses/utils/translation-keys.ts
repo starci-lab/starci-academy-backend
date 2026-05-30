@@ -7,7 +7,6 @@ import type {
     ContentReferenceTranslationEntity,
     ContentTranslationEntity,
     CourseTranslationEntity,
-    LessonVideoTranslationEntity,
     ModuleTranslationEntity,
     PreviewContentTranslationEntity,
     PrerequisiteTranslationEntity,
@@ -88,15 +87,6 @@ export const previewContentTranslationKey = (
     t: Pick<PreviewContentTranslationEntity, "previewContentId" | "locale" | "field">,
 ): string => {
     return `${t.previewContentId}:${t.locale}:${t.field}`
-}
-
-/**
- * The key for the lesson video translation.
- */
-export const lessonVideoTranslationKey = (
-    t: Pick<LessonVideoTranslationEntity, "lessonVideoId" | "locale" | "field">,
-): string => {
-    return `${t.lessonVideoId}:${t.locale}:${t.field}`
 }
 
 /**

@@ -14,7 +14,6 @@ import {
     ChallengeGlobalSearchService,
     ContentGlobalSearchService,
     CourseGlobalSearchService,
-    LessonVideoGlobalSearchService,
     ModuleGlobalSearchService,
 } from "./entities"
 
@@ -25,9 +24,7 @@ import {
         CourseGlobalSearchService,
         ModuleGlobalSearchService,
         ChallengeGlobalSearchService,
-        LessonVideoGlobalSearchService,
         ContentGlobalSearchService,
     ],
 })
 export class AutocompleteGlobalSearchSingleQueryModule extends ConfigurableModuleClass {}
-

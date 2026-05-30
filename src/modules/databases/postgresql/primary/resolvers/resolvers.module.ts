@@ -15,9 +15,6 @@ import {
     CourseResolverService,
 } from "./course-resolver.service"
 import {
-    LessonVideoResolverService,
-} from "./lesson-video-resolver.service"
-import {
     CodeExplainingResolverService,
 } from "./code-explaining-resolver.service"
 import {
@@ -75,7 +72,6 @@ import {
 const resolverProviders: Array<Provider> = [
     TranslationResolverService,
     ChallengeResolverService,
-    LessonVideoResolverService,
     CodeExplainingResolverService,
     CodeImplementationResolverService,
     LivestreamSessionResolverService,

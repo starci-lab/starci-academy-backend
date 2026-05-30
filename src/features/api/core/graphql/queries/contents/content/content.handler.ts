@@ -5,7 +5,6 @@ import {
     ChallengeEntity,
     ContentEntity,
     InjectPrimaryPostgreSQLEntityManager,
-    LessonVideoEntity,
 } from "@modules/databases"
 import {
     ContentContextNotFound,

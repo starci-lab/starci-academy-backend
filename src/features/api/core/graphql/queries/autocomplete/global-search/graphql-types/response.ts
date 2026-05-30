@@ -43,9 +43,6 @@ export class AutocompleteGlobalSearchData {
         challenges: Array<AutocompleteGlobalSearchItem>
 
     @Field(() => [AutocompleteGlobalSearchItem])
-        lessonVideos: Array<AutocompleteGlobalSearchItem>
-
-    @Field(() => [AutocompleteGlobalSearchItem])
         contents: Array<AutocompleteGlobalSearchItem>
 }
 

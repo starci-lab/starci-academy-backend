@@ -14,12 +14,11 @@ import {
     v5 as uuidv5,
 } from "uuid"
 import type {
-    GenerateChallengeRequirementV2LangIdParams,
     GenerateChallengeStepV2IdParams,
 } from "./types"
 
 /**
- * SCHEMA V2 per-language step bucket UUIDs chain from the parent challenge id string.
+ * SCHEMA V2 step item and per-language row UUIDs chain from the parent challenge id.
  */
 @Injectable()
 export class ChallengeStepV2IdFactoryService {
@@ -34,53 +33,34 @@ export class ChallengeStepV2IdFactoryService {
             moduleIndex,
             contentIndex,
             challengeIndex,
-            langIndex,
+            orderIndex = 0,
+            stepIndex,
         }: GenerateChallengeStepV2IdParams,
     ): string {
-        return uuidv5(
-            this.sha256Service.hash(
-                "challenge-step-v2",
-                this.challengeIdFactoryService.generate(
-                    {
-                        courseIndex,
-                        moduleIndex,
-                        contentIndex,
-                        challengeIndex,
-                    },
-                ),
-                langIndex.toString(),
-            ),
-            envConfig().uuidNamespace.course,
-        )
-    }
-
-    /**
-     * Generates the deterministic UUID for one (item × programming-language) row.
-     *
-     * @param params - Item index + programming-language index (+ parent ordinals).
-     * @returns Stable UUID v5 derived from the parent item id and the language index.
-     */
-    generateLang(
-        {
+        const ordinals = {
             courseIndex,
             moduleIndex,
             contentIndex,
             challengeIndex,
-            itemIndex,
-            langIndex,
-        }: GenerateChallengeRequirementV2LangIdParams,
-    ): string {
+        }
+        if (stepIndex !== undefined) {
+            return uuidv5(
+                this.sha256Service.hash(
+                    "challenge-step-v2-lang",
+                    this.generate({
+                        ...ordinals,
+                        orderIndex: stepIndex,
+                    }),
+                    orderIndex.toString(),
+                ),
+                envConfig().uuidNamespace.course,
+            )
+        }
         return uuidv5(
             this.sha256Service.hash(
-                "challenge-step-v2-lang",
-                this.generate({
-                    courseIndex,
-                    moduleIndex,
-                    contentIndex,
-                    challengeIndex,
-                    langIndex: itemIndex,
-                }),
-                langIndex.toString(),
+                "challenge-step-v2",
+                this.challengeIdFactoryService.generate(ordinals),
+                orderIndex.toString(),
             ),
             envConfig().uuidNamespace.course,
         )

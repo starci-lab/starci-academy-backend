@@ -32,12 +32,6 @@ export class IndexSearchParentPath {
             nullable: true 
         })
         challengeDisplayId?: string
-
-    @Field(() => String,
-        {
-            nullable: true 
-        })
-        lessonVideoDisplayId?: string
 }
 
 @ObjectType()

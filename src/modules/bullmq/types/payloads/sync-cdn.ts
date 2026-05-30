@@ -1,10 +1,8 @@
 import {
     ChallengeEntity,
     CourseEntity,
-    ContentEntity,
-    LessonVideoEntity,
-    ModuleEntity,
-} from "@modules/databases"
+    ContentEntity,    ModuleEntity
+    } from "@modules/databases"
 import {
     Dayjs 
 } from "dayjs"
@@ -14,7 +12,6 @@ export type SyncCdnEntityKind =
     typeof CourseEntity.name
     | typeof ChallengeEntity.name
     | typeof ContentEntity.name
-    | typeof LessonVideoEntity.name
     | typeof ModuleEntity.name
 
 /** Payload for a sync-cdn BullMQ job (one entity). */

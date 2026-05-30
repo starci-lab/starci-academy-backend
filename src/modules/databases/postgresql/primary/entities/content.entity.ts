@@ -33,17 +33,14 @@ import {
     ChallengeEntity,
 } from "./challenge.entity"
 import {
-    LessonVideoEntity,
-} from "./lesson-video.entity"
-import {
     CodeExplainingEntity,
 } from "./code-explaining.entity"
 import {
     CodeImplementationEntity,
 } from "./code-implementation.entity"
 import {
-    ContentBodyV2Entity,
-} from "./content-body-v2.entity"
+    ContentBodyEntity,
+} from "./content-body.entity"
 import {
     QuizDeckEntity,
 } from "./quiz-deck.entity"
@@ -257,25 +254,6 @@ export class ContentEntity extends UuidAbstractEntity {
         references: Array<ContentReferenceEntity>
 
     /**
-     * Lessons derived from this content.
-     */
-    @Field(
-        () => [LessonVideoEntity],
-        {
-            nullable: true,
-            description: "Lesson videos associated with this content.",
-        },
-    )
-    @OneToMany(
-        () => LessonVideoEntity,
-        (lesson: LessonVideoEntity) => lesson.content,
-        {
-            cascade: true,
-        },
-    )
-        lessons: Array<LessonVideoEntity>
-
-    /**
      * Challenges derived from this content.
      */
     @Field(
@@ -357,25 +335,24 @@ export class ContentEntity extends UuidAbstractEntity {
         codeImplementations: Array<CodeImplementationEntity>
 
     /**
-     * SCHEMA V2 per-language lesson bodies (mount `# bodies`). Holds the 4-language lesson content;
-     * `body` (scalar) stays empty for V2 content. (Table named `content_bodies_v2` provisionally —
-     * to be renamed once the legacy scalar `body` is dropped.)
+     * SCHEMA V2 per-language lesson bodies (mount `bodies/<N>-<lang>/`). The scalar `body` stays
+     * empty for SCHEMA V2 content; lesson markdown lives in these buckets.
      */
     @Field(
-        () => [ContentBodyV2Entity],
+        () => [ContentBodyEntity],
         {
             nullable: true,
             description: "Per-language lesson bodies for this content (SCHEMA V2).",
         },
     )
     @OneToMany(
-        () => ContentBodyV2Entity,
-        (contentBodyV2: ContentBodyV2Entity) => contentBodyV2.content,
+        () => ContentBodyEntity,
+        (contentBody: ContentBodyEntity) => contentBody.content,
         {
             cascade: true,
         },
     )
-        bodiesV2: Array<ContentBodyV2Entity>
+        bodies: Array<ContentBodyEntity>
 
     @Column({
         name: "num_challenges",
@@ -383,20 +360,6 @@ export class ContentEntity extends UuidAbstractEntity {
         default: 0,
     })
         numChallenges: number
-
-    @Field(
-        () => Int,
-        {
-            nullable: true,
-            description: "Number of lessons associated with this content.",
-        },
-    )
-    @Column({
-        name: "num_lessons",
-        type: "int",
-        default: 0,
-    })
-        numLessons: number
 
     /**
      * Whether this content requires enrollment (premium content).

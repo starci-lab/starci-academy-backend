@@ -17,9 +17,6 @@ import {
     ChallengesModule,
 } from "./challenges"
 import {
-    LessonVideosModule,
-} from "./lesson-videos"
-import {
     ModulesModule,
 } from "./modules"
 import {
@@ -77,9 +74,6 @@ import {
             isGlobal: true,
         }),
         ChallengesModule.register({
-            isGlobal: true,
-        }),
-        LessonVideosModule.register({
             isGlobal: true,
         }),
         ModulesModule.register({

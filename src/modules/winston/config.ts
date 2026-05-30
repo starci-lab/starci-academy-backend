@@ -1,7 +1,7 @@
 
 import {
-    WinstonLog,
-} from "./enums"
+    WinstonLog
+    } from "./enums"
 import {
     WinstonLevel,
     CoursesSeededSuccessfullyMessage,
@@ -11,8 +11,8 @@ import {
     EnrollmentAlreadyExistsMessage,
     EnrollmentCreatedMessage,
     StepExecutedMessage,
-    JobExecutedMessage,
-} from "./types"
+    JobExecutedMessage
+    } from "./types"
 import type {
     CommandLogMessage,
     CdnSynchronizerCourseAlreadySyncedMessage,
@@ -23,7 +23,6 @@ import type {
     CdnSynchronizerCourseSyncedSuccessfullyMessage,
     CdnSynchronizerChallengeRuntimeSyncFailedMessage,
     CdnSynchronizerCourseRuntimeSyncFailedMessage,
-    CdnSynchronizerLessonVideoRuntimeSyncFailedMessage,
     CdnSynchronizerModuleRuntimeSyncFailedMessage,
     CdnSynchronizerContentRuntimeSyncFailedMessage,
     CdnSynchronizerCdnSyncStartedMessage,
@@ -66,8 +65,8 @@ import type {
     AiBalancerKeyDisabledMessage,
     AiBalancerKeyRecoveredMessage,
     AiBalancerKeyPickedMessage,
-    AiBalancerNoActiveKeyMessage,
-} from "./types"
+    AiBalancerNoActiveKeyMessage
+    } from "./types"
 
 /** Map of Winston log names to level, Loki flag, and message type. */
 export const configMap = {
@@ -78,7 +77,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CoursesSeededSuccessfullyMessage,
+        } as CoursesSeededSuccessfullyMessage
     },
     [WinstonLog.InitSeederEntitySkipped]: {
         name: WinstonLog.InitSeederEntitySkipped,
@@ -86,7 +85,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as InitSeederEntitySkippedMessage,
+        } as InitSeederEntitySkippedMessage
     },
     [WinstonLog.DbSynchronizerSyncedSuccessfully]: {
         name: WinstonLog.DbSynchronizerSyncedSuccessfully,
@@ -94,7 +93,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as DbSynchronizerSyncedSuccessfullyMessage,
+        } as DbSynchronizerSyncedSuccessfullyMessage
     },
     [WinstonLog.ContextFileLoadedSuccessfully]: {
         name: WinstonLog.ContextFileLoadedSuccessfully,
@@ -102,7 +101,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as ContextFileLoadedSuccessfullyMessage,
+        } as ContextFileLoadedSuccessfullyMessage
     },
     // Enrollment worker logs.
     [WinstonLog.EnrollmentCreated]: {
@@ -111,7 +110,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as EnrollmentCreatedMessage,
+        } as EnrollmentCreatedMessage
     },
     [WinstonLog.EnrollmentAlreadyExists]: {
         name: WinstonLog.EnrollmentAlreadyExists,
@@ -119,7 +118,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as EnrollmentAlreadyExistsMessage,
+        } as EnrollmentAlreadyExistsMessage
     },
     [WinstonLog.EnrollStepExecuted]: {
         name: WinstonLog.EnrollStepExecuted,
@@ -127,7 +126,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as StepExecutedMessage,
+        } as StepExecutedMessage
     },
     [WinstonLog.ProcessGitSubmissionStepExecuted]: {
         name: WinstonLog.ProcessGitSubmissionStepExecuted,
@@ -135,7 +134,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as StepExecutedMessage,
+        } as StepExecutedMessage
     },
     [WinstonLog.ProcessStepExecuted]: {
         name: WinstonLog.ProcessStepExecuted,
@@ -143,7 +142,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as StepExecutedMessage,
+        } as StepExecutedMessage
     },
     [WinstonLog.ProcessCVSubmissionStepExecuted]: {
         name: WinstonLog.ProcessCVSubmissionStepExecuted,
@@ -151,7 +150,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as StepExecutedMessage,
+        } as StepExecutedMessage
     },
     [WinstonLog.JobExecutedSuccessfully]: {
         name: WinstonLog.JobExecutedSuccessfully,
@@ -159,7 +158,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as JobExecutedMessage,
+        } as JobExecutedMessage
     },
     [WinstonLog.JobExecutedFailed]: {
         name: WinstonLog.JobExecutedFailed,
@@ -167,7 +166,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as JobExecutedMessage,
+        } as JobExecutedMessage
     },
     // CDN synchronizer: errors.
     [WinstonLog.CdnSynchronizerCoursesSyncing]: {
@@ -176,7 +175,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CdnSynchronizerCoursesSyncingMessage,
+        } as CdnSynchronizerCoursesSyncingMessage
     },
     [WinstonLog.CdnSynchronizerCourseSyncedSuccessfully]: {
         name: WinstonLog.CdnSynchronizerCourseSyncedSuccessfully,
@@ -184,7 +183,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CdnSynchronizerCourseSyncedSuccessfullyMessage,
+        } as CdnSynchronizerCourseSyncedSuccessfullyMessage
     },
     [WinstonLog.CdnSynchronizerCourseAlreadySynced]: {
         name: WinstonLog.CdnSynchronizerCourseAlreadySynced,
@@ -192,7 +191,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CdnSynchronizerCourseAlreadySyncedMessage,
+        } as CdnSynchronizerCourseAlreadySyncedMessage
     },
     [WinstonLog.CdnSynchronizerCourseSyncFailed]: {
         name: WinstonLog.CdnSynchronizerCourseSyncFailed,
@@ -200,7 +199,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CdnSynchronizerCourseSyncFailedMessage,
+        } as CdnSynchronizerCourseSyncFailedMessage
     },
     [WinstonLog.CdnSynchronizerCourseSyncFailedAttempt]: {
         name: WinstonLog.CdnSynchronizerCourseSyncFailedAttempt,
@@ -208,7 +207,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CdnSynchronizerCourseSyncFailedAttemptMessage,
+        } as CdnSynchronizerCourseSyncFailedAttemptMessage
     },
     [WinstonLog.CdnSynchronizerCourseSyncFailedMaxRetriesReached]: {
         name: WinstonLog.CdnSynchronizerCourseSyncFailedMaxRetriesReached,
@@ -216,7 +215,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CdnSynchronizerCourseSyncFailedMaxRetriesReachedMessage,
+        } as CdnSynchronizerCourseSyncFailedMaxRetriesReachedMessage
     },
     [WinstonLog.CdnSynchronizerChallengeRuntimeSyncFailed]: {
         name: WinstonLog.CdnSynchronizerChallengeRuntimeSyncFailed,
@@ -224,7 +223,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CdnSynchronizerChallengeRuntimeSyncFailedMessage,
+        } as CdnSynchronizerChallengeRuntimeSyncFailedMessage
     },
     [WinstonLog.CdnSynchronizerCourseRuntimeSyncFailed]: {
         name: WinstonLog.CdnSynchronizerCourseRuntimeSyncFailed,
@@ -232,15 +231,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CdnSynchronizerCourseRuntimeSyncFailedMessage,
-    },
-    [WinstonLog.CdnSynchronizerLessonVideoRuntimeSyncFailed]: {
-        name: WinstonLog.CdnSynchronizerLessonVideoRuntimeSyncFailed,
-        level: WinstonLevel.Error,
-        loki: true,
-        console: true,
-        messageType: {
-        } as CdnSynchronizerLessonVideoRuntimeSyncFailedMessage,
+        } as CdnSynchronizerCourseRuntimeSyncFailedMessage
     },
     [WinstonLog.CdnSynchronizerModuleRuntimeSyncFailed]: {
         name: WinstonLog.CdnSynchronizerModuleRuntimeSyncFailed,
@@ -248,7 +239,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CdnSynchronizerModuleRuntimeSyncFailedMessage,
+        } as CdnSynchronizerModuleRuntimeSyncFailedMessage
     },
     [WinstonLog.CdnSynchronizerContentRuntimeSyncFailed]: {
         name: WinstonLog.CdnSynchronizerContentRuntimeSyncFailed,
@@ -256,7 +247,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CdnSynchronizerContentRuntimeSyncFailedMessage,
+        } as CdnSynchronizerContentRuntimeSyncFailedMessage
     },
     [WinstonLog.CdnSynchronizerCdnSyncStarted]: {
         name: WinstonLog.CdnSynchronizerCdnSyncStarted,
@@ -264,7 +255,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CdnSynchronizerCdnSyncStartedMessage,
+        } as CdnSynchronizerCdnSyncStartedMessage
     },
     [WinstonLog.CdnSynchronizerSyncedSuccessfully]: {
         name: WinstonLog.CdnSynchronizerSyncedSuccessfully,
@@ -272,7 +263,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CdnSynchronizerSyncedSuccessfullyMessage,
+        } as CdnSynchronizerSyncedSuccessfullyMessage
     },
     [WinstonLog.CdnSynchronizerCdnSyncDone]: {
         name: WinstonLog.CdnSynchronizerCdnSyncDone,
@@ -280,7 +271,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CdnSynchronizerCdnSyncDoneMessage,
+        } as CdnSynchronizerCdnSyncDoneMessage
     },
     [WinstonLog.CdnSynchronizerEntitySyncFailed]: {
         name: WinstonLog.CdnSynchronizerEntitySyncFailed,
@@ -288,7 +279,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CdnSynchronizerEntitySyncFailedMessage,
+        } as CdnSynchronizerEntitySyncFailedMessage
     },
     // Elasticsearch synchronizer logs.
     [WinstonLog.EsSynchronizerSyncStarted]: {
@@ -297,7 +288,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as EsSynchronizerSyncStartedMessage,
+        } as EsSynchronizerSyncStartedMessage
     },
     [WinstonLog.EsSynchronizerEntitiesSyncing]: {
         name: WinstonLog.EsSynchronizerEntitiesSyncing,
@@ -305,8 +296,8 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-            dump: "",
-        },
+            dump: ""
+    }
     },
     [WinstonLog.EsSynchronizerSyncedSuccessfully]: {
         name: WinstonLog.EsSynchronizerSyncedSuccessfully,
@@ -314,7 +305,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as EsSynchronizerSyncedSuccessfullyMessage,
+        } as EsSynchronizerSyncedSuccessfullyMessage
     },
     [WinstonLog.EsSynchronizerSyncDone]: {
         name: WinstonLog.EsSynchronizerSyncDone,
@@ -322,7 +313,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as EsSynchronizerSyncDoneMessage,
+        } as EsSynchronizerSyncDoneMessage
     },
     [WinstonLog.EsSynchronizerEntitySyncFailed]: {
         name: WinstonLog.EsSynchronizerEntitySyncFailed,
@@ -330,7 +321,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as EsSynchronizerEntitySyncFailedMessage,
+        } as EsSynchronizerEntitySyncFailedMessage
     },
     // Indexer synchronizer logs.
     [WinstonLog.IndexerSynchronizerSyncStarted]: {
@@ -339,7 +330,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as IndexerSynchronizerSyncStartedMessage,
+        } as IndexerSynchronizerSyncStartedMessage
     },
     [WinstonLog.IndexerSynchronizerEntitiesSyncing]: {
         name: WinstonLog.IndexerSynchronizerEntitiesSyncing,
@@ -347,8 +338,8 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-            dump: "",
-        },
+            dump: ""
+    }
     },
     [WinstonLog.IndexerSynchronizerSyncedSuccessfully]: {
         name: WinstonLog.IndexerSynchronizerSyncedSuccessfully,
@@ -356,7 +347,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as IndexerSynchronizerSyncedSuccessfullyMessage,
+        } as IndexerSynchronizerSyncedSuccessfullyMessage
     },
     [WinstonLog.IndexerSynchronizerSyncDone]: {
         name: WinstonLog.IndexerSynchronizerSyncDone,
@@ -364,7 +355,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as IndexerSynchronizerSyncDoneMessage,
+        } as IndexerSynchronizerSyncDoneMessage
     },
     [WinstonLog.IndexerSynchronizerEntitySyncFailed]: {
         name: WinstonLog.IndexerSynchronizerEntitySyncFailed,
@@ -372,7 +363,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as IndexerSynchronizerEntitySyncFailedMessage,
+        } as IndexerSynchronizerEntitySyncFailedMessage
     },
     // Bloom filter synchronizer logs.
     [WinstonLog.BloomFilterSynchronizerSyncStarted]: {
@@ -381,7 +372,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as BloomFilterSynchronizerSyncStartedMessage,
+        } as BloomFilterSynchronizerSyncStartedMessage
     },
     [WinstonLog.BloomFilterSynchronizerEntitiesSyncing]: {
         name: WinstonLog.BloomFilterSynchronizerEntitiesSyncing,
@@ -389,8 +380,8 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-            dump: "",
-        },
+            dump: ""
+    }
     },
     [WinstonLog.BloomFilterSynchronizerFilterCreated]: {
         name: WinstonLog.BloomFilterSynchronizerFilterCreated,
@@ -398,7 +389,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as BloomFilterSynchronizerFilterCreatedMessage,
+        } as BloomFilterSynchronizerFilterCreatedMessage
     },
     [WinstonLog.BloomFilterSynchronizerFilterAlreadyExists]: {
         name: WinstonLog.BloomFilterSynchronizerFilterAlreadyExists,
@@ -406,7 +397,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as BloomFilterSynchronizerFilterAlreadyExistsMessage,
+        } as BloomFilterSynchronizerFilterAlreadyExistsMessage
     },
     [WinstonLog.BloomFilterSynchronizerEmailsSynced]: {
         name: WinstonLog.BloomFilterSynchronizerEmailsSynced,
@@ -414,7 +405,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as BloomFilterSynchronizerEmailsSyncedMessage,
+        } as BloomFilterSynchronizerEmailsSyncedMessage
     },
     [WinstonLog.BloomFilterSynchronizerSyncDone]: {
         name: WinstonLog.BloomFilterSynchronizerSyncDone,
@@ -422,7 +413,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as BloomFilterSynchronizerSyncDoneMessage,
+        } as BloomFilterSynchronizerSyncDoneMessage
     },
     [WinstonLog.BloomFilterSynchronizerEntitySyncFailed]: {
         name: WinstonLog.BloomFilterSynchronizerEntitySyncFailed,
@@ -430,7 +421,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as BloomFilterSynchronizerEntitySyncFailedMessage,
+        } as BloomFilterSynchronizerEntitySyncFailedMessage
     },
     // Sync orchestrator logs.
     [WinstonLog.SyncOrchestratorStarted]: {
@@ -439,7 +430,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as SyncOrchestratorStartedMessage,
+        } as SyncOrchestratorStartedMessage
     },
     [WinstonLog.SyncOrchestratorDone]: {
         name: WinstonLog.SyncOrchestratorDone,
@@ -447,7 +438,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as SyncOrchestratorDoneMessage,
+        } as SyncOrchestratorDoneMessage
     },
     [WinstonLog.CommandError]: {
         name: WinstonLog.CommandError,
@@ -455,7 +446,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CommandLogMessage,
+        } as CommandLogMessage
     },
     [WinstonLog.CommandSuccess]: {
         name: WinstonLog.CommandSuccess,
@@ -463,7 +454,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CommandLogMessage,
+        } as CommandLogMessage
     },
     // NATS bridge logs.
     [WinstonLog.NatsConsumerOpened]: {
@@ -472,7 +463,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as NatsConsumerOpenedMessage,
+        } as NatsConsumerOpenedMessage
     },
     [WinstonLog.NatsConsumerClosed]: {
         name: WinstonLog.NatsConsumerClosed,
@@ -480,7 +471,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as NatsConsumerClosedMessage,
+        } as NatsConsumerClosedMessage
     },
     [WinstonLog.NatsConsumerError]: {
         name: WinstonLog.NatsConsumerError,
@@ -488,7 +479,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as NatsConsumerErrorMessage,
+        } as NatsConsumerErrorMessage
     },
     // Cache service logs.
     [WinstonLog.ErrorGettingCache]: {
@@ -497,7 +488,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as ErrorGettingCacheMessage,
+        } as ErrorGettingCacheMessage
     },
     [WinstonLog.ErrorSettingCache]: {
         name: WinstonLog.ErrorSettingCache,
@@ -505,7 +496,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as ErrorSettingCacheMessage,
+        } as ErrorSettingCacheMessage
     },
     [WinstonLog.ErrorDeletingCache]: {
         name: WinstonLog.ErrorDeletingCache,
@@ -513,7 +504,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as ErrorDeletingCacheMessage,
+        } as ErrorDeletingCacheMessage
     },
     [WinstonLog.CacheDebugOkRedis]: {
         name: WinstonLog.CacheDebugOkRedis,
@@ -521,7 +512,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CacheDebugOkRedisMessage,
+        } as CacheDebugOkRedisMessage
     },
     [WinstonLog.CacheDebugOkMemory]: {
         name: WinstonLog.CacheDebugOkMemory,
@@ -529,7 +520,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as CacheDebugOkMemoryMessage,
+        } as CacheDebugOkMemoryMessage
     },
     // Backup logs.
     [WinstonLog.PgBackupCompletedSuccessfully]: {
@@ -538,7 +529,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as PgBackupCompletedSuccessfullyMessage,
+        } as PgBackupCompletedSuccessfullyMessage
     },
     [WinstonLog.PgBackupFailed]: {
         name: WinstonLog.PgBackupFailed,
@@ -546,7 +537,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as PgBackupFailedMessage,
+        } as PgBackupFailedMessage
     },
     [WinstonLog.PgBackupDumpFailed]: {
         name: WinstonLog.PgBackupDumpFailed,
@@ -554,7 +545,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as PgBackupStepFailedMessage,
+        } as PgBackupStepFailedMessage
     },
     [WinstonLog.PgBackupCompressFailed]: {
         name: WinstonLog.PgBackupCompressFailed,
@@ -562,7 +553,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as PgBackupStepFailedMessage,
+        } as PgBackupStepFailedMessage
     },
     [WinstonLog.PgBackupEncryptFailed]: {
         name: WinstonLog.PgBackupEncryptFailed,
@@ -570,7 +561,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as PgBackupStepFailedMessage,
+        } as PgBackupStepFailedMessage
     },
     [WinstonLog.PgBackupUploadFailed]: {
         name: WinstonLog.PgBackupUploadFailed,
@@ -578,7 +569,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as PgBackupStepFailedMessage,
+        } as PgBackupStepFailedMessage
     },
     // AI model router logs.
     [WinstonLog.AiModelRouterResolved]: {
@@ -587,7 +578,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as AiModelRouterResolvedMessage,
+        } as AiModelRouterResolvedMessage
     },
     [WinstonLog.AiModelRouterFailure]: {
         name: WinstonLog.AiModelRouterFailure,
@@ -595,7 +586,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as AiModelRouterFailureMessage,
+        } as AiModelRouterFailureMessage
     },
     [WinstonLog.AiModelRouterRecheck]: {
         name: WinstonLog.AiModelRouterRecheck,
@@ -603,7 +594,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as AiModelRouterRecheckMessage,
+        } as AiModelRouterRecheckMessage
     },
     [WinstonLog.AiPingResult]: {
         name: WinstonLog.AiPingResult,
@@ -611,7 +602,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as AiPingResultMessage,
+        } as AiPingResultMessage
     },
     [WinstonLog.SeederFinished]: {
         name: WinstonLog.SeederFinished,
@@ -619,7 +610,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as SeederFinishedMessage,
+        } as SeederFinishedMessage
     },
     [WinstonLog.AiBalancerKeysReloaded]: {
         name: WinstonLog.AiBalancerKeysReloaded,
@@ -627,7 +618,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as AiBalancerKeysReloadedMessage,
+        } as AiBalancerKeysReloadedMessage
     },
     [WinstonLog.AiBalancerKeyDisabled]: {
         name: WinstonLog.AiBalancerKeyDisabled,
@@ -635,7 +626,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as AiBalancerKeyDisabledMessage,
+        } as AiBalancerKeyDisabledMessage
     },
     [WinstonLog.AiBalancerKeyRecovered]: {
         name: WinstonLog.AiBalancerKeyRecovered,
@@ -643,7 +634,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as AiBalancerKeyRecoveredMessage,
+        } as AiBalancerKeyRecoveredMessage
     },
     [WinstonLog.AiBalancerKeyPicked]: {
         name: WinstonLog.AiBalancerKeyPicked,
@@ -651,7 +642,7 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as AiBalancerKeyPickedMessage,
+        } as AiBalancerKeyPickedMessage
     },
     [WinstonLog.AiBalancerNoActiveKey]: {
         name: WinstonLog.AiBalancerNoActiveKey,
@@ -659,6 +650,6 @@ export const configMap = {
         loki: true,
         console: true,
         messageType: {
-        } as AiBalancerNoActiveKeyMessage,
-    },
-}
+        } as AiBalancerNoActiveKeyMessage
+    }
+    }

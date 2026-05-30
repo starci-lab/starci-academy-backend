@@ -15,7 +15,6 @@ import {
     CourseParserService,
     ModuleParserService,
     ChallengeParserService,
-    LessonVideoParserService,
     ContentParserService,
 } from "./courses"
 import {
@@ -25,7 +24,6 @@ import {
     ChallengeEntity,
     ContentEntity,
     CourseEntity,
-    LessonVideoEntity,
     ModuleEntity,
 } from "../entities"
 
@@ -43,7 +41,6 @@ export class SeedersService implements OnModuleInit {
         private readonly courseParserService: CourseParserService,
         private readonly moduleParserService: ModuleParserService,
         private readonly challengeParserService: ChallengeParserService,
-        private readonly lessonVideoParserService: LessonVideoParserService,
         private readonly contentParserService: ContentParserService,
     ) { }
 
@@ -111,28 +108,6 @@ export class SeedersService implements OnModuleInit {
                     )
                     if (content) {
                         content.challenges = challenges
-                    }
-                }
-
-                /** We find lesson videos for each content. */
-                for (const contentResult of contentResults) {
-                    const lessonVideos: Array<DeepPartial<LessonVideoEntity>> = []
-                    const lessonVideoResults = await this.lessonVideoParserService.parseMany(
-                        {
-                            contentRelativePath: contentResult.relativePath,
-                            courseIndex: courseResult.index,
-                            moduleIndex: moduleResult.index,
-                            contentIndex: contentResult.index,
-                        },
-                    )
-                    for (const lessonVideoResult of lessonVideoResults) {
-                        lessonVideos.push(lessonVideoResult.data)
-                    }
-                    const content = contents.find(
-                        (content) => content.id === contentResult.data.id
-                    )
-                    if (content) {
-                        content.lessons = lessonVideos
                     }
                 }
             }

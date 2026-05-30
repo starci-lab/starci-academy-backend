@@ -77,17 +77,17 @@ export interface GenerateCodeImplementationIdParams {
 }
 
 /**
- * Input for {@link ContentBodyV2IdFactoryService.generate}.
+ * Input for {@link ContentBodyIdFactoryService.generate}.
  */
-export interface GenerateContentBodyV2IdParams {
+export interface GenerateContentBodyIdParams {
     /** Parent course ordinal. */
     courseIndex: number
     /** Parent module ordinal. */
     moduleIndex: number
     /** Parent content ordinal. */
     contentIndex: number
-    /** Zero-based programming-language bucket index within the content. */
-    langIndex: number
+    /** Zero-based programming-language bucket order within the content (`bodies/<orderIndex>-<lang>/`). */
+    orderIndex: number
 }
 
 /**
@@ -140,20 +140,6 @@ export interface GenerateQnaIdParams {
     courseIndex: number
     /** Zero-based FAQ entry (`## 1.` → index 0 if ordered contiguously). */
     qnaIndex: number
-}
-
-/**
- * Input for {@link LessonVideoIdFactoryService.generate}.
- */
-export interface GenerateLessonVideoIdParams {
-    /** Parent course ordinal. */
-    courseIndex: number
-    /** Parent module ordinal. */
-    moduleIndex: number
-    /** Parent content ordinal. */
-    contentIndex: number
-    /** Zero-based video in the content’s `lesson-videos` list. */
-    lessonVideoIndex: number
 }
 
 /**
@@ -230,6 +216,9 @@ export interface GenerateChallengePrerequisiteIdParams {
 
 /**
  * Input for {@link ChallengeRequirementV2IdFactoryService.generate}.
+ *
+ * Item row: pass `orderIndex` only.
+ * Lang row: pass `requirementIndex` (parent item) and `orderIndex` (language bucket).
  */
 export interface GenerateChallengeRequirementV2IdParams {
     /** Parent course ordinal. */
@@ -240,31 +229,17 @@ export interface GenerateChallengeRequirementV2IdParams {
     contentIndex: number
     /** Parent challenge ordinal. */
     challengeIndex: number
-    /** Zero-based requirement ITEM index within the challenge (normalized V2). */
-    langIndex: number
-}
-
-/**
- * Input for {@link ChallengeRequirementV2IdFactoryService.generateLang} — one id per
- * (requirement item × programming language).
- */
-export interface GenerateChallengeRequirementV2LangIdParams {
-    /** Parent course ordinal. */
-    courseIndex: number
-    /** Parent module ordinal. */
-    moduleIndex: number
-    /** Parent content ordinal. */
-    contentIndex: number
-    /** Parent challenge ordinal. */
-    challengeIndex: number
-    /** Requirement item index. */
-    itemIndex: number
-    /** Zero-based programming-language index within the item. */
-    langIndex: number
+    /** Requirement item ordinal — item id when passed alone; lang bucket ordinal with `requirementIndex`. */
+    orderIndex?: number
+    /** Parent requirement item ordinal — lang id when paired with `orderIndex`. */
+    requirementIndex?: number
 }
 
 /**
  * Input for {@link ChallengeStepV2IdFactoryService.generate}.
+ *
+ * Item row: pass `orderIndex` only.
+ * Lang row: pass `stepIndex` (parent item) and `orderIndex` (language bucket).
  */
 export interface GenerateChallengeStepV2IdParams {
     /** Parent course ordinal. */
@@ -275,12 +250,17 @@ export interface GenerateChallengeStepV2IdParams {
     contentIndex: number
     /** Parent challenge ordinal. */
     challengeIndex: number
-    /** Zero-based programming-language bucket index within the challenge. */
-    langIndex: number
+    /** Step item ordinal — item id when passed alone; lang bucket ordinal with `stepIndex`. */
+    orderIndex?: number
+    /** Parent step item ordinal — lang id when paired with `orderIndex`. */
+    stepIndex?: number
 }
 
 /**
  * Input for {@link ChallengeOutputV2IdFactoryService.generate}.
+ *
+ * Item row: pass `orderIndex` only.
+ * Lang row: pass `outputIndex` (parent item) and `orderIndex` (language bucket).
  */
 export interface GenerateChallengeOutputV2IdParams {
     /** Parent course ordinal. */
@@ -291,12 +271,17 @@ export interface GenerateChallengeOutputV2IdParams {
     contentIndex: number
     /** Parent challenge ordinal. */
     challengeIndex: number
-    /** Zero-based programming-language bucket index within the challenge. */
-    langIndex: number
+    /** Output item ordinal — item id when passed alone; lang bucket ordinal with `outputIndex`. */
+    orderIndex?: number
+    /** Parent output item ordinal — lang id when paired with `orderIndex`. */
+    outputIndex?: number
 }
 
 /**
  * Input for {@link ChallengePrerequisiteV2IdFactoryService.generate}.
+ *
+ * Item row: pass `orderIndex` only.
+ * Lang row: pass `prerequisiteIndex` (parent item) and `orderIndex` (language bucket).
  */
 export interface GenerateChallengePrerequisiteV2IdParams {
     /** Parent course ordinal. */
@@ -307,8 +292,10 @@ export interface GenerateChallengePrerequisiteV2IdParams {
     contentIndex: number
     /** Parent challenge ordinal. */
     challengeIndex: number
-    /** Zero-based programming-language bucket index within the challenge. */
-    langIndex: number
+    /** Prerequisite item ordinal — item id when passed alone; lang bucket ordinal with `prerequisiteIndex`. */
+    orderIndex?: number
+    /** Parent prerequisite item ordinal — lang id when paired with `orderIndex`. */
+    prerequisiteIndex?: number
 }
 
 /**

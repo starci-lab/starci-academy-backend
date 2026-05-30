@@ -23,7 +23,6 @@ export enum WinstonLog {
     CdnSynchronizerCourseSyncFailedAttempt = "CdnSynchronizerCourseSyncFailedAttempt",
     CdnSynchronizerChallengeRuntimeSyncFailed = "CdnSynchronizerChallengeRuntimeSyncFailed",
     CdnSynchronizerCourseRuntimeSyncFailed = "CdnSynchronizerCourseRuntimeSyncFailed",
-    CdnSynchronizerLessonVideoRuntimeSyncFailed = "CdnSynchronizerLessonVideoRuntimeSyncFailed",
     CdnSynchronizerModuleRuntimeSyncFailed = "CdnSynchronizerModuleRuntimeSyncFailed",
     CdnSynchronizerContentRuntimeSyncFailed = "CdnSynchronizerContentRuntimeSyncFailed",
     /** CDN synchronizer: sync cycle started. */
@@ -123,5 +122,5 @@ export enum WinstonLog {
     /** AI Balancer: rotation selected a key. */
     AiBalancerKeyPicked = "AiBalancerKeyPicked",
     /** AI Balancer: no active key available for a provider. */
-    AiBalancerNoActiveKey = "AiBalancerNoActiveKey",
-}
+    AiBalancerNoActiveKey = "AiBalancerNoActiveKey"
+    }

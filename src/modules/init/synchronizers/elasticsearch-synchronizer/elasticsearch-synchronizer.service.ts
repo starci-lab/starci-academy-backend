@@ -6,9 +6,7 @@ import {
     CourseEntity,
     ModuleEntity,
     ContentEntity,
-    ChallengeEntity,
-    LessonVideoEntity,
-    Locale,
+    ChallengeEntity,    Locale,
     MilestoneEntity,
     MilestoneTaskEntity,
     FoundationEntity,
@@ -25,7 +23,6 @@ import {
     ElasticsearchModuleBuildService,
     ElasticsearchContentBuildService,
     ElasticsearchChallengeBuildService,
-    ElasticsearchLessonVideoBuildService,
     ElasticsearchMilestoneBuildService,
     ElasticsearchMilestoneTaskBuildService,
     ElasticsearchFoundationBuildService,
@@ -53,7 +50,6 @@ import {
     buildElasticsearchSynchronizerSyncScope,
     shouldSyncChallengeEntity,
     shouldSyncContentEntity,
-    shouldSyncLessonVideoEntity,
     shouldSyncMilestoneEntity,
     shouldSyncMilestoneTaskEntity,
     shouldSyncModuleEntity,
@@ -75,7 +71,6 @@ export class ElasticsearchSynchronizerService {
         private readonly esModuleBuildService: ElasticsearchModuleBuildService,
         private readonly esContentBuildService: ElasticsearchContentBuildService,
         private readonly esChallengeBuildService: ElasticsearchChallengeBuildService,
-        private readonly esLessonVideoBuildService: ElasticsearchLessonVideoBuildService,
         private readonly esMilestoneBuildService: ElasticsearchMilestoneBuildService,
         private readonly esMilestoneTaskBuildService: ElasticsearchMilestoneTaskBuildService,
         private readonly esFoundationBuildService: ElasticsearchFoundationBuildService,
@@ -90,7 +85,6 @@ export class ElasticsearchSynchronizerService {
         CourseEntity.name,
         ChallengeEntity.name,
         ContentEntity.name,
-        LessonVideoEntity.name,
         ModuleEntity.name,
         MilestoneEntity.name,
         MilestoneTaskEntity.name,
@@ -309,62 +303,7 @@ export class ElasticsearchSynchronizerService {
                 }
                 break
             }
-            case LessonVideoEntity.name: {
-                while (true) {
-                    const lessonVideo = await this.entityManager.findOne(
-                        LessonVideoEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            relations: {
-                                content: {
-                                    module: {
-                                        course: true,
-                                    },
-                                },
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!lessonVideo) {
-                        break
-                    }
-                    if (!shouldSyncLessonVideoEntity(scope,
-                        lessonVideo)) {
-                        resumeEntityId = lessonVideo.id
-                        continue
-                    }
-                    try {
-                        await this.esLessonVideoBuildService.buildIndexById(
-                            lessonVideo.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: lessonVideo.id,
-                            }
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.EsSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: lessonVideo.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = lessonVideo.id
-                }
-                break
-            }
+            
             case ModuleEntity.name: {
                 while (true) {
                     const module = await this.entityManager.findOne(

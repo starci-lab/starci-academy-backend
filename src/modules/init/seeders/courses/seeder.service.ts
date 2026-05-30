@@ -8,7 +8,6 @@ import {
     ChallengeEntity,
     ContentEntity,
     CourseEntity,
-    LessonVideoEntity,
     MilestoneEntity,
     ModuleEntity,
     MilestoneTaskEntity,
@@ -19,7 +18,6 @@ import {
     ChallengeV2InsertService,
     ContentInsertService,
     CourseInsertService,
-    LessonVideoInsertService,
     MilestoneInsertService,
     MilestoneTaskInsertService,
     MindMapInsertService,
@@ -31,7 +29,6 @@ import {
     ChallengeV2ParserService,
     ContentParserService,
     CourseParserService,
-    LessonVideoParserService,
     MilestoneParserService,
     MilestoneTaskParserService,
     MindMapParserService,
@@ -73,12 +70,10 @@ export class CourseSeederService {
         private readonly challengeParserService: ChallengeParserService,
         private readonly challengeV2ParserService: ChallengeV2ParserService,
         private readonly quizDeckParserService: QuizDeckParserService,
-        private readonly lessonVideoParserService: LessonVideoParserService,
         private readonly contentParserService: ContentParserService,
         private readonly courseInsertService: CourseInsertService,
         private readonly moduleInsertService: ModuleInsertService,
         private readonly contentInsertService: ContentInsertService,
-        private readonly lessonVideoInsertService: LessonVideoInsertService,
         private readonly challengeInsertService: ChallengeInsertService,
         private readonly challengeV2InsertService: ChallengeV2InsertService,
         private readonly quizDeckInsertService: QuizDeckInsertService,
@@ -195,31 +190,9 @@ export class CourseSeederService {
                 /** Attach contents to the current module. */
                 moduleResult.data.contents = contents
 
-                /** We find challenges for each content. */
+                /** We find challenges for each content (SCHEMA V2 only). */
                 for (const contentResult of contentResults) {
                     const challenges: Array<DeepPartial<ChallengeEntity>> = []
-                    /**
-                     * V2 parse pass first — it skips non-V2 files internally and returns only
-                     * SCHEMA V2 graphs. Record their ids so the legacy pass can drop them.
-                     */
-                    const challengeV2Results = await this.challengeV2ParserService.parseMany(
-                        {
-                            contentRelativePath: contentResult.relativePath,
-                            courseIndex: courseResult.index,
-                            moduleIndex: moduleResult.index,
-                            contentIndex: contentResult.index,
-                        },
-                    )
-                    for (const challengeV2Result of challengeV2Results) {
-                        const challengeV2Id = challengeV2Result.data.id as string
-                        // mark this id so the insert phase routes it to the V2 insert service
-                        v2ChallengeIds.add(challengeV2Id)
-                        challenges.push(challengeV2Result.data)
-                    }
-                    /**
-                     * Legacy parse pass — parses every file (incl. V2 ones in legacy shape), so we
-                     * filter out any id already claimed by the V2 pass to avoid double handling.
-                     */
                     const challengeResults = await this.challengeParserService.parseMany(
                         {
                             contentRelativePath: contentResult.relativePath,
@@ -229,10 +202,8 @@ export class CourseSeederService {
                         },
                     )
                     for (const challengeResult of challengeResults) {
-                        // skip V2-claimed ids — they are already in `challenges` in V2 shape
-                        if (v2ChallengeIds.has(challengeResult.data.id as string)) {
-                            continue
-                        }
+                        const challengeId = challengeResult.data.id as string
+                        v2ChallengeIds.add(challengeId)
                         challenges.push(challengeResult.data)
                     }
                     const content = contents.find(
@@ -240,28 +211,6 @@ export class CourseSeederService {
                     )
                     if (content) {
                         content.challenges = challenges
-                    }
-                }
-
-                /** We find lesson videos for each content. */
-                for (const contentResult of contentResults) {
-                    const lessonVideos: Array<DeepPartial<LessonVideoEntity>> = []
-                    const lessonVideoResults = await this.lessonVideoParserService.parseMany(
-                        {
-                            contentRelativePath: contentResult.relativePath,
-                            courseIndex: courseResult.index,
-                            moduleIndex: moduleResult.index,
-                            contentIndex: contentResult.index,
-                        },
-                    )
-                    for (const lessonVideoResult of lessonVideoResults) {
-                        lessonVideos.push(lessonVideoResult.data)
-                    }
-                    const content = contents.find(
-                        (content) => content.id === contentResult.data.id
-                    )
-                    if (content) {
-                        content.lessons = lessonVideos
                     }
                 }
 
@@ -327,16 +276,6 @@ export class CourseSeederService {
                     /** Delete stale challenges — scoped to THIS content (keeps only seeded ids). */
                     await this.challengeInsertService.deleteStale(
                         challenges.map((challenge) => challenge.id as string),
-                        content.id as string,
-                    )
-                    /** 5. Upsert lesson videos */
-                    const lessons = (content.lessons ?? []) as Array<DeepPartial<LessonVideoEntity>>
-                    for (const lesson of lessons) {
-                        await this.lessonVideoInsertService.insert(lesson)
-                    }
-                    /** Delete stale lesson videos — scoped to THIS content. */
-                    await this.lessonVideoInsertService.deleteStale(
-                        lessons.map((lesson) => lesson.id as string),
                         content.id as string,
                     )
                 }

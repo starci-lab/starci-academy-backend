@@ -6,9 +6,7 @@ import {
     CourseEntity,
     ModuleEntity,
     ContentEntity,
-    ChallengeEntity,
-    LessonVideoEntity,
-} from "@modules/databases"
+    ChallengeEntity,} from "@modules/databases"
 import {
     MoreThan,
     type EntityManager,
@@ -18,7 +16,6 @@ import {
     IndexerModuleBuildService,
     IndexerContentBuildService,
     IndexerChallengeBuildService,
-    IndexerLessonVideoBuildService,
 } from "./builder"
 import {
     WinstonLog,
@@ -47,7 +44,6 @@ export class IndexerSynchronizerService {
         private readonly indexerModuleBuildService: IndexerModuleBuildService,
         private readonly indexerContentBuildService: IndexerContentBuildService,
         private readonly indexerChallengeBuildService: IndexerChallengeBuildService,
-        private readonly indexerLessonVideoBuildService: IndexerLessonVideoBuildService,
         private readonly retryService: RetryService,
     ) { }
 
@@ -56,7 +52,6 @@ export class IndexerSynchronizerService {
         CourseEntity.name,
         ChallengeEntity.name,
         ContentEntity.name,
-        LessonVideoEntity.name,
         ModuleEntity.name,
     ]
 
@@ -223,53 +218,7 @@ export class IndexerSynchronizerService {
                 }
                 break
             }
-            case LessonVideoEntity.name: {
-                 
-                while (true) {
-                    const lessonVideo = await this.entityManager.findOne(
-                        LessonVideoEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!lessonVideo) {
-                        break
-                    }
-                    try {
-                        await this.retryService.retry({
-                            action: () => this.indexerLessonVideoBuildService.buildIndexerById(
-                                lessonVideo.id,
-                            ),
-                        })
-                        this.winstonService.log(
-                            WinstonLog.IndexerSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: lessonVideo.id,
-                            }
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.IndexerSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: lessonVideo.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = lessonVideo.id
-                }
-                break
-            }
+            
             case ModuleEntity.name: {
                  
                 while (true) {

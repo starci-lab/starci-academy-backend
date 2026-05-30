@@ -27,17 +27,6 @@ export interface ContentParentIndexCacheResult {
     course: ParentIndexRef
 }
 
-export interface LessonVideoParentIndexCacheResult {
-    /** The lesson video that the module belongs to. */
-    lessonVideo: ParentIndexRef
-    /** The content that the lesson video belongs to. */
-    content: ParentIndexRef
-    /** The module that the lesson video belongs to. */
-    module: ParentIndexRef
-    /** The course that the module belongs to. */
-    course: ParentIndexRef
-}
-
 export interface ModuleParentIndexCacheResult {
     /** The module that the course belongs to. */
     module: ParentIndexRef
@@ -50,4 +39,4 @@ export interface CourseParentIndexCacheResult {
     course: ParentIndexRef
 }
 
-export type ParentIndexCacheResult = ChallengeParentIndexCacheResult | ContentParentIndexCacheResult | LessonVideoParentIndexCacheResult | ModuleParentIndexCacheResult | CourseParentIndexCacheResult
+export type ParentIndexCacheResult = ChallengeParentIndexCacheResult | ContentParentIndexCacheResult | ModuleParentIndexCacheResult | CourseParentIndexCacheResult

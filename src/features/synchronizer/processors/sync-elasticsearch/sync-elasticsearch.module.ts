@@ -1,34 +1,32 @@
 import {
-    Module,
-} from "@nestjs/common"
+    Module
+    } from "@nestjs/common"
 import {
-    ConfigurableModuleClass,
-} from "./sync-elasticsearch.module-definition"
+    ConfigurableModuleClass
+    } from "./sync-elasticsearch.module-definition"
 import {
     ElasticsearchChallengeBuildService,
     ElasticsearchContentBuildService,
-    ElasticsearchCourseBuildService,
-    ElasticsearchLessonVideoBuildService,
+    ElasticsearchCourseBuildService,
     ElasticsearchModuleBuildService,
     ElasticsearchFoundationBuildService,
     ElasticsearchFoundationCategoryBuildService,
     ElasticsearchHeadhunterCompanyBuildService,
-    ElasticsearchConsultantBuildService,
-} from "./builder"
+    ElasticsearchConsultantBuildService
+    } from "./builder"
 import {
     ProcessSyncElasticsearchCompleteStepService,
-    ProcessSyncElasticsearchEntityStepService,
-} from "./steps"
+    ProcessSyncElasticsearchEntityStepService
+    } from "./steps"
 import {
-    SyncElasticsearchStepMappingService,
-} from "./step-mapping.service"
+    SyncElasticsearchStepMappingService
+    } from "./step-mapping.service"
 
 @Module({
     providers: [
         ElasticsearchCourseBuildService,
         ElasticsearchChallengeBuildService,
-        ElasticsearchContentBuildService,
-        ElasticsearchLessonVideoBuildService,
+        ElasticsearchContentBuildService,
         ProcessSyncElasticsearchEntityStepService,
         ProcessSyncElasticsearchCompleteStepService,
         SyncElasticsearchStepMappingService,
@@ -41,14 +39,13 @@ import {
     exports: [
         ElasticsearchCourseBuildService,
         ElasticsearchChallengeBuildService,
-        ElasticsearchContentBuildService,
-        ElasticsearchLessonVideoBuildService,
+        ElasticsearchContentBuildService,
         ElasticsearchModuleBuildService,
         ElasticsearchFoundationBuildService,
         ElasticsearchFoundationCategoryBuildService,
         ElasticsearchHeadhunterCompanyBuildService,
         ElasticsearchConsultantBuildService,
-    ],
-})
+    ]
+    })
 export class SyncElasticsearchModule extends ConfigurableModuleClass {
 }

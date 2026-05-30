@@ -1,5 +1,5 @@
 /** Supported source entity types for ScyllaDB on-demand sync jobs. */
-export type SyncScyllaDBEntityType = "course" | "challenge" | "content" | "lessonVideo"
+export type SyncScyllaDBEntityType = "course" | "challenge" | "content"
 
 /** Payload for a sync-scylladb BullMQ job. */
 export interface SyncScyllaDBPayload {

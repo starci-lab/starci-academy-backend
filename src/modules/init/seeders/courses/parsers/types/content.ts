@@ -1,6 +1,6 @@
 import {
     ResolvedFilePath 
-} from "../../path"
+} from "../../../shared"
 import type {
     ExtractChallengeBlockBothParams,
     ExtractChallengeBlockBothResult,
@@ -33,6 +33,24 @@ export interface ParseContentManyParams {
     /** The index of the module. */
     moduleIndex: number
 }
+
+/**
+ * Inputs for loading SCHEMA V2 per-language lesson bodies from
+ * `<content>/bodies/<N>-<lang>/{locale}.md`.
+ */
+export interface ParseContentBodiesParams {
+    /** Content folder relative path under `courses/`. */
+    contentRelativePath: string
+    /** Course ordinal on the mount. */
+    courseIndex: number
+    /** Module ordinal within the course. */
+    moduleIndex: number
+    /** Content ordinal within the module. */
+    contentIndex: number
+    /** Parent content id (FK for each `ContentBody` bucket). */
+    contentId: string
+}
+
 /** Optional structured fields from `# Content Data` in `en.md` or content `data.json`. */
 export interface ContentDataJson {
     /** Estimated minutes to read the article. */

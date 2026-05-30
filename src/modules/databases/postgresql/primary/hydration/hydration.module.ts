@@ -27,9 +27,6 @@ import {
     HeadhuntingCompanyHydrationService,
 } from "./headhunting-company-hydration.service"
 import {
-    LessonVideoHydrationService,
-} from "./lesson-video-hydration.service"
-import {
     MilestoneHydrationService,
 } from "./milestone-hydration.service"
 import {
@@ -42,7 +39,6 @@ import {
 const hydrationProviders: Array<Provider> = [
     ContentHydrationService,
     ChallengeHydrationService,
-    LessonVideoHydrationService,
     ModuleHydrationService,
     CourseHydrationService,
     FoundationHydrationService,

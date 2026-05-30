@@ -17,27 +17,26 @@ import {
     AbstractEntity,
 } from "./abstract"
 import {
-    ContentBodyV2Entity,
-} from "./content-body-v2.entity"
+    ContentBodyEntity,
+} from "./content-body.entity"
 
 /**
- * Localized lesson body for a SCHEMA V2 content body bucket. One row per (body × locale); mirrors
- * the V2 challenge translation pattern (composite PK + single value column).
+ * Localized lesson body for a SCHEMA V2 content body bucket. One row per (body × locale).
  */
 @ObjectType({
-    description: "Localized lesson body for a V2 content body bucket.",
+    description: "Localized lesson body for a content body bucket.",
 })
-@Entity("content_body_v2_translations")
-export class ContentBodyV2TranslationEntity extends AbstractEntity {
+@Entity("content_body_translations")
+export class ContentBodyTranslationEntity extends AbstractEntity {
     /**
-     * Parent V2 content body id (composite PK part).
+     * Parent content body id (composite PK part).
      */
     @Field(() => String)
     @PrimaryColumn({
-        name: "content_body_v2_id",
+        name: "content_body_id",
         type: "uuid",
     })
-        contentBodyV2Id: string
+        contentBodyId: string
 
     /**
      * Locale of this body (composite PK part).
@@ -69,19 +68,19 @@ export class ContentBodyV2TranslationEntity extends AbstractEntity {
         body: string | null
 
     /**
-     * Parent V2 content body bucket this translation belongs to.
+     * Parent content body bucket this translation belongs to.
      */
     @ManyToOne(
-        () => ContentBodyV2Entity,
-        (contentBodyV2: ContentBodyV2Entity) => contentBodyV2.translations,
+        () => ContentBodyEntity,
+        (contentBody: ContentBodyEntity) => contentBody.translations,
         {
             onDelete: "CASCADE",
         },
     )
     @JoinColumn({
-        name: "content_body_v2_id",
+        name: "content_body_id",
         referencedColumnName: "id",
-        foreignKeyConstraintName: "fk_content_body_v2_id_content_body_v2_translations",
+        foreignKeyConstraintName: "fk_content_body_id_content_body_translations",
     })
-        contentBodyV2: ContentBodyV2Entity
+        contentBody: ContentBodyEntity
 }

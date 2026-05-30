@@ -17,7 +17,6 @@ import {
     ChallengeEntity,
     ContentEntity,
     CourseEntity,
-    LessonVideoEntity,
     Locale,
     ModuleEntity,
 } from "@modules/databases"
@@ -53,10 +52,6 @@ const INDEX_MAP: Record<IndexSearchType, { index: string; entityName: string }> 
     [IndexSearchType.ChallengeIndex]: {
         index: "challenges",
         entityName: ChallengeEntity.name,
-    },
-    [IndexSearchType.LessonVideoIndex]: {
-        index: "lesson-videos",
-        entityName: LessonVideoEntity.name,
     },
 }
 
@@ -202,7 +197,6 @@ export class IndexSearchHandler
             moduleDisplayId: "module" in parentRef ? parentRef.module.displayId : undefined,
             contentDisplayId: "content" in parentRef ? parentRef.content.displayId : undefined,
             challengeDisplayId: "challenge" in parentRef ? parentRef.challenge.displayId : undefined,
-            lessonVideoDisplayId: "lessonVideo" in parentRef ? parentRef.lessonVideo.displayId : undefined,
         }
     }
 }

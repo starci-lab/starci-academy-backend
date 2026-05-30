@@ -5,7 +5,6 @@ import {
     ChallengeEntity,
     ContentEntity,
     CourseEntity,
-    LessonVideoEntity,
     ModuleEntity,
 } from "@modules/databases"
 
@@ -18,6 +17,5 @@ export interface EntitySearchParams {
 export type SearchableEntity =
     typeof CourseEntity.name |
     typeof ModuleEntity.name |
-    typeof LessonVideoEntity.name |
     typeof ChallengeEntity.name |
     typeof ContentEntity.name

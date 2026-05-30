@@ -13,9 +13,7 @@ import {
     ChallengeEntity,
     ContentEntity,
     CourseEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    LessonVideoEntity,
-    ModuleEntity,
+    InjectPrimaryPostgreSQLEntityManager,    ModuleEntity,
 } from "@modules/databases"
 import {
     WinstonLog,
@@ -34,7 +32,6 @@ import {
     IndexerContentBuildService,
     IndexerModuleBuildService,
     IndexerCourseBuildService,
-    IndexerLessonVideoBuildService,
 } from "../build"
 import {
     SyncIndexerStepContextExecuteResult 
@@ -61,7 +58,6 @@ export class ProcessSyncIndexerBuildParentIndexStep extends AbstractStepService<
         private readonly indexerContentBuildService: IndexerContentBuildService,
         private readonly indexerModuleBuildService: IndexerModuleBuildService,
         private readonly indexerCourseBuildService: IndexerCourseBuildService,
-        private readonly indexerLessonVideoBuildService: IndexerLessonVideoBuildService,
     ) {
         super()
     }
@@ -192,32 +188,7 @@ export class ProcessSyncIndexerBuildParentIndexStep extends AbstractStepService<
                 resumeAfterId = content.id
                 break
             }
-            case LessonVideoEntity.name: {
-                const lessonVideo = await this.entityManager.findOne(
-                    LessonVideoEntity,
-                    {
-                        where: {
-                            ...(executionResult?.resumeAfterId ? {
-                                id: MoreThan(executionResult.resumeAfterId) 
-                            } : {
-                            }),
-                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
-                        },
-                        order: {
-                            id: "ASC",
-                        },
-                    },
-                )
-                if (!lessonVideo) {
-                    done = true
-                    break
-                }
-                await this.indexerLessonVideoBuildService.buildIndexerById(
-                    lessonVideo.id,
-                )
-                resumeAfterId = lessonVideo.id
-                break
-            }
+            
             case ModuleEntity.name: {
                 const module = await this.entityManager.findOne(
                     ModuleEntity,

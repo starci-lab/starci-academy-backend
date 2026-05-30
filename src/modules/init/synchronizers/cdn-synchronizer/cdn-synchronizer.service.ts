@@ -6,9 +6,7 @@ import {
     CourseEntity,
     ModuleEntity,
     ContentEntity,
-    ChallengeEntity,
-    LessonVideoEntity,
-} from "@modules/databases"
+    ChallengeEntity,} from "@modules/databases"
 import {
     MoreThan,
     type EntityManager,
@@ -18,7 +16,6 @@ import {
     CdnModuleBuildService,
     CdnContentBuildService,
     CdnChallengeBuildService,
-    CdnLessonVideoBuildService,
 } from "./builder"
 import {
     WinstonLog,
@@ -40,7 +37,6 @@ import {
     buildCdnSynchronizerSyncScope,
     shouldSyncChallengeEntity,
     shouldSyncContentEntity,
-    shouldSyncLessonVideoEntity,
     shouldSyncModuleEntity,
 } from "../../utils"
 
@@ -59,7 +55,6 @@ export class CdnSynchronizerService {
         private readonly cdnModuleBuildService: CdnModuleBuildService,
         private readonly cdnContentBuildService: CdnContentBuildService,
         private readonly cdnChallengeBuildService: CdnChallengeBuildService,
-        private readonly cdnLessonVideoBuildService: CdnLessonVideoBuildService,
         private readonly s3BucketService: S3BucketService,
     ) { }
 
@@ -68,7 +63,6 @@ export class CdnSynchronizerService {
         CourseEntity.name,
         ChallengeEntity.name,
         ContentEntity.name,
-        LessonVideoEntity.name,
         ModuleEntity.name,
     ]
 
@@ -251,62 +245,7 @@ export class CdnSynchronizerService {
                 }
                 break
             }
-            case LessonVideoEntity.name: {
-                while (true) {
-                    const lessonVideo = await this.entityManager.findOne(
-                        LessonVideoEntity,
-                        {
-                            where: {
-                                ...(resumeEntityId ? {
-                                    id: MoreThan(resumeEntityId)
-                                } : {
-                                }),
-                            },
-                            relations: {
-                                content: {
-                                    module: {
-                                        course: true,
-                                    },
-                                },
-                            },
-                            order: {
-                                id: "ASC",
-                            },
-                        },
-                    )
-                    if (!lessonVideo) {
-                        break
-                    }
-                    if (!shouldSyncLessonVideoEntity(scope,
-                        lessonVideo)) {
-                        resumeEntityId = lessonVideo.id
-                        continue
-                    }
-                    try {
-                        await this.cdnLessonVideoBuildService.materializeAndUpload(
-                            lessonVideo.id,
-                        )
-                        this.winstonService.log(
-                            WinstonLog.CdnSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: lessonVideo.id,
-                            }
-                        )
-                    } catch (error) {
-                        this.winstonService.log(
-                            WinstonLog.CdnSynchronizerEntitySyncFailed,
-                            {
-                                entityKind,
-                                entityId: lessonVideo.id,
-                                error: error.message,
-                            }
-                        )
-                    }
-                    resumeEntityId = lessonVideo.id
-                }
-                break
-            }
+            
             case ModuleEntity.name: {
                 while (true) {
                     const module = await this.entityManager.findOne(

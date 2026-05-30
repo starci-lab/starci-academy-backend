@@ -6,8 +6,8 @@ import {
 } from "@nestjs/typeorm"
 import {
     ConfigurableModuleClass,
-    OPTIONS_TYPE,
-} from "./primary.module-definition"
+    OPTIONS_TYPE
+    } from "./primary.module-definition"
 import {
     envConfig
 } from "@modules/env"
@@ -26,8 +26,8 @@ import {
     CodeExplainingTranslationEntity,
     CodeImplementationEntity,
     CodeImplementationTranslationEntity,
-    ContentBodyV2Entity,
-    ContentBodyV2TranslationEntity,
+    ContentBodyEntity,
+    ContentBodyTranslationEntity,
     ChallengeEntity,
     ChallengeStepEntity,
     ChallengeStepTranslationEntity,
@@ -70,8 +70,6 @@ import {
     PrerequisiteTranslationEntity,
     QnaEntity,
     QnaTranslationEntity,
-    LessonVideoEntity,
-    LessonVideoTranslationEntity,
     LivestreamSessionEntity,
     LivestreamSessionTranslationEntity,
     JobEntity,
@@ -135,23 +133,23 @@ import {
     QuizCardEntity,
     QuizCardTranslationEntity,
     QuizCardOptionEntity,
-    QuizCardOptionTranslationEntity,
-} from "./entities"
+    QuizCardOptionTranslationEntity
+    } from "./entities"
 import {
     SeedersModule
 } from "./seeders"
 import {
-    ResolversModule,
-} from "./resolvers"
+    ResolversModule
+    } from "./resolvers"
 import {
-    HydrationModule,
-} from "./hydration"
+    HydrationModule
+    } from "./hydration"
 import {
-    SyncStateService,
-} from "./sync-state.service"
+    SyncStateService
+    } from "./sync-state.service"
 import {
-    PostgreSqlAdvisoryLockService,
-} from "./lock"
+    PostgreSqlAdvisoryLockService
+    } from "./lock"
 
 /**
  * Primary PostgreSQL module for the primary PostgreSQL connection.
@@ -173,8 +171,8 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
         if (options.withHydration !== false) {
             extraModules.push(
                 HydrationModule.register({
-                    isGlobal: options.isGlobal,
-                }),
+                    isGlobal: options.isGlobal
+    }),
             )
         }
         if (options.withSeeders) {
@@ -182,16 +180,16 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                 SeedersModule.register(
                     {
                         ...options.withSeeders,
-                        isGlobal: options.isGlobal,
-                    }
+                        isGlobal: options.isGlobal
+    }
                 )
             )
         }
         if (options.withResolvers) {
             extraModules.push(
                 ResolversModule.register({
-                    isGlobal: options.isGlobal,
-                })
+                    isGlobal: options.isGlobal
+    })
             )
         }
         return {
@@ -207,8 +205,8 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                 password,
                                 port,
                                 username,
-                                synchronize,
-                            } = envConfig().databases.postgresql.primary
+                                synchronize
+    } = envConfig().databases.postgresql.primary
                             return {
                                 type: "postgres",
                                 host,
@@ -239,8 +237,8 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     CodeExplainingTranslationEntity,
                                     CodeImplementationEntity,
                                     CodeImplementationTranslationEntity,
-                                    ContentBodyV2Entity,
-                                    ContentBodyV2TranslationEntity,
+                                    ContentBodyEntity,
+                                    ContentBodyTranslationEntity,
                                     ChallengeEntity,
                                     ChallengeStepEntity,
                                     ChallengeStepTranslationEntity,
@@ -279,8 +277,6 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     ChallengeSubmissionOutcomeCriteriaLangEntity,
                                     PreviewContentEntity,
                                     PreviewContentTranslationEntity,
-                                    LessonVideoEntity,
-                                    LessonVideoTranslationEntity,
                                     LivestreamSessionEntity,
                                     LivestreamSessionTranslationEntity,
                                     TransactionEntity,
@@ -341,11 +337,11 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                 cache: {
                                     provider(dataSource) {
                                         return new InMemoryQueryResultCache(dataSource)
-                                    },
-                                },
-                            }
-                        },
-                    }
+                                    }
+    }
+    }
+                        }
+    }
                 ),
                 this.forFeature(),
                 ...extraModules,
@@ -358,8 +354,8 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                 ...extraModules,
                 SyncStateService,
                 PostgreSqlAdvisoryLockService,
-            ],
-        }
+            ]
+    }
     }
 
     /**
@@ -396,8 +392,8 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         CodeExplainingTranslationEntity,
                         CodeImplementationEntity,
                         CodeImplementationTranslationEntity,
-                        ContentBodyV2Entity,
-                        ContentBodyV2TranslationEntity,
+                        ContentBodyEntity,
+                        ContentBodyTranslationEntity,
                         ChallengeEntity,
                         ChallengeStepEntity,
                         ChallengeStepTranslationEntity,
@@ -431,10 +427,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         ChallengeSubmissionPromptEntity,
                         ChallengeSubmissionPromptTranslationEntity,
                         PreviewContentEntity,
-                        PreviewContentTranslationEntity,
-                        LessonVideoEntity,
-                        LessonVideoTranslationEntity,
-                        LivestreamSessionEntity,
+                        PreviewContentTranslationEntity,                        LivestreamSessionEntity,
                         LivestreamSessionTranslationEntity,
                         TransactionEntity,
                         EnrollmentEntity,
@@ -491,7 +484,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                     ],
                     POSTGRESQL_PRIMARY
                 ),
-            ],
-        }
+            ]
+    }
     }
 }

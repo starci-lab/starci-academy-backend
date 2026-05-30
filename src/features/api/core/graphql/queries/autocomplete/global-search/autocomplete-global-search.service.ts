@@ -5,7 +5,6 @@ import {
     ChallengeEntity,
     ContentEntity,
     CourseEntity,
-    LessonVideoEntity,
     ModuleEntity,
 } from "@modules/databases"
 import type {
@@ -18,7 +17,6 @@ import {
     ChallengeGlobalSearchService,
     ContentGlobalSearchService,
     CourseGlobalSearchService,
-    LessonVideoGlobalSearchService,
     ModuleGlobalSearchService,
 } from "./entities"
 
@@ -28,7 +26,6 @@ const DEFAULT_ENTITIES: Array<SearchableEntity> = [
     CourseEntity.name,
     ModuleEntity.name,
     ChallengeEntity.name,
-    LessonVideoEntity.name,
     ContentEntity.name,
 ]
 
@@ -36,7 +33,6 @@ const EMPTY_RESULT: AutocompleteGlobalSearchExecuteResult = {
     courses: [],
     modules: [],
     challenges: [],
-    lessonVideos: [],
     contents: [],
 }
 
@@ -46,7 +42,6 @@ export class AutocompleteGlobalSearchService {
         private readonly courseSearch: CourseGlobalSearchService,
         private readonly moduleSearch: ModuleGlobalSearchService,
         private readonly challengeSearch: ChallengeGlobalSearchService,
-        private readonly lessonVideoSearch: LessonVideoGlobalSearchService,
         private readonly contentSearch: ContentGlobalSearchService,
     ) {}
 
@@ -72,7 +67,6 @@ export class AutocompleteGlobalSearchService {
             courses,
             modules,
             challenges,
-            lessonVideos,
             contents,
         ] = await Promise.all([
             selected.has(CourseEntity.name)
@@ -96,13 +90,6 @@ export class AutocompleteGlobalSearchService {
                     locale,
                 })
                 : Promise.resolve([] as Array<GlobalSearchItem>),
-            selected.has(LessonVideoEntity.name)
-                ? this.lessonVideoSearch.execute({
-                    term,
-                    size,
-                    locale,
-                })
-                : Promise.resolve([] as Array<GlobalSearchItem>),
             selected.has(ContentEntity.name)
                 ? this.contentSearch.execute({
                     term,
@@ -116,7 +103,6 @@ export class AutocompleteGlobalSearchService {
             courses: this.dedupeItems(courses),
             modules: this.dedupeItems(modules),
             challenges: this.dedupeItems(challenges),
-            lessonVideos: this.dedupeItems(lessonVideos),
             contents: this.dedupeItems(contents),
         }
     }

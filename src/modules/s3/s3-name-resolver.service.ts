@@ -40,19 +40,6 @@ export class S3NameResolverService {
     }
 
     /**
-     * Resolve the name for a lesson video.
-     * @param id - The id of the lesson video.
-     * @param locale - The locale of the lesson video.
-     * @returns The name for the lesson video.
-     */
-    lessonVideo(id: string, locale?: Locale): string {
-        if (locale) {
-            return `lesson-videos/${id}/${locale}.json`
-        }
-        return `lesson-videos/${id}.json`
-    }
-
-    /**
      * Resolve the name for a module.
      * @param id - The id of the module.
      * @param locale - The locale of the module.

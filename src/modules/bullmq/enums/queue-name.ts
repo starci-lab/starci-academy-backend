@@ -25,11 +25,11 @@ export enum BullQueueName {
     SyncScyllaDB = "sync-scylladb",
     /** Rebuild the shared email ScalableBloomFilter from PostgreSQL users (batched). */
     SyncEmailBloomFilter = "sync-email-bloom-filter",
-    /** Prime parent-index cache for courses/challenges/contents/lessonVideos/modules (batched). */
+    /** Prime parent-index cache for courses/challenges/contents/modules (batched). */
     SyncIndexer = "sync-indexer",
-    /** On-demand sync of one course/challenge/content/lessonVideo to CDN storage. */
+    /** On-demand sync of one course/challenge/content to CDN storage. */
     SyncCdn = "sync-cdn",
-    /** On-demand index of one course/challenge/content/lessonVideo into Elasticsearch. */
+    /** On-demand index of one course/challenge/content into Elasticsearch. */
     SyncElasticsearch = "sync-elasticsearch",
     /** Queue for grading a personal project GitHub submission against task criteria. */
     ProcessPersonalProject = "process-personal-project",

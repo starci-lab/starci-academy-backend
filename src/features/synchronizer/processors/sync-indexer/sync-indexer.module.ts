@@ -1,26 +1,25 @@
 import {
-    Module,
-} from "@nestjs/common"
+    Module
+    } from "@nestjs/common"
 import {
-    ConfigurableModuleClass,
-} from "./sync-indexer.module-definition"
+    ConfigurableModuleClass
+    } from "./sync-indexer.module-definition"
 import {
-    SyncIndexerWorker,
-} from "./sync-indexer.worker"
+    SyncIndexerWorker
+    } from "./sync-indexer.worker"
 import {
     ProcessSyncIndexerBuildParentIndexStep,
-    ProcessSyncIndexerCompleteStep,
-} from "./steps"
+    ProcessSyncIndexerCompleteStep
+    } from "./steps"
 import {
-    SyncIndexerStepMappingService,
-} from "./step-mapping.service"
+    SyncIndexerStepMappingService
+    } from "./step-mapping.service"
 import {
     IndexerCourseBuildService,
     IndexerChallengeBuildService,
-    IndexerContentBuildService,
-    IndexerLessonVideoBuildService,
-    IndexerModuleBuildService,
-} from "./build"
+    IndexerContentBuildService,
+    IndexerModuleBuildService
+    } from "./build"
 
 @Module({
     providers: [
@@ -30,17 +29,15 @@ import {
         SyncIndexerWorker,
         IndexerCourseBuildService,
         IndexerChallengeBuildService,
-        IndexerContentBuildService,
-        IndexerLessonVideoBuildService,
+        IndexerContentBuildService,
         IndexerModuleBuildService,
     ],
     exports: [
         IndexerCourseBuildService,
         IndexerChallengeBuildService,
-        IndexerContentBuildService,
-        IndexerLessonVideoBuildService,
+        IndexerContentBuildService,
         IndexerModuleBuildService,
-    ],
-})
+    ]
+    })
 export class SyncIndexerModule extends ConfigurableModuleClass {}
 

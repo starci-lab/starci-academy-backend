@@ -23,20 +23,19 @@ import {
     ContentEntity,
 } from "./content.entity"
 import {
-    ContentBodyV2TranslationEntity,
-} from "./content-body-v2-translation.entity"
+    ContentBodyTranslationEntity,
+} from "./content-body-translation.entity"
 
 /**
- * SCHEMA V2 per-programming-language lesson body for a content (mount `# bodies`). One row per
- * language; the markdown `body` holds the default locale and per-locale variants live in the
- * translation table. This replaces the earlier (wrong) overload of `codeImplementations` for the
- * lesson body — `codeImplementations` is back to its legacy meaning (code guide/example snippets).
+ * SCHEMA V2 per-programming-language lesson body for a content (mount `bodies/<N>-<lang>/`).
+ * One row per language; the markdown `body` holds the default locale and per-locale variants
+ * live in the translation table.
  */
 @ObjectType({
     description: "Per-language lesson body for a content (SCHEMA V2); per-locale text in the translation table.",
 })
-@Entity("content_bodies_v2")
-export class ContentBodyV2Entity extends UuidAbstractEntity {
+@Entity("content_bodies")
+export class ContentBodyEntity extends UuidAbstractEntity {
     /**
      * Programming language for this body (e.g. typescript, java, csharp, go).
      */
@@ -59,7 +58,7 @@ export class ContentBodyV2Entity extends UuidAbstractEntity {
     @Field(
         () => Int,
         {
-            description: "Display order within the content body V2 list.",
+            description: "Display order within the content body list.",
         },
     )
     @Column({
@@ -108,14 +107,14 @@ export class ContentBodyV2Entity extends UuidAbstractEntity {
      */
     @ManyToOne(
         () => ContentEntity,
-        (content: ContentEntity) => content.bodiesV2,
+        (content: ContentEntity) => content.bodies,
         {
             onDelete: "CASCADE",
         },
     )
     @JoinColumn({
         name: "content_id",
-        foreignKeyConstraintName: "fk_content_id_content_bodies_v2_contents",
+        foreignKeyConstraintName: "fk_content_id_content_bodies_contents",
     })
         content: ContentEntity
 
@@ -129,7 +128,7 @@ export class ContentBodyV2Entity extends UuidAbstractEntity {
         },
     )
     @RelationId(
-        (contentBodyV2: ContentBodyV2Entity) => contentBodyV2.content,
+        (contentBody: ContentBodyEntity) => contentBody.content,
     )
         contentId: string
 
@@ -137,17 +136,17 @@ export class ContentBodyV2Entity extends UuidAbstractEntity {
      * Per-locale lesson body variants for this language.
      */
     @Field(
-        () => [ContentBodyV2TranslationEntity],
+        () => [ContentBodyTranslationEntity],
         {
             description: "Per-locale lesson body variants for this language.",
         },
     )
     @OneToMany(
-        () => ContentBodyV2TranslationEntity,
-        (translation: ContentBodyV2TranslationEntity) => translation.contentBodyV2,
+        () => ContentBodyTranslationEntity,
+        (translation: ContentBodyTranslationEntity) => translation.contentBody,
         {
             cascade: true,
         },
     )
-        translations: Array<ContentBodyV2TranslationEntity>
+        translations: Array<ContentBodyTranslationEntity>
 }

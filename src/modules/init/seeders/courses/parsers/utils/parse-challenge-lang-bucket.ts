@@ -59,3 +59,89 @@ export const readLangBucketItemScore = (
     toRequiredNumber: (value: unknown, fallback: number) => number,
 ): number => toRequiredNumber(record?.score,
     0)
+
+/** One translation row attached by {@link MergeJsonService} on a lang-bucket `data[]` item. */
+export interface LangBucketDataItemTranslationRow {
+    /** Locale of the translated value. */
+    locale: string
+    /** Field name on the data item (`title`, `body`, …). */
+    field: string
+    /** Translated scalar. */
+    value: string
+}
+
+/** Params for transposing a merged lang-bucket section into V2 item rows. */
+export interface MapMergedLangBucketSectionParams {
+    /** Merged section value (`merged.requirements`, `merged.steps`, …). */
+    section: unknown
+    /** When true, maps agnostic `title` rows on the parent item. */
+    hasTitle: boolean
+    /** When true, reads `score` from each per-lang data item. */
+    hasScore: boolean
+    /** Coerces numeric mount scalars (e.g. score). */
+    toRequiredNumber: (value: unknown, fallback: number) => number
+}
+
+/**
+ * Transposes merged lang buckets (`{ lang, data[] }` per row) into one V2 item per
+ * `data[]` position with `langs` and optional title/body translation rows.
+ *
+ * @param params - Merged section + field flags.
+ * @returns Item-shaped records (`orderIndex`, `langs`, optional `translations`).
+ */
+export const mapMergedLangBucketSection = (
+    {
+        section,
+        hasTitle,
+        hasScore,
+        toRequiredNumber,
+    }: MapMergedLangBucketSectionParams,
+): Array<Record<string, unknown>> => {
+    const buckets = filterLangSectionBuckets(section)
+    const anchorItems = getLangBucketDataItems(buckets[0])
+    return anchorItems.map((anchorItem) => {
+        const orderIndex = typeof anchorItem.orderIndex === "number"
+            ? anchorItem.orderIndex
+            : 0
+        const titleTranslationRows = hasTitle
+            ? ((anchorItem.translations ?? []) as Array<LangBucketDataItemTranslationRow>)
+                .filter((row) => row.field === "title")
+            : []
+        const langs = buckets.map((bucket) => {
+            const lang = typeof bucket.lang === "string" ? bucket.lang : "text"
+            const item = findLangBucketItem(bucket,
+                orderIndex)
+            const bodyTranslationRows = ((item?.translations ?? []) as Array<LangBucketDataItemTranslationRow>)
+                .filter((row) => row.field === "body")
+            return {
+                lang,
+                ...(hasScore
+                    ? {
+                        score: readLangBucketItemScore(
+                            item,
+                            toRequiredNumber,
+                        ),
+                    }
+                    : {
+                    }),
+                translations: bodyTranslationRows.map((row) => ({
+                    locale: row.locale,
+                    body: row.value,
+                })),
+            }
+        })
+        return {
+            orderIndex,
+            ...(titleTranslationRows.length > 0
+                ? {
+                    translations: titleTranslationRows.map((row) => ({
+                        locale: row.locale,
+                        title: row.value,
+                    })),
+                }
+                : {
+                }),
+            langs,
+        }
+    })
+}

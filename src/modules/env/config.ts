@@ -615,12 +615,6 @@ export const envConfig = () => ({
                         defaultValue: "30s",
                     }),
                 },
-                lessonVideo: {
-                    interval: parseEnvMs({
-                        key: "ELASTICSEARCH_SYNCHRONIZER_LESSON_VIDEO_SYNC_INTERVAL_MS",
-                        defaultValue: "30s",
-                    }),
-                },
                 module: {
                     interval: parseEnvMs({
                         key: "ELASTICSEARCH_SYNCHRONIZER_MODULE_SYNC_INTERVAL_MS",
@@ -638,12 +632,6 @@ export const envConfig = () => ({
                 challenge: {
                     interval: parseEnvMs({
                         key: "CDN_SYNCHRONIZER_CHALLENGE_SYNC_INTERVAL_MS",
-                        defaultValue: "30s",
-                    }),
-                },
-                lessonVideo: {
-                    interval: parseEnvMs({
-                        key: "CDN_SYNCHRONIZER_LESSON_VIDEO_SYNC_INTERVAL_MS",
                         defaultValue: "30s",
                     }),
                 },
@@ -670,12 +658,6 @@ export const envConfig = () => ({
                 content: {
                     interval: parseEnvMs({
                         key: "INDEXER_SYNCHRONIZER_CONTENT_SYNC_INTERVAL_MS",
-                        defaultValue: "30s",
-                    }),
-                },
-                lessonVideo: {
-                    interval: parseEnvMs({
-                        key: "INDEXER_SYNCHRONIZER_LESSON_VIDEO_SYNC_INTERVAL_MS",
                         defaultValue: "30s",
                     }),
                 },
@@ -795,12 +777,6 @@ export const envConfig = () => ({
                     defaultValue: "30s",
                 }),
             },
-            lessonVideo: {
-                interval: parseEnvMs({
-                    key: "CDN_SYNCHRONIZER_LESSON_VIDEO_SYNC_INTERVAL_MS",
-                    defaultValue: "30s",
-                }),
-            },
             module: {
                 interval: parseEnvMs({
                     key: "CDN_SYNCHRONIZER_MODULE_SYNC_INTERVAL_MS",
@@ -846,12 +822,6 @@ export const envConfig = () => ({
                     defaultValue: "30s",
                 }),
             },
-            lessonVideo: {
-                interval: parseEnvMs({
-                    key: "ELASTICSEARCH_SYNCHRONIZER_LESSON_VIDEO_SYNC_INTERVAL_MS",
-                    defaultValue: "30s",
-                }),
-            },
             module: {
                 interval: parseEnvMs({
                     key: "ELASTICSEARCH_SYNCHRONIZER_MODULE_SYNC_INTERVAL_MS",
@@ -869,16 +839,6 @@ export const envConfig = () => ({
                     }),
                     runtime: parseEnvMs({
                         key: "SCYLLADB_SYNCHRONIZER_COURSES_RUNTIME_SYNC_INTERVAL_MS",
-                        defaultValue: "30s",
-                    }),
-                },
-                lessonVideos: {
-                    factory: parseEnvMs({
-                        key: "SCYLLADB_SYNCHRONIZER_LESSON_VIDEOS_FACTORY_SYNC_INTERVAL_MS",
-                        defaultValue: "30s",
-                    }),
-                    runtime: parseEnvMs({
-                        key: "SCYLLADB_SYNCHRONIZER_LESSON_VIDEOS_RUNTIME_SYNC_INTERVAL_MS",
                         defaultValue: "30s",
                     }),
                 },

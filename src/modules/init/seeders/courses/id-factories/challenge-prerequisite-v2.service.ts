@@ -14,12 +14,11 @@ import {
     v5 as uuidv5,
 } from "uuid"
 import type {
-    GenerateChallengeRequirementV2LangIdParams,
     GenerateChallengePrerequisiteV2IdParams,
 } from "./types"
 
 /**
- * SCHEMA V2 per-language prerequisite bucket UUIDs chain from the parent challenge id string.
+ * SCHEMA V2 prerequisite item and per-language row UUIDs chain from the parent challenge id.
  */
 @Injectable()
 export class ChallengePrerequisiteV2IdFactoryService {
@@ -34,53 +33,34 @@ export class ChallengePrerequisiteV2IdFactoryService {
             moduleIndex,
             contentIndex,
             challengeIndex,
-            langIndex,
+            orderIndex = 0,
+            prerequisiteIndex,
         }: GenerateChallengePrerequisiteV2IdParams,
     ): string {
-        return uuidv5(
-            this.sha256Service.hash(
-                "challenge-prerequisite-v2",
-                this.challengeIdFactoryService.generate(
-                    {
-                        courseIndex,
-                        moduleIndex,
-                        contentIndex,
-                        challengeIndex,
-                    },
-                ),
-                langIndex.toString(),
-            ),
-            envConfig().uuidNamespace.course,
-        )
-    }
-
-    /**
-     * Generates the deterministic UUID for one (item × programming-language) row.
-     *
-     * @param params - Item index + programming-language index (+ parent ordinals).
-     * @returns Stable UUID v5 derived from the parent item id and the language index.
-     */
-    generateLang(
-        {
+        const ordinals = {
             courseIndex,
             moduleIndex,
             contentIndex,
             challengeIndex,
-            itemIndex,
-            langIndex,
-        }: GenerateChallengeRequirementV2LangIdParams,
-    ): string {
+        }
+        if (prerequisiteIndex !== undefined) {
+            return uuidv5(
+                this.sha256Service.hash(
+                    "challenge-prerequisite-v2-lang",
+                    this.generate({
+                        ...ordinals,
+                        orderIndex: prerequisiteIndex,
+                    }),
+                    orderIndex.toString(),
+                ),
+                envConfig().uuidNamespace.course,
+            )
+        }
         return uuidv5(
             this.sha256Service.hash(
-                "challenge-prerequisite-v2-lang",
-                this.generate({
-                    courseIndex,
-                    moduleIndex,
-                    contentIndex,
-                    challengeIndex,
-                    langIndex: itemIndex,
-                }),
-                langIndex.toString(),
+                "challenge-prerequisite-v2",
+                this.challengeIdFactoryService.generate(ordinals),
+                orderIndex.toString(),
             ),
             envConfig().uuidNamespace.course,
         )

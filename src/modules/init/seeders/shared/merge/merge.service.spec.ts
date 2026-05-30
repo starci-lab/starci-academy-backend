@@ -1,3 +1,5 @@
+import path from "path"
+import fs from "fs"
 import {
     Test,
 } from "@nestjs/testing"
@@ -13,6 +15,28 @@ import {
 import {
     MergeJsonService,
 } from "./merge.service"
+
+/** Repo-root extracts for `1-custom-provider-dynamic-module-medium` (M0 challenge). */
+const CHALLENGE_MEDIUM_EN_JSON = path.join(
+    process.cwd(),
+    "en.json",
+)
+const CHALLENGE_MEDIUM_VI_JSON = path.join(
+    process.cwd(),
+    "vi.json",
+)
+
+/** Same `translateFields` + `langBucketSections` as {@link ChallengeParserService}. */
+const translateFields = [
+    "title",
+    "description",
+    "requirements.langs.title",
+    "requirements.langs.body",
+    "steps.langs.title",
+    "steps.langs.body",
+    "outputs.langs.body",
+    "prerequisites.langs.body",
+]
 
 describe("MergeJsonService",
     () => {
@@ -304,6 +328,200 @@ describe("MergeJsonService",
                                 ],
                             },
                         ])
+                    })
+
+                it(
+                    "merges custom-provider-medium challenge en.json + vi.json lang-bucket sections",
+                    () => {
+                        const enJson = JSON.parse(
+                            fs.readFileSync(
+                                CHALLENGE_MEDIUM_EN_JSON,
+                                "utf8",
+                            ),
+                        ) as Record<string, unknown>
+                        const viJson = JSON.parse(
+                            fs.readFileSync(
+                                CHALLENGE_MEDIUM_VI_JSON,
+                                "utf8",
+                            ),
+                        ) as Record<string, unknown>
+
+                        const merged = service.merge({
+                            jsons: [
+                                {
+                                    locale: Locale.En,
+                                    json: enJson,
+                                },
+                                {
+                                    locale: Locale.Vi,
+                                    json: viJson,
+                                },
+                            ],
+                            translateFields,
+                        })
+
+                        expect(merged.title).toBe(enJson.title)
+                        expect(merged.description).toBe(enJson.description)
+                        expect(merged.requirements).toHaveLength(3)
+                        expect(merged.steps).toHaveLength(3)
+                        expect(merged.outputs).toHaveLength(3)
+                        expect(merged.prerequisites).toHaveLength(3)
+
+                        const typescriptRequirements = (
+                            merged.requirements as Array<Record<string, unknown>>
+                        ).find((bucket) => bucket.lang === "typescript")
+                        expect(typescriptRequirements?.langs).toHaveLength(2)
+
+                        const requirementItem0 = (
+                            typescriptRequirements?.langs as Array<Record<string, unknown>>
+                        )[0]
+                        expect(requirementItem0?.title).toBe(
+                            "Define the Store interface + two implementations and a dynamic module forRoot(options)",
+                        )
+                        expect(requirementItem0?.score).toBe("50")
+                        expect(requirementItem0?.translations).toEqual(
+                            expect.arrayContaining([
+                                {
+                                    locale: Locale.En,
+                                    field: "title",
+                                    value: "Define the Store interface + two implementations and a dynamic module forRoot(options)",
+                                },
+                                {
+                                    locale: Locale.Vi,
+                                    field: "title",
+                                    value: "Định nghĩa interface Store + hai implementation và một dynamic module forRoot(options)",
+                                },
+                                {
+                                    locale: Locale.En,
+                                    field: "body",
+                                    // walk through the Array<unknown> jsonb shape with explicit casts at every hop
+                                    value: ((enJson.requirements as Array<Record<string, unknown>>)[0]
+                                        .langs as Array<Record<string, unknown>>)[0].body,
+                                },
+                                {
+                                    locale: Locale.Vi,
+                                    field: "body",
+                                    value: ((viJson.requirements as Array<Record<string, unknown>>)[0]
+                                        .langs as Array<Record<string, unknown>>)[0].body,
+                                },
+                            ]),
+                        )
+
+                        const typescriptSteps = (
+                            merged.steps as Array<Record<string, unknown>>
+                        ).find((bucket) => bucket.lang === "typescript")
+                        const stepItem0 = (
+                            typescriptSteps?.langs as Array<Record<string, unknown>>
+                        )[0]
+                        expect(stepItem0?.translations).toEqual(
+                            expect.arrayContaining([
+                                {
+                                    locale: Locale.En,
+                                    field: "title",
+                                    value: "Initialize the project and define the Store interface + two impls",
+                                },
+                                {
+                                    locale: Locale.Vi,
+                                    field: "title",
+                                    value: "Khởi tạo project và định nghĩa interface Store + hai impl",
+                                },
+                            ]),
+                        )
+
+                        expect(merged.translations).toEqual(
+                            expect.arrayContaining([
+                                {
+                                    locale: Locale.En,
+                                    field: "title",
+                                    value: "Swap implementations via DI and configure at compose time",
+                                },
+                                {
+                                    locale: Locale.Vi,
+                                    field: "title",
+                                    value: "Hoán đổi implementation qua DI và cấu hình lúc compose",
+                                },
+                            ]),
+                        )
+                    },
+                )
+
+                it("attaches translations on lang-bucket data items",
+                    () => {
+                        const merged = service.merge({
+                            jsons: [
+                                {
+                                    locale: Locale.En,
+                                    json: {
+                                        requirements: [
+                                            {
+                                                lang: "typescript",
+                                                orderIndex: 0,
+                                                langs: [
+                                                    {
+                                                        orderIndex: 0,
+                                                        title: "Req EN",
+                                                        body: "Body TS EN",
+                                                    },
+                                                ],
+                                            },
+                                        ],
+                                    },
+                                },
+                                {
+                                    locale: Locale.Vi,
+                                    json: {
+                                        requirements: [
+                                            {
+                                                lang: "typescript",
+                                                orderIndex: 0,
+                                                langs: [
+                                                    {
+                                                        orderIndex: 0,
+                                                        title: "Req VI",
+                                                        body: "Body TS VI",
+                                                    },
+                                                ],
+                                            },
+                                        ],
+                                    },
+                                },
+                            ],
+                            translateFields: [
+                                "requirements.langs.title",
+                                "requirements.langs.body",
+                            ],
+                        })
+
+                        expect(merged.requirements?.[0]?.langs?.[0]).toMatchObject({
+                            orderIndex: 0,
+                            title: "Req EN",
+                            body: "Body TS EN",
+                        })
+                        expect(merged.requirements?.[0]?.langs?.[0]?.translations).toEqual(
+                            expect.arrayContaining([
+                                {
+                                    locale: Locale.En,
+                                    field: "title",
+                                    value: "Req EN",
+                                },
+                                {
+                                    locale: Locale.Vi,
+                                    field: "title",
+                                    value: "Req VI",
+                                },
+                                {
+                                    locale: Locale.En,
+                                    field: "body",
+                                    value: "Body TS EN",
+                                },
+                                {
+                                    locale: Locale.Vi,
+                                    field: "body",
+                                    value: "Body TS VI",
+                                },
+                            ]),
+                        )
+                        expect(merged.requirements?.[0]?.langs?.[0]?.translations).toHaveLength(4)
                     })
 
                 it("supports multiple translatable fields on the same array item",

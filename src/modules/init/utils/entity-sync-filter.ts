@@ -1,7 +1,6 @@
 import type {
     ChallengeEntity,
     ContentEntity,
-    LessonVideoEntity,
     MilestoneEntity,
     MilestoneTaskEntity,
     ModuleEntity,
@@ -51,22 +50,6 @@ export const shouldSyncChallengeEntity = (
 ): boolean => {
     const courseDisplayId = challenge.content?.module?.course?.displayId
     const moduleOrderIndex = challenge.content?.module?.orderIndex
-    if (!courseDisplayId || moduleOrderIndex === undefined) {
-        return true
-    }
-    return shouldIncludeCourseModule(
-        scope.moduleIndexFilterByDisplayId,
-        courseDisplayId,
-        moduleOrderIndex,
-    )
-}
-
-export const shouldSyncLessonVideoEntity = (
-    scope: SynchronizerSyncScope,
-    lessonVideo: LessonVideoEntity,
-): boolean => {
-    const courseDisplayId = lessonVideo.content?.module?.course?.displayId
-    const moduleOrderIndex = lessonVideo.content?.module?.orderIndex
     if (!courseDisplayId || moduleOrderIndex === undefined) {
         return true
     }

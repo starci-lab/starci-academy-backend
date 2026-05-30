@@ -7,7 +7,6 @@ import type {
 import {
     ChallengeEntity,
     ContentEntity,
-    LessonVideoEntity,
     ModuleEntity,
     PreviewContentEntity,
 } from "../entities"
@@ -74,9 +73,6 @@ export class ModuleHydrationService {
                 },
                 relations: {
                     translations: true,
-                    lessons: {
-                        translations: true,
-                    },
                     challenges: true,
                 },
                 order: {
@@ -87,9 +83,6 @@ export class ModuleHydrationService {
         hydratedModule.contents = contents.map(
             (content) => {
                 const hydratedContent = content.toPlain<ContentEntity>()
-                hydratedContent.lessons = content.lessons?.map(
-                    (lesson) => lesson.toPlain<LessonVideoEntity>(),
-                )
                 hydratedContent.challenges = content.challenges?.map(
                     (challenge) => challenge.toPlain<ChallengeEntity>(),
                 )

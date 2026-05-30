@@ -1,25 +1,23 @@
 import type {
-    Client,
-} from "@elastic/elasticsearch"
+    Client
+    } from "@elastic/elasticsearch"
 import {
     Injectable,
-    OnModuleInit,
-} from "@nestjs/common"
+    OnModuleInit
+    } from "@nestjs/common"
 import {
-    InjectElasticsearch,
-} from "./elasticsearch.decorators"
+    InjectElasticsearch
+    } from "./elasticsearch.decorators"
 import {
     ChallengeEntity,
     ContentEntity,
-    CourseEntity,
-    LessonVideoEntity,
-    ModuleEntity,
+    CourseEntity,    ModuleEntity,
     FoundationEntity,
     FoundationCategoryEntity,
     ConsultantEntity,
     HeadhuntingCompanyEntity,
-    Locale,
-} from "@modules/databases"
+    Locale
+    } from "@modules/databases"
 import {
     ObjectLiteral
 } from "typeorm"
@@ -31,18 +29,18 @@ import {
     configMap
 } from "./config"
 import {
-    resolveElasticsearchIndexPatch,
-} from "./patches"
+    resolveElasticsearchIndexPatch
+    } from "./patches"
 import {
-    envConfig,
-} from "@modules/env"
+    envConfig
+    } from "@modules/env"
 import type {
     IndicateNameParams,
     IndexEntityParams,
     IndexEntityResult,
     IndexEntitiesParams,
-    IndexEntitiesResult,
-} from "./types"
+    IndexEntitiesResult
+    } from "./types"
 
 /**
  * The service for the Elasticsearch.
@@ -53,8 +51,7 @@ export class ElasticsearchService implements OnModuleInit {
      * The indices to create.
      */
     private readonly indices: Array<string> = [
-        CourseEntity.name,
-        LessonVideoEntity.name,
+        CourseEntity.name,
         ChallengeEntity.name,
         ContentEntity.name,
         ModuleEntity.name,
@@ -78,8 +75,8 @@ export class ElasticsearchService implements OnModuleInit {
     public indicateName(
         {
             entity,
-            locale,
-        }: IndicateNameParams,
+            locale
+    }: IndicateNameParams,
     ): string {
         const config = configMap[entity]
         if (!config) {
@@ -113,8 +110,8 @@ export class ElasticsearchService implements OnModuleInit {
                 return locales.map((locale) =>
                     this.ensureIndexForEntity({
                         entity: index,
-                        locale,
-                    }),
+                        locale
+    }),
                 )
             }),
         )
@@ -130,21 +127,21 @@ export class ElasticsearchService implements OnModuleInit {
     async ensureIndexForEntity(
         {
             entity,
-            locale,
-        }: IndicateNameParams,
+            locale
+    }: IndicateNameParams,
     ): Promise<void> {
         const index = this.indicateName(
             {
                 entity,
-                locale,
-            },
+                locale
+    },
         )
         const patch = envConfig().elasticsearch.applyIndexPatches
             ? resolveElasticsearchIndexPatch(entity)
             : undefined
         const existsResult = await this.client.indices.exists({
-            index,
-        })
+            index
+    })
         const exists =
             typeof existsResult === "boolean"
                 ? existsResult
@@ -154,8 +151,8 @@ export class ElasticsearchService implements OnModuleInit {
             await this.client.indices.create({
                 index,
                 ...((patch ?? {
-                }) as Omit<Parameters<Client["indices"]["create"]>[0], "index">),
-            })
+                }) as Omit<Parameters<Client["indices"]["create"]>[0], "index">)
+    })
             return
         }
         // existing index → ADDITIVELY apply the mapping patch (new fields only) instead of dropping
@@ -165,8 +162,8 @@ export class ElasticsearchService implements OnModuleInit {
             try {
                 await this.client.indices.putMapping({
                     index,
-                    ...(patch.mappings as Omit<Parameters<Client["indices"]["putMapping"]>[0], "index">),
-                })
+                    ...(patch.mappings as Omit<Parameters<Client["indices"]["putMapping"]>[0], "index">)
+    })
             } catch {
                 // ignore mapping conflicts on pre-existing fields
             }
@@ -181,8 +178,8 @@ export class ElasticsearchService implements OnModuleInit {
         create?: Omit<Parameters<Client["indices"]["create"]>[0], "index">,
     ): Promise<void> {
         const existsResult = await this.client.indices.exists({
-            index,
-        })
+            index
+    })
         const exists =
             typeof existsResult === "boolean"
                 ? existsResult
@@ -197,8 +194,8 @@ export class ElasticsearchService implements OnModuleInit {
         await this.client.indices.create({
             index,
             ...(create ?? {
-            }),
-        })
+            })
+    })
     }
 
     /**
@@ -208,19 +205,19 @@ export class ElasticsearchService implements OnModuleInit {
         {
             entity,
             data,
-            locale,
-        }: IndexEntityParams<T>,
+            locale
+    }: IndexEntityParams<T>,
     ): Promise<IndexEntityResult> {
         await this.client.index({
             index: this.indicateName(
                 {
                     entity: entity.name,
-                    locale,
-                },
+                    locale
+    },
             ),
             id: data.id,
-            body: data,
-        })
+            body: data
+    })
     }
     /**
    * Index the entities.
@@ -229,8 +226,8 @@ export class ElasticsearchService implements OnModuleInit {
         {
             entity,
             data,
-            locale,
-        }: IndexEntitiesParams<T>,
+            locale
+    }: IndexEntitiesParams<T>,
     ): Promise<IndexEntitiesResult> {
         await this.client.bulk({
             body: data.map((data) => ({
@@ -238,14 +235,14 @@ export class ElasticsearchService implements OnModuleInit {
                     _index: this.indicateName(
                         {
                             entity: entity.name,
-                            locale,
-                        },
+                            locale
+    },
                     ),
-                    _id: data.id,
-                },
-                document: data,
-            })),
-        })
+                    _id: data.id
+    },
+                document: data
+    }))
+    })
     }
 
     /**
@@ -257,8 +254,8 @@ export class ElasticsearchService implements OnModuleInit {
         try {
             await this.client.indices.delete(
                 {
-                    index,
-                },
+                    index
+    },
             )
         } catch (error) {
             // Silently ignore if the index does not exist

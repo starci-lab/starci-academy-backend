@@ -11,7 +11,6 @@ import {
     ChallengeEntity,
     ContentEntity,
     CourseEntity,
-    LessonVideoEntity,
     LivestreamSessionEntity,
     ModuleEntity,
     PrerequisiteEntity,
@@ -173,9 +172,6 @@ export class CourseHydrationService {
                                 },
                                 relations: {
                                     translations: true,
-                                    lessons: {
-                                        translations: true,
-                                    },
                                     challenges: {
                                         translations: true,
                                     },
@@ -205,9 +201,6 @@ export class CourseHydrationService {
                     hydratedModule.contents = hydratedContents.map(
                         (content) => {
                             const hydratedContent = content.toPlain<ContentEntity>()
-                            hydratedContent.lessons = content.lessons?.map(
-                                (lessonVideo) => lessonVideo.toPlain<LessonVideoEntity>(),
-                            )
                             hydratedContent.challenges = content.challenges?.map(
                                 (challenge) => challenge.toPlain<ChallengeEntity>(),
                             )

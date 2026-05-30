@@ -14,36 +14,40 @@ import {
     v5 as uuidv5,
 } from "uuid"
 import type {
-    GenerateContentBodyV2IdParams,
+    GenerateContentBodyIdParams,
 } from "./types"
 
 /**
  * SCHEMA V2 per-language content body bucket UUIDs chain from the parent content id string.
  */
 @Injectable()
-export class ContentBodyV2IdFactoryService {
+export class ContentBodyIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,
         private readonly contentIdFactoryService: ContentIdFactoryService,
     ) {}
 
+    /**
+     * @param params - Course / module / content ordinals + body folder ordinal.
+     * @returns UUID v5 string.
+     */
     generate(
         {
             courseIndex,
             moduleIndex,
             contentIndex,
-            langIndex,
-        }: GenerateContentBodyV2IdParams,
+            orderIndex,
+        }: GenerateContentBodyIdParams,
     ): string {
         return uuidv5(
             this.sha256Service.hash(
-                "content-body-v2",
+                "content-body",
                 this.contentIdFactoryService.generate({
                     courseIndex,
                     moduleIndex,
                     contentIndex,
                 }),
-                langIndex.toString(),
+                orderIndex.toString(),
             ),
             envConfig().uuidNamespace.course,
         )

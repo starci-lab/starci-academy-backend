@@ -56,17 +56,6 @@ export interface CdnSynchronizerCourseRuntimeSyncFailedMessage {
     context?: string
 }
 
-/** Message for when CDN synchronizer fails to sync a lesson video runtime payload. */
-export interface CdnSynchronizerLessonVideoRuntimeSyncFailedMessage {
-    id: string
-    error: string
-    errorName?: string
-    errorStack?: string
-    objectKey?: string
-    providers?: string[]
-    context?: string
-}
-
 /** Message for when CDN synchronizer fails to sync a module runtime payload. */
 export interface CdnSynchronizerModuleRuntimeSyncFailedMessage {
     id: string

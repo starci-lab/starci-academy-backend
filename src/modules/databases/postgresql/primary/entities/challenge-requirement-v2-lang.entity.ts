@@ -52,6 +52,22 @@ export class ChallengeRequirementV2LangEntity extends UuidAbstractEntity {
         lang: string
 
     /**
+     * Display order of this programming-language bucket within the parent requirement item.
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Display order within the parent requirement item's language list.",
+        },
+    )
+    @Column({
+        name: "order_index",
+        type: "int",
+        default: 0,
+    })
+        orderIndex: number
+
+    /**
      * Points / weight for this requirement in this language (non-localized).
      */
     @Field(

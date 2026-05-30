@@ -1,35 +1,33 @@
 import {
-    Module,
-} from "@nestjs/common"
+    Module
+    } from "@nestjs/common"
 import {
-    ConfigurableModuleClass,
-} from "./sync-cdn.module-definition"
+    ConfigurableModuleClass
+    } from "./sync-cdn.module-definition"
 import {
     CdnChallengeBuildService,
     CdnContentBuildService,
-    CdnCourseBuildService,
-    CdnLessonVideoBuildService,
+    CdnCourseBuildService,
     CdnModuleBuildService,
     MaterializeAndUploadService
 } from "./builder"
 import {
     ProcessCdnEntityStepService,
-    ProcessCdnCompleteStepService,
-} from "./steps"
+    ProcessCdnCompleteStepService
+    } from "./steps"
 import {
-    SyncCdnStepMappingService,
-} from "./step-mapping.service"
+    SyncCdnStepMappingService
+    } from "./step-mapping.service"
 import {
-    SyncCdnWorker,
-} from "./sync-cdn.worker"
+    SyncCdnWorker
+    } from "./sync-cdn.worker"
 
 @Module({
     providers: [
         CdnCourseBuildService,
         CdnModuleBuildService,
         CdnChallengeBuildService,
-        CdnContentBuildService,
-        CdnLessonVideoBuildService,
+        CdnContentBuildService,
         ProcessCdnEntityStepService,
         ProcessCdnCompleteStepService,
         SyncCdnStepMappingService,
@@ -40,10 +38,9 @@ import {
         CdnCourseBuildService,
         CdnModuleBuildService,
         CdnChallengeBuildService,
-        CdnContentBuildService,
-        CdnLessonVideoBuildService,
+        CdnContentBuildService,
         MaterializeAndUploadService,
-    ],
-})
+    ]
+    })
 export class SyncCdnModule extends ConfigurableModuleClass {
 }

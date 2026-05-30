@@ -7,7 +7,6 @@ import {
     CourseEntity,
     ChallengeEntity,
     ContentEntity,
-    LessonVideoEntity,
     ModuleEntity,
 } from "@modules/databases"
 
@@ -33,7 +32,6 @@ export class AutocompleteGlobalSearchRequest {
                 CourseEntity.name,
                 ModuleEntity.name,
                 ChallengeEntity.name,
-                LessonVideoEntity.name,
                 ContentEntity.name,
             ],
         },

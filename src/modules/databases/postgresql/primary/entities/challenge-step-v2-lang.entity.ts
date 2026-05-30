@@ -1,6 +1,7 @@
 import {
     Field,
     ID,
+    Int,
     ObjectType,
 } from "@nestjs/graphql"
 import {
@@ -49,6 +50,22 @@ export class ChallengeStepV2LangEntity extends UuidAbstractEntity {
         length: 32,
     })
         lang: string
+
+    /**
+     * Display order of this programming-language bucket within the parent step item.
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Display order within the parent step item's language list.",
+        },
+    )
+    @Column({
+        name: "order_index",
+        type: "int",
+        default: 0,
+    })
+        orderIndex: number
 
     /**
      * Default locale for this language row.

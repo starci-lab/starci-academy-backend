@@ -1,4 +1,4 @@
-export type SyncScyllaDBEntityType = "course" | "challenge" | "content" | "lessonVideo"
+export type SyncScyllaDBEntityType = "course" | "challenge" | "content"
 
 /**
  * Event emitted when a write-flow wants to sync one entity immediately to ScyllaDB.

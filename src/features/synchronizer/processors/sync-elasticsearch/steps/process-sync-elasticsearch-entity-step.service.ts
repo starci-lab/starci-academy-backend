@@ -15,9 +15,7 @@ import {
     ChallengeEntity,
     ContentEntity,
     CourseEntity,
-    InjectPrimaryPostgreSQLEntityManager,
-    LessonVideoEntity,
-    ModuleEntity,
+    InjectPrimaryPostgreSQLEntityManager,    ModuleEntity,
     FoundationEntity,
     FoundationCategoryEntity,
     ConsultantEntity,
@@ -39,7 +37,6 @@ import {
     ElasticsearchChallengeBuildService,
     ElasticsearchContentBuildService,
     ElasticsearchCourseBuildService,
-    ElasticsearchLessonVideoBuildService,
     ElasticsearchModuleBuildService,
     ElasticsearchFoundationBuildService,
     ElasticsearchFoundationCategoryBuildService,
@@ -66,7 +63,6 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
         private readonly elasticsearchCourseBuildService: ElasticsearchCourseBuildService,
         private readonly elasticsearchChallengeBuildService: ElasticsearchChallengeBuildService,
         private readonly elasticsearchContentBuildService: ElasticsearchContentBuildService,
-        private readonly elasticsearchLessonVideoBuildService: ElasticsearchLessonVideoBuildService,
         private readonly elasticsearchModuleBuildService: ElasticsearchModuleBuildService,
         private readonly elasticsearchFoundationBuildService: ElasticsearchFoundationBuildService,
         private readonly elasticsearchFoundationCategoryBuildService: ElasticsearchFoundationCategoryBuildService,
@@ -205,32 +201,7 @@ export class ProcessSyncElasticsearchEntityStepService extends AbstractStepServi
                 resumeAfterEntityId = content.id
                 break
             }
-            case LessonVideoEntity.name: {
-                const lessonVideo = await this.entityManager.findOne(
-                    LessonVideoEntity,
-                    {
-                        where: {
-                            ...(executionResult?.resumeAfterEntityId ? {
-                                id: MoreThan(executionResult.resumeAfterEntityId)
-                            } : {
-                            }),
-                            updatedAt: LessThanOrEqual(payload.syncAt.toDate()),
-                        },
-                        order: {
-                            id: "ASC",
-                        },
-                    },
-                )
-                if (!lessonVideo) {
-                    done = true
-                    break
-                }
-                await this.elasticsearchLessonVideoBuildService.buildIndexById(
-                    lessonVideo.id,
-                )
-                resumeAfterEntityId = lessonVideo.id
-                break
-            }
+            
             case ModuleEntity.name: {
                 const module = await this.entityManager.findOne(
                     ModuleEntity,

@@ -9,8 +9,8 @@ import {
     CodeExplainingTranslationEntity,
     CodeImplementationEntity,
     CodeImplementationTranslationEntity,
-    ContentBodyV2Entity,
-    ContentBodyV2TranslationEntity,
+    ContentBodyEntity,
+    ContentBodyTranslationEntity,
     ContentEntity,
     ContentReferenceEntity,
     ContentReferenceTranslationEntity,
@@ -47,7 +47,7 @@ export class ContentInsertService {
         const references = content.references
         const codeExplainings = content.codeExplainings
         const codeImplementations = content.codeImplementations
-        const bodiesV2 = content.bodiesV2
+        const bodies = content.bodies
         const moduleRef = content.module
 
         const contentRow = deleteFields(
@@ -57,7 +57,7 @@ export class ContentInsertService {
                 "references",
                 "codeExplainings",
                 "codeImplementations",
-                "bodiesV2",
+                "bodies",
                 "module",
                 "challenges",
                 "lessons",
@@ -182,15 +182,15 @@ export class ContentInsertService {
         // scoped + stale-deleted per content (the helper drops removed buckets too).
         await upsertChildrenWithTranslations(
             this.upsertService,
-            ContentBodyV2Entity,
-            ContentBodyV2TranslationEntity,
-            bodiesV2 as Array<DeepPartial<ContentBodyV2Entity>> | undefined,
+            ContentBodyEntity,
+            ContentBodyTranslationEntity,
+            bodies as Array<DeepPartial<ContentBodyEntity>> | undefined,
             {
                 content: {
                     id: contentId,
                 },
             },
-            "contentBodyV2Id",
+            "contentBodyId",
         )
     }
 

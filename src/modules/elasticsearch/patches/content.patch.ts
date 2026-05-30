@@ -42,9 +42,6 @@ export const contentIndexPatch: ElasticsearchIndexPatch = {
             minutesRead: {
                 type: "integer",
             },
-            numLessons: {
-                type: "integer",
-            },
             numChallenges: {
                 type: "integer",
             },
@@ -75,10 +72,6 @@ export const contentIndexPatch: ElasticsearchIndexPatch = {
                 enabled: false,
             },
             challenges: {
-                type: "object",
-                enabled: false,
-            },
-            lessons: {
                 type: "object",
                 enabled: false,
             },

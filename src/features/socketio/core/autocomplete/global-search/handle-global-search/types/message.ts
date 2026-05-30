@@ -18,9 +18,6 @@ export interface GlobalSearchSocketIoMessage {
     modules: Array<GlobalSearchItem>
     /** Matched challenges */
     challenges: Array<GlobalSearchItem>
-    /** Matched lesson videos */
-    lessonVideos: Array<GlobalSearchItem>
     /** Matched contents (full-text with snippets) */
     contents: Array<GlobalSearchItem>
 }
-

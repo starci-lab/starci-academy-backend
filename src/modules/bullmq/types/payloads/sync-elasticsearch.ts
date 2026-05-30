@@ -1,26 +1,23 @@
 import {
     ChallengeEntity,
     ContentEntity,
-    CourseEntity,
-    LessonVideoEntity,
-    MilestoneEntity,
+    CourseEntity,    MilestoneEntity,
     MilestoneTaskEntity,
     ModuleEntity,
     FoundationEntity,
     FoundationCategoryEntity,
     ConsultantEntity,
-    HeadhuntingCompanyEntity,
-} from "@modules/databases"
+    HeadhuntingCompanyEntity
+    } from "@modules/databases"
 import {
-    Dayjs,
-} from "dayjs"
+    Dayjs
+    } from "dayjs"
 
 /** Entity kinds supported by on-demand Elasticsearch sync (search indices). */
 export type SyncElasticsearchEntityKind =
     typeof CourseEntity.name
     | typeof ChallengeEntity.name
     | typeof ContentEntity.name
-    | typeof LessonVideoEntity.name
     | typeof ModuleEntity.name
     | typeof MilestoneEntity.name
     | typeof MilestoneTaskEntity.name

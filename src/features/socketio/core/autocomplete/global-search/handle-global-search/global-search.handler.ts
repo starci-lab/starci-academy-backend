@@ -12,7 +12,6 @@ import {
     ChallengeEntity,
     ContentEntity,
     CourseEntity,
-    LessonVideoEntity,
     ModuleEntity,
 } from "@modules/databases"
 import {
@@ -30,12 +29,12 @@ import {
     ChallengeGlobalSearchService,
     ContentGlobalSearchService,
     CourseGlobalSearchService,
-    LessonVideoGlobalSearchService,
     ModuleGlobalSearchService,
 } from "./entities"
+
 /**
  * Handler that performs fuzzy search across multiple Elasticsearch indices
- * (contents, challenges, courses, lesson-videos) and merges results by score.
+ * (contents, challenges, courses, modules) and merges results by score.
  */
 @QueryHandler(GlobalSearchQuery)
 @Injectable()
@@ -46,12 +45,11 @@ export class GlobalSearchHandler
         private readonly courseSearch: CourseGlobalSearchService,
         private readonly moduleSearch: ModuleGlobalSearchService,
         private readonly challengeSearch: ChallengeGlobalSearchService,
-        private readonly lessonVideoSearch: LessonVideoGlobalSearchService,
         private readonly contentSearch: ContentGlobalSearchService,
     ) {
         super()
     }
-    
+
     /**
      * Processes the global search query.
      * @param query - The global search query.
@@ -60,26 +58,22 @@ export class GlobalSearchHandler
     protected override async process(
         query: GlobalSearchQuery,
     ): Promise<GlobalSearchSocketIoMessage> {
-        /** The payload. */
         const { payload } = query.params
-        /** The payload data. */
         const {
             data: {
                 query: termRaw,
                 entities,
-                size = DEFAULT_SIZE,   
+                size = DEFAULT_SIZE,
             },
-            locale
+            locale,
         } = payload
         const resolvedLocale = locale
-        // sanitize input
         const term = termRaw?.trim() ?? ""
         if (term.length === 0) {
             return {
                 courses: [],
                 modules: [],
                 challenges: [],
-                lessonVideos: [],
                 contents: [],
             }
         }
@@ -90,17 +84,14 @@ export class GlobalSearchHandler
                     CourseEntity.name,
                     ModuleEntity.name,
                     ChallengeEntity.name,
-                    LessonVideoEntity.name,
                     ContentEntity.name,
                 ],
         )
 
-        // run ES + DB searches in parallel by group
         const [
             courses,
             modules,
             challenges,
-            lessonVideos,
             contents,
         ] = await Promise.all([
             selected.has(CourseEntity.name)
@@ -124,13 +115,6 @@ export class GlobalSearchHandler
                     locale: resolvedLocale,
                 })
                 : Promise.resolve([] as Array<GlobalSearchItem>),
-            selected.has(LessonVideoEntity.name)
-                ? this.lessonVideoSearch.execute({
-                    term,
-                    size,
-                    locale: resolvedLocale,
-                })
-                : Promise.resolve([] as Array<GlobalSearchItem>),
             selected.has(ContentEntity.name)
                 ? this.contentSearch.execute({
                     term,
@@ -144,7 +128,6 @@ export class GlobalSearchHandler
             courses: this.dedupeItems(courses),
             modules: this.dedupeItems(modules),
             challenges: this.dedupeItems(challenges),
-            lessonVideos: this.dedupeItems(lessonVideos),
             contents: this.dedupeItems(contents),
         }
     }
@@ -172,4 +155,3 @@ export class GlobalSearchHandler
         return Array.from(map.values())
     }
 }
-
