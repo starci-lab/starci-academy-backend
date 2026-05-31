@@ -23,16 +23,13 @@ import {
     ChallengeEntity,
 } from "./challenge.entity"
 import {
-    ChallengeOutputV2TranslationEntity,
-} from "./challenge-output-v2-translation.entity"
-import {
     ChallengeOutputV2LangEntity,
 } from "./challenge-output-v2-lang.entity"
 
 /**
  * SCHEMA V2 output ITEM for a challenge (normalized — no jsonb). One row per output position; the
- * per-language `body` lives under {@link ChallengeOutputV2LangEntity}. Outputs have no title, so the
- * item-level {@link ChallengeOutputV2TranslationEntity} title stays null (kept for table uniformity).
+ * per-language `text` lives under {@link ChallengeOutputV2LangEntity}. Outputs carry no item-level
+ * title, so there is no item translation table.
  */
 @ObjectType({
     description: "A SCHEMA V2 challenge output item (one per position).",
@@ -103,26 +100,7 @@ export class ChallengeOutputV2Entity extends UuidAbstractEntity {
         challengeId: string
 
     /**
-     * Per-locale title overrides (null for outputs; kept for table uniformity).
-     */
-    @Field(
-        () => [ChallengeOutputV2TranslationEntity],
-        {
-            description: "Per-locale title overrides for this output item.",
-        },
-    )
-    @OneToMany(
-        () => ChallengeOutputV2TranslationEntity,
-        (translation: ChallengeOutputV2TranslationEntity) => translation.outputV2,
-        {
-            cascade: true,
-            orphanedRowAction: "delete",
-        },
-    )
-        translations: Array<ChallengeOutputV2TranslationEntity>
-
-    /**
-     * Per-programming-language content (body) for this output.
+     * Per-programming-language content (text) for this output.
      */
     @Field(
         () => [ChallengeOutputV2LangEntity],

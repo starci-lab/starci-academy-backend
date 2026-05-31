@@ -17,7 +17,7 @@ import {
 } from "./translation.service"
 
 /**
- * Applies translations to a challenge and nested steps and references.
+ * Applies translations to a challenge and nested steps and references for CDN materialization.
  */
 @Injectable()
 export class ChallengeResolverService {
@@ -155,9 +155,107 @@ export class ChallengeResolverService {
                 reference.alias = translatedAlias !== ""
                     ? translatedAlias
                     : reference.alias
-                // prevent leaking raw translations arrays to API callers
                 delete (reference as Partial<ChallengeReferenceEntity>).translations
                 return reference
+            })
+        }
+
+        if (challenge.requirementsV2?.length) {
+            challenge.requirementsV2 = challenge.requirementsV2.map((requirement) => {
+                const requirementFallback = requirement.defaultLocale ?? challengeFallback
+                requirement.langs = requirement.langs.map(
+                    (lang) => {
+                        const langFallback = lang.defaultLocale ?? requirementFallback
+                        lang.title = this.translationResolver.resolve(
+                            {
+                                translations: lang.translations,
+                                field: "title",
+                                locale,
+                                fallbackLocale: langFallback,
+                            },
+                        )
+                        lang.body = this.translationResolver.resolve(
+                            {
+                                translations: lang.translations,
+                                field: "body",
+                                locale,
+                                fallbackLocale: langFallback,
+                            },
+                        )
+                        return lang
+                    }
+                )
+                return requirement
+            })
+        }
+        if (challenge.stepsV2?.length) {
+            challenge.stepsV2 = challenge.stepsV2.map((step) => {
+                const stepFallback = step.defaultLocale ?? challengeFallback
+                step.title = this.translationResolver.resolve(
+                    {
+                        translations: step.translations,
+                        field: "title",
+                        locale,
+                        fallbackLocale: stepFallback,
+                    },
+                )
+                step.langs = step.langs.map((lang) => {
+                    const langFallback = lang.defaultLocale ?? stepFallback
+                    lang.title = this.translationResolver.resolve(
+                        {
+                            translations: lang.translations,
+                            field: "title",
+                            locale,
+                            fallbackLocale: langFallback,
+                        },
+                    )
+                    lang.body = this.translationResolver.resolve(
+                        {
+                            translations: lang.translations,
+                            field: "body",
+                            locale,
+                            fallbackLocale: langFallback,
+                        },
+                    )
+                    return lang
+                })
+                return step
+            })
+        }
+        if (challenge.outputsV2?.length) {
+            challenge.outputsV2 = challenge.outputsV2.map((output) => {
+                const outputFallback = output.defaultLocale ?? challengeFallback
+                output.langs = output.langs.map((lang) => {
+                    const langFallback = lang.defaultLocale ?? outputFallback
+                    lang.text = this.translationResolver.resolve(
+                        {
+                            translations: lang.translations,
+                            field: "text",
+                            locale,
+                            fallbackLocale: langFallback,
+                        },
+                    )
+                    return lang
+                })
+                return output
+            })
+        }
+        if (challenge.prerequisitesV2?.length) {
+            challenge.prerequisitesV2 = challenge.prerequisitesV2.map((prerequisite) => {
+                const prerequisiteFallback = prerequisite.defaultLocale ?? challengeFallback
+                prerequisite.langs = prerequisite.langs.map((lang) => {
+                    const langFallback = lang.defaultLocale ?? prerequisiteFallback
+                    lang.text = this.translationResolver.resolve(
+                        {
+                            translations: lang.translations,
+                            field: "text",
+                            locale,
+                            fallbackLocale: langFallback,
+                        },
+                    )
+                    return lang
+                })
+                return prerequisite
             })
         }
     }

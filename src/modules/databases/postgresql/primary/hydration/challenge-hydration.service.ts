@@ -191,7 +191,6 @@ export class ChallengeHydrationService {
                         },
                     },
                     relations: {
-                        translations: true,
                         langs: {
                             translations: true,
                         },
@@ -210,7 +209,6 @@ export class ChallengeHydrationService {
                         },
                     },
                     relations: {
-                        translations: true,
                         langs: {
                             translations: true,
                         },

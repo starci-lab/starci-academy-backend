@@ -21,17 +21,15 @@ import {
 } from "./challenge-prerequisite-v2-lang.entity"
 
 /**
- * Per-locale body for a SCHEMA V2 prerequisite language row (normalized — no jsonb).
- * One row per (language row × locale).
+ * Translation for V2 prerequisite language-row fields (`text`).
+ * Primary key: (challengePrerequisiteV2LangId, locale, field).
  */
 @ObjectType({
-    description: "Per-locale body for a V2 prerequisite language row.",
+    description: "Localized value for a V2 prerequisite language-row field.",
 })
 @Entity("challenge_prerequisite_v2_lang_translations")
 export class ChallengePrerequisiteV2LangTranslationEntity extends AbstractEntity {
-    /**
-     * Parent prerequisite language row id (composite PK part).
-     */
+    /** Parent prerequisite language row id (composite PK part). */
     @Field(() => String)
     @PrimaryColumn({
         name: "challenge_prerequisite_v2_lang_id",
@@ -39,9 +37,7 @@ export class ChallengePrerequisiteV2LangTranslationEntity extends AbstractEntity
     })
         challengePrerequisiteV2LangId: string
 
-    /**
-     * Locale of this body (composite PK part).
-     */
+    /** Locale of the translation (composite PK part). */
     @Field(() => GraphQLTypeLocale)
     @PrimaryColumn({
         name: "locale",
@@ -51,26 +47,24 @@ export class ChallengePrerequisiteV2LangTranslationEntity extends AbstractEntity
     })
         locale: Locale
 
-    /**
-     * Localized prerequisite body markdown.
-     */
-    @Field(
-        () => String,
-        {
-            nullable: true,
-            description: "Localized prerequisite body markdown.",
-        },
-    )
-    @Column({
-        name: "body",
-        type: "text",
-        nullable: true,
+    /** Target field name being translated (composite PK part). */
+    @Field(() => String)
+    @PrimaryColumn({
+        name: "field",
+        type: "varchar",
+        length: 128,
     })
-        body: string | null
+        field: string
 
-    /**
-     * Parent prerequisite language row this body belongs to.
-     */
+    /** Translated value for the field. */
+    @Field(() => String)
+    @Column({
+        name: "value",
+        type: "text",
+    })
+        value: string
+
+    /** Parent prerequisite language row this translation belongs to. */
     @ManyToOne(
         () => ChallengePrerequisiteV2LangEntity,
         (lang: ChallengePrerequisiteV2LangEntity) => lang.translations,

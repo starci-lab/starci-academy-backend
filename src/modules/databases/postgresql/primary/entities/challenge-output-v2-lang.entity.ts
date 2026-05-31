@@ -27,11 +27,11 @@ import {
 } from "./challenge-output-v2-lang-translation.entity"
 
 /**
- * Per-programming-language row of a SCHEMA V2 output item. The localized `body` lives in
- * {@link ChallengeOutputV2LangTranslationEntity}.
+ * Per-programming-language row of a SCHEMA V2 output item. The default-locale `text` is stored on
+ * this row; per-locale overrides live in {@link ChallengeOutputV2LangTranslationEntity}.
  */
 @ObjectType({
-    description: "Per-language row of a V2 output item (localized body lives in translations).",
+    description: "Per-language row of a V2 output item (text + per-locale translations).",
 })
 @Entity("challenge_output_v2_langs")
 export class ChallengeOutputV2LangEntity extends UuidAbstractEntity {
@@ -85,6 +85,23 @@ export class ChallengeOutputV2LangEntity extends UuidAbstractEntity {
         defaultLocale: Locale
 
     /**
+     * Default-locale output text for this programming language.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Default-locale output text for this programming language.",
+        },
+    )
+    @Column({
+        name: "text",
+        type: "text",
+        nullable: true,
+    })
+        text: string | null
+
+    /**
      * Parent output item this language content belongs to.
      */
     @ManyToOne(
@@ -115,12 +132,12 @@ export class ChallengeOutputV2LangEntity extends UuidAbstractEntity {
         outputV2Id: string
 
     /**
-     * Per-locale body overrides for this language content.
+     * Per-locale text overrides for this language content.
      */
     @Field(
         () => [ChallengeOutputV2LangTranslationEntity],
         {
-            description: "Per-locale body overrides for this language content.",
+            description: "Per-locale text overrides for this language content.",
         },
     )
     @OneToMany(

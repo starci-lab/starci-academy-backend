@@ -190,10 +190,8 @@ export class ChallengeParserService {
                 "requirements.langs.body",
                 "steps.langs.title",
                 "steps.langs.body",
-                "outputs.langs.title",
-                "outputs.langs.body",
-                "prerequisites.langs.title",
-                "prerequisites.langs.body",
+                "outputs.langs.text",
+                "prerequisites.langs.text",
             ]
         }) as MergeJsonResult<DeepPartial<ChallengeEntity>>
         const challengeId = this.challengeIdFactoryService.generate(

@@ -27,11 +27,11 @@ import {
 } from "./challenge-prerequisite-v2-lang-translation.entity"
 
 /**
- * Per-programming-language row of a SCHEMA V2 prerequisite item. The localized `body` lives in
- * {@link ChallengePrerequisiteV2LangTranslationEntity}.
+ * Per-programming-language row of a SCHEMA V2 prerequisite item. The default-locale `text` is stored
+ * on this row; per-locale overrides live in {@link ChallengePrerequisiteV2LangTranslationEntity}.
  */
 @ObjectType({
-    description: "Per-language row of a V2 prerequisite item (localized body lives in translations).",
+    description: "Per-language row of a V2 prerequisite item (text + per-locale translations).",
 })
 @Entity("challenge_prerequisite_v2_langs")
 export class ChallengePrerequisiteV2LangEntity extends UuidAbstractEntity {
@@ -85,6 +85,23 @@ export class ChallengePrerequisiteV2LangEntity extends UuidAbstractEntity {
         defaultLocale: Locale
 
     /**
+     * Default-locale prerequisite text for this programming language.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Default-locale prerequisite text for this programming language.",
+        },
+    )
+    @Column({
+        name: "text",
+        type: "text",
+        nullable: true,
+    })
+        text: string | null
+
+    /**
      * Parent prerequisite item this language content belongs to.
      */
     @ManyToOne(
@@ -115,12 +132,12 @@ export class ChallengePrerequisiteV2LangEntity extends UuidAbstractEntity {
         prerequisiteV2Id: string
 
     /**
-     * Per-locale body overrides for this language content.
+     * Per-locale text overrides for this language content.
      */
     @Field(
         () => [ChallengePrerequisiteV2LangTranslationEntity],
         {
-            description: "Per-locale body overrides for this language content.",
+            description: "Per-locale text overrides for this language content.",
         },
     )
     @OneToMany(

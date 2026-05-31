@@ -23,16 +23,13 @@ import {
     ChallengeEntity,
 } from "./challenge.entity"
 import {
-    ChallengePrerequisiteV2TranslationEntity,
-} from "./challenge-prerequisite-v2-translation.entity"
-import {
     ChallengePrerequisiteV2LangEntity,
 } from "./challenge-prerequisite-v2-lang.entity"
 
 /**
  * SCHEMA V2 prerequisite ITEM for a challenge (normalized — no jsonb). One row per prerequisite
- * position; the per-language `body` lives under {@link ChallengePrerequisiteV2LangEntity}.
- * Prerequisites have no title, so the item-level title stays null (kept for table uniformity).
+ * position; the per-language `text` lives under {@link ChallengePrerequisiteV2LangEntity}.
+ * Prerequisites carry no item-level title, so there is no item translation table.
  */
 @ObjectType({
     description: "A SCHEMA V2 challenge prerequisite item (one per position).",
@@ -103,26 +100,7 @@ export class ChallengePrerequisiteV2Entity extends UuidAbstractEntity {
         challengeId: string
 
     /**
-     * Per-locale title overrides (null for prerequisites; kept for table uniformity).
-     */
-    @Field(
-        () => [ChallengePrerequisiteV2TranslationEntity],
-        {
-            description: "Per-locale title overrides for this prerequisite item.",
-        },
-    )
-    @OneToMany(
-        () => ChallengePrerequisiteV2TranslationEntity,
-        (translation: ChallengePrerequisiteV2TranslationEntity) => translation.prerequisiteV2,
-        {
-            cascade: true,
-            orphanedRowAction: "delete",
-        },
-    )
-        translations: Array<ChallengePrerequisiteV2TranslationEntity>
-
-    /**
-     * Per-programming-language content (body) for this prerequisite.
+     * Per-programming-language content (text) for this prerequisite.
      */
     @Field(
         () => [ChallengePrerequisiteV2LangEntity],
