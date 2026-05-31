@@ -256,6 +256,7 @@ export class ChallengeParserService {
                 return {
                     id: challengeRequirementV2Id,
                     orderIndex,
+                    defaultLocale: Locale.En,
                     langs: ((langs ?? []) as Array<DeepPartial<ChallengeRequirementV2LangEntity>>)
                         .map((lang) => {
                             const challengeRequirementV2LangId = this.challengeRequirementV2IdFactoryService.generate({
@@ -267,12 +268,17 @@ export class ChallengeParserService {
                                 orderIndex: lang.orderIndex ?? 0,
                             })
                             return {
-                                id: challengeRequirementV2LangId, 
+                                ...lang,
+                                id: challengeRequirementV2LangId,
+                                lang: this.coerceMdScalarService.toRequiredString(
+                                    lang.lang,
+                                    "text",
+                                ),
+                                defaultLocale: Locale.En,
                                 score: this.coerceMdScalarService.toRequiredNumber(
                                     lang.score,
                                     0,
                                 ),
-                                ...lang,
                             }
                         }),
                 }
@@ -291,6 +297,7 @@ export class ChallengeParserService {
                 return {
                     id: challengeStepV2Id,
                     orderIndex,
+                    defaultLocale: Locale.En,
                     langs: ((langs ?? []) as Array<DeepPartial<ChallengeStepV2LangEntity>>)
                         .map((lang) => {
                             const challengeStepV2LangId = this.challengeStepV2IdFactoryService.generate({
@@ -302,8 +309,13 @@ export class ChallengeParserService {
                                 orderIndex: lang.orderIndex ?? 0,
                             })
                             return {
-                                id: challengeStepV2LangId,
                                 ...lang,
+                                id: challengeStepV2LangId,
+                                lang: this.coerceMdScalarService.toRequiredString(
+                                    lang.lang,
+                                    "text",
+                                ),
+                                defaultLocale: Locale.En,
                             }
                         }),
                 }
@@ -322,6 +334,7 @@ export class ChallengeParserService {
                 return {
                     id: challengeOutputV2Id,
                     orderIndex,
+                    defaultLocale: Locale.En,
                     langs: ((langs ?? []) as Array<DeepPartial<ChallengeOutputV2LangEntity>>)
                         .map((lang) => {
                             const challengeOutputV2LangId = this.challengeOutputV2IdFactoryService.generate({
@@ -333,8 +346,13 @@ export class ChallengeParserService {
                                 orderIndex: lang.orderIndex ?? 0,
                             })
                             return {
-                                id: challengeOutputV2LangId,
                                 ...lang,
+                                id: challengeOutputV2LangId,
+                                lang: this.coerceMdScalarService.toRequiredString(
+                                    lang.lang,
+                                    "text",
+                                ),
+                                defaultLocale: Locale.En,
                             }
                         }),
                 }
@@ -353,6 +371,7 @@ export class ChallengeParserService {
                 return {
                     id: challengePrerequisiteV2Id,
                     orderIndex,
+                    defaultLocale: Locale.En,
                     langs: ((langs ?? []) as Array<DeepPartial<ChallengePrerequisiteV2LangEntity>>)
                         .map((lang) => {
                             const challengePrerequisiteV2LangId = this.challengePrerequisiteV2IdFactoryService.generate({
@@ -364,8 +383,13 @@ export class ChallengeParserService {
                                 orderIndex: lang.orderIndex ?? 0,
                             })
                             return {
-                                id: challengePrerequisiteV2LangId,
                                 ...lang,
+                                id: challengePrerequisiteV2LangId,
+                                lang: this.coerceMdScalarService.toRequiredString(
+                                    lang.lang,
+                                    "text",
+                                ),
+                                defaultLocale: Locale.En,
                             }
                         }),
                 }

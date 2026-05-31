@@ -19,7 +19,7 @@ import type {
 } from "./types"
 
 /**
- * Applies a {@link UpsertService.partitionUuidSync} plan: save creates/updates, delete stale rows.
+ * Applies a {@link UpsertService.partitionUuidSync} plan: save root rows (relations stripped), delete stale.
  */
 @Injectable()
 export class UuidPartitionPersistProcessorService {
@@ -53,7 +53,7 @@ export class UuidPartitionPersistProcessorService {
             )
             this.upsertService.logSync(
                 entityClass,
-                [createEntity.id as string],
+                [createEntity],
                 DbSyncType.Created,
             )
         }
@@ -64,7 +64,7 @@ export class UuidPartitionPersistProcessorService {
             )
             this.upsertService.logSync(
                 entityClass,
-                [updateEntity.id as string],
+                [updateEntity],
                 DbSyncType.Updated,
             )
         }
@@ -75,9 +75,7 @@ export class UuidPartitionPersistProcessorService {
             )
             this.upsertService.logSync(
                 entityClass,
-                deleteEntities.map(
-                    (entity) => entity.id
-                ),
+                deleteEntities,
                 DbSyncType.Deleted,
             )
         }

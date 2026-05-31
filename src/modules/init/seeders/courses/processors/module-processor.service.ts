@@ -94,7 +94,14 @@ export class ModuleProcessorService {
         const partition = await this.upsertService.partitionUuidSync(
             {
                 entityClass: ModuleEntity,
-                entities: moduleResults.map((moduleResult) => moduleResult.data),
+                entities: moduleResults.map((moduleResult) => {
+                    const module = moduleResult.data
+                    module.course = {
+                        id: courseResult.data.id as string,
+                        displayId: courseResult.data.displayId as string,
+                    }
+                    return module
+                }),
                 where: {
                     course: {
                         id: courseResult.data.id as string,

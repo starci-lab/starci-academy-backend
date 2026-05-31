@@ -87,6 +87,13 @@ export class ChallengeProcessorService {
                 const challenge = challengeResult.data
                 challenge.content = {
                     id: contentId,
+                    displayId: contentResult.data.displayId as string,
+                    module: {
+                        displayId: moduleResult.data.displayId as string,
+                        course: {
+                            displayId: courseResult.data.displayId as string,
+                        },
+                    },
                 }
                 return challenge
             })

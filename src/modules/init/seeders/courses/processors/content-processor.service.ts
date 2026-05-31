@@ -94,6 +94,10 @@ export class ContentProcessorService {
                 const content = contentResult.data
                 content.module = {
                     id: moduleId,
+                    displayId: moduleResult.data.displayId as string,
+                    course: {
+                        displayId: courseResult.data.displayId as string,
+                    },
                 }
                 return content
             },

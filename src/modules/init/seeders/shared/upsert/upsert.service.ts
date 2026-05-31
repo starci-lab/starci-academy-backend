@@ -20,10 +20,14 @@ import {
 } from "@modules/winston"
 import _ from "lodash"
 import type {
+    DbSyncLogEntityShape,
     PartitionUuidSyncParams,
     PartitionUuidSyncResult,
     UpsertManyResult,
 } from "./types"
+import {
+    buildDbSyncLogDisplayFields,
+} from "./utils"
 
 /**
  * Generic service for upserting seed data into any entity table.
@@ -55,20 +59,35 @@ export class UpsertService {
         return Object.keys(entity).some((key) => key !== "id")
     }
 
-    /** Emit one verbose sync log per id for the given action. */
+    /**
+     * Emit one verbose sync log per row for the given action.
+     *
+     * @param target   - TypeORM entity class.
+     * @param entities - Rows used to derive `displayId` / `relativeDisplayIds` (partials or loaded).
+     * @param type     - Created, updated, or deleted.
+     */
     logSync(
         target: EntityTarget<unknown>,
-        ids: Array<string>,
+        entities: Array<DeepPartial<UuidAbstractEntity>>,
         type: DbSyncType,
     ): void {
         const entityKind = this.entityName(target)
-        for (const entityId of ids) {
+        for (const entity of entities) {
+            const entityId = entity.id as string
+            if (!entityId) {
+                continue
+            }
+            const displayFields = buildDbSyncLogDisplayFields(
+                entityKind,
+                entity as DbSyncLogEntityShape,
+            )
             this.winstonService.log(
                 WinstonLog.DbSynchronizerSyncedSuccessfully,
                 {
                     entityKind,
                     entityId,
                     type,
+                    ...displayFields,
                 },
             )
         }
@@ -214,17 +233,17 @@ export class UpsertService {
 
         this.logSync(
             entityClass,
-            createIds,
+            createEntities,
             DbSyncType.Created,
         )
         this.logSync(
             entityClass,
-            updateIds,
+            updateEntities,
             DbSyncType.Updated,
         )
         this.logSync(
             entityClass,
-            deleteIds,
+            deleteEntities,
             DbSyncType.Deleted,
         )
 

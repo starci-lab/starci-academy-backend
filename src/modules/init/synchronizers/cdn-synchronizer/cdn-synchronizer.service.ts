@@ -6,7 +6,8 @@ import {
     CourseEntity,
     ModuleEntity,
     ContentEntity,
-    ChallengeEntity,} from "@modules/databases"
+    ChallengeEntity,
+} from "@modules/databases"
 import {
     MoreThan,
     type EntityManager,
@@ -39,6 +40,12 @@ import {
     shouldSyncContentEntity,
     shouldSyncModuleEntity,
 } from "../../utils"
+import {
+    buildChallengeCdnSyncSuccessLog,
+    buildContentCdnSyncSuccessLog,
+    buildCourseCdnSyncSuccessLog,
+    buildModuleCdnSyncSuccessLog,
+} from "./utils"
 
 /**
  * CDN synchronizer — iterates all entities and calls CDN builder for each.
@@ -115,10 +122,7 @@ export class CdnSynchronizerService {
                         )
                         this.winstonService.log(
                             WinstonLog.CdnSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: course.id,
-                            }
+                            buildCourseCdnSyncSuccessLog(course),
                         )
                     } catch (error) {
                         this.winstonService.log(
@@ -171,10 +175,7 @@ export class CdnSynchronizerService {
                         )
                         this.winstonService.log(
                             WinstonLog.CdnSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: challenge.id,
-                            }
+                            buildChallengeCdnSyncSuccessLog(challenge),
                         )
                     } catch (error) {
                         this.winstonService.log(
@@ -226,10 +227,7 @@ export class CdnSynchronizerService {
                         )
                         this.winstonService.log(
                             WinstonLog.CdnSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: content.id,
-                            }
+                            buildContentCdnSyncSuccessLog(content),
                         )
                     } catch (error) {
                         this.winstonService.log(
@@ -279,10 +277,7 @@ export class CdnSynchronizerService {
                         )
                         this.winstonService.log(
                             WinstonLog.CdnSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: module.id,
-                            }
+                            buildModuleCdnSyncSuccessLog(module),
                         )
                     } catch (error) {
                         this.winstonService.log(

@@ -54,7 +54,14 @@ export class QuizDeckProcessorService {
             })
             const partition = await this.upsertService.partitionUuidSync({
                 entityClass: QuizDeckEntity,
-                entities: quizDeckResults.map((quizDeckResult) => quizDeckResult.data),
+                entities: quizDeckResults.map((quizDeckResult) => {
+                    const quizDeck = quizDeckResult.data
+                    quizDeck.course = {
+                        id: courseId,
+                        displayId: courseResult.data.displayId as string,
+                    }
+                    return quizDeck
+                }),
                 where: {
                     course: {
                         id: courseId,

@@ -13,4 +13,10 @@ export interface DbSynchronizerSyncedSuccessfullyMessage {
     entityId: string
     /** Whether the row was created, updated, or deleted. */
     type: DbSyncType
+    /** Mount display id or stringified `orderIndex` when no slug column. */
+    displayId: string
+    /** Ancestor display ids (e.g. course → module → content for challenges). */
+    relativeDisplayIds: Array<string>
+    /** Present for legacy content/challenge rows (`verified` null). */
+    isLegacy?: boolean
 }

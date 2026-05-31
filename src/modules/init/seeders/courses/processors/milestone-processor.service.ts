@@ -81,6 +81,7 @@ export class MilestoneProcessorService {
                 const milestone = milestoneResult.data
                 milestone.course = {
                     id: courseId,
+                    displayId: courseResult.data.displayId as string,
                 }
                 return milestone
             })

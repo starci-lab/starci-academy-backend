@@ -85,8 +85,16 @@ export interface CdnSynchronizerCdnSyncStartedMessage {
 
 /** Message for when CDN synchronizer syncs a single entity successfully. */
 export interface CdnSynchronizerSyncedSuccessfullyMessage {
+    /** TypeORM entity class name. */
     entityKind: string
+    /** Entity primary key. */
     entityId: string
+    /** Mount display id of the synced row. */
+    displayId: string
+    /** Ancestor display ids (course → module → content for challenges). */
+    relativeDisplayIds: Array<string>
+    /** Present when legacy mount schema (`verified` null on content/challenge). */
+    isLegacy?: boolean
 }
 
 /** Message for when CDN synchronizer completes a sync cycle. */

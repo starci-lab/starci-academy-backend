@@ -50,6 +50,10 @@ export class MilestoneTaskProcessorService {
             const task = taskResult.data
             task.milestone = {
                 id: milestoneId,
+                orderIndex: milestoneResult.index ?? milestoneResult.data.orderIndex,
+                course: {
+                    displayId: courseResult.data.displayId as string,
+                },
             }
             return task
         })
