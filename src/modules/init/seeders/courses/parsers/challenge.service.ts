@@ -358,17 +358,19 @@ export class ChallengeParserService {
                             })
                             
                             return {
-                                ...lang,
-                                translations: (lang.translations ?? []).map<DeepPartial<ChallengeOutputV2LangTranslationEntity>>((translation) => ({
-                                    ...translation,
-                                    challengeOutputV2LangId,
-                                })),
                                 id: challengeOutputV2LangId,
                                 lang: this.coerceMdScalarService.toRequiredString(
                                     lang.lang,
                                     "text",
                                 ),
                                 defaultLocale: Locale.En,
+                                text: this.coerceMdScalarService.toNullableStringColumn(
+                                    lang.text,
+                                ),
+                                translations: (lang.translations ?? []).map<DeepPartial<ChallengeOutputV2LangTranslationEntity>>((translation) => ({
+                                    ...translation,
+                                    challengeOutputV2LangId,
+                                })),
                             }
                         }),
                 }
@@ -401,17 +403,19 @@ export class ChallengeParserService {
                                 orderIndex: lang.orderIndex ?? 0,
                             })
                             return {
-                                ...lang,
-                                translations: (lang.translations ?? []).map<DeepPartial<ChallengePrerequisiteV2LangTranslationEntity>>((translation) => ({
-                                    ...translation,
-                                    challengePrerequisiteV2LangId,
-                                })),
                                 id: challengePrerequisiteV2LangId,
                                 lang: this.coerceMdScalarService.toRequiredString(
                                     lang.lang,
                                     "text",
                                 ),
                                 defaultLocale: Locale.En,
+                                text: this.coerceMdScalarService.toNullableStringColumn(
+                                    lang.text,
+                                ),
+                                translations: (lang.translations ?? []).map<DeepPartial<ChallengePrerequisiteV2LangTranslationEntity>>((translation) => ({
+                                    ...translation,
+                                    challengePrerequisiteV2LangId,
+                                })),
                             }
                         }),
                 }

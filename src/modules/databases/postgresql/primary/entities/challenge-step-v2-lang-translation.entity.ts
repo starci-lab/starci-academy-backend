@@ -21,17 +21,15 @@ import {
 } from "./challenge-step-v2-lang.entity"
 
 /**
- * Per-locale body for a SCHEMA V2 step language row (normalized — no jsonb).
- * One row per (language row × locale).
+ * Translation for V2 step language-row fields (`title`, `body`).
+ * Primary key: (challengeStepV2LangId, locale, field).
  */
 @ObjectType({
-    description: "Per-locale body for a V2 step language row.",
+    description: "Localized value for a V2 step language-row field.",
 })
 @Entity("challenge_step_v2_lang_translations")
 export class ChallengeStepV2LangTranslationEntity extends AbstractEntity {
-    /**
-     * Parent step language row id (composite PK part).
-     */
+    /** Parent step language row id (composite PK part). */
     @Field(() => String)
     @PrimaryColumn({
         name: "challenge_step_v2_lang_id",
@@ -39,9 +37,7 @@ export class ChallengeStepV2LangTranslationEntity extends AbstractEntity {
     })
         challengeStepV2LangId: string
 
-    /**
-     * Locale of this body (composite PK part).
-     */
+    /** Locale of the translation (composite PK part). */
     @Field(() => GraphQLTypeLocale)
     @PrimaryColumn({
         name: "locale",
@@ -51,26 +47,24 @@ export class ChallengeStepV2LangTranslationEntity extends AbstractEntity {
     })
         locale: Locale
 
-    /**
-     * Localized step body markdown.
-     */
-    @Field(
-        () => String,
-        {
-            nullable: true,
-            description: "Localized step body markdown.",
-        },
-    )
-    @Column({
-        name: "body",
-        type: "text",
-        nullable: true,
+    /** Target field name being translated (composite PK part). */
+    @Field(() => String)
+    @PrimaryColumn({
+        name: "field",
+        type: "varchar",
+        length: 128,
     })
-        body: string | null
+        field: string
 
-    /**
-     * Parent step language row this body belongs to.
-     */
+    /** Translated value for the field. */
+    @Field(() => String)
+    @Column({
+        name: "value",
+        type: "text",
+    })
+        value: string
+
+    /** Parent step language row this translation belongs to. */
     @ManyToOne(
         () => ChallengeStepV2LangEntity,
         (lang: ChallengeStepV2LangEntity) => lang.translations,

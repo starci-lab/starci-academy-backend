@@ -166,6 +166,8 @@ export class ChallengeResolverService {
                 requirement.langs = requirement.langs.map(
                     (lang) => {
                         const langFallback = lang.defaultLocale ?? requirementFallback
+                        const canonicalTitle = lang.title ?? ""
+                        const canonicalBody = lang.body ?? ""
                         lang.title = this.translationResolver.resolve(
                             {
                                 translations: lang.translations,
@@ -173,7 +175,7 @@ export class ChallengeResolverService {
                                 locale,
                                 fallbackLocale: langFallback,
                             },
-                        )
+                        ) || canonicalTitle
                         lang.body = this.translationResolver.resolve(
                             {
                                 translations: lang.translations,
@@ -181,9 +183,10 @@ export class ChallengeResolverService {
                                 locale,
                                 fallbackLocale: langFallback,
                             },
-                        )
+                        ) || canonicalBody
+                        delete (lang as Partial<typeof lang>).translations
                         return lang
-                    }
+                    },
                 )
                 return requirement
             })
@@ -191,16 +194,10 @@ export class ChallengeResolverService {
         if (challenge.stepsV2?.length) {
             challenge.stepsV2 = challenge.stepsV2.map((step) => {
                 const stepFallback = step.defaultLocale ?? challengeFallback
-                step.title = this.translationResolver.resolve(
-                    {
-                        translations: step.translations,
-                        field: "title",
-                        locale,
-                        fallbackLocale: stepFallback,
-                    },
-                )
                 step.langs = step.langs.map((lang) => {
                     const langFallback = lang.defaultLocale ?? stepFallback
+                    const canonicalTitle = lang.title ?? ""
+                    const canonicalBody = lang.body ?? ""
                     lang.title = this.translationResolver.resolve(
                         {
                             translations: lang.translations,
@@ -208,7 +205,7 @@ export class ChallengeResolverService {
                             locale,
                             fallbackLocale: langFallback,
                         },
-                    )
+                    ) || canonicalTitle
                     lang.body = this.translationResolver.resolve(
                         {
                             translations: lang.translations,
@@ -216,7 +213,8 @@ export class ChallengeResolverService {
                             locale,
                             fallbackLocale: langFallback,
                         },
-                    )
+                    ) || canonicalBody
+                    delete (lang as Partial<typeof lang>).translations
                     return lang
                 })
                 return step
@@ -227,6 +225,7 @@ export class ChallengeResolverService {
                 const outputFallback = output.defaultLocale ?? challengeFallback
                 output.langs = output.langs.map((lang) => {
                     const langFallback = lang.defaultLocale ?? outputFallback
+                    const canonicalText = lang.text ?? ""
                     lang.text = this.translationResolver.resolve(
                         {
                             translations: lang.translations,
@@ -234,7 +233,8 @@ export class ChallengeResolverService {
                             locale,
                             fallbackLocale: langFallback,
                         },
-                    )
+                    ) || canonicalText
+                    delete (lang as Partial<typeof lang>).translations
                     return lang
                 })
                 return output
@@ -245,6 +245,7 @@ export class ChallengeResolverService {
                 const prerequisiteFallback = prerequisite.defaultLocale ?? challengeFallback
                 prerequisite.langs = prerequisite.langs.map((lang) => {
                     const langFallback = lang.defaultLocale ?? prerequisiteFallback
+                    const canonicalText = lang.text ?? ""
                     lang.text = this.translationResolver.resolve(
                         {
                             translations: lang.translations,
@@ -252,7 +253,8 @@ export class ChallengeResolverService {
                             locale,
                             fallbackLocale: langFallback,
                         },
-                    )
+                    ) || canonicalText
+                    delete (lang as Partial<typeof lang>).translations
                     return lang
                 })
                 return prerequisite

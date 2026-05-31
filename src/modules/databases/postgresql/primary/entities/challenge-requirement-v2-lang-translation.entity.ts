@@ -21,17 +21,15 @@ import {
 } from "./challenge-requirement-v2-lang.entity"
 
 /**
- * Per-locale body for a SCHEMA V2 requirement language row (normalized — no jsonb). The requirement
- * body differs by both programming language and locale. One row per (language row × locale).
+ * Translation for V2 requirement language-row fields (`title`, `body`).
+ * Primary key: (challengeRequirementV2LangId, locale, field).
  */
 @ObjectType({
-    description: "Per-locale body for a V2 requirement language row.",
+    description: "Localized value for a V2 requirement language-row field.",
 })
 @Entity("challenge_requirement_v2_lang_translations")
 export class ChallengeRequirementV2LangTranslationEntity extends AbstractEntity {
-    /**
-     * Parent requirement language row id (composite PK part).
-     */
+    /** Parent requirement language row id (composite PK part). */
     @Field(() => String)
     @PrimaryColumn({
         name: "challenge_requirement_v2_lang_id",
@@ -39,9 +37,7 @@ export class ChallengeRequirementV2LangTranslationEntity extends AbstractEntity 
     })
         challengeRequirementV2LangId: string
 
-    /**
-     * Locale of this body (composite PK part).
-     */
+    /** Locale of the translation (composite PK part). */
     @Field(() => GraphQLTypeLocale)
     @PrimaryColumn({
         name: "locale",
@@ -51,26 +47,24 @@ export class ChallengeRequirementV2LangTranslationEntity extends AbstractEntity 
     })
         locale: Locale
 
-    /**
-     * Localized requirement body markdown.
-     */
-    @Field(
-        () => String,
-        {
-            nullable: true,
-            description: "Localized requirement body markdown.",
-        },
-    )
-    @Column({
-        name: "body",
-        type: "text",
-        nullable: true,
+    /** Target field name being translated (composite PK part). */
+    @Field(() => String)
+    @PrimaryColumn({
+        name: "field",
+        type: "varchar",
+        length: 128,
     })
-        body: string | null
+        field: string
 
-    /**
-     * Parent requirement language row this body belongs to.
-     */
+    /** Translated value for the field. */
+    @Field(() => String)
+    @Column({
+        name: "value",
+        type: "text",
+    })
+        value: string
+
+    /** Parent requirement language row this translation belongs to. */
     @ManyToOne(
         () => ChallengeRequirementV2LangEntity,
         (lang: ChallengeRequirementV2LangEntity) => lang.translations,

@@ -27,11 +27,11 @@ import {
 } from "./challenge-step-v2-lang-translation.entity"
 
 /**
- * Per-programming-language row of a SCHEMA V2 step item. The localized `body` lives in
- * {@link ChallengeStepV2LangTranslationEntity}.
+ * Per-programming-language row of a SCHEMA V2 step item. Default-locale `title` / `body` are stored
+ * on this row; per-locale overrides live in {@link ChallengeStepV2LangTranslationEntity}.
  */
 @ObjectType({
-    description: "Per-language row of a V2 step item (localized body lives in translations).",
+    description: "Per-language row of a V2 step item (title/body + per-locale translations).",
 })
 @Entity("challenge_step_v2_langs")
 export class ChallengeStepV2LangEntity extends UuidAbstractEntity {
@@ -83,6 +83,40 @@ export class ChallengeStepV2LangEntity extends UuidAbstractEntity {
         enumName: "locale",
     })
         defaultLocale: Locale
+
+    /**
+     * Default-locale step title for this programming language.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Default-locale step title for this programming language.",
+        },
+    )
+    @Column({
+        name: "title",
+        type: "text",
+        nullable: true,
+    })
+        title: string | null
+
+    /**
+     * Default-locale step body markdown for this programming language.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Default-locale step body for this programming language.",
+        },
+    )
+    @Column({
+        name: "body",
+        type: "text",
+        nullable: true,
+    })
+        body: string | null
 
     /**
      * Parent step item this language content belongs to.

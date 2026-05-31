@@ -391,12 +391,15 @@ export class ContentParserService {
             courseIndex,
             moduleIndex,
         })
-        return this.entityManager.find(ContentEntity, {
-            where: {
-                module: {
-                    id: moduleId,
+        return this.entityManager.find(
+            ContentEntity,
+            {
+                where: {
+                    module: {
+                        id: moduleId,
+                    },
                 },
-            },
-        })
+            }
+        )
     }
 }

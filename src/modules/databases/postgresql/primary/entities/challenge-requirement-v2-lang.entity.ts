@@ -27,11 +27,12 @@ import {
 } from "./challenge-requirement-v2-lang-translation.entity"
 
 /**
- * Per-programming-language content of a SCHEMA V2 requirement item: the non-localized `score`.
- * The localized `body` lives in {@link ChallengeRequirementV2LangTranslationEntity}.
+ * Per-programming-language content of a SCHEMA V2 requirement item: non-localized `score` plus
+ * default-locale `title` / `body`; per-locale overrides live in
+ * {@link ChallengeRequirementV2LangTranslationEntity}.
  */
 @ObjectType({
-    description: "Per-language content of a V2 requirement item (score + localized body).",
+    description: "Per-language content of a V2 requirement item (score + title/body + translations).",
 })
 @Entity("challenge_requirement_v2_langs")
 export class ChallengeRequirementV2LangEntity extends UuidAbstractEntity {
@@ -99,6 +100,40 @@ export class ChallengeRequirementV2LangEntity extends UuidAbstractEntity {
         enumName: "locale",
     })
         defaultLocale: Locale
+
+    /**
+     * Default-locale requirement title for this programming language.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Default-locale requirement title for this programming language.",
+        },
+    )
+    @Column({
+        name: "title",
+        type: "text",
+        nullable: true,
+    })
+        title: string | null
+
+    /**
+     * Default-locale requirement body markdown for this programming language.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Default-locale requirement body for this programming language.",
+        },
+    )
+    @Column({
+        name: "body",
+        type: "text",
+        nullable: true,
+    })
+        body: string | null
 
     /**
      * Parent requirement item this language content belongs to.

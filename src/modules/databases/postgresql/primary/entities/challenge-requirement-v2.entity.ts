@@ -23,17 +23,13 @@ import {
     ChallengeEntity,
 } from "./challenge.entity"
 import {
-    ChallengeRequirementV2TranslationEntity,
-} from "./challenge-requirement-v2-translation.entity"
-import {
     ChallengeRequirementV2LangEntity,
 } from "./challenge-requirement-v2-lang.entity"
 
 /**
  * SCHEMA V2 requirement ITEM for a challenge (normalized — no jsonb). One row per requirement
- * position. The language-agnostic `title` is localized via
- * {@link ChallengeRequirementV2TranslationEntity}; the per-programming-language `score` + `body`
- * live under {@link ChallengeRequirementV2LangEntity}.
+ * position; per-programming-language `score`, `title`, and `body` live under
+ * {@link ChallengeRequirementV2LangEntity}.
  */
 @ObjectType({
     description: "A SCHEMA V2 challenge requirement item (one per position).",
@@ -104,26 +100,7 @@ export class ChallengeRequirementV2Entity extends UuidAbstractEntity {
         challengeId: string
 
     /**
-     * Per-locale title overrides (the title is agnostic across programming languages).
-     */
-    @Field(
-        () => [ChallengeRequirementV2TranslationEntity],
-        {
-            description: "Per-locale title overrides for this requirement item.",
-        },
-    )
-    @OneToMany(
-        () => ChallengeRequirementV2TranslationEntity,
-        (translation: ChallengeRequirementV2TranslationEntity) => translation.requirementV2,
-        {
-            cascade: true,
-            orphanedRowAction: "delete",
-        },
-    )
-        translations: Array<ChallengeRequirementV2TranslationEntity>
-
-    /**
-     * Per-programming-language content (score + body) for this requirement.
+     * Per-programming-language content (score + title + body) for this requirement.
      */
     @Field(
         () => [ChallengeRequirementV2LangEntity],

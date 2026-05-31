@@ -6,39 +6,24 @@ import {
  * Minimal shape shared by all *TranslationEntity rows (locale + field + value).
  */
 export interface AbstractTranslation {
-    /**
-     * Locale of the translation.
-     */
+    /** Locale of the translation. */
     locale: Locale
-    /**
-     * Target field name being translated.
-     */
+    /** Target field name being translated. */
     field: string
-    /**
-     * Translated value for the target field.
-     */
+    /** Translated value for the target field. */
     value: string
 }
-
 
 /**
  * Options for resolving a translation.
  */
 export interface ResolveTranslationOptions {
-    /**
-     * Translation rows to resolve from.
-     */
+    /** Translation rows to resolve from. */
     translations: ReadonlyArray<AbstractTranslation> | undefined | null
-    /**
-     * Target field name to resolve.
-     */
+    /** Target field name to resolve. */
     field: string
-    /**
-     * Locale to resolve.
-     */
+    /** Locale to resolve. */
     locale: Locale
-    /**
-     * Fallback locale to resolve if the target locale is not found.
-     */
+    /** Fallback locale to resolve if the target locale is not found. */
     fallbackLocale: Locale
 }

@@ -143,7 +143,7 @@ export class ChallengeHydrationService {
                     },
                 },
             ),
-            // SCHEMA V2 items — item title translations + per-programming-language langs
+            // SCHEMA V2 items — per-programming-language langs (+ lang translations)
             this.entityManager.find(
                 ChallengeRequirementV2Entity,
                 {
@@ -153,7 +153,6 @@ export class ChallengeHydrationService {
                         },
                     },
                     relations: {
-                        translations: true,
                         langs: {
                             translations: true,
                         },
@@ -172,7 +171,6 @@ export class ChallengeHydrationService {
                         },
                     },
                     relations: {
-                        translations: true,
                         langs: {
                             translations: true,
                         },
