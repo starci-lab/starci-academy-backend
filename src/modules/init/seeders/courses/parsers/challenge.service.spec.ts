@@ -336,18 +336,22 @@ describe("ChallengeParserService",
 
                         // medium has 3 lang buckets (ts/java/csharp) → 3 entities per V2 section,
                         // each carrying its bucket items in `langs[]` (2 / 3 / 2 / 2 respectively)
-                        expect(parsed.requirementsV2).toHaveLength(3)
+                        expect(parsed.requirementsV2).toHaveLength(2)
                         expect(parsed.requirementsV2?.[0]?.orderIndex).toBe(0)
-                        expect(parsed.requirementsV2?.[0]?.langs).toHaveLength(2)
+                        expect(parsed.requirementsV2?.[0]?.langs).toHaveLength(3)
+                        expect(parsed.requirementsV2?.[0]?.langs?.[0]?.lang).toBe("typescript")
                         expect((parsed.requirementsV2?.[0]?.langs?.[0] as { title?: string } | undefined)?.title).toBe(
                             "Define the Store interface + two implementations and a dynamic module forRoot(options)",
                         )
                         expect(parsed.stepsV2).toHaveLength(3)
+                        expect(parsed.stepsV2).toHaveLength(3)
                         expect(parsed.stepsV2?.[0]?.langs).toHaveLength(3)
-                        expect(parsed.outputsV2).toHaveLength(3)
-                        expect(parsed.outputsV2?.[0]?.langs).toHaveLength(2)
-                        expect(parsed.prerequisitesV2).toHaveLength(3)
-                        expect(parsed.prerequisitesV2?.[0]?.langs).toHaveLength(2)
+                        expect(parsed.outputsV2).toHaveLength(2)
+                        expect(parsed.outputsV2?.[0]?.langs).toHaveLength(3)
+                        expect(typeof (parsed.outputsV2?.[0]?.langs?.[0] as { text?: string } | undefined)?.text).toBe("string")
+                        expect(parsed.prerequisitesV2).toHaveLength(2)
+                        expect(parsed.prerequisitesV2?.[0]?.langs).toHaveLength(3)
+                        expect(typeof (parsed.prerequisitesV2?.[0]?.langs?.[0] as { text?: string } | undefined)?.text).toBe("string")
 
                         // medium also ships one submission folder `submissions/0/`
                         expect(parsed.submissions).toHaveLength(1)
