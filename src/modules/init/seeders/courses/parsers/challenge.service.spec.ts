@@ -233,18 +233,20 @@ describe("ChallengeParserService",
                         expect(parsed.score).toBe(100)
                         expect(parsed.verified).toEqual(new Date("2026-05-30"))
 
-                        // current shape after rename `data` → `langs`: parse() maps each lang bucket to
-                        // one V2 entity (4 langs in easy → 4 entities), and the bucket's items become
-                        // its `langs[]` rows (2 items per requirement bucket; 3 per step bucket).
-                        expect(parsed.requirementsV2).toHaveLength(4)
+                        // ITEM-MAJOR shape: each `## N` is one item (a requirement position); its
+                        // `langs[]` holds one row per programming language. Easy carries 4 languages
+                        // (ts/java/csharp/go): 2 requirement items, 3 step items, 2 output items,
+                        // 2 prerequisite items, each with 4 language rows.
+                        expect(parsed.requirementsV2).toHaveLength(2)
                         expect(parsed.requirementsV2?.[0]?.orderIndex).toBe(0)
-                        expect(parsed.requirementsV2?.[0]?.langs).toHaveLength(2)
+                        expect(parsed.requirementsV2?.[0]?.langs).toHaveLength(4)
+                        expect(parsed.requirementsV2?.[0]?.langs?.[0]?.lang).toBe("typescript")
                         expect((parsed.requirementsV2?.[0]?.langs?.[0] as { title?: string } | undefined)?.title).toBe(
                             "Split two independent modules and declare the export/import boundary",
                         )
-                        // score arrives from the markdown extract as a string scalar
+                        // requirement lang rows keep score (string scalar from the extract)
                         expect((parsed.requirementsV2?.[0]?.langs?.[0] as { score?: string } | undefined)?.score).toBe("40")
-                        // En body is hoisted onto the lang row; Vi rows live in its translations
+                        // En title/body live on the lang row; Vi rows live in its translations
                         expect((parsed.requirementsV2?.[0]?.langs?.[0] as { translations?: unknown } | undefined)?.translations).toEqual(
                             expect.arrayContaining([
                                 {
@@ -255,12 +257,18 @@ describe("ChallengeParserService",
                             ]),
                         )
 
-                        expect(parsed.stepsV2).toHaveLength(4)
-                        expect(parsed.stepsV2?.[0]?.langs).toHaveLength(3)
-                        expect(parsed.outputsV2).toHaveLength(4)
-                        expect(parsed.outputsV2?.[0]?.langs).toHaveLength(2)
-                        expect(parsed.prerequisitesV2).toHaveLength(4)
-                        expect(parsed.prerequisitesV2?.[0]?.langs).toHaveLength(2)
+                        expect(parsed.stepsV2).toHaveLength(3)
+                        expect(parsed.stepsV2?.[0]?.langs).toHaveLength(4)
+                        // outputs + prerequisites lang rows carry ONLY `text` (no title/body/score)
+                        expect(parsed.outputsV2).toHaveLength(2)
+                        expect(parsed.outputsV2?.[0]?.langs).toHaveLength(4)
+                        expect(parsed.outputsV2?.[0]?.langs?.[0]?.lang).toBe("typescript")
+                        expect(typeof (parsed.outputsV2?.[0]?.langs?.[0] as { text?: string } | undefined)?.text).toBe("string")
+                        expect((parsed.outputsV2?.[0]?.langs?.[0] as { title?: unknown } | undefined)?.title).toBeUndefined()
+                        expect(parsed.prerequisitesV2).toHaveLength(2)
+                        expect(parsed.prerequisitesV2?.[0]?.langs).toHaveLength(4)
+                        expect(typeof (parsed.prerequisitesV2?.[0]?.langs?.[0] as { text?: string } | undefined)?.text).toBe("string")
+                        expect((parsed.prerequisitesV2?.[0]?.langs?.[0] as { title?: unknown } | undefined)?.title).toBeUndefined()
 
                         // di-easy ships one submission folder `submissions/0/` with the GitHub-URL rubric
                         expect(parsed.submissions).toHaveLength(1)
