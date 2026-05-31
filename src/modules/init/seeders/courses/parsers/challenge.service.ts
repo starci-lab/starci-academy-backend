@@ -71,7 +71,6 @@ import {
 import {
     WinstonService,
 } from "@modules/winston"
-import fs from "fs"
 /**
  * Challenge parser for mounted course files (`en.md`, `vi.md`).
  * Routes V2 vs legacy via {@link isV2} (`# verified`); V2 scalars merge via {@link MergeJsonService}.
@@ -272,10 +271,6 @@ export class ChallengeParserService {
                                 requirementIndex: orderIndex ?? 0,
                                 orderIndex: lang.orderIndex ?? 0,
                             })
-                            fs.writeFileSync(
-                                "challenge-requirement-v2-lang.json",
-                                JSON.stringify(lang),
-                            )
                             return {
                                 ...lang,
                                 translations: (lang.translations ?? []).map<DeepPartial<ChallengeRequirementV2LangTranslationEntity>>((translation) => ({
