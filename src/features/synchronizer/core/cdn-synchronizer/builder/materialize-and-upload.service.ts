@@ -5,7 +5,8 @@ import {
     Injectable 
 } from "@nestjs/common"
 import {
-    InjectSuperJson 
+    AsyncService,
+    InjectSuperJson
 } from "@modules/mixin"
 import SuperJSON from "superjson"
 import type {
@@ -17,6 +18,9 @@ import {
 import {
     Sha256Service
 } from "@modules/crypto"
+import {
+    parseEnvBoolean
+} from "@modules/env"
 /**
  * Service for materializing and uploading entities to the CDN.
  */
@@ -28,6 +32,7 @@ export class MaterializeAndUploadService {
         private readonly superJson: SuperJSON,
         private readonly sha256Service: Sha256Service,
         private readonly s3ReadService: S3ReadService,
+        private readonly asyncService: AsyncService,
     ) {}
 
     /**
@@ -48,53 +53,68 @@ export class MaterializeAndUploadService {
             S3Provider.DigitalOcean,
             S3Provider.Minio,
         ]
-        for (const localized of localizedRows) {
-            const {
-                entity,
-                locale,
-            } = localized
-            const data = this.superJson.stringify(
-                entity,
-            )
-            const hash = this.sha256Service.hash(
-                data,
-            )
-            const keyByEntityId = resolveObjectKey(
-                entity.id,
-                locale,
-            )
-            const currentSnapshot = await this.s3ReadService.json(
-                {
-                    key: keyByEntityId,
-                    provider: S3Provider.Minio,
-                },
-            )
-            if (currentSnapshot?.hash === hash) {
-                continue
-            }
-            const snapshotPayload = {
-                data,
-                hash,
-            }
-            await this.s3UploadService.json(
-                {
-                    acl: "private",
-                    providers,
-                    name: keyByEntityId,
-                    payload: snapshotPayload,
-                },
-            )
-            await this.s3UploadService.json(
-                {
-                    acl: "private",
-                    providers,
-                    name: resolveObjectKey(
-                        entity.displayId,
-                        locale,
+        // When SYNC_CDN_FORCE_UPLOAD=true, re-upload every entity regardless of the stored
+        // hash — bypasses the snapshot-equality skip below so edited mount content (re-seeded
+        // into the DB) is pushed to all CDN providers even if a stale provider was skipped.
+        const forceUpload = parseEnvBoolean({
+            key: "SYNC_CDN_FORCE_UPLOAD",
+            defaultValue: false,
+        })
+        await this.asyncService.allIgnoreError(
+            localizedRows.map((localized) => (async (): Promise<void> => {
+                const {
+                    entity,
+                    locale,
+                } = localized
+                const data = this.superJson.stringify(
+                    entity,
+                )
+                const hash = this.sha256Service.hash(
+                    data,
+                )
+                const keyByEntityId = resolveObjectKey(
+                    entity.id,
+                    locale,
+                )
+                // Skip the snapshot read entirely when forcing — comparing hashes is pointless if we
+                // upload regardless, and the per-entity CDN round-trip is the slow part.
+                if (!forceUpload) {
+                    const currentSnapshot = await this.s3ReadService.json(
+                        {
+                            key: keyByEntityId,
+                            provider: S3Provider.Minio,
+                        },
+                    )
+                    if (currentSnapshot?.hash === hash) {
+                        return
+                    }
+                }
+                const snapshotPayload = {
+                    data,
+                    hash,
+                }
+                await Promise.all([
+                    this.s3UploadService.json(
+                        {
+                            acl: "private",
+                            providers,
+                            name: keyByEntityId,
+                            payload: snapshotPayload,
+                        },
                     ),
-                    payload: snapshotPayload,
-                },
-            )
-        }
+                    this.s3UploadService.json(
+                        {
+                            acl: "private",
+                            providers,
+                            name: resolveObjectKey(
+                                entity.displayId,
+                                locale,
+                            ),
+                            payload: snapshotPayload,
+                        },
+                    ),
+                ])
+            })()),
+        )
     }
 }
