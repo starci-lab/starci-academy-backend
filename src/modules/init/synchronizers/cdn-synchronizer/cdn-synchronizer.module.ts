@@ -1,19 +1,19 @@
 import {
     Module
-    } from "@nestjs/common"
+} from "@nestjs/common"
 import {
     ConfigurableModuleClass
-    } from "./cdn-synchronizer.module-definition"
+} from "./cdn-synchronizer.module-definition"
 import {
     CdnSynchronizerService
-    } from "./cdn-synchronizer.service"
+} from "./cdn-synchronizer.service"
 import {
     CdnCourseBuildService,
     CdnModuleBuildService,
     CdnContentBuildService,
     CdnChallengeBuildService,
     MaterializeAndUploadService
-    } from "./builder"
+} from "./builder"
 /**
  * Module for synchronizing the CDN.
  */
@@ -29,5 +29,5 @@ import {
     exports: [
         CdnSynchronizerService,
     ]
-    })
+})
 export class CdnSynchronizerModule extends ConfigurableModuleClass { }

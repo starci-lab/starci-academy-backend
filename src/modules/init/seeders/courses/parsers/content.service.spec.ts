@@ -4,6 +4,9 @@ import type {
     Dirent,
 } from "fs"
 import {
+    getEntityManagerToken,
+} from "@nestjs/typeorm"
+import {
     Test,
 } from "@nestjs/testing"
 import type {
@@ -38,6 +41,9 @@ import {
 import {
     ContentPathService,
 } from "../path"
+import {
+    ContentLegacyParserService,
+} from "./content-legacy.service"
 import {
     ContentParserService,
 } from "./content.service"
@@ -178,6 +184,19 @@ describe("ContentParserService",
                             log: jest.fn(),
                             error: jest.fn(),
                             warn: jest.fn(),
+                        },
+                    },
+                    {
+                        provide: ContentLegacyParserService,
+                        useValue: {
+                            parse: jest.fn(),
+                        },
+                    },
+                    {
+                        provide: getEntityManagerToken("primary"),
+                        useValue: {
+                            find: jest.fn(),
+                            findOne: jest.fn(),
                         },
                     },
                 ],

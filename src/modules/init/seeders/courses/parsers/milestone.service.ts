@@ -1,4 +1,5 @@
 import type {
+    MilestonesFromDatabaseParams,
     ParseMilestoneParams,
     ParseMilestoneManyParams,
 } from "./types"
@@ -12,6 +13,8 @@ import {
 } from "@modules/databases"
 import {
     ExtractJsonFromMdService,
+    MergeJsonService,
+    MergeJsonResult,
     logInitSeederEntitySkipped,
 } from "../../shared"
 import {
@@ -20,7 +23,11 @@ import {
 } from "../id-factories"
 import {
     DeepPartial,
+    EntityManager,
 } from "typeorm"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases"
 import {
     ContextLoaderService,
     ResolvedFileResult,
@@ -45,7 +52,10 @@ export class MilestoneParserService {
         private readonly milestoneIdFactoryService: MilestoneIdFactoryService,
         private readonly contextLoaderService: ContextLoaderService,
         private readonly milestonePathService: MilestonePathService,
+        private readonly mergeJsonService: MergeJsonService,
         private readonly winstonService: WinstonService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) { }
 
     /**
@@ -68,7 +78,8 @@ export class MilestoneParserService {
                 },
             )
         }
-        const jsonMap = new Map<Locale, Record<string, any>>()
+        // extract the heading structure for every locale's markdown file
+        const jsonMap = new Map<Locale, Record<string, unknown>>()
         for (const locale of Object.values(Locale)) {
             jsonMap.set(
                 locale,
@@ -89,40 +100,40 @@ export class MilestoneParserService {
                 milestoneIndex,
             },
         )
-        const enJson = jsonMap.get(Locale.En) ?? {
-        }
+        // merge locales into one default-locale doc + aligned translation rows per i18n field
+        const merged = this.mergeJsonService.merge({
+            jsons: Object.values(Locale).map((locale) => ({
+                locale,
+                json: jsonMap.get(locale) ?? {
+                },
+            })),
+            translateFields: [
+                "title",
+                "description",
+            ],
+        }) as MergeJsonResult<DeepPartial<MilestoneEntity>>
         return {
             id: milestoneId,
             orderIndex: milestoneIndex,
-            title: enJson.title ?? "",
-            description: enJson.description ?? "",
+            title: merged.title ?? "",
+            description: merged.description ?? "",
             defaultLocale: Locale.En,
             course: {
                 id: courseId,
             },
-            translations: (() => {
-                const translations: Array<DeepPartial<MilestoneTranslationEntity>> = []
-                for (const locale of Object.values(Locale)) {
-                    const json = jsonMap.get(locale)
-                    if (json?.title) {
-                        translations.push({
-                            milestoneId,
-                            locale,
-                            field: "title",
-                            value: json.title as string,
-                        })
-                    }
-                    if (json?.description) {
-                        translations.push({
-                            milestoneId,
-                            locale,
-                            field: "description",
-                            value: json.description as string,
-                        })
-                    }
-                }
-                return translations
-            })(),
+            // skip empty values to match the legacy behaviour of only pushing truthy fields
+            translations: (merged.translations ?? [])
+                .filter(({ value }) => Boolean(value))
+                .map(({
+                    locale,
+                    field,
+                    value,
+                }): DeepPartial<MilestoneTranslationEntity> => ({
+                    milestoneId,
+                    locale,
+                    field,
+                    value,
+                })),
         }
     }
 
@@ -169,6 +180,28 @@ export class MilestoneParserService {
             }
         }
         return data
+    }
+
+    /**
+     * Loads persisted milestones for one course (DB inspection / sync checks).
+     *
+     * @param params - Course ordinal on the mount.
+     * @returns Milestone rows keyed by deterministic `courseId`.
+     */
+    async milestonesFromDatabase(
+        params: MilestonesFromDatabaseParams,
+    ): Promise<Array<MilestoneEntity>> {
+        const {
+            courseIndex,
+        } = params
+        const courseId = this.courseIdFactoryService.generate({
+            courseIndex,
+        })
+        return this.entityManager.find(MilestoneEntity, {
+            where: {
+                courseId,
+            },
+        })
     }
 }
 

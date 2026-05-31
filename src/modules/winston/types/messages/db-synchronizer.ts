@@ -1,6 +1,6 @@
 /** Sync operation kind for DB seeder logging. */
 export enum DbSyncType {
-    Added = "added",
+    Created = "created",
     Updated = "updated",
     Deleted = "deleted",
 }
@@ -11,6 +11,6 @@ export interface DbSynchronizerSyncedSuccessfullyMessage {
     entityKind: string
     /** Primary-key value (UUID for most tables). */
     entityId: string
-    /** Whether the row was added, updated, or deleted. */
+    /** Whether the row was created, updated, or deleted. */
     type: DbSyncType
 }

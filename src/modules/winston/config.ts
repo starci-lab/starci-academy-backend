@@ -1,7 +1,7 @@
 
 import {
     WinstonLog
-    } from "./enums"
+} from "./enums"
 import {
     WinstonLevel,
     CoursesSeededSuccessfullyMessage,
@@ -12,7 +12,7 @@ import {
     EnrollmentCreatedMessage,
     StepExecutedMessage,
     JobExecutedMessage
-    } from "./types"
+} from "./types"
 import type {
     CommandLogMessage,
     CdnSynchronizerCourseAlreadySyncedMessage,
@@ -66,7 +66,7 @@ import type {
     AiBalancerKeyRecoveredMessage,
     AiBalancerKeyPickedMessage,
     AiBalancerNoActiveKeyMessage
-    } from "./types"
+} from "./types"
 
 /** Map of Winston log names to level, Loki flag, and message type. */
 export const configMap = {
@@ -297,7 +297,7 @@ export const configMap = {
         console: true,
         messageType: {
             dump: ""
-    }
+        }
     },
     [WinstonLog.EsSynchronizerSyncedSuccessfully]: {
         name: WinstonLog.EsSynchronizerSyncedSuccessfully,
@@ -339,7 +339,7 @@ export const configMap = {
         console: true,
         messageType: {
             dump: ""
-    }
+        }
     },
     [WinstonLog.IndexerSynchronizerSyncedSuccessfully]: {
         name: WinstonLog.IndexerSynchronizerSyncedSuccessfully,
@@ -381,7 +381,7 @@ export const configMap = {
         console: true,
         messageType: {
             dump: ""
-    }
+        }
     },
     [WinstonLog.BloomFilterSynchronizerFilterCreated]: {
         name: WinstonLog.BloomFilterSynchronizerFilterCreated,
@@ -652,4 +652,4 @@ export const configMap = {
         messageType: {
         } as AiBalancerNoActiveKeyMessage
     }
-    }
+}

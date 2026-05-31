@@ -1,3 +1,4 @@
+export * from "./from-database"
 export * from "./challenge"
 export * from "./quiz-deck"
 export * from "./content"

@@ -1,8 +1,13 @@
 import type {
+    ChallengesFromDatabaseParams,
+    IsChallengeV2Params,
     ParseChallengeManyParams,
     ParseChallengeParams,
     ParseChallengeSubmissionsParams,
 } from "./types"
+import {
+    ChallengeLegacyParserService,
+} from "./challenge-legacy.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -37,9 +42,11 @@ import {
 } from "../id-factories"
 import {
     DeepPartial,
+    EntityManager,
 } from "typeorm"
 import {
     ChallengeEntity,
+    InjectPrimaryPostgreSQLEntityManager,
     ChallengeOutputV2Entity,
     ChallengePrerequisiteV2Entity,
     ChallengeRequirementV2Entity,
@@ -61,13 +68,13 @@ import {
     WinstonService,
 } from "@modules/winston"
 /**
- * SCHEMA V2 challenge parser for mounted course files (`en.md`, `vi.md`).
- * Scalars merge via {@link MergeJsonService}; `requirements` / `steps` / `outputs` /
- * `prerequisites` transpose lang-buckets from extract → `*V2` rows by hand in {@link parse}.
+ * Challenge parser for mounted course files (`en.md`, `vi.md`).
+ * Routes V2 vs legacy via {@link isV2} (`# verified`); V2 scalars merge via {@link MergeJsonService}.
  */
 @Injectable()
 export class ChallengeParserService {
     constructor(
+        private readonly challengeLegacyParserService: ChallengeLegacyParserService,
         private readonly challengePathService: ChallengePathService,
         private readonly contextLoaderService: ContextLoaderService,
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,
@@ -83,13 +90,57 @@ export class ChallengeParserService {
         private readonly pathResolverService: PathResolverService,
         private readonly contentIdFactoryService: ContentIdFactoryService,
         private readonly winstonService: WinstonService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) { }
+
+    /**
+     * True when the mount carries a parseable `# verified` day (SCHEMA V2 marker).
+     *
+     * @param params - Challenge folder relative path.
+     * @returns `true` for V2 challenges; `false` → use {@link ChallengeLegacyParserService}.
+     */
+    async isV2(
+        params: IsChallengeV2Params,
+    ): Promise<boolean> {
+        const {
+            relativePath,
+        } = params
+        const jsonMap = new Map<Locale, Record<string, unknown>>()
+        for (const locale of Object.values(Locale)) {
+            try {
+                jsonMap.set(
+                    locale,
+                    this.extractJsonFromMdService.extract(
+                        await this.contextLoaderService.load(
+                            "courses",
+                            `${relativePath}/${locale}.md`,
+                        ),
+                    ),
+                )
+            } catch {
+                continue
+            }
+        }
+        if (jsonMap.size === 0) {
+            return false
+        }
+        const merged = this.mergeJsonService.merge({
+            jsons: Object.values(Locale).map((locale) => ({
+                locale,
+                json: jsonMap.get(locale) ?? {
+                },
+            })),
+            translateFields: [],
+        }) as Record<string, unknown>
+        return this.coerceMdScalarService.toNullableDate(merged.verified) !== null
+    }
 
     /**
      * Builds a partial V2 challenge entity graph from mounted course files.
      *
      * @param params - Challenge path list + course/module/content/challenge ordinals.
-     * @returns Entity-shaped graph for the V2 insert service.
+     * @returns Entity-shaped graph for the V2 upsert service.
      */
     async parse(
         {
@@ -543,19 +594,27 @@ export class ChallengeParserService {
                         criterionIndex,
                         langIndex,
                     }),
-                    lang: this.coerceMdScalarService.toRequiredString(langItem.lang,
-                        "text"),
-                    body: this.coerceMdScalarService.toNullableStringColumn(langItem.body),
+                    lang: this.coerceMdScalarService.toRequiredString(
+                        langItem.lang,
+                        "text"
+                    ),
+                    body: this.coerceMdScalarService.toNullableStringColumn(
+                        langItem.body
+                    ),
                 } as DeepPartial<ChallengeSubmissionApproachCriteriaLangEntity>
             })
             // accumulate per-criterion `## score` into the section total (approach/outcome weight)
-            totalScore += this.coerceMdScalarService.toRequiredNumber(criterion.score,
-                0)
+            totalScore += this.coerceMdScalarService.toRequiredNumber(
+                criterion.score,
+                0
+            )
             return {
                 id: criterionId,
                 orderIndex: criterionIndex,
-                critical: this.coerceMdScalarService.toRequiredBoolean(criterion.critical,
-                    false),
+                critical: this.coerceMdScalarService.toRequiredBoolean(
+                    criterion.critical,
+                    false
+                ),
                 challengeSubmission: {
                     id: challengeSubmissionId,
                 },
@@ -569,10 +628,10 @@ export class ChallengeParserService {
     }
 
     /**
-     * Parses many V2 challenges from the mount. Skips files without a parseable `# verified` day.
+     * Parses many challenges from the mount. V2 when {@link isV2}; otherwise legacy parser.
      *
      * @param params - Content folder path + course/module/content ordinals.
-     * @returns Entity-shaped V2 graphs for the V2 insert service.
+     * @returns Entity-shaped graphs for the challenge upsert service.
      */
     async parseMany(
         {
@@ -590,16 +649,18 @@ export class ChallengeParserService {
         const data: Array<ResolvedFileResult<DeepPartial<ChallengeEntity>>> = []
         for (const path of paths) {
             try {
-                // delegate the per-content build to parse(); skip + log on failure
-                const challenge = await this.parse(
-                    {
-                        paths,
-                        courseIndex,
-                        moduleIndex,
-                        contentIndex,
-                        challengeIndex: path.orderIndex,
-                    },
-                )
+                const parseParams = {
+                    paths,
+                    courseIndex,
+                    moduleIndex,
+                    contentIndex,
+                    challengeIndex: path.orderIndex,
+                }
+                const challenge = await this.isV2({
+                    relativePath: path.relativePath,
+                })
+                    ? await this.parse(parseParams)
+                    : await this.challengeLegacyParserService.parse(parseParams)
                 data.push({
                     data: challenge,
                     index: path.orderIndex,
@@ -615,5 +676,34 @@ export class ChallengeParserService {
             }
         }
         return data
+    }
+    
+    /**
+     * Loads persisted challenges for one content scope (DB inspection / sync checks).
+     *
+     * @param params - Course/module/content ordinals.
+     * @returns Challenge rows keyed by deterministic `contentId`.
+     */
+    async challengesFromDatabase(
+        params: ChallengesFromDatabaseParams,
+    ): Promise<Array<ChallengeEntity>> {
+        const {
+            courseIndex,
+            moduleIndex,
+            contentIndex,
+        } = params
+        const contentId = this.contentIdFactoryService.generate({
+            courseIndex,
+            moduleIndex,
+            contentIndex,
+        })
+        return this.entityManager.find(
+            ChallengeEntity,
+            {
+                where: {
+                    contentId,
+                },
+            }
+        )
     }
 }

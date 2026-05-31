@@ -1,5 +1,6 @@
 import type {
     MindMapNodeYaml,
+    MindMapNodesFromDatabaseParams,
     ParseMindMapParams,
 } from "./types"
 import {
@@ -19,6 +20,13 @@ import {
     WinstonService,
 } from "@modules/winston"
 import {
+    EntityManager,
+} from "typeorm"
+import {
+    CourseIdFactoryService,
+} from "../id-factories"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
     MindMapNodeEntity,
 } from "@modules/databases"
 
@@ -36,13 +44,16 @@ const MIND_MAP_FILE_NAME = "mind-map.yaml"
  * as a skipped-entity warning and also returns `null` to avoid breaking the whole seed.
  *
  * Structural concerns (FK course id, module displayId → uuid resolution, closure rows)
- * live in {@link import("../inserts").MindMapInsertService}.
+ * live in {@link import("../upsert").MindMapUpsertService}.
  */
 @Injectable()
 export class MindMapParserService {
     constructor(
         private readonly contextLoaderService: ContextLoaderService,
         private readonly winstonService: WinstonService,
+        private readonly courseIdFactoryService: CourseIdFactoryService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) { }
 
     /**
@@ -84,6 +95,28 @@ export class MindMapParserService {
             return null
         }
         return root
+    }
+
+    /**
+     * Loads persisted mind-map nodes for one course (DB inspection / sync checks).
+     *
+     * @param params - Course ordinal on the mount.
+     * @returns Mind-map node rows keyed by deterministic `courseId`.
+     */
+    async mindMapNodesFromDatabase(
+        params: MindMapNodesFromDatabaseParams,
+    ): Promise<Array<MindMapNodeEntity>> {
+        const {
+            courseIndex,
+        } = params
+        const courseId = this.courseIdFactoryService.generate({
+            courseIndex,
+        })
+        return this.entityManager.find(MindMapNodeEntity, {
+            where: {
+                courseId,
+            },
+        })
     }
 }
 

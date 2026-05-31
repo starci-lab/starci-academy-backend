@@ -7,7 +7,7 @@ import {
 import {
     ConfigurableModuleClass,
     OPTIONS_TYPE
-    } from "./primary.module-definition"
+} from "./primary.module-definition"
 import {
     envConfig
 } from "@modules/env"
@@ -134,22 +134,22 @@ import {
     QuizCardTranslationEntity,
     QuizCardOptionEntity,
     QuizCardOptionTranslationEntity
-    } from "./entities"
+} from "./entities"
 import {
     SeedersModule
 } from "./seeders"
 import {
     ResolversModule
-    } from "./resolvers"
+} from "./resolvers"
 import {
     HydrationModule
-    } from "./hydration"
+} from "./hydration"
 import {
     SyncStateService
-    } from "./sync-state.service"
+} from "./sync-state.service"
 import {
     PostgreSqlAdvisoryLockService
-    } from "./lock"
+} from "./lock"
 
 /**
  * Primary PostgreSQL module for the primary PostgreSQL connection.
@@ -172,7 +172,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
             extraModules.push(
                 HydrationModule.register({
                     isGlobal: options.isGlobal
-    }),
+                }),
             )
         }
         if (options.withSeeders) {
@@ -181,7 +181,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                     {
                         ...options.withSeeders,
                         isGlobal: options.isGlobal
-    }
+                    }
                 )
             )
         }
@@ -189,7 +189,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
             extraModules.push(
                 ResolversModule.register({
                     isGlobal: options.isGlobal
-    })
+                })
             )
         }
         return {
@@ -206,7 +206,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                 port,
                                 username,
                                 synchronize
-    } = envConfig().databases.postgresql.primary
+                            } = envConfig().databases.postgresql.primary
                             return {
                                 type: "postgres",
                                 host,
@@ -338,10 +338,10 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     provider(dataSource) {
                                         return new InMemoryQueryResultCache(dataSource)
                                     }
-    }
-    }
+                                }
+                            }
                         }
-    }
+                    }
                 ),
                 this.forFeature(),
                 ...extraModules,
@@ -355,7 +355,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                 SyncStateService,
                 PostgreSqlAdvisoryLockService,
             ]
-    }
+        }
     }
 
     /**
@@ -485,6 +485,6 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                     POSTGRESQL_PRIMARY
                 ),
             ]
-    }
+        }
     }
 }

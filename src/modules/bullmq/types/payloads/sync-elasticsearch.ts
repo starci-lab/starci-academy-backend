@@ -8,10 +8,10 @@ import {
     FoundationCategoryEntity,
     ConsultantEntity,
     HeadhuntingCompanyEntity
-    } from "@modules/databases"
+} from "@modules/databases"
 import {
     Dayjs
-    } from "dayjs"
+} from "dayjs"
 
 /** Entity kinds supported by on-demand Elasticsearch sync (search indices). */
 export type SyncElasticsearchEntityKind =

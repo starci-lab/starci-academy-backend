@@ -2,7 +2,7 @@ import {
     ChallengeEntity,
     CourseEntity,
     ContentEntity,    ModuleEntity
-    } from "@modules/databases"
+} from "@modules/databases"
 import {
     Dayjs 
 } from "dayjs"

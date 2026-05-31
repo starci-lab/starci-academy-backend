@@ -10,7 +10,7 @@ import {
 } from "@modules/databases"
 import {
     UpsertService,
-} from "../../courses"
+} from "../../shared"
 
 /**
  * Inserts/updates foundation category rows and category_translations.
@@ -36,14 +36,14 @@ export class FoundationCategoryInsertService {
             ...rest
         } = category
 
-        await this.upsertService.upsertUuid(
+        await this.upsertService.upsertMany(
             FoundationCategoryEntity,
             [rest],
         )
 
         /** 2. Upsert category translations */
         if (translations) {
-            await this.upsertService.upsertTranslation(
+            await this.upsertService.upsertTranslationMany(
                 FoundationCategoryTranslationEntity,
                 translations,
                 {

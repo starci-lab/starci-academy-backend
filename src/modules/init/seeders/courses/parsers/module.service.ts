@@ -6,6 +6,10 @@ import {
 } from "@modules/databases"
 import {
     ExtractJsonFromMdService,
+    MergeJsonService,
+    MergeJsonResult,
+    ResolvedFileResult,
+    ContextLoaderService,
     logInitSeederEntitySkipped,
 } from "../../shared"
 import {
@@ -13,22 +17,20 @@ import {
     ModuleIdFactoryService,
     PreviewContentIdFactoryService,
 } from "../id-factories"
-import {
+import type {
+    ModulesFromDatabaseParams,
     ParseModuleManyParams,
     ParseModuleParams,
 } from "./types"
 import {
     DeepPartial,
+    EntityManager,
 } from "typeorm"
 import {
+    InjectPrimaryPostgreSQLEntityManager,
     ModuleEntity,
-    ModuleTranslationEntity,
-    PreviewContentTranslationEntity,
+    PreviewContentEntity,
 } from "@modules/databases"
-import {
-    ResolvedFileResult,
-    ContextLoaderService 
-} from "../../shared"
 import {
     ModulePathNotFoundException,
 } from "@modules/exceptions"
@@ -50,7 +52,10 @@ export class ModuleParserService {
         private readonly contextLoaderService: ContextLoaderService,
         private readonly courseIdFactoryService: CourseIdFactoryService,
         private readonly modulePathService: ModulePathService,
+        private readonly mergeJsonService: MergeJsonService,
         private readonly winstonService: WinstonService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) { }
 
     /**
@@ -76,7 +81,8 @@ export class ModuleParserService {
                 },
             )
         }
-        const jsonMap = new Map<Locale, Partial<ModuleEntity>>()
+        // extract the heading structure for every locale's markdown file
+        const jsonMap = new Map<Locale, Record<string, unknown>>()
         for (const locale of Object.values(Locale)) {
             jsonMap.set(
                 locale,
@@ -88,6 +94,19 @@ export class ModuleParserService {
                 ),
             )
         }
+        // merge locales into one default-locale doc + aligned translation rows per i18n field
+        const merged = this.mergeJsonService.merge({
+            jsons: Object.values(Locale).map((locale) => ({
+                locale,
+                json: jsonMap.get(locale) ?? {
+                },
+            })),
+            translateFields: [
+                "title",
+                "description",
+                "previewContents.text",
+            ],
+        }) as MergeJsonResult<DeepPartial<ModuleEntity>>
         const courseId = this.courseIdFactoryService.generate(
             {
                 courseIndex,
@@ -107,71 +126,48 @@ export class ModuleParserService {
             },
             orderIndex: moduleIndex,
             defaultLocale: Locale.En,
-            title: jsonMap.get(Locale.En)?.title ?? "",
-            description: jsonMap.get(Locale.En)?.description ?? "",
-            previewContents: (
-                jsonMap.get(Locale.En)?.previewContents ?? []
-            ).map(({
-                text,
-                orderIndex,
-            }) => {
+            title: merged.title ?? "",
+            description: merged.description ?? "",
+            previewContents: ((merged.previewContents ?? []) as Array<DeepPartial<PreviewContentEntity>>).map((item) => {
                 const previewContentId = this.previewContentIdFactoryService.generate(
                     {
                         courseIndex,
                         moduleIndex,
-                        previewContentIndex: orderIndex,
+                        previewContentIndex: item.orderIndex ?? 0,
                     },
                 )
-                const translations = Array.from(jsonMap.entries())
-                    .map(([
-                        locale,
-                        module,
-                    ]) => (module.previewContents ?? [])
-                        .filter((previewContent) => previewContent.orderIndex === orderIndex)
-                        .map<DeepPartial<PreviewContentTranslationEntity>>(
-                            (previewContent) => ({
-                                previewContentId,
-                                locale,
-                                value: previewContent.text,
-                                field: "text",
-                            }),
-                        ))
-                    .flat()
                 return {
+                    id: previewContentId,
                     module: {
                         id: moduleId,
                     },
-                    id: previewContentId,
                     defaultLocale: Locale.En,
-                    text,
-                    orderIndex,
-                    translations,
+                    text: item.text ?? "",
+                    orderIndex: item.orderIndex,
+                    translations: (item.translations ?? []).map(({
+                        locale,
+                        field,
+                        value,
+                    }) => ({
+                        previewContentId,
+                        locale,
+                        field,
+                        value,
+                    })),
                 }
             }),
-            translations: (
-                () => {
-                    const translations: Array<DeepPartial<ModuleTranslationEntity>> = []
-                    for (const locale of Object.values(Locale)) {
-                        translations.push(
-                            {
-                                moduleId,
-                                locale,
-                                field: "title",
-                                value: jsonMap.get(locale)?.title ?? "",
-                            }
-                        )
-                        translations.push(
-                            {
-                                moduleId,
-                                locale,
-                                field: "description",
-                                value: jsonMap.get(locale)?.description ?? "",
-                            }
-                        )
-                    }
-                    return translations
-                }
-            )()
+            translations: (merged.translations ?? []).map(
+                ({
+                    locale,
+                    field,
+                    value,
+                }) => ({
+                    moduleId,
+                    locale,
+                    field,
+                    value,
+                }),
+            ),
         }
     }
 
@@ -217,5 +213,26 @@ export class ModuleParserService {
         }
         return data
     }
-}
 
+    /**
+     * Loads persisted modules for one course (DB inspection / sync checks).
+     *
+     * @param params - Course ordinal on the mount.
+     * @returns Module rows keyed by deterministic `courseId`.
+     */
+    async modulesFromDatabase(
+        params: ModulesFromDatabaseParams,
+    ): Promise<Array<ModuleEntity>> {
+        const {
+            courseIndex,
+        } = params
+        const courseId = this.courseIdFactoryService.generate({
+            courseIndex,
+        })
+        return this.entityManager.find(ModuleEntity, {
+            where: {
+                courseId,
+            },
+        })
+    }
+}

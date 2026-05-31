@@ -3,7 +3,7 @@
  *
  * The parser does not need a course id because mind-map node UUIDs are not
  * deterministic — the insert layer wipes and recreates the whole tree per run
- * (see {@link import("../../inserts").MindMapInsertService}).
+ * (see {@link import("../../upsert").MindMapUpsertService}).
  */
 export interface ParseMindMapParams {
     /**

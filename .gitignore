@@ -63,3 +63,7 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 .repo/*
 .repo
+
+# local repo archive (large binary, never commit)
+.repo.zip
+*.zip

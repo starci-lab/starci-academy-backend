@@ -1,4 +1,5 @@
 import type {
+    CourseFromDatabaseParams,
     ParseCourseParams,
 } from "./types"
 import {
@@ -29,9 +30,11 @@ import {
 } from "../id-factories"
 import {
     DeepPartial,
+    EntityManager,
 } from "typeorm"
 import {
     CourseEntity,
+    InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
     CoursePathNotFoundException,
@@ -62,6 +65,8 @@ export class CourseParserService {
         private readonly coursePathService: CoursePathService,
         private readonly mergeJsonService: MergeJsonService,
         private readonly winstonService: WinstonService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) { }
 
     /**
@@ -334,6 +339,28 @@ export class CourseParserService {
             }
         }
         return data
+    }
+
+    /**
+     * Loads one persisted course row by deterministic id (DB inspection / sync checks).
+     *
+     * @param params - Course ordinal on the mount.
+     * @returns The course row, or `null` when missing.
+     */
+    async courseFromDatabase(
+        params: CourseFromDatabaseParams,
+    ): Promise<CourseEntity | null> {
+        const {
+            courseIndex,
+        } = params
+        const courseId = this.courseIdFactoryService.generate({
+            courseIndex,
+        })
+        return this.entityManager.findOne(CourseEntity, {
+            where: {
+                id: courseId,
+            },
+        })
     }
 }
 

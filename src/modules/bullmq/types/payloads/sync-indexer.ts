@@ -5,7 +5,7 @@ import {
 } from "@modules/databases"
 import type {
     Dayjs
-    } from "dayjs"
+} from "dayjs"
 
 export type SyncIndexerEntityKind =
     typeof CourseEntity.name

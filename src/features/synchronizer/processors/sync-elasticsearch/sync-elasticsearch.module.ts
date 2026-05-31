@@ -1,9 +1,9 @@
 import {
     Module
-    } from "@nestjs/common"
+} from "@nestjs/common"
 import {
     ConfigurableModuleClass
-    } from "./sync-elasticsearch.module-definition"
+} from "./sync-elasticsearch.module-definition"
 import {
     ElasticsearchChallengeBuildService,
     ElasticsearchContentBuildService,
@@ -13,14 +13,14 @@ import {
     ElasticsearchFoundationCategoryBuildService,
     ElasticsearchHeadhunterCompanyBuildService,
     ElasticsearchConsultantBuildService
-    } from "./builder"
+} from "./builder"
 import {
     ProcessSyncElasticsearchCompleteStepService,
     ProcessSyncElasticsearchEntityStepService
-    } from "./steps"
+} from "./steps"
 import {
     SyncElasticsearchStepMappingService
-    } from "./step-mapping.service"
+} from "./step-mapping.service"
 
 @Module({
     providers: [
@@ -46,6 +46,6 @@ import {
         ElasticsearchHeadhunterCompanyBuildService,
         ElasticsearchConsultantBuildService,
     ]
-    })
+})
 export class SyncElasticsearchModule extends ConfigurableModuleClass {
 }

@@ -4,6 +4,9 @@ import type {
     Dirent,
 } from "fs"
 import {
+    getEntityManagerToken,
+} from "@nestjs/typeorm"
+import {
     Test,
 } from "@nestjs/testing"
 import type {
@@ -44,6 +47,9 @@ import {
 import {
     ChallengePathService,
 } from "../path"
+import {
+    ChallengeLegacyParserService,
+} from "./challenge-legacy.service"
 import {
     ChallengeParserService,
 } from "./challenge.service"
@@ -176,6 +182,19 @@ describe("ChallengeParserService",
                             log: jest.fn(),
                             error: jest.fn(),
                             warn: jest.fn(),
+                        },
+                    },
+                    {
+                        provide: ChallengeLegacyParserService,
+                        useValue: {
+                            parse: jest.fn(),
+                        },
+                    },
+                    {
+                        provide: getEntityManagerToken("primary"),
+                        useValue: {
+                            find: jest.fn(),
+                            findOne: jest.fn(),
                         },
                     },
                 ],

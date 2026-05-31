@@ -1,6 +1,7 @@
 import type {
     ParseQuizDeckManyParams,
     ParseQuizDeckParams,
+    QuizDecksFromDatabaseParams,
 } from "./types"
 import {
     Injectable,
@@ -10,19 +11,21 @@ import {
     Locale,
     QuizCardEntity,
     QuizCardOptionEntity,
-    QuizCardOptionTranslationEntity,
-    QuizCardTranslationEntity,
     QuizDeckEntity,
-    QuizDeckTranslationEntity,
 } from "@modules/databases"
 import {
     DeepPartial,
+    EntityManager,
 } from "typeorm"
 import {
+    CourseIdFactoryService,
     QuizCardIdFactoryService,
     QuizCardOptionIdFactoryService,
     QuizDeckIdFactoryService,
 } from "../id-factories"
+import {
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases"
 import {
     QuizDeckPathService,
 } from "../path"
@@ -30,6 +33,8 @@ import {
     ContextLoaderService,
     CoerceMdScalarService,
     ExtractJsonFromMdService,
+    MergeJsonResult,
+    MergeJsonService,
     ResolvedFileResult,
     logInitSeederEntitySkipped,
 } from "../../shared"
@@ -42,28 +47,6 @@ import {
 import {
     WinstonService,
 } from "@modules/winston"
-
-/** One multiple-choice option as parsed from the deck markdown. */
-interface RawQuizCardOption {
-    /** Zero-based option ordinal. */
-    orderIndex: number
-    /** Option text. */
-    text?: string
-    /** Whether this is the correct option (string/boolean from markdown). */
-    isCorrect?: string | boolean
-}
-
-/** One quiz card (question) as parsed from the deck markdown. */
-interface RawQuizCard {
-    /** Zero-based card ordinal. */
-    orderIndex: number
-    /** Question prompt. */
-    question?: string
-    /** Optional explanation shown after grading. */
-    explanation?: string
-    /** Answer options. */
-    options?: Array<RawQuizCardOption>
-}
 
 /** One content link line (`{moduleDisplayId}/{contentDisplayId}`) as parsed. */
 interface RawContentRef {
@@ -81,8 +64,6 @@ interface RawQuizDeck {
     description?: string
     /** Deck difficulty tier. */
     difficulty?: ChallengeDifficulty
-    /** Cards in the deck. */
-    cards?: Array<RawQuizCard>
     /** Optional content links (many-to-many). */
     contents?: Array<RawContentRef>
     /** Index signature so the markdown→JSON extractor generic is satisfied. */
@@ -94,6 +75,10 @@ interface RawQuizDeck {
  * (`en.md` / `vi.md`) under `courses/{course}/quiz-decks/`. Scalar fields use
  * camelCase `#` headings in `en.md`; per-locale values become translation rows.
  * An optional `# contents` list links the deck to contents (many-to-many).
+ *
+ * Follows the canonical mount-parse pattern (`.claude/pattern/16-mount-parsing.md`): extract once per
+ * locale, merge via {@link MergeJsonService} with dot-path `translateFields`, then render straight
+ * from `merged` — every array item already carries its aligned `translations[]`.
  */
 @Injectable()
 export class QuizDeckParserService {
@@ -102,10 +87,14 @@ export class QuizDeckParserService {
         private readonly contextLoaderService: ContextLoaderService,
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,
         private readonly coerceMdScalarService: CoerceMdScalarService,
+        private readonly mergeJsonService: MergeJsonService,
         private readonly quizDeckIdFactoryService: QuizDeckIdFactoryService,
         private readonly quizCardIdFactoryService: QuizCardIdFactoryService,
         private readonly quizCardOptionIdFactoryService: QuizCardOptionIdFactoryService,
         private readonly winstonService: WinstonService,
+        private readonly courseIdFactoryService: CourseIdFactoryService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) { }
 
     /**
@@ -148,6 +137,21 @@ export class QuizDeckParserService {
                 ),
             )
         }
+        // merge locales into one default-locale doc + aligned translation rows per i18n field
+        const merged = this.mergeJsonService.merge({
+            jsons: Object.values(Locale).map((locale) => ({
+                locale,
+                json: (jsonMap.get(locale) ?? {
+                }) as Record<string, unknown>,
+            })),
+            translateFields: [
+                "title",
+                "description",
+                "cards.question",
+                "cards.explanation",
+                "cards.options.text",
+            ],
+        }) as MergeJsonResult<DeepPartial<QuizDeckEntity>>
         // deterministic deck id anchored on the owning course + folder ordinal
         const quizDeckId = this.quizDeckIdFactoryService.generate(
             {
@@ -177,154 +181,96 @@ export class QuizDeckParserService {
             contents: linkedContentIds.map((id) => ({
                 id,
             })),
-            // scalar copy is sourced from the English document
-            title: jsonMap.get(Locale.En)?.title ?? "",
-            description: jsonMap.get(Locale.En)?.description ?? "",
+            // scalar copy is sourced from the merged default-locale doc
+            title: merged.title ?? "",
+            description: merged.description ?? "",
             // difficulty comes from the `# difficulty` heading; default to easy
-            difficulty: jsonMap.get(Locale.En)?.difficulty ?? ChallengeDifficulty.Easy,
+            difficulty: merged.difficulty ?? ChallengeDifficulty.Easy,
             orderIndex: quizDeckIndex,
             // emit one translation row per (locale, field) for the deck itself
-            translations: (() => {
-                const translations: Array<DeepPartial<QuizDeckTranslationEntity>> = []
-                for (const locale of Object.values(Locale)) {
-                    translations.push({
-                        quizDeckId,
-                        locale,
-                        field: "title",
-                        value: jsonMap.get(locale)?.title ?? "",
-                    })
-                    translations.push({
-                        quizDeckId,
-                        locale,
-                        field: "description",
-                        value: jsonMap.get(locale)?.description ?? "",
-                    })
-                }
-                return translations
-            })(),
+            translations: (merged.translations ?? []).map(
+                ({
+                    locale,
+                    field,
+                    value,
+                }) => ({
+                    quizDeckId,
+                    locale,
+                    field,
+                    value,
+                }),
+            ),
             // map each authored card into an entity graph (options + translations)
-            cards: (
-                jsonMap.get(Locale.En)?.cards ?? []
-            ).map(({
-                orderIndex,
-                question,
-                explanation,
-                options,
-            }) => {
+            cards: ((merged.cards ?? []) as Array<DeepPartial<QuizCardEntity>>).map((card) => {
                 // deterministic card id under the deck id
                 const quizCardId = this.quizCardIdFactoryService.generate(
                     {
                         courseIndex,
                         quizDeckIndex,
-                        quizCardIndex: orderIndex,
+                        quizCardIndex: card.orderIndex ?? 0,
                     },
                 )
-                // per-locale translations for the card text fields
-                const cardTranslations = Array.from(jsonMap.entries()).map(
-                    ([
-                        locale,
-                        deck,
-                    ]) => (deck.cards ?? [])
-                        .filter((card) => card.orderIndex === orderIndex)
-                        .map<Array<DeepPartial<QuizCardTranslationEntity>>>((card) => [
-                            {
-                                quizCardId,
-                                locale,
-                                field: "question",
-                                value: this.coerceMdScalarService.toRequiredString(
-                                    card.question,
-                                    "",
-                                ),
-                            },
-                            {
-                                quizCardId,
-                                locale,
-                                field: "explanation",
-                                value: this.coerceMdScalarService.toRequiredString(
-                                    card.explanation,
-                                    "",
-                                ),
-                            },
-                        ]),
-                ).flat().flat()
-                // map each option of this card into an entity + translations
-                const cardOptions = (options ?? []).map(({
-                    orderIndex: optionOrderIndex,
-                    text,
-                    isCorrect,
-                }) => {
-                    // deterministic option id under the card id
-                    const quizCardOptionId = this.quizCardOptionIdFactoryService.generate(
-                        {
-                            courseIndex,
-                            quizDeckIndex,
-                            quizCardIndex: orderIndex,
-                            quizCardOptionIndex: optionOrderIndex,
-                        },
-                    )
-                    // per-locale translation of the option text
-                    const optionTranslations = Array.from(jsonMap.entries()).map(
-                        ([
-                            locale,
-                            deck,
-                        ]) => {
-                            // walk locale → card → option by matching ordinals
-                            const localeCard = (deck.cards ?? []).find(
-                                (card) => card.orderIndex === orderIndex,
-                            )
-                            const localeOption = (localeCard?.options ?? []).find(
-                                (option) => option.orderIndex === optionOrderIndex,
-                            )
-                            // skip locales that omit this option entirely
-                            if (!localeOption) {
-                                return []
-                            }
-                            return [
-                                {
-                                    quizCardOptionId,
-                                    locale,
-                                    field: "text",
-                                    value: this.coerceMdScalarService.toRequiredString(
-                                        localeOption.text,
-                                        "",
-                                    ),
-                                } as DeepPartial<QuizCardOptionTranslationEntity>,
-                            ]
-                        },
-                    ).flat()
-                    return {
-                        id: quizCardOptionId,
-                        orderIndex: optionOrderIndex,
-                        text: this.coerceMdScalarService.toRequiredString(text,
-                            ""),
-                        // correctness flag drives Test auto-grading
-                        isCorrect: this.coerceMdScalarService.toRequiredBoolean(
-                            isCorrect,
-                            false,
-                        ),
-                        defaultLocale: Locale.En,
-                        card: {
-                            id: quizCardId,
-                        },
-                        translations: optionTranslations,
-                    } as DeepPartial<QuizCardOptionEntity>
-                })
                 return {
                     id: quizCardId,
-                    orderIndex,
-                    question: this.coerceMdScalarService.toRequiredString(question,
+                    orderIndex: card.orderIndex,
+                    question: this.coerceMdScalarService.toRequiredString(card.question,
                         ""),
                     // explanation is optional → store null when blank
                     explanation: this.coerceMdScalarService.toNullableStringColumn(
-                        explanation,
+                        card.explanation,
                     ),
                     defaultLocale: Locale.En,
                     deck: {
                         id: quizDeckId,
                     },
-                    options: cardOptions,
-                    translations: cardTranslations,
-                } as DeepPartial<QuizCardEntity>
+                    // map each option of this card into an entity + translations
+                    options: ((card.options ?? []) as Array<DeepPartial<QuizCardOptionEntity>>).map((option) => {
+                        // deterministic option id under the card id
+                        const quizCardOptionId = this.quizCardOptionIdFactoryService.generate(
+                            {
+                                courseIndex,
+                                quizDeckIndex,
+                                quizCardIndex: card.orderIndex ?? 0,
+                                quizCardOptionIndex: option.orderIndex ?? 0,
+                            },
+                        )
+                        return {
+                            id: quizCardOptionId,
+                            orderIndex: option.orderIndex,
+                            text: this.coerceMdScalarService.toRequiredString(option.text,
+                                ""),
+                            // correctness flag drives Test auto-grading
+                            isCorrect: this.coerceMdScalarService.toRequiredBoolean(
+                                option.isCorrect,
+                                false,
+                            ),
+                            defaultLocale: Locale.En,
+                            card: {
+                                id: quizCardId,
+                            },
+                            translations: (option.translations ?? []).map(({
+                                locale,
+                                field,
+                                value,
+                            }) => ({
+                                quizCardOptionId,
+                                locale,
+                                field,
+                                value,
+                            })),
+                        }
+                    }),
+                    translations: (card.translations ?? []).map(({
+                        locale,
+                        field,
+                        value,
+                    }) => ({
+                        quizCardId,
+                        locale,
+                        field,
+                        value,
+                    })),
+                }
             }),
         }
     }
@@ -378,5 +324,27 @@ export class QuizDeckParserService {
             }
         }
         return data
+    }
+
+    /**
+     * Loads persisted quiz decks for one course (DB inspection / sync checks).
+     *
+     * @param params - Course ordinal on the mount.
+     * @returns Quiz deck rows keyed by deterministic `courseId`.
+     */
+    async quizDecksFromDatabase(
+        params: QuizDecksFromDatabaseParams,
+    ): Promise<Array<QuizDeckEntity>> {
+        const {
+            courseIndex,
+        } = params
+        const courseId = this.courseIdFactoryService.generate({
+            courseIndex,
+        })
+        return this.entityManager.find(QuizDeckEntity, {
+            where: {
+                courseId,
+            },
+        })
     }
 }

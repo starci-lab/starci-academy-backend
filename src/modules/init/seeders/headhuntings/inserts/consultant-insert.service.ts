@@ -10,7 +10,7 @@ import {
 } from "@modules/databases"
 import {
     UpsertService,
-} from "../../courses"
+} from "../../shared"
 
 @Injectable()
 export class ConsultantInsertService {
@@ -27,18 +27,18 @@ export class ConsultantInsertService {
             company,
             ...rest
         } = consultant
-        await this.upsertService.upsertUuid(
+        await this.upsertService.upsertMany(
             ConsultantEntity,
             [{
                 ...rest,
                 ...(company ? {
-                    company 
+                    company
                 } : {
                 }),
             }],
         )
         if (translations) {
-            await this.upsertService.upsertTranslation(
+            await this.upsertService.upsertTranslationMany(
                 ConsultantTranslationEntity,
                 translations,
                 {
@@ -52,12 +52,14 @@ export class ConsultantInsertService {
         ids: Array<string>,
         companyId: string,
     ): Promise<void> {
-        await this.upsertService.deleteStaleUuid<ConsultantEntity>(
+        await this.upsertService.upsertMany<ConsultantEntity>(
             ConsultantEntity,
-            ids,
+            ids.map((id) => ({
+                id,
+            }) as DeepPartial<ConsultantEntity>),
             {
                 company: {
-                    id: companyId 
+                    id: companyId,
                 },
             },
         )

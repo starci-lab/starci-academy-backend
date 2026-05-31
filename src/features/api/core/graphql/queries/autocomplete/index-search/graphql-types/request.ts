@@ -3,7 +3,7 @@ import {
     InputType,
     Int,
     registerEnumType
-    } from "@nestjs/graphql"
+} from "@nestjs/graphql"
 
 export enum IndexSearchType {
     CourseIndex = "course-index",
@@ -20,13 +20,13 @@ registerEnumType(IndexSearchType,
 
 @InputType({
     description: "Fuzzy index-search request."
-    })
+})
 export class IndexSearchRequest {
     @Field(
         () => IndexSearchType,
         {
             description: "Target index type."
-    },
+        },
     )
         type: IndexSearchType
 
@@ -34,7 +34,7 @@ export class IndexSearchRequest {
         () => String,
         {
             description: "Search keyword for fuzzy match."
-    },
+        },
     )
         query: string
 
@@ -44,7 +44,7 @@ export class IndexSearchRequest {
             nullable: true,
             defaultValue: 10,
             description: "Maximum returned rows."
-    },
+        },
     )
         size?: number
 }

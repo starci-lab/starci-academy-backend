@@ -1,12 +1,12 @@
 import {
     Module
-    } from "@nestjs/common"
+} from "@nestjs/common"
 import {
     ConfigurableModuleClass
-    } from "./elasticsearch-synchronizer.module-definition"
+} from "./elasticsearch-synchronizer.module-definition"
 import {
     ElasticsearchSynchronizerService
-    } from "./elasticsearch-synchronizer.service"
+} from "./elasticsearch-synchronizer.service"
 import {
     ElasticsearchCourseBuildService,
     ElasticsearchModuleBuildService,
@@ -18,7 +18,7 @@ import {
     ElasticsearchFoundationCategoryBuildService,
     ElasticsearchHeadhunterCompanyBuildService,
     ElasticsearchConsultantBuildService
-    } from "./builder"
+} from "./builder"
 
 /**
  * Module for synchronizing the Elasticsearch.
@@ -40,5 +40,5 @@ import {
     exports: [
         ElasticsearchSynchronizerService,
     ]
-    })
+})
 export class ElasticsearchSynchronizerModule extends ConfigurableModuleClass { }

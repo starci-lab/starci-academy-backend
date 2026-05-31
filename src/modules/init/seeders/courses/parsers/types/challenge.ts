@@ -19,6 +19,12 @@ export interface ParseChallengeParams {
     challengeIndex: number
 }
 
+/** {@link ChallengeParserService.isV2} input. */
+export interface IsChallengeV2Params {
+    /** Challenge folder relative path under `courses/`. */
+    relativePath: string
+}
+
 /** Ordinals locating `modules/{module}/contents/{contentIndex}-{slug}/challenges/` on the course mount. */
 export interface ParseChallengeManyParams {
     /** The relative path of the content. */

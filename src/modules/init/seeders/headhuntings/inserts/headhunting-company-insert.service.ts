@@ -10,7 +10,7 @@ import {
 } from "@modules/databases"
 import {
     UpsertService,
-} from "../../courses"
+} from "../../shared"
 
 @Injectable()
 export class HeadhuntingCompanyInsertService {
@@ -27,12 +27,12 @@ export class HeadhuntingCompanyInsertService {
             consultants,
             ...rest
         } = company
-        await this.upsertService.upsertUuid(
+        await this.upsertService.upsertMany(
             HeadhuntingCompanyEntity,
             [rest],
         )
         if (translations) {
-            await this.upsertService.upsertTranslation(
+            await this.upsertService.upsertTranslationMany(
                 HeadhuntingCompanyTranslationEntity,
                 translations,
                 {

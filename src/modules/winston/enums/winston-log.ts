@@ -3,7 +3,7 @@ export enum WinstonLog {
     CoursesSeededSuccessfully = "CoursesSeededSuccessfully",
     /** Init seeder: single mount entity skipped (parse/load error). */
     InitSeederEntitySkipped = "InitSeederEntitySkipped",
-    /** DB seeder: entity row added, updated, or deleted. */
+    /** DB seeder: entity row created, updated, or deleted. */
     DbSynchronizerSyncedSuccessfully = "DbSynchronizerSyncedSuccessfully",
     ContextFileLoadedSuccessfully = "ContextFileLoadedSuccessfully",
     EnrollmentCreated = "EnrollmentCreated",

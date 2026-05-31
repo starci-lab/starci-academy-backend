@@ -1,4 +1,5 @@
 import type {
+    MilestoneTasksFromDatabaseParams,
     ParseMilestoneTaskParams,
     ParseMilestoneTaskManyParams,
 } from "./types"
@@ -8,25 +9,29 @@ import {
 import {
     Locale,
     PersonalProjectTaskType,
+    InjectPrimaryPostgreSQLEntityManager,
     MilestoneTaskEntity,
-    MilestoneTaskTranslationEntity,
     MilestoneTaskCriteriaEntity,
-    MilestoneTaskCriteriaTranslationEntity,
     MilestoneTaskCodeImplementationEntity,
-    MilestoneTaskCodeImplementationTranslationEntity,
 } from "@modules/databases"
 import {
     ExtractJsonFromMdService,
     CoerceMdScalarService,
+    ContextLoaderService,
+    ResolvedFileResult,
+    MergeJsonService,
+    MergeJsonResult,
     logInitSeederEntitySkipped,
 } from "../../shared"
 import {
+    MilestoneIdFactoryService,
     MilestoneTaskIdFactoryService,
     MilestoneTaskPassCriteriaIdFactoryService,
     MilestoneTaskCodeImplementationIdFactoryService,
 } from "../id-factories"
 import {
     DeepPartial,
+    EntityManager,
 } from "typeorm"
 import {
     MilestoneTaskPathNotFoundException,
@@ -34,12 +39,6 @@ import {
 import {
     MilestoneTaskPathService,
 } from "../path"
-import {
-    ContextLoaderService 
-} from "../../shared"
-import {
-    ResolvedFileResult,
-} from "../../shared"
 import {
     WinstonService,
 } from "@modules/winston"
@@ -53,6 +52,10 @@ const TASK_TYPE_MAP: Record<string, PersonalProjectTaskType> = {
 /**
  * Parses milestone-task data from mounted course files (`en.md`, `vi.md`).
  * Criteria are parsed inline from the same markdown file (`# criterias` section).
+ *
+ * Follows the canonical mount-parse pattern (`.claude/pattern/16-mount-parsing.md`): extract once per
+ * locale, merge via {@link MergeJsonService} with dot-path `translateFields`, then render straight
+ * from `merged` — every array item already carries its aligned `translations[]`.
  */
 @Injectable()
 export class MilestoneTaskParserService {
@@ -64,7 +67,11 @@ export class MilestoneTaskParserService {
         private readonly codeImplementationIdFactoryService: MilestoneTaskCodeImplementationIdFactoryService,
         private readonly contextLoaderService: ContextLoaderService,
         private readonly milestoneTaskPathService: MilestoneTaskPathService,
+        private readonly mergeJsonService: MergeJsonService,
         private readonly winstonService: WinstonService,
+        private readonly milestoneIdFactoryService: MilestoneIdFactoryService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) { }
 
     /**
@@ -88,16 +95,43 @@ export class MilestoneTaskParserService {
                 },
             )
         }
-        const jsonMap = new Map<Locale, Record<string, any>>()
+        // extract the heading structure for every locale's markdown file, normalizing the criteria
+        // section key (the mount may name it singular `criteria` or plural `criterias`)
+        const jsonMap = new Map<Locale, Record<string, unknown>>()
         for (const locale of Object.values(Locale)) {
+            const extracted = this.extractJsonFromMdService.extract(
+                await this.contextLoaderService.load(
+                    "courses",
+                    `${path.relativePath}/${locale}.md`,
+                ),
+            ) as Record<string, unknown>
+            const normalized = {
+                ...extracted,
+                criterias: extracted.criterias ?? extracted.criteria,
+            }
             jsonMap.set(
                 locale,
-                this.extractJsonFromMdService.extract(
-                    await this.contextLoaderService.load("courses",
-                        `${path.relativePath}/${locale}.md`),
-                ),
+                normalized,
             )
         }
+        // merge locales into one default-locale doc + aligned translation rows per i18n field
+        const merged = this.mergeJsonService.merge({
+            jsons: Object.values(Locale).map((locale) => ({
+                locale,
+                json: jsonMap.get(locale) ?? {
+                },
+            })),
+            translateFields: [
+                "title",
+                "description",
+                "hint",
+                "criterias.text",
+                "criterias.hint",
+                "criterias.promptText",
+                "codeImplementations.guide",
+                "codeImplementations.example",
+            ],
+        }) as MergeJsonResult<DeepPartial<MilestoneTaskEntity>>
         const taskId = this.milestoneTaskIdFactoryService.generate(
             {
                 courseIndex,
@@ -105,179 +139,117 @@ export class MilestoneTaskParserService {
                 taskIndex,
             },
         )
-        const enTask = jsonMap.get(Locale.En) ?? {
-        }
 
         return {
             id: taskId,
-            title: enTask.title ?? "",
-            description: enTask.description ?? "",
-            hint: enTask.hint ?? "",
+            title: merged.title ?? "",
+            description: merged.description ?? "",
+            hint: merged.hint ?? "",
             orderIndex: this.coerceMdScalarService.toRequiredNumber(
-                enTask.orderIndex,
+                merged.orderIndex,
                 taskIndex,
             ),
             weight: this.coerceMdScalarService.toRequiredNumber(
-                enTask.weight,
+                merged.weight,
                 0,
             ),
-            type: TASK_TYPE_MAP[enTask.type] ?? PersonalProjectTaskType.Business,
+            type: TASK_TYPE_MAP[merged.type as string] ?? PersonalProjectTaskType.Business,
             maxScore: this.coerceMdScalarService.toRequiredNumber(
-                enTask.maxScore,
+                merged.maxScore,
                 0,
             ),
             defaultLocale: Locale.En,
-            translations: (() => {
-                const translations: Array<DeepPartial<MilestoneTaskTranslationEntity>> = []
-                for (const locale of Object.values(Locale)) {
-                    const json = jsonMap.get(locale)
-                    if (json?.title) {
-                        translations.push({
-                            milestoneTaskId: taskId,
+            translations: (merged.translations ?? []).map(
+                ({
+                    locale,
+                    field,
+                    value,
+                }) => ({
+                    milestoneTaskId: taskId,
+                    locale,
+                    field,
+                    value,
+                }),
+            ),
+            /** Parse criteria inline from the same markdown file (`# criterias`). */
+            criterias: ((merged.criterias ?? []) as Array<DeepPartial<MilestoneTaskCriteriaEntity>>).map(
+                (item, criteriaIndex) => {
+                    const criteriaId = this.criteriaIdFactoryService.generate(
+                        {
+                            courseIndex,
+                            milestoneIndex,
+                            taskIndex,
+                            criteriaIndex: item.orderIndex ?? criteriaIndex,
+                        },
+                    )
+                    return {
+                        id: criteriaId,
+                        text: (item.text as string) ?? "",
+                        hint: (item.hint as string) ?? "",
+                        promptText: (item.promptText as string) ?? "",
+                        orderIndex: this.coerceMdScalarService.toRequiredNumber(
+                            item.orderIndex,
+                            criteriaIndex,
+                        ),
+                        score: this.coerceMdScalarService.toRequiredNumber(
+                            item.score,
+                            10,
+                        ),
+                        defaultLocale: Locale.En,
+                        milestoneTask: {
+                            id: taskId,
+                        },
+                        translations: (item.translations ?? []).map(({
                             locale,
-                            field: "title",
-                            value: json.title as string,
-                        })
-                    }
-                    if (json?.description) {
-                        translations.push({
-                            milestoneTaskId: taskId,
+                            field,
+                            value,
+                        }) => ({
+                            milestoneTaskCriteriaId: criteriaId,
                             locale,
-                            field: "description",
-                            value: json.description as string,
-                        })
+                            field,
+                            value,
+                        })),
                     }
-                    if (json?.hint) {
-                        translations.push({
-                            milestoneTaskId: taskId,
-                            locale,
-                            field: "hint",
-                            value: json.hint as string,
-                        })
-                    }
-                }
-                return translations
-            })(),
-            /** Parse criteria inline from the same markdown file. */
-            criterias: (() => {
-                const enCriteriaArray: Array<any> = enTask.criterias ?? enTask.criteria ?? []
-                return enCriteriaArray.map(
-                    (enCriteria: any, criteriaIndex: number) => {
-                        const criteriaId = this.criteriaIdFactoryService.generate(
-                            {
-                                courseIndex,
-                                milestoneIndex,
-                                taskIndex,
-                                criteriaIndex,
-                            },
-                        )
-                        const translations: Array<DeepPartial<MilestoneTaskCriteriaTranslationEntity>> = []
-                        for (const locale of Object.values(Locale)) {
-                            const json = jsonMap.get(locale)
-                            const localeCriteriaArray: Array<any> = json?.criterias ?? json?.criteria ?? []
-                            const localeCriteria = localeCriteriaArray[criteriaIndex]
-                            if (!localeCriteria) continue
-                            if (localeCriteria.text) {
-                                translations.push({
-                                    milestoneTaskCriteriaId: criteriaId,
-                                    locale,
-                                    field: "text",
-                                    value: localeCriteria.text,
-                                })
-                            }
-                            if (localeCriteria.hint) {
-                                translations.push({
-                                    milestoneTaskCriteriaId: criteriaId,
-                                    locale,
-                                    field: "hint",
-                                    value: localeCriteria.hint,
-                                })
-                            }
-                            if (localeCriteria.promptText) {
-                                translations.push({
-                                    milestoneTaskCriteriaId: criteriaId,
-                                    locale,
-                                    field: "promptText",
-                                    value: localeCriteria.promptText,
-                                })
-                            }
-                        }
-                        return {
-                            id: criteriaId,
-                            text: (enCriteria.text as string) ?? "",
-                            hint: (enCriteria.hint as string) ?? "",
-                            promptText: (enCriteria.promptText as string) ?? "",
-                            orderIndex: this.coerceMdScalarService.toRequiredNumber(
-                                enCriteria.orderIndex,
-                                criteriaIndex,
-                            ),
-                            score: this.coerceMdScalarService.toRequiredNumber(
-                                enCriteria.score,
-                                10,
-                            ),
-                            defaultLocale: Locale.En,
-                            milestoneTask: {
-                                id: taskId,
-                            },
-                            translations,
-                        } as DeepPartial<MilestoneTaskCriteriaEntity>
-                    },
-                )
-            })(),
+                },
+            ),
             /** Parse code implementations inline from the same markdown file (`# codeImplementations`). */
-            codeImplementations: (
-                enTask.codeImplementations ?? []
-            ).map(
-                (enImplementation: any, implementationIndex: number) => {
+            codeImplementations: ((merged.codeImplementations ?? []) as Array<DeepPartial<MilestoneTaskCodeImplementationEntity>>).map(
+                (item, implementationIndex) => {
                     const implementationId = this.codeImplementationIdFactoryService.generate(
                         {
                             courseIndex,
                             milestoneIndex,
                             taskIndex,
-                            implementationIndex,
+                            implementationIndex: item.orderIndex ?? implementationIndex,
                         },
                     )
-                    const translations: Array<DeepPartial<MilestoneTaskCodeImplementationTranslationEntity>> = []
-                    for (const locale of Object.values(Locale)) {
-                        const json = jsonMap.get(locale)
-                        const localeImplementationArray: Array<any> = json?.codeImplementations ?? []
-                        const localeImplementation = localeImplementationArray[implementationIndex]
-                        if (!localeImplementation) continue
-                        if (localeImplementation.guide) {
-                            translations.push({
-                                milestoneTaskCodeImplementationId: implementationId,
-                                locale,
-                                field: "guide",
-                                value: localeImplementation.guide as string,
-                            })
-                        }
-                        if (localeImplementation.example) {
-                            translations.push({
-                                milestoneTaskCodeImplementationId: implementationId,
-                                locale,
-                                field: "example",
-                                value: localeImplementation.example as string,
-                            })
-                        }
-                    }
                     return {
                         id: implementationId,
                         lang: this.coerceMdScalarService.toRequiredString(
-                            enImplementation.lang,
+                            item.lang,
                             "text",
                         ),
-                        guide: (enImplementation.guide as string) ?? "",
-                        example: (enImplementation.example as string) ?? "",
+                        guide: (item.guide as string) ?? "",
+                        example: (item.example as string) ?? "",
                         orderIndex: this.coerceMdScalarService.toRequiredNumber(
-                            enImplementation.orderIndex,
+                            item.orderIndex,
                             implementationIndex,
                         ),
                         defaultLocale: Locale.En,
                         milestoneTask: {
                             id: taskId,
                         },
-                        translations,
-                    } as DeepPartial<MilestoneTaskCodeImplementationEntity>
+                        translations: (item.translations ?? []).map(({
+                            locale,
+                            field,
+                            value,
+                        }) => ({
+                            milestoneTaskCodeImplementationId: implementationId,
+                            locale,
+                            field,
+                            value,
+                        })),
+                    }
                 },
             ),
         }
@@ -330,5 +302,28 @@ export class MilestoneTaskParserService {
         }
         return data
     }
-}
 
+    /**
+     * Loads persisted milestone tasks for one milestone (DB inspection / sync checks).
+     *
+     * @param params - Course/milestone ordinals on the mount.
+     * @returns Task rows keyed by deterministic `milestoneId`.
+     */
+    async milestoneTasksFromDatabase(
+        params: MilestoneTasksFromDatabaseParams,
+    ): Promise<Array<MilestoneTaskEntity>> {
+        const {
+            courseIndex,
+            milestoneIndex,
+        } = params
+        const milestoneId = this.milestoneIdFactoryService.generate({
+            courseIndex,
+            milestoneIndex,
+        })
+        return this.entityManager.find(MilestoneTaskEntity, {
+            where: {
+                milestoneId,
+            },
+        })
+    }
+}

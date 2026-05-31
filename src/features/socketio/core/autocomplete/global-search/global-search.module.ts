@@ -1,12 +1,12 @@
 import {
     Module
-    } from "@nestjs/common"
+} from "@nestjs/common"
 import {
     ConfigurableModuleClass
-    } from "./global-search.module-definition"
+} from "./global-search.module-definition"
 import {
     GlobalSearchGateway
-    } from "./global-search.gateway"
+} from "./global-search.gateway"
 import {
     GlobalSearchHandler,
     GlobalSearchService,
@@ -15,7 +15,7 @@ import {
     ChallengeGlobalSearchService,
     ContentGlobalSearchService,
     GlobalSearchEntityUtilsService
-    } from "./handle-global-search"
+} from "./handle-global-search"
 
 /**
  * Module providing Socket.IO global fuzzy search using CQRS + Elasticsearch.
@@ -36,6 +36,6 @@ import {
         GlobalSearchService,
         GlobalSearchHandler,
     ]
-    })
+})
 export class GlobalSearchModule extends ConfigurableModuleClass {}
 

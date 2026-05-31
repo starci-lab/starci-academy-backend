@@ -12,7 +12,7 @@ import {
 } from "@modules/databases"
 import {
     UpsertService,
-} from "../../courses"
+} from "../../shared"
 
 /**
  * Inserts/updates/deletes foundation-level tables:
@@ -40,7 +40,7 @@ export class FoundationInsertService {
             ...rest
         } = foundation
 
-        await this.upsertService.upsertUuid(
+        await this.upsertService.upsertMany(
             FoundationEntity,
             [{
                 ...rest,
@@ -54,7 +54,7 @@ export class FoundationInsertService {
 
         /** 2. Upsert foundation translations */
         if (translations) {
-            await this.upsertService.upsertTranslation(
+            await this.upsertService.upsertTranslationMany(
                 FoundationTranslationEntity,
                 translations,
                 {
@@ -65,17 +65,15 @@ export class FoundationInsertService {
 
         /** 3. Upsert foundation tags + their translations */
         if (tags) {
+            const tagRows: Array<DeepPartial<FoundationTagEntity>> = []
             for (const tag of tags) {
                 const {
                     translations: tagTranslations,
                     ...tagData
                 } = tag
-                await this.upsertService.upsertUuid(
-                    FoundationTagEntity,
-                    [tagData],
-                )
+                tagRows.push(tagData)
                 if (tagTranslations?.length) {
-                    await this.upsertService.upsertTranslation<FoundationTagTranslationEntity>(
+                    await this.upsertService.upsertTranslationMany<FoundationTagTranslationEntity>(
                         FoundationTagTranslationEntity,
                         tagTranslations,
                         {
@@ -84,11 +82,9 @@ export class FoundationInsertService {
                     )
                 }
             }
-            await this.upsertService.deleteStaleUuid<FoundationTagEntity>(
+            await this.upsertService.upsertMany(
                 FoundationTagEntity,
-                tags.map(
-                    (tag: FoundationTagEntity) => tag.id ?? "",
-                ),
+                tagRows,
                 {
                     foundation: {
                         id: foundationId,
@@ -105,9 +101,11 @@ export class FoundationInsertService {
         ids: Array<string>,
         categoryId: string,
     ): Promise<void> {
-        await this.upsertService.deleteStaleUuid<FoundationEntity>(
+        await this.upsertService.upsertMany<FoundationEntity>(
             FoundationEntity,
-            ids,
+            ids.map((id) => ({
+                id,
+            })),
             {
                 category: {
                     id: categoryId,
