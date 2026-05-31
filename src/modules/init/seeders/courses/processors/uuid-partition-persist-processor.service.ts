@@ -75,7 +75,9 @@ export class UuidPartitionPersistProcessorService {
             )
             this.upsertService.logSync(
                 entityClass,
-                deleteEntities.map((entity) => entity.id),
+                deleteEntities.map(
+                    (entity) => entity.id
+                ),
                 DbSyncType.Deleted,
             )
         }

@@ -94,7 +94,9 @@ export class ChallengeProcessorService {
                 entityClass: ChallengeEntity,
                 entities,
                 where: {
-                    contentId,
+                    content: {
+                        id: contentId,
+                    },
                 },
             })
             await this.uuidPartitionPersistProcessorService.process({

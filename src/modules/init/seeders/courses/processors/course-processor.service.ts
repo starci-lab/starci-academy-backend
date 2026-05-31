@@ -1,4 +1,6 @@
 import {
+    forwardRef,
+    Inject,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -34,8 +36,10 @@ export class CourseProcessorService {
     constructor(
         private readonly upsertService: UpsertService,
         private readonly uuidPartitionPersistProcessorService: UuidPartitionPersistProcessorService,
+        @Inject(forwardRef(() => ModuleProcessorService))
         private readonly moduleProcessorService: ModuleProcessorService,
         private readonly quizDeckProcessorService: QuizDeckProcessorService,
+        @Inject(forwardRef(() => MilestoneProcessorService))
         private readonly milestoneProcessorService: MilestoneProcessorService,
         private readonly mindMapProcessorService: MindMapProcessorService,
     ) { }

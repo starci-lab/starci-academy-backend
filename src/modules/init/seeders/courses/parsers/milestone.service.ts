@@ -199,7 +199,9 @@ export class MilestoneParserService {
         })
         return this.entityManager.find(MilestoneEntity, {
             where: {
-                courseId,
+                course: {
+                    id: courseId,
+                },
             },
         })
     }

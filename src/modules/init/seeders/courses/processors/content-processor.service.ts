@@ -1,4 +1,6 @@
 import {
+    forwardRef,
+    Inject,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -42,6 +44,7 @@ export class ContentProcessorService {
         private readonly winstonService: WinstonService,
         private readonly upsertService: UpsertService,
         private readonly uuidPartitionPersistProcessorService: UuidPartitionPersistProcessorService,
+        @Inject(forwardRef(() => ChallengeProcessorService))
         private readonly challengeProcessorService: ChallengeProcessorService,
     ) { }
 
@@ -100,7 +103,9 @@ export class ContentProcessorService {
                 entityClass: ContentEntity,
                 entities,
                 where: {
-                    moduleId,
+                    module: {
+                        id: moduleId,
+                    },
                 },
             },
         )

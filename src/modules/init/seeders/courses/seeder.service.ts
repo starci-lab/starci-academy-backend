@@ -12,7 +12,7 @@ import {
 } from "../shared/scope"
 import {
     CourseProcessorService,
-} from "./processors"
+} from "./processors/course-processor.service"
 
 /**
  * Course init seeder entry: scope checks, parse courses, delegate to {@link CourseProcessorService}.

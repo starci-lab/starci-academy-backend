@@ -343,7 +343,9 @@ export class QuizDeckParserService {
         })
         return this.entityManager.find(QuizDeckEntity, {
             where: {
-                courseId,
+                course: {
+                    id: courseId,
+                },
             },
         })
     }

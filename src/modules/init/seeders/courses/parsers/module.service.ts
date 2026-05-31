@@ -231,7 +231,9 @@ export class ModuleParserService {
         })
         return this.entityManager.find(ModuleEntity, {
             where: {
-                courseId,
+                course: {
+                    id: courseId,
+                },
             },
         })
     }

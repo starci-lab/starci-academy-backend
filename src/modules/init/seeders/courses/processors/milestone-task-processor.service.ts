@@ -57,7 +57,9 @@ export class MilestoneTaskProcessorService {
             entityClass: MilestoneTaskEntity,
             entities,
             where: {
-                milestoneId,
+                milestone: {
+                    id: milestoneId,
+                },
             },
         })
         await this.uuidPartitionPersistProcessorService.process({

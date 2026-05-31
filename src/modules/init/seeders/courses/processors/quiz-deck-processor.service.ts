@@ -56,7 +56,9 @@ export class QuizDeckProcessorService {
                 entityClass: QuizDeckEntity,
                 entities: quizDeckResults.map((quizDeckResult) => quizDeckResult.data),
                 where: {
-                    courseId,
+                    course: {
+                        id: courseId,
+                    },
                 },
             })
             await this.uuidPartitionPersistProcessorService.process({

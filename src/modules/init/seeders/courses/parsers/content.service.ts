@@ -393,7 +393,9 @@ export class ContentParserService {
         })
         return this.entityManager.find(ContentEntity, {
             where: {
-                moduleId,
+                module: {
+                    id: moduleId,
+                },
             },
         })
     }

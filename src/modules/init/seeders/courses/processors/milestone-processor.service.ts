@@ -1,4 +1,6 @@
 import {
+    forwardRef,
+    Inject,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -42,6 +44,7 @@ export class MilestoneProcessorService {
         private readonly winstonService: WinstonService,
         private readonly upsertService: UpsertService,
         private readonly uuidPartitionPersistProcessorService: UuidPartitionPersistProcessorService,
+        @Inject(forwardRef(() => MilestoneTaskProcessorService))
         private readonly milestoneTaskProcessorService: MilestoneTaskProcessorService,
     ) { }
 
@@ -85,7 +88,9 @@ export class MilestoneProcessorService {
                 entityClass: MilestoneEntity,
                 entities,
                 where: {
-                    courseId,
+                    course: {
+                        id: courseId,
+                    },
                 },
             })
             await this.uuidPartitionPersistProcessorService.process({

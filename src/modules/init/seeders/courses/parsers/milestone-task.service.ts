@@ -322,7 +322,9 @@ export class MilestoneTaskParserService {
         })
         return this.entityManager.find(MilestoneTaskEntity, {
             where: {
-                milestoneId,
+                milestone: {
+                    id: milestoneId,
+                },
             },
         })
     }

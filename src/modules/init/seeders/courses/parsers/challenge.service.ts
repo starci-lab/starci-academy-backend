@@ -701,9 +701,11 @@ export class ChallengeParserService {
             ChallengeEntity,
             {
                 where: {
-                    contentId,
+                    content: {
+                        id: contentId,
+                    },
                 },
-            }
+            },
         )
     }
 }
