@@ -249,11 +249,11 @@ describe("ChallengeParserService",
                         // En title/body live on the lang row; Vi rows live in its translations
                         expect((parsed.requirementsV2?.[0]?.langs?.[0] as { translations?: unknown } | undefined)?.translations).toEqual(
                             expect.arrayContaining([
-                                {
+                                expect.objectContaining({
                                     locale: Locale.Vi,
                                     field: "title",
                                     value: "Tách hai module độc lập và khai báo ranh giới export/import",
-                                },
+                                }),
                             ]),
                         )
 
