@@ -244,8 +244,8 @@ describe("ChallengeParserService",
                         expect((parsed.requirementsV2?.[0]?.langs?.[0] as { title?: string } | undefined)?.title).toBe(
                             "Split two independent modules and declare the export/import boundary",
                         )
-                        // requirement lang rows keep score (string scalar from the extract)
-                        expect((parsed.requirementsV2?.[0]?.langs?.[0] as { score?: string } | undefined)?.score).toBe("40")
+                        // requirement lang rows keep score (numeric scalar)
+                        expect((parsed.requirementsV2?.[0]?.langs?.[0] as { score?: number } | undefined)?.score).toBe(40)
                         // En title/body live on the lang row; Vi rows live in its translations
                         expect((parsed.requirementsV2?.[0]?.langs?.[0] as { translations?: unknown } | undefined)?.translations).toEqual(
                             expect.arrayContaining([
