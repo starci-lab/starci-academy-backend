@@ -19,6 +19,10 @@ import {
     ChallengeStepV2LangEntity,
     Locale,
     SubmissionType,
+    ChallengeRequirementV2LangTranslationEntity,
+    ChallengeStepV2LangTranslationEntity,
+    ChallengeOutputV2LangTranslationEntity,
+    ChallengePrerequisiteV2LangTranslationEntity,
 } from "@modules/databases"
 import {
     ExtractJsonFromMdService,
@@ -67,6 +71,7 @@ import {
 import {
     WinstonService,
 } from "@modules/winston"
+import fs from "fs"
 /**
  * Challenge parser for mounted course files (`en.md`, `vi.md`).
  * Routes V2 vs legacy via {@link isV2} (`# verified`); V2 scalars merge via {@link MergeJsonService}.
@@ -258,7 +263,7 @@ export class ChallengeParserService {
                     orderIndex,
                     defaultLocale: Locale.En,
                     langs: ((langs ?? []) as Array<DeepPartial<ChallengeRequirementV2LangEntity>>)
-                        .map((lang) => {
+                        .map<DeepPartial<ChallengeRequirementV2LangEntity>>((lang) => {
                             const challengeRequirementV2LangId = this.challengeRequirementV2IdFactoryService.generate({
                                 courseIndex,
                                 moduleIndex,
@@ -267,8 +272,16 @@ export class ChallengeParserService {
                                 requirementIndex: orderIndex ?? 0,
                                 orderIndex: lang.orderIndex ?? 0,
                             })
+                            fs.writeFileSync(
+                                "challenge-requirement-v2-lang.json",
+                                JSON.stringify(lang),
+                            )
                             return {
                                 ...lang,
+                                translations: (lang.translations ?? []).map<DeepPartial<ChallengeRequirementV2LangTranslationEntity>>((translation) => ({
+                                    ...translation,
+                                    challengeRequirementV2LangId,
+                                })),
                                 id: challengeRequirementV2LangId,
                                 lang: this.coerceMdScalarService.toRequiredString(
                                     lang.lang,
@@ -280,7 +293,8 @@ export class ChallengeParserService {
                                     0,
                                 ),
                             }
-                        }),
+                        }
+                        ),
                 }
             }),
             stepsV2: ((merged.steps ?? []) as Array<DeepPartial<ChallengeStepV2Entity>>).map(({
@@ -299,7 +313,7 @@ export class ChallengeParserService {
                     orderIndex,
                     defaultLocale: Locale.En,
                     langs: ((langs ?? []) as Array<DeepPartial<ChallengeStepV2LangEntity>>)
-                        .map((lang) => {
+                        .map<DeepPartial<ChallengeStepV2LangEntity>>((lang) => {
                             const challengeStepV2LangId = this.challengeStepV2IdFactoryService.generate({
                                 courseIndex,
                                 moduleIndex,
@@ -310,6 +324,10 @@ export class ChallengeParserService {
                             })
                             return {
                                 ...lang,
+                                translations: (lang.translations ?? []).map<DeepPartial<ChallengeStepV2LangTranslationEntity>>((translation) => ({
+                                    ...translation,
+                                    challengeStepV2LangId,
+                                })),
                                 id: challengeStepV2LangId,
                                 lang: this.coerceMdScalarService.toRequiredString(
                                     lang.lang,
@@ -345,8 +363,13 @@ export class ChallengeParserService {
                                 outputIndex: orderIndex ?? 0,
                                 orderIndex: lang.orderIndex ?? 0,
                             })
+                            
                             return {
                                 ...lang,
+                                translations: (lang.translations ?? []).map<DeepPartial<ChallengeOutputV2LangTranslationEntity>>((translation) => ({
+                                    ...translation,
+                                    challengeOutputV2LangId,
+                                })),
                                 id: challengeOutputV2LangId,
                                 lang: this.coerceMdScalarService.toRequiredString(
                                     lang.lang,
@@ -357,7 +380,9 @@ export class ChallengeParserService {
                         }),
                 }
             }),
-            prerequisitesV2: ((merged.prerequisites ?? []) as Array<DeepPartial<ChallengePrerequisiteV2Entity>>).map(({
+            prerequisitesV2: (
+                (merged.prerequisites ?? []) as Array<DeepPartial<ChallengePrerequisiteV2Entity>>
+            ).map(({
                 orderIndex,
                 langs,
             }) => {
@@ -384,6 +409,10 @@ export class ChallengeParserService {
                             })
                             return {
                                 ...lang,
+                                translations: (lang.translations ?? []).map<DeepPartial<ChallengePrerequisiteV2LangTranslationEntity>>((translation) => ({
+                                    ...translation,
+                                    challengePrerequisiteV2LangId,
+                                })),
                                 id: challengePrerequisiteV2LangId,
                                 lang: this.coerceMdScalarService.toRequiredString(
                                     lang.lang,
@@ -395,17 +424,18 @@ export class ChallengeParserService {
                 }
             }),
             // each `<challenge>/submissions/<N>/{locale}.md` folder → one submission row
-            submissions: await this.parseSubmissions({
-                challengeRelativePath: path.relativePath,
-                courseIndex,
-                moduleIndex,
-                contentIndex,
-                challengeIndex,
-                challengeId,
-            }),
+            submissions: await this.parseSubmissions(
+                {
+                    challengeRelativePath: path.relativePath,
+                    courseIndex,
+                    moduleIndex,
+                    contentIndex,
+                    challengeIndex,
+                    challengeId,
+                }
+            ),
         }
     }
-
     /**
      * Loads SCHEMA V2 submissions from `<challenge>/submissions/<N>/{locale}.md`.
      * Each folder holds `{locale}.md` with `# type` / `# title` / `# description` / `# score`;

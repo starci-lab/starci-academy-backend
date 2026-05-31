@@ -143,7 +143,7 @@ export class ChallengeHydrationService {
                     },
                 },
             ),
-            // SCHEMA V2 per-language buckets — locale payloads live in the translation relation
+            // SCHEMA V2 items — item title translations + per-programming-language langs
             this.entityManager.find(
                 ChallengeRequirementV2Entity,
                 {
@@ -154,6 +154,9 @@ export class ChallengeHydrationService {
                     },
                     relations: {
                         translations: true,
+                        langs: {
+                            translations: true,
+                        },
                     },
                     order: {
                         orderIndex: "ASC",
@@ -170,6 +173,9 @@ export class ChallengeHydrationService {
                     },
                     relations: {
                         translations: true,
+                        langs: {
+                            translations: true,
+                        },
                     },
                     order: {
                         orderIndex: "ASC",
@@ -186,6 +192,9 @@ export class ChallengeHydrationService {
                     },
                     relations: {
                         translations: true,
+                        langs: {
+                            translations: true,
+                        },
                     },
                     order: {
                         orderIndex: "ASC",
@@ -202,6 +211,9 @@ export class ChallengeHydrationService {
                     },
                     relations: {
                         translations: true,
+                        langs: {
+                            translations: true,
+                        },
                     },
                     order: {
                         orderIndex: "ASC",

@@ -289,13 +289,6 @@ export class ContentEntity extends UuidAbstractEntity {
     )
         quizDecks: Array<QuizDeckEntity>
 
-    @Field(
-        () => Int,
-        {
-            nullable: true,
-            description: "Number of challenges associated with this content.",
-        },
-    )
     /**
      * Critical code snippets with explanations and multi-language implementations.
      */
