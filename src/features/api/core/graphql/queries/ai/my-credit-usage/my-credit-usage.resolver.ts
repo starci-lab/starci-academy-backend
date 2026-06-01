@@ -62,12 +62,22 @@ export class MyCreditUsageResolver {
             user: UserEntity,
     ): Promise<MyCreditUsageResponseData> {
         const snapshot = await this.creditUsageService.getSnapshot(user.id)
+        const mapWindow = (
+            window: typeof snapshot.window5h,
+        ) => ({
+            usedCredits: window.usedCredits,
+            quota: window.quota,
+            remainingCredits: window.remainingCredits,
+            resetAt: window.resetAt,
+        })
         return {
             usedCredits: snapshot.usedCredits,
             quota: snapshot.quota,
             remainingCredits: snapshot.remainingCredits,
             overQuota: snapshot.overQuota,
             resetAt: snapshot.resetAt,
+            window5h: mapWindow(snapshot.window5h),
+            windowWeek: mapWindow(snapshot.windowWeek),
         }
     }
 }

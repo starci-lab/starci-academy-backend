@@ -3,12 +3,18 @@ import {
     AiSubTier,
 } from "@modules/databases"
 
+import {
+    DEFAULT_AI_AUTO_USES_PER_5H,
+    DEFAULT_AI_AUTO_USES_PER_WEEK,
+} from "@modules/filesystem"
+
 /**
  * Free **Auto** allowance — counted in "lượt" (uses), not credits.
- * Both windows must have headroom for an Auto call to proceed.
+ * Runtime caps come from `systemConfig.ai.auto` in `app.yaml`
+ * ({@link AiAutoQuotaConfigService}); these are legacy defaults only.
  */
-export const AUTO_LIMIT_5H = 5
-export const AUTO_LIMIT_WEEK = 50
+export const AUTO_LIMIT_5H = DEFAULT_AI_AUTO_USES_PER_5H
+export const AUTO_LIMIT_WEEK = DEFAULT_AI_AUTO_USES_PER_WEEK
 
 /**
  * Credit cost of a single LLM call by model category (Premium mode).

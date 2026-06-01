@@ -7,6 +7,9 @@ import {
     AbstractGraphQLResponse,
     IAbstractGraphQLResponse,
 } from "@modules/api"
+import {
+    MyCreditUsageWindowData,
+} from "./credit-usage-window"
 
 /**
  * Per-user AI credit usage snapshot (source of truth: `credit_usage_histories`).
@@ -55,6 +58,22 @@ export class MyCreditUsageResponseData {
         },
     )
         resetAt: Date | null
+
+    @Field(
+        () => MyCreditUsageWindowData,
+        {
+            description: "Credits used within the rolling 5-hour window.",
+        },
+    )
+        window5h: MyCreditUsageWindowData
+
+    @Field(
+        () => MyCreditUsageWindowData,
+        {
+            description: "Credits used within the rolling 7-day window.",
+        },
+    )
+        windowWeek: MyCreditUsageWindowData
 }
 
 @ObjectType({

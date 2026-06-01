@@ -126,4 +126,10 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
         ),
         name: "judge-coding-submission",
     },
+    [BullQueueName.ReconcileTransaction]: {
+        prefix: formatWithBraces(
+            "reconcile-transaction",
+        ),
+        name: "reconcile-transaction",
+    },
 }

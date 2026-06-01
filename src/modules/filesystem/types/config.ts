@@ -19,10 +19,16 @@ export interface AppConfigSystemTask {
     passThreshold: number
 }
 
+import type {
+    AppConfigSystemAi,
+} from "./ai-auto-quota"
+
 /** `systemConfig` in mounted `app.yaml`. */
 export interface AppConfigSystemConfig {
     challenge: AppConfigSystemChallenge
     task: AppConfigSystemTask
+    /** Optional Auto-lane quota caps (`systemConfig.ai.auto`). */
+    ai?: AppConfigSystemAi
 }
 
 /**

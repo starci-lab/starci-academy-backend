@@ -18,24 +18,34 @@ import {
     DayjsService,
 } from "@modules/mixin"
 import {
-    CREDIT_QUOTA,
+    AiAutoQuotaConfigService,
+} from "@modules/filesystem"
+import {
+    CREDIT_WINDOW_5H_HOURS,
     CREDIT_WINDOW_DAYS,
 } from "./constants"
+import type {
+    CreditUsageWindowSnapshot,
+} from "./types"
 
 /**
- * Used / quota / remaining credit snapshot for a user within the rolling window.
+ * Used / quota / remaining credit snapshot for a user (Auto lane rolling windows).
  */
 export interface CreditUsageSnapshot {
-    /** Credits consumed within the current rolling window. */
+    /** Week-window used credits (same as {@link CreditUsageSnapshot.windowWeek}). */
     usedCredits: number
-    /** Credits allowed per window. */
+    /** Week-window cap (same as {@link CreditUsageSnapshot.windowWeek}). */
     quota: number
-    /** Credits left before hitting the quota (never negative). */
+    /** Week-window remaining (same as {@link CreditUsageSnapshot.windowWeek}). */
     remainingCredits: number
-    /** Whether the user has reached or exceeded the quota. */
+    /** Whether the week-window cap is exhausted. */
     overQuota: boolean
-    /** When the oldest in-window charge ages out and credits start recovering; null when no usage. */
+    /** Week-window recovery time (same as {@link CreditUsageSnapshot.windowWeek}). */
     resetAt: Date | null
+    /** Credits used / cap within the rolling 5-hour window. */
+    window5h: CreditUsageWindowSnapshot
+    /** Credits used / cap within the rolling 7-day window. */
+    windowWeek: CreditUsageWindowSnapshot
 }
 
 /** One AI credit charge row for the usage history list. */
@@ -64,10 +74,21 @@ export interface CreditUsageHistoryPage {
     total: number
 }
 
+/** Raw usage totals loaded from DB / cache. */
+interface CreditUsageTotals {
+    /** Credits summed inside the 5-hour window. */
+    usedCredits5h: number
+    /** Credits summed inside the week window. */
+    usedCreditsWeek: number
+    /** Recovery time for the 5-hour window. */
+    resetAt5hMs: number | null
+    /** Recovery time for the week window. */
+    resetAtWeekMs: number | null
+}
+
 /**
  * Reads AI credit usage with `credit_usage_histories` as the source of truth.
- * Counts only charges inside a rolling {@link CREDIT_WINDOW_DAYS}-day window, and
- * caches the windowed total + recovery time in Redis so quota checks stay cheap.
+ * Exposes rolling **5-hour** and **7-day** credit windows for the Auto lane.
  */
 @Injectable()
 export class CreditUsageService {
@@ -76,11 +97,11 @@ export class CreditUsageService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly dayjsService: DayjsService,
+        private readonly aiAutoQuotaConfigService: AiAutoQuotaConfigService,
     ) {}
 
     /**
-     * Used / quota / remaining / overQuota / resetAt snapshot for the user.
-     * Served from Redis on a hit; otherwise computed from the table and cached.
+     * Credit snapshot for the user (5h + week windows; top-level fields mirror the week window).
      * @param userId - The user to read the snapshot for.
      */
     async getSnapshot(
@@ -90,30 +111,45 @@ export class CreditUsageService {
             key: CacheKey.CreditUsage,
             args: [userId],
         })
-        const usage = cached && typeof cached.usedCredits === "number"
+        const totals = cached
+            && typeof cached.usedCreditsWeek === "number"
+            && typeof cached.usedCredits5h === "number"
             ? {
-                usedCredits: cached.usedCredits,
-                resetAtMs: cached.resetAtMs ?? null,
+                usedCredits5h: cached.usedCredits5h,
+                usedCreditsWeek: cached.usedCreditsWeek,
+                resetAt5hMs: cached.resetAt5hMs ?? null,
+                resetAtWeekMs: cached.resetAtWeekMs ?? null,
             }
             : await this.computeAndCacheUsage(userId)
 
-        const remainingCredits = Math.max(0,
-            CREDIT_QUOTA - usage.usedCredits)
+        const autoQuota = this.aiAutoQuotaConfigService.getAutoQuota()
+        const window5h = this.buildWindowSnapshot(
+            totals.usedCredits5h,
+            autoQuota.creditsPer5h,
+            totals.resetAt5hMs,
+        )
+        const windowWeek = this.buildWindowSnapshot(
+            totals.usedCreditsWeek,
+            autoQuota.creditsPerWeek,
+            totals.resetAtWeekMs,
+        )
+        const overQuota = windowWeek.usedCredits >= windowWeek.quota
+            || window5h.usedCredits >= window5h.quota
         return {
-            usedCredits: usage.usedCredits,
-            quota: CREDIT_QUOTA,
-            remainingCredits,
-            overQuota: usage.usedCredits >= CREDIT_QUOTA,
-            resetAt: usage.resetAtMs === null ? null : new Date(usage.resetAtMs),
+            usedCredits: windowWeek.usedCredits,
+            quota: windowWeek.quota,
+            remainingCredits: windowWeek.remainingCredits,
+            overQuota,
+            resetAt: windowWeek.resetAt,
+            window5h,
+            windowWeek,
         }
     }
 
     /**
-     * Paginated AI credit charge history for the user, newest first. Reads the table
-     * directly (not cached) since history is viewed on demand, not on the hot path.
+     * Paginated AI credit charge history for the user, newest first.
      * @param userId - The user whose charges to list.
      * @param params - `limit` (page size) and `offset` (rows to skip).
-     * @returns The page of charge rows plus the total count.
      */
     async getHistory(
         userId: string,
@@ -167,8 +203,7 @@ export class CreditUsageService {
     }
 
     /**
-     * Drop the cached total so the next read recomputes from the table.
-     * Call this after a new `credit_usage_histories` row is written.
+     * Drop the cached totals so the next read recomputes from the table.
      * @param userId - The user whose cached usage to invalidate.
      */
     async invalidate(
@@ -181,26 +216,44 @@ export class CreditUsageService {
     }
 
     /**
-     * Sum in-window credits + find the recovery time, then cache the result.
+     * Build a window snapshot from raw totals.
+     */
+    private buildWindowSnapshot(
+        usedCredits: number,
+        quota: number,
+        resetAtMs: number | null,
+    ): CreditUsageWindowSnapshot {
+        const remainingCredits = Math.max(0,
+            quota - usedCredits)
+        return {
+            usedCredits,
+            quota,
+            remainingCredits,
+            resetAt: resetAtMs === null ? null : new Date(resetAtMs),
+        }
+    }
+
+    /**
+     * Sum in-window credits for 5h + week, then cache.
      * @param userId - The user to compute usage for.
      */
     private async computeAndCacheUsage(
         userId: string,
-    ): Promise<{ usedCredits: number, resetAtMs: number | null }> {
-        // Only charges newer than the window cutoff count toward the quota.
-        const windowStart = this.dayjsService.now().subtract(CREDIT_WINDOW_DAYS,
+    ): Promise<CreditUsageTotals> {
+        const now = this.dayjsService.now()
+        const weekStart = now.subtract(CREDIT_WINDOW_DAYS,
             "day").toDate()
+        const fiveHStart = now.subtract(CREDIT_WINDOW_5H_HOURS,
+            "hour").toDate()
         const rows = await this.entityManager.find(
             CreditUsageHistoryEntity,
             {
                 where: {
-                    // only the free Auto lane draws from the shared 50-credit pool;
-                    // Premium has its own tier pool, Byok is free — both excluded.
                     mode: AiMode.Auto,
                     user: {
                         id: userId,
                     },
-                    createdAt: MoreThanOrEqual(windowStart),
+                    createdAt: MoreThanOrEqual(weekStart),
                 },
                 select: {
                     id: true,
@@ -213,28 +266,44 @@ export class CreditUsageService {
             },
         )
 
-        const usedCredits = rows.reduce(
-            (sum, row) => sum + (row.credits ?? 0),
-            0,
-        )
-        // The oldest in-window charge frees its credits one window after it happened.
-        const oldest = rows[0] ?? null
-        const resetAtMs = oldest
-            ? this.dayjsService.from(oldest.createdAt).add(CREDIT_WINDOW_DAYS,
+        let usedCreditsWeek = 0
+        let usedCredits5h = 0
+        for (const row of rows) {
+            const credits = row.credits ?? 0
+            usedCreditsWeek += credits
+            if (row.createdAt >= fiveHStart) {
+                usedCredits5h += credits
+            }
+        }
+
+        const oldestWeek = rows[0] ?? null
+        const resetAtWeekMs = oldestWeek
+            ? this.dayjsService.from(oldestWeek.createdAt).add(CREDIT_WINDOW_DAYS,
                 "day").toDate().getTime()
+            : null
+
+        const fiveHRows = rows.filter((row) => row.createdAt >= fiveHStart)
+        const oldest5h = fiveHRows[0] ?? null
+        const resetAt5hMs = oldest5h
+            ? this.dayjsService.from(oldest5h.createdAt).add(CREDIT_WINDOW_5H_HOURS,
+                "hour").toDate().getTime()
             : null
 
         await this.cacheService.set({
             key: CacheKey.CreditUsage,
             args: [userId],
             cacheResult: {
-                usedCredits,
-                resetAtMs,
+                usedCreditsWeek,
+                resetAtWeekMs,
+                usedCredits5h,
+                resetAt5hMs,
             },
         })
         return {
-            usedCredits,
-            resetAtMs,
+            usedCredits5h,
+            usedCreditsWeek,
+            resetAt5hMs,
+            resetAtWeekMs,
         }
     }
 }

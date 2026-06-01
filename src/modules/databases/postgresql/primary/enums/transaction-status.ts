@@ -13,6 +13,7 @@ export enum TransactionStatus {
     Succeeded = "succeeded",
     Cancelled = "cancelled",
     Failed = "failed",
+    Unpaid = "unpaid",
 }
 
 /**
@@ -40,6 +41,9 @@ registerEnumType(
             },
             [TransactionStatus.Cancelled]: {
                 description: "The transaction is cancelled.",
+            },
+            [TransactionStatus.Unpaid]: {
+                description: "The transaction stayed pending past the reconcile window and was never paid.",
             },
         },
     },

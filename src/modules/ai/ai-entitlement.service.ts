@@ -28,13 +28,14 @@ import {
     AiModeNotEntitledException,
 } from "@modules/exceptions"
 import {
-    AUTO_LIMIT_5H,
-    AUTO_LIMIT_WEEK,
     SUBSCRIPTION_PERIOD_MONTHS,
     TIER_ALLOWED_CATEGORIES,
     WINDOW_5H_MS,
     WINDOW_WEEK_MS,
 } from "./constants"
+import {
+    AiAutoQuotaConfigService,
+} from "@modules/filesystem"
 import type {
     AiEntitlement,
     AiQuotaSnapshot,
@@ -51,7 +52,7 @@ import type {
  * Two paid-vs-free lanes share two sliding-reset windows (5h + 1 week):
  *
  * - **Auto** (free, course-included): counted in "lượt" (uses). Capped at
- *   {@link AUTO_LIMIT_5H} per 5h AND {@link AUTO_LIMIT_WEEK} per week; only
+ *   `systemConfig.ai.auto` uses per 5h + week (see {@link AiAutoQuotaConfigService}); only
  *   `economy` models allowed.
  * - **Premium** (active paid tier): credit-based. Per-window allowances come
  *   from the `subscriptions.tiers` catalog; each call costs
@@ -68,6 +69,7 @@ export class AiEntitlementService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly mountFilesystemService: MountFilesystemService,
+        private readonly aiAutoQuotaConfigService: AiAutoQuotaConfigService,
         private readonly dayjsService: DayjsService,
         private readonly encryptionService: EncryptionService,
     ) { }
@@ -539,6 +541,7 @@ export class AiEntitlementService {
         const tierConfig = tier ? this.findTierConfig(tier) : null
         const creditLimit5h = tierConfig?.creditsPer5h ?? 0
         const creditLimitWeek = tierConfig?.creditsPerWeek ?? 0
+        const autoQuota = this.aiAutoQuotaConfigService.getAutoQuota()
 
         return {
             mode,
@@ -546,11 +549,11 @@ export class AiEntitlementService {
             byokProvider: subscription.byokProvider,
             autoRemaining5h: Math.max(
                 0,
-                AUTO_LIMIT_5H - subscription.auto5hUsed,
+                autoQuota.usesPer5h - subscription.auto5hUsed,
             ),
             autoRemainingWeek: Math.max(
                 0,
-                AUTO_LIMIT_WEEK - subscription.autoWeekUsed,
+                autoQuota.usesPerWeek - subscription.autoWeekUsed,
             ),
             creditRemaining5h: Math.max(
                 0,
@@ -575,22 +578,23 @@ export class AiEntitlementService {
         const tierConfig = tier ? this.findTierConfig(tier) : null
         const creditLimit5h = tierConfig?.creditsPer5h ?? 0
         const creditLimitWeek = tierConfig?.creditsPerWeek ?? 0
+        const autoQuota = this.aiAutoQuotaConfigService.getAutoQuota()
 
         return {
             mode,
             tier,
             auto: {
-                limit5h: AUTO_LIMIT_5H,
+                limit5h: autoQuota.usesPer5h,
                 used5h: subscription.auto5hUsed,
                 remaining5h: Math.max(
                     0,
-                    AUTO_LIMIT_5H - subscription.auto5hUsed,
+                    autoQuota.usesPer5h - subscription.auto5hUsed,
                 ),
-                limitWeek: AUTO_LIMIT_WEEK,
+                limitWeek: autoQuota.usesPerWeek,
                 usedWeek: subscription.autoWeekUsed,
                 remainingWeek: Math.max(
                     0,
-                    AUTO_LIMIT_WEEK - subscription.autoWeekUsed,
+                    autoQuota.usesPerWeek - subscription.autoWeekUsed,
                 ),
             },
             premium: {

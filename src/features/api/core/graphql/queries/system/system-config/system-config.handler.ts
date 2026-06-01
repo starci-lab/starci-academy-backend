@@ -2,6 +2,7 @@ import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
+    AiAutoQuotaConfigService,
     MountFilesystemService,
 } from "@modules/filesystem"
 import {
@@ -26,12 +27,24 @@ export class SystemConfigHandler
 {
     constructor(
         private readonly mountFilesystemService: MountFilesystemService,
+        private readonly aiAutoQuotaConfigService: AiAutoQuotaConfigService,
     ) {
         super()
     }
 
     protected override async process(
     ): Promise<SystemConfigData> {
-        return this.mountFilesystemService.appConfig().systemConfig
+        const {
+            challenge,
+            task,
+        } = this.mountFilesystemService.appConfig().systemConfig
+        const auto = this.aiAutoQuotaConfigService.getAutoQuota()
+        return {
+            challenge,
+            task,
+            ai: {
+                auto,
+            },
+        }
     }
 }

@@ -1,6 +1,7 @@
 import {
     Field,
     Float,
+    Int,
     ObjectType,
 } from "@nestjs/graphql"
 import {
@@ -35,6 +36,64 @@ export class SystemConfigTask {
 }
 
 @ObjectType({
+    description: "Free Auto-lane caps from `systemConfig.ai.auto` in mounted `app.yaml`.",
+})
+export class SystemConfigAiAuto {
+    @Field(
+        () => Int,
+        {
+            description: "Max complimentary gradings per rolling 5-hour window.",
+        },
+    )
+        usesPer5h: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Max complimentary gradings per rolling 7-day window.",
+        },
+    )
+        usesPerWeek: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Max Auto credits per rolling 5-hour window.",
+        },
+    )
+        creditsPer5h: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Max Auto credits per rolling 7-day window.",
+        },
+    )
+        creditsPerWeek: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Credits charged per Auto grading.",
+        },
+    )
+        creditCost: number
+}
+
+@ObjectType({
+    description: "AI quota section from mounted `systemConfig.ai`.",
+})
+export class SystemConfigAi {
+    @Field(
+        () => SystemConfigAiAuto,
+        {
+            description: "Free Auto lane caps (resolved from app.yaml + defaults).",
+        },
+    )
+        auto: SystemConfigAiAuto
+}
+
+@ObjectType({
     description: "Payload matching `systemConfig` in `.mount/config/app.json`.",
 })
 export class SystemConfigData {
@@ -53,6 +112,14 @@ export class SystemConfigData {
         },
     )
         task: SystemConfigTask
+
+    @Field(
+        () => SystemConfigAi,
+        {
+            description: "AI quota caps (Auto lane from `systemConfig.ai.auto`).",
+        },
+    )
+        ai: SystemConfigAi
 }
 
 @ObjectType({

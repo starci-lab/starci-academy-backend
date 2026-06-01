@@ -10,15 +10,20 @@ import {
 import {
     MountStorageService 
 } from "./mount-storage.service"
+import {
+    AiAutoQuotaConfigService,
+} from "./ai-auto-quota-config.service"
 
 @Module({
     providers: [
         MountFilesystemService,
         MountStorageService,
+        AiAutoQuotaConfigService,
     ],
     exports: [
         MountFilesystemService,
         MountStorageService,
+        AiAutoQuotaConfigService,
     ],
 })
 export class FilesystemModule extends ConfigurableModuleClass {}

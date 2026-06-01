@@ -17,7 +17,8 @@ const get = (k) => {
 }
 
 const USER_ID = "389702bd-24cb-47f1-9322-267be1ec63b9" // cuongnvtse160875@gmail.com
-const CREDIT_QUOTA = 50
+/** Week-window cap (match `systemConfig.ai.auto.creditsPerWeek` default). */
+const CREDIT_QUOTA_WEEK = 500
 const AUTO_CREDITS = 10
 const AUTO_COUNT = 5 // 5 × 10 = 50 → reaches the quota
 
@@ -70,7 +71,7 @@ const AUTO_COUNT = 5 // 5 × 10 = 50 → reaches the quota
             console.log(`  + auto = ${AUTO_CREDITS} credits (~${60 + i * 2} mins ago)`)
         }
         await c.query("COMMIT")
-        console.log(`\nSeeded ${AUTO_COUNT} auto charges = ${total} credits used (quota ${CREDIT_QUOTA}) → overQuota=${total >= CREDIT_QUOTA}.`)
+        console.log(`\nSeeded ${AUTO_COUNT} auto charges = ${total} credits used (quota ${CREDIT_QUOTA_WEEK}) → overQuota=${total >= CREDIT_QUOTA_WEEK}.`)
     } catch (e) {
         await c.query("ROLLBACK")
         console.error("ROLLBACK:", e.message)

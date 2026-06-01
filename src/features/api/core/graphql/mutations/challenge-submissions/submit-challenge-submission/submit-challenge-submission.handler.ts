@@ -105,14 +105,23 @@ export class SubmitChallengeSubmissionHandler
         if (mode === AiMode.Byok) {
             return
         }
-        // Auto → block when over the shared 50-credit rolling pool
+        // Auto → block when either rolling credit window cannot fit this run
         if (mode === AiMode.Auto) {
+            const cost = resolveGradingCreditCost({
+                mode: AiMode.Auto,
+                recommendation: envConfig().ai.modelRecommendation as ModelRecommendation,
+            })
             const snapshot = await this.creditUsageService.getSnapshot(userId)
-            if (snapshot.overQuota) {
+            const lacksWeek = snapshot.windowWeek.remainingCredits < cost
+            const lacks5h = snapshot.window5h.remainingCredits < cost
+            if (lacksWeek || lacks5h) {
+                const resetAt = lacksWeek
+                    ? snapshot.windowWeek.resetAt
+                    : snapshot.window5h.resetAt
                 throw new SubmissionQuotaExceededException({
                     mode,
-                    waitUntil: snapshot.resetAt
-                        ? this.dayjsService.from(snapshot.resetAt).format("HH:mm DD/MM/YYYY")
+                    waitUntil: resetAt
+                        ? this.dayjsService.from(resetAt).format("HH:mm DD/MM/YYYY")
                         : null,
                 })
             }

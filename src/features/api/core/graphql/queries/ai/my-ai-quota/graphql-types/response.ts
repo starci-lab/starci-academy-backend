@@ -24,7 +24,7 @@ export class MyAiAutoQuotaData {
     @Field(
         () => Int,
         {
-            description: "Max Auto uses allowed in the 5h window.",
+            description: "Max Auto grading runs allowed within the current 5-hour window.",
         },
     )
         limit5h: number
@@ -48,7 +48,7 @@ export class MyAiAutoQuotaData {
     @Field(
         () => Int,
         {
-            description: "Max Auto uses allowed in the weekly window.",
+            description: "Max Auto grading runs allowed within the current week.",
         },
     )
         limitWeek: number

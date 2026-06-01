@@ -132,6 +132,27 @@ export class TransactionEntity extends UuidAbstractEntity {
         referenceId: string
 
     /**
+     * Native payment id returned by the gateway at checkout creation, used to
+     * poll the gateway for payment status during reconciliation. Holds the Stripe
+     * Checkout Session id, the PayPal order id, or the NOWPayments invoice id.
+     * Null for PayOS/Sepay, which are reconciled by {@link referenceId} (orderCode).
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Native gateway payment id used to poll status during reconciliation (Stripe session / PayPal order / NOWPayments invoice). Null for PayOS/Sepay.",
+        },
+    )
+    @Column({
+        name: "provider_payment_id",
+        type: "varchar",
+        length: 128,
+        nullable: true,
+    })
+        providerPaymentId: string | null
+
+    /**
      * The payment amount of the preflight transaction.
      */
     @Field(

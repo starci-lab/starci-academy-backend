@@ -39,4 +39,6 @@ export enum BullQueueName {
     ReviewPersonalProjectTask = "review-personal-project-task",
     /** Queue for judging a coding-practice submission against testcases via Judge0. */
     JudgeCodingSubmission = "judge-coding-submission",
+    /** Queue for polling a pending payment transaction's gateway status (delayed, repeated). */
+    ReconcileTransaction = "reconcile-transaction",
 }
