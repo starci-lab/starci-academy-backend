@@ -77,4 +77,17 @@ export class SubmitChallengeSubmissionRequest {
     )
         lang?: string
 
+    /**
+     * One-shot BYOK API key for this submission only (not stored on the profile).
+     * Required with model + provider when {@link mode} is `byok` and no key is on file.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Optional BYOK API key for this grading run only.",
+        },
+    )
+        byokApiKey?: string
+
 }

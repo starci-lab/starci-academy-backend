@@ -21,6 +21,10 @@ import {
     EnqueueReviewPersonalProjectTaskJobService,
 } from "@modules/bussiness"
 import {
+    GradingLaneValidationService,
+    validatedLaneToAiJobSelection,
+} from "@modules/ai"
+import {
     ReviewPersonalProjectTaskCommand,
 } from "./review-personal-project-task.command"
 import {
@@ -47,6 +51,7 @@ export class ReviewPersonalProjectTaskHandler
         private readonly entityManager: EntityManager,
         private readonly enqueueReviewPersonalProjectTaskJobService: EnqueueReviewPersonalProjectTaskJobService,
         private readonly urlValidatorService: UrlValidatorService,
+        private readonly gradingLaneValidationService: GradingLaneValidationService,
     ) {
         super()
     }
@@ -173,6 +178,15 @@ export class ReviewPersonalProjectTaskHandler
             )
         }
         /** Enqueue grading job */
+        const validatedLane = await this.gradingLaneValidationService.validate({
+            userId: user.id,
+            mode: request.mode,
+            model: request.selectedModel,
+            provider: request.selectedModelProvider,
+            byokApiKey: request.byokApiKey,
+        })
+        // collapse the validated lane into the discriminated AI selection carried on the job
+        const ai = validatedLaneToAiJobSelection(validatedLane)
         const job = await this.enqueueReviewPersonalProjectTaskJobService.enqueue({
             taskId,
             branch: resolvedBranchForEnqueue,
@@ -180,6 +194,7 @@ export class ReviewPersonalProjectTaskHandler
             locale,
             enrollmentId: enrollment.id,
             githubUrl: resolvedGithubUrl,
+            ai,
         })
         return {
             jobId: job.id,

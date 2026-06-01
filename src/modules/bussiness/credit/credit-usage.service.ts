@@ -6,6 +6,7 @@ import {
     MoreThanOrEqual,
 } from "typeorm"
 import {
+    AiMode,
     InjectPrimaryPostgreSQLEntityManager,
     CreditUsageHistoryEntity,
 } from "@modules/databases"
@@ -35,6 +36,32 @@ export interface CreditUsageSnapshot {
     overQuota: boolean
     /** When the oldest in-window charge ages out and credits start recovering; null when no usage. */
     resetAt: Date | null
+}
+
+/** One AI credit charge row for the usage history list. */
+export interface CreditUsageHistoryItem {
+    /** Charge row id. */
+    id: string
+    /** AI lane the charge was billed on (auto / premium / byok). */
+    mode: AiMode
+    /** Premium tier billed (low / medium / high); null for auto / byok. */
+    recommendation: string | null
+    /** Concrete model billed (e.g. claude-sonnet-4-5); null for the free Auto lane. */
+    model: string | null
+    /** Provider of the billed model (gemini / openai / claude); null for the free Auto lane. */
+    provider: string | null
+    /** Credits charged for this run. */
+    credits: number
+    /** When the charge was recorded. */
+    createdAt: Date
+}
+
+/** A page of AI credit charge rows plus the total count. */
+export interface CreditUsageHistoryPage {
+    /** The charge rows for the requested page, newest first. */
+    items: Array<CreditUsageHistoryItem>
+    /** Total number of charge rows for the user (across all pages). */
+    total: number
 }
 
 /**
@@ -82,6 +109,64 @@ export class CreditUsageService {
     }
 
     /**
+     * Paginated AI credit charge history for the user, newest first. Reads the table
+     * directly (not cached) since history is viewed on demand, not on the hot path.
+     * @param userId - The user whose charges to list.
+     * @param params - `limit` (page size) and `offset` (rows to skip).
+     * @returns The page of charge rows plus the total count.
+     */
+    async getHistory(
+        userId: string,
+        {
+            limit,
+            offset,
+        }: {
+            limit: number
+            offset: number
+        },
+    ): Promise<CreditUsageHistoryPage> {
+        const [
+            rows,
+            total,
+        ] = await this.entityManager.findAndCount(
+            CreditUsageHistoryEntity,
+            {
+                where: {
+                    user: {
+                        id: userId,
+                    },
+                },
+                select: {
+                    id: true,
+                    mode: true,
+                    recommendation: true,
+                    model: true,
+                    provider: true,
+                    credits: true,
+                    createdAt: true,
+                },
+                order: {
+                    createdAt: "DESC",
+                },
+                take: limit,
+                skip: offset,
+            },
+        )
+        return {
+            items: rows.map((row) => ({
+                id: row.id,
+                mode: row.mode,
+                recommendation: row.recommendation,
+                model: row.model,
+                provider: row.provider,
+                credits: row.credits,
+                createdAt: row.createdAt,
+            })),
+            total,
+        }
+    }
+
+    /**
      * Drop the cached total so the next read recomputes from the table.
      * Call this after a new `credit_usage_histories` row is written.
      * @param userId - The user whose cached usage to invalidate.
@@ -109,6 +194,9 @@ export class CreditUsageService {
             CreditUsageHistoryEntity,
             {
                 where: {
+                    // only the free Auto lane draws from the shared 50-credit pool;
+                    // Premium has its own tier pool, Byok is free — both excluded.
+                    mode: AiMode.Auto,
                     user: {
                         id: userId,
                     },

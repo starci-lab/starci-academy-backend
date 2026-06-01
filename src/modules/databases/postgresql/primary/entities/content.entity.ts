@@ -42,6 +42,9 @@ import {
     ContentBodyEntity,
 } from "./content-body.entity"
 import {
+    ContentLearningOutcomeEntity,
+} from "./content-learning-outcome.entity"
+import {
     QuizDeckEntity,
 } from "./quiz-deck.entity"
 
@@ -346,6 +349,26 @@ export class ContentEntity extends UuidAbstractEntity {
         },
     )
         bodies: Array<ContentBodyEntity>
+
+    /**
+     * Ordered "what you will learn" outcome bullets (mount `# whatYouLearn`). Shown on the lesson
+     * header / landing.
+     */
+    @Field(
+        () => [ContentLearningOutcomeEntity],
+        {
+            nullable: true,
+            description: "Ordered 'what you will learn' outcome bullets for this content.",
+        },
+    )
+    @OneToMany(
+        () => ContentLearningOutcomeEntity,
+        (learningOutcome: ContentLearningOutcomeEntity) => learningOutcome.content,
+        {
+            cascade: true,
+        },
+    )
+        learningOutcomes: Array<ContentLearningOutcomeEntity>
 
     @Column({
         name: "num_challenges",

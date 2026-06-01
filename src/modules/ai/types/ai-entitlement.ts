@@ -126,16 +126,19 @@ export interface ResolveEntitlementParams {
      * validated against the user's capabilities and wins.
      */
     requestedMode?: AiMode
+    /**
+     * When true, {@link AiMode.Byok} is allowed without a stored subscription key
+     * (the plaintext key is supplied on the job payload instead).
+     */
+    ephemeralByok?: boolean
 }
 
 /** Params for {@link AiEntitlementService.consume}. */
 export interface ConsumeEntitlementParams {
     /** Owner of the entitlement. */
     userId: string
-    /** Category of the model about to be invoked (drives Premium credit cost). */
-    category: AiModelCategory
-    /** Whether the chosen model is on the free Auto lane (its `complimentary` flag). */
-    complimentary: boolean
-    /** Lane the caller picked; validated + debited accordingly (see {@link ResolveEntitlementParams.requestedMode}). */
-    requestedMode?: AiMode
+    /** Lane that ran — only {@link AiMode.Premium} debits the tier credit pool. */
+    mode: AiMode
+    /** Credits to debit from the Premium pool (ignored for Auto / Byok). */
+    cost: number
 }

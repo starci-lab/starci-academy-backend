@@ -57,4 +57,13 @@ export class SyncSubmissionRequest {
         },
     )
         selectedModelProvider?: ModelProvider
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Optional one-shot BYOK API key when selectedMode is byok.",
+        },
+    )
+        byokApiKey?: string
 }

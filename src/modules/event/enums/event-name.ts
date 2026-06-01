@@ -8,4 +8,9 @@ export enum EventName {
     MilestoneTaskProgressUpdated = "milestone.task.progress.updated",
     Ping = "ping",
     ChallengeSubmissionProgressUpdated = "challenge.submission.progress.updated",
+    CommentCreated = "content.comment.created",
+    CommentUpdated = "content.comment.updated",
+    CommentDeleted = "content.comment.deleted",
+    ContentReactionChanged = "content.reaction.changed",
+    CommentReactionChanged = "content.comment.reaction.changed",
 }

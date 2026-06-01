@@ -35,17 +35,28 @@ export class MilestoneTaskProgressListener implements OnModuleInit {
         this.eventEmitterService.on({
             event: EventName.MilestoneTaskProgressUpdated,
             listener: async (payload: MilestoneTaskProgressUpdatedEventPayload) => {
+                // load the course relation — `courseId` is a virtual @RelationId that
+                // is not populated by a default select
                 const enrollment = await this.entityManager.findOneOrFail(
                     EnrollmentEntity,
                     {
                         where: {
-                            id: payload.enrollmentId 
+                            id: payload.enrollmentId,
+                        },
+                        relations: {
+                            course: true,
+                        },
+                        select: {
+                            id: true,
+                            course: {
+                                id: true,
+                            },
                         },
                     },
                 )
                 await this.personalProjectProgressService.updateProgress({
                     enrollmentId: payload.enrollmentId,
-                    courseId: enrollment.courseId,
+                    courseId: enrollment.course.id,
                 })
             },
         })

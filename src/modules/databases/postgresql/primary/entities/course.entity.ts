@@ -45,9 +45,6 @@ import {
     LivestreamSessionEntity,
 } from "./livestream-session.entity"
 import {
-    MindMapNodeEntity,
-} from "./mind-map-node.entity"
-import {
     QuizDeckEntity,
 } from "./quiz-deck.entity"
 
@@ -377,25 +374,6 @@ export class CourseEntity extends UuidAbstractEntity {
         },
     )
         livestreamSessions: Array<LivestreamSessionEntity>
-
-    /**
-     * Mind-map nodes belonging to this course (tree managed via closure table).
-     */
-    @Field(
-        () => [MindMapNodeEntity],
-        {
-            nullable: true,
-            description: "Mind-map nodes belonging to this course; hierarchy maintained via closure table.",
-        },
-    )
-    @OneToMany(
-        () => MindMapNodeEntity,
-        (node: MindMapNodeEntity) => node.course,
-        {
-            cascade: true,
-        },
-    )
-        mindMapNodes: Array<MindMapNodeEntity>
 
     /**
      * Interview-prep quiz decks owned by this course (shown in the quiz tab).

@@ -21,6 +21,7 @@ import {
     UserChallengeSubmissionEntity,
 } from "@modules/databases"
 import {
+    AiEntitlementService,
     ModelRecommendation,
     resolveGradingCreditCost,
 } from "@modules/ai"
@@ -72,6 +73,7 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
         private readonly eventEmitterService: EventEmitterService,
         private readonly dayjsService: DayjsService,
         private readonly creditUsageService: CreditUsageService,
+        private readonly aiEntitlementService: AiEntitlementService,
     ) {
         super()
     }
@@ -186,8 +188,19 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                 )
             }
         )
-        /** Refresh the cached credit total now the new charge has committed. */
         if (chargedUserId) {
+            /** Debit the Premium tier credit pool (no-op for Auto/Byok); recompute the same cost. */
+            const chargedMode = payload.ai?.mode ?? AiMode.Auto
+            const recommendation = envConfig().ai.modelRecommendation as ModelRecommendation
+            await this.aiEntitlementService.consume({
+                userId: chargedUserId,
+                mode: chargedMode,
+                cost: resolveGradingCreditCost({
+                    mode: chargedMode,
+                    recommendation,
+                }),
+            })
+            /** Refresh the cached Auto credit total now the new charge has committed. */
             await this.creditUsageService.invalidate(chargedUserId)
         }
         return {
@@ -221,13 +234,21 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
             },
         )
         /** The lane the user submitted on (defaults to the free Auto lane). */
-        const mode = payload.mode ?? AiMode.Auto
+        const mode = payload.ai?.mode ?? AiMode.Auto
         /** The premium tier billed comes from the configured model recommendation. */
         const recommendation = envConfig().ai.modelRecommendation as ModelRecommendation
         const credits = resolveGradingCreditCost({
             mode,
             recommendation,
         })
+        // Record the concrete model billed so the usage history can attribute spend per model.
+        // Premium/BYOK carry the user-picked model; Auto is load-balanced and has none.
+        const pickedModel = payload.ai && payload.ai.mode !== AiMode.Auto
+            ? payload.ai.model
+            : null
+        const pickedProvider = payload.ai && payload.ai.mode !== AiMode.Auto
+            ? payload.ai.provider
+            : null
         await entityManager.save(
             CreditUsageHistoryEntity,
             {
@@ -239,6 +260,8 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                 },
                 mode,
                 recommendation: mode === AiMode.Premium ? recommendation : null,
+                model: pickedModel,
+                provider: pickedProvider,
                 credits,
             },
         )

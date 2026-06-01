@@ -14,7 +14,6 @@ import {
 } from "@modules/exceptions"
 import {
     AiMode,
-    AiModelCategory,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
@@ -57,17 +56,16 @@ import template from "./template.json"
 import {
     AiInvokeService,
     AiEntitlementService,
-    pickBestCategory,
-} from "@modules/ai"
-import type {
-    AiInvokeByok,
+    ModelRecommendation,
+    resolveGradingCreditCost,
+    resolveGradingInvokeOptions,
 } from "@modules/ai"
 import {
     GoogleDriverAPIService,
 } from "@modules/googleapis"
 import {
-    ProcessGoogleDocsSubmissionParseService,
-} from "./parse.service"
+    ChallengeEvaluationParseService,
+} from "../../shared/challenge-evaluation"
 import type {
     ExtendedProcessGoogleDocsSubmissionContext,
     ProcessGoogleDocsSubmissionGradeStepExecuteResult,
@@ -93,7 +91,7 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly googleDriverApiService: GoogleDriverAPIService,
-        private readonly processGoogleDocsSubmissionParseService: ProcessGoogleDocsSubmissionParseService,
+        private readonly challengeEvaluationParseService: ChallengeEvaluationParseService,
         private readonly creditUsageService: CreditUsageService,
     ) {
         super()
@@ -295,22 +293,48 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 },
             },
         )
-        /** Block grading once the user is over their credit quota (source of truth: credit_usage_histories). */
-        const creditSnapshot = await this.creditUsageService.getSnapshot(enrollment.userId)
-        if (creditSnapshot.overQuota) {
-            throw new AiQuotaExhaustedException({
-                mode: payload.mode ?? AiMode.Auto,
-                window: "credit",
+        /** Gate the grading run by lane: Auto → shared 50-credit pool; Premium → tier pool; Byok → none. */
+        const aiMode = payload.ai?.mode ?? AiMode.Auto
+        if (aiMode === AiMode.Auto) {
+            // free Auto lane → block when over the shared 50-credit rolling pool
+            const creditSnapshot = await this.creditUsageService.getSnapshot(enrollment.userId)
+            if (creditSnapshot.overQuota) {
+                throw new AiQuotaExhaustedException({
+                    mode: AiMode.Auto,
+                    window: "credit",
+                })
+            }
+        } else if (aiMode === AiMode.Premium) {
+            // Premium lane → block when the tier credit pool lacks headroom for this grading's cost
+            const recommendation = envConfig().ai.modelRecommendation as ModelRecommendation
+            const cost = resolveGradingCreditCost({
+                mode: AiMode.Premium,
+                recommendation,
             })
+            const entitlement = await this.aiEntitlementService.resolve({
+                userId: enrollment.userId,
+                requestedMode: AiMode.Premium,
+            })
+            if (
+                entitlement.creditRemaining5h < cost
+                || entitlement.creditRemainingWeek < cost
+            ) {
+                throw new AiQuotaExhaustedException({
+                    mode: AiMode.Premium,
+                    window: "credit",
+                })
+            }
         }
-        const invokeOptions = await this.resolveInvokeOptions(
+        // Byok → user's own key, no quota gate
+        const invokeOptions = await resolveGradingInvokeOptions(
             {
                 userId: enrollment.userId,
-                payload,
+                selection: payload.ai,
+                aiEntitlementService: this.aiEntitlementService,
             },
         )
 
-        const { text: raw } = await this.aiInvokeService.invoke({
+        const { text: raw, model, provider, attempts } = await this.aiInvokeService.invoke({
             messages: [
                 new SystemMessage(systemText),
                 new HumanMessage(humanText),
@@ -318,7 +342,7 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
             ...invokeOptions,
         })
 
-        const parsed = this.processGoogleDocsSubmissionParseService.parse(raw)
+        const parsed = this.challengeEvaluationParseService.parse(raw)
         const passThreshold = this.mountStorageService.appConfig.systemConfig.challenge.passThreshold
         const maxScore = requirements.reduce(
             (sum, requirement) => sum + requirement.score,
@@ -328,58 +352,11 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         return {
             evaluation: parsed,
             passed,
-        }
-    }
-    
-    /**
-     * Resolve the submitter's entitlement and derive the args to pass to
-     * {@link AiInvokeService.invoke} (once per grading job).
-     *
-     * - `byok`: build a BYOK descriptor from the payload (no quota debit).
-     * - `auto`: debit one Economy "lượt" and grade on the Economy category.
-     * - `premium`: debit + grade on the highest category the tier unlocks.
-     * @param params - The resolved `userId` and the job payload.
-     * @returns Partial `invoke` args (`byok` OR `category`), already debited.
-     * @throws AiQuotaExhaustedException when the user has no allowance left.
-     */
-    private async resolveInvokeOptions(
-        {
-            userId,
-            payload,
-        }: {
-            userId: string
-            payload: ProcessGoogleDocsSubmissionPayload
-        },
-    ): Promise<{ category?: AiModelCategory, byok?: AiInvokeByok }> {
-        const entitlement = await this.aiEntitlementService.resolve({
-            userId,
-            requestedMode: payload.mode,
-        })
-
-        if (entitlement.mode === AiMode.Byok) {
-            // TODO: fall back to the stored encrypted key on the subscription
-            // entity when the payload does not carry one.
-            if (
-                payload.byokProvider
-                && payload.byokModel
-                && payload.byokApiKey
-            ) {
-                return {
-                    byok: {
-                        provider: payload.byokProvider,
-                        model: payload.byokModel,
-                        key: payload.byokApiKey,
-                    },
-                }
-            }
-        }
-
-        // Credits are debited from credit_usage_histories at complete time, not here.
-        const category = entitlement.mode === AiMode.Premium
-            ? pickBestCategory(entitlement.allowedCategories)
-            : AiModelCategory.Economy
-        return {
-            category,
+            aiUsage: {
+                model,
+                provider,
+                attempts,
+            },
         }
     }
 

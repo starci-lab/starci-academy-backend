@@ -61,6 +61,9 @@ import {
 import {
     CodingQueriesModule,
 } from "./coding"
+import {
+    DiscussionQueriesModule,
+} from "./discussion"
 
 @Module({
     imports: [
@@ -119,6 +122,9 @@ import {
             isGlobal: true,
         }),
         CodingQueriesModule.register({
+            isGlobal: true,
+        }),
+        DiscussionQueriesModule.register({
             isGlobal: true,
         }),
     ],

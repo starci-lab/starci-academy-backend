@@ -19,6 +19,7 @@ import {
 import {
     ContentEntity,
     Locale,
+    UserEntity,
 } from "@modules/databases"
 import {
     ContentRequest,
@@ -28,11 +29,9 @@ import {
     ContentQueryService,
 } from "./content.service"
 import {
-    KeycloakAuthGraphQLGuard
+    KeycloakAuthGraphQLGuard,
+    KeycloakGraphQLUser,
 } from "@modules/keycloak"
-import {
-    GraphQLMustEnrolledGuard
-} from "@modules/bussiness"
 
 @Resolver(() => ContentEntity)
 export class ContentResolver {
@@ -47,7 +46,6 @@ export class ContentResolver {
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,
-        GraphQLMustEnrolledGuard
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(
@@ -62,11 +60,14 @@ export class ContentResolver {
             request: ContentRequest,
         @GraphQLLocale()
             locale: Locale,
+        @KeycloakGraphQLUser()
+            user: UserEntity,
     ): Promise<ContentEntity> {
         return this.contentQueryService.execute(
             {
                 request,
                 locale,
+                user,
             },
         )
     }

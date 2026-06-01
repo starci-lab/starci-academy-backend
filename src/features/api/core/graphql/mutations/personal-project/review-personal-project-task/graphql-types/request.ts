@@ -3,6 +3,14 @@ import {
     ID,
     InputType,
 } from "@nestjs/graphql"
+import {
+    GraphQLTypeAiMode,
+    GraphQLTypeModelProvider,
+} from "@modules/databases"
+import type {
+    AiMode,
+    ModelProvider,
+} from "@modules/databases"
 
 @InputType({
     description: "Request to review a single task of a personal project.",
@@ -44,4 +52,40 @@ export class ReviewPersonalProjectTaskRequest {
         },
     )
         branch?: string | null
+
+    @Field(
+        () => GraphQLTypeAiMode,
+        {
+            nullable: true,
+            description: "AI lane for grading (auto / premium / byok).",
+        },
+    )
+        mode?: AiMode
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Concrete model for premium/BYOK grading (required for those lanes).",
+        },
+    )
+        selectedModel?: string
+
+    @Field(
+        () => GraphQLTypeModelProvider,
+        {
+            nullable: true,
+            description: "Provider for the selected model.",
+        },
+    )
+        selectedModelProvider?: ModelProvider
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Optional one-shot BYOK API key when mode is byok.",
+        },
+    )
+        byokApiKey?: string
 }

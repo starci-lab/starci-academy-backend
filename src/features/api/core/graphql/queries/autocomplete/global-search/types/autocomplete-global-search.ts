@@ -12,6 +12,7 @@ import type {
     SearchableEntity,
 } from "./entity-search"
 import type {
+    GlobalSearchItem,
     GlobalSearchMessage,
 } from "./message"
 
@@ -49,4 +50,12 @@ export type AutocompleteGlobalSearchExecuteParams =
 
 /** Result of global search autocomplete query. */
 export type AutocompleteGlobalSearchExecuteResult = GlobalSearchMessage
+
+/** Params for hydrating the parent-path of one entity bucket from the parent-index cache. */
+export interface AttachParentPathsParams {
+    /** The deduped hits of a single entity kind to enrich in place. */
+    items: Array<GlobalSearchItem>
+    /** The entity class name used as the parent-index cache namespace. */
+    entityName: SearchableEntity
+}
 

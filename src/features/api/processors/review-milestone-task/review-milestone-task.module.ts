@@ -8,9 +8,11 @@ import {
     ConfigurableModuleClass,
 } from "./review-milestone-task.module-definition"
 import {
+    ProjectEvaluationParseService,
+} from "../shared/project-evaluation"
+import {
     ReviewMilestoneTaskGradeStepService,
     ReviewMilestoneTaskCompleteStepService,
-    ReviewMilestoneTaskParseService,
 } from "./steps"
 import {
     ReviewMilestoneTaskStepMappingService,
@@ -22,7 +24,7 @@ import {
         ReviewMilestoneTaskCompleteStepService,
         ReviewMilestoneTaskStepMappingService,
         ReviewMilestoneTaskWorker,
-        ReviewMilestoneTaskParseService
+        ProjectEvaluationParseService,
     ],
 })
 export class ReviewMilestoneTaskModule extends ConfigurableModuleClass {}

@@ -68,12 +68,10 @@ export class EnqueueProcessGitSubmissionV2JobService {
             challengeSubmissionId,
             jobId,
             branch,
-            gradingModel,
-            gradingProvider,
             embeddingModel,
             embeddingProvider,
             locale,
-            mode,
+            ai,
             lang,
         }: EnqueueProcessGitSubmissionJobParams,
     ): Promise<JobEntity> {
@@ -94,14 +92,6 @@ export class EnqueueProcessGitSubmissionV2JobService {
                     branch,
                 } : {
                 }),
-                ...(gradingModel !== undefined ? {
-                    gradingModel,
-                } : {
-                }),
-                ...(gradingProvider !== undefined ? {
-                    gradingProvider,
-                } : {
-                }),
                 ...(embeddingModel !== undefined ? {
                     embeddingModel,
                 } : {
@@ -114,8 +104,8 @@ export class EnqueueProcessGitSubmissionV2JobService {
                     locale: locale as Locale,
                 } : {
                 }),
-                ...(mode !== undefined ? {
-                    mode,
+                ...(ai !== undefined ? {
+                    ai,
                 } : {
                 }),
                 ...(lang !== undefined ? {

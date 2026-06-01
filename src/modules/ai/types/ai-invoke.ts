@@ -30,6 +30,10 @@ export interface AiInvokeParams {
      * pool / fallback chain is skipped and this exact key/model is used once.
      */
     byok?: AiInvokeByok
+    /** User-pinned model (premium lane, or optional auto pin). */
+    model?: string
+    /** Provider for {@link AiInvokeParams.model}. */
+    provider?: ModelProvider
     /**
      * Sampling temperature. Defaults to 0 (deterministic) so grading is
      * reproducible; raise it only for generative tasks that want variety.

@@ -5,9 +5,9 @@ export const deleteFields = <
     T extends object,
     K extends keyof T,
 >(
-    obj: T,
-    fields: Array<K>,
-): Omit<T, K> => {
+        obj: T,
+        fields: Array<K>,
+    ): Omit<T, K> => {
     const result = {
         ...obj,
     }

@@ -15,7 +15,7 @@ import {
 import {
     AiInvokeService,
     AiEntitlementService,
-    pickBestCategory,
+    resolveGradingInvokeOptions,
 } from "@modules/ai"
 import {
     WinstonLog,
@@ -249,51 +249,33 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
             payload: ReviewCvSubmissionPayload
         },
     ): Promise<CvAiInvokeDecision> {
-        const entitlement = await this.aiEntitlementService.resolve({
-            userId,
-            requestedMode: payload.mode,
-        })
-
-        // CV grading needs a capable model — reject the free Auto (complimentary)
-        // lane. Only BYOK or a paid Premium subscription may grade a CV.
-        if (entitlement.mode === AiMode.Auto) {
+        // CV grading needs a capable model — reject the free Auto lane (or no
+        // pick at all). Only BYOK or a paid Premium subscription may grade a CV.
+        if (!payload.ai || payload.ai.mode === AiMode.Auto) {
             throw new AiQuotaExhaustedException({
-                mode: entitlement.mode,
+                mode: AiMode.Auto,
                 window: "premium-required",
             })
         }
 
-        // BYOK → use the user's own key/model; no pooled quota is debited.
-        if (entitlement.mode === AiMode.Byok) {
-            if (
-                payload.byokProvider
-                && payload.byokModel
-                && payload.byokApiKey
-            ) {
-                return {
-                    byok: {
-                        provider: payload.byokProvider,
-                        model: payload.byokModel,
-                        key: payload.byokApiKey,
-                    },
-                }
+        // Premium runs on pooled credits — block before debiting when over quota.
+        if (payload.ai.mode === AiMode.Premium) {
+            const creditSnapshot = await this.creditUsageService.getSnapshot(userId)
+            if (creditSnapshot.overQuota) {
+                throw new AiQuotaExhaustedException({
+                    mode: AiMode.Premium,
+                    window: "credit",
+                })
             }
         }
 
-        // Premium lane → block when over the credit quota, then pick the best
-        // unlocked category and debit credits.
-        const creditSnapshot = await this.creditUsageService.getSnapshot(userId)
-        if (creditSnapshot.overQuota) {
-            throw new AiQuotaExhaustedException({
-                mode: entitlement.mode,
-                window: "credit",
-            })
-        }
-        // Credits are debited from credit_usage_histories at complete time, not here.
-        const category = pickBestCategory(entitlement.allowedCategories)
-        return {
-            category,
-        }
+        // Build the BYOK/Premium invoke descriptor — gates entitlement (no
+        // downgrade) and throws on a not-entitled lane or a missing BYOK key.
+        return resolveGradingInvokeOptions({
+            userId,
+            selection: payload.ai,
+            aiEntitlementService: this.aiEntitlementService,
+        })
     }
 
     /**

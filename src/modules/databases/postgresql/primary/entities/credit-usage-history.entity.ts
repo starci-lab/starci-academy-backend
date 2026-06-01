@@ -143,6 +143,43 @@ export class CreditUsageHistoryEntity extends UuidAbstractEntity {
         recommendation: string | null
 
     /**
+     * Concrete model billed (e.g. "claude-sonnet-4-5" / "gpt-4o"); null for the free Auto lane
+     * where the balancer picks a complimentary model.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Concrete model billed (e.g. claude-sonnet-4-5); null for the free Auto lane.",
+        },
+    )
+    @Column({
+        name: "model",
+        type: "varchar",
+        length: 64,
+        nullable: true,
+    })
+        model: string | null
+
+    /**
+     * Provider of the billed model (gemini / openai / claude); null for the free Auto lane.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Provider of the billed model (gemini / openai / claude); null for the free Auto lane.",
+        },
+    )
+    @Column({
+        name: "provider",
+        type: "varchar",
+        length: 32,
+        nullable: true,
+    })
+        provider: string | null
+
+    /**
      * Number of credits charged for this grading run.
      */
     @Field(

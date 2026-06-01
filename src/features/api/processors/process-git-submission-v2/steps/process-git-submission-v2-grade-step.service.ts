@@ -14,7 +14,6 @@ import {
 } from "@modules/exceptions"
 import {
     AiMode,
-    AiModelCategory,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
@@ -63,14 +62,13 @@ import {
 import {
     AiInvokeService,
     AiEntitlementService,
-    pickBestCategory,
-} from "@modules/ai"
-import type {
-    AiInvokeByok,
+    ModelRecommendation,
+    resolveGradingCreditCost,
+    resolveGradingInvokeOptions,
 } from "@modules/ai"
 import {
-    ProcessGitSubmissionParseService,
-} from "../../process-git-submission/steps/parse.service"
+    ChallengeEvaluationParseService,
+} from "../../shared/challenge-evaluation"
 import type {
     ExtendedProcessGitSubmissionContext,
     ProcessGitSubmissionGradeStepExecuteResult,
@@ -78,7 +76,7 @@ import type {
 import {
     collectSubmissionCriteria,
     renderCriteriaPromptSections,
-} from "./criteria.util"
+} from "../../shared/challenge-submission-v2/utils"
 
 /**
  * SCHEMA V2 grade step (stepIndex 0). Mirrors the legacy git grade step but grades the submitted
@@ -103,7 +101,7 @@ export class ProcessGitSubmissionV2GradeStepService extends AbstractStepService<
         private readonly qdrantClient: QdrantClient,
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
-        private readonly processGitSubmissionParseService: ProcessGitSubmissionParseService,
+        private readonly challengeEvaluationParseService: ChallengeEvaluationParseService,
         private readonly creditUsageService: CreditUsageService,
     ) {
         super()
@@ -278,7 +276,9 @@ export class ProcessGitSubmissionV2GradeStepService extends AbstractStepService<
             "## Grading Philosophy",
             "- Focus on implementation correctness and evidence the criterion describes, NOT code style.",
             "- For each criterion, add a feedback item stating whether it was met and the evidence (file:line where relevant).",
-            "- Be skeptical: if the evidence for a criterion is not clearly present in the source, treat it as NOT MET.",
+            "- Before deciding, ACTUALLY READ the source files (e.g. *.ts/*.java/*.cs/*.go, module/service/controller files), not just the README/prose.",
+            "- A criterion is MET when the CODE shows it — cite the concrete `file:line` evidence. Module wiring, imports, decorators and constructor signatures in the code count as evidence.",
+            "- Only mark NOT MET when, after inspecting the relevant code files, the evidence is genuinely absent. Do NOT mark NOT MET merely because you skimmed the README instead of the code.",
         ].filter(Boolean).join("\n")
 
         const humanText = [
@@ -296,22 +296,48 @@ export class ProcessGitSubmissionV2GradeStepService extends AbstractStepService<
                 },
             },
         )
-        /** Block grading once the user is over their credit quota. */
-        const creditSnapshot = await this.creditUsageService.getSnapshot(enrollment.userId)
-        if (creditSnapshot.overQuota) {
-            throw new AiQuotaExhaustedException({
-                mode: payload.mode ?? AiMode.Auto,
-                window: "credit",
+        /** Gate the grading run by lane: Auto → shared 50-credit pool; Premium → tier pool; Byok → none. */
+        const aiMode = payload.ai?.mode ?? AiMode.Auto
+        if (aiMode === AiMode.Auto) {
+            // free Auto lane → block when over the shared 50-credit rolling pool
+            const creditSnapshot = await this.creditUsageService.getSnapshot(enrollment.userId)
+            if (creditSnapshot.overQuota) {
+                throw new AiQuotaExhaustedException({
+                    mode: AiMode.Auto,
+                    window: "credit",
+                })
+            }
+        } else if (aiMode === AiMode.Premium) {
+            // Premium lane → block when the tier credit pool lacks headroom for this grading's cost
+            const recommendation = envConfig().ai.modelRecommendation as ModelRecommendation
+            const cost = resolveGradingCreditCost({
+                mode: AiMode.Premium,
+                recommendation,
             })
+            const entitlement = await this.aiEntitlementService.resolve({
+                userId: enrollment.userId,
+                requestedMode: AiMode.Premium,
+            })
+            if (
+                entitlement.creditRemaining5h < cost
+                || entitlement.creditRemainingWeek < cost
+            ) {
+                throw new AiQuotaExhaustedException({
+                    mode: AiMode.Premium,
+                    window: "credit",
+                })
+            }
         }
-        const invokeOptions = await this.resolveInvokeOptions(
+        // Byok → user's own key, no quota gate
+        const invokeOptions = await resolveGradingInvokeOptions(
             {
                 userId: enrollment.userId,
-                payload,
+                selection: payload.ai,
+                aiEntitlementService: this.aiEntitlementService,
             },
         )
 
-        const { text: raw } = await this.aiInvokeService.invoke({
+        const { text: raw, model, provider, attempts } = await this.aiInvokeService.invoke({
             messages: [
                 new SystemMessage(systemText),
                 new HumanMessage(humanText),
@@ -319,56 +345,17 @@ export class ProcessGitSubmissionV2GradeStepService extends AbstractStepService<
             ...invokeOptions,
         })
 
-        const parsed = this.processGitSubmissionParseService.parse(raw)
+        const parsed = this.challengeEvaluationParseService.parse(raw)
         const passThreshold = this.mountStorageService.appConfig.systemConfig.challenge.passThreshold
         const passed = parsed.score >= maxScore * passThreshold
         return {
             evaluation: parsed,
             passed,
-        }
-    }
-
-    /**
-     * Resolve the submitter's entitlement and derive the args to pass to
-     * {@link AiInvokeService.invoke} (once per grading job).
-     * @param params - The resolved `userId` and the job payload.
-     * @returns Partial `invoke` args (`byok` OR `category`).
-     */
-    private async resolveInvokeOptions(
-        {
-            userId,
-            payload,
-        }: {
-            userId: string
-            payload: ProcessGitSubmissionPayload
-        },
-    ): Promise<{ category?: AiModelCategory, byok?: AiInvokeByok }> {
-        const entitlement = await this.aiEntitlementService.resolve({
-            userId,
-            requestedMode: payload.mode,
-        })
-
-        if (entitlement.mode === AiMode.Byok) {
-            if (
-                payload.byokProvider
-                && payload.byokModel
-                && payload.byokApiKey
-            ) {
-                return {
-                    byok: {
-                        provider: payload.byokProvider,
-                        model: payload.byokModel,
-                        key: payload.byokApiKey,
-                    },
-                }
-            }
-        }
-
-        const category = entitlement.mode === AiMode.Premium
-            ? pickBestCategory(entitlement.allowedCategories)
-            : AiModelCategory.Economy
-        return {
-            category,
+            aiUsage: {
+                model,
+                provider,
+                attempts,
+            },
         }
     }
 

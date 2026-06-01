@@ -61,11 +61,3 @@ export interface QuizDecksFromDatabaseParams {
     /** Course ordinal on the mount. */
     courseIndex: number
 }
-
-/**
- * Ordinals for {@link MindMapParserService.mindMapNodesFromDatabase}.
- */
-export interface MindMapNodesFromDatabaseParams {
-    /** Course ordinal on the mount. */
-    courseIndex: number
-}

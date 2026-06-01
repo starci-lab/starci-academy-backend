@@ -87,11 +87,3 @@ export interface ProcessMilestoneTasksParams {
     /** Parsed milestone file result. */
     milestoneResult: ResolvedFileResult<DeepPartial<MilestoneEntity>>
 }
-
-/** {@link MindMapProcessorService.process} input. */
-export interface ProcessMindMapParams {
-    /** Course primary key. */
-    courseId: string
-    /** Course mount relative path. */
-    courseRelativePath: string
-}

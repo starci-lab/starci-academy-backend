@@ -229,12 +229,13 @@ export class ModuleParserService {
         const courseId = this.courseIdFactoryService.generate({
             courseIndex,
         })
-        return this.entityManager.find(ModuleEntity, {
-            where: {
-                course: {
-                    id: courseId,
+        return this.entityManager.find(ModuleEntity,
+            {
+                where: {
+                    course: {
+                        id: courseId,
+                    },
                 },
-            },
-        })
+            })
     }
 }

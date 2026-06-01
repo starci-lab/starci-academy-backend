@@ -17,9 +17,11 @@ import {
     ProcessGoogleDocsSubmissionV2GradeStepService,
 } from "./steps"
 import {
+    ChallengeEvaluationParseService,
+} from "../shared/challenge-evaluation"
+import {
     ProcessGoogleDocsSubmissionCompleteStepService,
     ProcessGoogleDocsSubmissionGradeStepService,
-    ProcessGoogleDocsSubmissionParseService,
 } from "../process-google-docs-submission/steps"
 
 @Module({
@@ -33,7 +35,7 @@ import {
         // reused legacy services: complete step keys off the shared "grade" step name
         ProcessGoogleDocsSubmissionCompleteStepService,
         ProcessGoogleDocsSubmissionGradeStepService,
-        ProcessGoogleDocsSubmissionParseService,
+        ChallengeEvaluationParseService,
     ],
 })
 export class ProcessGoogleDocsSubmissionV2Module extends ConfigurableModuleClass {}

@@ -14,9 +14,11 @@ import {
     ProcessGitSubmissionV2Worker,
 } from "./process-git-submission-v2.worker"
 import {
+    ChallengeEvaluationParseService,
+} from "../shared/challenge-evaluation"
+import {
     ProcessGitSubmissionCompleteStepService,
     ProcessGitSubmissionGradeStepService,
-    ProcessGitSubmissionParseService,
 } from "../process-git-submission/steps"
 
 @Module({
@@ -27,7 +29,7 @@ import {
         // reused legacy services: complete step keys off the shared "grade" step name
         ProcessGitSubmissionCompleteStepService,
         ProcessGitSubmissionGradeStepService,
-        ProcessGitSubmissionParseService,
+        ChallengeEvaluationParseService,
     ],
 })
 export class ProcessGitSubmissionV2Module extends ConfigurableModuleClass {}

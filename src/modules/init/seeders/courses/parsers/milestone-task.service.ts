@@ -320,12 +320,13 @@ export class MilestoneTaskParserService {
             courseIndex,
             milestoneIndex,
         })
-        return this.entityManager.find(MilestoneTaskEntity, {
-            where: {
-                milestone: {
-                    id: milestoneId,
+        return this.entityManager.find(MilestoneTaskEntity,
+            {
+                where: {
+                    milestone: {
+                        id: milestoneId,
+                    },
                 },
-            },
-        })
+            })
     }
 }

@@ -71,7 +71,10 @@
       "WebFetch(domain:data.jsdelivr.com)",
       "WebFetch(domain:cdn.jsdelivr.net)",
       "WebFetch(domain:docs.sepay.vn)",
-      "Bash(cd \"C:\\\\Repositories\\\\starci-academy\" && mkdir -p .claude/design && echo \"MKDIR_OK\" && ls -la .claude/)"
+      "Bash(cd \"C:\\\\Repositories\\\\starci-academy\" && mkdir -p .claude/design && echo \"MKDIR_OK\" && ls -la .claude/)",
+      "mcp__Claude_Preview__preview_start",
+      "WebFetch(domain:heroui.com)",
+      "WebFetch(domain:www.heroui.com)"
     ]
   }
 }

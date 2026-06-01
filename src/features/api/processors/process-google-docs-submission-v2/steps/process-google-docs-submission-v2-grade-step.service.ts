@@ -14,7 +14,6 @@ import {
 } from "@modules/exceptions"
 import {
     AiMode,
-    AiModelCategory,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
@@ -57,17 +56,16 @@ import template from "../../process-google-docs-submission/steps/template.json"
 import {
     AiInvokeService,
     AiEntitlementService,
-    pickBestCategory,
-} from "@modules/ai"
-import type {
-    AiInvokeByok,
+    ModelRecommendation,
+    resolveGradingCreditCost,
+    resolveGradingInvokeOptions,
 } from "@modules/ai"
 import {
     GoogleDriverAPIService,
 } from "@modules/googleapis"
 import {
-    ProcessGoogleDocsSubmissionParseService,
-} from "../../process-google-docs-submission/steps/parse.service"
+    ChallengeEvaluationParseService,
+} from "../../shared/challenge-evaluation"
 import type {
     ExtendedProcessGoogleDocsSubmissionContext,
     ProcessGoogleDocsSubmissionGradeStepExecuteResult,
@@ -75,7 +73,7 @@ import type {
 import {
     collectSubmissionCriteria,
     renderCriteriaPromptSections,
-} from "../../process-git-submission-v2/steps/criteria.util"
+} from "../../shared/challenge-submission-v2/utils"
 
 /**
  * SCHEMA V2 grade step (stepIndex 0) for Google Docs submissions. Mirrors the legacy gdocs grade
@@ -100,7 +98,7 @@ export class ProcessGoogleDocsSubmissionV2GradeStepService extends AbstractStepS
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly googleDriverApiService: GoogleDriverAPIService,
-        private readonly processGoogleDocsSubmissionParseService: ProcessGoogleDocsSubmissionParseService,
+        private readonly challengeEvaluationParseService: ChallengeEvaluationParseService,
         private readonly creditUsageService: CreditUsageService,
     ) {
         super()
@@ -266,7 +264,9 @@ export class ProcessGoogleDocsSubmissionV2GradeStepService extends AbstractStepS
             "## Grading Philosophy",
             "- Focus on content completeness and accuracy, NOT formatting or style.",
             "- For each criterion, add a feedback item stating whether it was met and the evidence.",
-            "- Be skeptical: if the evidence for a criterion is not clearly present in the document, treat it as NOT MET.",
+            "- Before deciding, ACTUALLY READ the submitted document content, not just headings/summaries.",
+            "- A criterion is MET when the document content shows it — cite the concrete evidence (section/quote).",
+            "- Only mark NOT MET when, after inspecting the relevant content, the evidence is genuinely absent. Do NOT mark NOT MET merely because you skimmed headings.",
         ].filter(Boolean).join("\n")
 
         const humanText = [
@@ -284,22 +284,48 @@ export class ProcessGoogleDocsSubmissionV2GradeStepService extends AbstractStepS
                 },
             },
         )
-        /** Block grading once the user is over their credit quota. */
-        const creditSnapshot = await this.creditUsageService.getSnapshot(enrollment.userId)
-        if (creditSnapshot.overQuota) {
-            throw new AiQuotaExhaustedException({
-                mode: payload.mode ?? AiMode.Auto,
-                window: "credit",
+        /** Gate the grading run by lane: Auto → shared 50-credit pool; Premium → tier pool; Byok → none. */
+        const aiMode = payload.ai?.mode ?? AiMode.Auto
+        if (aiMode === AiMode.Auto) {
+            // free Auto lane → block when over the shared 50-credit rolling pool
+            const creditSnapshot = await this.creditUsageService.getSnapshot(enrollment.userId)
+            if (creditSnapshot.overQuota) {
+                throw new AiQuotaExhaustedException({
+                    mode: AiMode.Auto,
+                    window: "credit",
+                })
+            }
+        } else if (aiMode === AiMode.Premium) {
+            // Premium lane → block when the tier credit pool lacks headroom for this grading's cost
+            const recommendation = envConfig().ai.modelRecommendation as ModelRecommendation
+            const cost = resolveGradingCreditCost({
+                mode: AiMode.Premium,
+                recommendation,
             })
+            const entitlement = await this.aiEntitlementService.resolve({
+                userId: enrollment.userId,
+                requestedMode: AiMode.Premium,
+            })
+            if (
+                entitlement.creditRemaining5h < cost
+                || entitlement.creditRemainingWeek < cost
+            ) {
+                throw new AiQuotaExhaustedException({
+                    mode: AiMode.Premium,
+                    window: "credit",
+                })
+            }
         }
-        const invokeOptions = await this.resolveInvokeOptions(
+        // Byok → user's own key, no quota gate
+        const invokeOptions = await resolveGradingInvokeOptions(
             {
                 userId: enrollment.userId,
-                payload,
+                selection: payload.ai,
+                aiEntitlementService: this.aiEntitlementService,
             },
         )
 
-        const { text: raw } = await this.aiInvokeService.invoke({
+        const { text: raw, model, provider, attempts } = await this.aiInvokeService.invoke({
             messages: [
                 new SystemMessage(systemText),
                 new HumanMessage(humanText),
@@ -307,56 +333,17 @@ export class ProcessGoogleDocsSubmissionV2GradeStepService extends AbstractStepS
             ...invokeOptions,
         })
 
-        const parsed = this.processGoogleDocsSubmissionParseService.parse(raw)
+        const parsed = this.challengeEvaluationParseService.parse(raw)
         const passThreshold = this.mountStorageService.appConfig.systemConfig.challenge.passThreshold
         const passed = parsed.score >= maxScore * passThreshold
         return {
             evaluation: parsed,
             passed,
-        }
-    }
-
-    /**
-     * Resolve the submitter's entitlement and derive the args to pass to
-     * {@link AiInvokeService.invoke} (once per grading job).
-     * @param params - The resolved `userId` and the job payload.
-     * @returns Partial `invoke` args (`byok` OR `category`).
-     */
-    private async resolveInvokeOptions(
-        {
-            userId,
-            payload,
-        }: {
-            userId: string
-            payload: ProcessGoogleDocsSubmissionPayload
-        },
-    ): Promise<{ category?: AiModelCategory, byok?: AiInvokeByok }> {
-        const entitlement = await this.aiEntitlementService.resolve({
-            userId,
-            requestedMode: payload.mode,
-        })
-
-        if (entitlement.mode === AiMode.Byok) {
-            if (
-                payload.byokProvider
-                && payload.byokModel
-                && payload.byokApiKey
-            ) {
-                return {
-                    byok: {
-                        provider: payload.byokProvider,
-                        model: payload.byokModel,
-                        key: payload.byokApiKey,
-                    },
-                }
-            }
-        }
-
-        const category = entitlement.mode === AiMode.Premium
-            ? pickBestCategory(entitlement.allowedCategories)
-            : AiModelCategory.Economy
-        return {
-            category,
+            aiUsage: {
+                model,
+                provider,
+                attempts,
+            },
         }
     }
 

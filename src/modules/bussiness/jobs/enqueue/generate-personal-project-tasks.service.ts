@@ -29,7 +29,8 @@ import {
     JobActionService,
 } from "../atomic"
 import {
-    GenerateTaskModelRouterService,
+    AiTaskKind,
+    AiTaskModelService,
 } from "@modules/ai"
 import {
     sleepEnqueueUxDelay,
@@ -44,7 +45,7 @@ import type {
 @Injectable()
 export class EnqueueGeneratePersonalProjectTasksJobService {
     constructor(
-        private readonly generateTaskModelRouterService: GenerateTaskModelRouterService,
+        private readonly aiTaskModelService: AiTaskModelService,
         private readonly jobActionService: JobActionService,
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
@@ -66,8 +67,8 @@ export class EnqueueGeneratePersonalProjectTasksJobService {
     ): Promise<JobEntity> {
         const payload: GeneratePersonalProjectTasksPayload = {
             enrollmentId,
-            model: model || this.generateTaskModelRouterService.model,
-            provider: provider || this.generateTaskModelRouterService.provider,
+            model: model || this.aiTaskModelService.primaryChoice(AiTaskKind.GenerateMilestone).model,
+            provider: provider || this.aiTaskModelService.primaryChoice(AiTaskKind.GenerateMilestone).provider,
             locale,
         }
         const job = await this.jobActionService.createJob({

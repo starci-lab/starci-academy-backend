@@ -49,26 +49,33 @@ export class LeaderboardListener implements OnModuleInit {
         this.eventEmitterService.on({
             event: EventName.ChallengeSubmissionProgressUpdated,
             listener: async (payload: ChallengeSubmissionProgressUpdatedEventPayload) => {
+                // load the course relation — `courseId` is a virtual @RelationId that
+                // cannot be selected directly (TypeORM throws EntityPropertyNotFound)
                 const enrollment = await this.entityManager.findOne(
                     EnrollmentEntity,
                     {
                         where: {
                             id: payload.enrollmentId,
                         },
+                        relations: {
+                            course: true,
+                        },
                         select: {
                             id: true,
-                            courseId: true,
+                            course: {
+                                id: true,
+                            },
                         },
                     },
                 )
                 if (!enrollment) {
                     return
                 }
-                const acquired = await this.tryAcquireDebounce(enrollment.courseId)
+                const acquired = await this.tryAcquireDebounce(enrollment.course.id)
                 if (!acquired) {
                     return
                 }
-                await this.leaderboardService.updateLeaderboard(enrollment.courseId)
+                await this.leaderboardService.updateLeaderboard(enrollment.course.id)
             },
         })
     }

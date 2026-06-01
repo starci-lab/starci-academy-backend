@@ -55,7 +55,7 @@ export class AiBalancerHealthResolver {
     async execute(): Promise<AiBalancerHealthResponseData> {
         const {
             providers,
-        } = this.aiBalancerService.healthSnapshot()
+        } = await this.aiBalancerService.healthSnapshot()
         return {
             providers: providers.map((provider) => ({
                 provider: provider.provider,

@@ -173,18 +173,6 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                         }
                     }
                 )
-                console.log({
-                    userMilestoneTask: {
-                        id: userMilestoneTask.id,
-                    },
-                    processedAt: this.dayjsService.now().toDate(),
-                    score: grade.evaluation.score,
-                    shortFeedback: grade.evaluation.shortFeedback,
-                    passed: grade.passed,
-                    attemptNumber: numAttempts + 1,
-                    feedbacks,
-                    defaultLocale: payload.locale ?? Locale.En,
-                })
                 /** Save the user milestone task attempt */
                 await entityManager.save(
                     UserMilestoneTaskAttemptEntity,

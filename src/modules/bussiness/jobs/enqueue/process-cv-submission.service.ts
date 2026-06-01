@@ -62,13 +62,12 @@ export class EnqueueProcessCvSubmissionJobService {
             userId,
             cvSubmissionId,
             jobId,
-            analyzeModel,
-            analyzeProvider,
             embeddingModel,
             embeddingProvider,
             templateCvId,
+            cvSubmissionAttemptId,
             locale,
-            mode,
+            ai,
         }: EnqueueProcessCvSubmissionJobParams,
     ): Promise<JobEntity> {
 
@@ -84,32 +83,28 @@ export class EnqueueProcessCvSubmissionJobService {
             const payloadBody: ReviewCvSubmissionPayload = {
                 jobId: id,
                 cvSubmissionId,
-                ...(analyzeModel !== undefined ? {
-                    analyzeModel 
-                } : {
-                }),
-                ...(analyzeProvider !== undefined ? {
-                    analyzeProvider 
-                } : {
-                }),
                 ...(embeddingModel !== undefined ? {
-                    embeddingModel 
+                    embeddingModel
                 } : {
                 }),
                 ...(embeddingProvider !== undefined ? {
-                    embeddingProvider 
+                    embeddingProvider
                 } : {
                 }),
                 ...(templateCvId !== undefined ? {
-                    templateCvId 
+                    templateCvId
+                } : {
+                }),
+                ...(cvSubmissionAttemptId !== undefined ? {
+                    cvSubmissionAttemptId
                 } : {
                 }),
                 ...(locale !== undefined ? {
                     locale
                 } : {
                 }),
-                ...(mode !== undefined ? {
-                    mode
+                ...(ai !== undefined ? {
+                    ai,
                 } : {
                 }),
             }

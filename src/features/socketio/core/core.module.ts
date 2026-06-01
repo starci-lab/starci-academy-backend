@@ -10,6 +10,9 @@ import {
 import {
     JobNotificationsModule,
 } from "./job-notifications"
+import {
+    ContentDiscussionModule,
+} from "./content-discussion"
 
 /**
  * Feature module bundling all real-time Socket.IO gateways of the app.
@@ -22,6 +25,9 @@ import {
             isGlobal: true,
         }),
         JobNotificationsModule.register({
+            isGlobal: true,
+        }),
+        ContentDiscussionModule.register({
             isGlobal: true,
         }),
     ],

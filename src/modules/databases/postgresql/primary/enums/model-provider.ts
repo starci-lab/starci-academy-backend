@@ -15,6 +15,8 @@ export enum ModelProvider {
     OpenAI = "openai",
     /** Anthropic Claude model provider. */
     Claude = "claude",
+    /** OpenRouter — OpenAI-compatible gateway giving access to free models (e.g. DeepSeek). */
+    OpenRouter = "openrouter",
 }
 
 /**
@@ -39,6 +41,9 @@ registerEnumType(
             },
             [ModelProvider.Claude]: {
                 description: "Anthropic Claude model provider.",
+            },
+            [ModelProvider.OpenRouter]: {
+                description: "OpenRouter (OpenAI-compatible gateway, free models like DeepSeek).",
             },
         },
     }

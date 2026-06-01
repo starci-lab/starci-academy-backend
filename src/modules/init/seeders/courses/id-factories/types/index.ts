@@ -91,6 +91,20 @@ export interface GenerateContentBodyIdParams {
 }
 
 /**
+ * Input for {@link ContentLearningOutcomeIdFactoryService.generate}.
+ */
+export interface GenerateContentLearningOutcomeIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent module ordinal. */
+    moduleIndex: number
+    /** Parent content ordinal. */
+    contentIndex: number
+    /** Zero-based outcome bullet order within the content's `# whatYouLearn` list. */
+    orderIndex: number
+}
+
+/**
  * Input for {@link PreviewContentIdFactoryService.generate}.
  */
 export interface GeneratePreviewContentIdParams {

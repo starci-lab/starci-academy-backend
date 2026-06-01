@@ -5,9 +5,11 @@ import {
     ConfigurableModuleClass,
 } from "./process-git-submission.module-definition"
 import {
+    ChallengeEvaluationParseService,
+} from "../shared/challenge-evaluation"
+import {
     ProcessGitSubmissionCompleteStepService,
     ProcessGitSubmissionGradeStepService,
-    ProcessGitSubmissionParseService,
 } from "./steps"
 import {
     ProcessGitSubmissionStepMappingService,
@@ -25,7 +27,7 @@ import {
         ProcessGitSubmissionStepMappingService,
         ProcessGitSubmissionGradeStepService,
         ProcessGitSubmissionCompleteStepService,
-        ProcessGitSubmissionParseService,
+        ChallengeEvaluationParseService,
         ProcessGitSubmissionRequeueService,
     ],
 })

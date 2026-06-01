@@ -4,11 +4,16 @@ import {
 import type {
     ChallengeEvaluation,
 } from "@modules/bullmq"
+import type {
+    GradingStepAiUsage,
+} from "@modules/ai"
 
 /** Result of the process-git-submission grade step. */
 export interface ProcessGitSubmissionGradeStepExecuteResult {
     evaluation: ChallengeEvaluation
     passed: boolean
+    /** Model/provider actually used by the balancer for this run. */
+    aiUsage: GradingStepAiUsage
 }
 
 /** Result of the process-git-submission complete step. */

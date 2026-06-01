@@ -30,6 +30,7 @@ import {
     getOpenAiApiKeys,
     getGeminiApiKeys,
     getClaudeApiKeys,
+    getOpenRouterApiKeys,
 } from "./utils"
 /**
  * Service responsible for reading secrets mounted into the container filesystem.
@@ -215,5 +216,14 @@ export class MountFilesystemService {
      */
     claudeApiKeys(): Array<string> {
         return getClaudeApiKeys()
+    }
+
+    /**
+     * Get the OpenRouter API-key pool (newline-separated mount file).
+     *
+     * @returns Array of trimmed, non-empty keys; empty when the file is missing or empty
+     */
+    openRouterApiKeys(): Array<string> {
+        return getOpenRouterApiKeys()
     }
 }

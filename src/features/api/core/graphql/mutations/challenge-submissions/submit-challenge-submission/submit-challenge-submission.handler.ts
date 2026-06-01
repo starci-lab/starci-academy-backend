@@ -3,11 +3,20 @@ import {
     EnqueueProcessGitSubmissionV2JobService,
     EnqueueProcessGoogleDocsSubmissionJobService,
     EnqueueProcessGoogleDocsSubmissionV2JobService,
+    CreditUsageService,
 } from "@modules/bussiness"
+import {
+    AiEntitlementService,
+    GradingLaneValidationService,
+    ModelRecommendation,
+    resolveGradingCreditCost,
+    validatedLaneToAiJobSelection,
+} from "@modules/ai"
 import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
+    AiMode,
     ChallengeEntity,
     ChallengeSubmissionEntity,
     CourseEntity,
@@ -24,7 +33,7 @@ import {
 import {
     ChallengeNotFoundException,
     ChallengeSubmissionNotFoundException,
-    SubmissionCooldownException,
+    SubmissionQuotaExceededException,
     SubmissionUrlInvalidException,
     UserChallengeSubmissionNotFoundException,
     UserNotFoundException,
@@ -69,8 +78,69 @@ export class SubmitChallengeSubmissionHandler
         private readonly enqueueProcessGoogleDocsSubmissionV2JobService: EnqueueProcessGoogleDocsSubmissionV2JobService,
         private readonly dayjsService: DayjsService,
         private readonly postgreSqlAdvisoryLockService: PostgreSqlAdvisoryLockService,
+        private readonly gradingLaneValidationService: GradingLaneValidationService,
+        private readonly creditUsageService: CreditUsageService,
+        private readonly aiEntitlementService: AiEntitlementService,
     ) {
         super()
+    }
+
+    /**
+     * Reject the submission up-front when the user has no grading quota left for
+     * the chosen lane (replaces the old fixed 3h cooldown).
+     *
+     * - `byok`    → own key, never quota-limited.
+     * - `auto`    → shared 50-credit rolling pool.
+     * - `premium` → the user's tier credit pool (both windows must cover the cost).
+     *
+     * @param userId - Submitter whose quota is checked.
+     * @param mode - Resolved lane from the validated grading selection.
+     * @throws SubmissionQuotaExceededException when the lane is out of quota.
+     */
+    private async assertGradingQuota(
+        userId: string,
+        mode: AiMode,
+    ): Promise<void> {
+        // BYOK runs on the user's own key — never gated
+        if (mode === AiMode.Byok) {
+            return
+        }
+        // Auto → block when over the shared 50-credit rolling pool
+        if (mode === AiMode.Auto) {
+            const snapshot = await this.creditUsageService.getSnapshot(userId)
+            if (snapshot.overQuota) {
+                throw new SubmissionQuotaExceededException({
+                    mode,
+                    waitUntil: snapshot.resetAt
+                        ? this.dayjsService.from(snapshot.resetAt).format("HH:mm DD/MM/YYYY")
+                        : null,
+                })
+            }
+            return
+        }
+        // Premium → block when the tier credit pool can't cover this grading's cost
+        const recommendation = envConfig().ai.modelRecommendation as ModelRecommendation
+        const cost = resolveGradingCreditCost({
+            mode: AiMode.Premium,
+            recommendation,
+        })
+        const snapshot = await this.aiEntitlementService.snapshot({
+            userId,
+        })
+        // the weekly window is the binding (later) wait when it is the blocker
+        const lacksWeek = snapshot.premium.remainingWeek < cost
+        const lacks5h = snapshot.premium.remaining5h < cost
+        if (lacksWeek || lacks5h) {
+            const resetAt = lacksWeek
+                ? snapshot.windowWeekResetAt
+                : snapshot.window5hResetAt
+            throw new SubmissionQuotaExceededException({
+                mode,
+                waitUntil: resetAt
+                    ? this.dayjsService.from(resetAt).format("HH:mm DD/MM/YYYY")
+                    : null,
+            })
+        }
     }
 
     /** Process the command. */
@@ -94,6 +164,7 @@ export class SubmitChallengeSubmissionHandler
             selectedModel,
             selectedModelProvider,
             lang,
+            byokApiKey,
         } = request
         const trimmedGithubUrl =
             typeof githubUrl === "string"
@@ -226,6 +297,13 @@ export class SubmitChallengeSubmissionHandler
             })
         }
         const userChallengeSubmissionId = userChallengeSubmission.id
+        const validatedLane = await this.gradingLaneValidationService.validate({
+            userId: user.id,
+            mode,
+            model: selectedModel,
+            provider: selectedModelProvider,
+            byokApiKey,
+        })
         /**
          * Persist the user's grading-lane + model pick on the submission row so
          * the picker pre-fills on reopen. Only overwrite fields the client sent
@@ -235,40 +313,29 @@ export class SubmitChallengeSubmissionHandler
             mode !== undefined
             || selectedModel !== undefined
             || selectedModelProvider !== undefined
+            || lang !== undefined
         ) {
             if (mode !== undefined) {
-                userChallengeSubmission.selectedMode = mode
+                userChallengeSubmission.selectedMode = validatedLane.mode
             }
             if (selectedModel !== undefined) {
-                userChallengeSubmission.selectedModel = selectedModel
+                userChallengeSubmission.selectedModel = validatedLane.gradingModel ?? null
             }
             if (selectedModelProvider !== undefined) {
-                userChallengeSubmission.selectedModelProvider = selectedModelProvider
+                userChallengeSubmission.selectedModelProvider = validatedLane.gradingProvider ?? null
+            }
+            // persist the chosen programming language so the V2 tabs reopen on it
+            if (lang !== undefined) {
+                userChallengeSubmission.selectedLang = lang
             }
             await this.entityManager.save(
                 UserChallengeSubmissionEntity,
                 userChallengeSubmission,
             )
         }
-        /** Last attempt. */
-        const lastAttempt = userChallengeSubmission.attempts
-            ?.sort((
-                prev, next
-            ) => next.createdAt.getTime() - prev.createdAt.getTime())[0]
-        if (lastAttempt) {
-            /** Cooldown. */
-            const cooldownMs = envConfig().job.processGitSubmission.cooldownMs
-            const nextAllowedAt = this.dayjsService.from(lastAttempt.createdAt).add(
-                cooldownMs,
-                "ms",
-            )
-            /** Check if the next allowed at is after the current time. */
-            if (nextAllowedAt.isAfter(this.dayjsService.now())) {
-                throw new SubmissionCooldownException({
-                    nextAllowedAt: nextAllowedAt.toDate(),
-                })
-            }
-        }
+        /** Quota gate (replaces the old fixed 3h cooldown): block when the chosen lane is out of quota. */
+        await this.assertGradingQuota(user.id,
+            validatedLane.mode)
         /** Submission URL. */
         const url = userChallengeSubmission.submissionUrl?.trim()
         /** Check if the submission URL is invalid. */
@@ -314,6 +381,10 @@ export class SubmitChallengeSubmissionHandler
             }
         )
         const enrollmentId = enrollment?.id ?? ""
+        // collapse the validated lane into the discriminated AI selection carried on the job
+        const ai = validatedLaneToAiJobSelection(validatedLane)
+        // use the request lang, else fall back to the language persisted on the submission row
+        const effectiveLang = lang ?? userChallengeSubmission.selectedLang ?? undefined
         /**
          * Enqueue the grading job. A verified (SCHEMA V2) challenge routes to the V2 pipeline that
          * grades against outcome/approach criteria; the learner's chosen programming language
@@ -327,9 +398,7 @@ export class SubmitChallengeSubmissionHandler
             userChallengeSubmissionId,
             challengeSubmissionId: challengeSubmission.id,
             locale,
-            mode,
-            gradingModel: selectedModel,
-            gradingProvider: selectedModelProvider,
+            ai,
         }
         let job: JobEntity | null = null
         switch (challengeSubmission.type) {
@@ -337,16 +406,13 @@ export class SubmitChallengeSubmissionHandler
             job = isV2Challenge
                 ? await this.enqueueProcessGitSubmissionV2JobService.enqueue({
                     ...enqueueParams,
-                    lang,
+                    lang: effectiveLang,
                 })
                 : await this.enqueueProcessGitSubmissionJobService.enqueue(enqueueParams)
             break
         case SubmissionType.GoogleDocsUrl:
             job = isV2Challenge
-                ? await this.enqueueProcessGoogleDocsSubmissionV2JobService.enqueue({
-                    ...enqueueParams,
-                    lang,
-                })
+                ? await this.enqueueProcessGoogleDocsSubmissionV2JobService.enqueue(enqueueParams)
                 : await this.enqueueProcessGoogleDocsSubmissionJobService.enqueue(enqueueParams)
             break
         }

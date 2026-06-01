@@ -19,6 +19,9 @@ export enum CacheKey {
     CreditUsage = "credit.usage",
     CourseLeaderboard = "course.leaderboard",
     CourseLeaderboardDebounce = "course.leaderboard.debounce",
+    CourseMindMap = "course.mind-map",
+    /** AI ping mount-key health snapshots keyed by provider then API key. */
+    AiPingKeyStatus = "ai.ping.key-status",
 }
 
 /**

@@ -178,7 +178,21 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
     })
         selectedModelProvider: ModelProvider | null
 
-
+    /** SCHEMA V2 only: programming language the learner last chose; null until picked. */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "SCHEMA V2: programming language last chosen for this submission; selects the approach-criteria bucket on reopen.",
+        },
+    )
+    @Column({
+        name: "selected_lang",
+        type: "varchar",
+        length: 32,
+        nullable: true,
+    })
+        selectedLang: string | null
 
     @OneToMany(
         () => UserChallengeSubmissionAttemptEntity,

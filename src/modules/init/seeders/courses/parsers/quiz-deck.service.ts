@@ -341,12 +341,13 @@ export class QuizDeckParserService {
         const courseId = this.courseIdFactoryService.generate({
             courseIndex,
         })
-        return this.entityManager.find(QuizDeckEntity, {
-            where: {
-                course: {
-                    id: courseId,
+        return this.entityManager.find(QuizDeckEntity,
+            {
+                where: {
+                    course: {
+                        id: courseId,
+                    },
                 },
-            },
-        })
+            })
     }
 }

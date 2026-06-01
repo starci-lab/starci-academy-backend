@@ -6,13 +6,19 @@ import {
 } from "@nestjs/graphql"
 
 /**
- * Polymorphic target type a mind-map node may link to.
- * Stored in `mind_map_nodes.entity_type` (nullable when the node is purely decorative).
+ * Polymorphic target type a mind-map node links to, used by the computed course mind-map graph
+ * (`@xyflow/react` node `data.kind`).
  */
 export enum MindMapNodeEntityType {
+    /** Root node — the course itself. */
+    Course = "course",
+    /** Node links to a ModuleEntity row. */
     Module = "module",
+    /** Node links to a ContentEntity row (lesson). */
     Lesson = "lesson",
+    /** Node links to a ChallengeEntity row. */
     Challenge = "challenge",
+    /** Node has no entity link (decorative or custom-authored). */
     Custom = "custom",
 }
 
@@ -29,6 +35,9 @@ registerEnumType(
         name: "MindMapNodeEntityType",
         description: "Polymorphic target type referenced by a mind-map node.",
         valuesMap: {
+            [MindMapNodeEntityType.Course]: {
+                description: "Root node — the course itself.",
+            },
             [MindMapNodeEntityType.Module]: {
                 description: "Node links to a ModuleEntity row.",
             },

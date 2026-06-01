@@ -1,0 +1,39 @@
+import {
+    Field,
+    ID,
+    InputType,
+} from "@nestjs/graphql"
+
+/** Request to create a comment (top-level or reply) on a content. */
+@InputType({
+    description: "Request to create a comment on a content.",
+})
+export class CreateCommentRequest {
+    /** Content the comment is attached to. */
+    @Field(
+        () => ID,
+        {
+            description: "Content the comment is attached to.",
+        },
+    )
+        contentId: string
+
+    /** Parent comment id when replying; null/omitted for a top-level comment. */
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Parent comment id when replying; null for a top-level comment.",
+        },
+    )
+        parentCommentId?: string | null
+
+    /** Raw comment body authored by the user. */
+    @Field(
+        () => String,
+        {
+            description: "Raw comment body authored by the user.",
+        },
+    )
+        body: string
+}

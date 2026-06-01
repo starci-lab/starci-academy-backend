@@ -1,8 +1,10 @@
 import {
-    AiMode,
     Locale,
     ModelProvider,
 } from "@modules/databases"
+import type {
+    AiJobSelection,
+} from "@modules/ai"
 
 /**
  * BullMQ job body for the review-CV-submission worker (`process-cv-submission` queue).
@@ -12,10 +14,6 @@ export interface ReviewCvSubmissionPayload {
     jobId: string
     /** `cv_submissions.id`. */
     cvSubmissionId: string
-    /** Provider of the analyze model. */
-    analyzeProvider?: ModelProvider
-    /** Model to use for analyze. */
-    analyzeModel?: string
     /** Provider of the embedding model. */
     embeddingProvider?: ModelProvider
     /** Model to use for embedding. */
@@ -28,12 +26,6 @@ export interface ReviewCvSubmissionPayload {
     cvSubmissionAttemptId?: string
     /** Persist final review output back onto the canonical submission attempt. */
     persistReviewAsCanonicalAttempt?: boolean
-    /** BYOK: provider of the user-supplied key (used only in `byok` mode). */
-    byokProvider?: ModelProvider
-    /** BYOK: model to invoke with the user-supplied key. */
-    byokModel?: string
-    /** BYOK: the user's own raw API key. */
-    byokApiKey?: string
-    /** AI lane the user picked at submit time; validated against entitlement. */
-    mode?: AiMode
+    /** AI lane + model pick (validated against entitlement at grade time). */
+    ai?: AiJobSelection
 }

@@ -11,6 +11,9 @@ import {
     createMemoryCacheManagerProvider 
 } from "./cache.providers"
 import {
+    AiPingCacheService,
+} from "./ai-ping-cache.service"
+import {
     CacheService 
 } from "./cache.service"
 
@@ -30,9 +33,11 @@ export class CacheModule extends ConfigurableModuleClass {
             providers: [...dynamicModule.providers || [],
                 ...providers,
                 CacheService,
+                AiPingCacheService,
             ],
             exports: [
                 CacheService,
+                AiPingCacheService,
             ],
         }
     }

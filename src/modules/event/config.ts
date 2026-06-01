@@ -6,6 +6,9 @@ import {
     MilestoneTaskProgressUpdatedEventPayload,
     PingEventPayload,
     ChallengeSubmissionProgressUpdatedEventPayload,
+    CommentChangedEventPayload,
+    ContentReactionChangedEventPayload,
+    CommentReactionChangedEventPayload,
 } from "./types"
 
 /** Map of event names to NATS/local usage and payload type. */
@@ -36,5 +39,43 @@ export const configMap = {
         useLocal: true,
         eventPayload: {
         } as ChallengeSubmissionProgressUpdatedEventPayload,
+    },
+    // Discussion events are fanned out to the local Socket.IO gateway in-process.
+    // useNats stays false for now (single-instance realtime); flip to true once a NATS
+    // bridge re-emits these locally on every pod for multi-instance delivery.
+    /** Event name: a content comment was created. */
+    [EventName.CommentCreated]: {
+        useNats: false,
+        useLocal: true,
+        eventPayload: {
+        } as CommentChangedEventPayload,
+    },
+    /** Event name: a content comment was edited. */
+    [EventName.CommentUpdated]: {
+        useNats: false,
+        useLocal: true,
+        eventPayload: {
+        } as CommentChangedEventPayload,
+    },
+    /** Event name: a content comment was soft-deleted. */
+    [EventName.CommentDeleted]: {
+        useNats: false,
+        useLocal: true,
+        eventPayload: {
+        } as CommentChangedEventPayload,
+    },
+    /** Event name: aggregate reactions on a content changed. */
+    [EventName.ContentReactionChanged]: {
+        useNats: false,
+        useLocal: true,
+        eventPayload: {
+        } as ContentReactionChangedEventPayload,
+    },
+    /** Event name: aggregate reactions on a comment changed. */
+    [EventName.CommentReactionChanged]: {
+        useNats: false,
+        useLocal: true,
+        eventPayload: {
+        } as CommentReactionChangedEventPayload,
     },
 }

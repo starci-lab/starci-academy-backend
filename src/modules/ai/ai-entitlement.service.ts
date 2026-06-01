@@ -39,6 +39,7 @@ import type {
     AiEntitlement,
     AiQuotaSnapshot,
     AiSettings,
+    ConsumeEntitlementParams,
     GrantTierParams,
     ResolveEntitlementParams,
     UpdateAiSettingsParams,
@@ -84,6 +85,7 @@ export class AiEntitlementService {
     async resolve({
         userId,
         requestedMode,
+        ephemeralByok,
     }: ResolveEntitlementParams): Promise<AiEntitlement> {
         return this.entityManager.transaction(
             async (entityManager) => {
@@ -96,7 +98,58 @@ export class AiEntitlementService {
                 return this.toEntitlement(
                     subscription,
                     requestedMode,
+                    ephemeralByok,
                 )
+            },
+        )
+    }
+
+    /**
+     * Debit the Premium tier credit pool after a successful grading run.
+     *
+     * No-op for Auto (billed via `credit_usage_histories`) and Byok (free).
+     * Locks the subscription row `FOR UPDATE` so concurrent debits serialize and
+     * never lose an update — the tier counters always reflect true spend (so the
+     * pool can't be over-spent across concurrent premium gradings).
+     *
+     * @param params - Owner, the lane that ran, and the credits to debit.
+     */
+    async consume({
+        userId,
+        mode,
+        cost,
+    }: ConsumeEntitlementParams): Promise<void> {
+        // only Premium draws down the tier pool; Auto/Byok never touch it
+        if (mode !== AiMode.Premium || cost <= 0) {
+            return
+        }
+        await this.entityManager.transaction(
+            async (entityManager) => {
+                // lock the subscription row FOR UPDATE — concurrent debits serialize here,
+                // so a read-modify-write race can never drop a debit (over-spend)
+                const subscription = await entityManager
+                    .createQueryBuilder(
+                        AiSubscriptionEntity,
+                        "subscription",
+                    )
+                    .setLock("pessimistic_write")
+                    .where(
+                        "subscription.user_id = :userId",
+                        {
+                            userId,
+                        },
+                    )
+                    .getOne()
+                // premium always has a row; nothing to debit otherwise
+                if (!subscription) {
+                    return
+                }
+                // roll any due windows forward so the debit hits the live window
+                this.applyWindowResets(subscription)
+                // debit BOTH sliding windows by the grading cost under the held lock
+                subscription.credit5hUsed += cost
+                subscription.creditWeekUsed += cost
+                await entityManager.save(subscription)
             },
         )
     }
@@ -257,6 +310,36 @@ export class AiEntitlementService {
                 )
             },
         )
+    }
+
+    /**
+     * Decrypt the user's stored BYOK API key for a grading invoke.
+     *
+     * @param params - Owner of the subscription row.
+     * @returns Plaintext key, or `null` when nothing is stored.
+     */
+    async getByokApiKey(
+        {
+            userId,
+        }: ResolveEntitlementParams,
+    ): Promise<string | null> {
+        const subscription = await this.entityManager.findOne(
+            AiSubscriptionEntity,
+            {
+                where: {
+                    user: {
+                        id: userId,
+                    },
+                },
+            },
+        )
+        if (!subscription?.byokKeyEncrypted) {
+            return null
+        }
+        const payload = JSON.parse(subscription.byokKeyEncrypted)
+        return this.encryptionService.decrypt({
+            payload,
+        })
     }
 
     /**
@@ -443,10 +526,12 @@ export class AiEntitlementService {
     private toEntitlement(
         subscription: AiSubscriptionEntity,
         requestedMode?: AiMode,
+        ephemeralByok?: boolean,
     ): AiEntitlement {
         const mode = this.resolveEffectiveMode(
             subscription,
             requestedMode,
+            ephemeralByok,
         )
         const tier = mode === AiMode.Premium ? subscription.tier : null
         const allowedCategories = TIER_ALLOWED_CATEGORIES[tier ?? "free"]
@@ -548,6 +633,7 @@ export class AiEntitlementService {
     private resolveEffectiveMode(
         subscription: AiSubscriptionEntity,
         requestedMode?: AiMode,
+        ephemeralByok?: boolean,
     ): AiMode {
         const canByok = Boolean(subscription.byokProvider)
         const canPremium = this.isPremiumActive(subscription)
@@ -580,6 +666,9 @@ export class AiEntitlementService {
             }
             return AiMode.Premium
         case AiMode.Byok:
+            if (ephemeralByok) {
+                return AiMode.Byok
+            }
             if (!canByok) {
                 throw new AiModeNotEntitledException({
                     requestedMode,

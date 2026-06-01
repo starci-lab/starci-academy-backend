@@ -6,32 +6,33 @@ import {
 } from "./ai-balancer.module-definition"
 import {
     AiModelCatalogService,
-    KeyStoreService,
-    KeyRotatorService,
-    KeyHealthService,
+} from "./ai-model-catalog.service"
+import {
     AiBalancerService,
+} from "./ai-balancer.service"
+import {
+    KeyRotatorService,
+} from "./key-rotator.service"
+import {
+    KeyStoreService,
+} from "./key-store.service"
+import {
     UseApiService,
-} from "./core"
+} from "./use-api.service"
 
 /**
- * AI Balancer sub-module — rotating key pool for every supported provider.
+ * AI Balancer — mount key pools, Redis-backed health cache, and invoke routing.
  *
- * - {@link KeyStoreService}   — loads keys from mount files at boot.
- * - {@link KeyRotatorService} — round-robin picks the next active key.
- * - {@link KeyHealthService}  — periodic ping + disable/recover transitions.
- * - {@link AiBalancerService} — public façade: acquire, markSuccess, markFailure,
- *                               healthSnapshot, reload.
- * - {@link UseApiService}     — high-level wrapper: model fallback chain + key
- *                               rotation hidden from callers.
- *
- * Consumed by {@link AiModule} — do not register separately in AppModule.
+ * - {@link KeyStoreService} — loads keys from mount files.
+ * - {@link KeyRotatorService} — round-robin; skips keys with `status: false` in Redis.
+ * - {@link UseApiService} — `useApi` (lane-discriminated: auto / premium / byok).
+ * - {@link AiBalancerService} — acquire + admin health snapshot.
  */
 @Module({
     providers: [
         AiModelCatalogService,
         KeyStoreService,
         KeyRotatorService,
-        KeyHealthService,
         AiBalancerService,
         UseApiService,
     ],
@@ -39,7 +40,6 @@ import {
         AiModelCatalogService,
         KeyStoreService,
         KeyRotatorService,
-        KeyHealthService,
         AiBalancerService,
         UseApiService,
     ],

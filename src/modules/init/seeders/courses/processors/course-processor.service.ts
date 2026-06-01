@@ -22,14 +22,11 @@ import {
     MilestoneProcessorService,
 } from "./milestone-processor.service"
 import {
-    MindMapProcessorService,
-} from "./mind-map-processor.service"
-import {
     UuidPartitionPersistProcessorService,
 } from "./uuid-partition-persist-processor.service"
 
 /**
- * Upserts course rows and orchestrates nested module / quiz / milestone / mind-map processors.
+ * Upserts course rows and orchestrates nested module / quiz / milestone processors.
  */
 @Injectable()
 export class CourseProcessorService {
@@ -41,7 +38,6 @@ export class CourseProcessorService {
         private readonly quizDeckProcessorService: QuizDeckProcessorService,
         @Inject(forwardRef(() => MilestoneProcessorService))
         private readonly milestoneProcessorService: MilestoneProcessorService,
-        private readonly mindMapProcessorService: MindMapProcessorService,
     ) { }
 
     /**
@@ -90,10 +86,6 @@ export class CourseProcessorService {
                 courseResult,
                 courseId,
                 courseDisplayId,
-            })
-            await this.mindMapProcessorService.process({
-                courseId,
-                courseRelativePath: courseResult.relativePath,
             })
         }
     }

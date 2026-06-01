@@ -13,7 +13,7 @@ import {
 } from "./classes"
 import {
     AiPingService,
-} from "./ping.service"
+} from "./ping"
 import {
     AiTaskKind,
 } from "./types"

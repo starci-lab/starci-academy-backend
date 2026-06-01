@@ -16,6 +16,9 @@ import {
 import {
     MyCreditUsageSingleQueryModule,
 } from "./my-credit-usage"
+import {
+    MyCreditUsageHistorySingleQueryModule,
+} from "./my-credit-usage-history"
 
 /**
  * Per-user AI query group (quota snapshot, lane settings, tier catalog, …).
@@ -32,6 +35,9 @@ import {
             isGlobal: true,
         }),
         MyCreditUsageSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyCreditUsageHistorySingleQueryModule.register({
             isGlobal: true,
         }),
     ],

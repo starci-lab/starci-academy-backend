@@ -15,9 +15,11 @@ import {
     LangchainModule,
 } from "@modules/langchain"
 import {
+    ChallengeEvaluationParseService,
+} from "../shared/challenge-evaluation"
+import {
     ProcessGoogleDocsSubmissionGradeStepService,
     ProcessGoogleDocsSubmissionCompleteStepService,
-    ProcessGoogleDocsSubmissionParseService,
 } from "./steps"
 
 @Module({
@@ -29,7 +31,7 @@ import {
         ProcessGoogleDocsSubmissionStepMappingService,
         ProcessGoogleDocsSubmissionGradeStepService,
         ProcessGoogleDocsSubmissionCompleteStepService,
-        ProcessGoogleDocsSubmissionParseService,
+        ChallengeEvaluationParseService,
     ],
 })
 export class ProcessGoogleDocsSubmissionModule extends ConfigurableModuleClass {}

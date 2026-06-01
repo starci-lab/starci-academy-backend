@@ -20,7 +20,6 @@ import {
 } from "@modules/common"
 import {
     AiMode,
-    AiModelCategory,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
@@ -73,14 +72,11 @@ import {
 import {
     AiInvokeService,
     AiEntitlementService,
-    pickBestCategory,
-} from "@modules/ai"
-import type {
-    AiInvokeByok,
+    resolveGradingInvokeOptions,
 } from "@modules/ai"
 import {
-    ReviewMilestoneTaskParseService
-} from "./parse.service"
+    ProjectEvaluationParseService,
+} from "../../shared/project-evaluation"
 
 /**
  * Step 0: Load GitHub repo → LLM grades per criterion (yes/no + score) → persist attempt + feedback.
@@ -103,7 +99,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly dayjsService: DayjsService,
-        private readonly reviewMilestoneTaskParseService: ReviewMilestoneTaskParseService,
+        private readonly projectEvaluationParseService: ProjectEvaluationParseService,
         private readonly creditUsageService: CreditUsageService,
     ) {
         super()
@@ -343,22 +339,25 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 },
             },
         )
-        /** Block grading once the user is over their credit quota (source of truth: credit_usage_histories). */
-        const creditSnapshot = await this.creditUsageService.getSnapshot(enrollment.userId)
-        if (creditSnapshot.overQuota) {
-            throw new AiQuotaExhaustedException({
-                mode: payload.mode ?? AiMode.Auto,
-                window: "credit",
-            })
+        /** Auto lane → gate on the shared 50-credit pool; Premium/Byok are not billed for task review yet. */
+        if ((payload.ai?.mode ?? AiMode.Auto) === AiMode.Auto) {
+            const creditSnapshot = await this.creditUsageService.getSnapshot(enrollment.userId)
+            if (creditSnapshot.overQuota) {
+                throw new AiQuotaExhaustedException({
+                    mode: AiMode.Auto,
+                    window: "credit",
+                })
+            }
         }
-        const invokeOptions = await this.resolveInvokeOptions(
+        const invokeOptions = await resolveGradingInvokeOptions(
             {
                 userId: enrollment.userId,
-                payload,
+                selection: payload.ai,
+                aiEntitlementService: this.aiEntitlementService,
             },
         )
 
-        const { text: raw } = await this.aiInvokeService.invoke(
+        const { text: raw, model, provider, attempts } = await this.aiInvokeService.invoke(
             {
                 messages: [
                     new SystemMessage(systemText),
@@ -368,64 +367,17 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
             },
         )
 
-        const parsed = this.reviewMilestoneTaskParseService.parse(raw)
+        const parsed = this.projectEvaluationParseService.parse(raw)
         const passThreshold = this.mountStorageService.appConfig.systemConfig.task.passThreshold
         const passed = parsed.score >= milestoneTask.maxScore * passThreshold
         return {
             evaluation: parsed,
-            passed
-        }
-    }
-
-    /**
-     * Resolve the submitter's entitlement and derive the args to pass to
-     * {@link AiInvokeService.invoke} (once per grading job).
-     *
-     * - `byok`: build a BYOK descriptor from the payload (no quota debit).
-     * - `auto`: debit one Economy "lượt" and grade on the Economy category.
-     * - `premium`: debit + grade on the highest category the tier unlocks.
-     * @param params - The resolved `userId` and the job payload.
-     * @returns Partial `invoke` args (`byok` OR `category`), already debited.
-     * @throws AiQuotaExhaustedException when the user has no allowance left.
-     */
-    private async resolveInvokeOptions(
-        {
-            userId,
-            payload,
-        }: {
-            userId: string
-            payload: ReviewPersonalProjectTaskPayload
-        },
-    ): Promise<{ category?: AiModelCategory, byok?: AiInvokeByok }> {
-        const entitlement = await this.aiEntitlementService.resolve({
-            userId,
-            requestedMode: payload.mode,
-        })
-
-        if (entitlement.mode === AiMode.Byok) {
-            // TODO: fall back to the stored encrypted key on the subscription
-            // entity when the payload does not carry one.
-            if (
-                payload.byokProvider
-                && payload.byokModel
-                && payload.byokApiKey
-            ) {
-                return {
-                    byok: {
-                        provider: payload.byokProvider,
-                        model: payload.byokModel,
-                        key: payload.byokApiKey,
-                    },
-                }
-            }
-        }
-
-        // Credits are debited from credit_usage_histories at complete time, not here.
-        const category = entitlement.mode === AiMode.Premium
-            ? pickBestCategory(entitlement.allowedCategories)
-            : AiModelCategory.Economy
-        return {
-            category,
+            passed,
+            aiUsage: {
+                model,
+                provider,
+                attempts,
+            },
         }
     }
 

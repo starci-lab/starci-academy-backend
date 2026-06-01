@@ -197,13 +197,14 @@ export class MilestoneParserService {
         const courseId = this.courseIdFactoryService.generate({
             courseIndex,
         })
-        return this.entityManager.find(MilestoneEntity, {
-            where: {
-                course: {
-                    id: courseId,
+        return this.entityManager.find(MilestoneEntity,
+            {
+                where: {
+                    course: {
+                        id: courseId,
+                    },
                 },
-            },
-        })
+            })
     }
 }
 

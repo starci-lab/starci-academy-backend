@@ -10,7 +10,7 @@ import {
 } from "@modules/winston"
 import {
     AiPingService,
-} from "../ping.service"
+} from "../ping"
 import {
     modelTierMatrix,
 } from "../constants"
@@ -115,7 +115,14 @@ export abstract class AbstractModelRouterService {
         const providers = [...new Set(chain.map((c) => c.provider))]
 
         for (const provider of providers) {
-            const ok = await this.aiPingService.ping(provider)
+            const keys = this.aiPingService.listKeysForProvider(provider)
+            const key = keys[0]
+            const ok = key
+                ? (await this.aiPingService.pingKey({
+                    provider,
+                    key,
+                })).success
+                : false
             if (ok) {
                 this.unavailable.delete(provider)
             } else {

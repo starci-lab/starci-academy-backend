@@ -30,9 +30,6 @@ import {
     JobActionService,
 } from "../atomic"
 import {
-    ReviewPersonalProjectModelRouterService,
-} from "@modules/ai"
-import {
     sleepEnqueueUxDelay,
 } from "../utils"
 import type {
@@ -45,7 +42,6 @@ import type {
 @Injectable()
 export class EnqueueReviewPersonalProjectTaskJobService {
     constructor(
-        private readonly reviewPersonalProjectModelRouterService: ReviewPersonalProjectModelRouterService,
         private readonly jobActionService: JobActionService,
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
@@ -57,28 +53,25 @@ export class EnqueueReviewPersonalProjectTaskJobService {
      * Persist a job row and enqueue the payload into BullMQ.
      */
     async enqueue(
-        {
+        params: EnqueueReviewPersonalProjectTaskParams,
+    ): Promise<JobEntity> {
+        const {
             enrollmentId,
             githubUrl,
             taskId,
             branch,
             userId,
-            model,
-            provider,
             locale,
-            mode,
-        }: EnqueueReviewPersonalProjectTaskParams,
-    ): Promise<JobEntity> {
+            ai,
+        } = params
         const payload: ReviewPersonalProjectTaskPayload = {
             enrollmentId,
             githubUrl,
             taskId,
             branch: branch ?? "main",
-            gradingModel: model || this.reviewPersonalProjectModelRouterService.model,
-            gradingProvider: provider || this.reviewPersonalProjectModelRouterService.provider,
             locale,
-            ...(mode !== undefined ? {
-                mode
+            ...(ai !== undefined ? {
+                ai,
             } : {
             }),
         }

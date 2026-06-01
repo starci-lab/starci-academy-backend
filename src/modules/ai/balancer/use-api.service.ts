@@ -1,0 +1,407 @@
+import {
+    AiPingCacheService,
+} from "@modules/cache"
+import {
+    AiMode,
+    ModelProvider,
+} from "@modules/databases"
+import {
+    envConfig,
+} from "@modules/env"
+import {
+    AllModelsExhaustedException,
+    NoActiveBalancerKeyException,
+    UnsupportedAiProviderException,
+} from "@modules/exceptions"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
+import {
+    Injectable,
+} from "@nestjs/common"
+import {
+    AiModelCatalogService,
+} from "./ai-model-catalog.service"
+import {
+    AiBalancerService,
+} from "./ai-balancer.service"
+import {
+    KeyStoreService,
+} from "./key-store.service"
+import type {
+    AcquireKeyResult,
+    ClaudeApiKey,
+    GeminiApiKey,
+    OpenAiApiKey,
+    OpenRouterApiKey,
+    UseApiAction,
+    UseApiActionContext,
+    UseApiAutoParams,
+    UseApiByokParams,
+    UseApiParams,
+    UseApiPremiumParams,
+    UseApiResult,
+} from "./types"
+
+/**
+ * High-level AI invoke wrapper — routes pooled keys through round-robin and
+ * persists every success/failure into {@link AiPingCacheService} so the next
+ * request skips unhealthy keys and admin UI stays in sync.
+ */
+@Injectable()
+export class UseApiService {
+    constructor(
+        private readonly aiModelCatalogService: AiModelCatalogService,
+        private readonly aiBalancerService: AiBalancerService,
+        private readonly aiPingCacheService: AiPingCacheService,
+        private readonly keyStoreService: KeyStoreService,
+        private readonly winstonService: WinstonService,
+    ) { }
+
+    /**
+     * Single entry point — dispatch to the right lane implementation by `lane`.
+     *
+     * @param params - Discriminated lane params (auto / premium / byok).
+     * @returns The action result plus which model/provider/attempts served it.
+     */
+    async useApi<TResult>(
+        params: UseApiParams<TResult>,
+    ): Promise<UseApiResult<TResult>> {
+        // route by lane — each lane has different fallback / rotation semantics
+        switch (params.lane) {
+        case AiMode.Byok:
+            return this.runByok(params)
+        case AiMode.Premium:
+            return this.runPremium(params)
+        default:
+            return this.runAuto(params)
+        }
+    }
+
+    /**
+     * Auto lane — model fallback chain, round-robin keys, cache update on every
+     * failure, retry until {@link envConfig().aiBalancer.maxAutoAttempts}.
+     */
+    private async runAuto<TResult>({
+        action,
+        category,
+        model: selectedModel,
+        provider: selectedProvider,
+    }: UseApiAutoParams<TResult>): Promise<UseApiResult<TResult>> {
+        await this.keyStoreService.ensureLoaded()
+
+        const models = await this.aiModelCatalogService.enabledModels({
+            category,
+        })
+        const maxAttempts = envConfig().aiBalancer.maxAutoAttempts
+
+        let attempts = 0
+        let lastError: Error | undefined
+
+        while (attempts < maxAttempts) {
+            for (const model of models) {
+                if (
+                    selectedModel
+                    && selectedProvider
+                    && (model.name !== selectedModel
+                        || model.provider !== selectedProvider)
+                ) {
+                    continue
+                }
+
+                const eligibleCount = await this.countEligibleKeys(model.provider)
+                if (eligibleCount === 0) {
+                    continue
+                }
+
+                for (let i = 0; i < eligibleCount; i++) {
+                    if (attempts >= maxAttempts) {
+                        break
+                    }
+
+                    attempts++
+                    const acquired = await this.tryAcquire(model.provider)
+                    if (!acquired) {
+                        lastError = new NoActiveBalancerKeyException({
+                            provider: model.provider,
+                            totalKeysCount: eligibleCount,
+                        })
+                        break
+                    }
+
+                    const outcome = await this.invokeWithCache({
+                        provider: model.provider,
+                        key: acquired.value,
+                        model: model.name,
+                        action,
+                    })
+
+                    if (outcome.ok) {
+                        return {
+                            result: outcome.result,
+                            model: model.name,
+                            provider: model.provider,
+                            attempts,
+                        }
+                    }
+
+                    lastError = outcome.error
+                }
+            }
+        }
+
+        this.winstonService.log(
+            WinstonLog.AiBalancerNoActiveKey,
+            {
+                provider: "all",
+                totalKeysCount: attempts,
+            },
+        )
+        throw new AllModelsExhaustedException({
+            attempts,
+            modelsTried: models.length,
+            originalError: lastError,
+        })
+    }
+
+    /**
+     * Premium lane — user-selected model only (no model fallback). Keys still
+     * rotate round-robin; each failure updates cache; throws when exhausted.
+     */
+    private async runPremium<TResult>({
+        action,
+        category,
+        model: selectedModel,
+        provider: selectedProvider,
+    }: UseApiPremiumParams<TResult>): Promise<UseApiResult<TResult>> {
+        await this.keyStoreService.ensureLoaded()
+
+        const catalog = await this.aiModelCatalogService.enabledModels({
+            category,
+        })
+        const target = this.resolvePremiumModel(
+            catalog,
+            selectedModel,
+            selectedProvider,
+        )
+
+        const eligibleCount = await this.countEligibleKeys(target.provider)
+        if (eligibleCount === 0) {
+            throw new NoActiveBalancerKeyException({
+                provider: target.provider,
+                totalKeysCount: this.keyStoreService.getPool(target.provider).length,
+            })
+        }
+
+        let attempts = 0
+        let lastError: Error | undefined
+
+        for (let i = 0; i < eligibleCount; i++) {
+            attempts++
+            const acquired = await this.tryAcquire(target.provider)
+            if (!acquired) {
+                break
+            }
+
+            const outcome = await this.invokeWithCache({
+                provider: target.provider,
+                key: acquired.value,
+                model: target.name,
+                action,
+            })
+
+            if (outcome.ok) {
+                return {
+                    result: outcome.result,
+                    model: target.name,
+                    provider: target.provider,
+                    attempts,
+                }
+            }
+
+            lastError = outcome.error
+        }
+
+        throw lastError ?? new NoActiveBalancerKeyException({
+            provider: target.provider,
+            totalKeysCount: eligibleCount,
+        })
+    }
+
+    /**
+     * BYOK lane — single invoke with the user's key. Failures propagate
+     * immediately (no pooled cache update).
+     */
+    private async runByok<TResult>({
+        action,
+        provider,
+        model,
+        key,
+    }: UseApiByokParams<TResult>): Promise<UseApiResult<TResult>> {
+        const context = this.buildContext(
+            provider,
+            key,
+            model,
+        )
+        const result = await action(context)
+        return {
+            result,
+            model,
+            provider,
+            attempts: 1,
+        }
+    }
+
+    /**
+     * Run `action` once and mirror the outcome into Redis ping cache.
+     */
+    private async invokeWithCache<TResult>({
+        provider,
+        key,
+        model,
+        action,
+    }: {
+        provider: ModelProvider
+        key: string
+        model: string
+        action: UseApiAction<TResult>
+    }): Promise<
+        | { ok: true, result: TResult }
+        | { ok: false, error: Error }
+    > {
+        try {
+            const context = this.buildContext(
+                provider,
+                key,
+                model,
+            )
+            const result = await action(context)
+            await this.aiPingCacheService.recordPingKeyStatus({
+                provider,
+                key,
+                success: true,
+            })
+            return {
+                ok: true,
+                result,
+            }
+        } catch (err) {
+            const error = err instanceof Error ? err : new Error(String(err))
+            await this.aiPingCacheService.recordPingKeyStatus({
+                provider,
+                key,
+                success: false,
+            })
+            return {
+                ok: false,
+                error,
+            }
+        }
+    }
+
+    /**
+     * Count mount keys that are not marked unhealthy in Redis.
+     */
+    private async countEligibleKeys(provider: ModelProvider): Promise<number> {
+        const pool = this.keyStoreService.getPool(provider)
+        const providerCache = await this.aiPingCacheService.getProviderMap(provider)
+        return pool.filter((key) => {
+            const cached = providerCache[key.value]
+            return cached === undefined || cached.status === true
+        }).length
+    }
+
+    /**
+     * Resolve the single model row for premium — user pick wins, else highest priority in category.
+     */
+    private resolvePremiumModel(
+        catalog: Awaited<ReturnType<AiModelCatalogService["enabledModels"]>>,
+        selectedModel?: string,
+        selectedProvider?: ModelProvider,
+    ) {
+        if (selectedModel && selectedProvider) {
+            const found = catalog.find(
+                (row) => row.name === selectedModel && row.provider === selectedProvider,
+            )
+            if (!found) {
+                throw new UnsupportedAiProviderException({
+                    provider: selectedProvider,
+                })
+            }
+            return found
+        }
+        if (selectedModel) {
+            const found = catalog.find((row) => row.name === selectedModel)
+            if (!found) {
+                throw new UnsupportedAiProviderException({
+                    provider: "unknown",
+                })
+            }
+            return found
+        }
+        const first = catalog[0]
+        if (!first) {
+            throw new AllModelsExhaustedException({
+                attempts: 0,
+                modelsTried: 0,
+            })
+        }
+        return first
+    }
+
+    /**
+     * Build the discriminated {@link UseApiActionContext} for a picked key.
+     */
+    private buildContext(
+        provider: ModelProvider,
+        key: string,
+        model: string,
+    ): UseApiActionContext {
+        switch (provider) {
+        case ModelProvider.OpenAI:
+            return {
+                provider: ModelProvider.OpenAI,
+                key: key as OpenAiApiKey,
+                model,
+            }
+        case ModelProvider.Gemini:
+            return {
+                provider: ModelProvider.Gemini,
+                key: key as GeminiApiKey,
+                model,
+            }
+        case ModelProvider.Claude:
+            return {
+                provider: ModelProvider.Claude,
+                key: key as ClaudeApiKey,
+                model,
+            }
+        case ModelProvider.OpenRouter:
+            return {
+                provider: ModelProvider.OpenRouter,
+                key: key as OpenRouterApiKey,
+                model,
+            }
+        default:
+            throw new UnsupportedAiProviderException({
+                provider: provider as string,
+            })
+        }
+    }
+
+    /**
+     * Wrap {@link AiBalancerService.acquire} — returns null when no eligible key remains.
+     */
+    private async tryAcquire(
+        provider: ModelProvider,
+    ): Promise<AcquireKeyResult | null> {
+        try {
+            return await this.aiBalancerService.acquire({
+                provider,
+            })
+        } catch {
+            return null
+        }
+    }
+}

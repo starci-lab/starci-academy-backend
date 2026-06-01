@@ -356,11 +356,12 @@ export class CourseParserService {
         const courseId = this.courseIdFactoryService.generate({
             courseIndex,
         })
-        return this.entityManager.findOne(CourseEntity, {
-            where: {
-                id: courseId,
-            },
-        })
+        return this.entityManager.findOne(CourseEntity,
+            {
+                where: {
+                    id: courseId,
+                },
+            })
     }
 }
 

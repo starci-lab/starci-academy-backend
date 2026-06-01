@@ -375,6 +375,10 @@ export const envConfig = () => ({
                 key: "CACHE_TTL_COURSE_ENROLLMENT_COUNT",
                 defaultValue: "5m",
             }),
+            courseMindMap: parseEnvMs({
+                key: "CACHE_TTL_COURSE_MIND_MAP",
+                defaultValue: "1h",
+            }),
             enrollmentMilestones: parseEnvMs({
                 key: "CACHE_TTL_ENROLLMENT_MILESTONES",
                 defaultValue: "15m",
@@ -398,6 +402,10 @@ export const envConfig = () => ({
             courseLeaderboardDebounce: parseEnvMs({
                 key: "CACHE_TTL_COURSE_LEADERBOARD_DEBOUNCE",
                 defaultValue: "5s",
+            }),
+            aiPingKeyStatus: parseEnvMs({
+                key: "CACHE_TTL_AI_PING_KEY_STATUS",
+                defaultValue: "100years",
             }),
             aggregatedTokenPrice: parseEnvMs({
                 key: "CACHE_TTL_AGGREGATED_TOKEN_PRICE",
@@ -1248,6 +1256,7 @@ export const envConfig = () => ({
                 key: "AI_KEYS_OPENAI_MOUNT_PATH",
                 defaultValue: join(process.cwd(),
                     ".mount",
+                    "terraform",
                     "keys",
                     "open-api-keys.key"),
             }),
@@ -1255,6 +1264,7 @@ export const envConfig = () => ({
                 key: "AI_KEYS_GEMINI_MOUNT_PATH",
                 defaultValue: join(process.cwd(),
                     ".mount",
+                    "terraform",
                     "keys",
                     "gemini-api-keys.key"),
             }),
@@ -1262,8 +1272,17 @@ export const envConfig = () => ({
                 key: "AI_KEYS_CLAUDE_MOUNT_PATH",
                 defaultValue: join(process.cwd(),
                     ".mount",
+                    "terraform",
                     "keys",
                     "claude-api-keys.key"),
+            }),
+            openrouter: parseEnvString({
+                key: "AI_KEYS_OPENROUTER_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "keys",
+                    "openrouter-api-keys.key"),
             }),
         },
     },
@@ -1930,31 +1949,41 @@ export const envConfig = () => ({
             key: "AI_QUOTA_CHECK_INTERVAL_MS",
             defaultValue: "5m",
         }),
+        /** Scheduled mount-key ping sweeps (zero-token health probes). */
+        ping: {
+            /** When false, the staggered key ping scheduler stays idle. */
+            enabled: parseEnvBoolean({
+                key: "AI_PING_SCHEDULER_ENABLED",
+                defaultValue: true,
+            }),
+            /**
+             * Time (ms) between the **start** of consecutive key sweeps **per provider**.
+             * Example: `5s` with three Claude keys and `keyStaggerMs = 1s` retriggers
+             * the Claude sweep every 5s while keys fire at 0s / 1s / 2s within each sweep.
+             */
+            cycleIntervalMs: parseEnvMs({
+                key: "AI_PING_CYCLE_INTERVAL_MS",
+                defaultValue: "5s",
+            }),
+            /**
+             * Gap (ms) between individual key pings inside one sweep — spreads
+             * load to reduce provider rate-limit hits when many keys are mounted.
+             */
+            keyStaggerMs: parseEnvMs({
+                key: "AI_PING_KEY_STAGGER_MS",
+                defaultValue: "1s",
+            }),
+        },
     },
-    /** AI Balancer (key rotation + health) tunables. */
+    /** AI Balancer (key rotation) tunables. */
     aiBalancer: {
-        /** Consecutive failures from `markFailure` that disable a key. */
-        failureThresholdToDisable: parseEnvInt({
-            key: "AI_BALANCER_FAILURE_THRESHOLD",
-            defaultValue: 3,
-        }),
-        /** Time (ms) a key stays disabled before a recovery ping is attempted. */
-        recoveryWaitMs: parseEnvMs({
-            key: "AI_BALANCER_RECOVERY_WAIT_MS",
-            defaultValue: "30m",
-        }),
         /**
-         * Interval (ms) between recurring health-check sweeps. Recommended
-         * range: 1m..5m.
-         *
-         * The first sweep fires after a **random jitter in `[0, intervalMs)`**
-         * to spread pod boot — when N pods come up together they otherwise
-         * all hit the provider at the same instant. After the random delay
-         * the recurring `setInterval` is armed at this cadence.
+         * Max `(model, key)` attempts for the Auto lane of {@link UseApiService.useApi}
+         * before throwing {@link AllModelsExhaustedException}.
          */
-        healthCheckIntervalMs: parseEnvMs({
-            key: "AI_BALANCER_HEALTH_CHECK_INTERVAL_MS",
-            defaultValue: "1m",
+        maxAutoAttempts: parseEnvInt({
+            key: "AI_BALANCER_MAX_AUTO_ATTEMPTS",
+            defaultValue: 20,
         }),
     },
     /** Quizlet-style interview-prep (SM-2 spaced repetition) tunables. */

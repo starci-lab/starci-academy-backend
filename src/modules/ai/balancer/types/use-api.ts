@@ -1,4 +1,5 @@
 import type {
+    AiMode,
     AiModelCategory,
     ModelProvider,
 } from "@modules/databases"
@@ -17,36 +18,17 @@ declare const apiKeyBrand: unique symbol
  */
 export type Brand<T, B extends string> = T & { readonly [apiKeyBrand]: B }
 
-/**
- * OpenAI API key — distinct nominal type to prevent cross-provider misuse.
- */
+/** OpenAI API key — distinct nominal type to prevent cross-provider misuse. */
 export type OpenAiApiKey = Brand<string, "OpenAi">
 
-/**
- * Google Gemini API key — distinct nominal type.
- */
+/** Google Gemini API key — distinct nominal type. */
 export type GeminiApiKey = Brand<string, "Gemini">
 
-/**
- * Anthropic Claude API key — distinct nominal type.
- */
+/** Anthropic Claude API key — distinct nominal type. */
 export type ClaudeApiKey = Brand<string, "Claude">
 
-/**
- * Compile-time map from a {@link ModelProvider} literal to its branded key type.
- *
- * Use it when writing helpers that need to return the right key shape for a
- * provider known at compile time:
- *
- * ```ts
- * const k: ApiKeyByProvider<ModelProvider.OpenAi> = "sk-..." as OpenAiApiKey
- * ```
- */
-export type ApiKeyByProvider<P extends ModelProvider> =
-    P extends ModelProvider.OpenAI ? OpenAiApiKey :
-        P extends ModelProvider.Gemini ? GeminiApiKey :
-            P extends ModelProvider.Claude ? ClaudeApiKey :
-                never
+/** OpenRouter API key — distinct nominal type. */
+export type OpenRouterApiKey = Brand<string, "OpenRouter">
 
 /**
  * Action context delivered when the rotator picks an OpenAI key.
@@ -55,7 +37,7 @@ export interface UseApiOpenAiContext {
     provider: ModelProvider.OpenAI
     /** Branded OpenAI key — feed into `new ChatOpenAI({ apiKey })`. */
     key: OpenAiApiKey
-    /** Concrete model name from `app.yaml` (e.g. "gpt-4o-mini"). */
+    /** Concrete model name from the catalog (e.g. "gpt-4o-mini"). */
     model: string
 }
 
@@ -66,7 +48,7 @@ export interface UseApiGeminiContext {
     provider: ModelProvider.Gemini
     /** Branded Gemini key — feed into `new ChatGoogleGenerativeAI({ apiKey })`. */
     key: GeminiApiKey
-    /** Concrete model name from `app.yaml` (e.g. "gemini-2.5-pro"). */
+    /** Concrete model name from the catalog (e.g. "gemini-2.5-pro"). */
     model: string
 }
 
@@ -75,50 +57,57 @@ export interface UseApiGeminiContext {
  */
 export interface UseApiClaudeContext {
     provider: ModelProvider.Claude
-    /** Branded Claude key — feed into `new ChatAnthropic({ apiKey })`. */
+    /** Branded Claude key. */
     key: ClaudeApiKey
-    /** Concrete model name from `app.yaml` (e.g. "claude-sonnet-4-5"). */
+    /** Concrete model name from the catalog. */
     model: string
 }
 
 /**
- * Discriminated union over `provider` — narrowing on `ctx.provider` inside
- * the action callback gives type-safe access to the branded `key`:
- *
- * ```ts
- * switch (ctx.provider) {
- *   case ModelProvider.OpenAI:
- *     // ctx.key is OpenAiApiKey here
- *     return new ChatOpenAI({ apiKey: ctx.key, model: ctx.model }).invoke(prompt)
- *   case ModelProvider.Gemini:
- *     // ctx.key is GeminiApiKey here
- *     return new ChatGoogleGenerativeAI({ apiKey: ctx.key, model: ctx.model }).invoke(prompt)
- *   case ModelProvider.Claude:
- *     // ctx.key is ClaudeApiKey here
- *     return new ChatAnthropic({ apiKey: ctx.key, model: ctx.model }).invoke(prompt)
- * }
- * ```
+ * Action context delivered when the rotator picks an OpenRouter key.
  */
+export interface UseApiOpenRouterContext {
+    provider: ModelProvider.OpenRouter
+    /** Branded OpenRouter key. */
+    key: OpenRouterApiKey
+    /** Concrete model name routed through OpenRouter. */
+    model: string
+}
+
+/** Discriminated union over `provider` for pooled-key invocations. */
 export type UseApiActionContext =
     | UseApiOpenAiContext
     | UseApiGeminiContext
     | UseApiClaudeContext
+    | UseApiOpenRouterContext
 
 /**
  * Caller-supplied function executed against the picked key/model.
- *
- * Must throw on any failure that should trigger key rotation / model
- * fallback (HTTP 401, 429, 5xx, parse error, …). A returned value is
- * treated as success and ends the loop.
+ * Must throw on failure that should trigger rotation / retry.
  */
 export type UseApiAction<TResult> = (
     context: UseApiActionContext,
 ) => Promise<TResult>
 
+/** Shared result shape for all `UseApiService` entry points. */
+export interface UseApiResult<TResult> {
+    /** Whatever `action` returned. */
+    result: TResult
+    /** Concrete model that served the request. */
+    model: string
+    /** Provider matching {@link model}. */
+    provider: ModelProvider
+    /** Number of `(model, key)` attempts before success. */
+    attempts: number
+}
+
 /**
- * Params for `UseApiService.useApi`.
+ * Auto lane — full model fallback chain + round-robin keys + Redis cache
+ * updates on failure. Retries until the configured max attempts.
  */
-export interface UseApiParams<TResult> {
+export interface UseApiAutoParams<TResult> {
+    /** Discriminant: free Auto lane. */
+    lane: AiMode.Auto
     /** Worker callback — receives the picked key/model, returns the result. */
     action: UseApiAction<TResult>
     /**
@@ -126,18 +115,51 @@ export interface UseApiParams<TResult> {
      * eligible for the fallback chain. Omit to allow every enabled model.
      */
     category?: AiModelCategory
+    /** When set with {@link provider}, only this catalog model is tried (auto pin). */
+    model?: string
+    /** Provider for {@link UseApiAutoParams.model}. */
+    provider?: ModelProvider
 }
 
 /**
- * Result of `UseApiService.useApi`.
+ * Premium lane — the single resolved model only (no model fallback). Keys still
+ * rotate round-robin; each failure updates cache; throws when exhausted.
  */
-export interface UseApiResult<TResult> {
-    /** Whatever `action` returned. */
-    result: TResult
-    /** Concrete model that finally succeeded (after any fallbacks). */
-    model: string
-    /** Provider matching {@link model}. */
-    provider: ModelProvider
-    /** Number of `(model, key)` attempts the loop made before success. */
-    attempts: number
+export interface UseApiPremiumParams<TResult> {
+    /** Discriminant: paid Premium lane. */
+    lane: AiMode.Premium
+    /** Worker callback — receives the picked key/model, returns the result. */
+    action: UseApiAction<TResult>
+    /** Paid-tier category the user is entitled to. */
+    category: AiModelCategory
+    /** User-selected model name — highest priority when set. */
+    model?: string
+    /** User-selected provider — required when {@link UseApiPremiumParams.model} is set. */
+    provider?: ModelProvider
 }
+
+/**
+ * BYOK lane — a single invoke with the user's own key (bypasses the pool).
+ * Failures propagate immediately (no pooled cache update).
+ */
+export interface UseApiByokParams<TResult> {
+    /** Discriminant: bring-your-own-key lane. */
+    lane: AiMode.Byok
+    /** Worker callback — receives the user's key/model, returns the result. */
+    action: UseApiAction<TResult>
+    /** BYOK provider. */
+    provider: ModelProvider
+    /** BYOK model name. */
+    model: string
+    /** User's raw API key. */
+    key: string
+}
+
+/**
+ * Discriminated lane params for {@link UseApiService.useApi}, keyed on the
+ * {@link AiMode} `lane`. One entry point replaces the per-lane methods.
+ */
+export type UseApiParams<TResult> =
+    | UseApiAutoParams<TResult>
+    | UseApiPremiumParams<TResult>
+    | UseApiByokParams<TResult>

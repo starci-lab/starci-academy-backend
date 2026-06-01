@@ -1,0 +1,334 @@
+import {
+    Injectable,
+} from "@nestjs/common"
+import {
+    EntityManager,
+} from "typeorm"
+import {
+    CommentReactionEntity,
+    ContentCommentEntity,
+    ContentReactionEntity,
+    InjectPrimaryPostgreSQLEntityManager,
+    ReactionType,
+} from "@modules/databases"
+import {
+    CommentNotFoundException,
+} from "@modules/exceptions"
+import {
+    EventEmitterService,
+    EventName,
+} from "@modules/event"
+import type {
+    ReactionCountResult,
+    ReactionSummaryResult,
+    ReactToCommentParams,
+    ReactToContentParams,
+    SummarizeCommentReactionsParams,
+    SummarizeContentReactionsParams,
+} from "./types"
+
+/**
+ * Domain service for Facebook-style reactions on contents and comments.
+ *
+ * Each user holds at most one reaction per target (enforced by composite uniques on the
+ * entities). Picking the same/another emotion updates the row; passing `null` removes it.
+ * Every change fans out a local event for the Socket.IO gateway to push to the content room.
+ */
+@Injectable()
+export class ReactionService {
+    constructor(
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
+        private readonly eventEmitterService: EventEmitterService,
+    ) {}
+
+    /**
+     * Sets, changes, or removes the current user's reaction on a content.
+     * @param params - {@link ReactToContentParams}
+     * @returns The fresh reaction summary for the content from this user's view.
+     */
+    async reactToContent({
+        contentId,
+        user,
+        type,
+    }: ReactToContentParams): Promise<ReactionSummaryResult> {
+        // find the user's existing reaction on this content (at most one by unique)
+        const existing = await this.entityManager.findOne(ContentReactionEntity,
+            {
+                where: {
+                    content: {
+                        id: contentId,
+                    },
+                    user: {
+                        id: user.id,
+                    },
+                },
+            })
+        // null type means "remove my reaction" — delete only if one exists
+        if (type === null) {
+            if (existing) {
+                await this.entityManager.remove(existing)
+            }
+        } else if (existing) {
+            // already reacted → just switch the emotion in place
+            existing.type = type
+            await this.entityManager.save(existing)
+        } else {
+            // first-time reaction → insert a new row via relation ids
+            await this.entityManager.save(this.entityManager.create(ContentReactionEntity,
+                {
+                    type,
+                    content: {
+                        id: contentId,
+                    },
+                    user: {
+                        id: user.id,
+                    },
+                }))
+        }
+        // tell the room the content's reaction totals moved
+        await this.eventEmitterService.emit({
+            event: EventName.ContentReactionChanged,
+            payload: {
+                contentId,
+            },
+        })
+        // return the recomputed summary so the caller can answer the mutation immediately
+        return this.summarizeContent({
+            contentId,
+            userId: user.id,
+        })
+    }
+
+    /**
+     * Sets, changes, or removes the current user's reaction on a comment.
+     * @param params - {@link ReactToCommentParams}
+     * @returns The fresh reaction summary for the comment from this user's view.
+     */
+    async reactToComment({
+        commentId,
+        user,
+        type,
+    }: ReactToCommentParams): Promise<ReactionSummaryResult> {
+        // resolve the comment first — we need its content id for the room event + a 404 guard
+        const comment = await this.entityManager.findOne(ContentCommentEntity,
+            {
+                where: {
+                    id: commentId,
+                },
+            })
+        if (!comment) {
+            throw new CommentNotFoundException({
+                commentId,
+            })
+        }
+        // find the user's existing reaction on this comment (at most one by unique)
+        const existing = await this.entityManager.findOne(CommentReactionEntity,
+            {
+                where: {
+                    comment: {
+                        id: commentId,
+                    },
+                    user: {
+                        id: user.id,
+                    },
+                },
+            })
+        // null type means "remove my reaction"
+        if (type === null) {
+            if (existing) {
+                await this.entityManager.remove(existing)
+            }
+        } else if (existing) {
+            // switch emotion in place
+            existing.type = type
+            await this.entityManager.save(existing)
+        } else {
+            // first-time reaction on this comment
+            await this.entityManager.save(this.entityManager.create(CommentReactionEntity,
+                {
+                    type,
+                    comment: {
+                        id: commentId,
+                    },
+                    user: {
+                        id: user.id,
+                    },
+                }))
+        }
+        // notify the room (scoped to the comment's content) of the change
+        await this.eventEmitterService.emit({
+            event: EventName.CommentReactionChanged,
+            payload: {
+                contentId: comment.contentId,
+                commentId,
+            },
+        })
+        // recompute via the batch summarizer, then pick this comment's bucket
+        const summaries = await this.summarizeComments({
+            commentIds: [
+                commentId,
+            ],
+            userId: user.id,
+        })
+        // fall back to an empty summary if somehow absent (shouldn't happen)
+        return summaries[commentId] ?? this.emptySummary()
+    }
+
+    /**
+     * Computes the reaction summary for a single content from a user's view.
+     * @param params - {@link SummarizeContentReactionsParams}
+     * @returns The content's reaction summary.
+     */
+    async summarizeContent({
+        contentId,
+        userId,
+    }: SummarizeContentReactionsParams): Promise<ReactionSummaryResult> {
+        // grouped counts per emotion for this content
+        const rows = await this.entityManager
+            .createQueryBuilder(ContentReactionEntity,
+                "reaction")
+            .select("reaction.type",
+                "type")
+            .addSelect("COUNT(*)",
+                "count")
+            .where("reaction.content_id = :contentId",
+                {
+                    contentId,
+                })
+            .groupBy("reaction.type")
+            .getRawMany<{ type: ReactionType; count: string }>()
+        // the viewing user's own reaction (for highlighting their pick)
+        const mine = await this.entityManager.findOne(ContentReactionEntity,
+            {
+                where: {
+                    content: {
+                        id: contentId,
+                    },
+                    user: {
+                        id: userId,
+                    },
+                },
+            })
+        // assemble counts + total + myReaction into the shared summary shape
+        return this.buildSummary(rows,
+            mine?.type ?? null)
+    }
+
+    /**
+     * Batch-computes reaction summaries for many comments in two grouped queries.
+     * @param params - {@link SummarizeCommentReactionsParams}
+     * @returns Map of comment id → reaction summary (every requested id is present).
+     */
+    async summarizeComments({
+        commentIds,
+        userId,
+    }: SummarizeCommentReactionsParams): Promise<Record<string, ReactionSummaryResult>> {
+        // nothing requested → empty map (also guards an empty IN () clause)
+        if (commentIds.length === 0) {
+            return {
+            }
+        }
+        // grouped counts per (comment, emotion) across all requested comments
+        const countRows = await this.entityManager
+            .createQueryBuilder(CommentReactionEntity,
+                "reaction")
+            .select("reaction.comment_id",
+                "commentId")
+            .addSelect("reaction.type",
+                "type")
+            .addSelect("COUNT(*)",
+                "count")
+            .where("reaction.comment_id IN (:...commentIds)",
+                {
+                    commentIds,
+                })
+            .groupBy("reaction.comment_id")
+            .addGroupBy("reaction.type")
+            .getRawMany<{ commentId: string; type: ReactionType; count: string }>()
+        // the viewing user's own reaction per comment (for highlighting)
+        const mineRows = await this.entityManager
+            .createQueryBuilder(CommentReactionEntity,
+                "reaction")
+            .select("reaction.comment_id",
+                "commentId")
+            .addSelect("reaction.type",
+                "type")
+            .where("reaction.comment_id IN (:...commentIds)",
+                {
+                    commentIds,
+                })
+            .andWhere("reaction.user_id = :userId",
+                {
+                    userId,
+                })
+            .getRawMany<{ commentId: string; type: ReactionType }>()
+        // index "my reaction" by comment id for O(1) lookup while assembling
+        const myByComment = mineRows.reduce<Record<string, ReactionType>>((acc, row) => {
+            acc[row.commentId] = row.type
+            return acc
+        },
+        {
+        })
+        // bucket count rows by comment id so each comment gets its own counts array
+        const countsByComment = countRows.reduce<Record<string, Array<ReactionCountResult>>>((acc, row) => {
+            // lazily create the per-comment bucket on first sighting
+            const bucket = acc[row.commentId] ?? []
+            bucket.push({
+                type: row.type,
+                count: Number(row.count),
+            })
+            acc[row.commentId] = bucket
+            return acc
+        },
+        {
+        })
+        // build a summary for EVERY requested id so callers never get an undefined bucket
+        return commentIds.reduce<Record<string, ReactionSummaryResult>>((acc, commentId) => {
+            acc[commentId] = this.buildSummary(
+                countsByComment[commentId] ?? [],
+                myByComment[commentId] ?? null,
+            )
+            return acc
+        },
+        {
+        })
+    }
+
+    /**
+     * Folds raw per-emotion counts into a {@link ReactionSummaryResult}.
+     * @param counts - Per-emotion count rows (string counts from raw SQL or numeric).
+     * @param myReaction - The viewing user's own emotion, or null.
+     * @returns The assembled summary.
+     */
+    private buildSummary(
+        counts: Array<{ type: ReactionType; count: string | number }>,
+        myReaction: ReactionType | null,
+    ): ReactionSummaryResult {
+        // normalize raw string counts (Postgres COUNT returns text) into numbers
+        const normalized: Array<ReactionCountResult> = counts.map((count) => ({
+            type: count.type,
+            count: Number(count.count),
+        }))
+        // total is the sum across every emotion bucket
+        const total = normalized.reduce((acc, count) => acc + count.count,
+            0)
+        return {
+            counts: normalized,
+            total,
+            myReaction,
+        }
+    }
+
+    /**
+     * Builds an empty reaction summary (no reactions, no personal pick).
+     * @returns A zeroed summary.
+     */
+    private emptySummary(): ReactionSummaryResult {
+        return {
+            counts: [],
+            total: 0,
+            myReaction: null,
+        }
+    }
+}

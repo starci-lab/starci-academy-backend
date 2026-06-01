@@ -17,6 +17,8 @@ import type {
     ChallengeSubmissionProgressCacheResult,
     CreditUsageCacheResult,
     CourseLeaderboardCacheResult,
+    CourseMindMapCacheResult,
+    AiPingKeyStatusCacheResult,
 } from "../types"
 
 /**
@@ -98,5 +100,17 @@ export const configMap = {
     [CacheKey.CourseLeaderboardDebounce]: {
         ttl: envConfig().cache.ttl.courseLeaderboardDebounce,
         cacheResult: true,
+    },
+    [CacheKey.CourseMindMap]: {
+        ttl: envConfig().cache.ttl.courseMindMap,
+        cacheResult: {
+            nodes: [],
+            edges: [],
+        } as CourseMindMapCacheResult,
+    },
+    [CacheKey.AiPingKeyStatus]: {
+        ttl: envConfig().cache.ttl.aiPingKeyStatus,
+        cacheResult: {
+        } as AiPingKeyStatusCacheResult,
     },
 }

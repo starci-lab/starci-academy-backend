@@ -1,8 +1,10 @@
 import type {
-    AiMode,
     Locale,
     ModelProvider,
 } from "@modules/databases"
+import type {
+    AiJobSelection,
+} from "@modules/ai"
 import type {
     SendMailPayload,
     SyncCdnPayload,
@@ -39,18 +41,14 @@ export interface EnqueueProcessGitSubmissionJobParams {
     jobId?: string
     /** Git branch override for repo loader. */
     branch?: string
-    /** Grading model id override. */
-    gradingModel?: string
-    /** Grading model provider override. */
-    gradingProvider?: ModelProvider
     /** Embedding model id override. */
     embeddingModel?: string
     /** Embedding model provider override. */
     embeddingProvider?: ModelProvider
     /** Locale hint for filtering/prompting (e.g. "en", "vi"). */
     locale?: string
-    /** AI lane the user picked; validated against entitlement at grade time. */
-    mode?: AiMode
+    /** Validated AI lane + model pick (Auto / Premium / BYOK). */
+    ai?: AiJobSelection
     /** SCHEMA V2 only: programming language the learner chose (selects approachCriteria bucket). */
     lang?: string
 }
@@ -69,34 +67,24 @@ export interface EnqueueProcessGoogleDocsSubmissionJobParams {
     challengeSubmissionId: string
     /** Existing `jobs.id` to requeue (optional). */
     jobId?: string
-    /** Grading model id override. */
-    gradingModel?: string
-    /** Grading model provider override. */
-    gradingProvider?: ModelProvider
     /** Embedding model id override. */
     embeddingModel?: string
     /** Embedding model provider override. */
     embeddingProvider?: ModelProvider
     /** Locale hint for filtering/prompting (e.g. "en", "vi"). */
     locale?: string
-    /** AI lane the user picked; validated against entitlement at grade time. */
-    mode?: AiMode
-    /** SCHEMA V2 only: programming language the learner chose (selects approachCriteria bucket). */
-    lang?: string
+    /** Validated AI lane + model pick (Auto / Premium / BYOK). */
+    ai?: AiJobSelection
 }
 
 /** Params for enqueuing a process-cv-submission job. */
 export interface EnqueueProcessCvSubmissionJobParams {
-    /** `users.id`. */  
+    /** `users.id`. */
     userId: string
     /** `cv_submissions.id`. */
     cvSubmissionId: string
     /** Existing `jobs.id` to requeue (optional). */
     jobId?: string
-    /** Analyze model id override. */
-    analyzeModel?: string
-    /** Analyze model provider override. */
-    analyzeProvider?: ModelProvider
     /** Embedding model id override. */
     embeddingModel?: string
     /** Embedding model provider override. */
@@ -105,8 +93,10 @@ export interface EnqueueProcessCvSubmissionJobParams {
     locale?: Locale
     /** `template_cvs.id` — which review rubric level to use. */
     templateCvId?: string
-    /** AI lane the user picked; validated against entitlement at grade time. */
-    mode?: AiMode
+    /** `user_cv_submission_attempts.id` being reviewed. */
+    cvSubmissionAttemptId?: string
+    /** Validated AI lane + model pick (Auto / Premium / BYOK). */
+    ai?: AiJobSelection
 }
 
 /**
@@ -177,14 +167,10 @@ export interface EnqueueReviewPersonalProjectTaskParams {
     branch?: string
     /** User ID associated with the job. */
     userId: string
-    /** LLM model name override. */
-    model?: string
-    /** LLM provider override. */
-    provider?: ModelProvider
     /** Locale hint for filtering/prompting. */
     locale?: Locale
-    /** AI lane the user picked; validated against entitlement at grade time. */
-    mode?: AiMode
+    /** Validated AI lane + model pick (Auto / Premium / BYOK). */
+    ai?: AiJobSelection
 }
 
 /** Params accepted by EnqueueSyncScyllaDBJobService.enqueue. */

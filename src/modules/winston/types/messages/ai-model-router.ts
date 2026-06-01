@@ -31,6 +31,8 @@ export interface AiModelRouterRecheckMessage {
 export interface AiPingResultMessage {
     /** Provider that was pinged. */
     provider: string
+    /** Last four characters of the key — safe for logs. */
+    keySuffix?: string
     /** Whether the ping succeeded. */
     success: boolean
     /** Error message if failed. */

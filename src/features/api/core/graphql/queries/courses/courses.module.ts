@@ -16,9 +16,15 @@ import {
 import {
     LivestreamSessionsSingleQueryModule,
 } from "./livestream-sessions"
+import {
+    CourseMindMapSingleQueryModule,
+} from "./course-mind-map"
 
 @Module({
     imports: [
+        CourseMindMapSingleQueryModule.register({
+            isGlobal: true,
+        }),
         CoursesSingleQueryModule.register({
             isGlobal: true,
         }),

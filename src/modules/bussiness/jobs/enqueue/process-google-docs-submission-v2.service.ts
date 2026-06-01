@@ -67,13 +67,10 @@ export class EnqueueProcessGoogleDocsSubmissionV2JobService {
             userChallengeSubmissionId,
             challengeSubmissionId,
             jobId,
-            gradingModel,
-            gradingProvider,
             embeddingModel,
             embeddingProvider,
             locale,
-            mode,
-            lang,
+            ai,
         }: EnqueueProcessGoogleDocsSubmissionJobParams,
     ): Promise<JobEntity> {
         let job: JobEntity | null = null
@@ -89,14 +86,6 @@ export class EnqueueProcessGoogleDocsSubmissionV2JobService {
                 jobId: id,
                 enrollmentId,
                 userChallengeSubmissionId,
-                ...(gradingModel !== undefined ? {
-                    gradingModel,
-                } : {
-                }),
-                ...(gradingProvider !== undefined ? {
-                    gradingProvider,
-                } : {
-                }),
                 ...(embeddingModel !== undefined ? {
                     embeddingModel,
                 } : {
@@ -109,12 +98,8 @@ export class EnqueueProcessGoogleDocsSubmissionV2JobService {
                     locale: locale as Locale,
                 } : {
                 }),
-                ...(mode !== undefined ? {
-                    mode,
-                } : {
-                }),
-                ...(lang !== undefined ? {
-                    lang,
+                ...(ai !== undefined ? {
+                    ai,
                 } : {
                 }),
             }
