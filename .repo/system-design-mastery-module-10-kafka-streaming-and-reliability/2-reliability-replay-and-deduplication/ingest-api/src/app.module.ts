@@ -1,6 +1,5 @@
 /**
- * Module gốc — ConfigModule + Kafka producer qua ConfigService.
- * (EN: Root module — ConfigModule + Kafka producer via ConfigService.)
+ * Root module — ConfigModule + Kafka producer via ConfigService.
  */
 import {
     Module,
@@ -60,7 +59,6 @@ import {
     providers: [EventsService],
 })
 /**
- * Class `AppModule` — thành phần lab (controller/service/module).
- * (EN: Class `AppModule` — lesson lab component.)
+ * Class `AppModule` — lesson lab component.
  */
 export class AppModule {}

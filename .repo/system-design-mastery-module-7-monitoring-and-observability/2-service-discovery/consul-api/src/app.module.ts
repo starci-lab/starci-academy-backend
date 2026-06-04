@@ -1,6 +1,5 @@
 /**
- * Module gốc — đăng ký controller gọi Consul Agent HTTP API.
- * (EN: Root module — registers controller calling Consul Agent HTTP API.)
+ * Root module — registers controller calling Consul Agent HTTP API.
  */
 import {
     Module 
@@ -31,7 +30,6 @@ import {
     ],
 })
 /**
- * Class `AppModule` — thành phần lab (controller/service/module).
- * (EN: Class `AppModule` — lesson lab component.)
+ * Class `AppModule` — lesson lab component.
  */
 export class AppModule {}

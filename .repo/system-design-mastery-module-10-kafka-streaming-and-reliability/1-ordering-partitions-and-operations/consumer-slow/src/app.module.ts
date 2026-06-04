@@ -1,6 +1,5 @@
 /**
- * Module gốc — Kafka ordering lab (partition key + consumer group).
- * (EN: Root module — Kafka ordering lab (partition key + consumer group).)
+ * Root module — Kafka ordering lab (partition key + consumer group).
  */
 import { Module } from "@nestjs/common"
 import { ConfigModule } from "@nestjs/config"
@@ -17,7 +16,6 @@ import { ConsumerService } from "./consumer"
     providers: [ConsumerService],
 })
 /**
- * Class `AppModule` — thành phần lab (controller/service/module).
- * (EN: Class `AppModule` — lesson lab component.)
+ * Class `AppModule` — lesson lab component.
  */
 export class AppModule {}

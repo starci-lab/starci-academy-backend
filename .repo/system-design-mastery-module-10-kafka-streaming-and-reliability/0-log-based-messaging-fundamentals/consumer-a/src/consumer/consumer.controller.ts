@@ -20,10 +20,8 @@ export class ConsumerController {
     ) {}
 
     /**
-     * Logic — consumer group nhận message từ topic; delegate sang ConsumerService.
-     * Code — @EventPattern + @Payload → process().
-     * (EN Logic: Consumer group receives topic messages; delegates to ConsumerService.)
-     * (EN Code: @EventPattern + @Payload → process().)
+     * Logic: Consumer group receives topic messages; delegates to ConsumerService.
+     * Code: @EventPattern + @Payload → process().
      */
     @EventPattern("platform-events")
     async handle(@Payload() data: Record<string, string | number | boolean>): Promise<void> {

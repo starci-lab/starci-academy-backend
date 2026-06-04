@@ -1,14 +1,12 @@
 /**
- * Service logic chính của lesson — mọi method có JSDoc Logic + Code.
- * (EN: Core lesson service — methods documented with Logic + Code.)
+ * Core lesson service — methods documented with Logic + Code.
  */
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 
 @Injectable()
 /**
- * Class `VaultService` — thành phần lab (controller/service/module).
- * (EN: Class `VaultService` — lesson lab component.)
+ * Class `VaultService` — lesson lab component.
  */
 export class VaultService {
   private static readonly logger = new Logger(VaultService.name);

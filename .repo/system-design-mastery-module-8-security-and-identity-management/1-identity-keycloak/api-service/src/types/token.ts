@@ -1,6 +1,5 @@
 /**
- * Phản hồi token OpenID Connect từ Keycloak.
- * (EN: OpenID Connect token response from Keycloak.)
+ * OpenID Connect token response from Keycloak.
  */
 export interface TokenResponse {
     access_token: string
@@ -14,8 +13,7 @@ export interface TokenResponse {
 }
 
 /**
- * Payload lỗi JSON từ Keycloak (khi token request fail).
- * (EN: Keycloak error JSON payload when token request fails.)
+ * Keycloak error JSON payload when token request fails.
  */
 export interface KeycloakErrorPayload {
     error?: string

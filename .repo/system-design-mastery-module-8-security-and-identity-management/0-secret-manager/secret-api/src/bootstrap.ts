@@ -16,8 +16,7 @@ import {
 } from "./app.module"
 
 /**
- * Khởi tạo Nest app — ValidationPipe toàn cục và lắng nghe cổng.
- * (EN: Bootstrap Nest app — global ValidationPipe and listen on port.)
+ * Bootstrap Nest app — global ValidationPipe and listen on port.
  */
 export async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule)
@@ -29,7 +28,7 @@ export async function bootstrap(): Promise<void> {
     )
     const configService = app.get(ConfigService)
     const port = configService.get<number>("app.port") ?? 3000
-    // Cổng lắng nghe: env PORT hoặc mặc định 3000.
+    // Listening port: env PORT or default 3000.
     // (EN: Listen port from env PORT or default 3000.)
     await app.listen(port, "0.0.0.0")
 }

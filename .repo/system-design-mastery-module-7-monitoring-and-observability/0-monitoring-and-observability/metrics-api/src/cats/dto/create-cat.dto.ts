@@ -1,6 +1,5 @@
 /**
- * DTO tạo mèo — validate `name` và `age` cho endpoint POST `/cats`.
- * (EN: Create-cat DTO — validates `name` and `age` for POST `/cats`.)
+ * Create-cat DTO — validates `name` and `age` for POST `/cats`.
  */
 import {
     IsInt,
@@ -8,8 +7,7 @@ import {
 } from "class-validator"
 
 /**
- * Class `CreateCatDto` — thành phần lab (controller/service/module).
- * (EN: Class `CreateCatDto` — lesson lab component.)
+ * Class `CreateCatDto` — lesson lab component.
  */
 export class CreateCatDto {
     @IsNotEmpty({

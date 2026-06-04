@@ -1,6 +1,5 @@
 /**
- * Config `registerAs` — chỉ đọc `process.env` tại factory.
- * (EN: Config `registerAs` — reads `process.env` in factory only.)
+ * Config `registerAs` — reads `process.env` in factory only.
  */
 import {
     registerAs,
@@ -15,8 +14,7 @@ export interface DatabaseConfig {
 }
 
 /**
- * Cấu hình kết nối Postgres — namespace `database` cho ConfigService.
- * (EN: Postgres connection config — `database` namespace for ConfigService.)
+ * Postgres connection config — `database` namespace for ConfigService.
  */
 export const databaseConfig = registerAs(
     "database",

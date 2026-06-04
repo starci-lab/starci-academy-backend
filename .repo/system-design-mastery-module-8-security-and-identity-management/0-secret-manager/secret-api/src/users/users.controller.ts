@@ -8,8 +8,7 @@ import { Repository } from 'typeorm';
 import { User } from "../entities";
 
 /**
- * Class `UsersController` — thành phần lab (controller/service/module).
- * (EN: Class `UsersController` — lesson lab component.)
+ * Class `UsersController` — lesson lab component.
  */
 export class UsersController implements OnModuleInit {
   constructor(
@@ -20,10 +19,8 @@ export class UsersController implements OnModuleInit {
   async onModuleInit() {
     // Seed some data so the API returns something immediately
     const count = await this.userRepository.count();/**
- * Logic — Xử lý nghiệp vụ `if` cho lab.
- * Code — `if()` — logic trong service/controller.
- * (EN Logic: Business handler `if` for the lab.)
- * (EN Code: `if()` — in-class handler logic.)
+ * Logic — Business handler `if` for the lab.
+ * Code — `if()` — in-class handler logic.
  */
     if (count === 0) {
       await this.userRepository.save([

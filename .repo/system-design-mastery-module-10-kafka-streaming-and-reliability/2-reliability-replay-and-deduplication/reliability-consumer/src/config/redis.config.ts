@@ -1,14 +1,12 @@
 /**
- * Cấu hình namespace `redis` — đọc biến môi trường trong factory registerAs.
- * (EN: Config namespace `redis` — environment variables in registerAs factory.)
+ * Config namespace `redis` — environment variables in registerAs factory.
  */
 import {
     registerAs,
 } from "@nestjs/config"
 
 /**
- * Cấu hình Redis.
- * (EN: Redis connection config.)
+ * Redis connection config.
  */
 export interface RedisConfig {
     host: string
@@ -16,10 +14,8 @@ export interface RedisConfig {
 }
 
 /**
- * Logic — Đọc biến môi trường thành object config typed.
- * Code — `registerAs` factory: `process.env.*` → interface config.
- * (EN Logic: Map environment variables to typed config.)
- * (EN Code: `registerAs` factory reading `process.env.*`.)
+ * Logic: Map environment variables to typed config.
+ * Code: `registerAs` factory reading `process.env.*`.
  */
 export const redisConfig = registerAs(
     "redis",

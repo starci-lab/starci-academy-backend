@@ -8,8 +8,7 @@ import {
 } from "class-validator"
 
 /**
- * Class `PublishEventDto` — thành phần lab (controller/service/module).
- * (EN: Class `PublishEventDto` — lesson lab component.)
+ * Class `PublishEventDto` — lesson lab component.
  */
 export class PublishEventDto {
     @IsString()

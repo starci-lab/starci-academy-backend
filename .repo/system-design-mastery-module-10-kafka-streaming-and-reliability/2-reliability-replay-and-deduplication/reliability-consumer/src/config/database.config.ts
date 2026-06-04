@@ -1,14 +1,12 @@
 /**
- * Cấu hình namespace `database` — đọc biến môi trường trong factory registerAs.
- * (EN: Config namespace `database` — environment variables in registerAs factory.)
+ * Config namespace `database` — environment variables in registerAs factory.
  */
 import {
     registerAs,
 } from "@nestjs/config"
 
 /**
- * Cấu hình Postgres/MySQL.
- * (EN: Postgres/MySQL connection config.)
+ * Postgres/MySQL connection config.
  */
 export interface DatabaseConfig {
     host: string
@@ -19,10 +17,8 @@ export interface DatabaseConfig {
 }
 
 /**
- * Logic — Đọc biến môi trường thành object config typed.
- * Code — `registerAs` factory: `process.env.*` → interface config.
- * (EN Logic: Map environment variables to typed config.)
- * (EN Code: `registerAs` factory reading `process.env.*`.)
+ * Logic: Map environment variables to typed config.
+ * Code: `registerAs` factory reading `process.env.*`.
  */
 export const databaseConfig = registerAs(
     "database",

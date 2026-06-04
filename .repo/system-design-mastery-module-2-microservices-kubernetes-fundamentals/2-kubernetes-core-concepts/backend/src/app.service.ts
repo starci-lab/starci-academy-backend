@@ -1,6 +1,5 @@
 /**
- * Service lesson — methods documented Logic + Code (§4).
- * (EN: Lesson service — Logic + Code on methods (§4).)
+ * Lesson service — Logic + Code on methods (§4).
  */
 import {
     ConfigService,
@@ -16,18 +15,15 @@ import {
 } from "@nestjs/config"
 
 /**
- * Service logic chính của lesson.
- * (EN: Core lesson service logic.)
+ * Core lesson service logic.
  */
 @Injectable()
 export class AppService {
     private readonly logger = new Logger(AppService.name)
 
 /**
- * Logic — Xử lý nghiệp vụ `parseCachedItems` cho lab.
- * Code — `parseCachedItems()` — logic trong service/controller.
- * (EN Logic: Business handler `parseCachedItems` for the lab.)
- * (EN Code: `parseCachedItems()` — in-class handler logic.)
+ * Logic — Business handler `parseCachedItems` for the lab.
+ * Code — `parseCachedItems()` — in-class handler logic.
  */
     private parseCachedItems(raw: string): ReadonlyArray<ItemRow> {
         const parsed = JSON.parse(raw)
@@ -48,10 +44,8 @@ export class AppService {
     }
 
     /**
- * Logic — Khởi tạo client/hook khi module sẵn sàng (Redis/Kafka/DB pool).
- * Code — Hook `OnModuleInit`: đọc `ConfigService` và tạo connection/client.
- * (EN Logic: Initialize clients when the module becomes ready.)
- * (EN Code: `OnModuleInit` hook: read `ConfigService` and open connections.)
+ * Logic — Initialize clients when the module becomes ready.
+ * Code — `OnModuleInit` hook: read `ConfigService` and open connections.
  */
     async onModuleInit(): Promise<void> {
         this.initRedis()
@@ -59,10 +53,8 @@ export class AppService {
     }
 
     /**
- * Logic — Xử lý nghiệp vụ `initRedis` cho lab.
- * Code — `async initRedis()` — gọi dependency inject / client.
- * (EN Logic: Business handler `initRedis` for the lab.)
- * (EN Code: `async initRedis()` — uses injected deps / clients.)
+ * Logic — Business handler `initRedis` for the lab.
+ * Code — `async initRedis()` — uses injected deps / clients.
  */
     private async initRedis(): Promise<void> {
         const url = `redis://${this.redisCfg.host}:${this.redisCfg.port}`
@@ -90,10 +82,8 @@ export class AppService {
     }
 
     /**
- * Logic — Xử lý nghiệp vụ `initMySQL` cho lab.
- * Code — `async initMySQL()` — gọi dependency inject / client.
- * (EN Logic: Business handler `initMySQL` for the lab.)
- * (EN Code: `async initMySQL()` — uses injected deps / clients.)
+ * Logic — Business handler `initMySQL` for the lab.
+ * Code — `async initMySQL()` — uses injected deps / clients.
  */
     private async initMySQL(): Promise<void> {
         const db = this.databaseCfg
@@ -128,10 +118,8 @@ export class AppService {
     }
 
     /**
- * Logic — Đọc/truy vấn dữ liệu qua `getHealth`.
- * Code — Truy vấn in-memory / DB / cache và map response DTO.
- * (EN Logic: Read/query via `getHealth`.)
- * (EN Code: Query in-memory / DB / cache and map response.)
+ * Logic — Read/query via `getHealth`.
+ * Code — Query in-memory / DB / cache and map response.
  */
     async getHealth(): Promise<HealthResponse> {
         return {
@@ -142,10 +130,8 @@ export class AppService {
     }
 
     /**
- * Logic — Ghi/sự kiện mới qua `createItem`.
- * Code — Validate input → mutate state / emit message → return summary.
- * (EN Logic: Write/event via `createItem`.)
- * (EN Code: Validate → mutate state / emit → return summary.)
+ * Logic — Write/event via `createItem`.
+ * Code — Validate → mutate state / emit → return summary.
  */
     async createItem(name: string): Promise<CreateItemResponse> {
         if (!this.mysqlConn) {
@@ -171,10 +157,8 @@ export class AppService {
     }
 
     /**
- * Logic — Đọc/truy vấn dữ liệu qua `getItems`.
- * Code — Truy vấn in-memory / DB / cache và map response DTO.
- * (EN Logic: Read/query via `getItems`.)
- * (EN Code: Query in-memory / DB / cache and map response.)
+ * Logic — Read/query via `getItems`.
+ * Code — Query in-memory / DB / cache and map response.
  */
     async getItems(): Promise<GetItemsResponse | { error: string }> {
         if (this.redisClient?.isReady) {

@@ -1,6 +1,5 @@
 /**
- * Service Publisher — emit event qua NATS tới topic `app.events`.
- * (EN: Publisher Service — emits event via NATS to `app.events` topic.)
+ * Publisher Service — emits event via NATS to `app.events` topic.
  */
 import {
     Inject,
@@ -22,8 +21,7 @@ import type {
 
 @Injectable()
 /**
- * Class `AppService` — thành phần lab (controller/service/module).
- * (EN: Class `AppService` — lesson lab component.)
+ * Class `AppService` — lesson lab component.
  */
 export class AppService implements OnModuleInit {
     private readonly logger = new Logger(AppService.name)
@@ -33,20 +31,16 @@ export class AppService implements OnModuleInit {
     ) {}
 
     /**
-     * Logic — kết nối NATS client khi module khởi tạo.
-     * Code — `this.nats.connect()` mở connection tới NATS server.
-     * (EN Logic: Connects NATS client when module initializes.)
-     * (EN Code: `this.nats.connect()` opens connection to NATS server.)
+     * Logic — Connects NATS client when module initializes.
+     * Code — `this.nats.connect()` opens connection to NATS server.
      */
     async onModuleInit() {
         await this.nats.connect()
     }
 
     /**
-     * Logic — tách `type` + `payload` từ body, gắn timestamp, emit fire-and-forget.
-     * Code — `this.nats.emit("app.events", envelope)` phát event tới tất cả subscriber.
-     * (EN Logic: Extracts `type` + `payload` from body, attaches timestamp, emits fire-and-forget.)
-     * (EN Code: `this.nats.emit("app.events", envelope)` broadcasts event to all subscribers.)
+     * Logic — Extracts `type` + `payload` from body, attaches timestamp, emits fire-and-forget.
+     * Code — `this.nats.emit("app.events", envelope)` broadcasts event to all subscribers.
      */
     async publish(body: PublishRequestBody): Promise<PublishResponse> {
         const type = typeof body.type === "string" ? body.type : "unknown"

@@ -1,11 +1,8 @@
 /**
- * Module gốc — đăng ký ConfigModule toàn cục, Keycloak guard stack, và controllers.
- * (EN: Root module — registers global ConfigModule, Keycloak guard stack, and controllers.)
+ * Root module — registers global ConfigModule, Keycloak guard stack, and controllers.
  *
- * Keycloak sử dụng **public client** (`nestjs-app`) cho token validation.
- * API riêng demo cả **public** lẫn **confidential** (private) client qua KeycloakService.
- * (EN: Keycloak uses **public client** (`nestjs-app`) for token validation.
- * API also demos both **public** and **confidential** (private) client via KeycloakService.)
+ * Keycloak uses **public client** (`nestjs-app`) for token validation.
+ * API also demos both **public** and **confidential** (private) client via KeycloakService.
  */
 import {
     Module,
@@ -41,16 +38,14 @@ import {
 @Module({
     imports: [
         /**
-         * Biến môi trường toàn cục (`.env` / Docker `environment:`).
-         * (EN: Global env binding (`.env` or Docker `environment:`).)
+         * Global env binding (`.env` or Docker `environment:`).
          */
     ConfigModule.forRoot({
             isGlobal: true,
         }),
 
         /**
-         * Kết nối Keycloak — dùng **public client** để validate token (offline JWT).
-         * (EN: Keycloak connection — uses **public client** for token validation (offline JWT).)
+         * Keycloak connection — uses **public client** for token validation (offline JWT).
          */
     KeycloakConnectModule.registerAsync({
             inject: [ConfigService],
@@ -72,8 +67,7 @@ import {
     providers: [
         KeycloakService,
         /**
-         * Guard stack Keycloak — AuthGuard → ResourceGuard → RoleGuard (đăng ký toàn cục).
-         * (EN: Keycloak guard stack — AuthGuard → ResourceGuard → RoleGuard (registered globally).)
+         * Keycloak guard stack — AuthGuard → ResourceGuard → RoleGuard (registered globally).
          */
         {
             provide: APP_GUARD,
@@ -90,7 +84,6 @@ import {
     ],
 })
 /**
- * Class `AppModule` — thành phần lab (controller/service/module).
- * (EN: Class `AppModule` — lesson lab component.)
+ * Class `AppModule` — lesson lab component.
  */
 export class AppModule {}

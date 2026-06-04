@@ -1,6 +1,5 @@
 /**
- * Khởi tạo Nest microservice Kafka — consumer group từ ConfigService.
- * (EN: Bootstrap Nest Kafka microservice — consumer group from ConfigService.)
+ * Bootstrap Nest Kafka microservice — consumer group from ConfigService.
  */
 import {
     NestFactory,
@@ -20,10 +19,8 @@ import type {
 } from "./config"
 
 /**
- * Logic — Khởi động Nest app, ValidationPipe, lắng nghe `0.0.0.0` cho Docker.
- * Code — `NestFactory.create` → `useGlobalPipes(ValidationPipe)` → `app.listen(port, '0.0.0.0')`.
- * (EN Logic: Start Nest app with global ValidationPipe and Docker-friendly bind.)
- * (EN Code: `NestFactory.create` → `useGlobalPipes(ValidationPipe)` → `app.listen(port, '0.0.0.0')`.)
+ * Logic: Start Nest app with global ValidationPipe and Docker-friendly bind.
+ * Code: `NestFactory.create` → `useGlobalPipes(ValidationPipe)` → `app.listen(port, '0.0.0.0')`.
  */
 export async function bootstrap(): Promise<void> {
     const ctx = await NestFactory.createApplicationContext(AppModule)

@@ -1,13 +1,11 @@
 /**
- * Module gốc — gom ConfigModule và feature modules.
- * (EN: Root module — wires ConfigModule and feature modules.)
+ * Root module — wires ConfigModule and feature modules.
  */
 import {
     appConfig,
 } from "./config"
 /**
- * Module gốc Analytics Subscriber — đăng ký controller và service.
- * (EN: Root Analytics Subscriber module — registers controller and service.)
+ * Root Analytics Subscriber module — registers controller and service.
  */
 import {
     Module,
@@ -32,7 +30,6 @@ import {
     providers: [AppService],
 })
 /**
- * Class `AppModule` — thành phần lab (controller/service/module).
- * (EN: Class `AppModule` — lesson lab component.)
+ * Class `AppModule` — lesson lab component.
  */
 export class AppModule {}

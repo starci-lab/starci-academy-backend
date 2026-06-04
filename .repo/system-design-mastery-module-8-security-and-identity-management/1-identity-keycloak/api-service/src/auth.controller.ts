@@ -5,8 +5,7 @@
 }
 
     /**
-     * Đăng nhập qua **public client** (Direct Access Grants, không cần secret).
-     * (EN: Login via **public client** (Direct Access Grants, no secret required).)
+     * Login via **public client** (Direct Access Grants, no secret required).
      */
     @Public()
     @Post("login/public")
@@ -15,8 +14,7 @@
     }
 
     /**
-     * Đăng nhập qua **confidential (private) client** (gửi kèm client_secret).
-     * (EN: Login via **confidential (private) client** (sends client_secret).)
+     * Login via **confidential (private) client** (sends client_secret).
      */
     @Public()
     @Post("login/private")
@@ -25,16 +23,13 @@
     }
 
     /**
-     * Trả về authorize URL để redirect trình duyệt sang Keycloak login (Authorization Code flow).
-     * (EN: Returns authorize URL to redirect browser to Keycloak login (Authorization Code flow).)
+     * Returns authorize URL to redirect browser to Keycloak login (Authorization Code flow).
      */
     @Public()
     @Get("authorize/url")
     /**
- * Logic — Xử lý nghiệp vụ `authorizeUrl` cho lab.
- * Code — `authorizeUrl()` — logic trong service/controller.
- * (EN Logic: Business handler `authorizeUrl` for the lab.)
- * (EN Code: `authorizeUrl()` — in-class handler logic.)
+ * Logic — Business handler `authorizeUrl` for the lab.
+ * Code — `authorizeUrl()` — in-class handler logic.
  */
     authorizeUrl(): {
         authorizeUrl: string
@@ -47,8 +42,7 @@
     }
 
     /**
-     * Callback nhận authorization code từ Keycloak → đổi thành access token.
-     * (EN: Callback receives authorization code from Keycloak → exchanges for access token.)
+     * Callback receives authorization code from Keycloak → exchanges for access token.
      */
     @Public()
     @Get("callback")

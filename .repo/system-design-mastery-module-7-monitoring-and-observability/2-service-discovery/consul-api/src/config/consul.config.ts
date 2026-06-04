@@ -1,6 +1,5 @@
 /**
- * Config `registerAs` — chỉ đọc `process.env` tại factory.
- * (EN: Config `registerAs` — reads `process.env` in factory only.)
+ * Config `registerAs` — reads `process.env` in factory only.
  */
 import {
     registerAs,
@@ -11,8 +10,7 @@ export interface ConsulConfig {
 }
 
 /**
- * Cấu hình endpoint Consul HTTP API — namespace `consul`.
- * (EN: Consul HTTP API endpoint config — `consul` namespace.)
+ * Consul HTTP API endpoint config — `consul` namespace.
  */
 export const consulConfig = registerAs(
     "consul",

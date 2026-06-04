@@ -1,6 +1,5 @@
 /**
- * Service User — dữ liệu mock user trong bộ nhớ cho gRPC backend.
- * (EN: User Service — mock user data in memory for gRPC backend.)
+ * User Service — mock user data in memory for gRPC backend.
  */
 import {
     Injectable,
@@ -15,8 +14,7 @@ export interface User {
 
 @Injectable()
 /**
- * Class `AppService` — thành phần lab (controller/service/module).
- * (EN: Class `AppService` — lesson lab component.)
+ * Class `AppService` — lesson lab component.
  */
 export class AppService {
     private readonly logger = new Logger(AppService.name)
@@ -27,10 +25,8 @@ export class AppService {
     ]
 
     /**
-     * Logic — tra cứu user theo ID, trả default nếu không tìm thấy.
-     * Code — `Array.find()` trên mảng hardcoded, fallback `{ id: 0 }`.
-     * (EN Logic: Looks up user by ID, returns default if not found.)
-     * (EN Code: `Array.find()` on hardcoded array, fallback `{ id: 0 }`.)
+     * Logic — Looks up user by ID, returns default if not found.
+     * Code — `Array.find()` on hardcoded array, fallback `{ id: 0 }`.
      */
     getUser(id: number): User {
         this.logger.log(`Fetching user from memory for id: ${id}`)

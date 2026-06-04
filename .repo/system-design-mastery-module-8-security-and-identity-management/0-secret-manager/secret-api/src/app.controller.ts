@@ -7,8 +7,7 @@ import { AppService } from './app.service';
 
 @Controller()
 /**
- * Class `AppController` — thành phần lab (controller/service/module).
- * (EN: Class `AppController` — lesson lab component.)
+ * Class `AppController` — lesson lab component.
  */
 export class AppController {
   constructor(private readonly appService: AppService) {}

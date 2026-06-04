@@ -1,6 +1,5 @@
 /**
- * Module gốc — Kafka consumer + Postgres + Redis dedup (ConfigService).
- * (EN: Root module — Kafka consumer + Postgres + Redis dedup (ConfigService).)
+ * Root module — Kafka consumer + Postgres + Redis dedup (ConfigService).
  */
 import {
     Module,
@@ -58,7 +57,6 @@ import {
     providers: [ReliabilityService],
 })
 /**
- * Class `AppModule` — thành phần lab (controller/service/module).
- * (EN: Class `AppModule` — lesson lab component.)
+ * Class `AppModule` — lesson lab component.
  */
 export class AppModule {}

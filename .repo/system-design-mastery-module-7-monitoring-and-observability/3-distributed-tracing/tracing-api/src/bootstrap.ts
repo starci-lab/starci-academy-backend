@@ -1,6 +1,5 @@
 /**
- * Khởi động OpenTelemetry SDK (export OTLP HTTP sang Jaeger) rồi Nest tracing-api — ngữ cảnh trace hoạt động cho HTTP + span con trong service.
- * (EN: Start OpenTelemetry SDK (OTLP HTTP export to Jaeger) then Nest tracing-api — trace context spans HTTP plus child spans in services.)
+ * Start OpenTelemetry SDK (OTLP HTTP export to Jaeger) then Nest tracing-api — trace context spans HTTP plus child spans in services.
  */
 import {
     getNodeAutoInstrumentations,
@@ -28,10 +27,8 @@ import {
 } from "./app.module"
 
 /**
- * Logic — Khởi động Nest app, ValidationPipe, lắng nghe `0.0.0.0` cho Docker.
- * Code — `NestFactory.create` → `useGlobalPipes(ValidationPipe)` → `app.listen(port, '0.0.0.0')`.
- * (EN Logic: Start Nest app with global ValidationPipe and Docker-friendly bind.)
- * (EN Code: `NestFactory.create` → `useGlobalPipes(ValidationPipe)` → `app.listen(port, '0.0.0.0')`.)
+ * Logic: Start Nest app with global ValidationPipe and Docker-friendly bind.
+ * Code: `NestFactory.create` → `useGlobalPipes(ValidationPipe)` → `app.listen(port, '0.0.0.0')`.
  */
 export async function bootstrap(): Promise<void> {
     const sdk = new NodeSDK({
@@ -50,12 +47,10 @@ export async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule)
     const configService = app.get(ConfigService)
     const port = configService.get<number>("app.port") ?? 3000
-    // Cổng lắng nghe: env PORT hoặc 3000 (map host trong Compose nhánh tracing-api).
-    // (EN: Listen port from env PORT or 3000 (host mapping via Compose tracing-api service).)
+    // Listen port from env PORT or 3000 (host mapping via Compose tracing-api service).
     await app.listen(
         port,
-        // Lắng nghe trên mọi interface để Docker map được cổng.
-        // (EN: Listen on all interfaces so Docker port mapping works.)
+        // Listen on all interfaces so Docker port mapping works.
         "0.0.0.0",
     )
 }

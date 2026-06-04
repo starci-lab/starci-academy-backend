@@ -1,13 +1,11 @@
 /**
- * Module gốc — gom ConfigModule và feature modules.
- * (EN: Root module — wires ConfigModule and feature modules.)
+ * Root module — wires ConfigModule and feature modules.
  */
 import {
     appConfig,
 } from "./config"
 /**
- * Module gốc — đăng ký 2 gRPC client (User, Product) và controller REST gateway.
- * (EN: Root module — registers 2 gRPC clients (User, Product) and the REST gateway controller.)
+ * Root module — registers 2 gRPC clients (User, Product) and the REST gateway controller.
  */
 import {
     Module,
@@ -35,7 +33,7 @@ import {
         ClientsModule.register([
             {
                 // Token inject cho User gRPC client.
-                // (EN: Injection token for User gRPC client.)
+// Injection token for User gRPC client.
                 name: "USER_SERVICE",
                 transport: Transport.GRPC,
                 options: {
@@ -46,7 +44,7 @@ import {
             },
             {
                 // Token inject cho Product gRPC client.
-                // (EN: Injection token for Product gRPC client.)
+// Injection token for Product gRPC client.
                 name: "PRODUCT_SERVICE",
                 transport: Transport.GRPC,
                 options: {
@@ -60,7 +58,6 @@ import {
     controllers: [AppController],
 })
 /**
- * Class `AppModule` — thành phần lab (controller/service/module).
- * (EN: Class `AppModule` — lesson lab component.)
+ * Class `AppModule` — lesson lab component.
  */
 export class AppModule {}

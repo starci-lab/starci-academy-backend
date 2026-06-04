@@ -25,10 +25,8 @@ export class CatsController {
     ) {}
 
     /**
-     * Logic — liệt kê mèo từ Postgres.
-     * Code — GET /cats → CatsService.findAll.
-     * (EN Logic: List cats from Postgres.)
-     * (EN Code: GET /cats → findAll.)
+     * Logic: List cats from Postgres.
+     * Code: GET /cats → findAll.
      */
     @Get()
     findAll(): Promise<Array<CatEntity>> {
@@ -36,10 +34,8 @@ export class CatsController {
     }
 
     /**
-     * Logic — tạo mèo mới từ body.
-     * Code — POST /cats + CreateCatDto → create.
-     * (EN Logic: Create cat from request body.)
-     * (EN Code: POST /cats → create.)
+     * Logic: Create cat from request body.
+     * Code: POST /cats → create.
      */
     @Post()
     create(@Body() body: CreateCatDto): Promise<CatEntity> {

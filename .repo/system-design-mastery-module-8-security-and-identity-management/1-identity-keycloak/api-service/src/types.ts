@@ -1,11 +1,9 @@
 /**
- * Kiểu dữ liệu dùng chung cho xác thực Keycloak.
- * (EN: Shared types for Keycloak authentication.)
+ * Shared types for Keycloak authentication.
  */
 
 /**
- * Response từ Keycloak token endpoint (OIDC token response).
- * (EN: Response from Keycloak token endpoint (OIDC token response).)
+ * Response from Keycloak token endpoint (OIDC token response).
  */
 export type TokenResponse = {
     access_token: string
@@ -18,8 +16,7 @@ export type TokenResponse = {
 }
 
 /**
- * Payload giải mã từ JWT access token — chỉ lấy các trường cần thiết cho lab.
- * (EN: Decoded JWT access token payload — only essential fields for the lab.)
+ * Decoded JWT access token payload — only essential fields for the lab.
  */
 export type JwtUser = {
     sub: string

@@ -1,6 +1,5 @@
 /**
- * Module gốc — ConfigModule, SentryModule, SentryGlobalFilter và OrdersModule.
- * (EN: Root module — ConfigModule, SentryModule, SentryGlobalFilter and OrdersModule.)
+ * Root module — ConfigModule, SentryModule, SentryGlobalFilter and OrdersModule.
  */
 import {
     Module,
@@ -25,8 +24,7 @@ import {
 
 @Module({
     imports: [
-        // ConfigModule toàn cục — load cấu hình app + logging từ env.
-        // (EN: Global ConfigModule — loads app + logging config from env.)
+        // Global ConfigModule — loads app + logging config from env.
         ConfigModule.forRoot({
             isGlobal: true,
             load: [
@@ -34,16 +32,13 @@ import {
                 loggingConfig,
             ],
         }),
-        // SentryModule — đăng ký Sentry instrumentation vào Nest DI.
-        // (EN: SentryModule — registers Sentry instrumentation into Nest DI.)
+        // SentryModule — registers Sentry instrumentation into Nest DI.
         SentryModule.forRoot(),
-        // OrdersModule — feature module chứa endpoint demo log/error.
-        // (EN: OrdersModule — feature module containing demo log/error endpoints.)
+        // OrdersModule — feature module containing demo log/error endpoints.
         OrdersModule,
     ],
     providers: [
-        // SentryGlobalFilter — bắt mọi exception chưa xử lý và gửi tới Sentry.
-        // (EN: SentryGlobalFilter — catches all unhandled exceptions and reports to Sentry.)
+        // SentryGlobalFilter — catches all unhandled exceptions and reports to Sentry.
         {
             provide: APP_FILTER,
             useClass: SentryGlobalFilter,
@@ -51,7 +46,6 @@ import {
     ],
 })
 /**
- * Class `AppModule` — thành phần lab (controller/service/module).
- * (EN: Class `AppModule` — lesson lab component.)
+ * Class `AppModule` — lesson lab component.
  */
 export class AppModule {}

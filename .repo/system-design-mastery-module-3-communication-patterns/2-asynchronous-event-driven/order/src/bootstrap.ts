@@ -1,6 +1,5 @@
 /**
- * Khởi tạo Nest app Order Producer — REST API nhận POST /orders, emit Kafka event.
- * (EN: Bootstrap Order Producer Nest app — REST API for POST /orders, emits Kafka event.)
+ * Bootstrap Order Producer Nest app — REST API for POST /orders, emits Kafka event.
  */
 import {
     ValidationPipe,
@@ -16,10 +15,8 @@ import {
 } from "./app.module"
 
 /**
- * Logic — Khởi động Nest app, ValidationPipe, lắng nghe `0.0.0.0` cho Docker.
+ * Logic — Start Nest app with global ValidationPipe and Docker-friendly bind.
  * Code — `NestFactory.create` → `useGlobalPipes(ValidationPipe)` → `app.listen(port, '0.0.0.0')`.
- * (EN Logic: Start Nest app with global ValidationPipe and Docker-friendly bind.)
- * (EN Code: `NestFactory.create` → `useGlobalPipes(ValidationPipe)` → `app.listen(port, '0.0.0.0')`.)
  */
 export async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule)
@@ -29,14 +26,12 @@ export async function bootstrap(): Promise<void> {
             forbidUnknownValues: false,
         }),
     )
-    // Cổng: ConfigService namespace app.port (từ app.config.ts).
-    // (EN: Port from ConfigService app.port (via app.config.ts).)
+// Port from ConfigService app.port (via app.config.ts).
     const configService = app.get(ConfigService)
     const port = configService.get<number>("app.port") ?? 3000
     await app.listen(
         port,
-        // Lắng nghe trên mọi interface để container map được cổng.
-        // (EN: Listen on all interfaces so Docker port mapping works.)
+// Listen on all interfaces so Docker port mapping works.
         "0.0.0.0",
     )
 }

@@ -1,23 +1,19 @@
 /**
- * Kiểu dữ liệu item và response API backend K8s.
- * (EN: Item row and backend API response types.)
+ * Item row and backend API response types.
  */
 export interface ItemRow {
     /**
-     * ID item.
-     * (EN: Item ID.)
+     * Item ID.
      */
     id: number
     /**
-     * Tên item.
-     * (EN: Item name.)
+     * Item name.
      */
     name: string
 }
 
 /**
- * Response danh sách item (cache-aside).
- * (EN: Item list response (cache-aside).)
+ * Item list response (cache-aside).
  */
 export interface GetItemsResponse {
     data: ReadonlyArray<ItemRow>
@@ -26,8 +22,7 @@ export interface GetItemsResponse {
 }
 
 /**
- * Response tạo item.
- * (EN: Create item response.)
+ * Create item response.
  */
 export interface CreateItemResponse {
     success?: boolean
@@ -35,8 +30,7 @@ export interface CreateItemResponse {
 }
 
 /**
- * Response health check.
- * (EN: Health check response.)
+ * Health check response.
  */
 export interface HealthResponse {
     mysql: "connected" | "disconnected"

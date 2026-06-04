@@ -1,6 +1,5 @@
 /**
- * Module gốc — gom ConfigModule và feature modules.
- * (EN: Root module — wires ConfigModule and feature modules.)
+ * Root module — wires ConfigModule and feature modules.
  */
 import {
     appConfig,
@@ -19,8 +18,7 @@ import {
 } from "./app.service"
 
 /**
- * Module gốc cho Search Service.
- * (EN: Root module for Search Service.)
+ * Root module for Search Service.
  */
 @Module({
     imports: [
@@ -32,7 +30,6 @@ import {
     providers: [AppService],
 })
 /**
- * Class `AppModule` — thành phần lab (controller/service/module).
- * (EN: Class `AppModule` — lesson lab component.)
+ * Class `AppModule` — lesson lab component.
  */
 export class AppModule {}

@@ -1,6 +1,5 @@
 /**
- * Service Order — dữ liệu mock order trong bộ nhớ (không cần DB).
- * (EN: Order Service — mock order data in memory (no DB required).)
+ * Order Service — mock order data in memory (no DB required).
  */
 import {
     Injectable,
@@ -11,17 +10,14 @@ export type Order = { id: number; product: string; quantity: number; total: numb
 
 @Injectable()
 /**
- * Class `AppService` — thành phần lab (controller/service/module).
- * (EN: Class `AppService` — lesson lab component.)
+ * Class `AppService` — lesson lab component.
  */
 export class AppService {
     private readonly logger = new Logger(AppService.name)
 
     /**
-     * Logic — trả mock data order để kiểm thử Kong Gateway routing.
-     * Code — trả mảng Order[] hardcoded.
-     * (EN Logic: Returns mock order data for Kong Gateway routing test.)
-     * (EN Code: Returns hardcoded Order[] array.)
+     * Logic — Returns mock order data for Kong Gateway routing test.
+     * Code — Returns hardcoded Order[] array.
      */
     getOrders(): Order[] {
         this.logger.log("Fetching orders from memory")

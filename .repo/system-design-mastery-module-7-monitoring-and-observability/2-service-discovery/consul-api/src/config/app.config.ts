@@ -1,6 +1,5 @@
 /**
- * Config `registerAs` — chỉ đọc `process.env` tại factory.
- * (EN: Config `registerAs` — reads `process.env` in factory only.)
+ * Config `registerAs` — reads `process.env` in factory only.
  */
 import {
     registerAs,
@@ -11,8 +10,7 @@ export interface AppConfig {
 }
 
 /**
- * Cấu hình app runtime — namespace `app` cho ConfigService.
- * (EN: App runtime config — `app` namespace for ConfigService.)
+ * App runtime config — `app` namespace for ConfigService.
  */
 export const appConfig = registerAs(
     "app",

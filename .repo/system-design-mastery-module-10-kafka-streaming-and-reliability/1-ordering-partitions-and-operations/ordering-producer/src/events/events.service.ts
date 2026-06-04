@@ -1,6 +1,5 @@
 /**
- * Kafka producer service — HTTP emit topic `ordering-events` (partitionKey bắt buộc).
- * (EN: Kafka producer service — HTTP emit to `ordering-events` (partitionKey required).)
+ * Kafka producer service — HTTP emit to `ordering-events` (partitionKey required).
  */
 import {
     Inject,
@@ -22,8 +21,7 @@ import {
 
 @Injectable()
 /**
- * Class `EventsService` — thành phần lab (controller/service/module).
- * (EN: Class `EventsService` — lesson lab component.)
+ * Class `EventsService` — lesson lab component.
  */
 export class EventsService {
     private readonly logger = new Logger(EventsService.name)
@@ -34,10 +32,8 @@ export class EventsService {
     ) {}
 
     /**
-     * Logic — mọi event cùng partitionKey nằm một partition → thứ tự FIFO trong partition.
-     * Code — key = partitionKey khi emit; không có key = lỗi validation ở DTO.
-     * (EN Logic: Same partitionKey lands in one partition → FIFO ordering within partition.)
-     * (EN Code: emit key = partitionKey; DTO enforces required key.)
+     * Logic: Same partitionKey lands in one partition → FIFO ordering within partition.
+     * Code: emit key = partitionKey; DTO enforces required key.
      */
     async publish(dto: PublishEventDto): Promise<{ status: string; topic: string; key: string }> {
         const kafka = this.config.getOrThrow<KafkaConfig>("kafka")

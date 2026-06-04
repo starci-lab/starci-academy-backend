@@ -1,6 +1,5 @@
 /**
- * Module gốc — ConfigModule + Kafka producer/consumer wiring cho lesson log fundamentals.
- * (EN: Root module — ConfigModule + Kafka producer/consumer wiring for log fundamentals lesson.)
+ * Root module — ConfigModule + Kafka producer/consumer wiring for log fundamentals lesson.
  */
 import { Module } from "@nestjs/common"
 import { ConfigModule } from "@nestjs/config"
@@ -17,7 +16,6 @@ import { ConsumerService } from "./consumer"
     providers: [ConsumerService],
 })
 /**
- * Class `AppModule` — thành phần lab (controller/service/module).
- * (EN: Class `AppModule` — lesson lab component.)
+ * Class `AppModule` — lesson lab component.
  */
 export class AppModule {}

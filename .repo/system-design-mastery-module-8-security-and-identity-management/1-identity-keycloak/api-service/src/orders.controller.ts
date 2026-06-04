@@ -1,6 +1,5 @@
 /**
- * Controller đơn hàng bảo vệ — yêu cầu Bearer token hợp lệ từ Keycloak.
- * (EN: Protected orders controller — requires a valid Bearer token from Keycloak.)
+ * Protected orders controller — requires a valid Bearer token from Keycloak.
  */
 import {
     Controller,
@@ -11,8 +10,7 @@ import {
 } from "nest-keycloak-connect"
 
 /**
- * Payload giải mã từ Keycloak JWT access token.
- * (EN: Decoded payload from Keycloak JWT access token.)
+ * Decoded payload from Keycloak JWT access token.
  */
 type KeycloakUser = {
     preferred_username?: string
@@ -20,13 +18,11 @@ type KeycloakUser = {
 }
 
 /**
- * Class `OrdersController` — thành phần lab (controller/service/module).
- * (EN: Class `OrdersController` — lesson lab component.)
+ * Class `OrdersController` — lesson lab component.
  */
 export class OrdersController {
     /**
-     * Trả về danh sách đơn hàng demo — chỉ accessible khi có Bearer token hợp lệ.
-     * (EN: Returns demo order list — only accessible with a valid Bearer token.)
+     * Returns demo order list — only accessible with a valid Bearer token.
      */
     @Get()
     listOrders(@AuthenticatedUser() user: KeycloakUser): {

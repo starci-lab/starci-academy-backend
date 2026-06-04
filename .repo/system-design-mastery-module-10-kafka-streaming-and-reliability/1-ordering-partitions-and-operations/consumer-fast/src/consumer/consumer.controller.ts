@@ -20,8 +20,7 @@ export class ConsumerController {
     ) {}
 
     /**
-     * Logic — cùng consumer group; so sánh lag fast vs slow trên UI.
-     * (EN Logic: Same consumer group; compare fast vs slow lag in UI.)
+     * Logic: Same consumer group; compare fast vs slow lag in UI.
      */
     @EventPattern("ordering-events")
     async handle(@Payload() data: Record<string, string | number | boolean>): Promise<void> {

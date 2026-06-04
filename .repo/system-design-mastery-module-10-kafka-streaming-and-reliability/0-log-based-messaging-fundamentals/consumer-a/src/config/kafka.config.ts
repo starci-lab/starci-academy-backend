@@ -1,6 +1,5 @@
 /**
- * Cấu hình namespace `kafka` — đọc biến môi trường trong factory registerAs.
- * (EN: Config namespace `kafka` — environment variables in registerAs factory.)
+ * Config namespace `kafka` — environment variables in registerAs factory.
  */
 import {
     registerAs,
@@ -16,10 +15,8 @@ export interface KafkaConfig {
 }
 
 /**
- * Logic — Đọc biến môi trường thành object config typed.
- * Code — `registerAs` factory: `process.env.*` → interface config.
- * (EN Logic: Map environment variables to typed config.)
- * (EN Code: `registerAs` factory reading `process.env.*`.)
+ * Logic: Map environment variables to typed config.
+ * Code: `registerAs` factory reading `process.env.*`.
  */
 export const kafkaConfig = registerAs(
     "kafka",

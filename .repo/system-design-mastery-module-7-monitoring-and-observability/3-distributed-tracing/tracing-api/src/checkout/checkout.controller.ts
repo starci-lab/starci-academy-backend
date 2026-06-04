@@ -19,10 +19,8 @@ export class CheckoutController {
     constructor(private readonly checkout: CheckoutService) {}
 
     /**
-     * Logic — mô phỏng checkout một bước để học viên có Trace + Span con trong Jaeger UI / Query API.
-     * Code — `@Get('checkout')` delegate sang service (`simulateCheckout`).
-     * (EN Logic: Simulate single-step checkout so learners see Trace + child spans in Jaeger.)
-     * (EN Code: `@Get('checkout')` delegates to service (`simulateCheckout`).)
+     * Logic: Simulate single-step checkout so learners see Trace + child spans in Jaeger.
+     * Code: `@Get('checkout')` delegates to service (`simulateCheckout`).
      */
     @Get("checkout")
     simulateCheckout(): Promise<{ message: string; traceId: string }> {

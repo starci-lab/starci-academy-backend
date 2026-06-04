@@ -1,6 +1,5 @@
 /**
- * Service Audit — ghi event vào audit log database (mock).
- * (EN: Audit Service — writes event to audit log database (mock).)
+ * Audit Service — writes event to audit log database (mock).
  */
 import {
     Injectable,
@@ -12,17 +11,14 @@ import type {
 
 @Injectable()
 /**
- * Class `AppService` — thành phần lab (controller/service/module).
- * (EN: Class `AppService` — lesson lab component.)
+ * Class `AppService` — lesson lab component.
  */
 export class AppService {
     private readonly logger = new Logger(AppService.name)
 
     /**
-     * Logic — ghi event vào audit log (mock, chỉ log).
-     * Code — nhận payload, trích `type`, log ra console.
-     * (EN Logic: Writes event to audit log (mock, log only).)
-     * (EN Code: Receives payload, extracts `type`, logs to console.)
+     * Logic — Writes event to audit log (mock, log only).
+     * Code — Receives payload, extracts `type`, logs to console.
      */
     processEvent(data: AppEventEnvelope): void {
         const t = data.type

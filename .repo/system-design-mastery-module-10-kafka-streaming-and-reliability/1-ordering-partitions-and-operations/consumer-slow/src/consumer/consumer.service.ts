@@ -1,6 +1,5 @@
 /**
- * Service lesson — Kafka consumer xử lý message từ topic.
- * (EN: Lesson service — Kafka consumer processes topic messages.)
+ * Lesson service — Kafka consumer processes topic messages.
  */
 import {
     Injectable,
@@ -25,14 +24,11 @@ export class ConsumerService {
     constructor(private readonly config: ConfigService) {}
 
     /**
-     * Logic — log message đã nhận; delay tùy chọn để demo lag.
-     * Code — `getOrThrow('kafka')` → optional sleep → `processed++` → `logger.log`.
-     * (EN Logic: Log consumed message; optional delay for lag demo.)
-     * (EN Code: `getOrThrow('kafka')` → optional sleep → increment → log.)
+     * Logic: Log consumed message; optional delay for lag demo.
+     * Code: `getOrThrow('kafka')` → optional sleep → increment → log.
      */
     async process(data: Record<string, string | number | boolean>): Promise<void> {
         const kafka = this.config.getOrThrow<KafkaConfig>("kafka")
-        // Logic — consumer chậm: delay cố định từ env CONSUMER_DELAY_MS.
         // Code — setTimeout promise khi consumerDelayMs > 0.
         // (EN Logic: Slow consumer uses CONSUMER_DELAY_MS sleep.)
         // (EN Code: await setTimeout when consumerDelayMs > 0.)

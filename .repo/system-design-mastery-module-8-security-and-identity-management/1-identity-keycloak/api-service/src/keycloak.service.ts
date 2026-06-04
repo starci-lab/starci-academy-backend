@@ -11,18 +11,15 @@ import {
 } from "@nestjs/common"
 
 /**
- * Service logic chính của lesson.
- * (EN: Core lesson service logic.)
+ * Core lesson service logic.
  */
 @Injectable()
 export class KeycloakService {
     private readonly logger = new Logger(KeycloakService.name)
 
 /**
- * Logic — Đọc/truy vấn dữ liệu qua `getAuthorizeUrl`.
- * Code — Truy vấn in-memory / DB / cache và map response DTO.
- * (EN Logic: Read/query via `getAuthorizeUrl`.)
- * (EN Code: Query in-memory / DB / cache and map response.)
+ * Logic — Read/query via `getAuthorizeUrl`.
+ * Code — Query in-memory / DB / cache and map response.
  */
     getAuthorizeUrl(): string {
         const state = Math.random().toString(36).slice(2)
@@ -37,10 +34,8 @@ export class KeycloakService {
     }
 
     /**
- * Logic — Xử lý nghiệp vụ `loginPublicClient` cho lab.
- * Code — `async loginPublicClient()` — gọi dependency inject / client.
- * (EN Logic: Business handler `loginPublicClient` for the lab.)
- * (EN Code: `async loginPublicClient()` — uses injected deps / clients.)
+ * Logic — Business handler `loginPublicClient` for the lab.
+ * Code — `async loginPublicClient()` — uses injected deps / clients.
  */
     async loginPublicClient(username?: string, password?: string): Promise<TokenResponse> {
         const effectiveUsername = username ?? this.defaultUsername
@@ -58,10 +53,8 @@ export class KeycloakService {
     }
 
     /**
- * Logic — Xử lý nghiệp vụ `loginPrivateClient` cho lab.
- * Code — `async loginPrivateClient()` — gọi dependency inject / client.
- * (EN Logic: Business handler `loginPrivateClient` for the lab.)
- * (EN Code: `async loginPrivateClient()` — uses injected deps / clients.)
+ * Logic — Business handler `loginPrivateClient` for the lab.
+ * Code — `async loginPrivateClient()` — uses injected deps / clients.
  */
     async loginPrivateClient(username?: string, password?: string): Promise<TokenResponse> {
         const effectiveUsername = username ?? this.defaultUsername
@@ -80,10 +73,8 @@ export class KeycloakService {
     }
 
     /**
- * Logic — Xử lý nghiệp vụ `exchangeCode` cho lab.
- * Code — `async exchangeCode()` — gọi dependency inject / client.
- * (EN Logic: Business handler `exchangeCode` for the lab.)
- * (EN Code: `async exchangeCode()` — uses injected deps / clients.)
+ * Logic — Business handler `exchangeCode` for the lab.
+ * Code — `async exchangeCode()` — uses injected deps / clients.
  */
     async exchangeCode(code: string): Promise<TokenResponse> {
         if (!code) {
@@ -99,10 +90,8 @@ export class KeycloakService {
     }
 
     /**
- * Logic — Xử lý nghiệp vụ `fetchToken` cho lab.
- * Code — `async fetchToken()` — gọi dependency inject / client.
- * (EN Logic: Business handler `fetchToken` for the lab.)
- * (EN Code: `async fetchToken()` — uses injected deps / clients.)
+ * Logic — Business handler `fetchToken` for the lab.
+ * Code — `async fetchToken()` — uses injected deps / clients.
  */
     private async fetchToken(form: URLSearchParams): Promise<TokenResponse> {
         const response = await fetch(this.tokenEndpoint, {

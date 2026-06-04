@@ -1,6 +1,5 @@
 /**
- * Đăng ký Prometheus (`prom-client`): registry chung, counter/histogram HTTP demo.
- * (EN: Prometheus (`prom-client`) setup: shared registry and demo HTTP counter/histogram.)
+ * Prometheus (`prom-client`) setup: shared registry and demo HTTP counter/histogram.
  */
 import {
     Counter, Histogram, Registry, collectDefaultMetrics 
@@ -22,8 +21,7 @@ export const httpRequestsTotal = new Counter({
 })
 
 /**
- * Histogram độ trễ (giây) — bucket phù hợp `histogram_quantile` khi scrape.
- * (EN: Latency histogram (seconds) — buckets suited for `histogram_quantile` when scraped.)
+ * Latency histogram (seconds) — buckets suited for `histogram_quantile` when scraped.
  */
 export const httpRequestDurationSeconds = new Histogram({
     name: "http_request_duration_seconds",

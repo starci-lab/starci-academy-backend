@@ -1,6 +1,5 @@
 /**
- * Entity `cats` — lưu mèo trong PostgreSQL (lab metrics-api).
- * (EN: `cats` entity — persists cats in PostgreSQL (metrics-api lab).)
+ * `cats` entity — persists cats in PostgreSQL (metrics-api lab).
  */
 import {
     Column,

@@ -18,8 +18,7 @@ import type {
 } from "./dto"
 
 /**
- * Kafka consumer controller — xử lý topic reliability-events.
- * (EN: Kafka consumer controller — handles reliability-events topic.)
+ * Kafka consumer controller — handles reliability-events topic.
  */
 @Controller()
 export class ReliabilityController {
@@ -30,10 +29,8 @@ export class ReliabilityController {
     ) {}
 
     /**
-     * Logic — nhận event Kafka, gọi idempotent processEvent.
-     * Code — @EventPattern → ReliabilityService.processEvent.
-     * (EN Logic: Consume Kafka event and process idempotently.)
-     * (EN Code: EventPattern → processEvent.)
+     * Logic: Consume Kafka event and process idempotently.
+     * Code: EventPattern → processEvent.
      */
     @EventPattern("reliability-events")
     async handle(@Payload() data: ProcessEventPayload): Promise<void> {

@@ -1,6 +1,5 @@
 /**
- * Config `registerAs` — chỉ đọc `process.env` tại factory.
- * (EN: Config `registerAs` — reads `process.env` in factory only.)
+ * Config `registerAs` — reads `process.env` in factory only.
  */
 import {
     registerAs,
@@ -13,8 +12,7 @@ export interface LoggingConfig {
 }
 
 /**
- * Cấu hình logging transport (Loki labels + endpoint) — namespace `logging`.
- * (EN: Logging transport config (Loki labels + endpoint) — `logging` namespace.)
+ * Logging transport config (Loki labels + endpoint) — `logging` namespace.
  */
 export const loggingConfig = registerAs(
     "logging",

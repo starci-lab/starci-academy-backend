@@ -1,6 +1,5 @@
 /**
- * Module miền mèo — TypeORM feature + controller REST `/cats`.
- * (EN: Cats domain module — TypeORM feature + REST `/cats` controller.)
+ * Cats domain module — TypeORM feature + REST `/cats` controller.
  */
 import {
     Module,
@@ -24,7 +23,6 @@ import {
     providers: [CatsService],
 })
 /**
- * Class `CatsModule` — thành phần lab (controller/service/module).
- * (EN: Class `CatsModule` — lesson lab component.)
+ * Class `CatsModule` — lesson lab component.
  */
 export class CatsModule {}

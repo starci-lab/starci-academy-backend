@@ -1,6 +1,5 @@
 /**
- * TypeORM entity — bảng persistence cho demo.
- * (EN: TypeORM entity — persistence table for demo.)
+ * TypeORM entity — persistence table for demo.
  */
 import {
     Column,

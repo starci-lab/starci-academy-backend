@@ -1,6 +1,5 @@
 /**
- * Module gốc — Postgres + cats module + middleware metric HTTP.
- * (EN: Root module — Postgres + cats module + HTTP metrics middleware.)
+ * Root module — Postgres + cats module + HTTP metrics middleware.
  */
 import {
     MiddlewareConsumer,
@@ -60,13 +59,11 @@ import {
     providers: [HttpMetricsMiddleware],
 })
 /**
- * Class `AppModule` — thành phần lab (controller/service/module).
- * (EN: Class `AppModule` — lesson lab component.)
+ * Class `AppModule` — lesson lab component.
  */
 export class AppModule implements NestModule {
     /**
-     * Áp middleware metric cho các route của Cats và Metrics controller.
-     * (EN: Apply metrics middleware to Cats and Metrics controller routes.)
+     * Apply metrics middleware to Cats and Metrics controller routes.
      */
     configure(consumer: MiddlewareConsumer): void {
         consumer

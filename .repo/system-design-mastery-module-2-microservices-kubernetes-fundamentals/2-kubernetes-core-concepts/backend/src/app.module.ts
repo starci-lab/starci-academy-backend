@@ -1,6 +1,5 @@
 /**
- * Module gốc — gom ConfigModule và feature modules.
- * (EN: Root module — wires ConfigModule and feature modules.)
+ * Root module — wires ConfigModule and feature modules.
  */
 import {
     appConfig,
@@ -21,8 +20,7 @@ import {
 } from "./app.service"
 
 /**
- * Module gốc — backend demo K8s Cache-Aside.
- * (EN: Root module — K8s Cache-Aside backend demo.)
+ * Root module — K8s Cache-Aside backend demo.
  */
 @Module({
     imports: [
@@ -35,7 +33,6 @@ import {
     providers: [AppService],
 })
 /**
- * Class `AppModule` — thành phần lab (controller/service/module).
- * (EN: Class `AppModule` — lesson lab component.)
+ * Class `AppModule` — lesson lab component.
  */
 export class AppModule {}

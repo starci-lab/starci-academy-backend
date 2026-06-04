@@ -1,6 +1,5 @@
 /**
- * Module gốc — gom ConfigModule và feature modules.
- * (EN: Root module — wires ConfigModule and feature modules.)
+ * Root module — wires ConfigModule and feature modules.
  */
 import {
     appConfig,
@@ -43,7 +42,6 @@ import { UsersModule } from './users';
   providers: [AppService, VaultService],
 })
 /**
- * Class `AppModule` — thành phần lab (controller/service/module).
- * (EN: Class `AppModule` — lesson lab component.)
+ * Class `AppModule` — lesson lab component.
  */
 export class AppModule {}

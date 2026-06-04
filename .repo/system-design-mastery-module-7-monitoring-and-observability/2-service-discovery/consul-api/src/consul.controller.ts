@@ -7,8 +7,7 @@
     }
 
     /**
-     * Proxy kiểm tra health instances của một service trong Consul.
-     * (EN: Proxy health check listing instances for a Consul service.)
+     * Proxy health check listing instances for a Consul service.
      */
     @Get("health/:service")
     async health(@Param("service") service: string): Promise<unknown> {
@@ -17,8 +16,7 @@
     }
 
     /**
-     * Đăng ký service vào Consul Catalog qua HTTP Agent API.
-     * (EN: Register service into Consul catalog via Agent HTTP API.)
+     * Register service into Consul catalog via Agent HTTP API.
      */
     @Post("register")
     async register(@Body() body: { id: string; name: string; address: string; port: number }): Promise<{ status: string }> {
@@ -35,8 +33,7 @@
     }
 
     /**
-     * Huỷ đăng ký service khỏi Agent theo ID (khớp ID khi register).
-     * (EN: Deregister service from Agent by ID (matches registration ID).)
+     * Deregister service from Agent by ID (matches registration ID).
      */
     @Post("deregister/:id")
     async deregister(@Param("id") id: string): Promise<{ status: string }> {

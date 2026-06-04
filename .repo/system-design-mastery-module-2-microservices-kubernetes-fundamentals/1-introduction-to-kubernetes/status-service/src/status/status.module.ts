@@ -1,6 +1,5 @@
 /**
- * Nest feature module — đăng ký controller/service/providers.
- * (EN: Nest feature module — registers controllers/services/providers.)
+ * Nest feature module — registers controllers/services/providers.
  */
 import {
     Module,
@@ -17,7 +16,6 @@ import {
     providers: [StatusService],
 })
 /**
- * Class `StatusModule` — thành phần lab (controller/service/module).
- * (EN: Class `StatusModule` — lesson lab component.)
+ * Class `StatusModule` — lesson lab component.
  */
 export class StatusModule {}

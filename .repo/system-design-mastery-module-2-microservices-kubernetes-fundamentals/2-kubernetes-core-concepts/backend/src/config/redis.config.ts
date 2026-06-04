@@ -1,14 +1,12 @@
 /**
- * Config `registerAs` — chỉ đọc `process.env` tại factory.
- * (EN: Config `registerAs` — reads `process.env` in factory only.)
+ * Config `registerAs` — reads `process.env` in factory only.
  */
 import {
     registerAs,
 } from "@nestjs/config"
 
 /**
- * Cấu hình Redis (khớp .kubernetes/redis.yaml).
- * (EN: Redis connection config (aligned with .kubernetes/redis.yaml).)
+ * Redis connection config (aligned with .kubernetes/redis.yaml).
  */
 export interface RedisConfig {
     host: string
@@ -16,10 +14,8 @@ export interface RedisConfig {
 }
 
 /**
- * Logic — Đọc biến môi trường thành object config typed.
- * Code — `registerAs` factory: `process.env.*` → interface config.
- * (EN Logic: Map environment variables to typed config.)
- * (EN Code: `registerAs` factory reading `process.env.*`.)
+ * Logic — Map environment variables to typed config.
+ * Code — `registerAs` factory reading `process.env.*`.
  */
 export const redisConfig = registerAs(
     "redis",
