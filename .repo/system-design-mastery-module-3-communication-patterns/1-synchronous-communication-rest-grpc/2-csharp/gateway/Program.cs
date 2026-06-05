@@ -32,6 +32,7 @@ app.MapGet("/products/{id:int}", async (int id) =>
     return Results.Ok(product);
 });
 
-app.Run("http://0.0.0.0:3000");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "3000";
+app.Run($"http://localhost:{port}");
 
 public record CreateUserInputDto(string Name, string Email);

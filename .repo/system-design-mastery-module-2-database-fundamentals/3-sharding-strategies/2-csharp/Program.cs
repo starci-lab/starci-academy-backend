@@ -7,7 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure port
 if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_URLS")))
 {
-    builder.WebHost.UseUrls("http://*:3003");
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "3003";
+builder.WebHost.UseUrls($"http://localhost:{port}");
 }
 
 // MongoDB Connection

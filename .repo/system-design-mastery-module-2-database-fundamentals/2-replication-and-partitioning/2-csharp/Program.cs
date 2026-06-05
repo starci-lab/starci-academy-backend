@@ -8,7 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure port
 if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_URLS")))
 {
-    builder.WebHost.UseUrls("http://*:3002");
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "3002";
+builder.WebHost.UseUrls($"http://localhost:{port}");
 }
 
 // Master / Primary Connection

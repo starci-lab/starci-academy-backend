@@ -8,7 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure port
 if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_URLS")))
 {
-    builder.WebHost.UseUrls("http://*:3001");
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "3001";
+builder.WebHost.UseUrls($"http://localhost:{port}");
 }
 
 // Build PostgreSQL connection string
