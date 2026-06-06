@@ -74,7 +74,22 @@
       "Bash(cd \"C:\\\\Repositories\\\\starci-academy\" && mkdir -p .claude/design && echo \"MKDIR_OK\" && ls -la .claude/)",
       "mcp__Claude_Preview__preview_start",
       "WebFetch(domain:heroui.com)",
-      "WebFetch(domain:www.heroui.com)"
+      "WebFetch(domain:www.heroui.com)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__4ec645f7-efc1-4f9d-889f-d2c9a885e6a8__generate-design",
+      "mcp__4ec645f7-efc1-4f9d-889f-d2c9a885e6a8__create-design-from-candidate",
+      "mcp__4ec645f7-efc1-4f9d-889f-d2c9a885e6a8__start-editing-transaction",
+      "Bash(rm -f .claude/launch.json && echo \"removed\")",
+      "mcp__Claude_in_Chrome__list_connected_browsers",
+      "mcp__Claude_in_Chrome__switch_browser",
+      "Bash(mkdir -p \"C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-12-file-upload-and-storage/3-resumable-upload-tus-protocol/1-java/src/main/java/academy/starci\" && mkdir -p \"C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-12-file-upload-and-storage/3-resumable-upload-tus-protocol/1-java/src/main/java/academy/starci/config\" && mkdir -p \"C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-12-file-upload-and-storage/3-resumable-upload-tus-protocol/1-java/src/main/java/academy/starci/controller\" && mkdir -p \"C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-12-file-upload-and-storage/3-resumable-upload-tus-protocol/1-java/src/main/java/academy/starci/service\" && mkdir -p \"C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-12-file-upload-and-storage/3-resumable-upload-tus-protocol/1-java/src/main/resources\" && mkdir -p \"C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-12-file-upload-and-storage/3-resumable-upload-tus-protocol/1-java/.mvn/wrapper\")",
+      "Bash(cp \"C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-9-websocket-realtime-communication/0-socketio-realtime-chat/1-java/.mvn/wrapper/maven-wrapper.properties\" \"C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-12-file-upload-and-storage/1-s3-minio-presigned-urls/1-java/.mvn/wrapper/maven-wrapper.properties\")",
+      "Bash(cp \"C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-9-websocket-realtime-communication/0-socketio-realtime-chat/1-java/.mvn/wrapper/maven-wrapper.jar\" \"C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-12-file-upload-and-storage/1-s3-minio-presigned-urls/1-java/.mvn/wrapper/maven-wrapper.jar\")",
+      "Bash(base=\"C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-12-file-upload-and-storage/0-multer-single-file-upload/1-java\" *)",
+      "Bash(cp \"C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-9-websocket-realtime-communication/0-socketio-realtime-chat/1-java/mvnw\" \"C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-12-file-upload-and-storage/3-resumable-upload-tus-protocol/1-java/mvnw\" && cp \"C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-9-websocket-realtime-communication/0-socketio-realtime-chat/1-java/mvnw.cmd\" \"C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-12-file-upload-and-storage/3-resumable-upload-tus-protocol/1-java/mvnw.cmd\" && cp \"C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-9-websocket-realtime-communication/0-socketio-realtime-chat/1-java/.mvn/wrapper/maven-wrapper.jar\" \"C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-12-file-upload-and-storage/3-resumable-upload-tus-protocol/1-java/.mvn/wrapper/maven-wrapper.jar\")",
+      "Bash(mkdir -p \"/c/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-18-security-end-to-end/2-helmet-and-content-security-policy/1-java/.mvn/wrapper\")",
+      "Bash(cp \"/c/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-1-database-integration-and-caching/0-sql-vs-nosql-in-nestjs/1-java/.mvn/wrapper/maven-wrapper.jar\" \"/c/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-18-security-end-to-end/2-helmet-and-content-security-policy/1-java/.mvn/wrapper/maven-wrapper.jar\")",
+      "Bash(cp \"/c/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-1-database-integration-and-caching/0-sql-vs-nosql-in-nestjs/1-java/.mvn/wrapper/maven-wrapper.properties\" \"/c/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-18-security-end-to-end/2-helmet-and-content-security-policy/1-java/.mvn/wrapper/maven-wrapper.properties\")"
     ]
   }
 }

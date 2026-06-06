@@ -203,3 +203,13 @@ export interface EnqueueJudgeCodingSubmissionJobParams {
     /** Existing `jobs.id` to requeue (optional). */
     jobId?: string
 }
+
+/** Params for enqueuing a delayed reconcile-transaction poll. */
+export interface EnqueueReconcileTransactionJobParams {
+    /** `transactions.id` of the pending transaction to poll. */
+    transactionId: string
+    /** 1-based attempt number for this poll (defaults to 1 on first enqueue). */
+    attempt?: number
+    /** Override the BullMQ delay in ms (default = configured reconcile delay; boot sweep passes 0 to poll now). */
+    delayMs?: number
+}

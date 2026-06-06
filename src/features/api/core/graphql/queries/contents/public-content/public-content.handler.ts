@@ -10,13 +10,9 @@ import {
     ContentNotFoundException,
 } from "@modules/exceptions"
 import {
-    InjectSuperJson,
-} from "@modules/mixin"
-import {
     S3NameResolverService,
     S3Provider,
     S3ReadService,
-    UploadPayload,
 } from "@modules/s3"
 import {
     Injectable,
@@ -25,7 +21,6 @@ import {
     IQueryHandler,
     QueryHandler,
 } from "@nestjs/cqrs"
-import SuperJSON from "superjson"
 import {
     PublicContentQuery,
 } from "./public-content.query"
@@ -41,8 +36,6 @@ export class PublicContentHandler
     constructor(
         private readonly s3ReadService: S3ReadService,
         private readonly s3NameResolverService: S3NameResolverService,
-        @InjectSuperJson()
-        private readonly superJson: SuperJSON,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
     ) {
@@ -114,18 +107,16 @@ export class PublicContentHandler
             id,
             locale
         )
-        const cdnPayload = await this.s3ReadService.json<UploadPayload>({
+        const content = await this.s3ReadService.json<ContentEntity>({
             key: objectKey,
             provider: S3Provider.Minio,
         })
 
-        if (!cdnPayload) {
+        if (!content) {
             throw new ContentNotFoundException({
                 id: request.id,
             })
         }
-
-        const content = this.superJson.parse<ContentEntity>(cdnPayload.data)
 
         return content
     }

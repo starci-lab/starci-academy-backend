@@ -18,6 +18,8 @@ export interface InitSeederEntitySkippedMessage {
     errorCode?: string
     /** Human-readable skip reason. */
     errorMessage: string
+    /** Stack trace when the error is an `Error`. */
+    errorStack?: string
 }
 
 /** Message for when a context file is loaded successfully (s3/filesystem). */

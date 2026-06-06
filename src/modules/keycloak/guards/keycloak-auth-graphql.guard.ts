@@ -12,11 +12,17 @@ import {
 import {
     KeycloakJwksService,
 } from "../jwks.service"
+import {
+    SessionService,
+} from "@modules/session"
+import {
+    CookieService,
+} from "@modules/cookie"
 import type {
     EntityManager,
 } from "typeorm"
 import {
-    AbstractKeycloakAuthGuard 
+    AbstractKeycloakAuthGuard
 } from "./abstract"
 import type {
     KeycloakAuthGuardRequest,
@@ -31,10 +37,14 @@ export class KeycloakAuthGraphQLGuard extends AbstractKeycloakAuthGuard {
         keycloakJwksService: KeycloakJwksService,
         @InjectPrimaryPostgreSQLEntityManager()
         entityManager: EntityManager,
+        sessionService: SessionService,
+        cookieService: CookieService,
     ) {
         super(
             keycloakJwksService,
             entityManager,
+            sessionService,
+            cookieService,
         )
     }
 

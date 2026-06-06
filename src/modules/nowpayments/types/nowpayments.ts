@@ -27,3 +27,13 @@ export interface VerifyNowPaymentsSignatureParams {
     /** `x-nowpayments-sig` header value (HMAC-SHA512 of the sorted body). */
     signature: string
 }
+
+/** Result of polling the payments attached to a NOWPayments invoice. */
+export interface NowPaymentsInvoiceStatusResult {
+    /** True when at least one payment for the invoice is `finished`/`confirmed`. */
+    paid: boolean
+    /** True when the invoice has no payment yet (customer never started paying). */
+    empty: boolean
+    /** Raw `payment_status` values returned for the invoice (diagnostics/logging). */
+    statuses: Array<string>
+}

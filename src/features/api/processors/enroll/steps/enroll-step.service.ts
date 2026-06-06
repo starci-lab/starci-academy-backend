@@ -92,9 +92,27 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
             },
         }: JobExtendedContext<EnrollPayload, undefined>
     ): Promise<EnrollStepExecutionResult> {
+        // whether the enrollment already existed (duplicate enroll job) → skip post-steps
+        let alreadyEnrolled = false
         // process the transaction
         await this.entityManager.transaction(
             async (entityManager) => {
+                // SERIALIZE concurrent enrollments for this course (pessimistic row lock on the
+                // bare `courses` row — no relations, so FOR UPDATE is not applied to a nullable
+                // outer join). Every enroll path must take this lock BEFORE counting seats /
+                // advancing the pricing phase, so two users checking out at the same time can
+                // never both slip into the same phase past its slot limit.
+                await entityManager.findOne(
+                    CourseEntity,
+                    {
+                        where: {
+                            id: courseId,
+                        },
+                        lock: {
+                            mode: "pessimistic_write",
+                        },
+                    },
+                )
                 // get the course
                 const course = await entityManager.findOne(
                     CourseEntity,
@@ -116,8 +134,38 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                         },
                     )
                 }
+                // idempotency (find-or-create, like the other processor steps): a duplicate
+                // enroll job (multiple reconcile polls, or webhook + reconcile) must NOT
+                // re-insert the enrollment — it would violate UQ_enrollments_user_course.
+                // If already enrolled, just finalize the transaction and stop.
+                const existingEnrollment = await entityManager.findOne(
+                    EnrollmentEntity,
+                    {
+                        where: {
+                            user: {
+                                id: userId,
+                            },
+                            course: {
+                                id: courseId,
+                            },
+                        },
+                    },
+                )
+                if (existingEnrollment) {
+                    alreadyEnrolled = true
+                    await this.transactionActionService.updateTransactionStatus(
+                        {
+                            id: transactionId,
+                            status: TransactionStatus.Succeeded,
+                            entityManager,
+                        },
+                    )
+                    return
+                }
                 // get the current pricing phase
-                const currentPhase = course?.metadata?.currentPhase ?? PricingPhase.Regular
+                // default to EarlyBird (Pioneer is internal/sold) — NOT Regular — when metadata
+                // is absent, so a first enrollment does not wrongly jump the course to Regular.
+                const currentPhase = course?.metadata?.currentPhase ?? PricingPhase.EarlyBird
                 // create the enrollment
                 const enrollment = entityManager.create(
                     EnrollmentEntity,
@@ -183,7 +231,7 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                 },
             },
         )
-        if (user?.githubUsername) {
+        if (!alreadyEnrolled && user?.githubUsername) {
             await this.enqueueResolveGithubJobService.enqueue({
                 userId,
                 courseId,

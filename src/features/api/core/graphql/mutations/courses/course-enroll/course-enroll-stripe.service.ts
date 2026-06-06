@@ -39,6 +39,9 @@ import type {
     CourseEnrollRequest,
     CourseEnrollResponseData,
 } from "./graphql-types"
+import {
+    EnqueueReconcileTransactionJobService,
+} from "@modules/bussiness"
 
 /**
  * Stripe-specific course enrollment: creates a hosted Checkout Session
@@ -59,6 +62,7 @@ export class CourseEnrollStripeService {
         private readonly dayjsService: DayjsService,
         private readonly coursePricingService: CoursePricingService,
         private readonly retryService: RetryService,
+        private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
     ) {}
 
     /**
@@ -186,11 +190,17 @@ export class CourseEnrollStripeService {
                 paymentType: PaymentType.Stripe,
                 // session.url is the hosted page the browser redirects to
                 checkoutUrl: session.url ?? "",
+                // store the session id so reconciliation can poll Stripe by id
+                providerPaymentId: session.id,
                 status: TransactionStatus.Pending,
                 actionType: ActionType.Enroll,
             },
         )
         await this.entityManager.save(transaction)
+        // schedule the delayed reconcile poll (fires if no webhook arrives)
+        await this.enqueueReconcileTransactionJobService.enqueue({
+            transactionId: transaction.id,
+        })
 
         // redirect provider → no signed form fields (checkoutFields stays null)
         return {

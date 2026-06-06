@@ -16,6 +16,9 @@ import {
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
+    EnqueueReconcileTransactionJobService,
+} from "@modules/bussiness"
+import {
     MountFilesystemService,
 } from "@modules/filesystem"
 import {
@@ -89,6 +92,7 @@ export class PurchaseAiSubscriptionHandler
         private readonly mountFilesystemService: MountFilesystemService,
         private readonly dayjsService: DayjsService,
         private readonly retryService: RetryService,
+        private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
     ) {
         super()
     }
@@ -182,12 +186,18 @@ export class PurchaseAiSubscriptionHandler
                 pricingPhase: PricingPhase.Regular,
                 paymentType,
                 checkoutUrl: checkout.checkoutUrl,
+                // native gateway id for reconciliation polling (null for PayOS/Sepay)
+                providerPaymentId: checkout.providerPaymentId ?? null,
                 status: TransactionStatus.Pending,
                 actionType: ActionType.AiSubscriptionPurchase,
                 aiSubTier: tier,
             },
         )
         await this.entityManager.save(transaction)
+        // schedule the delayed reconcile poll (fires if no webhook arrives)
+        await this.enqueueReconcileTransactionJobService.enqueue({
+            transactionId: transaction.id,
+        })
 
         return {
             checkoutUrl: checkout.checkoutUrl,
@@ -304,6 +314,8 @@ export class PurchaseAiSubscriptionHandler
             return {
                 checkoutUrl: session.url ?? "",
                 amount,
+                // store the session id so reconciliation can poll Stripe by id
+                providerPaymentId: session.id,
             }
         }
         case PaymentType.Paypal: {
@@ -336,6 +348,8 @@ export class PurchaseAiSubscriptionHandler
             return {
                 checkoutUrl: order.approveUrl,
                 amount,
+                // store the PayPal order id so reconciliation can poll by id
+                providerPaymentId: order.orderId,
             }
         }
         case PaymentType.Crypto: {
@@ -368,6 +382,8 @@ export class PurchaseAiSubscriptionHandler
             return {
                 checkoutUrl: invoice.invoiceUrl,
                 amount,
+                // store the NOWPayments invoice id so reconciliation can poll by id
+                providerPaymentId: invoice.invoiceId,
             }
         }
         default:

@@ -234,6 +234,7 @@ export class ContentEntity extends UuidAbstractEntity {
         (contentTranslation: ContentTranslationEntity) => contentTranslation.content,
         {
             cascade: true,
+            orphanedRowAction: "delete",
         },
     )
         translations: Array<ContentTranslationEntity>
@@ -346,6 +347,7 @@ export class ContentEntity extends UuidAbstractEntity {
         (contentBody: ContentBodyEntity) => contentBody.content,
         {
             cascade: true,
+            orphanedRowAction: "delete",
         },
     )
         bodies: Array<ContentBodyEntity>
@@ -395,4 +397,63 @@ export class ContentEntity extends UuidAbstractEntity {
         default: false,
     })
         isPremium: boolean
+
+    /**
+     * Whether the "Bài giảng" tab renders a live Sandpack sandbox alongside the code explaining list.
+     * Set `# isSandbox` to `true` in the mount file for React/TSX lessons that should be interactive.
+     */
+    @Field(
+        () => Boolean,
+        {
+            nullable: true,
+            defaultValue: false,
+            description: "When true, the lecture tab shows a live Sandpack sandbox for React/TSX lessons.",
+        },
+    )
+    @Column({
+        name: "is_sandbox",
+        type: "boolean",
+        default: false,
+    })
+        isSandbox: boolean
+
+    /**
+     * Base GitHub repo URL for the lesson sandbox source.
+     * Example: `https://github.com/StarCi-Academy/fullstack-mastery-module-5-server-state-with-tanstack-query`
+     */
+    @Field(() => String,
+        {
+            nullable: true, description: "Base GitHub repo URL for the sandbox source." 
+        })
+    @Column({
+        name: "github_base_url", type: "varchar", length: 512, nullable: true 
+    })
+        githubBaseUrl: string | null
+
+    /**
+     * Subdirectory path within the repo pointing to the lesson's frontend source.
+     * Example: `1-mutations-and-invalidation-graph/frontend`
+     */
+    @Field(() => String,
+        {
+            nullable: true, description: "Subdirectory path within the repo for this lesson's frontend." 
+        })
+    @Column({
+        name: "github_dir", type: "varchar", length: 512, nullable: true 
+    })
+        githubDir: string | null
+
+    /**
+     * Relative path to the hosted mock API for this lesson's sandbox.
+     * Example: `/mocks/4-server-state-with-tanstack-query/0-usequery-and-cache-lifecycle`
+     * The frontend prepends `NEXT_PUBLIC_MOCK_API_BASE_URL` to construct the full URL.
+     */
+    @Field(() => String,
+        {
+            nullable: true, description: "Relative path to the hosted mock API for this lesson's Sandpack sandbox." 
+        })
+    @Column({
+        name: "backend_url", type: "varchar", length: 512, nullable: true 
+    })
+        backendUrl: string | null
 }

@@ -3,10 +3,12 @@ import {
 } from "@nestjs/common"
 import {
     AppConfig,
+    SeedConfig,
     SecretKeycloakAdmin,
 } from "./types"
 import {
     getAppConfig,
+    getSeedConfig,
     getS3SecretAccessKey,
     getPayosApiKey,
     getGeminiApiKey,
@@ -14,6 +16,7 @@ import {
     getKeycloakClientSecret,
     getEncryptionKey,
     getGithubAccessToken,
+    getDataGitToken,
     getGithubSecretKey,
     getSepayApiKey,
     getJudge0AuthToken,
@@ -49,6 +52,16 @@ export class MountFilesystemService {
      */
     appConfig(): AppConfig {
         return getAppConfig()
+    }
+
+    /**
+     * Get the init-control config (parsed `seed.yaml` from the mount path).
+     *
+     * Drives the boot-time init: which seeders / synchronizers run and how far
+     * each phase is scoped. Consumed by the init scope services.
+     */
+    seedConfig(): SeedConfig {
+        return getSeedConfig()
     }
 
     /**
@@ -98,6 +111,14 @@ export class MountFilesystemService {
      */
     githubAccessToken(): string {
         return getGithubAccessToken()
+    }
+
+    /**
+     * Get the data-git token (dedicated read-only token for the content repo;
+     * falls back to the github access token when the file is absent).
+     */
+    dataGitToken(): string {
+        return getDataGitToken()
     }
 
     /**

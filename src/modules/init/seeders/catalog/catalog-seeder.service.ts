@@ -14,9 +14,8 @@ import {
     WinstonService,
 } from "@modules/winston"
 import {
-    isAiModelsCatalogSeederEnabled,
-    isSubscriptionsCatalogSeederEnabled,
-} from "../shared/scope"
+    SeedScopeService,
+} from "../../scope"
 import {
     AiModelCatalogParserService,
     SubscriptionCatalogParserService,
@@ -44,12 +43,13 @@ export class CatalogSeederService {
         private readonly mountStorageService: MountStorageService,
         private readonly keyStoreService: KeyStoreService,
         private readonly winstonService: WinstonService,
+        private readonly seedScopeService: SeedScopeService,
     ) {}
 
     /** Upsert the DB model catalog + merge subscription tiers into mount storage. */
     async seed(): Promise<void> {
-        const aiModelsEnabled = isAiModelsCatalogSeederEnabled()
-        const subscriptionsEnabled = isSubscriptionsCatalogSeederEnabled()
+        const aiModelsEnabled = this.seedScopeService.isAiModelsCatalogSeederEnabled()
+        const subscriptionsEnabled = this.seedScopeService.isSubscriptionsCatalogSeederEnabled()
         if (!aiModelsEnabled && !subscriptionsEnabled) {
             return
         }

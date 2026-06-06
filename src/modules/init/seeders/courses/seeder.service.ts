@@ -5,11 +5,8 @@ import {
     CourseParserService,
 } from "./parsers"
 import {
-    resolveCourseSeedScope,
-    isCoursesSeederEnabled,
-    isCoursesQuizLinkContentsEnabled,
-    isCoursesQuizSeederEnabled,
-} from "../shared/scope"
+    SeedScopeService,
+} from "../../scope"
 import {
     CourseProcessorService,
 } from "./processors/course-processor.service"
@@ -22,22 +19,23 @@ export class CourseSeederService {
     constructor(
         private readonly courseParserService: CourseParserService,
         private readonly courseProcessorService: CourseProcessorService,
+        private readonly seedScopeService: SeedScopeService,
     ) { }
 
     /**
      * Parse course markdown/S3 sources and upsert PostgreSQL (courses → modules → … → milestones).
-     * Scope from envConfig().init seeders `courses` via {@link resolveCourseSeedScope}.
+     * Scope from `seed.yaml` seeders `courses` via {@link SeedScopeService}.
      */
     async seed(): Promise<void> {
-        if (!isCoursesSeederEnabled()) {
+        if (!this.seedScopeService.isCoursesSeederEnabled()) {
             return
         }
-        const quizEnabled = isCoursesQuizSeederEnabled()
-        const quizLinkContents = isCoursesQuizLinkContentsEnabled()
+        const quizEnabled = this.seedScopeService.isCoursesQuizSeederEnabled()
+        const quizLinkContents = this.seedScopeService.isCoursesQuizLinkContentsEnabled()
         const {
             moduleIndexFilterByDisplayId,
             milestoneIndexFilterByDisplayId,
-        } = resolveCourseSeedScope()
+        } = this.seedScopeService.resolveCourseSeedScope()
         const courseResults = await this.courseParserService.parseMany()
         await this.courseProcessorService.process({
             courseResults,

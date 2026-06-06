@@ -13,9 +13,15 @@ import {
 import {
     CodingProblemNotFoundException,
 } from "@modules/exceptions"
+import {
+    ElasticsearchService,
+    codingProblemHintIndexName,
+} from "@modules/elasticsearch"
 import type {
     CodingLeaderboardEntry,
     CodingLeaderboardParams,
+    CodingProblemHintResult,
+    GetCodingProblemHintParams,
     GetCodingProblemParams,
     ListCodingProblemsParams,
     ListCodingProblemsResult,
@@ -37,6 +43,7 @@ export class CodingProblemService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly elasticsearchService: ElasticsearchService,
     ) {}
 
     /**
@@ -140,6 +147,62 @@ export class CodingProblemService {
         this.applyTranslation(problem,
             locale)
         return problem
+    }
+
+    /**
+     * Load a problem's localized "approach hint" markdown from Elasticsearch.
+     * Hints live only in ES (index `coding-problem-hints-<locale>`, keyed by
+     * slug) — never in Postgres. Falls back to the English hint when the
+     * requested locale has none, and returns null when no hint exists at all.
+     *
+     * @param params - slug + locale
+     * @returns the hint document `{ slug, hint }`, or null when absent
+     */
+    async getHint({
+        slug,
+        locale = Locale.En,
+    }: GetCodingProblemHintParams): Promise<CodingProblemHintResult | null> {
+        // try the requested locale first, then fall back to English
+        const candidateLocales = locale === Locale.En
+            ? [Locale.En]
+            : [locale,
+                Locale.En]
+        for (const candidate of candidateLocales) {
+            const hint = await this.fetchHint(slug,
+                candidate)
+            if (hint !== null) {
+                return hint
+            }
+        }
+        return null
+    }
+
+    /**
+     * Get one hint document by slug from a locale's index, or null when the
+     * document/index is missing (ES throws 404 in both cases).
+     */
+    private async fetchHint(
+        slug: string,
+        locale: Locale,
+    ): Promise<CodingProblemHintResult | null> {
+        try {
+            const result = await this.elasticsearchService.client.get({
+                index: codingProblemHintIndexName(locale),
+                id: slug,
+            })
+            const source = result._source as { slug?: string; hint?: string } | undefined
+            // a document with no hint body is treated as "no hint"
+            if (!source?.hint) {
+                return null
+            }
+            return {
+                slug,
+                hint: source.hint,
+            }
+        } catch {
+            // 404 (missing doc or index) → no hint for this locale
+            return null
+        }
     }
 
     /**

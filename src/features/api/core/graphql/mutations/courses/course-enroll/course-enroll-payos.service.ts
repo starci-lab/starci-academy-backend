@@ -42,6 +42,9 @@ import {
 import {
     CourseEnrollRequest,
 } from "./graphql-types"
+import {
+    EnqueueReconcileTransactionJobService,
+} from "@modules/bussiness"
 
 /**
  * PayOS-specific course enrollment: payment link + preflight row.
@@ -56,6 +59,7 @@ export class CourseEnrollPayOsService {
         private readonly dayjsService: DayjsService,
         private readonly coursePricingService: CoursePricingService,
         private readonly retryService: RetryService,
+        private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
     ) {}
 
     /**
@@ -180,6 +184,10 @@ export class CourseEnrollPayOsService {
         )
         // save transaction
         await this.entityManager.save(transaction)
+        // schedule the delayed reconcile poll (fires if no webhook arrives)
+        await this.enqueueReconcileTransactionJobService.enqueue({
+            transactionId: transaction.id,
+        })
         // return result
         return {
             checkoutUrl: paymentLink.checkoutUrl,

@@ -3,8 +3,9 @@ import {
     OnModuleInit,
 } from "@nestjs/common"
 import {
-    envConfig,
-} from "@modules/env"
+    SeedScopeService,
+    SyncScopeService,
+} from "./scope"
 import {
     SeedersService,
 } from "./seeders"
@@ -13,41 +14,35 @@ import {
 } from "./synchronizers"
 
 /**
- * Plugin-based initialization service.
+ * Boot-time initialization orchestrator.
  *
- * Reads `envConfig().init`, filters enabled handlers, sorts by `order`,
- * and executes each handler's `init()` method sequentially during
- * `onModuleInit` — before the app starts listening.
+ * Runs the two init phases sequentially during `onModuleInit` — before the app
+ * starts listening — each gated by its master switch in `seed.yaml`:
+ *
+ *   1. seeders        (when `seeders.enabled`)       sources       -> PostgreSQL
+ *   2. synchronizers  (when `synchronizers.enabled`) PostgreSQL    -> CDN + ES
+ *
+ * Order is load-bearing: seeders write the DB, synchronizers read it.
  */
 @Injectable()
 export class InitService implements OnModuleInit {
 
-    /** Map handler names to their service instances. */
-    private readonly handlers: Record<string, { init: () => Promise<void> }>
-
     constructor(
+        private readonly seedScopeService: SeedScopeService,
+        private readonly syncScopeService: SyncScopeService,
         private readonly seedersService: SeedersService,
         private readonly synchronizersService: SynchronizersService,
-    ) {
-        this.handlers = {
-            seeders: this.seedersService,
-            synchronizers: this.synchronizersService,
-        }
-    }
+    ) { }
 
     /**
-     * Runs enabled init handlers sequentially, sorted by order.
+     * Runs the enabled init phases sequentially (seeders, then synchronizers).
      */
     async onModuleInit(): Promise<void> {
-        const initHandlers = envConfig().init
-            .filter((handler) => handler.enabled)
-            .sort((prev, next) => prev.order - next.order)
-
-        for (const handlerConfig of initHandlers) {
-            const handler = this.handlers[handlerConfig.name]
-            if (handler) {
-                await handler.init()
-            }
+        if (this.seedScopeService.isSeedersEnabled()) {
+            await this.seedersService.init()
+        }
+        if (this.syncScopeService.isSynchronizersEnabled()) {
+            await this.synchronizersService.init()
         }
     }
 }

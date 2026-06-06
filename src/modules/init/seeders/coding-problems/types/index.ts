@@ -1,5 +1,6 @@
 import type {
     CodingDifficulty,
+    CodingDomain,
     CodingLanguage,
     Locale,
 } from "@modules/databases"
@@ -14,6 +15,8 @@ export interface CodingProblemFrontmatter {
     slug: string
     /** Difficulty tier (`easy` | `medium` | `hard`). */
     difficulty: CodingDifficulty
+    /** Primary interview topic domain (used to group the list). */
+    domain?: CodingDomain
     /** Display order within the problem list. */
     orderIndex?: number
     /** Whether the problem is listable. */
@@ -76,6 +79,8 @@ export interface ParsedCodingProblem {
     slug: string
     /** Difficulty tier. */
     difficulty: CodingDifficulty
+    /** Primary interview topic domain. */
+    domain: CodingDomain
     /** Display order. */
     orderIndex: number
     /** Whether listable. */
@@ -96,4 +101,9 @@ export interface ParsedCodingProblem {
     starterCodes: Array<ParsedCodingProblemStarterCode>
     /** Non-default locale overrides (e.g. `vi`). */
     translations: Array<ParsedCodingProblemTranslation>
+    /**
+     * Localized "approach hint" markdown per locale (e.g. `en`, `vi`).
+     * Indexed into Elasticsearch only — NEVER persisted to Postgres.
+     */
+    hints: Partial<Record<Locale, string>>
 }

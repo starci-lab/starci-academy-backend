@@ -12,8 +12,11 @@ import {
 } from "@modules/env"
 import compression from "compression"
 import {
-    setupCors 
+    setupCors
 } from "@modules/cors"
+import {
+    setupHelmet
+} from "@modules/helmet"
 import {
     setupCookie
 } from "@modules/cookie"
@@ -46,6 +49,8 @@ const bootstrap = async () => {
     )
     // set the app to the globalThis object
     globalThis.__APP__ = app
+    // security headers must be attached before any route handler runs
+    setupHelmet(app)
     setupCors(app)
     setupCookie(app)
     setupSwagger({

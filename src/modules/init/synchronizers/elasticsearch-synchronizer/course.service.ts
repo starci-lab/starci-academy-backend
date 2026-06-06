@@ -22,12 +22,8 @@ import {
     Interval 
 } from "@nestjs/schedule"
 import {
-    ElasticsearchSynchronizerService,
 } from "./elasticsearch-synchronizer.service"
 
-/**
- * @deprecated Replaced by {@link ElasticsearchSynchronizerService}. Kept for reference.
- */
 @Injectable()
 export class CourseElasticsearchSynchronizerService implements OnApplicationBootstrap {
     constructor(

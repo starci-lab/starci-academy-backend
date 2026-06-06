@@ -10,6 +10,15 @@ import {
     ConsultantEntity,
     HeadhuntingCompanyEntity,
 } from "@modules/databases"
+import type {
+    ElasticsearchIndexMapping,
+} from "./mappings"
+import {
+    challengeIndexMapping,
+} from "./mappings/challenge.mapping"
+import {
+    contentIndexMapping,
+} from "./mappings/content.mapping"
 
 /**
  * Config map data.
@@ -19,6 +28,12 @@ export interface ConfigMapData {
    * Indices.
    */
   indices: string;
+  /**
+   * Explicit index mapping (settings + mappings) used when an index is reset. Holds the unified
+   * V1+V2 field shape — both legacy (`body`) and SCHEMA V2 (`bodies`, `isPremium`, `verified`)
+   * fields live in the same record/index. Omitted → the index is reset with dynamic mapping.
+   */
+  mapping?: ElasticsearchIndexMapping;
 }
 
 /**
@@ -35,9 +50,11 @@ export const configMap: ConfigMap = {
     },
     [ChallengeEntity.name]: {
         indices: "challenges",
+        mapping: challengeIndexMapping,
     },
     [ContentEntity.name]: {
         indices: "contents",
+        mapping: contentIndexMapping,
     },
     [ModuleEntity.name]: {
         indices: "modules",

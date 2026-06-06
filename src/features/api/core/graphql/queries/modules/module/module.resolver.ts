@@ -28,11 +28,8 @@ import {
     ModuleService,
 } from "./module.service"
 import {
-    KeycloakAuthGraphQLGuard
+    KeycloakAuthGraphQLGuard,
 } from "@modules/keycloak"
-import {
-    GraphQLMustEnrolledGuard
-} from "@modules/bussiness"
 
 @Resolver(() => ModuleEntity)
 export class ModuleResolver {
@@ -45,16 +42,16 @@ export class ModuleResolver {
         [Locale.En]: "Module fetched successfully",
         [Locale.Vi]: "Lấy module thành công",
     })
+    // Enroll guard removed — logged-in users may fetch a single module for trial reading.
     @UseGuards(
         KeycloakAuthGraphQLGuard,
-        GraphQLMustEnrolledGuard
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(
         () => ModuleResponse,
         {
             name: "module",
-            description: "Returns a single module by primary id or display id (without nested contents, lesson videos, or challenges).",
+            description: "Returns a single module by primary id or display id (including nested contents, without lesson videos or challenges).",
         },
     )
     async execute(

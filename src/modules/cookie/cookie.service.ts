@@ -8,6 +8,8 @@ import type {
 import {
     AttachHttpOnlyCookieParams,
     AttachHttpOnlyCookieResult,
+    AttachReadableCookieParams,
+    AttachReadableCookieResult,
     ClearCookieParams,
     ClearCookieResult
 } from "./types"
@@ -47,7 +49,47 @@ export class CookieService {
         const defaultOptions: CookieOptions = {
             httpOnly: true,
             secure: envConfig().isProduction,
-            sameSite: "lax",
+            // "strict" blocks the cookie on cross-site requests, neutering CSRF
+            // against the refresh-token flow (browser won't auto-attach it)
+            sameSite: "strict",
+            path: "/",
+            maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
+        }
+        res.cookie(
+            name,
+            value,
+            {
+                ...defaultOptions,
+                ...options,
+            }
+        )
+    }
+
+    /**
+     * Attaches a JS-readable (non-HttpOnly) cookie to the response.
+     * Used for the CSRF double-submit token, which the client must read and
+     * echo back in a request header.
+     *
+     * @param param - Response, cookie name, value, optional cookie options
+     * @returns void
+     *
+     * @example
+     * cookieService.attachReadableCookie({ res, name: CookieName.CsrfToken, value: token })
+     */
+    attachReadableCookie({
+        res,
+        name,
+        value,
+        options,
+    }: AttachReadableCookieParams): AttachReadableCookieResult {
+        // httpOnly is intentionally false so the SPA can read the token and
+        // mirror it into the X-CSRF-Token header (double-submit pattern)
+        const defaultOptions: CookieOptions = {
+            httpOnly: false,
+            // only sent over HTTPS in production, same as the refresh cookie
+            secure: envConfig().isProduction,
+            // strict keeps the token off cross-site requests as defense-in-depth
+            sameSite: "strict",
             path: "/",
             maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
         }

@@ -40,4 +40,10 @@ export interface ResolveCheckoutResult {
     amount: number
     /** SePay PG only: JSON of signed fields to POST as a form to `checkoutUrl`. */
     checkoutFields?: string
+    /**
+     * Native gateway payment id used to poll status during reconciliation
+     * (Stripe session id / PayPal order id / NOWPayments invoice id). Undefined
+     * for PayOS/Sepay, which reconcile by `referenceId` (orderCode).
+     */
+    providerPaymentId?: string
 }

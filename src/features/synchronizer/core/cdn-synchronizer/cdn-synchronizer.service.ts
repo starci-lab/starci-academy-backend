@@ -6,7 +6,8 @@ import {
     CourseEntity,
     ModuleEntity,
     ContentEntity,
-    ChallengeEntity,} from "@modules/databases"
+    ChallengeEntity,
+} from "@modules/databases"
 import {
     MoreThan,
     type EntityManager,
@@ -17,6 +18,9 @@ import {
     CdnContentBuildService,
     CdnChallengeBuildService,
 } from "./builder"
+import {
+    CdnReconcileService,
+} from "./cdn-reconcile.service"
 import {
     WinstonLog,
     WinstonService,
@@ -44,6 +48,7 @@ export class CdnSynchronizerService {
         private readonly cdnContentBuildService: CdnContentBuildService,
         private readonly cdnChallengeBuildService: CdnChallengeBuildService,
         private readonly retryService: RetryService,
+        private readonly cdnReconcileService: CdnReconcileService,
     ) { }
 
     /** Entity kinds supported by the CDN synchronizer. */
@@ -106,15 +111,26 @@ export class CdnSynchronizerService {
                             {
                                 entityKind,
                                 entityId: course.id,
+                                displayId: course.displayId ?? "",
+                                relativeDisplayIds: [],
                             }
                         )
                     } catch (error) {
+                        const errorMessage = error instanceof Error
+                            ? error.message
+                            : String(error)
                         this.winstonService.log(
                             WinstonLog.CdnSynchronizerEntitySyncFailed,
                             {
                                 entityKind,
                                 entityId: course.id,
-                                error: error.message,
+                                errorName: error instanceof Error
+                                    ? error.name
+                                    : undefined,
+                                errorMessage,
+                                errorStack: error instanceof Error
+                                    ? error.stack
+                                    : undefined,
                             }
                         )
                     }
@@ -152,15 +168,26 @@ export class CdnSynchronizerService {
                             {
                                 entityKind,
                                 entityId: challenge.id,
+                                displayId: challenge.displayId ?? "",
+                                relativeDisplayIds: [],
                             }
                         )
                     } catch (error) {
+                        const errorMessage = error instanceof Error
+                            ? error.message
+                            : String(error)
                         this.winstonService.log(
                             WinstonLog.CdnSynchronizerEntitySyncFailed,
                             {
                                 entityKind,
                                 entityId: challenge.id,
-                                error: error.message,
+                                errorName: error instanceof Error
+                                    ? error.name
+                                    : undefined,
+                                errorMessage,
+                                errorStack: error instanceof Error
+                                    ? error.stack
+                                    : undefined,
                             }
                         )
                     }
@@ -199,15 +226,26 @@ export class CdnSynchronizerService {
                             {
                                 entityKind,
                                 entityId: content.id,
+                                displayId: content.displayId ?? "",
+                                relativeDisplayIds: [],
                             }
                         )
                     } catch (error) {
+                        const errorMessage = error instanceof Error
+                            ? error.message
+                            : String(error)
                         this.winstonService.log(
                             WinstonLog.CdnSynchronizerEntitySyncFailed,
                             {
                                 entityKind,
                                 entityId: content.id,
-                                error: error.message,
+                                errorName: error instanceof Error
+                                    ? error.name
+                                    : undefined,
+                                errorMessage,
+                                errorStack: error instanceof Error
+                                    ? error.stack
+                                    : undefined,
                             }
                         )
                     }
@@ -247,15 +285,26 @@ export class CdnSynchronizerService {
                             {
                                 entityKind,
                                 entityId: module.id,
+                                displayId: module.displayId,
+                                relativeDisplayIds: [],
                             }
                         )
                     } catch (error) {
+                        const errorMessage = error instanceof Error
+                            ? error.message
+                            : String(error)
                         this.winstonService.log(
                             WinstonLog.CdnSynchronizerEntitySyncFailed,
                             {
                                 entityKind,
                                 entityId: module.id,
-                                error: error.message,
+                                errorName: error instanceof Error
+                                    ? error.name
+                                    : undefined,
+                                errorMessage,
+                                errorStack: error instanceof Error
+                                    ? error.stack
+                                    : undefined,
                             }
                         )
                     }
@@ -265,6 +314,12 @@ export class CdnSynchronizerService {
             }
             }
         }
+        /**
+         * Reconcile: diff the uploaded keys against the live database and prune
+         * orphans (only deletes when SYNC_PRUNE_ORPHANS=true; otherwise logs the diff).
+         * Runs after the upload loop so every desired key is already present.
+         */
+        await this.cdnReconcileService.reconcileAll()
         /**
          * End the CDN synchronization.
          */

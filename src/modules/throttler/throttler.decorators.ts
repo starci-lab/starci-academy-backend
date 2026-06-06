@@ -1,26 +1,47 @@
 import {
-    Throttle 
+    Throttle
 } from "@nestjs/throttler"
 import {
-    throttlerConfig 
+    ThrottlerConfig
+} from "./enums"
+import {
+    SoftThrottle,
+    MediumThrottle,
+    StrictThrottle
 } from "./config"
 import {
-    v4 as uuidv4 
-} from "uuid"
-import {
-    ThrottlerConfig 
-} from "./enums"
+    ThrottleTierOptions
+} from "./types"
 
 /**
- * The decorator for the throttler.
- * @param config - The config for the throttler.
- * @returns The decorator for the throttler.
+ * Maps each preset tier to its `@Throttle` option object. The options are
+ * keyed by the SAME window names registered at the module level
+ * (`short` / `long`) so the guard actually applies them — the previous
+ * uuid-keyed implementation never matched a module window and was a no-op.
+ */
+const tierOptions: Record<ThrottlerConfig, ThrottleTierOptions> = {
+    // loose preset for read-heavy endpoints
+    [ThrottlerConfig.Soft]: SoftThrottle,
+    // medium preset for normal mutations
+    [ThrottlerConfig.Medium]: MediumThrottle,
+    // strict preset for auth / sensitive endpoints
+    [ThrottlerConfig.Strict]: StrictThrottle,
+}
+
+/**
+ * Applies a preset rate-limit tier to an endpoint. Works because a global
+ * {@link ThrottlerBehindProxyGuard} (APP_GUARD) is the enforcement engine and
+ * the module registers matching `short` / `long` windows (with a no-op default
+ * so undecorated endpoints stay unlimited — there is no global cap).
+ *
+ * @param config - The preset tier (soft / medium / strict).
+ * @returns The `@Throttle` decorator pre-filled with the tier's per-window limits.
+ *
+ * @example
+ * \@UseThrottler(ThrottlerConfig.Strict)
+ * \@Mutation(() => SignInResponse)
  */
 export const UseThrottler = (config: ThrottlerConfig) => {
-    const options = 
-    Object.fromEntries(
-        throttlerConfig[config].map((option) => [uuidv4(),
-            option])
-    )
-    return Throttle(options)
+    // resolve the preset's per-window limits and hand them to @Throttle
+    return Throttle(tierOptions[config])
 }

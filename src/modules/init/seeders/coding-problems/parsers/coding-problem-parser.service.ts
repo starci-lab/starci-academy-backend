@@ -15,6 +15,7 @@ import {
 } from "js-yaml"
 import {
     CodingDifficulty,
+    CodingDomain,
     CodingLanguage,
     Locale,
 } from "@modules/databases"
@@ -85,10 +86,13 @@ export class CodingProblemParserService {
         // parse the optional Vietnamese translation
         const translations = this.parseTranslations(dir,
             body)
+        // parse the optional per-locale approach hints (Elasticsearch-only)
+        const hints = this.parseHints(dir)
         // assemble the parsed problem with sensible defaults for optional fields
         return {
             slug: data.slug,
             difficulty: data.difficulty ?? CodingDifficulty.Easy,
+            domain: data.domain ?? CodingDomain.Arrays,
             orderIndex: data.orderIndex ?? 0,
             enabled: data.enabled ?? true,
             tags: data.tags ?? [],
@@ -99,7 +103,37 @@ export class CodingProblemParserService {
             testcases,
             starterCodes,
             translations,
+            hints,
         }
+    }
+
+    /**
+     * Read the optional per-locale approach-hint markdown from `<dir>/hints/`.
+     * Missing files simply yield no entry for that locale. These hints are
+     * indexed into Elasticsearch only — never persisted to Postgres.
+     *
+     * @param dir - problem directory
+     * @returns map of locale → hint markdown (only locales with a file present)
+     */
+    private parseHints(dir: string): Partial<Record<Locale, string>> {
+        const hints: Partial<Record<Locale, string>> = {
+        }
+        // check every supported locale for a `hints/<locale>.md` file
+        for (const locale of Object.values(Locale)) {
+            const hintPath = this.pathService.hintPath(dir,
+                locale)
+            if (!existsSync(hintPath)) {
+                continue
+            }
+            const content = readFileSync(hintPath,
+                "utf8").trim()
+            // skip empty hint files
+            if (content.length === 0) {
+                continue
+            }
+            hints[locale] = content
+        }
+        return hints
     }
 
     /**

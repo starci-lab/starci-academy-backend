@@ -56,6 +56,8 @@ export class CreateCommentService {
                 counts: [],
                 total: 0,
                 myReaction: null,
+                viewCount: 0,
+                shareCount: 0,
             },
         })
     }

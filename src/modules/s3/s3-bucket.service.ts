@@ -1,7 +1,8 @@
 import {
     CreateBucketCommand,
     HeadBucketCommand,
-    S3Client 
+    PutBucketPolicyCommand,
+    S3Client,
 } from "@aws-sdk/client-s3"
 import {
     Injectable 
@@ -72,5 +73,37 @@ export class S3BucketService {
                 originalError: providerError,
             })
         }
+    }
+
+    /**
+     * Ensure the `repo/` prefix in the Minio bucket allows anonymous GET.
+     *
+     * Sets a bucket policy statement that grants `s3:GetObject` on
+     * `arn:aws:s3:::{bucket}/repo/*` to all principals (`"*"`).  The policy is
+     * idempotent — safe to call on every sync cycle.
+     *
+     * @param bucket - Target bucket name.
+     */
+    async ensureRepoPrefixPublic(bucket: string): Promise<void> {
+        const policy = {
+            Version: "2012-10-17",
+            Statement: [
+                {
+                    Sid: "RepoPublicRead",
+                    Effect: "Allow",
+                    Principal: {
+                        AWS: ["*"],
+                    },
+                    Action: ["s3:GetObject"],
+                    Resource: [`arn:aws:s3:::${bucket}/repo/*`],
+                },
+            ],
+        }
+        await this.minioS3.send(
+            new PutBucketPolicyCommand({
+                Bucket: bucket,
+                Policy: JSON.stringify(policy),
+            }),
+        )
     }
 }

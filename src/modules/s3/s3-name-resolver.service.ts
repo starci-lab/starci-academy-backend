@@ -64,4 +64,14 @@ export class S3NameResolverService {
         }
         return `contents/${id}.json`
     }
+
+    /**
+     * Resolve the CDN key for a lesson's Sandpack file tree.
+     * @param repoName - Repository name (last path segment of `githubBaseUrl`).
+     * @param githubDir - Subdirectory within the repo (content's `githubDir`).
+     * @returns CDN object key, e.g. `repo/fullstack-mastery-module-5/1-mutations/frontend.json`.
+     */
+    repo(repoName: string, githubDir: string): string {
+        return `repo/${repoName}/${githubDir}.json`
+    }
 }

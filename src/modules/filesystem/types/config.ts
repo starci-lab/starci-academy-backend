@@ -1,6 +1,7 @@
 import type {
     AiModelCategory,
     ModelProvider,
+    PricingPhase,
 } from "@modules/databases"
 
 /** payOS credentials stored in mounted {@link AppConfig} (see `.mount/config/app.yaml`). */
@@ -19,6 +20,16 @@ export interface AppConfigSystemTask {
     passThreshold: number
 }
 
+/** `systemConfig.course` in mounted `app.yaml`. */
+export interface AppConfigSystemCourse {
+    /**
+     * Pricing phase a course starts at when its `course_metadata` row is first
+     * seeded (Pioneer already sold out → default EarlyBird). Only applied when
+     * the metadata row is absent; an existing (possibly-advanced) phase is kept.
+     */
+    defaultPricingPhase: PricingPhase
+}
+
 import type {
     AppConfigSystemAi,
 } from "./ai-auto-quota"
@@ -29,6 +40,8 @@ export interface AppConfigSystemConfig {
     task: AppConfigSystemTask
     /** Optional Auto-lane quota caps (`systemConfig.ai.auto`). */
     ai?: AppConfigSystemAi
+    /** Optional course defaults (`systemConfig.course`). */
+    course?: AppConfigSystemCourse
 }
 
 /**

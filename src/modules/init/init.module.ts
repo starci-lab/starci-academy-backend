@@ -15,6 +15,9 @@ import {
 import {
     SynchronizersModule,
 } from "./synchronizers"
+import {
+    ScopeModule,
+} from "./scope"
 
 /**
  * Init module — plugin-based initialization orchestrator.
@@ -32,6 +35,9 @@ export class InitModule extends ConfigurableModuleClass {
             ...dynamicModule,
             imports: [
                 ...(dynamicModule.imports ?? []),
+                ScopeModule.register({
+                    isGlobal: true,
+                }),
                 SeedersModule.register({
                     isGlobal: true,
                 }),

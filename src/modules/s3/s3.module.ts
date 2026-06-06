@@ -29,6 +29,9 @@ import {
 import {
     S3CopyService,
 } from "./s3-copy.service"
+import {
+    S3DeleteService,
+} from "./s3-delete.service"
 
 /**
  * S3 module.
@@ -58,6 +61,7 @@ export class S3Module extends ConfigurableModuleClass {
                 S3NameResolverService,
                 S3BucketService,
                 S3CopyService,
+                S3DeleteService,
             ],
             exports: [
                 digitalOceanS3Provider,
@@ -70,6 +74,7 @@ export class S3Module extends ConfigurableModuleClass {
                 S3NameResolverService,
                 S3BucketService,
                 S3CopyService,
+                S3DeleteService,
             ],
         }
     }

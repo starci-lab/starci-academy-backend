@@ -9,6 +9,12 @@ import {
     KeycloakJwksService,
 } from "../jwks.service"
 import {
+    SessionService,
+} from "@modules/session"
+import {
+    CookieService,
+} from "@modules/cookie"
+import {
     AbstractKeycloakAuthGuard,
 } from "./abstract"
 import type {
@@ -27,10 +33,14 @@ export class KeycloakAuthRestGuard extends AbstractKeycloakAuthGuard {
         keycloakJwksService: KeycloakJwksService,
         @InjectPrimaryPostgreSQLEntityManager()
         entityManager: EntityManager,
+        sessionService: SessionService,
+        cookieService: CookieService,
     ) {
         super(
             keycloakJwksService,
             entityManager,
+            sessionService,
+            cookieService,
         )
     }
 

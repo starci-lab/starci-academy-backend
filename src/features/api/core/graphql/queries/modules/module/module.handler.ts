@@ -62,6 +62,29 @@ export class ModuleHandler
                     previewContents: {
                         translations: true,
                     },
+                    contents: {
+                        translations: true,
+                    },
+                },
+                select: {
+                    id: true,
+                    title: true,
+                    description: true,
+                    displayId: true,
+                    orderIndex: true,
+                    defaultLocale: true,
+                    numContents: true,
+                    previewContents: {
+                        id: true,
+                        text: true,
+                        orderIndex: true,
+                    },
+                    contents: {
+                        id: true,
+                        title: true,
+                        description: true,
+                        orderIndex: true,
+                    },
                 },
             },
         )

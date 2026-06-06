@@ -4,6 +4,7 @@ import {
     Resolver,
 } from "@nestjs/graphql"
 import {
+    UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
 import {
@@ -27,6 +28,9 @@ import {
 import {
     ForgotPasswordInitService,
 } from "./forgot-password-init.service"
+import {
+    CaptchaGuard,
+} from "@modules/captcha"
 
 @Resolver()
 export class ForgotPasswordInitResolver {
@@ -34,10 +38,11 @@ export class ForgotPasswordInitResolver {
         private readonly forgotPasswordInitService: ForgotPasswordInitService,
     ) {}
 
+    @UseGuards(CaptchaGuard)
     @UseThrottler(ThrottlerConfig.Strict)
     @GraphQLSuccessMessage({
         [Locale.En]: "OTP sent successfully",
-        [Locale.Vi]: "G?i mã OTP thành công",
+        [Locale.Vi]: "G?i mï¿½ OTP thï¿½nh cï¿½ng",
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

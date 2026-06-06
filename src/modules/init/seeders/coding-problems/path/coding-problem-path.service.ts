@@ -56,4 +56,18 @@ export class CodingProblemPathService {
         return join(problemDir,
             "testcases")
     }
+
+    /**
+     * Absolute path to a problem's localized "approach hint" markdown.
+     * Hints live in `<problemDir>/hints/<locale>.md` and are indexed into
+     * Elasticsearch only — they are never persisted to Postgres.
+     *
+     * @param problemDir - absolute problem directory path
+     * @param locale - locale code (e.g. `en`, `vi`)
+     */
+    hintPath(problemDir: string, locale: string): string {
+        return join(problemDir,
+            "hints",
+            `${locale}.md`)
+    }
 }

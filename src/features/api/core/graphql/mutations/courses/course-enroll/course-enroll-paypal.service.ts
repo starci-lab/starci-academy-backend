@@ -38,6 +38,9 @@ import type {
     CourseEnrollRequest,
     CourseEnrollResponseData,
 } from "./graphql-types"
+import {
+    EnqueueReconcileTransactionJobService,
+} from "@modules/bussiness"
 
 /**
  * PayPal-specific course enrollment: creates an order (redirect provider) and
@@ -56,6 +59,7 @@ export class CourseEnrollPaypalService {
         private readonly dayjsService: DayjsService,
         private readonly coursePricingService: CoursePricingService,
         private readonly retryService: RetryService,
+        private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
     ) {}
 
     /**
@@ -168,11 +172,17 @@ export class CourseEnrollPaypalService {
                 paymentType: PaymentType.Paypal,
                 // approveUrl is the hosted page the browser redirects to
                 checkoutUrl: order.approveUrl,
+                // store the PayPal order id so reconciliation can poll by id
+                providerPaymentId: order.orderId,
                 status: TransactionStatus.Pending,
                 actionType: ActionType.Enroll,
             },
         )
         await this.entityManager.save(transaction)
+        // schedule the delayed reconcile poll (fires if no webhook arrives)
+        await this.enqueueReconcileTransactionJobService.enqueue({
+            transactionId: transaction.id,
+        })
 
         // redirect provider → no signed form fields (checkoutFields stays null)
         return {

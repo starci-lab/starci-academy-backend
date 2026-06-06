@@ -164,6 +164,8 @@ import { AbstractException } from "../abstract"
 
 ## Unified Comment Pattern (Types, Enums, Classes, Functions)
 
+**ENGLISH ONLY — no Vietnamese in code (STRICT).** Every comment, JSDoc, inline `//` note, `TODO`/`FIXME`, and identifier must be in English (product is going international). Never mix Vietnamese into comments. User-facing copy belongs in i18n files, not hardcoded strings.
+
 Types, enums, and classes must have comments (JSDoc or brief description). Functions use the pattern below.
 
 ### Function Comment Pattern

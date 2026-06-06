@@ -6,7 +6,8 @@ import {
     CourseEntity,
     ModuleEntity,
     ContentEntity,
-    ChallengeEntity,    Locale,
+    ChallengeEntity,
+    Locale,
     MilestoneEntity,
     MilestoneTaskEntity,
     FoundationEntity,
@@ -47,9 +48,9 @@ import type {
     SynchronizerSyncScope,
 } from "../../types"
 import {
-    buildElasticsearchSynchronizerSyncScope,
     shouldSyncChallengeEntity,
     shouldSyncContentEntity,
+    shouldSyncCourseEntity,
     shouldSyncMilestoneEntity,
     shouldSyncMilestoneTaskEntity,
     shouldSyncModuleEntity,
@@ -108,7 +109,7 @@ export class ElasticsearchSynchronizerService {
      * Sync all entities to Elasticsearch sequentially.
      */
     async sync(
-        scope: SynchronizerSyncScope = buildElasticsearchSynchronizerSyncScope(),
+        scope: SynchronizerSyncScope,
     ): Promise<void> {
         /**
          * Start the Elasticsearch synchronization.
@@ -167,6 +168,11 @@ export class ElasticsearchSynchronizerService {
                     )
                     if (!course) {
                         break
+                    }
+                    if (!shouldSyncCourseEntity(scope,
+                        course)) {
+                        resumeEntityId = course.id
+                        continue
                     }
                     try {
                         await this.esCourseBuildService.buildIndexById(

@@ -8,13 +8,9 @@ import {
     CourseNotFoundException,
 } from "@modules/exceptions"
 import {
-    InjectSuperJson,
-} from "@modules/mixin"
-import {
     S3NameResolverService,
     S3Provider,
     S3ReadService,
-    UploadPayload,
 } from "@modules/s3"
 import {
     Injectable,
@@ -23,7 +19,6 @@ import {
     IQueryHandler,
     QueryHandler,
 } from "@nestjs/cqrs"
-import SuperJSON from "superjson"
 import {
     CourseQuery,
 } from "./course.query"
@@ -36,8 +31,6 @@ export class CourseHandler
     constructor(
         private readonly s3ReadService: S3ReadService,
         private readonly s3NameResolverService: S3NameResolverService,
-        @InjectSuperJson()
-        private readonly superJson: SuperJSON,
     ) {
         super()
     }
@@ -57,17 +50,17 @@ export class CourseHandler
             request.displayId,
             locale
         )
-        const cdnPayload = await this.s3ReadService.json<UploadPayload>({
+        const course = await this.s3ReadService.json<CourseEntity>({
             key: objectKey,
             provider: S3Provider.Minio,
         })
-        if (!cdnPayload) {
+        if (!course) {
             throw new CourseNotFoundException(
                 {
                     id: request.id,
                 }
             )
         }
-        return this.superJson.parse<CourseEntity>(cdnPayload.data)
+        return course
     }
 }

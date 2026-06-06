@@ -1,6 +1,7 @@
 import type {
     ChallengeEntity,
     ContentEntity,
+    CourseEntity,
     MilestoneEntity,
     MilestoneTaskEntity,
     ModuleEntity,
@@ -12,6 +13,17 @@ import {
     shouldIncludeCourseModule,
     shouldIncludeCourseMilestone,
 } from "./course-module-filter"
+
+export const shouldSyncCourseEntity = (
+    scope: SynchronizerSyncScope,
+    course: CourseEntity,
+): boolean => {
+    const courseDisplayId = course.displayId
+    if (!courseDisplayId) {
+        return false
+    }
+    return scope.courseEnabledByDisplayId.get(courseDisplayId) === true
+}
 
 export const shouldSyncModuleEntity = (
     scope: SynchronizerSyncScope,

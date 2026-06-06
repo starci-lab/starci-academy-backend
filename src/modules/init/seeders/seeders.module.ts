@@ -110,6 +110,7 @@ import {
     CodingProblemPathService,
     CodingProblemParserService,
     CodingProblemInsertService,
+    CodingProblemHintIndexService,
 } from "./coding-problems"
 import {
     SeedersService,
@@ -244,6 +245,7 @@ export class SeedersModule extends ConfigurableModuleClass {
             CodingProblemPathService,
             CodingProblemParserService,
             CodingProblemInsertService,
+            CodingProblemHintIndexService,
             CodingProblemSeederService,
         ]
         

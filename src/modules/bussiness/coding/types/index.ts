@@ -5,6 +5,9 @@ import type {
     CodingSubmissionEntity,
     Locale,
 } from "@modules/databases"
+import type {
+    CodingClientTelemetry,
+} from "../../anti-cheat"
 
 /** Params for listing coding problems with optional filters + pagination. */
 export interface ListCodingProblemsParams {
@@ -40,6 +43,22 @@ export interface GetCodingProblemParams {
     locale?: Locale
 }
 
+/** Params for loading a problem's approach hint (from Elasticsearch). */
+export interface GetCodingProblemHintParams {
+    /** Stable URL slug. */
+    slug: string
+    /** Locale for the hint markdown (falls back to English). */
+    locale?: Locale
+}
+
+/** A problem's approach-hint document (sourced from Elasticsearch). */
+export interface CodingProblemHintResult {
+    /** Stable URL slug of the problem. */
+    slug: string
+    /** The approach-hint markdown. */
+    hint: string
+}
+
 /** Params for the coding leaderboard. */
 export interface CodingLeaderboardParams {
     /** Max number of ranked users to return. */
@@ -66,6 +85,14 @@ export interface SubmitCodingSolutionParams {
     language: CodingLanguage
     /** The submitted source code. */
     sourceCode: string
+    /** Client behavioural telemetry for anti-cheat scoring (optional). */
+    telemetry?: CodingClientTelemetry
+    /** Best-effort client IP captured at submit time (optional). */
+    ipAddress?: string | null
+    /** Raw User-Agent captured at submit time (optional). */
+    userAgent?: string | null
+    /** Client device fingerprint captured at submit time (optional). */
+    fingerprint?: string | null
 }
 
 /** Result of submitting a solution. */

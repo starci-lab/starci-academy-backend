@@ -8,6 +8,9 @@ import {
     ElasticsearchSynchronizerService
 } from "./elasticsearch-synchronizer.service"
 import {
+    ElasticsearchReconcileService
+} from "./elasticsearch-reconcile.service"
+import {
     ElasticsearchCourseBuildService,
     ElasticsearchModuleBuildService,
     ElasticsearchContentBuildService,
@@ -22,7 +25,8 @@ import {
         ElasticsearchCourseBuildService,
         ElasticsearchModuleBuildService,
         ElasticsearchContentBuildService,
-        ElasticsearchChallengeBuildService,
+        ElasticsearchChallengeBuildService,
+        ElasticsearchReconcileService,
         ElasticsearchSynchronizerService,
     ],
     exports: [

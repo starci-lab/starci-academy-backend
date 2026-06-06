@@ -27,6 +27,12 @@ import {
     CookieService,
 } from "@modules/cookie"
 import {
+    CsrfService,
+} from "@modules/csrf"
+import {
+    SessionService,
+} from "@modules/session"
+import {
     SignInVerifyOtpRequest,
     SignInVerifyOtpResponse,
     type SignInVerifyOtpData,
@@ -40,6 +46,8 @@ export class SignInVerifyOtpResolver {
     constructor(
         private readonly signInVerifyOtpService: SignInVerifyOtpService,
         private readonly cookieService: CookieService,
+        private readonly csrfService: CsrfService,
+        private readonly sessionService: SessionService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Strict)
@@ -79,6 +87,16 @@ export class SignInVerifyOtpResolver {
                 value: result.refreshToken,
             }
         )
+        // issue a CSRF token alongside login so the client can guard later
+        // cookie-driven calls (refresh / sign-out)
+        this.csrfService.issueCookie({
+            res: ctx.res,
+        })
+        // start a fresh single account-wide session, evicting other devices
+        await this.sessionService.startSession({
+            res: ctx.res,
+            accessToken: result.data.accessToken,
+        })
         return result.data
     }
 }

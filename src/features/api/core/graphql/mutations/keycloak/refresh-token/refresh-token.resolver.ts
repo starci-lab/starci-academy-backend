@@ -5,6 +5,7 @@ import {
     Resolver,
 } from "@nestjs/graphql"
 import {
+    UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
 import {
@@ -12,8 +13,7 @@ import {
     GraphQLTransformInterceptor,
 } from "@modules/api"
 import {
-    UseThrottler,
-    ThrottlerConfig,
+    SkipThrottle,
 } from "@modules/throttler"
 import {
     Locale,
@@ -33,6 +33,10 @@ import {
 import {
     CookieName,
 } from "@modules/cookie"
+import {
+    CsrfGuard,
+    CsrfService,
+} from "@modules/csrf"
 import type {
     Response,
 } from "express"
@@ -45,9 +49,11 @@ export class RefreshTokenResolver {
     constructor(
         private readonly refreshTokenService: RefreshTokenService,
         private readonly cookieService: CookieService,
+        private readonly csrfService: CsrfService,
     ) { }
 
-    @UseThrottler(ThrottlerConfig.Strict)
+    @UseGuards(CsrfGuard)
+    @SkipThrottle()
     @GraphQLSuccessMessage({
         [Locale.En]: "Token refreshed successfully",
         [Locale.Vi]: "Làm mới token thành công",
@@ -87,6 +93,11 @@ export class RefreshTokenResolver {
             res: ctx.res,
             name: CookieName.KeycloakRefreshToken,
             value: newRefreshToken,
+        })
+        // rotate the CSRF token together with the refresh token so the client
+        // always holds a fresh, valid double-submit pair
+        this.csrfService.issueCookie({
+            res: ctx.res,
         })
         return data
     }

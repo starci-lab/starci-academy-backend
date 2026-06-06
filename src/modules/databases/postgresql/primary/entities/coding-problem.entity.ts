@@ -10,7 +10,9 @@ import {
 } from "typeorm"
 import {
     CodingDifficulty,
+    CodingDomain,
     GraphQLTypeCodingDifficulty,
+    GraphQLTypeCodingDomain,
 } from "../enums"
 import {
     UuidAbstractEntity,
@@ -68,6 +70,21 @@ export class CodingProblemEntity extends UuidAbstractEntity {
         enumName: "coding_difficulty",
     })
         difficulty: CodingDifficulty
+
+    @Field(
+        () => GraphQLTypeCodingDomain,
+        {
+            description: "Primary interview topic domain (used to group the problem list).",
+        },
+    )
+    @Column({
+        name: "domain",
+        type: "enum",
+        enum: CodingDomain,
+        enumName: "coding_domain",
+        default: CodingDomain.Arrays,
+    })
+        domain: CodingDomain
 
     @Field(
         () => String,

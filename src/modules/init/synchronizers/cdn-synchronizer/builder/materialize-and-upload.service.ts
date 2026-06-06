@@ -1,13 +1,9 @@
 import {
-    S3Provider, S3ReadService, S3UploadService 
+    S3Provider, S3UploadService
 } from "@modules/s3"
 import {
-    Injectable 
+    Injectable,
 } from "@nestjs/common"
-import {
-    InjectSuperJson 
-} from "@modules/mixin"
-import SuperJSON from "superjson"
 import type {
     EntityLike,
     LocalizedCdnEntity,
@@ -16,8 +12,18 @@ import {
     Locale
 } from "@modules/databases"
 import {
-    Sha256Service
-} from "@modules/crypto"
+    AsyncService,
+    InjectSuperJson,
+} from "@modules/mixin"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
+import type {
+    CdnMaterializeContext,
+} from "../types"
+import type SuperJSON from "superjson"
+
 /**
  * Service for materializing and uploading entities to the CDN.
  */
@@ -25,16 +31,17 @@ import {
 export class MaterializeAndUploadService {
     constructor(
         private readonly s3UploadService: S3UploadService,
+        private readonly asyncService: AsyncService,
+        private readonly winstonService: WinstonService,
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
-        private readonly sha256Service: Sha256Service,
-        private readonly s3ReadService: S3ReadService,
     ) {}
 
     /**
      * Process the entities and upload them to the CDN.
      * @param localizedRows - The localized entities to process.
      * @param resolveObjectKey - A function to resolve the object key for the entity.
+     * @param context - Optional tracing context for boot-time progress logs.
      */
     async process<
         T extends EntityLike,
@@ -44,9 +51,10 @@ export class MaterializeAndUploadService {
             id: string,
             locale: Locale,
         ) => string,
+        context?: CdnMaterializeContext,
     ): Promise<void> {
         const providers: Array<S3Provider> = [
-            S3Provider.DigitalOcean,
+            // DigitalOcean disabled — not configured here (empty creds → 400 InvalidArgument). MinIO only.
             S3Provider.Minio,
         ]
         for (const localized of localizedRows) {
@@ -54,48 +62,70 @@ export class MaterializeAndUploadService {
                 entity,
                 locale,
             } = localized
-            const data = this.superJson.stringify(
-                entity,
-            )
-            const hash = this.sha256Service.hash(
-                data,
-            )
             const keyByEntityId = resolveObjectKey(
                 entity.id,
                 locale,
             )
-            const currentSnapshot = await this.s3ReadService.json(
-                {
-                    key: keyByEntityId,
-                    provider: S3Provider.Minio,
-                },
+            const keyByDisplayId = resolveObjectKey(
+                entity.displayId,
+                locale,
             )
-            if (currentSnapshot?.hash === hash) {
-                continue
-            }
-            const snapshotPayload = {
-                data,
-                hash,
-            }
-            await this.s3UploadService.json(
-                {
-                    acl: "private",
-                    providers,
-                    name: keyByEntityId,
-                    payload: snapshotPayload,
-                },
+            const payloadBytes = Buffer.byteLength(
+                this.superJson.stringify(entity),
+                "utf8",
             )
-            await this.s3UploadService.json(
-                {
-                    acl: "private",
-                    providers,
-                    name: resolveObjectKey(
-                        entity.displayId,
+            if (context) {
+                this.winstonService.log(
+                    WinstonLog.CdnSynchronizerMaterializeStep,
+                    {
+                        step: "upload-start",
+                        entityKind: context.entityKind,
+                        entityId: context.entityId,
+                        displayId: context.displayId ?? entity.displayId,
                         locale,
+                        objectKey: keyByEntityId,
+                        payloadBytes,
+                    },
+                )
+            }
+            const uploadStart = Date.now()
+            // Always upload (no snapshot read / skip-on-match). The body is the entity
+            // serialized once by S3UploadService (SuperJSON) — written as text, no envelope.
+            await this.asyncService.allMustDone(
+                [
+                    this.s3UploadService.json(
+                        {
+                            acl: "private",
+                            providers,
+                            name: keyByEntityId,
+                            payload: entity,
+                        },
                     ),
-                    payload: snapshotPayload,
+                ],
+            )
+            await this.s3UploadService.json(
+                {
+                    acl: "private",
+                    providers,
+                    name: keyByDisplayId,
+                    payload: entity,
                 },
             )
+            if (context) {
+                this.winstonService.log(
+                    WinstonLog.CdnSynchronizerMaterializeStep,
+                    {
+                        step: "upload-done",
+                        entityKind: context.entityKind,
+                        entityId: context.entityId,
+                        displayId: context.displayId ?? entity.displayId,
+                        locale,
+                        objectKey: keyByEntityId,
+                        payloadBytes,
+                        durationMs: Date.now() - uploadStart,
+                    },
+                )
+            }
         }
     }
 }

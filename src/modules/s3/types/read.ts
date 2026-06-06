@@ -33,3 +33,11 @@ export interface ListParams {
     /** The provider to use for listing. */
     provider: S3Provider
 }
+
+/** Params for listing every object key under a prefix (paginated, no delimiter). */
+export interface ListAllParams {
+    /** The key prefix to enumerate (e.g. `courses/`). */
+    prefix: string
+    /** The provider whose bucket to enumerate. */
+    provider: S3Provider
+}

@@ -17,8 +17,8 @@ import {
     ConsultantParserService,
 } from "./parsers"
 import {
-    isHeadhuntingSeederEnabled,
-} from "../shared/scope"
+    SeedScopeService,
+} from "../../scope"
 
 /**
  * Parse headhuntings mount data and upsert PostgreSQL (companies → consultants).
@@ -29,11 +29,12 @@ export class HeadhuntingSeederService {
         private readonly headhuntingCompanyParserService: HeadhuntingCompanyParserService,
         private readonly consultantParserService: ConsultantParserService,
         private readonly headhuntingCompanyInsertService: HeadhuntingCompanyInsertService,
-        private readonly consultantInsertService: ConsultantInsertService
+        private readonly consultantInsertService: ConsultantInsertService,
+        private readonly seedScopeService: SeedScopeService,
     ) {}
 
     async seed(): Promise<void> {
-        if (!isHeadhuntingSeederEnabled()) {
+        if (!this.seedScopeService.isHeadhuntingSeederEnabled()) {
             return
         }
         const companies: Array<DeepPartial<HeadhuntingCompanyEntity>> = []

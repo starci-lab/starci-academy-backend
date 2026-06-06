@@ -1,5 +1,6 @@
 import {
-    EnvModule
+    EnvModule,
+    envConfig
 } from "@modules/env"
 import {
     Module
@@ -135,6 +136,15 @@ import {
     CookieModule,
 } from "@modules/cookie"
 import {
+    CsrfModule,
+} from "@modules/csrf"
+import {
+    SessionModule,
+} from "@modules/session"
+import {
+    CaptchaModule,
+} from "@modules/captcha"
+import {
     CodeModule
 } from "@modules/code"
 import {
@@ -143,6 +153,9 @@ import {
 import {
     InitModule,
 } from "@modules/init"
+import {
+    InitV2Module,
+} from "@modules/init-v2"
 import {
     FfmpegModule
 } from "@modules/ffmpeg"
@@ -192,6 +205,24 @@ import {
             }),
             /** Cookie module. */
             CookieModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** CSRF protection module. */
+            CsrfModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Single-session enforcement module. */
+            SessionModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Captcha (Cloudflare Turnstile) module. */
+            CaptchaModule.register(
                 {
                     isGlobal: true,
                 }
@@ -429,12 +460,27 @@ import {
                     isGlobal: true,
                 }
             ),
-            /** Init module — plugin-based initialization. */
-            InitModule.register(
-                {
-                    isGlobal: true,
-                }
-            ),
+            /**
+             * Init module — plugin-based initialization.
+             * When `INIT_V2_ENABLED` is set, swap in the git-sourced InitV2Module
+             * (clones the private `data` repo before seeding); otherwise keep the
+             * local-file InitModule for dev.
+             */
+            ...(envConfig().initV2.enabled
+                ? [
+                    InitV2Module.register(
+                        {
+                            isGlobal: true,
+                        }
+                    ),
+                ]
+                : [
+                    InitModule.register(
+                        {
+                            isGlobal: true,
+                        }
+                    ),
+                ]),
             /** Ffmpeg module. */
             FfmpegModule.register(
                 {

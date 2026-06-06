@@ -11,7 +11,7 @@ import {
     ElasticsearchCourseBuildService,
     ElasticsearchModuleBuildService,
     ElasticsearchContentBuildService,
-    ElasticsearchChallengeBuildService,
+    ElasticsearchChallengeBuildService,
     ElasticsearchMilestoneBuildService,
     ElasticsearchMilestoneTaskBuildService,
     ElasticsearchFoundationBuildService,
@@ -28,7 +28,8 @@ import {
         ElasticsearchCourseBuildService,
         ElasticsearchModuleBuildService,
         ElasticsearchContentBuildService,
-        ElasticsearchChallengeBuildService,
+        ElasticsearchChallengeBuildService,
+
         ElasticsearchMilestoneBuildService,
         ElasticsearchMilestoneTaskBuildService,
         ElasticsearchFoundationBuildService,

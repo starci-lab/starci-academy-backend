@@ -49,6 +49,17 @@
       "compilerOptions": {
         "tsConfigPath": "apps/ffmpeg-service/tsconfig.app.json"
       }
+    },
+    "mock": {
+      "type": "application",
+      "root": "apps/mock",
+      "entryFile": "main",
+      "sourceRoot": "apps/mock/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/mock/tsconfig.app.json",
+        "webpack": true,
+        "webpackConfigPath": "apps/mock/webpack.config.cjs"
+      }
     }
   }
 }

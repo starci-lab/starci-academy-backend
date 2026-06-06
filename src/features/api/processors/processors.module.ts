@@ -31,6 +31,12 @@ import {
 import {
     JudgeCodingSubmissionModule,
 } from "./judge-coding-submission"
+import {
+    ReconcileTransactionModule,
+} from "./reconcile-transaction"
+import {
+    EnrollModule,
+} from "./enroll"
 
 /**
  * Module for API-side BullMQ processors.
@@ -62,6 +68,12 @@ import {
             isGlobal: true,
         }),
         JudgeCodingSubmissionModule.register({
+            isGlobal: true,
+        }),
+        ReconcileTransactionModule.register({
+            isGlobal: true,
+        }),
+        EnrollModule.register({
             isGlobal: true,
         }),
     ],

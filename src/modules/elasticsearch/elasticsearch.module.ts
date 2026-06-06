@@ -12,6 +12,9 @@ import {
 import {
     ElasticsearchService,
 } from "./elasticsearch.service"
+import {
+    ElasticsearchIndexResetService,
+} from "./elasticsearch-index-reset.service"
 
 /**
  * Elasticsearch module.
@@ -29,10 +32,12 @@ export class ElasticsearchModule extends ConfigurableModuleClass {
                 ...(dynamicModule.providers ?? []),
                 elasticsearchProvider,
                 ElasticsearchService,
+                ElasticsearchIndexResetService,
             ],
             exports: [
                 elasticsearchProvider,
                 ElasticsearchService,
+                ElasticsearchIndexResetService,
             ],
         }
     }

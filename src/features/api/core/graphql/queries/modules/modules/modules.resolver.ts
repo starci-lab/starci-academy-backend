@@ -30,9 +30,6 @@ import {
 import {
     KeycloakAuthGraphQLGuard,
 } from "@modules/keycloak"
-import {
-    GraphQLMustEnrolledGuard,
-} from "@modules/bussiness"
 
 @Resolver()
 export class ModulesResolver {
@@ -45,9 +42,9 @@ export class ModulesResolver {
         [Locale.En]: "Modules fetched successfully",
         [Locale.Vi]: "Lấy danh sách module thành công",
     })
+    // Enroll guard removed — logged-in users may browse module list for trial reading.
     @UseGuards(
         KeycloakAuthGraphQLGuard,
-        GraphQLMustEnrolledGuard,
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

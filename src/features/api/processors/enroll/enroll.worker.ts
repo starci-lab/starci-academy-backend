@@ -35,7 +35,7 @@ import {
 } from "@modules/databases"
 import type {
     JobExtendedContext,
-} from "../types"
+} from "@modules/bussiness"
 
 /**
  * Worker for enrolling a user in a course.
@@ -80,12 +80,13 @@ export class EnrollWorker extends WorkerHost {
             // get the step map
             const stepMap = this.stepMappingService.getStepMap()
             const context: JobExtendedContext<
-            EnrollPayload, 
+            EnrollPayload,
             undefined
             > = {
                 job,
                 queueName: bullmqJob.queueName,
                 payload,
+                extended: undefined,
             }
             // process the steps
             while (job.currentStep < job.maxSteps) {
@@ -102,6 +103,7 @@ export class EnrollWorker extends WorkerHost {
                         job: syncedJob,
                         queueName: bullmqJob.queueName,
                         payload,
+                        extended: undefined,
                     }
                 )
             }

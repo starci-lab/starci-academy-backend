@@ -116,7 +116,9 @@ export class UserService {
                 },
             }
         )
-        const isEnrolled = enrollment !== undefined
+        // TypeORM `findOne` returns `null` (not `undefined`) when no row matches — comparing against
+        // `undefined` made this always true, so every viewer was treated as enrolled.
+        const isEnrolled = enrollment !== null
         await this.cacheService.set(
             {
                 key: CacheKey.CourseEnrollment,

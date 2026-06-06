@@ -69,9 +69,12 @@ export class UuidPartitionPersistProcessorService {
             )
         }
         if (deleteEntities.length > 0) {
+            const deleteIds = deleteEntities
+                .map((entity) => entity.id)
+                .filter((id): id is string => Boolean(id))
             await this.entityManager.delete(
                 entityClass,
-                deleteEntities,
+                deleteIds,
             )
             this.upsertService.logSync(
                 entityClass,

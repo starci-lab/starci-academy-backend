@@ -19,6 +19,9 @@ import {
 import {
     SavedContentsSingleQueryModule,
 } from "./saved-contents"
+import {
+    SandboxRepoUrlModule,
+} from "./sandbox-repo-url"
 
 @Module({
     imports: [
@@ -35,6 +38,9 @@ import {
             isGlobal: true,
         }),
         SavedContentsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        SandboxRepoUrlModule.register({
             isGlobal: true,
         }),
     ],

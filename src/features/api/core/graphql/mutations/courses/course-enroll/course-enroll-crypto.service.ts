@@ -38,6 +38,9 @@ import type {
     CourseEnrollRequest,
     CourseEnrollResponseData,
 } from "./graphql-types"
+import {
+    EnqueueReconcileTransactionJobService,
+} from "@modules/bussiness"
 
 /**
  * Crypto (NOWPayments) course enrollment: creates a hosted invoice (redirect
@@ -56,6 +59,7 @@ export class CourseEnrollCryptoService {
         private readonly dayjsService: DayjsService,
         private readonly coursePricingService: CoursePricingService,
         private readonly retryService: RetryService,
+        private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
     ) {}
 
     /**
@@ -168,11 +172,17 @@ export class CourseEnrollCryptoService {
                 paymentType: PaymentType.Crypto,
                 // invoiceUrl is the hosted page the browser redirects to
                 checkoutUrl: invoice.invoiceUrl,
+                // store the NOWPayments invoice id so reconciliation can poll by id
+                providerPaymentId: invoice.invoiceId,
                 status: TransactionStatus.Pending,
                 actionType: ActionType.Enroll,
             },
         )
         await this.entityManager.save(transaction)
+        // schedule the delayed reconcile poll (fires if no webhook arrives)
+        await this.enqueueReconcileTransactionJobService.enqueue({
+            transactionId: transaction.id,
+        })
 
         // redirect provider → no signed form fields (checkoutFields stays null)
         return {

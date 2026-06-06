@@ -101,6 +101,27 @@ Two paragraphs. The first opens with an italicized interview quote followed by a
 Second paragraph is the "bridge": describe what `## 2.1` hands-on will do + what `## 2.2` theory
 will systematize. End with a sentence about what the learner can do after the lesson.
 
+**Adjacent code blocks — MERGE into one:** if two ` ``` ` fences appear back-to-back (separated only by a blank line, a file-path comment, or a short label), collapse them into a single fence. File paths become `// path/to/file.tsx` comments inside the merged block.
+```
+// ❌ two blocks
+```tsx
+// frontend/src/CounterAtom.tsx
+const [count, setCount] = useAtom(counterAtom)
+```
+```tsx
+// frontend/src/DerivedAtoms.tsx
+const double = useAtomValue(doubleCounterAtom)
+```
+// ✅ one merged block
+```tsx
+// frontend/src/CounterAtom.tsx
+const [count, setCount] = useAtom(counterAtom)
+
+// frontend/src/DerivedAtoms.tsx
+const double = useAtomValue(doubleCounterAtom)
+```
+```
+
 **Flow conclusions** in `## 2.1.4`: end every flow with an italicized `*Kết luận: ...*` line that
 ties the observed output back to the concept being taught.
 

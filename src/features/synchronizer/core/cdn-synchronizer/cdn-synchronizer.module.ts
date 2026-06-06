@@ -8,10 +8,13 @@ import {
     CdnSynchronizerService
 } from "./cdn-synchronizer.service"
 import {
+    CdnReconcileService
+} from "./cdn-reconcile.service"
+import {
     CdnCourseBuildService,
     CdnModuleBuildService,
     CdnContentBuildService,
-    CdnChallengeBuildService,
+    CdnChallengeBuildService,
     MaterializeAndUploadService
 } from "./builder"
 /**
@@ -23,7 +26,8 @@ import {
         CdnCourseBuildService,
         CdnModuleBuildService,
         CdnContentBuildService,
-        CdnChallengeBuildService,
+        CdnChallengeBuildService,
+        CdnReconcileService,
         CdnSynchronizerService,
     ],
     exports: [

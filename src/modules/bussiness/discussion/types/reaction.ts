@@ -19,6 +19,16 @@ export interface ReactionSummaryResult {
     total: number
     /** The viewing user's own reaction, or null if they have not reacted. */
     myReaction: ReactionType | null
+    /**
+     * Number of distinct users who have read this content.
+     * Only set for content-level summaries; comment summaries default to 0.
+     */
+    viewCount: number
+    /**
+     * Number of times this content has been shared.
+     * Reserved — always 0 until share tracking is implemented.
+     */
+    shareCount: number
 }
 
 /** Params to set/change/remove the current user's reaction on a content. */

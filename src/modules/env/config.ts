@@ -40,253 +40,6 @@ export const envConfig = () => ({
         /** UUID namespace for coding-practice problems (deterministic ids from slug). */
         codingProblem: "d32d2da9-ad2e-44b4-b412-a97de455b8e4",
     },
-    /** Initialization configuration (seeders → synchronizers). */
-    init: [
-        {
-            name: "seeders",
-            order: 1,
-            enabled: parseEnvBoolean({
-                key: "ENABLE_INIT_SEEDERS",
-                defaultValue: true,
-            }),
-            context: {
-                courses: {
-                    enabled: parseEnvBoolean({
-                        key: "INIT_SEEDERS_COURSES_ENABLED",
-                        defaultValue: true,
-                    }),
-                    fullstack: {
-                        enabled: parseEnvBoolean({
-                            key: "INIT_SEEDERS_COURSES_FULLSTACK_ENABLED",
-                            defaultValue: true,
-                        }),
-                        course: parseEnvBoolean({
-                            key: "INIT_SEEDERS_COURSES_FULLSTACK_COURSE_ENABLED",
-                            defaultValue: true,
-                        }),
-                        modules: {
-                            indexes: parseEnvString({
-                                key: "INIT_SEEDERS_COURSES_MODULES_FULLSTACK",
-                                defaultValue: "all",
-                            }),
-                            enabled: parseEnvBoolean({
-                                key: "INIT_SEEDERS_COURSES_MODULES_FULLSTACK_ENABLED",
-                                defaultValue: true,
-                            }),
-                        },
-                        milestones: {
-                            indexes: parseEnvString({
-                                key: "INIT_SEEDERS_COURSES_MILESTONES_FULLSTACK",
-                                defaultValue: "all",
-                            }),
-                            enabled: parseEnvBoolean({
-                                key: "INIT_SEEDERS_COURSES_MILESTONES_FULLSTACK_ENABLED",
-                                defaultValue: true,
-                            }),
-                        },
-                    },
-                    systemDesign: {
-                        enabled: parseEnvBoolean({
-                            key: "INIT_SEEDERS_COURSES_SYSTEM_DESIGN_ENABLED",
-                            defaultValue: true,
-                        }),
-                        course: parseEnvBoolean({
-                            key: "INIT_SEEDERS_COURSES_SYSTEM_DESIGN_COURSE_ENABLED",
-                            defaultValue: true,
-                        }),
-                        modules: {
-                            indexes: parseEnvString({
-                                key: "INIT_SEEDERS_COURSES_MODULES_SYSTEM_DESIGN_INDEXES",
-                                defaultValue: "all",
-                            }),
-                            enabled: parseEnvBoolean({
-                                key: "INIT_SEEDERS_COURSES_MODULES_SYSTEM_DESIGN_ENABLED",
-                                defaultValue: true,
-                            }),
-                        },
-                        milestones: {
-                            indexes: parseEnvString({
-                                key: "INIT_SEEDERS_COURSES_MILESTONES_SYSTEM_DESIGN_INDEXES",
-                                defaultValue: "all",
-                            }),
-                            enabled: parseEnvBoolean({
-                                key: "INIT_SEEDERS_COURSES_MILESTONES_SYSTEM_DESIGN_ENABLED",
-                                defaultValue: true,
-                            }),
-                        },
-                    },
-                    quiz: {
-                        enabled: parseEnvBoolean({
-                            key: "INIT_SEEDERS_COURSES_QUIZ_ENABLED",
-                            defaultValue: true,
-                        }),
-                        linkContents: parseEnvBoolean({
-                            key: "INIT_SEEDERS_COURSES_QUIZ_LINK_CONTENTS",
-                            defaultValue: false,
-                        }),
-                    },
-                },
-                cv: {
-                    enabled: parseEnvBoolean({
-                        key: "INIT_SEEDERS_CV",
-                        defaultValue: true,
-                    }),
-                },
-                foundations: {
-                    enabled: parseEnvBoolean({
-                        key: "INIT_SEEDERS_FOUNDATIONS",
-                        defaultValue: true,
-                    }),
-                },
-                headhunting: {
-                    enabled: parseEnvBoolean({
-                        key: "INIT_SEEDERS_HEADHUNTING",
-                        defaultValue: true,
-                    }),
-                },
-                aiModels: {
-                    enabled: parseEnvBoolean({
-                        key: "INIT_SEEDERS_AI_MODELS",
-                        defaultValue: true,
-                    }),
-                },
-                subscriptions: {
-                    enabled: parseEnvBoolean({
-                        key: "INIT_SEEDERS_SUBSCRIPTIONS",
-                        defaultValue: true,
-                    }),
-                },
-                codingProblems: {
-                    enabled: parseEnvBoolean({
-                        key: "INIT_SEEDERS_CODING_PROBLEMS",
-                        defaultValue: true,
-                    }),
-                },
-            },
-        },
-        {
-            name: "synchronizers",
-            order: 2,
-            enabled: parseEnvBoolean({
-                key: "ENABLE_INIT_SYNCHRONIZERS",
-                defaultValue: true,
-            }),
-            context: {
-                courses: {
-                    fullstack: {
-                        modules: {
-                            cdn: {
-                                indexes: parseEnvString({
-                                    key: "INIT_SYNCHRONIZERS_COURSES_MODULES_FULLSTACK_CDN_INDEXES",
-                                    defaultValue: "all",
-                                }),
-                                enabled: parseEnvBoolean({
-                                    key: "INIT_SYNCHRONIZERS_COURSES_MODULES_FULLSTACK_CDN_ENABLED",
-                                    defaultValue: true,
-                                }),
-                            },
-                            elasticsearch: {
-                                indexes: parseEnvString({
-                                    key: "INIT_SYNCHRONIZERS_COURSES_MODULES_FULLSTACK_ELASTICSEARCH_INDEXES",
-                                    defaultValue: "all",
-                                }),
-                                enabled: parseEnvBoolean({
-                                    key: "INIT_SYNCHRONIZERS_COURSES_MODULES_FULLSTACK_ELASTICSEARCH_ENABLED",
-                                    defaultValue: true,
-                                }),
-                            },
-                        },
-                        milestones: {
-                            cdn: {
-                                indexes: parseEnvString({
-                                    key: "INIT_SYNCHRONIZERS_COURSES_MILESTONES_FULLSTACK_CDN_INDEXES",
-                                    defaultValue: "all",
-                                }),
-                                enabled: parseEnvBoolean({
-                                    key: "INIT_SYNCHRONIZERS_COURSES_MILESTONES_FULLSTACK_CDN_ENABLED",
-                                    defaultValue: true,
-                                }),
-                            },
-                            elasticsearch: {
-                                indexes: parseEnvString({
-                                    key: "INIT_SYNCHRONIZERS_COURSES_MILESTONES_FULLSTACK_ELASTICSEARCH_INDEXES",
-                                    defaultValue: "all",
-                                }),
-                                enabled: parseEnvBoolean({
-                                    key: "INIT_SYNCHRONIZERS_COURSES_MILESTONES_FULLSTACK_ELASTICSEARCH_ENABLED",
-                                    defaultValue: true,
-                                }),
-                            },
-                        },
-                    },
-                    systemDesign: {
-                        modules: {
-                            cdn: {
-                                indexes: parseEnvString({
-                                    key: "INIT_SYNCHRONIZERS_COURSES_MODULES_SYSTEM_DESIGN_CDN_INDEXES",
-                                    defaultValue: "all",
-                                }),
-                                enabled: parseEnvBoolean({
-                                    key: "INIT_SYNCHRONIZERS_COURSES_MODULES_SYSTEM_DESIGN_CDN_ENABLED",
-                                    defaultValue: true,
-                                }),
-                            },
-                            elasticsearch: {
-                                indexes: parseEnvString({
-                                    key: "INIT_SYNCHRONIZERS_COURSES_MODULES_SYSTEM_DESIGN_ELASTICSEARCH_INDEXES",
-                                    defaultValue: "all",
-                                }),
-                                enabled: parseEnvBoolean({
-                                    key: "INIT_SYNCHRONIZERS_COURSES_MODULES_SYSTEM_DESIGN_ELASTICSEARCH_ENABLED",
-                                    defaultValue: true,
-                                }),
-                            },
-                        },
-                        milestones: {
-                            cdn: {
-                                indexes: parseEnvString({
-                                    key: "INIT_SYNCHRONIZERS_COURSES_MILESTONES_SYSTEM_DESIGN_CDN_INDEXES",
-                                    defaultValue: "all",
-                                }),
-                                enabled: parseEnvBoolean({
-                                    key: "INIT_SYNCHRONIZERS_COURSES_MILESTONES_SYSTEM_DESIGN_CDN_ENABLED",
-                                    defaultValue: true,
-                                }),
-                            },
-                            elasticsearch: {
-                                indexes: parseEnvString({
-                                    key: "INIT_SYNCHRONIZERS_COURSES_MILESTONES_SYSTEM_DESIGN_ELASTICSEARCH_INDEXES",
-                                    defaultValue: "all",
-                                }),
-                                enabled: parseEnvBoolean({
-                                    key: "INIT_SYNCHRONIZERS_COURSES_MILESTONES_SYSTEM_DESIGN_ELASTICSEARCH_ENABLED",
-                                    defaultValue: true,
-                                }),
-                            },
-                        },
-                    },
-                },
-                cv: {
-                    enabled: parseEnvBoolean({
-                        key: "INIT_SYNCHRONIZERS_CV",
-                        defaultValue: true,
-                    }),
-                },
-                foundations: {
-                    enabled: parseEnvBoolean({
-                        key: "INIT_SYNCHRONIZERS_FOUNDATIONS",
-                        defaultValue: true,
-                    }),
-                },
-                headhunting: {
-                    enabled: parseEnvBoolean({
-                        key: "INIT_SYNCHRONIZERS_HEADHUNTING",
-                        defaultValue: true,
-                    }),
-                },
-            },
-        },
-    ],
     /** Cache configuration. */
     /** Cache: debug flags/TTL, key TTLs (withdraw, session, pool analytics, etc.), stale price max age. */
     cache: {
@@ -407,6 +160,11 @@ export const envConfig = () => ({
                 key: "CACHE_TTL_AI_PING_KEY_STATUS",
                 defaultValue: "100years",
             }),
+            contentViewCount: parseEnvMs({
+                key: "CACHE_TTL_CONTENT_VIEW_COUNT",
+                // event-driven invalidation is the primary mechanism; TTL is a fallback safety net
+                defaultValue: "30m",
+            }),
             aggregatedTokenPrice: parseEnvMs({
                 key: "CACHE_TTL_AGGREGATED_TOKEN_PRICE",
                 defaultValue: "100years"
@@ -472,6 +230,18 @@ export const envConfig = () => ({
                 defaultValue: 3001,
             }),
         },
+        /** Standalone mock-sandbox service (public dummy API for lesson Sandpack iframes). */
+        mock: {
+            port: parseEnvInt({
+                key: "MOCK_PORT",
+                defaultValue: 3002,
+            }),
+            /** Artificial response delay (ms) so lesson sandboxes show loading/skeleton states. */
+            delayMs: parseEnvInt({
+                key: "MOCK_DELAY_MS",
+                defaultValue: 1000,
+            }),
+        },
         /** API service configuration. */
         api: {
             enable: parseEnvBoolean({
@@ -484,6 +254,19 @@ export const envConfig = () => ({
                     key: "API_TRANSACTION_TIME_SINCE_CREATION_MS",
                     defaultValue: "15m",
                 }),
+                /** Reconciliation poll for pending transactions with no webhook. */
+                reconcile: {
+                    /** Delay before each poll and between polls (first poll fires after this). */
+                    delayMs: parseEnvMs({
+                        key: "API_TRANSACTION_RECONCILE_DELAY_MS",
+                        defaultValue: "1m",
+                    }),
+                    /** Max number of polls before the transaction is marked unpaid. */
+                    maxAttempts: parseEnvInt({
+                        key: "API_TRANSACTION_RECONCILE_MAX_ATTEMPTS",
+                        defaultValue: 5,
+                    }),
+                },
             },
             /** API port configuration. */
             port: parseEnvInt({
@@ -894,6 +677,15 @@ export const envConfig = () => ({
             key: "JUDGE0_MAX_POLL_ATTEMPTS",
             defaultValue: 100,
         }),
+        /**
+         * Hard wall-clock cap for judging one submission end-to-end. If Judge0
+         * hasn't returned terminal results for every testcase within this budget,
+         * the batch is abandoned and the submission is marked failed (TLE).
+         */
+        overallTimeoutMs: parseEnvMs({
+            key: "JUDGE0_OVERALL_TIMEOUT_MS",
+            defaultValue: "10s",
+        }),
         /** HTTP request timeout for a single Judge0 call. */
         requestTimeoutMs: parseEnvMs({
             key: "JUDGE0_REQUEST_TIMEOUT_MS",
@@ -1061,12 +853,42 @@ export const envConfig = () => ({
             path: parseEnvString({
                 key: "CONTEXT_1_URL",
                 defaultValue: join(process.cwd(),
-                    ".mount",
-                    "data",
+                    ".contexts",
                 ),
             }),
         },
     ],
+    /** Init V2 — git-sourced bootstrap that replaces the local-file InitModule when enabled. */
+    initV2: {
+        /** When true, the app wires InitV2Module (git data source) in place of the local-file InitModule. Default on. */
+        enabled: parseEnvBoolean({
+            key: "INIT_V2_ENABLED",
+            defaultValue: true,
+        }),
+    },
+    /** Data-git — the private GitHub repo holding seed content (courses, coding problems, rules). */
+    dataGit: {
+        /** Repository owner (GitHub org or user). */
+        owner: parseEnvString({
+            key: "DATA_GIT_OWNER",
+            defaultValue: "StarCi-Academy",
+        }),
+        /** Repository name. */
+        repo: parseEnvString({
+            key: "DATA_GIT_REPO",
+            defaultValue: "data",
+        }),
+        /** Git ref (branch) to fetch; empty string means the repo default branch. */
+        ref: parseEnvString({
+            key: "DATA_GIT_REF",
+            defaultValue: "",
+        }),
+        /** Sub-directory inside the repo whose contents map to the data root; empty means the repo root. */
+        subdir: parseEnvString({
+            key: "DATA_GIT_SUBDIR",
+            defaultValue: "",
+        }),
+    },
     /** Mount path configuration. */
     mountPath: {
         /** File paths: data courses. */
@@ -1074,15 +896,13 @@ export const envConfig = () => ({
             courses: parseEnvString({
                 key: "DATA_COURSES_MOUNT_PATH",
                 defaultValue: join(process.cwd(),
-                    ".mount",
-                    "data",
+                    ".contexts",
                     "courses"),
             }),
             codingProblems: parseEnvString({
                 key: "DATA_CODING_PROBLEMS_MOUNT_PATH",
                 defaultValue: join(process.cwd(),
-                    ".mount",
-                    "data",
+                    ".contexts",
                     "coding-problems"),
             }),
         },
@@ -1102,6 +922,20 @@ export const envConfig = () => ({
                     "config",
                     "metadata.json"),
             }),
+            seed: parseEnvString({
+                key: "CONFIG_SEED_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "config",
+                    "seed.yaml"),
+            }),
+            seedV2: parseEnvString({
+                key: "CONFIG_SEED_V2_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "config",
+                    "seed-v2.yaml"),
+            }),
         },
         /** File paths: terraform secrets. */
         terraform: {
@@ -1119,6 +953,13 @@ export const envConfig = () => ({
                     ".mount",
                     "terraform",
                     "github-access-token.key"),
+            }),
+            dataGitToken: parseEnvString({
+                key: "TERRAFORM_DATA_GIT_TOKEN_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "data-git-token.key"),
             }),
             githubSecretKey: parseEnvString({
                 key: "TERRAFORM_GITHUB_SECRET_KEY_MOUNT_PATH",
@@ -1297,6 +1138,43 @@ export const envConfig = () => ({
                 defaultValue: "http://localhost:3000"
             }),
         ).filter((url) => url !== "")
+    },
+    /** CSRF protection configuration (double-submit token signing). */
+    csrf: {
+        /** HMAC secret used to sign CSRF tokens. MUST be overridden in production. */
+        secret: parseEnvString(
+            {
+                key: "CSRF_SECRET",
+                defaultValue: "dev-insecure-csrf-secret-change-me"
+            }
+        ),
+    },
+    /** Single-session enforcement configuration. */
+    session: {
+        /** Lifetime of a Redis session record; matches the refresh-cookie window. */
+        ttlMs: parseEnvMs(
+            {
+                key: "SESSION_TTL",
+                defaultValue: "30d"
+            }
+        ),
+    },
+    /** Cloudflare Turnstile captcha configuration. */
+    captcha: {
+        /** When false the captcha guard is a pass-through (local dev/test). */
+        enabled: parseEnvBoolean(
+            {
+                key: "CAPTCHA_ENABLED",
+                defaultValue: false
+            }
+        ),
+        /** Cloudflare Turnstile secret key used for server-side siteverify. */
+        turnstileSecret: parseEnvString(
+            {
+                key: "TURNSTILE_SECRET",
+                defaultValue: ""
+            }
+        ),
     },
     /** Kubernetes configuration. */
     k8s: {
@@ -1743,12 +1621,12 @@ export const envConfig = () => ({
             defaultValue: "123456",
         }),
         /**
-         * When true, indices listed in `src/modules/elasticsearch/patches` are (re)created with their
+         * When true, indices listed in `src/modules/elasticsearch/mappings` are (re)created with their
          * explicit mapping instead of Elasticsearch's dynamic mapping — required for SCHEMA V2
          * challenges whose large jsonb blobs otherwise break dynamic indexing.
          */
-        applyIndexPatches: parseEnvBoolean({
-            key: "ELASTICSEARCH_APPLY_INDEX_PATCHES",
+        applyIndexMappings: parseEnvBoolean({
+            key: "ELASTICSEARCH_APPLY_INDEX_MAPPINGS",
             defaultValue: false,
         }),
     },

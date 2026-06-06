@@ -3,7 +3,6 @@ import {
 } from "@modules/cqrs"
 import {
     ContentEntity,
-    EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
@@ -11,13 +10,9 @@ import {
     ContentNotFoundException,
 } from "@modules/exceptions"
 import {
-    InjectSuperJson,
-} from "@modules/mixin"
-import {
     S3NameResolverService,
     S3Provider,
     S3ReadService,
-    UploadPayload,
 } from "@modules/s3"
 import {
     Injectable,
@@ -26,13 +21,15 @@ import {
     IQueryHandler,
     QueryHandler,
 } from "@nestjs/cqrs"
-import SuperJSON from "superjson"
 import {
     ContentQuery,
 } from "./content.query"
 import {
     EntityManager 
 } from "typeorm"
+import {
+    UserService,
+} from "@modules/bussiness"
 
 @QueryHandler(ContentQuery)
 @Injectable()
@@ -42,10 +39,9 @@ export class ContentHandler
     constructor(
         private readonly s3ReadService: S3ReadService,
         private readonly s3NameResolverService: S3NameResolverService,
-        @InjectSuperJson()
-        private readonly superJson: SuperJSON,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly userService: UserService,
     ) {
         super()
     }
@@ -89,18 +85,16 @@ export class ContentHandler
             id,
             locale
         )
-        const cdnPayload = await this.s3ReadService.json<UploadPayload>({
+        const content = await this.s3ReadService.json<ContentEntity>({
             key: objectKey,
             provider: S3Provider.Minio,
         })
 
-        if (!cdnPayload) {
+        if (!content) {
             throw new ContentNotFoundException({
                 id: request.id,
             })
         }
-
-        const content = this.superJson.parse<ContentEntity>(cdnPayload.data)
 
         // Source the premium flag and owning course from the live DB row, not the
         // (possibly stale) S3 snapshot, so toggling `is_premium` takes effect at once.
@@ -169,40 +163,48 @@ export class ContentHandler
         if (!userId || !courseId) {
             return false
         }
-        // Enrolled in the owning course → entitled.
-        const enrollment = await this.entityManager.findOne(
-            EnrollmentEntity,
-            {
-                where: {
-                    userId,
-                    courseId,
-                },
-                select: {
-                    id: true,
-                },
-            },
+        return await this.userService.checkEnrollment(
+            userId,
+            courseId,
         )
-        return Boolean(enrollment)
     }
 
     /**
-     * Truncate the premium body in place to a short blurred preview and strip
-     * premium-only code assets, so the trial viewer sees only a teaser behind
-     * the purchase modal.
+     * Truncate the premium body in place to a teaser that runs up to (but not including) the
+     * "Verification / Kiểm thử" section — so the trial viewer still sees the full intro, core
+     * concepts and code, then the FE fades the tail and shows the purchase modal. Premium-only
+     * code assets (separate tabs) stay stripped.
      * @param content Parsed content to mutate.
      */
     private lockPremiumContent(
         content: ContentEntity,
     ): void {
-        /** Keep only the leading slice of a markdown body as a teaser. */
+        /** Keep the markdown up to the testing section (or a generous fallback slice). */
         const preview = (text: string | null): string => {
             if (!text) {
                 return ""
             }
-            const limit = 1200
+            // Cut right before the standard testing section heading (vi: "Kiểm thử", en:
+            // "Verification" / "Testing") so the teaser includes the code but not the rest.
+            // Drop everything from a dangling unclosed code fence so the teaser never ends inside a
+            // ```mermaid/```code block (a half diagram fails to parse on the FE).
+            const dropDanglingFence = (slice: string): string =>
+                (slice.match(/```/g)?.length ?? 0) % 2 === 1
+                    ? slice.slice(0,
+                        slice.lastIndexOf("```"))
+                    : slice
+            const testingHeading = /^#{1,6}[ \t].*(Kiểm thử|Verification|Testing)\b.*$/im
+            const match = testingHeading.exec(text)
+            if (match?.index != null && match.index > 0) {
+                return dropDanglingFence(text.slice(0,
+                    match.index)).trimEnd()
+            }
+            // Fallback when no testing section exists: keep a generous leading slice (no ellipsis —
+            // the FE fades the tail).
+            const limit = 4000
             return text.length > limit
-                ? `${text.slice(0,
-                    limit)}\n\n...`
+                ? dropDanglingFence(text.slice(0,
+                    limit)).trimEnd()
                 : text
         }
         // Legacy SCHEMA V1 scalar body.

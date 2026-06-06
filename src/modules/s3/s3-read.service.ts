@@ -26,11 +26,11 @@ import {
     InjectMinioS3,
 } from "./s3.decorators"
 import {
+    ListAllParams,
     ListParams,
     ReadBufferParams,
     ReadJsonParams,
     ReadTextParams,
-    UploadPayload
 } from "./types"
 
 /**
@@ -108,7 +108,7 @@ export class S3ReadService {
      *
      * @returns Parsed value or null when key not found.
      */
-    async json<T extends UploadPayload>(
+    async json<T>(
         {
             key,
             provider,
@@ -222,6 +222,61 @@ export class S3ReadService {
                 ""
             )
         ) ?? []
+    }
+
+    /**
+     * List every object key under a prefix, following pagination.
+     *
+     * Unlike {@link list} (which uses a `/` delimiter and returns folder-like
+     * common prefixes), this returns the FULL flat key of every object so the
+     * caller can both enumerate id segments and delete the exact keys.
+     *
+     * @returns All object keys under the prefix across every page.
+     */
+    async listAll(
+        {
+            prefix,
+            provider,
+        }: ListAllParams,
+    ): Promise<Array<string>> {
+        // pick the client + bucket for the requested provider
+        let s3Client: S3Client
+        let bucket: string
+        switch (provider) {
+        case S3Provider.DigitalOcean: {
+            s3Client = this.s3
+            bucket = envConfig().s3.digitalOcean.bucket
+            break
+        }
+        case S3Provider.Minio: {
+            s3Client = this.minioS3
+            bucket = envConfig().s3.minio.bucket
+            break
+        }
+        }
+        // accumulate keys across pages — a bucket can hold far more than the 1000/page S3 cap
+        const keys: Array<string> = []
+        // ContinuationToken drives pagination; undefined on the first request
+        let continuationToken: string | undefined = undefined
+        do {
+            // request one page of objects under the prefix (no Delimiter → flat key list)
+            const result = await s3Client.send(
+                new ListObjectsV2Command({
+                    Bucket: bucket,
+                    Prefix: prefix,
+                    ContinuationToken: continuationToken,
+                }),
+            )
+            // collect each key in this page, skipping any entry missing a Key
+            for (const object of result.Contents ?? []) {
+                if (object.Key) {
+                    keys.push(object.Key)
+                }
+            }
+            // advance only while S3 signals more pages remain
+            continuationToken = result.IsTruncated ? result.NextContinuationToken : undefined
+        } while (continuationToken)
+        return keys
     }
 
     /**

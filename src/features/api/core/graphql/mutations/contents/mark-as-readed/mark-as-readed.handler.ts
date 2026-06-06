@@ -19,6 +19,9 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
+    ReactionService,
+} from "@modules/bussiness"
+import {
     MarkAsReadedCommand,
 } from "./mark-as-readed.command"
 
@@ -30,6 +33,7 @@ export class MarkAsReadedHandler
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly reactionService: ReactionService,
     ) {
         super()
     }
@@ -73,5 +77,8 @@ export class MarkAsReadedHandler
             userContent.isRead = readed
         }
         await this.entityManager.save(userContent)
+
+        // invalidate the cached view count so the next contentReactions query recomputes it
+        await this.reactionService.invalidateViewCount(contentId)
     }
 }

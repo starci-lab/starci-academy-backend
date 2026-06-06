@@ -14,6 +14,9 @@ import {
     BloomFilterSynchronizerService,
 } from "./bloom-filters-synchronizer"
 import {
+    RepoSynchronizerService,
+} from "./repo-synchronizer"
+import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
@@ -21,9 +24,11 @@ import {
     DayjsService,
 } from "@modules/mixin"
 import {
-    buildCdnSynchronizerSyncScope,
-    buildElasticsearchSynchronizerSyncScope,
-} from "../utils"
+    ElasticsearchIndexResetService,
+} from "@modules/elasticsearch"
+import {
+    SyncScopeService,
+} from "../scope"
 
 /**
  * Sequential sync orchestrator.
@@ -42,14 +47,17 @@ export class SynchronizersService {
         private readonly elasticsearchSynchronizerService: ElasticsearchSynchronizerService,
         private readonly indexerSynchronizerService: IndexerSynchronizerService,
         private readonly bloomFilterSynchronizerService: BloomFilterSynchronizerService,
+        private readonly repoSynchronizerService: RepoSynchronizerService,
+        private readonly elasticsearchIndexResetService: ElasticsearchIndexResetService,
+        private readonly syncScopeService: SyncScopeService,
     ) { }
 
     /**
      * Initialize — runs all sync tasks sequentially.
      */
     async init(): Promise<void> {
-        const cdnScope = buildCdnSynchronizerSyncScope()
-        const elasticsearchScope = buildElasticsearchSynchronizerSyncScope()
+        const cdnScope = this.syncScopeService.buildCdnScope()
+        const elasticsearchScope = this.syncScopeService.buildElasticsearchScope()
         /**
          * Start the sync orchestrator.
          */
@@ -61,9 +69,16 @@ export class SynchronizersService {
             }
         )
         await this.cdnSynchronizerService.sync(cdnScope)
+        // drop + re-create ES indices first when reindex is requested, so the
+        // sync below repopulates a clean, correctly-mapped set of indices
+        if (this.syncScopeService.isReIndexEnabled()) {
+            await this.elasticsearchIndexResetService.resetAllIndices()
+        }
         await this.elasticsearchSynchronizerService.sync(elasticsearchScope)
         await this.indexerSynchronizerService.sync(cdnScope)
         await this.bloomFilterSynchronizerService.sync()
+        const repoScope = this.syncScopeService.buildRepoScope()
+        await this.repoSynchronizerService.sync(repoScope)
         /**
          * End the sync orchestrator.
          */

@@ -8,6 +8,7 @@ import {
 } from "./transactions.module-definition"
 import {
     TransactionActionService,
+    TransactionReconcileQueryService,
 } from "./atomic"
 
 /**
@@ -23,9 +24,11 @@ export class TransactionsModule extends ConfigurableModuleClass {
             providers: [
                 ...(dynamicModule.providers ?? []),
                 TransactionActionService,
+                TransactionReconcileQueryService,
             ],
             exports: [
                 TransactionActionService,
+                TransactionReconcileQueryService,
             ],
         }
     }

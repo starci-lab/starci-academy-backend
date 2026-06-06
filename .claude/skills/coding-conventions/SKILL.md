@@ -358,6 +358,10 @@ logical group is fine — match nearby files' formatting.
 
 ## 5. Comment / JSDoc patterns
 
+### ENGLISH ONLY — no Vietnamese in code (STRICT)
+
+Every comment, JSDoc, inline `//` note, `TODO`/`FIXME`, and identifier (variable/function/type/file name) MUST be written in **English**. The product is going international — reviewers and contributors may not read Vietnamese. Applies to all `.ts` source. Do NOT mix Vietnamese words into otherwise-English comments. (User-facing copy belongs in i18n message files, not hardcoded strings or comments.)
+
 ### Types, enums, classes — REQUIRED JSDoc (per-member, STRICT)
 
 Every exported type/interface/enum/class needs a type-level `/** ... */` **AND a

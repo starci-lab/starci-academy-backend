@@ -6,6 +6,9 @@ import {
     CodingLanguage,
     GraphQLTypeCodingLanguage,
 } from "@modules/databases"
+import {
+    CodingTelemetryInput,
+} from "./telemetry.input"
 
 /** Request for submitting a coding solution. */
 @InputType({
@@ -35,4 +38,13 @@ export class SubmitCodingSolutionRequest {
         },
     )
         sourceCode: string
+
+    @Field(
+        () => CodingTelemetryInput,
+        {
+            nullable: true,
+            description: "Optional client behavioural telemetry for anti-cheat scoring.",
+        },
+    )
+        telemetry?: CodingTelemetryInput
 }

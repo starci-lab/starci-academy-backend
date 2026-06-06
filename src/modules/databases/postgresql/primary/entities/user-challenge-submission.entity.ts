@@ -194,6 +194,32 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
     })
         selectedLang: string | null
 
+    // --- Anti-cheat capture (internal; intentionally NOT exposed via @Field) ---
+
+    @Column({
+        name: "ip_address",
+        type: "varchar",
+        length: 64,
+        nullable: true,
+    })
+        ipAddress: string | null
+
+    @Column({
+        name: "user_agent",
+        type: "varchar",
+        length: 512,
+        nullable: true,
+    })
+        userAgent: string | null
+
+    @Column({
+        name: "device_fingerprint",
+        type: "varchar",
+        length: 256,
+        nullable: true,
+    })
+        deviceFingerprint: string | null
+
     @OneToMany(
         () => UserChallengeSubmissionAttemptEntity,
         (attempt: UserChallengeSubmissionAttemptEntity) => attempt.userChallengeSubmission,

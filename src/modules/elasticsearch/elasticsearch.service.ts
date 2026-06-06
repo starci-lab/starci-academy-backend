@@ -11,7 +11,8 @@ import {
 import {
     ChallengeEntity,
     ContentEntity,
-    CourseEntity,    ModuleEntity,
+    CourseEntity,
+    ModuleEntity,
     FoundationEntity,
     FoundationCategoryEntity,
     ConsultantEntity,
@@ -29,8 +30,8 @@ import {
     configMap
 } from "./config"
 import {
-    resolveElasticsearchIndexPatch
-} from "./patches"
+    resolveElasticsearchIndexMapping
+} from "./mappings"
 import {
     envConfig
 } from "@modules/env"
@@ -39,7 +40,9 @@ import type {
     IndexEntityParams,
     IndexEntityResult,
     IndexEntitiesParams,
-    IndexEntitiesResult
+    IndexEntitiesResult,
+    CountDocsParams,
+    PruneOrphansParams
 } from "./types"
 
 /**
@@ -51,7 +54,8 @@ export class ElasticsearchService implements OnModuleInit {
      * The indices to create.
      */
     private readonly indices: Array<string> = [
-        CourseEntity.name,
+        CourseEntity.name,
+
         ChallengeEntity.name,
         ContentEntity.name,
         ModuleEntity.name,
@@ -89,21 +93,21 @@ export class ElasticsearchService implements OnModuleInit {
     }
 
     /**
-     * On application bootstrap, ensure the indices exist. For entities that have an index patch
-     * (and when `ELASTICSEARCH_APPLY_INDEX_PATCHES` is on) the per-locale indices are pre-created
-     * with the explicit mapping so documents land in a correctly-typed index.
+     * On application bootstrap, ensure the indices exist. For entities that have an explicit index
+     * mapping (and when `ELASTICSEARCH_APPLY_INDEX_MAPPINGS` is on) the per-locale indices are
+     * pre-created with that mapping so documents land in a correctly-typed index.
      */
     async onModuleInit() {
         this.readinessWatcherFactoryService.createWatcher(
             ElasticsearchService.name
         )
-        const applyPatches = envConfig().elasticsearch.applyIndexPatches
+        const applyMappings = envConfig().elasticsearch.applyIndexMappings
         // ensure the indices exist
-        await this.asyncService.allIgnoreError(
+        await this.asyncService.allMustDone(
             this.indices.flatMap(index => {
-                // patched entities also pre-create their per-locale indices with the mapping
-                const hasPatch = applyPatches && Boolean(resolveElasticsearchIndexPatch(index))
-                const locales: Array<Locale | undefined> = hasPatch
+                // mapped entities also pre-create their per-locale indices with the mapping
+                const hasMapping = applyMappings && Boolean(resolveElasticsearchIndexMapping(index))
+                const locales: Array<Locale | undefined> = hasMapping
                     ? [undefined,
                         ...Object.values(Locale)]
                     : [undefined]
@@ -118,9 +122,9 @@ export class ElasticsearchService implements OnModuleInit {
     }
 
     /**
-     * Ensure the index for an entity (and optional locale) exists, applying its mapping patch when
-     * `ELASTICSEARCH_APPLY_INDEX_PATCHES` is on and a patch is registered for the entity. Falls back
-     * to Elasticsearch's dynamic mapping when no patch applies.
+     * Ensure the index for an entity (and optional locale) exists, applying its explicit index
+     * mapping when `ELASTICSEARCH_APPLY_INDEX_MAPPINGS` is on and a mapping is registered for the
+     * entity. Falls back to Elasticsearch's dynamic mapping when no mapping applies.
      *
      * @param params - Entity name and optional locale.
      */
@@ -136,8 +140,8 @@ export class ElasticsearchService implements OnModuleInit {
                 locale
             },
         )
-        const patch = envConfig().elasticsearch.applyIndexPatches
-            ? resolveElasticsearchIndexPatch(entity)
+        const mapping = envConfig().elasticsearch.applyIndexMappings
+            ? resolveElasticsearchIndexMapping(entity)
             : undefined
         const existsResult = await this.client.indices.exists({
             index
@@ -146,23 +150,23 @@ export class ElasticsearchService implements OnModuleInit {
             typeof existsResult === "boolean"
                 ? existsResult
                 : (existsResult as { body: boolean }).body
-        // missing index → create with the full patch (settings + mappings) or plain when none
+        // missing index → create with the full mapping (settings + mappings) or plain when none
         if (!exists) {
             await this.client.indices.create({
                 index,
-                ...((patch ?? {
+                ...((mapping ?? {
                 }) as Omit<Parameters<Client["indices"]["create"]>[0], "index">)
             })
             return
         }
-        // existing index → ADDITIVELY apply the mapping patch (new fields only) instead of dropping
+        // existing index → ADDITIVELY apply the mapping (new fields only) instead of dropping
         // it, so out-of-scope documents are preserved. A type conflict on a pre-existing
         // dynamically-mapped field is ignored so the sync keeps going.
-        if (patch?.mappings) {
+        if (mapping?.mappings) {
             try {
                 await this.client.indices.putMapping({
                     index,
-                    ...(patch.mappings as Omit<Parameters<Client["indices"]["putMapping"]>[0], "index">)
+                    ...(mapping.mappings as Omit<Parameters<Client["indices"]["putMapping"]>[0], "index">)
                 })
             } catch {
                 // ignore mapping conflicts on pre-existing fields
@@ -243,6 +247,111 @@ export class ElasticsearchService implements OnModuleInit {
                 document: data
             }))
         })
+    }
+
+    /**
+     * Count the documents currently stored in a per-locale index.
+     *
+     * Used by the synchronizer reconcile pass to size the diff between what the
+     * index holds and what the database says should exist.
+     *
+     * @param params - Entity class name + locale selecting the index.
+     * @returns Document count, or 0 when the index does not exist yet.
+     *
+     * @example
+     * await service.countDocs({ entity: CourseEntity.name, locale: Locale.Vi })
+     */
+    async countDocs(
+        {
+            entity,
+            locale,
+        }: CountDocsParams,
+    ): Promise<number> {
+        // resolve the concrete `<base>-<locale>` index to count
+        const index = this.indicateName({
+            entity,
+            locale,
+        })
+        try {
+            // ask ES for the live document count of that index
+            const result = await this.client.count({
+                index,
+            })
+            return result.count
+        } catch (error) {
+            // a not-yet-created index simply has zero documents
+            if (
+                error?.meta?.body?.error?.type === "index_not_found_exception" ||
+                error?.message?.includes("index_not_found_exception")
+            ) {
+                return 0
+            }
+            throw error
+        }
+    }
+
+    /**
+     * Delete every document in a per-locale index whose id is NOT in `ids`.
+     *
+     * This prunes orphans left behind by the append-only indexer — docs for
+     * entities that were removed/renamed in the database but never cleaned up.
+     *
+     * @param params - Entity class name, locale, and the doc ids to keep.
+     * @returns Number of documents actually deleted (0 when index is absent).
+     *
+     * @example
+     * await service.pruneOrphans({ entity: CourseEntity.name, locale: Locale.Vi, ids: liveIds })
+     */
+    async pruneOrphans(
+        {
+            entity,
+            locale,
+            ids,
+        }: PruneOrphansParams,
+    ): Promise<number> {
+        // resolve the concrete `<base>-<locale>` index to prune
+        const index = this.indicateName({
+            entity,
+            locale,
+        })
+        try {
+            // when there are zero desired ids the whole index is orphaned → match everything;
+            // otherwise delete every doc whose _id is not in the keep-list
+            const result = await this.client.deleteByQuery({
+                index,
+                // keep deleting past version conflicts instead of aborting the whole pass
+                conflicts: "proceed",
+                // make deletions immediately visible so a follow-up count reflects reality
+                refresh: true,
+                query: ids.length > 0
+                    ? {
+                        bool: {
+                            must_not: [
+                                {
+                                    ids: {
+                                        values: ids,
+                                    },
+                                },
+                            ],
+                        },
+                    }
+                    : {
+                        match_all: {
+                        },
+                    },
+            })
+            // `deleted` is optional in the response typing → default to 0
+            return result.deleted ?? 0
+        } catch (error) {
+            // nothing to prune if the index was never created
+            if (
+                error?.meta?.body?.error?.type === "index_not_found_exception" ||
+                error?.message?.includes("index_not_found_exception")
+            ) {
+                return 0
+            }
+            throw error
+        }
     }
 
     /**

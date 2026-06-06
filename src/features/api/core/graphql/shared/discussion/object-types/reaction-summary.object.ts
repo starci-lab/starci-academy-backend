@@ -64,4 +64,28 @@ export class ReactionSummaryObject {
         },
     )
         myReaction: ReactionType | null
+
+    /**
+     * Number of distinct users who have marked this content as read (view count).
+     * Only populated for content-level summaries; 0 for comment summaries.
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Number of distinct users who have read this content.",
+        },
+    )
+        viewCount: number
+
+    /**
+     * Number of times this content has been shared.
+     * Reserved for future use — always 0 until share tracking is implemented.
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Number of shares (reserved; always 0 until share tracking is wired).",
+        },
+    )
+        shareCount: number
 }

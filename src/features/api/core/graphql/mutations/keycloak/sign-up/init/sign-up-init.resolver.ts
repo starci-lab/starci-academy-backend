@@ -4,6 +4,7 @@ import {
     Resolver,
 } from "@nestjs/graphql"
 import {
+    UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
 import {
@@ -25,6 +26,9 @@ import {
 import {
     SignUpInitService,
 } from "./sign-up-init.service"
+import {
+    CaptchaGuard,
+} from "@modules/captcha"
 
 @Resolver()
 export class SignUpInitResolver {
@@ -32,6 +36,7 @@ export class SignUpInitResolver {
         private readonly signUpInitService: SignUpInitService,
     ) {}
 
+    @UseGuards(CaptchaGuard)
     @UseThrottler(ThrottlerConfig.Strict)
     @GraphQLSuccessMessage({
         [Locale.En]: "OTP sent successfully",

@@ -193,6 +193,23 @@ export const getGithubAccessToken = (): string => {
 }
 
 /**
+ * Get the data-git token used to pull the private content repo.
+ *
+ * Optional dedicated read-only token: when its mount file is absent, fall back
+ * to the shared github access token so existing deployments keep working.
+ */
+export const getDataGitToken = (): string => {
+    const path = envConfig().mountPath.terraform.dataGitToken
+    // no dedicated token mounted → reuse the shared github access token
+    if (!existsSync(path)) {
+        return getGithubAccessToken().trim()
+    }
+    // trim trailing newline so the token is usable as an HTTP credential
+    return readFileSync(path,
+        "utf8").trim()
+}
+
+/**
  * Get github secret key (from terraform mount path).
  */
 export const getGithubSecretKey = (): string => {

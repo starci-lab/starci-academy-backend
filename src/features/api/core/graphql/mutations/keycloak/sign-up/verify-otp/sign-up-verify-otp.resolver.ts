@@ -27,6 +27,12 @@ import {
     CookieService,
 } from "@modules/cookie"
 import {
+    CsrfService,
+} from "@modules/csrf"
+import {
+    SessionService,
+} from "@modules/session"
+import {
     SignUpVerifyOtpInput,
     SignUpVerifyOtpResponse,
     type SignUpVerifyOtpData,
@@ -40,6 +46,8 @@ export class SignUpVerifyOtpResolver {
     constructor(
         private readonly signUpVerifyOtpService: SignUpVerifyOtpService,
         private readonly cookieService: CookieService,
+        private readonly csrfService: CsrfService,
+        private readonly sessionService: SessionService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Strict)
@@ -82,6 +90,18 @@ export class SignUpVerifyOtpResolver {
                 value: result.refreshToken,
             }
         )
+
+        // issue a CSRF token alongside sign-up so later cookie-driven calls
+        // (refresh / sign-out) can pass the double-submit check
+        this.csrfService.issueCookie({
+            res: ctx.res,
+        })
+
+        // start a fresh single account-wide session, evicting other devices
+        await this.sessionService.startSession({
+            res: ctx.res,
+            accessToken: result.data.accessToken,
+        })
 
         return result.data
     }

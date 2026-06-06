@@ -100,20 +100,38 @@ export class Judge0Service {
     }
 
     /**
-     * Submit a batch and poll until every run reaches a terminal state (or the
-     * configured poll budget is exhausted). This is the entrypoint the judging
-     * worker uses.
+     * Submit a batch and poll until every run reaches a terminal state, under a
+     * HARD wall-clock cap ({@link envConfig().judge0.overallTimeoutMs}, default
+     * 10s). Whichever settles first wins: terminal results, or the timeout. This
+     * is the entrypoint the judging worker uses.
      *
      * @param params - the submissions to run
      * @returns terminal results in input order
-     * @throws Judge0TimedOutException when runs do not finish within the budget
+     * @throws Judge0TimedOutException when judging exceeds the wall-clock budget
      */
     async judgeBatch({ submissions }: JudgeBatchParams): Promise<JudgeBatchResult> {
+        // hard end-to-end budget for the whole judging call
+        const { overallTimeoutMs } = envConfig().judge0
+        // race the poll loop against the wall-clock cap — first to settle wins
+        return Promise.race([
+            this.pollUntilTerminal(submissions),
+            this.rejectAfter(overallTimeoutMs),
+        ])
+    }
+
+    /**
+     * Submit the batch then poll until every run is terminal or the poll-attempt
+     * budget is exhausted. The hard wall-clock cap is enforced separately by
+     * {@link judgeBatch} via {@link rejectAfter}.
+     */
+    private async pollUntilTerminal(
+        submissions: JudgeBatchParams["submissions"],
+    ): Promise<JudgeBatchResult> {
         // read polling tunables from env
         const { pollIntervalMs, maxPollAttempts } = envConfig().judge0
         // enqueue the batch and capture tokens in order
         const tokens = (await this.submitBatch({
-            submissions 
+            submissions
         })).map((entry) => entry.token)
         // poll up to the configured number of attempts
         for (let attempt = 0; attempt < maxPollAttempts; attempt++) {
@@ -125,7 +143,7 @@ export class Judge0Service {
             const allTerminal = results.every((result) => isJudge0Terminal(result.statusId))
             if (allTerminal) {
                 return {
-                    results 
+                    results
                 }
             }
         }
@@ -137,6 +155,23 @@ export class Judge0Service {
         throw new Judge0TimedOutException({
             attempts: maxPollAttempts,
             pendingCount,
+        })
+    }
+
+    /**
+     * Reject with {@link Judge0TimedOutException} after the given wall-clock
+     * budget — hard-caps {@link judgeBatch} no matter how Judge0 (or a hung HTTP
+     * request) behaves.
+     */
+    private rejectAfter(ms: number): Promise<never> {
+        return new Promise<never>((_resolve, reject) => {
+            setTimeout(() => {
+                reject(new Judge0TimedOutException({
+                    attempts: 0,
+                    pendingCount: 0,
+                }))
+            },
+            ms)
         })
     }
 

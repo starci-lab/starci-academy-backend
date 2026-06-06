@@ -22,6 +22,8 @@ export enum CacheKey {
     CourseMindMap = "course.mind-map",
     /** AI ping mount-key health snapshots keyed by provider then API key. */
     AiPingKeyStatus = "ai.ping.key-status",
+    /** Number of users who have marked a content as read, keyed by contentId. */
+    ContentViewCount = "content.view-count",
 }
 
 /**

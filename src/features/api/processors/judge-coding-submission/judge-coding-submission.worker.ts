@@ -40,6 +40,7 @@ import {
 import {
     CodingProblemNotFoundException,
     CodingSubmissionNotFoundException,
+    Judge0TimedOutException,
 } from "@modules/exceptions"
 import {
     JudgeCodingSubmissionStepMappingService,
@@ -129,12 +130,16 @@ export class JudgeCodingSubmissionWorker extends WorkerHost {
                     identifier: submission.codingProblemId,
                 })
             }
-            // load every testcase for the problem in evaluation order
+            // load every testcase for the problem in evaluation order.
+            // filter by the `problem` RELATION, not the read-only @RelationId
+            // `codingProblemId` (which throws EntityPropertyNotFoundError).
             const testcases = await this.entityManager.find(
                 CodingProblemTestcaseEntity,
                 {
                     where: {
-                        codingProblemId: problem.id,
+                        problem: {
+                            id: problem.id,
+                        },
                     },
                     order: {
                         orderIndex: "ASC",
@@ -184,18 +189,24 @@ export class JudgeCodingSubmissionWorker extends WorkerHost {
                 },
             )
         } catch (error) {
-            // mark the job failed so the client gets a failed Socket.IO status update
+            // Persist the terminal verdict BEFORE emitting the failed status, so the
+            // client (which refetches the submission when it sees a terminal job
+            // status over Socket.IO) always reads the final verdict — never a stale
+            // "pending". A judging wall-clock timeout (>10s) is reported as Time
+            // Limit Exceeded ("cook"); any other infra failure is an Internal Error.
+            if (submission && submission.verdict === CodingVerdict.Pending) {
+                submission.verdict = error instanceof Judge0TimedOutException
+                    ? CodingVerdict.TimeLimitExceeded
+                    : CodingVerdict.InternalError
+                await this.entityManager.save(CodingSubmissionEntity,
+                    submission)
+            }
+            // now mark the job failed → emits the failed Socket.IO status update
             if (job) {
                 await this.jobActionService.failJob({
                     job,
                     error: error instanceof Error ? error.message : String(error),
                 })
-            }
-            // reflect the infra failure on the submission so its verdict isn't stuck "pending"
-            if (submission && submission.verdict === CodingVerdict.Pending) {
-                submission.verdict = CodingVerdict.InternalError
-                await this.entityManager.save(CodingSubmissionEntity,
-                    submission)
             }
             // failure log; re-throw so BullMQ records the failure
             this.winstonService.log(

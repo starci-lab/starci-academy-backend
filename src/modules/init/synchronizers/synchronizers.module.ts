@@ -19,6 +19,9 @@ import {
 import {
     BloomFiltersSynchronizerModule
 } from "./bloom-filters-synchronizer"
+import {
+    RepoSynchronizerModule
+} from "./repo-synchronizer"
 
 /**
  * Core synchronizer module.
@@ -38,6 +41,9 @@ import {
             isGlobal: true,
         }),
         BloomFiltersSynchronizerModule.register({
+            isGlobal: true,
+        }),
+        RepoSynchronizerModule.register({
             isGlobal: true,
         }),
     ],

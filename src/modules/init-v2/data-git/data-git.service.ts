@@ -1,0 +1,429 @@
+import {
+    Injectable,
+} from "@nestjs/common"
+import {
+    Octokit,
+} from "octokit"
+import {
+    mkdir,
+    mkdtemp,
+    readFile,
+    writeFile,
+    readdir,
+    rm,
+    cp,
+} from "fs/promises"
+import {
+    existsSync,
+} from "fs"
+import {
+    join,
+} from "path"
+import {
+    tmpdir,
+} from "os"
+import * as tar from "tar"
+import {
+    ContextType,
+    envConfig,
+} from "@modules/env"
+import {
+    MountFilesystemService,
+} from "@modules/filesystem"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
+import {
+    DataGitBootstrapException,
+} from "@modules/exceptions"
+import {
+    DATA_GIT_SHA_MARKER_FILE,
+    DATA_GIT_TEMP_PREFIX,
+} from "./constants"
+import type {
+    DownloadAndExtractParams,
+    EnsureDataGitResult,
+    ResolveChangedPathsParams,
+    ResolveChangedPathsResult,
+} from "./types"
+
+/**
+ * Materializes the private `data` GitHub repo into the local data root.
+ *
+ * Replaces the manual `.mount/data` workflow: on boot it resolves the remote
+ * commit SHA, compares it to a local marker, and only when they differ does it
+ * download the repo tarball (via the GitHub API — no `git` binary required) and
+ * extract it over the filesystem-context root. The existing seed/sync pipeline
+ * then reads that root unchanged.
+ *
+ * @example
+ * const { changed } = await dataGitBootstrapService.ensure()
+ */
+@Injectable()
+export class DataGitBootstrapService {
+    constructor(
+        private readonly mountFilesystemService: MountFilesystemService,
+        private readonly winstonService: WinstonService,
+    ) {}
+
+    /**
+     * Ensures the local data root matches the remote `data` repo.
+     *
+     * @returns Whether the root was refreshed and the SHA it is now pinned to
+     */
+    async ensure(): Promise<EnsureDataGitResult> {
+        // read repo coordinates from env so ops can repoint per-environment
+        const {
+            owner,
+            repo,
+            ref: configuredRef,
+            subdir,
+        } = envConfig().dataGit
+        // resolve the on-disk root that the seed pipeline reads from (filesystem context)
+        const checkoutRoot = this.resolveCheckoutRoot()
+        // build an authenticated client — dedicated read-only data-git token
+        // (falls back to the shared github access token when not mounted)
+        const octokit = new Octokit({
+            auth: this.mountFilesystemService.dataGitToken().trim(),
+        })
+
+        // announce the bootstrap so logs show which target is being resolved
+        this.winstonService.log(WinstonLog.DataGitBootstrapStarted,
+            {
+                owner,
+                repo,
+                ref: configuredRef,
+            })
+
+        try {
+            // an empty ref means "whatever the repo's default branch is"
+            const ref = configuredRef || await this.resolveDefaultBranch(octokit,
+                owner,
+                repo)
+            // ask GitHub for the current tip commit of that branch
+            const remoteSha = await this.resolveRemoteSha(octokit,
+                owner,
+                repo,
+                ref)
+            // the marker records the SHA the local root was last populated from
+            const markerPath = join(checkoutRoot,
+                DATA_GIT_SHA_MARKER_FILE)
+            const previousSha = await this.readMarker(markerPath)
+
+            // skip the download when the root already holds this exact commit
+            if (previousSha === remoteSha && this.hasContent(checkoutRoot)) {
+                this.winstonService.log(WinstonLog.DataGitBootstrapUpToDate,
+                    {
+                        owner,
+                        repo,
+                        ref,
+                        sha: remoteSha,
+                    })
+                return {
+                    changed: false,
+                    sha: remoteSha,
+                    previousSha,
+                    // nothing changed → no diff to act on
+                    changedPaths: [],
+                    diffAvailable: false,
+                }
+            }
+
+            // download + extract the tarball over the root, then re-stamp the marker
+            const entryCount = await this.downloadAndExtract({
+                octokit,
+                owner,
+                repo,
+                ref,
+                subdir,
+                checkoutRoot,
+            })
+            await writeFile(markerPath,
+                remoteSha,
+                "utf8")
+
+            // resolve the file-level diff so callers can seed only what changed
+            const {
+                changedPaths,
+                diffAvailable,
+            } = await this.resolveChangedPaths({
+                octokit,
+                owner,
+                repo,
+                previousSha,
+                newSha: remoteSha,
+            })
+
+            // surface the old → new transition (this is the "check diff" signal)
+            this.winstonService.log(WinstonLog.DataGitBootstrapUpdated,
+                {
+                    owner,
+                    repo,
+                    ref,
+                    previousSha,
+                    newSha: remoteSha,
+                    entryCount,
+                    checkoutRoot,
+                })
+            return {
+                changed: true,
+                sha: remoteSha,
+                previousSha,
+                changedPaths,
+                diffAvailable,
+            }
+        } catch (error) {
+            // normalize the caught value once so the log/exception see a real Error
+            const normalized = error instanceof Error
+                ? error
+                : new Error(String(error))
+            // log loudly before failing — the boot must not silently seed stale data
+            this.winstonService.log(WinstonLog.DataGitBootstrapFailed,
+                {
+                    owner,
+                    repo,
+                    ref: configuredRef,
+                    errorCode: normalized.name,
+                    errorMessage: normalized.message,
+                    errorStack: normalized.stack,
+                })
+            // rethrow as a typed exception so the failure groups in Sentry/log filters
+            throw new DataGitBootstrapException({
+                owner,
+                repo,
+                ref: configuredRef,
+                originalError: normalized,
+            })
+        }
+    }
+
+    /**
+     * Resolves the on-disk root the seed pipeline reads from — the path of the
+     * first enabled filesystem context.
+     *
+     * @returns Absolute path of the filesystem-context data root
+     */
+    private resolveCheckoutRoot(): string {
+        // the loader/resolver read content from the enabled filesystem context
+        const filesystemContext = envConfig().contexts.find(
+            (context) => context.enabled && context.type === ContextType.Filesystem,
+        )
+        // without one, there is nowhere consistent to extract into → misconfiguration
+        if (!filesystemContext) {
+            throw new DataGitBootstrapException({
+                owner: envConfig().dataGit.owner,
+                repo: envConfig().dataGit.repo,
+                ref: envConfig().dataGit.ref,
+                originalError: new Error(
+                    "No enabled filesystem context found to extract the data repo into",
+                ),
+            })
+        }
+        return filesystemContext.path
+    }
+
+    /**
+     * Resolves the repo's default branch when no explicit ref is configured.
+     *
+     * @param octokit - Authenticated GitHub client
+     * @param owner - Repository owner
+     * @param repo - Repository name
+     * @returns The default branch name
+     */
+    private async resolveDefaultBranch(
+        octokit: Octokit,
+        owner: string,
+        repo: string,
+    ): Promise<string> {
+        // a single repo lookup yields the default branch to pin against
+        const response = await octokit.rest.repos.get({
+            owner,
+            repo,
+        })
+        return response.data.default_branch
+    }
+
+    /**
+     * Reads the current tip commit SHA of a branch.
+     *
+     * @param octokit - Authenticated GitHub client
+     * @param owner - Repository owner
+     * @param repo - Repository name
+     * @param ref - Branch name to inspect
+     * @returns The commit SHA at the branch tip
+     */
+    private async resolveRemoteSha(
+        octokit: Octokit,
+        owner: string,
+        repo: string,
+        ref: string,
+    ): Promise<string> {
+        // getBranch returns the branch's HEAD commit, which we use as the version key
+        const response = await octokit.rest.repos.getBranch({
+            owner,
+            repo,
+            branch: ref,
+        })
+        return response.data.commit.sha
+    }
+
+    /**
+     * Resolves the repo-relative paths changed between two commits.
+     *
+     * @param params - Octokit client, repo coordinates, and the two SHAs
+     * @returns The changed path list and whether the diff is trustworthy
+     */
+    private async resolveChangedPaths({
+        octokit,
+        owner,
+        repo,
+        previousSha,
+        newSha,
+    }: ResolveChangedPathsParams): Promise<ResolveChangedPathsResult> {
+        // first boot: no baseline commit to diff against → caller must full-reseed
+        if (!previousSha) {
+            return {
+                changedPaths: [],
+                diffAvailable: false,
+            }
+        }
+        try {
+            // compare the two commits; GitHub returns the per-file change list
+            const response = await octokit.rest.repos.compareCommitsWithBasehead({
+                owner,
+                repo,
+                basehead: `${previousSha}...${newSha}`,
+            })
+            // map each changed file entry to its repo-relative path
+            const changedPaths = (response.data.files ?? []).map(
+                (file) => file.filename,
+            )
+            return {
+                changedPaths,
+                diffAvailable: true,
+            }
+        } catch {
+            // history rewrite / missing commit → the diff cannot be trusted → full reseed
+            return {
+                changedPaths: [],
+                diffAvailable: false,
+            }
+        }
+    }
+
+    /**
+     * Reads the SHA marker file, returning an empty string when absent.
+     *
+     * @param markerPath - Absolute path to the marker file
+     * @returns The stored SHA, or empty string on first bootstrap
+     */
+    private async readMarker(markerPath: string): Promise<string> {
+        // a missing marker means the root was never populated from the repo
+        if (!existsSync(markerPath)) {
+            return ""
+        }
+        // trim to drop any trailing newline written by other tooling
+        const content = await readFile(markerPath,
+            "utf8")
+        return content.trim()
+    }
+
+    /**
+     * Checks whether the data root already holds repo content (ignoring the marker).
+     *
+     * @param checkoutRoot - Absolute path of the data root
+     * @returns True when at least one non-marker entry exists
+     */
+    private hasContent(checkoutRoot: string): boolean {
+        // a non-existent root obviously has no content yet
+        if (!existsSync(checkoutRoot)) {
+            return false
+        }
+        // an empty root (or one holding only the marker) must be repopulated
+        return existsSync(join(checkoutRoot,
+            "courses"))
+    }
+
+    /**
+     * Downloads the repo tarball and extracts it over the data root.
+     *
+     * @param params - Octokit client, repo coordinates, sub-directory, and target root
+     * @returns Number of top-level entries replaced in the data root
+     */
+    private async downloadAndExtract({
+        octokit,
+        owner,
+        repo,
+        ref,
+        subdir,
+        checkoutRoot,
+    }: DownloadAndExtractParams): Promise<number> {
+        // a throwaway temp dir holds the raw tarball + the extracted tree
+        const tempDir = await mkdtemp(join(tmpdir(),
+            DATA_GIT_TEMP_PREFIX))
+        try {
+            // pull the gzipped tarball through the GitHub API (follows the redirect for us)
+            const response = await octokit.rest.repos.downloadTarballArchive({
+                owner,
+                repo,
+                ref,
+            })
+            // the archive body arrives as an ArrayBuffer — persist it to disk for tar to read
+            const tarballPath = join(tempDir,
+                "repo.tar.gz")
+            await writeFile(tarballPath,
+                Buffer.from(response.data as ArrayBuffer))
+
+            // GitHub wraps everything in a single `owner-repo-<sha>/` folder; strip:1 removes it
+            const extractDir = join(tempDir,
+                "extracted")
+            await mkdir(extractDir,
+                {
+                    recursive: true 
+                })
+            await tar.x({
+                file: tarballPath,
+                cwd: extractDir,
+                strip: 1,
+            })
+
+            // the content we care about is either the repo root or a configured sub-directory
+            const sourceDir = subdir
+                ? join(extractDir,
+                    subdir)
+                : extractDir
+
+            // make sure the destination root exists before copying into it
+            await mkdir(checkoutRoot,
+                {
+                    recursive: true 
+                })
+
+            // replace each top-level entry individually so unrelated files (e.g. the marker) survive
+            const entries = await readdir(sourceDir)
+            for (const entry of entries) {
+                // drop the stale copy then move the fresh one in — an atomic-ish per-entry swap
+                const destination = join(checkoutRoot,
+                    entry)
+                await rm(destination,
+                    {
+                        recursive: true, force: true 
+                    })
+                await cp(join(sourceDir,
+                    entry),
+                destination,
+                {
+                    recursive: true 
+                })
+            }
+            return entries.length
+        } finally {
+            // always clean up the temp tree regardless of success/failure
+            await rm(tempDir,
+                {
+                    recursive: true, force: true 
+                })
+        }
+    }
+}

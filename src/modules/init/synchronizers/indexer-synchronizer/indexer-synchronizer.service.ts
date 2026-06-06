@@ -6,7 +6,8 @@ import {
     CourseEntity,
     ModuleEntity,
     ContentEntity,
-    ChallengeEntity,} from "@modules/databases"
+    ChallengeEntity,
+} from "@modules/databases"
 import {
     MoreThan,
     type EntityManager,
@@ -31,9 +32,9 @@ import type {
     SynchronizerSyncScope,
 } from "../../types"
 import {
-    buildCdnSynchronizerSyncScope,
     shouldSyncChallengeEntity,
     shouldSyncContentEntity,
+    shouldSyncCourseEntity,
     shouldSyncModuleEntity,
 } from "../../utils"
 
@@ -66,7 +67,7 @@ export class IndexerSynchronizerService {
      * Sync all entities to Indexer sequentially.
      */
     async sync(
-        scope: SynchronizerSyncScope = buildCdnSynchronizerSyncScope(),
+        scope: SynchronizerSyncScope,
     ): Promise<void> {
         /**
          * Start the Indexer synchronization.
@@ -105,6 +106,11 @@ export class IndexerSynchronizerService {
                     )
                     if (!course) {
                         break
+                    }
+                    if (!shouldSyncCourseEntity(scope,
+                        course)) {
+                        resumeEntityId = course.id
+                        continue
                     }
                     try {
                         await this.indexerCourseBuildService.buildIndexerById(

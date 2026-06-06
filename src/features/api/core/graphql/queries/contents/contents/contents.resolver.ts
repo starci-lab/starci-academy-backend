@@ -18,6 +18,7 @@ import {
 } from "@modules/throttler"
 import {
     Locale,
+    UserEntity,
 } from "@modules/databases"
 import {
     ContentsRequest,
@@ -29,10 +30,8 @@ import {
 } from "./contents.service"
 import {
     KeycloakAuthGraphQLGuard,
+    KeycloakGraphQLUser,
 } from "@modules/keycloak"
-import {
-    GraphQLMustEnrolledGuard,
-} from "@modules/bussiness"
 
 @Resolver()
 export class ContentsResolver {
@@ -42,6 +41,8 @@ export class ContentsResolver {
 
     /**
      * Lists contents for a module with page-based pagination.
+     * Enroll guard removed — logged-in users may browse the content list for trial reading.
+     * Premium content bodies are truncated server-side; the FE shows a paywall overlay.
      */
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
@@ -50,7 +51,6 @@ export class ContentsResolver {
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,
-        GraphQLMustEnrolledGuard,
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(
@@ -70,11 +70,14 @@ export class ContentsResolver {
             request: ContentsRequest,
         @GraphQLLocale()
             locale: Locale,
+        @KeycloakGraphQLUser()
+            user: UserEntity,
     ): Promise<ContentsResponseData> {
         return this.contentsService.execute(
             {
                 request,
                 locale,
+                user,
             },
         )
     }

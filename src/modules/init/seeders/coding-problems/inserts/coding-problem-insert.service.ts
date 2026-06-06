@@ -63,6 +63,7 @@ export class CodingProblemInsertService {
                     id,
                     slug: problem.slug,
                     difficulty: problem.difficulty,
+                    domain: problem.domain,
                     title: problem.title,
                     statement: problem.statement,
                     tags: problem.tags,

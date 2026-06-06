@@ -8,13 +8,9 @@ import {
     ChallengeNotFoundException,
 } from "@modules/exceptions"
 import {
-    InjectSuperJson,
-} from "@modules/mixin"
-import {
     S3NameResolverService,
     S3Provider,
     S3ReadService,
-    UploadPayload,
 } from "@modules/s3"
 import {
     Injectable,
@@ -23,7 +19,6 @@ import {
     IQueryHandler,
     QueryHandler,
 } from "@nestjs/cqrs"
-import SuperJSON from "superjson"
 import {
     ChallengeQuery,
 } from "./challenge.query"
@@ -39,8 +34,6 @@ export class ChallengeHandler
     constructor(
         private readonly s3ReadService: S3ReadService,
         private readonly s3NameResolverService: S3NameResolverService,
-        @InjectSuperJson()
-        private readonly superJson: SuperJSON,
     ) {
         super()
     }
@@ -60,15 +53,15 @@ export class ChallengeHandler
             request.id,
             locale
         )
-        const cdnPayload = await this.s3ReadService.json<UploadPayload>({
+        const challenge = await this.s3ReadService.json<ChallengeEntity>({
             key: objectKey,
             provider: S3Provider.Minio,
         }).catch(() => null)
-        if (!cdnPayload) {
+        if (!challenge) {
             throw new ChallengeNotFoundException({
                 id: request.id,
             })
         }
-        return this.superJson.parse<ChallengeEntity>(cdnPayload.data)
+        return challenge
     }
 }

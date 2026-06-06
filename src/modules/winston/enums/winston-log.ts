@@ -27,12 +27,30 @@ export enum WinstonLog {
     CdnSynchronizerContentRuntimeSyncFailed = "CdnSynchronizerContentRuntimeSyncFailed",
     /** CDN synchronizer: sync cycle started. */
     CdnSynchronizerCdnSyncStarted = "CdnSynchronizerCdnSyncStarted",
+    /** CDN synchronizer: entity-kind pass started (Course, Challenge, …). */
+    CdnSynchronizerEntityKindStarted = "CdnSynchronizerEntityKindStarted",
+    /** CDN synchronizer: single entity sync started (before hydrate/upload). */
+    CdnSynchronizerEntitySyncStarted = "CdnSynchronizerEntitySyncStarted",
+    /** CDN synchronizer: entity skipped (out of scope). */
+    CdnSynchronizerEntitySkipped = "CdnSynchronizerEntitySkipped",
+    /** CDN synchronizer: hydrate/upload sub-step (course hydrate, S3 put, …). */
+    CdnSynchronizerMaterializeStep = "CdnSynchronizerMaterializeStep",
     /** CDN synchronizer: single entity synced successfully. */
     CdnSynchronizerSyncedSuccessfully = "CdnSynchronizerSyncedSuccessfully",
     /** CDN synchronizer: sync cycle completed. */
     CdnSynchronizerCdnSyncDone = "CdnSynchronizerCdnSyncDone",
     /** CDN synchronizer: entity sync failed after retries. */
     CdnSynchronizerEntitySyncFailed = "CdnSynchronizerEntitySyncFailed",
+    /** CDN synchronizer reconcile: orphan keys found (diff vs database). */
+    CdnSynchronizerReconcileOrphansFound = "CdnSynchronizerReconcileOrphansFound",
+    /** CDN synchronizer reconcile: orphan keys deleted from a provider. */
+    CdnSynchronizerReconcileOrphansDeleted = "CdnSynchronizerReconcileOrphansDeleted",
+    /** CDN synchronizer reconcile: deletion skipped because orphan ratio exceeded the safety threshold. */
+    CdnSynchronizerReconcileSkippedBySafety = "CdnSynchronizerReconcileSkippedBySafety",
+    /** Elasticsearch index reset: started dropping/recreating indices at boot. */
+    ElasticsearchIndexResetStarted = "ElasticsearchIndexResetStarted",
+    /** Elasticsearch index reset: finished — indices empty and awaiting sync. */
+    ElasticsearchIndexResetDone = "ElasticsearchIndexResetDone",
     /** Elasticsearch synchronizer: sync cycle started. */
     EsSynchronizerSyncStarted = "EsSynchronizerSyncStarted",
     /** Elasticsearch synchronizer: old deprecated cron sync log. */
@@ -43,6 +61,12 @@ export enum WinstonLog {
     EsSynchronizerSyncDone = "EsSynchronizerSyncDone",
     /** Elasticsearch synchronizer: entity sync failed. */
     EsSynchronizerEntitySyncFailed = "EsSynchronizerEntitySyncFailed",
+    /** Elasticsearch synchronizer reconcile: orphan docs found (diff vs database). */
+    EsSynchronizerReconcileOrphansFound = "EsSynchronizerReconcileOrphansFound",
+    /** Elasticsearch synchronizer reconcile: orphan docs deleted from an index. */
+    EsSynchronizerReconcileOrphansDeleted = "EsSynchronizerReconcileOrphansDeleted",
+    /** Elasticsearch synchronizer reconcile: deletion skipped because orphan ratio exceeded the safety threshold. */
+    EsSynchronizerReconcileSkippedBySafety = "EsSynchronizerReconcileSkippedBySafety",
     /** Indexer synchronizer: sync cycle started. */
     IndexerSynchronizerSyncStarted = "IndexerSynchronizerSyncStarted",
     /** Indexer synchronizer: old deprecated cron sync log. */
@@ -67,6 +91,14 @@ export enum WinstonLog {
     BloomFilterSynchronizerSyncDone = "BloomFilterSynchronizerSyncDone",
     /** Bloom filter synchronizer: entity sync failed after retries. */
     BloomFilterSynchronizerEntitySyncFailed = "BloomFilterSynchronizerEntitySyncFailed",
+    /** Repo synchronizer: sync cycle started. */
+    RepoSynchronizerSyncStarted = "RepoSynchronizerSyncStarted",
+    /** Repo synchronizer: sandbox content files uploaded to CDN. */
+    RepoSynchronizerContentSynced = "RepoSynchronizerContentSynced",
+    /** Repo synchronizer: failed to sync a sandbox content. */
+    RepoSynchronizerContentSyncFailed = "RepoSynchronizerContentSyncFailed",
+    /** Repo synchronizer: sync cycle completed. */
+    RepoSynchronizerSyncDone = "RepoSynchronizerSyncDone",
     /** Sync orchestrator: orchestration started. */
     SyncOrchestratorStarted = "SyncOrchestratorStarted",
     /** Sync orchestrator: orchestration completed. */
@@ -122,5 +154,21 @@ export enum WinstonLog {
     /** AI Balancer: rotation selected a key. */
     AiBalancerKeyPicked = "AiBalancerKeyPicked",
     /** AI Balancer: no active key available for a provider. */
-    AiBalancerNoActiveKey = "AiBalancerNoActiveKey"
+    AiBalancerNoActiveKey = "AiBalancerNoActiveKey",
+    /** Transaction reconcile: a delayed poll was scheduled. */
+    TransactionReconcileScheduled = "TransactionReconcileScheduled",
+    /** Transaction reconcile: a poll ran (gateway status + decision taken). */
+    TransactionReconcilePolled = "TransactionReconcilePolled",
+    /** Transaction reconcile: startup sweep re-enqueued pending transactions. */
+    TransactionReconcileBootSweep = "TransactionReconcileBootSweep",
+    /** Data-git bootstrap: started resolving the remote ref / commit SHA. */
+    DataGitBootstrapStarted = "DataGitBootstrapStarted",
+    /** Data-git bootstrap: remote SHA matches the local marker — no download. */
+    DataGitBootstrapUpToDate = "DataGitBootstrapUpToDate",
+    /** Data-git bootstrap: tarball downloaded and extracted into the data root. */
+    DataGitBootstrapUpdated = "DataGitBootstrapUpdated",
+    /** Data-git bootstrap: failed to fetch or extract the remote data repo. */
+    DataGitBootstrapFailed = "DataGitBootstrapFailed",
+    /** Data-git diff: resolved how the seed/sync scope was narrowed for this boot. */
+    DataGitDiffScoped = "DataGitDiffScoped"
     }

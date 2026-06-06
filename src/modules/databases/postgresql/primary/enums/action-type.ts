@@ -85,6 +85,11 @@ export enum ActionType {
      * Judge a LeetCode-style coding submission against testcases via Judge0.
      */
     JudgeCodingSubmission = "judgeCodingSubmission",
+    /**
+     * Poll a pending payment transaction's gateway status (delayed, repeated) and
+     * finalize it as succeeded on payment, or mark it unpaid once attempts are exhausted.
+     */
+    ReconcileTransaction = "reconcileTransaction",
 }
 
 export const GraphQLTypeActionType = createEnumType(ActionType)
@@ -148,6 +153,9 @@ registerEnumType(
             },
             [ActionType.JudgeCodingSubmission]: {
                 description: "Judge a coding submission against testcases via Judge0.",
+            },
+            [ActionType.ReconcileTransaction]: {
+                description: "Poll a pending transaction's gateway status; finalize on payment or mark unpaid when exhausted.",
             },
         },
     },

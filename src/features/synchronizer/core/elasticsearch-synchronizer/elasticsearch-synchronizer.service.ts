@@ -18,6 +18,9 @@ import {
     ElasticsearchChallengeBuildService,
 } from "./builder"
 import {
+    ElasticsearchReconcileService,
+} from "./elasticsearch-reconcile.service"
+import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
@@ -45,6 +48,7 @@ export class ElasticsearchSynchronizerService {
         private readonly esContentBuildService: ElasticsearchContentBuildService,
         private readonly esChallengeBuildService: ElasticsearchChallengeBuildService,
         private readonly retryService: RetryService,
+        private readonly elasticsearchReconcileService: ElasticsearchReconcileService,
     ) { }
 
     /** Entity kinds supported by the Elasticsearch synchronizer. */
@@ -267,6 +271,12 @@ export class ElasticsearchSynchronizerService {
             }
             }
         }
+        /**
+         * Reconcile: diff the indexed docs against the live database and prune
+         * orphans (only deletes when SYNC_PRUNE_ORPHANS=true; otherwise logs the diff).
+         * Runs after the index loop so every desired doc is already present.
+         */
+        await this.elasticsearchReconcileService.reconcileAll()
         /**
          * End the Elasticsearch synchronization.
          */

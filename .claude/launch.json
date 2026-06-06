@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "C:/Repositories/starci-academy", "run", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "cmdk-lab",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-16-interaction-and-accessibility/1-command-palette-with-cmdk/frontend", "run", "dev"],
+      "port": 3001
+    }
+  ]
+}

@@ -11,6 +11,9 @@ import {
     CodingProblemSingleQueryModule,
 } from "./coding-problem"
 import {
+    CodingProblemHintSingleQueryModule,
+} from "./coding-problem-hint"
+import {
     MyCodingSubmissionsSingleQueryModule,
 } from "./my-coding-submissions"
 import {
@@ -27,6 +30,9 @@ import {
             isGlobal: true,
         }),
         CodingProblemSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        CodingProblemHintSingleQueryModule.register({
             isGlobal: true,
         }),
         MyCodingSubmissionsSingleQueryModule.register({

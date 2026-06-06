@@ -1,0 +1,35 @@
+---
+description: Premium content body truncation (teaser for non-enrolled viewers) must never cut inside a markdown code fence — otherwise mermaid/code blocks break with "Syntax error in text" on the FE.
+globs: src/features/api/core/graphql/queries/contents/**/*.handler.ts
+alwaysApply: false
+---
+
+# Premium body truncation must be fence-safe
+
+When a premium (locked) lesson is served to a non-enrolled / trial viewer, the body markdown is **truncated server-side** into a teaser (`lockPremiumContent` in `contents.handler.ts` and `content.handler.ts`). A naive `text.slice(0, N)` (or cut at a heading) can land **inside a fenced code block** — most damagingly inside a ```` ```mermaid ```` block — leaving a **dangling open fence**. The FE then receives a half-diagram and `mermaid.render` throws `Parse error ... got '1'` → the user sees "Syntax error in text (mermaid 11.14.0)" with the diagram stuck on the loading label.
+
+> Root-caused 2026-06-03. The mermaid CONTENT was valid (parsed fine via `mermaid.parse`/`mmdc` on the file and in the DB); the bug was the teaser truncation cutting at char 1200, mid-`subgraph`. Do NOT misdiagnose as a `<br/>` / content issue — `mermaid.parse` passing on the full body does NOT mean the *truncated* body renders.
+
+## Required
+
+- After computing any truncation slice of a markdown body, **drop a dangling unclosed code fence**: if the slice contains an odd number of ```` ``` ```` markers, trim back to before the last ```` ``` ```` so the teaser is valid markdown.
+
+```ts
+// Reusable guard — apply to EVERY body slice in a premium teaser.
+const dropDanglingFence = (slice: string): string =>
+    (slice.match(/```/g)?.length ?? 0) % 2 === 1
+        ? slice.slice(0, slice.lastIndexOf("```"))
+        : slice
+```
+
+- Apply it to **all** body fields truncated: legacy `content.body`, and every SCHEMA V2 `content.bodies[].body` + `content.bodies[].translations[].body`.
+- Char-count limits (`1200`, `4000`) are fine as a budget, but the fence guard must run after the slice.
+
+## Forbidden
+
+- Returning `` `${text.slice(0, N)}\n\n...` `` (or any heading-based cut) **without** the dangling-fence guard.
+- "Fixing" a premium-lesson mermaid error by editing the lesson markdown (stripping `<br/>`, rewording labels) — the content is not the problem; the truncation code is.
+
+## How to diagnose a recurrence
+
+The error only appears on `isPremium=true` lessons, and the FE's `MermaidDiagram` receives a short `code` string that ends mid-diagram (e.g. `len=126`, ending at `subgraph`). Confirm by temporarily logging the `code` passed to `mermaid.render`; if it is the leading fragment of a larger diagram, it is a truncation bug, not a content bug.

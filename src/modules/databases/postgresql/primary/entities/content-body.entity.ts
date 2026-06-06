@@ -146,6 +146,7 @@ export class ContentBodyEntity extends UuidAbstractEntity {
         (translation: ContentBodyTranslationEntity) => translation.contentBody,
         {
             cascade: true,
+            orphanedRowAction: "delete",
         },
     )
         translations: Array<ContentBodyTranslationEntity>

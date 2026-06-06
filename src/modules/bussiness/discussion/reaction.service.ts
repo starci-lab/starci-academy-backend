@@ -10,6 +10,7 @@ import {
     ContentReactionEntity,
     InjectPrimaryPostgreSQLEntityManager,
     ReactionType,
+    UserContentEntity,
 } from "@modules/databases"
 import {
     CommentNotFoundException,
@@ -18,6 +19,10 @@ import {
     EventEmitterService,
     EventName,
 } from "@modules/event"
+import {
+    CacheKey,
+    CacheService,
+} from "@modules/cache"
 import type {
     ReactionCountResult,
     ReactionSummaryResult,
@@ -40,6 +45,7 @@ export class ReactionService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly eventEmitterService: EventEmitterService,
+        private readonly cacheService: CacheService,
     ) {}
 
     /**
@@ -176,9 +182,53 @@ export class ReactionService {
     }
 
     /**
+     * Returns the view count (distinct readers) for a content.
+     * Checks Redis cache first; on miss queries the DB and caches the result.
+     * @param contentId - The content UUID.
+     * @returns Number of distinct users who have marked the content as read.
+     */
+    async getViewCount(contentId: string): Promise<number> {
+        // try cache first
+        const cached = await this.cacheService.get({
+            key: CacheKey.ContentViewCount,
+            args: [contentId],
+        })
+        if (cached !== undefined) {
+            return cached
+        }
+        // cache miss — compute from DB
+        const count = await this.entityManager.count(UserContentEntity,
+            {
+                where: {
+                    contentId,
+                    isRead: true,
+                },
+            })
+        await this.cacheService.set({
+            key: CacheKey.ContentViewCount,
+            args: [contentId],
+            cacheResult: count,
+        })
+        return count
+    }
+
+    /**
+     * Invalidates the cached view count for a content so the next read recomputes it.
+     * Call this whenever a user marks a content as read or unread.
+     * @param contentId - The content UUID whose cache entry should be evicted.
+     */
+    async invalidateViewCount(contentId: string): Promise<void> {
+        await this.cacheService.del({
+            key: CacheKey.ContentViewCount,
+            args: [contentId],
+        })
+    }
+
+    /**
      * Computes the reaction summary for a single content from a user's view.
+     * Includes viewCount (cached reader count) and shareCount (0 until implemented).
      * @param params - {@link SummarizeContentReactionsParams}
-     * @returns The content's reaction summary.
+     * @returns The content's reaction summary including view + share counts.
      */
     async summarizeContent({
         contentId,
@@ -210,9 +260,15 @@ export class ReactionService {
                     },
                 },
             })
-        // assemble counts + total + myReaction into the shared summary shape
-        return this.buildSummary(rows,
-            mine?.type ?? null)
+        // fetch cached view count in parallel — avoids a separate round-trip per request
+        const viewCount = await this.getViewCount(contentId)
+        // assemble counts + total + myReaction + viewCount + shareCount into the shared summary shape
+        return {
+            ...this.buildSummary(rows,
+                mine?.type ?? null),
+            viewCount,
+            shareCount: 0,
+        }
     }
 
     /**
@@ -297,6 +353,8 @@ export class ReactionService {
 
     /**
      * Folds raw per-emotion counts into a {@link ReactionSummaryResult}.
+     * viewCount and shareCount are set to 0 here; callers that need them must
+     * spread the result and override (e.g. `summarizeContent` sets viewCount).
      * @param counts - Per-emotion count rows (string counts from raw SQL or numeric).
      * @param myReaction - The viewing user's own emotion, or null.
      * @returns The assembled summary.
@@ -317,6 +375,9 @@ export class ReactionService {
             counts: normalized,
             total,
             myReaction,
+            // comment summaries never carry view/share counts
+            viewCount: 0,
+            shareCount: 0,
         }
     }
 
@@ -329,6 +390,8 @@ export class ReactionService {
             counts: [],
             total: 0,
             myReaction: null,
+            viewCount: 0,
+            shareCount: 0,
         }
     }
 }

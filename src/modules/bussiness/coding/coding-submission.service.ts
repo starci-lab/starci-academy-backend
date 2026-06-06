@@ -16,6 +16,12 @@ import {
 import {
     EnqueueJudgeCodingSubmissionJobService,
 } from "../jobs"
+import {
+    AntiCheatService,
+} from "../anti-cheat"
+import {
+    DeviceService,
+} from "../device"
 import type {
     ListMyCodingSubmissionsParams,
     ListMyCodingSubmissionsResult,
@@ -37,6 +43,8 @@ export class CodingSubmissionService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly enqueueJudgeCodingSubmissionJobService: EnqueueJudgeCodingSubmissionJobService,
+        private readonly antiCheatService: AntiCheatService,
+        private readonly deviceService: DeviceService,
     ) {}
 
     /**
@@ -51,6 +59,10 @@ export class CodingSubmissionService {
         slug,
         language,
         sourceCode,
+        telemetry,
+        ipAddress = null,
+        userAgent = null,
+        fingerprint = null,
     }: SubmitCodingSolutionParams): Promise<SubmitCodingSolutionResult> {
         // resolve the target problem (must exist and be enabled)
         const problem = await this.entityManager.findOne(CodingProblemEntity,
@@ -66,6 +78,11 @@ export class CodingSubmissionService {
                 identifier: slug,
             })
         }
+        // score the attempt for AI/paste-cheat likelihood (never blocks submit)
+        const evaluation = this.antiCheatService.evaluate({
+            telemetry,
+            codeLength: sourceCode.length,
+        })
         // persist a fresh submission in the pending state (verdict set later by the worker)
         const submission = await this.entityManager.save(CodingSubmissionEntity,
             {
@@ -78,7 +95,27 @@ export class CodingSubmissionService {
                 language,
                 sourceCode,
                 verdict: CodingVerdict.Pending,
+                // anti-cheat capture: request metadata + telemetry + verdict
+                ipAddress,
+                userAgent,
+                deviceFingerprint: fingerprint,
+                // store raw telemetry + computed reasons for later review
+                clientTelemetry: telemetry
+                    ? JSON.stringify({
+                        ...telemetry,
+                        reasons: evaluation.reasons,
+                    })
+                    : null,
+                suspicionScore: evaluation.suspicionScore,
+                flaggedForReview: evaluation.flagged,
             })
+        // best-effort: remember the device this submission came from
+        await this.deviceService.recordDevice({
+            userId,
+            fingerprint,
+            ipAddress,
+            userAgent,
+        })
         // enqueue the async judging job; the returned job id is what the client subscribes to
         const job = await this.enqueueJudgeCodingSubmissionJobService.enqueue({
             userId,
@@ -123,9 +160,16 @@ export class CodingSubmissionService {
             total] = await this.entityManager.findAndCount(
             CodingSubmissionEntity,
             {
+                // filter by the RELATION properties, not the read-only @RelationId
+                // virtual columns (`userId`/`codingProblemId` aren't queryable and
+                // throw EntityPropertyNotFoundError).
                 where: {
-                    userId,
-                    codingProblemId: problem.id,
+                    user: {
+                        id: userId,
+                    },
+                    problem: {
+                        id: problem.id,
+                    },
                 },
                 order: {
                     createdAt: "DESC",

@@ -20,8 +20,15 @@ import {
 import type {
     CreateNowPaymentsInvoiceParams,
     CreateNowPaymentsInvoiceResult,
+    NowPaymentsInvoiceStatusResult,
     VerifyNowPaymentsSignatureParams,
 } from "./types"
+
+/** NOWPayments `payment_status` values that mean the crypto payment cleared. */
+const NOWPAYMENTS_PAID_STATUSES = new Set<string>([
+    "finished",
+    "confirmed",
+])
 
 /**
  * Thin NOWPayments REST client built on the repo's {@link AxiosService} (no
@@ -82,6 +89,44 @@ export class NowPaymentsClient {
             invoiceId: String(response.data.id),
             // hosted page the customer is redirected to in order to pay
             invoiceUrl: String(response.data.invoice_url),
+        }
+    }
+
+    /**
+     * Poll the payments attached to an invoice to learn whether it was paid,
+     * used by transaction reconciliation when no IPN arrived. Calls
+     * `GET /v1/payment/?invoiceId={invoiceId}` (authenticated by the API key).
+     *
+     * @param invoiceId - The NOWPayments invoice id stored at checkout creation
+     * @returns Whether any payment is finished/confirmed, plus raw statuses
+     */
+    async getInvoiceStatus(
+        invoiceId: string,
+    ): Promise<NowPaymentsInvoiceStatusResult> {
+        // read the API key from the mounted secret file (never an env var)
+        const apiKey = getNowpaymentsApiKey().trim()
+        // list every payment NOWPayments created for this invoice
+        const response = await this.http().get(
+            "/payment/",
+            {
+                params: {
+                    invoiceId,
+                },
+                headers: {
+                    "x-api-key": apiKey,
+                },
+            },
+        )
+        // NOWPayments returns the payments under `data` (array); be defensive about shape
+        const payments = Array.isArray(response.data?.data)
+            ? (response.data.data as Array<Record<string, unknown>>)
+            : []
+        // collect each payment's status string for the decision + diagnostics
+        const statuses = payments.map((payment) => String(payment.payment_status ?? ""))
+        return {
+            paid: statuses.some((status) => NOWPAYMENTS_PAID_STATUSES.has(status)),
+            empty: statuses.length === 0,
+            statuses,
         }
     }
 

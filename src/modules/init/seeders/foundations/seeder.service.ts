@@ -17,8 +17,8 @@ import {
     FoundationParserService,
 } from "./parsers"
 import {
-    isFoundationsSeederEnabled,
-} from "../shared/scope"
+    SeedScopeService,
+} from "../../scope"
 
 /**
  * Wraps the full foundations init seed pipeline (parse → upsert per table).
@@ -30,14 +30,15 @@ export class FoundationSeederService {
         private readonly foundationCategoryParserService: FoundationCategoryParserService,
         private readonly foundationParserService: FoundationParserService,
         private readonly foundationCategoryInsertService: FoundationCategoryInsertService,
-        private readonly foundationInsertService: FoundationInsertService
+        private readonly foundationInsertService: FoundationInsertService,
+        private readonly seedScopeService: SeedScopeService,
     ) { }
 
     /**
      * Parse foundation markdown sources and upsert PostgreSQL (categories → foundations).
      */
     async seed(): Promise<void> {
-        if (!isFoundationsSeederEnabled()) {
+        if (!this.seedScopeService.isFoundationsSeederEnabled()) {
             return
         }
         /** The categories to seed. */

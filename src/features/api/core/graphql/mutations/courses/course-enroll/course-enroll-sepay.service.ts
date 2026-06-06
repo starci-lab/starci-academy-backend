@@ -43,6 +43,9 @@ import {
 import type {
     SignSepayFieldsParams,
 } from "./types"
+import {
+    EnqueueReconcileTransactionJobService,
+} from "@modules/bussiness"
 
 /**
  * Sepay-specific course enrollment via the SePay Payment Gateway. Signs the
@@ -57,6 +60,7 @@ export class CourseEnrollSepayService {
         private readonly sepay: SePayPgClient,
         private readonly dayjsService: DayjsService,
         private readonly coursePricingService: CoursePricingService,
+        private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
     ) {}
 
     /**
@@ -151,6 +155,10 @@ export class CourseEnrollSepayService {
             },
         )
         await this.entityManager.save(transaction)
+        // schedule the delayed reconcile poll (fires if no webhook arrives)
+        await this.enqueueReconcileTransactionJobService.enqueue({
+            transactionId: transaction.id,
+        })
 
         return {
             checkoutUrl: this.sepay.checkout.initCheckoutUrl(),

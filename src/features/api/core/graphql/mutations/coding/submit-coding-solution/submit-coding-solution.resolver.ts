@@ -27,6 +27,10 @@ import {
     CodingSubmissionService,
 } from "@modules/bussiness"
 import {
+    ClientContextParam,
+    type ClientContext,
+} from "@modules/client-context"
+import {
     SubmitCodingSolutionRequest,
     SubmitCodingSolutionResponse,
     type SubmitCodingSolutionResponseData,
@@ -68,13 +72,20 @@ export class SubmitCodingSolutionResolver {
             request: SubmitCodingSolutionRequest,
         @KeycloakGraphQLUser()
             user: UserEntity,
+        @ClientContextParam()
+            client: ClientContext,
     ): Promise<SubmitCodingSolutionResponseData> {
-        // create the pending submission + enqueue judging, scoped to the user
+        // create the pending submission + enqueue judging, scoped to the user.
+        // request metadata + telemetry feed anti-cheat scoring + device tracking
         return this.codingSubmissionService.submit({
             userId: user.id,
             slug: request.slug,
             language: request.language,
             sourceCode: request.sourceCode,
+            telemetry: request.telemetry,
+            ipAddress: client.ipAddress,
+            userAgent: client.userAgent,
+            fingerprint: client.fingerprint,
         })
     }
 }

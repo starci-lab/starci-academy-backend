@@ -6,32 +6,37 @@ import {
     WinstonService,
 } from "@modules/winston"
 import {
-    isCodingProblemsSeederEnabled,
-} from "../shared/scope"
+    SeedScopeService,
+} from "../../scope"
 import {
     CodingProblemParserService,
 } from "./parsers"
 import {
     CodingProblemInsertService,
 } from "./inserts"
+import {
+    CodingProblemHintIndexService,
+} from "./hints"
 
 /**
  * Seeds the coding-practice problem bank from `.mount/data/coding-problems/`
  * into `coding_problems` (+ testcases, starter codes, translations) at boot.
- * Gated by envConfig().init seeders `codingProblems.enabled`.
+ * Gated by `seed.yaml` seeders `codingProblems`.
  */
 @Injectable()
 export class CodingProblemSeederService {
     constructor(
         private readonly parserService: CodingProblemParserService,
         private readonly insertService: CodingProblemInsertService,
+        private readonly hintIndexService: CodingProblemHintIndexService,
         private readonly winstonService: WinstonService,
+        private readonly seedScopeService: SeedScopeService,
     ) {}
 
     /** Parse mount data → upsert problems. No-op when the seeder is disabled. */
     async seed(): Promise<void> {
-        // respect the env gate so ops can skip problem seeding per environment
-        if (!isCodingProblemsSeederEnabled()) {
+        // respect the seed.yaml gate so ops can skip problem seeding per environment
+        if (!this.seedScopeService.isCodingProblemsSeederEnabled()) {
             return
         }
         // parse every mount directory into problem rows
@@ -42,6 +47,8 @@ export class CodingProblemSeederService {
         }
         // upsert (idempotent) and capture how many were synced
         const upserted = await this.insertService.upsertMany(parsed)
+        // index the approach hints into Elasticsearch (never persisted to Postgres)
+        await this.hintIndexService.indexMany(parsed)
         // record the outcome for observability
         this.winstonService.log(
             WinstonLog.SeederFinished,

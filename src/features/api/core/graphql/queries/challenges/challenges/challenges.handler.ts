@@ -64,7 +64,8 @@ export class ChallengesHandler
             filters: [
                 {
                     term: {
-                        "contentId.keyword": contentId,
+                        // contentId is mapped as a pure keyword → query it directly (no `.keyword` subfield)
+                        contentId,
                     },
                 },
             ],

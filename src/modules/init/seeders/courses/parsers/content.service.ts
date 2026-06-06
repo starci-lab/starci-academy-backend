@@ -305,6 +305,19 @@ export class ContentParserService {
                 merged.isPremium,
                 false,
             ),
+            isSandbox: this.coerceMdScalarService.toRequiredBoolean(
+                merged.isSandbox,
+                false,
+            ),
+            githubBaseUrl: this.coerceMdScalarService.toNullableStringColumn(
+                merged.githubBaseUrl,
+            ),
+            githubDir: this.coerceMdScalarService.toNullableStringColumn(
+                merged.githubDir,
+            ),
+            backendUrl: this.coerceMdScalarService.toNullableStringColumn(
+                merged.backendUrl,
+            ),
             // `# verified` day marks SCHEMA V2 content (null for legacy)
             verified: this.coerceMdScalarService.toNullableDate(
                 merged.verified,

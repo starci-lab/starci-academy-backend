@@ -39,8 +39,8 @@ import {
     logInitSeederEntitySkipped,
 } from "../../shared"
 import {
-    isCoursesQuizLinkContentsEnabled,
-} from "../../shared/scope"
+    SeedScopeService,
+} from "../../../scope"
 import {
     QuizDeckPathNotFoundException,
 } from "@modules/exceptions"
@@ -95,6 +95,7 @@ export class QuizDeckParserService {
         private readonly courseIdFactoryService: CourseIdFactoryService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly seedScopeService: SeedScopeService,
     ) { }
 
     /**
@@ -160,7 +161,7 @@ export class QuizDeckParserService {
             },
         )
         // optional N:N lesson links — off by default until mount + content seed are ready
-        const linkedContentIds = isCoursesQuizLinkContentsEnabled()
+        const linkedContentIds = this.seedScopeService.isCoursesQuizLinkContentsEnabled()
             ? Array.from(
                 new Set(
                     (jsonMap.get(Locale.En)?.contents ?? [])

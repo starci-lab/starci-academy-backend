@@ -8,7 +8,6 @@ import {
 import type {
     UploadBufferParams,
     UploadJsonParams,
-    UploadPayload,
     UploadStreamParams,
 } from "./types"
 import {
@@ -29,9 +28,42 @@ import {
     InjectSuperJson
 } from "@modules/mixin"
 import SuperJSON from "superjson"
-import {
-    S3ReadService 
-} from "./s3-read.service"
+import type {
+    S3LikeError,
+} from "./types"
+
+/**
+ * Build a compact error string for S3-compatible providers.
+ */
+const formatS3UploadError = (params: {
+    provider: S3Provider
+    bucket: string
+    key: string
+    error: unknown
+}): string => {
+    const {
+        provider,
+        bucket,
+        key,
+        error,
+    } = params
+    const s3Like = error as S3LikeError
+    const statusCode = s3Like?.$metadata?.httpStatusCode
+    const requestId = s3Like?.RequestId ?? s3Like?.$metadata?.requestId
+    const providerCode = s3Like?.Code
+    const base = error instanceof Error
+        ? `${error.name}: ${error.message}`
+        : String(error)
+    return [
+        base,
+        `provider=${provider}`,
+        `bucket=${bucket}`,
+        `key=${key}`,
+        statusCode != null ? `status=${statusCode}` : null,
+        providerCode ? `code=${providerCode}` : null,
+        requestId ? `requestId=${requestId}` : null,
+    ].filter(Boolean).join(" | ")
+}
 
 /**
  * Service for uploading files to S3.
@@ -46,75 +78,93 @@ export class S3UploadService {
         private readonly asyncService: AsyncService,
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
-        private readonly s3ReadService: S3ReadService,
     ) {}
+
+    /**
+     * Whether DigitalOcean is configured (has an access key). When false, every DigitalOcean
+     * upload is skipped instead of hitting Spaces with empty creds (which returns 400
+     * InvalidArgument) — a single switch to disable DO across all upload paths.
+     */
+    private isDigitalOceanEnabled(): boolean {
+        return envConfig().s3.digitalOcean.accessKeyId.trim().length > 0
+    }
 
     /**
      * Upload a JSON file to S3.
      * @param param - Upload JSON parameters.
      * @returns The command output.
      */
-    async json<T extends UploadPayload>(
+    async json<T>(
         {
             name,
             payload,
             acl,
             providers,
+            encoding = "superjson",
         }: UploadJsonParams<T>,
     ) {
+        // Serialize once: SuperJSON for typed-rich consumers (default), or plain
+        // JSON.stringify when the consumer reads the object with a raw JSON.parse.
+        const body = encoding === "json"
+            ? JSON.stringify(payload)
+            : this.superJson.stringify(payload)
         const promises = Array<Promise<void>>()
         for (const provider of providers) {
             switch (provider) {
             case S3Provider.DigitalOcean: {
+                // skip when DigitalOcean is not configured (empty creds → 400 InvalidArgument)
+                if (!this.isDigitalOceanEnabled()) {
+                    break
+                }
+                // upload unconditionally — the caller (MaterializeAndUploadService) already
+                // does the hash/snapshot skip, so re-reading here would be a wasted round-trip
                 promises.push(
                     (async () => {
-                        const readResult = await this.s3ReadService.json<UploadPayload>({
-                            key: name,
-                            provider: S3Provider.DigitalOcean,
-                        })
-                        const hash = readResult?.hash
-                        // if the hash is the same as the payload hash, return the existing result
-                        if (hash !== payload.hash) {
-                            return 
-                        }
-                        this.digitalOceanS3.send(
-                            new PutObjectCommand({
-                                Bucket: envConfig().s3.digitalOcean.bucket,
-                                Key: name,
-                                Body: this.superJson.stringify(payload),
-                                ACL: acl,
-                                ContentType: "application/json",
-                            }),
-                        )    
-                    })())
-                break
-            }
-            case S3Provider.Minio: {
-                promises.push(
-                    (async () => {
+                        const bucket = envConfig().s3.digitalOcean.bucket
                         try {
-                            const readResult =
-                          await this.s3ReadService.json<UploadPayload>({
-                              key: name,
-                              provider: S3Provider.Minio,
-                          })
-                            if(readResult) {
-                                if (readResult?.hash === payload.hash) {
-                                    return
-                                }
-                            }
-                            await this.minioS3.send(
+                            await this.digitalOceanS3.send(
                                 new PutObjectCommand({
-                                    Bucket: envConfig().s3.minio.bucket,
+                                    Bucket: bucket,
                                     Key: name,
-                                    Body: this.superJson.stringify(payload),
+                                    Body: body,
                                     ACL: acl,
                                     ContentType: "application/json",
                                 }),
                             )
                         } catch (error) {
-                            console.error("Error reading from S3 Minio",
-                                error)
+                            throw new Error(formatS3UploadError({
+                                provider,
+                                bucket,
+                                key: name,
+                                error,
+                            }))
+                        }
+                    })())
+                break
+            }
+            case S3Provider.Minio: {
+                // upload unconditionally — hash-equality skipping is the caller's responsibility
+                promises.push(
+                    (async () => {
+                        const bucket = envConfig().s3.minio.bucket
+                        try {
+                            await this.minioS3.send(
+                                new PutObjectCommand({
+                                    Bucket: bucket,
+                                    Key: name,
+                                    Body: body,
+                                    // MinIO may reject/ignore ACL headers depending on server config.
+                                    // Keep ACL handling for DigitalOcean only; MinIO access is usually controlled by bucket policy.
+                                    ContentType: "application/json",
+                                }),
+                            )
+                        } catch (error) {
+                            throw new Error(formatS3UploadError({
+                                provider,
+                                bucket,
+                                key: name,
+                                error,
+                            }))
                         }
                     })())
                 break
@@ -127,7 +177,7 @@ export class S3UploadService {
             }
             }
         }
-        await this.asyncService.allIgnoreError(promises)
+        await this.asyncService.allMustDone(promises)
     }
 
     /**
@@ -143,6 +193,10 @@ export class S3UploadService {
             contentType,
         }: UploadBufferParams,
     ): Promise<void> {
+        // skip DigitalOcean uploads entirely when DO is not configured (empty creds → 400)
+        if (provider === S3Provider.DigitalOcean && !this.isDigitalOceanEnabled()) {
+            return
+        }
         let s3Client: S3Client
         let bucket: string
         switch (provider) {
@@ -185,9 +239,13 @@ export class S3UploadService {
             contentType,
         }: UploadStreamParams,
     ): Promise<void> {
+        // skip DigitalOcean uploads entirely when DO is not configured (empty creds → 400)
+        if (provider === S3Provider.DigitalOcean && !this.isDigitalOceanEnabled()) {
+            return
+        }
         let s3Client: S3Client
         let bucket: string
-    
+
         switch (provider) {
         case S3Provider.DigitalOcean:
             s3Client = this.digitalOceanS3

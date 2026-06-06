@@ -5,7 +5,16 @@ import {
 } from "@nestjs/common"
 import {
     CourseEntity,
+    CourseMetadataEntity,
+    InjectPrimaryPostgreSQLEntityManager,
+    PricingPhase,
 } from "@modules/databases"
+import {
+    getAppConfig,
+} from "@modules/filesystem"
+import type {
+    EntityManager,
+} from "typeorm"
 import {
     UpsertService,
 } from "../../shared"
@@ -31,6 +40,8 @@ import {
 @Injectable()
 export class CourseProcessorService {
     constructor(
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
         private readonly upsertService: UpsertService,
         private readonly uuidPartitionPersistProcessorService: UuidPartitionPersistProcessorService,
         @Inject(forwardRef(() => ModuleProcessorService))
@@ -74,6 +85,9 @@ export class CourseProcessorService {
             if (deletedCourseIds.includes(courseId)) {
                 continue
             }
+            // seed the operational metadata (current pricing phase) once — never clobber an
+            // existing row, since the phase advances over time as the course fills up.
+            await this.seedCourseMetadataIfMissing(courseId)
             await this.moduleProcessorService.process({
                 courseResult,
                 moduleIndexFilterByDisplayId,
@@ -88,5 +102,45 @@ export class CourseProcessorService {
                 courseDisplayId,
             })
         }
+    }
+
+    /**
+     * Create the course's {@link CourseMetadataEntity} with the configured default
+     * pricing phase if (and only if) it does not exist yet. An existing row — whose
+     * `currentPhase` may have advanced as the course filled — is left untouched.
+     *
+     * @param courseId - The course to seed metadata for.
+     */
+    private async seedCourseMetadataIfMissing(
+        courseId: string,
+    ): Promise<void> {
+        // keep an already-seeded / already-advanced phase as-is
+        const existing = await this.entityManager.findOne(
+            CourseMetadataEntity,
+            {
+                where: {
+                    course: {
+                        id: courseId,
+                    },
+                },
+            },
+        )
+        if (existing) {
+            return
+        }
+        // default from app.yaml (`systemConfig.course.defaultPricingPhase`); Early Bird fallback
+        const defaultPhase = getAppConfig().systemConfig.course?.defaultPricingPhase
+            ?? PricingPhase.EarlyBird
+        await this.entityManager.save(
+            this.entityManager.create(
+                CourseMetadataEntity,
+                {
+                    course: {
+                        id: courseId,
+                    },
+                    currentPhase: defaultPhase,
+                },
+            ),
+        )
     }
 }

@@ -4,6 +4,7 @@ import {
     Resolver,
 } from "@nestjs/graphql"
 import {
+    UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
 import {
@@ -31,14 +32,22 @@ import {
 import {
     SignOutService,
 } from "./sign-out.service"
+import {
+    CsrfGuard,
+} from "@modules/csrf"
+import {
+    SessionService,
+} from "@modules/session"
 
 @Resolver()
 export class SignOutResolver {
     constructor(
         private readonly signOutService: SignOutService,
         private readonly cookieService: CookieService,
+        private readonly sessionService: SessionService,
     ) {}
 
+    @UseGuards(CsrfGuard)
     @UseThrottler(ThrottlerConfig.Strict)
     @GraphQLSuccessMessage({
         [Locale.En]: "Signed out successfully",
@@ -68,6 +77,18 @@ export class SignOutResolver {
                 name: CookieName.KeycloakRefreshToken,
             }
         )
+        // also drop the CSRF token cookie so no stale double-submit pair lingers
+        this.cookieService.clearCookie(
+            {
+                res: ctx.res,
+                name: CookieName.CsrfToken,
+            }
+        )
+        // end the single-session record + clear its cookie on sign-out
+        await this.sessionService.endSession({
+            res: ctx.res,
+            refreshToken,
+        })
     }
 }
 

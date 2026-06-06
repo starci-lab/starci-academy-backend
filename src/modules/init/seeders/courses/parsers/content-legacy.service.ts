@@ -142,6 +142,19 @@ export class ContentLegacyParserService {
                 merged.isPremium,
                 false,
             ),
+            isSandbox: this.coerceMdScalarService.toRequiredBoolean(
+                merged.isSandbox,
+                false,
+            ),
+            githubBaseUrl: this.coerceMdScalarService.toNullableStringColumn(
+                merged.githubBaseUrl,
+            ),
+            githubDir: this.coerceMdScalarService.toNullableStringColumn(
+                merged.githubDir,
+            ),
+            backendUrl: this.coerceMdScalarService.toNullableStringColumn(
+                merged.backendUrl,
+            ),
             translations: (merged.translations ?? []).map(
                 ({
                     locale,

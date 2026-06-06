@@ -10,12 +10,22 @@ import {
 import {
     KeycloakJwksService,
 } from "../jwks.service"
+import {
+    SessionService,
+} from "@modules/session"
+import {
+    CookieService,
+    CookieName,
+} from "@modules/cookie"
 import type {
     KeycloakAuthGuardRequest,
 } from "../types"
 import type {
     EntityManager,
 } from "typeorm"
+import type {
+    Request,
+} from "express"
 
 /**
  * Abstract class for Keycloak authentication guard.
@@ -25,6 +35,8 @@ export abstract class AbstractKeycloakAuthGuard implements CanActivate {
         protected readonly keycloakJwksService: KeycloakJwksService,
         @InjectPrimaryPostgreSQLEntityManager()
         protected readonly entityManager: EntityManager,
+        protected readonly sessionService: SessionService,
+        protected readonly cookieService: CookieService,
     ) { }
 
     /**
@@ -80,6 +92,17 @@ export abstract class AbstractKeycloakAuthGuard implements CanActivate {
             await this.entityManager.save(user)
         }
         request.user = user
+        // enforce single account-wide session: the request must carry the
+        // session id that matches the user's current active session
+        const sessionId = this.cookieService.getCookie(
+            request as unknown as Request,
+            CookieName.SessionId,
+        )
+        // throws 401 when a newer login elsewhere has superseded this device
+        await this.sessionService.assertCurrent({
+            userId: verified.sub,
+            sessionId,
+        })
         return true
     }
 }
