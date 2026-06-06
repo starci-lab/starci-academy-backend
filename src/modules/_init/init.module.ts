@@ -5,37 +5,29 @@ import {
 import {
     ConfigurableModuleClass,
     OPTIONS_TYPE,
-} from "./init-v2.module-definition"
+} from "./init.module-definition"
 import {
-    InitV2Service,
-} from "./init-v2.service"
-import {
-    DataGitBootstrapService,
-} from "./data-git"
-import {
-    SeedDiffOverlayService,
-} from "./diff"
-import {
-    ScopeModule,
-} from "@modules/init/scope"
+    InitService,
+} from "./init.service"
 import {
     SeedersModule,
-} from "@modules/init/seeders"
+} from "./seeders"
 import {
     SynchronizersModule,
-} from "@modules/init/synchronizers"
+} from "./synchronizers"
+import {
+    ScopeModule,
+} from "./scope"
 
 /**
- * Init V2 module — git-sourced initialization orchestrator.
+ * Init module — plugin-based initialization orchestrator.
  *
- * Mirrors {@link InitModule} (imports the same Scope/Seeders/Synchronizers
- * sub-modules) but runs {@link InitV2Service}, which first materializes the
- * data root from the private `data` GitHub repo before seeding. Wired in place
- * of `InitModule` when `INIT_V2_ENABLED` is set.
+ * Imports Seeders and Synchronizers sub-modules, then runs
+ * enabled plugins sequentially via {@link InitService}.
  */
 @Module({
 })
-export class InitV2Module extends ConfigurableModuleClass {
+export class InitModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)
 
@@ -55,12 +47,10 @@ export class InitV2Module extends ConfigurableModuleClass {
             ],
             providers: [
                 ...(dynamicModule.providers ?? []),
-                DataGitBootstrapService,
-                SeedDiffOverlayService,
-                InitV2Service,
+                InitService,
             ],
             exports: [
-                InitV2Service,
+                InitService,
             ],
         }
     }
