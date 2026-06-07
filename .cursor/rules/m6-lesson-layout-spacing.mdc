@@ -1,0 +1,75 @@
+---
+description: M6 Form Mastery lesson frontend layout — spacing scale, functional blocks, Card usage (L0–L3). Source repo lives under .repo/fullstack-mastery-module-6-form-mastery-rhf-zod/.
+globs: .repo/fullstack-mastery-module-6-form-mastery-rhf-zod/**/frontend/**/*.tsx
+alwaysApply: false
+---
+
+# M6 Lesson Layout & Spacing
+
+Apply to all four lessons under `.repo/fullstack-mastery-module-6-form-mastery-rhf-zod/` (`0`–`3`).
+
+## Spacing tokens (only these)
+
+| Token | Use |
+|-------|-----|
+| **`p-3`** | **Only** on `<main>` in `App.tsx` — sole outer page padding |
+| **`gap-3`** | Between **structural blocks** inside a functional area (form fields, button row, list of cards, avatar ↔ text column) |
+| **`h-3`** | Small vertical spacer: lesson title → description (`App.tsx`) |
+| **`h-6`** | Large vertical spacer: description → lesson content; **form block → registry block** |
+| **`mt-3`** | Section margin when a spacer div is awkward (e.g. stepper after header) |
+
+Do **not** use `gap-1/2/4`, `p-6`, `mb-*`, `pt-2`, `py-2`, or extra padding in `globals.css` on `main`.
+
+## Functional blocks
+
+- **Block A — form**: inputs + submit/actions. **No Card** wrapper on the form.
+- **Block B — registry**: “Created users/invoices” heading + list. Separated from Block A by `<div className="h-6" />`.
+- **Within Block B**: heading → items use `gap-3` only (same functional block).
+
+## Text stack (no gap)
+
+Multiple `Typography` lines that read as one unit (title + subtitle, User #id + name) → `flex flex-col` **without** `gap-*`.
+
+Label + value pairs in summary rows (`UserFieldRow`) → no gap; use `sm:flex-row sm:justify-between`.
+
+## Card usage
+
+| Area | Card? |
+|------|-------|
+| Form / wizard / customer field | **No** |
+| L3 line item row (description, qty, price, actions) | **Yes** — `Card p-3` per row (`LineItemRow`) |
+| L2/L3 created user/invoice entries | **Yes** — `Card p-3` per entry (`UserCard` / `InvoiceCard`) |
+| Registry skeleton placeholders | **Yes** — match loaded card shape |
+
+## Registry list (L0/L1 ListBox)
+
+- `ListBox`: `className="gap-3 p-0"`
+- `ListBox.Item`: `className="p-0"` — spacing between users is `gap-3` on the list, not item padding.
+
+## App.tsx shell (all lessons)
+
+```tsx
+<main className="min-h-screen bg-background p-3">
+  <div className="mx-auto max-w-2xl">
+    <Typography.Heading … />
+    <div className="h-3" />
+    <Typography.Paragraph … />
+    <div className="h-6" />
+    {content}
+  </div>
+</main>
+```
+
+## Form client pattern
+
+```tsx
+<div className="flex flex-col">
+  <form className="flex flex-col gap-3">…</form>
+  <div className="h-6" />
+  <UserRegistry … />
+</div>
+```
+
+## L1 async availability
+
+Do not render a placeholder `<p>` when `idle` — it reserves height and pushes the button down. Render `#availability` only when state is `checking | available | taken`.
