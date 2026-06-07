@@ -33,6 +33,7 @@ Chạy khi user muốn audit/kiểm/nghiệm thu 1 module FS. **Toàn bộ quy t
 5. **ĐỪNG nhắn / làm việc khác khi workflow chạy** (bị giết). Đợi notification → re-gate → báo cáo `flow × lang` + findings.
 
 ## Nguyên tắc (đọc `.audits/pipeline.md` + `.audits/references.md` + `.audits/rules/fullstack/{contents,challenges,coding}.md`)
+- **⛔ ĐỪNG TỰ Ý (pipeline.md §NGUYÊN TẮC TỐI THƯỢNG):** MẶC ĐỊNH = chạy e2e thật (`stage=apply`); `no-test`/`giữ-2-tier`/`guidance` là NGOẠI LỆ CHỈ khi thầy nói RÕ cho module cụ thể, **KHÔNG tự lan sang module/batch khác**. Quyết định substantive (tier, tạo challenge, test-hay-không, scope) = HỎI thầy, đừng đoán. Chỉ tự làm phần CƠ HỌC (format/score/mirror/dấu/cd-first/snippet↔repo).
 - **Đọc `.audits/references.md` (gold cùng variant) TRƯỚC khi audit** → bắt chước format chuẩn, đỡ lặp lỗi.
 - Công thức: **Sonnet loop (viết/test/đối chiếu) → Opus decision (quyết khi lệch)**.
 - **vi.md = Opus viết · en.md = Sonnet dịch** (mirror, chống divergence).

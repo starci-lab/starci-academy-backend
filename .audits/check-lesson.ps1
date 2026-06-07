@@ -87,12 +87,12 @@ function Get-ScalarsAfter {
 }
 
 function Test-FenceEven { param([string]$File)
-  $n = (Select-String -Path $File -Pattern '^```' -AllMatches).Count
+  $n = @(Get-ContentLP $File | Select-String -Pattern '^```' -AllMatches).Count
   return @{ ok = ($n % 2 -eq 0); n = $n }
 }
 
 function Test-SepEven { param([string]$File)
-  $n = (Select-String -Path $File -Pattern ([regex]::Escape($SEP)) -SimpleMatch).Count
+  $n = @(Get-ContentLP $File | Select-String -Pattern ([regex]::Escape($SEP)) -SimpleMatch).Count
   return ($n % 2 -eq 0)
 }
 
@@ -160,6 +160,20 @@ function Check-Mirror { param([string]$Dir, [string]$Ctx)
   if ($viF -ne $enF) { Fail $Ctx "vi/en fence count differ (vi=$viF en=$enF)" } else { Pass $Ctx 'mirror-fence' }
 }
 
+# ---- Long-path helpers (Windows MAX_PATH 260) ---------------------------------
+# Deep challenge slugs (insane) push submissions/0/en.md past 260 chars -> Test-Path/Get-Content
+# return false/empty -> false-negative "missing submissions". Use \\?\ prefix via .NET File API.
+function To-LongPath { param([string]$p)
+  try { $abs = [System.IO.Path]::GetFullPath($p) } catch { return $p }
+  if ($abs.Length -ge 248 -and $abs -notmatch '^\\\\\?\\') { return "\\?\$abs" }
+  return $abs
+}
+function Test-PathLP { param([string]$p)
+  $lp = To-LongPath $p
+  return ([System.IO.File]::Exists($lp) -or [System.IO.Directory]::Exists($lp))
+}
+function Get-ContentLP { param([string]$p) return [System.IO.File]::ReadAllLines((To-LongPath $p)) }
+
 # ---- Challenge checks ---------------------------------------------------------
 function Check-Challenge { param([string]$Dir, [string]$Ctx)
   $vi  = Join-Path $Dir 'vi.md'
@@ -185,14 +199,20 @@ function Check-Challenge { param([string]$Dir, [string]$Ctx)
     Fail $Ctx 'has inline # references/# submissions (V1)'
   } else { Pass $Ctx 'no-ref-sub' }
 
-  # no '### N.' heading (must be :::muted callout)
-  if ($viText -match '(?m)^### [123]\. ' -or $enText -match '(?m)^### [123]\. ') {
-    Fail $Ctx 'has ### N. heading (use :::muted)'
-  } else { Pass $Ctx 'no-numbered-heading' }
+  # no '### ' section heading in challenge req/steps (must be :::muted callout).
+  # V1 leak: '### 1.' (numbered) OR '### Mục đích/Ràng buộc/Gợi ý/Yêu cầu/Bước/Purpose/Constraints/Hints/Steps...'.
+  # Gate trước chỉ bắt '### N.' (đánh số) → '### <chữ>' lọt (pass giả). Mở rộng để bắt cả heading chữ.
+  # (?-i) = case-SENSITIVE: chỉ bắt heading tự do V1 (### Purpose / ### Mục đích) mà KHÔNG bắt
+  # key cấu trúc V2 lowercase (### purpose / ### technicalConstraints / ### text / ### title ...).
+  # PowerShell -match mặc định IgnoreCase → không thêm (?-i) thì 'Purpose' khớp luôn '### purpose' (false-positive).
+  $h3rx = '(?-i)(?m)^### ([123]\.|Mục đích|Ràng buộc|Gợi ý|Yêu cầu|Các bước|Bước|Purpose|Technical constraints|Constraints|Requirements|Hints|Steps)'
+  if ($viText -match $h3rx -or $enText -match $h3rx) {
+    Fail $Ctx 'has ### section heading (Mục đích/Purpose/Steps... → dùng :::muted callout)'
+  } else { Pass $Ctx 'no-section-heading' }
 
   # submission criteria sums
-  if (-not (Test-Path $sub)) { Fail $Ctx 'missing submissions/0/en.md'; return }
-  $subLines = Get-Content $sub
+  if (-not (Test-PathLP $sub)) { Fail $Ctx 'missing submissions/0/en.md'; return }
+  $subLines = Get-ContentLP $sub
   # split at # approachCriterias
   $aIdx = ($subLines | Select-String -Pattern '^# approachCriterias' | Select-Object -First 1).LineNumber
   $oIdx = ($subLines | Select-String -Pattern '^# outcomeCriterias'  | Select-Object -First 1).LineNumber
@@ -219,6 +239,13 @@ function Check-Challenge { param([string]$Dir, [string]$Ctx)
 function Check-FrontendVite { param([string]$LessonDir, [string]$Ctx)
   $agnostic = Join-Path $LessonDir 'bodies/0-agnostic'
   if (-not (Test-Path $agnostic)) { return }              # BE 4-lang lesson -> Next check N/A
+  # Next.js EXCEPTION: module dạy RSC/app-router (isSandbox=false) cố tình dùng Next → KHÔNG flag next.config
+  # là "chưa migrate Vite" (false-positive). Đọc root vi.md `# isSandbox`; false = Next-intended -> waive.
+  $rootVi = Join-Path $LessonDir 'vi.md'
+  if (Test-Path $rootVi) {
+    $sb = @(Get-ScalarsAfter (Get-Content $rootVi) '# isSandbox')
+    if ($sb.Count -ge 1 -and "$($sb[0])" -match 'false') { Pass $Ctx 'next-exception (isSandbox=false, waive Vite-check)'; return }
+  }
   $cc = Join-Path $LessonDir 'code-context.md'
   if (-not (Test-Path $cc)) { return }
   $m = [regex]::Match((Get-Content $cc -Raw), '\.repo/[^\s`''")]+/frontend')
@@ -238,6 +265,126 @@ function Check-FrontendVite { param([string]$LessonDir, [string]$Ctx)
   }
   if (-not (Test-Path (Join-Path $fe 'index.html'))) { $bad += 'no index.html (Vite entry)' }
   if ($bad.Count -gt 0) { Fail $Ctx ("FE repo not clean Vite (migrate Next->Vite): " + ($bad -join ', ')) } else { Pass $Ctx 'fe-vite-clean' }
+}
+
+# ---- E2E proof checks ---------------------------------------------------------
+# Rule (pipeline.md §Artifacts): each flow = its own file .e2e/<lang>/flow-<N>-<slug>-<status>.md
+# (status: done|fail|require-creds). The old gathered single-file .e2e/proof.md is FORBIDDEN.
+# A lesson claimed done (has claude_submitted.md) MUST carry per-flow proof — this is what
+# previously let a gate-PASS lesson ship with NO e2e (gate was blind to e2e entirely).
+function Check-E2E { param([string]$LessonDir, [string]$Ctx)
+  # Only real lessons (have bodies/); a metadata-only/stub dir has nothing to prove.
+  if (-not (Test-Path (Join-Path $LessonDir 'bodies'))) { return }
+  $e2e     = Join-Path $LessonDir '.e2e'
+  $claimed = Test-Path (Join-Path $LessonDir 'claude_submitted.md')
+  $bad     = 0
+
+  # 1. Old gathered format must be split into per-flow files (flag regardless of done-state).
+  if (Test-Path (Join-Path $e2e 'proof.md')) {
+    Fail $Ctx 'e2e format cũ gộp (.e2e/proof.md) — tách per-flow .e2e/<lang>/flow-N-slug-status.md'; $bad++
+  }
+
+  # Collect per-flow proof files anywhere under .e2e/.
+  $flows = @()
+  if (Test-Path $e2e) { $flows = @(Get-ChildItem -Path $e2e -Recurse -File -Filter 'flow-*.md' -ErrorAction SilentlyContinue) }
+
+  if ($claimed) {
+    # A done lesson MUST have per-flow proof — the core blindspot fix.
+    if ($flows.Count -lt 1) { Fail $Ctx 'đã claude_submitted nhưng THIẾU e2e per-flow proof (.e2e/<lang>/flow-*.md)'; return }
+    foreach ($fl in $flows) {
+      # Each flow file must sit under a lang subdir (.e2e/<lang>/), not directly in .e2e/.
+      $parent = Split-Path $fl.FullName -Parent
+      if ((Split-Path $parent -Leaf) -eq '.e2e') { Fail $Ctx "e2e flow '$($fl.Name)' phải nằm trong .e2e/<lang>/ (vd agnostic/), không để thẳng .e2e/"; $bad++ }
+      # Filename must end with a recognised status token. ('pass' = legacy alias of 'done'.)
+      if ($fl.BaseName -notmatch '-(done|pass|fail|require-creds|require-rerun)$') { Fail $Ctx "e2e flow '$($fl.Name)' thiếu status hợp lệ (-done|-pass|-fail|-require-creds|-require-rerun)"; $bad++ }
+      # A claimed-done lesson must not carry an unfinished flow (fail = lỗi, require-rerun = e2e chưa chạy lại).
+      if ($fl.BaseName -match '-(fail|require-rerun)$') { Fail $Ctx "e2e flow '$($fl.Name)' chưa pass (fail/require-rerun) — lesson đã claude_submitted nhưng e2e chưa hoàn tất"; $bad++ }
+    }
+    if ($bad -eq 0) { Pass $Ctx 'e2e-per-flow' }
+  } else {
+    # Not claimed done yet: don't penalise missing e2e (audit loop will create it); only proof.md (above) is flagged.
+    if ($bad -eq 0) { Pass $Ctx 'e2e-na' }
+  }
+}
+
+# ---- cd-first + no-scaffold (run-block hygiene) -------------------------------
+# Rule coding.md §A2: a fenced block with a RUN command (npm/mvn/dotnet/go/...) MUST open
+# with a `cd ...` line. Block types handled to avoid false-positives on FE bodies:
+#   - CLONE block (first real line is `git ...`)      -> exempt (its convention is `cd <lesson>` at the end).
+#   - SCAFFOLD block (npm/yarn/pnpm create / create-*) -> FORBIDDEN (lessons use the cloned repo).
+#   - RUN block (cd backend / cd frontend first)        -> the only one cd-first applies to.
+function Check-CdFirst { param([string]$File, [string]$Ctx)
+  if (-not (Test-Path $File)) { return }
+  $runRx   = 'npm (install|ci|run|start)|pnpm (install|run|dev)|yarn (install|dev|build)|nest start|mvn |\./mvnw|gradle|dotnet (run|watch|restore|build|test)|go (run|build|mod|test)'
+  $scaffRx = '(npm|yarn|pnpm) create |create-react-app|create-next-app|npm init |create vite'
+  $infence = $false; $firstSet = $false; $run = $false; $cd = $false; $scaff = $false; $isClone = $false; $shellBlock = $false
+  $bad = 0; $scaffBad = 0; $cdUp = 0
+  foreach ($ln in (Get-Content $File)) {
+    if ($ln -match '^```') {
+      if ($infence) {                                              # closing -> evaluate block
+        if ($shellBlock) {
+          if ($scaff) { $scaffBad++ }
+          elseif ($run -and -not $cd -and -not $isClone) { $bad++ }
+        }
+        $firstSet = $false; $run = $false; $cd = $false; $scaff = $false; $isClone = $false; $shellBlock = $false
+        $infence = $false
+      } else {                                                     # opening -> detect fence language
+        $infence = $true
+        $lang = $ln.TrimStart('`').Trim().ToLower()                # cd-first CHỈ áp fence shell; yaml/json/dockerfile/ts... exempt (vd GHA `- run: npm ci`)
+        $shellBlock = ($lang -eq '' -or $lang -match '^(bash|sh|shell|shellscript|console|powershell|ps|ps1|pwsh|zsh|terminal|cmd|bat)$')
+      }
+      continue
+    }
+    if ($infence -and $shellBlock) {
+      $trim = $ln.Trim()
+      if (-not $firstSet -and $trim -ne '' -and $trim -notmatch '^#') { # first real line decides clone-exemption
+        $firstSet = $true
+        if ($trim -match '^git ') { $isClone = $true }
+      }
+      # Only count run/scaffold cmds on NON-comment lines — a comment quoting a run cmd
+      # (vd `# Press Ctrl+C to stop nest start --watch`) KHÔNG phải lệnh thật → tránh false-positive ở block cleanup.
+      if ($trim -notmatch '^#') {
+        # cd BẤT KỲ dòng nào (nới: cho phép gộp docker-up → cd → install → run trong 1 block; cd chỉ cần đứng TRƯỚC run, KHÔNG bắt buộc dòng đầu).
+        if ($trim -match '^cd ')  { $cd = $true }
+        if ($ln -match $scaffRx) { $scaff = $true }
+        if ($ln -match $runRx)   { $run = $true }
+        # `cd ..` = vi phạm convention §A2 (mỗi terminal cd từ thư mục lesson; KHÔNG nhắc "quay lại").
+        if ($trim -match '(^|&&\s*)cd \.\.(/|\s|$)') { $cdUp++ }
+      }
+    }
+  }
+  if ($scaffBad -gt 0) { Fail $Ctx "$scaffBad block SCAFFOLD (npm/yarn create...) — BỎ, dùng repo clone sẵn (§A2)" }
+  if ($bad -gt 0)      { Fail $Ctx "$bad run-block thiếu cd-first (cd backend/<lang> | cd frontend trước lệnh npm/mvn/dotnet/go)" }
+  if ($cdUp -gt 0)     { Fail $Ctx "$cdUp lệnh 'cd ..' trong run-block — BỎ (mỗi terminal cd từ thư mục lesson, KHÔNG nhắc quay lại; §A2)" }
+  if ($scaffBad -eq 0 -and $bad -eq 0 -and $cdUp -eq 0) { Pass $Ctx 'cd-first' }
+}
+
+# ---- GitHub repo ref consistency ----------------------------------------------
+# Rule contents.md §2.1.1: mọi `fullstack-mastery-module-<N>-<slug>` trong bodies của 1 lesson
+# PHẢI là DUY NHẤT 1 giá trị (khớp tên .repo folder/remote). Catch vụ trộn 2 số (module-5 + module-6,
+# module-9 + module-10) — off-by-one hay xảy ra do slot-prefix ≠ repo-N.
+function Check-GithubRef { param([string]$LessonDir, [string]$Ctx)
+  $bodies = Join-Path $LessonDir 'bodies'
+  if (-not (Test-Path $bodies)) { return }
+  $refs = @()
+  foreach ($f in (Get-ChildItem -Path $bodies -Recurse -File -Filter '*.md' -ErrorAction SilentlyContinue)) {
+    foreach ($mm in [regex]::Matches((Get-Content $f.FullName -Raw), 'fullstack-mastery-module-\d+-[a-z0-9-]+')) { $refs += $mm.Value }
+  }
+  if ($refs.Count -eq 0) { return }
+  $distinct = @($refs | Sort-Object -Unique)
+  if ($distinct.Count -gt 1) {
+    Fail $Ctx ("github ref KHÔNG đồng nhất: " + ($distinct -join ' | ') + " (phải 1 module-N-slug khớp .repo)")
+    return
+  }
+  Pass $Ctx 'github-consistent'
+  # Khớp .repo THẬT: ref (1 giá trị) phải = tên folder .repo tồn tại (bắt off-by-one dù nội-bộ đồng nhất).
+  # repo root = cha của .audits (script ở .audits/check-lesson.ps1). Bỏ qua nếu .repo chưa checkout.
+  $repoDir = Join-Path (Split-Path $PSScriptRoot -Parent) '.repo'
+  if (Test-Path $repoDir) {
+    if (-not (Test-Path (Join-Path $repoDir $distinct[0]))) {
+      Fail $Ctx ("github ref '" + $distinct[0] + "' KHÔNG khớp folder .repo nào (sai số module/off-by-one? slot-prefix ≠ repo-N)")
+    } else { Pass $Ctx 'github-matches-repo' }
+  }
 }
 
 # ---- Mermaid (optional) -------------------------------------------------------
@@ -289,12 +436,17 @@ foreach ($lesson in $lessonDirs) {
   foreach ($bd in (Get-ChildItem -Path (Join-Path $lesson.FullName 'bodies') -Directory -ErrorAction SilentlyContinue)) {
     foreach ($lang in @('vi', 'en')) {
       Check-Body (Join-Path $bd.FullName "$lang.md") "$lname/$($bd.Name)/$lang"
+      Check-CdFirst (Join-Path $bd.FullName "$lang.md") "$lname/$($bd.Name)/$lang"
       if ($Mermaid) { Check-Mermaid (Join-Path $bd.FullName "$lang.md") "$lname/$($bd.Name)/$lang" }
     }
     Check-Mirror $bd.FullName "$lname/$($bd.Name)"
   }
   # FE-Vite cleanliness (only FE lessons; resolves .repo frontend)
   Check-FrontendVite $lesson.FullName "$lname/frontend"
+  # E2E proof: done lessons must carry per-flow proof; old gathered proof.md forbidden
+  Check-E2E $lesson.FullName "$lname/e2e"
+  # GitHub repo ref must be consistent (single module-N-slug khớp .repo)
+  Check-GithubRef $lesson.FullName "$lname/github"
   # Artifacts nội bộ (research/decision/claude_submitted) cũng PHẢI tiếng Việt đủ dấu
   foreach ($art in @('research.md', 'decision.md', 'claude_submitted.md')) {
     $ap = Join-Path $lesson.FullName $art

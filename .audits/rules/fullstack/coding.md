@@ -27,15 +27,37 @@
 - Anti-pattern: lang dir thẳng ở lesson root (`<L>/0-typescript` thiếu `backend/`), `<L>/src/` (thiếu `backend/<lang>/`), `backend/` đơn chứa TS trực tiếp (phải `backend/0-typescript/`), `package.json` ở lesson/backend root (phải per-lang `backend/<lang>/`), `.server/`/`.client/` dot-prefix.
 
 ### A2. Backend chạy trên host (KHÔNG Docker container)
+- **CẤM block SCAFFOLD from-scratch** (`npm create vite` / `create-react-app` / `create-next-app` / `npm/yarn/pnpm create ...`): lesson DÙNG REPO CLONE SẴN, KHÔNG dạy dựng project từ đầu. Có scaffold = SAI (gate bắt).
 - **CD CONVENTION (body "cách chạy") — 2 loại block:**
-  - **Block CLONE/setup** (có `git clone`): kết thúc bằng `cd <repo>/<lesson>` — vào **THƯ MỤC LESSON**, KHÔNG đi sâu vào `backend/<lang>`.
-  - **Block RUN/startup — FORMAT 3-STEP CHUẨN (mặc định CẢ 4 lang body):**
+  - **Block CLONE/setup** (có `git clone`): kết thúc bằng `cd <repo>/<lesson>` — vào **THƯ MỤC LESSON**, KHÔNG đi sâu vào `backend/<lang>`. Block này CHỈ clone + cd lesson, KHÔNG kèm `npm install` (install dồn vào block RUN).
+  - **FE lesson (backend mock + frontend) — startup §2.1.4.2 dùng 2 TERMINAL, cài deps GỘP vào từng terminal:**
     ```
-    # Step 1: <vào thư mục>      → cd backend/<lang>
-    # Step 2: <cài dependency>   → npm install | mvn install -DskipTests | dotnet restore | go mod download
-    # Step 3: <chạy>             → nest start --watch | mvn spring-boot:run | dotnet watch run | go run .
+    # Terminal 1 — backend mock (cổng 3000)
+    cd backend
+    npm install
+    npm run start:dev
+
+    # Terminal 2 — frontend Vite (cổng 3001 — pin trong vite.config.ts)
+    cd frontend
+    npm install
+    npm run dev
     ```
-    Thứ tự BẮT BUỘC **vào → cài → chạy**. KHÔNG gộp/đảo (vd để "Step 1: Install" mà thiếu cd = SAI). Mỗi run-block tự đủ (cd ở Step 1). vi/en + 4 lang đồng bộ format này.
+    - Mỗi terminal mở bằng `cd <svc>` (từ thư mục lesson) → `npm install` → `npm run ...`. **KHÔNG bước install riêng** ở block clone; **KHÔNG `cd ..` / KHÔNG nhắc "quay lại thư mục"** (học viên tự hiểu mỗi terminal bắt đầu ở thư mục lesson). Clone block CHỈ `git clone` + `cd <repo>/<lesson>`.
+  - **VITE PORT = PIN TRONG SOURCE, KHÔNG CLI (ruling thầy 2026-06-07):** port FE phải set trong `frontend/vite.config.ts` (`server: { port: 3001 }`), docs CHỈ `npm run dev`. **CẤM `npm run dev -- -p <port>`** (`-p` là cú pháp Next.js, Vite KHÔNG nhận → `CACError: Unknown option -p`) **và CẤM `-- --port <port>`** (truyền port qua CLI dễ mismatch/khác cú pháp giữa Win/Linux/shell). Pin trong config → `npm run dev` chạy giống nhau mọi OS. (Comment `# (cổng 3001)` chỉ là thông tin, port thật do vite.config quyết.)
+  - **GỘP STARTUP THÀNH 1 BLOCK (ruling thầy 2026-06-07):** nếu lesson có Docker infra, startup §2.1.4.2 = **MỘT fence ```bash duy nhất** gồm tất cả bước, KHÔNG tách Docker ra fence riêng:
+    ```
+    # Bước 1: Dựng hạ tầng (chạy nền)
+    docker compose -f .docker/compose.yaml up -d
+
+    # Bước 2: Vào thư mục backend + cài dependency
+    cd backend/<lang>
+    npm install            # | mvn install -DskipTests | dotnet restore | go mod download
+
+    # Bước 3: Chạy (chế độ watch)
+    nest start --watch     # | mvn spring-boot:run | dotnet watch run | go run .
+    ```
+    `cd` chỉ cần đứng **TRƯỚC lệnh run** trong block (KHÔNG bắt buộc dòng đầu — docker-up đứng trước cd là OK). Gate `Check-CdFirst` đã nới theo (cd bất kỳ dòng nào). CẤM tách thành 2 fence (1 docker + 1 cd/run) — phải DÍNH 1 block.
+  - **Block RUN/startup — thứ tự BẮT BUỘC vào → cài → chạy** (vd để "Install" mà thiếu cd = SAI). vi/en + 4 lang đồng bộ. Lệnh per-lang: install `npm install | mvn install -DskipTests | dotnet restore | go mod download`; run `nest start --watch | mvn spring-boot:run | dotnet watch run | go run .`.
   - Checker bắt MỌI lệnh build/install/run thiếu cd-first: `npm (install|ci|run|start)` · `mvn`/`mvnw` · `dotnet (run|watch|restore|build)` · `go (run|build|mod)` · `gradle`/`pnpm`/`yarn` (xem `check-cd-first.sh` + `fix-cd-format.py`).
   - **Source "thư mục bài học"** (đầu §2.1.1): link trỏ **THƯ MỤC LESSON** `<repo>/tree/main/<lesson>` (KHÔNG `/backend/<lang>` — đó là folder lesson chung, không phải code 1 lang). `fix-cd-format.py` tự strip `/backend/<lang>` khỏi dòng "thư mục bài học"/"tree/main".
   - Sai = học viên `npm install` nhầm chỗ. **Tự động:** `bash .audits/fix-doc-paths.sh` (links) → `python3 .audits/fix-cd-format.py` (cd lines clone→lesson, run→`cd backend/<lang>`) → `bash .audits/check-cd-first.sh <dir>` verify (exit 0 = sạch).
