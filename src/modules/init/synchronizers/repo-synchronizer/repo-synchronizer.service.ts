@@ -129,12 +129,6 @@ export class RepoSynchronizerService {
      */
     async sync(scope: SynchronizerSyncScope): Promise<void> {
         const start = this.dayjsService.now()
-        this.winstonService.log(
-            WinstonLog.RepoSynchronizerSyncStarted,
-            {
-                startedAt: start,
-            },
-        )
 
         // Ensure the `repo/` prefix is publicly readable in Minio so non-premium
         // sandbox lessons can be fetched directly by the FE without presigned URLs.

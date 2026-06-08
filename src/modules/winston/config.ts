@@ -313,7 +313,7 @@ export const configMap = {
     },
     [WinstonLog.CdnSynchronizerSyncedSuccessfully]: {
         name: WinstonLog.CdnSynchronizerSyncedSuccessfully,
-        level: WinstonLevel.Info,
+        level: WinstonLevel.Verbose,
         loki: true,
         console: true,
         messageType: {

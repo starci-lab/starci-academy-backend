@@ -2,13 +2,13 @@ import type {
     Octokit,
 } from "octokit"
 
-/** Result of ensuring the local data root matches the remote data repo. */
+/** Result of resolving the remote data repo into a staging copy. */
 export interface EnsureDataGitResult {
-    /** True when the tarball was (re)downloaded and extracted; false when already up to date. */
+    /** True when the remote moved and a staging copy was extracted; false when already up to date. */
     changed: boolean
-    /** Commit SHA the local data root is now pinned to. */
+    /** Remote commit SHA this run resolved to. */
     sha: string
-    /** SHA the root was pinned to before this run; empty on first bootstrap. */
+    /** SHA the local root was pinned to before this run; empty on first bootstrap. */
     previousSha: string
     /**
      * Repo-relative paths changed between `previousSha` and `sha`.
@@ -22,6 +22,16 @@ export interface EnsureDataGitResult {
      * callers must then fall back to a full reseed.
      */
     diffAvailable: boolean
+    /**
+     * Absolute path of the freshly-extracted staging copy to seed from, or
+     * `null` when nothing was downloaded (up to date). Seed/sync read from here;
+     * it is materialized into {@link checkoutRoot} only after a successful seed.
+     */
+    stagingRoot: string | null
+    /** Temp directory holding the staging copy; removed during commit/cleanup. */
+    tempDir: string | null
+    /** Absolute path of the real data root (`.contexts`) to materialize into. */
+    checkoutRoot: string
 }
 
 /** Params for resolving the file-level diff between two commits. */
@@ -46,7 +56,7 @@ export interface ResolveChangedPathsResult {
     diffAvailable: boolean
 }
 
-/** Params for downloading the repo tarball and extracting it over the data root. */
+/** Params for downloading the repo tarball and extracting it into a staging dir. */
 export interface DownloadAndExtractParams {
     /** Authenticated GitHub client. */
     octokit: Octokit
@@ -58,6 +68,14 @@ export interface DownloadAndExtractParams {
     ref: string
     /** Sub-directory inside the repo whose contents map to the data root; empty means the repo root. */
     subdir: string
-    /** Absolute path of the data root to extract into. */
-    checkoutRoot: string
+}
+
+/** Result of downloading + extracting the repo tarball into a staging dir. */
+export interface DownloadAndExtractResult {
+    /** Temp directory holding the extracted tree; caller removes it after use. */
+    tempDir: string
+    /** Absolute path of the content root inside the staging tree (subdir-aware). */
+    stagingRoot: string
+    /** Number of top-level entries extracted. */
+    entryCount: number
 }

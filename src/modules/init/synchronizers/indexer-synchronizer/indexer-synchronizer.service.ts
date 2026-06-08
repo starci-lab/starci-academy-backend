@@ -32,6 +32,10 @@ import type {
     SynchronizerSyncScope,
 } from "../../types"
 import {
+    buildChallengeSyncSuccessLog,
+    buildContentSyncSuccessLog,
+    buildCourseSyncSuccessLog,
+    buildModuleSyncSuccessLog,
     shouldSyncChallengeEntity,
     shouldSyncContentEntity,
     shouldSyncCourseEntity,
@@ -73,12 +77,6 @@ export class IndexerSynchronizerService {
          * Start the Indexer synchronization.
          */
         const start = this.dayjsService.now()
-        this.winstonService.log(
-            WinstonLog.IndexerSynchronizerSyncStarted,
-            {
-                startedAt: start,
-            }
-        )
         /**
          * Synchronize the entities.
          */
@@ -118,10 +116,7 @@ export class IndexerSynchronizerService {
                         )
                         this.winstonService.log(
                             WinstonLog.IndexerSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: course.id,
-                            }
+                            buildCourseSyncSuccessLog(course),
                         )
                     } catch (error) {
                         this.winstonService.log(
@@ -175,10 +170,7 @@ export class IndexerSynchronizerService {
                         )
                         this.winstonService.log(
                             WinstonLog.IndexerSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: challenge.id,
-                            }
+                            buildChallengeSyncSuccessLog(challenge),
                         )
                     } catch (error) {
                         this.winstonService.log(
@@ -230,10 +222,7 @@ export class IndexerSynchronizerService {
                         )
                         this.winstonService.log(
                             WinstonLog.IndexerSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: content.id,
-                            }
+                            buildContentSyncSuccessLog(content),
                         )
                     } catch (error) {
                         this.winstonService.log(
@@ -284,10 +273,7 @@ export class IndexerSynchronizerService {
                         )
                         this.winstonService.log(
                             WinstonLog.IndexerSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: module.id,
-                            }
+                            buildModuleSyncSuccessLog(module),
                         )
                     } catch (error) {
                         this.winstonService.log(

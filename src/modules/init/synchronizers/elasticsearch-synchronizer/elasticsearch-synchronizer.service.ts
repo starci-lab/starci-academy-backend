@@ -48,6 +48,10 @@ import type {
     SynchronizerSyncScope,
 } from "../../types"
 import {
+    buildChallengeSyncSuccessLog,
+    buildContentSyncSuccessLog,
+    buildCourseSyncSuccessLog,
+    buildModuleSyncSuccessLog,
     shouldSyncChallengeEntity,
     shouldSyncContentEntity,
     shouldSyncCourseEntity,
@@ -115,12 +119,6 @@ export class ElasticsearchSynchronizerService {
          * Start the Elasticsearch synchronization.
          */
         const start = this.dayjsService.now()
-        this.winstonService.log(
-            WinstonLog.EsSynchronizerSyncStarted,
-            {
-                startedAt: start,
-            }
-        )
         /**
          * Clear then re-index per entity kind (only kinds allowed by scope).
          */
@@ -180,10 +178,7 @@ export class ElasticsearchSynchronizerService {
                         )
                         this.winstonService.log(
                             WinstonLog.EsSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: course.id,
-                            }
+                            buildCourseSyncSuccessLog(course),
                         )
                     } catch (error) {
                         this.winstonService.log(
@@ -236,10 +231,7 @@ export class ElasticsearchSynchronizerService {
                         )
                         this.winstonService.log(
                             WinstonLog.EsSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: challenge.id,
-                            }
+                            buildChallengeSyncSuccessLog(challenge),
                         )
                     } catch (error) {
                         this.winstonService.log(
@@ -290,10 +282,7 @@ export class ElasticsearchSynchronizerService {
                         )
                         this.winstonService.log(
                             WinstonLog.EsSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: content.id,
-                            }
+                            buildContentSyncSuccessLog(content),
                         )
                     } catch (error) {
                         this.winstonService.log(
@@ -343,10 +332,7 @@ export class ElasticsearchSynchronizerService {
                         )
                         this.winstonService.log(
                             WinstonLog.EsSynchronizerSyncedSuccessfully,
-                            {
-                                entityKind,
-                                entityId: module.id,
-                            }
+                            buildModuleSyncSuccessLog(module),
                         )
                     } catch (error) {
                         this.winstonService.log(
@@ -584,7 +570,7 @@ export class ElasticsearchSynchronizerService {
                             {
                                 entityKind,
                                 entityId: company.id,
-                            },
+                            }
                         )
                     } catch (error) {
                         this.winstonService.log(
@@ -628,7 +614,7 @@ export class ElasticsearchSynchronizerService {
                             {
                                 entityKind,
                                 entityId: consultant.id,
-                            },
+                            }
                         )
                     } catch (error) {
                         this.winstonService.log(

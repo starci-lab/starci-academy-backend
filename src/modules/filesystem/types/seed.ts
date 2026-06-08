@@ -98,19 +98,39 @@ export interface SeedSynchronizersConfig {
     headhunting: boolean
 }
 
-/** Root of the mounted `seed.yaml`. */
+/** Root of the mounted `_seed.yaml`. */
 export interface SeedConfig {
     seeders: SeedSeedersConfig
     synchronizers: SeedSynchronizersConfig
 }
 
 /**
- * Minimal InitV2 control file (`seed-v2.yaml`).
+ * Coarse init mode used when `scopeCustom` is absent.
  *
- * A single field — the seed mode. The course/module set is derived at boot
- * (every course in `.contexts` for `all`, or the changed set for `diff`).
+ * - `"all"`  → force a full reseed/sync of every course (ignores the diff, even
+ *   when already on the remote SHA).
+ * - `"diff"` → default: check remote vs local marker and seed/sync only the
+ *   changed courses/modules (short-circuits when already up to date).
+ * - `"none"` → skip the seed/sync phases entirely (no-op boot).
  */
-export interface SeedV2Config {
-    /** Seed mode: `"all"`, `"diff"`, or `"none"`. */
-    scope: string
+export type InitScopeMode = "all" | "diff" | "none"
+
+/**
+ * Optional scope override for the git-sourced init (`seed.yaml`).
+ *
+ * When `scopeCustom` is present and non-empty, the git init seeds/syncs exactly
+ * the listed courses/modules (instead of the diff-derived scope), then pulls the
+ * source into `.contexts` as usual. Otherwise `scope` picks the coarse mode.
+ */
+export interface InitScopeConfig {
+    /**
+     * Custom course scope keyed by course displayId; the value scopes that
+     * course's module track (`"all"`, `[1, 2, 3]`, or a range like `"0-19"`).
+     * Takes precedence over `scope` when present and non-empty.
+     */
+    scopeCustom?: Record<string, SeedScopeIndexes>
+    /**
+     * Coarse mode used only when `scopeCustom` is absent/empty. Omit → `"diff"`.
+     */
+    scope?: InitScopeMode
 }

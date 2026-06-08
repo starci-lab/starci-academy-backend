@@ -5,27 +5,25 @@ import {
 import {
     SeedScopeService,
     SyncScopeService,
-} from "./scope"
-import {
     SeedersService,
-} from "./seeders"
-import {
     SynchronizersService,
-} from "./synchronizers"
+} from "@modules/init"
 
 /**
- * Boot-time initialization orchestrator.
+ * Parked local-file initialization orchestrator (legacy v1).
  *
  * Runs the two init phases sequentially during `onModuleInit` — before the app
- * starts listening — each gated by its master switch in `seed.yaml`:
+ * starts listening — each gated by its master switch in `_seed.yaml`:
  *
  *   1. seeders        (when `seeders.enabled`)       sources       -> PostgreSQL
  *   2. synchronizers  (when `synchronizers.enabled`) PostgreSQL    -> CDN + ES
  *
- * Order is load-bearing: seeders write the DB, synchronizers read it.
+ * Order is load-bearing: seeders write the DB, synchronizers read it. The
+ * canonical git-sourced orchestrator now lives in `@modules/init`; this module
+ * is kept (un-registered by default) for local-file dev use.
  */
 @Injectable()
-export class InitService implements OnModuleInit {
+export class LegacyInitService implements OnModuleInit {
 
     constructor(
         private readonly seedScopeService: SeedScopeService,

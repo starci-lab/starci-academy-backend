@@ -6,15 +6,21 @@ import {
     readdir,
 } from "fs/promises"
 import {
+    join,
+} from "path"
+import {
     envConfig,
 } from "@modules/env"
 import {
+    clearRuntimeContextRoot,
     clearRuntimeSeedConfig,
-    getSeedV2Config,
+    getInitScopeConfig,
+    setRuntimeContextRoot,
     setRuntimeSeedConfig,
 } from "@modules/filesystem"
 import type {
     SeedConfig,
+    SeedScopeIndexes,
 } from "@modules/filesystem"
 import {
     WinstonLog,
@@ -23,13 +29,13 @@ import {
 import {
     SeedScopeService,
     SyncScopeService,
-} from "@modules/init/scope"
+} from "./scope"
 import {
     SeedersService,
-} from "@modules/init/seeders"
+} from "./seeders"
 import {
     SynchronizersService,
-} from "@modules/init/synchronizers"
+} from "./synchronizers"
 import {
     DataGitBootstrapService,
 } from "./data-git"
@@ -40,23 +46,23 @@ import {
     SeedDiffOverlayService,
     parseDataGitDiff,
 } from "./diff"
-import {
-    DataGitSeedScope,
-} from "./enums"
 
 /**
- * Boot-time initialization orchestrator — git-sourced variant of {@link InitService}.
+ * Boot-time initialization orchestrator — the canonical, git-sourced init.
  *
- * Pulls the private `data` repo into `.contexts`, then seeds/syncs per the
- * `scope` mode in `seed-v2.yaml` (`all` / `diff` / `none`). The full pipeline
- * config is generated at boot and applied via {@link setRuntimeSeedConfig}, so
- * the shared pipeline scopes itself — no shared-code edits. The legacy
- * `seed.yaml` is left for the legacy InitModule.
+ * The flow is always diff-based: check the remote `data` repo against the local
+ * marker, generate the file-level diff, seed/sync from a **staging** copy of the
+ * freshly pulled repo, then pull the source into `.contexts` as the final step.
+ * The generated pipeline config is applied via {@link setRuntimeSeedConfig} and
+ * the staging root via {@link setRuntimeContextRoot}, so the shared pipeline
+ * scopes itself — no shared-code edits. The local-file variant lives in the
+ * parked `_init` module ({@link LegacyInitService}).
  *
- * A fresh `.contexts` (first pull) or an untrustable diff is promoted to `all`.
+ * A first pull, a pull failure, or an untrustable diff is promoted to a full
+ * reseed so the database is never under-seeded.
  */
 @Injectable()
-export class InitV2Service implements OnModuleInit {
+export class InitService implements OnModuleInit {
 
     constructor(
         private readonly dataGitBootstrapService: DataGitBootstrapService,
@@ -69,11 +75,28 @@ export class InitV2Service implements OnModuleInit {
     ) { }
 
     /**
-     * Pulls `.contexts` from git, resolves the effective seed scope, applies the
-     * generated config, then runs the enabled init phases.
+     * Resolves the remote repo, seeds/syncs from staging, then materializes
+     * `.contexts` only after a successful seed.
      */
     async onModuleInit(): Promise<void> {
-        // pull the latest content into .contexts; a failure must NOT crash boot —
+        // a non-empty scopeCustom forces seeding an explicit course/module set
+        // instead of the diff-derived scope (still pulls the source at the end);
+        // otherwise the coarse `scope` mode picks all / diff / none (default diff)
+        const initScope = getInitScopeConfig()
+        const scopeCustom = initScope.scopeCustom
+        const isCustom = !!scopeCustom && Object.keys(scopeCustom).length > 0
+        const scopeMode = initScope.scope ?? "diff"
+
+        // `scope: none` (and no custom scope) → init disabled: skip both phases
+        if (!isCustom && scopeMode === "none") {
+            this.logScoped(false,
+                0,
+                0,
+                0)
+            return
+        }
+
+        // resolve the remote into a staging copy; a failure must NOT crash boot —
         // fall back to seeding whatever local .contexts content already exists
         let result: EnsureDataGitResult | null = null
         try {
@@ -83,38 +106,29 @@ export class InitV2Service implements OnModuleInit {
             result = null
         }
 
-        // read the seed MODE from seed-v2.yaml, then resolve the effective scope
-        const configured = this.normalizeScope(getSeedV2Config().scope)
-        const scope = this.resolveEffectiveScope(result,
-            configured)
-        // "none" → content is pulled but nothing is seeded/synced
-        if (scope === DataGitSeedScope.None) {
-            this.logScoped(scope,
-                true,
-                0,
-                0,
-                0)
+        // already on the remote SHA → the DB is current; custom mode and
+        // `scope: all` still force a re-seed, so only short-circuit in diff mode
+        const forceReseed = isCustom || scopeMode === "all"
+        if (result && !result.changed && !forceReseed) {
             return
         }
 
-        // "diff" → narrow to changed courses; "all" → every course in .contexts
-        let configToApply: SeedConfig
-        if (scope === DataGitSeedScope.Diff && result) {
-            configToApply = await this.resolveDiffConfig(result)
-        } else {
-            const courseDisplayIds = await this.listCourseDisplayIds()
-            configToApply = this.seedDiffOverlayService.buildFullConfig(courseDisplayIds)
-            this.logScoped(scope,
-                true,
-                courseDisplayIds.length,
-                0,
-                0)
-        }
+        // seed from the staging copy when we have one, else the local .contexts
+        const stagingRoot = result?.stagingRoot ?? null
+        const configToApply = isCustom
+            ? this.buildCustomConfig(scopeCustom)
+            : scopeMode === "all"
+                ? await this.buildAllConfig(stagingRoot)
+                : await this.resolveConfig(result,
+                    stagingRoot)
 
+        if (stagingRoot) {
+            setRuntimeContextRoot(stagingRoot)
+        }
         // apply the resolved config so the existing pipeline scopes itself
         setRuntimeSeedConfig(configToApply)
         try {
-            // phase 1: seed the (scoped) data root into PostgreSQL when enabled
+            // phase 1: seed the (scoped) staging root into PostgreSQL when enabled
             if (this.seedScopeService.isSeedersEnabled()) {
                 await this.seedersService.init()
             }
@@ -122,21 +136,101 @@ export class InitV2Service implements OnModuleInit {
             if (this.syncScopeService.isSynchronizersEnabled()) {
                 await this.synchronizersService.init()
             }
+            // success → final step: pull the source into .contexts + re-stamp marker
+            if (result) {
+                await this.dataGitBootstrapService.materialize(result)
+            }
         } finally {
-            // always drop the in-memory override so later runtime reads see the real config
+            // drop the in-memory overrides so later runtime reads see the real config
             clearRuntimeSeedConfig()
+            if (stagingRoot) {
+                clearRuntimeContextRoot()
+            }
+            // a failed seed skipped materialize → still discard the staging temp
+            if (result) {
+                await this.dataGitBootstrapService.cleanup(result)
+            }
         }
     }
 
     /**
+     * Builds the explicit custom-scope config and logs the resolved scope.
+     *
+     * @param scopeCustom - Course module scope keyed by course displayId
+     * @returns The config restricted to the listed courses/modules
+     */
+    private buildCustomConfig(
+        scopeCustom: Record<string, SeedScopeIndexes>,
+    ): SeedConfig {
+        this.logScoped(false,
+            Object.keys(scopeCustom).length,
+            0,
+            0)
+        return this.seedDiffOverlayService.buildCustomConfig(scopeCustom)
+    }
+
+    /**
+     * Builds a full-reseed config for every course under the active root and
+     * logs the resolved scope. Used by `scope: all` and the diff full-fallback.
+     *
+     * @param stagingRoot - The staging root to enumerate, or `null` for local
+     * @returns The full-scope config
+     */
+    private async buildAllConfig(
+        stagingRoot: string | null,
+    ): Promise<SeedConfig> {
+        const coursesDir = stagingRoot
+            ? join(stagingRoot,
+                "courses")
+            : envConfig().mountPath.data.courses
+        const courseDisplayIds = await this.listCourseDisplayIds(coursesDir)
+        this.logScoped(true,
+            courseDisplayIds.length,
+            0,
+            0)
+        return this.seedDiffOverlayService.buildFullConfig(courseDisplayIds)
+    }
+
+    /**
+     * Resolves the pipeline config: a diff-narrowed overlay when a trustworthy
+     * diff is available, otherwise a full reseed of every course under the
+     * active root (staging copy, or local `.contexts` when the pull failed).
+     *
+     * @param result - The bootstrap result, or `null` when the pull failed
+     * @param stagingRoot - The staging root to seed from, or `null` for local
+     * @returns The config to apply
+     */
+    private async resolveConfig(
+        result: EnsureDataGitResult | null,
+        stagingRoot: string | null,
+    ): Promise<SeedConfig> {
+        // first pull / pull failure / untrustable diff → full reseed (never under-seed)
+        const fullReseed = !result
+            || result.previousSha === ""
+            || !result.diffAvailable
+        if (fullReseed) {
+            return this.buildAllConfig(stagingRoot)
+        }
+        // the courses live under the staging root, or under local .contexts
+        const coursesDir = stagingRoot
+            ? join(stagingRoot,
+                "courses")
+            : envConfig().mountPath.data.courses
+        return this.resolveDiffConfig(result,
+            coursesDir)
+    }
+
+    /**
      * Builds the diff-narrowed config; falls back to a full reseed (every course
-     * in `.contexts`) when the diff cannot be scoped (unknown paths).
+     * under `coursesDir`) when the diff cannot be scoped (unknown paths).
      *
      * @param result - The bootstrap result carrying the changed-path list
+     * @param coursesDir - The courses root to enumerate for the fallback reseed
      * @returns The config to apply
      */
     private async resolveDiffConfig(
         result: EnsureDataGitResult,
+        coursesDir: string,
     ): Promise<SeedConfig> {
         // turn the raw changed paths into a structured, scopable diff
         const diff = parseDataGitDiff(result.changedPaths,
@@ -149,16 +243,14 @@ export class InitV2Service implements OnModuleInit {
         } = this.seedDiffOverlayService.buildDiffConfig(diff)
         // an unscopable diff (unknown paths) → seed every course fully instead
         if (!overlay) {
-            const courseDisplayIds = await this.listCourseDisplayIds()
-            this.logScoped(DataGitSeedScope.Diff,
-                true,
+            const courseDisplayIds = await this.listCourseDisplayIds(coursesDir)
+            this.logScoped(true,
                 courseDisplayIds.length,
                 0,
                 0)
             return this.seedDiffOverlayService.buildFullConfig(courseDisplayIds)
         }
-        this.logScoped(DataGitSeedScope.Diff,
-            false,
+        this.logScoped(false,
             courseCount,
             moduleCount,
             domainCount)
@@ -166,14 +258,14 @@ export class InitV2Service implements OnModuleInit {
     }
 
     /**
-     * Lists the course displayIds present under the `.contexts` courses root.
+     * Lists the course displayIds present under a courses root.
      *
+     * @param coursesDir - Absolute path of the courses root to enumerate
      * @returns Course displayIds (orderIndex prefix stripped); empty when absent
      */
-    private async listCourseDisplayIds(): Promise<Array<string>> {
+    private async listCourseDisplayIds(coursesDir: string): Promise<Array<string>> {
         try {
-            // the courses root lives under the filesystem-context data root (.contexts)
-            const entries = await readdir(envConfig().mountPath.data.courses)
+            const entries = await readdir(coursesDir)
             return entries
                 // keep only `{orderIndex}-{slug}` course dirs (drops markers/placeholders)
                 .filter((name) => /^\d+(-|$)/u.test(name))
@@ -189,73 +281,14 @@ export class InitV2Service implements OnModuleInit {
     }
 
     /**
-     * Resolves the effective seed scope from the mode and the bootstrap result.
-     *
-     * Promotes to {@link DataGitSeedScope.All} on first pull or when a diff is
-     * not trustworthy, so the database is never under-seeded.
-     *
-     * @param result - The bootstrap result, or `null` when the pull failed
-     * @param configured - The mode read from `seed-v2.yaml`
-     * @returns The scope to actually seed with
-     */
-    private resolveEffectiveScope(
-        result: EnsureDataGitResult | null,
-        configured: DataGitSeedScope,
-    ): DataGitSeedScope {
-        // pull failed → seed the existing local .contexts fully, unless explicitly "none"
-        if (!result) {
-            return configured === DataGitSeedScope.None
-                ? DataGitSeedScope.None
-                : DataGitSeedScope.All
-        }
-        // fresh .contexts (first pull, no prior marker) → must seed everything
-        if (result.previousSha === "") {
-            return DataGitSeedScope.All
-        }
-        // explicit "none" / "all" are honored as-is
-        if (configured === DataGitSeedScope.None) {
-            return DataGitSeedScope.None
-        }
-        if (configured === DataGitSeedScope.All) {
-            return DataGitSeedScope.All
-        }
-        // configured "diff": a real change we could not diff → promote to full reseed
-        if (result.changed && !result.diffAvailable) {
-            return DataGitSeedScope.All
-        }
-        // real diff, or up-to-date (empty diff → seeds nothing) → keep "diff"
-        return DataGitSeedScope.Diff
-    }
-
-    /**
-     * Normalizes the raw `scope` value from `seed-v2.yaml`; unknown values fall
-     * back to {@link DataGitSeedScope.All} (the safe, never-under-seed choice).
-     *
-     * @param raw - The raw `scope` string
-     * @returns The matching scope enum
-     */
-    private normalizeScope(raw: string): DataGitSeedScope {
-        switch (raw.trim().toLowerCase()) {
-        case DataGitSeedScope.None:
-            return DataGitSeedScope.None
-        case DataGitSeedScope.Diff:
-            return DataGitSeedScope.Diff
-        default:
-            return DataGitSeedScope.All
-        }
-    }
-
-    /**
      * Emits the diff-scope summary log line.
      *
-     * @param scope - The effective scope mode resolved for this boot
-     * @param fullReseed - Whether the scope resolved to a full reseed
+     * @param fullReseed - Whether the config resolved to a full reseed
      * @param courseCount - Courses kept in scope
      * @param moduleCount - Module order-indexes kept across all courses
      * @param domainCount - Standalone domains kept enabled
      */
     private logScoped(
-        scope: DataGitSeedScope,
         fullReseed: boolean,
         courseCount: number,
         moduleCount: number,
@@ -268,7 +301,6 @@ export class InitV2Service implements OnModuleInit {
                 courseCount,
                 moduleCount,
                 domainCount,
-                scope,
             })
     }
 }

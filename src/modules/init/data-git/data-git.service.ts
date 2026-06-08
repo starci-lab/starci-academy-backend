@@ -43,6 +43,7 @@ import {
 } from "./constants"
 import type {
     DownloadAndExtractParams,
+    DownloadAndExtractResult,
     EnsureDataGitResult,
     ResolveChangedPathsParams,
     ResolveChangedPathsResult,
@@ -51,14 +52,18 @@ import type {
 /**
  * Materializes the private `data` GitHub repo into the local data root.
  *
- * Replaces the manual `.mount/data` workflow: on boot it resolves the remote
- * commit SHA, compares it to a local marker, and only when they differ does it
- * download the repo tarball (via the GitHub API — no `git` binary required) and
- * extract it over the filesystem-context root. The existing seed/sync pipeline
- * then reads that root unchanged.
+ * Replaces the manual `.mount/data` workflow. On boot it resolves the remote
+ * commit SHA, compares it to a local marker, and when they differ downloads the
+ * repo tarball (via the GitHub API — no `git` binary required) into a **staging**
+ * temp dir and computes the file-level diff. The orchestrator seeds/syncs from
+ * the staging copy; only after that succeeds does {@link materialize} copy the
+ * staging tree into `.contexts` and re-stamp the marker — so a failed seed never
+ * corrupts the local source.
  *
  * @example
- * const { changed } = await dataGitBootstrapService.ensure()
+ * const result = await dataGitBootstrapService.ensure()
+ * // ...seed from result.stagingRoot...
+ * await dataGitBootstrapService.materialize(result)
  */
 @Injectable()
 export class DataGitBootstrapService {
@@ -68,9 +73,12 @@ export class DataGitBootstrapService {
     ) {}
 
     /**
-     * Ensures the local data root matches the remote `data` repo.
+     * Resolves the remote `data` repo into a staging copy and computes the diff.
      *
-     * @returns Whether the root was refreshed and the SHA it is now pinned to
+     * Does NOT touch `.contexts` or the marker — call {@link materialize} after a
+     * successful seed to commit the staging tree, or {@link cleanup} to discard it.
+     *
+     * @returns The remote SHA, the changed-path diff, and the staging location
      */
     async ensure(): Promise<EnsureDataGitResult> {
         // read repo coordinates from env so ops can repoint per-environment
@@ -80,7 +88,7 @@ export class DataGitBootstrapService {
             ref: configuredRef,
             subdir,
         } = envConfig().dataGit
-        // resolve the on-disk root that the seed pipeline reads from (filesystem context)
+        // resolve the on-disk root that the seed pipeline ultimately reads from
         const checkoutRoot = this.resolveCheckoutRoot()
         // build an authenticated client — dedicated read-only data-git token
         // (falls back to the shared github access token when not mounted)
@@ -101,12 +109,12 @@ export class DataGitBootstrapService {
             const ref = configuredRef || await this.resolveDefaultBranch(octokit,
                 owner,
                 repo)
-            // ask GitHub for the current tip commit of that branch
+            // ask GitHub for the current tip commit of that branch (check cloud)
             const remoteSha = await this.resolveRemoteSha(octokit,
                 owner,
                 repo,
                 ref)
-            // the marker records the SHA the local root was last populated from
+            // the marker records the SHA the local root was last populated from (check local)
             const markerPath = join(checkoutRoot,
                 DATA_GIT_SHA_MARKER_FILE)
             const previousSha = await this.readMarker(markerPath)
@@ -124,26 +132,16 @@ export class DataGitBootstrapService {
                     changed: false,
                     sha: remoteSha,
                     previousSha,
-                    // nothing changed → no diff to act on
+                    // nothing changed → no diff to act on, no staging to seed
                     changedPaths: [],
                     diffAvailable: false,
+                    stagingRoot: null,
+                    tempDir: null,
+                    checkoutRoot,
                 }
             }
 
-            // download + extract the tarball over the root, then re-stamp the marker
-            const entryCount = await this.downloadAndExtract({
-                octokit,
-                owner,
-                repo,
-                ref,
-                subdir,
-                checkoutRoot,
-            })
-            await writeFile(markerPath,
-                remoteSha,
-                "utf8")
-
-            // resolve the file-level diff so callers can seed only what changed
+            // gen diff first (API only — independent of the download)
             const {
                 changedPaths,
                 diffAvailable,
@@ -155,23 +153,27 @@ export class DataGitBootstrapService {
                 newSha: remoteSha,
             })
 
-            // surface the old → new transition (this is the "check diff" signal)
-            this.winstonService.log(WinstonLog.DataGitBootstrapUpdated,
-                {
-                    owner,
-                    repo,
-                    ref,
-                    previousSha,
-                    newSha: remoteSha,
-                    entryCount,
-                    checkoutRoot,
-                })
+            // download + extract into a staging dir; .contexts is left untouched
+            const {
+                tempDir,
+                stagingRoot,
+            } = await this.downloadAndExtract({
+                octokit,
+                owner,
+                repo,
+                ref,
+                subdir,
+            })
+
             return {
                 changed: true,
                 sha: remoteSha,
                 previousSha,
                 changedPaths,
                 diffAvailable,
+                stagingRoot,
+                tempDir,
+                checkoutRoot,
             }
         } catch (error) {
             // normalize the caught value once so the log/exception see a real Error
@@ -199,8 +201,85 @@ export class DataGitBootstrapService {
     }
 
     /**
-     * Resolves the on-disk root the seed pipeline reads from — the path of the
-     * first enabled filesystem context.
+     * Commits the staging copy into `.contexts` and re-stamps the marker — the
+     * final "pull source into local" step, run only after a successful seed/sync.
+     *
+     * @param result - The {@link ensure} result carrying the staging location
+     */
+    async materialize(
+        result: EnsureDataGitResult,
+    ): Promise<void> {
+        // nothing was downloaded (up to date / pull failed) → nothing to commit
+        if (!result.stagingRoot) {
+            return
+        }
+        const {
+            owner,
+            repo,
+            ref,
+        } = envConfig().dataGit
+        // ensure the destination root exists before copying into it
+        await mkdir(result.checkoutRoot,
+            {
+                recursive: true,
+            })
+        // replace each top-level entry individually so unrelated files survive
+        const entries = await readdir(result.stagingRoot)
+        for (const entry of entries) {
+            // drop the stale copy then move the fresh one in — a per-entry swap
+            const destination = join(result.checkoutRoot,
+                entry)
+            await rm(destination,
+                {
+                    recursive: true, force: true,
+                })
+            await cp(join(result.stagingRoot,
+                entry),
+            destination,
+            {
+                recursive: true,
+            })
+        }
+        // re-stamp the marker so the next boot recognizes this commit
+        await writeFile(join(result.checkoutRoot,
+            DATA_GIT_SHA_MARKER_FILE),
+        result.sha,
+        "utf8")
+        // surface the old → new transition (the "source pulled" signal)
+        this.winstonService.log(WinstonLog.DataGitBootstrapUpdated,
+            {
+                owner,
+                repo,
+                ref,
+                previousSha: result.previousSha,
+                newSha: result.sha,
+                entryCount: entries.length,
+                checkoutRoot: result.checkoutRoot,
+            })
+        // the staging tree has served its purpose
+        await this.cleanup(result)
+    }
+
+    /**
+     * Removes the staging temp dir; safe to call multiple times.
+     *
+     * @param result - The {@link ensure} result carrying the temp location
+     */
+    async cleanup(
+        result: EnsureDataGitResult,
+    ): Promise<void> {
+        if (!result.tempDir) {
+            return
+        }
+        await rm(result.tempDir,
+            {
+                recursive: true, force: true,
+            })
+    }
+
+    /**
+     * Resolves the on-disk root the seed pipeline ultimately reads from — the
+     * path of the first enabled filesystem context.
      *
      * @returns Absolute path of the filesystem-context data root
      */
@@ -346,10 +425,10 @@ export class DataGitBootstrapService {
     }
 
     /**
-     * Downloads the repo tarball and extracts it over the data root.
+     * Downloads the repo tarball and extracts it into a fresh staging dir.
      *
-     * @param params - Octokit client, repo coordinates, sub-directory, and target root
-     * @returns Number of top-level entries replaced in the data root
+     * @param params - Octokit client, repo coordinates, and sub-directory
+     * @returns The temp dir, the subdir-aware content root, and the entry count
      */
     private async downloadAndExtract({
         octokit,
@@ -357,73 +436,45 @@ export class DataGitBootstrapService {
         repo,
         ref,
         subdir,
-        checkoutRoot,
-    }: DownloadAndExtractParams): Promise<number> {
-        // a throwaway temp dir holds the raw tarball + the extracted tree
+    }: DownloadAndExtractParams): Promise<DownloadAndExtractResult> {
+        // a temp dir holds the raw tarball + the extracted tree (the staging copy)
         const tempDir = await mkdtemp(join(tmpdir(),
             DATA_GIT_TEMP_PREFIX))
-        try {
-            // pull the gzipped tarball through the GitHub API (follows the redirect for us)
-            const response = await octokit.rest.repos.downloadTarballArchive({
-                owner,
-                repo,
-                ref,
+        // pull the gzipped tarball through the GitHub API (follows the redirect for us)
+        const response = await octokit.rest.repos.downloadTarballArchive({
+            owner,
+            repo,
+            ref,
+        })
+        // the archive body arrives as an ArrayBuffer — persist it to disk for tar to read
+        const tarballPath = join(tempDir,
+            "repo.tar.gz")
+        await writeFile(tarballPath,
+            Buffer.from(response.data as ArrayBuffer))
+
+        // GitHub wraps everything in a single `owner-repo-<sha>/` folder; strip:1 removes it
+        const extractDir = join(tempDir,
+            "extracted")
+        await mkdir(extractDir,
+            {
+                recursive: true,
             })
-            // the archive body arrives as an ArrayBuffer — persist it to disk for tar to read
-            const tarballPath = join(tempDir,
-                "repo.tar.gz")
-            await writeFile(tarballPath,
-                Buffer.from(response.data as ArrayBuffer))
+        await tar.x({
+            file: tarballPath,
+            cwd: extractDir,
+            strip: 1,
+        })
 
-            // GitHub wraps everything in a single `owner-repo-<sha>/` folder; strip:1 removes it
-            const extractDir = join(tempDir,
-                "extracted")
-            await mkdir(extractDir,
-                {
-                    recursive: true 
-                })
-            await tar.x({
-                file: tarballPath,
-                cwd: extractDir,
-                strip: 1,
-            })
-
-            // the content we care about is either the repo root or a configured sub-directory
-            const sourceDir = subdir
-                ? join(extractDir,
-                    subdir)
-                : extractDir
-
-            // make sure the destination root exists before copying into it
-            await mkdir(checkoutRoot,
-                {
-                    recursive: true 
-                })
-
-            // replace each top-level entry individually so unrelated files (e.g. the marker) survive
-            const entries = await readdir(sourceDir)
-            for (const entry of entries) {
-                // drop the stale copy then move the fresh one in — an atomic-ish per-entry swap
-                const destination = join(checkoutRoot,
-                    entry)
-                await rm(destination,
-                    {
-                        recursive: true, force: true 
-                    })
-                await cp(join(sourceDir,
-                    entry),
-                destination,
-                {
-                    recursive: true 
-                })
-            }
-            return entries.length
-        } finally {
-            // always clean up the temp tree regardless of success/failure
-            await rm(tempDir,
-                {
-                    recursive: true, force: true 
-                })
+        // the content we care about is either the repo root or a configured sub-directory
+        const stagingRoot = subdir
+            ? join(extractDir,
+                subdir)
+            : extractDir
+        const entryCount = (await readdir(stagingRoot)).length
+        return {
+            tempDir,
+            stagingRoot,
+            entryCount,
         }
     }
 }

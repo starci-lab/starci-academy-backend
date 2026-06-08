@@ -1,2 +1,3 @@
 export * from "./course-module-filter"
 export * from "./entity-sync-filter"
+export * from "./sync-success-log"

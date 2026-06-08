@@ -5,10 +5,10 @@ import {
 import {
     ConfigurableModuleClass,
     OPTIONS_TYPE,
-} from "./init-v2.module-definition"
+} from "./init.module-definition"
 import {
-    InitV2Service,
-} from "./init-v2.service"
+    InitService,
+} from "./init.service"
 import {
     DataGitBootstrapService,
 } from "./data-git"
@@ -17,25 +17,25 @@ import {
 } from "./diff"
 import {
     ScopeModule,
-} from "@modules/init/scope"
+} from "./scope"
 import {
     SeedersModule,
-} from "@modules/init/seeders"
+} from "./seeders"
 import {
     SynchronizersModule,
-} from "@modules/init/synchronizers"
+} from "./synchronizers"
 
 /**
- * Init V2 module — git-sourced initialization orchestrator.
+ * Init module — canonical git-sourced initialization orchestrator.
  *
- * Mirrors {@link InitModule} (imports the same Scope/Seeders/Synchronizers
- * sub-modules) but runs {@link InitV2Service}, which first materializes the
- * data root from the private `data` GitHub repo before seeding. Wired in place
- * of `InitModule` when `INIT_V2_ENABLED` is set.
+ * Owns the Scope/Seeders/Synchronizers sub-modules and runs {@link InitService},
+ * which materializes the data root from the private `data` GitHub repo (diff)
+ * and seeds before pulling the source into `.contexts`. The local-file variant
+ * lives in the parked `_init` module.
  */
 @Module({
 })
-export class InitV2Module extends ConfigurableModuleClass {
+export class InitModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)
 
@@ -57,10 +57,10 @@ export class InitV2Module extends ConfigurableModuleClass {
                 ...(dynamicModule.providers ?? []),
                 DataGitBootstrapService,
                 SeedDiffOverlayService,
-                InitV2Service,
+                InitService,
             ],
             exports: [
-                InitV2Service,
+                InitService,
             ],
         }
     }

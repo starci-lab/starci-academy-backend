@@ -35,17 +35,15 @@ import type {
     SynchronizerSyncScope,
 } from "../../types"
 import {
+    buildChallengeSyncSuccessLog,
+    buildContentSyncSuccessLog,
+    buildCourseSyncSuccessLog,
+    buildModuleSyncSuccessLog,
     shouldSyncChallengeEntity,
     shouldSyncContentEntity,
     shouldSyncCourseEntity,
     shouldSyncModuleEntity,
 } from "../../utils"
-import {
-    buildChallengeCdnSyncSuccessLog,
-    buildContentCdnSyncSuccessLog,
-    buildCourseCdnSyncSuccessLog,
-    buildModuleCdnSyncSuccessLog,
-} from "./utils"
 
 /**
  * CDN synchronizer — iterates all entities and calls CDN builder for each.
@@ -83,46 +81,10 @@ export class CdnSynchronizerService {
          * Start the CDN synchronization.
          */
         const start = this.dayjsService.now()
-        this.winstonService.log(
-            WinstonLog.CdnSynchronizerCdnSyncStarted,
-            {
-                startedAt: start,
-            },
-        )
-        this.winstonService.log(
-            WinstonLog.CdnSynchronizerMaterializeStep,
-            {
-                step: "scope-resolved",
-                entityKind: "CdnSynchronizer",
-                entityId: "boot",
-                detail: JSON.stringify({
-                    courses: Array.from(scope.courseEnabledByDisplayId.entries()),
-                    modules: scope.moduleIndexFilterByDisplayId
-                        ? Array.from(scope.moduleIndexFilterByDisplayId.entries()).map(
-                            ([
-                                displayId,
-                                indexes,
-                            ]) => ({
-                                displayId,
-                                indexes: indexes === null
-                                    ? "all"
-                                    : Array.from(indexes),
-                            }),
-                        )
-                        : "all",
-                }),
-            },
-        )
         /**
          * Synchronize the entities.
          */
         for (const entityKind of this.entityKinds) {
-            this.winstonService.log(
-                WinstonLog.CdnSynchronizerEntityKindStarted,
-                {
-                    entityKind,
-                },
-            )
             let resumeEntityId: string | null = null
             switch (entityKind) {
             case CourseEntity.name: {
@@ -148,33 +110,16 @@ export class CdnSynchronizerService {
                     }
                     if (!shouldSyncCourseEntity(scope,
                         course)) {
-                        this.winstonService.log(
-                            WinstonLog.CdnSynchronizerEntitySkipped,
-                            {
-                                entityKind,
-                                entityId: course.id,
-                                displayId: course.displayId,
-                                reason: "course-disabled-or-out-of-scope",
-                            },
-                        )
                         resumeEntityId = course.id
                         continue
                     }
-                    this.winstonService.log(
-                        WinstonLog.CdnSynchronizerEntitySyncStarted,
-                        {
-                            entityKind,
-                            entityId: course.id,
-                            displayId: course.displayId,
-                        },
-                    )
                     try {
                         await this.cdnCourseBuildService.materializeAndUpload(
                             course.id,
                         )
                         this.winstonService.log(
                             WinstonLog.CdnSynchronizerSyncedSuccessfully,
-                            buildCourseCdnSyncSuccessLog(course),
+                            buildCourseSyncSuccessLog(course),
                         )
                     } catch (error) {
                         const errorMessage = error instanceof Error
@@ -227,33 +172,16 @@ export class CdnSynchronizerService {
                     }
                     if (!shouldSyncChallengeEntity(scope,
                         challenge)) {
-                        this.winstonService.log(
-                            WinstonLog.CdnSynchronizerEntitySkipped,
-                            {
-                                entityKind,
-                                entityId: challenge.id,
-                                displayId: challenge.displayId,
-                                reason: "module-out-of-scope",
-                            },
-                        )
                         resumeEntityId = challenge.id
                         continue
                     }
-                    this.winstonService.log(
-                        WinstonLog.CdnSynchronizerEntitySyncStarted,
-                        {
-                            entityKind,
-                            entityId: challenge.id,
-                            displayId: challenge.displayId,
-                        },
-                    )
                     try {
                         await this.cdnChallengeBuildService.materializeAndUpload(
                             challenge.id,
                         )
                         this.winstonService.log(
                             WinstonLog.CdnSynchronizerSyncedSuccessfully,
-                            buildChallengeCdnSyncSuccessLog(challenge),
+                            buildChallengeSyncSuccessLog(challenge),
                         )
                     } catch (error) {
                         const errorMessage = error instanceof Error
@@ -305,33 +233,16 @@ export class CdnSynchronizerService {
                     }
                     if (!shouldSyncContentEntity(scope,
                         content)) {
-                        this.winstonService.log(
-                            WinstonLog.CdnSynchronizerEntitySkipped,
-                            {
-                                entityKind,
-                                entityId: content.id,
-                                displayId: content.displayId,
-                                reason: "module-out-of-scope",
-                            },
-                        )
                         resumeEntityId = content.id
                         continue
                     }
-                    this.winstonService.log(
-                        WinstonLog.CdnSynchronizerEntitySyncStarted,
-                        {
-                            entityKind,
-                            entityId: content.id,
-                            displayId: content.displayId,
-                        },
-                    )
                     try {
                         await this.cdnContentBuildService.materializeAndUpload(
                             content.id,
                         )
                         this.winstonService.log(
                             WinstonLog.CdnSynchronizerSyncedSuccessfully,
-                            buildContentCdnSyncSuccessLog(content),
+                            buildContentSyncSuccessLog(content),
                         )
                     } catch (error) {
                         const errorMessage = error instanceof Error
@@ -381,33 +292,16 @@ export class CdnSynchronizerService {
                     }
                     if (!shouldSyncModuleEntity(scope,
                         module)) {
-                        this.winstonService.log(
-                            WinstonLog.CdnSynchronizerEntitySkipped,
-                            {
-                                entityKind,
-                                entityId: module.id,
-                                displayId: module.displayId,
-                                reason: "module-out-of-scope",
-                            },
-                        )
                         resumeEntityId = module.id
                         continue
                     }
-                    this.winstonService.log(
-                        WinstonLog.CdnSynchronizerEntitySyncStarted,
-                        {
-                            entityKind,
-                            entityId: module.id,
-                            displayId: module.displayId,
-                        },
-                    )
                     try {
                         await this.cdnModuleBuildService.materializeAndUpload(
                             module.id,
                         )
                         this.winstonService.log(
                             WinstonLog.CdnSynchronizerSyncedSuccessfully,
-                            buildModuleCdnSyncSuccessLog(module),
+                            buildModuleSyncSuccessLog(module),
                         )
                     } catch (error) {
                         const errorMessage = error instanceof Error

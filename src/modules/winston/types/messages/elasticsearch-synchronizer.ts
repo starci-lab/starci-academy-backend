@@ -5,8 +5,16 @@ export interface EsSynchronizerSyncStartedMessage {
 
 /** Message for when Elasticsearch synchronizer syncs a single entity successfully. */
 export interface EsSynchronizerSyncedSuccessfullyMessage {
+    /** TypeORM entity class name (e.g. `ChallengeEntity`). */
     entityKind: string
+    /** Entity primary key. */
     entityId: string
+    /** Mount slug / display id of the synced row (omitted for entities without one). */
+    displayId?: string
+    /** Ancestor display ids from course → … → parent (empty for course). */
+    relativeDisplayIds?: Array<string>
+    /** `true` when row uses legacy mount schema (no `# verified` / `verified` null). */
+    isLegacy?: boolean
 }
 
 /** Message for when Elasticsearch synchronizer completes a sync cycle. */

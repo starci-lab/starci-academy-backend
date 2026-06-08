@@ -48,8 +48,6 @@ export interface DataGitDiffScopedMessage {
     moduleCount: number
     /** Number of standalone domains (cv/foundations/…) kept in the narrowed scope. */
     domainCount: number
-    /** Effective scope mode resolved for this boot ("all" / "diff" / "none"). */
-    scope: string
 }
 
 /** Message for when the data-git bootstrap fails to fetch or extract. */

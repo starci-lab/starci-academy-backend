@@ -858,9 +858,9 @@ export const envConfig = () => ({
             }),
         },
     ],
-    /** Init V2 — git-sourced bootstrap that replaces the local-file InitModule when enabled. */
+    /** Init — git-sourced bootstrap; falls back to the parked local-file LegacyInitModule when disabled. */
     initV2: {
-        /** When true, the app wires InitV2Module (git data source) in place of the local-file InitModule. Default on. */
+        /** When true, the app wires the canonical git-sourced InitModule; when false, the local-file LegacyInitModule. Default on. */
         enabled: parseEnvBoolean({
             key: "INIT_V2_ENABLED",
             defaultValue: true,
@@ -927,14 +927,14 @@ export const envConfig = () => ({
                 defaultValue: join(process.cwd(),
                     ".mount",
                     "config",
-                    "seed.yaml"),
+                    "_seed.yaml"),
             }),
-            seedV2: parseEnvString({
-                key: "CONFIG_SEED_V2_MOUNT_PATH",
+            initScope: parseEnvString({
+                key: "CONFIG_INIT_SCOPE_MOUNT_PATH",
                 defaultValue: join(process.cwd(),
                     ".mount",
                     "config",
-                    "seed-v2.yaml"),
+                    "seed.yaml"),
             }),
         },
         /** File paths: terraform secrets. */

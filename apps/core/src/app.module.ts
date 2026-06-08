@@ -154,8 +154,8 @@ import {
     InitModule,
 } from "@modules/init"
 import {
-    InitV2Module,
-} from "@modules/init-v2"
+    LegacyInitModule,
+} from "@modules/_init"
 import {
     FfmpegModule
 } from "@modules/ffmpeg"
@@ -461,21 +461,21 @@ import {
                 }
             ),
             /**
-             * Init module — plugin-based initialization.
-             * When `INIT_V2_ENABLED` is set, swap in the git-sourced InitV2Module
-             * (clones the private `data` repo before seeding); otherwise keep the
-             * local-file InitModule for dev.
+             * Init module — boot-time seed/sync orchestrator.
+             * The canonical git-sourced `InitModule` pulls the private `data`
+             * repo (diff-based) before seeding. When `INIT_V2_ENABLED` is off,
+             * fall back to the parked local-file `LegacyInitModule` for dev.
              */
             ...(envConfig().initV2.enabled
                 ? [
-                    InitV2Module.register(
+                    InitModule.register(
                         {
                             isGlobal: true,
                         }
                     ),
                 ]
                 : [
-                    InitModule.register(
+                    LegacyInitModule.register(
                         {
                             isGlobal: true,
                         }

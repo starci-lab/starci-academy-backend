@@ -62,12 +62,6 @@ export class SynchronizersService {
          * Start the sync orchestrator.
          */
         const start = this.dayjsService.now()
-        this.winstonService.log(
-            WinstonLog.SyncOrchestratorStarted,
-            {
-                startedAt: start,
-            }
-        )
         await this.cdnSynchronizerService.sync(cdnScope)
         // drop + re-create ES indices first when reindex is requested, so the
         // sync below repopulates a clean, correctly-mapped set of indices

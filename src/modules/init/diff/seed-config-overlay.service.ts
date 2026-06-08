@@ -4,6 +4,7 @@ import {
 import type {
     SeedConfig,
     SeedCourseTrack,
+    SeedScopeIndexes,
     SeedSyncCourseTrack,
 } from "@modules/filesystem"
 import type {
@@ -14,10 +15,11 @@ import type {
 /**
  * Builds the full {@link SeedConfig} the existing pipeline understands.
  *
- * `seed-v2.yaml` only carries the seed MODE (`all`/`diff`/`none`); the course
- * set is derived at boot — every course discovered in `.contexts` for `all`,
- * or the changed set for `diff`. Applied via `setRuntimeSeedConfig`, so the
- * shared pipeline scopes itself with no shared-code edits.
+ * The seed scope is always diff-based: the changed set drives a narrowed
+ * overlay, while a first pull / untrustable diff promotes to a full reseed of
+ * every course discovered under the active root. Applied via
+ * `setRuntimeSeedConfig`, so the shared pipeline scopes itself with no
+ * shared-code edits.
  */
 @Injectable()
 export class SeedDiffOverlayService {
@@ -45,11 +47,55 @@ export class SeedDiffOverlayService {
                 modules: {
                     cdn: "all",
                     elasticsearch: "all",
-                    repo: [],
+                    repo: "all",
                 },
                 milestones: {
                     cdn: "all",
                     elasticsearch: "all",
+                    repo: [],
+                },
+            }
+        }
+        return this.assemble(tracks,
+            syncCourses,
+            false)
+    }
+
+    /**
+     * Builds a custom-scope config from an explicit `displayId → module scope`
+     * map (the `scopeCustom` override). Each listed course seeds/syncs exactly
+     * the given module scope (`"all"`, an index list, or a range); milestones
+     * stay off (the git-sourced scope is courses + modules only).
+     *
+     * @param scopeCustom - Course module scope keyed by course displayId
+     * @returns A complete config restricted to the listed courses/modules
+     */
+    buildCustomConfig(
+        scopeCustom: Record<string, SeedScopeIndexes>,
+    ): SeedConfig {
+        const tracks: Record<string, SeedCourseTrack> = {
+        }
+        const syncCourses: Record<string, SeedSyncCourseTrack> = {
+        }
+        for (const [
+            displayId,
+            modules,
+        ] of Object.entries(scopeCustom)) {
+            tracks[displayId] = {
+                course: true,
+                modules,
+                milestones: [],
+            }
+            syncCourses[displayId] = {
+                course: true,
+                modules: {
+                    cdn: modules,
+                    elasticsearch: modules,
+                    repo: modules,
+                },
+                milestones: {
+                    cdn: [],
+                    elasticsearch: [],
                     repo: [],
                 },
             }
@@ -110,7 +156,7 @@ export class SeedDiffOverlayService {
                 modules: {
                     cdn: modules,
                     elasticsearch: modules,
-                    repo: [],
+                    repo: modules,
                 },
                 milestones: {
                     cdn: milestones,
@@ -132,7 +178,7 @@ export class SeedDiffOverlayService {
     /**
      * Assembles a full {@link SeedConfig} from the resolved course tracks.
      *
-     * Standalone domains stay off (InitV2 scope is courses-only); on a partial
+     * Standalone domains stay off (git-sourced scope is courses-only); on a partial
      * sync `reIndex` is forced false so unchanged ES data is never wiped.
      *
      * @param tracks - Seed course tracks keyed by displayId

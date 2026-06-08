@@ -5,6 +5,9 @@ import {
     ContextType,
     envConfig
 } from "@modules/env"
+import {
+    getRuntimeContextRoot,
+} from "@modules/filesystem"
 import fs from "fs/promises"
 import {
     S3Provider,
@@ -83,8 +86,10 @@ export class PathResolverService {
                 /** Read the files from the filesystem. */
                 case ContextType.Filesystem: {
                     try {
+                        // seed from the staging root when set, else the context path
+                        const root = getRuntimeContextRoot() ?? context.path
                         const rawPaths = await fs.readdir(
-                            `${context.path}/${baseDir}/${relativePath}`,
+                            `${root}/${baseDir}/${relativePath}`,
                         )
                         const paths = this.filterIndexed(rawPaths)
                         if (paths.length > 0) {

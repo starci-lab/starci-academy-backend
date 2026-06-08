@@ -1,6 +1,3 @@
 export * from "./init.module-definition"
 export * from "./init.module"
 export * from "./init.service"
-export * from "./types"
-export * from "./seeders"
-export * from "./synchronizers"

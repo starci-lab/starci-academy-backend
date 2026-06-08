@@ -54,12 +54,6 @@ export class BloomFilterSynchronizerService {
          * Start the bloom filter synchronization.
          */
         const start = this.dayjsService.now()
-        this.winstonService.log(
-            WinstonLog.BloomFilterSynchronizerSyncStarted,
-            {
-                startedAt: start,
-            }
-        )
 
         // 1. Ensure bloom filter exists in cache
         const cached = await this.cacheService.get(

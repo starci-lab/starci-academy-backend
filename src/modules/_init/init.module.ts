@@ -7,27 +7,24 @@ import {
     OPTIONS_TYPE,
 } from "./init.module-definition"
 import {
-    InitService,
+    LegacyInitService,
 } from "./init.service"
 import {
-    SeedersModule,
-} from "./seeders"
-import {
-    SynchronizersModule,
-} from "./synchronizers"
-import {
     ScopeModule,
-} from "./scope"
+    SeedersModule,
+    SynchronizersModule,
+} from "@modules/init"
 
 /**
- * Init module — plugin-based initialization orchestrator.
+ * Parked local-file init module (legacy v1).
  *
- * Imports Seeders and Synchronizers sub-modules, then runs
- * enabled plugins sequentially via {@link InitService}.
+ * Reuses the Scope/Seeders/Synchronizers sub-modules now owned by `@modules/init`
+ * and runs {@link LegacyInitService}. Kept un-registered by default; wire it in
+ * place of the canonical `InitModule` for local-file dev seeding.
  */
 @Module({
 })
-export class InitModule extends ConfigurableModuleClass {
+export class LegacyInitModule extends ConfigurableModuleClass {
     static register(options: typeof OPTIONS_TYPE): DynamicModule {
         const dynamicModule = super.register(options)
 
@@ -47,10 +44,10 @@ export class InitModule extends ConfigurableModuleClass {
             ],
             providers: [
                 ...(dynamicModule.providers ?? []),
-                InitService,
+                LegacyInitService,
             ],
             exports: [
-                InitService,
+                LegacyInitService,
             ],
         }
     }
