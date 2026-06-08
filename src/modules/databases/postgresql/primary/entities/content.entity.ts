@@ -5,6 +5,9 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 import {
+    GraphQLJSON,
+} from "graphql-type-json"
+import {
     GraphQLTypeLocale,
     Locale,
 } from "../enums"
@@ -416,6 +419,23 @@ export class ContentEntity extends UuidAbstractEntity {
         default: false,
     })
         isSandbox: boolean
+
+    /**
+     * Captured Playwright E2E flows for this lesson (read-only test proof shown in
+     * the lecture "E2E" tab). Populated by the seeder from the lesson's `e2e.json`:
+     * each flow has id/title/description/lang/status/durationMs/logs. Stored as
+     * jsonb and exposed as a JSON scalar so the shape can evolve without migrations.
+     */
+    @Field(() => GraphQLJSON, {
+        nullable: true,
+        description: "Captured E2E test flows (title/status/durationMs/logs) for the lesson's E2E proof tab.",
+    })
+    @Column({
+        name: "e2e_flows",
+        type: "jsonb",
+        nullable: true,
+    })
+        e2eFlows: Array<Record<string, unknown>> | null
 
     /**
      * Base GitHub repo URL for the lesson sandbox source.

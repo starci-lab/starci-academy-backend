@@ -279,8 +279,22 @@ export class ContentParserService {
             contentIndex,
             contentId,
         })
+        // optional per-lesson captured E2E flows (`<content>/e2e.json` -> `{ flows: [...] }`);
+        // null when the lesson ships no proof file. Read-only data for the lecture "E2E" tab.
+        let e2eFlows: Array<Record<string, unknown>> | null = null
+        try {
+            const rawE2e = await this.contextLoaderService.load(
+                "courses",
+                `${path.relativePath}/e2e.json`,
+            )
+            const parsedE2e = JSON.parse(rawE2e) as { flows?: Array<Record<string, unknown>> }
+            e2eFlows = Array.isArray(parsedE2e?.flows) ? parsedE2e.flows : null
+        } catch {
+            e2eFlows = null
+        }
         // assemble the entity graph for TypeORM cascade save
         return {
+            e2eFlows,
             id: contentId,
             moduleId,
             module: {
