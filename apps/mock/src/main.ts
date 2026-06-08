@@ -41,16 +41,31 @@ const bootstrap = async () => {
         },
     )
 
-    // reflect any caller origin; no credentials so this is safe for public data
+    // reflect any caller origin; no credentials so this is safe for public data.
+    // PUT/HEAD are needed by the file-upload lessons (presigned PUT, tus HEAD);
+    // exposedHeaders lets the browser READ the upload response headers it relies
+    // on — the ETag from a presigned PUT and the tus protocol headers.
     app.enableCors({
         origin: true,
         credentials: false,
         methods: [
             "GET",
+            "HEAD",
             "POST",
+            "PUT",
             "PATCH",
             "DELETE",
             "OPTIONS"
+        ],
+        exposedHeaders: [
+            "ETag",
+            "Location",
+            "Upload-Offset",
+            "Upload-Length",
+            "Tus-Resumable",
+            "Tus-Version",
+            "Tus-Extension",
+            "Upload-Metadata"
         ],
     })
 

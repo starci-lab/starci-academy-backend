@@ -10,18 +10,27 @@ import {
 import {
     RealtimeMockModule,
 } from "./8-websocket-realtime-communication"
+import {
+    FileUploadMockModule,
+} from "./11-file-upload-and-storage"
+import {
+    ResponsiveMockModule,
+} from "./14-responsive-and-adaptive-rendering"
 
 /**
  * Feature module for the standalone mock-sandbox service.
  *
  * Pure in-memory — no database, cache, or external dependencies. It aggregates
  * the per-module mock bundles (HTTP controllers + the single realtime Socket.IO
- * gateway); each leaf imports `StoreModule` transitively and applies
- * `MockDelayInterceptor` per-controller.
+ * gateway); each leaf imports `StoreModule`/`FileStoreModule` transitively and
+ * applies `MockDelayInterceptor` per-controller (binary upload endpoints opt
+ * out so transfer progress stays smooth).
  */
 @Module({
     imports: [ServerStateMockModule,
         FormMasteryMockModule,
-        RealtimeMockModule],
+        RealtimeMockModule,
+        FileUploadMockModule,
+        ResponsiveMockModule],
 })
 export class MockModule {}
