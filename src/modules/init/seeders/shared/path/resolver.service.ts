@@ -65,6 +65,66 @@ export class PathResolverService {
     }
 
     /**
+     * Lists raw entry names (files and directories) under `baseDir/relativePath` WITHOUT the
+     * `{index}-{slug}` filter — used for non-indexed trees such as `.e2e/<lang>/flow-*.md`.
+     * Mirrors {@link filePaths}' context resolution (staging root / filesystem, then S3).
+     *
+     * @param baseDir - The base directory (context prefix, e.g. `"courses"`).
+     * @param relativePath - Relative path under `baseDir`.
+     * @returns Raw entry names (no path prefix), or `[]` when the directory is absent.
+     */
+    public async listRaw(
+        baseDir: string,
+        relativePath: string,
+    ): Promise<Array<string>> {
+        try {
+            const contexts = envConfig().contexts
+                .filter(context => context.enabled)
+                .sort((prev, next) => prev.priority - next.priority)
+
+            for (const context of contexts) {
+                switch (context.type) {
+                /** List entries from the filesystem. */
+                case ContextType.Filesystem: {
+                    try {
+                        const root = getRuntimeContextRoot() ?? context.path
+                        const rawPaths = await fs.readdir(
+                            `${root}/${baseDir}/${relativePath}`,
+                        )
+                        if (rawPaths.length > 0) {
+                            return rawPaths
+                        }
+                    } catch {
+                        // do nothing
+                    }
+                    break
+                }
+                /** List entries from S3. */
+                case ContextType.S3: {
+                    try {
+                        const rawPaths = await this.s3ReadService.list(
+                            {
+                                key: `${baseDir}/${relativePath}`,
+                                provider: context.provider as S3Provider,
+                            },
+                        )
+                        if (rawPaths.length > 0) {
+                            return rawPaths
+                        }
+                    } catch {
+                        // do nothing
+                    }
+                    break
+                }
+                }
+            }
+            return []
+        } catch {
+            return []
+        }
+    }
+
+    /**
      * Absolute path to `contents/` for the given course and module index.
      *
      * @param relativePath - Relative path to the file

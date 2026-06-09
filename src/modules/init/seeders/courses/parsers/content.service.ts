@@ -205,6 +205,88 @@ export class ContentParserService {
     }
 
     /**
+     * Builds the lecture "E2E" tab flows by reading the audit trail DIRECTLY from
+     * `<content>/.e2e/<lang>/flow-<N>-<slug>-<status>.md`. Each markdown proof becomes one flow
+     * `{ id, lang, title, status, markdown }`. Status maps `done|pass` -> `"passed"` (FE shows PASS);
+     * any other suffix (`fail|require-rerun|require-creds`) stays non-`"passed"` (FE shows FAIL).
+     * Falls back to a legacy `<content>/e2e.json` (`{ flows: [...] }`) only when no `.e2e/` tree exists.
+     *
+     * @param contentRelativePath - Lesson folder path under the course context root.
+     * @returns Flow records for `content.e2eFlows`, or `null` when no proof exists.
+     */
+    private async parseE2eFlows(
+        contentRelativePath: string,
+    ): Promise<Array<Record<string, unknown>> | null> {
+        const flows: Array<Record<string, unknown>> = []
+        const e2eRoot = `${contentRelativePath}/.e2e`
+        // Language subdirs (typescript/java/csharp/go/agnostic) are non-indexed -> listRaw.
+        const langs = await this.pathResolverService.listRaw(
+            "courses",
+            e2eRoot,
+        )
+        for (const lang of langs) {
+            const files = await this.pathResolverService.listRaw(
+                "courses",
+                `${e2eRoot}/${lang}`,
+            )
+            // Keep only flow proof markdown; ignore summary.md / other artifacts.
+            const flowFiles = files
+                .filter((file) => /^flow-.*\.md$/u.test(file))
+                .sort()
+            for (const file of flowFiles) {
+                let markdown = ""
+                try {
+                    markdown = await this.contextLoaderService.load(
+                        "courses",
+                        `${e2eRoot}/${lang}/${file}`,
+                    )
+                } catch {
+                    continue
+                }
+                const base = file.replace(
+                    /\.md$/u,
+                    "",
+                )
+                // Trailing status token of `flow-<N>-<slug>-<status>`.
+                const statusMatch = base.match(
+                    /-(done|pass|fail|require-creds|require-rerun)$/u,
+                )
+                const rawStatus = statusMatch ? statusMatch[1] : "done"
+                const status = (rawStatus === "done" || rawStatus === "pass")
+                    ? "passed"
+                    : rawStatus === "fail"
+                        ? "failed"
+                        : "pending"
+                // Title: first markdown heading, else the filename stem.
+                const headingMatch = markdown.match(
+                    /^#{1,6}[ \t]+(.+?)\s*$/mu,
+                )
+                flows.push({
+                    id: base,
+                    lang,
+                    title: headingMatch ? headingMatch[1].trim() : base,
+                    status,
+                    markdown,
+                })
+            }
+        }
+        if (flows.length > 0) {
+            return flows
+        }
+        // Legacy fallback: a pre-generated `e2e.json` ({ flows: [...] }).
+        try {
+            const rawE2e = await this.contextLoaderService.load(
+                "courses",
+                `${contentRelativePath}/e2e.json`,
+            )
+            const parsedE2e = JSON.parse(rawE2e) as { flows?: Array<Record<string, unknown>> }
+            return Array.isArray(parsedE2e?.flows) ? parsedE2e.flows : null
+        } catch {
+            return null
+        }
+    }
+
+    /**
      * Builds a partial content entity (scalars, code blocks, references, bodies) from the mount.
      *
      * @param params - Content path list + course/module/content ordinals.
@@ -279,19 +361,10 @@ export class ContentParserService {
             contentIndex,
             contentId,
         })
-        // optional per-lesson captured E2E flows (`<content>/e2e.json` -> `{ flows: [...] }`);
-        // null when the lesson ships no proof file. Read-only data for the lecture "E2E" tab.
-        let e2eFlows: Array<Record<string, unknown>> | null = null
-        try {
-            const rawE2e = await this.contextLoaderService.load(
-                "courses",
-                `${path.relativePath}/e2e.json`,
-            )
-            const parsedE2e = JSON.parse(rawE2e) as { flows?: Array<Record<string, unknown>> }
-            e2eFlows = Array.isArray(parsedE2e?.flows) ? parsedE2e.flows : null
-        } catch {
-            e2eFlows = null
-        }
+        // Per-lesson captured E2E proof for the lecture "E2E" tab. Source of truth is the audit
+        // trail `<content>/.e2e/<lang>/flow-<N>-<slug>-<status>.md` (read directly). Falls back to
+        // a legacy `<content>/e2e.json` only when no `.e2e/` tree is present.
+        const e2eFlows = await this.parseE2eFlows(path.relativePath)
         // assemble the entity graph for TypeORM cascade save
         return {
             e2eFlows,
