@@ -81,7 +81,7 @@ func initDB() {
 var (
 	regions   = []string{"us-east", "us-west", "eu-west", "eu-east", "ap-southeast"}
 	products  = []string{"Laptop", "Phone", "Tablet", "Monitor", "Keyboard", "Mouse"}
-	statuses  = []string{"pending", "processing", "shipped", "delivered"}
+	statuses  = []string{"pending", "completed", "cancelled"}
 )
 
 func main() {

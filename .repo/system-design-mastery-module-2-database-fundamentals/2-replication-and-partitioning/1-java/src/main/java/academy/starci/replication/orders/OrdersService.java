@@ -12,7 +12,7 @@ public class OrdersService {
 
     private static final String[] REGIONS = {"us-east", "us-west", "eu-west", "eu-east", "ap-southeast"};
     private static final String[] PRODUCTS = {"Laptop", "Phone", "Tablet", "Monitor", "Keyboard", "Mouse"};
-    private static final String[] STATUSES = {"pending", "processing", "shipped", "delivered"};
+    private static final String[] STATUSES = {"pending", "completed", "cancelled"};
 
     private final OrderRepository orderRepository;
     private final JdbcTemplate jdbcTemplate;

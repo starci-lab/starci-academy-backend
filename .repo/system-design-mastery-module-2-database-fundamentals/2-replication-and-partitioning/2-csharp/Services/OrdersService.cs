@@ -13,7 +13,7 @@ namespace ReplicationPartitioning.Services
     {
         private static readonly string[] Regions = {"us-east", "us-west", "eu-west", "eu-east", "ap-southeast"};
         private static readonly string[] Products = {"Laptop", "Phone", "Tablet", "Monitor", "Keyboard", "Mouse"};
-        private static readonly string[] Statuses = {"pending", "processing", "shipped", "delivered"};
+        private static readonly OrderStatus[] Statuses = { OrderStatus.pending, OrderStatus.completed, OrderStatus.cancelled };
 
         private readonly WriteDbContext _writeContext;
         private readonly ReadDbContext _readContext;
@@ -83,7 +83,7 @@ namespace ReplicationPartitioning.Services
                 if (conn.State != ConnectionState.Open) await conn.OpenAsync();
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "SELECT client_addr, state, sent_lsn, write_lsn, flush_lsn, replay_lsn, cast(pg_wal_lsn_diff(sent_lsn, replay_lsn) as text) AS replication_lag_bytes, sync_state FROM pg_stat_replication";
+                    cmd.CommandText = "SELECT client_addr::text, state, sent_lsn::text, write_lsn::text, flush_lsn::text, replay_lsn::text, cast(pg_wal_lsn_diff(sent_lsn, replay_lsn) as text) AS replication_lag_bytes, sync_state FROM pg_stat_replication";
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())

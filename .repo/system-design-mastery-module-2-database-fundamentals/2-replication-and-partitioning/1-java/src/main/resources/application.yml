@@ -12,12 +12,12 @@ spring:
 # Custom datasource configuration to be read by Java code
 datasource:
   primary:
-    url: jdbc:postgresql://${POSTGRES_MASTER_HOST:localhost}:${POSTGRES_MASTER_PORT:5432}/${POSTGRES_DB:orders_db}
+    jdbc-url: jdbc:postgresql://${POSTGRES_MASTER_HOST:localhost}:${POSTGRES_MASTER_PORT:5432}/${POSTGRES_DB:orders_db}?stringtype=unspecified
     username: ${POSTGRES_USER:postgres}
     password: ${POSTGRES_PASSWORD:Cuong123_A}
     driver-class-name: org.postgresql.Driver
   replica:
-    url: jdbc:postgresql://${POSTGRES_REPLICA_HOST:localhost}:${POSTGRES_REPLICA_PORT:5433}/${POSTGRES_DB:orders_db}
+    jdbc-url: jdbc:postgresql://${POSTGRES_REPLICA_HOST:localhost}:${POSTGRES_REPLICA_PORT:5433}/${POSTGRES_DB:orders_db}?stringtype=unspecified
     username: ${POSTGRES_USER:postgres}
     password: ${POSTGRES_PASSWORD:Cuong123_A}
     driver-class-name: org.postgresql.Driver

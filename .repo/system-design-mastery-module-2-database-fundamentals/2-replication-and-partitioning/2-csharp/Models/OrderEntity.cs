@@ -28,11 +28,20 @@ namespace ReplicationPartitioning.Models
         public string Region { get; set; } = null!;
 
         [Column("status")]
-        public string Status { get; set; } = "pending";
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public OrderStatus Status { get; set; } = OrderStatus.pending;
 
         [Column("created_at")]
         [JsonPropertyName("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    }
+
+    // Order status enum mapped to the PostgreSQL orders_status_enum type.
+    public enum OrderStatus
+    {
+        pending,
+        completed,
+        cancelled
     }
 
     public class DecimalStringConverter : JsonConverter<decimal>
