@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"sync"
-	"sync/atomic"
 )
 
 type User struct {
@@ -15,27 +14,18 @@ type User struct {
 }
 
 var (
-	users   = make(map[int64]User)
-	usersMu sync.RWMutex
+	users   = make([]User, 0)
+	usersMu sync.Mutex
 	counter int64
 )
 
 func main() {
-	// Seed initial data
-	id1 := atomic.AddInt64(&counter, 1)
-	users[id1] = User{ID: id1, Name: "Alice", Email: "alice@starci.com"}
-	id2 := atomic.AddInt64(&counter, 1)
-	users[id2] = User{ID: id2, Name: "Bob", Email: "bob@starci.com"}
-
 	http.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		if r.Method == http.MethodGet {
-			usersMu.RLock()
-			list := make([]User, 0, len(users))
-			for _, u := range users {
-				list = append(list, u)
-			}
-			usersMu.RUnlock()
+			usersMu.Lock()
+			list := append([]User(nil), users...)
+			usersMu.Unlock()
 			_ = json.NewEncoder(w).Encode(list)
 		} else if r.Method == http.MethodPost {
 			var input User
@@ -44,14 +34,10 @@ func main() {
 				_, _ = w.Write([]byte(`{"message":"Invalid body"}`))
 				return
 			}
-			id := atomic.AddInt64(&counter, 1)
-			created := User{
-				ID:    id,
-				Name:  input.Name,
-				Email: input.Email,
-			}
 			usersMu.Lock()
-			users[id] = created
+			counter++
+			created := User{ID: counter, Name: input.Name, Email: input.Email}
+			users = append(users, created)
 			usersMu.Unlock()
 			w.WriteHeader(http.StatusCreated)
 			_ = json.NewEncoder(w).Encode(created)

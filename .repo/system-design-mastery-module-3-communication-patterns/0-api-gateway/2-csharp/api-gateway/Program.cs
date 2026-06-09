@@ -10,15 +10,15 @@ app.Map("{*path}", async (string? path, HttpContext context, IHttpClientFactory 
     string targetUrl;
     if (path.StartsWith("users"))
     {
-        targetUrl = $"http://localhost:3001/{path}";
+        targetUrl = $"http://user-service:3001/{path}";
     }
     else if (path.StartsWith("products"))
     {
-        targetUrl = $"http://localhost:3002/{path}";
+        targetUrl = $"http://product-service:3002/{path}";
     }
     else if (path.StartsWith("orders"))
     {
-        targetUrl = $"http://localhost:3003/{path}";
+        targetUrl = $"http://order-service:3003/{path}";
     }
     else
     {
@@ -61,6 +61,9 @@ app.Map("{*path}", async (string? path, HttpContext context, IHttpClientFactory 
 
         foreach (var header in responseMsg.Headers)
         {
+            // Skip Transfer-Encoding: Kestrel re-frames the body itself, so copying
+            // the upstream's chunked header would double-chunk the response.
+            if (header.Key.Equals("Transfer-Encoding", StringComparison.OrdinalIgnoreCase)) continue;
             context.Response.Headers[header.Key] = header.Value.ToArray();
         }
         foreach (var header in responseMsg.Content.Headers)

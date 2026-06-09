@@ -20,6 +20,10 @@ import {
 } from "typeorm"
 import Redis from "ioredis"
 import {
+    Kafka,
+    Producer,
+} from "kafkajs"
+import {
     ProcessedEventEntity,
 } from "../entities"
 import type {
@@ -37,6 +41,7 @@ import type {
 export class ReliabilityService implements OnModuleInit, OnModuleDestroy {
     private readonly logger = new Logger(ReliabilityService.name)
     private redis!: Redis
+    private dlqProducer!: Producer
 
     constructor(
         @InjectRepository(ProcessedEventEntity) private readonly repo: Repository<ProcessedEventEntity>,
@@ -44,14 +49,21 @@ export class ReliabilityService implements OnModuleInit, OnModuleDestroy {
     ) {}
 /**
  * Logic: Initialize clients when the module becomes ready.
- * Code: `OnModuleInit` hook: read `ConfigService` and open connections.
+ * Code: `OnModuleInit` hook: read `ConfigService` and open connections (Redis + DLQ Kafka producer).
  */
-    onModuleInit(): void {
+    async onModuleInit(): Promise<void> {
         const redis = this.config.getOrThrow<RedisConfig>("redis")
         this.redis = new Redis({
             host: redis.host,
             port: redis.port,
         })
+        const kafka = this.config.getOrThrow<KafkaConfig>("kafka")
+        // Dedicated producer used only to publish failed messages to the DLQ topic.
+        this.dlqProducer = new Kafka({
+            clientId: `${kafka.clientId}-dlq`,
+            brokers: kafka.brokers,
+        }).producer()
+        await this.dlqProducer.connect()
     }
 /**
  * Logic: Gracefully close connections on shutdown.
@@ -59,6 +71,7 @@ export class ReliabilityService implements OnModuleInit, OnModuleDestroy {
  */
     async onModuleDestroy(): Promise<void> {
         await this.redis?.quit()
+        await this.dlqProducer?.disconnect()
     }
 
     /**
@@ -84,5 +97,23 @@ export class ReliabilityService implements OnModuleInit, OnModuleDestroy {
         const saved = await this.repo.save(row)
         this.logger.log(`Processed ${clientMessageId} seq=${seq} topic=${kafka.topic}`)
         return saved
+    }
+
+    /**
+     * Logic: Park a poison message into the DLQ topic so it is isolated for manual replay
+     *        instead of blocking the partition with infinite retries.
+     * Code: produce the original envelope (key = clientMessageId) to `kafka.dlqTopic`.
+     */
+    async publishToDlq(data: ProcessEventPayload): Promise<void> {
+        const kafka = this.config.getOrThrow<KafkaConfig>("kafka")
+        await this.dlqProducer.send({
+            topic: kafka.dlqTopic,
+            messages: [
+                {
+                    key: data.clientMessageId,
+                    value: JSON.stringify(data),
+                },
+            ],
+        })
     }
 }

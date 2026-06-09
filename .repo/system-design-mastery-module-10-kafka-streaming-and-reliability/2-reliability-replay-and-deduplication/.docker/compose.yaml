@@ -79,7 +79,6 @@ services:
   ingest-api:
     build:
       context: ../ingest-api
-    image: starciacademy/advanced-message-broker-ingest-api:latest
     container_name: 2-reliability-replay-and-deduplication-ingest-api
     ports:
       # Cổng HTTP API host → container.
@@ -102,7 +101,6 @@ services:
   reliability-consumer:
     build:
       context: ../reliability-consumer
-    image: starciacademy/advanced-message-broker-reliability-consumer:latest
     container_name: 2-reliability-replay-and-deduplication-reliability-consumer
     environment:
       KAFKA_BROKERS: kafka:9092

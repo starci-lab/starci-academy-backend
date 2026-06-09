@@ -79,7 +79,6 @@ services:
   ordering-producer:
     build:
       context: ../ordering-producer
-    image: starciacademy/advanced-message-broker-ordering-producer:latest
     container_name: 1-ordering-partitions-and-operations-ordering-producer
     ports:
       # Cổng HTTP API host → container.
@@ -101,7 +100,6 @@ services:
   consumer-fast:
     build:
       context: ../consumer-fast
-    image: starciacademy/advanced-message-broker-consumer-fast:latest
     container_name: 1-ordering-partitions-and-operations-consumer-fast
     environment:
       KAFKA_BROKERS: kafka:9092
@@ -119,7 +117,6 @@ services:
   consumer-slow:
     build:
       context: ../consumer-slow
-    image: starciacademy/advanced-message-broker-consumer-slow:latest
     container_name: 1-ordering-partitions-and-operations-consumer-slow
     environment:
       KAFKA_BROKERS: kafka:9092

@@ -11,9 +11,9 @@ import (
 )
 
 func main() {
-	userURL, _ := url.Parse("http://localhost:3001")
-	productURL, _ := url.Parse("http://localhost:3002")
-	orderURL, _ := url.Parse("http://localhost:3003")
+	userURL, _ := url.Parse("http://user-service:3001")
+	productURL, _ := url.Parse("http://product-service:3002")
+	orderURL, _ := url.Parse("http://order-service:3003")
 
 	userProxy := httputil.NewSingleHostReverseProxy(userURL)
 	productProxy := httputil.NewSingleHostReverseProxy(productURL)

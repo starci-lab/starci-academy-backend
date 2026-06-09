@@ -55,7 +55,9 @@ services:
   # (EN: REST → gRPC Gateway — receives HTTP from client, forwards to gRPC backends.)
   # ──────────────────────────────────────────────
   gateway:
-    image: starciacademy/communication-patterns-sync-grpc-gateway:latest
+    build:
+      context: ../gateway
+      dockerfile: Dockerfile
     container_name: sync-gateway
     ports:
       # REST API cho client gọi trực tiếp.
@@ -77,7 +79,9 @@ services:
   # (EN: User gRPC Service — listens on internal gRPC port 5001.)
   # ──────────────────────────────────────────────
   user-service:
-    image: starciacademy/communication-patterns-sync-grpc-user:latest
+    build:
+      context: ../user-service
+      dockerfile: Dockerfile
     container_name: sync-user
     expose:
       # Chỉ expose nội bộ cho Gateway gọi qua gRPC (không public ra host).
@@ -90,7 +94,9 @@ services:
   # (EN: Product gRPC Service — listens on internal gRPC port 5002.)
   # ──────────────────────────────────────────────
   product-service:
-    image: starciacademy/communication-patterns-sync-grpc-product:latest
+    build:
+      context: ../product-service
+      dockerfile: Dockerfile
     container_name: sync-product
     expose:
       # Chỉ expose nội bộ cho Gateway gọi qua gRPC (không public ra host).

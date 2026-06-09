@@ -25,11 +25,11 @@ public class GatewayController {
         String path = request.getRequestURI();
         String targetUri;
         if (path.startsWith("/users")) {
-            targetUri = "http://localhost:3001" + path;
+            targetUri = "http://user-service:3001" + path;
         } else if (path.startsWith("/products")) {
-            targetUri = "http://localhost:3002" + path;
+            targetUri = "http://product-service:3002" + path;
         } else if (path.startsWith("/orders")) {
-            targetUri = "http://localhost:3003" + path;
+            targetUri = "http://order-service:3003" + path;
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .contentType(MediaType.APPLICATION_JSON)

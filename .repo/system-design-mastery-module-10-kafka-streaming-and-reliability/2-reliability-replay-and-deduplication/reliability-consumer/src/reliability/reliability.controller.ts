@@ -45,9 +45,14 @@ export class ReliabilityController {
                 this.logger.log(`Duplicate skipped clientMessageId=${id}`)
                 return
             }
+            // Real processing error → park the poison message into the DLQ topic and commit.
+            // Publishing to the DLQ then committing isolates the bad message for manual replay
+            // instead of throwing (which would retry forever and head-of-line-block the partition).
             const message = error instanceof Error ? error.message : "Unknown error"
             this.logger.error(`Failed: ${message} — will retry / DLQ via Kafka`)
-            throw error
+            await this.reliability.publishToDlq(data)
+            const id = data?.clientMessageId ?? "<unknown>"
+            this.logger.warn(`Routed to DLQ reliability-events-dlq clientMessageId=${id}`)
         }
     }
 

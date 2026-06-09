@@ -11,19 +11,21 @@ import java.util.concurrent.atomic.AtomicLong;
 @RequestMapping("/orders")
 public class OrderController {
 
-    private final Map<Long, Order> orders = new ConcurrentHashMap<>();
+    private final List<Order> orders = Collections.synchronizedList(new ArrayList<>());
     private final AtomicLong counter = new AtomicLong(0);
 
     @GetMapping
     public Collection<Order> getAll() {
-        return orders.values();
+        synchronized (orders) {
+            return new ArrayList<>(orders);
+        }
     }
 
     @PostMapping
     public ResponseEntity<Order> create(@RequestBody Order order) {
         long id = counter.incrementAndGet();
         Order created = new Order(id, order.getProductId(), order.getQuantity(), "PENDING");
-        orders.put(id, created);
+        orders.add(created);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 }

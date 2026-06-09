@@ -1,20 +1,22 @@
-using System.Collections.Concurrent;
-
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-var products = new ConcurrentDictionary<long, Product>();
+var products = new List<Product>();
+var gate = new object();
 long counter = 0;
 
-products.TryAdd(Interlocked.Increment(ref counter), new Product(1, "Laptop", 1500.0, 10));
-
-app.MapGet("/products", () => products.Values);
+app.MapGet("/products", () =>
+{
+    lock (gate) { return products.ToList(); }
+});
 app.MapPost("/products", (Product input) =>
 {
-    var id = Interlocked.Increment(ref counter);
-    var created = new Product(id, input.Name, input.Price, input.Stock);
-    products.TryAdd(id, created);
-    return Results.Created($"/products/{id}", created);
+    lock (gate)
+    {
+        var created = new Product(++counter, input.Name, input.Price, input.Stock);
+        products.Add(created);
+        return Results.Created($"/products/{created.Id}", created);
+    }
 });
 
 app.Run("http://0.0.0.0:3002");

@@ -79,7 +79,6 @@ services:
   ingest-api:
     build:
       context: ../ingest-api
-    image: starciacademy/advanced-message-broker-ingest-api:latest
     container_name: 0-log-based-messaging-fundamentals-ingest-api
     ports:
       # Cổng HTTP API host → container.
@@ -101,13 +100,17 @@ services:
   consumer-a:
     build:
       context: ../consumer-a
-    image: starciacademy/advanced-message-broker-consumer-a:latest
-    container_name: 0-log-based-messaging-fundamentals-consumer-a
+    # No container_name: Flow 4 scales this service (`--scale consumer-a=4`),
+    # which Docker forbids when a fixed container_name is pinned.
+    # (EN: No container_name so Flow 4 `--scale consumer-a=4` works; Docker forbids scaling a pinned container_name.)
     environment:
       KAFKA_BROKERS: kafka:9092
       KAFKA_TOPIC: platform-events
       KAFKA_CLIENT_ID: consumer-a
       KAFKA_GROUP_ID: broker-lesson0-group
+      # Slow-consumer delay for Flow 5 (consumer lag demo); defaults to 0 = no delay.
+      # (EN: Slow-consumer delay for Flow 5 lag demo; defaults to 0 = no delay.)
+      CONSUMER_DELAY_MS: ${CONSUMER_DELAY_MS:-0}
     depends_on:
       - kafka
     networks:
@@ -119,7 +122,6 @@ services:
   consumer-b:
     build:
       context: ../consumer-b
-    image: starciacademy/advanced-message-broker-consumer-b:latest
     container_name: 0-log-based-messaging-fundamentals-consumer-b
     environment:
       KAFKA_BROKERS: kafka:9092

@@ -1,18 +1,22 @@
-using System.Collections.Concurrent;
-
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-var orders = new ConcurrentDictionary<long, Order>();
+var orders = new List<Order>();
+var gate = new object();
 long counter = 0;
 
-app.MapGet("/orders", () => orders.Values);
+app.MapGet("/orders", () =>
+{
+    lock (gate) { return orders.ToList(); }
+});
 app.MapPost("/orders", (OrderInput input) =>
 {
-    var id = Interlocked.Increment(ref counter);
-    var created = new Order(id, input.ProductId, input.Quantity, "PENDING");
-    orders.TryAdd(id, created);
-    return Results.Created($"/orders/{id}", created);
+    lock (gate)
+    {
+        var created = new Order(++counter, input.ProductId, input.Quantity, "PENDING");
+        orders.Add(created);
+        return Results.Created($"/orders/{created.Id}", created);
+    }
 });
 
 app.Run("http://0.0.0.0:3003");

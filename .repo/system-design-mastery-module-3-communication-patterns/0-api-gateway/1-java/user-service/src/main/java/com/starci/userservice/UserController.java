@@ -11,26 +11,21 @@ import java.util.concurrent.atomic.AtomicLong;
 @RequestMapping("/users")
 public class UserController {
 
-    private final Map<Long, User> users = new ConcurrentHashMap<>();
+    private final List<User> users = Collections.synchronizedList(new ArrayList<>());
     private final AtomicLong counter = new AtomicLong(0);
-
-    public UserController() {
-        long id1 = counter.incrementAndGet();
-        users.put(id1, new User(id1, "Alice", "alice@starci.com"));
-        long id2 = counter.incrementAndGet();
-        users.put(id2, new User(id2, "Bob", "bob@starci.com"));
-    }
 
     @GetMapping
     public Collection<User> getAll() {
-        return users.values();
+        synchronized (users) {
+            return new ArrayList<>(users);
+        }
     }
 
     @PostMapping
     public ResponseEntity<User> create(@RequestBody User user) {
         long id = counter.incrementAndGet();
         User created = new User(id, user.getName(), user.getEmail());
-        users.put(id, created);
+        users.add(created);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 }

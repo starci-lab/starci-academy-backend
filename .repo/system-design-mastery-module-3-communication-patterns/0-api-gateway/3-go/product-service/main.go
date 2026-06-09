@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"sync"
-	"sync/atomic"
 )
 
 type Product struct {
@@ -16,25 +15,18 @@ type Product struct {
 }
 
 var (
-	products   = make(map[int64]Product)
-	productsMu sync.RWMutex
+	products   = make([]Product, 0)
+	productsMu sync.Mutex
 	counter    int64
 )
 
 func main() {
-	// Seed initial data
-	id1 := atomic.AddInt64(&counter, 1)
-	products[id1] = Product{ID: id1, Name: "Laptop", Price: 1500.0, Stock: 10}
-
 	http.HandleFunc("/products", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		if r.Method == http.MethodGet {
-			productsMu.RLock()
-			list := make([]Product, 0, len(products))
-			for _, p := range products {
-				list = append(list, p)
-			}
-			productsMu.RUnlock()
+			productsMu.Lock()
+			list := append([]Product(nil), products...)
+			productsMu.Unlock()
 			_ = json.NewEncoder(w).Encode(list)
 		} else if r.Method == http.MethodPost {
 			var input Product
@@ -43,15 +35,10 @@ func main() {
 				_, _ = w.Write([]byte(`{"message":"Invalid body"}`))
 				return
 			}
-			id := atomic.AddInt64(&counter, 1)
-			created := Product{
-				ID:    id,
-				Name:  input.Name,
-				Price: input.Price,
-				Stock: input.Stock,
-			}
 			productsMu.Lock()
-			products[id] = created
+			counter++
+			created := Product{ID: counter, Name: input.Name, Price: input.Price, Stock: input.Stock}
+			products = append(products, created)
 			productsMu.Unlock()
 			w.WriteHeader(http.StatusCreated)
 			_ = json.NewEncoder(w).Encode(created)

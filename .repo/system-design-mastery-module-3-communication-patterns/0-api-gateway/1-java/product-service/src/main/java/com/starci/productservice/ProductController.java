@@ -11,24 +11,21 @@ import java.util.concurrent.atomic.AtomicLong;
 @RequestMapping("/products")
 public class ProductController {
 
-    private final Map<Long, Product> products = new ConcurrentHashMap<>();
+    private final List<Product> products = Collections.synchronizedList(new ArrayList<>());
     private final AtomicLong counter = new AtomicLong(0);
-
-    public ProductController() {
-        long id1 = counter.incrementAndGet();
-        products.put(id1, new Product(id1, "Laptop", 1500.0, 10));
-    }
 
     @GetMapping
     public Collection<Product> getAll() {
-        return products.values();
+        synchronized (products) {
+            return new ArrayList<>(products);
+        }
     }
 
     @PostMapping
     public ResponseEntity<Product> create(@RequestBody Product product) {
         long id = counter.incrementAndGet();
         Product created = new Product(id, product.getName(), product.getPrice(), product.getStock());
-        products.put(id, created);
+        products.add(created);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 }

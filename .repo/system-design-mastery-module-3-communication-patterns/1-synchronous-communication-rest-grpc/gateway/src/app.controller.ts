@@ -6,6 +6,7 @@ import {
     Get,
     Inject,
     Logger,
+    NotFoundException,
     OnModuleInit,
     Param,
 } from "@nestjs/common"
@@ -38,8 +39,9 @@ interface ProductGrpc {/**
 }
 
 /**
- * Class `AppController` — lesson lab component.
+ * Class `AppController` — REST gateway that forwards HTTP requests to gRPC backends.
  */
+@Controller()
 export class AppController implements OnModuleInit {
     private readonly logger = new Logger(AppController.name)
     private userSvc!: UserGrpc
@@ -61,21 +63,29 @@ export class AppController implements OnModuleInit {
 
     /**
      * Logic — Client calls REST `GET /users/:id`, gateway forwards to gRPC `GetUser`.
-     * Code — `firstValueFrom` converts gRPC Observable to Promise for REST response.
+     * Code — `firstValueFrom` converts gRPC Observable to Promise; sentinel `id:0` maps to HTTP 404.
      */
     @Get("users/:id")
     async getUser(@Param("id") id: string) {
         this.logger.log(`REST → gRPC: GetUser id=${id}`)
-        return firstValueFrom(this.userSvc.getUser({ id: +id }))
+        const user = await firstValueFrom(this.userSvc.getUser({ id: +id }))
+        if (!user.id) {
+            throw new NotFoundException(`User ${id} not found`)
+        }
+        return user
     }
 
     /**
      * Logic — Client calls REST `GET /products/:id`, gateway forwards to gRPC `GetProduct`.
-     * Code — Same as `getUser`, forwards to Product gRPC backend.
+     * Code — Same as `getUser`, forwards to Product gRPC backend; sentinel `id:0` maps to HTTP 404.
      */
     @Get("products/:id")
     async getProduct(@Param("id") id: string) {
         this.logger.log(`REST → gRPC: GetProduct id=${id}`)
-        return firstValueFrom(this.productSvc.getProduct({ id: +id }))
+        const product = await firstValueFrom(this.productSvc.getProduct({ id: +id }))
+        if (!product.id) {
+            throw new NotFoundException(`Product ${id} not found`)
+        }
+        return product
     }
 }
