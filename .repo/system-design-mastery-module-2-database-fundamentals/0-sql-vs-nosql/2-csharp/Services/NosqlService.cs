@@ -18,11 +18,33 @@ namespace SqlVsNosql.Services
             _collection = database.GetCollection<ProductDocument>("products");
         }
 
+        // Convert the incoming JSON metadata into a dictionary of BSON-native CLR
+        // values. Deserializing directly into Dictionary<string, object> via
+        // System.Text.Json yields JsonElement values, which the MongoDB driver's
+        // ObjectSerializer refuses to serialize; mapping through BsonDocument
+        // produces plain string/double/bool values that BSON can persist.
+        // (EN: convert JSON metadata into BSON-native CLR values; deserializing
+        // straight into Dictionary<string, object> yields JsonElement values the
+        // driver cannot serialize, so we route through BsonDocument first.)
+        private static Dictionary<string, object>? ToMetadataDict(System.Text.Json.Nodes.JsonObject? metadata)
+        {
+            if (metadata == null)
+            {
+                return null;
+            }
+
+            var bson = BsonDocument.Parse(metadata.ToJsonString());
+            var dict = new Dictionary<string, object>();
+            foreach (var element in bson)
+            {
+                dict[element.Name] = BsonTypeMapper.MapToDotNetValue(element.Value);
+            }
+            return dict;
+        }
+
         public async Task<ProductDocument> CreateAsync(CreateProductDto dto)
         {
-            var metadataDict = dto.Metadata != null 
-                ? JsonSerializer.Deserialize<Dictionary<string, object>>(dto.Metadata.ToJsonString()) 
-                : null;
+            var metadataDict = ToMetadataDict(dto.Metadata);
 
             var doc = new ProductDocument
             {
@@ -42,9 +64,7 @@ namespace SqlVsNosql.Services
             var docs = new List<ProductDocument>();
             foreach (var dto in dtos)
             {
-                var metadataDict = dto.Metadata != null 
-                    ? JsonSerializer.Deserialize<Dictionary<string, object>>(dto.Metadata.ToJsonString()) 
-                    : null;
+                var metadataDict = ToMetadataDict(dto.Metadata);
 
                 docs.Add(new ProductDocument
                 {

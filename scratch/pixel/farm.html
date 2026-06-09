@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>StarCi Farm — pixel demo</title>
+<style>
+  :root { --bg:#222831; --panel:#2d3540; --ink:#eaeef2; --muted:#9aa6b2; --accent:#6abe30; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:system-ui,sans-serif;
+         min-height:100vh; display:flex; flex-direction:column; align-items:center; gap:16px; padding:24px; }
+  h1 { font-size:18px; font-weight:700; margin:0; }
+  .hud { display:flex; gap:20px; align-items:center; font-size:14px; }
+  .coins { background:var(--panel); padding:8px 14px; border:1px solid #3a4654; border-radius:10px; font-weight:700; }
+  .tools { display:flex; gap:8px; }
+  .tool { background:var(--panel); border:1px solid #3a4654; color:var(--ink); padding:8px 12px;
+          border-radius:10px; cursor:pointer; font-size:13px; }
+  .tool.active { border-color:var(--accent); color:var(--accent); }
+  canvas { image-rendering:pixelated; border-radius:12px; box-shadow:0 8px 30px #0006; cursor:pointer; background:#1b2027; }
+  .hint { color:var(--muted); font-size:12px; max-width:560px; text-align:center; line-height:1.5; }
+</style>
+</head>
+<body>
+  <h1>🌾 StarCi Farm — pixel demo</h1>
+  <div class="hud">
+    <div class="coins">🪙 <span id="coins">0</span></div>
+    <div class="tools" id="tools"></div>
+  </div>
+  <canvas id="c"></canvas>
+  <div class="hint">Chọn dụng cụ rồi bấm vào ô. <b>Cuốc</b> cỏ → đất · <b>Trồng</b> cà rốt lên đất · <b>Tưới</b> để cây lớn nhanh (×2) · cây chín bấm <b>Thu hoạch</b> +10 🪙. Cây tự lớn theo thời gian.</div>
+
+<script>
+const PAL = {'.':null,'g':[106,190,48],'G':[75,153,40],'f':[255,235,90],'w':[255,255,255],
+ 'd':[122,82,48],'D':[92,60,34],'k':[150,104,62],'o':[245,140,40],'O':[210,105,25],
+ 'l':[75,153,40],'L':[106,190,48],'b':[60,120,200],'B':[40,90,170],'s':[120,200,255],'h':[120,200,255]};
+const G = {
+ grass:["gggggggggggggggg","gGgggggfgggggggg","ggggggwfwggggggg","gggGgggfggggggGg","ggggggggggggggGg","ggGggggggggggggg","gggggggggGgggggg","gggggggggggggggg","gggggggggggggggg","gggGgggggggfgggg","ggggggggggwfwggg","gGggggggggGfgggg","ggggggGggggggggg","gggggggggggggGgg","gGgggggggggggggg","gggggggggggggggg"],
+ soil:["dddddddddddddddd","dkkdkkdkkdkkdkkd","dDDdDDdDDdDDdDDd","dddddddddddddddd","dkkdkkdkkdkkdkkd","dDDdDDdDDdDDdDDd","dddddddddddddddd","dkkdkkdkkdkkdkkd","dDDdDDdDDdDDdDDd","dddddddddddddddd","dkkdkkdkkdkkdkkd","dDDdDDdDDdDDdDDd","dddddddddddddddd","dkkdkkdkkdkkdkkd","dDDdDDdDDdDDdDDd","dddddddddddddddd"],
+ wet:["DDDDDDDDDDDDDDDD","DkkDkkDkkDkkDkkD","DDDDDDDDDDDDDDDD","DkkDkkDkkDkkDkkD","DDDDDDDDDDDDDDDD","DkkDkkDkkDkkDkkD","DDDDDDDDDDDDDDDD","DkkDkkDkkDkkDkkD","DDDDDDDDDDDDDDDD","DkkDkkDkkDkkDkkD","DDDDDDDDDDDDDDDD","DkkDkkDkkDkkDkkD","DDDDDDDDDDDDDDDD","DkkDkkDkkDkkDkkD","DDDDDDDDDDDDDDDD","DkkDkkDkkDkkDkkD"],
+ c0:["................",".......l........","......lLl.......",".......l........","......lLl.......",".......l........","................","......d.d.......",".....dddddd.....","....dkkdkkd.....","....dDDdDDd.....","....dddddddd....","................","................","................","................"],
+ c1:[".......l........","......lLl.......",".....l l l......","......lLl.......",".....l l l......","......lll.......",".......o........","......ooo.......","......oOo.......",".....dddddd.....","....dkkdkkd.....","....dDDdDDd.....","....dddddddd....","................","................","................"],
+ c2:["......l.l.......",".....lLlLl......","....l lLl l.....",".....lLlLl......","......lll.......",".....ooooo......","....ooooooo.....","....oOoooOo.....",".....ooooo......",".....oOoOo......","......ooo.......",".......o.......","................","................","................","................"]
+};
+const SHEET={}; const TS=16;
+function bake(grid){const cv=document.createElement('canvas');cv.width=cv.height=TS;const x=cv.getContext('2d');const im=x.createImageData(TS,TS);
+ for(let r=0;r<TS;r++)for(let cc=0;cc<TS;cc++){const p=PAL[grid[r][cc]];const i=(r*TS+cc)*4;if(p){im.data[i]=p[0];im.data[i+1]=p[1];im.data[i+2]=p[2];im.data[i+3]=255;}}
+ x.putImageData(im,0,0);return cv;}
+for(const k in G)SHEET[k]=bake(G[k]);
+
+const COLS=8,ROWS=6,SCALE=6,PX=TS*SCALE;
+const cv=document.getElementById('c');cv.width=COLS*PX;cv.height=ROWS*PX;
+const ctx=cv.getContext('2d');ctx.imageSmoothingEnabled=false;
+const cells=[];for(let i=0;i<COLS*ROWS;i++)cells.push({tilled:false,wet:false,crop:null}); // crop:{stage,grow}
+let coins=0,tool='hoe';
+const TOOLS=[['hoe','⛏️ Cuốc'],['plant','🥕 Trồng'],['water','💧 Tưới'],['harvest','🧺 Thu hoạch']];
+const tbar=document.getElementById('tools');
+TOOLS.forEach(([id,label])=>{const b=document.createElement('button');b.className='tool'+(id===tool?' active':'');b.textContent=label;
+ b.onclick=()=>{tool=id;[...tbar.children].forEach((x,i)=>x.classList.toggle('active',TOOLS[i][0]===id));};tbar.appendChild(b);});
+
+cv.addEventListener('click',e=>{const r=cv.getBoundingClientRect();const cx=Math.floor((e.clientX-r.left)/PX),cy=Math.floor((e.clientY-r.top)/PX);
+ const cell=cells[cy*COLS+cx];if(!cell)return;
+ if(tool==='hoe'&&!cell.tilled){cell.tilled=true;}
+ else if(tool==='plant'&&cell.tilled&&!cell.crop){cell.crop={stage:0,grow:0};}
+ else if(tool==='water'&&cell.crop){cell.wet=true;}
+ else if(tool==='harvest'&&cell.crop&&cell.crop.stage>=2){coins+=10;document.getElementById('coins').textContent=coins;cell.crop=null;cell.wet=false;}
+ draw();});
+
+setInterval(()=>{let ch=false;for(const cell of cells){if(cell.crop&&cell.crop.stage<2){cell.crop.grow+=cell.wet?2:1;if(cell.crop.grow>=4){cell.crop.grow=0;cell.crop.stage++;cell.wet=false;ch=true;}}}if(ch)draw();},700);
+
+function draw(){for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){const cell=cells[y*COLS+x];
+ let base=cell.tilled?(cell.wet?'wet':'soil'):'grass';ctx.drawImage(SHEET[base],x*PX,y*PX,PX,PX);
+ if(cell.crop)ctx.drawImage(SHEET['c'+cell.crop.stage],x*PX,y*PX,PX,PX);}}
+draw();
+</script>
+</body>
+</html>

@@ -28,7 +28,3 @@ EXPOSE 3001
 
 # Khởi chạy ứng dụng production (EN: start production application)
 CMD ["node", "dist/main"]
-
-# Build and push command:
-# docker build -t starciacademy/indexing-query-backend:latest .
-# docker push starciacademy/indexing-query-backend:latest

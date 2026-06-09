@@ -216,7 +216,11 @@ services:
   # (EN: Backend — NestJS API connecting to mongos router.)
   # ──────────────────────────────────────────────
   backend:
-    image: starciacademy/system-design-sharding-strategies-backend:latest
+    # Build locally from the TypeScript lesson source (no DockerHub pull/push).
+    # (VI: Build cục bộ từ source TypeScript của bài học — không pull/push DockerHub.)
+    build:
+      context: ../0-typescript
+      dockerfile: Dockerfile
     container_name: sharding-strategies-backend
     ports:
       # REST API tại http://localhost:3003.

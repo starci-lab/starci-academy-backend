@@ -123,7 +123,10 @@ services:
   # (EN: NestJS Backend — REST API, write to master / read from replica.)
   # ──────────────────────────────────────────────
   backend:
-    image: starciacademy/system-design-replication-and-partitioning-backend:latest
+    # Build image locally from the TypeScript NestJS source (no DockerHub pull/push).
+    build:
+      context: ../0-typescript
+      dockerfile: Dockerfile
     container_name: repl-backend
     ports:
       # REST API tại http://localhost:3002.

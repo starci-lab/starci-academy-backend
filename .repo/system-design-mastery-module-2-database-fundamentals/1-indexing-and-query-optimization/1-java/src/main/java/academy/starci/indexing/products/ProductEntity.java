@@ -34,7 +34,8 @@ public class ProductEntity {
 
     private Integer stock = 0;
 
-    @Column(precision = 3, scale = 1)
+    // Map to numeric(3,1) via columnDefinition; Hibernate 6 rejects precision/scale on a floating-point (Double) column.
+    @Column(columnDefinition = "numeric(3,1)")
     private Double rating = 0.0;
 
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)

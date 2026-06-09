@@ -5,10 +5,10 @@
 # Backend uses NestJS, TypeORM (PostgreSQL) and Mongoose (MongoDB).)
 #
 # Thu muc lam viec / Working directory:
-#   cd system-design-mastery-module-database-fundamentals/0-sql-vs-nosql/.docker
+#   cd system-design-mastery-module-2-database-fundamentals/0-sql-vs-nosql/.docker
 #
 # Khoi dong / Start:
-#   docker compose up -d
+#   docker compose up -d --build
 #
 # Xem log / Logs:
 #   docker compose logs -f backend
@@ -66,7 +66,11 @@ services:
   # (EN: Backend — NestJS API comparing SQL vs NoSQL.)
   # ──────────────────────────────────────────────
   backend:
-    image: starciacademy/system-design-sql-vs-nosql-backend:latest
+    # Build LOCAL tu source 0-typescript — KHONG pull/push DockerHub (M2 khong phai K8s).
+    # (EN: Build LOCALLY from 0-typescript source — no DockerHub pull/push (M2 is not K8s).)
+    build:
+      context: ../0-typescript
+      dockerfile: Dockerfile
     container_name: backend
     ports:
       # REST API cho client goi seed/compare/CRUD.

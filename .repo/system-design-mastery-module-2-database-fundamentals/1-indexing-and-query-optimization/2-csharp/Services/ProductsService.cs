@@ -136,7 +136,9 @@ namespace IndexingOptimization.Services
 
         public async Task<object> ExplainQueryAsync(string sql) {
             var planLines = new List<string>();
-            using (var conn = _context.Database.GetDbConnection())
+            // Use the EF-owned shared connection without disposing it (no `using`): disposing it would
+            // tear down the context's connection and break later commands on the same DbContext.
+            var conn = _context.Database.GetDbConnection();
             {
                 if (conn.State != ConnectionState.Open) await conn.OpenAsync();
                 using (var cmd = conn.CreateCommand())
@@ -169,7 +171,9 @@ namespace IndexingOptimization.Services
                 await _context.Database.ExecuteSqlRawAsync("SET enable_bitmapscan = OFF");
 
                 var planLines = new List<string>();
-                using (var conn = _context.Database.GetDbConnection())
+                // Shared EF connection — do NOT dispose (no `using`), otherwise the transaction below
+                // and the subsequent SET commands would hit a disposed NpgsqlConnection.
+                var conn = _context.Database.GetDbConnection();
                 {
                     if (conn.State != ConnectionState.Open) await conn.OpenAsync();
                     using (var cmd = conn.CreateCommand())
@@ -193,10 +197,11 @@ namespace IndexingOptimization.Services
             }
 
             var planLinesWith = new List<string>();
-            using (var conn = _context.Database.GetDbConnection())
+            // Shared EF connection — do NOT dispose (no `using`).
+            var connWith = _context.Database.GetDbConnection();
             {
-                if (conn.State != ConnectionState.Open) await conn.OpenAsync();
-                using (var cmd = conn.CreateCommand())
+                if (connWith.State != ConnectionState.Open) await connWith.OpenAsync();
+                using (var cmd = connWith.CreateCommand())
                 {
                     cmd.CommandText = "EXPLAIN ANALYZE " + sql;
                     using (var reader = await cmd.ExecuteReaderAsync())
@@ -232,7 +237,8 @@ namespace IndexingOptimization.Services
             var tableStats = new Dictionary<string, object>();
             var indexStats = new List<object>();
 
-            using (var conn = _context.Database.GetDbConnection())
+            // Shared EF connection — do NOT dispose (no `using`).
+            var conn = _context.Database.GetDbConnection();
             {
                 if (conn.State != ConnectionState.Open) await conn.OpenAsync();
 

@@ -34,7 +34,3 @@ EXPOSE 3000
 # Khoi chay ung dung production.
 # (EN: Start production application.)
 CMD ["node", "dist/main"]
-
-# Build and push command:
-# docker build -t starciacademy/sql-vs-nosql-backend:latest .
-# docker push starciacademy/sql-vs-nosql-backend:latest

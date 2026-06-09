@@ -28,7 +28,3 @@ EXPOSE 3003
 
 # Khởi chạy ứng dụng production (EN: start production application)
 CMD ["node", "dist/main"]
-
-# Build and push command:
-# docker build -t starciacademy/sharding-strategies-backend:latest .
-# docker push starciacademy/sharding-strategies-backend:latest
