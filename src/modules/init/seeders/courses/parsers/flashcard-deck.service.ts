@@ -54,7 +54,7 @@ interface RawRef {
     value?: string
 }
 
-/** A whole deck document as parsed from one locale's markdown. */
+/** A deck META document (`<deck>/{en,vi}.md`) — cards live in `cards/` folders. */
 interface RawFlashcardDeck {
     /** Deck title. */
     title?: string
@@ -66,6 +66,22 @@ interface RawFlashcardDeck {
     contentRefs?: Array<RawRef>
     /** Referenced module `displayId`s (many-to-many). */
     moduleRefs?: Array<RawRef>
+    /** Index signature so the markdown→JSON extractor generic is satisfied. */
+    [key: string]: unknown
+}
+
+/** A single card document (`<deck>/cards/{index}-{slug}/{en,vi}.md`). */
+interface RawFlashcardCard {
+    /** The question prompt (Markdown). */
+    question?: string
+    /** Interview seniority level (`junior`/`middle`/`senior`/`staff`). */
+    level?: string
+    /** Technology tags (`# tags / ## N`). */
+    tags?: Array<RawRef>
+    /** The model answer (Markdown). */
+    answer?: string
+    /** Optional extra depth (Markdown). */
+    explanation?: string
     /** Index signature so the markdown→JSON extractor generic is satisfied. */
     [key: string]: unknown
 }
@@ -145,9 +161,6 @@ export class FlashcardDeckParserService {
             translateFields: [
                 "title",
                 "description",
-                "cards.question",
-                "cards.answer",
-                "cards.explanation",
             ],
         }) as MergeJsonResult<DeepPartial<FlashcardDeckEntity>>
         // deterministic deck id anchored on the owning course + folder ordinal
@@ -200,59 +213,104 @@ export class FlashcardDeckParserService {
                     value,
                 }),
             ),
-            // map each authored card into an entity graph (question + answer + translations)
-            cards: ((merged.cards ?? []) as Array<DeepPartial<FlashcardCardEntity>>).map((card) => {
-                // deterministic card id under the deck id
-                const flashcardCardId = this.flashcardCardIdFactoryService.generate(
-                    {
-                        courseIndex,
-                        flashcardDeckIndex,
-                        flashcardCardIndex: card.orderIndex ?? 0,
-                    },
-                )
-                // `### level` scalar → validated enum, null when missing/unknown
-                const rawLevel = (this.coerceMdScalarService.toNullableStringColumn(
-                    card.level as unknown as string,
-                ) ?? "").trim().toLowerCase()
-                const level = (Object.values(FlashcardLevel) as Array<string>).includes(rawLevel)
-                    ? (rawLevel as FlashcardLevel)
-                    : null
-                // `### tags / #### N` → array of trimmed tag strings
-                const tags = ((card.tags ?? []) as Array<{ value?: string }>)
-                    .map((tag) => (tag.value ?? "").trim())
-                    .filter((value) => value.length > 0)
-                return {
-                    id: flashcardCardId,
-                    orderIndex: card.orderIndex,
-                    question: this.coerceMdScalarService.toRequiredString(card.question,
-                        ""),
-                    // model answer revealed on flip → null when blank (legacy decks)
-                    answer: this.coerceMdScalarService.toNullableStringColumn(
-                        card.answer,
-                    ),
-                    // explanation is optional → store null when blank
-                    explanation: this.coerceMdScalarService.toNullableStringColumn(
-                        card.explanation,
-                    ),
-                    level,
-                    tags,
-                    defaultLocale: Locale.En,
-                    deck: {
-                        id: flashcardDeckId,
-                    },
-                    translations: (card.translations ?? []).map(({
-                        locale,
-                        field,
-                        value,
-                    }) => ({
-                        flashcardCardId,
-                        locale,
-                        field,
-                        value,
-                    })),
-                }
-            }),
+            // each card is its own folder under `<deck>/cards/{index}-{slug}/{en,vi}.md`
+            cards: await this.parseCards(
+                path.relativePath,
+                courseIndex,
+                flashcardDeckIndex,
+                flashcardDeckId,
+            ),
         }
+    }
+
+    /**
+     * Parses the per-card folders under a deck's `cards/` directory — one folder
+     * per interview question. Each card folder holds `{en,vi}.md` with top-level
+     * `# question / # level / # tags / # answer / # explanation` headings.
+     *
+     * @param deckRelativePath - The deck folder path segment under `courses/`
+     * @param courseIndex - Owning course ordinal (for the deterministic card id)
+     * @param flashcardDeckIndex - Owning deck ordinal
+     * @param flashcardDeckId - Owning deck id (FK target)
+     * @returns Card entity partials for TypeORM cascade upsert
+     */
+    private async parseCards(
+        deckRelativePath: string,
+        courseIndex: number,
+        flashcardDeckIndex: number,
+        flashcardDeckId: string,
+    ): Promise<Array<DeepPartial<FlashcardCardEntity>>> {
+        const cardPaths = await this.flashcardDeckPathService.cardPaths(deckRelativePath)
+        const cards: Array<DeepPartial<FlashcardCardEntity>> = []
+        for (const cardPath of cardPaths) {
+            // load every locale's single-card markdown into a JSON map
+            const cardJsonMap = new Map<Locale, RawFlashcardCard>()
+            for (const locale of Object.values(Locale)) {
+                cardJsonMap.set(
+                    locale,
+                    this.extractJsonFromMdService.extract<RawFlashcardCard>(
+                        await this.contextLoaderService.load(
+                            "courses",
+                            `${cardPath.relativePath}/${locale}.md`,
+                        ),
+                    ),
+                )
+            }
+            // merge locales → default-locale card + aligned per-field translation rows
+            const merged = this.mergeJsonService.merge({
+                jsons: Object.values(Locale).map((locale) => ({
+                    locale,
+                    json: (cardJsonMap.get(locale) ?? {
+                    }) as Record<string, unknown>,
+                })),
+                translateFields: [
+                    "question",
+                    "answer",
+                    "explanation",
+                ],
+            }) as MergeJsonResult<DeepPartial<FlashcardCardEntity>>
+            // deterministic card id anchored on the deck + card folder ordinal
+            const flashcardCardId = this.flashcardCardIdFactoryService.generate({
+                courseIndex,
+                flashcardDeckIndex,
+                flashcardCardIndex: cardPath.orderIndex,
+            })
+            // `# level` scalar → validated enum, null when missing/unknown
+            const rawLevel = (this.coerceMdScalarService.toNullableStringColumn(
+                cardJsonMap.get(Locale.En)?.level,
+            ) ?? "").trim().toLowerCase()
+            const level = (Object.values(FlashcardLevel) as Array<string>).includes(rawLevel)
+                ? (rawLevel as FlashcardLevel)
+                : null
+            // `# tags / ## N` → array of trimmed tag strings
+            const tags = ((cardJsonMap.get(Locale.En)?.tags ?? []) as Array<{ value?: string }>)
+                .map((tag) => (tag.value ?? "").trim())
+                .filter((value) => value.length > 0)
+            cards.push({
+                id: flashcardCardId,
+                orderIndex: cardPath.orderIndex,
+                question: this.coerceMdScalarService.toRequiredString(merged.question, ""),
+                answer: this.coerceMdScalarService.toNullableStringColumn(merged.answer),
+                explanation: this.coerceMdScalarService.toNullableStringColumn(merged.explanation),
+                level,
+                tags,
+                defaultLocale: Locale.En,
+                deck: {
+                    id: flashcardDeckId,
+                },
+                translations: (merged.translations ?? []).map(({
+                    locale,
+                    field,
+                    value,
+                }) => ({
+                    flashcardCardId,
+                    locale,
+                    field,
+                    value,
+                })),
+            })
+        }
+        return cards
     }
 
     /**

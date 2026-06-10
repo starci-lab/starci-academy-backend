@@ -49,4 +49,20 @@ export class FlashcardDeckPathService {
             ),
         )
     }
+
+    /**
+     * Lists per-card folders under a deck's `cards/` directory — one folder per
+     * interview question (`{index}-{slug}/{en,vi}.md`).
+     *
+     * @param deckRelativePath - The deck folder path segment under `courses/`
+     * @returns Paths of the card folders for that deck (empty when no `cards/` dir)
+     */
+    async cardPaths(
+        deckRelativePath: string,
+    ): Promise<Array<ResolvedFilePath>> {
+        return await this.pathResolverService.filePaths(
+            "courses",
+            `${deckRelativePath}/cards`,
+        )
+    }
 }

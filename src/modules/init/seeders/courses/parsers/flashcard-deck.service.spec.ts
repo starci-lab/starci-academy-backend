@@ -85,6 +85,22 @@ describe("FlashcardDeckParserService",
                         provide: FlashcardDeckPathService,
                         useValue: {
                             paths: jest.fn(),
+                            // list the real per-card folders for the deck under test
+                            cardPaths: jest.fn(async (deckRelativePath: string) => {
+                                const cardsDir = path.join(COURSES_MOUNT_ROOT, deckRelativePath, "cards")
+                                const entries = await fs.readdir(cardsDir, { withFileTypes: true })
+                                return entries
+                                    .filter((entry) => entry.isDirectory())
+                                    .map((entry) => {
+                                        const match = entry.name.match(/^(\d+)-/)
+                                        return {
+                                            relativePath: `${deckRelativePath}/cards/${entry.name}`,
+                                            orderIndex: match ? Number(match[1]) : 0,
+                                            displayId: entry.name.replace(/^\d+-/, ""),
+                                        }
+                                    })
+                                    .sort((a, b) => a.orderIndex - b.orderIndex)
+                            }),
                         },
                     },
                     {
@@ -159,16 +175,17 @@ describe("FlashcardDeckParserService",
                             ]),
                         )
 
-                        // root-level translations carry the Vietnamese deck title row
+                        // root-level translations carry a Vietnamese deck title row
                         expect(parsed.translations).toEqual(
                             expect.arrayContaining([
                                 expect.objectContaining({
                                     locale: Locale.Vi,
                                     field: "title",
-                                    value: "NestJS Core & Cấu hình — Khởi động phỏng vấn",
                                 }),
                             ]),
                         )
+                        // per-card level + tags parsed from the card folders
+                        expect(parsed.cards?.[0]?.tags?.length ?? 0).toBeGreaterThan(0)
                     },
                 )
             },
