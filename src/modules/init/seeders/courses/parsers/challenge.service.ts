@@ -1,13 +1,9 @@
 import type {
     ChallengesFromDatabaseParams,
-    IsChallengeV2Params,
     ParseChallengeManyParams,
     ParseChallengeParams,
     ParseChallengeSubmissionsParams,
 } from "./types"
-import {
-    ChallengeLegacyParserService,
-} from "./challenge-legacy.service"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -78,7 +74,6 @@ import {
 @Injectable()
 export class ChallengeParserService {
     constructor(
-        private readonly challengeLegacyParserService: ChallengeLegacyParserService,
         private readonly challengePathService: ChallengePathService,
         private readonly contextLoaderService: ContextLoaderService,
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,
@@ -97,48 +92,6 @@ export class ChallengeParserService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
     ) { }
-
-    /**
-     * True when the mount carries a parseable `# verified` day (SCHEMA V2 marker).
-     *
-     * @param params - Challenge folder relative path.
-     * @returns `true` for V2 challenges; `false` → use {@link ChallengeLegacyParserService}.
-     */
-    async isV2(
-        params: IsChallengeV2Params,
-    ): Promise<boolean> {
-        const {
-            relativePath,
-        } = params
-        const jsonMap = new Map<Locale, Record<string, unknown>>()
-        for (const locale of Object.values(Locale)) {
-            try {
-                jsonMap.set(
-                    locale,
-                    this.extractJsonFromMdService.extract(
-                        await this.contextLoaderService.load(
-                            "courses",
-                            `${relativePath}/${locale}.md`,
-                        ),
-                    ),
-                )
-            } catch {
-                continue
-            }
-        }
-        if (jsonMap.size === 0) {
-            return false
-        }
-        const merged = this.mergeJsonService.merge({
-            jsons: Object.values(Locale).map((locale) => ({
-                locale,
-                json: jsonMap.get(locale) ?? {
-                },
-            })),
-            translateFields: [],
-        }) as Record<string, unknown>
-        return this.coerceMdScalarService.toNullableDate(merged.verified) !== null
-    }
 
     /**
      * Builds a partial V2 challenge entity graph from mounted course files.
@@ -707,11 +660,8 @@ export class ChallengeParserService {
                     contentIndex,
                     challengeIndex: path.orderIndex,
                 }
-                const challenge = await this.isV2({
-                    relativePath: path.relativePath,
-                })
-                    ? await this.parse(parseParams)
-                    : await this.challengeLegacyParserService.parse(parseParams)
+                // all mounted challenges are SCHEMA V2 (legacy parser removed)
+                const challenge = await this.parse(parseParams)
                 data.push({
                     data: challenge,
                     index: path.orderIndex,

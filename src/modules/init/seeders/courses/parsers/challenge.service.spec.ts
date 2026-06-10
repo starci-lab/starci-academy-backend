@@ -48,9 +48,6 @@ import {
     ChallengePathService,
 } from "../path"
 import {
-    ChallengeLegacyParserService,
-} from "./challenge-legacy.service"
-import {
     ChallengeParserService,
 } from "./challenge.service"
 
@@ -182,12 +179,6 @@ describe("ChallengeParserService",
                             log: jest.fn(),
                             error: jest.fn(),
                             warn: jest.fn(),
-                        },
-                    },
-                    {
-                        provide: ChallengeLegacyParserService,
-                        useValue: {
-                            parse: jest.fn(),
                         },
                     },
                     {

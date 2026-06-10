@@ -1,5 +1,4 @@
 export * from "./challenge.service"
-export * from "./challenge-legacy.service"
 export * from "./quiz-deck.service"
 export * from "./content.service"
 export * from "./content-legacy.service"
