@@ -17,7 +17,9 @@ import {
     ElasticsearchFoundationBuildService,
     ElasticsearchFoundationCategoryBuildService,
     ElasticsearchHeadhunterCompanyBuildService,
-    ElasticsearchConsultantBuildService
+    ElasticsearchConsultantBuildService,
+    ElasticsearchFlashcardDeckBuildService,
+    ElasticsearchCodingProblemBuildService
 } from "./builder"
 
 /**
@@ -36,6 +38,8 @@ import {
         ElasticsearchFoundationCategoryBuildService,
         ElasticsearchHeadhunterCompanyBuildService,
         ElasticsearchConsultantBuildService,
+        ElasticsearchFlashcardDeckBuildService,
+        ElasticsearchCodingProblemBuildService,
         ElasticsearchSynchronizerService,
     ],
     exports: [

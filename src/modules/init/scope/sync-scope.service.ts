@@ -86,6 +86,8 @@ export class SyncScopeService {
             ),
             foundations: synchronizers.foundations,
             headhunting: synchronizers.headhunting,
+            flashcards: synchronizers.flashcards,
+            codingProblems: synchronizers.codingProblems,
         }
     }
 

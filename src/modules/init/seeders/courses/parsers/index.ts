@@ -1,5 +1,5 @@
 export * from "./challenge.service"
-export * from "./quiz-deck.service"
+export * from "./flashcard-deck.service"
 export * from "./content.service"
 export * from "./content-legacy.service"
 export * from "./course.service"

@@ -62,6 +62,7 @@ export class EnqueueReviewPersonalProjectTaskJobService {
             branch,
             userId,
             locale,
+            lang,
             ai,
         } = params
         const payload: ReviewPersonalProjectTaskPayload = {
@@ -70,6 +71,10 @@ export class EnqueueReviewPersonalProjectTaskJobService {
             taskId,
             branch: branch ?? "main",
             locale,
+            ...(lang !== undefined ? {
+                lang,
+            } : {
+            }),
             ...(ai !== undefined ? {
                 ai,
             } : {

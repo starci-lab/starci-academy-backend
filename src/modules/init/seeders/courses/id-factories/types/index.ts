@@ -448,25 +448,25 @@ export interface GenerateChallengeSubmissionPromptCriteriaIdParams {
 }
 
 /**
- * Input for {@link QuizDeckIdFactoryService.generate}.
+ * Input for {@link FlashcardDeckIdFactoryService.generate}.
  */
-export interface GenerateQuizDeckIdParams {
+export interface GenerateFlashcardDeckIdParams {
     /** Parent course ordinal. */
     courseIndex: number
-    /** Zero-based deck folder under `courses/{course}/quiz-decks/{quizDeckIndex}`. */
-    quizDeckIndex: number
+    /** Zero-based deck folder under `courses/{course}/flashcard-decks/{flashcardDeckIndex}`. */
+    flashcardDeckIndex: number
 }
 
 /**
- * Input for {@link QuizCardIdFactoryService.generate}.
+ * Input for {@link FlashcardCardIdFactoryService.generate}.
  */
-export interface GenerateQuizCardIdParams {
+export interface GenerateFlashcardCardIdParams {
     /** Parent course ordinal. */
     courseIndex: number
     /** Parent deck ordinal. */
-    quizDeckIndex: number
+    flashcardDeckIndex: number
     /** Zero-based card index within the deck. */
-    quizCardIndex: number
+    flashcardCardIndex: number
 }
 
 /**

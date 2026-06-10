@@ -25,8 +25,8 @@ import {
     ModuleProcessorService,
 } from "./module-processor.service"
 import {
-    QuizDeckProcessorService,
-} from "./quiz-deck-processor.service"
+    FlashcardDeckProcessorService,
+} from "./flashcard-deck-processor.service"
 import {
     MilestoneProcessorService,
 } from "./milestone-processor.service"
@@ -35,7 +35,7 @@ import {
 } from "./uuid-partition-persist-processor.service"
 
 /**
- * Upserts course rows and orchestrates nested module / quiz / milestone processors.
+ * Upserts course rows and orchestrates nested module / flashcard / milestone processors.
  */
 @Injectable()
 export class CourseProcessorService {
@@ -46,7 +46,7 @@ export class CourseProcessorService {
         private readonly uuidPartitionPersistProcessorService: UuidPartitionPersistProcessorService,
         @Inject(forwardRef(() => ModuleProcessorService))
         private readonly moduleProcessorService: ModuleProcessorService,
-        private readonly quizDeckProcessorService: QuizDeckProcessorService,
+        private readonly flashcardDeckProcessorService: FlashcardDeckProcessorService,
         @Inject(forwardRef(() => MilestoneProcessorService))
         private readonly milestoneProcessorService: MilestoneProcessorService,
     ) { }
@@ -62,7 +62,7 @@ export class CourseProcessorService {
         const {
             courseResults,
             moduleIndexFilterByDisplayId,
-            quizLinkContents,
+            flashcardLinkContents,
         } = params
         for (const courseResult of courseResults) {
             const course = courseResult.data
@@ -91,9 +91,9 @@ export class CourseProcessorService {
             await this.moduleProcessorService.process({
                 courseResult,
                 moduleIndexFilterByDisplayId,
-                quizLinkContents,
+                flashcardLinkContents,
             })
-            await this.quizDeckProcessorService.process({
+            await this.flashcardDeckProcessorService.process({
                 courseResult,
             })
             await this.milestoneProcessorService.process({

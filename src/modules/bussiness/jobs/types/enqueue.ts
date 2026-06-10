@@ -169,6 +169,8 @@ export interface EnqueueReviewPersonalProjectTaskParams {
     userId: string
     /** Locale hint for filtering/prompting. */
     locale?: Locale
+    /** Chosen programming language for a SCHEMA V2 task (picks per-language approach criteria). */
+    lang?: string
     /** Validated AI lane + model pick (Auto / Premium / BYOK). */
     ai?: AiJobSelection
 }

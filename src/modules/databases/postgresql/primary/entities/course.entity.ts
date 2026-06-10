@@ -46,7 +46,7 @@ import {
 } from "./livestream-session.entity"
 import {
     FlashcardDeckEntity,
-} from "./quiz-deck.entity"
+} from "./flashcard-deck.entity"
 
 
 /**
@@ -376,13 +376,13 @@ export class CourseEntity extends UuidAbstractEntity {
         livestreamSessions: Array<LivestreamSessionEntity>
 
     /**
-     * Interview-prep quiz decks owned by this course (shown in the quiz tab).
+     * Interview-prep flashcard decks owned by this course (shown in the flashcard tab).
      */
     @Field(
         () => [FlashcardDeckEntity],
         {
             nullable: true,
-            description: "Interview-prep quiz decks owned by this course.",
+            description: "Interview-prep flashcard decks owned by this course.",
         },
     )
     @OneToMany(
@@ -392,7 +392,7 @@ export class CourseEntity extends UuidAbstractEntity {
             cascade: true,
         },
     )
-        quizDecks: Array<FlashcardDeckEntity>
+        flashcardDecks: Array<FlashcardDeckEntity>
 
     /**
      * Default locale for the course.

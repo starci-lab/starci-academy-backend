@@ -15,6 +15,9 @@ import {
     ContentGlobalSearchService,
     CourseGlobalSearchService,
     ModuleGlobalSearchService,
+    FlashcardDeckGlobalSearchService,
+    MilestoneGlobalSearchService,
+    FoundationGlobalSearchService,
 } from "./entities"
 
 @Module({
@@ -25,6 +28,9 @@ import {
         ModuleGlobalSearchService,
         ChallengeGlobalSearchService,
         ContentGlobalSearchService,
+        FlashcardDeckGlobalSearchService,
+        MilestoneGlobalSearchService,
+        FoundationGlobalSearchService,
     ],
 })
 export class AutocompleteGlobalSearchSingleQueryModule extends ConfigurableModuleClass {}

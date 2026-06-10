@@ -10,6 +10,9 @@ import {
 import {
     MilestonesSingleQueryModule,
 } from "./milestones"
+import {
+    MilestoneSuggestionsSingleQueryModule,
+} from "./milestone-suggestions"
 
 @Module({
     imports: [
@@ -17,6 +20,9 @@ import {
             isGlobal: true,
         }),
         MilestonesSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MilestoneSuggestionsSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

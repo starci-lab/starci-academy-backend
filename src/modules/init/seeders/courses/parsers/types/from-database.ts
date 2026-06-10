@@ -55,9 +55,9 @@ export interface MilestoneTasksFromDatabaseParams {
 }
 
 /**
- * Ordinals for {@link QuizDeckParserService.quizDecksFromDatabase}.
+ * Ordinals for {@link FlashcardDeckParserService.flashcardDecksFromDatabase}.
  */
-export interface QuizDecksFromDatabaseParams {
+export interface FlashcardDecksFromDatabaseParams {
     /** Course ordinal on the mount. */
     courseIndex: number
 }

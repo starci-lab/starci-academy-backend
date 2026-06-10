@@ -88,4 +88,14 @@ export class ReviewPersonalProjectTaskRequest {
         },
     )
         byokApiKey?: string
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description:
+                "Chosen programming language for a SCHEMA V2 task (typescript/java/csharp/go) — picks the per-language approach criteria at grade time. Ignored for legacy/agnostic tasks.",
+        },
+    )
+        lang?: string
 }

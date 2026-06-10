@@ -54,6 +54,11 @@ export const challengeIndexMapping: ElasticsearchIndexMapping = {
             verified: {
                 type: "date",
             },
+            // FST-backed autocomplete field; populated by the ES sync builder with the
+            // clean challenge title + a display-order-derived popularity weight.
+            suggest: {
+                type: "completion",
+            },
             // large jsonb / relational blobs — stored, not indexed
             requirementsV2: {
                 type: "object",

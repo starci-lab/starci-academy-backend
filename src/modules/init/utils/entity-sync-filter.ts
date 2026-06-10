@@ -108,11 +108,21 @@ export const shouldSynchronizerSyncEntityKind = (
     entityKind: string,
     foundationKinds: Array<string>,
     headhuntingKinds: Array<string>,
+    flashcardKinds: Array<string>,
+    codingProblemKinds: Array<string>,
 ): boolean => {
     if (!scope.foundations && foundationKinds.includes(entityKind)) {
         return false
     }
     if (!scope.headhunting && headhuntingKinds.includes(entityKind)) {
+        return false
+    }
+    // gate the standalone flashcard-deck search index behind its scope flag
+    if (!scope.flashcards && flashcardKinds.includes(entityKind)) {
+        return false
+    }
+    // gate the standalone coding-problem search index behind its scope flag
+    if (!scope.codingProblems && codingProblemKinds.includes(entityKind)) {
         return false
     }
     return true

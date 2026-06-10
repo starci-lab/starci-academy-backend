@@ -34,8 +34,8 @@ export * from "./challenge-reference.service"
 export * from "./challenge-submission.service"
 export * from "./challenge-submission-prompt.service"
 export * from "./challenge-submission-criteria.service"
-export * from "./quiz-deck.service"
-export * from "./quiz-card.service"
+export * from "./flashcard-deck.service"
+export * from "./flashcard-card.service"
 
 
 export * from "./milestone.service"

@@ -49,14 +49,14 @@ export class SeedScopeService {
         return this.seeders().courses.contents !== false
     }
 
-    /** Whether quiz deck/card seeding is enabled. */
-    isCoursesQuizSeederEnabled(): boolean {
-        return this.seeders().courses.quiz.enabled
+    /** Whether flashcard deck/card seeding is enabled. */
+    isCoursesFlashcardSeederEnabled(): boolean {
+        return this.seeders().courses.flashcard.enabled
     }
 
-    /** Whether quiz decks link to lesson contents (`quiz_deck_contents`). */
-    isCoursesQuizLinkContentsEnabled(): boolean {
-        return this.seeders().courses.quiz.linkContents
+    /** Whether flashcard decks link to lesson contents (`flashcard_deck_contents`). */
+    isCoursesFlashcardLinkContentsEnabled(): boolean {
+        return this.seeders().courses.flashcard.linkContents
     }
 
     /** Whether CV mount seeding is enabled. */

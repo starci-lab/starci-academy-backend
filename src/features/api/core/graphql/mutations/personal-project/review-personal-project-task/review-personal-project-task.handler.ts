@@ -192,6 +192,7 @@ export class ReviewPersonalProjectTaskHandler
             branch: resolvedBranchForEnqueue,
             userId: user.id,
             locale,
+            lang: request.lang?.trim() || undefined,
             enrollmentId: enrollment.id,
             githubUrl: resolvedGithubUrl,
             ai,

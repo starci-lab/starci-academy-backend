@@ -16,6 +16,9 @@ import {
 import {
     LeaderboardSingleQueryModule,
 } from "./leaderboard"
+import {
+    ChallengeSuggestionsSingleQueryModule,
+} from "./challenge-suggestions"
 
 @Module({
     imports: [
@@ -29,6 +32,9 @@ import {
             isGlobal: true,
         }),
         LeaderboardSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        ChallengeSuggestionsSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

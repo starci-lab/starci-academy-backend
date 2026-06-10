@@ -1873,14 +1873,14 @@ export const envConfig = () => ({
             defaultValue: 20,
         }),
     },
-    /** Quizlet-style interview-prep (SM-2 spaced repetition) tunables. */
-    quiz: {
+    /** Flashcardlet-style interview-prep (SM-2 spaced repetition) tunables. */
+    flashcard: {
         /**
          * Scheduling interval (in days) at or above which a card is considered
          * Mastered. Cards below this stay in the Review bucket.
          */
         masteredIntervalDays: parseEnvInt({
-            key: "QUIZ_MASTERED_INTERVAL_DAYS",
+            key: "FLASHCARD_MASTERED_INTERVAL_DAYS",
             defaultValue: 21,
         }),
     },

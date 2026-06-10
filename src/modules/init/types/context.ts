@@ -20,4 +20,8 @@ export interface SynchronizerSyncScope {
     foundations: boolean
     /** Whether headhunting entities are in scope. */
     headhunting: boolean
+    /** Whether flashcard decks are in scope. */
+    flashcards: boolean
+    /** Whether coding-practice problems are in scope. */
+    codingProblems: boolean
 }

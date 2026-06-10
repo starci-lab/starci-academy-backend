@@ -6,6 +6,10 @@ import {
     ContentEntity,
     CourseEntity,
     ModuleEntity,
+    FlashcardDeckEntity,
+    MilestoneEntity,
+    FoundationEntity,
+    Locale,
 } from "@modules/databases"
 import {
     CacheKey,
@@ -27,6 +31,9 @@ import {
     ContentGlobalSearchService,
     CourseGlobalSearchService,
     ModuleGlobalSearchService,
+    FlashcardDeckGlobalSearchService,
+    MilestoneGlobalSearchService,
+    FoundationGlobalSearchService,
 } from "./entities"
 
 const DEFAULT_SIZE = 5
@@ -36,6 +43,9 @@ const DEFAULT_ENTITIES: Array<SearchableEntity> = [
     ModuleEntity.name,
     ChallengeEntity.name,
     ContentEntity.name,
+    FlashcardDeckEntity.name,
+    MilestoneEntity.name,
+    FoundationEntity.name,
 ]
 
 const EMPTY_RESULT: AutocompleteGlobalSearchExecuteResult = {
@@ -43,6 +53,9 @@ const EMPTY_RESULT: AutocompleteGlobalSearchExecuteResult = {
     modules: [],
     challenges: [],
     contents: [],
+    flashcardDecks: [],
+    milestones: [],
+    foundations: [],
 }
 
 @Injectable()
@@ -52,6 +65,9 @@ export class AutocompleteGlobalSearchService {
         private readonly moduleSearch: ModuleGlobalSearchService,
         private readonly challengeSearch: ChallengeGlobalSearchService,
         private readonly contentSearch: ContentGlobalSearchService,
+        private readonly flashcardDeckSearch: FlashcardDeckGlobalSearchService,
+        private readonly milestoneSearch: MilestoneGlobalSearchService,
+        private readonly foundationSearch: FoundationGlobalSearchService,
         private readonly cacheService: CacheService,
     ) {}
 
@@ -66,6 +82,8 @@ export class AutocompleteGlobalSearchService {
             return EMPTY_RESULT
         }
 
+        // resolver always supplies a locale, but the type is optional → default to En
+        const searchLocale = locale ?? Locale.En
         const size = request.size ?? DEFAULT_SIZE
         const selected = new Set<SearchableEntity>(
             request.entities?.length
@@ -78,33 +96,57 @@ export class AutocompleteGlobalSearchService {
             modules,
             challenges,
             contents,
+            flashcardDecks,
+            milestones,
+            foundations,
         ] = await Promise.all([
             selected.has(CourseEntity.name)
                 ? this.courseSearch.execute({
                     term,
                     size,
-                    locale,
+                    locale: searchLocale,
                 })
                 : Promise.resolve([] as Array<GlobalSearchItem>),
             selected.has(ModuleEntity.name)
                 ? this.moduleSearch.execute({
                     term,
                     size,
-                    locale,
+                    locale: searchLocale,
                 })
                 : Promise.resolve([] as Array<GlobalSearchItem>),
             selected.has(ChallengeEntity.name)
                 ? this.challengeSearch.execute({
                     term,
                     size,
-                    locale,
+                    locale: searchLocale,
                 })
                 : Promise.resolve([] as Array<GlobalSearchItem>),
             selected.has(ContentEntity.name)
                 ? this.contentSearch.execute({
                     term,
                     size,
-                    locale,
+                    locale: searchLocale,
+                })
+                : Promise.resolve([] as Array<GlobalSearchItem>),
+            selected.has(FlashcardDeckEntity.name)
+                ? this.flashcardDeckSearch.execute({
+                    term,
+                    size,
+                    locale: searchLocale,
+                })
+                : Promise.resolve([] as Array<GlobalSearchItem>),
+            selected.has(MilestoneEntity.name)
+                ? this.milestoneSearch.execute({
+                    term,
+                    size,
+                    locale: searchLocale,
+                })
+                : Promise.resolve([] as Array<GlobalSearchItem>),
+            selected.has(FoundationEntity.name)
+                ? this.foundationSearch.execute({
+                    term,
+                    size,
+                    locale: searchLocale,
                 })
                 : Promise.resolve([] as Array<GlobalSearchItem>),
         ])
@@ -116,6 +158,9 @@ export class AutocompleteGlobalSearchService {
             modulesWithPath,
             challengesWithPath,
             contentsWithPath,
+            flashcardDecksWithPath,
+            milestonesWithPath,
+            foundationsWithPath,
         ] = await Promise.all([
             this.attachParentPaths({
                 items: this.dedupeItems(courses),
@@ -133,6 +178,18 @@ export class AutocompleteGlobalSearchService {
                 items: this.dedupeItems(contents),
                 entityName: ContentEntity.name,
             }),
+            this.attachParentPaths({
+                items: this.dedupeItems(flashcardDecks),
+                entityName: FlashcardDeckEntity.name,
+            }),
+            this.attachParentPaths({
+                items: this.dedupeItems(milestones),
+                entityName: MilestoneEntity.name,
+            }),
+            this.attachParentPaths({
+                items: this.dedupeItems(foundations),
+                entityName: FoundationEntity.name,
+            }),
         ])
 
         return {
@@ -140,6 +197,9 @@ export class AutocompleteGlobalSearchService {
             modules: modulesWithPath,
             challenges: challengesWithPath,
             contents: contentsWithPath,
+            flashcardDecks: flashcardDecksWithPath,
+            milestones: milestonesWithPath,
+            foundations: foundationsWithPath,
         }
     }
 

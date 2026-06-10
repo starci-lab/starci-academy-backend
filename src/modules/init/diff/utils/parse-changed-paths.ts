@@ -124,9 +124,9 @@ const classifyCoursePath = (
             trackIndex)
         return
     }
-    // quiz decks are seeded per-course (no index), gate the whole quiz pass
-    if (subFolder === "quiz-decks") {
-        diff.quizChangedCourses.add(displayId)
+    // flashcard decks are seeded per-course (no index), gate the whole flashcard pass
+    if (subFolder === "flashcard-decks") {
+        diff.flashcardChangedCourses.add(displayId)
         return
     }
     // anything else directly under the course dir (en.md, vi.md, master_plan.md, …) is course-root
@@ -151,7 +151,7 @@ export const parseDataGitDiff = (
         moduleIndicesByCourse: new Map(),
         milestoneIndicesByCourse: new Map(),
         courseRootChanged: new Set(),
-        quizChangedCourses: new Set(),
+        flashcardChangedCourses: new Set(),
         changedDomains: new Set(),
     }
     for (const rawPath of changedPaths) {

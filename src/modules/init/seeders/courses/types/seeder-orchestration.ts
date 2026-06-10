@@ -22,10 +22,10 @@ export interface ProcessCoursesParams {
     moduleIndexFilterByDisplayId: CourseIndexFilterByDisplayId | null
     /** Milestone index filter from seed scope. */
     milestoneIndexFilterByDisplayId: CourseIndexFilterByDisplayId | null
-    /** When true, parse and upsert quiz decks per course. */
-    quizEnabled: boolean
-    /** When true, build content path → id map for quiz N:N links. */
-    quizLinkContents: boolean
+    /** When true, parse and upsert flashcard decks per course. */
+    flashcardEnabled: boolean
+    /** When true, build content path → id map for flashcard N:N links. */
+    flashcardLinkContents: boolean
 }
 
 /** {@link ModuleProcessorService.process} input. */
@@ -35,12 +35,12 @@ export interface ProcessModulesParams {
     /** Module index filter from seed scope. */
     moduleIndexFilterByDisplayId: CourseIndexFilterByDisplayId | null
     /** When true, populate {@link ProcessModulesResult.contentIdByPath}. */
-    quizLinkContents: boolean
+    flashcardLinkContents: boolean
 }
 
-/** {@link ModuleProcessorService.process} output (reserved for quiz link map). */
+/** {@link ModuleProcessorService.process} output (reserved for flashcard link map). */
 export interface ProcessModulesResult {
-    /** `moduleDisplayId/contentDisplayId` → content id for quiz linking. */
+    /** `moduleDisplayId/contentDisplayId` → content id for flashcard linking. */
     contentIdByPath: Map<string, string>
 }
 
@@ -62,8 +62,8 @@ export interface ProcessChallengesParams {
     contentResult: ResolvedFileResult<DeepPartial<ContentEntity>>
 }
 
-/** {@link QuizDeckProcessorService.process} input. */
-export interface ProcessQuizDecksParams {
+/** {@link FlashcardDeckProcessorService.process} input. */
+export interface ProcessFlashcardDecksParams {
     /** Matching course parse result. */
     courseResult: ResolvedFileResult<DeepPartial<CourseEntity>>
 }

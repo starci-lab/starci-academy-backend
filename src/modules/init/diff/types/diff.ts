@@ -33,8 +33,8 @@ export interface DataGitDiff {
     milestoneIndicesByCourse: Map<string, Set<number>>
     /** Course `displayId`s whose root files (en.md/vi.md/master_plan.md) changed. */
     courseRootChanged: Set<string>
-    /** Course `displayId`s whose `quiz-decks/` changed. */
-    quizChangedCourses: Set<string>
+    /** Course `displayId`s whose `flashcard-decks/` changed. */
+    flashcardChangedCourses: Set<string>
     /** Standalone domains whose top-level folder changed. */
     changedDomains: Set<DataGitDomain>
 }

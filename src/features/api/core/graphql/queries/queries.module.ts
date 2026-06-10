@@ -56,8 +56,8 @@ import {
     AiQueriesModule,
 } from "./ai"
 import {
-    QuizDecksQueriesModule,
-} from "./quiz-decks"
+    FlashcardDecksQueriesModule,
+} from "./flashcard-decks"
 import {
     CodingQueriesModule,
 } from "./coding"
@@ -118,7 +118,7 @@ import {
         AiQueriesModule.register({
             isGlobal: true,
         }),
-        QuizDecksQueriesModule.register({
+        FlashcardDecksQueriesModule.register({
             isGlobal: true,
         }),
         CodingQueriesModule.register({

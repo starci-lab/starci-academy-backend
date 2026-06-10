@@ -17,6 +17,8 @@ import {
     FoundationCategoryEntity,
     ConsultantEntity,
     HeadhuntingCompanyEntity,
+    FlashcardDeckEntity,
+    CodingProblemEntity,
     Locale
 } from "@modules/databases"
 import {
@@ -63,6 +65,8 @@ export class ElasticsearchService implements OnModuleInit {
         FoundationCategoryEntity.name,
         HeadhuntingCompanyEntity.name,
         ConsultantEntity.name,
+        FlashcardDeckEntity.name,
+        CodingProblemEntity.name,
     ]
     constructor(
         @InjectElasticsearch()

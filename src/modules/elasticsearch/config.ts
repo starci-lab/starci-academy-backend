@@ -9,6 +9,8 @@ import {
     FoundationCategoryEntity,
     ConsultantEntity,
     HeadhuntingCompanyEntity,
+    FlashcardDeckEntity,
+    CodingProblemEntity,
 } from "@modules/databases"
 import type {
     ElasticsearchIndexMapping,
@@ -34,6 +36,18 @@ import {
 import {
     consultantsIndexMapping,
 } from "./mappings/consultants.mapping"
+import {
+    milestonesIndexMapping,
+} from "./mappings/milestones.mapping"
+import {
+    milestoneTasksIndexMapping,
+} from "./mappings/milestone-tasks.mapping"
+import {
+    flashcardDecksIndexMapping,
+} from "./mappings/flashcard-deck.mapping"
+import {
+    codingProblemsIndexMapping,
+} from "./mappings/coding-problem.mapping"
 
 /**
  * Config map data.
@@ -78,9 +92,11 @@ export const configMap: ConfigMap = {
     },
     [MilestoneEntity.name]: {
         indices: "milestones",
+        mapping: milestonesIndexMapping,
     },
     [MilestoneTaskEntity.name]: {
         indices: "milestone-tasks",
+        mapping: milestoneTasksIndexMapping,
     },
     [FoundationEntity.name]: {
         indices: "foundations",
@@ -96,5 +112,13 @@ export const configMap: ConfigMap = {
     [ConsultantEntity.name]: {
         indices: "consultants",
         mapping: consultantsIndexMapping,
+    },
+    [FlashcardDeckEntity.name]: {
+        indices: "flashcard-decks",
+        mapping: flashcardDecksIndexMapping,
+    },
+    [CodingProblemEntity.name]: {
+        indices: "coding-problems",
+        mapping: codingProblemsIndexMapping,
     },
 }

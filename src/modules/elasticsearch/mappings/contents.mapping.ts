@@ -9,7 +9,7 @@ import type {
  * dedicated `suggest` field of type `completion` (an in-memory FST) powering fast,
  * ranked autocomplete — the ES sync builder populates it with the clean lesson title
  * plus a popularity weight derived from the display order. The large relational blobs
- * (references, code explainings/implementations, challenges, quiz decks, translations)
+ * (references, code explainings/implementations, challenges, flashcard decks, translations)
  * are stored but not indexed: they are not search targets and would otherwise inflate
  * the dynamic mapping.
  */
@@ -84,7 +84,7 @@ export const contentsIndexMapping: ElasticsearchIndexMapping = {
                 type: "object",
                 enabled: false,
             },
-            quizDecks: {
+            flashcardDecks: {
                 type: "object",
                 enabled: false,
             },

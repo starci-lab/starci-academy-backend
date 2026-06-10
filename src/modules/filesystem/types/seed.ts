@@ -20,14 +20,14 @@ export type SeedScopeIndexes = "all" | string | Array<number>
 /**
  * Rich per-course override under `customScope.courses`, splitting each track out so a
  * course can scope its module/contents range while independently toggling the
- * milestone and quiz-deck passes.
+ * milestone and flashcard-deck passes.
  *
  * Example:
  * ```yaml
  * fullstack-mastery:
  *   contents: "0-19"
  *   milestone: true
- *   quizDecks: true
+ *   flashcard-decks: true
  * ```
  */
 export interface SeedCustomCourseScope {
@@ -35,14 +35,17 @@ export interface SeedCustomCourseScope {
     contents: SeedScopeIndexes
     /** When true, also seed/sync this course's milestone track (default false). */
     milestone?: boolean
-    /** When true, also seed this course's quiz decks (default false). */
-    quizDecks?: boolean
+    /**
+     * When true, also seed this course's flashcard decks (default false). Kebab-cased
+     * to mirror the `flashcard-decks/` mount folder; read via `value["flashcard-decks"]`.
+     */
+    "flashcard-decks"?: boolean
 }
 
 /**
  * Accepted value forms for one `customScope.courses` entry:
  * - {@link SeedScopeIndexes} — shorthand; scopes only the module/contents track
- *   (milestones + quiz stay off). Backward-compatible with the old `"0-19"` form.
+ *   (milestones + flashcard stay off). Backward-compatible with the old `"0-19"` form.
  * - {@link SeedCustomCourseScope} — rich object form toggling each track.
  */
 export type SeedCustomCourseValue = SeedScopeIndexes | SeedCustomCourseScope
@@ -53,8 +56,8 @@ export interface ResolvedCustomCourseScope {
     contents: SeedScopeIndexes
     /** Whether the milestone track is enabled for this course. */
     milestone: boolean
-    /** Whether quiz-deck seeding is enabled for this course. */
-    quizDecks: boolean
+    /** Whether flashcard-deck seeding is enabled for this course. */
+    flashcardDecks: boolean
 }
 
 /** Per-course seed scope (one entry under `seeders.courses.tracks`). */
@@ -67,11 +70,11 @@ export interface SeedCourseTrack {
     milestones: SeedScopeIndexes
 }
 
-/** Quiz deck/card seeding toggles (runs inside the course pipeline). */
-export interface SeedQuizConfig {
-    /** When false, skip all quiz deck parsing/upsert. */
+/** Flashcard deck/card seeding toggles (runs inside the course pipeline). */
+export interface SeedFlashcardConfig {
+    /** When false, skip all flashcard deck parsing/upsert. */
     enabled: boolean
-    /** When true, resolve `# contents` links in deck markdown -> quiz_deck_contents. */
+    /** When true, resolve `# contents` links in deck markdown -> flashcard_deck_contents. */
     linkContents: boolean
 }
 
@@ -86,15 +89,15 @@ export interface SeedCoursesConfig {
     contents?: boolean
     /** Per-course scopes, keyed by course `displayId`. */
     tracks: Record<string, SeedCourseTrack>
-    /** Quiz deck/card seeding. */
-    quiz: SeedQuizConfig
+    /** Flashcard deck/card seeding. */
+    flashcard: SeedFlashcardConfig
 }
 
 /** Phase 1 — seeders (sources -> PostgreSQL). */
 export interface SeedSeedersConfig {
     /** Master switch for the whole seed phase. */
     enabled: boolean
-    /** Course pipeline (modules, contents, challenges, lessons, quiz, milestones). */
+    /** Course pipeline (modules, contents, challenges, lessons, flashcard, milestones). */
     courses: SeedCoursesConfig
     /** Standalone domain seeders (simple on/off). */
     cv: boolean
@@ -141,6 +144,10 @@ export interface SeedSynchronizersConfig {
     cv: boolean
     foundations: boolean
     headhunting: boolean
+    /** When true, sync flashcard decks to Elasticsearch (search + title autocomplete). */
+    flashcards: boolean
+    /** When true, sync coding-practice problems to Elasticsearch (search + title autocomplete). */
+    codingProblems: boolean
 }
 
 /** Root of the mounted `_seed.yaml`. */
@@ -171,7 +178,7 @@ export interface InitCustomScope {
      * Per-course scope keyed by course displayId. Each value is either a shorthand
      * module scope (`"all"`, `[1, 2, 3]`, range `"0-19"`) or a rich
      * {@link SeedCustomCourseScope} object that also toggles the milestone and
-     * quiz-deck tracks.
+     * flashcard-deck tracks.
      */
     courses?: Record<string, SeedCustomCourseValue>
     /**

@@ -25,8 +25,8 @@ import {
     ProgressModule,
 } from "./progress"
 import {
-    QuizModule,
-} from "./quiz"
+    FlashcardModule,
+} from "./flashcard"
 import {
     CodingModule,
 } from "./coding"
@@ -56,8 +56,8 @@ export class BussinessModule extends ConfigurableModuleClass {
             UserModule.register(options),
             // import the progress module
             ProgressModule.register(options),
-            // import the quiz (interview-prep) module
-            QuizModule.register(options),
+            // import the flashcard (interview-prep) module
+            FlashcardModule.register(options),
             // import the coding-practice module
             CodingModule.register(options),
             // import the AI credit usage module

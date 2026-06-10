@@ -45,4 +45,10 @@ export interface GlobalSearchMessage {
     challenges: Array<GlobalSearchItem>
     /** Content hits. */
     contents: Array<GlobalSearchItem>
+    /** Flashcard-deck hits. */
+    flashcardDecks: Array<GlobalSearchItem>
+    /** Milestone hits. */
+    milestones: Array<GlobalSearchItem>
+    /** Foundation-item hits. */
+    foundations: Array<GlobalSearchItem>
 }

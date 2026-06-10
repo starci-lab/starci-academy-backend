@@ -14,6 +14,8 @@ import {
     FoundationCategoryEntity,
     ConsultantEntity,
     HeadhuntingCompanyEntity,
+    FlashcardDeckEntity,
+    CodingProblemEntity,
 } from "@modules/databases"
 import {
     MoreThan,
@@ -30,6 +32,8 @@ import {
     ElasticsearchFoundationCategoryBuildService,
     ElasticsearchHeadhunterCompanyBuildService,
     ElasticsearchConsultantBuildService,
+    ElasticsearchFlashcardDeckBuildService,
+    ElasticsearchCodingProblemBuildService,
 } from "./builder"
 import {
     WinstonLog,
@@ -82,6 +86,8 @@ export class ElasticsearchSynchronizerService {
         private readonly esFoundationCategoryBuildService: ElasticsearchFoundationCategoryBuildService,
         private readonly esHeadhunterCompanyBuildService: ElasticsearchHeadhunterCompanyBuildService,
         private readonly esHeadhunterBuildService: ElasticsearchConsultantBuildService,
+        private readonly esFlashcardDeckBuildService: ElasticsearchFlashcardDeckBuildService,
+        private readonly esCodingProblemBuildService: ElasticsearchCodingProblemBuildService,
         private readonly elasticsearchService: ElasticsearchService,
     ) { }
 
@@ -97,6 +103,8 @@ export class ElasticsearchSynchronizerService {
         FoundationEntity.name,
         HeadhuntingCompanyEntity.name,
         ConsultantEntity.name,
+        FlashcardDeckEntity.name,
+        CodingProblemEntity.name,
     ]
 
     private readonly foundationEntityKinds = [
@@ -107,6 +115,14 @@ export class ElasticsearchSynchronizerService {
     private readonly headhuntingEntityKinds = [
         HeadhuntingCompanyEntity.name,
         ConsultantEntity.name,
+    ]
+
+    private readonly flashcardEntityKinds = [
+        FlashcardDeckEntity.name,
+    ]
+
+    private readonly codingProblemEntityKinds = [
+        CodingProblemEntity.name,
     ]
 
     /**
@@ -128,6 +144,8 @@ export class ElasticsearchSynchronizerService {
                 entityKind,
                 this.foundationEntityKinds,
                 this.headhuntingEntityKinds,
+                this.flashcardEntityKinds,
+                this.codingProblemEntityKinds,
             )) {
                 continue
             }
@@ -627,6 +645,94 @@ export class ElasticsearchSynchronizerService {
                         )
                     }
                     resumeEntityId = consultant.id
+                }
+                break
+            }
+            case FlashcardDeckEntity.name: {
+                while (true) {
+                    const deck = await this.entityManager.findOne(
+                        FlashcardDeckEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId),
+                                } : {
+                                }),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!deck) {
+                        break
+                    }
+                    try {
+                        await this.esFlashcardDeckBuildService.buildIndexById(
+                            deck.id,
+                        )
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerSyncedSuccessfully,
+                            {
+                                entityKind,
+                                entityId: deck.id,
+                            }
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: deck.id,
+                                error: error.message,
+                            },
+                        )
+                    }
+                    resumeEntityId = deck.id
+                }
+                break
+            }
+            case CodingProblemEntity.name: {
+                while (true) {
+                    const problem = await this.entityManager.findOne(
+                        CodingProblemEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId),
+                                } : {
+                                }),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!problem) {
+                        break
+                    }
+                    try {
+                        await this.esCodingProblemBuildService.buildIndexById(
+                            problem.id,
+                        )
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerSyncedSuccessfully,
+                            {
+                                entityKind,
+                                entityId: problem.id,
+                            }
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.EsSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: problem.id,
+                                error: error.message,
+                            },
+                        )
+                    }
+                    resumeEntityId = problem.id
                 }
                 break
             }

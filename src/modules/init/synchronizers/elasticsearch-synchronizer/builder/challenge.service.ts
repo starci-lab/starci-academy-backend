@@ -11,6 +11,7 @@ import type {
     LocalizedElasticsearchEntity,
 } from "./types"
 import {
+    buildCompletionSuggest,
     ElasticsearchService,
 } from "@modules/elasticsearch"
 import _ from "lodash"
@@ -40,9 +41,23 @@ export class ElasticsearchChallengeBuildService {
                     locale,
                     defaultLocale,
                 )
+                // populate the ES completion field: the clean challenge title as the
+                // suggest input, weighted by display order (earlier = more popular) so
+                // the FST-backed autocomplete returns clean, ranked suggestions.
+                const label = (localizedChallenge.title ?? "").trim()
+                const suggest = buildCompletionSuggest({
+                    inputs: [label],
+                    weight: Math.max(1,
+                        100 - (localizedChallenge.orderIndex ?? 0)),
+                })
                 return {
                     locale,
-                    entity: localizedChallenge,
+                    // suggest is an index-only field (not on the entity type) — cast so the
+                    // generic indexer stores it while keeping the entity contract intact
+                    entity: {
+                        ...localizedChallenge,
+                        suggest,
+                    } as unknown as ChallengeEntity,
                 }
             },
         )

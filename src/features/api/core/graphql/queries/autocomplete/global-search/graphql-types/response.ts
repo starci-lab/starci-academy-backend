@@ -115,6 +115,15 @@ export class AutocompleteGlobalSearchData {
 
     @Field(() => [AutocompleteGlobalSearchItem])
         contents: Array<AutocompleteGlobalSearchItem>
+
+    @Field(() => [AutocompleteGlobalSearchItem])
+        flashcardDecks: Array<AutocompleteGlobalSearchItem>
+
+    @Field(() => [AutocompleteGlobalSearchItem])
+        milestones: Array<AutocompleteGlobalSearchItem>
+
+    @Field(() => [AutocompleteGlobalSearchItem])
+        foundations: Array<AutocompleteGlobalSearchItem>
 }
 
 @ObjectType({

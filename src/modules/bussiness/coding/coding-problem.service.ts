@@ -120,33 +120,55 @@ export class CodingProblemService {
         slug,
         locale = Locale.En,
     }: GetCodingProblemParams): Promise<CodingProblemEntity> {
-        // load the problem with the relations the detail view needs
-        const problem = await this.entityManager.findOne(CodingProblemEntity,
-            {
-                where: {
-                    slug,
-                    enabled: true,
+        // serve the detail view straight from the per-locale index: documents are
+        // pre-localized (title/statement) and only ever hold SAMPLE testcases (the ES
+        // sync builder drops hidden ones), so nothing sensitive can leak from here.
+        const index = this.elasticsearchService.indicateName({
+            entity: CodingProblemEntity.name,
+            locale,
+        })
+        const response = await this.elasticsearchService.client.search<CodingProblemEntity>({
+            index,
+            query: {
+                bool: {
+                    filter: [
+                        // exact slug lookup — tolerate either keyword shape across indices
+                        {
+                            bool: {
+                                should: [
+                                    {
+                                        term: {
+                                            slug,
+                                        },
+                                    },
+                                    {
+                                        term: {
+                                            "slug.keyword": slug,
+                                        },
+                                    },
+                                ],
+                                minimum_should_match: 1,
+                            },
+                        },
+                        // never expose disabled problems
+                        {
+                            term: {
+                                enabled: true,
+                            },
+                        },
+                    ],
                 },
-                relations: {
-                    translations: true,
-                    starterCodes: true,
-                    testcases: true,
-                },
-            })
+            },
+            size: 1,
+        })
+        const hit = response.hits.hits[0]?._source
         // missing/disabled → typed not-found
-        if (!problem) {
+        if (!hit) {
             throw new CodingProblemNotFoundException({
                 identifier: slug,
             })
         }
-        // drop hidden testcases so only samples ever leave the server
-        problem.testcases = problem.testcases
-            .filter((testcase) => testcase.isSample)
-            .sort((prev, next) => prev.orderIndex - next.orderIndex)
-        // localize title/statement for the requested locale
-        this.applyTranslation(problem,
-            locale)
-        return problem
+        return hit
     }
 
     /**
@@ -255,6 +277,8 @@ export class CodingProblemService {
     /**
      * Override an entity's `title`/`statement` from its translations for the
      * given locale, in place. English (the default columns) is left untouched.
+     * Still used by the DB-backed `list` query (the single `getBySlug` reads
+     * pre-localized documents from Elasticsearch instead).
      */
     private applyTranslation(problem: CodingProblemEntity, locale: Locale): void {
         // English uses the default columns — nothing to override

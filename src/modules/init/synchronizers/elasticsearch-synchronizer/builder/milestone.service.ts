@@ -11,6 +11,7 @@ import type {
     LocalizedElasticsearchEntity,
 } from "./types"
 import {
+    buildCompletionSuggest,
     ElasticsearchService,
 } from "@modules/elasticsearch"
 import _ from "lodash"
@@ -38,9 +39,25 @@ export class ElasticsearchMilestoneBuildService {
                     localizedMilestone,
                     locale,
                 )
+                // populate the ES completion field: the clean milestone title as the
+                // suggest input, weighted by display order (earlier = more popular) so
+                // the FST-backed autocomplete returns clean, ranked suggestions.
+                const label = (localizedMilestone.title ?? "").trim()
+                const suggest = buildCompletionSuggest({
+                    inputs: [label],
+                    weight: Math.max(
+                        1,
+                        100 - (localizedMilestone.orderIndex ?? 0),
+                    ),
+                })
                 return {
                     locale,
-                    entity: localizedMilestone,
+                    // suggest is an index-only field (not on the entity type) — cast so the
+                    // generic indexer stores it while keeping the entity contract intact
+                    entity: {
+                        ...localizedMilestone,
+                        suggest,
+                    } as unknown as MilestoneEntity,
                 }
             },
         )

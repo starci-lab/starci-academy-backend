@@ -60,7 +60,7 @@ export class SeedDiffOverlayService {
                 },
             }
         }
-        // coarse full reseed: quiz + foundations stay off (toggled only via customScope)
+        // coarse full reseed: flashcard + foundations stay off (toggled only via customScope)
         return this.assemble(tracks,
             syncCourses,
             false,
@@ -70,9 +70,9 @@ export class SeedDiffOverlayService {
     /**
      * Builds a custom-scope config from the `customScope` block. Under `courses`,
      * each entry value is either a shorthand module scope (`"all"`, an index list,
-     * or a range) or a rich object that also toggles the milestone + quiz-deck
+     * or a range) or a rich object that also toggles the milestone + flashcard-deck
      * tracks. The `foundations` flag seeds/syncs the standalone foundations domain.
-     * Quiz runs when ANY course opted in (the quiz pass is a single global flag).
+     * Flashcard runs when ANY course opted in (the flashcard pass is a single global flag).
      *
      * @param customScope - The `customScope` block (`courses` map + `foundations`)
      * @returns A complete config restricted to the listed courses/tracks (+ foundations)
@@ -86,16 +86,16 @@ export class SeedDiffOverlayService {
         }
         // standalone foundations domain is on only when explicitly toggled
         const foundationsEnabled = customScope.foundations === true
-        // quiz seeding is a single global toggle → enable it if ANY course opts in
-        let quizEnabledAny = false
+        // flashcard seeding is a single global toggle → enable it if ANY course opts in
+        let flashcardEnabledAny = false
         for (const [
             displayId,
             value,
         ] of Object.entries(customScope.courses ?? {
             })) {
             // collapse shorthand + object forms into one canonical scope
-            const { contents, milestone, quizDecks } = this.normalizeCustomScope(value)
-            quizEnabledAny = quizEnabledAny || quizDecks
+            const { contents, milestone, flashcardDecks } = this.normalizeCustomScope(value)
+            flashcardEnabledAny = flashcardEnabledAny || flashcardDecks
             // milestone track is seeded/synced in full when enabled, else skipped
             const milestoneScope: SeedScopeIndexes = milestone ? "all" : []
             // seed track: course root + the chosen module/contents range (+ milestones)
@@ -121,7 +121,7 @@ export class SeedDiffOverlayService {
         }
         return this.assemble(tracks,
             syncCourses,
-            quizEnabledAny,
+            flashcardEnabledAny,
             foundationsEnabled)
     }
 
@@ -129,11 +129,11 @@ export class SeedDiffOverlayService {
      * Normalizes one `customScope.courses` value into a canonical per-course scope.
      *
      * The shorthand form (a bare {@link SeedScopeIndexes}: `"all"`, an index array,
-     * or a range string) maps to a contents-only scope with milestone + quiz off.
+     * or a range string) maps to a contents-only scope with milestone + flashcard off.
      * The object form passes its toggles through (defaulting the booleans to false).
      *
      * @param value - Raw `customScope.courses` entry value (shorthand or object form)
-     * @returns The resolved `{ contents, milestone, quizDecks }` scope
+     * @returns The resolved `{ contents, milestone, flashcardDecks }` scope
      */
     private normalizeCustomScope(value: SeedCustomCourseValue): ResolvedCustomCourseScope {
         // object form: only a non-array object carries the per-track toggles
@@ -142,14 +142,15 @@ export class SeedDiffOverlayService {
             return {
                 contents: value.contents,
                 milestone: value.milestone === true,
-                quizDecks: value.quizDecks === true,
+                // YAML key is kebab-cased (`flashcard-decks`) to mirror the mount folder
+                flashcardDecks: value["flashcard-decks"] === true,
             }
         }
         // shorthand: the value IS the module/contents scope; other tracks stay off
         return {
             contents: value,
             milestone: false,
-            quizDecks: false,
+            flashcardDecks: false,
         }
     }
 
@@ -171,12 +172,12 @@ export class SeedDiffOverlayService {
                 domainCount: 0,
             }
         }
-        // the set of courses touched by the diff (modules / milestones / root / quiz)
+        // the set of courses touched by the diff (modules / milestones / root / flashcard)
         const displayIds = new Set<string>([
             ...diff.moduleIndicesByCourse.keys(),
             ...diff.milestoneIndicesByCourse.keys(),
             ...diff.courseRootChanged,
-            ...diff.quizChangedCourses,
+            ...diff.flashcardChangedCourses,
         ])
 
         const tracks: Record<string, SeedCourseTrack> = {
@@ -184,13 +185,13 @@ export class SeedDiffOverlayService {
         const syncCourses: Record<string, SeedSyncCourseTrack> = {
         }
         let moduleCount = 0
-        let quizChangedAny = false
+        let flashcardChangedAny = false
         for (const displayId of displayIds) {
             const modules = this.sortedIndexes(diff.moduleIndicesByCourse.get(displayId))
             const milestones = this.sortedIndexes(diff.milestoneIndicesByCourse.get(displayId))
             const rootChanged = diff.courseRootChanged.has(displayId)
-            const quizChanged = diff.quizChangedCourses.has(displayId)
-            quizChangedAny = quizChangedAny || quizChanged
+            const flashcardChanged = diff.flashcardChangedCourses.has(displayId)
+            flashcardChangedAny = flashcardChangedAny || flashcardChanged
             moduleCount += modules.length
             // seed track: re-seed the course root only when its own files changed
             tracks[displayId] = {
@@ -217,7 +218,7 @@ export class SeedDiffOverlayService {
             // diff-narrowed: foundations stay off (toggled only via customScope)
             overlay: this.assemble(tracks,
                 syncCourses,
-                quizChangedAny,
+                flashcardChangedAny,
                 false),
             courseCount: Object.keys(tracks).length,
             moduleCount,
@@ -234,14 +235,14 @@ export class SeedDiffOverlayService {
      *
      * @param tracks - Seed course tracks keyed by displayId
      * @param syncCourses - Sync course tracks keyed by displayId
-     * @param quizEnabled - Whether the quiz pass should run
+     * @param flashcardEnabled - Whether the flashcard pass should run
      * @param foundationsEnabled - Whether to seed + sync the standalone foundations domain
      * @returns The full seed config
      */
     private assemble(
         tracks: Record<string, SeedCourseTrack>,
         syncCourses: Record<string, SeedSyncCourseTrack>,
-        quizEnabled: boolean,
+        flashcardEnabled: boolean,
         foundationsEnabled: boolean,
     ): SeedConfig {
         return {
@@ -251,8 +252,8 @@ export class SeedDiffOverlayService {
                     enabled: true,
                     contents: this.resolveCoursesContentsEnabled(),
                     tracks,
-                    quiz: {
-                        enabled: quizEnabled,
+                    flashcard: {
+                        enabled: flashcardEnabled,
                         linkContents: false,
                     },
                 },
@@ -272,6 +273,11 @@ export class SeedDiffOverlayService {
                 // mirror the seed toggle so the synced foundations land on CDN + ES
                 foundations: foundationsEnabled,
                 headhunting: false,
+                // mirror the flashcard seed toggle so decks land in their ES search index
+                flashcards: flashcardEnabled,
+                // coding problems sync mirrors their (currently off) seeder toggle; flip
+                // both on to populate the `coding-problems-*` search/autocomplete index
+                codingProblems: false,
             },
         }
     }

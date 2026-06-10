@@ -6,6 +6,10 @@ import {
     ModuleEntity,
     HeadhuntingCompanyEntity,
     ConsultantEntity,
+    MilestoneEntity,
+    MilestoneTaskEntity,
+    FlashcardDeckEntity,
+    CodingProblemEntity,
 } from "@modules/databases"
 import type {
     ElasticsearchIndexMapping,
@@ -31,6 +35,18 @@ import {
 import {
     consultantsIndexMapping,
 } from "./consultants.mapping"
+import {
+    milestonesIndexMapping,
+} from "./milestones.mapping"
+import {
+    milestoneTasksIndexMapping,
+} from "./milestone-tasks.mapping"
+import {
+    flashcardDecksIndexMapping,
+} from "./flashcard-deck.mapping"
+import {
+    codingProblemsIndexMapping,
+} from "./coding-problem.mapping"
 
 export * from "./types"
 
@@ -46,6 +62,10 @@ const elasticsearchIndexMappings: Record<string, ElasticsearchIndexMapping> = {
     [ModuleEntity.name]: modulesIndexMapping,
     [HeadhuntingCompanyEntity.name]: headhuntingCompaniesIndexMapping,
     [ConsultantEntity.name]: consultantsIndexMapping,
+    [MilestoneEntity.name]: milestonesIndexMapping,
+    [MilestoneTaskEntity.name]: milestoneTasksIndexMapping,
+    [FlashcardDeckEntity.name]: flashcardDecksIndexMapping,
+    [CodingProblemEntity.name]: codingProblemsIndexMapping,
 }
 
 /**

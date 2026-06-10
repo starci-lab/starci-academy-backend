@@ -8,6 +8,9 @@ import {
     ChallengeEntity,
     ContentEntity,
     ModuleEntity,
+    FlashcardDeckEntity,
+    MilestoneEntity,
+    FoundationEntity,
 } from "@modules/databases"
 
 /** Request for global search autocomplete query. */
@@ -33,6 +36,9 @@ export class AutocompleteGlobalSearchRequest {
                 ModuleEntity.name,
                 ChallengeEntity.name,
                 ContentEntity.name,
+                FlashcardDeckEntity.name,
+                MilestoneEntity.name,
+                FoundationEntity.name,
             ],
         },
     )

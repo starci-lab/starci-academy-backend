@@ -19,14 +19,20 @@ import {
 import {
     CodingLeaderboardSingleQueryModule,
 } from "./coding-leaderboard"
+import {
+    CodingProblemSuggestionsSingleQueryModule,
+} from "./coding-problem-suggestions"
 
 /**
- * Coding-practice query group: problem list/detail, submission history, and
- * the solved-count leaderboard.
+ * Coding-practice query group: problem list/detail, submission history,
+ * the solved-count leaderboard, and problem-title typeahead.
  */
 @Module({
     imports: [
         CodingProblemsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        CodingProblemSuggestionsSingleQueryModule.register({
             isGlobal: true,
         }),
         CodingProblemSingleQueryModule.register({

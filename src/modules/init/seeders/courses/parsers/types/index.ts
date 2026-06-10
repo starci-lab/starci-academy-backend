@@ -1,6 +1,6 @@
 export * from "./from-database"
 export * from "./challenge"
-export * from "./quiz-deck"
+export * from "./flashcard-deck"
 export * from "./content"
 export * from "./course"
 export * from "./module"

@@ -30,8 +30,8 @@ export class CourseSeederService {
         if (!this.seedScopeService.isCoursesSeederEnabled()) {
             return
         }
-        const quizEnabled = this.seedScopeService.isCoursesQuizSeederEnabled()
-        const quizLinkContents = this.seedScopeService.isCoursesQuizLinkContentsEnabled()
+        const flashcardEnabled = this.seedScopeService.isCoursesFlashcardSeederEnabled()
+        const flashcardLinkContents = this.seedScopeService.isCoursesFlashcardLinkContentsEnabled()
         const {
             moduleIndexFilterByDisplayId,
             milestoneIndexFilterByDisplayId,
@@ -41,8 +41,8 @@ export class CourseSeederService {
             courseResults,
             moduleIndexFilterByDisplayId,
             milestoneIndexFilterByDisplayId,
-            quizEnabled,
-            quizLinkContents,
+            flashcardEnabled,
+            flashcardLinkContents,
         })
     }
 }

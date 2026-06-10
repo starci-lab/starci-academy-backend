@@ -12,6 +12,7 @@ import type {
 } from "./types"
 import {
     ElasticsearchService,
+    buildCompletionSuggest,
 } from "@modules/elasticsearch"
 import _ from "lodash"
 
@@ -39,9 +40,25 @@ export class ElasticsearchMilestoneTaskBuildService {
                     locale,
                     hydratedTask.defaultLocale ?? Locale.En,
                 )
+                // populate the ES completion field: the localized task title as the
+                // suggest input (the resolver already swapped in the per-locale title,
+                // so no localized wrapper remains to strip), weighted by display order
+                // (earlier = more popular) so the FST-backed autocomplete returns
+                // clean, ranked suggestions.
+                const label = (localizedTask.title ?? "").trim()
+                const suggest = buildCompletionSuggest({
+                    inputs: label.length > 0 ? [label] : [],
+                    weight: Math.max(1,
+                        100 - (localizedTask.orderIndex ?? 0)),
+                })
                 return {
                     locale,
-                    entity: localizedTask,
+                    // suggest is an index-only field (not on the entity type) — cast so the
+                    // generic indexer stores it while keeping the entity contract intact
+                    entity: {
+                        ...localizedTask,
+                        suggest,
+                    } as unknown as MilestoneTaskEntity,
                 }
             },
         )
