@@ -42,9 +42,9 @@ const COURSES_MOUNT_ROOT = path.join(
     ".mount/data/courses",
 )
 
-/** Relative path to the NestJS core interview-warmup flashcard deck under M0. */
+/** Relative path to the NestJS core & lifecycle flashcard deck (themed deck 0). */
 const NESTJS_WARMUP_DECK_RELATIVE_PATH =
-    "0-fullstack-mastery/flashcard-decks/0-nestjs-core-interview-warmup-easy"
+    "0-fullstack-mastery/flashcard-decks/0-nestjs-core-and-lifecycle"
 
 describe("FlashcardDeckParserService",
     () => {
@@ -123,7 +123,7 @@ describe("FlashcardDeckParserService",
                                 {
                                     relativePath: NESTJS_WARMUP_DECK_RELATIVE_PATH,
                                     orderIndex: 0,
-                                    displayId: "nestjs-core-interview-warmup-easy",
+                                    displayId: "nestjs-core-and-lifecycle",
                                 },
                             ],
                             courseIndex: 0,
@@ -131,7 +131,7 @@ describe("FlashcardDeckParserService",
                             flashcardDeckIndex: 0,
                         })
 
-                        expect(parsed.displayId).toBe("nestjs-core-interview-warmup-easy")
+                        expect(parsed.displayId).toBe("nestjs-core-and-lifecycle")
                         expect(parsed.orderIndex).toBe(0)
                         expect(parsed.defaultLocale).toBe(Locale.En)
                         expect(parsed.courseId).toBe("test-course-id")

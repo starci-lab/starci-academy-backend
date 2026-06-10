@@ -8,6 +8,7 @@ import {
 } from "@nestjs/common"
 import {
     ChallengeDifficulty,
+    FlashcardLevel,
     Locale,
     ContentEntity,
     ModuleEntity,
@@ -209,6 +210,17 @@ export class FlashcardDeckParserService {
                         flashcardCardIndex: card.orderIndex ?? 0,
                     },
                 )
+                // `### level` scalar → validated enum, null when missing/unknown
+                const rawLevel = (this.coerceMdScalarService.toNullableStringColumn(
+                    card.level as unknown as string,
+                ) ?? "").trim().toLowerCase()
+                const level = (Object.values(FlashcardLevel) as Array<string>).includes(rawLevel)
+                    ? (rawLevel as FlashcardLevel)
+                    : null
+                // `### tags / #### N` → array of trimmed tag strings
+                const tags = ((card.tags ?? []) as Array<{ value?: string }>)
+                    .map((tag) => (tag.value ?? "").trim())
+                    .filter((value) => value.length > 0)
                 return {
                     id: flashcardCardId,
                     orderIndex: card.orderIndex,
@@ -222,6 +234,8 @@ export class FlashcardDeckParserService {
                     explanation: this.coerceMdScalarService.toNullableStringColumn(
                         card.explanation,
                     ),
+                    level,
+                    tags,
                     defaultLocale: Locale.En,
                     deck: {
                         id: flashcardDeckId,

@@ -5,6 +5,8 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 import {
+    FlashcardLevel,
+    GraphQLTypeFlashcardLevel,
     GraphQLTypeLocale,
     Locale,
 } from "../enums"
@@ -67,6 +69,42 @@ export class FlashcardCardEntity extends UuidAbstractEntity {
         nullable: true,
     })
         explanation: string | null
+
+    /**
+     * Interview seniority level this card targets (a deck mixes levels).
+     * Nullable so legacy cards without a `### level` heading still load.
+     */
+    @Field(
+        () => GraphQLTypeFlashcardLevel,
+        {
+            nullable: true,
+            description: "Interview seniority level (junior/middle/senior/staff).",
+        },
+    )
+    @Column({
+        name: "level",
+        type: "enum",
+        enum: FlashcardLevel,
+        enumName: "flashcard_level",
+        nullable: true,
+    })
+        level: FlashcardLevel | null
+
+    /**
+     * Technology tags for this card (e.g. ["NestJS", "Redis"]) — drives chips + filtering.
+     */
+    @Field(
+        () => [String],
+        {
+            description: "Technology tags for this card.",
+        },
+    )
+    @Column({
+        name: "tags",
+        type: "jsonb",
+        default: () => "'[]'::jsonb",
+    })
+        tags: Array<string>
 
     /**
      * Display order within the deck card list.
