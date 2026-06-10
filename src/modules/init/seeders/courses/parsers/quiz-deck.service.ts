@@ -9,9 +9,8 @@ import {
 import {
     ChallengeDifficulty,
     Locale,
-    QuizCardEntity,
-    QuizCardOptionEntity,
-    QuizDeckEntity,
+    FlashcardCardEntity,
+    FlashcardDeckEntity,
 } from "@modules/databases"
 import {
     DeepPartial,
@@ -20,7 +19,6 @@ import {
 import {
     CourseIdFactoryService,
     QuizCardIdFactoryService,
-    QuizCardOptionIdFactoryService,
     QuizDeckIdFactoryService,
 } from "../id-factories"
 import {
@@ -90,7 +88,6 @@ export class QuizDeckParserService {
         private readonly mergeJsonService: MergeJsonService,
         private readonly quizDeckIdFactoryService: QuizDeckIdFactoryService,
         private readonly quizCardIdFactoryService: QuizCardIdFactoryService,
-        private readonly quizCardOptionIdFactoryService: QuizCardOptionIdFactoryService,
         private readonly winstonService: WinstonService,
         private readonly courseIdFactoryService: CourseIdFactoryService,
         @InjectPrimaryPostgreSQLEntityManager()
@@ -112,7 +109,7 @@ export class QuizDeckParserService {
             quizDeckIndex,
             contentIdByPath,
         }: ParseQuizDeckParams,
-    ): Promise<DeepPartial<QuizDeckEntity>> {
+    ): Promise<DeepPartial<FlashcardDeckEntity>> {
         // locate the deck folder for the requested ordinal
         const path = paths.find(
             (path) => path.orderIndex === quizDeckIndex,
@@ -149,10 +146,10 @@ export class QuizDeckParserService {
                 "title",
                 "description",
                 "cards.question",
+                "cards.answer",
                 "cards.explanation",
-                "cards.options.text",
             ],
-        }) as MergeJsonResult<DeepPartial<QuizDeckEntity>>
+        }) as MergeJsonResult<DeepPartial<FlashcardDeckEntity>>
         // deterministic deck id anchored on the owning course + folder ordinal
         const quizDeckId = this.quizDeckIdFactoryService.generate(
             {
@@ -201,8 +198,8 @@ export class QuizDeckParserService {
                     value,
                 }),
             ),
-            // map each authored card into an entity graph (options + translations)
-            cards: ((merged.cards ?? []) as Array<DeepPartial<QuizCardEntity>>).map((card) => {
+            // map each authored card into an entity graph (question + answer + translations)
+            cards: ((merged.cards ?? []) as Array<DeepPartial<FlashcardCardEntity>>).map((card) => {
                 // deterministic card id under the deck id
                 const quizCardId = this.quizCardIdFactoryService.generate(
                     {
@@ -216,6 +213,10 @@ export class QuizDeckParserService {
                     orderIndex: card.orderIndex,
                     question: this.coerceMdScalarService.toRequiredString(card.question,
                         ""),
+                    // model answer revealed on flip → null when blank (legacy decks)
+                    answer: this.coerceMdScalarService.toNullableStringColumn(
+                        card.answer,
+                    ),
                     // explanation is optional → store null when blank
                     explanation: this.coerceMdScalarService.toNullableStringColumn(
                         card.explanation,
@@ -224,43 +225,6 @@ export class QuizDeckParserService {
                     deck: {
                         id: quizDeckId,
                     },
-                    // map each option of this card into an entity + translations
-                    options: ((card.options ?? []) as Array<DeepPartial<QuizCardOptionEntity>>).map((option) => {
-                        // deterministic option id under the card id
-                        const quizCardOptionId = this.quizCardOptionIdFactoryService.generate(
-                            {
-                                courseIndex,
-                                quizDeckIndex,
-                                quizCardIndex: card.orderIndex ?? 0,
-                                quizCardOptionIndex: option.orderIndex ?? 0,
-                            },
-                        )
-                        return {
-                            id: quizCardOptionId,
-                            orderIndex: option.orderIndex,
-                            text: this.coerceMdScalarService.toRequiredString(option.text,
-                                ""),
-                            // correctness flag drives Test auto-grading
-                            isCorrect: this.coerceMdScalarService.toRequiredBoolean(
-                                option.isCorrect,
-                                false,
-                            ),
-                            defaultLocale: Locale.En,
-                            card: {
-                                id: quizCardId,
-                            },
-                            translations: (option.translations ?? []).map(({
-                                locale,
-                                field,
-                                value,
-                            }) => ({
-                                quizCardOptionId,
-                                locale,
-                                field,
-                                value,
-                            })),
-                        }
-                    }),
                     translations: (card.translations ?? []).map(({
                         locale,
                         field,
@@ -289,14 +253,14 @@ export class QuizDeckParserService {
             courseId,
             contentIdByPath,
         }: ParseQuizDeckManyParams,
-    ): Promise<Array<ResolvedFileResult<DeepPartial<QuizDeckEntity>>>> {
+    ): Promise<Array<ResolvedFileResult<DeepPartial<FlashcardDeckEntity>>>> {
         // list every `{index}-{slug}` deck folder for this course
         const paths = await this.quizDeckPathService.paths(
             {
                 courseRelativePath,
             },
         )
-        const data: Array<ResolvedFileResult<DeepPartial<QuizDeckEntity>>> = []
+        const data: Array<ResolvedFileResult<DeepPartial<FlashcardDeckEntity>>> = []
         for (const path of paths) {
             try {
                 // parse one deck; failures are isolated so siblings still seed
@@ -318,7 +282,7 @@ export class QuizDeckParserService {
                 // log + skip a malformed deck instead of aborting the seed
                 logInitSeederEntitySkipped(
                     this.winstonService,
-                    QuizDeckEntity,
+                    FlashcardDeckEntity,
                     path.relativePath,
                     error,
                 )
@@ -335,14 +299,14 @@ export class QuizDeckParserService {
      */
     async quizDecksFromDatabase(
         params: QuizDecksFromDatabaseParams,
-    ): Promise<Array<QuizDeckEntity>> {
+    ): Promise<Array<FlashcardDeckEntity>> {
         const {
             courseIndex,
         } = params
         const courseId = this.courseIdFactoryService.generate({
             courseIndex,
         })
-        return this.entityManager.find(QuizDeckEntity,
+        return this.entityManager.find(FlashcardDeckEntity,
             {
                 where: {
                     course: {

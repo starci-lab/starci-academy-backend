@@ -30,10 +30,10 @@ import {
     ContentEntity,
 } from "./content.entity"
 import {
-    QuizDeckTranslationEntity,
+    FlashcardDeckTranslationEntity,
 } from "./quiz-deck-translation.entity"
 import {
-    QuizCardEntity,
+    FlashcardCardEntity,
 } from "./quiz-card.entity"
 
 /**
@@ -46,7 +46,7 @@ import {
     description: "Multiple-choice quiz deck owned by a course, optionally linked to contents.",
 })
 @Entity("quiz_decks")
-export class QuizDeckEntity extends UuidAbstractEntity {
+export class FlashcardDeckEntity extends UuidAbstractEntity {
     /**
      * Deck title.
      */
@@ -149,37 +149,37 @@ export class QuizDeckEntity extends UuidAbstractEntity {
      * Flashcards belonging to this deck.
      */
     @Field(
-        () => [QuizCardEntity],
+        () => [FlashcardCardEntity],
         {
             description: "Flashcards belonging to this deck.",
         },
     )
     @OneToMany(
-        () => QuizCardEntity,
-        (card: QuizCardEntity) => card.deck,
+        () => FlashcardCardEntity,
+        (card: FlashcardCardEntity) => card.deck,
         {
             cascade: true,
         },
     )
-        cards: Array<QuizCardEntity>
+        cards: Array<FlashcardCardEntity>
 
     /**
      * Localized overrides for deck fields (title, description).
      */
     @Field(
-        () => [QuizDeckTranslationEntity],
+        () => [FlashcardDeckTranslationEntity],
         {
             description: "Localized overrides for deck fields (title, description).",
         },
     )
     @OneToMany(
-        () => QuizDeckTranslationEntity,
-        (translation: QuizDeckTranslationEntity) => translation.deck,
+        () => FlashcardDeckTranslationEntity,
+        (translation: FlashcardDeckTranslationEntity) => translation.deck,
         {
             cascade: true,
         },
     )
-        translations: Array<QuizDeckTranslationEntity>
+        translations: Array<FlashcardDeckTranslationEntity>
 
     /**
      * Owning course this deck belongs to (drives the course-level quiz tab).
@@ -214,7 +214,7 @@ export class QuizDeckEntity extends UuidAbstractEntity {
         },
     )
     @RelationId(
-        (deck: QuizDeckEntity) => deck.course,
+        (deck: FlashcardDeckEntity) => deck.course,
     )
         courseId: string
 

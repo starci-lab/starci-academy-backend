@@ -19,10 +19,16 @@ import {
 import {
     CourseMindMapSingleQueryModule,
 } from "./course-mind-map"
+import {
+    CourseSuggestionsSingleQueryModule,
+} from "./course-suggestions"
 
 @Module({
     imports: [
         CourseMindMapSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        CourseSuggestionsSingleQueryModule.register({
             isGlobal: true,
         }),
         CoursesSingleQueryModule.register({

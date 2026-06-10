@@ -45,7 +45,7 @@ import {
     LivestreamSessionEntity,
 } from "./livestream-session.entity"
 import {
-    QuizDeckEntity,
+    FlashcardDeckEntity,
 } from "./quiz-deck.entity"
 
 
@@ -379,20 +379,20 @@ export class CourseEntity extends UuidAbstractEntity {
      * Interview-prep quiz decks owned by this course (shown in the quiz tab).
      */
     @Field(
-        () => [QuizDeckEntity],
+        () => [FlashcardDeckEntity],
         {
             nullable: true,
             description: "Interview-prep quiz decks owned by this course.",
         },
     )
     @OneToMany(
-        () => QuizDeckEntity,
-        (deck: QuizDeckEntity) => deck.course,
+        () => FlashcardDeckEntity,
+        (deck: FlashcardDeckEntity) => deck.course,
         {
             cascade: true,
         },
     )
-        quizDecks: Array<QuizDeckEntity>
+        quizDecks: Array<FlashcardDeckEntity>
 
     /**
      * Default locale for the course.

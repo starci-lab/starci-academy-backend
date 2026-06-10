@@ -11,6 +11,7 @@ import type {
     LocalizedElasticsearchEntity,
 } from "./types"
 import {
+    buildCompletionSuggest,
     ElasticsearchService,
 } from "@modules/elasticsearch"
 import _ from "lodash"
@@ -47,9 +48,25 @@ export class ElasticsearchContentBuildService {
                     locale,
                     defaultLocale,
                 )
+                // populate the ES completion field: the clean lesson title as the
+                // suggest input, weighted by display order (earlier lesson = more
+                // prominent) so the FST-backed autocomplete returns ranked titles.
+                // the resolver already wrote the per-locale title back onto the row,
+                // so no localized wrapper remains to strip — just trim the label.
+                const label = (localizedContent.title ?? "").trim()
+                const suggest = buildCompletionSuggest({
+                    inputs: [label],
+                    weight: Math.max(1,
+                        100 - (localizedContent.orderIndex ?? 0)),
+                })
                 return {
                     locale,
-                    entity: localizedContent,
+                    // `suggest` is an index-only field (not on the entity type) — cast so the
+                    // generic indexer stores it while keeping the entity contract intact
+                    entity: {
+                        ...localizedContent,
+                        suggest,
+                    } as unknown as ContentEntity,
                 }
             },
         )

@@ -8,6 +8,9 @@ import {
     FoundationCategoriesSingleQueryModule,
 } from "./foundation-categories"
 import {
+    FoundationCategorySuggestionsSingleQueryModule,
+} from "./foundation-category-suggestions"
+import {
     FoundationsSingleQueryModule,
 } from "./foundations/foundations.module"
 import {
@@ -17,6 +20,9 @@ import {
 @Module({
     imports: [
         FoundationCategoriesSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        FoundationCategorySuggestionsSingleQueryModule.register({
             isGlobal: true,
         }),
         FoundationsSingleQueryModule.register({

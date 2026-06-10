@@ -17,7 +17,7 @@ import {
     AbstractEntity,
 } from "./abstract"
 import {
-    QuizDeckEntity,
+    FlashcardDeckEntity,
 } from "./quiz-deck.entity"
 
 /**
@@ -28,7 +28,7 @@ import {
     description: "Localized value for a quiz deck field.",
 })
 @Entity("quiz_deck_translations")
-export class QuizDeckTranslationEntity extends AbstractEntity {
+export class FlashcardDeckTranslationEntity extends AbstractEntity {
     /**
      * Target quiz deck ID.
      */
@@ -96,7 +96,7 @@ export class QuizDeckTranslationEntity extends AbstractEntity {
      * Parent quiz deck.
      */
     @ManyToOne(
-        () => QuizDeckEntity,
+        () => FlashcardDeckEntity,
         {
             onDelete: "CASCADE",
         },
@@ -107,5 +107,5 @@ export class QuizDeckTranslationEntity extends AbstractEntity {
         foreignKeyConstraintName:
             "fk_quiz_deck_id_quiz_deck_translations_quiz_decks",
     })
-        deck: QuizDeckEntity
+        deck: FlashcardDeckEntity
 }

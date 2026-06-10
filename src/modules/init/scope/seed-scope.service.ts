@@ -41,6 +41,14 @@ export class SeedScopeService {
         return this.seeders().courses.enabled
     }
 
+    /**
+     * Whether the course pipeline should seed lesson contents (and nested
+     * challenges/lessons). When false, only module shells are upserted.
+     */
+    isCourseContentsSeederEnabled(): boolean {
+        return this.seeders().courses.contents !== false
+    }
+
     /** Whether quiz deck/card seeding is enabled. */
     isCoursesQuizSeederEnabled(): boolean {
         return this.seeders().courses.quiz.enabled

@@ -1,0 +1,40 @@
+{
+  "index": 14,
+  "slug": "14-order-creation-safe-inventory",
+  "title": "Order Creation & Safe Inventory Deduction",
+  "description": "Transactional order creation: POST /orders creates order+items, deducts stock atomically (no oversell), rolls back on error. Wire checkout UI.",
+  "phase": "advanced-a",
+  "tasks": [
+    {
+      "slug": "0-order-creation-with-transaction",
+      "title": "Order Creation within a Transaction",
+      "type": "business",
+      "langMode": "4lang",
+      "goal": "Build POST /orders creating order + order_items + clearing cart inside ONE database transaction. Reject empty carts with 400. Snapshot prices. Recompute total server-side. Roll back on any error.",
+      "outcomeIntent": "POST /orders with cart items returns 201 + new order (id, status PENDING, total, items). Empty cart rejected 400. Failed step (e.g., stock error) leaves no partial order, cart unchanged.",
+      "approachIntent": "dataSource.transaction() wraps entire operation. Every write via passed-in manager (no normal repos). Create Order + OrderItems in one statement. Clear CartItems. Compute total server-side. Throw rolls back.",
+      "reuseFrom": "3-shopping-cart-and-orders/tasks/1-order-creation-with-transaction"
+    },
+    {
+      "slug": "1-inventory-stock-deduction",
+      "title": "Safe Inventory Deduction",
+      "type": "business",
+      "langMode": "4lang",
+      "goal": "Deduct product.stock atomically inside order transaction: UPDATE ... WHERE id=:id AND stock >= :qty checks if deduction is safe. Reject with 409 if insufficient. Concurrent races only succeed once.",
+      "outcomeIntent": "Stock drops by exactly ordered qty on success. Over-order rejected 409, stock unchanged. Two concurrent orders for last unit: one succeeds, one rejected, final stock = 0 (not -1).",
+      "approachIntent": "Conditional UPDATE (stock = stock - :q WHERE stock >= :q) with affected-row count check. 0 affected → ConflictException 409. No read-then-write race. Runs in SAME transaction manager as order insert.",
+      "reuseFrom": "3-shopping-cart-and-orders/tasks/2-inventory-stock-deduction"
+    },
+    {
+      "slug": "2-checkout-to-order-ui",
+      "title": "Checkout to Order UI",
+      "type": "design",
+      "langMode": "agnostic",
+      "goal": "Wire checkout form (address, payment) → POST /orders. Show loading, handle errors (409 oversell, 400 empty), display order confirmation with id+total. Clear cart on success.",
+      "outcomeIntent": "Checkout form submits POST /orders. Success shows order id + total in confirmation. 409 oversell → error toast. Empty cart → disabled checkout. Loading spinner during request.",
+      "approachIntent": "Checkout form with RHF + Zod. POST /orders handler with error mapping (409 → 'Out of stock', 400 → 'Empty cart'). On success, clear cart state, show confirmation. Toast errors.",
+      "widget": "checkout",
+      "reuseFrom": "new"
+    }
+  ]
+}

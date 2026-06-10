@@ -48,7 +48,7 @@ import {
     ContentLearningOutcomeEntity,
 } from "./content-learning-outcome.entity"
 import {
-    QuizDeckEntity,
+    FlashcardDeckEntity,
 } from "./quiz-deck.entity"
 
 /**
@@ -284,17 +284,17 @@ export class ContentEntity extends UuidAbstractEntity {
      * is owned by a course and may be linked to several contents).
      */
     @Field(
-        () => [QuizDeckEntity],
+        () => [FlashcardDeckEntity],
         {
             nullable: true,
             description: "Quiz decks linked to this content (many-to-many).",
         },
     )
     @ManyToMany(
-        () => QuizDeckEntity,
-        (deck: QuizDeckEntity) => deck.contents,
+        () => FlashcardDeckEntity,
+        (deck: FlashcardDeckEntity) => deck.contents,
     )
-        quizDecks: Array<QuizDeckEntity>
+        quizDecks: Array<FlashcardDeckEntity>
 
     /**
      * Critical code snippets with explanations and multi-language implementations.

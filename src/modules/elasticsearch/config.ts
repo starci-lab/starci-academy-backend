@@ -17,8 +17,23 @@ import {
     challengeIndexMapping,
 } from "./mappings/challenge.mapping"
 import {
-    contentIndexMapping,
-} from "./mappings/content.mapping"
+    contentsIndexMapping,
+} from "./mappings/contents.mapping"
+import {
+    foundationCategoryIndexMapping,
+} from "./mappings/foundation-category.mapping"
+import {
+    coursesIndexMapping,
+} from "./mappings/courses.mapping"
+import {
+    modulesIndexMapping,
+} from "./mappings/modules.mapping"
+import {
+    headhuntingCompaniesIndexMapping,
+} from "./mappings/headhunting-companies.mapping"
+import {
+    consultantsIndexMapping,
+} from "./mappings/consultants.mapping"
 
 /**
  * Config map data.
@@ -47,6 +62,7 @@ export type ConfigMap = Record<string, ConfigMapData>;
 export const configMap: ConfigMap = {
     [CourseEntity.name]: {
         indices: "courses",
+        mapping: coursesIndexMapping,
     },
     [ChallengeEntity.name]: {
         indices: "challenges",
@@ -54,10 +70,11 @@ export const configMap: ConfigMap = {
     },
     [ContentEntity.name]: {
         indices: "contents",
-        mapping: contentIndexMapping,
+        mapping: contentsIndexMapping,
     },
     [ModuleEntity.name]: {
         indices: "modules",
+        mapping: modulesIndexMapping,
     },
     [MilestoneEntity.name]: {
         indices: "milestones",
@@ -70,11 +87,14 @@ export const configMap: ConfigMap = {
     },
     [FoundationCategoryEntity.name]: {
         indices: "foundation-categories",
+        mapping: foundationCategoryIndexMapping,
     },
     [HeadhuntingCompanyEntity.name]: {
         indices: "headhunting-companies",
+        mapping: headhuntingCompaniesIndexMapping,
     },
     [ConsultantEntity.name]: {
         indices: "consultants",
+        mapping: consultantsIndexMapping,
     },
 }

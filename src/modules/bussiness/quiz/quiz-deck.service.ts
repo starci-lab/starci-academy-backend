@@ -6,7 +6,7 @@ import {
 } from "typeorm"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    QuizDeckEntity,
+    FlashcardDeckEntity,
 } from "@modules/databases"
 import {
     QuizDeckNotFoundException,
@@ -14,7 +14,7 @@ import {
 
 /**
  * Read access to seeded quiz decks. Loads the full deck graph (cards →
- * options + translations) eagerly so GraphQL can serve it without per-field
+ * translations) eagerly so GraphQL can serve it without per-field
  * resolvers.
  */
 @Injectable()
@@ -30,15 +30,15 @@ export class QuizDeckReadService {
      *
      * @param courseId - Owning course id.
      * @param contentId - Optional content id to filter linked decks.
-     * @returns Decks with their cards, options, contents, and translations.
+     * @returns Decks with their cards, contents, and translations.
      */
     async listByCourse(
         courseId: string,
         contentId?: string,
-    ): Promise<Array<QuizDeckEntity>> {
+    ): Promise<Array<FlashcardDeckEntity>> {
         // load the full deck graph so the GraphQL object type serializes directly
         return this.entityManager.find(
-            QuizDeckEntity,
+            FlashcardDeckEntity,
             {
                 where: {
                     course: {
@@ -56,7 +56,6 @@ export class QuizDeckReadService {
                 },
                 relations: {
                     cards: {
-                        options: true,
                         translations: true,
                     },
                     contents: true,
@@ -70,22 +69,21 @@ export class QuizDeckReadService {
     }
 
     /**
-     * Loads a single deck by id with its full card/option graph.
+     * Loads a single deck by id with its full card graph.
      *
      * @param quizDeckId - Deck id.
-     * @returns The deck with cards, options, and translations.
+     * @returns The deck with cards and translations.
      */
-    async getById(quizDeckId: string): Promise<QuizDeckEntity> {
+    async getById(quizDeckId: string): Promise<FlashcardDeckEntity> {
         // fetch the deck plus every nested relation needed for study modes
         const deck = await this.entityManager.findOne(
-            QuizDeckEntity,
+            FlashcardDeckEntity,
             {
                 where: {
                     id: quizDeckId,
                 },
                 relations: {
                     cards: {
-                        options: true,
                         translations: true,
                     },
                     contents: true,

@@ -1,6 +1,11 @@
 import {
     ChallengeEntity,
     ContentEntity,
+    FoundationCategoryEntity,
+    CourseEntity,
+    ModuleEntity,
+    HeadhuntingCompanyEntity,
+    ConsultantEntity,
 } from "@modules/databases"
 import type {
     ElasticsearchIndexMapping,
@@ -9,8 +14,23 @@ import {
     challengeIndexMapping,
 } from "./challenge.mapping"
 import {
-    contentIndexMapping,
-} from "./content.mapping"
+    contentsIndexMapping,
+} from "./contents.mapping"
+import {
+    foundationCategoryIndexMapping,
+} from "./foundation-category.mapping"
+import {
+    coursesIndexMapping,
+} from "./courses.mapping"
+import {
+    modulesIndexMapping,
+} from "./modules.mapping"
+import {
+    headhuntingCompaniesIndexMapping,
+} from "./headhunting-companies.mapping"
+import {
+    consultantsIndexMapping,
+} from "./consultants.mapping"
 
 export * from "./types"
 
@@ -20,7 +40,12 @@ export * from "./types"
  */
 const elasticsearchIndexMappings: Record<string, ElasticsearchIndexMapping> = {
     [ChallengeEntity.name]: challengeIndexMapping,
-    [ContentEntity.name]: contentIndexMapping,
+    [ContentEntity.name]: contentsIndexMapping,
+    [FoundationCategoryEntity.name]: foundationCategoryIndexMapping,
+    [CourseEntity.name]: coursesIndexMapping,
+    [ModuleEntity.name]: modulesIndexMapping,
+    [HeadhuntingCompanyEntity.name]: headhuntingCompaniesIndexMapping,
+    [ConsultantEntity.name]: consultantsIndexMapping,
 }
 
 /**

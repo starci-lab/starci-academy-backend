@@ -22,10 +22,16 @@ import {
 import {
     SandboxRepoUrlModule,
 } from "./sandbox-repo-url"
+import {
+    ContentSuggestionsSingleQueryModule,
+} from "./content-suggestions"
 
 @Module({
     imports: [
         ContentsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        ContentSuggestionsSingleQueryModule.register({
             isGlobal: true,
         }),
         ContentSingleQueryModule.register({

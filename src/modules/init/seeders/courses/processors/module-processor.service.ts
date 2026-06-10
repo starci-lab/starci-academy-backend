@@ -27,6 +27,9 @@ import {
     shouldIncludeCourseModule,
 } from "../../../utils"
 import {
+    SeedScopeService,
+} from "../../../scope"
+import {
     WinstonService,
 } from "@modules/winston"
 import type {
@@ -50,6 +53,7 @@ export class ModuleProcessorService {
         private readonly winstonService: WinstonService,
         private readonly upsertService: UpsertService,
         private readonly uuidPartitionPersistProcessorService: UuidPartitionPersistProcessorService,
+        private readonly seedScopeService: SeedScopeService,
         @Inject(forwardRef(() => ContentProcessorService))
         private readonly contentProcessorService: ContentProcessorService,
     ) { }
@@ -136,6 +140,9 @@ export class ModuleProcessorService {
             entityClass: ModuleEntity,
             partition: filteredPartition,
         })
+        if (!this.seedScopeService.isCourseContentsSeederEnabled()) {
+            return
+        }
         const deletedModuleIds = partition.deleteEntities.map(
             (entity) => entity.id as string,
         )

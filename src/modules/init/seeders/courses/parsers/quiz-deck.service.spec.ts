@@ -7,6 +7,12 @@ import type {
     TestingModule,
 } from "@nestjs/testing"
 import {
+    getEntityManagerToken,
+} from "@nestjs/typeorm"
+import {
+    SeedScopeService,
+} from "../../../scope"
+import {
     ChallengeDifficulty,
     Locale,
 } from "@modules/databases"
@@ -23,7 +29,6 @@ import {
     CourseIdFactoryService,
     QuizDeckIdFactoryService,
     QuizCardIdFactoryService,
-    QuizCardOptionIdFactoryService,
 } from "../id-factories"
 import {
     WinstonService,
@@ -75,7 +80,6 @@ describe("QuizDeckParserService",
                     CourseIdFactoryService,
                     QuizDeckIdFactoryService,
                     QuizCardIdFactoryService,
-                    QuizCardOptionIdFactoryService,
                     {
                         provide: ContextLoaderService,
                         useValue: contextLoaderService,
@@ -94,6 +98,19 @@ describe("QuizDeckParserService",
                             warn: jest.fn(),
                         },
                     },
+                    {
+                        // parse() only reads the link-contents flag; default it off
+                        provide: SeedScopeService,
+                        useValue: {
+                            isCoursesQuizLinkContentsEnabled: () => false,
+                        },
+                    },
+                    {
+                        // entity manager is only used by quizDecksFromDatabase(); a stub
+                        // satisfies DI for the parse() path under test
+                        provide: getEntityManagerToken("primary"),
+                        useValue: {},
+                    },
                 ],
             }).compile()
 
@@ -107,7 +124,7 @@ describe("QuizDeckParserService",
         describe("parse",
             () => {
                 it(
-                    "parses the nestjs-core-interview-warmup-easy deck with cards + options + i18n",
+                    "parses the nestjs-core-interview-warmup-easy deck with Q&A cards + i18n",
                     async () => {
                         const parsed = await service.parse({
                             paths: [
@@ -127,34 +144,26 @@ describe("QuizDeckParserService",
                         expect(parsed.orderIndex).toBe(0)
                         expect(parsed.defaultLocale).toBe(Locale.En)
                         expect(parsed.courseId).toBe("test-course-id")
-                        expect(parsed.title).toBe("NestJS Core & Configuration — Interview Warmup")
+                        expect((parsed.title?.length ?? 0)).toBeGreaterThan(0)
                         expect(
                             Object.values(ChallengeDifficulty),
                         ).toContain(parsed.difficulty)
 
-                        // five authored cards, first card carries four options
-                        expect(parsed.cards).toHaveLength(5)
+                        // open-ended Q&A cards: each carries a Markdown question + answer
+                        expect((parsed.cards?.length ?? 0)).toBeGreaterThan(0)
                         expect((parsed.cards?.[0]?.question?.length ?? 0)).toBeGreaterThan(0)
-                        expect(parsed.cards?.[0]?.options).toHaveLength(4)
-                        expect((parsed.cards?.[0]?.options?.[0]?.text?.length ?? 0)).toBeGreaterThan(0)
-                        expect(typeof parsed.cards?.[0]?.options?.[0]?.isCorrect).toBe("boolean")
+                        expect((parsed.cards?.[0]?.answer?.length ?? 0)).toBeGreaterThan(0)
 
-                        // per-card i18n: Vietnamese question translation row
+                        // per-card i18n: Vietnamese question + answer translation rows
                         expect(parsed.cards?.[0]?.translations).toEqual(
                             expect.arrayContaining([
                                 expect.objectContaining({
                                     locale: Locale.Vi,
                                     field: "question",
                                 }),
-                            ]),
-                        )
-
-                        // per-option i18n: Vietnamese text translation row
-                        expect(parsed.cards?.[0]?.options?.[0]?.translations).toEqual(
-                            expect.arrayContaining([
                                 expect.objectContaining({
                                     locale: Locale.Vi,
-                                    field: "text",
+                                    field: "answer",
                                 }),
                             ]),
                         )

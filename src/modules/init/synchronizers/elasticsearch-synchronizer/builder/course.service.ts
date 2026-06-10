@@ -12,6 +12,7 @@ import type {
 } from "./types"
 import {
     ElasticsearchService,
+    buildCompletionSuggest,
 } from "@modules/elasticsearch"
 import _ from "lodash"
 
@@ -38,9 +39,25 @@ export class ElasticsearchCourseBuildService {
                     clonedCourse,
                     locale,
                 )
+                // populate the ES completion field: the localized course title as the
+                // suggest input (the resolver already swapped in the per-locale title,
+                // so no localized wrapper remains to strip), weighted by display order
+                // (earlier = more popular) so the FST-backed autocomplete returns
+                // clean, ranked suggestions.
+                const label = (clonedCourse.title ?? "").trim()
+                const suggest = buildCompletionSuggest({
+                    inputs: label.length > 0 ? [label] : [],
+                    weight: Math.max(1,
+                        100 - (clonedCourse.orderIndex ?? 0)),
+                })
                 return {
                     locale,
-                    entity: clonedCourse,
+                    // suggest is an index-only field (not on the entity type) — cast so the
+                    // generic indexer stores it while keeping the entity contract intact
+                    entity: {
+                        ...clonedCourse,
+                        suggest,
+                    } as unknown as CourseEntity,
                 }
             },
         )

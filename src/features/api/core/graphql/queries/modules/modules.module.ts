@@ -10,6 +10,9 @@ import {
 import {
     ModulesSingleQueryModule,
 } from "./modules"
+import {
+    ModuleSuggestionsSingleQueryModule,
+} from "./module-suggestions"
 
 @Module({
     imports: [
@@ -17,6 +20,9 @@ import {
             isGlobal: true,
         }),
         ModulesSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        ModuleSuggestionsSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

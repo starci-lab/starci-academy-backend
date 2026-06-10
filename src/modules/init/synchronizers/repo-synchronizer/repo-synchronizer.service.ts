@@ -130,9 +130,11 @@ export class RepoSynchronizerService {
     async sync(scope: SynchronizerSyncScope): Promise<void> {
         const start = this.dayjsService.now()
 
-        // Ensure the `repo/` prefix is publicly readable in Minio so non-premium
-        // sandbox lessons can be fetched directly by the FE without presigned URLs.
-        await this.s3BucketService.ensureRepoPrefixPublic(
+        // Ensure all public prefixes (repo/* + assets/*) are anonymously readable in Minio so
+        // non-premium sandbox lessons + brand assets can be fetched directly by the FE without
+        // presigned URLs. Single bucket policy is enumerated centrally, so this never clobbers
+        // the assets prefix even though the assets module applies the same policy on boot.
+        await this.s3BucketService.ensurePublicReadPrefixes(
             envConfig().s3.minio.bucket,
         )
 

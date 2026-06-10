@@ -1,4 +1,5 @@
 import {
+    Args,
     Query,
     Resolver,
 } from "@nestjs/graphql"
@@ -15,13 +16,14 @@ import {
     ThrottlerConfig,
 } from "@modules/throttler"
 import {
-    FoundationCategoryEntity,
     Locale,
 } from "@modules/databases"
 import {
     FoundationCategoriesService,
 } from "./foundation-categories.service"
 import {
+    FoundationCategoriesPayload,
+    FoundationCategoriesRequest,
     FoundationCategoriesResponse,
 } from "./graphql-types"
 
@@ -41,13 +43,21 @@ export class FoundationCategoriesResolver {
         () => FoundationCategoriesResponse,
         {
             name: "foundationCategories",
-            description: "List all foundation categories.",
+            description: "List foundation categories (paginated + searchable).",
         },
     )
     async foundationCategories(
         @GraphQLLocale()
             locale: Locale,
-    ): Promise<Array<FoundationCategoryEntity>> {
-        return this.foundationCategoriesService.query(locale)
+        @Args(
+            "request",
+            {
+                nullable: true,
+            },
+        )
+            request?: FoundationCategoriesRequest,
+    ): Promise<FoundationCategoriesPayload> {
+        return this.foundationCategoriesService.query(locale,
+            request)
     }
 }

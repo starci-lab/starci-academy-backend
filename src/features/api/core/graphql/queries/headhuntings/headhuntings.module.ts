@@ -16,6 +16,12 @@ import {
 import {
     ConsultantSingleQueryModule,
 } from "./consultant"
+import {
+    HeadhuntingCompanySuggestionsSingleQueryModule,
+} from "./headhunting-company-suggestions"
+import {
+    ConsultantSuggestionsSingleQueryModule,
+} from "./consultant-suggestions"
 
 @Module({
     imports: [
@@ -29,6 +35,12 @@ import {
             isGlobal: true,
         }),
         ConsultantSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        HeadhuntingCompanySuggestionsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        ConsultantSuggestionsSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

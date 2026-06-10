@@ -11,6 +11,7 @@ import type {
     LocalizedElasticsearchEntity,
 } from "./types"
 import {
+    buildCompletionSuggest,
     ElasticsearchService,
 } from "@modules/elasticsearch"
 import _ from "lodash"
@@ -38,9 +39,26 @@ export class ElasticsearchConsultantBuildService {
                     locale,
                     fallbackLocale,
                 )
+                // populate the ES completion field: the consultant's resolved
+                // display name as the suggest input, weighted by display order
+                // (earlier = more prominent) so the FST-backed autocomplete
+                // returns clean, ranked suggestions. the resolver already
+                // flattened the localized name onto `fullName`, so no wrapper
+                // stripping is needed here.
+                const label = (localizedHeadhunter.fullName ?? "").trim()
+                const suggest = buildCompletionSuggest({
+                    inputs: [label],
+                    weight: Math.max(1,
+                        100 - (localizedHeadhunter.orderIndex ?? 0)),
+                })
                 return {
                     locale,
-                    entity: localizedHeadhunter,
+                    // suggest is an index-only field (not on the entity type) — cast so
+                    // the generic indexer stores it while keeping the entity contract intact
+                    entity: {
+                        ...localizedHeadhunter,
+                        suggest,
+                    } as unknown as ConsultantEntity,
                 }
             },
         )

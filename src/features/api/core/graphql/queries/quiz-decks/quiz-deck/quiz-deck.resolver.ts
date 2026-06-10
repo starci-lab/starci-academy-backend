@@ -21,13 +21,13 @@ import {
 } from "@modules/throttler"
 import {
     Locale,
-    QuizDeckEntity,
+    FlashcardDeckEntity,
 } from "@modules/databases"
 import {
     QuizDeckReadService,
 } from "@modules/bussiness"
 import {
-    QuizDeckResponse,
+    FlashcardDeckResponse,
 } from "./graphql-types"
 
 /**
@@ -48,20 +48,20 @@ export class QuizDeckResolver {
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(
-        () => QuizDeckResponse,
+        () => FlashcardDeckResponse,
         {
-            name: "quizDeck",
-            description: "Returns a single quiz deck by id.",
+            name: "flashcardDeck",
+            description: "Returns a single flashcard deck by id.",
         },
     )
     async execute(
-        @Args("quizDeckId",
+        @Args("flashcardDeckId",
             {
                 type: () => ID,
             })
-            quizDeckId: string,
-    ): Promise<QuizDeckEntity> {
+            flashcardDeckId: string,
+    ): Promise<FlashcardDeckEntity> {
         // load the full deck graph; throws a typed 404 when missing
-        return this.quizDeckReadService.getById(quizDeckId)
+        return this.quizDeckReadService.getById(flashcardDeckId)
     }
 }

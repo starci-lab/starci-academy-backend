@@ -2,7 +2,7 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    QuizDeckEntity,
+    FlashcardDeckEntity,
 } from "@modules/databases"
 import {
     QuizDeckParserService,
@@ -53,7 +53,7 @@ export class QuizDeckProcessorService {
                 contentIdByPath: new Map<string, string>(),
             })
             const partition = await this.upsertService.partitionUuidSync({
-                entityClass: QuizDeckEntity,
+                entityClass: FlashcardDeckEntity,
                 entities: quizDeckResults.map((quizDeckResult) => {
                     const quizDeck = quizDeckResult.data
                     quizDeck.course = {
@@ -69,13 +69,13 @@ export class QuizDeckProcessorService {
                 },
             })
             await this.uuidPartitionPersistProcessorService.process({
-                entityClass: QuizDeckEntity,
+                entityClass: FlashcardDeckEntity,
                 partition,
             })
         } catch (error) {
             logInitSeederEntitySkipped(
                 this.winstonService,
-                QuizDeckEntity,
+                FlashcardDeckEntity,
                 courseResult.relativePath,
                 error,
             )

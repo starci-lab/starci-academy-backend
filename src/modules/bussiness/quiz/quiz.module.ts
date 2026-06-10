@@ -5,23 +5,18 @@ import {
     ConfigurableModuleClass,
 } from "./quiz.module-definition"
 import {
-    QuizTestGradingService,
-} from "./quiz-test-grading.service"
-import {
     QuizDeckReadService,
 } from "./quiz-deck.service"
 
 /**
- * Module for Quizlet-style multiple-choice quiz business logic (deck reads +
- * Test-mode grading).
+ * Module for interview-flashcard business logic (deck reads). Cards are
+ * open-ended Q&A reviewed as flip cards — no server-side grading.
  */
 @Module({
     providers: [
-        QuizTestGradingService,
         QuizDeckReadService,
     ],
     exports: [
-        QuizTestGradingService,
         QuizDeckReadService,
     ],
 })

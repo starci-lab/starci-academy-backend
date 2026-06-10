@@ -20,25 +20,22 @@ import {
     UuidAbstractEntity,
 } from "./abstract"
 import {
-    QuizDeckEntity,
+    FlashcardDeckEntity,
 } from "./quiz-deck.entity"
 import {
-    QuizCardTranslationEntity,
+    FlashcardCardTranslationEntity,
 } from "./quiz-card-translation.entity"
-import {
-    QuizCardOptionEntity,
-} from "./quiz-card-option.entity"
 
 /**
- * A single multiple-choice quiz question within a deck. `question` holds the
- * prompt, `explanation` optional context shown after grading, and `options`
- * the answer choices (exactly one flagged `isCorrect`) that drive auto-grading.
+ * A single open-ended interview flashcard within a deck. `question` holds the
+ * prompt (front), `answer` the model answer revealed on flip (back), and
+ * `explanation` optional depth (follow-ups, gotchas) — all Markdown.
  */
 @ObjectType({
-    description: "Multiple-choice quiz question: prompt + answer options.",
+    description: "Open-ended interview flashcard: Markdown question + answer.",
 })
 @Entity("quiz_cards")
-export class QuizCardEntity extends UuidAbstractEntity {
+export class FlashcardCardEntity extends UuidAbstractEntity {
     /**
      * The question prompt (Markdown).
      */
@@ -108,14 +105,14 @@ export class QuizCardEntity extends UuidAbstractEntity {
      * Parent deck.
      */
     @Field(
-        () => QuizDeckEntity,
+        () => FlashcardDeckEntity,
         {
             description: "Parent deck.",
         },
     )
     @ManyToOne(
-        () => QuizDeckEntity,
-        (deck: QuizDeckEntity) => deck.cards,
+        () => FlashcardDeckEntity,
+        (deck: FlashcardDeckEntity) => deck.cards,
         {
             onDelete: "CASCADE",
         },
@@ -124,7 +121,7 @@ export class QuizCardEntity extends UuidAbstractEntity {
         name: "quiz_deck_id",
         foreignKeyConstraintName: "fk_quiz_deck_id_quiz_cards_quiz_decks",
     })
-        deck: QuizDeckEntity
+        deck: FlashcardDeckEntity
 
     /**
      * Parent deck ID.
@@ -136,44 +133,43 @@ export class QuizCardEntity extends UuidAbstractEntity {
         },
     )
     @RelationId(
-        (card: QuizCardEntity) => card.deck,
+        (card: FlashcardCardEntity) => card.deck,
     )
         deckId: string
 
     /**
-     * Multiple-choice options (empty for pure free-text/self-graded cards).
+     * The model answer revealed when the card is flipped (Markdown).
+     * Nullable so legacy decks not yet migrated to the Q&A format still load.
      */
     @Field(
-        () => [QuizCardOptionEntity],
+        () => String,
         {
             nullable: true,
-            description: "Multiple-choice options; empty for free-text cards.",
+            description: "The model answer revealed on flip (Markdown).",
         },
     )
-    @OneToMany(
-        () => QuizCardOptionEntity,
-        (option: QuizCardOptionEntity) => option.card,
-        {
-            cascade: true,
-        },
-    )
-        options: Array<QuizCardOptionEntity>
+    @Column({
+        name: "answer",
+        type: "text",
+        nullable: true,
+    })
+        answer: string | null
 
     /**
      * Localized overrides for card fields (front, back, explanation).
      */
     @Field(
-        () => [QuizCardTranslationEntity],
+        () => [FlashcardCardTranslationEntity],
         {
             description: "Localized overrides for card fields (front, back, explanation).",
         },
     )
     @OneToMany(
-        () => QuizCardTranslationEntity,
-        (translation: QuizCardTranslationEntity) => translation.card,
+        () => FlashcardCardTranslationEntity,
+        (translation: FlashcardCardTranslationEntity) => translation.card,
         {
             cascade: true,
         },
     )
-        translations: Array<QuizCardTranslationEntity>
+        translations: Array<FlashcardCardTranslationEntity>
 }

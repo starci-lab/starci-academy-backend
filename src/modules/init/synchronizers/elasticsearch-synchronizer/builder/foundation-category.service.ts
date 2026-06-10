@@ -36,9 +36,28 @@ export class ElasticsearchFoundationCategoryBuildService {
                     localizedCategory,
                     locale,
                 )
+                // populate the ES completion field: the bare tech name as the
+                // suggest input, weighted by display order (earlier = more popular)
+                // so the FST-backed autocomplete returns clean, ranked suggestions.
+                const label = (localizedCategory.title ?? "")
+                    .replace(/^Nền tảng\s+/i,
+                        "")
+                    .replace(/\s+Foundation$/i,
+                        "")
+                    .trim()
+                const suggest = {
+                    input: label.length > 0 ? [label] : [],
+                    weight: Math.max(1,
+                        100 - (localizedCategory.orderIndex ?? 0)),
+                }
                 return {
                     locale,
-                    entity: localizedCategory,
+                    // suggest is an index-only field (not on the entity type) — cast so the
+                    // generic indexer stores it while keeping the entity contract intact
+                    entity: {
+                        ...localizedCategory,
+                        suggest,
+                    } as unknown as FoundationCategoryEntity,
                 }
             },
         )

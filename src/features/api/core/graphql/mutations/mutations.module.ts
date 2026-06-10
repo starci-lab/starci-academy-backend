@@ -29,9 +29,6 @@ import {
     AiMutationsModule,
 } from "./ai"
 import {
-    QuizDecksMutationsModule,
-} from "./quiz-decks"
-import {
     CodingMutationsModule,
 } from "./coding"
 import {
@@ -63,9 +60,6 @@ import {
             isGlobal: true,
         }),
         AiMutationsModule.register({
-            isGlobal: true,
-        }),
-        QuizDecksMutationsModule.register({
             isGlobal: true,
         }),
         CodingMutationsModule.register({

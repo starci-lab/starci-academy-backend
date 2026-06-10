@@ -21,13 +21,13 @@ import {
 } from "@modules/throttler"
 import {
     Locale,
-    QuizDeckEntity,
+    FlashcardDeckEntity,
 } from "@modules/databases"
 import {
     QuizDeckReadService,
 } from "@modules/bussiness"
 import {
-    QuizDecksByCourseResponse,
+    FlashcardDecksByCourseResponse,
 } from "./graphql-types"
 
 /**
@@ -49,10 +49,10 @@ export class QuizDecksByCourseResolver {
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(
-        () => QuizDecksByCourseResponse,
+        () => FlashcardDecksByCourseResponse,
         {
-            name: "quizDecksByCourse",
-            description: "Lists the quiz decks owned by a course (optionally filtered by content).",
+            name: "flashcardDecksByCourse",
+            description: "Lists the flashcard decks owned by a course (optionally filtered by content).",
         },
     )
     async execute(
@@ -67,7 +67,7 @@ export class QuizDecksByCourseResolver {
                 nullable: true,
             })
             contentId?: string,
-    ): Promise<Array<QuizDeckEntity>> {
+    ): Promise<Array<FlashcardDeckEntity>> {
         // delegate the full-graph load to the business read service
         return this.quizDeckReadService.listByCourse(courseId,
             contentId)

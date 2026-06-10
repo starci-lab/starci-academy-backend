@@ -7,7 +7,7 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 import {
-    QuizDeckEntity,
+    FlashcardDeckEntity,
 } from "@modules/databases"
 
 /**
@@ -16,19 +16,19 @@ import {
 @ObjectType({
     description: "Response wrapper for the quizDeck query.",
 })
-export class QuizDeckResponse
+export class FlashcardDeckResponse
     extends AbstractGraphQLResponse
-    implements IAbstractGraphQLResponse<QuizDeckEntity>
+    implements IAbstractGraphQLResponse<FlashcardDeckEntity>
 {
     /**
      * The requested deck with its cards, options, and translations.
      */
     @Field(
-        () => QuizDeckEntity,
+        () => FlashcardDeckEntity,
         {
             nullable: true,
             description: "The requested deck with its cards and options.",
         },
     )
-        data: QuizDeckEntity
+        data: FlashcardDeckEntity
 }

@@ -5,7 +5,6 @@ import {
     QueryBus,
 } from "@nestjs/cqrs"
 import {
-    FoundationCategoryEntity,
     Locale,
 } from "@modules/databases"
 import {
@@ -14,6 +13,10 @@ import {
 import {
     FoundationCategoriesQuery,
 } from "./foundation-categories.query"
+import {
+    FoundationCategoriesPayload,
+    FoundationCategoriesRequest,
+} from "./graphql-types"
 
 @Injectable()
 export class FoundationCategoriesService {
@@ -22,8 +25,8 @@ export class FoundationCategoriesService {
     ) {}
 
     async execute(
-        params: ExecuteParams<void>,
-    ): Promise<Array<FoundationCategoryEntity>> {
+        params: ExecuteParams<FoundationCategoriesRequest | undefined>,
+    ): Promise<FoundationCategoriesPayload> {
         return this.queryBus.execute(
             new FoundationCategoriesQuery(params),
         )
@@ -31,9 +34,10 @@ export class FoundationCategoriesService {
 
     async query(
         locale: Locale,
-    ): Promise<Array<FoundationCategoryEntity>> {
+        request?: FoundationCategoriesRequest,
+    ): Promise<FoundationCategoriesPayload> {
         return this.execute({
-            request: undefined,
+            request,
             locale,
         })
     }

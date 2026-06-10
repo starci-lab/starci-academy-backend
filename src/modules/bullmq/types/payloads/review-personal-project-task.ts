@@ -21,6 +21,11 @@ export interface ReviewPersonalProjectTaskPayload {
     embeddingModel?: string
     /** Locale hint for filtering/prompting (e.g. "en", "vi"). */
     locale?: Locale
+    /**
+     * Chosen programming language for a SCHEMA V2 task (typescript/java/csharp/go), used to pick the
+     * per-language approach criteria bodies. Ignored for legacy tasks and agnostic tasks.
+     */
+    lang?: string
     /** AI lane + model pick (validated against entitlement at grade time). */
     ai?: AiJobSelection
 }

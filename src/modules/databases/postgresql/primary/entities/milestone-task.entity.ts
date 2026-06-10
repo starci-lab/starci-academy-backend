@@ -33,6 +33,15 @@ import {
 import {
     MilestoneTaskCodeImplementationEntity,
 } from "./milestone-task-code-implementation.entity"
+import {
+    MilestoneTaskOutcomeCriteriaEntity,
+} from "./milestone-task-outcome-criteria.entity"
+import {
+    MilestoneTaskApproachCriteriaEntity,
+} from "./milestone-task-approach-criteria.entity"
+import {
+    MilestoneTaskBriefEntity,
+} from "./milestone-task-brief.entity"
 
 /**
  * A task belonging to a milestone.
@@ -160,6 +169,25 @@ export class MilestoneTaskEntity extends UuidAbstractEntity {
         maxScore: number
 
     /**
+     * Day this task was verified. Presence (non-null) marks a SCHEMA V2 task graded by the
+     * per-language outcome/approach criteria under `langBlocks`; legacy tasks leave it null and
+     * grade by `criterias`. Sourced from the `# verified` markdown heading.
+     */
+    @Field(
+        () => Date,
+        {
+            nullable: true,
+            description: "Day this task was verified; non-null marks a SCHEMA V2 task.",
+        },
+    )
+    @Column({
+        name: "verified",
+        type: "timestamptz",
+        nullable: true,
+    })
+        verified: Date | null
+
+    /**
      * Default locale for this task.
      */
     @Field(
@@ -263,4 +291,49 @@ export class MilestoneTaskEntity extends UuidAbstractEntity {
         },
     )
         codeImplementations: Array<MilestoneTaskCodeImplementationEntity>
+
+    /**
+     * SCHEMA V2 per-language learner-facing briefs (the "what to build" for each language).
+     * Present on V2 tasks (non-null `verified`); exposed to GraphQL for the FE to render.
+     */
+    @Field(
+        () => [MilestoneTaskBriefEntity],
+        {
+            description: "SCHEMA V2 per-language learner-facing task briefs.",
+        },
+    )
+    @OneToMany(
+        () => MilestoneTaskBriefEntity,
+        (brief: MilestoneTaskBriefEntity) => brief.milestoneTask,
+        {
+            cascade: true,
+        },
+    )
+        briefs: Array<MilestoneTaskBriefEntity>
+
+    /**
+     * SCHEMA V2 outcome grading criteria (observable yes/no items). INTERNAL grading rubric —
+     * deliberately NOT a `@Field`, so it is never exposed through GraphQL to the learner.
+     */
+    @OneToMany(
+        () => MilestoneTaskOutcomeCriteriaEntity,
+        (criteria: MilestoneTaskOutcomeCriteriaEntity) => criteria.milestoneTask,
+        {
+            cascade: true,
+        },
+    )
+        outcomeCriteria: Array<MilestoneTaskOutcomeCriteriaEntity>
+
+    /**
+     * SCHEMA V2 approach grading criteria (per-language yes/no items). INTERNAL grading rubric —
+     * NOT a `@Field`.
+     */
+    @OneToMany(
+        () => MilestoneTaskApproachCriteriaEntity,
+        (criteria: MilestoneTaskApproachCriteriaEntity) => criteria.milestoneTask,
+        {
+            cascade: true,
+        },
+    )
+        approachCriteria: Array<MilestoneTaskApproachCriteriaEntity>
 }

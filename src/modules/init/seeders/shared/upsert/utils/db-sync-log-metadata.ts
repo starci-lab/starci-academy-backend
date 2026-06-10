@@ -5,7 +5,7 @@ import {
     MilestoneEntity,
     MilestoneTaskEntity,
     ModuleEntity,
-    QuizDeckEntity,
+    FlashcardDeckEntity,
 } from "@modules/databases"
 import type {
     DbSyncLogDisplayFields,
@@ -106,7 +106,7 @@ export const buildDbSyncLogDisplayFields = (
                     : undefined,
             ),
         }
-    case QuizDeckEntity.name:
+    case FlashcardDeckEntity.name:
         return {
             displayId,
             relativeDisplayIds: relativeIds(

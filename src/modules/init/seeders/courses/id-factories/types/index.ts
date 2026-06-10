@@ -470,20 +470,6 @@ export interface GenerateQuizCardIdParams {
 }
 
 /**
- * Input for {@link QuizCardOptionIdFactoryService.generate}.
- */
-export interface GenerateQuizCardOptionIdParams {
-    /** Parent course ordinal. */
-    courseIndex: number
-    /** Parent deck ordinal. */
-    quizDeckIndex: number
-    /** Parent card ordinal. */
-    quizCardIndex: number
-    /** Zero-based option index within the card. */
-    quizCardOptionIndex: number
-}
-
-/**
  * Input for {@link MilestoneIdFactoryService.generate}.
  */
 export interface GenerateMilestoneIdParams {

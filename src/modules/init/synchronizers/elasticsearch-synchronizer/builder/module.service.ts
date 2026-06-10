@@ -12,6 +12,7 @@ import type {
 } from "./types"
 import {
     ElasticsearchService,
+    buildCompletionSuggest,
 } from "@modules/elasticsearch"
 import _ from "lodash"
 
@@ -38,9 +39,27 @@ export class ElasticsearchModuleBuildService {
                     localizedModule,
                     locale,
                 )
+                // clean label: the localized module title is the autocomplete display
+                // string; strip surrounding whitespace (no localized wrapper to remove)
+                const label = (localizedModule.title ?? "").trim()
+                // populate the ES completion field via the shared builder: the clean
+                // title is the suggest input, weighted by display order (earlier =
+                // more important) so the FST-backed autocomplete is clean + ranked
+                const suggest = buildCompletionSuggest({
+                    inputs: [
+                        label,
+                    ],
+                    weight: Math.max(1,
+                        100 - (localizedModule.orderIndex ?? 0)),
+                })
                 return {
                     locale,
-                    entity: localizedModule,
+                    // suggest is an index-only field (not on the entity type) — cast so the
+                    // generic indexer stores it while keeping the entity contract intact
+                    entity: {
+                        ...localizedModule,
+                        suggest,
+                    } as unknown as ModuleEntity,
                 }
             },
         )
