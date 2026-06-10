@@ -17,6 +17,46 @@
  */
 export type SeedScopeIndexes = "all" | string | Array<number>
 
+/**
+ * Rich per-course override under `customScope.courses`, splitting each track out so a
+ * course can scope its module/contents range while independently toggling the
+ * milestone and quiz-deck passes.
+ *
+ * Example:
+ * ```yaml
+ * fullstack-mastery:
+ *   contents: "0-19"
+ *   milestone: true
+ *   quizDecks: true
+ * ```
+ */
+export interface SeedCustomCourseScope {
+    /** Module/contents track scope: `"all"`, an index list, or a range like `"0-19"`. */
+    contents: SeedScopeIndexes
+    /** When true, also seed/sync this course's milestone track (default false). */
+    milestone?: boolean
+    /** When true, also seed this course's quiz decks (default false). */
+    quizDecks?: boolean
+}
+
+/**
+ * Accepted value forms for one `customScope.courses` entry:
+ * - {@link SeedScopeIndexes} — shorthand; scopes only the module/contents track
+ *   (milestones + quiz stay off). Backward-compatible with the old `"0-19"` form.
+ * - {@link SeedCustomCourseScope} — rich object form toggling each track.
+ */
+export type SeedCustomCourseValue = SeedScopeIndexes | SeedCustomCourseScope
+
+/** Normalized per-course custom scope after merging shorthand + object forms. */
+export interface ResolvedCustomCourseScope {
+    /** Resolved module/contents track scope. */
+    contents: SeedScopeIndexes
+    /** Whether the milestone track is enabled for this course. */
+    milestone: boolean
+    /** Whether quiz-deck seeding is enabled for this course. */
+    quizDecks: boolean
+}
+
 /** Per-course seed scope (one entry under `seeders.courses.tracks`). */
 export interface SeedCourseTrack {
     /** Seed/refresh the course root entity itself (title, slug, catalog row). */
@@ -39,6 +79,11 @@ export interface SeedQuizConfig {
 export interface SeedCoursesConfig {
     /** Master switch for the whole course pipeline. */
     enabled: boolean
+    /**
+     * When false, seed module shells only — skip contents, challenges, and
+     * nested lesson entities. Controlled in `_seed.yaml`, not `seed.yaml`.
+     */
+    contents?: boolean
     /** Per-course scopes, keyed by course `displayId`. */
     tracks: Record<string, SeedCourseTrack>
     /** Quiz deck/card seeding. */
@@ -105,7 +150,7 @@ export interface SeedConfig {
 }
 
 /**
- * Coarse init mode used when `scopeCustom` is absent.
+ * Coarse init mode used when `customScope` is absent.
  *
  * - `"all"`  → force a full reseed/sync of every course (ignores the diff, even
  *   when already on the remote SHA).
@@ -116,21 +161,42 @@ export interface SeedConfig {
 export type InitScopeMode = "all" | "diff" | "none"
 
 /**
+ * Custom scope override for the git-sourced init (`seed.yaml` `customScope`).
+ *
+ * Split into independent sections so the per-course scope and the standalone
+ * foundations domain are toggled separately.
+ */
+export interface InitCustomScope {
+    /**
+     * Per-course scope keyed by course displayId. Each value is either a shorthand
+     * module scope (`"all"`, `[1, 2, 3]`, range `"0-19"`) or a rich
+     * {@link SeedCustomCourseScope} object that also toggles the milestone and
+     * quiz-deck tracks.
+     */
+    courses?: Record<string, SeedCustomCourseValue>
+    /**
+     * When true, also seed (+ sync) the standalone foundations domain (categories
+     * + foundation items + their thumbnails). Not tied to any course. Default false.
+     */
+    foundations?: boolean
+}
+
+/**
  * Optional scope override for the git-sourced init (`seed.yaml`).
  *
- * When `scopeCustom` is present and non-empty, the git init seeds/syncs exactly
- * the listed courses/modules (instead of the diff-derived scope), then pulls the
- * source into `.contexts` as usual. Otherwise `scope` picks the coarse mode.
+ * When `customScope` is present and non-empty (any course listed, or foundations
+ * enabled), the git init seeds/syncs exactly that scope instead of the diff-derived
+ * one, then pulls the source into `.contexts` as usual. Otherwise `scope` picks the
+ * coarse mode.
  */
 export interface InitScopeConfig {
     /**
-     * Custom course scope keyed by course displayId; the value scopes that
-     * course's module track (`"all"`, `[1, 2, 3]`, or a range like `"0-19"`).
-     * Takes precedence over `scope` when present and non-empty.
+     * Rich custom scope split into `courses` + `foundations`. Takes precedence over
+     * `scope` when present and non-empty.
      */
-    scopeCustom?: Record<string, SeedScopeIndexes>
+    customScope?: InitCustomScope
     /**
-     * Coarse mode used only when `scopeCustom` is absent/empty. Omit → `"diff"`.
+     * Coarse mode used only when `customScope` is absent/empty. Omit → `"diff"`.
      */
     scope?: InitScopeMode
 }

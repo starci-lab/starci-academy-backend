@@ -1428,6 +1428,15 @@ export const envConfig = () => ({
         },
     },
 
+    /** Static brand assets synced from a local folder to S3/MinIO on boot. */
+    assets: {
+        // local folder (relative to the process cwd) holding the source asset files
+        dir: parseEnvString({
+            key: "ASSETS_DIR",
+            defaultValue: ".assets",
+        }),
+    },
+
     /** Keycloak configuration. */
     keycloak: {
         url: parseEnvString({

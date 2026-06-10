@@ -19,8 +19,8 @@ import {
     setRuntimeSeedConfig,
 } from "@modules/filesystem"
 import type {
+    InitCustomScope,
     SeedConfig,
-    SeedScopeIndexes,
 } from "@modules/filesystem"
 import {
     WinstonLog,
@@ -79,12 +79,16 @@ export class InitService implements OnModuleInit {
      * `.contexts` only after a successful seed.
      */
     async onModuleInit(): Promise<void> {
-        // a non-empty scopeCustom forces seeding an explicit course/module set
+        // a non-empty customScope forces seeding an explicit course/foundation set
         // instead of the diff-derived scope (still pulls the source at the end);
         // otherwise the coarse `scope` mode picks all / diff / none (default diff)
         const initScope = getInitScopeConfig()
-        const scopeCustom = initScope.scopeCustom
-        const isCustom = !!scopeCustom && Object.keys(scopeCustom).length > 0
+        const customScope = initScope.customScope
+        // custom mode is active when any course is listed OR foundations is toggled on
+        const customCourseCount = customScope?.courses
+            ? Object.keys(customScope.courses).length
+            : 0
+        const isCustom = customCourseCount > 0 || customScope?.foundations === true
         const scopeMode = initScope.scope ?? "diff"
 
         // `scope: none` (and no custom scope) → init disabled: skip both phases
@@ -116,7 +120,8 @@ export class InitService implements OnModuleInit {
         // seed from the staging copy when we have one, else the local .contexts
         const stagingRoot = result?.stagingRoot ?? null
         const configToApply = isCustom
-            ? this.buildCustomConfig(scopeCustom)
+            ? this.buildCustomConfig(customScope ?? {
+            })
             : scopeMode === "all"
                 ? await this.buildAllConfig(stagingRoot)
                 : await this.resolveConfig(result,
@@ -156,17 +161,22 @@ export class InitService implements OnModuleInit {
     /**
      * Builds the explicit custom-scope config and logs the resolved scope.
      *
-     * @param scopeCustom - Course module scope keyed by course displayId
-     * @returns The config restricted to the listed courses/modules
+     * @param customScope - The `customScope` block: per-course scope under
+     *   `courses` plus the standalone `foundations` toggle
+     * @returns The config restricted to the listed courses/tracks (+ foundations)
      */
     private buildCustomConfig(
-        scopeCustom: Record<string, SeedScopeIndexes>,
+        customScope: InitCustomScope,
     ): SeedConfig {
+        // course count is the only meaningful "scope size" to surface in the log line
+        const courseCount = customScope.courses
+            ? Object.keys(customScope.courses).length
+            : 0
         this.logScoped(false,
-            Object.keys(scopeCustom).length,
+            courseCount,
             0,
             0)
-        return this.seedDiffOverlayService.buildCustomConfig(scopeCustom)
+        return this.seedDiffOverlayService.buildCustomConfig(customScope)
     }
 
     /**

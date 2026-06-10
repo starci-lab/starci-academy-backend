@@ -1,5 +1,6 @@
 export * from "./s3.module"
 export * from "./s3.providers"
+export * from "./constants"
 export * from "./s3-upload.service"
 export * from "./s3-build.service"
 export * from "./s3-read.service"

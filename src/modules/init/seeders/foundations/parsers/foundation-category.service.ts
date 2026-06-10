@@ -23,6 +23,10 @@ import {
     WinstonService,
 } from "@modules/winston"
 import {
+    S3BuildService,
+    S3Provider,
+} from "@modules/s3"
+import {
     FoundationCategoryIdFactoryService,
 } from "../id-factories"
 import {
@@ -44,7 +48,39 @@ export class FoundationCategoryParserService {
         private readonly contextLoaderService: ContextLoaderService,
         private readonly foundationCategoryIdFactoryService: FoundationCategoryIdFactoryService,
         private readonly winstonService: WinstonService,
+        private readonly s3BuildService: S3BuildService,
     ) { }
+
+    /**
+     * Resolve a raw `thumbnailUrl` from the mount into the URL persisted to the DB.
+     *
+     * Absolute URLs (`http(s)://...`) are kept verbatim, so legacy externally-hosted
+     * thumbnails keep working. Anything else is treated as a MinIO object key (e.g.
+     * `assets/nestjs.png`, synced by the assets module) and expanded into a public,
+     * env-aware URL — this is what lets the committed seed stay deployment-agnostic
+     * while the DB ends up with the correct per-environment MinIO public link.
+     *
+     * @param value - Raw thumbnail value from the mount, or `null` when absent.
+     * @returns The resolved absolute URL, or `null` when no thumbnail is set.
+     */
+    private resolveThumbnailUrl(value: string | null): string | null {
+        // no thumbnail configured → nothing to resolve
+        if (!value) {
+            return null
+        }
+        // already an absolute URL (external host) → keep as-is
+        if (/^https?:\/\//i.test(value)) {
+            return value
+        }
+        // otherwise treat the value as a MinIO object key; strip any leading slash first
+        const key = value.replace(/^\/+/,
+            "")
+        // build the public, anonymously-readable URL for the synced asset on MinIO
+        return this.s3BuildService.buildPublicObjectUrl({
+            key,
+            provider: S3Provider.Minio,
+        })
+    }
 
     /**
      * Builds a partial foundation category entity from the mount.
@@ -86,8 +122,10 @@ export class FoundationCategoryParserService {
                 jsonMap.get(Locale.En)?.description,
             ),
             displayId: path.displayId,
-            thumbnailUrl: this.coerceMdScalarService.toNullableStringColumn(
-                jsonMap.get(Locale.En)?.thumbnailUrl,
+            thumbnailUrl: this.resolveThumbnailUrl(
+                this.coerceMdScalarService.toNullableStringColumn(
+                    jsonMap.get(Locale.En)?.thumbnailUrl,
+                ),
             ),
             orderIndex: categoryIndex,
             translations: (() => {

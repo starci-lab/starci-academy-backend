@@ -1,11 +1,15 @@
 import {
     Injectable,
 } from "@nestjs/common"
-import type {
-    SeedConfig,
-    SeedCourseTrack,
-    SeedScopeIndexes,
-    SeedSyncCourseTrack,
+import {
+    getSeedConfig,
+    type InitCustomScope,
+    type ResolvedCustomCourseScope,
+    type SeedConfig,
+    type SeedCourseTrack,
+    type SeedCustomCourseValue,
+    type SeedScopeIndexes,
+    type SeedSyncCourseTrack,
 } from "@modules/filesystem"
 import type {
     BuildDiffOverlayResult,
@@ -56,53 +60,97 @@ export class SeedDiffOverlayService {
                 },
             }
         }
+        // coarse full reseed: quiz + foundations stay off (toggled only via customScope)
         return this.assemble(tracks,
             syncCourses,
+            false,
             false)
     }
 
     /**
-     * Builds a custom-scope config from an explicit `displayId → module scope`
-     * map (the `scopeCustom` override). Each listed course seeds/syncs exactly
-     * the given module scope (`"all"`, an index list, or a range); milestones
-     * stay off (the git-sourced scope is courses + modules only).
+     * Builds a custom-scope config from the `customScope` block. Under `courses`,
+     * each entry value is either a shorthand module scope (`"all"`, an index list,
+     * or a range) or a rich object that also toggles the milestone + quiz-deck
+     * tracks. The `foundations` flag seeds/syncs the standalone foundations domain.
+     * Quiz runs when ANY course opted in (the quiz pass is a single global flag).
      *
-     * @param scopeCustom - Course module scope keyed by course displayId
-     * @returns A complete config restricted to the listed courses/modules
+     * @param customScope - The `customScope` block (`courses` map + `foundations`)
+     * @returns A complete config restricted to the listed courses/tracks (+ foundations)
      */
     buildCustomConfig(
-        scopeCustom: Record<string, SeedScopeIndexes>,
+        customScope: InitCustomScope,
     ): SeedConfig {
         const tracks: Record<string, SeedCourseTrack> = {
         }
         const syncCourses: Record<string, SeedSyncCourseTrack> = {
         }
+        // standalone foundations domain is on only when explicitly toggled
+        const foundationsEnabled = customScope.foundations === true
+        // quiz seeding is a single global toggle → enable it if ANY course opts in
+        let quizEnabledAny = false
         for (const [
             displayId,
-            modules,
-        ] of Object.entries(scopeCustom)) {
+            value,
+        ] of Object.entries(customScope.courses ?? {
+            })) {
+            // collapse shorthand + object forms into one canonical scope
+            const { contents, milestone, quizDecks } = this.normalizeCustomScope(value)
+            quizEnabledAny = quizEnabledAny || quizDecks
+            // milestone track is seeded/synced in full when enabled, else skipped
+            const milestoneScope: SeedScopeIndexes = milestone ? "all" : []
+            // seed track: course root + the chosen module/contents range (+ milestones)
             tracks[displayId] = {
                 course: true,
-                modules,
-                milestones: [],
+                modules: contents,
+                milestones: milestoneScope,
             }
+            // sync track: push the same module range to all sinks; milestones to cdn/es only
             syncCourses[displayId] = {
                 course: true,
                 modules: {
-                    cdn: modules,
-                    elasticsearch: modules,
-                    repo: modules,
+                    cdn: contents,
+                    elasticsearch: contents,
+                    repo: contents,
                 },
                 milestones: {
-                    cdn: [],
-                    elasticsearch: [],
+                    cdn: milestoneScope,
+                    elasticsearch: milestoneScope,
                     repo: [],
                 },
             }
         }
         return this.assemble(tracks,
             syncCourses,
-            false)
+            quizEnabledAny,
+            foundationsEnabled)
+    }
+
+    /**
+     * Normalizes one `customScope.courses` value into a canonical per-course scope.
+     *
+     * The shorthand form (a bare {@link SeedScopeIndexes}: `"all"`, an index array,
+     * or a range string) maps to a contents-only scope with milestone + quiz off.
+     * The object form passes its toggles through (defaulting the booleans to false).
+     *
+     * @param value - Raw `customScope.courses` entry value (shorthand or object form)
+     * @returns The resolved `{ contents, milestone, quizDecks }` scope
+     */
+    private normalizeCustomScope(value: SeedCustomCourseValue): ResolvedCustomCourseScope {
+        // object form: only a non-array object carries the per-track toggles
+        // ("all" string + index arrays are the shorthand and fall through below)
+        if (typeof value === "object" && !Array.isArray(value)) {
+            return {
+                contents: value.contents,
+                milestone: value.milestone === true,
+                quizDecks: value.quizDecks === true,
+            }
+        }
+        // shorthand: the value IS the module/contents scope; other tracks stay off
+        return {
+            contents: value,
+            milestone: false,
+            quizDecks: false,
+        }
     }
 
     /**
@@ -166,9 +214,11 @@ export class SeedDiffOverlayService {
             }
         }
         return {
+            // diff-narrowed: foundations stay off (toggled only via customScope)
             overlay: this.assemble(tracks,
                 syncCourses,
-                quizChangedAny),
+                quizChangedAny,
+                false),
             courseCount: Object.keys(tracks).length,
             moduleCount,
             domainCount: 0,
@@ -178,24 +228,28 @@ export class SeedDiffOverlayService {
     /**
      * Assembles a full {@link SeedConfig} from the resolved course tracks.
      *
-     * Standalone domains stay off (git-sourced scope is courses-only); on a partial
-     * sync `reIndex` is forced false so unchanged ES data is never wiped.
+     * Standalone domains stay off except `foundations`, which the `customScope`
+     * block can opt in; on a partial sync `reIndex` is forced false so unchanged
+     * ES data is never wiped.
      *
      * @param tracks - Seed course tracks keyed by displayId
      * @param syncCourses - Sync course tracks keyed by displayId
      * @param quizEnabled - Whether the quiz pass should run
+     * @param foundationsEnabled - Whether to seed + sync the standalone foundations domain
      * @returns The full seed config
      */
     private assemble(
         tracks: Record<string, SeedCourseTrack>,
         syncCourses: Record<string, SeedSyncCourseTrack>,
         quizEnabled: boolean,
+        foundationsEnabled: boolean,
     ): SeedConfig {
         return {
             seeders: {
                 enabled: true,
                 courses: {
                     enabled: true,
+                    contents: this.resolveCoursesContentsEnabled(),
                     tracks,
                     quiz: {
                         enabled: quizEnabled,
@@ -203,7 +257,8 @@ export class SeedDiffOverlayService {
                     },
                 },
                 cv: false,
-                foundations: false,
+                // foundations domain seeds only when the customScope opts in
+                foundations: foundationsEnabled,
                 headhunting: false,
                 aiModels: false,
                 subscriptions: false,
@@ -214,7 +269,8 @@ export class SeedDiffOverlayService {
                 reIndex: false,
                 courses: syncCourses,
                 cv: false,
-                foundations: false,
+                // mirror the seed toggle so the synced foundations land on CDN + ES
+                foundations: foundationsEnabled,
                 headhunting: false,
             },
         }
@@ -232,5 +288,17 @@ export class SeedDiffOverlayService {
             return []
         }
         return [...indexes].sort((prev, next) => prev - next)
+    }
+
+    /**
+     * Reads `seeders.courses.contents` from the mounted `_seed.yaml` baseline.
+     *
+     * Git-init overlays (`seed.yaml` scope) only pick module ranges; the
+     * contents toggle stays in `_seed.yaml`.
+     *
+     * @returns Whether lesson contents should be seeded (default true)
+     */
+    private resolveCoursesContentsEnabled(): boolean {
+        return getSeedConfig().seeders.courses.contents !== false
     }
 }

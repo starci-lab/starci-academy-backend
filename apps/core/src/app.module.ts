@@ -44,6 +44,9 @@ import {
     S3Module
 } from "@modules/s3"
 import {
+    AssetsModule
+} from "@modules/assets"
+import {
     PayOSModule
 } from "@modules/payos"
 import {
@@ -292,6 +295,12 @@ import {
             ),
             /** S3 module. */
             S3Module.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Assets module — syncs local static brand assets to MinIO on boot. */
+            AssetsModule.register(
                 {
                     isGlobal: true,
                 }

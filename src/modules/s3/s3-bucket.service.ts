@@ -15,6 +15,9 @@ import {
     InjectMinioS3
 } from "./s3.decorators"
 import {
+    S3_PUBLIC_READ_PREFIXES,
+} from "./constants"
+import {
     S3LikeError,
 } from "./types"
 
@@ -76,29 +79,38 @@ export class S3BucketService {
     }
 
     /**
-     * Ensure the `repo/` prefix in the Minio bucket allows anonymous GET.
+     * Ensure every public object-key prefix in the Minio bucket allows anonymous GET.
      *
-     * Sets a bucket policy statement that grants `s3:GetObject` on
-     * `arn:aws:s3:::{bucket}/repo/*` to all principals (`"*"`).  The policy is
-     * idempotent — safe to call on every sync cycle.
+     * MinIO exposes a single bucket policy, so this grants `s3:GetObject` to all
+     * principals (`"*"`) on every prefix listed in {@link S3_PUBLIC_READ_PREFIXES}
+     * (currently `repo/*` for sandbox code trees and `assets/*` for brand assets) in
+     * one statement. Because the full prefix list is enumerated here, the policy is
+     * identical no matter which synchronizer re-applies it — idempotent and free of
+     * the clobbering that separate per-prefix policies would cause.
      *
      * @param bucket - Target bucket name.
      */
-    async ensureRepoPrefixPublic(bucket: string): Promise<void> {
+    async ensurePublicReadPrefixes(bucket: string): Promise<void> {
+        // expand each public prefix into its wildcard object ARN for the policy resource list
+        const resources = S3_PUBLIC_READ_PREFIXES.map(
+            (prefix) => `arn:aws:s3:::${bucket}/${prefix}/*`,
+        )
+        // single statement covering all public prefixes — keeps the one-policy bucket consistent
         const policy = {
             Version: "2012-10-17",
             Statement: [
                 {
-                    Sid: "RepoPublicRead",
+                    Sid: "PublicRead",
                     Effect: "Allow",
                     Principal: {
                         AWS: ["*"],
                     },
                     Action: ["s3:GetObject"],
-                    Resource: [`arn:aws:s3:::${bucket}/repo/*`],
+                    Resource: resources,
                 },
             ],
         }
+        // overwrite the bucket policy (idempotent: the resource list is deterministic)
         await this.minioS3.send(
             new PutBucketPolicyCommand({
                 Bucket: bucket,
