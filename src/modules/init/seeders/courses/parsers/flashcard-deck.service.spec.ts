@@ -10,9 +10,6 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
-    SeedScopeService,
-} from "../../../scope"
-import {
     ChallengeDifficulty,
     Locale,
 } from "@modules/databases"
@@ -99,17 +96,12 @@ describe("FlashcardDeckParserService",
                         },
                     },
                     {
-                        // parse() only reads the link-contents flag; default it off
-                        provide: SeedScopeService,
-                        useValue: {
-                            isCoursesFlashcardLinkContentsEnabled: () => false,
-                        },
-                    },
-                    {
-                        // entity manager is only used by flashcardDecksFromDatabase(); a stub
-                        // satisfies DI for the parse() path under test
+                        // entity manager backs flashcardDecksFromDatabase() + ref resolution;
+                        // findOne stubbed to null (the warmup deck has no contentRefs/moduleRefs)
                         provide: getEntityManagerToken("primary"),
-                        useValue: {},
+                        useValue: {
+                            findOne: jest.fn().mockResolvedValue(null),
+                        },
                     },
                 ],
             }).compile()
@@ -137,7 +129,6 @@ describe("FlashcardDeckParserService",
                             courseIndex: 0,
                             courseId: "test-course-id",
                             flashcardDeckIndex: 0,
-                            contentIdByPath: new Map(),
                         })
 
                         expect(parsed.displayId).toBe("nestjs-core-interview-warmup-easy")

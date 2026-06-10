@@ -12,8 +12,6 @@ export interface ParseFlashcardDeckParams {
     courseId: string
     /** The index of the deck within the course. */
     flashcardDeckIndex: number
-    /** Map of `"{moduleDisplayId}/{contentDisplayId}"` → content id, for N:N links. */
-    contentIdByPath: Map<string, string>
 }
 
 /** Ordinals locating `courses/{course}/flashcard-decks/` on the course mount. */
@@ -24,6 +22,4 @@ export interface ParseFlashcardDeckManyParams {
     courseIndex: number
     /** The owning course id (FK target). */
     courseId: string
-    /** Map of `"{moduleDisplayId}/{contentDisplayId}"` → content id, for N:N links. */
-    contentIdByPath: Map<string, string>
 }

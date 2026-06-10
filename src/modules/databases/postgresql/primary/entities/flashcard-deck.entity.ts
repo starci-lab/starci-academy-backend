@@ -30,6 +30,9 @@ import {
     ContentEntity,
 } from "./content.entity"
 import {
+    ModuleEntity,
+} from "./module.entity"
+import {
     FlashcardDeckTranslationEntity,
 } from "./flashcard-deck-translation.entity"
 import {
@@ -248,4 +251,34 @@ export class FlashcardDeckEntity extends UuidAbstractEntity {
         },
     })
         contents: Array<ContentEntity>
+
+    /**
+     * Optional modules this deck references (many-to-many) — `# moduleRefs` in the
+     * deck markdown, resolved by module `displayId` within the owning course.
+     */
+    @Field(
+        () => [ModuleEntity],
+        {
+            nullable: true,
+            description: "Modules this deck references (optional, many-to-many).",
+        },
+    )
+    @ManyToMany(
+        () => ModuleEntity,
+        {
+            cascade: false,
+        },
+    )
+    @JoinTable({
+        name: "flashcard_deck_modules",
+        joinColumn: {
+            name: "flashcard_deck_id",
+            referencedColumnName: "id",
+        },
+        inverseJoinColumn: {
+            name: "module_id",
+            referencedColumnName: "id",
+        },
+    })
+        modules: Array<ModuleEntity>
 }

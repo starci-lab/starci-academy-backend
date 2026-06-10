@@ -9,6 +9,8 @@ import {
 import {
     ChallengeDifficulty,
     Locale,
+    ContentEntity,
+    ModuleEntity,
     FlashcardCardEntity,
     FlashcardDeckEntity,
 } from "@modules/databases"
@@ -37,20 +39,17 @@ import {
     logInitSeederEntitySkipped,
 } from "../../shared"
 import {
-    SeedScopeService,
-} from "../../../scope"
-import {
     FlashcardDeckPathNotFoundException,
 } from "@modules/exceptions"
 import {
     WinstonService,
 } from "@modules/winston"
 
-/** One content link line (`{moduleDisplayId}/{contentDisplayId}`) as parsed. */
-interface RawContentRef {
+/** One `# contentRefs` / `# moduleRefs` line (a `displayId`) as parsed. */
+interface RawRef {
     /** Zero-based ordinal. */
     orderIndex: number
-    /** The `{moduleDisplayId}/{contentDisplayId}` path string. */
+    /** The referenced entity's `displayId`. */
     value?: string
 }
 
@@ -62,8 +61,10 @@ interface RawFlashcardDeck {
     description?: string
     /** Deck difficulty tier. */
     difficulty?: ChallengeDifficulty
-    /** Optional content links (many-to-many). */
-    contents?: Array<RawContentRef>
+    /** Referenced content `displayId`s (many-to-many). */
+    contentRefs?: Array<RawRef>
+    /** Referenced module `displayId`s (many-to-many). */
+    moduleRefs?: Array<RawRef>
     /** Index signature so the markdown→JSON extractor generic is satisfied. */
     [key: string]: unknown
 }
@@ -92,7 +93,6 @@ export class FlashcardDeckParserService {
         private readonly courseIdFactoryService: CourseIdFactoryService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
-        private readonly seedScopeService: SeedScopeService,
     ) { }
 
     /**
@@ -107,7 +107,6 @@ export class FlashcardDeckParserService {
             courseIndex,
             courseId,
             flashcardDeckIndex,
-            contentIdByPath,
         }: ParseFlashcardDeckParams,
     ): Promise<DeepPartial<FlashcardDeckEntity>> {
         // locate the deck folder for the requested ordinal
@@ -157,26 +156,28 @@ export class FlashcardDeckParserService {
                 flashcardDeckIndex,
             },
         )
-        // optional N:N lesson links — off by default until mount + content seed are ready
-        const linkedContentIds = this.seedScopeService.isCoursesFlashcardLinkContentsEnabled()
-            ? Array.from(
-                new Set(
-                    (jsonMap.get(Locale.En)?.contents ?? [])
-                        .map((ref) => (ref.value ?? "").trim())
-                        .filter((value) => value.length > 0)
-                        .map((value) => contentIdByPath.get(value))
-                        .filter((id): id is string => Boolean(id)),
-                ),
-            )
-            : []
+        // N:N refs — resolve `# contentRefs` / `# moduleRefs` displayIds to ids within
+        // this course (contents + modules are already seeded by the time decks run)
+        const linkedContentIds = await this.resolveContentRefIds(
+            courseId,
+            jsonMap.get(Locale.En)?.contentRefs,
+        )
+        const linkedModuleIds = await this.resolveModuleRefIds(
+            courseId,
+            jsonMap.get(Locale.En)?.moduleRefs,
+        )
         return {
             id: flashcardDeckId,
             defaultLocale: Locale.En,
             displayId: path.displayId,
             // owning course FK
             courseId,
-            // optional many-to-many content links
+            // many-to-many content references (`# contentRefs`)
             contents: linkedContentIds.map((id) => ({
+                id,
+            })),
+            // many-to-many module references (`# moduleRefs`)
+            modules: linkedModuleIds.map((id) => ({
                 id,
             })),
             // scalar copy is sourced from the merged default-locale doc
@@ -241,9 +242,93 @@ export class FlashcardDeckParserService {
     }
 
     /**
+     * Resolves `# contentRefs` displayIds to content ids within the owning course.
+     * Contents are already persisted by the time decks seed; unknown displayIds are
+     * dropped (logged-skip semantics — a typo shouldn't abort the deck).
+     *
+     * @param courseId - Owning course id (scopes the lookup).
+     * @param refs - Parsed `# contentRefs` rows (each a content `displayId`).
+     * @returns Deduped content ids for the many-to-many link.
+     */
+    private async resolveContentRefIds(
+        courseId: string,
+        refs: Array<RawRef> | undefined,
+    ): Promise<Array<string>> {
+        const displayIds = Array.from(
+            new Set(
+                (refs ?? [])
+                    .map((ref) => (ref.value ?? "").trim())
+                    .filter((value) => value.length > 0),
+            ),
+        )
+        if (displayIds.length === 0) {
+            return []
+        }
+        const ids: Array<string> = []
+        for (const displayId of displayIds) {
+            const content = await this.entityManager.findOne(ContentEntity, {
+                where: {
+                    displayId,
+                    module: {
+                        course: {
+                            id: courseId,
+                        },
+                    },
+                },
+                select: {
+                    id: true,
+                },
+            })
+            if (content) {
+                ids.push(content.id)
+            }
+        }
+        return ids
+    }
+
+    /**
+     * Resolves `# moduleRefs` displayIds to module ids within the owning course.
+     *
+     * @param courseId - Owning course id (scopes the lookup).
+     * @param refs - Parsed `# moduleRefs` rows (each a module `displayId`).
+     * @returns Deduped module ids for the many-to-many link.
+     */
+    private async resolveModuleRefIds(
+        courseId: string,
+        refs: Array<RawRef> | undefined,
+    ): Promise<Array<string>> {
+        const displayIds = Array.from(
+            new Set(
+                (refs ?? [])
+                    .map((ref) => (ref.value ?? "").trim())
+                    .filter((value) => value.length > 0),
+            ),
+        )
+        if (displayIds.length === 0) {
+            return []
+        }
+        const ids: Array<string> = []
+        for (const displayId of displayIds) {
+            const module = await this.entityManager.findOne(ModuleEntity, {
+                where: {
+                    displayId,
+                    courseId,
+                },
+                select: {
+                    id: true,
+                },
+            })
+            if (module) {
+                ids.push(module.id)
+            }
+        }
+        return ids
+    }
+
+    /**
      * Parses many flashcard decks under a course's `flashcard-decks/` folder.
      *
-     * @param params - Course relative path + course ordinal/id + content map.
+     * @param params - Course relative path + course ordinal/id.
      * @returns Entity-shaped graphs for TypeORM cascade upsert.
      */
     async parseMany(
@@ -251,7 +336,6 @@ export class FlashcardDeckParserService {
             courseRelativePath,
             courseIndex,
             courseId,
-            contentIdByPath,
         }: ParseFlashcardDeckManyParams,
     ): Promise<Array<ResolvedFileResult<DeepPartial<FlashcardDeckEntity>>>> {
         // list every `{index}-{slug}` deck folder for this course
@@ -270,7 +354,6 @@ export class FlashcardDeckParserService {
                         courseIndex,
                         courseId,
                         flashcardDeckIndex: path.orderIndex,
-                        contentIdByPath,
                     },
                 )
                 data.push({

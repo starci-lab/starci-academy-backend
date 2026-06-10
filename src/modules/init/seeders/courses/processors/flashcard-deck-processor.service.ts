@@ -50,7 +50,6 @@ export class FlashcardDeckProcessorService {
                 courseRelativePath: courseResult.relativePath,
                 courseIndex: courseResult.index,
                 courseId,
-                contentIdByPath: new Map<string, string>(),
             })
             const partition = await this.upsertService.partitionUuidSync({
                 entityClass: FlashcardDeckEntity,

@@ -86,6 +86,7 @@ export class ElasticsearchFlashcardDeckBuildService {
                         translations: true,
                     },
                     contents: true,
+                    modules: true,
                     translations: true,
                 },
                 order: {
