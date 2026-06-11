@@ -36,6 +36,9 @@ export const foundationCategoryIndexMapping: ElasticsearchIndexMapping = {
             orderIndex: {
                 type: "integer",
             },
+            sortIndex: {
+                type: "integer",
+            },
             defaultLocale: {
                 type: "keyword",
             },

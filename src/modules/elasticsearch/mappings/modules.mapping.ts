@@ -35,6 +35,18 @@ export const modulesIndexMapping: ElasticsearchIndexMapping = {
             orderIndex: {
                 type: "integer",
             },
+            // pure display-ordering index, decoupled from orderIndex — sortable for reordering
+            sortIndex: {
+                type: "integer",
+            },
+            // hard per-module paywall flag — locks all the module's contents
+            isPremium: {
+                type: "boolean",
+            },
+            // learning tier (foundation / intermediate / advanced) — filterable, drives the display badge
+            contentTier: {
+                type: "keyword",
+            },
             // parent course id for filtering modules by course
             courseId: {
                 type: "keyword",

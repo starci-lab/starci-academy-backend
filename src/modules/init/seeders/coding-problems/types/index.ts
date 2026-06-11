@@ -19,6 +19,8 @@ export interface CodingProblemFrontmatter {
     domain?: CodingDomain
     /** Display order within the problem list. */
     orderIndex?: number
+    /** Pure ordering index used to reorder the list (decoupled from orderIndex). */
+    sortIndex?: number
     /** Whether the problem is listable. */
     enabled?: boolean
     /** Topic tags for filtering. */
@@ -39,6 +41,8 @@ export interface CodingProblemFrontmatter {
 export interface ParsedCodingProblemTestcase {
     /** Evaluation order (numeric stem of the `<n>.in`/`<n>.out` file). */
     orderIndex: number
+    /** Pure ordering index used to reorder the list (decoupled from orderIndex). */
+    sortIndex: number
     /** Stdin contents. */
     input: string
     /** Expected stdout contents. */
@@ -83,6 +87,8 @@ export interface ParsedCodingProblem {
     domain: CodingDomain
     /** Display order. */
     orderIndex: number
+    /** Pure ordering index used to reorder the list (decoupled from orderIndex). */
+    sortIndex: number
     /** Whether listable. */
     enabled: boolean
     /** Topic tags. */

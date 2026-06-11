@@ -46,6 +46,9 @@ export const codingProblemsIndexMapping: ElasticsearchIndexMapping = {
             orderIndex: {
                 type: "integer",
             },
+            sortIndex: {
+                type: "integer",
+            },
             // FST-backed autocomplete field; populated by the ES sync builder
             suggest: {
                 type: "completion",

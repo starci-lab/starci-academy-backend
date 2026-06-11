@@ -155,10 +155,23 @@ export class CourseEntity extends UuidAbstractEntity {
     )
     @Column({
         name: "order_index",
-        type: "int", 
+        type: "int",
         default: 0,
     })
         orderIndex: number
+
+    /**
+     * Pure ordering index used to reorder the list (decoupled from orderIndex).
+     */
+    @Field(() => Int, {
+        description: "Pure ordering index used to reorder the list (decoupled from orderIndex).",
+    })
+    @Column({
+        name: "sort_index",
+        type: "int",
+        default: 0,
+    })
+        sortIndex: number
 
     /**
      * Thumbnail URL of the course.

@@ -115,6 +115,11 @@ export class MilestoneParserService {
         return {
             id: milestoneId,
             orderIndex: milestoneIndex,
+            // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+            sortIndex: this.toSortIndex(
+                (merged as { sortIndex?: unknown }).sortIndex,
+                milestoneIndex,
+            ),
             title: merged.title ?? "",
             description: merged.description ?? "",
             defaultLocale: Locale.En,
@@ -135,6 +140,19 @@ export class MilestoneParserService {
                     value,
                 })),
         }
+    }
+
+    /**
+     * Resolves the `# sortIndex` mount value (pure display order), falling back to the
+     * milestone's `orderIndex` when it is missing or not a finite number.
+     *
+     * @param raw - Raw scalar read from the milestone mount file
+     * @param fallback - The orderIndex to use when `# sortIndex` is absent
+     * @returns The resolved sort index
+     */
+    private toSortIndex(raw: unknown, fallback: number): number {
+        const value = typeof raw === "string" ? Number(raw.trim()) : Number(raw)
+        return Number.isFinite(value) ? value : fallback + 1
     }
 
     /**

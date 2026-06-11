@@ -94,6 +94,42 @@ export class ModuleEntity extends UuidAbstractEntity {
         orderIndex: number
 
     /**
+     * Pure display-ordering index, editable to reorder modules later without
+     * touching `orderIndex` (which is folder/seed-derived). The module list is
+     * sorted by THIS. Seeded from `# index` (falls back to `orderIndex` when absent).
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Pure ordering index used to reorder the module list (decoupled from orderIndex).",
+        },
+    )
+    @Column({
+        name: "sort_index",
+        type: "int",
+        default: 0
+    })
+        sortIndex: number
+
+    /**
+     * Hard per-module paywall flag — when true, all of the module's contents are
+     * premium (locked for non-entitled viewers). Set explicitly via `# isPremium`
+     * in the module mount; independent of `contentTier` (a display-only badge).
+     */
+    @Field(
+        () => Boolean,
+        {
+            description: "Whether this module is premium — locks all its contents for non-entitled viewers.",
+        },
+    )
+    @Column({
+        name: "is_premium",
+        type: "boolean",
+        default: false,
+    })
+        isPremium: boolean
+
+    /**
      * Learning tier of the module — stored explicitly so tiering never depends on
      * `orderIndex`. Drives the tier-based paywall (advanced + later-half intermediate
      * are premium). Seeded from the module's `# contentType` field.

@@ -70,6 +70,7 @@ export class CodingProblemInsertService {
                     timeLimitMs: problem.timeLimitMs,
                     memoryLimitKb: problem.memoryLimitKb,
                     orderIndex: problem.orderIndex,
+                    sortIndex: problem.sortIndex,
                     enabled: problem.enabled,
                 })
             // wipe existing children so removed mount rows disappear.
@@ -106,6 +107,7 @@ export class CodingProblemInsertService {
                         expectedOutput: testcase.expectedOutput,
                         isSample: testcase.isSample,
                         orderIndex: testcase.orderIndex,
+                        sortIndex: testcase.sortIndex,
                     })),
                 )
             }

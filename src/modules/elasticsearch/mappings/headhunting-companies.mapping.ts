@@ -45,6 +45,10 @@ export const headhuntingCompaniesIndexMapping: ElasticsearchIndexMapping = {
             orderIndex: {
                 type: "integer",
             },
+            // pure reorder index, decoupled from orderIndex
+            sortIndex: {
+                type: "integer",
+            },
             // default locale for company copy — exact-match only
             defaultLocale: {
                 type: "keyword",

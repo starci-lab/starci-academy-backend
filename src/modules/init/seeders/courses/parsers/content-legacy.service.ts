@@ -134,6 +134,11 @@ export class ContentLegacyParserService {
                 "",
             ),
             orderIndex: contentIndex,
+            // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+            sortIndex: this.toSortIndex(
+                (merged as { sortIndex?: unknown }).sortIndex,
+                contentIndex,
+            ),
             minutesRead: this.coerceMdScalarService.toRequiredNumber(
                 merged.minutesRead,
                 0,
@@ -179,6 +184,7 @@ export class ContentLegacyParserService {
                 return {
                     id: referenceId,
                     orderIndex: item.orderIndex,
+                    sortIndex: (typeof item.sortIndex === "number" ? item.sortIndex : (item.orderIndex ?? 0)),
                     alias: this.coerceMdScalarService.toRequiredString(item.alias,
                         ""),
                     url: this.coerceMdScalarService.toRequiredString(item.url,
@@ -200,6 +206,19 @@ export class ContentLegacyParserService {
                 }
             }),
         }
+    }
+
+    /**
+     * Resolves the `# sortIndex` mount value (pure display order), falling back to the
+     * given `orderIndex` when it is missing or not a finite number.
+     *
+     * @param raw - Raw scalar read from the mount file
+     * @param fallback - The orderIndex to use when `# sortIndex` is absent
+     * @returns The resolved sort index
+     */
+    private toSortIndex(raw: unknown, fallback: number): number {
+        const value = typeof raw === "string" ? Number(raw.trim()) : Number(raw)
+        return Number.isFinite(value) ? value : fallback + 1
     }
 
     /**

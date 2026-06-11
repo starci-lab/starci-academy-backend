@@ -48,6 +48,9 @@ export const consultantsIndexMapping: ElasticsearchIndexMapping = {
             orderIndex: {
                 type: "integer",
             },
+            sortIndex: {
+                type: "integer",
+            },
             // default locale for consultant copy — exact-match only
             defaultLocale: {
                 type: "keyword",

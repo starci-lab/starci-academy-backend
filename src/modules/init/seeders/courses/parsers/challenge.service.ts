@@ -185,6 +185,11 @@ export class ChallengeParserService {
             ),
             verified: this.coerceMdScalarService.toNullableDate(merged.verified),
             orderIndex: challengeIndex,
+            // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+            sortIndex: this.toSortIndex(
+                (merged as { sortIndex?: unknown }).sortIndex,
+                challengeIndex,
+            ),
             translations: (merged.translations ?? []).map(
                 ({
                     locale,
@@ -199,6 +204,7 @@ export class ChallengeParserService {
             ),
             requirementsV2: ((merged.requirements ?? []) as Array<DeepPartial<ChallengeRequirementV2Entity>>).map(({
                 orderIndex,
+                sortIndex,
                 langs,
             }) => {
                 const challengeRequirementV2Id = this.challengeRequirementV2IdFactoryService.generate({
@@ -211,6 +217,7 @@ export class ChallengeParserService {
                 return {
                     id: challengeRequirementV2Id,
                     orderIndex,
+                    sortIndex: typeof sortIndex === "number" ? sortIndex : (orderIndex ?? 0),
                     defaultLocale: Locale.En,
                     langs: ((langs ?? []) as Array<DeepPartial<ChallengeRequirementV2LangEntity>>)
                         .map<DeepPartial<ChallengeRequirementV2LangEntity>>((lang) => {
@@ -224,6 +231,7 @@ export class ChallengeParserService {
                             })
                             return {
                                 ...lang,
+                                sortIndex: typeof lang.sortIndex === "number" ? lang.sortIndex : (lang.orderIndex ?? 0),
                                 translations: (lang.translations ?? []).map<DeepPartial<ChallengeRequirementV2LangTranslationEntity>>((translation) => ({
                                     ...translation,
                                     challengeRequirementV2LangId,
@@ -245,6 +253,7 @@ export class ChallengeParserService {
             }),
             stepsV2: ((merged.steps ?? []) as Array<DeepPartial<ChallengeStepV2Entity>>).map(({
                 orderIndex,
+                sortIndex,
                 langs,
             }) => {
                 const challengeStepV2Id = this.challengeStepV2IdFactoryService.generate({
@@ -257,6 +266,7 @@ export class ChallengeParserService {
                 return {
                     id: challengeStepV2Id,
                     orderIndex,
+                    sortIndex: typeof sortIndex === "number" ? sortIndex : (orderIndex ?? 0),
                     defaultLocale: Locale.En,
                     langs: ((langs ?? []) as Array<DeepPartial<ChallengeStepV2LangEntity>>)
                         .map<DeepPartial<ChallengeStepV2LangEntity>>((lang) => {
@@ -270,6 +280,7 @@ export class ChallengeParserService {
                             })
                             return {
                                 ...lang,
+                                sortIndex: typeof lang.sortIndex === "number" ? lang.sortIndex : (lang.orderIndex ?? 0),
                                 translations: (lang.translations ?? []).map<DeepPartial<ChallengeStepV2LangTranslationEntity>>((translation) => ({
                                     ...translation,
                                     challengeStepV2LangId,
@@ -286,6 +297,7 @@ export class ChallengeParserService {
             }),
             outputsV2: ((merged.outputs ?? []) as Array<DeepPartial<ChallengeOutputV2Entity>>).map(({
                 orderIndex,
+                sortIndex,
                 langs,
             }) => {
                 const challengeOutputV2Id = this.challengeOutputV2IdFactoryService.generate({
@@ -298,6 +310,7 @@ export class ChallengeParserService {
                 return {
                     id: challengeOutputV2Id,
                     orderIndex,
+                    sortIndex: typeof sortIndex === "number" ? sortIndex : (orderIndex ?? 0),
                     defaultLocale: Locale.En,
                     langs: ((langs ?? []) as Array<DeepPartial<ChallengeOutputV2LangEntity>>)
                         .map((lang) => {
@@ -309,7 +322,7 @@ export class ChallengeParserService {
                                 outputIndex: orderIndex ?? 0,
                                 orderIndex: lang.orderIndex ?? 0,
                             })
-                            
+
                             return {
                                 id: challengeOutputV2LangId,
                                 lang: this.coerceMdScalarService.toRequiredString(
@@ -317,6 +330,7 @@ export class ChallengeParserService {
                                     "text",
                                 ),
                                 defaultLocale: Locale.En,
+                                sortIndex: typeof lang.sortIndex === "number" ? lang.sortIndex : (lang.orderIndex ?? 0),
                                 text: this.coerceMdScalarService.toNullableStringColumn(
                                     lang.text,
                                 ),
@@ -332,6 +346,7 @@ export class ChallengeParserService {
                 (merged.prerequisites ?? []) as Array<DeepPartial<ChallengePrerequisiteV2Entity>>
             ).map(({
                 orderIndex,
+                sortIndex,
                 langs,
             }) => {
                 const challengePrerequisiteV2Id = this.challengePrerequisiteV2IdFactoryService.generate({
@@ -344,6 +359,7 @@ export class ChallengeParserService {
                 return {
                     id: challengePrerequisiteV2Id,
                     orderIndex,
+                    sortIndex: typeof sortIndex === "number" ? sortIndex : (orderIndex ?? 0),
                     defaultLocale: Locale.En,
                     langs: ((langs ?? []) as Array<DeepPartial<ChallengePrerequisiteV2LangEntity>>)
                         .map((lang) => {
@@ -362,6 +378,7 @@ export class ChallengeParserService {
                                     "text",
                                 ),
                                 defaultLocale: Locale.En,
+                                sortIndex: typeof lang.sortIndex === "number" ? lang.sortIndex : (lang.orderIndex ?? 0),
                                 text: this.coerceMdScalarService.toNullableStringColumn(
                                     lang.text,
                                 ),
@@ -386,6 +403,19 @@ export class ChallengeParserService {
             ),
         }
     }
+    /**
+     * Resolves the `# sortIndex` mount value (pure display order), falling back to the
+     * entity's `orderIndex` when it is missing or not a finite number.
+     *
+     * @param raw - Raw scalar read from the mount file.
+     * @param fallback - The orderIndex to use when `# sortIndex` is absent.
+     * @returns The resolved sort index.
+     */
+    private toSortIndex(raw: unknown, fallback: number): number {
+        const value = typeof raw === "string" ? Number(raw.trim()) : Number(raw)
+        return Number.isFinite(value) ? value : fallback + 1
+    }
+
     /**
      * Loads SCHEMA V2 submissions from `<challenge>/submissions/<N>/{locale}.md`.
      * Each folder holds `{locale}.md` with `# type` / `# title` / `# description` / `# score`;
@@ -490,6 +520,10 @@ export class ChallengeParserService {
             submissions.push({
                 id: challengeSubmissionId,
                 orderIndex: submissionOrderIndex,
+                sortIndex: this.toSortIndex(
+                    (merged as { sortIndex?: unknown }).sortIndex,
+                    submissionOrderIndex,
+                ),
                 type: this.coerceMdScalarService.toRequiredEnum(
                     merged.type,
                     SubmissionType,
@@ -615,6 +649,10 @@ export class ChallengeParserService {
             return {
                 id: criterionId,
                 orderIndex: criterionIndex,
+                sortIndex: this.toSortIndex(
+                    criterion.sortIndex,
+                    criterionIndex,
+                ),
                 critical: this.coerceMdScalarService.toRequiredBoolean(
                     criterion.critical,
                     false

@@ -44,6 +44,10 @@ export const coursesIndexMapping: ElasticsearchIndexMapping = {
             orderIndex: {
                 type: "integer",
             },
+            // pure display-ordering index, decoupled from orderIndex — sortable for reordering
+            sortIndex: {
+                type: "integer",
+            },
             // course copy default locale
             defaultLocale: {
                 type: "keyword",

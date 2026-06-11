@@ -61,7 +61,8 @@ export class ModulesHandler
             query: esQuery,
             sort: [
                 {
-                    orderIndex: {
+                    // pure ordering index drives the module list order (editable to reorder)
+                    sortIndex: {
                         order: "asc",
                     },
                 },

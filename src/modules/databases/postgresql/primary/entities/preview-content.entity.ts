@@ -66,6 +66,19 @@ export class PreviewContentEntity extends UuidAbstractEntity {
         orderIndex: number
 
     /**
+     * Pure ordering index used to reorder the list (decoupled from orderIndex).
+     */
+    @Field(() => Int, {
+        description: "Pure ordering index used to reorder the list (decoupled from orderIndex).",
+    })
+    @Column({
+        name: "sort_index",
+        type: "int",
+        default: 0,
+    })
+        sortIndex: number
+
+    /**
      * Default locale for this preview content row.
      */
     @Field(

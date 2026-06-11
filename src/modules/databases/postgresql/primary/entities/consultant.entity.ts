@@ -120,9 +120,13 @@ export class ConsultantEntity extends UuidAbstractEntity {
             description: "Display order within the company." 
         })
     @Column({
-        name: "order_index", type: "int", default: 0 
+        name: "order_index", type: "int", default: 0
     })
         orderIndex: number
+
+    @Field(() => Int, { description: "Pure ordering index used to reorder the list (decoupled from orderIndex)." })
+    @Column({ name: "sort_index", type: "int", default: 0 })
+        sortIndex: number
 
     @Field(() => GraphQLTypeLocale,
         {

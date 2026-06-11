@@ -1,0 +1,366 @@
+import {
+    Test,
+    TestingModule,
+} from "@nestjs/testing"
+import {
+    getEntityManagerToken,
+} from "@nestjs/typeorm"
+import {
+    BadRequestException,
+    UnauthorizedException,
+} from "@nestjs/common"
+import {
+    EnqueueEnrollJobService,
+} from "@modules/bussiness"
+import {
+    AiEntitlementService,
+} from "@modules/ai"
+import {
+    ActionType,
+    AiSubTier,
+    TransactionStatus,
+} from "@modules/databases"
+import {
+    AiSubscriptionTierNotAvailableException,
+    TransactionCourseNotFoundException,
+    TransactionNotFoundException,
+} from "@modules/exceptions"
+import {
+    DayjsService,
+} from "@modules/mixin"
+import {
+    PaypalClient,
+} from "@modules/paypal"
+import {
+    makeEntityManagerMock,
+} from "@tests/utils"
+import type {
+    EntityManagerMock,
+} from "@tests/utils"
+import {
+    PaypalWebhookCommand,
+} from "./webhook.command"
+import {
+    PaypalWebhookHandler,
+} from "./webhook.handler"
+import type {
+    PaypalWebhookParams,
+} from "./types"
+
+/** Connection name used by the primary PostgreSQL data source. */
+const POSTGRESQL_PRIMARY = "primary"
+
+/** The custom_id PayPal echoes back as our transaction referenceId. */
+const REFERENCE_ID = "ref-123"
+
+/**
+ * Build the webhook params (body + signature headers). The body defaults to a
+ * captured-payment event whose resource carries our custom_id directly.
+ */
+const buildParams = (
+    body: Record<string, unknown> = {
+        event_type: "PAYMENT.CAPTURE.COMPLETED",
+        resource: {
+            custom_id: REFERENCE_ID,
+        },
+    },
+): PaypalWebhookParams => ({
+    body,
+    authAlgo: "SHA256withRSA",
+    certUrl: "https://api.paypal.com/cert",
+    transmissionId: "tx-id",
+    transmissionSig: "tx-sig",
+    transmissionTime: "2026-06-11T00:00:00Z",
+}) as unknown as PaypalWebhookParams
+
+/**
+ * Build a pending transaction row with safe defaults; pass overrides to model
+ * an enrollment / subscription / wrong-action state per test.
+ */
+const buildTransaction = (
+    overrides: Record<string, unknown> = {
+    },
+): Record<string, unknown> => ({
+    id: "txn-1",
+    userId: "user-1",
+    referenceId: REFERENCE_ID,
+    status: TransactionStatus.Pending,
+    actionType: ActionType.Enroll,
+    courseId: "course-1",
+    aiSubTier: null,
+    // created just now → never trips the stale-transaction guard
+    createdAt: new Date(),
+    ...overrides,
+})
+
+describe("PaypalWebhookHandler",
+    () => {
+        let module: TestingModule
+        let handler: PaypalWebhookHandler
+        let entityManager: EntityManagerMock
+        let paypalClient: jest.Mocked<Pick<PaypalClient, "verifyWebhookSignature" | "retrieveOrder">>
+        let enqueueEnrollJobService: jest.Mocked<Pick<EnqueueEnrollJobService, "enqueue">>
+        let aiEntitlementService: jest.Mocked<Pick<AiEntitlementService, "grantTier">>
+
+        beforeEach(async () => {
+            // fresh jest-backed entity manager with happy-path defaults
+            entityManager = makeEntityManagerMock()
+
+            // PayPal client: signature verifies true; order lookup is the fallback path
+            paypalClient = {
+                verifyWebhookSignature: jest.fn().mockResolvedValue(true),
+                retrieveOrder: jest.fn().mockResolvedValue({
+                    referenceId: REFERENCE_ID,
+                }),
+            } as unknown as jest.Mocked<Pick<PaypalClient, "verifyWebhookSignature" | "retrieveOrder">>
+
+            // enroll worker hand-off — assert it is enqueued on the Enroll path
+            enqueueEnrollJobService = {
+                enqueue: jest.fn(),
+            } as unknown as jest.Mocked<Pick<EnqueueEnrollJobService, "enqueue">>
+
+            // entitlement grant — assert it fires on the subscription path
+            aiEntitlementService = {
+                grantTier: jest.fn(),
+            } as unknown as jest.Mocked<Pick<AiEntitlementService, "grantTier">>
+
+            module = await Test.createTestingModule({
+                providers: [
+                    PaypalWebhookHandler,
+                    // DayjsService is a pure dayjs wrapper (no I/O) → use the real one
+                    DayjsService,
+                    {
+                        provide: PaypalClient,
+                        useValue: paypalClient,
+                    },
+                    {
+                        provide: EnqueueEnrollJobService,
+                        useValue: enqueueEnrollJobService,
+                    },
+                    {
+                        provide: AiEntitlementService,
+                        useValue: aiEntitlementService,
+                    },
+                    {
+                        provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
+                        useValue: entityManager,
+                    },
+                ],
+            }).compile()
+
+            handler = module.get<PaypalWebhookHandler>(PaypalWebhookHandler)
+        })
+
+        afterEach(async () => {
+            await module.close()
+        })
+
+        it("enqueues the enroll job for a valid capture event",
+            async () => {
+                // a matching pending enrollment transaction exists
+                entityManager.findOne.mockResolvedValueOnce(
+                    buildTransaction(),
+                )
+
+                await handler.execute(
+                    new PaypalWebhookCommand(
+                        buildParams(),
+                    ),
+                )
+
+                // signature was verified before any mutation
+                expect(paypalClient.verifyWebhookSignature).toHaveBeenCalled()
+                // enroll worker received the hand-off
+                expect(enqueueEnrollJobService.enqueue).toHaveBeenCalledWith({
+                    userId: "user-1",
+                    courseId: "course-1",
+                    transactionId: "txn-1",
+                })
+                expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
+            })
+
+        it("grants the AI tier for a valid subscription event",
+            async () => {
+                // a matching pending subscription-purchase transaction exists
+                entityManager.findOne.mockResolvedValueOnce(
+                    buildTransaction({
+                        actionType: ActionType.AiSubscriptionPurchase,
+                        aiSubTier: AiSubTier.Plus,
+                        courseId: null,
+                    }),
+                )
+
+                await handler.execute(
+                    new PaypalWebhookCommand(
+                        buildParams(),
+                    ),
+                )
+
+                expect(aiEntitlementService.grantTier).toHaveBeenCalledWith({
+                    userId: "user-1",
+                    tier: AiSubTier.Plus,
+                    transactionId: "txn-1",
+                })
+                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+            })
+
+        it("resolves the reference id from the order-detail fallback",
+            async () => {
+                // resource omits custom_id but carries an order id → look it up
+                entityManager.findOne.mockResolvedValueOnce(
+                    buildTransaction(),
+                )
+
+                await handler.execute(
+                    new PaypalWebhookCommand(
+                        buildParams({
+                            event_type: "PAYMENT.CAPTURE.COMPLETED",
+                            resource: {
+                                id: "order-1",
+                            },
+                        }),
+                    ),
+                )
+
+                // fallback order lookup recovered the reference id
+                expect(paypalClient.retrieveOrder).toHaveBeenCalledWith({
+                    orderId: "order-1",
+                })
+                expect(enqueueEnrollJobService.enqueue).toHaveBeenCalled()
+            })
+
+        it("rejects an invalid signature without touching the DB",
+            async () => {
+                // verification fails → the payload is untrusted
+                paypalClient.verifyWebhookSignature.mockResolvedValueOnce(false)
+
+                await expect(
+                    handler.execute(
+                        new PaypalWebhookCommand(
+                            buildParams(),
+                        ),
+                    ),
+                ).rejects.toBeInstanceOf(UnauthorizedException)
+
+                // never looked up or mutated a transaction
+                expect(entityManager.findOne).not.toHaveBeenCalled()
+                expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+            })
+
+        it("ignores unrelated event types without side effects",
+            async () => {
+                // a denied-payment event is not a paid order → handler returns early
+                await handler.execute(
+                    new PaypalWebhookCommand(
+                        buildParams({
+                            event_type: "PAYMENT.CAPTURE.DENIED",
+                            resource: {
+                                custom_id: REFERENCE_ID,
+                            },
+                        }),
+                    ),
+                )
+
+                // early return → no lookup, no grant, no enqueue
+                expect(entityManager.findOne).not.toHaveBeenCalled()
+                expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+            })
+
+        it("throws when the resource omits our reference id",
+            async () => {
+                // no custom_id and no order id → reference id is unresolvable
+                await expect(
+                    handler.execute(
+                        new PaypalWebhookCommand(
+                            buildParams({
+                                event_type: "PAYMENT.CAPTURE.COMPLETED",
+                                resource: {
+                                },
+                            }),
+                        ),
+                    ),
+                ).rejects.toBeInstanceOf(TransactionNotFoundException)
+
+                expect(entityManager.findOne).not.toHaveBeenCalled()
+            })
+
+        it("throws when no pending transaction matches the reference id",
+            async () => {
+                // findOne default resolves null → no pending row
+                await expect(
+                    handler.execute(
+                        new PaypalWebhookCommand(
+                            buildParams(),
+                        ),
+                    ),
+                ).rejects.toBeInstanceOf(TransactionNotFoundException)
+
+                expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+            })
+
+        it("rejects a subscription event that carries no tier",
+            async () => {
+                // subscription-purchase transaction with a null tier
+                entityManager.findOne.mockResolvedValueOnce(
+                    buildTransaction({
+                        actionType: ActionType.AiSubscriptionPurchase,
+                        aiSubTier: null,
+                        courseId: null,
+                    }),
+                )
+
+                await expect(
+                    handler.execute(
+                        new PaypalWebhookCommand(
+                            buildParams(),
+                        ),
+                    ),
+                ).rejects.toBeInstanceOf(AiSubscriptionTierNotAvailableException)
+
+                expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
+            })
+
+        it("rejects an enrollment event that carries no course",
+            async () => {
+                // enrollment transaction missing its courseId
+                entityManager.findOne.mockResolvedValueOnce(
+                    buildTransaction({
+                        courseId: null,
+                    }),
+                )
+
+                await expect(
+                    handler.execute(
+                        new PaypalWebhookCommand(
+                            buildParams(),
+                        ),
+                    ),
+                ).rejects.toBeInstanceOf(TransactionCourseNotFoundException)
+
+                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+            })
+
+        it("throws BadRequest for an unsupported action type",
+            async () => {
+                // transaction with an action the switch does not handle
+                entityManager.findOne.mockResolvedValueOnce(
+                    buildTransaction({
+                        actionType: "unsupported-action",
+                    }),
+                )
+
+                await expect(
+                    handler.execute(
+                        new PaypalWebhookCommand(
+                            buildParams(),
+                        ),
+                    ),
+                ).rejects.toBeInstanceOf(BadRequestException)
+
+                expect(aiEntitlementService.grantTier).not.toHaveBeenCalled()
+                expect(enqueueEnrollJobService.enqueue).not.toHaveBeenCalled()
+            })
+    })

@@ -31,6 +31,10 @@ export const milestoneTasksIndexMapping: ElasticsearchIndexMapping = {
             orderIndex: {
                 type: "integer",
             },
+            // pure display-ordering index, decoupled from orderIndex — sortable for reordering
+            sortIndex: {
+                type: "integer",
+            },
             // priority weight — lower values are higher priority
             weight: {
                 type: "integer",

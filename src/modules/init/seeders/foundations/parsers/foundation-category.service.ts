@@ -83,6 +83,19 @@ export class FoundationCategoryParserService {
     }
 
     /**
+     * Coerces a raw `# sortIndex` mount value into a finite number, falling back
+     * to the category's `orderIndex` when it is missing or not a finite number.
+     *
+     * @param raw - Raw scalar read from the category mount file
+     * @param fallback - The orderIndex to use when `# sortIndex` is absent
+     * @returns The resolved sort index
+     */
+    private toSortIndex(raw: unknown, fallback: number): number {
+        const value = typeof raw === "string" ? Number(raw.trim()) : Number(raw)
+        return Number.isFinite(value) ? value : fallback + 1
+    }
+
+    /**
      * Builds a partial foundation category entity from the mount.
      */
     async parse(
@@ -128,6 +141,11 @@ export class FoundationCategoryParserService {
                 ),
             ),
             orderIndex: categoryIndex,
+            // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+            sortIndex: this.toSortIndex(
+                (jsonMap.get(Locale.En) as { sortIndex?: unknown })?.sortIndex,
+                categoryIndex,
+            ),
             translations: (() => {
                 const translations: Array<DeepPartial<FoundationCategoryTranslationEntity>> = []
                 for (const locale of Object.values(Locale)) {

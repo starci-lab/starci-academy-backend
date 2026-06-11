@@ -94,6 +94,8 @@ export class CodingProblemParserService {
             difficulty: data.difficulty ?? CodingDifficulty.Easy,
             domain: data.domain ?? CodingDomain.Arrays,
             orderIndex: data.orderIndex ?? 0,
+            // pure display-ordering index — explicit `sortIndex`, else falls back to orderIndex
+            sortIndex: typeof data.sortIndex === "number" ? data.sortIndex : ((data.orderIndex ?? 0) + 1),
             enabled: data.enabled ?? true,
             tags: data.tags ?? [],
             timeLimitMs: data.timeLimitMs ?? 2000,
@@ -165,6 +167,8 @@ export class CodingProblemParserService {
                     `${orderIndex}.out`)
                 return {
                     orderIndex,
+                    // testcases have no explicit sort key in the mount; mirror orderIndex
+                    sortIndex: orderIndex,
                     input: readFileSync(join(testcasesDir,
                         file),
                     "utf8"),

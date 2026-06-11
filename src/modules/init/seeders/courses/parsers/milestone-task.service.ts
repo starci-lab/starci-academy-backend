@@ -59,6 +59,7 @@ interface MergedCriterion {
     score?: unknown
     critical?: unknown
     orderIndex?: unknown
+    sortIndex?: unknown
 }
 
 /**
@@ -71,6 +72,7 @@ interface MergedLangBlock {
     outcome?: Array<MergedCriterion>
     approach?: Array<MergedCriterion>
     orderIndex?: unknown
+    sortIndex?: unknown
     translations?: Array<{ locale: Locale, field: string, value: string }>
 }
 
@@ -84,6 +86,7 @@ interface MergedMilestoneTask {
     type?: string
     weight?: unknown
     orderIndex?: unknown
+    sortIndex?: unknown
     maxScore?: unknown
     verified?: unknown
     criterias?: Array<MergedLangBlock>
@@ -197,6 +200,14 @@ export class MilestoneTaskParserService {
                 merged.orderIndex,
                 taskIndex,
             ),
+            // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+            sortIndex: this.toSortIndex(
+                merged.sortIndex,
+                this.coerceMdScalarService.toRequiredNumber(
+                    merged.orderIndex,
+                    taskIndex,
+                ),
+            ),
             weight: this.coerceMdScalarService.toRequiredNumber(
                 merged.weight,
                 0,
@@ -239,6 +250,7 @@ export class MilestoneTaskParserService {
                         lang: langBlock.lang ?? "",
                         body: langBlock.body ?? "",
                         orderIndex: briefIndex,
+                        sortIndex: typeof langBlock.sortIndex === "number" ? langBlock.sortIndex : briefIndex,
                         defaultLocale: Locale.En,
                         milestoneTask: {
                             id: taskId,
@@ -270,6 +282,7 @@ export class MilestoneTaskParserService {
                     return {
                         id: criterionId,
                         orderIndex: criterionIndex,
+                        sortIndex: typeof ref.sortIndex === "number" ? ref.sortIndex : criterionIndex,
                         score: this.coerceMdScalarService.toRequiredNumber(
                             ref.score,
                             10,
@@ -313,6 +326,7 @@ export class MilestoneTaskParserService {
                     return {
                         id: criterionId,
                         orderIndex: criterionIndex,
+                        sortIndex: typeof ref.sortIndex === "number" ? ref.sortIndex : criterionIndex,
                         score: this.coerceMdScalarService.toRequiredNumber(
                             ref.score,
                             10,
@@ -343,6 +357,19 @@ export class MilestoneTaskParserService {
                 },
             ),
         }
+    }
+
+    /**
+     * Resolves the `# sortIndex` mount value (pure display order), falling back to the
+     * task's `orderIndex` when it is missing or not a finite number.
+     *
+     * @param raw - Raw scalar read from the task mount file
+     * @param fallback - The orderIndex to use when `# sortIndex` is absent
+     * @returns The resolved sort index
+     */
+    private toSortIndex(raw: unknown, fallback: number): number {
+        const value = typeof raw === "string" ? Number(raw.trim()) : Number(raw)
+        return Number.isFinite(value) ? value : fallback + 1
     }
 
     /**

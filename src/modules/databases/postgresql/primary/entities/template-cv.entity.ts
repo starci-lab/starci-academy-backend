@@ -100,6 +100,10 @@ export class TemplateCVEntity extends UuidAbstractEntity {
     })
         orderIndex: number
 
+    @Field(() => Int, { description: "Pure ordering index used to reorder the list (decoupled from orderIndex)." })
+    @Column({ name: "sort_index", type: "int", default: 0 })
+        sortIndex: number
+
     /**
      * Default locale for this template row.
      */

@@ -41,6 +41,9 @@ export const challengeIndexMapping: ElasticsearchIndexMapping = {
             orderIndex: {
                 type: "integer",
             },
+            sortIndex: {
+                type: "integer",
+            },
             score: {
                 type: "integer",
             },

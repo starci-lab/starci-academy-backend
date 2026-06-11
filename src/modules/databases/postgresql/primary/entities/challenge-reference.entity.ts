@@ -76,6 +76,19 @@ export class ChallengeReferenceEntity extends UuidAbstractEntity {
         orderIndex: number
 
     @Field(
+        () => Int,
+        {
+            description: "Pure ordering index used to reorder the list (decoupled from orderIndex).",
+        },
+    )
+    @Column({
+        name: "sort_index",
+        type: "int",
+        default: 0,
+    })
+        sortIndex: number
+
+    @Field(
         () => GraphQLTypeLocale,
         {
             description: "Default locale for this reference row.",

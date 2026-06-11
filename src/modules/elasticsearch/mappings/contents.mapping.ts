@@ -44,6 +44,10 @@ export const contentsIndexMapping: ElasticsearchIndexMapping = {
             orderIndex: {
                 type: "integer",
             },
+            // pure display-ordering index, decoupled from orderIndex — sortable for reordering
+            sortIndex: {
+                type: "integer",
+            },
             minutesRead: {
                 type: "integer",
             },

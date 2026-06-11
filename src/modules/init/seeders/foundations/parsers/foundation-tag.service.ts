@@ -43,10 +43,12 @@ export class FoundationTagParserService {
         return (
             (jsonMap.get(Locale.En)?.tags ?? []) as Array<{
                 orderIndex: number
+                sortIndex?: number
                 value?: string
             }>
         ).map(({
             orderIndex,
+            sortIndex,
             value,
         }) => {
             const tagId = this.foundationTagIdFactoryService.generate({
@@ -79,6 +81,7 @@ export class FoundationTagParserService {
             return {
                 id: tagId,
                 orderIndex,
+                sortIndex: typeof sortIndex === "number" ? sortIndex : (orderIndex ?? 0),
                 value: tagValue,
                 defaultLocale: Locale.En,
                 foundation: {

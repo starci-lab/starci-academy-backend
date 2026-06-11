@@ -35,6 +35,10 @@ export const milestonesIndexMapping: ElasticsearchIndexMapping = {
             orderIndex: {
                 type: "integer",
             },
+            // pure display-ordering index, decoupled from orderIndex — sortable for reordering
+            sortIndex: {
+                type: "integer",
+            },
             // milestone copy default locale
             defaultLocale: {
                 type: "keyword",

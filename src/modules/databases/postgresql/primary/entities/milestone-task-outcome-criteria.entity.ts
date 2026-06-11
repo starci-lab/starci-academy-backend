@@ -37,6 +37,16 @@ export class MilestoneTaskOutcomeCriteriaEntity extends UuidAbstractEntity {
         orderIndex: number
 
     /**
+     * Pure ordering index used to reorder the list (decoupled from orderIndex).
+     */
+    @Column({
+        name: "sort_index",
+        type: "int",
+        default: 0,
+    })
+        sortIndex: number
+
+    /**
      * Explicit points awarded when this criterion is met (e.g. 10).
      */
     @Column({

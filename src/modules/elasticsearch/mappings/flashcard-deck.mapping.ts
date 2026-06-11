@@ -43,6 +43,10 @@ export const flashcardDecksIndexMapping: ElasticsearchIndexMapping = {
             orderIndex: {
                 type: "integer",
             },
+            // pure ordering index used to reorder the list (decoupled from orderIndex)
+            sortIndex: {
+                type: "integer",
+            },
             // deck copy default locale
             defaultLocale: {
                 type: "keyword",

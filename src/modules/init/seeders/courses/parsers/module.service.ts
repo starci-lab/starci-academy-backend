@@ -126,7 +126,16 @@ export class ModuleParserService {
                 id: courseId,
             },
             orderIndex: moduleIndex,
-            // explicit tier from `# contentType` (foundation by default) — never inferred from orderIndex
+            // pure display-ordering index (1-based) — explicit `# sortIndex`, else orderIndex + 1
+            sortIndex: this.toSortIndex(
+                (merged as { sortIndex?: unknown }).sortIndex,
+                moduleIndex + 1,
+            ),
+            // hard per-module paywall flag from `# isPremium` (false by default)
+            isPremium: this.toBoolean(
+                (merged as { isPremium?: unknown }).isPremium,
+            ),
+            // explicit tier from `# contentType` (foundation by default) — display badge only
             contentTier: this.toContentTier(
                 (merged as { contentType?: unknown }).contentType,
             ),
@@ -183,6 +192,30 @@ export class ModuleParserService {
      * @param raw - Raw scalar read from the module mount file
      * @returns The resolved tier (never throws)
      */
+    /**
+     * Resolves the `# index` mount value (pure display order), falling back to the
+     * module's `orderIndex` when it is missing or not a finite number.
+     *
+     * @param raw - Raw scalar read from the module mount file
+     * @param fallback - The orderIndex to use when `# index` is absent
+     * @returns The resolved sort index
+     */
+    private toSortIndex(raw: unknown, fallback: number): number {
+        const value = typeof raw === "string" ? Number(raw.trim()) : Number(raw)
+        return Number.isFinite(value) ? value : fallback + 1
+    }
+
+    /**
+     * Coerces a raw `# isPremium` mount value into a boolean (default false).
+     *
+     * @param raw - Raw scalar read from the module mount file
+     * @returns True only when the value is the string/boolean `true`
+     */
+    private toBoolean(raw: unknown): boolean {
+        return raw === true
+            || (typeof raw === "string" && raw.trim().toLowerCase() === "true")
+    }
+
     private toContentTier(raw: unknown): CourseContentTier {
         const value = typeof raw === "string" ? raw.trim().toLowerCase() : ""
         return (Object.values(CourseContentTier) as Array<string>).includes(value)

@@ -38,6 +38,16 @@ export class ChallengeSubmissionApproachCriteriaEntity extends UuidAbstractEntit
         orderIndex: number
 
     /**
+     * Pure ordering index used to reorder the list (decoupled from orderIndex).
+     */
+    @Column({
+        name: "sort_index",
+        type: "int",
+        default: 0,
+    })
+        sortIndex: number
+
+    /**
      * When true, failing this criterion zeroes the whole submission.
      */
     @Column({

@@ -200,6 +200,11 @@ export class FlashcardDeckParserService {
             // difficulty comes from the `# difficulty` heading; default to easy
             difficulty: merged.difficulty ?? ChallengeDifficulty.Easy,
             orderIndex: flashcardDeckIndex,
+            // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+            sortIndex: this.toSortIndex(
+                (merged as { sortIndex?: unknown }).sortIndex,
+                flashcardDeckIndex,
+            ),
             // emit one translation row per (locale, field) for the deck itself
             translations: (merged.translations ?? []).map(
                 ({
@@ -221,6 +226,20 @@ export class FlashcardDeckParserService {
                 flashcardDeckId,
             ),
         }
+    }
+
+    /**
+     * Resolves the `# sortIndex` mount value (pure display order), falling back to
+     * the supplied `fallback` (the entity's `orderIndex`) when it is missing or not
+     * a finite number.
+     *
+     * @param raw - Raw scalar read from the mount file
+     * @param fallback - The orderIndex to use when `# sortIndex` is absent
+     * @returns The resolved sort index
+     */
+    private toSortIndex(raw: unknown, fallback: number): number {
+        const value = typeof raw === "string" ? Number(raw.trim()) : Number(raw)
+        return Number.isFinite(value) ? value : fallback + 1
     }
 
     /**
@@ -289,6 +308,11 @@ export class FlashcardDeckParserService {
             cards.push({
                 id: flashcardCardId,
                 orderIndex: cardPath.orderIndex,
+                // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
+                sortIndex: this.toSortIndex(
+                    (merged as { sortIndex?: unknown }).sortIndex,
+                    cardPath.orderIndex,
+                ),
                 question: this.coerceMdScalarService.toRequiredString(merged.question, ""),
                 answer: this.coerceMdScalarService.toNullableStringColumn(merged.answer),
                 explanation: this.coerceMdScalarService.toNullableStringColumn(merged.explanation),
