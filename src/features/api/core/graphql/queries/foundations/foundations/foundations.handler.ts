@@ -60,7 +60,7 @@ export class FoundationsHandler
         const resolvedFilters: FoundationsFilters = filters ?? {
             sorts: [
                 {
-                    by: FoundationsSortBy.OrderIndex,
+                    by: FoundationsSortBy.SortIndex,
                     order: SortOrder.Asc,
                 },
             ],
@@ -70,7 +70,7 @@ export class FoundationsHandler
             pageNumber = 0,
             sorts = [
                 {
-                    by: FoundationsSortBy.OrderIndex,
+                    by: FoundationsSortBy.SortIndex,
                     order: SortOrder.Asc,
                 },
             ],

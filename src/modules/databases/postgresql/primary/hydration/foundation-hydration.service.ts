@@ -55,7 +55,7 @@ export class FoundationHydrationService {
                     translations: true,
                 },
                 order: {
-                    orderIndex: "ASC",
+                    sortIndex: "ASC",
                 },
             },
         )

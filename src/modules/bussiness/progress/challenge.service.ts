@@ -117,11 +117,11 @@ export class ChallengeProgressService {
                 order: {
                     content: {
                         module: {
-                            orderIndex: "ASC",
+                            sortIndex: "ASC",
                         },
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
-                    orderIndex: "ASC",
+                    sortIndex: "ASC",
                 },
             },
         )

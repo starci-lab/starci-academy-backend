@@ -62,7 +62,7 @@ export class ChallengeHydrationService {
                     translations: true,
                 },
                 order: {
-                    orderIndex: "ASC",
+                    sortIndex: "ASC",
                 },
             },
         )
@@ -91,7 +91,7 @@ export class ChallengeHydrationService {
                         translations: true,
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             ),
@@ -107,7 +107,7 @@ export class ChallengeHydrationService {
                         translations: true,
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             ),
@@ -123,7 +123,7 @@ export class ChallengeHydrationService {
                         translations: true,
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             ),
@@ -139,7 +139,7 @@ export class ChallengeHydrationService {
                         translations: true,
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             ),
@@ -158,7 +158,7 @@ export class ChallengeHydrationService {
                         },
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             ),
@@ -176,7 +176,7 @@ export class ChallengeHydrationService {
                         },
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             ),
@@ -194,7 +194,7 @@ export class ChallengeHydrationService {
                         },
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             ),
@@ -212,7 +212,7 @@ export class ChallengeHydrationService {
                         },
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             ),

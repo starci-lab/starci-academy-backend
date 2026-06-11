@@ -57,7 +57,7 @@ export class MilestoneHydrationService {
                     },
                 },
                 order: {
-                    orderIndex: "ASC",
+                    sortIndex: "ASC",
                 },
             },
         )

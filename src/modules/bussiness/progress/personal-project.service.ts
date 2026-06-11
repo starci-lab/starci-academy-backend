@@ -115,9 +115,9 @@ export class PersonalProjectProgressService {
                 },
                 order: {
                     milestone: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
-                    orderIndex: "ASC",
+                    sortIndex: "ASC",
                 },
             },
         )

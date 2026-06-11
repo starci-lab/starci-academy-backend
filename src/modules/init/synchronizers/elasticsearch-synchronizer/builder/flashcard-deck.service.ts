@@ -91,7 +91,7 @@ export class ElasticsearchFlashcardDeckBuildService {
                 },
                 order: {
                     cards: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             },

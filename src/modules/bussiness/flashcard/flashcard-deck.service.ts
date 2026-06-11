@@ -69,7 +69,7 @@ export class FlashcardDeckReadService {
                     translations: true,
                 },
                 order: {
-                    orderIndex: "ASC",
+                    sortIndex: "ASC",
                 },
             },
         )

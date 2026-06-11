@@ -16,7 +16,7 @@ import {
 /** Sort fields for listing headhunters within a company. */
 export enum ConsultantsSortBy {
     FullName = "fullName",
-    OrderIndex = "orderIndex",
+    SortIndex = "sortIndex",
     CreatedAt = "createdAt",
     UpdatedAt = "updatedAt",
 }
@@ -32,7 +32,7 @@ registerEnumType(
             [ConsultantsSortBy.FullName]: {
                 description: "Sort by full name",
             },
-            [ConsultantsSortBy.OrderIndex]: {
+            [ConsultantsSortBy.SortIndex]: {
                 description: "Sort by display order within the category",
             },
             [ConsultantsSortBy.CreatedAt]: {
@@ -67,7 +67,7 @@ export class ConsultantsFilters extends PaginationPageFilters<ConsultantsSortBy>
         {
             defaultValue: [
                 {
-                    by: ConsultantsSortBy.OrderIndex,
+                    by: ConsultantsSortBy.SortIndex,
                     order: SortOrder.Asc,
                 },
             ],
@@ -106,7 +106,7 @@ export class ConsultantsRequest {
             defaultValue: {
                 sorts: [
                     {
-                        by: ConsultantsSortBy.OrderIndex,
+                        by: ConsultantsSortBy.SortIndex,
                         order: SortOrder.Asc,
                     },
                 ],

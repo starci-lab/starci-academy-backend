@@ -202,7 +202,7 @@ export class ModuleParserService {
      */
     private toSortIndex(raw: unknown, fallback: number): number {
         const value = typeof raw === "string" ? Number(raw.trim()) : Number(raw)
-        return Number.isFinite(value) ? value : fallback + 1
+        return Number.isFinite(value) ? value : fallback
     }
 
     /**

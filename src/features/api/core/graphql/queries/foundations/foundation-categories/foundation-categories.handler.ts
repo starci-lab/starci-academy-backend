@@ -84,7 +84,7 @@ export class FoundationCategoriesHandler
             query: esQuery,
             sort: [
                 {
-                    orderIndex: {
+                    sortIndex: {
                         order: "asc",
                     },
                 },

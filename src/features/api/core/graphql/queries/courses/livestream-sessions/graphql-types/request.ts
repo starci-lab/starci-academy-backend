@@ -15,7 +15,7 @@ import {
 
 /** Sort fields for listing course livestream sessions. */
 export enum LivestreamSessionsSortBy {
-    OrderIndex = "orderIndex",
+    SortIndex = "sortIndex",
     DayOfWeek = "dayOfWeek",
     StartTime = "startTime",
     CreatedAt = "createdAt",
@@ -32,7 +32,7 @@ registerEnumType(
         name: "LivestreamSessionsSortBy",
         description: "Sort field for listing course livestream sessions.",
         valuesMap: {
-            [LivestreamSessionsSortBy.OrderIndex]: {
+            [LivestreamSessionsSortBy.SortIndex]: {
                 description: "Sort by display order",
             },
             [LivestreamSessionsSortBy.DayOfWeek]: {
@@ -75,7 +75,7 @@ export class LivestreamSessionsRequestPaginationFilters
         {
             defaultValue: [
                 {
-                    by: LivestreamSessionsSortBy.OrderIndex,
+                    by: LivestreamSessionsSortBy.SortIndex,
                     order: SortOrder.Asc,
                 },
             ],

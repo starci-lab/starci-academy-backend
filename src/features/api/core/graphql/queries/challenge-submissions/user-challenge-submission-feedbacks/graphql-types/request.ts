@@ -15,7 +15,7 @@ import {
 
 /** Sort fields for listing submission feedbacks. */
 export enum UserChallengeSubmissionFeedbacksSortBy {
-    OrderIndex = "orderIndex",
+    SortIndex = "sortIndex",
     Severity = "severity",
     CreatedAt = "createdAt",
     UpdatedAt = "updatedAt",
@@ -28,7 +28,7 @@ registerEnumType(GraphQLTypeUserChallengeSubmissionFeedbacksSortBy,
         name: "UserChallengeSubmissionFeedbacksSortBy",
         description: "Sort field for listing submission feedbacks.",
         valuesMap: {
-            [UserChallengeSubmissionFeedbacksSortBy.OrderIndex]: {
+            [UserChallengeSubmissionFeedbacksSortBy.SortIndex]: {
                 description: "Sort by display order index",
             },
             [UserChallengeSubmissionFeedbacksSortBy.Severity]: {
@@ -66,7 +66,7 @@ export class UserChallengeSubmissionFeedbacksRequestPaginationFilters extends Pa
         {
             defaultValue: [
                 {
-                    by: UserChallengeSubmissionFeedbacksSortBy.OrderIndex,
+                    by: UserChallengeSubmissionFeedbacksSortBy.SortIndex,
                     order: SortOrder.Asc,
                 },
             ],

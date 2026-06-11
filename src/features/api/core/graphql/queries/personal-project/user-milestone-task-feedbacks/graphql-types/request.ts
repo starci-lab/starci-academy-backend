@@ -15,7 +15,7 @@ import {
 
 /** Sort fields for listing feedback rows on the latest milestone-task attempt. */
 export enum UserMilestoneTaskFeedbacksSortBy {
-    OrderIndex = "orderIndex",
+    SortIndex = "sortIndex",
     Severity = "severity",
     CreatedAt = "createdAt",
     UpdatedAt = "updatedAt",
@@ -29,7 +29,7 @@ registerEnumType(
         name: "UserMilestoneTaskFeedbacksSortBy",
         description: "Sort field for userMilestoneTaskFeedbacks.",
         valuesMap: {
-            [UserMilestoneTaskFeedbacksSortBy.OrderIndex]: {
+            [UserMilestoneTaskFeedbacksSortBy.SortIndex]: {
                 description: "Sort by display order index",
             },
             [UserMilestoneTaskFeedbacksSortBy.Severity]: {
@@ -67,7 +67,7 @@ export class UserMilestoneTaskFeedbacksRequestPaginationFilters extends Paginati
         {
             defaultValue: [
                 {
-                    by: UserMilestoneTaskFeedbacksSortBy.OrderIndex,
+                    by: UserMilestoneTaskFeedbacksSortBy.SortIndex,
                     order: SortOrder.Asc,
                 },
             ],

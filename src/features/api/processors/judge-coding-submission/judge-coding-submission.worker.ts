@@ -142,7 +142,7 @@ export class JudgeCodingSubmissionWorker extends WorkerHost {
                         },
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             )

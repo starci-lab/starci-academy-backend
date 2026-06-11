@@ -60,7 +60,7 @@ export class ConsultantsHandler
         const resolvedFilters: ConsultantsFilters = filters ?? {
             sorts: [
                 {
-                    by: ConsultantsSortBy.OrderIndex,
+                    by: ConsultantsSortBy.SortIndex,
                     order: SortOrder.Asc,
                 },
             ],
@@ -70,7 +70,7 @@ export class ConsultantsHandler
             pageNumber = 0,
             sorts = [
                 {
-                    by: ConsultantsSortBy.OrderIndex,
+                    by: ConsultantsSortBy.SortIndex,
                     order: SortOrder.Asc,
                 },
             ],
@@ -87,7 +87,8 @@ export class ConsultantsHandler
             filters: [
                 {
                     term: {
-                        "companyId.keyword": companyId,
+                        // companyId is mapped as a pure keyword → query it directly (no `.keyword` subfield)
+                        companyId,
                     },
                 },
             ],

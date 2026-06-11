@@ -88,7 +88,7 @@ export class CourseHydrationService {
                         translations: true,
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             ),
@@ -104,7 +104,7 @@ export class CourseHydrationService {
                         translations: true,
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             ),
@@ -117,7 +117,7 @@ export class CourseHydrationService {
                         },
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             ),
@@ -133,7 +133,7 @@ export class CourseHydrationService {
                         translations: true,
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             ),
@@ -149,7 +149,7 @@ export class CourseHydrationService {
                         translations: true,
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             ),
@@ -177,7 +177,7 @@ export class CourseHydrationService {
                                     },
                                 },
                                 order: {
-                                    orderIndex: "ASC",
+                                    sortIndex: "ASC",
                                 },
                             },
                         ),
@@ -193,7 +193,7 @@ export class CourseHydrationService {
                                     translations: true,
                                 },
                                 order: {
-                                    orderIndex: "ASC",
+                                    sortIndex: "ASC",
                                 },
                             },
                         ),

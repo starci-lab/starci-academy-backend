@@ -56,7 +56,7 @@ export class ModuleHydrationService {
                     translations: true,
                 },
                 order: {
-                    orderIndex: "ASC",
+                    sortIndex: "ASC",
                 },
             },
         )
@@ -76,7 +76,7 @@ export class ModuleHydrationService {
                     challenges: true,
                 },
                 order: {
-                    orderIndex: "ASC",
+                    sortIndex: "ASC",
                 },
             },
         )

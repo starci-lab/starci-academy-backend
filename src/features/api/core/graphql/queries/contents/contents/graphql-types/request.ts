@@ -16,7 +16,7 @@ import {
 /** Sort fields for listing module contents. */
 export enum ContentsSortBy {
     Title = "title",
-    OrderIndex = "orderIndex",
+    SortIndex = "sortIndex",
     CreatedAt = "createdAt",
     UpdatedAt = "updatedAt",
 }
@@ -31,7 +31,7 @@ registerEnumType(GraphQLTypeContentsSortBy,
             [ContentsSortBy.Title]: {
                 description: "Sort by title",
             },
-            [ContentsSortBy.OrderIndex]: {
+            [ContentsSortBy.SortIndex]: {
                 description: "Sort by display order within the module",
             },
             [ContentsSortBy.CreatedAt]: {
@@ -66,7 +66,7 @@ export class ContentsRequestPaginationFilters extends PaginationPageFilters<Cont
         {
             defaultValue: [
                 {
-                    by: ContentsSortBy.OrderIndex,
+                    by: ContentsSortBy.SortIndex,
                     order: SortOrder.Asc,
                 },
             ],

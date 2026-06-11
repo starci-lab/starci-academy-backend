@@ -100,7 +100,7 @@ export class ReviewPersonalProjectTaskHandler
                         },
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                     select: {
                         id: true,

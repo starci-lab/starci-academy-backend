@@ -15,7 +15,7 @@ import {
 
 /** Sort fields for listing user personal task attempt feedbacks. */
 export enum UserPersonalTaskAttemptFeedbacksSortBy {
-    OrderIndex = "orderIndex",
+    SortIndex = "sortIndex",
     Severity = "severity",
     CreatedAt = "createdAt",
     UpdatedAt = "updatedAt",
@@ -28,7 +28,7 @@ registerEnumType(GraphQLTypeUserPersonalTaskAttemptFeedbacksSortBy,
         name: "UserPersonalTaskAttemptFeedbacksSortBy",
         description: "Sort field for listing user personal task attempt feedbacks.",
         valuesMap: {
-            [UserPersonalTaskAttemptFeedbacksSortBy.OrderIndex]: {
+            [UserPersonalTaskAttemptFeedbacksSortBy.SortIndex]: {
                 description: "Sort by display order index",
             },
             [UserPersonalTaskAttemptFeedbacksSortBy.Severity]: {
@@ -66,7 +66,7 @@ export class UserPersonalTaskAttemptFeedbacksRequestPaginationFilters extends Pa
         {
             defaultValue: [
                 {
-                    by: UserPersonalTaskAttemptFeedbacksSortBy.OrderIndex,
+                    by: UserPersonalTaskAttemptFeedbacksSortBy.SortIndex,
                     order: SortOrder.Asc,
                 },
             ],

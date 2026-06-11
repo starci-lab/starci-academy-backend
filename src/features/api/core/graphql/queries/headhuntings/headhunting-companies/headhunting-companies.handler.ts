@@ -51,7 +51,7 @@ export class HeadhuntingCompaniesHandler
             query: esQuery,
             sort: [
                 {
-                    orderIndex: {
+                    sortIndex: {
                         order: "asc",
                     },
                 },

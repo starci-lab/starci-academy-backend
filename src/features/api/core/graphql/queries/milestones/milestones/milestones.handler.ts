@@ -47,7 +47,8 @@ export class MilestonesHandler
             filters: [
                 {
                     term: {
-                        "courseId.keyword": courseId,
+                        // courseId is mapped as a pure keyword → query it directly (no `.keyword` subfield)
+                        courseId,
                     },
                 },
             ],
@@ -61,7 +62,7 @@ export class MilestonesHandler
             query: esQuery,
             sort: [
                 {
-                    orderIndex: {
+                    sortIndex: {
                         order: "asc",
                     },
                 },

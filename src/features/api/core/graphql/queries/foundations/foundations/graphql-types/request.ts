@@ -16,7 +16,7 @@ import {
 /** Sort fields for listing foundations within a category. */
 export enum FoundationsSortBy {
     Title = "title",
-    OrderIndex = "orderIndex",
+    SortIndex = "sortIndex",
     CreatedAt = "createdAt",
     UpdatedAt = "updatedAt",
 }
@@ -32,7 +32,7 @@ registerEnumType(
             [FoundationsSortBy.Title]: {
                 description: "Sort by title",
             },
-            [FoundationsSortBy.OrderIndex]: {
+            [FoundationsSortBy.SortIndex]: {
                 description: "Sort by display order within the category",
             },
             [FoundationsSortBy.CreatedAt]: {
@@ -67,7 +67,7 @@ export class FoundationsFilters extends PaginationPageFilters<FoundationsSortBy>
         {
             defaultValue: [
                 {
-                    by: FoundationsSortBy.OrderIndex,
+                    by: FoundationsSortBy.SortIndex,
                     order: SortOrder.Asc,
                 },
             ],
@@ -106,7 +106,7 @@ export class FoundationsRequest {
             defaultValue: {
                 sorts: [
                     {
-                        by: FoundationsSortBy.OrderIndex,
+                        by: FoundationsSortBy.SortIndex,
                         order: SortOrder.Asc,
                     },
                 ],

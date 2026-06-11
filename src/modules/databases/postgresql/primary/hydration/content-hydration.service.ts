@@ -68,7 +68,7 @@ export class ContentHydrationService {
                         translations: true,
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             ),
@@ -84,7 +84,7 @@ export class ContentHydrationService {
                         translations: true,
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             ),
@@ -100,7 +100,7 @@ export class ContentHydrationService {
                         translations: true,
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             ),
@@ -116,7 +116,7 @@ export class ContentHydrationService {
                         translations: true,
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             ),
@@ -133,7 +133,7 @@ export class ContentHydrationService {
                         translations: true,
                     },
                     order: {
-                        orderIndex: "ASC",
+                        sortIndex: "ASC",
                     },
                 },
             ),

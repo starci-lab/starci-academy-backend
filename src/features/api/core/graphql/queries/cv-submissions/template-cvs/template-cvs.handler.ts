@@ -39,7 +39,7 @@ export class TemplateCvsHandler
             TemplateCVEntity,
             {
                 order: {
-                    orderIndex: "ASC",
+                    sortIndex: "ASC",
                 },
                 relations: [
                     "translations",

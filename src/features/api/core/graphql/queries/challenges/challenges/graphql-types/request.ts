@@ -16,7 +16,7 @@ import {
 /** Sort fields for listing module challenges. */
 export enum ChallengesSortBy {
     Title = "title",
-    OrderIndex = "orderIndex",
+    SortIndex = "sortIndex",
     CreatedAt = "createdAt",
     UpdatedAt = "updatedAt",
 }
@@ -31,7 +31,7 @@ registerEnumType(GraphQLTypeChallengesSortBy,
             [ChallengesSortBy.Title]: {
                 description: "Sort by title",
             },
-            [ChallengesSortBy.OrderIndex]: {
+            [ChallengesSortBy.SortIndex]: {
                 description: "Sort by display order within the content",
             },
             [ChallengesSortBy.CreatedAt]: {
@@ -66,7 +66,7 @@ export class ChallengesRequestPaginationFilters extends PaginationPageFilters<Ch
         {
             defaultValue: [
                 {
-                    by: ChallengesSortBy.OrderIndex,
+                    by: ChallengesSortBy.SortIndex,
                     order: SortOrder.Asc,
                 },
             ],
