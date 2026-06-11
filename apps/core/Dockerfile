@@ -67,8 +67,10 @@ RUN apk add --no-cache openssl gzip
 # Use production node environment by default.
 ENV NODE_ENV production
 
-# Run the application as a non-root user.
-USER node
+# Run the application as root so it can write the git-mounted .contexts cache
+# (bind-mounted from a root-owned host dir) without a host-side chown.
+# Re-enable `USER node` + chown the mounts to uid 1000 for a hardened deploy.
+# USER node
 
 # Copy package.json so that package manager commands can be used.
 COPY package.json .
