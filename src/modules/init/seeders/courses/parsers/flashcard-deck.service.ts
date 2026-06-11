@@ -384,7 +384,11 @@ export class FlashcardDeckParserService {
             const module = await this.entityManager.findOne(ModuleEntity, {
                 where: {
                     displayId,
-                    courseId,
+                    // `courseId` is a virtual @RelationId — not queryable in `where`;
+                    // scope through the relation instead (mirrors resolveContentRefIds).
+                    course: {
+                        id: courseId,
+                    },
                 },
                 select: {
                     id: true,
