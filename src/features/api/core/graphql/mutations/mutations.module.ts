@@ -34,6 +34,9 @@ import {
 import {
     DiscussionMutationsModule,
 } from "./discussion"
+import {
+    InterviewMutationsModule,
+} from "./interview"
 
 /**
  * GraphQL mutations (courses, authentication, etc.).
@@ -66,6 +69,9 @@ import {
             isGlobal: true,
         }),
         DiscussionMutationsModule.register({
+            isGlobal: true,
+        }),
+        InterviewMutationsModule.register({
             isGlobal: true,
         }),
     ],
