@@ -522,3 +522,66 @@ export interface GenerateMilestoneTaskCodeImplementationIdParams {
     /** Zero-based code-implementation index within the task. */
     implementationIndex: number
 }
+
+/**
+ * Input for {@link MilestoneTaskBriefIdFactoryService.generate} — one SCHEMA V2 per-language
+ * learner-facing brief (`merged.criterias[briefIndex]`).
+ */
+export interface GenerateMilestoneTaskBriefIdParams {
+    /** Owning course ordinal. */
+    courseIndex: number
+    /** Owning milestone ordinal. */
+    milestoneIndex: number
+    /** Owning task ordinal. */
+    taskIndex: number
+    /** Zero-based brief (language block) index within the task. */
+    briefIndex: number
+}
+
+/**
+ * Input for {@link MilestoneTaskOutcomeCriteriaIdFactoryService.generate} — one SCHEMA V2 OUTCOME
+ * criterion (agnostic across the per-language brief blocks).
+ */
+export interface GenerateMilestoneTaskOutcomeCriteriaIdParams {
+    /** Owning course ordinal. */
+    courseIndex: number
+    /** Owning milestone ordinal. */
+    milestoneIndex: number
+    /** Owning task ordinal. */
+    taskIndex: number
+    /** Zero-based outcome criterion index within the task. */
+    criterionIndex: number
+}
+
+/**
+ * Input for {@link MilestoneTaskOutcomeCriteriaLangIdParams.generate} — one per-language prose row
+ * under a SCHEMA V2 outcome criterion.
+ */
+export interface GenerateMilestoneTaskOutcomeCriteriaLangIdParams extends GenerateMilestoneTaskOutcomeCriteriaIdParams {
+    /** Zero-based programming-language brief-block index within the criterion. */
+    langIndex: number
+}
+
+/**
+ * Input for {@link MilestoneTaskApproachCriteriaIdFactoryService.generate} — one SCHEMA V2 APPROACH
+ * criterion (per-language prose differs across brief blocks).
+ */
+export interface GenerateMilestoneTaskApproachCriteriaIdParams {
+    /** Owning course ordinal. */
+    courseIndex: number
+    /** Owning milestone ordinal. */
+    milestoneIndex: number
+    /** Owning task ordinal. */
+    taskIndex: number
+    /** Zero-based approach criterion index within the task. */
+    criterionIndex: number
+}
+
+/**
+ * Input for {@link MilestoneTaskApproachCriteriaLangIdParams.generate} — one per-language prose row
+ * under a SCHEMA V2 approach criterion.
+ */
+export interface GenerateMilestoneTaskApproachCriteriaLangIdParams extends GenerateMilestoneTaskApproachCriteriaIdParams {
+    /** Zero-based programming-language brief-block index within the criterion. */
+    langIndex: number
+}

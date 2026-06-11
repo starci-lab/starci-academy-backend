@@ -50,6 +50,11 @@ export class TaskHandler
                 },
                 relations: {
                     translations: true,
+                    // SCHEMA V2 per-language learner-facing briefs (read path); the internal
+                    // outcome/approach grading rubric is deliberately NOT loaded here
+                    briefs: {
+                        translations: true,
+                    },
                     criterias: {
                         translations: true,
                     },

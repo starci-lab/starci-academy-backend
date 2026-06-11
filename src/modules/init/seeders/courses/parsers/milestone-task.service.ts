@@ -11,8 +11,6 @@ import {
     PersonalProjectTaskType,
     InjectPrimaryPostgreSQLEntityManager,
     MilestoneTaskEntity,
-    MilestoneTaskCriteriaEntity,
-    MilestoneTaskCodeImplementationEntity,
 } from "@modules/databases"
 import {
     ExtractJsonFromMdService,
@@ -26,8 +24,11 @@ import {
 import {
     MilestoneIdFactoryService,
     MilestoneTaskIdFactoryService,
-    MilestoneTaskPassCriteriaIdFactoryService,
-    MilestoneTaskCodeImplementationIdFactoryService,
+    MilestoneTaskBriefIdFactoryService,
+    MilestoneTaskOutcomeCriteriaIdFactoryService,
+    MilestoneTaskOutcomeCriteriaLangIdFactoryService,
+    MilestoneTaskApproachCriteriaIdFactoryService,
+    MilestoneTaskApproachCriteriaLangIdFactoryService,
 } from "../id-factories"
 import {
     DeepPartial,
@@ -50,6 +51,46 @@ const TASK_TYPE_MAP: Record<string, PersonalProjectTaskType> = {
 }
 
 /**
+ * One outcome/approach grading criterion as authored under a language block (`#### N` →
+ * `{ body, score, critical }`). Outcome prose is agnostic; approach prose differs per language.
+ */
+interface MergedCriterion {
+    body?: string
+    score?: unknown
+    critical?: unknown
+    orderIndex?: unknown
+}
+
+/**
+ * One per-language brief block (`# criterias` → `## N`) after extract+merge: the learner-facing
+ * `body` carries aligned `translations[]`; `outcome`/`approach` are English-only criterion lists.
+ */
+interface MergedLangBlock {
+    lang?: string
+    body?: string
+    outcome?: Array<MergedCriterion>
+    approach?: Array<MergedCriterion>
+    orderIndex?: unknown
+    translations?: Array<{ locale: Locale, field: string, value: string }>
+}
+
+/**
+ * Default-locale milestone-task doc produced by {@link MergeJsonService}: scalar headings plus the
+ * lang-first `criterias` blocks and the task-level `translations[]`.
+ */
+interface MergedMilestoneTask {
+    title?: string
+    description?: string
+    type?: string
+    weight?: unknown
+    orderIndex?: unknown
+    maxScore?: unknown
+    verified?: unknown
+    criterias?: Array<MergedLangBlock>
+    translations?: Array<{ locale: Locale, field: string, value: string }>
+}
+
+/**
  * Parses milestone-task data from mounted course files (`en.md`, `vi.md`).
  * Criteria are parsed inline from the same markdown file (`# criterias` section).
  *
@@ -63,8 +104,11 @@ export class MilestoneTaskParserService {
         private readonly extractJsonFromMdService: ExtractJsonFromMdService,
         private readonly coerceMdScalarService: CoerceMdScalarService,
         private readonly milestoneTaskIdFactoryService: MilestoneTaskIdFactoryService,
-        private readonly criteriaIdFactoryService: MilestoneTaskPassCriteriaIdFactoryService,
-        private readonly codeImplementationIdFactoryService: MilestoneTaskCodeImplementationIdFactoryService,
+        private readonly briefIdFactoryService: MilestoneTaskBriefIdFactoryService,
+        private readonly outcomeCriteriaIdFactoryService: MilestoneTaskOutcomeCriteriaIdFactoryService,
+        private readonly outcomeCriteriaLangIdFactoryService: MilestoneTaskOutcomeCriteriaLangIdFactoryService,
+        private readonly approachCriteriaIdFactoryService: MilestoneTaskApproachCriteriaIdFactoryService,
+        private readonly approachCriteriaLangIdFactoryService: MilestoneTaskApproachCriteriaLangIdFactoryService,
         private readonly contextLoaderService: ContextLoaderService,
         private readonly milestoneTaskPathService: MilestoneTaskPathService,
         private readonly mergeJsonService: MergeJsonService,
@@ -124,14 +168,11 @@ export class MilestoneTaskParserService {
             translateFields: [
                 "title",
                 "description",
-                "hint",
-                "criterias.text",
-                "criterias.hint",
-                "criterias.promptText",
-                "codeImplementations.guide",
-                "codeImplementations.example",
+                // each `# criterias` item is a per-language brief block; only its learner-facing
+                // `body` is i18n. The outcome/approach grading prose is English-only (never merged).
+                "criterias.body",
             ],
-        }) as MergeJsonResult<DeepPartial<MilestoneTaskEntity>>
+        }) as MergeJsonResult<MergedMilestoneTask>
         const taskId = this.milestoneTaskIdFactoryService.generate(
             {
                 courseIndex,
@@ -140,11 +181,18 @@ export class MilestoneTaskParserService {
             },
         )
 
+        // every `# criterias` item is a per-language brief block; the brief `body` is i18n, while
+        // its outcome/approach grading criteria are agnostic-/per-language English-only rubrics
+        const langBlocks: Array<MergedLangBlock> = merged.criterias ?? []
+        // outcome criteria are identical across the language blocks → pivot off the first block
+        const outcomeRefs: Array<MergedCriterion> = langBlocks[0]?.outcome ?? []
+        const approachRefs: Array<MergedCriterion> = langBlocks[0]?.approach ?? []
+
         return {
             id: taskId,
             title: merged.title ?? "",
             description: merged.description ?? "",
-            hint: merged.hint ?? "",
+            hint: "",
             orderIndex: this.coerceMdScalarService.toRequiredNumber(
                 merged.orderIndex,
                 taskIndex,
@@ -156,7 +204,11 @@ export class MilestoneTaskParserService {
             type: TASK_TYPE_MAP[merged.type as string] ?? PersonalProjectTaskType.Business,
             maxScore: this.coerceMdScalarService.toRequiredNumber(
                 merged.maxScore,
-                0,
+                100,
+            ),
+            // `# verified` (non-null) marks this as a SCHEMA V2 task graded by outcome/approach rubric
+            verified: this.coerceMdScalarService.toNullableDate(
+                merged.verified,
             ),
             defaultLocale: Locale.En,
             translations: (merged.translations ?? []).map(
@@ -171,40 +223,32 @@ export class MilestoneTaskParserService {
                     value,
                 }),
             ),
-            /** Parse criteria inline from the same markdown file (`# criterias`). */
-            criterias: ((merged.criterias ?? []) as Array<DeepPartial<MilestoneTaskCriteriaEntity>>).map(
-                (item, criteriaIndex) => {
-                    const criteriaId = this.criteriaIdFactoryService.generate(
+            /** One learner-facing brief per language block (`# criterias` → `## N`); body is i18n. */
+            briefs: langBlocks.map(
+                (langBlock, briefIndex) => {
+                    const briefId = this.briefIdFactoryService.generate(
                         {
                             courseIndex,
                             milestoneIndex,
                             taskIndex,
-                            criteriaIndex: item.orderIndex ?? criteriaIndex,
+                            briefIndex,
                         },
                     )
                     return {
-                        id: criteriaId,
-                        text: (item.text as string) ?? "",
-                        hint: (item.hint as string) ?? "",
-                        promptText: (item.promptText as string) ?? "",
-                        orderIndex: this.coerceMdScalarService.toRequiredNumber(
-                            item.orderIndex,
-                            criteriaIndex,
-                        ),
-                        score: this.coerceMdScalarService.toRequiredNumber(
-                            item.score,
-                            10,
-                        ),
+                        id: briefId,
+                        lang: langBlock.lang ?? "",
+                        body: langBlock.body ?? "",
+                        orderIndex: briefIndex,
                         defaultLocale: Locale.En,
                         milestoneTask: {
                             id: taskId,
                         },
-                        translations: (item.translations ?? []).map(({
+                        translations: (langBlock.translations ?? []).map(({
                             locale,
                             field,
                             value,
                         }) => ({
-                            milestoneTaskCriteriaId: criteriaId,
+                            milestoneTaskBriefId: briefId,
                             locale,
                             field,
                             value,
@@ -212,43 +256,89 @@ export class MilestoneTaskParserService {
                     }
                 },
             ),
-            /** Parse code implementations inline from the same markdown file (`# codeImplementations`). */
-            codeImplementations: ((merged.codeImplementations ?? []) as Array<DeepPartial<MilestoneTaskCodeImplementationEntity>>).map(
-                (item, implementationIndex) => {
-                    const implementationId = this.codeImplementationIdFactoryService.generate(
+            /** Outcome rubric (agnostic across languages): one criterion, prose per language block. */
+            outcomeCriteria: outcomeRefs.map(
+                (ref, criterionIndex) => {
+                    const criterionId = this.outcomeCriteriaIdFactoryService.generate(
                         {
                             courseIndex,
                             milestoneIndex,
                             taskIndex,
-                            implementationIndex: item.orderIndex ?? implementationIndex,
+                            criterionIndex,
                         },
                     )
                     return {
-                        id: implementationId,
-                        lang: this.coerceMdScalarService.toRequiredString(
-                            item.lang,
-                            "text",
+                        id: criterionId,
+                        orderIndex: criterionIndex,
+                        score: this.coerceMdScalarService.toRequiredNumber(
+                            ref.score,
+                            10,
                         ),
-                        guide: (item.guide as string) ?? "",
-                        example: (item.example as string) ?? "",
-                        orderIndex: this.coerceMdScalarService.toRequiredNumber(
-                            item.orderIndex,
-                            implementationIndex,
-                        ),
-                        defaultLocale: Locale.En,
+                        critical: String(ref.critical) === "true",
                         milestoneTask: {
                             id: taskId,
                         },
-                        translations: (item.translations ?? []).map(({
-                            locale,
-                            field,
-                            value,
-                        }) => ({
-                            milestoneTaskCodeImplementationId: implementationId,
-                            locale,
-                            field,
-                            value,
-                        })),
+                        langs: langBlocks.map(
+                            (langBlock, langIndex) => ({
+                                id: this.outcomeCriteriaLangIdFactoryService.generate(
+                                    {
+                                        courseIndex,
+                                        milestoneIndex,
+                                        taskIndex,
+                                        criterionIndex,
+                                        langIndex,
+                                    },
+                                ),
+                                lang: langBlock.lang ?? "",
+                                body: langBlock.outcome?.[criterionIndex]?.body ?? "",
+                                outcomeCriteria: {
+                                    id: criterionId,
+                                },
+                            }),
+                        ),
+                    }
+                },
+            ),
+            /** Approach rubric (per-language prose differs across language blocks). */
+            approachCriteria: approachRefs.map(
+                (ref, criterionIndex) => {
+                    const criterionId = this.approachCriteriaIdFactoryService.generate(
+                        {
+                            courseIndex,
+                            milestoneIndex,
+                            taskIndex,
+                            criterionIndex,
+                        },
+                    )
+                    return {
+                        id: criterionId,
+                        orderIndex: criterionIndex,
+                        score: this.coerceMdScalarService.toRequiredNumber(
+                            ref.score,
+                            10,
+                        ),
+                        critical: String(ref.critical) === "true",
+                        milestoneTask: {
+                            id: taskId,
+                        },
+                        langs: langBlocks.map(
+                            (langBlock, langIndex) => ({
+                                id: this.approachCriteriaLangIdFactoryService.generate(
+                                    {
+                                        courseIndex,
+                                        milestoneIndex,
+                                        taskIndex,
+                                        criterionIndex,
+                                        langIndex,
+                                    },
+                                ),
+                                lang: langBlock.lang ?? "",
+                                body: langBlock.approach?.[criterionIndex]?.body ?? "",
+                                approachCriteria: {
+                                    id: criterionId,
+                                },
+                            }),
+                        ),
                     }
                 },
             ),

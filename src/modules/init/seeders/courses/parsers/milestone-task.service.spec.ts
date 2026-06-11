@@ -24,8 +24,11 @@ import {
     ModuleIdFactoryService,
     MilestoneIdFactoryService,
     MilestoneTaskIdFactoryService,
-    MilestoneTaskPassCriteriaIdFactoryService,
-    MilestoneTaskCodeImplementationIdFactoryService,
+    MilestoneTaskBriefIdFactoryService,
+    MilestoneTaskOutcomeCriteriaIdFactoryService,
+    MilestoneTaskOutcomeCriteriaLangIdFactoryService,
+    MilestoneTaskApproachCriteriaIdFactoryService,
+    MilestoneTaskApproachCriteriaLangIdFactoryService,
 } from "../id-factories"
 import {
     WinstonService,
@@ -42,9 +45,9 @@ const COURSES_MOUNT_ROOT = path.join(
     ".mount/data/courses",
 )
 
-/** Relative path under the `courses` context root for the M0 `0-project-initialization` task. */
-const PROJECT_INITIALIZATION_RELATIVE_PATH =
-    "0-fullstack-mastery/milestones/0-project-initialization-configuration/tasks/0-project-initialization"
+/** Relative path under the `courses` context root for the SCHEMA V2 `2-health-db-readiness-probe` task. */
+const HEALTH_DB_PROBE_RELATIVE_PATH =
+    "0-fullstack-mastery/milestones/3-postgresql-database-integration/tasks/2-health-db-readiness-probe"
 
 describe("MilestoneTaskParserService",
     () => {
@@ -78,8 +81,11 @@ describe("MilestoneTaskParserService",
                     ModuleIdFactoryService,
                     MilestoneIdFactoryService,
                     MilestoneTaskIdFactoryService,
-                    MilestoneTaskPassCriteriaIdFactoryService,
-                    MilestoneTaskCodeImplementationIdFactoryService,
+                    MilestoneTaskBriefIdFactoryService,
+                    MilestoneTaskOutcomeCriteriaIdFactoryService,
+                    MilestoneTaskOutcomeCriteriaLangIdFactoryService,
+                    MilestoneTaskApproachCriteriaIdFactoryService,
+                    MilestoneTaskApproachCriteriaLangIdFactoryService,
                     {
                         provide: ContextLoaderService,
                         useValue: contextLoaderService,
@@ -111,46 +117,55 @@ describe("MilestoneTaskParserService",
         describe("parse",
             () => {
                 it(
-                    "parses 0-project-initialization en.md + vi.md (criteria + codeImplementations)",
+                    "pivots the SCHEMA V2 lang-first markdown into briefs + outcome/approach criteria",
                     async () => {
                         const parsed = await service.parse({
                             paths: [
                                 {
-                                    relativePath: PROJECT_INITIALIZATION_RELATIVE_PATH,
-                                    orderIndex: 0,
-                                    displayId: "project-initialization",
+                                    relativePath: HEALTH_DB_PROBE_RELATIVE_PATH,
+                                    orderIndex: 2,
+                                    displayId: "health-db-readiness-probe",
                                 },
                             ],
                             courseIndex: 0,
-                            milestoneIndex: 0,
-                            taskIndex: 0,
+                            milestoneIndex: 3,
+                            taskIndex: 2,
                         })
 
                         // root scalars — En is the canonical default locale
                         expect(parsed.defaultLocale).toBe(Locale.En)
-                        expect(parsed.title).toBe("Project Initialization")
-                        expect(
-                            Object.values(PersonalProjectTaskType),
-                        ).toContain(parsed.type)
+                        expect(parsed.title).toBe("Health: DB Readiness Probe")
                         expect(parsed.type).toBe(PersonalProjectTaskType.TechIntegrate)
+                        expect(parsed.maxScore).toBe(100)
+                        // `# verified` heading → non-null Date marks this as a SCHEMA V2 task
+                        expect(parsed.verified).toBeInstanceOf(Date)
 
-                        // `# criterias` heading → 3 inline criteria rows, each carrying aligned translations
-                        expect(parsed.criterias).toHaveLength(3)
-                        expect(typeof parsed.criterias?.[0]?.text).toBe("string")
-                        expect(parsed.criterias?.[0]?.text?.length ?? 0).toBeGreaterThan(0)
-                        expect(typeof parsed.criterias?.[0]?.score).toBe("number")
-                        expect(parsed.criterias?.[0]?.translations).toEqual(
+                        // `# criterias` → one brief per language block (typescript/java/csharp/go)
+                        expect(parsed.briefs).toHaveLength(4)
+                        expect(parsed.briefs?.[0]?.lang).toBe("typescript")
+                        expect((parsed.briefs?.[0]?.body?.length ?? 0)).toBeGreaterThan(0)
+                        // brief body is i18n → each brief carries an aligned Vi translation row
+                        expect(parsed.briefs?.[0]?.translations).toEqual(
                             expect.arrayContaining([
                                 expect.objectContaining({
                                     locale: Locale.Vi,
-                                    field: "text",
+                                    field: "body",
                                 }),
                             ]),
                         )
 
-                        // `# codeImplementations` heading → 4 inline language rows
-                        expect((parsed.codeImplementations?.length ?? 0)).toBeGreaterThan(0)
-                        expect(typeof parsed.codeImplementations?.[0]?.lang).toBe("string")
+                        // outcome rubric is agnostic → 3 criteria, each with one lang row per language block
+                        expect(parsed.outcomeCriteria).toHaveLength(3)
+                        expect(parsed.outcomeCriteria?.[0]?.score).toBe(10)
+                        expect(parsed.outcomeCriteria?.[1]?.critical).toBe(true)
+                        expect(parsed.outcomeCriteria?.[0]?.langs).toHaveLength(4)
+                        expect((parsed.outcomeCriteria?.[0]?.langs?.[0]?.body?.length ?? 0)).toBeGreaterThan(0)
+
+                        // approach rubric differs per language → 3 criteria, each with one lang row per block
+                        expect(parsed.approachCriteria).toHaveLength(3)
+                        expect(parsed.approachCriteria?.[0]?.score).toBe(40)
+                        expect(parsed.approachCriteria?.[0]?.critical).toBe(true)
+                        expect(parsed.approachCriteria?.[0]?.langs).toHaveLength(4)
 
                         // root-level translations carry the Vi title row
                         expect(parsed.translations).toEqual(
@@ -158,7 +173,6 @@ describe("MilestoneTaskParserService",
                                 expect.objectContaining({
                                     locale: Locale.Vi,
                                     field: "title",
-                                    value: "Khởi tạo dự án",
                                 }),
                             ]),
                         )

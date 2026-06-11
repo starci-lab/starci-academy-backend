@@ -29,6 +29,11 @@ export class MilestoneTaskHydrationService {
                 },
                 relations: {
                     translations: true,
+                    // SCHEMA V2 per-language learner-facing briefs (FE/CDN read path); the internal
+                    // outcome/approach grading rubric is deliberately NOT loaded here
+                    briefs: {
+                        translations: true,
+                    },
                     criterias: {
                         translations: true,
                     },
