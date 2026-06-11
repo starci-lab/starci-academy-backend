@@ -95,7 +95,32 @@
       "WebSearch",
       "mcp__visualize__read_me",
       "mcp__visualize__show_widget",
-      "WebFetch(domain:v3.heroui.com)"
+      "WebFetch(domain:v3.heroui.com)",
+      "Skill(deep-research)",
+      "Skill(deep-research:*)",
+      "Workflow(deep-research)",
+      "WebFetch(domain:blog.addpipe.com)",
+      "WebFetch(domain:www.techinterviewhandbook.org)",
+      "WebFetch(domain:dweekly.medium.com)",
+      "WebFetch(domain:www.langchain.com)",
+      "WebFetch(domain:www.confident-ai.com)",
+      "WebFetch(domain:www.deptagency.com)",
+      "WebFetch(domain:towardsdatascience.com)",
+      "WebFetch(domain:interviewing.io)",
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:madewithlove.com)",
+      "WebFetch(domain:webcache.googleusercontent.com)",
+      "WebFetch(domain:arize.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:arxiv.org)",
+      "WebFetch(domain:caniuse.com)",
+      "WebFetch(domain:groups.google.com)",
+      "WebFetch(domain:simplify.jobs)",
+      "WebFetch(domain:www.lodely.com)",
+      "WebFetch(domain:www.finalroundai.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.spheron.network)",
+      "WebFetch(domain:www.assemblyai.com)"
     ]
   }
 }
