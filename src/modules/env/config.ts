@@ -922,13 +922,6 @@ export const envConfig = () => ({
                     "config",
                     "metadata.json"),
             }),
-            seed: parseEnvString({
-                key: "CONFIG_SEED_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "config",
-                    "_seed.yaml"),
-            }),
             initScope: parseEnvString({
                 key: "CONFIG_INIT_SCOPE_MOUNT_PATH",
                 defaultValue: join(process.cwd(),

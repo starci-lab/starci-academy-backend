@@ -14,17 +14,49 @@ import type {
 } from "../types"
 
 /**
- * Loader for the mounted `_seed.yaml` init-control file.
+ * Active seed/sync control config.
  *
- * Mirrors {@link getAppConfig}: read once from the mount path, parse via
- * `js-yaml`, and cache in memory. The git-sourced init generates its config
- * in-memory and applies it via {@link setRuntimeSeedConfig}, short-circuiting
- * the disk read.
+ * The git-sourced init builds the full {@link SeedConfig} in-memory from
+ * `seed.yaml` and applies it via {@link setRuntimeSeedConfig}; there is no
+ * `_seed.yaml` disk file anymore. When no override is set (e.g. a stray read
+ * outside the init window), {@link getSeedConfig} falls back to a fully-disabled
+ * default so nothing seeds accidentally.
  */
 let runtimeSeedConfig: SeedConfig | undefined
 
-/** Lazily-cached disk read (cleared only by {@link clearSeedConfigCache}). */
-let cachedSeedConfig: SeedConfig | undefined
+/** Fully-disabled baseline returned when no runtime override is active. */
+const DEFAULT_SEED_CONFIG: SeedConfig = {
+    seeders: {
+        enabled: false,
+        courses: {
+            enabled: false,
+            contents: true,
+            tracks: {
+            },
+            flashcard: {
+                enabled: false,
+                linkContents: false,
+            },
+        },
+        cv: false,
+        foundations: false,
+        headhunting: false,
+        aiModels: false,
+        subscriptions: false,
+        codingProblems: false,
+    },
+    synchronizers: {
+        enabled: false,
+        reIndex: false,
+        courses: {
+        },
+        cv: false,
+        foundations: false,
+        headhunting: false,
+        flashcards: false,
+        codingProblems: false,
+    },
+}
 
 /** Lazily-cached disk read of `seed.yaml` (git-init scope override). */
 let cachedInitScopeConfig: InitScopeConfig | undefined
@@ -47,11 +79,6 @@ export const setRuntimeSeedConfig = (seedConfig: SeedConfig): void => {
 /** Clear the runtime override (init / tests). */
 export const clearRuntimeSeedConfig = (): void => {
     runtimeSeedConfig = undefined
-}
-
-/** Drop the cached disk read so the next call re-reads `_seed.yaml` (tests). */
-export const clearSeedConfigCache = (): void => {
-    cachedSeedConfig = undefined
 }
 
 /** Drop the cached `seed.yaml` read so the next call re-reads it (tests). */
@@ -99,10 +126,14 @@ export const clearRuntimeContextRoot = (): void => {
 export const getRuntimeContextRoot = (): string | undefined => runtimeContextRoot
 
 /**
- * Read + parse the mounted `_seed.yaml`.
+ * Resolve the active {@link SeedConfig}.
  *
- * @param seedConfig - optional pre-built config that skips the disk read
- * @returns Parsed {@link SeedConfig}
+ * Prefers an explicit argument, then the in-memory runtime override the
+ * git-init sets, and finally a fully-disabled default (there is no `_seed.yaml`
+ * disk file to read anymore).
+ *
+ * @param seedConfig - optional pre-built config that wins over everything
+ * @returns The active {@link SeedConfig}
  */
 export const getSeedConfig = (seedConfig?: SeedConfig): SeedConfig => {
     if (seedConfig) {
@@ -111,13 +142,5 @@ export const getSeedConfig = (seedConfig?: SeedConfig): SeedConfig => {
     if (runtimeSeedConfig) {
         return runtimeSeedConfig
     }
-    if (cachedSeedConfig) {
-        return cachedSeedConfig
-    }
-    const raw = readFileSync(
-        envConfig().mountPath.config.seed,
-        "utf8",
-    )
-    cachedSeedConfig = loadYaml(raw) as SeedConfig
-    return cachedSeedConfig
+    return DEFAULT_SEED_CONFIG
 }

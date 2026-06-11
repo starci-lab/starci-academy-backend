@@ -84,7 +84,8 @@ export interface SeedCoursesConfig {
     enabled: boolean
     /**
      * When false, seed module shells only — skip contents, challenges, and
-     * nested lesson entities. Controlled in `_seed.yaml`, not `seed.yaml`.
+     * nested lesson entities. Sourced from the `contents` toggle in `seed.yaml`
+     * (see {@link InitScopeConfig.contents}); the overlay copies it here.
      */
     contents?: boolean
     /** Per-course scopes, keyed by course `displayId`. */
@@ -150,7 +151,13 @@ export interface SeedSynchronizersConfig {
     codingProblems: boolean
 }
 
-/** Root of the mounted `_seed.yaml`. */
+/**
+ * Full seed/sync control config.
+ *
+ * In git-init mode this is built in-memory by the diff overlay from `seed.yaml`
+ * and applied via `setRuntimeSeedConfig` — there is no longer a `_seed.yaml`
+ * disk file backing it.
+ */
 export interface SeedConfig {
     seeders: SeedSeedersConfig
     synchronizers: SeedSynchronizersConfig
@@ -206,4 +213,13 @@ export interface InitScopeConfig {
      * Coarse mode used only when `customScope` is absent/empty. Omit → `"diff"`.
      */
     scope?: InitScopeMode
+    /**
+     * Global toggle for seeding lesson contents (and nested challenges/lessons).
+     * `false` → seed module shells only (title, slug, catalog row). Omit → `true`.
+     *
+     * Distinct from the per-course `contents` under `customScope.courses.<id>`,
+     * which selects the module *range* — this is the on/off switch for whether
+     * lesson bodies + challenges are seeded at all.
+     */
+    contents?: boolean
 }
