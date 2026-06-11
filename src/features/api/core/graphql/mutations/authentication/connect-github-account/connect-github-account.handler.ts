@@ -2,7 +2,6 @@ import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
-    EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     UserEntity,
 } from "@modules/databases"
@@ -78,35 +77,5 @@ export class ConnectGithubAccountHandler
         await this.entityManager.save(user)
 
         return user
-    }
-
-    protected override async emit(
-        command: ConnectGithubAccountCommand,
-    ): Promise<void> {
-        const {
-            user,
-            input: {
-                githubUsername,
-            },
-        } = command.params
-
-        const enrollments = await this.entityManager.find(
-            EnrollmentEntity,
-            {
-                where: {
-                    user: {
-                        id: user.id,
-                    },
-                },
-            },
-        )
-
-        // for (const enrollment of enrollments) {
-        //     await this.addGithubUserToTeamEventHandler.publish({
-        //         userId: user.id,
-        //         courseId: enrollment.courseId,
-        //         githubUsername,
-        //     })
-        // }
     }
 }

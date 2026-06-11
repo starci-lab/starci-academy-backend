@@ -50,9 +50,6 @@ import {
     PayOSModule
 } from "@modules/payos"
 import {
-    SynchronizerModule
-} from "@features/synchronizer"
-import {
     ScheduleModule
 } from "@nestjs/schedule"
 import {
@@ -397,12 +394,6 @@ import {
             ),
             /** Throttler module. */
             ThrottlerModule.register(
-                {
-                    isGlobal: true,
-                }
-            ),
-            /** CDN, Elasticsearch, and ScyllaDB synchronizers. */
-            SynchronizerModule.register(
                 {
                     isGlobal: true,
                 }

@@ -5,9 +5,6 @@ import {
     ConfigurableModuleClass,
     OPTIONS_TYPE,
 } from "./monolithic-apollo-server.module-definition"
-// import {
-//     GraphQLJSON,
-// } from "graphql-type-json"
 import {
     ApolloDriver,
 } from "@nestjs/apollo"

@@ -90,11 +90,6 @@ export class FoundationSeederService {
                 }
                 await this.foundationInsertService.insert(foundation)
             }
-            // /** Delete stale foundations */
-            // await this.foundationInsertService.deleteStale(
-            //             foundations.map((foundation) => foundation.id as string),
-            //             categoryId,
-            //         )
         }
     }
 }

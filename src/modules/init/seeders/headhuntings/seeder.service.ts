@@ -73,11 +73,6 @@ export class HeadhuntingSeederService {
                 }
                 await this.consultantInsertService.insert(consultant)
             }
-
-            // await this.consultantInsertService.deleteStale(
-            //             consultants.map((entry) => entry.id as string),
-            //             companyId,
-            //         )
         }
     }
 }
