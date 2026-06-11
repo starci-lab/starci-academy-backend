@@ -35,6 +35,10 @@ services:
 
       CORS_ORIGIN_1: ${CORS_ORIGIN_1}
 
+      # Filesystem context (.contexts data root) — point it at the mounted volume so the
+      # git-init checkout + marker SHA survive `up --build`, enabling diff instead of a full pull each deploy.
+      CONTEXT_1_URL: ${CONTEXT_1_URL:-/usr/src/app/.mount/.contexts}
+
       # Init seeders (mount → PostgreSQL)
       ENABLE_INIT_SEEDERS: ${ENABLE_INIT_SEEDERS:-true}
       INIT_SEEDERS_COURSES_MODULES_FULLSTACK: ${INIT_SEEDERS_COURSES_MODULES_FULLSTACK:-all}

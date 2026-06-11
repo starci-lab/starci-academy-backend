@@ -48,6 +48,9 @@ jobs:
 
           CORS_ORIGIN_1: ${{ vars.CORS_ORIGIN_1 }}
 
+          # Filesystem context (.contexts) root → mounted volume so the git-init checkout + marker survive redeploys.
+          CONTEXT_1_URL: ${{ vars.CONTEXT_1_URL }}
+
           # Init seeders / synchronizers — Environment variables on `core-vps` (indexes: `all`, enabled: `true`)
           ENABLE_INIT_SEEDERS: ${{ vars.ENABLE_INIT_SEEDERS }}
           INIT_SEEDERS_COURSES_MODULES_FULLSTACK: ${{ vars.INIT_SEEDERS_COURSES_MODULES_FULLSTACK }}
