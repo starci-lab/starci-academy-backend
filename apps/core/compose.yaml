@@ -7,7 +7,11 @@ services:
     env_file:
       - ../../.env.docker
     volumes:
+      # config (read-only by the app) — host root ownership is fine
       - ../../.mount:/usr/src/app/.mount
+      # git-sourced data cache (written by the app as user `node`, uid 1000) —
+      # the host dir MUST be owned by 1000: `chown -R 1000:1000 ../../.contexts`
+      - ../../.contexts:/usr/src/app/.contexts
     restart: always
 
 # docker build -t kanibot/core:latest -f apps/core/Dockerfile . && docker push kanibot/core:latest
