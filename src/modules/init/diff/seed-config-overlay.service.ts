@@ -2,7 +2,6 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    getInitScopeConfig,
     type InitCustomScope,
     type ResolvedCustomCourseScope,
     type SeedConfig,
@@ -250,7 +249,6 @@ export class SeedDiffOverlayService {
                 enabled: true,
                 courses: {
                     enabled: true,
-                    contents: this.resolveCoursesContentsEnabled(),
                     tracks,
                     flashcard: {
                         enabled: flashcardEnabled,
@@ -294,17 +292,5 @@ export class SeedDiffOverlayService {
             return []
         }
         return [...indexes].sort((prev, next) => prev - next)
-    }
-
-    /**
-     * Reads the global `contents` toggle from `seed.yaml`.
-     *
-     * The git-init scope picks module ranges; this top-level flag decides whether
-     * lesson bodies + challenges are seeded at all (vs. module shells only).
-     *
-     * @returns Whether lesson contents should be seeded (default true)
-     */
-    private resolveCoursesContentsEnabled(): boolean {
-        return getInitScopeConfig().contents !== false
     }
 }

@@ -2,6 +2,7 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
+    CourseContentTier,
     Locale,
 } from "@modules/databases"
 import {
@@ -125,6 +126,10 @@ export class ModuleParserService {
                 id: courseId,
             },
             orderIndex: moduleIndex,
+            // explicit tier from `# contentType` (foundation by default) — never inferred from orderIndex
+            contentTier: this.toContentTier(
+                (merged as { contentType?: unknown }).contentType,
+            ),
             defaultLocale: Locale.En,
             title: merged.title ?? "",
             description: merged.description ?? "",
@@ -169,6 +174,20 @@ export class ModuleParserService {
                 }),
             ),
         }
+    }
+
+    /**
+     * Coerces a raw `# contentType` mount value into a {@link CourseContentTier},
+     * defaulting to `foundation` when missing or unrecognized.
+     *
+     * @param raw - Raw scalar read from the module mount file
+     * @returns The resolved tier (never throws)
+     */
+    private toContentTier(raw: unknown): CourseContentTier {
+        const value = typeof raw === "string" ? raw.trim().toLowerCase() : ""
+        return (Object.values(CourseContentTier) as Array<string>).includes(value)
+            ? (value as CourseContentTier)
+            : CourseContentTier.Foundation
     }
 
     /**

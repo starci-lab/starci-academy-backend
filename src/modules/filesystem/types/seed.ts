@@ -82,12 +82,6 @@ export interface SeedFlashcardConfig {
 export interface SeedCoursesConfig {
     /** Master switch for the whole course pipeline. */
     enabled: boolean
-    /**
-     * When false, seed module shells only — skip contents, challenges, and
-     * nested lesson entities. Sourced from the `contents` toggle in `seed.yaml`
-     * (see {@link InitScopeConfig.contents}); the overlay copies it here.
-     */
-    contents?: boolean
     /** Per-course scopes, keyed by course `displayId`. */
     tracks: Record<string, SeedCourseTrack>
     /** Flashcard deck/card seeding. */
@@ -213,13 +207,4 @@ export interface InitScopeConfig {
      * Coarse mode used only when `customScope` is absent/empty. Omit → `"diff"`.
      */
     scope?: InitScopeMode
-    /**
-     * Global toggle for seeding lesson contents (and nested challenges/lessons).
-     * `false` → seed module shells only (title, slug, catalog row). Omit → `true`.
-     *
-     * Distinct from the per-course `contents` under `customScope.courses.<id>`,
-     * which selects the module *range* — this is the on/off switch for whether
-     * lesson bodies + challenges are seeded at all.
-     */
-    contents?: boolean
 }

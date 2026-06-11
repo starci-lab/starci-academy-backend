@@ -2,6 +2,8 @@ import {
     Field, ID, Int, ObjectType
 } from "@nestjs/graphql"
 import {
+    CourseContentTier,
+    GraphQLTypeCourseContentTier,
     GraphQLTypeLocale,
     Locale,
 } from "../enums"
@@ -90,6 +92,26 @@ export class ModuleEntity extends UuidAbstractEntity {
         default: 0
     })
         orderIndex: number
+
+    /**
+     * Learning tier of the module — stored explicitly so tiering never depends on
+     * `orderIndex`. Drives the tier-based paywall (advanced + later-half intermediate
+     * are premium). Seeded from the module's `# contentType` field.
+     */
+    @Field(
+        () => GraphQLTypeCourseContentTier,
+        {
+            description: "Learning tier of the module (foundation / intermediate / advanced).",
+        },
+    )
+    @Column({
+        name: "content_tier",
+        type: "enum",
+        enum: CourseContentTier,
+        enumName: "course_content_tier",
+        default: CourseContentTier.Foundation,
+    })
+        contentTier: CourseContentTier
 
     /**
      * Default locale for the module.

@@ -30,7 +30,6 @@ const DEFAULT_SEED_CONFIG: SeedConfig = {
         enabled: false,
         courses: {
             enabled: false,
-            contents: true,
             tracks: {
             },
             flashcard: {
