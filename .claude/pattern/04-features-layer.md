@@ -11,9 +11,8 @@ src/features/
 │  │  └─ types/
 │  └─ processors/   enroll/ process-git-submission/ process-google-docs-submission/
 │                   resolve-github/ review-cv-submission/ review-milestone-task/ send-mail/  → xem 10
-├─ synchronizer/    core/<x>-synchronizer/ + processors/sync-<x>/   → xem 10
 ├─ socketio/        core/<namespace>/ (autocomplete, job-notifications)
-├─ video-encoder/   processors/video-encoder/   (cặp với apps/ffmpeg-proccessor)
+├─ video-encoder/   processors/video-encoder/   (chạy trong app core)
 ├─ backup/          pg/
 └─ cli/             utils/subs/
 ```

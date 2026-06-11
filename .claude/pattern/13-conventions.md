@@ -58,7 +58,6 @@
 |---------|------|--------|
 | `bussiness` | business | `src/modules/bussiness/` |
 | `vaildators` | validators | `src/modules/vaildators/` |
-| `proccessor` | processor | `apps/ffmpeg-proccessor/` |
 
 ## Checklist trước khi lưu file
 File đúng folder · naming đúng · NestJS file không declare type · JSDoc đủ · inline step comment · params/result đặt tên + destructure · `Array<T>` · `import type` · `index.ts` cập nhật · env qua `envConfig()` · DB qua EntityManager · không `throw new Error` · callback param spell-out · `npm run lint` sạch.

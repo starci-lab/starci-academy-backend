@@ -8,9 +8,7 @@ starci-academy-backend/
 │   ├── core/                   # API server chính (HTTP + GraphQL + Socket.IO)
 │   ├── cli/                    # nest-commander CLI
 │   ├── backup/                 # Backup runner (pg dump → S3)
-│   ├── ffmpeg-proccessor/      # Video encoder worker (BullMQ consumer)
-│   ├── ml-sucvat/              # ML side service
-│   └── scripts/                # Misc scripts app
+│   └── mock/                   # In-memory mock server (Sandpack)
 ├── src/
 │   ├── modules/                # Reusable Nest modules (DynamicModule, register({ isGlobal }))
 │   └── features/               # Feature modules — gắn vào app, gọi nhiều modules/

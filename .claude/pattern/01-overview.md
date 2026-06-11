@@ -14,7 +14,7 @@
 starci-academy-backend/
 ├─ apps/                     # runnable apps (entry points) — xem 02
 │  ├─ core/                  # API chính (HTTP + GraphQL + Socket.IO + processors)
-│  ├─ cli/ backup/ ffmpeg-proccessor/ ml-sucvat/ scripts/
+│  ├─ cli/ backup/ mock/
 ├─ src/
 │  ├─ modules/               # Nest module tái sử dụng (DynamicModule) — xem 03
 │  │  ├─ databases/ ai/ keycloak/ bussiness/ cqrs/ event/ cache/ s3/ mailer/
@@ -22,7 +22,7 @@ starci-academy-backend/
 │  │  ├─ exceptions/ crypto/ logger/ winston/ sentry/ api/ docs/ init/ …
 │  └─ features/              # feature gắn vào app, gọi nhiều modules/ — xem 04
 │     ├─ api/                # core (graphql + http) + processors
-│     ├─ synchronizer/ socketio/ video-encoder/ backup/ cli/
+│     ├─ socketio/ video-encoder/ backup/ cli/
 ├─ templates/                # Pug email templates
 ├─ scripts/                  # repo-level scripts
 └─ nest-cli.json             # monorepo + entry mỗi app (root = apps/core)

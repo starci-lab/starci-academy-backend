@@ -5,9 +5,7 @@
 | `core` | `apps/core/src/main.ts` | `npm start` (default) | HTTP API + GraphQL + WebSocket + processors mặc định |
 | `cli` | `apps/cli/src/main.ts` | `npm run cli -- <command>` | nest-commander CLI (seed, migrate, ad-hoc) |
 | `backup` | `apps/backup/src/main.ts` | `nest start backup` | PG backup worker |
-| `ffmpeg-proccessor` | `apps/ffmpeg-proccessor/src/main.ts` | `nest start ffmpeg-proccessor` | Video encode worker (BullMQ) |
-| `ml-sucvat` | `apps/ml-sucvat/src/main.ts` | `nest start ml-sucvat` | ML helper service |
-| `scripts` | `apps/scripts/src/main.ts` | `nest start scripts` | Misc batch scripts |
+| `mock` | `apps/mock/src/main.ts` | `nest start mock` | In-memory mock server (Sandpack) |
 
 Mỗi app có riêng `Dockerfile`, `compose.yaml` (dev), `vps-compose.yaml` (prod), `webpack.config.cjs`.
 

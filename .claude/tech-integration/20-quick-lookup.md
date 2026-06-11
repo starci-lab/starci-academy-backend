@@ -15,8 +15,8 @@
 | Thêm CLI command | `apps/cli/src/` (nest-commander) |
 | Sửa Keycloak login | `src/modules/keycloak/` |
 | Webhook PayOS/Sepay | `src/features/api/core/http/payos\|sepay/` |
-| Indexing/reindex flow | `src/features/synchronizer/core/elasticsearch-synchronizer/` |
-| Video encode pipeline | `src/features/video-encoder/` + `apps/ffmpeg-proccessor/` |
+| Indexing/reindex flow | `src/modules/init/synchronizers/elasticsearch-synchronizer/` |
+| Video encode pipeline | `src/features/video-encoder/` (chạy trong app `core`) |
 | Cache decorator | `src/modules/cache/cache.decorators.ts` |
 | Rate limit | `src/modules/throttler/` |
 | NATS event subject | `src/modules/event/enums/` + register ở `apps/core/src/app.module.ts` |

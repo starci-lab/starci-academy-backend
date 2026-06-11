@@ -7,9 +7,9 @@ Mỗi app = 1 runnable Nest application, có `main.ts`, `app.module.ts`, `Docker
 | `core` | `apps/core/src/main.ts` | `npm start` (mặc định) | HTTP API + GraphQL + Socket.IO + processors |
 | `cli` | `apps/cli/src/main.ts` | `npm run cli -- <cmd>` | nest-commander (seed, migrate, ad-hoc) |
 | `backup` | `apps/backup/src/main.ts` | `nest start backup` | PG dump → S3 |
-| `ffmpeg-proccessor` | `apps/ffmpeg-proccessor/src/main.ts` | `nest start ffmpeg-proccessor` | Video encode worker (BullMQ) |
-| `ml-sucvat` | `apps/ml-sucvat/src/main.ts` | `nest start ml-sucvat` | ML helper service |
-| `scripts` | `apps/scripts/src/main.ts` | `nest start scripts` | Batch scripts |
+| `mock` | `apps/mock/src/main.ts` | `nest start mock` | In-memory mock server (Sandpack) |
+
+> Video encoding chạy **trong app `core`** (`VideoEncoderModule` + `FfmpegModule`, BullMQ processors ở `src/features/video-encoder/`), không phải app riêng.
 
 ## `app.module.ts` = bản kê khai trung tâm
 - **`apps/core/src/app.module.ts`** — danh sách module đang on. **Đọc file này TRƯỚC** khi cần biết module nào active / cách register.
@@ -26,5 +26,4 @@ Mỗi app = 1 runnable Nest application, có `main.ts`, `app.module.ts`, `Docker
 
 ## Gotchas (xem tech-integration `21-gotchas.md`)
 - ⚠️ `apps/core` là **root** Nest CLI (`"root": "apps/core"`). `npm start` chạy core; app khác **bắt buộc** `nest start <name>`.
-- ⚠️ `nest-cli.json` khai báo project `ffmpeg-service` nhưng folder thật là `apps/ffmpeg-proccessor/` (typo cố ý) → cẩn thận khi build Docker.
 - ⚠️ `WinstonModule.register(...)` gọi 2 lần trong core app.module — lần sau (Verbose + isGlobal) ghi đè. Đừng copy pattern này.

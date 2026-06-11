@@ -18,13 +18,12 @@ Cây 1 processor:
 - Processor nghiệp vụ có sẵn: `enroll`, `process-git-submission`, `process-google-docs-submission`, `resolve-github`, `review-cv-submission`, `review-milestone-task`, `send-mail`.
 - Enqueue: dùng service wrapper trong `@modules/bussiness` (vd `EnqueueSendMailJobService.enqueue(payload)`), thường được publish từ CQRS handler (xem 09).
 
-## Synchronizers (`src/features/synchronizer/`)
-- `core/<x>-synchronizer/` = orchestrator, `processors/sync-<x>/` = consumer.
-- Có: CDN, Elasticsearch (reindex PG→ES), Indexer (autocomplete), Bloom filters (email dedup).
-- `core/sync-orchestrator.service.ts` điều phối, trigger qua schedule hoặc manual API. State mỗi run lưu ở `sync-state.entity.ts` + `sync-state.service.ts`.
+## Synchronizers (`src/modules/init/synchronizers/`)
+- 1 thư mục mỗi loại: `cdn-synchronizer/`, `elasticsearch-synchronizer/` (reindex PG→ES), `indexer-synchronizer/` (autocomplete), `bloom-filters-synchronizer/` (email dedup), `repo-synchronizer/`.
+- `synchronizers.module.ts` đăng ký + điều phối, chạy lúc bootstrap qua `InitModule`.
 
 ## Video encode
-`src/features/video-encoder/processors/video-encoder/` (cặp với app `apps/ffmpeg-proccessor/`). Dùng `@modules/ffmpeg` + `@modules/bento4` (DASH/HLS packaging).
+`src/features/video-encoder/processors/video-encoder/` — chạy **trong app `core`** (`VideoEncoderModule`). Dùng `@modules/ffmpeg` + `@modules/bento4` (DASH/HLS packaging).
 
 ## Cron / Interval (xem coding-conventions §9)
 - "Chạy lúc 03:00…" → `@Cron(envConfig().X.cron, { name })`.

@@ -6,7 +6,6 @@
 |---------|---------------|--------|
 | `bussiness` | business | `src/modules/bussiness/` |
 | `vaildators` | validators | `src/modules/vaildators/` |
-| `proccessor` | processor | `apps/ffmpeg-proccessor/` |
 
 Đổi tên = vỡ imports khắp repo. Nếu muốn sửa, phải rename + grep replace toàn bộ + update `nest-cli.json` + path aliases.
 
@@ -27,10 +26,6 @@ WinstonModule.register({ serviceName: ServiceName.Api, level: WinstonLevel.Verbo
 ```
 
 Lần thứ 2 (Verbose + isGlobal) **ghi đè** lần đầu. Khi debug logger, kiểm tra cái sau cùng. Không nên copy pattern này.
-
-## `nest-cli.json` `ffmpeg-service` vs folder `apps/ffmpeg-proccessor/`
-
-`nest-cli.json` khai báo project `ffmpeg-service` (`apps/ffmpeg-service/...`), nhưng folder thật là `apps/ffmpeg-proccessor/`. Khi chạy `nest start ffmpeg-service` sẽ lỗi path. Hoặc fix `nest-cli.json`, hoặc dùng path đúng. Cẩn thận khi build Docker.
 
 ## `apps/core/` là root Nest CLI
 

@@ -37,7 +37,7 @@ Mỗi app có:
 
 ## Webpack
 
-Mỗi app có `webpack.config.cjs` riêng (core, cli, ffmpeg-proccessor). NestJS dùng webpack để bundle thay vì tsc.
+Một số app có `webpack.config.cjs` riêng (core, cli, mock). NestJS dùng webpack để bundle thay vì tsc.
 
 ## Build output
 
