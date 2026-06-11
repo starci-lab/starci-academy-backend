@@ -100,19 +100,22 @@ export class InitService implements OnModuleInit {
             return
         }
 
+        // custom mode and `scope: all` force a re-seed → always pull fresh from git
+        // so we never seed from a possibly-stale/empty local .contexts (which only
+        // carries the marker for diffing). diff mode may still short-circuit below.
+        const forceReseed = isCustom || scopeMode === "all"
+
         // resolve the remote into a staging copy; a failure must NOT crash boot —
         // fall back to seeding whatever local .contexts content already exists
         let result: EnsureDataGitResult | null = null
         try {
-            result = await this.dataGitBootstrapService.ensure()
+            result = await this.dataGitBootstrapService.ensure(forceReseed)
         } catch {
             // ensure() already logged DataGitBootstrapFailed loudly — degrade gracefully
             result = null
         }
 
-        // already on the remote SHA → the DB is current; custom mode and
-        // `scope: all` still force a re-seed, so only short-circuit in diff mode
-        const forceReseed = isCustom || scopeMode === "all"
+        // already on the remote SHA → the DB is current; only short-circuit in diff mode
         if (result && !result.changed && !forceReseed) {
             return
         }

@@ -78,9 +78,12 @@ export class DataGitBootstrapService {
      * Does NOT touch `.contexts` or the marker — call {@link materialize} after a
      * successful seed to commit the staging tree, or {@link cleanup} to discard it.
      *
+     * @param forceDownload - When true (forced reseed: `scope: all` / customScope),
+     * always download a fresh staging copy from git even if the marker SHA matches —
+     * the seed source must come from git, never a possibly-stale/empty local `.contexts`.
      * @returns The remote SHA, the changed-path diff, and the staging location
      */
-    async ensure(): Promise<EnsureDataGitResult> {
+    async ensure(forceDownload = false): Promise<EnsureDataGitResult> {
         // read repo coordinates from env so ops can repoint per-environment
         const {
             owner,
@@ -119,8 +122,9 @@ export class DataGitBootstrapService {
                 DATA_GIT_SHA_MARKER_FILE)
             const previousSha = await this.readMarker(markerPath)
 
-            // skip the download when the root already holds this exact commit
-            if (previousSha === remoteSha && this.hasContent(checkoutRoot)) {
+            // skip the download when the root already holds this exact commit —
+            // diff mode only; a forced reseed must always pull fresh from git
+            if (!forceDownload && previousSha === remoteSha && this.hasContent(checkoutRoot)) {
                 this.winstonService.log(WinstonLog.DataGitBootstrapUpToDate,
                     {
                         owner,
