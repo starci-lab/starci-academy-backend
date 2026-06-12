@@ -53,13 +53,14 @@ import {
 /**
  * Boot-time initialization orchestrator — the canonical, git-sourced init.
  *
- * The flow is always diff-based: check the remote `data` repo against the local
- * marker, generate the file-level diff, seed/sync from a **staging** copy of the
- * freshly pulled repo, then pull the source into `.contexts` as the final step.
- * The generated pipeline config is applied via {@link setRuntimeSeedConfig} and
- * the staging root via {@link setRuntimeContextRoot}, so the shared pipeline
- * scopes itself — no shared-code edits. The local-file variant lives in the
- * parked `_init` module ({@link LegacyInitService}).
+ * The flow is always diff-based: resolve the remote `data` repo SHA, download it
+ * into a NEW commit snapshot under the data-sources root, compute the file-level
+ * diff against the previous snapshot, seed/sync from the new snapshot, then commit
+ * it to the manifest (pruning to the retention cap) as the final step. The
+ * generated pipeline config is applied via {@link setRuntimeSeedConfig} and the
+ * snapshot root via {@link setRuntimeContextRoot}, so the shared pipeline scopes
+ * itself — no shared-code edits. The local-file variant lives in the parked
+ * `_init` module ({@link LegacyInitService}).
  *
  * A first pull, a pull failure, or an untrustable diff is promoted to a full
  * reseed so the database is never under-seeded.
@@ -79,8 +80,8 @@ export class InitService implements OnModuleInit {
     ) { }
 
     /**
-     * Resolves the remote repo, seeds/syncs from staging, then materializes
-     * `.contexts` only after a successful seed.
+     * Resolves the remote repo, seeds/syncs from the new snapshot, then commits
+     * it to the manifest only after a successful seed.
      */
     async onModuleInit(): Promise<void> {
         // explicit `seed:`/`sync:` blocks drive the pipeline directly; otherwise the
@@ -118,23 +119,25 @@ export class InitService implements OnModuleInit {
             return
         }
 
-        // seed from the staging copy when we have one, else the local .contexts
-        const stagingRoot = result?.stagingRoot ?? null
+        // seed from the new snapshot when we have one, else the newest local snapshot
+        const snapshotRoot = result?.snapshotRoot ?? null
         const configToApply = isExplicit
             ? await this.buildExplicitConfig(initConfig,
-                stagingRoot)
+                snapshotRoot)
             : mode === "all"
-                ? await this.buildAllConfig(stagingRoot)
+                ? await this.buildAllConfig(snapshotRoot)
                 : await this.resolveConfig(result,
-                    stagingRoot)
+                    snapshotRoot)
 
-        if (stagingRoot) {
-            setRuntimeContextRoot(stagingRoot)
+        if (snapshotRoot) {
+            setRuntimeContextRoot(snapshotRoot)
         }
         // apply the resolved config so the existing pipeline scopes itself
         setRuntimeSeedConfig(configToApply)
+        // track commit so a failed seed can roll the new snapshot back
+        let committed = false
         try {
-            // phase 1: seed the (scoped) staging root into PostgreSQL when enabled
+            // phase 1: seed the (scoped) snapshot into PostgreSQL when enabled
             if (this.seedScopeService.isSeedersEnabled()) {
                 await this.seedersService.init()
             }
@@ -142,17 +145,22 @@ export class InitService implements OnModuleInit {
             if (this.syncScopeService.isSynchronizersEnabled()) {
                 await this.synchronizersService.init()
             }
-            // success → final step: pull the source into .contexts + re-stamp marker
+            // success → record the snapshot in the manifest + prune the oldest
             if (result) {
-                await this.dataGitBootstrapService.materialize(result)
+                await this.dataGitBootstrapService.commitSnapshot(result)
+                committed = true
             }
         } finally {
             // drop the in-memory overrides so later runtime reads see the real config
             clearRuntimeSeedConfig()
-            if (stagingRoot) {
+            if (snapshotRoot) {
                 clearRuntimeContextRoot()
             }
-            // a failed seed skipped materialize → still discard the staging temp
+            // a failed seed → discard the new snapshot so the previous stays baseline
+            if (result && !committed) {
+                await this.dataGitBootstrapService.rollbackSnapshot(result)
+            }
+            // always drop the downloaded tarball temp dir
             if (result) {
                 await this.dataGitBootstrapService.cleanup(result)
             }
@@ -248,9 +256,11 @@ export class InitService implements OnModuleInit {
         result: EnsureDataGitResult,
         coursesDir: string,
     ): Promise<SeedConfig> {
-        // turn the raw changed paths into a structured, scopable diff
+        // turn the raw changed paths into a structured, scopable diff — the
+        // snapshot diff already yields paths relative to the content root, so the
+        // subdir prefix is stripped (pass empty), unlike the GitHub-compare format
         const diff = parseDataGitDiff(result.changedPaths,
-            envConfig().dataGit.subdir)
+            "")
         const {
             overlay,
             courseCount,

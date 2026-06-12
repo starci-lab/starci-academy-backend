@@ -2,58 +2,51 @@ import type {
     Octokit,
 } from "octokit"
 
-/** Result of resolving the remote data repo into a staging copy. */
-export interface EnsureDataGitResult {
-    /** True when the remote moved and a staging copy was extracted; false when already up to date. */
-    changed: boolean
-    /** Remote commit SHA this run resolved to. */
+/** One retained commit snapshot recorded in the data-sources manifest. */
+export interface SnapshotManifestEntry {
+    /** Commit SHA — also the snapshot directory name under the data-sources root. */
     sha: string
-    /** SHA the local root was pinned to before this run; empty on first bootstrap. */
+    /** ISO timestamp the snapshot was pulled (for diagnostics + ordering ties). */
+    pulledAt: string
+}
+
+/**
+ * Ordered list of retained snapshots; the LAST entry is the newest the app
+ * seeded from, and the baseline the next pull diffs against.
+ */
+export interface SnapshotManifest {
+    /** Snapshots in pull order (oldest first, newest last). */
+    snapshots: Array<SnapshotManifestEntry>
+}
+
+/** Result of resolving the remote data repo into a commit snapshot. */
+export interface EnsureDataGitResult {
+    /** True when the remote moved and a new snapshot was extracted; false when already up to date. */
+    changed: boolean
+    /** Remote commit SHA this run resolved to (the new snapshot's directory name). */
+    sha: string
+    /** Newest snapshot SHA before this run; empty when no prior snapshot exists. */
     previousSha: string
     /**
-     * Repo-relative paths changed between `previousSha` and `sha`.
-     *
-     * Only meaningful when `diffAvailable` is true. Drives selective seeding.
+     * Snapshot-relative paths that differ between the previous snapshot and the
+     * new one (filesystem diff). Only meaningful when `diffAvailable` is true.
      */
     changedPaths: Array<string>
     /**
-     * True when a reliable file-level diff was computed (had a previous SHA and
-     * the compare succeeded). False on first boot or when the compare failed —
-     * callers must then fall back to a full reseed.
+     * True when a reliable diff was computed (a previous snapshot existed to
+     * compare against). False on first boot — callers must full-reseed.
      */
     diffAvailable: boolean
     /**
-     * Absolute path of the freshly-extracted staging copy to seed from, or
-     * `null` when nothing was downloaded (up to date). Seed/sync read from here;
-     * it is materialized into {@link checkoutRoot} only after a successful seed.
+     * Absolute path of the snapshot to seed from (`<datasourcesRoot>/<sha>`), or
+     * `null` when nothing is available. The snapshot is committed to the manifest
+     * (and pruned) only after a successful seed.
      */
-    stagingRoot: string | null
-    /** Temp directory holding the staging copy; removed during commit/cleanup. */
+    snapshotRoot: string | null
+    /** Absolute path of the data-sources root holding every snapshot + the manifest. */
+    datasourcesRoot: string
+    /** Temp directory holding the downloaded tarball; removed during cleanup. */
     tempDir: string | null
-    /** Absolute path of the real data root (`.contexts`) to materialize into. */
-    checkoutRoot: string
-}
-
-/** Params for resolving the file-level diff between two commits. */
-export interface ResolveChangedPathsParams {
-    /** Authenticated GitHub client. */
-    octokit: Octokit
-    /** Repository owner (GitHub org or user). */
-    owner: string
-    /** Repository name. */
-    repo: string
-    /** Baseline commit SHA (from the local marker); empty on first bootstrap. */
-    previousSha: string
-    /** New commit SHA just extracted. */
-    newSha: string
-}
-
-/** Result of resolving the file-level diff between two commits. */
-export interface ResolveChangedPathsResult {
-    /** Repo-relative paths changed between the two commits. */
-    changedPaths: Array<string>
-    /** True when the compare succeeded and the path list is trustworthy. */
-    diffAvailable: boolean
 }
 
 /** Params for downloading the repo tarball and extracting it into a staging dir. */

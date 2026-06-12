@@ -38,32 +38,39 @@ import {
     DataGitBootstrapException,
 } from "@modules/exceptions"
 import {
-    DATA_GIT_SHA_MARKER_FILE,
+    DATA_GIT_MANIFEST_FILE,
+    DATA_GIT_MAX_SNAPSHOTS,
     DATA_GIT_TEMP_PREFIX,
 } from "./constants"
+import {
+    diffSnapshots,
+} from "./utils"
 import type {
     DownloadAndExtractParams,
     DownloadAndExtractResult,
     EnsureDataGitResult,
-    ResolveChangedPathsParams,
-    ResolveChangedPathsResult,
+    SnapshotManifest,
 } from "./types"
 
 /**
- * Materializes the private `data` GitHub repo into the local data root.
+ * Materializes the private `data` GitHub repo into a versioned snapshot store.
  *
- * Replaces the manual `.mount/data` workflow. On boot it resolves the remote
- * commit SHA, compares it to a local marker, and when they differ downloads the
- * repo tarball (via the GitHub API — no `git` binary required) into a **staging**
- * temp dir and computes the file-level diff. The orchestrator seeds/syncs from
- * the staging copy; only after that succeeds does {@link materialize} copy the
- * staging tree into `.contexts` and re-stamp the marker — so a failed seed never
- * corrupts the local source.
+ * The data-sources root keeps up to {@link DATA_GIT_MAX_SNAPSHOTS} commit
+ * snapshots, each a full tree named by its commit SHA, ordered by a
+ * `manifest.json`. On boot it resolves the remote SHA; if it differs from the
+ * newest local snapshot it downloads the repo tarball into a NEW `<sha>/` dir and
+ * computes the diff by comparing the new snapshot against the previous one on
+ * disk (no GitHub compare API, so it survives force-pushes/history rewrites).
+ *
+ * The orchestrator seeds/syncs from the new snapshot, then calls
+ * {@link commitSnapshot} to record it in the manifest + prune the oldest — or
+ * {@link rollbackSnapshot} on failure, leaving the previous snapshot as the
+ * baseline so a failed seed never corrupts the source.
  *
  * @example
  * const result = await dataGitBootstrapService.ensure()
- * // ...seed from result.stagingRoot...
- * await dataGitBootstrapService.materialize(result)
+ * // ...seed from result.snapshotRoot...
+ * await dataGitBootstrapService.commitSnapshot(result)
  */
 @Injectable()
 export class DataGitBootstrapService {
@@ -73,15 +80,14 @@ export class DataGitBootstrapService {
     ) {}
 
     /**
-     * Resolves the remote `data` repo into a staging copy and computes the diff.
+     * Resolves the remote `data` repo into a fresh snapshot and computes the diff.
      *
-     * Does NOT touch `.contexts` or the marker — call {@link materialize} after a
-     * successful seed to commit the staging tree, or {@link cleanup} to discard it.
+     * Does NOT touch the manifest — call {@link commitSnapshot} after a successful
+     * seed to record + prune, or {@link rollbackSnapshot} to discard the snapshot.
      *
      * @param forceDownload - When true (forced reseed: `mode: all` / explicit seed:/sync:),
-     * always download a fresh staging copy from git even if the marker SHA matches —
-     * the seed source must come from git, never a possibly-stale/empty local `.contexts`.
-     * @returns The remote SHA, the changed-path diff, and the staging location
+     * always download a fresh snapshot even if the newest local SHA matches.
+     * @returns The remote SHA, the changed-path diff, and the new snapshot location
      */
     async ensure(forceDownload = false): Promise<EnsureDataGitResult> {
         // read repo coordinates from env so ops can repoint per-environment
@@ -91,8 +97,8 @@ export class DataGitBootstrapService {
             ref: configuredRef,
             subdir,
         } = envConfig().dataGit
-        // resolve the on-disk root that the seed pipeline ultimately reads from
-        const checkoutRoot = this.resolveCheckoutRoot()
+        // resolve the root that holds every commit snapshot + the manifest
+        const datasourcesRoot = this.resolveDatasourcesRoot()
         // build an authenticated client — dedicated read-only data-git token
         // (falls back to the shared github access token when not mounted)
         const octokit = new Octokit({
@@ -117,14 +123,22 @@ export class DataGitBootstrapService {
                 owner,
                 repo,
                 ref)
-            // the marker records the SHA the local root was last populated from (check local)
-            const markerPath = join(checkoutRoot,
-                DATA_GIT_SHA_MARKER_FILE)
-            const previousSha = await this.readMarker(markerPath)
+            // the manifest's tail is the newest snapshot the app last seeded from
+            const manifest = await this.readManifest(datasourcesRoot)
+            const previousSha = manifest.snapshots.at(-1)?.sha ?? ""
+            const previousSnapshotRoot = previousSha
+                ? join(datasourcesRoot,
+                    previousSha)
+                : null
 
-            // skip the download when the root already holds this exact commit —
+            // skip the download when the newest snapshot already holds this commit —
             // diff mode only; a forced reseed must always pull fresh from git
-            if (!forceDownload && previousSha === remoteSha && this.hasContent(checkoutRoot)) {
+            if (
+                !forceDownload
+                && previousSha === remoteSha
+                && previousSnapshotRoot
+                && this.hasContent(previousSnapshotRoot)
+            ) {
                 this.winstonService.log(WinstonLog.DataGitBootstrapUpToDate,
                     {
                         owner,
@@ -136,28 +150,16 @@ export class DataGitBootstrapService {
                     changed: false,
                     sha: remoteSha,
                     previousSha,
-                    // nothing changed → no diff to act on, no staging to seed
                     changedPaths: [],
                     diffAvailable: false,
-                    stagingRoot: null,
+                    // up to date → seed from the existing newest snapshot if forced
+                    snapshotRoot: previousSnapshotRoot,
+                    datasourcesRoot,
                     tempDir: null,
-                    checkoutRoot,
                 }
             }
 
-            // gen diff first (API only — independent of the download)
-            const {
-                changedPaths,
-                diffAvailable,
-            } = await this.resolveChangedPaths({
-                octokit,
-                owner,
-                repo,
-                previousSha,
-                newSha: remoteSha,
-            })
-
-            // download + extract into a staging dir; .contexts is left untouched
+            // download + extract into a staging dir, then place it as the new snapshot
             const {
                 tempDir,
                 stagingRoot,
@@ -168,6 +170,24 @@ export class DataGitBootstrapService {
                 ref,
                 subdir,
             })
+            const snapshotRoot = join(datasourcesRoot,
+                remoteSha)
+            await this.placeSnapshot(stagingRoot,
+                snapshotRoot)
+
+            // compute the diff against the previous snapshot on disk; a first pull
+            // (or a re-pull of the same SHA) has no trustworthy baseline → full reseed
+            let changedPaths: Array<string> = []
+            let diffAvailable = false
+            if (
+                previousSnapshotRoot
+                && previousSha !== remoteSha
+                && this.hasContent(previousSnapshotRoot)
+            ) {
+                changedPaths = await diffSnapshots(previousSnapshotRoot,
+                    snapshotRoot)
+                diffAvailable = true
+            }
 
             return {
                 changed: true,
@@ -175,9 +195,9 @@ export class DataGitBootstrapService {
                 previousSha,
                 changedPaths,
                 diffAvailable,
-                stagingRoot,
+                snapshotRoot,
+                datasourcesRoot,
                 tempDir,
-                checkoutRoot,
             }
         } catch (error) {
             // normalize the caught value once so the log/exception see a real Error
@@ -205,16 +225,17 @@ export class DataGitBootstrapService {
     }
 
     /**
-     * Commits the staging copy into `.contexts` and re-stamps the marker — the
-     * final "pull source into local" step, run only after a successful seed/sync.
+     * Records the new snapshot in the manifest and prunes the oldest beyond the
+     * retention cap — the final "commit source" step, run only after a successful
+     * seed/sync. No-op when the run was up to date (nothing new was downloaded).
      *
-     * @param result - The {@link ensure} result carrying the staging location
+     * @param result - The {@link ensure} result carrying the new snapshot
      */
-    async materialize(
+    async commitSnapshot(
         result: EnsureDataGitResult,
     ): Promise<void> {
-        // nothing was downloaded (up to date / pull failed) → nothing to commit
-        if (!result.stagingRoot) {
+        // up to date / pull failed → no new snapshot to record
+        if (!result.changed || !result.snapshotRoot) {
             return
         }
         const {
@@ -222,34 +243,20 @@ export class DataGitBootstrapService {
             repo,
             ref,
         } = envConfig().dataGit
-        // ensure the destination root exists before copying into it
-        await mkdir(result.checkoutRoot,
-            {
-                recursive: true,
-            })
-        // replace each top-level entry individually so unrelated files survive
-        const entries = await readdir(result.stagingRoot)
-        for (const entry of entries) {
-            // drop the stale copy then move the fresh one in — a per-entry swap
-            const destination = join(result.checkoutRoot,
-                entry)
-            await rm(destination,
-                {
-                    recursive: true, force: true,
-                })
-            await cp(join(result.stagingRoot,
-                entry),
-            destination,
-            {
-                recursive: true,
+        const manifest = await this.readManifest(result.datasourcesRoot)
+        // append unless the newest entry is already this SHA (forced re-pull)
+        if (manifest.snapshots.at(-1)?.sha !== result.sha) {
+            manifest.snapshots.push({
+                sha: result.sha,
+                pulledAt: new Date().toISOString(),
             })
         }
-        // re-stamp the marker so the next boot recognizes this commit
-        await writeFile(join(result.checkoutRoot,
-            DATA_GIT_SHA_MARKER_FILE),
-        result.sha,
-        "utf8")
-        // surface the old → new transition (the "source pulled" signal)
+        // prune the oldest snapshots beyond the cap (dir + manifest entry)
+        const retained = await this.pruneSnapshots(result.datasourcesRoot,
+            manifest)
+        await this.writeManifest(result.datasourcesRoot,
+            manifest)
+        // surface the old → new transition (the "source committed" signal)
         this.winstonService.log(WinstonLog.DataGitBootstrapUpdated,
             {
                 owner,
@@ -257,15 +264,33 @@ export class DataGitBootstrapService {
                 ref,
                 previousSha: result.previousSha,
                 newSha: result.sha,
-                entryCount: entries.length,
-                checkoutRoot: result.checkoutRoot,
+                entryCount: retained,
+                checkoutRoot: result.snapshotRoot,
             })
-        // the staging tree has served its purpose
-        await this.cleanup(result)
     }
 
     /**
-     * Removes the staging temp dir; safe to call multiple times.
+     * Discards the snapshot a failed seed produced so the previous snapshot stays
+     * the manifest baseline; safe to call multiple times.
+     *
+     * @param result - The {@link ensure} result carrying the new snapshot
+     */
+    async rollbackSnapshot(
+        result: EnsureDataGitResult,
+    ): Promise<void> {
+        // never delete a snapshot that is already the recorded baseline (up-to-date run)
+        if (!result.changed || !result.snapshotRoot) {
+            return
+        }
+        await rm(result.snapshotRoot,
+            {
+                recursive: true, force: true,
+            })
+    }
+
+    /**
+     * Removes the staging temp dir holding the downloaded tarball; safe to call
+     * multiple times.
      *
      * @param result - The {@link ensure} result carrying the temp location
      */
@@ -282,12 +307,12 @@ export class DataGitBootstrapService {
     }
 
     /**
-     * Resolves the on-disk root the seed pipeline ultimately reads from — the
-     * path of the first enabled filesystem context.
+     * Resolves the data-sources root — the path of the first enabled filesystem
+     * context, under which every commit snapshot + the manifest live.
      *
-     * @returns Absolute path of the filesystem-context data root
+     * @returns Absolute path of the filesystem-context data-sources root
      */
-    private resolveCheckoutRoot(): string {
+    private resolveDatasourcesRoot(): string {
         // the loader/resolver read content from the enabled filesystem context
         const filesystemContext = envConfig().contexts.find(
             (context) => context.enabled && context.type === ContextType.Filesystem,
@@ -304,6 +329,122 @@ export class DataGitBootstrapService {
             })
         }
         return filesystemContext.path
+    }
+
+    /**
+     * Reads the snapshot manifest, returning an empty manifest when absent/corrupt.
+     *
+     * @param datasourcesRoot - Absolute path of the data-sources root
+     * @returns The parsed manifest, or an empty one on first boot
+     */
+    private async readManifest(datasourcesRoot: string): Promise<SnapshotManifest> {
+        const manifestPath = join(datasourcesRoot,
+            DATA_GIT_MANIFEST_FILE)
+        // a missing manifest means no snapshot has ever been committed
+        if (!existsSync(manifestPath)) {
+            return {
+                snapshots: [],
+            }
+        }
+        try {
+            const parsed = JSON.parse(await readFile(manifestPath,
+                "utf8")) as SnapshotManifest
+            // tolerate hand-edits / partial writes — only trust a well-formed array
+            return Array.isArray(parsed?.snapshots)
+                ? parsed
+                : {
+                    snapshots: [],
+                }
+        } catch {
+            // a corrupt manifest must not crash boot — treat it as a fresh store
+            return {
+                snapshots: [],
+            }
+        }
+    }
+
+    /**
+     * Writes the manifest back to disk (creating the data-sources root if needed).
+     *
+     * @param datasourcesRoot - Absolute path of the data-sources root
+     * @param manifest - The manifest to persist
+     */
+    private async writeManifest(
+        datasourcesRoot: string,
+        manifest: SnapshotManifest,
+    ): Promise<void> {
+        await mkdir(datasourcesRoot,
+            {
+                recursive: true,
+            })
+        await writeFile(join(datasourcesRoot,
+            DATA_GIT_MANIFEST_FILE),
+        JSON.stringify(manifest,
+            null,
+            2),
+        "utf8")
+    }
+
+    /**
+     * Prunes the oldest snapshots beyond {@link DATA_GIT_MAX_SNAPSHOTS}, mutating
+     * the manifest in place and deleting the dropped dirs (never a retained SHA).
+     *
+     * @param datasourcesRoot - Absolute path of the data-sources root
+     * @param manifest - The manifest to trim (mutated)
+     * @returns The number of snapshots retained
+     */
+    private async pruneSnapshots(
+        datasourcesRoot: string,
+        manifest: SnapshotManifest,
+    ): Promise<number> {
+        if (manifest.snapshots.length <= DATA_GIT_MAX_SNAPSHOTS) {
+            return manifest.snapshots.length
+        }
+        // drop from the head (oldest); keep the newest DATA_GIT_MAX_SNAPSHOTS
+        const dropCount = manifest.snapshots.length - DATA_GIT_MAX_SNAPSHOTS
+        const dropped = manifest.snapshots.splice(0,
+            dropCount)
+        const retainedShas = new Set(manifest.snapshots.map((entry) => entry.sha))
+        for (const entry of dropped) {
+            // guard against deleting a dir that a retained entry still points at
+            if (retainedShas.has(entry.sha)) {
+                continue
+            }
+            await rm(join(datasourcesRoot,
+                entry.sha),
+            {
+                recursive: true, force: true,
+            })
+        }
+        return manifest.snapshots.length
+    }
+
+    /**
+     * Places a freshly-extracted staging tree as the snapshot dir for a SHA,
+     * replacing any stale dir from an earlier failed run.
+     *
+     * @param stagingRoot - Absolute path of the extracted content root
+     * @param snapshotRoot - Absolute path of the target `<datasourcesRoot>/<sha>` dir
+     */
+    private async placeSnapshot(
+        stagingRoot: string,
+        snapshotRoot: string,
+    ): Promise<void> {
+        // a partial dir from a prior crash must not bleed into the new snapshot
+        await rm(snapshotRoot,
+            {
+                recursive: true, force: true,
+            })
+        await mkdir(join(snapshotRoot,
+            ".."),
+        {
+            recursive: true,
+        })
+        await cp(stagingRoot,
+            snapshotRoot,
+            {
+                recursive: true,
+            })
     }
 
     /**
@@ -352,79 +493,18 @@ export class DataGitBootstrapService {
     }
 
     /**
-     * Resolves the repo-relative paths changed between two commits.
+     * Checks whether a snapshot dir already holds repo content.
      *
-     * @param params - Octokit client, repo coordinates, and the two SHAs
-     * @returns The changed path list and whether the diff is trustworthy
+     * @param snapshotRoot - Absolute path of a snapshot dir
+     * @returns True when the snapshot holds a `courses` tree
      */
-    private async resolveChangedPaths({
-        octokit,
-        owner,
-        repo,
-        previousSha,
-        newSha,
-    }: ResolveChangedPathsParams): Promise<ResolveChangedPathsResult> {
-        // first boot: no baseline commit to diff against → caller must full-reseed
-        if (!previousSha) {
-            return {
-                changedPaths: [],
-                diffAvailable: false,
-            }
-        }
-        try {
-            // compare the two commits; GitHub returns the per-file change list
-            const response = await octokit.rest.repos.compareCommitsWithBasehead({
-                owner,
-                repo,
-                basehead: `${previousSha}...${newSha}`,
-            })
-            // map each changed file entry to its repo-relative path
-            const changedPaths = (response.data.files ?? []).map(
-                (file) => file.filename,
-            )
-            return {
-                changedPaths,
-                diffAvailable: true,
-            }
-        } catch {
-            // history rewrite / missing commit → the diff cannot be trusted → full reseed
-            return {
-                changedPaths: [],
-                diffAvailable: false,
-            }
-        }
-    }
-
-    /**
-     * Reads the SHA marker file, returning an empty string when absent.
-     *
-     * @param markerPath - Absolute path to the marker file
-     * @returns The stored SHA, or empty string on first bootstrap
-     */
-    private async readMarker(markerPath: string): Promise<string> {
-        // a missing marker means the root was never populated from the repo
-        if (!existsSync(markerPath)) {
-            return ""
-        }
-        // trim to drop any trailing newline written by other tooling
-        const content = await readFile(markerPath,
-            "utf8")
-        return content.trim()
-    }
-
-    /**
-     * Checks whether the data root already holds repo content (ignoring the marker).
-     *
-     * @param checkoutRoot - Absolute path of the data root
-     * @returns True when at least one non-marker entry exists
-     */
-    private hasContent(checkoutRoot: string): boolean {
-        // a non-existent root obviously has no content yet
-        if (!existsSync(checkoutRoot)) {
+    private hasContent(snapshotRoot: string): boolean {
+        // a non-existent dir obviously has no content yet
+        if (!existsSync(snapshotRoot)) {
             return false
         }
-        // an empty root (or one holding only the marker) must be repopulated
-        return existsSync(join(checkoutRoot,
+        // an empty dir must be repopulated — every valid data tree has courses/
+        return existsSync(join(snapshotRoot,
             "courses"))
     }
 

@@ -41,9 +41,11 @@ services:
       # Self-hosted Judge0 (coding-practice sandbox) on the VPS.
       JUDGE0_BASE_URL: ${JUDGE0_BASE_URL}
 
-      # Filesystem context (.contexts data root) — point it at the mounted volume so the
-      # git-init checkout + marker SHA survive `up --build`, enabling diff instead of a full pull each deploy.
-      CONTEXT_1_URL: ${CONTEXT_1_URL:-/usr/src/app/.mount/.contexts}
+      # Data-sources root — holds the versioned commit snapshots + manifest.json.
+      # Points at the dedicated `.datasources` bind volume (see volumes:) so the
+      # snapshots survive `up --build` / recreate, enabling filesystem-diff seeding
+      # instead of a full reseed each deploy.
+      CONTEXT_1_URL: ${CONTEXT_1_URL:-/usr/src/app/.datasources}
 
       # Seed/sync scope is configured in .mount/config/seed.yaml (not env).
 
@@ -89,5 +91,8 @@ services:
       GITHUB_OAUTH_REDIRECT_URI: ${GITHUB_OAUTH_REDIRECT_URI}
     volumes:
       - /root/academy/.mount:/usr/src/app/.mount
+      # Versioned data-git snapshots (.datasources/<sha>/ + manifest.json) — its own
+      # host bind so the snapshot store survives container recreate / redeploy.
+      - /root/academy/.datasources:/usr/src/app/.datasources
     restart: always
       
