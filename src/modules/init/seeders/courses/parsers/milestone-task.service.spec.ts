@@ -7,6 +7,12 @@ import type {
     TestingModule,
 } from "@nestjs/testing"
 import {
+    getEntityManagerToken,
+} from "@nestjs/typeorm"
+import {
+    makeEntityManagerMock,
+} from "@modules/tests"
+import {
     Locale,
     PersonalProjectTaskType,
 } from "@modules/databases"
@@ -104,6 +110,12 @@ describe("MilestoneTaskParserService",
                             warn: jest.fn(),
                         },
                     },
+                    {
+                        // parse() never touches the DB, but the parser injects the primary
+                        // entity manager (used by milestoneTasksFromDatabase) → DI needs it
+                        provide: getEntityManagerToken("primary"),
+                        useValue: makeEntityManagerMock(),
+                    },
                 ],
             }).compile()
 
@@ -134,6 +146,8 @@ describe("MilestoneTaskParserService",
 
                         // root scalars — En is the canonical default locale
                         expect(parsed.defaultLocale).toBe(Locale.En)
+                        // displayId = the task mount folder slug (index prefix stripped)
+                        expect(parsed.displayId).toBe("health-db-readiness-probe")
                         expect(parsed.title).toBe("Health: DB Readiness Probe")
                         expect(parsed.type).toBe(PersonalProjectTaskType.TechIntegrate)
                         expect(parsed.maxScore).toBe(100)

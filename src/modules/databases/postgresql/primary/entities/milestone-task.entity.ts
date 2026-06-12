@@ -54,6 +54,25 @@ import {
 @Entity("milestone_tasks")
 export class MilestoneTaskEntity extends UuidAbstractEntity {
     /**
+     * Human-facing stable identifier = the task mount folder slug (the numeric index
+     * prefix is stripped, e.g. folder `0-clean-architecture-and-health` →
+     * `clean-architecture-and-health`). Used as the secondary CDN object key alongside the id.
+     */
+    @Field(
+        () => String,
+        {
+            description: "Human-facing stable identifier from the task mount folder slug.",
+        },
+    )
+    @Column({
+        name: "display_id",
+        type: "varchar",
+        length: 255,
+        default: "",
+    })
+        displayId: string
+
+    /**
      * Task title.
      */
     @Field(

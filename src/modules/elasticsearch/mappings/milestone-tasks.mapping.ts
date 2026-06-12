@@ -19,6 +19,10 @@ export const milestoneTasksIndexMapping: ElasticsearchIndexMapping = {
             id: {
                 type: "keyword",
             },
+            // human-facing stable id (folder slug) — exact-match lookup/filter
+            displayId: {
+                type: "keyword",
+            },
             // full-text title used for normal search/highlight + suggest source
             title: {
                 type: "text",

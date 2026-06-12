@@ -193,6 +193,9 @@ export class MilestoneTaskParserService {
 
         return {
             id: taskId,
+            // human-facing stable id = the task mount folder slug (resolver already strips
+            // the numeric index prefix); used as the secondary CDN object key.
+            displayId: path.displayId,
             title: merged.title ?? "",
             description: merged.description ?? "",
             hint: "",
