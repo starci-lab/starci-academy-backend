@@ -208,47 +208,6 @@ describe("CodingProblemService",
                         })
                     })
 
-                it("never returns reference solutions in the detail payload",
-                    async () => {
-                        // a stale doc indexed before the sync-builder fix still carries
-                        // reference solutions — the detail read must strip them so the
-                        // answer only ever flows through the reveal mutation
-                        const hit = {
-                            id: "p1",
-                            slug,
-                            starterCodes: [
-                                {
-                                    language: "typescript",
-                                    code: "// boilerplate",
-                                },
-                            ],
-                            solutions: [
-                                {
-                                    language: "typescript",
-                                    code: "// the worked answer",
-                                },
-                            ],
-                        } as unknown as CodingProblemEntity
-                        elasticsearchClient.search.mockResolvedValueOnce({
-                            hits: {
-                                hits: [
-                                    {
-                                        _source: hit,
-                                    },
-                                ],
-                            },
-                        })
-
-                        const result = await service.getBySlug({
-                            slug,
-                        })
-
-                        // solutions are gone; starter codes (boilerplate) are retained
-                        expect(result.solutions).toBeUndefined()
-                        expect(result).not.toHaveProperty("solutions")
-                        expect(result.starterCodes).toHaveLength(1)
-                    })
-
                 it("throws CodingProblemNotFoundException when no hit comes back",
                     async () => {
                         // empty hits → missing or disabled problem

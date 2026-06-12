@@ -1,6 +1,5 @@
 import {
     Field,
-    ID,
     Int,
     ObjectType,
 } from "@nestjs/graphql"
@@ -12,9 +11,9 @@ import {
     CodingProblemEntity,
 } from "@modules/databases"
 
-/** Page of coding problems + the user's solved set. */
+/** Page of coding problems (shared catalog — per-user state is myCodingProgress). */
 @ObjectType({
-    description: "A page of coding problems with the user's solved ids.",
+    description: "A page of coding problems (catalog only; solved state is myCodingProgress).",
 })
 export class CodingProblemsResponseData {
     @Field(
@@ -32,14 +31,6 @@ export class CodingProblemsResponseData {
         },
     )
         total: number
-
-    @Field(
-        () => [ID],
-        {
-            description: "Ids of problems the requesting user has solved (Accepted).",
-        },
-    )
-        solvedProblemIds: Array<string>
 }
 
 @ObjectType({

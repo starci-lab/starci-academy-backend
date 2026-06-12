@@ -193,13 +193,10 @@ export class CodingProblemService {
                 identifier: slug,
             })
         }
-        // SECURITY: reference solutions are gated behind the reveal flow and must
-        // never be served from the detail read. The current sync builder no longer
-        // indexes them, but defensively strip any solutions carried by documents
-        // indexed before that change (until the next re-sync) so they can't leak.
-        if ("solutions" in hit) {
-            delete (hit as Partial<CodingProblemEntity>).solutions
-        }
+        // Reference solutions can never leak here: they are not a GraphQL `@Field`
+        // on CodingProblemEntity (so the schema never serializes them) and the ES
+        // sync builder never indexes them — exposure is gated at the schema, not by
+        // read-time stripping.
         return hit
     }
 

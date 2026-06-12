@@ -8,6 +8,9 @@ import {
     CodingProblemService,
 } from "./coding-problem.service"
 import {
+    CodingProgressService,
+} from "./coding-progress.service"
+import {
     CodingSubmissionService,
 } from "./coding-submission.service"
 import {
@@ -26,12 +29,14 @@ import {
 @Module({
     providers: [
         CodingProblemService,
+        CodingProgressService,
         CodingSubmissionService,
         AntiCheatService,
         DeviceService,
     ],
     exports: [
         CodingProblemService,
+        CodingProgressService,
         CodingSubmissionService,
         AntiCheatService,
         DeviceService,

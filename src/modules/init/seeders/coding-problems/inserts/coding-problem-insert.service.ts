@@ -13,6 +13,7 @@ import {
 import {
     CodingProblemEntity,
     CodingProblemStarterCodeEntity,
+    CodingProblemSolutionEntity,
     CodingProblemTestcaseEntity,
     CodingProblemTranslationEntity,
     InjectPrimaryPostgreSQLEntityManager,
@@ -69,6 +70,7 @@ export class CodingProblemInsertService {
                     tags: problem.tags,
                     timeLimitMs: problem.timeLimitMs,
                     memoryLimitKb: problem.memoryLimitKb,
+                    points: problem.points,
                     orderIndex: problem.orderIndex,
                     sortIndex: problem.sortIndex,
                     enabled: problem.enabled,
@@ -84,6 +86,12 @@ export class CodingProblemInsertService {
                     },
                 })
             await entityManager.delete(CodingProblemStarterCodeEntity,
+                {
+                    problem: {
+                        id,
+                    },
+                })
+            await entityManager.delete(CodingProblemSolutionEntity,
                 {
                     problem: {
                         id,
@@ -123,6 +131,22 @@ export class CodingProblemInsertService {
                         },
                         language: starterCode.language,
                         code: starterCode.code,
+                    })),
+                )
+            }
+            // insert solutions (one per language) — deterministic id keyed by
+            // problem id + language, replaced wholesale like starter codes
+            if (problem.solutions.length > 0) {
+                await entityManager.save(
+                    CodingProblemSolutionEntity,
+                    problem.solutions.map((solution) => ({
+                        id: uuidv5(`${problem.slug}:solution:${solution.language}`,
+                            envConfig().uuidNamespace.codingProblem),
+                        problem: {
+                            id,
+                        },
+                        language: solution.language,
+                        code: solution.code,
                     })),
                 )
             }

@@ -6,6 +6,7 @@ import {
 } from "typeorm"
 import {
     CodingProblemEntity,
+    CodingSolutionRevealEntity,
     CodingSubmissionEntity,
     CodingVerdict,
     InjectPrimaryPostgreSQLEntityManager,
@@ -25,6 +26,7 @@ import {
 import type {
     ListMyCodingSubmissionsParams,
     ListMyCodingSubmissionsResult,
+    RecordSolutionRevealResult,
     SubmitCodingSolutionParams,
     SubmitCodingSolutionResult,
 } from "./types"
@@ -125,6 +127,77 @@ export class CodingSubmissionService {
         return {
             submissionId: submission.id,
             jobId: job.id,
+        }
+    }
+
+    /**
+     * Record that the user revealed a problem's reference solution. Idempotent
+     * (one row per user+problem). Once recorded, a later first solve of that
+     * problem awards no points — peeking the answer forfeits the score.
+     *
+     * @param params - the viewing user's id + the problem slug
+     * @returns whether a new reveal row was created (false when already revealed)
+     * @throws CodingProblemNotFoundException when the slug is unknown/disabled
+     */
+    async recordSolutionReveal({
+        userId,
+        slug,
+    }: {
+        /** The viewing user's id. */
+        userId: string
+        /** Slug of the problem whose solution was revealed. */
+        slug: string
+    }): Promise<RecordSolutionRevealResult> {
+        // resolve the target problem (must exist + be enabled) and load its reference
+        // solutions — this gated mutation is the ONLY place they are served to the client
+        // (the problem detail read never carries them: not a GraphQL field, not indexed).
+        const problem = await this.entityManager.findOne(CodingProblemEntity,
+            {
+                where: {
+                    slug,
+                    enabled: true,
+                },
+                relations: {
+                    solutions: true,
+                },
+            })
+        if (!problem) {
+            throw new CodingProblemNotFoundException({
+                identifier: slug,
+            })
+        }
+        const solutions = problem.solutions ?? []
+        // already revealed → idempotent: skip re-recording but still serve the answer
+        const existing = await this.entityManager.findOne(CodingSolutionRevealEntity,
+            {
+                where: {
+                    user: {
+                        id: userId,
+                    },
+                    problem: {
+                        id: problem.id,
+                    },
+                },
+            })
+        if (existing) {
+            return {
+                revealed: false,
+                solutions,
+            }
+        }
+        // first reveal → persist the forfeit marker
+        await this.entityManager.save(CodingSolutionRevealEntity,
+            {
+                user: {
+                    id: userId,
+                },
+                problem: {
+                    id: problem.id,
+                },
+            })
+        return {
+            revealed: true,
+            solutions,
         }
     }
 

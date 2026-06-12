@@ -1,7 +1,6 @@
 import {
     existsSync,
     readFileSync,
-    readdirSync,
 } from "fs"
 import {
     basename,
@@ -11,9 +10,6 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    load as loadYaml,
-} from "js-yaml"
-import {
     CodingDifficulty,
     CodingDomain,
     CodingLanguage,
@@ -22,24 +18,77 @@ import {
 import {
     CodingProblemPathService,
 } from "../path"
+import {
+    ExtractJsonFromMdService,
+} from "../../shared"
 import type {
-    CodingProblemFrontmatter,
-    FrontmatterSplit,
     ParsedCodingProblem,
+    ParsedCodingProblemSolution,
     ParsedCodingProblemStarterCode,
     ParsedCodingProblemTestcase,
     ParsedCodingProblemTranslation,
 } from "../types"
 
+/** Points awarded for a first clean solve, by difficulty tier. */
+const POINTS_BY_DIFFICULTY: Record<CodingDifficulty, number> = {
+    [CodingDifficulty.Easy]: 10,
+    [CodingDifficulty.Medium]: 15,
+    [CodingDifficulty.Hard]: 20,
+}
+
+/** One per-language code item (`## <n>` → `### lang` + `### content`). */
+interface RawLangCodeItem {
+    /** Language string from `### lang`. */
+    lang?: string
+    /** Code string from `### content`. */
+    content?: string
+}
+
+/** One IO item (`## <n>` → `### input` + `### output`). */
+interface RawIoItem {
+    /** Stdin string from `### input`. */
+    input?: string
+    /** Expected stdout string from `### output`. */
+    output?: string
+}
+
+/** Shape produced by {@link ExtractJsonFromMdService} for a problem `en.md`. */
+interface RawCodingProblem extends Record<string, unknown> {
+    title?: string
+    difficulty?: string
+    domain?: string
+    orderIndex?: string
+    enabled?: string
+    timeLimitMs?: string
+    memoryLimitKb?: string
+    statement?: string
+    hint?: string
+    tags?: Array<{ value?: string }>
+    starterCodes?: Array<RawLangCodeItem>
+    solutions?: Array<RawLangCodeItem>
+    example?: Array<RawIoItem>
+    testcases?: Array<RawIoItem>
+}
+
 /**
- * Parses each coding-problem mount directory into a {@link ParsedCodingProblem}:
- * reads the English `en.md` (frontmatter + statement), the optional Vietnamese
- * `vi.md` translation, and the `testcases/` folder of `<n>.in`/`<n>.out` pairs.
+ * Parses each coding-problem mount directory into a {@link ParsedCodingProblem}.
+ * Problems use the house heading-markdown grammar (see {@link ExtractJsonFromMdService}):
+ * one `en.md` (+ optional `vi.md`) with `# field` / `## <n>` / `### subfield`
+ * sections — per-language `starterCodes` + `solutions`, plus two IO arrays
+ * (`# example` = public samples, `# testcases` = hidden judging cases).
  */
 @Injectable()
 export class CodingProblemParserService {
+    /** Supported difficulty values (mount string → enum). */
+    private readonly difficulties = new Set<string>(Object.values(CodingDifficulty))
+    /** Supported domain values (camelCase). */
+    private readonly domains = new Set<string>(Object.values(CodingDomain))
+    /** Supported language values. */
+    private readonly languages = new Set<string>(Object.values(CodingLanguage))
+
     constructor(
         private readonly pathService: CodingProblemPathService,
+        private readonly extractJsonFromMdService: ExtractJsonFromMdService,
     ) {}
 
     /**
@@ -47,19 +96,16 @@ export class CodingProblemParserService {
      * @returns parsed problems (directories missing `en.md` are skipped)
      */
     async parseMany(): Promise<Array<ParsedCodingProblem>> {
-        // collect every problem directory
         const dirs = this.pathService.problemDirs()
-        // parse each, dropping any that fail the minimal-shape check
-        const parsed = dirs
+        return dirs
             .map((dir) => this.parseOne(dir))
             .filter((problem): problem is ParsedCodingProblem => problem !== null)
-        return parsed
     }
 
     /**
-     * Parse a single problem directory.
+     * Parse a single problem directory's `en.md` (+ optional `vi.md`).
      * @param dir - absolute problem directory path
-     * @returns the parsed problem, or null when `en.md`/frontmatter is invalid
+     * @returns the parsed problem, or null when `en.md`/title is missing
      */
     private parseOne(dir: string): ParsedCodingProblem | null {
         // English source is mandatory
@@ -68,200 +114,202 @@ export class CodingProblemParserService {
         if (!existsSync(enPath)) {
             return null
         }
-        // split the English file into frontmatter + statement body
-        const { data, body } = this.splitFrontmatter<CodingProblemFrontmatter>(
+        // extract the whole problem from the heading-markdown grammar
+        const raw = this.extractJsonFromMdService.extract<RawCodingProblem>(
             readFileSync(enPath,
                 "utf8"),
         )
-        // a slug + title are the minimum required to seed a problem
-        if (!data || !data.slug || !data.title) {
+        // slug is the problem folder name; a title is the minimum to seed
+        const slug = basename(dir)
+        const title = (raw.title ?? "").trim()
+        if (!slug || title.length === 0) {
             return null
         }
-        // gather testcases from the testcases/ folder, marking samples per frontmatter
-        const sampleIndices = new Set(data.samples ?? [])
-        const testcases = this.parseTestcases(dir,
-            sampleIndices)
-        // flatten the starter-code map into rows for the supported languages
-        const starterCodes = this.parseStarterCodes(data.starterCodes)
-        // parse the optional Vietnamese translation
-        const translations = this.parseTranslations(dir,
-            body)
-        // parse the optional per-locale approach hints (Elasticsearch-only)
-        const hints = this.parseHints(dir)
-        // assemble the parsed problem with sensible defaults for optional fields
+        // example cases are public samples; testcases are the hidden judging set —
+        // concatenated into one list with a sequential evaluation order
+        const testcases = this.buildTestcases(raw.example,
+            raw.testcases)
+        // difficulty drives both the tier and the points awarded on a clean solve
+        const difficulty = this.coerceDifficulty(raw.difficulty)
         return {
-            slug: data.slug,
-            difficulty: data.difficulty ?? CodingDifficulty.Easy,
-            domain: data.domain ?? CodingDomain.Arrays,
-            orderIndex: data.orderIndex ?? 0,
-            // pure display-ordering index — explicit `sortIndex`, else falls back to orderIndex
-            sortIndex: typeof data.sortIndex === "number" ? data.sortIndex : ((data.orderIndex ?? 0) + 1),
-            enabled: data.enabled ?? true,
-            tags: data.tags ?? [],
-            timeLimitMs: data.timeLimitMs ?? 2000,
-            memoryLimitKb: data.memoryLimitKb ?? 262144,
-            title: data.title,
-            statement: body.trim(),
+            slug,
+            difficulty,
+            domain: this.coerceDomain(raw.domain),
+            orderIndex: this.coerceInt(raw.orderIndex,
+                0),
+            sortIndex: this.coerceInt(raw.orderIndex,
+                0) + 1,
+            enabled: raw.enabled === undefined ? true : raw.enabled.trim() !== "false",
+            tags: (raw.tags ?? [])
+                .map((tag) => (tag.value ?? "").trim())
+                .filter((value) => value.length > 0),
+            timeLimitMs: this.coerceInt(raw.timeLimitMs,
+                2000),
+            memoryLimitKb: this.coerceInt(raw.memoryLimitKb,
+                262144),
+            points: POINTS_BY_DIFFICULTY[difficulty],
+            title,
+            statement: (raw.statement ?? "").trim(),
             testcases,
-            starterCodes,
-            translations,
-            hints,
+            starterCodes: this.buildLangCode(raw.starterCodes),
+            solutions: this.buildLangCode(raw.solutions),
+            translations: this.parseTranslations(dir,
+                title,
+                (raw.statement ?? "").trim()),
+            // localized "thinking guidance" authored as the `# hint` heading field
+            // (en from this file, vi from vi.md) — indexed to Elasticsearch only
+            hints: this.buildHints(raw.hint,
+                dir),
         }
     }
 
     /**
-     * Read the optional per-locale approach-hint markdown from `<dir>/hints/`.
-     * Missing files simply yield no entry for that locale. These hints are
-     * indexed into Elasticsearch only — never persisted to Postgres.
+     * Collect the per-locale `# hint` guidance: English from the problem's own
+     * `en.md` (already parsed) and Vietnamese from `vi.md` when present. Empty
+     * hints are omitted so the indexer skips them.
      *
-     * @param dir - problem directory
-     * @returns map of locale → hint markdown (only locales with a file present)
+     * @param enHintRaw - raw `# hint` markdown from en.md
+     * @param dir - absolute problem directory path
+     * @returns per-locale hint map (omits locales without a hint)
      */
-    private parseHints(dir: string): Partial<Record<Locale, string>> {
-        const hints: Partial<Record<Locale, string>> = {
+    private buildHints(
+        enHintRaw: string | undefined,
+        dir: string,
+    ): Partial<Record<Locale, string>> {
+        const hints: Partial<Record<Locale, string>> = {}
+        // English hint comes straight from the already-parsed en.md
+        const enHint = (enHintRaw ?? "").trim()
+        if (enHint.length > 0) {
+            hints[Locale.En] = enHint
         }
-        // check every supported locale for a `hints/<locale>.md` file
-        for (const locale of Object.values(Locale)) {
-            const hintPath = this.pathService.hintPath(dir,
-                locale)
-            if (!existsSync(hintPath)) {
-                continue
+        // Vietnamese hint is read from the sibling vi.md when it exists
+        const viPath = join(dir,
+            "vi.md")
+        if (existsSync(viPath)) {
+            const viRaw = this.extractJsonFromMdService.extract<RawCodingProblem>(
+                readFileSync(viPath,
+                    "utf8"),
+            )
+            const viHint = (viRaw.hint ?? "").trim()
+            if (viHint.length > 0) {
+                hints[Locale.Vi] = viHint
             }
-            const content = readFileSync(hintPath,
-                "utf8").trim()
-            // skip empty hint files
-            if (content.length === 0) {
-                continue
-            }
-            hints[locale] = content
         }
         return hints
     }
 
     /**
-     * Read `<n>.in`/`<n>.out` pairs from a problem's `testcases/` folder.
-     * @param dir - problem directory
-     * @param sampleIndices - order indices flagged as public samples
-     * @returns testcases sorted by numeric order index
+     * Build the testcase list: every `# example` item first (public samples),
+     * then every `# testcases` item (hidden), with a sequential `orderIndex`.
      */
-    private parseTestcases(
-        dir: string,
-        sampleIndices: Set<number>,
+    private buildTestcases(
+        example: Array<RawIoItem> | undefined,
+        hidden: Array<RawIoItem> | undefined,
     ): Array<ParsedCodingProblemTestcase> {
-        // locate the testcases sub-folder
-        const testcasesDir = this.pathService.testcasesDir(dir)
-        // no folder → no testcases
-        if (!existsSync(testcasesDir)) {
-            return []
+        const cases: Array<ParsedCodingProblemTestcase> = []
+        // public samples are shown to the user (isSample = true)
+        for (const item of example ?? []) {
+            cases.push(this.toTestcase(item,
+                cases.length,
+                true))
         }
-        // each `<n>.in` defines one case; the matching `<n>.out` is its expected output
-        return readdirSync(testcasesDir)
-            .filter((file) => file.endsWith(".in"))
-            .map((file) => {
-                // numeric stem drives ordering + sample flagging
-                const orderIndex = Number.parseInt(basename(file,
-                    ".in"),
-                10)
-                // sibling expected-output file
-                const outPath = join(testcasesDir,
-                    `${orderIndex}.out`)
-                return {
-                    orderIndex,
-                    // testcases have no explicit sort key in the mount; mirror orderIndex
-                    sortIndex: orderIndex,
-                    input: readFileSync(join(testcasesDir,
-                        file),
-                    "utf8"),
-                    expectedOutput: existsSync(outPath) ? readFileSync(outPath,
-                        "utf8") : "",
-                    isSample: sampleIndices.has(orderIndex),
-                }
-            })
-            // ascending evaluation order
-            .sort((prev, next) => prev.orderIndex - next.orderIndex)
+        // hidden judging cases are never exposed (isSample = false)
+        for (const item of hidden ?? []) {
+            cases.push(this.toTestcase(item,
+                cases.length,
+                false))
+        }
+        return cases
+    }
+
+    /** Map one raw IO item to a parsed testcase at the given evaluation order. */
+    private toTestcase(
+        item: RawIoItem,
+        orderIndex: number,
+        isSample: boolean,
+    ): ParsedCodingProblemTestcase {
+        return {
+            orderIndex,
+            sortIndex: orderIndex,
+            // verbatim leaf already trimmed by the extractor; trailing newline is
+            // re-added so stdin matches an author's "one value per line" intent
+            input: item.input ?? "",
+            expectedOutput: item.output ?? "",
+            isSample,
+        }
     }
 
     /**
-     * Flatten the frontmatter `starterCodes` map into rows, keeping only known
-     * {@link CodingLanguage} values.
+     * Map raw per-language `{lang, content}` items to typed rows, keeping only
+     * recognized {@link CodingLanguage} values (shared by starter codes + solutions).
      */
-    private parseStarterCodes(
-        starterCodes: CodingProblemFrontmatter["starterCodes"],
-    ): Array<ParsedCodingProblemStarterCode> {
-        // nothing declared → no starter code
-        if (!starterCodes) {
-            return []
-        }
-        // the set of languages we actually support
-        const supported = new Set<string>(Object.values(CodingLanguage))
-        // keep only entries whose key is a recognized language
-        return Object.entries(starterCodes)
-            .filter(([language]) => supported.has(language))
-            .map(([language,
-                code]) => ({
-                language: language as CodingLanguage,
-                code: code ?? "",
+    private buildLangCode(
+        items: Array<RawLangCodeItem> | undefined,
+    ): Array<ParsedCodingProblemStarterCode & ParsedCodingProblemSolution> {
+        return (items ?? [])
+            .map((item) => ({
+                language: (item.lang ?? "").trim() as CodingLanguage,
+                code: item.content ?? "",
             }))
+            .filter((row) => this.languages.has(row.language))
     }
 
     /**
-     * Parse the optional `vi.md` translation; falls back to none when absent.
+     * Parse the optional `vi.md` translation (title + statement).
      * @param dir - problem directory
-     * @param englishStatement - English body, used only to detect emptiness
+     * @param englishTitle - English title fallback
+     * @param englishStatement - English statement fallback
      * @returns translation rows (currently just Vietnamese when present)
      */
     private parseTranslations(
         dir: string,
+        englishTitle: string,
         englishStatement: string,
     ): Array<ParsedCodingProblemTranslation> {
-        // Vietnamese override is optional
         const viPath = join(dir,
             "vi.md")
         if (!existsSync(viPath)) {
             return []
         }
-        // split the vi file; frontmatter may carry a localized title
-        const { data, body } = this.splitFrontmatter<{ title?: string }>(
+        const raw = this.extractJsonFromMdService.extract<RawCodingProblem>(
             readFileSync(viPath,
                 "utf8"),
         )
-        // skip empty translation files
-        if (body.trim().length === 0 && !data?.title) {
+        const title = (raw.title ?? "").trim()
+        const statement = (raw.statement ?? "").trim()
+        // skip an empty translation file
+        if (title.length === 0 && statement.length === 0) {
             return []
         }
         return [
             {
                 locale: Locale.Vi,
-                title: data?.title ?? "",
-                statement: body.trim().length > 0 ? body.trim() : englishStatement,
+                title: title.length > 0 ? title : englishTitle,
+                statement: statement.length > 0 ? statement : englishStatement,
             },
         ]
     }
 
-    /**
-     * Split a markdown string into YAML frontmatter + body. The file must begin
-     * with a `---` fence; otherwise the whole string is treated as the body.
-     */
-    private splitFrontmatter<TData>(raw: string): FrontmatterSplit<TData> {
-        // normalize line endings so the fence match is platform-independent
-        const normalized = raw.replace(/\r\n/g,
-            "\n")
-        // match an opening fence, the yaml block, a closing fence, then the body
-        const match = normalized.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/)
-        // no frontmatter fence → empty data, full body
-        if (!match) {
-            return {
-                data: {
-                } as TData,
-                body: normalized,
-            }
-        }
-        // parse the captured yaml block; treat parse failures as empty data
-        const data = (loadYaml(match[1]) ?? {
-        }) as TData
-        return {
-            data,
-            body: match[2],
-        }
+    /** Coerce a mount difficulty string to the enum (default Easy). */
+    private coerceDifficulty(value: string | undefined): CodingDifficulty {
+        const trimmed = (value ?? "").trim()
+        return this.difficulties.has(trimmed)
+            ? (trimmed as CodingDifficulty)
+            : CodingDifficulty.Easy
+    }
+
+    /** Coerce a mount domain string to the enum (default Arrays). */
+    private coerceDomain(value: string | undefined): CodingDomain {
+        const trimmed = (value ?? "").trim()
+        return this.domains.has(trimmed)
+            ? (trimmed as CodingDomain)
+            : CodingDomain.Arrays
+    }
+
+    /** Parse an integer leaf, falling back to a default when absent/invalid. */
+    private coerceInt(value: string | undefined, fallback: number): number {
+        const parsed = Number.parseInt((value ?? "").trim(),
+            10)
+        return Number.isNaN(parsed) ? fallback : parsed
     }
 }

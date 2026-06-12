@@ -2,6 +2,7 @@ import type {
     CodingDifficulty,
     CodingLanguage,
     CodingProblemEntity,
+    CodingProblemSolutionEntity,
     CodingSubmissionEntity,
     Locale,
 } from "@modules/databases"
@@ -19,20 +20,16 @@ export interface ListCodingProblemsParams {
     page?: number
     /** Page size. */
     limit?: number
-    /** When set, compute which listed problems this user has solved. */
-    userId?: string
-    /** Locale for translated title (statement omitted in list view). */
+    /** Locale for the pre-localized catalog title. */
     locale?: Locale
 }
 
-/** Result of listing coding problems. */
+/** Result of listing coding problems (shared catalog only — no per-user state). */
 export interface ListCodingProblemsResult {
-    /** The page of problems (translations applied to title). */
+    /** The page of problems (pre-localized title; catalog fields only). */
     problems: Array<CodingProblemEntity>
     /** Total number of problems matching the filters. */
     total: number
-    /** Ids of problems the requesting user has an Accepted submission for. */
-    solvedProblemIds: Array<string>
 }
 
 /** Params for loading one problem by slug. */
@@ -101,6 +98,18 @@ export interface SubmitCodingSolutionResult {
     submissionId: string
     /** The judging `jobs.id` to subscribe to over Socket.IO. */
     jobId: string
+}
+
+/**
+ * Result of recording a solution reveal: whether it was newly recorded plus the
+ * problem's reference solutions. This gated mutation is the ONLY place solutions
+ * are served to the client (the problem detail read never carries them).
+ */
+export interface RecordSolutionRevealResult {
+    /** True when this call recorded a new reveal; false when already revealed. */
+    revealed: boolean
+    /** The problem's full reference solutions, one per supported language. */
+    solutions: Array<CodingProblemSolutionEntity>
 }
 
 /** Params for listing the current user's submissions to one problem. */

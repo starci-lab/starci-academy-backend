@@ -88,7 +88,9 @@ export class ElasticsearchCodingProblemBuildService {
         )
         const translations = problem.translations ?? []
         // SECURITY: only sample testcases are ever indexed, so hidden testcases
-        // never leave Postgres — the ES document the detail query reads cannot leak them
+        // never leave Postgres — the ES document the detail query reads cannot leak them.
+        // Reference solutions are likewise NEVER indexed: they are gated behind the
+        // reveal flow and must not be served by the `codingProblem` detail read.
         const sampleTestcases = (problem.testcases ?? [])
             .filter((testcase) => testcase.isSample)
             .sort((prev, next) => prev.orderIndex - next.orderIndex)
@@ -127,6 +129,7 @@ export class ElasticsearchCodingProblemBuildService {
                         difficulty: problem.difficulty,
                         domain: problem.domain,
                         tags: problem.tags,
+                        points: problem.points,
                         orderIndex: problem.orderIndex,
                         enabled: problem.enabled,
                         starterCodes: problem.starterCodes,

@@ -27,6 +27,9 @@ import {
     CodingProblemStarterCodeEntity,
 } from "./coding-problem-starter-code.entity"
 import {
+    CodingProblemSolutionEntity,
+} from "./coding-problem-solution.entity"
+import {
     CodingSubmissionEntity,
 } from "./coding-submission.entity"
 
@@ -154,6 +157,19 @@ export class CodingProblemEntity extends UuidAbstractEntity {
     @Field(
         () => Int,
         {
+            description: "Points awarded for a first clean solve (by difficulty: easy 10 / medium 15 / hard 20).",
+        },
+    )
+    @Column({
+        name: "points",
+        type: "int",
+        default: 10,
+    })
+        points: number
+
+    @Field(
+        () => Int,
+        {
             description: "Display order within the problem list (ascending).",
         },
     )
@@ -231,6 +247,21 @@ export class CodingProblemEntity extends UuidAbstractEntity {
         },
     )
         starterCodes: Array<CodingProblemStarterCodeEntity>
+
+    /**
+     * Full reference solutions per language (the worked answer). NOT a GraphQL
+     * field: solutions must never be served through the `codingProblem` detail
+     * read — they are gated behind the reveal flow ({@link CodingProblemSolutionEntity}).
+     * Kept as a DB relation only (seeding/internal reads).
+     */
+    @OneToMany(
+        () => CodingProblemSolutionEntity,
+        (solution: CodingProblemSolutionEntity) => solution.problem,
+        {
+            cascade: true,
+        },
+    )
+        solutions: Array<CodingProblemSolutionEntity>
 
     @OneToMany(
         () => CodingSubmissionEntity,

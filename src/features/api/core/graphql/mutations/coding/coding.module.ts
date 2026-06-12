@@ -7,13 +7,20 @@ import {
 import {
     SubmitCodingSolutionSingleMutationModule,
 } from "./submit-coding-solution"
+import {
+    RevealCodingSolutionSingleMutationModule,
+} from "./reveal-coding-solution"
 
 /**
- * Coding-practice mutation group: submit a solution for judging.
+ * Coding-practice mutation group: submit a solution for judging, and record a
+ * reference-solution reveal (which forfeits the problem's points).
  */
 @Module({
     imports: [
         SubmitCodingSolutionSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        RevealCodingSolutionSingleMutationModule.register({
             isGlobal: true,
         }),
     ],

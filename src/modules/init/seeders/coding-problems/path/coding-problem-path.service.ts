@@ -11,43 +11,73 @@ import {
 import {
     envConfig,
 } from "@modules/env"
+import {
+    getRuntimeContextRoot,
+} from "@modules/filesystem"
 
 /**
  * Resolves filesystem paths for coding-problem mount data. Problems live in
- * `<dataRoot>/coding-problems/<index>-<slug>-<difficulty>/` with an `en.md`,
- * optional `vi.md`, and a `testcases/` folder.
+ * `<dataRoot>/coding-problems/sets/<domain>/problems/<slug>/` with an `en.md`,
+ * optional `vi.md`, and a `testcases/` folder. The set (domain) folder is purely
+ * organizational — the authoritative `domain` is in each problem's frontmatter.
  */
 @Injectable()
 export class CodingProblemPathService {
-    /** Absolute path to the coding-problems mount root. */
+    /**
+     * Absolute path to the coding-problems mount root. During a git-sourced seed
+     * the pipeline points at the freshly-pulled staging copy via the runtime
+     * context root (so seeding never reads possibly-stale local content); outside
+     * seed it resolves to `.contexts`. No content-level fallback — if the active
+     * root has no problems, none are seeded (a missing-content bug surfaces
+     * instead of being masked by stale data).
+     */
     root(): string {
-        // single source of truth for the data location (overridable per env)
-        return envConfig().mountPath.data.codingProblems
+        const runtimeRoot = getRuntimeContextRoot()
+        return runtimeRoot
+            ? join(runtimeRoot,
+                "coding-problems")
+            : envConfig().mountPath.data.codingProblems
     }
 
     /**
-     * List absolute paths of each problem directory, sorted by name so the
-     * numeric prefix gives a stable order.
+     * List absolute paths of every problem directory under each set's `problems`
+     * folder of the active root, sorted by path for a stable order (display order
+     * comes from frontmatter `orderIndex`, not the folder name).
      *
-     * @returns absolute problem directory paths (empty when the root is absent)
+     * @returns absolute problem directory paths (empty when the root has none)
      */
     problemDirs(): Array<string> {
-        // resolve the root once
-        const root = this.root()
-        // a missing mount root simply means "no problems to seed"
-        if (!existsSync(root)) {
+        // problems are grouped under a `sets/` root
+        const setsRoot = join(this.root(),
+            "sets")
+        // a missing sets root simply means "no problems to seed"
+        if (!existsSync(setsRoot)) {
             return []
         }
-        // read only sub-directories (each is one problem) and sort by name
-        return readdirSync(root,
+        const dirs: Array<string> = []
+        // each immediate child of sets/ is one domain set
+        for (const set of readdirSync(setsRoot,
             {
                 withFileTypes: true,
-            })
-            .filter((entry) => entry.isDirectory())
-            .map((entry) => entry.name)
-            .sort((prev, next) => prev.localeCompare(next))
-            .map((name) => join(root,
-                name))
+            }).filter((entry) => entry.isDirectory())) {
+            // problems for a set live under <set>/problems/
+            const problemsRoot = join(setsRoot,
+                set.name,
+                "problems")
+            if (!existsSync(problemsRoot)) {
+                continue
+            }
+            // each sub-directory of problems/ is one problem
+            for (const problem of readdirSync(problemsRoot,
+                {
+                    withFileTypes: true,
+                }).filter((entry) => entry.isDirectory())) {
+                dirs.push(join(problemsRoot,
+                    problem.name))
+            }
+        }
+        // stable ordering by path
+        return dirs.sort((prev, next) => prev.localeCompare(next))
     }
 
     /** Absolute path to a problem's `testcases/` folder. */

@@ -6,6 +6,7 @@ import type {
 } from "typeorm"
 import {
     AbstractStepService,
+    CodingProgressService,
     JobActionService,
     JobExtendedContext,
 } from "@modules/bussiness"
@@ -13,9 +14,11 @@ import type {
     JudgeCodingSubmissionPayload,
 } from "@modules/bullmq"
 import {
+    CodingSolutionRevealEntity,
     CodingSubmissionEntity,
     CodingVerdict,
     InjectPrimaryPostgreSQLEntityManager,
+    UserEntity,
 } from "@modules/databases"
 import {
     envConfig,
@@ -36,6 +39,7 @@ import {
     WinstonService,
 } from "@modules/winston"
 import type {
+    CodingProblemEntity,
     CodingProblemTestcaseEntity,
 } from "@modules/databases"
 import type {
@@ -61,6 +65,7 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
         private readonly jobActionService: JobActionService,
         private readonly judge0Service: Judge0Service,
         private readonly winstonService: WinstonService,
+        private readonly codingProgressService: CodingProgressService,
     ) {
         super()
     }
@@ -146,6 +151,15 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
         // persist the updated submission
         await this.entityManager.save(CodingSubmissionEntity,
             submission)
+        // award coding points on a first clean Accepted solve
+        if (verdict === CodingVerdict.Accepted) {
+            await this.awardPointsIfEligible(submission.userId,
+                problem)
+        }
+        // solved/attempted/points may have changed → drop the user's progress cache
+        await this.codingProgressService.invalidate({
+            userId: submission.userId,
+        })
         // return the summary for the step execution-result store
         return {
             verdict,
@@ -215,6 +229,62 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
         const present = values.filter((value): value is number => value !== null)
         // null when nothing was reported, else the largest
         return present.length === 0 ? null : Math.max(...present)
+    }
+
+    /**
+     * Credit the problem's points to the user's cumulative coding score on a
+     * FIRST clean solve: only when no earlier Accepted submission exists for the
+     * problem (so each problem awards once) and the user did NOT reveal its
+     * reference solution before solving (a reveal row forfeits the points).
+     *
+     * @param userId - the solver's user id
+     * @param problem - the solved problem (carries its point value)
+     */
+    private async awardPointsIfEligible(
+        userId: string,
+        problem: CodingProblemEntity,
+    ): Promise<void> {
+        // the just-saved Accepted submission is included here, so exactly 1 means
+        // this is the first solve; >1 means a prior solve already awarded points
+        const acceptedCount = await this.entityManager.count(CodingSubmissionEntity,
+            {
+                where: {
+                    user: {
+                        id: userId,
+                    },
+                    problem: {
+                        id: problem.id,
+                    },
+                    verdict: CodingVerdict.Accepted,
+                },
+            })
+        if (acceptedCount > 1) {
+            return
+        }
+        // revealing the reference solution before solving forfeits the points
+        const revealedCount = await this.entityManager.count(CodingSolutionRevealEntity,
+            {
+                where: {
+                    user: {
+                        id: userId,
+                    },
+                    problem: {
+                        id: problem.id,
+                    },
+                },
+            })
+        if (revealedCount > 0) {
+            return
+        }
+        // first clean solve → add the problem's points to the user's coding score
+        await this.entityManager.increment(
+            UserEntity,
+            {
+                id: userId,
+            },
+            "codingPoints",
+            problem.points,
+        )
     }
 
     /**

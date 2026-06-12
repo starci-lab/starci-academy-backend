@@ -5,41 +5,9 @@ import type {
     Locale,
 } from "@modules/databases"
 
-/**
- * YAML frontmatter shape at the top of a problem's `en.md`. Drives every column
- * of the seeded problem plus which testcases are samples and the per-language
- * starter code.
- */
-export interface CodingProblemFrontmatter {
-    /** Stable URL slug (unique). */
-    slug: string
-    /** Difficulty tier (`easy` | `medium` | `hard`). */
-    difficulty: CodingDifficulty
-    /** Primary interview topic domain (used to group the list). */
-    domain?: CodingDomain
-    /** Display order within the problem list. */
-    orderIndex?: number
-    /** Pure ordering index used to reorder the list (decoupled from orderIndex). */
-    sortIndex?: number
-    /** Whether the problem is listable. */
-    enabled?: boolean
-    /** Topic tags for filtering. */
-    tags?: Array<string>
-    /** Per-run CPU time limit in milliseconds. */
-    timeLimitMs?: number
-    /** Per-run memory limit in kilobytes. */
-    memoryLimitKb?: number
-    /** Default (English) title. */
-    title: string
-    /** Testcase order indices that are public samples (the rest are hidden). */
-    samples?: Array<number>
-    /** Map of language value → starter code string. */
-    starterCodes?: Partial<Record<CodingLanguage, string>>
-}
-
 /** A parsed testcase ready to persist. */
 export interface ParsedCodingProblemTestcase {
-    /** Evaluation order (numeric stem of the `<n>.in`/`<n>.out` file). */
+    /** Evaluation order (sequential across example + hidden cases). */
     orderIndex: number
     /** Pure ordering index used to reorder the list (decoupled from orderIndex). */
     sortIndex: number
@@ -47,7 +15,7 @@ export interface ParsedCodingProblemTestcase {
     input: string
     /** Expected stdout contents. */
     expectedOutput: string
-    /** Whether this case is a public sample. */
+    /** Whether this case is a public sample (authored under `# example`). */
     isSample: boolean
 }
 
@@ -56,6 +24,14 @@ export interface ParsedCodingProblemStarterCode {
     /** Language of the starter code. */
     language: CodingLanguage
     /** The starter source. */
+    code: string
+}
+
+/** A parsed per-language reference solution entry. */
+export interface ParsedCodingProblemSolution {
+    /** Language of the solution. */
+    language: CodingLanguage
+    /** The full reference solution source. */
     code: string
 }
 
@@ -69,17 +45,9 @@ export interface ParsedCodingProblemTranslation {
     statement: string
 }
 
-/** Result of splitting a markdown file into YAML frontmatter + body. */
-export interface FrontmatterSplit<TData> {
-    /** Parsed YAML frontmatter object. */
-    data: TData
-    /** Markdown body after the frontmatter block. */
-    body: string
-}
-
-/** A fully parsed problem assembled from one mount directory. */
+/** A fully parsed problem assembled from one mount directory's `en.md`/`vi.md`. */
 export interface ParsedCodingProblem {
-    /** Stable URL slug. */
+    /** Stable URL slug (the problem folder name). */
     slug: string
     /** Difficulty tier. */
     difficulty: CodingDifficulty
@@ -97,19 +65,24 @@ export interface ParsedCodingProblem {
     timeLimitMs: number
     /** Per-run memory limit (kb). */
     memoryLimitKb: number
+    /** Points awarded for a first clean solve (derived from difficulty). */
+    points: number
     /** Default (English) title. */
     title: string
     /** Default (English) statement Markdown. */
     statement: string
-    /** Testcases in evaluation order. */
+    /** Testcases in evaluation order (public examples + hidden cases). */
     testcases: Array<ParsedCodingProblemTestcase>
     /** Starter code per supported language. */
     starterCodes: Array<ParsedCodingProblemStarterCode>
+    /** Full reference solution per supported language. */
+    solutions: Array<ParsedCodingProblemSolution>
     /** Non-default locale overrides (e.g. `vi`). */
     translations: Array<ParsedCodingProblemTranslation>
     /**
-     * Localized "approach hint" markdown per locale (e.g. `en`, `vi`).
-     * Indexed into Elasticsearch only — NEVER persisted to Postgres.
+     * Localized approach hints per locale (legacy Elasticsearch-only index).
+     * The heading format no longer authors hints, so this is always empty — kept
+     * so the dormant hint indexer keeps compiling.
      */
     hints: Partial<Record<Locale, string>>
 }

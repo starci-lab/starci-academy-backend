@@ -14,7 +14,6 @@ import {
 } from "@modules/api"
 import {
     KeycloakAuthGraphQLGuard,
-    KeycloakGraphQLUser,
 } from "@modules/keycloak"
 import {
     UseThrottler,
@@ -22,7 +21,6 @@ import {
 } from "@modules/throttler"
 import {
     Locale,
-    UserEntity,
 } from "@modules/databases"
 import {
     CodingProblemService,
@@ -68,16 +66,13 @@ export class CodingProblemsResolver {
             request: CodingProblemsRequest,
         @GraphQLLocale()
             locale: Locale,
-        @KeycloakGraphQLUser()
-            user: UserEntity,
     ): Promise<CodingProblemsResponseData> {
-        // delegate to the domain service, scoping solved flags to the current user
+        // catalog only — per-user solved/points come from the myCodingProgress query
         return this.codingProblemService.list({
             difficulty: request.difficulty,
             tag: request.tag,
             page: request.page,
             limit: request.limit,
-            userId: user.id,
             locale,
         })
     }
