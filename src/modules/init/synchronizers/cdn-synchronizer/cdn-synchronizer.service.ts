@@ -7,6 +7,7 @@ import {
     ModuleEntity,
     ContentEntity,
     ChallengeEntity,
+    MilestoneTaskEntity,
 } from "@modules/databases"
 import {
     MoreThan,
@@ -17,6 +18,7 @@ import {
     CdnModuleBuildService,
     CdnContentBuildService,
     CdnChallengeBuildService,
+    CdnMilestoneTaskBuildService,
 } from "./builder"
 import {
     WinstonLog,
@@ -38,10 +40,12 @@ import {
     buildChallengeSyncSuccessLog,
     buildContentSyncSuccessLog,
     buildCourseSyncSuccessLog,
+    buildMilestoneTaskSyncSuccessLog,
     buildModuleSyncSuccessLog,
     shouldSyncChallengeEntity,
     shouldSyncContentEntity,
     shouldSyncCourseEntity,
+    shouldSyncMilestoneTaskEntity,
     shouldSyncModuleEntity,
 } from "../../utils"
 
@@ -60,6 +64,7 @@ export class CdnSynchronizerService {
         private readonly cdnModuleBuildService: CdnModuleBuildService,
         private readonly cdnContentBuildService: CdnContentBuildService,
         private readonly cdnChallengeBuildService: CdnChallengeBuildService,
+        private readonly cdnMilestoneTaskBuildService: CdnMilestoneTaskBuildService,
         private readonly s3BucketService: S3BucketService,
     ) { }
 
@@ -69,6 +74,7 @@ export class CdnSynchronizerService {
         ChallengeEntity.name,
         ContentEntity.name,
         ModuleEntity.name,
+        MilestoneTaskEntity.name,
     ]
 
     /**
@@ -323,6 +329,66 @@ export class CdnSynchronizerService {
                         )
                     }
                     resumeEntityId = module.id
+                }
+                break
+            }
+            case MilestoneTaskEntity.name: {
+                while (true) {
+                    const milestoneTask = await this.entityManager.findOne(
+                        MilestoneTaskEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId)
+                                } : {
+                                }),
+                            },
+                            relations: {
+                                milestone: {
+                                    course: true,
+                                },
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!milestoneTask) {
+                        break
+                    }
+                    if (!shouldSyncMilestoneTaskEntity(scope,
+                        milestoneTask)) {
+                        resumeEntityId = milestoneTask.id
+                        continue
+                    }
+                    try {
+                        await this.cdnMilestoneTaskBuildService.materializeAndUpload(
+                            milestoneTask.id,
+                        )
+                        this.winstonService.log(
+                            WinstonLog.CdnSynchronizerSyncedSuccessfully,
+                            buildMilestoneTaskSyncSuccessLog(milestoneTask),
+                        )
+                    } catch (error) {
+                        const errorMessage = error instanceof Error
+                            ? error.message
+                            : String(error)
+                        this.winstonService.log(
+                            WinstonLog.CdnSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: milestoneTask.id,
+                                errorName: error instanceof Error
+                                    ? error.name
+                                    : undefined,
+                                errorMessage,
+                                errorStack: error instanceof Error
+                                    ? error.stack
+                                    : undefined,
+                            }
+                        )
+                    }
+                    resumeEntityId = milestoneTask.id
                 }
                 break
             }

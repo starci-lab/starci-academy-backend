@@ -66,6 +66,19 @@ export class S3NameResolverService {
     }
 
     /**
+     * Resolve the name for a milestone task.
+     * @param id - The id of the milestone task.
+     * @param locale - The locale of the milestone task.
+     * @returns The name for the milestone task.
+     */
+    milestoneTask(id: string, locale?: Locale): string {
+        if (locale) {
+            return `milestone-tasks/${id}/${locale}.json`
+        }
+        return `milestone-tasks/${id}.json`
+    }
+
+    /**
      * Resolve the CDN key for a lesson's Sandpack file tree.
      * @param repoName - Repository name (last path segment of `githubBaseUrl`).
      * @param githubDir - Subdirectory within the repo (content's `githubDir`).

@@ -2,11 +2,17 @@ import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
-    MilestoneTaskEntity,
-    MilestoneTaskResolverService,
     Locale,
+    MilestoneTaskEntity,
 } from "@modules/databases"
+import {
+    MilestoneNotFoundException,
+} from "@modules/exceptions"
+import {
+    S3NameResolverService,
+    S3Provider,
+    S3ReadService,
+} from "@modules/s3"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -14,9 +20,6 @@ import {
     IQueryHandler,
     QueryHandler,
 } from "@nestjs/cqrs"
-import type {
-    EntityManager,
-} from "typeorm"
 import {
     TaskQuery,
 } from "./task.query"
@@ -27,9 +30,8 @@ export class TaskHandler
     extends ICQRSHandler<TaskQuery, MilestoneTaskEntity>
     implements IQueryHandler<TaskQuery, MilestoneTaskEntity> {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
-        private readonly milestoneTaskResolver: MilestoneTaskResolverService,
+        private readonly s3ReadService: S3ReadService,
+        private readonly s3NameResolverService: S3NameResolverService,
     ) {
         super()
     }
@@ -42,34 +44,20 @@ export class TaskHandler
             locale,
         } = query.params
 
-        const task = await this.entityManager.findOneOrFail(
-            MilestoneTaskEntity,
-            {
-                where: {
-                    id: request.id,
-                },
-                relations: {
-                    translations: true,
-                    // SCHEMA V2 per-language learner-facing briefs (read path); the internal
-                    // outcome/approach grading rubric is deliberately NOT loaded here
-                    briefs: {
-                        translations: true,
-                    },
-                    criterias: {
-                        translations: true,
-                    },
-                    codeImplementations: {
-                        translations: true,
-                    },
-                },
-            },
-        )
-
-        this.milestoneTaskResolver.transform(
-            task,
+        const objectKey = this.s3NameResolverService.milestoneTask(
+            request.id,
             locale || Locale.En,
-            task.defaultLocale ?? Locale.En,
         )
+        const task = await this.s3ReadService.json<MilestoneTaskEntity>({
+            key: objectKey,
+            provider: S3Provider.Minio,
+        })
+
+        if (!task) {
+            throw new MilestoneNotFoundException({
+                id: request.id,
+            })
+        }
 
         return task
     }

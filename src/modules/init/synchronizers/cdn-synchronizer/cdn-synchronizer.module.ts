@@ -11,7 +11,8 @@ import {
     CdnCourseBuildService,
     CdnModuleBuildService,
     CdnContentBuildService,
-    CdnChallengeBuildService,
+    CdnChallengeBuildService,
+    CdnMilestoneTaskBuildService,
     MaterializeAndUploadService
 } from "./builder"
 /**
@@ -23,7 +24,8 @@ import {
         CdnCourseBuildService,
         CdnModuleBuildService,
         CdnContentBuildService,
-        CdnChallengeBuildService,
+        CdnChallengeBuildService,
+        CdnMilestoneTaskBuildService,
         CdnSynchronizerService,
     ],
     exports: [

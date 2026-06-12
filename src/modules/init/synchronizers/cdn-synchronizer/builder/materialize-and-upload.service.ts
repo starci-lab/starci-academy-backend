@@ -66,10 +66,14 @@ export class MaterializeAndUploadService {
                 entity.id,
                 locale,
             )
-            const keyByDisplayId = resolveObjectKey(
-                entity.displayId,
-                locale,
-            )
+            // Some entities (e.g. milestone tasks) have no mount slug / displayId — only the
+            // primary-key keyed object is written for those.
+            const keyByDisplayId = entity.displayId
+                ? resolveObjectKey(
+                    entity.displayId,
+                    locale,
+                )
+                : null
             const payloadBytes = Buffer.byteLength(
                 this.superJson.stringify(entity),
                 "utf8",
@@ -103,14 +107,16 @@ export class MaterializeAndUploadService {
                     ),
                 ],
             )
-            await this.s3UploadService.json(
-                {
-                    acl: "private",
-                    providers,
-                    name: keyByDisplayId,
-                    payload: entity,
-                },
-            )
+            if (keyByDisplayId) {
+                await this.s3UploadService.json(
+                    {
+                        acl: "private",
+                        providers,
+                        name: keyByDisplayId,
+                        payload: entity,
+                    },
+                )
+            }
             if (context) {
                 this.winstonService.log(
                     WinstonLog.CdnSynchronizerMaterializeStep,

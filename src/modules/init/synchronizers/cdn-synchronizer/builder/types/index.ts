@@ -16,8 +16,8 @@ export type LocalizedCdnEntity<T> = {
  * An entity like object with a display id and an id.
  */
 export interface EntityLike {
-    /** The display id of the entity. */
-    displayId: string
+    /** The display id of the entity (mount slug). Absent for entities with no slug, e.g. milestone tasks. */
+    displayId?: string
     /** The id of the entity. */
     id: string
 }

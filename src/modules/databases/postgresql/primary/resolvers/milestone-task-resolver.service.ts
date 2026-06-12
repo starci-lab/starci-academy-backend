@@ -2,6 +2,7 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
+    MilestoneTaskBriefEntity,
     MilestoneTaskEntity,
 } from "../entities"
 import {
@@ -58,6 +59,29 @@ export class MilestoneTaskResolverService {
             },
         )
         delete (task as Partial<MilestoneTaskEntity>).translations
+
+        // SCHEMA V2 per-language briefs: resolve each brief body to the requested locale and drop
+        // the raw per-locale translations so the FE receives one clean localized body per language
+        // (mirrors the content body resolution) instead of every locale variant.
+        if (task.briefs?.length) {
+            task.briefs = task.briefs.map(
+                (brief) => {
+                    const resolved = this.translationResolver.resolve(
+                        {
+                            translations: brief.translations,
+                            field: "body",
+                            locale,
+                            fallbackLocale: brief.defaultLocale ?? fallbackLocale,
+                        },
+                    )
+                    brief.body = resolved !== ""
+                        ? resolved
+                        : brief.body
+                    delete (brief as Partial<MilestoneTaskBriefEntity>).translations
+                    return brief
+                },
+            )
+        }
 
         if (task.criterias?.length) {
             task.criterias = task.criterias.map(

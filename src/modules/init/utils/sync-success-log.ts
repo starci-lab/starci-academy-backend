@@ -2,6 +2,7 @@ import {
     ChallengeEntity,
     ContentEntity,
     CourseEntity,
+    MilestoneTaskEntity,
     ModuleEntity,
 } from "@modules/databases"
 import type {
@@ -89,6 +90,29 @@ export const buildChallengeSyncSuccessLog = (
         challenge.content?.module?.displayId,
     ].filter((id): id is string => Boolean(id)),
     ...(isLegacyMount(challenge.verified) ? {
+        isLegacy: true,
+    } : {
+    }),
+})
+
+/**
+ * Builds verbose sync success log fields for a milestone task row.
+ *
+ * @param task - Loaded milestone task with `milestone.course` relations.
+ * @returns Log payload.
+ */
+export const buildMilestoneTaskSyncSuccessLog = (
+    task: MilestoneTaskEntity,
+): SyncSuccessLogPayload => ({
+    entityKind: MilestoneTaskEntity.name,
+    entityId: task.id,
+    // Milestone tasks have no mount slug / displayId — fall back to the primary key
+    // so the log payload always carries a stable identifier.
+    displayId: task.id,
+    relativeDisplayIds: [
+        task.milestone?.course?.displayId,
+    ].filter((id): id is string => Boolean(id)),
+    ...(isLegacyMount(task.verified) ? {
         isLegacy: true,
     } : {
     }),

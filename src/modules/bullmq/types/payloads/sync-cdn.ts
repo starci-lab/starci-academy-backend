@@ -1,10 +1,12 @@
 import {
     ChallengeEntity,
     CourseEntity,
-    ContentEntity,    ModuleEntity
+    ContentEntity,
+    MilestoneTaskEntity,
+    ModuleEntity
 } from "@modules/databases"
 import {
-    Dayjs 
+    Dayjs
 } from "dayjs"
 
 /** Entity kinds supported by on-demand CDN sync (S3 / static JSON). */
@@ -13,6 +15,7 @@ export type SyncCdnEntityKind =
     | typeof ChallengeEntity.name
     | typeof ContentEntity.name
     | typeof ModuleEntity.name
+    | typeof MilestoneTaskEntity.name
 
 /** Payload for a sync-cdn BullMQ job (one entity). */
 export interface SyncCdnPayload {
