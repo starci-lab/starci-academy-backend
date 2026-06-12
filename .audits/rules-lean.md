@@ -1,6 +1,6 @@
 # StarCi FS — Rules Lean (cheat-sheet)
 
-Bản tinh gọn để audit nhanh. Chi tiết TỰ-ĐỦ trong `.audits`: `rules/fullstack/{contents,challenges}.md`. KHÔNG ref file ngoài.
+Bản tinh gọn để audit nhanh. Chi tiết TỰ-ĐỦ trong `.audits`: `rules/fullstack/{contents,challenges}.md`, `rules/coding-problems.md` (LeetCode bank — Judge0-AC 5 lang). KHÔNG ref file ngoài.
 
 ## References (gold modules) — đọc TRƯỚC khi audit
 - `.audits/references.md` = registry module/lesson **đã PASS**, dùng làm GOLD theo từng **variant** (FE-Vite / BE-4lang / BE+Playwright). Đọc mục cùng variant trước khi bắt tay → bắt chước format chuẩn, đỡ lặp lỗi cũ.
@@ -9,9 +9,13 @@ Bản tinh gọn để audit nhanh. Chi tiết TỰ-ĐỦ trong `.audits`: `rule
 ## Nơi ghi artifact audit
 - `research.md` · `decision.md` · `claude_submitted.md` · `.code/` · `.e2e/` ghi **THẲNG vào mount** `.../modules/<slot>/contents/<lesson>/` (cạnh `audited.md`), **tiếng Việt**. KHÔNG để ở cây `.audits/` riêng.
 
-## Tiếng Việt PHẢI đủ dấu (gate bắt)
-- **MỌI tiếng Việt** — content `vi.md` (body + challenge) + artifact (`research/decision/claude_submitted`) + `references.md` — PHẢI **đủ dấu**. CẤM viết không dấu (`khong`/`duoc`/`phai`/`kiem thu`/`ban chat`…). Code-fence comment vẫn English-only (không xét dấu trong code).
-- Gate `check-lesson.ps1` bắt: vi.md/artifact 0 dấu (toàn file không dấu) HOẶC token không-dấu lọt trong prose → FAIL `Vietnamese KHÔNG DẤU`.
+## Tiếng Việt CHUẨN (gate bắt — chuẩn `data/rules/audit-vietnamese.md`)
+- **Đủ dấu:** MỌI tiếng Việt — `vi.md` (body + challenge) + artifact (`research/decision/claude_submitted`) + `references.md` — PHẢI đủ dấu. CẤM không dấu (`khong`/`duoc`/`phai`/`kiem thu`/`ban chat`…). Code-fence comment English-only (không xét dấu trong code).
+- **KHÔNG dịch ép technical term (§A — lỗi nặng nhất):** giữ tiếng Anh, nhúng vào câu Việt. Bảng SAI→ĐÚNG (gate FAIL `Dịch ép thuật ngữ`):
+  `vỏ app`/`vỏ layout`/`tầng vỏ`→**App Layout** · `config/cấu hình có kiểu`→**Typed Config** · `trình nghe`/`bộ lắng nghe`→**Listener** · `móc nối`→**Hook** · `lớp bọc`/`trình bao bọc`→**Wrapper** · `giàn giáo`/`khung sườn`→**Scaffold** · `phần mềm trung gian`→**Middleware** · `mã thông báo`→**Token** · `bộ nhớ đệm`→**Cache** · `khoá/khóa phân tán`→**Distributed lock** · `hàng đợi thư chết`→**DLQ** · `điểm hội tụ lỗi`→nơi xử lý lỗi tập trung.
+- **GIỮ tiếng Việt theo ngữ cảnh (đừng Anh-hoá ép):** `nhà cung cấp`=vendor/dịch vụ · `điểm cuối`=final score · `tải trọng`=load · `dưới lớp vỏ`=under the hood · term nghiệp vụ (Xác thực/Phân quyền/Giỏ hàng/Đơn hàng…).
+- **KHÔNG calque word-by-word:** dịch theo nghĩa, đọc xuôi; bỏ "một cách"/"việc mà" thừa.
+- Gate `check-lesson.ps1`: FAIL `Vietnamese KHÔNG DẤU` (0 dấu / token không-dấu lọt) + FAIL `Dịch ép thuật ngữ` (trúng blacklist §A.2; term tự nhiên đã loại nên không false-positive).
 
 ## E2E port (4-lang)
 - **TÌM PORT RẢNH TRƯỚC RỒI ASSIGN** (không khởi động port mặc định rồi xử lý va chạm): `$used=(Get-NetTCPConnection -State Listen).LocalPort` → lấy 4 port trống trong 3000..3100 (hoặc random 1000-9999) → assign ts/java/net/go qua `PORT`/config, chỉ đổi base URL. **KHÔNG fail/skip e2e vì port.** Ghi port thực tế vào `.e2e/`.
