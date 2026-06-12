@@ -17,6 +17,9 @@ import {
     RepoSynchronizerService,
 } from "./repo-synchronizer"
 import {
+    ReconcileSynchronizerService,
+} from "./reconcile-synchronizer"
+import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
@@ -48,6 +51,7 @@ export class SynchronizersService {
         private readonly indexerSynchronizerService: IndexerSynchronizerService,
         private readonly bloomFilterSynchronizerService: BloomFilterSynchronizerService,
         private readonly repoSynchronizerService: RepoSynchronizerService,
+        private readonly reconcileSynchronizerService: ReconcileSynchronizerService,
         private readonly elasticsearchIndexResetService: ElasticsearchIndexResetService,
         private readonly syncScopeService: SyncScopeService,
     ) { }
@@ -75,6 +79,9 @@ export class SynchronizersService {
         await this.bloomFilterSynchronizerService.sync()
         const repoScope = this.syncScopeService.buildRepoScope()
         await this.repoSynchronizerService.sync(repoScope)
+        // ES + CDN now reflect the freshly-seeded DB → delete any leftover ghost
+        // docs/objects for entities removed/renumbered out of the source
+        await this.reconcileSynchronizerService.reconcile()
         /**
          * End the sync orchestrator.
          */

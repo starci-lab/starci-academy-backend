@@ -170,5 +170,9 @@ export enum WinstonLog {
     /** Data-git bootstrap: failed to fetch or extract the remote data repo. */
     DataGitBootstrapFailed = "DataGitBootstrapFailed",
     /** Data-git diff: resolved how the seed/sync scope was narrowed for this boot. */
-    DataGitDiffScoped = "DataGitDiffScoped"
+    DataGitDiffScoped = "DataGitDiffScoped",
+    /** Reconcile: skipped pruning a target because the delete ratio was unsafe. */
+    ReconcileOrphansSkipped = "ReconcileOrphansSkipped",
+    /** Reconcile: finished pruning ES/CDN orphans for the boot. */
+    ReconcileOrphansDone = "ReconcileOrphansDone"
     }

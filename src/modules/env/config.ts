@@ -379,6 +379,23 @@ export const envConfig = () => ({
                 key: "SYNCHRONIZER_ENABLE",
                 defaultValue: true,
             }),
+            /**
+             * After each sync, delete Elasticsearch docs + CDN objects whose entity
+             * no longer exists in PostgreSQL (ghosts from removed/renumbered content).
+             */
+            pruneOrphans: parseEnvBoolean({
+                key: "SYNCHRONIZER_PRUNE_ORPHANS",
+                defaultValue: true,
+            }),
+            /**
+             * Safety cap: skip pruning an entity type (with a loud warn) when more
+             * than this fraction of its ES/CDN entries would be deleted — guards
+             * against wiping everything if the DB came back empty (seed hiccup).
+             */
+            pruneMaxRatio: parseEnvFloat({
+                key: "SYNCHRONIZER_PRUNE_MAX_RATIO",
+                defaultValue: 0.5,
+            }),
             emailBloomFilter: {
                 interval: parseEnvMs({
                     key: "SYNCHRONIZER_PROCESS_EMAIL_BLOOM_FILTER_INTERVAL_MS",

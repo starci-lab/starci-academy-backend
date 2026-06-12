@@ -22,6 +22,9 @@ import {
 import {
     RepoSynchronizerModule
 } from "./repo-synchronizer"
+import {
+    ReconcileSynchronizerService
+} from "./reconcile-synchronizer"
 
 /**
  * Core synchronizer module.
@@ -49,6 +52,7 @@ import {
     ],
     providers: [
         SynchronizersService,
+        ReconcileSynchronizerService,
     ],
     exports: [
         SynchronizersService,
