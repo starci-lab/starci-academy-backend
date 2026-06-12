@@ -14,12 +14,12 @@ import {
 import {
     clearRuntimeContextRoot,
     clearRuntimeSeedConfig,
-    getInitScopeConfig,
+    getInitConfig,
     setRuntimeContextRoot,
     setRuntimeSeedConfig,
 } from "@modules/filesystem"
 import type {
-    InitCustomScope,
+    InitConfig,
     SeedConfig,
 } from "@modules/filesystem"
 import {
@@ -46,6 +46,9 @@ import {
     SeedDiffOverlayService,
     parseDataGitDiff,
 } from "./diff"
+import {
+    InitConfigParserService,
+} from "./config"
 
 /**
  * Boot-time initialization orchestrator — the canonical, git-sourced init.
@@ -67,6 +70,7 @@ export class InitService implements OnModuleInit {
     constructor(
         private readonly dataGitBootstrapService: DataGitBootstrapService,
         private readonly seedDiffOverlayService: SeedDiffOverlayService,
+        private readonly initConfigParserService: InitConfigParserService,
         private readonly winstonService: WinstonService,
         private readonly seedScopeService: SeedScopeService,
         private readonly syncScopeService: SyncScopeService,
@@ -79,20 +83,14 @@ export class InitService implements OnModuleInit {
      * `.contexts` only after a successful seed.
      */
     async onModuleInit(): Promise<void> {
-        // a non-empty customScope forces seeding an explicit course/foundation set
-        // instead of the diff-derived scope (still pulls the source at the end);
-        // otherwise the coarse `scope` mode picks all / diff / none (default diff)
-        const initScope = getInitScopeConfig()
-        const customScope = initScope.customScope
-        // custom mode is active when any course is listed OR foundations is toggled on
-        const customCourseCount = customScope?.courses
-            ? Object.keys(customScope.courses).length
-            : 0
-        const isCustom = customCourseCount > 0 || customScope?.foundations === true
-        const scopeMode = initScope.scope ?? "diff"
+        // explicit `seed:`/`sync:` blocks drive the pipeline directly; otherwise the
+        // coarse `mode` picks all / diff / none (default diff)
+        const initConfig = getInitConfig()
+        const isExplicit = Boolean(initConfig.seed) || Boolean(initConfig.sync)
+        const mode = initConfig.mode ?? "diff"
 
-        // `scope: none` (and no custom scope) → init disabled: skip both phases
-        if (!isCustom && scopeMode === "none") {
+        // no explicit blocks AND `mode: none` → init disabled: skip both phases
+        if (!isExplicit && mode === "none") {
             this.logScoped(false,
                 0,
                 0,
@@ -100,10 +98,10 @@ export class InitService implements OnModuleInit {
             return
         }
 
-        // custom mode and `scope: all` force a re-seed → always pull fresh from git
+        // explicit blocks and `mode: all` force a re-seed → always pull fresh from git
         // so we never seed from a possibly-stale/empty local .contexts (which only
         // carries the marker for diffing). diff mode may still short-circuit below.
-        const forceReseed = isCustom || scopeMode === "all"
+        const forceReseed = isExplicit || mode === "all"
 
         // resolve the remote into a staging copy; a failure must NOT crash boot —
         // fall back to seeding whatever local .contexts content already exists
@@ -122,10 +120,10 @@ export class InitService implements OnModuleInit {
 
         // seed from the staging copy when we have one, else the local .contexts
         const stagingRoot = result?.stagingRoot ?? null
-        const configToApply = isCustom
-            ? this.buildCustomConfig(customScope ?? {
-            })
-            : scopeMode === "all"
+        const configToApply = isExplicit
+            ? await this.buildExplicitConfig(initConfig,
+                stagingRoot)
+            : mode === "all"
                 ? await this.buildAllConfig(stagingRoot)
                 : await this.resolveConfig(result,
                     stagingRoot)
@@ -162,29 +160,34 @@ export class InitService implements OnModuleInit {
     }
 
     /**
-     * Builds the explicit custom-scope config and logs the resolved scope.
+     * Builds the explicit `seed:`/`sync:` config via the init-config parser, fanning
+     * a reindex's auto-full-resync across every course under the active root.
      *
-     * @param customScope - The `customScope` block: per-course scope under
-     *   `courses` plus the standalone `foundations` toggle
-     * @returns The config restricted to the listed courses/tracks (+ foundations)
+     * @param config - The parsed `seed.yaml` (`mode`/`seed`/`sync` blocks)
+     * @param stagingRoot - The staging root to enumerate, or `null` for local
+     * @returns The expanded seed + sync config
      */
-    private buildCustomConfig(
-        customScope: InitCustomScope,
-    ): SeedConfig {
-        // course count is the only meaningful "scope size" to surface in the log line
-        const courseCount = customScope.courses
-            ? Object.keys(customScope.courses).length
-            : 0
+    private async buildExplicitConfig(
+        config: InitConfig,
+        stagingRoot: string | null,
+    ): Promise<SeedConfig> {
+        const coursesDir = stagingRoot
+            ? join(stagingRoot,
+                "courses")
+            : envConfig().mountPath.data.courses
+        const courseDisplayIds = await this.listCourseDisplayIds(coursesDir)
+        const seedConfig = this.initConfigParserService.parse(config,
+            courseDisplayIds)
         this.logScoped(false,
-            courseCount,
+            Object.keys(seedConfig.seeders.courses.tracks).length,
             0,
             0)
-        return this.seedDiffOverlayService.buildCustomConfig(customScope)
+        return seedConfig
     }
 
     /**
      * Builds a full-reseed config for every course under the active root and
-     * logs the resolved scope. Used by `scope: all` and the diff full-fallback.
+     * logs the resolved scope. Used by `mode: all` and the diff full-fallback.
      *
      * @param stagingRoot - The staging root to enumerate, or `null` for local
      * @returns The full-scope config

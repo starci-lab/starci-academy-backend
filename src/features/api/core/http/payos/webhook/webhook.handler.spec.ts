@@ -32,10 +32,10 @@ import {
 } from "@modules/payos"
 import {
     makeEntityManagerMock,
-} from "@tests/utils"
+} from "@modules/tests"
 import type {
     EntityManagerMock,
-} from "@tests/utils"
+} from "@modules/tests"
 import {
     PayosWebhookCommand,
 } from "./webhook.command"

@@ -78,7 +78,7 @@ export class DataGitBootstrapService {
      * Does NOT touch `.contexts` or the marker — call {@link materialize} after a
      * successful seed to commit the staging tree, or {@link cleanup} to discard it.
      *
-     * @param forceDownload - When true (forced reseed: `scope: all` / customScope),
+     * @param forceDownload - When true (forced reseed: `mode: all` / explicit seed:/sync:),
      * always download a fresh staging copy from git even if the marker SHA matches —
      * the seed source must come from git, never a possibly-stale/empty local `.contexts`.
      * @returns The remote SHA, the changed-path diff, and the staging location

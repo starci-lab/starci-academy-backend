@@ -16,6 +16,7 @@ export enum CacheKey {
     MilestoneTask = "milestone.task",
     MilestoneTaskProgress = "milestone.task.progress",
     ChallengeSubmissionProgress = "challenge.submission.progress",
+    CodingProblemProgress = "coding.problem.progress",
     CreditUsage = "credit.usage",
     CourseLeaderboard = "course.leaderboard",
     CourseLeaderboardDebounce = "course.leaderboard.debounce",

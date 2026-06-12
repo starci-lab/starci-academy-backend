@@ -81,8 +81,8 @@ COPY --from=deps /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/dist/apps/core .
 # COPY the templates to the image.
 COPY templates /usr/src/app/templates
-# COPY the brand assets (course/tech logos) so AssetsService can sync them to MinIO on boot.
-COPY .assets /usr/src/app/.assets
+# Brand assets (course/tech logos) are not baked into the image — they live in
+# the bind-mounted `.mount/assets` so AssetsService syncs them to MinIO on boot.
 
 # Expose the port that the application listens on.
 EXPOSE 20860

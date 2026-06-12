@@ -47,7 +47,8 @@ export class ModulesHandler
             filters: [
                 {
                     term: {
-                        "courseId.keyword": courseId,
+                        // courseId is mapped as a pure keyword → query it directly (no `.keyword` subfield)
+                        courseId,
                     },
                 },
             ],

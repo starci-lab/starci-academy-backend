@@ -63,10 +63,12 @@ export class SynchronizersService {
          */
         const start = this.dayjsService.now()
         await this.cdnSynchronizerService.sync(cdnScope)
-        // drop + re-create ES indices first when reindex is requested, so the
-        // sync below repopulates a clean, correctly-mapped set of indices
-        if (this.syncScopeService.isReIndexEnabled()) {
-            await this.elasticsearchIndexResetService.resetAllIndices()
+        // drop + re-create the requested ES indices first, so the sync below
+        // repopulates a clean, correctly-mapped set (the parser forces these
+        // indices' ES sync to full, so a dropped index is never left empty)
+        const reindexEntities = this.syncScopeService.reindexEntities()
+        if (reindexEntities.length > 0) {
+            await this.elasticsearchIndexResetService.resetIndices(reindexEntities)
         }
         await this.elasticsearchSynchronizerService.sync(elasticsearchScope)
         await this.indexerSynchronizerService.sync(cdnScope)

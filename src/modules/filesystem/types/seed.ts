@@ -17,49 +17,6 @@
  */
 export type SeedScopeIndexes = "all" | string | Array<number>
 
-/**
- * Rich per-course override under `customScope.courses`, splitting each track out so a
- * course can scope its module/contents range while independently toggling the
- * milestone and flashcard-deck passes.
- *
- * Example:
- * ```yaml
- * fullstack-mastery:
- *   contents: "0-19"
- *   milestone: true
- *   flashcard-decks: true
- * ```
- */
-export interface SeedCustomCourseScope {
-    /** Module/contents track scope: `"all"`, an index list, or a range like `"0-19"`. */
-    contents: SeedScopeIndexes
-    /** When true, also seed/sync this course's milestone track (default false). */
-    milestone?: boolean
-    /**
-     * When true, also seed this course's flashcard decks (default false). Kebab-cased
-     * to mirror the `flashcard-decks/` mount folder; read via `value["flashcard-decks"]`.
-     */
-    "flashcard-decks"?: boolean
-}
-
-/**
- * Accepted value forms for one `customScope.courses` entry:
- * - {@link SeedScopeIndexes} — shorthand; scopes only the module/contents track
- *   (milestones + flashcard stay off). Backward-compatible with the old `"0-19"` form.
- * - {@link SeedCustomCourseScope} — rich object form toggling each track.
- */
-export type SeedCustomCourseValue = SeedScopeIndexes | SeedCustomCourseScope
-
-/** Normalized per-course custom scope after merging shorthand + object forms. */
-export interface ResolvedCustomCourseScope {
-    /** Resolved module/contents track scope. */
-    contents: SeedScopeIndexes
-    /** Whether the milestone track is enabled for this course. */
-    milestone: boolean
-    /** Whether flashcard-deck seeding is enabled for this course. */
-    flashcardDecks: boolean
-}
-
 /** Per-course seed scope (one entry under `seeders.courses.tracks`). */
 export interface SeedCourseTrack {
     /** Seed/refresh the course root entity itself (title, slug, catalog row). */
@@ -124,33 +81,45 @@ export interface SeedSyncCourseTrack {
     milestones: SeedSyncCourseSink
 }
 
+/**
+ * Per-sink toggle for a standalone domain (foundations, headhunting, …). Only the
+ * `elasticsearch` sink is wired today (the CDN synchronizer has no domain kinds), but
+ * the shape mirrors the per-sink course tracks so the schema stays symmetric.
+ */
+export interface SeedSyncDomainSink {
+    /** Sync this domain's documents to CDN (currently inert — no CDN domain sync). */
+    cdn: boolean
+    /** Sync this domain's documents to the Elasticsearch search/autocomplete index. */
+    elasticsearch: boolean
+}
+
 /** Phase 2 — synchronizers (PostgreSQL -> CDN + Elasticsearch). */
 export interface SeedSynchronizersConfig {
     /** Master switch for the whole sync phase. */
     enabled: boolean
     /**
-     * When true, DROP + re-create every Elasticsearch index (from its mapping)
-     * before repopulating. When false, only upsert documents incrementally.
+     * Entity class names whose Elasticsearch index is DROPPED + re-created (from its
+     * mapping) before this sync repopulates it. Empty = incremental upsert only.
+     * Resolved from the friendly `sync.reindex` names via `configMap`.
      */
-    reIndex: boolean
+    reindex: Array<string>
     /** Per-course scopes, keyed by course `displayId`. */
     courses: Record<string, SeedSyncCourseTrack>
-    /** Standalone domains (synced to both sinks; simple on/off). */
-    cv: boolean
-    foundations: boolean
-    headhunting: boolean
-    /** When true, sync flashcard decks to Elasticsearch (search + title autocomplete). */
-    flashcards: boolean
-    /** When true, sync coding-practice problems to Elasticsearch (search + title autocomplete). */
-    codingProblems: boolean
+    /** Standalone domains — per-sink (only `elasticsearch` is wired today). */
+    cv: SeedSyncDomainSink
+    foundations: SeedSyncDomainSink
+    headhunting: SeedSyncDomainSink
+    /** Sync flashcard decks to Elasticsearch (search + title autocomplete). */
+    flashcards: SeedSyncDomainSink
+    /** Sync coding-practice problems to Elasticsearch (search + title autocomplete). */
+    codingProblems: SeedSyncDomainSink
 }
 
 /**
  * Full seed/sync control config.
  *
  * In git-init mode this is built in-memory by the diff overlay from `seed.yaml`
- * and applied via `setRuntimeSeedConfig` — there is no longer a `_seed.yaml`
- * disk file backing it.
+ * and applied via `setRuntimeSeedConfig`; nothing reads it off disk directly.
  */
 export interface SeedConfig {
     seeders: SeedSeedersConfig
@@ -158,53 +127,96 @@ export interface SeedConfig {
 }
 
 /**
- * Coarse init mode used when `customScope` is absent.
+ * Coarse init mode (`seed.yaml` `mode`), used as a fallback ONLY when neither the
+ * `seed:` nor `sync:` block is present.
  *
- * - `"all"`  → force a full reseed/sync of every course (ignores the diff, even
- *   when already on the remote SHA).
- * - `"diff"` → default: check remote vs local marker and seed/sync only the
- *   changed courses/modules (short-circuits when already up to date).
- * - `"none"` → skip the seed/sync phases entirely (no-op boot).
+ * - `"all"`  → full reseed/sync of every course (ignores the diff).
+ * - `"diff"` → default: seed/sync only the changed courses/modules.
+ * - `"none"` → skip both phases (no-op boot).
  */
 export type InitScopeMode = "all" | "diff" | "none"
 
+// ─────────────────────────────────────────────────────────────────────────────
+// seed.yaml INPUT schema (`InitConfig`) — friendly, shorthand-rich surface that
+// the parser expands into the runtime `SeedConfig` above.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** `sync.reindex`: which ES indices to DROP + re-create first. Friendly index names. */
+export type ReindexScope = "all" | "none" | Array<string>
+
 /**
- * Custom scope override for the git-sourced init (`seed.yaml` `customScope`).
- *
- * Split into independent sections so the per-course scope and the standalone
- * foundations domain are toggled separately.
+ * One `seed.courses` entry: a shorthand module scope, or a per-track object.
+ * Shorthand (`all`/range/list) → modules scope; milestones/flashcards default off.
  */
-export interface InitCustomScope {
-    /**
-     * Per-course scope keyed by course displayId. Each value is either a shorthand
-     * module scope (`"all"`, `[1, 2, 3]`, range `"0-19"`) or a rich
-     * {@link SeedCustomCourseScope} object that also toggles the milestone and
-     * flashcard-deck tracks.
-     */
-    courses?: Record<string, SeedCustomCourseValue>
-    /**
-     * When true, also seed (+ sync) the standalone foundations domain (categories
-     * + foundation items + their thumbnails). Not tied to any course. Default false.
-     */
+export type InitSeedCourseValue = SeedScopeIndexes | {
+    /** Module/contents track scope. */
+    modules?: SeedScopeIndexes
+    /** Milestone track scope — `true` = all, `false`/`[]` = off, or an index scope. */
+    milestones?: SeedScopeIndexes | boolean
+    /** Seed this course's flashcard decks. */
+    flashcards?: boolean
+}
+
+/** Phase 1 input — sources → PostgreSQL. Omit, or `enabled: false`, to skip seeding. */
+export interface InitSeedBlock {
+    enabled?: boolean
+    courses?: Record<string, InitSeedCourseValue>
     foundations?: boolean
+    codingProblems?: boolean
+    aiModels?: boolean
+    cv?: boolean
+    headhunting?: boolean
+    subscriptions?: boolean
+}
+
+/** Per-sink scope value: a scope-indexes form, or a bool (`true` = all, `false` = off). */
+export type InitSyncSinkScope = SeedScopeIndexes | boolean
+
+/** One sync course track: a per-sink object, or a shorthand applied to every sink. */
+export type InitSyncTrackValue = InitSyncSinkScope | {
+    cdn?: InitSyncSinkScope
+    elasticsearch?: InitSyncSinkScope
+    repo?: InitSyncSinkScope
+}
+
+/** One `sync.courses` entry: shorthand (every sink/track), or per-track object. */
+export type InitSyncCourseValue = InitSyncSinkScope | {
+    modules?: InitSyncTrackValue
+    milestones?: InitSyncTrackValue
+}
+
+/** One `sync.<domain>` entry: a bool, or a per-sink object. */
+export type InitSyncDomainValue = boolean | {
+    cdn?: boolean
+    elasticsearch?: boolean
+}
+
+/** Phase 2 input — PostgreSQL → CDN/ES/repo. Omit, or `enabled: false`, to skip syncing. */
+export interface InitSyncBlock {
+    enabled?: boolean
+    /** DROP + re-create these ES indices before syncing (auto-forces their ES sync to full). */
+    reindex?: ReindexScope
+    /** Hard master per sink — a `false` sink zeros that sink across every course/domain. */
+    sinks?: {
+        cdn?: boolean
+        elasticsearch?: boolean
+        repo?: boolean
+    }
+    courses?: Record<string, InitSyncCourseValue>
+    foundations?: InitSyncDomainValue
+    codingProblems?: InitSyncDomainValue
+    flashcards?: InitSyncDomainValue
+    headhunting?: InitSyncDomainValue
+    cv?: InitSyncDomainValue
 }
 
 /**
- * Optional scope override for the git-sourced init (`seed.yaml`).
- *
- * When `customScope` is present and non-empty (any course listed, or foundations
- * enabled), the git init seeds/syncs exactly that scope instead of the diff-derived
- * one, then pulls the source into `.contexts` as usual. Otherwise `scope` picks the
- * coarse mode.
+ * Parsed shape of `seed.yaml`. The `seed:`/`sync:` blocks take precedence; when both
+ * are absent the coarse `mode` decides (all/diff/none). Expanded into a {@link SeedConfig}
+ * by the init-config parser.
  */
-export interface InitScopeConfig {
-    /**
-     * Rich custom scope split into `courses` + `foundations`. Takes precedence over
-     * `scope` when present and non-empty.
-     */
-    customScope?: InitCustomScope
-    /**
-     * Coarse mode used only when `customScope` is absent/empty. Omit → `"diff"`.
-     */
-    scope?: InitScopeMode
+export interface InitConfig {
+    mode?: InitScopeMode
+    seed?: InitSeedBlock
+    sync?: InitSyncBlock
 }

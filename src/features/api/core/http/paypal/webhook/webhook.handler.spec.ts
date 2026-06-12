@@ -33,10 +33,10 @@ import {
 } from "@modules/paypal"
 import {
     makeEntityManagerMock,
-} from "@tests/utils"
+} from "@modules/tests"
 import type {
     EntityManagerMock,
-} from "@tests/utils"
+} from "@modules/tests"
 import {
     PaypalWebhookCommand,
 } from "./webhook.command"

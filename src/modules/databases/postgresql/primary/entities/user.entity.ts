@@ -1,5 +1,6 @@
 import {
     Field,
+    Int,
     ObjectType
 } from "@nestjs/graphql"
 import {
@@ -143,6 +144,23 @@ export class UserEntity extends UuidAbstractEntity {
         default: false
     })
         isDeleted: boolean
+
+    /**
+     * Cumulative coding-practice score. Earned per problem (by difficulty:
+     * easy 10 / medium 15 / hard 20) the first time the user solves it, and only
+     * when they did NOT reveal that problem's reference solution before solving.
+     * Standalone from the per-course leaderboard XP (coding practice is global).
+     */
+    @Field(() => Int,
+        {
+            description: "Cumulative coding-practice points earned by the user."
+        })
+    @Column({
+        name: "coding_points",
+        type: "int",
+        default: 0
+    })
+        codingPoints: number
 
 
     @Field(

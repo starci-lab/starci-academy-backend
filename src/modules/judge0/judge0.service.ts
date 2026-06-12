@@ -112,17 +112,40 @@ export class Judge0Service {
     async judgeBatch({ submissions }: JudgeBatchParams): Promise<JudgeBatchResult> {
         // hard end-to-end budget for the whole judging call
         const { overallTimeoutMs } = envConfig().judge0
-        // race the poll loop against the wall-clock cap — first to settle wins
-        return Promise.race([
-            this.pollUntilTerminal(submissions),
-            this.rejectAfter(overallTimeoutMs),
-        ])
+        // hold the timer handle so the race can cancel it once it settles
+        let timeoutHandle: NodeJS.Timeout | undefined
+        // wall-clock cap — rejects if judging outruns the hard budget no matter
+        // how Judge0 (or a hung HTTP request) behaves
+        const timeout = new Promise<never>((_resolve, reject) => {
+            timeoutHandle = setTimeout(
+                () => {
+                    reject(new Judge0TimedOutException({
+                        attempts: 0,
+                        pendingCount: 0,
+                    }))
+                },
+                overallTimeoutMs,
+            )
+        })
+        try {
+            // race the poll loop against the wall-clock cap — first to settle wins
+            return await Promise.race([
+                this.pollUntilTerminal(submissions),
+                timeout,
+            ])
+        } finally {
+            // clear the timer so a fast success never leaves a dangling timeout
+            // keeping the event loop alive (also fixes jest open-handle warnings)
+            if (timeoutHandle) {
+                clearTimeout(timeoutHandle)
+            }
+        }
     }
 
     /**
      * Submit the batch then poll until every run is terminal or the poll-attempt
-     * budget is exhausted. The hard wall-clock cap is enforced separately by
-     * {@link judgeBatch} via {@link rejectAfter}.
+     * budget is exhausted. The hard wall-clock cap is enforced separately by the
+     * wall-clock timer in {@link judgeBatch}.
      */
     private async pollUntilTerminal(
         submissions: JudgeBatchParams["submissions"],
@@ -155,23 +178,6 @@ export class Judge0Service {
         throw new Judge0TimedOutException({
             attempts: maxPollAttempts,
             pendingCount,
-        })
-    }
-
-    /**
-     * Reject with {@link Judge0TimedOutException} after the given wall-clock
-     * budget — hard-caps {@link judgeBatch} no matter how Judge0 (or a hung HTTP
-     * request) behaves.
-     */
-    private rejectAfter(ms: number): Promise<never> {
-        return new Promise<never>((_resolve, reject) => {
-            setTimeout(() => {
-                reject(new Judge0TimedOutException({
-                    attempts: 0,
-                    pendingCount: 0,
-                }))
-            },
-            ms)
         })
     }
 

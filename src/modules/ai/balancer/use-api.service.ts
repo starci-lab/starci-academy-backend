@@ -100,6 +100,11 @@ export class UseApiService {
         let lastError: Error | undefined
 
         while (attempts < maxAttempts) {
+            // track per-pass progress — if a full sweep over `models` finds no
+            // eligible key (e.g. every key flagged unhealthy in the ping cache),
+            // there is nothing left to try and looping again would spin forever.
+            let madeProgress = false
+
             for (const model of models) {
                 if (
                     selectedModel
@@ -114,6 +119,8 @@ export class UseApiService {
                 if (eligibleCount === 0) {
                     continue
                 }
+
+                madeProgress = true
 
                 for (let i = 0; i < eligibleCount; i++) {
                     if (attempts >= maxAttempts) {
@@ -148,6 +155,12 @@ export class UseApiService {
 
                     lastError = outcome.error
                 }
+            }
+
+            // a full sweep produced no eligible key — all models are exhausted,
+            // so stop here instead of re-scanning the same empty pools forever.
+            if (!madeProgress) {
+                break
             }
         }
 

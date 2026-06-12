@@ -138,8 +138,9 @@ describe("LeaderboardListener",
                     eventEmitterService)
                 entityManager.findOne.mockResolvedValueOnce({
                     id: "e1",
-                    courseId: "course-1",
-         
+                    course: {
+                        id: "course-1",
+                    },
                 } as any)
                 cacheService.get.mockResolvedValueOnce(undefined)
 
@@ -165,8 +166,9 @@ describe("LeaderboardListener",
                     eventEmitterService)
                 entityManager.findOne.mockResolvedValueOnce({
                     id: "e1",
-                    courseId: "course-1",
-         
+                    course: {
+                        id: "course-1",
+                    },
                 } as any)
                 cacheService.get.mockResolvedValueOnce(true)
 
@@ -184,8 +186,9 @@ describe("LeaderboardListener",
                     eventEmitterService)
                 entityManager.findOne.mockResolvedValue({
                     id: "e1",
-                    courseId: "course-1",
-         
+                    course: {
+                        id: "course-1",
+                    },
                 } as any)
                 cacheService.get
                     .mockResolvedValueOnce(undefined)

@@ -32,10 +32,10 @@ import {
 } from "@modules/stripe"
 import {
     makeEntityManagerMock,
-} from "@tests/utils"
+} from "@modules/tests"
 import type {
     EntityManagerMock,
-} from "@tests/utils"
+} from "@modules/tests"
 import {
     StripeWebhookCommand,
 } from "./webhook.command"

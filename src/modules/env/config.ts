@@ -144,6 +144,10 @@ export const envConfig = () => ({
                 key: "CACHE_TTL_CHALLENGE_SUBMISSION_PROGRESS",
                 defaultValue: "5m",
             }),
+            codingProblemProgress: parseEnvMs({
+                key: "CACHE_TTL_CODING_PROBLEM_PROGRESS",
+                defaultValue: "5m",
+            }),
             creditUsage: parseEnvMs({
                 key: "CACHE_TTL_CREDIT_USAGE",
                 defaultValue: "5m",
@@ -858,14 +862,6 @@ export const envConfig = () => ({
             }),
         },
     ],
-    /** Init — git-sourced bootstrap; falls back to the parked local-file LegacyInitModule when disabled. */
-    initV2: {
-        /** When true, the app wires the canonical git-sourced InitModule; when false, the local-file LegacyInitModule. Default on. */
-        enabled: parseEnvBoolean({
-            key: "INIT_V2_ENABLED",
-            defaultValue: true,
-        }),
-    },
     /** Data-git — the private GitHub repo holding seed content (courses, coding problems, rules). */
     dataGit: {
         /** Repository owner (GitHub org or user). */
@@ -1131,6 +1127,21 @@ export const envConfig = () => ({
                 defaultValue: "http://localhost:3000"
             }),
         ).filter((url) => url !== "")
+    },
+    /** Cookie configuration shared across cookie-driven auth flows. */
+    cookie: {
+        /**
+         * Domain scope for the JS-readable CSRF cookie. Set to the parent
+         * domain (e.g. ".academy.starci.org") so the SPA on the apex/sibling
+         * host can read the token that `api.<...>` issued. Empty = host-only
+         * (local dev), which keeps the cookie scoped to the issuing host.
+         */
+        domain: parseEnvString(
+            {
+                key: "COOKIE_DOMAIN",
+                defaultValue: ""
+            }
+        ),
     },
     /** CSRF protection configuration (double-submit token signing). */
     csrf: {
@@ -1423,10 +1434,13 @@ export const envConfig = () => ({
 
     /** Static brand assets synced from a local folder to S3/MinIO on boot. */
     assets: {
-        // local folder (relative to the process cwd) holding the source asset files
+        // host-mounted folder (relative to cwd) holding the source asset files;
+        // lives under `.mount` so deploys bind-mount it in like config/terraform
         dir: parseEnvString({
             key: "ASSETS_DIR",
-            defaultValue: ".assets",
+            defaultValue: join(process.cwd(),
+                ".mount",
+                "assets"),
         }),
     },
 

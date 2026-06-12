@@ -21,8 +21,7 @@
   "transformIgnorePatterns": [],
   "moduleNameMapper": {
     "^@modules/(.*)$": "<rootDir>/src/modules/$1",
-    "^@features/(.*)$": "<rootDir>/src/features/$1",
-    "^@tests/(.*)$": "<rootDir>/tests/$1"
+    "^@features/(.*)$": "<rootDir>/src/features/$1"
   },
   "globalSetup": "<rootDir>/apps/core/test/setup-e2e.ts",
   "globalTeardown": "<rootDir>/apps/core/test/teardown-e2e.ts",

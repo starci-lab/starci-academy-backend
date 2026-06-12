@@ -1,6 +1,5 @@
 import {
     EnvModule,
-    envConfig
 } from "@modules/env"
 import {
     Module
@@ -153,9 +152,6 @@ import {
 import {
     InitModule,
 } from "@modules/init"
-import {
-    LegacyInitModule,
-} from "@modules/_init"
 import {
     FfmpegModule
 } from "@modules/ffmpeg"
@@ -461,26 +457,16 @@ import {
                 }
             ),
             /**
-             * Init module — boot-time seed/sync orchestrator.
-             * The canonical git-sourced `InitModule` pulls the private `data`
-             * repo (diff-based) before seeding. When `INIT_V2_ENABLED` is off,
-             * fall back to the parked local-file `LegacyInitModule` for dev.
+             * Init module — boot-time seed/sync orchestrator. The git-sourced
+             * `InitModule` pulls the private `data` repo (diff-based) before
+             * seeding; it is the only init path (the parked local-file
+             * LegacyInitModule has been retired).
              */
-            ...(envConfig().initV2.enabled
-                ? [
-                    InitModule.register(
-                        {
-                            isGlobal: true,
-                        }
-                    ),
-                ]
-                : [
-                    LegacyInitModule.register(
-                        {
-                            isGlobal: true,
-                        }
-                    ),
-                ]),
+            InitModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
             /** Ffmpeg module. */
             FfmpegModule.register(
                 {

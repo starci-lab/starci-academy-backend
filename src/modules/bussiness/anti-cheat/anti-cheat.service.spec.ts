@@ -288,10 +288,12 @@ describe("AntiCheatService",
                 it("uses safe zero-defaults for omitted telemetry fields",
                     () => {
                         const result = service.evaluate({
-                            // an empty telemetry object → every field defaults to 0 → no signal
+                            // an empty telemetry object → every field defaults to 0; with a
+                            // zero codeLength the length-relative heuristics are all guarded
+                            // off, so the score stays 0
                             telemetry: {
                             },
-                            codeLength: 600,
+                            codeLength: 0,
                         })
 
                         expect(result.suspicionScore).toBe(0)

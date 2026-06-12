@@ -28,8 +28,8 @@ import {
  * `configMap` mapping, giving a clean, correctly-typed index for mixed V1/V2 documents (legacy
  * `body` and SCHEMA V2 `bodies`/`isPremium`/`verified` share one record/index).
  *
- * Destructive by design — called by the synchronizer phase only when `seed.yaml`
- * `synchronizers.reIndex` is true, right before the data is repopulated.
+ * Destructive by design — called by the synchronizer phase for the entities listed
+ * in `seed.yaml` `sync.reindex`, right before that data is repopulated.
  */
 @Injectable()
 export class ElasticsearchIndexResetService {
@@ -44,12 +44,27 @@ export class ElasticsearchIndexResetService {
      * Destructive: every existing document is lost and must be repopulated afterwards.
      */
     async resetAllIndices(): Promise<void> {
-        // reset base + every locale variant of each configured entity in parallel
+        await this.resetIndices(Object.keys(configMap))
+    }
+
+    /**
+     * Drop + re-create the given entity indices (base + every locale variant) from config.
+     * Destructive: their documents are lost and must be repopulated by the sync that follows.
+     *
+     * @param entities - Entity class names (keys into {@link configMap}); unknown keys are skipped.
+     */
+    async resetIndices(entities: Array<string>): Promise<void> {
+        // only reset entities that actually have a configured index
+        const known = entities.filter((entity) => entity in configMap)
+        if (known.length === 0) {
+            return
+        }
+        // reset base + every locale variant of each requested entity in parallel
         const locales: Array<Locale | undefined> = [
             undefined,
             ...Object.values(Locale),
         ]
-        const tasks = Object.keys(configMap).flatMap((entity) =>
+        const tasks = known.flatMap((entity) =>
             locales.map((locale) => ({
                 entity,
                 locale,

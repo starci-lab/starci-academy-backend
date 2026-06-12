@@ -91,6 +91,10 @@ export class CookieService {
             // strict keeps the token off cross-site requests as defense-in-depth
             sameSite: "strict",
             path: "/",
+            // scope to the parent domain (e.g. ".academy.starci.org") so the SPA
+            // on the apex/sibling host can read the cookie that api.<...> issued.
+            // empty config → undefined → host-only cookie (local dev)
+            domain: envConfig().cookie.domain || undefined,
             maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
         }
         res.cookie(

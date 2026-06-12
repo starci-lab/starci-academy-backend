@@ -21,10 +21,10 @@ import {
 } from "@modules/filesystem"
 import {
     makeEntityManagerMock,
-} from "@tests/utils"
+} from "@modules/tests"
 import type {
     EntityManagerMock,
-} from "@tests/utils"
+} from "@modules/tests"
 import type {
     ProgressEnrollmentType,
 } from "./types"

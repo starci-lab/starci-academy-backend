@@ -3,6 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     MountFilesystemService,
+    type SeedSyncDomainSink,
     type SeedSynchronizersConfig,
 } from "@modules/filesystem"
 import type {
@@ -40,11 +41,28 @@ export class SyncScopeService {
     }
 
     /**
-     * Whether to drop + re-create the Elasticsearch indices before repopulating
-     * (vs. an incremental upsert-only sync).
+     * Entity class names whose Elasticsearch index should be DROPPED + re-created
+     * before repopulating. Empty = incremental upsert-only sync (no reset).
      */
-    isReIndexEnabled(): boolean {
-        return this.synchronizers().reIndex
+    reindexEntities(): Array<string> {
+        return this.synchronizers().reindex
+    }
+
+    /**
+     * Resolve a domain's per-sink toggle for one sink. Domains have no `repo` sink
+     * (repo is course-code only), so repo always resolves false.
+     */
+    private domainEnabledForSink(
+        domain: SeedSyncDomainSink,
+        sink: SynchronizerSink,
+    ): boolean {
+        if (sink === "cdn") {
+            return domain.cdn
+        }
+        if (sink === "elasticsearch") {
+            return domain.elasticsearch
+        }
+        return false
     }
 
     /**
@@ -84,10 +102,14 @@ export class SyncScopeService {
                 courses,
                 (track) => track.milestones[sink],
             ),
-            foundations: synchronizers.foundations,
-            headhunting: synchronizers.headhunting,
-            flashcards: synchronizers.flashcards,
-            codingProblems: synchronizers.codingProblems,
+            foundations: this.domainEnabledForSink(synchronizers.foundations,
+                sink),
+            headhunting: this.domainEnabledForSink(synchronizers.headhunting,
+                sink),
+            flashcards: this.domainEnabledForSink(synchronizers.flashcards,
+                sink),
+            codingProblems: this.domainEnabledForSink(synchronizers.codingProblems,
+                sink),
         }
     }
 

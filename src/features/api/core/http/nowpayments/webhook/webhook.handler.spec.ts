@@ -33,10 +33,10 @@ import {
 } from "@modules/nowpayments"
 import {
     makeEntityManagerMock,
-} from "@tests/utils"
+} from "@modules/tests"
 import type {
     EntityManagerMock,
-} from "@tests/utils"
+} from "@modules/tests"
 import {
     NowPaymentsWebhookCommand,
 } from "./webhook.command"

@@ -44,6 +44,11 @@ $VNDIA = '[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềế�
 # High-confidence no-diacritic Vietnamese tokens (rarely appear in English/code) — partial-leak detector.
 $NODIA = '(?i)\b(khong|duoc|nhung|phai|kiem thu|chuan bi|khoi dong|ban chat|hoc vien|thuc hanh|tong ket|loi mo dau|cac khai niem|du lieu|truong hop bien)\b'
 
+# Force-translation: technical term dịch ép vô nghĩa (audit-vietnamese §A.2) — PHẢI giữ tiếng Anh.
+# CHỈ liệt kê phrase LUÔN sai; CỐ Ý bỏ các từ tự nhiên đúng ngữ cảnh (nhà cung cấp=vendor,
+# điểm cuối=final score, tải trọng=load, "dưới lớp vỏ"=under the hood, "lớp vỏ thị giác").
+$FORCETRANS = '(?i)(vỏ app|vỏ frontend|vỏ layout|tầng vỏ|config có kiểu|cấu hình có kiểu|trình nghe|bộ lắng nghe|giàn giáo|khung sườn|phần mềm trung gian|mã thông báo|bộ nhớ đệm|lớp bọc|trình bao bọc|kho[áa] phân tán|móc nối|hàng đợi thư chết|điểm hội tụ lỗi)'
+
 # Flag Vietnamese-without-diacritics in a vi.md (body/challenge/artifact). $text already loaded.
 function Check-Diacritics { param([string]$Text, [string]$Ctx)
   # strip code fences — comments inside are English by rule, không xét dấu ở đó
@@ -56,7 +61,10 @@ function Check-Diacritics { param([string]$Text, [string]$Ctx)
   }
   # partial no-dấu: high-confidence tokens leaking in prose
   $hit = [regex]::Match($prose, $NODIA)
-  if ($hit.Success) { Fail $Ctx ("Vietnamese KHÔNG DẤU (token '" + $hit.Value + "' — viết đủ dấu)") } else { Pass $Ctx 'vn-co-dau' }
+  if ($hit.Success) { Fail $Ctx ("Vietnamese KHÔNG DẤU (token '" + $hit.Value + "' — viết đủ dấu)"); return }
+  # force-translation: technical term dịch ép vô nghĩa (§A.2) — phải giữ tiếng Anh
+  $ft = [regex]::Match($prose, $FORCETRANS)
+  if ($ft.Success) { Fail $Ctx ("Dịch ép thuật ngữ ('" + $ft.Value + "' — giữ tiếng Anh: Cache/Wrapper/Listener/Middleware/Distributed lock/Typed Config…)") } else { Pass $Ctx 'vn-co-dau' }
 }
 
 # Record a fail under its lesson (ctx = "<lesson>/..." or "<lesson>/ch:...").

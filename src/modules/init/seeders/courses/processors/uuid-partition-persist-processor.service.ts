@@ -3,6 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     EntityManager,
+    ObjectLiteral,
 } from "typeorm"
 import {
     InjectPrimaryPostgreSQLEntityManager,
@@ -10,9 +11,11 @@ import {
 } from "@modules/databases"
 import {
     UpsertService,
+    logInitSeederEntitySkipped,
 } from "../../shared"
 import {
     DbSyncType,
+    WinstonService,
 } from "@modules/winston"
 import type {
     PersistUuidPartitionParams,
@@ -27,6 +30,7 @@ export class UuidPartitionPersistProcessorService {
         private readonly upsertService: UpsertService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly winstonService: WinstonService,
     ) { }
 
     /**
@@ -58,15 +62,27 @@ export class UuidPartitionPersistProcessorService {
             )
         }
         for (const updateEntity of updateEntities) {
-            await this.entityManager.save(
-                entityClass,
-                updateEntity,
-            )
-            this.upsertService.logSync(
-                entityClass,
-                [updateEntity],
-                DbSyncType.Updated,
-            )
+            try {
+                await this.entityManager.save(
+                    entityClass,
+                    updateEntity,
+                )
+                this.upsertService.logSync(
+                    entityClass,
+                    [updateEntity],
+                    DbSyncType.Updated,
+                )
+            } catch (error) {
+                // A single legacy row whose update violates a constraint (e.g. a stale
+                // content_body_translations FK on old devops content) must NOT abort the
+                // whole seed — warn and skip it so the rest of the partition still syncs.
+                logInitSeederEntitySkipped(
+                    this.winstonService,
+                    entityClass as ObjectLiteral,
+                    String((updateEntity as { id?: unknown }).id ?? ""),
+                    error,
+                )
+            }
         }
         if (deleteEntities.length > 0) {
             const deleteIds = deleteEntities

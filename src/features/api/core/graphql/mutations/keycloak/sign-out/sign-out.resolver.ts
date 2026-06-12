@@ -38,6 +38,9 @@ import {
 import {
     SessionService,
 } from "@modules/session"
+import {
+    envConfig,
+} from "@modules/env"
 
 @Resolver()
 export class SignOutResolver {
@@ -77,11 +80,16 @@ export class SignOutResolver {
                 name: CookieName.KeycloakRefreshToken,
             }
         )
-        // also drop the CSRF token cookie so no stale double-submit pair lingers
+        // also drop the CSRF token cookie so no stale double-submit pair lingers.
+        // must match the domain the cookie was issued with, else the browser
+        // keeps the domain-scoped cookie around (deletion matches name+domain+path)
         this.cookieService.clearCookie(
             {
                 res: ctx.res,
                 name: CookieName.CsrfToken,
+                options: {
+                    domain: envConfig().cookie.domain || undefined,
+                },
             }
         )
         // end the single-session record + clear its cookie on sign-out

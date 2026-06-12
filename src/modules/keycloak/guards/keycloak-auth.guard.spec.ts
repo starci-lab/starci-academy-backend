@@ -19,7 +19,7 @@ import {
 } from "@modules/cookie"
 import {
     makeEntityManagerMock,
-} from "@tests/utils"
+} from "@modules/tests"
 import {
     KeycloakAuthRestGuard,
 } from "./keycloak-auth-rest.guard"
@@ -37,7 +37,7 @@ import type {
 } from "@nestjs/common"
 import type {
     EntityManagerMock,
-} from "@tests/utils"
+} from "@modules/tests"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"

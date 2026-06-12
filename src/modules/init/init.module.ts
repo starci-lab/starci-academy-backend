@@ -16,6 +16,9 @@ import {
     SeedDiffOverlayService,
 } from "./diff"
 import {
+    InitConfigParserService,
+} from "./config"
+import {
     ScopeModule,
 } from "./scope"
 import {
@@ -57,6 +60,7 @@ export class InitModule extends ConfigurableModuleClass {
                 ...(dynamicModule.providers ?? []),
                 DataGitBootstrapService,
                 SeedDiffOverlayService,
+                InitConfigParserService,
                 InitService,
             ],
             exports: [

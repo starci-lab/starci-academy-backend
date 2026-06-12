@@ -58,7 +58,8 @@ Quyết định B (theo thứ tự): có manifest k8s → **K8s**; verify cần 
 | 3.9 | **§3.1 interview** | **5–7 câu** (SD strict) | 3–4 câu |
 | 3.10 | **§2.1.5 flow count** | 3–10 flow, SD điển hình **4–6**, flow cuối demo edge/failure mode | 3–5 |
 
-- Mọi rule **chung KHÔNG đổi**: opening 2-đoạn (Senior hỏi → Mid đáp sai → bridge bullet `- **Phần 2.1** … / - **Phần 2.2** …`), `§2 intro` "Thực hành dẫn dắt Lý thuyết", flow-list = bullet (`- **Luồng N:** …` CẤM inline), mỗi flow 1 block bash (Win PowerShell + macOS/Linux curl + Postman hint), conclusion `*Kết luận: …*`, 2.2.1 bullet facet đào sâu, 2.2.2 edge 3–5 bullet, em-dash `—`, **tiếng Việt đủ dấu**, code-fence comment English-only, KHÔNG dịch ép thuật ngữ.
+- Mọi rule **chung KHÔNG đổi**: opening 2-đoạn (Senior hỏi → Mid đáp sai → bridge bullet `- **Phần 2.1** … / - **Phần 2.2** …`), `§2 intro` "Thực hành dẫn dắt Lý thuyết", flow-list = bullet (`- **Luồng N:** …` CẤM inline), mỗi flow 1 block bash (Win PowerShell + macOS/Linux curl + Postman hint), conclusion `*Kết luận: …*`, 2.2.1 bullet facet đào sâu, 2.2.2 edge 3–5 bullet, em-dash `—`, **tiếng Việt đủ dấu**, code-fence comment English-only.
+- **Tiếng Việt chuẩn (`data/rules/audit-vietnamese.md` §A — gate FAIL `Dịch ép thuật ngữ`):** KHÔNG dịch ép technical term, giữ tiếng Anh. SAI→ĐÚNG: `config/cấu hình có kiểu`→**Typed Config** · `trình nghe`/`bộ lắng nghe`→**Listener** · `lớp bọc`/`trình bao bọc`→**Wrapper** · `giàn giáo`/`khung sườn`→**Scaffold** · `phần mềm trung gian`→**Middleware** · `mã thông báo`→**Token** · `bộ nhớ đệm`→**Cache** · `khoá/khóa phân tán`→**Distributed lock** · `hàng đợi thư chết`→**DLQ** · `vỏ app`→**App Layout**. GIỮ theo ngữ cảnh: `nhà cung cấp`=vendor · `điểm cuối`=final score · `tải trọng`=load · `dưới lớp vỏ`=under the hood. KHÔNG calque word-by-word.
 
 ---
 

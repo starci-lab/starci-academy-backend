@@ -2,9 +2,11 @@
 # Continuous integration: validate every PR and every push to main BEFORE it can deploy.
 name: CI
 
-# TEMP DISABLED: CI is paused for now (instructor) — runs only on manual dispatch.
-# Re-enable later by restoring the `pull_request` + `workflow_call` triggers below
-# and the `verify` gate (needs: verify) in deploy-core-vps.yml.
+# Jobs are wired (verify + e2e) but auto-triggers stay PAUSED: the repo currently
+# has ~204 pre-existing eslint errors under `--max-warnings=0`, so enabling
+# `pull_request` would red every PR until a lint-cleanup pass lands. Re-enable the
+# `pull_request` + `workflow_call` triggers below (and the `needs: verify` gate in
+# deploy-core-vps.yml) once lint is clean. Runs on manual dispatch meanwhile.
 on:
   workflow_dispatch:
   # pull_request:
@@ -37,10 +39,31 @@ jobs:
         run: npm ci
 
       - name: Lint (check only, no auto-fix)
-        run: npx eslint "{src,apps,libs,test}/**/*.ts" --max-warnings=0
+        run: npx eslint "{src,apps,libs,test,tests}/**/*.ts" --max-warnings=0
 
       - name: Build (type-check via nest build)
         run: npx nest build core
 
       - name: Unit tests
-        run: npm test -- --ci --passWithNoTests
+        run: npm run test:ci
+
+  e2e:
+    runs-on: ubuntu-latest
+    # only run the (slower, Docker-backed) e2e suite once unit/lint/build are green
+    needs: verify
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "25.2.1"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ubuntu-latest ships Docker, so Testcontainers boots Postgres natively
+      - name: E2E tests (Testcontainers)
+        run: npm run test:e2e

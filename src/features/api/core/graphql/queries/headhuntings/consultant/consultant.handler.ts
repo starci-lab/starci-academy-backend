@@ -104,7 +104,8 @@ export class ConsultantHandler
                 filters: [
                     {
                         term: {
-                            "displayId.keyword": displayId,
+                            // displayId is mapped as a pure keyword → query it directly (no `.keyword` subfield)
+                            displayId,
                         },
                     },
                 ],

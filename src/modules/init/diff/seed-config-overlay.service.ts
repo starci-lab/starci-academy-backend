@@ -2,18 +2,51 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    type InitCustomScope,
-    type ResolvedCustomCourseScope,
     type SeedConfig,
     type SeedCourseTrack,
-    type SeedCustomCourseValue,
-    type SeedScopeIndexes,
     type SeedSyncCourseTrack,
+    type SeedSyncDomainSink,
 } from "@modules/filesystem"
 import type {
     BuildDiffOverlayResult,
     DataGitDiff,
+    DataGitDomain,
 } from "./types"
+
+/**
+ * Standalone-domain seed/sync toggles, plus the global flashcard pass.
+ *
+ * Decouples the per-course tracks from the on/off domains so every builder
+ * (full / custom / diff) can hand {@link SeedDiffOverlayService.assemble} the
+ * exact domain set it resolved instead of a fixed flashcard+foundations pair.
+ */
+interface DomainFlags {
+    /** Run the global flashcard-deck pass (seed + ES sync). */
+    flashcard: boolean
+    /** Seed + sync the standalone foundations domain. */
+    foundations: boolean
+    /** Seed + sync CV templates. */
+    cv: boolean
+    /** Seed + sync headhunting companies/consultants. */
+    headhunting: boolean
+    /** Seed the AI model catalog (seed-only — no sync sink). */
+    aiModels: boolean
+    /** Seed the subscription catalog (seed-only — no sync sink). */
+    subscriptions: boolean
+    /** Seed + sync coding-practice problems. */
+    codingProblems: boolean
+}
+
+/** All-off domain flags — the baseline every builder starts from. */
+const NO_DOMAINS: DomainFlags = {
+    flashcard: false,
+    foundations: false,
+    cv: false,
+    headhunting: false,
+    aiModels: false,
+    subscriptions: false,
+    codingProblems: false,
+}
 
 /**
  * Builds the full {@link SeedConfig} the existing pipeline understands.
@@ -59,98 +92,11 @@ export class SeedDiffOverlayService {
                 },
             }
         }
-        // coarse full reseed: flashcard + foundations stay off (toggled only via customScope)
+        // coarse full reseed: standalone domains stay off (toggled only via the
+        // explicit seed:/sync: blocks or the diff path)
         return this.assemble(tracks,
             syncCourses,
-            false,
-            false)
-    }
-
-    /**
-     * Builds a custom-scope config from the `customScope` block. Under `courses`,
-     * each entry value is either a shorthand module scope (`"all"`, an index list,
-     * or a range) or a rich object that also toggles the milestone + flashcard-deck
-     * tracks. The `foundations` flag seeds/syncs the standalone foundations domain.
-     * Flashcard runs when ANY course opted in (the flashcard pass is a single global flag).
-     *
-     * @param customScope - The `customScope` block (`courses` map + `foundations`)
-     * @returns A complete config restricted to the listed courses/tracks (+ foundations)
-     */
-    buildCustomConfig(
-        customScope: InitCustomScope,
-    ): SeedConfig {
-        const tracks: Record<string, SeedCourseTrack> = {
-        }
-        const syncCourses: Record<string, SeedSyncCourseTrack> = {
-        }
-        // standalone foundations domain is on only when explicitly toggled
-        const foundationsEnabled = customScope.foundations === true
-        // flashcard seeding is a single global toggle → enable it if ANY course opts in
-        let flashcardEnabledAny = false
-        for (const [
-            displayId,
-            value,
-        ] of Object.entries(customScope.courses ?? {
-            })) {
-            // collapse shorthand + object forms into one canonical scope
-            const { contents, milestone, flashcardDecks } = this.normalizeCustomScope(value)
-            flashcardEnabledAny = flashcardEnabledAny || flashcardDecks
-            // milestone track is seeded/synced in full when enabled, else skipped
-            const milestoneScope: SeedScopeIndexes = milestone ? "all" : []
-            // seed track: course root + the chosen module/contents range (+ milestones)
-            tracks[displayId] = {
-                course: true,
-                modules: contents,
-                milestones: milestoneScope,
-            }
-            // sync track: push the same module range to all sinks; milestones to cdn/es only
-            syncCourses[displayId] = {
-                course: true,
-                modules: {
-                    cdn: contents,
-                    elasticsearch: contents,
-                    repo: contents,
-                },
-                milestones: {
-                    cdn: milestoneScope,
-                    elasticsearch: milestoneScope,
-                    repo: [],
-                },
-            }
-        }
-        return this.assemble(tracks,
-            syncCourses,
-            flashcardEnabledAny,
-            foundationsEnabled)
-    }
-
-    /**
-     * Normalizes one `customScope.courses` value into a canonical per-course scope.
-     *
-     * The shorthand form (a bare {@link SeedScopeIndexes}: `"all"`, an index array,
-     * or a range string) maps to a contents-only scope with milestone + flashcard off.
-     * The object form passes its toggles through (defaulting the booleans to false).
-     *
-     * @param value - Raw `customScope.courses` entry value (shorthand or object form)
-     * @returns The resolved `{ contents, milestone, flashcardDecks }` scope
-     */
-    private normalizeCustomScope(value: SeedCustomCourseValue): ResolvedCustomCourseScope {
-        // object form: only a non-array object carries the per-track toggles
-        // ("all" string + index arrays are the shorthand and fall through below)
-        if (typeof value === "object" && !Array.isArray(value)) {
-            return {
-                contents: value.contents,
-                milestone: value.milestone === true,
-                // YAML key is kebab-cased (`flashcard-decks`) to mirror the mount folder
-                flashcardDecks: value["flashcard-decks"] === true,
-            }
-        }
-        // shorthand: the value IS the module/contents scope; other tracks stay off
-        return {
-            contents: value,
-            milestone: false,
-            flashcardDecks: false,
-        }
+            NO_DOMAINS)
     }
 
     /**
@@ -213,36 +159,64 @@ export class SeedDiffOverlayService {
                 },
             }
         }
+        // changed standalone domains (foundations, cv, headhunting, coding-problems,
+        // ai-models, subscriptions) re-seed/sync too — otherwise a domain-only edit
+        // would resolve to an empty overlay and silently seed nothing
+        const domains = this.domainFlagsFromDiff(diff.changedDomains,
+            flashcardChangedAny)
         return {
-            // diff-narrowed: foundations stay off (toggled only via customScope)
+            // diff is a narrow incremental sync — never reIndex (would drop every
+            // index but only repopulate the changed subset, wiping out-of-scope data)
             overlay: this.assemble(tracks,
                 syncCourses,
-                flashcardChangedAny,
-                false),
+                domains),
             courseCount: Object.keys(tracks).length,
             moduleCount,
-            domainCount: 0,
+            domainCount: diff.changedDomains.size,
         }
     }
 
     /**
-     * Assembles a full {@link SeedConfig} from the resolved course tracks.
+     * Maps the diff's changed-domain set onto the {@link DomainFlags} the overlay
+     * understands, carrying the (separately computed) global flashcard toggle.
      *
-     * Standalone domains stay off except `foundations`, which the `customScope`
-     * block can opt in; on a partial sync `reIndex` is forced false so unchanged
-     * ES data is never wiped.
+     * @param changedDomains - Standalone domains touched by the diff
+     * @param flashcard - Whether any course's flashcard decks changed
+     * @returns The resolved domain flags
+     */
+    private domainFlagsFromDiff(
+        changedDomains: Set<DataGitDomain>,
+        flashcard: boolean,
+    ): DomainFlags {
+        return {
+            flashcard,
+            foundations: changedDomains.has("foundations"),
+            cv: changedDomains.has("cv"),
+            headhunting: changedDomains.has("headhunting"),
+            aiModels: changedDomains.has("aiModels"),
+            subscriptions: changedDomains.has("subscriptions"),
+            codingProblems: changedDomains.has("codingProblems"),
+        }
+    }
+
+    /**
+     * Assembles a full {@link SeedConfig} from the resolved course tracks + the
+     * standalone-domain flags.
+     *
+     * The course pipeline is always enabled; each standalone domain seeds/syncs
+     * only when its {@link DomainFlags} bit is set. The coarse full/diff paths never
+     * reindex (`synchronizers.reindex: []`) — only the explicit `sync.reindex` block
+     * drops indices. Note `aiModels` and `subscriptions` are seed-only catalogs.
      *
      * @param tracks - Seed course tracks keyed by displayId
      * @param syncCourses - Sync course tracks keyed by displayId
-     * @param flashcardEnabled - Whether the flashcard pass should run
-     * @param foundationsEnabled - Whether to seed + sync the standalone foundations domain
+     * @param domains - Standalone-domain + flashcard toggles
      * @returns The full seed config
      */
     private assemble(
         tracks: Record<string, SeedCourseTrack>,
         syncCourses: Record<string, SeedSyncCourseTrack>,
-        flashcardEnabled: boolean,
-        foundationsEnabled: boolean,
+        domains: DomainFlags,
     ): SeedConfig {
         return {
             seeders: {
@@ -251,32 +225,40 @@ export class SeedDiffOverlayService {
                     enabled: true,
                     tracks,
                     flashcard: {
-                        enabled: flashcardEnabled,
+                        enabled: domains.flashcard,
                         linkContents: false,
                     },
                 },
-                cv: false,
-                // foundations domain seeds only when the customScope opts in
-                foundations: foundationsEnabled,
-                headhunting: false,
-                aiModels: false,
-                subscriptions: false,
-                codingProblems: false,
+                cv: domains.cv,
+                foundations: domains.foundations,
+                headhunting: domains.headhunting,
+                aiModels: domains.aiModels,
+                subscriptions: domains.subscriptions,
+                codingProblems: domains.codingProblems,
             },
             synchronizers: {
                 enabled: true,
-                reIndex: false,
+                // coarse full/diff never drops indices — explicit sync.reindex does
+                reindex: [],
                 courses: syncCourses,
-                cv: false,
-                // mirror the seed toggle so the synced foundations land on CDN + ES
-                foundations: foundationsEnabled,
-                headhunting: false,
+                cv: this.domainSink(domains.cv),
+                // mirror each seed toggle so the synced data lands on its sinks
+                foundations: this.domainSink(domains.foundations),
+                headhunting: this.domainSink(domains.headhunting),
                 // mirror the flashcard seed toggle so decks land in their ES search index
-                flashcards: flashcardEnabled,
-                // coding problems sync mirrors their (currently off) seeder toggle; flip
-                // both on to populate the `coding-problems-*` search/autocomplete index
-                codingProblems: false,
+                flashcards: this.domainSink(domains.flashcard),
+                // coding problems sync mirrors its seeder toggle to populate the
+                // `coding-problems-*` search/autocomplete index
+                codingProblems: this.domainSink(domains.codingProblems),
             },
+        }
+    }
+
+    /** Map a single domain on/off flag to a per-sink sink config (CDN inert for domains). */
+    private domainSink(enabled: boolean): SeedSyncDomainSink {
+        return {
+            cdn: enabled,
+            elasticsearch: enabled,
         }
     }
 

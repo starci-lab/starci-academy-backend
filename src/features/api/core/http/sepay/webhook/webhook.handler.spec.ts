@@ -32,10 +32,10 @@ import {
 } from "@modules/sepay"
 import {
     makeEntityManagerMock,
-} from "@tests/utils"
+} from "@modules/tests"
 import type {
     EntityManagerMock,
-} from "@tests/utils"
+} from "@modules/tests"
 import {
     SepayWebhookCommand,
 } from "./webhook.command"

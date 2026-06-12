@@ -120,7 +120,10 @@
       "WebFetch(domain:www.finalroundai.com)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:www.spheron.network)",
-      "WebFetch(domain:www.assemblyai.com)"
+      "WebFetch(domain:www.assemblyai.com)",
+      "Bash(xargs grep -l \"CodingProblemParserService\")",
+      "Bash(cat)",
+      "Bash(python /tmp/verify.py)"
     ]
   }
 }

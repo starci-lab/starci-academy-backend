@@ -9,7 +9,7 @@ import {
     envConfig,
 } from "@modules/env"
 import type {
-    InitScopeConfig,
+    InitConfig,
     SeedConfig,
 } from "../types"
 
@@ -17,10 +17,9 @@ import type {
  * Active seed/sync control config.
  *
  * The git-sourced init builds the full {@link SeedConfig} in-memory from
- * `seed.yaml` and applies it via {@link setRuntimeSeedConfig}; there is no
- * `_seed.yaml` disk file anymore. When no override is set (e.g. a stray read
- * outside the init window), {@link getSeedConfig} falls back to a fully-disabled
- * default so nothing seeds accidentally.
+ * `seed.yaml` and applies it via {@link setRuntimeSeedConfig}. When no override
+ * is set (e.g. a stray read outside the init window), {@link getSeedConfig}
+ * falls back to a fully-disabled default so nothing seeds accidentally.
  */
 let runtimeSeedConfig: SeedConfig | undefined
 
@@ -46,19 +45,34 @@ const DEFAULT_SEED_CONFIG: SeedConfig = {
     },
     synchronizers: {
         enabled: false,
-        reIndex: false,
+        reindex: [],
         courses: {
         },
-        cv: false,
-        foundations: false,
-        headhunting: false,
-        flashcards: false,
-        codingProblems: false,
+        cv: {
+            cdn: false,
+            elasticsearch: false,
+        },
+        foundations: {
+            cdn: false,
+            elasticsearch: false,
+        },
+        headhunting: {
+            cdn: false,
+            elasticsearch: false,
+        },
+        flashcards: {
+            cdn: false,
+            elasticsearch: false,
+        },
+        codingProblems: {
+            cdn: false,
+            elasticsearch: false,
+        },
     },
 }
 
-/** Lazily-cached disk read of `seed.yaml` (git-init scope override). */
-let cachedInitScopeConfig: InitScopeConfig | undefined
+/** Lazily-cached disk read of `seed.yaml` (the `InitConfig` control surface). */
+let cachedInitConfig: InitConfig | undefined
 
 /**
  * Active filesystem-context root override.
@@ -81,34 +95,34 @@ export const clearRuntimeSeedConfig = (): void => {
 }
 
 /** Drop the cached `seed.yaml` read so the next call re-reads it (tests). */
-export const clearInitScopeConfigCache = (): void => {
-    cachedInitScopeConfig = undefined
+export const clearInitConfigCache = (): void => {
+    cachedInitConfig = undefined
 }
 
 /**
- * Read + parse the optional `seed.yaml` (git-init scope override).
+ * Read + parse the optional `seed.yaml` (the {@link InitConfig} control surface).
  *
  * Returns an empty config when the file is absent, so the git init defaults to
  * diff-based scoping. Cached after the first read.
  *
- * @returns Parsed {@link InitScopeConfig} (empty when the file is missing)
+ * @returns Parsed {@link InitConfig} (empty when the file is missing)
  */
-export const getInitScopeConfig = (): InitScopeConfig => {
-    if (cachedInitScopeConfig) {
-        return cachedInitScopeConfig
+export const getInitConfig = (): InitConfig => {
+    if (cachedInitConfig) {
+        return cachedInitConfig
     }
     const path = envConfig().mountPath.config.initScope
-    // a missing file means "no custom scope" → diff mode
+    // a missing file means "no overrides" → diff mode
     if (!existsSync(path)) {
-        cachedInitScopeConfig = {
+        cachedInitConfig = {
         }
-        return cachedInitScopeConfig
+        return cachedInitConfig
     }
     const raw = readFileSync(path,
         "utf8")
-    cachedInitScopeConfig = (loadYaml(raw) as InitScopeConfig | null) ?? {
+    cachedInitConfig = (loadYaml(raw) as InitConfig | null) ?? {
     }
-    return cachedInitScopeConfig
+    return cachedInitConfig
 }
 
 /** Point the filesystem-context readers at a staging root (init). */
@@ -128,8 +142,7 @@ export const getRuntimeContextRoot = (): string | undefined => runtimeContextRoo
  * Resolve the active {@link SeedConfig}.
  *
  * Prefers an explicit argument, then the in-memory runtime override the
- * git-init sets, and finally a fully-disabled default (there is no `_seed.yaml`
- * disk file to read anymore).
+ * git-init sets, and finally a fully-disabled default.
  *
  * @param seedConfig - optional pre-built config that wins over everything
  * @returns The active {@link SeedConfig}
