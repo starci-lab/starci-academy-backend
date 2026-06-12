@@ -52,7 +52,22 @@ export class CsrfService {
     issueCookie({ res }: IssueCsrfCookieParams): IssueCsrfCookieResult {
         // mint a new signed token for this authenticated session
         const token = this.generateToken()
-        // expose it to client-side JS so it can be mirrored into the header
+        // when a parent COOKIE_DOMAIN is set, the canonical cookie is domain-scoped;
+        // expire any legacy HOST-ONLY csrf_token (issued before the domain rollout) so
+        // it stops shadowing it — cookie-parser reads the first of duplicate names, so
+        // a lingering host-only cookie causes a permanent "CSRF token mismatch". A
+        // clear with no `domain` (path "/") targets exactly that host-only variant.
+        if (envConfig().cookie.domain) {
+            this.cookieService.clearCookie({
+                res,
+                name: CookieName.CsrfToken,
+                options: {
+                    httpOnly: false,
+                    path: "/",
+                },
+            })
+        }
+        // expose the canonical token to client-side JS so it can be mirrored into the header
         this.cookieService.attachReadableCookie({
             res,
             name: CookieName.CsrfToken,

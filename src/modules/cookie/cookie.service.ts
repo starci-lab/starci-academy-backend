@@ -157,4 +157,34 @@ export class CookieService {
 
         return undefined
     }
+
+    /**
+     * Returns EVERY value for a cookie name from the raw `Cookie` header.
+     *
+     * `cookie-parser` collapses duplicate cookie names to the FIRST occurrence, but
+     * a browser can legitimately send two same-named cookies with different scopes —
+     * e.g. a legacy host-only `csrf_token` alongside a newer domain-scoped one during
+     * a `COOKIE_DOMAIN` rollout. The CSRF double-submit needs every candidate so it
+     * can match whichever value the SPA was able to read.
+     *
+     * @param req - The incoming request object.
+     * @param name - The cookie name to collect all values for.
+     * @returns All decoded values for `name`, in header order (empty when none).
+     */
+    getAllCookieValues(req: Request, name: string): Array<string> {
+        const cookieHeader = req?.headers?.cookie
+        if (typeof cookieHeader !== "string") {
+            return []
+        }
+        const values: Array<string> = []
+        // scan every `name=value` pair (the global flag walks past the first match)
+        const regex = new RegExp(`(?:^|;\\s*)${name}=([^;]+)`,
+            "g")
+        let match: RegExpExecArray | null = regex.exec(cookieHeader)
+        while (match !== null) {
+            values.push(decodeURIComponent(match[1].trim()))
+            match = regex.exec(cookieHeader)
+        }
+        return values
+    }
 }

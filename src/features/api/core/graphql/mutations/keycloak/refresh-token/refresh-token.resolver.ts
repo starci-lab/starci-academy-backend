@@ -35,7 +35,6 @@ import {
 } from "@modules/cookie"
 import {
     CsrfGuard,
-    CsrfService,
 } from "@modules/csrf"
 import type {
     Response,
@@ -49,7 +48,6 @@ export class RefreshTokenResolver {
     constructor(
         private readonly refreshTokenService: RefreshTokenService,
         private readonly cookieService: CookieService,
-        private readonly csrfService: CsrfService,
     ) { }
 
     @UseGuards(CsrfGuard)
@@ -94,11 +92,12 @@ export class RefreshTokenResolver {
             name: CookieName.KeycloakRefreshToken,
             value: newRefreshToken,
         })
-        // rotate the CSRF token together with the refresh token so the client
-        // always holds a fresh, valid double-submit pair
-        this.csrfService.issueCookie({
-            res: ctx.res,
-        })
+        // NOTE: the CSRF token is intentionally NOT rotated here. It is a stateless
+        // signed double-submit token (HMAC + random), so a fresh value adds no
+        // security over the one minted at sign-in. Rotating it on every refresh
+        // created a race: under concurrent refresh calls the cookie advanced to a
+        // new value while the client kept echoing the previous one, yielding a
+        // permanent "CSRF token mismatch". The login-issued token stays valid.
         return data
     }
 }
