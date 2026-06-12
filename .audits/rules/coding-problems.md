@@ -22,7 +22,7 @@
 
 1. `# title` · 2. `# difficulty` · 3. `# domain` · 4. `# orderIndex` (0) · 5. `# tags` (`## 0` = domain, thêm 2–3 tag)
 6. `# timeLimitMs` (2000; hard 4000) · 7. `# memoryLimitKb` (262144)
-8. `# statement` (1 block delimited): H1 title + mô tả; label section dùng **`:::muted` callout** (KHÔNG `## heading`) giống challenge/task body — `:::muted\nĐầu vào\n:::` / `Đầu ra` / `Ví dụ` (en: Input/Output/Example), rồi nội dung; ví dụ trong fenced ```code```. CHỈ statement-block; KHÔNG đụng `## N` index marker ở section khác.
+8. `# statement` (1 block delimited): H1 title + mô tả; label section dùng **`:::muted` callout** (KHÔNG `## heading`) giống challenge/task body — CHỈ `:::muted\nĐầu vào\n:::` + `:::muted\nĐầu ra\n:::` (en: Input/Output), rồi nội dung. **KHÔNG nhúng Example/Ví dụ trong statement** — ví dụ chỉ sống ở field `# example` (item 11; FE render riêng + dùng làm sample testcase), tránh trùng. CHỈ statement-block; KHÔNG đụng `## N` index marker ở section khác.
 9. `# starterCodes` — `## 0..4` = python, javascript, typescript, java, cpp (mỗi cái `### lang` + `### content` + block delimited = stub có `solve(...)` + main đọc stdin/in ra stdout)
 10. `# solutions` — 5 lang ĐÚNG THỨ TỰ như starter, lời giải CHẠY ĐÚNG
 11. `# example` — `## 0` (`### input` + `### output`, delimited) — mẫu public
