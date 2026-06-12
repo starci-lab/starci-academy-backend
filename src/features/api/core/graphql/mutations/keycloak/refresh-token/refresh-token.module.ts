@@ -11,6 +11,9 @@ import {
     RefreshTokenHandler,
 } from "./refresh-token.handler"
 import {
+    RefreshTokenCoalescerService,
+} from "./refresh-token-coalescer.service"
+import {
     ConfigurableModuleClass,
 } from "./refresh-token.module-definition"
 
@@ -19,6 +22,7 @@ import {
         RefreshTokenService,
         RefreshTokenResolver,
         RefreshTokenHandler,
+        RefreshTokenCoalescerService,
     ],
 })
 export class RefreshTokenSingleMutationModule extends ConfigurableModuleClass {}

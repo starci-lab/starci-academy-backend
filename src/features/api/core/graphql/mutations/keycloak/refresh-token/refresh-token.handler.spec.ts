@@ -10,21 +10,21 @@ import {
     JwtService,
 } from "@nestjs/jwt"
 import {
-    KeycloakTokenService,
-} from "@modules/keycloak"
-import {
     RefreshTokenCommand,
 } from "./refresh-token.command"
 import {
     RefreshTokenHandler,
 } from "./refresh-token.handler"
+import {
+    RefreshTokenCoalescerService,
+} from "./refresh-token-coalescer.service"
 
 describe("RefreshTokenHandler",
     () => {
         let module: TestingModule
         let handler: RefreshTokenHandler
         let jwtService: jest.Mocked<Pick<JwtService, "decode">>
-        let keycloakTokenService: jest.Mocked<Pick<KeycloakTokenService, "exchangeRefreshTokenForToken">>
+        let refreshTokenCoalescerService: jest.Mocked<Pick<RefreshTokenCoalescerService, "exchange">>
 
         beforeEach(async () => {
             // decodes the current access token to read its expiry
@@ -32,13 +32,13 @@ describe("RefreshTokenHandler",
                 decode: jest.fn(),
             } as unknown as jest.Mocked<Pick<JwtService, "decode">>
 
-            // exchanges the refresh token for a fresh pair when a refresh is needed
-            keycloakTokenService = {
-                exchangeRefreshTokenForToken: jest.fn().mockResolvedValue({
+            // coalesces + exchanges the refresh token for a fresh pair when needed
+            refreshTokenCoalescerService = {
+                exchange: jest.fn().mockResolvedValue({
                     access_token: "new-access",
                     refresh_token: "new-refresh",
                 }),
-            } as unknown as jest.Mocked<Pick<KeycloakTokenService, "exchangeRefreshTokenForToken">>
+            } as unknown as jest.Mocked<Pick<RefreshTokenCoalescerService, "exchange">>
 
             module = await Test.createTestingModule({
                 providers: [
@@ -48,8 +48,8 @@ describe("RefreshTokenHandler",
                         useValue: jwtService,
                     },
                     {
-                        provide: KeycloakTokenService,
-                        useValue: keycloakTokenService,
+                        provide: RefreshTokenCoalescerService,
+                        useValue: refreshTokenCoalescerService,
                     },
                 ],
             }).compile()
@@ -80,7 +80,7 @@ describe("RefreshTokenHandler",
                 )
 
                 // no Keycloak round-trip when the token is still fresh enough
-                expect(keycloakTokenService.exchangeRefreshTokenForToken).not.toHaveBeenCalled()
+                expect(refreshTokenCoalescerService.exchange).not.toHaveBeenCalled()
                 // the existing tokens are echoed back unchanged
                 expect(result).toEqual({
                     data: {
@@ -109,7 +109,7 @@ describe("RefreshTokenHandler",
                 )
 
                 // a refresh round-trip happens and the new tokens are returned
-                expect(keycloakTokenService.exchangeRefreshTokenForToken).toHaveBeenCalledWith({
+                expect(refreshTokenCoalescerService.exchange).toHaveBeenCalledWith({
                     refreshToken: "refresh-current",
                 })
                 expect(result).toEqual({
@@ -132,7 +132,7 @@ describe("RefreshTokenHandler",
 
                 // with no validity hint the token is never decoded, just exchanged
                 expect(jwtService.decode).not.toHaveBeenCalled()
-                expect(keycloakTokenService.exchangeRefreshTokenForToken).toHaveBeenCalledWith({
+                expect(refreshTokenCoalescerService.exchange).toHaveBeenCalledWith({
                     refreshToken: "refresh-current",
                 })
                 expect(result).toEqual({

@@ -3,7 +3,6 @@ import {
 } from "@modules/cqrs"
 import {
     KeycloakJwtPayload,
-    KeycloakTokenService,
 } from "@modules/keycloak"
 import {
     Injectable,
@@ -18,6 +17,9 @@ import {
 import {
     RefreshTokenCommand,
 } from "./refresh-token.command"
+import {
+    RefreshTokenCoalescerService,
+} from "./refresh-token-coalescer.service"
 import type {
     RefreshTokenCommandResult,
 } from "./graphql-types"
@@ -29,7 +31,7 @@ export class RefreshTokenHandler
     implements ICommandHandler<RefreshTokenCommand, RefreshTokenCommandResult>
 {
     constructor(
-        private readonly keycloakTokenService: KeycloakTokenService,
+        private readonly refreshTokenCoalescerService: RefreshTokenCoalescerService,
         private readonly jwtService: JwtService,
     ) {
         super()
@@ -72,7 +74,9 @@ export class RefreshTokenHandler
                 }
             }
         }
-        const token = await this.keycloakTokenService.exchangeRefreshTokenForToken({
+        // coalesce concurrent refreshes of the same token into one Keycloak
+        // round-trip so refresh-token rotation can't invalidate parallel calls
+        const token = await this.refreshTokenCoalescerService.exchange({
             refreshToken,
         })
         return {

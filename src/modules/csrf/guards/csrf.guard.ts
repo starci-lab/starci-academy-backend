@@ -63,16 +63,20 @@ export class CsrfGuard implements CanActivate {
         this.assertTrustedOrigin(request)
         // read the token the client mirrored into the header
         const headerToken = this.readHeaderToken(request)
-        // read the token the browser auto-attached from the cookie
-        const cookieToken = this.cookieService.getCookie(request,
+        // read EVERY csrf_token the browser sent — a COOKIE_DOMAIN rollout can leave
+        // a legacy host-only cookie alongside the new domain-scoped one, and
+        // cookie-parser would only surface the first (often the stale one)
+        const cookieTokens = this.cookieService.getAllCookieValues(request,
             CookieName.CsrfToken)
         // both halves of the double-submit must be present
-        if (!headerToken || !cookieToken) {
+        if (!headerToken || cookieTokens.length === 0) {
             throw new ForbiddenException("Missing CSRF token")
         }
-        // header and cookie must be identical (constant-time compare)
-        if (!this.safeEqual(headerToken,
-            cookieToken)) {
+        // the header must match ONE of the cookies (constant-time compare). Matching
+        // any is safe: every value present was signed + set by us, and a cross-site
+        // attacker can neither read these cookies nor forge the HMAC below.
+        if (!cookieTokens.some((cookieToken) => this.safeEqual(headerToken,
+            cookieToken))) {
             throw new ForbiddenException("CSRF token mismatch")
         }
         // and the token must carry a signature we actually issued
