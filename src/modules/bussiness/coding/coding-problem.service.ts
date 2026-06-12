@@ -47,73 +47,97 @@ export class CodingProblemService {
     ) {}
 
     /**
-     * List enabled problems with optional difficulty/tag filters + pagination,
-     * and the set of problems the user has already solved.
+     * List enabled problems (the shared catalog) from the per-locale Elasticsearch
+     * index with optional difficulty/tag filters + pagination. Per-user state
+     * (solved/points) is served separately by {@link CodingProgressService} — the
+     * catalog here carries no user-specific data. Documents are pre-localized
+     * (title) and only catalog fields are returned (never testcases/solutions).
      *
-     * @param params - filters, pagination, and optional userId/locale
-     * @returns the page of problems, total count, and solved problem ids
+     * @param params - filters, pagination, and locale
+     * @returns the page of problems + total matching the filters
      */
     async list({
         difficulty,
         tag,
         page = 1,
         limit = DEFAULT_PAGE_SIZE,
-        userId,
         locale = Locale.En,
     }: ListCodingProblemsParams): Promise<ListCodingProblemsResult> {
-        // build a query over enabled problems, eager-loading translations for title localization
-        const query = this.entityManager
-            .createQueryBuilder(CodingProblemEntity,
-                "problem")
-            .leftJoinAndSelect("problem.translations",
-                "translation")
-            .where("problem.enabled = :enabled",
-                {
-                    enabled: true 
-                })
-        // optional difficulty filter
+        // the per-locale catalog index (same one getBySlug reads)
+        const index = this.elasticsearchService.indicateName({
+            entity: CodingProblemEntity.name,
+            locale,
+        })
+        // only enabled problems, optionally narrowed by difficulty + tag (both keyword facets)
+        const filter: Array<Record<string, unknown>> = [
+            {
+                term: {
+                    enabled: true,
+                },
+            },
+        ]
         if (difficulty) {
-            query.andWhere("problem.difficulty = :difficulty",
-                {
-                    difficulty 
-                })
+            filter.push({
+                term: {
+                    difficulty,
+                },
+            })
         }
-        // optional tag filter — tags is a text[] column, use ANY for membership
         if (tag) {
-            query.andWhere(":tag = ANY(problem.tags)",
-                {
-                    tag 
-                })
+            filter.push({
+                term: {
+                    tags: tag,
+                },
+            })
         }
-        // stable display order, then paginate
-        query
-            .orderBy("problem.orderIndex",
-                "ASC")
-            .skip((page - 1) * limit)
-            .take(limit)
-        // run the page query + total count together
-        const [problems,
-            total] = await query.getManyAndCount()
-        // localize each problem's title in place for the requested locale
-        problems.forEach((problem) => this.applyTranslation(problem,
-            locale))
-        // compute which of these the user has solved (Accepted), if authenticated
-        const solvedProblemIds = userId
-            ? await this.solvedProblemIds(userId)
-            : []
+        const response = await this.elasticsearchService.client.search<CodingProblemEntity>({
+            index,
+            query: {
+                bool: {
+                    filter,
+                },
+            },
+            // stable display order, paginate, and only return catalog fields
+            sort: [
+                {
+                    orderIndex: "asc",
+                },
+            ],
+            from: (page - 1) * limit,
+            size: limit,
+            _source: [
+                "id",
+                "slug",
+                "title",
+                "difficulty",
+                "points",
+                "domain",
+                "tags",
+                "sortIndex",
+            ],
+            // accurate total beyond the default 10k cap
+            track_total_hits: true,
+        })
+        // map hits to entities; ES throws (caught) only on a missing index → empty page
+        const problems = response.hits.hits
+            .map((hit) => hit._source)
+            .filter((source): source is CodingProblemEntity => Boolean(source))
+        // total can be a number or { value } depending on track_total_hits
+        const rawTotal = response.hits.total
+        const total = typeof rawTotal === "number" ? rawTotal : (rawTotal?.value ?? 0)
         return {
             problems,
             total,
-            solvedProblemIds,
         }
     }
 
     /**
      * Load one enabled problem by slug with starter code and SAMPLE testcases
-     * only (hidden testcases are never returned), localized to the locale.
+     * only (hidden testcases and reference solutions are never returned),
+     * localized to the locale.
      *
      * @param params - slug + locale
-     * @returns the problem with sample testcases + starter codes
+     * @returns the problem with sample testcases + starter codes (no solutions)
      * @throws CodingProblemNotFoundException when missing or disabled
      */
     async getBySlug({
@@ -122,7 +146,8 @@ export class CodingProblemService {
     }: GetCodingProblemParams): Promise<CodingProblemEntity> {
         // serve the detail view straight from the per-locale index: documents are
         // pre-localized (title/statement) and only ever hold SAMPLE testcases (the ES
-        // sync builder drops hidden ones), so nothing sensitive can leak from here.
+        // sync builder drops hidden ones + reference solutions), so nothing sensitive
+        // can leak from here.
         const index = this.elasticsearchService.indicateName({
             entity: CodingProblemEntity.name,
             locale,
@@ -167,6 +192,13 @@ export class CodingProblemService {
             throw new CodingProblemNotFoundException({
                 identifier: slug,
             })
+        }
+        // SECURITY: reference solutions are gated behind the reveal flow and must
+        // never be served from the detail read. The current sync builder no longer
+        // indexes them, but defensively strip any solutions carried by documents
+        // indexed before that change (until the next re-sync) so they can't leak.
+        if ("solutions" in hit) {
+            delete (hit as Partial<CodingProblemEntity>).solutions
         }
         return hit
     }
@@ -260,44 +292,4 @@ export class CodingProblemService {
         }))
     }
 
-    /** Ids of problems the user has at least one Accepted submission for. */
-    private async solvedProblemIds(userId: string): Promise<Array<string>> {
-        // raw SQL over physical columns — distinct Accepted problem ids for the user
-        const rows = await this.entityManager.query(
-            `SELECT DISTINCT coding_problem_id AS "codingProblemId"
-             FROM coding_submissions
-             WHERE user_id = $1 AND verdict = $2`,
-            [userId,
-                CodingVerdict.Accepted],
-        ) as Array<{ codingProblemId: string }>
-        // flatten to a plain id array
-        return rows.map((row) => row.codingProblemId)
-    }
-
-    /**
-     * Override an entity's `title`/`statement` from its translations for the
-     * given locale, in place. English (the default columns) is left untouched.
-     * Still used by the DB-backed `list` query (the single `getBySlug` reads
-     * pre-localized documents from Elasticsearch instead).
-     */
-    private applyTranslation(problem: CodingProblemEntity, locale: Locale): void {
-        // English uses the default columns — nothing to override
-        if (locale === Locale.En || !problem.translations) {
-            return
-        }
-        // find the localized title/statement rows for this locale
-        const titleRow = problem.translations.find(
-            (translation) => translation.locale === locale && translation.field === "title",
-        )
-        const statementRow = problem.translations.find(
-            (translation) => translation.locale === locale && translation.field === "statement",
-        )
-        // apply overrides when present (fall back to the default otherwise)
-        if (titleRow) {
-            problem.title = titleRow.value
-        }
-        if (statementRow) {
-            problem.statement = statementRow.value
-        }
-    }
 }

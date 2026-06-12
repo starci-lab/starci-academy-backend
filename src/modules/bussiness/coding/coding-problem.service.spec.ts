@@ -21,64 +21,23 @@ import {
 } from "@modules/elasticsearch"
 import {
     makeEntityManagerMock,
-} from "@tests/utils"
+} from "@modules/tests"
 import type {
     EntityManagerMock,
-} from "@tests/utils"
+} from "@modules/tests"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * A chainable stand-in for the `list()` query builder. Every filter/paginate
- * method returns the same builder; `getManyAndCount` is the terminal the test
- * programs with a `[rows, total]` tuple.
- */
-interface ListQueryBuilderMock {
-    /** Chainable: records the eager translations join. */
-    leftJoinAndSelect: jest.Mock
-    /** Chainable: records the root enabled-only WHERE. */
-    where: jest.Mock
-    /** Chainable: records an optional difficulty/tag AND clause. */
-    andWhere: jest.Mock
-    /** Chainable: records the orderIndex ordering. */
-    orderBy: jest.Mock
-    /** Chainable: records the page offset. */
-    skip: jest.Mock
-    /** Chainable: records the page size. */
-    take: jest.Mock
-    /** Terminal: resolves the `[problems, total]` tuple. */
-    getManyAndCount: jest.Mock
-}
-
-/**
  * Minimal stand-in for the Elasticsearch client surface this service uses:
- * `search` for the single-problem detail, `get` for the per-locale hint.
+ * `search` for the catalog list + single-problem detail, `get` for the hint.
  */
 interface ElasticsearchClientMock {
-    /** Programmed per-test: resolves a `{ hits: { hits } }` response. */
+    /** Programmed per-test: resolves a `{ hits: { hits, total } }` response. */
     search: jest.Mock
     /** Programmed per-test: resolves a `{ _source }` hint doc or rejects 404. */
     get: jest.Mock
-}
-
-/** Build a fresh chainable list query-builder mock. */
-const makeListQueryBuilderMock = (): ListQueryBuilderMock => {
-    // declare first so each chainable method can return the same instance
-    const builder = {
-    } as ListQueryBuilderMock
-    builder.leftJoinAndSelect = jest.fn(() => builder)
-    builder.where = jest.fn(() => builder)
-    builder.andWhere = jest.fn(() => builder)
-    builder.orderBy = jest.fn(() => builder)
-    builder.skip = jest.fn(() => builder)
-    builder.take = jest.fn(() => builder)
-    // terminal resolves "no rows" until a test programs it
-    builder.getManyAndCount = jest.fn().mockResolvedValue([
-        [],
-        0,
-    ])
-    return builder
 }
 
 describe("CodingProblemService",
@@ -86,7 +45,6 @@ describe("CodingProblemService",
         let module: TestingModule
         let service: CodingProblemService
         let entityManager: EntityManagerMock
-        let listQueryBuilder: ListQueryBuilderMock
         let elasticsearchClient: ElasticsearchClientMock
         let elasticsearchService: jest.Mocked<
             Pick<ElasticsearchService, "indicateName">
@@ -98,11 +56,8 @@ describe("CodingProblemService",
         beforeEach(async () => {
             // fresh jest-backed entity manager with happy-path defaults
             entityManager = makeEntityManagerMock()
-            // override createQueryBuilder with a builder that supports skip/take/getManyAndCount
-            listQueryBuilder = makeListQueryBuilderMock()
-            entityManager.createQueryBuilder = jest.fn(() => listQueryBuilder)
 
-            // ES client stub: search (detail) + get (hint)
+            // ES client stub: search (catalog list + detail) + get (hint)
             elasticsearchClient = {
                 search: jest.fn(),
                 get: jest.fn(),
@@ -135,144 +90,91 @@ describe("CodingProblemService",
 
         describe("list",
             () => {
-                it("returns the page + total and skips solved ids for an anonymous viewer",
+                /** Program the ES `search` to return the given hits + total. */
+                const programSearch = (
+                    sources: Array<Partial<CodingProblemEntity>>,
+                    total: number,
+                ): void => {
+                    elasticsearchClient.search.mockResolvedValueOnce({
+                        hits: {
+                            hits: sources.map((source) => ({
+                                _source: source,
+                            })),
+                            total: {
+                                value: total,
+                            },
+                        },
+                    })
+                }
+
+                it("returns the page + total from the ES catalog index",
                     async () => {
-                        const problems = [
+                        programSearch([
                             {
                                 id: "p1",
-                                translations: [],
+                                slug,
                             },
-                        ] as unknown as Array<CodingProblemEntity>
-                        listQueryBuilder.getManyAndCount.mockResolvedValueOnce([
-                            problems,
-                            1,
-                        ])
+                        ],
+                        1)
 
                         const result = await service.list({
                         })
 
-                        expect(result.problems).toBe(problems)
+                        expect(result.problems).toHaveLength(1)
+                        expect(result.problems[0].id).toBe("p1")
                         expect(result.total).toBe(1)
-                        // no userId → solved-set query never runs
-                        expect(result.solvedProblemIds).toEqual([])
+                        // catalog read hits the per-locale index, never Postgres
+                        expect(elasticsearchService.indicateName).toHaveBeenCalledWith({
+                            entity: CodingProblemEntity.name,
+                            locale: Locale.En,
+                        })
                         expect(entityManager.query).not.toHaveBeenCalled()
                     })
 
-                it("applies the difficulty + tag filters when provided",
+                it("filters by enabled + optional difficulty + tag",
                     async () => {
+                        programSearch([],
+                            0)
+
                         await service.list({
                             difficulty: "easy" as never,
                             tag: "array",
                         })
 
-                        // both optional filters add an AND clause
-                        expect(listQueryBuilder.andWhere).toHaveBeenCalledTimes(2)
+                        const body = elasticsearchClient.search.mock.calls[0][0]
+                        const filter = body.query.bool.filter as Array<Record<string, unknown>>
+                        // always enabled, plus the two optional facets
+                        expect(filter).toContainEqual({
+                            term: {
+                                enabled: true,
+                            },
+                        })
+                        expect(filter).toContainEqual({
+                            term: {
+                                difficulty: "easy",
+                            },
+                        })
+                        expect(filter).toContainEqual({
+                            term: {
+                                tags: "array",
+                            },
+                        })
                     })
 
-                it("paginates with the right offset/limit",
+                it("paginates with the right from/size",
                     async () => {
+                        programSearch([],
+                            0)
+
                         await service.list({
                             page: 3,
                             limit: 10,
                         })
 
-                        // page 3 of size 10 → skip 20, take 10
-                        expect(listQueryBuilder.skip).toHaveBeenCalledWith(20)
-                        expect(listQueryBuilder.take).toHaveBeenCalledWith(10)
-                    })
-
-                it("computes solved problem ids for an authenticated viewer",
-                    async () => {
-                        listQueryBuilder.getManyAndCount.mockResolvedValueOnce([
-                            [],
-                            0,
-                        ])
-                        // raw solved-ids query returns one distinct Accepted problem id
-                        entityManager.query.mockResolvedValueOnce([
-                            {
-                                codingProblemId: "p1",
-                            },
-                        ])
-
-                        const result = await service.list({
-                            userId,
-                        })
-
-                        expect(result.solvedProblemIds).toEqual([
-                            "p1",
-                        ])
-                        // the raw query is parameterised by userId + the Accepted verdict
-                        expect(entityManager.query).toHaveBeenCalledWith(
-                            expect.any(String),
-                            [
-                                userId,
-                                CodingVerdict.Accepted,
-                            ],
-                        )
-                    })
-
-                it("overrides title/statement from translations for a non-English locale",
-                    async () => {
-                        const problem = {
-                            id: "p1",
-                            title: "English title",
-                            statement: "English statement",
-                            translations: [
-                                {
-                                    locale: Locale.Vi,
-                                    field: "title",
-                                    value: "Tiêu đề",
-                                },
-                                {
-                                    locale: Locale.Vi,
-                                    field: "statement",
-                                    value: "Nội dung",
-                                },
-                            ],
-                        } as unknown as CodingProblemEntity
-                        listQueryBuilder.getManyAndCount.mockResolvedValueOnce([
-                            [
-                                problem,
-                            ],
-                            1,
-                        ])
-
-                        const result = await service.list({
-                            locale: Locale.Vi,
-                        })
-
-                        // the localized rows replace the default English columns in place
-                        expect(result.problems[0].title).toBe("Tiêu đề")
-                        expect(result.problems[0].statement).toBe("Nội dung")
-                    })
-
-                it("leaves English titles untouched (no translation override)",
-                    async () => {
-                        const problem = {
-                            id: "p1",
-                            title: "English title",
-                            statement: "English statement",
-                            translations: [
-                                {
-                                    locale: Locale.Vi,
-                                    field: "title",
-                                    value: "Tiêu đề",
-                                },
-                            ],
-                        } as unknown as CodingProblemEntity
-                        listQueryBuilder.getManyAndCount.mockResolvedValueOnce([
-                            [
-                                problem,
-                            ],
-                            1,
-                        ])
-
-                        const result = await service.list({
-                            locale: Locale.En,
-                        })
-
-                        // English uses the default columns — nothing is overridden
-                        expect(result.problems[0].title).toBe("English title")
+                        const body = elasticsearchClient.search.mock.calls[0][0]
+                        // page 3 of size 10 → from 20, size 10
+                        expect(body.from).toBe(20)
+                        expect(body.size).toBe(10)
                     })
             })
 
@@ -304,6 +206,47 @@ describe("CodingProblemService",
                             entity: CodingProblemEntity.name,
                             locale: Locale.En,
                         })
+                    })
+
+                it("never returns reference solutions in the detail payload",
+                    async () => {
+                        // a stale doc indexed before the sync-builder fix still carries
+                        // reference solutions — the detail read must strip them so the
+                        // answer only ever flows through the reveal mutation
+                        const hit = {
+                            id: "p1",
+                            slug,
+                            starterCodes: [
+                                {
+                                    language: "typescript",
+                                    code: "// boilerplate",
+                                },
+                            ],
+                            solutions: [
+                                {
+                                    language: "typescript",
+                                    code: "// the worked answer",
+                                },
+                            ],
+                        } as unknown as CodingProblemEntity
+                        elasticsearchClient.search.mockResolvedValueOnce({
+                            hits: {
+                                hits: [
+                                    {
+                                        _source: hit,
+                                    },
+                                ],
+                            },
+                        })
+
+                        const result = await service.getBySlug({
+                            slug,
+                        })
+
+                        // solutions are gone; starter codes (boilerplate) are retained
+                        expect(result.solutions).toBeUndefined()
+                        expect(result).not.toHaveProperty("solutions")
+                        expect(result.starterCodes).toHaveLength(1)
                     })
 
                 it("throws CodingProblemNotFoundException when no hit comes back",
