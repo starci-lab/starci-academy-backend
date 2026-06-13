@@ -24,6 +24,11 @@ import type {
 import type {
     AiInvokeParams,
     AiInvokeResult,
+    AiStreamParams,
+    AiStreamResult,
+} from "./types"
+import type {
+    StreamActionResult,
 } from "./types"
 
 /** OpenAI-compatible base URL for the OpenRouter gateway (free models like DeepSeek). */
@@ -135,6 +140,145 @@ export class AiInvokeService {
             model: usedModel,
             provider: usedProvider,
             attempts,
+        }
+    }
+
+    /**
+     * Stream the given messages against the resolved lane, invoking `onChunk`
+     * for every token delta as it arrives.
+     *
+     * Mirrors {@link invoke} lane-for-lane (BYOK / Premium / Auto) but builds a
+     * streaming client and consumes `chatModel.stream(...)` instead of a single
+     * `invoke`. The accumulated text + observed token usage are returned once
+     * the stream finishes; an aborted `signal` surfaces as a thrown error.
+     *
+     * @param params - Messages, lane options, the chunk callback, and abort signal.
+     * @returns The full text, the model/provider that served it, and token usage.
+     */
+    async stream(
+        {
+            messages,
+            category,
+            byok,
+            temperature,
+            model,
+            provider,
+            onChunk,
+            signal,
+        }: AiStreamParams,
+    ): Promise<AiStreamResult> {
+        // playground streams are generative — default to a mild temperature unless pinned
+        const resolvedTemperature = temperature ?? 0
+        // single action used by every lane — build the provider client and stream once
+        const streamAction = async (
+            context: UseApiActionContext,
+        ): Promise<StreamActionResult> => {
+            const chatModel = this.buildClient(
+                {
+                    provider: context.provider,
+                    model: context.model,
+                    apiKey: context.key,
+                    temperature: resolvedTemperature,
+                },
+            )
+            // accumulate the full text + token usage across every streamed chunk
+            let text = ""
+            let promptTokens = 0
+            let completionTokens = 0
+            // `stream` yields AIMessageChunk objects; pass the abort signal so the
+            // upstream HTTP request is cancelled when the learner aborts the run
+            const stream = await chatModel.stream(
+                messages,
+                {
+                    signal,
+                },
+            )
+            for await (const chunk of stream) {
+                // chunk.content is string for chat models; coerce defensively
+                const delta = typeof chunk.content === "string"
+                    ? chunk.content
+                    : String(chunk.content)
+                if (delta.length > 0) {
+                    // grow the accumulated answer and notify the caller of the delta
+                    text += delta
+                    onChunk(delta)
+                }
+                // some providers attach running usage on the final chunk(s) — keep the
+                // last reported counts so completion totals reflect the whole stream
+                const usage = chunk.usage_metadata
+                if (usage) {
+                    promptTokens = usage.input_tokens ?? promptTokens
+                    completionTokens = usage.output_tokens ?? completionTokens
+                }
+            }
+            return {
+                text,
+                promptTokens,
+                completionTokens,
+            }
+        }
+
+        // BYOK → user's own key, bypassing the shared pool / fallback chain
+        if (byok) {
+            const {
+                result,
+                model: usedModel,
+                provider: usedProvider,
+                attempts,
+            } = await this.useApiService.useApi<StreamActionResult>(
+                {
+                    lane: AiMode.Byok,
+                    provider: byok.provider,
+                    model: byok.model,
+                    key: byok.key,
+                    action: streamAction,
+                },
+            )
+            return {
+                text: result.text,
+                model: usedModel,
+                provider: usedProvider,
+                attempts,
+                promptTokens: result.promptTokens,
+                completionTokens: result.completionTokens,
+            }
+        }
+
+        // Premium lane (any non-Economy category) pins one model; Auto runs the fallback chain
+        const isPremiumLane = category !== undefined
+            && category !== AiModelCategory.Economy
+
+        const {
+            result,
+            model: usedModel,
+            provider: usedProvider,
+            attempts,
+        } = isPremiumLane && category
+            ? await this.useApiService.useApi<StreamActionResult>(
+                {
+                    lane: AiMode.Premium,
+                    category,
+                    model,
+                    provider,
+                    action: streamAction,
+                },
+            )
+            : await this.useApiService.useApi<StreamActionResult>(
+                {
+                    lane: AiMode.Auto,
+                    category,
+                    model,
+                    provider,
+                    action: streamAction,
+                },
+            )
+        return {
+            text: result.text,
+            model: usedModel,
+            provider: usedProvider,
+            attempts,
+            promptTokens: result.promptTokens,
+            completionTokens: result.completionTokens,
         }
     }
 

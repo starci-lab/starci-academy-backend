@@ -39,4 +39,32 @@ export interface CourseParentIndexCacheResult {
     course: ParentIndexRef
 }
 
-export type ParentIndexCacheResult = ChallengeParentIndexCacheResult | ContentParentIndexCacheResult | ModuleParentIndexCacheResult | CourseParentIndexCacheResult
+export interface MilestoneParentIndexCacheResult {
+    /** The course that the milestone belongs to (drives the deep-link course slug). */
+    course: ParentIndexRef
+    /**
+     * The milestone's first task (lowest sort order), when it has any. Milestones have no
+     * standalone page, so a milestone hit deep-links to this task's personal-project page;
+     * absent when the milestone has no tasks (the client then lands on the project root).
+     */
+    task?: ParentIndexRef
+}
+
+export interface FlashcardDeckParentIndexCacheResult {
+    /** The course that the deck belongs to (drives the deep-link course slug). */
+    course: ParentIndexRef
+}
+
+export interface MilestoneTaskParentIndexCacheResult {
+    /** The course that the task belongs to (drives the deep-link course slug). */
+    course: ParentIndexRef
+}
+
+export type ParentIndexCacheResult =
+    | ChallengeParentIndexCacheResult
+    | ContentParentIndexCacheResult
+    | ModuleParentIndexCacheResult
+    | CourseParentIndexCacheResult
+    | MilestoneParentIndexCacheResult
+    | FlashcardDeckParentIndexCacheResult
+    | MilestoneTaskParentIndexCacheResult

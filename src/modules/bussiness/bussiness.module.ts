@@ -36,6 +36,9 @@ import {
 import {
     DiscussionModule,
 } from "./discussion"
+import {
+    AiLabModule,
+} from "./ai-lab"
 
 /**
  * The module for the bussiness logics.
@@ -64,6 +67,8 @@ export class BussinessModule extends ConfigurableModuleClass {
             CreditModule.register(options),
             // import the content discussion (comments + reactions) module
             DiscussionModule.register(options),
+            // import the AI Lab (playground + eval grading) module
+            AiLabModule.register(options),
         ]
         return {
             ...dynamicModule,

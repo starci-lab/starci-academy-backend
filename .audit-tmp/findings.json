@@ -1,0 +1,26 @@
+﻿[
+    {
+        "issue":  "force-translate",
+        "newVi":  "Toggle ngôn ngữ",
+        "k":  "nav.toggleLanguage",
+        "oldVi":  "Chuyển đổi ngôn ngữ"
+    },
+    {
+        "issue":  "calque",
+        "newVi":  "Menu di động",
+        "k":  "nav.mobileMenu",
+        "oldVi":  "Điều hướng mobile"
+    },
+    {
+        "issue":  "mistranslate",
+        "newVi":  "Menu khóa học",
+        "k":  "nav.courseMenu",
+        "oldVi":  "Mục lục khoá học"
+    },
+    {
+        "issue":  "mistranslate",
+        "newVi":  "Hoặc",
+        "k":  "auth.signIn.or",
+        "oldVi":  "HOẶC"
+    }
+]

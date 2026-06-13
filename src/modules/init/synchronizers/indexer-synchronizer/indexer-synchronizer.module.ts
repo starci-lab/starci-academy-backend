@@ -12,6 +12,9 @@ import {
     IndexerModuleBuildService,
     IndexerContentBuildService,
     IndexerChallengeBuildService,
+    IndexerMilestoneBuildService,
+    IndexerMilestoneTaskBuildService,
+    IndexerFlashcardDeckBuildService,
 } from "./builder"
 
 /**
@@ -22,7 +25,10 @@ import {
         IndexerCourseBuildService,
         IndexerModuleBuildService,
         IndexerContentBuildService,
-        IndexerChallengeBuildService,
+        IndexerChallengeBuildService,
+        IndexerMilestoneBuildService,
+        IndexerMilestoneTaskBuildService,
+        IndexerFlashcardDeckBuildService,
         IndexerSynchronizerService,
     ],
     exports: [

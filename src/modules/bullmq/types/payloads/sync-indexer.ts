@@ -1,7 +1,11 @@
-import { 
-    CourseEntity, 
-    ChallengeEntity, 
-    ContentEntity,     ModuleEntity 
+import {
+    CourseEntity,
+    ChallengeEntity,
+    ContentEntity,
+    ModuleEntity,
+    MilestoneEntity,
+    MilestoneTaskEntity,
+    FlashcardDeckEntity
 } from "@modules/databases"
 import type {
     Dayjs
@@ -12,6 +16,9 @@ export type SyncIndexerEntityKind =
     | typeof ChallengeEntity.name
     | typeof ContentEntity.name
     | typeof ModuleEntity.name
+    | typeof MilestoneEntity.name
+    | typeof MilestoneTaskEntity.name
+    | typeof FlashcardDeckEntity.name
 /**
  * Primes the parent-index cache by scanning entities and storing small parent refs.
  */
@@ -21,4 +28,3 @@ export interface SyncIndexerPayload {
     /** What entity type(s) to process. */
     entityKind: SyncIndexerEntityKind
 }
-

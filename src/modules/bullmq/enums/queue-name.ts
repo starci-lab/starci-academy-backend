@@ -41,4 +41,6 @@ export enum BullQueueName {
     JudgeCodingSubmission = "judge-coding-submission",
     /** Queue for polling a pending payment transaction's gateway status (delayed, repeated). */
     ReconcileTransaction = "reconcile-transaction",
+    /** Queue for grading an AI Lab eval submission (prompt template) against an eval set. */
+    ReviewAiLabEval = "review-ai-lab-eval",
 }

@@ -132,4 +132,10 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
         ),
         name: "reconcile-transaction",
     },
+    [BullQueueName.ReviewAiLabEval]: {
+        prefix: formatWithBraces(
+            "review-ai-lab-eval",
+        ),
+        name: "review-ai-lab-eval",
+    },
 }

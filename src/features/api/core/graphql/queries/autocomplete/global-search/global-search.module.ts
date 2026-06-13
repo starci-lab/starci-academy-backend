@@ -17,6 +17,7 @@ import {
     ModuleGlobalSearchService,
     FlashcardDeckGlobalSearchService,
     MilestoneGlobalSearchService,
+    MilestoneTaskGlobalSearchService,
     FoundationGlobalSearchService,
 } from "./entities"
 
@@ -30,6 +31,7 @@ import {
         ContentGlobalSearchService,
         FlashcardDeckGlobalSearchService,
         MilestoneGlobalSearchService,
+        MilestoneTaskGlobalSearchService,
         FoundationGlobalSearchService,
     ],
 })

@@ -64,6 +64,9 @@ import {
 import {
     DiscussionQueriesModule,
 } from "./discussion"
+import {
+    AiLabQueriesModule,
+} from "./ai-lab"
 
 @Module({
     imports: [
@@ -125,6 +128,9 @@ import {
             isGlobal: true,
         }),
         DiscussionQueriesModule.register({
+            isGlobal: true,
+        }),
+        AiLabQueriesModule.register({
             isGlobal: true,
         }),
     ],

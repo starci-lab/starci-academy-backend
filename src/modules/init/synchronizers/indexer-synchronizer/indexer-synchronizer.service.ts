@@ -7,6 +7,9 @@ import {
     ModuleEntity,
     ContentEntity,
     ChallengeEntity,
+    MilestoneEntity,
+    MilestoneTaskEntity,
+    FlashcardDeckEntity,
 } from "@modules/databases"
 import {
     MoreThan,
@@ -17,6 +20,9 @@ import {
     IndexerModuleBuildService,
     IndexerContentBuildService,
     IndexerChallengeBuildService,
+    IndexerMilestoneBuildService,
+    IndexerMilestoneTaskBuildService,
+    IndexerFlashcardDeckBuildService,
 } from "./builder"
 import {
     WinstonLog,
@@ -39,7 +45,10 @@ import {
     shouldSyncChallengeEntity,
     shouldSyncContentEntity,
     shouldSyncCourseEntity,
+    shouldSyncMilestoneEntity,
+    shouldSyncMilestoneTaskEntity,
     shouldSyncModuleEntity,
+    shouldSynchronizerSyncEntityKind,
 } from "../../utils"
 
 /**
@@ -57,6 +66,9 @@ export class IndexerSynchronizerService {
         private readonly indexerModuleBuildService: IndexerModuleBuildService,
         private readonly indexerContentBuildService: IndexerContentBuildService,
         private readonly indexerChallengeBuildService: IndexerChallengeBuildService,
+        private readonly indexerMilestoneBuildService: IndexerMilestoneBuildService,
+        private readonly indexerMilestoneTaskBuildService: IndexerMilestoneTaskBuildService,
+        private readonly indexerFlashcardDeckBuildService: IndexerFlashcardDeckBuildService,
     ) { }
 
     /** Entity kinds supported by the Indexer synchronizer. */
@@ -65,6 +77,14 @@ export class IndexerSynchronizerService {
         ChallengeEntity.name,
         ContentEntity.name,
         ModuleEntity.name,
+        MilestoneEntity.name,
+        MilestoneTaskEntity.name,
+        FlashcardDeckEntity.name,
+    ]
+
+    /** Flashcard-deck index is gated behind the `flashcards` scope flag. */
+    private readonly flashcardEntityKinds = [
+        FlashcardDeckEntity.name,
     ]
 
     /**
@@ -81,6 +101,17 @@ export class IndexerSynchronizerService {
          * Synchronize the entities.
          */
         for (const entityKind of this.entityKinds) {
+            // skip the standalone flashcard-deck index when its scope flag is off
+            if (!shouldSynchronizerSyncEntityKind(
+                scope,
+                entityKind,
+                [],
+                [],
+                this.flashcardEntityKinds,
+                [],
+            )) {
+                continue
+            }
             let resumeEntityId: string | null = null
             switch (entityKind) {
             case CourseEntity.name: {
@@ -286,6 +317,159 @@ export class IndexerSynchronizerService {
                         )
                     }
                     resumeEntityId = module.id
+                }
+                break
+            }
+            case MilestoneEntity.name: {
+
+                while (true) {
+                    const milestone = await this.entityManager.findOne(
+                        MilestoneEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId)
+                                } : {
+                                }),
+                            },
+                            relations: {
+                                course: true,
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!milestone) {
+                        break
+                    }
+                    if (!shouldSyncMilestoneEntity(scope,
+                        milestone)) {
+                        resumeEntityId = milestone.id
+                        continue
+                    }
+                    try {
+                        await this.indexerMilestoneBuildService.buildIndexerById(
+                            milestone.id,
+                        )
+                        this.winstonService.log(
+                            WinstonLog.IndexerSynchronizerSyncedSuccessfully,
+                            {
+                                entityKind,
+                                entityId: milestone.id,
+                            }
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.IndexerSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: milestone.id,
+                                error: error.message,
+                            }
+                        )
+                    }
+                    resumeEntityId = milestone.id
+                }
+                break
+            }
+            case MilestoneTaskEntity.name: {
+
+                while (true) {
+                    const milestoneTask = await this.entityManager.findOne(
+                        MilestoneTaskEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId)
+                                } : {
+                                }),
+                            },
+                            relations: {
+                                milestone: {
+                                    course: true,
+                                },
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!milestoneTask) {
+                        break
+                    }
+                    if (!shouldSyncMilestoneTaskEntity(scope,
+                        milestoneTask)) {
+                        resumeEntityId = milestoneTask.id
+                        continue
+                    }
+                    try {
+                        await this.indexerMilestoneTaskBuildService.buildIndexerById(
+                            milestoneTask.id,
+                        )
+                        this.winstonService.log(
+                            WinstonLog.IndexerSynchronizerSyncedSuccessfully,
+                            {
+                                entityKind,
+                                entityId: milestoneTask.id,
+                            }
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.IndexerSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: milestoneTask.id,
+                                error: error.message,
+                            }
+                        )
+                    }
+                    resumeEntityId = milestoneTask.id
+                }
+                break
+            }
+            case FlashcardDeckEntity.name: {
+
+                while (true) {
+                    const deck = await this.entityManager.findOne(
+                        FlashcardDeckEntity,
+                        {
+                            where: {
+                                ...(resumeEntityId ? {
+                                    id: MoreThan(resumeEntityId)
+                                } : {
+                                }),
+                            },
+                            order: {
+                                id: "ASC",
+                            },
+                        },
+                    )
+                    if (!deck) {
+                        break
+                    }
+                    try {
+                        await this.indexerFlashcardDeckBuildService.buildIndexerById(
+                            deck.id,
+                        )
+                        this.winstonService.log(
+                            WinstonLog.IndexerSynchronizerSyncedSuccessfully,
+                            {
+                                entityKind,
+                                entityId: deck.id,
+                            }
+                        )
+                    } catch (error) {
+                        this.winstonService.log(
+                            WinstonLog.IndexerSynchronizerEntitySyncFailed,
+                            {
+                                entityKind,
+                                entityId: deck.id,
+                                error: error.message,
+                            }
+                        )
+                    }
+                    resumeEntityId = deck.id
                 }
                 break
             }

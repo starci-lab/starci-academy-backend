@@ -19,6 +19,8 @@ export interface GlobalSearchParentPath {
     content?: GlobalSearchParentRef
     /** The challenge itself (present for challenge hits). */
     challenge?: GlobalSearchParentRef
+    /** The milestone's first task (present for milestone hits) — used to deep-link into the personal-project page. */
+    task?: GlobalSearchParentRef
 }
 
 /** A single autocomplete hit produced by an entity search service. */
@@ -49,6 +51,8 @@ export interface GlobalSearchMessage {
     flashcardDecks: Array<GlobalSearchItem>
     /** Milestone hits. */
     milestones: Array<GlobalSearchItem>
+    /** Milestone-task hits. */
+    milestoneTasks: Array<GlobalSearchItem>
     /** Foundation-item hits. */
     foundations: Array<GlobalSearchItem>
 }

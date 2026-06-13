@@ -8,6 +8,7 @@ import {
     ModuleEntity,
     FlashcardDeckEntity,
     MilestoneEntity,
+    MilestoneTaskEntity,
     FoundationEntity,
     Locale,
 } from "@modules/databases"
@@ -33,6 +34,7 @@ import {
     ModuleGlobalSearchService,
     FlashcardDeckGlobalSearchService,
     MilestoneGlobalSearchService,
+    MilestoneTaskGlobalSearchService,
     FoundationGlobalSearchService,
 } from "./entities"
 
@@ -45,6 +47,7 @@ const DEFAULT_ENTITIES: Array<SearchableEntity> = [
     ContentEntity.name,
     FlashcardDeckEntity.name,
     MilestoneEntity.name,
+    MilestoneTaskEntity.name,
     FoundationEntity.name,
 ]
 
@@ -55,6 +58,7 @@ const EMPTY_RESULT: AutocompleteGlobalSearchExecuteResult = {
     contents: [],
     flashcardDecks: [],
     milestones: [],
+    milestoneTasks: [],
     foundations: [],
 }
 
@@ -67,6 +71,7 @@ export class AutocompleteGlobalSearchService {
         private readonly contentSearch: ContentGlobalSearchService,
         private readonly flashcardDeckSearch: FlashcardDeckGlobalSearchService,
         private readonly milestoneSearch: MilestoneGlobalSearchService,
+        private readonly milestoneTaskSearch: MilestoneTaskGlobalSearchService,
         private readonly foundationSearch: FoundationGlobalSearchService,
         private readonly cacheService: CacheService,
     ) {}
@@ -98,6 +103,7 @@ export class AutocompleteGlobalSearchService {
             contents,
             flashcardDecks,
             milestones,
+            milestoneTasks,
             foundations,
         ] = await Promise.all([
             selected.has(CourseEntity.name)
@@ -142,6 +148,13 @@ export class AutocompleteGlobalSearchService {
                     locale: searchLocale,
                 })
                 : Promise.resolve([] as Array<GlobalSearchItem>),
+            selected.has(MilestoneTaskEntity.name)
+                ? this.milestoneTaskSearch.execute({
+                    term,
+                    size,
+                    locale: searchLocale,
+                })
+                : Promise.resolve([] as Array<GlobalSearchItem>),
             selected.has(FoundationEntity.name)
                 ? this.foundationSearch.execute({
                     term,
@@ -160,6 +173,7 @@ export class AutocompleteGlobalSearchService {
             contentsWithPath,
             flashcardDecksWithPath,
             milestonesWithPath,
+            milestoneTasksWithPath,
             foundationsWithPath,
         ] = await Promise.all([
             this.attachParentPaths({
@@ -187,6 +201,10 @@ export class AutocompleteGlobalSearchService {
                 entityName: MilestoneEntity.name,
             }),
             this.attachParentPaths({
+                items: this.dedupeItems(milestoneTasks),
+                entityName: MilestoneTaskEntity.name,
+            }),
+            this.attachParentPaths({
                 items: this.dedupeItems(foundations),
                 entityName: FoundationEntity.name,
             }),
@@ -199,6 +217,7 @@ export class AutocompleteGlobalSearchService {
             contents: contentsWithPath,
             flashcardDecks: flashcardDecksWithPath,
             milestones: milestonesWithPath,
+            milestoneTasks: milestoneTasksWithPath,
             foundations: foundationsWithPath,
         }
     }
@@ -253,6 +272,7 @@ export class AutocompleteGlobalSearchService {
             module: "module" in parentRef ? parentRef.module : undefined,
             content: "content" in parentRef ? parentRef.content : undefined,
             challenge: "challenge" in parentRef ? parentRef.challenge : undefined,
+            task: "task" in parentRef ? parentRef.task : undefined,
         }
     }
 

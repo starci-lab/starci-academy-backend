@@ -67,6 +67,15 @@ export class AutocompleteGlobalSearchParentPath {
         },
     )
         challenge?: AutocompleteGlobalSearchParentRef
+
+    @Field(
+        () => AutocompleteGlobalSearchParentRef,
+        {
+            nullable: true,
+            description: "The milestone's first task (present for milestone hits) — used to deep-link into the personal-project page.",
+        },
+    )
+        task?: AutocompleteGlobalSearchParentRef
 }
 
 @ObjectType({
@@ -121,6 +130,9 @@ export class AutocompleteGlobalSearchData {
 
     @Field(() => [AutocompleteGlobalSearchItem])
         milestones: Array<AutocompleteGlobalSearchItem>
+
+    @Field(() => [AutocompleteGlobalSearchItem])
+        milestoneTasks: Array<AutocompleteGlobalSearchItem>
 
     @Field(() => [AutocompleteGlobalSearchItem])
         foundations: Array<AutocompleteGlobalSearchItem>

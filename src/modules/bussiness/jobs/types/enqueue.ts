@@ -1,4 +1,5 @@
 import type {
+    AiLabRunParams,
     Locale,
     ModelProvider,
 } from "@modules/databases"
@@ -171,6 +172,30 @@ export interface EnqueueReviewPersonalProjectTaskParams {
     locale?: Locale
     /** Chosen programming language for a SCHEMA V2 task (picks per-language approach criteria). */
     lang?: string
+    /** Validated AI lane + model pick (Auto / Premium / BYOK). */
+    ai?: AiJobSelection
+}
+
+/**
+ * Params for enqueueing a review-ai-lab-eval job (AI Lab eval submission grading).
+ */
+export interface EnqueueReviewAiLabEvalParams {
+    /** Eval run row (already persisted as Pending) the verdict is written back to. */
+    evalRunId: string
+    /** Eval set whose cases the submission is graded against. */
+    evalSetId: string
+    /** Learner who submitted the eval run. */
+    userId: string
+    /** Enrollment the submission was made under. */
+    enrollmentId: string
+    /** Submitted system prompt (omitted when the learner sent none). */
+    submittedSystemPrompt?: string
+    /** Submitted user prompt template (contains the `{{input}}` placeholder). */
+    submittedUserTemplate: string
+    /** Sampling / generation parameters submitted for grading. */
+    params: AiLabRunParams
+    /** Locale hint for the judge feedback language. */
+    locale?: Locale
     /** Validated AI lane + model pick (Auto / Premium / BYOK). */
     ai?: AiJobSelection
 }

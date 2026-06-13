@@ -37,6 +37,9 @@ import {
 import {
     EnrollModule,
 } from "./enroll"
+import {
+    ReviewAiLabEvalModule,
+} from "./review-ai-lab-eval"
 
 /**
  * Module for API-side BullMQ processors.
@@ -74,6 +77,9 @@ import {
             isGlobal: true,
         }),
         EnrollModule.register({
+            isGlobal: true,
+        }),
+        ReviewAiLabEvalModule.register({
             isGlobal: true,
         }),
     ],

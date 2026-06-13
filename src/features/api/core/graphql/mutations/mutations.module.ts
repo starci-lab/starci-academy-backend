@@ -37,6 +37,9 @@ import {
 import {
     InterviewMutationsModule,
 } from "./interview"
+import {
+    AiLabMutationsModule,
+} from "./ai-lab"
 
 /**
  * GraphQL mutations (courses, authentication, etc.).
@@ -72,6 +75,9 @@ import {
             isGlobal: true,
         }),
         InterviewMutationsModule.register({
+            isGlobal: true,
+        }),
+        AiLabMutationsModule.register({
             isGlobal: true,
         }),
     ],

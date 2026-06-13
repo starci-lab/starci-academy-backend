@@ -169,6 +169,11 @@ export const envConfig = () => ({
                 // event-driven invalidation is the primary mechanism; TTL is a fallback safety net
                 defaultValue: "30m",
             }),
+            aiLabRun: parseEnvMs({
+                key: "CACHE_TTL_AI_LAB_RUN",
+                // identical playground re-runs stay cheap for a day; the cold store is durable
+                defaultValue: "1d",
+            }),
             aggregatedTokenPrice: parseEnvMs({
                 key: "CACHE_TTL_AGGREGATED_TOKEN_PRICE",
                 defaultValue: "100years"

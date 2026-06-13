@@ -25,6 +25,8 @@ export enum CacheKey {
     AiPingKeyStatus = "ai.ping.key-status",
     /** Number of users who have marked a content as read, keyed by contentId. */
     ContentViewCount = "content.view-count",
+    /** Cached AI Lab playground run output, keyed by playground + user + input hash. */
+    AiLabRun = "ai-lab.run",
 }
 
 /**

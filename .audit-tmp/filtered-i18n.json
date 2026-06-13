@@ -1,0 +1,662 @@
+﻿[
+    {
+        "k":  "courses.featuredTitle",
+        "en":  "Featured courses",
+        "vi":  "KhÃ³a há»c tiÃªu biá»ƒu"
+    },
+    {
+        "k":  "courses.viewCourse",
+        "en":  "View Course",
+        "vi":  "Xem khÃ³a há»c"
+    },
+    {
+        "k":  "courses.searchPlaceholder",
+        "en":  "Search courses...",
+        "vi":  "TÃ¬m khÃ³a há»c..."
+    },
+    {
+        "k":  "course.enroll",
+        "en":  "Enroll",
+        "vi":  "ÄÄƒng kÃ½"
+    },
+    {
+        "k":  "course.enrolled",
+        "en":  "Enrolled",
+        "vi":  "ÄÃ£ Ä‘Äƒng kÃ½"
+    },
+    {
+        "k":  "course.priceUsdHint",
+        "en":  "â‰ˆ {amount} for international payments",
+        "vi":  "â‰ˆ {amount} khi thanh toÃ¡n quá»‘c táº¿"
+    },
+    {
+        "k":  "course.continueLearning",
+        "en":  "Continue Learning",
+        "vi":  "Tiáº¿p tá»¥c há»c"
+    },
+    {
+        "k":  "course.tryLearning",
+        "en":  "Try for free",
+        "vi":  "Há»c thá»­"
+    },
+    {
+        "k":  "course.paywall.title",
+        "en":  "Premium content",
+        "vi":  "Ná»™i dung tráº£ phÃ­"
+    },
+    {
+        "k":  "course.paywall.description",
+        "en":  "This lesson is for enrolled learners. Purchase the course to unlock the full content.",
+        "vi":  "ÄÃ¢y lÃ  bÃ i há»c dÃ nh cho há»c viÃªn Ä‘Ã£ Ä‘Äƒng kÃ½. Mua khÃ³a há»c Ä‘á»ƒ má»Ÿ khÃ³a toÃ n bá»™ ná»™i dung."
+    },
+    {
+        "k":  "course.paywall.buy",
+        "en":  "Buy now",
+        "vi":  "Mua ngay"
+    },
+    {
+        "k":  "course.paywall.back",
+        "en":  "Go back",
+        "vi":  "Quay láº¡i"
+    },
+    {
+        "k":  "course.prerequisites",
+        "en":  "Prerequisites",
+        "vi":  "YÃªu cáº§u Ä‘áº§u vÃ o"
+    },
+    {
+        "k":  "course.usersEnrolled",
+        "en":  "{count} users have enrolled",
+        "vi":  "{count} ngÆ°á»i Ä‘Ã£ Ä‘Äƒng kÃ½"
+    },
+    {
+        "k":  "course.cvTitle",
+        "en":  "CV track",
+        "vi":  "Lá»™ trÃ¬nh CV"
+    },
+    {
+        "k":  "course.cvDescription",
+        "en":  "Prepare and refine your developer CV with guidance from this course.",
+        "vi":  "Chuáº©n bá»‹ vÃ  chá»‰nh sá»­a CV developer theo hÆ°á»›ng dáº«n trong khÃ³a há»c."
+    },
+    {
+        "k":  "course.cvPlaceholder",
+        "en":  "CV tools and assignments will appear here.",
+        "vi":  "CÃ´ng cá»¥ vÃ  bÃ i táº­p CV sáº½ hiá»ƒn thá»‹ táº¡i Ä‘Ã¢y."
+    },
+    {
+        "k":  "course.finalProjectTitle",
+        "en":  "Personal project",
+        "vi":  "Dá»± Ã¡n cÃ¡ nhÃ¢n"
+    },
+    {
+        "k":  "course.finalProjectDescription",
+        "en":  "Requirements, milestones, and submission details for your personal project in this course.",
+        "vi":  "YÃªu cáº§u, milestone vÃ  chi tiáº¿t ná»™p dá»± Ã¡n cÃ¡ nhÃ¢n trong khÃ³a há»c nÃ y."
+    },
+    {
+        "k":  "course.finalProjectPlaceholder",
+        "en":  "Project brief and workspace will appear here.",
+        "vi":  "Äá» bÃ i vÃ  khÃ´ng gian lÃ m viá»‡c sáº½ hiá»ƒn thá»‹ táº¡i Ä‘Ã¢y."
+    },
+    {
+        "k":  "module.aria",
+        "en":  "Module {index}",
+        "vi":  "Há»c pháº§n {index}"
+    },
+    {
+        "k":  "module.pathIntroduction",
+        "en":  "Introduction",
+        "vi":  "Giá»›i thiá»‡u"
+    },
+    {
+        "k":  "module.numContents",
+        "en":  "{count} contents",
+        "vi":  "{count} ná»™i dung"
+    },
+    {
+        "k":  "module.chipContentsHint",
+        "en":  "Reading items in this module.",
+        "vi":  "Sá»‘ bÃ i Ä‘á»c trong há»c pháº§n."
+    },
+    {
+        "k":  "module.chipVideosHint",
+        "en":  "Lesson videos in this module.",
+        "vi":  "Sá»‘ video bÃ i há»c trong há»c pháº§n."
+    },
+    {
+        "k":  "module.chipChallengesHint",
+        "en":  "Challenges in this module.",
+        "vi":  "Sá»‘ thá»­ thÃ¡ch trong há»c pháº§n."
+    },
+    {
+        "k":  "module.tabListAria",
+        "en":  "Module learn sections",
+        "vi":  "CÃ¡c má»¥c trong trang há»c"
+    },
+    {
+        "k":  "module.searchPlaceholder",
+        "en":  "Search modules...",
+        "vi":  "TÃ¬m há»c pháº§n..."
+    },
+    {
+        "k":  "module.searchContentsPlaceholder",
+        "en":  "Search lessons...",
+        "vi":  "TÃ¬m bÃ i há»c..."
+    },
+    {
+        "k":  "modules.title",
+        "en":  "Modules",
+        "vi":  "Há»c pháº§n"
+    },
+    {
+        "k":  "finalProject.title",
+        "en":  "Personal project",
+        "vi":  "Dá»± Ã¡n cÃ¡ nhÃ¢n"
+    },
+    {
+        "k":  "finalProject.page.title",
+        "en":  "Personal project",
+        "vi":  "Dá»± Ã¡n cÃ¡ nhÃ¢n"
+    },
+    {
+        "k":  "finalProject.page.searchTaskPlaceholder",
+        "en":  "Search tasks...",
+        "vi":  "TÃ¬m task..."
+    },
+    {
+        "k":  "finalProject.page.description",
+        "en":  "Bring your personal project to life through a structured Milestone roadmap. With StarCI AI by your side, every line of code and solution is deeply evaluated, helping you optimize product quality throughout the process.",
+        "vi":  "Hiá»‡n thá»±c hÃ³a dá»± Ã¡n cÃ¡ nhÃ¢n qua lá»™ trÃ¬nh Milestone bÃ i báº£n. Vá»›i sá»± Ä‘á»“ng hÃ nh cá»§a StarCI AI, má»i dÃ²ng code vÃ  giáº£i phÃ¡p cá»§a báº¡n Ä‘á»u Ä‘Æ°á»£c Ä‘Ã¡nh giÃ¡ chuyÃªn sÃ¢u, giÃºp tá»‘i Æ°u cháº¥t lÆ°á»£ng sáº£n pháº©m ngay trong quÃ¡ trÃ¬nh thá»±c hiá»‡n."
+    },
+    {
+        "k":  "finalProject.page.submit.title",
+        "en":  "Submit project idea",
+        "vi":  "Ná»™p Ã½ tÆ°á»Ÿng dá»± Ã¡n"
+    },
+    {
+        "k":  "finalProject.page.submit.placeholder",
+        "en":  "Paste your GitHub repository link",
+        "vi":  "DÃ¡n link repository GitHub cá»§a báº¡n"
+    },
+    {
+        "k":  "finalProject.page.submit.ideaPlaceholder",
+        "en":  "Describe your personal project idea...",
+        "vi":  "MÃ´ táº£ Ã½ tÆ°á»Ÿng dá»± Ã¡n cÃ¡ nhÃ¢n cá»§a báº¡n..."
+    },
+    {
+        "k":  "finalProject.page.submit.ideaRequired",
+        "en":  "Please enter your idea before submitting.",
+        "vi":  "Vui lÃ²ng nháº­p Ã½ tÆ°á»Ÿng trÆ°á»›c khi ná»™p."
+    },
+    {
+        "k":  "finalProject.page.submit.ideaTooShort",
+        "en":  "Your idea must be at least 10 characters.",
+        "vi":  "Ã tÆ°á»Ÿng pháº£i cÃ³ Ã­t nháº¥t 10 kÃ½ tá»±."
+    },
+    {
+        "k":  "finalProject.page.submit.milestoneMissing",
+        "en":  "No milestone found for idea submission.",
+        "vi":  "KhÃ´ng tÃ¬m tháº¥y milestone Ä‘á»ƒ ná»™p Ã½ tÆ°á»Ÿng."
+    },
+    {
+        "k":  "finalProject.page.submit.submitFailed",
+        "en":  "Failed to submit idea. Please try again.",
+        "vi":  "Ná»™p Ã½ tÆ°á»Ÿng tháº¥t báº¡i. Vui lÃ²ng thá»­ láº¡i."
+    },
+    {
+        "k":  "finalProject.page.submit.submitOnceNote",
+        "en":  "Note: idea can only be submitted once.",
+        "vi":  "LÆ°u Ã½: chá»‰ Ä‘Æ°á»£c ná»™p Ã½ tÆ°á»Ÿng 1 láº§n."
+    },
+    {
+        "k":  "finalProject.page.submit.submittedOnce",
+        "en":  "You already submitted your idea and cannot submit again.",
+        "vi":  "Báº¡n Ä‘Ã£ ná»™p Ã½ tÆ°á»Ÿng, khÃ´ng thá»ƒ ná»™p láº¡i."
+    },
+    {
+        "k":  "finalProject.page.submit.lastSubmission",
+        "en":  "Latest submission: 21/04/2026 20:45",
+        "vi":  "Láº§n ná»™p gáº§n nháº¥t: 21/04/2026 20:45"
+    },
+    {
+        "k":  "finalProject.page.submit.cta",
+        "en":  "Submit",
+        "vi":  "Ná»™p"
+    },
+    {
+        "k":  "finalProject.page.submitGithub.title",
+        "en":  "Project GitHub",
+        "vi":  "Github dá»± Ã¡n"
+    },
+    {
+        "k":  "finalProject.page.submitGithub.langFieldTitle",
+        "en":  "Grading language",
+        "vi":  "NgÃ´n ngá»¯ cháº¥m Ä‘iá»ƒm"
+    },
+    {
+        "k":  "finalProject.page.submitGithub.langFieldHint",
+        "en":  "Your backend is graded against this language\u0027s approach criteria.",
+        "vi":  "Backend cá»§a báº¡n Ä‘Æ°á»£c cháº¥m theo tiÃªu chÃ­ approach cá»§a ngÃ´n ngá»¯ nÃ y."
+    },
+    {
+        "k":  "finalProject.page.submitGithub.repoFieldTitle",
+        "en":  "GitHub URL",
+        "vi":  "URL GitHub"
+    },
+    {
+        "k":  "finalProject.page.submitGithub.branchFieldTitle",
+        "en":  "Branch to review",
+        "vi":  "NhÃ¡nh cáº§n Ä‘Ã¡nh giÃ¡"
+    },
+    {
+        "k":  "finalProject.page.submitGithub.branchPlaceholder",
+        "en":  "main",
+        "vi":  "main"
+    },
+    {
+        "k":  "finalProject.page.submitGithub.branchInvalid",
+        "en":  "Use only letters, numbers, and . _ / -",
+        "vi":  "Chá»‰ dÃ¹ng chá»¯, sá»‘ vÃ  cÃ¡c kÃ½ tá»± . _ / -"
+    },
+    {
+        "k":  "finalProject.page.submitGithub.branchTooLong",
+        "en":  "Branch name is too long.",
+        "vi":  "TÃªn nhÃ¡nh quÃ¡ dÃ i."
+    },
+    {
+        "k":  "finalProject.page.submitGithub.missingRepoForReview",
+        "en":  "Enter and save a valid GitHub URL first.",
+        "vi":  "Nháº­p vÃ  lÆ°u URL GitHub há»£p lá»‡ trÆ°á»›c."
+    },
+    {
+        "k":  "finalProject.page.submitGithub.placeholder",
+        "en":  "https://github.com/your-account/personal-project",
+        "vi":  "https://github.com/your-account/personal-project"
+    },
+    {
+        "k":  "finalProject.page.submitGithub.urlRequired",
+        "en":  "Please enter your GitHub URL.",
+        "vi":  "Vui lÃ²ng nháº­p link GitHub cá»§a dá»± Ã¡n."
+    },
+    {
+        "k":  "finalProject.page.submitGithub.urlInvalid",
+        "en":  "Please enter a valid URL.",
+        "vi":  "Vui lÃ²ng nháº­p URL há»£p lá»‡."
+    },
+    {
+        "k":  "finalProject.page.submitGithub.urlInvalidGithub",
+        "en":  "Please enter a valid GitHub URL.",
+        "vi":  "Vui lÃ²ng nháº­p URL GitHub há»£p lá»‡."
+    },
+    {
+        "k":  "finalProject.page.submitGithub.syncing",
+        "en":  "Savingâ€¦",
+        "vi":  "Äang lÆ°uâ€¦"
+    },
+    {
+        "k":  "finalProject.page.submitGithub.resetButton",
+        "en":  "Reset",
+        "vi":  "Äáº·t láº¡i"
+    },
+    {
+        "k":  "finalProject.page.submitGithub.ctaEvaluate",
+        "en":  "Evaluate progress",
+        "vi":  "ÄÃ¡nh giÃ¡ tiáº¿n Ä‘á»™"
+    },
+    {
+        "k":  "finalProject.page.submitGithub.ctaReEvaluate",
+        "en":  "Re-evaluate progress",
+        "vi":  "ÄÃ¡nh giÃ¡ láº¡i tiáº¿n Ä‘á»™"
+    },
+    {
+        "k":  "finalProject.page.reviewPreview.title",
+        "en":  "Latest result",
+        "vi":  "Káº¿t quáº£ má»›i nháº¥t"
+    },
+    {
+        "k":  "finalProject.page.reviewPreview.scoreLabel",
+        "en":  "Score: {score}",
+        "vi":  "Äiá»ƒm: {score}"
+    },
+    {
+        "k":  "finalProject.page.reviewPreview.scorePending",
+        "en":  "No score yet",
+        "vi":  "ChÆ°a cÃ³ Ä‘iá»ƒm"
+    },
+    {
+        "k":  "finalProject.page.attemptsDrawer.title",
+        "en":  "Project review history",
+        "vi":  "Lá»‹ch sá»­ Ä‘Ã¡nh giÃ¡ dá»± Ã¡n"
+    },
+    {
+        "k":  "finalProject.page.attemptsDrawer.openListButton",
+        "en":  "See more",
+        "vi":  "Xem thÃªm"
+    },
+    {
+        "k":  "finalProject.page.attemptsDrawer.feedbackEmpty",
+        "en":  "No summary feedback yet.",
+        "vi":  "ChÆ°a cÃ³ feedback tÃ³m táº¯t."
+    },
+    {
+        "k":  "finalProject.page.attemptsDrawer.loadError",
+        "en":  "Could not load the list. Please try again.",
+        "vi":  "KhÃ´ng táº£i Ä‘Æ°á»£c danh sÃ¡ch. Vui lÃ²ng thá»­ láº¡i."
+    },
+    {
+        "k":  "finalProject.page.attemptsDrawer.empty",
+        "en":  "No review attempts yet.",
+        "vi":  "ChÆ°a cÃ³ lÆ°á»£t Ä‘Ã¡nh giÃ¡ nÃ o."
+    },
+    {
+        "k":  "finalProject.page.feedback.title",
+        "en":  "AI feedback",
+        "vi":  "AI feedback"
+    },
+    {
+        "k":  "finalProject.page.feedback.content",
+        "en":  "Temporary: project architecture is clear, but core-flow tests and deployment documentation should be improved.",
+        "vi":  "Táº¡m thá»i: kiáº¿n trÃºc dá»± Ã¡n Ä‘Ã£ rÃµ rÃ ng, cáº§n bá»• sung test cho cÃ¡c luá»“ng chÃ­nh vÃ  tá»‘i Æ°u tÃ i liá»‡u triá»ƒn khai."
+    },
+    {
+        "k":  "finalProject.page.history.title",
+        "en":  "Feedback history",
+        "vi":  "Lá»‹ch sá»­ feedback"
+    },
+    {
+        "k":  "finalProject.page.history.columns.gitUrl",
+        "en":  "GitHub link",
+        "vi":  "Link GitHub"
+    },
+    {
+        "k":  "finalProject.page.history.columns.submittedAt",
+        "en":  "Submitted at",
+        "vi":  "Thá»i gian ná»™p"
+    },
+    {
+        "k":  "finalProject.page.history.columns.feedback",
+        "en":  "Feedback",
+        "vi":  "Feedback"
+    },
+    {
+        "k":  "finalProject.page.history.viewDetails",
+        "en":  "View details",
+        "vi":  "Xem chi tiáº¿t"
+    },
+    {
+        "k":  "finalProject.page.history.items.v1.submittedAt",
+        "en":  "19/04/2026 09:10",
+        "vi":  "19/04/2026 09:10"
+    },
+    {
+        "k":  "finalProject.page.history.items.v1.feedback",
+        "en":  "Add an overall architecture section to the README.",
+        "vi":  "Cáº§n bá»• sung mÃ´ táº£ kiáº¿n trÃºc tá»•ng quan trong README."
+    },
+    {
+        "k":  "finalProject.page.history.items.v2.submittedAt",
+        "en":  "21/04/2026 20:45",
+        "vi":  "21/04/2026 20:45"
+    },
+    {
+        "k":  "finalProject.page.history.items.v2.feedback",
+        "en":  "API is more stable; add integration tests for auth.",
+        "vi":  "API á»•n Ä‘á»‹nh hÆ¡n, cáº§n thÃªm test integration cho auth."
+    },
+    {
+        "k":  "finalProject.page.milestones.title",
+        "en":  "Project milestones",
+        "vi":  "Milestone dá»± Ã¡n cÃ¡ nhÃ¢n"
+    },
+    {
+        "k":  "finalProject.page.milestones.week",
+        "en":  "Week",
+        "vi":  "Tuáº§n"
+    },
+    {
+        "k":  "finalProject.page.milestones.items.scope.title",
+        "en":  "Milestone 1 - Scope \u0026 Design",
+        "vi":  "Milestone 1 - Scope \u0026 Design"
+    },
+    {
+        "k":  "finalProject.page.milestones.items.scope.dueAt",
+        "en":  "Week 1",
+        "vi":  "Tuáº§n 1"
+    },
+    {
+        "k":  "finalProject.page.milestones.items.scope.requirements.problem.title",
+        "en":  "Define the problem",
+        "vi":  "XÃ¡c Ä‘á»‹nh bÃ i toÃ¡n"
+    },
+    {
+        "k":  "finalProject.page.milestones.items.scope.requirements.problem.description",
+        "en":  "Describe the target problem, user persona, and success criteria.",
+        "vi":  "MÃ´ táº£ rÃµ váº¥n Ä‘á», user persona vÃ  tiÃªu chÃ­ thÃ nh cÃ´ng."
+    },
+    {
+        "k":  "finalProject.page.milestones.items.scope.requirements.architecture.title",
+        "en":  "Architecture design",
+        "vi":  "Thiáº¿t káº¿ kiáº¿n trÃºc"
+    },
+    {
+        "k":  "finalProject.page.milestones.items.scope.requirements.architecture.description",
+        "en":  "Draft system architecture, data flow, and core modules.",
+        "vi":  "Draft kiáº¿n trÃºc há»‡ thá»‘ng, flow dá»¯ liá»‡u vÃ  cÃ¡c module chÃ­nh."
+    },
+    {
+        "k":  "finalProject.page.milestones.items.implementation.title",
+        "en":  "Milestone 2 - Implementation",
+        "vi":  "Milestone 2 - Implementation"
+    },
+    {
+        "k":  "finalProject.page.milestones.items.implementation.dueAt",
+        "en":  "Week 2",
+        "vi":  "Tuáº§n 2"
+    },
+    {
+        "k":  "finalProject.page.milestones.items.implementation.requirements.api.title",
+        "en":  "Build core features",
+        "vi":  "HoÃ n thiá»‡n chá»©c nÄƒng lÃµi"
+    },
+    {
+        "k":  "finalProject.page.milestones.items.implementation.requirements.api.description",
+        "en":  "Implement the primary APIs/features from the approved scope.",
+        "vi":  "Triá»ƒn khai cÃ¡c API/chá»©c nÄƒng chÃ­nh theo scope Ä‘Ã£ chá»‘t."
+    },
+    {
+        "k":  "finalProject.page.milestones.items.implementation.requirements.quality.title",
+        "en":  "Quality checks",
+        "vi":  "Äáº£m báº£o cháº¥t lÆ°á»£ng"
+    },
+    {
+        "k":  "finalProject.page.milestones.items.implementation.requirements.quality.description",
+        "en":  "Add baseline tests and error handling for critical flows.",
+        "vi":  "ThÃªm test cÆ¡ báº£n vÃ  xá»­ lÃ½ lá»—i cho cÃ¡c luá»“ng quan trá»ng."
+    },
+    {
+        "k":  "finalProject.page.milestones.items.release.title",
+        "en":  "Milestone 3 - Release",
+        "vi":  "Milestone 3 - Release"
+    },
+    {
+        "k":  "finalProject.page.milestones.items.release.dueAt",
+        "en":  "Week 3",
+        "vi":  "Tuáº§n 3"
+    },
+    {
+        "k":  "finalProject.page.milestones.items.release.requirements.deploy.title",
+        "en":  "Deploy demo",
+        "vi":  "Deploy báº£n demo"
+    },
+    {
+        "k":  "finalProject.page.milestones.items.release.requirements.deploy.description",
+        "en":  "Ship a publicly accessible demo release.",
+        "vi":  "Triá»ƒn khai báº£n demo cÃ³ thá»ƒ truy cáº­p cÃ´ng khai."
+    },
+    {
+        "k":  "finalProject.page.milestones.items.release.requirements.readme.title",
+        "en":  "Complete documentation",
+        "vi":  "HoÃ n thiá»‡n tÃ i liá»‡u"
+    },
+    {
+        "k":  "finalProject.page.milestones.items.release.requirements.readme.description",
+        "en":  "Update README with setup, architecture, and run guide.",
+        "vi":  "Cáº­p nháº­t README gá»“m setup, kiáº¿n trÃºc vÃ  hÆ°á»›ng dáº«n cháº¡y."
+    },
+    {
+        "k":  "task.briefTitle",
+        "en":  "Instructions",
+        "vi":  "HÆ°á»›ng dáº«n"
+    },
+    {
+        "k":  "task.criteriaTitle",
+        "en":  "Grading criteria",
+        "vi":  "TiÃªu chÃ­ cháº¥m Ä‘iá»ƒm"
+    },
+    {
+        "k":  "task.codeImplementationsTitle",
+        "en":  "Implementation guides",
+        "vi":  "HÆ°á»›ng dáº«n triá»ƒn khai"
+    },
+    {
+        "k":  "task.codeImplementationsTabsAria",
+        "en":  "Implementation guides by language",
+        "vi":  "HÆ°á»›ng dáº«n triá»ƒn khai theo ngÃ´n ngá»¯"
+    },
+    {
+        "k":  "task.criteriaScore",
+        "en":  "{score} pts",
+        "vi":  "{score} Ä‘iá»ƒm"
+    },
+    {
+        "k":  "task.criteriaNoHint",
+        "en":  "No guidance available for this criterion.",
+        "vi":  "ChÆ°a cÃ³ hÆ°á»›ng dáº«n cho tiÃªu chÃ­ nÃ y."
+    },
+    {
+        "k":  "task.loadErrorTitle",
+        "en":  "Could not load this task",
+        "vi":  "KhÃ´ng táº£i Ä‘Æ°á»£c bÃ i táº­p nÃ y"
+    },
+    {
+        "k":  "task.loadErrorDescription",
+        "en":  "Please check your connection and try again.",
+        "vi":  "Vui lÃ²ng kiá»ƒm tra káº¿t ná»‘i vÃ  thá»­ láº¡i."
+    },
+    {
+        "k":  "task.loadErrorRetry",
+        "en":  "Retry",
+        "vi":  "Thá»­ láº¡i"
+    },
+    {
+        "k":  "task.loadingResults",
+        "en":  "Loading grading results...",
+        "vi":  "Äang táº£i káº¿t quáº£ cháº¥m Ä‘iá»ƒm..."
+    },
+    {
+        "k":  "task.resultsTitle",
+        "en":  "Grading results",
+        "vi":  "Káº¿t quáº£ cháº¥m Ä‘iá»ƒm"
+    },
+    {
+        "k":  "task.previewLockedAlertTitle",
+        "en":  "Finish the previous task first",
+        "vi":  "HoÃ n thÃ nh bÃ i trÆ°á»›c trÆ°á»›c"
+    },
+    {
+        "k":  "task.previewLockedAlertDescription",
+        "en":  "You can read this taskâ€™s criteria. Grading, feedback history, and GitHub fields stay disabled until you complete the step before this one.",
+        "vi":  "Báº¡n váº«n xem Ä‘Æ°á»£c tiÃªu chÃ­ cá»§a bÃ i nÃ y. ÄÃ¡nh giÃ¡ AI, xem pháº£n há»“i/lá»‹ch sá»­ vÃ  chá»‰nh GitHub chá»‰ báº­t sau khi hoÃ n thÃ nh bÆ°á»›c trÆ°á»›c."
+    },
+    {
+        "k":  "task.previewLockedGoToCurrentTaskButton",
+        "en":  "Go to current task",
+        "vi":  "Vá» bÃ i hiá»‡n táº¡i"
+    },
+    {
+        "k":  "task.personalProjectDockerMultiStageIntro",
+        "en":  "Package your NestJS application with a multi-stage Dockerfile to keep image size small. Build the image and push it to a container registry such as Docker Hub.",
+        "vi":  "ÄÃ³ng gÃ³i á»©ng dá»¥ng NestJS cá»§a báº¡n báº±ng Dockerfile multi-stage Ä‘á»ƒ tá»‘i Æ°u hÃ³a dung lÆ°á»£ng image. Build image vÃ  push lÃªn má»™t container registry nhÆ° Docker Hub."
+    },
+    {
+        "k":  "task.attemptNumber",
+        "en":  "Attempt #{number}",
+        "vi":  "Láº§n #{number}"
+    },
+    {
+        "k":  "task.attemptScore",
+        "en":  "{score} pts",
+        "vi":  "{score} Ä‘iá»ƒm"
+    },
+    {
+        "k":  "task.loadingFeedback",
+        "en":  "Loading detailed feedback...",
+        "vi":  "Äang táº£i feedback chi tiáº¿t..."
+    },
+    {
+        "k":  "task.noFeedback",
+        "en":  "No detailed feedback available.",
+        "vi":  "ChÆ°a cÃ³ feedback chi tiáº¿t."
+    },
+    {
+        "k":  "task.openFeedbackDetailsButton",
+        "en":  "View feedback details",
+        "vi":  "Xem chi tiáº¿t pháº£n há»“i"
+    },
+    {
+        "k":  "task.feedbackDetailsModalTitle",
+        "en":  "Feedback details",
+        "vi":  "Chi tiáº¿t pháº£n há»“i"
+    },
+    {
+        "k":  "task.feedbackDetailsLoadError",
+        "en":  "Could not load feedback details. Please try again.",
+        "vi":  "KhÃ´ng táº£i Ä‘Æ°á»£c chi tiáº¿t pháº£n há»“i. Vui lÃ²ng thá»­ láº¡i."
+    },
+    {
+        "k":  "task.suggestionLabel",
+        "en":  "Suggestion",
+        "vi":  "Gá»£i Ã½"
+    },
+    {
+        "k":  "task.jobStatus.queued",
+        "en":  "Waiting for grading...",
+        "vi":  "Äang chá» cháº¥m Ä‘iá»ƒm..."
+    },
+    {
+        "k":  "task.jobStatus.processing",
+        "en":  "Grading with AI...",
+        "vi":  "Äang cháº¥m Ä‘iá»ƒm báº±ng AI..."
+    },
+    {
+        "k":  "task.jobStatus.completed",
+        "en":  "Grading complete!",
+        "vi":  "Cháº¥m Ä‘iá»ƒm hoÃ n táº¥t!"
+    },
+    {
+        "k":  "task.jobStatus.failed",
+        "en":  "Grading failed.",
+        "vi":  "Cháº¥m Ä‘iá»ƒm tháº¥t báº¡i."
+    },
+    {
+        "k":  "lesson.videos",
+        "en":  "Videos",
+        "vi":  "BÃ i giáº£ng"
+    },
+    {
+        "k":  "lesson.videosCount",
+        "en":  "{count} videos",
+        "vi":  "{count} bÃ i giáº£ng trong há»c pháº§n nÃ y"
+    },
+    {
+        "k":  "lesson.videosAria",
+        "en":  "{count} videos",
+        "vi":  "{count} bÃ i giáº£ng trong há»c pháº§n nÃ y"
+    },
+    {
+        "k":  "lesson.videoUnavailable",
+        "en":  "This video is not available.",
+        "vi":  "KhÃ´ng thá»ƒ phÃ¡t video nÃ y."
+    }
+]

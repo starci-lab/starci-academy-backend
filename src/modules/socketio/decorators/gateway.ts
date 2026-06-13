@@ -8,6 +8,7 @@ import {
 export const AUTOCOMPLETE_NAMESPACE = "autocomplete"
 export const JOB_NOTIFICATIONS_NAMESPACE = "job_notifications"
 export const CONTENT_DISCUSSION_NAMESPACE = "content_discussion"
+export const AI_LAB_NAMESPACE = "ai_lab"
 
 /**
  * Decorator to mark a class as a WebSocket gateway for the autocomplete namespace.
@@ -45,6 +46,22 @@ export const JobNotificationsWebSocketGateway = () => WebSocketGateway(
 export const ContentDiscussionWebSocketGateway = () => WebSocketGateway(
     {
         namespace: CONTENT_DISCUSSION_NAMESPACE,
+        transports: [
+            "websocket",
+            "polling"
+        ],
+        cors: createCorsOptions(),
+        perMessageDeflate: true,
+    }
+)
+
+/**
+ * Decorator to mark a class as a WebSocket gateway for the AI Lab namespace
+ * (playground prompt token streaming).
+ */
+export const AiLabWebSocketGateway = () => WebSocketGateway(
+    {
+        namespace: AI_LAB_NAMESPACE,
         transports: [
             "websocket",
             "polling"

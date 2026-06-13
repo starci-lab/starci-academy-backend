@@ -7,4 +7,5 @@ export enum SubscriptionEvent {
     CommentDeleted = "content_discussion.comment_deleted.subscription",
     ContentReactionChanged = "content_discussion.content_reaction_changed.subscription",
     CommentReactionChanged = "content_discussion.comment_reaction_changed.subscription",
+    AiLabRunChunk = "ai_lab.run_chunk.subscription",
 }

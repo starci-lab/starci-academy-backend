@@ -90,6 +90,10 @@ export enum ActionType {
      * finalize it as succeeded on payment, or mark it unpaid once attempts are exhausted.
      */
     ReconcileTransaction = "reconcileTransaction",
+    /**
+     * Grade an AI Lab eval submission (prompt template) against an eval set's cases.
+     */
+    ReviewAiLabEval = "reviewAiLabEval",
 }
 
 export const GraphQLTypeActionType = createEnumType(ActionType)
@@ -156,6 +160,9 @@ registerEnumType(
             },
             [ActionType.ReconcileTransaction]: {
                 description: "Poll a pending transaction's gateway status; finalize on payment or mark unpaid when exhausted.",
+            },
+            [ActionType.ReviewAiLabEval]: {
+                description: "Grade an AI Lab eval submission (prompt template) against an eval set's cases.",
             },
         },
     },

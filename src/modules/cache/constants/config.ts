@@ -21,6 +21,7 @@ import type {
     CourseMindMapCacheResult,
     AiPingKeyStatusCacheResult,
     ContentViewCountCacheResult,
+    AiLabRunCacheResult,
 } from "../types"
 
 /**
@@ -124,5 +125,10 @@ export const configMap = {
         ttl: envConfig().cache.ttl.contentViewCount,
         // simple numeric count — store as a number directly
         cacheResult: 0 as ContentViewCountCacheResult,
+    },
+    [CacheKey.AiLabRun]: {
+        ttl: envConfig().cache.ttl.aiLabRun,
+        cacheResult: {
+        } as AiLabRunCacheResult,
     },
 }

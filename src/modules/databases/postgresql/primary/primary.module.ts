@@ -139,7 +139,14 @@ import {
     FlashcardCardTranslationEntity,
     ContentReactionEntity,
     ContentCommentEntity,
-    CommentReactionEntity
+    CommentReactionEntity,
+    AiLabPlaygroundEntity,
+    AiLabPlaygroundTranslationEntity,
+    AiLabRunEntity,
+    AiLabEvalSetEntity,
+    AiLabEvalCaseEntity,
+    AiLabEvalRunEntity,
+    AiLabEvalCaseResultEntity
 } from "./entities"
 import {
     SeedersModule
@@ -343,6 +350,13 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     ContentReactionEntity,
                                     ContentCommentEntity,
                                     CommentReactionEntity,
+                                    AiLabPlaygroundEntity,
+                                    AiLabPlaygroundTranslationEntity,
+                                    AiLabRunEntity,
+                                    AiLabEvalSetEntity,
+                                    AiLabEvalCaseEntity,
+                                    AiLabEvalRunEntity,
+                                    AiLabEvalCaseResultEntity,
                                 ],
                                 synchronize,
                                 logging: false,
@@ -500,6 +514,13 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         ContentReactionEntity,
                         ContentCommentEntity,
                         CommentReactionEntity,
+                        AiLabPlaygroundEntity,
+                        AiLabPlaygroundTranslationEntity,
+                        AiLabRunEntity,
+                        AiLabEvalSetEntity,
+                        AiLabEvalCaseEntity,
+                        AiLabEvalRunEntity,
+                        AiLabEvalCaseResultEntity,
                     ],
                     POSTGRESQL_PRIMARY
                 ),

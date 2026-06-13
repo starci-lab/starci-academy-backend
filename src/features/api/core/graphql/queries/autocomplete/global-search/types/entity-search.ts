@@ -8,6 +8,7 @@ import {
     ModuleEntity,
     FlashcardDeckEntity,
     MilestoneEntity,
+    MilestoneTaskEntity,
     FoundationEntity,
 } from "@modules/databases"
 
@@ -24,4 +25,5 @@ export type SearchableEntity =
     typeof ContentEntity.name |
     typeof FlashcardDeckEntity.name |
     typeof MilestoneEntity.name |
+    typeof MilestoneTaskEntity.name |
     typeof FoundationEntity.name
