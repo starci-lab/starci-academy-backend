@@ -7,6 +7,7 @@ import {
 import {
     InjectPrimaryPostgreSQLEntityManager,
     FlashcardDeckEntity,
+    FlashcardDeckResolverService,
     Locale,
 } from "@modules/databases"
 import {
@@ -28,6 +29,7 @@ export class FlashcardDeckReadService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly elasticsearchService: ElasticsearchService,
+        private readonly flashcardDeckResolver: FlashcardDeckResolverService,
     ) { }
 
     /**
@@ -35,15 +37,17 @@ export class FlashcardDeckReadService {
      * given, only decks linked to that content (many-to-many) are returned.
      *
      * @param courseId - Owning course id.
+     * @param locale - Locale to localize deck/card text into.
      * @param contentId - Optional content id to filter linked decks.
-     * @returns Decks with their cards, contents, and translations.
+     * @returns Decks with their cards and contents, localized to `locale`.
      */
     async listByCourse(
         courseId: string,
+        locale: Locale = Locale.En,
         contentId?: string,
     ): Promise<Array<FlashcardDeckEntity>> {
         // load the full deck graph so the GraphQL object type serializes directly
-        return this.entityManager.find(
+        const decks = await this.entityManager.find(
             FlashcardDeckEntity,
             {
                 where: {
@@ -73,6 +77,16 @@ export class FlashcardDeckReadService {
                 },
             },
         )
+        // localize each deck (title/description) + its cards into the requested locale,
+        // mirroring the per-locale documents the single-deck ES read already serves
+        for (const deck of decks) {
+            this.flashcardDeckResolver.transform(
+                deck,
+                locale,
+                deck.defaultLocale ?? Locale.En,
+            )
+        }
+        return decks
     }
 
     /**

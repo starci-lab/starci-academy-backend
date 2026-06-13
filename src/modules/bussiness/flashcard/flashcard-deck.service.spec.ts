@@ -10,6 +10,7 @@ import {
 } from "./flashcard-deck.service"
 import {
     FlashcardDeckEntity,
+    FlashcardDeckResolverService,
     Locale,
 } from "@modules/databases"
 import {
@@ -76,6 +77,14 @@ describe("FlashcardDeckReadService",
                         provide: ElasticsearchService,
                         useValue: elasticsearchService,
                     },
+                    {
+                        // localization is exercised in the resolver's own spec; here we
+                        // only assert the read wiring, so a no-op transform is enough
+                        provide: FlashcardDeckResolverService,
+                        useValue: {
+                            transform: jest.fn(),
+                        },
+                    },
                 ],
             }).compile()
 
@@ -129,6 +138,7 @@ describe("FlashcardDeckReadService",
                         entityManager.find.mockResolvedValueOnce([])
 
                         await service.listByCourse(courseId,
+                            Locale.En,
                             "content-9")
 
                         // the optional topical filter narrows to decks linked to the content

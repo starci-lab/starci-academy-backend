@@ -94,6 +94,42 @@ describe("ExtractJsonFromMdService",
                         })
                     })
 
+                it("slices the section after a multi-item object whose nested separators are unbalanced (flashcard # tags → # answer)",
+                    () => {
+                        // a `# tags` object holds `## n` items each wrapped in its own separator
+                        // leaf; that nests an ODD number of separators. The next sibling heading
+                        // (`# answer`) must still open its own section and not be swallowed into
+                        // tags — the exact bug that left every flashcard card with a null answer.
+                        const markdown = [
+                            "# tags",
+                            "## 0",
+                            "<!-- @starci/seperator -->",
+                            "Linux",
+                            "## 1",
+                            "<!-- @starci/seperator -->",
+                            "Shell",
+                            "<!-- @starci/seperator -->",
+                            "# answer",
+                            "<!-- @starci/seperator -->",
+                            "the model answer",
+                            "<!-- @starci/seperator -->",
+                        ].join("\n")
+
+                        expect(service.extract(markdown)).toEqual({
+                            tags: [
+                                {
+                                    orderIndex: 0,
+                                    value: "Linux",
+                                },
+                                {
+                                    orderIndex: 1,
+                                    value: "Shell",
+                                },
+                            ],
+                            answer: "the model answer",
+                        })
+                    })
+
                 it("parses a nested @starci/jsonb block into a coerced array-of-objects",
                     () => {
                         // a jsonb block lives INSIDE a separator leaf — that is what makes the

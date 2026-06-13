@@ -1,6 +1,6 @@
 import {
     FlashcardDeckEntity,
-    FlashcardDeckTranslationEntity,
+    FlashcardDeckResolverService,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
 } from "@modules/databases"
@@ -17,15 +17,17 @@ import {
     buildCompletionSuggest,
     ElasticsearchService,
 } from "@modules/elasticsearch"
+import _ from "lodash"
 
 /**
  * Builds + indexes Elasticsearch documents for a flashcard deck across all locales.
  *
- * Flashcard decks have no hydration/resolver pair (unlike course-pipeline
- * entities), so this builder loads the deck with its translations directly and
- * resolves the localized `title`/`description` per locale. Each locale document
- * carries a `suggest` completion field (deck title + popularity weight) powering
- * the `flashcardDeckSuggestions` autocomplete query.
+ * Flashcard decks have no hydration pair, so this builder loads the deck graph
+ * (cards → translations, deck translations) directly and runs the shared
+ * {@link FlashcardDeckResolverService} per locale to localize `title`/
+ * `description` plus every card's `question`/`answer`/`explanation`. Each locale
+ * document also carries a `suggest` completion field (deck title + popularity
+ * weight) powering the `flashcardDeckSuggestions` autocomplete query.
  */
 @Injectable()
 export class ElasticsearchFlashcardDeckBuildService {
@@ -33,35 +35,8 @@ export class ElasticsearchFlashcardDeckBuildService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly elasticsearchService: ElasticsearchService,
+        private readonly flashcardDeckResolver: FlashcardDeckResolverService,
     ) {}
-
-    /**
-     * Resolve a translatable field for a locale, falling back to the deck's
-     * default locale and finally the locale-agnostic base value.
-     *
-     * @param translations - The deck's loaded translation rows.
-     * @param field - Field name being resolved (`"title"` | `"description"`).
-     * @param locale - Requested locale.
-     * @param fallbackLocale - Deck default locale used when the requested one is absent.
-     * @param baseValue - Locale-agnostic value stored on the deck row itself.
-     * @returns The best available localized value (never null/undefined).
-     */
-    private resolveField(
-        translations: Array<FlashcardDeckTranslationEntity>,
-        field: string,
-        locale: Locale,
-        fallbackLocale: Locale,
-        baseValue: string,
-    ): string {
-        // pick the translation row matching this field + a given locale, if any
-        const pick = (targetLocale: Locale): string | undefined =>
-            translations.find(
-                (translation) => translation.field === field
-                    && translation.locale === targetLocale,
-            )?.value
-        // prefer requested locale → deck default → the base column value
-        return pick(locale) ?? pick(fallbackLocale) ?? baseValue ?? ""
-    }
 
     /**
      * Build one ES document per locale for the given deck.
@@ -98,42 +73,29 @@ export class ElasticsearchFlashcardDeckBuildService {
         )
         // the deck's own copy locale is the fallback when a target locale is missing
         const fallbackLocale = deck.defaultLocale ?? Locale.En
-        const translations = deck.translations ?? []
         return Object.values(Locale).map(
             (locale) => {
-                // resolve the searchable text fields for this locale
-                const title = this.resolveField(
-                    translations,
-                    "title",
+                // clone per locale, then localize deck + cards in place (the resolver
+                // strips the consumed translation arrays)
+                const localizedDeck = _.cloneDeep(deck)
+                this.flashcardDeckResolver.transform(
+                    localizedDeck,
                     locale,
                     fallbackLocale,
-                    deck.title,
-                ).trim()
-                const description = this.resolveField(
-                    translations,
-                    "description",
-                    locale,
-                    fallbackLocale,
-                    deck.description,
                 )
-                // populate the FST completion field with the clean title, weighted by
+                // populate the FST completion field with the localized title, weighted by
                 // display order (earlier decks rank higher) for ranked autocomplete
                 const suggest = buildCompletionSuggest({
-                    inputs: [title],
+                    inputs: [(localizedDeck.title ?? "").trim()],
                     weight: Math.max(1,
                         100 - (deck.orderIndex ?? 0)),
                 })
                 return {
                     locale,
-                    // full detail doc so the `flashcardDeck` query can serve straight from ES:
-                    // keep the entire loaded graph (cards + translations, contents, deck
-                    // translations) and only override the searchable title/description with the
-                    // per-locale values. `suggest` is index-only, so cast through unknown to
-                    // satisfy the generic indexer while keeping the entity contract.
+                    // `suggest` is an index-only field (not on the entity type) — cast so the
+                    // generic indexer stores it while keeping the entity contract intact
                     entity: {
-                        ...deck,
-                        title,
-                        description,
+                        ...localizedDeck,
                         suggest,
                     } as unknown as FlashcardDeckEntity,
                 }

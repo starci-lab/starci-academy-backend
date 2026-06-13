@@ -66,6 +66,12 @@ import {
     ConsultantResolverService,
 } from "./consultant-resolver.service"
 import {
+    FlashcardCardResolverService,
+} from "./flashcard-card-resolver.service"
+import {
+    FlashcardDeckResolverService,
+} from "./flashcard-deck-resolver.service"
+import {
     ConfigurableModuleClass
 } from "./resolvers.module-definition"
 
@@ -91,6 +97,8 @@ const resolverProviders: Array<Provider> = [
     FoundationCategoryResolverService,
     HeadhuntingCompanyResolverService,
     ConsultantResolverService,
+    FlashcardCardResolverService,
+    FlashcardDeckResolverService,
 ]
 
 /**

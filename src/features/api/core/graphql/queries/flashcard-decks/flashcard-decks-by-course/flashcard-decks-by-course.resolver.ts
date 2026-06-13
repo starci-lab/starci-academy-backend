@@ -9,6 +9,7 @@ import {
     UseInterceptors,
 } from "@nestjs/common"
 import {
+    GraphQLLocale,
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
 } from "@modules/api"
@@ -66,10 +67,13 @@ export class FlashcardDecksByCourseResolver {
                 type: () => ID,
                 nullable: true,
             })
-            contentId?: string,
+            contentId: string | undefined,
+        @GraphQLLocale()
+            locale: Locale,
     ): Promise<Array<FlashcardDeckEntity>> {
-        // delegate the full-graph load to the business read service
+        // delegate the full-graph load to the business read service, localized to the request
         return this.flashcardDeckReadService.listByCourse(courseId,
+            locale,
             contentId)
     }
 }

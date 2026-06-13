@@ -180,12 +180,20 @@ export class ExtractJsonFromMdService {
         let bodyLines: Array<string> = []
         let inFence = false
         let inDelimiterLeaf = false
+        // Whether the current section's body is a verbatim leaf — true only when
+        // its first non-blank line is a separator marker. Only such sections
+        // toggle delimiter-leaf tracking; a section that instead opens with a
+        // deeper heading (e.g. `# tags` → `## 0`) carries nested-level separators
+        // that must NOT leak into this level's heading-promotion decisions (else
+        // an odd separator count there swallows the next sibling, e.g. `# answer`).
+        // null = not yet determined for the section currently being accumulated.
+        let sectionIsLeaf: boolean | null = null
 
         // close the section being accumulated, attaching its buffered body
         const flush = (): void => {
             if (currentKey !== null) {
                 sections.push({
-                    key: currentKey, body: bodyLines.join("\n") 
+                    key: currentKey, body: bodyLines.join("\n")
                 })
             }
             bodyLines = []
@@ -196,11 +204,6 @@ export class ExtractJsonFromMdService {
             if (line.trim().startsWith("```")) {
                 inFence = !inFence
             }
-            // toggle delimiter-leaf tracking so headings inside a verbatim leaf
-            // are kept as body, not promoted to sibling sections
-            if (!inFence && this.isSeparatorLine(line)) {
-                inDelimiterLeaf = !inDelimiterLeaf
-            }
             // a real heading at THIS level opens a new section; numeric keys (e.g. `## 1`
             // lang buckets) always boundary even inside an unclosed delimiter leaf
             if (!inFence && line.startsWith(headingPrefix)) {
@@ -209,8 +212,22 @@ export class ExtractJsonFromMdService {
                 if (!inDelimiterLeaf || isNumericSectionBoundary) {
                     flush()
                     currentKey = sectionKey
+                    // a fresh section starts outside any leaf, with its leaf-ness undecided
+                    inDelimiterLeaf = false
+                    sectionIsLeaf = null
                     continue
                 }
+            }
+            // decide once per section whether it is a verbatim leaf: true only when
+            // its first non-blank line is a separator marker
+            if (currentKey !== null && sectionIsLeaf === null && line.trim().length > 0) {
+                sectionIsLeaf = !inFence && this.isSeparatorLine(line)
+            }
+            // toggle delimiter-leaf tracking only inside a verbatim-leaf section, so
+            // headings inside the leaf stay body while nested deeper-level separators
+            // (e.g. those under `# tags`) never flip this level's state
+            if (!inFence && sectionIsLeaf === true && this.isSeparatorLine(line)) {
+                inDelimiterLeaf = !inDelimiterLeaf
             }
             // every other line (incl. deeper headings + delimiter markers) is
             // body of the current section, to be resolved/recursed later
