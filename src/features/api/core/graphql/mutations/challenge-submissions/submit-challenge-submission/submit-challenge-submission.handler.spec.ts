@@ -11,9 +11,7 @@ import {
 } from "@nestjs/typeorm"
 import {
     EnqueueProcessGitSubmissionJobService,
-    EnqueueProcessGitSubmissionV2JobService,
     EnqueueProcessGoogleDocsSubmissionJobService,
-    EnqueueProcessGoogleDocsSubmissionV2JobService,
     CreditUsageService,
 } from "@modules/bussiness"
 import {
@@ -83,10 +81,8 @@ describe("SubmitChallengeSubmissionHandler",
         let module: TestingModule
         let handler: SubmitChallengeSubmissionHandler
         let entityManager: EntityManagerMock
-        let enqueueGitV1: jest.Mocked<Pick<EnqueueProcessGitSubmissionJobService, "enqueue">>
-        let enqueueGitV2: jest.Mocked<Pick<EnqueueProcessGitSubmissionV2JobService, "enqueue">>
-        let enqueueDocsV1: jest.Mocked<Pick<EnqueueProcessGoogleDocsSubmissionJobService, "enqueue">>
-        let enqueueDocsV2: jest.Mocked<Pick<EnqueueProcessGoogleDocsSubmissionV2JobService, "enqueue">>
+        let enqueueGitV2: jest.Mocked<Pick<EnqueueProcessGitSubmissionJobService, "enqueue">>
+        let enqueueDocsV2: jest.Mocked<Pick<EnqueueProcessGoogleDocsSubmissionJobService, "enqueue">>
         let gradingLaneValidationService: jest.Mocked<Pick<GradingLaneValidationService, "validate">>
         let advisoryLock: jest.Mocked<
             Pick<PostgreSqlAdvisoryLockService, "acquireUserChallengeSubmissionXactLock">
@@ -98,27 +94,17 @@ describe("SubmitChallengeSubmissionHandler",
             // the handler also calls findOneOrFail inside the upsert transaction
             entityManager.findOneOrFail = jest.fn()
 
-            // four enqueue services; each returns a job handle
-            enqueueGitV1 = {
-                enqueue: jest.fn().mockResolvedValue({
-                    id: "job-git-v1",
-                }),
-            } as unknown as jest.Mocked<Pick<EnqueueProcessGitSubmissionJobService, "enqueue">>
+            // the (V2-only) enqueue services; each returns a job handle
             enqueueGitV2 = {
                 enqueue: jest.fn().mockResolvedValue({
                     id: "job-git-v2",
                 }),
-            } as unknown as jest.Mocked<Pick<EnqueueProcessGitSubmissionV2JobService, "enqueue">>
-            enqueueDocsV1 = {
-                enqueue: jest.fn().mockResolvedValue({
-                    id: "job-docs-v1",
-                }),
-            } as unknown as jest.Mocked<Pick<EnqueueProcessGoogleDocsSubmissionJobService, "enqueue">>
+            } as unknown as jest.Mocked<Pick<EnqueueProcessGitSubmissionJobService, "enqueue">>
             enqueueDocsV2 = {
                 enqueue: jest.fn().mockResolvedValue({
                     id: "job-docs-v2",
                 }),
-            } as unknown as jest.Mocked<Pick<EnqueueProcessGoogleDocsSubmissionV2JobService, "enqueue">>
+            } as unknown as jest.Mocked<Pick<EnqueueProcessGoogleDocsSubmissionJobService, "enqueue">>
 
             // lane validation resolves a BYOK lane (skips the quota gate entirely)
             gradingLaneValidationService = {
@@ -139,18 +125,10 @@ describe("SubmitChallengeSubmissionHandler",
                     DayjsService,
                     {
                         provide: EnqueueProcessGitSubmissionJobService,
-                        useValue: enqueueGitV1,
-                    },
-                    {
-                        provide: EnqueueProcessGitSubmissionV2JobService,
                         useValue: enqueueGitV2,
                     },
                     {
                         provide: EnqueueProcessGoogleDocsSubmissionJobService,
-                        useValue: enqueueDocsV1,
-                    },
-                    {
-                        provide: EnqueueProcessGoogleDocsSubmissionV2JobService,
                         useValue: enqueueDocsV2,
                     },
                     {
@@ -247,7 +225,7 @@ describe("SubmitChallengeSubmissionHandler",
                 ).rejects.toBeInstanceOf(ChallengeNotFoundException)
             })
 
-        it("enqueues the V1 git pipeline for a legacy challenge on the happy path",
+        it("enqueues the V2 git pipeline even for an unverified challenge (V1 removed)",
             async () => {
                 // submission + (unverified) challenge are found
                 entityManager.findOne
@@ -257,7 +235,7 @@ describe("SubmitChallengeSubmissionHandler",
                         challengeId: "chal-1",
                         type: SubmissionType.GithubUrl,
                     })
-                    // 2. ChallengeEntity (verified=false → V1 pipeline)
+                    // 2. ChallengeEntity (verified=false still routes to V2 — V1 removed)
                     .mockResolvedValueOnce({
                         id: "chal-1",
                         verified: false,
@@ -296,9 +274,9 @@ describe("SubmitChallengeSubmissionHandler",
                     }),
                 )
 
-                // the lane is validated and the V1 git job is enqueued
+                // the lane is validated and the (now V2-only) git job is enqueued
                 expect(gradingLaneValidationService.validate).toHaveBeenCalled()
-                expect(enqueueGitV1.enqueue).toHaveBeenCalledWith(
+                expect(enqueueGitV2.enqueue).toHaveBeenCalledWith(
                     expect.objectContaining({
                         userId: "user-1",
                         enrollmentId: "enroll-1",
@@ -306,10 +284,8 @@ describe("SubmitChallengeSubmissionHandler",
                         userChallengeSubmissionId: "ucs-1",
                     }),
                 )
-                // the V2 git path is not taken for a legacy challenge
-                expect(enqueueGitV2.enqueue).not.toHaveBeenCalled()
                 expect(result).toEqual({
-                    jobId: "job-git-v1",
+                    jobId: "job-git-v2",
                 })
             })
 
@@ -359,7 +335,6 @@ describe("SubmitChallengeSubmissionHandler",
                         lang: "typescript",
                     }),
                 )
-                expect(enqueueGitV1.enqueue).not.toHaveBeenCalled()
                 expect(result).toEqual({
                     jobId: "job-git-v2",
                 })
@@ -393,6 +368,6 @@ describe("SubmitChallengeSubmissionHandler",
                 ).rejects.toBeInstanceOf(SubmissionUrlInvalidException)
 
                 // nothing is enqueued without a url to grade
-                expect(enqueueGitV1.enqueue).not.toHaveBeenCalled()
+                expect(enqueueGitV2.enqueue).not.toHaveBeenCalled()
             })
     })

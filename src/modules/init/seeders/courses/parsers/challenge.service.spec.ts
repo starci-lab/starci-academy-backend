@@ -31,10 +31,10 @@ import type {
 } from "../../shared"
 import {
     ChallengeIdFactoryService,
-    ChallengeOutputV2IdFactoryService,
-    ChallengePrerequisiteV2IdFactoryService,
-    ChallengeRequirementV2IdFactoryService,
-    ChallengeStepV2IdFactoryService,
+    ChallengeOutputIdFactoryService,
+    ChallengePrerequisiteIdFactoryService,
+    ChallengeRequirementIdFactoryService,
+    ChallengeStepIdFactoryService,
     ChallengeSubmissionCriteriaIdFactoryService,
     ChallengeSubmissionIdFactoryService,
     ContentIdFactoryService,
@@ -144,10 +144,10 @@ describe("ChallengeParserService",
                     ModuleIdFactoryService,
                     ContentIdFactoryService,
                     ChallengeIdFactoryService,
-                    ChallengeRequirementV2IdFactoryService,
-                    ChallengeStepV2IdFactoryService,
-                    ChallengeOutputV2IdFactoryService,
-                    ChallengePrerequisiteV2IdFactoryService,
+                    ChallengeRequirementIdFactoryService,
+                    ChallengeStepIdFactoryService,
+                    ChallengeOutputIdFactoryService,
+                    ChallengePrerequisiteIdFactoryService,
                     ChallengeSubmissionIdFactoryService,
                     ChallengeSubmissionCriteriaIdFactoryService,
                     {
@@ -228,17 +228,17 @@ describe("ChallengeParserService",
                         // `langs[]` holds one row per programming language. Easy carries 4 languages
                         // (ts/java/csharp/go): 2 requirement items, 3 step items, 2 output items,
                         // 2 prerequisite items, each with 4 language rows.
-                        expect(parsed.requirementsV2).toHaveLength(2)
-                        expect(parsed.requirementsV2?.[0]?.orderIndex).toBe(0)
-                        expect(parsed.requirementsV2?.[0]?.langs).toHaveLength(4)
-                        expect(parsed.requirementsV2?.[0]?.langs?.[0]?.lang).toBe("typescript")
-                        expect((parsed.requirementsV2?.[0]?.langs?.[0] as { title?: string } | undefined)?.title).toBe(
+                        expect(parsed.requirements).toHaveLength(2)
+                        expect(parsed.requirements?.[0]?.orderIndex).toBe(0)
+                        expect(parsed.requirements?.[0]?.langs).toHaveLength(4)
+                        expect(parsed.requirements?.[0]?.langs?.[0]?.lang).toBe("typescript")
+                        expect((parsed.requirements?.[0]?.langs?.[0] as { title?: string } | undefined)?.title).toBe(
                             "Split two independent modules and declare the export/import boundary",
                         )
                         // requirement lang rows keep score (numeric scalar)
-                        expect((parsed.requirementsV2?.[0]?.langs?.[0] as { score?: number } | undefined)?.score).toBe(40)
+                        expect((parsed.requirements?.[0]?.langs?.[0] as { score?: number } | undefined)?.score).toBe(40)
                         // En title/body live on the lang row; Vi rows live in its translations
-                        expect((parsed.requirementsV2?.[0]?.langs?.[0] as { translations?: unknown } | undefined)?.translations).toEqual(
+                        expect((parsed.requirements?.[0]?.langs?.[0] as { translations?: unknown } | undefined)?.translations).toEqual(
                             expect.arrayContaining([
                                 expect.objectContaining({
                                     locale: Locale.Vi,
@@ -248,18 +248,18 @@ describe("ChallengeParserService",
                             ]),
                         )
 
-                        expect(parsed.stepsV2).toHaveLength(3)
-                        expect(parsed.stepsV2?.[0]?.langs).toHaveLength(4)
+                        expect(parsed.steps).toHaveLength(3)
+                        expect(parsed.steps?.[0]?.langs).toHaveLength(4)
                         // outputs + prerequisites lang rows carry ONLY `text` (no title/body/score)
-                        expect(parsed.outputsV2).toHaveLength(2)
-                        expect(parsed.outputsV2?.[0]?.langs).toHaveLength(4)
-                        expect(parsed.outputsV2?.[0]?.langs?.[0]?.lang).toBe("typescript")
-                        expect(typeof (parsed.outputsV2?.[0]?.langs?.[0] as { text?: string } | undefined)?.text).toBe("string")
-                        expect((parsed.outputsV2?.[0]?.langs?.[0] as { title?: unknown } | undefined)?.title).toBeUndefined()
-                        expect(parsed.prerequisitesV2).toHaveLength(2)
-                        expect(parsed.prerequisitesV2?.[0]?.langs).toHaveLength(4)
-                        expect(typeof (parsed.prerequisitesV2?.[0]?.langs?.[0] as { text?: string } | undefined)?.text).toBe("string")
-                        expect((parsed.prerequisitesV2?.[0]?.langs?.[0] as { title?: unknown } | undefined)?.title).toBeUndefined()
+                        expect(parsed.outputs).toHaveLength(2)
+                        expect(parsed.outputs?.[0]?.langs).toHaveLength(4)
+                        expect(parsed.outputs?.[0]?.langs?.[0]?.lang).toBe("typescript")
+                        expect(typeof (parsed.outputs?.[0]?.langs?.[0] as { text?: string } | undefined)?.text).toBe("string")
+                        expect((parsed.outputs?.[0]?.langs?.[0] as { title?: unknown } | undefined)?.title).toBeUndefined()
+                        expect(parsed.prerequisites).toHaveLength(2)
+                        expect(parsed.prerequisites?.[0]?.langs).toHaveLength(4)
+                        expect(typeof (parsed.prerequisites?.[0]?.langs?.[0] as { text?: string } | undefined)?.text).toBe("string")
+                        expect((parsed.prerequisites?.[0]?.langs?.[0] as { title?: unknown } | undefined)?.title).toBeUndefined()
 
                         // di-easy ships one submission folder `submissions/0/` with the GitHub-URL rubric
                         expect(parsed.submissions).toHaveLength(1)
@@ -327,22 +327,22 @@ describe("ChallengeParserService",
 
                         // medium has 3 lang buckets (ts/java/csharp) → 3 entities per V2 section,
                         // each carrying its bucket items in `langs[]` (2 / 3 / 2 / 2 respectively)
-                        expect(parsed.requirementsV2).toHaveLength(2)
-                        expect(parsed.requirementsV2?.[0]?.orderIndex).toBe(0)
-                        expect(parsed.requirementsV2?.[0]?.langs).toHaveLength(3)
-                        expect(parsed.requirementsV2?.[0]?.langs?.[0]?.lang).toBe("typescript")
-                        expect((parsed.requirementsV2?.[0]?.langs?.[0] as { title?: string } | undefined)?.title).toBe(
+                        expect(parsed.requirements).toHaveLength(2)
+                        expect(parsed.requirements?.[0]?.orderIndex).toBe(0)
+                        expect(parsed.requirements?.[0]?.langs).toHaveLength(3)
+                        expect(parsed.requirements?.[0]?.langs?.[0]?.lang).toBe("typescript")
+                        expect((parsed.requirements?.[0]?.langs?.[0] as { title?: string } | undefined)?.title).toBe(
                             "Define the Store interface + two implementations and a dynamic module forRoot(options)",
                         )
-                        expect(parsed.stepsV2).toHaveLength(3)
-                        expect(parsed.stepsV2).toHaveLength(3)
-                        expect(parsed.stepsV2?.[0]?.langs).toHaveLength(3)
-                        expect(parsed.outputsV2).toHaveLength(2)
-                        expect(parsed.outputsV2?.[0]?.langs).toHaveLength(3)
-                        expect(typeof (parsed.outputsV2?.[0]?.langs?.[0] as { text?: string } | undefined)?.text).toBe("string")
-                        expect(parsed.prerequisitesV2).toHaveLength(2)
-                        expect(parsed.prerequisitesV2?.[0]?.langs).toHaveLength(3)
-                        expect(typeof (parsed.prerequisitesV2?.[0]?.langs?.[0] as { text?: string } | undefined)?.text).toBe("string")
+                        expect(parsed.steps).toHaveLength(3)
+                        expect(parsed.steps).toHaveLength(3)
+                        expect(parsed.steps?.[0]?.langs).toHaveLength(3)
+                        expect(parsed.outputs).toHaveLength(2)
+                        expect(parsed.outputs?.[0]?.langs).toHaveLength(3)
+                        expect(typeof (parsed.outputs?.[0]?.langs?.[0] as { text?: string } | undefined)?.text).toBe("string")
+                        expect(parsed.prerequisites).toHaveLength(2)
+                        expect(parsed.prerequisites?.[0]?.langs).toHaveLength(3)
+                        expect(typeof (parsed.prerequisites?.[0]?.langs?.[0] as { text?: string } | undefined)?.text).toBe("string")
 
                         // medium also ships one submission folder `submissions/0/`
                         expect(parsed.submissions).toHaveLength(1)

@@ -19,6 +19,9 @@ import {
 import type {
     ParentIndexCacheResult,
 } from "@modules/cache"
+import {
+    buildEntityRoute,
+} from "@modules/routing"
 import type {
     AttachParentPathsParams,
     AutocompleteGlobalSearchExecuteParams,
@@ -245,10 +248,16 @@ export class AutocompleteGlobalSearchService {
                     item.id,
                 ],
             })
-            // attach the normalized parent-path (undefined when the cache misses)
+            // attach the normalized parent-path + the server-built canonical route
+            // (same SSOT builder as the resolveRoute index); path is null on miss
             return {
                 ...item,
                 parentPath: this.toParentPath(parentRef),
+                path: buildEntityRoute({
+                    entityName,
+                    id: item.id,
+                    parentRef,
+                }),
             }
         }))
     }

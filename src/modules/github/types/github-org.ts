@@ -32,3 +32,25 @@ export interface AddGithubUserToTeamInOrgResult {
     role: string
 }
 
+/**
+ * Params for removing a user from a GitHub team in an organization.
+ */
+export interface RemoveGithubUserFromTeamInOrgParams {
+    /**
+     * The slug of the team to remove the user from.
+     */
+    teamSlug: string
+    /**
+     * The username of the user to remove from the team.
+     */
+    githubUsername: string
+}
+
+/**
+ * Result of removing a user from a GitHub team.
+ */
+export interface RemoveGithubUserFromTeamInOrgResult {
+    /** Whether the removal call completed without error. */
+    success: boolean
+}
+

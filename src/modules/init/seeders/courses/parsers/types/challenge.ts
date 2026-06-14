@@ -158,7 +158,7 @@ export interface MapChallengeLangSectionV2Params {
     titleTranslationParentIdKey: string
     /** FK column on the lang-level body translation row. */
     langTranslationParentIdKey: string
-    /** Relation property on the lang row pointing back to its item (`requirementV2`, `stepV2`, …). */
+    /** Relation property on the lang row pointing back to its item (`requirement`, `step`, …). */
     langItemRelationKey: string
     /** Factory for the item row id. */
     generateItemId: (itemIndex: number) => string

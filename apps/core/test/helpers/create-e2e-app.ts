@@ -154,7 +154,6 @@ export const createE2eApp = async (): Promise<E2eApp> => {
             PrimaryPostgreSQLModule.register({
                 isGlobal: true,
                 withHydration: false,
-                withSeeders: false,
                 withResolvers: false,
             }),
             // CommandBus + automatic @CommandHandler discovery

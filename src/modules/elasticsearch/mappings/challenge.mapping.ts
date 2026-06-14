@@ -4,7 +4,7 @@ import type {
 
 /**
  * Index mapping for the `challenges-*` indices. SCHEMA V2 challenges carry large per-language jsonb
- * blobs (`requirementsV2` / `stepsV2` / `outputsV2` / `prerequisitesV2` + their `translations`) and
+ * blobs (`requirements` / `steps` / `outputs` / `prerequisites` + their `translations`) and
  * the internal `outcomeCriteria` / `approachCriteria` rubric. Those are stored but NOT indexed
  * (`enabled: false`) so they never explode the dynamic field limit nor conflict across locales.
  * The real search fields stay typed; `verified` is a proper date.
@@ -63,30 +63,6 @@ export const challengeIndexMapping: ElasticsearchIndexMapping = {
                 type: "completion",
             },
             // large jsonb / relational blobs — stored, not indexed
-            requirementsV2: {
-                type: "object",
-                enabled: false,
-            },
-            stepsV2: {
-                type: "object",
-                enabled: false,
-            },
-            outputsV2: {
-                type: "object",
-                enabled: false,
-            },
-            prerequisitesV2: {
-                type: "object",
-                enabled: false,
-            },
-            outcomeCriteria: {
-                type: "object",
-                enabled: false,
-            },
-            approachCriteria: {
-                type: "object",
-                enabled: false,
-            },
             requirements: {
                 type: "object",
                 enabled: false,
@@ -103,7 +79,11 @@ export const challengeIndexMapping: ElasticsearchIndexMapping = {
                 type: "object",
                 enabled: false,
             },
-            references: {
+            outcomeCriteria: {
+                type: "object",
+                enabled: false,
+            },
+            approachCriteria: {
                 type: "object",
                 enabled: false,
             },

@@ -5,10 +5,6 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 import {
-    GraphQLTypeLocale,
-    Locale,
-} from "../enums"
-import {
     Column,
     Entity,
     JoinColumn,
@@ -17,28 +13,38 @@ import {
     RelationId,
 } from "typeorm"
 import {
+    GraphQLTypeLocale,
+    Locale,
+} from "../enums"
+import {
     UuidAbstractEntity,
 } from "./abstract"
 import {
     ChallengeEntity,
 } from "./challenge.entity"
 import {
-    ChallengeOutputTranslationEntity,
-} from "./challenge-output-translation.entity"
+    ChallengeOutputLangEntity,
+} from "./challenge-output-lang.entity"
 
+/**
+ * SCHEMA V2 output ITEM for a challenge (normalized — no jsonb). One row per output position; the
+ * per-language `text` lives under {@link ChallengeOutputLangEntity}. Outputs carry no item-level
+ * title, so there is no item translation table.
+ */
 @ObjectType({
-    description: "Markdown output item belonging to a challenge.",
+    description: "A SCHEMA V2 challenge output item (one per position).",
 })
 @Entity("challenge_outputs")
 export class ChallengeOutputEntity extends UuidAbstractEntity {
-    @Field(() => String)
-    @Column({
-        name: "text",
-        type: "text",
-    })
-        text: string
-
-    @Field(() => Int)
+    /**
+     * Display order of this output within the challenge (agnostic position).
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Display order of this output within the challenge.",
+        },
+    )
     @Column({
         name: "order_index",
         type: "int",
@@ -46,7 +52,15 @@ export class ChallengeOutputEntity extends UuidAbstractEntity {
     })
         orderIndex: number
 
-    @Field(() => Int, { description: "Pure ordering index used to reorder the list (decoupled from orderIndex)." })
+    /**
+     * Pure ordering index used to reorder the list (decoupled from orderIndex).
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Pure ordering index used to reorder the list (decoupled from orderIndex).",
+        },
+    )
     @Column({
         name: "sort_index",
         type: "int",
@@ -54,7 +68,15 @@ export class ChallengeOutputEntity extends UuidAbstractEntity {
     })
         sortIndex: number
 
-    @Field(() => GraphQLTypeLocale)
+    /**
+     * Default locale for this output item.
+     */
+    @Field(
+        () => GraphQLTypeLocale,
+        {
+            description: "Default locale for this output item.",
+        },
+    )
     @Column({
         name: "default_locale",
         type: "enum",
@@ -63,6 +85,9 @@ export class ChallengeOutputEntity extends UuidAbstractEntity {
     })
         defaultLocale: Locale
 
+    /**
+     * Parent challenge this output belongs to.
+     */
     @ManyToOne(
         () => ChallengeEntity,
         (challenge: ChallengeEntity) => challenge.outputs,
@@ -76,17 +101,35 @@ export class ChallengeOutputEntity extends UuidAbstractEntity {
     })
         challenge: ChallengeEntity
 
-    @Field(() => ID)
-    @RelationId((challengeOutput: ChallengeOutputEntity) => challengeOutput.challenge)
+    /**
+     * Parent challenge ID.
+     */
+    @Field(
+        () => ID,
+        {
+            description: "Parent challenge ID.",
+        },
+    )
+    @RelationId(
+        (output: ChallengeOutputEntity) => output.challenge,
+    )
         challengeId: string
 
-    @Field(() => [ChallengeOutputTranslationEntity])
+    /**
+     * Per-programming-language content (text) for this output.
+     */
+    @Field(
+        () => [ChallengeOutputLangEntity],
+        {
+            description: "Per-programming-language content for this output.",
+        },
+    )
     @OneToMany(
-        () => ChallengeOutputTranslationEntity,
-        (translation: ChallengeOutputTranslationEntity) => translation.challengeOutput,
+        () => ChallengeOutputLangEntity,
+        (lang: ChallengeOutputLangEntity) => lang.output,
         {
             cascade: true,
         },
     )
-        translations: Array<ChallengeOutputTranslationEntity>
+        langs: Array<ChallengeOutputLangEntity>
 }

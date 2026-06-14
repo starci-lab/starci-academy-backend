@@ -14,6 +14,9 @@ import {
     SignOutSingleMutationModule,
 } from "./sign-out"
 import {
+    RevokeSessionSingleMutationModule,
+} from "./revoke-session"
+import {
     SignInVerifyOtpSingleMutationModule,
     SignInInitSingleMutationModule,
     SignInResendOtpSingleMutationModule,
@@ -35,6 +38,9 @@ import {
             isGlobal: true,
         }),
         SignOutSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        RevokeSessionSingleMutationModule.register({
             isGlobal: true,
         }),
         SignInInitSingleMutationModule.register({

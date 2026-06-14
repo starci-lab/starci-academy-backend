@@ -64,9 +64,7 @@ export class IncompletedJobsHandler
                             JobStatus.Queued
                         ]
                     ),
-                    user: {
-                        id: user.id,
-                    },
+                    userId: user.id,
                     actionType: In(
                         [
                             ActionType.ProcessGitSubmission,

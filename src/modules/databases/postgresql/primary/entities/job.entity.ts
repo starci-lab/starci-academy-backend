@@ -7,9 +7,7 @@ import {
 import {
     Column,
     Entity,
-    JoinColumn,
-    ManyToOne,
-    RelationId,
+    Index,
 } from "typeorm"
 import {
     UuidAbstractEntity,
@@ -22,87 +20,67 @@ import {
     JobCategory,
     GraphQLTypeJobCategory,
 } from "../enums"
-import {
-    UserEntity,
-} from "./user.entity"
-import {
-    ChallengeSubmissionEntity,
-} from "./challenge-submission.entity"
 
 /**
- * Tracks lifecycle status of worker jobs.
+ * Loose, queryable correlation map a job carries to the domain rows it touches.
+ *
+ * `jobs` is an infrastructure table (queue + execution ledger) shared by every
+ * `actionType`, so it deliberately holds NO foreign keys into domain tables —
+ * the domain ids live here as plain values (and in the worker `payload`). To
+ * filter jobs by one of these keys, add an expression index on `refs->>'key'`.
+ */
+export interface JobRefs {
+    /** Owning challenge submission requirement (grading jobs). */
+    challengeSubmissionId?: string
+    /** The specific user submission being graded. */
+    userChallengeSubmissionId?: string
+    /** Enrollment the job runs under. */
+    enrollmentId?: string
+    /** Milestone task being reviewed. */
+    taskId?: string
+    /** AI-lab eval run being graded. */
+    aiLabRunId?: string
+    /** CV submission being reviewed. */
+    cvSubmissionId?: string
+}
+
+/**
+ * Tracks lifecycle status of worker jobs. Pure infrastructure: no FK to domain
+ * tables — correlate via {@link JobRefs} (`refs`) and the serialized `payload`.
  */
 @ObjectType({
     description: "Worker job status record.",
 })
+@Index(["userId"])
 @Entity("jobs")
 export class JobEntity extends UuidAbstractEntity {
-    @Field(
-        () => UserEntity,
-        {
-            nullable: true,
-            description: "User this job is associated with (when applicable).",
-        },
-    )
-    @ManyToOne(
-        () => UserEntity,
-        {
-            nullable: true,
-            onDelete: "SET NULL",
-        },
-    )
-    @JoinColumn({
-        name: "user_id",
-        foreignKeyConstraintName: "fk_jobs_user_id_users",
-    })
-        user: UserEntity | null
-
+    /**
+     * Loose owner id (no FK) — the user this job is associated with, when applicable.
+     */
     @Field(
         () => ID,
         {
             nullable: true,
-            description: "Foreign key to `users.id` when this job is scoped to a user.",
+            description: "User this job is associated with (loose id, no FK).",
         },
     )
-    @RelationId(
-        (job: JobEntity) => job.user,
-    )
+    @Column({
+        name: "user_id",
+        type: "uuid",
+        nullable: true,
+    })
         userId: string | null
 
-    @Field(
-        () => ChallengeSubmissionEntity,
-        {
-            nullable: true,
-            description: "Challenge submission requirement this job targets (when applicable).",
+    /**
+     * Loose correlation map to the domain rows this job touches (no FK).
+     */
+    @Column({
+        name: "refs",
+        type: "jsonb",
+        default: {
         },
-    )
-    @ManyToOne(
-        () => ChallengeSubmissionEntity,
-        (submission: ChallengeSubmissionEntity) => submission.jobs,
-        {
-            nullable: true,
-            onDelete: "SET NULL",
-        },
-    )
-    @JoinColumn({
-        name: "challenge_submission_id",
-        foreignKeyConstraintName:
-            "fk_jobs_challenge_submission_id_challenge_submissions",
     })
-        challengeSubmission: ChallengeSubmissionEntity | null
-
-    @Field(
-        () => ID,
-        {
-            nullable: true,
-            description:
-                "Foreign key to `challenge_submissions.id` when this job targets a submission requirement.",
-        },
-    )
-    @RelationId(
-        (job: JobEntity) => job.challengeSubmission,
-    )
-        challengeSubmissionId: string | null
+        refs: JobRefs
 
     @Field(
         () => Date,
@@ -195,6 +173,61 @@ export class JobEntity extends UuidAbstractEntity {
         },
     )
         currentStep: number
+
+    /**
+     * How many times this job has been dispatched/run (poison-pill cap → DLQ).
+     */
+    @Field(
+        () => Int,
+        {
+            description: "How many times this job has been dispatched/run.",
+        },
+    )
+    @Column(
+        {
+            name: "attempts",
+            type: "integer",
+            default: 0,
+        },
+    )
+        attempts: number
+
+    /**
+     * Max dispatch attempts before the job is dead-lettered (status Failed).
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Max dispatch attempts before dead-lettering.",
+        },
+    )
+    @Column(
+        {
+            name: "max_attempts",
+            type: "integer",
+            default: 5,
+        },
+    )
+        maxAttempts: number
+
+    /**
+     * Monotonic token bumped on every claim/requeue. Side-effect writes guard on
+     * it so a zombie worker (lease lost, then resumed) cannot double-apply.
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Monotonic fencing token (zombie-write guard).",
+        },
+    )
+    @Column(
+        {
+            name: "fencing_token",
+            type: "integer",
+            default: 0,
+        },
+    )
+        fencingToken: number
 
     @Field(
         () => GraphQLTypeActionType,

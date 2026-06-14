@@ -30,9 +30,6 @@ import {
     ContentTranslationEntity,
 } from "./content-translation.entity"
 import {
-    ContentReferenceEntity,
-} from "./content-reference.entity"
-import {
     ChallengeEntity,
 } from "./challenge.entity"
 import {
@@ -142,9 +139,10 @@ export class ContentEntity extends UuidAbstractEntity {
     /**
      * Pure ordering index used to reorder the list (decoupled from orderIndex).
      */
-    @Field(() => Int, {
-        description: "Pure ordering index used to reorder the list (decoupled from orderIndex).",
-    })
+    @Field(() => Int,
+        {
+            description: "Pure ordering index used to reorder the list (decoupled from orderIndex).",
+        })
     @Column({
         name: "sort_index",
         type: "int",
@@ -254,24 +252,6 @@ export class ContentEntity extends UuidAbstractEntity {
         },
     )
         translations: Array<ContentTranslationEntity>
-
-    /**
-     * External URL references (docs, repos, etc.).
-     */
-    @Field(
-        () => [ContentReferenceEntity],
-        {
-            description: "External URL references linked to this content.",
-        },
-    )
-    @OneToMany(
-        () => ContentReferenceEntity,
-        (reference: ContentReferenceEntity) => reference.content,
-        {
-            cascade: true,
-        },
-    )
-        references: Array<ContentReferenceEntity>
 
     /**
      * Challenges derived from this content.
@@ -439,10 +419,11 @@ export class ContentEntity extends UuidAbstractEntity {
      * each flow has id/title/description/lang/status/durationMs/logs. Stored as
      * jsonb and exposed as a JSON scalar so the shape can evolve without migrations.
      */
-    @Field(() => GraphQLJSON, {
-        nullable: true,
-        description: "Captured E2E test flows (title/status/durationMs/logs) for the lesson's E2E proof tab.",
-    })
+    @Field(() => GraphQLJSON,
+        {
+            nullable: true,
+            description: "Captured E2E test flows (title/status/durationMs/logs) for the lesson's E2E proof tab.",
+        })
     @Column({
         name: "e2e_flows",
         type: "jsonb",

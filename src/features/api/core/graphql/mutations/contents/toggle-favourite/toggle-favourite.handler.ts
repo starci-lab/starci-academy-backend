@@ -2,9 +2,14 @@ import {
     ICQRSHandler
 } from "@modules/cqrs"
 import {
+    ActivityType,
+    ContentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     UserContentEntity,
 } from "@modules/databases"
+import {
+    writeActivity,
+} from "@modules/bussiness"
 import {
     UserNotFoundException,
 } from "@modules/exceptions"
@@ -72,6 +77,37 @@ export class ToggleFavouriteHandler
         } else {
             userContent.isFavorite = isFavorite
         }
-        await this.entityManager.save(userContent)
+        const saved = await this.entityManager.save(userContent)
+
+        // record a bookmark as a home-feed activity (only when turning it ON);
+        // refId is the user-content id so re-bookmarking never duplicates
+        if (isFavorite) {
+            const content = await this.entityManager.findOne(
+                ContentEntity,
+                {
+                    where: {
+                        id: contentId,
+                    },
+                    relations: {
+                        module: {
+                            course: true,
+                        },
+                    },
+                },
+            )
+            await writeActivity({
+                entityManager: this.entityManager,
+                userId: user.id,
+                type: ActivityType.LessonBookmarked,
+                idempotencyKey: saved.id,
+                metadata: {
+                    target: {
+                        entityName: ContentEntity.name,
+                        id: contentId,
+                        label: content?.title ?? "",
+                    },
+                },
+            })
+        }
     }
 }

@@ -35,6 +35,12 @@ export interface GlobalSearchItem {
     texts: Array<string>
     /** Resolved ancestor chain used by the client to build a navigation URL (null if uncached). */
     parentPath?: GlobalSearchParentPath
+    /**
+     * Canonical, locale-agnostic route built server-side from the parent index
+     * (the route resolver / "index" SSOT). Client prepends `/{locale}` and pushes
+     * it. Null when the route can't be built (cache miss / unroutable kind).
+     */
+    path?: string | null
 }
 
 /** Grouped autocomplete result buckets, one array per searchable entity kind. */

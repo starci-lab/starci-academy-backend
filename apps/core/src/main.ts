@@ -2,10 +2,13 @@
 // we need to initialize sentry before anything else
 import "@modules/sentry/instrument"
 import {
-    NestFactory 
+    NestFactory
 } from "@nestjs/core"
+import type {
+    NestExpressApplication
+} from "@nestjs/platform-express"
 import {
-    AppModule 
+    AppModule
 } from "./app.module"
 import {
     envConfig 
@@ -39,7 +42,7 @@ import {
 } from "@modules/docs"
 
 const bootstrap = async () => {
-    const app = await NestFactory.create(
+    const app = await NestFactory.create<NestExpressApplication>(
         AppModule,
         {
             logger: new ContextLoggerService(),
@@ -47,6 +50,11 @@ const bootstrap = async () => {
             rawBody: true,
         }
     )
+    // trust the single upstream reverse proxy (Traefik) so `req.ip` reflects the
+    // real client address from `X-Forwarded-For` instead of the proxy's IP —
+    // needed for accurate per-device session IP/geo capture
+    app.set("trust proxy",
+        1)
     // set the app to the globalThis object
     globalThis.__APP__ = app
     // security headers must be attached before any route handler runs

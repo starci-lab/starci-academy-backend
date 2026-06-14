@@ -12,6 +12,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-16-interaction-and-accessibility/1-command-palette-with-cmdk/frontend", "run", "dev"],
       "port": 3001
+    },
+    {
+      "name": "tools-dashboard",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:tools:dashboard"],
+      "port": 5180
     }
   ]
 }

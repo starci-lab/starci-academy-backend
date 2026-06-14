@@ -40,6 +40,21 @@ import {
 import {
     AiLabMutationsModule,
 } from "./ai-lab"
+import {
+    MembershipMutationsModule,
+} from "./membership"
+import {
+    FollowsMutationsModule,
+} from "./follows"
+import {
+    ProfileMutationsModule,
+} from "./profile"
+import {
+    TwoFactorMutationsModule,
+} from "./two-factor"
+import {
+    NotificationsMutationsModule,
+} from "./notifications"
 
 /**
  * GraphQL mutations (courses, authentication, etc.).
@@ -78,6 +93,21 @@ import {
             isGlobal: true,
         }),
         AiLabMutationsModule.register({
+            isGlobal: true,
+        }),
+        MembershipMutationsModule.register({
+            isGlobal: true,
+        }),
+        FollowsMutationsModule.register({
+            isGlobal: true,
+        }),
+        ProfileMutationsModule.register({
+            isGlobal: true,
+        }),
+        TwoFactorMutationsModule.register({
+            isGlobal: true,
+        }),
+        NotificationsMutationsModule.register({
             isGlobal: true,
         }),
     ],

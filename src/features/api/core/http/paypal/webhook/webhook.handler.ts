@@ -14,6 +14,9 @@ import {
     AiEntitlementService,
 } from "@modules/ai"
 import {
+    MembershipService,
+} from "@modules/membership"
+import {
     envConfig,
 } from "@modules/env"
 import {
@@ -56,6 +59,7 @@ export class PaypalWebhookHandler
         private readonly paypalClient: PaypalClient,
         private readonly enqueueEnrollJobService: EnqueueEnrollJobService,
         private readonly aiEntitlementService: AiEntitlementService,
+        private readonly membershipService: MembershipService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly dayjsService: DayjsService,
@@ -154,6 +158,13 @@ export class PaypalWebhookHandler
             return
         }
         // course enrollment: hand off to the enroll worker
+        case ActionType.MembershipPurchase: {
+            await this.membershipService.grantMembership({
+                userId: transaction.userId,
+                transactionId: transaction.id,
+            })
+            return
+        }
         case ActionType.Enroll: {
             if (!transaction.courseId) {
                 throw new TransactionCourseNotFoundException({

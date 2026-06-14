@@ -14,25 +14,21 @@ export enum ActionType {
      */
     Enroll = "enroll",
     /**
-     * Grade a learner GitHub submission (worker pipeline).
+     * Grade a learner GitHub submission against outcome/approach criteria (worker pipeline).
      */
     ProcessGitSubmission = "processGitSubmission",
     /**
-     * Grade a SCHEMA V2 learner GitHub submission against outcome/approach criteria.
-     */
-    ProcessGitSubmissionV2 = "processGitSubmissionV2",
-    /**
-     * Grade a learner Google Docs submission (worker pipeline).
+     * Grade a learner Google Docs submission against outcome/approach criteria (worker pipeline).
      */
     ProcessGoogleDocsSubmission = "processGoogleDocsSubmission",
-    /**
-     * Grade a SCHEMA V2 learner Google Docs submission against outcome/approach criteria.
-     */
-    ProcessGoogleDocsSubmissionV2 = "processGoogleDocsSubmissionV2",
     /**
      * Invite a user to a GitHub organization/team.
      */
     ResolveGithub = "resolveGithub",
+    /**
+     * Remove a user from a GitHub organization/team (course access removal).
+     */
+    RevokeGithub = "revokeGithub",
     /**
      * Grade a CV submission (worker pipeline).
      */
@@ -94,6 +90,10 @@ export enum ActionType {
      * Grade an AI Lab eval submission (prompt template) against an eval set's cases.
      */
     ReviewAiLabEval = "reviewAiLabEval",
+    /**
+     * Purchase a community membership (grants/extends membership on payment success).
+     */
+    MembershipPurchase = "membershipPurchase",
 }
 
 export const GraphQLTypeActionType = createEnumType(ActionType)
@@ -111,19 +111,16 @@ registerEnumType(
                 description: "The action type for a course enrollment.",
             },
             [ActionType.ProcessGitSubmission]: {
-                description: "Process and grade a GitHub challenge submission.",
-            },
-            [ActionType.ProcessGitSubmissionV2]: {
-                description: "Process and grade a SCHEMA V2 GitHub submission against criteria.",
+                description: "Process and grade a GitHub submission against outcome/approach criteria.",
             },
             [ActionType.ProcessGoogleDocsSubmission]: {
-                description: "Process and grade a Google Docs challenge submission.",
-            },
-            [ActionType.ProcessGoogleDocsSubmissionV2]: {
-                description: "Process and grade a SCHEMA V2 Google Docs submission against criteria.",
+                description: "Process and grade a Google Docs submission against outcome/approach criteria.",
             },
             [ActionType.ResolveGithub]: {
                 description: "Resolve GitHub account and enqueue organization/team membership update.",
+            },
+            [ActionType.RevokeGithub]: {
+                description: "Revoke a user's GitHub organization/team membership (course access removal).",
             },
             [ActionType.SyncScyllaDB]: {
                 description: "Synchronize an entity to ScyllaDB.",
@@ -163,6 +160,9 @@ registerEnumType(
             },
             [ActionType.ReviewAiLabEval]: {
                 description: "Grade an AI Lab eval submission (prompt template) against an eval set's cases.",
+            },
+            [ActionType.MembershipPurchase]: {
+                description: "Purchase a community membership (grants/extends membership on payment success).",
             },
         },
     },

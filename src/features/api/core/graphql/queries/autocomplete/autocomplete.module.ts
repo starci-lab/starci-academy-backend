@@ -10,6 +10,9 @@ import {
 import {
     IndexSearchSingleQueryModule,
 } from "./index-search"
+import {
+    ResolveRouteSingleQueryModule,
+} from "./resolve-route"
 
 @Module({
     imports: [
@@ -17,6 +20,9 @@ import {
             isGlobal: true,
         }),
         IndexSearchSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        ResolveRouteSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

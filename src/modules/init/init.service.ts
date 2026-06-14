@@ -87,6 +87,17 @@ export class InitService implements OnModuleInit {
         // explicit `seed:`/`sync:` blocks drive the pipeline directly; otherwise the
         // coarse `mode` picks all / diff / none (default diff)
         const initConfig = getInitConfig()
+
+        // master kill-switch: `enable: false` in seed.yaml skips the ENTIRE init —
+        // no git pull, no seed, no sync (fastest local boot). Default is enabled.
+        if (initConfig.enable === false) {
+            this.logScoped(false,
+                0,
+                0,
+                0)
+            return
+        }
+
         const isExplicit = Boolean(initConfig.seed) || Boolean(initConfig.sync)
         const mode = initConfig.mode ?? "diff"
 

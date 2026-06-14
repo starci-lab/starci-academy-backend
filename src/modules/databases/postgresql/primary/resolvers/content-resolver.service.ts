@@ -3,7 +3,6 @@ import {
 } from "@nestjs/common"
 import {
     ContentEntity,
-    ContentReferenceEntity,
 } from "../entities"
 import {
     Locale,
@@ -22,7 +21,7 @@ import {
 } from "./code-implementation-resolver.service"
 
 /**
- * Applies translations to a content row and its references.
+ * Applies translations to a content row.
  */
 @Injectable()
 export class ContentResolverService {
@@ -64,24 +63,6 @@ export class ContentResolverService {
         )
         delete (content as Partial<ContentEntity>).translations
         const contentFallback = content.defaultLocale ?? fallbackLocale
-        if (content.references?.length) {
-            content.references = content.references.map((reference) => {
-                const refFallback = reference.defaultLocale ?? contentFallback
-                const translatedAlias = this.translationResolver.resolve(
-                    {
-                        translations: reference.translations,
-                        field: "alias",
-                        locale,
-                        fallbackLocale: refFallback,
-                    },
-                )
-                reference.alias = translatedAlias !== ""
-                    ? translatedAlias
-                    : reference.alias
-                delete (reference as Partial<ContentReferenceEntity>).translations
-                return reference
-            })
-        }
         content.challenges = (content.challenges ?? []).map((challenge) => {
             this.challengeResolver.transform(
                 challenge,

@@ -11,23 +11,20 @@ import {
     ResolveGithubModule,
 } from "./resolve-github"
 import {
+    RevokeGithubModule,
+} from "./revoke-github"
+import {
     ReviewMilestoneTaskModule,
-} from "./review-milestone-task"
+} from "./ai/review-milestone-task"
 import {
-    ProcessGitSubmissionModule
-} from "./process-git-submission"
+    ProcessGitSubmissionModule,
+} from "./ai/process-git-submission"
 import {
-    ProcessGitSubmissionV2Module,
-} from "./process-git-submission-v2"
-import {
-    ProcessGoogleDocsSubmissionModule
-} from "./process-google-docs-submission"
-import {
-    ProcessGoogleDocsSubmissionV2Module,
-} from "./process-google-docs-submission-v2"
+    ProcessGoogleDocsSubmissionModule,
+} from "./ai/process-google-docs-submission"
 import {
     ReviewCvSubmissionModule,
-} from "./review-cv-submission"
+} from "./ai/review-cv-submission"
 import {
     JudgeCodingSubmissionModule,
 } from "./judge-coding-submission"
@@ -39,7 +36,7 @@ import {
 } from "./enroll"
 import {
     ReviewAiLabEvalModule,
-} from "./review-ai-lab-eval"
+} from "./ai/review-ai-lab-eval"
 
 /**
  * Module for API-side BullMQ processors.
@@ -52,6 +49,9 @@ import {
         ResolveGithubModule.register({
             isGlobal: true,
         }),
+        RevokeGithubModule.register({
+            isGlobal: true,
+        }),
         ReviewMilestoneTaskModule.register({
             isGlobal: true,
         }),
@@ -61,13 +61,7 @@ import {
         ProcessGitSubmissionModule.register({
             isGlobal: true,
         }),
-        ProcessGitSubmissionV2Module.register({
-            isGlobal: true,
-        }),
         ProcessGoogleDocsSubmissionModule.register({
-            isGlobal: true,
-        }),
-        ProcessGoogleDocsSubmissionV2Module.register({
             isGlobal: true,
         }),
         JudgeCodingSubmissionModule.register({

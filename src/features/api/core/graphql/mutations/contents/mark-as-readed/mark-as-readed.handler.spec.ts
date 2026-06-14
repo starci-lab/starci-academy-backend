@@ -117,21 +117,74 @@ describe("MarkAsReadedHandler",
                     }),
                 )
 
-                // a fresh row carries the user, content and read flag
+                // a fresh row is built for the user+content, then the read flag is set
                 expect(entityManager.create).toHaveBeenCalledWith(
                     expect.anything(),
-                    {
+                    expect.objectContaining({
+                        userId: "user-1",
+                        contentId: "content-1",
+                    }),
+                )
+                // persisted with the read flag, then the cached view count is invalidated
+                expect(entityManager.save).toHaveBeenCalledWith(
+                    expect.anything(),
+                    expect.objectContaining({
                         userId: "user-1",
                         contentId: "content-1",
                         isRead: true,
-                    },
+                    }),
                 )
-                // persisted, then the cached view count is invalidated
-                expect(entityManager.save).toHaveBeenCalledWith({
-                    userId: "user-1",
-                    contentId: "content-1",
-                    isRead: true,
-                })
+                expect(reactionService.invalidateViewCount).toHaveBeenCalledWith("content-1")
+            })
+
+        it("grants XP + reward points on a deliberate (non-silent) read",
+            async () => {
+                // no existing row, no `silent` flag → the deliberate reward path runs
+                entityManager.findOne.mockResolvedValueOnce(null)
+
+                await handler.execute(
+                    new MarkAsReadedCommand({
+                        request: {
+                            contentId: "content-1",
+                            readed: true,
+                        },
+                        user: fakeUser("user-1"),
+                    }),
+                )
+
+                // the reward-points balance is credited (writeXpHistory → increment)
+                expect(entityManager.increment).toHaveBeenCalled()
+            })
+
+        it("silent read updates progress WITHOUT granting XP or posting activity",
+            async () => {
+                // no existing row; silent → only the read flag is persisted
+                entityManager.findOne.mockResolvedValueOnce(null)
+
+                await handler.execute(
+                    new MarkAsReadedCommand({
+                        request: {
+                            contentId: "content-1",
+                            readed: true,
+                            silent: true,
+                        },
+                        user: fakeUser("user-1"),
+                    }),
+                )
+
+                // progress is still saved
+                expect(entityManager.save).toHaveBeenCalledWith(
+                    expect.anything(),
+                    expect.objectContaining({
+                        userId: "user-1",
+                        contentId: "content-1",
+                        isRead: true,
+                    }),
+                )
+                // reward branch is skipped entirely: no points credit and no extra
+                // entity loads (only the initial user-content lookup happened)
+                expect(entityManager.increment).not.toHaveBeenCalled()
+                expect(entityManager.findOne).toHaveBeenCalledTimes(1)
                 expect(reactionService.invalidateViewCount).toHaveBeenCalledWith("content-1")
             })
 
@@ -158,7 +211,10 @@ describe("MarkAsReadedHandler",
                 // the existing row is mutated, not recreated
                 expect(entityManager.create).not.toHaveBeenCalled()
                 expect(existing.isRead).toBe(false)
-                expect(entityManager.save).toHaveBeenCalledWith(existing)
+                expect(entityManager.save).toHaveBeenCalledWith(
+                    expect.anything(),
+                    existing,
+                )
                 expect(reactionService.invalidateViewCount).toHaveBeenCalledWith("content-1")
             })
     })

@@ -261,6 +261,30 @@ nearby in the same module.
 async createUser(params: CreateUserParams): Promise<CreateUserResult>
 ```
 
+### Declaration style — `export const` arrow, never `export function` (STRICT)
+
+Top-level / module-scope functions (utils, helpers, factories) MUST be declared
+as an arrow function assigned to an `export const`. Do NOT use a `export function`
+declaration. (Class methods stay as methods — this rule is about free functions.)
+
+```ts
+// ✅ — const + arrow
+export const writeXpHistory = async (
+    params: WriteXpHistoryParams,
+): Promise<void> => {
+    // ...
+}
+
+// ❌ — function declaration
+export function writeXpHistory(params: WriteXpHistoryParams): Promise<void> {
+    // ...
+}
+```
+
+The rationale: one consistent callable shape across the codebase (the vast
+majority of free functions already use `export const`), no hoisting surprises,
+and uniform typing of the binding.
+
 ### Rules
 
 | Rule | Example |

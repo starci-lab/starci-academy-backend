@@ -8,11 +8,9 @@ import {
 import {
     Locale,
     ContentEntity,
-    ContentReferenceEntity,
 } from "@modules/databases"
 import {
     ContentIdFactoryService,
-    ContentReferenceIdFactoryService,
 } from "../id-factories"
 import {
     DeepPartial,
@@ -37,7 +35,7 @@ import {
  *
  * Parses the **old** lesson markdown shape (documented in
  * `.claude/pattern/17-legacy-content-challenge-format.md`, live examples = M0 L1/L2): `# title`,
- * `# description`, `# body` (full Markdown prose inline, per-locale), `# references`, `# minutesRead`,
+ * `# description`, `# body` (full Markdown prose inline, per-locale), `# minutesRead`,
  * `# isPremium`. The body is a single inline blob — NOT the V2 `bodies/<N>-<lang>/` per-language folder.
  *
  * Follows the canonical mount-parse pattern (`.claude/pattern/16-mount-parsing.md`): extract once per
@@ -54,7 +52,6 @@ export class ContentLegacyParserService {
         private readonly coerceMdScalarService: CoerceMdScalarService,
         private readonly mergeJsonService: MergeJsonService,
         private readonly contentIdFactoryService: ContentIdFactoryService,
-        private readonly contentReferenceIdFactoryService: ContentReferenceIdFactoryService,
         private readonly contextLoaderService: ContextLoaderService,
         private readonly contentPathService: ContentPathService,
     ) { }
@@ -107,8 +104,6 @@ export class ContentLegacyParserService {
                 "title",
                 "description",
                 "body",
-                "references.alias",
-                "references.url",
             ],
         }) as MergeJsonResult<DeepPartial<ContentEntity>>
         const contentId = this.contentIdFactoryService.generate(
@@ -172,39 +167,6 @@ export class ContentLegacyParserService {
                     value,
                 }),
             ),
-            references: ((merged.references ?? []) as Array<DeepPartial<ContentReferenceEntity>>).map((item) => {
-                const referenceId = this.contentReferenceIdFactoryService.generate(
-                    {
-                        courseIndex,
-                        moduleIndex,
-                        contentIndex,
-                        referenceIndex: item.orderIndex ?? 0,
-                    },
-                )
-                return {
-                    id: referenceId,
-                    orderIndex: item.orderIndex,
-                    sortIndex: (typeof item.sortIndex === "number" ? item.sortIndex : (item.orderIndex ?? 0)),
-                    alias: this.coerceMdScalarService.toRequiredString(item.alias,
-                        ""),
-                    url: this.coerceMdScalarService.toRequiredString(item.url,
-                        ""),
-                    defaultLocale: Locale.En,
-                    content: {
-                        id: contentId,
-                    },
-                    translations: (item.translations ?? []).map(({
-                        locale,
-                        field,
-                        value,
-                    }) => ({
-                        contentReferenceId: referenceId,
-                        locale,
-                        field,
-                        value,
-                    })),
-                }
-            }),
         }
     }
 

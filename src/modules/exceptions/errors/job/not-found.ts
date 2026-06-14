@@ -52,6 +52,40 @@ export class JobTargetRequiredException extends AbstractException {
     }
 }
 
+/** Metadata when a job write is rejected because the fencing token moved on. */
+export interface JobFencedOutExceptionMetadata extends AbstractExceptionMetadata {
+    /** The job id. */
+    id: string
+    /** The token the caller expected to still own. */
+    expectedFencingToken: number
+}
+
+/**
+ * Thrown when a guarded job write (advance step / complete) affects 0 rows because
+ * the row's `fencing_token` moved past `expectedFencingToken` — i.e. this worker is a
+ * zombie whose lease was reassigned. The caller must abort QUIETLY, not fail the job
+ * (a newer claimant owns it).
+ */
+export class JobFencedOutException extends AbstractException {
+    constructor(
+        {
+            id,
+            expectedFencingToken,
+            originalError,
+        }: JobFencedOutExceptionMetadata,
+    ) {
+        super(
+            "Job fenced out — a newer worker owns this job",
+            "JOB_FENCED_OUT_EXCEPTION",
+            {
+                id,
+                expectedFencingToken,
+                originalError,
+            },
+        )
+    }
+}
+
 /** Metadata when a pipeline step index has no registered handler. */
 export interface StepNotFoundExceptionMetadata extends AbstractExceptionMetadata {
     /** Zero-based step index from the job row. */

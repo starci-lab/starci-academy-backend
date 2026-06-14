@@ -34,19 +34,6 @@ export interface GenerateContentIdParams {
     contentIndex: number
 }
 
-/**
- * Input for {@link ContentReferenceIdFactoryService.generate}.
- */
-export interface GenerateContentReferenceIdParams {
-    /** Parent course ordinal. */
-    courseIndex: number
-    /** Parent module ordinal. */
-    moduleIndex: number
-    /** Parent content ordinal. */
-    contentIndex: number
-    /** Zero-based reference line in the content’s References block. */
-    referenceIndex: number
-}
 
 /**
  * Input for {@link CodeExplainingIdFactoryService.generate}.
@@ -182,59 +169,11 @@ export interface GenerateChallengeIdParams {
 
 /**
  * Input for {@link ChallengeRequirementIdFactoryService.generate}.
- */
-export interface GenerateChallengeRequirementIdParams {
-    /** Parent course ordinal. */
-    courseIndex: number
-    /** Parent module ordinal. */
-    moduleIndex: number
-    /** Parent content ordinal. */
-    contentIndex: number
-    /** Parent challenge ordinal. */
-    challengeIndex: number
-    /** Zero-based requirement line within the challenge. */
-    requirementIndex: number
-}
-
-/**
- * Input for {@link ChallengeOutputIdFactoryService.generate}.
- */
-export interface GenerateChallengeOutputIdParams {
-    /** Parent course ordinal. */
-    courseIndex: number
-    /** Parent module ordinal. */
-    moduleIndex: number
-    /** Parent content ordinal. */
-    contentIndex: number
-    /** Parent challenge ordinal. */
-    challengeIndex: number
-    /** Zero-based output line within the challenge. */
-    outputIndex: number
-}
-
-/**
- * Input for {@link ChallengePrerequisiteIdFactoryService.generate}.
- */
-export interface GenerateChallengePrerequisiteIdParams {
-    /** Parent course ordinal. */
-    courseIndex: number
-    /** Parent module ordinal. */
-    moduleIndex: number
-    /** Parent content ordinal. */
-    contentIndex: number
-    /** Parent challenge ordinal. */
-    challengeIndex: number
-    /** Zero-based prerequisite line within the challenge. */
-    prerequisiteIndex: number
-}
-
-/**
- * Input for {@link ChallengeRequirementV2IdFactoryService.generate}.
  *
  * Item row: pass `orderIndex` only.
  * Lang row: pass `requirementIndex` (parent item) and `orderIndex` (language bucket).
  */
-export interface GenerateChallengeRequirementV2IdParams {
+export interface GenerateChallengeRequirementIdParams {
     /** Parent course ordinal. */
     courseIndex: number
     /** Parent module ordinal. */
@@ -250,12 +189,12 @@ export interface GenerateChallengeRequirementV2IdParams {
 }
 
 /**
- * Input for {@link ChallengeStepV2IdFactoryService.generate}.
+ * Input for {@link ChallengeStepIdFactoryService.generate}.
  *
  * Item row: pass `orderIndex` only.
  * Lang row: pass `stepIndex` (parent item) and `orderIndex` (language bucket).
  */
-export interface GenerateChallengeStepV2IdParams {
+export interface GenerateChallengeStepIdParams {
     /** Parent course ordinal. */
     courseIndex: number
     /** Parent module ordinal. */
@@ -271,12 +210,12 @@ export interface GenerateChallengeStepV2IdParams {
 }
 
 /**
- * Input for {@link ChallengeOutputV2IdFactoryService.generate}.
+ * Input for {@link ChallengeOutputIdFactoryService.generate}.
  *
  * Item row: pass `orderIndex` only.
  * Lang row: pass `outputIndex` (parent item) and `orderIndex` (language bucket).
  */
-export interface GenerateChallengeOutputV2IdParams {
+export interface GenerateChallengeOutputIdParams {
     /** Parent course ordinal. */
     courseIndex: number
     /** Parent module ordinal. */
@@ -292,12 +231,12 @@ export interface GenerateChallengeOutputV2IdParams {
 }
 
 /**
- * Input for {@link ChallengePrerequisiteV2IdFactoryService.generate}.
+ * Input for {@link ChallengePrerequisiteIdFactoryService.generate}.
  *
  * Item row: pass `orderIndex` only.
  * Lang row: pass `prerequisiteIndex` (parent item) and `orderIndex` (language bucket).
  */
-export interface GenerateChallengePrerequisiteV2IdParams {
+export interface GenerateChallengePrerequisiteIdParams {
     /** Parent course ordinal. */
     courseIndex: number
     /** Parent module ordinal. */
@@ -312,55 +251,6 @@ export interface GenerateChallengePrerequisiteV2IdParams {
     prerequisiteIndex?: number
 }
 
-/**
- * Input for {@link ChallengeStepIdFactoryService.generate}.
- */
-export interface GenerateChallengeStepIdParams {
-    /** Parent course ordinal (locates the parent challenge). */
-    courseIndex: number
-    /** Parent module ordinal (locates the parent challenge). */
-    moduleIndex: number
-    /** Parent content ordinal (locates the parent challenge). */
-    contentIndex: number
-    /** Parent challenge ordinal (locates the parent challenge). */
-    challengeIndex: number
-    /** Zero-based step from the challenge markdown (`## N. Title` ordering). */
-    stepIndex: number
-}
-
-/**
- * Input for {@link ChallengeStepCodeImplementationIdFactoryService.generate}.
- */
-export interface GenerateChallengeStepCodeImplementationIdParams {
-    /** Parent course ordinal. */
-    courseIndex: number
-    /** Parent module ordinal. */
-    moduleIndex: number
-    /** Parent content ordinal. */
-    contentIndex: number
-    /** Parent challenge ordinal. */
-    challengeIndex: number
-    /** Parent step ordinal. */
-    stepIndex: number
-    /** Zero-based code-implementation index within the step. */
-    implementationIndex: number
-}
-
-/**
- * Input for {@link ChallengeReferenceIdFactoryService.generate}.
- */
-export interface GenerateChallengeReferenceIdParams {
-    /** Parent course ordinal (locates the parent challenge). */
-    courseIndex: number
-    /** Parent module ordinal (locates the parent challenge). */
-    moduleIndex: number
-    /** Parent content ordinal (locates the parent challenge). */
-    contentIndex: number
-    /** Parent challenge ordinal (locates the parent challenge). */
-    challengeIndex: number
-    /** Zero-based reference from the challenge markdown (`## References` indexed list). */
-    referenceIndex: number
-}
 
 /**
  * Input for {@link ChallengeSubmissionIdFactoryService.generate}.

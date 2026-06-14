@@ -17,6 +17,9 @@ import type {
     GenerateChallengeRequirementIdParams,
 } from "./types"
 
+/**
+ * SCHEMA V2 requirement item and per-language row UUIDs chain from the parent challenge id.
+ */
 @Injectable()
 export class ChallengeRequirementIdFactoryService {
     constructor(
@@ -24,25 +27,40 @@ export class ChallengeRequirementIdFactoryService {
         private readonly challengeIdFactoryService: ChallengeIdFactoryService,
     ) {}
 
-    generate({
-        courseIndex,
-        moduleIndex,
-        contentIndex,
-        challengeIndex,
-        requirementIndex,
-    }: GenerateChallengeRequirementIdParams): string {
+    generate(
+        {
+            courseIndex,
+            moduleIndex,
+            contentIndex,
+            challengeIndex,
+            orderIndex = 0,
+            requirementIndex,
+        }: GenerateChallengeRequirementIdParams,
+    ): string {
+        const ordinals = {
+            courseIndex,
+            moduleIndex,
+            contentIndex,
+            challengeIndex,
+        }
+        if (requirementIndex !== undefined) {
+            return uuidv5(
+                this.sha256Service.hash(
+                    "challenge-requirement-lang",
+                    this.generate({
+                        ...ordinals,
+                        orderIndex: requirementIndex,
+                    }),
+                    orderIndex.toString(),
+                ),
+                envConfig().uuidNamespace.course,
+            )
+        }
         return uuidv5(
             this.sha256Service.hash(
                 "challenge-requirement",
-                this.challengeIdFactoryService.generate(
-                    {
-                        courseIndex,
-                        moduleIndex,
-                        contentIndex,
-                        challengeIndex,
-                    },
-                ),
-                requirementIndex.toString(),
+                this.challengeIdFactoryService.generate(ordinals),
+                orderIndex.toString(),
             ),
             envConfig().uuidNamespace.course,
         )

@@ -174,6 +174,11 @@ export const envConfig = () => ({
                 // identical playground re-runs stay cheap for a day; the cold store is durable
                 defaultValue: "1d",
             }),
+            entityLabel: parseEnvMs({
+                key: "CACHE_TTL_ENTITY_LABEL",
+                // labels (titles/usernames) change rarely; a day keeps feeds cheap, edits self-heal on expiry
+                defaultValue: "1d",
+            }),
             aggregatedTokenPrice: parseEnvMs({
                 key: "CACHE_TTL_AGGREGATED_TOKEN_PRICE",
                 defaultValue: "100years"
@@ -249,6 +254,20 @@ export const envConfig = () => ({
             delayMs: parseEnvInt({
                 key: "MOCK_DELAY_MS",
                 defaultValue: 1000,
+            }),
+        },
+        /**
+         * Standalone local-only ops "tools" service (the `apps/tools` app).
+         * Serves the Vite ops dashboard at `/dashboard` and exposes
+         * `/api/v1/tools/*` endpoints for managing cloud infra from a local
+         * machine (media→MinIO, Postgres snapshot/backup, S3 bucket snapshot).
+         * Hard-blocked (404) when `isProduction` is true.
+         */
+        tools: {
+            /** HTTP port the local ops console listens on. */
+            port: parseEnvInt({
+                key: "TOOLS_PORT",
+                defaultValue: 3003,
             }),
         },
         /** API service configuration. */
@@ -557,6 +576,10 @@ export const envConfig = () => ({
                 gradingMaxSourceChars: parseEnvInt({
                     key: "GITHUB_WORKER_PROCESS_GIT_SUBMISSION_GRADING_MAX_SOURCE_CHARS",
                     defaultValue: 120000,
+                }),
+                gradingPerCriterionTopK: parseEnvInt({
+                    key: "GITHUB_WORKER_PROCESS_GIT_SUBMISSION_GRADING_PER_CRITERION_TOP_K",
+                    defaultValue: 6,
                 }),
                 embedding: {
                     model: parseEnvString({
@@ -1175,13 +1198,23 @@ export const envConfig = () => ({
             }
         ),
     },
-    /** Single-session enforcement configuration. */
+    /** Multi-device session enforcement configuration. */
     session: {
         /** Lifetime of a Redis session record; matches the refresh-cookie window. */
         ttlMs: parseEnvMs(
             {
                 key: "SESSION_TTL",
                 defaultValue: "30d"
+            }
+        ),
+        /**
+         * Maximum number of devices that may stay logged in concurrently per
+         * account. On the (maxDevices + 1)-th login the oldest session is evicted.
+         */
+        maxDevices: parseEnvInt(
+            {
+                key: "SESSION_MAX_DEVICES",
+                defaultValue: 2
             }
         ),
     },
@@ -1354,6 +1387,36 @@ export const envConfig = () => ({
                 defaultValue: "",
             }),
         },
+    },
+    /**
+     * Local-only ops "tools" console configuration (the `apps/tools` app).
+     * These artifacts are written to the local filesystem so the operator can
+     * inspect/sync them by hand — they never leave the machine unless a sync
+     * tool pushes them.
+     */
+    tools: {
+        /**
+         * Root directory where Postgres dumps and S3 bucket snapshots are
+         * written. Lives under the repo working dir by default and is
+         * git-ignored; override per machine with `TOOLS_SNAPSHOT_DIR`.
+         */
+        snapshotDir: parseEnvString({
+            key: "TOOLS_SNAPSHOT_DIR",
+            defaultValue: join(process.cwd(),
+                ".tools-snapshots"),
+        }),
+        /**
+         * Path to the local SQLite database that stores saved S3 targets and
+         * the artifact registry (so artifacts can be listed and re-synced
+         * without recomputing). Defaults under the snapshot root; override with
+         * `TOOLS_DB_PATH`.
+         */
+        dbPath: parseEnvString({
+            key: "TOOLS_DB_PATH",
+            defaultValue: join(process.cwd(),
+                ".tools-snapshots",
+                "tools.sqlite"),
+        }),
     },
     /** Computation configuration. */
     computation: {
@@ -1911,6 +1974,47 @@ export const envConfig = () => ({
         masteredIntervalDays: parseEnvInt({
             key: "FLASHCARD_MASTERED_INTERVAL_DAYS",
             defaultValue: 21,
+        }),
+    },
+    /**
+     * Kafka configuration consumed by the CDC progress-projection listener.
+     * Debezium streams Postgres row-changes into Kafka topics; the listener
+     * connects to {@link brokers} and reacts to topics under {@link cdcTopicPrefix}.
+     */
+    kafka: {
+        /**
+         * Comma-separated list of Kafka broker addresses, split into a string
+         * array. Defaults to the local KRaft broker exposed on the host.
+         */
+        brokers: parseEnvString({
+            key: "KAFKA_BROKERS",
+            defaultValue: "localhost:29092",
+        })
+            // split the comma-separated list into individual broker endpoints
+            .split(",")
+            // trim incidental whitespace so "a, b" parses cleanly
+            .map((broker) => broker.trim())
+            // drop empty entries (trailing comma / blank env value)
+            .filter((broker) => broker !== ""),
+        /**
+         * Prefix Debezium uses for the CDC topics (server name + schema). The
+         * listener appends the table name to build each topic — e.g.
+         * `${cdcTopicPrefix}user_contents`.
+         */
+        cdcTopicPrefix: parseEnvString({
+            key: "KAFKA_CDC_TOPIC_PREFIX",
+            defaultValue: "starci.public.",
+        }),
+    },
+    /** User profile (avatar upload) tunables. */
+    profile: {
+        /**
+         * Maximum accepted avatar upload size in bytes. Uploads above this are
+         * rejected before touching S3. Defaults to 5 MB.
+         */
+        avatarMaxBytes: parseEnvInt({
+            key: "PROFILE_AVATAR_MAX_BYTES",
+            defaultValue: 5 * 1024 * 1024,
         }),
     },
 }

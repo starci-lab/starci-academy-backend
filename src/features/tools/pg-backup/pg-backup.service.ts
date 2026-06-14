@@ -1,0 +1,193 @@
+import {
+    BadRequestException,
+    Injectable,
+    Logger,
+} from "@nestjs/common"
+import {
+    mkdtemp,
+    mkdir,
+    rm,
+} from "fs/promises"
+import {
+    tmpdir,
+} from "os"
+import {
+    join,
+} from "path"
+import {
+    envConfig,
+} from "@modules/env"
+import {
+    ExecaService,
+} from "@modules/execa"
+import {
+    ArtifactType,
+    ToolsStoreService,
+} from "../store"
+import {
+    SyncService,
+} from "../sync"
+import {
+    assertPostgresConnectionUrl,
+    slugifyForFilename,
+} from "../utils"
+import type {
+    PgBackupParams,
+    PgBackupResult,
+} from "./types"
+
+/**
+ * Backs up one PostgreSQL database to a local disk as an encrypted artifact,
+ * registers it, and (optionally) syncs it to a saved S3 target.
+ *
+ * Flow (local-first): pg_dump → gzip → openssl enc, writing the final encrypted
+ * file onto the operator's chosen disk (kept as the artifact). Intermediate
+ * dump/gz files go to a throwaway temp dir. The artifact stays on disk so it can
+ * be re-synced later. Encryption is mandatory (`BACKUP_ENCRYPT_PASSWORD`).
+ */
+@Injectable()
+export class PgBackupService {
+    private readonly logger = new Logger(PgBackupService.name)
+
+    constructor(
+        private readonly execaService: ExecaService,
+        private readonly toolsStoreService: ToolsStoreService,
+        private readonly syncService: SyncService,
+    ) {}
+
+    /**
+     * Dump, compress, encrypt to disk and optionally sync the artifact.
+     *
+     * @param params - Connection URL, disk path, artifact name, target/key.
+     * @returns The artifact id, local path, encrypted file path and sync result.
+     */
+    async execute(
+        {
+            postgresUrl,
+            diskPath,
+            artifactBaseName,
+            targetIds,
+            keyPrefix,
+        }: PgBackupParams,
+    ): Promise<PgBackupResult> {
+        // reject malformed/non-postgres URLs before spawning pg_dump
+        assertPostgresConnectionUrl(postgresUrl)
+
+        // encryption is mandatory — refuse rather than write a plaintext dump
+        const encryptPassword = envConfig().backup.encrypt.password
+        if (!encryptPassword) {
+            throw new BadRequestException(
+                "BACKUP_ENCRYPT_PASSWORD is not set; refusing to write an unencrypted backup.",
+            )
+        }
+        // validate every target up-front so we fail before the heavy dump
+        for (const targetId of targetIds) {
+            if (!this.toolsStoreService.getTarget(targetId)) {
+                throw new BadRequestException(`Target ${targetId} not found.`)
+            }
+        }
+
+        // per-run artifact folder on the operator's chosen disk, kept afterwards
+        const stamp = Date.now()
+        const artifactDir = join(
+            diskPath,
+            "pg-backup",
+            `${slugifyForFilename(artifactBaseName)}-${stamp}`,
+        )
+        await mkdir(artifactDir,
+            {
+                recursive: true,
+            })
+        const encFile = join(artifactDir,
+            `${artifactBaseName}.dump.gz.enc`)
+
+        // intermediates (dump + gz) live in a throwaway temp dir, cleaned up
+        const tempDir = await mkdtemp(join(tmpdir(),
+            `${artifactBaseName}-`))
+        const dumpPath = join(tempDir,
+            `${artifactBaseName}.dump`)
+        const gzPath = `${dumpPath}.gz`
+
+        try {
+            // 1. pg_dump → custom-format file
+            await this.execaService.exec({
+                command: "pg_dump",
+                args: [
+                    "--format=custom",
+                    "--file",
+                    dumpPath,
+                    "--dbname",
+                    postgresUrl,
+                ],
+                timeoutMs: 10 * 60 * 1000,
+            })
+            // 2. gzip → file (stream stdout to disk; avoid buffering large dumps)
+            await this.execaService.execToFile({
+                command: "gzip",
+                args: [
+                    "-c",
+                    dumpPath,
+                ],
+                stdoutPath: gzPath,
+                timeoutMs: 10 * 60 * 1000,
+            })
+            // 3. openssl AES-256-CBC encrypt straight onto the artifact disk; the
+            //    password is passed via env so it never appears in the arg list
+            await this.execaService.exec({
+                command: "openssl",
+                args: [
+                    "enc",
+                    "-aes-256-cbc",
+                    "-salt",
+                    "-pbkdf2",
+                    "-in",
+                    gzPath,
+                    "-out",
+                    encFile,
+                    "-pass",
+                    "env:BACKUP_ENCRYPT_PASSWORD",
+                ],
+                timeoutMs: 10 * 60 * 1000,
+                env: {
+                    ...process.env,
+                    BACKUP_ENCRYPT_PASSWORD: encryptPassword,
+                },
+            })
+        } finally {
+            // always remove the plaintext intermediates
+            await rm(tempDir,
+                {
+                    recursive: true,
+                    force: true,
+                })
+        }
+
+        // register the kept artifact (the encrypted file's folder)
+        const resolvedPrefix = (keyPrefix ?? `backups/${slugifyForFilename(artifactBaseName)}`).replace(/\/+$/,
+            "")
+        const artifact = this.toolsStoreService.createArtifact({
+            type: ArtifactType.PgBackup,
+            label: artifactBaseName,
+            localPath: artifactDir,
+            keyPrefix: resolvedPrefix,
+            targetIds,
+            meta: {
+                encFile,
+            },
+        })
+
+        this.logger.log(`Built backup artifact ${artifact.id} at ${encFile}`)
+
+        // sync to cloud only when at least one target was provided
+        const synced = targetIds.length > 0
+            ? await this.syncService.syncArtifact(artifact.id)
+            : null
+
+        return {
+            artifactId: artifact.id,
+            localPath: artifactDir,
+            encFile,
+            synced,
+        }
+    }
+}

@@ -19,6 +19,9 @@ import {
     AiSubscriptionEntity,
 } from "./ai-subscription.entity"
 import {
+    MembershipEntity,
+} from "./membership.entity"
+import {
     AuthenticationType,
     GraphQLTypeAuthenticationType
 } from "../enums"
@@ -113,6 +116,73 @@ export class UserEntity extends UuidAbstractEntity {
         avatar: string | null
 
     /**
+     * Display name freely editable by the user on the profile page.
+     *
+     * Unlike `username` (a cached snapshot from Keycloak), this is owned by the
+     * application and is what the profile UI shows. Null until the user sets one,
+     * in which case the UI falls back to `username`.
+     */
+    @Field(() => String,
+        {
+            description: "Display name editable by the user (falls back to username when null).",
+            nullable: true
+        })
+    @Column({
+        name: "display_name",
+        type: "varchar",
+        length: 100,
+        nullable: true
+    })
+        displayName: string | null
+
+    /**
+     * Short free-text bio / tagline shown under the user's name on the profile.
+     */
+    @Field(() => String,
+        {
+            description: "Short bio / tagline shown on the user's profile.",
+            nullable: true
+        })
+    @Column({
+        name: "bio",
+        type: "varchar",
+        length: 280,
+        nullable: true
+    })
+        bio: string | null
+
+    /**
+     * Whether app-level two-factor authentication (TOTP) is enabled for the user.
+     *
+     * This is the configuration flag only; enforcement at a specific login flow
+     * is a separate concern that is not wired yet.
+     */
+    @Field(() => Boolean,
+        {
+            description: "Whether two-factor authentication (TOTP) is enabled."
+        })
+    @Column({
+        name: "two_factor_enabled",
+        type: "boolean",
+        default: false
+    })
+        twoFactorEnabled: boolean
+
+    /**
+     * AES-256-GCM encrypted TOTP shared secret (JSON-stringified payload), or
+     * null when 2FA has never been set up. NOT exposed via GraphQL — secrets
+     * must never leave the server. Holds the pending secret between `setupTwoFactor`
+     * and `confirmTwoFactor`, and the active secret while enabled.
+     */
+    @Column({
+        name: "two_factor_secret",
+        type: "varchar",
+        length: 512,
+        nullable: true
+    })
+        twoFactorSecret: string | null
+
+    /**
      * GitHub username used for repository/team automation.
      */
     @Field(() => String,
@@ -161,6 +231,22 @@ export class UserEntity extends UuidAbstractEntity {
         default: 0
     })
         codingPoints: number
+
+    /**
+     * Cumulative reward points earned from course activities that also grant XP
+     * (passed challenges, read lessons, passed milestone tasks). Standalone from
+     * `codingPoints` (coding practice) and from the per-course leaderboard XP.
+     */
+    @Field(() => Int,
+        {
+            description: "Cumulative reward points earned from XP-granting course activities."
+        })
+    @Column({
+        name: "reward_points",
+        type: "int",
+        default: 0
+    })
+        rewardPoints: number
 
 
     @Field(
@@ -226,4 +312,24 @@ export class UserEntity extends UuidAbstractEntity {
         },
     )
         aiSubscription?: AiSubscriptionEntity
+
+    /**
+     * Community membership (premium blog + community + course discount) for this user.
+     */
+    @Field(
+        () => MembershipEntity,
+        {
+            nullable: true,
+            description: "Community membership (premium blog + community + course discount).",
+        },
+    )
+    @OneToOne(
+        () => MembershipEntity,
+        (membership: MembershipEntity) => membership.user,
+        {
+            cascade: true,
+            nullable: true,
+        },
+    )
+        membership?: MembershipEntity
 }

@@ -155,6 +155,32 @@ export interface EnqueueResolveGithubParams {
 }
 
 /**
+ * Params for enqueueing a revoke-github job.
+ */
+export interface EnqueueRevokeGithubParams {
+    /**
+     * User ID whose GitHub team membership is being revoked.
+     */
+    userId: string
+
+    /**
+     * Course ID used to resolve the GitHub team slug.
+     * Optional when `teamSlug` is provided directly.
+     */
+    courseId?: string
+
+    /**
+     * Team slug override for direct enqueuing flows.
+     */
+    teamSlug?: string
+
+    /**
+     * GitHub username to remove from organization/team.
+     */
+    githubUsername: string
+}
+
+/**
  * Params for enqueueing a review-personal-project-task job.
  */
 export interface EnqueueReviewPersonalProjectTaskParams {

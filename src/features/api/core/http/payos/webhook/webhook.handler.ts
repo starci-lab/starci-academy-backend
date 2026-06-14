@@ -14,6 +14,9 @@ import {
     AiEntitlementService,
 } from "@modules/ai"
 import {
+    MembershipService,
+} from "@modules/membership"
+import {
     envConfig,
 } from "@modules/env"
 import {
@@ -56,6 +59,7 @@ export class PayosWebhookHandler
         private readonly payos: PayOS,
         private readonly enqueueEnrollJobService: EnqueueEnrollJobService,
         private readonly aiEntitlementService: AiEntitlementService,
+        private readonly membershipService: MembershipService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly dayjsService: DayjsService,
@@ -102,6 +106,14 @@ export class PayosWebhookHandler
             await this.aiEntitlementService.grantTier({
                 userId: transaction.userId,
                 tier: transaction.aiSubTier,
+                transactionId: transaction.id,
+            })
+            return
+        }
+        // community membership purchase: grant/extend membership directly (no worker)
+        case ActionType.MembershipPurchase: {
+            await this.membershipService.grantMembership({
+                userId: transaction.userId,
                 transactionId: transaction.id,
             })
             return

@@ -5,16 +5,14 @@
 export enum BullQueueName {
     /** Queue name for enroll jobs. */
     Enroll = "enroll",
-    /** Queue for grading a GitHub-linked challenge submission. */
+    /** Queue for grading a GitHub submission against outcome/approach criteria. */
     ProcessGitSubmission = "process-git-submission",
-    /** Queue for grading a SCHEMA V2 GitHub submission against outcome/approach criteria. */
-    ProcessGitSubmissionV2 = "process-git-submission-v2",
-    /** Queue for grading a Google Docs/Sheets-linked challenge submission. */
+    /** Queue for grading a Google Docs submission against outcome/approach criteria. */
     ProcessGoogleDocsSubmission = "process-google-docs-submission",
-    /** Queue for grading a SCHEMA V2 Google Docs submission against outcome/approach criteria. */
-    ProcessGoogleDocsSubmissionV2 = "process-google-docs-submission-v2",
     /** Queue for resolving GitHub organization/team membership. */
     ResolveGithub = "resolve-github",
+    /** Queue for revoking GitHub organization/team membership (course access removal). */
+    RevokeGithub = "revoke-github",
     /** Queue for grading a CV challenge submission. */
     ProcessCvSubmission = "process-cv-submission",
     /** Queue for processing video (encode mp4/mkv to mpeg-dash and hls). */

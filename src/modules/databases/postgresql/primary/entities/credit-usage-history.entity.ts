@@ -71,19 +71,21 @@ export class CreditUsageHistoryEntity extends UuidAbstractEntity {
         userId: string
 
     /**
-     * Challenge submission attempt that triggered the charge.
+     * Challenge submission attempt that triggered the charge, or null when the
+     * AI grading run is not tied to a challenge attempt (e.g. interview practice).
      */
     @Field(
         () => UserChallengeSubmissionAttemptEntity,
         {
-            description: "Challenge submission attempt that triggered the charge.",
+            nullable: true,
+            description: "Challenge submission attempt that triggered the charge; null for non-challenge AI grading.",
         },
     )
     @ManyToOne(
         () => UserChallengeSubmissionAttemptEntity,
         {
             onDelete: "CASCADE",
-            nullable: false,
+            nullable: true,
         },
     )
     @JoinColumn({
@@ -91,21 +93,22 @@ export class CreditUsageHistoryEntity extends UuidAbstractEntity {
         foreignKeyConstraintName:
             "fk_attempt_id_credit_usage_histories_attempts",
     })
-        attempt: UserChallengeSubmissionAttemptEntity
+        attempt: UserChallengeSubmissionAttemptEntity | null
 
     /**
-     * Attempt ID that triggered the charge.
+     * Attempt ID that triggered the charge, or null for non-challenge AI grading.
      */
     @Field(
         () => ID,
         {
-            description: "Attempt ID that triggered the charge.",
+            nullable: true,
+            description: "Attempt ID that triggered the charge; null for non-challenge AI grading.",
         },
     )
     @RelationId(
         (creditUsageHistory: CreditUsageHistoryEntity) => creditUsageHistory.attempt,
     )
-        attemptId: string
+        attemptId: string | null
 
     /**
      * AI lane used for the grading (auto / premium / byok).

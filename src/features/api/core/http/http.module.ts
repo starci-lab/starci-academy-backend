@@ -34,6 +34,9 @@ import {
 import {
     MountFoundationsModule,
 } from "./mount/foundations"
+import {
+    ProfileHttpModule,
+} from "./profile"
 
 
 /**
@@ -87,6 +90,11 @@ import {
             }
         ),
         MountFoundationsModule.register(
+            {
+                isGlobal: true,
+            }
+        ),
+        ProfileHttpModule.register(
             {
                 isGlobal: true,
             }

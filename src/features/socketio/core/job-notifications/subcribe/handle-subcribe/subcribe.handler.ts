@@ -71,7 +71,7 @@ export class SubcribeJobNotificationHandler
                 message: "Job status updated",
                 data: {
                     jobId: job.id,
-                    challengeSubmissionId: job.challengeSubmissionId ?? "",
+                    challengeSubmissionId: job.refs?.challengeSubmissionId ?? "",
                     category: job.category ?? undefined,
                     actionType: job.actionType,
                     status: job.status,

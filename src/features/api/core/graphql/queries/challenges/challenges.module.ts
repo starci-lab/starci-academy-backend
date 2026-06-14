@@ -19,6 +19,9 @@ import {
 import {
     ChallengeSuggestionsSingleQueryModule,
 } from "./challenge-suggestions"
+import {
+    MyXpHistorySingleQueryModule,
+} from "./my-xp-history"
 
 @Module({
     imports: [
@@ -35,6 +38,9 @@ import {
             isGlobal: true,
         }),
         ChallengeSuggestionsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyXpHistorySingleQueryModule.register({
             isGlobal: true,
         }),
     ],

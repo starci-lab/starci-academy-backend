@@ -73,11 +73,17 @@ import {
     BussinessModule
 } from "@modules/bussiness"
 import {
+    RoutingModule
+} from "@modules/routing"
+import {
     LangchainModule
 } from "@modules/langchain"
 import {
     CryptoModule
 } from "@modules/crypto"
+import {
+    TotpModule
+} from "@modules/totp"
 import {
     SepayModule
 } from "@modules/sepay"
@@ -164,6 +170,9 @@ import {
 import {
     AiModule
 } from "@modules/ai"
+import {
+    MembershipModule
+} from "@modules/membership"
 /**
  * The main module for the application.
  */
@@ -197,6 +206,10 @@ import {
             ),
             /** AI module — includes the rotating API-key balancer. */
             AiModule.register({
+                isGlobal: true,
+            }),
+            /** Community membership module — entitlement grant/expiry. */
+            MembershipModule.register({
                 isGlobal: true,
             }),
             /** Cookie module. */
@@ -263,6 +276,12 @@ import {
             ),
             /** Crypto module. */
             CryptoModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** TOTP (two-factor) module. */
+            TotpModule.register(
                 {
                     isGlobal: true,
                 }
@@ -344,13 +363,16 @@ import {
                 {
                     isGlobal: true,
                     withResolvers: true,
-                    withSeeders: {
-                        manualSeed: true,
-                    },
                 }
             ),
             /** Bussiness module. */
             BussinessModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** Routing module — provides LabelResolverService for id-only ref rendering. */
+            RoutingModule.register(
                 {
                     isGlobal: true,
                 }

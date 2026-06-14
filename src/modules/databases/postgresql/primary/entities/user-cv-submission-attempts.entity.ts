@@ -10,6 +10,7 @@ import {
     JoinColumn,
     ManyToOne,
     RelationId,
+    Unique,
 } from "typeorm"
 import {
     UuidAbstractEntity,
@@ -41,8 +42,22 @@ import {
 @ObjectType({
     description: "A versioned upload attempt for a CV submission.",
 })
+@Unique(["idempotencyKey"])
 @Entity("cv_submission_attempts")
 export class UserCVSubmissionAttemptEntity extends UuidAbstractEntity {
+    /**
+     * Idempotency key (= review job id) set on the canonical reviewed row — a retried
+     * review job re-inserting with the same key hits this unique constraint, so the
+     * complete step treats it as already-done instead of producing a duplicate version.
+     */
+    @Column({
+        name: "idempotency_key",
+        type: "varchar",
+        length: 64,
+        nullable: true,
+    })
+        idempotencyKey: string | null
+
     /**
      * MinIO object key (`cdn_key` column) — worker downloads PDF/DOCX bytes for extraction.
      */

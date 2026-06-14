@@ -5,10 +5,6 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 import {
-    GraphQLTypeLocale,
-    Locale,
-} from "../enums"
-import {
     Column,
     Entity,
     JoinColumn,
@@ -17,59 +13,35 @@ import {
     RelationId,
 } from "typeorm"
 import {
+    GraphQLTypeLocale,
+    Locale,
+} from "../enums"
+import {
     UuidAbstractEntity,
 } from "./abstract"
 import {
     ChallengeEntity,
 } from "./challenge.entity"
 import {
-    ChallengeStepTranslationEntity,
-} from "./challenge-step-translation.entity"
-import {
-    ChallengeStepCodeImplementationEntity,
-} from "./challenge-step-code-implementation.entity"
+    ChallengeStepLangEntity,
+} from "./challenge-step-lang.entity"
 
 /**
- * Ordered instruction step within a challenge (optional short description + Markdown body).
+ * SCHEMA V2 step ITEM for a challenge (normalized — no jsonb). One row per step position;
+ * per-programming-language `title` and `body` live under {@link ChallengeStepLangEntity}.
  */
 @ObjectType({
-    description: "Challenge step: title, optional short description, and Markdown body.",
+    description: "A SCHEMA V2 challenge step item (one per position).",
 })
 @Entity("challenge_steps")
 export class ChallengeStepEntity extends UuidAbstractEntity {
-    @Field(
-        () => String,
-        {
-            description: "Step title or heading.",
-        },
-    )
-    @Column({
-        name: "title",
-        type: "varchar",
-        length: 500,
-        nullable: true,
-    })
-        title: string
-
     /**
-     * Main step content as Markdown.
+     * Display order of this step within the challenge (agnostic position).
      */
-    @Field(
-        () => String,
-        {
-            description: "Step content as Markdown.",
-        },
-    )
-    @Column({
-        name: "body",
-        type: "text",
-    })
-        body: string
-
     @Field(
         () => Int,
         {
-            description: "Display order within the challenge step list.",
+            description: "Display order of this step within the challenge.",
         },
     )
     @Column({
@@ -79,6 +51,9 @@ export class ChallengeStepEntity extends UuidAbstractEntity {
     })
         orderIndex: number
 
+    /**
+     * Pure ordering index used to reorder the list (decoupled from orderIndex).
+     */
     @Field(
         () => Int,
         {
@@ -92,10 +67,13 @@ export class ChallengeStepEntity extends UuidAbstractEntity {
     })
         sortIndex: number
 
+    /**
+     * Default locale for this step item.
+     */
     @Field(
         () => GraphQLTypeLocale,
         {
-            description: "Default locale for this step row.",
+            description: "Default locale for this step item.",
         },
     )
     @Column({
@@ -106,12 +84,9 @@ export class ChallengeStepEntity extends UuidAbstractEntity {
     })
         defaultLocale: Locale
 
-    @Field(
-        () => ChallengeEntity,
-        {
-            description: "Parent challenge.",
-        },
-    )
+    /**
+     * Parent challenge this step belongs to.
+     */
     @ManyToOne(
         () => ChallengeEntity,
         (challenge: ChallengeEntity) => challenge.steps,
@@ -121,11 +96,13 @@ export class ChallengeStepEntity extends UuidAbstractEntity {
     )
     @JoinColumn({
         name: "challenge_id",
-        foreignKeyConstraintName:
-            "fk_challenge_id_challenge_steps_challenges",
+        foreignKeyConstraintName: "fk_challenge_id_challenge_steps_challenges",
     })
         challenge: ChallengeEntity
 
+    /**
+     * Parent challenge ID.
+     */
     @Field(
         () => ID,
         {
@@ -137,35 +114,21 @@ export class ChallengeStepEntity extends UuidAbstractEntity {
     )
         challengeId: string
 
+    /**
+     * Per-programming-language content (title + body) for this step.
+     */
     @Field(
-        () => [ChallengeStepTranslationEntity],
+        () => [ChallengeStepLangEntity],
         {
-            description: "Localized overrides for step fields (title, description, body).",
+            description: "Per-programming-language content for this step.",
         },
     )
     @OneToMany(
-        () => ChallengeStepTranslationEntity,
-        (translation: ChallengeStepTranslationEntity) => translation.challengeStep,
+        () => ChallengeStepLangEntity,
+        (lang: ChallengeStepLangEntity) => lang.step,
         {
             cascade: true,
         },
     )
-        translations: Array<ChallengeStepTranslationEntity>
-
-    @Field(
-        () => [ChallengeStepCodeImplementationEntity],
-        {
-            nullable: true,
-            description: "Alternative-language guides under this step (`### codeImplementations`).",
-        },
-    )
-    @OneToMany(
-        () => ChallengeStepCodeImplementationEntity,
-        (implementation: ChallengeStepCodeImplementationEntity) =>
-            implementation.challengeStep,
-        {
-            cascade: true,
-        },
-    )
-        codeImplementations: Array<ChallengeStepCodeImplementationEntity>
+        langs: Array<ChallengeStepLangEntity>
 }

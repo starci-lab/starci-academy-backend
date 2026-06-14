@@ -16,6 +16,9 @@ import {
 import {
     AiLabModule,
 } from "./ai-lab"
+import {
+    NotificationsModule,
+} from "./notifications"
 
 /**
  * Feature module bundling all real-time Socket.IO gateways of the app.
@@ -34,6 +37,9 @@ import {
             isGlobal: true,
         }),
         AiLabModule.register({
+            isGlobal: true,
+        }),
+        NotificationsModule.register({
             isGlobal: true,
         }),
     ],

@@ -96,6 +96,23 @@ export interface AppConfigSubscriptions {
     tiers: Array<AppConfigSubscriptionTier>
 }
 
+/**
+ * `membership` section in mounted `app.yaml` — the single community-membership
+ * product ($5/month equivalent) plus the perks it controls.
+ */
+export interface AppConfigMembership {
+    /** Monthly price in VND for domestic gateways (PayOS / Sepay). */
+    priceVnd: number
+    /** Monthly price in USD (dollars) for international gateways. */
+    priceUsd: number
+    /** Percent discount members get on course checkout (e.g. 20 = 20% off). */
+    courseDiscountPercent: number
+    /** Free membership months auto-granted when a user buys any course. */
+    freeMonthsOnCoursePurchase: number
+    /** Kill-switch — `false` hides membership purchase without deleting config. */
+    enabled: boolean
+}
+
 /** Root app config. */
 export interface AppConfig {
     sentryDsn: string
@@ -105,4 +122,6 @@ export interface AppConfig {
     systemConfig: AppConfigSystemConfig
     /** AI subscription tiers (Plus / Pro / Max). */
     subscriptions: AppConfigSubscriptions
+    /** Community membership product + perks (blog/community/discount). */
+    membership: AppConfigMembership
 }

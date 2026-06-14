@@ -10,7 +10,6 @@ import {
     CodeImplementationEntity,
     ContentBodyEntity,
     ContentEntity,
-    ContentReferenceEntity,
 } from "../entities"
 import {
     InjectPrimaryPostgreSQLEntityManager,
@@ -50,28 +49,11 @@ export class ContentHydrationService {
         }
         const hydratedContent = content.toPlain<ContentEntity>()
         const [
-            references,
             codeExplainings,
             codeImplementations,
             challenges,
             bodies,
         ] = await Promise.all([
-            this.entityManager.find(
-                ContentReferenceEntity,
-                {
-                    where: {
-                        content: {
-                            id: hydratedContent.id,
-                        },
-                    },
-                    relations: {
-                        translations: true,
-                    },
-                    order: {
-                        sortIndex: "ASC",
-                    },
-                },
-            ),
             this.entityManager.find(
                 CodeExplainingEntity,
                 {
@@ -138,9 +120,6 @@ export class ContentHydrationService {
                 },
             ),
         ])
-        hydratedContent.references = references.map(
-            (reference) => reference.toPlain<ContentReferenceEntity>(),
-        )
         hydratedContent.codeExplainings = codeExplainings.map(
             (row) => row.toPlain<CodeExplainingEntity>(),
         )

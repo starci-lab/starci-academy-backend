@@ -11,6 +11,7 @@ import {
     ManyToOne,
     OneToMany,
     RelationId,
+    Unique,
 } from "typeorm"
 import {
     UuidAbstractEntity,
@@ -29,8 +30,22 @@ import {
 @ObjectType({
     description: "A single attempt of a user challenge submission.",
 })
+@Unique(["idempotencyKey"])
 @Entity("user_challenge_submission_attempts")
 export class UserChallengeSubmissionAttemptEntity extends UuidAbstractEntity {
+    /**
+     * Idempotency key (= grading job id) — one attempt per grading job. A retried
+     * job re-inserting with the same key hits this unique constraint, so the
+     * complete step treats it as already-done instead of creating a duplicate.
+     */
+    @Column({
+        name: "idempotency_key",
+        type: "varchar",
+        length: 64,
+        nullable: true,
+    })
+        idempotencyKey: string | null
+
     @Field(
         () => Int,
         {

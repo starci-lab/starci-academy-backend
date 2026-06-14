@@ -67,6 +67,18 @@ import {
 import {
     AiLabQueriesModule,
 } from "./ai-lab"
+import {
+    SessionsQueriesModule,
+} from "./sessions"
+import {
+    DashboardQueriesModule,
+} from "./dashboard"
+import {
+    UsersQueriesModule,
+} from "./users"
+import {
+    NotificationsQueriesModule,
+} from "./notifications"
 
 @Module({
     imports: [
@@ -131,6 +143,18 @@ import {
             isGlobal: true,
         }),
         AiLabQueriesModule.register({
+            isGlobal: true,
+        }),
+        SessionsQueriesModule.register({
+            isGlobal: true,
+        }),
+        DashboardQueriesModule.register({
+            isGlobal: true,
+        }),
+        UsersQueriesModule.register({
+            isGlobal: true,
+        }),
+        NotificationsQueriesModule.register({
             isGlobal: true,
         }),
     ],

@@ -1,8 +1,6 @@
 import {
     EnqueueProcessGitSubmissionJobService,
-    EnqueueProcessGitSubmissionV2JobService,
     EnqueueProcessGoogleDocsSubmissionJobService,
-    EnqueueProcessGoogleDocsSubmissionV2JobService,
     CreditUsageService,
 } from "@modules/bussiness"
 import {
@@ -73,9 +71,7 @@ export class SubmitChallengeSubmissionHandler
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly enqueueProcessGitSubmissionJobService: EnqueueProcessGitSubmissionJobService,
-        private readonly enqueueProcessGitSubmissionV2JobService: EnqueueProcessGitSubmissionV2JobService,
         private readonly enqueueProcessGoogleDocsSubmissionJobService: EnqueueProcessGoogleDocsSubmissionJobService,
-        private readonly enqueueProcessGoogleDocsSubmissionV2JobService: EnqueueProcessGoogleDocsSubmissionV2JobService,
         private readonly dayjsService: DayjsService,
         private readonly postgreSqlAdvisoryLockService: PostgreSqlAdvisoryLockService,
         private readonly gradingLaneValidationService: GradingLaneValidationService,
@@ -395,11 +391,10 @@ export class SubmitChallengeSubmissionHandler
         // use the request lang, else fall back to the language persisted on the submission row
         const effectiveLang = lang ?? userChallengeSubmission.selectedLang ?? undefined
         /**
-         * Enqueue the grading job. A verified (SCHEMA V2) challenge routes to the V2 pipeline that
-         * grades against outcome/approach criteria; the learner's chosen programming language
-         * (`lang`) selects the matching approach-criteria bucket. Legacy challenges keep the V1 path.
+         * Enqueue the grading job on the SCHEMA V2 pipeline (grades against outcome/approach
+         * criteria); the learner's chosen programming language (`lang`) selects the matching
+         * approach-criteria bucket. The legacy V1 pipeline has been removed.
          */
-        const isV2Challenge = Boolean(challenge.verified)
         const enqueueParams = {
             userId: user.id,
             enrollmentId,
@@ -412,17 +407,13 @@ export class SubmitChallengeSubmissionHandler
         let job: JobEntity | null = null
         switch (challengeSubmission.type) {
         case SubmissionType.GithubUrl:
-            job = isV2Challenge
-                ? await this.enqueueProcessGitSubmissionV2JobService.enqueue({
-                    ...enqueueParams,
-                    lang: effectiveLang,
-                })
-                : await this.enqueueProcessGitSubmissionJobService.enqueue(enqueueParams)
+            job = await this.enqueueProcessGitSubmissionJobService.enqueue({
+                ...enqueueParams,
+                lang: effectiveLang,
+            })
             break
         case SubmissionType.GoogleDocsUrl:
-            job = isV2Challenge
-                ? await this.enqueueProcessGoogleDocsSubmissionV2JobService.enqueue(enqueueParams)
-                : await this.enqueueProcessGoogleDocsSubmissionJobService.enqueue(enqueueParams)
+            job = await this.enqueueProcessGoogleDocsSubmissionJobService.enqueue(enqueueParams)
             break
         }
         return {

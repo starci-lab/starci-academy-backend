@@ -9,11 +9,13 @@ import {
     CodingProgressService,
     JobActionService,
     JobExtendedContext,
+    writeActivity,
 } from "@modules/bussiness"
 import type {
     JudgeCodingSubmissionPayload,
 } from "@modules/bullmq"
 import {
+    ActivityType,
     CodingSolutionRevealEntity,
     CodingSubmissionEntity,
     CodingVerdict,
@@ -38,8 +40,10 @@ import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
-import type {
+import {
     CodingProblemEntity,
+} from "@modules/databases"
+import type {
     CodingProblemTestcaseEntity,
 } from "@modules/databases"
 import type {
@@ -285,6 +289,20 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
             "codingPoints",
             problem.points,
         )
+        // home-feed activity for the first solve (idempotent on user+problem)
+        await writeActivity({
+            entityManager: this.entityManager,
+            userId,
+            type: ActivityType.CodingSolved,
+            idempotencyKey: `codingSolved:${userId}:${problem.id}`,
+            metadata: {
+                target: {
+                    entityName: CodingProblemEntity.name,
+                    id: problem.id,
+                    label: problem.title,
+                },
+            },
+        })
     }
 
     /**

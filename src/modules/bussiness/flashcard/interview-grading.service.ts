@@ -2,22 +2,36 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
+    EntityManager,
+} from "typeorm"
+import {
     AiMode,
+    CreditUsageHistoryEntity,
+    InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
     AiEntitlementService,
     AiInvokeService,
     extractJsonBlock,
+    ModelRecommendation,
+    resolveGradingCreditCost,
     resolveGradingInvokeOptions,
 } from "@modules/ai"
 import type {
     AiJobSelection,
 } from "@modules/ai"
 import {
+    envConfig,
+} from "@modules/env"
+import {
+    AiQuotaExhaustedException,
     FlashcardCardMissingAnswerException,
     FlashcardCardNotFoundException,
     ParsingCriteriaResultsFromModelTextException,
 } from "@modules/exceptions"
+import {
+    CreditUsageService,
+} from "../credit/credit-usage.service"
 import {
     FlashcardDeckReadService,
 } from "./flashcard-deck.service"
@@ -36,6 +50,12 @@ const MIN_SCORE = 0
 /** Maximum allowed interview score. */
 const MAX_SCORE = 100
 
+/** Score at/above which a missing/garbled verdict falls back to a pass. */
+const PASS_SCORE_THRESHOLD = 75
+
+/** Score at/above which a missing/garbled verdict falls back to borderline (below → fail). */
+const BORDERLINE_SCORE_THRESHOLD = 50
+
 /**
  * Stateless interview-answer grading. Loads the question card from its deck,
  * builds the grading prompt from the card's model answer, invokes the shared AI
@@ -44,10 +64,13 @@ const MAX_SCORE = 100
 @Injectable()
 export class InterviewGradingService {
     constructor(
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
         private readonly flashcardDeckReadService: FlashcardDeckReadService,
         private readonly interviewGradePromptService: InterviewGradePromptService,
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
+        private readonly creditUsageService: CreditUsageService,
     ) { }
 
     /**
@@ -58,6 +81,7 @@ export class InterviewGradingService {
      * @throws FlashcardDeckNotFoundException when the deck is absent.
      * @throws FlashcardCardNotFoundException when the card is not in the deck.
      * @throws FlashcardCardMissingAnswerException when the card has no model answer.
+     * @throws AiQuotaExhaustedException when the user is over the rolling Auto credit pool.
      * @throws ParsingCriteriaResultsFromModelTextException when the model output is not parseable JSON.
      */
     async grade(
@@ -93,6 +117,17 @@ export class InterviewGradingService {
             })
         }
 
+        // gate the free Auto lane against the shared rolling credit pool — interview
+        // grading always runs on the pinned gpt-4o Auto lane, so block once the user is
+        // over quota instead of leaking unbounded free gpt-4o calls behind the throttler
+        const creditSnapshot = await this.creditUsageService.getSnapshot(userId)
+        if (creditSnapshot.overQuota) {
+            throw new AiQuotaExhaustedException({
+                mode: AiMode.Auto,
+                window: "credit",
+            })
+        }
+
         // P0 only carries an optional mode; only an explicit Auto pick is constructible
         // here (Premium / Byok need a model + provider the client does not send), so any
         // other value falls through to the resolver's default Auto lane (pinned gpt-4o).
@@ -122,7 +157,47 @@ export class InterviewGradingService {
             ...invokeOptions,
         })
 
+        // charge the Auto credit pool for this gpt-4o call NOW — before parsing — so a
+        // malformed model response can never leak a free grading call
+        await this.recordAutoCreditUsage(userId)
+
         return this.parse(text)
+    }
+
+    /**
+     * Persist an Auto-lane {@link CreditUsageHistoryEntity} row for one interview
+     * grading run, then bust the user's cached usage so the next gate sees it.
+     * The row carries no attempt — interview practice is stateless and not tied to
+     * a challenge — but still counts toward the same rolling Auto credit pool.
+     *
+     * @param userId - The user charged for the gpt-4o grading call.
+     */
+    private async recordAutoCreditUsage(
+        userId: string,
+    ): Promise<void> {
+        // Auto lane is flat-priced; recommendation only matters for the Premium tiers
+        const recommendation = envConfig().ai.modelRecommendation as ModelRecommendation
+        await this.entityManager.save(
+            CreditUsageHistoryEntity,
+            {
+                user: {
+                    id: userId,
+                },
+                // stateless interview grading is not tied to a challenge attempt
+                attempt: null,
+                mode: AiMode.Auto,
+                // Auto lane has no premium tier / pinned model to attribute
+                recommendation: null,
+                model: null,
+                provider: null,
+                credits: resolveGradingCreditCost({
+                    mode: AiMode.Auto,
+                    recommendation,
+                }),
+            },
+        )
+        // drop the cached totals so the next getSnapshot recomputes including this charge
+        await this.creditUsageService.invalidate(userId)
     }
 
     /**
@@ -149,9 +224,15 @@ export class InterviewGradingService {
             })
         }
 
+        // score is normalized first so the verdict can fall back to it when the model
+        // returns a missing / unrecognized verdict literal
+        const score = this.normalizeScore(parsed.score)
         return {
-            score: this.normalizeScore(parsed.score),
-            verdict: this.normalizeVerdict(parsed.verdict),
+            score,
+            verdict: this.normalizeVerdict(
+                parsed.verdict,
+                score,
+            ),
             strengths: this.normalizeStringArray(parsed.strengths),
             gaps: this.normalizeStringArray(parsed.gaps),
             modelAnswerHint: this.normalizeNullableString(parsed.modelAnswerHint),
@@ -184,14 +265,17 @@ export class InterviewGradingService {
     }
 
     /**
-     * Coerce an unknown verdict to a valid {@link InterviewVerdict}, defaulting
-     * to {@link InterviewVerdict.Fail} when it is missing or unrecognized.
+     * Coerce an unknown verdict to a valid {@link InterviewVerdict}. When the model
+     * returns a missing / unrecognized verdict literal, fall back to one derived from
+     * the score so a strong answer is not mislabeled "fail" over a garbled string.
      *
      * @param value - The raw verdict value from the parsed JSON.
+     * @param scoreFallback - The already-normalized score to derive a verdict from on a miss.
      * @returns A valid verdict enum member.
      */
     private normalizeVerdict(
         value: unknown,
+        scoreFallback: number,
     ): InterviewVerdict {
         const candidate = typeof value === "string"
             ? value.trim().toLowerCase()
@@ -199,7 +283,27 @@ export class InterviewGradingService {
         const match = Object.values(InterviewVerdict).find(
             (verdict) => verdict === candidate,
         )
-        return match ?? InterviewVerdict.Fail
+        return match ?? this.verdictFromScore(scoreFallback)
+    }
+
+    /**
+     * Derive a verdict from a normalized score, used only as a fallback when the
+     * model's own verdict literal is missing or unrecognized.
+     *
+     * @param score - The normalized [0, 100] score.
+     * @returns Pass at/above {@link PASS_SCORE_THRESHOLD}, Borderline at/above
+     *   {@link BORDERLINE_SCORE_THRESHOLD}, otherwise Fail.
+     */
+    private verdictFromScore(
+        score: number,
+    ): InterviewVerdict {
+        if (score >= PASS_SCORE_THRESHOLD) {
+            return InterviewVerdict.Pass
+        }
+        if (score >= BORDERLINE_SCORE_THRESHOLD) {
+            return InterviewVerdict.Borderline
+        }
+        return InterviewVerdict.Fail
     }
 
     /**

@@ -13,6 +13,8 @@ import {
 import type {
     AddGithubUserToTeamInOrgParams,
     AddGithubUserToTeamInOrgResult,
+    RemoveGithubUserFromTeamInOrgParams,
+    RemoveGithubUserFromTeamInOrgResult,
 } from "./types"
 
 /**
@@ -54,6 +56,39 @@ export class GithubApiOrgService {
         return {
             state: response.data.state,
             role: response.data.role,
+        }
+    }
+
+    /**
+     * Removes a user from an organization team (revokes course repo access).
+     *
+     * Idempotent from the caller's perspective: GitHub returns 204 whether the
+     * user was a member or not, so re-running a revoke job is safe.
+     *
+     * @param param - Team slug and username
+     * @returns Whether the removal call completed without error
+     */
+    async removeUserFromTeamInOrg(
+        {
+            teamSlug,
+            githubUsername,
+        }: RemoveGithubUserFromTeamInOrgParams,
+    ): Promise<RemoveGithubUserFromTeamInOrgResult> {
+        const octokit = new Octokit(
+            {
+                auth: this.mountStorageService.githubAccessToken,
+            },
+        )
+        await octokit.rest.teams.removeMembershipForUserInOrg(
+            {
+                org: envConfig().services.github.organization,
+                team_slug: teamSlug,
+                username: githubUsername,
+            },
+        )
+
+        return {
+            success: true,
         }
     }
 }

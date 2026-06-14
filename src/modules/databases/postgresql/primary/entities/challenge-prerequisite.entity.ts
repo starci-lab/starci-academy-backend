@@ -5,10 +5,6 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 import {
-    GraphQLTypeLocale,
-    Locale,
-} from "../enums"
-import {
     Column,
     Entity,
     JoinColumn,
@@ -17,28 +13,38 @@ import {
     RelationId,
 } from "typeorm"
 import {
+    GraphQLTypeLocale,
+    Locale,
+} from "../enums"
+import {
     UuidAbstractEntity,
 } from "./abstract"
 import {
     ChallengeEntity,
 } from "./challenge.entity"
 import {
-    ChallengePrerequisiteTranslationEntity,
-} from "./challenge-prerequisite-translation.entity"
+    ChallengePrerequisiteLangEntity,
+} from "./challenge-prerequisite-lang.entity"
 
+/**
+ * SCHEMA V2 prerequisite ITEM for a challenge (normalized — no jsonb). One row per prerequisite
+ * position; the per-language `text` lives under {@link ChallengePrerequisiteLangEntity}.
+ * Prerequisites carry no item-level title, so there is no item translation table.
+ */
 @ObjectType({
-    description: "Markdown prerequisite item belonging to a challenge.",
+    description: "A SCHEMA V2 challenge prerequisite item (one per position).",
 })
 @Entity("challenge_prerequisites")
 export class ChallengePrerequisiteEntity extends UuidAbstractEntity {
-    @Field(() => String)
-    @Column({
-        name: "text",
-        type: "text",
-    })
-        text: string
-
-    @Field(() => Int)
+    /**
+     * Display order of this prerequisite within the challenge (agnostic position).
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Display order of this prerequisite within the challenge.",
+        },
+    )
     @Column({
         name: "order_index",
         type: "int",
@@ -46,7 +52,15 @@ export class ChallengePrerequisiteEntity extends UuidAbstractEntity {
     })
         orderIndex: number
 
-    @Field(() => Int, { description: "Pure ordering index used to reorder the list (decoupled from orderIndex)." })
+    /**
+     * Pure ordering index used to reorder the list (decoupled from orderIndex).
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Pure ordering index used to reorder the list (decoupled from orderIndex).",
+        },
+    )
     @Column({
         name: "sort_index",
         type: "int",
@@ -54,7 +68,15 @@ export class ChallengePrerequisiteEntity extends UuidAbstractEntity {
     })
         sortIndex: number
 
-    @Field(() => GraphQLTypeLocale)
+    /**
+     * Default locale for this prerequisite item.
+     */
+    @Field(
+        () => GraphQLTypeLocale,
+        {
+            description: "Default locale for this prerequisite item.",
+        },
+    )
     @Column({
         name: "default_locale",
         type: "enum",
@@ -63,6 +85,9 @@ export class ChallengePrerequisiteEntity extends UuidAbstractEntity {
     })
         defaultLocale: Locale
 
+    /**
+     * Parent challenge this prerequisite belongs to.
+     */
     @ManyToOne(
         () => ChallengeEntity,
         (challenge: ChallengeEntity) => challenge.prerequisites,
@@ -76,17 +101,35 @@ export class ChallengePrerequisiteEntity extends UuidAbstractEntity {
     })
         challenge: ChallengeEntity
 
-    @Field(() => ID)
-    @RelationId((challengePrerequisite: ChallengePrerequisiteEntity) => challengePrerequisite.challenge)
+    /**
+     * Parent challenge ID.
+     */
+    @Field(
+        () => ID,
+        {
+            description: "Parent challenge ID.",
+        },
+    )
+    @RelationId(
+        (prerequisite: ChallengePrerequisiteEntity) => prerequisite.challenge,
+    )
         challengeId: string
 
-    @Field(() => [ChallengePrerequisiteTranslationEntity])
+    /**
+     * Per-programming-language content (text) for this prerequisite.
+     */
+    @Field(
+        () => [ChallengePrerequisiteLangEntity],
+        {
+            description: "Per-programming-language content for this prerequisite.",
+        },
+    )
     @OneToMany(
-        () => ChallengePrerequisiteTranslationEntity,
-        (translation: ChallengePrerequisiteTranslationEntity) => translation.challengePrerequisite,
+        () => ChallengePrerequisiteLangEntity,
+        (lang: ChallengePrerequisiteLangEntity) => lang.prerequisite,
         {
             cascade: true,
         },
     )
-        translations: Array<ChallengePrerequisiteTranslationEntity>
+        langs: Array<ChallengePrerequisiteLangEntity>
 }

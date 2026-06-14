@@ -14,6 +14,10 @@ services:
       - 'POSTGRESQL_USERNAME=postgres'
       - 'POSTGRESQL_DATABASE=postgres'
       - 'POSTGRESQL_PASSWORD=Cuong123_A'
+      # logical decoding so Debezium CDC can read the WAL
+      - 'POSTGRESQL_WAL_LEVEL=logical'
+      - 'POSTGRESQL_MAX_WAL_SENDERS=10'
+      - 'POSTGRESQL_MAX_REPLICATION_SLOTS=10'
 
 volumes:
   postgresql_data:

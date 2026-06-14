@@ -51,6 +51,17 @@
         "webpack": true,
         "webpackConfigPath": "apps/mock/webpack.config.cjs"
       }
+    },
+    "tools": {
+      "type": "application",
+      "root": "apps/tools",
+      "entryFile": "main",
+      "sourceRoot": "apps/tools/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/tools/tsconfig.app.json",
+        "webpack": true,
+        "webpackConfigPath": "apps/tools/webpack.config.cjs"
+      }
     }
   }
 }

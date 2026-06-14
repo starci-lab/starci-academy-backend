@@ -30,29 +30,23 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
         ),
         name: "process-git-submission",
     },
-    [BullQueueName.ProcessGitSubmissionV2]: {
-        prefix: formatWithBraces(
-            "process-git-submission-v2",
-        ),
-        name: "process-git-submission-v2",
-    },
     [BullQueueName.ProcessGoogleDocsSubmission]: {
         prefix: formatWithBraces(
             "process-google-docs-submission",
         ),
         name: "process-google-docs-submission",
     },
-    [BullQueueName.ProcessGoogleDocsSubmissionV2]: {
-        prefix: formatWithBraces(
-            "process-google-docs-submission-v2",
-        ),
-        name: "process-google-docs-submission-v2",
-    },
     [BullQueueName.ResolveGithub]: {
         prefix: formatWithBraces(
             "resolve-github",
         ),
         name: "resolve-github",
+    },
+    [BullQueueName.RevokeGithub]: {
+        prefix: formatWithBraces(
+            "revoke-github",
+        ),
+        name: "revoke-github",
     },
     [BullQueueName.ProcessCvSubmission]: {
         prefix: formatWithBraces(

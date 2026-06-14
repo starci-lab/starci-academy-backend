@@ -9,16 +9,16 @@ import {
 } from "@nestjs/common"
 import {
     ChallengeDifficulty,
-    ChallengeRequirementV2LangEntity,
-    ChallengeOutputV2LangEntity,
-    ChallengePrerequisiteV2LangEntity,
-    ChallengeStepV2LangEntity,
+    ChallengeRequirementLangEntity,
+    ChallengeOutputLangEntity,
+    ChallengePrerequisiteLangEntity,
+    ChallengeStepLangEntity,
     Locale,
     SubmissionType,
-    ChallengeRequirementV2LangTranslationEntity,
-    ChallengeStepV2LangTranslationEntity,
-    ChallengeOutputV2LangTranslationEntity,
-    ChallengePrerequisiteV2LangTranslationEntity,
+    ChallengeRequirementLangTranslationEntity,
+    ChallengeStepLangTranslationEntity,
+    ChallengeOutputLangTranslationEntity,
+    ChallengePrerequisiteLangTranslationEntity,
 } from "@modules/databases"
 import {
     ExtractJsonFromMdService,
@@ -32,10 +32,10 @@ import {
 } from "../../shared"
 import {
     ChallengeIdFactoryService,
-    ChallengeOutputV2IdFactoryService,
-    ChallengePrerequisiteV2IdFactoryService,
-    ChallengeRequirementV2IdFactoryService,
-    ChallengeStepV2IdFactoryService,
+    ChallengeOutputIdFactoryService,
+    ChallengePrerequisiteIdFactoryService,
+    ChallengeRequirementIdFactoryService,
+    ChallengeStepIdFactoryService,
     ChallengeSubmissionCriteriaIdFactoryService,
     ChallengeSubmissionIdFactoryService,
     ContentIdFactoryService,
@@ -47,10 +47,10 @@ import {
 import {
     ChallengeEntity,
     InjectPrimaryPostgreSQLEntityManager,
-    ChallengeOutputV2Entity,
-    ChallengePrerequisiteV2Entity,
-    ChallengeRequirementV2Entity,
-    ChallengeStepV2Entity,
+    ChallengeOutputEntity,
+    ChallengePrerequisiteEntity,
+    ChallengeRequirementEntity,
+    ChallengeStepEntity,
     ChallengeSubmissionApproachCriteriaEntity,
     ChallengeSubmissionApproachCriteriaLangEntity,
     ChallengeSubmissionEntity,
@@ -80,10 +80,10 @@ export class ChallengeParserService {
         private readonly coerceMdScalarService: CoerceMdScalarService,
         private readonly mergeJsonService: MergeJsonService,
         private readonly challengeIdFactoryService: ChallengeIdFactoryService,
-        private readonly challengeRequirementV2IdFactoryService: ChallengeRequirementV2IdFactoryService,
-        private readonly challengeStepV2IdFactoryService: ChallengeStepV2IdFactoryService,
-        private readonly challengeOutputV2IdFactoryService: ChallengeOutputV2IdFactoryService,
-        private readonly challengePrerequisiteV2IdFactoryService: ChallengePrerequisiteV2IdFactoryService,
+        private readonly challengeRequirementIdFactoryService: ChallengeRequirementIdFactoryService,
+        private readonly challengeStepIdFactoryService: ChallengeStepIdFactoryService,
+        private readonly challengeOutputIdFactoryService: ChallengeOutputIdFactoryService,
+        private readonly challengePrerequisiteIdFactoryService: ChallengePrerequisiteIdFactoryService,
         private readonly challengeSubmissionIdFactoryService: ChallengeSubmissionIdFactoryService,
         private readonly challengeSubmissionCriteriaIdFactoryService: ChallengeSubmissionCriteriaIdFactoryService,
         private readonly pathResolverService: PathResolverService,
@@ -146,7 +146,13 @@ export class ChallengeParserService {
                 "outputs.langs.text",
                 "prerequisites.langs.text",
             ]
-        }) as MergeJsonResult<DeepPartial<ChallengeEntity>>
+        }) as MergeJsonResult<DeepPartial<ChallengeEntity> & {
+            // authored content keys (mapped into the V2 entities below); not on the entity itself
+            requirements?: Array<Record<string, unknown>>
+            steps?: Array<Record<string, unknown>>
+            outputs?: Array<Record<string, unknown>>
+            prerequisites?: Array<Record<string, unknown>>
+        }>
         const challengeId = this.challengeIdFactoryService.generate(
             {
                 courseIndex,
@@ -202,12 +208,12 @@ export class ChallengeParserService {
                     value,
                 }),
             ),
-            requirementsV2: ((merged.requirements ?? []) as Array<DeepPartial<ChallengeRequirementV2Entity>>).map(({
+            requirements: ((merged.requirements ?? []) as Array<DeepPartial<ChallengeRequirementEntity>>).map(({
                 orderIndex,
                 sortIndex,
                 langs,
             }) => {
-                const challengeRequirementV2Id = this.challengeRequirementV2IdFactoryService.generate({
+                const challengeRequirementId = this.challengeRequirementIdFactoryService.generate({
                     courseIndex,
                     moduleIndex,
                     contentIndex,
@@ -215,13 +221,13 @@ export class ChallengeParserService {
                     orderIndex: orderIndex ?? 0,
                 })
                 return {
-                    id: challengeRequirementV2Id,
+                    id: challengeRequirementId,
                     orderIndex,
                     sortIndex: typeof sortIndex === "number" ? sortIndex : (orderIndex ?? 0),
                     defaultLocale: Locale.En,
-                    langs: ((langs ?? []) as Array<DeepPartial<ChallengeRequirementV2LangEntity>>)
-                        .map<DeepPartial<ChallengeRequirementV2LangEntity>>((lang) => {
-                            const challengeRequirementV2LangId = this.challengeRequirementV2IdFactoryService.generate({
+                    langs: ((langs ?? []) as Array<DeepPartial<ChallengeRequirementLangEntity>>)
+                        .map<DeepPartial<ChallengeRequirementLangEntity>>((lang) => {
+                            const challengeRequirementLangId = this.challengeRequirementIdFactoryService.generate({
                                 courseIndex,
                                 moduleIndex,
                                 contentIndex,
@@ -232,11 +238,11 @@ export class ChallengeParserService {
                             return {
                                 ...lang,
                                 sortIndex: typeof lang.sortIndex === "number" ? lang.sortIndex : (lang.orderIndex ?? 0),
-                                translations: (lang.translations ?? []).map<DeepPartial<ChallengeRequirementV2LangTranslationEntity>>((translation) => ({
+                                translations: (lang.translations ?? []).map<DeepPartial<ChallengeRequirementLangTranslationEntity>>((translation) => ({
                                     ...translation,
-                                    challengeRequirementV2LangId,
+                                    challengeRequirementLangId,
                                 })),
-                                id: challengeRequirementV2LangId,
+                                id: challengeRequirementLangId,
                                 lang: this.coerceMdScalarService.toRequiredString(
                                     lang.lang,
                                     "text",
@@ -251,12 +257,12 @@ export class ChallengeParserService {
                         ),
                 }
             }),
-            stepsV2: ((merged.steps ?? []) as Array<DeepPartial<ChallengeStepV2Entity>>).map(({
+            steps: ((merged.steps ?? []) as Array<DeepPartial<ChallengeStepEntity>>).map(({
                 orderIndex,
                 sortIndex,
                 langs,
             }) => {
-                const challengeStepV2Id = this.challengeStepV2IdFactoryService.generate({
+                const challengeStepId = this.challengeStepIdFactoryService.generate({
                     courseIndex,
                     moduleIndex,
                     contentIndex,
@@ -264,13 +270,13 @@ export class ChallengeParserService {
                     orderIndex: orderIndex ?? 0,
                 })
                 return {
-                    id: challengeStepV2Id,
+                    id: challengeStepId,
                     orderIndex,
                     sortIndex: typeof sortIndex === "number" ? sortIndex : (orderIndex ?? 0),
                     defaultLocale: Locale.En,
-                    langs: ((langs ?? []) as Array<DeepPartial<ChallengeStepV2LangEntity>>)
-                        .map<DeepPartial<ChallengeStepV2LangEntity>>((lang) => {
-                            const challengeStepV2LangId = this.challengeStepV2IdFactoryService.generate({
+                    langs: ((langs ?? []) as Array<DeepPartial<ChallengeStepLangEntity>>)
+                        .map<DeepPartial<ChallengeStepLangEntity>>((lang) => {
+                            const challengeStepLangId = this.challengeStepIdFactoryService.generate({
                                 courseIndex,
                                 moduleIndex,
                                 contentIndex,
@@ -281,11 +287,11 @@ export class ChallengeParserService {
                             return {
                                 ...lang,
                                 sortIndex: typeof lang.sortIndex === "number" ? lang.sortIndex : (lang.orderIndex ?? 0),
-                                translations: (lang.translations ?? []).map<DeepPartial<ChallengeStepV2LangTranslationEntity>>((translation) => ({
+                                translations: (lang.translations ?? []).map<DeepPartial<ChallengeStepLangTranslationEntity>>((translation) => ({
                                     ...translation,
-                                    challengeStepV2LangId,
+                                    challengeStepLangId,
                                 })),
-                                id: challengeStepV2LangId,
+                                id: challengeStepLangId,
                                 lang: this.coerceMdScalarService.toRequiredString(
                                     lang.lang,
                                     "text",
@@ -295,12 +301,12 @@ export class ChallengeParserService {
                         }),
                 }
             }),
-            outputsV2: ((merged.outputs ?? []) as Array<DeepPartial<ChallengeOutputV2Entity>>).map(({
+            outputs: ((merged.outputs ?? []) as Array<DeepPartial<ChallengeOutputEntity>>).map(({
                 orderIndex,
                 sortIndex,
                 langs,
             }) => {
-                const challengeOutputV2Id = this.challengeOutputV2IdFactoryService.generate({
+                const challengeOutputId = this.challengeOutputIdFactoryService.generate({
                     courseIndex,
                     moduleIndex,
                     contentIndex,
@@ -308,13 +314,13 @@ export class ChallengeParserService {
                     orderIndex: orderIndex ?? 0,
                 })
                 return {
-                    id: challengeOutputV2Id,
+                    id: challengeOutputId,
                     orderIndex,
                     sortIndex: typeof sortIndex === "number" ? sortIndex : (orderIndex ?? 0),
                     defaultLocale: Locale.En,
-                    langs: ((langs ?? []) as Array<DeepPartial<ChallengeOutputV2LangEntity>>)
+                    langs: ((langs ?? []) as Array<DeepPartial<ChallengeOutputLangEntity>>)
                         .map((lang) => {
-                            const challengeOutputV2LangId = this.challengeOutputV2IdFactoryService.generate({
+                            const challengeOutputLangId = this.challengeOutputIdFactoryService.generate({
                                 courseIndex,
                                 moduleIndex,
                                 contentIndex,
@@ -324,7 +330,7 @@ export class ChallengeParserService {
                             })
 
                             return {
-                                id: challengeOutputV2LangId,
+                                id: challengeOutputLangId,
                                 lang: this.coerceMdScalarService.toRequiredString(
                                     lang.lang,
                                     "text",
@@ -334,22 +340,22 @@ export class ChallengeParserService {
                                 text: this.coerceMdScalarService.toNullableStringColumn(
                                     lang.text,
                                 ),
-                                translations: (lang.translations ?? []).map<DeepPartial<ChallengeOutputV2LangTranslationEntity>>((translation) => ({
+                                translations: (lang.translations ?? []).map<DeepPartial<ChallengeOutputLangTranslationEntity>>((translation) => ({
                                     ...translation,
-                                    challengeOutputV2LangId,
+                                    challengeOutputLangId,
                                 })),
                             }
                         }),
                 }
             }),
-            prerequisitesV2: (
-                (merged.prerequisites ?? []) as Array<DeepPartial<ChallengePrerequisiteV2Entity>>
+            prerequisites: (
+                (merged.prerequisites ?? []) as Array<DeepPartial<ChallengePrerequisiteEntity>>
             ).map(({
                 orderIndex,
                 sortIndex,
                 langs,
             }) => {
-                const challengePrerequisiteV2Id = this.challengePrerequisiteV2IdFactoryService.generate({
+                const challengePrerequisiteId = this.challengePrerequisiteIdFactoryService.generate({
                     courseIndex,
                     moduleIndex,
                     contentIndex,
@@ -357,13 +363,13 @@ export class ChallengeParserService {
                     orderIndex: orderIndex ?? 0,
                 })
                 return {
-                    id: challengePrerequisiteV2Id,
+                    id: challengePrerequisiteId,
                     orderIndex,
                     sortIndex: typeof sortIndex === "number" ? sortIndex : (orderIndex ?? 0),
                     defaultLocale: Locale.En,
-                    langs: ((langs ?? []) as Array<DeepPartial<ChallengePrerequisiteV2LangEntity>>)
+                    langs: ((langs ?? []) as Array<DeepPartial<ChallengePrerequisiteLangEntity>>)
                         .map((lang) => {
-                            const challengePrerequisiteV2LangId = this.challengePrerequisiteV2IdFactoryService.generate({
+                            const challengePrerequisiteLangId = this.challengePrerequisiteIdFactoryService.generate({
                                 courseIndex,
                                 moduleIndex,
                                 contentIndex,
@@ -372,7 +378,7 @@ export class ChallengeParserService {
                                 orderIndex: lang.orderIndex ?? 0,
                             })
                             return {
-                                id: challengePrerequisiteV2LangId,
+                                id: challengePrerequisiteLangId,
                                 lang: this.coerceMdScalarService.toRequiredString(
                                     lang.lang,
                                     "text",
@@ -382,9 +388,9 @@ export class ChallengeParserService {
                                 text: this.coerceMdScalarService.toNullableStringColumn(
                                     lang.text,
                                 ),
-                                translations: (lang.translations ?? []).map<DeepPartial<ChallengePrerequisiteV2LangTranslationEntity>>((translation) => ({
+                                translations: (lang.translations ?? []).map<DeepPartial<ChallengePrerequisiteLangTranslationEntity>>((translation) => ({
                                     ...translation,
-                                    challengePrerequisiteV2LangId,
+                                    challengePrerequisiteLangId,
                                 })),
                             }
                         }),

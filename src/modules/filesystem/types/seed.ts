@@ -216,6 +216,11 @@ export interface InitSyncBlock {
  * by the init-config parser.
  */
 export interface InitConfig {
+    /**
+     * Master switch. `false` skips the ENTIRE init at boot — no git pull, no seed,
+     * no sync (fastest local start). Defaults to `true` (omitted = enabled).
+     */
+    enable?: boolean
     mode?: InitScopeMode
     seed?: InitSeedBlock
     sync?: InitSyncBlock

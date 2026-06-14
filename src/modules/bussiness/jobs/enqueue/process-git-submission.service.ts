@@ -40,7 +40,9 @@ import {
 } from "../utils"
 
 /**
- * Service for enqueuing a Git challenge submission grading job.
+ * Enqueues a SCHEMA V2 Git challenge submission grading job (criteria-based): targets the V2
+ * queue/action and carries the learner's chosen programming language so the grade step picks the
+ * right approach criteria. (The legacy V1 enqueue/pipeline has been removed.)
  */
 @Injectable()
 export class EnqueueProcessGitSubmissionJobService {
@@ -50,7 +52,7 @@ export class EnqueueProcessGitSubmissionJobService {
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
         @InjectQueue(bullData[BullQueueName.ProcessGitSubmission].name)
-        private readonly processGitSubmissionQueue: Queue<string>,
+        private readonly processGitSubmissionV2Queue: Queue<string>,
     ) {}
 
     /**
@@ -70,6 +72,7 @@ export class EnqueueProcessGitSubmissionJobService {
             embeddingProvider,
             locale,
             ai,
+            lang,
         }: EnqueueProcessGitSubmissionJobParams,
     ): Promise<JobEntity> {
         let job: JobEntity | null = null
@@ -86,15 +89,15 @@ export class EnqueueProcessGitSubmissionJobService {
                 enrollmentId,
                 userChallengeSubmissionId,
                 ...(branch !== undefined ? {
-                    branch
+                    branch,
                 } : {
                 }),
                 ...(embeddingModel !== undefined ? {
-                    embeddingModel
+                    embeddingModel,
                 } : {
                 }),
                 ...(embeddingProvider !== undefined ? {
-                    embeddingProvider
+                    embeddingProvider,
                 } : {
                 }),
                 ...(locale !== undefined ? {
@@ -103,6 +106,10 @@ export class EnqueueProcessGitSubmissionJobService {
                 }),
                 ...(ai !== undefined ? {
                     ai,
+                } : {
+                }),
+                ...(lang !== undefined ? {
+                    lang,
                 } : {
                 }),
             }
@@ -119,13 +126,18 @@ export class EnqueueProcessGitSubmissionJobService {
             )
         }
         void sleepEnqueueUxDelay().then(() =>
-            this.processGitSubmissionQueue.add(
+            this.processGitSubmissionV2Queue.add(
                 job.id,
                 job.payload,
                 {
                     jobId: job.id,
                 },
             ),
+        ).catch((error) =>
+            this.jobActionService.failJob({
+                job,
+                error: `Failed to enqueue job to broker: ${error?.message ?? "unknown error"}`,
+            }),
         )
         return job
     }

@@ -28,41 +28,26 @@ import {
     ChallengeTranslationEntity,
 } from "./challenge-translation.entity"
 import {
-    ChallengeReferenceEntity,
-} from "./challenge-reference.entity"
-import {
-    ChallengeStepEntity,
-} from "./challenge-step.entity"
-import {
     ChallengeSubmissionEntity,
 } from "./challenge-submission.entity"
 import {
     ChallengeRequirementEntity,
 } from "./challenge-requirement.entity"
 import {
+    ChallengeStepEntity,
+} from "./challenge-step.entity"
+import {
     ChallengeOutputEntity,
 } from "./challenge-output.entity"
 import {
     ChallengePrerequisiteEntity,
 } from "./challenge-prerequisite.entity"
-import {
-    ChallengeRequirementV2Entity,
-} from "./challenge-requirement-v2.entity"
-import {
-    ChallengeStepV2Entity,
-} from "./challenge-step-v2.entity"
-import {
-    ChallengeOutputV2Entity,
-} from "./challenge-output-v2.entity"
-import {
-    ChallengePrerequisiteV2Entity,
-} from "./challenge-prerequisite-v2.entity"
 
 /**
- * Hands-on challenge attached to a module (title, prerequisites, description, steps, references).
+ * Hands-on challenge attached to a module (title, prerequisites, description, steps).
  */
 @ObjectType({
-    description: "Challenge attached to a module with localized copy, steps, and references.",
+    description: "Challenge attached to a module with localized copy and steps.",
 })
 @Entity("challenges")
 export class ChallengeEntity extends UuidAbstractEntity {
@@ -198,42 +183,6 @@ export class ChallengeEntity extends UuidAbstractEntity {
         defaultLocale: Locale
 
     /**
-     * Ordered instruction steps.
-     */
-    @Field(
-        () => [ChallengeStepEntity],
-        {
-            description: "Ordered steps (title + description) for this challenge.",
-        },
-    )
-    @OneToMany(
-        () => ChallengeStepEntity,
-        (step: ChallengeStepEntity) => step.challenge,
-        {
-            cascade: true,
-        },
-    )
-        steps: Array<ChallengeStepEntity>
-
-    /**
-     * External URL references (docs, repos, etc.).
-     */
-    @Field(
-        () => [ChallengeReferenceEntity],
-        {
-            description: "External URL references linked to this challenge.",
-        },
-    )
-    @OneToMany(
-        () => ChallengeReferenceEntity,
-        (reference: ChallengeReferenceEntity) => reference.challenge,
-        {
-            cascade: true,
-        },
-    )
-        references: Array<ChallengeReferenceEntity>
-
-    /**
      * Localized overrides for title, brief, and description.
      */
     @Field(
@@ -251,122 +200,77 @@ export class ChallengeEntity extends UuidAbstractEntity {
     )
         translations: Array<ChallengeTranslationEntity>
 
+    /**
+     * SCHEMA V2 per-language requirement buckets (locales embedded in jsonb payload).
+     */
     @Field(
         () => [ChallengeRequirementEntity],
         {
-            description: "Ordered markdown requirement items.",
+            description: "Per-language requirement buckets (V2); locales embedded in jsonb.",
         },
     )
     @OneToMany(
         () => ChallengeRequirementEntity,
-        (challengeRequirement: ChallengeRequirementEntity) => challengeRequirement.challenge,
+        (requirement: ChallengeRequirementEntity) => requirement.challenge,
         {
             cascade: true,
         },
     )
         requirements: Array<ChallengeRequirementEntity>
 
+    /**
+     * SCHEMA V2 per-language step buckets (locales embedded in jsonb payload).
+     */
+    @Field(
+        () => [ChallengeStepEntity],
+        {
+            description: "Per-language step buckets (V2); locales embedded in jsonb.",
+        },
+    )
+    @OneToMany(
+        () => ChallengeStepEntity,
+        (step: ChallengeStepEntity) => step.challenge,
+        {
+            cascade: true,
+        },
+    )
+        steps: Array<ChallengeStepEntity>
+
+    /**
+     * SCHEMA V2 per-language output buckets (locales embedded in jsonb payload).
+     */
     @Field(
         () => [ChallengeOutputEntity],
         {
-            description: "Ordered markdown output items.",
+            description: "Per-language output buckets (V2); locales embedded in jsonb.",
         },
     )
     @OneToMany(
         () => ChallengeOutputEntity,
-        (challengeOutput: ChallengeOutputEntity) => challengeOutput.challenge,
+        (output: ChallengeOutputEntity) => output.challenge,
         {
             cascade: true,
         },
     )
         outputs: Array<ChallengeOutputEntity>
 
-    @Field(
-        () => [ChallengePrerequisiteEntity],
-        {
-            description: "Ordered markdown prerequisite items.",
-        },
-    )
-    @OneToMany(
-        () => ChallengePrerequisiteEntity,
-        (challengePrerequisite: ChallengePrerequisiteEntity) => challengePrerequisite.challenge,
-        {
-            cascade: true,
-        },
-    )
-        prerequisites: Array<ChallengePrerequisiteEntity>
-
-    /**
-     * SCHEMA V2 per-language requirement buckets (locales embedded in jsonb payload).
-     */
-    @Field(
-        () => [ChallengeRequirementV2Entity],
-        {
-            description: "Per-language requirement buckets (V2); locales embedded in jsonb.",
-        },
-    )
-    @OneToMany(
-        () => ChallengeRequirementV2Entity,
-        (requirementV2: ChallengeRequirementV2Entity) => requirementV2.challenge,
-        {
-            cascade: true,
-        },
-    )
-        requirementsV2: Array<ChallengeRequirementV2Entity>
-
-    /**
-     * SCHEMA V2 per-language step buckets (locales embedded in jsonb payload).
-     */
-    @Field(
-        () => [ChallengeStepV2Entity],
-        {
-            description: "Per-language step buckets (V2); locales embedded in jsonb.",
-        },
-    )
-    @OneToMany(
-        () => ChallengeStepV2Entity,
-        (stepV2: ChallengeStepV2Entity) => stepV2.challenge,
-        {
-            cascade: true,
-        },
-    )
-        stepsV2: Array<ChallengeStepV2Entity>
-
-    /**
-     * SCHEMA V2 per-language output buckets (locales embedded in jsonb payload).
-     */
-    @Field(
-        () => [ChallengeOutputV2Entity],
-        {
-            description: "Per-language output buckets (V2); locales embedded in jsonb.",
-        },
-    )
-    @OneToMany(
-        () => ChallengeOutputV2Entity,
-        (outputV2: ChallengeOutputV2Entity) => outputV2.challenge,
-        {
-            cascade: true,
-        },
-    )
-        outputsV2: Array<ChallengeOutputV2Entity>
-
     /**
      * SCHEMA V2 per-language prerequisite buckets (locales embedded in jsonb payload).
      */
     @Field(
-        () => [ChallengePrerequisiteV2Entity],
+        () => [ChallengePrerequisiteEntity],
         {
             description: "Per-language prerequisite buckets (V2); locales embedded in jsonb.",
         },
     )
     @OneToMany(
-        () => ChallengePrerequisiteV2Entity,
-        (prerequisiteV2: ChallengePrerequisiteV2Entity) => prerequisiteV2.challenge,
+        () => ChallengePrerequisiteEntity,
+        (prerequisite: ChallengePrerequisiteEntity) => prerequisite.challenge,
         {
             cascade: true,
         },
     )
-        prerequisitesV2: Array<ChallengePrerequisiteV2Entity>
+        prerequisites: Array<ChallengePrerequisiteEntity>
 
     /**
      * Outcome grading criteria (language-agnostic yes/no items) stored as jsonb. INTERNAL grading

@@ -39,6 +39,9 @@ import {
 import {
     AiLabModule,
 } from "./ai-lab"
+import {
+    NotificationModule,
+} from "./notification"
 
 /**
  * The module for the bussiness logics.
@@ -69,6 +72,8 @@ export class BussinessModule extends ConfigurableModuleClass {
             DiscussionModule.register(options),
             // import the AI Lab (playground + eval grading) module
             AiLabModule.register(options),
+            // import the in-app notifications module
+            NotificationModule.register(options),
         ]
         return {
             ...dynamicModule,

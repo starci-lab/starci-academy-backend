@@ -63,6 +63,8 @@ export interface EntityManagerMock {
     update: jest.Mock
     /** Hard delete; resolves `{ affected: 1 }`. */
     delete: jest.Mock
+    /** Atomic column increment; resolves `{ affected: 1 }`. */
+    increment: jest.Mock
     /** Raw SQL escape hatch; programmed per-test (resolves `[]` by default). */
     query: jest.Mock
     /** Returns the shared {@link QueryBuilderMock} for lock/join style queries. */
@@ -142,6 +144,10 @@ export const makeEntityManagerMock = (): EntityManagerMock => {
         }),
         // default: one row affected
         delete: jest.fn().mockResolvedValue({
+            affected: 1,
+        }),
+        // default: one row affected
+        increment: jest.fn().mockResolvedValue({
             affected: 1,
         }),
         // default: no rows

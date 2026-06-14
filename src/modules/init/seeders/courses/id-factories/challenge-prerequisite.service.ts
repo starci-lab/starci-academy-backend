@@ -17,6 +17,9 @@ import type {
     GenerateChallengePrerequisiteIdParams,
 } from "./types"
 
+/**
+ * SCHEMA V2 prerequisite item and per-language row UUIDs chain from the parent challenge id.
+ */
 @Injectable()
 export class ChallengePrerequisiteIdFactoryService {
     constructor(
@@ -24,25 +27,40 @@ export class ChallengePrerequisiteIdFactoryService {
         private readonly challengeIdFactoryService: ChallengeIdFactoryService,
     ) {}
 
-    generate({
-        courseIndex,
-        moduleIndex,
-        contentIndex,
-        challengeIndex,
-        prerequisiteIndex,
-    }: GenerateChallengePrerequisiteIdParams): string {
+    generate(
+        {
+            courseIndex,
+            moduleIndex,
+            contentIndex,
+            challengeIndex,
+            orderIndex = 0,
+            prerequisiteIndex,
+        }: GenerateChallengePrerequisiteIdParams,
+    ): string {
+        const ordinals = {
+            courseIndex,
+            moduleIndex,
+            contentIndex,
+            challengeIndex,
+        }
+        if (prerequisiteIndex !== undefined) {
+            return uuidv5(
+                this.sha256Service.hash(
+                    "challenge-prerequisite-lang",
+                    this.generate({
+                        ...ordinals,
+                        orderIndex: prerequisiteIndex,
+                    }),
+                    orderIndex.toString(),
+                ),
+                envConfig().uuidNamespace.course,
+            )
+        }
         return uuidv5(
             this.sha256Service.hash(
                 "challenge-prerequisite",
-                this.challengeIdFactoryService.generate(
-                    {
-                        courseIndex,
-                        moduleIndex,
-                        contentIndex,
-                        challengeIndex,
-                    },
-                ),
-                prerequisiteIndex.toString(),
+                this.challengeIdFactoryService.generate(ordinals),
+                orderIndex.toString(),
             ),
             envConfig().uuidNamespace.course,
         )

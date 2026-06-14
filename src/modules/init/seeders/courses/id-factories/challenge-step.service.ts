@@ -18,7 +18,7 @@ import type {
 } from "./types"
 
 /**
- * Graded steps inside a challenge; parent id is {@link ChallengeIdFactoryService}.
+ * SCHEMA V2 step item and per-language row UUIDs chain from the parent challenge id.
  */
 @Injectable()
 export class ChallengeStepIdFactoryService {
@@ -27,31 +27,40 @@ export class ChallengeStepIdFactoryService {
         private readonly challengeIdFactoryService: ChallengeIdFactoryService,
     ) {}
 
-    /**
-     * @param params - Challenge coordinates plus step index.
-     * @returns UUID v5 string.
-     */
     generate(
         {
             courseIndex,
             moduleIndex,
             contentIndex,
             challengeIndex,
+            orderIndex = 0,
             stepIndex,
         }: GenerateChallengeStepIdParams,
     ): string {
+        const ordinals = {
+            courseIndex,
+            moduleIndex,
+            contentIndex,
+            challengeIndex,
+        }
+        if (stepIndex !== undefined) {
+            return uuidv5(
+                this.sha256Service.hash(
+                    "challenge-step-lang",
+                    this.generate({
+                        ...ordinals,
+                        orderIndex: stepIndex,
+                    }),
+                    orderIndex.toString(),
+                ),
+                envConfig().uuidNamespace.course,
+            )
+        }
         return uuidv5(
             this.sha256Service.hash(
                 "challenge-step",
-                this.challengeIdFactoryService.generate(
-                    {
-                        courseIndex,
-                        moduleIndex,
-                        contentIndex,
-                        challengeIndex,
-                    },
-                ),
-                stepIndex.toString(),
+                this.challengeIdFactoryService.generate(ordinals),
+                orderIndex.toString(),
             ),
             envConfig().uuidNamespace.course,
         )

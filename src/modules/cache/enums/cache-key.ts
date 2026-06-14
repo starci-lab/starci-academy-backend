@@ -27,6 +27,8 @@ export enum CacheKey {
     ContentViewCount = "content.view-count",
     /** Cached AI Lab playground run output, keyed by playground + user + input hash. */
     AiLabRun = "ai-lab.run",
+    /** Display label for an entity reference, keyed by entityName + id + locale. */
+    EntityLabel = "entity.label",
 }
 
 /**

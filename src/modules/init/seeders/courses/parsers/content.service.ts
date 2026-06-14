@@ -292,7 +292,7 @@ export class ContentParserService {
     }
 
     /**
-     * Builds a partial content entity (scalars, code blocks, references, bodies) from the mount.
+     * Builds a partial content entity (scalars, code blocks, bodies) from the mount.
      *
      * @param params - Content path list + course/module/content ordinals.
      * @returns Entity-shaped graph for TypeORM cascade save.

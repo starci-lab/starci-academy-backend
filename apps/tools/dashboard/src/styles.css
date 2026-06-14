@@ -1,0 +1,85 @@
+@import "tailwindcss";
+@import "@heroui/styles/css";
+
+/* divider alias so `border-divider` maps to the brand separator token */
+@theme {
+    --color-divider: var(--color-separator);
+}
+
+/*
+ * Brand tokens (teal hue 185.90), mirrored from the StarCi frontend so the ops
+ * console matches the course UI. Light is the default; `.dark` (set on <html>)
+ * flips to the dark palette.
+ */
+:root,
+.light {
+    --accent: oklch(62.04% 0.1950 185.90);
+    --accent-foreground: oklch(99.11% 0 0);
+    --background: oklch(97.02% 0.0033 185.90);
+    --border: oklch(90.00% 0.0033 185.90);
+    --danger: oklch(65.32% 0.2343 17.59);
+    --danger-foreground: oklch(99.11% 0 0);
+    --default: oklch(94.00% 0.0033 185.90);
+    --default-foreground: oklch(21.03% 0.0059 185.90);
+    --field-background: oklch(100.00% 0.0016 185.90);
+    --field-foreground: oklch(21.03% 0.0033 185.90);
+    --field-placeholder: oklch(55.17% 0.0066 185.90);
+    --focus: oklch(62.04% 0.1950 185.90);
+    --foreground: oklch(21.03% 0.0033 185.90);
+    --muted: oklch(55.17% 0.0066 185.90);
+    --overlay: oklch(100.00% 0.0010 185.90);
+    --overlay-foreground: oklch(21.03% 0.0033 185.90);
+    --segment: oklch(100.00% 0.0033 185.90);
+    --segment-foreground: oklch(21.03% 0.0033 185.90);
+    --separator: oklch(92.00% 0.0033 185.90);
+    --success: oklch(73.29% 0.1948 142.66);
+    --success-foreground: oklch(21.03% 0.0059 142.66);
+    --surface: oklch(100.00% 0.0016 185.90);
+    --surface-foreground: oklch(21.03% 0.0033 185.90);
+    --warning: oklch(78.19% 0.1595 64.18);
+    --warning-foreground: oklch(21.03% 0.0059 64.18);
+    --radius: 0.5rem;
+    --field-radius: 1.5rem;
+    --field-border: var(--border);
+    --field-border-width: 1px;
+}
+
+.dark,
+[data-theme="dark"] {
+    --accent: oklch(62.04% 0.1950 185.90);
+    --accent-foreground: oklch(99.11% 0 0);
+    --background: oklch(12.00% 0.0033 185.90);
+    --border: oklch(28.00% 0.0033 185.90);
+    --danger: oklch(59.40% 0.1980 16.48);
+    --danger-foreground: oklch(99.11% 0 0);
+    --default: oklch(27.40% 0.0033 185.90);
+    --default-foreground: oklch(99.11% 0 0);
+    --field-background: oklch(21.03% 0.0066 185.90);
+    --field-foreground: oklch(99.11% 0.0033 185.90);
+    --field-placeholder: oklch(70.50% 0.0066 185.90);
+    --focus: oklch(62.04% 0.1950 185.90);
+    --foreground: oklch(99.11% 0.0033 185.90);
+    --muted: oklch(70.50% 0.0066 185.90);
+    --overlay: oklch(21.03% 0.0066 185.90);
+    --overlay-foreground: oklch(99.11% 0.0033 185.90);
+    --segment: oklch(39.64% 0.0033 185.90);
+    --segment-foreground: oklch(99.11% 0.0033 185.90);
+    --separator: oklch(25.00% 0.0033 185.90);
+    --success: oklch(73.29% 0.1948 142.66);
+    --success-foreground: oklch(21.03% 0.0059 142.66);
+    --surface: oklch(21.03% 0.0066 185.90);
+    --surface-foreground: oklch(99.11% 0.0033 185.90);
+    --warning: oklch(82.03% 0.1397 68.19);
+    --warning-foreground: oklch(21.03% 0.0059 68.19);
+    --field-border: var(--border);
+    --field-border-width: 1px;
+}
+
+/* default border colour to the separator token (Tailwind v4 defaults to currentColor) */
+@layer base {
+    *,
+    ::after,
+    ::before {
+        border-color: var(--separator);
+    }
+}

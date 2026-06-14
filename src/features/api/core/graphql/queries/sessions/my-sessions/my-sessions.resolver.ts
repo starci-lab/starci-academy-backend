@@ -1,0 +1,86 @@
+import {
+    Context,
+    Query,
+    Resolver,
+} from "@nestjs/graphql"
+import {
+    UseGuards,
+    UseInterceptors,
+} from "@nestjs/common"
+import {
+    GraphQLSuccessMessage,
+    GraphQLTransformInterceptor,
+} from "@modules/api"
+import {
+    UseThrottler,
+    ThrottlerConfig,
+} from "@modules/throttler"
+import {
+    Locale,
+    UserEntity,
+} from "@modules/databases"
+import {
+    KeycloakAuthGraphQLGuard,
+    KeycloakGraphQLUser,
+} from "@modules/keycloak"
+import {
+    CookieName,
+    CookieService,
+} from "@modules/cookie"
+import {
+    SessionService,
+} from "@modules/session"
+import type {
+    Request,
+    Response,
+} from "express"
+import {
+    MySessionsResponse,
+    MySessionsResponseData,
+} from "./graphql-types"
+
+@Resolver()
+export class MySessionsResolver {
+    constructor(
+        private readonly sessionService: SessionService,
+        private readonly cookieService: CookieService,
+    ) {}
+
+    @UseThrottler(ThrottlerConfig.Soft)
+    @GraphQLSuccessMessage({
+        [Locale.En]: "Active sessions fetched successfully",
+        [Locale.Vi]: "Lấy danh sách thiết bị đăng nhập thành công",
+    })
+    @UseGuards(KeycloakAuthGraphQLGuard)
+    @UseInterceptors(GraphQLTransformInterceptor)
+    @Query(
+        () => MySessionsResponse,
+        {
+            name: "mySessions",
+            description: "Returns the current user's active login sessions (devices), flagging the requesting device.",
+        },
+    )
+    async execute(
+        @KeycloakGraphQLUser()
+            user: UserEntity,
+        @Context()
+            ctx: {
+                req: Request,
+                res: Response,
+            },
+    ): Promise<MySessionsResponseData> {
+        // read the requesting device's session id so the result can flag "this device"
+        const currentSessionId = this.cookieService.getCookie(
+            ctx.req,
+            CookieName.SessionId,
+        )
+        // list active sessions scoped to the authenticated owner only
+        const sessions = await this.sessionService.listSessions({
+            keycloakId: user.keycloakId,
+            currentSessionId,
+        })
+        return {
+            data: sessions,
+        }
+    }
+}

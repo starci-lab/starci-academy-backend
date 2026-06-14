@@ -19,6 +19,7 @@ import {
     Locale,
 } from "@modules/databases"
 import type {
+    Request,
     Response,
 } from "express"
 import {
@@ -92,9 +93,11 @@ export class SignOutResolver {
                 },
             }
         )
-        // end the single-session record + clear its cookie on sign-out
+        // end only THIS device's session + clear its cookie on sign-out
+        // (other logged-in devices stay active); req carries the session cookie
         await this.sessionService.endSession({
             res: ctx.res,
+            req: ctx.req,
             refreshToken,
         })
     }

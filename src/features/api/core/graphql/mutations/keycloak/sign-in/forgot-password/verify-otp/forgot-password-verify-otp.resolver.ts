@@ -99,9 +99,11 @@ export class ForgotPasswordVerifyOtpResolver {
             res: ctx.res,
         })
 
-        // start a fresh single account-wide session, evicting other devices
+        // register this device's session (evicts the oldest when the account is
+        // already at its device limit); req carries the User-Agent + client IP
         await this.sessionService.startSession({
             res: ctx.res,
+            req: ctx.req,
             accessToken: result.data.accessToken,
         })
 

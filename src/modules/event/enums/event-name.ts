@@ -13,4 +13,5 @@ export enum EventName {
     CommentDeleted = "content.comment.deleted",
     ContentReactionChanged = "content.reaction.changed",
     CommentReactionChanged = "content.comment.reaction.changed",
+    NotificationCreated = "notification.created",
 }

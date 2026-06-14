@@ -6,6 +6,7 @@ import {
 } from "typeorm"
 import {
     InjectPrimaryPostgreSQLEntityManager,
+    FlashcardCardEntity,
     FlashcardDeckEntity,
     FlashcardDeckResolverService,
     Locale,
@@ -14,8 +15,12 @@ import {
     ElasticsearchService,
 } from "@modules/elasticsearch"
 import {
+    FlashcardDeckNoGradableCardsException,
     FlashcardDeckNotFoundException,
 } from "@modules/exceptions"
+import type {
+    DrawRandomInterviewCardParams,
+} from "./types/draw-interview-card"
 
 /**
  * Read access to seeded flashcard decks. Loads the full deck graph (cards →
@@ -127,5 +132,43 @@ export class FlashcardDeckReadService {
                 flashcardDeckId,
             })
         }
+    }
+
+    /**
+     * Draws one random gradable card from a deck for the voice-interview mode.
+     * Picks the card server-side so the client never sees the deck's other
+     * questions up front, and never receives the model answer — grading reloads
+     * the answer by id, so the draw can safely hide it.
+     *
+     * @param params - Deck id + locale to draw and localize the card in.
+     * @returns A random card whose `answer` is present (gradable).
+     * @throws FlashcardDeckNotFoundException when the deck is absent.
+     * @throws FlashcardDeckNoGradableCardsException when no card has a model answer.
+     */
+    async drawRandomCard(
+        {
+            flashcardDeckId,
+            locale,
+        }: DrawRandomInterviewCardParams,
+    ): Promise<FlashcardCardEntity> {
+        // reuse the localized single-deck read (throws a typed 404 when missing)
+        const deck = await this.getById(
+            flashcardDeckId,
+            locale,
+        )
+        // only cards with a model answer can be graded — legacy cards predating
+        // the Q&A format carry a null answer and must be excluded from the draw
+        const gradable = (deck.cards ?? []).filter(
+            (card) => Boolean(card.answer),
+        )
+        // an empty pool means the deck is not interview-ready → typed error, not a crash
+        if (gradable.length === 0) {
+            throw new FlashcardDeckNoGradableCardsException({
+                flashcardDeckId,
+            })
+        }
+        // uniform random pick across the gradable pool
+        const index = Math.floor(Math.random() * gradable.length)
+        return gradable[index]
     }
 }

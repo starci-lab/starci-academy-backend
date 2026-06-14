@@ -22,6 +22,7 @@ import type {
     AiPingKeyStatusCacheResult,
     ContentViewCountCacheResult,
     AiLabRunCacheResult,
+    EntityLabelCacheResult,
 } from "../types"
 
 /**
@@ -130,5 +131,10 @@ export const configMap = {
         ttl: envConfig().cache.ttl.aiLabRun,
         cacheResult: {
         } as AiLabRunCacheResult,
+    },
+    [CacheKey.EntityLabel]: {
+        ttl: envConfig().cache.ttl.entityLabel,
+        // simple label string — store the resolved display text directly
+        cacheResult: "" as EntityLabelCacheResult,
     },
 }

@@ -1,4 +1,5 @@
 import {
+    ActivityType,
     CourseEntity,
     CourseMetadataEntity,
     EnrollmentEntity,
@@ -18,6 +19,7 @@ import {
     EnqueueResolveGithubJobService,
     JobActionService,
     TransactionActionService,
+    writeActivity,
 } from "@modules/bussiness"
 import type {
     EnrollPayload
@@ -182,6 +184,20 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                 await entityManager.save(
                     enrollment,
                 )
+                // home-feed activity for the enrollment (idempotent per enrollment row)
+                await writeActivity({
+                    entityManager,
+                    userId,
+                    type: ActivityType.CourseEnrolled,
+                    idempotencyKey: enrollment.id,
+                    metadata: {
+                        target: {
+                            entityName: CourseEntity.name,
+                            id: courseId,
+                            label: course?.title ?? "",
+                        },
+                    },
+                })
                 // check if the pricing phase is exceeded
                 const phase = course?.pricingPhases.find(
                     (phase) => phase.phase === currentPhase,

@@ -5,4 +5,5 @@ export enum PublicationEvent {
     SubscribeContentDiscussion = "content_discussion.subscribe.publication",
     SubscribeAiLabRun = "ai_lab.subscribe_run.publication",
     AbortAiLabRun = "ai_lab.abort_run.publication",
+    SubscribeNotifications = "notifications.subscribe.publication",
 }

@@ -23,4 +23,19 @@ export class MarkAsReadedRequest {
         },
     )
         readed: boolean
+
+    @Field(
+        () => Boolean,
+        {
+            nullable: true,
+            defaultValue: false,
+            description:
+                "When true, only the read progress is updated — no XP is granted and "
+                + "no activity-feed entry is posted. Used by the auto-mark-on-scroll path "
+                + "(reaching the bottom of the lesson) so passive scrolling never spends "
+                + "the one-time reward. A deliberate mark (the manual button) leaves this "
+                + "false to claim the XP + feed event.",
+        },
+    )
+        silent: boolean
 }

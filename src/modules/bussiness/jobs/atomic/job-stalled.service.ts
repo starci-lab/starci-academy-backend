@@ -3,25 +3,16 @@ import {
     JobStatus,
 } from "@modules/databases"
 import {
-    envConfig,
-} from "@modules/env"
-import {
     DayjsService,
 } from "@modules/mixin"
 import {
     Injectable,
 } from "@nestjs/common"
-import {
-    In,
-    LessThan,
-} from "typeorm"
 import type {
-    GetStalledJobsParams,
-    GetStalledJobsResult,
     RequeueJobParams,
 } from "../types"
 import {
-    InjectPrimaryPostgreSQLEntityManager 
+    InjectPrimaryPostgreSQLEntityManager
 } from "@modules/databases"
 import type {
     EntityManager,
@@ -31,7 +22,9 @@ import {
 } from "@modules/exceptions"
 
 /**
- * Service for querying stalled jobs based on queue time threshold.
+ * Manual, user-triggered requeue of a job. (Automatic stalled-job recovery is owned by
+ * BullMQ — lock + `stalledInterval` + `maxStalledCount` — so the old Postgres `queueAt`
+ * sweeper / `getStalledJobs` scan was removed.)
  */
 @Injectable()
 export class JobStalledService {
@@ -40,41 +33,6 @@ export class JobStalledService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly primaryEntityManager: EntityManager,
     ) {}
-
-    /**
-     * Get all jobs still processing but queued longer than `envConfig().job.stalled`.
-     * @param params - The parameters.
-     * @param params.entityManager - The entity manager.
-     * @param params.actionType - The action type to filter by.
-     * @returns Stalled jobs.
-     */
-    async getStalledJobs(
-        {
-            entityManager,
-            actionType,
-        }: GetStalledJobsParams
-    ): Promise<GetStalledJobsResult> {
-        const manager = entityManager ?? this.primaryEntityManager
-        const staleBefore = this.dayjsService.now().subtract(
-            envConfig().job.stalled.thresholdMs,
-            "millisecond",
-        ).toDate()
-        return manager.find(
-            JobEntity,
-            {
-                where: {
-                    status: In(
-                        [
-                            JobStatus.Processing,
-                            JobStatus.Queued
-                        ]
-                    ),
-                    queueAt: LessThan(staleBefore),
-                    actionType,
-                },
-            },
-        )
-    }
 
     /**
      * Requeue a job.
@@ -107,7 +65,15 @@ export class JobStalledService {
                 }
             )
         }
+        // requeue for a fresh run: reset the queue clock + status, bump the fencing token so any
+        // in-flight zombie worker is fenced out, and reset the attempt budget. currentStep is kept
+        // so the job resumes where it left off (side effects are idempotency-keyed, so resuming
+        // never double-applies).
         job.queueAt = this.dayjsService.now().toDate()
+        job.status = JobStatus.Queued
+        job.fencingToken += 1
+        job.attempts = 0
+        job.error = null
         // save the job record
         await manager.save(
             job,

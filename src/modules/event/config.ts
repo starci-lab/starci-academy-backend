@@ -9,6 +9,7 @@ import {
     CommentChangedEventPayload,
     ContentReactionChangedEventPayload,
     CommentReactionChangedEventPayload,
+    NotificationCreatedEventPayload,
 } from "./types"
 
 /** Map of event names to NATS/local usage and payload type. */
@@ -77,5 +78,15 @@ export const configMap = {
         useLocal: true,
         eventPayload: {
         } as CommentReactionChangedEventPayload,
+    },
+    // A notification is fanned out to the local Socket.IO gateway in-process so the
+    // recipient's bell updates in real time. useNats stays false for now (single-instance
+    // realtime); flip to true once a NATS bridge re-emits locally on every pod.
+    /** Event name: a notification was created for a single recipient. */
+    [EventName.NotificationCreated]: {
+        useNats: false,
+        useLocal: true,
+        eventPayload: {
+        } as NotificationCreatedEventPayload,
     },
 }

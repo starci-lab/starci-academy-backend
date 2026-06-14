@@ -5,10 +5,6 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 import {
-    GraphQLTypeLocale,
-    Locale,
-} from "../enums"
-import {
     Column,
     Entity,
     JoinColumn,
@@ -17,89 +13,36 @@ import {
     RelationId,
 } from "typeorm"
 import {
+    GraphQLTypeLocale,
+    Locale,
+} from "../enums"
+import {
     UuidAbstractEntity,
 } from "./abstract"
 import {
     ChallengeEntity,
 } from "./challenge.entity"
 import {
-    ChallengeRequirementTranslationEntity,
-} from "./challenge-requirement-translation.entity"
+    ChallengeRequirementLangEntity,
+} from "./challenge-requirement-lang.entity"
 
+/**
+ * SCHEMA V2 requirement ITEM for a challenge (normalized — no jsonb). One row per requirement
+ * position; per-programming-language `score`, `title`, and `body` live under
+ * {@link ChallengeRequirementLangEntity}.
+ */
 @ObjectType({
-    description: "Markdown requirement item belonging to a challenge.",
+    description: "A SCHEMA V2 challenge requirement item (one per position).",
 })
 @Entity("challenge_requirements")
 export class ChallengeRequirementEntity extends UuidAbstractEntity {
-    @Field(
-        () => String,
-        {
-            description: "Goal statement for this requirement.",
-        },
-    )
-    @Column({
-        name: "purpose",
-        type: "text",
-        default: "",
-    })
-        purpose: string
-
-    @Field(
-        () => String,
-        {
-            description: "Technical constraints that the learner must follow.",
-        },
-    )
-    @Column({
-        name: "technical_constraints",
-        type: "text",
-        default: "",
-    })
-        technicalConstraints: string
-
-    @Field(
-        () => String,
-        {
-            description: "Hints and pro-tips for implementing the requirement.",
-        },
-    )
-    @Column({
-        name: "pro_tips_hints",
-        type: "text",
-        default: "",
-    })
-        proTipsHints: string
-
-    @Field(
-        () => String,
-        {
-            description: "Explicit forbidden rules for this requirement.",
-        },
-    )
-    @Column({
-        name: "forbidden",
-        type: "text",
-        default: "",
-    })
-        forbidden: string
-
-    @Field(
-        () => String,
-        {
-            description: "Grading prompt text for the LLM.",
-        },
-    )
-    @Column({
-        name: "prompt_text",
-        type: "text",
-        default: "",
-    })
-        promptText: string
-
+    /**
+     * Display order of this requirement within the challenge (agnostic position).
+     */
     @Field(
         () => Int,
         {
-            description: "Display order within challenge requirement list.",
+            description: "Display order of this requirement within the challenge.",
         },
     )
     @Column({
@@ -109,6 +52,9 @@ export class ChallengeRequirementEntity extends UuidAbstractEntity {
     })
         orderIndex: number
 
+    /**
+     * Pure ordering index used to reorder the list (decoupled from orderIndex).
+     */
     @Field(
         () => Int,
         {
@@ -122,23 +68,13 @@ export class ChallengeRequirementEntity extends UuidAbstractEntity {
     })
         sortIndex: number
 
-    @Field(
-        () => Int,
-        {
-            description: "Maximum score for this requirement.",
-        },
-    )
-    @Column({
-        name: "score",
-        type: "int",
-        default: 0,
-    })
-        score: number
-
+    /**
+     * Default locale for this requirement item.
+     */
     @Field(
         () => GraphQLTypeLocale,
         {
-            description: "Default locale for this requirement row.",
+            description: "Default locale for this requirement item.",
         },
     )
     @Column({
@@ -149,6 +85,9 @@ export class ChallengeRequirementEntity extends UuidAbstractEntity {
     })
         defaultLocale: Locale
 
+    /**
+     * Parent challenge this requirement belongs to.
+     */
     @ManyToOne(
         () => ChallengeEntity,
         (challenge: ChallengeEntity) => challenge.requirements,
@@ -162,6 +101,9 @@ export class ChallengeRequirementEntity extends UuidAbstractEntity {
     })
         challenge: ChallengeEntity
 
+    /**
+     * Parent challenge ID.
+     */
     @Field(
         () => ID,
         {
@@ -169,22 +111,25 @@ export class ChallengeRequirementEntity extends UuidAbstractEntity {
         },
     )
     @RelationId(
-        (challengeRequirement: ChallengeRequirementEntity) => challengeRequirement.challenge,
+        (requirement: ChallengeRequirementEntity) => requirement.challenge,
     )
         challengeId: string
 
+    /**
+     * Per-programming-language content (score + title + body) for this requirement.
+     */
     @Field(
-        () => [ChallengeRequirementTranslationEntity],
+        () => [ChallengeRequirementLangEntity],
         {
-            description: "Localized requirement text values.",
+            description: "Per-programming-language content for this requirement.",
         },
     )
     @OneToMany(
-        () => ChallengeRequirementTranslationEntity,
-        (translation: ChallengeRequirementTranslationEntity) => translation.challengeRequirement,
+        () => ChallengeRequirementLangEntity,
+        (lang: ChallengeRequirementLangEntity) => lang.requirement,
         {
             cascade: true,
         },
     )
-        translations: Array<ChallengeRequirementTranslationEntity>
+        langs: Array<ChallengeRequirementLangEntity>
 }

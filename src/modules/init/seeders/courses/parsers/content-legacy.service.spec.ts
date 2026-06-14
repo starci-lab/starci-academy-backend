@@ -20,7 +20,6 @@ import {
 } from "../../shared"
 import {
     ContentIdFactoryService,
-    ContentReferenceIdFactoryService,
     CourseIdFactoryService,
     ModuleIdFactoryService,
 } from "../id-factories"
@@ -74,7 +73,6 @@ describe("ContentLegacyParserService",
                     CourseIdFactoryService,
                     ModuleIdFactoryService,
                     ContentIdFactoryService,
-                    ContentReferenceIdFactoryService,
                     {
                         provide: ContextLoaderService,
                         useValue: contextLoaderService,
@@ -131,11 +129,6 @@ describe("ContentLegacyParserService",
                         expect(parsed.body).toContain("## 1. Opening")
                         expect(parsed.minutesRead).toBe(18)
                         expect(parsed.isPremium).toBe(false)
-
-                        // `# references` → one row per `## N` heading-block, alias + url
-                        expect(parsed.references).toHaveLength(3)
-                        expect(typeof parsed.references?.[0]?.alias).toBe("string")
-                        expect(parsed.references?.[0]?.url?.length ?? 0).toBeGreaterThan(0)
 
                         // root translations carry title/description/body for every locale
                         expect(parsed.translations).toEqual(

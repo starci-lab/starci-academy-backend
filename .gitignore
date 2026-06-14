@@ -3,6 +3,11 @@
 /node_modules
 /build
 
+# local-only ops tools artifacts (pg dumps + s3 bucket snapshots)
+.tools-snapshots/
+# built vite ops dashboard (apps/tools)
+apps/tools/dashboard/dist/
+
 # Logs
 logs
 *.log
@@ -75,3 +80,5 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # python bytecode cache (audit scripts)
 __pycache__/
 *.pyc
+# embedded scratch/migration repos — never track as gitlinks
+.audits/.migrate-tmp/

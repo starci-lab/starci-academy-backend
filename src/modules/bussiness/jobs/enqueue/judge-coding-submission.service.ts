@@ -101,6 +101,11 @@ export class EnqueueJudgeCodingSubmissionJobService {
                     jobId: job.id,
                 },
             ),
+        ).catch((error) =>
+            this.jobActionService.failJob({
+                job,
+                error: `Failed to enqueue job to broker: ${error?.message ?? "unknown error"}`,
+            }),
         )
         // return the job row so the caller can surface the jobId to the client
         return job

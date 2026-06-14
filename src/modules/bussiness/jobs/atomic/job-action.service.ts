@@ -27,13 +27,14 @@ import {
     SuperJSON,
 } from "superjson"
 import {
-    JobNotFoundException 
+    JobFencedOutException,
+    JobNotFoundException,
 } from "@modules/exceptions"
 import {
     EventName,
 } from "@modules/event"
 import {
-    EventEmitterService 
+    EventEmitterService
 } from "@modules/event"
 
 /**
@@ -84,12 +85,9 @@ export class JobActionService {
     }
 
     /**
-     * Create a job.
-     * @param queueName - The queue name.
-     * @param bullmqJobId - The BullMQ job ID.
-     * @param payload - The payload.
-     * @param maxSteps - The maximum steps.
-     * @param entityManager - The entity manager.
+     * Create a job. Domain ids are stored loosely: `userId` as a plain (FK-less)
+     * column, everything else under `jobs.refs` — `jobs` keeps no FK to domain.
+     * @param params - The job creation params.
      * @returns The job.
      */
     async createJob({
@@ -101,6 +99,7 @@ export class JobActionService {
         userId,
         entityManager,
         challengeSubmissionId,
+        refs,
     }: CreateJobParams): Promise<JobEntity> {
         const manager = entityManager ?? this.primaryEntityManager
         const job = manager.create(
@@ -117,22 +116,15 @@ export class JobActionService {
                 currentStep: 0,
                 maxSteps,
                 queueAt: this.dayjsService.now().toDate(),
-                ...(
-                    userId ? {
-                        user: {
-                            id: userId,
-                        },
+                userId: userId ?? null,
+                refs: {
+                    ...(challengeSubmissionId ? {
+                        challengeSubmissionId,
                     } : {
-                    }
-                ),
-                ...(
-                    challengeSubmissionId ? {
-                        challengeSubmission: {
-                            id: challengeSubmissionId,
-                        },
-                    } : {
-                    }
-                ),
+                    }),
+                    ...(refs ?? {
+                    }),
+                },
             },
         )
         return manager.save(
@@ -142,18 +134,37 @@ export class JobActionService {
     }
 
     /**
-     * Increase the job step.
-     * @param step - The step to increase.
-     * @param entityManager - The entity manager.
-     * @param job - The job entity.
-     * @returns The job.
+     * Increase the job step. When `expectedFencingToken` is given, the advance is
+     * guarded — it only lands if the row still carries that token; otherwise a
+     * {@link JobFencedOutException} is thrown (a newer worker owns this job).
+     * @param params - step / job / entityManager / expectedFencingToken.
      */
     async increaseJob({
         step = 1,
         entityManager,
         job,
+        expectedFencingToken,
     }: IncreaseJobParams): Promise<void> {
         const manager = entityManager ?? this.primaryEntityManager
+        if (expectedFencingToken != null) {
+            const result = await manager.increment(
+                JobEntity,
+                {
+                    id: job.id,
+                    fencingToken: expectedFencingToken,
+                },
+                "currentStep",
+                step,
+            )
+            if (!result.affected) {
+                throw new JobFencedOutException({
+                    id: job.id,
+                    expectedFencingToken,
+                })
+            }
+            job.currentStep += step
+            return
+        }
         job.currentStep += step
         await manager.save(
             JobEntity,
@@ -162,33 +173,57 @@ export class JobActionService {
     }
 
     /**
-     * Complete the job.
-     * @param entityManager - The entity manager.
-     * @param id - The ID of the job.
-     * @returns The job.
+     * Complete the job. Optionally fencing-guarded (see {@link increaseJob}).
+     * @param params - job / entityManager / emitChangeEvent / expectedFencingToken.
      */
     async completeJob({
         entityManager,
         job,
         emitChangeEvent = true,
+        expectedFencingToken,
     }: CompleteJobParams): Promise<void> {
         const manager = entityManager ?? this.primaryEntityManager
-        job.status = JobStatus.Completed
-        if (job.maxSteps > 0 && job.currentStep < job.maxSteps) {
-            job.currentStep = job.maxSteps
+        const nextStep = job.maxSteps > 0 && job.currentStep < job.maxSteps
+            ? job.maxSteps
+            : job.currentStep
+        if (expectedFencingToken != null) {
+            const result = await manager.update(
+                JobEntity,
+                {
+                    id: job.id,
+                    fencingToken: expectedFencingToken,
+                },
+                {
+                    status: JobStatus.Completed,
+                    error: null,
+                    currentStep: nextStep,
+                },
+            )
+            if (!result.affected) {
+                throw new JobFencedOutException({
+                    id: job.id,
+                    expectedFencingToken,
+                })
+            }
+            job.status = JobStatus.Completed
+            job.error = null
+            job.currentStep = nextStep
+        } else {
+            job.status = JobStatus.Completed
+            job.currentStep = nextStep
+            job.error = null
+            await manager.save(
+                JobEntity,
+                job,
+            )
         }
-        job.error = null
-        await manager.save(
-            JobEntity,
-            job,
-        )
         if (emitChangeEvent) {
             await this.eventEmitterService.emit(
                 {
                     event: EventName.JobStatusUpdated,
                     payload: {
                         jobId: job.id,
-                        challengeSubmissionId: job.challengeSubmissionId ?? undefined,
+                        challengeSubmissionId: job.refs?.challengeSubmissionId,
                         category: job.category,
                         status: job.status,
                     },
@@ -222,7 +257,7 @@ export class JobActionService {
                 event: EventName.JobStatusUpdated,
                 payload: {
                     jobId: job.id,
-                    challengeSubmissionId: job.challengeSubmissionId ?? undefined,
+                    challengeSubmissionId: job.refs?.challengeSubmissionId,
                     category: job.category,
                     status: job.status,
                     error: job.error ?? undefined,
@@ -230,12 +265,12 @@ export class JobActionService {
             })
         }
     }
-    
+
     /**
-     * Update the job status to processing.
-     * @param entityManager - The entity manager.
-     * @param job - The job entity.
-     * @returns The job.
+     * Update the job status to processing and claim it by bumping the fencing token.
+     * The bumped token is returned in `job.fencingToken` so the worker can pass it to
+     * later guarded writes ({@link increaseJob} / {@link completeJob}).
+     * @param params - job / entityManager / emitChangeEvent.
      */
     async processingJob({
         emitChangeEvent = true,
@@ -244,6 +279,7 @@ export class JobActionService {
     }: ProcessingJobParams): Promise<void> {
         const manager = entityManager ?? this.primaryEntityManager
         job.status = JobStatus.Processing
+        job.fencingToken += 1
         await manager.save(
             JobEntity,
             job,
@@ -253,8 +289,8 @@ export class JobActionService {
                 event: EventName.JobStatusUpdated,
                 payload: {
                     jobId: job.id,
-                    ...(job.challengeSubmissionId ? {
-                        challengeSubmissionId: job.challengeSubmissionId,
+                    ...(job.refs?.challengeSubmissionId ? {
+                        challengeSubmissionId: job.refs.challengeSubmissionId,
                     } : {
                     }),
                     category: job.category ?? undefined,

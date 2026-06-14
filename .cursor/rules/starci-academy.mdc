@@ -138,6 +138,17 @@ Put REST API DTO classes (e.g. classes with `@ApiProperty` decorators for Swagge
 actionName(param: ActionNameParams): Promise<ActionNameResult>
 ```
 
+### Declaration Style — `export const` arrow, never `export function` (STRICT)
+
+- Top-level / module-scope functions (utils, helpers, factories) MUST be an arrow function assigned to an `export const` — never an `export function` declaration. Class methods stay as methods; this rule is about free functions.
+
+```ts
+// ✅
+export const writeXpHistory = async (params: WriteXpHistoryParams): Promise<void> => { /* ... */ }
+// ❌
+export function writeXpHistory(params: WriteXpHistoryParams): Promise<void> { /* ... */ }
+```
+
 ### Parameter Usage Rules
 
 - Use a **params object** when the function has **2 or more arguments**.

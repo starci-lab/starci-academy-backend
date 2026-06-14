@@ -40,7 +40,9 @@ import {
 } from "../utils"
 
 /**
- * Service for enqueuing a Google Docs challenge submission grading job.
+ * Enqueues a SCHEMA V2 Google Docs challenge submission grading job (criteria-based): targets the
+ * V2 queue/action and carries the learner's chosen programming language so the grade step picks the
+ * right approach criteria. (The legacy V1 enqueue/pipeline has been removed.)
  */
 @Injectable()
 export class EnqueueProcessGoogleDocsSubmissionJobService {
@@ -50,24 +52,27 @@ export class EnqueueProcessGoogleDocsSubmissionJobService {
         @InjectSuperJson()
         private readonly superJson: SuperJSON,
         @InjectQueue(bullData[BullQueueName.ProcessGoogleDocsSubmission].name)
-        private readonly processGoogleDocsSubmissionQueue: Queue<string>,
+        private readonly processGoogleDocsSubmissionV2Queue: Queue<string>,
     ) {}
 
     /**
      * Enqueue a process-google-docs-submission job.
+     * @param params - Parameters (see `EnqueueProcessGoogleDocsSubmissionJobParams`).
      * @returns The persisted job row and queued BullMQ job.
      */
-    async enqueue({
-        userId,
-        userChallengeSubmissionId,
-        challengeSubmissionId,
-        jobId,
-        embeddingModel,
-        embeddingProvider,
-        locale,
-        enrollmentId,
-        ai,
-    }: EnqueueProcessGoogleDocsSubmissionJobParams): Promise<JobEntity> {
+    async enqueue(
+        {
+            userId,
+            enrollmentId,
+            userChallengeSubmissionId,
+            challengeSubmissionId,
+            jobId,
+            embeddingModel,
+            embeddingProvider,
+            locale,
+            ai,
+        }: EnqueueProcessGoogleDocsSubmissionJobParams,
+    ): Promise<JobEntity> {
         let job: JobEntity | null = null
         if (jobId) {
             job = await this.jobStalledService.requeueJob(
@@ -110,18 +115,20 @@ export class EnqueueProcessGoogleDocsSubmissionJobService {
                 },
             )
         }
-
         void sleepEnqueueUxDelay().then(() =>
-            this.processGoogleDocsSubmissionQueue.add(
+            this.processGoogleDocsSubmissionV2Queue.add(
                 job.id,
                 job.payload,
                 {
                     jobId: job.id,
                 },
             ),
+        ).catch((error) =>
+            this.jobActionService.failJob({
+                job,
+                error: `Failed to enqueue job to broker: ${error?.message ?? "unknown error"}`,
+            }),
         )
-
         return job
     }
 }
-

@@ -1,3 +1,23 @@
+/** Params for recomputing a single user's course-progress projection. */
+export interface RecomputeProgressParams {
+    /** The user whose projection row to recompute. */
+    userId: string
+    /** The course the projection is scoped to. */
+    courseId: string
+    /**
+     * Optional transaction manager. Pass the caller's tx manager to run the
+     * UPSERT inside the same transaction (atomic + sees the just-written rows);
+     * omit to use the service's own connection.
+     */
+    entityManager?: ProgressTransactionManager
+}
+
+/** Minimal transaction-manager surface the projector needs (just `query`). */
+export interface ProgressTransactionManager {
+    /** Run a raw parameterised SQL statement. */
+    query: <T = unknown>(sql: string, parameters?: Array<unknown>) => Promise<T>
+}
+
 /**
  * Interface for the enrollment to be passed around.
  */
@@ -54,6 +74,84 @@ export interface MyRankRow {
     total_xp: string | number
     /** Number of enrollments with a strictly higher total XP; string when `bigint`. */
     higher_count: string | number
+}
+
+/**
+ * Generic Debezium CDC message envelope (after the unwrap SMT). The flat row
+ * lives under `payload`; some configurations emit the row at the top level, so
+ * the listener falls back to the whole object when `payload` is absent.
+ */
+export interface CdcEnvelope<TPayload> {
+    /** The flat row image (column → value) when the unwrap SMT is configured. */
+    payload?: TPayload
+}
+
+/** Row image for the `user_contents` CDC topic. */
+export interface UserContentCdcRow {
+    /** The user who read/favourited the content (snake_case from Postgres). */
+    user_id?: string
+    /** The content row that changed — used to derive the owning course. */
+    content_id?: string
+}
+
+/** Row image for the `user_challenge_submission_attempts` CDC topic. */
+export interface UserChallengeSubmissionAttemptCdcRow {
+    /** FK to `user_challenge_submissions` — the join root for user + course. */
+    user_challenge_submission_id?: string
+}
+
+/** Row image for the `user_milestone_task_attempts` CDC topic. */
+export interface UserMilestoneTaskAttemptCdcRow {
+    /** FK to `user_milestone_tasks` — the join root for enrollment → user + course. */
+    user_milestone_task_id?: string
+}
+
+/** Row image for the `enrollments` CDC topic (user + course are direct columns). */
+export interface EnrollmentCdcRow {
+    /** The enrolled user. */
+    user_id?: string
+    /** The course the enrollment is for. */
+    course_id?: string
+}
+
+/**
+ * A single derived `(userId, courseId)` pair the projector should recompute,
+ * resolved from a CDC row. `null` from a resolver means "cannot derive — skip".
+ */
+export interface DerivedProgressTarget {
+    /** The user whose course projection must be recomputed. */
+    userId: string
+    /** The course the projection is scoped to. */
+    courseId: string
+}
+
+/** Raw row returned by the `user_contents` → course lookup join. */
+export interface ContentCourseLookupRow {
+    /** `modules.course_id` of the content's owning module. */
+    course_id: string
+}
+
+/**
+ * Raw row returned by the `user_challenge_submission_attempts` → user + course
+ * join (user_challenge_submissions → challenge_submissions → challenges →
+ * contents → modules).
+ */
+export interface ChallengeAttemptTargetRow {
+    /** `user_challenge_submissions.user_id` of the attempt's owner. */
+    user_id: string
+    /** `modules.course_id` reached via the submission → challenge → content chain. */
+    course_id: string
+}
+
+/**
+ * Raw row returned by the `user_milestone_task_attempts` → enrollment join
+ * (user_milestone_tasks → enrollments).
+ */
+export interface MilestoneAttemptTargetRow {
+    /** `enrollments.user_id` of the milestone-task's enrollment. */
+    user_id: string
+    /** `enrollments.course_id` of the milestone-task's enrollment. */
+    course_id: string
 }
 
 /**

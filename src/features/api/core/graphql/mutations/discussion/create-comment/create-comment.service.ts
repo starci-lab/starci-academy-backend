@@ -1,9 +1,18 @@
 import {
     Injectable,
 } from "@nestjs/common"
+import type {
+    EntityManager,
+} from "typeorm"
 import {
     CommentService,
+    writeActivity,
 } from "@modules/bussiness"
+import {
+    ActivityType,
+    ContentEntity,
+    InjectPrimaryPostgreSQLEntityManager,
+} from "@modules/databases"
 import {
     UserNotFoundException,
 } from "@modules/exceptions"
@@ -25,6 +34,8 @@ import type {
 export class CreateCommentService {
     constructor(
         private readonly commentService: CommentService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) {}
 
     /**
@@ -47,6 +58,33 @@ export class CreateCommentService {
             parentCommentId: request.parentCommentId,
             body: request.body,
             user,
+        })
+        // home-feed activity for the comment (idempotent per comment id); snapshot
+        // the content title as the token label, route resolved lazily on click
+        const content = await this.entityManager.findOne(
+            ContentEntity,
+            {
+                where: {
+                    id: request.contentId,
+                },
+                select: {
+                    id: true,
+                    title: true,
+                },
+            },
+        )
+        await writeActivity({
+            entityManager: this.entityManager,
+            userId: user.id,
+            type: ActivityType.DiscussionCommented,
+            idempotencyKey: comment.id,
+            metadata: {
+                target: {
+                    entityName: ContentEntity.name,
+                    id: request.contentId,
+                    label: content?.title ?? "",
+                },
+            },
         })
         // a brand-new comment has no replies and no reactions yet
         return mapCommentNode({

@@ -1,5 +1,0 @@
-export * from "./challenge"
-export * from "./content"
-export * from "./course"
-export * from "./module"
-export * from "./common"

@@ -2,6 +2,7 @@ import {
     ActionType,
     JobCategory,
     JobEntity,
+    JobRefs,
 } from "@modules/databases"
 import type {
     EntityManager,
@@ -35,8 +36,10 @@ export interface CreateJobParams extends Omit<JobTargetParams, "job"> {
     userId?: string | null
     /** The entity manager to use. */
     entityManager?: EntityManager
-    /** The challenge submission id to target. */
+    /** The challenge submission id to target (stored into `jobs.refs.challengeSubmissionId`). */
     challengeSubmissionId?: string | null
+    /** Extra loose domain correlation ids stored into `jobs.refs` (no FK). */
+    refs?: JobRefs
 }
 
 /** Params for getting a job. */
@@ -59,12 +62,16 @@ export interface IncreaseJobParams extends JobTargetParams {
     step?: number
     /** The entity manager to use. */
     entityManager?: EntityManager
+    /** When set, the step is advanced only if the row still carries this fencing token. */
+    expectedFencingToken?: number
 }
 
 /** Params for marking a job as completed. */
 export interface CompleteJobParams extends JobTargetParams {
     /** Whether to emit a change event. */
     emitChangeEvent?: boolean
+    /** When set, completion is applied only if the row still carries this fencing token. */
+    expectedFencingToken?: number
 }
 
 /** Params for marking a job as failed. */
@@ -73,22 +80,6 @@ export interface FailJobParams extends JobTargetParams {
     emitChangeEvent?: boolean
     /** The error message. */
     error?: string
-}
-
-/** Params for querying stalled jobs. */
-export interface GetStalledJobsParams {
-    /** The entity manager to use. */
-    entityManager?: EntityManager
-    /** The action type to filter by. */
-    actionType: ActionType
-}
-
-/** Result for querying stalled jobs. */
-export type GetStalledJobsResult = Array<JobEntity>
-
-/** Params for refreshing `queueAt` of still-processing jobs. */
-export interface UpdateQueueAtParams {
-    entityManager?: EntityManager
 }
 
 /** Params for storing the result of a job. */
