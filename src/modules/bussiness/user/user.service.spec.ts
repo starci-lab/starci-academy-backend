@@ -13,7 +13,6 @@ import {
     CacheService,
 } from "@modules/cache"
 import {
-    EnrollmentEntity,
     UserEntity,
 } from "@modules/databases"
 import {
@@ -43,6 +42,8 @@ describe("UserService",
         beforeEach(async () => {
             // fresh jest-backed entity manager with happy-path defaults
             entityManager = makeEntityManagerMock()
+            // raw `query` is used by checkEnrollment to rebuild the enrolled set
+            entityManager.query = jest.fn().mockResolvedValue([])
 
             // cache get/set/del stubs the test programs per-case
             cacheService = {
@@ -139,70 +140,91 @@ describe("UserService",
 
         describe("checkEnrollment",
             () => {
-                it("returns the cached enrollment flag without hitting the database",
+                it("checks membership against the cached set without hitting the DB",
                     async () => {
-                        // a cached boolean (even `false`) is authoritative
-                        cacheService.get.mockResolvedValueOnce(false)
-
-                        const result = await service.checkEnrollment(userId,
-                            courseId)
-
-                        expect(result).toBe(false)
-                        expect(entityManager.findOne).not.toHaveBeenCalled()
-                        expect(cacheService.set).not.toHaveBeenCalled()
-                    })
-
-                it("returns true and caches it when an enrollment row exists",
-                    async () => {
-                        // cache miss is signalled by `undefined`
-                        cacheService.get.mockResolvedValueOnce(undefined)
-                        entityManager.findOne.mockResolvedValueOnce({
-                            id: "enrollment-1",
-                        })
+                        // cached set of enrolled course ids is authoritative
+                        cacheService.get.mockResolvedValueOnce([
+                            courseId,
+                        ])
 
                         const result = await service.checkEnrollment(userId,
                             courseId)
 
                         expect(result).toBe(true)
-                        expect(entityManager.findOne).toHaveBeenCalledWith(
-                            EnrollmentEntity,
-                            {
-                                where: {
-                                    user: {
-                                        id: userId,
-                                    },
-                                    course: {
-                                        id: courseId,
-                                    },
-                                },
-                            },
-                        )
-                        expect(cacheService.set).toHaveBeenCalledWith({
-                            key: CacheKey.CourseEnrollment,
-                            args: [
-                                userId,
-                                courseId,
-                            ],
-                            cacheResult: true,
-                        })
+                        // cache hit short-circuits the rebuild query + re-cache
+                        expect(entityManager.query).not.toHaveBeenCalled()
+                        expect(cacheService.set).not.toHaveBeenCalled()
                     })
 
-                it("returns false and caches it when no enrollment row exists",
+                it("returns false when the course is not in the cached set",
                     async () => {
-                        cacheService.get.mockResolvedValueOnce(undefined)
-                        // findOne defaults to null → not enrolled (null, not undefined)
+                        cacheService.get.mockResolvedValueOnce([
+                            "other-course",
+                        ])
+
                         const result = await service.checkEnrollment(userId,
                             courseId)
 
                         expect(result).toBe(false)
-                        // cached the negative result so repeat reads stay cheap
+                        expect(entityManager.query).not.toHaveBeenCalled()
+                    })
+
+                it("rebuilds the set from the DB on a miss and caches it (enrolled)",
+                    async () => {
+                        // cache miss is signalled by `undefined`
+                        cacheService.get.mockResolvedValueOnce(undefined)
+                        // one indexed query returns every enrolled course id
+                        entityManager.query.mockResolvedValueOnce([
+                            {
+                                course_id: courseId,
+                            },
+                        ])
+
+                        const result = await service.checkEnrollment(userId,
+                            courseId)
+
+                        expect(result).toBe(true)
+                        // cached the rebuilt set under one per-user key
                         expect(cacheService.set).toHaveBeenCalledWith({
-                            key: CacheKey.CourseEnrollment,
+                            key: CacheKey.UserEnrolledCourses,
                             args: [
                                 userId,
+                            ],
+                            cacheResult: [
                                 courseId,
                             ],
-                            cacheResult: false,
+                        })
+                    })
+
+                it("rebuilds and returns false when the user has no such enrollment",
+                    async () => {
+                        cacheService.get.mockResolvedValueOnce(undefined)
+                        // query defaults to [] → user is enrolled in nothing matching
+                        const result = await service.checkEnrollment(userId,
+                            courseId)
+
+                        expect(result).toBe(false)
+                        expect(cacheService.set).toHaveBeenCalledWith({
+                            key: CacheKey.UserEnrolledCourses,
+                            args: [
+                                userId,
+                            ],
+                            cacheResult: [],
+                        })
+                    })
+            })
+
+        describe("invalidateEnrolledCourses",
+            () => {
+                it("drops the user's cached enrolled-courses set",
+                    async () => {
+                        await service.invalidateEnrolledCourses(userId)
+
+                        expect(cacheService.del).toHaveBeenCalledWith({
+                            key: CacheKey.UserEnrolledCourses,
+                            args: [
+                                userId,
+                            ],
                         })
                     })
             })

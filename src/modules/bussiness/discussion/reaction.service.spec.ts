@@ -9,7 +9,16 @@ import {
     ReactionService,
 } from "./reaction.service"
 import {
+    ContentEngagementProjectionService,
+} from "../projections"
+import type {
+    ContentEngagementSummary,
+} from "../projections"
+import {
     ReactionType,
+} from "@modules/databases"
+import type {
+    UserEntity,
 } from "@modules/databases"
 import {
     CommentNotFoundException,
@@ -18,10 +27,6 @@ import {
     EventEmitterService,
     EventName,
 } from "@modules/event"
-import {
-    CacheKey,
-    CacheService,
-} from "@modules/cache"
 import {
     makeEntityManagerMock,
 } from "@modules/tests"
@@ -33,7 +38,7 @@ import type {
 const POSTGRESQL_PRIMARY = "primary"
 
 /**
- * A chainable stand-in for the grouped reaction-count query builders. Every
+ * A chainable stand-in for the grouped comment-reaction query builders. Every
  * select/where/group method returns the builder; `getRawMany` is the terminal
  * the test programs (per createQueryBuilder() call, in order).
  */
@@ -70,6 +75,20 @@ const makeReactionQueryBuilderMock = (): ReactionQueryBuilderMock => {
     return builder
 }
 
+/** Build an engagement summary with zeroed defaults, overridable per test. */
+const makeSummary = (
+    overrides: Partial<ContentEngagementSummary> = {
+    },
+): ContentEngagementSummary => ({
+    totalReactions: 0,
+    reactionsByType: {
+    } as Record<ReactionType, number>,
+    viewCount: 0,
+    shareCount: 0,
+    commentCount: 0,
+    ...overrides,
+})
+
 describe("ReactionService",
     () => {
         let module: TestingModule
@@ -77,33 +96,36 @@ describe("ReactionService",
         let entityManager: EntityManagerMock
         let queryBuilder: ReactionQueryBuilderMock
         let eventEmitterService: jest.Mocked<Pick<EventEmitterService, "emit">>
-        let cacheService: jest.Mocked<CacheService>
+        let contentEngagementProjectionService: jest.Mocked<
+            Pick<ContentEngagementProjectionService, "getSummary" | "recompute">
+        >
 
         const contentId = "content-1"
         const commentId = "comment-1"
         const user = {
             id: "user-1",
-        }
+        } as unknown as UserEntity
 
         beforeEach(async () => {
             // fresh jest-backed entity manager with happy-path defaults
             entityManager = makeEntityManagerMock()
-            // remove + count are not on the shared mock — add them here
+            // remove is not on the shared mock — add it here
             entityManager.remove = jest.fn().mockResolvedValue(undefined)
-            entityManager.count = jest.fn().mockResolvedValue(0)
             // one shared builder so chained grouped queries stay programmable in order
             queryBuilder = makeReactionQueryBuilderMock()
             entityManager.createQueryBuilder = jest.fn(() => queryBuilder)
 
-            // event bus + cache stubs
+            // event bus stub
             eventEmitterService = {
                 emit: jest.fn().mockResolvedValue(undefined),
             } as unknown as jest.Mocked<Pick<EventEmitterService, "emit">>
-            cacheService = {
-                get: jest.fn(),
-                set: jest.fn(),
-                del: jest.fn(),
-            } as unknown as jest.Mocked<CacheService>
+            // engagement projection stub: reads return zeroed summary, recompute is a no-op
+            contentEngagementProjectionService = {
+                getSummary: jest.fn().mockResolvedValue(makeSummary()),
+                recompute: jest.fn().mockResolvedValue(undefined),
+            } as unknown as jest.Mocked<
+                Pick<ContentEngagementProjectionService, "getSummary" | "recompute">
+            >
 
             module = await Test.createTestingModule({
                 providers: [
@@ -117,8 +139,8 @@ describe("ReactionService",
                         useValue: eventEmitterService,
                     },
                     {
-                        provide: CacheService,
-                        useValue: cacheService,
+                        provide: ContentEngagementProjectionService,
+                        useValue: contentEngagementProjectionService,
                     },
                 ],
             }).compile()
@@ -132,12 +154,16 @@ describe("ReactionService",
 
         describe("reactToContent",
             () => {
-                it("inserts a new reaction when the user has none, then emits + summarizes",
+                it("inserts a new reaction when the user has none, then emits + recomputes + summarizes",
                     async () => {
                         // no existing reaction; the post-mutation summary's "mine" lookup also null
                         entityManager.findOne.mockResolvedValue(null)
-                        // view-count cache hit avoids the DB count path
-                        cacheService.get.mockResolvedValue(5)
+                        // projection reports the content's view count for the returned summary
+                        contentEngagementProjectionService.getSummary.mockResolvedValue(
+                            makeSummary({
+                                viewCount: 5,
+                            }),
+                        )
 
                         const result = await service.reactToContent({
                             contentId,
@@ -155,6 +181,10 @@ describe("ReactionService",
                                 contentId,
                             },
                         })
+                        // refreshed the engagement projection inline
+                        expect(contentEngagementProjectionService.recompute).toHaveBeenCalledWith({
+                            contentId,
+                        })
                         // returns the recomputed summary (view count carried through)
                         expect(result.viewCount).toBe(5)
                         expect(result.shareCount).toBe(0)
@@ -169,7 +199,6 @@ describe("ReactionService",
                         entityManager.findOne
                             .mockResolvedValueOnce(existing)
                             .mockResolvedValueOnce(null)
-                        cacheService.get.mockResolvedValue(0)
 
                         await service.reactToContent({
                             contentId,
@@ -191,7 +220,6 @@ describe("ReactionService",
                         entityManager.findOne
                             .mockResolvedValueOnce(existing)
                             .mockResolvedValueOnce(null)
-                        cacheService.get.mockResolvedValue(0)
 
                         await service.reactToContent({
                             contentId,
@@ -207,7 +235,6 @@ describe("ReactionService",
                 it("is a no-op delete when type is null and no reaction exists",
                     async () => {
                         entityManager.findOne.mockResolvedValue(null)
-                        cacheService.get.mockResolvedValue(0)
 
                         await service.reactToContent({
                             contentId,
@@ -270,91 +297,72 @@ describe("ReactionService",
 
         describe("getViewCount",
             () => {
-                it("returns the cached view count without querying the DB",
+                it("returns the view count from the engagement projection",
                     async () => {
-                        cacheService.get.mockResolvedValueOnce(42)
+                        contentEngagementProjectionService.getSummary.mockResolvedValueOnce(
+                            makeSummary({
+                                viewCount: 42,
+                            }),
+                        )
 
                         const result = await service.getViewCount(contentId)
 
                         expect(result).toBe(42)
-                        expect(entityManager.count).not.toHaveBeenCalled()
-                        expect(cacheService.set).not.toHaveBeenCalled()
-                    })
-
-                it("counts distinct readers on a miss and caches the result",
-                    async () => {
-                        cacheService.get.mockResolvedValueOnce(undefined)
-                        entityManager.count.mockResolvedValueOnce(7)
-
-                        const result = await service.getViewCount(contentId)
-
-                        expect(result).toBe(7)
-                        // cached the freshly computed count under the view-count key
-                        expect(cacheService.set).toHaveBeenCalledWith({
-                            key: CacheKey.ContentViewCount,
-                            args: [
-                                contentId,
-                            ],
-                            cacheResult: 7,
-                        })
+                        expect(contentEngagementProjectionService.getSummary).toHaveBeenCalledWith(contentId)
                     })
             })
 
         describe("invalidateViewCount",
             () => {
-                it("evicts the cached view count for the content",
+                it("recomputes the content's engagement projection",
                     async () => {
                         await service.invalidateViewCount(contentId)
 
-                        expect(cacheService.del).toHaveBeenCalledWith({
-                            key: CacheKey.ContentViewCount,
-                            args: [
-                                contentId,
-                            ],
+                        expect(contentEngagementProjectionService.recompute).toHaveBeenCalledWith({
+                            contentId,
                         })
                     })
             })
 
         describe("summarizeContent",
             () => {
-                it("aggregates per-emotion counts, the user's pick, and the view count",
+                it("expands projection counters + the user's pick into the summary",
                     async () => {
-                        // grouped counts for the content
-                        queryBuilder.getRawMany.mockResolvedValueOnce([
-                            {
-                                type: ReactionType.Like,
-                                count: "3",
-                            },
-                            {
-                                type: ReactionType.Love,
-                                count: "2",
-                            },
-                        ])
+                        // projection counters for the content (per-emotion map + view)
+                        contentEngagementProjectionService.getSummary.mockResolvedValueOnce(
+                            makeSummary({
+                                totalReactions: 5,
+                                reactionsByType: {
+                                    [ReactionType.Like]: 3,
+                                    [ReactionType.Love]: 2,
+                                } as Record<ReactionType, number>,
+                                viewCount: 9,
+                            }),
+                        )
                         // the viewing user's own reaction
                         entityManager.findOne.mockResolvedValueOnce({
                             type: ReactionType.Like,
                         })
-                        // cached view count
-                        cacheService.get.mockResolvedValueOnce(9)
 
                         const result = await service.summarizeContent({
                             contentId,
                             userId: user.id,
                         })
 
-                        // total is the sum across emotion buckets
+                        // total carried straight from the projection
                         expect(result.total).toBe(5)
                         expect(result.myReaction).toBe(ReactionType.Like)
                         expect(result.viewCount).toBe(9)
                         expect(result.shareCount).toBe(0)
+                        // counts array expanded from the per-emotion map
+                        expect(result.counts).toHaveLength(2)
                     })
 
                 it("reports a null myReaction when the user has not reacted",
                     async () => {
-                        queryBuilder.getRawMany.mockResolvedValueOnce([])
+                        contentEngagementProjectionService.getSummary.mockResolvedValueOnce(makeSummary())
                         // no personal reaction row
                         entityManager.findOne.mockResolvedValueOnce(null)
-                        cacheService.get.mockResolvedValueOnce(0)
 
                         const result = await service.summarizeContent({
                             contentId,

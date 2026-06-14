@@ -11,20 +11,14 @@ import {
     UseInterceptors,
 } from "@nestjs/common"
 import {
-    CacheKey,
-    CacheService,
-} from "@modules/cache"
-import {
     CourseEntity,
-    EnrollmentEntity,
     GraphQLTypePricingPhase,
-    InjectPrimaryPostgreSQLEntityManager,
     Locale,
     PricingPhase,
 } from "@modules/databases"
-import type {
-    EntityManager,
-} from "typeorm"
+import {
+    CourseStatsProjectionService,
+} from "@modules/bussiness"
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
@@ -46,9 +40,7 @@ import {
 @Injectable()
 export class CourseResolver {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
-        private readonly cacheService: CacheService,
+        private readonly courseStatsProjectionService: CourseStatsProjectionService,
         private readonly courseService: CourseService,
     ) {}
 
@@ -84,29 +76,10 @@ export class CourseResolver {
         @Parent()
             course: CourseEntity,
     ): Promise<number> {
-        const cachedEnrollmentCount = await this.cacheService.get({
-            key: CacheKey.CourseEnrollmentCount,
-            args: [course.id],
-        })
-        if (cachedEnrollmentCount !== undefined) {
-            return cachedEnrollmentCount
-        }
-        const enrollmentCount = await this.entityManager.count(
-            EnrollmentEntity,
-            {
-                where: {
-                    course: {
-                        id: course.id,
-                    },
-                },
-            },
-        )
-        await this.cacheService.set({
-            key: CacheKey.CourseEnrollmentCount,
-            args: [course.id],
-            cacheResult: enrollmentCount,
-        })
-        return enrollmentCount
+        // read from the flat course-stats projection (lazy-recomputed if stale);
+        // replaces the old Redis CourseEnrollmentCount cache
+        const stats = await this.courseStatsProjectionService.getStats(course.id)
+        return stats.enrollmentCount
     }
 
     /**

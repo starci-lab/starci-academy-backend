@@ -178,7 +178,8 @@
       "Bash(DEST=\"C:/Repositories/ac/starci-academy-backend/.audits/.migrate-tmp/18-distributed-locks-and-leader-election/sd-19-distributed-locks-and-leader-election-1-lease-based-leader-election\" *)",
       "Bash(cp -r C:/Repositories/ac/starci-academy-backend/.repo/system-design-mastery-module-19-distributed-locks-and-leader-election/0-redlock-and-fencing-tokens/. C:/Repositories/ac/starci-academy-backend/.audits/.migrate-tmp/18-distributed-locks-and-leader-election/sd-19-distributed-locks-and-leader-election-0-redlock-and-fencing-tokens/)",
       "Bash(rm -rf C:/Repositories/ac/starci-academy-backend/.audits/.migrate-tmp/18-distributed-locks-and-leader-election/sd-19-distributed-locks-and-leader-election-0-redlock-and-fencing-tokens/.git C:/Repositories/ac/starci-academy-backend/.audits/.migrate-tmp/18-distributed-locks-and-leader-election/sd-19-distributed-locks-and-leader-election-0-redlock-and-fencing-tokens/node_modules C:/Repositories/ac/starci-academy-backend/.audits/.migrate-tmp/18-distributed-locks-and-leader-election/sd-19-distributed-locks-and-leader-election-0-redlock-and-fencing-tokens/dist)",
-      "Bash(rm -rf \"C:/Repositories/ac/starci-academy-backend/.audits/.migrate-tmp/22-high-throughput-notification-system/sd-23-high-throughput-notification-system-2-provider-failover-dedup/.git\" && echo \"removed .git\")"
+      "Bash(rm -rf \"C:/Repositories/ac/starci-academy-backend/.audits/.migrate-tmp/22-high-throughput-notification-system/sd-23-high-throughput-notification-system-2-provider-failover-dedup/.git\" && echo \"removed .git\")",
+      "WebFetch(domain:www.tigerdata.com)"
     ]
   }
 }

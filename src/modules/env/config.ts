@@ -120,13 +120,11 @@ export const envConfig = () => ({
                 key: "CACHE_TTL_KEYCLOAK_USER",
                 defaultValue: "100years",
             }),
-            courseEnrollment: parseEnvMs({
-                key: "CACHE_TTL_COURSE_ENROLLMENT",
-                defaultValue: "100years",
-            }),
-            courseEnrollmentCount: parseEnvMs({
-                key: "CACHE_TTL_COURSE_ENROLLMENT_COUNT",
-                defaultValue: "5m",
+            userEnrolledCourses: parseEnvMs({
+                key: "CACHE_TTL_USER_ENROLLED_COURSES",
+                // del-on-write (enroll/refund) is the primary correctness path;
+                // this TTL is a safety net that self-heals any missed invalidation
+                defaultValue: "1h",
             }),
             courseMindMap: parseEnvMs({
                 key: "CACHE_TTL_COURSE_MIND_MAP",
@@ -152,22 +150,9 @@ export const envConfig = () => ({
                 key: "CACHE_TTL_CREDIT_USAGE",
                 defaultValue: "5m",
             }),
-            courseLeaderboard: parseEnvMs({
-                key: "CACHE_TTL_COURSE_LEADERBOARD",
-                defaultValue: "15m",
-            }),
-            courseLeaderboardDebounce: parseEnvMs({
-                key: "CACHE_TTL_COURSE_LEADERBOARD_DEBOUNCE",
-                defaultValue: "5s",
-            }),
             aiPingKeyStatus: parseEnvMs({
                 key: "CACHE_TTL_AI_PING_KEY_STATUS",
                 defaultValue: "100years",
-            }),
-            contentViewCount: parseEnvMs({
-                key: "CACHE_TTL_CONTENT_VIEW_COUNT",
-                // event-driven invalidation is the primary mechanism; TTL is a fallback safety net
-                defaultValue: "30m",
             }),
             aiLabRun: parseEnvMs({
                 key: "CACHE_TTL_AI_LAB_RUN",
@@ -2004,6 +1989,24 @@ export const envConfig = () => ({
         cdcTopicPrefix: parseEnvString({
             key: "KAFKA_CDC_TOPIC_PREFIX",
             defaultValue: "starci.public.",
+        }),
+    },
+    /**
+     * CQRS projection read-models. Projection rows are kept fresh eagerly by
+     * inline recompute (in the write transaction) + the CDC listeners; the TTL
+     * below is the LAZY safety net — a read that finds its projection row older
+     * than {@link staleAfterMs} recomputes it on the spot before returning, so a
+     * gap in both eager paths self-heals within one TTL window. This replaces the
+     * old Redis cache-aside layer (the projection table IS the cache now).
+     */
+    projection: {
+        /**
+         * Max age before a projection row is considered stale on read and lazily
+         * recomputed. Defaults to 5 minutes.
+         */
+        staleAfterMs: parseEnvMs({
+            key: "PROJECTION_STALE_AFTER_MS",
+            defaultValue: "5m",
         }),
     },
     /** User profile (avatar upload) tunables. */

@@ -10,7 +10,6 @@ import {
     ContentReactionEntity,
     InjectPrimaryPostgreSQLEntityManager,
     ReactionType,
-    UserContentEntity,
 } from "@modules/databases"
 import {
     CommentNotFoundException,
@@ -20,9 +19,8 @@ import {
     EventName,
 } from "@modules/event"
 import {
-    CacheKey,
-    CacheService,
-} from "@modules/cache"
+    ContentEngagementProjectionService,
+} from "../projections"
 import type {
     ReactionCountResult,
     ReactionSummaryResult,
@@ -45,7 +43,7 @@ export class ReactionService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly eventEmitterService: EventEmitterService,
-        private readonly cacheService: CacheService,
+        private readonly contentEngagementProjectionService: ContentEngagementProjectionService,
     ) {}
 
     /**
@@ -98,6 +96,11 @@ export class ReactionService {
             payload: {
                 contentId,
             },
+        })
+        // refresh the engagement projection inline so the returned summary + the
+        // next read are immediately fresh (CDC also covers this asynchronously)
+        await this.contentEngagementProjectionService.recompute({
+            contentId,
         })
         // return the recomputed summary so the caller can answer the mutation immediately
         return this.summarizeContent({
@@ -182,51 +185,36 @@ export class ReactionService {
     }
 
     /**
-     * Returns the view count (distinct readers) for a content.
-     * Checks Redis cache first; on miss queries the DB and caches the result.
+     * Returns the view count (distinct readers) for a content, read from the
+     * content-engagement projection (replaces the old Redis view-count cache;
+     * the projection lazily recomputes itself when stale).
      * @param contentId - The content UUID.
      * @returns Number of distinct users who have marked the content as read.
      */
     async getViewCount(contentId: string): Promise<number> {
-        // try cache first
-        const cached = await this.cacheService.get({
-            key: CacheKey.ContentViewCount,
-            args: [contentId],
-        })
-        if (cached !== undefined) {
-            return cached
-        }
-        // cache miss — compute from DB
-        const count = await this.entityManager.count(UserContentEntity,
-            {
-                where: {
-                    contentId,
-                    isRead: true,
-                },
-            })
-        await this.cacheService.set({
-            key: CacheKey.ContentViewCount,
-            args: [contentId],
-            cacheResult: count,
-        })
-        return count
+        // view count is one column of the flat engagement projection row
+        const summary = await this.contentEngagementProjectionService.getSummary(contentId)
+        return summary.viewCount
     }
 
     /**
-     * Invalidates the cached view count for a content so the next read recomputes it.
-     * Call this whenever a user marks a content as read or unread.
-     * @param contentId - The content UUID whose cache entry should be evicted.
+     * Refreshes the content's engagement projection so its view count reflects a
+     * just-changed reader set. Called when a user marks a content read/unread.
+     * (Kept the name for its single caller; it now recomputes instead of evicting.)
+     * @param contentId - The content UUID whose projection to refresh.
      */
     async invalidateViewCount(contentId: string): Promise<void> {
-        await this.cacheService.del({
-            key: CacheKey.ContentViewCount,
-            args: [contentId],
+        // read-state moved → recompute the engagement projection (idempotent UPSERT)
+        await this.contentEngagementProjectionService.recompute({
+            contentId,
         })
     }
 
     /**
      * Computes the reaction summary for a single content from a user's view.
-     * Includes viewCount (cached reader count) and shareCount (0 until implemented).
+     * Aggregate counters (counts/total/view/share) come from the flat
+     * content-engagement projection; only the per-viewer `myReaction` is a live
+     * lookup since it depends on who is asking.
      * @param params - {@link SummarizeContentReactionsParams}
      * @returns The content's reaction summary including view + share counts.
      */
@@ -234,21 +222,9 @@ export class ReactionService {
         contentId,
         userId,
     }: SummarizeContentReactionsParams): Promise<ReactionSummaryResult> {
-        // grouped counts per emotion for this content
-        const rows = await this.entityManager
-            .createQueryBuilder(ContentReactionEntity,
-                "reaction")
-            .select("reaction.type",
-                "type")
-            .addSelect("COUNT(*)",
-                "count")
-            .where("reaction.content_id = :contentId",
-                {
-                    contentId,
-                })
-            .groupBy("reaction.type")
-            .getRawMany<{ type: ReactionType; count: string }>()
-        // the viewing user's own reaction (for highlighting their pick)
+        // aggregate counters from the projection (lazy-recomputed if stale)
+        const summary = await this.contentEngagementProjectionService.getSummary(contentId)
+        // the viewing user's own reaction (per-viewer → single indexed lookup)
         const mine = await this.entityManager.findOne(ContentReactionEntity,
             {
                 where: {
@@ -260,14 +236,20 @@ export class ReactionService {
                     },
                 },
             })
-        // fetch cached view count in parallel — avoids a separate round-trip per request
-        const viewCount = await this.getViewCount(contentId)
-        // assemble counts + total + myReaction + viewCount + shareCount into the shared summary shape
+        // expand the per-emotion jsonb map into the counts array shape callers expect
+        const counts: Array<ReactionCountResult> = Object.entries(summary.reactionsByType)
+            .map(([type,
+                count]) => ({
+                type: type as ReactionType,
+                count: Number(count),
+            }))
+        // assemble the shared summary shape from projection counters + my reaction
         return {
-            ...this.buildSummary(rows,
-                mine?.type ?? null),
-            viewCount,
-            shareCount: 0,
+            counts,
+            total: summary.totalReactions,
+            myReaction: mine?.type ?? null,
+            viewCount: summary.viewCount,
+            shareCount: summary.shareCount,
         }
     }
 

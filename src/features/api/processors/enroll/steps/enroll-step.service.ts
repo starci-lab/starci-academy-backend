@@ -16,9 +16,11 @@ import {
     type EntityManager,
 } from "typeorm"
 import {
+    CourseStatsProjectionService,
     EnqueueResolveGithubJobService,
     JobActionService,
     TransactionActionService,
+    UserService,
     writeActivity,
 } from "@modules/bussiness"
 import type {
@@ -50,6 +52,8 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
         private readonly jobActionService: JobActionService,
         private readonly enqueueResolveGithubJobService: EnqueueResolveGithubJobService,
         private readonly winstonService: WinstonService,
+        private readonly courseStatsProjectionService: CourseStatsProjectionService,
+        private readonly userService: UserService,
     ) {
         super()
     }
@@ -184,6 +188,12 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                 await entityManager.save(
                     enrollment,
                 )
+                // refresh the course's enrollment-count projection in the same tx
+                // (replaces the old Redis cache; CDC also covers it asynchronously)
+                await this.courseStatsProjectionService.recompute({
+                    courseId,
+                    entityManager,
+                })
                 // home-feed activity for the enrollment (idempotent per enrollment row)
                 await writeActivity({
                     entityManager,
@@ -238,6 +248,13 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                 )
             }
         )
+
+        // a new enrollment changes this user's membership → drop the cached
+        // enrolled-courses set so the next authorization check rebuilds it and
+        // the just-bought course is immediately accessible (no stale `false`)
+        if (!alreadyEnrolled) {
+            await this.userService.invalidateEnrolledCourses(userId)
+        }
 
         const user = await this.entityManager.findOne(
             UserEntity,

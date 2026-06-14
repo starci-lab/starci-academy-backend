@@ -16,6 +16,9 @@ import {
 import {
     NotificationNotFoundException,
 } from "@modules/exceptions"
+import {
+    UserStatsProjectionService,
+} from "../projections"
 import type {
     CreateNotificationParams,
     ListNotificationsParams,
@@ -41,6 +44,7 @@ export class NotificationService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly eventEmitterService: EventEmitterService,
+        private readonly userStatsProjectionService: UserStatsProjectionService,
     ) {}
 
     /**
@@ -79,6 +83,12 @@ export class NotificationService {
             })
         // persist; the returned row carries the generated id + timestamps
         const saved = await manager.save(draft)
+        // bump the recipient's unread count projection in the same unit of work
+        // (CDC on `notifications` also covers this asynchronously)
+        await this.userStatsProjectionService.recompute({
+            userId,
+            entityManager: manager,
+        })
         // fan out a local event carrying a self-contained snapshot so the gateway
         // can push a render-ready row to the recipient without re-querying
         await this.eventEmitterService.emit({
@@ -146,16 +156,10 @@ export class NotificationService {
      * @returns The number of `readAt IS NULL` rows for the user.
      */
     async countUnread(userId: string): Promise<number> {
-        // a single COUNT over the composite (user, readAt) index — cheap on the hot path
-        return this.entityManager.count(NotificationEntity,
-            {
-                where: {
-                    user: {
-                        id: userId,
-                    },
-                    readAt: IsNull(),
-                },
-            })
+        // unread badge now reads the flat user-stats projection (lazy-recomputed
+        // if stale) — replaces the old per-request COUNT
+        const stats = await this.userStatsProjectionService.getStats(userId)
+        return stats.unreadNotificationCount
     }
 
     /**
@@ -200,6 +204,10 @@ export class NotificationService {
             {
                 readAt: new Date(),
             })
+        // refresh the unread-count projection so the badge reflects the read
+        await this.userStatsProjectionService.recompute({
+            userId,
+        })
     }
 
     /**
@@ -221,6 +229,10 @@ export class NotificationService {
             {
                 readAt: new Date(),
             })
+        // refresh the unread-count projection (drops to 0 for this user)
+        await this.userStatsProjectionService.recompute({
+            userId,
+        })
         // affected is undefined on some drivers → coerce to 0 for a stable contract
         return {
             markedCount: result.affected ?? 0,

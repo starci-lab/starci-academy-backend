@@ -173,6 +173,9 @@ import {
 import {
     MembershipModule
 } from "@modules/membership"
+import {
+    KafkaModule
+} from "@modules/kafka"
 /**
  * The main module for the application.
  */
@@ -210,6 +213,10 @@ import {
             }),
             /** Community membership module — entitlement grant/expiry. */
             MembershipModule.register({
+                isGlobal: true,
+            }),
+            /** Kafka infrastructure module — shared broker client for CDC/event listeners. */
+            KafkaModule.register({
                 isGlobal: true,
             }),
             /** Cookie module. */

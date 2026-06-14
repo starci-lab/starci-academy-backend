@@ -10,32 +10,19 @@ import {
 import {
     ChallengeProgressService,
 } from "./challenge.service"
-import {
-    LeaderboardService,
-} from "./leaderboard.service"
-import {
-    ProgressProjectionService,
-} from "./progress-projection.service"
-import {
-    ProgressProjectionListener,
-} from "./progress-projection.listener"
 
 /**
- * Module for progress business logic.
+ * Module for progress business logic. The CQRS progress projection (service +
+ * CDC listener) now lives in the dedicated `projections` module.
  */
 @Module({
     providers: [
         PersonalProjectProgressService,
         ChallengeProgressService,
-        LeaderboardService,
-        ProgressProjectionService,
-        ProgressProjectionListener,
     ],
     exports: [
         PersonalProjectProgressService,
         ChallengeProgressService,
-        LeaderboardService,
-        ProgressProjectionService,
     ],
 })
 export class ProgressModule extends ConfigurableModuleClass {

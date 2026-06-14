@@ -13,16 +13,12 @@ import {
 import {
     LeaderboardHandler,
 } from "./leaderboard.handler"
-import {
-    LeaderboardListener,
-} from "./leaderboard.listener"
 
 @Module({
     providers: [
         LeaderboardResolver,
         LeaderboardSingleQueryService,
         LeaderboardHandler,
-        LeaderboardListener,
     ],
 })
 export class LeaderboardSingleQueryModule extends ConfigurableModuleClass {}

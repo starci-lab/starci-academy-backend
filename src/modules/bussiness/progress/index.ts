@@ -1,7 +1,4 @@
 export * from "./progress.module"
 export * from "./personal-project.service"
 export * from "./challenge.service"
-export * from "./leaderboard.service"
-export * from "./progress-projection.service"
-export * from "./progress-projection.listener"
 export * from "./types"

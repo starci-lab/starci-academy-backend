@@ -11,7 +11,7 @@ import {
     LeaderboardRequestDefaults,
 } from "./graphql-types"
 import {
-    LeaderboardService,
+    ProgressProjectionService,
 } from "@modules/bussiness"
 
 @QueryHandler(LeaderboardQuery)
@@ -19,7 +19,9 @@ export class LeaderboardHandler
 implements IQueryHandler<LeaderboardQuery, LeaderboardResponseData>
 {
     constructor(
-        private readonly leaderboardService: LeaderboardService,
+        // reads the flat CQRS projection (kept fresh by inline recompute + CDC);
+        // same getLeaderboard/getMyRank shapes the old LeaderboardService exposed
+        private readonly progressProjectionService: ProgressProjectionService,
     ) {}
 
     async execute(query: LeaderboardQuery): Promise<LeaderboardResponseData> {
@@ -33,7 +35,7 @@ implements IQueryHandler<LeaderboardQuery, LeaderboardResponseData>
                 LeaderboardRequestDefaults.MAX_LIMIT),
         )
 
-        const board = await this.leaderboardService.getLeaderboard(courseId)
+        const board = await this.progressProjectionService.getLeaderboard(courseId)
 
         const entries = board.entries.slice(0,
             limit).map((entry) => ({
@@ -64,7 +66,7 @@ implements IQueryHandler<LeaderboardQuery, LeaderboardResponseData>
                 }
             } else {
                 // Outside the window — query directly.
-                const direct = await this.leaderboardService.getMyRank(courseId,
+                const direct = await this.progressProjectionService.getMyRank(courseId,
                     user.id)
                 if (direct) {
                     myRank = direct

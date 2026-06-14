@@ -18,6 +18,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev:tools:dashboard"],
       "port": 5180
+    },
+    {
+      "name": "amazon-app",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "C:/Repositories/starci-plugins/example/amazon-app", "run", "dev"],
+      "port": 6001
     }
   ]
 }

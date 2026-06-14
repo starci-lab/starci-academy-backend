@@ -16,20 +16,25 @@ import {
     UserEntity,
     UserFollowEntity,
 } from "@modules/databases"
+import {
+    UserStatsProjectionService,
+} from "@modules/bussiness"
 
 /**
  * Resolved follower / following counts layered onto the shared `UserEntity`
  * GraphQL type. Available anywhere a user is returned (`me`, public profile).
  *
- * Counts are derived from the directed `user_follows` edges on demand rather
- * than cached on the user row, so they never drift from the source of truth.
- * Each field is only computed when the client actually selects it.
+ * Follower/following counts are read from the user-stats CQRS projection (kept
+ * fresh by inline recompute + CDC, lazily refreshed on read past its TTL); the
+ * per-viewer `isFollowedByMe` stays a live edge lookup. Each field is only
+ * computed when the client actually selects it.
  */
 @Resolver(() => UserEntity)
 export class UserStatsResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly userStatsProjectionService: UserStatsProjectionService,
     ) {}
 
     /**
@@ -46,17 +51,9 @@ export class UserStatsResolver {
         @Parent()
             user: UserEntity,
     ): Promise<number> {
-        // incoming edges → rows where this user is on the `following` side
-        return this.entityManager.count(
-            UserFollowEntity,
-            {
-                where: {
-                    following: {
-                        id: user.id,
-                    },
-                },
-            },
-        )
+        // read from the flat user-stats projection (lazy-recomputed if stale)
+        const stats = await this.userStatsProjectionService.getStats(user.id)
+        return stats.followerCount
     }
 
     /**
@@ -73,17 +70,9 @@ export class UserStatsResolver {
         @Parent()
             user: UserEntity,
     ): Promise<number> {
-        // outgoing edges → rows where this user is on the `follower` side
-        return this.entityManager.count(
-            UserFollowEntity,
-            {
-                where: {
-                    follower: {
-                        id: user.id,
-                    },
-                },
-            },
-        )
+        // read from the flat user-stats projection (lazy-recomputed if stale)
+        const stats = await this.userStatsProjectionService.getStats(user.id)
+        return stats.followingCount
     }
 
     /**

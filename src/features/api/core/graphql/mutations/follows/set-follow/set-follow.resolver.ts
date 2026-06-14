@@ -30,6 +30,7 @@ import {
     KeycloakGraphQLUser,
 } from "@modules/keycloak"
 import {
+    UserStatsProjectionService,
     writeActivity,
 } from "@modules/bussiness"
 import {
@@ -49,6 +50,7 @@ export class SetFollowResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly userStatsProjectionService: UserStatsProjectionService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -152,6 +154,15 @@ export class SetFollowResolver {
                 }
             },
         )
+
+        // refresh both endpoints' stats projections (follower's following_count +
+        // followed's follower_count); idempotent, CDC also covers it asynchronously
+        await this.userStatsProjectionService.recompute({
+            userId: followerId,
+        })
+        await this.userStatsProjectionService.recompute({
+            userId: followingId,
+        })
 
         return {
         } as SetFollowResponse

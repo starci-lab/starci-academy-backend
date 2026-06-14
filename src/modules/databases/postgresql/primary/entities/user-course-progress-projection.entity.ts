@@ -1,123 +1,88 @@
 import {
-    Column,
     Entity,
     Index,
     JoinColumn,
     ManyToOne,
-    RelationId,
-    Unique,
+    OneToMany,
+    PrimaryColumn,
 } from "typeorm"
 import {
-    UuidAbstractEntity,
-} from "./abstract"
+    AbstractProjectionEntity,
+} from "./abstract-projection"
 import {
     UserEntity,
 } from "./user.entity"
 import {
     CourseEntity,
 } from "./course.entity"
+import {
+    UserCourseProgressProjectionTranslationEntity,
+} from "./user-course-progress-projection-translation.entity"
 
 /**
- * CQRS read-model (projection) of a user's aggregate progress in a course.
+ * CQRS projection of a user's progress in a course (Kiểu B — composite key of
+ * two foreign keys).
  *
- * Pre-computed on write by the progress projector (recompute on the events that
- * change XP — challenge passed / lesson read / milestone passed / enroll) so the
- * leaderboard + rank read a FLAT indexed row instead of running the multi-CTE
- * aggregate on every request. `(user, course)` is unique.
- *
- * Numeric-only → no translatable text, so it has no `*ProjectionTranslation`
- * companion yet (added later per the standard translation convention if a
- * projection ever snapshots display text — default locale `en`).
+ * Primary key is `(user_id, course_id)`; the aggregate (`{ totalScore,
+ * completedChallenges, lessonsRead, milestoneProgress, totalXp }`) lives in the
+ * inherited jsonb `value`. The leaderboard reads order by `(value->>'totalXp')`;
+ * a functional index on `(course_id, ((value->>'totalXp')::int) DESC)` backs
+ * that ordering (created out-of-band — TypeORM `synchronize` does not emit
+ * expression indexes). The plain `course_id` index here covers the WHERE filter.
  */
-@Unique(
-    "UQ_user_course_progress_projection_user_course",
-    [
-        "user",
-        "course",
-    ],
-)
-// orders the per-course leaderboard + powers "users above me" rank counts
-@Index(["course",
-    "totalXp"])
+@Index(["courseId"])
 @Entity("user_course_progress_projections")
-export class UserCourseProgressProjectionEntity extends UuidAbstractEntity {
-    /** The user this progress row belongs to. */
+export class UserCourseProgressProjectionEntity extends AbstractProjectionEntity {
+    /** Owner user id — first half of the composite primary key. */
+    @PrimaryColumn({
+        name: "user_id",
+        type: "uuid",
+    })
+        userId: string
+
+    /** Course id — second half of the composite primary key. */
+    @PrimaryColumn({
+        name: "course_id",
+        type: "uuid",
+    })
+        courseId: string
+
+    /** The user this progress row belongs to (cascade-deleted with it). */
     @ManyToOne(
         () => UserEntity,
         {
             onDelete: "CASCADE",
-            nullable: false,
         },
     )
     @JoinColumn({
         name: "user_id",
-        foreignKeyConstraintName: "fk_user_id_ucp_projection_users",
+        referencedColumnName: "id",
+        foreignKeyConstraintName: "fk_user_id_ucp_projections_users",
     })
         user: UserEntity
 
-    /** Id of the user (virtual, read from the relation). */
-    @RelationId(
-        (projection: UserCourseProgressProjectionEntity) => projection.user,
-    )
-        userId: string
-
-    /** The course the progress is scoped to. */
+    /** The course the progress is scoped to (cascade-deleted with it). */
     @ManyToOne(
         () => CourseEntity,
         {
             onDelete: "CASCADE",
-            nullable: false,
         },
     )
     @JoinColumn({
         name: "course_id",
-        foreignKeyConstraintName: "fk_course_id_ucp_projection_courses",
+        referencedColumnName: "id",
+        foreignKeyConstraintName: "fk_course_id_ucp_projections_courses",
     })
         course: CourseEntity
 
-    /** Id of the course (virtual, read from the relation). */
-    @RelationId(
-        (projection: UserCourseProgressProjectionEntity) => projection.course,
+    /** Localized overrides (empty until the projection snapshots display text). */
+    @OneToMany(
+        () => UserCourseProgressProjectionTranslationEntity,
+        (translation: UserCourseProgressProjectionTranslationEntity) =>
+            translation.userCourseProgressProjection,
+        {
+            cascade: true,
+        },
     )
-        courseId: string
-
-    /** Challenge-only score: sum over challenges of max(attempt.score) per submission. */
-    @Column({
-        name: "total_score",
-        type: "int",
-        default: 0,
-    })
-        totalScore: number
-
-    /** Number of challenges fully passed (challenge score ≥ challenge.score). */
-    @Column({
-        name: "completed_challenges",
-        type: "int",
-        default: 0,
-    })
-        completedChallenges: number
-
-    /** Lessons marked read inside this course. */
-    @Column({
-        name: "lessons_read",
-        type: "int",
-        default: 0,
-    })
-        lessonsRead: number
-
-    /** Milestone tasks with ≥1 passed attempt. */
-    @Column({
-        name: "milestone_progress",
-        type: "int",
-        default: 0,
-    })
-        milestoneProgress: number
-
-    /** Total XP = totalScore + lessonsRead×3 + milestoneProgress×10 (the rank key). */
-    @Column({
-        name: "total_xp",
-        type: "int",
-        default: 0,
-    })
-        totalXp: number
+        translations: Array<UserCourseProgressProjectionTranslationEntity>
 }

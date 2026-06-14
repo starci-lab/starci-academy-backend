@@ -9,8 +9,7 @@ export enum CacheKey {
     ParentIndex = "parent.index",
     KeycloakOidcPkce = "keycloak.oidc.pkce",
     KeycloakUser = "keycloak.user",
-    CourseEnrollment = "course.enrollment",
-    CourseEnrollmentCount = "course.enrollment.count",
+    UserEnrolledCourses = "user.enrolled-courses",
     EnrollmentMilestones = "enrollment.milestones",
     Milestone = "milestone",
     MilestoneTask = "milestone.task",
@@ -18,13 +17,9 @@ export enum CacheKey {
     ChallengeSubmissionProgress = "challenge.submission.progress",
     CodingProblemProgress = "coding.problem.progress",
     CreditUsage = "credit.usage",
-    CourseLeaderboard = "course.leaderboard",
-    CourseLeaderboardDebounce = "course.leaderboard.debounce",
     CourseMindMap = "course.mind-map",
     /** AI ping mount-key health snapshots keyed by provider then API key. */
     AiPingKeyStatus = "ai.ping.key-status",
-    /** Number of users who have marked a content as read, keyed by contentId. */
-    ContentViewCount = "content.view-count",
     /** Cached AI Lab playground run output, keyed by playground + user + input hash. */
     AiLabRun = "ai-lab.run",
     /** Display label for an entity reference, keyed by entityName + id + locale. */

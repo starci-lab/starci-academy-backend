@@ -6,8 +6,7 @@ import {
 } from "../enums"
 import type {
     BloomFilterCacheResult,
-    CourseEnrollmentCacheResult,
-    CourseEnrollmentCountCacheResult,
+    UserEnrolledCoursesCacheResult,
     EnrollmentMilestonesCacheResult,
     JobSubscriberClientIdCacheResult,
     KeycloakUserCacheResult,
@@ -17,10 +16,8 @@ import type {
     ChallengeSubmissionProgressCacheResult,
     CodingProblemProgressCacheResult,
     CreditUsageCacheResult,
-    CourseLeaderboardCacheResult,
     CourseMindMapCacheResult,
     AiPingKeyStatusCacheResult,
-    ContentViewCountCacheResult,
     AiLabRunCacheResult,
     EntityLabelCacheResult,
 } from "../types"
@@ -59,13 +56,9 @@ export const configMap = {
         cacheResult: {
         } as KeycloakUserCacheResult,
     },
-    [CacheKey.CourseEnrollment]: {
-        ttl: envConfig().cache.ttl.courseEnrollment,
-        cacheResult: true as CourseEnrollmentCacheResult,
-    },
-    [CacheKey.CourseEnrollmentCount]: {
-        ttl: envConfig().cache.ttl.courseEnrollmentCount,
-        cacheResult: 0 as CourseEnrollmentCountCacheResult,
+    [CacheKey.UserEnrolledCourses]: {
+        ttl: envConfig().cache.ttl.userEnrolledCourses,
+        cacheResult: [] as UserEnrolledCoursesCacheResult,
     },
     [CacheKey.EnrollmentMilestones]: {
         ttl: envConfig().cache.ttl.enrollmentMilestones,
@@ -101,15 +94,6 @@ export const configMap = {
         cacheResult: {
         } as CreditUsageCacheResult,
     },
-    [CacheKey.CourseLeaderboard]: {
-        ttl: envConfig().cache.ttl.courseLeaderboard,
-        cacheResult: {
-        } as CourseLeaderboardCacheResult,
-    },
-    [CacheKey.CourseLeaderboardDebounce]: {
-        ttl: envConfig().cache.ttl.courseLeaderboardDebounce,
-        cacheResult: true,
-    },
     [CacheKey.CourseMindMap]: {
         ttl: envConfig().cache.ttl.courseMindMap,
         cacheResult: {
@@ -121,11 +105,6 @@ export const configMap = {
         ttl: envConfig().cache.ttl.aiPingKeyStatus,
         cacheResult: {
         } as AiPingKeyStatusCacheResult,
-    },
-    [CacheKey.ContentViewCount]: {
-        ttl: envConfig().cache.ttl.contentViewCount,
-        // simple numeric count — store as a number directly
-        cacheResult: 0 as ContentViewCountCacheResult,
     },
     [CacheKey.AiLabRun]: {
         ttl: envConfig().cache.ttl.aiLabRun,

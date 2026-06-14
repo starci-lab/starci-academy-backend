@@ -1,11 +1,10 @@
--- Backfill the user_course_progress_projections read-model from current data.
--- Run ONCE after the backend boots (so `synchronize` has created the table):
---   node -e "require('pg');..."  OR psql -f scratch/backfill-progress-projection.sql
+-- Backfill the user_course_progress_projections read-model from current data
+-- (jsonb `value` storage). Run ONCE after the backend boots (so `synchronize`
+-- has created the table):
+--   docker exec -i -e PGPASSWORD=... <pg> psql -U postgres -d starci-academy < scratch/backfill-progress-projection.sql
 -- Idempotent: ON CONFLICT updates. The projector keeps it fresh afterwards.
 
-INSERT INTO user_course_progress_projections
-    (user_id, course_id, total_score, completed_challenges,
-     lessons_read, milestone_progress, total_xp)
+INSERT INTO user_course_progress_projections (user_id, course_id, value)
 WITH per_submission_max AS (
     SELECT ucs.user_id,
            m.course_id,
@@ -54,23 +53,26 @@ milestone_per_user AS (
 )
 SELECT e.user_id,
        e.course_id,
-       COALESCE(pu.total_score, 0)::int          AS total_score,
-       COALESCE(pu.completed_challenges, 0)::int AS completed_challenges,
-       COALESCE(rpu.lessons_read, 0)::int        AS lessons_read,
-       COALESCE(mpu.milestone_progress, 0)::int  AS milestone_progress,
-       (COALESCE(pu.total_score, 0)
-         + COALESCE(rpu.lessons_read, 0) * 3
-         + COALESCE(mpu.milestone_progress, 0) * 10)::int AS total_xp
+       jsonb_build_object(
+           'totalScore',          COALESCE(pu.total_score, 0)::int,
+           'completedChallenges', COALESCE(pu.completed_challenges, 0)::int,
+           'lessonsRead',         COALESCE(rpu.lessons_read, 0)::int,
+           'milestoneProgress',   COALESCE(mpu.milestone_progress, 0)::int,
+           'totalXp',             (COALESCE(pu.total_score, 0)
+                                    + COALESCE(rpu.lessons_read, 0) * 3
+                                    + COALESCE(mpu.milestone_progress, 0) * 10)::int
+       ) AS value
 FROM enrollments e
 LEFT JOIN per_user pu            ON pu.user_id = e.user_id  AND pu.course_id = e.course_id
 LEFT JOIN read_per_user rpu      ON rpu.user_id = e.user_id AND rpu.course_id = e.course_id
 LEFT JOIN milestone_per_user mpu ON mpu.user_id = e.user_id AND mpu.course_id = e.course_id
 ON CONFLICT (user_id, course_id) DO UPDATE SET
-    total_score          = EXCLUDED.total_score,
-    completed_challenges = EXCLUDED.completed_challenges,
-    lessons_read         = EXCLUDED.lessons_read,
-    milestone_progress   = EXCLUDED.milestone_progress,
-    total_xp             = EXCLUDED.total_xp,
-    updated_at           = now();
+    value      = EXCLUDED.value,
+    updated_at = now();
 
--- Check: SELECT count(*), sum(total_xp) FROM user_course_progress_projections;
+-- Functional index backing the leaderboard ORDER BY (TypeORM synchronize does
+-- not emit expression indexes, so create it here).
+CREATE INDEX IF NOT EXISTS idx_ucpp_course_total_xp
+    ON user_course_progress_projections (course_id, ((value->>'totalXp')::int) DESC);
+
+-- Check: SELECT count(*), sum((value->>'totalXp')::int) FROM user_course_progress_projections;

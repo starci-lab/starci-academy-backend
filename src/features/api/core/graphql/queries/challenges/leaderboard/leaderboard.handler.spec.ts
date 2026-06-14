@@ -12,7 +12,7 @@ import {
     LeaderboardRequestDefaults,
 } from "./graphql-types"
 import {
-    LeaderboardService,
+    ProgressProjectionService,
 } from "@modules/bussiness"
 import type {
     CourseLeaderboardCacheResult,
@@ -57,20 +57,20 @@ describe("LeaderboardHandler",
     () => {
         let module: TestingModule
         let handler: LeaderboardHandler
-        let leaderboardService: jest.Mocked<LeaderboardService>
+        let progressProjectionService: jest.Mocked<ProgressProjectionService>
 
         beforeEach(async () => {
-            leaderboardService = {
+            progressProjectionService = {
                 getLeaderboard: jest.fn(),
                 getMyRank: jest.fn(),
-            } as unknown as jest.Mocked<LeaderboardService>
+            } as unknown as jest.Mocked<ProgressProjectionService>
 
             module = await Test.createTestingModule({
                 providers: [
                     LeaderboardHandler,
                     {
-                        provide: LeaderboardService,
-                        useValue: leaderboardService,
+                        provide: ProgressProjectionService,
+                        useValue: progressProjectionService,
                     },
                 ],
             }).compile()
@@ -92,7 +92,7 @@ describe("LeaderboardHandler",
                         userId: "u2", rank: 2, totalScore: 120, enrollmentId: "e2",
                     }),
                 ])
-                leaderboardService.getLeaderboard.mockResolvedValueOnce(board)
+                progressProjectionService.getLeaderboard.mockResolvedValueOnce(board)
 
                 const result = await handler.execute(
                     new LeaderboardQuery({
@@ -109,7 +109,7 @@ describe("LeaderboardHandler",
                 expect(result.entries.map((e) => e.userId)).toEqual(["u1",
                     "u2"])
                 expect(result.myRank).toBeNull()
-                expect(leaderboardService.getMyRank).not.toHaveBeenCalled()
+                expect(progressProjectionService.getMyRank).not.toHaveBeenCalled()
             })
 
         it("returns myRank from the cached window when the user is in the top entries",
@@ -129,7 +129,7 @@ describe("LeaderboardHandler",
                         enrollmentId: "e2",
                     }),
                 ])
-                leaderboardService.getLeaderboard.mockResolvedValueOnce(board)
+                progressProjectionService.getLeaderboard.mockResolvedValueOnce(board)
 
                 const result = await handler.execute(
                     new LeaderboardQuery({
@@ -148,7 +148,7 @@ describe("LeaderboardHandler",
                     milestoneProgress: 1,
                     totalXp: 222,
                 })
-                expect(leaderboardService.getMyRank).not.toHaveBeenCalled()
+                expect(progressProjectionService.getMyRank).not.toHaveBeenCalled()
             })
 
         it("falls back to getMyRank when the user is outside the cached window",
@@ -158,8 +158,8 @@ describe("LeaderboardHandler",
                         userId: "u1", rank: 1, totalScore: 300,
                     }),
                 ])
-                leaderboardService.getLeaderboard.mockResolvedValueOnce(board)
-                leaderboardService.getMyRank.mockResolvedValueOnce({
+                progressProjectionService.getLeaderboard.mockResolvedValueOnce(board)
+                progressProjectionService.getMyRank.mockResolvedValueOnce({
                     rank: 42,
                     totalScore: 75,
                     completedChallenges: 1,
@@ -177,7 +177,7 @@ describe("LeaderboardHandler",
                     }),
                 )
 
-                expect(leaderboardService.getMyRank).toHaveBeenCalledWith("course-1",
+                expect(progressProjectionService.getMyRank).toHaveBeenCalledWith("course-1",
                     "u99")
                 expect(result.myRank).toEqual({
                     rank: 42,
@@ -191,8 +191,8 @@ describe("LeaderboardHandler",
 
         it("returns null myRank when getMyRank reports the user has no scored attempts",
             async () => {
-                leaderboardService.getLeaderboard.mockResolvedValueOnce(buildBoard([]))
-                leaderboardService.getMyRank.mockResolvedValueOnce(null)
+                progressProjectionService.getLeaderboard.mockResolvedValueOnce(buildBoard([]))
+                progressProjectionService.getMyRank.mockResolvedValueOnce(null)
 
                 const result = await handler.execute(
                     new LeaderboardQuery({
@@ -222,7 +222,7 @@ describe("LeaderboardHandler",
                             }),
                     ),
                 )
-                leaderboardService.getLeaderboard.mockResolvedValue(fullBoard)
+                progressProjectionService.getLeaderboard.mockResolvedValue(fullBoard)
 
                 const resultLow = await handler.execute(
                     new LeaderboardQuery({
@@ -261,7 +261,7 @@ describe("LeaderboardHandler",
                             }),
                     ),
                 )
-                leaderboardService.getLeaderboard.mockResolvedValueOnce(fullBoard)
+                progressProjectionService.getLeaderboard.mockResolvedValueOnce(fullBoard)
 
                 const result = await handler.execute(
                     new LeaderboardQuery({

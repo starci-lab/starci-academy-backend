@@ -42,6 +42,9 @@ import {
 import {
     NotificationModule,
 } from "./notification"
+import {
+    ProjectionsModule,
+} from "./projections"
 
 /**
  * The module for the bussiness logics.
@@ -74,6 +77,8 @@ export class BussinessModule extends ConfigurableModuleClass {
             AiLabModule.register(options),
             // import the in-app notifications module
             NotificationModule.register(options),
+            // import the CQRS projections module (progress + content + stats read-models)
+            ProjectionsModule.register(options),
         ]
         return {
             ...dynamicModule,

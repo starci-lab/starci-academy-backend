@@ -1,12 +1,9 @@
 import {
     Injectable,
     Logger,
-    type OnModuleDestroy,
     type OnModuleInit,
 } from "@nestjs/common"
 import {
-    Kafka,
-    type Consumer,
     type EachMessagePayload,
 } from "kafkajs"
 import {
@@ -18,6 +15,12 @@ import {
 import {
     envConfig,
 } from "@modules/env"
+import {
+    KafkaCdcMessageException,
+} from "@modules/exceptions"
+import {
+    KafkaService,
+} from "@modules/kafka"
 import {
     ProgressProjectionService,
 } from "./progress-projection.service"
@@ -44,30 +47,32 @@ import type {
  *
  * The consumer is best-effort on boot: if Kafka is unreachable (some
  * environments run without it) the failure is logged and swallowed so the
- * application still starts.
+ * application still starts. The broker connection + consumer disconnect are
+ * owned by {@link KafkaService}; this listener only declares its group, topics,
+ * and per-message projection logic.
  */
 @Injectable()
-export class ProgressProjectionListener implements OnModuleInit, OnModuleDestroy {
+export class ProgressProjectionListener implements OnModuleInit {
     /** Scoped logger so CDC issues are easy to grep in aggregated logs. */
     private readonly logger = new Logger(ProgressProjectionListener.name)
-
-    /** The live KafkaJS consumer, or `null` before init / after a failed connect. */
-    private consumer: Consumer | null = null
 
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly progressProjectionService: ProgressProjectionService,
+        private readonly kafkaService: KafkaService,
     ) {}
 
     /**
-     * Connect to Kafka, subscribe to the four CDC topics, and start consuming.
-     * Any connect/subscribe failure is logged and swallowed — Kafka may be down
-     * in some environments and must not block application boot.
+     * Subscribe to the four CDC topics and start consuming. Connection and
+     * shutdown are delegated to {@link KafkaService}; any failure here is logged
+     * and swallowed — Kafka may be down in some environments and must not block
+     * application boot.
      */
     async onModuleInit(): Promise<void> {
-        // pull broker list + topic prefix from env (overridable per environment)
-        const { brokers, cdcTopicPrefix } = envConfig().kafka
+        // topic prefix is CDC-specific (Debezium server + schema) → stays here;
+        // broker endpoints are owned by KafkaService
+        const { cdcTopicPrefix } = envConfig().kafka
         // build the fully-qualified CDC topic names this listener cares about
         const topics = [
             `${cdcTopicPrefix}user_contents`,
@@ -76,24 +81,23 @@ export class ProgressProjectionListener implements OnModuleInit, OnModuleDestroy
             `${cdcTopicPrefix}enrollments`,
         ]
         try {
-            // a dedicated client id makes this consumer identifiable on the broker
-            const kafka = new Kafka({
-                clientId: "progress-projection",
-                brokers,
+            // make sure the topics exist so subscribe never trips on a cold broker
+            // (no-op when Debezium / auto-create already made them)
+            await this.kafkaService.ensureTopics({
+                topics,
             })
-            // stable groupId → restarts resume from the committed offset (no replay storm)
-            this.consumer = kafka.consumer({
+            // stable groupId → restarts resume from the committed offset (no replay storm);
+            // KafkaService connects the consumer and tracks it for shutdown
+            const { consumer } = await this.kafkaService.createConsumer({
                 groupId: "progress-projection",
             })
-            // open the TCP connection + join the consumer group
-            await this.consumer.connect()
             // subscribe to every CDC topic; fromBeginning=false → only new changes
-            await this.consumer.subscribe({
+            await consumer.subscribe({
                 topics,
                 fromBeginning: false,
             })
             // start the per-message processing loop (handler is failure-isolated)
-            await this.consumer.run({
+            await consumer.run({
                 eachMessage: (payload) => this.handleMessage(payload),
             })
             // surface successful wiring so ops can confirm CDC is live
@@ -101,30 +105,13 @@ export class ProgressProjectionListener implements OnModuleInit, OnModuleDestroy
                 `Progress-projection CDC listener subscribed to: ${topics.join(", ")}`,
             )
         } catch (error) {
-            // Kafka being unreachable is non-fatal — log and let the app boot
-            this.consumer = null
-            this.logger.warn(
-                `Progress-projection CDC listener disabled (Kafka unavailable): ${this.describeError(error)}`,
-            )
-        }
-    }
-
-    /**
-     * Disconnect the consumer on shutdown so the broker rebalances the group
-     * promptly and Jest/graceful-shutdown does not hang on an open socket.
-     */
-    async onModuleDestroy(): Promise<void> {
-        // nothing to do when the consumer never connected
-        if (!this.consumer) {
-            return
-        }
-        try {
-            // leave the group + close sockets cleanly
-            await this.consumer.disconnect()
-        } catch (error) {
-            // a noisy disconnect must not crash shutdown
-            this.logger.warn(
-                `Progress-projection CDC listener disconnect failed: ${this.describeError(error)}`,
+            // Kafka being unreachable is non-fatal — log Error-style (stack
+            // preserved) and let the app boot. `error` is already a typed
+            // KafkaConsumerConnectException when the connect step failed.
+            const cause = error instanceof Error ? error : new Error(String(error))
+            this.logger.error(
+                "Progress-projection CDC listener disabled (Kafka unavailable)",
+                cause.stack,
             )
         }
     }
@@ -167,10 +154,15 @@ export class ProgressProjectionListener implements OnModuleInit, OnModuleDestroy
                 courseId: target.courseId,
             })
         } catch (error) {
-            // at-least-once delivery → swallow + log; a later message will recover
-            this.logger.warn(
-                `Failed to project CDC message from "${topic}": ${this.describeError(error)}`,
-            )
+            // at-least-once delivery → swallow + log; a later message will recover.
+            // wrap in a typed exception so the log carries a stable code + the
+            // original stack (Error-style), keyed by the source topic
+            const exception = new KafkaCdcMessageException({
+                topic,
+                originalError: error instanceof Error ? error : undefined,
+            })
+            this.logger.error(exception.message,
+                exception.stack)
         }
     }
 
@@ -340,16 +332,5 @@ export class ProgressProjectionListener implements OnModuleInit, OnModuleDestroy
             userId: row.user_id,
             courseId: row.course_id,
         }
-    }
-
-    /**
-     * Normalize an unknown caught value into a short message for logging.
-     *
-     * @param error - the caught value (unknown by TypeScript)
-     * @returns a human-readable message
-     */
-    private describeError(error: unknown): string {
-        // prefer the Error message; otherwise stringify whatever was thrown
-        return error instanceof Error ? error.message : String(error)
     }
 }
