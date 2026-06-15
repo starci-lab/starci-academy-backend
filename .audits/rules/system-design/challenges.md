@@ -2,6 +2,8 @@
 
 > Bản để audit/viết challenge **System Design**. SD dùng **CHUNG format V2 với Fullstack** — đọc **`../fullstack/challenges.md`** trước (cấu trúc file, H1 order, item-major, scoring outcome/approach, critical, parsing gotcha, gate). File này CHỈ liệt kê **SD deltas**. Content body → `contents.md`.
 >
+> ⚠️ **THUẬT NGỮ & BOLD trong prose challenge → BẮT BUỘC theo `.audits/rules/terminology-bold.md`. STRICT, đã có feedback.**
+>
 > **Đã verify với challenge thật (m0/m1):** SD challenge dùng ĐÚNG format FS V2 — `# score = 100` mọi tier; `submissions/0/en.md` = `outcomeCriterias` (Σ ### score = 30) + `approachCriterias` (Σ = 70, ≥1 `critical: true`). **Format 20/40/60/80 + inline `### promptText` trong `challenge-format.md` là STALE — KHÔNG dùng.**
 
 ---

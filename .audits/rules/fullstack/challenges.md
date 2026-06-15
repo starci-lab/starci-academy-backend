@@ -1,6 +1,8 @@
 # Fullstack — Challenge rules · đúc kết
 
 > Bản **TỰ-ĐỦ** để audit/viết challenge FS — chỉ đọc trong `.audits`, **KHÔNG ref file ngoài**. Đúc kết từ challenge gold (M0/M14) + migration M13 (16 ch V1→V2) trong session. Content body → `contents.md`. Quy trình → `../../pipeline.md`.
+>
+> ⚠️ **THUẬT NGỮ & BOLD trong prose challenge (title/description/`##### body`/outputs/prerequisites) → BẮT BUỘC theo `.audits/rules/terminology-bold.md`. STRICT, đã có feedback.**
 
 ---
 

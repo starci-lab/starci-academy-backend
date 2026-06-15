@@ -1,6 +1,8 @@
 # Fullstack — Content (lesson body) rules · đúc kết
 
 > Bản **TỰ-ĐỦ** để audit/viết content lesson FS — chỉ đọc trong `.audits`, **KHÔNG ref file ngoài**. Đúc kết từ bài gold (M0/M1) + các bài đã sửa trong session (M10–M14). Challenge → `challenges.md`. **Code BE/FE viết thế nào → `coding.md`** (cùng thư mục). Quy trình → `../../pipeline.md`.
+>
+> ⚠️ **THUẬT NGỮ & BOLD (tiếng Việt phổ thông vs English vs English+bold) → BẮT BUỘC theo `.audits/rules/terminology-bold.md`. STRICT, đã có feedback. Đọc TRƯỚC khi đụng chữ trong body.**
 
 ---
 

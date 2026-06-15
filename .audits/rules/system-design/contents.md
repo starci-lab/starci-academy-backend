@@ -2,6 +2,8 @@
 
 > Bản để audit/viết content lesson **System Design** trong `.audits`. SD dùng **CHUNG skeleton với Fullstack** — đọc **`../fullstack/contents.md`** trước (bố cục file V2, template heading `2.1.1–2.1.7`, theory=2, interview ở `3.1`, separator, code diff=0). File này CHỈ liệt kê **SD deltas**. Đúc kết từ `content-system-design.md` (delta-on-generic) + scan thật m1–m10 SD (2026-06-07). Code repo → `coding.md`. Challenge → `challenges.md`. Quy trình → `../../pipeline.md`.
 >
+> ⚠️ **THUẬT NGỮ & BOLD → BẮT BUỘC theo `.audits/rules/terminology-bold.md`. STRICT, đã có feedback. Đọc TRƯỚC khi đụng chữ trong body.**
+>
 > **Đã verify với content thật:** body SD dùng ĐÚNG scheme FS `## 1 → ## 2 (2.1 Thực hành: 2.1.1…2.1.7 · 2.2 Lý thuyết = 2 mục) → ## 3 (3.1 interview)`. Code-walkthrough ở `##### 2.1.3.x`. KHÔNG có biến thể heading riêng cho SD.
 
 ---
