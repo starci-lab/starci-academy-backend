@@ -5,6 +5,7 @@ import {
     KeycloakJwtPayload,
     KeycloakTokenService,
     KeycloakUserService,
+    deriveUsername,
 } from "@modules/keycloak"
 import {
     Injectable,
@@ -148,7 +149,10 @@ export class SignUpVerifyOtpHandler
             user = this.entityManager.create(
                 UserEntity,
                 {
-                    username: decoded.preferred_username ?? keycloakUsername,
+                    username: deriveUsername({
+                        email: decoded.email ?? result.payload.email,
+                        fallback: decoded.preferred_username ?? keycloakUsername,
+                    }),
                     email: decoded.email ?? result.payload.email,
                     keycloakId,
                     authenticationType: AuthenticationType.Credentials,

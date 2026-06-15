@@ -6,6 +6,7 @@ import {
     KeycloakOidcRedirectService,
     KeycloakTokenService,
     KeycloakIdentityProvider,
+    deriveUsername,
 } from "@modules/keycloak"
 import {
     Injectable,
@@ -107,7 +108,10 @@ export class ExchangeCodeForTokenHandler
                 UserEntity,
                 {
                     email: decoded.email,
-                    username: decoded.preferred_username,
+                    username: deriveUsername({
+                        email: decoded.email,
+                        fallback: decoded.preferred_username,
+                    }),
                     avatarUrl: decoded.picture,
                     keycloakId: decoded.sub,
                     authenticationType: typeToProvider[provider],

@@ -11,6 +11,9 @@ import {
     KeycloakJwksService,
 } from "../jwks.service"
 import {
+    deriveUsername,
+} from "../utils"
+import {
     SessionService,
 } from "@modules/session"
 import {
@@ -84,7 +87,12 @@ export abstract class AbstractKeycloakAuthGuard implements CanActivate {
                 UserEntity, 
                 {
                     keycloakId: verified.sub,
-                    username: verified.preferred_username,
+                    // default handle = email local-part (GitHub-style); fall back
+                    // to the Keycloak preferred_username when there is no email
+                    username: deriveUsername({
+                        email: verified.email,
+                        fallback: verified.preferred_username,
+                    }),
                     email: verified.email,
                     avatar: verified.avatar,
                 }

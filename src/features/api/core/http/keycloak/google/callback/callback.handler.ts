@@ -8,6 +8,7 @@ import {
 import {
     KeycloakJwtPayload,
     KeycloakTokenService,
+    deriveUsername,
 } from "@modules/keycloak"
 import {
     envConfig,
@@ -72,7 +73,10 @@ export class KeycloakGoogleCallbackHandler
             user = this.entityManager.create(
                 UserEntity,
                 {
-                    username: decoded.preferred_username,
+                    username: deriveUsername({
+                        email: decoded.email,
+                        fallback: decoded.preferred_username,
+                    }),
                     email: decoded.email,
                     keycloakId: decoded.sub,
                 },

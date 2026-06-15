@@ -8,6 +8,7 @@ import {
 import {
     KeycloakJwtPayload,
     KeycloakTokenService,
+    deriveUsername,
 } from "@modules/keycloak"
 import {
     Injectable,
@@ -70,7 +71,10 @@ export class KeycloakLoginHandler
             user = this.entityManager.create(
                 UserEntity,
                 {
-                    username: decoded.preferred_username ?? command.params.username,
+                    username: deriveUsername({
+                        email: decoded.email,
+                        fallback: decoded.preferred_username ?? command.params.username,
+                    }),
                     email: decoded.email ?? null,
                     keycloakId: decoded.sub,
                 },
