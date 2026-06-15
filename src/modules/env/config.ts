@@ -126,6 +126,12 @@ export const envConfig = () => ({
                 // this TTL is a safety net that self-heals any missed invalidation
                 defaultValue: "1h",
             }),
+            userProfileLocked: parseEnvMs({
+                key: "CACHE_TTL_USER_PROFILE_LOCKED",
+                // del-on-write (updateProfile) is the primary correctness path;
+                // this TTL is a safety net that self-heals any missed invalidation
+                defaultValue: "1h",
+            }),
             courseMindMap: parseEnvMs({
                 key: "CACHE_TTL_COURSE_MIND_MAP",
                 defaultValue: "1h",
@@ -944,6 +950,13 @@ export const envConfig = () => ({
                     ".mount",
                     "data",
                     "changelog"),
+            }),
+            achievements: parseEnvString({
+                key: "DATA_ACHIEVEMENTS_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "data",
+                    "achievements"),
             }),
         },
         /** File paths: app config. */

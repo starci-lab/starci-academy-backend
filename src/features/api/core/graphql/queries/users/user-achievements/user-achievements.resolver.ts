@@ -1,6 +1,5 @@
 import {
     Args,
-    Context,
     ID,
     Query,
     Resolver,
@@ -9,9 +8,6 @@ import {
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
-import type {
-    EntityManager,
-} from "typeorm"
 import {
     GraphQLLocale,
     GraphQLSuccessMessage,
@@ -25,18 +21,15 @@ import {
     ThrottlerConfig,
 } from "@modules/throttler"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     Locale,
 } from "@modules/databases"
 import {
     AchievementsService,
+    GraphQLProfileVisibilityGuard,
 } from "@modules/bussiness"
 import {
     MyAchievementItemData,
 } from "../../achievements/my-achievements/graphql-types"
-import {
-    isProfileHiddenFromViewer,
-} from "../utils"
 import {
     UserAchievementsResponse,
 } from "./graphql-types"
@@ -45,18 +38,18 @@ import {
  * Public profile query: every achievement with a given user's earned status +
  * live progress. Mirrors `myAchievements` but reads for the user named in the
  * route (id from args) rather than the authenticated viewer, so a profile page
- * can render anyone's badge wall. Optional auth — anonymous viewers may call it.
+ * can render anyone's badge wall. Optional auth — anonymous viewers may call it;
+ * a locked profile is withheld from non-owners by {@link GraphQLProfileVisibilityGuard}.
  */
 @Resolver()
 export class UserAchievementsResolver {
     constructor(
         private readonly achievementsService: AchievementsService,
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
-    @UseGuards(KeycloakOptionalAuthGraphQLGuard)
+    @UseGuards(KeycloakOptionalAuthGraphQLGuard,
+        GraphQLProfileVisibilityGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Achievements fetched successfully",
         [Locale.Vi]: "Lấy thành tích thành công",
@@ -80,17 +73,7 @@ export class UserAchievementsResolver {
             userId: string,
         @GraphQLLocale()
             locale: Locale,
-        @Context()
-            context: { req?: { user?: { id?: string } } },
     ): Promise<Array<MyAchievementItemData>> {
-        // locked profile → withhold the badge wall from everyone but the owner
-        if (await isProfileHiddenFromViewer({
-            entityManager: this.entityManager,
-            userId,
-            viewerId: context.req?.user?.id,
-        })) {
-            return []
-        }
         // service computes the badge wall for the named user — same code path as
         // the viewer's own achievements; a public profile only needs the list
         // (the newly-earned subset / congrats modal is for the owner's own view)
@@ -98,7 +81,7 @@ export class UserAchievementsResolver {
         // resolve the inline bilingual text to the request locale
         const lang = locale === Locale.Vi ? "vi" : "en"
         // map each result row to the localized GraphQL item
-        return result.achievements.map((achievement) => ({
+        return result.data.map((achievement) => ({
             slug: achievement.slug,
             name: achievement.name[lang],
             description: achievement.description[lang],

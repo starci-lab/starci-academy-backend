@@ -28,6 +28,9 @@ import {
     KeycloakGraphQLUser,
 } from "@modules/keycloak"
 import {
+    UserService,
+} from "@modules/bussiness"
+import {
     UpdateProfileRequest,
     UpdateProfileResponse,
 } from "./graphql-types"
@@ -47,6 +50,7 @@ export class UpdateProfileResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly userService: UserService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -108,6 +112,12 @@ export class UpdateProfileResolver {
                 },
                 patch,
             )
+        }
+
+        // the lock flag is Redis-cached for the visibility guard → drop it on any
+        // change so a freshly toggled lock takes effect immediately (del-on-write)
+        if (request.profileLocked !== undefined) {
+            await this.userService.invalidateProfileLocked(user.id)
         }
 
         // re-read so the response reflects the committed state (not the stale

@@ -1,6 +1,5 @@
 import {
     Args,
-    Context,
     ID,
     Query,
     Resolver,
@@ -9,9 +8,6 @@ import {
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
-import type {
-    EntityManager,
-} from "typeorm"
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
@@ -25,10 +21,10 @@ import {
 } from "@modules/throttler"
 import {
     CourseEntity,
-    InjectPrimaryPostgreSQLEntityManager,
     Locale,
 } from "@modules/databases"
 import {
+    GraphQLProfileVisibilityGuard,
     ProgressProjectionService,
 } from "@modules/bussiness"
 import {
@@ -38,9 +34,6 @@ import {
     MyCourseItemData,
 } from "../../dashboard/my-courses/graphql-types"
 import {
-    isProfileHiddenFromViewer,
-} from "../utils"
-import {
     UserCoursesResponse,
 } from "./graphql-types"
 
@@ -48,19 +41,19 @@ import {
  * Public profile query: every course a given user has joined with its milestone
  * progress. Mirrors `myCourses` but reads for the user named in the route (id
  * from args), so a profile page can show anyone's enrolled courses. Optional
- * auth — anonymous viewers may call it. Progress comes from the CQRS projection
- * (eager-maintained, never stale); `total` is counted live from milestone tasks.
+ * auth — anonymous viewers may call it; a locked profile is withheld from
+ * non-owners by {@link GraphQLProfileVisibilityGuard}. Progress comes from the
+ * CQRS projection (eager-maintained); `total` is counted live from milestone tasks.
  */
 @Resolver()
 export class UserCoursesResolver {
     constructor(
         private readonly progressProjectionService: ProgressProjectionService,
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
-    @UseGuards(KeycloakOptionalAuthGraphQLGuard)
+    @UseGuards(KeycloakOptionalAuthGraphQLGuard,
+        GraphQLProfileVisibilityGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Courses fetched successfully",
         [Locale.Vi]: "Lấy danh sách khóa học thành công",
@@ -82,17 +75,7 @@ export class UserCoursesResolver {
             },
         )
             userId: string,
-        @Context()
-            context: { req?: { user?: { id?: string } } },
     ): Promise<Array<MyCourseItemData>> {
-        // locked profile → withhold the joined-courses list from non-owners
-        if (await isProfileHiddenFromViewer({
-            entityManager: this.entityManager,
-            userId,
-            viewerId: context.req?.user?.id,
-        })) {
-            return []
-        }
         // one projection-backed read for every course the named user enrolled in
         const rows = await this.progressProjectionService.getMyCourseProgress(userId)
         // map each course to a clickable token + its completed/total counts

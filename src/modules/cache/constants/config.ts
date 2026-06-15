@@ -7,6 +7,7 @@ import {
 import type {
     BloomFilterCacheResult,
     UserEnrolledCoursesCacheResult,
+    UserProfileLockedCacheResult,
     EnrollmentMilestonesCacheResult,
     JobSubscriberClientIdCacheResult,
     KeycloakUserCacheResult,
@@ -59,6 +60,10 @@ export const configMap = {
     [CacheKey.UserEnrolledCourses]: {
         ttl: envConfig().cache.ttl.userEnrolledCourses,
         cacheResult: [] as UserEnrolledCoursesCacheResult,
+    },
+    [CacheKey.UserProfileLocked]: {
+        ttl: envConfig().cache.ttl.userProfileLocked,
+        cacheResult: false as UserProfileLockedCacheResult,
     },
     [CacheKey.EnrollmentMilestones]: {
         ttl: envConfig().cache.ttl.enrollmentMilestones,

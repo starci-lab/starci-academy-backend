@@ -147,4 +147,70 @@ export class UserService {
             ],
         })
     }
+
+    /**
+     * Whether a user's profile is locked (Facebook-style "lock profile") — the
+     * authorization hot path behind the public profile sub-queries. Cached as ONE
+     * boolean per user (same shape as {@link checkEnrollment}'s set): read from
+     * cache, rebuilt from the source on miss, and dropped on any profile update via
+     * {@link invalidateProfileLocked} so a freshly toggled lock takes effect
+     * immediately — no stale `true`/`false` lingering for the (long) TTL.
+     *
+     * @param userId - The id of the user whose profile to check.
+     * @returns True when the profile is locked.
+     */
+    async isProfileLocked(userId: string): Promise<boolean> {
+        // one boolean cache entry per user
+        const cached = await this.cacheService.get({
+            key: CacheKey.UserProfileLocked,
+            args: [
+                userId,
+            ],
+        })
+        // a stored `false` is a hit too — only `undefined` means a cache miss
+        if (cached !== undefined) {
+            return cached
+        }
+
+        // cache miss → read just the lock flag with a single PK lookup
+        const target = await this.entityManager.findOne(
+            UserEntity,
+            {
+                where: {
+                    id: userId,
+                },
+                select: {
+                    id: true,
+                    profileLocked: true,
+                },
+            },
+        )
+        const locked = Boolean(target?.profileLocked)
+        // cache the flag (TTL is a safety net; del-on-write keeps it correct)
+        await this.cacheService.set({
+            key: CacheKey.UserProfileLocked,
+            args: [
+                userId,
+            ],
+            cacheResult: locked,
+        })
+        return locked
+    }
+
+    /**
+     * Drop a user's cached profile-lock flag so the next check rebuilds it from
+     * the source. Call this AFTER a profile update commits (the only thing that
+     * changes the lock) — the single invalidation point that keeps the visibility
+     * cache from going stale.
+     *
+     * @param userId - The user whose lock flag to invalidate.
+     */
+    async invalidateProfileLocked(userId: string): Promise<void> {
+        await this.cacheService.del({
+            key: CacheKey.UserProfileLocked,
+            args: [
+                userId,
+            ],
+        })
+    }
 }

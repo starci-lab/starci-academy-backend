@@ -10,6 +10,7 @@ export enum CacheKey {
     KeycloakOidcPkce = "keycloak.oidc.pkce",
     KeycloakUser = "keycloak.user",
     UserEnrolledCourses = "user.enrolled-courses",
+    UserProfileLocked = "user.profile-locked",
     EnrollmentMilestones = "enrollment.milestones",
     Milestone = "milestone",
     MilestoneTask = "milestone.task",

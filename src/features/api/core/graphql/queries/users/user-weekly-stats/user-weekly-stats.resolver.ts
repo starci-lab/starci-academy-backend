@@ -1,6 +1,5 @@
 import {
     Args,
-    Context,
     ID,
     Query,
     Resolver,
@@ -9,9 +8,6 @@ import {
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
-import type {
-    EntityManager,
-} from "typeorm"
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
@@ -24,18 +20,15 @@ import {
     ThrottlerConfig,
 } from "@modules/throttler"
 import {
-    InjectPrimaryPostgreSQLEntityManager,
     Locale,
 } from "@modules/databases"
 import {
+    GraphQLProfileVisibilityGuard,
     UserStatsProjectionService,
 } from "@modules/bussiness"
 import {
     MyWeeklyStatsData,
 } from "../../dashboard/my-weekly-stats/graphql-types"
-import {
-    isProfileHiddenFromViewer,
-} from "../utils"
 import {
     UserWeeklyStatsResponse,
 } from "./graphql-types"
@@ -44,19 +37,18 @@ import {
  * Public profile query: a given user's streak + rolling 7-day activity. Mirrors
  * `myWeeklyStats` but reads for the user named in the route (id from args), so a
  * profile can show a Duolingo-style streak. Optional auth — anonymous viewers may
- * call it. A locked profile yields empty stats to anyone but the owner (also
- * gated client-side). Reads the user-stats projection (never computed inline).
+ * call it; a locked profile is withheld from non-owners by
+ * {@link GraphQLProfileVisibilityGuard}. Reads the user-stats projection.
  */
 @Resolver()
 export class UserWeeklyStatsResolver {
     constructor(
         private readonly userStatsProjectionService: UserStatsProjectionService,
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
-    @UseGuards(KeycloakOptionalAuthGraphQLGuard)
+    @UseGuards(KeycloakOptionalAuthGraphQLGuard,
+        GraphQLProfileVisibilityGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Weekly stats fetched successfully",
         [Locale.Vi]: "Lấy thống kê tuần thành công",
@@ -78,24 +70,7 @@ export class UserWeeklyStatsResolver {
             },
         )
             userId: string,
-        @Context()
-            context: { req?: { user?: { id?: string } } },
     ): Promise<MyWeeklyStatsData> {
-        // locked profile → withhold the streak from everyone but the owner
-        if (await isProfileHiddenFromViewer({
-            entityManager: this.entityManager,
-            userId,
-            viewerId: context.req?.user?.id,
-        })) {
-            // empty stats for a hidden profile (no streak leaked)
-            return {
-                streak: 0,
-                longestStreak: 0,
-                xp: 0,
-                lessons: 0,
-                days: [],
-            }
-        }
         // single projection read — heavy aggregates live in the projection recompute
         const stats = await this.userStatsProjectionService.getStats(userId)
         // expose only the activity slice (the projection also carries social counters)
