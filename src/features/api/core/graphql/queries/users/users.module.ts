@@ -22,13 +22,19 @@ import {
 import {
     UserContributionCalendarSingleQueryModule,
 } from "./user-contribution-calendar"
+import {
+    UserWeeklyStatsSingleQueryModule,
+} from "./user-weekly-stats"
+import {
+    UserCodingProgressSingleQueryModule,
+} from "./user-coding-progress"
 
 /**
  * User query group — resolved fields layered onto the shared `UserEntity`
  * GraphQL type (follower / following counts) plus the public profile queries:
- * the profile header (`userProfile`) and the profile tabs — achievements,
- * joined courses, the activity timeline, and the contribution calendar — all
- * keyed by user id.
+ * the profile header (`userProfile`) and the profile tabs / stats — achievements,
+ * joined courses, the activity timeline, the contribution calendar, the weekly
+ * streak, and coding progress — all keyed by user id.
  */
 @Module({
     imports: [
@@ -48,6 +54,12 @@ import {
             isGlobal: true,
         }),
         UserContributionCalendarSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserWeeklyStatsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserCodingProgressSingleQueryModule.register({
             isGlobal: true,
         }),
     ],
