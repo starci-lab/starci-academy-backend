@@ -121,7 +121,7 @@ export class CodingProgressService {
         ) as Array<{ id: string }>
         // the user's cumulative coding score
         const pointsRows = await this.entityManager.query(
-            "SELECT coding_points AS \"points\" FROM users WHERE id = $1",
+            "SELECT points AS \"points\" FROM users WHERE id = $1",
             [userId],
         ) as Array<{ points: number | string }>
         return {

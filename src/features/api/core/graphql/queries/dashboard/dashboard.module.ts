@@ -20,6 +20,9 @@ import {
     MyContributionCalendarSingleQueryModule,
 } from "./my-contribution-calendar"
 import {
+    TrendingContentsSingleQueryModule,
+} from "./trending-contents"
+import {
     MyFeedSingleQueryModule,
 } from "./my-feed"
 import {
@@ -49,6 +52,9 @@ import {
             isGlobal: true,
         }),
         MyContributionCalendarSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        TrendingContentsSingleQueryModule.register({
             isGlobal: true,
         }),
         MyFeedSingleQueryModule.register({

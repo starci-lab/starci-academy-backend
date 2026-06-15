@@ -5,6 +5,7 @@ import type {
     AchievementCriteriaType,
     LocalizedText,
 } from "@modules/databases"
+// AchievementCriteriaType is used only by MyAchievementResult below.
 
 /**
  * Params for recomputing one user's achievement awards.
@@ -17,30 +18,6 @@ export interface RecomputeAchievementsForUserParams {
      * INSERTs commit atomically with the source change; omit for the CDC path.
      */
     entityManager?: EntityManager
-}
-
-/**
- * The current per-criteria metric values for one user, keyed by criteria type.
- * Computed once per recompute / read so each definition can be evaluated without
- * re-querying the source tables.
- */
-export type AchievementCriteriaValues = Record<AchievementCriteriaType, number>
-
-/**
- * One row of the raw per-user criteria-value query (all metrics in a single
- * round-trip). Postgres returns aggregate columns as numeric strings.
- */
-export interface CriteriaValuesRow {
-    /** Lessons read (`user_contents.is_read = true`). */
-    lessons_read: string
-    /** Current consecutive-day XP streak. */
-    streak_days: string
-    /** Distinct challenges passed. */
-    challenges_passed: string
-    /** Milestone tasks passed. */
-    milestones_passed: string
-    /** Courses enrolled. */
-    courses_enrolled: string
 }
 
 /**
@@ -71,6 +48,19 @@ export interface MyAchievementResult {
 }
 
 /**
+ * The achievements view returned to the profile: the full list, the earned count,
+ * and the subset newly earned on this read.
+ */
+export interface MyAchievementsResult {
+    /** Every achievement with the viewer's earned status + live progress. */
+    data: Array<MyAchievementResult>
+    /** How many of them the viewer has earned. */
+    count: number
+    /** The achievements whose first award was inserted on this read. */
+    newAchievements: Array<MyAchievementResult>
+}
+
+/**
  * One newly-earned award produced by a recompute pass (so a caller could notify
  * the user later).
  */
@@ -79,13 +69,4 @@ export interface NewlyEarnedAchievement {
     slug: string
     /** The tier reached (1-based) for a tiered award; null for single-tier. */
     tier: number | null
-}
-
-/**
- * CDC row image from the topics the achievements listener follows
- * (`xp_histories` + `enrollments`). Both expose the affected user via `user_id`.
- */
-export interface AchievementCdcRow {
-    /** The earner (xp_histories) / enrollee (enrollments) user id. */
-    user_id?: string
 }

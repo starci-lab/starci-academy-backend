@@ -4,6 +4,8 @@ import {
     Resolver,
 } from "@nestjs/graphql"
 import {
+    Logger,
+    UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
 import {
@@ -19,11 +21,22 @@ import {
     ThrottlerConfig,
 } from "@modules/throttler"
 import {
+    KeycloakGraphQLUser,
+    KeycloakOptionalAuthGraphQLGuard,
+} from "@modules/keycloak"
+import {
+    UserService,
+} from "@modules/bussiness/user"
+import {
+    MembershipService,
+} from "@modules/membership"
+import {
     AdvertisementEntity,
     AdvertisementPlacement,
     GraphQLTypeAdvertisementPlacement,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
+    UserEntity,
 } from "@modules/databases"
 import {
     ActiveAdvertisementResponse,
@@ -37,15 +50,26 @@ import {
  * internal "advertise here" house ad (order: paid-first, then priority, then
  * newest). Returns null when nothing is active. `title`/`ctaText` are resolved
  * to the request locale; `media` is handed back as the raw discriminated jsonb.
+ *
+ * Ad-free exemptions are enforced here (single policy gate) so the client only
+ * needs `ad != null ? render : hide`: active community members see no ads at
+ * all, and a viewer already enrolled in the supplied `courseId` is not shown a
+ * lesson ad. Auth is optional — anonymous viewers always see ads.
  */
 @Resolver()
 export class ActiveAdvertisementResolver {
+    /** Logger for soft-filter (exemption) failures that must not break ad serving. */
+    private readonly logger = new Logger(ActiveAdvertisementResolver.name)
+
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly membershipService: MembershipService,
+        private readonly userService: UserService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
+    @UseGuards(KeycloakOptionalAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Active advertisement fetched successfully",
         [Locale.Vi]: "Lấy quảng cáo thành công",
@@ -61,6 +85,8 @@ export class ActiveAdvertisementResolver {
     async execute(
         @GraphQLLocale()
             locale: Locale,
+        @KeycloakGraphQLUser()
+            user: UserEntity | undefined,
         @Args("placement",
             {
                 type: () => GraphQLTypeAdvertisementPlacement,
@@ -69,7 +95,36 @@ export class ActiveAdvertisementResolver {
                 description: "UI slot to fetch the banner for.",
             })
             placement: AdvertisementPlacement,
+        @Args("courseId",
+            {
+                type: () => String,
+                nullable: true,
+                description: "Course context for lesson placements (enrolled viewers are exempt).",
+            })
+            courseId?: string,
     ): Promise<ActiveAdvertisementResponseData | null> {
+        // ad-free exemptions (single policy gate). active members never see ads;
+        // a viewer already enrolled in this course is not shown a lesson ad.
+        // this is a SOFT filter: if the lookup fails (e.g. the membership tables
+        // are not yet deployed) we must not break ad serving, so fail open and
+        // still return the banner
+        if (user) {
+            try {
+                if (await this.membershipService.isActive(user.id)) {
+                    return null
+                }
+                if (courseId && await this.userService.checkEnrollment(user.id,
+                    courseId)) {
+                    return null
+                }
+            } catch (error) {
+                this.logger.warn(
+                    `ad exemption check failed, serving ad anyway: ${
+                        error instanceof Error ? error.message : String(error)
+                    }`,
+                )
+            }
+        }
         // active ad inside its display window; paid (is_house_ad=false) ranks
         // before the house ad, then higher priority, then newest
         const ad = await this.entityManager

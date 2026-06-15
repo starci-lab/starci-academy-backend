@@ -4,7 +4,9 @@ import {
 import {
     extname,
     join,
+    relative,
     resolve,
+    sep,
 } from "path"
 import {
     Injectable,
@@ -14,6 +16,9 @@ import {
 import {
     envConfig,
 } from "@modules/env"
+import {
+    getRuntimeContextRoot,
+} from "@modules/filesystem"
 import {
     S3BuildService,
     S3BucketService,
@@ -87,14 +92,12 @@ export class AssetsService implements OnModuleInit {
     async sync(): Promise<SyncAssetsResult> {
         // target bucket lives on MinIO (the public-read provider in this stack)
         const bucket = envConfig().s3.minio.bucket
-        // resolve the source folder relative to the process working directory
-        const dir = resolve(process.cwd(),
-            envConfig().assets.dir)
 
-        // bail out quietly when the folder is absent (e.g. a deployment without assets)
-        const dirExists = await this.directoryExists(dir)
-        if (!dirExists) {
-            this.logger.warn(`Assets directory "${dir}" not found — skipping asset sync`)
+        // source the assets from the git-shipped data root first (so a deploy
+        // ships its assets with the content repo), else the local on-disk folder
+        const dir = await this.resolveAssetsDir()
+        if (!dir) {
+            this.logger.warn("No assets directory found — skipping asset sync")
             return {
                 assets: [],
             }
@@ -103,30 +106,22 @@ export class AssetsService implements OnModuleInit {
         // make sure the public prefixes (incl. assets/*) are anonymously readable before uploading
         await this.s3BucketService.ensurePublicReadPrefixes(bucket)
 
-        // read the folder once, keeping only regular files (one level deep)
-        const entries = await fs.readdir(dir,
-            {
-                withFileTypes: true,
-            })
+        // walk the tree, preserving each file's path relative to the assets root so
+        // nested folders (e.g. badges/achievements/*) keep their structure in the key
+        const files = await this.collectFiles(dir,
+            dir)
         const assets = Array<SyncedAsset>()
 
-        for (const entry of entries) {
-            // skip nested directories — only flat asset files are synced
-            if (!entry.isFile()) {
-                continue
-            }
-
+        for (const file of files) {
             // derive the content type from the extension so browsers render inline
-            const fileName = entry.name
-            const extension = extname(fileName).toLowerCase()
+            const extension = extname(file.relPath).toLowerCase()
             const contentType = ASSET_CONTENT_TYPE_BY_EXTENSION[extension] ?? ASSET_DEFAULT_CONTENT_TYPE
 
             // read the raw bytes to upload as an object body
-            const buffer = await fs.readFile(join(dir,
-                fileName))
+            const buffer = await fs.readFile(file.absPath)
 
-            // namespace the object under the public assets prefix, preserving the file name
-            const key = `${S3_ASSETS_PREFIX}/${fileName}`
+            // forward-slash object key under the public assets prefix, preserving sub-paths
+            const key = `${S3_ASSETS_PREFIX}/${file.relPath.split(sep).join("/")}`
 
             // upload to MinIO (overwrites if present — sync is idempotent for small static files)
             await this.s3UploadService.buffer({
@@ -145,16 +140,74 @@ export class AssetsService implements OnModuleInit {
 
             // record the synced asset and log its public URL for ops visibility
             assets.push({
-                fileName,
+                fileName: file.relPath,
                 key,
                 url,
             })
-            this.logger.log(`Synced asset "${fileName}" -> ${url}`)
+            this.logger.log(`Synced asset "${file.relPath}" -> ${url}`)
         }
 
         return {
             assets,
         }
+    }
+
+    /**
+     * First existing assets source: the git-sourced data snapshot root
+     * (`<runtimeRoot>/assets`, shipped with the content repo) else the local
+     * on-disk fallback (`envConfig().assets.dir`, default `.assets`).
+     *
+     * @returns the assets directory path, or null when neither exists.
+     */
+    private async resolveAssetsDir(): Promise<string | null> {
+        const root = getRuntimeContextRoot()
+        const candidates = [
+            root ? join(root,
+                "assets") : null,
+            resolve(process.cwd(),
+                envConfig().assets.dir),
+        ].filter((path): path is string => Boolean(path))
+        for (const candidate of candidates) {
+            if (await this.directoryExists(candidate)) {
+                return candidate
+            }
+        }
+        return null
+    }
+
+    /**
+     * Recursively collect every regular file under `dir`, tagging each with its
+     * path relative to `root` (so the upload key preserves the folder structure).
+     *
+     * @param dir - directory currently being walked.
+     * @param root - the assets root, for computing relative keys.
+     * @returns the flat list of files with absolute + relative paths.
+     */
+    private async collectFiles(
+        dir: string,
+        root: string,
+    ): Promise<Array<{ absPath: string, relPath: string }>> {
+        const out: Array<{ absPath: string, relPath: string }> = []
+        const entries = await fs.readdir(dir,
+            {
+                withFileTypes: true,
+            })
+        for (const entry of entries) {
+            const absPath = join(dir,
+                entry.name)
+            if (entry.isDirectory()) {
+                // recurse into sub-folders (badges/, etc.)
+                out.push(...await this.collectFiles(absPath,
+                    root))
+            } else if (entry.isFile()) {
+                out.push({
+                    absPath,
+                    relPath: relative(root,
+                        absPath),
+                })
+            }
+        }
+        return out
     }
 
     /**

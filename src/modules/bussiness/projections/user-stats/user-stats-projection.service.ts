@@ -13,6 +13,7 @@ import {
 } from "@modules/env"
 import type {
     RecomputeUserStatsParams,
+    StreakDay,
     UserStatsResult,
 } from "./types"
 
@@ -89,8 +90,15 @@ export class UserStatsProjectionService {
             followingCount: Number(value.followingCount) || 0,
             unreadNotificationCount: Number(value.unreadNotificationCount) || 0,
             streak: Number(value.streak) || 0,
+            longestStreak: Number(value.longestStreak) || 0,
             weeklyXp: Number(value.weeklyXp) || 0,
             weeklyLessons: Number(value.weeklyLessons) || 0,
+            last7Days: Array.isArray(value.last7Days)
+                ? (value.last7Days as Array<StreakDay>).map((day) => ({
+                    date: String(day.date),
+                    active: Boolean(day.active),
+                }))
+                : [],
         }
     }
 
@@ -161,7 +169,35 @@ export class UserStatsProjectionService {
                     SELECT COUNT(*)::int FROM islands
                     WHERE island = (SELECT island FROM islands ORDER BY d DESC LIMIT 1)
                       AND (SELECT MAX(d) FROM days) >= CURRENT_DATE - 1
-                ), 0)
+                ), 0),
+                -- longest-ever streak: size of the biggest consecutive-day island
+                'longestStreak', COALESCE((
+                    WITH days AS (
+                        SELECT DISTINCT created_at::date AS d
+                        FROM xp_histories WHERE user_id = $1
+                    ),
+                    islands AS (
+                        SELECT (d - (ROW_NUMBER() OVER (ORDER BY d))::int) AS island
+                        FROM days
+                    )
+                    SELECT MAX(c)::int FROM (
+                        SELECT COUNT(*) AS c FROM islands GROUP BY island
+                    ) g
+                ), 0),
+                -- the last 7 calendar days (oldest→today) flagged active when the
+                -- user earned any XP that day → drives the streak strip
+                'last7Days', COALESCE((
+                    SELECT jsonb_agg(
+                        jsonb_build_object(
+                            'date', to_char(gd, 'YYYY-MM-DD'),
+                            'active', EXISTS (
+                                SELECT 1 FROM xp_histories x
+                                WHERE x.user_id = $1 AND x.created_at::date = gd
+                            )
+                        ) ORDER BY gd
+                    )
+                    FROM generate_series(CURRENT_DATE - 6, CURRENT_DATE, interval '1 day') AS gd
+                ), '[]'::jsonb)
             )
             ON CONFLICT (user_id) DO UPDATE SET
                 value      = EXCLUDED.value,

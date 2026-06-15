@@ -1,19 +1,26 @@
 import {
+    Inject,
     Injectable,
 } from "@nestjs/common"
 import {
     EntityManager,
 } from "typeorm"
 import {
-    AchievementCriteriaType,
     AchievementEntity,
     InjectPrimaryPostgreSQLEntityManager,
     UserAchievementEntity,
+    UserAchievementProjectionEntity,
 } from "@modules/databases"
+import {
+    envConfig,
+} from "@modules/env"
+import {
+    ACHIEVEMENT_BADGES,
+    AbstractBadge,
+} from "./badges"
 import type {
-    AchievementCriteriaValues,
-    CriteriaValuesRow,
     MyAchievementResult,
+    MyAchievementsResult,
     NewlyEarnedAchievement,
     RecomputeAchievementsForUserParams,
 } from "./types"
@@ -21,34 +28,92 @@ import type {
 /**
  * Business service for GitHub-style achievements / badges.
  *
- * Reads ({@link getMyAchievements}) join every achievement definition with the
- * viewer's earned ledger + a single per-user criteria-value query, so the
- * profile gets each badge's definition, earned status, and live progress in one
- * pass. Writes ({@link recomputeForUser}) re-evaluate every definition against
- * the same criteria values and INSERT an idempotent award row for any threshold
- * (or tier threshold) newly met — driven inline and by the CDC listener.
+ * Each badge (one animal) is its own {@link AbstractBadge} service owning a scalar
+ * SQL subquery; this service **stitches every badge's `getSql()` into ONE composite
+ * query** (a single round-trip) to get all metric values, then asks each badge
+ * `checkEligible(value, definition)` which tiers were reached. Eligibility bars
+ * live on the seeded DB definition (matched by slug).
  *
- * The criteria-value query reuses the exact join logic the progress projection
- * uses (lessons read / challenges passed / milestones passed) plus the
- * user-stats streak gaps-and-islands, so the numbers always agree across
- * features.
+ * Awards are computed on-read ({@link getMyAchievements}) — returning the full
+ * list, the earned count, and the subset newly earned this read.
  */
 @Injectable()
 export class AchievementsService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        @Inject(ACHIEVEMENT_BADGES)
+        private readonly badges: Array<AbstractBadge>,
     ) {}
 
     /**
-     * Every achievement definition joined with the viewer's earned status and
-     * live progress, ordered for display.
+     * Read the user's achievement wall through its CQRS projection. A fresh row is
+     * returned as-is (no recompute, nothing newly earned). On a miss / stale row
+     * the wall is recomputed + awarded ({@link computeAndAward}) and cached; the
+     * achievement CDC listener invalidates the row whenever a source metric
+     * changes, so the next read self-heals.
      *
      * @param userId - the viewer.
-     * @returns one row per definition (definition fields + earned + currentValue + tierReached).
+     * @returns `{ data, count, newAchievements }` (newAchievements only on recompute).
      */
-    async getMyAchievements(userId: string): Promise<Array<MyAchievementResult>> {
-        // load the curated definition set in display order
+    async getMyAchievements(userId: string): Promise<MyAchievementsResult> {
+        // flat projection read (PK is user_id)
+        const row = await this.entityManager.findOne(
+            UserAchievementProjectionEntity,
+            {
+                where: {
+                    userId,
+                },
+            },
+        )
+        // fresh cache hit → return the snapshot, nothing newly earned
+        if (row && !this.isStale(row.updatedAt)) {
+            const value = row.value as { data?: Array<MyAchievementResult>, count?: number }
+            return {
+                data: this.hydrate(value.data ?? []),
+                count: value.count ?? 0,
+                newAchievements: [],
+            }
+        }
+        // miss / stale → recompute + award, then cache the snapshot
+        const view = await this.computeAndAward(userId)
+        await this.entityManager.query(
+            this.buildUpsertSql(),
+            [
+                userId,
+                JSON.stringify({
+                    data: view.data,
+                    count: view.count,
+                }),
+            ],
+        )
+        return view
+    }
+
+    /**
+     * Hard-invalidate one user's achievement projection (CDC delete-on-write), so
+     * the next read recomputes + re-awards from the source tables.
+     *
+     * @param userId - the user whose projection to drop.
+     */
+    async invalidate(userId: string): Promise<void> {
+        await this.entityManager.delete(
+            UserAchievementProjectionEntity,
+            {
+                userId,
+            },
+        )
+    }
+
+    /**
+     * Compute the achievement wall from source (composite metric query + award) —
+     * the list, the earned count, and the subset newly earned this pass.
+     *
+     * @param userId - the viewer.
+     * @returns `{ data, count, newAchievements }`.
+     */
+    private async computeAndAward(userId: string): Promise<MyAchievementsResult> {
+        // curated definitions (display + eligibility bars), in display order
         const definitions = await this.entityManager.find(
             AchievementEntity,
             {
@@ -57,25 +122,31 @@ export class AchievementsService {
                 },
             },
         )
-        // the viewer's earned ledger (any tier) — used to flag earned + earliest date + top tier
+        const definitionBySlug = this.indexDefinitions(definitions)
+        // ONE composite query for every badge's metric value
+        const valueBySlug = await this.computeValues(userId,
+            this.entityManager)
+        // award-on-read using the values we just computed (no extra query); the rows
+        // actually inserted are surfaced as `newAchievements`
+        const newlyEarned = await this.award(userId,
+            this.entityManager,
+            definitionBySlug,
+            valueBySlug)
+        // earned ledger AFTER awarding so newly-inserted rows count as earned.
+        // `userId` is a @RelationId (virtual), so filter via the relation's id.
         const earned = await this.entityManager.find(
             UserAchievementEntity,
             {
                 where: {
-                    userId,
+                    user: {
+                        id: userId,
+                    },
                 },
             },
         )
-        // one round-trip for all five live metric values
-        const values = await this.computeCriteriaValues(userId,
-            this.entityManager)
-        // fold the ledger into per-achievement aggregates (earliest earnedAt, highest tier)
         const earnedByAchievementId = this.indexEarned(earned)
         // map each definition into the presentation row
-        return definitions.map((definition) => {
-            // the viewer's progress against this definition's metric
-            const currentValue = values[definition.criteriaType]
-            // earned aggregate for this achievement, if any tier has been recorded
+        const achievements = definitions.map((definition) => {
             const earnedEntry = earnedByAchievementId.get(definition.id)
             return {
                 slug: definition.slug,
@@ -87,17 +158,24 @@ export class AchievementsService {
                 // earned when at least one award row exists for this achievement
                 earned: Boolean(earnedEntry),
                 earnedAt: earnedEntry?.earnedAt ?? null,
-                currentValue,
+                currentValue: valueBySlug.get(definition.slug) ?? 0,
                 tierReached: earnedEntry?.tier ?? null,
             }
         })
+        // the badges whose first award was inserted this read
+        const newSlugs = new Set(newlyEarned.map((award) => award.slug))
+        const newAchievements = achievements.filter((item) => newSlugs.has(item.slug))
+        return {
+            data: achievements,
+            count: achievements.filter((item) => item.earned).length,
+            newAchievements,
+        }
     }
 
     /**
-     * Re-evaluate every achievement definition for one user and INSERT an
-     * idempotent award row for any threshold (or tier threshold) newly met.
-     * Idempotent on the `(user, achievement, tier)` unique key, so `earnedAt` is
-     * captured exactly once.
+     * Re-evaluate every badge for one user and INSERT an idempotent award row for
+     * any threshold (or tier threshold) newly met. Idempotent on the
+     * `(user, achievement, tier)` unique key, so `earnedAt` is captured once.
      *
      * @param params - {@link RecomputeAchievementsForUserParams}
      * @returns the awards newly inserted this pass (so a caller could notify later).
@@ -110,29 +188,87 @@ export class AchievementsService {
     ): Promise<Array<NewlyEarnedAchievement>> {
         // honour the caller's transaction when given, else the service connection
         const manager = entityManager ?? this.entityManager
-        // load definitions + the viewer's live metric values together
         const definitions = await manager.find(AchievementEntity)
-        const values = await this.computeCriteriaValues(userId,
+        const definitionBySlug = this.indexDefinitions(definitions)
+        const valueBySlug = await this.computeValues(userId,
             manager)
-        // accumulate every award row that should exist given the current values
+        return this.award(userId,
+            manager,
+            definitionBySlug,
+            valueBySlug)
+    }
+
+    /**
+     * Compute every badge's metric value in ONE composite query: each badge's
+     * scalar `getSql()` becomes one column. Returns a `slug → value` map.
+     *
+     * @param userId - the user to measure.
+     * @param manager - the entity manager to run on.
+     * @returns the metric value per badge slug.
+     */
+    private async computeValues(
+        userId: string,
+        manager: EntityManager,
+    ): Promise<Map<string, number>> {
+        // nothing registered → nothing to query (avoids an empty `SELECT`)
+        if (this.badges.length === 0) {
+            return new Map()
+        }
+        // stitch each badge's scalar subquery into one SELECT, aliased by index
+        const columns = this.badges
+            .map((badge, index) => `${badge.getSql()} AS v${index}`)
+            .join(",\n")
+        const rows = await manager.query<Array<Record<string, string | number>>>(
+            `SELECT ${columns}`,
+            [
+                userId,
+            ],
+        )
+        const row = rows[0] ?? {
+        }
+        // map each aliased column back to its badge slug
+        const valueBySlug = new Map<string, number>()
+        this.badges.forEach((badge, index) => {
+            valueBySlug.set(badge.slug,
+                Number(row[`v${index}`]) || 0)
+        })
+        return valueBySlug
+    }
+
+    /**
+     * For each badge, ask which tiers its value reached and INSERT the missing
+     * awards. Badges without a seeded definition (slug mismatch) are skipped.
+     *
+     * @param userId - the earner.
+     * @param manager - the entity manager to run on.
+     * @param definitionBySlug - seeded definitions keyed by slug (bars + id).
+     * @param valueBySlug - each badge's current metric value.
+     * @returns the awards newly inserted this pass.
+     */
+    private async award(
+        userId: string,
+        manager: EntityManager,
+        definitionBySlug: Map<string, AchievementEntity>,
+        valueBySlug: Map<string, number>,
+    ): Promise<Array<NewlyEarnedAchievement>> {
         const newlyEarned: Array<NewlyEarnedAchievement> = []
-        for (const definition of definitions) {
-            // the viewer's progress against this definition's metric
-            const currentValue = values[definition.criteriaType]
-            // resolve which tiers (or the single bar) the value has reached
-            const reached = this.resolveReachedTiers(definition.tierThresholds,
-                definition.threshold,
-                currentValue)
-            for (const tier of reached) {
-                // idempotent award INSERT — ON CONFLICT DO NOTHING on the unique key
+        for (const badge of this.badges) {
+            // the seeded definition carries this badge's bars + row id
+            const definition = definitionBySlug.get(badge.slug)
+            if (!definition) {
+                continue
+            }
+            const value = valueBySlug.get(badge.slug) ?? 0
+            // the badge decides which tiers the value has reached
+            for (const tier of badge.checkEligible(value,
+                definition)) {
                 const inserted = await this.insertAwardIfAbsent(manager,
                     userId,
                     definition.id,
                     tier)
-                // only surface rows that were actually created this pass
                 if (inserted) {
                     newlyEarned.push({
-                        slug: definition.slug,
+                        slug: badge.slug,
                         tier,
                     })
                 }
@@ -142,95 +278,19 @@ export class AchievementsService {
     }
 
     /**
-     * Compute all five live criteria values for one user in a single query.
-     * Reuses the progress-projection join logic (lessons read / challenges
-     * passed / milestones passed), the enrollment count, and the user-stats
-     * streak gaps-and-islands.
+     * Index definitions by their slug (the key that pairs a badge service to its
+     * seeded definition).
      *
-     * @param userId - the user to measure.
-     * @param manager - the entity manager to run on (caller's tx or service connection).
-     * @returns the metric values keyed by criteria type.
+     * @param definitions - the seeded achievement definitions.
+     * @returns a map from slug to definition.
      */
-    private async computeCriteriaValues(
-        userId: string,
-        manager: EntityManager,
-    ): Promise<AchievementCriteriaValues> {
-        // single round-trip: each metric is an independent scalar subquery on $1
-        const rows = await manager.query<Array<CriteriaValuesRow>>(
-            `
-            SELECT
-                -- lessons read: first-read content rows for this user
-                COALESCE((
-                    SELECT COUNT(*) FROM user_contents
-                    WHERE user_id = $1 AND is_read = true
-                ), 0) AS lessons_read,
-                -- distinct challenges passed: max attempt score per submission, summed
-                -- per challenge, counted when it reaches the challenge's pass score
-                COALESCE((
-                    WITH per_submission_max AS (
-                        SELECT cs.challenge_id,
-                               cs.id AS submission_id,
-                               COALESCE(MAX(a.score), 0) AS max_score
-                        FROM user_challenge_submissions ucs
-                        JOIN challenge_submissions cs ON cs.id = ucs.submission_id
-                        LEFT JOIN user_challenge_submission_attempts a
-                            ON a.user_challenge_submission_id = ucs.id
-                        WHERE ucs.user_id = $1
-                        GROUP BY cs.challenge_id, cs.id
-                    ),
-                    per_challenge AS (
-                        SELECT challenge_id, SUM(max_score) AS challenge_score
-                        FROM per_submission_max
-                        GROUP BY challenge_id
-                    )
-                    SELECT COUNT(*) FROM per_challenge pc
-                    JOIN challenges c ON c.id = pc.challenge_id
-                    WHERE pc.challenge_score >= c.score AND c.score > 0
-                ), 0) AS challenges_passed,
-                -- milestone tasks passed: distinct passed task attempts via the user's enrollments
-                COALESCE((
-                    SELECT COUNT(DISTINCT umt.id)
-                    FROM enrollments e
-                    JOIN user_milestone_tasks umt ON umt.enrollment_id = e.id
-                    JOIN user_milestone_task_attempts umta
-                        ON umta.user_milestone_task_id = umt.id AND umta.passed = true
-                    WHERE e.user_id = $1
-                ), 0) AS milestones_passed,
-                -- courses enrolled: enrollment rows for this user
-                COALESCE((
-                    SELECT COUNT(*) FROM enrollments WHERE user_id = $1
-                ), 0) AS courses_enrolled,
-                -- consecutive-day streak ending today/yesterday: gaps-and-islands over
-                -- the distinct active days (subtracting the ascending row number from
-                -- each day yields a constant island date per consecutive run)
-                COALESCE((
-                    WITH days AS (
-                        SELECT DISTINCT created_at::date AS d
-                        FROM xp_histories WHERE user_id = $1
-                    ),
-                    islands AS (
-                        SELECT d, (d - (ROW_NUMBER() OVER (ORDER BY d))::int) AS island
-                        FROM days
-                    )
-                    SELECT COUNT(*)::int FROM islands
-                    WHERE island = (SELECT island FROM islands ORDER BY d DESC LIMIT 1)
-                      AND (SELECT MAX(d) FROM days) >= CURRENT_DATE - 1
-                ), 0) AS streak_days
-            `,
-            [
-                userId,
-            ],
-        )
-        // the single result row (defaults to zeros for a brand-new user)
-        const row = rows[0]
-        // normalise the numeric-string columns into a typed, criteria-keyed map
-        return {
-            [AchievementCriteriaType.LessonsRead]: Number(row?.lessons_read) || 0,
-            [AchievementCriteriaType.StreakDays]: Number(row?.streak_days) || 0,
-            [AchievementCriteriaType.ChallengesPassed]: Number(row?.challenges_passed) || 0,
-            [AchievementCriteriaType.MilestonesPassed]: Number(row?.milestones_passed) || 0,
-            [AchievementCriteriaType.CoursesEnrolled]: Number(row?.courses_enrolled) || 0,
-        }
+    private indexDefinitions(
+        definitions: Array<AchievementEntity>,
+    ): Map<string, AchievementEntity> {
+        return new Map(definitions.map((definition) => [
+            definition.slug,
+            definition,
+        ]))
     }
 
     /**
@@ -243,13 +303,10 @@ export class AchievementsService {
     private indexEarned(
         earned: Array<UserAchievementEntity>,
     ): Map<string, { earnedAt: Date, tier: number | null }> {
-        // reduce many tier rows per achievement into one aggregate row
         const byAchievementId = new Map<string, { earnedAt: Date, tier: number | null }>()
         for (const award of earned) {
-            // the running aggregate for this achievement, if seen before
             const existing = byAchievementId.get(award.achievementId)
             if (!existing) {
-                // first row → seed the aggregate
                 byAchievementId.set(award.achievementId,
                     {
                         earnedAt: award.earnedAt,
@@ -270,33 +327,46 @@ export class AchievementsService {
     }
 
     /**
-     * Resolve which award rows should exist for a definition given a value.
-     * A tiered definition yields one entry per tier whose bar is met (1-based);
-     * a single-tier definition yields `[null]` when its threshold is met.
+     * Whether a projection row is past its freshness window (the TTL safety net
+     * behind CDC invalidation).
      *
-     * @param tierThresholds - ascending tier bars, or null for single-tier.
-     * @param threshold - the single-tier bar (used when not tiered).
-     * @param currentValue - the user's current metric value.
-     * @returns the tiers to award (`[]` when none reached).
+     * @param updatedAt - the row's last write time.
+     * @returns true when older than the configured projection TTL.
      */
-    private resolveReachedTiers(
-        tierThresholds: Array<number> | null,
-        threshold: number,
-        currentValue: number,
-    ): Array<number | null> {
-        // single-tier badge → award the null tier once the bar is met
-        if (!tierThresholds || tierThresholds.length === 0) {
-            return currentValue >= threshold ? [null] : []
-        }
-        // tiered badge → one 1-based tier per bar the value has reached
-        const reached: Array<number | null> = []
-        tierThresholds.forEach((bar, index) => {
-            // the value cleared this tier's bar → record the 1-based tier number
-            if (currentValue >= bar) {
-                reached.push(index + 1)
-            }
-        })
-        return reached
+    private isStale(updatedAt: Date): boolean {
+        return Date.now() - updatedAt.getTime() > envConfig().projection.staleAfterMs
+    }
+
+    /**
+     * Re-hydrate cached achievement rows: jsonb stores `earnedAt` as an ISO string,
+     * so coerce it back to a `Date` for the GraphQL layer.
+     *
+     * @param stored - the cached achievement rows.
+     * @returns the rows with `earnedAt` as a Date (or null).
+     */
+    private hydrate(
+        stored: Array<MyAchievementResult>,
+    ): Array<MyAchievementResult> {
+        return stored.map((item) => ({
+            ...item,
+            earnedAt: item.earnedAt ? new Date(item.earnedAt) : null,
+        }))
+    }
+
+    /**
+     * Build the projection UPSERT: store `{ data, count }` jsonb for user `$1`,
+     * refreshing `updated_at` on conflict so the TTL clock restarts.
+     *
+     * @returns the parameterised UPSERT SQL.
+     */
+    private buildUpsertSql(): string {
+        return `
+            INSERT INTO user_achievement_projections (user_id, value)
+            VALUES ($1::uuid, $2::jsonb)
+            ON CONFLICT (user_id) DO UPDATE SET
+                value      = EXCLUDED.value,
+                updated_at = now()
+        `
     }
 
     /**
@@ -321,9 +391,6 @@ export class AchievementsService {
         achievementId: string,
         tier: number | null,
     ): Promise<boolean> {
-        // INSERT only when no row already matches (null-safe on tier); RETURNING id
-        // is empty when the guard suppressed the insert. ON CONFLICT DO NOTHING
-        // covers the concurrent-insert race on the tiered unique key.
         const inserted = await manager.query<Array<{ id: string }>>(
             `
             INSERT INTO user_achievements (user_id, achievement_id, tier, earned_at)
@@ -343,7 +410,6 @@ export class AchievementsService {
                 tier,
             ],
         )
-        // a returned row means this pass created the award
         return inserted.length > 0
     }
 }

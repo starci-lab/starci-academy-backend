@@ -67,8 +67,10 @@ export class MyWeeklyStatsResolver {
         // counters used elsewhere)
         return {
             streak: stats.streak,
+            longestStreak: stats.longestStreak,
             xp: stats.weeklyXp,
             lessons: stats.weeklyLessons,
+            days: stats.last7Days,
         }
     }
 }

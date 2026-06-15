@@ -216,37 +216,22 @@ export class UserEntity extends UuidAbstractEntity {
         isDeleted: boolean
 
     /**
-     * Cumulative coding-practice score. Earned per problem (by difficulty:
-     * easy 10 / medium 15 / hard 20) the first time the user solves it, and only
-     * when they did NOT reveal that problem's reference solution before solving.
-     * Standalone from the per-course leaderboard XP (coding practice is global).
+     * The user's single global points balance — the unified account currency.
+     * Credited by every points-granting event: course activities that also grant
+     * XP (passed challenges, read lessons, passed milestone tasks) AND coding
+     * practice (first solve, by difficulty, no reveal). Standalone from the
+     * per-course leaderboard XP (which stays internal to each course).
      */
     @Field(() => Int,
         {
-            description: "Cumulative coding-practice points earned by the user."
+            description: "The user's unified global points balance."
         })
     @Column({
-        name: "coding_points",
+        name: "points",
         type: "int",
         default: 0
     })
-        codingPoints: number
-
-    /**
-     * Cumulative reward points earned from course activities that also grant XP
-     * (passed challenges, read lessons, passed milestone tasks). Standalone from
-     * `codingPoints` (coding practice) and from the per-course leaderboard XP.
-     */
-    @Field(() => Int,
-        {
-            description: "Cumulative reward points earned from XP-granting course activities."
-        })
-    @Column({
-        name: "reward_points",
-        type: "int",
-        default: 0
-    })
-        rewardPoints: number
+        points: number
 
     /**
      * Profile visibility toggle (Facebook-style "lock profile"). When true, only

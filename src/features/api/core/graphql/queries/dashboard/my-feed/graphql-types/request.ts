@@ -34,6 +34,42 @@ registerEnumType(
     },
 )
 
+/** Filter chip — which slice of activity to show (maps to a set of activity types). */
+export enum MyFeedCategory {
+    /** Everything (no type filter). */
+    All = "all",
+    /** Course/learning activity (enroll, read, bookmark). */
+    Courses = "courses",
+    /** Achievement activity (challenge/milestone/coding/AI-lab passes). */
+    Achievements = "achievements",
+    /** Social activity (follows, comments). */
+    People = "people",
+}
+
+export const GraphQLTypeMyFeedCategory = createEnumType(MyFeedCategory)
+
+registerEnumType(
+    GraphQLTypeMyFeedCategory,
+    {
+        name: "MyFeedCategory",
+        description: "Feed filter chip (all | courses | achievements | people).",
+        valuesMap: {
+            [MyFeedCategory.All]: {
+                description: "No type filter.",
+            },
+            [MyFeedCategory.Courses]: {
+                description: "Course/learning activity.",
+            },
+            [MyFeedCategory.Achievements]: {
+                description: "Achievement (pass) activity.",
+            },
+            [MyFeedCategory.People]: {
+                description: "Social (follow/comment) activity.",
+            },
+        },
+    },
+)
+
 /**
  * Cursor-paginated request for the home feed (append-only activity stream →
  * cursor, not page).
@@ -67,4 +103,14 @@ export class MyFeedRequest {
         },
     )
         limit?: number
+
+    @Field(
+        () => GraphQLTypeMyFeedCategory,
+        {
+            nullable: true,
+            defaultValue: MyFeedCategory.All,
+            description: "Filter chip — which slice of activity to show.",
+        },
+    )
+        category?: MyFeedCategory
 }

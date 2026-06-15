@@ -26,17 +26,22 @@ import {
 import {
     AchievementsService,
 } from "@modules/bussiness"
+import type {
+    MyAchievementResult,
+} from "@modules/bussiness"
 import {
     MyAchievementItemData,
+    MyAchievementsData,
     MyAchievementsResponse,
 } from "./graphql-types"
 
 /**
  * Profile query: every achievement with the viewer's earned status + live
- * progress. Reads the curated definition set joined to the viewer's award ledger
- * and a single per-user criteria-value query (in {@link AchievementsService});
- * the resolver only resolves the bilingual name/description to the request
- * locale. The badge art is fetched by the client from MinIO via `iconKey`.
+ * progress, PLUS the subset newly earned on this read (award-on-read) so the
+ * client can pop a congratulations modal. The service does the heavy lifting
+ * (composite metric query + award); the resolver only resolves the bilingual
+ * name/description to the request locale. Badge art is fetched from MinIO via
+ * `iconKey`.
  */
 @Resolver()
 export class MyAchievementsResolver {
@@ -63,13 +68,13 @@ export class MyAchievementsResolver {
             locale: Locale,
         @KeycloakGraphQLUser()
             user: UserEntity,
-    ): Promise<Array<MyAchievementItemData>> {
-        // service does the heavy lifting (definitions + ledger + criteria values)
-        const achievements = await this.achievementsService.getMyAchievements(user.id)
+    ): Promise<MyAchievementsData> {
+        // service does the heavy lifting (definitions + ledger + composite metric query)
+        const result = await this.achievementsService.getMyAchievements(user.id)
         // resolve the inline bilingual text to the request locale
         const lang = locale === Locale.Vi ? "vi" : "en"
-        // map each result row to the localized GraphQL item
-        return achievements.map((achievement) => ({
+        // localize both lists with the same mapper
+        const localize = (achievement: MyAchievementResult): MyAchievementItemData => ({
             slug: achievement.slug,
             name: achievement.name[lang],
             description: achievement.description[lang],
@@ -80,6 +85,11 @@ export class MyAchievementsResolver {
             earnedAt: achievement.earnedAt,
             currentValue: achievement.currentValue,
             tierReached: achievement.tierReached,
-        }))
+        })
+        return {
+            data: result.data.map(localize),
+            count: result.count,
+            newAchievements: result.newAchievements.map(localize),
+        }
     }
 }

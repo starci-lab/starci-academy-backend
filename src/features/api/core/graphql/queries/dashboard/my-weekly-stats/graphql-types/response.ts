@@ -9,12 +9,36 @@ import {
 } from "@modules/api"
 
 /**
- * The viewer's recent-activity stats for the rail's "this week" widget. A rolling
- * 7-day window (XP + lessons) plus an all-time consecutive-day streak — all read
- * from the user-stats projection (never computed inline at query time).
+ * One day in the "last 7 days" streak strip (oldest → today).
  */
 @ObjectType({
-    description: "Rolling 7-day activity stats (streak / XP / lessons).",
+    description: "A day in the last-7-days streak strip.",
+})
+export class MyWeeklyStatsDayData {
+    @Field(
+        () => String,
+        {
+            description: "Calendar day, YYYY-MM-DD (oldest → today).",
+        },
+    )
+        date: string
+
+    @Field(
+        () => Boolean,
+        {
+            description: "Whether the user earned any XP that day.",
+        },
+    )
+        active: boolean
+}
+
+/**
+ * The viewer's recent-activity stats for the streak strip. The current + longest
+ * consecutive-day streaks plus the last 7 days (active flags) and rolling XP /
+ * lessons — all read from the user-stats projection (never computed inline).
+ */
+@ObjectType({
+    description: "Streak + rolling 7-day activity stats.",
 })
 export class MyWeeklyStatsData {
     @Field(
@@ -24,6 +48,14 @@ export class MyWeeklyStatsData {
         },
     )
         streak: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Longest-ever consecutive-day streak.",
+        },
+    )
+        longestStreak: number
 
     @Field(
         () => Int,
@@ -40,6 +72,14 @@ export class MyWeeklyStatsData {
         },
     )
         lessons: number
+
+    @Field(
+        () => [MyWeeklyStatsDayData],
+        {
+            description: "The last 7 calendar days (oldest → today) with active flags.",
+        },
+    )
+        days: Array<MyWeeklyStatsDayData>
 }
 
 /**

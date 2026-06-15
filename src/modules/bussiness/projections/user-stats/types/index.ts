@@ -16,6 +16,17 @@ export interface RecomputeUserStatsParams {
 }
 
 /**
+ * One day in the "last 7 days" streak strip — whether the user was active
+ * (earned any XP) on that calendar day.
+ */
+export interface StreakDay {
+    /** Calendar day, `YYYY-MM-DD` (oldest → today). */
+    date: string
+    /** True when the user earned any XP that day. */
+    active: boolean
+}
+
+/**
  * Flat per-user stats — the typed view parsed out of the projection's jsonb
  * `value`. Holds both point-in-time social/inbox counters and rolling activity
  * metrics (kept fresh on XP events via CDC + a TTL lazy-refresh on read).
@@ -29,8 +40,12 @@ export interface UserStatsResult {
     unreadNotificationCount: number
     /** Consecutive days (up to today) with at least one XP event. */
     streak: number
+    /** Longest-ever consecutive-day streak. */
+    longestStreak: number
     /** Total XP earned in the last 7 days. */
     weeklyXp: number
     /** Number of lessons read in the last 7 days. */
     weeklyLessons: number
+    /** The last 7 calendar days (oldest → today) flagged active. */
+    last7Days: Array<StreakDay>
 }

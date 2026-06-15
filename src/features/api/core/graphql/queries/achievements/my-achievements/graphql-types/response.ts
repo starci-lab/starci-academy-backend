@@ -105,6 +105,39 @@ export class MyAchievementItemData {
 }
 
 /**
+ * The achievements payload: the full list, the earned count, and the subset
+ * newly earned on this read (award-on-read).
+ */
+@ObjectType({
+    description: "Achievements list + earned count + the ones newly earned on this read.",
+})
+export class MyAchievementsData {
+    @Field(
+        () => [MyAchievementItemData],
+        {
+            description: "Every achievement with the viewer's earned status + progress.",
+        },
+    )
+        data: Array<MyAchievementItemData>
+
+    @Field(
+        () => Int,
+        {
+            description: "How many of them the viewer has earned.",
+        },
+    )
+        count: number
+
+    @Field(
+        () => [MyAchievementItemData],
+        {
+            description: "Achievements whose first award was inserted on this read.",
+        },
+    )
+        newAchievements: Array<MyAchievementItemData>
+}
+
+/**
  * Response wrapper for the myAchievements query.
  */
 @ObjectType({
@@ -112,13 +145,13 @@ export class MyAchievementItemData {
 })
 export class MyAchievementsResponse
     extends AbstractGraphQLResponse
-    implements IAbstractGraphQLResponse<Array<MyAchievementItemData>> {
+    implements IAbstractGraphQLResponse<MyAchievementsData> {
     @Field(
-        () => [MyAchievementItemData],
+        () => MyAchievementsData,
         {
             nullable: true,
-            description: "Every achievement with the viewer's earned status + progress.",
+            description: "Achievements list + newly-earned subset.",
         },
     )
-        data: Array<MyAchievementItemData>
+        data: MyAchievementsData
 }

@@ -23,6 +23,16 @@ export enum AchievementCriteriaType {
     MilestonesPassed = "milestonesPassed",
     /** Courses the user is enrolled in (count of `enrollments`). */
     CoursesEnrolled = "coursesEnrolled",
+    /** Distinct coding-practice problems solved (an `accepted` submission). */
+    CodingSolved = "codingSolved",
+    /** Distinct AI-Lab eval sets passed (`ai_lab_eval_runs.passed = true`). */
+    AiLabPassed = "aiLabPassed",
+    /** Discussion comments the user has posted (count of `content_comments`). */
+    DiscussionComments = "discussionComments",
+    /** Followers the user has gained (count of `user_follows.following_id`). */
+    Followers = "followers",
+    /** Highest league tier reached, as an ordinal (bronze=1 … legend=7). */
+    LeagueTier = "leagueTier",
 }
 
 export const GraphQLTypeAchievementCriteriaType = createEnumType(AchievementCriteriaType)
@@ -33,7 +43,8 @@ registerEnumType(
         name: "AchievementCriteriaType",
         description:
             "The source metric an achievement is measured against "
-            + "(lessonsRead / streakDays / challengesPassed / milestonesPassed / coursesEnrolled).",
+            + "(lessonsRead / streakDays / challengesPassed / milestonesPassed / coursesEnrolled "
+            + "/ codingSolved / aiLabPassed / discussionComments / followers / leagueTier).",
         valuesMap: {
             [AchievementCriteriaType.LessonsRead]: {
                 description: "Lessons the user has read.",
@@ -49,6 +60,21 @@ registerEnumType(
             },
             [AchievementCriteriaType.CoursesEnrolled]: {
                 description: "Courses the user is enrolled in.",
+            },
+            [AchievementCriteriaType.CodingSolved]: {
+                description: "Distinct coding-practice problems solved.",
+            },
+            [AchievementCriteriaType.AiLabPassed]: {
+                description: "AI-Lab eval sets passed.",
+            },
+            [AchievementCriteriaType.DiscussionComments]: {
+                description: "Discussion comments posted.",
+            },
+            [AchievementCriteriaType.Followers]: {
+                description: "Followers gained.",
+            },
+            [AchievementCriteriaType.LeagueTier]: {
+                description: "Highest league tier reached (ordinal).",
             },
         },
     },

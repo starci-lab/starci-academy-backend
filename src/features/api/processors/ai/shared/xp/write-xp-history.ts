@@ -87,7 +87,7 @@ export const writeXpHistory = async (
             {
                 id: userId,
             },
-            "rewardPoints",
+            "points",
             points,
         )
     }

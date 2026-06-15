@@ -286,7 +286,7 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
             {
                 id: userId,
             },
-            "codingPoints",
+            "points",
             problem.points,
         )
         // home-feed activity for the first solve (idempotent on user+problem)

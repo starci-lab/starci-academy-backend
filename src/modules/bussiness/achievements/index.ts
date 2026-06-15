@@ -1,4 +1,5 @@
 export * from "./achievements.module"
 export * from "./achievements.service"
-export * from "./achievements.listener"
+export * from "./achievements.projection.listener"
+export * from "./badges"
 export * from "./types"

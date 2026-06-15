@@ -8,18 +8,32 @@ import {
     AchievementsService,
 } from "./achievements.service"
 import {
-    AchievementsListener,
-} from "./achievements.listener"
+    AchievementProjectionListener,
+} from "./achievements.projection.listener"
+import {
+    ACHIEVEMENT_BADGES,
+    ACHIEVEMENT_BADGE_PROVIDERS,
+    AbstractBadge,
+} from "./badges"
 
 /**
- * Business module for achievements / badges: the read+award service plus the CDC
- * listener that awards on `xp_histories` / `enrollments` changes. Exports the
- * service so the GraphQL leaf (and inline write paths) can read + recompute.
+ * Business module for achievements / badges. Awards are computed on-read by
+ * {@link AchievementsService}; each badge (animal) is its own
+ * {@link AbstractBadge} service, all folded into the {@link ACHIEVEMENT_BADGES}
+ * token. Exports the service so the GraphQL leaf (and inline write paths) can
+ * read + recompute.
  */
 @Module({
     providers: [
+        ...ACHIEVEMENT_BADGE_PROVIDERS,
+        {
+            // every badge service collected into one injectable array
+            provide: ACHIEVEMENT_BADGES,
+            useFactory: (...badges: Array<AbstractBadge>) => badges,
+            inject: ACHIEVEMENT_BADGE_PROVIDERS,
+        },
         AchievementsService,
-        AchievementsListener,
+        AchievementProjectionListener,
     ],
     exports: [
         AchievementsService,

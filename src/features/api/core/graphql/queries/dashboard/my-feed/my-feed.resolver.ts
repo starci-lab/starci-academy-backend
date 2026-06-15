@@ -33,11 +33,18 @@ import {
     toGlobalId,
 } from "@modules/routing"
 import {
+    MyFeedCategory,
     MyFeedRequest,
     MyFeedResponse,
     MyFeedResponseData,
     MyFeedTab,
 } from "./graphql-types"
+import {
+    ACTIVITY_TYPE_WEIGHT,
+    CATEGORY_TYPE_MAP,
+    DEFAULT_ACTIVITY_WEIGHT,
+    FEED_SCORE_HALF_LIFE_HOURS,
+} from "./constants"
 import {
     DecodedFeedCursor,
     MyFeedRow,
@@ -47,10 +54,14 @@ import {
 const MAX_LIMIT = 50
 
 /**
- * Cursor-paginated home feed (the activity stream is append-only → keyset cursor
- * on `(created_at, id)`, not page offsets). "following" = followed users'
- * activity; "forYou" = recent platform-wide activity (excluding the viewer).
- * Target labels are batch-resolved from ids (id-only refs).
+ * Score-ranked home feed. Each activity gets `weight(type) × recencyDecay`, so
+ * accomplishments (passing a milestone / challenge) surface above low-signal
+ * social noise (follows, bookmarks) while recency still dominates — a fresh follow
+ * out-ranks a week-old completion. "following" = followed users' activity;
+ * "forYou" = platform-wide (excluding the viewer). Because the score is relative
+ * to "now", the page-1 `asOf` is pinned in the cursor and the ranking is walked
+ * with offset pagination so it stays stable across "load more". Target labels are
+ * batch-resolved from ids (id-only refs).
  */
 @Resolver()
 export class MyFeedResolver {
@@ -88,21 +99,28 @@ export class MyFeedResolver {
         MAX_LIMIT)
         const decoded = this.decodeCursor(request.cursor)
 
-        // params: $1 user, [$2 cursorAt, $3 cursorId] when paginating
+        // pin the decay reference on page 1 so the ranking stays stable while the
+        // user pages; later pages reuse the page-1 `asOf` carried in the cursor
+        const asOf = decoded?.asOf ?? new Date().toISOString()
+        const offset = decoded?.offset ?? 0
+
+        // params: $1 user, $2 decay reference (asOf); filter types appended below
         const params: Array<unknown> = [
             user.id,
+            asOf,
         ]
-        // keyset predicate for "older than the previous page's last item"
-        let cursorClause = ""
-        if (decoded) {
-            params.push(decoded.at,
-                decoded.id)
-            cursorClause = "AND (a.created_at, a.id) < ($2::timestamptz, $3::uuid)"
-        }
         // tab decides the source set: following-graph vs whole platform
         const tabClause = request.tab === MyFeedTab.Following
             ? "JOIN user_follows f ON f.following_id = a.user_id WHERE f.follower_id = $1"
             : "WHERE a.user_id <> $1"
+
+        // filter chip → restrict to a set of activity types (null = All = no filter)
+        const filterTypes = CATEGORY_TYPE_MAP[request.category ?? MyFeedCategory.All]
+        let typeClause = ""
+        if (filterTypes) {
+            params.push(filterTypes)
+            typeClause = `AND a.type = ANY($${params.length}::activity_type[])`
+        }
 
         const rows = await this.entityManager.query<Array<MyFeedRow>>(
             `
@@ -116,8 +134,9 @@ export class MyFeedResolver {
             FROM activities a
             JOIN users u ON u.id = a.user_id
             ${tabClause}
-            ${cursorClause}
-            ORDER BY a.created_at DESC, a.id DESC
+            ${typeClause}
+            ORDER BY ${this.scoreExpression()} DESC, a.created_at DESC, a.id DESC
+            OFFSET ${offset}
             LIMIT ${limit + 1}
             `,
             params,
@@ -127,9 +146,11 @@ export class MyFeedResolver {
         const hasMore = rows.length > limit
         const pageRows = hasMore ? rows.slice(0,
             limit) : rows
-        const last = pageRows[pageRows.length - 1]
-        const nextCursor = hasMore && last ? this.encodeCursor(last.at,
-            last.id) : null
+        // advance the offset by the page we just consumed; keep the same `asOf`
+        const nextCursor = hasMore
+            ? this.encodeCursor(asOf,
+                offset + limit)
+            : null
 
         // batch-resolve target labels (one query/kind + cache), id-only refs
         const targetRefs = pageRows
@@ -169,24 +190,46 @@ export class MyFeedResolver {
     }
 
     /**
-     * Encode a keyset cursor from the last row's `(created_at, id)` into an opaque
-     * base64url token the client passes back verbatim.
+     * Build the SQL relevance-score expression: per-type weight multiplied by an
+     * exponential recency decay against the pinned `asOf` ($2). The weights are
+     * trusted compile-time constants (not user input), so they are templated
+     * directly. `a.type` is cast to text so the `CASE` matches enum labels.
      *
-     * @param at - the row's created_at
-     * @param id - the row's id (tiebreak)
-     * @returns the opaque cursor string
+     * @returns the score SQL fragment
      */
-    private encodeCursor(
-        at: Date,
-        id: string,
-    ): string {
-        return Buffer.from(`${at.toISOString()}|${id}`,
-            "utf8").toString("base64url")
+    private scoreExpression(): string {
+        // CASE a.type::text WHEN '<label>' THEN <weight> ... ELSE <default> END
+        const whens = Object.entries(ACTIVITY_TYPE_WEIGHT)
+            .map((entry) => `WHEN '${entry[0]}' THEN ${entry[1]}`)
+            .join(" ")
+        const weightCase = `CASE a.type::text ${whens} ELSE ${DEFAULT_ACTIVITY_WEIGHT} END`
+        // 0.5 ^ (ageHours / halfLife) → halves the weight every half-life
+        const ageHours = "EXTRACT(EPOCH FROM ($2::timestamptz - a.created_at)) / 3600.0"
+        return `(${weightCase}) * power(0.5, GREATEST(${ageHours}, 0) / ${FEED_SCORE_HALF_LIFE_HOURS}.0)`
     }
 
     /**
-     * Decode an opaque cursor back to `(at, id)`. Returns null when absent or
-     * malformed (treated as page 1).
+     * Encode the pinned `asOf` + next `offset` into an opaque base64url token the
+     * client passes back verbatim to fetch the following page.
+     *
+     * @param asOf - the page-1 decay reference timestamp (ISO)
+     * @param offset - rows to skip on the next page
+     * @returns the opaque cursor string
+     */
+    private encodeCursor(
+        asOf: string,
+        offset: number,
+    ): string {
+        return Buffer.from(JSON.stringify({
+            asOf,
+            offset,
+        }),
+        "utf8").toString("base64url")
+    }
+
+    /**
+     * Decode an opaque cursor back to `{ asOf, offset }`. Returns null when absent
+     * or malformed (treated as page 1 → fresh `asOf`, offset 0).
      *
      * @param cursor - the opaque cursor, or undefined
      * @returns the decoded cursor, or null
@@ -195,22 +238,23 @@ export class MyFeedResolver {
         if (!cursor) {
             return null
         }
-        // base64url → "<isoTimestamp>|<id>"; bail to page 1 on any bad token
-        let raw: string
+        // base64url → JSON; bail to page 1 on any bad/partial token
         try {
-            raw = Buffer.from(cursor,
+            const raw = Buffer.from(cursor,
                 "base64url").toString("utf8")
+            const parsed = JSON.parse(raw) as Partial<DecodedFeedCursor>
+            if (typeof parsed.asOf !== "string"
+                || typeof parsed.offset !== "number"
+                || !Number.isFinite(parsed.offset)
+                || parsed.offset < 0) {
+                return null
+            }
+            return {
+                asOf: parsed.asOf,
+                offset: Math.floor(parsed.offset),
+            }
         } catch {
             return null
-        }
-        const separatorIndex = raw.indexOf("|")
-        if (separatorIndex <= 0) {
-            return null
-        }
-        return {
-            at: raw.slice(0,
-                separatorIndex),
-            id: raw.slice(separatorIndex + 1),
         }
     }
 }
