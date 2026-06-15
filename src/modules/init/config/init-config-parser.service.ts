@@ -180,6 +180,8 @@ export class InitConfigParserService {
             aiModels: seed?.aiModels ?? false,
             subscriptions: seed?.subscriptions ?? false,
             codingProblems: seed?.codingProblems ?? false,
+            advertisements: seed?.advertisements ?? false,
+            changelog: seed?.changelog ?? false,
         }
     }
 

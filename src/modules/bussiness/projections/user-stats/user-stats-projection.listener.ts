@@ -29,20 +29,28 @@ interface NotificationCdcRow {
     user_id?: string
 }
 
+/** CDC row from `xp_histories` (the earner's streak + weekly metrics move). */
+interface XpHistoryCdcRow {
+    /** User who earned the XP. */
+    user_id?: string
+}
+
 /**
  * CDC consumer that keeps `user_stats_projections` fresh. A follow change moves
  * BOTH endpoints' counters; a notification change moves the recipient's unread
- * count. Connection + per-message safety are owned by {@link AbstractProjectionListener}.
+ * count; an XP-history row moves the earner's streak + rolling weekly metrics.
+ * Connection + per-message safety are owned by {@link AbstractProjectionListener}.
  */
 @Injectable()
 export class UserStatsProjectionListener extends AbstractProjectionListener<string> {
     /** Stable group → restarts resume from the committed offset. */
     protected readonly groupId = "user-stats-projection"
 
-    /** Follow-graph + notification changes move a user's stats. */
+    /** Follow-graph + notification + XP-earning changes move a user's stats. */
     protected readonly topics = [
         `${envConfig().kafka.cdcTopicPrefix}user_follows`,
         `${envConfig().kafka.cdcTopicPrefix}notifications`,
+        `${envConfig().kafka.cdcTopicPrefix}xp_histories`,
     ]
 
     constructor(
@@ -74,6 +82,16 @@ export class UserStatsProjectionListener extends AbstractProjectionListener<stri
                 followRow.follower_id,
                 followRow.following_id,
             ].filter((userId): userId is string => Boolean(userId))
+        }
+        // an XP-history change moves only the earner's streak + weekly metrics
+        if (topic.endsWith("xp_histories")) {
+            const xpRow = row as XpHistoryCdcRow
+            if (!xpRow.user_id) {
+                return []
+            }
+            return [
+                xpRow.user_id,
+            ]
         }
         // a notification change moves only the recipient's unread count
         const notificationRow = row as NotificationCdcRow

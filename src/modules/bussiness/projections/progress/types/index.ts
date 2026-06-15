@@ -145,6 +145,53 @@ export interface MilestoneAttemptTargetRow {
 }
 
 /**
+ * Raw row returned by the `getMyCourseProgress` read — one per course the viewer
+ * is enrolled in (milestone completed read from the projection, total counted
+ * live from the course's milestone tasks).
+ */
+export interface MyCourseProgressRow {
+    /** `courses.id` of the enrolled course. */
+    course_id: string
+    /** Course title (the rail token label). */
+    title: string
+    /** Lessons read (from the projection); string when text. */
+    content_completed: string | number
+    /** Total contents (lessons) in the course; string when `bigint`. */
+    content_total: string | number
+    /** Challenges passed (from the projection); string when text. */
+    challenge_completed: string | number
+    /** Total challenges in the course; string when `bigint`. */
+    challenge_total: string | number
+    /** Milestone tasks passed (from the projection); string when text. */
+    completed: string | number
+    /** Total milestone tasks in the course; string when `bigint`. */
+    total: string | number
+}
+
+/**
+ * One course's milestone progress for the dashboard rail, returned by
+ * {@link ProgressProjectionService.getMyCourseProgress}.
+ */
+export interface MyCourseProgressResult {
+    /** `courses.id` of the enrolled course. */
+    courseId: string
+    /** Course title (the rail token label). */
+    title: string
+    /** Lessons the viewer has read in the course. */
+    contentCompleted: number
+    /** Total contents (lessons) in the course. */
+    contentTotal: number
+    /** Challenges the viewer has passed in the course. */
+    challengeCompleted: number
+    /** Total challenges in the course. */
+    challengeTotal: number
+    /** Milestone tasks the viewer has passed in the course. */
+    completed: number
+    /** Total milestone tasks in the course. */
+    total: number
+}
+
+/**
  * Rank of a specific user within a course, returned by
  * {@link ProgressProjectionService.getMyRank} (typed view of the jsonb `value`).
  */

@@ -58,6 +58,8 @@ export interface SeedSeedersConfig {
     aiModels: boolean
     subscriptions: boolean
     codingProblems: boolean
+    advertisements: boolean
+    changelog: boolean
 }
 
 /** Independent CDN / Elasticsearch / Repo sink scopes for one course track. */
@@ -167,6 +169,8 @@ export interface InitSeedBlock {
     cv?: boolean
     headhunting?: boolean
     subscriptions?: boolean
+    advertisements?: boolean
+    changelog?: boolean
 }
 
 /** Per-sink scope value: a scope-indexes form, or a bool (`true` = all, `false` = off). */

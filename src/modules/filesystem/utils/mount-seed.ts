@@ -42,6 +42,8 @@ const DEFAULT_SEED_CONFIG: SeedConfig = {
         aiModels: false,
         subscriptions: false,
         codingProblems: false,
+        advertisements: false,
+        changelog: false,
     },
     synchronizers: {
         enabled: false,

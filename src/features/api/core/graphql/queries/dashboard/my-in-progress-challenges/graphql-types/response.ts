@@ -1,0 +1,51 @@
+import {
+    Field,
+    ObjectType,
+} from "@nestjs/graphql"
+import {
+    AbstractGraphQLResponse,
+    IAbstractGraphQLResponse,
+} from "@modules/api"
+
+/**
+ * One challenge the viewer has started but not yet passed — a route-index token
+ * (resolves its route on click), so it carries only an opaque global id + label.
+ */
+@ObjectType({
+    description: "An in-progress challenge (rail token).",
+})
+export class MyInProgressChallengeItemData {
+    @Field(
+        () => String,
+        {
+            description: "Opaque global id of the challenge — pass to resolveRoute on click.",
+        },
+    )
+        globalId: string
+
+    @Field(
+        () => String,
+        {
+            description: "Challenge title (the token label).",
+        },
+    )
+        label: string
+}
+
+/**
+ * Response wrapper for the myInProgressChallenges query.
+ */
+@ObjectType({
+    description: "Response wrapper for the myInProgressChallenges query.",
+})
+export class MyInProgressChallengesResponse
+    extends AbstractGraphQLResponse
+    implements IAbstractGraphQLResponse<Array<MyInProgressChallengeItemData>> {
+    @Field(
+        () => [MyInProgressChallengeItemData],
+        {
+            description: "Challenges the viewer has started but not yet passed.",
+        },
+    )
+        data: Array<MyInProgressChallengeItemData>
+}

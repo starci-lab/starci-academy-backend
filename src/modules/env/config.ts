@@ -931,6 +931,20 @@ export const envConfig = () => ({
                     ".contexts",
                     "coding-problems"),
             }),
+            advertisements: parseEnvString({
+                key: "DATA_ADVERTISEMENTS_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "data",
+                    "advertisements"),
+            }),
+            changelog: parseEnvString({
+                key: "DATA_CHANGELOG_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "data",
+                    "changelog"),
+            }),
         },
         /** File paths: app config. */
         config: {

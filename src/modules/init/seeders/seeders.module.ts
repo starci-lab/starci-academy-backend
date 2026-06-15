@@ -109,6 +109,12 @@ import {
     CodingProblemHintIndexService,
 } from "./coding-problems"
 import {
+    AdvertisementSeederService,
+} from "./advertisements"
+import {
+    ChangelogSeederService,
+} from "./changelog"
+import {
     SeedersService,
 } from "./seeders.service"
 import {
@@ -202,6 +208,8 @@ export class SeedersModule extends ConfigurableModuleClass {
             MilestoneProcessorService,
             CourseProcessorService,
             CourseSeederService,
+            AdvertisementSeederService,
+            ChangelogSeederService,
             SeedersService,
             TemplateCvPathService,
             TemplateCvIdFactoryService,

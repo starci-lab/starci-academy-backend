@@ -18,6 +18,8 @@ import type {
     CourseTotalsRow,
     GetMyRankResult,
     LeaderboardRow,
+    MyCourseProgressResult,
+    MyCourseProgressRow,
     MyRankRow,
     RecomputeProgressParams,
 } from "./types"
@@ -209,6 +211,77 @@ export class ProgressProjectionService {
             entries,
             computedAt: new Date(),
         }
+    }
+
+    /**
+     * Every course the viewer is enrolled in, with its milestone progress for the
+     * dashboard rail. `completed` is read from the projection (eager-maintained,
+     * no read-time cache); `total` is counted live from the course's milestone
+     * tasks (a trivial course-level count, always fresh — kept out of the jsonb so
+     * a content reseed can never leave a stale denominator). Driven by enrollments
+     * so a course with no projection row yet still shows (0 / total).
+     *
+     * @param userId - the viewer
+     * @returns one progress row per enrolled course, newest enrollment first
+     */
+    async getMyCourseProgress(userId: string): Promise<Array<MyCourseProgressResult>> {
+        // join: enrollments → course (title) + projection (completed) + a grouped
+        // milestone-task count (total). LEFT JOINs so a fresh enrollment with no
+        // projection row / no tasks still returns a 0-defaulted row.
+        const rows = await this.entityManager.query<Array<MyCourseProgressRow>>(
+            `
+            SELECT e.course_id AS course_id,
+                   c.title     AS title,
+                   -- content (lessons): read from projection / total contents in course
+                   COALESCE((p.value->>'lessonsRead')::int, 0)       AS content_completed,
+                   COALESCE(ct.total, 0)                             AS content_total,
+                   -- challenges: passed (projection) / total challenges in course
+                   COALESCE((p.value->>'completedChallenges')::int, 0) AS challenge_completed,
+                   COALESCE(chl.total, 0)                            AS challenge_total,
+                   -- milestone tasks: passed (projection) / total tasks in course
+                   COALESCE((p.value->>'milestoneProgress')::int, 0) AS completed,
+                   COALESCE(mt.total, 0)                             AS total
+            FROM enrollments e
+            JOIN courses c ON c.id = e.course_id
+            LEFT JOIN user_course_progress_projections p
+                ON p.user_id = e.user_id AND p.course_id = e.course_id
+            LEFT JOIN (
+                SELECT m.course_id, COUNT(mtk.id)::int AS total
+                FROM milestone_tasks mtk
+                JOIN milestones m ON m.id = mtk.milestone_id
+                GROUP BY m.course_id
+            ) mt ON mt.course_id = e.course_id
+            LEFT JOIN (
+                SELECT m.course_id, COUNT(ct2.id)::int AS total
+                FROM contents ct2
+                JOIN modules m ON m.id = ct2.module_id
+                GROUP BY m.course_id
+            ) ct ON ct.course_id = e.course_id
+            LEFT JOIN (
+                SELECT m.course_id, COUNT(ch.id)::int AS total
+                FROM challenges ch
+                JOIN contents ct3 ON ct3.id = ch.content_id
+                JOIN modules m ON m.id = ct3.module_id
+                GROUP BY m.course_id
+            ) chl ON chl.course_id = e.course_id
+            WHERE e.user_id = $1
+            ORDER BY e.created_at DESC
+            `,
+            [
+                userId,
+            ],
+        )
+        // normalise the jsonb/bigint text columns into numbers
+        return rows.map((row) => ({
+            courseId: row.course_id,
+            title: row.title,
+            contentCompleted: Number(row.content_completed) || 0,
+            contentTotal: Number(row.content_total) || 0,
+            challengeCompleted: Number(row.challenge_completed) || 0,
+            challengeTotal: Number(row.challenge_total) || 0,
+            completed: Number(row.completed) || 0,
+            total: Number(row.total) || 0,
+        }))
     }
 
     /**

@@ -81,6 +81,16 @@ export class SeedScopeService {
         return this.seeders().codingProblems
     }
 
+    /** Whether advertisement banner mount seeding is enabled. */
+    isAdvertisementsSeederEnabled(): boolean {
+        return this.seeders().advertisements
+    }
+
+    /** Whether changelog mount seeding is enabled. */
+    isChangelogSeederEnabled(): boolean {
+        return this.seeders().changelog
+    }
+
     /**
      * Build module + milestone order-index filters from `courses.tracks`.
      * Each course is keyed by `displayId`; an absent displayId is excluded.

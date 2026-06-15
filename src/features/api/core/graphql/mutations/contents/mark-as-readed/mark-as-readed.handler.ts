@@ -30,10 +30,11 @@ import {
     MarkAsReadedCommand,
 } from "./mark-as-readed.command"
 import {
+    FLAT_POINTS,
     writeXpHistory,
 } from "@features/api/processors/ai/shared/xp"
 
-/** XP + reward points granted once the first time a lesson is read (matches leaderboard ×3). */
+/** Per-course weighted XP for a first lesson read (matches the leaderboard ×3 signal). */
 const LESSON_READ_XP = 3
 
 @CommandHandler(MarkAsReadedCommand)
@@ -116,7 +117,7 @@ export class MarkAsReadedHandler
                         courseId: content?.module?.courseId ?? null,
                         source: XpSource.LessonRead,
                         amount: LESSON_READ_XP,
-                        points: LESSON_READ_XP,
+                        points: FLAT_POINTS.lessonRead,
                         refId: saved.id,
                     })
                     // record the read as a home-feed activity (idempotent on the

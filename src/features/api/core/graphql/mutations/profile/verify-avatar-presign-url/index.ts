@@ -1,0 +1,5 @@
+export * from "./verify-avatar-presign-url.module"
+export * from "./verify-avatar-presign-url.resolver"
+export * from "./verify-avatar-presign-url.service"
+export * from "./verify-avatar-presign-url.handler"
+export * from "./graphql-types"

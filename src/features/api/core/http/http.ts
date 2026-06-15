@@ -163,14 +163,4 @@ export const httpConfig = () => ({
             }),
         }
     },
-    /** Profile HTTP routes (authenticated; under global `/api`, version `v1`). */
-    profile: () => {
-        const tags = "profile"
-        return {
-            tags,
-            uploadAvatar: () => ({
-                path: "avatar",
-            }),
-        }
-    },
 })

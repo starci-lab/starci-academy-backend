@@ -35,19 +35,38 @@ LEFT JOIN (
 WHERE rt.content_id IS NOT NULL OR vw.content_id IS NOT NULL OR cc.content_id IS NOT NULL
 ON CONFLICT (content_id) DO UPDATE SET value = EXCLUDED.value, updated_at = now();
 
--- 2) user_stats_projections — one row per user with any edge or notification.
+-- 2) user_stats_projections — one row per user with any edge, notification, or
+--    recent XP. Mirrors UserStatsProjectionService.buildUpsertSql (social/inbox
+--    counters + rolling 7-day XP/lessons + consecutive-day streak).
 INSERT INTO user_stats_projections (user_id, value)
 SELECT u.id,
        jsonb_build_object(
            'followerCount',           COALESCE(fr.cnt, 0),
            'followingCount',          COALESCE(fg.cnt, 0),
-           'unreadNotificationCount', COALESCE(nt.cnt, 0)
+           'unreadNotificationCount', COALESCE(nt.cnt, 0),
+           'weeklyXp',                COALESCE(wx.xp, 0),
+           'weeklyLessons',           COALESCE(wl.cnt, 0),
+           'streak',                  COALESCE(st.streak, 0)
        )
 FROM users u
 LEFT JOIN (SELECT following_id AS id, COUNT(*)::int AS cnt FROM user_follows GROUP BY following_id) fr ON fr.id = u.id
 LEFT JOIN (SELECT follower_id  AS id, COUNT(*)::int AS cnt FROM user_follows GROUP BY follower_id)  fg ON fg.id = u.id
 LEFT JOIN (SELECT user_id AS id, COUNT(*)::int AS cnt FROM notifications WHERE read_at IS NULL GROUP BY user_id) nt ON nt.id = u.id
+LEFT JOIN (SELECT user_id AS id, SUM(amount)::int AS xp FROM xp_histories WHERE created_at >= now() - interval '7 days' GROUP BY user_id) wx ON wx.id = u.id
+LEFT JOIN (SELECT user_id AS id, COUNT(*)::int AS cnt FROM xp_histories WHERE source = 'lessonRead' AND created_at >= now() - interval '7 days' GROUP BY user_id) wl ON wl.id = u.id
+LEFT JOIN LATERAL (
+    WITH days AS (
+        SELECT DISTINCT created_at::date AS d FROM xp_histories WHERE user_id = u.id
+    ),
+    islands AS (
+        SELECT d, (d - (ROW_NUMBER() OVER (ORDER BY d))::int) AS island FROM days
+    )
+    SELECT COUNT(*)::int AS streak FROM islands
+    WHERE island = (SELECT island FROM islands ORDER BY d DESC LIMIT 1)
+      AND (SELECT MAX(d) FROM days) >= CURRENT_DATE - 1
+) st ON true
 WHERE fr.id IS NOT NULL OR fg.id IS NOT NULL OR nt.id IS NOT NULL
+   OR wx.id IS NOT NULL OR wl.id IS NOT NULL
 ON CONFLICT (user_id) DO UPDATE SET value = EXCLUDED.value, updated_at = now();
 
 -- 3) course_stats_projections — one row per course.

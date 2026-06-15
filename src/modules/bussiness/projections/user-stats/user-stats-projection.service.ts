@@ -88,6 +88,9 @@ export class UserStatsProjectionService {
             followerCount: Number(value.followerCount) || 0,
             followingCount: Number(value.followingCount) || 0,
             unreadNotificationCount: Number(value.unreadNotificationCount) || 0,
+            streak: Number(value.streak) || 0,
+            weeklyXp: Number(value.weeklyXp) || 0,
+            weeklyLessons: Number(value.weeklyLessons) || 0,
         }
     }
 
@@ -124,6 +127,36 @@ export class UserStatsProjectionService {
                 'unreadNotificationCount', COALESCE((
                     SELECT COUNT(*) FROM notifications
                     WHERE user_id = $1 AND read_at IS NULL
+                ), 0),
+                -- XP earned in the rolling 7-day window
+                'weeklyXp', COALESCE((
+                    SELECT SUM(amount) FROM xp_histories
+                    WHERE user_id = $1 AND created_at >= now() - interval '7 days'
+                ), 0),
+                -- lessons read in the rolling 7-day window (one row per first read)
+                'weeklyLessons', COALESCE((
+                    SELECT COUNT(*) FROM xp_histories
+                    WHERE user_id = $1
+                      AND source = 'lessonRead'
+                      AND created_at >= now() - interval '7 days'
+                ), 0),
+                -- consecutive-day streak ending today: gaps-and-islands over the
+                -- distinct active days. Subtracting the ascending row number from
+                -- each day yields a constant "island" date per consecutive run; the
+                -- current streak is the size of the island holding the latest day —
+                -- but only when that latest day is today or yesterday (else broken)
+                'streak', COALESCE((
+                    WITH days AS (
+                        SELECT DISTINCT created_at::date AS d
+                        FROM xp_histories WHERE user_id = $1
+                    ),
+                    islands AS (
+                        SELECT d, (d - (ROW_NUMBER() OVER (ORDER BY d))::int) AS island
+                        FROM days
+                    )
+                    SELECT COUNT(*)::int FROM islands
+                    WHERE island = (SELECT island FROM islands ORDER BY d DESC LIMIT 1)
+                      AND (SELECT MAX(d) FROM days) >= CURRENT_DATE - 1
                 ), 0)
             )
             ON CONFLICT (user_id) DO UPDATE SET

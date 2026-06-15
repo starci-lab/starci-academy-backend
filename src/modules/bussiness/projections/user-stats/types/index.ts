@@ -16,8 +16,9 @@ export interface RecomputeUserStatsParams {
 }
 
 /**
- * Flat social + inbox counters for a user — the typed view parsed out of the
- * projection's jsonb `value`.
+ * Flat per-user stats — the typed view parsed out of the projection's jsonb
+ * `value`. Holds both point-in-time social/inbox counters and rolling activity
+ * metrics (kept fresh on XP events via CDC + a TTL lazy-refresh on read).
  */
 export interface UserStatsResult {
     /** People who follow this user. */
@@ -26,4 +27,10 @@ export interface UserStatsResult {
     followingCount: number
     /** Unread notifications (the bell badge value). */
     unreadNotificationCount: number
+    /** Consecutive days (up to today) with at least one XP event. */
+    streak: number
+    /** Total XP earned in the last 7 days. */
+    weeklyXp: number
+    /** Number of lessons read in the last 7 days. */
+    weeklyLessons: number
 }

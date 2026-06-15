@@ -7,8 +7,78 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 import {
-    MyDashboardFeedItemData,
-} from "../../my-dashboard/graphql-types"
+    ActivityType,
+    GraphQLTypeActivityType,
+} from "@modules/databases"
+
+/**
+ * One activity item in the GitHub-style home feed — something a followed user (or,
+ * on the "for you" tab, anyone) did (read/bookmark/pass/enroll/comment/follow).
+ * Route + label are token-based: resolved lazily on click via the route index.
+ */
+@ObjectType({
+    description: "A home-feed activity item (token-based).",
+})
+export class MyFeedItemData {
+    @Field(
+        () => String,
+        {
+            description: "Opaque global id of the actor (a user) — feed this to resolveRoute.",
+        },
+    )
+        actorGlobalId: string
+
+    @Field(
+        () => String,
+        {
+            description: "Actor username (the actor token label).",
+        },
+    )
+        actorUsername: string
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Avatar URL of the actor, or null when unset.",
+        },
+    )
+        actorAvatar: string | null
+
+    @Field(
+        () => GraphQLTypeActivityType,
+        {
+            description: "Kind of activity (drives the feed phrasing).",
+        },
+    )
+        type: ActivityType
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Opaque global id of the target entity — feed this to resolveRoute.",
+        },
+    )
+        targetGlobalId: string | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Target token label (lesson/challenge/course title, or username).",
+        },
+    )
+        targetLabel: string | null
+
+    @Field(
+        () => Date,
+        {
+            description: "When the activity happened.",
+        },
+    )
+        at: Date
+}
 
 /** One cursor-paginated page of the home feed. */
 @ObjectType({
@@ -16,12 +86,12 @@ import {
 })
 export class MyFeedResponseData {
     @Field(
-        () => [MyDashboardFeedItemData],
+        () => [MyFeedItemData],
         {
             description: "Feed items for this page, newest first.",
         },
     )
-        items: Array<MyDashboardFeedItemData>
+        items: Array<MyFeedItemData>
 
     @Field(
         () => String,

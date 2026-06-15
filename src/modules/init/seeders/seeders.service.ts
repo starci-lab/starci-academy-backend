@@ -19,6 +19,12 @@ import {
 import {
     CodingProblemSeederService,
 } from "./coding-problems"
+import {
+    AdvertisementSeederService,
+} from "./advertisements"
+import {
+    ChangelogSeederService,
+} from "./changelog"
 /**
  * Init seed orchestrator: each domain seeder reads envConfig().init seeders context itself.
  */
@@ -31,6 +37,8 @@ export class SeedersService {
         private readonly headhunterSeederService: HeadhuntingSeederService,
         private readonly catalogSeederService: CatalogSeederService,
         private readonly codingProblemSeederService: CodingProblemSeederService,
+        private readonly advertisementSeederService: AdvertisementSeederService,
+        private readonly changelogSeederService: ChangelogSeederService,
     ) { }
 
     /** Runs all init seed pipelines sequentially (env gates live inside each seeder). */
@@ -41,5 +49,7 @@ export class SeedersService {
         await this.foundationSeederService.seed()
         await this.headhunterSeederService.seed()
         await this.codingProblemSeederService.seed()
+        await this.advertisementSeederService.seed()
+        await this.changelogSeederService.seed()
     }
 }
