@@ -248,6 +248,24 @@ export class UserEntity extends UuidAbstractEntity {
     })
         rewardPoints: number
 
+    /**
+     * Profile visibility toggle (Facebook-style "lock profile"). When true, only
+     * the owner sees the full profile; other viewers (signed-in or anonymous) get
+     * just the public header (avatar / name / handle) and a "this profile is
+     * private" notice — the activity, achievements, courses and contribution tabs
+     * are withheld. Defaults to false (public).
+     */
+    @Field(() => Boolean,
+        {
+            description: "When true the profile is locked: only the owner sees the full content."
+        })
+    @Column({
+        name: "profile_locked",
+        type: "boolean",
+        default: false
+    })
+        profileLocked: boolean
+
 
     @Field(
         () => [EnrollmentEntity],

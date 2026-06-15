@@ -1,5 +1,6 @@
 import {
     Args,
+    Context,
     Query,
     Resolver,
 } from "@nestjs/graphql"
@@ -34,6 +35,9 @@ import {
 import {
     MyFeedResponseData,
 } from "../../dashboard/my-feed/graphql-types"
+import {
+    isProfileHiddenFromViewer,
+} from "../utils"
 import {
     UserFeedRequest,
     UserFeedResponse,
@@ -81,7 +85,20 @@ export class UserFeedResolver {
             request: UserFeedRequest,
         @GraphQLLocale()
             locale: Locale,
+        @Context()
+            context: { req?: { user?: { id?: string } } },
     ): Promise<MyFeedResponseData> {
+        // locked profile → withhold the timeline from everyone but the owner
+        if (await isProfileHiddenFromViewer({
+            entityManager: this.entityManager,
+            userId: request.userId,
+            viewerId: context.req?.user?.id,
+        })) {
+            return {
+                items: [],
+                nextCursor: null,
+            }
+        }
         // clamp page size; fetch one extra row to know whether a next page exists
         const limit = Math.min(Math.max(request.limit ?? 20,
             1),

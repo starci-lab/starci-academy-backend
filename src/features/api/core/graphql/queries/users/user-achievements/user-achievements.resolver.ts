@@ -1,5 +1,6 @@
 import {
     Args,
+    Context,
     ID,
     Query,
     Resolver,
@@ -8,6 +9,9 @@ import {
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
+import type {
+    EntityManager,
+} from "typeorm"
 import {
     GraphQLLocale,
     GraphQLSuccessMessage,
@@ -21,6 +25,7 @@ import {
     ThrottlerConfig,
 } from "@modules/throttler"
 import {
+    InjectPrimaryPostgreSQLEntityManager,
     Locale,
 } from "@modules/databases"
 import {
@@ -29,6 +34,9 @@ import {
 import {
     MyAchievementItemData,
 } from "../../achievements/my-achievements/graphql-types"
+import {
+    isProfileHiddenFromViewer,
+} from "../utils"
 import {
     UserAchievementsResponse,
 } from "./graphql-types"
@@ -43,6 +51,8 @@ import {
 export class UserAchievementsResolver {
     constructor(
         private readonly achievementsService: AchievementsService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -70,14 +80,25 @@ export class UserAchievementsResolver {
             userId: string,
         @GraphQLLocale()
             locale: Locale,
+        @Context()
+            context: { req?: { user?: { id?: string } } },
     ): Promise<Array<MyAchievementItemData>> {
-        // service computes the badge wall for the named user (definitions + ledger
-        // + criteria values) — same code path as the viewer's own achievements
-        const achievements = await this.achievementsService.getMyAchievements(userId)
+        // locked profile → withhold the badge wall from everyone but the owner
+        if (await isProfileHiddenFromViewer({
+            entityManager: this.entityManager,
+            userId,
+            viewerId: context.req?.user?.id,
+        })) {
+            return []
+        }
+        // service computes the badge wall for the named user — same code path as
+        // the viewer's own achievements; a public profile only needs the list
+        // (the newly-earned subset / congrats modal is for the owner's own view)
+        const result = await this.achievementsService.getMyAchievements(userId)
         // resolve the inline bilingual text to the request locale
         const lang = locale === Locale.Vi ? "vi" : "en"
         // map each result row to the localized GraphQL item
-        return achievements.map((achievement) => ({
+        return result.achievements.map((achievement) => ({
             slug: achievement.slug,
             name: achievement.name[lang],
             description: achievement.description[lang],

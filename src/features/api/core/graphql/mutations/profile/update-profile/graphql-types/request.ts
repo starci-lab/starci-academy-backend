@@ -3,6 +3,7 @@ import {
     InputType,
 } from "@nestjs/graphql"
 import {
+    IsBoolean,
     IsOptional,
     IsString,
     IsUrl,
@@ -61,4 +62,15 @@ export class UpdateProfileRequest {
     // cap matches the `avatar` varchar(255) column
     @MaxLength(255)
         avatar?: string | null
+
+    @Field(
+        () => Boolean,
+        {
+            nullable: true,
+            description: "Lock the profile (true = only the owner sees full content); omit to leave unchanged.",
+        },
+    )
+    @IsOptional()
+    @IsBoolean()
+        profileLocked?: boolean
 }

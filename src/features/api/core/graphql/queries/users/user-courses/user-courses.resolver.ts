@@ -1,5 +1,6 @@
 import {
     Args,
+    Context,
     ID,
     Query,
     Resolver,
@@ -8,6 +9,9 @@ import {
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
+import type {
+    EntityManager,
+} from "typeorm"
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
@@ -21,6 +25,7 @@ import {
 } from "@modules/throttler"
 import {
     CourseEntity,
+    InjectPrimaryPostgreSQLEntityManager,
     Locale,
 } from "@modules/databases"
 import {
@@ -32,6 +37,9 @@ import {
 import {
     MyCourseItemData,
 } from "../../dashboard/my-courses/graphql-types"
+import {
+    isProfileHiddenFromViewer,
+} from "../utils"
 import {
     UserCoursesResponse,
 } from "./graphql-types"
@@ -47,6 +55,8 @@ import {
 export class UserCoursesResolver {
     constructor(
         private readonly progressProjectionService: ProgressProjectionService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -72,7 +82,17 @@ export class UserCoursesResolver {
             },
         )
             userId: string,
+        @Context()
+            context: { req?: { user?: { id?: string } } },
     ): Promise<Array<MyCourseItemData>> {
+        // locked profile → withhold the joined-courses list from non-owners
+        if (await isProfileHiddenFromViewer({
+            entityManager: this.entityManager,
+            userId,
+            viewerId: context.req?.user?.id,
+        })) {
+            return []
+        }
         // one projection-backed read for every course the named user enrolled in
         const rows = await this.progressProjectionService.getMyCourseProgress(userId)
         // map each course to a clickable token + its completed/total counts

@@ -1,5 +1,6 @@
 import {
     Args,
+    Context,
     ID,
     Int,
     Query,
@@ -9,6 +10,9 @@ import {
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
+import type {
+    EntityManager,
+} from "typeorm"
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
@@ -21,6 +25,7 @@ import {
     ThrottlerConfig,
 } from "@modules/throttler"
 import {
+    InjectPrimaryPostgreSQLEntityManager,
     Locale,
 } from "@modules/databases"
 import {
@@ -29,6 +34,9 @@ import {
 import {
     MyContributionDayData,
 } from "../../dashboard/my-contribution-calendar/graphql-types"
+import {
+    isProfileHiddenFromViewer,
+} from "../utils"
 import {
     UserContributionCalendarResponse,
 } from "./graphql-types"
@@ -46,6 +54,8 @@ import {
 export class UserContributionCalendarResolver {
     constructor(
         private readonly contributionProjectionService: ContributionProjectionService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -80,7 +90,17 @@ export class UserContributionCalendarResolver {
             },
         )
             year: number | null,
+        @Context()
+            context: { req?: { user?: { id?: string } } },
     ): Promise<Array<MyContributionDayData>> {
+        // locked profile → withhold the heatmap from everyone but the owner
+        if (await isProfileHiddenFromViewer({
+            entityManager: this.entityManager,
+            userId,
+            viewerId: context.req?.user?.id,
+        })) {
+            return []
+        }
         // default to the current calendar year when the client omits it
         const targetYear = year ?? new Date().getFullYear()
         // single projection-backed read (active days, oldest first, with totals)
