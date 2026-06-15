@@ -19,12 +19,16 @@ import {
 import {
     UserFeedSingleQueryModule,
 } from "./user-feed"
+import {
+    UserContributionCalendarSingleQueryModule,
+} from "./user-contribution-calendar"
 
 /**
  * User query group — resolved fields layered onto the shared `UserEntity`
  * GraphQL type (follower / following counts) plus the public profile queries:
  * the profile header (`userProfile`) and the profile tabs — achievements,
- * joined courses, and the activity timeline — all keyed by user id.
+ * joined courses, the activity timeline, and the contribution calendar — all
+ * keyed by user id.
  */
 @Module({
     imports: [
@@ -41,6 +45,9 @@ import {
             isGlobal: true,
         }),
         UserFeedSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserContributionCalendarSingleQueryModule.register({
             isGlobal: true,
         }),
     ],
