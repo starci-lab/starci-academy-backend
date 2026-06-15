@@ -91,6 +91,11 @@ export class SeedScopeService {
         return this.seeders().changelog
     }
 
+    /** Whether the achievements catalog seeding is enabled. */
+    isAchievementsSeederEnabled(): boolean {
+        return this.seeders().achievements
+    }
+
     /**
      * Build module + milestone order-index filters from `courses.tracks`.
      * Each course is keyed by `displayId`; an absent displayId is excluded.

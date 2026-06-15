@@ -2034,5 +2034,37 @@ export const envConfig = () => ({
             defaultValue: 5 * 1024 * 1024,
         }),
     },
+    /**
+     * Duolingo-style global weekly-league tunables. The league ranks users by
+     * their flat reward points (`xp_histories.points`) within a fixed Sunday→Sunday
+     * (Asia/Ho_Chi_Minh) week window inside a fixed-size cohort, promoting the top
+     * performers and demoting the laggards each week.
+     */
+    league: {
+        /**
+         * Cron expression for the weekly reset job (close ending cohorts +
+         * promote/demote + form new cohorts). Defaults to every Sunday 00:00;
+         * the `@Cron` decorator runs it in the Asia/Ho_Chi_Minh timezone.
+         */
+        weeklyResetCron: parseEnvString({
+            key: "LEAGUE_WEEKLY_RESET_CRON",
+            defaultValue: "0 0 * * 0",
+        }),
+        /** Number of users that make up one weekly cohort. */
+        cohortSize: parseEnvInt({
+            key: "LEAGUE_COHORT_SIZE",
+            defaultValue: 30,
+        }),
+        /** How many top-ranked cohort members promote to the next tier each week. */
+        promoteCount: parseEnvInt({
+            key: "LEAGUE_PROMOTE_COUNT",
+            defaultValue: 10,
+        }),
+        /** How many bottom-ranked cohort members demote to the previous tier each week. */
+        demoteCount: parseEnvInt({
+            key: "LEAGUE_DEMOTE_COUNT",
+            defaultValue: 5,
+        }),
+    },
 }
 )

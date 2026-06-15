@@ -60,6 +60,7 @@ import {
     DayjsService,
 } from "@modules/mixin"
 import {
+    FLAT_POINTS,
     writeXpHistory,
 } from "../../shared/xp"
 
@@ -227,7 +228,7 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                                 courseId: enrollment.courseId,
                                 source: XpSource.Challenge,
                                 amount: grade.evaluation.score,
-                                points: grade.evaluation.score,
+                                points: FLAT_POINTS.challengePassed,
                                 refId: attempt.id,
                             })
                             // home-feed activity for the pass (idempotent on user+challenge)

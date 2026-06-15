@@ -1,0 +1,17 @@
+{
+  "difficulty": "advanced",
+  "vi": [
+    "Sinh dense embedding xác định (deterministic, đã L2-normalize) để biểu diễn text thành điểm trong không gian nhiều chiều và khiến khoảng cách hình học phản ánh độ gần về ngữ nghĩa.",
+    "Sử dụng toán tử khoảng cách cosine thay vì euclidean để đo góc giữa vector (hướng, chủ đề chung) thay vì độ dài, phù hợp với bản chất của semantic search.",
+    "Triển khai index HNSW (Hierarchical Navigable Small World) làm approximate nearest neighbour để tìm kiếm gần O(log N) với đánh đổi có kiểm soát giữa recall và latency thông qua tham số `ef_search`.",
+    "Nhận diện edge case khi khớp không cần token overlap nhưng vấn đề lớn hơn là lệch không gian embedding (model mismatch, version khác) → re-embedding bắt buộc, không trộn vector cũ và mới.",
+    "Kết hợp dense embedding và index HNSW để làm nền tảng cho semantic search, RAG, và recommendation system khi vận hành ở quy mô triệu vector."
+  ],
+  "en": [
+    "Generate deterministic dense embeddings (L2-normalized) to represent text as points in high-dimensional space where geometric distance reflects semantic closeness.",
+    "Use cosine distance instead of euclidean to measure angle between vectors (direction, shared topic) rather than magnitude, aligning with semantic search semantics.",
+    "Implement HNSW (Hierarchical Navigable Small World) index for approximate nearest neighbour search in near O(log N) time with controlled trade-off between recall and latency via `ef_search` parameter.",
+    "Identify critical edge cases where token overlap is unnecessary but embedding space mismatch (model/version difference) breaks search — requiring full re-embedding, not mixing vectors from different models.",
+    "Combine dense embeddings and HNSW indexing to power semantic search, RAG, and recommendation systems operating at scale of millions of vectors."
+  ]
+}

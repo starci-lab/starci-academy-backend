@@ -18,6 +18,9 @@ import {
 import {
     CourseStatsProjectionModule,
 } from "./course-stats"
+import {
+    ContributionProjectionModule,
+} from "./contribution"
 
 /**
  * Umbrella module aggregating every CQRS projection leaf-module: progress
@@ -46,6 +49,7 @@ export class ProjectionsModule extends ConfigurableModuleClass {
             ContentEngagementProjectionModule.register(options),
             UserStatsProjectionModule.register(options),
             CourseStatsProjectionModule.register(options),
+            ContributionProjectionModule.register(options),
         ]
         return {
             ...dynamicModule,

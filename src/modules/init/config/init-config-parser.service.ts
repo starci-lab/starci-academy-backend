@@ -182,6 +182,7 @@ export class InitConfigParserService {
             codingProblems: seed?.codingProblems ?? false,
             advertisements: seed?.advertisements ?? false,
             changelog: seed?.changelog ?? false,
+            achievements: seed?.achievements ?? false,
         }
     }
 

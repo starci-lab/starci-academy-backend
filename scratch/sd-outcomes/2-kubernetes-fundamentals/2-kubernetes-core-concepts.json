@@ -1,0 +1,17 @@
+{
+  "difficulty": "intermediate",
+  "vi": [
+    "Tách cấu hình (ConfigMap) khỏi image để cùng một image chạy ở mọi môi trường với cấu hình khác nhau.",
+    "Quản lý credential bảo mật (Secret) để database password, API key không lộ qua source code hay manifest thường.",
+    "Thiết kế liveness và readiness probe để Kubernetes tự heal container chết và chỉ route traffic đến Pod sẵn sàng.",
+    "Áp dụng rolling update để triển khai phiên bản mới mà không gián đoạn dịch vụ, thay Pod cũ từng cái một.",
+    "Sử dụng port-forward để debug Pod từ máy local, nhưng hiểu giới hạn của nó khi validate load balancing."
+  ],
+  "en": [
+    "Decouple configuration (ConfigMap) from the image so the same image runs across environments with different settings.",
+    "Secure credentials (Secret) to prevent database passwords and API keys from leaking in source code or plain manifests.",
+    "Design liveness and readiness probes so Kubernetes automatically heals dead containers and routes traffic only to healthy Pods.",
+    "Implement rolling updates to deploy new versions without service disruption, replacing old Pods one at a time.",
+    "Use port-forward to debug Pods locally, but understand its limitations when validating load distribution."
+  ]
+}

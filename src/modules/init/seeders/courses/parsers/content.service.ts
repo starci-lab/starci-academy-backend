@@ -17,6 +17,7 @@ import {
 import {
     ContentBodyIdFactoryService,
     ContentIdFactoryService,
+    ContentLearningOutcomeIdFactoryService,
     ModuleIdFactoryService,
 } from "../id-factories"
 import {
@@ -26,7 +27,10 @@ import {
 import {
     ContentBodyEntity,
     ContentBodyTranslationEntity,
+    ContentDifficulty,
     ContentEntity,
+    ContentLearningOutcomeEntity,
+    ContentLearningOutcomeTranslationEntity,
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
@@ -62,6 +66,7 @@ export class ContentParserService {
         private readonly contentIdFactoryService: ContentIdFactoryService,
         private readonly moduleIdFactoryService: ModuleIdFactoryService,
         private readonly contentBodyIdFactoryService: ContentBodyIdFactoryService,
+        private readonly contentLearningOutcomeIdFactoryService: ContentLearningOutcomeIdFactoryService,
         private readonly contextLoaderService: ContextLoaderService,
         private readonly pathResolverService: PathResolverService,
         private readonly contentPathService: ContentPathService,
@@ -342,6 +347,7 @@ export class ContentParserService {
             translateFields: [
                 "title",
                 "description",
+                "outcomes.text",
             ],
         }) as MergeJsonResult<DeepPartial<ContentEntity>>
         // deterministic content id (reused as FK + id chain root) and owning module id
@@ -419,6 +425,10 @@ export class ContentParserService {
             verified: this.coerceMdScalarService.toNullableDate(
                 merged.verified,
             ),
+            // optional `# difficulty` badge (beginner/intermediate/advanced); null when unset/unknown
+            difficulty: this.toDifficulty(
+                (merged as { difficulty?: unknown }).difficulty,
+            ),
             translations: (merged.translations ?? []).map(
                 ({
                     locale,
@@ -431,8 +441,90 @@ export class ContentParserService {
                     value,
                 }),
             ),
+            // ordered "what you will learn" bullets from `# outcomes` (array of `### text` items)
+            outcomes: this.buildOutcomes(
+                (merged as { outcomes?: Array<DeepPartial<ContentLearningOutcomeEntity>> }).outcomes
+                    ?? [],
+                {
+                    courseIndex,
+                    moduleIndex,
+                    contentIndex,
+                    contentId,
+                },
+            ),
             bodies,
         }
+    }
+
+    /**
+     * Builds the localized "what you will learn" outcome rows from the merged `# outcomes` array.
+     * Each bullet becomes a {@link ContentLearningOutcomeEntity} with a deterministic id and its
+     * per-locale `text` overrides in {@link ContentLearningOutcomeTranslationEntity}.
+     *
+     * @param items - Merged outcome items (`{ orderIndex, text, translations }`).
+     * @param ordinals - Course/module/content ordinals + parent content id for id-chaining.
+     * @returns Entity-shaped outcome graph for TypeORM cascade save.
+     */
+    private buildOutcomes(
+        items: Array<DeepPartial<ContentLearningOutcomeEntity>>,
+        {
+            courseIndex,
+            moduleIndex,
+            contentIndex,
+            contentId,
+        }: {
+            courseIndex: number
+            moduleIndex: number
+            contentIndex: number
+            contentId: string
+        },
+    ): Array<DeepPartial<ContentLearningOutcomeEntity>> {
+        return items.map((item) => {
+            const orderIndex = item.orderIndex ?? 0
+            const outcomeId = this.contentLearningOutcomeIdFactoryService.generate({
+                courseIndex,
+                moduleIndex,
+                contentIndex,
+                orderIndex,
+            })
+            const translations: Array<DeepPartial<ContentLearningOutcomeTranslationEntity>> =
+                (item.translations ?? [])
+                    .filter(({ field }) => field === "text")
+                    .map(({
+                        locale,
+                        value,
+                    }) => ({
+                        contentLearningOutcomeId: outcomeId,
+                        locale,
+                        field: "text",
+                        value,
+                    }))
+            return {
+                id: outcomeId,
+                content: {
+                    id: contentId,
+                },
+                defaultLocale: Locale.En,
+                text: item.text ?? "",
+                orderIndex,
+                sortIndex: orderIndex,
+                translations,
+            }
+        })
+    }
+
+    /**
+     * Coerces a raw `# difficulty` mount value into a {@link ContentDifficulty}, returning `null`
+     * when the value is missing or not one of beginner/intermediate/advanced.
+     *
+     * @param raw - Raw scalar read from the content mount file.
+     * @returns The resolved difficulty tier, or `null`.
+     */
+    private toDifficulty(raw: unknown): ContentDifficulty | null {
+        const value = typeof raw === "string" ? raw.trim().toLowerCase() : ""
+        return (Object.values(ContentDifficulty) as Array<string>).includes(value)
+            ? (value as ContentDifficulty)
+            : null
     }
 
     /**

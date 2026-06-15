@@ -1,0 +1,17 @@
+{
+  "difficulty": "advanced",
+  "vi": [
+    "Sử dụng StatefulSet thay Deployment cho database có danh tính ổn định (`-0`, `-1`) và PersistentVolumeClaim riêng per-pod.",
+    "Áp dụng Helm chart để template hoá hàng chục manifest (StatefulSet, PVC, Secret, ConfigMap, Service) thành một gói tái sử dụng.",
+    "Override giá trị mặc định của chart qua `values.yaml` để tune replica count, image, resource limits mà không viết tay manifest.",
+    "Thiết kế Headless Service cho danh tính DNS từng pod (`postgresql-ha-0`, `-1`, `-2`) cần thiết cho primary/standby replication.",
+    "Quản lý database HA (Primary + Standby + failover) trên Kubernetes với repmgr, pgpool, persistence và monitoring."
+  ],
+  "en": [
+    "Use StatefulSet instead of Deployment for databases with stable identities (`-0`, `-1`) and per-pod PersistentVolumeClaims.",
+    "Apply Helm charts to template dozens of manifests (StatefulSet, PVC, Secret, ConfigMap, Service) into reusable packages.",
+    "Override chart defaults via `values.yaml` to tune replica counts, images, and resource limits without hand-writing manifests.",
+    "Design Headless Services for stable DNS identities per-pod (`postgresql-ha-0`, `-1`, `-2`) needed for primary/standby replication.",
+    "Operate database HA (Primary + Standby + failover) on Kubernetes with repmgr, pgpool, persistence, and metrics."
+  ]
+}

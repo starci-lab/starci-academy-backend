@@ -235,6 +235,9 @@ export class SeedDiffOverlayService {
                 aiModels: domains.aiModels,
                 subscriptions: domains.subscriptions,
                 codingProblems: domains.codingProblems,
+                advertisements: false,
+                changelog: false,
+                achievements: false,
             },
             synchronizers: {
                 enabled: true,

@@ -45,6 +45,12 @@ import {
 import {
     ProjectionsModule,
 } from "./projections"
+import {
+    LeagueModule,
+} from "./league"
+import {
+    AchievementsModule,
+} from "./achievements"
 
 /**
  * The module for the bussiness logics.
@@ -79,6 +85,10 @@ export class BussinessModule extends ConfigurableModuleClass {
             NotificationModule.register(options),
             // import the CQRS projections module (progress + content + stats read-models)
             ProjectionsModule.register(options),
+            // import the weekly-league module (tiers + cohorts + reset cron)
+            LeagueModule.register(options),
+            // import the achievements module (badge award engine)
+            AchievementsModule.register(options),
         ]
         return {
             ...dynamicModule,

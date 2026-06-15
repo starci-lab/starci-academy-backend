@@ -54,13 +54,14 @@ import {
     DayjsService,
 } from "@modules/mixin"
 import {
+    FLAT_POINTS,
     writeXpHistory,
 } from "../../shared/xp"
 
 /** Postgres unique-violation SQLSTATE — a concurrent duplicate lost the idempotency race. */
 const PG_UNIQUE_VIOLATION = "23505"
 
-/** XP + reward points granted once when a milestone task is first passed (matches leaderboard ×10). */
+/** Per-course weighted XP granted once when a milestone task is first passed (matches leaderboard ×10). */
 const MILESTONE_PASS_XP = 10
 
 /**
@@ -239,7 +240,7 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                                 courseId: enrollment.courseId,
                                 source: XpSource.Milestone,
                                 amount: MILESTONE_PASS_XP,
-                                points: MILESTONE_PASS_XP,
+                                points: FLAT_POINTS.milestonePassed,
                                 refId: userMilestoneTask.id,
                             })
                             // home-feed activity for the pass (idempotent per user-milestone-task)

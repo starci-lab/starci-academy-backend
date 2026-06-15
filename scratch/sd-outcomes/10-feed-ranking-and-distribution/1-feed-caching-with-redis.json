@@ -1,0 +1,17 @@
+{
+  "difficulty": "intermediate",
+  "vi": [
+    "Lựa chọn Redis Sorted Set thay vì cache key thông thường để trữ feed đã sắp xếp sẵn theo timestamp, cho phép đọc top-N mà không cần sort lại.",
+    "Sử dụng epoch timestamp làm score trong ZSET để tận dụng skip list có sẵn, đạt O(log N + N) cho ZREVRANGE thay vì O(N log N) của database sort.",
+    "Trimming ZSET bằng ZREMRANGEBYRANK để giới hạn kích thước cache và tránh phình bộ nhớ khi số bài viết tăng liên tục.",
+    "Materialize dữ liệu từ source-of-truth (Postgres) vào ZSET để tạo rebuildable cache, cho phép rebuild lại nếu Redis restart mà không mất dữ liệu gốc.",
+    "Phân biệt rank-based pagination (ZREVRANGE) cho trang đầu hot với score-based cursor (ZREVRANGEBYSCORE) cho deep scroll ổn định trên feed realtime."
+  ],
+  "en": [
+    "Choose Redis Sorted Set over regular cache keys to store pre-sorted feed by timestamp, enabling top-N reads without re-sorting.",
+    "Use epoch timestamp as score in ZSET to leverage the built-in skip list, achieving O(log N + N) for ZREVRANGE instead of O(N log N) database sorting.",
+    "Trim ZSET with ZREMRANGEBYRANK to cap cache size and prevent memory bloat as post count increases continuously.",
+    "Materialize data from source-of-truth (Postgres) into ZSET to create a rebuildable cache that can be reconstructed on Redis restart without losing original data.",
+    "Distinguish rank-based pagination (ZREVRANGE) for hot first page from score-based cursors (ZREVRANGEBYSCORE) for stable deep scrolling on realtime feeds."
+  ]
+}

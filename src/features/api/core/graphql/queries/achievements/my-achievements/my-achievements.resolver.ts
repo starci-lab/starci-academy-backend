@@ -1,0 +1,85 @@
+import {
+    Query,
+    Resolver,
+} from "@nestjs/graphql"
+import {
+    UseGuards,
+    UseInterceptors,
+} from "@nestjs/common"
+import {
+    GraphQLLocale,
+    GraphQLSuccessMessage,
+    GraphQLTransformInterceptor,
+} from "@modules/api"
+import {
+    KeycloakAuthGraphQLGuard,
+    KeycloakGraphQLUser,
+} from "@modules/keycloak"
+import {
+    UseThrottler,
+    ThrottlerConfig,
+} from "@modules/throttler"
+import {
+    Locale,
+    UserEntity,
+} from "@modules/databases"
+import {
+    AchievementsService,
+} from "@modules/bussiness"
+import {
+    MyAchievementItemData,
+    MyAchievementsResponse,
+} from "./graphql-types"
+
+/**
+ * Profile query: every achievement with the viewer's earned status + live
+ * progress. Reads the curated definition set joined to the viewer's award ledger
+ * and a single per-user criteria-value query (in {@link AchievementsService});
+ * the resolver only resolves the bilingual name/description to the request
+ * locale. The badge art is fetched by the client from MinIO via `iconKey`.
+ */
+@Resolver()
+export class MyAchievementsResolver {
+    constructor(
+        private readonly achievementsService: AchievementsService,
+    ) {}
+
+    @UseThrottler(ThrottlerConfig.Soft)
+    @UseGuards(KeycloakAuthGraphQLGuard)
+    @GraphQLSuccessMessage({
+        [Locale.En]: "Achievements fetched successfully",
+        [Locale.Vi]: "Lấy thành tích thành công",
+    })
+    @UseInterceptors(GraphQLTransformInterceptor)
+    @Query(
+        () => MyAchievementsResponse,
+        {
+            name: "myAchievements",
+            description: "Every achievement with the viewer's earned status + progress.",
+        },
+    )
+    async execute(
+        @GraphQLLocale()
+            locale: Locale,
+        @KeycloakGraphQLUser()
+            user: UserEntity,
+    ): Promise<Array<MyAchievementItemData>> {
+        // service does the heavy lifting (definitions + ledger + criteria values)
+        const achievements = await this.achievementsService.getMyAchievements(user.id)
+        // resolve the inline bilingual text to the request locale
+        const lang = locale === Locale.Vi ? "vi" : "en"
+        // map each result row to the localized GraphQL item
+        return achievements.map((achievement) => ({
+            slug: achievement.slug,
+            name: achievement.name[lang],
+            description: achievement.description[lang],
+            iconKey: achievement.iconKey,
+            criteriaType: achievement.criteriaType,
+            threshold: achievement.threshold,
+            earned: achievement.earned,
+            earnedAt: achievement.earnedAt,
+            currentValue: achievement.currentValue,
+            tierReached: achievement.tierReached,
+        }))
+    }
+}

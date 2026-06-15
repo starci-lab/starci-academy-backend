@@ -25,6 +25,9 @@ import {
 import {
     ChangelogSeederService,
 } from "./changelog"
+import {
+    AchievementSeederService,
+} from "./achievements"
 /**
  * Init seed orchestrator: each domain seeder reads envConfig().init seeders context itself.
  */
@@ -39,6 +42,7 @@ export class SeedersService {
         private readonly codingProblemSeederService: CodingProblemSeederService,
         private readonly advertisementSeederService: AdvertisementSeederService,
         private readonly changelogSeederService: ChangelogSeederService,
+        private readonly achievementSeederService: AchievementSeederService,
     ) { }
 
     /** Runs all init seed pipelines sequentially (env gates live inside each seeder). */
@@ -51,5 +55,6 @@ export class SeedersService {
         await this.codingProblemSeederService.seed()
         await this.advertisementSeederService.seed()
         await this.changelogSeederService.seed()
+        await this.achievementSeederService.seed()
     }
 }

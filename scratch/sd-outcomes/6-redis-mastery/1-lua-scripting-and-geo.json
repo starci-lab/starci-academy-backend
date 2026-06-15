@@ -1,0 +1,17 @@
+{
+  "difficulty": "advanced",
+  "vi": [
+    "Giải thích tại sao Lua script chạy nguyên tử trên server giải được race condition mà ba lệnh rời rạc không giải được, nhờ mô hình single-thread của Redis.",
+    "Áp dụng mô hình EVAL/EVALSHA để nạp script một lần và cache SHA1, từ đó gọi script qua SHA để tiết kiệm bănd thông trên đường nóng.",
+    "Phân biệt KEYS[] từ ARGV[] khi viết script: KEYS được dùng cho Redis Cluster định tuyến slot, ARGV chỉ là tham số dữ liệu.",
+    "Phân tích cơ chế Redis GEO: geohash 52-bit được mã hoá vào score của một sorted set, GEOSEARCH quét dải geohash rồi post-filter haversine để trả điểm trong bán kính.",
+    "Xác định các trường hợp biên khi dùng Lua + GEO: NOSCRIPT sau restart, script chạy quá lâu chặn server, GEO cross-slot trên Cluster."
+  ],
+  "en": [
+    "Explain why Lua scripts run atomically on the server to solve race conditions that discrete commands cannot, leveraging Redis's single-threaded model.",
+    "Apply the EVAL/EVALSHA pattern to load a script once and cache its SHA1, then call scripts via SHA to save bandwidth on hot paths.",
+    "Distinguish KEYS[] from ARGV[] when writing scripts: KEYS are used for Redis Cluster slot routing, ARGV are just data parameters.",
+    "Analyze how Redis GEO works: a 52-bit geohash is encoded into the score of a sorted set, and GEOSEARCH scans a geohash range then post-filters with haversine to return points within a radius.",
+    "Identify edge cases when using Lua + GEO: NOSCRIPT after restart, long-running scripts blocking the server, and GEO cross-slot issues on Cluster."
+  ]
+}

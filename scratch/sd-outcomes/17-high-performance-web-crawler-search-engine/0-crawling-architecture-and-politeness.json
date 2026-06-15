@@ -1,0 +1,17 @@
+{
+  "difficulty": "advanced",
+  "vi": [
+    "Thiết kế một đồng hồ politeness chia sẻ trên Redis thay vì trong RAM tiến trình để N worker cùng tôn trọng chính sách host mà không vi phạm gấp N lần.",
+    "Áp dụng công thức wait = delay - (now - lastFetched) để tính thời gian chờ động dựa trên trạng thái chia sẻ thay vì setTimeout cố định.",
+    "Lưu cache robots.txt với TTL để khấu hao chi phí GET trên hàng trăm fetch mà vẫn bắt thay đổi policy trong vòng một TTL.",
+    "Phân biệt longest-match trong RFC 9309 để quyết định allow/deny chính xác khi một path khớp nhiều rule với độ dài khác nhau.",
+    "Xử lý các edge case như robots 5xx, crawl-delay lớn, và nhầm subdomain bằng cách cấu hình an toàn hơn trong production-grade crawler."
+  ],
+  "en": [
+    "Design a shared Redis-based politeness clock instead of per-process RAM so that N workers jointly respect a host's policy without violating it N times over.",
+    "Apply the wait = delay - (now - lastFetched) formula to compute dynamic wait times based on shared state rather than fixed setTimeout values.",
+    "Cache robots.txt with a TTL to amortize the cost of one GET over hundreds of fetches while still detecting policy changes within one TTL window.",
+    "Distinguish longest-match precedence from RFC 9309 to correctly allow or deny paths that match multiple rules of different lengths.",
+    "Handle edge cases such as robots 5xx, huge crawl-delays, and subdomain confusion by applying safety-first configurations in production crawlers."
+  ]
+}

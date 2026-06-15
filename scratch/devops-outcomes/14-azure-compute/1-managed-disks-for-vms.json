@@ -1,0 +1,17 @@
+{
+  "difficulty": "intermediate",
+  "vi": [
+    "Phân biệt OS disk inline (chết theo VM) và data disk resource hạng nhất (có vòng đời độc lập).",
+    "Attach/detach data disk qua resource tách rời azurerm_virtual_machine_data_disk_attachment với LUN unique trong VM.",
+    "Chọn đúng tier managed disk (Standard_LRS/StandardSSD_LRS/Premium_LRS/UltraSSD_LRS) theo IOPS và workload.",
+    "Thực hiện snapshot incremental và restore disk từ snapshot để sao lưu dữ liệu độc lập.",
+    "Tránh disk mồ côi tính tiền, đảm bảo disk-VM cùng Availability Zone, và quản lý vòng đời disk bằng Terraform/RG."
+  ],
+  "en": [
+    "Distinguish between inline OS disk (dies with VM) and first-class data disk resource (independent lifecycle).",
+    "Attach/detach data disk via the separate azurerm_virtual_machine_data_disk_attachment resource with unique LUN within the VM.",
+    "Choose the right managed disk tier (Standard_LRS/StandardSSD_LRS/Premium_LRS/UltraSSD_LRS) based on IOPS and workload requirements.",
+    "Perform incremental snapshots and restore disks from snapshots for independent data backup.",
+    "Avoid orphaned disk billing, ensure disk-VM are in the same Availability Zone, and manage disk lifecycle via Terraform/RG."
+  ]
+}

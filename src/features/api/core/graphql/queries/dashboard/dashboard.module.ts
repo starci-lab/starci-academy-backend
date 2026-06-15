@@ -17,6 +17,9 @@ import {
     MyWeeklyStatsSingleQueryModule,
 } from "./my-weekly-stats"
 import {
+    MyContributionCalendarSingleQueryModule,
+} from "./my-contribution-calendar"
+import {
     MyFeedSingleQueryModule,
 } from "./my-feed"
 import {
@@ -43,6 +46,9 @@ import {
             isGlobal: true,
         }),
         MyWeeklyStatsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyContributionCalendarSingleQueryModule.register({
             isGlobal: true,
         }),
         MyFeedSingleQueryModule.register({

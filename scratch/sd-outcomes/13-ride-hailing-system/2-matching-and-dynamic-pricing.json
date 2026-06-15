@@ -1,0 +1,17 @@
+{
+  "difficulty": "advanced",
+  "vi": [
+    "Thiết kế expanding-ring GEOSEARCH để nới bán kính dần `[500, 1000, 2000, 5000]m` thay vì một query rộng, cân bằng độ trễ (vòng hẹp trước cho khu đông) và tỉ lệ tìm thấy (phủ khu thưa).",
+    "Tính surge multiplier động từ tỉ lệ cung-cầu cục bộ theo ô H3 res-9: `INCR demand:<cell>` nguyên tử đo dòng nhu cầu thật, `multiplier = min(1 + demand/supply, 3)` leo theo áp lực với trần an toàn.",
+    "Chặn double-assign bằng khoá nguyên tử `SET NX EX`: đúng một request thắng khóa, các request khác nhảy sang tài xế kế, rồi `ZREM` tài xế khỏi pool; `EX` tránh khoá kẹt vĩnh viễn.",
+    "Phân biệt giữa geospatial index (quyết định độ phức tạp), expanding-ring (cân độ trễ), demand counter (định giá), và atomic lock (tránh collision) — bốn nguyên lý tách bạch của matching engine.",
+    "Quản lý các edge case: vòng ngoài rỗng ở vùng vắng, demand counter phình mãi không reset (cần TTL/sliding window), khoá kẹt khi cuốc không xác nhận, hot cell ở sự kiện lớn (split cell/batch matching)."
+  ],
+  "en": [
+    "Design expanding-ring GEOSEARCH that widens `[500, 1000, 2000, 5000]m` gradually instead of one wide query, balancing latency (tight ring first for dense areas) and hit rate (cover sparse ones).",
+    "Compute dynamic surge multiplier from local per-H3-cell supply/demand: atomic `INCR demand:<cell>` measures real demand flow, `multiplier = min(1 + demand/supply, 3)` climbs with pressure under a safe cap.",
+    "Block double-assignment with atomic lock `SET NX EX`: exactly one request wins, others jump to the next driver, then `ZREM` from the pool; `EX` prevents permanent lock stuck.",
+    "Distinguish four separate concerns in a matching engine: geospatial index (query complexity), expanding-ring (latency balance), demand counter (pricing), and atomic lock (collision prevention).",
+    "Manage edge cases: the outermost ring empty in sparse areas, demand counter growing unbounded without reset (need TTL/sliding window), stuck locks when trips are cancelled, hot cells at large events (split cells/batch matching)."
+  ]
+}

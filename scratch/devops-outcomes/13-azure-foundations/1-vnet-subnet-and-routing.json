@@ -1,0 +1,17 @@
+{
+  "difficulty": "intermediate",
+  "vi": [
+    "Thiết kế VNet regional gắn với một region duy nhất và tách multi-region thông qua VNet peering.",
+    "Chia subnet bằng CIDR mà không dùng cờ public/private vì tính public/private do route table quyết định.",
+    "Cấu hình User Defined Routes (UDR) để điều hướng traffic: default route ra Internet hay qua NVA.",
+    "Triển khai NAT gateway egress-only cho phép subnet private ra ngoài mà không expose inbound.",
+    "Hiểu sự khác biệt giữa mô hình networking Azure (regional VNet, no public/private flag) so với AWS/GCP."
+  ],
+  "en": [
+    "Design a regional VNet pinned to a single region and separate multi-region using VNet peering.",
+    "Divide subnets by CIDR without a public/private flag since publicness is determined by route tables.",
+    "Configure User Defined Routes (UDR) to steer traffic: default route to the Internet or through an NVA.",
+    "Deploy a NAT gateway for egress-only outbound from private subnets without exposing inbound access.",
+    "Understand how Azure networking differs (regional VNet, no public/private flag) from AWS/GCP models."
+  ]
+}

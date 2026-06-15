@@ -1,0 +1,17 @@
+{
+  "difficulty": "intermediate",
+  "vi": [
+    "Đọc và hiểu execution plan từ `EXPLAIN ANALYZE` để xác định planner chọn sequential scan hay index scan dựa trên selectivity.",
+    "Thiết kế composite index với thứ tự cột đúng (leftmost prefix rule) sao cho phục vụ được query shape chủ đạo mà tránh vô dụng.",
+    "Cân nhắc trade-off giữa tốc độ read (lợi ích index) và chi phí write/storage (cập nhật mọi index ở mỗi INSERT/UPDATE/DELETE).",
+    "Phát hiện các cơn sốt index thầm lặng — index tồn tại nhưng vô dụng do vi phạm leftmost prefix hoặc low-selectivity field.",
+    "Đo độ phức tạp tra cứu bằng `pg_stat_user_indexes` để phát hiện và xoá index chết, giảm phí bảo trì trong production."
+  ],
+  "en": [
+    "Read and interpret execution plans from `EXPLAIN ANALYZE` to determine whether the planner chooses sequential or index scan based on selectivity.",
+    "Design composite indexes with correct column order (leftmost prefix rule) to serve primary query shapes while avoiding wasted indexes.",
+    "Balance the trade-off between read speed (index benefit) and write cost/storage overhead (index updates on every INSERT/UPDATE/DELETE).",
+    "Detect silent index antipatterns — indexes that exist but are useless due to leftmost-prefix violations or low-selectivity fields.",
+    "Measure index effectiveness using `pg_stat_user_indexes` to identify and drop dead indexes, reducing maintenance overhead in production."
+  ]
+}

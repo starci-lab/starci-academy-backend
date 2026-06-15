@@ -1,0 +1,17 @@
+{
+  "difficulty": "intermediate",
+  "vi": [
+    "Chọn đúng data store: Cloud SQL HA + read replica cho startup OLTP <10k QPS, Spanner chỉ khi cần external strong consistency xuyên region.",
+    "Thiết kế Cloud SQL HA (REGIONAL availability_type) với primary + standby sync qua regional disk, và read replica async để scale đọc.",
+    "Áp dụng two-layer deletion_protection (provider-level + settings.backup_configuration) để chống xoá accidental.",
+    "So sánh cost realism: Spanner gấp 100 lần Cloud SQL nhưng đặc thù TrueTime + atomic clock cho consistency bên ngoài transaction.",
+    "Force failover Cloud SQL offline để test recovery, hiểu standby auto-promote mà không chờ sự cố thật."
+  ],
+  "en": [
+    "Choose the right data store: Cloud SQL HA + read replicas for startup OLTP <10k QPS, Spanner only when needing external strong consistency across regions.",
+    "Design Cloud SQL HA (REGIONAL availability_type) with primary + standby syncing via regional disk, plus async read replica to scale reads.",
+    "Apply two-layer deletion_protection (provider-level + settings.backup_configuration) to prevent accidental deletion.",
+    "Compare cost realism: Spanner costs 100x more than Cloud SQL but uses TrueTime + atomic clocks for consistency beyond transactions.",
+    "Force-failover Cloud SQL offline to test recovery, understanding how standbys auto-promote without waiting for real outages."
+  ]
+}

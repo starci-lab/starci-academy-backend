@@ -1,0 +1,17 @@
+{
+  "difficulty": "intermediate",
+  "vi": [
+    "Sử dụng Block Volume để tách storage khỏi boot disk của Droplet, cho phép backup/restore độc lập và attach vào Droplet khác.",
+    "Tạo snapshot point-in-time crash-consistent của volume để backup dữ liệu, rồi restore snapshot ra volume mới độc lập.",
+    "Điều khiển IOPS của volume qua size slug (không tier provisioned-IOPS riêng), hiểu rằng volume single-attach và không thể multi-attach.",
+    "Chụp snapshot toàn bộ Droplet (khác volume snapshot) để capture cả OS, config và ứng dụng, dùng làm base image.",
+    "Quản lý vòng đời volume (attach/detach/snapshot/delete) biết rằng volume tính phí liên tục dù detach, yêu cầu kỷ luật cleanup thủ công."
+  ],
+  "en": [
+    "Use Block Volumes to separate storage from the Droplet boot disk, enabling independent backup/restore and attachment to different Droplets.",
+    "Create crash-consistent point-in-time snapshots of volumes for data backup, then restore snapshots to new independent volumes.",
+    "Control volume IOPS through size slugs (no separate provisioned-IOPS tier), understanding that volumes are single-attach and not multi-attach.",
+    "Capture whole-machine Droplet snapshots (distinct from volume snapshots) to capture OS, config, and application as a reusable base image.",
+    "Manage volume lifecycle (attach/detach/snapshot/delete) knowing that volumes incur charges continuously even when detached, requiring manual cleanup discipline."
+  ]
+}

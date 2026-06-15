@@ -1,0 +1,17 @@
+{
+  "difficulty": "advanced",
+  "vi": [
+    "Giải thích tại sao Redis Cluster chia keyspace thành 16384 hash slot cố định chứ không modulo theo số node, và tác dụng của cách làm này khi thêm/bớt node.",
+    "Tính toán slot của một key bằng công thức CRC16 mod 16384 và chứng minh slot là hàm thuần của key, không phụ thuộc số node trong cluster.",
+    "Áp dụng hash-tag {user:1} để co-locate nhiều key liên quan vào cùng một slot, cho phép MULTI/Lua script chạy đúng mà không dính lỗi CROSSSLOT.",
+    "Phân biệt MOVED vs ASK trong quá trình resharding: MOVED = quyền sở hữu slot đã chốt (client cập nhật cache), ASK = slot đang di trú giữa chừng (client thử một lần, không đổi cache).",
+    "Đánh giá các vấn đề vận hành Cluster: hot slot từ hash-tag quá rộng, CROSSSLOT khi lệnh đa-key trải nhiều slot, vai trò của replica trong HA chứ không mở rộng dung lượng."
+  ],
+  "en": [
+    "Explain why Redis Cluster partitions the keyspace into 16384 fixed hash slots rather than modulo by node count, and the impact on adding/removing nodes.",
+    "Calculate a key's slot using the CRC16 mod 16384 formula and prove that slot is a pure function of the key, independent of the cluster's node count.",
+    "Use hash-tags like {user:1} to co-locate multiple related keys in the same slot, enabling MULTI and Lua scripts to run correctly without CROSSSLOT errors.",
+    "Distinguish MOVED from ASK during resharding: MOVED means ownership is final (client updates cache long-term), ASK means the slot is mid-migration (client tries once per command, doesn't cache).",
+    "Evaluate operational concerns with Cluster: hot slots from overly-broad hash-tags, CROSSSLOT errors when multi-key commands span slots, and replicas' role in HA rather than expanding capacity."
+  ]
+}

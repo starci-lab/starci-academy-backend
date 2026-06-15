@@ -1,0 +1,17 @@
+{
+  "difficulty": "advanced",
+  "vi": [
+    "Chuyển từ update balance thẳng sang bút toán kép (DEBIT + CREDIT) để tạo immutable event log và biến balance thành cache phái sinh.",
+    "Implement idempotency ở tầng database bằng unique constraint `(txnId, accountId, direction)` thay vì check app-level để đảm bảo an toàn dưới concurrency.",
+    "Dùng lock ordering theo id ASC để phá vòng deadlock ABBA khi hai transfer concurrent đi ngược chiều trên cùng hai tài khoản.",
+    "Bảo vệ invariant `SUM(DEBIT) == SUM(CREDIT)` bằng cách gộp hai INSERT và hai UPDATE vào một transaction Postgres atomicity.",
+    "Xử lý precision của tiền bằng BigInt string arithmetic thay vì JavaScript number để tránh mất precision quá 2^53 ở đơn vị tiền thực tế."
+  ],
+  "en": [
+    "Migrate from a direct balance update to double-entry bookkeeping (DEBIT + CREDIT) to create an immutable event log and make the balance a derived cache.",
+    "Implement idempotency at the database layer using a unique constraint on `(txnId, accountId, direction)` instead of app-level checks to stay safe under concurrency.",
+    "Use lock ordering in id ASC order to break the ABBA deadlock cycle when two concurrent transfers go in opposite directions on the same two accounts.",
+    "Protect the `SUM(DEBIT) == SUM(CREDIT)` invariant by bundling two INSERTs and two UPDATEs into one Postgres transaction's atomicity.",
+    "Handle money precision using BigInt string arithmetic instead of JavaScript numbers to avoid losing precision beyond 2^53 in real money units."
+  ]
+}

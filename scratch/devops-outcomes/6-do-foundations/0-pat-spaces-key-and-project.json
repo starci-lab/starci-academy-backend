@@ -1,0 +1,17 @@
+{
+  "difficulty": "intermediate",
+  "vi": [
+    "Phân quyền control-plane DigitalOcean bằng scope của PAT (credential), không phải IAM policy như AWS; quyền nằm trong biến môi trường chứ không khai trong Terraform.",
+    "Tạo Spaces key với grant per-bucket và ba mức permission (read/readwrite/fullaccess) để thực hiện least-privilege object storage mà không cần policy JSON phức tạp.",
+    "Project DigitalOcean dùng để gom nhóm hành chính resource (tổ chức/billing/audit), không phải security boundary hay cơ chế phân quyền.",
+    "Hiểu sự khác biệt giữa PAT scope (control-plane), Spaces key grant (object storage), và project grouping—ba bề mặt access control độc lập của DO.",
+    "Sử dụng Terraform để khai báo Spaces bucket, key với multiple grant khác nhau, project và project_resources trong cùng một apply, với hỗ trợ verify bằng doctl."
+  ],
+  "en": [
+    "Enforce DigitalOcean control-plane permissions via PAT scope (credential), not IAM policy like AWS; permissions live in environment variables, not declared in Terraform.",
+    "Create Spaces keys with per-bucket grants and three permission levels (read/readwrite/fullaccess) to achieve least-privilege object storage without complex JSON policies.",
+    "Use DigitalOcean projects for administrative grouping of resources (organization/billing/audit), not as a security boundary or permission enforcement mechanism.",
+    "Distinguish between three independent access-control surfaces on DO: PAT scope (control-plane), Spaces key grants (object storage), and project grouping (administrative).",
+    "Declare Spaces buckets, keys with multiple different grants, projects and project_resources in Terraform, with verification via doctl and terraform output commands."
+  ]
+}

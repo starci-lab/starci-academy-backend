@@ -1,0 +1,17 @@
+{
+  "difficulty": "advanced",
+  "vi": [
+    "Hình dung CAP Theorem — không thể đảm bảo đồng thời Consistency, Availability, và Partition Tolerance; partition là bất khả kháng, phải chọn CP hoặc AP.",
+    "Chế độ CP (Consistency Priority): đồng bộ peer trước khi commit local, partition xảy ra → timeout → báo lỗi 503 để bảo vệ tính nhất quán tuyệt đối.",
+    "Chế độ AP (Availability Priority): commit local trước, fire-and-forget sync ngầm, partition xảy ra → node phục vụ dữ liệu cũ tạo divergence, hội tụ khi nối lại (eventual consistency).",
+    "Phát hiện partition bằng timeout ngắn trên fan-out sync — khi một trong các peer không phản hồi, quyết định lập tức CP reject hay AP accept.",
+    "Thiết kế anti-entropy mechanism để tự phục hồi dữ liệu khi node bị tắt rồi khởi lại — AP mode phụ thuộc cơ chế này để hội tụ."
+  ],
+  "en": [
+    "Visualize CAP Theorem — cannot guarantee Consistency, Availability, and Partition Tolerance simultaneously; partition is inevitable, must choose CP or AP mode.",
+    "CP mode (Consistency Priority): synchronize peer before committing locally; on partition → timeout → return 503 error to protect absolute data consistency.",
+    "AP mode (Availability Priority): commit locally first, fire-and-forget sync in background; on partition → node serves stale data creating divergence, converges when link recovers (eventual consistency).",
+    "Detect partition using short timeout on fan-out sync — when any peer fails to respond, immediately decide whether CP rejects or AP accepts the write.",
+    "Design anti-entropy mechanism for self-healing when nodes restart — AP mode depends on this to achieve convergence after divergence."
+  ]
+}

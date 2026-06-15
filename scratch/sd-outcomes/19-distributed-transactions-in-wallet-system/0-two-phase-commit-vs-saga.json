@@ -1,0 +1,17 @@
+{
+  "difficulty": "advanced",
+  "vi": [
+    "Giải thích vì sao 2PC bị block khi coordinator crash (prepared lock) và saga tránh điều này bằng cách dùng compensating transaction.",
+    "Thiết kế một saga orchestration đơn giản với state machine tuyến tính, ghi audit trail trước side effect, và recovery từ crash giữa saga.",
+    "Implement pessimistic row lock trên wallet để bảo vệ atomicity per-wallet mà vẫn cho phép concurrency xuyên các ví khác nhau.",
+    "Phân biệt giữa orchestration (một service drive flow) và choreography (event-driven từ broker), và trade-off của chúng ở quy mô lớn.",
+    "Xử lý edge case khi compensating transaction tự nó fail, step không idempotent, hoặc orchestrator crash giữa saga để đảm bảo convergence."
+  ],
+  "en": [
+    "Explain why 2PC blocks when the coordinator crashes (prepared lock) and how a saga avoids this by using compensating transactions instead.",
+    "Design a simple saga orchestration with a linear state machine, write the audit trail before the side effect, and recover from crashes mid-saga.",
+    "Implement a pessimistic row lock on a wallet to protect per-wallet atomicity while still allowing concurrency across different wallets.",
+    "Distinguish between orchestration (one service drives the flow) and choreography (event-driven from a broker), and their trade-offs at scale.",
+    "Handle edge cases where a compensating transaction itself fails, a step is not idempotent, or the orchestrator crashes mid-saga to ensure convergence."
+  ]
+}

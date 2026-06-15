@@ -1,0 +1,17 @@
+{
+  "difficulty": "advanced",
+  "vi": [
+    "Hiểu dịch vụ global (DNS zone, Front Door) vẫn phải nằm trong Resource Group, khác mô hình AWS.",
+    "Khai báo DNS zone authoritative và delegate domain cha sang bốn name server Azure để zone resolve công khai.",
+    "Cấu hình A record + TTL hợp lý (low TTL cho failover nhanh, high TTL giảm query) để hostname phân giải.",
+    "Dựng Front Door profile (container SKU) + endpoint (điểm vào anycast) làm edge PoP toàn cầu trước origin.",
+    "Chọn SKU Front Door (Standard vs Premium), khoá origin chỉ nhận traffic qua Front Door, và dọn bằng RG/Terraform."
+  ],
+  "en": [
+    "Understand that global services (DNS zone, Front Door) must still reside in a Resource Group, unlike AWS model.",
+    "Declare an authoritative DNS zone and delegate the parent domain to Azure's four name servers for public DNS resolution.",
+    "Configure A record + appropriate TTL (low for quick failover, high to reduce queries) for hostname resolution.",
+    "Build a Front Door profile (SKU container) + endpoint (anycast entry point) as a global edge PoP in front of origin.",
+    "Choose Front Door SKU (Standard vs Premium), lock origin to accept traffic only via Front Door, and clean up via RG/Terraform."
+  ]
+}

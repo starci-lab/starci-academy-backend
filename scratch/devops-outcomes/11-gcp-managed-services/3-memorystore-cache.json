@@ -1,0 +1,17 @@
+{
+  "difficulty": "beginner",
+  "vi": [
+    "Chọn Memorystore tier BASIC (single-node standalone) cho cache ephemeral rẻ, STANDARD_HA (primary+replica cross-zone) cho session store production.",
+    "Hiểu availability tradeoff: BASIC mất dữ liệu khi node restart, STANDARD_HA tự failover nhưng giá gấp đôi — chọn đúng usecase.",
+    "Thiết kế Redis eviction policy (maxmemory-policy) để xác định là cache (LRU evict) hay store (NOCLEAN no evict).",
+    "Connect Memorystore qua private IP + Private Service Access (peering) từ GCE/GKE, không có endpoint public trên GCP.",
+    "Sử dụng read_endpoint trên STANDARD_HA để tách read traffic sang replica, scale đọc mà không tăng primary load."
+  ],
+  "en": [
+    "Choose Memorystore tier BASIC (single-node standalone) for cheap ephemeral cache, STANDARD_HA (primary+replica cross-zone) for production session store.",
+    "Understand the availability tradeoff: BASIC loses data on node restart, STANDARD_HA auto-failovers but costs 2x — pick the right use case.",
+    "Design Redis eviction policy (maxmemory-policy) to determine if it's a cache (LRU evict) or store (NOCLEAN no evict).",
+    "Connect Memorystore via private IP + Private Service Access (peering) from GCE/GKE, no public endpoint on GCP.",
+    "Use read_endpoint on STANDARD_HA to split read traffic to replicas, scaling reads without increasing primary load."
+  ]
+}

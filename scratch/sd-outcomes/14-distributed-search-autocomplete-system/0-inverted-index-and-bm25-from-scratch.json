@@ -1,0 +1,17 @@
+{
+  "difficulty": "advanced",
+  "vi": [
+    "Xây dựng inverted index để ánh xạ mỗi term thành posting list nhằm tìm kiếm toàn văn bản mà không cần quét toàn bộ corpus.",
+    "Triển khai công thức BM25 kết hợp IDF (trọng số độ hiếm term), bão hoà tần suất, và chuẩn hoá độ dài để xếp hạng tài liệu theo độ liên quan.",
+    "Thiết kế snapshot persistence bằng cách serialize index thành JSON vào Redis để chỉ số sống sót qua restart mà vẫn đảm bảo chấm điểm nhanh in-process.",
+    "Nhận diện các edge case thực tế như lệch tokenize giữa index và query, xử lý chia cho 0 khi corpus rỗng, và làm sạch orphan term sau khi xoá document.",
+    "Phân biệt tầm quan trọng của inverted index (thu hẹp tập ứng viên) và công thức xếp hạng (sắp xếp chúng) trong kiến trúc search engine full-text."
+  ],
+  "en": [
+    "Build an inverted index to map each term to a posting list for full-text search without scanning the entire corpus.",
+    "Implement the BM25 formula combining IDF (term rarity weighting), term-frequency saturation, and document-length normalization to rank documents by relevance.",
+    "Design snapshot persistence by serializing the index to JSON in Redis so the index survives restarts while keeping scoring fast and in-process.",
+    "Identify real-world edge cases such as tokenization mismatch between indexing and querying, division by zero on empty corpus, and orphan term cleanup after document deletion.",
+    "Distinguish the importance of inverted index (narrowing candidate set) and ranking formula (ordering them) in full-text search engine architecture."
+  ]
+}

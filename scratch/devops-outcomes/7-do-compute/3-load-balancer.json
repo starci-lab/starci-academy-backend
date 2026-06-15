@@ -1,0 +1,17 @@
+{
+  "difficulty": "advanced",
+  "vi": [
+    "Tạo Load Balancer phẳng duy nhất với forwarding_rule, healthcheck, sticky_sessions là nested block ngay trong resource (không target-group riêng).",
+    "Chọn backend pool qua droplet_tag (không register target thủ công), cho phép thêm/bớt node mà không cần sửa config LB.",
+    "Cấu hình health check để tự động loại Droplet hỏng khỏi pool, dùng định kỳ probe đến endpoint backend để check liveness.",
+    "Cấp chứng chỉ Let's Encrypt do DO tự quản lý (tự issue + auto-renew) và attach vào LB để terminate TLS, không cần ACM hay WAF riêng.",
+    "Hiểu rằng DigitalOcean gộp AWS ALB + target-group + listener-rule thành một resource phẳng, đổi lại ít knob nhưng cũng ít sự tinh chỉnh chi tiết."
+  ],
+  "en": [
+    "Create a flat Load Balancer resource with forwarding_rule, healthcheck, sticky_sessions as nested blocks within the resource (no separate target groups).",
+    "Select backend pools via droplet_tag (no manual target registration), allowing node addition/removal without modifying the LB configuration.",
+    "Configure health checks to automatically remove unhealthy Droplets from the pool, using periodic probes to the backend endpoint to verify liveness.",
+    "Provision Let's Encrypt certificates managed by DO (automatically issued and renewed) and attach to the LB for TLS termination, with no need for ACM or WAF.",
+    "Understand that DigitalOcean collapses AWS ALB + target groups + listener rules into one flat resource, trading fewer knobs for less granular customization."
+  ]
+}

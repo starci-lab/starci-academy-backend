@@ -1,0 +1,17 @@
+{
+  "difficulty": "advanced",
+  "vi": [
+    "Xây dựng management group để gom subscription thành cây quản trị (tenant root → mg → sub → RG → resource) và áp policy từ cấp cao xuống.",
+    "Phân biệt Azure Policy (bắt buộc quy tắc ở control plane) từ RBAC (phân quyền) để hiểu deny effect là permission boundary dù RBAC có Owner.",
+    "Viết policy definition với if/then logic và effect deny/audit/append để chặn, ghi log, hay sửa resource không tuân quy tắc.",
+    "Cấu hình policy assignment tại management group scope để tự động áp xuống mọi subscription con thay vì gán từng subscription.",
+    "Tận dụng enforce = false (audit mode) để thử nghiệm policy trước khi bật deny thực, từ đó tránh chặn các workload đang chạy nhầm."
+  ],
+  "en": [
+    "Build a management group to organize subscriptions into a governance tree (tenant root → mg → sub → RG → resource) and apply policies from top-down.",
+    "Distinguish Azure Policy (enforce rules at the control plane) from RBAC (grant permissions) so you understand deny is a permission boundary even with Owner role.",
+    "Author a policy definition with if/then logic and effect deny/audit/append to block, log, or remediate resources that violate governance rules.",
+    "Configure policy assignments at the management group scope to cascade automatically to all child subscriptions instead of assigning each subscription.",
+    "Use enforce = false (audit mode) to pilot a policy before enabling real deny, preventing accidental blocking of currently running workloads."
+  ]
+}

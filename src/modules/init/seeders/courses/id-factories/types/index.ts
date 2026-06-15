@@ -87,7 +87,7 @@ export interface GenerateContentLearningOutcomeIdParams {
     moduleIndex: number
     /** Parent content ordinal. */
     contentIndex: number
-    /** Zero-based outcome bullet order within the content's `# whatYouLearn` list. */
+    /** Zero-based outcome bullet order within the content's `# outcomes` list. */
     orderIndex: number
 }
 

@@ -128,9 +128,13 @@ export class UserStatsProjectionService {
                     SELECT COUNT(*) FROM notifications
                     WHERE user_id = $1 AND read_at IS NULL
                 ), 0),
-                -- XP earned in the rolling 7-day window
+                -- flat reward POINTS earned in the rolling 7-day window (the "this
+                -- week" widget is a fair cross-course momentum number → sum points,
+                -- the course-agnostic flat currency, NOT the weighted per-course xp).
+                -- jsonb key kept as weeklyXp to avoid churning the GraphQL/FE contract;
+                -- it now holds points. Rename to weeklyPoints when the FE label flips.
                 'weeklyXp', COALESCE((
-                    SELECT SUM(amount) FROM xp_histories
+                    SELECT SUM(points) FROM xp_histories
                     WHERE user_id = $1 AND created_at >= now() - interval '7 days'
                 ), 0),
                 -- lessons read in the rolling 7-day window (one row per first read)

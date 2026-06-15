@@ -1,0 +1,17 @@
+{
+  "difficulty": "advanced",
+  "vi": [
+    "Triển khai CDC qua logical decoding của WAL để capture mọi thay đổi (INSERT/UPDATE/DELETE) mà không cần dual-write trong app code.",
+    "Sử dụng Debezium connector để publish change event thành Kafka topic, giải phóng app khỏi trách nhiệm emit event ở mọi update path.",
+    "Thiết kế consumer idempotent (gom c/u/r thành upsert theo id, d thành delete-by-id) để chịu được at-least-once delivery và replay message an toàn.",
+    "Quản lý replication slot PostgreSQL để tránh WAL tích luỹ và làm đầy disk, theo dõi confirmed_flush_lsn và cap max_slot_wal_keep_size.",
+    "Xây dựng eventual-consistency pipeline (PostgreSQL → Debezium → Kafka → Elasticsearch) chấp nhận trễ vài giây để đổi lấy decoupling hoàn toàn giữa data source và search engine."
+  ],
+  "en": [
+    "Implement CDC through PostgreSQL's WAL logical decoding to capture all changes (INSERT/UPDATE/DELETE) without dual-write logic in application code.",
+    "Use Debezium connector to publish change events to a Kafka topic, freeing the app from the burden of emitting events at every update path.",
+    "Design an idempotent consumer (group c/u/r into upsert-by-id, d into delete-by-id) to safely handle at-least-once delivery and replay messages.",
+    "Manage PostgreSQL replication slots to prevent WAL accumulation and disk filling, monitoring confirmed_flush_lsn and capping max_slot_wal_keep_size.",
+    "Build an eventual-consistency pipeline (PostgreSQL → Debezium → Kafka → Elasticsearch) accepting a few-second lag to gain complete decoupling between data source and search engine."
+  ]
+}

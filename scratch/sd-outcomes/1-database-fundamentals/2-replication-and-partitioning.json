@@ -1,0 +1,17 @@
+{
+  "difficulty": "advanced",
+  "vi": [
+    "Thiết kế và triển khai read/write split — ghi vào primary, đọc rải sang replica để giảm tải primary mà vẫn giữ consistency.",
+    "Đo replication lag bằng LSN (Log Sequence Number) từ `pg_stat_replication` để hiểu rõ trễ đồng bộ thay vì phỏng đoán.",
+    "Chọn chiến lược partition (RANGE theo thời gian, HASH, LIST) sao cho partition pruning loại được phần lớn bảng con từ query planner.",
+    "Nhận diện failure mode khi replica bị ngắt — lag tăng, eventual consistency khiến read thấy dữ liệu cũ — và quyết định SLA nào chấp nhận.",
+    "Tính toán chi phí scale-up (mua máy to hơn) vs scale-out (thêm replica/partition) để chọn chiến lược bền vững cho quy mô lớn."
+  ],
+  "en": [
+    "Design and implement read/write split — write to primary, scatter reads to replicas to offload primary while maintaining consistency.",
+    "Measure replication lag using LSN (Log Sequence Number) from `pg_stat_replication` to understand sync latency precisely instead of guessing.",
+    "Choose a partitioning strategy (RANGE by time, HASH, LIST) so partition pruning eliminates most child tables from the query planner.",
+    "Identify failure modes when a replica falls behind — lag increases, eventual consistency causes reads to see stale data — and decide acceptable SLAs.",
+    "Calculate the cost of scale-up (bigger machine) vs scale-out (more replicas/partitions) to pick a sustainable strategy for large scale."
+  ]
+}

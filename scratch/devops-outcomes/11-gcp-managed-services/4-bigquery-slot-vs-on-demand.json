@@ -1,0 +1,17 @@
+{
+  "difficulty": "advanced",
+  "vi": [
+    "Dự đoán bytes scanned từ Terraform config: bảng không partition scan toàn bảng (đắt), bảng partition theo ngày scan chỉ một partition (rẻ 100x).",
+    "Thiết kế partition + clustering (khối time_partitioning + clustering arguments) để trigger partition pruning, giảm bytes scanned.",
+    "Áp dụng require_partition_filter = true để chặn accidental full-table scan, bắt buộc WHERE clause contain partition key.",
+    "So sánh cost model: on-demand tinh phí per byte scanned (6.25 USD/TB), slot reservation mua compute committed (tiết kiệm khi query nhiều).",
+    "Thiết kế partition expiration (partition_expiration_days) cho time-series data, tự động xoá partition cũ để kiểm soát chi phí."
+  ],
+  "en": [
+    "Predict bytes scanned from Terraform config: non-partitioned table scans the whole table (expensive), partitioned-by-day table scans one partition (100x cheaper).",
+    "Design partition + clustering (time_partitioning block + clustering arguments) to enable partition pruning, reducing bytes scanned.",
+    "Apply require_partition_filter = true to block accidental full-table scans, enforcing WHERE clause to contain the partition key.",
+    "Compare cost models: on-demand charges per byte scanned (6.25 USD/TB), slot reservation buys committed compute (saves when querying heavily).",
+    "Design partition expiration (partition_expiration_days) for time-series data, auto-deleting old partitions to control cost."
+  ]
+}

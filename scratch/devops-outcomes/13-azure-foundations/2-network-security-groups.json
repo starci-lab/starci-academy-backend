@@ -1,0 +1,17 @@
+{
+  "difficulty": "intermediate",
+  "vi": [
+    "Phân biệt NSG stateful của Azure với NACL stateless AWS: reply tự động cho phép không cần rule riêng.",
+    "Quản lý priority và first-match-wins: rule priority thấp (số nhỏ) được kiểm trước, default-deny ở priority 65500.",
+    "Gắn NSG vào hai điểm (subnet và NIC) và hiểu thứ tự đánh giá: subnet-NSG trước rồi NIC-NSG.",
+    "Dùng Azure service tags (vd Internet, AzureServices) để viết rule mở mà không lập tên thủ công IP range.",
+    "Sử dụng Azure CLI (`az network nsg rule list`) để audit rule NSG và phát hiện conflict hoặc rule thừa."
+  ],
+  "en": [
+    "Distinguish Azure's stateful NSG from AWS's stateless NACL: return traffic is automatically allowed without a separate rule.",
+    "Manage priority and first-match-wins: rules with lower priority numbers (smaller integers) are checked first, default-deny at priority 65500.",
+    "Attach NSG at two points (subnet and NIC) and understand the evaluation order: subnet-NSG first, then NIC-NSG.",
+    "Use Azure service tags (e.g. Internet, AzureServices) to write rules without manually listing IP ranges.",
+    "Use Azure CLI (`az network nsg rule list`) to audit NSG rules and detect conflicts or redundant rules."
+  ]
+}

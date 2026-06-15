@@ -12,9 +12,7 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    load,
-} from "js-yaml"
-import {
+    ChangelogCategory,
     ChangelogEntryEntity,
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
@@ -27,14 +25,20 @@ import {
 import {
     SeedScopeService,
 } from "../../scope"
+import {
+    CoerceMdScalarService,
+    ExtractJsonFromMdService,
+} from "../shared"
 import type {
     ChangelogSeedItem,
 } from "./types"
 
 /**
- * Seeds system changelog entries from `changelog/changelog.yaml` (git-sourced
- * data root during init, else the local `.mount/data` fallback). Idempotent:
- * each row is upserted by its `slug`.
+ * Seeds system changelog entries from `changelog/changelog.md` (git-sourced data
+ * root during init, else the local `.mount/data` fallback). The file uses the
+ * mount markdown grammar (`# <n>` array items, `## field` object keys); nested
+ * `title` / `body` become bilingual jsonb objects. Idempotent: each row is
+ * upserted by its `slug`.
  */
 @Injectable()
 export class ChangelogSeederService {
@@ -42,36 +46,53 @@ export class ChangelogSeederService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly seedScopeService: SeedScopeService,
+        private readonly extractJsonFromMdService: ExtractJsonFromMdService,
+        private readonly coerceMdScalarService: CoerceMdScalarService,
     ) {}
 
     /**
-     * Parse the changelog YAML and upsert each entry by slug.
+     * Parse the changelog markdown and upsert each entry by slug.
      */
     async seed(): Promise<void> {
         // env gate (seed.yaml `seed.changelog`)
         if (!this.seedScopeService.isChangelogSeederEnabled()) {
             return
         }
-        // resolve the YAML path (git snapshot root first, else local mount)
+        // resolve the markdown path (git snapshot root first, else local mount)
         const file = this.resolveFile()
         if (!file) {
             return
         }
-        // parse the list (empty/missing file → nothing to seed)
-        const items = (load(readFileSync(file,
-            "utf8")) ?? []) as Array<ChangelogSeedItem>
+        // extract the array root (`# 0`, `# 1`, … → wrapped as `{ data: [...] }`)
+        const parsed = this.extractJsonFromMdService.extract<{
+            data?: Array<ChangelogSeedItem>
+        }>(readFileSync(file,
+            "utf8"))
+        const items = parsed.data ?? []
         for (const item of items) {
-            // upsert by the stable slug so re-seeding never duplicates
+            // upsert by the stable slug so re-seeding never duplicates; scalar
+            // leaves arrive as strings, so the category / date / flag are coerced
             await this.entityManager.upsert(
                 ChangelogEntryEntity,
                 {
-                    slug: item.slug,
+                    slug: this.coerceMdScalarService.toRequiredString(item.slug,
+                        ""),
                     title: item.title,
                     body: item.body ?? null,
-                    category: item.category ?? null,
-                    publishedAt: new Date(item.publishedAt),
-                    linkUrl: item.linkUrl ?? null,
-                    isPublished: item.isPublished ?? true,
+                    category: this.coerceMdScalarService.toNullableEnum(
+                        item.category,
+                        ChangelogCategory,
+                    ) ?? null,
+                    publishedAt: this.coerceMdScalarService.toNullableDate(
+                        item.publishedAt,
+                    ) ?? new Date(),
+                    linkUrl: this.coerceMdScalarService.toNullableStringColumn(
+                        item.linkUrl,
+                    ),
+                    isPublished: this.coerceMdScalarService.toRequiredBoolean(
+                        item.isPublished,
+                        true,
+                    ),
                 },
                 ["slug"],
             )
@@ -79,19 +100,19 @@ export class ChangelogSeederService {
     }
 
     /**
-     * First existing candidate path for the changelog YAML: the active git
+     * First existing candidate path for the changelog markdown: the active git
      * snapshot root (during init), else the local mount-data fallback.
      *
-     * @returns the YAML file path, or null when none exists.
+     * @returns the markdown file path, or null when none exists.
      */
     private resolveFile(): string | null {
         const root = getRuntimeContextRoot()
         const candidates = [
             root ? join(root,
                 "changelog",
-                "changelog.yaml") : null,
+                "changelog.md") : null,
             join(envConfig().mountPath.data.changelog,
-                "changelog.yaml"),
+                "changelog.md"),
         ].filter((path): path is string => Boolean(path))
         return candidates.find((path) => existsSync(path)) ?? null
     }

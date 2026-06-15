@@ -1,0 +1,17 @@
+{
+  "difficulty": "intermediate",
+  "vi": [
+    "Nhận diện tín hiệu nên tách monolith thành microservices dựa trên team size, tải không đều, và bounded context rõ ràng.",
+    "Phân tích trade-off giữa monolith (deploy/scaling đơn giản) và microservices (cô lập lỗi, scale độc lập nhưng vận hành phức tạp).",
+    "Giải thích vì sao distributed monolith (tách service nhưng dính chặt qua network) tệ hơn cả monolith lẫn microservices thật.",
+    "Áp dụng strangler fig pattern để bóc dần monolith thành microservices mà không cần big-bang rewrite.",
+    "Liên hệ Conway's Law để hiểu ranh giới service phải phản chiếu ranh giới tổ chức để tránh ma sát điều phối."
+  ],
+  "en": [
+    "Identify signals for splitting a monolith into microservices based on team size, uneven load, and clear bounded contexts.",
+    "Analyze trade-offs between monolith (simple deploy/scaling) and microservices (fault isolation, independent scaling, but higher operational complexity).",
+    "Explain why a distributed monolith (split services but tightly coupled over the network) is worse than both pure monolith and true microservices.",
+    "Apply the strangler fig pattern to gradually extract modules from a monolith into services without a risky big-bang rewrite.",
+    "Connect Conway's Law to understand why service boundaries must mirror organizational structure to avoid coordination friction."
+  ]
+}

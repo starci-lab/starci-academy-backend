@@ -28,7 +28,7 @@ import {
 
 /**
  * A single "what you will learn" bullet attached to a content (lesson). Ordered, localized;
- * sourced from the mount `# whatYouLearn` section. Mirrors the challenge-output shape.
+ * sourced from the mount `# outcomes` section. Mirrors the challenge-output shape.
  */
 @ObjectType({
     description: "A 'what you will learn' outcome bullet belonging to a content (lesson).",
@@ -63,9 +63,10 @@ export class ContentLearningOutcomeEntity extends UuidAbstractEntity {
         orderIndex: number
 
     /** Pure ordering index used to reorder the list (decoupled from orderIndex). */
-    @Field(() => Int, {
-        description: "Pure ordering index used to reorder the list (decoupled from orderIndex).",
-    })
+    @Field(() => Int,
+        {
+            description: "Pure ordering index used to reorder the list (decoupled from orderIndex).",
+        })
     @Column({
         name: "sort_index",
         type: "int",
@@ -91,7 +92,7 @@ export class ContentLearningOutcomeEntity extends UuidAbstractEntity {
     /** Parent content this outcome belongs to (cascade-deleted with the content). */
     @ManyToOne(
         () => ContentEntity,
-        (content: ContentEntity) => content.learningOutcomes,
+        (content: ContentEntity) => content.outcomes,
         {
             onDelete: "CASCADE",
         },

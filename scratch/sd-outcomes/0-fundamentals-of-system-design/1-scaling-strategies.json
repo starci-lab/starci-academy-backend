@@ -1,0 +1,17 @@
+{
+  "difficulty": "intermediate",
+  "vi": [
+    "Phân biệt Vertical Scaling (nâng cấp tài nguyên một máy) vs Horizontal Scaling (nhân bản process trên nhiều máy stateless).",
+    "Nhận diện trần vật lý của Vertical Scaling — dù nâng CPU/RAM bao nhiêu cũng có giới hạn máy chủ, một máy vẫn là SPOF.",
+    "Thiết kế service stateless để nhân bản ngang khả thi — bất kỳ node nào cũng xử lý được bất kỳ request nào mà không share state per-request.",
+    "Xác minh phân phối tải đều qua nhiều node dưới áp lực CPU cao bằng fingerprint (hostname) — đảm bảo tác vụ nặng được rải đều.",
+    "Cộng dồn throughput tuyến tính khi thêm replica stateless — từ một node 100 RPS lên năm node 500 RPS tổng."
+  ],
+  "en": [
+    "Distinguish between Vertical Scaling (upgrading a single machine's resources) and Horizontal Scaling (replicating stateless processes across multiple machines).",
+    "Identify the hard ceiling of Vertical Scaling — no matter how much CPU/RAM is added, each server has a physical limit and remains a SPOF.",
+    "Design stateless services to enable horizontal scaling — any node must be able to handle any request without sharing per-request state.",
+    "Verify even load distribution across multiple nodes under high CPU pressure using fingerprints (hostname) — ensure heavy tasks are evenly distributed.",
+    "Scale throughput linearly by adding stateless replicas — from 100 RPS on one node to 500 RPS total across five nodes."
+  ]
+}

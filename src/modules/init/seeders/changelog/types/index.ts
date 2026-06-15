@@ -4,7 +4,9 @@ import type {
 } from "@modules/databases"
 
 /**
- * One changelog row as authored in `changelog.yaml`. Upserted by `slug`.
+ * One changelog row as authored in `changelog.md`. Upserted by `slug`.
+ * Scalar leaves (`category` / `publishedAt` / `isPublished`) arrive from the
+ * markdown extractor as strings and are coerced in the seeder.
  */
 export interface ChangelogSeedItem {
     /** Stable natural key (idempotent upsert). */

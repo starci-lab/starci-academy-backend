@@ -1,0 +1,17 @@
+{
+  "difficulty": "intermediate",
+  "vi": [
+    "Phân biệt Security Group stateful (gắn instance, allow-only, tự động trả về) và Network ACL stateless (gắn subnet, allow+deny, cần ephemeral port).",
+    "Tham chiếu Security Group-to-Security Group (referenced_security_group_id) để cho phép theo identity thay vì CIDR, sống qua auto-scaling.",
+    "Viết rule NACL đúng với rule_number ascending, first-match-wins, đặt rule deny dải xấu ở số nhỏ hơn rule allow.",
+    "Quản lý cổng ephemeral (1024-65535) trong NACL egress để traffic trả về không bị drop do stateless.",
+    "Chặn IP xấu tường minh bằng NACL deny rule, không thể dùng Security Group vì nó chỉ có allow."
+  ],
+  "en": [
+    "Distinguish Security Group (stateful, attached to instance, allow-only, automatic return) from Network ACL (stateless, attached to subnet, allow+deny, requires ephemeral ports).",
+    "Use Security Group-to-Security Group references (referenced_security_group_id) to allow by identity rather than CIDR, surviving auto-scaling.",
+    "Write correct NACL rules with ascending rule_number, first-match-wins, placing deny rules for bad IP ranges at lower numbers than allow rules.",
+    "Manage ephemeral ports (1024-65535) in NACL egress to prevent return traffic from being dropped due to statelessness.",
+    "Block bad IPs explicitly using NACL deny rules, which cannot be achieved with Security Groups since they only support allow."
+  ]
+}

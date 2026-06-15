@@ -8,6 +8,8 @@ import {
     GraphQLJSON,
 } from "graphql-type-json"
 import {
+    ContentDifficulty,
+    GraphQLTypeContentDifficulty,
     GraphQLTypeLocale,
     Locale,
 } from "../enums"
@@ -217,6 +219,26 @@ export class ContentEntity extends UuidAbstractEntity {
         minutesRead: number
 
     /**
+     * Relative difficulty tier for this lesson (mount `# difficulty`): beginner / intermediate /
+     * advanced. Nullable when unset — display badge only, does not gate access.
+     */
+    @Field(
+        () => GraphQLTypeContentDifficulty,
+        {
+            nullable: true,
+            description: "Difficulty tier for this lesson (beginner/intermediate/advanced).",
+        },
+    )
+    @Column({
+        name: "difficulty",
+        type: "enum",
+        enum: ContentDifficulty,
+        enumName: "content_difficulty",
+        nullable: true,
+    })
+        difficulty: ContentDifficulty | null
+
+    /**
      * Day this content was verified/audited. Presence (non-null) marks SCHEMA V2 content; legacy
      * content leaves it null. Sourced from the `# verified` markdown heading.
      */
@@ -349,7 +371,7 @@ export class ContentEntity extends UuidAbstractEntity {
         bodies: Array<ContentBodyEntity>
 
     /**
-     * Ordered "what you will learn" outcome bullets (mount `# whatYouLearn`). Shown on the lesson
+     * Ordered "what you will learn" outcome bullets (mount `# outcomes`). Shown on the lesson
      * header / landing.
      */
     @Field(
@@ -361,12 +383,12 @@ export class ContentEntity extends UuidAbstractEntity {
     )
     @OneToMany(
         () => ContentLearningOutcomeEntity,
-        (learningOutcome: ContentLearningOutcomeEntity) => learningOutcome.content,
+        (outcome: ContentLearningOutcomeEntity) => outcome.content,
         {
             cascade: true,
         },
     )
-        learningOutcomes: Array<ContentLearningOutcomeEntity>
+        outcomes: Array<ContentLearningOutcomeEntity>
 
     @Column({
         name: "num_challenges",

@@ -1,0 +1,17 @@
+{
+  "difficulty": "intermediate",
+  "vi": [
+    "Tạo Spaces bucket public-read làm origin của CDN edge, với CORS configuration cho phép browser cross-origin fetch asset qua CDN.",
+    "Cấu hình CDN endpoint đơn giản (chỉ năm argument: origin/ttl/certificate_name/certificate_id/custom_domain), đặt TTL cache duy nhất cho toàn endpoint.",
+    "Cấp chứng chỉ Let's Encrypt do DO tự quản lý cho custom domain HTTPS (yêu cầu domain do DO DNS quản lý).",
+    "Hiểu rằng Spaces key (access-id + secret) là credential riêng tách khỏi Personal Access Token chính, dùng riêng cho object storage API.",
+    "Nhận biết CDN của DO ít knob hơn CloudFront (không cache-behavior per-path, không origin-access-identity), nhưng đơn giản hơn để setup và ít chỗ vào chân."
+  ],
+  "en": [
+    "Create a public-read Spaces bucket as the origin for the CDN edge, with CORS configuration allowing browser cross-origin asset fetches through the CDN.",
+    "Configure a simple CDN endpoint (only five arguments: origin/ttl/certificate_name/certificate_id/custom_domain) with a single TTL cache value applied to the entire endpoint.",
+    "Provision Let's Encrypt certificates managed by DO for custom domain HTTPS (requires the domain to be managed by DO DNS).",
+    "Understand that Spaces keys (access-id + secret) are separate credentials distinct from the main Personal Access Token, used exclusively for object storage APIs.",
+    "Recognize that DO's CDN has fewer knobs than CloudFront (no cache-behavior per-path, no origin-access-identity), but is simpler to configure and harder to misconfigure."
+  ]
+}

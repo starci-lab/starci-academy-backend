@@ -52,7 +52,7 @@ FROM users u
 LEFT JOIN (SELECT following_id AS id, COUNT(*)::int AS cnt FROM user_follows GROUP BY following_id) fr ON fr.id = u.id
 LEFT JOIN (SELECT follower_id  AS id, COUNT(*)::int AS cnt FROM user_follows GROUP BY follower_id)  fg ON fg.id = u.id
 LEFT JOIN (SELECT user_id AS id, COUNT(*)::int AS cnt FROM notifications WHERE read_at IS NULL GROUP BY user_id) nt ON nt.id = u.id
-LEFT JOIN (SELECT user_id AS id, SUM(amount)::int AS xp FROM xp_histories WHERE created_at >= now() - interval '7 days' GROUP BY user_id) wx ON wx.id = u.id
+LEFT JOIN (SELECT user_id AS id, SUM(points)::int AS xp FROM xp_histories WHERE created_at >= now() - interval '7 days' GROUP BY user_id) wx ON wx.id = u.id
 LEFT JOIN (SELECT user_id AS id, COUNT(*)::int AS cnt FROM xp_histories WHERE source = 'lessonRead' AND created_at >= now() - interval '7 days' GROUP BY user_id) wl ON wl.id = u.id
 LEFT JOIN LATERAL (
     WITH days AS (

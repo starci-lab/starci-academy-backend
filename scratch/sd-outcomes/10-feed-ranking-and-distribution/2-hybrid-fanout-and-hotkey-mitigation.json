@@ -1,0 +1,17 @@
+{
+  "difficulty": "advanced",
+  "vi": [
+    "Thiết kế hybrid fanout bằng cách phân loại tác giả (celebrity flag) để áp dụng push-to-followers cho user thường nhưng pull-at-read-time cho KOL.",
+    "Mitigating hotkey Redis bằng salted key technique, chia một cache KOL thành N slot để phân tán read load khi lượng request spike cao.",
+    "Triển khai merge-at-read để gộp push timeline (tác giả thường) với pull timeline (KOL) tại thời điểm đọc, sort kết quả unified feed theo thời gian.",
+    "Xác định ngưỡng (threshold) celebrity dựa trên capacity Redis, latency SLA, và tần suất post, sau đó monitor drift khi follower count thay đổi.",
+    "Xử lý edge case khi tác giả vượt ngưỡng: deduplicate bài viết trong merge, clean up push feed cũ, và migrate tác giả giữa hai chiến lược fanout."
+  ],
+  "en": [
+    "Design hybrid fanout by classifying authors (celebrity flag) to apply push-to-followers for regular users but pull-at-read-time for KOLs.",
+    "Mitigate Redis hotkeys using salted key technique, splitting one KOL cache into N slots to distribute read load when request volume spikes.",
+    "Implement merge-at-read to combine push timeline (regular authors) with pull timeline (KOLs) at read time, sorting the unified feed by timestamp.",
+    "Determine the celebrity threshold based on Redis capacity, latency SLA, and posting frequency, then monitor drift as follower counts evolve.",
+    "Handle edge cases when authors cross thresholds: deduplicate posts in merges, clean up old push feeds, and migrate authors between fanout strategies."
+  ]
+}

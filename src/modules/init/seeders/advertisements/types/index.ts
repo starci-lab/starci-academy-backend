@@ -6,7 +6,9 @@ import type {
 } from "@modules/databases"
 
 /**
- * One advertisement row as authored in `advertisements.yaml`. Upserted by `slug`.
+ * One advertisement row as authored in `advertisements.md`. Upserted by `slug`.
+ * Scalar leaves (`isHouseAd` / `priority` / `isActive` / dates) arrive from the
+ * markdown extractor as strings and are coerced in the seeder.
  */
 export interface AdvertisementSeedItem {
     /** Stable natural key (idempotent upsert). */

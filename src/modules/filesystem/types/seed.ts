@@ -60,6 +60,7 @@ export interface SeedSeedersConfig {
     codingProblems: boolean
     advertisements: boolean
     changelog: boolean
+    achievements: boolean
 }
 
 /** Independent CDN / Elasticsearch / Repo sink scopes for one course track. */
@@ -171,6 +172,7 @@ export interface InitSeedBlock {
     subscriptions?: boolean
     advertisements?: boolean
     changelog?: boolean
+    achievements?: boolean
 }
 
 /** Per-sink scope value: a scope-indexes form, or a bool (`true` = all, `false` = off). */

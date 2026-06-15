@@ -67,6 +67,10 @@ export const contentsIndexMapping: ElasticsearchIndexMapping = {
             verified: {
                 type: "date",
             },
+            // optional lesson difficulty badge (beginner/intermediate/advanced)
+            difficulty: {
+                type: "keyword",
+            },
             // FST-backed autocomplete field; populated by the ES sync builder
             suggest: {
                 type: "completion",

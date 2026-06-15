@@ -1,0 +1,17 @@
+{
+  "difficulty": "intermediate",
+  "vi": [
+    "Thực hiện 4 bước quy trình thiết kế: Clarification (làm rõ functional vs non-functional requirements), Estimation (ước lượng back-of-envelope), Design (phác thảo cấp cao), Deep Dive (xác định bottleneck).",
+    "Ước lượng con số thực tế (write/read QPS, storage, peak factor) từ yêu cầu — con số này quyết định kiến trúc chứ không phải sở thích công nghệ.",
+    "Dùng peak factor (thường ×5 trên average) để xác định công suất đỉnh — nếu average 40 QPS thì peak 200 QPS quyết định cần bao nhiêu instance/database.",
+    "Tách biệt functional (hệ thống làm gì) từ non-functional (làm tốt đến đâu) — non-functional phải định lượng: 99.99% uptime, <50ms latency, 100M URLs/tháng.",
+    "Chống over-engineering — bắt đầu từ kiến trúc đơn giản (monolith, 1 database) rồi scale ngang khi con số thực tế chứng minh cần thiết, không jump sang microservices ngay."
+  ],
+  "en": [
+    "Execute 4-step design process: Clarification (functional vs non-functional requirements), Estimation (back-of-envelope numbers), Design (high-level architecture), Deep Dive (identify bottlenecks).",
+    "Estimate real numbers (write/read QPS, storage, peak factor) from requirements — these numbers decide architecture, not technology preference.",
+    "Use peak factor (typically ×5 over average) to determine peak capacity — if average is 40 QPS then peak 200 QPS decides how many instances/databases needed.",
+    "Separate functional (what system does) from non-functional (how well it performs) — non-functional must be quantified: 99.99% uptime, <50ms latency, 100M URLs/month.",
+    "Avoid over-engineering — start with simple architecture (monolith, single database) then scale horizontally when actual numbers prove necessity, don't jump to microservices immediately."
+  ]
+}

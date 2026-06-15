@@ -74,6 +74,12 @@ import {
     DashboardQueriesModule,
 } from "./dashboard"
 import {
+    LeagueQueriesModule,
+} from "./league"
+import {
+    AchievementsQueriesModule,
+} from "./achievements"
+import {
     UsersQueriesModule,
 } from "./users"
 import {
@@ -149,6 +155,12 @@ import {
             isGlobal: true,
         }),
         DashboardQueriesModule.register({
+            isGlobal: true,
+        }),
+        LeagueQueriesModule.register({
+            isGlobal: true,
+        }),
+        AchievementsQueriesModule.register({
             isGlobal: true,
         }),
         UsersQueriesModule.register({
