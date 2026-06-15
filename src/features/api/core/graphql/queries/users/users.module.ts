@@ -28,6 +28,15 @@ import {
 import {
     UserCodingProgressSingleQueryModule,
 } from "./user-coding-progress"
+import {
+    UserCapstoneTasksSingleQueryModule,
+} from "./user-capstone-tasks"
+import {
+    UserCodingSkillsSingleQueryModule,
+} from "./user-coding-skills"
+import {
+    OpenToWorkUsersSingleQueryModule,
+} from "./open-to-work-users"
 
 /**
  * User query group — resolved fields layered onto the shared `UserEntity`
@@ -60,6 +69,15 @@ import {
             isGlobal: true,
         }),
         UserCodingProgressSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserCapstoneTasksSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserCodingSkillsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        OpenToWorkUsersSingleQueryModule.register({
             isGlobal: true,
         }),
     ],
