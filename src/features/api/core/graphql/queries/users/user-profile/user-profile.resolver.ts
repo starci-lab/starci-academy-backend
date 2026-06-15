@@ -1,6 +1,5 @@
 import {
     Args,
-    ID,
     Query,
     Resolver,
 } from "@nestjs/graphql"
@@ -32,7 +31,10 @@ import {
 } from "./graphql-types"
 
 /**
- * Public profile of any user by id (avatar, name, bio, follow counts).
+ * Public profile of any user by username (avatar, name, bio, follow counts).
+ * Username-addressable so the URL reads like GitHub (`/profile/<username>`); the
+ * returned entity still carries the `id` that the follow mutation + the profile
+ * tabs key off.
  *
  * Optional auth: a Bearer token, when present, populates `req.user` so the
  * `isFollowedByMe` resolved field reflects the viewer's follow state. Anonymous
@@ -57,25 +59,26 @@ export class UserProfileResolver {
         () => UserProfileResponse,
         {
             name: "userProfile",
-            description: "Returns a user's public profile by id (null when not found).",
+            description: "Returns a user's public profile by username (null when not found).",
         },
     )
     async execute(
         @Args(
-            "userId",
+            "username",
             {
-                type: () => ID,
-                description: "Id of the user whose public profile to fetch.",
+                type: () => String,
+                description: "Username of the user whose public profile to fetch.",
             },
         )
-            userId: string,
+            username: string,
     ): Promise<UserEntity | null> {
-        // public read: only non-deleted users are visible
+        // public read: look up by the URL-facing username; only non-deleted users
+        // are visible (the returned entity still carries `id` for follow + tabs)
         const user = await this.entityManager.findOne(
             UserEntity,
             {
                 where: {
-                    id: userId,
+                    username,
                     isDeleted: false,
                 },
             },
