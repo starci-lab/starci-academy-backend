@@ -1,0 +1,80 @@
+import {
+    Args,
+    ID,
+    Query,
+    Resolver,
+} from "@nestjs/graphql"
+import {
+    UseGuards,
+    UseInterceptors,
+} from "@nestjs/common"
+import {
+    GraphQLSuccessMessage,
+    GraphQLTransformInterceptor,
+} from "@modules/api"
+import {
+    KeycloakOptionalAuthGraphQLGuard,
+} from "@modules/keycloak"
+import {
+    UseThrottler,
+    ThrottlerConfig,
+} from "@modules/throttler"
+import {
+    Locale,
+} from "@modules/databases"
+import {
+    GraphQLProfileVisibilityGuard,
+    UserCodingProjectionService,
+} from "@modules/bussiness"
+import {
+    UserCodingHistoryItemData,
+    UserCodingHistoryResponse,
+} from "./graphql-types"
+
+/**
+ * Public profile query: a user's solved coding problems + the language(s) used.
+ * Thin read of the CQRS coding projection (the per-problem aggregation runs in the
+ * projection's recompute). Optional auth; a locked profile is withheld by
+ * {@link GraphQLProfileVisibilityGuard}.
+ */
+@Resolver()
+export class UserCodingHistoryResolver {
+    constructor(
+        private readonly userCodingProjectionService: UserCodingProjectionService,
+    ) {}
+
+    @UseThrottler(ThrottlerConfig.Soft)
+    @UseGuards(KeycloakOptionalAuthGraphQLGuard,
+        GraphQLProfileVisibilityGuard)
+    @GraphQLSuccessMessage({
+        [Locale.En]: "Coding history fetched successfully",
+        [Locale.Vi]: "Lấy lịch sử giải bài thành công",
+    })
+    @UseInterceptors(GraphQLTransformInterceptor)
+    @Query(
+        () => UserCodingHistoryResponse,
+        {
+            name: "userCodingHistory",
+            description: "A user's solved coding problems + the language(s) used, by user id.",
+        },
+    )
+    async execute(
+        @Args(
+            "userId",
+            {
+                type: () => ID,
+                description: "Id of the user whose coding history to fetch.",
+            },
+        )
+            userId: string,
+    ): Promise<Array<UserCodingHistoryItemData>> {
+        // thin projection read (newest-first, languages already aggregated)
+        const history = await this.userCodingProjectionService.getHistory(userId)
+        return history.map((item) => ({
+            problemTitle: item.problemTitle,
+            difficulty: item.difficulty,
+            languages: item.languages,
+            firstSolvedAt: item.firstSolvedAt,
+        }))
+    }
+}

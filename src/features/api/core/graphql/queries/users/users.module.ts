@@ -37,6 +37,12 @@ import {
 import {
     OpenToWorkUsersSingleQueryModule,
 } from "./open-to-work-users"
+import {
+    UserCodingHistorySingleQueryModule,
+} from "./user-coding-history"
+import {
+    UserSolvedChallengesSingleQueryModule,
+} from "./user-solved-challenges"
 
 /**
  * User query group — resolved fields layered onto the shared `UserEntity`
@@ -78,6 +84,12 @@ import {
             isGlobal: true,
         }),
         OpenToWorkUsersSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserCodingHistorySingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserSolvedChallengesSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

@@ -21,6 +21,15 @@ import {
 import {
     ContributionProjectionModule,
 } from "./contribution"
+import {
+    UserCodingProjectionModule,
+} from "./user-coding"
+import {
+    UserCapstoneProjectionModule,
+} from "./user-capstone"
+import {
+    UserSolvedChallengesProjectionModule,
+} from "./user-solved-challenges"
 
 /**
  * Umbrella module aggregating every CQRS projection leaf-module: progress
@@ -50,6 +59,9 @@ export class ProjectionsModule extends ConfigurableModuleClass {
             UserStatsProjectionModule.register(options),
             CourseStatsProjectionModule.register(options),
             ContributionProjectionModule.register(options),
+            UserCodingProjectionModule.register(options),
+            UserCapstoneProjectionModule.register(options),
+            UserSolvedChallengesProjectionModule.register(options),
         ]
         return {
             ...dynamicModule,
