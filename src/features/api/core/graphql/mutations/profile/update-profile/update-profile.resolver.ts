@@ -75,7 +75,7 @@ export class UpdateProfileResolver {
     ): Promise<UserEntity> {
         // collect only the columns the client actually sent — `undefined` means
         // "leave as-is", so we must not include those keys in the update payload
-        const patch: Partial<Pick<UserEntity, "displayName" | "bio" | "avatar" | "profileLocked">> = {
+        const patch: Partial<Pick<UserEntity, "displayName" | "bio" | "avatar" | "profileLocked" | "openToWork">> = {
         }
 
         // display name: trim whitespace; an explicit null clears it
@@ -100,6 +100,11 @@ export class UpdateProfileResolver {
         // profile lock toggle: write only when the client sent it
         if (request.profileLocked !== undefined) {
             patch.profileLocked = request.profileLocked
+        }
+
+        // open-to-work toggle: write only when the client sent it
+        if (request.openToWork !== undefined) {
+            patch.openToWork = request.openToWork
         }
 
         // persist only when there is at least one field to change, otherwise skip

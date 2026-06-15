@@ -266,6 +266,22 @@ export class UserEntity extends UuidAbstractEntity {
     })
         profileLocked: boolean
 
+    /**
+     * "Open to work" flag the user opts into on their profile. When true, the
+     * profile shows a hiring badge and the user signals availability to recruiters
+     * / headhunters. Public (shown in the header). Defaults to false.
+     */
+    @Field(() => Boolean,
+        {
+            description: "When true the user is open to work (shows a hiring badge)."
+        })
+    @Column({
+        name: "open_to_work",
+        type: "boolean",
+        default: false
+    })
+        openToWork: boolean
+
 
     @Field(
         () => [EnrollmentEntity],

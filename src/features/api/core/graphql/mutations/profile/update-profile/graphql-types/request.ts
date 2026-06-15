@@ -73,4 +73,15 @@ export class UpdateProfileRequest {
     @IsOptional()
     @IsBoolean()
         profileLocked?: boolean
+
+    @Field(
+        () => Boolean,
+        {
+            nullable: true,
+            description: "Mark the user as open to work (shows a hiring badge); omit to leave unchanged.",
+        },
+    )
+    @IsOptional()
+    @IsBoolean()
+        openToWork?: boolean
 }
