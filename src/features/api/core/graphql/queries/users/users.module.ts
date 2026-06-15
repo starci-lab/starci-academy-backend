@@ -10,10 +10,21 @@ import {
 import {
     UserProfileSingleQueryModule,
 } from "./user-profile"
+import {
+    UserAchievementsSingleQueryModule,
+} from "./user-achievements"
+import {
+    UserCoursesSingleQueryModule,
+} from "./user-courses"
+import {
+    UserFeedSingleQueryModule,
+} from "./user-feed"
 
 /**
  * User query group — resolved fields layered onto the shared `UserEntity`
- * GraphQL type (follower / following counts) plus the public profile query.
+ * GraphQL type (follower / following counts) plus the public profile queries:
+ * the profile header (`userProfile`) and the profile tabs — achievements,
+ * joined courses, and the activity timeline — all keyed by user id.
  */
 @Module({
     imports: [
@@ -21,6 +32,15 @@ import {
             isGlobal: true,
         }),
         UserProfileSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserAchievementsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserCoursesSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserFeedSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

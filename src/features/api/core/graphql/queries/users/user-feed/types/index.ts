@@ -1,0 +1,35 @@
+import type {
+    ActivityMetadata,
+    ActivityType,
+} from "@modules/databases"
+
+/**
+ * Raw activity row for a single user's timeline (joined with the actor — always
+ * the profile owner). Carries `at` + `id` for stable newest-first tie-breaking.
+ */
+export interface UserFeedRow {
+    /** Activity row id (tiebreaker). */
+    id: string
+    /** Id of the actor user (the profile owner). */
+    actorUserId: string
+    /** Username of the actor. */
+    actorUsername: string
+    /** Avatar URL of the actor, or null. */
+    actorAvatar: string | null
+    /** Kind of activity. */
+    type: ActivityType
+    /** Denormalised target snapshot, or null. */
+    metadata: ActivityMetadata | null
+    /** When the activity happened. */
+    at: Date
+}
+
+/**
+ * Decoded cursor for the chronological user timeline. Newest-first ordering is
+ * absolute (created_at DESC, id DESC), so a plain row offset is enough — no need
+ * to pin a decay reference the way the score-ranked home feed does.
+ */
+export interface DecodedUserFeedCursor {
+    /** Number of already-consumed rows to skip (offset pagination). */
+    offset: number
+}
