@@ -1,4 +1,20 @@
 /**
+ * Catalog source row for the responsive-images lesson. The image URLs returned
+ * by `GET /api/products` are derived from these rows (the `seed` drives the
+ * picsum image URLs).
+ */
+export interface ResponsiveImageCatalogRow {
+    /** Stable id. */
+    id: number
+    /** Product name. */
+    name: string
+    /** Display price string. */
+    price: string
+    /** picsum seed fragment used to build the image URLs. */
+    seed: string
+}
+
+/**
  * Product shape returned by `GET /api/products` for the responsive-images
  * lesson. The URL fragments ("400"/"800"/"1200"/"wide"/"square"/".avif"/
  * ".webp") matter: the lesson's spec asserts on `currentSrc` substrings.

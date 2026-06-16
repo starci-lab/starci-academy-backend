@@ -44,6 +44,7 @@ const DEFAULT_SEED_CONFIG: SeedConfig = {
         codingProblems: false,
         advertisements: false,
         changelog: false,
+        blog: false,
         achievements: false,
     },
     synchronizers: {

@@ -7,6 +7,9 @@ import {
 import {
     JobExtendedContext,
 } from "../types"
+import type {
+    ParseS3UrlResult,
+} from "../types"
 import {
     FilenameProcessData,
 } from "@modules/bullmq"
@@ -57,7 +60,7 @@ export class ProcessVideoInitStepService extends AbstractStepService<FilenamePro
     /**
      * Detect S3 provider from URL and extract the object key.
      */
-    private parseS3Url(url: string): { provider: S3Provider; key: string } {
+    private parseS3Url(url: string): ParseS3UrlResult {
         const urlObj = new URL(url)
         const minioEndpoint = envConfig().s3.minio.endpoint
         const minioBucket = envConfig().s3.minio.bucket

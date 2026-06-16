@@ -91,6 +91,11 @@ export class SeedScopeService {
         return this.seeders().changelog
     }
 
+    /** Whether blog post mount seeding is enabled. */
+    isBlogSeederEnabled(): boolean {
+        return this.seeders().blog
+    }
+
     /** Whether the achievements catalog seeding is enabled. */
     isAchievementsSeederEnabled(): boolean {
         return this.seeders().achievements

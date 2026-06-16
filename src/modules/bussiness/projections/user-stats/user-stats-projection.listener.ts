@@ -14,26 +14,11 @@ import {
 import {
     UserStatsProjectionService,
 } from "./user-stats-projection.service"
-
-/** CDC row from `user_follows` (both endpoints' stats move on a follow change). */
-interface UserFollowCdcRow {
-    /** The follower endpoint (its following_count moves). */
-    follower_id?: string
-    /** The followed endpoint (its follower_count moves). */
-    following_id?: string
-}
-
-/** CDC row from `notifications` (the recipient's unread count moves). */
-interface NotificationCdcRow {
-    /** Recipient user id. */
-    user_id?: string
-}
-
-/** CDC row from `xp_histories` (the earner's streak + weekly metrics move). */
-interface XpHistoryCdcRow {
-    /** User who earned the XP. */
-    user_id?: string
-}
+import type {
+    NotificationCdcRow,
+    UserFollowCdcRow,
+    UserStatsXpHistoryCdcRow,
+} from "./types"
 
 /**
  * CDC consumer that keeps `user_stats_projections` fresh. A follow change moves
@@ -85,7 +70,7 @@ export class UserStatsProjectionListener extends AbstractProjectionListener<stri
         }
         // an XP-history change moves only the earner's streak + weekly metrics
         if (topic.endsWith("xp_histories")) {
-            const xpRow = row as XpHistoryCdcRow
+            const xpRow = row as UserStatsXpHistoryCdcRow
             if (!xpRow.user_id) {
                 return []
             }

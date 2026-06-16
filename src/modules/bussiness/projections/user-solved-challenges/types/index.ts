@@ -10,6 +10,18 @@ export interface RecomputeUserSolvedChallengesParams {
     entityManager?: EntityManager
 }
 
+/** CDC row from `user_challenge_submission_attempts` (carries the parent submission id, not user_id). */
+export interface ChallengeSubmissionAttemptCdcRow {
+    /** The user_challenge_submissions row this attempt belongs to. */
+    user_challenge_submission_id?: string
+}
+
+/** Raw row resolving the owning user id from a challenge-submission attempt's parent submission. */
+export interface SolvedSubmissionUserIdRow {
+    /** The user who owns the looked-up submission. */
+    user_id: string
+}
+
 /** One passed challenge submission in the projection's jsonb `value.challenges` (raw jsonb shape). */
 export interface UserSolvedChallengeValue {
     /** Challenge / submission-requirement title. */

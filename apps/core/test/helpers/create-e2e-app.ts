@@ -5,9 +5,6 @@ import {
     ValidationPipe,
     VersioningType,
 } from "@nestjs/common"
-import type {
-    INestApplication,
-} from "@nestjs/common"
 import {
     CqrsModule,
 } from "@nestjs/cqrs"
@@ -66,50 +63,12 @@ import {
 import {
     StripeWebhookHandler,
 } from "@features/api/core/http/stripe/webhook/webhook.handler"
-
-/** A jest-backed stand-in for the SePay PG SDK client used by the handler. */
-export interface SepayClientMock {
-    /** Order namespace of the SDK. */
-    order: {
-        /** Server-to-server verification call; programmed per-test. */
-        retrieve: jest.Mock
-    }
-}
-
-/** A jest-backed stand-in for the payOS SDK client used by the handler. */
-export interface PayosClientMock {
-    /** Webhooks namespace of the SDK. */
-    webhooks: {
-        /** Signature verification call; resolves (valid) or throws (bad sig). */
-        verify: jest.Mock
-    }
-}
-
-/** A jest-backed stand-in for the Stripe SDK client used by the handler. */
-export interface StripeClientMock {
-    /** Webhooks namespace of the SDK. */
-    webhooks: {
-        /** Event construction + signature verification; returns or throws. */
-        constructEvent: jest.Mock
-    }
-}
-
-/** The booted e2e application plus the handles a spec needs to drive it. */
-export interface E2eApp {
-    /** The initialised Nest application (real HTTP server + real Postgres). */
-    app: INestApplication
-    /** The SePay client mock so a spec can program/assert `order.retrieve`. */
-    sepayClient: SepayClientMock
-    /** The payOS client mock so a spec can program/assert `webhooks.verify`. */
-    payosClient: PayosClientMock
-    /** The Stripe client mock so a spec can program `webhooks.constructEvent`. */
-    stripeClient: StripeClientMock
-    /** The enroll-enqueue mock so a spec can assert the worker hand-off. */
-    enqueueEnrollJob: {
-        /** Mocked enqueue used by the course-enrollment branch. */
-        enqueue: jest.Mock
-    }
-}
+import type {
+    SepayClientMock,
+    PayosClientMock,
+    StripeClientMock,
+    E2eApp,
+} from "./types"
 
 /**
  * Boot a focused e2e application around the SePay webhook flow.

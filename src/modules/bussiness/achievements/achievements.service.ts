@@ -19,6 +19,11 @@ import {
     AbstractBadge,
 } from "./badges"
 import type {
+    AchievementCountRow,
+    AchievementHolderCountRow,
+    CachedMyAchievementsValue,
+    EarnedAchievementEntry,
+    InsertedIdRow,
     MyAchievementResult,
     MyAchievementsResult,
     NewlyEarnedAchievement,
@@ -68,7 +73,7 @@ export class AchievementsService {
         )
         // fresh cache hit → return the snapshot, nothing newly earned
         if (row && !this.isStale(row.updatedAt)) {
-            const value = row.value as { data?: Array<MyAchievementResult>, count?: number }
+            const value = row.value as CachedMyAchievementsValue
             return {
                 data: this.hydrate(value.data ?? []),
                 count: value.count ?? 0,
@@ -145,6 +150,8 @@ export class AchievementsService {
             },
         )
         const earnedByAchievementId = this.indexEarned(earned)
+        // population rarity per achievement (% of users who hold it) for "Top X%"
+        const rarityByAchievementId = await this.computeRarity(this.entityManager)
         // map each definition into the presentation row
         const achievements = definitions.map((definition) => {
             const earnedEntry = earnedByAchievementId.get(definition.id)
@@ -160,6 +167,10 @@ export class AchievementsService {
                 earnedAt: earnedEntry?.earnedAt ?? null,
                 currentValue: valueBySlug.get(definition.slug) ?? 0,
                 tierReached: earnedEntry?.tier ?? null,
+                // rarity only meaningful once earned (else it just leaks the bar)
+                rarityPercent: earnedEntry
+                    ? rarityByAchievementId.get(definition.id) ?? null
+                    : null,
             }
         })
         // the badges whose first award was inserted this read
@@ -302,8 +313,8 @@ export class AchievementsService {
      */
     private indexEarned(
         earned: Array<UserAchievementEntity>,
-    ): Map<string, { earnedAt: Date, tier: number | null }> {
-        const byAchievementId = new Map<string, { earnedAt: Date, tier: number | null }>()
+    ): Map<string, EarnedAchievementEntry> {
+        const byAchievementId = new Map<string, EarnedAchievementEntry>()
         for (const award of earned) {
             const existing = byAchievementId.get(award.achievementId)
             if (!existing) {
@@ -324,6 +335,40 @@ export class AchievementsService {
             }
         }
         return byAchievementId
+    }
+
+    /**
+     * Population rarity per achievement: the share of users who hold each badge,
+     * as a whole percent (clamped to a floor of 1 so a held badge never reads as
+     * "Top 0%"). Lower = rarer. Returned keyed by achievement id.
+     *
+     * @param manager - the entity manager to run on.
+     * @returns a map from achievement id to its rarity percent.
+     */
+    private async computeRarity(
+        manager: EntityManager,
+    ): Promise<Map<string, number>> {
+        const map = new Map<string, number>()
+        const totalRows = await manager.query<Array<AchievementCountRow>>(
+            "SELECT COUNT(*)::int AS c FROM users",
+        )
+        const total = Number(totalRows[0]?.c) || 0
+        // no users → no meaningful denominator
+        if (total === 0) {
+            return map
+        }
+        const rows = await manager.query<Array<AchievementHolderCountRow>>(
+            `SELECT achievement_id, COUNT(DISTINCT user_id)::int AS c
+             FROM user_achievements
+             GROUP BY achievement_id`,
+        )
+        for (const row of rows) {
+            const percent = Math.max(1,
+                Math.round((Number(row.c) / total) * 100))
+            map.set(row.achievement_id,
+                percent)
+        }
+        return map
     }
 
     /**
@@ -391,7 +436,7 @@ export class AchievementsService {
         achievementId: string,
         tier: number | null,
     ): Promise<boolean> {
-        const inserted = await manager.query<Array<{ id: string }>>(
+        const inserted = await manager.query<Array<InsertedIdRow>>(
             `
             INSERT INTO user_achievements (user_id, achievement_id, tier, earned_at)
             SELECT $1, $2, $3, now()

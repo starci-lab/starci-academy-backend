@@ -30,6 +30,9 @@ import {
     ElasticsearchIndexResetService,
 } from "@modules/elasticsearch"
 import {
+    EsSyncUserService,
+} from "@modules/bussiness"
+import {
     SyncScopeService,
 } from "../scope"
 
@@ -53,6 +56,7 @@ export class SynchronizersService {
         private readonly repoSynchronizerService: RepoSynchronizerService,
         private readonly reconcileSynchronizerService: ReconcileSynchronizerService,
         private readonly elasticsearchIndexResetService: ElasticsearchIndexResetService,
+        private readonly esSyncUserService: EsSyncUserService,
         private readonly syncScopeService: SyncScopeService,
     ) { }
 
@@ -75,6 +79,10 @@ export class SynchronizersService {
             await this.elasticsearchIndexResetService.resetIndices(reindexEntities)
         }
         await this.elasticsearchSynchronizerService.sync(elasticsearchScope)
+        // backfill the non-localized `users` index from the existing user base
+        // (one-shot bulk index + orphan prune); the CDC listener keeps it fresh
+        // afterwards. Users live outside the per-locale content scope above.
+        await this.esSyncUserService.reindexAll()
         await this.indexerSynchronizerService.sync(cdnScope)
         await this.bloomFilterSynchronizerService.sync()
         const repoScope = this.syncScopeService.buildRepoScope()

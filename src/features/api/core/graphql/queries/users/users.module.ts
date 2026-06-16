@@ -32,6 +32,9 @@ import {
     UserCapstoneTasksSingleQueryModule,
 } from "./user-capstone-tasks"
 import {
+    UserCapstoneProgressSingleQueryModule,
+} from "./user-capstone-progress"
+import {
     UserCodingSkillsSingleQueryModule,
 } from "./user-coding-skills"
 import {
@@ -43,6 +46,12 @@ import {
 import {
     UserSolvedChallengesSingleQueryModule,
 } from "./user-solved-challenges"
+import {
+    SuggestedUsersSingleQueryModule,
+} from "./suggested-users"
+import {
+    SearchUsersSingleQueryModule,
+} from "./search-users"
 
 /**
  * User query group — resolved fields layered onto the shared `UserEntity`
@@ -80,6 +89,9 @@ import {
         UserCapstoneTasksSingleQueryModule.register({
             isGlobal: true,
         }),
+        UserCapstoneProgressSingleQueryModule.register({
+            isGlobal: true,
+        }),
         UserCodingSkillsSingleQueryModule.register({
             isGlobal: true,
         }),
@@ -90,6 +102,12 @@ import {
             isGlobal: true,
         }),
         UserSolvedChallengesSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        SuggestedUsersSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        SearchUsersSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

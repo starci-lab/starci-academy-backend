@@ -29,17 +29,17 @@ import {
 /**
  * Per-user AI entitlement (1-1 with {@link UserEntity}).
  *
- * Holds both the free **Auto** allowance (counted in "lượt") and the paid
- * **Premium** credit balance, with two shared reset windows (5h + week).
+ * Holds a single **credit** pool spent by every non-BYOK run, with two shared
+ * reset windows (5h + week).
  *
- * - Free / course users: `tier` is null → only the Auto allowance applies.
- * - Paid users: `tier` set → Premium credits from the tier catalog apply on
- *   top of Auto.
+ * - Free / course users: `tier` is null → allowance = the free base credits.
+ * - Paid users: `tier` set → allowance = free base + the tier catalog credits.
+ *   A tier also unlocks the higher model categories (free = Economy only).
  * - BYOK users: `byokProvider` + `byokKeyEncrypted` set → bypass the balancer
  *   pool and quota entirely.
  *
- * Counters track usage WITHIN the current window; remaining = limit − used,
- * where the limit comes from constants (Auto) or the tier catalog (Premium).
+ * Counters track credits spent WITHIN the current window; remaining = limit −
+ * used, where the limit = free base + (tier catalog credits when subscribed).
  */
 @ObjectType({
     description: "Per-user AI entitlement: Auto allowance + Premium credits.",
@@ -169,39 +169,14 @@ export class AiSubscriptionEntity extends UuidAbstractEntity {
     })
         windowWeekResetAt: Date | null
 
-    /** Auto "lượt" used in the current 5-hour window. */
+    /**
+     * Platform credits consumed in the current 5-hour window. Single unified
+     * pool for every non-BYOK run (free + paid); allowance = free base + tier.
+     */
     @Field(
         () => Int,
         {
-            description: "Auto uses consumed in the current 5h window.",
-        },
-    )
-    @Column({
-        name: "auto_5h_used",
-        type: "int",
-        default: 0,
-    })
-        auto5hUsed: number
-
-    /** Auto "lượt" used in the current weekly window. */
-    @Field(
-        () => Int,
-        {
-            description: "Auto uses consumed in the current weekly window.",
-        },
-    )
-    @Column({
-        name: "auto_week_used",
-        type: "int",
-        default: 0,
-    })
-        autoWeekUsed: number
-
-    /** Premium credits consumed in the current 5-hour window. */
-    @Field(
-        () => Int,
-        {
-            description: "Premium credits consumed in the current 5h window.",
+            description: "Platform credits consumed in the current 5h window.",
         },
     )
     @Column({
@@ -211,11 +186,11 @@ export class AiSubscriptionEntity extends UuidAbstractEntity {
     })
         credit5hUsed: number
 
-    /** Premium credits consumed in the current weekly window. */
+    /** Platform credits consumed in the current weekly window. */
     @Field(
         () => Int,
         {
-            description: "Premium credits consumed in the current weekly window.",
+            description: "Platform credits consumed in the current weekly window.",
         },
     )
     @Column({

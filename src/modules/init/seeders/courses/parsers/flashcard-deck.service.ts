@@ -2,6 +2,10 @@ import type {
     ParseFlashcardDeckManyParams,
     ParseFlashcardDeckParams,
     FlashcardDecksFromDatabaseParams,
+    RawFlashcardCardTag,
+    RawRef,
+    RawFlashcardDeck,
+    RawFlashcardCard,
 } from "./types"
 import {
     Injectable,
@@ -45,46 +49,6 @@ import {
 import {
     WinstonService,
 } from "@modules/winston"
-
-/** One `# contentRefs` / `# moduleRefs` line (a `displayId`) as parsed. */
-interface RawRef {
-    /** Zero-based ordinal. */
-    orderIndex: number
-    /** The referenced entity's `displayId`. */
-    value?: string
-}
-
-/** A deck META document (`<deck>/{en,vi}.md`) — cards live in `cards/` folders. */
-interface RawFlashcardDeck {
-    /** Deck title. */
-    title?: string
-    /** Deck description. */
-    description?: string
-    /** Deck difficulty tier. */
-    difficulty?: ChallengeDifficulty
-    /** Referenced content `displayId`s (many-to-many). */
-    contentRefs?: Array<RawRef>
-    /** Referenced module `displayId`s (many-to-many). */
-    moduleRefs?: Array<RawRef>
-    /** Index signature so the markdown→JSON extractor generic is satisfied. */
-    [key: string]: unknown
-}
-
-/** A single card document (`<deck>/cards/{index}-{slug}/{en,vi}.md`). */
-interface RawFlashcardCard {
-    /** The question prompt (Markdown). */
-    question?: string
-    /** Interview seniority level (`junior`/`middle`/`senior`/`staff`). */
-    level?: string
-    /** Technology tags (`# tags / ## N`). */
-    tags?: Array<RawRef>
-    /** The model answer (Markdown). */
-    answer?: string
-    /** Optional extra depth (Markdown). */
-    explanation?: string
-    /** Index signature so the markdown→JSON extractor generic is satisfied. */
-    [key: string]: unknown
-}
 
 /**
  * Parses course-level multiple-choice flashcard decks from mounted course files
@@ -302,7 +266,7 @@ export class FlashcardDeckParserService {
                 ? (rawLevel as FlashcardLevel)
                 : null
             // `# tags / ## N` → array of trimmed tag strings
-            const tags = ((cardJsonMap.get(Locale.En)?.tags ?? []) as Array<{ value?: string }>)
+            const tags = ((cardJsonMap.get(Locale.En)?.tags ?? []) as Array<RawFlashcardCardTag>)
                 .map((tag) => (tag.value ?? "").trim())
                 .filter((value) => value.length > 0)
             cards.push({
@@ -313,7 +277,8 @@ export class FlashcardDeckParserService {
                     (merged as { sortIndex?: unknown }).sortIndex,
                     cardPath.orderIndex,
                 ),
-                question: this.coerceMdScalarService.toRequiredString(merged.question, ""),
+                question: this.coerceMdScalarService.toRequiredString(merged.question,
+                    ""),
                 answer: this.coerceMdScalarService.toNullableStringColumn(merged.answer),
                 explanation: this.coerceMdScalarService.toNullableStringColumn(merged.explanation),
                 level,
@@ -362,19 +327,20 @@ export class FlashcardDeckParserService {
         }
         const ids: Array<string> = []
         for (const displayId of displayIds) {
-            const content = await this.entityManager.findOne(ContentEntity, {
-                where: {
-                    displayId,
-                    module: {
-                        course: {
-                            id: courseId,
+            const content = await this.entityManager.findOne(ContentEntity,
+                {
+                    where: {
+                        displayId,
+                        module: {
+                            course: {
+                                id: courseId,
+                            },
                         },
                     },
-                },
-                select: {
-                    id: true,
-                },
-            })
+                    select: {
+                        id: true,
+                    },
+                })
             if (content) {
                 ids.push(content.id)
             }
@@ -405,19 +371,20 @@ export class FlashcardDeckParserService {
         }
         const ids: Array<string> = []
         for (const displayId of displayIds) {
-            const module = await this.entityManager.findOne(ModuleEntity, {
-                where: {
-                    displayId,
-                    // `courseId` is a virtual @RelationId — not queryable in `where`;
-                    // scope through the relation instead (mirrors resolveContentRefIds).
-                    course: {
-                        id: courseId,
+            const module = await this.entityManager.findOne(ModuleEntity,
+                {
+                    where: {
+                        displayId,
+                        // `courseId` is a virtual @RelationId — not queryable in `where`;
+                        // scope through the relation instead (mirrors resolveContentRefIds).
+                        course: {
+                            id: courseId,
+                        },
                     },
-                },
-                select: {
-                    id: true,
-                },
-            })
+                    select: {
+                        id: true,
+                    },
+                })
             if (module) {
                 ids.push(module.id)
             }

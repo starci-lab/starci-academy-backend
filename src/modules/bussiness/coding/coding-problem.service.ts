@@ -6,7 +6,6 @@ import {
 } from "typeorm"
 import {
     CodingProblemEntity,
-    CodingVerdict,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
 } from "@modules/databases"
@@ -18,9 +17,8 @@ import {
     codingProblemHintIndexName,
 } from "@modules/elasticsearch"
 import type {
-    CodingLeaderboardEntry,
-    CodingLeaderboardParams,
     CodingProblemHintResult,
+    CodingProblemHintSource,
     GetCodingProblemHintParams,
     GetCodingProblemParams,
     ListCodingProblemsParams,
@@ -30,13 +28,10 @@ import type {
 /** Default page size for problem listing. */
 const DEFAULT_PAGE_SIZE = 20
 
-/** Default number of ranked users returned by the leaderboard. */
-const DEFAULT_LEADERBOARD_LIMIT = 50
-
 /**
  * Read-side business logic for the coding-practice problem bank: listing with
- * filters + solved flags, single-problem detail (samples only, localized), and
- * the solved-count leaderboard. Never exposes hidden testcases.
+ * filters + solved flags and single-problem detail (samples only, localized).
+ * Never exposes hidden testcases.
  */
 @Injectable()
 export class CodingProblemService {
@@ -241,7 +236,7 @@ export class CodingProblemService {
                 index: codingProblemHintIndexName(locale),
                 id: slug,
             })
-            const source = result._source as { slug?: string; hint?: string } | undefined
+            const source = result._source as CodingProblemHintSource | undefined
             // a document with no hint body is treated as "no hint"
             if (!source?.hint) {
                 return null
@@ -254,39 +249,6 @@ export class CodingProblemService {
             // 404 (missing doc or index) → no hint for this locale
             return null
         }
-    }
-
-    /**
-     * Top users by number of distinct solved problems.
-     *
-     * @param params - max entries to return
-     * @returns ranked entries (highest solved count first)
-     */
-    async leaderboard({
-        limit = DEFAULT_LEADERBOARD_LIMIT,
-    }: CodingLeaderboardParams): Promise<Array<CodingLeaderboardEntry>> {
-        // raw SQL over physical columns — count distinct solved problems per user
-        const rows = await this.entityManager.query(
-            `SELECT cs.user_id AS "userId",
-                    u.username AS "username",
-                    COUNT(DISTINCT cs.coding_problem_id) AS "solvedCount"
-             FROM coding_submissions cs
-             JOIN users u ON u.id = cs.user_id
-             WHERE cs.verdict = $1
-             GROUP BY cs.user_id, u.username
-             ORDER BY "solvedCount" DESC
-             LIMIT $2`,
-            [CodingVerdict.Accepted,
-                limit],
-        ) as Array<{ userId: string; username: string | null; solvedCount: string }>
-        // normalize the raw rows into typed entries
-        return rows.map((row) => ({
-            userId: row.userId,
-            username: row.username ?? "",
-            // COUNT comes back as a string from pg — parse to a number
-            solvedCount: Number.parseInt(row.solvedCount,
-                10),
-        }))
     }
 
 }

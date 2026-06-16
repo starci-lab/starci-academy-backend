@@ -80,6 +80,14 @@ export class MyCourseItemData {
         },
     )
         total: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Overall completion %, equal-weight across content/challenge/milestone (0–100).",
+        },
+    )
+        completionPercent: number
 }
 
 /**

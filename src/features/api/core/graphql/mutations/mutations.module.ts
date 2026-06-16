@@ -55,6 +55,12 @@ import {
 import {
     NotificationsMutationsModule,
 } from "./notifications"
+import {
+    RewardsMutationsModule,
+} from "./rewards"
+import {
+    FlashcardMutationsModule,
+} from "./flashcard"
 
 /**
  * GraphQL mutations (courses, authentication, etc.).
@@ -108,6 +114,12 @@ import {
             isGlobal: true,
         }),
         NotificationsMutationsModule.register({
+            isGlobal: true,
+        }),
+        RewardsMutationsModule.register({
+            isGlobal: true,
+        }),
+        FlashcardMutationsModule.register({
             isGlobal: true,
         }),
     ],

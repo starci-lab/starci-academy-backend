@@ -27,10 +27,13 @@ import {
     imports: [
         JwtModule.register({
             secret: JWT_SECRET,
-            signOptions: { expiresIn: JWT_EXPIRES_IN },
+            signOptions: {
+                expiresIn: JWT_EXPIRES_IN 
+            },
         }),
     ],
     controllers: [AuthController],
-    providers: [AuthStoreService, SocketioSecurityJwtGateway],
+    providers: [AuthStoreService,
+        SocketioSecurityJwtGateway],
 })
 export class SocketioSecurityJwtMockModule {}

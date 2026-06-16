@@ -42,9 +42,14 @@ export class AuthStoreService {
         // assign a fresh subject id only for brand-new usernames
         const sub = existing?.sub ?? this.nextSub++
         // upsert the record with the latest password
-        this.users.set(username, { sub, password })
+        this.users.set(username,
+            {
+                sub, password 
+            })
         // hand back the claims the caller signs into the access token
-        return { sub, username }
+        return {
+            sub, username 
+        }
     }
 
     /**
@@ -58,6 +63,8 @@ export class AuthStoreService {
         // reject unknown users or password mismatches
         if (!record || record.password !== password) return null
         // credentials are valid — return the claims for token signing
-        return { sub: record.sub, username }
+        return {
+            sub: record.sub, username 
+        }
     }
 }

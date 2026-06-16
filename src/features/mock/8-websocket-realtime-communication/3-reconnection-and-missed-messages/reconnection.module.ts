@@ -10,6 +10,7 @@ import {
 
 /** Lesson module for `3-reconnection-and-missed-messages`. */
 @Module({
-    providers: [ReconnectionStoreService, ReconnectionGateway],
+    providers: [ReconnectionStoreService,
+        ReconnectionGateway],
 })
 export class ReconnectionMockModule {}

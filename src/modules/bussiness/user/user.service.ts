@@ -13,8 +13,11 @@ import {
     CacheService 
 } from "@modules/cache"
 import {
-    UserNotFoundException 
+    UserNotFoundException
 } from "@modules/exceptions"
+import type {
+    EnrolledCourseIdRow,
+} from "./types"
 
 /**
  * Service for managing users.
@@ -112,7 +115,7 @@ export class UserService {
 
         // cache miss → rebuild the whole set with a single indexed read on
         // (user_id) — course_id is a virtual @RelationId so query the column directly
-        const rows = await this.entityManager.query<Array<{ course_id: string }>>(
+        const rows = await this.entityManager.query<Array<EnrolledCourseIdRow>>(
             "SELECT course_id FROM enrollments WHERE user_id = $1",
             [
                 userId,

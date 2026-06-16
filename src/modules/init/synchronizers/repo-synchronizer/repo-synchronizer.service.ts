@@ -30,6 +30,9 @@ import {
 import type {
     SynchronizerSyncScope,
 } from "../../types"
+import type {
+    SandpackFile,
+} from "./types"
 import {
     shouldSyncContentEntity,
 } from "../../utils"
@@ -230,8 +233,8 @@ content.githubDir!)
     private async walkDir(
         dirPath: string,
         baseDir: string,
-    ): Promise<Record<string, { code: string }>> {
-        const files: Record<string, { code: string }> = {
+    ): Promise<Record<string, SandpackFile>> {
+        const files: Record<string, SandpackFile> = {
         }
         try {
             const entries = await fsp.readdir(dirPath,

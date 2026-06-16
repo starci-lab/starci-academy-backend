@@ -30,7 +30,7 @@ import {
     ExtractJsonFromMdService,
 } from "../shared"
 import type {
-    ChangelogSeedItem,
+    ChangelogSeedFileRoot,
 } from "./types"
 
 /**
@@ -64,9 +64,7 @@ export class ChangelogSeederService {
             return
         }
         // extract the array root (`# 0`, `# 1`, … → wrapped as `{ data: [...] }`)
-        const parsed = this.extractJsonFromMdService.extract<{
-            data?: Array<ChangelogSeedItem>
-        }>(readFileSync(file,
+        const parsed = this.extractJsonFromMdService.extract<ChangelogSeedFileRoot>(readFileSync(file,
             "utf8"))
         const items = parsed.data ?? []
         for (const item of items) {

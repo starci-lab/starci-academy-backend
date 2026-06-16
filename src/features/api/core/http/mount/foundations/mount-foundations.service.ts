@@ -10,6 +10,9 @@ import fs from "fs/promises"
 import {
     join,
 } from "path"
+import type {
+    ReadFoundationsFileResult,
+} from "./types"
 
 /**
  * Serves files from `.mount/data/foundations` for external-link resources.
@@ -18,10 +21,7 @@ import {
 export class MountFoundationsService {
     async readFile(
         relativePath: string,
-    ): Promise<{
-        absolutePath: string
-        buffer: Buffer
-    }> {
+    ): Promise<ReadFoundationsFileResult> {
         const normalized = relativePath.replace(/^\/+/,
             "")
         if (!normalized || normalized.includes("..")) {

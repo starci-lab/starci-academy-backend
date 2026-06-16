@@ -49,19 +49,18 @@ import type {
 /**
  * Resolves and debits a user's AI entitlement.
  *
- * Two paid-vs-free lanes share two sliding-reset windows (5h + 1 week):
+ * Every non-BYOK run spends a single credit pool over two sliding-reset windows
+ * (5h + 1 week):
  *
- * - **Auto** (free, course-included): counted in "lượt" (uses). Capped at
- *   `systemConfig.ai.auto` uses per 5h + week (see {@link AiAutoQuotaConfigService}); only
- *   `economy` models allowed.
- * - **Premium** (active paid tier): credit-based. Per-window allowances come
- *   from the `subscriptions.tiers` catalog; each call costs
- *   {@link CATEGORY_CREDIT_COST} credits by category and the tier unlocks its
- *   category and below.
+ * - **Allowance** = the free base credits (`systemConfig.ai.auto`, see
+ *   {@link AiAutoQuotaConfigService}) + the active tier's catalog credits.
+ * - **Model access** is gated by tier: free is locked to `economy` models; any
+ *   paid tier (Plus/Pro/Max) unlocks `balanced` + `premium`. Each call costs
+ *   {@link CATEGORY_CREDIT_COST} credits by category.
  * - **BYOK**: the user supplies their own key → no quota.
  *
  * Windows reset lazily on read: when a `*ResetAt` timestamp is in the past the
- * matching counters drop to 0 and the timestamp rolls forward from "now".
+ * matching counter drops to 0 and the timestamp rolls forward from "now".
  */
 @Injectable()
 export class AiEntitlementService {
@@ -107,12 +106,12 @@ export class AiEntitlementService {
     }
 
     /**
-     * Debit the Premium tier credit pool after a successful grading run.
+     * Debit the unified credit pool after a successful run.
      *
-     * No-op for Auto (billed via `credit_usage_histories`) and Byok (free).
-     * Locks the subscription row `FOR UPDATE` so concurrent debits serialize and
-     * never lose an update — the tier counters always reflect true spend (so the
-     * pool can't be over-spent across concurrent premium gradings).
+     * No-op for Byok (the user pays their own provider). Locks the subscription
+     * row `FOR UPDATE` so concurrent debits serialize and never lose an update —
+     * the counters always reflect true spend (so the pool can't be over-spent
+     * across concurrent gradings).
      *
      * @param params - Owner, the lane that ran, and the credits to debit.
      */
@@ -121,8 +120,8 @@ export class AiEntitlementService {
         mode,
         cost,
     }: ConsumeEntitlementParams): Promise<void> {
-        // only Premium draws down the tier pool; Auto/Byok never touch it
-        if (mode !== AiMode.Premium || cost <= 0) {
+        // every platform lane spends the unified pool; only Byok is free
+        if (mode === AiMode.Byok || cost <= 0) {
             return
         }
         await this.entityManager.transaction(
@@ -481,8 +480,6 @@ export class AiEntitlementService {
                     "millisecond").toDate(),
                 windowWeekResetAt: now.add(WINDOW_WEEK_MS,
                     "millisecond").toDate(),
-                auto5hUsed: 0,
-                autoWeekUsed: 0,
                 credit5hUsed: 0,
                 creditWeekUsed: 0,
             },
@@ -500,7 +497,6 @@ export class AiEntitlementService {
             !subscription.window5hResetAt
             || now.isAfter(subscription.window5hResetAt)
         ) {
-            subscription.auto5hUsed = 0
             subscription.credit5hUsed = 0
             subscription.window5hResetAt = now
                 .add(WINDOW_5H_MS,
@@ -511,7 +507,6 @@ export class AiEntitlementService {
             !subscription.windowWeekResetAt
             || now.isAfter(subscription.windowWeekResetAt)
         ) {
-            subscription.autoWeekUsed = 0
             subscription.creditWeekUsed = 0
             subscription.windowWeekResetAt = now
                 .add(WINDOW_WEEK_MS,
@@ -537,32 +532,42 @@ export class AiEntitlementService {
         )
         const tier = mode === AiMode.Premium ? subscription.tier : null
         const allowedCategories = TIER_ALLOWED_CATEGORIES[tier ?? "free"]
-
-        const tierConfig = tier ? this.findTierConfig(tier) : null
-        const creditLimit5h = tierConfig?.creditsPer5h ?? 0
-        const creditLimitWeek = tierConfig?.creditsPerWeek ?? 0
-        const autoQuota = this.aiAutoQuotaConfigService.getAutoQuota()
+        const {
+            limit5h,
+            limitWeek,
+        } = this.creditAllowance(tier)
 
         return {
             mode,
             allowedCategories,
             byokProvider: subscription.byokProvider,
-            autoRemaining5h: Math.max(
-                0,
-                autoQuota.usesPer5h - subscription.auto5hUsed,
-            ),
-            autoRemainingWeek: Math.max(
-                0,
-                autoQuota.usesPerWeek - subscription.autoWeekUsed,
-            ),
             creditRemaining5h: Math.max(
                 0,
-                creditLimit5h - subscription.credit5hUsed,
+                limit5h - subscription.credit5hUsed,
             ),
             creditRemainingWeek: Math.max(
                 0,
-                creditLimitWeek - subscription.creditWeekUsed,
+                limitWeek - subscription.creditWeekUsed,
             ),
+        }
+    }
+
+    /**
+     * The per-window credit allowance for a tier: the free base credits (from
+     * `systemConfig.ai.auto`) plus the tier catalog credits when subscribed.
+     * Everyone — free or paid — spends from this single pool.
+     *
+     * @param tier - active paid tier, or null for free.
+     * @returns the 5h + weekly credit limits.
+     */
+    private creditAllowance(
+        tier: AiSubTier | null,
+    ): { limit5h: number, limitWeek: number } {
+        const base = this.aiAutoQuotaConfigService.getAutoQuota()
+        const tierConfig = tier ? this.findTierConfig(tier) : null
+        return {
+            limit5h: base.creditsPer5h + (tierConfig?.creditsPer5h ?? 0),
+            limitWeek: base.creditsPerWeek + (tierConfig?.creditsPerWeek ?? 0),
         }
     }
 
@@ -575,40 +580,26 @@ export class AiEntitlementService {
     ): AiQuotaSnapshot {
         const mode = this.resolveEffectiveMode(subscription)
         const tier = mode === AiMode.Premium ? subscription.tier : null
-        const tierConfig = tier ? this.findTierConfig(tier) : null
-        const creditLimit5h = tierConfig?.creditsPer5h ?? 0
-        const creditLimitWeek = tierConfig?.creditsPerWeek ?? 0
-        const autoQuota = this.aiAutoQuotaConfigService.getAutoQuota()
+        const {
+            limit5h,
+            limitWeek,
+        } = this.creditAllowance(tier)
 
         return {
             mode,
             tier,
-            auto: {
-                limit5h: autoQuota.usesPer5h,
-                used5h: subscription.auto5hUsed,
-                remaining5h: Math.max(
-                    0,
-                    autoQuota.usesPer5h - subscription.auto5hUsed,
-                ),
-                limitWeek: autoQuota.usesPerWeek,
-                usedWeek: subscription.autoWeekUsed,
-                remainingWeek: Math.max(
-                    0,
-                    autoQuota.usesPerWeek - subscription.autoWeekUsed,
-                ),
-            },
-            premium: {
-                limit5h: creditLimit5h,
+            credit: {
+                limit5h,
                 used5h: subscription.credit5hUsed,
                 remaining5h: Math.max(
                     0,
-                    creditLimit5h - subscription.credit5hUsed,
+                    limit5h - subscription.credit5hUsed,
                 ),
-                limitWeek: creditLimitWeek,
+                limitWeek,
                 usedWeek: subscription.creditWeekUsed,
                 remainingWeek: Math.max(
                     0,
-                    creditLimitWeek - subscription.creditWeekUsed,
+                    limitWeek - subscription.creditWeekUsed,
                 ),
             },
             window5hResetAt: subscription.window5hResetAt,

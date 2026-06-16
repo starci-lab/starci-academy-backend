@@ -22,7 +22,7 @@ import {
     Locale,
 } from "@modules/databases"
 import {
-    CodingProblemService,
+    UserCodingProjectionService,
 } from "@modules/bussiness"
 import {
     CodingLeaderboardRequest,
@@ -32,11 +32,13 @@ import {
 
 /**
  * Ranks users by the number of distinct problems they've solved (Accepted).
+ * Reads the count from the per-user coding projection (CQRS) — the resolver
+ * stays a thin ordered read, no aggregation per request.
  */
 @Resolver()
 export class CodingLeaderboardResolver {
     constructor(
-        private readonly codingProblemService: CodingProblemService,
+        private readonly userCodingProjectionService: UserCodingProjectionService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -62,8 +64,8 @@ export class CodingLeaderboardResolver {
         )
             request: CodingLeaderboardRequest,
     ): Promise<Array<CodingLeaderboardEntryObject>> {
-        // delegate to the domain service for the ranked entries
-        return this.codingProblemService.leaderboard({
+        // thin read off the CQRS coding projection (count already materialised)
+        return this.userCodingProjectionService.getLeaderboard({
             limit: request.limit,
         })
     }

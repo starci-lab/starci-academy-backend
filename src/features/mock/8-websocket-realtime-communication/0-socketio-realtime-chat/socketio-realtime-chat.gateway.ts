@@ -51,9 +51,14 @@ export class SocketioRealtimeChatGateway implements OnGatewayDisconnect {
         // subscribe this socket to the room's broadcasts
         void client.join(body.room)
         // notify the OTHER members that someone joined (sender excluded)
-        client.to(body.room).emit("roomToClient", { nickname: body.nickname, event: "join" })
+        client.to(body.room).emit("roomToClient",
+            {
+                nickname: body.nickname, event: "join" 
+            })
         // ack the caller so the UI can show "room: <room>"
-        return { ok: true, room: body.room, nickname: body.nickname }
+        return {
+            ok: true, room: body.room, nickname: body.nickname 
+        }
     }
 
     /**
@@ -74,7 +79,8 @@ export class SocketioRealtimeChatGateway implements OnGatewayDisconnect {
             createdAt: new Date().toISOString(),
         }
         // fan out to all members of the room (sender included → echo)
-        this.server.to(body.room).emit("chatToClient", message)
+        this.server.to(body.room).emit("chatToClient",
+            message)
     }
 
     /**
@@ -87,6 +93,9 @@ export class SocketioRealtimeChatGateway implements OnGatewayDisconnect {
         // nothing to announce if this socket never joined a room
         if (!room || !nickname) return
         // tell the remaining members someone left
-        client.to(room).emit("roomToClient", { nickname, event: "leave" })
+        client.to(room).emit("roomToClient",
+            {
+                nickname, event: "leave" 
+            })
     }
 }

@@ -85,6 +85,7 @@ export class MyAchievementsResolver {
             earnedAt: achievement.earnedAt,
             currentValue: achievement.currentValue,
             tierReached: achievement.tierReached,
+            rarityPercent: achievement.rarityPercent,
         })
         return {
             data: result.data.map(localize),

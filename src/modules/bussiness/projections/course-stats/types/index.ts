@@ -23,3 +23,9 @@ export interface CourseStatsResult {
     /** Number of enrollments in the course. */
     enrollmentCount: number
 }
+
+/** CDC row from `enrollments` (carries the course whose count moved). */
+export interface CourseStatsEnrollmentCdcRow {
+    /** The course the enrollment belongs to. */
+    course_id?: string
+}

@@ -80,6 +80,12 @@ export class UserWeeklyStatsResolver {
             xp: stats.weeklyXp,
             lessons: stats.weeklyLessons,
             days: stats.last7Days,
+            // the weekly goal is the owner's private target — not surfaced when
+            // viewing another user's public stats
+            weeklyGoalLessons: null,
+            // streak-freeze inventory is the owner's private currency — surfaced
+            // only on the viewer's own myWeeklyStats, 0 here for other users
+            streakFreezes: 0,
         }
     }
 }

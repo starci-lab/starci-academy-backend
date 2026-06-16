@@ -14,12 +14,9 @@ import {
 import {
     ContributionProjectionService,
 } from "./contribution-projection.service"
-
-/** CDC row from `activities` (the actor's contribution calendar moves). */
-interface ActivityCdcRow {
-    /** The user who performed the activity. */
-    user_id?: string
-}
+import type {
+    ActivityCdcRow,
+} from "./types"
 
 /**
  * CDC consumer that keeps `user_contribution_projections` fresh. A new activity

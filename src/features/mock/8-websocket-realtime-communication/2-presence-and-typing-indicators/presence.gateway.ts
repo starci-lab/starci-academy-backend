@@ -50,13 +50,20 @@ export class PresenceGateway implements OnGatewayDisconnect {
         // add this socket to the Socket.IO room for targeted broadcasts
         void client.join(body.roomId)
         // record the tab and learn whether it is the user's first
-        const { isFirstTab } = this.store.addTab(body.roomId, body.userId, client.id)
+        const { isFirstTab } = this.store.addTab(body.roomId,
+            body.userId,
+            client.id)
         // announce arrival to everyone else only when the user had no prior tab
         if (isFirstTab) {
-            client.to(body.roomId).emit("user-joined", { userId: body.userId })
+            client.to(body.roomId).emit("user-joined",
+                {
+                    userId: body.userId 
+                })
         }
         // ack the joiner with the current online roster
-        return { ok: true, online: this.store.members(body.roomId) }
+        return {
+            ok: true, online: this.store.members(body.roomId) 
+        }
     }
 
     /**
@@ -68,7 +75,10 @@ export class PresenceGateway implements OnGatewayDisconnect {
         @MessageBody() body: TypingDto,
     ): void {
         // `client.to(room)` targets the room minus the sender socket
-        client.to(body.roomId).emit("typing", { userId: body.userId })
+        client.to(body.roomId).emit("typing",
+            {
+                userId: body.userId 
+            })
     }
 
     /**
@@ -81,10 +91,15 @@ export class PresenceGateway implements OnGatewayDisconnect {
         // nothing to clean up if this socket never joined
         if (!userId || !roomId) return
         // drop the tab and learn whether it was the user's last
-        const { isLastTab } = this.store.removeTab(roomId, userId, client.id)
+        const { isLastTab } = this.store.removeTab(roomId,
+            userId,
+            client.id)
         // announce departure to the room only when no tabs remain
         if (isLastTab) {
-            this.server.to(roomId).emit("user-left", { userId })
+            this.server.to(roomId).emit("user-left",
+                {
+                    userId 
+                })
         }
     }
 }

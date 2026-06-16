@@ -39,6 +39,11 @@ import {
     exceedsPruneRatio,
     partitionOrphanCdnKeys,
 } from "./utils"
+import type {
+    CdnTarget,
+    ReconcileIdsResult,
+    LiveColumnsRow,
+} from "./types"
 
 /**
  * Every content entity type with an Elasticsearch index — reconciled per locale.
@@ -59,19 +64,6 @@ const ELASTICSEARCH_TARGETS = [
     FlashcardDeckEntity,
     CodingProblemEntity,
 ]
-
-/** One CDN-materialized entity type + its object-key prefix (with trailing slash). */
-interface CdnTarget {
-    /** Entity class — queried for live id + displayId. */
-    entity:
-        | typeof CourseEntity
-        | typeof ModuleEntity
-        | typeof ContentEntity
-        | typeof ChallengeEntity
-        | typeof MilestoneTaskEntity
-    /** S3/MinIO key prefix, e.g. `courses/`. */
-    prefix: string
-}
 
 /**
  * Content entity types uploaded to the CDN — objects are keyed by both id and
@@ -186,7 +178,7 @@ export class ReconcileSynchronizerService {
     private async liveColumns(
         entity: Parameters<EntityManager["getRepository"]>[0],
         withDisplayId: boolean,
-    ): Promise<{ ids: Array<string>; displayIds: Array<string> }> {
+    ): Promise<ReconcileIdsResult> {
         const rows = await this.entityManager.getRepository(entity).find({
             select: withDisplayId
                 ? {
@@ -196,7 +188,7 @@ export class ReconcileSynchronizerService {
                 : {
                     id: true,
                 },
-        }) as Array<{ id: string; displayId?: string | null }>
+        }) as Array<LiveColumnsRow>
         const ids: Array<string> = []
         const displayIds: Array<string> = []
         for (const row of rows) {

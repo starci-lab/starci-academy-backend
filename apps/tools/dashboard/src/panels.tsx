@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Button, Chip } from "@heroui/react"
 import { del, postForm, postJson } from "./api"
+import type { PgSnapshotRow } from "./types"
 import {
     Block,
     Field,
@@ -209,9 +210,9 @@ export const DashPanel = () => {
 /** Tool: snapshot a list of cloud Postgres DBs to local files. */
 export const PgSnapshotPanel = () => {
     const { refresh } = useToolsData()
-    const [rows, setRows] = useState<Array<{ name: string; url: string }>>([{ name: "", url: "" }])
+    const [rows, setRows] = useState<Array<PgSnapshotRow>>([{ name: "", url: "" }])
     const action = useAction<unknown>()
-    const update = (i: number, patch: Partial<{ name: string; url: string }>) =>
+    const update = (i: number, patch: Partial<PgSnapshotRow>) =>
         setRows((rs) => rs.map((r, idx) => (idx === i ? { ...r, ...patch } : r)))
     return (
         <Block title="Snapshot → file local" hint="Dump nhiều DB cloud ra file .dump ở máy.">

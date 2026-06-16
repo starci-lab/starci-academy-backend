@@ -23,11 +23,16 @@ import {
 import {
     Locale,
 } from "@modules/databases"
+import type {
+    EsSourceRow,
+    EsTotalValue,
+    MockedElasticsearchService,
+} from "./types"
 
 /** Build an ES search response with hit rows + a total count. */
 const buildSearchResponse = (
-    rows: Array<{ id: string }>,
-    total: number | { value: number },
+    rows: Array<EsSourceRow>,
+    total: number | EsTotalValue,
 ): unknown => ({
     hits: {
         total,
@@ -41,9 +46,7 @@ describe("FoundationsHandler",
     () => {
         let module: TestingModule
         let handler: FoundationsHandler
-        let elasticsearch: jest.Mocked<Pick<ElasticsearchService, "indicateName">> & {
-            client: { search: jest.Mock }
-        }
+        let elasticsearch: MockedElasticsearchService
 
         beforeEach(async () => {
             elasticsearch = {
@@ -51,9 +54,7 @@ describe("FoundationsHandler",
                 client: {
                     search: jest.fn(),
                 },
-            } as unknown as jest.Mocked<Pick<ElasticsearchService, "indicateName">> & {
-                client: { search: jest.Mock }
-            }
+            } as unknown as MockedElasticsearchService
 
             module = await Test.createTestingModule({
                 providers: [

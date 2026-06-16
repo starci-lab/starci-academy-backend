@@ -30,24 +30,10 @@ import type {
     SeedSyncCourseTrack,
     SeedSyncDomainSink,
 } from "@modules/filesystem"
-
-/** Where a reindexed ES index forces a full ES resync (so a dropped index never stays empty). */
-type ResyncTarget =
-    | "courseRoot"
-    | "modules"
-    | "milestones"
-    | "foundations"
-    | "headhunting"
-    | "flashcards"
-    | "codingProblems"
-
-/** One ES index's metadata: its entity class name + the resync target it belongs to. */
-interface IndexMeta {
-    /** Entity class name — the key the reset service / `configMap` use. */
-    entity: string
-    /** The sync knob to force to full when this index is reindexed. */
-    resync: ResyncTarget
-}
+import type {
+    IndexMeta,
+    ResyncTarget,
+} from "./types"
 
 /**
  * Friendly ES index name (as written in `sync.reindex`) → its entity + resync target.
@@ -182,6 +168,7 @@ export class InitConfigParserService {
             codingProblems: seed?.codingProblems ?? false,
             advertisements: seed?.advertisements ?? false,
             changelog: seed?.changelog ?? false,
+            blog: seed?.blog ?? false,
             achievements: seed?.achievements ?? false,
         }
     }

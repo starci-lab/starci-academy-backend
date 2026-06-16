@@ -6,6 +6,40 @@ import type {
 import type {
     ResolveGradingInvokeOptionsResult,
 } from "@modules/ai"
+import type {
+    MetricOutcome,
+} from "./metric"
+
+/**
+ * Parsed result of the LLM judge's `{ score, feedback }` JSON response, with the
+ * score already clamped into [0, 1] and feedback failing safe to an empty string.
+ */
+export interface ParseJudgeResult {
+    /** Judge score clamped into the inclusive range [0, 1]. */
+    score: number
+    /** Human-readable feedback from the judge; empty string on a malformed response. */
+    feedback: string
+}
+
+/** Params for {@link buildJudgePrompt}. */
+export interface BuildJudgePromptParams {
+    /** Eval-set rubric describing what a good answer must contain. */
+    rubric: string
+    /** The case input the candidate output was produced for. */
+    input: string
+    /** The candidate model output to score. */
+    actualOutput: string
+    /** Locale to write the feedback in. */
+    locale: Locale
+}
+
+/** Result of {@link buildJudgePrompt}: the system + user prompt pair for the judge invoke. */
+export interface BuildJudgePromptResult {
+    /** System prompt establishing the judge's strict-JSON grading contract. */
+    system: string
+    /** User prompt carrying the fenced rubric, input, and candidate output. */
+    user: string
+}
 
 /** Per-case grading result produced by {@link AiLabEvalService.gradeEvalSet}. */
 export interface EvalCaseGradeResult {
@@ -27,6 +61,19 @@ export interface EvalCaseGradeResult {
     feedback: string
     /** Weight applied to the case in the aggregate. */
     weight: number
+}
+
+/**
+ * Result of scoring one eval case with its metric (or the LLM judge): the metric
+ * outcome plus the optional judge score and the human-readable feedback.
+ */
+export interface EvaluateMetricResult {
+    /** The metric outcome (normalized score + pass/fail). */
+    outcome: MetricOutcome
+    /** LLM-judge score in [0, 1] when the judge metric ran; null otherwise. */
+    judgeScore: number | null
+    /** Human-readable feedback for the case. */
+    feedback: string
 }
 
 /** Params for {@link AiLabEvalService.gradeEvalSet}. */

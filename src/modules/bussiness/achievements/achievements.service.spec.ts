@@ -68,23 +68,24 @@ const buildDefinition = (
 const isAwardInsert = (sql: unknown): boolean =>
     String(sql).includes("INSERT INTO user_achievements")
 
-describe("AchievementsService", () => {
-    let entityManager: EntityManagerMock
+describe("AchievementsService",
+    () => {
+        let entityManager: EntityManagerMock
 
-    /**
+        /**
      * Build the SUT wired with the given badges + entity-manager programming.
      * - `find` returns definitions for {@link AchievementEntity}, else the earned ledger.
      * - `query` returns the composite values row for the SELECT, or the insert result
      *   for the award INSERT (defaults to "a row was created").
      */
-    const build = async (
-        {
-            badges,
-            definitions,
-            earned = [],
-            values,
-            inserted = true,
-        }: {
+        const build = async (
+            {
+                badges,
+                definitions,
+                earned = [],
+                values,
+                inserted = true,
+            }: {
             badges: Array<AbstractBadge>
             definitions: Array<AchievementEntity>
             earned?: Array<UserAchievementEntity>
@@ -92,251 +93,263 @@ describe("AchievementsService", () => {
             values: Array<number>
             inserted?: boolean
         },
-    ): Promise<AchievementsService> => {
-        entityManager = makeEntityManagerMock()
-        entityManager.find.mockImplementation(async (entity: unknown) =>
-            (entity === AchievementEntity ? definitions : earned))
-        // composite row: { v0, v1, … } in badges order
-        const row = Object.fromEntries(values.map((value, index) => [`v${index}`, String(value)]))
-        entityManager.query.mockImplementation(async (sql: unknown) =>
-            (isAwardInsert(sql) ? (inserted ? [{ id: "award-1" }] : []) : [row]))
+        ): Promise<AchievementsService> => {
+            entityManager = makeEntityManagerMock()
+            entityManager.find.mockImplementation(async (entity: unknown) =>
+                (entity === AchievementEntity ? definitions : earned))
+            // composite row: { v0, v1, … } in badges order
+            const row = Object.fromEntries(values.map((value, index) => [`v${index}`,
+                String(value)]))
+            entityManager.query.mockImplementation(async (sql: unknown) =>
+                (isAwardInsert(sql) ? (inserted ? [{
+                    id: "award-1" 
+                }] : []) : [row]))
 
-        const module: TestingModule = await Test.createTestingModule({
-            providers: [
-                AchievementsService,
-                {
-                    provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
-                    useValue: entityManager,
-                },
-                {
-                    provide: ACHIEVEMENT_BADGES,
-                    useValue: badges,
-                },
-            ],
-        }).compile()
-        return module.get(AchievementsService)
-    }
+            const module: TestingModule = await Test.createTestingModule({
+                providers: [
+                    AchievementsService,
+                    {
+                        provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
+                        useValue: entityManager,
+                    },
+                    {
+                        provide: ACHIEVEMENT_BADGES,
+                        useValue: badges,
+                    },
+                ],
+            }).compile()
+            return module.get(AchievementsService)
+        }
 
-    /** The `[sql, params]` of every award INSERT the SUT issued. */
-    const awardInserts = (): Array<[unknown, Array<unknown>]> =>
+        /** The `[sql, params]` of every award INSERT the SUT issued. */
+        const awardInserts = (): Array<[unknown, Array<unknown>]> =>
         entityManager.query.mock.calls.filter(
             (call) => isAwardInsert(call[0]),
         ) as Array<[unknown, Array<unknown>]>
 
-    describe("recomputeForUser", () => {
-        it("awards a single-tier badge once its value reaches the threshold", async () => {
-            const service = await build({
-                badges: [
-                    new FakeBadge("busy-bee"),
-                ],
-                definitions: [
-                    buildDefinition({
-                        threshold: 5,
-                    }),
-                ],
-                values: [
-                    7,
-                ],
+        describe("recomputeForUser",
+            () => {
+                it("awards a single-tier badge once its value reaches the threshold",
+                    async () => {
+                        const service = await build({
+                            badges: [
+                                new FakeBadge("busy-bee"),
+                            ],
+                            definitions: [
+                                buildDefinition({
+                                    threshold: 5,
+                                }),
+                            ],
+                            values: [
+                                7,
+                            ],
+                        })
+
+                        const earned = await service.recomputeForUser({
+                            userId: USER_ID,
+                        })
+
+                        expect(earned).toEqual([
+                            {
+                                slug: "busy-bee",
+                                tier: null,
+                            },
+                        ])
+                        const inserts = awardInserts()
+                        expect(inserts).toHaveLength(1)
+                        // params: [userId, achievementId, tier]
+                        expect(inserts[0][1]).toEqual([
+                            USER_ID,
+                            "def-busy-bee",
+                            null,
+                        ])
+                    })
+
+                it("does NOT award when the value is below the threshold",
+                    async () => {
+                        const service = await build({
+                            badges: [
+                                new FakeBadge("busy-bee"),
+                            ],
+                            definitions: [
+                                buildDefinition({
+                                    threshold: 5,
+                                }),
+                            ],
+                            values: [
+                                3,
+                            ],
+                        })
+
+                        const earned = await service.recomputeForUser({
+                            userId: USER_ID,
+                        })
+
+                        expect(earned).toEqual([])
+                        expect(awardInserts()).toHaveLength(0)
+                    })
+
+                it("awards one row per reached tier for a tiered badge",
+                    async () => {
+                        const service = await build({
+                            badges: [
+                                new FakeBadge("sword-shark"),
+                            ],
+                            definitions: [
+                                buildDefinition({
+                                    id: "def-sword-shark",
+                                    slug: "sword-shark",
+                                    threshold: 10,
+                                    tierThresholds: [
+                                        10,
+                                        25,
+                                        50,
+                                    ],
+                                }),
+                            ],
+                            // 30 clears tier 1 (10) and tier 2 (25) but not tier 3 (50)
+                            values: [
+                                30,
+                            ],
+                        })
+
+                        const earned = await service.recomputeForUser({
+                            userId: USER_ID,
+                        })
+
+                        expect(earned).toEqual([
+                            {
+                                slug: "sword-shark",
+                                tier: 1,
+                            },
+                            {
+                                slug: "sword-shark",
+                                tier: 2,
+                            },
+                        ])
+                        expect(awardInserts()).toHaveLength(2)
+                    })
+
+                it("is idempotent — an already-existing award is not reported as newly earned",
+                    async () => {
+                        const service = await build({
+                            badges: [
+                                new FakeBadge("busy-bee"),
+                            ],
+                            definitions: [
+                                buildDefinition({
+                                    threshold: 5,
+                                }),
+                            ],
+                            values: [
+                                9,
+                            ],
+                            // INSERT ... WHERE NOT EXISTS suppressed the row → no id returned
+                            inserted: false,
+                        })
+
+                        const earned = await service.recomputeForUser({
+                            userId: USER_ID,
+                        })
+
+                        expect(earned).toEqual([])
+                        // the INSERT still runs (idempotent guard), but nothing was created
+                        expect(awardInserts()).toHaveLength(1)
+                    })
+
+                it("skips a badge with no seeded definition (slug mismatch)",
+                    async () => {
+                        const service = await build({
+                            badges: [
+                                new FakeBadge("ghost-badge"),
+                            ],
+                            definitions: [
+                                buildDefinition(),
+                            ],
+                            values: [
+                                99,
+                            ],
+                        })
+
+                        const earned = await service.recomputeForUser({
+                            userId: USER_ID,
+                        })
+
+                        expect(earned).toEqual([])
+                        expect(awardInserts()).toHaveLength(0)
+                    })
             })
 
-            const earned = await service.recomputeForUser({
-                userId: USER_ID,
-            })
+        describe("getMyAchievements",
+            () => {
+                it("returns the list with live values + the newly-earned subset",
+                    async () => {
+                        const service = await build({
+                            badges: [
+                                new FakeBadge("busy-bee"),
+                                new FakeBadge("brainy-octopus"),
+                            ],
+                            definitions: [
+                                buildDefinition({
+                                    id: "def-busy-bee",
+                                    slug: "busy-bee",
+                                    threshold: 5,
+                                }),
+                                buildDefinition({
+                                    id: "def-brainy-octopus",
+                                    slug: "brainy-octopus",
+                                    threshold: 3,
+                                }),
+                            ],
+                            // busy-bee=7 (earns, threshold 5), brainy-octopus=1 (no, threshold 3)
+                            values: [
+                                7,
+                                1,
+                            ],
+                        })
 
-            expect(earned).toEqual([
-                {
-                    slug: "busy-bee",
-                    tier: null,
-                },
-            ])
-            const inserts = awardInserts()
-            expect(inserts).toHaveLength(1)
-            // params: [userId, achievementId, tier]
-            expect(inserts[0][1]).toEqual([
-                USER_ID,
-                "def-busy-bee",
-                null,
-            ])
-        })
+                        const result = await service.getMyAchievements(USER_ID)
 
-        it("does NOT award when the value is below the threshold", async () => {
-            const service = await build({
-                badges: [
-                    new FakeBadge("busy-bee"),
-                ],
-                definitions: [
-                    buildDefinition({
-                        threshold: 5,
-                    }),
-                ],
-                values: [
-                    3,
-                ],
-            })
+                        expect(result.data).toHaveLength(2)
+                        // currentValue comes from the composite query, by slug
+                        expect(result.data[0]).toMatchObject({
+                            slug: "busy-bee",
+                            currentValue: 7,
+                        })
+                        expect(result.data[1]).toMatchObject({
+                            slug: "brainy-octopus",
+                            currentValue: 1,
+                        })
+                        // only busy-bee crossed its bar this read → congratulate it
+                        expect(result.newAchievements.map((item) => item.slug)).toEqual([
+                            "busy-bee",
+                        ])
+                    })
 
-            const earned = await service.recomputeForUser({
-                userId: USER_ID,
-            })
-
-            expect(earned).toEqual([])
-            expect(awardInserts()).toHaveLength(0)
-        })
-
-        it("awards one row per reached tier for a tiered badge", async () => {
-            const service = await build({
-                badges: [
-                    new FakeBadge("sword-shark"),
-                ],
-                definitions: [
-                    buildDefinition({
-                        id: "def-sword-shark",
-                        slug: "sword-shark",
-                        threshold: 10,
-                        tierThresholds: [
-                            10,
-                            25,
-                            50,
-                        ],
-                    }),
-                ],
-                // 30 clears tier 1 (10) and tier 2 (25) but not tier 3 (50)
-                values: [
-                    30,
-                ],
-            })
-
-            const earned = await service.recomputeForUser({
-                userId: USER_ID,
-            })
-
-            expect(earned).toEqual([
-                {
-                    slug: "sword-shark",
-                    tier: 1,
-                },
-                {
-                    slug: "sword-shark",
-                    tier: 2,
-                },
-            ])
-            expect(awardInserts()).toHaveLength(2)
-        })
-
-        it("is idempotent — an already-existing award is not reported as newly earned", async () => {
-            const service = await build({
-                badges: [
-                    new FakeBadge("busy-bee"),
-                ],
-                definitions: [
-                    buildDefinition({
-                        threshold: 5,
-                    }),
-                ],
-                values: [
-                    9,
-                ],
-                // INSERT ... WHERE NOT EXISTS suppressed the row → no id returned
-                inserted: false,
-            })
-
-            const earned = await service.recomputeForUser({
-                userId: USER_ID,
-            })
-
-            expect(earned).toEqual([])
-            // the INSERT still runs (idempotent guard), but nothing was created
-            expect(awardInserts()).toHaveLength(1)
-        })
-
-        it("skips a badge with no seeded definition (slug mismatch)", async () => {
-            const service = await build({
-                badges: [
-                    new FakeBadge("ghost-badge"),
-                ],
-                definitions: [
-                    buildDefinition(),
-                ],
-                values: [
-                    99,
-                ],
-            })
-
-            const earned = await service.recomputeForUser({
-                userId: USER_ID,
-            })
-
-            expect(earned).toEqual([])
-            expect(awardInserts()).toHaveLength(0)
-        })
-    })
-
-    describe("getMyAchievements", () => {
-        it("returns the list with live values + the newly-earned subset", async () => {
-            const service = await build({
-                badges: [
-                    new FakeBadge("busy-bee"),
-                    new FakeBadge("brainy-octopus"),
-                ],
-                definitions: [
-                    buildDefinition({
-                        id: "def-busy-bee",
-                        slug: "busy-bee",
-                        threshold: 5,
-                    }),
-                    buildDefinition({
-                        id: "def-brainy-octopus",
-                        slug: "brainy-octopus",
-                        threshold: 3,
-                    }),
-                ],
-                // busy-bee=7 (earns, threshold 5), brainy-octopus=1 (no, threshold 3)
-                values: [
-                    7,
-                    1,
-                ],
-            })
-
-            const result = await service.getMyAchievements(USER_ID)
-
-            expect(result.data).toHaveLength(2)
-            // currentValue comes from the composite query, by slug
-            expect(result.data[0]).toMatchObject({
-                slug: "busy-bee",
-                currentValue: 7,
-            })
-            expect(result.data[1]).toMatchObject({
-                slug: "brainy-octopus",
-                currentValue: 1,
-            })
-            // only busy-bee crossed its bar this read → congratulate it
-            expect(result.newAchievements.map((item) => item.slug)).toEqual([
-                "busy-bee",
-            ])
-        })
-
-        it("flags earned + highest tier from the award ledger, no new when already earned", async () => {
-            const now = new Date("2026-06-15T00:00:00.000Z")
-            const service = await build({
-                badges: [
-                    new FakeBadge("sword-shark"),
-                ],
-                definitions: [
-                    buildDefinition({
-                        id: "def-sword-shark",
-                        slug: "sword-shark",
-                        threshold: 10,
-                        tierThresholds: [
-                            10,
-                            25,
-                            50,
-                        ],
-                    }),
-                ],
-                values: [
-                    30,
-                ],
-                // already holds tiers 1 + 2 → nothing newly inserted
-                earned: [
+                it("flags earned + highest tier from the award ledger, no new when already earned",
+                    async () => {
+                        const now = new Date("2026-06-15T00:00:00.000Z")
+                        const service = await build({
+                            badges: [
+                                new FakeBadge("sword-shark"),
+                            ],
+                            definitions: [
+                                buildDefinition({
+                                    id: "def-sword-shark",
+                                    slug: "sword-shark",
+                                    threshold: 10,
+                                    tierThresholds: [
+                                        10,
+                                        25,
+                                        50,
+                                    ],
+                                }),
+                            ],
+                            values: [
+                                30,
+                            ],
+                            // already holds tiers 1 + 2 → nothing newly inserted
+                            earned: [
                     {
                         achievementId: "def-sword-shark",
                         tier: 1,
@@ -347,21 +360,21 @@ describe("AchievementsService", () => {
                         tier: 2,
                         earnedAt: now,
                     } as UserAchievementEntity,
-                ],
-                inserted: false,
-            })
+                            ],
+                            inserted: false,
+                        })
 
-            const result = await service.getMyAchievements(USER_ID)
+                        const result = await service.getMyAchievements(USER_ID)
 
-            expect(result.data[0]).toMatchObject({
-                slug: "sword-shark",
-                earned: true,
-                tierReached: 2,
-                currentValue: 30,
+                        expect(result.data[0]).toMatchObject({
+                            slug: "sword-shark",
+                            earned: true,
+                            tierReached: 2,
+                            currentValue: 30,
+                        })
+                        // one earned achievement in the ledger → count 1
+                        expect(result.count).toBe(1)
+                        expect(result.newAchievements).toEqual([])
+                    })
             })
-            // one earned achievement in the ledger → count 1
-            expect(result.count).toBe(1)
-            expect(result.newAchievements).toEqual([])
-        })
     })
-})

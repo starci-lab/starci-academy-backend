@@ -32,15 +32,19 @@ export class ReconnectionStoreService {
     append(roomId: string, userId: string, text: string): ChatMessage {
         // advance the room's monotonic counter
         const seq = (this.seqByRoom.get(roomId) ?? 0) + 1
-        this.seqByRoom.set(roomId, seq)
+        this.seqByRoom.set(roomId,
+            seq)
         // build the stored message with a server timestamp
-        const message: ChatMessage = { seq, userId, text, timestamp: Date.now() }
+        const message: ChatMessage = {
+            seq, userId, text, timestamp: Date.now() 
+        }
         // lazily create the room buffer and push the new message
         const buffer = this.history.get(roomId) ?? []
         buffer.push(message)
         // drop the oldest entries until the buffer fits the ring cap
         while (buffer.length > CHAT_RING_CAP) buffer.shift()
-        this.history.set(roomId, buffer)
+        this.history.set(roomId,
+            buffer)
         return message
     }
 

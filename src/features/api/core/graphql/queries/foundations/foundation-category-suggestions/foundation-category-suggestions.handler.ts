@@ -20,6 +20,9 @@ import {
 import {
     FoundationCategorySuggestionsPayload,
 } from "./graphql-types"
+import type {
+    CategorySuggestionOption,
+} from "./types"
 
 /** Default number of suggestions returned. */
 const DEFAULT_LIMIT = 8
@@ -97,10 +100,7 @@ export class FoundationCategorySuggestionsHandler
         // cast to the completion-option shape we rely on (text = label, _id = category id).
         const entries = response.suggest?.[SUGGESTER] ?? []
         const options = entries[0]?.options ?? []
-        const optionList = (Array.isArray(options) ? options : [options]) as Array<{
-            text: string
-            _id?: string
-        }>
+        const optionList = (Array.isArray(options) ? options : [options]) as Array<CategorySuggestionOption>
 
         const data = optionList.map((option) => ({
             id: String(option._id ?? ""),

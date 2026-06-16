@@ -36,6 +36,7 @@ import type {
     PushResult,
     PushToTargetParams,
     SyncArtifactResult,
+    SyncFileEntry,
     SyncTargetResult,
 } from "./types"
 
@@ -241,7 +242,7 @@ export class SyncService {
      */
     private async collectFiles(
         rootPath: string,
-    ): Promise<Array<{ absolutePath: string; relativeKey: string; size: number }>> {
+    ): Promise<Array<SyncFileEntry>> {
         const rootStat = await stat(rootPath)
 
         // a single file uploads under its own basename
@@ -254,7 +255,7 @@ export class SyncService {
         }
 
         // a directory uploads every nested file, mirroring its tree as keys
-        const out: Array<{ absolutePath: string; relativeKey: string; size: number }> = []
+        const out: Array<SyncFileEntry> = []
         const walk = async (dir: string): Promise<void> => {
             const dirents = await readdir(dir,
                 {

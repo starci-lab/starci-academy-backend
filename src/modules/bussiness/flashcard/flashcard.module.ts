@@ -14,6 +14,9 @@ import {
     InterviewGradingService,
 } from "./interview-grading.service"
 import {
+    FlashcardReviewService,
+} from "./flashcard-review.service"
+import {
     CreditModule,
 } from "../credit"
 
@@ -33,11 +36,13 @@ import {
         FlashcardDeckReadService,
         InterviewGradePromptService,
         InterviewGradingService,
+        FlashcardReviewService,
     ],
     exports: [
         FlashcardDeckReadService,
         InterviewGradePromptService,
         InterviewGradingService,
+        FlashcardReviewService,
     ],
 })
 export class FlashcardModule extends ConfigurableModuleClass {

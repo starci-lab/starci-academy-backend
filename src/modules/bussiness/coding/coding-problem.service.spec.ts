@@ -10,7 +10,6 @@ import {
 } from "./coding-problem.service"
 import {
     CodingProblemEntity,
-    CodingVerdict,
     Locale,
 } from "@modules/databases"
 import {
@@ -50,7 +49,6 @@ describe("CodingProblemService",
             Pick<ElasticsearchService, "indicateName">
         >
 
-        const userId = "user-1"
         const slug = "two-sum"
 
         beforeEach(async () => {
@@ -300,67 +298,6 @@ describe("CodingProblemService",
                         })
 
                         expect(result).toBeNull()
-                    })
-            })
-
-        describe("leaderboard",
-            () => {
-                it("normalises raw rows and parses the string solved count",
-                    async () => {
-                        entityManager.query.mockResolvedValueOnce([
-                            {
-                                userId: "u1",
-                                username: "alice",
-                                solvedCount: "7",
-                            },
-                            {
-                                userId: "u2",
-                                // null username falls back to an empty string
-                                username: null,
-                                solvedCount: "3",
-                            },
-                        ])
-
-                        const result = await service.leaderboard({
-                        })
-
-                        expect(result).toEqual([
-                            {
-                                userId: "u1",
-                                username: "alice",
-                                solvedCount: 7,
-                            },
-                            {
-                                userId: "u2",
-                                username: "",
-                                solvedCount: 3,
-                            },
-                        ])
-                        // the raw query is parameterised by the Accepted verdict + limit
-                        expect(entityManager.query).toHaveBeenCalledWith(
-                            expect.any(String),
-                            [
-                                CodingVerdict.Accepted,
-                                50,
-                            ],
-                        )
-                    })
-
-                it("honours an explicit limit",
-                    async () => {
-                        entityManager.query.mockResolvedValueOnce([])
-
-                        await service.leaderboard({
-                            limit: 5,
-                        })
-
-                        expect(entityManager.query).toHaveBeenCalledWith(
-                            expect.any(String),
-                            [
-                                CodingVerdict.Accepted,
-                                5,
-                            ],
-                        )
                     })
             })
     })

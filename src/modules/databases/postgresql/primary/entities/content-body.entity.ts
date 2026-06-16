@@ -71,9 +71,10 @@ export class ContentBodyEntity extends UuidAbstractEntity {
     /**
      * Pure ordering index used to reorder the list (decoupled from orderIndex).
      */
-    @Field(() => Int, {
-        description: "Pure ordering index used to reorder the list (decoupled from orderIndex).",
-    })
+    @Field(() => Int,
+        {
+            description: "Pure ordering index used to reorder the list (decoupled from orderIndex).",
+        })
     @Column({
         name: "sort_index",
         type: "int",

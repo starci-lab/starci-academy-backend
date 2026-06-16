@@ -86,8 +86,8 @@ export class SubmitChallengeSubmissionHandler
      * the chosen lane (replaces the old fixed 3h cooldown).
      *
      * - `byok`    → own key, never quota-limited.
-     * - `auto`    → shared 50-credit rolling pool.
-     * - `premium` → the user's tier credit pool (both windows must cover the cost).
+     * - `auto` / `premium` → one shared credit pool (free base + tier); both
+     *   rolling windows must cover the cost.
      *
      * @param userId - Submitter whose quota is checked.
      * @param mode - Resolved lane from the validated grading selection.
@@ -101,40 +101,19 @@ export class SubmitChallengeSubmissionHandler
         if (mode === AiMode.Byok) {
             return
         }
-        // Auto → block when either rolling credit window cannot fit this run
-        if (mode === AiMode.Auto) {
-            const cost = resolveGradingCreditCost({
-                mode: AiMode.Auto,
-                recommendation: envConfig().ai.modelRecommendation as ModelRecommendation,
-            })
-            const snapshot = await this.creditUsageService.getSnapshot(userId)
-            const lacksWeek = snapshot.windowWeek.remainingCredits < cost
-            const lacks5h = snapshot.window5h.remainingCredits < cost
-            if (lacksWeek || lacks5h) {
-                const resetAt = lacksWeek
-                    ? snapshot.windowWeek.resetAt
-                    : snapshot.window5h.resetAt
-                throw new SubmissionQuotaExceededException({
-                    mode,
-                    waitUntil: resetAt
-                        ? this.dayjsService.from(resetAt).format("HH:mm DD/MM/YYYY")
-                        : null,
-                })
-            }
-            return
-        }
-        // Premium → block when the tier credit pool can't cover this grading's cost
+        // Auto + Premium share one credit pool → block when either rolling window
+        // cannot cover this grading's cost
         const recommendation = envConfig().ai.modelRecommendation as ModelRecommendation
         const cost = resolveGradingCreditCost({
-            mode: AiMode.Premium,
+            mode,
             recommendation,
         })
         const snapshot = await this.aiEntitlementService.snapshot({
             userId,
         })
         // the weekly window is the binding (later) wait when it is the blocker
-        const lacksWeek = snapshot.premium.remainingWeek < cost
-        const lacks5h = snapshot.premium.remaining5h < cost
+        const lacksWeek = snapshot.credit.remainingWeek < cost
+        const lacks5h = snapshot.credit.remaining5h < cost
         if (lacksWeek || lacks5h) {
             const resetAt = lacksWeek
                 ? snapshot.windowWeekResetAt

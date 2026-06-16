@@ -11,31 +11,8 @@ import type {
     BuildDiffOverlayResult,
     DataGitDiff,
     DataGitDomain,
+    DomainFlags,
 } from "./types"
-
-/**
- * Standalone-domain seed/sync toggles, plus the global flashcard pass.
- *
- * Decouples the per-course tracks from the on/off domains so every builder
- * (full / custom / diff) can hand {@link SeedDiffOverlayService.assemble} the
- * exact domain set it resolved instead of a fixed flashcard+foundations pair.
- */
-interface DomainFlags {
-    /** Run the global flashcard-deck pass (seed + ES sync). */
-    flashcard: boolean
-    /** Seed + sync the standalone foundations domain. */
-    foundations: boolean
-    /** Seed + sync CV templates. */
-    cv: boolean
-    /** Seed + sync headhunting companies/consultants. */
-    headhunting: boolean
-    /** Seed the AI model catalog (seed-only — no sync sink). */
-    aiModels: boolean
-    /** Seed the subscription catalog (seed-only — no sync sink). */
-    subscriptions: boolean
-    /** Seed + sync coding-practice problems. */
-    codingProblems: boolean
-}
 
 /** All-off domain flags — the baseline every builder starts from. */
 const NO_DOMAINS: DomainFlags = {
@@ -237,6 +214,7 @@ export class SeedDiffOverlayService {
                 codingProblems: domains.codingProblems,
                 advertisements: false,
                 changelog: false,
+                blog: false,
                 achievements: false,
             },
             synchronizers: {

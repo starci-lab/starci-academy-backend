@@ -87,8 +87,13 @@ describe("FlashcardDeckParserService",
                             paths: jest.fn(),
                             // list the real per-card folders for the deck under test
                             cardPaths: jest.fn(async (deckRelativePath: string) => {
-                                const cardsDir = path.join(COURSES_MOUNT_ROOT, deckRelativePath, "cards")
-                                const entries = await fs.readdir(cardsDir, { withFileTypes: true })
+                                const cardsDir = path.join(COURSES_MOUNT_ROOT,
+                                    deckRelativePath,
+                                    "cards")
+                                const entries = await fs.readdir(cardsDir,
+                                    {
+                                        withFileTypes: true 
+                                    })
                                 return entries
                                     .filter((entry) => entry.isDirectory())
                                     .map((entry) => {
@@ -96,7 +101,8 @@ describe("FlashcardDeckParserService",
                                         return {
                                             relativePath: `${deckRelativePath}/cards/${entry.name}`,
                                             orderIndex: match ? Number(match[1]) : 0,
-                                            displayId: entry.name.replace(/^\d+-/, ""),
+                                            displayId: entry.name.replace(/^\d+-/,
+                                                ""),
                                         }
                                     })
                                     .sort((a, b) => a.orderIndex - b.orderIndex)

@@ -124,13 +124,14 @@ export class UserSolvedChallengesProjectionService {
                 )
                 FROM (
                     SELECT DISTINCT ON (ucs.id)
-                           cs.title          AS title,
+                           COALESCE(ch.title, cs.title) AS title,
                            ucs.submission_url AS submission_url,
                            cs.type::text     AS submission_type,
                            ucs.selected_lang AS selected_lang,
                            ucsa.processed_at AS passed_at
                     FROM user_challenge_submissions ucs
                     JOIN challenge_submissions cs ON cs.id = ucs.submission_id
+                    LEFT JOIN challenges ch ON ch.id = cs.challenge_id
                     JOIN user_challenge_submission_attempts ucsa ON ucsa.user_challenge_submission_id = ucs.id
                     WHERE ucs.user_id = $1
                       AND ucsa.score > 0

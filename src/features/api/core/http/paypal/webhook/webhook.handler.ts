@@ -31,6 +31,9 @@ import {
 import {
     PaypalClient,
 } from "@modules/paypal"
+import type {
+    PaypalPurchaseUnit,
+} from "@modules/paypal"
 import {
     BadRequestException,
     Injectable,
@@ -207,7 +210,7 @@ export class PaypalWebhookHandler
             return directCustomId
         }
         // order events nest custom_id under the first purchase unit
-        const purchaseUnits = resource.purchase_units as Array<{ custom_id?: string }> | undefined
+        const purchaseUnits = resource.purchase_units as Array<PaypalPurchaseUnit> | undefined
         const nestedCustomId = purchaseUnits?.[0]?.custom_id
         if (typeof nestedCustomId === "string") {
             return nestedCustomId

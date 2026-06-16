@@ -267,6 +267,74 @@ export class UserEntity extends UuidAbstractEntity {
     })
         openToWork: boolean
 
+    /**
+     * Slug of the achievement the user pins as their profile mascot (its rank ring
+     * frames the avatar). Null = none chosen (the UI shows an "add" affordance to
+     * the owner). Public. Not FK-constrained — it mirrors a seeded achievement slug.
+     */
+    @Field(() => String,
+        {
+            nullable: true,
+            description: "Slug of the pinned mascot achievement (frames the avatar); null = none.",
+        })
+    @Column({
+        name: "featured_achievement_slug",
+        type: "varchar",
+        length: 128,
+        nullable: true,
+    })
+        featuredAchievementSlug: string | null
+
+    /**
+     * The user's self-set weekly learning goal, in number of lessons. Drives the
+     * dashboard "weekly goal" progress ring (lessons read this week vs. this
+     * target). Null = the user has not set a goal yet (the UI shows a "set a goal"
+     * affordance instead of a ring). Clamped into [0, 100] on write.
+     */
+    @Field(() => Int,
+        {
+            nullable: true,
+            description: "Self-set weekly learning goal in lessons; null = no goal set.",
+        })
+    @Column({
+        name: "weekly_goal_lessons",
+        type: "int",
+        nullable: true,
+    })
+        weeklyGoalLessons: number | null
+
+    /**
+     * Per-KPI weekly targets the user has set for the dashboard "KPI tuần"
+     * summary + the `/kpi` editor — a map of {@link KpiKey} → target count
+     * (e.g. `{ lessons: 5, xp: 300 }`). A key absent / 0 means "no target set"
+     * for that KPI (it is excluded from the composite score). Not exposed
+     * directly via GraphQL — read server-side by the `myKpis` query.
+     */
+    @Column({
+        name: "weekly_kpi_targets",
+        type: "jsonb",
+        default: {
+        },
+    })
+        weeklyKpiTargets: Record<string, number>
+
+    /**
+     * Number of unused streak freezes the user owns. Bought with points
+     * (`buyStreakFreeze`, capped at 3) and consumed automatically by the daily
+     * `consumeStreakFreezeForMisses` cron when the user misses a day, which
+     * inserts a protected day so the streak survives. Defaults to 0.
+     */
+    @Field(() => Int,
+        {
+            description: "Number of unused streak freezes the user owns (max 3).",
+        })
+    @Column({
+        name: "streak_freezes",
+        type: "int",
+        default: 0,
+    })
+        streakFreezes: number
+
 
     @Field(
         () => [EnrollmentEntity],

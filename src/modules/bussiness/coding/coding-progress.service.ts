@@ -15,6 +15,10 @@ import {
 import type {
     CodingProblemProgressCacheResult,
 } from "@modules/cache"
+import type {
+    CodingPointsRow,
+    CodingProblemIdRow,
+} from "./types"
 
 /**
  * Read-side per-user coding-practice progress/status, decoupled from the shared
@@ -104,26 +108,26 @@ export class CodingProgressService {
              WHERE user_id = $1 AND verdict = $2`,
             [userId,
                 CodingVerdict.Accepted],
-        ) as Array<{ id: string }>
+        ) as Array<CodingProblemIdRow>
         // distinct problems the user has submitted to (any verdict)
         const attemptedRows = await this.entityManager.query(
             `SELECT DISTINCT coding_problem_id AS "id"
              FROM coding_submissions
              WHERE user_id = $1`,
             [userId],
-        ) as Array<{ id: string }>
+        ) as Array<CodingProblemIdRow>
         // distinct problems whose solution the user revealed
         const revealedRows = await this.entityManager.query(
             `SELECT DISTINCT coding_problem_id AS "id"
              FROM coding_solution_reveals
              WHERE user_id = $1`,
             [userId],
-        ) as Array<{ id: string }>
+        ) as Array<CodingProblemIdRow>
         // the user's cumulative coding score
         const pointsRows = await this.entityManager.query(
             "SELECT points AS \"points\" FROM users WHERE id = $1",
             [userId],
-        ) as Array<{ points: number | string }>
+        ) as Array<CodingPointsRow>
         return {
             solvedProblemIds: solvedRows.map((row) => row.id),
             attemptedProblemIds: attemptedRows.map((row) => row.id),

@@ -50,7 +50,9 @@ export class ReconnectionGateway {
         // subscribe this socket to the room's broadcasts
         void client.join(body.roomId)
         // tell the client where the room currently stands
-        return { ok: true, lastSeq: this.store.lastSeq(body.roomId) }
+        return {
+            ok: true, lastSeq: this.store.lastSeq(body.roomId) 
+        }
     }
 
     /**
@@ -64,11 +66,16 @@ export class ReconnectionGateway {
         // derive the sender from the join identity (fallback for safety)
         const userId = (client.data.userId as string | undefined) ?? "anon"
         // append to the ring buffer, which assigns the next seq + timestamp
-        const message = this.store.append(body.roomId, userId, body.text)
+        const message = this.store.append(body.roomId,
+            userId,
+            body.text)
         // broadcast the stored message to everyone in the room (sender included)
-        this.server.to(body.roomId).emit("chat", message)
+        this.server.to(body.roomId).emit("chat",
+            message)
         // ack the sender with the seq so it can advance its lastSeq cursor
-        return { ok: true, seq: message.seq }
+        return {
+            ok: true, seq: message.seq 
+        }
     }
 
     /**
@@ -79,6 +86,9 @@ export class ReconnectionGateway {
         @MessageBody() body: ReplaySinceDto,
     ): ReplayAck {
         // pull the capped slice of messages newer than the client's cursor
-        return { messages: this.store.replaySince(body.roomId, body.lastSeq) }
+        return {
+            messages: this.store.replaySince(body.roomId,
+                body.lastSeq) 
+        }
     }
 }

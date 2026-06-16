@@ -40,6 +40,9 @@ import {
     AiLabEvalMetricService,
     AiLabEvalService,
 } from "@modules/bussiness"
+import type {
+    SeedEvalSetAndRunResult_TestOnly,
+} from "./types"
 
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
@@ -135,12 +138,7 @@ describe("AI Lab eval-runner happy path (e2e)",
          * (one exact-match case, one contains case) — the real rows the
          * eval-runner grades against.
          */
-        const seedEvalSetAndRun = async (): Promise<{
-            evalSetId: string
-            evalRunId: string
-            exactCaseId: string
-            containsCaseId: string
-        }> => {
+        const seedEvalSetAndRun = async (): Promise<SeedEvalSetAndRunResult_TestOnly> => {
             const user = await entityManager.save(
                 entityManager.create(UserEntity,
                     {

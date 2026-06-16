@@ -60,6 +60,7 @@ export interface SeedSeedersConfig {
     codingProblems: boolean
     advertisements: boolean
     changelog: boolean
+    blog: boolean
     achievements: boolean
 }
 
@@ -172,6 +173,7 @@ export interface InitSeedBlock {
     subscriptions?: boolean
     advertisements?: boolean
     changelog?: boolean
+    blog?: boolean
     achievements?: boolean
 }
 

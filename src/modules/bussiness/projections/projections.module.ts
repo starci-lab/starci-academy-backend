@@ -30,6 +30,12 @@ import {
 import {
     UserSolvedChallengesProjectionModule,
 } from "./user-solved-challenges"
+import {
+    TrendingContentsProjectionModule,
+} from "./trending-contents"
+import {
+    LeagueCohortPointsProjectionModule,
+} from "./league-cohort-points"
 
 /**
  * Umbrella module aggregating every CQRS projection leaf-module: progress
@@ -62,6 +68,8 @@ export class ProjectionsModule extends ConfigurableModuleClass {
             UserCodingProjectionModule.register(options),
             UserCapstoneProjectionModule.register(options),
             UserSolvedChallengesProjectionModule.register(options),
+            TrendingContentsProjectionModule.register(options),
+            LeagueCohortPointsProjectionModule.register(options),
         ]
         return {
             ...dynamicModule,

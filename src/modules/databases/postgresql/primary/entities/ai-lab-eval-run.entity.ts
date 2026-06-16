@@ -56,7 +56,9 @@ import {
 @Index(["enrollment"])
 @Index(["evalSet"])
 // dedupe / cache identical resubmissions: one verdict per (eval set, learner, input hash)
-@Unique(["evalSet", "user", "submittedHash"])
+@Unique(["evalSet",
+    "user",
+    "submittedHash"])
 @Entity("ai_lab_eval_runs")
 export class AiLabEvalRunEntity extends UuidAbstractEntity {
     /**

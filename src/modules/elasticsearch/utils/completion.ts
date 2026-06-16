@@ -20,6 +20,14 @@ export interface CompletionSuggestField {
     weight: number
 }
 
+/** A single option from an ES completion-suggester response we rely on. */
+export interface CompletionOption {
+    /** The suggest text (already the clean label to display). */
+    text: string
+    /** The matched document id (`_source: false`, so only `_id` comes back). */
+    _id?: string
+}
+
 /** Params for {@link buildCompletionSuggest}. */
 export interface BuildCompletionSuggestParams {
     /** One or more clean label strings to register as completion inputs. */
@@ -44,7 +52,8 @@ export const buildCompletionSuggest = (
     input: inputs
         .map((value) => value.trim())
         .filter((value) => value.length > 0),
-    weight: Math.max(1, Math.floor(weight)),
+    weight: Math.max(1,
+        Math.floor(weight)),
 })
 
 /** One resolved autocomplete suggestion. */
@@ -101,7 +110,9 @@ export const runCompletionSuggest = async (
                 prefix: normalized,
                 completion: {
                     field,
-                    size: Math.min(MAX_SUGGESTIONS_LIMIT, Math.max(1, limit)),
+                    size: Math.min(MAX_SUGGESTIONS_LIMIT,
+                        Math.max(1,
+                            limit)),
                     skip_duplicates: true,
                     fuzzy: {
                         fuzziness: "AUTO",
@@ -116,10 +127,7 @@ export const runCompletionSuggest = async (
     // suggest[name] is an array (one entry per prefix); take the first entry's options
     const entries = response.suggest?.[SUGGESTER_NAME] ?? []
     const options = entries[0]?.options ?? []
-    const optionList = (Array.isArray(options) ? options : [options]) as Array<{
-        text: string
-        _id?: string
-    }>
+    const optionList = (Array.isArray(options) ? options : [options]) as Array<CompletionOption>
 
     return optionList.map((option) => ({
         id: String(option._id ?? ""),

@@ -51,6 +51,18 @@ export interface ListCommentsParams {
     limit?: number
 }
 
+/**
+ * One raw grouped-count row from the reply-count query
+ * (`SELECT parent_comment_id AS parentId, COUNT(*) AS count`). `count` is a
+ * string because Postgres returns `COUNT(*)` as `bigint` text over the wire.
+ */
+export interface ReplyCountRow {
+    /** The parent comment whose replies were counted. */
+    parentId: string
+    /** Number of direct replies, as a numeric string. */
+    count: string
+}
+
 /** Result of a comment list query. */
 export interface ListCommentsResult {
     /** The page of comment rows (author relation loaded). */

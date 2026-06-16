@@ -35,6 +35,8 @@ export class PresenceController {
         @Param("room") room: string,
     ): { members: Array<string> } {
         // read the live roster straight from the in-memory presence store
-        return { members: this.store.members(room) }
+        return {
+            members: this.store.members(room) 
+        }
     }
 }

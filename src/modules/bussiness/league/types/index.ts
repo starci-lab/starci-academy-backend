@@ -16,6 +16,12 @@ export interface LeagueStandingMember {
     weekPoints: number
     /** 1-based rank within the cohort, descending by `weekPoints` then user id. */
     rank: number
+    /**
+     * Rank movement vs. the member's finishing rank last week
+     * (`lastWeekRank - rank`): positive = climbed N places, negative = dropped,
+     * null when there is no last-week baseline (new / inactive last week).
+     */
+    rankDelta: number | null
 }
 
 /**
@@ -61,4 +67,68 @@ export interface ActiveUserBucketRow {
     user_id: string
     /** The tier (post promote/demote) the user belongs to for the new week. */
     tier: LeagueTier
+}
+
+/**
+ * Internal row shape returned by the open-cohort lookup SQL (the id of an
+ * existing cohort with spare capacity for the tier+week).
+ */
+export interface LeagueCohortIdRow {
+    /** The matching `league_cohorts.id`. */
+    id: string
+}
+
+/**
+ * Internal row shape for the per-cohort last-week-rank lookup — each member's
+ * finishing rank in their previous week, used to compute `rankDelta`.
+ */
+export interface MemberLastWeekRankRow {
+    /** Member's user id. */
+    user_id: string
+    /** The member's finishing rank last week; null when they have no baseline. */
+    last_week_rank: number | null
+}
+
+/**
+ * One row of the global (all-users) leaderboard ordered by total points.
+ */
+export interface GlobalLeaderboardMember {
+    /** Member's user id. */
+    userId: string
+    /** Display username; null when unset. */
+    username: string | null
+    /** Avatar URL; null when the user has no avatar. */
+    avatar: string | null
+    /** The user's unified global points balance. */
+    points: number
+    /** 1-based rank across all users, descending by points then user id. */
+    rank: number
+}
+
+/**
+ * The viewer's view of the global leaderboard: the top-ranked users plus the
+ * viewer's own rank + points (so the UI can append a "you" row when they sit
+ * outside the visible top).
+ */
+export interface GlobalLeaderboardResult {
+    /** Top-ranked users (best → worst), capped by the query limit. */
+    entries: Array<GlobalLeaderboardMember>
+    /** The viewer's own 1-based rank across all users. */
+    myRank: number
+    /** The viewer's unified global points balance. */
+    myPoints: number
+}
+
+/**
+ * Internal row shape returned by the global-leaderboard top-N SQL.
+ */
+export interface GlobalLeaderboardRow {
+    /** User id. */
+    id: string
+    /** Display username (may be null). */
+    username: string | null
+    /** Avatar URL (may be null). */
+    avatar: string | null
+    /** The user's unified global points balance. */
+    points: string | number
 }

@@ -47,3 +47,9 @@ export interface ContributionDayResult {
     /** contents + challenges + milestones — drives the heatmap cell intensity. */
     total: number
 }
+
+/** CDC row from `activities` (the actor's contribution calendar moves). */
+export interface ActivityCdcRow {
+    /** The user who performed the activity. */
+    user_id?: string
+}

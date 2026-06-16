@@ -51,6 +51,21 @@ import {
 import {
     AchievementsModule,
 } from "./achievements"
+import {
+    StreakModule,
+} from "./streak"
+import {
+    RewardsModule,
+} from "./rewards"
+import {
+    LearnerCmsModule,
+} from "./learner-cms"
+import {
+    WeeklyChallengeModule,
+} from "./weekly-challenge"
+import {
+    EsSyncModule,
+} from "./es-sync"
 
 /**
  * The module for the bussiness logics.
@@ -89,6 +104,16 @@ export class BussinessModule extends ConfigurableModuleClass {
             LeagueModule.register(options),
             // import the achievements module (badge award engine)
             AchievementsModule.register(options),
+            // import the streak-freeze module (buy + daily auto-protect cron)
+            StreakModule.register(options),
+            // import the reward-store ("điểm quà") module (catalog + wallet + redeem)
+            RewardsModule.register(options),
+            // import the learner self-management CMS reads (plain paginated lists)
+            LearnerCmsModule.register(options),
+            // import the weekly-challenge module (auto-rotate read-only event)
+            WeeklyChallengeModule.register(options),
+            // import the es-sync module (user → Elasticsearch `users` index sync)
+            EsSyncModule.register(options),
         ]
         return {
             ...dynamicModule,

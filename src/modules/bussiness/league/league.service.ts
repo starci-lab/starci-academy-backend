@@ -14,12 +14,18 @@ import {
     envConfig,
 } from "@modules/env"
 import {
+    LeagueCohortPointsProjectionService,
+} from "../projections"
+import {
     LEAGUE_TIER_ORDER,
 } from "./constants"
 import type {
     ActiveUserBucketRow,
     CohortMemberPointsRow,
-    LeagueStandingMember,
+    GlobalLeaderboardResult,
+    GlobalLeaderboardRow,
+    LeagueCohortIdRow,
+    MemberLastWeekRankRow,
     MyStandingResult,
 } from "./types"
 
@@ -38,6 +44,7 @@ export class LeagueService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly leagueCohortPointsProjectionService: LeagueCohortPointsProjectionService,
     ) {}
 
     /**
@@ -71,19 +78,96 @@ export class LeagueService {
         }
         // a cohort is guaranteed by placeUserLazily; capture its window
         const cohort = userLeague.cohort as LeagueCohortEntity
-        // rank every member of the cohort by their week points
-        const members = await this.rankCohortMembers({
-            cohortId: cohort.id,
-            weekStartAt: cohort.weekStartAt,
-            weekEndAt: cohort.weekEndAt,
+        // ranked members read from the CQRS cohort-points projection (the heavy
+        // SUM GROUP BY runs in the projection's recompute, not inline per request)
+        const members = await this.leagueCohortPointsProjectionService.getMembers(cohort.id)
+        // last-week finishing rank per member (snapshotted at the previous reset)
+        // → the rank-movement caret. A flat read on the per-user league rows.
+        const lastWeekRankRows = await this.entityManager.query(
+            `SELECT user_id, last_week_rank FROM user_leagues WHERE cohort_id = $1`,
+            [
+                cohort.id,
+            ],
+        ) as Array<MemberLastWeekRankRow>
+        // index last-week rank by user id for an O(1) lookup while mapping
+        const lastWeekRankByUser = new Map<string, number | null>(
+            lastWeekRankRows.map((row) => [
+                row.user_id,
+                row.last_week_rank,
+            ]),
+        )
+        // attach each member's movement: positive = climbed N places vs last week,
+        // null when they have no baseline (new / inactive last week)
+        const rankedMembers = members.map((member) => {
+            const lastWeekRank = lastWeekRankByUser.get(member.userId) ?? null
+            return {
+                ...member,
+                rankDelta: lastWeekRank !== null ? lastWeekRank - member.rank : null,
+            }
         })
         // assemble the viewer-facing standing
         return {
             tier: userLeague.tier,
-            members,
+            members: rankedMembers,
             promoteCount,
             demoteCount,
             weekEndAt: cohort.weekEndAt,
+        }
+    }
+
+    /**
+     * Read the global (all-users) leaderboard ranked by total reward points: the
+     * top `limit` users plus the viewer's own rank + points (so the UI can append
+     * a "you" row when they sit outside the visible top). Sorts on the
+     * already-materialized `users.points` aggregate — no per-request recompute.
+     *
+     * @param userId - the viewer's user id (for their own rank).
+     * @param limit - how many top users to return.
+     * @returns the viewer's {@link GlobalLeaderboardResult}.
+     */
+    async getGlobalLeaderboard(
+        userId: string,
+        limit: number,
+    ): Promise<GlobalLeaderboardResult> {
+        // top N users by total points (tie-broken by id for a stable order)
+        const topRows = await this.entityManager.query(
+            `
+            SELECT id, username, avatar, points
+            FROM users
+            ORDER BY points DESC, id ASC
+            LIMIT $1
+            `,
+            [
+                limit,
+            ],
+        ) as Array<GlobalLeaderboardRow>
+        // map to the ranked wire shape (1-based rank = list position)
+        const entries = topRows.map((row, index) => ({
+            userId: row.id,
+            username: row.username,
+            avatar: row.avatar,
+            points: Number(row.points) || 0,
+            rank: index + 1,
+        }))
+        // the viewer's own points + rank (count of users strictly ahead, + 1)
+        const myRankRows = await this.entityManager.query(
+            `
+            SELECT
+                u.points AS my_points,
+                (SELECT COUNT(*) FROM users o WHERE o.points > u.points)::int + 1 AS my_rank
+            FROM users u
+            WHERE u.id = $1
+            `,
+            [
+                userId,
+            ],
+        ) as Array<{ my_points: string | number, my_rank: number }>
+        // a viewer always has a user row, but guard defensively
+        const mine = myRankRows[0]
+        return {
+            entries,
+            myRank: mine ? Number(mine.my_rank) : entries.length + 1,
+            myPoints: mine ? Number(mine.my_points) || 0 : 0,
         }
     }
 
@@ -229,7 +313,7 @@ export class LeagueService {
                 weekStartAt,
                 cohortSize,
             ],
-        ) as Array<{ id: string }>
+        ) as Array<LeagueCohortIdRow>
         // reuse the open cohort when one exists
         if (openCohortRows.length > 0) {
             return manager.findOneOrFail(
@@ -250,45 +334,6 @@ export class LeagueService {
                 weekEndAt,
             },
         )
-    }
-
-    /**
-     * Rank a cohort's members by their week points (descending), tie-broken by
-     * user id so the order is stable across reads.
-     *
-     * @param params - cohort id + its week window.
-     * @returns the ranked {@link LeagueStandingMember} list.
-     */
-    private async rankCohortMembers(
-        {
-            cohortId,
-            weekStartAt,
-            weekEndAt,
-        }: {
-            cohortId: string
-            weekStartAt: Date
-            weekEndAt: Date
-        },
-    ): Promise<Array<LeagueStandingMember>> {
-        // sum each member's flat points inside the cohort window; LEFT JOIN so a
-        // member with zero points still appears (COALESCE → 0), ordered for ranking
-        const rows = await this.entityManager.query(
-            this.buildCohortPointsSql(),
-            [
-                cohortId,
-                weekStartAt,
-                weekEndAt,
-            ],
-        ) as Array<CohortMemberPointsRow>
-        // map rows → ranked members; the SQL ORDER BY already fixes the order, so
-        // rank is just the 1-based array index
-        return rows.map((row, index) => ({
-            userId: row.user_id,
-            username: row.username,
-            avatar: row.avatar,
-            weekPoints: Number(row.week_points) || 0,
-            rank: index + 1,
-        }))
     }
 
     /**
@@ -347,7 +392,8 @@ export class LeagueService {
                     demote: isDemoted,
                 })
                 // write the new tier onto the member's league row (cohort cleared so
-                // the new-week bucketing reassigns it)
+                // the new-week bucketing reassigns it) + snapshot this week's
+                // finishing rank so next week's board can show the movement caret
                 await manager.update(
                     UserLeagueEntity,
                     {
@@ -356,6 +402,7 @@ export class LeagueService {
                     {
                         tier: nextTier,
                         cohort: null,
+                        lastWeekRank: rank,
                     },
                 )
             }

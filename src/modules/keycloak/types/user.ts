@@ -35,3 +35,14 @@ export interface KeycloakUser {
      */
     requiredActions: Array<string>
 }
+
+/**
+ * Minimal element of the Keycloak admin users-search response, from which we
+ * only read the user id after creating a user.
+ */
+export interface KeycloakUserSummary {
+    /**
+     * The ID of the user.
+     */
+    id: string
+}

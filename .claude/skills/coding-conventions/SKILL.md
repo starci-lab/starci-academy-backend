@@ -301,6 +301,45 @@ and uniform typing of the binding.
 Even for `void`-returning functions, prefer no explicit return type or use existing primitives.
 For non-trivial returns, define `Result` type in `types/`.
 
+### No inline object type literals in generics / casts / return types (STRICT)
+
+Never write an anonymous `{ ... }` object shape as a **generic type argument**, a
+**type assertion** (`as { ... }`), a **return type**, or a **local-variable
+annotation**. Extract it to a named interface in `types/` (with type-level + full
+per-member JSDoc) and import it back via `import type`. This is the same rule as
+"No nested interfaces" — it most often shows up on TypeORM raw-query result
+generics and casts:
+
+```ts
+// ❌ inline object literals — anonymous shape inside the generic / cast / return
+const rows = await qb.getRawOne<{ sum: string }>()
+const due  = await qb.getRawMany<{ card_id: string }>()
+const ids  = await this.entityManager.query<Array<{ user_id: string }>>(sql)
+const list = (await this.entityManager.query(sql)) as Array<{ id: string }>
+async loadFoo(): Promise<{ id: string; total: number }> { ... }
+
+// ✅ named interface in types/, imported and referenced
+import type { RewardSumRow, DueCardIdRow, UserIdRow, ProblemIdRow } from "./types"
+const rows = await qb.getRawOne<RewardSumRow>()
+const due  = await qb.getRawMany<DueCardIdRow>()
+const ids  = await this.entityManager.query<Array<UserIdRow>>(sql)
+const list = (await this.entityManager.query(sql)) as Array<ProblemIdRow>
+```
+
+Naming:
+
+- **Raw-SQL row shapes** → PascalCase ending in `Row` (e.g. `RewardSumRow`,
+  `EnrolledCourseIdRow`, `CommentReactionCountRow`). Keep the **exact raw column
+  names** — snake_case (`user_id`, `week_end`) stays snake_case because these are
+  wire-format DB rows, and Postgres `COUNT`/`SUM` aggregates come back as `string`.
+  JSDoc each field with that wire-format reasoning.
+- **Method results** → `{ActionName}Result`.
+- **External-API payloads** (`axios.get<...>`, `as Array<{...}>` over JSON) → a
+  named interface reflecting the entity (`KeycloakUserSummary`, `PaypalLink`, …).
+
+Only exception: a genuine **mapped / utility type** like `{ [K in keyof T]: ... }`
+is not an extractable object shape and may stay inline.
+
 ### Callback parameter names — full singular nouns, never single letters
 
 Array methods (`map`, `filter`, `find`, `some`, `every`, `forEach`, `reduce`)
@@ -1020,6 +1059,7 @@ Before completing any code change:
 - [ ] Params object for ≥2 args, destructured in signature
 - [ ] Param types named `{ActionName}Params`, return types named `{ActionName}Result`
 - [ ] No inline type definitions in function signatures
+- [ ] No anonymous `{ ... }` object literal in generics / casts / return types (`getRawOne<{...}>`, `query<Array<{...}>>`, `as Array<{...}>`, `Promise<{...}>`) — extract to a named `*Row`/`*Result` interface in `types/`
 - [ ] `Array<T>` not `T[]`
 - [ ] `import type` for type-only imports
 - [ ] `index.ts` re-exports updated for new files

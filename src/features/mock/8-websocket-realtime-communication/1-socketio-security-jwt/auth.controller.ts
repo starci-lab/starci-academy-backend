@@ -48,9 +48,12 @@ export class AuthController {
         @Body() body: CredentialsDto,
     ): { access_token: string } {
         // upsert the user and get back the claims to sign
-        const user = this.store.register(body.username, body.password)
+        const user = this.store.register(body.username,
+            body.password)
         // mint and return the signed JWT
-        return { access_token: this.sign(user) }
+        return {
+            access_token: this.sign(user) 
+        }
     }
 
     /**
@@ -65,11 +68,14 @@ export class AuthController {
         @Body() body: CredentialsDto,
     ): { access_token: string } {
         // verify the supplied credentials against the in-memory store
-        const user = this.store.verify(body.username, body.password)
+        const user = this.store.verify(body.username,
+            body.password)
         // reject mismatches so the client surfaces a 401
         if (!user) throw new UnauthorizedException("Invalid credentials")
         // mint and return the signed JWT
-        return { access_token: this.sign(user) }
+        return {
+            access_token: this.sign(user) 
+        }
     }
 
     /**
@@ -77,6 +83,8 @@ export class AuthController {
      */
     private sign(user: JwtUser): string {
         // embed subject id + username so the gateway can derive the identity
-        return this.jwt.sign({ sub: user.sub, username: user.username })
+        return this.jwt.sign({
+            sub: user.sub, username: user.username 
+        })
     }
 }

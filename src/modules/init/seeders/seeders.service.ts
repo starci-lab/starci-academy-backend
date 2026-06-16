@@ -26,6 +26,9 @@ import {
     ChangelogSeederService,
 } from "./changelog"
 import {
+    BlogSeederService,
+} from "./blog"
+import {
     AchievementSeederService,
 } from "./achievements"
 /**
@@ -42,6 +45,7 @@ export class SeedersService {
         private readonly codingProblemSeederService: CodingProblemSeederService,
         private readonly advertisementSeederService: AdvertisementSeederService,
         private readonly changelogSeederService: ChangelogSeederService,
+        private readonly blogSeederService: BlogSeederService,
         private readonly achievementSeederService: AchievementSeederService,
     ) { }
 
@@ -55,6 +59,7 @@ export class SeedersService {
         await this.codingProblemSeederService.seed()
         await this.advertisementSeederService.seed()
         await this.changelogSeederService.seed()
+        await this.blogSeederService.seed()
         await this.achievementSeederService.seed()
     }
 }

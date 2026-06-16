@@ -89,6 +89,7 @@ export class GradingLaneValidationService {
                 {
                     model,
                     provider,
+                    allowedCategories: entitlement.allowedCategories,
                 },
             )
         }
@@ -194,15 +195,19 @@ export class GradingLaneValidationService {
     }
 
     /**
-     * Auto — model optional; when set, must be a complimentary enabled catalog row.
+     * Auto — model optional; when set, the model's category must be unlocked by
+     * the user's entitlement (free is locked to Economy; a paid tier unlocks the
+     * higher categories).
      */
     private async validateAutoLane(
         {
             model,
             provider,
+            allowedCategories,
         }: {
             model?: string
             provider?: ValidateGradingLaneParams["provider"]
+            allowedCategories: Array<AiModelCategory>
         },
     ): Promise<ValidatedGradingLane> {
         if (!model?.trim() || !provider) {
@@ -215,9 +220,9 @@ export class GradingLaneValidationService {
             model.trim(),
             provider,
         )
-        if (!row.complimentary) {
+        if (!allowedCategories.includes(row.category)) {
             throw new AiByokInvalidException({
-                reason: "selected model is not available on the Auto lane",
+                reason: `model category "${row.category}" is not available on your plan`,
             })
         }
 

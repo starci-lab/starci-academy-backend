@@ -18,7 +18,9 @@ import {
 import type {
     CreatePaypalOrderParams,
     CreatePaypalOrderResult,
+    PaypalLink,
     PaypalOrderDetail,
+    PaypalPurchaseUnit,
     RetrievePaypalOrderParams,
     VerifyPaypalWebhookParams,
 } from "./types"
@@ -90,7 +92,7 @@ export class PaypalClient {
             },
         )
         // pick the HATEOAS link the buyer must visit to approve the order
-        const links = (response.data.links ?? []) as Array<{ rel: string; href: string }>
+        const links = (response.data.links ?? []) as Array<PaypalLink>
         const approveLink = links.find((link) => link.rel === "approve")
         return {
             orderId: String(response.data.id),
@@ -120,7 +122,7 @@ export class PaypalClient {
             },
         )
         // recover our reference id from the first purchase unit's custom_id
-        const purchaseUnits = (response.data.purchase_units ?? []) as Array<{ custom_id?: string }>
+        const purchaseUnits = (response.data.purchase_units ?? []) as Array<PaypalPurchaseUnit>
         return {
             id: String(response.data.id),
             status: String(response.data.status),

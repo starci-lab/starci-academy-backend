@@ -31,7 +31,7 @@ import {
     ExtractJsonFromMdService,
 } from "../shared"
 import type {
-    AdvertisementSeedItem,
+    AdvertisementSeedFileRoot,
 } from "./types"
 
 /**
@@ -65,9 +65,7 @@ export class AdvertisementSeederService {
             return
         }
         // extract the array root (`# 0`, `# 1`, … → wrapped as `{ data: [...] }`)
-        const parsed = this.extractJsonFromMdService.extract<{
-            data?: Array<AdvertisementSeedItem>
-        }>(readFileSync(file,
+        const parsed = this.extractJsonFromMdService.extract<AdvertisementSeedFileRoot>(readFileSync(file,
             "utf8"))
         const items = parsed.data ?? []
         for (const item of items) {

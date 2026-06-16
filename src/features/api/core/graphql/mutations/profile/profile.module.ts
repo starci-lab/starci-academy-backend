@@ -13,6 +13,12 @@ import {
 import {
     VerifyAvatarPresignUrlSingleMutationModule,
 } from "./verify-avatar-presign-url"
+import {
+    SetWeeklyGoalSingleMutationModule,
+} from "./set-weekly-goal"
+import {
+    SetKpiTargetSingleMutationModule,
+} from "./set-kpi-target"
 
 /**
  * Profile mutation group (edit display name, bio, avatar). Avatar upload is a
@@ -28,6 +34,12 @@ import {
             isGlobal: true,
         }),
         VerifyAvatarPresignUrlSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        SetWeeklyGoalSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        SetKpiTargetSingleMutationModule.register({
             isGlobal: true,
         }),
     ],

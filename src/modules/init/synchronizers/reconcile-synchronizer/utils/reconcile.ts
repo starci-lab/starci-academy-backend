@@ -19,7 +19,8 @@ export const segmentFromCdnKey = (
     }
     // `<seg>.json` (locale-less) or `<seg>/<locale>.json` → first path part is the seg
     const first = key.slice(prefix.length).split("/")[0]
-    const segment = first.replace(/\.json$/u, "")
+    const segment = first.replace(/\.json$/u,
+        "")
     return segment.length > 0
         ? segment
         : null

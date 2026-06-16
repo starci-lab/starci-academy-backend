@@ -34,6 +34,9 @@ import {
     MyCourseItemData,
 } from "../../dashboard/my-courses/graphql-types"
 import {
+    computeCompletionPercent,
+} from "../../dashboard/my-courses/utils"
+import {
     UserCoursesResponse,
 } from "./graphql-types"
 
@@ -89,6 +92,7 @@ export class UserCoursesResolver {
             challengeTotal: row.challengeTotal,
             completed: row.completed,
             total: row.total,
+            completionPercent: computeCompletionPercent(row),
         }))
     }
 }

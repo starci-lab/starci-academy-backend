@@ -92,6 +92,7 @@ export class UserAchievementsResolver {
             earnedAt: achievement.earnedAt,
             currentValue: achievement.currentValue,
             tierReached: achievement.tierReached,
+            rarityPercent: achievement.rarityPercent,
         }))
     }
 }

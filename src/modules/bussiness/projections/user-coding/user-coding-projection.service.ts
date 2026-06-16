@@ -12,12 +12,18 @@ import {
     envConfig,
 } from "@modules/env"
 import type {
+    CodingLeaderboardEntryResult,
+    CodingLeaderboardRow,
     RecomputeUserCodingParams,
     UserCodingHistoryResult,
     UserCodingHistoryValue,
+    UserCodingLeaderboardParams,
     UserCodingSkillCountResult,
     UserCodingSkillsResult,
 } from "./types"
+
+/** Default number of leaderboard entries when the caller gives none. */
+const DEFAULT_LEADERBOARD_LIMIT = 50
 
 /**
  * CQRS projection service for a user's coding-practice aggregate. The heavy
@@ -88,6 +94,41 @@ export class UserCodingProjectionService {
     }
 
     /**
+     * Top users by distinct problems solved — a thin ORDER BY over the per-user
+     * projection rows (no GROUP BY per request; the count is already materialised
+     * in `value->>'solvedCount'`). Mirrors the course-leaderboard read pattern.
+     *
+     * @param params - {@link UserCodingLeaderboardParams}
+     * @returns ranked entries, highest solved count first.
+     */
+    async getLeaderboard(
+        {
+            limit = DEFAULT_LEADERBOARD_LIMIT,
+        }: UserCodingLeaderboardParams,
+    ): Promise<Array<CodingLeaderboardEntryResult>> {
+        const rows = await this.entityManager.query<Array<CodingLeaderboardRow>>(
+            `
+            SELECT p.user_id                       AS user_id,
+                   u.username                      AS username,
+                   (p.value->>'solvedCount')::int  AS solved_count
+            FROM user_coding_projections p
+            JOIN users u ON u.id = p.user_id
+            WHERE (p.value->>'solvedCount')::int > 0
+            ORDER BY (p.value->>'solvedCount')::int DESC, p.updated_at ASC
+            LIMIT $1
+            `,
+            [
+                limit,
+            ],
+        )
+        return rows.map((row) => ({
+            userId: row.user_id,
+            username: row.username ?? "",
+            solvedCount: Number(row.solved_count) || 0,
+        }))
+    }
+
+    /**
      * Read the projection row's jsonb value, recomputing first when missing or
      * stale (TTL lazy-refresh). Shared by {@link getSkills} + {@link getHistory}
      * so a single read refreshes at most once.
@@ -143,6 +184,11 @@ export class UserCodingProjectionService {
         return `
             INSERT INTO user_coding_projections (user_id, value)
             SELECT $1::uuid, jsonb_build_object(
+                'solvedCount', COALESCE((
+                    SELECT COUNT(DISTINCT cs.coding_problem_id)::int
+                    FROM coding_submissions cs
+                    WHERE cs.user_id = $1 AND cs.verdict = 'accepted'
+                ), 0),
                 'byLanguage', COALESCE((
                     SELECT jsonb_agg(
                         jsonb_build_object('key', l.language, 'solved', l.solved)

@@ -1,8 +1,14 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react"
-import type { PropsWithChildren, ReactNode } from "react"
+import type { ReactNode } from "react"
 import { Alert, Button, Input, Spinner } from "@heroui/react"
 import { getJson } from "./api"
-import type { Artifact, Target } from "./types"
+import type {
+    Artifact,
+    BlockProps,
+    SelectFieldProps,
+    SubmitButtonProps,
+    Target,
+} from "./types"
 
 /* ------------------------------------------------------------------ */
 /* Async action hook + outcome renderer                                */
@@ -114,7 +120,7 @@ export const SelectField = (
         value,
         onChange,
         children,
-    }: PropsWithChildren<{ label: string; value: string; onChange: (v: string) => void }>,
+    }: SelectFieldProps,
 ) => (
     <div className="flex flex-col gap-1.5">
         <label className="text-xs text-muted">{label}</label>
@@ -135,7 +141,7 @@ export const SubmitButton = (
         disabled,
         onPress,
         children,
-    }: PropsWithChildren<{ pending: boolean; disabled?: boolean; onPress: () => void }>,
+    }: SubmitButtonProps,
 ) => (
     <Button variant="primary" size="lg" fullWidth isDisabled={pending || disabled} onPress={onPress}>
         {pending ? <Spinner size="sm" color="current" /> : children}
@@ -144,7 +150,7 @@ export const SubmitButton = (
 
 /** A titled block inside a tab panel (heading↔body same-function → gap-3). */
 export const Block = (
-    { title, hint, children }: PropsWithChildren<{ title: string; hint?: string }>,
+    { title, hint, children }: BlockProps,
 ) => (
     <div className="flex flex-col gap-3">
         <div>

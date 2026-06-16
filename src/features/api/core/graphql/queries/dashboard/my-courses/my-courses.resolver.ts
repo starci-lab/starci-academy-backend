@@ -33,6 +33,9 @@ import {
     MyCourseItemData,
     MyCoursesResponse,
 } from "./graphql-types"
+import {
+    computeCompletionPercent,
+} from "./utils"
 
 /**
  * Rail query: every course the viewer has joined, each with its milestone
@@ -78,6 +81,7 @@ export class MyCoursesResolver {
             challengeTotal: row.challengeTotal,
             completed: row.completed,
             total: row.total,
+            completionPercent: computeCompletionPercent(row),
         }))
     }
 }

@@ -1,6 +1,10 @@
 import {
     Locale,
 } from "@modules/databases"
+import type {
+    BuildJudgePromptParams,
+    BuildJudgePromptResult,
+} from "../types"
 
 /**
  * Default cosine-similarity threshold for an embedding-metric case when the
@@ -32,17 +36,8 @@ export const buildJudgePrompt = (
         input,
         actualOutput,
         locale,
-    }: {
-        /** Eval-set rubric describing what a good answer must contain. */
-        rubric: string
-        /** The case input the candidate output was produced for. */
-        input: string
-        /** The candidate model output to score. */
-        actualOutput: string
-        /** Locale to write the feedback in. */
-        locale: Locale
-    },
-): { system: string; user: string } => {
+    }: BuildJudgePromptParams,
+): BuildJudgePromptResult => {
     // pick the human language the judge writes its feedback in (content is bilingual)
     const feedbackLanguage = locale === Locale.Vi
         ? "Vietnamese"

@@ -128,6 +128,30 @@ export interface MarkRunFailedParams {
     errorMessage: string
 }
 
+/**
+ * Result of pulling the loose `model` / `provider` out of a lane selection for
+ * the validation call. Auto carries neither field; Premium / Byok carry both.
+ */
+export interface SelectionModelProviderResult {
+    /** Concrete model pinned by the selection; absent for the Auto lane. */
+    model?: string
+    /** Provider pinned by the selection; absent for the Auto lane. */
+    provider?: ModelProvider
+}
+
+/**
+ * Result of resolving the concrete `(model, provider, mode)` a run will use, for
+ * the cache key and the persisted row.
+ */
+export interface ResolveModelProviderResult {
+    /** Concrete model name that will serve the run. */
+    model: string
+    /** Provider that will serve the run. */
+    provider: ModelProvider
+    /** AI lane the run is billed on. */
+    mode: AiMode
+}
+
 /** Params for {@link AiLabRunService.getRemainingRuns}. */
 export interface GetRemainingRunsParams {
     /** Owner whose remaining runs are counted. */

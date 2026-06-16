@@ -84,4 +84,17 @@ export class UpdateProfileRequest {
     @IsOptional()
     @IsBoolean()
         openToWork?: boolean
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Slug of the achievement to pin as the profile mascot; null clears it.",
+        },
+    )
+    @IsOptional()
+    @IsString()
+    // cap matches the `featured_achievement_slug` varchar(128) column
+    @MaxLength(128)
+        featuredAchievementSlug?: string | null
 }

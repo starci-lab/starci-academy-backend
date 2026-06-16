@@ -35,3 +35,9 @@ export interface ContentEngagementSummary {
     /** Top-level + reply comments on the content. */
     commentCount: number
 }
+
+/** CDC row shape carrying a content id (reactions / comments / user-contents). */
+export interface ContentScopedCdcRow {
+    /** Source `content_id` column (the recompute key). */
+    content_id?: string
+}

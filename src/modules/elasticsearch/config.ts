@@ -11,6 +11,7 @@ import {
     HeadhuntingCompanyEntity,
     FlashcardDeckEntity,
     CodingProblemEntity,
+    UserEntity,
 } from "@modules/databases"
 import type {
     ElasticsearchIndexMapping,
@@ -48,6 +49,9 @@ import {
 import {
     codingProblemsIndexMapping,
 } from "./mappings/coding-problem.mapping"
+import {
+    userIndexMapping,
+} from "./mappings/user.mapping"
 
 /**
  * Config map data.
@@ -120,5 +124,12 @@ export const configMap: ConfigMap = {
     [CodingProblemEntity.name]: {
         indices: "coding-problems",
         mapping: codingProblemsIndexMapping,
+    },
+    // non-localized user index (search + "who to follow") — written by es-sync,
+    // NOT by the per-locale content synchronizer, so it stays out of the
+    // ElasticsearchService auto-create `indices` list
+    [UserEntity.name]: {
+        indices: "users",
+        mapping: userIndexMapping,
     },
 }

@@ -43,6 +43,8 @@ import type {
     PersistRunOutputParams,
     PrepareStreamParams,
     PrepareStreamResult,
+    ResolveModelProviderResult,
+    SelectionModelProviderResult,
 } from "./types"
 
 /**
@@ -423,14 +425,12 @@ export class AiLabRunService {
             })
         }
 
-        // the user's overall AI quota — when the Auto lane is fully spent, no run can proceed
+        // the user's overall AI quota — when the shared credit pool is spent, no run can proceed
         const snapshot = await this.aiEntitlementService.snapshot({
             userId,
         })
-        // remaining AI-lane allowance: Premium pool when on a tier, else the free Auto lane
-        const quotaRemaining = snapshot.mode === AiMode.Premium
-            ? snapshot.premium.remaining5h
-            : snapshot.auto.remaining5h
+        // remaining allowance from the single credit pool (free base + tier)
+        const quotaRemaining = snapshot.credit.remaining5h
         const quotaExhausted = quotaRemaining <= 0
 
         // a zero cap means "unlimited" → bound only by the AI quota
@@ -520,7 +520,7 @@ export class AiLabRunService {
      */
     private selectionModelProvider(
         ai?: AiJobSelection,
-    ): { model?: string; provider?: ModelProvider } {
+    ): SelectionModelProviderResult {
         // Auto pins nothing — the balancer / resolver chooses the model
         if (!ai || ai.mode === AiMode.Auto) {
             return {
@@ -545,7 +545,7 @@ export class AiLabRunService {
     private resolveModelProvider(
         invokeOptions: ResolveGradingInvokeOptionsResult,
         ai?: AiJobSelection,
-    ): { model: string; provider: ModelProvider; mode: AiMode } {
+    ): ResolveModelProviderResult {
         // BYOK → the user's own (provider, model) from the byok descriptor
         if (invokeOptions.byok) {
             return {

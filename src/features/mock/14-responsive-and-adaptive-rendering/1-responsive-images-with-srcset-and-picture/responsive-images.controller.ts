@@ -11,11 +11,12 @@ import {
     MockDelayInterceptor,
 } from "../../interceptors"
 import type {
+    ResponsiveImageCatalogRow,
     ResponsiveImageProduct,
 } from "./types"
 
 /** Catalog source rows; the image URLs are derived from the picsum seed. */
-const CATALOG: ReadonlyArray<{ id: number; name: string; price: string; seed: string }> = [
+const CATALOG: ReadonlyArray<ResponsiveImageCatalogRow> = [
     {
         id: 1, name: "Wireless Headphones", price: "$149", seed: "headphones",
     },
@@ -45,7 +46,7 @@ const CATALOG: ReadonlyArray<{ id: number; name: string; price: string; seed: st
 const buildProduct = (
     {
         id, name, price, seed,
-    }: { id: number; name: string; price: string; seed: string },
+    }: ResponsiveImageCatalogRow,
 ): ResponsiveImageProduct => ({
     id,
     name,

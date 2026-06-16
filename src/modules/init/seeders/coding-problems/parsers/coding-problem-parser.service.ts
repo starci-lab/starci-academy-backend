@@ -27,6 +27,9 @@ import type {
     ParsedCodingProblemStarterCode,
     ParsedCodingProblemTestcase,
     ParsedCodingProblemTranslation,
+    RawCodingProblem,
+    RawIoItem,
+    RawLangCodeItem,
 } from "../types"
 
 /** Points awarded for a first clean solve, by difficulty tier. */
@@ -34,40 +37,6 @@ const POINTS_BY_DIFFICULTY: Record<CodingDifficulty, number> = {
     [CodingDifficulty.Easy]: 10,
     [CodingDifficulty.Medium]: 15,
     [CodingDifficulty.Hard]: 20,
-}
-
-/** One per-language code item (`## <n>` → `### lang` + `### content`). */
-interface RawLangCodeItem {
-    /** Language string from `### lang`. */
-    lang?: string
-    /** Code string from `### content`. */
-    content?: string
-}
-
-/** One IO item (`## <n>` → `### input` + `### output`). */
-interface RawIoItem {
-    /** Stdin string from `### input`. */
-    input?: string
-    /** Expected stdout string from `### output`. */
-    output?: string
-}
-
-/** Shape produced by {@link ExtractJsonFromMdService} for a problem `en.md`. */
-interface RawCodingProblem extends Record<string, unknown> {
-    title?: string
-    difficulty?: string
-    domain?: string
-    orderIndex?: string
-    enabled?: string
-    timeLimitMs?: string
-    memoryLimitKb?: string
-    statement?: string
-    hint?: string
-    tags?: Array<{ value?: string }>
-    starterCodes?: Array<RawLangCodeItem>
-    solutions?: Array<RawLangCodeItem>
-    example?: Array<RawIoItem>
-    testcases?: Array<RawIoItem>
 }
 
 /**
@@ -176,7 +145,8 @@ export class CodingProblemParserService {
         enHintRaw: string | undefined,
         dir: string,
     ): Partial<Record<Locale, string>> {
-        const hints: Partial<Record<Locale, string>> = {}
+        const hints: Partial<Record<Locale, string>> = {
+        }
         // English hint comes straight from the already-parsed en.md
         const enHint = (enHintRaw ?? "").trim()
         if (enHint.length > 0) {

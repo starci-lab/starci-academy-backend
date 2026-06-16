@@ -44,7 +44,9 @@ import type {
     IndexEntitiesParams,
     IndexEntitiesResult,
     CountDocsParams,
-    PruneOrphansParams
+    PruneOrphansParams,
+    DeleteEntityParams,
+    DeleteEntityResult
 } from "./types"
 
 /**
@@ -251,6 +253,57 @@ export class ElasticsearchService implements OnModuleInit {
                 document: data
             }))
         })
+    }
+
+    /**
+     * Delete a single document by id from a (per-locale) index.
+     *
+     * Used by event-driven sync paths to drop a doc when its source row is
+     * removed or soft-deleted. A missing document (or absent index) is treated
+     * as success — the desired end-state (doc gone) already holds.
+     *
+     * @param params - Entity class name, doc id, and optional locale.
+     *
+     * @example
+     * await service.deleteEntity({ entity: UserEntity.name, id })
+     */
+    async deleteEntity(
+        {
+            entity,
+            id,
+            locale,
+        }: DeleteEntityParams,
+    ): Promise<DeleteEntityResult> {
+        // resolve the concrete index name (`<base>` or `<base>-<locale>`)
+        const index = this.indicateName({
+            entity,
+            locale,
+        })
+        try {
+            // delete the doc by its _id; refresh so a follow-up read sees it gone
+            await this.client.delete({
+                index,
+                id,
+                refresh: true,
+            })
+        } catch (error) {
+            // doc already absent (404) → desired state reached, nothing to do
+            if (
+                error?.meta?.statusCode === 404 ||
+                error?.meta?.body?.result === "not_found"
+            ) {
+                return
+            }
+            // index never created yet → nothing to delete
+            if (
+                error?.meta?.body?.error?.type === "index_not_found_exception" ||
+                error?.message?.includes("index_not_found_exception")
+            ) {
+                return
+            }
+            // any other failure is real → surface it to the caller
+            throw error
+        }
     }
 
     /**

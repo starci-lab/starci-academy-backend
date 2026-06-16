@@ -15,6 +15,26 @@ export interface RecomputeUserStatsParams {
     entityManager?: EntityManager
 }
 
+/** CDC row from `user_follows` (both endpoints' stats move on a follow change). */
+export interface UserFollowCdcRow {
+    /** The follower endpoint (its following_count moves). */
+    follower_id?: string
+    /** The followed endpoint (its follower_count moves). */
+    following_id?: string
+}
+
+/** CDC row from `notifications` (the recipient's unread count moves). */
+export interface NotificationCdcRow {
+    /** Recipient user id. */
+    user_id?: string
+}
+
+/** CDC row from `xp_histories` (the earner's streak + weekly metrics move). */
+export interface UserStatsXpHistoryCdcRow {
+    /** User who earned the XP. */
+    user_id?: string
+}
+
 /**
  * One day in the "last 7 days" streak strip — whether the user was active
  * (earned any XP) on that calendar day.
@@ -46,6 +66,12 @@ export interface UserStatsResult {
     weeklyXp: number
     /** Number of lessons read in the last 7 days. */
     weeklyLessons: number
+    /** Challenges passed in the last 7 days (xp_histories source=challenge). */
+    weeklyChallenges: number
+    /** Coding problems accepted in the last 7 days (coding_submissions). */
+    weeklyCoding: number
+    /** Flashcards reviewed in the last 7 days (user_flashcard_reviews). */
+    weeklyFlashcards: number
     /** The last 7 calendar days (oldest → today) flagged active. */
     last7Days: Array<StreakDay>
 }

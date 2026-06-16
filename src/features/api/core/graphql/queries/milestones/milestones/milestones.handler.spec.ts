@@ -17,10 +17,13 @@ import {
 import {
     Locale,
 } from "@modules/databases"
+import type {
+    TestEsSourceRow,
+} from "./types"
 
 /** Build an ES search response whose hits carry the given `_source` rows. */
 const buildSearchResponse = (
-    rows: Array<{ id: string }>,
+    rows: Array<TestEsSourceRow>,
 ): unknown => ({
     hits: {
         hits: rows.map((row) => ({

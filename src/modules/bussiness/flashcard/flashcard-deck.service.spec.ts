@@ -256,7 +256,8 @@ describe("FlashcardDeckReadService",
                             ]),
                         })
                         // force the pick onto the first element of the filtered pool
-                        jest.spyOn(Math, "random").mockReturnValue(0)
+                        jest.spyOn(Math,
+                            "random").mockReturnValue(0)
 
                         const result = await service.drawRandomCard({
                             flashcardDeckId,
@@ -287,7 +288,8 @@ describe("FlashcardDeckReadService",
                             _source: deckWithCards(cards),
                         })
                         // 0.5 * 3 = 1.5 → floor 1 → the middle card
-                        jest.spyOn(Math, "random").mockReturnValue(0.5)
+                        jest.spyOn(Math,
+                            "random").mockReturnValue(0.5)
 
                         const result = await service.drawRandomCard({
                             flashcardDeckId,

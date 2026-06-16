@@ -115,6 +115,9 @@ import {
     ChangelogSeederService,
 } from "./changelog"
 import {
+    BlogSeederService,
+} from "./blog"
+import {
     AchievementSeederService,
 } from "./achievements"
 import {
@@ -213,6 +216,7 @@ export class SeedersModule extends ConfigurableModuleClass {
             CourseSeederService,
             AdvertisementSeederService,
             ChangelogSeederService,
+            BlogSeederService,
             AchievementSeederService,
             SeedersService,
             TemplateCvPathService,

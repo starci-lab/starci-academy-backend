@@ -31,11 +31,12 @@ import {
 } from "./constants"
 import type {
     EvalCaseGradeResult,
+    EvaluateMetricResult,
     GetEvalResultParams,
     GetEvalResultResult,
     GradeEvalSetParams,
     GradeEvalSetResult,
-    MetricOutcome,
+    ParseJudgeResult,
 } from "./types"
 
 /** Score awarded to a judge case when the LLM-judge response cannot be parsed. */
@@ -269,7 +270,7 @@ export class AiLabEvalService {
             actualOutput: string
             locale: GradeEvalSetParams["locale"]
         },
-    ): Promise<{ outcome: MetricOutcome; judgeScore: number | null; feedback: string }> {
+    ): Promise<EvaluateMetricResult> {
         switch (evalCase.metricKind) {
         // exact-match — trimmed, case-insensitive equality
         case AiLabMetricKind.Exact: {
@@ -344,7 +345,7 @@ export class AiLabEvalService {
             actualOutput: string
             locale: GradeEvalSetParams["locale"]
         },
-    ): Promise<{ outcome: MetricOutcome; judgeScore: number | null; feedback: string }> {
+    ): Promise<EvaluateMetricResult> {
         // build the strict-JSON judge prompt from the rubric + the case input/output
         const {
             system,
@@ -388,7 +389,7 @@ export class AiLabEvalService {
      */
     private parseJudge(
         raw: string,
-    ): { score: number; feedback: string } {
+    ): ParseJudgeResult {
         try {
             // strip any fence / prose then parse the JSON object
             const parsed = JSON.parse(extractJsonBlock(raw)) as Record<string, unknown>

@@ -156,6 +156,25 @@ export function writeXpHistory(params: WriteXpHistoryParams): Promise<void> { /*
 - The return type must always be `{ActionName}Result`.
 - **Destructure as much as possible:** Always destructure params objects directly in the function signature (e.g. `create({ key, config }: CreateParams)` instead of `create(param: CreateParams)` then `const { key, config } = param`). Also destructure nested objects and arrays when accessing their properties multiple times to improve readability and reduce repetition.
 - **No inline type definitions:** Never define parameter types inline in function signatures. Always export the parameter type from `types/` folder with the naming pattern `{ActionName}Params` (e.g. `AxiosCreateParams`, `CreateUserParams`). Import and use the exported type.
+- **No inline object type literals in generics / casts / return types (STRICT):** Never write an anonymous `{ ... }` object shape as a generic type argument, a type assertion, a return type, or a local-variable annotation. Always extract it to a named interface in `types/` (with full per-member JSDoc) and import it back. This applies in particular to TypeORM raw-query result generics and casts:
+
+  ```ts
+  // ❌ inline object literals
+  const rows = await qb.getRawOne<{ sum: string }>()
+  const due  = await qb.getRawMany<{ card_id: string }>()
+  const ids  = await this.entityManager.query<Array<{ user_id: string }>>(sql)
+  const list = (await this.entityManager.query(sql)) as Array<{ id: string }>
+  async loadFoo(): Promise<{ id: string; total: number }> { ... }
+
+  // ✅ named interface in types/, imported via `import type`
+  import type { RewardSumRow, DueCardIdRow, UserIdRow, ProblemIdRow } from "./types"
+  const rows = await qb.getRawOne<RewardSumRow>()
+  const due  = await qb.getRawMany<DueCardIdRow>()
+  const ids  = await this.entityManager.query<Array<UserIdRow>>(sql)
+  const list = (await this.entityManager.query(sql)) as Array<ProblemIdRow>
+  ```
+
+  Naming: raw-SQL row shapes use PascalCase ending in `Row` (e.g. `RewardSumRow`, `EnrolledCourseIdRow`) and keep the **exact raw column names** (snake_case like `user_id`, `week_end` stays snake_case — these are wire-format DB rows; Postgres `COUNT`/`SUM` come back as `string`). Method results use `{ActionName}Result`. The only exception is a genuine **mapped/utility type** such as `{ [K in keyof T]: ... }`, which is not an extractable object shape and may stay inline.
 - **Use Array<T> instead of T[]:** Always use `Array<T>` syntax for array types instead of `T[]` syntax for consistency and readability.
 
 ---

@@ -42,6 +42,20 @@ export interface RetrievePaypalOrderParams {
     orderId: string
 }
 
+/** A HATEOAS link entry returned on a PayPal order (`response.data.links[]`). */
+export interface PaypalLink {
+    /** Relation name of the link (e.g. `approve`, `self`, `capture`). */
+    rel: string
+    /** Absolute URL the relation points to. */
+    href: string
+}
+
+/** Subset of a PayPal `purchase_units[]` entry we rely on. */
+export interface PaypalPurchaseUnit {
+    /** Our reference id echoed back by PayPal on the purchase unit. */
+    custom_id?: string
+}
+
 /** Subset of a PayPal order detail response we rely on. */
 export interface PaypalOrderDetail {
     /** PayPal order id. */

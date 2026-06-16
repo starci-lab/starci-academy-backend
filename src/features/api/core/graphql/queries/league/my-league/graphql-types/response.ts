@@ -62,6 +62,15 @@ export class MyLeagueEntryData {
         },
     )
         rank: number
+
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Rank movement vs last week (lastWeekRank - rank): >0 climbed, <0 dropped, null when no baseline.",
+        },
+    )
+        rankDelta: number | null
 }
 
 /**

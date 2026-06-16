@@ -16,6 +16,7 @@ import {
 } from "../id-factories"
 import type {
     ParseFoundationTagsParams,
+    RawFoundationTagItem,
 } from "./types"
 
 /**
@@ -41,11 +42,7 @@ export class FoundationTagParserService {
         }: ParseFoundationTagsParams,
     ): Array<DeepPartial<FoundationTagEntity>> {
         return (
-            (jsonMap.get(Locale.En)?.tags ?? []) as Array<{
-                orderIndex: number
-                sortIndex?: number
-                value?: string
-            }>
+            (jsonMap.get(Locale.En)?.tags ?? []) as Array<RawFoundationTagItem>
         ).map(({
             orderIndex,
             sortIndex,

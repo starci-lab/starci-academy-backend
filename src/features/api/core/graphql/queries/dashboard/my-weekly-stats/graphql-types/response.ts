@@ -80,6 +80,23 @@ export class MyWeeklyStatsData {
         },
     )
         days: Array<MyWeeklyStatsDayData>
+
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "The user's self-set weekly goal in lessons; null = no goal set.",
+        },
+    )
+        weeklyGoalLessons: number | null
+
+    @Field(
+        () => Int,
+        {
+            description: "Number of unused streak freezes the user owns (0 when viewing another user).",
+        },
+    )
+        streakFreezes: number
 }
 
 /**

@@ -10,6 +10,38 @@ export interface RecomputeUserCodingParams {
     entityManager?: EntityManager
 }
 
+/** CDC row from `coding_submissions` (a submission moves the submitter's coding aggregate). */
+export interface CodingSubmissionCdcRow {
+    /** The user who submitted. */
+    user_id?: string
+}
+
+/** Params for reading the distinct-solved coding leaderboard. */
+export interface UserCodingLeaderboardParams {
+    /** Max entries to return (defaults applied by the service). */
+    limit?: number
+}
+
+/** Raw leaderboard row read from `user_coding_projections` joined to users. */
+export interface CodingLeaderboardRow {
+    /** The ranked user's id. */
+    user_id: string
+    /** The ranked user's username (nullable in storage). */
+    username: string | null
+    /** Distinct problems solved, extracted from the jsonb value. */
+    solved_count: number
+}
+
+/** One typed leaderboard entry returned by {@link UserCodingProjectionService.getLeaderboard}. */
+export interface CodingLeaderboardEntryResult {
+    /** The ranked user's id. */
+    userId: string
+    /** The ranked user's username ("" when unset). */
+    username: string
+    /** Distinct problems solved. */
+    solvedCount: number
+}
+
 /** One solved-count bucket (language or difficulty) in the projection value / read. */
 export interface UserCodingSkillCountResult {
     /** Language value (python/typescript/…) or difficulty value (easy/medium/hard). */

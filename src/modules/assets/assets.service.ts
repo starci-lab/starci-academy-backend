@@ -31,6 +31,7 @@ import {
     ASSET_DEFAULT_CONTENT_TYPE,
 } from "./constants"
 import type {
+    AssetFileEntry,
     SyncAssetsResult,
     SyncedAsset,
 } from "./types"
@@ -186,8 +187,8 @@ export class AssetsService implements OnModuleInit {
     private async collectFiles(
         dir: string,
         root: string,
-    ): Promise<Array<{ absPath: string, relPath: string }>> {
-        const out: Array<{ absPath: string, relPath: string }> = []
+    ): Promise<Array<AssetFileEntry>> {
+        const out: Array<AssetFileEntry> = []
         const entries = await fs.readdir(dir,
             {
                 withFileTypes: true,

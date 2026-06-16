@@ -36,6 +36,7 @@ import type {
     ExtendedReviewCvSubmissionContext,
     ReviewCvSubmissionExtractStepExecuteResult,
     ReviewCvSubmissionPlanStepExecuteResult,
+    ReviewCvSubmissionPlanStepExecutionResult,
 } from "../types"
 import {
     CV_AI_INVOKE_DECISION_KEY,
@@ -132,10 +133,7 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
             ReviewCvSubmissionPayload,
             ExtendedReviewCvSubmissionContext
         >,
-    ): Promise<{
-        executionResult: ReviewCvSubmissionPlanStepExecuteResult
-        decision: CvAiInvokeDecision
-    }> {
+    ): Promise<ReviewCvSubmissionPlanStepExecutionResult> {
         const { originalText } = await this.jobActionService.loadExecutionResult<ReviewCvSubmissionExtractStepExecuteResult>(
             {
                 job: context.job,

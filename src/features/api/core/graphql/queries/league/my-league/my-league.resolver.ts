@@ -76,6 +76,7 @@ export class MyLeagueResolver {
             avatar: member.avatar,
             weekPoints: member.weekPoints,
             rank: member.rank,
+            rankDelta: member.rankDelta,
         }))
         // assemble the standing payload
         return {

@@ -89,4 +89,16 @@ export class UserLeagueEntity extends AbstractEntity {
         nullable: true,
     })
         joinedWeekAt: Date | null
+
+    /**
+     * The user's finishing rank in their cohort last week, snapshotted at the
+     * weekly reset. Null until they have completed at least one settled week;
+     * used to compute the league board's rank-movement caret (`rankDelta`).
+     */
+    @Column({
+        name: "last_week_rank",
+        type: "int",
+        nullable: true,
+    })
+        lastWeekRank: number | null
 }

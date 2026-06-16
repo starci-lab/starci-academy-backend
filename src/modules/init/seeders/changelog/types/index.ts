@@ -24,3 +24,16 @@ export interface ChangelogSeedItem {
     /** Whether the entry is published (defaults true). */
     isPublished?: boolean
 }
+
+/**
+ * Root object the markdown JSON extractor returns for the changelog seed file —
+ * the authored `# N` sections are wrapped under a single `data` array.
+ *
+ * Declared as a `type` (not `interface`) so its implicit index signature
+ * satisfies the `Record<string, unknown>` constraint of
+ * `ExtractJsonFromMdService.extract<T>()` (a plain interface would not).
+ */
+export type ChangelogSeedFileRoot = {
+    /** The changelog rows (absent when the file is empty). */
+    data?: Array<ChangelogSeedItem>
+}

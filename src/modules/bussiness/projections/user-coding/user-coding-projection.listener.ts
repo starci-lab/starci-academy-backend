@@ -14,12 +14,9 @@ import {
 import {
     UserCodingProjectionService,
 } from "./user-coding-projection.service"
-
-/** CDC row from `coding_submissions` (a submission moves the submitter's coding aggregate). */
-interface CodingSubmissionCdcRow {
-    /** The user who submitted. */
-    user_id?: string
-}
+import type {
+    CodingSubmissionCdcRow,
+} from "./types"
 
 /**
  * CDC consumer that keeps `user_coding_projections` fresh — a new coding

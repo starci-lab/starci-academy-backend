@@ -17,6 +17,9 @@ import {
     MyWeeklyStatsSingleQueryModule,
 } from "./my-weekly-stats"
 import {
+    MyKpisSingleQueryModule,
+} from "./my-kpis"
+import {
     MyContributionCalendarSingleQueryModule,
 } from "./my-contribution-calendar"
 import {
@@ -31,6 +34,18 @@ import {
 import {
     ChangelogEntriesSingleQueryModule,
 } from "./changelog-entries"
+import {
+    MyUpcomingLivestreamsSingleQueryModule,
+} from "./my-upcoming-livestreams"
+import {
+    WeeklyChallengeSingleQueryModule,
+} from "./weekly-challenge"
+import {
+    RewardsSingleQueryModule,
+} from "./rewards"
+import {
+    MyRewardWalletSingleQueryModule,
+} from "./my-reward-wallet"
 
 /**
  * Dashboard query group — logged-in home leaf queries (one resolver per rail
@@ -51,6 +66,9 @@ import {
         MyWeeklyStatsSingleQueryModule.register({
             isGlobal: true,
         }),
+        MyKpisSingleQueryModule.register({
+            isGlobal: true,
+        }),
         MyContributionCalendarSingleQueryModule.register({
             isGlobal: true,
         }),
@@ -64,6 +82,18 @@ import {
             isGlobal: true,
         }),
         ChangelogEntriesSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyUpcomingLivestreamsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        WeeklyChallengeSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        RewardsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyRewardWalletSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

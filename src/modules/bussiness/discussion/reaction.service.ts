@@ -22,6 +22,9 @@ import {
     ContentEngagementProjectionService,
 } from "../projections"
 import type {
+    CommentReactionCountRow,
+    CommentReactionRow,
+    ReactionCountInputRow,
     ReactionCountResult,
     ReactionSummaryResult,
     ReactToCommentParams,
@@ -283,7 +286,7 @@ export class ReactionService {
                 })
             .groupBy("reaction.comment_id")
             .addGroupBy("reaction.type")
-            .getRawMany<{ commentId: string; type: ReactionType; count: string }>()
+            .getRawMany<CommentReactionCountRow>()
         // the viewing user's own reaction per comment (for highlighting)
         const mineRows = await this.entityManager
             .createQueryBuilder(CommentReactionEntity,
@@ -300,7 +303,7 @@ export class ReactionService {
                 {
                     userId,
                 })
-            .getRawMany<{ commentId: string; type: ReactionType }>()
+            .getRawMany<CommentReactionRow>()
         // index "my reaction" by comment id for O(1) lookup while assembling
         const myByComment = mineRows.reduce<Record<string, ReactionType>>((acc, row) => {
             acc[row.commentId] = row.type
@@ -342,7 +345,7 @@ export class ReactionService {
      * @returns The assembled summary.
      */
     private buildSummary(
-        counts: Array<{ type: ReactionType; count: string | number }>,
+        counts: Array<ReactionCountInputRow>,
         myReaction: ReactionType | null,
     ): ReactionSummaryResult {
         // normalize raw string counts (Postgres COUNT returns text) into numbers

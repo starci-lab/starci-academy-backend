@@ -55,7 +55,9 @@ export class SocketioSecurityJwtGateway implements OnGatewayInit {
                 // verify signature + expiry; throws on any failure
                 const payload = this.jwt.verify<JwtUser>(token)
                 // stash the verified identity for later message handlers
-                socket.data.user = { sub: payload.sub, username: payload.username }
+                socket.data.user = {
+                    sub: payload.sub, username: payload.username 
+                }
                 // allow the connection through
                 next()
             } catch {
@@ -78,7 +80,9 @@ export class SocketioSecurityJwtGateway implements OnGatewayInit {
         // acknowledge the join back to the caller
         return {
             event: "roomToClient",
-            data: { room: body.room, message: `You joined room ${body.room}` },
+            data: {
+                room: body.room, message: `You joined room ${body.room}` 
+            },
         }
     }
 
@@ -102,7 +106,8 @@ export class SocketioSecurityJwtGateway implements OnGatewayInit {
             at: new Date().toISOString(),
         }
         // fan the message out to everyone in the room (sender included)
-        this.server.to(body.room).emit("chatToClient", payload)
+        this.server.to(body.room).emit("chatToClient",
+            payload)
     }
 
     /**

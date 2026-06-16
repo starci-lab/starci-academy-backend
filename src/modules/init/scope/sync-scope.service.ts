@@ -9,12 +9,12 @@ import {
 import type {
     SynchronizerSyncScope,
 } from "../types"
+import type {
+    SynchronizerSink,
+} from "./types"
 import {
     buildCourseIndexFilterByDisplayId,
 } from "./utils"
-
-/** A synchronizer sink — CDN (S3 JSON), Elasticsearch, or Repo code — scoped independently. */
-type SynchronizerSink = "cdn" | "elasticsearch" | "repo"
 
 /**
  * Resolves the sync-phase scope from `seed.yaml` (`synchronizers` block).

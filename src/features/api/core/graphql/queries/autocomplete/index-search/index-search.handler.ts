@@ -35,8 +35,12 @@ import {
     IndexSearchParentPath,
     IndexSearchType,
 } from "./graphql-types"
+import type {
+    IndexSearchCatalogEntry,
+    IndexSearchHitSource,
+} from "./types"
 
-const INDEX_MAP: Record<IndexSearchType, { index: string; entityName: string }> = {
+const INDEX_MAP: Record<IndexSearchType, IndexSearchCatalogEntry> = {
     [IndexSearchType.CourseIndex]: {
         index: "courses",
         entityName: CourseEntity.name,
@@ -152,11 +156,7 @@ export class IndexSearchHandler
         })
 
         const items = await Promise.all(response.hits.hits.map(async (hit) => {
-            const source = hit._source as {
-                id?: string
-                displayId?: string
-                title?: string
-            } | undefined
+            const source = hit._source as IndexSearchHitSource | undefined
             const id = source?.id ?? hit._id ?? ""
             const parentRef = await this.cacheService.get({
                 key: CacheKey.ParentIndex,

@@ -1,0 +1,39 @@
+import {
+    Field,
+    ID,
+    InputType,
+    Int,
+} from "@nestjs/graphql"
+import {
+    IsInt,
+    Max,
+    Min,
+} from "class-validator"
+
+/**
+ * Request to grade one flashcard in the spaced-repetition flow.
+ */
+@InputType({
+    description: "Request to grade a flashcard (SM-2).",
+})
+export class ReviewFlashcardRequest {
+    @Field(
+        () => ID,
+        {
+            description: "The flashcard card id being graded.",
+        },
+    )
+        cardId: string
+
+    @Field(
+        () => Int,
+        {
+            description: "SM-2 grade: 0=Again, 1=Hard, 2=Good, 3=Easy.",
+        },
+    )
+    // reject out-of-range grades before they reach the SM-2 math
+    @IsInt()
+    @Min(0)
+    @Max(3)
+        grade: number
+}

@@ -102,6 +102,15 @@ export class MyAchievementItemData {
         },
     )
         tierReached: number | null
+
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Approx % of users who hold this badge (lower = rarer); null when not earned.",
+        },
+    )
+        rarityPercent: number | null
 }
 
 /**

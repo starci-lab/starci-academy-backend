@@ -19,6 +19,7 @@ import {
  */
 @Module({
     controllers: [PresenceController],
-    providers: [PresenceStoreService, PresenceGateway],
+    providers: [PresenceStoreService,
+        PresenceGateway],
 })
 export class PresenceMockModule {}

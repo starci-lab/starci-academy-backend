@@ -45,6 +45,11 @@ export interface MyAchievementResult {
     currentValue: number
     /** Highest tier reached (1-based), or null for single-tier / not tiered. */
     tierReached: number | null
+    /**
+     * Approximate rarity: the % of users who hold this badge (lower = rarer, shown
+     * as "Top X%"). Null when the viewer hasn't earned it.
+     */
+    rarityPercent: number | null
 }
 
 /**
@@ -70,3 +75,45 @@ export interface NewlyEarnedAchievement {
     /** The tier reached (1-based) for a tiered award; null for single-tier. */
     tier: number | null
 }
+
+/**
+ * Internal row shape returned by a single-column `COUNT(*)` aggregate SQL (the
+ * total-users denominator for rarity).
+ */
+export interface AchievementCountRow {
+    /** The aggregated count (Postgres returns it as text/number). */
+    c: string
+}
+
+/**
+ * Internal row shape returned by the per-achievement holder-count SQL (one row
+ * per achievement with its distinct holder count).
+ */
+export interface AchievementHolderCountRow {
+    /** The achievement definition's id. */
+    achievement_id: string
+    /** Distinct holders of that achievement (Postgres returns it as text/number). */
+    c: string
+}
+
+/**
+ * Internal row shape returned by the award INSERT … RETURNING id (present only
+ * when a new award row was actually created).
+ */
+export interface InsertedIdRow {
+    /** The newly inserted `user_achievements.id`. */
+    id: string
+}
+
+/** CDC row image — every source table exposes the affected user via one of these. */
+export interface AchievementSourceRow {
+    /** The acting user (most tables). */
+    user_id?: string
+    /** The FOLLOWED user (user_follows) — whose `followers` badge moves. */
+    following_id?: string
+}
+
+export type {
+    CachedMyAchievementsValue,
+    EarnedAchievementEntry,
+} from "./my-achievements"

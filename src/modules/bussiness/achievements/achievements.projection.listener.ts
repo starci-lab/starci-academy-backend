@@ -14,6 +14,9 @@ import {
 import {
     AchievementsService,
 } from "./achievements.service"
+import type {
+    AchievementSourceRow,
+} from "./types"
 
 /** Source tables whose changes can move a badge metric → invalidate the wall. */
 const SOURCE_TABLES = [
@@ -28,14 +31,6 @@ const SOURCE_TABLES = [
     "ai_lab_eval_runs",
     "user_leagues",
 ]
-
-/** CDC row image — every source table exposes the affected user via one of these. */
-interface AchievementSourceRow {
-    /** The acting user (most tables). */
-    user_id?: string
-    /** The FOLLOWED user (user_follows) — whose `followers` badge moves. */
-    following_id?: string
-}
 
 /**
  * CDC consumer that keeps `user_achievement_projections` honest. Rather than

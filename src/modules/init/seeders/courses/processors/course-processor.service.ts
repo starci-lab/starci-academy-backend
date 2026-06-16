@@ -165,17 +165,18 @@ export class CourseProcessorService {
     private async propagateModulePremium(
         courseId: string,
     ): Promise<void> {
-        const premiumModules = await this.entityManager.find(ModuleEntity, {
-            where: {
-                course: {
-                    id: courseId,
+        const premiumModules = await this.entityManager.find(ModuleEntity,
+            {
+                where: {
+                    course: {
+                        id: courseId,
+                    },
+                    isPremium: true,
                 },
-                isPremium: true,
-            },
-            select: {
-                id: true,
-            },
-        })
+                select: {
+                    id: true,
+                },
+            })
         const premiumModuleIds = premiumModules.map((module) => module.id)
         if (premiumModuleIds.length === 0) {
             return

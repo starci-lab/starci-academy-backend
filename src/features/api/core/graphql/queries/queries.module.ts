@@ -85,6 +85,12 @@ import {
 import {
     NotificationsQueriesModule,
 } from "./notifications"
+import {
+    LearnerCmsQueriesModule,
+} from "./learner-cms"
+import {
+    BlogQueriesModule,
+} from "./blog"
 
 @Module({
     imports: [
@@ -167,6 +173,12 @@ import {
             isGlobal: true,
         }),
         NotificationsQueriesModule.register({
+            isGlobal: true,
+        }),
+        LearnerCmsQueriesModule.register({
+            isGlobal: true,
+        }),
+        BlogQueriesModule.register({
             isGlobal: true,
         }),
     ],

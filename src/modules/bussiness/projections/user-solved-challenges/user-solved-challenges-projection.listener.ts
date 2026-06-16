@@ -20,12 +20,10 @@ import {
 import {
     UserSolvedChallengesProjectionService,
 } from "./user-solved-challenges-projection.service"
-
-/** CDC row from `user_challenge_submission_attempts` (carries the parent submission id, not user_id). */
-interface ChallengeSubmissionAttemptCdcRow {
-    /** The user_challenge_submissions row this attempt belongs to. */
-    user_challenge_submission_id?: string
-}
+import type {
+    ChallengeSubmissionAttemptCdcRow,
+    SolvedSubmissionUserIdRow,
+} from "./types"
 
 /**
  * CDC consumer that keeps `user_solved_challenges_projections` fresh — a new
@@ -71,7 +69,7 @@ export class UserSolvedChallengesProjectionListener extends AbstractProjectionLi
             return []
         }
         // the attempts table has no user_id → look up the owning submission
-        const found = await this.entityManager.query<Array<{ user_id: string }>>(
+        const found = await this.entityManager.query<Array<SolvedSubmissionUserIdRow>>(
             `
             SELECT user_id
             FROM user_challenge_submissions

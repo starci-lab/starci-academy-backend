@@ -14,12 +14,9 @@ import {
 import {
     CourseStatsProjectionService,
 } from "./course-stats-projection.service"
-
-/** CDC row from `enrollments` (carries the course whose count moved). */
-interface EnrollmentCdcRow {
-    /** The course the enrollment belongs to. */
-    course_id?: string
-}
+import type {
+    CourseStatsEnrollmentCdcRow,
+} from "./types"
 
 /**
  * CDC consumer that keeps `course_stats_projections` fresh. Any enrollment
@@ -57,7 +54,7 @@ export class CourseStatsProjectionListener extends AbstractProjectionListener<st
         }: ProjectionCdcMessage,
     ): Array<string> {
         // narrow the row to the enrollment shape
-        const courseId = (row as EnrollmentCdcRow).course_id
+        const courseId = (row as CourseStatsEnrollmentCdcRow).course_id
         // no course id (tombstone / unexpected shape) → nothing to recompute
         if (!courseId) {
             return []

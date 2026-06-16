@@ -41,9 +41,9 @@ import type {
 /** Connection name used by the primary PostgreSQL data source. */
 const POSTGRESQL_PRIMARY = "primary"
 
-/** Auto-lane caps the mocked quota config hands back (uses per window). */
-const AUTO_USES_5H = 30
-const AUTO_USES_WEEK = 100
+/** Free base credit caps the mocked quota config hands back (credits per window). */
+const BASE_CREDITS_5H = 30
+const BASE_CREDITS_WEEK = 100
 
 /** Premium credit caps the mocked tier catalog hands back for {@link AiSubTier.Plus}. */
 const PLUS_CREDITS_5H = 250
@@ -73,8 +73,6 @@ const buildSubscription = (
     preferredMode: null,
     window5hResetAt: futureDate(),
     windowWeekResetAt: futureDate(),
-    auto5hUsed: 0,
-    autoWeekUsed: 0,
     credit5hUsed: 0,
     creditWeekUsed: 0,
     ...overrides,
@@ -110,11 +108,11 @@ describe("AiEntitlementService",
                 })),
             } as unknown as jest.Mocked<Pick<MountFilesystemService, "appConfig">>
 
-            // free Auto-lane caps
+            // free base credit caps
             aiAutoQuotaConfigService = {
                 getAutoQuota: jest.fn(() => ({
-                    usesPer5h: AUTO_USES_5H,
-                    usesPerWeek: AUTO_USES_WEEK,
+                    creditsPer5h: BASE_CREDITS_5H,
+                    creditsPerWeek: BASE_CREDITS_WEEK,
                 })),
             } as unknown as jest.Mocked<AiAutoQuotaConfigService>
 
@@ -169,11 +167,9 @@ describe("AiEntitlementService",
                         expect(entityManager.create).toHaveBeenCalled()
                         expect(entityManager.save).toHaveBeenCalled()
                         expect(result.mode).toBe(AiMode.Auto)
-                        // a brand-new user has spent nothing → full Auto allowance
-                        expect(result.autoRemaining5h).toBe(AUTO_USES_5H)
-                        expect(result.autoRemainingWeek).toBe(AUTO_USES_WEEK)
-                        // no paid tier → premium pool is zero
-                        expect(result.creditRemaining5h).toBe(0)
+                        // a brand-new free user has spent nothing → full base allowance
+                        expect(result.creditRemaining5h).toBe(BASE_CREDITS_5H)
+                        expect(result.creditRemainingWeek).toBe(BASE_CREDITS_WEEK)
                     })
 
                 it("resolves the Premium lane for an active paid subscriber (no requested mode)",
@@ -192,8 +188,8 @@ describe("AiEntitlementService",
                         })
 
                         expect(result.mode).toBe(AiMode.Premium)
-                        // remaining = tier cap − used
-                        expect(result.creditRemaining5h).toBe(PLUS_CREDITS_5H - 50)
+                        // remaining = (base + tier) cap − used
+                        expect(result.creditRemaining5h).toBe(BASE_CREDITS_5H + PLUS_CREDITS_5H - 50)
                     })
 
                 it("throws when an explicit Premium mode is requested without an active tier",
@@ -230,7 +226,6 @@ describe("AiEntitlementService",
                         entityManager.findOne.mockResolvedValueOnce(
                             buildSubscription({
                                 window5hResetAt: pastDate(),
-                                auto5hUsed: 12,
                                 credit5hUsed: 7,
                             }),
                         )
@@ -240,21 +235,20 @@ describe("AiEntitlementService",
                         })
 
                         // window rolled over → spent counters dropped back to 0
-                        expect(result.autoRemaining5h).toBe(AUTO_USES_5H)
+                        expect(result.creditRemaining5h).toBe(BASE_CREDITS_5H)
                         const saved = entityManager.save.mock
                             .calls[0][0] as AiSubscriptionEntity
-                        expect(saved.auto5hUsed).toBe(0)
                         expect(saved.credit5hUsed).toBe(0)
                     })
             })
 
         describe("consume",
             () => {
-                it("is a no-op for the Auto lane (never opens a transaction)",
+                it("is a no-op for the Byok lane (never opens a transaction)",
                     async () => {
                         await service.consume({
                             userId,
-                            mode: AiMode.Auto,
+                            mode: AiMode.Byok,
                             cost: 5,
                         })
 

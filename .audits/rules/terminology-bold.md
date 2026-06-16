@@ -3,6 +3,11 @@
 > **STRICT. KHÔNG ĐÙA.** Rule này quyết định: từ nào để tiếng Việt, từ nào giữ tiếng Anh, từ nào English+bold.
 > Đã có feedback thực tế vì làm sai. Đọc HẾT trước khi đụng 1 ký tự. Sai 1 chỗ = sai cả module.
 >
+> **AUTHORITY (precedence)**: rule này là **NGUỒN DUY NHẤT** quyết định bold + terminology. Khi xung đột → theo rule này.
+> Bold ĐƯỢC dùng cho **2 nhóm** (chi tiết §3B): (1) **jargon Loại 3**; (2) **nhãn cấu trúc theo template** (vị trí cố định,
+> lặp mọi lesson — định nghĩa ở `fullstack/contents.md §1`). **CHỈ CẤM** bold: nhấn ad-hoc cả câu/cụm giữa đoạn, từ Loại 1/2
+> giữa văn xuôi, và bold quanh/lấn inline code.
+>
 > Áp dụng cho **CẢ content LẪN challenges** của mọi khóa (Fullstack, System Design, DevOps):
 > - **Content**: `contents/<lesson>/bodies/<lang>/{vi,en}.md` — phần văn xuôi trong `# body`.
 > - **Challenges**: `contents/<lesson>/challenges/<N>-<slug>/{vi,en}.md` — văn xuôi trong `# title`, `# description`,
@@ -45,27 +50,38 @@ Câu hỏi gốc (spoken test): **"Một senior VN ngồi họp sẽ nói từ n
 
 ---
 
-## 3. CẤM (hard DON'T)
+## 3. BOLD — dùng ở đâu
 
-1. **CẤM** dịch ép thuật ngữ Loại 3 ra tiếng Việt literal (vd "đồ thị phụ thuộc", "nhất quán cuối cùng", "điểm hội tụ lỗi"). → để English+bold.
-2. **CẤM** dịch token code/định danh (Loại 4).
-3. **CẤM** bold: nhãn cấu trúc (`Phần 2.1`, `Luồng 1:`, `Giải pháp:`, `Trade-off:`, `Cơ chế:`), số, tên vai (`Senior Engineer`), cả câu/cụm nhấn, từ phổ thông, động từ.
-4. **CẤM** bold quanh inline code/URL: `**\`curl\`**` → `\`curl\``.
-5. **CẤM** search-replace mù 1 từ (gây false-positive — xem §5).
-6. **CẤM** bold Loại 1 và Loại 2. Bold CHỈ cho Loại 3.
+### 3A. ĐƯỢC bold (đúng 2 nhóm)
+1. **Jargon Loại 3** (English chuyên ngành — danh sách §1).
+2. **Nhãn cấu trúc theo template** — vị trí CỐ ĐỊNH, lặp mọi lesson (CLOSED LIST, thầy chốt):
+   - §1 Opening: vai phỏng vấn `**Senior Engineer**` / `**Mid-level Developer**`; bridge bullet `- **Phần 2.1**: **thực hành** …` / `- **Phần 2.2**: **lý thuyết** …`; slogan §2 `**Thực hành dẫn dắt Lý thuyết**`.
+   - §3.1 phỏng vấn: nhãn `**Câu hỏi N: …?**` — bold ĐỒNG NHẤT cả 3 câu (không để câu bold câu không).
+   - Nhãn edge-case/giải pháp (lý thuyết §2.2.2): `**Giải pháp:**`, `**Trade-off:**`, `**Cơ chế:**`, `**Lưu ý:**`.
+   - Challenge: step label `**Bước N:**`; tên mục README `**Smoke Test**`, `**Code Execution Trace**`, `**Design Decisions**`, `**Architecture / Stack**`.
+
+### 3B. CẤM bold
+1. Nhấn **ad-hoc** cả câu/cụm giữa đoạn (vd `**Guard chạy trước pipe**`, `**framework giành lấy quyền…**`).
+2. Từ **Loại 1/2** giữa văn xuôi: `constructor`, `NestJS`, `custom provider`, `contract`, `provider`, `module`, `service`, `pipe`, `guard`…
+3. Bold **quanh/lấn inline code** hoặc URL: `**\`curl\`**` → `\`curl\``.
+4. Bold **trùm nhiều câu / xuống dòng**.
+
+### 3C. CẤM (terminology)
+1. Dịch ép Loại 3 ra VN literal (đồ thị phụ thuộc, nhất quán cuối cùng, điểm hội tụ lỗi). → để English (+bold).
+2. Dịch token code/định danh (Loại 4).
+3. Search-replace MÙ 1 từ → false-positive (§5).
 
 ---
 
-## 4. DE-BOLD (dọn bold rác — generic)
+## 4. DE-BOLD (chỉ dọn bold SAI, GIỮ nhãn template)
 
-Bỏ `**` ở các pattern sau:
-- `**...:**` — nhãn kết bằng colon.
-- bold fragment (lề trong có khoảng trắng): `** ... **`.
-- số thuần: `**3000**` → `3000`.
-- bold quanh inline-code/URL: `**\`x\`**` → `\`x\``, `**https://...**` → `https://...`.
-- cụm nhiều-từ KHÔNG nằm trong whitelist Loại 3.
+Bỏ `**` ở:
+- bold quanh inline-code/URL: `**\`x\`**` → `\`x\``, `**https://...**` → URL plain.
+- bold cụm nhiều-từ **KHÔNG phải** jargon Loại 3 **VÀ KHÔNG phải** nhãn template §3A (= nhấn ad-hoc).
+- bold trùm cả câu / xuống dòng.
+- từ Loại 1/2 bị bold giữa văn xuôi.
 
-GIỮ bold: keyword Loại 3 (đơn + đa-từ trong từ điển §1).
+**GIỮ bold**: jargon Loại 3 + **mọi nhãn template §3A** (Phần/Bước/Câu hỏi/Giải pháp/Trade-off/Cơ chế/persona/README-section). → KHÔNG còn rule "strip mọi `**...:**`": nhãn colon theo template thì GIỮ; chỉ bỏ nhãn-colon ad-hoc/lạc.
 
 ---
 

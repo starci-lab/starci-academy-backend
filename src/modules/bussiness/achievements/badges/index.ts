@@ -28,6 +28,15 @@ import {
 import {
     ChampionLionBadge,
 } from "./champion-lion.badge"
+import {
+    ArchitectRhinoBadge,
+} from "./architect-rhino.badge"
+import {
+    FullstackMonkeyBadge,
+} from "./fullstack-monkey.badge"
+import {
+    DevopsWolfBadge,
+} from "./devops-wolf.badge"
 
 export * from "./abstract-badge"
 export * from "./baby-duckling.badge"
@@ -40,6 +49,9 @@ export * from "./brainy-octopus.badge"
 export * from "./guiding-elephant.badge"
 export * from "./busy-bee.badge"
 export * from "./champion-lion.badge"
+export * from "./architect-rhino.badge"
+export * from "./fullstack-monkey.badge"
+export * from "./devops-wolf.badge"
 
 /** DI token resolving to every {@link AbstractBadge} as an array. */
 export const ACHIEVEMENT_BADGES = "ACHIEVEMENT_BADGES"
@@ -56,4 +68,7 @@ export const ACHIEVEMENT_BADGE_PROVIDERS = [
     GuidingElephantBadge,
     BusyBeeBadge,
     ChampionLionBadge,
+    ArchitectRhinoBadge,
+    FullstackMonkeyBadge,
+    DevopsWolfBadge,
 ]

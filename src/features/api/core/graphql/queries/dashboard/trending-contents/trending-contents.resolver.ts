@@ -8,9 +8,6 @@ import {
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
-import type {
-    EntityManager,
-} from "typeorm"
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
@@ -25,10 +22,12 @@ import {
 } from "@modules/throttler"
 import {
     ContentEntity,
-    InjectPrimaryPostgreSQLEntityManager,
     Locale,
     UserEntity,
 } from "@modules/databases"
+import {
+    TrendingContentsProjectionService,
+} from "@modules/bussiness"
 import {
     toGlobalId,
 } from "@modules/routing"
@@ -36,9 +35,6 @@ import {
     TrendingContentItemData,
     TrendingContentsResponse,
 } from "./graphql-types"
-import {
-    TrendingContentRow,
-} from "./types"
 
 /** Default + hard-cap on how many trending lessons to surface. */
 const DEFAULT_LIMIT = 6
@@ -47,15 +43,15 @@ const MAX_LIMIT = 20
 
 /**
  * Explore-feed discovery: the lessons read most across the platform in the last 7
- * days ("trending this week"). A bounded GROUP BY over `user_contents`; each item
- * is a route-index token resolved on click. Turns the explore feed from a social
- * stream into "find something to learn".
+ * days ("trending this week"). Reads the materialised top-N board from the CQRS
+ * trending projection (the heavy GROUP BY runs in the projection, not per
+ * request); the projection also drops lessons the viewer already read so trending
+ * reflects the crowd. Each item is a route-index token resolved on click.
  */
 @Resolver()
 export class TrendingContentsResolver {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
+        private readonly trendingContentsProjectionService: TrendingContentsProjectionService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -89,34 +85,18 @@ export class TrendingContentsResolver {
             1),
         MAX_LIMIT)
 
-        // most-read lessons in the rolling 7-day window (exclude the viewer's own
-        // reads so "trending" reflects the crowd, not your own history)
-        const rows = await this.entityManager.query<Array<TrendingContentRow>>(
-            `
-            SELECT c.id            AS "id",
-                   c.title         AS "title",
-                   COUNT(*)::int   AS "read_count"
-            FROM user_contents uc
-            JOIN contents c ON c.id = uc.content_id
-            WHERE uc.is_read = true
-              AND uc.user_id <> $1
-              AND uc.updated_at >= now() - interval '7 days'
-            GROUP BY c.id, c.title
-            ORDER BY "read_count" DESC, c.title ASC
-            LIMIT $2
-            `,
-            [
-                user.id,
-                take,
-            ],
-        )
+        // thin read off the CQRS trending projection (viewer's own reads excluded)
+        const items = await this.trendingContentsProjectionService.getTrending({
+            limit: take,
+            viewerId: user.id,
+        })
 
         // map each to a clickable token + its read count
-        return rows.map((row) => ({
+        return items.map((item) => ({
             globalId: toGlobalId(ContentEntity.name,
-                row.id),
-            title: row.title,
-            readCount: Number(row.read_count) || 0,
+                item.id),
+            title: item.title,
+            readCount: item.readCount,
         }))
     }
 }

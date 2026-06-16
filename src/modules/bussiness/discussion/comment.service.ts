@@ -23,6 +23,7 @@ import type {
     DeleteCommentResult,
     ListCommentsParams,
     ListCommentsResult,
+    ReplyCountRow,
     UpdateCommentParams,
 } from "./types"
 
@@ -251,7 +252,7 @@ export class CommentService {
                     commentIds,
                 })
             .groupBy("comment.parent_comment_id")
-            .getRawMany<{ parentId: string; count: string }>()
+            .getRawMany<ReplyCountRow>()
         // fold the raw rows into a lookup the resolver can index per comment
         return rows.reduce<Record<string, number>>((acc, row) => {
             acc[row.parentId] = Number(row.count)

@@ -11,43 +11,23 @@ export interface AiEntitlement {
     mode: AiMode
     /** Categories the user may invoke at this moment. */
     allowedCategories: Array<AiModelCategory>
-    /** Remaining Auto uses ("lượt") in the 5h window. */
-    autoRemaining5h: number
-    /** Remaining Auto uses ("lượt") in the weekly window. */
-    autoRemainingWeek: number
-    /** Remaining Premium credits in the 5h window. */
+    /** Remaining platform credits in the 5h window (free base + tier). */
     creditRemaining5h: number
-    /** Remaining Premium credits in the weekly window. */
+    /** Remaining platform credits in the weekly window (free base + tier). */
     creditRemainingWeek: number
     /** BYOK provider, or null when the user is not bringing their own key. */
     byokProvider: ModelProvider | null
 }
 
-/** Auto-lane ("lượt") quota for one user, per window. */
-export interface AiAutoQuota {
-    /** Max Auto uses allowed in the 5h window. */
-    limit5h: number
-    /** Auto uses consumed in the current 5h window. */
-    used5h: number
-    /** Remaining Auto uses in the 5h window (`limit − used`, floored at 0). */
-    remaining5h: number
-    /** Max Auto uses allowed in the weekly window. */
-    limitWeek: number
-    /** Auto uses consumed in the current weekly window. */
-    usedWeek: number
-    /** Remaining Auto uses in the weekly window. */
-    remainingWeek: number
-}
-
-/** Premium-lane (credit) quota for one user, per window. */
-export interface AiPremiumQuota {
-    /** Credit cap in the 5h window (0 when no active tier). */
+/** Unified platform credit quota for one user, per window. */
+export interface AiCreditQuota {
+    /** Credit allowance in the 5h window (free base + tier). */
     limit5h: number
     /** Credits consumed in the current 5h window. */
     used5h: number
-    /** Remaining credits in the 5h window. */
+    /** Remaining credits in the 5h window (`limit − used`, floored at 0). */
     remaining5h: number
-    /** Credit cap in the weekly window (0 when no active tier). */
+    /** Credit allowance in the weekly window (free base + tier). */
     limitWeek: number
     /** Credits consumed in the current weekly window. */
     usedWeek: number
@@ -55,16 +35,14 @@ export interface AiPremiumQuota {
     remainingWeek: number
 }
 
-/** Full per-user quota snapshot for the UI (both lanes + reset times). */
+/** Full per-user quota snapshot for the UI (single pool + reset times). */
 export interface AiQuotaSnapshot {
     /** Natural lane the user is on right now. */
     mode: AiMode
     /** Active paid tier, or null on the free lane. */
     tier: AiSubTier | null
-    /** Free Auto-lane (complimentary) quota. */
-    auto: AiAutoQuota
-    /** Paid Premium-lane (credit) quota. */
-    premium: AiPremiumQuota
+    /** Unified platform credit quota (free base + tier). */
+    credit: AiCreditQuota
     /** When the 5h window rolls over (counters reset to 0). */
     window5hResetAt: Date | null
     /** When the weekly window rolls over. */
@@ -137,8 +115,8 @@ export interface ResolveEntitlementParams {
 export interface ConsumeEntitlementParams {
     /** Owner of the entitlement. */
     userId: string
-    /** Lane that ran — only {@link AiMode.Premium} debits the tier credit pool. */
+    /** Lane that ran — every lane except {@link AiMode.Byok} debits the pool. */
     mode: AiMode
-    /** Credits to debit from the Premium pool (ignored for Auto / Byok). */
+    /** Credits to debit from the unified pool (ignored for Byok). */
     cost: number
 }

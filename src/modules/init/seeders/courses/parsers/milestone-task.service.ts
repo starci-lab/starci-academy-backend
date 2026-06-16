@@ -2,6 +2,9 @@ import type {
     MilestoneTasksFromDatabaseParams,
     ParseMilestoneTaskParams,
     ParseMilestoneTaskManyParams,
+    MergedCriterion,
+    MergedLangBlock,
+    MergedMilestoneTask,
 } from "./types"
 import {
     Injectable,
@@ -48,49 +51,6 @@ const TASK_TYPE_MAP: Record<string, PersonalProjectTaskType> = {
     design: PersonalProjectTaskType.Design,
     techIntegrate: PersonalProjectTaskType.TechIntegrate,
     business: PersonalProjectTaskType.Business,
-}
-
-/**
- * One outcome/approach grading criterion as authored under a language block (`#### N` →
- * `{ body, score, critical }`). Outcome prose is agnostic; approach prose differs per language.
- */
-interface MergedCriterion {
-    body?: string
-    score?: unknown
-    critical?: unknown
-    orderIndex?: unknown
-    sortIndex?: unknown
-}
-
-/**
- * One per-language brief block (`# criterias` → `## N`) after extract+merge: the learner-facing
- * `body` carries aligned `translations[]`; `outcome`/`approach` are English-only criterion lists.
- */
-interface MergedLangBlock {
-    lang?: string
-    body?: string
-    outcome?: Array<MergedCriterion>
-    approach?: Array<MergedCriterion>
-    orderIndex?: unknown
-    sortIndex?: unknown
-    translations?: Array<{ locale: Locale, field: string, value: string }>
-}
-
-/**
- * Default-locale milestone-task doc produced by {@link MergeJsonService}: scalar headings plus the
- * lang-first `criterias` blocks and the task-level `translations[]`.
- */
-interface MergedMilestoneTask {
-    title?: string
-    description?: string
-    type?: string
-    weight?: unknown
-    orderIndex?: unknown
-    sortIndex?: unknown
-    maxScore?: unknown
-    verified?: unknown
-    criterias?: Array<MergedLangBlock>
-    translations?: Array<{ locale: Locale, field: string, value: string }>
 }
 
 /**

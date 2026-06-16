@@ -14,12 +14,9 @@ import {
 import {
     ContentEngagementProjectionService,
 } from "./content-engagement-projection.service"
-
-/** CDC row shape carrying a content id (reactions / comments / user-contents). */
-interface ContentScopedCdcRow {
-    /** Source `content_id` column (the recompute key). */
-    content_id?: string
-}
+import type {
+    ContentScopedCdcRow,
+} from "./types"
 
 /**
  * CDC consumer that keeps `content_engagement_projections` fresh. Tails the

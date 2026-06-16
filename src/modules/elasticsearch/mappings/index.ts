@@ -10,6 +10,7 @@ import {
     MilestoneTaskEntity,
     FlashcardDeckEntity,
     CodingProblemEntity,
+    UserEntity,
 } from "@modules/databases"
 import type {
     ElasticsearchIndexMapping,
@@ -47,6 +48,9 @@ import {
 import {
     codingProblemsIndexMapping,
 } from "./coding-problem.mapping"
+import {
+    userIndexMapping,
+} from "./user.mapping"
 
 export * from "./types"
 
@@ -66,6 +70,7 @@ const elasticsearchIndexMappings: Record<string, ElasticsearchIndexMapping> = {
     [MilestoneTaskEntity.name]: milestoneTasksIndexMapping,
     [FlashcardDeckEntity.name]: flashcardDecksIndexMapping,
     [CodingProblemEntity.name]: codingProblemsIndexMapping,
+    [UserEntity.name]: userIndexMapping,
 }
 
 /**

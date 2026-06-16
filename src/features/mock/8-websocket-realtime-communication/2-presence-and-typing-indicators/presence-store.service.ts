@@ -31,16 +31,20 @@ export class PresenceStoreService {
     addTab(roomId: string, userId: string, socketId: string): TabChange {
         // lazily create the per-room user map
         const users = this.rooms.get(roomId) ?? new Map<string, Set<string>>()
-        this.rooms.set(roomId, users)
+        this.rooms.set(roomId,
+            users)
         // lazily create the per-user socket set
         const sockets = users.get(userId) ?? new Set<string>()
         // first tab means the set was empty before this add
         const isFirstTab = sockets.size === 0
         // record the socket
         sockets.add(socketId)
-        users.set(userId, sockets)
+        users.set(userId,
+            sockets)
         // adding can never be the last tab
-        return { isFirstTab, isLastTab: false }
+        return {
+            isFirstTab, isLastTab: false 
+        }
     }
 
     /**
@@ -51,10 +55,14 @@ export class PresenceStoreService {
     removeTab(roomId: string, userId: string, socketId: string): TabChange {
         // resolve the per-room user map; nothing to do if the room is unknown
         const users = this.rooms.get(roomId)
-        if (!users) return { isFirstTab: false, isLastTab: false }
+        if (!users) return {
+            isFirstTab: false, isLastTab: false 
+        }
         // resolve the per-user socket set
         const sockets = users.get(userId)
-        if (!sockets) return { isFirstTab: false, isLastTab: false }
+        if (!sockets) return {
+            isFirstTab: false, isLastTab: false 
+        }
         // remove this socket
         sockets.delete(socketId)
         // last tab means the set is now empty
@@ -64,7 +72,9 @@ export class PresenceStoreService {
             users.delete(userId)
             if (users.size === 0) this.rooms.delete(roomId)
         }
-        return { isFirstTab: false, isLastTab }
+        return {
+            isFirstTab: false, isLastTab 
+        }
     }
 
     /**

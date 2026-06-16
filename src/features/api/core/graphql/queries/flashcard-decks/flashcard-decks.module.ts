@@ -16,6 +16,9 @@ import {
 import {
     DrawInterviewCardSingleQueryModule,
 } from "./draw-interview-card"
+import {
+    MyDueFlashcardsSingleQueryModule,
+} from "./my-due-flashcards"
 
 /**
  * Flashcard-deck query group (deck listing by course + single-deck detail +
@@ -33,6 +36,9 @@ import {
             isGlobal: true,
         }),
         DrawInterviewCardSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyDueFlashcardsSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

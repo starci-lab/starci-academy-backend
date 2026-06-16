@@ -71,6 +71,12 @@ export class MyWeeklyStatsResolver {
             xp: stats.weeklyXp,
             lessons: stats.weeklyLessons,
             days: stats.last7Days,
+            // the goal lives on the user row (set via setWeeklyGoal), not the
+            // projection — read it straight off the guard-attached user
+            weeklyGoalLessons: user.weeklyGoalLessons,
+            // streak-freeze inventory also lives on the user row (bought via
+            // buyStreakFreeze, consumed by the daily auto-protect cron)
+            streakFreezes: user.streakFreezes,
         }
     }
 }

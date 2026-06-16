@@ -17,6 +17,9 @@ import {
     KeycloakPasswordLoginParams,
     KeycloakRegisterUserParams,
 } from "./types"
+import type {
+    KeycloakUserSummary,
+} from "./types"
 import {
     MountStorageService 
 } from "@modules/filesystem"
@@ -204,9 +207,7 @@ export class KeycloakTokenService {
             return location.split("/").pop() ?? ""
         }
 
-        const usersResponse = await this.axiosInstance.get<Array<{
-            id: string
-        }>>(
+        const usersResponse = await this.axiosInstance.get<Array<KeycloakUserSummary>>(
             `/admin/realms/${envConfig().keycloak.realm}/users`,
             {
                 headers: {

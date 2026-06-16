@@ -5,10 +5,12 @@ import {
     type EntityManager,
 } from "typeorm"
 import {
-    AiModelCategory,
     AiModelEntity,
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
+import type {
+    EnabledModelsParams,
+} from "./types"
 
 /** TypeORM query-cache identifier for the enabled-models lookup. */
 export const AI_MODEL_CATALOG_CACHE_KEY = "ai-model-catalog:enabled"
@@ -19,12 +21,6 @@ export const AI_MODEL_CATALOG_CACHE_KEY = "ai-model-catalog:enabled"
  * disable toggle takes effect within a minute.
  */
 export const AI_MODEL_CATALOG_CACHE_MS = 60_000
-
-/** Params for {@link AiModelCatalogService.enabledModels}. */
-export interface EnabledModelsParams {
-    /** Optional category filter — restricts to one cost/quality tier. */
-    category?: AiModelCategory
-}
 
 /**
  * Read-side catalog of the rotation models, backed by the `ai_models` table

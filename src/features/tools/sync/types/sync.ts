@@ -16,6 +16,18 @@ export interface PushToTargetParams {
 }
 
 /**
+ * One regular file collected for upload, with its key relative to the sync root.
+ */
+export interface SyncFileEntry {
+    /** Absolute filesystem path of the file to upload. */
+    absolutePath: string
+    /** Object key relative to the sync root (mirrors the directory tree). */
+    relativeKey: string
+    /** File size in bytes. */
+    size: number
+}
+
+/**
  * Aggregate outcome of pushing one artifact.
  */
 export interface PushResult {

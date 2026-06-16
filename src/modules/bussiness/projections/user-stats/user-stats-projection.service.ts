@@ -93,6 +93,9 @@ export class UserStatsProjectionService {
             longestStreak: Number(value.longestStreak) || 0,
             weeklyXp: Number(value.weeklyXp) || 0,
             weeklyLessons: Number(value.weeklyLessons) || 0,
+            weeklyChallenges: Number(value.weeklyChallenges) || 0,
+            weeklyCoding: Number(value.weeklyCoding) || 0,
+            weeklyFlashcards: Number(value.weeklyFlashcards) || 0,
             last7Days: Array.isArray(value.last7Days)
                 ? (value.last7Days as Array<StreakDay>).map((day) => ({
                     date: String(day.date),
@@ -152,15 +155,40 @@ export class UserStatsProjectionService {
                       AND source = 'lessonRead'
                       AND created_at >= now() - interval '7 days'
                 ), 0),
+                -- challenges passed in the rolling 7-day window (xp source=challenge)
+                'weeklyChallenges', COALESCE((
+                    SELECT COUNT(*) FROM xp_histories
+                    WHERE user_id = $1
+                      AND source = 'challenge'
+                      AND created_at >= now() - interval '7 days'
+                ), 0),
+                -- coding problems accepted in the rolling 7-day window
+                'weeklyCoding', COALESCE((
+                    SELECT COUNT(*) FROM coding_submissions
+                    WHERE user_id = $1
+                      AND verdict = 'accepted'
+                      AND created_at >= now() - interval '7 days'
+                ), 0),
+                -- flashcards reviewed in the rolling 7-day window
+                'weeklyFlashcards', COALESCE((
+                    SELECT COUNT(*) FROM user_flashcard_reviews
+                    WHERE user_id = $1
+                      AND last_reviewed_at >= now() - interval '7 days'
+                ), 0),
                 -- consecutive-day streak ending today: gaps-and-islands over the
                 -- distinct active days. Subtracting the ascending row number from
                 -- each day yields a constant "island" date per consecutive run; the
                 -- current streak is the size of the island holding the latest day —
-                -- but only when that latest day is today or yesterday (else broken)
+                -- but only when that latest day is today or yesterday (else broken).
+                -- A day counts as active if it has an XP event OR a streak-freeze
+                -- protected day (UNION) — protection is the only additive input.
                 'streak', COALESCE((
                     WITH days AS (
-                        SELECT DISTINCT created_at::date AS d
+                        SELECT created_at::date AS d
                         FROM xp_histories WHERE user_id = $1
+                        UNION
+                        SELECT spd.date AS d
+                        FROM streak_protected_days spd WHERE spd.user_id = $1
                     ),
                     islands AS (
                         SELECT d, (d - (ROW_NUMBER() OVER (ORDER BY d))::int) AS island
@@ -171,10 +199,14 @@ export class UserStatsProjectionService {
                       AND (SELECT MAX(d) FROM days) >= CURRENT_DATE - 1
                 ), 0),
                 -- longest-ever streak: size of the biggest consecutive-day island
+                -- (protected days UNIONed into the active-day set, same as above)
                 'longestStreak', COALESCE((
                     WITH days AS (
-                        SELECT DISTINCT created_at::date AS d
+                        SELECT created_at::date AS d
                         FROM xp_histories WHERE user_id = $1
+                        UNION
+                        SELECT spd.date AS d
+                        FROM streak_protected_days spd WHERE spd.user_id = $1
                     ),
                     islands AS (
                         SELECT (d - (ROW_NUMBER() OVER (ORDER BY d))::int) AS island
@@ -185,15 +217,19 @@ export class UserStatsProjectionService {
                     ) g
                 ), 0),
                 -- the last 7 calendar days (oldest→today) flagged active when the
-                -- user earned any XP that day → drives the streak strip
+                -- user earned any XP OR has a streak-freeze protected day → drives
+                -- the streak strip
                 'last7Days', COALESCE((
                     SELECT jsonb_agg(
                         jsonb_build_object(
                             'date', to_char(gd, 'YYYY-MM-DD'),
-                            'active', EXISTS (
+                            'active', (EXISTS (
                                 SELECT 1 FROM xp_histories x
                                 WHERE x.user_id = $1 AND x.created_at::date = gd
-                            )
+                            ) OR EXISTS (
+                                SELECT 1 FROM streak_protected_days spd
+                                WHERE spd.user_id = $1 AND spd.date = gd::date
+                            ))
                         ) ORDER BY gd
                     )
                     FROM generate_series(CURRENT_DATE - 6, CURRENT_DATE, interval '1 day') AS gd

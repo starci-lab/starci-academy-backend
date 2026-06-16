@@ -20,12 +20,10 @@ import {
 import {
     UserCapstoneProjectionService,
 } from "./user-capstone-projection.service"
-
-/** CDC row from `user_milestone_task_attempts` (carries the parent user_milestone_task_id, not user_id). */
-interface MilestoneTaskAttemptCdcRow {
-    /** The user_milestone_tasks row this attempt belongs to. */
-    user_milestone_task_id?: string
-}
+import type {
+    CapstoneEnrollmentUserIdRow,
+    MilestoneTaskAttemptCdcRow,
+} from "./types"
 
 /**
  * CDC consumer that keeps `user_capstone_projections` fresh — a new milestone-task
@@ -70,7 +68,7 @@ export class UserCapstoneProjectionListener extends AbstractProjectionListener<s
             return []
         }
         // the attempts table has no user_id → walk up to the enrollment's owner
-        const found = await this.entityManager.query<Array<{ user_id: string }>>(
+        const found = await this.entityManager.query<Array<CapstoneEnrollmentUserIdRow>>(
             `
             SELECT e.user_id
             FROM user_milestone_tasks umt

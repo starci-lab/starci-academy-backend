@@ -48,6 +48,18 @@ export interface GetCodingProblemHintParams {
     locale?: Locale
 }
 
+/**
+ * Raw `_source` shape of a coding-problem approach-hint document as stored in
+ * Elasticsearch (both fields optional because the index/document may be partial
+ * or missing).
+ */
+export interface CodingProblemHintSource {
+    /** Stable URL slug of the problem. */
+    slug?: string
+    /** The approach-hint markdown body. */
+    hint?: string
+}
+
 /** A problem's approach-hint document (sourced from Elasticsearch). */
 export interface CodingProblemHintResult {
     /** Stable URL slug of the problem. */
@@ -130,4 +142,22 @@ export interface ListMyCodingSubmissionsResult {
     submissions: Array<CodingSubmissionEntity>
     /** Total number of submissions by the user for the problem. */
     total: number
+}
+
+/**
+ * Internal row shape returned by the distinct-problem-id SQL aggregates used to
+ * compute per-user coding progress (solved / attempted / revealed problem ids).
+ */
+export interface CodingProblemIdRow {
+    /** A distinct `coding_problem_id` (aliased as `id` in the query). */
+    id: string
+}
+
+/**
+ * Internal row shape returned by the user coding-points SQL (the user's
+ * cumulative coding score).
+ */
+export interface CodingPointsRow {
+    /** The user's cumulative coding score (Postgres may return it as text). */
+    points: number | string
 }

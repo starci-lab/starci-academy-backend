@@ -15,72 +15,16 @@ import {
 } from "@modules/databases"
 
 /**
- * Free Auto-lane ("lượt") quota for the current user, per window.
+ * Unified platform-credit quota for the current user, per window.
  */
 @ObjectType({
-    description: "Free Auto-lane (complimentary) quota — counted in uses.",
+    description: "Unified platform credit quota (free base + tier).",
 })
-export class MyAiAutoQuotaData {
+export class MyAiCreditQuotaData {
     @Field(
         () => Int,
         {
-            description: "Max Auto grading runs allowed within the current 5-hour window.",
-        },
-    )
-        limit5h: number
-
-    @Field(
-        () => Int,
-        {
-            description: "Auto uses consumed in the current 5h window.",
-        },
-    )
-        used5h: number
-
-    @Field(
-        () => Int,
-        {
-            description: "Remaining Auto uses in the 5h window.",
-        },
-    )
-        remaining5h: number
-
-    @Field(
-        () => Int,
-        {
-            description: "Max Auto grading runs allowed within the current week.",
-        },
-    )
-        limitWeek: number
-
-    @Field(
-        () => Int,
-        {
-            description: "Auto uses consumed in the current weekly window.",
-        },
-    )
-        usedWeek: number
-
-    @Field(
-        () => Int,
-        {
-            description: "Remaining Auto uses in the weekly window.",
-        },
-    )
-        remainingWeek: number
-}
-
-/**
- * Paid Premium-lane (credit) quota for the current user, per window.
- */
-@ObjectType({
-    description: "Paid Premium-lane quota — counted in credits.",
-})
-export class MyAiPremiumQuotaData {
-    @Field(
-        () => Int,
-        {
-            description: "Credit cap in the 5h window (0 when no active tier).",
+            description: "Credit allowance in the current 5-hour window (free base + tier).",
         },
     )
         limit5h: number
@@ -104,7 +48,7 @@ export class MyAiPremiumQuotaData {
     @Field(
         () => Int,
         {
-            description: "Credit cap in the weekly window (0 when no active tier).",
+            description: "Credit allowance in the current weekly window (free base + tier).",
         },
     )
         limitWeek: number
@@ -130,7 +74,7 @@ export class MyAiPremiumQuotaData {
  * Full per-user quota snapshot — both lanes + window reset times.
  */
 @ObjectType({
-    description: "Per-user AI quota snapshot (Auto + Premium).",
+    description: "Per-user AI quota snapshot (single credit pool).",
 })
 export class MyAiQuotaResponseData {
     @Field(
@@ -151,20 +95,12 @@ export class MyAiQuotaResponseData {
         tier: AiSubTier | null
 
     @Field(
-        () => MyAiAutoQuotaData,
+        () => MyAiCreditQuotaData,
         {
-            description: "Free Auto-lane (complimentary) quota.",
+            description: "Unified platform credit quota (free base + tier).",
         },
     )
-        auto: MyAiAutoQuotaData
-
-    @Field(
-        () => MyAiPremiumQuotaData,
-        {
-            description: "Paid Premium-lane (credit) quota.",
-        },
-    )
-        premium: MyAiPremiumQuotaData
+        credit: MyAiCreditQuotaData
 
     @Field(
         () => Date,
