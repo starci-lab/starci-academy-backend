@@ -1,5 +1,6 @@
 import {
     Injectable,
+    Logger,
     OnModuleInit,
 } from "@nestjs/common"
 import {
@@ -26,6 +27,9 @@ import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
+import {
+    AssetsService,
+} from "@modules/assets"
 import {
     SeedScopeService,
     SyncScopeService,
@@ -68,6 +72,9 @@ import {
 @Injectable()
 export class InitService implements OnModuleInit {
 
+    /** Scoped logger for the non-fatal post-seed asset mirror. */
+    private readonly logger = new Logger(InitService.name)
+
     constructor(
         private readonly dataGitBootstrapService: DataGitBootstrapService,
         private readonly seedDiffOverlayService: SeedDiffOverlayService,
@@ -77,6 +84,7 @@ export class InitService implements OnModuleInit {
         private readonly syncScopeService: SyncScopeService,
         private readonly seedersService: SeedersService,
         private readonly synchronizersService: SynchronizersService,
+        private readonly assetsService: AssetsService,
     ) { }
 
     /**
@@ -155,6 +163,23 @@ export class InitService implements OnModuleInit {
             // phase 2: project the seeded DB out to CDN + Elasticsearch when enabled
             if (this.syncScopeService.isSynchronizersEnabled()) {
                 await this.synchronizersService.init()
+            }
+            // phase 2b: mirror the snapshot's STATIC ASSETS (badges, course covers, …)
+            // to MinIO from the SAME fresh snapshot root. AssetsService's own boot
+            // hook runs OUTSIDE this window (`getRuntimeContextRoot()` is unset → it
+            // only sees the local `.mount/assets` fallback, which lacks the data-repo
+            // assets), so drive it here while the context root points at the freshly
+            // pulled snapshot's `assets/`. Non-fatal: a static-asset failure must never
+            // roll back a successful seed (mirrors AssetsService's own swallow policy).
+            if (snapshotRoot) {
+                try {
+                    const { assets } = await this.assetsService.sync()
+                    this.logger.log(`Mirrored ${assets.length} snapshot asset(s) to MinIO`)
+                } catch (error) {
+                    this.logger.error(
+                        `Snapshot asset mirror failed: ${error instanceof Error ? error.message : String(error)}`,
+                    )
+                }
             }
             // success → record the snapshot in the manifest + prune the oldest
             if (result) {

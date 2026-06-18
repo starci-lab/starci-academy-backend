@@ -86,6 +86,7 @@ export class UserCoursesResolver {
             globalId: toGlobalId(CourseEntity.name,
                 row.courseId),
             label: row.title,
+            thumbnailUrl: row.thumbnailUrl,
             contentCompleted: row.contentCompleted,
             contentTotal: row.contentTotal,
             challengeCompleted: row.challengeCompleted,

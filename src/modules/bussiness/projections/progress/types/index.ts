@@ -154,6 +154,8 @@ export interface MyCourseProgressRow {
     course_id: string
     /** Course title (the rail token label). */
     title: string
+    /** Course thumbnail URL (`courses.thumbnail_url`); null when unset. */
+    thumbnail_url: string | null
     /** Lessons read (from the projection); string when text. */
     content_completed: string | number
     /** Total contents (lessons) in the course; string when `bigint`. */
@@ -177,6 +179,8 @@ export interface MyCourseProgressResult {
     courseId: string
     /** Course title (the rail token label). */
     title: string
+    /** Course thumbnail URL; null when unset. */
+    thumbnailUrl: string | null
     /** Lessons the viewer has read in the course. */
     contentCompleted: number
     /** Total contents (lessons) in the course. */

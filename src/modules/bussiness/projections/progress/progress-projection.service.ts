@@ -232,6 +232,7 @@ export class ProgressProjectionService {
             `
             SELECT e.course_id AS course_id,
                    c.title     AS title,
+                   c.thumbnail_url AS thumbnail_url,
                    -- content (lessons): read from projection / total contents in course
                    COALESCE((p.value->>'lessonsRead')::int, 0)       AS content_completed,
                    COALESCE(ct.total, 0)                             AS content_total,
@@ -275,6 +276,7 @@ export class ProgressProjectionService {
         return rows.map((row) => ({
             courseId: row.course_id,
             title: row.title,
+            thumbnailUrl: row.thumbnail_url ?? null,
             contentCompleted: Number(row.content_completed) || 0,
             contentTotal: Number(row.content_total) || 0,
             challengeCompleted: Number(row.challenge_completed) || 0,

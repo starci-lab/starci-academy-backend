@@ -187,7 +187,8 @@
       "Bash(powershell -Command 'Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | Where-Object {$_.LocalPort -in 3000,3001} | ForEach-Object { $_.LocalPort }')",
       "WebFetch(domain:unpkg.com)",
       "Bash(rm -f categorical-open-set-chips-not-bar.md meta-rows-compact-not-44px.md && echo \"=== drafts/ now ===\"; ls -1; echo \"=== rules/ now ===\"; ls -1 ../*.md)",
-      "Bash(cd /c/Repositories/starci-academy/src *)"
+      "Bash(cd /c/Repositories/starci-academy/src *)",
+      "Bash(cd /c/Repositories/starci-academy/.claude/rules/drafts *)"
     ]
   }
 }

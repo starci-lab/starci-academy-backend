@@ -51,10 +51,10 @@ export class RecommendedCourseObject {
         () => String,
         {
             nullable: true,
-            description: "Cover image URL of the course.",
+            description: "thumbnail URL of the course.",
         },
     )
-        coverImageUrl: string | null
+        thumbnailUrl: string | null
 
     @Field(
         () => Int,

@@ -17,7 +17,7 @@ export interface RecommendedCourseItem {
     displayId: string
     title: string
     description: string | null
-    coverImageUrl: string | null
+    thumbnailUrl: string | null
     originalPriceVnd: number
     discountedPriceVnd: number
     discountPercent: number

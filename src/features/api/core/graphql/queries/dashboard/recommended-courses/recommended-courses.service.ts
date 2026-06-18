@@ -121,7 +121,7 @@ export class RecommendedCoursesService {
                 displayId: course.displayId,
                 title: course.title,
                 description: course.description,
-                coverImageUrl: course.coverImageUrl,
+                thumbnailUrl: course.coverImageUrl,
                 originalPriceVnd,
                 discountedPriceVnd,
                 discountPercent: percent,

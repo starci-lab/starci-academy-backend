@@ -34,6 +34,15 @@ export class MyCourseItemData {
         label: string
 
     @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Course thumbnail URL (courses.thumbnail_url); null when unset.",
+        },
+    )
+        thumbnailUrl: string | null
+
+    @Field(
         () => Int,
         {
             description: "Lessons the viewer has read in the course.",
