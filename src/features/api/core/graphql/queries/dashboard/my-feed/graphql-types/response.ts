@@ -1,5 +1,6 @@
 import {
     Field,
+    Int,
     ObjectType,
 } from "@nestjs/graphql"
 import {
@@ -9,6 +10,8 @@ import {
 import {
     ActivityType,
     GraphQLTypeActivityType,
+    GraphQLTypeReactionType,
+    ReactionType,
 } from "@modules/databases"
 
 /**
@@ -20,6 +23,14 @@ import {
     description: "A home-feed activity item (token-based).",
 })
 export class MyFeedItemData {
+    @Field(
+        () => String,
+        {
+            description: "Activity id — pass to reactToActivity (the thing being reacted to).",
+        },
+    )
+        id: string
+
     @Field(
         () => String,
         {
@@ -78,6 +89,31 @@ export class MyFeedItemData {
         },
     )
         at: Date
+
+    @Field(
+        () => Int,
+        {
+            description: "Total reactions on this activity.",
+        },
+    )
+        reactionCount: number
+
+    @Field(
+        () => GraphQLTypeReactionType,
+        {
+            nullable: true,
+            description: "The viewer's own reaction on this activity, or null.",
+        },
+    )
+        myReaction: ReactionType | null
+
+    @Field(
+        () => Boolean,
+        {
+            description: "Whether this activity belongs to the viewer (cannot react to own).",
+        },
+    )
+        isMine: boolean
 }
 
 /** One cursor-paginated page of the home feed. */

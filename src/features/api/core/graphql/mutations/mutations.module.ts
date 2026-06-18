@@ -61,12 +61,18 @@ import {
 import {
     FlashcardMutationsModule,
 } from "./flashcard"
+import {
+    ContactMutationsModule,
+} from "./contact"
 
 /**
  * GraphQL mutations (courses, authentication, etc.).
  */
 @Module({
     imports: [
+        ContactMutationsModule.register({
+            isGlobal: true,
+        }),
         AuthenticationMutationsModule.register({
             isGlobal: true,
         }),

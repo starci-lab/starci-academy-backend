@@ -1,0 +1,113 @@
+import {
+    Field,
+    Int,
+    ObjectType,
+} from "@nestjs/graphql"
+import {
+    AbstractGraphQLResponse,
+    IAbstractGraphQLResponse,
+} from "@modules/api"
+import {
+    DailyQuestKey,
+    GraphQLTypeDailyQuestKey,
+} from "@modules/databases"
+
+/**
+ * One daily-quest task: TODAY's `current` progress vs the static `target`.
+ */
+@ObjectType({
+    description: "One daily-quest task with its current progress and target.",
+})
+export class DailyQuestTaskObject {
+    @Field(
+        () => GraphQLTypeDailyQuestKey,
+        {
+            description: "Which daily task this row is.",
+        },
+    )
+        key: DailyQuestKey
+
+    @Field(
+        () => Int,
+        {
+            description: "How many of the action the user has done today.",
+        },
+    )
+        current: number
+
+    @Field(
+        () => Int,
+        {
+            description: "How many are required today to complete the task.",
+        },
+    )
+        target: number
+}
+
+/**
+ * The viewer's daily quest for today: each task's progress, completion + claim
+ * state, and the reward value granted on claim.
+ */
+@ObjectType({
+    description: "The viewer's daily quest for today.",
+})
+export class MyDailyQuestData {
+    @Field(
+        () => String,
+        {
+            description: "Today's Asia/Ho_Chi_Minh calendar day (YYYY-MM-DD).",
+        },
+    )
+        date: string
+
+    @Field(
+        () => [DailyQuestTaskObject],
+        {
+            description: "Each daily task with its current progress and target.",
+        },
+    )
+        tasks: Array<DailyQuestTaskObject>
+
+    @Field(
+        () => Boolean,
+        {
+            description: "True when every task's current >= target.",
+        },
+    )
+        allDone: boolean
+
+    @Field(
+        () => Boolean,
+        {
+            description: "True when the reward was already claimed today.",
+        },
+    )
+        claimed: boolean
+
+    @Field(
+        () => Int,
+        {
+            description: "Points granted when the completed quest is claimed.",
+        },
+    )
+        reward: number
+}
+
+/**
+ * Response wrapper for the myDailyQuest query.
+ */
+@ObjectType({
+    description: "Response wrapper for the myDailyQuest query.",
+})
+export class MyDailyQuestResponse
+    extends AbstractGraphQLResponse
+    implements IAbstractGraphQLResponse<MyDailyQuestData> {
+    @Field(
+        () => MyDailyQuestData,
+        {
+            nullable: true,
+            description: "The viewer's daily quest for today.",
+        },
+    )
+        data: MyDailyQuestData
+}

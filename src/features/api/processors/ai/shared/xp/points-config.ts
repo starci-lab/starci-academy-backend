@@ -24,4 +24,6 @@ export const FLAT_POINTS = {
      * solve is the problem's own point value (see the judge step).
      */
     codingSolved: 20,
+    /** Claiming the completed daily quest (all tasks done that VN day). */
+    dailyQuest: 20,
 } as const

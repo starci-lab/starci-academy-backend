@@ -130,7 +130,9 @@ export class MyFeedResolver {
                    u.avatar        AS "actorAvatar",
                    a.type          AS "type",
                    a.payload       AS "metadata",
-                   a.created_at    AS "at"
+                   a.created_at    AS "at",
+                   (SELECT COUNT(*) FROM activity_reactions ar WHERE ar.activity_id = a.id) AS "reactionCount",
+                   (SELECT ar.type FROM activity_reactions ar WHERE ar.activity_id = a.id AND ar.user_id = $1) AS "myReaction"
             FROM activities a
             JOIN users u ON u.id = a.user_id
             ${tabClause}
@@ -170,6 +172,7 @@ export class MyFeedResolver {
             const targetGlobalId = target ? toGlobalId(target.entityName,
                 target.id) : null
             return {
+                id: row.id,
                 actorGlobalId: toGlobalId(UserEntity.name,
                     row.actorUserId),
                 actorUsername: row.actorUsername,
@@ -180,6 +183,11 @@ export class MyFeedResolver {
                     ?? target?.label
                     ?? null,
                 at: row.at,
+                reactionCount: Number(row.reactionCount),
+                myReaction: row.myReaction ?? null,
+                // forYou excludes the viewer + you never follow yourself, so this is
+                // always false here — kept for a uniform item shape across feeds
+                isMine: row.actorUserId === user.id,
             }
         })
 

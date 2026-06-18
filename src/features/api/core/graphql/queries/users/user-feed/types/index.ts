@@ -1,6 +1,7 @@
 import type {
     ActivityMetadata,
     ActivityType,
+    ReactionType,
 } from "@modules/databases"
 
 /**
@@ -22,6 +23,10 @@ export interface UserFeedRow {
     metadata: ActivityMetadata | null
     /** When the activity happened. */
     at: Date
+    /** Total reactions on this activity (raw COUNT, string from SQL). */
+    reactionCount: string | number
+    /** The viewer's own reaction on this activity, or null. */
+    myReaction: ReactionType | null
 }
 
 /**

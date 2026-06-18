@@ -69,11 +69,30 @@ export interface CommentReactionRow {
     type: ReactionType
 }
 
+/**
+ * One raw row from the activity-owner lookup (`SELECT user_id AS userId FROM
+ * activities WHERE id = $1`), used to enforce "cannot react to your own activity".
+ */
+export interface ActivityOwnerRow {
+    /** Id of the user who owns (authored) the activity. */
+    userId: string
+}
+
 /** Params to set/change/remove the current user's reaction on a content. */
 export interface ReactToContentParams {
     /** Content being reacted to. */
     contentId: string
     /** Authenticated user reacting. */
+    user: UserEntity
+    /** New emotion, or null to remove the existing reaction. */
+    type: ReactionType | null
+}
+
+/** Params to set/change/remove the current user's reaction on a feed activity. */
+export interface ReactToActivityParams {
+    /** Activity being reacted to. */
+    activityId: string
+    /** Authenticated user reacting (can never be the activity's own actor). */
     user: UserEntity
     /** New emotion, or null to remove the existing reaction. */
     type: ReactionType | null

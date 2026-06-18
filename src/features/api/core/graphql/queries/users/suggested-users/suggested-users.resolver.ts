@@ -38,7 +38,7 @@ import {
 } from "./graphql-types"
 
 /** Default + hard-cap on how many "who to follow" suggestions to surface. */
-const DEFAULT_LIMIT = 5
+const DEFAULT_LIMIT = 20
 /** Upper bound so the client can never ask for an unbounded list. */
 const MAX_LIMIT = 20
 

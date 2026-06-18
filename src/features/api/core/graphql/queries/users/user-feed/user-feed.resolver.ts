@@ -17,6 +17,7 @@ import {
 } from "@modules/api"
 import {
     KeycloakOptionalAuthGraphQLGuard,
+    KeycloakGraphQLUser,
 } from "@modules/keycloak"
 import {
     UseThrottler,
@@ -83,9 +84,13 @@ export class UserFeedResolver {
     async execute(
         @Args("request")
             request: UserFeedRequest,
+        @KeycloakGraphQLUser()
+            user: UserEntity | undefined,
         @GraphQLLocale()
             locale: Locale,
     ): Promise<MyFeedResponseData> {
+        // optional-auth: viewer may be anonymous → no personal reaction / ownership
+        const viewerId = user?.id ?? null
         // clamp page size; fetch one extra row to know whether a next page exists
         const limit = Math.min(Math.max(request.limit ?? 20,
             1),
@@ -102,7 +107,9 @@ export class UserFeedResolver {
                    u.avatar        AS "actorAvatar",
                    a.type          AS "type",
                    a.payload       AS "metadata",
-                   a.created_at    AS "at"
+                   a.created_at    AS "at",
+                   (SELECT COUNT(*) FROM activity_reactions ar WHERE ar.activity_id = a.id) AS "reactionCount",
+                   (SELECT ar.type FROM activity_reactions ar WHERE ar.activity_id = a.id AND ar.user_id = $2) AS "myReaction"
             FROM activities a
             JOIN users u ON u.id = a.user_id
             WHERE a.user_id = $1
@@ -112,6 +119,7 @@ export class UserFeedResolver {
             `,
             [
                 request.userId,
+                viewerId,
             ],
         )
 
@@ -143,6 +151,7 @@ export class UserFeedResolver {
             const targetGlobalId = target ? toGlobalId(target.entityName,
                 target.id) : null
             return {
+                id: row.id,
                 actorGlobalId: toGlobalId(UserEntity.name,
                     row.actorUserId),
                 actorUsername: row.actorUsername,
@@ -153,6 +162,10 @@ export class UserFeedResolver {
                     ?? target?.label
                     ?? null,
                 at: row.at,
+                reactionCount: Number(row.reactionCount),
+                myReaction: row.myReaction ?? null,
+                // own-profile timeline → every item is mine (→ read-only, no react)
+                isMine: row.actorUserId === viewerId,
             }
         })
 

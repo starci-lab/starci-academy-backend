@@ -31,6 +31,9 @@ import {
 import {
     ReorderPinnedProjectsSingleMutationModule,
 } from "./reorder-pinned-projects"
+import {
+    ClaimDailyQuestRewardSingleMutationModule,
+} from "./claim-daily-quest-reward"
 
 /**
  * Profile mutation group (edit display name, bio, avatar). Avatar upload is a
@@ -64,6 +67,9 @@ import {
             isGlobal: true,
         }),
         ReorderPinnedProjectsSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        ClaimDailyQuestRewardSingleMutationModule.register({
             isGlobal: true,
         }),
     ],

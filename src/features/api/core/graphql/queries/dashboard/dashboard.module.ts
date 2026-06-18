@@ -46,6 +46,9 @@ import {
 import {
     MyRewardWalletSingleQueryModule,
 } from "./my-reward-wallet"
+import {
+    MyDailyQuestSingleQueryModule,
+} from "./my-daily-quest"
 
 /**
  * Dashboard query group — logged-in home leaf queries (one resolver per rail
@@ -94,6 +97,9 @@ import {
             isGlobal: true,
         }),
         MyRewardWalletSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyDailyQuestSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

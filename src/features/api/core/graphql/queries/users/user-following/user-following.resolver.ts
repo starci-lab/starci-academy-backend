@@ -35,7 +35,7 @@ import {
 } from "./graphql-types"
 
 /** Default + hard-cap on how many following rows to surface per page. */
-const DEFAULT_LIMIT = 12
+const DEFAULT_LIMIT = 20
 /** Upper bound so the client can never ask for an unbounded list. */
 const MAX_LIMIT = 50
 

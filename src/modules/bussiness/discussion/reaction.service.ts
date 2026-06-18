@@ -5,6 +5,7 @@ import {
     EntityManager,
 } from "typeorm"
 import {
+    ActivityReactionEntity,
     CommentReactionEntity,
     ContentCommentEntity,
     ContentReactionEntity,
@@ -12,6 +13,8 @@ import {
     ReactionType,
 } from "@modules/databases"
 import {
+    ActivityNotFoundException,
+    ActivitySelfReactionException,
     CommentNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -22,11 +25,13 @@ import {
     ContentEngagementProjectionService,
 } from "../projections"
 import type {
+    ActivityOwnerRow,
     CommentReactionCountRow,
     CommentReactionRow,
     ReactionCountInputRow,
     ReactionCountResult,
     ReactionSummaryResult,
+    ReactToActivityParams,
     ReactToCommentParams,
     ReactToContentParams,
     SummarizeCommentReactionsParams,
@@ -110,6 +115,98 @@ export class ReactionService {
             contentId,
             userId: user.id,
         })
+    }
+
+    /**
+     * Sets, changes, or removes the current user's reaction on a FEED ACTIVITY.
+     * A user can never react to their own activity (enforced here). No engagement
+     * projection — counts are read live from `activity_reactions` (the feed query
+     * also reads them inline; reactions on a feed are an explicit CQRS exception).
+     * @param params - {@link ReactToActivityParams}
+     * @returns The activity's fresh reaction summary from this user's view.
+     */
+    async reactToActivity({
+        activityId,
+        user,
+        type,
+    }: ReactToActivityParams): Promise<ReactionSummaryResult> {
+        // guard: activity must exist + must NOT belong to the reactor (no self-react)
+        const owners = await this.entityManager.query<Array<ActivityOwnerRow>>(
+            "SELECT user_id AS \"userId\" FROM activities WHERE id = $1",
+            [
+                activityId,
+            ],
+        )
+        const ownerId = owners[0]?.userId
+        if (!ownerId) {
+            throw new ActivityNotFoundException({
+                activityId,
+            })
+        }
+        if (ownerId === user.id) {
+            throw new ActivitySelfReactionException({
+                activityId,
+                userId: user.id,
+            })
+        }
+        // at most one reaction per (activity, user) — same upsert/delete shape as content
+        const existing = await this.entityManager.findOne(ActivityReactionEntity,
+            {
+                where: {
+                    activity: {
+                        id: activityId,
+                    },
+                    user: {
+                        id: user.id,
+                    },
+                },
+            })
+        if (type === null) {
+            if (existing) {
+                await this.entityManager.remove(existing)
+            }
+        } else if (existing) {
+            existing.type = type
+            await this.entityManager.save(existing)
+        } else {
+            await this.entityManager.save(this.entityManager.create(ActivityReactionEntity,
+                {
+                    type,
+                    activity: {
+                        id: activityId,
+                    },
+                    user: {
+                        id: user.id,
+                    },
+                }))
+        }
+        // live grouped counts + the viewer's own pick (no projection)
+        const countRows = await this.entityManager
+            .createQueryBuilder(ActivityReactionEntity,
+                "reaction")
+            .select("reaction.type",
+                "type")
+            .addSelect("COUNT(*)",
+                "count")
+            .where("reaction.activity_id = :activityId",
+                {
+                    activityId,
+                })
+            .groupBy("reaction.type")
+            .getRawMany<ReactionCountInputRow>()
+        const mine = await this.entityManager.findOne(ActivityReactionEntity,
+            {
+                where: {
+                    activity: {
+                        id: activityId,
+                    },
+                    user: {
+                        id: user.id,
+                    },
+                },
+            })
+        return this.buildSummary(countRows,
+            mine?.type ?? null)
     }
 
     /**

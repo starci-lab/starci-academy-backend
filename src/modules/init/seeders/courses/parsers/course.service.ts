@@ -45,6 +45,10 @@ import {
 import {
     WinstonService,
 } from "@modules/winston"
+import {
+    S3BuildService,
+    S3Provider,
+} from "@modules/s3"
 
 /**
  * Parses a course root (`en.md`, `vi.md`, optional `data.json`) under `courses/{index}-{slug}/`.
@@ -65,9 +69,36 @@ export class CourseParserService {
         private readonly coursePathService: CoursePathService,
         private readonly mergeJsonService: MergeJsonService,
         private readonly winstonService: WinstonService,
+        private readonly s3BuildService: S3BuildService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
     ) { }
+
+    /**
+     * Resolve a raw `# coverImageUrl` mount value into the URL persisted to the DB.
+     *
+     * Absolute URLs (`http(s)://...`) are kept verbatim (legacy externally-hosted covers); anything
+     * else is treated as a MinIO object key (e.g. `assets/courses/fullstack-mastery.png`, synced by
+     * the assets module under the public `assets/` prefix) and expanded into a public, env-aware URL,
+     * so the committed seed stays deployment-agnostic. Mirrors the foundation thumbnail resolver.
+     *
+     * @param value - Raw cover value from the mount, or `null`/empty when absent.
+     * @returns The resolved absolute URL, or `undefined` when no cover is set.
+     */
+    private resolveCoverImageUrl(value: string | null | undefined): string | undefined {
+        const trimmed = value?.trim()
+        if (!trimmed) {
+            return undefined
+        }
+        if (/^https?:\/\//i.test(trimmed)) {
+            return trimmed
+        }
+        const key = trimmed.replace(/^\/+/, "")
+        return this.s3BuildService.buildPublicObjectUrl({
+            key,
+            provider: S3Provider.Minio,
+        })
+    }
 
     /**
      * Builds a partial course entity (pricing, lists, translations) from the mount.
@@ -160,7 +191,7 @@ export class CourseParserService {
                     translations: [],
                 }
             }),
-            coverImageUrl: merged.coverImageUrl?.trim(),
+            coverImageUrl: this.resolveCoverImageUrl(merged.coverImageUrl),
             pricingPhases: (
                 merged.pricingPhases ?? []).map(
                 (phase) => {

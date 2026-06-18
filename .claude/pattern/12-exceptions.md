@@ -1,15 +1,21 @@
 # 12 — Exceptions & Error Handling
 
-## STRICT: KHÔNG `throw new Error("...")`
+## STRICT: KHÔNG `throw new Error("...")` — và KHÔNG Nest built-in `*Exception`
 Mọi giá trị ném trong `src/` + `apps/` phải extend `AbstractException` (`@modules/exceptions`), mang `code` ổn định + `metadata` có cấu trúc → Sentry/log group được, caller `instanceof`-match được.
+
+**CẤM luôn các HTTP exception của Nest** (`@nestjs/common`): `BadRequestException`, `ForbiddenException`, `NotFoundException`, `UnauthorizedException`, `ConflictException`, `HttpException`… — chúng KHÔNG có `code` ổn định, KHÔNG group log/Sentry, và GraphQL transform interceptor không map đẹp. Mỗi tình huống lỗi = 1 `AbstractException` riêng (vd "không react chính mình" → `ActivitySelfReactionException`, không phải `ForbiddenException`).
 
 ```ts
 // ❌
 throw new Error(`Unsupported provider: ${provider}`)
+throw new ForbiddenException("Cannot react to your own activity")   // Nest built-in — CẤM
 
 // ✅
 throw new UnsupportedAiProviderException({ provider })
+throw new ActivitySelfReactionException({ activityId, userId })
 ```
+
+> ⚠️ Nợ kỹ thuật: nhiều handler cũ vẫn dùng `BadRequestException`/`ForbiddenException`/`NotFoundException`/`UnauthorizedException` của Nest (purchase-ai, course-enroll, sandbox-repo-url, github-oauth, keycloak-auth, nowpayments…). Code MỚI tuyệt đối không theo; gặp khi sửa thì migrate sang typed exception.
 
 ### Thêm exception mới
 1. `src/modules/exceptions/errors/<domain>/<kebab-name>.ts`:

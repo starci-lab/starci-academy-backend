@@ -185,7 +185,9 @@
       "Bash(cd /c/Repositories/starci-academy; sed -n '670,685p' src/messages/vi.json; echo \"=== profile.nav keys ===\"; sed -n '1027,1060p' src/messages/vi.json)",
       "Bash(cd /c/Repositories/ac/starci-academy-backend; grep -rn \"MyCourseProgressResult\" src/modules/bussiness --include=*.ts | grep -iE \"export|interface|=\" | head)",
       "Bash(powershell -Command 'Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | Where-Object {$_.LocalPort -in 3000,3001} | ForEach-Object { $_.LocalPort }')",
-      "WebFetch(domain:unpkg.com)"
+      "WebFetch(domain:unpkg.com)",
+      "Bash(rm -f categorical-open-set-chips-not-bar.md meta-rows-compact-not-44px.md && echo \"=== drafts/ now ===\"; ls -1; echo \"=== rules/ now ===\"; ls -1 ../*.md)",
+      "Bash(cd /c/Repositories/starci-academy/src *)"
     ]
   }
 }
