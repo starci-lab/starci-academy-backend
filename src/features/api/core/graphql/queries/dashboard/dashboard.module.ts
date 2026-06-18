@@ -49,6 +49,9 @@ import {
 import {
     MyDailyQuestSingleQueryModule,
 } from "./my-daily-quest"
+import {
+    RecommendedCoursesSingleQueryModule,
+} from "./recommended-courses"
 
 /**
  * Dashboard query group — logged-in home leaf queries (one resolver per rail
@@ -100,6 +103,9 @@ import {
             isGlobal: true,
         }),
         MyDailyQuestSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        RecommendedCoursesSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

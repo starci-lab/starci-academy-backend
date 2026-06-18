@@ -45,6 +45,7 @@ import type {
 } from "./types"
 import {
     EnqueueReconcileTransactionJobService,
+    LoyaltyDiscountService,
 } from "@modules/bussiness"
 
 /**
@@ -61,6 +62,7 @@ export class CourseEnrollSepayService {
         private readonly dayjsService: DayjsService,
         private readonly coursePricingService: CoursePricingService,
         private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
+        private readonly loyaltyDiscountService: LoyaltyDiscountService,
     ) {}
 
     /**
@@ -96,8 +98,13 @@ export class CourseEnrollSepayService {
                 id: courseId,
             })
         }
+        // loyalty discount applied at checkout (so charged === shown)
+        const {
+            percent: discountPercent,
+        } = await this.loyaltyDiscountService.computeLoyaltyDiscount(user.id)
         const amount = this.coursePricingService.resolveAmountVnd({
             course,
+            discountPercent,
         })
 
         // reuse a still-fresh pending transaction (regenerate signed fields)
@@ -147,6 +154,7 @@ export class CourseEnrollSepayService {
                 course,
                 referenceId: String(orderCode),
                 amount,
+                discountPercent,
                 pricingPhase: currentPhase,
                 paymentType: PaymentType.Sepay,
                 checkoutUrl: this.sepay.checkout.initCheckoutUrl(),

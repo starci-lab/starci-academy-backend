@@ -44,6 +44,7 @@ import {
 } from "./graphql-types"
 import {
     EnqueueReconcileTransactionJobService,
+    LoyaltyDiscountService,
 } from "@modules/bussiness"
 
 /**
@@ -60,6 +61,7 @@ export class CourseEnrollPayOsService {
         private readonly coursePricingService: CoursePricingService,
         private readonly retryService: RetryService,
         private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
+        private readonly loyaltyDiscountService: LoyaltyDiscountService,
     ) {}
 
     /**
@@ -149,6 +151,10 @@ export class CourseEnrollPayOsService {
 
         // get current pricing phase
         const currentPhase = this.coursePricingService.getCurrentPricingPhase(course)
+        // loyalty discount applied at checkout (so charged === shown)
+        const {
+            percent: discountPercent,
+        } = await this.loyaltyDiscountService.computeLoyaltyDiscount(user.id)
         // create payment link
         const paymentLink = await this.retryService.retry(
             {
@@ -156,7 +162,8 @@ export class CourseEnrollPayOsService {
                     return await this.payos.paymentRequests.create(
                         {
                             amount: this.coursePricingService.resolveAmountVnd({
-                                course 
+                                course,
+                                discountPercent,
                             }),
                             cancelUrl: payosCancelUrl,
                             description: "EN",
@@ -175,6 +182,7 @@ export class CourseEnrollPayOsService {
                 course,
                 referenceId: String(paymentLink.orderCode),
                 amount: paymentLink.amount,
+                discountPercent,
                 pricingPhase: currentPhase,
                 paymentType: PaymentType.PayOS,
                 checkoutUrl: paymentLink.checkoutUrl,

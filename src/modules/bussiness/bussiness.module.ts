@@ -69,6 +69,9 @@ import {
 import {
     EsSyncModule,
 } from "./es-sync"
+import {
+    LoyaltyModule,
+} from "./loyalty"
 
 /**
  * The module for the bussiness logics.
@@ -119,6 +122,8 @@ export class BussinessModule extends ConfigurableModuleClass {
             WeeklyChallengeModule.register(options),
             // import the es-sync module (user → Elasticsearch `users` index sync)
             EsSyncModule.register(options),
+            // import the loyalty-discount module (engagement-based course discount)
+            LoyaltyModule.register(options),
         ]
         return {
             ...dynamicModule,

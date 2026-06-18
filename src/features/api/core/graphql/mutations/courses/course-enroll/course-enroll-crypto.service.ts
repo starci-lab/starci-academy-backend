@@ -40,6 +40,7 @@ import type {
 } from "./graphql-types"
 import {
     EnqueueReconcileTransactionJobService,
+    LoyaltyDiscountService,
 } from "@modules/bussiness"
 
 /**
@@ -60,6 +61,7 @@ export class CourseEnrollCryptoService {
         private readonly coursePricingService: CoursePricingService,
         private readonly retryService: RetryService,
         private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
+        private readonly loyaltyDiscountService: LoyaltyDiscountService,
     ) {}
 
     /**
@@ -98,13 +100,19 @@ export class CourseEnrollCryptoService {
                 id: courseId,
             })
         }
+        // loyalty discount applied at checkout (so charged === shown)
+        const {
+            percent: discountPercent,
+        } = await this.loyaltyDiscountService.computeLoyaltyDiscount(user.id)
         // VND amount is kept on the transaction as a stable reference value
         const amount = this.coursePricingService.resolveAmountVnd({
             course,
+            discountPercent,
         })
         // international gateway charges the explicit USD price (no runtime FX)
         const priceUsd = this.coursePricingService.resolveAmountUsd({
             course,
+            discountPercent,
         })
         // never charge VND as USD — reject when no USD price is configured
         if (!priceUsd || priceUsd <= 0) {
@@ -168,6 +176,7 @@ export class CourseEnrollCryptoService {
                 course,
                 referenceId: String(orderCode),
                 amount,
+                discountPercent,
                 pricingPhase: currentPhase,
                 paymentType: PaymentType.Crypto,
                 // invoiceUrl is the hosted page the browser redirects to

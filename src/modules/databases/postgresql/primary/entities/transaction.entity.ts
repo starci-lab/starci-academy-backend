@@ -168,6 +168,24 @@ export class TransactionEntity extends UuidAbstractEntity {
         amount: number
 
     /**
+     * Loyalty discount percent applied at checkout (0–100). The persisted
+     * {@link amount} already reflects this discount; stored so the charged price
+     * matches what the buyer was shown.
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Loyalty discount percent applied at checkout (0–100).",
+        },
+    )
+    @Column({
+        name: "discount_percent",
+        type: "int",
+        default: 0,
+    })
+        discountPercent: number
+
+    /**
      * The pricing phase applied to the preflight transaction.
      */
     @Field(

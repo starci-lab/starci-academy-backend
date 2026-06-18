@@ -26,6 +26,7 @@ export class CoursePricingService {
     resolveAmountVnd(
         {
             course,
+            discountPercent = 0,
         }: ResolveCourseAmountVndParams,
     ): number {
         const currentPhase = this.getCurrentPricingPhase(course)
@@ -38,12 +39,14 @@ export class CoursePricingService {
                     },
                 )
             }
-            return priceVnd
+            // apply the loyalty discount; keep the result an integer minor unit
+            return Math.round(priceVnd * (1 - this.clampPercent(discountPercent) / 100))
         }
         const pricingPhase = course.pricingPhases.find(
             (pricingPhase) => pricingPhase.phase === currentPhase,
         )
-        return pricingPhase?.price ?? 0
+        const base = pricingPhase?.price ?? 0
+        return Math.round(base * (1 - this.clampPercent(discountPercent) / 100))
     }
 
     /**
@@ -58,6 +61,7 @@ export class CoursePricingService {
     resolveAmountUsd(
         {
             course,
+            discountPercent = 0,
         }: ResolveCourseAmountUsdParams,
     ): number | null {
         // determine which tier is currently active for this course
@@ -70,7 +74,12 @@ export class CoursePricingService {
         const pricingPhase = course.pricingPhases.find(
             (pricingPhase) => pricingPhase.phase === currentPhase,
         )
-        return pricingPhase?.priceUsd ?? null
+        const base = pricingPhase?.priceUsd ?? null
+        if (base == null) {
+            return null
+        }
+        // apply the loyalty discount; cents conversion stays in the Stripe service
+        return base * (1 - this.clampPercent(discountPercent) / 100)
     }
 
     /**
@@ -83,5 +92,23 @@ export class CoursePricingService {
         course: CourseEntity,
     ): PricingPhase {
         return course.metadata?.currentPhase ?? PricingPhase.Regular
+    }
+
+    /**
+     * Clamp a discount percent into the valid 0–100 range (floored to an int).
+     *
+     * @param percent - Raw discount percent.
+     * @returns Integer percent in [0, 100].
+     */
+    private clampPercent(
+        percent: number,
+    ): number {
+        return Math.min(
+            100,
+            Math.max(
+                0,
+                Math.floor(percent),
+            ),
+        )
     }
 }
