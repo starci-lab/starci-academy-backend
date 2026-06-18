@@ -84,7 +84,10 @@ export class RecommendedCoursesService {
             },
         )
         // preserve the popularity ordering from the id query
-        const byId = new Map(courses.map((course) => [course.id, course]))
+        const byId = new Map(courses.map((course) => [
+            course.id,
+            course,
+        ]))
 
         // one loyalty computation per viewer — the same percent prices every course
         const {

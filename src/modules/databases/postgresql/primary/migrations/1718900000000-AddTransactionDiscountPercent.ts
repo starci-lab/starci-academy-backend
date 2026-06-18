@@ -14,13 +14,13 @@ export class AddTransactionDiscountPercent1718900000000 implements MigrationInte
 
     async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(
-            `ALTER TABLE "transactions" ADD COLUMN IF NOT EXISTS "discount_percent" int NOT NULL DEFAULT 0;`,
+            "ALTER TABLE \"transactions\" ADD COLUMN IF NOT EXISTS \"discount_percent\" int NOT NULL DEFAULT 0;",
         )
     }
 
     async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(
-            `ALTER TABLE "transactions" DROP COLUMN IF EXISTS "discount_percent";`,
+            "ALTER TABLE \"transactions\" DROP COLUMN IF EXISTS \"discount_percent\";",
         )
     }
 }
