@@ -35,7 +35,7 @@ import {
 /**
  * Redeem a reward from the gifts store for the authenticated user. Delegates the
  * balance check + effect + ledger insert to {@link RewardsService} (one atomic
- * transaction; `user.points` is never debited — the spendable balance is derived).
+ * transaction; `user.reward_points` is never debited — the spendable balance is derived).
  * A typed exception surfaces when the key is unknown, the balance is short, or the
  * streak-freeze cap is reached.
  */

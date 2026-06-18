@@ -25,8 +25,14 @@ import {
     UserCodingProjectionModule,
 } from "./user-coding"
 import {
+    UserXpProjectionModule,
+} from "./user-xp"
+import {
     UserCapstoneProjectionModule,
 } from "./user-capstone"
+import {
+    UserPinnedProjectsProjectionModule,
+} from "./user-pinned-projects"
 import {
     UserSolvedChallengesProjectionModule,
 } from "./user-solved-challenges"
@@ -66,7 +72,9 @@ export class ProjectionsModule extends ConfigurableModuleClass {
             CourseStatsProjectionModule.register(options),
             ContributionProjectionModule.register(options),
             UserCodingProjectionModule.register(options),
+            UserXpProjectionModule.register(options),
             UserCapstoneProjectionModule.register(options),
+            UserPinnedProjectsProjectionModule.register(options),
             UserSolvedChallengesProjectionModule.register(options),
             TrendingContentsProjectionModule.register(options),
             LeagueCohortPointsProjectionModule.register(options),

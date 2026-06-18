@@ -13,13 +13,17 @@ import {
 import {
     MyLearningFeedbacksSingleQueryModule,
 } from "./my-learning-feedbacks"
+import {
+    MyCourseOutlineSingleQueryModule,
+} from "./my-course-outline"
 
 /**
  * Learner self-management CMS query group — the viewer's own paginated history:
  * challenge-submission attempts (`myChallengeSubmissions`), milestone-task review
- * attempts (`myMilestoneTaskAttempts`), and merged learning feedback
- * (`myLearningFeedbacks`). All are PLAIN paginated list reads keyed by the
- * current user (the LIST exception — no CQRS projection). Each leaf is registered
+ * attempts (`myMilestoneTaskAttempts`), merged learning feedback
+ * (`myLearningFeedbacks`), and the per-course outline with progress overlaid
+ * (`myCourseOutline`). The list reads are the LIST exception (no CQRS
+ * projection); the outline is a read-only CQRS assembly. Each leaf is registered
  * global so its resolver is picked up by the schema.
  */
 @Module({
@@ -31,6 +35,9 @@ import {
             isGlobal: true,
         }),
         MyLearningFeedbacksSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyCourseOutlineSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

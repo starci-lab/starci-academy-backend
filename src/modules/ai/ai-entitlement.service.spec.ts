@@ -188,8 +188,8 @@ describe("AiEntitlementService",
                         })
 
                         expect(result.mode).toBe(AiMode.Premium)
-                        // remaining = (base + tier) cap − used
-                        expect(result.creditRemaining5h).toBe(BASE_CREDITS_5H + PLUS_CREDITS_5H - 50)
+                        // remaining = tier cap (overrides base) − used
+                        expect(result.creditRemaining5h).toBe(PLUS_CREDITS_5H - 50)
                     })
 
                 it("throws when an explicit Premium mode is requested without an active tier",

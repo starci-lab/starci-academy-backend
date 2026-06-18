@@ -71,7 +71,7 @@ export class SearchUserData {
     @Field(
         () => Int,
         {
-            description: "Unified global points balance (usable as a popularity signal).",
+            description: "Spendable reward-points balance (usable as a popularity signal).",
         },
     )
         points: number

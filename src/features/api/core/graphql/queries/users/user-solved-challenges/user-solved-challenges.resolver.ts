@@ -75,6 +75,9 @@ export class UserSolvedChallengesResolver {
             submissionUrl: challenge.submissionUrl,
             submissionType: challenge.submissionType,
             selectedLang: challenge.selectedLang,
+            difficulty: challenge.difficulty,
+            score: challenge.score,
+            courseTitle: challenge.courseTitle,
             passedAt: challenge.passedAt,
         }))
     }

@@ -56,6 +56,8 @@ export interface UserCodingSkillsResult {
     byLanguage: Array<UserCodingSkillCountResult>
     /** Solved counts grouped by difficulty. */
     byDifficulty: Array<UserCodingSkillCountResult>
+    /** Solved counts grouped by problem domain (arrays/strings/trees/…). */
+    byDomain: Array<UserCodingSkillCountResult>
 }
 
 /** One solved problem in the projection's jsonb `value.history` (raw jsonb shape). */
@@ -64,6 +66,8 @@ export interface UserCodingHistoryValue {
     problemTitle: string
     /** Difficulty value (easy/medium/hard). */
     difficulty: string
+    /** Problem domain value (arrays/strings/trees/dynamicProgramming/…). */
+    domain: string
     /** Language values the problem was solved in. */
     languages: Array<string>
     /** First-solve timestamp as an ISO string (jsonb), or null. */
@@ -76,8 +80,36 @@ export interface UserCodingHistoryResult {
     problemTitle: string
     /** Difficulty value (easy/medium/hard). */
     difficulty: string
+    /** Problem domain value (arrays/strings/trees/dynamicProgramming/…). */
+    domain: string
     /** Language values the problem was solved in. */
     languages: Array<string>
     /** First-solve time, or null. */
     firstSolvedAt: Date | null
+}
+
+/** Params for reading a user's 1-based global rank by distinct solved coding problems. */
+export interface UserCodingRankParams {
+    /** The user whose global coding rank to compute. */
+    userId: string
+}
+
+/** Raw row carrying a user's computed coding standing in a single pass. */
+export interface UserCodingStandingRow {
+    /** This user's distinct solved-problem count (0 when no row). */
+    mine: number
+    /** The user's 1-based global rank, or null when they have 0 solves. */
+    rank: number | null
+    /** How many pooled users this user strictly beats (lower solved count). */
+    beaten: number
+    /** Total pool size (users with at least one solve). */
+    pool_size: number
+}
+
+/** A user's derived coding standing: 1-based rank + percentile by distinct solved problems. */
+export interface CodingStandingResult {
+    /** The user's 1-based global coding rank, or null when they have 0 solves. */
+    rank: number | null
+    /** 0-100 percentile of users this user's solved count beats, or null when they have 0 solves. */
+    percentile: number | null
 }

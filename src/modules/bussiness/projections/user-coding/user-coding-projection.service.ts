@@ -14,10 +14,13 @@ import {
 import type {
     CodingLeaderboardEntryResult,
     CodingLeaderboardRow,
+    CodingStandingResult,
     RecomputeUserCodingParams,
     UserCodingHistoryResult,
     UserCodingHistoryValue,
     UserCodingLeaderboardParams,
+    UserCodingRankParams,
+    UserCodingStandingRow,
     UserCodingSkillCountResult,
     UserCodingSkillsResult,
 } from "./types"
@@ -72,6 +75,7 @@ export class UserCodingProjectionService {
         return {
             byLanguage: (value.byLanguage as Array<UserCodingSkillCountResult> | undefined) ?? [],
             byDifficulty: (value.byDifficulty as Array<UserCodingSkillCountResult> | undefined) ?? [],
+            byDomain: (value.byDomain as Array<UserCodingSkillCountResult> | undefined) ?? [],
         }
     }
 
@@ -88,6 +92,7 @@ export class UserCodingProjectionService {
         return history.map((item) => ({
             problemTitle: item.problemTitle,
             difficulty: item.difficulty,
+            domain: item.domain,
             languages: Array.isArray(item.languages) ? item.languages : [],
             firstSolvedAt: item.firstSolvedAt ? new Date(item.firstSolvedAt) : null,
         }))
@@ -126,6 +131,80 @@ export class UserCodingProjectionService {
             username: row.username ?? "",
             solvedCount: Number(row.solved_count) || 0,
         }))
+    }
+
+    /**
+     * Read a user's derived coding standing — a 1-based global rank + a 0-100
+     * percentile by distinct solved problems — same ordering as
+     * {@link getLeaderboard} (solvedCount DESC, tie-break updated_at ASC). A
+     * single pass over the per-user projection rows (the count is already
+     * materialised in `value->>'solvedCount'`); no aggregation per request.
+     * Mirrors `UserSolvedChallengesProjectionService.getChallengeStrength`.
+     *
+     * @param params - {@link UserCodingRankParams}
+     * @returns the {@link CodingStandingResult}; both fields null when the user has 0 solves / no row.
+     */
+    async getRank(
+        {
+            userId,
+        }: UserCodingRankParams,
+    ): Promise<CodingStandingResult> {
+        // single pass over the per-user projection rows: my solved count, my rank,
+        // how many I beat, and the pool size — no per-request aggregation over raw submissions.
+        const rows = await this.entityManager.query<Array<UserCodingStandingRow>>(
+            `
+            WITH pool AS (
+                SELECT p.user_id AS user_id,
+                       (p.value->>'solvedCount')::int AS solved_count,
+                       p.updated_at AS updated_at
+                FROM user_coding_projections p
+                WHERE (p.value->>'solvedCount')::int > 0
+            ),
+            me AS (
+                SELECT COALESCE((
+                    SELECT (p.value->>'solvedCount')::int
+                    FROM user_coding_projections p
+                    WHERE p.user_id = $1::uuid
+                ), 0) AS solved_count
+            )
+            SELECT me.solved_count AS mine,
+                   CASE WHEN me.solved_count > 0 THEN (
+                       SELECT 1 + COUNT(*)::int
+                       FROM pool
+                       WHERE pool.solved_count > me.solved_count
+                          OR (pool.solved_count = me.solved_count
+                              AND pool.updated_at < (
+                                  SELECT updated_at FROM pool WHERE pool.user_id = $1::uuid
+                              ))
+                   ) ELSE NULL END AS rank,
+                   (
+                       SELECT COUNT(*)::int FROM pool WHERE pool.solved_count < me.solved_count
+                   ) AS beaten,
+                   (SELECT COUNT(*)::int FROM pool) AS pool_size
+            FROM me
+            `,
+            [
+                userId,
+            ],
+        )
+        const row = rows[0]
+        const mine = Number(row?.mine) || 0
+        // no solves → unranked (both fields null)
+        if (mine <= 0) {
+            return {
+                rank: null,
+                percentile: null,
+            }
+        }
+        const poolSize = Number(row?.pool_size) || 0
+        const beaten = Number(row?.beaten) || 0
+        const rank = typeof row?.rank === "number" ? row.rank : null
+        // percentile = share of the pool this user strictly beats (0 when pool is just me)
+        const percentile = poolSize > 0 ? Math.round((beaten / poolSize) * 100) : 0
+        return {
+            rank,
+            percentile,
+        }
     }
 
     /**
@@ -215,11 +294,26 @@ export class UserCodingProjectionService {
                         GROUP BY cp.difficulty
                     ) d
                 ), '[]'::jsonb),
+                'byDomain', COALESCE((
+                    SELECT jsonb_agg(
+                        jsonb_build_object('key', dm.domain, 'solved', dm.solved)
+                        ORDER BY dm.solved DESC
+                    )
+                    FROM (
+                        SELECT cp.domain::text AS domain,
+                               COUNT(DISTINCT cs.coding_problem_id)::int AS solved
+                        FROM coding_submissions cs
+                        JOIN coding_problems cp ON cp.id = cs.coding_problem_id
+                        WHERE cs.user_id = $1 AND cs.verdict = 'accepted'
+                        GROUP BY cp.domain
+                    ) dm
+                ), '[]'::jsonb),
                 'history', COALESCE((
                     SELECT jsonb_agg(
                         jsonb_build_object(
                             'problemTitle', h.title,
                             'difficulty',   h.difficulty,
+                            'domain',       h.domain,
                             'languages',    h.languages,
                             'firstSolvedAt', h.first_solved_at
                         ) ORDER BY h.first_solved_at DESC
@@ -228,12 +322,13 @@ export class UserCodingProjectionService {
                         SELECT cp.id,
                                cp.title,
                                cp.difficulty::text AS difficulty,
+                               cp.domain::text AS domain,
                                array_agg(DISTINCT cs.language::text) AS languages,
                                MIN(cs.created_at) AS first_solved_at
                         FROM coding_submissions cs
                         JOIN coding_problems cp ON cp.id = cs.coding_problem_id
                         WHERE cs.user_id = $1 AND cs.verdict = 'accepted'
-                        GROUP BY cp.id, cp.title, cp.difficulty
+                        GROUP BY cp.id, cp.title, cp.difficulty, cp.domain
                     ) h
                 ), '[]'::jsonb)
             )

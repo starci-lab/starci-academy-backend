@@ -50,7 +50,7 @@ export interface LocalizedReward {
  * The viewer's reward wallet: spendable balance, lifetime spent, and history.
  */
 export interface RewardWalletResult {
-    /** Spendable balance = `user.points - spent` (never negative in practice). */
+    /** Spendable balance = `user.reward_points - spent` (never negative in practice). */
     balance: number
     /** Sum of cost across the viewer's non-cancelled redemptions. */
     spent: number

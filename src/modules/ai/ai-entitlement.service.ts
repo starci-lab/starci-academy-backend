@@ -34,6 +34,9 @@ import {
     WINDOW_WEEK_MS,
 } from "./constants"
 import {
+    toKeySuffix,
+} from "./ping/utils/dedupe-keys"
+import {
     AiAutoQuotaConfigService,
 } from "@modules/filesystem"
 import type {
@@ -361,6 +364,7 @@ export class AiEntitlementService {
         if (clearByok) {
             subscription.byokProvider = null
             subscription.byokKeyEncrypted = null
+            subscription.byokKeyLast4 = null
             if (subscription.preferredMode === AiMode.Byok) {
                 subscription.preferredMode = null
             }
@@ -385,6 +389,8 @@ export class AiEntitlementService {
         })
         subscription.byokProvider = byokProvider
         subscription.byokKeyEncrypted = JSON.stringify(payload)
+        // log-safe masked hint for the UI (plaintext is never returned again)
+        subscription.byokKeyLast4 = toKeySuffix(byokApiKey)
     }
 
     /**
@@ -439,6 +445,7 @@ export class AiEntitlementService {
             canByok,
             byokProvider: subscription.byokProvider,
             hasByokKey: Boolean(subscription.byokKeyEncrypted),
+            byokKeyLast4: subscription.byokKeyLast4,
             tier,
         }
     }
@@ -553,9 +560,10 @@ export class AiEntitlementService {
     }
 
     /**
-     * The per-window credit allowance for a tier: the free base credits (from
-     * `systemConfig.ai.auto`) plus the tier catalog credits when subscribed.
-     * Everyone — free or paid — spends from this single pool.
+     * The per-window credit allowance: a paid tier **OVERRIDES** the free base —
+     * the tier catalog credits ARE the total (not added on top of the base). Free
+     * (no tier) gets the base credits from `systemConfig.ai.auto`. Everyone spends
+     * from this single pool; upgrading a tier replaces the cap, it does not stack.
      *
      * @param tier - active paid tier, or null for free.
      * @returns the 5h + weekly credit limits.
@@ -563,11 +571,18 @@ export class AiEntitlementService {
     private creditAllowance(
         tier: AiSubTier | null,
     ): { limit5h: number, limitWeek: number } {
-        const base = this.aiAutoQuotaConfigService.getAutoQuota()
         const tierConfig = tier ? this.findTierConfig(tier) : null
+        // paid tier overrides the free base
+        if (tierConfig) {
+            return {
+                limit5h: tierConfig.creditsPer5h,
+                limitWeek: tierConfig.creditsPerWeek,
+            }
+        }
+        const base = this.aiAutoQuotaConfigService.getAutoQuota()
         return {
-            limit5h: base.creditsPer5h + (tierConfig?.creditsPer5h ?? 0),
-            limitWeek: base.creditsPerWeek + (tierConfig?.creditsPerWeek ?? 0),
+            limit5h: base.creditsPer5h,
+            limitWeek: base.creditsPerWeek,
         }
     }
 

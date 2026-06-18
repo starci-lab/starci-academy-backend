@@ -18,6 +18,8 @@ export enum XpSource {
     LessonRead = "lessonRead",
     /** XP from passing a milestone task (amount = 10, once per task). */
     Milestone = "milestone",
+    /** XP from a first clean coding-practice solve (amount = problem points). */
+    Coding = "coding",
 }
 
 export const GraphQLTypeXpSource = createEnumType(XpSource)
@@ -36,6 +38,9 @@ registerEnumType(
             },
             [XpSource.Milestone]: {
                 description: "XP from passing a milestone task.",
+            },
+            [XpSource.Coding]: {
+                description: "XP from a first clean coding-practice solve.",
             },
         },
     },

@@ -73,6 +73,7 @@ export class UserCodingSkillsResolver {
         return {
             byLanguage: skills.byLanguage,
             byDifficulty: skills.byDifficulty,
+            byDomain: skills.byDomain,
         }
     }
 }

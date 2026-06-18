@@ -37,10 +37,10 @@ import type {
 
 /**
  * Reward-store ("điểm quà") business logic. The spendable balance is DERIVED as
- * `user.points - SUM(non-cancelled redemption cost)` so the lifetime `points`
- * score that drives the league/leaderboard is NEVER debited by spending. Digital
- * rewards apply their effect on redeem (status `granted`); physical rewards land
- * `pending` for ops to fulfil.
+ * `user.reward_points - SUM(non-cancelled redemption cost)` so the reward-points
+ * balance that ranks the global leaderboard is NEVER debited by spending here.
+ * Digital rewards apply their effect on redeem (status `granted`); physical
+ * rewards land `pending` for ops to fulfil.
  */
 @Injectable()
 export class RewardsService {
@@ -128,7 +128,7 @@ export class RewardsService {
         return {
             // clamp: a balance can never go negative (spend always checks first)
             balance: Math.max(0,
-                user.points - spent),
+                user.rewardPoints - spent),
             spent,
             redemptions,
         }
@@ -137,7 +137,7 @@ export class RewardsService {
     /**
      * Redeem a catalog reward for the user. Runs the balance check + effect + the
      * ledger insert in one pessimistic-locked transaction so concurrent redeems
-     * cannot overspend. Never debits `user.points`.
+     * cannot overspend. Never debits `user.reward_points`.
      *
      * @param userId - the redeemer.
      * @param rewardKey - catalog key to redeem.
@@ -167,7 +167,7 @@ export class RewardsService {
                 })
             const spent = await this.computeSpent(manager,
                 userId)
-            const balance = user.points - spent
+            const balance = user.rewardPoints - spent
             if (balance < reward.cost) {
                 throw new InsufficientRewardPointsException({
                     balance,
@@ -222,7 +222,7 @@ export class RewardsService {
                     metadata: metadata as never,
                 })
             return {
-                // points are never debited — the spendable balance is derived
+                // reward_points are never debited — the spendable balance is derived
                 balance: balance - reward.cost,
                 streakFreezes,
             }

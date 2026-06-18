@@ -37,12 +37,12 @@ export class StreakService {
 
     /**
      * Buy one streak freeze for a user, spending {@link STREAK_FREEZE_COST}
-     * points. Throws when the user lacks the points or already holds the max.
-     * The read-check-write runs in a single transaction with a row re-read so a
-     * concurrent buy cannot overspend.
+     * reward points. Throws when the user lacks the points or already holds the
+     * max. The read-check-write runs in a single transaction with a row re-read so
+     * a concurrent buy cannot overspend.
      *
      * @param userId - the buyer.
-     * @returns the refreshed freeze count + points balance.
+     * @returns the refreshed freeze count + reward-points balance.
      */
     async buyStreakFreeze(userId: string): Promise<BuyStreakFreezeResult> {
         return this.entityManager.transaction(async (manager) => {
@@ -65,15 +65,15 @@ export class StreakService {
                     max: STREAK_FREEZE_MAX,
                 })
             }
-            // affordability check against the live (locked) balance
-            if (user.points < STREAK_FREEZE_COST) {
+            // affordability check against the live (locked) reward-points balance
+            if (user.rewardPoints < STREAK_FREEZE_COST) {
                 throw new StreakFreezeInsufficientPointsException({
-                    points: user.points,
+                    points: user.rewardPoints,
                     cost: STREAK_FREEZE_COST,
                 })
             }
-            // atomic spend: debit points, credit one freeze
-            const points = user.points - STREAK_FREEZE_COST
+            // atomic spend: debit reward points, credit one freeze
+            const points = user.rewardPoints - STREAK_FREEZE_COST
             const streakFreezes = user.streakFreezes + 1
             await manager.update(
                 UserEntity,
@@ -81,7 +81,7 @@ export class StreakService {
                     id: userId,
                 },
                 {
-                    points,
+                    rewardPoints: points,
                     streakFreezes,
                 },
             )

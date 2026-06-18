@@ -89,7 +89,7 @@ export class EsSyncUserService implements OnModuleInit {
             avatar: user.avatar,
             githubUsername: user.githubUsername,
             openToWork: user.openToWork,
-            points: user.points,
+            points: user.rewardPoints,
         }
     }
 

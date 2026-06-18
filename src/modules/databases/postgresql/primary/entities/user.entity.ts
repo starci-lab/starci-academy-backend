@@ -23,7 +23,9 @@ import {
 } from "./membership.entity"
 import {
     AuthenticationType,
-    GraphQLTypeAuthenticationType
+    GraphQLTypeAuthenticationType,
+    WorkMode,
+    GraphQLTypeWorkMode,
 } from "../enums"
 
 /**
@@ -216,22 +218,40 @@ export class UserEntity extends UuidAbstractEntity {
         isDeleted: boolean
 
     /**
-     * The user's single global points balance — the unified account currency.
-     * Credited by every points-granting event: course activities that also grant
-     * XP (passed challenges, read lessons, passed milestone tasks) AND coding
-     * practice (first solve, by difficulty, no reveal). Standalone from the
-     * per-course leaderboard XP (which stays internal to each course).
+     * The user's total lifetime XP — the cumulative weighted experience the user
+     * has earned across every XP-granting event (passed challenges, read lessons,
+     * passed milestone tasks, solved coding problems). Materialized by summing
+     * `xp_histories.amount` as events land (see `writeXpHistory`). This is the
+     * "total XP" number; it only ever grows and is NEVER debited by spending.
      */
     @Field(() => Int,
         {
-            description: "The user's unified global points balance."
+            description: "The user's total lifetime XP (cumulative, never spent)."
         })
     @Column({
-        name: "points",
+        name: "total_points",
         type: "int",
         default: 0
     })
-        points: number
+        totalPoints: number
+
+    /**
+     * The user's spendable reward-points balance — the account currency that funds
+     * the reward store + streak-freeze purchases and ranks the global leaderboard.
+     * Credited by the flat per-event reward (`xp_histories.points`: lessonRead=5,
+     * challengePassed=20, milestonePassed=30, coding=problem points) and debited by
+     * spending (streak freeze; reward redemptions are derived, not debited here).
+     */
+    @Field(() => Int,
+        {
+            description: "The user's spendable reward-points balance."
+        })
+    @Column({
+        name: "reward_points",
+        type: "int",
+        default: 0
+    })
+        rewardPoints: number
 
     /**
      * Profile visibility toggle (Facebook-style "lock profile"). When true, only
@@ -334,6 +354,94 @@ export class UserEntity extends UuidAbstractEntity {
         default: 0,
     })
         streakFreezes: number
+
+    /**
+     * Professional headline shown under the user's name (e.g. "Backend Engineer ·
+     * NestJS"). The recruiter-facing one-liner on the public profile. Null until
+     * the user sets one. Public.
+     */
+    @Field(() => String,
+        {
+            nullable: true,
+            description: "Professional headline / role title shown under the user's name.",
+        })
+    @Column({
+        name: "role_title",
+        type: "varchar",
+        length: 80,
+        nullable: true,
+    })
+        roleTitle: string | null
+
+    /**
+     * Free-text location (e.g. "Hà Nội, Việt Nam") shown on the profile next to
+     * the work-mode chip. Null when unset. Public.
+     */
+    @Field(() => String,
+        {
+            nullable: true,
+            description: "Free-text location shown on the user's profile.",
+        })
+    @Column({
+        name: "location",
+        type: "varchar",
+        length: 100,
+        nullable: true,
+    })
+        location: string | null
+
+    /**
+     * Preferred work arrangement (remote / hybrid / on-site) advertised next to
+     * the "open to work" badge. Null when the user has not stated a preference.
+     * Public.
+     */
+    @Field(() => GraphQLTypeWorkMode,
+        {
+            nullable: true,
+            description: "Preferred work arrangement (remote / hybrid / on-site).",
+        })
+    @Column({
+        type: "enum",
+        name: "work_mode",
+        enum: WorkMode,
+        enumName: "work_mode",
+        nullable: true,
+    })
+        workMode: WorkMode | null
+
+    /**
+     * Public LinkedIn profile URL the user surfaces on their profile. Null when
+     * unset. Public.
+     */
+    @Field(() => String,
+        {
+            nullable: true,
+            description: "Public LinkedIn profile URL.",
+        })
+    @Column({
+        name: "linkedin_url",
+        type: "varchar",
+        length: 255,
+        nullable: true,
+    })
+        linkedinUrl: string | null
+
+    /**
+     * Personal website / portfolio URL the user surfaces on their profile. Null
+     * when unset. Public.
+     */
+    @Field(() => String,
+        {
+            nullable: true,
+            description: "Personal website / portfolio URL.",
+        })
+    @Column({
+        name: "website_url",
+        type: "varchar",
+        length: 255,
+        nullable: true,
+    })
+        websiteUrl: string | null
 
 
     @Field(

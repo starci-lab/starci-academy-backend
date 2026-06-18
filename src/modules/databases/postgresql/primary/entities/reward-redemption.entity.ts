@@ -28,8 +28,9 @@ export type RewardRedemptionMetadata = Record<string, unknown>
  * One redemption of a code-defined reward by a user. The `cost` is the snapshot
  * of the reward's price at redeem time (catalog prices can change without
  * rewriting history). The user's spendable balance is DERIVED as
- * `user.points - SUM(cost WHERE status != 'cancelled')` — points are NEVER
- * debited, so the lifetime score that drives the league/leaderboard is intact.
+ * `user.reward_points - SUM(cost WHERE status != 'cancelled')` — reward_points
+ * are NEVER debited here, so the balance that ranks the global leaderboard stays
+ * intact.
  */
 @Index(["user"])
 @Entity("reward_redemptions")

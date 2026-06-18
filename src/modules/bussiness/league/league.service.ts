@@ -116,10 +116,10 @@ export class LeagueService {
     }
 
     /**
-     * Read the global (all-users) leaderboard ranked by total reward points: the
-     * top `limit` users plus the viewer's own rank + points (so the UI can append
-     * a "you" row when they sit outside the visible top). Sorts on the
-     * already-materialized `users.points` aggregate — no per-request recompute.
+     * Read the global (all-users) leaderboard ranked by spendable reward points:
+     * the top `limit` users plus the viewer's own rank + points (so the UI can
+     * append a "you" row when they sit outside the visible top). Sorts on the
+     * already-materialized `users.reward_points` balance — no per-request recompute.
      *
      * @param userId - the viewer's user id (for their own rank).
      * @param limit - how many top users to return.
@@ -129,12 +129,12 @@ export class LeagueService {
         userId: string,
         limit: number,
     ): Promise<GlobalLeaderboardResult> {
-        // top N users by total points (tie-broken by id for a stable order)
+        // top N users by spendable reward points (tie-broken by id for a stable order)
         const topRows = await this.entityManager.query(
             `
-            SELECT id, username, avatar, points
+            SELECT id, username, avatar, reward_points AS points
             FROM users
-            ORDER BY points DESC, id ASC
+            ORDER BY reward_points DESC, id ASC
             LIMIT $1
             `,
             [
@@ -149,12 +149,12 @@ export class LeagueService {
             points: Number(row.points) || 0,
             rank: index + 1,
         }))
-        // the viewer's own points + rank (count of users strictly ahead, + 1)
+        // the viewer's own reward points + rank (count of users strictly ahead, + 1)
         const myRankRows = await this.entityManager.query(
             `
             SELECT
-                u.points AS my_points,
-                (SELECT COUNT(*) FROM users o WHERE o.points > u.points)::int + 1 AS my_rank
+                u.reward_points AS my_points,
+                (SELECT COUNT(*) FROM users o WHERE o.reward_points > u.reward_points)::int + 1 AS my_rank
             FROM users u
             WHERE u.id = $1
             `,

@@ -19,11 +19,11 @@ export interface StreakFreezeCandidate {
 
 /**
  * Result of a successful `buyStreakFreeze`: the user's refreshed freeze
- * inventory and points balance after the atomic spend.
+ * inventory and reward-points balance after the atomic spend.
  */
 export interface BuyStreakFreezeResult {
     /** The user's streak-freeze count after the purchase. */
     streakFreezes: number
-    /** The user's points balance after the purchase. */
+    /** The user's spendable reward-points balance after the purchase. */
     points: number
 }

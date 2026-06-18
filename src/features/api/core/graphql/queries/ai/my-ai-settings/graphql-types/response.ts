@@ -75,6 +75,15 @@ export class MyAiSettingsResponseData {
         hasByokKey: boolean
 
     @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Last 4 chars of the BYOK key (masked hint), or null when none.",
+        },
+    )
+        byokKeyLast4: string | null
+
+    @Field(
         () => GraphQLTypeAiSubTier,
         {
             nullable: true,

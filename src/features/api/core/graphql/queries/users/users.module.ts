@@ -44,14 +44,38 @@ import {
     UserCodingHistorySingleQueryModule,
 } from "./user-coding-history"
 import {
+    UserCodingRankSingleQueryModule,
+} from "./user-coding-rank"
+import {
+    UserXpSingleQueryModule,
+} from "./user-xp"
+import {
     UserSolvedChallengesSingleQueryModule,
 } from "./user-solved-challenges"
+import {
+    UserChallengeStrengthSingleQueryModule,
+} from "./user-challenge-strength"
 import {
     SuggestedUsersSingleQueryModule,
 } from "./suggested-users"
 import {
     SearchUsersSingleQueryModule,
 } from "./search-users"
+import {
+    UserPinnedProjectsSingleQueryModule,
+} from "./user-pinned-projects"
+import {
+    MyPinnableCapstonesSingleQueryModule,
+} from "./my-pinnable-capstones"
+import {
+    UserFollowersSingleQueryModule,
+} from "./user-followers"
+import {
+    UserFollowingSingleQueryModule,
+} from "./user-following"
+import {
+    CourseLearningHistorySingleQueryModule,
+} from "./course-learning-history"
 
 /**
  * User query group — resolved fields layered onto the shared `UserEntity`
@@ -101,13 +125,37 @@ import {
         UserCodingHistorySingleQueryModule.register({
             isGlobal: true,
         }),
+        UserCodingRankSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserXpSingleQueryModule.register({
+            isGlobal: true,
+        }),
         UserSolvedChallengesSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserChallengeStrengthSingleQueryModule.register({
             isGlobal: true,
         }),
         SuggestedUsersSingleQueryModule.register({
             isGlobal: true,
         }),
         SearchUsersSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserPinnedProjectsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyPinnableCapstonesSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserFollowersSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserFollowingSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        CourseLearningHistorySingleQueryModule.register({
             isGlobal: true,
         }),
     ],

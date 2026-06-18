@@ -11,6 +11,10 @@ import {
     JobExtendedContext,
     writeActivity,
 } from "@modules/bussiness"
+import {
+    FLAT_POINTS,
+    writeXpHistory,
+} from "../../ai/shared/xp"
 import type {
     JudgeCodingSubmissionPayload,
 } from "@modules/bullmq"
@@ -20,7 +24,7 @@ import {
     CodingSubmissionEntity,
     CodingVerdict,
     InjectPrimaryPostgreSQLEntityManager,
-    UserEntity,
+    XpSource,
 } from "@modules/databases"
 import {
     envConfig,
@@ -158,7 +162,8 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
         // award coding points on a first clean Accepted solve
         if (verdict === CodingVerdict.Accepted) {
             await this.awardPointsIfEligible(submission.userId,
-                problem)
+                problem,
+                submission.id)
         }
         // solved/attempted/points may have changed → drop the user's progress cache
         await this.codingProgressService.invalidate({
@@ -236,17 +241,22 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
     }
 
     /**
-     * Credit the problem's points to the user's cumulative coding score on a
-     * FIRST clean solve: only when no earlier Accepted submission exists for the
-     * problem (so each problem awards once) and the user did NOT reveal its
-     * reference solution before solving (a reveal row forfeits the points).
+     * Credit the problem's points to the user on a FIRST clean solve: only when no
+     * earlier Accepted submission exists for the problem (so each problem awards
+     * once) and the user did NOT reveal its reference solution before solving (a
+     * reveal row forfeits the points). The award is routed through the XP ledger
+     * (`writeXpHistory` with `source = coding`), which writes the `xp_histories`
+     * row AND increments both `users.total_points` (by the problem's XP value) and
+     * `users.reward_points` (by the flat coding reward) in one idempotent call.
      *
      * @param userId - the solver's user id
      * @param problem - the solved problem (carries its point value)
+     * @param submissionId - the just-saved Accepted submission id (stable ledger refId)
      */
     private async awardPointsIfEligible(
         userId: string,
         problem: CodingProblemEntity,
+        submissionId: string,
     ): Promise<void> {
         // the just-saved Accepted submission is included here, so exactly 1 means
         // this is the first solve; >1 means a prior solve already awarded points
@@ -280,15 +290,20 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
         if (revealedCount > 0) {
             return
         }
-        // first clean solve → add the problem's points to the user's coding score
-        await this.entityManager.increment(
-            UserEntity,
-            {
-                id: userId,
-            },
-            "points",
-            problem.points,
-        )
+        // first clean solve → record a coding XP ledger row, which credits both
+        // users.total_points (by the problem's XP value) and users.reward_points
+        // (by the flat coding reward). Coding is course-agnostic (no course id).
+        // refId = the submission id (unique + stable): the (source, refId) unique
+        // key keeps the credit idempotent even if this step is re-run.
+        await writeXpHistory({
+            entityManager: this.entityManager,
+            userId,
+            courseId: null,
+            source: XpSource.Coding,
+            amount: problem.points,
+            points: FLAT_POINTS.codingSolved,
+            refId: submissionId,
+        })
         // home-feed activity for the first solve (idempotent on user+problem)
         await writeActivity({
             entityManager: this.entityManager,

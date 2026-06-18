@@ -32,6 +32,14 @@ export class UserCodingHistoryItemData {
         difficulty: string
 
     @Field(
+        () => String,
+        {
+            description: "Problem domain value (arrays/strings/trees/dynamicProgramming/…).",
+        },
+    )
+        domain: string
+
+    @Field(
         () => [String],
         {
             description: "Language values the user solved it in (python/typescript/…).",

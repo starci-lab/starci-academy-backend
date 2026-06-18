@@ -75,7 +75,7 @@ export class UpdateProfileResolver {
     ): Promise<UserEntity> {
         // collect only the columns the client actually sent — `undefined` means
         // "leave as-is", so we must not include those keys in the update payload
-        const patch: Partial<Pick<UserEntity, "displayName" | "bio" | "avatar" | "profileLocked" | "openToWork" | "featuredAchievementSlug">> = {
+        const patch: Partial<Pick<UserEntity, "displayName" | "bio" | "avatar" | "profileLocked" | "openToWork" | "featuredAchievementSlug" | "roleTitle" | "location" | "workMode" | "linkedinUrl" | "websiteUrl">> = {
         }
 
         // display name: trim whitespace; an explicit null clears it
@@ -110,6 +110,35 @@ export class UpdateProfileResolver {
         // featured mascot: an explicit null clears the pin
         if (request.featuredAchievementSlug !== undefined) {
             patch.featuredAchievementSlug = request.featuredAchievementSlug
+        }
+
+        // role title: trim; an explicit null clears it
+        if (request.roleTitle !== undefined) {
+            patch.roleTitle = request.roleTitle === null
+                ? null
+                : request.roleTitle.trim()
+        }
+
+        // location: trim; an explicit null clears it
+        if (request.location !== undefined) {
+            patch.location = request.location === null
+                ? null
+                : request.location.trim()
+        }
+
+        // preferred work mode: write only when the client sent it (null clears)
+        if (request.workMode !== undefined) {
+            patch.workMode = request.workMode
+        }
+
+        // linkedin URL: already validated (or null to clear); store verbatim
+        if (request.linkedinUrl !== undefined) {
+            patch.linkedinUrl = request.linkedinUrl
+        }
+
+        // website URL: already validated (or null to clear); store verbatim
+        if (request.websiteUrl !== undefined) {
+            patch.websiteUrl = request.websiteUrl
         }
 
         // persist only when there is at least one field to change, otherwise skip

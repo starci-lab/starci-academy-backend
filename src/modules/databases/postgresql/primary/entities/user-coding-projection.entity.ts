@@ -13,8 +13,9 @@ import {
 
 /**
  * CQRS projection of a user's coding-practice aggregate — ONE ROW PER user.
- * The inherited jsonb `value` holds `{ byLanguage: [{ key, solved }], byDifficulty:
- * [{ key, solved }], history: [{ problemTitle, difficulty, languages, firstSolvedAt }] }`,
+ * The inherited jsonb `value` holds `{ solvedCount, byLanguage: [{ key, solved }],
+ * byDifficulty: [{ key, solved }], byDomain: [{ key, solved }],
+ * history: [{ problemTitle, difficulty, domain, languages, firstSolvedAt }] }`,
  * recomputed from the `coding_submissions` ledger (the heavy GROUP BYs run only in
  * the projection's recompute, never inline at read time). Read with a TTL
  * lazy-refresh; kept fresh by CDC on `coding_submissions`.

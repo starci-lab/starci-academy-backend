@@ -16,6 +16,6 @@ export interface UserSearchHitSource {
     bio?: string | null
     /** "Open to work" hiring flag. */
     openToWork?: boolean
-    /** Unified global points balance. */
+    /** Spendable reward-points balance. */
     points?: number
 }

@@ -1,5 +1,6 @@
 import {
     Field,
+    Int,
     ObjectType,
 } from "@nestjs/graphql"
 import {
@@ -48,6 +49,33 @@ export class UserSolvedChallengeItemData {
         },
     )
         selectedLang: string | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Challenge difficulty value (easy/medium/hard/insane/…), or null (V1 legacy may lack a parent challenge).",
+        },
+    )
+        difficulty: string | null
+
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Score from the passing attempt (the attempt that set passedAt), or null when not graded.",
+        },
+    )
+        score: number | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Title of the course the challenge belongs to (default-locale snapshot), or null when unresolved.",
+        },
+    )
+        courseTitle: string | null
 
     @Field(
         () => Date,

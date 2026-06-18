@@ -29,10 +29,11 @@ export interface WriteXpHistoryParams {
 }
 
 /**
- * Append one XP-earning event to the audit ledger AND credit the user's reward-points
- * balance, idempotently and in the caller's transaction. Guards on the `(source, refId)`
- * unique key: if the event was already recorded, NOTHING happens — no duplicate ledger
- * row and, crucially, no double points credit.
+ * Append one XP-earning event to the audit ledger AND credit the user's balances —
+ * `users.total_points` by the XP `amount` and `users.reward_points` by the flat
+ * `points` reward — idempotently and in the caller's transaction. Guards on the
+ * `(source, refId)` unique key: if the event was already recorded, NOTHING happens —
+ * no duplicate ledger row and, crucially, no double credit on either balance.
  *
  * @param params - See {@link WriteXpHistoryParams}.
  */
@@ -80,14 +81,25 @@ export const writeXpHistory = async (
             refId,
         },
     )
-    // credit the spendable reward-points balance exactly once
+    // credit the total lifetime XP balance by the weighted amount (only it tracks XP)
+    if (amount !== 0) {
+        await entityManager.increment(
+            UserEntity,
+            {
+                id: userId,
+            },
+            "totalPoints",
+            amount,
+        )
+    }
+    // credit the spendable reward-points balance by the flat reward exactly once
     if (points !== 0) {
         await entityManager.increment(
             UserEntity,
             {
                 id: userId,
             },
-            "points",
+            "rewardPoints",
             points,
         )
     }

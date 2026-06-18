@@ -54,6 +54,14 @@ export class UserCodingSkillsData {
         },
     )
         byDifficulty: Array<UserCodingSkillCount>
+
+    @Field(
+        () => [UserCodingSkillCount],
+        {
+            description: "Distinct problems solved, grouped by problem domain (arrays/strings/trees/…).",
+        },
+    )
+        byDomain: Array<UserCodingSkillCount>
 }
 
 /**

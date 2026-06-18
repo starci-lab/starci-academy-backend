@@ -73,6 +73,7 @@ export class UserCodingHistoryResolver {
         return history.map((item) => ({
             problemTitle: item.problemTitle,
             difficulty: item.difficulty,
+            domain: item.domain,
             languages: item.languages,
             firstSolvedAt: item.firstSolvedAt,
         }))

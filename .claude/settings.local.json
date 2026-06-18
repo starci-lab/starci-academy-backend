@@ -183,7 +183,9 @@
       "Bash(curl -s -m 3 -o /dev/null -X POST http://localhost:3001/graphql -H \"Content-Type: application/json\" --data '{\"query\":\"{__typename}\"}')",
       "Bash(break)",
       "Bash(cd /c/Repositories/starci-academy; sed -n '670,685p' src/messages/vi.json; echo \"=== profile.nav keys ===\"; sed -n '1027,1060p' src/messages/vi.json)",
-      "Bash(cd /c/Repositories/ac/starci-academy-backend; grep -rn \"MyCourseProgressResult\" src/modules/bussiness --include=*.ts | grep -iE \"export|interface|=\" | head)"
+      "Bash(cd /c/Repositories/ac/starci-academy-backend; grep -rn \"MyCourseProgressResult\" src/modules/bussiness --include=*.ts | grep -iE \"export|interface|=\" | head)",
+      "Bash(powershell -Command 'Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | Where-Object {$_.LocalPort -in 3000,3001} | ForEach-Object { $_.LocalPort }')",
+      "WebFetch(domain:unpkg.com)"
     ]
   }
 }

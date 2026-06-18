@@ -73,6 +73,7 @@ export class MyAiSettingsResolver {
             canByok: settings.canByok,
             byokProvider: settings.byokProvider,
             hasByokKey: settings.hasByokKey,
+            byokKeyLast4: settings.byokKeyLast4,
             tier: settings.tier,
         }
     }

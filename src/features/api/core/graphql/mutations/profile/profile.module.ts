@@ -19,6 +19,18 @@ import {
 import {
     SetKpiTargetSingleMutationModule,
 } from "./set-kpi-target"
+import {
+    PinCourseProjectSingleMutationModule,
+} from "./pin-course-project"
+import {
+    PinExternalProjectSingleMutationModule,
+} from "./pin-external-project"
+import {
+    UnpinProjectSingleMutationModule,
+} from "./unpin-project"
+import {
+    ReorderPinnedProjectsSingleMutationModule,
+} from "./reorder-pinned-projects"
 
 /**
  * Profile mutation group (edit display name, bio, avatar). Avatar upload is a
@@ -40,6 +52,18 @@ import {
             isGlobal: true,
         }),
         SetKpiTargetSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        PinCourseProjectSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        PinExternalProjectSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        UnpinProjectSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        ReorderPinnedProjectsSingleMutationModule.register({
             isGlobal: true,
         }),
     ],

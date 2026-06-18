@@ -117,7 +117,9 @@ import {
     UserContributionProjectionEntity,
     UserAchievementProjectionEntity,
     UserCodingProjectionEntity,
+    UserXpProjectionEntity,
     UserCapstoneProjectionEntity,
+    UserPinnedProjectsProjectionEntity,
     UserSolvedChallengesProjectionEntity,
     TrendingContentsProjectionEntity,
     LeagueCohortPointsProjectionEntity,
@@ -163,7 +165,8 @@ import {
     AiLabEvalCaseEntity,
     AiLabEvalRunEntity,
     AiLabEvalCaseResultEntity,
-    NotificationEntity
+    NotificationEntity,
+    UserPinnedProjectEntity
 } from "./entities"
 import {
     ResolversModule
@@ -331,7 +334,9 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     UserContributionProjectionEntity,
                                     UserAchievementProjectionEntity,
                                     UserCodingProjectionEntity,
+                                    UserXpProjectionEntity,
                                     UserCapstoneProjectionEntity,
+                                    UserPinnedProjectsProjectionEntity,
                                     UserSolvedChallengesProjectionEntity,
                                     TrendingContentsProjectionEntity,
                                     LeagueCohortPointsProjectionEntity,
@@ -378,6 +383,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     AiLabEvalRunEntity,
                                     AiLabEvalCaseResultEntity,
                                     NotificationEntity,
+                                    UserPinnedProjectEntity,
                                 ],
                                 synchronize,
                                 logging: false,
@@ -512,7 +518,9 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         UserContributionProjectionEntity,
                         UserAchievementProjectionEntity,
                         UserCodingProjectionEntity,
+                        UserXpProjectionEntity,
                         UserCapstoneProjectionEntity,
+                        UserPinnedProjectsProjectionEntity,
                         UserSolvedChallengesProjectionEntity,
                         TrendingContentsProjectionEntity,
                         LeagueCohortPointsProjectionEntity,
@@ -558,6 +566,7 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         AiLabEvalCaseEntity,
                         AiLabEvalRunEntity,
                         AiLabEvalCaseResultEntity,
+                        UserPinnedProjectEntity,
                     ],
                     POSTGRESQL_PRIMARY
                 ),

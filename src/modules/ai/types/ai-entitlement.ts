@@ -11,9 +11,9 @@ export interface AiEntitlement {
     mode: AiMode
     /** Categories the user may invoke at this moment. */
     allowedCategories: Array<AiModelCategory>
-    /** Remaining platform credits in the 5h window (free base + tier). */
+    /** Remaining platform credits in the 5h window (tier overrides free base). */
     creditRemaining5h: number
-    /** Remaining platform credits in the weekly window (free base + tier). */
+    /** Remaining platform credits in the weekly window (tier overrides free base). */
     creditRemainingWeek: number
     /** BYOK provider, or null when the user is not bringing their own key. */
     byokProvider: ModelProvider | null
@@ -21,13 +21,13 @@ export interface AiEntitlement {
 
 /** Unified platform credit quota for one user, per window. */
 export interface AiCreditQuota {
-    /** Credit allowance in the 5h window (free base + tier). */
+    /** Credit allowance in the 5h window (tier overrides free base). */
     limit5h: number
     /** Credits consumed in the current 5h window. */
     used5h: number
     /** Remaining credits in the 5h window (`limit − used`, floored at 0). */
     remaining5h: number
-    /** Credit allowance in the weekly window (free base + tier). */
+    /** Credit allowance in the weekly window (tier overrides free base). */
     limitWeek: number
     /** Credits consumed in the current weekly window. */
     usedWeek: number
@@ -41,7 +41,7 @@ export interface AiQuotaSnapshot {
     mode: AiMode
     /** Active paid tier, or null on the free lane. */
     tier: AiSubTier | null
-    /** Unified platform credit quota (free base + tier). */
+    /** Unified platform credit quota (tier overrides free base). */
     credit: AiCreditQuota
     /** When the 5h window rolls over (counters reset to 0). */
     window5hResetAt: Date | null
@@ -66,6 +66,8 @@ export interface AiSettings {
     byokProvider: ModelProvider | null
     /** Whether an encrypted BYOK key is stored (key itself never leaves). */
     hasByokKey: boolean
+    /** Last 4 chars of the BYOK key (log-safe masked hint), or null when none. */
+    byokKeyLast4: string | null
     /** Active paid tier, or null on the free lane. */
     tier: AiSubTier | null
 }

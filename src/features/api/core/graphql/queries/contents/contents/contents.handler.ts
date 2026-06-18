@@ -167,8 +167,14 @@ export class ContentsHandler
             EnrollmentEntity,
             {
                 where: {
-                    userId,
-                    courseId: moduleRow.courseId,
+                    // userId / courseId are @RelationId (virtual, not queryable) —
+                    // filter through the relations' real FK columns instead
+                    user: {
+                        id: userId,
+                    },
+                    course: {
+                        id: moduleRow.courseId,
+                    },
                 },
                 select: {
                     id: true,

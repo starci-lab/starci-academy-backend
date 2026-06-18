@@ -132,6 +132,19 @@ export class AiSubscriptionEntity extends UuidAbstractEntity {
         byokKeyEncrypted: string | null
 
     /**
+     * Last 4 chars of the BYOK key — a log-safe masked hint so the UI can show
+     * "••••••••1234" (the key is paste-once + encrypted at rest; the plaintext
+     * is never shown again). Null when no key is on file. Safe to expose.
+     */
+    @Column({
+        name: "byok_key_last4",
+        type: "varchar",
+        length: 4,
+        nullable: true,
+    })
+        byokKeyLast4: string | null
+
+    /**
      * Lane the user chose to run on by default; null = follow the natural
      * capability order (byok → premium → auto). Validated lazily on read — a
      * preferred lane the user is no longer entitled to silently falls back to

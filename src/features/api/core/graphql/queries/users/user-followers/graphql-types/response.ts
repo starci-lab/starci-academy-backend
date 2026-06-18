@@ -1,0 +1,70 @@
+import {
+    Field,
+    ObjectType,
+} from "@nestjs/graphql"
+import {
+    AbstractGraphQLResponse,
+    IAbstractGraphQLResponse,
+} from "@modules/api"
+
+/**
+ * One follower rendered in the profile's "who follows" avatar group — the opaque
+ * global id (resolved to the profile route on click) plus the header fields the
+ * avatar + tooltip need.
+ */
+@ObjectType({
+    description: "A follower of a user (avatar-group item).",
+})
+export class FollowerUserData {
+    @Field(
+        () => String,
+        {
+            description: "Opaque global id of the follower — pass to resolveRoute on click.",
+        },
+    )
+        globalId: string
+
+    @Field(
+        () => String,
+        {
+            description: "Username (the @handle and profile route segment).",
+        },
+    )
+        username: string
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Display name; null when unset (the UI falls back to username).",
+        },
+    )
+        displayName: string | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Avatar public URL; null when the user has none.",
+        },
+    )
+        avatar: string | null
+}
+
+/**
+ * Response wrapper for the userFollowers query.
+ */
+@ObjectType({
+    description: "Response wrapper for the userFollowers query.",
+})
+export class UserFollowersResponse
+    extends AbstractGraphQLResponse
+    implements IAbstractGraphQLResponse<Array<FollowerUserData>> {
+    @Field(
+        () => [FollowerUserData],
+        {
+            description: "Followers of the user, most recent first.",
+        },
+    )
+        data: Array<FollowerUserData>
+}

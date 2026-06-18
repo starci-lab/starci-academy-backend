@@ -4,11 +4,16 @@ import {
 } from "@nestjs/graphql"
 import {
     IsBoolean,
+    IsEnum,
     IsOptional,
     IsString,
     IsUrl,
     MaxLength,
 } from "class-validator"
+import {
+    WorkMode,
+    GraphQLTypeWorkMode,
+} from "@modules/databases"
 
 /**
  * Request to update the authenticated user's editable profile fields.
@@ -97,4 +102,68 @@ export class UpdateProfileRequest {
     // cap matches the `featured_achievement_slug` varchar(128) column
     @MaxLength(128)
         featuredAchievementSlug?: string | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Professional headline / role title; null clears it.",
+        },
+    )
+    @IsOptional()
+    @IsString()
+    // cap matches the `role_title` varchar(80) column
+    @MaxLength(80)
+        roleTitle?: string | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Free-text location; null clears it.",
+        },
+    )
+    @IsOptional()
+    @IsString()
+    // cap matches the `location` varchar(100) column
+    @MaxLength(100)
+        location?: string | null
+
+    @Field(
+        () => GraphQLTypeWorkMode,
+        {
+            nullable: true,
+            description: "Preferred work arrangement (remote / hybrid / on-site); null clears it.",
+        },
+    )
+    @IsOptional()
+    @IsEnum(WorkMode)
+        workMode?: WorkMode | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Public LinkedIn profile URL; null clears it.",
+        },
+    )
+    @IsOptional()
+    // must be a real URL so a malformed value never reaches the column
+    @IsUrl()
+    // cap matches the `linkedin_url` varchar(255) column
+    @MaxLength(255)
+        linkedinUrl?: string | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Personal website / portfolio URL; null clears it.",
+        },
+    )
+    @IsOptional()
+    @IsUrl()
+    // cap matches the `website_url` varchar(255) column
+    @MaxLength(255)
+        websiteUrl?: string | null
 }
