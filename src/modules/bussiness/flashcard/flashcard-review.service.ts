@@ -10,6 +10,7 @@ import {
     FlashcardCardEntity,
     FlashcardDeckEntity,
     FlashcardDeckResolverService,
+    FlashcardReviewEventEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
     UserFlashcardReviewEntity,
@@ -23,10 +24,18 @@ import type {
     DueCardIdRow,
     DueFlashcard,
     DueFlashcardsResult,
+    FlashcardNextIntervals,
     ListDueFlashcardsParams,
     ReviewFlashcardParams,
     ReviewFlashcardResult,
 } from "./types/flashcard-review"
+
+/** Default SM-2 scheduling state for a card the viewer has never reviewed. */
+const NEW_CARD_STATE: Omit<ApplySm2Params, "grade"> = {
+    prevEase: 2.5,
+    prevInterval: 0,
+    prevRepetitions: 0,
+}
 
 /** SM-2 grade value for "Again" (a lapse → reset). */
 const GRADE_AGAIN = 0
@@ -100,6 +109,13 @@ export class FlashcardReviewService {
             .clone()
             .select("card.id",
                 "card_id")
+            // carry the prior review state so we can preview each grade's interval
+            .addSelect("review.ease",
+                "review_ease")
+            .addSelect("review.intervalDays",
+                "review_interval_days")
+            .addSelect("review.repetitions",
+                "review_repetitions")
             .orderBy("review.due_at",
                 "ASC",
                 "NULLS FIRST")
@@ -109,6 +125,16 @@ export class FlashcardReviewService {
             .getRawMany<DueCardIdRow>()
 
         const cardIds = rows.map((row) => row.card_id)
+        // map each due card to its prior SM-2 state (defaults for a brand-new card)
+        const priorByCardId = new Map<string, Omit<ApplySm2Params, "grade">>()
+        for (const row of rows) {
+            priorByCardId.set(row.card_id,
+                {
+                    prevEase: row.review_ease ?? NEW_CARD_STATE.prevEase,
+                    prevInterval: row.review_interval_days ?? NEW_CARD_STATE.prevInterval,
+                    prevRepetitions: row.review_repetitions ?? NEW_CARD_STATE.prevRepetitions,
+                })
+        }
         if (cardIds.length === 0) {
             return {
                 dueCount,
@@ -167,6 +193,9 @@ export class FlashcardReviewService {
                     : "",
                 front: card.question,
                 back: card.answer ?? "",
+                nextIntervals: this.previewIntervals(
+                    priorByCardId.get(card.id) ?? NEW_CARD_STATE,
+                ),
             }))
         return {
             dueCount,
@@ -268,10 +297,48 @@ export class FlashcardReviewService {
                 await manager.save(review)
             }
 
+            // append to the immutable review-event log so history-based stats
+            // (streak / retention / total) can be projected from it
+            await manager.save(
+                manager.create(
+                    FlashcardReviewEventEntity,
+                    {
+                        userId,
+                        flashcardCardId: cardId,
+                        grade,
+                        reviewedAt: now,
+                    },
+                ),
+            )
+
             return {
                 dueAt,
             }
         })
+    }
+
+    /**
+     * Preview the interval (in days) each SM-2 grade would schedule from a card's
+     * current state, WITHOUT persisting — powers the rating buttons so the learner
+     * sees the consequence of each choice. Same arithmetic as {@link review}.
+     *
+     * @param prior - the card's current ease / interval / repetitions.
+     * @returns the per-grade next interval in days.
+     */
+    previewIntervals(
+        prior: Omit<ApplySm2Params, "grade">,
+    ): FlashcardNextIntervals {
+        const intervalForGrade = (grade: number): number =>
+            this.applySm2({
+                grade,
+                ...prior,
+            }).intervalDays
+        return {
+            again: intervalForGrade(0),
+            hard: intervalForGrade(1),
+            good: intervalForGrade(2),
+            easy: intervalForGrade(3),
+        }
     }
 
     /**

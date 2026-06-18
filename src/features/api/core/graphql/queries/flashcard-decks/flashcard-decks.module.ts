@@ -19,6 +19,9 @@ import {
 import {
     MyDueFlashcardsSingleQueryModule,
 } from "./my-due-flashcards"
+import {
+    MyFlashcardStatsSingleQueryModule,
+} from "./my-flashcard-stats"
 
 /**
  * Flashcard-deck query group (deck listing by course + single-deck detail +
@@ -39,6 +42,9 @@ import {
             isGlobal: true,
         }),
         MyDueFlashcardsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyFlashcardStatsSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

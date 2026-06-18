@@ -42,6 +42,9 @@ import {
 import {
     LeagueCohortPointsProjectionModule,
 } from "./league-cohort-points"
+import {
+    UserFlashcardStatsProjectionModule,
+} from "./user-flashcard-stats"
 
 /**
  * Umbrella module aggregating every CQRS projection leaf-module: progress
@@ -78,6 +81,7 @@ export class ProjectionsModule extends ConfigurableModuleClass {
             UserSolvedChallengesProjectionModule.register(options),
             TrendingContentsProjectionModule.register(options),
             LeagueCohortPointsProjectionModule.register(options),
+            UserFlashcardStatsProjectionModule.register(options),
         ]
         return {
             ...dynamicModule,

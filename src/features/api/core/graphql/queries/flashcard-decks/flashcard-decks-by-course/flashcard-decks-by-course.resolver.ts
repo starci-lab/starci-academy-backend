@@ -15,6 +15,7 @@ import {
 } from "@modules/api"
 import {
     KeycloakAuthGraphQLGuard,
+    KeycloakGraphQLUser,
 } from "@modules/keycloak"
 import {
     UseThrottler,
@@ -23,6 +24,7 @@ import {
 import {
     Locale,
     FlashcardDeckEntity,
+    UserEntity,
 } from "@modules/databases"
 import {
     FlashcardDeckReadService,
@@ -68,12 +70,16 @@ export class FlashcardDecksByCourseResolver {
                 nullable: true,
             })
             contentId: string | undefined,
+        @KeycloakGraphQLUser()
+            user: UserEntity,
         @GraphQLLocale()
             locale: Locale,
     ): Promise<Array<FlashcardDeckEntity>> {
-        // delegate the full-graph load to the business read service, localized to the request
+        // delegate the full-graph load to the business read service, localized to
+        // the request + annotated with the viewer's per-deck due / mastered counts
         return this.flashcardDeckReadService.listByCourse(courseId,
             locale,
-            contentId)
+            contentId,
+            user.id)
     }
 }

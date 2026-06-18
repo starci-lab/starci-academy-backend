@@ -3,6 +3,22 @@ import type {
 } from "@modules/databases"
 
 /**
+ * The next interval (in days) each SM-2 grade would schedule a card to, computed
+ * from its current scheduling state WITHOUT persisting — a preview for the
+ * rating buttons so the learner sees the consequence of each choice.
+ */
+export interface FlashcardNextIntervals {
+    /** Days until next review if graded Again (0). */
+    again: number
+    /** Days until next review if graded Hard (1). */
+    hard: number
+    /** Days until next review if graded Good (2). */
+    good: number
+    /** Days until next review if graded Easy (3). */
+    easy: number
+}
+
+/**
  * One due flashcard for the spaced-repetition queue, already localized.
  */
 export interface DueFlashcard {
@@ -14,6 +30,8 @@ export interface DueFlashcard {
     front: string
     /** Card back / answer (localized), or empty string when the card has none. */
     back: string
+    /** Per-grade next-interval preview (days) from the card's current state. */
+    nextIntervals: FlashcardNextIntervals
 }
 
 /**
@@ -59,6 +77,12 @@ export interface ReviewFlashcardParams {
 export interface DueCardIdRow {
     /** The due flashcard's id (raw `card_id` column alias). */
     card_id: string
+    /** Prior ease factor from the left-joined review row (null = brand-new card). */
+    review_ease: number | null
+    /** Prior interval in days from the left-joined review row (null = brand-new card). */
+    review_interval_days: number | null
+    /** Prior repetition count from the left-joined review row (null = brand-new card). */
+    review_repetitions: number | null
 }
 
 /**

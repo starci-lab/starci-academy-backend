@@ -13,6 +13,9 @@ import {
 import {
     AiBalancerHealthSingleQueryModule,
 } from "./ai-balancer-health"
+import {
+    PlatformStatsSingleQueryModule,
+} from "./platform-stats"
 
 @Module({
     imports: [
@@ -23,6 +26,9 @@ import {
             isGlobal: true,
         }),
         AiBalancerHealthSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        PlatformStatsSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

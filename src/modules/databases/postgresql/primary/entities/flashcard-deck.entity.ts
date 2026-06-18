@@ -297,4 +297,32 @@ export class FlashcardDeckEntity extends UuidAbstractEntity {
         },
     })
         modules: Array<ModuleEntity>
+
+    /**
+     * Per-viewer count of this deck's cards currently due for review (no review
+     * row yet OR past due). Runtime-populated for the signed-in user — NOT a DB
+     * column; null when a query does not compute it.
+     */
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Cards in this deck currently due for the viewer (runtime, per-user).",
+        },
+    )
+        dueCount?: number
+
+    /**
+     * Per-viewer count of this deck's cards the viewer has mastered (SM-2
+     * repetitions >= 2). Runtime-populated; NOT a DB column; null when a query
+     * does not compute it.
+     */
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Cards in this deck the viewer has mastered, repetitions >= 2 (runtime, per-user).",
+        },
+    )
+        masteredCount?: number
 }

@@ -10,6 +10,7 @@ import {
     FlashcardDeckEntity,
     FlashcardDeckResolverService,
     Locale,
+    UserFlashcardReviewEntity,
 } from "@modules/databases"
 import {
     ElasticsearchService,
@@ -21,6 +22,12 @@ import {
 import type {
     DrawRandomInterviewCardParams,
 } from "./types/draw-interview-card"
+import type {
+    DeckStatRow,
+} from "./types/flashcard-deck"
+
+/** SM-2 repetition count at/above which a card is considered "mastered". */
+const MASTERED_REPETITIONS = 2
 
 /**
  * Read access to seeded flashcard decks. Loads the full deck graph (cards →
@@ -44,12 +51,15 @@ export class FlashcardDeckReadService {
      * @param courseId - Owning course id.
      * @param locale - Locale to localize deck/card text into.
      * @param contentId - Optional content id to filter linked decks.
+     * @param userId - Optional viewer id; when given, each deck is annotated with
+     *   the viewer's `dueCount` + `masteredCount`.
      * @returns Decks with their cards and contents, localized to `locale`.
      */
     async listByCourse(
         courseId: string,
         locale: Locale = Locale.En,
         contentId?: string,
+        userId?: string,
     ): Promise<Array<FlashcardDeckEntity>> {
         // load the full deck graph so the GraphQL object type serializes directly
         const decks = await this.entityManager.find(
@@ -91,7 +101,64 @@ export class FlashcardDeckReadService {
                 deck.defaultLocale ?? Locale.En,
             )
         }
+        // annotate per-viewer due / mastered counts when a viewer is known
+        if (userId && decks.length > 0) {
+            await this.annotateViewerStats(decks,
+                userId)
+        }
         return decks
+    }
+
+    /**
+     * Annotate each deck (in place) with the viewer's `dueCount` (cards with no
+     * review row yet OR past due) and `masteredCount` (repetitions >= 2), in one
+     * grouped query across the given decks.
+     *
+     * @param decks - The decks to annotate (mutated in place).
+     * @param userId - The viewer whose review state is aggregated.
+     */
+    private async annotateViewerStats(
+        decks: Array<FlashcardDeckEntity>,
+        userId: string,
+    ): Promise<void> {
+        const deckIds = decks.map((deck) => deck.id)
+        const rows = await this.entityManager
+            .createQueryBuilder(FlashcardCardEntity,
+                "card")
+            .innerJoin(FlashcardDeckEntity,
+                "deck",
+                "deck.id = card.flashcard_deck_id")
+            .leftJoin(
+                UserFlashcardReviewEntity,
+                "review",
+                "review.flashcard_card_id = card.id AND review.user_id = :userId",
+                {
+                    userId,
+                },
+            )
+            .select("deck.id",
+                "deck_id")
+            .addSelect("COUNT(*) FILTER (WHERE review.id IS NULL OR review.due_at <= now())",
+                "due_count")
+            .addSelect(`COUNT(*) FILTER (WHERE review.repetitions >= ${MASTERED_REPETITIONS})`,
+                "mastered_count")
+            .where("deck.id IN (:...deckIds)",
+                {
+                    deckIds,
+                })
+            .groupBy("deck.id")
+            .getRawMany<DeckStatRow>()
+
+        const statByDeckId = new Map<string, DeckStatRow>()
+        for (const row of rows) {
+            statByDeckId.set(row.deck_id,
+                row)
+        }
+        for (const deck of decks) {
+            const stat = statByDeckId.get(deck.id)
+            deck.dueCount = stat ? Number(stat.due_count) : 0
+            deck.masteredCount = stat ? Number(stat.mastered_count) : 0
+        }
     }
 
     /**
