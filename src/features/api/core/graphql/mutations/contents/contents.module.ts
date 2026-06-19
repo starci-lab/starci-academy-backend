@@ -8,7 +8,10 @@ import {
     ToggleFavouriteSingleMutationModule,
 } from "./toggle-favourite"
 import {
-    ConfigurableModuleClass 
+    AskContentAiSingleMutationModule,
+} from "./ask-content-ai"
+import {
+    ConfigurableModuleClass
 } from "./contents.module-definition"
 
 @Module({
@@ -17,6 +20,9 @@ import {
             isGlobal: true,
         }),
         ToggleFavouriteSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        AskContentAiSingleMutationModule.register({
             isGlobal: true,
         }),
     ],
