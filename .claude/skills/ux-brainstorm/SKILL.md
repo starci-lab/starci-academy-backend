@@ -22,6 +22,10 @@ Bước này KHÔNG viết code — chỉ brainstorm + chốt hướng. CHẠY M
   nhưng CHƯA dùng = cơ hội.
 - **Mindset-first:** áp `main.md` §1 (triết lý) + skill **`ui-ux-pro-max`** (purpose trước pixel · 1 primary action
   · empty/loading/error · recruiter/user-first · nội dung > vanity · ăn cắp pattern đã chứng minh).
+- **Ref-grounded — KHÔNG bịa pattern:** nếu loại trang/khối đang thiết kế **CHƯA có ref trong memory** (auto-memory,
+  `.claude/rules`, doc brainstorm cũ), thì **BẮT BUỘC lên mạng kiếm** (`WebSearch` + `WebFetch`) — đọc tài liệu UX/UI
+  thật + soi 2–3 sản phẩm đầu ngành cho loại trang đó, rồi mới chốt hướng. Mỗi hướng phải neo được vào ref cụ thể
+  (tên sản phẩm / nguyên tắc design-system), KHÔNG đoán từ trí nhớ. Liệt kê nguồn (link) trong doc + chat.
 
 ## Quy trình (MAX effort)
 1. **Khoanh vùng trang:** route + cây component hiện tại (mới + legacy).
@@ -38,5 +42,10 @@ Bước này KHÔNG viết code — chỉ brainstorm + chốt hướng. CHẠY M
    - Empty/loading/error + a11y tính từ đầu.
 5. **Output:** ghi **`<Feature>/UX-BRAINSTORM.md`** (cạnh trang, kiểu `NEW-PROFILE.spec.md`) + tóm tắt trong chat:
    mục tiêu · IA mới · các hướng + hướng chốt · bảng section→dữ liệu BE/DB · điều cắt/thêm. **KHÔNG code.**
+6. **VẼ WIDGET — BẮT BUỘC khi đề xuất LAYOUT MỚI:** mỗi khi brainstorm ra layout/IA mới (không phải tweak nhỏ),
+   PHẢI **vẽ widget mockup** bằng tool `show_widget` (gọi `read_me` module `mockup` trước) — render **1–3 scenario**
+   layout cạnh nhau (flat, CSS vars, không nội dung thật rườm rà) cho thầy **NHÌN + CHỌN**, KHÔNG chỉ tả bằng chữ.
+   - Mỗi scenario neo vào ref (web/memory/rules — search mạng nếu chưa có), kèm 1 dòng tagline + trade-off.
+   - Đánh dấu scenario đề xuất (viền `--color-border-info`). Thầy chọn xong → `/ux-apply` mới dựng.
 
 → Thầy duyệt hướng → `/ux-apply` để dựng. **Thầy feedback bất cứ lúc nào → tự ghi `.claude/rules/drafts/<temp>.md`** (rút nguyên tắc tổng quát), KHÔNG sửa main.md/starci-*.md trực tiếp.

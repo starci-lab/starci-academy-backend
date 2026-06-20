@@ -188,7 +188,11 @@
       "WebFetch(domain:unpkg.com)",
       "Bash(rm -f categorical-open-set-chips-not-bar.md meta-rows-compact-not-44px.md && echo \"=== drafts/ now ===\"; ls -1; echo \"=== rules/ now ===\"; ls -1 ../*.md)",
       "Bash(cd /c/Repositories/starci-academy/src *)",
-      "Bash(cd /c/Repositories/starci-academy/.claude/rules/drafts *)"
+      "Bash(cd /c/Repositories/starci-academy/.claude/rules/drafts *)",
+      "WebFetch(domain:www.boot.dev)",
+      "WebFetch(domain:www.duolingo.com)",
+      "WebFetch(domain:mintlify.com)",
+      "WebFetch(domain:www.knowledgeowl.com)"
     ]
   }
 }

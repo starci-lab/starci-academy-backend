@@ -28,6 +28,7 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
+    AIMessage,
     HumanMessage,
     SystemMessage,
 } from "@langchain/core/messages"
@@ -40,6 +41,9 @@ import {
 
 /** Flat credit cost charged per content question (user-facing integer). */
 const ASK_CONTENT_AI_COST = 1
+
+/** Max prior chat messages fed back to the model (caps token growth / cost). */
+const MAX_HISTORY_MESSAGES = 8
 
 @CommandHandler(AskContentAiCommand)
 @Injectable()
@@ -62,6 +66,7 @@ export class AskContentAiHandler
             request: {
                 contentId,
                 question,
+                history,
             },
             user,
             locale,
@@ -105,10 +110,17 @@ export class AskContentAiHandler
             aiEntitlementService: this.aiEntitlementService,
         })
 
-        // ground the answer in this content's body only
+        // ground the answer in this content's body, then replay the recent turns
+        // (capped) for short-term memory, then the new question
+        const historyMessages = (history ?? [])
+            .slice(-MAX_HISTORY_MESSAGES)
+            .map((message) => message.role === "assistant"
+                ? new AIMessage(message.content)
+                : new HumanMessage(message.content))
         const messages = [
             new SystemMessage(this.buildSystemPrompt(content.body,
                 locale ?? Locale.En)),
+            ...historyMessages,
             new HumanMessage(question),
         ]
         const {

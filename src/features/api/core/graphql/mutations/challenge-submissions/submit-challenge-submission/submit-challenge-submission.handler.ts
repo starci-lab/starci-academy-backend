@@ -17,6 +17,7 @@ import {
     AiMode,
     ChallengeEntity,
     ChallengeSubmissionEntity,
+    ContentEntity,
     CourseEntity,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
@@ -30,6 +31,7 @@ import {
 } from "@modules/env"
 import {
     ChallengeNotFoundException,
+    ChallengePremiumLockedException,
     ChallengeSubmissionNotFoundException,
     SubmissionQuotaExceededException,
     SubmissionUrlInvalidException,
@@ -181,6 +183,27 @@ export class SubmitChallengeSubmissionHandler
         if (!challenge) {
             throw new ChallengeNotFoundException({
                 id: challengeSubmission.challengeId,
+            })
+        }
+        // challenges are open ONLY inside FREE (non-premium) content for now — a
+        // premium content's challenge requires purchasing the course first
+        const ownerContent = await this.entityManager.findOne(
+            ContentEntity,
+            {
+                where: {
+                    challenges: {
+                        id: challenge.id,
+                    },
+                },
+                select: {
+                    id: true,
+                    isPremium: true,
+                },
+            },
+        )
+        if (ownerContent?.isPremium) {
+            throw new ChallengePremiumLockedException({
+                contentId: ownerContent.id,
             })
         }
         /** User challenge submission (upsert under advisory lock; create when `githubUrl` present). */

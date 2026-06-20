@@ -3,6 +3,17 @@
 > ⚠️ NAMING (thầy chốt): mutation = **`askContentAi`**; dùng **"content"/"nội dung" KHÔNG "lesson/bài"** (§11) cho mọi
 > tên mới (FE: `ContentAiCopilot`, không `LessonAiCopilot`).
 
+## QUOTA MODEL — CHỐT CUỐI (thầy 2026-06-18, THAY mọi mục cap-per-content/2-câu cũ bên dưới)
+- **AI CHAT = FREE.** Model Economy tiết kiệm, ai tạo acc cũng có → cảm giác hào phóng. Chat (`askContentAi`) **CHỈ**
+  chặn bởi **ví toàn cục** (`AiEntitlementService`, ~50/ngày·100/tuần). **KHÔNG** counter-ngày-theo-khóa cho chat
+  (bỏ — chat là thứ ChatGPT cũng làm, bóp chat = leaky + gây bực). → chat-free **đã xong** (askContentAi hiện chỉ gate credit pool, không cap khóa).
+- **TƯỜNG MUA-KHÓA dời sang lever ĐỘC QUYỀN** (ChatGPT không thay được): **chấm challenge (graded+XP+cert)**, project
+  review, AI-Lab, model xịn hơn, memory dài hơn. → AI bán khóa bằng giá trị độc quyền, không bóp chat.
+- **CHALLENGES — tạm thời MỞ ÍT:** chỉ được làm/chấm challenge trong **content FREE (non-premium)**; challenge của
+  content premium → cần MUA. (Gate `content.isPremium`; bản đầy đủ dùng `isPurchased` của freemium.) Phụ thuộc freemium
+  free-enroll → đây là build kế.
+- Ví toàn cục: đổi window **5h→ngày** + cap **50/ngày·100/tuần** (config `app.yaml`).
+
 ## TECH PATH ĐÃ CHỐT (đồng bộ, reuse — không dựng lại, KHÔNG cần streaming/Qdrant cho v1)
 - **Gọi model đồng bộ:** `AiInvokeService.invoke({ messages: [SystemMessage(content body), HumanMessage(question)],
   category: AiModelCategory.Economy })` → `{ text, model, provider }`. (balancer xoay key + fallback + BYOK sẵn.)

@@ -1,0 +1,31 @@
+# Tech debt ledger
+
+Nợ kỹ thuật cố ý (tạm để ship), kèm cách trả. Mỗi mục có anchor `#slug` để code trỏ tới.
+
+---
+
+## content-outcomes-stub (2026-06-19)
+
+**Where:** `src/features/api/core/graphql/queries/contents/content/content.handler.ts`
+→ `stubOutcomesIfEmpty()` + call site in `process()`.
+
+**What:** Khi content snapshot không có learning outcomes, handler nhồi 3 bullet
+placeholder (lorem) vào `content.outcomes` để FE callout "Bạn sẽ nắm được"
+(`LessonReader/ContentHeader`) có cái render.
+
+**Why (gốc rễ):**
+- Bảng `content_learning_outcomes` **chưa tồn tại** trong DB đang chạy (BE process cũ;
+  `synchronize=true` nên restart sẽ tạo bảng).
+- `# outcomes` đã author cho ~87 lesson nhưng **chỉ nằm trong `.contexts/<sha>`** (490 file
+  snapshot), **chưa port về `.mount/data` / data-repo** → init git-sourced reseed không thấy
+  → snapshot S3 không có outcomes.
+
+**How to pay off (xoá stub):**
+1. Port các section `# outcomes` từ `.contexts/<sha>/.../*.md` về đúng file `.mount/data`
+   tương ứng, rồi commit + push data-repo.
+2. Restart BE → `synchronize` tạo bảng `content_learning_outcomes` (+ translation).
+3. Reseed → seeder đọc `# outcomes` → đổ DB + ghi snapshot S3 có outcomes.
+4. Xoá `stubOutcomesIfEmpty()` và call site trong `content.handler.ts`.
+
+**Verify done:** `select count(*) from content_learning_outcomes;` > 0 và FE callout hiện
+outcomes thật (không phải lorem).

@@ -96,6 +96,12 @@ export class ContentHandler
             })
         }
 
+        // TECH DEBT (.techdebt#content-outcomes-stub): the `content_learning_outcomes`
+        // table isn't seeded yet (authored `# outcomes` live only in `.contexts`, never
+        // ported to the data-repo), so snapshots carry no outcomes. Stub a few bullets so
+        // the FE "Bạn sẽ nắm được" callout renders. Remove once outcomes are seeded.
+        this.stubOutcomesIfEmpty(content, locale)
+
         // Source the premium flag and owning course from the live DB row, not the
         // (possibly stale) S3 snapshot, so toggling `is_premium` takes effect at once.
         const row = await this.entityManager.findOne(
@@ -141,6 +147,41 @@ export class ContentHandler
         }
 
         return content
+    }
+
+    /**
+     * TEMPORARY: when the snapshot carries no learning outcomes (table not seeded
+     * yet — see `.techdebt#content-outcomes-stub`), fill a few placeholder bullets
+     * in place so the FE "what you'll learn" callout has something to render. The
+     * shape matches the `outcomes` GraphQL field (id / text / sortIndex). Delete this
+     * method and its call site once real outcomes are seeded.
+     * @param content Parsed content to mutate.
+     * @param locale Active locale, to pick placeholder language.
+     */
+    private stubOutcomesIfEmpty(
+        content: ContentEntity,
+        locale?: string,
+    ): void {
+        if (content.outcomes?.length) {
+            return
+        }
+        const bullets = locale === "en"
+            ? [
+                "Grasp the core ideas this lesson is built around.",
+                "Apply the concepts to a small hands-on example.",
+                "Recognise the common edge cases and pitfalls.",
+            ]
+            : [
+                "Nắm các ý cốt lõi mà bài học này xoay quanh.",
+                "Vận dụng khái niệm vào một ví dụ thực hành nhỏ.",
+                "Nhận ra các tình huống biên và lỗi thường gặp.",
+            ]
+        content.outcomes = bullets.map((text, index) => ({
+            id: `${content.id}-stub-outcome-${index}`,
+            text,
+            orderIndex: index,
+            sortIndex: index,
+        }) as unknown as ContentEntity["outcomes"][number])
     }
 
     /**
