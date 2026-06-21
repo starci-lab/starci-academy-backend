@@ -70,7 +70,8 @@ Bản tinh gọn để audit nhanh. Chi tiết TỰ-ĐỦ trong `.audits`: `rule
 - `submissions/<N>/en.md`: `# type/title/description/score(100)` + `# outcomeCriterias` (Σ`### score`=**30**) + `# approachCriterias` (Σ=**70**, ≥1 `critical:true`=40). Criteria English-only; `vi.md` chỉ type/title/description.
 - Criteria mỗi item nêu **Kiểm gì / Bằng chứng quan sát / Fail nếu** — proof cơ chế thật, không chung chung.
 - §9.7 gotcha: KHÔNG bọc sep ngay sau heading có children; children sâu hơn parent ≥1 cấp; sep mỗi section CHẴN.
-- Premium: 1-2 lesson cuối module `isPremium=true`. Hard/insane: slot≥4 giữ theo merit; per-lesson ghi verdict audited.
+- **MỌI lesson đủ 4 challenges — đúng 1 mỗi tier: easy+medium+hard+insane** (ruling thầy 2026-06-21; BỎ luật cũ slot 1-3 chỉ 2 tier). Index `0-…-easy·1-…-medium·2-…-hard·3-…-insane`. hard/insane phải depth production thật (không gượng) nhưng KHÔNG bỏ tier cho đủ số; per-lesson verdict→audited.
+- Premium: 1-2 lesson cuối module `isPremium=true`.
 
 ## Gate nhanh
 `./.audits/check-lesson.ps1 -Path <module-dir>` → exit=#fail. Bắt: leak · inline-bullet · fence · theory=2 · 2.1.7 · challenge score/verified/ref-sub/`###N`/Σ30+70/critical/parity.

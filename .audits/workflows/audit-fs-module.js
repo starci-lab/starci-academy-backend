@@ -35,6 +35,9 @@ const GBLOCK = GUIDANCE ? ('\n>>> CHI DAN RIENG MODULE (uu tien tuyet doi): ' + 
 // EXPAND: ep loop chay >=1 vong du gate PASS — dung khi MO RONG noi dung (vd them lang 4-lang/agnostic)
 // ma gate khong tu phat hien (gate chi fail format/structure, khong biet "dang le phai co them lang").
 const EXPAND = ARGS.expand === true || ARGS.expand === 'true'
+// NO_E2E: stage=apply nhung CHI sua content/challenge + gate + Opus fix format — KHONG chay Sonnet code/e2e loop.
+// Dung khi thay duyet "apply noi dung, e2e sau". Loop hoi tu chi Opus fix-format + re-gate.
+const NO_E2E = ARGS.noE2e === true || ARGS.noE2e === 'true'
 // STAGE (ruling thay): audit 2 giai doan, DUNG lai cho thay duyet giua chung.
 //   'review' (MAC DINH) = Enumerate + Sonnet brief + Opus DE XUAT -> ghi review.md -> STOP (khong gate/loop). Roi hoi thay.
 //   'apply'             = thay DA DUYET -> Opus apply review.md (them/bot challenge, sua lesson) + Gate -> convergence loop.
@@ -218,6 +221,30 @@ async function auditLesson(name, initialFails) {
   while (!pass && iter < MAX_ITER) {
     iter++
 
+    // NO_E2E: chi Opus fix format/content (KHONG Sonnet code/e2e) -> re-gate. Dung khi "apply noi dung, e2e sau".
+    if (NO_E2E) {
+      await agent(
+        'FIX (Opus) gate fails lesson ' + name + ', vong ' + iter + '/' + MAX_ITER + ', VIET TIENG VIET CO DAU DAY DU (CAM khong dau). dir=' + dir + '.\n' +
+        'Gate fails hien tai: ' + JSON.stringify(fails) + '.\n' +
+        GBLOCK +
+        'CHI sua CONTENT/CHALLENGE FORMAT de qua gate — TUYET DOI KHONG dung .repo source, KHONG chay server/e2e/test, KHONG viet .code/.e2e.\n' +
+        'Sua cac loi gate hay gap khi them challenge: score=100; co # verified; criteria Sigma outcome=30 + Sigma approach=70; >=1 critical:true; KHONG ### N. (dung callout :::muted); KHONG # references/# submissions inline; separator chan; vi/en mirror (cung so heading/luong/fence); leak; inline-bullet 2.1.5; theory dung 2 muc; index challenge lien mach 0-/1-/2-/3-.\n' +
+        'APPEND ' + aud + '/decision.md (tag [Opus 4.8], tieng Viet) muc "## Fix vong ' + iter + ' (no-e2e)" — ghi da sua gi.',
+        { label: 'fix:' + name + ':' + iter, phase: 'Decision', model: 'opus' }
+      )
+      // Re-gate 1 lesson
+      const gx = await agent(
+        'RE-GATE 1 lesson (KHONG sua file). Chay DUNG lenh (Windows -> powershell.exe, KHONG pwsh/bash):\n' +
+        'powershell -NoProfile -File ".audits/check-lesson.ps1" -Path "' + dir + '" -Json\n' +
+        'Lenh in JSON {lessons:[{name,fails}]} (1 lesson). BAT BUOC goi StructuredOutput voi {fails: <mang fails cua lesson do, rong = []>}. Neu lenh loi -> sua cach goi powershell roi chay lai, KHONG bo cuoc, KHONG tra text.',
+        { label: 'regate:' + name + ':' + iter, phase: 'Gate', model: 'haiku', schema: LESSON_GATE }
+      )
+      fails = (gx && gx.fails) || []
+      pass = (fails.length === 0)
+      log(name + ' vong ' + iter + ' (no-e2e): ' + (pass ? 'PASS' : fails.length + ' fails con lai'))
+      continue
+    }
+
     // Sonnet: loop code<->docs (viet code thieu + test luong + doi chieu snippet §2.1.3 <-> .repo/src)
     await agent(
       'LOOP code<->docs (Sonnet) lesson ' + name + ', vong ' + iter + '/' + MAX_ITER + '. dir=' + dir + '.\n' +
@@ -262,7 +289,11 @@ async function auditLesson(name, initialFails) {
     log(name + ' vong ' + iter + ': ' + (pass ? 'PASS' : fails.length + ' fails con lai'))
   }
 
-  if (pass) {
+  if (pass && NO_E2E) {
+    // Apply noi dung xong + gate PASS, NHUNG e2e chua chay -> KHONG ghi claude_submitted.md
+    // (gate Check-E2E se FAIL neu co claude_submitted ma thieu .e2e). Chi log; e2e o dot sau.
+    log(name + ': gate PASS sau apply noi dung (no-e2e) — KHONG ghi claude_submitted (e2e de sau).')
+  } else if (pass) {
     await agent(
       'Ghi ' + aud + '/claude_submitted.md (TIENG VIET CO DAU DAY DU, CAM khong dau; ghi THANG vao folder contents/' + name + '/ trong mount): gate PASS sau ' + iter + ' vong, review duyet + .e2e du proof. 1 dong tag [Sonnet 4.x].\n' +
       'VA: neu ' + aud + '/synced.yaml CHUA co (lesson PASS khong qua loop) -> tao no: doi chieu body bodies/<lang>/{vi,en}.md voi .repo LOCAL (gitClone URL ton tai · moi `cd <path>` resolve · snippet khop code), ghi status(ok|mismatch|pending)+checks+log+issues theo schema pipeline.md.',

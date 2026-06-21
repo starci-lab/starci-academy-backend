@@ -24,10 +24,10 @@
 - Lang trong challenge = subset của body lang. SD 4-lang → bucket `#### 0..3` (`typescript/java/csharp/go`) cho criteria/requirement có code per-lang. Bài **agnostic** (k8s) → 1 bucket `agnostic`. **Khác FS** (FS FE = luôn `agnostic`).
 - outcomeCriterias thường **agnostic** (đo outcome quan sát được, không phụ thuộc lang); approachCriterias mới per-lang khi cần.
 
-### 2.2 Tier per slot (observed m0–m9)
-- **Slot 0–3 (nền tảng: fundamentals/database/k8s/communication)**: CHỈ **easy + medium** (2 challenge/lesson).
-- **Slot ≥4 (kafka/rabbitmq/redis/monitoring/security/elasticsearch…)**: đủ **easy + medium + hard + insane** (full pyramid) — SD topic có độ sâu production thật.
-- Giữ hard/insane theo **merit** (cơ chế production thật: consistency/concurrency/failure-mode/benchmark), KHÔNG nhồi build-exercise/overlap. Phân vân → ghi verdict + lý do vào `audited.md`, hỏi chủ nhiệm. (Đồng pha FS `challenges.md §6` nhưng SD slot≥4 thường ĐỦ 4 tier thay vì "by merit" thưa.)
+### 2.2 Tier per lesson (ruling thầy 2026-06-21 — OVERRIDE luật slot cũ)
+- **MỌI lesson SD (mọi slot, gồm cả 0–3 fundamentals/database/k8s/communication) PHẢI đủ 4 challenges — đúng 1 mỗi tier: easy + medium + hard + insane.** Đây là ruling thầy chốt 2026-06-21, **BỎ** luật cũ "slot 0–3 chỉ easy+medium / giữ tier 2026-06-08" (đồng pha FS `challenges.md §6`).
+- Index liền mạch theo tier order: `0-<slug>-easy` · `1-<slug>-medium` · `2-<slug>-hard` · `3-<slug>-insane`.
+- hard/insane phải có **độ sâu production thật** (consistency/concurrency/failure-mode/benchmark/distributed) — KHÔNG nhồi build-exercise/overlap; topic mỏng thì nâng depth/đổi góc chứ KHÔNG bỏ tier. **Tránh overlap module sau** (vd Saga ở module DB ↔ Communication; CDC/logical-rep ↔ Kafka/Elasticsearch) — nếu insane đụng module khác thì đổi góc, ghi verdict + lý do vào `audited.md`.
 - Premium: 1–2 lesson cuối module.
 
 ### 2.3 Proof = cơ chế quan sát từ ngoài (SD-flavored)

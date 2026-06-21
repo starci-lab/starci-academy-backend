@@ -60,8 +60,9 @@ agnostic
 - ⚠️ **Khi verify bằng grep/awk**: giá trị scalar nằm **2 dòng sau** heading (separator chen giữa) — `getline`/`-A1` lấy nhầm separator. Dùng skip-separator (xem `check-lesson.ps1` `Get-ScalarsAfter`).
 
 ## 6. Tier & premium
-- Slot 1–3 (nền tảng): CHỈ easy + medium.
-- Slot ≥4: đủ tier NHƯNG theo merit — giữ hard/insane khi có **độ sâu production thật** (FE advanced: virtualization/web-worker/offline/optimistic = giữ); BỎ kiểu build-exercise/overlap/edge-UI. Per-lesson ghi verdict + lý do vào `audited.md`; phân vân → hỏi chủ nhiệm.
+- **MỌI lesson PHẢI đủ 4 challenges — đúng 1 mỗi tier: easy + medium + hard + insane** (ruling thầy 2026-06-21). Thay luật cũ "slot 1–3 chỉ easy+medium": KHÔNG còn ngoại lệ theo slot — lesson nền tảng cũng phải có hard + insane.
+- hard/insane phải có **độ sâu production thật** (không build-exercise/overlap/edge-UI gượng) — nhưng KHÔNG được BỎ tier cho đủ con số; nếu topic mỏng thì nâng depth/đổi góc để hard/insane vẫn có nghĩa. Per-lesson ghi verdict + lý do vào `audited.md`; phân vân → hỏi chủ nhiệm.
+- Index liền mạch theo tier order: `0-<slug>-easy` · `1-<slug>-medium` · `2-<slug>-hard` · `3-<slug>-insane`.
 - Premium: 1–2 lesson cuối module.
 
 ## 7. Quy trình duyệt (Opus)

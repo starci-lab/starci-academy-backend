@@ -41,7 +41,7 @@ Câu hỏi gốc (spoken test): **"Một senior VN ngồi họp sẽ nói từ n
 
 | Mặt chữ | Context A | Context B | Context C |
 |---|---|---|---|
-| source | config/log "source" → Loại 2 giữ "source" | "source code" → Loại 1 **"mã nguồn"** | "nguồn gốc bug" → Loại 1 "nguồn" |
+| source | config/log "source" → Loại 2 giữ "source" | **"source code" → Loại 2 GIỮ "source code"** (ruling thầy 2026-06-21, đổi từ "mã nguồn") | "nguồn gốc bug" → Loại 1 "nguồn" |
 | đích | log destination → per-lib **transport**(Winston)/**sink**(Serilog)/**appender**(Logback) — đọc lang | "mục đích/chủ đích" = purpose → Loại 1, GIỮ "mục đích" | — |
 | chuỗi | "chuỗi middleware/phụ thuộc" = **chain** (Loại 3) | "chuỗi tự do / chuỗi SQL" = string → Loại 1 giữ "chuỗi" | — |
 | phụ thuộc | "service phụ thuộc service" = depends on → Loại 1 (động từ) | "một dependency / đồ thị" = **dependency** (Loại 3) | — |
@@ -93,7 +93,7 @@ Bỏ `**` ở:
 | "Mục đích" → "Mục **sink**" | guard chỉ phủ lowercase "mục đích", sót VIẾT HOA | guard phải phủ cả viết hoa |
 | "đích" → **sink** (mọi lang) | "sink" là term Serilog/C#; TS=transport, Java=appender | per-lib hoặc giữ VN |
 | "chuỗi" → **chain** (bài logging) | bài logging "chuỗi" = string | đọc context |
-| "source" → "nguồn" (clone source) | "clone source" = source code | "mã nguồn" |
+| "source" → "nguồn" (clone source) | "clone source" = source code | GIỮ "source code" (English, không dịch — ruling 2026-06-21) |
 
 → **Quy tắc vàng: grep context TRƯỚC khi đổi. Guard phải phủ cả viết hoa, cả dạng số nhiều.**
 
