@@ -35,4 +35,24 @@ export class SyncPersonalProjectGithubRequest {
         },
     )
         branch?: string | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description:
+                "GitHub access token for cloning a PRIVATE repo (write-only; encrypted at rest, never returned). If omitted, the existing token is kept.",
+        },
+    )
+        githubToken?: string | null
+
+    @Field(
+        () => Boolean,
+        {
+            nullable: true,
+            description:
+                "When true, removes the stored private-repo GitHub token (grading falls back to public / the org token).",
+        },
+    )
+        clearGithubToken?: boolean | null
 }

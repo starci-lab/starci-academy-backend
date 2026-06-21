@@ -239,20 +239,41 @@ export class ElasticsearchService implements OnModuleInit {
             locale
         }: IndexEntitiesParams<T>,
     ): Promise<IndexEntitiesResult> {
-        await this.client.bulk({
-            body: data.map((data) => ({
-                index: {
-                    _index: this.indicateName(
-                        {
-                            entity: entity.name,
-                            locale
-                        },
-                    ),
-                    _id: data.id
+        // Nothing to index → skip. An empty bulk body is rejected by ES with
+        // `action_request_validation_exception: no requests added`.
+        if (data.length === 0) {
+            return
+        }
+        // Same index for every doc in this call (one entity + locale).
+        const index = this.indicateName(
+            {
+                entity: entity.name,
+                locale,
+            },
+        )
+        // The bulk API needs a FLATTENED action/source stream: each doc is an
+        // `index` action line IMMEDIATELY followed by its source line. Emitting
+        // one `{ index, document }` object per item (the old shape) yields zero
+        // valid operations → `no requests added`. flatMap pairs action + source.
+        const result = await this.client.bulk({
+            refresh: true,
+            operations: data.flatMap((document) => [
+                {
+                    index: {
+                        _index: index,
+                        _id: document.id,
+                    },
                 },
-                document: data
-            }))
+                document,
+            ]),
         })
+        // Surface per-item failures instead of silently leaving the index partial.
+        if (result.errors) {
+            const firstError = result.items.find((item) => item.index?.error)?.index?.error
+            throw new Error(
+                `Bulk index into "${index}" had errors: ${JSON.stringify(firstError)}`,
+            )
+        }
     }
 
     /**

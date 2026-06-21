@@ -149,6 +149,39 @@ export class EnrollmentEntity extends UuidAbstractEntity {
         personalProjectGithubBranch: string | null
 
     /**
+     * AES-256-GCM encrypted GitHub access token (JSON-stringified `{iv,authTag,ciphertext}`
+     * payload) used to clone a PRIVATE personal-project repo for AI grading, or null when the
+     * repo is public / no token supplied. **NOT exposed via GraphQL** — the plaintext token must
+     * never leave the server (mirrors `AiSubscriptionEntity.byokKeyEncrypted`). The masked
+     * {@link personalProjectGithubTokenLast4} is what the UI shows.
+     */
+    @Column({
+        name: "personal_project_github_token_encrypted",
+        type: "text",
+        nullable: true,
+    })
+        personalProjectGithubTokenEncrypted: string | null
+
+    /**
+     * Last 4 chars of the stored GitHub token — a log-safe masked hint for the UI
+     * (`••••{last4}`); the plaintext is never returned again. Null when no token is stored.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Masked hint (last 4 chars) of the stored private-repo GitHub token; null when none.",
+        },
+    )
+    @Column({
+        name: "personal_project_github_token_last4",
+        type: "varchar",
+        length: 4,
+        nullable: true,
+    })
+        personalProjectGithubTokenLast4: string | null
+
+    /**
      * Current status of the task plan.
      */
     @Field(

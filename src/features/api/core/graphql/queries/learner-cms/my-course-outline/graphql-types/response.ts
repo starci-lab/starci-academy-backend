@@ -478,6 +478,19 @@ export class MyCourseOutlineData {
         },
     )
         currentTask: MyCourseOutlineCurrentTask | null
+
+    @Field(
+        () => MyCourseOutlineCurrentTask,
+        {
+            nullable: true,
+            description:
+                "Content-first resume pointer for the course-content home: the next unread "
+                + "lesson, else the first uncompleted challenge, else null when all content is "
+                + "done. Never points to a milestone task (capstone has its own resume on the "
+                + "personal-project surface) — unlike currentTask which prefers capstone tasks.",
+        },
+    )
+        nextContentTask: MyCourseOutlineCurrentTask | null
 }
 
 /**

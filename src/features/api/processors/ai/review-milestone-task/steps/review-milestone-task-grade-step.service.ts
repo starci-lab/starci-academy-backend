@@ -65,6 +65,9 @@ import type {
 import {
     MountStorageService,
 } from "@modules/filesystem"
+import {
+    EncryptionService,
+} from "@modules/crypto"
 import template from "./template.json"
 import {
     Document,
@@ -107,8 +110,40 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
         private readonly dayjsService: DayjsService,
         private readonly projectEvaluationParseService: ProjectEvaluationParseService,
         private readonly creditUsageService: CreditUsageService,
+        private readonly encryptionService: EncryptionService,
     ) {
         super()
+    }
+
+    /**
+     * Resolve the GitHub access token to clone with: the learner's own (decrypted) token when they
+     * stored one for a PRIVATE repo, otherwise the org token. A token that fails to decrypt falls
+     * back to the org token rather than aborting the grade.
+     */
+    private async resolveGithubAccessToken(enrollmentId: string): Promise<string> {
+        const enrollment = await this.entityManager.findOne(
+            EnrollmentEntity,
+            {
+                where: {
+                    id: enrollmentId,
+                },
+                select: {
+                    id: true,
+                    personalProjectGithubTokenEncrypted: true,
+                },
+            },
+        )
+        const encrypted = enrollment?.personalProjectGithubTokenEncrypted
+        if (!encrypted) {
+            return this.mountStorageService.githubAccessToken
+        }
+        try {
+            return this.encryptionService.decrypt({
+                payload: JSON.parse(encrypted),
+            })
+        } catch {
+            return this.mountStorageService.githubAccessToken
+        }
     }
 
     stepIndex = 0
@@ -190,14 +225,15 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 payload.lang)
             : []
 
-        /** Load GitHub repo */
+        /** Load GitHub repo — auth with the learner's own token for a private repo, else the org token. */
         const repoUrl = payload.githubUrl
+        const githubAccessToken = await this.resolveGithubAccessToken(payload.enrollmentId)
         const gitLoader = new GithubRepoLoader(
             repoUrl,
             {
                 branch,
                 recursive: true,
-                accessToken: this.mountStorageService.githubAccessToken,
+                accessToken: githubAccessToken,
                 verbose: true,
                 ignorePaths: [
                     "package-lock.json",

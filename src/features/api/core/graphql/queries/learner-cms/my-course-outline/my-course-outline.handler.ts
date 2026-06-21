@@ -244,6 +244,11 @@ export class MyCourseOutlineHandler
             modules,
         )
 
+        // 10. content-first resume for the course-content home: next unread lesson,
+        // else first uncompleted challenge, else null. Never a milestone task — the
+        // capstone has its own resume on the personal-project surface.
+        const nextContentTask = this.resolveNextContentTask(modules)
+
         return {
             course: {
                 id: course.id,
@@ -254,6 +259,7 @@ export class MyCourseOutlineHandler
             milestones,
             progress,
             currentTask,
+            nextContentTask,
         }
     }
 
@@ -490,6 +496,53 @@ export class MyCourseOutlineHandler
         }
 
         // nothing left to do
+        return null
+    }
+
+    /**
+     * Resolve the content-first resume pointer used by the course-content home
+     * ("Tiếp tục học"). Unlike {@link resolveCurrentTask}, this NEVER points at a
+     * milestone/capstone task — the capstone has its own resume on the personal-project
+     * surface, and a learner with unread lessons should be sent to a lesson, not the
+     * final project. Preference order:
+     * 1. the first unread lesson in outline order;
+     * 2. else the first uncompleted challenge in outline order (all lessons read);
+     * 3. else null when all content is complete.
+     * @param modules - The mapped module tree (lessons + challenges with progress overlaid).
+     * @returns The next-content pointer, or null when all content is done.
+     */
+    private resolveNextContentTask(
+        modules: Array<MyCourseOutlineModule>,
+    ): MyCourseOutlineCurrentTask | null {
+        // first preference: keep reading — the first unread lesson in outline order
+        for (const module of modules) {
+            for (const lesson of module.lessons) {
+                if (!lesson.isRead) {
+                    return {
+                        kind: "lesson",
+                        id: lesson.id,
+                        milestoneId: null,
+                    }
+                }
+            }
+        }
+
+        // second preference: all lessons read → the first uncompleted challenge
+        for (const module of modules) {
+            for (const lesson of module.lessons) {
+                for (const challenge of lesson.challenges) {
+                    if (!challenge.completed) {
+                        return {
+                            kind: "challenge",
+                            id: challenge.id,
+                            milestoneId: null,
+                        }
+                    }
+                }
+            }
+        }
+
+        // all content complete
         return null
     }
 }

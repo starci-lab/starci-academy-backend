@@ -29,6 +29,9 @@ import type {
 import {
     UrlValidatorService,
 } from "@modules/vaildators"
+import {
+    EncryptionService,
+} from "@modules/crypto"
 
 const BRANCH_PATTERN = /^[a-zA-Z0-9._/-]+$/
 const BRANCH_MAX = 255
@@ -43,6 +46,7 @@ export class SyncPersonalProjectGithubHandler
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly urlValidatorService: UrlValidatorService,
+        private readonly encryptionService: EncryptionService,
     ) {
         super()
     }
@@ -84,6 +88,8 @@ export class SyncPersonalProjectGithubHandler
         const {
             githubUrl,
             branch,
+            githubToken,
+            clearGithubToken,
         } = request
         const enrollment = await entityManager.findOneOrFail(
             EnrollmentEntity,
@@ -103,10 +109,13 @@ export class SyncPersonalProjectGithubHandler
         const hasUrl = urlTrimmed.length > 0
         const branchProvided = branch !== undefined && branch !== null
         const branchTrimmed = branchProvided ? String(branch).trim() : ""
+        const tokenTrimmed = typeof githubToken === "string" ? githubToken.trim() : ""
+        const hasToken = tokenTrimmed.length > 0
+        const shouldClearToken = clearGithubToken === true
 
-        if (!hasUrl && !branchProvided) {
+        if (!hasUrl && !branchProvided && !hasToken && !shouldClearToken) {
             throw new BadRequestException(
-                "Provide githubUrl and/or branch",
+                "Provide githubUrl, branch, githubToken, or clearGithubToken",
             )
         }
 
@@ -137,6 +146,20 @@ export class SyncPersonalProjectGithubHandler
             enrollment.personalProjectGithubBranch = branchTrimmed.length > 0
                 ? branchTrimmed
                 : null
+            didUpdate = true
+        }
+        // token: clearing wins over setting. Encrypt at rest (AES-256-GCM); the plaintext is
+        // never returned again — only the masked last4 is exposed (mirrors BYOK key storage).
+        if (shouldClearToken) {
+            enrollment.personalProjectGithubTokenEncrypted = null
+            enrollment.personalProjectGithubTokenLast4 = null
+            didUpdate = true
+        } else if (hasToken) {
+            const payload = this.encryptionService.encrypt({
+                plainText: tokenTrimmed,
+            })
+            enrollment.personalProjectGithubTokenEncrypted = JSON.stringify(payload)
+            enrollment.personalProjectGithubTokenLast4 = tokenTrimmed.slice(-4)
             didUpdate = true
         }
         if (!didUpdate) {
