@@ -160,9 +160,20 @@ export class InitService implements OnModuleInit {
             if (this.seedScopeService.isSeedersEnabled()) {
                 await this.seedersService.init()
             }
-            // phase 2: project the seeded DB out to CDN + Elasticsearch when enabled
+            // phase 2: project the seeded DB out to CDN + Elasticsearch when enabled.
+            // Non-fatal: a projection/ES sync failure (e.g. an ES bulk timeout under
+            // memory pressure during reindexAll/indexer/reconcile) must NEVER prevent
+            // the HTTP server from coming up. The CDC listeners + lazy projection
+            // recompute heal these read-models afterwards (mirrors the asset-sync
+            // swallow policy below).
             if (this.syncScopeService.isSynchronizersEnabled()) {
-                await this.synchronizersService.init()
+                try {
+                    await this.synchronizersService.init()
+                } catch (error) {
+                    this.logger.error(
+                        `Synchronizers init failed (non-fatal, boot continues): ${error instanceof Error ? error.message : String(error)}`,
+                    )
+                }
             }
             // phase 2b: mirror the snapshot's STATIC ASSETS (badges, course covers, …)
             // to MinIO from the SAME fresh snapshot root. AssetsService's own boot

@@ -1,5 +1,6 @@
 import {
     Injectable,
+    Logger,
 } from "@nestjs/common"
 import {
     CdnSynchronizerService,
@@ -46,6 +47,8 @@ import {
 @Injectable()
 export class SynchronizersService {
 
+    private readonly logger = new Logger(SynchronizersService.name)
+
     constructor(
         private readonly dayjsService: DayjsService,
         private readonly winstonService: WinstonService,
@@ -82,7 +85,16 @@ export class SynchronizersService {
         // backfill the non-localized `users` index from the existing user base
         // (one-shot bulk index + orphan prune); the CDC listener keeps it fresh
         // afterwards. Users live outside the per-locale content scope above.
-        await this.esSyncUserService.reindexAll()
+        // Non-fatal: an ES bulk timeout here must not abort the remaining sync
+        // steps (indexer / bloom / repo / reconcile) — the CDC listener backfills
+        // the users index on the next user change regardless.
+        try {
+            await this.esSyncUserService.reindexAll()
+        } catch (error) {
+            this.logger.error(
+                `User ES reindex failed (non-fatal, CDC will heal): ${error instanceof Error ? error.message : String(error)}`,
+            )
+        }
         await this.indexerSynchronizerService.sync(cdnScope)
         await this.bloomFilterSynchronizerService.sync()
         const repoScope = this.syncScopeService.buildRepoScope()
