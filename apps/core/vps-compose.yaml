@@ -65,6 +65,12 @@ services:
 
       SYNCHRONIZER_ENABLE: ${SYNCHRONIZER_ENABLE:-false}
 
+      # Kafka (CDC progress-projection listener). Reaches the cdc-kafka broker via
+      # the docker0 gateway (same host-gateway pattern as Postgres). The broker's
+      # HOST listener is published on 172.17.0.1:29092 (see .containers/cdc.yaml).
+      KAFKA_BROKERS: ${KAFKA_BROKERS:-172.17.0.1:29092}
+      KAFKA_CDC_TOPIC_PREFIX: ${KAFKA_CDC_TOPIC_PREFIX:-starci.public.}
+
       CORE_PORT: ${CORE_PORT}
 
       KEYCLOAK_URL: ${KEYCLOAK_URL}
