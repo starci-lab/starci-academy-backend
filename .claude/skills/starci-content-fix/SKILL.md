@@ -16,6 +16,13 @@ description: >
 
 > Playbook tự-đủ. Rule + runner nằm trong `.audits/`. KHÔNG đọc rule ngoài. Khoá mặc định Fullstack
 > (`0-fullstack-mastery`); SD/DevOps đổi base path + rule track (`.audits/rules/system-design|devops/`).
+>
+> ⚠️ **DATA ROOT = `.mount/data`** — git clone của `StarCi-Academy/data` (remote main). Trước khi làm:
+> `git -C .mount/data pull --ff-only`. Nếu `.mount/data` bị materialized lại / mất `.git` (init pipeline ghi đè,
+> "no .git" + thiếu module) → re-clone: `git clone https://github.com/StarCi-Academy/data.git .mount/data`
+> (nhớ PUSH mọi content local-only — vd `blog`, course mới — lên remote TRƯỚC khi xoá để khỏi mất). SD course =
+> `1-system-design-mastery`, runner SD = `.audits/workflows/audit-sd-module.js` (đã trỏ `.mount/data`).
+> `refactor-sd-accordion-terminology.js` còn dùng Opus per-lesson — nên đổi sang Sonnet cho accordion/terminology (theo §0).
 
 ## 0. NGUYÊN TẮC TỐI THƯỢNG — chọn đúng công cụ cho từng việc (đây là cái làm nó NHANH)
 | Việc | Bản chất | Dùng | KHÔNG dùng |
@@ -78,11 +85,11 @@ Workflow({ scriptPath: ".audits/workflows/refactor-fs-fast.js", args: { modules:
 
 **Bước 7 — PUSH lên gitrefs** (chỉ khi module SẠCH + KHÔNG có workflow đang ghi nó):
 ```
-git -C .mount/data add courses/0-fullstack-mastery/modules/<slug...>   # chỉ stage module đã xong
-git -C .mount/data commit -m "content(<...>): ..."                      # + Co-Authored-By
+git -C .mount/data add courses/<course>/modules/<slug...>   # chỉ stage module đã xong (FS: 0-fullstack-mastery; SD: 1-system-design-mastery)
+git -C .mount/data commit -m "content(<...>): ..."          # + Co-Authored-By
 git -C .mount/data fetch origin main; (rebase nếu behind) ; git -C .mount/data push origin main
 ```
-> `.mount/data` = clone của `StarCi-Academy/data` (= gitrefs/SSOT). `.gitrefs` chỉ là manifest path→url, KHÔNG sửa ở đó.
+> `.mount/data` = clone của `StarCi-Academy/data` (remote `github.com/StarCi-Academy/data`, branch main).
 > Seeder pull tarball từ remote → content chỉ "ra output" khi đã PUSH. Sau push: thầy restart backend để seed (init→PG→MinIO→trang).
 
 ## 3. DE-BOLD SCRIPT (cơ học — copy chạy, ~1 giây cho cả batch)
