@@ -125,16 +125,15 @@ export class MyCourseOutlineHandler
             },
         )
         if (!enrollment) {
-            // surface a typed exception so callers can branch on the stable code;
-            // log with stack so the not-enrolled access shows up in Sentry / logs
+            // surface a typed exception so callers can branch on the stable code.
+            // "not enrolled" is an expected authorization outcome (not a server fault) and the
+            // client SWR retries it every few seconds — log at WARN without a stack so it stays a
+            // single breadcrumb line instead of an error-level stack-trace wall on every poll.
             const exception = new EnrollmentNotFoundException({
                 userId: user.id,
                 courseId,
             })
-            this.logger.error(
-                exception.message,
-                exception.stack,
-            )
+            this.logger.warn(exception.message)
             throw exception
         }
 

@@ -21,12 +21,15 @@ import {
     ThrottlerConfig,
 } from "@modules/throttler"
 import {
+    FlashcardLevel,
+    GraphQLTypeFlashcardLevel,
     Locale,
 } from "@modules/databases"
 import {
     FlashcardDeckReadService,
 } from "@modules/bussiness"
 import {
+    DrawInterviewCardResponse,
     InterviewCardData,
 } from "./graphql-types"
 
@@ -50,7 +53,7 @@ export class DrawInterviewCardResolver {
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(
-        () => InterviewCardData,
+        () => DrawInterviewCardResponse,
         {
             name: "drawInterviewCard",
             description: "Draws a random interview question from a deck (model answer withheld).",
@@ -62,6 +65,13 @@ export class DrawInterviewCardResolver {
                 type: () => ID,
             })
             flashcardDeckId: string,
+        @Args("level",
+            {
+                type: () => GraphQLTypeFlashcardLevel,
+                nullable: true,
+                description: "Optional seniority level to restrict the draw to.",
+            })
+            level: FlashcardLevel | null,
         @GraphQLLocale()
             locale: Locale,
     ): Promise<InterviewCardData> {
@@ -69,6 +79,7 @@ export class DrawInterviewCardResolver {
         const card = await this.flashcardDeckReadService.drawRandomCard({
             flashcardDeckId,
             locale,
+            level,
         })
         // project to the safe subset — never leak the model answer / explanation to the client
         return {

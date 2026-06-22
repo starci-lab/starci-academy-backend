@@ -14,6 +14,9 @@ import {
     InterviewGradingService,
 } from "./interview-grading.service"
 import {
+    InterviewHistoryService,
+} from "./interview-history.service"
+import {
     FlashcardReviewService,
 } from "./flashcard-review.service"
 import {
@@ -36,12 +39,14 @@ import {
         FlashcardDeckReadService,
         InterviewGradePromptService,
         InterviewGradingService,
+        InterviewHistoryService,
         FlashcardReviewService,
     ],
     exports: [
         FlashcardDeckReadService,
         InterviewGradePromptService,
         InterviewGradingService,
+        InterviewHistoryService,
         FlashcardReviewService,
     ],
 })

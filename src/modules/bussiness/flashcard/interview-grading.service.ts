@@ -8,6 +8,10 @@ import {
     AiMode,
     CreditUsageHistoryEntity,
     InjectPrimaryPostgreSQLEntityManager,
+    InterviewAttemptEntity,
+} from "@modules/databases"
+import type {
+    FlashcardCardEntity,
 } from "@modules/databases"
 import {
     AiEntitlementService,
@@ -161,7 +165,66 @@ export class InterviewGradingService {
         // malformed model response can never leak a free grading call
         await this.recordAutoCreditUsage(userId)
 
-        return this.parse(text)
+        const result = this.parse(text)
+        // record the graded attempt for cross-session interview history (best-effort —
+        // a history write must never fail the grade the user is waiting on)
+        await this.recordAttempt({
+            userId,
+            flashcardDeckId,
+            card,
+            score: result.score,
+            verdict: result.verdict,
+        })
+        return result
+    }
+
+    /**
+     * Append an {@link InterviewAttemptEntity} row for one graded answer so the
+     * learner's interview history (average score, pass rate, weak topics) can be
+     * computed later. Best-effort: a failure here is swallowed so it can never sink
+     * the grade result the user is waiting on.
+     *
+     * @param params - User + deck + the graded card and its score/verdict.
+     */
+    private async recordAttempt(
+        params: {
+            userId: string
+            flashcardDeckId: string
+            card: FlashcardCardEntity
+            score: number
+            verdict: string
+        },
+    ): Promise<void> {
+        const {
+            userId,
+            flashcardDeckId,
+            card,
+            score,
+            verdict,
+        } = params
+        try {
+            await this.entityManager.save(
+                InterviewAttemptEntity,
+                {
+                    user: {
+                        id: userId,
+                    },
+                    flashcardDeck: {
+                        id: flashcardDeckId,
+                    },
+                    flashcardCard: {
+                        id: card.id,
+                    },
+                    score,
+                    verdict,
+                    // snapshot the level + tags at answer time for history aggregation
+                    level: card.level ?? null,
+                    tags: card.tags ?? [],
+                },
+            )
+        } catch {
+            // history is non-critical — never fail the grade over a logging write
+        }
     }
 
     /**

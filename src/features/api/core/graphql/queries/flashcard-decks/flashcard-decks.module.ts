@@ -22,6 +22,9 @@ import {
 import {
     MyFlashcardStatsSingleQueryModule,
 } from "./my-flashcard-stats"
+import {
+    MyInterviewHistorySingleQueryModule,
+} from "./my-interview-history"
 
 /**
  * Flashcard-deck query group (deck listing by course + single-deck detail +
@@ -45,6 +48,9 @@ import {
             isGlobal: true,
         }),
         MyFlashcardStatsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyInterviewHistorySingleQueryModule.register({
             isGlobal: true,
         }),
     ],

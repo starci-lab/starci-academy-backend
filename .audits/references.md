@@ -1928,3 +1928,28 @@
   - Gold reference: FS M3 authentication-and-authorization 4-lang 4-tier backend variant + mirror vi/en parity CHÍNH XÁC + challenge V2 format strict (callout `:::muted`, KHÔNG `### N.`, critical:true per-tier, submissions vi/en mirror) + gate 418/0 (vòng Apply 2026-06-21 4 lesson pass). Pattern tái sử dụng FS module khác backend 4-lang 4-tier.
 
 ---
+### 19-deploy-and-devops-workflow — BE 4-lang + Agnostic — 5/5 lesson PASS — 2026-06-22
+
+- **Lesson gold (PASS sach, dung lam mau):**
+  - `0-multi-stage-dockerfile-nestjs` (4-lang TypeScript/Java/C-sharp/Go, backend): Multi-stage Docker (builder → runner) giam image tu 1.4 GB → ~110 MB distroless, tach root privilege → chay UID 1001 non-root, bo shell tranh RCE. Gate 105/0. Challenge V2 4-tier easy/medium/hard/insane. Outcome 30 + approach 70 moi tier, >= 1 critical-true. Verified 2026-06-22. E2E 4-lang docker build, 4 flow. Repo lien quan: `.repo/fullstack-mastery-module-20-deploy-and-devops-workflow/0-multi-stage-dockerfile-nestjs/`.
+
+  - `1-github-actions-cicd` (agnostic backend CI/CD, FS M20 lesson slot 1): GitHub Actions workflow pipeline (lint → test matrix → deploy gate + OIDC auth). Easy challenge: ci.yml 2 job lint/test song song. Medium: matrix version + cache + deploy gate. Hard: matrix version x OS + coverage 80% + PR summary. Insane: OIDC + concurrency lock + smoke + auto-rollback. Body agnostic YAML + codeImplementations 4-lang. Gate 57/0. Challenge V2 4-tier agnostic. Outcome 30 + approach 70. Verified 2026-06-22. E2E 4-flow agnostic. Repo lien quan: `.repo/fullstack-mastery-module-20-deploy-and-devops-workflow/1-github-actions-cicd/`.
+
+  - `2-deploy-to-digitalocean-vps-with-certbot` (4-lang TS/Java/C-sharp/Go, backend): VPS deploy → DigitalOcean droplet via GHA SSH, Certbot HTTPS + Nginx reverse proxy, renewal tu dong systemd.timer. Easy: docker compose 4 lang + smoke test. Medium: zero-downtime rolling-reload + nginx health-check. Hard: SSH rotation + Certbot staging-to-prod + rate-limit + fail2ban. Insane: wildcard DNS-01 + blue-green atomic + auto-rollback + GHA matrix < 5min. Gate 105/0. Challenge V2 4-tier. Outcome 30 + approach 70. Verified 2026-06-22. E2E 4-lang docker build. Repo lien quan: `.repo/fullstack-mastery-module-20-deploy-and-devops-workflow/2-deploy-to-digitalocean-vps-with-certbot/`.
+
+  - `3-database-migrations-in-production` (4-lang TS/Java/C-sharp/Go, backend): TypeORM/Flyway/EF Core/golang-migrate zero-downtime schema evolution (expand-fill-enforce-index phases). Easy: basic migration. Medium: backfill + drop. Hard: dual-write + forbidden pattern. Insane: parallel async tenant + per-tenant rollback. Gate 105/0. Challenge V2 4-tier. Outcome 30 + approach 70. Verified 2026-06-22. E2E 3-flow (TS tested). Repo lien quan: `.repo/fullstack-mastery-module-20-deploy-and-devops-workflow/3-database-migrations-in-production/`.
+
+  - `4-feature-flags-and-canary` (agnostic backend, FS M20 slot 4): Unleash feature flag + canary rollout percentage bucketing per-user sticky. Easy: SDK init + destroy + isEnabled. Medium: sticky bucketing + guard. Hard: server-side <5ms + targeting + LRU. Insane: canary auto-ramp + guardrail + session-sticky + auto-rollback. Body agnostic NestJS + codeImplementations 4-lang. Gate 57/0. Challenge V2 4-tier agnostic. Verified 2026-06-22. E2E 4-flow agnostic. Repo lien quan: `.repo/fullstack-mastery-module-20-deploy-and-devops-workflow/4-feature-flags-and-canary/`.
+
+- **Bai hoc rut ra cho audit sau:**
+  - **Module deploy/devops variant:** Variant 4-lang backend (Dockerfile/VPS/migrations) + agnostic CI/CD (GitHub Actions YAML) + agnostic flags (Unleash SDK). Challenge mix agnostic + 4-lang per-topic.
+  - **Hard/insane escalation per-lesson:** Dockerfile hard = Trivy CVE + non-root, insane = multi-platform buildx. GHA hard = coverage 80% gate, insane = OIDC + concurrency. VPS hard = SSH rotation + rate-limit, insane = wildcard DNS-01 + blue-green atomic. Migrations hard = dual-write + forbidden, insane = parallel async + per-tenant rollback. Flags hard = server <5ms + ABAC, insane = canary auto-ramp guardrail.
+  - **Repo GitHub non-git blocker:** Source `.repo/fullstack-mastery-module-20-deploy-and-devops-workflow/` NON-GIT → body git clone 404. Audit KHONG tao/push repo. Orchestrator: (a) tao repo public StarCi-Academy/fullstack-mastery-module-20-...; (b) dọn artifact; (c) git init + push; (d) verify E2E flow require-creds → done.
+  - **Module FS M20 mau:** 5 lesson deploy/devops, variant 4-lang+agnostic, 4-tier easy/medium/hard/insane. Gate PASS 429 checks. E2E 4-lang 4-flow per-lesson.
+
+- **Repo lien quan:**
+  - `.mount/data/courses/0-fullstack-mastery/modules/19-deploy-and-devops-workflow/contents/` 5 lesson folder (0-multi-stage-dockerfile-nestjs, 1-github-actions-cicd, 2-deploy-to-digitalocean-vps-with-certbot, 3-database-migrations-in-production, 4-feature-flags-and-canary).
+  - `.repo/fullstack-mastery-module-20-deploy-and-devops-workflow/` (lesson 0-4, NON-GIT: GitHub repo chua ton tai → blocker orchestrator).
+  - Gold reference: FS M20 4-lang+agnostic 4-tier backend variant + mirror vi/en parity + challenge V2 format strict + gate 429/~5.
+
+---

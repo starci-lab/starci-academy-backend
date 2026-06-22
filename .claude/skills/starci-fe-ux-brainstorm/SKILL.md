@@ -1,5 +1,5 @@
 ---
-name: ux-brainstorm
+name: starci-fe-ux-brainstorm
 description: >
   Re-imagine the UX of a given page in the MAIN StarCi Academy web app (`C:\Repositories\starci-academy`)
   from first principles. Researches the BACKEND (GraphQL queries/mutations + Postgres entities = what
@@ -7,10 +7,10 @@ description: >
   points — NOT as the design to copy), then brainstorms a fresh information architecture and several
   design directions grounded in the real data + the design mindset. Output = a brainstorm doc +
   recommendation, NO code. Run with MAX reasoning effort (Opus). Trigger when the user types
-  `/ux-brainstorm <page>` or asks to rethink/redesign a page's UX.
+  `/starci-fe-ux-brainstorm <page>` or asks to rethink/redesign a page's UX.
 ---
 
-# /ux-brainstorm — Re-imagine a page's UX from data + first principles (Opus · MAX effort)
+# /starci-fe-ux-brainstorm — Re-imagine a page's UX from data + first principles (Opus · MAX effort)
 
 Thiết kế LẠI UX 1 trang. **Legacy + BE + DB chỉ để biết CÓ GÌ; tư duy thiết kế đến từ mindset, KHÔNG từ legacy.**
 Bước này KHÔNG viết code — chỉ brainstorm + chốt hướng. CHẠY MAX EFFORT (đào rộng, nghĩ kỹ, nhiều hướng).
@@ -46,6 +46,6 @@ Bước này KHÔNG viết code — chỉ brainstorm + chốt hướng. CHẠY M
    PHẢI **vẽ widget mockup** bằng tool `show_widget` (gọi `read_me` module `mockup` trước) — render **1–3 scenario**
    layout cạnh nhau (flat, CSS vars, không nội dung thật rườm rà) cho thầy **NHÌN + CHỌN**, KHÔNG chỉ tả bằng chữ.
    - Mỗi scenario neo vào ref (web/memory/rules — search mạng nếu chưa có), kèm 1 dòng tagline + trade-off.
-   - Đánh dấu scenario đề xuất (viền `--color-border-info`). Thầy chọn xong → `/ux-apply` mới dựng.
+   - Đánh dấu scenario đề xuất (viền `--color-border-info`). Thầy chọn xong → `/starci-fe-ux-apply` mới dựng.
 
-→ Thầy duyệt hướng → `/ux-apply` để dựng. **Thầy feedback bất cứ lúc nào → tự ghi `.claude/rules/drafts/<temp>.md`** (rút nguyên tắc tổng quát), KHÔNG sửa main.md/starci-*.md trực tiếp.
+→ Thầy duyệt hướng → `/starci-fe-ux-apply` để dựng. **Thầy feedback bất cứ lúc nào → tự ghi `.claude/rules/drafts/<temp>.md`** (rút nguyên tắc tổng quát), KHÔNG sửa main.md/starci-*.md trực tiếp.

@@ -216,6 +216,7 @@ export class FlashcardDeckReadService {
         {
             flashcardDeckId,
             locale,
+            level,
         }: DrawRandomInterviewCardParams,
     ): Promise<FlashcardCardEntity> {
         // reuse the localized single-deck read (throws a typed 404 when missing)
@@ -224,9 +225,10 @@ export class FlashcardDeckReadService {
             locale,
         )
         // only cards with a model answer can be graded — legacy cards predating
-        // the Q&A format carry a null answer and must be excluded from the draw
+        // the Q&A format carry a null answer and must be excluded from the draw;
+        // when a seniority level is requested, also restrict to that level
         const gradable = (deck.cards ?? []).filter(
-            (card) => Boolean(card.answer),
+            (card) => Boolean(card.answer) && (!level || card.level === level),
         )
         // an empty pool means the deck is not interview-ready → typed error, not a crash
         if (gradable.length === 0) {

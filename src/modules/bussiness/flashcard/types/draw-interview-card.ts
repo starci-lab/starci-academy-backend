@@ -1,4 +1,5 @@
 import type {
+    FlashcardLevel,
     Locale,
 } from "@modules/databases"
 
@@ -8,4 +9,7 @@ export interface DrawRandomInterviewCardParams {
     flashcardDeckId: string
     /** Locale to load + localize the drawn card in. */
     locale: Locale
+    /** Optional seniority level to restrict the draw to (a deck mixes levels).
+     * When set, only cards tagged with this level are eligible. */
+    level?: FlashcardLevel | null
 }

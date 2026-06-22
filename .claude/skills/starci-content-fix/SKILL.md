@@ -120,4 +120,6 @@ powershell.exe -NoProfile -File ".audits/check-lesson.ps1" -Path "<module-dir>" 
 - **De-bold = script, đừng để LLM** (M0: 125 chỗ; M1-M8: 325 chỗ — script làm trong 1 giây, agent thì cả tiếng).
 - **Sequential modules = chậm.** Dùng `refactor-fs-fast.js` (parallel + Sonnet), KHÔNG dùng bản Opus-tuần-tự trừ khi cần.
 - **Push chỉ module SẠCH + không bị workflow ghi** — stage path cụ thể, đừng `add -A` khi workflow đang chạy (commit nửa chừng).
+- **Batch wrapper: HARDCODE module list + ABSOLUTE scriptPath cho `workflow()`.** ĐỪNG truyền `args.modules` (hay rớt → fallback default → chạy nhầm module-set). ĐỪNG dùng relative scriptPath trong nested `workflow()` — cwd có thể là `.mount/data` sau git ops → ghép thành `.mount/data/.audits/...` → "script not found". Dùng path tuyệt đối.
+- **Sau git ops nhớ `cd` về repo root** (cwd Bash persist; để ở `.mount/data` làm hỏng nested workflow path).
 - Mặc định **report-only**: skill KHÔNG tự push/seed; chỉ push khi thầy duyệt. Seed = thầy restart backend.

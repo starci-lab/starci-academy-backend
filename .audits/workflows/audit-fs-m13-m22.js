@@ -15,9 +15,8 @@ export const meta = {
   ],
 }
 
+// M13+M14 da review xong (8 review.md) o run truoc; chi con M15-M22.
 const MODULES = [
-  '13-frontend-performance',
-  '14-responsive-and-adaptive-rendering',
   '15-interaction-and-accessibility',
   '16-observability-logs-tracing-errors',
   '17-security-end-to-end',
@@ -34,7 +33,8 @@ const GUIDANCE = [
   'Phan loai loai bai dung (pure-FE Vite cho perf/responsive/a11y; BE/BE+Playwright cho observability/security/testing/deploy/ai-llm/graphql/payment). Payment (M22) co the require-creds (SePay/PayOS/PayPal/Stripe) -> ghi RO neu challenge can cred. Review noi dung body nhu thuong. Day la stage REVIEW: CHI de xuat review.md, KHONG sua file.',
 ].join(' ')
 
-const RUNNER = '.audits/workflows/audit-fs-module.js'
+// ABSOLUTE path: nested workflow() resolve theo cwd; cwd co the la .mount/data sau git ops -> dung absolute cho chac.
+const RUNNER = 'D:/Repositories/starci-academy-backend/.audits/workflows/audit-fs-module.js'
 const results = []
 for (const mod of MODULES) {
   log('=== Audit REVIEW module ' + mod + ' ===')
