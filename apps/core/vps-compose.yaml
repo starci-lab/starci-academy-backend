@@ -59,6 +59,9 @@ services:
       TERRAFORM_GEMINI_API_KEY_MOUNT_PATH: ${TERRAFORM_GEMINI_API_KEY_MOUNT_PATH:-/usr/src/app/.mount/terraform/gemini-api-key.key}
       TERRAFORM_OPENAI_API_KEY_MOUNT_PATH: ${TERRAFORM_OPENAI_API_KEY_MOUNT_PATH:-/usr/src/app/.mount/terraform/openai-api-key.key}
       TERRAFORM_SEPAY_API_KEY_MOUNT_PATH: ${TERRAFORM_SEPAY_API_KEY_MOUNT_PATH:-/usr/src/app/.mount/terraform/sepay-api-key.key}
+      # SePay PG env + merchant (secret key comes from the mount path above)
+      API_SEPAY_ENV: ${API_SEPAY_ENV:-sandbox}
+      API_SEPAY_MERCHANT_ID: ${API_SEPAY_MERCHANT_ID:-SP-TEST-CNA92625}
       TERRAFORM_BREVO_SMTP_PASSWORD_MOUNT_PATH: ${TERRAFORM_BREVO_SMTP_PASSWORD_MOUNT_PATH:-/usr/src/app/.mount/terraform/brevo-smtp-api-key.key}
       TERRAFORM_ENCRYPTION_KEY_MOUNT_PATH: ${TERRAFORM_ENCRYPTION_KEY_MOUNT_PATH:-/usr/src/app/.mount/terraform/encryption-key.key}
       TERRAFORM_GCP_SERVICE_ACCOUNT_JSON_MOUNT_PATH: ${TERRAFORM_GCP_SERVICE_ACCOUNT_JSON_MOUNT_PATH:-/usr/src/app/.mount/terraform/gcp-service-account.json}
