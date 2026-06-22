@@ -75,6 +75,14 @@ export class EnrollWorker extends WorkerHost {
                     id: bullmqJob.id ?? "",
                 }
             )
+            // claim the job (bumps the fencing token, marks it Processing) so a
+            // stalled redelivery is fenced out — parity with the other processors
+            await this.jobActionService.processingJob(
+                {
+                    job,
+                    emitChangeEvent: false,
+                },
+            )
             // get the payload from the job
             payload = this.superJson.parse<EnrollPayload>(bullmqJob.data)
             // get the step map
@@ -96,9 +104,18 @@ export class EnrollWorker extends WorkerHost {
                         id: job.id,
                     },
                 )
+                job = syncedJob
                 context.job = syncedJob
+                // guard against a maxSteps/step-map mismatch: a missing step would
+                // never advance currentStep → an infinite loop pinning this worker
+                const step = stepMap.get(syncedJob.currentStep)
+                if (!step) {
+                    throw new Error(
+                        `No enroll step mapped for index ${syncedJob.currentStep} (maxSteps ${syncedJob.maxSteps})`,
+                    )
+                }
                 // process the step
-                await stepMap.get(syncedJob.currentStep)?.process(
+                await step.process(
                     {
                         job: syncedJob,
                         queueName: bullmqJob.queueName,
@@ -107,6 +124,13 @@ export class EnrollWorker extends WorkerHost {
                     }
                 )
             }
+            // mark the job complete (parity with the other processors)
+            await this.jobActionService.completeJob(
+                {
+                    job,
+                    emitChangeEvent: false,
+                },
+            )
             // log the job executed
             this.winstonService.log(
                 WinstonLog.JobExecutedSuccessfully,

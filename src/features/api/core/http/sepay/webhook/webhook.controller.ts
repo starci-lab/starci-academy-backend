@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    Logger,
     Post,
     UseInterceptors,
 } from "@nestjs/common"
@@ -31,6 +32,8 @@ import {
     },
 )
 export class SepayWebhookController {
+    private readonly logger = new Logger(SepayWebhookController.name)
+
     constructor(
         private readonly sepayWebhookService: SepayWebhookService,
     ) {}
@@ -55,6 +58,10 @@ export class SepayWebhookController {
         @Body()
             body: SepayWebhookRequest,
     ) {
+        // loud entry log so a real CK (bank transfer) IPN is visible the instant it lands
+        this.logger.log(
+            `🔔 [SePay] webhook received @ ${new Date().toISOString()} :: ${JSON.stringify(body)}`,
+        )
         return this.sepayWebhookService.execute(body)
     }
 }

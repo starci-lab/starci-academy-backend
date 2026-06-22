@@ -2,6 +2,7 @@ import {
     Body,
     Controller,
     Headers,
+    Logger,
     Post,
     UseInterceptors,
 } from "@nestjs/common"
@@ -32,6 +33,8 @@ import {
     },
 )
 export class NowPaymentsWebhookController {
+    private readonly logger = new Logger(NowPaymentsWebhookController.name)
+
     constructor(
         private readonly nowPaymentsWebhookService: NowPaymentsWebhookService,
     ) {}
@@ -58,6 +61,9 @@ export class NowPaymentsWebhookController {
         @Headers("x-nowpayments-sig")
             signature: string,
     ) {
+        this.logger.log(
+            `🔔 [NOWPayments] IPN received @ ${new Date().toISOString()} :: ${JSON.stringify(body)} sig=${signature ? "present" : "MISSING"}`,
+        )
         // forward the IPN body + signature header to the service for verify + grant
         return this.nowPaymentsWebhookService.execute({
             body,

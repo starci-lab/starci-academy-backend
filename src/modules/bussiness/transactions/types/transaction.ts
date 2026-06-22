@@ -13,6 +13,14 @@ export interface UpdateTransactionStatusParams {
     entityManager?: EntityManager
 }
 
+/** Params for a guarded status update (only applies while `expectedStatus` holds). */
+export interface UpdateTransactionStatusIfExpectedParams {
+    id: string
+    status: TransactionStatus
+    expectedStatus: TransactionStatus
+    entityManager?: EntityManager
+}
+
 /** Result for updating the status of a transaction. */
 export interface UpdateTransactionStatusResult {
     transaction: TransactionEntity

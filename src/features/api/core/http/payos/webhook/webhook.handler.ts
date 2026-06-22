@@ -23,7 +23,6 @@ import {
     AiSubscriptionTierNotAvailableException,
     TransactionCourseNotFoundException,
     TransactionExpiredError,
-    TransactionNotFoundException,
 } from "@modules/exceptions"
 import {
     DayjsService,
@@ -34,6 +33,7 @@ import {
 import {
     BadRequestException,
     Injectable,
+    Logger,
 } from "@nestjs/common"
 import {
     CommandHandler,
@@ -41,6 +41,9 @@ import {
 } from "@nestjs/cqrs"
 import {
     PayOS,
+} from "@payos/node"
+import type {
+    Webhook,
 } from "@payos/node"
 import type {
     EntityManager,
@@ -54,6 +57,8 @@ import {
 export class PayosWebhookHandler
     extends ICQRSHandler<PayosWebhookCommand, void>
     implements ICommandHandler<PayosWebhookCommand, void> {
+    private readonly logger = new Logger(PayosWebhookHandler.name)
+
     constructor(
         @InjectPayOS()
         private readonly payos: PayOS,
@@ -71,20 +76,53 @@ export class PayosWebhookHandler
         command: PayosWebhookCommand,
     ): Promise<void> {
         const body = command.params
-        await this.payos.webhooks.verify(body)
+        // verifies the signature (throws on tamper) and returns the signed data
+        await this.payos.webhooks.verify(body as Webhook)
+
+        // signature-valid ≠ paid: PayOS also signs failure/cancel callbacks. The
+        // authoritative success signal is `code === "00"` (the top-level `success`
+        // boolean is not always present in the raw payload — e.g. the URL probe).
+        if (body.code !== "00" || body.success === false) {
+            this.logger.log(
+                `Ignoring PayOS webhook for ${String(body.data?.orderCode)}: code=${String(body.code)} success=${String(body.success)}`,
+            )
+            return
+        }
+
+        // PayOS validates the webhook URL by POSTing a probe with a sample orderCode.
+        // Ack (200) anything we can't match to a pending transaction — a probe or a
+        // stray callback is not an error; throwing would make PayOS mark the URL
+        // "inactive" and make real callbacks retry. Grant only on a real match.
+        const orderCode = body.data?.orderCode
+        if (orderCode == null) {
+            this.logger.log("Ignoring PayOS webhook with no orderCode (URL probe?)")
+            return
+        }
         const transaction = await this.entityManager.findOne(
             TransactionEntity,
             {
                 where: {
-                    referenceId: body.data.orderCode.toString(),
+                    referenceId: orderCode.toString(),
                     status: TransactionStatus.Pending,
                 },
             },
         )
         if (!transaction) {
-            throw new TransactionNotFoundException({
-                referenceId: body.data.orderCode.toString(),
-            })
+            this.logger.log(
+                `Ignoring PayOS webhook for ${orderCode}: no matching pending transaction (probe/stray)`,
+            )
+            return
+        }
+        // underpayment guard: the signed amount must cover what we expect (VND)
+        const paidAmount = Number(body.data?.amount)
+        if (
+            Number.isFinite(paidAmount)
+            && paidAmount > 0
+            && paidAmount < transaction.amount
+        ) {
+            throw new BadRequestException(
+                `PayOS order ${orderCode} underpaid: ${paidAmount} < ${transaction.amount}`,
+            )
         }
         const timeSinceCreationMs = this.dayjsService.now().diff(
             this.dayjsService.from(transaction?.createdAt),

@@ -42,6 +42,24 @@ export interface RetrievePaypalOrderParams {
     orderId: string
 }
 
+/** Params for capturing the funds of an approved PayPal order. */
+export interface CapturePaypalOrderParams {
+    /** PayPal order id to capture (must be in `APPROVED` state). */
+    orderId: string
+}
+
+/** Result of capturing a PayPal order. */
+export interface CapturePaypalOrderResult {
+    /** PayPal order id. */
+    id: string
+    /** Order status after the capture attempt (`COMPLETED` when funds were taken). */
+    status: string
+    /** Our reference id echoed back via `purchase_units[].custom_id`. */
+    referenceId?: string
+    /** Whether the funds are now captured (status `COMPLETED`, or already captured). */
+    captured: boolean
+}
+
 /** A HATEOAS link entry returned on a PayPal order (`response.data.links[]`). */
 export interface PaypalLink {
     /** Relation name of the link (e.g. `approve`, `self`, `capture`). */

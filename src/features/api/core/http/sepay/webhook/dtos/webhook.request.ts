@@ -1,21 +1,17 @@
 import {
-    IsNumber,
-    IsString,
+    IsObject,
     IsOptional,
+    IsString,
 } from "class-validator"
 import {
     ApiProperty,
 } from "@nestjs/swagger"
 
 /**
- * SePay Payment Gateway IPN request body.
- *
- * NOTE: the exact field set is not documented by SePay PG yet, so every field
- * is optional and the handler verifies authoritatively via the order-detail
- * API (`order.retrieve`) rather than trusting this payload. The raw body is
- * logged on receipt so the field names can be finalised from a real IPN.
+ * SePay PG IPN `order` object. The real notification nests the order details
+ * (incl. `order_invoice_number` = our transaction referenceId) under `order`.
  */
-export class SepayWebhookRequest {
+export class SepayWebhookOrder {
     @ApiProperty({
         required: false,
         description: "Order invoice number (our transaction referenceId).",
@@ -26,25 +22,50 @@ export class SepayWebhookRequest {
 
     @ApiProperty({
         required: false,
-        description: "Payment status reported by SePay (e.g. PAID/SUCCESS).",
+        description: "Order amount as a string (e.g. \"16625.00\").",
     })
     @IsString()
     @IsOptional()
-        status?: string
+        order_amount?: string
 
     @ApiProperty({
         required: false,
-        description: "Amount reported by SePay.",
-    })
-    @IsNumber()
-    @IsOptional()
-        order_amount?: number
-
-    @ApiProperty({
-        required: false,
-        description: "Signature SePay computed over the IPN fields.",
+        description: "Order status (e.g. CAPTURED / PAID).",
     })
     @IsString()
     @IsOptional()
-        signature?: string
+        order_status?: string
+}
+
+/**
+ * SePay Payment Gateway IPN request body (shape confirmed from a live IPN):
+ * `{ notification_type, order: { order_invoice_number, order_status, ... },
+ *    transaction: {...} }`. All fields optional — the handler verifies
+ * authoritatively via the order-detail API (`order.retrieve`).
+ */
+export class SepayWebhookRequest {
+    @ApiProperty({
+        required: false,
+        description: "Notification type (e.g. ORDER_PAID).",
+    })
+    @IsString()
+    @IsOptional()
+        notification_type?: string
+
+    @ApiProperty({
+        required: false,
+        type: SepayWebhookOrder,
+        description: "Nested order object carrying the invoice number + status.",
+    })
+    @IsObject()
+    @IsOptional()
+        order?: SepayWebhookOrder
+
+    @ApiProperty({
+        required: false,
+        description: "Top-level invoice number (legacy/fallback shape).",
+    })
+    @IsString()
+    @IsOptional()
+        order_invoice_number?: string
 }

@@ -98,14 +98,37 @@ export class PaypalWebhookHandler
             throw new UnauthorizedException("Invalid PayPal webhook signature")
         }
 
-        // only the approved/completed events represent a paid order
-        if (
-            body.event_type !== "CHECKOUT.ORDER.APPROVED"
-            && body.event_type !== "PAYMENT.CAPTURE.COMPLETED"
-        ) {
+        // two events matter: APPROVED (buyer agreed, funds NOT yet taken) and
+        // CAPTURE.COMPLETED (funds already taken). Anything else is ignored.
+        const isApproved = body.event_type === "CHECKOUT.ORDER.APPROVED"
+        const isCaptured = body.event_type === "PAYMENT.CAPTURE.COMPLETED"
+        if (!isApproved && !isCaptured) {
             // ignore unrelated event types
             this.logger.log(`Ignoring PayPal event type: ${String(body.event_type)}`)
             return
+        }
+
+        // with intent=CAPTURE, approval alone moves NO money — capture the funds
+        // before granting anything. Idempotent: an already-captured order returns
+        // captured=true. If the capture does not complete, we do NOT grant.
+        if (isApproved) {
+            const orderId = typeof body.resource?.id === "string"
+                ? body.resource.id
+                : undefined
+            if (!orderId) {
+                throw new TransactionNotFoundException({
+                    referenceId: "missing PayPal order id",
+                })
+            }
+            const capture = await this.paypalClient.captureOrder({
+                orderId,
+            })
+            if (!capture.captured) {
+                // funds were not taken → reject so nothing is granted for free
+                throw new BadRequestException(
+                    `PayPal order ${orderId} not captured (status ${capture.status})`,
+                )
+            }
         }
 
         // resolve our reference id: prefer custom_id on the resource, else look up the order

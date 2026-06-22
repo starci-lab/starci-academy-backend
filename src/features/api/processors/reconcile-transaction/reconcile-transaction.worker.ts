@@ -16,8 +16,12 @@ import {
     AiEntitlementService,
 } from "@modules/ai"
 import {
+    MembershipService,
+} from "@modules/membership"
+import {
     ActionType,
     InjectPrimaryPostgreSQLEntityManager,
+    PaymentType,
     TransactionEntity,
     TransactionStatus,
 } from "@modules/databases"
@@ -70,6 +74,7 @@ export class ReconcileTransactionWorker extends WorkerHost {
         private readonly enqueueEnrollJobService: EnqueueEnrollJobService,
         private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
         private readonly aiEntitlementService: AiEntitlementService,
+        private readonly membershipService: MembershipService,
         private readonly winstonService: WinstonService,
     ) {
         super()
@@ -101,14 +106,22 @@ export class ReconcileTransactionWorker extends WorkerHost {
         // ask the gateway whether it was paid
         const status = await this.transactionReconcileQueryService.resolve(transaction)
         const maxAttempts = envConfig().services.api.transaction.reconcile.maxAttempts
-        // decide the action: paid → finalize; unpaid → mark unpaid; unknown → retry or give up
+        const exhausted = attempt >= maxAttempts
+        // crypto settles slowly and may clear AFTER the poll budget — never mark it
+        // unpaid from here, or a late IPN (which only matches a PENDING row) could
+        // never grant. Leave it pending and let the webhook finalize it.
+        const isCrypto = transaction.paymentType === PaymentType.Crypto
+        // decide the action: paid → finalize; gateway-terminal unpaid → mark unpaid;
+        // still unknown → retry while attempts remain, else give up (stop for crypto)
         const decision = status === "paid"
             ? "finalize"
             : status === "unpaid"
                 ? "unpaid"
-                : attempt < maxAttempts
+                : !exhausted
                     ? "reenqueue"
-                    : "unpaid"
+                    : isCrypto
+                        ? "stop"
+                        : "unpaid"
         // observable trace of every poll (gateway status + chosen action)
         this.winstonService.log(
             WinstonLog.TransactionReconcilePolled,
@@ -133,10 +146,17 @@ export class ReconcileTransactionWorker extends WorkerHost {
             })
             return
         }
-        // gateway terminal non-paid, or all polls exhausted with no payment → mark unpaid
-        await this.transactionActionService.updateTransactionStatus({
+        if (decision === "stop") {
+            // crypto budget exhausted with no confirmation → stop polling but keep
+            // the row pending so a late IPN can still finalize it
+            return
+        }
+        // gateway terminal non-paid, or all polls exhausted → mark unpaid, but ONLY
+        // if still pending so a webhook that just succeeded is never clobbered
+        await this.transactionActionService.updateTransactionStatusIfExpected({
             id: transactionId,
             status: TransactionStatus.Unpaid,
+            expectedStatus: TransactionStatus.Pending,
         })
     }
 
@@ -156,6 +176,14 @@ export class ReconcileTransactionWorker extends WorkerHost {
             await this.aiEntitlementService.grantTier({
                 userId: transaction.userId,
                 tier: transaction.aiSubTier,
+                transactionId: transaction.id,
+            })
+            return
+        }
+        // community membership purchase: grant/extend directly (also marks tx succeeded)
+        case ActionType.MembershipPurchase: {
+            await this.membershipService.grantMembership({
+                userId: transaction.userId,
                 transactionId: transaction.id,
             })
             return

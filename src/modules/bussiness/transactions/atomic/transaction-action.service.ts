@@ -5,6 +5,7 @@ import {
     Injectable,
 } from "@nestjs/common"
 import type {
+    UpdateTransactionStatusIfExpectedParams,
     UpdateTransactionStatusParams,
 } from "../types"
 import {
@@ -62,5 +63,34 @@ export class TransactionActionService {
         // update the transaction status
         transaction.status = status
         await manager.save(transaction)
+    }
+
+    /**
+     * Conditionally move a transaction to `status` ONLY while it is still in
+     * `expectedStatus`, via a single guarded `UPDATE ... WHERE status=expected`.
+     * Prevents a late race (e.g. a reconcile poll marking `unpaid`) from
+     * clobbering a status a concurrent webhook already advanced (e.g. `succeeded`).
+     *
+     * @param params - id, the target `status`, the required `expectedStatus`, optional manager.
+     * @returns true when the row was updated; false when the guard did not match.
+     */
+    async updateTransactionStatusIfExpected({
+        id,
+        status,
+        expectedStatus,
+        entityManager,
+    }: UpdateTransactionStatusIfExpectedParams): Promise<boolean> {
+        const manager = entityManager ?? this.primaryEntityManager
+        const result = await manager.update(
+            TransactionEntity,
+            {
+                id,
+                status: expectedStatus,
+            },
+            {
+                status,
+            },
+        )
+        return Boolean(result.affected)
     }
 }

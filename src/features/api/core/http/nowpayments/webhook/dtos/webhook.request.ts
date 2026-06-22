@@ -52,4 +52,20 @@ export class NowPaymentsWebhookRequest {
     @IsNumber()
     @IsOptional()
         price_amount?: number
+
+    @ApiProperty({
+        required: false,
+        description: "Crypto amount the customer was expected to pay (pay_currency).",
+    })
+    @IsNumber()
+    @IsOptional()
+        pay_amount?: number
+
+    @ApiProperty({
+        required: false,
+        description: "Crypto amount actually received so far (pay_currency).",
+    })
+    @IsNumber()
+    @IsOptional()
+        actually_paid?: number
 }

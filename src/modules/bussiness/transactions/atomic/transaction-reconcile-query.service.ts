@@ -120,17 +120,23 @@ export class TransactionReconcileQueryService {
     ): Promise<TransactionReconcileStatus> {
         // server-to-server lookup; the SDK return shape is opaque so read defensively
         const detail = await this.sepay.order.retrieve(transaction.referenceId)
-        const data = ((detail as { data?: unknown })?.data ?? {
+        // SePay wraps the order under `data.data`; unwrap twice (fallback to `data`)
+        const httpBody = ((detail as { data?: unknown })?.data ?? {
         }) as Record<string, unknown>
+        const data = (
+            (httpBody.data as Record<string, unknown> | undefined) ?? httpBody
+        )
         // some payloads expose an explicit boolean; trust it when present
         if (data.paid === true) {
             return "paid"
         }
-        const status = String(data.status ?? "").toLowerCase()
+        const status = String(data.status ?? data.order_status ?? "").toLowerCase()
         if (["paid",
             "success",
             "completed",
-            "settled"].includes(status)) {
+            "settled",
+            "captured",
+            "approved"].includes(status)) {
             return "paid"
         }
         if (["cancelled",
@@ -183,9 +189,17 @@ export class TransactionReconcileQueryService {
             orderId: transaction.providerPaymentId,
         })
         const status = String(order.status).toUpperCase()
-        // the webhook treats APPROVED or COMPLETED as success — mirror that here
-        if (status === "COMPLETED" || status === "APPROVED") {
+        // funds already taken
+        if (status === "COMPLETED") {
             return "paid"
+        }
+        // approved but NOT captured → take the funds now (fallback for a missed
+        // webhook); only a completed capture counts as paid
+        if (status === "APPROVED") {
+            const capture = await this.paypalClient.captureOrder({
+                orderId: transaction.providerPaymentId,
+            })
+            return capture.captured ? "paid" : "unknown"
         }
         if (status === "VOIDED") {
             return "unpaid"

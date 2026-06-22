@@ -1,29 +1,40 @@
 import {
     IsBoolean,
     IsObject,
+    IsOptional,
     IsString,
 } from "class-validator"
 import type {
-    WebhookData 
+    WebhookData
 } from "@payos/node"
 /**
  * Request body payOS sends to the payment webhook endpoint.
+ *
+ * All fields are optional so the global ValidationPipe never rejects a payload
+ * before the handler runs — PayOS's webhook-URL confirmation probe omits some
+ * fields (e.g. `success`), and the handler verifies the signature + `code`
+ * authoritatively anyway (mirrors the SePay / NOWPayments webhook DTOs).
  */
 export class PayosWebhookRequest {
     @IsString()
-        code!: string
+    @IsOptional()
+        code?: string
 
     @IsString()
-        desc!: string
+    @IsOptional()
+        desc?: string
 
     @IsBoolean()
-        success!: boolean
+    @IsOptional()
+        success?: boolean
 
     @IsObject()
-        data!: WebhookData
+    @IsOptional()
+        data?: WebhookData
 
     @IsString()
-        signature!: string
+    @IsOptional()
+        signature?: string
 }
 
 /**

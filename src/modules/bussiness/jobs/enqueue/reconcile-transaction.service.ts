@@ -58,6 +58,19 @@ export class EnqueueReconcileTransactionJobService {
             delayMs: delayMsOverride,
         }: EnqueueReconcileTransactionJobParams,
     ): Promise<void> {
+        // master switch: when reconcile polling is disabled, pending transactions
+        // are finalized ONLY by their gateway webhook (no fallback poll scheduled)
+        if (!envConfig().services.api.transaction.reconcile.enabled) {
+            this.winstonService.log(
+                WinstonLog.TransactionReconcileScheduled,
+                {
+                    transactionId,
+                    attempt,
+                    decision: "skip",
+                },
+            )
+            return
+        }
         // serialize the poll payload (transaction id + attempt counter)
         const payload: ReconcileTransactionPayload = {
             transactionId,

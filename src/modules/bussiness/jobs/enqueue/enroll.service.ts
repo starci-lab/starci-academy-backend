@@ -91,21 +91,27 @@ export class EnqueueEnrollJobService {
                 ),
             })
         }
-        // push the job to the queue (UX delay immediately before BullMQ so DB work is not stalled)
-        void sleepEnqueueUxDelay().then(() =>
-            this.enrollQueue.add(
+        // push the job to the broker — AWAITED (not fire-and-forget): this runs on
+        // the payment-finalize path, so returning before the broker job exists would
+        // strand a paid transaction with no enroll job (and the gateway, already
+        // 2xx'd, never retries). On failure mark the job failed AND rethrow so the
+        // caller (webhook) returns non-2xx and the gateway re-delivers.
+        try {
+            await sleepEnqueueUxDelay()
+            await this.enrollQueue.add(
                 job.id,
                 job.payload,
                 {
                     jobId: job.id,
                 },
-            ),
-        ).catch((error) =>
-            this.jobActionService.failJob({
+            )
+        } catch (error) {
+            await this.jobActionService.failJob({
                 job,
                 error: `Failed to enqueue job to broker: ${error?.message ?? "unknown error"}`,
-            }),
-        )
+            })
+            throw error
+        }
         return job
     }
 }

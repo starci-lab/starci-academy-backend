@@ -275,6 +275,16 @@ export const envConfig = () => ({
                 }),
                 /** Reconciliation poll for pending transactions with no webhook. */
                 reconcile: {
+                    /**
+                     * Master switch for the reconcile poll. When false the
+                     * delayed poll is never scheduled, so a pending transaction
+                     * is finalized ONLY by its gateway webhook — used to test the
+                     * webhook path in isolation before trusting the poller.
+                     */
+                    enabled: parseEnvBoolean({
+                        key: "API_TRANSACTION_RECONCILE_ENABLED",
+                        defaultValue: true,
+                    }),
                     /** Delay before each poll and between polls (first poll fires after this). */
                     delayMs: parseEnvMs({
                         key: "API_TRANSACTION_RECONCILE_DELAY_MS",

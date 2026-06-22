@@ -4,7 +4,11 @@ import {
 } from "@modules/databases"
 import {
     CourseNoRegularPriceException,
+    PricingPhaseNoPriceException,
 } from "@modules/exceptions"
+import {
+    envConfig,
+} from "@modules/env"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -12,6 +16,16 @@ import type {
     ResolveCourseAmountUsdParams,
     ResolveCourseAmountVndParams,
 } from "./types"
+
+/**
+ * In non-production (local/dev) every course checkout is charged the REAL tiered
+ * price divided by this factor, so payment tests (bank transfer / QR) stay cheap
+ * while keeping the prices proportional. Production charges the full price.
+ * `1.250.000₫ / 100 = 12.500₫` — still well above the PayOS 2,000₫ minimum even
+ * after the max loyalty discount. Gated on `NODE_ENV` via `envConfig().isProduction`.
+ */
+const LOCAL_TEST_PRICE_DIVISOR = 100
+
 /**
  * Resolves course checkout amounts in VND from `originalPrice` and `pricing_phases`.
  */
@@ -24,6 +38,30 @@ export class CoursePricingService {
      * @returns Rounded VND minor units (integer)
      */
     resolveAmountVnd(
+        params: ResolveCourseAmountVndParams,
+    ): number {
+        // full real price for the active tier (with loyalty discount applied)
+        const realAmount = this.resolveRealAmountVnd(params)
+        // non-production: charge real/100 so live payment tests stay cheap
+        if (!envConfig().isProduction) {
+            return Math.max(
+                1,
+                Math.round(realAmount / LOCAL_TEST_PRICE_DIVISOR),
+            )
+        }
+        return realAmount
+    }
+
+    /**
+     * The real (production) VND amount for the active tier, loyalty discount
+     * applied: Regular → `course.originalPrice`; any other tier → the matching
+     * `pricing_phases.price`. Throws when the active tier has no valid price
+     * (never silently charges 0).
+     *
+     * @param param - Course with `pricingPhases` loaded and the tier to charge
+     * @returns Rounded VND minor units (integer)
+     */
+    private resolveRealAmountVnd(
         {
             course,
             discountPercent = 0,
@@ -45,7 +83,14 @@ export class CoursePricingService {
         const pricingPhase = course.pricingPhases.find(
             (pricingPhase) => pricingPhase.phase === currentPhase,
         )
-        const base = pricingPhase?.price ?? 0
+        const base = pricingPhase?.price
+        // a non-Regular tier with no configured price must reject, never charge 0
+        if (base == null || base <= 0) {
+            throw new PricingPhaseNoPriceException({
+                courseId: course.id,
+                phase: currentPhase,
+            })
+        }
         return Math.round(base * (1 - this.clampPercent(discountPercent) / 100))
     }
 
@@ -79,7 +124,12 @@ export class CoursePricingService {
             return null
         }
         // apply the loyalty discount; cents conversion stays in the Stripe service
-        return base * (1 - this.clampPercent(discountPercent) / 100)
+        const realAmount = base * (1 - this.clampPercent(discountPercent) / 100)
+        // non-production: charge real/100 so live payment tests stay cheap (mirror VND)
+        if (!envConfig().isProduction) {
+            return realAmount / LOCAL_TEST_PRICE_DIVISOR
+        }
+        return realAmount
     }
 
     /**
@@ -91,7 +141,10 @@ export class CoursePricingService {
     getCurrentPricingPhase(
         course: CourseEntity,
     ): PricingPhase {
-        return course.metadata?.currentPhase ?? PricingPhase.Regular
+        // metadata is seeded with the app.yaml default (EarlyBird); fall back to
+        // EarlyBird — NOT Regular — when absent so the CHARGED tier matches what the
+        // UI shows (course.resolver + enroll-step both default to EarlyBird).
+        return course.metadata?.currentPhase ?? PricingPhase.EarlyBird
     }
 
     /**

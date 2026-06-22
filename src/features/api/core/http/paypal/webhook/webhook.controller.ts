@@ -2,6 +2,7 @@ import {
     Body,
     Controller,
     Headers,
+    Logger,
     Post,
     UseInterceptors,
 } from "@nestjs/common"
@@ -32,6 +33,8 @@ import {
     },
 )
 export class PaypalWebhookController {
+    private readonly logger = new Logger(PaypalWebhookController.name)
+
     constructor(
         private readonly paypalWebhookService: PaypalWebhookService,
     ) {}
@@ -66,6 +69,9 @@ export class PaypalWebhookController {
         @Headers("paypal-transmission-time")
             transmissionTime: string,
     ) {
+        this.logger.log(
+            `🔔 [PayPal] webhook received @ ${new Date().toISOString()} :: event=${String(body?.event_type)} sig=${transmissionSig ? "present" : "MISSING"}`,
+        )
         // forward the body + signature headers to the service for verify + grant
         return this.paypalWebhookService.execute({
             body,

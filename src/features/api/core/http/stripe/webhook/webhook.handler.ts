@@ -99,6 +99,16 @@ export class StripeWebhookHandler
 
         // the session echoes our reference id back via client_reference_id
         const session = event.data.object as Stripe.Checkout.Session
+
+        // `checkout.session.completed` can fire for an async payment method whose
+        // funds have NOT cleared yet — only a `paid` session means money is in
+        if (session.payment_status !== "paid") {
+            this.logger.log(
+                `Ignoring Stripe session ${session.id}: payment_status=${session.payment_status}`,
+            )
+            return
+        }
+
         const referenceId = session.client_reference_id
         if (!referenceId) {
             // without our reference id we cannot match a transaction → reject

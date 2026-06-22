@@ -96,6 +96,22 @@ export class NowPaymentsWebhookHandler
             return
         }
 
+        // underpayment guard: crypto can settle "finished" while the buyer sent
+        // less than quoted — require the received amount to cover the expected one
+        const payAmount = Number(body.pay_amount)
+        const actuallyPaid = Number(body.actually_paid)
+        if (
+            Number.isFinite(payAmount)
+            && payAmount > 0
+            && Number.isFinite(actuallyPaid)
+            && actuallyPaid < payAmount
+        ) {
+            this.logger.log(
+                `Ignoring NOWPayments underpaid order ${String(body.order_id)}: ${actuallyPaid} < ${payAmount}`,
+            )
+            return
+        }
+
         // order_id carries our transaction reference id
         const referenceId = body.order_id
         if (!referenceId) {

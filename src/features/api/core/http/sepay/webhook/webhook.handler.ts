@@ -79,7 +79,9 @@ export class SepayWebhookHandler
         // SePay PG notification (payload shape is not documented yet)
         this.logger.log(`SePay PG IPN received: ${JSON.stringify(body)}`)
 
-        const invoice = body.order_invoice_number
+        // the real SePay IPN nests the invoice under `order`; fall back to the
+        // legacy top-level field for safety
+        const invoice = body.order?.order_invoice_number ?? body.order_invoice_number
         if (!invoice) {
             throw new TransactionNotFoundException({
                 referenceId: "missing order_invoice_number",
@@ -109,6 +111,49 @@ export class SepayWebhookHandler
         this.logger.log(
             `SePay PG order detail (${invoice}): ${JSON.stringify(orderDetail.data)}`,
         )
+
+        // CRITICAL: the order merely EXISTING is not proof of payment — read the
+        // authoritative paid flag/status from the order detail (same check the
+        // reconcile poll uses). Without this, anyone who knows an orderCode could
+        // POST the webhook for an unpaid order and get enrolled for free.
+        // SePay's order.retrieve wraps the order under `data.data` (HTTP body is
+        // `{ data: { ...order... } }`); unwrap twice, falling back to `data` when
+        // the response is not double-nested
+        const httpBody = ((orderDetail as { data?: unknown })?.data ?? {
+        }) as Record<string, unknown>
+        const detailData = (
+            (httpBody.data as Record<string, unknown> | undefined) ?? httpBody
+        )
+        // SePay marks a paid order with order_status CAPTURED / transaction APPROVED;
+        // accept those plus the generic paid synonyms (read both `status` + `order_status`)
+        const detailStatus = String(
+            detailData.status ?? detailData.order_status ?? "",
+        ).toLowerCase()
+        const isPaid = detailData.paid === true
+            || ["paid",
+                "success",
+                "completed",
+                "settled",
+                "captured",
+                "approved"].includes(detailStatus)
+        if (!isPaid) {
+            throw new BadRequestException(
+                `SePay order ${invoice} is not paid (status: ${detailStatus || "unknown"})`,
+            )
+        }
+        // underpayment guard: the gateway-reported amount must cover what we expect
+        const reportedAmount = Number(
+            detailData.amount ?? detailData.order_amount ?? body.order?.order_amount,
+        )
+        if (
+            Number.isFinite(reportedAmount)
+            && reportedAmount > 0
+            && reportedAmount < transaction.amount
+        ) {
+            throw new BadRequestException(
+                `SePay order ${invoice} underpaid: ${reportedAmount} < ${transaction.amount}`,
+            )
+        }
 
         const timeSinceCreationMs = this.dayjsService.now().diff(
             this.dayjsService.from(transaction?.createdAt),

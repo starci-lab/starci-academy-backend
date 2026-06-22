@@ -16,6 +16,8 @@ import {
     getPaypalWebhookId,
 } from "@modules/filesystem"
 import type {
+    CapturePaypalOrderParams,
+    CapturePaypalOrderResult,
     CreatePaypalOrderParams,
     CreatePaypalOrderResult,
     PaypalLink,
@@ -128,6 +130,84 @@ export class PaypalClient {
             status: String(response.data.status),
             referenceId: purchaseUnits[0]?.custom_id,
         }
+    }
+
+    /**
+     * Capture the funds of an APPROVED order. With `intent: CAPTURE`, buyer
+     * approval alone does NOT move money — the funds are only taken when this
+     * capture call runs. Treats an already-captured order (PayPal 422
+     * `ORDER_ALREADY_CAPTURED`) as a success so retries/webhook+reconcile races
+     * are idempotent.
+     *
+     * @param params - The PayPal order id to capture
+     * @returns The order id, post-capture status, reference id, and a `captured` flag
+     */
+    async captureOrder({
+        orderId,
+    }: CapturePaypalOrderParams): Promise<CapturePaypalOrderResult> {
+        // authenticate the capture with a bearer token
+        const accessToken = await this.getAccessToken()
+        try {
+            // POST capture; PayPal moves the funds and returns the COMPLETED order
+            const response = await this.http().post(
+                `/v2/checkout/orders/${orderId}/capture`,
+                {
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        "Content-Type": "application/json",
+                    },
+                },
+            )
+            const status = String(response.data.status)
+            const purchaseUnits = (response.data.purchase_units ?? []) as Array<PaypalPurchaseUnit>
+            return {
+                id: String(response.data.id),
+                status,
+                referenceId: purchaseUnits[0]?.custom_id,
+                captured: status === "COMPLETED",
+            }
+        } catch (error) {
+            // an already-captured order is not a failure — the money is in
+            const issue = this.extractPaypalIssue(error)
+            if (issue === "ORDER_ALREADY_CAPTURED") {
+                // recover the authoritative status + reference id via the detail API
+                const detail = await this.retrieveOrder({
+                    orderId,
+                })
+                return {
+                    id: detail.id,
+                    status: detail.status,
+                    referenceId: detail.referenceId,
+                    captured: true,
+                }
+            }
+            // any other failure is a real capture failure → propagate
+            throw error
+        }
+    }
+
+    /**
+     * Pull the first PayPal error `issue` code out of an axios error body
+     * (`details[0].issue`), or undefined when the shape does not match.
+     *
+     * @param error - The thrown axios error
+     * @returns The PayPal issue code, if present
+     */
+    private extractPaypalIssue(
+        error: unknown,
+    ): string | undefined {
+        const data = (error as {
+            response?: {
+                data?: {
+                    details?: Array<{
+                        issue?: string
+                    }>
+                }
+            }
+        })?.response?.data
+        return data?.details?.[0]?.issue
     }
 
     /**

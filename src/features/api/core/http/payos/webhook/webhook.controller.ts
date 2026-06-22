@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    Logger,
     Post,
     UseInterceptors,
 } from "@nestjs/common"
@@ -31,6 +32,8 @@ import {
     },
 )
 export class PayosWebhookController {
+    private readonly logger = new Logger(PayosWebhookController.name)
+
     constructor(
         private readonly payosWebhookService: PayosWebhookService,
     ) {}
@@ -55,6 +58,9 @@ export class PayosWebhookController {
         @Body()
             body: PayosWebhookRequest,
     ) {
+        this.logger.log(
+            `🔔 [PayOS] webhook received @ ${new Date().toISOString()} :: ${JSON.stringify(body)}`,
+        )
         return this.payosWebhookService.execute(body)
     }
 }

@@ -1,6 +1,7 @@
 import {
     Controller,
     Headers,
+    Logger,
     Post,
     RawBodyRequest,
     Req,
@@ -34,6 +35,8 @@ import {
     },
 )
 export class StripeWebhookController {
+    private readonly logger = new Logger(StripeWebhookController.name)
+
     constructor(
         private readonly stripeWebhookService: StripeWebhookService,
     ) {}
@@ -60,6 +63,9 @@ export class StripeWebhookController {
         @Headers("stripe-signature")
             signature: string,
     ) {
+        this.logger.log(
+            `🔔 [Stripe] webhook received @ ${new Date().toISOString()} :: rawBody=${request.rawBody?.length ?? 0}B sig=${signature ? "present" : "MISSING"}`,
+        )
         // hand the raw body + signature to the service for verification + grant
         return this.stripeWebhookService.execute({
             // rawBody is populated because the app boots with `rawBody: true`
