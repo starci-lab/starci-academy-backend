@@ -6,7 +6,6 @@ import {
     In,
 } from "typeorm"
 import {
-    EnrollmentEntity,
     FlashcardCardEntity,
     FlashcardDeckEntity,
     FlashcardDeckResolverService,
@@ -45,9 +44,9 @@ const EASE_FLOOR = 1.3
 
 /**
  * Spaced-repetition (SM-2) read + write for flashcards. {@link listDue} serves
- * the viewer's due-card queue (no review row yet OR past its `dueAt`) across the
- * decks of their ENROLLED courses, localized; {@link review} applies an SM-2
- * grade and upserts the per-(user, card) review row.
+ * the viewer's due-card queue (no review row yet OR past its `dueAt`) across all
+ * decks — enrollment is NOT required, so trial viewers can review too; {@link review}
+ * applies an SM-2 grade and upserts the per-(user, card) review row.
  */
 @Injectable()
 export class FlashcardReviewService {
@@ -73,23 +72,15 @@ export class FlashcardReviewService {
             locale,
         }: ListDueFlashcardsParams,
     ): Promise<DueFlashcardsResult> {
-        // build the shared "due cards in my enrolled decks" query: card → deck,
-        // deck.course must be one the user is enrolled in, and either no review
-        // row exists for this user or it is past due
+        // build the shared "due cards" query: card → deck, and either no review row
+        // exists for this user or it is past due. Enrollment is NOT required — trial
+        // (non-enrolled) viewers can review flashcards too, so there is no enrollment join.
         const baseQuery = this.entityManager
             .createQueryBuilder(FlashcardCardEntity,
                 "card")
             .innerJoin(FlashcardDeckEntity,
                 "deck",
                 "deck.id = card.flashcard_deck_id")
-            .innerJoin(
-                EnrollmentEntity,
-                "enrollment",
-                "enrollment.course_id = deck.course_id AND enrollment.user_id = :userId",
-                {
-                    userId,
-                },
-            )
             .leftJoin(
                 UserFlashcardReviewEntity,
                 "review",

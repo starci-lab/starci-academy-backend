@@ -50,7 +50,7 @@ describe("KeyRotatorService",
         let module: TestingModule
         let service: KeyRotatorService
         let keyStoreService: jest.Mocked<Pick<KeyStoreService, "getPool">>
-        let aiPingCacheService: jest.Mocked<Pick<AiPingCacheService, "getProviderMap">>
+        let aiPingCacheService: jest.Mocked<Pick<AiPingCacheService, "getProviderMap" | "recordKeyPicked">>
         let redis: {
             incr: jest.Mock
             del: jest.Mock
@@ -70,7 +70,8 @@ describe("KeyRotatorService",
             aiPingCacheService = {
                 getProviderMap: jest.fn(async () => ({
                 })),
-            } as unknown as jest.Mocked<Pick<AiPingCacheService, "getProviderMap">>
+                recordKeyPicked: jest.fn(async () => undefined),
+            } as unknown as jest.Mocked<Pick<AiPingCacheService, "getProviderMap" | "recordKeyPicked">>
 
             // redis counter starts at 1 on the first INCR
             redis = {
@@ -112,28 +113,65 @@ describe("KeyRotatorService",
 
         describe("next",
             () => {
-                it("rotates round-robin across eligible keys by counter",
+                it("prefers the eligible key with fewer recent failures",
                     async () => {
-                        // counter 1 → index 0 (first key)
-                        redis.incr.mockResolvedValueOnce(1)
-                        const first = await service.next({
-                            provider: ModelProvider.OpenAI,
+                        aiPingCacheService.getProviderMap.mockResolvedValueOnce({
+                            "sk-aaaa": {
+                                status: true,
+                                lastPing: new Date().toISOString(),
+                                failCount: 3,
+                            },
+                            "sk-bbbb": {
+                                status: true,
+                                lastPing: new Date().toISOString(),
+                                failCount: 0,
+                            },
                         })
-                        expect(first.state.keySuffix).toBe("aaaa")
 
-                        // counter 2 → index 1 (second key)
-                        redis.incr.mockResolvedValueOnce(2)
-                        const second = await service.next({
+                        const result = await service.next({
                             provider: ModelProvider.OpenAI,
                         })
-                        expect(second.state.keySuffix).toBe("bbbb")
 
-                        // counter 3 wraps modulo pool size → back to index 0
-                        redis.incr.mockResolvedValueOnce(3)
-                        const third = await service.next({
+                        // bbbb has the lower failCount → picked
+                        expect(result.state.keySuffix).toBe("bbbb")
+                    })
+
+                it("breaks failCount ties by least-recently-used",
+                    async () => {
+                        const older = new Date(Date.now() - 60_000).toISOString()
+                        const newer = new Date().toISOString()
+                        aiPingCacheService.getProviderMap.mockResolvedValueOnce({
+                            "sk-aaaa": {
+                                status: true,
+                                lastPing: newer,
+                                lastUsedAt: newer,
+                            },
+                            "sk-bbbb": {
+                                status: true,
+                                lastPing: older,
+                                lastUsedAt: older,
+                            },
+                        })
+
+                        const result = await service.next({
                             provider: ModelProvider.OpenAI,
                         })
-                        expect(third.state.keySuffix).toBe("aaaa")
+
+                        // bbbb was used longer ago → picked
+                        expect(result.state.keySuffix).toBe("bbbb")
+                    })
+
+                it("persists the pick time in Redis (shared LRU)",
+                    async () => {
+                        await service.next({
+                            provider: ModelProvider.OpenAI,
+                        })
+
+                        expect(aiPingCacheService.recordKeyPicked).toHaveBeenCalledWith(
+                            expect.objectContaining({
+                                provider: ModelProvider.OpenAI,
+                            }),
+                        )
                     })
 
                 it("skips keys marked unhealthy in the ping cache",
@@ -143,6 +181,7 @@ describe("KeyRotatorService",
                             "sk-aaaa": {
                                 status: false,
                                 lastPing: new Date().toISOString(),
+                                cooldownUntil: new Date(Date.now() + 60_000).toISOString(),
                             },
                         })
                         redis.incr.mockResolvedValueOnce(1)
@@ -176,10 +215,12 @@ describe("KeyRotatorService",
                             "sk-aaaa": {
                                 status: false,
                                 lastPing: new Date().toISOString(),
+                                cooldownUntil: new Date(Date.now() + 60_000).toISOString(),
                             },
                             "sk-bbbb": {
                                 status: false,
                                 lastPing: new Date().toISOString(),
+                                cooldownUntil: new Date(Date.now() + 60_000).toISOString(),
                             },
                         })
 

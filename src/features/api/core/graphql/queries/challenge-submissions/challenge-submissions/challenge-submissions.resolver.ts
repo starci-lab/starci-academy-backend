@@ -32,10 +32,6 @@ import {
 import {
     ChallengeSubmissionsService,
 } from "./challenge-submissions.service"
-import {
-    GraphQLMustEnrolledGuard,
-} from "@modules/bussiness"
-
 @Resolver()
 export class ChallengeSubmissionsResolver {
     constructor(
@@ -49,7 +45,6 @@ export class ChallengeSubmissionsResolver {
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,
-        GraphQLMustEnrolledGuard,
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

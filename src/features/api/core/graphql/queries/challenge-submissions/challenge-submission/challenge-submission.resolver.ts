@@ -30,10 +30,6 @@ import {
 import {
     KeycloakAuthGraphQLGuard,
 } from "@modules/keycloak"
-import {
-    GraphQLMustEnrolledGuard,
-} from "@modules/bussiness"
-
 /**
  * Resolver for challenge submissions.
  */
@@ -56,7 +52,6 @@ export class ChallengeSubmissionResolver {
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,
-        GraphQLMustEnrolledGuard,
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(

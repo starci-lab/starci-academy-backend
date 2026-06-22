@@ -24,9 +24,6 @@ import {
     KeycloakGraphQLUser,
 } from "@modules/keycloak"
 import {
-    GraphQLMustEnrolledGuard,
-} from "@modules/bussiness"
-import {
     CommentNodeObject,
 } from "../../../shared/discussion"
 import {
@@ -53,7 +50,6 @@ export class UpdateCommentResolver {
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,
-        GraphQLMustEnrolledGuard,
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

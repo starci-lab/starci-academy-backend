@@ -38,8 +38,11 @@ import {
     ContextLoggerService 
 } from "@modules/logger"
 import {
-    SwaggerAuthenticationType 
+    SwaggerAuthenticationType
 } from "@modules/docs"
+import {
+    ResponseDelayInterceptor
+} from "@modules/api/interceptors"
 
 const bootstrap = async () => {
     const app = await NestFactory.create<NestExpressApplication>(
@@ -76,6 +79,9 @@ const bootstrap = async () => {
         enableVersioning: true,
     })
     app.use(compression())
+    // dev-only artificial latency so the FE can exercise loading/skeleton states;
+    // self-gated (off in production / unless API_RESPONSE_DELAY_ENABLE=true)
+    app.useGlobalInterceptors(new ResponseDelayInterceptor())
     const redis = app.get<RedisClient>(
         createRedisKey(RedisInstanceKey.Adapter), 
         {

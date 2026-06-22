@@ -31,10 +31,6 @@ import {
     KeycloakAuthGraphQLGuard,
     KeycloakGraphQLUser,
 } from "@modules/keycloak"
-import {
-    GraphQLMustEnrolledGuard,
-} from "@modules/bussiness"
-
 @Resolver()
 export class MarkAsReadedResolver {
     constructor(
@@ -51,7 +47,6 @@ export class MarkAsReadedResolver {
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,
-        GraphQLMustEnrolledGuard,
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

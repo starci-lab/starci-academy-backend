@@ -139,6 +139,25 @@ export class FlashcardCardEntity extends UuidAbstractEntity {
         sortIndex: number
 
     /**
+     * Whether this card is premium (locked behind course enrollment). The first
+     * ~20% of each deck's cards are free; the rest are premium. On a per-viewer
+     * query this flag means "locked for you" (the answer is withheld unless the
+     * viewer is entitled), mirroring the content paywall.
+     */
+    @Field(
+        () => Boolean,
+        {
+            description: "Whether this card is premium (locked behind enrollment). On a per-viewer query: locked for you.",
+        },
+    )
+    @Column({
+        name: "is_premium",
+        type: "boolean",
+        default: false,
+    })
+        isPremium: boolean
+
+    /**
      * Default locale for this card row.
      */
     @Field(

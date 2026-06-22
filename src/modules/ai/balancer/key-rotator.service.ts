@@ -1,5 +1,6 @@
 import {
     AiPingCacheService,
+    isPingEntryEligible,
 } from "@modules/cache"
 import {
     Injectable,
@@ -58,10 +59,10 @@ export class KeyRotatorService {
         const pool = this.keyStoreService.getPool(provider)
         const providerCache = await this.aiPingCacheService.getProviderMap(provider)
 
-        const eligibleKeys = pool.filter((key) => {
-            const cached = providerCache[key.value]
-            return cached === undefined || cached.status === true
-        })
+        const now = new Date()
+        const eligibleKeys = pool.filter(
+            (key) => isPingEntryEligible(providerCache[key.value], now),
+        )
 
         if (eligibleKeys.length === 0) {
             this.winstonService.log(
@@ -77,10 +78,31 @@ export class KeyRotatorService {
             })
         }
 
-        const counter = await this.redis.incr(this.counterKey(provider))
-        const index = (counter - 1) % eligibleKeys.length
-        const picked = eligibleKeys[index]
-        picked.lastUsedAt = new Date()
+        // health-weighted least-recently-used: prefer the key with the fewest
+        // recent failures, then the one used longest ago (lastUsedAt persisted in
+        // Redis → load spreads evenly across instances), keySuffix as a stable
+        // tiebreak. Replaces the old global round-robin counter.
+        const picked = [...eligibleKeys].sort((a, b) => {
+            const entryA = providerCache[a.value]
+            const entryB = providerCache[b.value]
+            const failA = entryA?.failCount ?? 0
+            const failB = entryB?.failCount ?? 0
+            if (failA !== failB) {
+                return failA - failB
+            }
+            const usedA = entryA?.lastUsedAt ? Date.parse(entryA.lastUsedAt) : 0
+            const usedB = entryB?.lastUsedAt ? Date.parse(entryB.lastUsedAt) : 0
+            if (usedA !== usedB) {
+                return usedA - usedB
+            }
+            return a.keySuffix.localeCompare(b.keySuffix)
+        })[0]
+        picked.lastUsedAt = now
+        // persist the pick time in Redis so LRU is shared across instances
+        await this.aiPingCacheService.recordKeyPicked({
+            provider,
+            key: picked.value,
+        })
 
         this.winstonService.log(
             WinstonLog.AiBalancerKeyPicked,

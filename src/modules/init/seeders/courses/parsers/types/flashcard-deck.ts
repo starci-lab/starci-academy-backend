@@ -69,6 +69,8 @@ export interface RawFlashcardCard {
     answer?: string
     /** Optional extra depth (Markdown). */
     explanation?: string
+    /** Whether this card is premium (`# isPremium`), false by default. */
+    isPremium?: boolean
     /** Index signature so the markdown→JSON extractor generic is satisfied. */
     [key: string]: unknown
 }

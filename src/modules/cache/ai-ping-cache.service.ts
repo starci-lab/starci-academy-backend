@@ -14,6 +14,7 @@ import {
 import type {
     AiPingKeyStatusMap,
     ProviderPingKeyStatusMap,
+    RecordKeyCooldownParams,
     RecordPingKeyStatusParams,
 } from "./types"
 import {
@@ -28,6 +29,11 @@ import {
  */
 @Injectable()
 export class AiPingCacheService implements OnModuleInit {
+    /** Cooldown (ms) for a failed background ping / generic transient failure. */
+    private static readonly PING_FAIL_COOLDOWN_MS = 30_000
+    /** Effective cooldown (ms) for a hard-disabled key (≈ until next reload). */
+    private static readonly DISABLED_COOLDOWN_MS = 24 * 60 * 60 * 1000
+
     constructor(
         private readonly cacheService: CacheService,
         private readonly dayjsService: DayjsService,
@@ -49,12 +55,40 @@ export class AiPingCacheService implements OnModuleInit {
         key,
         success,
     }: RecordPingKeyStatusParams): Promise<void> {
+        if (success) {
+            await this.recordKeySuccess({
+                provider,
+                key,
+            })
+            return
+        }
+        // a failed background ping = short transient cooldown (self-heals)
+        await this.recordKeyCooldown({
+            provider,
+            key,
+            cooldownMs: AiPingCacheService.PING_FAIL_COOLDOWN_MS,
+        })
+    }
+
+    /**
+     * Mark a key healthy again: status true, with cooldown / disabled / failCount
+     * all cleared. Called on a successful call or ping.
+     */
+    async recordKeySuccess({
+        provider,
+        key,
+    }: {
+        provider: ModelProvider
+        key: string
+    }): Promise<void> {
         const map = await this.getOrCreateMap()
         const providerMap = map[provider] ?? {
         }
         providerMap[key] = {
-            status: success,
+            status: true,
             lastPing: this.dayjsService.now().toISOString(),
+            // keep the LRU stamp; success clears health, not pick history
+            lastUsedAt: providerMap[key]?.lastUsedAt,
         }
         map[provider] = providerMap
         await this.cacheService.set({
@@ -62,6 +96,74 @@ export class AiPingCacheService implements OnModuleInit {
             cacheResult: map,
         })
     }
+
+    /**
+     * Put a key on cooldown (or hard-disable) after a classified failure. While
+     * on cooldown the key is ineligible ({@link isEligible}) and auto-recovers
+     * once the window passes; `disabled` keeps it out until the pool reloads.
+     */
+    async recordKeyCooldown({
+        provider,
+        key,
+        cooldownMs,
+        disabled,
+    }: RecordKeyCooldownParams): Promise<void> {
+        const map = await this.getOrCreateMap()
+        const providerMap = map[provider] ?? {
+        }
+        const previous = providerMap[key]
+        const now = this.dayjsService.now()
+        const effectiveMs = disabled
+            ? AiPingCacheService.DISABLED_COOLDOWN_MS
+            : cooldownMs
+        providerMap[key] = {
+            status: false,
+            lastPing: now.toISOString(),
+            failCount: (previous?.failCount ?? 0) + 1,
+            cooldownUntil: now.add(effectiveMs, "millisecond").toISOString(),
+            disabled: disabled ?? previous?.disabled,
+            lastUsedAt: previous?.lastUsedAt,
+        }
+        map[provider] = providerMap
+        await this.cacheService.set({
+            key: CacheKey.AiPingKeyStatus,
+            cacheResult: map,
+        })
+    }
+
+    /**
+     * Stamp a key as just-picked — updates only `lastUsedAt`, preserving health
+     * (cooldown / disabled / failCount). Persisting the pick time in Redis lets
+     * the rotator spread load least-recently-used across every instance (the C/D
+     * of the balancer rotation design).
+     */
+    async recordKeyPicked({
+        provider,
+        key,
+    }: {
+        provider: ModelProvider
+        key: string
+    }): Promise<void> {
+        const map = await this.getOrCreateMap()
+        const providerMap = map[provider] ?? {
+        }
+        const previous = providerMap[key]
+        const now = this.dayjsService.now().toISOString()
+        providerMap[key] = {
+            status: previous?.status ?? true,
+            lastPing: previous?.lastPing ?? now,
+            cooldownUntil: previous?.cooldownUntil,
+            failCount: previous?.failCount,
+            disabled: previous?.disabled,
+            lastUsedAt: now,
+        }
+        map[provider] = providerMap
+        await this.cacheService.set({
+            key: CacheKey.AiPingKeyStatus,
+            cacheResult: map,
+        })
+    }
+
 
     /**
      * Read the full provider → key → status map from Redis.

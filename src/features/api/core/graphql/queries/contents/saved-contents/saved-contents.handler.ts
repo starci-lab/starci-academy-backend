@@ -62,7 +62,15 @@ export class SavedContentsHandler
                     userId: user.id,
                     isFavorite: true,
                 },
-                relations: ["content"],
+                // load the owning module → course so the client can group saved
+                // contents by course ("Đã lưu" grouped, like the learning-history page)
+                relations: {
+                    content: {
+                        module: {
+                            course: true,
+                        },
+                    },
+                },
                 order: {
                     createdAt: "DESC",
                 },

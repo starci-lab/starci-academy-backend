@@ -25,9 +25,6 @@ import {
     UserEntity,
 } from "@modules/databases"
 import {
-    GraphQLMustEnrolledGuard,
-} from "@modules/bussiness"
-import {
     SubmitEvalChallengeInput,
     SubmitEvalChallengeResponse,
 } from "./graphql-types"
@@ -57,7 +54,6 @@ export class SubmitEvalChallengeResolver {
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,
-        GraphQLMustEnrolledGuard,
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

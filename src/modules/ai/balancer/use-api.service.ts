@@ -1,5 +1,6 @@
 import {
     AiPingCacheService,
+    isPingEntryEligible,
 } from "@modules/cache"
 import {
     AiMode,
@@ -29,6 +30,13 @@ import {
 import {
     KeyStoreService,
 } from "./key-store.service"
+import {
+    AiErrorKind,
+} from "./enums"
+import {
+    classifyAiError,
+    extractRetryAfterMs,
+} from "./utils/classify-ai-error"
 import type {
     AcquireKeyResult,
     ClaudeApiKey,
@@ -154,6 +162,10 @@ export class UseApiService {
                     }
 
                     lastError = outcome.error
+                    // prompt/content/abort fault — another key won't help, surface now
+                    if (outcome.kind === AiErrorKind.NonKey) {
+                        throw outcome.error
+                    }
                 }
             }
 
@@ -234,6 +246,10 @@ export class UseApiService {
             }
 
             lastError = outcome.error
+            // prompt/content/abort fault — another key won't help, surface now
+            if (outcome.kind === AiErrorKind.NonKey) {
+                throw outcome.error
+            }
         }
 
         throw lastError ?? new NoActiveBalancerKeyException({
@@ -281,7 +297,7 @@ export class UseApiService {
         action: UseApiAction<TResult>
     }): Promise<
         | { ok: true, result: TResult }
-        | { ok: false, error: Error }
+        | { ok: false, error: Error, kind: AiErrorKind }
     > {
         try {
             const context = this.buildContext(
@@ -290,10 +306,9 @@ export class UseApiService {
                 model,
             )
             const result = await action(context)
-            await this.aiPingCacheService.recordPingKeyStatus({
+            await this.aiPingCacheService.recordKeySuccess({
                 provider,
                 key,
-                success: true,
             })
             return {
                 ok: true,
@@ -301,28 +316,72 @@ export class UseApiService {
             }
         } catch (err) {
             const error = err instanceof Error ? err : new Error(String(err))
-            await this.aiPingCacheService.recordPingKeyStatus({
-                provider,
-                key,
-                success: false,
-            })
+            const kind = classifyAiError(error)
+            // a non-key fault (prompt / content / abort) must NOT penalize the
+            // key — and the caller stops retrying (other keys would fail too)
+            if (kind !== AiErrorKind.NonKey) {
+                // honor the provider's Retry-After on 429, else the class default
+                const cooldownMs = kind === AiErrorKind.RateLimit
+                    ? (extractRetryAfterMs(error) ?? this.cooldownMsFor(kind))
+                    : this.cooldownMsFor(kind)
+                await this.aiPingCacheService.recordKeyCooldown({
+                    provider,
+                    key,
+                    cooldownMs,
+                    disabled: kind === AiErrorKind.Auth,
+                })
+            }
             return {
                 ok: false,
                 error,
+                kind,
             }
         }
     }
 
     /**
-     * Count mount keys that are not marked unhealthy in Redis.
+     * Cooldown window per error class. Auth uses the `disabled` flag instead, so
+     * its numeric value is unused (0); rate-limit waits longer than a transient blip.
+     */
+    private cooldownMsFor(kind: AiErrorKind): number {
+        switch (kind) {
+        case AiErrorKind.RateLimit:
+            return 60_000
+        case AiErrorKind.Auth:
+            return 0
+        default:
+            return 20_000
+        }
+    }
+
+    /**
+     * Providers that currently have at least one eligible (healthy) key. Drives
+     * the model picker's "locked" state: a model whose provider is absent here
+     * has no working key in the pool and is rendered locked (not selectable),
+     * rather than failing only at call time with {@link NoActiveBalancerKeyException}.
+     */
+    async availableProviders(): Promise<Set<ModelProvider>> {
+        await this.keyStoreService.ensureLoaded()
+        const usable = new Set<ModelProvider>()
+        for (const { provider } of this.keyStoreService.listProviders()) {
+            if ((await this.countEligibleKeys(provider)) > 0) {
+                usable.add(provider)
+            }
+        }
+        return usable
+    }
+
+    /**
+     * Count pool keys that are eligible right now — not hard-disabled and not
+     * within their cooldown window (see {@link isPingEntryEligible}).
      */
     private async countEligibleKeys(provider: ModelProvider): Promise<number> {
         const pool = this.keyStoreService.getPool(provider)
         const providerCache = await this.aiPingCacheService.getProviderMap(provider)
-        return pool.filter((key) => {
-            const cached = providerCache[key.value]
-            return cached === undefined || cached.status === true
-        }).length
+        const now = new Date()
+        return pool.filter(
+            (key) => isPingEntryEligible(providerCache[key.value], now),
+        ).length
     }
 
     /**

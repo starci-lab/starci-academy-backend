@@ -9,6 +9,7 @@ import {
     AiTaskModelService,
     AiTaskKind,
     ModelRecommendation,
+    UseApiService,
 } from "@modules/ai"
 import type {
     AiModelsResponseData,
@@ -21,6 +22,7 @@ export class AiModelsHandler {
     constructor(
         private readonly aiTaskModelService: AiTaskModelService,
         private readonly modelCatalog: AiModelCatalogService,
+        private readonly useApiService: UseApiService,
     ) {}
 
     async execute(): Promise<AiModelsResponseData> {
@@ -58,11 +60,15 @@ export class AiModelsHandler {
         ]
 
         const enabled = await this.modelCatalog.enabledModels()
+        // providers whose key pool still has a healthy key — a model whose
+        // provider is missing here is rendered locked in the picker (no key)
+        const usableProviders = await this.useApiService.availableProviders()
         const gradableModels: Array<AiGradableModelData> = enabled.map((model) => ({
             model: model.name,
             provider: model.provider,
             category: model.category,
             complimentary: model.complimentary,
+            available: usableProviders.has(model.provider),
         }))
 
         return {

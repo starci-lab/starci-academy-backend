@@ -103,9 +103,10 @@ export class MyCourseOutlineHandler
             })
         }
 
-        // 1. require an enrollment for this (user, course) pair; the enrollment id is
-        // the key both progress services are scoped by, and the course relation gives
-        // us the displayId needed to read the S3-sourced course tree
+        // 1. enrollment is OPTIONAL. A non-enrolled viewer "trying free" (the course.tryLearning
+        // CTA → /learn/content) gets the outline as a READ-ONLY preview: empty progress, with
+        // premium modules/lessons still flagged (isPremium) so the client locks them. The two
+        // progress services are scoped by enrollment id, so they're skipped without an enrollment.
         const enrollment = await this.entityManager.findOne(
             EnrollmentEntity,
             {
@@ -124,11 +125,27 @@ export class MyCourseOutlineHandler
                 },
             },
         )
-        if (!enrollment) {
-            // surface a typed exception so callers can branch on the stable code.
-            // "not enrolled" is an expected authorization outcome (not a server fault) and the
-            // client SWR retries it every few seconds — log at WARN without a stack so it stays a
-            // single breadcrumb line instead of an error-level stack-trace wall on every poll.
+
+        // the course displayId drives the S3-sourced tree read: from the enrollment's course
+        // relation when enrolled, else a direct course lookup for the preview viewer.
+        const previewCourse = enrollment
+            ? null
+            : await this.entityManager.findOne(
+                CourseEntity,
+                {
+                    where: {
+                        id: courseId,
+                    },
+                    select: {
+                        id: true,
+                        displayId: true,
+                    },
+                },
+            )
+        const displayId = enrollment?.course.displayId ?? previewCourse?.displayId
+        if (!displayId) {
+            // neither enrolled nor a resolvable course → not-found (stable code, WARN-only since
+            // the client SWR retries this every few seconds).
             const exception = new EnrollmentNotFoundException({
                 userId: user.id,
                 courseId,
@@ -143,7 +160,7 @@ export class MyCourseOutlineHandler
             new CourseQuery({
                 request: {
                     id: courseId,
-                    displayId: enrollment.course.displayId,
+                    displayId,
                 },
                 locale: locale ?? Locale.En,
                 user,
@@ -166,28 +183,36 @@ export class MyCourseOutlineHandler
         )
         const milestoneRows = milestonesResult.data
 
-        // 4. per-challenge progress, keyed by challenge id for O(1) overlay lookups
-        const challengeProgress = await this.challengeProgressService.getProgress({
-            enrollmentId: enrollment.id,
-            courseId,
-        })
-        const challengeProgressById: ChallengeProgressLookup = new Map(
-            challengeProgress.completionTasks.map(
-                (task) => [task.id, task],
-            ),
-        )
+        // 4+5. progress overlays come from the two enrollment-scoped services. A preview
+        // (non-enrolled) viewer has no enrollment id → empty progress (everything reads as
+        // not-started) and the current-task pointer falls back to the first lesson.
+        let challengeProgressById: ChallengeProgressLookup = new Map()
+        let taskProgressById: TaskProgressLookup = new Map()
+        let currentTaskProgress: MilestoneTaskProgressItem | null = null
+        if (enrollment) {
+            // per-challenge progress, keyed by challenge id for O(1) overlay lookups
+            const challengeProgress = await this.challengeProgressService.getProgress({
+                enrollmentId: enrollment.id,
+                courseId,
+            })
+            challengeProgressById = new Map(
+                challengeProgress.completionTasks.map(
+                    (task) => [task.id, task],
+                ),
+            )
 
-        // 5. per-capstone-task progress + the first uncompleted task (currentTask),
-        // keyed by task id for O(1) overlay lookups
-        const taskProgress = await this.personalProjectProgressService.getProgress({
-            enrollmentId: enrollment.id,
-            courseId,
-        })
-        const taskProgressById: TaskProgressLookup = new Map(
-            taskProgress.completionTasks.map(
-                (task) => [task.id, task],
-            ),
-        )
+            // per-capstone-task progress + the first uncompleted task (currentTask)
+            const taskProgress = await this.personalProjectProgressService.getProgress({
+                enrollmentId: enrollment.id,
+                courseId,
+            })
+            taskProgressById = new Map(
+                taskProgress.completionTasks.map(
+                    (task) => [task.id, task],
+                ),
+            )
+            currentTaskProgress = taskProgress.currentTask
+        }
 
         // 6. lesson read flags: every UserContent row the viewer owns under this
         // course; only rows flagged isRead count as read
@@ -238,7 +263,7 @@ export class MyCourseOutlineHandler
         // 9. current task: prefer the first uncompleted capstone task, else the first
         // unread lesson, else null when everything is done
         const currentTask = this.resolveCurrentTask(
-            taskProgress.currentTask,
+            currentTaskProgress,
             milestoneRows,
             modules,
         )

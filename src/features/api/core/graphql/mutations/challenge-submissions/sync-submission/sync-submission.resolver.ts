@@ -25,9 +25,6 @@ import {
     UserEntity,
 } from "@modules/databases"
 import {
-    GraphQLMustEnrolledGuard,
-} from "@modules/bussiness"
-import {
     SyncSubmissionRequest,
     SyncSubmissionResponse,
 } from "./graphql-types"
@@ -58,7 +55,6 @@ export class SyncSubmissionResolver {
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,
-        GraphQLMustEnrolledGuard,
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

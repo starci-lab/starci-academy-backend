@@ -114,6 +114,14 @@ export class AiGradableModelData {
         },
     )
         complimentary: boolean
+
+    @Field(
+        () => Boolean,
+        {
+            description: "Whether the model's provider pool has a working key right now; false → render locked (not selectable).",
+        },
+    )
+        available: boolean
 }
 
 @ObjectType({

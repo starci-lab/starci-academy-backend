@@ -24,9 +24,6 @@ import {
     KeycloakGraphQLUser,
 } from "@modules/keycloak"
 import {
-    GraphQLMustEnrolledGuard,
-} from "@modules/bussiness"
-import {
     DeletedCommentObject,
 } from "../../../shared/discussion"
 import {
@@ -53,7 +50,6 @@ export class DeleteCommentResolver {
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,
-        GraphQLMustEnrolledGuard,
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

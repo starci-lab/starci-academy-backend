@@ -50,12 +50,23 @@ MODULES.forEach((m, i) => { ((lists[i] && lists[i].lessons) || []).forEach((l) =
 log('Fast refactor M13-M19: ' + tasks.length + ' lesson (parallel Sonnet)')
 
 phase('Refactor')
-const res = await parallel(tasks.map((t) => () =>
-  agent(prompt(t.mod, t.lesson), { label: 'fast:' + t.mod.split('-')[0] + ':' + t.lesson, phase: 'Refactor', model: 'sonnet', schema: RES_SCHEMA })))
+// GENTLE: chay TUNG MODULE mot (lessons cua module do parallel ~4-5 agent), KHONG bung het 1 luc.
+// Tranh hammer API dang overload (529). Module 529 thi chi batch nho fail, retry de.
+const res = []
+for (const m of MODULES) {
+  const mt = tasks.filter((t) => t.mod === m)
+  const r = await parallel(mt.map((t) => () =>
+    agent(prompt(t.mod, t.lesson), { label: 'fast:' + t.mod.split('-')[0] + ':' + t.lesson, phase: 'Refactor', model: 'sonnet', schema: RES_SCHEMA })))
+  res.push(...r)
+  log('Module ' + m + ' xong (' + r.filter(Boolean).length + '/' + mt.length + ' lesson)')
+}
 
 phase('Gate')
-const gate = await parallel(MODULES.map((m) => () =>
-  agent('Gate module ' + m + ': powershell.exe -NoProfile -File "' + ABS + '" -Path "D:/Repositories/starci-academy-backend/' + BASE + '/' + m + '" -Json. Liet ke fails moi lesson; github-ref=pre-existing. Tra text tieng Viet.',
-    { label: 'gate:' + m.split('-')[0], phase: 'Gate', model: 'sonnet' })))
+const gate = []
+for (const m of MODULES) {
+  const g = await agent('Gate module ' + m + ': powershell.exe -NoProfile -File "' + ABS + '" -Path "D:/Repositories/starci-academy-backend/' + BASE + '/' + m + '" -Json. Liet ke fails moi lesson; github-ref=pre-existing. Tra text tieng Viet.',
+    { label: 'gate:' + m.split('-')[0], phase: 'Gate', model: 'sonnet' })
+  gate.push(g)
+}
 
 return { refactored: MODULES, lessons: tasks.length, results: res.filter(Boolean), gate }

@@ -47,7 +47,7 @@ describe("UseApiService",
         let aiModelCatalogService: jest.Mocked<Pick<AiModelCatalogService, "enabledModels">>
         let aiBalancerService: jest.Mocked<Pick<AiBalancerService, "acquire">>
         let aiPingCacheService: jest.Mocked<
-            Pick<AiPingCacheService, "getProviderMap" | "recordPingKeyStatus">
+            Pick<AiPingCacheService, "getProviderMap" | "recordKeySuccess" | "recordKeyCooldown">
         >
         let keyStoreService: jest.Mocked<Pick<KeyStoreService, "ensureLoaded" | "getPool">>
 
@@ -74,9 +74,10 @@ describe("UseApiService",
             aiPingCacheService = {
                 getProviderMap: jest.fn(async () => ({
                 })),
-                recordPingKeyStatus: jest.fn(async () => undefined),
+                recordKeySuccess: jest.fn(async () => undefined),
+                recordKeyCooldown: jest.fn(async () => undefined),
             } as unknown as jest.Mocked<
-                Pick<AiPingCacheService, "getProviderMap" | "recordPingKeyStatus">
+                Pick<AiPingCacheService, "getProviderMap" | "recordKeySuccess" | "recordKeyCooldown">
             >
 
             // store: one loaded key per provider
@@ -140,10 +141,10 @@ describe("UseApiService",
                             provider: ModelProvider.OpenAI,
                             attempts: 1,
                         })
-                        // success path records a healthy ping for the key
-                        expect(aiPingCacheService.recordPingKeyStatus).toHaveBeenCalledWith(
+                        // success path marks the key healthy (clears any cooldown)
+                        expect(aiPingCacheService.recordKeySuccess).toHaveBeenCalledWith(
                             expect.objectContaining({
-                                success: true,
+                                provider: ModelProvider.OpenAI,
                             }),
                         )
                     })
@@ -170,10 +171,10 @@ describe("UseApiService",
                                 },
                             }),
                         ).rejects.toBeInstanceOf(AllModelsExhaustedException)
-                        // each failed attempt mirrors a negative ping into the cache
-                        expect(aiPingCacheService.recordPingKeyStatus).toHaveBeenCalledWith(
+                        // each transient failure puts the key on cooldown
+                        expect(aiPingCacheService.recordKeyCooldown).toHaveBeenCalledWith(
                             expect.objectContaining({
-                                success: false,
+                                provider: ModelProvider.OpenAI,
                             }),
                         )
                     })
@@ -227,10 +228,12 @@ describe("UseApiService",
                             "sk-aaaa": {
                                 status: false,
                                 lastPing: new Date().toISOString(),
+                                cooldownUntil: new Date(Date.now() + 60_000).toISOString(),
                             },
                             "sk-bbbb": {
                                 status: false,
                                 lastPing: new Date().toISOString(),
+                                cooldownUntil: new Date(Date.now() + 60_000).toISOString(),
                             },
                         })
 
@@ -311,6 +314,7 @@ describe("UseApiService",
                             "sk-aaaa": {
                                 status: false,
                                 lastPing: new Date().toISOString(),
+                                cooldownUntil: new Date(Date.now() + 60_000).toISOString(),
                             },
                         })
 
@@ -360,7 +364,8 @@ describe("UseApiService",
                             attempts: 1,
                         })
                         expect(aiBalancerService.acquire).not.toHaveBeenCalled()
-                        expect(aiPingCacheService.recordPingKeyStatus).not.toHaveBeenCalled()
+                        expect(aiPingCacheService.recordKeySuccess).not.toHaveBeenCalled()
+                        expect(aiPingCacheService.recordKeyCooldown).not.toHaveBeenCalled()
                     })
 
                 it("propagates the action error without a pooled cache update",

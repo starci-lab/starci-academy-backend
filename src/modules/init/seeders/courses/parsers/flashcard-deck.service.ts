@@ -283,6 +283,8 @@ export class FlashcardDeckParserService {
                 explanation: this.coerceMdScalarService.toNullableStringColumn(merged.explanation),
                 level,
                 tags,
+                // `# isPremium` scalar → boolean, false when missing (first 20%/deck are free)
+                isPremium: this.coerceMdScalarService.toRequiredBoolean(merged.isPremium, false),
                 defaultLocale: Locale.En,
                 deck: {
                     id: flashcardDeckId,

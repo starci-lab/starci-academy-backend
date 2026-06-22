@@ -31,10 +31,6 @@ import {
     KeycloakAuthGraphQLGuard,
     KeycloakGraphQLUser,
 } from "@modules/keycloak"
-import {
-    GraphQLMustEnrolledGuard,
-} from "@modules/bussiness"
-
 @Resolver()
 export class ToggleFavouriteResolver {
     constructor(
@@ -51,7 +47,6 @@ export class ToggleFavouriteResolver {
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,
-        GraphQLMustEnrolledGuard,
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(

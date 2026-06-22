@@ -267,6 +267,23 @@ export const envConfig = () => ({
                 key: "API_ENABLE",
                 defaultValue: true,
             }),
+            /**
+             * Dev-only artificial response latency so the frontend can exercise its
+             * loading / skeleton states (real APIs are never instant). FORCED OFF in
+             * production. OFF by default — enable per-environment with
+             * `API_RESPONSE_DELAY_ENABLE=true`; tune the latency with
+             * `API_RESPONSE_DELAY_MS` (default 5000ms).
+             */
+            responseDelay: {
+                enable: parseEnvBoolean({
+                    key: "API_RESPONSE_DELAY_ENABLE",
+                    defaultValue: false,
+                }),
+                ms: parseEnvInt({
+                    key: "API_RESPONSE_DELAY_MS",
+                    defaultValue: 5000,
+                }),
+            },
             /** Transaction configuration. */
             transaction: {
                 timeSinceCreationMs: parseEnvMs({
