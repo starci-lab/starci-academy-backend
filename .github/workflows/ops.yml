@@ -1,0 +1,39 @@
+# VPS Ops — run an ad-hoc bash command on the self-hosted VPS runner and print its output.
+# This is how Claude (or anyone) debugs production WITHOUT SSH/password: the runner already
+# lives on the VPS and is authenticated, so a workflow_dispatch runs the command in place and
+# the output shows up in the Actions log (readable via `gh run view --log`).
+#
+# Trigger:  gh workflow run "VPS Ops" -f cmd='docker ps'
+#       or: repo -> Actions -> "VPS Ops" -> Run workflow -> paste command.
+#
+# SECURITY: this is effectively a remote shell on the VPS for anyone who can dispatch this
+# workflow (repo write access). It is auditable (every run is logged) but powerful — restrict
+# repo write access, and delete this workflow when no longer needed.
+name: VPS Ops
+
+on:
+  workflow_dispatch:
+    inputs:
+      cmd:
+        description: "Bash command to run on the VPS runner (output appears in the log)."
+        required: true
+        type: string
+
+jobs:
+  ops:
+    runs-on: self-hosted
+    steps:
+      - name: Run command on VPS
+        shell: bash
+        # Pass the input via env (NOT inline ${{ }}) to avoid script-injection.
+        env:
+          CMD: ${{ inputs.cmd }}
+        run: |
+          echo "::group::command"
+          printf '%s\n' "$CMD"
+          echo "::endgroup::"
+          set +e
+          bash -lc "$CMD"
+          code=$?
+          echo "---"
+          echo "exit_code=$code"

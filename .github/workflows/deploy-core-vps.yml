@@ -5,6 +5,13 @@ on:
   push:
     branches:
       - main
+    # Don't rebuild+redeploy for CI-workflow / docs / audit / scratch-only changes.
+    paths-ignore:
+      - ".github/**"
+      - "**.md"
+      - ".audits/**"
+      - ".claude/**"
+      - "scratch/**"
   workflow_dispatch:
 
 jobs:
