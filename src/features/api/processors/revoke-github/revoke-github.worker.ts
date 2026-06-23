@@ -78,7 +78,6 @@ export class RevokeGithubWorker extends WorkerHost {
             await this.jobActionService.processingJob(
                 {
                     job,
-                    emitChangeEvent: false,
                 },
             )
             payload = this.superJson.parse<EnqueueRevokeGithubPayload>(bullmqJob.data)
@@ -107,7 +106,6 @@ export class RevokeGithubWorker extends WorkerHost {
             await this.jobActionService.completeJob(
                 {
                     job,
-                    emitChangeEvent: false,
                 },
             )
             this.winstonService.log(

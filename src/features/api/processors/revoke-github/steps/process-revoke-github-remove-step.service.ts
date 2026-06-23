@@ -68,7 +68,6 @@ export class ProcessRevokeGithubRemoveStepService extends AbstractStepService<
                 {
                     job: context.job,
                     error: (error as Error).message,
-                    emitChangeEvent: false,
                 },
             )
             throw error

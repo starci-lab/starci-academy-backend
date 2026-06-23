@@ -68,7 +68,6 @@ export class ProcessResolveGithubUpdateUserStepService extends AbstractStepServi
                 {
                     job: context.job,
                     error: (error as Error).message,
-                    emitChangeEvent: false,
                 },
             )
             throw error
