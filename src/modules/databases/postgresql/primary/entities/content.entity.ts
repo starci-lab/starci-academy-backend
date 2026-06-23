@@ -390,12 +390,21 @@ export class ContentEntity extends UuidAbstractEntity {
     )
         outcomes: Array<ContentLearningOutcomeEntity>
 
-    @Column({
-        name: "num_challenges",
-        type: "int",
-        default: 0,
-    })
-        numChallenges: number
+    /**
+     * Number of challenges for this content — GraphQL FIELD ONLY (no DB column), derived LIVE
+     * from the loaded `challenges` relation so it is always accurate and reseed-safe. Returns 0
+     * when the relation is not loaded.
+     */
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Number of challenges, derived live from the challenges relation.",
+        },
+    )
+    get numChallenges(): number {
+        return this.challenges?.length ?? 0
+    }
 
     /**
      * Whether this content requires enrollment (premium content).

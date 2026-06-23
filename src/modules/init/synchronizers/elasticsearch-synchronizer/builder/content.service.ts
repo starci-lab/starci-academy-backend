@@ -65,6 +65,10 @@ export class ElasticsearchContentBuildService {
                     // generic indexer stores it while keeping the entity contract intact
                     entity: {
                         ...localizedContent,
+                        // derive the challenge count LIVE from the loaded relation. The denormalized
+                        // `num_challenges` column is not repopulated on reseed (stays stale / 0), so
+                        // counting the hydrated challenges here keeps the ES doc accurate + reseed-safe.
+                        numChallenges: localizedContent.challenges?.length ?? 0,
                         suggest,
                     } as unknown as ContentEntity,
                 }
