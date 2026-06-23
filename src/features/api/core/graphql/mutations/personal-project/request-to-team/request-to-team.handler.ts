@@ -38,7 +38,9 @@ export class RequestToTeamHandler {
             })
         }
 
-        await this.enqueueResolveGithubJobService.enqueue({
+        // enqueue the async invite job and hand its id back so the FE can subscribe
+        // to realtime status (/job_notifications room job:<id>) instead of blocking.
+        const job = await this.enqueueResolveGithubJobService.enqueue({
             userId: user.id,
             githubUsername: user.githubUsername,
             courseId: request.courseId,
@@ -46,6 +48,7 @@ export class RequestToTeamHandler {
 
         return {
             requested: true,
+            jobId: job.id,
         }
     }
 }

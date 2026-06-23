@@ -18,6 +18,15 @@ export class RequestToTeamData {
         },
     )
         requested: boolean
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Id of the enqueued resolve-github job — subscribe to /job_notifications room job:<id> for realtime status.",
+        },
+    )
+        jobId?: string
 }
 
 @ObjectType({
