@@ -98,6 +98,9 @@ services:
       BACKUP_ENCRYPT_PASSWORD: ${BACKUP_ENCRYPT_PASSWORD}
 
       GITHUB_OAUTH_REDIRECT_URI: ${GITHUB_OAUTH_REDIRECT_URI}
+
+      # OAuth client id of the prod GitHub App "StarCi Academy" (public, not a secret).
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
     volumes:
       - /root/academy/.mount:/usr/src/app/.mount
       # Versioned data-git snapshots (.datasources/<sha>/ + manifest.json) — its own

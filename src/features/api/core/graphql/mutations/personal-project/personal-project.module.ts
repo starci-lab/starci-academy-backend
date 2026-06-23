@@ -13,11 +13,17 @@ import {
 import {
     ReviewPersonalProjectTaskSingleMutationModule,
 } from "./review-personal-project-task"
+import {
+    RequestToTeamSingleMutationModule,
+} from "./request-to-team"
 
 @Module({
     imports: [
         SubmitPersonalGithubUrlSingleMutationModule.register({
             isGlobal: true
+        }),
+        RequestToTeamSingleMutationModule.register({
+            isGlobal: true,
         }),
         SyncPersonalProjectGithubSingleMutationModule.register({
             isGlobal: true,

@@ -1,0 +1,39 @@
+# Check Tokens — verify 3 GitHub token flows on the VPS (read-only, no SSH/password needed).
+# Trigger: GitHub repo -> Actions -> "Check Tokens" -> Run workflow.
+# Runs on the same self-hosted runner as deploy, reads the prod mount files in place,
+# tests each token against the GitHub API, prints a labelled result. Never prints a token.
+name: Check Tokens
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: self-hosted
+    steps:
+      - name: Verify token mount files against GitHub API
+        shell: bash
+        run: |
+          set +e
+          tf=/root/academy/.mount/terraform
+          lab(){ case "$1" in
+            200) echo OK;;
+            401) echo "WRONG-TOKEN(401)=sai/het-han";;
+            403) echo "NO-SCOPE(403)=thieu-quyen-scope";;
+            404) echo "NO-ACCESS(404)=khong-vao-repo/sai-owner";;
+            *)   echo "CHECK($1)";; esac; }
+          chk(){ f="$tf/$1"
+            if [ ! -f "$f" ]; then echo "$2 MISSING ($f)"; return; fi
+            if [ ! -r "$f" ]; then echo "$2 NO-READ-PERMISSION ($f) — runner khong phai root?"; return; fi
+            tok=$(tr -d '[:space:]' < "$f"); n=${#tok}
+            code=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $tok" "$3")
+            echo "$2 len=$n $4=$code [$(lab "$code")]"; }
+          echo "===== PROD token check (self-hosted runner on VPS) ====="
+          chk github-access-token.key "[1 team PAT ]" "https://api.github.com/orgs/StarCi-Academy/teams?per_page=1" "org-teams"
+          chk data-git-token.key      "[3 data PAT ]" "https://api.github.com/repos/starci-lab/data" "repo"
+          oa="$tf/github-secret-key.key"
+          if [ -r "$oa" ]; then b=$(wc -c < "$oa"); echo "[2 oauth    ] secret bytes=$b [PRESENT]"
+          elif [ -f "$oa" ]; then echo "[2 oauth    ] secret PRESENT (no read perm to size)"
+          else echo "[2 oauth    ] secret MISSING"; fi
+          echo ""
+          echo "Legend: OK=chay | 401=sai token | 403=thieu scope (vd team PAT can admin:org) | 404=khong vao repo / sai owner"

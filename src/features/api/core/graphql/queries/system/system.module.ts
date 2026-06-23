@@ -16,10 +16,16 @@ import {
 import {
     PlatformStatsSingleQueryModule,
 } from "./platform-stats"
+import {
+    MyGithubTeamStatusSingleQueryModule,
+} from "./my-github-team-status"
 
 @Module({
     imports: [
         SystemConfigSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyGithubTeamStatusSingleQueryModule.register({
             isGlobal: true,
         }),
         AiModelsSingleQueryModule.register({

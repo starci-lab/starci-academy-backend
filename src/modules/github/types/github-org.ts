@@ -54,3 +54,79 @@ export interface RemoveGithubUserFromTeamInOrgResult {
     success: boolean
 }
 
+/**
+ * Membership of a user in a GitHub org team:
+ * - `active`  — accepted member (in the team).
+ * - `pending` — invited, not yet accepted.
+ * - `none`    — neither member nor invited.
+ */
+export type GithubTeamMembershipState = "active" | "pending" | "none"
+
+/**
+ * Params for reading a user's GitHub team membership state.
+ */
+export interface GetGithubUserTeamMembershipParams {
+    /** The slug of the team to check. */
+    teamSlug: string
+    /** The GitHub username to check. */
+    githubUsername: string
+}
+
+/**
+ * Result of a team-membership lookup.
+ */
+export interface GetGithubUserTeamMembershipResult {
+    /** Membership state from GitHub (404 → `none`). */
+    state: GithubTeamMembershipState
+}
+
+/**
+ * Repo permission level a team can hold (GitHub `permission` values):
+ * - `"pull"` Read · `"triage"` · `"push"` Write · `"maintain"` · `"admin"`.
+ */
+export type GithubRepoPermission = "pull" | "triage" | "push" | "maintain" | "admin"
+
+/**
+ * Params for granting a team access to a single org repo.
+ */
+export interface GrantTeamRepoAccessParams {
+    /** The slug of the team to grant access to. */
+    teamSlug: string
+    /** The repo name (within the configured org) to grant the team. */
+    repo: string
+    /** Permission level (defaults to `"pull"` = Read). */
+    permission?: GithubRepoPermission
+}
+
+/**
+ * Result of granting a team access to a repo.
+ */
+export interface GrantTeamRepoAccessResult {
+    /** Whether the grant call completed without error. */
+    success: boolean
+}
+
+/**
+ * Params for listing org repo names by name prefix.
+ */
+export interface ListOrgRepoNamesByPrefixParams {
+    /** Only repos whose name starts with this prefix are returned. */
+    prefix: string
+}
+
+/**
+ * Result of an org repo-name-by-prefix listing.
+ */
+export interface ListOrgRepoNamesByPrefixResult {
+    /** Names of org repos matching the prefix. */
+    repoNames: Array<string>
+}
+
+/**
+ * Result of the boot-time team→repo access sync.
+ */
+export interface GithubTeamRepoSyncResult {
+    /** Total number of (team, repo) grants applied across all courses. */
+    grantedCount: number
+}
+

@@ -4,6 +4,7 @@ import {
 import {
     InjectPrimaryPostgreSQLEntityManager,
     UserEntity,
+    AuthenticationType,
 } from "@modules/databases"
 import {
     KeycloakJwtPayload,
@@ -79,6 +80,7 @@ export class KeycloakGoogleCallbackHandler
                     }),
                     email: decoded.email,
                     keycloakId: decoded.sub,
+                    authenticationType: AuthenticationType.Google,
                 },
             )
             await this.entityManager.save(user)

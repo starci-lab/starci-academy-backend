@@ -569,6 +569,23 @@ export const envConfig = () => ({
                 defaultValue: JSON.stringify({
                     "fullstack-mastery": "fullstack-mastery",
                     "system-design-mastery": "system-design-mastery",
+                    "devops-mastery": "devops-mastery",
+                    "ai-llm-engineering": "ai-llm-engineering",
+                }),
+            }),
+            /**
+             * Repo-name prefixes each team gets READ access to (boot-sync). The real
+             * course code repos are per-lesson (`fs-…`, `sd-…`) — NOT the placeholder
+             * `…-mastery-module-…` repos. DevOps has no short prefix yet, so it uses
+             * its module repos; add `do-` here if a per-lesson convention lands.
+             */
+            teamRepoPrefixes: parseEnvJson<Record<string, Array<string>>>({
+                key: "GITHUB_TEAM_REPO_PREFIXES",
+                defaultValue: JSON.stringify({
+                    "fullstack-mastery": ["fs-"],
+                    "system-design-mastery": ["sd-"],
+                    "devops-mastery": ["devops-mastery"],
+                    "ai-llm-engineering": ["ai-"],
                 }),
             }),
         },
@@ -927,10 +944,12 @@ export const envConfig = () => ({
     ],
     /** Data-git — the private GitHub repo holding seed content (courses, coding problems, rules). */
     dataGit: {
-        /** Repository owner (GitHub org or user). */
+        /** Repository owner (GitHub org or user). The seed-content `data` repo was
+         * transferred to the `starci-lab` org (the module/code repos stay under
+         * `GITHUB_ORGANIZATION`). GitHub redirects the old StarCi-Academy/data URL. */
         owner: parseEnvString({
             key: "DATA_GIT_OWNER",
-            defaultValue: "StarCi-Academy",
+            defaultValue: "starci-lab",
         }),
         /** Repository name. */
         repo: parseEnvString({

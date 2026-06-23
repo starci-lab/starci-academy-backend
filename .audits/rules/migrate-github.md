@@ -99,3 +99,18 @@ Test = **xác nhận source mới giống y gốc** + link sạch. Cụ thể, g
 
 - Chạy **fullstack m0** (`framework-core-and-request-lifecycle`, 5 content) trước. Thầy duyệt → batch các module còn lại.
 - Per module: §2a (rename slug 1 lần) → loop 5 content [§3 tạo+chép repo ∥ §2b pivot body] → §5 viết `migrate.md`.
+
+---
+
+## 6. GATE — visibility ↔ isPremium (check-repo-visibility.mjs)
+
+Audit nội dung cũ KHÔNG soi visibility → từng lọt: free-lesson lỡ private = "source thiếu bài"; premium lỡ public = lộ source trả phí. Gate mới chặn cả 2 chiều:
+
+```
+node .audits/check-repo-visibility.mjs [<course|module|lesson dir> ...]   # mặc định: mọi course .mount/data/courses
+```
+- Đọc `# isPremium` (vi.md) + repo từ clone-URL trong `bodies/<lang>/{vi,en}.md`, đối chiếu `gh repo list StarCi-Academy`.
+- Rule: `isPremium=false ⇒ PUBLIC`, `true ⇒ PRIVATE`. Mismatch / repo-thiếu → in danh sách + exit 1.
+- Fix: `gh repo edit StarCi-Academy/<repo> --visibility <public|private> --accept-visibility-change-consequences`.
+- Trạng thái 2026-06-23: **fullstack + system-design = PASS** (đã chỉnh: FS 10 pub + 40 priv; SD 8 pub + 48 priv).
+  **devops-mastery** còn 108 issue (vẫn scheme 1-repo/module cũ — `devops-mastery-module-<N>`, chưa migrate per-content) → chạy pipeline migrate-github cho devops trước khi gate pass.

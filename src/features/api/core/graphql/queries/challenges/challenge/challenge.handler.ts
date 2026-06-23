@@ -3,9 +3,12 @@ import {
 } from "@modules/cqrs"
 import {
     ChallengeEntity,
+    ContentEntity,
+    InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
     ChallengeNotFoundException,
+    ChallengePremiumLockedException,
 } from "@modules/exceptions"
 import {
     S3NameResolverService,
@@ -19,6 +22,9 @@ import {
     IQueryHandler,
     QueryHandler,
 } from "@nestjs/cqrs"
+import type {
+    EntityManager,
+} from "typeorm"
 import {
     ChallengeQuery,
 } from "./challenge.query"
@@ -34,6 +40,8 @@ export class ChallengeHandler
     constructor(
         private readonly s3ReadService: S3ReadService,
         private readonly s3NameResolverService: S3NameResolverService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) {
         super()
     }
@@ -60,6 +68,27 @@ export class ChallengeHandler
         if (!challenge) {
             throw new ChallengeNotFoundException({
                 id: request.id,
+            })
+        }
+        // challenges are readable ONLY inside FREE (non-premium) content — a premium
+        // content's challenge requires enrolling first (mirrors the submit gate).
+        const ownerContent = await this.entityManager.findOne(
+            ContentEntity,
+            {
+                where: {
+                    challenges: {
+                        id: request.id,
+                    },
+                },
+                select: {
+                    id: true,
+                    isPremium: true,
+                },
+            },
+        )
+        if (ownerContent?.isPremium) {
+            throw new ChallengePremiumLockedException({
+                contentId: ownerContent.id,
             })
         }
         return challenge

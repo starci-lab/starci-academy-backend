@@ -101,6 +101,10 @@ jobs:
           BACKUP_ENCRYPT_PASSWORD: ${{ secrets.BACKUP_ENCRYPT_PASSWORD }}
 
           GITHUB_OAUTH_REDIRECT_URI: ${{ secrets._GITHUB_OAUTH_REDIRECT_URI }}
+
+          # OAuth client id of the prod GitHub App "StarCi Academy" (public, not a secret).
+          # Actions var is named with a leading underscore because GitHub forbids the GITHUB_ prefix.
+          GITHUB_CLIENT_ID: ${{ vars._GITHUB_CLIENT_ID }}
         run: |
           docker compose -f apps/core/vps-compose.yaml down || true
           docker compose -f apps/core/vps-compose.yaml up --build -d 
