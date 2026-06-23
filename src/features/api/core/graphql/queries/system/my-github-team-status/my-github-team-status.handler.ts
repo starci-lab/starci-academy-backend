@@ -2,14 +2,12 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    InjectEntityManager,
-} from "@nestjs/typeorm"
-import {
     EntityManager,
 } from "typeorm"
 import {
     EnrollmentEntity,
     UserEntity,
+    InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
     GithubApiOrgService,
@@ -34,7 +32,7 @@ import type {
 @Injectable()
 export class MyGithubTeamStatusHandler {
     constructor(
-        @InjectEntityManager()
+        @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly githubApiOrgService: GithubApiOrgService,
     ) {}
