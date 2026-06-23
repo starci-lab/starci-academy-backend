@@ -7,6 +7,9 @@ import {
     ICommandHandler,
 } from "@nestjs/cqrs"
 import {
+    EntityManager,
+} from "typeorm"
+import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
@@ -19,16 +22,15 @@ import {
 import type SuperJson from "superjson"
 import {
     MissingRequiredParameterException,
+    UserNotFoundException,
 } from "@modules/exceptions"
 import {
     GithubApiAuthService,
 } from "@modules/github"
 import {
-    EnqueueResolveGithubJobService,
-} from "@modules/bussiness"
-import type {
-    EnqueueResolveGithubParams,
-} from "@modules/bussiness"
+    InjectPrimaryPostgreSQLEntityManager,
+    UserEntity,
+} from "@modules/databases"
 import {
     GithubOauthCallbackCommand,
     type GithubOauthCallbackResult,
@@ -46,7 +48,8 @@ export class GithubOauthCallbackHandler
         @InjectSuperJson()
         private readonly superJson: SuperJson,
         private readonly githubApiAuthService: GithubApiAuthService,
-        private readonly enqueueResolveGithubJobService: EnqueueResolveGithubJobService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) {
         super()
     }
@@ -127,15 +130,27 @@ export class GithubOauthCallbackHandler
             },
         )
 
-        // Enqueue resolve GitHub processor.
-        const enqueueParams: EnqueueResolveGithubParams = {
-            userId,
-            githubUsername: githubLogin,
-            teamSlug: "starci-academy",
-        }
-        await this.enqueueResolveGithubJobService.enqueue(
-            enqueueParams,
+        // Link the GitHub identity to the user — persist `githubUsername`. This is
+        // the ONLY job of the "Link GitHub" callback: `myGithubTeamStatus.linked`
+        // is derived from `user.githubUsername`, so persisting it un-blocks the FE.
+        // Joining a course's GitHub team is a SEPARATE, per-course step
+        // (`requestToTeam(courseId)`), which resolves the correct team slug from
+        // the course — the callback must NOT add the user to any hardcoded team.
+        const user = await this.entityManager.findOne(
+            UserEntity,
+            {
+                where: {
+                    id: userId,
+                },
+            },
         )
+        if (!user) {
+            throw new UserNotFoundException({
+                id: userId,
+            })
+        }
+        user.githubUsername = githubLogin
+        await this.entityManager.save(user)
 
         // Return redirect URI.
         return {
@@ -143,4 +158,3 @@ export class GithubOauthCallbackHandler
         }
     }
 }
-
