@@ -202,9 +202,17 @@ export class UseApiService {
     }: UseApiPremiumParams<TResult>): Promise<UseApiResult<TResult>> {
         await this.keyStoreService.ensureLoaded()
 
-        const catalog = await this.aiModelCatalogService.enabledModels({
-            category,
-        })
+        // a user-PINNED model wins over the category filter: the picker already gated it
+        // by availability and the lane itself is entitlement-gated, so search the FULL
+        // enabled catalog. The category filter only picks the default model when none is
+        // pinned. Without this, pinning a model whose category differs from the tier's top
+        // category (e.g. gpt-4o = "balanced" graded on a Premium tier whose best category
+        // is "premium") throws `Unsupported AI provider` even though the model is enabled.
+        const catalog = await this.aiModelCatalogService.enabledModels(
+            selectedModel && selectedProvider
+                ? {}
+                : { category },
+        )
         const target = this.resolvePremiumModel(
             catalog,
             selectedModel,

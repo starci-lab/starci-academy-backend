@@ -13,11 +13,20 @@ import {
     resolveGradingInvokeOptions,
 } from "@modules/ai"
 import {
+    S3NameResolverService,
+    S3Provider,
+    S3ReadService,
+} from "@modules/s3"
+import {
+    UserService,
+} from "@modules/bussiness"
+import {
     AiQuotaExhaustedException,
     ContentNotFoundException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
+    ForbiddenException,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -55,6 +64,9 @@ export class AskContentAiHandler
         private readonly entityManager: EntityManager,
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
+        private readonly s3ReadService: S3ReadService,
+        private readonly s3NameResolverService: S3NameResolverService,
+        private readonly userService: UserService,
     ) {
         super()
     }
@@ -77,19 +89,62 @@ export class AskContentAiHandler
             })
         }
 
-        // load the content + its markdown body server-side (never trust client body)
-        const content = await this.entityManager.findOne(
+        // The lesson body lives in MinIO (the Postgres `body` column is empty for
+        // snapshot-backed content) — load it the same way the content reader does,
+        // NOT from `ContentEntity.body`, or the model is grounded on an empty body
+        // and replies "I'm not sure, the content wasn't provided".
+        const objectKey = this.s3NameResolverService.content(
+            contentId,
+            locale ?? Locale.En,
+        )
+        const content = await this.s3ReadService.json<ContentEntity>({
+            key: objectKey,
+            provider: S3Provider.Minio,
+        })
+        if (!content) {
+            throw new ContentNotFoundException({
+                id: contentId,
+            })
+        }
+
+        // Premium gate: the resolver only checks auth (not enrollment), so a
+        // non-enrolled viewer could otherwise pull a locked lesson's full body out
+        // through the AI. Source the premium flag + owning course from the live DB
+        // row and block ungranted premium content.
+        const row = await this.entityManager.findOne(
             ContentEntity,
             {
                 where: {
                     id: contentId,
                 },
+                relations: {
+                    module: {
+                        course: true,
+                    },
+                },
+                select: {
+                    id: true,
+                    isPremium: true,
+                    module: {
+                        id: true,
+                        course: {
+                            id: true,
+                        },
+                    },
+                },
             },
         )
-        if (!content) {
-            throw new ContentNotFoundException({
-                id: contentId,
-            })
+        const isPremium = row?.isPremium ?? content.isPremium
+        const courseId = row?.module?.course?.id
+        if (isPremium) {
+            const entitled = courseId
+                ? await this.userService.checkEnrollment(user.id, courseId)
+                : false
+            if (!entitled) {
+                throw new ForbiddenException(
+                    "Enroll in this course to ask AI about premium content",
+                )
+            }
         }
 
         // gate the unified AI credit pool — block once the flat cost cannot be paid

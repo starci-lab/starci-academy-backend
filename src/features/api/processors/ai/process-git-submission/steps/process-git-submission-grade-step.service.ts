@@ -48,6 +48,9 @@ import {
 import {
     MountStorageService,
 } from "@modules/filesystem"
+import {
+    EncryptionService,
+} from "@modules/crypto"
 import template from "./template.json"
 import {
     Document,
@@ -98,8 +101,42 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         private readonly challengeEvaluationParseService: ChallengeEvaluationParseService,
         private readonly creditUsageService: CreditUsageService,
         private readonly gradingRetrievalService: GradingRetrievalService,
+        private readonly encryptionService: EncryptionService,
     ) {
         super()
+    }
+
+    /**
+     * Resolve the GitHub access token to clone the submission repo with: the learner's
+     * own (decrypted) per-enrollment token when they stored one for a PRIVATE repo,
+     * otherwise the org token. A token that fails to decrypt falls back to the org token
+     * rather than aborting the grade. Shared with personal-project grading — one token
+     * per enrollment covers both the challenge repo and the capstone repo.
+     */
+    private async resolveGithubAccessToken(enrollmentId: string): Promise<string> {
+        const enrollment = await this.entityManager.findOne(
+            EnrollmentEntity,
+            {
+                where: {
+                    id: enrollmentId,
+                },
+                select: {
+                    id: true,
+                    personalProjectGithubTokenEncrypted: true,
+                },
+            },
+        )
+        const encrypted = enrollment?.personalProjectGithubTokenEncrypted
+        if (!encrypted) {
+            return this.mountStorageService.githubAccessToken
+        }
+        try {
+            return this.encryptionService.decrypt({
+                payload: JSON.parse(encrypted),
+            })
+        } catch {
+            return this.mountStorageService.githubAccessToken
+        }
     }
 
     stepIndex = 0
@@ -157,6 +194,9 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             payload.lang,
         )
         const repoUrl = context.extended?.userChallengeSubmission.submissionUrl ?? ""
+        // private student repos need the learner's own token (org token can't read a
+        // user's private repo); falls back to the org token for public/org repos
+        const accessToken = await this.resolveGithubAccessToken(payload.enrollmentId)
 
         /** Load GitHub repo */
         const gitLoader = new GithubRepoLoader(
@@ -164,7 +204,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             {
                 branch,
                 recursive: true,
-                accessToken: this.mountStorageService.githubAccessToken,
+                accessToken,
                 verbose: true,
                 ignorePaths: [
                     "package-lock.json",
