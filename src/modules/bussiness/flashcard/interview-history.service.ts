@@ -3,8 +3,10 @@ import {
 } from "@nestjs/common"
 import {
     EntityManager,
+    In,
 } from "typeorm"
 import {
+    FlashcardDeckEntity,
     InjectPrimaryPostgreSQLEntityManager,
     InterviewAttemptEntity,
 } from "@modules/databases"
@@ -45,20 +47,55 @@ export class InterviewHistoryService {
         {
             userId,
             flashcardDeckId,
+            courseId,
         }: GetInterviewHistoryParams,
     ): Promise<InterviewHistorySummary> {
-        // newest-first window, optionally scoped to one deck
+        // resolve the deck scope: one deck (legacy) takes precedence; else, for the
+        // random-interview mode, every deck of the course; else account-wide.
+        let deckScope: Record<string, unknown> = {}
+        if (flashcardDeckId) {
+            deckScope = {
+                flashcardDeckId,
+            }
+        } else if (courseId) {
+            const decks = await this.entityManager.find(
+                FlashcardDeckEntity,
+                {
+                    where: {
+                        course: {
+                            id: courseId,
+                        },
+                    },
+                    select: {
+                        id: true,
+                    },
+                },
+            )
+            // a course with no decks → no attempts in scope; return the zeroed summary
+            if (decks.length === 0) {
+                return {
+                    totalAnswered: 0,
+                    averageScore: 0,
+                    bestScore: 0,
+                    passCount: 0,
+                    borderlineCount: 0,
+                    failCount: 0,
+                    weakTags: [],
+                    lastAttemptAt: null,
+                }
+            }
+            deckScope = {
+                flashcardDeckId: In(decks.map((deck) => deck.id)),
+            }
+        }
+
+        // newest-first window, scoped to the resolved deck set (deck / course / all)
         const attempts = await this.entityManager.find(
             InterviewAttemptEntity,
             {
                 where: {
                     userId,
-                    ...(flashcardDeckId
-                        ? {
-                            flashcardDeckId,
-                        }
-                        : {
-                        }),
+                    ...deckScope,
                 },
                 order: {
                     createdAt: "DESC",
@@ -72,6 +109,7 @@ export class InterviewHistoryService {
             return {
                 totalAnswered: 0,
                 averageScore: 0,
+                bestScore: 0,
                 passCount: 0,
                 borderlineCount: 0,
                 failCount: 0,
@@ -82,6 +120,7 @@ export class InterviewHistoryService {
 
         const scoreSum = attempts.reduce((sum, attempt) => sum + attempt.score, 0)
         const averageScore = Math.round((scoreSum / totalAnswered) * 10) / 10
+        const bestScore = attempts.reduce((max, attempt) => Math.max(max, attempt.score), 0)
         const passCount = attempts.filter(
             (attempt) => attempt.verdict === InterviewVerdict.Pass,
         ).length
@@ -109,6 +148,7 @@ export class InterviewHistoryService {
         return {
             totalAnswered,
             averageScore,
+            bestScore,
             passCount,
             borderlineCount,
             failCount,

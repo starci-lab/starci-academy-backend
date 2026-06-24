@@ -39,3 +39,8 @@
   card-onClick để chặn). Đính chính: [[interactive-needs-hover]] áp cho phần TỬ THỰC SỰ bấm được (cái nút) — KHÔNG bắt
   cả container phải hover khi container không phải target. Whole-card-clickable chỉ dùng khi card KHÔNG có nút action riêng
   (vd row nav thuần). Có nút → nút là affordance duy nhất, card đứng yên.
+
+## ÁP TIẾP 2026-06-25 — flashcard deck list (cùng luật)
+- `FlashcardDeckList` (trang Ôn tập `/learn/flashcards`): mỗi deck card trước là `<PressableCard onPress>` (cả card bấm được) + lại CÓ nút "Học" footer → **2 affordance trùng** (cả card lẫn nút cùng `onSelectDeck`). Thầy: *"bỏ pressable button, bắt user phải click vào Học, dùng card thuần"*.
+- Sửa: `PressableCard` → HeroUI **`<Card>` thuần** (surface tĩnh: `bg-surface + border + rounded-3xl + no shadow` theo global `.card`), bỏ `onPress` cả-card; **chỉ nút "Học"** điều hướng. Skeleton mirror đúng da mới (`rounded-3xl border border-default bg-surface p-4`, bỏ `bg-surface px-4 py-3` không-viền cũ).
+- Nhắc lại nguyên tắc: **card + CTA rõ ràng = card TĨNH, CTA là affordance duy nhất.** Whole-card press CHỈ cho card KHÔNG có nút (row nav thuần). Đừng nhân đôi (cả card + nút cùng action) → vừa thừa, vừa mơ hồ "bấm đâu".

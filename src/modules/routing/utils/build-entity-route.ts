@@ -49,23 +49,24 @@ export const buildEntityRoute = (
         return course ? `/courses/${course.displayId}` : null
 
     // a module needs the owning course slug; the module segment uses its UUID
+    // (route is /learn/content/modules/<id> — the "content" segment is required)
     case ModuleEntity.name:
-        return course ? `/courses/${course.displayId}/learn/modules/${id}` : null
+        return course ? `/courses/${course.displayId}/learn/content/modules/${id}` : null
 
     // a content needs course slug + module UUID
     case ContentEntity.name: {
         const module = parentRef && "module" in parentRef ? parentRef.module : undefined
         return course && module
-            ? `/courses/${course.displayId}/learn/modules/${module.id}/contents/${id}`
+            ? `/courses/${course.displayId}/learn/content/modules/${module.id}/contents/${id}`
             : null
     }
 
-    // a challenge has no standalone page → land on its parent content
+    // a challenge deep-links to its own solve page (.../challenges/<id>)
     case ChallengeEntity.name: {
         const module = parentRef && "module" in parentRef ? parentRef.module : undefined
         const content = parentRef && "content" in parentRef ? parentRef.content : undefined
         return course && module && content
-            ? `/courses/${course.displayId}/learn/modules/${module.id}/contents/${content.id}`
+            ? `/courses/${course.displayId}/learn/content/modules/${module.id}/contents/${content.id}/challenges/${id}`
             : null
     }
 

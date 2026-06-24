@@ -66,6 +66,15 @@ export class MyDueFlashcardsResolver {
     )
     async execute(
         @Args(
+            "courseId",
+            {
+                type: () => String,
+                nullable: true,
+                description: "Scope the due queue to this course's decks; omit for a global (cross-course) queue.",
+            },
+        )
+            courseId: string | undefined,
+        @Args(
             "limit",
             {
                 type: () => Int,
@@ -86,6 +95,7 @@ export class MyDueFlashcardsResolver {
         MAX_LIMIT)
         return this.flashcardReviewService.listDue({
             userId: user.id,
+            courseId,
             limit: safeLimit,
             locale,
         })

@@ -203,10 +203,6 @@ export class KeyStoreService {
             return this.mountFilesystemService.openAiApiKeys()
         case ModelProvider.Gemini:
             return this.mountFilesystemService.geminiApiKeys()
-        case ModelProvider.Claude:
-            return this.mountFilesystemService.claudeApiKeys()
-        case ModelProvider.OpenRouter:
-            return this.mountFilesystemService.openRouterApiKeys()
         default:
             return []
         }

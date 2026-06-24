@@ -29,3 +29,8 @@
   Thêm **field mới `nextContentTask`** vào `myCourseOutline` (content-first: bài chưa đọc đầu tiên theo thứ tự
   outline → nếu hết bài thì challenge chưa hoàn thành đầu tiên → null). FE "Tiếp tục học" đọc `nextContentTask`;
   null = hết nội dung → đổi sang CTA capstone/“đã học hết”. Capstone vẫn tự resume ở trang Dự án cá nhân.
+
+## ÁP TIẾP 2026-06-25 — DASHBOARD "Tiếp tục học" cũng content-first, TỐI ĐA 1 challenge
+- Bối cảnh: dashboard `/dashboard?tab=overview` khối "Tiếp tục học" (`ContinueLearning`/`useResumeItems`) gộp `myInProgressChallenges` + `myLearnedLessons`, **challenge xếp TRƯỚC** → user có ≥3 in-progress challenge → 3 slot toàn challenge, KHÔNG còn chỗ bài đọc. Thầy: *"trộn lại, max 1 challenge thôi"*.
+- **Luật (STRICT):** resume slot = **CONTENT-FIRST** (lessons dẫn) + trộn **TỐI ĐA 1 challenge** như 1 nudge. Reserve đúng 1 slot cho challenge (nếu có) để nó vẫn hiện dù nhiều lesson; phần còn lại fill lessons. Lý do: "in-progress challenge" = challenge đã mở-chưa-pass, KHÔNG hẳn là thứ user muốn tiếp tục; nội dung đang đọc mới là resume thật.
+- **ĐÃ FIX:** `useResumeItems` thêm `MAX_RESUME_CHALLENGES=1`; `challenges=inProgress.slice(0,1)`, `lessons=learned.slice(0, RESUME_LIMIT-challenges.length)`, merged=`[...lessons,...challenges]` (lessons trước, challenge cuối) → dedupe → cap 3. tsc/eslint sạch.

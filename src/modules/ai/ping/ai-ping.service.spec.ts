@@ -14,12 +14,6 @@ import {
 import {
     GeminiPingService,
 } from "./gemini-ping.service"
-import {
-    ClaudePingService,
-} from "./claude-ping.service"
-import {
-    OpenRouterPingService,
-} from "./openrouter-ping.service"
 
 describe("AiPingService",
     () => {
@@ -27,8 +21,6 @@ describe("AiPingService",
         let service: AiPingService
         let openAiPingService: jest.Mocked<Pick<OpenAiPingService, "ping" | "listKeys">>
         let geminiPingService: jest.Mocked<Pick<GeminiPingService, "ping" | "listKeys">>
-        let claudePingService: jest.Mocked<Pick<ClaudePingService, "ping" | "listKeys">>
-        let openRouterPingService: jest.Mocked<Pick<OpenRouterPingService, "ping" | "listKeys">>
 
         beforeEach(async () => {
             // each provider ping service is a thin spy returning a tagged outcome
@@ -52,26 +44,6 @@ describe("AiPingService",
                 ]),
             } as unknown as jest.Mocked<Pick<GeminiPingService, "ping" | "listKeys">>
 
-            claudePingService = {
-                ping: jest.fn(async () => ({
-                    success: true,
-                    errorMessage: null,
-                })),
-                listKeys: jest.fn(() => [
-                    "sk-claude",
-                ]),
-            } as unknown as jest.Mocked<Pick<ClaudePingService, "ping" | "listKeys">>
-
-            openRouterPingService = {
-                ping: jest.fn(async () => ({
-                    success: true,
-                    errorMessage: null,
-                })),
-                listKeys: jest.fn(() => [
-                    "sk-openrouter",
-                ]),
-            } as unknown as jest.Mocked<Pick<OpenRouterPingService, "ping" | "listKeys">>
-
             module = await Test.createTestingModule({
                 providers: [
                     AiPingService,
@@ -82,14 +54,6 @@ describe("AiPingService",
                     {
                         provide: GeminiPingService,
                         useValue: geminiPingService,
-                    },
-                    {
-                        provide: ClaudePingService,
-                        useValue: claudePingService,
-                    },
-                    {
-                        provide: OpenRouterPingService,
-                        useValue: openRouterPingService,
                     },
                 ],
             }).compile()
@@ -125,26 +89,6 @@ describe("AiPingService",
                         expect(geminiPingService.ping).toHaveBeenCalledWith("sk-gemini")
                     })
 
-                it("routes a Claude ping to the Claude ping service",
-                    async () => {
-                        await service.pingKey({
-                            provider: ModelProvider.Claude,
-                            key: "sk-claude",
-                        })
-
-                        expect(claudePingService.ping).toHaveBeenCalledWith("sk-claude")
-                    })
-
-                it("routes an OpenRouter ping to the OpenRouter ping service",
-                    async () => {
-                        await service.pingKey({
-                            provider: ModelProvider.OpenRouter,
-                            key: "sk-openrouter",
-                        })
-
-                        expect(openRouterPingService.ping).toHaveBeenCalledWith("sk-openrouter")
-                    })
-
                 it("returns a failure outcome for an unsupported provider",
                     async () => {
                         // an unknown provider short-circuits to a typed failure result
@@ -162,10 +106,10 @@ describe("AiPingService",
             () => {
                 it("delegates to the matching provider's listKeys",
                     () => {
-                        expect(service.listKeysForProvider(ModelProvider.Claude)).toEqual([
-                            "sk-claude",
+                        expect(service.listKeysForProvider(ModelProvider.Gemini)).toEqual([
+                            "sk-gemini",
                         ])
-                        expect(claudePingService.listKeys).toHaveBeenCalledTimes(1)
+                        expect(geminiPingService.listKeys).toHaveBeenCalledTimes(1)
                     })
 
                 it("returns an empty list for an unsupported provider",

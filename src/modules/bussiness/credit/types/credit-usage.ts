@@ -33,9 +33,9 @@ export interface CreditUsageHistoryItem {
     mode: AiMode
     /** Premium tier billed (low / medium / high); null for auto / byok. */
     recommendation: string | null
-    /** Concrete model billed (e.g. claude-sonnet-4-5); null for the free Auto lane. */
+    /** Concrete model billed (e.g. gpt-5-mini); null for the free Auto lane. */
     model: string | null
-    /** Provider of the billed model (gemini / openai / claude); null for the free Auto lane. */
+    /** Provider of the billed model (gemini / openai); null for the free Auto lane. */
     provider: string | null
     /** Credits charged for this run. */
     credits: number

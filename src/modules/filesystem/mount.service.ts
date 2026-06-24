@@ -32,8 +32,6 @@ import {
     getKeycloakAdmin,
     getOpenAiApiKeys,
     getGeminiApiKeys,
-    getClaudeApiKeys,
-    getOpenRouterApiKeys,
 } from "./utils"
 /**
  * Service responsible for reading secrets mounted into the container filesystem.
@@ -228,23 +226,5 @@ export class MountFilesystemService {
      */
     geminiApiKeys(): Array<string> {
         return getGeminiApiKeys()
-    }
-
-    /**
-     * Get the Anthropic Claude API-key pool (newline-separated mount file).
-     *
-     * @returns Array of trimmed, non-empty keys; empty when the file is missing or empty
-     */
-    claudeApiKeys(): Array<string> {
-        return getClaudeApiKeys()
-    }
-
-    /**
-     * Get the OpenRouter API-key pool (newline-separated mount file).
-     *
-     * @returns Array of trimmed, non-empty keys; empty when the file is missing or empty
-     */
-    openRouterApiKeys(): Array<string> {
-        return getOpenRouterApiKeys()
     }
 }

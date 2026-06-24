@@ -39,9 +39,19 @@ export interface DueFlashcard {
  * localized cards.
  */
 export interface DueFlashcardsResult {
-    /** Total number of due cards across the viewer's enrolled decks. */
+    /**
+     * Today's actionable queue size = {@link dueReviewCount} + {@link newCount}
+     * (overdue reviews + the capped new-card batch). The "đến hạn hôm nay"
+     * headline — bounded, NOT the whole never-reviewed backlog.
+     */
     dueCount: number
-    /** The first `limit` due cards, localized. */
+    /** Overdue review cards (reviewed once, now past `dueAt`). */
+    dueReviewCount: number
+    /** New cards offered today = `min(newTotalCount, DAILY_NEW_LIMIT)`. */
+    newCount: number
+    /** Total never-reviewed cards in the course (full new backlog). */
+    newTotalCount: number
+    /** The first `limit` due cards (overdue first, then today's new batch). */
     cards: Array<DueFlashcard>
 }
 
@@ -51,6 +61,8 @@ export interface DueFlashcardsResult {
 export interface ListDueFlashcardsParams {
     /** The viewer. */
     userId: string
+    /** Owning course — when given, scope the queue to this course's decks only; omit for a global (cross-course) queue (e.g. dashboard). */
+    courseId?: string
     /** Max cards to return (the count is still the full total). */
     limit: number
     /** Locale to localize deck/card text into. */

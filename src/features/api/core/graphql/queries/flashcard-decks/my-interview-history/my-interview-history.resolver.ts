@@ -25,6 +25,7 @@ import {
     UserEntity,
 } from "@modules/databases"
 import {
+    GraphQLMustEnrolledGuard,
     InterviewHistoryService,
 } from "@modules/bussiness"
 import {
@@ -44,7 +45,7 @@ export class MyInterviewHistoryResolver {
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
-    @UseGuards(KeycloakAuthGraphQLGuard)
+    @UseGuards(KeycloakAuthGraphQLGuard, GraphQLMustEnrolledGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Interview history fetched successfully",
         [Locale.Vi]: "Lấy lịch sử phỏng vấn thành công",
@@ -60,22 +61,31 @@ export class MyInterviewHistoryResolver {
     async execute(
         @KeycloakGraphQLUser()
             user: UserEntity,
+        @Args("courseId",
+            {
+                type: () => ID,
+                nullable: true,
+                description: "Optional course to scope the history to (random-interview mode = course-wide).",
+            })
+            courseId: string | null,
         @Args("flashcardDeckId",
             {
                 type: () => ID,
                 nullable: true,
-                description: "Optional deck to scope the history to.",
+                description: "Optional deck to scope the history to (takes precedence over courseId).",
             })
             flashcardDeckId: string | null,
     ): Promise<MyInterviewHistoryData> {
         const summary = await this.interviewHistoryService.getSummary({
             userId: user.id,
             flashcardDeckId,
+            courseId,
         })
         // project to the GraphQL shape — serialize the timestamp to an ISO string
         return {
             totalAnswered: summary.totalAnswered,
             averageScore: summary.averageScore,
+            bestScore: summary.bestScore,
             passCount: summary.passCount,
             borderlineCount: summary.borderlineCount,
             failCount: summary.failCount,

@@ -5,6 +5,7 @@ import {
     Resolver,
 } from "@nestjs/graphql"
 import {
+    BadRequestException,
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
@@ -27,6 +28,7 @@ import {
 } from "@modules/databases"
 import {
     FlashcardDeckReadService,
+    GraphQLMustEnrolledGuard,
 } from "@modules/bussiness"
 import {
     DrawInterviewCardResponse,
@@ -46,7 +48,7 @@ export class DrawInterviewCardResolver {
     ) { }
 
     @UseThrottler(ThrottlerConfig.Soft)
-    @UseGuards(KeycloakAuthGraphQLGuard)
+    @UseGuards(KeycloakAuthGraphQLGuard, GraphQLMustEnrolledGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Interview question drawn successfully",
         [Locale.Vi]: "Bốc câu hỏi phỏng vấn thành công",
@@ -56,15 +58,24 @@ export class DrawInterviewCardResolver {
         () => DrawInterviewCardResponse,
         {
             name: "drawInterviewCard",
-            description: "Draws a random interview question from a deck (model answer withheld).",
+            description: "Draws a random interview question — across a whole course (random mode) or one deck.",
         },
     )
     async execute(
+        @Args("courseId",
+            {
+                type: () => ID,
+                nullable: true,
+                description: "Course to draw a random question across all its decks (random interview mode).",
+            })
+            courseId: string | null,
         @Args("flashcardDeckId",
             {
                 type: () => ID,
+                nullable: true,
+                description: "Optional deck to restrict the draw to (legacy per-topic mode).",
             })
-            flashcardDeckId: string,
+            flashcardDeckId: string | null,
         @Args("level",
             {
                 type: () => GraphQLTypeFlashcardLevel,
@@ -75,12 +86,23 @@ export class DrawInterviewCardResolver {
         @GraphQLLocale()
             locale: Locale,
     ): Promise<InterviewCardData> {
-        // draw a random gradable card server-side (throws typed 404 / no-gradable errors)
-        const card = await this.flashcardDeckReadService.drawRandomCard({
-            flashcardDeckId,
-            locale,
-            level,
-        })
+        // need a scope: a deck (legacy per-topic) or a course (random mode)
+        if (!flashcardDeckId && !courseId) {
+            throw new BadRequestException("Either courseId or flashcardDeckId is required")
+        }
+        // draw a random gradable card server-side: one deck when given, else random
+        // across the whole course (the default "random interview" mode)
+        const card = flashcardDeckId
+            ? await this.flashcardDeckReadService.drawRandomCard({
+                flashcardDeckId,
+                locale,
+                level,
+            })
+            : await this.flashcardDeckReadService.drawRandomCardForCourse({
+                courseId: courseId as string,
+                locale,
+                level,
+            })
         // project to the safe subset — never leak the model answer / explanation to the client
         return {
             id: card.id,

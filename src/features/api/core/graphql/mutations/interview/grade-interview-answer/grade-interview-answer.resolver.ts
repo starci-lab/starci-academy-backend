@@ -25,6 +25,9 @@ import {
     KeycloakGraphQLUser,
 } from "@modules/keycloak"
 import {
+    GraphQLMustEnrolledGuard,
+} from "@modules/bussiness"
+import {
     GradeInterviewAnswerRequest,
     GradeInterviewAnswerResponse,
 } from "./graphql-types"
@@ -47,7 +50,7 @@ export class GradeInterviewAnswerResolver {
         [Locale.En]: "Interview answer graded successfully",
         [Locale.Vi]: "Chấm câu trả lời phỏng vấn thành công",
     })
-    @UseGuards(KeycloakAuthGraphQLGuard)
+    @UseGuards(KeycloakAuthGraphQLGuard, GraphQLMustEnrolledGuard)
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(
         () => GradeInterviewAnswerResponse,

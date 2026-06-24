@@ -24,12 +24,6 @@ export type OpenAiApiKey = Brand<string, "OpenAi">
 /** Google Gemini API key — distinct nominal type. */
 export type GeminiApiKey = Brand<string, "Gemini">
 
-/** Anthropic Claude API key — distinct nominal type. */
-export type ClaudeApiKey = Brand<string, "Claude">
-
-/** OpenRouter API key — distinct nominal type. */
-export type OpenRouterApiKey = Brand<string, "OpenRouter">
-
 /**
  * Action context delivered when the rotator picks an OpenAI key.
  */
@@ -52,34 +46,10 @@ export interface UseApiGeminiContext {
     model: string
 }
 
-/**
- * Action context delivered when the rotator picks a Claude key.
- */
-export interface UseApiClaudeContext {
-    provider: ModelProvider.Claude
-    /** Branded Claude key. */
-    key: ClaudeApiKey
-    /** Concrete model name from the catalog. */
-    model: string
-}
-
-/**
- * Action context delivered when the rotator picks an OpenRouter key.
- */
-export interface UseApiOpenRouterContext {
-    provider: ModelProvider.OpenRouter
-    /** Branded OpenRouter key. */
-    key: OpenRouterApiKey
-    /** Concrete model name routed through OpenRouter. */
-    model: string
-}
-
 /** Discriminated union over `provider` for pooled-key invocations. */
 export type UseApiActionContext =
     | UseApiOpenAiContext
     | UseApiGeminiContext
-    | UseApiClaudeContext
-    | UseApiOpenRouterContext
 
 /**
  * Caller-supplied function executed against the picked key/model.

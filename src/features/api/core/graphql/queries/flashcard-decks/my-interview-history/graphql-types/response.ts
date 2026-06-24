@@ -37,6 +37,14 @@ export class MyInterviewHistoryData {
     @Field(
         () => Int,
         {
+            description: "Best (highest) score across those answers; 0 when none.",
+        },
+    )
+        bestScore: number
+
+    @Field(
+        () => Int,
+        {
             description: "How many answers passed.",
         },
     )

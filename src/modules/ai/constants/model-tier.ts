@@ -14,41 +14,41 @@ import {
  * - Index 0 = primary choice
  * - Index 1 = fallback if the primary provider is unavailable
  *
- * Optimised for cost:
- *   low    → Gemini Flash (free-tier friendly) → OpenAI mini fallback
- *   medium → OpenAI mini (grading) / Gemini Flash (milestone) → fallback
- *   high   → OpenAI 4o (grading) / OpenAI mini (milestone) → fallback
+ * GPT + Gemini only, current-gen, optimised for cost:
+ *   low / medium → gpt-5.4-nano / gemini-2.5-flash-lite (cheapest)
+ *   high         → gpt-5.4-mini / gemini-3.5-flash (deeper reasoning)
+ *   CV high      → gemini-3.1-pro (flagship, long-context)
  */
 export const modelTierMatrix: Record<
     AiTaskKind,
     Record<ModelRecommendation, Array<ModelChoice>>
 > = {
     /**
-     * Grading: precision matters, larger models are better.
+     * Grading: precision matters, but cheap tiers handle rubric grading well.
      */
     [AiTaskKind.Grade]: {
         [ModelRecommendation.Low]: [
             {
-                model: "gpt-4o-mini", provider: ModelProvider.OpenAI
+                model: "gpt-5.4-nano", provider: ModelProvider.OpenAI
             },
             {
-                model: "gemini-2.0-flash", provider: ModelProvider.Gemini
+                model: "gemini-2.5-flash-lite", provider: ModelProvider.Gemini
             },
         ],
         [ModelRecommendation.Medium]: [
             {
-                model: "gpt-4o-mini", provider: ModelProvider.OpenAI
+                model: "gpt-5.4-nano", provider: ModelProvider.OpenAI
             },
             {
-                model: "gemini-2.0-flash", provider: ModelProvider.Gemini
+                model: "gemini-2.5-flash-lite", provider: ModelProvider.Gemini
             },
         ],
         [ModelRecommendation.High]: [
             {
-                model: "gpt-4o", provider: ModelProvider.OpenAI
+                model: "gpt-5.4-mini", provider: ModelProvider.OpenAI
             },
             {
-                model: "gemini-2.0-flash", provider: ModelProvider.Gemini
+                model: "gemini-3.5-flash", provider: ModelProvider.Gemini
             },
         ],
     },
@@ -59,26 +59,26 @@ export const modelTierMatrix: Record<
     [AiTaskKind.GenerateMilestone]: {
         [ModelRecommendation.Low]: [
             {
-                model: "gemini-2.0-flash", provider: ModelProvider.Gemini
+                model: "gemini-2.5-flash-lite", provider: ModelProvider.Gemini
             },
             {
-                model: "gpt-4o-mini", provider: ModelProvider.OpenAI
+                model: "gpt-5.4-nano", provider: ModelProvider.OpenAI
             },
         ],
         [ModelRecommendation.Medium]: [
             {
-                model: "gpt-4o-mini", provider: ModelProvider.OpenAI
+                model: "gpt-5.4-nano", provider: ModelProvider.OpenAI
             },
             {
-                model: "gemini-2.0-flash", provider: ModelProvider.Gemini
+                model: "gemini-2.5-flash-lite", provider: ModelProvider.Gemini
             },
         ],
         [ModelRecommendation.High]: [
             {
-                model: "gpt-4o", provider: ModelProvider.OpenAI
+                model: "gpt-5.4-mini", provider: ModelProvider.OpenAI
             },
             {
-                model: "gemini-2.0-flash", provider: ModelProvider.Gemini
+                model: "gemini-3.5-flash", provider: ModelProvider.Gemini
             },
         ],
     },
@@ -88,56 +88,56 @@ export const modelTierMatrix: Record<
     [AiTaskKind.ReviewPersonalProject]: {
         [ModelRecommendation.Low]: [
             {
-                model: "gpt-4o-mini", provider: ModelProvider.OpenAI
+                model: "gpt-5.4-nano", provider: ModelProvider.OpenAI
             },
             {
-                model: "gemini-2.0-flash", provider: ModelProvider.Gemini
+                model: "gemini-2.5-flash-lite", provider: ModelProvider.Gemini
             },
         ],
         [ModelRecommendation.Medium]: [
             {
-                model: "gpt-4o-mini", provider: ModelProvider.OpenAI
+                model: "gpt-5.4-nano", provider: ModelProvider.OpenAI
             },
             {
-                model: "gemini-2.0-flash", provider: ModelProvider.Gemini
+                model: "gemini-2.5-flash-lite", provider: ModelProvider.Gemini
             },
         ],
         [ModelRecommendation.High]: [
             {
-                model: "gpt-4o", provider: ModelProvider.OpenAI
+                model: "gpt-5.4-mini", provider: ModelProvider.OpenAI
             },
             {
-                model: "gemini-2.0-flash", provider: ModelProvider.Gemini
+                model: "gemini-3.5-flash", provider: ModelProvider.Gemini
             },
         ],
     },
 
     /**
-     * CV review analyze: long rubric + markdown — medium/high use flagship-tier models.
+     * CV review analyze: long rubric + markdown — medium/high use stronger models.
      */
     [AiTaskKind.ReviewCvSubmission]: {
         [ModelRecommendation.Low]: [
             {
-                model: "gemini-2.5-flash", provider: ModelProvider.Gemini
+                model: "gemini-2.5-flash-lite", provider: ModelProvider.Gemini
             },
             {
-                model: "gpt-4o-mini", provider: ModelProvider.OpenAI
+                model: "gpt-5.4-nano", provider: ModelProvider.OpenAI
             },
         ],
         [ModelRecommendation.Medium]: [
             {
-                model: "gpt-4o", provider: ModelProvider.OpenAI
+                model: "gpt-5.4-mini", provider: ModelProvider.OpenAI
             },
             {
-                model: "gemini-2.5-flash", provider: ModelProvider.Gemini
+                model: "gemini-3.5-flash", provider: ModelProvider.Gemini
             },
         ],
         [ModelRecommendation.High]: [
             {
-                model: "gemini-2.5-pro", provider: ModelProvider.Gemini
+                model: "gemini-3.1-pro", provider: ModelProvider.Gemini
             },
             {
-                model: "gpt-4o", provider: ModelProvider.OpenAI
+                model: "gpt-5.4-mini", provider: ModelProvider.OpenAI
             },
         ],
     },

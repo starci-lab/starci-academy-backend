@@ -13,3 +13,13 @@ export interface DrawRandomInterviewCardParams {
      * When set, only cards tagged with this level are eligible. */
     level?: FlashcardLevel | null
 }
+
+/** Params for {@link FlashcardDeckReadService.drawRandomCardForCourse}. */
+export interface DrawRandomInterviewCardForCourseParams {
+    /** Course whose decks the random gradable card is drawn from. */
+    courseId: string
+    /** Locale to load + localize the drawn card in. */
+    locale: Locale
+    /** Optional seniority level to restrict the draw to across the whole course. */
+    level?: FlashcardLevel | null
+}

@@ -1,0 +1,13 @@
+# Draft — Sub-view của tab = crumb section clickable (bỏ back-link) + tile-bấm-được dùng radius BUTTON (rounded-3xl) (2026-06-25)
+
+- File/§ đích khi `/merge`: `elements/header.md` §3 (đã thêm) + `elements/` (button) hoặc [[elements/input]] (radius) + [[leaf-page-one-nav-and-combined-tab-toolbar]] + [[gap]].
+- Bối cảnh: trang Flashcards review (bộ thẻ dưới "Ôn tập"). Thầy: *"breadcrumb thêm tên bộ thẻ · bỏ '← Tổng quan' · quên/được/dễ/khó rounded theo button · tăng gap-6 · bỏ thanh trống"*.
+
+## Luật (STRICT)
+- **Sub-view của 1 TAB → breadcrumb crumb TRUNG GIAN clickable thay back-link.** `… › <tab>(click→overview) › <tên sub-view>`. Crumb `<tab>` LÀ đường lùi → **bỏ "← back" riêng** (1 affordance lùi — [[leaf-page-one-nav-and-combined-tab-toolbar]]). `LearnBreadcrumb` thêm prop `section={{label,onPress}}` (chèn giữa course↔current). Đã ghi canonical [[elements/header.md]] §3. Khác leaf-SOLVE (dùng back-link vì chain generic dừng giữa chừng).
+- **Tile/khối BẤM ĐƯỢC đọc như NÚT (rating tile, segmented action…) → dùng RADIUS của button = `rounded-3xl`** (HeroUI `.button` bake `rounded-3xl`, đọc `@heroui/styles/.../button.css`), KHÔNG `rounded-medium`/`rounded-xl`. Để đồng bộ với các `<Button>` cạnh nó (vd "Xem đáp án"/"Trước"). Nguyên tắc radius theo VAI: field/input = `rounded-xl` ([[elements/input]]); **nút/tile-nút = `rounded-3xl`**; card = `rounded-3xl` (khung) / `rounded-2xl` (inset); chip/avatar = `rounded-full`. → "rounded theo button" = soi radius thật của `<Button>` (rounded-3xl) rồi khớp.
+- **Nhịp các section trong reviewer/reader = gap-6** (progress ↔ tags ↔ card ↔ nav/rating). Root `flex flex-col gap-6` (không gap-3). Nội bộ cụm con (rateHint ↔ rating buttons) vẫn gap-2. Ref [[gap]].
+- **Bỏ section render RỖNG (thanh trống).** Khối "related-contents" có `border-t pt-6` nhưng nhánh trong chỉ render contents → khi deck chỉ có modules (không contents) → ra **1 thanh trống có viền** dưới cùng. Thầy: *"bỏ luôn cái này"* → gỡ cả khối (broken + trống). Nguyên tắc: đừng để 1 wrapper có border/padding render khi nội dung bên trong rỗng (no dead bars) — ref [[labeled-section-render-empty-not-self-hide]] (rỗng → empty-state HOẶC bỏ hẳn, KHÔNG thanh trơ).
+
+## ĐÃ ÁP DỤNG 2026-06-25 (FE)
+- `LearnBreadcrumb`: thêm `section?` (crumb trung gian clickable). `Flashcards/index.tsx`: breadcrumb deck = `… › Ôn tập(→overview) › <deck.title>` (fetch shared SWR key), due-session = `… › Ôn tập › Đến hạn hôm nay`; **bỏ `BackToOverview`** (cả 2 nhánh) + component. `FlashcardReviewer`: root gap-3→gap-6, **gỡ khối related-contents** (thanh trống). `RatingBar` block: `rounded-medium`→`rounded-3xl` (theo button). tsc/eslint sạch.

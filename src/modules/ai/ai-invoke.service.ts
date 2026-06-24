@@ -31,8 +31,6 @@ import type {
     StreamActionResult,
 } from "./types"
 
-/** OpenAI-compatible base URL for the OpenRouter gateway (free models like DeepSeek). */
-const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 
 /**
  * Single entry point for "just run this prompt against a working LLM".
@@ -311,19 +309,6 @@ export class AiInvokeService {
                     model,
                     apiKey,
                     temperature,
-                },
-            )
-        case ModelProvider.OpenRouter:
-            // OpenRouter is OpenAI-compatible — reuse ChatOpenAI but point it at the
-            // OpenRouter gateway so free models (e.g. DeepSeek) resolve through one key.
-            return new ChatOpenAI(
-                {
-                    model,
-                    apiKey,
-                    temperature,
-                    configuration: {
-                        baseURL: OPENROUTER_BASE_URL,
-                    },
                 },
             )
         case ModelProvider.Gemini:

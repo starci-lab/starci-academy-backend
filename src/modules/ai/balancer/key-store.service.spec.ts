@@ -40,7 +40,7 @@ describe("KeyStoreService",
         let module: TestingModule
         let service: KeyStoreService
         let mountFilesystemService: jest.Mocked<
-            Pick<MountFilesystemService, "openAiApiKeys" | "geminiApiKeys" | "claudeApiKeys" | "openRouterApiKeys">
+            Pick<MountFilesystemService, "openAiApiKeys" | "geminiApiKeys">
         >
         let aiModelCatalogService: jest.Mocked<Pick<AiModelCatalogService, "enabledModels">>
 
@@ -52,10 +52,8 @@ describe("KeyStoreService",
                     "sk-openai-bbbb",
                 ]),
                 geminiApiKeys: jest.fn(() => []),
-                claudeApiKeys: jest.fn(() => []),
-                openRouterApiKeys: jest.fn(() => []),
             } as unknown as jest.Mocked<
-                Pick<MountFilesystemService, "openAiApiKeys" | "geminiApiKeys" | "claudeApiKeys" | "openRouterApiKeys">
+                Pick<MountFilesystemService, "openAiApiKeys" | "geminiApiKeys">
             >
 
             // catalog: a single OpenAI model row by default
@@ -157,8 +155,8 @@ describe("KeyStoreService",
             () => {
                 it("returns an empty array for an unknown / unloaded provider",
                     async () => {
-                        // Claude was never loaded → empty pool, no crash
-                        expect(service.getPool(ModelProvider.Claude)).toEqual([])
+                        // Gemini was never loaded → empty pool, no crash
+                        expect(service.getPool(ModelProvider.Gemini)).toEqual([])
                     })
             })
 

@@ -18,11 +18,11 @@ import {
  * surface area. Inside a tier `weight` decides which model is tried first.
  */
 export enum AiModelCategory {
-    /** Tiết kiệm — fast, cheap, smaller models. e.g. gpt-4o-mini, gemini-2.0-flash, claude-haiku. */
+    /** Tiết kiệm — fast, cheap, smaller models. e.g. gpt-5-nano, gemini-2.5-flash-lite. */
     Economy = "economy",
-    /** Cân bằng — mid-tier cost/quality. e.g. gpt-4o, gemini-2.5-flash. */
+    /** Cân bằng — mid-tier cost/quality. e.g. gpt-5-mini, gemini-2.5-flash. */
     Balanced = "balanced",
-    /** Cao cấp — flagship models, highest quality, highest cost. e.g. claude-sonnet-4-5, gemini-2.5-pro. */
+    /** Cao cấp — flagship models, highest quality, highest cost. e.g. gemini-2.5-pro. */
     Premium = "premium",
 }
 

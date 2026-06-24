@@ -39,10 +39,8 @@ import {
 } from "./utils/classify-ai-error"
 import type {
     AcquireKeyResult,
-    ClaudeApiKey,
     GeminiApiKey,
     OpenAiApiKey,
-    OpenRouterApiKey,
     UseApiAction,
     UseApiActionContext,
     UseApiAutoParams,
@@ -210,8 +208,11 @@ export class UseApiService {
         // is "premium") throws `Unsupported AI provider` even though the model is enabled.
         const catalog = await this.aiModelCatalogService.enabledModels(
             selectedModel && selectedProvider
-                ? {}
-                : { category },
+                ? {
+                }
+                : {
+                    category 
+                },
         )
         const target = this.resolvePremiumModel(
             catalog,
@@ -388,7 +389,8 @@ export class UseApiService {
         const providerCache = await this.aiPingCacheService.getProviderMap(provider)
         const now = new Date()
         return pool.filter(
-            (key) => isPingEntryEligible(providerCache[key.value], now),
+            (key) => isPingEntryEligible(providerCache[key.value],
+                now),
         ).length
     }
 
@@ -449,18 +451,6 @@ export class UseApiService {
             return {
                 provider: ModelProvider.Gemini,
                 key: key as GeminiApiKey,
-                model,
-            }
-        case ModelProvider.Claude:
-            return {
-                provider: ModelProvider.Claude,
-                key: key as ClaudeApiKey,
-                model,
-            }
-        case ModelProvider.OpenRouter:
-            return {
-                provider: ModelProvider.OpenRouter,
-                key: key as OpenRouterApiKey,
                 model,
             }
         default:

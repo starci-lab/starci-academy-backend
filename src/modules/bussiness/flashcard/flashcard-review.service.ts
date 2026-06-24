@@ -43,6 +43,14 @@ const GRADE_AGAIN = 0
 const EASE_FLOOR = 1.3
 
 /**
+ * Max NEW (never-reviewed) cards offered per "due today" batch. Caps the
+ * headline so a fresh viewer sees a manageable batch (overdue reviews + this
+ * many new) instead of the entire never-reviewed backlog (the "449" bug). The
+ * batch refills as new cards get reviewed and leave the new pool.
+ */
+const DAILY_NEW_LIMIT = 20
+
+/**
  * Spaced-repetition (SM-2) read + write for flashcards. {@link listDue} serves
  * the viewer's due-card queue (no review row yet OR past its `dueAt`) across all
  * decks — enrollment is NOT required, so trial viewers can review too; {@link review}
@@ -68,52 +76,85 @@ export class FlashcardReviewService {
     async listDue(
         {
             userId,
+            courseId,
             limit,
             locale,
         }: ListDueFlashcardsParams,
     ): Promise<DueFlashcardsResult> {
-        // build the shared "due cards" query: card → deck, and either no review row
-        // exists for this user or it is past due. Enrollment is NOT required — trial
-        // (non-enrolled) viewers can review flashcards too, so there is no enrollment join.
-        const baseQuery = this.entityManager
-            .createQueryBuilder(FlashcardCardEntity,
-                "card")
-            .innerJoin(FlashcardDeckEntity,
-                "deck",
-                "deck.id = card.flashcard_deck_id")
-            .leftJoin(
-                UserFlashcardReviewEntity,
-                "review",
-                "review.flashcard_card_id = card.id AND review.user_id = :userId",
-                {
-                    userId,
-                },
-            )
-            .where("(review.id IS NULL OR review.due_at <= now())")
+        // shared scaffold: card → deck SCOPED TO THE COURSE (the "đến hạn" count on
+        // a course page must reflect only that course's decks, not every deck
+        // system-wide), with the per-(user, card) review row left-joined. Enrollment
+        // is NOT required — trial viewers review flashcards too (no enrollment join).
+        const base = () => {
+            const qb = this.entityManager
+                .createQueryBuilder(FlashcardCardEntity,
+                    "card")
+                .innerJoin(FlashcardDeckEntity,
+                    "deck",
+                    "deck.id = card.flashcard_deck_id")
+                .leftJoin(
+                    UserFlashcardReviewEntity,
+                    "review",
+                    "review.flashcard_card_id = card.id AND review.user_id = :userId",
+                    {
+                        userId,
+                    },
+                )
+            // scope to one course on a course page; omit → global queue (dashboard)
+            if (courseId) {
+                qb.andWhere("deck.course_id = :courseId",
+                    {
+                        courseId,
+                    })
+            }
+            return qb
+        }
 
-        // total due count (full, independent of the page limit)
-        const dueCount = await baseQuery.clone().getCount()
+        // Split "due" into its two semantically-different buckets instead of lumping
+        // never-reviewed cards into "due today" (that made a fresh viewer see the
+        // whole backlog as due — the "449" bug).
+        //  - overdue REVIEW = already learned once, now past dueAt
+        //  - NEW = never reviewed; capped to DAILY_NEW_LIMIT for "today"
+        const OVERDUE = "review.id IS NOT NULL AND review.due_at <= now()"
+        const NEW = "review.id IS NULL"
+        const dueReviewCount = await base().andWhere(OVERDUE).getCount()
+        const newTotalCount = await base().andWhere(NEW).getCount()
+        const newCount = Math.min(newTotalCount,
+            DAILY_NEW_LIMIT)
+        const dueCount = dueReviewCount + newCount
 
-        // first page of due card ids — stable order (new cards first via NULLS
-        // FIRST on due_at, then oldest-due, tie-broken by id)
-        const rows = await baseQuery
-            .clone()
+        // page: overdue first (oldest-due first), then fill the rest with today's
+        // capped new batch — so reviews never starve behind new cards.
+        const SELECT_COLS = (qb: ReturnType<typeof base>) => qb
             .select("card.id",
                 "card_id")
-            // carry the prior review state so we can preview each grade's interval
             .addSelect("review.ease",
                 "review_ease")
             .addSelect("review.intervalDays",
                 "review_interval_days")
             .addSelect("review.repetitions",
                 "review_repetitions")
+        const overdueRows = await SELECT_COLS(base().andWhere(OVERDUE))
             .orderBy("review.due_at",
-                "ASC",
-                "NULLS FIRST")
+                "ASC")
             .addOrderBy("card.id",
                 "ASC")
             .limit(limit)
             .getRawMany<DueCardIdRow>()
+        const newSlots = Math.min(newCount,
+            Math.max(0,
+                limit - overdueRows.length))
+        const newRows = newSlots > 0
+            ? await SELECT_COLS(base().andWhere(NEW))
+                .orderBy("card.id",
+                    "ASC")
+                .limit(newSlots)
+                .getRawMany<DueCardIdRow>()
+            : []
+        const rows = [
+            ...overdueRows,
+            ...newRows,
+        ]
 
         const cardIds = rows.map((row) => row.card_id)
         // map each due card to its prior SM-2 state (defaults for a brand-new card)
@@ -129,6 +170,9 @@ export class FlashcardReviewService {
         if (cardIds.length === 0) {
             return {
                 dueCount,
+                dueReviewCount,
+                newCount,
+                newTotalCount,
                 cards: [],
             }
         }
@@ -190,6 +234,9 @@ export class FlashcardReviewService {
             }))
         return {
             dueCount,
+            dueReviewCount,
+            newCount,
+            newTotalCount,
             cards: localized,
         }
     }

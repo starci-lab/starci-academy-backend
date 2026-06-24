@@ -55,9 +55,9 @@ describe("AISecretService",
 
                 it("throws for a provider with no mounted secret",
                     async () => {
-                        // Claude has no mount property in this thin secret reader
+                        // an unknown provider has no mount property in this thin secret reader
                         await expect(
-                            service.get(ModelProvider.Claude),
+                            service.get("mystery" as ModelProvider),
                         ).rejects.toThrow("Unsupported model")
                     })
             })

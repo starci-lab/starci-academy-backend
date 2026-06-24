@@ -328,7 +328,11 @@
       "mcp__Claude_in_Chrome__read_console_messages",
       "WebFetch(domain:www.figma.com)",
       "WebFetch(domain:miro.com)",
-      "WebFetch(domain:catmoc.cmg.vn)"
+      "WebFetch(domain:catmoc.cmg.vn)",
+      "Bash(cd /d/Repositories/starci-academy-backend *)",
+      "WebFetch(domain:www.subframe.com)",
+      "Bash(SRC=\"D:/Repositories/starci-academy/.claude/rules/drafts/input-variant-by-surface-and-search-result-count.md\" *)",
+      "WebFetch(domain:www.npmjs.com)"
     ]
   }
 }

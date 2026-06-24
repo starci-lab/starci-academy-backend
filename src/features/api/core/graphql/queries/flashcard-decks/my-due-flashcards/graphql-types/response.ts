@@ -108,10 +108,34 @@ export class MyDueFlashcardsData {
     @Field(
         () => Int,
         {
-            description: "Total number of due cards across the viewer's enrolled decks.",
+            description: "Today's actionable queue = overdue reviews + capped new batch (NOT the whole backlog).",
         },
     )
         dueCount: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Overdue review cards (learned once, now past due).",
+        },
+    )
+        dueReviewCount: number
+
+    @Field(
+        () => Int,
+        {
+            description: "New cards offered today = min(newTotalCount, daily new limit).",
+        },
+    )
+        newCount: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Total never-reviewed cards in the course (full new backlog).",
+        },
+    )
+        newTotalCount: number
 
     @Field(
         () => [DueFlashcardObject],

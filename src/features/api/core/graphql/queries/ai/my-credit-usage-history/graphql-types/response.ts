@@ -45,7 +45,7 @@ export class CreditUsageHistoryItemObject {
         () => String,
         {
             nullable: true,
-            description: "Concrete model billed (e.g. claude-sonnet-4-5); null for the free Auto lane.",
+            description: "Concrete model billed (e.g. gpt-5-mini); null for the free Auto lane.",
         },
     )
         model: string | null
@@ -54,7 +54,7 @@ export class CreditUsageHistoryItemObject {
         () => String,
         {
             nullable: true,
-            description: "Provider of the billed model (gemini / openai / claude); null for the free Auto lane.",
+            description: "Provider of the billed model (gemini / openai); null for the free Auto lane.",
         },
     )
         provider: string | null

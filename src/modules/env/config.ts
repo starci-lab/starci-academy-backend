@@ -1216,22 +1216,6 @@ export const envConfig = () => ({
                     "keys",
                     "gemini-api-keys.key"),
             }),
-            claude: parseEnvString({
-                key: "AI_KEYS_CLAUDE_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "keys",
-                    "claude-api-keys.key"),
-            }),
-            openrouter: parseEnvString({
-                key: "AI_KEYS_OPENROUTER_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "keys",
-                    "openrouter-api-keys.key"),
-            }),
         },
     },
     /** CORS: allowed origins (CORS_ORIGIN_1 … CORS_ORIGIN_10, empty skipped). */
@@ -2010,8 +1994,8 @@ export const envConfig = () => ({
             }),
             /**
              * Time (ms) between the **start** of consecutive key sweeps **per provider**.
-             * Example: `5s` with three Claude keys and `keyStaggerMs = 1s` retriggers
-             * the Claude sweep every 5s while keys fire at 0s / 1s / 2s within each sweep.
+             * Example: `5s` with three provider keys and `keyStaggerMs = 1s` retriggers
+             * the provider sweep every 5s while keys fire at 0s / 1s / 2s within each sweep.
              */
             cycleIntervalMs: parseEnvMs({
                 key: "AI_PING_CYCLE_INTERVAL_MS",
