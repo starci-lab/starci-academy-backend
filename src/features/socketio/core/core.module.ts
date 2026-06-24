@@ -19,6 +19,12 @@ import {
 import {
     NotificationsModule,
 } from "./notifications"
+import {
+    CommunityFeedModule,
+} from "./community-feed"
+import {
+    CommunityChatModule,
+} from "./community-chat"
 
 /**
  * Feature module bundling all real-time Socket.IO gateways of the app.
@@ -40,6 +46,12 @@ import {
             isGlobal: true,
         }),
         NotificationsModule.register({
+            isGlobal: true,
+        }),
+        CommunityFeedModule.register({
+            isGlobal: true,
+        }),
+        CommunityChatModule.register({
             isGlobal: true,
         }),
     ],

@@ -72,6 +72,12 @@ import {
 import {
     LoyaltyModule,
 } from "./loyalty"
+import {
+    CommunityModule,
+} from "./community"
+import {
+    ChatModule,
+} from "./chat"
 
 /**
  * The module for the bussiness logics.
@@ -124,6 +130,10 @@ export class BussinessModule extends ConfigurableModuleClass {
             EsSyncModule.register(options),
             // import the loyalty-discount module (engagement-based course discount)
             LoyaltyModule.register(options),
+            // import the community module (feed posts + comments + reactions)
+            CommunityModule.register(options),
+            // import the chat module (community room + founder DM threads)
+            ChatModule.register(options),
         ]
         return {
             ...dynamicModule,

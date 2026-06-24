@@ -35,6 +35,14 @@ export class CoursePricePreviewData {
     @Field(
         () => Int,
         {
+            description: "Active-phase VND price BEFORE loyalty (between original/list and discounted) — for the price breakdown.",
+        },
+    )
+        phasePriceVnd: number
+
+    @Field(
+        () => Int,
+        {
             description: "Loyalty-discounted VND price (what the viewer would pay via PayOS / Sepay).",
         },
     )
@@ -56,6 +64,15 @@ export class CoursePricePreviewData {
         },
     )
         originalPriceUsd: number | null
+
+    @Field(
+        () => Float,
+        {
+            nullable: true,
+            description: "Active-phase USD price BEFORE loyalty (between original/list and discounted) — for the breakdown; null when no USD price.",
+        },
+    )
+        phasePriceUsd: number | null
 
     @Field(
         () => Float,

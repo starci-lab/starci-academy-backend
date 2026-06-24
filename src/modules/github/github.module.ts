@@ -13,9 +13,6 @@ import {
 import {
     GithubApiOrgService,
 } from "./org.service"
-import {
-    GithubTeamRepoSyncService,
-} from "./team-repo-sync.service"
 
 /**
  * Module for GitHub OAuth.
@@ -25,13 +22,11 @@ import {
         GithubOauthRedirectService,
         GithubApiAuthService,
         GithubApiOrgService,
-        GithubTeamRepoSyncService,
     ],
     exports: [
         GithubOauthRedirectService,
         GithubApiAuthService,
         GithubApiOrgService,
-        GithubTeamRepoSyncService,
     ],
 })
 export class GithubModule extends ConfigurableModuleClass {

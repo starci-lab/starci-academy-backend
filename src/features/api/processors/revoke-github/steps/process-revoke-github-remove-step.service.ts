@@ -4,6 +4,7 @@ import type {
 import {
     JobActionService,
     AbstractStepService,
+    EnqueueSendMailJobService,
     JobExtendedContext,
 } from "@modules/bussiness"
 import {
@@ -12,6 +13,12 @@ import {
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
+import {
+    envConfig,
+} from "@modules/env"
+import {
+    enqueueLearnerEmail,
+} from "@modules/transactional-email"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -40,6 +47,7 @@ export class ProcessRevokeGithubRemoveStepService extends AbstractStepService<
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
         private readonly githubApiOrgService: GithubApiOrgService,
+        private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
     ) {
         super()
     }
@@ -137,5 +145,18 @@ export class ProcessRevokeGithubRemoveStepService extends AbstractStepService<
                 success: true,
             },
         )
+
+        // GitHub team membership removed → notify the learner their access ended.
+        await enqueueLearnerEmail({
+            entityManager: this.entityManager,
+            enqueueSendMailJobService: this.enqueueSendMailJobService,
+            userId: payload.userId,
+            template: "access-revoked",
+            webBaseUrl: envConfig().web.baseUrl,
+            subject: {
+                vi: "Quyền truy cập repository đã được gỡ",
+                en: "Your repository access was removed",
+            },
+        })
     }
 }

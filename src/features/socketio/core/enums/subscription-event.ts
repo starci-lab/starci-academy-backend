@@ -9,4 +9,13 @@ export enum SubscriptionEvent {
     CommentReactionChanged = "content_discussion.comment_reaction_changed.subscription",
     AiLabRunChunk = "ai_lab.run_chunk.subscription",
     NotificationCreated = "notifications.notification_created.subscription",
+    CommunityPostCreated = "community_feed.post_created.subscription",
+    CommunityPostUpdated = "community_feed.post_updated.subscription",
+    CommunityPostDeleted = "community_feed.post_deleted.subscription",
+    CommunityCommentCreated = "community_feed.comment_created.subscription",
+    CommunityCommentUpdated = "community_feed.comment_updated.subscription",
+    CommunityCommentDeleted = "community_feed.comment_deleted.subscription",
+    CommunityPostReactionChanged = "community_feed.post_reaction_changed.subscription",
+    CommunityCommentReactionChanged = "community_feed.comment_reaction_changed.subscription",
+    ChatMessageCreated = "community_chat.message_created.subscription",
 }

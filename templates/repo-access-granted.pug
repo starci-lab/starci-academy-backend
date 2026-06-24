@@ -1,0 +1,13 @@
+extends layouts/base
+
+block content
+  - var vi = locale === 'vi'
+  p.eyebrow= vi ? 'Đã cấp quyền GitHub' : 'GitHub access granted'
+  h1= vi ? 'Bạn đã có quyền truy cập repository' : 'Your repository access is ready'
+  p= vi ? `Chào ${name}, tài khoản GitHub của bạn đã được thêm vào tổ chức khóa học — giờ bạn có thể truy cập các repository riêng tư.` : `Hi ${name}, your GitHub account has been added to the course organization — you can now access the private repositories.`
+  if githubUsername
+    div(style="margin:0 0 24px; padding:14px 18px; background:#f6f6f6; border:1px solid #ececec; border-radius:12px; font-size:14px; color:#3f3d3e;")
+      | GitHub:
+      |
+      strong= githubUsername
+  a.btn-primary(href=dashboardUrl)= vi ? 'Mở khóa học →' : 'Open your course →'

@@ -15,10 +15,6 @@ import type {
     AddGithubUserToTeamInOrgResult,
     GetGithubUserTeamMembershipParams,
     GetGithubUserTeamMembershipResult,
-    GrantTeamRepoAccessParams,
-    GrantTeamRepoAccessResult,
-    ListOrgRepoNamesByPrefixParams,
-    ListOrgRepoNamesByPrefixResult,
     RemoveGithubUserFromTeamInOrgParams,
     RemoveGithubUserFromTeamInOrgResult,
 } from "./types"
@@ -140,74 +136,4 @@ export class GithubApiOrgService {
         }
     }
 
-    /**
-     * Grants (or updates) a team's permission on a single org repo. Idempotent —
-     * re-running with the same permission is a no-op on GitHub's side, so the
-     * boot-time access sync can run on every deploy safely.
-     *
-     * @param param - Team slug, repo name, and permission level (default `pull`)
-     * @returns Whether the grant call completed without error
-     */
-    async grantTeamRepoAccess(
-        {
-            teamSlug,
-            repo,
-            permission = "pull",
-        }: GrantTeamRepoAccessParams,
-    ): Promise<GrantTeamRepoAccessResult> {
-        const octokit = new Octokit(
-            {
-                auth: this.mountStorageService.githubAccessToken,
-            },
-        )
-        const org = envConfig().services.github.organization
-        await octokit.rest.teams.addOrUpdateRepoPermissionsInOrg(
-            {
-                org,
-                team_slug: teamSlug,
-                owner: org,
-                repo,
-                permission,
-            },
-        )
-
-        return {
-            success: true,
-        }
-    }
-
-    /**
-     * Lists org repo names whose name starts with `prefix`. Used to resolve a
-     * course's module repos (named `<courseDisplayId>-module-…`) from the
-     * course→team mapping so the team can be granted access to all of them.
-     *
-     * @param param - The repo-name prefix to match
-     * @returns The matching repo names
-     */
-    async listOrgRepoNamesByPrefix(
-        {
-            prefix,
-        }: ListOrgRepoNamesByPrefixParams,
-    ): Promise<ListOrgRepoNamesByPrefixResult> {
-        const octokit = new Octokit(
-            {
-                auth: this.mountStorageService.githubAccessToken,
-            },
-        )
-        const org = envConfig().services.github.organization
-        const repos = await octokit.paginate(
-            octokit.rest.repos.listForOrg,
-            {
-                org,
-                per_page: 100,
-                type: "all",
-            },
-        )
-
-        return {
-            repoNames: repos
-                .map((repo) => repo.name)
-                .filter((name) => name.startsWith(prefix)),
-        }
-    }
 }

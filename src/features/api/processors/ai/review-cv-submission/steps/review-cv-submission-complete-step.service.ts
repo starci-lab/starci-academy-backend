@@ -1,8 +1,15 @@
 import {
     AbstractStepService,
+    EnqueueSendMailJobService,
     JobActionService,
     JobExtendedContext,
 } from "@modules/bussiness"
+import {
+    envConfig,
+} from "@modules/env"
+import {
+    enqueueLearnerEmail,
+} from "@modules/transactional-email"
 import type {
     ReviewCvSubmissionPayload,
 } from "@modules/bullmq"
@@ -76,6 +83,7 @@ export class ReviewCvSubmissionCompleteStepService extends AbstractStepService<
         private readonly extractStepService: ReviewCvSubmissionExtractStepService,
         private readonly planStepService: ReviewCvSubmissionPlanStepService,
         private readonly dayjsService: DayjsService,
+        private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
     ) {
         super()
     }
@@ -242,5 +250,23 @@ export class ReviewCvSubmissionCompleteStepService extends AbstractStepService<
                 success: true,
             },
         )
+
+        // Notify the learner — reaching here means a new attempt was persisted
+        // (the `alreadyDone` short-circuit above handles retries/duplicates).
+        await enqueueLearnerEmail({
+            entityManager: this.entityManager,
+            enqueueSendMailJobService: this.enqueueSendMailJobService,
+            userId: context.extended.user.id,
+            template: "cv-reviewed",
+            locale: payload.locale,
+            webBaseUrl: envConfig().web.baseUrl,
+            subject: {
+                vi: "Bản review CV của bạn đã sẵn sàng",
+                en: "Your CV review is ready",
+            },
+            extraContext: {
+                score: score ?? null,
+            },
+        })
     }
 }

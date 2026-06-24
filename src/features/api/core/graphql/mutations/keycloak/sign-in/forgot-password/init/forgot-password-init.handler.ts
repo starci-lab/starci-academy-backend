@@ -80,7 +80,7 @@ export class ForgotPasswordInitHandler
                     },
                 ],
                 subject: "Reset your password",
-                template: "sign-in-otp",
+                template: "forgot-password-otp",
                 context: {
                     otp: challenge.otp,
                     expiresInMinutes: Math.max(

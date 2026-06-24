@@ -45,8 +45,12 @@ import type {
     SignUpActionPayload,
 } from "../types"
 import {
-    EmailBloomFilterService 
+    EmailBloomFilterService,
+    EnqueueSendMailJobService,
 } from "@modules/bussiness"
+import {
+    envConfig,
+} from "@modules/env"
 
 @CommandHandler(SignUpVerifyOtpCommand)
 @Injectable()
@@ -62,6 +66,7 @@ export class SignUpVerifyOtpHandler
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly emailBloomFilterService: EmailBloomFilterService,
+        private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
     ) {
         super()
     }
@@ -160,6 +165,27 @@ export class SignUpVerifyOtpHandler
             )
             await this.entityManager.save(user)
             await this.emailBloomFilterService.add(user.email ?? "")
+
+            // First-time registration → send a one-off welcome email.
+            const recipient = decoded.email ?? result.payload.email
+            if (recipient) {
+                await this.enqueueSendMailJobService.enqueue({
+                    to: [
+                        {
+                            address: recipient,
+                        },
+                    ],
+                    subject: "Welcome to StarCi Academy",
+                    template: "welcome",
+                    context: {
+                        name:
+                            result.payload.firstName ??
+                            decoded.preferred_username ??
+                            user.username,
+                        loginUrl: envConfig().web.baseUrl,
+                    },
+                })
+            }
         }
         return {
             data: {

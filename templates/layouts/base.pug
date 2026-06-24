@@ -1,7 +1,9 @@
 //- ─────────────────────────────────────────────────
-//- Base layout for all Starci Academy emails.
-//- Provides a branded wrapper, header, footer, and
-//- a `block content` slot for child templates.
+//- Base layout for all StarCi Academy emails.
+//- Clean, modern transactional style: white card,
+//- wordmark header, generous whitespace, brand rose
+//- accent (matches the web app token --accent, hue 354).
+//- Child templates fill `block content`.
 //- ─────────────────────────────────────────────────
 doctype html
 html(lang="en")
@@ -10,84 +12,135 @@ html(lang="en")
     meta(name="viewport" content="width=device-width, initial-scale=1.0")
     style.
       /* Reset */
-      body, table, td, p, a, li { margin: 0; padding: 0; }
+      body, table, td, p, a, h1, span { margin: 0; padding: 0; }
       body { width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
-      table { border-collapse: collapse; }
       img { border: 0; outline: none; text-decoration: none; }
 
-      /* Wrapper */
-      .email-wrapper {
-        max-width: 600px;
+      .email-bg {
+        background-color: #f6f5f5;
+        padding: 28px 16px;
+        font-family: -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      }
+
+      /* Card */
+      .email-card {
+        max-width: 520px;
         margin: 0 auto;
-        font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         background-color: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
+        border: 1px solid #ececec;
+        border-radius: 16px;
         overflow: hidden;
       }
 
-      /* Header */
-      .email-header {
-        background: linear-gradient(135deg, #6366f1, #8b5cf6);
-        padding: 32px 24px;
-        text-align: center;
+      /* Brand lockup */
+      .email-brand {
+        padding: 28px 36px 0;
       }
-      .email-header h1 {
-        color: #ffffff;
-        font-size: 24px;
+      .email-brand .brand-mark {
+        width: 36px;
+        height: 36px;
+        vertical-align: middle;
+      }
+      .email-brand .brand-text {
+        display: inline-block;
+        margin-left: 10px;
+        vertical-align: middle;
+      }
+      .email-brand .brand-name {
+        display: block;
+        font-size: 17px;
         font-weight: 700;
-        letter-spacing: -0.5px;
+        color: #191818;
+        letter-spacing: -0.2px;
+        line-height: 1.1;
+      }
+      .email-brand .brand-tag {
+        display: block;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: #a3a1a2;
+        line-height: 1.4;
       }
 
       /* Body */
       .email-body {
-        padding: 32px 24px;
-        color: #374151;
+        padding: 26px 36px 36px;
+        color: #737172;
         font-size: 15px;
-        line-height: 1.7;
+        line-height: 1.65;
       }
+      .email-body h1 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #191818;
+        letter-spacing: -0.4px;
+        margin-bottom: 10px;
+      }
+      .email-body p { margin-bottom: 16px; }
+      .email-body .eyebrow {
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #d73588;
+        margin-bottom: 6px;
+      }
+      .email-body .muted { color: #a3a1a2; font-size: 13px; }
+      .email-body .divider { height: 1px; background-color: #f0efef; margin: 28px 0; line-height: 1px; font-size: 0; }
+
+      /* OTP cells */
+      .otp-row { margin: 4px 0 14px; }
+      .otp-cell {
+        display: inline-block;
+        width: 48px;
+        padding: 16px 0;
+        margin-right: 8px;
+        text-align: center;
+        background-color: #fff5f9;
+        border: 1px solid #ffd9e8;
+        border-radius: 12px;
+        font-family: 'SF Mono', ui-monospace, 'Courier New', monospace;
+        font-size: 26px;
+        font-weight: 700;
+        color: #99095c;
+      }
+      .otp-cell.last { margin-right: 0; }
 
       /* Button */
       .btn-primary {
         display: inline-block;
-        padding: 12px 28px;
-        margin: 24px 0;
-        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        padding: 13px 26px;
+        background-color: #fb59a7;
         color: #ffffff !important;
         text-decoration: none;
-        border-radius: 6px;
+        border-radius: 10px;
         font-weight: 600;
-        font-size: 15px;
+        font-size: 14px;
       }
 
-      /* Footer */
+      /* Footer (outside the card) */
       .email-footer {
-        background-color: #f9fafb;
-        padding: 20px 24px;
+        max-width: 520px;
+        margin: 14px auto 0;
         text-align: center;
         font-size: 12px;
-        color: #9ca3af;
+        color: #b3b1b2;
       }
-      .email-footer a {
-        color: #6366f1;
-        text-decoration: none;
-      }
+      .email-footer a { color: #d73588; text-decoration: none; }
 
-  body(style="background-color: #f3f4f6; padding: 24px 0;")
-    table.email-wrapper(role="presentation" cellpadding="0" cellspacing="0" width="100%")
-      //- Header
-      tr
-        td.email-header
-          h1 ⭐ Starci Academy
-
-      //- Content – provided by child templates
-      tr
-        td.email-body
+  body(style="margin:0;")
+    .email-bg
+      .email-card
+        .email-brand
+          img.brand-mark(src="https://academy.starci.org/logo-icon.png" alt="StarCi Academy" width="36" height="36")
+          span.brand-text
+            span.brand-name StarCi
+            span.brand-tag academy
+        .email-body
           block content
-
-      //- Footer
-      tr
-        td.email-footer
-          p &copy; #{new Date().getFullYear()} Starci Academy. All rights reserved.
-          p
-            a(href="https://academy.starci.org") academy.starci.org
+      .email-footer
+        | &copy; #{new Date().getFullYear()} StarCi Academy &middot;
+        |
+        a(href="https://academy.starci.org") academy.starci.org

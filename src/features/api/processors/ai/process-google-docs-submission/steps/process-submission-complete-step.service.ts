@@ -4,6 +4,7 @@ import type {
 import {
     JobActionService,
     CreditUsageService,
+    EnqueueSendMailJobService,
     ProgressProjectionService,
     writeActivity,
 } from "@modules/bussiness"
@@ -63,6 +64,9 @@ import {
     FLAT_POINTS,
     writeXpHistory,
 } from "../../shared/xp"
+import {
+    enqueueSubmissionResultEmail,
+} from "@modules/transactional-email"
 
 /** Postgres unique-violation SQLSTATE — a concurrent duplicate lost the idempotency race. */
 const PG_UNIQUE_VIOLATION = "23505"
@@ -88,6 +92,7 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
         private readonly creditUsageService: CreditUsageService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly progressProjectionService: ProgressProjectionService,
+        private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
     ) {
         super()
     }
@@ -340,6 +345,22 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                 enrollmentId: payload.enrollmentId,
             },
         })
+
+        // Notify the learner of their graded result — only on the run that
+        // actually created the attempt (idempotent: retries/duplicates skip it).
+        // Best-effort: the helper never throws, so a mail failure can't fail the
+        // already-committed grading job.
+        if (createdNewAttempt) {
+            await enqueueSubmissionResultEmail({
+                entityManager: this.entityManager,
+                enqueueSendMailJobService: this.enqueueSendMailJobService,
+                userChallengeSubmissionId: payload.userChallengeSubmissionId,
+                score: grade.evaluation.score,
+                feedback: grade.evaluation.shortFeedback,
+                webBaseUrl: envConfig().web.baseUrl,
+                locale: payload.locale,
+            })
+        }
     }
 
     /**

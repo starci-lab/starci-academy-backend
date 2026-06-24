@@ -91,6 +91,12 @@ import {
 import {
     BlogQueriesModule,
 } from "./blog"
+import {
+    CommunityQueriesModule,
+} from "./community"
+import {
+    ChatQueriesModule,
+} from "./chat"
 
 @Module({
     imports: [
@@ -179,6 +185,12 @@ import {
             isGlobal: true,
         }),
         BlogQueriesModule.register({
+            isGlobal: true,
+        }),
+        CommunityQueriesModule.register({
+            isGlobal: true,
+        }),
+        ChatQueriesModule.register({
             isGlobal: true,
         }),
     ],

@@ -6,4 +6,6 @@ export enum PublicationEvent {
     SubscribeAiLabRun = "ai_lab.subscribe_run.publication",
     AbortAiLabRun = "ai_lab.abort_run.publication",
     SubscribeNotifications = "notifications.subscribe.publication",
+    SubscribeCommunityFeed = "community_feed.subscribe.publication",
+    SubscribeCommunityChat = "community_chat.subscribe.publication",
 }

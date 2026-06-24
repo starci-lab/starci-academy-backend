@@ -97,6 +97,12 @@ describe("ProcessGitSubmissionCompleteStepService",
                 new DayjsService(),
                 creditUsageService as never,
                 aiEntitlementService as never,
+                {
+                    recompute: jest.fn(),
+                } as never,
+                {
+                    enqueue: jest.fn(),
+                } as never,
             )
         })
 

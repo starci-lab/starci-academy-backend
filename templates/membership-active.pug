@@ -1,0 +1,9 @@
+extends layouts/base
+
+block content
+  - var vi = locale === 'vi'
+  p.eyebrow= vi ? 'Thành viên' : 'Membership'
+  h1= vi ? 'Chào mừng bạn trở thành thành viên' : 'Welcome to membership'
+  p= vi ? `Chào ${name}, cảm ơn bạn đã tham gia. Quyền thành viên của bạn đã được kích hoạt — bạn đã mở khóa nội dung premium, cộng đồng và ưu đãi khóa học.` : `Hi ${name}, thanks for joining. Your membership is now active — you’ve unlocked premium content, the community, and course discounts.`
+  p(style="margin-bottom:28px;")= vi ? 'Rất vui được đồng hành cùng bạn.' : 'Glad to have you on board.'
+  a.btn-primary(href=dashboardUrl)= vi ? 'Khám phá quyền lợi →' : 'Explore your benefits →'

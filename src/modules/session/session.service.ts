@@ -29,8 +29,15 @@ import {
 } from "@modules/cookie"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    LoginSessionEntity
+    LoginSessionEntity,
+    UserEntity
 } from "@modules/databases"
+import {
+    EnqueueSendMailJobService
+} from "@modules/bussiness"
+import {
+    enqueueLearnerEmail
+} from "@modules/transactional-email"
 import {
     LoginSessionNotFoundException
 } from "@modules/exceptions"
@@ -81,6 +88,7 @@ export class SessionService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly cookieService: CookieService,
+        private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
     ) { }
 
     /**
@@ -121,6 +129,21 @@ export class SessionService {
             lastSeenAt: now,
         }
         const key = this.key(userId)
+        // is this device new? compare its fingerprint against the currently-active
+        // sessions BEFORE we add/evict, so a returning device never re-alerts.
+        const existingSessions = await this.redis.hgetall(key)
+        const isNewDevice = !Object.values(existingSessions).some((json) => {
+            try {
+                const prior = JSON.parse(json) as SessionRecord
+                return (
+                    prior.deviceType === record.deviceType &&
+                    prior.os === record.os &&
+                    prior.browser === record.browser
+                )
+            } catch {
+                return false
+            }
+        })
         // make room first: drop the oldest session(s) when the account is full
         await this.evictOldestIfFull(userId)
         // add this session to the enforcement hash
@@ -145,6 +168,43 @@ export class SessionService {
             keycloakId: userId,
             record,
         })
+
+        // security alert: a sign-in from a device we have not seen before.
+        // `userId` here is the Keycloak subject — resolve the local user row for
+        // the email address. Best-effort: never let a mail failure break login.
+        if (isNewDevice) {
+            const user = await this.entityManager.findOne(
+                UserEntity,
+                {
+                    where: {
+                        keycloakId: userId,
+                    },
+                    select: {
+                        id: true,
+                    },
+                },
+            )
+            if (user) {
+                await enqueueLearnerEmail({
+                    entityManager: this.entityManager,
+                    enqueueSendMailJobService: this.enqueueSendMailJobService,
+                    userId: user.id,
+                    template: "new-device-signin",
+                    webBaseUrl: envConfig().web.baseUrl,
+                    subject: {
+                        vi: "Có đăng nhập mới vào tài khoản của bạn",
+                        en: "New sign-in to your account",
+                    },
+                    extraContext: {
+                        deviceType: record.deviceType,
+                        os: record.os,
+                        browser: record.browser,
+                        location: record.location,
+                        ipAddress: record.ipAddress,
+                    },
+                })
+            }
+        }
     }
 
     /**

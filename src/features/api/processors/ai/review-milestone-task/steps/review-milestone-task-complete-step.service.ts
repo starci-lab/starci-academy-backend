@@ -3,9 +3,13 @@ import type {
 } from "@modules/bullmq"
 import {
     JobActionService,
+    EnqueueSendMailJobService,
     ProgressProjectionService,
     writeActivity,
 } from "@modules/bussiness"
+import {
+    envConfig,
+} from "@modules/env"
 import {
     AbstractStepService,
     JobExtendedContext,
@@ -57,6 +61,9 @@ import {
     FLAT_POINTS,
     writeXpHistory,
 } from "../../shared/xp"
+import {
+    enqueueLearnerEmail,
+} from "@modules/transactional-email"
 
 /** Postgres unique-violation SQLSTATE — a concurrent duplicate lost the idempotency race. */
 const PG_UNIQUE_VIOLATION = "23505"
@@ -83,6 +90,7 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
         private readonly eventEmitterService: EventEmitterService,
         private readonly dayjsService: DayjsService,
         private readonly progressProjectionService: ProgressProjectionService,
+        private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
     ) {
         super()
     }
@@ -119,6 +127,7 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
             })
         }
 
+        let createdNewAttempt = false
         try {
             await this.entityManager.transaction(
                 async (entityManager) => {
@@ -214,6 +223,7 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                             defaultLocale: payload.locale ?? Locale.En,
                         }
                     )
+                    createdNewAttempt = true
                     /**
                      * Grant XP + reward points once when the task is passed. refId is the
                      * user-milestone-task id, so re-passing the same task never re-credits
@@ -331,5 +341,40 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                 },
             }
         )
+
+        // Notify the learner — only on the run that created the attempt (idempotent).
+        if (createdNewAttempt) {
+            const enrollment = await this.entityManager.findOne(
+                EnrollmentEntity,
+                {
+                    where: {
+                        id: payload.enrollmentId,
+                    },
+                    select: {
+                        id: true,
+                        userId: true,
+                    },
+                },
+            )
+            if (enrollment) {
+                await enqueueLearnerEmail({
+                    entityManager: this.entityManager,
+                    enqueueSendMailJobService: this.enqueueSendMailJobService,
+                    userId: enrollment.userId,
+                    template: "milestone-result",
+                    locale: payload.locale,
+                    webBaseUrl: envConfig().web.baseUrl,
+                    subject: {
+                        vi: "Task dự án cá nhân của bạn đã được chấm",
+                        en: "Your personal-project task was reviewed",
+                    },
+                    extraContext: {
+                        score: grade.evaluation.score,
+                        passed: grade.passed,
+                        feedback: grade.evaluation.shortFeedback ?? "",
+                    },
+                })
+            }
+        }
     }
 }

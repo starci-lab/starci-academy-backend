@@ -271,9 +271,9 @@ export class AiEntitlementService {
         userId,
         tier,
         transactionId,
-    }: GrantTierParams): Promise<void> {
-        await this.entityManager.transaction(
-            async (entityManager) => {
+    }: GrantTierParams): Promise<boolean> {
+        return this.entityManager.transaction(
+            async (entityManager): Promise<boolean> => {
                 // idempotency guard — skip if this payment was already applied
                 const transaction = await entityManager.findOne(
                     TransactionEntity,
@@ -284,7 +284,8 @@ export class AiEntitlementService {
                     },
                 )
                 if (transaction?.status === TransactionStatus.Succeeded) {
-                    return
+                    // already granted by a concurrent/earlier path → not a new grant
+                    return false
                 }
 
                 // activate the tier for a fresh billing period
@@ -312,6 +313,8 @@ export class AiEntitlementService {
                         status: TransactionStatus.Succeeded,
                     },
                 )
+                // a new grant happened → caller may notify the buyer
+                return true
             },
         )
     }

@@ -1,0 +1,9 @@
+extends layouts/base
+
+block content
+  - var vi = locale === 'vi'
+  p.eyebrow= vi ? 'Thanh toán' : 'Payment'
+  h1= vi ? 'Thanh toán chưa hoàn tất' : 'Your payment didn’t go through'
+  p= vi ? `Chào ${name}, chúng tôi chưa nhận được thanh toán cho đơn hàng gần đây của bạn, nên đơn chưa được kích hoạt.` : `Hi ${name}, we didn’t receive payment for your recent order, so it hasn’t been activated.`
+  p(style="margin-bottom:28px;")= vi ? 'Bạn có thể thử lại bất cứ lúc nào — nếu cần hỗ trợ, hãy liên hệ với chúng tôi.' : 'You can try again anytime — if you need help, just get in touch.'
+  a.btn-primary(href=dashboardUrl)= vi ? 'Thử lại →' : 'Try again →'

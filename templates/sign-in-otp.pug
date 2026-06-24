@@ -1,9 +1,12 @@
 extends layouts/base
 
 block content
-  h2(style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #111827;") Sign-in verification
-  p Use the following verification code to confirm your sign-in:
-  p(style="font-size: 28px; font-weight: 700; letter-spacing: 4px; text-align: center; margin: 20px 0; color: #111827;") #{otp}
-  p(style="margin-top: 16px; color: #374151;") This code expires in #{expiresInMinutes} minute(s).
-  p(style="margin-top: 24px; color: #6b7280; font-size: 13px;") If you didn’t request this code, you can safely ignore this email.
-
+  h1 Confirm your sign-in
+  p Enter this code to confirm it’s really you signing in.
+  .otp-row
+    - var digits = String(otp).split('')
+    each d, i in digits
+      span.otp-cell(class=(i === digits.length - 1 ? 'last' : ''))= d
+  p.muted(style="margin-bottom:0;") This code expires in #{expiresInMinutes} minutes.
+  .divider
+  p.muted(style="margin-bottom:0;") Didn’t request this? You can safely ignore this email — no changes will be made to your account.

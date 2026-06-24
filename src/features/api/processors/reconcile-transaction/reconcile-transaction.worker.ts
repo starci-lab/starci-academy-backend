@@ -9,9 +9,15 @@ import {
 import {
     EnqueueEnrollJobService,
     EnqueueReconcileTransactionJobService,
+    EnqueueSendMailJobService,
     TransactionActionService,
     TransactionReconcileQueryService,
 } from "@modules/bussiness"
+import {
+    enqueueMembershipActiveEmail,
+    enqueuePaymentFailedEmail,
+    enqueueSubscriptionActiveEmail,
+} from "@modules/transactional-email"
 import {
     AiEntitlementService,
 } from "@modules/ai"
@@ -76,6 +82,7 @@ export class ReconcileTransactionWorker extends WorkerHost {
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly membershipService: MembershipService,
         private readonly winstonService: WinstonService,
+        private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
     ) {
         super()
     }
@@ -158,6 +165,14 @@ export class ReconcileTransactionWorker extends WorkerHost {
             status: TransactionStatus.Unpaid,
             expectedStatus: TransactionStatus.Pending,
         })
+        // we only reach here from a PENDING row (guarded above), so this is the
+        // first-and-only unpaid transition → notify the buyer once.
+        await enqueuePaymentFailedEmail({
+            entityManager: this.entityManager,
+            enqueueSendMailJobService: this.enqueueSendMailJobService,
+            userId: transaction.userId,
+            webBaseUrl: envConfig().web.baseUrl,
+        })
     }
 
     /**
@@ -173,19 +188,36 @@ export class ReconcileTransactionWorker extends WorkerHost {
             if (!transaction.aiSubTier) {
                 return
             }
-            await this.aiEntitlementService.grantTier({
+            const granted = await this.aiEntitlementService.grantTier({
                 userId: transaction.userId,
                 tier: transaction.aiSubTier,
                 transactionId: transaction.id,
             })
+            if (granted) {
+                await enqueueSubscriptionActiveEmail({
+                    entityManager: this.entityManager,
+                    enqueueSendMailJobService: this.enqueueSendMailJobService,
+                    userId: transaction.userId,
+                    tier: transaction.aiSubTier,
+                    webBaseUrl: envConfig().web.baseUrl,
+                })
+            }
             return
         }
         // community membership purchase: grant/extend directly (also marks tx succeeded)
         case ActionType.MembershipPurchase: {
-            await this.membershipService.grantMembership({
+            const granted = await this.membershipService.grantMembership({
                 userId: transaction.userId,
                 transactionId: transaction.id,
             })
+            if (granted) {
+                await enqueueMembershipActiveEmail({
+                    entityManager: this.entityManager,
+                    enqueueSendMailJobService: this.enqueueSendMailJobService,
+                    userId: transaction.userId,
+                    webBaseUrl: envConfig().web.baseUrl,
+                })
+            }
             return
         }
         // course enrollment: hand off to the enroll worker (marks tx succeeded)

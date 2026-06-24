@@ -3,7 +3,12 @@ import {
 } from "@modules/cqrs"
 import {
     EnqueueEnrollJobService,
+    EnqueueSendMailJobService,
 } from "@modules/bussiness"
+import {
+    enqueueMembershipActiveEmail,
+    enqueueSubscriptionActiveEmail,
+} from "@modules/transactional-email"
 import {
     ActionType,
     InjectPrimaryPostgreSQLEntityManager,
@@ -63,6 +68,7 @@ export class PaypalWebhookHandler
         private readonly enqueueEnrollJobService: EnqueueEnrollJobService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly membershipService: MembershipService,
+        private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly dayjsService: DayjsService,
@@ -176,19 +182,36 @@ export class PaypalWebhookHandler
                     tier: "unknown",
                 })
             }
-            await this.aiEntitlementService.grantTier({
+            const subscriptionGranted = await this.aiEntitlementService.grantTier({
                 userId: transaction.userId,
                 tier: transaction.aiSubTier,
                 transactionId: transaction.id,
             })
+            if (subscriptionGranted) {
+                await enqueueSubscriptionActiveEmail({
+                    entityManager: this.entityManager,
+                    enqueueSendMailJobService: this.enqueueSendMailJobService,
+                    userId: transaction.userId,
+                    tier: transaction.aiSubTier,
+                    webBaseUrl: envConfig().web.baseUrl,
+                })
+            }
             return
         }
         // course enrollment: hand off to the enroll worker
         case ActionType.MembershipPurchase: {
-            await this.membershipService.grantMembership({
+            const membershipGranted = await this.membershipService.grantMembership({
                 userId: transaction.userId,
                 transactionId: transaction.id,
             })
+            if (membershipGranted) {
+                await enqueueMembershipActiveEmail({
+                    entityManager: this.entityManager,
+                    enqueueSendMailJobService: this.enqueueSendMailJobService,
+                    userId: transaction.userId,
+                    webBaseUrl: envConfig().web.baseUrl,
+                })
+            }
             return
         }
         case ActionType.Enroll: {

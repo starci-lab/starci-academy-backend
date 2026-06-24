@@ -1,0 +1,9 @@
+extends layouts/base
+
+block content
+  - var vi = locale === 'vi'
+  p.eyebrow= vi ? 'Quyền truy cập đã gỡ' : 'Access removed'
+  h1= vi ? 'Quyền truy cập repository đã được gỡ' : 'Your repository access was removed'
+  p= vi ? `Chào ${name}, tài khoản GitHub của bạn đã được gỡ khỏi tổ chức khóa học, nên quyền truy cập các repository riêng tư đã kết thúc.` : `Hi ${name}, your GitHub account has been removed from the course organization, so access to the private repositories has ended.`
+  p(style="margin-bottom:28px;")= vi ? 'Nếu bạn cho rằng đây là nhầm lẫn, hãy liên hệ với chúng tôi.' : 'If you think this is a mistake, please get in touch.'
+  a.btn-primary(href=dashboardUrl)= vi ? 'Liên hệ hỗ trợ →' : 'Contact support →'

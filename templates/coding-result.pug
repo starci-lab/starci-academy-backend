@@ -1,0 +1,19 @@
+extends layouts/base
+
+block content
+  - var vi = locale === 'vi'
+  - var accepted = verdict === 'accepted'
+  p.eyebrow= vi ? 'Đã chấm bài coding' : 'Coding judged'
+  h1= vi ? 'Bài coding của bạn đã có kết quả' : 'Your coding submission has a verdict'
+  p= vi ? `Chào ${name}, bài giải của bạn vừa được chấm xong.` : `Hi ${name}, your solution has finished judging.`
+
+  //- Verdict panel
+  div(style="padding:20px 22px; border-radius:14px; margin-bottom:24px; " + (accepted ? "background-color:#effcf5; border:1px solid #c8f0db;" : "background-color:#fff0f3; border:1px solid #ffd2dc;"))
+    p(style="font-size:13px; color:#6b7280; margin-bottom:6px;")= vi ? 'Kết quả' : 'Verdict'
+    p(style="font-size:24px; font-weight:800; margin-bottom:6px; " + (accepted ? "color:#006d3b;" : "color:#b4234a;"))= verdictLabel
+    p(style="font-size:14px; color:#737172; margin:0;")
+      span(style="font-weight:700; color:#191818;")= passedCount
+      |  / #{totalCount}
+      = vi ? 'test case đạt' : 'test cases passed'
+
+  a.btn-primary(href=dashboardUrl)= vi ? 'Xem chi tiết →' : 'View details →'

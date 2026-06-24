@@ -2,6 +2,9 @@ import {
     Module
 } from "@nestjs/common"
 import {
+    JobsModule
+} from "@modules/bussiness"
+import {
     ConfigurableModuleClass
 } from "./session.module-definition"
 import {
@@ -9,6 +12,10 @@ import {
 } from "./session.service"
 
 @Module({
+    imports: [
+        // provides EnqueueSendMailJobService for the new-device sign-in alert
+        JobsModule,
+    ],
     providers: [
         SessionService,
     ],

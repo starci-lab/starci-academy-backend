@@ -1,0 +1,9 @@
+extends layouts/base
+
+block content
+  - var vi = locale === 'vi'
+  p.eyebrow= vi ? 'Ghi danh thành công' : 'Enrollment confirmed'
+  h1= vi ? 'Chào mừng bạn đến với khóa học' : 'Welcome to your new course'
+  p= vi ? `Chào ${name}, bạn đã ghi danh thành công. Bắt đầu học ngay và chinh phục từng bài thôi!` : `Hi ${name}, you’re all enrolled. Dive in and start working through the lessons!`
+  p(style="margin-bottom:28px;")= vi ? 'Chúc bạn học vui.' : 'Happy learning.'
+  a.btn-primary(href=dashboardUrl)= vi ? 'Vào học ngay →' : 'Start learning →'

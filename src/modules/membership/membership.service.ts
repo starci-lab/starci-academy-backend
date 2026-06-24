@@ -55,9 +55,9 @@ export class MembershipService {
     async grantMembership({
         userId,
         transactionId,
-    }: GrantMembershipParams): Promise<void> {
-        await this.entityManager.transaction(
-            async (entityManager) => {
+    }: GrantMembershipParams): Promise<boolean> {
+        return this.entityManager.transaction(
+            async (entityManager): Promise<boolean> => {
                 // idempotency guard — skip if this payment was already applied
                 const transaction = await entityManager.findOne(
                     TransactionEntity,
@@ -68,7 +68,8 @@ export class MembershipService {
                     },
                 )
                 if (transaction?.status === TransactionStatus.Succeeded) {
-                    return
+                    // already granted by a concurrent/earlier path → not a new grant
+                    return false
                 }
 
                 // extend the period by one billing cycle, stacking on any time left
@@ -88,6 +89,8 @@ export class MembershipService {
                         status: TransactionStatus.Succeeded,
                     },
                 )
+                // a new grant happened → caller may notify the buyer
+                return true
             },
         )
     }

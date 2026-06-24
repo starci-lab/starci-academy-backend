@@ -64,6 +64,12 @@ import {
 import {
     ContactMutationsModule,
 } from "./contact"
+import {
+    CommunityMutationsModule,
+} from "./community"
+import {
+    ChatMutationsModule,
+} from "./chat"
 
 /**
  * GraphQL mutations (courses, authentication, etc.).
@@ -126,6 +132,12 @@ import {
             isGlobal: true,
         }),
         FlashcardMutationsModule.register({
+            isGlobal: true,
+        }),
+        CommunityMutationsModule.register({
+            isGlobal: true,
+        }),
+        ChatMutationsModule.register({
             isGlobal: true,
         }),
     ],

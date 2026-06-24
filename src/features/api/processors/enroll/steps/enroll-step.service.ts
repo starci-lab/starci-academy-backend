@@ -18,11 +18,18 @@ import {
 import {
     CourseStatsProjectionService,
     EnqueueResolveGithubJobService,
+    EnqueueSendMailJobService,
     JobActionService,
     TransactionActionService,
     UserService,
     writeActivity,
 } from "@modules/bussiness"
+import {
+    envConfig,
+} from "@modules/env"
+import {
+    enqueueLearnerEmail,
+} from "@modules/transactional-email"
 import type {
     EnrollPayload
 } from "@modules/bullmq"
@@ -54,6 +61,7 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
         private readonly winstonService: WinstonService,
         private readonly courseStatsProjectionService: CourseStatsProjectionService,
         private readonly userService: UserService,
+        private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
     ) {
         super()
     }
@@ -254,6 +262,18 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
         // the just-bought course is immediately accessible (no stale `false`)
         if (!alreadyEnrolled) {
             await this.userService.invalidateEnrolledCourses(userId)
+            // welcome the learner into the course (first enrollment only)
+            await enqueueLearnerEmail({
+                entityManager: this.entityManager,
+                enqueueSendMailJobService: this.enqueueSendMailJobService,
+                userId,
+                template: "enrollment-confirmed",
+                webBaseUrl: envConfig().web.baseUrl,
+                subject: {
+                    vi: "Bạn đã ghi danh khóa học thành công",
+                    en: "You’re enrolled — welcome aboard",
+                },
+            })
         }
 
         const user = await this.entityManager.findOne(

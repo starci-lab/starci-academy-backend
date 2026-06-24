@@ -1,0 +1,15 @@
+extends layouts/base
+
+block content
+  - var vi = locale === 'vi'
+  p.eyebrow= vi ? 'Đã review CV' : 'CV reviewed'
+  h1= vi ? 'Bản review CV của bạn đã sẵn sàng' : 'Your CV review is ready'
+  p= vi ? `Chào ${name}, AI đã review xong CV của bạn — kèm điểm và gợi ý cải thiện.` : `Hi ${name}, the AI has finished reviewing your CV — with a score and improvement suggestions.`
+
+  if score
+    div(style="padding:20px 22px; background-color:#effcf5; border:1px solid #c8f0db; border-radius:14px; margin-bottom:24px;")
+      p(style="font-size:13px; color:#6b7280; margin-bottom:6px;")= vi ? 'Điểm tổng' : 'Overall score'
+      span(style="font-size:40px; font-weight:800; color:#006d3b; line-height:1;")= score
+      span(style="font-size:16px; font-weight:500; color:#9bbcab; margin-left:6px;") / 100
+
+  a.btn-primary(href=dashboardUrl)= vi ? 'Xem bản review →' : 'View your review →'

@@ -91,6 +91,17 @@ export class UpdateProfileRequest {
         openToWork?: boolean
 
     @Field(
+        () => Boolean,
+        {
+            nullable: true,
+            description: "Receive the daily activity-digest email (true = on); omit to leave unchanged.",
+        },
+    )
+    @IsOptional()
+    @IsBoolean()
+        emailDigestEnabled?: boolean
+
+    @Field(
         () => String,
         {
             nullable: true,

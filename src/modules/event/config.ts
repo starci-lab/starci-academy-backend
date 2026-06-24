@@ -10,6 +10,11 @@ import {
     ContentReactionChangedEventPayload,
     CommentReactionChangedEventPayload,
     NotificationCreatedEventPayload,
+    CommunityPostChangedEventPayload,
+    CommunityCommentChangedEventPayload,
+    CommunityPostReactionChangedEventPayload,
+    CommunityCommentReactionChangedEventPayload,
+    ChatMessageChangedEventPayload,
 } from "./types"
 
 /** Map of event names to NATS/local usage and payload type. */
@@ -88,5 +93,71 @@ export const configMap = {
         useLocal: true,
         eventPayload: {
         } as NotificationCreatedEventPayload,
+    },
+    // Community events are fanned out to the local Socket.IO gateway in-process.
+    // useNats stays false for now (single-instance realtime); flip to true once a
+    // NATS bridge re-emits these locally on every pod for multi-instance delivery.
+    /** Event name: a community post was created. */
+    [EventName.CommunityPostCreated]: {
+        useNats: false,
+        useLocal: true,
+        eventPayload: {
+        } as CommunityPostChangedEventPayload,
+    },
+    /** Event name: a community post was edited. */
+    [EventName.CommunityPostUpdated]: {
+        useNats: false,
+        useLocal: true,
+        eventPayload: {
+        } as CommunityPostChangedEventPayload,
+    },
+    /** Event name: a community post was soft-deleted. */
+    [EventName.CommunityPostDeleted]: {
+        useNats: false,
+        useLocal: true,
+        eventPayload: {
+        } as CommunityPostChangedEventPayload,
+    },
+    /** Event name: a community post comment was created. */
+    [EventName.CommunityCommentCreated]: {
+        useNats: false,
+        useLocal: true,
+        eventPayload: {
+        } as CommunityCommentChangedEventPayload,
+    },
+    /** Event name: a community post comment was edited. */
+    [EventName.CommunityCommentUpdated]: {
+        useNats: false,
+        useLocal: true,
+        eventPayload: {
+        } as CommunityCommentChangedEventPayload,
+    },
+    /** Event name: a community post comment was soft-deleted. */
+    [EventName.CommunityCommentDeleted]: {
+        useNats: false,
+        useLocal: true,
+        eventPayload: {
+        } as CommunityCommentChangedEventPayload,
+    },
+    /** Event name: aggregate reactions on a community post changed. */
+    [EventName.CommunityPostReactionChanged]: {
+        useNats: false,
+        useLocal: true,
+        eventPayload: {
+        } as CommunityPostReactionChangedEventPayload,
+    },
+    /** Event name: aggregate reactions on a community post comment changed. */
+    [EventName.CommunityCommentReactionChanged]: {
+        useNats: false,
+        useLocal: true,
+        eventPayload: {
+        } as CommunityCommentReactionChangedEventPayload,
+    },
+    /** Event name: a chat message was created in a conversation. */
+    [EventName.ChatMessageCreated]: {
+        useNats: false,
+        useLocal: true,
+        eventPayload: {
+        } as ChatMessageChangedEventPayload,
     },
 }

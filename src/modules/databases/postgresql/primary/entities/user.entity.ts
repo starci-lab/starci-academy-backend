@@ -288,6 +288,22 @@ export class UserEntity extends UuidAbstractEntity {
         openToWork: boolean
 
     /**
+     * Whether the user receives the daily activity-digest email (new followers,
+     * replies, community activity). Opt-out: defaults to true; the digest cron
+     * skips users who set this to false, and the digest email links here to toggle.
+     */
+    @Field(() => Boolean,
+        {
+            description: "When true the user receives the daily activity-digest email."
+        })
+    @Column({
+        name: "email_digest_enabled",
+        type: "boolean",
+        default: true
+    })
+        emailDigestEnabled: boolean
+
+    /**
      * Slug of the achievement the user pins as their profile mascot (its rank ring
      * frames the avatar). Null = none chosen (the UI shows an "add" affordance to
      * the owner). Public. Not FK-constrained — it mirrors a seeded achievement slug.

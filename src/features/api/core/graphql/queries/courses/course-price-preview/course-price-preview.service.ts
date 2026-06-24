@@ -79,15 +79,25 @@ export class CoursePricePreviewService {
             enrolledCount,
         } = await this.loyaltyDiscountService.computeLoyaltyDiscount(userId)
 
-        // base prices (no discount) then the same prices with the discount applied
-        const originalPriceVnd = this.coursePricingService.resolveAmountVnd({
+        // original = LIST/MSRP price (struck "before"); discounted = active phase ×
+        // (1 − loyalty) = the real charge. The gap therefore shows the FULL saving
+        // (phase tier discount + loyalty), not loyalty alone — so a Pioneer/Early-bird
+        // tier surfaces even when the viewer has no loyalty discount.
+        const originalPriceVnd = this.coursePricingService.resolveListAmountVnd({
+            course,
+        })
+        // phase price = active tier BEFORE loyalty (the middle step list → phase → charge)
+        const phasePriceVnd = this.coursePricingService.resolveAmountVnd({
             course,
         })
         const discountedPriceVnd = this.coursePricingService.resolveAmountVnd({
             course,
             discountPercent: percent,
         })
-        const originalPriceUsd = this.coursePricingService.resolveAmountUsd({
+        const originalPriceUsd = this.coursePricingService.resolveListAmountUsd({
+            course,
+        })
+        const phasePriceUsd = this.coursePricingService.resolveAmountUsd({
             course,
         })
         const discountedPriceUsd = this.coursePricingService.resolveAmountUsd({
@@ -97,9 +107,11 @@ export class CoursePricePreviewService {
 
         return {
             originalPriceVnd,
+            phasePriceVnd,
             discountedPriceVnd,
             discountPercent: percent,
             originalPriceUsd,
+            phasePriceUsd,
             discountedPriceUsd,
             discountReason: reason,
             enrolledCount,

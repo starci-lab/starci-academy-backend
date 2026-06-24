@@ -14,4 +14,13 @@ export enum EventName {
     ContentReactionChanged = "content.reaction.changed",
     CommentReactionChanged = "content.comment.reaction.changed",
     NotificationCreated = "notification.created",
+    CommunityPostCreated = "community.post.created",
+    CommunityPostUpdated = "community.post.updated",
+    CommunityPostDeleted = "community.post.deleted",
+    CommunityCommentCreated = "community.post.comment.created",
+    CommunityCommentUpdated = "community.post.comment.updated",
+    CommunityCommentDeleted = "community.post.comment.deleted",
+    CommunityPostReactionChanged = "community.post.reaction.changed",
+    CommunityCommentReactionChanged = "community.post.comment.reaction.changed",
+    ChatMessageCreated = "community.chat.message.created",
 }

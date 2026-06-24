@@ -1,0 +1,21 @@
+extends layouts/base
+
+block content
+  - var vi = locale === 'vi'
+  p.eyebrow= vi ? 'Đã chấm dự án' : 'Project reviewed'
+  h1= vi ? 'Task dự án cá nhân đã được chấm' : 'Your project task was reviewed'
+  p= vi ? `Chào ${name}, bài làm task dự án cá nhân của bạn vừa được chấm xong.` : `Hi ${name}, your personal-project task has just finished grading.`
+
+  //- Score panel
+  div(style="padding:20px 22px; background-color:#effcf5; border:1px solid #c8f0db; border-radius:14px; margin-bottom:20px;")
+    span(style="font-size:40px; font-weight:800; color:#006d3b; line-height:1;")= score
+    span(style="font-size:16px; font-weight:500; color:#9bbcab; margin-left:6px;") / 100
+    if passed
+      span(style="float:right; margin-top:10px; font-size:13px; font-weight:600; color:#006d3b; background:#d1fae5; padding:5px 12px; border-radius:999px;")= vi ? 'Đạt' : 'Passed'
+
+  if feedback
+    div(style="border-left:3px solid #ffd9e8; padding:2px 0 2px 16px; margin-bottom:28px;")
+      p(style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.6px; color:#a3a1a2; margin-bottom:6px;")= vi ? 'Nhận xét' : 'Feedback'
+      p(style="font-size:14px; line-height:1.6; color:#3f3d3e; margin:0; white-space:pre-wrap;")= feedback
+
+  a.btn-primary(href=dashboardUrl)= vi ? 'Mở dự án cá nhân →' : 'View your project →'

@@ -53,6 +53,75 @@ export class CoursePricingService {
     }
 
     /**
+     * The LIST (pre-discount) VND price — the course's `originalPrice` (MSRP /
+     * Regular price), used as the struck "before" price in previews so the saving
+     * shown is the full list → charge gap (phase tier + loyalty), not just loyalty.
+     * Falls back to the active-tier amount when no list price is set (→ no strike).
+     * Mirrors the non-production `/100` test divisor of {@link resolveAmountVnd}.
+     *
+     * @param param - Course (no discount is applied to the list price).
+     * @returns Rounded VND minor units (integer).
+     */
+    resolveListAmountVnd(
+        {
+            course,
+        }: ResolveCourseAmountVndParams,
+    ): number {
+        const listPrice = course.originalPrice
+        if (listPrice == null || listPrice <= 0) {
+            // no list price → use the active-tier amount so original == discounted (no strike)
+            return this.resolveAmountVnd({
+                course 
+            })
+        }
+        if (!envConfig().isProduction) {
+            return Math.max(1,
+                Math.round(listPrice / LOCAL_TEST_PRICE_DIVISOR))
+        }
+        return listPrice
+    }
+
+    /**
+     * The LIST (pre-discount) USD price — the course's `originalPriceUsd`, or null
+     * when unset. Struck "before" price for international previews, charm-rounded to
+     * x.99 like {@link resolveAmountUsd} (no /100 test divisor for USD).
+     *
+     * @param param - Course (no discount applied).
+     * @returns USD dollar amount, or null when no list USD price.
+     */
+    resolveListAmountUsd(
+        {
+            course,
+        }: ResolveCourseAmountUsdParams,
+    ): number | null {
+        const listPriceUsd = course.originalPriceUsd ?? null
+        if (listPriceUsd == null) {
+            return null
+        }
+        // USD always charm-rounds to a clean x.99 (no /100 test divisor — int'l
+        // gateways run in sandbox/test mode in dev, so the amount is harmless). VND
+        // keeps the /100 divisor because PayOS/Sepay hit real bank rails.
+        return this.roundUsdToCharm(listPriceUsd)
+    }
+
+    /**
+     * Round a USD amount UP to a charm price ending in `.99` (ceil to the next whole
+     * dollar − 0.01, floor $0.99): $0.50 → $0.99, $49.2 → $49.99, $50 → $49.99. Keeps
+     * the USD price clean (no odd cents) AND identical to the Stripe/PayPal charge
+     * (display == charge). Applied in every env so the shown USD is always `x.99`.
+     *
+     * @param amount - Raw USD dollar amount.
+     * @returns Charm-rounded USD (`x.99`).
+     */
+    private roundUsdToCharm(
+        amount: number,
+    ): number {
+        const whole = Math.max(1,
+            Math.ceil(amount))
+        return whole - 0.01
+    }
+
+    /**
      * The real (production) VND amount for the active tier, loyalty discount
      * applied: Regular → `course.originalPrice`; any other tier → the matching
      * `pricing_phases.price`. Throws when the active tier has no valid price
@@ -123,13 +192,11 @@ export class CoursePricingService {
         if (base == null) {
             return null
         }
-        // apply the loyalty discount; cents conversion stays in the Stripe service
+        // apply the loyalty discount; cents conversion stays in the Stripe service.
+        // USD always charm-rounds to x.99 (no /100 divisor — int'l gateways are
+        // sandbox/test in dev, so the amount is harmless).
         const realAmount = base * (1 - this.clampPercent(discountPercent) / 100)
-        // non-production: charge real/100 so live payment tests stay cheap (mirror VND)
-        if (!envConfig().isProduction) {
-            return realAmount / LOCAL_TEST_PRICE_DIVISOR
-        }
-        return realAmount
+        return this.roundUsdToCharm(realAmount)
     }
 
     /**

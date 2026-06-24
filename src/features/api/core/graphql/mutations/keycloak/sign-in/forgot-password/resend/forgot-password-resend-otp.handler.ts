@@ -63,7 +63,7 @@ export class ForgotPasswordResendOtpHandler
                     },
                 ],
                 subject: "Reset your password",
-                template: "sign-in-otp",
+                template: "forgot-password-otp",
                 context: {
                     otp: refreshed.otp,
                     expiresInMinutes: Math.max(

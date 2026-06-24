@@ -40,6 +40,15 @@ import {
 import type {
     EntityManager,
 } from "typeorm"
+import {
+    EnqueueSendMailJobService,
+} from "@modules/bussiness"
+import {
+    envConfig,
+} from "@modules/env"
+import {
+    enqueueLearnerEmail,
+} from "@modules/transactional-email"
 import type {
     ForgotPasswordActionPayload,
 } from "../../types"
@@ -57,6 +66,7 @@ export class ForgotPasswordVerifyOtpHandler
         private readonly keycloakTokenService: KeycloakTokenService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
     ) {
         super()
     }
@@ -130,6 +140,19 @@ export class ForgotPasswordVerifyOtpHandler
                 keycloakId: decoded.sub,
             })
         }
+
+        // security confirmation: the password was just changed
+        await enqueueLearnerEmail({
+            entityManager: this.entityManager,
+            enqueueSendMailJobService: this.enqueueSendMailJobService,
+            userId: user.id,
+            template: "password-changed",
+            webBaseUrl: envConfig().web.baseUrl,
+            subject: {
+                vi: "Mật khẩu của bạn đã được thay đổi",
+                en: "Your password was changed",
+            },
+        })
 
         return {
             data: {

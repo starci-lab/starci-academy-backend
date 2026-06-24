@@ -1,9 +1,10 @@
 extends layouts/base
 
 block content
-  h2(style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #111827;") Welcome, #{name}! 🎉
-  p We're thrilled to have you join <strong>Starci Academy</strong>.
-  p Your account is ready. Start exploring courses, challenges, and level up your skills right away.
-  p(style="text-align: center;")
-    a.btn-primary(href=loginUrl) Get Started
-  p(style="margin-top: 24px; color: #6b7280; font-size: 13px;") If you did not sign up, you can safely ignore this email.
+  p.eyebrow Welcome aboard
+  h1 You’re all set, #{name}
+  p Your account is ready. Jump into courses and challenges, and start levelling up your skills today.
+  p(style="margin-bottom:28px;") We’re glad to have you with us.
+  a.btn-primary(href=loginUrl) Get started →
+  .divider
+  p.muted(style="margin-bottom:0;") Didn’t sign up for StarCi Academy? You can safely ignore this email.

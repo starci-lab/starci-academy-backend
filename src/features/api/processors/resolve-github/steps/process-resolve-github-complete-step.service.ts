@@ -4,6 +4,7 @@ import type {
 import {
     JobActionService,
     AbstractStepService,
+    EnqueueSendMailJobService,
     JobExtendedContext,
 } from "@modules/bussiness"
 import {
@@ -12,6 +13,12 @@ import {
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
+import {
+    envConfig,
+} from "@modules/env"
+import {
+    enqueueLearnerEmail,
+} from "@modules/transactional-email"
 import {
     Injectable,
 } from "@nestjs/common"
@@ -36,6 +43,7 @@ export class ProcessResolveGithubCompleteStepService extends AbstractStepService
         private readonly entityManager: EntityManager,
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
+        private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
     ) {
         super()
     }
@@ -106,6 +114,22 @@ export class ProcessResolveGithubCompleteStepService extends AbstractStepService
                 success: true,
             },
         )
+
+        // GitHub org/team membership resolved → the learner now has repo access.
+        await enqueueLearnerEmail({
+            entityManager: this.entityManager,
+            enqueueSendMailJobService: this.enqueueSendMailJobService,
+            userId: payload.userId,
+            template: "repo-access-granted",
+            webBaseUrl: envConfig().web.baseUrl,
+            subject: {
+                vi: "Bạn đã được cấp quyền truy cập repository",
+                en: "Your repository access is ready",
+            },
+            extraContext: {
+                githubUsername: payload.githubUsername,
+            },
+        })
     }
 }
 

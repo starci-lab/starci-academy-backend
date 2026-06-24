@@ -27,6 +27,24 @@ export const envConfig = () => ({
             defaultValue: 10000,
         }),
     },
+    /** Community (feed + chat) configuration. */
+    community: {
+        /** Max community posts a NON-member may create within the rolling window. */
+        nonMemberPostLimit: parseEnvInt({
+            key: "COMMUNITY_NON_MEMBER_POST_LIMIT",
+            defaultValue: 3,
+        }),
+        /** Rolling window (in days) the non-member post limit is measured over. */
+        nonMemberPostWindowDays: parseEnvInt({
+            key: "COMMUNITY_NON_MEMBER_POST_WINDOW_DAYS",
+            defaultValue: 7,
+        }),
+        /** Username of the founder (drives the founder badge + founder-only actions). */
+        founderUsername: parseEnvString({
+            key: "COMMUNITY_FOUNDER_USERNAME",
+            defaultValue: "starci183",
+        }),
+    },
     /** UUID namespace configuration. */
     uuidNamespace: {
         /** UUID namespace for course. */
@@ -227,6 +245,18 @@ export const envConfig = () => ({
             defaultValue: "development",
         }
     ) === "production",
+    /** Public-facing web app (SPA) configuration. */
+    web: {
+        /**
+         * Base URL of the learner-facing web app. Used to build absolute links
+         * inside transactional emails (e.g. "Get started", "View dashboard").
+         * No trailing slash.
+         */
+        baseUrl: parseEnvString({
+            key: "WEB_BASE_URL",
+            defaultValue: "https://academy.starci.org",
+        }),
+    },
     /** Services configuration. */
     services: {
         core: {
@@ -571,21 +601,6 @@ export const envConfig = () => ({
                     "system-design-mastery": "system-design-mastery",
                     "devops-mastery": "devops-mastery",
                     "ai-llm-engineering": "ai-llm-engineering",
-                }),
-            }),
-            /**
-             * Repo-name prefixes each team gets READ access to (boot-sync). The real
-             * course code repos are per-lesson (`fs-…`, `sd-…`) — NOT the placeholder
-             * `…-mastery-module-…` repos. DevOps has no short prefix yet, so it uses
-             * its module repos; add `do-` here if a per-lesson convention lands.
-             */
-            teamRepoPrefixes: parseEnvJson<Record<string, Array<string>>>({
-                key: "GITHUB_TEAM_REPO_PREFIXES",
-                defaultValue: JSON.stringify({
-                    "fullstack-mastery": ["fs-"],
-                    "system-design-mastery": ["sd-"],
-                    "devops-mastery": ["devops-mastery"],
-                    "ai-llm-engineering": ["ai-"],
                 }),
             }),
         },

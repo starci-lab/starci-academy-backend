@@ -3,8 +3,12 @@ import type {
 } from "@modules/bullmq"
 import {
     JobActionService,
+    EnqueueSendMailJobService,
     writeActivity,
 } from "@modules/bussiness"
+import {
+    envConfig,
+} from "@modules/env"
 import {
     AbstractStepService,
     JobExtendedContext,
@@ -43,6 +47,9 @@ import type {
 import {
     MissingOrInvalidGradeExecutionResultException,
 } from "@modules/exceptions"
+import {
+    enqueueLearnerEmail,
+} from "@modules/transactional-email"
 
 /**
  * Step 1 of the AI Lab eval-runner: write the grade verdict back onto the
@@ -63,6 +70,7 @@ export class ReviewAiLabEvalCompleteStepService extends AbstractStepService<
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
         private readonly gradeStepService: ReviewAiLabEvalGradeStepService,
+        private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
     ) {
         super()
     }
@@ -105,6 +113,21 @@ export class ReviewAiLabEvalCompleteStepService extends AbstractStepService<
                 grade,
             })
         }
+        // capture the prior status so we only email on the FIRST completion
+        // (a retried/re-dispatched job re-applies the same verdict — don't re-notify)
+        const priorRun = await this.entityManager.findOne(
+            AiLabEvalRunEntity,
+            {
+                where: {
+                    id: payload.evalRunId,
+                },
+                select: {
+                    id: true,
+                    status: true,
+                },
+            },
+        )
+        const wasAlreadyCompleted = priorRun?.status === AiLabEvalRunStatus.Completed
         await this.entityManager.transaction(
             async (entityManager) => {
                 // write the aggregated verdict + resolved AI usage onto the eval run row
@@ -232,5 +255,26 @@ export class ReviewAiLabEvalCompleteStepService extends AbstractStepService<
                 success: true,
             },
         )
+
+        // Notify the learner — only on the first completion (idempotent on retries).
+        if (!wasAlreadyCompleted) {
+            await enqueueLearnerEmail({
+                entityManager: this.entityManager,
+                enqueueSendMailJobService: this.enqueueSendMailJobService,
+                userId: payload.userId,
+                template: "eval-result",
+                locale: payload.locale,
+                webBaseUrl: envConfig().web.baseUrl,
+                subject: {
+                    vi: "Bài AI Lab của bạn đã được chấm",
+                    en: "Your AI Lab eval was graded",
+                },
+                extraContext: {
+                    totalScore: grade.grade.totalScore,
+                    maxScore: grade.grade.maxScore,
+                    passed: grade.grade.passed,
+                },
+            })
+        }
     }
 }

@@ -7,6 +7,7 @@ import type {
 import {
     AbstractStepService,
     CodingProgressService,
+    EnqueueSendMailJobService,
     JobActionService,
     JobExtendedContext,
     writeActivity,
@@ -15,6 +16,9 @@ import {
     FLAT_POINTS,
     writeXpHistory,
 } from "../../ai/shared/xp"
+import {
+    enqueueLearnerEmail,
+} from "@modules/transactional-email"
 import type {
     JudgeCodingSubmissionPayload,
 } from "@modules/bullmq"
@@ -74,8 +78,20 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
         private readonly judge0Service: Judge0Service,
         private readonly winstonService: WinstonService,
         private readonly codingProgressService: CodingProgressService,
+        private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
     ) {
         super()
+    }
+
+    /** Human-readable verdict labels for the result email (English source copy). */
+    private static readonly VERDICT_LABELS: Record<string, string> = {
+        accepted: "Accepted",
+        wrongAnswer: "Wrong answer",
+        timeLimitExceeded: "Time limit exceeded",
+        memoryLimitExceeded: "Memory limit exceeded",
+        runtimeError: "Runtime error",
+        compileError: "Compile error",
+        internalError: "Internal error",
     }
 
     stepIndex = 0
@@ -147,6 +163,9 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
         const compileOutput = verdict === CodingVerdict.CompileError
             ? results.find((result) => result.compileOutput !== null)?.compileOutput ?? null
             : null
+        // capture the prior verdict so we only email on the FIRST terminal result
+        // (a re-judge of an already-judged submission must not re-notify)
+        const priorVerdict = submission.verdict
         // write the terminal outcome back onto the submission row
         submission.verdict = verdict
         submission.passedCount = passedCount
@@ -169,6 +188,29 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
         await this.codingProgressService.invalidate({
             userId: submission.userId,
         })
+        // notify the solver on the FIRST terminal verdict (skip re-judge re-notification)
+        const wasPending = priorVerdict === CodingVerdict.Pending
+            || priorVerdict === CodingVerdict.Judging
+        if (wasPending) {
+            await enqueueLearnerEmail({
+                entityManager: this.entityManager,
+                enqueueSendMailJobService: this.enqueueSendMailJobService,
+                userId: submission.userId,
+                template: "coding-result",
+                webBaseUrl: envConfig().web.baseUrl,
+                subject: {
+                    vi: "Bài coding của bạn đã có kết quả",
+                    en: "Your coding submission has a verdict",
+                },
+                extraContext: {
+                    verdict,
+                    verdictLabel:
+                        JudgeCodingSubmissionJudgeStepService.VERDICT_LABELS[verdict] ?? verdict,
+                    passedCount,
+                    totalCount: perCaseResults.length,
+                },
+            })
+        }
         // return the summary for the step execution-result store
         return {
             verdict,
