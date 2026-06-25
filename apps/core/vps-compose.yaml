@@ -11,10 +11,12 @@ services:
       POSTGRESQL_PRIMARY_HOST: ${POSTGRESQL_PRIMARY_HOST}
       POSTGRESQL_PRIMARY_PORT: ${POSTGRESQL_PRIMARY_PORT}
       POSTGRESQL_PRIMARY_PASSWORD: ${POSTGRESQL_PRIMARY_PASSWORD}
-      # Prod MUST NOT auto-sync schema (TypeORM synchronize churns the shared
-      # `model_provider` enum across 4 tables → "cannot drop model_provider_old" →
-      # boot crash-loop). Schema changes go through migrations. Keep this false.
-      POSTGRESQL_PRIMARY_SYNCHRONIZE: "false"
+      # Schema auto-sync. The `model_provider` enum has been trimmed in the DB to
+      # match the code enum ({gemini, openai}), so synchronize no longer churns it.
+      # Re-enabled so dev schema changes propagate. NOTE: a future change to any
+      # enum shared across multiple tables must be applied to the DB by hand first
+      # (atomic rename→recreate→migrate-all-columns→drop), or this will crash-loop.
+      POSTGRESQL_PRIMARY_SYNCHRONIZE: "true"
 
       # Qdrant
       QDRANT_URL: ${QDRANT_URL}
