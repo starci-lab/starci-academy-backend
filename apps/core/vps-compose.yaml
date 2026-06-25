@@ -12,11 +12,12 @@ services:
       POSTGRESQL_PRIMARY_PORT: ${POSTGRESQL_PRIMARY_PORT}
       POSTGRESQL_PRIMARY_PASSWORD: ${POSTGRESQL_PRIMARY_PASSWORD}
       # Schema auto-sync. The `model_provider` enum has been trimmed in the DB to
-      # match the code enum ({gemini, openai}), so synchronize no longer churns it.
-      # Re-enabled so dev schema changes propagate. NOTE: a future change to any
-      # enum shared across multiple tables must be applied to the DB by hand first
-      # (atomic rename→recreate→migrate-all-columns→drop), or this will crash-loop.
-      POSTGRESQL_PRIMARY_SYNCHRONIZE: "true"
+      # match the code enum ({gemini, openai}), so synchronize no longer deadlocks
+      # on it. Kept "false" on prod: enabling it triggered a heavier boot that lost
+      # the race on the initial NATS dial (NatsError: TIMEOUT → crash-loop), since
+      # NATS here is public-exposed and busy. Schema changes go through migrations;
+      # only re-enable once NATS connect is made resilient (retry / longer timeout).
+      POSTGRESQL_PRIMARY_SYNCHRONIZE: "false"
 
       # Qdrant
       QDRANT_URL: ${QDRANT_URL}
