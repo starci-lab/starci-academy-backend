@@ -11,6 +11,10 @@ services:
       POSTGRESQL_PRIMARY_HOST: ${POSTGRESQL_PRIMARY_HOST}
       POSTGRESQL_PRIMARY_PORT: ${POSTGRESQL_PRIMARY_PORT}
       POSTGRESQL_PRIMARY_PASSWORD: ${POSTGRESQL_PRIMARY_PASSWORD}
+      # Prod MUST NOT auto-sync schema (TypeORM synchronize churns the shared
+      # `model_provider` enum across 4 tables → "cannot drop model_provider_old" →
+      # boot crash-loop). Schema changes go through migrations. Keep this false.
+      POSTGRESQL_PRIMARY_SYNCHRONIZE: "false"
 
       # Qdrant
       QDRANT_URL: ${QDRANT_URL}
