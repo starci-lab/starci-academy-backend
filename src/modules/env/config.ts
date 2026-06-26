@@ -1828,6 +1828,15 @@ export const envConfig = () => ({
         pingIntervalMs: parseEnvInt({
             key: "NATS_PING_INTERVAL_MS", defaultValue: 120000
         }),
+        /**
+         * Timeout for the initial NATS dial (TCP + protocol handshake). Generous
+         * by default because the boot-time dial can race a saturated event loop
+         * (module init + Kafka consumers + content seed) on a memory-constrained
+         * box, where a short timeout spuriously fails and crash-loops boot.
+         */
+        connectTimeoutMs: parseEnvMs({
+            key: "NATS_CONNECT_TIMEOUT_MS", defaultValue: "60s"
+        }),
         consumer: {
             idleTimeout: parseEnvMs({
                 key: "NATS_CONSUMER_IDLE_TIMEOUT", defaultValue: "3m"

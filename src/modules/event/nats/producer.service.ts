@@ -47,11 +47,6 @@ export class NatsProducerService {
      * producer.publish({ subject: 'events.orders', payload: JSON.stringify(data) })
      */
     publish({ subject, payload }: NatsPublishParams): void {
-        // NATS may be unavailable (null connection when the initial dial failed);
-        // skip publishing rather than throwing so callers are not affected.
-        if (!this.nc) {
-            return
-        }
         this.nc.publish(
             subject,
             new TextEncoder().encode(payload)
