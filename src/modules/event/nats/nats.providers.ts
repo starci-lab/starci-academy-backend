@@ -24,12 +24,22 @@ export const createNatsProvider = (): Provider => ({
     inject: [],
     useFactory: async () => {
         const cfg = envConfig().nats
-        return await connect({
-            servers: cfg.servers.map(server => `nats://${server.host}:${server.port}`),
-            reconnect: cfg.reconnect,
-            maxReconnectAttempts: cfg.maxReconnectAttempts,
-            pingInterval: cfg.pingIntervalMs,
-            token: cfg.auth.enabled ? cfg.auth.token : undefined,
-        })
+        try {
+            return await connect({
+                servers: cfg.servers.map(server => `nats://${server.host}:${server.port}`),
+                reconnect: cfg.reconnect,
+                maxReconnectAttempts: cfg.maxReconnectAttempts,
+                pingInterval: cfg.pingIntervalMs,
+                token: cfg.auth.enabled ? cfg.auth.token : undefined,
+            })
+        } catch (error) {
+            // NATS is non-critical (job-status event fan-out across instances).
+            // A failed initial dial MUST NOT crash boot — degrade to a null
+            // connection; producers/bridge no-op until NATS is reachable again.
+            console.error(
+                `[NATS] initial connect failed, continuing without NATS: ${(error as Error)?.message}`,
+            )
+            return null
+        }
     },
 })

@@ -102,6 +102,11 @@ export class NatsBridgeService implements OnModuleInit {
     ) {}
 
     async onModuleInit(): Promise<void> {
+        // NATS may be unavailable (null connection when the initial dial failed);
+        // skip bridging rather than retrying forever / throwing so boot is unaffected.
+        if (!this.nc) {
+            return
+        }
         // get all NATS subjects from config
         const allNatsSubjects = Object.entries(configMap)
             .filter(
