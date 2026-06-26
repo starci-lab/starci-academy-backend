@@ -13,6 +13,8 @@ import {
     CacheService,
 } from "@modules/cache"
 import {
+    EnrollmentEntity,
+    PricingPhase,
     UserEntity,
 } from "@modules/databases"
 import {
@@ -211,6 +213,150 @@ describe("UserService",
                             ],
                             cacheResult: [],
                         })
+                    })
+
+                it("gates the rebuild query to PAID rows only (is_enrolled = true)",
+                    async () => {
+                        // cache miss forces the rebuild read against the DB
+                        cacheService.get.mockResolvedValueOnce(undefined)
+
+                        await service.checkEnrollment(userId,
+                            courseId)
+
+                        // the indexed read must filter out trial placeholders so a
+                        // trial-only membership (is_enrolled = false) never satisfies the
+                        // paid gate — assert on the SQL the service issues
+                        const [
+                            sql,
+                            params,
+                        ] = entityManager.query.mock.calls[0]
+                        expect(sql).toContain("is_enrolled = true")
+                        expect(params).toEqual([
+                            userId,
+                        ])
+                    })
+
+                it("returns false for a TRIAL-only user (rebuild yields no paid rows)",
+                    async () => {
+                        cacheService.get.mockResolvedValueOnce(undefined)
+                        // the `is_enrolled = true` filter means a user who only holds a
+                        // trial placeholder rebuilds to an EMPTY set → not enrolled
+                        entityManager.query.mockResolvedValueOnce([])
+
+                        const result = await service.checkEnrollment(userId,
+                            courseId)
+
+                        expect(result).toBe(false)
+                    })
+
+                it("returns true for a PAID user (rebuild yields the course id)",
+                    async () => {
+                        cacheService.get.mockResolvedValueOnce(undefined)
+                        // a real/paid enrollment surfaces in the filtered rebuild
+                        entityManager.query.mockResolvedValueOnce([
+                            {
+                                course_id: courseId,
+                            },
+                        ])
+
+                        const result = await service.checkEnrollment(userId,
+                            courseId)
+
+                        expect(result).toBe(true)
+                    })
+            })
+
+        describe("resolveOrCreateTrialEnrollment",
+            () => {
+                it("returns the existing enrollment without creating a new one",
+                    async () => {
+                        // an enrollment (trial or paid) already exists → return it as-is
+                        const existing = {
+                            id: "enrollment-1",
+                            isEnrolled: true,
+                        } as EnrollmentEntity
+                        entityManager.findOne.mockResolvedValueOnce(existing)
+
+                        const result = await service.resolveOrCreateTrialEnrollment(
+                            userId,
+                            courseId,
+                        )
+
+                        expect(result).toBe(existing)
+                        // idempotent: nothing is built or persisted
+                        expect(entityManager.create).not.toHaveBeenCalled()
+                        expect(entityManager.save).not.toHaveBeenCalled()
+                    })
+
+                it("creates a TRIAL placeholder (is_enrolled = false) when none exists",
+                    async () => {
+                        // no row yet → take the create path
+                        entityManager.findOne.mockResolvedValueOnce(null)
+                        const created = {
+                            id: "enrollment-new",
+                            isEnrolled: false,
+                        } as EnrollmentEntity
+                        entityManager.save.mockResolvedValueOnce(created)
+
+                        const result = await service.resolveOrCreateTrialEnrollment(
+                            userId,
+                            courseId,
+                        )
+
+                        // built as a trial placeholder for this user+course
+                        expect(entityManager.create).toHaveBeenCalledWith(
+                            EnrollmentEntity,
+                            expect.objectContaining({
+                                user: {
+                                    id: userId,
+                                },
+                                course: {
+                                    id: courseId,
+                                },
+                                pricingPhase: PricingPhase.EarlyBird,
+                                isEnrolled: false,
+                            }),
+                        )
+                        // persisted and returned
+                        expect(entityManager.save).toHaveBeenCalledTimes(1)
+                        expect(result).toBe(created)
+                    })
+
+                it("recovers idempotently when a concurrent insert wins the unique race",
+                    async () => {
+                        // first read finds nothing → create path
+                        entityManager.findOne.mockResolvedValueOnce(null)
+                        // save trips the UQ_enrollments_user_course constraint
+                        entityManager.save.mockRejectedValueOnce(
+                            new Error("duplicate key value violates unique constraint"),
+                        )
+                        // recovery re-read returns the row the racing request created
+                        const raced = {
+                            id: "enrollment-raced",
+                            isEnrolled: false,
+                        } as EnrollmentEntity
+                        entityManager.findOne.mockResolvedValueOnce(raced)
+
+                        const result = await service.resolveOrCreateTrialEnrollment(
+                            userId,
+                            courseId,
+                        )
+
+                        expect(result).toBe(raced)
+                    })
+
+                it("rethrows when the save fails for a non-race reason (no recovery row)",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(null)
+                        const failure = new Error("connection terminated")
+                        entityManager.save.mockRejectedValueOnce(failure)
+                        // recovery re-read also finds nothing → the error is genuine
+                        entityManager.findOne.mockResolvedValueOnce(null)
+
+                        await expect(
+                            service.resolveOrCreateTrialEnrollment(userId,
+                                courseId),
+                        ).rejects.toBe(failure)
                     })
             })
 

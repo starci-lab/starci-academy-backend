@@ -151,9 +151,12 @@ export class ReviewAiLabEvalGradeStepService extends AbstractStepService<
         await this.aiEntitlementService.consume({
             userId: payload.userId,
             mode,
+            // charge by the resolved model when pinned (Premium); Auto grades each
+            // case via the balancer (no single model) → falls back to the lane estimate
             cost: resolveGradingCreditCost({
                 mode,
                 recommendation: envConfig().ai.modelRecommendation as ModelRecommendation,
+                model: invokeOptions.model,
             }),
         })
         await this.creditUsageService.invalidate(payload.userId)

@@ -7,10 +7,16 @@ import {
 import {
     CourseEnrollSingleMutationModule,
 } from "./course-enroll"
+import {
+    StartTrialSingleMutationModule,
+} from "./start-trial"
 
 @Module({
     imports: [
         CourseEnrollSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        StartTrialSingleMutationModule.register({
             isGlobal: true,
         }),
     ],

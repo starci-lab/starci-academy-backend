@@ -97,7 +97,12 @@ export class ProgressProjectionService {
         courseId: string,
         userId: string,
     ): Promise<GetMyRankResult | null> {
-        // flat read: my row (metrics extracted from jsonb) + peers strictly above me
+        // flat read: my row (metrics extracted from jsonb) + peers strictly above me.
+        // Trials (is_enrolled = false) are excluded from rank on BOTH sides: the viewer
+        // row must be a real enrollment, and the higher-count subquery only counts peers
+        // whose projection row is backed by a real enrollment. The projection is keyed by
+        // enrollment_id going forward — join the enrollment via enrollment_id (the rows are
+        // backfilled), falling back to (user_id, course_id) only for any not-yet-backfilled row.
         const rows = await this.entityManager.query<Array<MyRankRow>>(
             `
             SELECT p.user_id,
@@ -111,10 +116,30 @@ export class ProgressProjectionService {
                        FROM user_course_progress_projections higher
                        WHERE higher.course_id = $1
                          AND (higher.value->>'totalXp')::int > (p.value->>'totalXp')::int
+                         AND EXISTS (
+                             SELECT 1 FROM enrollments he
+                             WHERE he.is_enrolled = true
+                               AND (
+                                   he.id = higher.enrollment_id
+                                   OR (higher.enrollment_id IS NULL
+                                       AND he.user_id = higher.user_id
+                                       AND he.course_id = higher.course_id)
+                               )
+                         )
                    ) AS higher_count
             FROM user_course_progress_projections p
             WHERE p.course_id = $1
               AND p.user_id = $2
+              AND EXISTS (
+                  SELECT 1 FROM enrollments e
+                  WHERE e.is_enrolled = true
+                    AND (
+                        e.id = p.enrollment_id
+                        OR (p.enrollment_id IS NULL
+                            AND e.user_id = p.user_id
+                            AND e.course_id = p.course_id)
+                    )
+              )
             `,
             [
                 courseId,
@@ -166,7 +191,11 @@ export class ProgressProjectionService {
         const maxPossibleScore = Number(totalsRows[0]?.max_possible_score ?? 0)
 
         // ranked entries off the projection — metrics extracted from the jsonb value,
-        // ordered by total_xp (functional index on (course_id, (value->>'totalXp')::int))
+        // ordered by total_xp (functional index on (course_id, (value->>'totalXp')::int)).
+        // The projection is keyed by enrollment_id going forward, so join the enrollment
+        // via enrollment_id (rows are backfilled), falling back to the (user_id, course_id)
+        // pair only for any not-yet-backfilled row. Trials are EXCLUDED from the leaderboard
+        // (AND e.is_enrolled = true) — only real/paid enrollments rank.
         const rows = await this.entityManager.query<Array<LeaderboardRow>>(
             `
             SELECT e.id         AS enrollment_id,
@@ -180,7 +209,14 @@ export class ProgressProjectionService {
                    (p.value->>'totalXp')::int             AS total_xp
             FROM user_course_progress_projections p
             JOIN users u       ON u.id = p.user_id
-            JOIN enrollments e ON e.user_id = p.user_id AND e.course_id = p.course_id
+            JOIN enrollments e
+                ON e.is_enrolled = true
+               AND (
+                   e.id = p.enrollment_id
+                   OR (p.enrollment_id IS NULL
+                       AND e.user_id = p.user_id
+                       AND e.course_id = p.course_id)
+               )
             WHERE p.course_id = $1
               AND (p.value->>'totalXp')::int > 0
             ORDER BY (p.value->>'totalXp')::int DESC, e.created_at ASC
@@ -241,11 +277,20 @@ export class ProgressProjectionService {
                    COALESCE(chl.total, 0)                            AS challenge_total,
                    -- milestone tasks: passed (projection) / total tasks in course
                    COALESCE((p.value->>'milestoneProgress')::int, 0) AS completed,
-                   COALESCE(mt.total, 0)                             AS total
+                   COALESCE(mt.total, 0)                             AS total,
+                   -- paid flag so the client can show a "trial" chip on trial enrollments
+                   e.is_enrolled                                     AS is_enrolled
             FROM enrollments e
             JOIN courses c ON c.id = e.course_id
+            -- projection is enrollment-keyed going forward → join on enrollment_id
+            -- (rows are backfilled), falling back to the (user_id, course_id) pair for
+            -- any not-yet-backfilled projection row. Trials (is_enrolled = false) are
+            -- intentionally NOT filtered out here: trials still show in My Courses.
             LEFT JOIN user_course_progress_projections p
-                ON p.user_id = e.user_id AND p.course_id = e.course_id
+                ON p.enrollment_id = e.id
+                OR (p.enrollment_id IS NULL
+                    AND p.user_id = e.user_id
+                    AND p.course_id = e.course_id)
             LEFT JOIN (
                 SELECT m.course_id, COUNT(mtk.id)::int AS total
                 FROM milestone_tasks mtk
@@ -283,6 +328,7 @@ export class ProgressProjectionService {
             challengeTotal: Number(row.challenge_total) || 0,
             completed: Number(row.completed) || 0,
             total: Number(row.total) || 0,
+            isEnrolled: row.is_enrolled,
         }))
     }
 
@@ -295,12 +341,20 @@ export class ProgressProjectionService {
      * @returns the parameterised INSERT … ON CONFLICT SQL
      */
     private buildUpsertSql(scoped: boolean): string {
-        // only the final SELECT changes (single user vs all enrollments)
+        // only the final SELECT changes (single user vs all enrollments). The scoped
+        // write path still passes the user id ($2) — we narrow the driving enrollment
+        // row by it (one enrollment per user × course).
         const userFilter = scoped ? "AND e.user_id = $2" : ""
+        // Per-user activity is grouped/joined by ENROLLMENT id (e.id) end-to-end now —
+        // user_contents and user_challenge_submissions carry enrollment_id (backfilled),
+        // so the aggregate is anchored on the enrollment, consistent with the milestone
+        // CTE (which already keyed on the enrollment) and the final enrollment-driven
+        // SELECT. The PK on the projection stays (user_id, course_id) this phase, so we
+        // still write user_id/course_id (plus the enrollment_id) from the driving row.
         return `
-            INSERT INTO user_course_progress_projections (user_id, course_id, value)
+            INSERT INTO user_course_progress_projections (user_id, course_id, enrollment_id, value)
             WITH per_submission_max AS (
-                SELECT ucs.user_id,
+                SELECT ucs.enrollment_id,
                        cs.challenge_id,
                        cs.id AS submission_id,
                        COALESCE(MAX(a.score), 0) AS max_score
@@ -308,64 +362,67 @@ export class ProgressProjectionService {
                 JOIN challenge_submissions cs ON cs.id = ucs.submission_id
                 LEFT JOIN user_challenge_submission_attempts a
                     ON a.user_challenge_submission_id = ucs.id
-                WHERE cs.challenge_id IN (
+                WHERE ucs.enrollment_id IS NOT NULL
+                  AND cs.challenge_id IN (
                     SELECT c.id FROM challenges c
                     JOIN contents ct ON ct.id = c.content_id
                     JOIN modules m  ON m.id  = ct.module_id
                     WHERE m.course_id = $1
                 )
-                GROUP BY ucs.user_id, cs.challenge_id, cs.id
+                GROUP BY ucs.enrollment_id, cs.challenge_id, cs.id
             ),
             per_challenge AS (
-                SELECT user_id, challenge_id, SUM(max_score) AS challenge_score
+                SELECT enrollment_id, challenge_id, SUM(max_score) AS challenge_score
                 FROM per_submission_max
-                GROUP BY user_id, challenge_id
+                GROUP BY enrollment_id, challenge_id
             ),
-            per_user AS (
-                SELECT pc.user_id,
+            per_enrollment AS (
+                SELECT pc.enrollment_id,
                        SUM(pc.challenge_score)::bigint AS total_score,
                        SUM(CASE WHEN pc.challenge_score >= c.score AND c.score > 0 THEN 1 ELSE 0 END)::bigint
                            AS completed_challenges
                 FROM per_challenge pc
                 JOIN challenges c ON c.id = pc.challenge_id
-                GROUP BY pc.user_id
+                GROUP BY pc.enrollment_id
             ),
-            read_per_user AS (
-                SELECT uc.user_id, COUNT(*)::bigint AS lessons_read
+            read_per_enrollment AS (
+                SELECT uc.enrollment_id, COUNT(*)::bigint AS lessons_read
                 FROM user_contents uc
                 JOIN contents ct ON ct.id = uc.content_id
                 JOIN modules m  ON m.id  = ct.module_id
-                WHERE m.course_id = $1 AND uc.is_read = true
-                GROUP BY uc.user_id
+                WHERE m.course_id = $1 AND uc.is_read = true AND uc.enrollment_id IS NOT NULL
+                GROUP BY uc.enrollment_id
             ),
-            milestone_per_user AS (
-                SELECT e.user_id, COUNT(DISTINCT umt.id)::bigint AS milestone_progress
+            milestone_per_enrollment AS (
+                SELECT umt.enrollment_id, COUNT(DISTINCT umt.id)::bigint AS milestone_progress
                 FROM enrollments e
                 JOIN user_milestone_tasks umt ON umt.enrollment_id = e.id
                 JOIN user_milestone_task_attempts umta
                     ON umta.user_milestone_task_id = umt.id AND umta.passed = true
                 WHERE e.course_id = $1
-                GROUP BY e.user_id
+                GROUP BY umt.enrollment_id
             )
             SELECT e.user_id,
                    e.course_id,
+                   e.id AS enrollment_id,
                    jsonb_build_object(
-                       'totalScore',          COALESCE(pu.total_score, 0)::int,
-                       'completedChallenges', COALESCE(pu.completed_challenges, 0)::int,
-                       'lessonsRead',         COALESCE(rpu.lessons_read, 0)::int,
-                       'milestoneProgress',   COALESCE(mpu.milestone_progress, 0)::int,
-                       'totalXp',             (COALESCE(pu.total_score, 0)
-                                                + COALESCE(rpu.lessons_read, 0) * 3
-                                                + COALESCE(mpu.milestone_progress, 0) * 10)::int
+                       'totalScore',          COALESCE(pe.total_score, 0)::int,
+                       'completedChallenges', COALESCE(pe.completed_challenges, 0)::int,
+                       'lessonsRead',         COALESCE(rpe.lessons_read, 0)::int,
+                       'milestoneProgress',   COALESCE(mpe.milestone_progress, 0)::int,
+                       'totalXp',             (COALESCE(pe.total_score, 0)
+                                                + COALESCE(rpe.lessons_read, 0) * 3
+                                                + COALESCE(mpe.milestone_progress, 0) * 10)::int
                    ) AS value
             FROM enrollments e
-            LEFT JOIN per_user pu            ON pu.user_id  = e.user_id
-            LEFT JOIN read_per_user rpu      ON rpu.user_id = e.user_id
-            LEFT JOIN milestone_per_user mpu ON mpu.user_id = e.user_id
+            LEFT JOIN per_enrollment pe            ON pe.enrollment_id  = e.id
+            LEFT JOIN read_per_enrollment rpe      ON rpe.enrollment_id = e.id
+            LEFT JOIN milestone_per_enrollment mpe ON mpe.enrollment_id = e.id
             WHERE e.course_id = $1 ${userFilter}
             ON CONFLICT (user_id, course_id) DO UPDATE SET
-                value      = EXCLUDED.value,
-                updated_at = now()
+                enrollment_id = EXCLUDED.enrollment_id,
+                value         = EXCLUDED.value,
+                updated_at    = now()
         `
     }
 }

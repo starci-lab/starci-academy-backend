@@ -12,8 +12,9 @@ import {
     IQueryHandler,
     QueryHandler,
 } from "@nestjs/cqrs"
-import type {
-    EntityManager,
+import {
+    ILike,
+    type EntityManager,
 } from "typeorm"
 import {
     SavedContentsQuery,
@@ -41,6 +42,7 @@ export class SavedContentsHandler
             request: {
                 skip = 0,
                 take = 20,
+                search,
             },
             user,
         } = query.params
@@ -52,8 +54,11 @@ export class SavedContentsHandler
             }
         }
 
+        // optional case-insensitive title search; filters on the joined content
+        const trimmedSearch = search?.trim()
+
         const [
-            userContents, 
+            userContents,
             count
         ] = await this.entityManager.findAndCount(
             UserContentEntity,
@@ -61,6 +66,9 @@ export class SavedContentsHandler
                 where: {
                     userId: user.id,
                     isFavorite: true,
+                    ...(trimmedSearch
+                        ? { content: { title: ILike(`%${trimmedSearch}%`) } }
+                        : {}),
                 },
                 // load the owning module → course so the client can group saved
                 // contents by course ("Đã lưu" grouped, like the learning-history page)

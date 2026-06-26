@@ -49,6 +49,9 @@ export class MyGithubTeamStatusHandler {
                     user: {
                         id: user.id,
                     },
+                    // paid only — a trial (is_enrolled = false) viewer must NOT be pushed
+                    // into the course GitHub team (team access is a purchased perk).
+                    isEnrolled: true,
                 },
                 relations: {
                     course: true,

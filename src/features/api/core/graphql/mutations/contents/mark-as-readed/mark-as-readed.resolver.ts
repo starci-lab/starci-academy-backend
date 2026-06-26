@@ -1,5 +1,6 @@
 import {
     Args,
+    Context,
     Mutation,
     Resolver,
 } from "@nestjs/graphql"
@@ -7,6 +8,9 @@ import {
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
+import type {
+    Request,
+} from "express"
 import {
     GraphQLLocale,
     GraphQLSuccessMessage,
@@ -20,6 +24,9 @@ import {
     Locale,
     UserEntity,
 } from "@modules/databases"
+import {
+    GraphQLEnrollmentGuard,
+} from "@modules/bussiness"
 import {
     MarkAsReadedRequest,
     MarkAsReadedResponse,
@@ -47,6 +54,7 @@ export class MarkAsReadedResolver {
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,
+        GraphQLEnrollmentGuard,
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(
@@ -63,12 +71,18 @@ export class MarkAsReadedResolver {
             locale: Locale,
         @KeycloakGraphQLUser()
             user: UserEntity,
+        @Context()
+            context: {
+                req: Request & { enrollmentId?: string }
+            },
     ): Promise<MarkAsReadedResponse> {
         return this.markAsReadedService.execute(
             {
                 request,
                 locale,
                 user,
+                // course-scoped progress is keyed by enrollment (set by GraphQLEnrollmentGuard)
+                enrollmentId: context.req.enrollmentId,
             },
         )
     }

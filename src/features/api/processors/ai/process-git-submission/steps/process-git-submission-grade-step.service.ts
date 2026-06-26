@@ -373,9 +373,11 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             await this.aiEntitlementService.consume({
                 userId: enrollment.userId,
                 mode: chargedMode,
+                // charge by the model that actually served (Qwen 0 / economy 5 / …)
                 cost: resolveGradingCreditCost({
                     mode: chargedMode,
                     recommendation: chargeRecommendation,
+                    model,
                 }),
             })
             await this.creditUsageService.invalidate(enrollment.userId)

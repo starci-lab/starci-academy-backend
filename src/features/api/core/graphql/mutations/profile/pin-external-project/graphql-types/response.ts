@@ -15,8 +15,9 @@ export class PinExternalProjectResponse extends AbstractGraphQLResponse {
     @Field(
         () => ID,
         {
-            description: "Id of the newly created pin.",
+            nullable: true,
+            description: "Id of the newly created pin (null on error).",
         },
     )
-        data: string
+        data: string | null
 }

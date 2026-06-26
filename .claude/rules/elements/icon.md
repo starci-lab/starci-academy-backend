@@ -17,5 +17,8 @@
 - **Nhãn section / label icon = `size-5` (20px)** (LabeledCard icon, meta chip section).
 - KHÔNG `min-h-*/min-w-*` thừa kèm `size-*` (size đã set cả w/h). Đừng để icon `size-5`+ trong row gọn (lấn).
 
+## 4. Leading "avatar của 1 thứ" = `IconTile`, KHÔNG icon trơ nhỏ — CHỐT 2026-06-25
+- **Icon đại diện cho 1 ĐỐI TƯỢNG ở leading của row/card (bài học/khóa/dự án) → block `IconTile` (tile khung `size="sm"` = 48px, icon tự `size-6` + nhận `src` cover/fallback), KHÔNG `<*Icon size-4/5>` trơ.** Icon trơ trong row cao (title+subtitle) nhìn nhỏ/yếu/lạc lõng. Phân vai: **avatar của 1 thứ → IconTile**; **marker phụ** (check/bullet/inline) → icon trơ `size-4/5`. Chi tiết + skeleton mirror: [[elements/list]] §5 + [[row-leading-icontile-not-bare-small-icon]].
+
 ## Liên quan
 - [[no-emoji]] (icon thay emoji) · [[status-icon-overrides-base]] (lock ghi đè icon gốc khi khoá) · [[disable-vs-lock-and-perrow-autosave]] (WarningCircle=disable vs Lock=khoá).

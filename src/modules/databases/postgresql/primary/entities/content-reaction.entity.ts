@@ -21,6 +21,9 @@ import {
     UserEntity,
 } from "./user.entity"
 import {
+    EnrollmentEntity,
+} from "./enrollment.entity"
+import {
     GraphQLTypeReactionType,
     ReactionType,
 } from "../enums"
@@ -88,19 +91,21 @@ export class ContentReactionEntity extends UuidAbstractEntity {
         contentId: string
 
     /**
-     * User who reacted.
+     * User who reacted. Nullable during the enrollment re-key transition;
+     * reads/writes go through {@link enrollment} going forward.
      */
     @ManyToOne(
         () => UserEntity,
         {
             onDelete: "CASCADE",
+            nullable: true,
         },
     )
     @JoinColumn({
         name: "user_id",
         foreignKeyConstraintName: "fk_user_id_content_reactions_users",
     })
-        user: UserEntity
+        user: UserEntity | null
 
     /**
      * Reacting user id (denormalized via relation).
@@ -108,11 +113,34 @@ export class ContentReactionEntity extends UuidAbstractEntity {
     @Field(
         () => ID,
         {
+            nullable: true,
             description: "Reacting user id.",
         },
     )
     @RelationId(
         (contentReaction: ContentReactionEntity) => contentReaction.user,
     )
-        userId: string
+        userId: string | null
+
+    /**
+     * Enrollment this reaction belongs to (user × course). The anchor for
+     * per-course progress going forward; nullable while the re-key backfill runs.
+     */
+    @ManyToOne(
+        () => EnrollmentEntity,
+        {
+            onDelete: "CASCADE",
+            nullable: true,
+        },
+    )
+    @JoinColumn({
+        name: "enrollment_id",
+        foreignKeyConstraintName: "fk_enrollment_id_content_reactions",
+    })
+        enrollment: EnrollmentEntity | null
+
+    @RelationId(
+        (contentReaction: ContentReactionEntity) => contentReaction.enrollment,
+    )
+        enrollmentId: string | null
 }

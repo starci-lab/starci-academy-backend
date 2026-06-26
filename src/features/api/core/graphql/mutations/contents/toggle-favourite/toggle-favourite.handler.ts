@@ -8,6 +8,7 @@ import {
     UserContentEntity,
 } from "@modules/databases"
 import {
+    UserService,
     writeActivity,
 } from "@modules/bussiness"
 import {
@@ -35,6 +36,7 @@ export class ToggleFavouriteHandler
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly userService: UserService,
     ) {
         super()
     }
@@ -65,6 +67,30 @@ export class ToggleFavouriteHandler
             },
         )
 
+        // resolve the course for this content so we can key the row by enrollment
+        // (user × course) — the anchor going forward — while still setting user_id
+        // during the re-key transition. Reuse the loaded content for the activity.
+        const content = await this.entityManager.findOne(
+            ContentEntity,
+            {
+                where: {
+                    id: contentId,
+                },
+                relations: {
+                    module: {
+                        course: true,
+                    },
+                },
+            },
+        )
+        const courseId = content?.module?.courseId ?? null
+        const enrollment = courseId
+            ? await this.userService.resolveOrCreateTrialEnrollment(
+                user.id,
+                courseId,
+            )
+            : null
+
         if (!userContent) {
             userContent = this.entityManager.create(
                 UserContentEntity,
@@ -77,24 +103,16 @@ export class ToggleFavouriteHandler
         } else {
             userContent.isFavorite = isFavorite
         }
+        // key the progress row by enrollment going forward (set BOTH columns
+        // during the transition); skip when the course can't be resolved.
+        if (enrollment) {
+            userContent.enrollment = enrollment
+        }
         const saved = await this.entityManager.save(userContent)
 
         // record a bookmark as a home-feed activity (only when turning it ON);
         // refId is the user-content id so re-bookmarking never duplicates
         if (isFavorite) {
-            const content = await this.entityManager.findOne(
-                ContentEntity,
-                {
-                    where: {
-                        id: contentId,
-                    },
-                    relations: {
-                        module: {
-                            course: true,
-                        },
-                    },
-                },
-            )
             await writeActivity({
                 entityManager: this.entityManager,
                 userId: user.id,

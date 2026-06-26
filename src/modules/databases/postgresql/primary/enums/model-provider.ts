@@ -13,6 +13,12 @@ export enum ModelProvider {
     Gemini = "gemini",
     /** OpenAI model provider. */
     OpenAI = "openai",
+    /**
+     * Self-hosted local provider exposing an OpenAI-compatible API
+     * (Ollama / vLLM / LM Studio). Routed through `ChatOpenAI` with a
+     * custom `baseURL` (see `OLLAMA_BASE_URL`).
+     */
+    Local = "local",
 }
 
 /**
@@ -34,6 +40,9 @@ registerEnumType(
             },
             [ModelProvider.OpenAI]: {
                 description: "OpenAI model provider.",
+            },
+            [ModelProvider.Local]: {
+                description: "Self-hosted local provider (OpenAI-compatible API).",
             },
         },
     }

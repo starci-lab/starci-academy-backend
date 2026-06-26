@@ -29,6 +29,12 @@
 - **Rail KIÊM bộ lọc/sort:** rail không chỉ "chọn item xem detail" — chọn 1 row có thể **re-sort/lọc** panel phải theo chiều đó (vd Leaderboard: rail = hạng mục XP, click → bảng re-rank theo hạng mục). Re-sort **client-side** khi payload đã đủ field (đừng fetch lại). Row chiều CHƯA có data → disabled "Sắp có" (`WarningCircleIcon`/mờ, không lock). Row có thể giàu hơn (icon màu category + tên + **giá trị của tôi** + caption), không chỉ 1 dòng.
 - **Mobile:** rail dọc cạnh-trái chỉ hợp `lg+`; màn hẹp → **thu thành hàng chip cuộn ngang TRÊN đầu detail** (`hidden lg:flex` cho ListBox · `flex lg:hidden overflow-x-auto` cho chip-row). 1 component render cả 2 (pure CSS), cùng họ responsive với [[fe responsive breadcrumb]]. Ref [[master-detail-rail-as-filter-and-mobile-chips]].
 
+## 5. Leading của row = `IconTile` (không icon trơ nhỏ) — CHỐT 2026-06-25
+- **Leading của 1 row đại diện cho 1 ĐỐI TƯỢNG (bài học/khóa/dự án/item) → block `IconTile`, KHÔNG icon SVG trơ cỡ nhỏ (`size-4/5`).** Icon trơ trong row cao (`py-4` + title + subtitle) nhìn **nhỏ/yếu/lạc lõng**, không cân khối chữ. `IconTile size="sm"` (48px tile, icon tự `size-6`) có **trọng lượng** → đọc ra "avatar của 1 thứ".
+- **Tận dụng ảnh:** `IconTile` nhận `src` (cover, `object-cover` + tự fallback khi 404) + `icon` (fallback). Item có cover (course `coverImageUrl`…) → truyền `src`; không có → fallback icon trên nền tint. 1 block lo cả 2 (khỏi guard ảnh-vs-icon ở feature). Tone `neutral` cho list trung tính (design restraint), `accent`/semantic chỉ khi nhấn. Truyền icon **bare** (IconTile auto-size + tone).
+- **Phân biệt:** icon trơ nhỏ chỉ hợp khi row GỌN 1 dòng (nhãn ngắn, không subtitle — vd `LabeledList` item) hoặc icon là **marker phụ** (check/bullet). Row "item đối tượng" (title+subtitle+meta, card-like) → IconTile. Hỏi: leading này là **avatar của 1 thứ** (→ IconTile) hay **marker phụ** (→ icon trơ)?
+- **Skeleton mirror tile:** `Skeleton size-12 rounded-xl shrink-0` + 2 dòng (`h-4 w-1/2` + `h-3 w-1/3`), KHÔNG 1 vạch đơn → không nhảy chiều cao. Ref [[row-leading-icontile-not-bare-small-icon]] + [[elements/icon]] §cỡ + [[item-card-meta-inside-bounded-object]]. Áp đầu: `Bookmarks/BookmarkCard`.
+
 ## Nguyên tắc chọn block
 - Item là **đoạn markdown dài** → KHÔNG `ListRow` (truncate) → row tự dựng + `MarkdownContent` ([[description-fields-render-markdown-compact]]).
 - Khối "label + list" cần khung card thật → `LabeledCard`; chỉ cần nhẹ (rail) → `LabeledList`.

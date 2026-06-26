@@ -6,6 +6,7 @@ import {
     In,
 } from "typeorm"
 import {
+    EnrollmentEntity,
     FlashcardCardEntity,
     FlashcardDeckEntity,
     FlashcardDeckResolverService,
@@ -17,6 +18,9 @@ import {
 import {
     FlashcardCardNotFoundException,
 } from "@modules/exceptions"
+import {
+    UserService,
+} from "../user"
 import type {
     ApplySm2Params,
     ApplySm2Result,
@@ -62,6 +66,7 @@ export class FlashcardReviewService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly flashcardDeckResolver: FlashcardDeckResolverService,
+        private readonly userService: UserService,
     ) {}
 
     /**
@@ -81,11 +86,42 @@ export class FlashcardReviewService {
             locale,
         }: ListDueFlashcardsParams,
     ): Promise<DueFlashcardsResult> {
+        // On a COURSE page, the review row is keyed by ENROLLMENT (the anchor for
+        // per-course progress going forward) — resolve the viewer's enrollment id for
+        // this course READ-ONLY (no trial create on a read; a viewer with no enrollment
+        // simply has no review rows → every card reads as NEW). The DASHBOARD (global)
+        // queue spans every course, so it keeps keying the review by user_id (a single
+        // enrollment id does not exist across courses).
+        const enrollmentId = courseId
+            ? (
+                await this.entityManager.findOne(
+                    EnrollmentEntity,
+                    {
+                        where: {
+                            user: {
+                                id: userId,
+                            },
+                            course: {
+                                id: courseId,
+                            },
+                        },
+                        select: {
+                            id: true,
+                        },
+                    },
+                )
+            )?.id ?? null
+            : null
+
         // shared scaffold: card → deck SCOPED TO THE COURSE (the "đến hạn" count on
         // a course page must reflect only that course's decks, not every deck
-        // system-wide), with the per-(user, card) review row left-joined. Enrollment
-        // is NOT required — trial viewers review flashcards too (no enrollment join).
+        // system-wide), with the per-viewer review row left-joined. Enrollment is NOT
+        // required — trial viewers review flashcards too. The review join keys by
+        // enrollment_id on a course page (and by user_id on the global dashboard queue).
         const base = () => {
+            const reviewJoin = courseId
+                ? "review.flashcard_card_id = card.id AND review.enrollment_id = :enrollmentId"
+                : "review.flashcard_card_id = card.id AND review.user_id = :userId"
             const qb = this.entityManager
                 .createQueryBuilder(FlashcardCardEntity,
                     "card")
@@ -95,9 +131,10 @@ export class FlashcardReviewService {
                 .leftJoin(
                     UserFlashcardReviewEntity,
                     "review",
-                    "review.flashcard_card_id = card.id AND review.user_id = :userId",
+                    reviewJoin,
                     {
                         userId,
+                        enrollmentId,
                     },
                 )
             // scope to one course on a course page; omit → global queue (dashboard)
@@ -261,15 +298,17 @@ export class FlashcardReviewService {
         }: ReviewFlashcardParams,
     ): Promise<ReviewFlashcardResult> {
         return this.entityManager.transaction(async (manager) => {
-            // the card must exist (FK target) — a typed 404 otherwise
+            // the card must exist (FK target) — a typed 404 otherwise. Load its deck
+            // so we can derive the course (card → deck → course) and key the review
+            // row by enrollment (user × course) — the anchor going forward.
             const cardExists = await manager.findOne(
                 FlashcardCardEntity,
                 {
                     where: {
                         id: cardId,
                     },
-                    select: {
-                        id: true,
+                    relations: {
+                        deck: true,
                     },
                 },
             )
@@ -278,6 +317,17 @@ export class FlashcardReviewService {
                     flashcardCardId: cardId,
                 })
             }
+
+            // resolve-or-create the trial enrollment for this user × course; set it on
+            // the row going forward (we still set user_id during the re-key transition).
+            // A deck without a course (global deck) leaves enrollment unset.
+            const courseId = cardExists.deck?.courseId ?? null
+            const enrollment = courseId
+                ? await this.userService.resolveOrCreateTrialEnrollment(
+                    userId,
+                    courseId,
+                )
+                : null
 
             // read the prior review state (defaults for a brand-new card)
             const existing = await manager.findOne(
@@ -317,6 +367,15 @@ export class FlashcardReviewService {
                         repetitions: next.repetitions,
                         dueAt,
                         lastReviewedAt: now,
+                        // backfill enrollment on a pre-existing row that predates the re-key
+                        ...(enrollment && !existing.enrollmentId
+                            ? {
+                                enrollment: {
+                                    id: enrollment.id,
+                                },
+                            }
+                            : {
+                            }),
                     },
                 )
             } else {
@@ -330,6 +389,12 @@ export class FlashcardReviewService {
                         repetitions: next.repetitions,
                         dueAt,
                         lastReviewedAt: now,
+                        ...(enrollment
+                            ? {
+                                enrollment,
+                            }
+                            : {
+                            }),
                     },
                 )
                 await manager.save(review)

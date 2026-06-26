@@ -57,6 +57,12 @@ export class ModelService {
                 }
             )
         }
+        /** Any other provider (e.g. self-hosted Local) is not wired here yet. */
+        default: {
+            throw new Error(
+                `Unsupported chat model provider: ${String(provider)}`,
+            )
+        }
         }
     }
 }

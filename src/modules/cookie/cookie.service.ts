@@ -14,8 +14,11 @@ import {
     ClearCookieResult
 } from "./types"
 import {
-    envConfig 
+    envConfig
 } from "@modules/env"
+import {
+    CookieName
+} from "./enums"
 
 
 /**
@@ -55,14 +58,29 @@ export class CookieService {
             path: "/",
             maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
         }
+        const merged: CookieOptions = {
+            ...defaultOptions,
+            ...options,
+        }
         res.cookie(
             name,
             value,
-            {
-                ...defaultOptions,
-                ...options,
-            }
+            merged
         )
+        // The refresh token is HttpOnly + host-only on the API host, so the FE edge
+        // (proxy) can't read it. Issue a parallel JS-readable "session hint" at the
+        // SAME lifetime + parent-domain scope so the FE can decide the home→dashboard
+        // bounce. UX hint ONLY — never trusted for authorization.
+        if (name === CookieName.KeycloakRefreshToken) {
+            this.attachReadableCookie({
+                res,
+                name: CookieName.SessionHint,
+                value: "1",
+                options: {
+                    maxAge: merged.maxAge,
+                },
+            })
+        }
     }
 
     /**
@@ -128,6 +146,19 @@ export class CookieService {
                 path: "/",
                 ...options,
             })
+        // drop the parallel session hint alongside the refresh token — match the
+        // attributes it was issued with (non-HttpOnly + parent-domain scope) so the
+        // browser actually removes it
+        if (name === CookieName.KeycloakRefreshToken) {
+            res.clearCookie(CookieName.SessionHint,
+                {
+                    httpOnly: false,
+                    secure: envConfig().isProduction,
+                    sameSite: "strict",
+                    path: "/",
+                    domain: envConfig().cookie.domain || undefined,
+                })
+        }
     }
 
     /**

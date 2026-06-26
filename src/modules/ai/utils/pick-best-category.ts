@@ -4,6 +4,7 @@ import {
 
 /** Rank used to pick the "best" category a Premium tier unlocks. */
 const CATEGORY_RANK: Record<AiModelCategory, number> = {
+    [AiModelCategory.Free]: -1,
     [AiModelCategory.Economy]: 0,
     [AiModelCategory.Balanced]: 1,
     [AiModelCategory.Premium]: 2,

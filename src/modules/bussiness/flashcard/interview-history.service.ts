@@ -3,10 +3,9 @@ import {
 } from "@nestjs/common"
 import {
     EntityManager,
-    In,
 } from "typeorm"
 import {
-    FlashcardDeckEntity,
+    EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     InterviewAttemptEntity,
 } from "@modules/databases"
@@ -50,18 +49,27 @@ export class InterviewHistoryService {
             courseId,
         }: GetInterviewHistoryParams,
     ): Promise<InterviewHistorySummary> {
-        // resolve the deck scope: one deck (legacy) takes precedence; else, for the
-        // random-interview mode, every deck of the course; else account-wide.
-        let deckScope: Record<string, unknown> = {}
+        // Build the scope. The course-wide (random-interview) branch is keyed by
+        // ENROLLMENT id (the anchor for per-course progress going forward) — an
+        // enrollment IS user × course, so filtering by enrollment_id is inherently
+        // course-scoped, and interview_attempts.enrollment_id is backfilled. The
+        // enrollment is resolved READ-ONLY (no trial create on a read). The legacy
+        // single-deck and account-wide branches stay keyed by user_id (no single
+        // course / enrollment to anchor on).
+        const scope: Record<string, unknown> = {
+        }
         if (flashcardDeckId) {
-            deckScope = {
-                flashcardDeckId,
-            }
+            // one deck (legacy) takes precedence — scope by deck + the viewer (user_id)
+            scope.userId = userId
+            scope.flashcardDeckId = flashcardDeckId
         } else if (courseId) {
-            const decks = await this.entityManager.find(
-                FlashcardDeckEntity,
+            const enrollment = await this.entityManager.findOne(
+                EnrollmentEntity,
                 {
                     where: {
+                        user: {
+                            id: userId,
+                        },
                         course: {
                             id: courseId,
                         },
@@ -71,8 +79,8 @@ export class InterviewHistoryService {
                     },
                 },
             )
-            // a course with no decks → no attempts in scope; return the zeroed summary
-            if (decks.length === 0) {
+            // no enrollment for this user × course → no attempts in scope; zeroed summary
+            if (!enrollment) {
                 return {
                     totalAnswered: 0,
                     averageScore: 0,
@@ -84,19 +92,18 @@ export class InterviewHistoryService {
                     lastAttemptAt: null,
                 }
             }
-            deckScope = {
-                flashcardDeckId: In(decks.map((deck) => deck.id)),
-            }
+            // key by enrollment_id — inherently scopes to this course's attempts
+            scope.enrollmentId = enrollment.id
+        } else {
+            // account-wide → every attempt the viewer owns (user_id)
+            scope.userId = userId
         }
 
-        // newest-first window, scoped to the resolved deck set (deck / course / all)
+        // newest-first window, scoped to the resolved set (deck+user / enrollment / user)
         const attempts = await this.entityManager.find(
             InterviewAttemptEntity,
             {
-                where: {
-                    userId,
-                    ...deckScope,
-                },
+                where: scope,
                 order: {
                     createdAt: "DESC",
                 },
@@ -118,9 +125,12 @@ export class InterviewHistoryService {
             }
         }
 
-        const scoreSum = attempts.reduce((sum, attempt) => sum + attempt.score, 0)
+        const scoreSum = attempts.reduce((sum, attempt) => sum + attempt.score,
+            0)
         const averageScore = Math.round((scoreSum / totalAnswered) * 10) / 10
-        const bestScore = attempts.reduce((max, attempt) => Math.max(max, attempt.score), 0)
+        const bestScore = attempts.reduce((max, attempt) => Math.max(max,
+            attempt.score),
+        0)
         const passCount = attempts.filter(
             (attempt) => attempt.verdict === InterviewVerdict.Pass,
         ).length
@@ -136,13 +146,15 @@ export class InterviewHistoryService {
         for (const attempt of attempts) {
             if (attempt.verdict !== InterviewVerdict.Pass) {
                 for (const tag of attempt.tags ?? []) {
-                    weakTagCounts.set(tag, (weakTagCounts.get(tag) ?? 0) + 1)
+                    weakTagCounts.set(tag,
+                        (weakTagCounts.get(tag) ?? 0) + 1)
                 }
             }
         }
         const weakTags = [...weakTagCounts.entries()]
             .sort((left, right) => right[1] - left[1])
-            .slice(0, MAX_WEAK_TAGS)
+            .slice(0,
+                MAX_WEAK_TAGS)
             .map(([tag]) => tag)
 
         return {

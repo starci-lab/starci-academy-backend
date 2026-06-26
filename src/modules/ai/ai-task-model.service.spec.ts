@@ -35,16 +35,21 @@ describe("AiTaskModelService",
             () => {
                 it("returns the low-tier chain for grading (default env tier)",
                     () => {
-                        // default AI_MODEL_RECOMMENDATION is "low" → gpt-4o-mini primary
+                        // default AI_MODEL_RECOMMENDATION is "low" → local Qwen primary,
+                        // then the economy cloud fallback chain
                         const chain = service.fallbackChain(AiTaskKind.Grade)
 
                         expect(chain).toEqual([
                             {
-                                model: "gpt-4o-mini",
+                                model: "qwen2.5-coder:7b",
+                                provider: ModelProvider.Local,
+                            },
+                            {
+                                model: "gpt-5.4-nano",
                                 provider: ModelProvider.OpenAI,
                             },
                             {
-                                model: "gemini-2.0-flash",
+                                model: "gemini-2.5-flash-lite",
                                 provider: ModelProvider.Gemini,
                             },
                         ])
@@ -52,11 +57,11 @@ describe("AiTaskModelService",
 
                 it("returns a distinct chain for milestone generation",
                     () => {
-                        // milestone low-tier leads with Gemini Flash, not OpenAI
+                        // milestone low-tier leads with Gemini Flash-Lite, not OpenAI
                         const chain = service.fallbackChain(AiTaskKind.GenerateMilestone)
 
                         expect(chain[0]).toEqual({
-                            model: "gemini-2.0-flash",
+                            model: "gemini-2.5-flash-lite",
                             provider: ModelProvider.Gemini,
                         })
                     })
@@ -70,8 +75,8 @@ describe("AiTaskModelService",
                         const primary = service.primaryChoice(AiTaskKind.Grade)
 
                         expect(primary).toEqual({
-                            model: "gpt-4o-mini",
-                            provider: ModelProvider.OpenAI,
+                            model: "qwen2.5-coder:7b",
+                            provider: ModelProvider.Local,
                         })
                     })
             })

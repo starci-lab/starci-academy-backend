@@ -1,5 +1,6 @@
 import {
     Args,
+    Context,
     Mutation,
     Resolver,
 } from "@nestjs/graphql"
@@ -7,6 +8,9 @@ import {
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
+import type {
+    Request,
+} from "express"
 import {
     GraphQLLocale,
     GraphQLSuccessMessage,
@@ -25,6 +29,7 @@ import {
     KeycloakGraphQLUser,
 } from "@modules/keycloak"
 import {
+    GraphQLEnrollmentGuard,
     GraphQLMustEnrolledGuard,
 } from "@modules/bussiness"
 import {
@@ -50,7 +55,11 @@ export class GradeInterviewAnswerResolver {
         [Locale.En]: "Interview answer graded successfully",
         [Locale.Vi]: "Chấm câu trả lời phỏng vấn thành công",
     })
-    @UseGuards(KeycloakAuthGraphQLGuard, GraphQLMustEnrolledGuard)
+    @UseGuards(
+        KeycloakAuthGraphQLGuard,
+        GraphQLMustEnrolledGuard,
+        GraphQLEnrollmentGuard,
+    )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(
         () => GradeInterviewAnswerResponse,
@@ -66,12 +75,18 @@ export class GradeInterviewAnswerResolver {
             locale: Locale,
         @KeycloakGraphQLUser()
             user: UserEntity,
+        @Context()
+            context: {
+                req: Request & { enrollmentId?: string }
+            },
     ) {
         return this.gradeInterviewAnswerService.execute(
             {
                 request,
                 locale,
                 user,
+                // course-scoped progress is keyed by enrollment (set by GraphQLEnrollmentGuard)
+                enrollmentId: context.req.enrollmentId,
             },
         )
     }

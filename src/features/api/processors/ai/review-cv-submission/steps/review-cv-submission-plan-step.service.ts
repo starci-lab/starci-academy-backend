@@ -269,10 +269,14 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
 
         // Build the BYOK/Premium invoke descriptor — gates entitlement (no
         // downgrade) and throws on a not-entitled lane or a missing BYOK key.
+        // CV review is premium-only: `allowFreeAuto: false` forces an absent/Auto
+        // pick onto the Premium lane, so an unentitled user is rejected (not graded
+        // free on Qwen/economy).
         return resolveGradingInvokeOptions({
             userId,
             selection: payload.ai,
             aiEntitlementService: this.aiEntitlementService,
+            allowFreeAuto: false,
         })
     }
 

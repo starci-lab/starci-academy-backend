@@ -332,7 +332,10 @@
       "Bash(cd /d/Repositories/starci-academy-backend *)",
       "WebFetch(domain:www.subframe.com)",
       "Bash(SRC=\"D:/Repositories/starci-academy/.claude/rules/drafts/input-variant-by-surface-and-search-result-count.md\" *)",
-      "WebFetch(domain:www.npmjs.com)"
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:bytebytego.com)",
+      "mcp__Claude_in_Chrome__browser_batch",
+      "WebFetch(domain:api.github.com)"
     ]
   }
 }

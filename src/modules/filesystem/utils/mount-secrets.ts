@@ -147,6 +147,17 @@ export const getGeminiApiKeys = (): Array<string> => {
 }
 
 /**
+ * Get the Local (self-hosted) provider key — the bearer token validated by the
+ * Caddy gate in front of Ollama. Falls back to a single placeholder ("ollama")
+ * when the file is missing/empty, so a direct, gate-less local Ollama still
+ * resolves an eligible key (the endpoint ignores the value).
+ */
+export const getLocalApiKeys = (): Array<string> => {
+    const keys = parseApiKeysFile(envConfig().mountPath.aiKeys.local)
+    return keys.length > 0 ? keys : ["ollama"]
+}
+
+/**
  * Get keycloak client secret (from terraform mount path).
  */
 export const getKeycloakClientSecret = (): string => {

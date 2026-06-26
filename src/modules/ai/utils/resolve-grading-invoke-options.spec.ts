@@ -41,9 +41,10 @@ const userId = "user-1"
 
 describe("resolveGradingInvokeOptions",
     () => {
-        it("pins gpt-4o on the Auto lane when no selection is supplied",
+        it("runs the Economy chain on the Auto lane when no selection is supplied",
             () => {
-                // absent selection → grade on the capable pinned code reviewer
+                // absent selection → free Auto lane: balancer loops the Economy
+                // chain (local Qwen first → economy cloud fallback), no pinned model
                 const entitlement = makeEntitlementStub()
 
                 return resolveGradingInvokeOptions({
@@ -51,15 +52,17 @@ describe("resolveGradingInvokeOptions",
                     aiEntitlementService: entitlement as unknown as AiEntitlementService,
                 }).then((result) => {
                     expect(result).toEqual({
-                        model: "gpt-4o",
-                        provider: ModelProvider.OpenAI,
+                        categories: [
+                            AiModelCategory.Free,
+                            AiModelCategory.Economy,
+                        ],
                     })
                     // Auto path never touches the entitlement resolver
                     expect(entitlement.resolve).not.toHaveBeenCalled()
                 })
             })
 
-        it("pins gpt-4o for an explicit Auto selection",
+        it("runs the Economy chain for an explicit Auto selection",
             async () => {
                 // an explicit Auto pick behaves the same as no selection
                 const entitlement = makeEntitlementStub()
@@ -73,8 +76,10 @@ describe("resolveGradingInvokeOptions",
                 })
 
                 expect(result).toEqual({
-                    model: "gpt-4o",
-                    provider: ModelProvider.OpenAI,
+                    categories: [
+                        AiModelCategory.Free,
+                        AiModelCategory.Economy,
+                    ],
                 })
             })
 

@@ -24,6 +24,7 @@ import type {
 import {
     ProgressProjectionService,
     ReactionService,
+    UserService,
     writeActivity,
 } from "@modules/bussiness"
 import {
@@ -47,6 +48,7 @@ export class MarkAsReadedHandler
         private readonly entityManager: EntityManager,
         private readonly reactionService: ReactionService,
         private readonly progressProjectionService: ProgressProjectionService,
+        private readonly userService: UserService,
     ) {
         super()
     }
@@ -78,6 +80,30 @@ export class MarkAsReadedHandler
             },
         )
 
+        // resolve the course for this content so we can key the row by enrollment
+        // (user × course) — the anchor going forward — while still setting user_id
+        // during the re-key transition. Reuse the loaded content for the XP branch.
+        const content = await this.entityManager.findOne(
+            ContentEntity,
+            {
+                where: {
+                    id: contentId,
+                },
+                relations: {
+                    module: {
+                        course: true,
+                    },
+                },
+            },
+        )
+        const courseId = content?.module?.courseId ?? null
+        const enrollment = courseId
+            ? await this.userService.resolveOrCreateTrialEnrollment(
+                user.id,
+                courseId,
+            )
+            : null
+
         await this.entityManager.transaction(
             async (entityManager) => {
                 const userContent = existing ?? entityManager.create(
@@ -88,6 +114,11 @@ export class MarkAsReadedHandler
                     },
                 )
                 userContent.isRead = readed
+                // key the progress row by enrollment going forward (set BOTH columns
+                // during the transition); skip when the course can't be resolved.
+                if (enrollment) {
+                    userContent.enrollment = enrollment
+                }
                 const saved = await entityManager.save(
                     UserContentEntity,
                     userContent,
@@ -98,19 +129,6 @@ export class MarkAsReadedHandler
                 // writeActivity are idempotent on the user-content refId, so claiming
                 // the reward after the page already auto-marked read still grants once.
                 if (readed && !silent) {
-                    const content = await entityManager.findOne(
-                        ContentEntity,
-                        {
-                            where: {
-                                id: contentId,
-                            },
-                            relations: {
-                                module: {
-                                    course: true,
-                                },
-                            },
-                        },
-                    )
                     await writeXpHistory({
                         entityManager,
                         userId: user.id,

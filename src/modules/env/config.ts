@@ -1216,6 +1216,20 @@ export const envConfig = () => ({
                     "keys",
                     "gemini-api-keys.key"),
             }),
+            /**
+             * Bearer token sent (as `Authorization: Bearer …`) to the self-hosted
+             * `local` provider behind its Caddy gate. File missing/empty → the
+             * key-store falls back to a placeholder, fine for a direct local
+             * Ollama with no auth gate.
+             */
+            local: parseEnvString({
+                key: "AI_KEYS_LOCAL_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "keys",
+                    "local.key"),
+            }),
         },
     },
     /** CORS: allowed origins (CORS_ORIGIN_1 … CORS_ORIGIN_10, empty skipped). */
@@ -1980,6 +1994,18 @@ export const envConfig = () => ({
             key: "AI_MODEL_RECOMMENDATION",
             defaultValue: "low",
         }),
+        /** Self-hosted (OpenAI-compatible) local provider config. */
+        local: {
+            /**
+             * Base URL of the self-hosted OpenAI-compatible endpoint used by
+             * `ModelProvider.Local` (Ollama default `http://localhost:11434/v1`,
+             * vLLM `http://host:8000/v1`). Models tagged `local` route here.
+             */
+            baseUrl: parseEnvString({
+                key: "OLLAMA_BASE_URL",
+                defaultValue: "http://localhost:11434/v1",
+            }),
+        },
         /** Interval (ms) between provider quota re-check for unavailable providers. */
         quotaCheckIntervalMs: parseEnvMs({
             key: "AI_QUOTA_CHECK_INTERVAL_MS",

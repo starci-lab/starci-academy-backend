@@ -16,6 +16,9 @@ import {
     UnsupportedAiProviderException,
 } from "@modules/exceptions"
 import {
+    envConfig,
+} from "@modules/env"
+import {
     UseApiService,
 } from "./balancer"
 import type {
@@ -57,6 +60,7 @@ export class AiInvokeService {
         {
             messages,
             category,
+            categories,
             byok,
             temperature,
             model,
@@ -105,7 +109,9 @@ export class AiInvokeService {
             }
         }
 
-        // Premium lane (any non-Economy category) pins one model; Auto runs the fallback chain
+        // Premium lane = a single pinned category (set by the entitlement resolver).
+        // Auto lane = `categories` (the entitled tier set) → balancer loops them
+        // low→high by priority (Free → Economy → Balanced → Premium, capped here).
         const isPremiumLane = category !== undefined
             && category !== AiModelCategory.Economy
 
@@ -128,6 +134,7 @@ export class AiInvokeService {
                 {
                     lane: AiMode.Auto,
                     category,
+                    categories,
                     model,
                     provider,
                     action: invokeAction,
@@ -157,6 +164,7 @@ export class AiInvokeService {
         {
             messages,
             category,
+            categories,
             byok,
             temperature,
             model,
@@ -265,6 +273,7 @@ export class AiInvokeService {
                 {
                     lane: AiMode.Auto,
                     category,
+                    categories,
                     model,
                     provider,
                     action: streamAction,
@@ -317,6 +326,20 @@ export class AiInvokeService {
                     model,
                     apiKey,
                     temperature,
+                },
+            )
+        case ModelProvider.Local:
+            // self-hosted OpenAI-compatible endpoint (Ollama / vLLM / LM Studio):
+            // reuse ChatOpenAI but point it at the local baseURL. The key is a
+            // placeholder the endpoint typically ignores.
+            return new ChatOpenAI(
+                {
+                    model,
+                    apiKey,
+                    temperature,
+                    configuration: {
+                        baseURL: envConfig().ai.local.baseUrl,
+                    },
                 },
             )
         default:

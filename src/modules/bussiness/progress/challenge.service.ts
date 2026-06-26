@@ -134,10 +134,17 @@ export class ChallengeProgressService {
             }
         }
 
+        // the viewer's own submission rows for these challenges, keyed by ENROLLMENT
+        // (the anchor for per-course progress going forward) — user_challenge_submissions
+        // carries enrollment_id (backfilled). Without this filter the aggregate would
+        // span EVERY user's submissions for the course's challenges.
         const userSubmissions = await this.entityManager.find(
             UserChallengeSubmissionEntity,
             {
                 where: {
+                    enrollment: {
+                        id: enrollment.enrollmentId,
+                    },
                     submission: {
                         challenge: {
                             id: In(challengeIds),

@@ -113,6 +113,30 @@ export class EnrollmentEntity extends UuidAbstractEntity {
         pricingPhase: PricingPhase
 
     /**
+     * Whether this is a REAL (committed / paid) enrollment versus a trial /
+     * preview placeholder. The row may exist the moment a user engages with a
+     * course (trial → `false`); it flips to `true` when they actually
+     * enroll / pay. Gates that mean "is a paying member" (capstone, milestone,
+     * personal-project, premium) check THIS flag, not mere row existence —
+     * activity (lesson reads, challenge submissions) is tracked regardless, but
+     * a trial row must not unlock paid-only surfaces. Defaults to `true` so any
+     * creation path that does not explicitly opt into a trial is treated as a
+     * full enrollment (fail-safe: never lock out a payer).
+     */
+    @Field(
+        () => Boolean,
+        {
+            description: "True when the user has actually enrolled/paid; false for a trial placeholder.",
+        },
+    )
+    @Column({
+        name: "is_enrolled",
+        type: "boolean",
+        default: true,
+    })
+        isEnrolled: boolean
+
+    /**
      * User's submitted personal project GitHub URL at enrollment level.
      */
     @Field(

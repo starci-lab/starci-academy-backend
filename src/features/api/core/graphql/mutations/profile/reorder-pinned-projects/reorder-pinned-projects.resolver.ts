@@ -78,16 +78,23 @@ export class ReorderPinnedProjectsResolver {
             // assign orderIndex = array position, one update per id
             for (const [orderIndex,
                 id] of ids.entries()) {
-                // scope by userId so a caller can only reorder pins they own;
-                // foreign / unknown ids match nothing and are silently skipped
-                await transactionalEntityManager.update(UserPinnedProjectEntity,
-                    {
-                        id,
-                        userId: user.id,
-                    },
-                    {
+                // scope by the user_id FK column so a caller can only reorder pins they
+                // own; foreign / unknown ids match nothing and are silently skipped.
+                // (`userId` is a @RelationId — not a real column — so it can't be used
+                // directly in update criteria; filter on the FK column instead.)
+                await transactionalEntityManager
+                    .createQueryBuilder()
+                    .update(UserPinnedProjectEntity)
+                    .set({
                         orderIndex,
                     })
+                    .where("id = :id", {
+                        id,
+                    })
+                    .andWhere("user_id = :userId", {
+                        userId: user.id,
+                    })
+                    .execute()
             }
         })
 

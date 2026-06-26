@@ -44,13 +44,6 @@ export class AiModelsHandler {
                 fallbackChain: this.aiTaskModelService.fallbackChain(AiTaskKind.ReviewPersonalProject),
             },
             {
-                taskKind: AiTaskKind.GenerateMilestone,
-                label: "Tạo Milestone & Task",
-                description: "Sinh ra các milestone và task cho dự án cá nhân dựa trên ý tưởng và khóa học.",
-                activeModel: this.aiTaskModelService.primaryChoice(AiTaskKind.GenerateMilestone),
-                fallbackChain: this.aiTaskModelService.fallbackChain(AiTaskKind.GenerateMilestone),
-            },
-            {
                 taskKind: AiTaskKind.ReviewCvSubmission,
                 label: "Review CV (analyze)",
                 description: "Phân tích CV theo rubric, sinh markdown `detailFeedback` sau bước plan.",

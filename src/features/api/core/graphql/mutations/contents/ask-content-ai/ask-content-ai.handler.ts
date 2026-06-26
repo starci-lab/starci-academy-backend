@@ -10,6 +10,7 @@ import {
 import {
     AiEntitlementService,
     AiInvokeService,
+    MODEL_CREDIT,
     resolveGradingInvokeOptions,
 } from "@modules/ai"
 import {
@@ -138,7 +139,8 @@ export class AskContentAiHandler
         const courseId = row?.module?.course?.id
         if (isPremium) {
             const entitled = courseId
-                ? await this.userService.checkEnrollment(user.id, courseId)
+                ? await this.userService.checkEnrollment(user.id,
+                    courseId)
                 : false
             if (!entitled) {
                 throw new ForbiddenException(
@@ -180,16 +182,19 @@ export class AskContentAiHandler
         ]
         const {
             text,
+            model,
         } = await this.aiInvokeService.invoke({
             messages,
             ...invokeOptions,
         })
 
-        // debit the flat cost AFTER a successful answer (BYOK is free — consume no-ops)
+        // debit AFTER a successful answer, by the model that served: the self-hosted
+        // Qwen is free (0), economy cloud falls back to its per-model credit, and an
+        // unknown model uses the flat ask cost. (BYOK is free — consume no-ops.)
         await this.aiEntitlementService.consume({
             userId: user.id,
             mode: snapshot.mode,
-            cost: ASK_CONTENT_AI_COST,
+            cost: MODEL_CREDIT[model] ?? ASK_CONTENT_AI_COST,
         })
 
         return {

@@ -81,8 +81,11 @@ export class CourseEnrollmentStatusHandler
             },
         )
 
+        // `isEnrolled` reflects the REAL-enrollment flag, not mere row existence: a
+        // trial/preview row (is_enrolled = false) reports false so the FE still shows
+        // the enroll / buy CTA. No row → false as before.
         return {
-            isEnrolled: !!enrollment,
+            isEnrolled: enrollment?.isEnrolled ?? false,
             enrollment: enrollment ?? null,
         }
     }

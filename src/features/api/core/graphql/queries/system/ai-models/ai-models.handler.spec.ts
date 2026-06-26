@@ -12,6 +12,7 @@ import {
     AiModelCatalogService,
     AiTaskKind,
     AiTaskModelService,
+    UseApiService,
 } from "@modules/ai"
 
 describe("AiModelsHandler",
@@ -20,6 +21,7 @@ describe("AiModelsHandler",
         let handler: AiModelsHandler
         let aiTaskModelService: jest.Mocked<Pick<AiTaskModelService, "primaryChoice" | "fallbackChain">>
         let modelCatalog: jest.Mocked<Pick<AiModelCatalogService, "enabledModels">>
+        let useApiService: jest.Mocked<Pick<UseApiService, "availableProviders">>
 
         beforeEach(async () => {
             // task-model service: deterministic primary + fallback per task kind
@@ -43,6 +45,11 @@ describe("AiModelsHandler",
                 ]),
             } as unknown as jest.Mocked<Pick<AiModelCatalogService, "enabledModels">>
 
+            // balancer: which providers currently have a healthy key (drives `available`)
+            useApiService = {
+                availableProviders: jest.fn(async () => new Set(["openai"])),
+            } as unknown as jest.Mocked<Pick<UseApiService, "availableProviders">>
+
             module = await Test.createTestingModule({
                 providers: [
                     AiModelsHandler,
@@ -53,6 +60,10 @@ describe("AiModelsHandler",
                     {
                         provide: AiModelCatalogService,
                         useValue: modelCatalog,
+                    },
+                    {
+                        provide: UseApiService,
+                        useValue: useApiService,
                     },
                 ],
             }).compile()
@@ -68,8 +79,9 @@ describe("AiModelsHandler",
             async () => {
                 const result = await handler.execute()
 
-                // one active-model row per declared task kind
-                expect(result.models).toHaveLength(4)
+                // one active-model row per declared task kind (Grade, ReviewPersonalProject,
+                // ReviewCvSubmission — milestone generation was removed)
+                expect(result.models).toHaveLength(3)
                 const grade = result.models.find(
                     (model) => model.taskKind === AiTaskKind.Grade,
                 )
@@ -90,6 +102,8 @@ describe("AiModelsHandler",
                         provider: "openai",
                         category: "premium",
                         complimentary: false,
+                        // openai is in the mocked available-providers set
+                        available: true,
                     },
                 ])
             })

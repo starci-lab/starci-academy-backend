@@ -20,6 +20,7 @@ import {
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
+    ModelProvider,
     UserChallengeSubmissionAttemptEntity,
     UserChallengeSubmissionEntity,
     XpSource,
@@ -209,6 +210,8 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                             entityManager,
                             payload,
                             attemptId: attempt.id,
+                            servedModel: grade.aiUsage?.model,
+                            servedProvider: grade.aiUsage?.provider,
                         },
                     )
                     /** Grant XP + reward points for a passed challenge (same tx, idempotent). */
@@ -320,9 +323,11 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
             await this.aiEntitlementService.consume({
                 userId: chargedUserId,
                 mode: chargedMode,
+                // charge by the model that actually served (from the grade result)
                 cost: resolveGradingCreditCost({
                     mode: chargedMode,
                     recommendation,
+                    model: grade.aiUsage?.model,
                 }),
             })
             await this.creditUsageService.invalidate(chargedUserId)
@@ -373,10 +378,16 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
             entityManager,
             payload,
             attemptId,
+            servedModel,
+            servedProvider,
         }: {
             entityManager: EntityManager
             payload: ProcessGoogleDocsSubmissionPayload
             attemptId: string
+            /** The model that actually served (Auto is load-balanced — record what ran). */
+            servedModel?: string
+            /** Provider of {@link servedModel}. */
+            servedProvider?: ModelProvider
         },
     ): Promise<string> {
         /** Resolve who is being charged from the user challenge submission. */
@@ -395,19 +406,29 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
         const credits = resolveGradingCreditCost({
             mode,
             recommendation,
+            model: servedModel,
         })
-        // Premium/BYOK carry the user-picked model; Auto is load-balanced and has none.
-        const pickedModel = payload.ai && payload.ai.mode !== AiMode.Auto
-            ? payload.ai.model
-            : null
-        const pickedProvider = payload.ai && payload.ai.mode !== AiMode.Auto
-            ? payload.ai.provider
-            : null
+        // Prefer the model that actually served (incl. the Auto-lane Qwen/economy pick);
+        // fall back to the user-picked Premium/BYOK model.
+        const pickedModel = servedModel
+            ?? (payload.ai && payload.ai.mode !== AiMode.Auto
+                ? payload.ai.model
+                : null)
+        const pickedProvider = servedProvider
+            ?? (payload.ai && payload.ai.mode !== AiMode.Auto
+                ? payload.ai.provider
+                : null)
+        // user_id is nullable after the enrollment-centric migration; an AI-graded
+        // submission always has an owner — guard so the credit-usage write stays typed.
+        const submissionUserId = userChallengeSubmission.userId
+        if (!submissionUserId) {
+            throw new Error("Cannot record credit usage: submission has no owner user")
+        }
         await entityManager.save(
             CreditUsageHistoryEntity,
             {
                 user: {
-                    id: userChallengeSubmission.userId,
+                    id: submissionUserId,
                 },
                 attempt: {
                     id: attemptId,
@@ -419,6 +440,6 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                 credits,
             },
         )
-        return userChallengeSubmission.userId
+        return submissionUserId
     }
 }

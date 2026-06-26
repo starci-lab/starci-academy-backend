@@ -13,6 +13,9 @@ import {
     UserEntity,
 } from "./user.entity"
 import {
+    EnrollmentEntity,
+} from "./enrollment.entity"
+import {
     FlashcardCardEntity,
 } from "./flashcard-card.entity"
 
@@ -31,29 +34,55 @@ import {
         "dueAt",
     ])
 export class UserFlashcardReviewEntity extends UuidAbstractEntity {
-    /** The user this review state belongs to. */
+    /**
+     * The user this review state belongs to. Nullable during the enrollment
+     * re-key transition; reads/writes go through {@link enrollment} going forward.
+     */
     @ManyToOne(
         () => UserEntity,
         {
             onDelete: "CASCADE",
-            nullable: false,
+            nullable: true,
         },
     )
     @JoinColumn({
         name: "user_id",
         foreignKeyConstraintName: "fk_user_id_user_flashcard_reviews_users",
     })
-        user: UserEntity
+        user: UserEntity | null
 
     /** Owning user id. */
     @Column({
         name: "user_id",
         type: "uuid",
+        nullable: true,
     })
     @RelationId(
         (review: UserFlashcardReviewEntity) => review.user,
     )
-        userId: string
+        userId: string | null
+
+    /**
+     * Enrollment this review state belongs to (user × course). The anchor for
+     * per-course progress going forward; nullable while the re-key backfill runs.
+     */
+    @ManyToOne(
+        () => EnrollmentEntity,
+        {
+            onDelete: "CASCADE",
+            nullable: true,
+        },
+    )
+    @JoinColumn({
+        name: "enrollment_id",
+        foreignKeyConstraintName: "fk_enrollment_id_user_flashcard_reviews",
+    })
+        enrollment: EnrollmentEntity | null
+
+    @RelationId(
+        (review: UserFlashcardReviewEntity) => review.enrollment,
+    )
+        enrollmentId: string | null
 
     /** The flashcard card being scheduled. */
     @ManyToOne(
