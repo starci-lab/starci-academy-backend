@@ -1,23 +1,20 @@
 import type {
-    Provider
+    Provider 
 } from "@nestjs/common"
 import {
-    NATS
+    connect 
+} from "nats"
+import {
+    envConfig 
+} from "@modules/env"
+import {
+    NATS 
 } from "./constants"
 
 /**
  * Creates a provider for the NATS connection.
  *
- * NATS is currently DISABLED: no connection is established at boot. The initial
- * dial was crash-looping core (e.g. unreachable / unauthenticated broker) and the
- * event fan-out it powers is non-critical for serving the API. The provider
- * resolves to `null`; {@link NatsProducerService.publish} and
- * {@link NatsBridgeService.onModuleInit} no-op on a null connection.
- *
- * To re-enable, restore the `connect(...)` call (see git history) — keep it
- * wrapped so a failed dial never crashes boot.
- *
- * @returns Provider that resolves the NATS token to `null` (disabled)
+ * @returns Provider that creates and connects to NATS
  *
  * @example
  * Used internally by NatsModule.register().
@@ -25,5 +22,14 @@ import {
 export const createNatsProvider = (): Provider => ({
     provide: NATS,
     inject: [],
-    useFactory: () => null,
+    useFactory: async () => {
+        const cfg = envConfig().nats
+        return await connect({
+            servers: cfg.servers.map(server => `nats://${server.host}:${server.port}`),
+            reconnect: cfg.reconnect,
+            maxReconnectAttempts: cfg.maxReconnectAttempts,
+            pingInterval: cfg.pingIntervalMs,
+            token: cfg.auth.enabled ? cfg.auth.token : undefined,
+        })
+    },
 })
