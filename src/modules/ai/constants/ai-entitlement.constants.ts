@@ -9,6 +9,7 @@ import {
  * Economy is the cheapest; Premium flagship models cost the most.
  */
 export const CATEGORY_CREDIT_COST: Record<AiModelCategory, number> = {
+    [AiModelCategory.Free]: 0,
     [AiModelCategory.Economy]: 10,
     [AiModelCategory.Balanced]: 20,
     [AiModelCategory.Premium]: 30,
@@ -33,20 +34,25 @@ export const SUBSCRIPTION_PERIOD_MONTHS = 1
  * credits from the shared pool.
  */
 export const TIER_ALLOWED_CATEGORIES: Record<AiSubTier | "free", Array<AiModelCategory>> = {
+    // no plan → free (self-hosted Qwen, 0 credit) + economy cloud only
     free: [
+        AiModelCategory.Free,
         AiModelCategory.Economy,
     ],
     [AiSubTier.Plus]: [
+        AiModelCategory.Free,
         AiModelCategory.Economy,
         AiModelCategory.Balanced,
         AiModelCategory.Premium,
     ],
     [AiSubTier.Pro]: [
+        AiModelCategory.Free,
         AiModelCategory.Economy,
         AiModelCategory.Balanced,
         AiModelCategory.Premium,
     ],
     [AiSubTier.Max]: [
+        AiModelCategory.Free,
         AiModelCategory.Economy,
         AiModelCategory.Balanced,
         AiModelCategory.Premium,

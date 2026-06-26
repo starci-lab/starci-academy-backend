@@ -97,6 +97,14 @@ export class MyCourseItemData {
         },
     )
         completionPercent: number
+
+    @Field(
+        () => Boolean,
+        {
+            description: "True when the user has actually enrolled/paid; false for a trial (preview) placeholder.",
+        },
+    )
+        isEnrolled: boolean
 }
 
 /**

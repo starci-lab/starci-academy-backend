@@ -83,6 +83,7 @@ export class MyCoursesResolver {
             completed: row.completed,
             total: row.total,
             completionPercent: computeCompletionPercent(row),
+            isEnrolled: row.isEnrolled,
         }))
     }
 }

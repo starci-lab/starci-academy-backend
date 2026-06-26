@@ -7,8 +7,10 @@ import {
 import {
     AiMode,
     CreditUsageHistoryEntity,
+    FlashcardDeckEntity,
     InjectPrimaryPostgreSQLEntityManager,
     InterviewAttemptEntity,
+    ModelProvider,
 } from "@modules/databases"
 import type {
     FlashcardCardEntity,
@@ -36,6 +38,9 @@ import {
 import {
     CreditUsageService,
 } from "../credit/credit-usage.service"
+import {
+    UserService,
+} from "../user"
 import {
     FlashcardDeckReadService,
 } from "./flashcard-deck.service"
@@ -75,6 +80,7 @@ export class InterviewGradingService {
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly creditUsageService: CreditUsageService,
+        private readonly userService: UserService,
     ) { }
 
     /**
@@ -156,14 +162,16 @@ export class InterviewGradingService {
         })
 
         // invoke on the resolved lane (temperature defaults to 0 → deterministic grading)
-        const { text } = await this.aiInvokeService.invoke({
+        const { text, model, provider } = await this.aiInvokeService.invoke({
             messages,
             ...invokeOptions,
         })
 
-        // charge the Auto credit pool for this gpt-4o call NOW — before parsing — so a
-        // malformed model response can never leak a free grading call
-        await this.recordAutoCreditUsage(userId)
+        // charge NOW — before parsing — so a malformed model response can never leak a
+        // free grading call. Billed by the model that served (Qwen 0 / economy 5 / …).
+        await this.recordAutoCreditUsage(userId,
+            model,
+            provider)
 
         const result = this.parse(text)
         // record the graded attempt for cross-session interview history (best-effort —
@@ -203,6 +211,25 @@ export class InterviewGradingService {
             verdict,
         } = params
         try {
+            // resolve the course (deck → course) and resolve-or-create the trial
+            // enrollment (user × course) so we can key the attempt by enrollment —
+            // the anchor going forward — while still setting user_id during the
+            // re-key transition. A deck without a course leaves enrollment unset.
+            const deck = await this.entityManager.findOne(
+                FlashcardDeckEntity,
+                {
+                    where: {
+                        id: flashcardDeckId,
+                    },
+                },
+            )
+            const courseId = deck?.courseId ?? null
+            const enrollment = courseId
+                ? await this.userService.resolveOrCreateTrialEnrollment(
+                    userId,
+                    courseId,
+                )
+                : null
             await this.entityManager.save(
                 InterviewAttemptEntity,
                 {
@@ -220,6 +247,12 @@ export class InterviewGradingService {
                     // snapshot the level + tags at answer time for history aggregation
                     level: card.level ?? null,
                     tags: card.tags ?? [],
+                    ...(enrollment
+                        ? {
+                            enrollment,
+                        }
+                        : {
+                        }),
                 },
             )
         } catch {
@@ -233,12 +266,16 @@ export class InterviewGradingService {
      * The row carries no attempt — interview practice is stateless and not tied to
      * a challenge — but still counts toward the same rolling Auto credit pool.
      *
-     * @param userId - The user charged for the gpt-4o grading call.
+     * @param userId - The user charged for the grading call.
+     * @param servedModel - The model that actually served (Qwen / economy fallback).
+     * @param servedProvider - Provider of {@link servedModel}.
      */
     private async recordAutoCreditUsage(
         userId: string,
+        servedModel?: string,
+        servedProvider?: ModelProvider,
     ): Promise<void> {
-        // Auto lane is flat-priced; recommendation only matters for the Premium tiers
+        // recommendation only matters for the (pre-run) Premium estimate fallback
         const recommendation = envConfig().ai.modelRecommendation as ModelRecommendation
         await this.entityManager.save(
             CreditUsageHistoryEntity,
@@ -249,13 +286,14 @@ export class InterviewGradingService {
                 // stateless interview grading is not tied to a challenge attempt
                 attempt: null,
                 mode: AiMode.Auto,
-                // Auto lane has no premium tier / pinned model to attribute
                 recommendation: null,
-                model: null,
-                provider: null,
+                // record the model that actually served (Auto is load-balanced)
+                model: servedModel ?? null,
+                provider: servedProvider ?? null,
                 credits: resolveGradingCreditCost({
                     mode: AiMode.Auto,
                     recommendation,
+                    model: servedModel,
                 }),
             },
         )

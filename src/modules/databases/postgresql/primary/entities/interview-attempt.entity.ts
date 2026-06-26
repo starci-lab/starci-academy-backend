@@ -13,6 +13,9 @@ import {
     UserEntity,
 } from "./user.entity"
 import {
+    EnrollmentEntity,
+} from "./enrollment.entity"
+import {
     FlashcardDeckEntity,
 } from "./flashcard-deck.entity"
 import {
@@ -36,29 +39,56 @@ import {
         "flashcardDeckId",
     ])
 export class InterviewAttemptEntity extends UuidAbstractEntity {
-    /** The user who answered. */
+    /**
+     * The user who answered. Nullable during the enrollment re-key transition;
+     * reads/writes go through {@link enrollment} going forward.
+     */
     @ManyToOne(
         () => UserEntity,
         {
             onDelete: "CASCADE",
-            nullable: false,
+            nullable: true,
         },
     )
     @JoinColumn({
         name: "user_id",
         foreignKeyConstraintName: "fk_user_id_interview_attempts_users",
     })
-        user: UserEntity
+        user: UserEntity | null
 
     /** Answering user id. */
     @Column({
         name: "user_id",
         type: "uuid",
+        nullable: true,
     })
     @RelationId(
         (attempt: InterviewAttemptEntity) => attempt.user,
     )
-        userId: string
+        userId: string | null
+
+    /**
+     * Enrollment this interview attempt belongs to (user × course). The anchor
+     * for per-course progress going forward; nullable while the re-key backfill
+     * runs.
+     */
+    @ManyToOne(
+        () => EnrollmentEntity,
+        {
+            onDelete: "CASCADE",
+            nullable: true,
+        },
+    )
+    @JoinColumn({
+        name: "enrollment_id",
+        foreignKeyConstraintName: "fk_enrollment_id_interview_attempts",
+    })
+        enrollment: EnrollmentEntity | null
+
+    @RelationId(
+        (attempt: InterviewAttemptEntity) => attempt.enrollment,
+    )
+        enrollmentId: string | null
 
     /** The deck the question was drawn from. */
     @ManyToOne(

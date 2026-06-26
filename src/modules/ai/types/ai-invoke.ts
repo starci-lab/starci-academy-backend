@@ -26,6 +26,13 @@ export interface AiInvokeParams {
     /** Optional category filter — restricts the fallback chain to one tier. */
     category?: AiModelCategory
     /**
+     * Auto-lane allowed categories (the user's entitled tiers). When set, the
+     * Auto lane loops every enabled model whose category is in this set, by
+     * priority (low→high: Free → Economy → Balanced → Premium), capped here by
+     * entitlement. Takes precedence over {@link category} for the Auto lane.
+     */
+    categories?: Array<AiModelCategory>
+    /**
      * Optional bring-your-own-key descriptor. When provided, the shared key
      * pool / fallback chain is skipped and this exact key/model is used once.
      */
@@ -67,6 +74,13 @@ export interface AiStreamParams {
     messages: Array<BaseMessage>
     /** Optional category filter — restricts the fallback chain to one tier. */
     category?: AiModelCategory
+    /**
+     * Auto-lane allowed categories (the user's entitled tiers). When set, the
+     * Auto lane loops every enabled model whose category is in this set, by
+     * priority (low→high: Free → Economy → Balanced → Premium), capped here by
+     * entitlement. Takes precedence over {@link category} for the Auto lane.
+     */
+    categories?: Array<AiModelCategory>
     /**
      * Optional bring-your-own-key descriptor. When provided, the shared key
      * pool / fallback chain is skipped and this exact key/model is used once.

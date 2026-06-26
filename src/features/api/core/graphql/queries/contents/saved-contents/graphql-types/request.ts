@@ -9,6 +9,16 @@ import {
 })
 export class SavedContentsRequest {
     @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Case-insensitive search over the saved content title.",
+        },
+    )
+        search?: string
+
+
+    @Field(
         () => Int,
         {
             nullable: true,

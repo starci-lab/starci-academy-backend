@@ -197,7 +197,8 @@ export class MyCourseOutlineHandler
             })
             challengeProgressById = new Map(
                 challengeProgress.completionTasks.map(
-                    (task) => [task.id, task],
+                    (task) => [task.id,
+                        task],
                 ),
             )
 
@@ -208,36 +209,46 @@ export class MyCourseOutlineHandler
             })
             taskProgressById = new Map(
                 taskProgress.completionTasks.map(
-                    (task) => [task.id, task],
+                    (task) => [task.id,
+                        task],
                 ),
             )
             currentTaskProgress = taskProgress.currentTask
         }
 
         // 6. lesson read flags: every UserContent row the viewer owns under this
-        // course; only rows flagged isRead count as read
-        const userContents = await this.entityManager.find(
-            UserContentEntity,
-            {
-                where: {
-                    userId: user.id,
-                    content: {
-                        module: {
-                            course: {
-                                id: courseId,
+        // course; only rows flagged isRead count as read. Keyed by ENROLLMENT id (the
+        // anchor for per-course progress going forward) when the viewer is enrolled —
+        // user_contents.enrollment_id is backfilled. A preview (non-enrolled) viewer has
+        // no enrollment id → no read rows in scope, so the outline reads as all-unread
+        // (matching the empty-progress preview semantics above).
+        const userContents = enrollment
+            ? await this.entityManager.find(
+                UserContentEntity,
+                {
+                    where: {
+                        enrollment: {
+                            id: enrollment.id,
+                        },
+                        content: {
+                            module: {
+                                course: {
+                                    id: courseId,
+                                },
                             },
                         },
                     },
+                    select: {
+                        contentId: true,
+                        isRead: true,
+                    },
                 },
-                select: {
-                    contentId: true,
-                    isRead: true,
-                },
-            },
-        )
+            )
+            : []
         const lessonReadById: LessonReadLookup = new Map(
             userContents.map(
-                (userContent) => [userContent.contentId, userContent.isRead],
+                (userContent) => [userContent.contentId,
+                    userContent.isRead],
             ),
         )
 

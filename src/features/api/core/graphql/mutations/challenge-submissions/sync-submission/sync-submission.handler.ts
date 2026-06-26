@@ -34,6 +34,9 @@ import {
 import {
     GradingLaneValidationService,
 } from "@modules/ai"
+import {
+    UserService,
+} from "@modules/bussiness"
 
 /** Handler for `SyncSubmissionCommand`. */
 @CommandHandler(SyncSubmissionCommand)
@@ -47,6 +50,7 @@ export class SyncSubmissionHandler
         private readonly urlValidatorService: UrlValidatorService,
         private readonly postgreSqlAdvisoryLockService: PostgreSqlAdvisoryLockService,
         private readonly gradingLaneValidationService: GradingLaneValidationService,
+        private readonly userService: UserService,
     ) {
         super()
     }
@@ -109,6 +113,17 @@ export class SyncSubmissionHandler
                 where: {
                     id: challengeSubmissionId,
                 },
+                // walk submission → challenge → content → module → course so we can
+                // key the row by enrollment (user × course) — the anchor going forward
+                relations: {
+                    challenge: {
+                        content: {
+                            module: {
+                                course: true,
+                            },
+                        },
+                    },
+                },
             },
         )
         if (!challengeSubmission) {
@@ -116,6 +131,16 @@ export class SyncSubmissionHandler
                 submissionId: challengeSubmissionId,
             })
         }
+
+        // resolve-or-create the trial enrollment for this user × course; set it on
+        // the row going forward (we still set user_id during the re-key transition).
+        const courseId = challengeSubmission.challenge?.content?.module?.courseId ?? null
+        const enrollment = courseId
+            ? await this.userService.resolveOrCreateTrialEnrollment(
+                user.id,
+                courseId,
+            )
+            : null
 
         // only validate a URL when one is actually being synced; a
         // selection-only sync (no url) skips validation so the row can be
@@ -159,8 +184,18 @@ export class SyncSubmissionHandler
                     // empty until the user pastes a link on a selection-only sync
                     submissionUrl: hasUrl ? (url as string) : "",
                     processed: false,
+                    ...(enrollment
+                        ? {
+                            enrollment,
+                        }
+                        : {
+                        }),
                 },
             )
+        }
+        // backfill enrollment on a pre-existing row that predates the re-key
+        if (enrollment && !userChallengeSubmission.enrollmentId) {
+            userChallengeSubmission.enrollment = enrollment
         }
         // persist the grading lane + model pick when provided
         const hasLaneSelection = selectedMode !== undefined

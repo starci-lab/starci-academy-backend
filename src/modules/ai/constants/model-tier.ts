@@ -12,22 +12,32 @@ import {
  *
  * Each entry is an ordered fallback chain:
  * - Index 0 = primary choice
- * - Index 1 = fallback if the primary provider is unavailable
+ * - Index 1+ = fallbacks if the primary provider is unavailable
  *
- * GPT + Gemini only, current-gen, optimised for cost:
- *   low / medium → gpt-5.4-nano / gemini-2.5-flash-lite (cheapest)
- *   high         → gpt-5.4-mini / gemini-3.5-flash (deeper reasoning)
+ * Note: this matrix feeds the UI "active model / fallback chain" display and
+ * enqueue defaults via {@link AiTaskModelService}. The actual grading invoke is
+ * driven by the balancer (category + catalog priority), so the free Auto lane
+ * tries the self-hosted `local` Qwen first regardless — the chains below mirror
+ * that order so the display matches reality.
+ *
+ *   low / medium → local Qwen (free) → economy cloud fallback
+ *   high         → balanced cloud (deeper reasoning)
  *   CV high      → gemini-3.1-pro (flagship, long-context)
  */
+const QWEN_LOCAL: ModelChoice = {
+    model: "qwen2.5-coder:7b", provider: ModelProvider.Local
+}
+
 export const modelTierMatrix: Record<
     AiTaskKind,
     Record<ModelRecommendation, Array<ModelChoice>>
 > = {
     /**
-     * Grading: precision matters, but cheap tiers handle rubric grading well.
+     * Grading: free Auto lane runs local Qwen first, then economy cloud.
      */
     [AiTaskKind.Grade]: {
         [ModelRecommendation.Low]: [
+            QWEN_LOCAL,
             {
                 model: "gpt-5.4-nano", provider: ModelProvider.OpenAI
             },
@@ -36,6 +46,7 @@ export const modelTierMatrix: Record<
             },
         ],
         [ModelRecommendation.Medium]: [
+            QWEN_LOCAL,
             {
                 model: "gpt-5.4-nano", provider: ModelProvider.OpenAI
             },
@@ -83,10 +94,12 @@ export const modelTierMatrix: Record<
         ],
     },
     /**
-     * Review personal project task: same grading profile as challenge grading.
+     * Review personal project task: same free-Auto profile as challenge grading
+     * (local Qwen first → economy cloud fallback).
      */
     [AiTaskKind.ReviewPersonalProject]: {
         [ModelRecommendation.Low]: [
+            QWEN_LOCAL,
             {
                 model: "gpt-5.4-nano", provider: ModelProvider.OpenAI
             },
@@ -95,6 +108,7 @@ export const modelTierMatrix: Record<
             },
         ],
         [ModelRecommendation.Medium]: [
+            QWEN_LOCAL,
             {
                 model: "gpt-5.4-nano", provider: ModelProvider.OpenAI
             },
@@ -113,7 +127,8 @@ export const modelTierMatrix: Record<
     },
 
     /**
-     * CV review analyze: long rubric + markdown — medium/high use stronger models.
+     * CV review analyze: premium-only (no free Auto / no local Qwen). Long rubric
+     * + markdown — medium/high use stronger cloud models.
      */
     [AiTaskKind.ReviewCvSubmission]: {
         [ModelRecommendation.Low]: [

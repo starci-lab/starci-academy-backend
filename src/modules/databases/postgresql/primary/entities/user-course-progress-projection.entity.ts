@@ -5,6 +5,7 @@ import {
     ManyToOne,
     OneToMany,
     PrimaryColumn,
+    RelationId,
 } from "typeorm"
 import {
     AbstractProjectionEntity,
@@ -12,6 +13,9 @@ import {
 import {
     UserEntity,
 } from "./user.entity"
+import {
+    EnrollmentEntity,
+} from "./enrollment.entity"
 import {
     CourseEntity,
 } from "./course.entity"
@@ -74,6 +78,30 @@ export class UserCourseProgressProjectionEntity extends AbstractProjectionEntity
         foreignKeyConstraintName: "fk_course_id_ucp_projections_courses",
     })
         course: CourseEntity
+
+    /**
+     * Enrollment this progress projection belongs to (user × course). The anchor
+     * for per-course progress going forward; nullable while the re-key backfill
+     * runs. The composite PK `(user_id, course_id)` is intentionally left
+     * untouched in this phase.
+     */
+    @ManyToOne(
+        () => EnrollmentEntity,
+        {
+            onDelete: "CASCADE",
+            nullable: true,
+        },
+    )
+    @JoinColumn({
+        name: "enrollment_id",
+        foreignKeyConstraintName: "fk_enrollment_id_ucp_projections",
+    })
+        enrollment: EnrollmentEntity | null
+
+    @RelationId(
+        (projection: UserCourseProgressProjectionEntity) => projection.enrollment,
+    )
+        enrollmentId: string | null
 
     /** Localized overrides (empty until the projection snapshots display text). */
     @OneToMany(

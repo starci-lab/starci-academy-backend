@@ -6,7 +6,9 @@ import {
 } from "typeorm"
 import {
     InjectPrimaryPostgreSQLEntityManager,
-    UserEntity
+    UserEntity,
+    EnrollmentEntity,
+    PricingPhase,
 } from "@modules/databases"
 import {
     CacheKey,
@@ -114,9 +116,13 @@ export class UserService {
         }
 
         // cache miss → rebuild the whole set with a single indexed read on
-        // (user_id) — course_id is a virtual @RelationId so query the column directly
+        // (user_id) — course_id is a virtual @RelationId so query the column directly.
+        // `is_enrolled = true` only: a trial/preview row (is_enrolled = false) is NOT a
+        // paying member, so it must not satisfy the must-enrolled gate (capstone /
+        // milestone / personal-project / premium). Activity is still tracked for trials
+        // elsewhere — this set is strictly "courses the user has really enrolled in".
         const rows = await this.entityManager.query<Array<EnrolledCourseIdRow>>(
-            "SELECT course_id FROM enrollments WHERE user_id = $1",
+            "SELECT course_id FROM enrollments WHERE user_id = $1 AND is_enrolled = true",
             [
                 userId,
             ],
@@ -149,6 +155,77 @@ export class UserService {
                 userId,
             ],
         })
+    }
+
+    /**
+     * Resolve the user's enrollment for a course, creating a TRIAL placeholder
+     * (`is_enrolled = false`) when none exists yet. This is the anchor the
+     * enrollment-centric model needs: every course-scoped action gets an
+     * `enrollment_id`, so progress is keyed by enrollment instead of user. A
+     * trial row does NOT unlock paid-only surfaces — that still goes through
+     * {@link checkEnrollment} (`is_enrolled = true`). Idempotent under the unique
+     * `(user, course)` constraint.
+     *
+     * @param userId - The user.
+     * @param courseId - The course.
+     * @returns The resolved (or freshly created trial) enrollment.
+     */
+    async resolveOrCreateTrialEnrollment(
+        userId: string,
+        courseId: string,
+    ): Promise<EnrollmentEntity> {
+        const existing = await this.entityManager.findOne(
+            EnrollmentEntity,
+            {
+                where: {
+                    user: {
+                        id: userId,
+                    },
+                    course: {
+                        id: courseId,
+                    },
+                },
+            },
+        )
+        if (existing) {
+            return existing
+        }
+        try {
+            const enrollment = this.entityManager.create(
+                EnrollmentEntity,
+                {
+                    user: {
+                        id: userId,
+                    },
+                    course: {
+                        id: courseId,
+                    },
+                    pricingPhase: PricingPhase.EarlyBird,
+                    isEnrolled: false,
+                },
+            )
+            return await this.entityManager.save(enrollment)
+        } catch (error) {
+            // UQ_enrollments_user_course race: another concurrent request created
+            // it first → return whatever now exists
+            const raced = await this.entityManager.findOne(
+                EnrollmentEntity,
+                {
+                    where: {
+                        user: {
+                            id: userId,
+                        },
+                        course: {
+                            id: courseId,
+                        },
+                    },
+                },
+            )
+            if (raced) {
+                return raced
+            }
+            throw error
+        }
     }
 
     /**

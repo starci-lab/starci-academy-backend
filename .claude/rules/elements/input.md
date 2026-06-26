@@ -21,5 +21,10 @@
 ## 4. List có search → search-row + result-count
 - Thanh search lọc list = `flex flex-wrap items-center justify-between gap-3`: input TRÁI (`w-full sm:max-w-sm`) + **result-count** PHẢI (`"Tìm thấy {n} …"`, muted `body-sm`, `shrink-0`) → cân bằng + cho biết "lọc ra mấy cái". Count cạnh search CÓ NGHĨA (giữ), khác count vanity dưới list (cắt). Ref [[elements/list]] §anatomy + [[list-surface-anatomy-search-count-list-pagination]].
 
+## 5. Textarea = `TextField` + `TextArea` (HeroUI), KHÔNG `<textarea>` thô — CHỐT 2026-06-25
+- **Ô nhiều dòng (mô tả, comment, bio…) PHẢI dùng `<TextField variant=…><Label/><TextArea/></TextField>` (HeroUI)**, KHÔNG `<textarea className="bg-default/40 rounded-xl p-3 …">` tự chế. Textarea thô = **lệch** so với các `Input` cùng form: fill khác (`bg-default/40` 40% ≠ secondary `bg-default` 100% → nhạt hơn), khoảng **nhãn↔ô** khác (gap tay ≠ gap nội bộ TextField), radius/focus khác.
+- `TextArea` nhận `rows`, `placeholder`, `className="resize-none"`, + `value/onChange` (controlled) HOẶC `{...register(...)}` (RHF). Variant chọn theo nền y §3 (trên modal/card → `secondary`). Canonical: `CommunityComposer`.
+- Áp 2026-06-25: `ManagePinnedProjectsModal` 2 form (External/Course) đổi `<textarea bg-default/40>` → `TextField secondary + TextArea` → 4 ô đồng nhất.
+
 ## Liên quan
 - [[surface-in-surface-inner-has-border]] (input có border + fill) · [[accordion-card-surface-on-standalone-pages]] (da theo nền) · [[elements/list]] (search+count+pager) · [[gap]] (concentric radius) · [[input-affordance-needs-surface-fill]] · [[input-variant-by-surface-and-search-result-count]] (drafts gốc).

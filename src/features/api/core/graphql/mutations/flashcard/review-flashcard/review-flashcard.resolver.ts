@@ -25,6 +25,7 @@ import {
 } from "@modules/databases"
 import {
     FlashcardReviewService,
+    GraphQLEnrollmentGuard,
 } from "@modules/bussiness"
 import {
     ReviewFlashcardData,
@@ -44,7 +45,8 @@ export class ReviewFlashcardResolver {
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
-    @UseGuards(KeycloakAuthGraphQLGuard)
+    @UseGuards(KeycloakAuthGraphQLGuard,
+        GraphQLEnrollmentGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Flashcard reviewed successfully",
         [Locale.Vi]: "Ôn thẻ thành công",

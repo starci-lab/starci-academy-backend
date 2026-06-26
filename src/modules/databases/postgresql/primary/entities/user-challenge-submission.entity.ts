@@ -23,6 +23,9 @@ import {
     UserEntity,
 } from "./user.entity"
 import {
+    EnrollmentEntity,
+} from "./enrollment.entity"
+import {
     ChallengeSubmissionEntity,
 } from "./challenge-submission.entity"
 import {
@@ -38,11 +41,13 @@ import {
 @Entity("user_challenge_submissions")
 export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
     /**
-     * User who is linked to the submission.
+     * User who is linked to the submission. Nullable during the enrollment re-key
+     * transition; reads/writes go through {@link enrollment} going forward.
      */
     @Field(
         () => UserEntity,
         {
+            nullable: true,
             description: "User who is linked to the submission.",
         },
     )
@@ -51,6 +56,7 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
         (user: UserEntity) => user.userSubmissions,
         {
             onDelete: "CASCADE",
+            nullable: true,
         },
     )
     @JoinColumn({
@@ -58,18 +64,42 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
         foreignKeyConstraintName:
             "fk_user_id_user_challenge_submissions_users",
     })
-        user: UserEntity
+        user: UserEntity | null
 
     @Field(
         () => String,
         {
+            nullable: true,
             description: "User ID.",
         },
     )
     @RelationId(
         (ucs: UserChallengeSubmissionEntity) => ucs.user,
     )
-        userId: string
+        userId: string | null
+
+    /**
+     * Enrollment this submission belongs to (user × course). The anchor for
+     * per-course progress going forward; nullable while the re-key backfill runs.
+     */
+    @ManyToOne(
+        () => EnrollmentEntity,
+        {
+            onDelete: "CASCADE",
+            nullable: true,
+        },
+    )
+    @JoinColumn({
+        name: "enrollment_id",
+        foreignKeyConstraintName:
+            "fk_enrollment_id_user_challenge_submissions",
+    })
+        enrollment: EnrollmentEntity | null
+
+    @RelationId(
+        (ucs: UserChallengeSubmissionEntity) => ucs.enrollment,
+    )
+        enrollmentId: string | null
 
 
     /**

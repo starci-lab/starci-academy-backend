@@ -2,6 +2,7 @@ import {
     EnqueueProcessGitSubmissionJobService,
     EnqueueProcessGoogleDocsSubmissionJobService,
     CreditUsageService,
+    UserService,
 } from "@modules/bussiness"
 import {
     AiEntitlementService,
@@ -19,7 +20,6 @@ import {
     ChallengeSubmissionEntity,
     ContentEntity,
     CourseEntity,
-    EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     JobEntity,
     PostgreSqlAdvisoryLockService,
@@ -79,6 +79,7 @@ export class SubmitChallengeSubmissionHandler
         private readonly gradingLaneValidationService: GradingLaneValidationService,
         private readonly creditUsageService: CreditUsageService,
         private readonly aiEntitlementService: AiEntitlementService,
+        private readonly userService: UserService,
     ) {
         super()
     }
@@ -206,6 +207,37 @@ export class SubmitChallengeSubmissionHandler
                 contentId: ownerContent.id,
             })
         }
+        /**
+         * Resolve the course (challenge → content → module → course) and
+         * resolve-or-create the trial enrollment (user × course) up front so we can
+         * key the submission row by enrollment going forward (we still set user_id
+         * during the re-key transition) and pass the enrollment id to the grading job.
+         */
+        const course = await this.entityManager.findOne(
+            CourseEntity,
+            {
+                where: {
+                    modules: {
+                        contents: {
+                            challenges: {
+                                id: challenge.id,
+                            },
+                        },
+                    },
+                },
+                select: {
+                    id: true,
+                },
+            },
+        )
+        const courseId = course?.id ?? ""
+        const enrollment = courseId
+            ? await this.userService.resolveOrCreateTrialEnrollment(
+                user.id,
+                courseId,
+            )
+            : null
+        const enrollmentId = enrollment?.id ?? ""
         /** User challenge submission (upsert under advisory lock; create when `githubUrl` present). */
         const userChallengeSubmissionFromTx =
             await this.entityManager.transaction(
@@ -247,6 +279,12 @@ export class SubmitChallengeSubmissionHandler
                                 user,
                                 submission: challengeSubmission,
                                 submissionUrl: trimmedGithubUrl,
+                                ...(enrollment
+                                    ? {
+                                        enrollment,
+                                    }
+                                    : {
+                                    }),
                             },
                         )
                         await entityManager.save(
@@ -267,6 +305,10 @@ export class SubmitChallengeSubmissionHandler
                     }
                     if (trimmedGithubUrl) {
                         userChallengeSubmission.submissionUrl = trimmedGithubUrl
+                        // backfill enrollment on a pre-existing row that predates the re-key
+                        if (enrollment && !userChallengeSubmission.enrollmentId) {
+                            userChallengeSubmission.enrollment = enrollment
+                        }
                         await entityManager.save(
                             UserChallengeSubmissionEntity,
                             userChallengeSubmission,
@@ -353,41 +395,6 @@ export class SubmitChallengeSubmissionHandler
                 url: userChallengeSubmission.submissionUrl ?? "",
             })
         }
-        /** Look up course and enrollment to pass to enqueue. */
-        const course = await this.entityManager.findOne(
-            CourseEntity,
-            {
-                where: {
-                    modules: {
-                        contents: {
-                            challenges: {
-                                id: challenge.id 
-                            } 
-                        } 
-                    } 
-                },
-                select: {
-                    id: true 
-                },
-            }
-        )
-        const courseId = course?.id ?? ""
-        const enrollment = await this.entityManager.findOne(
-            EnrollmentEntity,
-            {
-                where: {
-                    user: {
-                        id: user.id 
-                    }, course: {
-                        id: courseId 
-                    } 
-                },
-                select: {
-                    id: true 
-                },
-            }
-        )
-        const enrollmentId = enrollment?.id ?? ""
         // collapse the validated lane into the discriminated AI selection carried on the job
         const ai = validatedLaneToAiJobSelection(validatedLane)
         // use the request lang, else fall back to the language persisted on the submission row

@@ -40,6 +40,7 @@ import {
 import type {
     AcquireKeyResult,
     GeminiApiKey,
+    LocalApiKey,
     OpenAiApiKey,
     UseApiAction,
     UseApiActionContext,
@@ -92,14 +93,25 @@ export class UseApiService {
     private async runAuto<TResult>({
         action,
         category,
+        categories,
         model: selectedModel,
         provider: selectedProvider,
     }: UseApiAutoParams<TResult>): Promise<UseApiResult<TResult>> {
         await this.keyStoreService.ensureLoaded()
 
-        const models = await this.aiModelCatalogService.enabledModels({
-            category,
-        })
+        // `categories` (the entitled tier set) climbs low→high by priority within
+        // entitlement; otherwise fall back to the single-category filter. enabledModels
+        // is ordered by priority DESC, so the filtered list is already Free → Economy
+        // → Balanced → Premium order.
+        const catalog = await this.aiModelCatalogService.enabledModels(
+            categories ? {
+            } : {
+                category 
+            },
+        )
+        const models = categories
+            ? catalog.filter((row) => categories.includes(row.category))
+            : catalog
         const maxAttempts = envConfig().aiBalancer.maxAutoAttempts
 
         let attempts = 0
@@ -451,6 +463,12 @@ export class UseApiService {
             return {
                 provider: ModelProvider.Gemini,
                 key: key as GeminiApiKey,
+                model,
+            }
+        case ModelProvider.Local:
+            return {
+                provider: ModelProvider.Local,
+                key: key as LocalApiKey,
                 model,
             }
         default:

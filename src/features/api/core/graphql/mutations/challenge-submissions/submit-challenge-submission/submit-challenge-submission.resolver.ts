@@ -1,5 +1,6 @@
 import {
     Args,
+    Context,
     Mutation,
     Resolver,
 } from "@nestjs/graphql"
@@ -7,6 +8,9 @@ import {
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
+import type {
+    Request,
+} from "express"
 import {
     GraphQLLocale,
     GraphQLSuccessMessage,
@@ -16,6 +20,9 @@ import {
     KeycloakAuthGraphQLGuard,
     KeycloakGraphQLUser,
 } from "@modules/keycloak"
+import {
+    GraphQLEnrollmentGuard,
+} from "@modules/bussiness"
 import {
     UseThrottler,
     ThrottlerConfig,
@@ -52,6 +59,7 @@ export class SubmitChallengeSubmissionResolver {
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,
+        GraphQLEnrollmentGuard,
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(
@@ -73,12 +81,18 @@ export class SubmitChallengeSubmissionResolver {
             request: SubmitChallengeSubmissionRequest,
         @GraphQLLocale()
             locale: Locale,
+        @Context()
+            context: {
+                req: Request & { enrollmentId?: string }
+            },
     ): Promise<SubmitChallengeSubmissionResponseData> {
         return this.submitChallengeSubmissionService.execute(
             {
                 request,
                 locale,
                 user,
+                // course-scoped progress is keyed by enrollment (set by GraphQLEnrollmentGuard)
+                enrollmentId: context.req.enrollmentId,
             },
         )
     }

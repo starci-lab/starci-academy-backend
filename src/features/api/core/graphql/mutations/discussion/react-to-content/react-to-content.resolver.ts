@@ -1,5 +1,6 @@
 import {
     Args,
+    Context,
     Mutation,
     Resolver,
 } from "@nestjs/graphql"
@@ -7,6 +8,9 @@ import {
     UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
+import type {
+    Request,
+} from "express"
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
@@ -19,6 +23,9 @@ import {
     Locale,
     UserEntity,
 } from "@modules/databases"
+import {
+    GraphQLEnrollmentGuard,
+} from "@modules/bussiness"
 import {
     KeycloakAuthGraphQLGuard,
     KeycloakGraphQLUser,
@@ -50,6 +57,7 @@ export class ReactToContentResolver {
     })
     @UseGuards(
         KeycloakAuthGraphQLGuard,
+        GraphQLEnrollmentGuard,
     )
     @UseInterceptors(GraphQLTransformInterceptor)
     @Mutation(
@@ -64,10 +72,16 @@ export class ReactToContentResolver {
             request: ReactToContentRequest,
         @KeycloakGraphQLUser()
             user: UserEntity,
+        @Context()
+            context: {
+                req: Request & { enrollmentId?: string }
+            },
     ): Promise<ReactionSummaryObject> {
         return this.reactToContentService.execute({
             request,
             user,
+            // course-scoped progress is keyed by enrollment (set by GraphQLEnrollmentGuard)
+            enrollmentId: context.req.enrollmentId,
         })
     }
 }

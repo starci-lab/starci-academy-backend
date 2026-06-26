@@ -11,7 +11,8 @@
 - **CẤM** các giá trị ngoài thang (1 / 1.5 / 5 / 7 / 9 / 10…) **trừ ngoại lệ có tên dưới**.
 
 ## Ngoại lệ có tên
-- **PageHeader → nội dung dưới = `gap-10`** (40px). Khoảng thở LỚN ngay dưới header (breadcrumb/title/desc/chips) trước khi vào nội dung trang. Đây là ngoại lệ DUY NHẤT của `10`; chỉ dùng đúng chỗ này.
+- **PageHeader → nội dung dưới = `gap-10`** (40px, APP). Khoảng thở LỚN ngay dưới header (breadcrumb/title/desc/chips) trước khi vào nội dung trang. Chỉ dùng đúng chỗ này trong app.
+- **LANDING/marketing — section header (`SectionHeading`) → nội dung dưới = `gap-16`** (64px). Thầy chốt 2026-06-26: *"gap-16 giữa header và nội dung dưới thôi, gap-24 dài quá"* (đính chính bản đầu ghi gap-24 — quá xa). MỖI section landing có `SectionHeading` (eyebrow+title+intro) cách khối nội dung bên dưới `gap-16` (thở kiểu landing — KHÁC app `gap-10`). Section có **nhiều khối** nội dung → bọc content trong `<div className="flex flex-col gap-6">` để header→content = `gap-16` còn nội bộ content giữ `gap-6`. Áp: courses · treasure · founder · faq · LearnLoop (pinned + static). Đây là header→content TRONG 1 section; section↔section landing dùng gap lớn hơn (ref [[landing-marketing-section-spacing-and-editorial-stats]]).
 
 ## Scroll
 - Khi scroll, **phần header trên (vùng "đỏ": breadcrumb + title + desc + chips) GIỮ NGUYÊN gap** — không bị nén/đổi nhịp. Nội dung dưới cuộn, header giữ rhythm. (Liên quan [[sticky]].)

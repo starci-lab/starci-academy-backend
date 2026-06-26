@@ -75,13 +75,21 @@ export class UnpinProjectResolver {
             id,
         } = request
 
-        // delete scoped by both id AND userId so a user can only remove their own
-        // pins; capture the affected count to detect a missing / foreign pin
-        const result = await this.entityManager.delete(UserPinnedProjectEntity,
-            {
+        // delete scoped by both id AND the user_id FK so a user can only remove their
+        // own pins; capture the affected count to detect a missing / foreign pin.
+        // (`userId` is a @RelationId — not a real column — so it can't be used directly
+        // in delete criteria; filter on the FK column instead.)
+        const result = await this.entityManager
+            .createQueryBuilder()
+            .delete()
+            .from(UserPinnedProjectEntity)
+            .where("id = :id", {
                 id,
+            })
+            .andWhere("user_id = :userId", {
                 userId: user.id,
             })
+            .execute()
 
         // zero affected rows means the pin did not exist or is not owned by the user
         if (!result.affected) {

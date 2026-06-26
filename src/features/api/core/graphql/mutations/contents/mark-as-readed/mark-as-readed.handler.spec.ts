@@ -10,7 +10,9 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
+    ProgressProjectionService,
     ReactionService,
+    UserService,
 } from "@modules/bussiness"
 import {
     UserNotFoundException,
@@ -22,6 +24,7 @@ import type {
     EntityManagerMock,
 } from "@modules/tests"
 import type {
+    EnrollmentEntity,
     UserEntity,
 } from "@modules/databases"
 import {
@@ -52,6 +55,8 @@ describe("MarkAsReadedHandler",
         let handler: MarkAsReadedHandler
         let entityManager: EntityManagerMock
         let reactionService: jest.Mocked<Pick<ReactionService, "invalidateViewCount">>
+        let userService: jest.Mocked<Pick<UserService, "resolveOrCreateTrialEnrollment">>
+        let progressProjectionService: jest.Mocked<Pick<ProgressProjectionService, "recompute">>
 
         beforeEach(async () => {
             // fresh jest-backed entity manager with happy-path defaults
@@ -62,12 +67,31 @@ describe("MarkAsReadedHandler",
                 invalidateViewCount: jest.fn(),
             } as unknown as jest.Mocked<Pick<ReactionService, "invalidateViewCount">>
 
+            // the enrollment anchor: resolves (or creates) the trial enrollment the
+            // re-keyed user_contents row is stamped with
+            userService = {
+                resolveOrCreateTrialEnrollment: jest.fn(),
+            } as unknown as jest.Mocked<Pick<UserService, "resolveOrCreateTrialEnrollment">>
+
+            // progression recompute (invoked only on the deliberate-read course branch)
+            progressProjectionService = {
+                recompute: jest.fn(),
+            } as unknown as jest.Mocked<Pick<ProgressProjectionService, "recompute">>
+
             module = await Test.createTestingModule({
                 providers: [
                     MarkAsReadedHandler,
                     {
                         provide: ReactionService,
                         useValue: reactionService,
+                    },
+                    {
+                        provide: UserService,
+                        useValue: userService,
+                    },
+                    {
+                        provide: ProgressProjectionService,
+                        useValue: progressProjectionService,
                     },
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
@@ -91,6 +115,7 @@ describe("MarkAsReadedHandler",
                             request: {
                                 contentId: "content-1",
                                 readed: true,
+                                silent: false,
                             },
                             user: undefined,
                         }),
@@ -112,6 +137,7 @@ describe("MarkAsReadedHandler",
                         request: {
                             contentId: "content-1",
                             readed: true,
+                            silent: false,
                         },
                         user: fakeUser("user-1"),
                     }),
@@ -147,6 +173,7 @@ describe("MarkAsReadedHandler",
                         request: {
                             contentId: "content-1",
                             readed: true,
+                            silent: false,
                         },
                         user: fakeUser("user-1"),
                     }),
@@ -181,10 +208,11 @@ describe("MarkAsReadedHandler",
                         isRead: true,
                     }),
                 )
-                // reward branch is skipped entirely: no points credit and no extra
-                // entity loads (only the initial user-content lookup happened)
+                // reward branch is skipped entirely: no points credit. The handler still
+                // loads the user-content row AND the content (to resolve the course for the
+                // enrollment re-key), so exactly two reads happen — no XP-branch extra loads.
                 expect(entityManager.increment).not.toHaveBeenCalled()
-                expect(entityManager.findOne).toHaveBeenCalledTimes(1)
+                expect(entityManager.findOne).toHaveBeenCalledTimes(2)
                 expect(reactionService.invalidateViewCount).toHaveBeenCalledWith("content-1")
             })
 
@@ -203,6 +231,7 @@ describe("MarkAsReadedHandler",
                         request: {
                             contentId: "content-1",
                             readed: false,
+                            silent: false,
                         },
                         user: fakeUser("user-1"),
                     }),
@@ -216,5 +245,101 @@ describe("MarkAsReadedHandler",
                     existing,
                 )
                 expect(reactionService.invalidateViewCount).toHaveBeenCalledWith("content-1")
+            })
+
+        // Enrollment re-key round-trip: when the content resolves to a course, the
+        // saved user_contents row must carry the resolved enrollment (enrollment_id),
+        // proving the write goes through the enrollment anchor — not just user_id.
+        it("stamps the resolved enrollment on the saved user-content row (re-key write)",
+            async () => {
+                const enrollment = {
+                    id: "enrollment-99",
+                } as EnrollmentEntity
+                // 1) no existing user-content row
+                entityManager.findOne.mockResolvedValueOnce(null)
+                // 2) the content resolves to a course (module → course) so the row is
+                //    keyed by enrollment
+                entityManager.findOne.mockResolvedValueOnce({
+                    id: "content-1",
+                    module: {
+                        courseId: "course-1",
+                        course: {
+                            id: "course-1",
+                        },
+                    },
+                })
+                // the anchor resolves the (trial) enrollment for this user × course
+                userService.resolveOrCreateTrialEnrollment.mockResolvedValueOnce(enrollment)
+
+                await handler.execute(
+                    new MarkAsReadedCommand({
+                        request: {
+                            contentId: "content-1",
+                            readed: true,
+                            // silent → skip XP/activity, isolate the re-key write
+                            silent: true,
+                        },
+                        user: fakeUser("user-1"),
+                    }),
+                )
+
+                // the enrollment is resolved for the content's course
+                expect(userService.resolveOrCreateTrialEnrollment).toHaveBeenCalledWith(
+                    "user-1",
+                    "course-1",
+                )
+                // and the persisted user_contents row carries that enrollment relation
+                // (enrollment_id is set on write — the anchor going forward)
+                expect(entityManager.save).toHaveBeenCalledWith(
+                    expect.anything(),
+                    expect.objectContaining({
+                        userId: "user-1",
+                        contentId: "content-1",
+                        isRead: true,
+                        enrollment,
+                    }),
+                )
+            })
+
+        // Read side of the round-trip: the projection recompute (which the leaderboard /
+        // my-rank reads consume via the enrollment_id-keyed projection) is invoked for
+        // the content's course on a deliberate read.
+        it("recomputes the enrollment-keyed progress projection on a deliberate read",
+            async () => {
+                const enrollment = {
+                    id: "enrollment-99",
+                } as EnrollmentEntity
+                entityManager.findOne.mockResolvedValueOnce(null)
+                entityManager.findOne.mockResolvedValueOnce({
+                    id: "content-1",
+                    module: {
+                        courseId: "course-1",
+                        course: {
+                            id: "course-1",
+                        },
+                    },
+                })
+                userService.resolveOrCreateTrialEnrollment.mockResolvedValueOnce(enrollment)
+
+                await handler.execute(
+                    new MarkAsReadedCommand({
+                        request: {
+                            contentId: "content-1",
+                            readed: true,
+                            // deliberate (non-silent) read → recompute the projection
+                            silent: false,
+                        },
+                        user: fakeUser("user-1"),
+                    }),
+                )
+
+                // the projection that the enrollment-keyed leaderboard/rank reads off is
+                // refreshed for this user's course
+                expect(progressProjectionService.recompute).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        userId: "user-1",
+                        courseId: "course-1",
+                    }),
+                )
             })
     })

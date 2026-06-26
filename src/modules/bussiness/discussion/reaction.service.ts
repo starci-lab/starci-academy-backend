@@ -8,6 +8,7 @@ import {
     ActivityReactionEntity,
     CommentReactionEntity,
     ContentCommentEntity,
+    ContentEntity,
     ContentReactionEntity,
     InjectPrimaryPostgreSQLEntityManager,
     ReactionType,
@@ -24,6 +25,9 @@ import {
 import {
     ContentEngagementProjectionService,
 } from "../projections"
+import {
+    UserService,
+} from "../user"
 import type {
     ActivityOwnerRow,
     CommentReactionCountRow,
@@ -52,6 +56,7 @@ export class ReactionService {
         private readonly entityManager: EntityManager,
         private readonly eventEmitterService: EventEmitterService,
         private readonly contentEngagementProjectionService: ContentEngagementProjectionService,
+        private readonly userService: UserService,
     ) {}
 
     /**
@@ -86,7 +91,29 @@ export class ReactionService {
             existing.type = type
             await this.entityManager.save(existing)
         } else {
-            // first-time reaction → insert a new row via relation ids
+            // resolve the course for this content so we can key the row by enrollment
+            // (user × course) — the anchor going forward — while still setting user_id
+            // during the re-key transition.
+            const content = await this.entityManager.findOne(ContentEntity,
+                {
+                    where: {
+                        id: contentId,
+                    },
+                    relations: {
+                        module: {
+                            course: true,
+                        },
+                    },
+                })
+            const courseId = content?.module?.courseId ?? null
+            const enrollment = courseId
+                ? await this.userService.resolveOrCreateTrialEnrollment(
+                    user.id,
+                    courseId,
+                )
+                : null
+            // first-time reaction → insert a new row via relation ids; key by
+            // enrollment going forward (set BOTH columns during the transition).
             await this.entityManager.save(this.entityManager.create(ContentReactionEntity,
                 {
                     type,
@@ -96,6 +123,12 @@ export class ReactionService {
                     user: {
                         id: user.id,
                     },
+                    ...(enrollment
+                        ? {
+                            enrollment,
+                        }
+                        : {
+                        }),
                 }))
         }
         // tell the room the content's reaction totals moved

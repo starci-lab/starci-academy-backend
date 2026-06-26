@@ -148,10 +148,17 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                         },
                     )
                 }
+                // get the current pricing phase
+                // default to EarlyBird (Pioneer is internal/sold) — NOT Regular — when metadata
+                // is absent, so a first enrollment does not wrongly jump the course to Regular.
+                // Computed up front so BOTH the convert (trial→paid) and the fresh-create paths
+                // stamp the same phase.
+                const currentPhase = course?.metadata?.currentPhase ?? PricingPhase.EarlyBird
                 // idempotency (find-or-create, like the other processor steps): a duplicate
-                // enroll job (multiple reconcile polls, or webhook + reconcile) must NOT
+                // PAID enroll job (multiple reconcile polls, or webhook + reconcile) must NOT
                 // re-insert the enrollment — it would violate UQ_enrollments_user_course.
-                // If already enrolled, just finalize the transaction and stop.
+                // A TRIAL placeholder (`is_enrolled = false`) is NOT a paid duplicate, though:
+                // it must be CONVERTED in place to a real enrollment and run the same post-steps.
                 const existingEnrollment = await entityManager.findOne(
                     EnrollmentEntity,
                     {
@@ -165,7 +172,8 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                         },
                     },
                 )
-                if (existingEnrollment) {
+                // already a PAID enrollment → genuine duplicate: just finalize and stop.
+                if (existingEnrollment?.isEnrolled === true) {
                     alreadyEnrolled = true
                     await this.transactionActionService.updateTransactionStatus(
                         {
@@ -176,26 +184,35 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                     )
                     return
                 }
-                // get the current pricing phase
-                // default to EarlyBird (Pioneer is internal/sold) — NOT Regular — when metadata
-                // is absent, so a first enrollment does not wrongly jump the course to Regular.
-                const currentPhase = course?.metadata?.currentPhase ?? PricingPhase.EarlyBird
-                // create the enrollment
-                const enrollment = entityManager.create(
-                    EnrollmentEntity,
-                    {
-                        user: {
-                            id: userId,
-                        },
-                        course: {
-                            id: courseId,
-                        },
-                        pricingPhase: currentPhase,
-                    }
-                )
-                await entityManager.save(
-                    enrollment,
-                )
+                // either CONVERT the existing trial placeholder (is_enrolled=false) → paid,
+                // or CREATE a fresh paid enrollment — then fall through to the SAME post-steps.
+                let enrollment: EnrollmentEntity
+                if (existingEnrollment) {
+                    // CONVERT trial → paid: flip the flag + stamp the current pricing phase
+                    existingEnrollment.isEnrolled = true
+                    existingEnrollment.pricingPhase = currentPhase
+                    enrollment = await entityManager.save(
+                        existingEnrollment,
+                    )
+                } else {
+                    // fresh PAID creation path (post-payment) → a real enrollment
+                    const created = entityManager.create(
+                        EnrollmentEntity,
+                        {
+                            user: {
+                                id: userId,
+                            },
+                            course: {
+                                id: courseId,
+                            },
+                            pricingPhase: currentPhase,
+                            isEnrolled: true,
+                        }
+                    )
+                    enrollment = await entityManager.save(
+                        created,
+                    )
+                }
                 // refresh the course's enrollment-count projection in the same tx
                 // (replaces the old Redis cache; CDC also covers it asynchronously)
                 await this.courseStatsProjectionService.recompute({
@@ -220,7 +237,8 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                 const phase = course?.pricingPhases.find(
                     (phase) => phase.phase === currentPhase,
                 )
-                // get the enrollment count
+                // get the enrollment count — only PAID rows consume a pricing-phase slot
+                // (trial placeholders, is_enrolled=false, must not advance the phase)
                 const enrollmentCount = await entityManager.count(
                     EnrollmentEntity,
                     {
@@ -228,6 +246,7 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                             course: {
                                 id: courseId,
                             },
+                            isEnrolled: true,
                         },
                     },
                 )

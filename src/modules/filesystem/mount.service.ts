@@ -32,6 +32,7 @@ import {
     getKeycloakAdmin,
     getOpenAiApiKeys,
     getGeminiApiKeys,
+    getLocalApiKeys,
 } from "./utils"
 /**
  * Service responsible for reading secrets mounted into the container filesystem.
@@ -226,5 +227,14 @@ export class MountFilesystemService {
      */
     geminiApiKeys(): Array<string> {
         return getGeminiApiKeys()
+    }
+
+    /**
+     * Get the Local (self-hosted) provider bearer-token pool.
+     *
+     * @returns The token(s); a single placeholder when the file is missing/empty
+     */
+    localApiKeys(): Array<string> {
+        return getLocalApiKeys()
     }
 }

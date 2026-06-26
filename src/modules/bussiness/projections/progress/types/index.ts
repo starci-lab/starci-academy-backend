@@ -168,6 +168,8 @@ export interface MyCourseProgressRow {
     completed: string | number
     /** Total milestone tasks in the course; string when `bigint`. */
     total: string | number
+    /** Whether this is a real/paid enrollment (false = trial placeholder). */
+    is_enrolled: boolean
 }
 
 /**
@@ -193,6 +195,8 @@ export interface MyCourseProgressResult {
     completed: number
     /** Total milestone tasks in the course. */
     total: number
+    /** Whether this is a real/paid enrollment (false = trial placeholder). */
+    isEnrolled: boolean
 }
 
 /**

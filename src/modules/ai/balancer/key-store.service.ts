@@ -203,6 +203,11 @@ export class KeyStoreService {
             return this.mountFilesystemService.openAiApiKeys()
         case ModelProvider.Gemini:
             return this.mountFilesystemService.geminiApiKeys()
+        case ModelProvider.Local:
+            // self-hosted OpenAI-compatible endpoint — the "key" is the bearer
+            // token the Caddy gate validates (or a placeholder for a gate-less
+            // local Ollama). Keeps the provider eligible so Auto tries it first.
+            return this.mountFilesystemService.localApiKeys()
         default:
             return []
         }
