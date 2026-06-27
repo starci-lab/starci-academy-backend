@@ -78,6 +78,9 @@ import {
 import {
     ChatModule,
 } from "./chat"
+import {
+    ContentAiModule,
+} from "./content-ai"
 
 /**
  * The module for the bussiness logics.
@@ -134,6 +137,8 @@ export class BussinessModule extends ConfigurableModuleClass {
             CommunityModule.register(options),
             // import the chat module (community room + founder DM threads)
             ChatModule.register(options),
+            // import the content-AI module (grounded lesson Q&A, free model)
+            ContentAiModule.register(options),
         ]
         return {
             ...dynamicModule,

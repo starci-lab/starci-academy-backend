@@ -78,6 +78,13 @@ export class CookieService {
                 value: "1",
                 options: {
                     maxAge: merged.maxAge,
+                    // "lax" (not "strict"): the FE edge proxy must read this hint on a
+                    // TOP-LEVEL navigation that may originate cross-site (a logged-in
+                    // user clicking a link from email/Google straight into a protected
+                    // page). "strict" would withhold it on that first hop → the proxy
+                    // would mis-bounce them to the landing. Safe to relax: the hint is a
+                    // non-secret "1" used only to pick the first-paint shell, never authz.
+                    sameSite: "lax",
                 },
             })
         }
@@ -154,7 +161,8 @@ export class CookieService {
                 {
                     httpOnly: false,
                     secure: envConfig().isProduction,
-                    sameSite: "strict",
+                    // match the "lax" the hint was issued with (see attachHttpOnlyCookie)
+                    sameSite: "lax",
                     path: "/",
                     domain: envConfig().cookie.domain || undefined,
                 })

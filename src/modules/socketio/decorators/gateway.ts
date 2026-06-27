@@ -12,6 +12,7 @@ export const AI_LAB_NAMESPACE = "ai_lab"
 export const NOTIFICATIONS_NAMESPACE = "notifications"
 export const COMMUNITY_FEED_NAMESPACE = "community_feed"
 export const COMMUNITY_CHAT_NAMESPACE = "community_chat"
+export const CONTENT_AI_NAMESPACE = "content_ai"
 
 /**
  * Decorator to mark a class as a WebSocket gateway for the autocomplete namespace.
@@ -113,6 +114,22 @@ export const CommunityFeedWebSocketGateway = () => WebSocketGateway(
 export const CommunityChatWebSocketGateway = () => WebSocketGateway(
     {
         namespace: COMMUNITY_CHAT_NAMESPACE,
+        transports: [
+            "websocket",
+            "polling"
+        ],
+        cors: createCorsOptions(),
+        perMessageDeflate: true,
+    }
+)
+
+/**
+ * Decorator to mark a class as a WebSocket gateway for the content-AI namespace
+ * (grounded lesson Q&A answer token streaming).
+ */
+export const ContentAiWebSocketGateway = () => WebSocketGateway(
+    {
+        namespace: CONTENT_AI_NAMESPACE,
         transports: [
             "websocket",
             "polling"

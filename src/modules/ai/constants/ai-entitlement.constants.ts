@@ -5,14 +5,14 @@ import {
 
 /**
  * Credit cost of a single LLM call by model category — unified with the grading
- * tiers (Low/Medium/High = 10/20/30 in `credit-cost.ts`).
- * Economy is the cheapest; Premium flagship models cost the most.
+ * tiers (Low/Medium/High = 5/20/50 in `credit-cost.ts`).
+ * Free (self-hosted Qwen) is 0; Premium flagship models cost the most.
  */
 export const CATEGORY_CREDIT_COST: Record<AiModelCategory, number> = {
     [AiModelCategory.Free]: 0,
-    [AiModelCategory.Economy]: 10,
+    [AiModelCategory.Economy]: 5,
     [AiModelCategory.Balanced]: 20,
-    [AiModelCategory.Premium]: 30,
+    [AiModelCategory.Premium]: 50,
 }
 
 /** Length of the short rolling window: 5 hours, in milliseconds. */

@@ -15,12 +15,12 @@ export const AUTO_CREDIT_COST = 0
 
 /** Credits charged per model recommendation tier on the Premium lane. */
 export const RECOMMENDATION_CREDIT_COST: Record<ModelRecommendation, number> = {
-    /** Cheapest tier. */
-    [ModelRecommendation.Low]: 10,
+    /** Cheapest tier (economy). */
+    [ModelRecommendation.Low]: 5,
     /** Balanced tier. */
     [ModelRecommendation.Medium]: 20,
-    /** Best-quality tier. */
-    [ModelRecommendation.High]: 30,
+    /** Best-quality tier (premium). */
+    [ModelRecommendation.High]: 50,
 }
 
 /**
@@ -28,7 +28,7 @@ export const RECOMMENDATION_CREDIT_COST: Record<ModelRecommendation, number> = {
  *
  * - Self-hosted `local` Qwen → 0 (free).
  * - Economy cloud (the Auto-lane fallback when the host is offline) → 5.
- * - Balanced cloud → 10. Premium cloud → 20.
+ * - Balanced cloud → 20. Premium cloud → 50.
  *
  * Keyed by the concrete model name returned by the balancer. Unknown models
  * fall back to {@link DEFAULT_MODEL_CREDIT}.
@@ -37,20 +37,20 @@ export const MODEL_CREDIT: Record<string, number> = {
     "qwen2.5-coder:7b": 0,
     "gpt-5.4-nano": 5,
     "gemini-2.5-flash-lite": 5,
-    "gpt-5.4-mini": 10,
-    "gemini-3.5-flash": 10,
-    "gemini-3.1-pro": 20,
+    "gpt-5.4-mini": 20,
+    "gemini-3.5-flash": 20,
+    "gemini-3.1-pro": 50,
 }
 
 /** Credit for a model not listed in {@link MODEL_CREDIT} (balanced-tier default). */
-export const DEFAULT_MODEL_CREDIT = 10
+export const DEFAULT_MODEL_CREDIT = 20
 
 /**
  * Resolve how many AI credits a grading run costs.
  *
  * - **Byok lane → 0** (the user pays their own provider).
  * - **`model` given (post-run charge)** → per-model cost from {@link MODEL_CREDIT}
- *   (Qwen 0, economy 5, balanced 10, premium 20). This is the accurate charge:
+ *   (Qwen 0, economy 5, balanced 20, premium 50). This is the accurate charge:
  *   the Auto lane is free on Qwen but costs the model's credit when it falls
  *   through to a paid cloud model.
  * - **`model` absent (pre-run estimate / quota gate)** → by lane: Auto →

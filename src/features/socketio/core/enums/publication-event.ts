@@ -8,4 +8,6 @@ export enum PublicationEvent {
     SubscribeNotifications = "notifications.subscribe.publication",
     SubscribeCommunityFeed = "community_feed.subscribe.publication",
     SubscribeCommunityChat = "community_chat.subscribe.publication",
+    AskContentAi = "content_ai.ask.publication",
+    AbortContentAi = "content_ai.abort.publication",
 }

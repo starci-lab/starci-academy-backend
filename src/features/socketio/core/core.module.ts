@@ -25,6 +25,9 @@ import {
 import {
     CommunityChatModule,
 } from "./community-chat"
+import {
+    ContentAiModule,
+} from "./content-ai"
 
 /**
  * Feature module bundling all real-time Socket.IO gateways of the app.
@@ -52,6 +55,9 @@ import {
             isGlobal: true,
         }),
         CommunityChatModule.register({
+            isGlobal: true,
+        }),
+        ContentAiModule.register({
             isGlobal: true,
         }),
     ],
