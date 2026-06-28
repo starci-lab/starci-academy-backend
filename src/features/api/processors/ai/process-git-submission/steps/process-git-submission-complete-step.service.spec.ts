@@ -101,6 +101,9 @@ describe("ProcessGitSubmissionCompleteStepService",
                     recompute: jest.fn(),
                 } as never,
                 {
+                    invalidateProgress: jest.fn(),
+                } as never,
+                {
                     enqueue: jest.fn(),
                 } as never,
             )

@@ -8,11 +8,10 @@ import {
 import {
     InjectPrimaryPostgreSQLEntityManager,
     ChallengeEntity,
+    UserChallengeProgressProjectionEntity,
     UserChallengeSubmissionEntity,
 } from "@modules/databases"
 import {
-    CacheKey,
-    CacheService,
     ChallengeProgressStatus,
 } from "@modules/cache"
 import type {
@@ -22,84 +21,137 @@ import type {
 import {
     MountStorageService,
 } from "@modules/filesystem"
+import {
+    envConfig,
+} from "@modules/env"
 import type {
     ProgressEnrollmentType,
 } from "./types"
 
 /**
  * Service for managing challenge submission progress.
- * Encapsulates cache get / compute / set / invalidate logic.
+ *
+ * Backed by the `user_challenge_progress_projections` CQRS read-model (one row
+ * per enrollment, aggregate in jsonb `value`). The heavy recompute runs ONLY in
+ * {@link recompute} (eager: in the grade-complete transaction + CDC); reads
+ * ({@link getProgress}) extract the stored aggregate and lazily recompute when
+ * the row is missing or older than the projection TTL. This replaces the old
+ * Redis `challenge.submission.progress` cache — the projection table IS the cache
+ * now, and its `updated_at` timestamp drives staleness.
  */
 @Injectable()
 export class ChallengeProgressService {
     constructor(
-        private readonly cacheService: CacheService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly mountStorageService: MountStorageService,
     ) {}
 
     /**
-     * Update the cached progress for an enrollment.
-     * Recomputes from DB and sets cache.
-     * @param enrollment - The enrollment type.
+     * Recompute + upsert the projection row for an enrollment. Call on every
+     * grade-complete (and from the CDC/event listener). Idempotent (UPSERT) and
+     * runs inside the caller's transaction when one is given (atomic + fresh).
+     * @param enrollment - The enrollment to recompute.
+     * @param entityManager - Optional caller transaction manager.
      */
-    async updateProgress(
+    async recompute(
         enrollment: ProgressEnrollmentType,
+        entityManager?: EntityManager,
     ): Promise<void> {
-        const result = await this.computeProgress(enrollment)
-        await this.cacheService.set({
-            key: CacheKey.ChallengeSubmissionProgress,
-            args: [enrollment.enrollmentId],
-            cacheResult: result,
-        })
+        const manager = entityManager ?? this.entityManager
+        const result = await this.computeProgress(enrollment,
+            manager)
+        // raw UPSERT so `updated_at = now()` is bumped on conflict (TypeORM's
+        // @UpdateDateColumn is not re-stamped by `upsert`) — the timestamp the
+        // read-path staleness check relies on.
+        await manager.query(
+            `
+            INSERT INTO user_challenge_progress_projections (enrollment_id, value)
+            VALUES ($1, $2::jsonb)
+            ON CONFLICT (enrollment_id) DO UPDATE SET
+                value      = EXCLUDED.value,
+                updated_at = now()
+            `,
+            [
+                enrollment.enrollmentId,
+                JSON.stringify(result),
+            ],
+        )
     }
 
     /**
-     * Get progress from cache. On cache miss, compute from DB and store.
-     * @param enrollment - The enrollment type.
+     * Read an enrollment's challenge progress from the projection (TTL
+     * lazy-refresh): a missing row, or one older than the projection TTL, is
+     * recomputed on the spot before returning.
+     * @param enrollment - The enrollment to read.
      */
     async getProgress(
         enrollment: ProgressEnrollmentType,
     ): Promise<ChallengeSubmissionProgressCacheResult> {
-        const cached = await this.cacheService.get({
-            key: CacheKey.ChallengeSubmissionProgress,
-            args: [enrollment.enrollmentId],
-        })
-        if (cached && cached.completionTasks) {
-            return cached
+        let row = await this.entityManager.findOne(
+            UserChallengeProgressProjectionEntity,
+            {
+                where: {
+                    enrollmentId: enrollment.enrollmentId,
+                },
+            },
+        )
+        // TTL safety net: missing / past freshness window → recompute + re-read
+        if (!row || this.isStale(row.updatedAt)) {
+            await this.recompute(enrollment)
+            row = await this.entityManager.findOne(
+                UserChallengeProgressProjectionEntity,
+                {
+                    where: {
+                        enrollmentId: enrollment.enrollmentId,
+                    },
+                },
+            )
         }
-
-        const result = await this.computeProgress(enrollment)
-        await this.cacheService.set({
-            key: CacheKey.ChallengeSubmissionProgress,
-            args: [enrollment.enrollmentId],
-            cacheResult: result,
-        })
-        return result
+        const value = (row?.value ?? {
+        }) as Partial<ChallengeSubmissionProgressCacheResult>
+        return {
+            completionTasks: value.completionTasks ?? [],
+        }
     }
 
     /**
-     * Invalidate the cached progress for an enrollment.
-     * The next getProgress call will recompute from DB.
-     * @param enrollmentId - The enrollment ID.
+     * Drop the projection row for an enrollment so the next read recomputes a
+     * fresh aggregate. Called eagerly from the grade-complete step (and the
+     * event listener) — the shared row is the source of truth, so deleting it
+     * is globally effective without any cache/event indirection.
+     * @param enrollmentId - The enrollment whose projection to invalidate.
      */
     async invalidateProgress(
         enrollmentId: string,
     ): Promise<void> {
-        await this.cacheService.del({
-            key: CacheKey.ChallengeSubmissionProgress,
-            args: [enrollmentId],
-        })
+        await this.entityManager.delete(
+            UserChallengeProgressProjectionEntity,
+            {
+                enrollmentId,
+            },
+        )
+    }
+
+    /**
+     * Whether a projection row is past its freshness window.
+     * @param updatedAt - The row's last write time.
+     * @returns true when older than the configured projection TTL.
+     */
+    private isStale(updatedAt: Date): boolean {
+        return Date.now() - updatedAt.getTime() > envConfig().projection.staleAfterMs
     }
 
     /**
      * Compute progress from DB for a given enrollment.
+     * @param enrollment - The enrollment to compute for.
+     * @param manager - The entity manager to read through (caller tx or service).
      */
     private async computeProgress(
         enrollment: ProgressEnrollmentType,
+        manager: EntityManager,
     ): Promise<ChallengeSubmissionProgressCacheResult> {
-        const challenges = await this.entityManager.find(
+        const challenges = await manager.find(
             ChallengeEntity,
             {
                 where: {
@@ -138,7 +190,7 @@ export class ChallengeProgressService {
         // (the anchor for per-course progress going forward) — user_challenge_submissions
         // carries enrollment_id (backfilled). Without this filter the aggregate would
         // span EVERY user's submissions for the course's challenges.
-        const userSubmissions = await this.entityManager.find(
+        const userSubmissions = await manager.find(
             UserChallengeSubmissionEntity,
             {
                 where: {

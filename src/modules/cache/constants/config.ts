@@ -14,7 +14,6 @@ import type {
     MilestoneTaskProgressCacheResult,
     ParentIndexCacheResult,
     KeycloakOidcPkceCacheResult,
-    ChallengeSubmissionProgressCacheResult,
     CodingProblemProgressCacheResult,
     CreditUsageCacheResult,
     CourseMindMapCacheResult,
@@ -83,11 +82,6 @@ export const configMap = {
         ttl: envConfig().cache.ttl.milestoneTaskProgress,
         cacheResult: {
         } as MilestoneTaskProgressCacheResult,
-    },
-    [CacheKey.ChallengeSubmissionProgress]: {
-        ttl: envConfig().cache.ttl.challengeSubmissionProgress,
-        cacheResult: {
-        } as ChallengeSubmissionProgressCacheResult,
     },
     [CacheKey.CodingProblemProgress]: {
         ttl: envConfig().cache.ttl.codingProblemProgress,

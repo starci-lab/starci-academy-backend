@@ -219,6 +219,10 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                             shortFeedback: grade.evaluation.shortFeedback,
                             passed: grade.passed,
                             attemptNumber: numAttempts + 1,
+                            // Record WHICH AI model actually graded this attempt (Auto is
+                            // load-balanced) so the task feedback page can attribute it.
+                            servedModel: grade.aiUsage?.model ?? null,
+                            servedProvider: grade.aiUsage?.provider ?? null,
                             feedbacks,
                             defaultLocale: payload.locale ?? Locale.En,
                         }

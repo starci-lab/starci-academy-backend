@@ -6,6 +6,7 @@ import {
     CreditUsageService,
     EnqueueSendMailJobService,
     ProgressProjectionService,
+    ChallengeProgressService,
     writeActivity,
 } from "@modules/bussiness"
 import {
@@ -93,6 +94,7 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
         private readonly creditUsageService: CreditUsageService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly progressProjectionService: ProgressProjectionService,
+        private readonly challengeProgressService: ChallengeProgressService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
     ) {
         super()
@@ -199,6 +201,10 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                             score: grade.evaluation.score,
                             shortFeedback: grade.evaluation.shortFeedback,
                             attemptNumber: numAttempts + 1,
+                            // Record WHICH AI model actually graded this attempt (Auto is
+                            // load-balanced) so the submission result page can attribute it.
+                            servedModel: grade.aiUsage?.model ?? null,
+                            servedProvider: grade.aiUsage?.provider ?? null,
                             defaultLocale: payload.locale ?? Locale.En,
                             feedbacks,
                         }
@@ -342,6 +348,12 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                 success: true,
             },
         )
+        // Drop the cached challenge-progress projection for this enrollment NOW so the next read
+        // recomputes the fresh aggregate. The projection cache lives ~5m; relying only on the
+        // NATS-delivered ChallengeSubmissionProgressUpdated event to warm it leaves
+        // "Kết quả của bạn" showing the stale pre-grade score for up to that TTL when the event
+        // isn't delivered. The cache is shared Redis, so this worker-side invalidation is global.
+        await this.challengeProgressService.invalidateProgress(payload.enrollmentId)
         this.eventEmitterService.emit({
             event: EventName.ChallengeSubmissionProgressUpdated,
             payload: {

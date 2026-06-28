@@ -9,13 +9,14 @@ import {
     ChallengeProgressService,
 } from "./challenge.service"
 import {
-    CacheKey,
-    CacheService,
     ChallengeProgressStatus,
 } from "@modules/cache"
 import type {
     ChallengeSubmissionProgressCacheResult,
 } from "@modules/cache"
+import {
+    UserChallengeProgressProjectionEntity,
+} from "@modules/databases"
 import {
     MountStorageService,
 } from "@modules/filesystem"
@@ -38,9 +39,6 @@ const PASS_THRESHOLD = 0.5
 /**
  * Build a single submission row hanging off a challenge (the grading template
  * the user's attempts are scored against).
- *
- * @param overrides - Partial fields to merge over the defaults.
- * @returns A submission-shaped object usable as a {@link ChallengeEntity} child.
  */
 const buildSubmission = (
     overrides: Partial<{ id: string; score: number }> = {
@@ -51,13 +49,7 @@ const buildSubmission = (
     ...overrides,
 })
 
-/**
- * Build a challenge row with one submission and the relations the compute path
- * reads (`submissions`).
- *
- * @param overrides - Partial fields to merge over the defaults.
- * @returns A challenge-shaped object usable as a `find` return row.
- */
+/** Build a challenge row with one submission and the `submissions` relation. */
 const buildChallenge = (
     overrides: Partial<{
         id: string
@@ -78,12 +70,7 @@ const buildChallenge = (
     ...overrides,
 })
 
-/**
- * Build a single attempt row for a user submission.
- *
- * @param overrides - Partial fields to merge over the defaults.
- * @returns An attempt-shaped object.
- */
+/** Build a single attempt row for a user submission. */
 const buildAttempt = (
     overrides: Partial<{ attemptNumber: number; score: number | null }> = {
     },
@@ -93,13 +80,7 @@ const buildAttempt = (
     ...overrides,
 })
 
-/**
- * Build a user submission row (a user's work against one submission template),
- * including its `submission` relation and `attempts` list.
- *
- * @param overrides - Partial fields to merge over the defaults.
- * @returns A user-submission-shaped object usable as a `find` return row.
- */
+/** Build a user submission row, including its `submission` relation and `attempts`. */
 const buildUserSubmission = (
     overrides: Partial<{
         submission: { id: string; challengeId: string }
@@ -120,11 +101,20 @@ const buildUserSubmission = (
     ...overrides,
 })
 
+/** A passed-challenge completion task (the canonical happy-path aggregate). */
+const passedTask = {
+    id: "challenge-1",
+    lastScore: 100,
+    maxScore: 100,
+    completed: true,
+    status: ChallengeProgressStatus.Completed,
+    numAttempts: 1,
+}
+
 describe("ChallengeProgressService",
     () => {
         let module: TestingModule
         let service: ChallengeProgressService
-        let cacheService: jest.Mocked<CacheService>
         let entityManager: EntityManagerMock
         let mountStorageService: { appConfig: unknown }
 
@@ -133,15 +123,25 @@ describe("ChallengeProgressService",
             enrollmentId: "enrollment-1",
         }
 
-        beforeEach(async () => {
-            // cache stubs — programmed per-test for hit / miss behavior
-            cacheService = {
-                get: jest.fn(),
-                set: jest.fn(),
-                del: jest.fn(),
-            } as unknown as jest.Mocked<CacheService>
+        /** Parse the jsonb payload the last UPSERT (`recompute`) wrote. */
+        const lastUpsertPayload = (): ChallengeSubmissionProgressCacheResult => {
+            const calls = entityManager.query.mock.calls
+            const [, params] = calls[calls.length - 1] as [string, Array<string>]
+            return JSON.parse(params[1]) as ChallengeSubmissionProgressCacheResult
+        }
 
-            // fresh entity manager with happy-path defaults (find → [])
+        /** A projection row wrapper around a computed value with a given freshness. */
+        const projectionRow = (
+            value: ChallengeSubmissionProgressCacheResult,
+            updatedAt: Date,
+        ): Partial<UserChallengeProgressProjectionEntity> => ({
+            enrollmentId: enrollment.enrollmentId,
+            value: value as unknown as Record<string, unknown>,
+            updatedAt,
+        })
+
+        beforeEach(async () => {
+            // fresh entity manager with happy-path defaults (findOne → null, find → [])
             entityManager = makeEntityManagerMock()
 
             // mount config exposes the pass threshold as a plain getter property
@@ -158,10 +158,6 @@ describe("ChallengeProgressService",
             module = await Test.createTestingModule({
                 providers: [
                     ChallengeProgressService,
-                    {
-                        provide: CacheService,
-                        useValue: cacheService,
-                    },
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
                         useValue: entityManager,
@@ -182,58 +178,39 @@ describe("ChallengeProgressService",
 
         describe("getProgress",
             () => {
-                it("returns the cached payload on a hit and never touches the database",
+                it("returns the stored projection value on a fresh-row hit and never recomputes",
                     async () => {
-                        const cached: ChallengeSubmissionProgressCacheResult = {
+                        const stored: ChallengeSubmissionProgressCacheResult = {
                             completionTasks: [
-                                {
-                                    id: "challenge-1",
-                                    lastScore: 100,
-                                    maxScore: 100,
-                                    completed: true,
-                                    status: ChallengeProgressStatus.Completed,
-                                    numAttempts: 1,
-                                },
+                                passedTask,
                             ],
                         }
-                        cacheService.get.mockResolvedValueOnce(cached)
+                        entityManager.findOne.mockResolvedValueOnce(
+                            projectionRow(stored,
+                                new Date()),
+                        )
 
                         const result = await service.getProgress(enrollment)
 
-                        expect(result).toBe(cached)
-                        expect(cacheService.get).toHaveBeenCalledWith({
-                            key: CacheKey.ChallengeSubmissionProgress,
-                            args: [enrollment.enrollmentId],
-                        })
-                        // a hit short-circuits the DB compute and the re-cache write
+                        expect(result).toEqual(stored)
+                        // a fresh row short-circuits the DB compute + the UPSERT
                         expect(entityManager.find).not.toHaveBeenCalled()
-                        expect(cacheService.set).not.toHaveBeenCalled()
+                        expect(entityManager.query).not.toHaveBeenCalled()
                     })
 
-                it("recomputes when the cache returns a value missing completionTasks",
+                it("recomputes + re-reads when the projection row is missing",
                     async () => {
-                        // a malformed cache row (no completionTasks) must fall through to compute
-                        cacheService.get.mockResolvedValueOnce({
-                        } as unknown as ChallengeSubmissionProgressCacheResult)
-                        // no challenges in the course → empty completion list
-                        entityManager.find.mockResolvedValueOnce([])
-
-                        const result = await service.getProgress(enrollment)
-
-                        expect(result).toEqual({
-                            completionTasks: [],
-                        })
-                        expect(cacheService.set).toHaveBeenCalledWith({
-                            key: CacheKey.ChallengeSubmissionProgress,
-                            args: [enrollment.enrollmentId],
-                            cacheResult: result,
-                        })
-                    })
-
-                it("computes from DB on a miss and stores the result",
-                    async () => {
-                        cacheService.get.mockResolvedValueOnce(undefined)
-                        // first find → challenges, second find → user submissions
+                        const recomputed: ChallengeSubmissionProgressCacheResult = {
+                            completionTasks: [
+                                passedTask,
+                            ],
+                        }
+                        // 1st read → miss; 2nd read (after recompute) → the fresh row
+                        entityManager.findOne
+                            .mockResolvedValueOnce(null)
+                            .mockResolvedValueOnce(projectionRow(recomputed,
+                                new Date()))
+                        // compute reads: challenges then user submissions
                         entityManager.find
                             .mockResolvedValueOnce([
                                 buildChallenge(),
@@ -244,25 +221,50 @@ describe("ChallengeProgressService",
 
                         const result = await service.getProgress(enrollment)
 
-                        // latest attempt (100) ≥ 100 × 0.5 → every submission passed
-                        expect(result.completionTasks).toEqual([
-                            {
-                                id: "challenge-1",
-                                lastScore: 100,
-                                maxScore: 100,
-                                completed: true,
-                                status: ChallengeProgressStatus.Completed,
-                                numAttempts: 1,
-                            },
+                        expect(result).toEqual(recomputed)
+                        // the UPSERT ran with the freshly computed aggregate
+                        expect(entityManager.query).toHaveBeenCalledTimes(1)
+                        expect(lastUpsertPayload().completionTasks).toEqual([
+                            passedTask,
                         ])
-                        expect(entityManager.find).toHaveBeenCalledTimes(2)
-                        expect(cacheService.set).toHaveBeenCalled()
+                    })
+
+                it("recomputes when the projection row is older than the TTL",
+                    async () => {
+                        const stale: ChallengeSubmissionProgressCacheResult = {
+                            completionTasks: [],
+                        }
+                        const fresh: ChallengeSubmissionProgressCacheResult = {
+                            completionTasks: [
+                                passedTask,
+                            ],
+                        }
+                        // a row written an hour ago is past the (5m) freshness window
+                        entityManager.findOne
+                            .mockResolvedValueOnce(
+                                projectionRow(stale,
+                                    new Date(Date.now() - 60 * 60 * 1000)),
+                            )
+                            .mockResolvedValueOnce(projectionRow(fresh,
+                                new Date()))
+                        entityManager.find
+                            .mockResolvedValueOnce([
+                                buildChallenge(),
+                            ])
+                            .mockResolvedValueOnce([
+                                buildUserSubmission(),
+                            ])
+
+                        const result = await service.getProgress(enrollment)
+
+                        expect(result).toEqual(fresh)
+                        expect(entityManager.query).toHaveBeenCalledTimes(1)
                     })
             })
 
-        describe("updateProgress",
+        describe("recompute",
             () => {
-                it("recomputes from DB and writes the result to cache",
+                it("computes from DB and UPSERTs the aggregate keyed by enrollment",
                     async () => {
                         entityManager.find
                             .mockResolvedValueOnce([
@@ -272,71 +274,43 @@ describe("ChallengeProgressService",
                                 buildUserSubmission(),
                             ])
 
-                        await service.updateProgress(enrollment)
+                        await service.recompute(enrollment)
 
-                        // updateProgress never reads cache — it always recomputes
-                        expect(cacheService.get).not.toHaveBeenCalled()
-                        expect(cacheService.set).toHaveBeenCalledWith({
-                            key: CacheKey.ChallengeSubmissionProgress,
-                            args: [enrollment.enrollmentId],
-                            cacheResult: {
-                                completionTasks: [
-                                    {
-                                        id: "challenge-1",
-                                        lastScore: 100,
-                                        maxScore: 100,
-                                        completed: true,
-                                        status: ChallengeProgressStatus.Completed,
-                                        numAttempts: 1,
-                                    },
-                                ],
-                            },
-                        })
+                        // recompute never reads the projection row — it always rebuilds
+                        expect(entityManager.findOne).not.toHaveBeenCalled()
+                        const [sql,
+                            params] = entityManager.query.mock.calls[0] as [string, Array<string>]
+                        expect(sql).toContain("user_challenge_progress_projections")
+                        expect(params[0]).toBe(enrollment.enrollmentId)
+                        expect(lastUpsertPayload().completionTasks).toEqual([
+                            passedTask,
+                        ])
                     })
-            })
 
-        describe("invalidateProgress",
-            () => {
-                it("deletes the cached entry for the enrollment",
-                    async () => {
-                        await service.invalidateProgress(enrollment.enrollmentId)
-
-                        expect(cacheService.del).toHaveBeenCalledWith({
-                            key: CacheKey.ChallengeSubmissionProgress,
-                            args: [enrollment.enrollmentId],
-                        })
-                    })
-            })
-
-        describe("computeProgress status derivation",
-            () => {
                 it("short-circuits to an empty list when the course has no challenges",
                     async () => {
-                        cacheService.get.mockResolvedValueOnce(undefined)
                         // no challenges → the second find (user submissions) must NOT run
                         entityManager.find.mockResolvedValueOnce([])
 
-                        const result = await service.getProgress(enrollment)
+                        await service.recompute(enrollment)
 
-                        expect(result).toEqual({
+                        expect(entityManager.find).toHaveBeenCalledTimes(1)
+                        expect(lastUpsertPayload()).toEqual({
                             completionTasks: [],
                         })
-                        expect(entityManager.find).toHaveBeenCalledTimes(1)
                     })
 
                 it("reports NotStarted when no user submission row exists",
                     async () => {
-                        cacheService.get.mockResolvedValueOnce(undefined)
                         entityManager.find
                             .mockResolvedValueOnce([
                                 buildChallenge(),
                             ])
-                            // user never created a submission
                             .mockResolvedValueOnce([])
 
-                        const result = await service.getProgress(enrollment)
+                        await service.recompute(enrollment)
 
-                        const task = result.completionTasks[0]
+                        const task = lastUpsertPayload().completionTasks[0]
                         expect(task.status).toBe(ChallengeProgressStatus.NotStarted)
                         expect(task.completed).toBe(false)
                         expect(task.numAttempts).toBe(0)
@@ -345,28 +319,25 @@ describe("ChallengeProgressService",
 
                 it("reports InProgress when a submission exists but has no attempt yet",
                     async () => {
-                        cacheService.get.mockResolvedValueOnce(undefined)
                         entityManager.find
                             .mockResolvedValueOnce([
                                 buildChallenge(),
                             ])
-                            // submission row created but never submitted for grading
                             .mockResolvedValueOnce([
                                 buildUserSubmission({
                                     attempts: [],
                                 }),
                             ])
 
-                        const result = await service.getProgress(enrollment)
+                        await service.recompute(enrollment)
 
-                        expect(result.completionTasks[0].status).toBe(
+                        expect(lastUpsertPayload().completionTasks[0].status).toBe(
                             ChallengeProgressStatus.InProgress,
                         )
                     })
 
                 it("reports Failed when the latest attempt is below the pass threshold",
                     async () => {
-                        cacheService.get.mockResolvedValueOnce(undefined)
                         entityManager.find
                             .mockResolvedValueOnce([
                                 buildChallenge(),
@@ -382,18 +353,16 @@ describe("ChallengeProgressService",
                                 }),
                             ])
 
-                        const result = await service.getProgress(enrollment)
+                        await service.recompute(enrollment)
 
-                        const task = result.completionTasks[0]
+                        const task = lastUpsertPayload().completionTasks[0]
                         expect(task.status).toBe(ChallengeProgressStatus.Failed)
                         expect(task.completed).toBe(false)
-                        // lastScore still accumulates the latest attempt's capped score
                         expect(task.lastScore).toBe(40)
                     })
 
                 it("picks the highest-numbered attempt as the latest and caps the score",
                     async () => {
-                        cacheService.get.mockResolvedValueOnce(undefined)
                         entityManager.find
                             .mockResolvedValueOnce([
                                 buildChallenge({
@@ -420,9 +389,9 @@ describe("ChallengeProgressService",
                                 }),
                             ])
 
-                        const result = await service.getProgress(enrollment)
+                        await service.recompute(enrollment)
 
-                        const task = result.completionTasks[0]
+                        const task = lastUpsertPayload().completionTasks[0]
                         // latest score 90 capped at the submission's own max of 80
                         expect(task.lastScore).toBe(80)
                         expect(task.numAttempts).toBe(2)
@@ -431,12 +400,10 @@ describe("ChallengeProgressService",
 
                 it("treats a null attempt score as zero (failing the threshold)",
                     async () => {
-                        cacheService.get.mockResolvedValueOnce(undefined)
                         entityManager.find
                             .mockResolvedValueOnce([
                                 buildChallenge(),
                             ])
-                            // attempt graded with no score → treated as 0
                             .mockResolvedValueOnce([
                                 buildUserSubmission({
                                     attempts: [
@@ -447,11 +414,26 @@ describe("ChallengeProgressService",
                                 }),
                             ])
 
-                        const result = await service.getProgress(enrollment)
+                        await service.recompute(enrollment)
 
-                        const task = result.completionTasks[0]
+                        const task = lastUpsertPayload().completionTasks[0]
                         expect(task.lastScore).toBe(0)
                         expect(task.status).toBe(ChallengeProgressStatus.Failed)
+                    })
+            })
+
+        describe("invalidateProgress",
+            () => {
+                it("deletes the projection row for the enrollment",
+                    async () => {
+                        await service.invalidateProgress(enrollment.enrollmentId)
+
+                        expect(entityManager.delete).toHaveBeenCalledWith(
+                            UserChallengeProgressProjectionEntity,
+                            {
+                                enrollmentId: enrollment.enrollmentId,
+                            },
+                        )
                     })
             })
     })

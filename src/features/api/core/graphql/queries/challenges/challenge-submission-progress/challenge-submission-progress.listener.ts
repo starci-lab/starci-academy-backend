@@ -54,7 +54,7 @@ export class ChallengeSubmissionProgressListener implements OnModuleInit {
                         },
                     },
                 )
-                await this.challengeProgressService.updateProgress(
+                await this.challengeProgressService.recompute(
                     {
                         enrollmentId: payload.enrollmentId,
                         courseId: enrollment.course.id,
