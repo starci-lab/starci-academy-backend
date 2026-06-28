@@ -67,20 +67,22 @@ export class UserProfileResolver {
             "username",
             {
                 type: () => String,
-                description: "Username of the user whose public profile to fetch.",
+                description: "Username (or email) of the user whose public profile to fetch.",
             },
         )
             username: string,
     ): Promise<UserEntity | null> {
         // public read: look up by the URL-facing username; only non-deleted users
-        // are visible (the returned entity still carries `id` for follow + tabs)
+        // are visible (the returned entity still carries `id` for follow + tabs).
+        // Also accept the value as an email so a legacy `/profile/<email>` link
+        // still resolves — the FE then canonicalizes the URL to `<username>`.
         const user = await this.entityManager.findOne(
             UserEntity,
             {
-                where: {
-                    username,
-                    isDeleted: false,
-                },
+                where: [
+                    { username, isDeleted: false },
+                    { email: username, isDeleted: false },
+                ],
             },
         )
         // not found / soft-deleted → null (FE renders a "not found" state)
