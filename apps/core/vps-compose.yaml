@@ -48,6 +48,12 @@ services:
       # Self-hosted Judge0 (coding-practice sandbox) on the VPS.
       JUDGE0_BASE_URL: ${JUDGE0_BASE_URL}
 
+      # Self-hosted qwen "free" grading/tutor lane runs on the GPU box, reached
+      # via the Cloudflare tunnel (qwen.starci.org) — NOT localhost (there is no
+      # Ollama on the VPS). The endpoint is open (no gate), so the local-provider
+      # key stays the "ollama" placeholder; only the base URL needs wiring here.
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-https://qwen.starci.org/v1}
+
       # Data-sources root — holds the versioned commit snapshots + manifest.json.
       # Points at the dedicated `.datasources` bind volume (see volumes:) so the
       # snapshots survive `up --build` / recreate, enabling filesystem-diff seeding

@@ -150,15 +150,22 @@ export class ContentsHandler
                 where: {
                     id: moduleId,
                 },
+                // courseId is a @RelationId (virtual, not selectable) — load the
+                // course relation and read course.id instead
+                relations: {
+                    course: true,
+                },
                 select: {
                     id: true,
-                    courseId: true,
+                    course: {
+                        id: true,
+                    },
                 },
             },
         )
 
         // If the module can't be found, be conservative and deny premium access.
-        if (!moduleRow?.courseId) {
+        if (!moduleRow?.course?.id) {
             return false
         }
 
@@ -173,7 +180,7 @@ export class ContentsHandler
                         id: userId,
                     },
                     course: {
-                        id: moduleRow.courseId,
+                        id: moduleRow.course.id,
                     },
                 },
                 select: {

@@ -14,6 +14,8 @@ import type {
     BaseMessage,
 } from "@langchain/core/messages"
 import {
+    ContentAiMessageEntity,
+    ContentAiSessionEntity,
     ContentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
@@ -36,6 +38,24 @@ export interface ContentAiHistoryMessage {
     role: string
     /** The message text. */
     content: string
+}
+
+/** A conversation in the session list / search results. */
+export interface ContentAiSessionSummary {
+    /** Session id. */
+    id: string
+    /** Conversation title (null until the first question auto-titles it). */
+    title: string | null
+    /** Last-activity timestamp (drives recency ordering). */
+    updatedAt: Date
+    /** Number of turns in the conversation. */
+    messageCount: number
+    /** Content the conversation is anchored to. */
+    originContentId: string
+    /** Title of the anchoring content (only resolved for cross-lesson search results). */
+    originContentTitle: string | null
+    /** First message matching the search query (only for search results). */
+    snippet: string | null
 }
 
 /** Params for {@link ContentAiService.prepareMessages}. */
@@ -159,14 +179,466 @@ export class ContentAiService {
                 ? new AIMessage(message.content)
                 : new HumanMessage(message.content))
         const messages: Array<BaseMessage> = [
-            new SystemMessage(this.buildSystemPrompt(content.body,
-                locale)),
+            new SystemMessage(this.buildSystemPrompt(this.resolveBodyText(content,
+                locale),
+            locale)),
             ...historyMessages,
             new HumanMessage(question),
         ]
         return {
             messages,
         }
+    }
+
+    /**
+     * Resolve the lesson markdown to ground on. Snapshot-backed content keeps the
+     * V1 scalar `body` EMPTY and stores the real lesson under the V2 `bodies`
+     * buckets (one per language variant, each with per-locale `translations`) —
+     * so reading `content.body` alone grounds the model on an empty body and it
+     * replies "the content wasn't provided". Prefer the localized text of the
+     * first non-empty bucket (the prose is shared across language variants;
+     * tutoring doesn't need all four), falling back to the legacy scalar body.
+     *
+     * @param content - The content snapshot loaded from MinIO.
+     * @param locale - The request locale (selects the body translation).
+     * @returns The lesson markdown, or empty string when none is available.
+     */
+    private resolveBodyText(
+        content: ContentEntity,
+        locale: Locale,
+    ): string {
+        // V1 legacy scalar body, when populated
+        if (content.body && content.body.trim()) {
+            return content.body
+        }
+        // V2 bodies[]: take the first bucket's localized (or default) markdown
+        for (const bucket of content.bodies ?? []) {
+            const translated = (bucket.translations ?? [])
+                .find((translation) => translation.locale === locale)?.body
+            const text = translated ?? bucket.body
+            if (text && text.trim()) {
+                return text
+            }
+        }
+        return ""
+    }
+
+    /**
+     * Resolve the enrollment id for `(user, the content's owning course)`.
+     *
+     * Course-scoped data keys off the enrollment (not the raw user). Trial rows
+     * (`is_enrolled = false`) count — a learner reading/asking about a lesson has
+     * an enrollment row whether or not they have paid.
+     *
+     * @param userId - The asking learner.
+     * @param contentId - Content whose course the enrollment is resolved against.
+     * @returns The enrollment id, or `null` when none exists / the course is unknown.
+     */
+    private async resolveEnrollmentId(
+        userId: string,
+        contentId: string,
+    ): Promise<string | null> {
+        const row = await this.entityManager.findOne(
+            ContentEntity,
+            {
+                where: {
+                    id: contentId,
+                },
+                relations: {
+                    module: {
+                        course: true,
+                    },
+                },
+                select: {
+                    id: true,
+                    module: {
+                        id: true,
+                        course: {
+                            id: true,
+                        },
+                    },
+                },
+            },
+        )
+        const courseId = row?.module?.course?.id
+        if (!courseId) {
+            return null
+        }
+        const rows = await this.entityManager.query<Array<{ id: string }>>(
+            "SELECT id FROM enrollments WHERE user_id = $1 AND course_id = $2 LIMIT 1",
+            [
+                userId,
+                courseId,
+            ],
+        )
+        return rows[0]?.id ?? null
+    }
+
+    /**
+     * Resolve the real `users.id` (uuid) from a Keycloak subject id. The socket
+     * gateway stamps the Keycloak sub, but course-scoped data keys off
+     * `enrollments.user_id` (= `users.id`) — so the sub must be resolved first.
+     *
+     * @param keycloakId - The Keycloak subject id from the socket.
+     * @returns The real user id, or `null` when no user matches.
+     */
+    async resolveUserIdByKeycloakId(
+        keycloakId: string,
+    ): Promise<string | null> {
+        const user = await this.userService.getUserByKeycloakId(keycloakId)
+        return user?.id ?? null
+    }
+
+    /**
+     * Create a new (empty) conversation anchored to a content. Auto-titled later
+     * from its first question.
+     *
+     * @param params - The learner + the content the conversation starts in.
+     * @returns The new session id, or `null` when no enrollment resolves.
+     */
+    async createSession(
+        {
+            userId,
+            contentId,
+        }: { userId: string, contentId: string },
+    ): Promise<string | null> {
+        const enrollmentId = await this.resolveEnrollmentId(userId,
+            contentId)
+        if (!enrollmentId) {
+            return null
+        }
+        const session = this.entityManager.create(
+            ContentAiSessionEntity,
+            {
+                enrollmentId,
+                originContentId: contentId,
+                title: null,
+            },
+        )
+        await this.entityManager.save(session)
+        return session.id
+    }
+
+    /**
+     * List the learner's conversations for a content (recency-first), OR — when a
+     * non-empty `search` is given — search ALL their conversations in the course
+     * (title or message text) so an old "kafka" / "nginx" chat can be found again.
+     *
+     * @param params - The learner, the current content, and an optional search.
+     * @returns Conversation summaries (recency-first).
+     */
+    async sessions(
+        {
+            userId,
+            contentId,
+            search,
+            limit,
+            offset,
+        }: {
+            userId: string
+            contentId: string
+            search?: string
+            limit?: number
+            offset?: number
+        },
+    ): Promise<Array<ContentAiSessionSummary>> {
+        // clamp the page so a bad client value can't pull the whole table
+        const pageLimit = Math.min(Math.max(limit ?? 20,
+            1),
+        50)
+        const pageOffset = Math.max(offset ?? 0,
+            0)
+        const trimmed = (search ?? "").trim()
+        if (trimmed) {
+            return this.searchSessions(userId,
+                contentId,
+                trimmed,
+                pageLimit,
+                pageOffset)
+        }
+        return this.listSessions(userId,
+            contentId,
+            pageLimit,
+            pageOffset)
+    }
+
+    /** List conversations anchored to one content (recency-first), paged. */
+    private async listSessions(
+        userId: string,
+        contentId: string,
+        limit: number,
+        offset: number,
+    ): Promise<Array<ContentAiSessionSummary>> {
+        const enrollmentId = await this.resolveEnrollmentId(userId,
+            contentId)
+        if (!enrollmentId) {
+            return []
+        }
+        const rows = await this.entityManager.query<Array<{
+            id: string
+            title: string | null
+            updatedAt: Date
+            messageCount: number
+        }>>(
+            // HAVING COUNT > 0 hides empty/abandoned sessions (created on send but
+            // never got a saved turn) so the list + auto-select only see real chats
+            `SELECT s.id, s.title, s.updated_at AS "updatedAt",
+                    COUNT(m.id)::int AS "messageCount"
+             FROM content_ai_sessions s
+             LEFT JOIN content_ai_messages m ON m.session_id = s.id
+             WHERE s.enrollment_id = $1 AND s.origin_content_id = $2
+             GROUP BY s.id
+             HAVING COUNT(m.id) > 0
+             ORDER BY s.updated_at DESC
+             LIMIT $3 OFFSET $4`,
+            [
+                enrollmentId,
+                contentId,
+                limit,
+                offset,
+            ],
+        )
+        return rows.map((row) => ({
+            id: row.id,
+            title: row.title,
+            updatedAt: row.updatedAt,
+            messageCount: row.messageCount,
+            originContentId: contentId,
+            originContentTitle: null,
+            snippet: null,
+        }))
+    }
+
+    /** Search ALL the learner's conversations in the content's course, paged. */
+    private async searchSessions(
+        userId: string,
+        contentId: string,
+        query: string,
+        limit: number,
+        offset: number,
+    ): Promise<Array<ContentAiSessionSummary>> {
+        const enrollmentId = await this.resolveEnrollmentId(userId,
+            contentId)
+        if (!enrollmentId) {
+            return []
+        }
+        const pattern = `%${query}%`
+        const rows = await this.entityManager.query<Array<{
+            id: string
+            title: string | null
+            updatedAt: Date
+            messageCount: number
+            originContentId: string
+            originContentTitle: string | null
+            snippet: string | null
+        }>>(
+            `SELECT * FROM (
+                SELECT s.id, s.title, s.updated_at AS "updatedAt",
+                       s.origin_content_id AS "originContentId",
+                       c.title AS "originContentTitle",
+                       (SELECT COUNT(*)::int FROM content_ai_messages mc
+                          WHERE mc.session_id = s.id) AS "messageCount",
+                       (SELECT m2.message FROM content_ai_messages m2
+                          WHERE m2.session_id = s.id AND m2.message ILIKE $2
+                          ORDER BY m2.created_at LIMIT 1) AS "snippet"
+                FROM content_ai_sessions s
+                JOIN contents c ON c.id = s.origin_content_id
+                WHERE s.enrollment_id = $1
+                  AND (s.title ILIKE $2 OR EXISTS (
+                       SELECT 1 FROM content_ai_messages m
+                        WHERE m.session_id = s.id AND m.message ILIKE $2))
+             ) t ORDER BY t."updatedAt" DESC
+             LIMIT $3 OFFSET $4`,
+            [
+                enrollmentId,
+                pattern,
+                limit,
+                offset,
+            ],
+        )
+        return rows.map((row) => ({
+            id: row.id,
+            title: row.title,
+            updatedAt: row.updatedAt,
+            messageCount: row.messageCount,
+            originContentId: row.originContentId,
+            originContentTitle: row.originContentTitle,
+            snippet: row.snippet,
+        }))
+    }
+
+    /**
+     * Load a conversation's turns (oldest first) so the thread can be rebuilt.
+     * Returns empty when the session is not owned by the learner.
+     *
+     * @param params - The learner + the session.
+     */
+    async loadSessionMessages(
+        {
+            userId,
+            sessionId,
+        }: { userId: string, sessionId: string },
+    ): Promise<Array<ContentAiHistoryMessage>> {
+        const owned = await this.resolveOwnedSession(userId,
+            sessionId)
+        if (!owned) {
+            return []
+        }
+        // raw SQL — avoid TypeORM `where`/`select` ambiguity on `session_id`
+        // (it carries both @Column and @RelationId), which can throw at runtime
+        const rows = await this.entityManager.query<Array<{ role: string, message: string }>>(
+            `SELECT role, message
+               FROM content_ai_messages
+              WHERE session_id = $1
+              ORDER BY created_at ASC`,
+            [
+                sessionId,
+            ],
+        )
+        return rows.map((row) => ({
+            role: row.role,
+            content: row.message,
+        }))
+    }
+
+    /**
+     * Persist one `(question → answer)` turn under a conversation. Each turn also
+     * records the content it was grounded on (so a conversation can span lessons).
+     * Auto-titles the session from its first question + bumps its recency.
+     * No-op when the answer is empty or the session is not owned.
+     *
+     * @param params - The learner, the session, the grounding content, the Q + A.
+     */
+    async saveTurn(
+        {
+            userId,
+            sessionId,
+            contentId,
+            question,
+            answer,
+        }: {
+            userId: string
+            sessionId: string
+            contentId: string
+            question: string
+            answer: string
+        },
+    ): Promise<void> {
+        const trimmedAnswer = answer.trim()
+        if (!question.trim() || !trimmedAnswer) {
+            return
+        }
+        const owned = await this.resolveOwnedSession(userId,
+            sessionId)
+        if (!owned) {
+            return
+        }
+        await this.entityManager.insert(
+            ContentAiMessageEntity,
+            [
+                {
+                    sessionId,
+                    enrollmentId: owned.enrollmentId,
+                    contentId,
+                    role: "user",
+                    message: question,
+                },
+                {
+                    sessionId,
+                    enrollmentId: owned.enrollmentId,
+                    contentId,
+                    role: "assistant",
+                    message: trimmedAnswer,
+                },
+            ],
+        )
+        // auto-title from the first question (only when still untitled) + bump recency
+        await this.entityManager.query(
+            `UPDATE content_ai_sessions
+                SET title = COALESCE(title, $2), updated_at = now()
+              WHERE id = $1`,
+            [
+                sessionId,
+                question.trim().slice(0,
+                    120),
+            ],
+        )
+    }
+
+    /**
+     * Delete a conversation (cascades its messages). No-op when not owned.
+     *
+     * @param params - The learner + the session to delete.
+     */
+    async deleteSession(
+        {
+            userId,
+            sessionId,
+        }: { userId: string, sessionId: string },
+    ): Promise<void> {
+        const owned = await this.resolveOwnedSession(userId,
+            sessionId)
+        if (!owned) {
+            return
+        }
+        await this.entityManager.delete(
+            ContentAiSessionEntity,
+            {
+                id: sessionId,
+            },
+        )
+    }
+
+    /**
+     * Mark a conversation as just-opened (bumps `updated_at` → it sorts to the top
+     * + becomes the one auto-reopened on reload). No-op when not owned. This is how
+     * "remember the last conversation I read" is persisted server-side (not in the
+     * browser): reading a chat bumps its recency.
+     *
+     * @param params - The learner + the session being opened.
+     */
+    async touchSession(
+        {
+            userId,
+            sessionId,
+        }: { userId: string, sessionId: string },
+    ): Promise<void> {
+        const owned = await this.resolveOwnedSession(userId,
+            sessionId)
+        if (!owned) {
+            return
+        }
+        await this.entityManager.query(
+            `UPDATE content_ai_sessions SET updated_at = now() WHERE id = $1`,
+            [
+                sessionId,
+            ],
+        )
+    }
+
+    /**
+     * Resolve the owning enrollment of a session IF it belongs to the user.
+     *
+     * @param userId - The asking learner.
+     * @param sessionId - The session to check.
+     * @returns `{ enrollmentId }` when owned, else `null`.
+     */
+    private async resolveOwnedSession(
+        userId: string,
+        sessionId: string,
+    ): Promise<{ enrollmentId: string } | null> {
+        const rows = await this.entityManager.query<Array<{ enrollmentId: string }>>(
+            `SELECT s.enrollment_id AS "enrollmentId"
+               FROM content_ai_sessions s
+               JOIN enrollments e ON e.id = s.enrollment_id
+              WHERE s.id = $1 AND e.user_id = $2
+              LIMIT 1`,
+            [
+                sessionId,
+                userId,
+            ],
+        )
+        return rows[0] ?? null
     }
 
     /**
@@ -188,6 +660,7 @@ export class ContentAiService {
             "You are StarCi AI, a concise tutor embedded in a programming course.",
             "Answer the student's question using ONLY the lesson content below.",
             "If the answer is not in the content, say you are not sure and suggest what to look for.",
+            "A student message may contain <display>the question</display> and <context>the highlighted passage plus its surrounding paragraph and section</context>. Use <context> only to understand WHICH part of the lesson they mean; answer the <display> question. Never repeat or mention the tags or the raw context back to the student.",
             `Reply in ${language}. Keep it short, concrete and practical.`,
             "",
             "=== LESSON CONTENT ===",

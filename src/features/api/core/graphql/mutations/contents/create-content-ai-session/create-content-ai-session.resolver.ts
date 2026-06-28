@@ -1,0 +1,75 @@
+import {
+    Args,
+    Mutation,
+    Resolver,
+} from "@nestjs/graphql"
+import {
+    UseGuards,
+    UseInterceptors,
+} from "@nestjs/common"
+import {
+    GraphQLSuccessMessage,
+    GraphQLTransformInterceptor,
+} from "@modules/api"
+import {
+    UseThrottler,
+    ThrottlerConfig,
+} from "@modules/throttler"
+import {
+    Locale,
+    UserEntity,
+} from "@modules/databases"
+import {
+    KeycloakAuthGraphQLGuard,
+    KeycloakGraphQLUser,
+} from "@modules/keycloak"
+import {
+    ContentAiService,
+} from "@modules/bussiness"
+import {
+    CreateContentAiSessionRequest,
+    CreateContentAiSessionResponse,
+} from "./graphql-types"
+import type {
+    CreateContentAiSessionData,
+} from "./graphql-types"
+
+@Resolver()
+export class CreateContentAiSessionResolver {
+    constructor(
+        private readonly contentAiService: ContentAiService,
+    ) { }
+
+    /**
+     * Start a new content-AI conversation (session) anchored to a content.
+     * Requires authentication.
+     */
+    @UseThrottler(ThrottlerConfig.Soft)
+    @GraphQLSuccessMessage({
+        [Locale.En]: "Conversation started successfully",
+        [Locale.Vi]: "Đã tạo hội thoại mới",
+    })
+    @UseGuards(KeycloakAuthGraphQLGuard)
+    @UseInterceptors(GraphQLTransformInterceptor)
+    @Mutation(
+        () => CreateContentAiSessionResponse,
+        {
+            name: "createContentAiSession",
+            description: "Start a new content-AI conversation for a content.",
+        },
+    )
+    async execute(
+        @Args("request")
+            request: CreateContentAiSessionRequest,
+        @KeycloakGraphQLUser()
+            user: UserEntity,
+    ): Promise<CreateContentAiSessionData> {
+        const id = await this.contentAiService.createSession({
+            userId: user.id,
+            contentId: request.contentId,
+        })
+        return {
+            id,
+        }
+    }
+}

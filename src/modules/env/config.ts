@@ -1196,10 +1196,24 @@ export const envConfig = () => ({
             }),
         },
         /**
-         * File paths: rotating API-key arrays consumed by the AI Balancer feature.
-         * Each file is a JSON array of strings — e.g. `["sk-aaa", "sk-bbb"]`.
+         * File paths: rotating API-key pools consumed by the AI Balancer feature.
+         * Each file is newline-separated — one key per line; blank lines and
+         * `#`-comment lines are stripped (see `parseApiKeysFile`).
          */
         aiKeys: {
+            /**
+             * Directory holding the per-provider key pool files. A model's
+             * `keysFilePath` may be a BARE filename (e.g. `open-api-keys.key`),
+             * understood to live here; a value containing a path separator is
+             * used verbatim instead.
+             */
+            dir: parseEnvString({
+                key: "AI_KEYS_DIR_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "keys"),
+            }),
             openai: parseEnvString({
                 key: "AI_KEYS_OPENAI_MOUNT_PATH",
                 defaultValue: join(process.cwd(),
@@ -1670,6 +1684,14 @@ export const envConfig = () => ({
         concurrency: parseEnvInt({
             key: "BULLMQ_CONCURRENCY",
             defaultValue: 1000,
+        }),
+        // AI-grading workers (processors/ai/*) share ONE local qwen instance that
+        // serves OLLAMA_NUM_PARALLEL (=10) requests at a time. Pulling more jobs
+        // than that just piles up in-flight HTTP calls blocked on Ollama, so cap
+        // these workers to match the model's parallel slots; the rest wait in Redis.
+        aiConcurrency: parseEnvInt({
+            key: "BULLMQ_AI_CONCURRENCY",
+            defaultValue: 10,
         }),
         lockDuration: parseEnvMs({
             key: "BULLMQ_LOCK_DURATION",

@@ -67,8 +67,14 @@ export class ChallengeSubmissionHandler
             UserChallengeSubmissionEntity,
             {
                 where: {
-                    userId: user.id,
-                    submissionId: request.challengeSubmissionId,
+                    // userId / submissionId are @RelationId (virtual, not queryable)
+                    // — filter through the relations' real FK columns instead
+                    user: {
+                        id: user.id,
+                    },
+                    submission: {
+                        id: request.challengeSubmissionId,
+                    },
                 },
                 relations: {
                     attempts: {

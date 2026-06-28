@@ -131,6 +131,25 @@ export const parseApiKeysFile = (path: string): Array<string> => {
 }
 
 /**
+ * Read an AI key pool by a model's `keysFilePath`. A BARE filename (no path
+ * separator) is resolved inside the AI keys directory
+ * (`mountPath.aiKeys.dir`, default `.mount/terraform/keys`); a value that
+ * already contains a separator is treated as a full/relative path verbatim.
+ *
+ * @param fileNameOrPath - The catalog `keysFilePath` (filename or path).
+ * @returns Trimmed, non-empty, non-comment keys; empty when unavailable.
+ */
+export const readAiKeysFile = (fileNameOrPath: string): Array<string> => {
+    const hasSeparator = fileNameOrPath.includes("/")
+        || fileNameOrPath.includes("\\")
+    const resolved = hasSeparator
+        ? fileNameOrPath
+        : join(envConfig().mountPath.aiKeys.dir,
+            fileNameOrPath)
+    return parseApiKeysFile(resolved)
+}
+
+/**
  * Get the OpenAI API-key pool from the mount keys file (newline-separated).
  * Empty array when the file is missing or empty.
  */

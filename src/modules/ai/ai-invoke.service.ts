@@ -41,8 +41,8 @@ import type {
  * Hides key rotation + model fallback behind {@link UseApiService}: callers
  * hand over messages, the balancer picks a key/model, builds the LangChain
  * chat client, invokes, and rotates on failure. Use this from job processors
- * instead of `ModelService.get(...).invoke(...)` so every AI call benefits
- * from the shared key pool.
+ * for every chat completion so each AI call benefits from the shared,
+ * health-checked key pool.
  */
 @Injectable()
 export class AiInvokeService {

@@ -16,6 +16,11 @@ export interface KeyState {
     /** Raw API key value — never log this in full; use `keySuffix` for logs. */
     value: string
     provider: ModelProvider
+    /**
+     * Mount file this key was loaded from (the model's `keysFilePath`). Lets the
+     * health snapshot group keys per model/file, not just per provider.
+     */
+    keysFilePath: string
     status: KeyStatus
     /** Last 4 chars of `value` for safe identification in logs / admin UI. */
     keySuffix: string
@@ -38,6 +43,8 @@ export interface KeyState {
 export interface KeyHealthInfo {
     provider: ModelProvider
     keySuffix: string
+    /** Masked key for display — `abc...def` (first 3 + last 3); never the raw value. */
+    keyMask: string
     status: KeyStatus
     failCount: number
     lastUsedAt: Date | null

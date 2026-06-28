@@ -236,11 +236,9 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                                 where: {
                                     id: payload.enrollmentId,
                                 },
-                                select: {
-                                    id: true,
-                                    userId: true,
-                                    courseId: true,
-                                },
+                                // NOTE: `userId`/`courseId` are @RelationId virtual props
+                                // (not real columns) — they CANNOT appear in `select`.
+                                // Load the full row so @RelationId populates them.
                             },
                         )
                         if (enrollment) {
@@ -350,10 +348,9 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                     where: {
                         id: payload.enrollmentId,
                     },
-                    select: {
-                        id: true,
-                        userId: true,
-                    },
+                    // NOTE: `userId` is a @RelationId virtual prop (not a real
+                    // column) — it CANNOT appear in `select`. Load the full row
+                    // so @RelationId populates it.
                 },
             )
             if (enrollment) {

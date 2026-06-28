@@ -4,8 +4,8 @@
 
 ## Thang chuẩn = `0 · 2 · 3 · 6 · 8`
 - **`gap-0`** — dính (number ↔ unit, eyebrow ↔ title sát).
-- **`gap-2`** (8px) — cụm con sát nhau: title ↔ description, giá ↔ chip giảm, icon ↔ label, chip ↔ chip. **+ item ↔ item trong 1 LIST nén** (row muted ngắn, vd `LabeledList` ở rail — ref [[elements/list]] §3): các item của cùng 1 list = `gap-2`.
-- **`gap-3`** (12px) — trong 1 khối: label ↔ nội dung (label ↔ list ↔ action của `LabeledList`), hàng trong card, khối-con ↔ khối-con cùng cấp. (Item của list NÉN thì `gap-2` như trên; `gap-3` cho khối/hàng lớn hơn.)
+- **`gap-2`** (8px) — cụm con sát nhau: title ↔ description, giá ↔ chip giảm, icon ↔ label, chip ↔ chip. **+ item ↔ item trong 1 LIST nén** (row muted ngắn, vd `LabeledList` ở rail — ref [[elements/list]] §3): các item của cùng 1 list = `gap-2`. **+ `<Label>` → 1 INPUT TEXT ngay dưới = `gap-2`** (cặp field sát, da HeroUI — ref [[elements/label]] §1b).
+- **`gap-3`** (12px) — trong 1 khối: label ↔ nội dung (label ↔ list ↔ action của `LabeledList`), hàng trong card, khối-con ↔ khối-con cùng cấp. **+ `<Label>` → CARD / RADIO-GROUP / cụm-control** (FlexWrap{Card,Button}Radio, SelectableCardGroup…) = `gap-3` (thoáng khí; KHÁC label→input đơn = gap-2 — ref [[elements/label]] §1b). (Item của list NÉN thì `gap-2` như trên; `gap-3` cho khối/hàng lớn hơn.)
 - **`gap-6`** (24px) — giữa 2 khối / 2 vùng khác chức năng (section ↔ section, grid trái ↔ phải). **CHỈ cho cụm component BỰ** (section lớn, vùng layout). Nhiều component NHỎ xếp dọc (vd trong 1 modal: summary · list cổng · link · trust) → vẫn **`gap-3`**, KHÔNG gap-6 (thầy chốt 2026-06-24: "3 component nhỏ thì coi như gap-3"). Quy tắc: gap-6 theo ĐỘ LỚN của khối, không chỉ theo "khác chức năng".
 - **`gap-8`** (32px) — phân tách vùng rộng hơn khi cần (nhịp lớn giữa cụm).
 - **CẤM** các giá trị ngoài thang (1 / 1.5 / 5 / 7 / 9 / 10…) **trừ ngoại lệ có tên dưới**.

@@ -95,9 +95,16 @@ export class CommunityCommentService {
                 where: {
                     id: postId,
                 },
+                // authorId is a @RelationId (virtual, not selectable) — load the
+                // author relation and read author.id instead
+                relations: {
+                    author: true,
+                },
                 select: {
                     id: true,
-                    authorId: true,
+                    author: {
+                        id: true,
+                    },
                 },
             })
         if (!post) {
@@ -141,7 +148,7 @@ export class CommunityCommentService {
         // fan out reply notifications (skip self-notifications)
         await this.notifyReplyTargets({
             postId,
-            postAuthorId: post.authorId,
+            postAuthorId: post.author.id,
             parentAuthorId: parent?.userId ?? null,
             actor: user,
         })

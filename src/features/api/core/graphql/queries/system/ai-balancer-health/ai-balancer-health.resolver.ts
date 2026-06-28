@@ -3,8 +3,12 @@ import {
     Resolver,
 } from "@nestjs/graphql"
 import {
+    UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
+import {
+    GraphQLAdminAccessGuard,
+} from "@modules/bussiness"
 import {
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
@@ -28,8 +32,10 @@ import {
  * Read-only GraphQL surface for the AI Balancer health snapshot.
  *
  * Returns per-provider + per-key health derived from in-memory state
- * (no DB read). Safe to call freely; raw API key values never leave the
- * server — only the 4-char suffix is exposed.
+ * (no DB read). ADMIN-ONLY: live key status is an attacker signal (which
+ * provider is degraded / out of keys), so it is gated behind the
+ * `x-admin-api-key` header. Raw API key values never leave the server — only
+ * the 4-char suffix is exposed.
  */
 @Resolver()
 export class AiBalancerHealthResolver {
@@ -37,6 +43,7 @@ export class AiBalancerHealthResolver {
         private readonly aiBalancerService: AiBalancerService,
     ) {}
 
+    @UseGuards(GraphQLAdminAccessGuard)
     @UseThrottler(ThrottlerConfig.Soft)
     @GraphQLSuccessMessage({
         [Locale.En]: "AI balancer health fetched successfully",

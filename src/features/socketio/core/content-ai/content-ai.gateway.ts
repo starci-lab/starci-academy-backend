@@ -5,10 +5,15 @@ import {
     ConnectedSocket,
     MessageBody,
     SubscribeMessage,
+    WebSocketServer,
 } from "@nestjs/websockets"
+import {
+    Namespace,
+} from "socket.io"
 import {
     ContentAiWebSocketGateway,
     WsResponseService,
+    socketIoKeycloakAuthMiddleware,
 } from "@modules/socketio"
 import type {
     TypedSocket,
@@ -53,6 +58,19 @@ export class ContentAiGateway {
         private readonly wsResponseService: WsResponseService,
     ) {}
 
+    /** The namespace server — used to attach the auth middleware. */
+    @WebSocketServer()
+    private readonly server: Namespace
+
+    /**
+     * Attach the keycloak auth middleware so every connecting socket gets its
+     * `client.data.userId` stamped (without it, `handleAskContentAi` fails fast
+     * with "not authenticated").
+     */
+    afterInit() {
+        this.server.use(socketIoKeycloakAuthMiddleware)
+    }
+
     /** Logger for stream failures. */
     private readonly logger = new Logger(ContentAiGateway.name)
 
@@ -79,12 +97,20 @@ export class ContentAiGateway {
     ): Promise<void> {
         const {
             streamId,
+            sessionId,
             contentId,
             question,
             history,
         } = payload.data
-        const userId = client.data.userId
-        // an unauthenticated socket cannot ground the premium gate — fail fast
+        // the socket stamps the Keycloak subject id; resolve it to the real
+        // users.id (uuid) so the premium gate + per-session persistence (which
+        // key off enrollments.user_id) match — passing the raw sub would make
+        // saveTurn a silent no-op (sessions with 0 saved turns)
+        const keycloakId = client.data.userId
+        const userId = keycloakId
+            ? await this.contentAiService.resolveUserIdByKeycloakId(keycloakId)
+            : null
+        // an unauthenticated / unresolved socket cannot ground the premium gate
         if (!userId) {
             this.emitChunk({
                 client,
@@ -116,6 +142,8 @@ export class ContentAiGateway {
                 locale: payload.locale,
             })
 
+            // accumulate the full answer so the completed turn can be persisted
+            let answer = ""
             // stream the answer on the FREE model only (no economy fallback / credit)
             await this.aiInvokeService.stream({
                 messages,
@@ -126,6 +154,7 @@ export class ContentAiGateway {
                 temperature: 0.3,
                 signal: controller.signal,
                 onChunk: (delta) => {
+                    answer += delta
                     this.emitChunk({
                         client,
                         data: {
@@ -136,6 +165,25 @@ export class ContentAiGateway {
                     })
                 },
             })
+
+            // persist the completed (question → answer) turn under the learner's
+            // enrollment — best-effort: a save failure must NOT turn a successful
+            // answer into an error for the user.
+            try {
+                await this.contentAiService.saveTurn({
+                    userId,
+                    sessionId,
+                    contentId,
+                    question,
+                    answer,
+                })
+            } catch (saveError) {
+                this.logger.error(
+                    `content-ai saveTurn ${streamId} failed: ${
+                        saveError instanceof Error ? saveError.message : String(saveError)
+                    }`,
+                )
+            }
 
             // terminal chunk: no new text, just the done flag
             this.emitChunk({

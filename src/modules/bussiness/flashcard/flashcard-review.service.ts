@@ -334,8 +334,12 @@ export class FlashcardReviewService {
                 UserFlashcardReviewEntity,
                 {
                     where: {
+                        // userId is a real column; flashcardCardId is a @RelationId
+                        // (virtual, not queryable) — filter through the relation
                         userId,
-                        flashcardCardId: cardId,
+                        flashcardCard: {
+                            id: cardId,
+                        },
                     },
                 },
             )

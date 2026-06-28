@@ -40,7 +40,7 @@ describe("KeyStoreService",
         let module: TestingModule
         let service: KeyStoreService
         let mountFilesystemService: jest.Mocked<
-            Pick<MountFilesystemService, "openAiApiKeys" | "geminiApiKeys">
+            Pick<MountFilesystemService, "openAiApiKeys" | "geminiApiKeys" | "readKeysFile">
         >
         let aiModelCatalogService: jest.Mocked<Pick<AiModelCatalogService, "enabledModels">>
 
@@ -52,8 +52,11 @@ describe("KeyStoreService",
                     "sk-openai-bbbb",
                 ]),
                 geminiApiKeys: jest.fn(() => []),
+                // catalog key files resolve to nothing in the test → the store
+                // falls back to the legacy per-provider pool getters above
+                readKeysFile: jest.fn(() => []),
             } as unknown as jest.Mocked<
-                Pick<MountFilesystemService, "openAiApiKeys" | "geminiApiKeys">
+                Pick<MountFilesystemService, "openAiApiKeys" | "geminiApiKeys" | "readKeysFile">
             >
 
             // catalog: a single OpenAI model row by default

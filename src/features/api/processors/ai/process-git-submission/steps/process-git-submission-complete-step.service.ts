@@ -227,11 +227,9 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
                                 where: {
                                     id: payload.enrollmentId,
                                 },
-                                select: {
-                                    id: true,
-                                    userId: true,
-                                    courseId: true,
-                                },
+                                // NOTE: `userId`/`courseId` are @RelationId virtual props
+                                // (not real columns) — they CANNOT appear in `select`.
+                                // Load the full row so @RelationId populates them.
                             },
                         )
                         if (enrollment) {

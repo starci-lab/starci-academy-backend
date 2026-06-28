@@ -11,6 +11,15 @@ import {
     AskContentAiSingleMutationModule,
 } from "./ask-content-ai"
 import {
+    ClearContentAiHistorySingleMutationModule,
+} from "./clear-content-ai-history"
+import {
+    CreateContentAiSessionSingleMutationModule,
+} from "./create-content-ai-session"
+import {
+    TouchContentAiSessionSingleMutationModule,
+} from "./touch-content-ai-session"
+import {
     ConfigurableModuleClass
 } from "./contents.module-definition"
 
@@ -23,6 +32,15 @@ import {
             isGlobal: true,
         }),
         AskContentAiSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        ClearContentAiHistorySingleMutationModule.register({
+            isGlobal: true,
+        }),
+        CreateContentAiSessionSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        TouchContentAiSessionSingleMutationModule.register({
             isGlobal: true,
         }),
     ],

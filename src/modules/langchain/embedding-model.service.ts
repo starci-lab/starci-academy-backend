@@ -8,25 +8,29 @@ import {
     Embeddings 
 } from "@langchain/core/embeddings"
 import {
-    ModelProvider 
+    ModelProvider
 } from "@modules/databases"
 import {
-    MountStorageService 
+    MountFilesystemService
 } from "@modules/filesystem"
 import {
-    OpenAIEmbeddings 
+    OpenAIEmbeddings
 } from "@langchain/openai"
 import {
-    GoogleGenerativeAIEmbeddings 
+    GoogleGenerativeAIEmbeddings
 } from "@langchain/google-genai"
-        
+
 /**
  * Service for getting embedding models.
+ *
+ * Resolves the provider key from the same newline-separated pool file the AI
+ * balancer uses (first key of the pool) — NOT the legacy single-key mount —
+ * so there is one key file per provider across the whole app.
  */
 @Injectable()
 export class EmbeddingModelService {
     constructor(
-        private readonly mountStorageService: MountStorageService,
+        private readonly mountFilesystemService: MountFilesystemService,
     ) {}
 
     /**
@@ -45,14 +49,14 @@ export class EmbeddingModelService {
         case ModelProvider.OpenAI: {
             return new OpenAIEmbeddings({
                 model,
-                apiKey: this.mountStorageService.openAiApiKey,
+                apiKey: this.mountFilesystemService.openAiApiKeys()[0] ?? "",
             })
         }
         /** Gemini embedding model. */
         case ModelProvider.Gemini: {
             return new GoogleGenerativeAIEmbeddings({
                 model,
-                apiKey: this.mountStorageService.geminiApiKey,
+                apiKey: this.mountFilesystemService.geminiApiKeys()[0] ?? "",
             })
         }
         default: {

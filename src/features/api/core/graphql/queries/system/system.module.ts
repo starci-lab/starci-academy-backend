@@ -14,11 +14,17 @@ import {
     AiBalancerHealthSingleQueryModule,
 } from "./ai-balancer-health"
 import {
+    AiKeyHealthSingleQueryModule,
+} from "./ai-key-health"
+import {
     PlatformStatsSingleQueryModule,
 } from "./platform-stats"
 import {
     MyGithubTeamStatusSingleQueryModule,
 } from "./my-github-team-status"
+import {
+    SystemHealthStatusSingleQueryModule,
+} from "./system-health-status"
 
 @Module({
     imports: [
@@ -34,7 +40,13 @@ import {
         AiBalancerHealthSingleQueryModule.register({
             isGlobal: true,
         }),
+        AiKeyHealthSingleQueryModule.register({
+            isGlobal: true,
+        }),
         PlatformStatsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        SystemHealthStatusSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

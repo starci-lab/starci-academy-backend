@@ -8,22 +8,17 @@ import {
     LangchainService,
 } from "./langchain.service"
 import {
-    EmbeddingModelService 
+    EmbeddingModelService
 } from "./embedding-model.service"
-import {
-    ModelService 
-} from "./model.service"
 
 @Module({
     providers: [
         LangchainService,
         EmbeddingModelService,
-        ModelService,
     ],
     exports: [
         LangchainService,
         EmbeddingModelService,
-        ModelService,
     ],
 })
 export class LangchainModule extends ConfigurableModuleClass {}

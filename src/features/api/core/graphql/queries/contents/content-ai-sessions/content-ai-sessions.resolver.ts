@@ -1,0 +1,79 @@
+import {
+    Args,
+    Query,
+    Resolver,
+} from "@nestjs/graphql"
+import {
+    UseGuards,
+    UseInterceptors,
+} from "@nestjs/common"
+import {
+    GraphQLSuccessMessage,
+    GraphQLTransformInterceptor,
+} from "@modules/api"
+import {
+    UseThrottler,
+    ThrottlerConfig,
+} from "@modules/throttler"
+import {
+    Locale,
+    UserEntity,
+} from "@modules/databases"
+import {
+    KeycloakAuthGraphQLGuard,
+    KeycloakGraphQLUser,
+} from "@modules/keycloak"
+import {
+    ContentAiService,
+} from "@modules/bussiness"
+import {
+    ContentAiSessionsRequest,
+    ContentAiSessionsResponse,
+} from "./graphql-types"
+import type {
+    ContentAiSessionsData,
+} from "./graphql-types"
+
+@Resolver()
+export class ContentAiSessionsResolver {
+    constructor(
+        private readonly contentAiService: ContentAiService,
+    ) { }
+
+    /**
+     * List the current user's content-AI conversations for a content (recency
+     * first), or search ALL their conversations in the course when `search` is
+     * given. Requires authentication.
+     */
+    @UseThrottler(ThrottlerConfig.Soft)
+    @GraphQLSuccessMessage({
+        [Locale.En]: "Conversations loaded successfully",
+        [Locale.Vi]: "Đã tải danh sách hội thoại",
+    })
+    @UseGuards(KeycloakAuthGraphQLGuard)
+    @UseInterceptors(GraphQLTransformInterceptor)
+    @Query(
+        () => ContentAiSessionsResponse,
+        {
+            name: "contentAiSessions",
+            description: "The current user's content-AI conversations (list or search).",
+        },
+    )
+    async execute(
+        @Args("request")
+            request: ContentAiSessionsRequest,
+        @KeycloakGraphQLUser()
+            user: UserEntity,
+    ): Promise<ContentAiSessionsData> {
+        const sessions = await this.contentAiService.sessions({
+            userId: user.id,
+            contentId: request.contentId,
+            search: request.search,
+            limit: request.limit,
+            offset: request.offset,
+        })
+        return {
+            sessions,
+        }
+    }
+}

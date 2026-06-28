@@ -28,6 +28,20 @@ jobs:
           docker --version
           docker compose version
 
+      # qwen local-provider Bearer token (the balancer sends it; the Caddy gate
+      # in front of Ollama validates it). Value comes from the repo secret —
+      # never committed. Skipped when the secret is unset (gate-less / placeholder).
+      - name: Write qwen local-provider key
+        run: |
+          if [ -n "${{ secrets.QWEN_LOCAL_TOKEN }}" ]; then
+            install -d -m 700 /root/academy/.mount/terraform/keys
+            printf '%s\n' "${{ secrets.QWEN_LOCAL_TOKEN }}" > /root/academy/.mount/terraform/keys/local.key
+            chmod 600 /root/academy/.mount/terraform/keys/local.key
+            echo "qwen local.key written ($(wc -c < /root/academy/.mount/terraform/keys/local.key) bytes)"
+          else
+            echo "QWEN_LOCAL_TOKEN secret not set — leaving local.key as-is"
+          fi
+
       - name: Deploy core with Docker Compose
         env:
           POSTGRESQL_PRIMARY_HOST: ${{ secrets.POSTGRESQL_PRIMARY_HOST }}

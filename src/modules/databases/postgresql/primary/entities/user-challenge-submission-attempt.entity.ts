@@ -114,6 +114,36 @@ export class UserChallengeSubmissionAttemptEntity extends UuidAbstractEntity {
         submissionUrl: string
 
     @Field(
+        () => String,
+        {
+            description: "Concrete AI model that actually graded this attempt (e.g. 'qwen2.5-coder:7b'); null for attempts graded before this was tracked.",
+            nullable: true,
+        },
+    )
+    @Column({
+        name: "served_model",
+        type: "varchar",
+        length: 64,
+        nullable: true,
+    })
+        servedModel: string | null
+
+    @Field(
+        () => String,
+        {
+            description: "Provider that served the grading model (e.g. 'local', 'openai', 'gemini'); null for legacy attempts.",
+            nullable: true,
+        },
+    )
+    @Column({
+        name: "served_provider",
+        type: "varchar",
+        length: 32,
+        nullable: true,
+    })
+        servedProvider: string | null
+
+    @Field(
         () => UserChallengeSubmissionEntity,
         {
             description: "Parent user challenge submission.",

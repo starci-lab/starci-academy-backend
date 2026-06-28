@@ -37,6 +37,7 @@ const buildKeyState = (
 ): KeyState => ({
     value,
     provider: ModelProvider.OpenAI,
+    keysFilePath: "/mnt/openai.keys",
     status: KeyStatus.Active,
     keySuffix: value.slice(-4),
     failCount: 0,

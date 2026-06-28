@@ -59,7 +59,7 @@ import {
 @Worker(
     bullData[BullQueueName.ProcessGitSubmission].name,
     {
-        concurrency: envConfig().bullmq.concurrency,
+        concurrency: envConfig().bullmq.aiConcurrency,
         lockDuration: envConfig().bullmq.lockDuration,
         stalledInterval: envConfig().bullmq.stalledInterval,
         maxStalledCount: envConfig().bullmq.maxStalledCount,

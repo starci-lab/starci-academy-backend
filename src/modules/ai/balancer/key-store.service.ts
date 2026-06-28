@@ -26,11 +26,11 @@ import {
  * In-memory store of API keys keyed by provider.
  *
  * Lazily (on first {@link KeyStoreService.ensureLoaded}) reads the enabled
- * model catalog from the `ai_models` table via {@link AiModelCatalogService},
- * de-duplicates by `(provider, keysFilePath)`, and asks the mount service to
- * parse the newline-separated key file for each provider. {@link KeyHealthService}
- * mutates `status` / `failCount` at runtime; {@link KeyRotatorService} picks an
- * active key per request.
+ * model catalog from the `ai_models` table via {@link AiModelCatalogService}
+ * and parses each model's own `keysFilePath` (one `.key` file per model),
+ * merging the keys of all models that share a provider into that provider's
+ * pool. Every key remembers which file it came from. {@link KeyRotatorService}
+ * picks an active key per request; the ping cache flags unhealthy keys.
  *
  * Loading is lazy (not `onModuleInit`) because the catalog is seeded into the
  * DB by `InitModule`, which may run after this provider is constructed — the
@@ -71,45 +71,98 @@ export class KeyStoreService {
     }
 
     /**
-     * Reload every enabled provider's key pool from its mount file, driven by
-     * the DB catalog. Idempotent — safe to call again at runtime.
+     * Reload every enabled provider's key pool, driven by the DB catalog. Each
+     * model declares its own `keysFilePath` (one `.key` file per model); a
+     * provider's pool is the merged, de-duplicated union of every file its
+     * enabled models point at. Every key remembers which file it came from so
+     * the health snapshot can report per model. Idempotent.
      */
     async reloadAll(): Promise<void> {
         // fetch enabled model rows from the DB catalog (cached in-memory)
         const models = await this.aiModelCatalogService.enabledModels()
 
-        // de-duplicate by (provider, keysFilePath) — many models share one pool
-        const work = this.dedupeProviderFiles(models)
+        // group every enabled model's key file by provider (a provider may expose
+        // several models pulling from different files → merge into one pool)
+        const pathsByProvider = new Map<ModelProvider, Set<string>>()
+        for (const model of models) {
+            const paths = pathsByProvider.get(model.provider) ?? new Set<string>()
+            if (model.keysFilePath) {
+                paths.add(model.keysFilePath)
+            }
+            pathsByProvider.set(
+                model.provider,
+                paths,
+            )
+        }
 
-        // reload each provider
-        for (const item of work) {
-            this.reloadProvider(item)
+        for (const [
+            provider,
+            paths,
+        ] of pathsByProvider) {
+            this.reloadProvider({
+                provider,
+                paths: [
+                    ...paths,
+                ],
+            })
         }
 
         this.loaded = true
     }
 
     /**
-     * Reload a single provider's pool by asking {@link MountFilesystemService}
-     * to parse the corresponding mount file.
+     * Reload one provider's pool by reading each catalog-declared key file
+     * ({@link AiModelEntity.keysFilePath}) and merging the keys. Every key is
+     * tagged with its source file. When no catalog file resolves to a key (path
+     * missing / empty), falls back to the legacy per-provider pool getter so
+     * existing deployments keep working.
      *
-     * @param params - provider + mount file path pair (path is recorded for logs / snapshot only;
-     *                 the actual file is resolved inside `mountFilesystemService`)
+     * @param params - provider + the model `keysFilePath`s to load for it
      */
-    reloadProvider(params: ProviderKeyFile): void {
+    private reloadProvider(params: { provider: ModelProvider, paths: Array<string> }): void {
         const {
             provider,
-            keysFilePath,
+            paths,
         } = params
 
-        // delegate parsing to mount service
-        const keys = this.readKeys(provider)
+        // read every declared key file, tag each key with the file it came from,
+        // de-duplicate (the same key may appear in two models' files)
+        const tagged: Array<{ value: string, keysFilePath: string }> = []
+        const seen = new Set<string>()
+        for (const path of paths) {
+            for (const value of this.mountFilesystemService.readKeysFile(path)) {
+                if (seen.has(value)) {
+                    continue
+                }
+                seen.add(value)
+                tagged.push({
+                    value,
+                    keysFilePath: path,
+                })
+            }
+        }
+
+        // label recorded for logs / snapshot (the configured file path(s))
+        const pathLabel = paths.join(", ") || "(legacy)"
+
+        // soft fallback: nothing resolved from the catalog files → legacy getter
+        let entries = tagged
+        if (entries.length === 0) {
+            entries = this.readLegacyKeys(provider).map((value) => ({
+                value,
+                keysFilePath: pathLabel,
+            }))
+        }
 
         // hydrate fresh KeyState entries (existing health info is discarded — caller
         // can re-run health check after reload)
-        const states: Array<KeyState> = keys.map((value) => ({
+        const states: Array<KeyState> = entries.map(({
+            value,
+            keysFilePath,
+        }) => ({
             value,
             provider,
+            keysFilePath,
             status: KeyStatus.Active,
             keySuffix: value.slice(-4),
             failCount: 0,
@@ -125,7 +178,7 @@ export class KeyStoreService {
         )
         this.pathByProvider.set(
             provider,
-            keysFilePath,
+            pathLabel,
         )
 
         // log reload event
@@ -134,7 +187,7 @@ export class KeyStoreService {
             {
                 provider,
                 keysCount: states.length,
-                keysFilePath,
+                keysFilePath: pathLabel,
             },
         )
     }
@@ -169,35 +222,15 @@ export class KeyStoreService {
     }
 
     /**
-     * Collapse the model list to one entry per `(provider, keysFilePath)`
-     * pair so the same pool file is not re-read multiple times.
-     */
-    private dedupeProviderFiles(models: Array<ProviderKeyFile>): Array<ProviderKeyFile> {
-        const seen = new Set<string>()
-        const work: Array<ProviderKeyFile> = []
-        for (const model of models) {
-            // composite key for the dedupe set
-            const compositeKey = `${model.provider}::${model.keysFilePath}`
-            if (seen.has(compositeKey)) {
-                continue
-            }
-            seen.add(compositeKey)
-            work.push({
-                provider: model.provider,
-                keysFilePath: model.keysFilePath,
-            })
-        }
-        return work
-    }
-
-    /**
-     * Delegate key parsing to {@link MountFilesystemService} based on provider.
+     * Legacy per-provider pool getter — the fallback used when a model's
+     * declared `keysFilePath` resolves to no key (file missing / empty), so
+     * deployments still on the old single-pool-file layout keep working.
      *
      * Missing / empty / unsupported provider all collapse to `[]` (the
      * balancer will then surface `NoActiveBalancerKeyException` on the
      * first `acquire` for that provider).
      */
-    private readKeys(provider: ModelProvider): Array<string> {
+    private readLegacyKeys(provider: ModelProvider): Array<string> {
         switch (provider) {
         case ModelProvider.OpenAI:
             return this.mountFilesystemService.openAiApiKeys()

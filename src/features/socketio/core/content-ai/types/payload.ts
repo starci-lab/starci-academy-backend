@@ -14,7 +14,9 @@ export interface ContentAiHistoryTurn {
 export type AskContentAiSocketIoPayload = SocketIoPayload<{
     /** Client-generated id correlating this question's streamed chunks. */
     streamId: string
-    /** Content the question is about. */
+    /** Conversation (session) this turn belongs to — the completed turn is saved under it. */
+    sessionId: string
+    /** Content the question is grounded on (recorded per turn; a session can span lessons). */
     contentId: string
     /** The learner's question about this content. */
     question: string

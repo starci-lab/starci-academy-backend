@@ -25,6 +25,12 @@ import {
 import {
     ContentSuggestionsSingleQueryModule,
 } from "./content-suggestions"
+import {
+    ContentAiHistorySingleQueryModule,
+} from "./content-ai-history"
+import {
+    ContentAiSessionsSingleQueryModule,
+} from "./content-ai-sessions"
 
 @Module({
     imports: [
@@ -47,6 +53,12 @@ import {
             isGlobal: true,
         }),
         SandboxRepoUrlModule.register({
+            isGlobal: true,
+        }),
+        ContentAiHistorySingleQueryModule.register({
+            isGlobal: true,
+        }),
+        ContentAiSessionsSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

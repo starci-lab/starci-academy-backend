@@ -18,6 +18,9 @@ import {
     KeyRotatorService,
 } from "./key-rotator.service"
 import {
+    AiModelCatalogService,
+} from "./ai-model-catalog.service"
+import {
     KeyStatus,
 } from "./enums"
 import type {
@@ -30,6 +33,7 @@ const buildKeyState = (
 ): KeyState => ({
     value,
     provider: ModelProvider.OpenAI,
+    keysFilePath: "/mnt/openai.keys",
     status: KeyStatus.Active,
     keySuffix: value.slice(-4),
     failCount: 0,
@@ -47,6 +51,7 @@ describe("AiBalancerService",
         >
         let keyRotatorService: jest.Mocked<Pick<KeyRotatorService, "next">>
         let aiPingCacheService: jest.Mocked<Pick<AiPingCacheService, "getMap">>
+        let aiModelCatalogService: jest.Mocked<Pick<AiModelCatalogService, "enabledModels">>
 
         beforeEach(async () => {
             // store: one OpenAI provider with a single key
@@ -79,6 +84,17 @@ describe("AiBalancerService",
                 })),
             } as unknown as jest.Mocked<Pick<AiPingCacheService, "getMap">>
 
+            // catalog: one OpenAI model loading from the test key file
+            aiModelCatalogService = {
+                enabledModels: jest.fn(async () => [
+                    {
+                        name: "gpt-test",
+                        provider: ModelProvider.OpenAI,
+                        keysFilePath: "/mnt/openai.keys",
+                    },
+                ]),
+            } as unknown as jest.Mocked<Pick<AiModelCatalogService, "enabledModels">>
+
             module = await Test.createTestingModule({
                 providers: [
                     AiBalancerService,
@@ -93,6 +109,10 @@ describe("AiBalancerService",
                     {
                         provide: AiPingCacheService,
                         useValue: aiPingCacheService,
+                    },
+                    {
+                        provide: AiModelCatalogService,
+                        useValue: aiModelCatalogService,
                     },
                 ],
             }).compile()
@@ -159,6 +179,25 @@ describe("AiBalancerService",
                         expect(provider.keys[0].status).toBe(KeyStatus.Disabled)
                         // a failed ping is surfaced as a non-zero fail count
                         expect(provider.keys[0].failCount).toBe(1)
+                    })
+            })
+
+        describe("modelKeyHealth",
+            () => {
+                it("groups keys by their source file and tags the models using it",
+                    async () => {
+                        const result = await service.modelKeyHealth()
+
+                        expect(result.groups).toHaveLength(1)
+                        const group = result.groups[0]
+                        expect(group.provider).toBe(ModelProvider.OpenAI)
+                        expect(group.keysFilePath).toBe("/mnt/openai.keys")
+                        expect(group.models).toEqual([
+                            "gpt-test",
+                        ])
+                        expect(group.totalKeys).toBe(1)
+                        expect(group.activeKeys).toBe(1)
+                        expect(group.keys[0].status).toBe(KeyStatus.Active)
                     })
             })
 
