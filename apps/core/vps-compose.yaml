@@ -17,7 +17,11 @@ services:
       # the race on the initial NATS dial (NatsError: TIMEOUT → crash-loop), since
       # NATS here is public-exposed and busy. Schema changes go through migrations;
       # only re-enable once NATS connect is made resilient (retry / longer timeout).
-      POSTGRESQL_PRIMARY_SYNCHRONIZE: "false"
+      # ENABLED 2026-06-28 (owner decision): the two prior blockers are gone — the
+      # model_provider enum has 'local'/'free' re-added, and the NATS dial now has a
+      # 60s timeout (was the crash-loop cause). Synchronize keeps the schema in
+      # lock-step with the entities so drift can't silently break boot/seed again.
+      POSTGRESQL_PRIMARY_SYNCHRONIZE: "true"
 
       # Qdrant
       QDRANT_URL: ${QDRANT_URL}
