@@ -167,4 +167,44 @@ describe("AiInvokeService",
                         )
                     })
             })
+
+        // run() is the high-level entry every surface uses. These prove the
+        // success mapping AND that a balancer exhaustion is NOT swallowed — it
+        // rejects, so the gateway/handler surfaces the error to the client.
+        describe("run",
+            () => {
+                it("returns the served model + cost on success",
+                    async () => {
+                        const result = await service.run({
+                            userId: "user-1",
+                            messages,
+                        })
+
+                        expect(result).toEqual(
+                            expect.objectContaining({
+                                text: "graded",
+                                model: "gpt-4o",
+                                provider: ModelProvider.OpenAI,
+                                attempts: 2,
+                                cost: 0,
+                            }),
+                        )
+                    })
+
+                it("propagates a balancer exhaustion (surfaceable to the client)",
+                    async () => {
+                        // every model/key failed → the balancer throws; run must NOT
+                        // swallow it (else the client would see a blank "success")
+                        useApiService.useApi.mockRejectedValueOnce(
+                            new Error("all models exhausted"),
+                        )
+
+                        await expect(
+                            service.run({
+                                userId: "user-1",
+                                messages,
+                            }),
+                        ).rejects.toThrow("all models exhausted")
+                    })
+            })
     })
