@@ -13,6 +13,12 @@
 - **Ngoại lệ cần cân nhắc (KHÔNG auto):** FAB nổi (rounded-full trên canvas, vd MindMap), thanh mobile compact
   (CourseMobileEnrollBar) — context chật/đặc thù, có thể giữ md; hỏi trước khi ép lg.
 
+## Icon CTA = ARROW (chốt 2026-06-26)
+- **Nút CTA dùng icon ARROW (`ArrowRightIcon`) — đồng nhất, thay mọi icon CTA khác** (Play/Plus/Rocket…). Arrow = "đi tới / proceed" hợp mọi CTA (Xem khóa · Bắt đầu · Tiếp tục · Xem hồ sơ). Thầy: *"nút CTA thì xài arrow hết"*.
+- Vị trí + cỡ theo [[elements/icon]] §3 (leading = trailing cùng cỡ, scale theo text nút). CTA thường để **arrow TRAILING** (`Label →`) theo convention "đi tới".
+- **Phối màu:** CTA chính = primary **solid** (`bg-accent` + `--accent-foreground` = **trắng**, chốt 2026-06-26), arrow + label trắng. KHÔNG tint `/10` cho CTA chính (tint chỉ cho active/selected nhỏ — [[highlight-accent-as-detail-not-block-fill]]).
+- Quét đổi: các CTA đang Play/Plus (`CourseContents`/`PersonalProjectDashboard` resume Play, `ProfilePinned` Plus…) → `ArrowRightIcon` khi đụng.
+
 ## Scan source FE 2026-06-25 (primary + leading icon)
 **Đã đúng `lg` (giữ):** `CourseDetail/CourseCtaButtons` (continue+enroll) · `EnrollGate` · `LessonReader/PremiumPaywall`.
 **Đã sửa:** `CourseContents` resume (Play) `sm`→`lg` ✅.

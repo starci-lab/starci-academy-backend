@@ -335,7 +335,9 @@
       "WebFetch(domain:www.npmjs.com)",
       "WebFetch(domain:bytebytego.com)",
       "mcp__Claude_in_Chrome__browser_batch",
-      "WebFetch(domain:api.github.com)"
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:www.joyofreact.com)",
+      "WebFetch(domain:www.opensourceceo.com)"
     ]
   }
 }
