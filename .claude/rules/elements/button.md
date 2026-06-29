@@ -10,7 +10,7 @@
 
 ## 2. CTA chính = primary SOLID + `size="lg"` + ARROW
 - **CTA chính PHẢI: `variant="primary"` + `size="lg"` + icon `ArrowRightIcon`.** (Ref [[primary-cta-icon-size-lg]].)
-- **Icon CTA = ARROW (`ArrowRightIcon`) — đồng nhất, thay mọi icon CTA khác** (Play/Plus/Rocket…). Arrow = "đi tới / proceed", hợp mọi CTA. Thầy chốt 2026-06-26: *"nút CTA thì xài arrow hết"*.
+- **Icon CTA = ARROW (`ArrowRightIcon`) — đồng nhất, thay mọi icon CTA khác** (Play/Plus/Rocket…). Arrow = "đi tới / proceed", hợp mọi CTA. Thầy chốt 2026-06-26: *"nút CTA thì xài arrow hết"*. **Kể cả CTA mua/enroll/đăng-ký → arrow, KHÔNG cart** (thầy chốt lại 2026-06-29: giữ arrow cho đồng nhất, không ngoại lệ commerce).
 - **Arrow đặt TRAILING** (`Label →`) — convention "đi tới". Cỡ icon theo text nút ([[elements/icon]] §3: leading=trailing, button text-sm → `size-5`).
 - **Màu: SOLID, KHÔNG tint `/10`.** Tint `bg-accent/10` chỉ cho active/selected nhỏ ([[elements/color]] §2 + [[highlight-accent-as-detail-not-block-fill]]), KHÔNG cho CTA chính.
 - **Nút KHÔNG icon = sub-CTA** → `size` md (mặc định), không lg → đọc như cấp dưới CTA chính.
