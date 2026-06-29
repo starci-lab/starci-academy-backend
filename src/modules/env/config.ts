@@ -1203,7 +1203,7 @@ export const envConfig = () => ({
         aiKeys: {
             /**
              * Directory holding the per-provider key pool files. A model's
-             * `keysFilePath` may be a BARE filename (e.g. `open-api-keys.key`),
+             * `keysFilePath` may be a BARE filename (e.g. `openai-api-keys.key`),
              * understood to live here; a value containing a path separator is
              * used verbatim instead.
              */
@@ -1220,7 +1220,7 @@ export const envConfig = () => ({
                     ".mount",
                     "terraform",
                     "keys",
-                    "open-api-keys.key"),
+                    "openai-api-keys.key"),
             }),
             gemini: parseEnvString({
                 key: "AI_KEYS_GEMINI_MOUNT_PATH",
