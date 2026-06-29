@@ -68,6 +68,13 @@ export class AiInvokeService {
     ) { }
 
     /**
+     * Hard per-attempt timeout (ms) for one model call. A model that hasn't
+     * finished within this window is aborted + surfaced as a TIMEOUT (classified
+     * Transient) so the balancer climbs to the next model — see `AI_INVOKE_TIMEOUT_MS`.
+     */
+    private readonly invokeTimeoutMs = envConfig().ai.invokeTimeoutMs
+
+    /**
      * THE one high-level entry every AI surface uses (grading, capstone, eval,
      * interview, chatbot, and any future AI service). Resolves the System routing
      * from the inputs (floor by `difficulty`/`floor`, climbing up to the plan
@@ -186,10 +193,37 @@ export class AiInvokeService {
                     temperature: resolvedTemperature,
                 },
             )
-            const response = await chatModel.invoke(messages)
-            return typeof response.content === "string"
-                ? response.content
-                : String(response.content)
+            // hard per-attempt timeout → abort + surface as TIMEOUT (not AbortError)
+            // so the balancer classifies it Transient and climbs to the next model
+            const controller = new AbortController()
+            let timedOut = false
+            const timer = setTimeout(
+                () => {
+                    timedOut = true
+                    controller.abort()
+                },
+                this.invokeTimeoutMs,
+            )
+            try {
+                const response = await chatModel.invoke(
+                    messages,
+                    {
+                        signal: controller.signal,
+                    },
+                )
+                return typeof response.content === "string"
+                    ? response.content
+                    : String(response.content)
+            } catch (error) {
+                if (timedOut) {
+                    throw new Error(
+                        `AI invoke timed out after ${this.invokeTimeoutMs}ms`,
+                    )
+                }
+                throw error
+            } finally {
+                clearTimeout(timer)
+            }
         }
 
         // BYOK → user's own key, bypassing the shared pool / fallback chain
@@ -298,36 +332,72 @@ export class AiInvokeService {
             let text = ""
             let promptTokens = 0
             let completionTokens = 0
-            // `stream` yields AIMessageChunk objects; pass the abort signal so the
-            // upstream HTTP request is cancelled when the learner aborts the run
-            const stream = await chatModel.stream(
-                messages,
-                {
-                    signal,
+            // hard per-attempt timeout aborts the stream; combine it with the
+            // caller's abort signal (user-stop). A TIMEOUT is surfaced as a plain
+            // error → Transient → next model; a USER abort stays AbortError → stop.
+            const controller = new AbortController()
+            let timedOut = false
+            const timer = setTimeout(
+                () => {
+                    timedOut = true
+                    controller.abort()
                 },
+                this.invokeTimeoutMs,
             )
-            for await (const chunk of stream) {
-                // chunk.content is string for chat models; coerce defensively
-                const delta = typeof chunk.content === "string"
-                    ? chunk.content
-                    : String(chunk.content)
-                if (delta.length > 0) {
-                    // grow the accumulated answer and notify the caller of the delta
-                    text += delta
-                    onChunk(delta)
-                }
-                // some providers attach running usage on the final chunk(s) — keep the
-                // last reported counts so completion totals reflect the whole stream
-                const usage = chunk.usage_metadata
-                if (usage) {
-                    promptTokens = usage.input_tokens ?? promptTokens
-                    completionTokens = usage.output_tokens ?? completionTokens
+            if (signal) {
+                if (signal.aborted) {
+                    controller.abort()
+                } else {
+                    signal.addEventListener(
+                        "abort",
+                        () => controller.abort(),
+                        {
+                            once: true,
+                        },
+                    )
                 }
             }
-            return {
-                text,
-                promptTokens,
-                completionTokens,
+            try {
+                // `stream` yields AIMessageChunk objects; the combined signal cancels
+                // the upstream HTTP request on user-abort OR timeout
+                const stream = await chatModel.stream(
+                    messages,
+                    {
+                        signal: controller.signal,
+                    },
+                )
+                for await (const chunk of stream) {
+                    // chunk.content is string for chat models; coerce defensively
+                    const delta = typeof chunk.content === "string"
+                        ? chunk.content
+                        : String(chunk.content)
+                    if (delta.length > 0) {
+                        // grow the accumulated answer and notify the caller of the delta
+                        text += delta
+                        onChunk(delta)
+                    }
+                    // some providers attach running usage on the final chunk(s) — keep the
+                    // last reported counts so completion totals reflect the whole stream
+                    const usage = chunk.usage_metadata
+                    if (usage) {
+                        promptTokens = usage.input_tokens ?? promptTokens
+                        completionTokens = usage.output_tokens ?? completionTokens
+                    }
+                }
+                return {
+                    text,
+                    promptTokens,
+                    completionTokens,
+                }
+            } catch (error) {
+                if (timedOut) {
+                    throw new Error(
+                        `AI stream timed out after ${this.invokeTimeoutMs}ms`,
+                    )
+                }
+                throw error
+            } finally {
+                clearTimeout(timer)
             }
         }
 

@@ -2077,6 +2077,18 @@ export const envConfig = () => ({
             key: "AI_QUOTA_CHECK_INTERVAL_MS",
             defaultValue: "5m",
         }),
+        /**
+         * Hard per-attempt timeout for a single model call (invoke + stream). A
+         * model that hasn't finished within this window is ABORTED and surfaced as
+         * a TIMEOUT (classified Transient) so the balancer climbs to the next model
+         * in the chain — distinct from a user-cancel (AbortError → stop). Generous
+         * by design: real grading completions run 10–60s; keep this well above that
+         * so only a truly hung request trips it (NOT slow-but-working models).
+         */
+        invokeTimeoutMs: parseEnvMs({
+            key: "AI_INVOKE_TIMEOUT_MS",
+            defaultValue: "75s",
+        }),
         /** Scheduled mount-key ping sweeps (zero-token health probes). */
         ping: {
             /** When false, the staggered key ping scheduler stays idle. */
