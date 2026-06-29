@@ -2,6 +2,7 @@ import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
+    AiCeilSurface,
     AiMode,
     AiModelCategory,
     Locale,
@@ -85,6 +86,7 @@ export class AskContentAiHandler
             userId: user.id,
             messages,
             floor: AiModelCategory.Free,
+            surface: AiCeilSurface.Chatbot,
         })
 
         // bill by the model that actually served — a free model = 0 (normal case);

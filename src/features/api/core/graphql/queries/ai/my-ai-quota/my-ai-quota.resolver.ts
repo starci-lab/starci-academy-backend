@@ -80,6 +80,8 @@ export class MyAiQuotaResolver {
             },
             window5hResetAt: snapshot.window5hResetAt,
             windowWeekResetAt: snapshot.windowWeekResetAt,
+            allowedCategories: snapshot.allowedCategories,
+            ceil: snapshot.ceil,
         }
     }
 }

@@ -86,19 +86,30 @@ export class AiInvokeService {
             difficulty,
             floor,
             ceil,
+            surface,
             allowFreeAuto,
             temperature,
             onChunk,
             signal,
         }: AiRunParams,
     ): Promise<AiRunResult> {
+        // explicit `ceil` wins; otherwise resolve the user's saved per-surface
+        // ceiling from settings (cost control). Omitted surface → uncapped.
+        const effectiveCeil = ceil
+            ?? (surface
+                ? await this.aiEntitlementService.resolveCeil({
+                    userId,
+                    surface,
+                })
+                : null)
+
         // resolve the System routing (floor → ceiling → climb chain, or pinned model)
         const options = await resolveGradingInvokeOptions({
             userId,
             selection,
             difficulty,
             floor,
-            ceil,
+            ceil: effectiveCeil,
             allowFreeAuto,
             aiEntitlementService: this.aiEntitlementService,
         })

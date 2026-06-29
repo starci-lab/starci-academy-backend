@@ -35,6 +35,18 @@ export interface AiCreditQuota {
     remainingWeek: number
 }
 
+/** Per-surface model ceiling the user set (null = inherit default / no cap). */
+export interface AiCeilSnapshot {
+    /** Global default ceiling (null = no cap → plan ceiling only). */
+    default: AiModelCategory | null
+    /** Hỏi AI khi đọc bài override (null = follow default). */
+    chatbot: AiModelCategory | null
+    /** Chấm bài override (null = follow default). */
+    grading: AiModelCategory | null
+    /** Phỏng vấn thử override (null = follow default). */
+    interview: AiModelCategory | null
+}
+
 /** Full per-user quota snapshot for the UI (single pool + reset times). */
 export interface AiQuotaSnapshot {
     /** Natural lane the user is on right now. */
@@ -47,6 +59,10 @@ export interface AiQuotaSnapshot {
     window5hResetAt: Date | null
     /** When the weekly window rolls over. */
     windowWeekResetAt: Date | null
+    /** Categories the user's plan unlocks — the ceiling the user caps within. */
+    allowedCategories: Array<AiModelCategory>
+    /** Per-surface model ceiling the user set in settings (cost control). */
+    ceil: AiCeilSnapshot
 }
 
 /**

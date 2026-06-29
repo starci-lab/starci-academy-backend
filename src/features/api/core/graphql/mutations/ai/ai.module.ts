@@ -8,6 +8,9 @@ import {
     PurchaseAiSubscriptionSingleMutationModule,
 } from "./purchase-ai-subscription"
 import {
+    SetAiCeilSingleMutationModule,
+} from "./set-ai-ceil"
+import {
     ConfigurableModuleClass,
 } from "./ai.module-definition"
 
@@ -20,6 +23,9 @@ import {
             isGlobal: true,
         }),
         PurchaseAiSubscriptionSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        SetAiCeilSingleMutationModule.register({
             isGlobal: true,
         }),
     ],

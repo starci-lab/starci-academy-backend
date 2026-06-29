@@ -27,6 +27,7 @@ import {
     CreditUsageService,
 } from "@modules/bussiness"
 import {
+    AiCeilSurface,
     AiMode,
     AiModelCategory,
 } from "@modules/databases"
@@ -158,6 +159,7 @@ export class ContentAiGateway {
                 userId,
                 messages,
                 floor: AiModelCategory.Free,
+                surface: AiCeilSurface.Chatbot,
                 // tutoring answers want a little variety, not deterministic grading
                 temperature: 0.3,
                 signal: controller.signal,

@@ -11,6 +11,7 @@ import {
 } from "typeorm"
 import {
     AiMode,
+    AiModelCategory,
     AiSubStatus,
     AiSubTier,
     GraphQLTypeAiMode,
@@ -19,6 +20,24 @@ import {
     GraphQLTypeModelProvider,
     ModelProvider,
 } from "../enums"
+
+/**
+ * Per-surface AI model CEILING overrides ("trần" the user sets in settings).
+ * `default` caps every surface; a surface key (chatbot/grading/interview)
+ * overrides the default for that surface. Absent key = inherit default; absent
+ * default = only the plan ceiling caps. The Auto chain never climbs past the
+ * resolved ceiling. Stored as jsonb on the subscription row.
+ */
+export interface AiCeilOverrides {
+    /** Global default ceiling for every surface. */
+    default?: AiModelCategory
+    /** Hỏi AI khi đọc bài. */
+    chatbot?: AiModelCategory
+    /** Chấm bài (challenge + capstone). */
+    grading?: AiModelCategory
+    /** Phỏng vấn thử. */
+    interview?: AiModelCategory
+}
 import {
     UuidAbstractEntity,
 } from "./abstract"
@@ -212,6 +231,19 @@ export class AiSubscriptionEntity extends UuidAbstractEntity {
         default: 0,
     })
         creditWeekUsed: number
+
+    /**
+     * Per-surface model CEILING overrides the user set in AI settings (cost
+     * control). jsonb `{ default?, chatbot?, grading?, interview? }` of
+     * {@link AiModelCategory}. Null = no caps (only the plan ceiling applies).
+     * Not exposed directly via GraphQL — surfaced through the quota query.
+     */
+    @Column({
+        name: "ceil_overrides",
+        type: "jsonb",
+        nullable: true,
+    })
+        ceilOverrides: AiCeilOverrides | null
 
     /** The user this entitlement belongs to. */
     @OneToOne(

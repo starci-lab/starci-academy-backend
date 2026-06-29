@@ -13,6 +13,7 @@ import {
     AiQuotaExhaustedException,
 } from "@modules/exceptions"
 import {
+    AiCeilSurface,
     AiMode,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
@@ -350,6 +351,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             ],
             selection: payload.ai,
             difficulty: challenge?.difficulty ?? null,
+            surface: AiCeilSurface.Grading,
         })
 
         // Charge for the LLM usage NOW (idempotently), BEFORE parsing — a parse failure must not

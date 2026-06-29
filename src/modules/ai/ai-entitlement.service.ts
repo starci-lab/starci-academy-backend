@@ -5,6 +5,7 @@ import {
     type EntityManager,
 } from "typeorm"
 import {
+    AiCeilSurface,
     AiMode,
     AiModelCategory,
     AiSubStatus,
@@ -13,6 +14,9 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
     TransactionEntity,
     TransactionStatus,
+} from "@modules/databases"
+import type {
+    AiCeilOverrides,
 } from "@modules/databases"
 import {
     AppConfigSubscriptionTier,
@@ -634,6 +638,7 @@ export class AiEntitlementService {
             limitWeek,
         } = this.creditAllowance(tier)
 
+        const overrides = subscription.ceilOverrides
         return {
             mode,
             tier,
@@ -653,7 +658,98 @@ export class AiEntitlementService {
             },
             window5hResetAt: subscription.window5hResetAt,
             windowWeekResetAt: subscription.windowWeekResetAt,
+            // plan ceiling (categories unlocked by the tier) the user caps within
+            allowedCategories: TIER_ALLOWED_CATEGORIES[tier ?? "free"],
+            // per-surface ceiling the user set (null each = inherit default / no cap)
+            ceil: {
+                default: overrides?.default ?? null,
+                chatbot: overrides?.chatbot ?? null,
+                grading: overrides?.grading ?? null,
+                interview: overrides?.interview ?? null,
+            },
         }
+    }
+
+    /**
+     * Resolve the model CEILING for one surface from the user's saved overrides:
+     * the surface override if set, else the global `default`, else null (no cap →
+     * the plan ceiling alone limits the climb). Read-only, no row creation.
+     *
+     * @param params - the owning `userId` + the `surface` (omit → just the default).
+     * @returns the ceiling category, or null when uncapped.
+     */
+    async resolveCeil(
+        {
+            userId,
+            surface,
+        }: {
+            userId: string
+            surface?: AiCeilSurface
+        },
+    ): Promise<AiModelCategory | null> {
+        const subscription = await this.entityManager.findOne(
+            AiSubscriptionEntity,
+            {
+                where: {
+                    user: {
+                        id: userId,
+                    },
+                },
+            },
+        )
+        const overrides = subscription?.ceilOverrides
+        if (!overrides) {
+            return null
+        }
+        return (surface ? overrides[surface] : undefined)
+            ?? overrides.default
+            ?? null
+    }
+
+    /**
+     * Set (or clear) the user's model ceiling for one surface — or the global
+     * `default` when `surface` is omitted. A null `category` clears that key. The
+     * overrides map is dropped to null when it becomes empty. Returns the refreshed
+     * snapshot so the caller can echo the new state.
+     *
+     * @param params - owner, the surface (omit → default), and the category (null → clear).
+     * @returns the user's refreshed {@link AiQuotaSnapshot}.
+     */
+    async setCeil(
+        {
+            userId,
+            surface,
+            category,
+        }: {
+            userId: string
+            surface?: AiCeilSurface | null
+            category?: AiModelCategory | null
+        },
+    ): Promise<AiQuotaSnapshot> {
+        return this.entityManager.transaction(
+            async (entityManager) => {
+                const subscription = await this.loadOrCreate(
+                    userId,
+                    entityManager,
+                )
+                this.applyWindowResets(subscription)
+                const overrides: AiCeilOverrides = {
+                    ...(subscription.ceilOverrides ?? {
+                    }),
+                }
+                const key = surface ?? "default"
+                if (category) {
+                    overrides[key] = category
+                } else {
+                    delete overrides[key]
+                }
+                subscription.ceilOverrides = Object.keys(overrides).length > 0
+                    ? overrides
+                    : null
+                await entityManager.save(subscription)
+                return this.toSnapshot(subscription)
+            },
+        )
     }
 
     /**

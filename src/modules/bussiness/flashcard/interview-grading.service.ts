@@ -5,6 +5,7 @@ import {
     EntityManager,
 } from "typeorm"
 import {
+    AiCeilSurface,
     AiMode,
     CreditUsageHistoryEntity,
     FlashcardDeckEntity,
@@ -152,6 +153,7 @@ export class InterviewGradingService {
             userId,
             messages,
             selection,
+            surface: AiCeilSurface.Interview,
         })
 
         // charge NOW — before parsing — so a malformed model response can never leak a

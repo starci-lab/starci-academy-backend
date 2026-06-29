@@ -19,6 +19,7 @@ import {
     EmptyObject,
 } from "@modules/common"
 import {
+    AiCeilSurface,
     AiMode,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
@@ -471,6 +472,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
             ],
             selection: payload.ai,
             difficulty: milestoneTask.difficulty ?? null,
+            surface: AiCeilSurface.Grading,
         })
 
         const parsed = this.projectEvaluationParseService.parse(raw)

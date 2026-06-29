@@ -2,6 +2,7 @@ import type {
     BaseMessage,
 } from "@langchain/core/messages"
 import type {
+    AiCeilSurface,
     AiModelCategory,
     ModelProvider,
 } from "@modules/databases"
@@ -140,6 +141,12 @@ export interface AiRunParams {
     floor?: AiModelCategory | null
     /** User-set per-feature ceiling cap (settings config per hạng mục). */
     ceil?: AiModelCategory | null
+    /**
+     * Surface this run belongs to (chatbot/grading/interview). When set (and no
+     * explicit `ceil`), `run()` resolves the user's saved per-surface ceiling
+     * from settings and caps the climb at it. Omit for an uncapped run.
+     */
+    surface?: AiCeilSurface
     /** `false` for premium-only content (gated on a paid entitlement). */
     allowFreeAuto?: boolean
     /** Sampling temperature (default 0). */

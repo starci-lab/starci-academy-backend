@@ -9,8 +9,10 @@ import {
 } from "@modules/api"
 import {
     AiMode,
+    AiModelCategory,
     AiSubTier,
     GraphQLTypeAiMode,
+    GraphQLTypeAiModelCategory,
     GraphQLTypeAiSubTier,
 } from "@modules/databases"
 
@@ -73,6 +75,51 @@ export class MyAiCreditQuotaData {
 /**
  * Full per-user quota snapshot — both lanes + window reset times.
  */
+/**
+ * Per-surface model CEILING the user set in settings (cost control). Null on a
+ * field = inherit the default (or, for `default`, no cap → plan ceiling only).
+ */
+@ObjectType({
+    description: "Per-surface AI model ceiling the user set (cost control).",
+})
+export class MyAiCeilData {
+    @Field(
+        () => GraphQLTypeAiModelCategory,
+        {
+            nullable: true,
+            description: "Global default ceiling; null = no cap (plan ceiling only).",
+        },
+    )
+        default: AiModelCategory | null
+
+    @Field(
+        () => GraphQLTypeAiModelCategory,
+        {
+            nullable: true,
+            description: "Hỏi AI khi đọc bài override; null = follow default.",
+        },
+    )
+        chatbot: AiModelCategory | null
+
+    @Field(
+        () => GraphQLTypeAiModelCategory,
+        {
+            nullable: true,
+            description: "Chấm bài override; null = follow default.",
+        },
+    )
+        grading: AiModelCategory | null
+
+    @Field(
+        () => GraphQLTypeAiModelCategory,
+        {
+            nullable: true,
+            description: "Phỏng vấn thử override; null = follow default.",
+        },
+    )
+        interview: AiModelCategory | null
+}
+
 @ObjectType({
     description: "Per-user AI quota snapshot (single credit pool).",
 })
@@ -119,6 +166,22 @@ export class MyAiQuotaResponseData {
         },
     )
         windowWeekResetAt: Date | null
+
+    @Field(
+        () => [GraphQLTypeAiModelCategory],
+        {
+            description: "Categories the user's plan unlocks (the ceiling to cap within).",
+        },
+    )
+        allowedCategories: Array<AiModelCategory>
+
+    @Field(
+        () => MyAiCeilData,
+        {
+            description: "Per-surface model ceiling the user set (cost control).",
+        },
+    )
+        ceil: MyAiCeilData
 }
 
 @ObjectType({
