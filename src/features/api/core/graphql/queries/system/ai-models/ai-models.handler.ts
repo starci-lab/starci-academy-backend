@@ -5,6 +5,9 @@ import {
     envConfig,
 } from "@modules/env"
 import {
+    AiModelCategory,
+} from "@modules/databases"
+import {
     AiModelCatalogService,
     AiTaskModelService,
     AiTaskKind,
@@ -56,13 +59,17 @@ export class AiModelsHandler {
         // providers whose key pool still has a healthy key — a model whose
         // provider is missing here is rendered locked in the picker (no key)
         const usableProviders = await this.useApiService.availableProviders()
-        const gradableModels: Array<AiGradableModelData> = enabled.map((model) => ({
-            model: model.name,
-            provider: model.provider,
-            category: model.category,
-            complimentary: model.complimentary,
-            available: usableProviders.has(model.provider),
-        }))
+        // grading runs on Economy and up — exclude Free models (they back the
+        // free chatbot, not grading) so the grade-model picker never lists them
+        const gradableModels: Array<AiGradableModelData> = enabled
+            .filter((model) => model.category !== AiModelCategory.Free)
+            .map((model) => ({
+                model: model.name,
+                provider: model.provider,
+                category: model.category,
+                complimentary: model.complimentary,
+                available: usableProviders.has(model.provider),
+            }))
 
         return {
             tier,

@@ -60,6 +60,10 @@ export interface AppConfigAiModel {
     keysFilePath: string
     /** Fallback-chain priority. Higher = tried first by `UseApiService`. */
     priority: number
+    /** Credit cost charged to the user per grading run (billing, integer). */
+    credit: number
+    /** Within-category Auto try-order key (higher first; decimals allowed). */
+    weight: number
     /** Kill-switch — `false` removes the model from rotation without deleting the row. */
     enabled: boolean
     /** Usable on the free Auto lane — no subscription, debited by uses ("lượt"). */

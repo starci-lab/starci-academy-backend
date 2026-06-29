@@ -177,6 +177,22 @@ export const getLocalApiKeys = (): Array<string> => {
 }
 
 /**
+ * Get the OpenRouter API-key pool from the mount keys file (newline-separated).
+ * Empty array when the file is missing or empty.
+ */
+export const getOpenRouterApiKeys = (): Array<string> => {
+    return parseApiKeysFile(envConfig().mountPath.aiKeys.openrouter)
+}
+
+/**
+ * Get the native Anthropic API-key pool from the mount keys file.
+ * Empty array when the file is missing or empty.
+ */
+export const getAnthropicApiKeys = (): Array<string> => {
+    return parseApiKeysFile(envConfig().mountPath.aiKeys.anthropic)
+}
+
+/**
  * Get keycloak client secret (from terraform mount path).
  */
 export const getKeycloakClientSecret = (): string => {

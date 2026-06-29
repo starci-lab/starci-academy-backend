@@ -16,19 +16,12 @@ import type {
     FlashcardCardEntity,
 } from "@modules/databases"
 import {
-    AiEntitlementService,
     AiInvokeService,
     extractJsonBlock,
-    ModelRecommendation,
-    resolveGradingCreditCost,
-    resolveGradingInvokeOptions,
 } from "@modules/ai"
 import type {
     AiJobSelection,
 } from "@modules/ai"
-import {
-    envConfig,
-} from "@modules/env"
 import {
     AiQuotaExhaustedException,
     FlashcardCardMissingAnswerException,
@@ -78,7 +71,6 @@ export class InterviewGradingService {
         private readonly flashcardDeckReadService: FlashcardDeckReadService,
         private readonly interviewGradePromptService: InterviewGradePromptService,
         private readonly aiInvokeService: AiInvokeService,
-        private readonly aiEntitlementService: AiEntitlementService,
         private readonly creditUsageService: CreditUsageService,
         private readonly userService: UserService,
     ) { }
@@ -146,12 +138,6 @@ export class InterviewGradingService {
                 mode: AiMode.Auto,
             }
             : undefined
-        const invokeOptions = await resolveGradingInvokeOptions({
-            userId,
-            selection,
-            aiEntitlementService: this.aiEntitlementService,
-        })
-
         // build the grading messages from the question + model-answer rubric + transcript
         const { messages } = this.interviewGradePromptService.build({
             question: card.question,
@@ -161,17 +147,19 @@ export class InterviewGradingService {
             locale,
         })
 
-        // invoke on the resolved lane (temperature defaults to 0 → deterministic grading)
-        const { text, model, provider } = await this.aiInvokeService.invoke({
+        // ONE shared entry (temperature defaults to 0 → deterministic grading)
+        const { text, model, provider, cost } = await this.aiInvokeService.run({
+            userId,
             messages,
-            ...invokeOptions,
+            selection,
         })
 
         // charge NOW — before parsing — so a malformed model response can never leak a
-        // free grading call. Billed by the model that served (Qwen 0 / economy 5 / …).
+        // free grading call. Billed by the model that served (free 0 / economy 5 / …).
         await this.recordAutoCreditUsage(userId,
             model,
-            provider)
+            provider,
+            cost)
 
         const result = this.parse(text)
         // record the graded attempt for cross-session interview history (best-effort —
@@ -267,16 +255,16 @@ export class InterviewGradingService {
      * a challenge — but still counts toward the same rolling Auto credit pool.
      *
      * @param userId - The user charged for the grading call.
-     * @param servedModel - The model that actually served (Qwen / economy fallback).
+     * @param servedModel - The model that actually served (free / economy fallback).
      * @param servedProvider - Provider of {@link servedModel}.
+     * @param credits - The credit cost resolved by `run` (served model's catalog credit).
      */
     private async recordAutoCreditUsage(
         userId: string,
-        servedModel?: string,
-        servedProvider?: ModelProvider,
+        servedModel: string | undefined,
+        servedProvider: ModelProvider | undefined,
+        credits: number,
     ): Promise<void> {
-        // recommendation only matters for the (pre-run) Premium estimate fallback
-        const recommendation = envConfig().ai.modelRecommendation as ModelRecommendation
         await this.entityManager.save(
             CreditUsageHistoryEntity,
             {
@@ -290,11 +278,7 @@ export class InterviewGradingService {
                 // record the model that actually served (Auto is load-balanced)
                 model: servedModel ?? null,
                 provider: servedProvider ?? null,
-                credits: resolveGradingCreditCost({
-                    mode: AiMode.Auto,
-                    recommendation,
-                    model: servedModel,
-                }),
+                credits,
             },
         )
         // drop the cached totals so the next getSnapshot recomputes including this charge

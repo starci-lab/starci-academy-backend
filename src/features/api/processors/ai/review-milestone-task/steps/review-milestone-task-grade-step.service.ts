@@ -75,7 +75,6 @@ import {
 import {
     AiInvokeService,
     AiEntitlementService,
-    resolveGradingInvokeOptions,
 } from "@modules/ai"
 import {
     ProjectEvaluationParseService,
@@ -462,23 +461,17 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 })
             }
         }
-        const invokeOptions = await resolveGradingInvokeOptions(
-            {
-                userId: enrollment.userId,
-                selection: payload.ai,
-                aiEntitlementService: this.aiEntitlementService,
-            },
-        )
-
-        const { text: raw, model, provider, attempts } = await this.aiInvokeService.invoke(
-            {
-                messages: [
-                    new SystemMessage(systemText),
-                    new HumanMessage(humanText),
-                ],
-                ...invokeOptions,
-            },
-        )
+        // ONE shared entry: floor by capstone-task difficulty → climb in tier ceiling.
+        // The credit charge happens in the complete step (by the stored served model).
+        const { text: raw, model, provider, attempts } = await this.aiInvokeService.run({
+            userId: enrollment.userId,
+            messages: [
+                new SystemMessage(systemText),
+                new HumanMessage(humanText),
+            ],
+            selection: payload.ai,
+            difficulty: milestoneTask.difficulty ?? null,
+        })
 
         const parsed = this.projectEvaluationParseService.parse(raw)
         const passThreshold = this.mountStorageService.appConfig.systemConfig.task.passThreshold

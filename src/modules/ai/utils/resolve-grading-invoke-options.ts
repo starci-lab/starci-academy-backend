@@ -3,9 +3,6 @@ import {
     AiModelCategory,
     ModelProvider,
 } from "@modules/databases"
-import {
-    AiByokInvalidException,
-} from "@modules/exceptions"
 import type {
     AiEntitlementService,
 } from "../ai-entitlement.service"
@@ -14,64 +11,75 @@ import type {
     AiJobSelection,
 } from "../types"
 import {
-    pickBestCategory,
-} from "./pick-best-category"
-
-/**
- * Categories the free Auto lane grades on. The balancer loops them by priority
- * (low→high): the self-hosted `local` Qwen (Free tier, 0 credit) sits at the
- * top and is tried first; when it is unreachable (host off) the loop falls
- * through to the Economy cloud models automatically. This is the no-plan tier
- * set — Balanced/Premium require an explicit Premium pick.
- */
-const AUTO_GRADING_CATEGORIES = [
-    AiModelCategory.Free,
-    AiModelCategory.Economy,
-]
+    gradingFloorForDifficulty,
+    resolveGradingChain,
+} from "./resolve-grading-chain"
 
 /** Params for {@link resolveGradingInvokeOptions}. */
 export interface ResolveGradingInvokeOptionsParams {
-    /** Submitter whose entitlement gates the requested lane. */
+    /** Submitter whose entitlement gates the requested lane + tier ceiling. */
     userId: string
     /** The user's lane + model pick from the job payload (absent → Auto). */
     selection?: AiJobSelection
     /** Entitlement resolver injected by the caller (avoids circular DI). */
     aiEntitlementService: AiEntitlementService
     /**
-     * Whether this content type may grade on the free Auto lane (Qwen + economy).
-     * Default `true`. Set `false` for premium-only content (e.g. CV review):
-     * an absent/Auto pick is then forced onto the Premium lane, so a user with
-     * no paid entitlement is rejected instead of grading free.
+     * Whether this content type may grade on the free Auto lane. Default `true`.
+     * `false` for premium-only content (e.g. CV review): the run is gated on a
+     * paid entitlement (unpaid users are rejected) and starts from a higher floor.
      */
     allowFreeAuto?: boolean
+    /**
+     * Task difficulty (easy/medium/hard/insane/expert) → the FLOOR category the
+     * Auto chain starts from (easy→economy … insane→frontier). The chain then
+     * climbs up to the user's tier ceiling. Omitted → economy floor.
+     */
+    difficulty?: string | null
+    /**
+     * Explicit FLOOR category override (wins over `difficulty`). Used by surfaces
+     * that don't have a difficulty — e.g. the chatbot passes `Free`.
+     */
+    floor?: AiModelCategory | null
+    /**
+     * User-set per-feature ceiling cap (from settings config per hạng mục): the
+     * chain never climbs past this, even within the plan ceiling. Omitted → only
+     * the plan ceiling caps.
+     */
+    ceil?: AiModelCategory | null
 }
 
 /** Partial {@link AiInvokeParams} derived from entitlement + selection. */
 export interface ResolveGradingInvokeOptionsResult {
-    /** Single-category filter for the Premium pooled invoke. */
+    /** Single-category filter (unused by the climb chain; kept for compatibility). */
     category?: AiModelCategory
-    /** Multi-category set for the Auto lane (loops low→high within these tiers). */
+    /** Ordered category chain the Auto lane climbs (floor → tier ceiling). */
     categories?: Array<AiModelCategory>
-    /** BYOK descriptor when the user runs on their own key. */
+    /**
+     * BYOK descriptor — DORMANT for grading (BYOK removed from the grading flow;
+     * `resolveGradingInvokeOptions` never sets this). Kept on the type for the AI
+     * Lab playground, which will re-introduce BYOK later.
+     */
     byok?: AiInvokeByok
-    /** User-pinned model (Premium lane only). */
+    /** User-pinned model (System Manual — an explicit model pick). */
     model?: string
     /** Provider for {@link ResolveGradingInvokeOptionsResult.model}. */
     provider?: ModelProvider
 }
 
 /**
- * Map a job's {@link AiJobSelection} + user entitlement to {@link AiInvokeService.invoke} args.
+ * Map a job's {@link AiJobSelection} + difficulty + user entitlement to
+ * {@link AiInvokeService.invoke} args — the ONE shared grading routing.
  *
- * The lane is driven strictly by the user's `selection` — there is NO downgrade:
- * a Premium/BYOK pick the user is not entitled to throws (the entitlement resolver
- * rejects it), and a BYOK pick with no usable key throws. Only an absent or `Auto`
- * selection runs the load-balanced Economy lane.
+ * Grading runs ONLY on the System pool (BYOK was removed from grading — it may
+ * return later, scoped to the AI Lab playground). Two selection modes:
+ * - **System Manual** → a user-pinned model (gated on a paid entitlement).
+ * - **System Auto** (default) → the **floor→climb chain**: start at the difficulty
+ *   floor, climb up to the tier ceiling, within each category the balancer tries
+ *   highest-weight first. Free tier caps at Economy; paid tiers climb to Frontier.
  *
- * @param params - User id, selection, and entitlement service.
- * @returns Invoke args (`byok`, or `category` + optional pinned Premium model).
- * @throws AiModeNotEntitledException when the user is not entitled to the picked lane.
- * @throws AiByokInvalidException when a BYOK pick has no inline or stored key.
+ * @param params - user id, selection, difficulty, entitlement service.
+ * @returns the invoke args.
+ * @throws AiModeNotEntitledException when a Premium/premium-only run is not entitled.
  */
 export async function resolveGradingInvokeOptions(
     {
@@ -79,69 +87,44 @@ export async function resolveGradingInvokeOptions(
         selection,
         aiEntitlementService,
         allowFreeAuto = true,
+        difficulty,
+        floor,
+        ceil,
     }: ResolveGradingInvokeOptionsParams,
 ): Promise<ResolveGradingInvokeOptionsResult> {
-    // absent pick or explicit Auto
-    const wantsAuto = !selection || selection.mode === AiMode.Auto
+    // premium-only content (no free Auto) or an explicit Premium pick → require a
+    // paid entitlement (resolve throws for an unentitled user — no silent downgrade)
+    const requiresPaid = !allowFreeAuto
+    if (selection?.mode === AiMode.Premium || requiresPaid) {
+        await aiEntitlementService.resolve({
+            userId,
+            requestedMode: AiMode.Premium,
+        })
+    }
 
-    // free Auto lane (default): the balancer loops the Economy/complimentary
-    // chain (local Qwen first → economy cloud fallback). Skipped for premium-only
-    // content, which forces the Premium lane below.
-    if (wantsAuto && allowFreeAuto) {
+    // explicit pinned model (user picked Premium + a concrete model) wins
+    if (selection?.mode === AiMode.Premium && selection.model && selection.provider) {
         return {
-            categories: AUTO_GRADING_CATEGORIES,
+            model: selection.model,
+            provider: selection.provider,
         }
     }
 
-    // a one-shot inline key only exists on a BYOK selection
-    const inlineKey = selection?.mode === AiMode.Byok
-        ? selection.apiKey?.trim()
-        : undefined
-
-    // premium-only content with an Auto/absent pick → require a paid entitlement
-    // (resolve below throws for an unentitled user). Otherwise honor the pick.
-    const requestedMode = (!wantsAuto && selection)
-        ? selection.mode
-        : AiMode.Premium
-
-    // gate the requested lane — throws (no downgrade) when the user is not entitled
-    const entitlement = await aiEntitlementService.resolve({
+    // floor → climb chain, clamped to the tier ceiling (and the user `ceil` cap)
+    const tierCategories = await aiEntitlementService.resolveTierCategories({
         userId,
-        requestedMode,
-        // an inline key lets BYOK run even without a stored subscription key
-        ephemeralByok: selection?.mode === AiMode.Byok
-            && Boolean(inlineKey),
     })
-
-    // BYOK → bypass the pool and run on the user's own key (inline or stored)
-    if (selection?.mode === AiMode.Byok) {
-        // prefer the inline key; otherwise load the encrypted key on the subscription
-        const key = inlineKey
-            ?? await aiEntitlementService.getByokApiKey({
-                userId,
-            })
-        // no usable key → fail loudly instead of silently dropping to Auto
-        if (!key) {
-            throw new AiByokInvalidException({
-                reason: "no BYOK key on file — add a key in AI settings or pass apiKey",
-            })
-        }
-        return {
-            byok: {
-                provider: selection.provider,
-                model: selection.model,
-                key,
-            },
-        }
-    }
-
-    // Premium (or premium-forced for premium-only content) → grade on the best
-    // unlocked category, honoring the user's pinned model when they explicitly
-    // picked Premium (an Auto/absent pick forced here has no pinned model)
-    const pinned = selection?.mode === AiMode.Premium ? selection : undefined
+    // explicit `floor` wins; else premium-only-without-difficulty (CV) starts
+    // mid-ladder; else the difficulty floor
+    const effectiveFloor = floor
+        ?? (requiresPaid && !difficulty
+            ? AiModelCategory.Balanced
+            : gradingFloorForDifficulty(difficulty))
     return {
-        category: pickBestCategory(entitlement.allowedCategories),
-        model: pinned?.model,
-        provider: pinned?.provider,
+        categories: resolveGradingChain({
+            floor: effectiveFloor,
+            tierCategories,
+            ceil,
+        }),
     }
 }

@@ -72,6 +72,8 @@ export interface MergedMilestoneTask {
     sortIndex?: unknown
     /** Maximum achievable score. */
     maxScore?: unknown
+    /** Relative difficulty string from `# difficulty` (easy/medium/hard/insane). */
+    difficulty?: string
     /** SCHEMA V2 verification marker (non-null marks rubric-graded). */
     verified?: unknown
     /** Per-language brief blocks (`# criterias` → `## N`). */

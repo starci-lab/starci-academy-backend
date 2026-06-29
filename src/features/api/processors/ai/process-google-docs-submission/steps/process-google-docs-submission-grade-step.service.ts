@@ -51,7 +51,6 @@ import {
     AiEntitlementService,
     ModelRecommendation,
     resolveGradingCreditCost,
-    resolveGradingInvokeOptions,
 } from "@modules/ai"
 import {
     GoogleDriverAPIService,
@@ -271,11 +270,10 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 })
             }
         } else if (aiMode === AiMode.Premium) {
-            // Premium lane → block when the tier credit pool lacks headroom for this grading's cost
-            const recommendation = envConfig().ai.modelRecommendation as ModelRecommendation
+            // Premium lane → block when the tier credit pool lacks headroom (pre-run estimate)
             const cost = resolveGradingCreditCost({
                 mode: AiMode.Premium,
-                recommendation,
+                recommendation: envConfig().ai.modelRecommendation as ModelRecommendation,
             })
             const entitlement = await this.aiEntitlementService.resolve({
                 userId: enrollment.userId,
@@ -291,21 +289,15 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 })
             }
         }
-        // Byok → user's own key, no quota gate
-        const invokeOptions = await resolveGradingInvokeOptions(
-            {
-                userId: enrollment.userId,
-                selection: payload.ai,
-                aiEntitlementService: this.aiEntitlementService,
-            },
-        )
-
-        const { text: raw, model, provider, attempts } = await this.aiInvokeService.invoke({
+        // ONE shared entry: floor by difficulty → climb in tier ceiling → served model + cost
+        const { text: raw, model, provider, attempts, cost } = await this.aiInvokeService.run({
+            userId: enrollment.userId,
             messages: [
                 new SystemMessage(systemText),
                 new HumanMessage(humanText),
             ],
-            ...invokeOptions,
+            selection: payload.ai,
+            difficulty: challenge?.difficulty ?? null,
         })
 
         // Charge for the LLM usage NOW (idempotently), BEFORE parsing — a parse failure must not
@@ -317,16 +309,11 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         })
         if (!alreadyCharged) {
             const chargedMode = payload.ai?.mode ?? AiMode.Auto
-            const chargeRecommendation = envConfig().ai.modelRecommendation as ModelRecommendation
             await this.aiEntitlementService.consume({
                 userId: enrollment.userId,
                 mode: chargedMode,
-                // charge by the model that actually served (Qwen 0 / economy 5 / …)
-                cost: resolveGradingCreditCost({
-                    mode: chargedMode,
-                    recommendation: chargeRecommendation,
-                    model,
-                }),
+                // charge by the model that actually served (from run)
+                cost,
             })
             await this.creditUsageService.invalidate(enrollment.userId)
             await this.jobActionService.saveExecutionResult({

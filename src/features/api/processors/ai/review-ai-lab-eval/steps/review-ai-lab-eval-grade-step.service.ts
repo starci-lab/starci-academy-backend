@@ -33,12 +33,9 @@ import {
     WinstonService,
 } from "@modules/winston"
 import {
-    envConfig,
-} from "@modules/env"
-import {
     AiEntitlementService,
-    type ModelRecommendation,
-    resolveGradingCreditCost,
+    AiModelCatalogService,
+    DEFAULT_MODEL_CREDIT,
     resolveGradingInvokeOptions,
 } from "@modules/ai"
 
@@ -63,6 +60,7 @@ export class ReviewAiLabEvalGradeStepService extends AbstractStepService<
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
         private readonly aiEntitlementService: AiEntitlementService,
+        private readonly aiModelCatalogService: AiModelCatalogService,
         private readonly creditUsageService: CreditUsageService,
         private readonly aiLabEvalService: AiLabEvalService,
     ) {
@@ -125,14 +123,13 @@ export class ReviewAiLabEvalGradeStepService extends AbstractStepService<
             }
         }
 
-        // resolve the concrete invoke options (category / pinned model / byok) for the lane
-        const invokeOptions = await resolveGradingInvokeOptions(
-            {
-                userId: payload.userId,
-                selection: payload.ai,
-                aiEntitlementService: this.aiEntitlementService,
-            },
-        )
+        // resolve the concrete invoke options (chain / pinned model) for the lane —
+        // AI Lab runs N per-case invokes, so it uses the resolver directly (not run())
+        const invokeOptions = await resolveGradingInvokeOptions({
+            userId: payload.userId,
+            selection: payload.ai,
+            aiEntitlementService: this.aiEntitlementService,
+        })
 
         // grade the submitted template against every case (per-case invoke + metric/judge)
         const grade = await this.aiLabEvalService.gradeEvalSet(
@@ -147,17 +144,20 @@ export class ReviewAiLabEvalGradeStepService extends AbstractStepService<
         )
 
         // debit the Premium tier pool once for this grading job (no-op for Auto/Byok),
-        // then invalidate the cached Auto credit total so the next read sees the charge
+        // then invalidate the cached Auto credit total so the next read sees the charge.
+        // charge by the resolved model when pinned (Premium); Auto grades each
+        // case via the balancer (no single model) → falls back to the lane estimate
         await this.aiEntitlementService.consume({
             userId: payload.userId,
             mode,
-            // charge by the resolved model when pinned (Premium); Auto grades each
-            // case via the balancer (no single model) → falls back to the lane estimate
-            cost: resolveGradingCreditCost({
-                mode,
-                recommendation: envConfig().ai.modelRecommendation as ModelRecommendation,
-                model: invokeOptions.model,
-            }),
+            // charge by the pinned model's catalog credit (Manual); Auto multi-case
+            // has no single served model → 0 here (per-case spend not itemized)
+            cost: invokeOptions.model
+                ? await this.aiModelCatalogService.creditForModel({
+                    name: invokeOptions.model,
+                    fallback: DEFAULT_MODEL_CREDIT,
+                })
+                : 0,
         })
         await this.creditUsageService.invalidate(payload.userId)
 

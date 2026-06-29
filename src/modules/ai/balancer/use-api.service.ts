@@ -109,8 +109,20 @@ export class UseApiService {
                 category 
             },
         )
+        // when a `categories` chain is given it is ORDERED (floor → tier ceiling):
+        // try each category in chain order (climb on exhaustion), and within a
+        // category try the highest-`weight` model first.
         const models = categories
-            ? catalog.filter((row) => categories.includes(row.category))
+            ? catalog
+                .filter((row) => categories.includes(row.category))
+                .sort((left, right) => {
+                    const leftRank = categories.indexOf(left.category)
+                    const rightRank = categories.indexOf(right.category)
+                    if (leftRank !== rightRank) {
+                        return leftRank - rightRank
+                    }
+                    return right.weight - left.weight
+                })
             : catalog
         const maxAttempts = envConfig().aiBalancer.maxAutoAttempts
 

@@ -11,8 +11,12 @@ import {
     AiInvokeService,
 } from "./ai-invoke.service"
 import {
+    AiModelCatalogService,
     UseApiService,
 } from "./balancer"
+import {
+    AiEntitlementService,
+} from "./ai-entitlement.service"
 
 /**
  * Tests the lane-routing logic of {@link AiInvokeService.invoke}. The
@@ -50,6 +54,21 @@ describe("AiInvokeService",
                     {
                         provide: UseApiService,
                         useValue: useApiService,
+                    },
+                    {
+                        // only used by run() (not the low-level invoke/stream under test)
+                        provide: AiEntitlementService,
+                        useValue: {
+                            resolveTierCategories: jest.fn(async () => []),
+                            resolve: jest.fn(async () => ({
+                            })),
+                        },
+                    },
+                    {
+                        provide: AiModelCatalogService,
+                        useValue: {
+                            creditForModel: jest.fn(async () => 0),
+                        },
                     },
                 ],
             }).compile()

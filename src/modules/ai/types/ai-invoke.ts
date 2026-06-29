@@ -5,6 +5,9 @@ import type {
     AiModelCategory,
     ModelProvider,
 } from "@modules/databases"
+import type {
+    AiJobSelection,
+} from "./ai-job-selection"
 
 /**
  * Bring-your-own-key descriptor — when present on {@link AiInvokeParams} the
@@ -116,6 +119,53 @@ export interface StreamActionResult {
     promptTokens: number
     /** Completion tokens reported by the model (0 when unreported). */
     completionTokens: number
+}
+
+/**
+ * Params for {@link AiInvokeService.run} — the ONE high-level entry every AI
+ * surface uses (grading, capstone, eval, interview, chatbot, future services).
+ * Resolves the System routing (floor → tier ceiling → `ceil` cap → climb),
+ * invokes (or streams when `onChunk` is set), and returns the served model + cost.
+ */
+export interface AiRunParams {
+    /** The acting user (drives entitlement, tier ceiling, BYOK lookup). */
+    userId: string
+    /** Chat messages (system + human) to send to the model. */
+    messages: Array<BaseMessage>
+    /** The user's lane/model pick (System Auto vs Manual). Absent → Auto. */
+    selection?: AiJobSelection
+    /** Task difficulty → floor category (easy→economy … insane→frontier). */
+    difficulty?: string | null
+    /** Explicit floor override (wins over difficulty; chatbot passes Free). */
+    floor?: AiModelCategory | null
+    /** User-set per-feature ceiling cap (settings config per hạng mục). */
+    ceil?: AiModelCategory | null
+    /** `false` for premium-only content (gated on a paid entitlement). */
+    allowFreeAuto?: boolean
+    /** Sampling temperature (default 0). */
+    temperature?: number
+    /** When set, the response is STREAMED and this fires per token delta. */
+    onChunk?: AiStreamOnChunk
+    /** Optional abort signal for the streaming path. */
+    signal?: AbortSignal
+}
+
+/** Result of {@link AiInvokeService.run}. */
+export interface AiRunResult {
+    /** The model response content. */
+    text: string
+    /** The model that finally served (after any climb/fallback). */
+    model: string
+    /** The provider matching {@link AiRunResult.model}. */
+    provider: ModelProvider
+    /** Number of (model, key) attempts before success. */
+    attempts: number
+    /** Credits to charge for this run (served model's catalog credit; 0 for free/BYOK). */
+    cost: number
+    /** Prompt tokens (streaming path only). */
+    promptTokens?: number
+    /** Completion tokens (streaming path only). */
+    completionTokens?: number
 }
 
 /** Result of {@link AiInvokeService.stream}. */

@@ -19,12 +19,15 @@ import type {
     TypedSocket,
 } from "@modules/socketio"
 import {
+    AiEntitlementService,
     AiInvokeService,
 } from "@modules/ai"
 import {
     ContentAiService,
+    CreditUsageService,
 } from "@modules/bussiness"
 import {
+    AiMode,
     AiModelCategory,
 } from "@modules/databases"
 import {
@@ -44,8 +47,9 @@ import type {
  * The learner emits an {@link PublicationEvent.AskContentAi} with their question
  * (plus recent turns for short-term memory). This gateway grounds the question
  * in the lesson body + enforces the premium gate via {@link ContentAiService},
- * then drives the LangChain `.stream()` through {@link AiInvokeService} pinned to
- * the **Free** model category (self-hosted Qwen — no paid fallback, no credit),
+ * then drives the LangChain `.stream()` through {@link AiInvokeService} on the
+ * System engine (floor=free → climb to the tier ceiling, billed by served model
+ * like grading — free models = 0),
  * emitting each token delta straight back to the requesting socket as a
  * {@link SubscriptionEvent.ContentAiChunk} event. An
  * {@link PublicationEvent.AbortContentAi} message cancels the in-flight stream.
@@ -55,6 +59,8 @@ export class ContentAiGateway {
     constructor(
         private readonly contentAiService: ContentAiService,
         private readonly aiInvokeService: AiInvokeService,
+        private readonly aiEntitlementService: AiEntitlementService,
+        private readonly creditUsageService: CreditUsageService,
         private readonly wsResponseService: WsResponseService,
     ) {}
 
@@ -144,12 +150,14 @@ export class ContentAiGateway {
 
             // accumulate the full answer so the completed turn can be persisted
             let answer = ""
-            // stream the answer on the FREE model only (no economy fallback / credit)
-            await this.aiInvokeService.stream({
+            // ONE shared entry — stream on the free floor, climbing to the tier
+            // ceiling (local Qwen → OpenRouter free → economy+ only if all free fail)
+            const {
+                cost,
+            } = await this.aiInvokeService.run({
+                userId,
                 messages,
-                categories: [
-                    AiModelCategory.Free,
-                ],
+                floor: AiModelCategory.Free,
                 // tutoring answers want a little variety, not deterministic grading
                 temperature: 0.3,
                 signal: controller.signal,
@@ -165,6 +173,15 @@ export class ContentAiGateway {
                     })
                 },
             })
+
+            // bill by the model that actually served — free model = 0 (normal);
+            // a climbed economy+ model is charged to the user (platform doesn't eat it)
+            await this.aiEntitlementService.consume({
+                userId,
+                mode: AiMode.Auto,
+                cost,
+            })
+            await this.creditUsageService.invalidate(userId)
 
             // persist the completed (question → answer) turn under the learner's
             // enrollment — best-effort: a save failure must NOT turn a successful

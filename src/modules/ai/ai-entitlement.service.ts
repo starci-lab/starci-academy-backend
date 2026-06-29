@@ -6,6 +6,7 @@ import {
 } from "typeorm"
 import {
     AiMode,
+    AiModelCategory,
     AiSubStatus,
     AiSubscriptionEntity,
     AiSubTier,
@@ -317,6 +318,36 @@ export class AiEntitlementService {
                 return true
             },
         )
+    }
+
+    /**
+     * Resolve the model categories the user's TIER unlocks (the ceiling),
+     * independent of the requested lane. Drives the Auto lane's difficulty-floor
+     * climb chain: a free tier caps at Economy, any paid tier unlocks up to
+     * Frontier. Free (no active paid subscription) → the `free` allowance.
+     *
+     * @param params - the owning `userId`.
+     * @returns the tier's allowed categories (ceiling), Free → `[free, economy]`.
+     */
+    async resolveTierCategories(
+        {
+            userId,
+        }: ResolveEntitlementParams,
+    ): Promise<Array<AiModelCategory>> {
+        const subscription = await this.entityManager.findOne(
+            AiSubscriptionEntity,
+            {
+                where: {
+                    user: {
+                        id: userId,
+                    },
+                },
+            },
+        )
+        const tier = subscription && this.isPremiumActive(subscription)
+            ? subscription.tier
+            : null
+        return TIER_ALLOWED_CATEGORIES[tier ?? "free"]
     }
 
     /**

@@ -5,8 +5,14 @@ import {
     JobActionService,
     EnqueueSendMailJobService,
     ProgressProjectionService,
+    CreditUsageService,
     writeActivity,
 } from "@modules/bussiness"
+import {
+    AiEntitlementService,
+    AiModelCatalogService,
+    DEFAULT_MODEL_CREDIT,
+} from "@modules/ai"
 import {
     envConfig,
 } from "@modules/env"
@@ -19,6 +25,7 @@ import {
 } from "@modules/common"
 import {
     ActivityType,
+    AiMode,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
@@ -91,6 +98,9 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
         private readonly dayjsService: DayjsService,
         private readonly progressProjectionService: ProgressProjectionService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
+        private readonly aiEntitlementService: AiEntitlementService,
+        private readonly aiModelCatalogService: AiModelCatalogService,
+        private readonly creditUsageService: CreditUsageService,
     ) {
         super()
     }
@@ -358,6 +368,21 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                 },
             )
             if (enrollment) {
+                // bill the capstone review like a challenge: charge the served
+                // model's catalog credit from the pool (idempotent via the
+                // attempt's `idempotencyKey` = job id → createdNewAttempt gate)
+                const chargedMode = payload.ai?.mode ?? AiMode.Auto
+                await this.aiEntitlementService.consume({
+                    userId: enrollment.userId,
+                    mode: chargedMode,
+                    cost: grade.aiUsage?.model
+                        ? await this.aiModelCatalogService.creditForModel({
+                            name: grade.aiUsage.model,
+                            fallback: DEFAULT_MODEL_CREDIT,
+                        })
+                        : 0,
+                })
+                await this.creditUsageService.invalidate(enrollment.userId)
                 await enqueueLearnerEmail({
                     entityManager: this.entityManager,
                     enqueueSendMailJobService: this.enqueueSendMailJobService,

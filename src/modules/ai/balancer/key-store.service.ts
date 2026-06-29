@@ -241,6 +241,12 @@ export class KeyStoreService {
             // token the Caddy gate validates (or a placeholder for a gate-less
             // local Ollama). Keeps the provider eligible so Auto tries it first.
             return this.mountFilesystemService.localApiKeys()
+        case ModelProvider.OpenRouter:
+            // OpenRouter gateway — pooled API keys (Bearer) from the mount file.
+            return this.mountFilesystemService.openRouterApiKeys()
+        case ModelProvider.Anthropic:
+            // native Anthropic Claude API — pooled keys from the mount file.
+            return this.mountFilesystemService.anthropicApiKeys()
         default:
             return []
         }

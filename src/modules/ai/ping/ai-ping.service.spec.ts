@@ -14,6 +14,9 @@ import {
 import {
     GeminiPingService,
 } from "./gemini-ping.service"
+import {
+    OpenRouterPingService,
+} from "./openrouter-ping.service"
 
 describe("AiPingService",
     () => {
@@ -21,6 +24,7 @@ describe("AiPingService",
         let service: AiPingService
         let openAiPingService: jest.Mocked<Pick<OpenAiPingService, "ping" | "listKeys">>
         let geminiPingService: jest.Mocked<Pick<GeminiPingService, "ping" | "listKeys">>
+        let openRouterPingService: jest.Mocked<Pick<OpenRouterPingService, "ping" | "listKeys">>
 
         beforeEach(async () => {
             // each provider ping service is a thin spy returning a tagged outcome
@@ -44,6 +48,16 @@ describe("AiPingService",
                 ]),
             } as unknown as jest.Mocked<Pick<GeminiPingService, "ping" | "listKeys">>
 
+            openRouterPingService = {
+                ping: jest.fn(async () => ({
+                    success: true,
+                    errorMessage: null,
+                })),
+                listKeys: jest.fn(() => [
+                    "sk-openrouter",
+                ]),
+            } as unknown as jest.Mocked<Pick<OpenRouterPingService, "ping" | "listKeys">>
+
             module = await Test.createTestingModule({
                 providers: [
                     AiPingService,
@@ -54,6 +68,10 @@ describe("AiPingService",
                     {
                         provide: GeminiPingService,
                         useValue: geminiPingService,
+                    },
+                    {
+                        provide: OpenRouterPingService,
+                        useValue: openRouterPingService,
                     },
                 ],
             }).compile()
@@ -87,6 +105,16 @@ describe("AiPingService",
                         })
 
                         expect(geminiPingService.ping).toHaveBeenCalledWith("sk-gemini")
+                    })
+
+                it("routes an OpenRouter ping to the OpenRouter ping service",
+                    async () => {
+                        await service.pingKey({
+                            provider: ModelProvider.OpenRouter,
+                            key: "sk-openrouter",
+                        })
+
+                        expect(openRouterPingService.ping).toHaveBeenCalledWith("sk-openrouter")
                     })
 
                 it("returns a failure outcome for an unsupported provider",

@@ -1244,6 +1244,30 @@ export const envConfig = () => ({
                     "keys",
                     "local.key"),
             }),
+            /**
+             * API-key pool sent to OpenRouter (`Authorization: Bearer …`).
+             * One key per line; missing/empty → empty pool (no crash).
+             */
+            openrouter: parseEnvString({
+                key: "AI_KEYS_OPENROUTER_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "keys",
+                    "openrouter-api-keys.key"),
+            }),
+            /**
+             * Native Anthropic API-key pool (frontier tier — Claude Opus).
+             * One key per line; missing/empty → empty pool (no crash).
+             */
+            anthropic: parseEnvString({
+                key: "AI_KEYS_ANTHROPIC_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "terraform",
+                    "keys",
+                    "anthropic-api-keys.key"),
+            }),
         },
     },
     /** CORS: allowed origins (CORS_ORIGIN_1 … CORS_ORIGIN_10, empty skipped). */
@@ -2035,6 +2059,17 @@ export const envConfig = () => ({
             baseUrl: parseEnvString({
                 key: "OLLAMA_BASE_URL",
                 defaultValue: "http://localhost:11434/v1",
+            }),
+        },
+        /** OpenRouter (OpenAI-compatible aggregator gateway) config. */
+        openrouter: {
+            /**
+             * Base URL of the OpenRouter OpenAI-compatible API used by
+             * `ModelProvider.OpenRouter`. Models tagged `openrouter` route here.
+             */
+            baseUrl: parseEnvString({
+                key: "OPENROUTER_BASE_URL",
+                defaultValue: "https://openrouter.ai/api/v1",
             }),
         },
         /** Interval (ms) between provider quota re-check for unavailable providers. */

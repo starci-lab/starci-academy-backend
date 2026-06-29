@@ -93,6 +93,14 @@ export class AiModelCatalogParserService {
                     enMd.priority,
                     0,
                 ),
+                credit: this.coerceMdScalarService.toRequiredNumber(
+                    enMd.credit,
+                    0,
+                ),
+                weight: this.coerceMdScalarService.toRequiredNumber(
+                    enMd.weight,
+                    0,
+                ),
                 enabled: this.coerceMdScalarService.toRequiredBoolean(
                     enMd.enabled,
                     true,

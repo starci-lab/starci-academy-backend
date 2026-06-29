@@ -13,6 +13,7 @@ export const CATEGORY_CREDIT_COST: Record<AiModelCategory, number> = {
     [AiModelCategory.Economy]: 5,
     [AiModelCategory.Balanced]: 20,
     [AiModelCategory.Premium]: 50,
+    [AiModelCategory.Frontier]: 100,
 }
 
 /** Length of the short rolling window: 5 hours, in milliseconds. */
@@ -44,17 +45,20 @@ export const TIER_ALLOWED_CATEGORIES: Record<AiSubTier | "free", Array<AiModelCa
         AiModelCategory.Economy,
         AiModelCategory.Balanced,
         AiModelCategory.Premium,
+        AiModelCategory.Frontier,
     ],
     [AiSubTier.Pro]: [
         AiModelCategory.Free,
         AiModelCategory.Economy,
         AiModelCategory.Balanced,
         AiModelCategory.Premium,
+        AiModelCategory.Frontier,
     ],
     [AiSubTier.Max]: [
         AiModelCategory.Free,
         AiModelCategory.Economy,
         AiModelCategory.Balanced,
         AiModelCategory.Premium,
+        AiModelCategory.Frontier,
     ],
 }

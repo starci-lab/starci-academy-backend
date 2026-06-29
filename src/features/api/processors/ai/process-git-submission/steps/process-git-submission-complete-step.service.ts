@@ -28,8 +28,9 @@ import {
 } from "@modules/databases"
 import {
     AiEntitlementService,
+    AiModelCatalogService,
+    DEFAULT_MODEL_CREDIT,
     ModelRecommendation,
-    resolveGradingCreditCost,
 } from "@modules/ai"
 import {
     envConfig,
@@ -96,6 +97,7 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
         private readonly dayjsService: DayjsService,
         private readonly creditUsageService: CreditUsageService,
         private readonly aiEntitlementService: AiEntitlementService,
+        private readonly aiModelCatalogService: AiModelCatalogService,
         private readonly progressProjectionService: ProgressProjectionService,
         private readonly challengeProgressService: ChallengeProgressService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
@@ -331,16 +333,16 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
         /** Debit credit pools AFTER commit, only when this run created the attempt and grade didn't charge. */
         if (createdNewAttempt && chargedUserId && !alreadyCharged) {
             const chargedMode = payload.ai?.mode ?? AiMode.Auto
-            const recommendation = envConfig().ai.modelRecommendation as ModelRecommendation
             await this.aiEntitlementService.consume({
                 userId: chargedUserId,
                 mode: chargedMode,
-                // charge by the model that actually served (from the grade result)
-                cost: resolveGradingCreditCost({
-                    mode: chargedMode,
-                    recommendation,
-                    model: grade.aiUsage?.model,
-                }),
+                // charge by the model that actually served (catalog credit)
+                cost: grade.aiUsage?.model
+                    ? await this.aiModelCatalogService.creditForModel({
+                        name: grade.aiUsage.model,
+                        fallback: DEFAULT_MODEL_CREDIT,
+                    })
+                    : 0,
             })
             await this.creditUsageService.invalidate(chargedUserId)
         }
@@ -421,13 +423,15 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
         )
         /** The lane the user submitted on (defaults to the free Auto lane). */
         const mode = payload.ai?.mode ?? AiMode.Auto
-        /** The premium tier billed comes from the configured model recommendation. */
+        /** Recorded on the usage history for Premium spend attribution. */
         const recommendation = envConfig().ai.modelRecommendation as ModelRecommendation
-        const credits = resolveGradingCreditCost({
-            mode,
-            recommendation,
-            model: servedModel,
-        })
+        // credits billed by the model that actually served (catalog credit)
+        const credits = servedModel
+            ? await this.aiModelCatalogService.creditForModel({
+                name: servedModel,
+                fallback: DEFAULT_MODEL_CREDIT,
+            })
+            : 0
         // Record the concrete model billed so the usage history can attribute spend per model.
         // Prefer the model that actually served (incl. the Auto-lane Qwen/economy pick);
         // fall back to the user-picked Premium/BYOK model.

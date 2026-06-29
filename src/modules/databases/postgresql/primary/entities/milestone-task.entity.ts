@@ -5,6 +5,8 @@ import {
     ObjectType,
 } from "@nestjs/graphql"
 import {
+    ChallengeDifficulty,
+    GraphQLTypeChallengeDifficulty,
     GraphQLTypeLocale,
     GraphQLTypePersonalProjectTaskType,
     Locale,
@@ -202,6 +204,28 @@ export class MilestoneTaskEntity extends UuidAbstractEntity {
         default: 0,
     })
         maxScore: number
+
+    /**
+     * Relative difficulty of this capstone task (easy / medium / hard / insane).
+     * Drives the Auto grading lane's complexity routing — harder tasks pick a
+     * stronger model category within the user's entitlement. Nullable when unset
+     * (sourced from the `# difficulty` markdown heading); null → routed as medium.
+     */
+    @Field(
+        () => GraphQLTypeChallengeDifficulty,
+        {
+            nullable: true,
+            description: "Relative difficulty (drives Auto complexity routing).",
+        },
+    )
+    @Column({
+        name: "difficulty",
+        type: "enum",
+        enum: ChallengeDifficulty,
+        enumName: "challenge_difficulty",
+        nullable: true,
+    })
+        difficulty: ChallengeDifficulty | null
 
     /**
      * Day this task was verified. Presence (non-null) marks a SCHEMA V2 task graded by the

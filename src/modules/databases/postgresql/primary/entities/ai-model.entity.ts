@@ -1,5 +1,6 @@
 import {
     Field,
+    Float,
     Int,
     ObjectType,
 } from "@nestjs/graphql"
@@ -116,6 +117,44 @@ export class AiModelEntity extends UuidAbstractEntity {
         default: 0,
     })
         priority: number
+
+    /**
+     * Credit cost charged to the user when THIS model serves a grading run
+     * (integer). Free models = 0. Sourced from the `# credit` markdown heading.
+     * This is the BILLING value (distinct from {@link weight}).
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Credit cost charged per grading run (billing).",
+        },
+    )
+    @Column({
+        name: "credit",
+        type: "int",
+        default: 0,
+    })
+        credit: number
+
+    /**
+     * Within-category try-order key for the Auto lane (higher tried first, then
+     * climb to the next category). Accepts decimals so models sharing a credit
+     * tier still order distinctly (e.g. credit 5 → weights 5.3 / 5.2 / 5.1).
+     * Sourced from the `# weight` markdown heading. This is the ORDERING value
+     * (distinct from {@link credit}).
+     */
+    @Field(
+        () => Float,
+        {
+            description: "Within-category try-order key (higher first; decimals allowed).",
+        },
+    )
+    @Column({
+        name: "weight",
+        type: "double precision",
+        default: 0,
+    })
+        weight: number
 
     /** Kill-switch — `false` removes the model from rotation without deleting. */
     @Field(

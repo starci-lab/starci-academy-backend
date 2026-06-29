@@ -75,6 +75,30 @@ export class AiModelCatalogService {
     }
 
     /**
+     * Resolve the billing `credit` of the model that served a run, by its
+     * concrete name. The single source of grading cost (replaces the hardcoded
+     * `MODEL_CREDIT` map). Unknown / disabled model → {@link fallback}.
+     *
+     * NOTE: this is the BILLING value (`credit`), NOT the ordering `weight`.
+     *
+     * @param params - the served model `name` and a `fallback` credit.
+     * @returns the model's catalog credit, or `fallback` when not found.
+     */
+    async creditForModel(
+        {
+            name,
+            fallback,
+        }: {
+            name: string
+            fallback: number
+        },
+    ): Promise<number> {
+        const models = await this.enabledModels()
+        const found = models.find((model) => model.name === name)
+        return found ? found.credit : fallback
+    }
+
+    /**
      * Drop the cached enabled-models result so the next {@link enabledModels}
      * read hits the DB. Call after a reseed / admin mutation so changes are
      * visible immediately instead of after the TTL elapses.

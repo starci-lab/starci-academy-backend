@@ -26,6 +26,8 @@ export enum AiModelCategory {
     Balanced = "balanced",
     /** Cao cấp — flagship models, highest quality, highest cost. e.g. gemini-2.5-pro. */
     Premium = "premium",
+    /** Đỉnh — frontier reasoning models, top quality/cost. e.g. Claude Opus 4.8, GPT-5. */
+    Frontier = "frontier",
 }
 
 export const GraphQLTypeAiModelCategory = createEnumType(AiModelCategory)
@@ -47,6 +49,9 @@ registerEnumType(
             },
             [AiModelCategory.Premium]: {
                 description: "Cao cấp — flagship models, highest quality.",
+            },
+            [AiModelCategory.Frontier]: {
+                description: "Đỉnh — frontier reasoning models (Opus 4.8, GPT-5).",
             },
         },
     },

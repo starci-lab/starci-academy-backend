@@ -98,6 +98,9 @@ describe("ProcessGitSubmissionCompleteStepService",
                 creditUsageService as never,
                 aiEntitlementService as never,
                 {
+                    creditForModel: jest.fn().mockResolvedValue(0),
+                } as never,
+                {
                     recompute: jest.fn(),
                 } as never,
                 {

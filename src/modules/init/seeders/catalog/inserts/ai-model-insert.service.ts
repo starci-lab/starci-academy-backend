@@ -77,6 +77,8 @@ export class AiModelInsertService {
                     category: model.category,
                     keysFilePath: model.keysFilePath,
                     priority: model.priority,
+                    credit: model.credit,
+                    weight: model.weight,
                     enabled: model.enabled,
                     complimentary: model.complimentary,
                     defaultLocale: Locale.En,

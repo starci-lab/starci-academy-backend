@@ -19,6 +19,10 @@ export type AiModelCatalogMd = {
     keysFilePath?: string
     /** Rotation priority (higher = preferred); string or number from markdown. */
     priority?: string | number
+    /** Credit cost (billing, integer); string or number from markdown. */
+    credit?: string | number
+    /** Within-category order weight (decimals allowed); string or number from markdown. */
+    weight?: string | number
     /** Whether the model is enabled; string or boolean from markdown. */
     enabled?: string | boolean
     /** Whether the model is complimentary (free); string or boolean from markdown. */

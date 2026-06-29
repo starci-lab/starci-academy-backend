@@ -10,6 +10,9 @@ import {
 import {
     OpenAiPingService,
 } from "./openai-ping.service"
+import {
+    OpenRouterPingService,
+} from "./openrouter-ping.service"
 import type {
     PingKeyParams,
     PingKeyResult,
@@ -25,6 +28,7 @@ export class AiPingService {
     constructor(
         private readonly openAiPingService: OpenAiPingService,
         private readonly geminiPingService: GeminiPingService,
+        private readonly openRouterPingService: OpenRouterPingService,
     ) { }
 
     /**
@@ -41,6 +45,8 @@ export class AiPingService {
             return this.openAiPingService.ping(key)
         case ModelProvider.Gemini:
             return this.geminiPingService.ping(key)
+        case ModelProvider.OpenRouter:
+            return this.openRouterPingService.ping(key)
         default:
             return {
                 success: false,
@@ -60,6 +66,8 @@ export class AiPingService {
             return this.openAiPingService.listKeys()
         case ModelProvider.Gemini:
             return this.geminiPingService.listKeys()
+        case ModelProvider.OpenRouter:
+            return this.openRouterPingService.listKeys()
         default:
             return []
         }

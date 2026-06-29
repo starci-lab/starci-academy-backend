@@ -2,14 +2,17 @@ import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
+    AiMode,
     AiModelCategory,
     Locale,
 } from "@modules/databases"
 import {
+    AiEntitlementService,
     AiInvokeService,
 } from "@modules/ai"
 import {
     ContentAiService,
+    CreditUsageService,
 } from "@modules/bussiness"
 import {
     UserNotFoundException,
@@ -35,6 +38,8 @@ export class AskContentAiHandler
     implements ICommandHandler<AskContentAiCommand, AskContentAiData> {
     constructor(
         private readonly aiInvokeService: AiInvokeService,
+        private readonly aiEntitlementService: AiEntitlementService,
+        private readonly creditUsageService: CreditUsageService,
         private readonly contentAiService: ContentAiService,
     ) {
         super()
@@ -70,16 +75,26 @@ export class AskContentAiHandler
             locale: locale ?? Locale.En,
         })
 
-        // content AI is free-tier: invoke the free local model only (Free
-        // category — no Economy cloud fallback, no AI-credit gate / debit).
+        // content AI ("đọc bài") = same System engine as grading, floor=free:
+        // local Qwen → OpenRouter free, then (only if all free fail) climb to
+        // economy+ within the tier ceiling.
         const {
             text,
-        } = await this.aiInvokeService.invoke({
+            cost,
+        } = await this.aiInvokeService.run({
+            userId: user.id,
             messages,
-            categories: [
-                AiModelCategory.Free,
-            ],
+            floor: AiModelCategory.Free,
         })
+
+        // bill by the model that actually served — a free model = 0 (normal case);
+        // a climbed economy+ model is charged to the user (platform doesn't eat it)
+        await this.aiEntitlementService.consume({
+            userId: user.id,
+            mode: AiMode.Auto,
+            cost,
+        })
+        await this.creditUsageService.invalidate(user.id)
 
         return {
             answer: text,

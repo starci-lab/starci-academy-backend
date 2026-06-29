@@ -8,12 +8,12 @@ import {
 /**
  * Credits charged for one grading run on the free Auto lane when the served
  * model is unknown (e.g. a pre-run quota estimate). 0 — the Auto lane normally
- * grades on the self-hosted `local` Qwen (0 cost). The ACTUAL charge uses the
- * served model via {@link MODEL_CREDIT} (see {@link resolveGradingCreditCost}).
+ * grades on the cheapest entitled model. The ACTUAL charge uses the served
+ * model's catalog `credit` (see {@link resolveGradingCreditCost}).
  */
 export const AUTO_CREDIT_COST = 0
 
-/** Credits charged per model recommendation tier on the Premium lane. */
+/** Credits charged per model recommendation tier on the Premium lane (pre-run estimate). */
 export const RECOMMENDATION_CREDIT_COST: Record<ModelRecommendation, number> = {
     /** Cheapest tier (economy). */
     [ModelRecommendation.Low]: 5,
@@ -24,59 +24,44 @@ export const RECOMMENDATION_CREDIT_COST: Record<ModelRecommendation, number> = {
 }
 
 /**
- * Per-model credit cost, charged by the model that ACTUALLY served the run.
- *
- * - Self-hosted `local` Qwen → 0 (free).
- * - Economy cloud (the Auto-lane fallback when the host is offline) → 5.
- * - Balanced cloud → 20. Premium cloud → 50.
- *
- * Keyed by the concrete model name returned by the balancer. Unknown models
- * fall back to {@link DEFAULT_MODEL_CREDIT}.
+ * Fallback credit for a served model missing from the catalog (balanced-tier
+ * default). Callers pass this as the `fallback` to
+ * {@link AiModelCatalogService.creditForModel}.
  */
-export const MODEL_CREDIT: Record<string, number> = {
-    "qwen2.5-coder:7b": 0,
-    "gpt-5.4-nano": 5,
-    "gemini-2.5-flash-lite": 5,
-    "gpt-5.4-mini": 20,
-    "gemini-3.5-flash": 20,
-    "gemini-3.1-pro": 50,
-}
-
-/** Credit for a model not listed in {@link MODEL_CREDIT} (balanced-tier default). */
 export const DEFAULT_MODEL_CREDIT = 20
 
 /**
  * Resolve how many AI credits a grading run costs.
  *
  * - **Byok lane → 0** (the user pays their own provider).
- * - **`model` given (post-run charge)** → per-model cost from {@link MODEL_CREDIT}
- *   (Qwen 0, economy 5, balanced 20, premium 50). This is the accurate charge:
- *   the Auto lane is free on Qwen but costs the model's credit when it falls
- *   through to a paid cloud model.
- * - **`model` absent (pre-run estimate / quota gate)** → by lane: Auto →
+ * - **`credit` given (post-run charge)** → the served model's catalog `credit`
+ *   (resolved by the caller via {@link AiModelCatalogService.creditForModel} —
+ *   single source of cost). Free models = 0; economy/balanced/premium/frontier
+ *   per the catalog.
+ * - **`credit` absent (pre-run estimate / quota gate)** → by lane: Auto →
  *   {@link AUTO_CREDIT_COST}, Premium → {@link RECOMMENDATION_CREDIT_COST}.
  *
  * @param params - The lane, the recommendation tier, and (when known) the
- *   concrete model that served the run.
+ *   served model's resolved `credit`.
  * @returns The number of credits to charge.
  */
 export const resolveGradingCreditCost = (
     {
         mode,
         recommendation,
-        model,
+        credit,
     }: {
         mode: AiMode
         recommendation: ModelRecommendation
-        model?: string
+        credit?: number
     },
 ): number => {
     if (mode === AiMode.Byok) {
         return 0
     }
-    // accurate, post-run charge: bill by the model that actually served
-    if (model) {
-        return MODEL_CREDIT[model] ?? DEFAULT_MODEL_CREDIT
+    // accurate, post-run charge: bill by the served model's catalog credit
+    if (credit !== undefined) {
+        return credit
     }
     // pre-run estimate (served model not yet known)
     if (mode === AiMode.Auto) {

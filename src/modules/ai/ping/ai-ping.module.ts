@@ -13,6 +13,9 @@ import {
 import {
     OpenAiPingService,
 } from "./openai-ping.service"
+import {
+    OpenRouterPingService,
+} from "./openrouter-ping.service"
 
 /**
  * AI ping sub-module — zero-token provider health checks.
@@ -27,6 +30,7 @@ import {
     providers: [
         OpenAiPingService,
         GeminiPingService,
+        OpenRouterPingService,
         AiPingService,
     ],
     exports: [

@@ -10,6 +10,7 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
+    ChallengeDifficulty,
     Locale,
     PersonalProjectTaskType,
     InjectPrimaryPostgreSQLEntityManager,
@@ -180,6 +181,11 @@ export class MilestoneTaskParserService {
                 merged.maxScore,
                 100,
             ),
+            // `# difficulty` drives Auto complexity routing; null when unset (→ treated as medium)
+            difficulty: this.coerceMdScalarService.toNullableEnum(
+                merged.difficulty,
+                ChallengeDifficulty,
+            ) ?? null,
             // `# verified` (non-null) marks this as a SCHEMA V2 task graded by outcome/approach rubric
             verified: this.coerceMdScalarService.toNullableDate(
                 merged.verified,

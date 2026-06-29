@@ -116,4 +116,35 @@ describe("AiModelsHandler",
 
                 expect(result.gradableModels).toEqual([])
             })
+
+        it("excludes Free models from the gradable list (grading is Economy and up)",
+            async () => {
+                // grading never runs Free models → they must not appear in the picker
+                modelCatalog.enabledModels.mockResolvedValueOnce([
+                    {
+                        name: "qwen/qwen-2.5-coder-14b-instruct",
+                        provider: "openrouter",
+                        category: "free",
+                        complimentary: true,
+                    },
+                    {
+                        name: "gpt-4o",
+                        provider: "openai",
+                        category: "premium",
+                        complimentary: false,
+                    },
+                ] as unknown as Awaited<ReturnType<AiModelCatalogService["enabledModels"]>>)
+
+                const result = await handler.execute()
+
+                expect(result.gradableModels).toEqual([
+                    {
+                        model: "gpt-4o",
+                        provider: "openai",
+                        category: "premium",
+                        complimentary: false,
+                        available: true,
+                    },
+                ])
+            })
     })

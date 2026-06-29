@@ -39,6 +39,7 @@
     "@elastic/elasticsearch": "^8.19.1",
     "@faker-js/faker": "^10.3.0",
     "@keyv/redis": "^5.1.6",
+    "@langchain/anthropic": "^0.3.34",
     "@langchain/community": "^0.3.59",
     "@langchain/core": "^0.3.80",
     "@langchain/google-genai": "^0.2.16",

@@ -33,6 +33,8 @@ import {
     getOpenAiApiKeys,
     getGeminiApiKeys,
     getLocalApiKeys,
+    getOpenRouterApiKeys,
+    getAnthropicApiKeys,
     readAiKeysFile,
 } from "./utils"
 /**
@@ -237,6 +239,24 @@ export class MountFilesystemService {
      */
     localApiKeys(): Array<string> {
         return getLocalApiKeys()
+    }
+
+    /**
+     * Get the OpenRouter API-key pool (newline-separated mount file).
+     *
+     * @returns Array of trimmed, non-empty keys; empty when the file is missing or empty
+     */
+    openRouterApiKeys(): Array<string> {
+        return getOpenRouterApiKeys()
+    }
+
+    /**
+     * Get the native Anthropic API-key pool (newline-separated mount file).
+     *
+     * @returns Array of trimmed, non-empty keys; empty when the file is missing or empty
+     */
+    anthropicApiKeys(): Array<string> {
+        return getAnthropicApiKeys()
     }
 
     /**

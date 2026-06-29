@@ -8,6 +8,7 @@ const CATEGORY_RANK: Record<AiModelCategory, number> = {
     [AiModelCategory.Economy]: 0,
     [AiModelCategory.Balanced]: 1,
     [AiModelCategory.Premium]: 2,
+    [AiModelCategory.Frontier]: 3,
 }
 
 /**
