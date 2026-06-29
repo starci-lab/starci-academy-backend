@@ -54,17 +54,39 @@ export class GradingLaneValidationService {
             byokApiKey,
         }: ValidateGradingLaneParams,
     ): Promise<ValidatedGradingLane> {
+        this.assertModelProviderPairing(
+            model,
+            provider,
+        )
+
+        // explicit Premium pick → gate on the UNLOCK (paid OR enrolled — the StarCi
+        // rule, same as the grade-time gate). `resolve({Premium})` alone rejects an
+        // enrolled-not-paid user ("no active paid subscription"); use the unlock +
+        // the enroll-aware tier categories instead.
+        if (requestedMode === AiMode.Premium) {
+            await this.aiEntitlementService.assertCanUsePaidModels({
+                userId,
+            })
+            const allowedCategories = await this.aiEntitlementService
+                .resolveTierCategories({
+                    userId,
+                })
+            return this.validatePremiumLane(
+                {
+                    model,
+                    provider,
+                    allowedCategories,
+                },
+            )
+        }
+
+        // auto / byok → natural resolution (Auto is always allowed; Byok handled)
         const entitlement = await this.aiEntitlementService.resolve({
             userId,
             requestedMode,
             ephemeralByok: requestedMode === AiMode.Byok
                 && Boolean(byokApiKey?.trim()),
         })
-
-        this.assertModelProviderPairing(
-            model,
-            provider,
-        )
 
         switch (entitlement.mode) {
         case AiMode.Byok:

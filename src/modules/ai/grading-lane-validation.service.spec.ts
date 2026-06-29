@@ -10,6 +10,7 @@ import {
 } from "@modules/databases"
 import {
     AiByokInvalidException,
+    AiModeNotEntitledException,
 } from "@modules/exceptions"
 import {
     GradingLaneValidationService,
@@ -40,7 +41,7 @@ describe("GradingLaneValidationService",
     () => {
         let module: TestingModule
         let service: GradingLaneValidationService
-        let aiEntitlementService: jest.Mocked<Pick<AiEntitlementService, "resolve" | "getByokApiKey">>
+        let aiEntitlementService: jest.Mocked<Pick<AiEntitlementService, "resolve" | "getByokApiKey" | "assertCanUsePaidModels" | "resolveTierCategories">>
         let aiModelCatalogService: jest.Mocked<Pick<AiModelCatalogService, "enabledModels">>
 
         const userId = "user-1"
@@ -55,7 +56,13 @@ describe("GradingLaneValidationService",
                     ],
                 })),
                 getByokApiKey: jest.fn(async () => null),
-            } as unknown as jest.Mocked<Pick<AiEntitlementService, "resolve" | "getByokApiKey">>
+                // explicit-Premium gate (paid OR enrolled); default: unlocked
+                assertCanUsePaidModels: jest.fn(async () => undefined),
+                // enroll-aware unlocked categories for the Premium path
+                resolveTierCategories: jest.fn(async () => [
+                    AiModelCategory.Economy,
+                ]),
+            } as unknown as jest.Mocked<Pick<AiEntitlementService, "resolve" | "getByokApiKey" | "assertCanUsePaidModels" | "resolveTierCategories">>
 
             // catalog: empty by default so tests opt into a specific row set
             aiModelCatalogService = {
@@ -124,10 +131,12 @@ describe("GradingLaneValidationService",
 
                 it("accepts a complimentary enabled model on the Auto lane",
                     async () => {
-                        // a complimentary catalog row may be pinned on Auto
+                        // a complimentary catalog row in an allowed category may be
+                        // pinned on Auto (default allowed = [Economy])
                         aiModelCatalogService.enabledModels.mockResolvedValueOnce([
                             buildModelRow({
                                 name: "gpt-4o-mini",
+                                category: AiModelCategory.Economy,
                                 complimentary: true,
                             }),
                         ])
@@ -182,14 +191,32 @@ describe("GradingLaneValidationService",
         describe("premium lane",
             () => {
                 beforeEach(() => {
-                    // resolve to a Premium entitlement unlocking the Balanced category
-                    aiEntitlementService.resolve.mockResolvedValue({
-                        mode: AiMode.Premium,
-                        allowedCategories: [
-                            AiModelCategory.Balanced,
-                        ],
-                    } as Awaited<ReturnType<AiEntitlementService["resolve"]>>)
+                    // explicit Premium → gated on assertCanUsePaidModels (paid OR
+                    // enrolled, default unlocked) + the enroll-aware categories
+                    aiEntitlementService.resolveTierCategories.mockResolvedValue([
+                        AiModelCategory.Balanced,
+                    ])
                 })
+
+                it("rejects an explicit Premium pick when NOT unlocked (not paid, not enrolled)",
+                    async () => {
+                        // assertCanUsePaidModels throws for an unentitled user → reject
+                        aiEntitlementService.assertCanUsePaidModels.mockRejectedValueOnce(
+                            new AiModeNotEntitledException({
+                                requestedMode: AiMode.Premium,
+                                reason: "no active paid subscription or enrollment",
+                            }),
+                        )
+
+                        await expect(
+                            service.validate({
+                                userId,
+                                mode: AiMode.Premium,
+                                model: "gpt-4o",
+                                provider: ModelProvider.OpenAI,
+                            }),
+                        ).rejects.toBeInstanceOf(AiModeNotEntitledException)
+                    })
 
                 it("returns the resolved catalog row for an allowed category",
                     async () => {
