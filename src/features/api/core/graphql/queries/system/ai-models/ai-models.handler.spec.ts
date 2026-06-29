@@ -117,9 +117,10 @@ describe("AiModelsHandler",
                 expect(result.gradableModels).toEqual([])
             })
 
-        it("excludes Free models from the gradable list (grading is Economy and up)",
+        it("includes Free models in the gradable list (shown flagged danger, not hidden)",
             async () => {
-                // grading never runs Free models → they must not appear in the picker
+                // Free models stay in the picker so a learner can pick one at their
+                // own risk (the FE flags them danger — may grade inaccurately)
                 modelCatalog.enabledModels.mockResolvedValueOnce([
                     {
                         name: "qwen/qwen-2.5-coder-14b-instruct",
@@ -134,10 +135,22 @@ describe("AiModelsHandler",
                         complimentary: false,
                     },
                 ] as unknown as Awaited<ReturnType<AiModelCatalogService["enabledModels"]>>)
+                // both providers have a healthy key for this case
+                useApiService.availableProviders.mockResolvedValueOnce(
+                    new Set(["openrouter",
+                        "openai"]),
+                )
 
                 const result = await handler.execute()
 
                 expect(result.gradableModels).toEqual([
+                    {
+                        model: "qwen/qwen-2.5-coder-14b-instruct",
+                        provider: "openrouter",
+                        category: "free",
+                        complimentary: true,
+                        available: true,
+                    },
                     {
                         model: "gpt-4o",
                         provider: "openai",

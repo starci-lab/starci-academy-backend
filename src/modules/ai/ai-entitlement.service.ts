@@ -11,6 +11,7 @@ import {
     AiSubStatus,
     AiSubscriptionEntity,
     AiSubTier,
+    EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     TransactionEntity,
     TransactionStatus,
@@ -184,7 +185,13 @@ export class AiEntitlementService {
                 )
                 this.applyWindowResets(subscription)
                 await entityManager.save(subscription)
-                return this.toSnapshot(subscription)
+                const unlocked = await this.isUnlocked(
+                    userId,
+                    subscription,
+                    entityManager,
+                )
+                return this.toSnapshot(subscription,
+                    unlocked)
             },
         )
     }
@@ -208,7 +215,13 @@ export class AiEntitlementService {
                 )
                 this.applyWindowResets(subscription)
                 await entityManager.save(subscription)
-                return this.toSettings(subscription)
+                const unlocked = await this.isUnlocked(
+                    userId,
+                    subscription,
+                    entityManager,
+                )
+                return this.toSettings(subscription,
+                    unlocked)
             },
         )
     }
@@ -325,13 +338,13 @@ export class AiEntitlementService {
     }
 
     /**
-     * Resolve the model categories the user's TIER unlocks (the ceiling),
-     * independent of the requested lane. Drives the Auto lane's difficulty-floor
-     * climb chain: a free tier caps at Economy, any paid tier unlocks up to
-     * Frontier. Free (no active paid subscription) → the `free` allowance.
+     * Resolve the model categories the user UNLOCKS (the ceiling), independent of
+     * the requested lane. Drives the Auto difficulty-floor climb chain. Unlocked
+     * (every category up to Frontier) when the user has paid a tier **OR** is
+     * enrolled in any course; otherwise the `free` allowance ([free, economy]).
      *
      * @param params - the owning `userId`.
-     * @returns the tier's allowed categories (ceiling), Free → `[free, economy]`.
+     * @returns the unlocked categories (ceiling).
      */
     async resolveTierCategories(
         {
@@ -348,10 +361,94 @@ export class AiEntitlementService {
                 },
             },
         )
-        const tier = subscription && this.isPremiumActive(subscription)
-            ? subscription.tier
-            : null
-        return TIER_ALLOWED_CATEGORIES[tier ?? "free"]
+        const unlocked = await this.isUnlocked(userId,
+            subscription)
+        return unlocked
+            ? TIER_ALLOWED_CATEGORIES[AiSubTier.Plus]
+            : TIER_ALLOWED_CATEGORIES.free
+    }
+
+    /**
+     * Whether the user may use the higher (paid) model tiers — true when they
+     * have an active paid subscription **OR** are enrolled in any course. This is
+     * the StarCi "enroll OR pay unlocks higher tiers" rule: an enrolled learner
+     * gets the same model access as a paid AI subscriber (credit allowance still
+     * follows the actual tier — enrolled-not-paid spends the free base pool).
+     *
+     * @param userId - the owning user.
+     * @param subscription - the user's subscription row (or null).
+     * @param entityManager - optional manager to run inside a transaction.
+     * @returns true when paid or enrolled.
+     */
+    private async isUnlocked(
+        userId: string,
+        subscription: AiSubscriptionEntity | null,
+        entityManager?: EntityManager,
+    ): Promise<boolean> {
+        if (subscription && this.isPremiumActive(subscription)) {
+            return true
+        }
+        return this.hasActiveEnrollment(userId,
+            entityManager)
+    }
+
+    /**
+     * Whether the user has at least one active enrollment (`is_enrolled = true`).
+     *
+     * @param userId - the owning user.
+     * @param entityManager - optional manager (to share a transaction).
+     * @returns true when an active enrollment exists.
+     */
+    private async hasActiveEnrollment(
+        userId: string,
+        entityManager?: EntityManager,
+    ): Promise<boolean> {
+        const manager = entityManager ?? this.entityManager
+        const count = await manager.count(
+            EnrollmentEntity,
+            {
+                where: {
+                    user: {
+                        id: userId,
+                    },
+                    isEnrolled: true,
+                },
+            },
+        )
+        return count > 0
+    }
+
+    /**
+     * Assert the user may pick / grade with paid-tier models — passes when paid
+     * OR enrolled (the unlock rule), throws otherwise. Replaces a strict
+     * `resolve({ requestedMode: Premium })` for the grading model-pick gate so an
+     * enrolled learner can pin a higher model.
+     *
+     * @param params - the owning `userId`.
+     * @throws AiModeNotEntitledException when neither paid nor enrolled.
+     */
+    async assertCanUsePaidModels(
+        {
+            userId,
+        }: ResolveEntitlementParams,
+    ): Promise<void> {
+        const subscription = await this.entityManager.findOne(
+            AiSubscriptionEntity,
+            {
+                where: {
+                    user: {
+                        id: userId,
+                    },
+                },
+            },
+        )
+        if (!(await this.isUnlocked(userId,
+            subscription))) {
+            throw new AiModeNotEntitledException({
+                requestedMode: AiMode.Premium,
+                reason: "no active paid subscription or enrollment",
+            })
+        }
     }
 
     /**
@@ -465,12 +562,16 @@ export class AiEntitlementService {
 
     /**
      * Build the user-facing {@link AiSettings} view from a (post-reset) entity.
+     *
+     * `unlocked` (paid OR enrolled) drives `canPremium` — the FE picker's unlock
+     * for higher-tier models; an enrolled learner unlocks them too.
      */
     private toSettings(
         subscription: AiSubscriptionEntity,
+        unlocked = false,
     ): AiSettings {
         const canByok = Boolean(subscription.byokProvider)
-        const canPremium = this.isPremiumActive(subscription)
+        const canPremium = unlocked
         const effectiveMode = this.resolveEffectiveMode(subscription)
         const tier = effectiveMode === AiMode.Premium
             ? subscription.tier
@@ -630,6 +731,7 @@ export class AiEntitlementService {
      */
     private toSnapshot(
         subscription: AiSubscriptionEntity,
+        unlocked = false,
     ): AiQuotaSnapshot {
         const mode = this.resolveEffectiveMode(subscription)
         const tier = mode === AiMode.Premium ? subscription.tier : null
@@ -658,8 +760,10 @@ export class AiEntitlementService {
             },
             window5hResetAt: subscription.window5hResetAt,
             windowWeekResetAt: subscription.windowWeekResetAt,
-            // plan ceiling (categories unlocked by the tier) the user caps within
-            allowedCategories: TIER_ALLOWED_CATEGORIES[tier ?? "free"],
+            // ceiling the user caps within — unlocked (paid OR enrolled) → all
+            allowedCategories: unlocked
+                ? TIER_ALLOWED_CATEGORIES[AiSubTier.Plus]
+                : TIER_ALLOWED_CATEGORIES.free,
             // per-surface ceiling the user set (null each = inherit default / no cap)
             ceil: {
                 default: overrides?.default ?? null,

@@ -92,13 +92,13 @@ export async function resolveGradingInvokeOptions(
         ceil,
     }: ResolveGradingInvokeOptionsParams,
 ): Promise<ResolveGradingInvokeOptionsResult> {
-    // premium-only content (no free Auto) or an explicit Premium pick → require a
-    // paid entitlement (resolve throws for an unentitled user — no silent downgrade)
+    // premium-only content (no free Auto) or an explicit Premium pick → require
+    // unlock (paid OR enrolled — the StarCi rule; throws for an unentitled user,
+    // no silent downgrade). Enrolled learners may pin a higher model too.
     const requiresPaid = !allowFreeAuto
     if (selection?.mode === AiMode.Premium || requiresPaid) {
-        await aiEntitlementService.resolve({
+        await aiEntitlementService.assertCanUsePaidModels({
             userId,
-            requestedMode: AiMode.Premium,
         })
     }
 

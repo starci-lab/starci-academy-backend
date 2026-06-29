@@ -12,8 +12,8 @@ import type {
 
 /**
  * Build a stub {@link AiEntitlementService} exposing the methods this helper
- * calls (`resolve`, `resolveTierCategories`), cast to the type. Grading is
- * System-only (BYOK removed).
+ * calls (`assertCanUsePaidModels`, `resolveTierCategories`), cast to the type.
+ * Grading is System-only (BYOK removed); paid-model picks gate on paid OR enroll.
  */
 const makeEntitlementStub = (
     {
@@ -25,13 +25,12 @@ const makeEntitlementStub = (
         tierCategories?: Array<AiModelCategory>
     } = {
     },
-): jest.Mocked<Pick<AiEntitlementService, "resolve" | "resolveTierCategories">> => ({
-    // resolve only gates the lane (no fields read); never throws in these stubs
-    resolve: jest.fn(async () => ({
-    })),
+): jest.Mocked<Pick<AiEntitlementService, "assertCanUsePaidModels" | "resolveTierCategories">> => ({
+    // the paid-model gate (paid OR enrolled); never throws in these stubs
+    assertCanUsePaidModels: jest.fn(async () => undefined),
     // the tier ceiling drives the climb chain
     resolveTierCategories: jest.fn(async () => tierCategories),
-}) as unknown as jest.Mocked<Pick<AiEntitlementService, "resolve" | "resolveTierCategories">>
+}) as unknown as jest.Mocked<Pick<AiEntitlementService, "assertCanUsePaidModels" | "resolveTierCategories">>
 
 const userId = "user-1"
 
@@ -124,7 +123,7 @@ describe("resolveGradingInvokeOptions",
                     model: "gpt-4o",
                     provider: ModelProvider.OpenAI,
                 })
-                // a Premium pick is gated on a paid entitlement
-                expect(entitlement.resolve).toHaveBeenCalled()
+                // a Premium pick is gated on the paid-OR-enrolled unlock
+                expect(entitlement.assertCanUsePaidModels).toHaveBeenCalled()
             })
     })
