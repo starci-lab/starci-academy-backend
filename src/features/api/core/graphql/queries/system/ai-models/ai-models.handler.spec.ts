@@ -123,7 +123,7 @@ describe("AiModelsHandler",
                 // own risk (the FE flags them danger — may grade inaccurately)
                 modelCatalog.enabledModels.mockResolvedValueOnce([
                     {
-                        name: "qwen/qwen-2.5-coder-14b-instruct",
+                        name: "qwen/qwen-2.5-coder-32b-instruct",
                         provider: "openrouter",
                         category: "free",
                         complimentary: true,
@@ -145,7 +145,7 @@ describe("AiModelsHandler",
 
                 expect(result.gradableModels).toEqual([
                     {
-                        model: "qwen/qwen-2.5-coder-14b-instruct",
+                        model: "qwen/qwen-2.5-coder-32b-instruct",
                         provider: "openrouter",
                         category: "free",
                         complimentary: true,

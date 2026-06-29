@@ -21,7 +21,7 @@ export enum ModelProvider {
     Local = "local",
     /**
      * OpenRouter — an OpenAI-compatible aggregator gateway fronting many model
-     * vendors (e.g. `qwen/qwen-2.5-coder-14b-instruct`). Routed through
+     * vendors (e.g. `qwen/qwen-2.5-coder-32b-instruct`). Routed through
      * `ChatOpenAI` with a custom `baseURL` (see `OPENROUTER_BASE_URL`).
      */
     OpenRouter = "openrouter",
