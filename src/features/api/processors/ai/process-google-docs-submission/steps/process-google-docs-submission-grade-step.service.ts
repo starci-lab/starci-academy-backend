@@ -15,6 +15,7 @@ import {
 import {
     AiCeilSurface,
     AiMode,
+    AiModelCategory,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
@@ -298,7 +299,7 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 new HumanMessage(humanText),
             ],
             selection: payload.ai,
-            difficulty: challenge?.difficulty ?? null,
+            floor: AiModelCategory.Economy,
             surface: AiCeilSurface.Grading,
         })
 

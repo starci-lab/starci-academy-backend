@@ -22,6 +22,9 @@ import {
     AiEntitlementService,
     AiInvokeService,
 } from "@modules/ai"
+import type {
+    AiJobSelection,
+} from "@modules/ai"
 import {
     ContentAiService,
     CreditUsageService,
@@ -30,6 +33,7 @@ import {
     AiCeilSurface,
     AiMode,
     AiModelCategory,
+    ModelProvider,
 } from "@modules/databases"
 import {
     PublicationEvent,
@@ -108,7 +112,22 @@ export class ContentAiGateway {
             contentId,
             question,
             history,
+            mode,
+            model,
+            provider,
         } = payload.data
+        // a pinned model (mode "premium" + model + provider) routes Premium
+        // (gated on paid OR enrolled); otherwise the free Auto chain. floor stays
+        // Free so Auto starts on the 0-credit tier.
+        const selection: AiJobSelection | undefined = mode === AiMode.Premium
+            && model
+            && provider
+            ? {
+                mode: AiMode.Premium,
+                model,
+                provider: provider as ModelProvider,
+            }
+            : undefined
         // the socket stamps the Keycloak subject id; resolve it to the real
         // users.id (uuid) so the premium gate + per-session persistence (which
         // key off enrollments.user_id) match — passing the raw sub would make
@@ -158,6 +177,7 @@ export class ContentAiGateway {
             } = await this.aiInvokeService.run({
                 userId,
                 messages,
+                selection,
                 floor: AiModelCategory.Free,
                 surface: AiCeilSurface.Chatbot,
                 // tutoring answers want a little variety, not deterministic grading

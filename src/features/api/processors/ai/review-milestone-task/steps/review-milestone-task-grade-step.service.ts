@@ -21,6 +21,7 @@ import {
 import {
     AiCeilSurface,
     AiMode,
+    AiModelCategory,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
@@ -471,7 +472,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 new HumanMessage(humanText),
             ],
             selection: payload.ai,
-            difficulty: milestoneTask.difficulty ?? null,
+            floor: AiModelCategory.Economy,
             surface: AiCeilSurface.Grading,
         })
 

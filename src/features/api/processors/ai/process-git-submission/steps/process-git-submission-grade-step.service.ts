@@ -15,6 +15,7 @@ import {
 import {
     AiCeilSurface,
     AiMode,
+    AiModelCategory,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
@@ -342,7 +343,8 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                 })
             }
         }
-        // ONE shared entry: floor by difficulty → climb in tier ceiling → served model + cost
+        // ONE shared entry: challenge grading floors at Economy (NOT by difficulty —
+        // easy or hard both start Economy and climb to the ceiling) → served + cost
         const { text: raw, model, provider, attempts, cost } = await this.aiInvokeService.run({
             userId: enrollment.userId,
             messages: [
@@ -350,7 +352,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                 new HumanMessage(humanText),
             ],
             selection: payload.ai,
-            difficulty: challenge?.difficulty ?? null,
+            floor: AiModelCategory.Economy,
             surface: AiCeilSurface.Grading,
         })
 
