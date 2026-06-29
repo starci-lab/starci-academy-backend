@@ -19,4 +19,5 @@ export enum SubscriptionEvent {
     CommunityCommentReactionChanged = "community_feed.comment_reaction_changed.subscription",
     ChatMessageCreated = "community_chat.message_created.subscription",
     ContentAiChunk = "content_ai.chunk.subscription",
+    AiModelHealth = "system_health.ai_model_health.subscription",
 }

@@ -28,6 +28,9 @@ import {
 import {
     ContentAiModule,
 } from "./content-ai"
+import {
+    SystemHealthModule,
+} from "./system-health"
 
 /**
  * Feature module bundling all real-time Socket.IO gateways of the app.
@@ -58,6 +61,9 @@ import {
             isGlobal: true,
         }),
         ContentAiModule.register({
+            isGlobal: true,
+        }),
+        SystemHealthModule.register({
             isGlobal: true,
         }),
     ],

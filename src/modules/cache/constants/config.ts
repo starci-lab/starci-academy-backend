@@ -18,6 +18,7 @@ import type {
     CreditUsageCacheResult,
     CourseMindMapCacheResult,
     AiPingKeyStatusCacheResult,
+    AiModelLatencyCacheResult,
     AiLabRunCacheResult,
     EntityLabelCacheResult,
 } from "../types"
@@ -104,6 +105,11 @@ export const configMap = {
         ttl: envConfig().cache.ttl.aiPingKeyStatus,
         cacheResult: {
         } as AiPingKeyStatusCacheResult,
+    },
+    [CacheKey.AiModelLatency]: {
+        ttl: envConfig().cache.ttl.aiModelLatency,
+        cacheResult: {
+        } as AiModelLatencyCacheResult,
     },
     [CacheKey.AiLabRun]: {
         ttl: envConfig().cache.ttl.aiLabRun,

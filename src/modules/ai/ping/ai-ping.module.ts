@@ -24,6 +24,12 @@ import {
  *   staggered mount-key sweep on boot via {@link AbstractProviderPingService}.
  * - {@link AiPingService} routes ad-hoc {@link AiPingService.pingKey} calls.
  *
+ * NOTE: the per-MODEL latency probe ({@link AiModelLatencyService}) is NOT
+ * registered here — it needs the balancer's {@link UseApiService} and
+ * {@link AiModelCatalogService}, so {@link AiModule} (which imports both this
+ * module and {@link AiBalancerModule}) owns that provider to avoid instantiating
+ * the balancer twice.
+ *
  * Consumed by {@link AiModule} and {@link AiBalancerModule}.
  */
 @Module({

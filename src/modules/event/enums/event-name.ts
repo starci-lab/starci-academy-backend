@@ -7,6 +7,7 @@ export enum EventName {
     JobStatusUpdated = "job.status.updated",
     MilestoneTaskProgressUpdated = "milestone.task.progress.updated",
     Ping = "ping",
+    AiModelHealthUpdated = "ai.model.health.updated",
     ChallengeSubmissionProgressUpdated = "challenge.submission.progress.updated",
     CommentCreated = "content.comment.created",
     CommentUpdated = "content.comment.updated",

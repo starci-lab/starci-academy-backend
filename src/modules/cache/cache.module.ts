@@ -14,7 +14,10 @@ import {
     AiPingCacheService,
 } from "./ai-ping-cache.service"
 import {
-    CacheService 
+    AiModelLatencyCacheService,
+} from "./ai-model-latency-cache.service"
+import {
+    CacheService
 } from "./cache.service"
 
 @Module({
@@ -34,10 +37,12 @@ export class CacheModule extends ConfigurableModuleClass {
                 ...providers,
                 CacheService,
                 AiPingCacheService,
+                AiModelLatencyCacheService,
             ],
             exports: [
                 CacheService,
                 AiPingCacheService,
+                AiModelLatencyCacheService,
             ],
         }
     }

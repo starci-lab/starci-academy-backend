@@ -25,6 +25,9 @@ import {
 import {
     SystemHealthStatusSingleQueryModule,
 } from "./system-health-status"
+import {
+    AiModelLatencySingleQueryModule,
+} from "./ai-model-latency"
 
 @Module({
     imports: [
@@ -47,6 +50,9 @@ import {
             isGlobal: true,
         }),
         SystemHealthStatusSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        AiModelLatencySingleQueryModule.register({
             isGlobal: true,
         }),
     ],

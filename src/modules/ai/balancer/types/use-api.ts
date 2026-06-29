@@ -31,6 +31,15 @@ export type GeminiApiKey = Brand<string, "Gemini">
 export type LocalApiKey = Brand<string, "Local">
 
 /**
+ * OpenRouter API key (Bearer) — distinct nominal type. Feed into `ChatOpenAI`
+ * pointed at the OpenRouter `baseURL` (OpenAI-compatible aggregator gateway).
+ */
+export type OpenRouterApiKey = Brand<string, "OpenRouter">
+
+/** Anthropic API key — distinct nominal type. Feed into `new ChatAnthropic({ apiKey })`. */
+export type AnthropicApiKey = Brand<string, "Anthropic">
+
+/**
  * Action context delivered when the rotator picks an OpenAI key.
  */
 export interface UseApiOpenAiContext {
@@ -63,11 +72,35 @@ export interface UseApiLocalContext {
     model: string
 }
 
+/**
+ * Action context delivered when the rotator picks an OpenRouter key.
+ */
+export interface UseApiOpenRouterContext {
+    provider: ModelProvider.OpenRouter
+    /** Branded OpenRouter key — feed into `ChatOpenAI` with the OpenRouter `baseURL`. */
+    key: OpenRouterApiKey
+    /** Concrete model name from the catalog (e.g. "qwen/qwen-2.5-coder-32b-instruct"). */
+    model: string
+}
+
+/**
+ * Action context delivered when the rotator picks an Anthropic key.
+ */
+export interface UseApiAnthropicContext {
+    provider: ModelProvider.Anthropic
+    /** Branded Anthropic key — feed into `new ChatAnthropic({ apiKey })`. */
+    key: AnthropicApiKey
+    /** Concrete model name from the catalog (e.g. "claude-opus-4-8"). */
+    model: string
+}
+
 /** Discriminated union over `provider` for pooled-key invocations. */
 export type UseApiActionContext =
     | UseApiOpenAiContext
     | UseApiGeminiContext
     | UseApiLocalContext
+    | UseApiOpenRouterContext
+    | UseApiAnthropicContext
 
 /**
  * Caller-supplied function executed against the picked key/model.
@@ -158,3 +191,30 @@ export type UseApiParams<TResult> =
     | UseApiAutoParams<TResult>
     | UseApiPremiumParams<TResult>
     | UseApiByokParams<TResult>
+
+/**
+ * Params for {@link UseApiService.probeModel} — probe ONE specific model with a
+ * minimal 1-token completion to measure latency + up/down. Distinct from
+ * {@link useApi}: no model fallback chain (we want this exact model), no ping-cache
+ * mutation (status/UI only, does not affect balancer eligibility).
+ */
+export interface ProbeModelParams {
+    /** Provider that serves {@link model}. */
+    provider: ModelProvider
+    /** Concrete model name to probe (e.g. "qwen2.5-coder:7b"). */
+    model: string
+    /** Hard timeout (ms) for the probe — aborts + records down past this. */
+    timeoutMs: number
+}
+
+/**
+ * Result of {@link UseApiService.probeModel} — the outcome of one latency probe.
+ */
+export interface ProbeModelResult {
+    /** Whether the 1-token completion succeeded within the timeout. */
+    ok: boolean
+    /** Round-trip latency in ms (0 when the probe failed before timing). */
+    latencyMs: number
+    /** Short failure reason when {@link ok} is false, else null. */
+    errorMessage: string | null
+}

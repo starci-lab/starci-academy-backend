@@ -22,6 +22,15 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
+    ChatOpenAI,
+} from "@langchain/openai"
+import {
+    ChatGoogleGenerativeAI,
+} from "@langchain/google-genai"
+import {
+    ChatAnthropic,
+} from "@langchain/anthropic"
+import {
     AiModelCatalogService,
 } from "./ai-model-catalog.service"
 import {
@@ -39,9 +48,13 @@ import {
 } from "./utils/classify-ai-error"
 import type {
     AcquireKeyResult,
+    AnthropicApiKey,
     GeminiApiKey,
     LocalApiKey,
     OpenAiApiKey,
+    OpenRouterApiKey,
+    ProbeModelParams,
+    ProbeModelResult,
     UseApiAction,
     UseApiActionContext,
     UseApiAutoParams,
@@ -405,6 +418,86 @@ export class UseApiService {
     }
 
     /**
+     * Probe ONE specific model with a minimal 1-token completion to measure
+     * round-trip latency + up/down. For the public status page / realtime
+     * dashboard — a SEPARATE layer from the per-provider key ping that feeds
+     * balancer eligibility.
+     *
+     * Unlike {@link useApi} this does NOT climb the model fallback chain (we want
+     * this exact model) and does NOT mutate the ping cache (status/UI only —
+     * a slow/failing probe must not penalize the key pool). One key is acquired
+     * for the provider (so we hit the same pool a real call would); when none is
+     * eligible the model is reported down.
+     *
+     * @param params - The provider, model, and per-probe timeout.
+     * @returns Timing outcome: `{ ok, latencyMs, errorMessage }`.
+     *
+     * @example
+     * const { ok, latencyMs } = await useApiService.probeModel({
+     *     provider: ModelProvider.Local,
+     *     model: "qwen2.5-coder:7b",
+     *     timeoutMs: 8000,
+     * })
+     */
+    async probeModel(
+        {
+            provider,
+            model,
+            timeoutMs,
+        }: ProbeModelParams,
+    ): Promise<ProbeModelResult> {
+        // make sure the key pools are loaded before we try to acquire one
+        await this.keyStoreService.ensureLoaded()
+
+        // acquire one key for the provider — same pool a real call would use.
+        // null = no eligible key right now → the model is effectively down for us
+        const acquired = await this.tryAcquire(provider)
+        if (!acquired) {
+            return {
+                ok: false,
+                latencyMs: 0,
+                errorMessage: "No eligible key for provider",
+            }
+        }
+
+        // build the provider client for THIS exact model + acquired key
+        const chatModel = this.buildProbeClient({
+            provider,
+            model,
+            apiKey: acquired.value,
+        })
+
+        // time the round-trip with Date.now() around a 1-token completion;
+        // AbortSignal.timeout enforces the hard per-probe budget (fail fast)
+        const startedAt = Date.now()
+        try {
+            // minimal prompt + maxTokens:1 — cheapest call that still exercises
+            // the model end-to-end (auth, routing, inference)
+            await chatModel.invoke(
+                "ping",
+                {
+                    signal: AbortSignal.timeout(timeoutMs),
+                },
+            )
+            // success → report the measured latency, no error
+            return {
+                ok: true,
+                latencyMs: Date.now() - startedAt,
+                errorMessage: null,
+            }
+        } catch (err) {
+            // failure (timeout / auth / network) → record down with a short reason;
+            // intentionally do NOT touch the ping cache (status-only layer)
+            const error = err instanceof Error ? err : new Error(String(err))
+            return {
+                ok: false,
+                latencyMs: Date.now() - startedAt,
+                errorMessage: error.message,
+            }
+        }
+    }
+
+    /**
      * Count pool keys that are eligible right now — not hard-disabled and not
      * within their cooldown window (see {@link isPingEntryEligible}).
      */
@@ -483,7 +576,100 @@ export class UseApiService {
                 key: key as LocalApiKey,
                 model,
             }
+        case ModelProvider.OpenRouter:
+            return {
+                provider: ModelProvider.OpenRouter,
+                key: key as OpenRouterApiKey,
+                model,
+            }
+        case ModelProvider.Anthropic:
+            return {
+                provider: ModelProvider.Anthropic,
+                key: key as AnthropicApiKey,
+                model,
+            }
         default:
+            throw new UnsupportedAiProviderException({
+                provider: provider as string,
+            })
+        }
+    }
+
+    /**
+     * Build a minimal LangChain chat client for a latency probe. Mirrors the
+     * per-provider client construction in `AiInvokeService.buildClient` (same
+     * base URLs for Local / OpenRouter) but pins `maxTokens: 1` + `temperature: 0`
+     * so the probe is the cheapest call that still exercises the model.
+     *
+     * Kept inside {@link UseApiService} (not reusing the private `buildContext`,
+     * which only yields the discriminated context, not a chat client) so the
+     * probe lives next to key acquisition.
+     *
+     * @param params - The resolved provider, model name, and acquired key.
+     * @returns A provider-specific chat model wired with the given key.
+     * @throws UnsupportedAiProviderException when the provider has no client.
+     */
+    private buildProbeClient(
+        {
+            provider,
+            model,
+            apiKey,
+        }: {
+            provider: ModelProvider
+            model: string
+            apiKey: string
+        },
+    ): ChatOpenAI | ChatGoogleGenerativeAI | ChatAnthropic {
+        switch (provider) {
+        case ModelProvider.OpenAI:
+            // native OpenAI — 1-token deterministic probe
+            return new ChatOpenAI({
+                model,
+                apiKey,
+                temperature: 0,
+                maxTokens: 1,
+            })
+        case ModelProvider.Gemini:
+            // Google Gemini — `maxOutputTokens` is the Gemini-side cap name
+            return new ChatGoogleGenerativeAI({
+                model,
+                apiKey,
+                temperature: 0,
+                maxOutputTokens: 1,
+            })
+        case ModelProvider.Local:
+            // self-hosted OpenAI-compatible endpoint (Ollama / vLLM / LM Studio):
+            // reuse ChatOpenAI pointed at the local baseURL; key is a placeholder
+            return new ChatOpenAI({
+                model,
+                apiKey,
+                temperature: 0,
+                maxTokens: 1,
+                configuration: {
+                    baseURL: envConfig().ai.local.baseUrl,
+                },
+            })
+        case ModelProvider.OpenRouter:
+            // OpenRouter aggregator gateway (OpenAI-compatible) with the pooled key
+            return new ChatOpenAI({
+                model,
+                apiKey,
+                temperature: 0,
+                maxTokens: 1,
+                configuration: {
+                    baseURL: envConfig().ai.openrouter.baseUrl,
+                },
+            })
+        case ModelProvider.Anthropic:
+            // native Anthropic Claude API
+            return new ChatAnthropic({
+                model,
+                apiKey,
+                temperature: 0,
+                maxTokens: 1,
+            })
+        default:
+            // unknown provider has no client wiring → typed failure
             throw new UnsupportedAiProviderException({
                 provider: provider as string,
             })

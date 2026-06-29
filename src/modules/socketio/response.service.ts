@@ -10,6 +10,7 @@ import {
 import type {
     SuccessParams,
     SuccessToRoomParams,
+    BroadcastParams,
     ErrorParams,
 } from "./types"
 
@@ -30,6 +31,32 @@ export class WsResponseService {
         }: SuccessToRoomParams<T>,
     ): void {
         namespace.to(room).emit(
+            eventName,
+            {
+                success: true,
+                message,
+                data,
+            },
+        )
+    }
+
+    /**
+     * Broadcast a success WS message to EVERY client connected to a namespace
+     * (no room scoping). For public fan-outs where every listener should get the
+     * same payload — e.g. the per-model AI latency snapshot on the status page.
+     * @param params - The parameters for the broadcast message.
+     * @returns void.
+     */
+    broadcast<T = unknown>(
+        {
+            message,
+            data,
+            namespace,
+            eventName,
+        }: BroadcastParams<T>,
+    ): void {
+        // emit on the namespace itself → delivered to all of its sockets
+        namespace.emit(
             eventName,
             {
                 success: true,

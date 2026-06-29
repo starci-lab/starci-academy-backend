@@ -13,6 +13,7 @@ export const NOTIFICATIONS_NAMESPACE = "notifications"
 export const COMMUNITY_FEED_NAMESPACE = "community_feed"
 export const COMMUNITY_CHAT_NAMESPACE = "community_chat"
 export const CONTENT_AI_NAMESPACE = "content_ai"
+export const SYSTEM_HEALTH_NAMESPACE = "system_health"
 
 /**
  * Decorator to mark a class as a WebSocket gateway for the autocomplete namespace.
@@ -130,6 +131,22 @@ export const CommunityChatWebSocketGateway = () => WebSocketGateway(
 export const ContentAiWebSocketGateway = () => WebSocketGateway(
     {
         namespace: CONTENT_AI_NAMESPACE,
+        transports: [
+            "websocket",
+            "polling"
+        ],
+        cors: createCorsOptions(),
+        perMessageDeflate: true,
+    }
+)
+
+/**
+ * Decorator to mark a class as a WebSocket gateway for the system-health
+ * namespace (public per-model AI latency snapshot broadcast — no auth).
+ */
+export const SystemHealthWebSocketGateway = () => WebSocketGateway(
+    {
+        namespace: SYSTEM_HEALTH_NAMESPACE,
         transports: [
             "websocket",
             "polling"

@@ -3,6 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     AiPingModule,
+    AiModelLatencyService,
 } from "./ping"
 import {
     AiInvokeService,
@@ -40,6 +41,7 @@ import {
         AiEntitlementService,
         AiTaskModelService,
         GradingLaneValidationService,
+        AiModelLatencyService,
     ],
     exports: [
         AiBalancerModule,
@@ -48,6 +50,7 @@ import {
         AiEntitlementService,
         AiTaskModelService,
         GradingLaneValidationService,
+        AiModelLatencyService,
     ],
 })
 export class AiModule extends ConfigurableModuleClass {}

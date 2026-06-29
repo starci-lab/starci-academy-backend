@@ -31,6 +31,18 @@ export interface SuccessToRoomParams<T = unknown> {
     namespace: Namespace
 }
 
+/** Params for broadcasting a success WS message to every client in a namespace. */
+export interface BroadcastParams<T = unknown> {
+    /** Human-readable success message included in the emitted payload. */
+    message: string
+    /** Optional payload data delivered alongside the success message. */
+    data?: T
+    /** The event name to emit the success message under. */
+    eventName: string
+    /** The Socket.IO namespace whose connected clients all receive the message. */
+    namespace: Namespace
+}
+
 /** Params for sending a error WS message. */
 export interface ErrorParams {
     /** The error whose message is sent to the client. */

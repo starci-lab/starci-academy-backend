@@ -178,6 +178,12 @@ export const envConfig = () => ({
                 key: "CACHE_TTL_AI_PING_KEY_STATUS",
                 defaultValue: "100years",
             }),
+            aiModelLatency: parseEnvMs({
+                key: "CACHE_TTL_AI_MODEL_LATENCY",
+                // effectively infinite — the probe scheduler keeps it fresh by
+                // overwriting every cycle, so the TTL only matters as a backstop
+                defaultValue: "100years",
+            }),
             aiLabRun: parseEnvMs({
                 key: "CACHE_TTL_AI_LAB_RUN",
                 // identical playground re-runs stay cheap for a day; the cold store is durable
@@ -2112,6 +2118,57 @@ export const envConfig = () => ({
             keyStaggerMs: parseEnvMs({
                 key: "AI_PING_KEY_STAGGER_MS",
                 defaultValue: "1s",
+            }),
+        },
+        /**
+         * Per-MODEL latency probe — a SEPARATE layer from {@link ai.ping}. Each
+         * cycle runs a real 1-token completion against every enabled model,
+         * measures round-trip latency + up/down, caches the snapshot and
+         * broadcasts it over Socket.IO for the public status page. This is
+         * UI/status only; it does NOT feed balancer key eligibility (that stays
+         * with the per-provider key ping above).
+         */
+        latencyProbe: {
+            /** When false, the staggered model-latency probe scheduler stays idle. */
+            enabled: parseEnvBoolean({
+                key: "AI_LATENCY_PROBE_ENABLED",
+                defaultValue: true,
+            }),
+            /**
+             * Time (ms) between the **start** of consecutive probe cycles. Each
+             * cycle sweeps every enabled model once (staggered by
+             * {@link staggerMs}). Defaults to 60s.
+             */
+            cycleIntervalMs: parseEnvMs({
+                key: "AI_LATENCY_PROBE_CYCLE_INTERVAL_MS",
+                defaultValue: "60s",
+            }),
+            /**
+             * Gap (ms) between individual model probes inside one cycle — spreads
+             * load so a fleet of models is not probed all at once. Defaults to 1s.
+             */
+            staggerMs: parseEnvMs({
+                key: "AI_LATENCY_PROBE_STAGGER_MS",
+                defaultValue: "1s",
+            }),
+            /**
+             * Hard per-probe timeout (ms). A model that does not answer the
+             * 1-token completion within this window is recorded down. Deliberately
+             * short (8s) — distinct from the generous {@link ai.invokeTimeoutMs}
+             * used for real grading runs. A status probe should fail fast.
+             */
+            timeoutMs: parseEnvMs({
+                key: "AI_LATENCY_PROBE_TIMEOUT_MS",
+                defaultValue: "8s",
+            }),
+            /**
+             * Which models the probe covers: `all` = every enabled model;
+             * `freeLocal` = only `Local`-provider or `Free`-category models (the
+             * always-on free lane). Defaults to `all`.
+             */
+            scope: parseEnvString({
+                key: "AI_LATENCY_PROBE_SCOPE",
+                defaultValue: "all",
             }),
         },
     },

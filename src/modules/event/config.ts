@@ -5,6 +5,7 @@ import {
     JobStatusUpdatedEventPayload,
     MilestoneTaskProgressUpdatedEventPayload,
     PingEventPayload,
+    AiModelHealthUpdatedEventPayload,
     ChallengeSubmissionProgressUpdatedEventPayload,
     CommentChangedEventPayload,
     ContentReactionChangedEventPayload,
@@ -38,6 +39,16 @@ export const configMap = {
         useLocal: true,
         eventPayload: {
         } as PingEventPayload,
+    },
+    // Per-model latency probe snapshots fan out to the local Socket.IO gateway
+    // in-process; useNats stays true so every pod re-broadcasts to its own
+    // connected clients (status page is multi-instance safe).
+    /** Event name: a per-model latency probe cycle completed (full snapshot). */
+    [EventName.AiModelHealthUpdated]: {
+        useNats: true,
+        useLocal: true,
+        eventPayload: {
+        } as AiModelHealthUpdatedEventPayload,
     },
     /** Event name: challenge submission progress updated. */
     [EventName.ChallengeSubmissionProgressUpdated]: {
