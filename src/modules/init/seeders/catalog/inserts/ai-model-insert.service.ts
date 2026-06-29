@@ -79,8 +79,11 @@ export class AiModelInsertService {
                     priority: model.priority,
                     credit: model.credit,
                     weight: model.weight,
+                    creditPerMTokIn: model.creditPerMTokIn,
+                    creditPerMTokOut: model.creditPerMTokOut,
                     enabled: model.enabled,
                     complimentary: model.complimentary,
+                    supportedTasks: model.supportedTasks,
                     defaultLocale: Locale.En,
                 },
             )

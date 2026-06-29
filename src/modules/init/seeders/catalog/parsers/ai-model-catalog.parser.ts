@@ -6,6 +6,7 @@ import type {
 } from "@modules/filesystem"
 import {
     AiModelCategory,
+    AiModelTask,
     ModelProvider,
 } from "@modules/databases"
 import {
@@ -101,6 +102,14 @@ export class AiModelCatalogParserService {
                     enMd.weight,
                     0,
                 ),
+                creditPerMTokIn: this.coerceMdScalarService.toRequiredNumber(
+                    enMd.creditPerMTokIn,
+                    0,
+                ),
+                creditPerMTokOut: this.coerceMdScalarService.toRequiredNumber(
+                    enMd.creditPerMTokOut,
+                    0,
+                ),
                 enabled: this.coerceMdScalarService.toRequiredBoolean(
                     enMd.enabled,
                     true,
@@ -109,6 +118,7 @@ export class AiModelCatalogParserService {
                     enMd.complimentary,
                     false,
                 ),
+                supportedTasks: parseSupportedTasks(enMd.supportedTasks),
             }
 
             if (!isValidAiModelRow(model)) {
@@ -185,6 +195,28 @@ export class AiModelCatalogParserService {
             ),
         }
     }
+}
+
+/**
+ * Parse the `# supportedTasks` markdown heading (a comma/newline-separated list)
+ * into a de-duplicated array of valid {@link AiModelTask} values. Unknown tokens
+ * are dropped; a missing/blank heading yields an empty array.
+ */
+const parseSupportedTasks = (raw: unknown): Array<AiModelTask> => {
+    if (typeof raw !== "string") {
+        return []
+    }
+    const valid = new Set<string>(Object.values(AiModelTask))
+    const seen = new Set<AiModelTask>()
+    for (const token of raw.split(/[,\n]/)) {
+        const value = token.trim().toLowerCase()
+        if (valid.has(value)) {
+            seen.add(value as AiModelTask)
+        }
+    }
+    return [
+        ...seen,
+    ]
 }
 
 const isValidAiModelRow = (

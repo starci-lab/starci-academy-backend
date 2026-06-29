@@ -12,7 +12,9 @@ import {
 } from "typeorm"
 import {
     AiModelCategory,
+    AiModelTask,
     GraphQLTypeAiModelCategory,
+    GraphQLTypeAiModelTask,
     GraphQLTypeLocale,
     GraphQLTypeModelProvider,
     Locale,
@@ -156,6 +158,39 @@ export class AiModelEntity extends UuidAbstractEntity {
     })
         weight: number
 
+    /**
+     * Token-based billing rate: credits charged per 1,000,000 INPUT tokens.
+     * Proportional to the model's real `$/M` input price (× the fixed credit
+     * scale). A grading run is billed `ceil((promptTok·in + completionTok·out)/1e6)`;
+     * {@link credit} is the flat FALLBACK used only when token usage is unreported.
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Credits charged per 1,000,000 input tokens (token-based billing).",
+        },
+    )
+    @Column({
+        name: "credit_per_mtok_in",
+        type: "int",
+        default: 0,
+    })
+        creditPerMTokIn: number
+
+    /** Token-based billing rate: credits charged per 1,000,000 OUTPUT tokens. */
+    @Field(
+        () => Int,
+        {
+            description: "Credits charged per 1,000,000 output tokens (token-based billing).",
+        },
+    )
+    @Column({
+        name: "credit_per_mtok_out",
+        type: "int",
+        default: 0,
+    })
+        creditPerMTokOut: number
+
     /** Kill-switch — `false` removes the model from rotation without deleting. */
     @Field(
         () => Boolean,
@@ -183,6 +218,24 @@ export class AiModelEntity extends UuidAbstractEntity {
         default: false,
     })
         complimentary: boolean
+
+    /**
+     * Tasks this model is suited for (`chatting` / `grading`). JSONB array of
+     * {@link AiModelTask} string values (NOT a Postgres enum) — drives FE picker
+     * visibility (a grading-only model is hidden from the chat picker, etc.).
+     */
+    @Field(
+        () => [GraphQLTypeAiModelTask],
+        {
+            description: "Tasks this model is suited for (chatting / grading).",
+        },
+    )
+    @Column({
+        name: "supported_tasks",
+        type: "jsonb",
+        default: () => "'[]'",
+    })
+        supportedTasks: Array<AiModelTask>
 
     /** Default locale for this model's catalog text. */
     @Field(

@@ -1,6 +1,7 @@
 import type {
     AiMode,
     AiModelCategory,
+    AiModelTask,
     ModelProvider,
 } from "@modules/databases"
 
@@ -147,6 +148,12 @@ export interface UseApiAutoParams<TResult> {
     model?: string
     /** Provider for {@link UseApiAutoParams.model}. */
     provider?: ModelProvider
+    /**
+     * Task this run serves (chatting / grading). When set, the chain only
+     * includes models whose `supportedTasks` include it, and is ordered
+     * health/latency-aware (down models deprioritized; chat → fastest first).
+     */
+    task?: AiModelTask
 }
 
 /**

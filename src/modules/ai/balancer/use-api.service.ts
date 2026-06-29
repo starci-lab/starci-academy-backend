@@ -1,10 +1,16 @@
 import {
+    AiModelLatencyCacheService,
     AiPingCacheService,
     isPingEntryEligible,
 } from "@modules/cache"
 import {
     AiMode,
+    AiModelCategory,
+    AiModelTask,
     ModelProvider,
+} from "@modules/databases"
+import type {
+    AiModelEntity,
 } from "@modules/databases"
 import {
     envConfig,
@@ -64,6 +70,22 @@ import type {
     UseApiResult,
 } from "./types"
 
+/** Category ladder cheapest → strongest — the macro fallback order. */
+const CATEGORY_RANK: ReadonlyArray<AiModelCategory> = [
+    AiModelCategory.Free,
+    AiModelCategory.Economy,
+    AiModelCategory.Balanced,
+    AiModelCategory.Premium,
+    AiModelCategory.Frontier,
+]
+
+/**
+ * How long a per-model latency probe stays trusted by the Auto chain. Beyond
+ * this the snapshot is ignored (advisory only) and the static order stands, so
+ * a stale "down" can never permanently bury a recovered model.
+ */
+const LATENCY_FRESHNESS_MS = 5 * 60_000
+
 /**
  * High-level AI invoke wrapper — routes pooled keys through round-robin and
  * persists every success/failure into {@link AiPingCacheService} so the next
@@ -75,6 +97,7 @@ export class UseApiService {
         private readonly aiModelCatalogService: AiModelCatalogService,
         private readonly aiBalancerService: AiBalancerService,
         private readonly aiPingCacheService: AiPingCacheService,
+        private readonly aiModelLatencyCacheService: AiModelLatencyCacheService,
         private readonly keyStoreService: KeyStoreService,
         private readonly winstonService: WinstonService,
     ) { }
@@ -109,6 +132,7 @@ export class UseApiService {
         categories,
         model: selectedModel,
         provider: selectedProvider,
+        task,
     }: UseApiAutoParams<TResult>): Promise<UseApiResult<TResult>> {
         await this.keyStoreService.ensureLoaded()
 
@@ -119,13 +143,13 @@ export class UseApiService {
         const catalog = await this.aiModelCatalogService.enabledModels(
             categories ? {
             } : {
-                category 
+                category
             },
         )
         // when a `categories` chain is given it is ORDERED (floor → tier ceiling):
         // try each category in chain order (climb on exhaustion), and within a
         // category try the highest-`weight` model first.
-        const models = categories
+        const ordered = categories
             ? catalog
                 .filter((row) => categories.includes(row.category))
                 .sort((left, right) => {
@@ -137,6 +161,22 @@ export class UseApiService {
                     return right.weight - left.weight
                 })
             : catalog
+        // task-filter: the Auto chain only considers models suited for this task
+        // (chat → chatting, grade → grading). A model with no `supportedTasks`
+        // (stale seed) is kept (back-compat). Unset task → every model.
+        const taskFiltered = task
+            ? ordered.filter(
+                (row) => !row.supportedTasks?.length
+                    || row.supportedTasks.includes(task),
+            )
+            : ordered
+        // health/latency-aware reorder WITHIN each category (advisory): push
+        // probe-"down" models to the back of their tier; for chat, fastest first.
+        const models = await this.orderByHealthAndLatency(
+            taskFiltered,
+            categories,
+            task,
+        )
         const maxAttempts = envConfig().aiBalancer.maxAutoAttempts
 
         let attempts = 0
@@ -222,6 +262,86 @@ export class UseApiService {
             attempts,
             modelsTried: models.length,
             originalError: lastError,
+        })
+    }
+
+    /**
+     * Reorder the Auto chain using the per-model latency probe (ADVISORY). The
+     * macro category/priority order is preserved; only WITHIN each category does
+     * it (a) push probe-"down" models to the back of their tier, and (b) for
+     * chatting, put the lowest-latency models first. Stale / unprobed models keep
+     * their static position — the probe never hard-excludes, so the original
+     * order is always the safe fallback (e.g. when the whole tier is "down").
+     *
+     * @param models - the task-filtered chain (already in category-chain order).
+     * @param categories - the entitlement chain order (else the category ladder).
+     * @param task - chat → latency-first; grading keeps weight order.
+     * @returns the reordered chain.
+     */
+    private async orderByHealthAndLatency(
+        models: Array<AiModelEntity>,
+        categories: Array<AiModelCategory> | undefined,
+        task: AiModelTask | undefined,
+    ): Promise<Array<AiModelEntity>> {
+        if (models.length <= 1) {
+            return models
+        }
+
+        const snapshot = await this.aiModelLatencyCacheService.getAll()
+        const now = Date.now()
+        // a probe entry is trusted only while fresh (advisory window)
+        const freshEntry = (name: string) => {
+            const entry = snapshot[name]
+            if (!entry) {
+                return undefined
+            }
+            const age = now - Date.parse(entry.checkedAt)
+            return Number.isFinite(age) && age <= LATENCY_FRESHNESS_MS
+                ? entry
+                : undefined
+        }
+        // macro order key — entitlement chain order, else the category ladder
+        const rankOf = (row: AiModelEntity): number => categories
+            ? categories.indexOf(row.category)
+            : CATEGORY_RANK.indexOf(row.category)
+        // original index = the static within-category order (weight / priority)
+        const baseIndex = new Map<AiModelEntity, number>(
+            models.map((row, index) => [
+                row,
+                index,
+            ]),
+        )
+        const downRank = (row: AiModelEntity): number => {
+            const entry = freshEntry(row.name)
+            return entry && !entry.ok ? 1 : 0
+        }
+        const latencyOf = (row: AiModelEntity): number => {
+            const entry = freshEntry(row.name)
+            return entry && entry.ok ? entry.latencyMs : Number.POSITIVE_INFINITY
+        }
+
+        return [
+            ...models,
+        ].sort((left, right) => {
+            // keep the macro category order intact (never reorder across tiers)
+            const rankDelta = rankOf(left) - rankOf(right)
+            if (rankDelta !== 0) {
+                return rankDelta
+            }
+            // within a tier: healthy (up / unprobed) before fresh-"down"
+            const downDelta = downRank(left) - downRank(right)
+            if (downDelta !== 0) {
+                return downDelta
+            }
+            // chat is latency-sensitive → fastest first; grading keeps weight order
+            if (task === AiModelTask.Chatting) {
+                const latencyDelta = latencyOf(left) - latencyOf(right)
+                if (latencyDelta !== 0) {
+                    return latencyDelta
+                }
+            }
+            // tiebreak: preserve the original (weight / priority) order
+            return (baseIndex.get(left) ?? 0) - (baseIndex.get(right) ?? 0)
         })
     }
 
@@ -622,19 +742,20 @@ export class UseApiService {
     ): ChatOpenAI | ChatGoogleGenerativeAI | ChatAnthropic {
         switch (provider) {
         case ModelProvider.OpenAI:
-            // native OpenAI — 1-token deterministic probe
+            // native OpenAI — cap via `max_completion_tokens` (newer models e.g. gpt-5.x
+            // REJECT `max_tokens`); omit temperature (some models only allow the default)
             return new ChatOpenAI({
                 model,
                 apiKey,
-                temperature: 0,
-                maxTokens: 1,
+                modelKwargs: {
+                    max_completion_tokens: 1,
+                },
             })
         case ModelProvider.Gemini:
             // Google Gemini — `maxOutputTokens` is the Gemini-side cap name
             return new ChatGoogleGenerativeAI({
                 model,
                 apiKey,
-                temperature: 0,
                 maxOutputTokens: 1,
             })
         case ModelProvider.Local:
@@ -643,7 +764,6 @@ export class UseApiService {
             return new ChatOpenAI({
                 model,
                 apiKey,
-                temperature: 0,
                 maxTokens: 1,
                 configuration: {
                     baseURL: envConfig().ai.local.baseUrl,
@@ -654,18 +774,17 @@ export class UseApiService {
             return new ChatOpenAI({
                 model,
                 apiKey,
-                temperature: 0,
                 maxTokens: 1,
                 configuration: {
                     baseURL: envConfig().ai.openrouter.baseUrl,
                 },
             })
         case ModelProvider.Anthropic:
-            // native Anthropic Claude API
+            // native Anthropic Claude — only model + key + maxTokens; setting temperature
+            // here made the SDK send an invalid `top_p: -1`, so omit it
             return new ChatAnthropic({
                 model,
                 apiKey,
-                temperature: 0,
                 maxTokens: 1,
             })
         default:

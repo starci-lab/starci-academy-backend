@@ -99,6 +99,48 @@ export class AiModelCatalogService {
     }
 
     /**
+     * TOKEN-BASED billing for one run: `ceil((promptTok·rateIn + completionTok·
+     * rateOut) / 1e6)`, where the per-million-token rates come from the served
+     * model's catalog row (proportional to its real `$/M` price). Falls back to
+     * the model's flat `credit` when the model has no rates OR the provider did
+     * not report token usage (so a run is never billed 0 by accident). Unknown /
+     * disabled model → {@link fallback}.
+     *
+     * @param params - served model `name`, observed token counts, fallback credit.
+     * @returns the credits to charge for this run.
+     */
+    async creditForRun(
+        {
+            name,
+            promptTokens,
+            completionTokens,
+            fallback,
+        }: {
+            name: string
+            promptTokens?: number
+            completionTokens?: number
+            fallback: number
+        },
+    ): Promise<number> {
+        const models = await this.enabledModels()
+        const found = models.find((model) => model.name === name)
+        if (!found) {
+            return fallback
+        }
+        const inputTokens = promptTokens ?? 0
+        const outputTokens = completionTokens ?? 0
+        const hasRates = found.creditPerMTokIn > 0 || found.creditPerMTokOut > 0
+        // bill by tokens only when the model has rates AND we observed usage;
+        // otherwise the flat `credit` (free models = 0, or usage unreported).
+        if (hasRates && (inputTokens > 0 || outputTokens > 0)) {
+            const credits = (inputTokens * found.creditPerMTokIn
+                + outputTokens * found.creditPerMTokOut) / 1_000_000
+            return Math.ceil(credits)
+        }
+        return found.credit
+    }
+
+    /**
      * Drop the cached enabled-models result so the next {@link enabledModels}
      * read hits the DB. Call after a reseed / admin mutation so changes are
      * visible immediately instead of after the TTL elapses.

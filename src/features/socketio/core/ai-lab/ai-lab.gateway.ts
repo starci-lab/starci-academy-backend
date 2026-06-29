@@ -25,6 +25,7 @@ import {
 } from "@modules/bussiness"
 import {
     AiLabRunStatus,
+    AiModelTask,
 } from "@modules/databases"
 import {
     PublicationEvent,
@@ -139,6 +140,7 @@ export class AiLabGateway {
                 byok: prepared.invokeOptions.byok,
                 model: prepared.invokeOptions.model,
                 provider: prepared.invokeOptions.provider,
+                task: AiModelTask.Chatting,
                 // playground generations want some variety, not deterministic grading
                 temperature: 0.7,
                 signal: controller.signal,

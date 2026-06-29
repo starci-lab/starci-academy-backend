@@ -3,6 +3,7 @@ import {
     TestingModule,
 } from "@nestjs/testing"
 import {
+    AiModelLatencyCacheService,
     AiPingCacheService,
 } from "@modules/cache"
 import {
@@ -104,6 +105,12 @@ describe("UseApiService",
                     {
                         provide: AiPingCacheService,
                         useValue: aiPingCacheService,
+                    },
+                    {
+                        provide: AiModelLatencyCacheService,
+                        useValue: {
+                            getAll: jest.fn().mockResolvedValue({}),
+                        },
                     },
                     {
                         provide: KeyStoreService,

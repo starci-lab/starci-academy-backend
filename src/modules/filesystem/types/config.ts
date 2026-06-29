@@ -1,5 +1,6 @@
 import type {
     AiModelCategory,
+    AiModelTask,
     ModelProvider,
     PricingPhase,
 } from "@modules/databases"
@@ -64,10 +65,16 @@ export interface AppConfigAiModel {
     credit: number
     /** Within-category Auto try-order key (higher first; decimals allowed). */
     weight: number
+    /** Token-based billing: credits per 1,000,000 input tokens. */
+    creditPerMTokIn: number
+    /** Token-based billing: credits per 1,000,000 output tokens. */
+    creditPerMTokOut: number
     /** Kill-switch — `false` removes the model from rotation without deleting the row. */
     enabled: boolean
     /** Usable on the free Auto lane — no subscription, debited by uses ("lượt"). */
     complimentary: boolean
+    /** Tasks this model is suited for (chatting / grading). */
+    supportedTasks: Array<AiModelTask>
 }
 
 /**

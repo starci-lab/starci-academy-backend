@@ -11,6 +11,7 @@ import {
     JobExtendedContext,
 } from "@modules/bussiness"
 import {
+    AiModelTask,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
     TemplateCVEntity,
@@ -265,6 +266,7 @@ export class ReviewCvSubmissionAnalyzeStepService extends AbstractStepService<
                 new HumanMessage(humanText),
             ],
             ...decision,
+            task: AiModelTask.Grading,
         })
 
         return this.reviewCvSubmissionParseService.parse(raw)

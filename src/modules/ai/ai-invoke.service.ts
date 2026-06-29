@@ -11,8 +11,10 @@ import {
     ChatAnthropic,
 } from "@langchain/anthropic"
 import {
+    AiCeilSurface,
     AiMode,
     AiModelCategory,
+    AiModelTask,
     ModelProvider,
 } from "@modules/databases"
 import {
@@ -59,6 +61,24 @@ import type {
  * for every chat completion so each AI call benefits from the shared,
  * health-checked key pool.
  */
+
+/**
+ * Map the run surface to the model task it serves, so the Auto lane can filter
+ * the catalog by `supportedTasks` + order the chain health/latency-aware.
+ * Chatbot → chatting; grading + interview → grading; unknown → undefined (no filter).
+ */
+const surfaceToTask = (surface?: AiCeilSurface): AiModelTask | undefined => {
+    switch (surface) {
+    case AiCeilSurface.Chatbot:
+        return AiModelTask.Chatting
+    case AiCeilSurface.Grading:
+    case AiCeilSurface.Interview:
+        return AiModelTask.Grading
+    default:
+        return undefined
+    }
+}
+
 @Injectable()
 export class AiInvokeService {
     constructor(
@@ -94,12 +114,17 @@ export class AiInvokeService {
             floor,
             ceil,
             surface,
+            task,
             allowFreeAuto,
             temperature,
             onChunk,
             signal,
         }: AiRunParams,
     ): Promise<AiRunResult> {
+        // task drives the Auto-lane catalog filter + health/latency ordering;
+        // explicit `task` wins, else derive it from the surface (chatbot/grading).
+        const resolvedTask = task ?? surfaceToTask(surface)
+
         // explicit `ceil` wins; otherwise resolve the user's saved per-surface
         // ceiling from settings (cost control). Omitted surface → uncapped.
         const effectiveCeil = ceil
@@ -121,12 +146,20 @@ export class AiInvokeService {
             aiEntitlementService: this.aiEntitlementService,
         })
 
-        // cost = served model's catalog credit (0 for free models / dormant BYOK)
-        const costFor = (model: string): Promise<number> =>
+        // cost = token-based credits for the served model (0 for BYOK). Billed by
+        // observed input/output tokens × the model's per-Mtok rates; falls back to
+        // the model's flat `credit` when usage is unreported (see creditForRun).
+        const costFor = (
+            model: string,
+            promptTokens?: number,
+            completionTokens?: number,
+        ): Promise<number> =>
             options.byok
                 ? Promise.resolve(0)
-                : this.aiModelCatalogService.creditForModel({
+                : this.aiModelCatalogService.creditForRun({
                     name: model,
+                    promptTokens,
+                    completionTokens,
                     fallback: DEFAULT_MODEL_CREDIT,
                 })
 
@@ -135,6 +168,7 @@ export class AiInvokeService {
             const result = await this.stream({
                 messages,
                 ...options,
+                task: resolvedTask,
                 temperature,
                 onChunk,
                 signal,
@@ -144,7 +178,11 @@ export class AiInvokeService {
                 model: result.model,
                 provider: result.provider,
                 attempts: result.attempts,
-                cost: await costFor(result.model),
+                cost: await costFor(
+                    result.model,
+                    result.promptTokens,
+                    result.completionTokens,
+                ),
                 promptTokens: result.promptTokens,
                 completionTokens: result.completionTokens,
             }
@@ -153,6 +191,7 @@ export class AiInvokeService {
         const result = await this.invoke({
             messages,
             ...options,
+            task: resolvedTask,
             temperature,
         })
         return {
@@ -160,7 +199,13 @@ export class AiInvokeService {
             model: result.model,
             provider: result.provider,
             attempts: result.attempts,
-            cost: await costFor(result.model),
+            cost: await costFor(
+                result.model,
+                result.promptTokens,
+                result.completionTokens,
+            ),
+            promptTokens: result.promptTokens,
+            completionTokens: result.completionTokens,
         }
     }
 
@@ -179,12 +224,15 @@ export class AiInvokeService {
             temperature,
             model,
             provider,
+            task,
         }: AiInvokeParams,
     ): Promise<AiInvokeResult> {
         // Default to deterministic sampling so the same submission grades the same.
         const resolvedTemperature = temperature ?? 0
         // single action used by every lane — build the provider client and invoke once
-        const invokeAction = async (context: UseApiActionContext) => {
+        const invokeAction = async (
+            context: UseApiActionContext,
+        ): Promise<StreamActionResult> => {
             const chatModel = this.buildClient(
                 {
                     provider: context.provider,
@@ -211,9 +259,17 @@ export class AiInvokeService {
                         signal: controller.signal,
                     },
                 )
-                return typeof response.content === "string"
-                    ? response.content
-                    : String(response.content)
+                // capture token usage from the response so the caller can bill by
+                // tokens (input + output) — the provider reports it on invoke too,
+                // not just on stream. Missing → 0 (caller falls back to a flat cost).
+                const usage = response.usage_metadata
+                return {
+                    text: typeof response.content === "string"
+                        ? response.content
+                        : String(response.content),
+                    promptTokens: usage?.input_tokens ?? 0,
+                    completionTokens: usage?.output_tokens ?? 0,
+                }
             } catch (error) {
                 if (timedOut) {
                     throw new Error(
@@ -233,7 +289,7 @@ export class AiInvokeService {
                 model: usedModel,
                 provider: usedProvider,
                 attempts,
-            } = await this.useApiService.useApi<string>(
+            } = await this.useApiService.useApi<StreamActionResult>(
                 {
                     lane: AiMode.Byok,
                     provider: byok.provider,
@@ -243,10 +299,12 @@ export class AiInvokeService {
                 },
             )
             return {
-                text: result,
+                text: result.text,
                 model: usedModel,
                 provider: usedProvider,
                 attempts,
+                promptTokens: result.promptTokens,
+                completionTokens: result.completionTokens,
             }
         }
 
@@ -262,7 +320,7 @@ export class AiInvokeService {
             provider: usedProvider,
             attempts,
         } = isPremiumLane && category
-            ? await this.useApiService.useApi<string>(
+            ? await this.useApiService.useApi<StreamActionResult>(
                 {
                     lane: AiMode.Premium,
                     category,
@@ -271,21 +329,24 @@ export class AiInvokeService {
                     action: invokeAction,
                 },
             )
-            : await this.useApiService.useApi<string>(
+            : await this.useApiService.useApi<StreamActionResult>(
                 {
                     lane: AiMode.Auto,
                     category,
                     categories,
                     model,
                     provider,
+                    task,
                     action: invokeAction,
                 },
             )
         return {
-            text: result,
+            text: result.text,
             model: usedModel,
             provider: usedProvider,
             attempts,
+            promptTokens: result.promptTokens,
+            completionTokens: result.completionTokens,
         }
     }
 
@@ -310,6 +371,7 @@ export class AiInvokeService {
             temperature,
             model,
             provider,
+            task,
             onChunk,
             signal,
         }: AiStreamParams,
@@ -453,6 +515,7 @@ export class AiInvokeService {
                     categories,
                     model,
                     provider,
+                    task,
                     action: streamAction,
                 },
             )

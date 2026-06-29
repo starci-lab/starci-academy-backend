@@ -4,6 +4,7 @@ import type {
 import type {
     AiCeilSurface,
     AiModelCategory,
+    AiModelTask,
     ModelProvider,
 } from "@modules/databases"
 import type {
@@ -46,6 +47,12 @@ export interface AiInvokeParams {
     /** Provider for {@link AiInvokeParams.model}. */
     provider?: ModelProvider
     /**
+     * Task this run serves (chatting / grading). When set, the Auto lane only
+     * considers models whose `supportedTasks` include it, and orders the chain
+     * health/latency-aware for it. Omit to consider every enabled model.
+     */
+    task?: AiModelTask
+    /**
      * Sampling temperature. Defaults to 0 (deterministic) so grading is
      * reproducible; raise it only for generative tasks that want variety.
      */
@@ -62,6 +69,10 @@ export interface AiInvokeResult {
     provider: ModelProvider
     /** Number of (model, key) attempts before success. */
     attempts: number
+    /** Prompt (input) tokens the provider reported (0 when unreported). */
+    promptTokens?: number
+    /** Completion (output) tokens the provider reported (0 when unreported). */
+    completionTokens?: number
 }
 
 /**
@@ -94,6 +105,11 @@ export interface AiStreamParams {
     model?: string
     /** Provider for {@link AiStreamParams.model}. */
     provider?: ModelProvider
+    /**
+     * Task this stream serves (chatting / grading). When set, the Auto lane only
+     * considers models whose `supportedTasks` include it, ordered health/latency-aware.
+     */
+    task?: AiModelTask
     /**
      * Sampling temperature. Defaults to 0 (deterministic); raise it only for
      * generative tasks (the playground) that want variety.
@@ -141,6 +157,12 @@ export interface AiRunParams {
     floor?: AiModelCategory | null
     /** User-set per-feature ceiling cap (settings config per hạng mục). */
     ceil?: AiModelCategory | null
+    /**
+     * Task override (chatting / grading). Usually derived from {@link surface};
+     * set explicitly only when there is no surface. Drives the Auto-lane
+     * task-filter + health/latency-aware ordering.
+     */
+    task?: AiModelTask
     /**
      * Surface this run belongs to (chatbot/grading/interview). When set (and no
      * explicit `ceil`), `run()` resolves the user's saved per-surface ceiling

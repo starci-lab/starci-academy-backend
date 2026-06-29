@@ -41,7 +41,11 @@ describe("AiInvokeService",
             // useApi echoes a canned success without running the supplied action
             useApiService = {
                 useApi: jest.fn(async () => ({
-                    result: "graded",
+                    result: {
+                        text: "graded",
+                        promptTokens: 0,
+                        completionTokens: 0,
+                    },
                     model: "gpt-4o",
                     provider: ModelProvider.OpenAI,
                     attempts: 2,
@@ -68,6 +72,7 @@ describe("AiInvokeService",
                         provide: AiModelCatalogService,
                         useValue: {
                             creditForModel: jest.fn(async () => 0),
+                            creditForRun: jest.fn(async () => 0),
                         },
                     },
                 ],
@@ -93,6 +98,8 @@ describe("AiInvokeService",
                             model: "gpt-4o",
                             provider: ModelProvider.OpenAI,
                             attempts: 2,
+                            promptTokens: 0,
+                            completionTokens: 0,
                         })
                     })
 

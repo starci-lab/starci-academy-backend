@@ -8,6 +8,7 @@ import {
 } from "@modules/bussiness"
 import {
     AiMode,
+    AiModelTask,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
     TemplateCVEntity,
@@ -210,6 +211,7 @@ export class ReviewCvSubmissionPlanStepService extends AbstractStepService<
                 new HumanMessage(text),
             ],
             ...decision,
+            task: AiModelTask.Grading,
         })
 
         const reviewPlan = raw.trim()

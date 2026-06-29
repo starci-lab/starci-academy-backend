@@ -66,6 +66,7 @@ export class AiModelsHandler {
                 category: model.category,
                 complimentary: model.complimentary,
                 available: usableProviders.has(model.provider),
+                supportedTasks: model.supportedTasks,
             }))
 
         return {

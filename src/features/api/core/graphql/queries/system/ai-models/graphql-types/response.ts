@@ -8,7 +8,9 @@ import {
 } from "@modules/api"
 import {
     AiModelCategory,
+    AiModelTask,
     GraphQLTypeAiModelCategory,
+    GraphQLTypeAiModelTask,
     GraphQLTypeModelProvider,
     ModelProvider,
 } from "@modules/databases"
@@ -122,6 +124,14 @@ export class AiGradableModelData {
         },
     )
         available: boolean
+
+    @Field(
+        () => [GraphQLTypeAiModelTask],
+        {
+            description: "Tasks this model is suited for (chatting / grading) — FE filters pickers by this.",
+        },
+    )
+        supportedTasks: Array<AiModelTask>
 }
 
 @ObjectType({
