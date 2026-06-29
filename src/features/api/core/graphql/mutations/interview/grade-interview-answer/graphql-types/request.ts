@@ -6,6 +6,8 @@ import {
 import {
     AiMode,
     GraphQLTypeAiMode,
+    GraphQLTypeModelProvider,
+    ModelProvider,
 } from "@modules/databases"
 
 /**
@@ -46,8 +48,28 @@ export class GradeInterviewAnswerRequest {
         () => GraphQLTypeAiMode,
         {
             nullable: true,
-            description: "Optional AI lane override; only the Auto lane is honored in P0.",
+            description: "AI lane to grade on (auto/premium/byok); validated against entitlement at grade time.",
         },
     )
         mode?: AiMode
+
+    /** Concrete model the user picked in the grading dropdown (e.g. "gpt-4o"). */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Concrete model name the user picked for grading; null = balancer default.",
+        },
+    )
+        selectedModel?: string
+
+    /** Provider serving {@link selectedModel}. */
+    @Field(
+        () => GraphQLTypeModelProvider,
+        {
+            nullable: true,
+            description: "Provider serving the picked model.",
+        },
+    )
+        selectedModelProvider?: ModelProvider
 }

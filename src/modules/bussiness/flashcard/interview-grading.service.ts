@@ -18,10 +18,9 @@ import type {
 } from "@modules/databases"
 import {
     AiInvokeService,
+    GradingLaneValidationService,
     extractJsonBlock,
-} from "@modules/ai"
-import type {
-    AiJobSelection,
+    validatedLaneToAiJobSelection,
 } from "@modules/ai"
 import {
     AiQuotaExhaustedException,
@@ -72,6 +71,7 @@ export class InterviewGradingService {
         private readonly flashcardDeckReadService: FlashcardDeckReadService,
         private readonly interviewGradePromptService: InterviewGradePromptService,
         private readonly aiInvokeService: AiInvokeService,
+        private readonly gradingLaneValidationService: GradingLaneValidationService,
         private readonly creditUsageService: CreditUsageService,
         private readonly userService: UserService,
     ) { }
@@ -97,6 +97,8 @@ export class InterviewGradingService {
             transcript,
             locale,
             mode,
+            selectedModel,
+            selectedModelProvider,
         } = params
 
         // load the full deck (cards embedded) and pick the question card server-side —

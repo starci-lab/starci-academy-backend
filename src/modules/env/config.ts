@@ -2153,13 +2153,14 @@ export const envConfig = () => ({
             }),
             /**
              * Hard per-probe timeout (ms). A model that does not answer the
-             * 1-token completion within this window is recorded down. Deliberately
-             * short (8s) — distinct from the generous {@link ai.invokeTimeoutMs}
-             * used for real grading runs. A status probe should fail fast.
+             * 1-token completion within this window is recorded down. Short (15s) —
+             * distinct from the generous {@link ai.invokeTimeoutMs} used for real
+             * grading runs, but slack enough for slow free models (e.g. OpenRouter
+             * `:free`) to answer instead of getting aborted.
              */
             timeoutMs: parseEnvMs({
                 key: "AI_LATENCY_PROBE_TIMEOUT_MS",
-                defaultValue: "8s",
+                defaultValue: "15s",
             }),
             /**
              * Which models the probe covers: `all` = every enabled model;
