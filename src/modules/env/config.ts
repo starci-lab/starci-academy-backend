@@ -1242,7 +1242,7 @@ export const envConfig = () => ({
                     ".mount",
                     "terraform",
                     "keys",
-                    "local.key"),
+                    "qwen7b.key"),
             }),
             /**
              * API-key pool sent to OpenRouter (`Authorization: Bearer …`).
