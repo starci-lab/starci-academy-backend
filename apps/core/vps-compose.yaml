@@ -73,8 +73,6 @@ services:
       TERRAFORM_S3_SECRET_ACCESS_KEY_MOUNT_PATH: ${TERRAFORM_S3_SECRET_ACCESS_KEY_MOUNT_PATH:-/usr/src/app/.mount/terraform/s3-secret-access-key.key}
       TERRAFORM_KEYCLOAK_CLIENT_SECRET_MOUNT_PATH: ${TERRAFORM_KEYCLOAK_CLIENT_SECRET_MOUNT_PATH:-/usr/src/app/.mount/terraform/keycloak-client-secret.key}
       TERRAFORM_PAYOS_API_KEY_MOUNT_PATH: ${TERRAFORM_PAYOS_API_KEY_MOUNT_PATH:-/usr/src/app/.mount/terraform/payos-api-key.key}
-      TERRAFORM_GEMINI_API_KEY_MOUNT_PATH: ${TERRAFORM_GEMINI_API_KEY_MOUNT_PATH:-/usr/src/app/.mount/terraform/gemini-api-key.key}
-      TERRAFORM_OPENAI_API_KEY_MOUNT_PATH: ${TERRAFORM_OPENAI_API_KEY_MOUNT_PATH:-/usr/src/app/.mount/terraform/openai-api-key.key}
       TERRAFORM_SEPAY_API_KEY_MOUNT_PATH: ${TERRAFORM_SEPAY_API_KEY_MOUNT_PATH:-/usr/src/app/.mount/terraform/sepay-api-key.key}
       # SePay PG env + merchant (secret key comes from the mount path above)
       API_SEPAY_ENV: ${API_SEPAY_ENV:-sandbox}

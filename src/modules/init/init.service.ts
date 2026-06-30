@@ -31,6 +31,9 @@ import {
     AssetsService,
 } from "@modules/assets"
 import {
+    LessonRagIndexService,
+} from "@modules/rag"
+import {
     SeedScopeService,
     SyncScopeService,
 } from "./scope"
@@ -85,6 +88,7 @@ export class InitService implements OnModuleInit {
         private readonly seedersService: SeedersService,
         private readonly synchronizersService: SynchronizersService,
         private readonly assetsService: AssetsService,
+        private readonly lessonRagIndexService: LessonRagIndexService,
     ) { }
 
     /**
@@ -189,6 +193,24 @@ export class InitService implements OnModuleInit {
                 } catch (error) {
                     this.logger.error(
                         `Snapshot asset mirror failed: ${error instanceof Error ? error.message : String(error)}`,
+                    )
+                }
+            }
+            // phase 2c: build the per-lesson RAG index in Qdrant from the lesson
+            // bodies + sandbox code now in MinIO. Runs AFTER the synchronizers phase
+            // (so `contents/<id>/<locale>.json` + `repo/.../*.json` exist) and AFTER
+            // seed (so contents are enumerable), inside the runtime-context window.
+            // Gated behind a flag (embedding every lesson hits the embedding lane +
+            // costs boot time on every reseed) and non-fatal (a RAG build failure must
+            // never roll back a successful seed — content-AI chat degrades to whole-body
+            // stuffing when the index is absent).
+            if (snapshotRoot && envConfig().services.lessonRag.enabled) {
+                try {
+                    const { indexed } = await this.lessonRagIndexService.build()
+                    this.logger.log(`Indexed ${indexed} lesson RAG chunk(s) into Qdrant`)
+                } catch (error) {
+                    this.logger.error(
+                        `Lesson RAG index build failed: ${error instanceof Error ? error.message : String(error)}`,
                     )
                 }
             }

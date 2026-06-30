@@ -16,6 +16,8 @@ export enum AiModelTask {
     Chatting = "chatting",
     /** Code / submission grading — shown in the grading model picker. */
     Grading = "grading",
+    /** Vector embedding generation — RAG indexing / retrieval. */
+    Embedding = "embedding",
 }
 
 /**
@@ -37,6 +39,9 @@ registerEnumType(
             },
             [AiModelTask.Grading]: {
                 description: "Code/submission grading.",
+            },
+            [AiModelTask.Embedding]: {
+                description: "Vector embedding generation.",
             },
         },
     }

@@ -36,6 +36,16 @@ export class GradeInterviewAnswerRequest {
     )
         flashcardCardId: string
 
+    /** Client-generated id shared by every answer of one run → groups the session in history. */
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Client-generated id grouping all answers of one interview run into a session.",
+        },
+    )
+        interviewSessionId?: string
+
     @Field(
         () => String,
         {

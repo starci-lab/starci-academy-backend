@@ -42,6 +42,7 @@ export class GradeInterviewAnswerHandler
             request: {
                 flashcardDeckId,
                 flashcardCardId,
+                interviewSessionId,
                 transcript,
                 mode,
                 selectedModel,
@@ -61,6 +62,7 @@ export class GradeInterviewAnswerHandler
             userId: user.id,
             flashcardDeckId,
             flashcardCardId,
+            interviewSessionId,
             transcript,
             locale: locale ?? Locale.En,
             mode,

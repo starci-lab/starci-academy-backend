@@ -262,7 +262,8 @@ export class FlashcardDeckReadService {
         }: DrawRandomInterviewCardForCourseParams,
     ): Promise<FlashcardCardEntity> {
         // load every deck of the course (localized, with cards) and pool the cards
-        const decks = await this.listByCourse(courseId, locale)
+        const decks = await this.listByCourse(courseId,
+            locale)
         const gradable = decks
             .flatMap((deck) => deck.cards ?? [])
             .filter((card) => Boolean(card.answer) && (!level || card.level === level))

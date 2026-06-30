@@ -659,6 +659,52 @@ export const envConfig = () => ({
                 },
             },
         },
+        /**
+         * Lesson RAG index — builds a persistent Qdrant collection over every
+         * lesson's body (+ sandbox code) at init so content-AI chat can retrieve
+         * the most relevant chunks instead of stuffing the whole body.
+         */
+        lessonRag: {
+            /**
+             * Build the lesson RAG index on init. Default OFF: embedding every
+             * lesson hits the embedding lane (local GPU first, cloud fallback)
+             * and adds boot time on every reseed — enable explicitly when the
+             * RAG retrieval path is wanted.
+             */
+            enabled: parseEnvBoolean({
+                key: "LESSON_RAG_INDEX_ENABLED",
+                defaultValue: false,
+            }),
+            /** Qdrant collection holding the lesson RAG vectors. */
+            collection: parseEnvString({
+                key: "LESSON_RAG_COLLECTION",
+                defaultValue: "lesson_rag",
+            }),
+            /** Chunk size (chars) for splitting lesson body / code before embedding. */
+            chunkSize: parseEnvInt({
+                key: "LESSON_RAG_CHUNK_SIZE",
+                defaultValue: 1000,
+            }),
+            /** Chunk overlap (chars) between adjacent chunks. */
+            chunkOverlap: parseEnvInt({
+                key: "LESSON_RAG_CHUNK_OVERLAP",
+                defaultValue: 200,
+            }),
+            /** Top-k chunks retrieved per content-AI question. */
+            retrievalTopK: parseEnvInt({
+                key: "LESSON_RAG_RETRIEVAL_TOP_K",
+                defaultValue: 6,
+            }),
+            /**
+             * Char ceiling under which a lesson body is stuffed WHOLE into the
+             * content-AI prompt (cheap, no retrieval miss). Above it, the chat
+             * falls back to RAG retrieval over the persistent collection.
+             */
+            stuffCharThreshold: parseEnvInt({
+                key: "LESSON_RAG_STUFF_CHAR_THRESHOLD",
+                defaultValue: 6000,
+            }),
+        },
         /** Cdn Synchronizer service configuration. */
         cdnSynchronizer: {
             course: {
@@ -1101,20 +1147,6 @@ export const envConfig = () => ({
                     ".mount",
                     "terraform",
                     "payos-api-key.key"),
-            }),
-            geminiApiKey: parseEnvString({
-                key: "TERRAFORM_GEMINI_API_KEY_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "gemini-api-key.key"),
-            }),
-            openAiApiKey: parseEnvString({
-                key: "TERRAFORM_OPENAI_API_KEY_MOUNT_PATH",
-                defaultValue: join(process.cwd(),
-                    ".mount",
-                    "terraform",
-                    "openai-api-key.key"),
             }),
             sepayApiKey: parseEnvString({
                 key: "TERRAFORM_SEPAY_API_KEY_MOUNT_PATH",
@@ -2137,11 +2169,12 @@ export const envConfig = () => ({
             /**
              * Time (ms) between the **start** of consecutive probe cycles. Each
              * cycle sweeps every enabled model once (staggered by
-             * {@link staggerMs}). Defaults to 60s.
+             * {@link staggerMs}). Defaults to 4h (the probe is metadata-cheap +
+             * also runs once on boot) — health changes slowly, no need to hammer.
              */
             cycleIntervalMs: parseEnvMs({
                 key: "AI_LATENCY_PROBE_CYCLE_INTERVAL_MS",
-                defaultValue: "60s",
+                defaultValue: "4h",
             }),
             /**
              * Gap (ms) between individual model probes inside one cycle — spreads

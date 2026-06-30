@@ -50,12 +50,10 @@ export class OpenAiPingService extends AbstractProviderPingService {
     }
     /**
      * @inheritdoc
+     * Reads from `.mount/terraform/keys/openai-api-keys.key` (pool) only.
      */
     protected listMountKeys(): Array<string> {
-        return [
-            ...this.mountFilesystemService.openAiApiKeys(),
-            this.mountFilesystemService.openAiApiKey(),
-        ]
+        return this.mountFilesystemService.openAiApiKeys()
     }
 
     /**

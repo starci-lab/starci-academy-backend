@@ -14,6 +14,11 @@
 - **PageHeader → nội dung dưới = `gap-10`** (40px, APP). Khoảng thở LỚN ngay dưới header (breadcrumb/title/desc/chips) trước khi vào nội dung trang. Chỉ dùng đúng chỗ này trong app.
 - **LANDING/marketing — section header (`SectionHeading`) → nội dung dưới = `gap-16`** (64px). Thầy chốt 2026-06-26: *"gap-16 giữa header và nội dung dưới thôi, gap-24 dài quá"* (đính chính bản đầu ghi gap-24 — quá xa). MỖI section landing có `SectionHeading` (eyebrow+title+intro) cách khối nội dung bên dưới `gap-16` (thở kiểu landing — KHÁC app `gap-10`). Section có **nhiều khối** nội dung → bọc content trong `<div className="flex flex-col gap-6">` để header→content = `gap-16` còn nội bộ content giữ `gap-6`. Áp: courses · treasure · founder · faq · LearnLoop (pinned + static). Đây là header→content TRONG 1 section; section↔section landing dùng gap lớn hơn (ref [[landing-marketing-section-spacing-and-editorial-stats]]).
 
+## Divider trong card/stack = gap-3 hai bên (CHỐT 2026-06-30)
+- **Khi 2 block ngăn nhau bằng DIVIDER (`border-t`) trong 1 card/stack → khoảng trên-dưới divider = `gap-3` (12px), KHÔNG `gap-6`.** Divider đã gánh việc phân tách; cộng thêm gap-6 (24px) mỗi bên = "xa lắm" (thầy). Divider + `gap-3` = vừa đủ.
+- Impl đối xứng: block-trên + block-dưới(`border-t pt-3`) là 2 con của container `flex flex-col gap-3` → trên divider = gap-3 (container), dưới = `pt-3` → 12px mỗi bên. Nội bộ mỗi block giữ nhịp riêng (vd cụm control vẫn `gap-6`); chỉ vùng QUANH divider mới gap-3.
+- Cùng tinh thần [[whitespace-over-dividers]]: ưu tiên whitespace; nếu DÙNG divider thì đừng kèm gap lớn (thừa phân tách).
+
 ## Scroll
 - Khi scroll, **phần header trên (vùng "đỏ": breadcrumb + title + desc + chips) GIỮ NGUYÊN gap** — không bị nén/đổi nhịp. Nội dung dưới cuộn, header giữ rhythm. (Liên quan [[sticky]].)
 

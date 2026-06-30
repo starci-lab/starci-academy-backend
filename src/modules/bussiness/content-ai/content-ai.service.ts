@@ -29,6 +29,12 @@ import {
     ContentNotFoundException,
 } from "@modules/exceptions"
 import {
+    LessonRagRetrievalService,
+} from "@modules/rag"
+import {
+    envConfig,
+} from "@modules/env"
+import {
     UserService,
 } from "../user"
 
@@ -92,6 +98,7 @@ export class ContentAiService {
         private readonly s3ReadService: S3ReadService,
         private readonly s3NameResolverService: S3NameResolverService,
         private readonly userService: UserService,
+        private readonly lessonRagRetrievalService: LessonRagRetrievalService,
     ) { }
 
     /**
@@ -171,23 +178,72 @@ export class ContentAiService {
             }
         }
 
-        // ground the answer in this content's body, then replay the recent turns
-        // (capped) for short-term memory, then the new question
+        // ground the answer: stuff the whole body for small lessons (cheap, no
+        // retrieval miss), else RAG-retrieve the most relevant chunks for large ones
+        const body = this.resolveBodyText(content,
+            locale)
+        const grounding = await this.resolveGrounding({
+            contentId,
+            question,
+            body,
+        })
+
+        // replay the recent turns (capped) for short-term memory, then the question
         const historyMessages = (history ?? [])
             .slice(-MAX_HISTORY_MESSAGES)
             .map((message) => message.role === "assistant"
                 ? new AIMessage(message.content)
                 : new HumanMessage(message.content))
         const messages: Array<BaseMessage> = [
-            new SystemMessage(this.buildSystemPrompt(this.resolveBodyText(content,
-                locale),
-            locale)),
+            new SystemMessage(this.buildSystemPrompt(grounding,
+                locale)),
             ...historyMessages,
             new HumanMessage(question),
         ]
         return {
             messages,
         }
+    }
+
+    /**
+     * Resolve the lesson text to ground the answer on — HYBRID retrieval:
+     *
+     * - **Small body** (≤ the stuff-char threshold): return the WHOLE body. Cheap,
+     *   no retrieval miss, and the local model's context easily holds it.
+     * - **Large body**: retrieve the top-k most relevant chunks for `question` from
+     *   the persistent `lesson_rag` Qdrant collection (content + code, filtered to
+     *   this content). This keeps the prompt focused and within the free local
+     *   model's modest context window.
+     *
+     * Falls back to the whole body whenever retrieval misses (empty), fails, or the
+     * index is absent — so the chat never degrades below the current behavior.
+     *
+     * @param params - The content id, the question, and the resolved whole body.
+     * @returns The grounding text to put in the system prompt.
+     */
+    private async resolveGrounding(
+        {
+            contentId,
+            question,
+            body,
+        }: {
+            contentId: string
+            question: string
+            body: string
+        },
+    ): Promise<string> {
+        // small lesson → stuff whole (no retrieval round-trip)
+        if (body.length <= envConfig().services.lessonRag.stuffCharThreshold) {
+            return body
+        }
+        const { excerpt } = await this.lessonRagRetrievalService.retrieveContentExcerpt({
+            contentId,
+            query: question,
+        })
+        // retrieval miss / failure / index absent → fall back to the whole body
+        return excerpt.trim()
+            ? excerpt
+            : body
     }
 
     /**
@@ -609,7 +665,7 @@ export class ContentAiService {
             return
         }
         await this.entityManager.query(
-            `UPDATE content_ai_sessions SET updated_at = now() WHERE id = $1`,
+            "UPDATE content_ai_sessions SET updated_at = now() WHERE id = $1",
             [
                 sessionId,
             ],

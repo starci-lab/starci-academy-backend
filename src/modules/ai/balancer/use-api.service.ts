@@ -28,15 +28,6 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    ChatOpenAI,
-} from "@langchain/openai"
-import {
-    ChatGoogleGenerativeAI,
-} from "@langchain/google-genai"
-import {
-    ChatAnthropic,
-} from "@langchain/anthropic"
-import {
     AiModelCatalogService,
 } from "./ai-model-catalog.service"
 import {
@@ -268,8 +259,10 @@ export class UseApiService {
     /**
      * Reorder the Auto chain using the per-model latency probe (ADVISORY). The
      * macro category/priority order is preserved; only WITHIN each category does
-     * it (a) push probe-"down" models to the back of their tier, and (b) for
-     * chatting, put the lowest-latency models first. Stale / unprobed models keep
+     * it (a) push probe-"down" models to the back of their tier, (b) inside the
+     * FREE tier put a healthy self-hosted (Local) model first — $0 on our GPU, so
+     * try it before any cloud free model — and (c) for chatting, put the
+     * lowest-latency models first. Stale / unprobed models keep
      * their static position — the probe never hard-excludes, so the original
      * order is always the safe fallback (e.g. when the whole tier is "down").
      *
@@ -319,6 +312,17 @@ export class UseApiService {
             const entry = freshEntry(row.name)
             return entry && entry.ok ? entry.latencyMs : Number.POSITIVE_INFINITY
         }
+        // FREE tier is LOCAL-FIRST: a self-hosted (Local provider) model runs on our
+        // own GPU at $0, so when it's healthy try it BEFORE any cloud free model —
+        // then the chain climbs the rest by the usual latency/weight order ("local
+        // trước, rồi ngon nhất cloud"). Only inside the Free category; paid tiers keep
+        // weight order. A DOWN local already loses to a healthy cloud at `downRank`
+        // above, so an offline GPU falls back to the cloud chain automatically.
+        const freeLocalRank = (row: AiModelEntity): number =>
+            row.category === AiModelCategory.Free
+                && row.provider === ModelProvider.Local
+                ? 0
+                : 1
 
         return [
             ...models,
@@ -332,6 +336,11 @@ export class UseApiService {
             const downDelta = downRank(left) - downRank(right)
             if (downDelta !== 0) {
                 return downDelta
+            }
+            // within the Free tier: a healthy local (self-hosted) model goes first
+            const localDelta = freeLocalRank(left) - freeLocalRank(right)
+            if (localDelta !== 0) {
+                return localDelta
             }
             // chat is latency-sensitive → fastest first; grading keeps weight order
             if (task === AiModelTask.Chatting) {
@@ -580,39 +589,57 @@ export class UseApiService {
             }
         }
 
-        // build the provider client for THIS exact model + acquired key
-        const chatModel = this.buildProbeClient({
+        // build the raw HTTP request for THIS exact model + acquired key. We hit the
+        // provider endpoint DIRECTLY (no LangChain) so the HTTP STATUS CODE is the
+        // verdict: a 2xx — even an EMPTY / reasoning-truncated 1-token completion —
+        // means the model is reachable + the key is valid. Only a non-2xx / network
+        // failure is "down". (LangChain threw on empty completions, so reasoning
+        // models — which burn the 1-token budget on hidden reasoning, returning no
+        // content — were marked falsely down even though they serve fine.)
+        const request = this.buildProbeRequest({
             provider,
             model,
             apiKey: acquired.value,
         })
 
-        // time the round-trip with Date.now() around a 1-token completion;
-        // AbortSignal.timeout enforces the hard per-probe budget (fail fast)
+        // time the round-trip; AbortSignal.timeout enforces the hard per-probe budget
         const startedAt = Date.now()
         try {
-            // minimal prompt + maxTokens:1 — cheapest call that still exercises
-            // the model end-to-end (auth, routing, inference)
-            await chatModel.invoke(
-                "ping",
+            const response = await fetch(
+                request.url,
                 {
+                    method: "POST",
+                    headers: request.headers,
+                    body: JSON.stringify(request.body),
                     signal: AbortSignal.timeout(timeoutMs),
                 },
             )
-            // success → report the measured latency, no error
+            const latencyMs = Date.now() - startedAt
+            // 2xx → reachable + authed (content is irrelevant for a liveness probe)
+            if (response.ok) {
+                return {
+                    ok: true,
+                    latencyMs,
+                    errorMessage: null,
+                }
+            }
+            // non-2xx → down; surface the status CODE + provider error detail so the
+            // reason is legible (401/403 bad key · 404 model gone · 429 throttled · 5xx)
             return {
-                ok: true,
-                latencyMs: Date.now() - startedAt,
-                errorMessage: null,
+                ok: false,
+                latencyMs,
+                errorMessage: `[${response.status}] ${await this.readProbeError(response)}`,
             }
         } catch (err) {
-            // failure (timeout / auth / network) → record down with a short reason;
-            // intentionally do NOT touch the ping cache (status-only layer)
+            // network failure or AbortSignal.timeout → down with a short reason
             const error = err instanceof Error ? err : new Error(String(err))
+            const reason = error.name === "TimeoutError" || error.name === "AbortError"
+                ? `timeout after ${timeoutMs}ms`
+                : error.message
             return {
                 ok: false,
                 latencyMs: Date.now() - startedAt,
-                errorMessage: error.message,
+                errorMessage: reason,
             }
         }
     }
@@ -716,20 +743,19 @@ export class UseApiService {
     }
 
     /**
-     * Build a minimal LangChain chat client for a latency probe. Mirrors the
-     * per-provider client construction in `AiInvokeService.buildClient` (same
-     * base URLs for Local / OpenRouter) but pins `maxTokens: 1` + `temperature: 0`
-     * so the probe is the cheapest call that still exercises the model.
-     *
-     * Kept inside {@link UseApiService} (not reusing the private `buildContext`,
-     * which only yields the discriminated context, not a chat client) so the
-     * probe lives next to key acquisition.
+     * Build the RAW HTTP probe request for one model — a minimal 1-token completion
+     * POSTed DIRECTLY to the provider endpoint (no LangChain / SDK), so the caller
+     * can read the HTTP STATUS CODE for up/down. Per provider: native OpenAI uses
+     * `max_completion_tokens` (gpt-5.x reject `max_tokens`); the OpenAI-compatible
+     * gateways (OpenRouter / Local) POST `/chat/completions`; Gemini hits
+     * `:generateContent` with the key in the query string; Anthropic posts
+     * `/v1/messages` with its versioned headers.
      *
      * @param params - The resolved provider, model name, and acquired key.
-     * @returns A provider-specific chat model wired with the given key.
-     * @throws UnsupportedAiProviderException when the provider has no client.
+     * @returns `{ url, headers, body }` ready for `fetch`.
+     * @throws UnsupportedAiProviderException when the provider has no endpoint.
      */
-    private buildProbeClient(
+    private buildProbeRequest(
         {
             provider,
             model,
@@ -739,59 +765,129 @@ export class UseApiService {
             model: string
             apiKey: string
         },
-    ): ChatOpenAI | ChatGoogleGenerativeAI | ChatAnthropic {
+    ): { url: string, headers: Record<string, string>, body: unknown } {
+        // shared OpenAI-style chat body — reused by every OpenAI-compatible gateway
+        const openAiBody = (capKey: "max_completion_tokens" | "max_tokens") => ({
+            model,
+            messages: [
+                {
+                    role: "user",
+                    content: "ping",
+                },
+            ],
+            [capKey]: 1,
+        })
         switch (provider) {
         case ModelProvider.OpenAI:
-            // native OpenAI — cap via `max_completion_tokens` (newer models e.g. gpt-5.x
-            // REJECT `max_tokens`); omit temperature (some models only allow the default)
-            return new ChatOpenAI({
-                model,
-                apiKey,
-                modelKwargs: {
-                    max_completion_tokens: 1,
+            // native OpenAI — `max_completion_tokens` (gpt-5.x reject `max_tokens`)
+            return {
+                url: "https://api.openai.com/v1/chat/completions",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${apiKey}`,
                 },
-            })
-        case ModelProvider.Gemini:
-            // Google Gemini — `maxOutputTokens` is the Gemini-side cap name
-            return new ChatGoogleGenerativeAI({
-                model,
-                apiKey,
-                maxOutputTokens: 1,
-            })
-        case ModelProvider.Local:
-            // self-hosted OpenAI-compatible endpoint (Ollama / vLLM / LM Studio):
-            // reuse ChatOpenAI pointed at the local baseURL; key is a placeholder
-            return new ChatOpenAI({
-                model,
-                apiKey,
-                maxTokens: 1,
-                configuration: {
-                    baseURL: envConfig().ai.local.baseUrl,
-                },
-            })
+                body: openAiBody("max_completion_tokens"),
+            }
         case ModelProvider.OpenRouter:
-            // OpenRouter aggregator gateway (OpenAI-compatible) with the pooled key
-            return new ChatOpenAI({
-                model,
-                apiKey,
-                maxTokens: 1,
-                configuration: {
-                    baseURL: envConfig().ai.openrouter.baseUrl,
+            // OpenRouter aggregator gateway (OpenAI-compatible) — reasoning models
+            // here also reject `max_tokens`, so use `max_completion_tokens`
+            return {
+                url: `${envConfig().ai.openrouter.baseUrl}/chat/completions`,
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${apiKey}`,
                 },
-            })
+                body: openAiBody("max_completion_tokens"),
+            }
+        case ModelProvider.Local:
+            // self-hosted OpenAI-compatible endpoint (Ollama / vLLM) — `max_tokens`
+            return {
+                url: `${envConfig().ai.local.baseUrl}/chat/completions`,
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${apiKey}`,
+                },
+                body: openAiBody("max_tokens"),
+            }
+        case ModelProvider.Gemini:
+            // Google Gemini — key in the query string, `maxOutputTokens` cap
+            return {
+                url: `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: {
+                    contents: [
+                        {
+                            role: "user",
+                            parts: [
+                                {
+                                    text: "ping",
+                                },
+                            ],
+                        },
+                    ],
+                    generationConfig: {
+                        maxOutputTokens: 1,
+                    },
+                },
+            }
         case ModelProvider.Anthropic:
-            // native Anthropic Claude — only model + key + maxTokens; setting temperature
-            // here made the SDK send an invalid `top_p: -1`, so omit it
-            return new ChatAnthropic({
-                model,
-                apiKey,
-                maxTokens: 1,
-            })
+            // native Anthropic Claude — versioned API, key in `x-api-key`
+            return {
+                url: "https://api.anthropic.com/v1/messages",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": apiKey,
+                    "anthropic-version": "2023-06-01",
+                },
+                body: {
+                    model,
+                    max_tokens: 1,
+                    messages: [
+                        {
+                            role: "user",
+                            content: "ping",
+                        },
+                    ],
+                },
+            }
         default:
-            // unknown provider has no client wiring → typed failure
+            // unknown provider has no endpoint wiring → typed failure
             throw new UnsupportedAiProviderException({
                 provider: provider as string,
             })
+        }
+    }
+
+    /**
+     * Pull a short reason out of a non-2xx probe response — the provider's
+     * `{ error: { message } }` / `{ error }` / `{ message }` body, falling back to
+     * the HTTP status text. Best-effort: a body that is not JSON just yields the
+     * status text (never throws).
+     *
+     * @param response - The non-2xx `fetch` response.
+     * @returns A short reason string for the down snapshot.
+     */
+    private async readProbeError(response: Response): Promise<string> {
+        try {
+            const data = await response.json() as {
+                error?: { message?: string } | string
+                message?: string
+            }
+            const error = data?.error
+            if (typeof error === "string") {
+                return error
+            }
+            if (error?.message) {
+                return error.message
+            }
+            if (typeof data?.message === "string") {
+                return data.message
+            }
+            return response.statusText || "request failed"
+        } catch {
+            return response.statusText || "request failed"
         }
     }
 

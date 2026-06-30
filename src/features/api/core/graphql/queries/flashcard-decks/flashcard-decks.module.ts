@@ -25,6 +25,12 @@ import {
 import {
     MyInterviewHistorySingleQueryModule,
 } from "./my-interview-history"
+import {
+    InterviewSessionsSingleQueryModule,
+} from "./interview-sessions"
+import {
+    InterviewSessionAttemptsSingleQueryModule,
+} from "./interview-session-attempts"
 
 /**
  * Flashcard-deck query group (deck listing by course + single-deck detail +
@@ -51,6 +57,12 @@ import {
             isGlobal: true,
         }),
         MyInterviewHistorySingleQueryModule.register({
+            isGlobal: true,
+        }),
+        InterviewSessionsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        InterviewSessionAttemptsSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

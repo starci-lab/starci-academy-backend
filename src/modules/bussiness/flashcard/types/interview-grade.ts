@@ -29,6 +29,8 @@ export interface GradeInterviewAnswerParams {
     flashcardDeckId: string
     /** Card whose question + model answer form the prompt + rubric. */
     flashcardCardId: string
+    /** Client-generated id grouping all answers of one run → groups the session in history; undefined for legacy callers. */
+    interviewSessionId?: string
     /** The candidate's answer, already transcribed from speech on the client. */
     transcript: string
     /** Locale to load the deck in and to write the feedback strings in. */
