@@ -38,6 +38,11 @@ import {
         "userId",
         "flashcardDeckId",
     ])
+// group a run's answers (5/10 questions) back into one session for history
+@Index("idx_interview_attempts_session",
+    [
+        "interviewSessionId",
+    ])
 export class InterviewAttemptEntity extends UuidAbstractEntity {
     /**
      * The user who answered. Nullable during the enrollment re-key transition;
@@ -167,4 +172,44 @@ export class InterviewAttemptEntity extends UuidAbstractEntity {
         default: () => "'[]'",
     })
         tags: Array<string>
+
+    /**
+     * Client-generated id grouping all answers from ONE interview run (the 5/10
+     * questions of a session) so cross-session history can list runs, not just
+     * single answers. Nullable for legacy rows logged before session grouping.
+     */
+    @Column({
+        name: "interview_session_id",
+        type: "uuid",
+        nullable: true,
+    })
+        interviewSessionId: string | null
+
+    /**
+     * Snapshot of the grade feedback so a past run's detail can show it (the
+     * live summary feedback was otherwise transient). Empty array for legacy rows
+     * logged before feedback was persisted.
+     */
+    @Column({
+        name: "strengths",
+        type: "jsonb",
+        default: () => "'[]'",
+    })
+        strengths: Array<string>
+
+    /** Concrete gaps to address — snapshot for run detail. */
+    @Column({
+        name: "gaps",
+        type: "jsonb",
+        default: () => "'[]'",
+    })
+        gaps: Array<string>
+
+    /** One-line nudge toward the model answer, or null. */
+    @Column({
+        name: "model_answer_hint",
+        type: "varchar",
+        nullable: true,
+    })
+        modelAnswerHint: string | null
 }

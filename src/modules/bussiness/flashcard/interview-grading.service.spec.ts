@@ -19,8 +19,11 @@ import {
 } from "../credit/credit-usage.service"
 import {
     AiInvokeService,
-    AiEntitlementService,
+    GradingLaneValidationService,
 } from "@modules/ai"
+import {
+    UserService,
+} from "../user"
 import {
     AiMode,
     CreditUsageHistoryEntity,
@@ -52,7 +55,7 @@ describe("InterviewGradingService",
             getById: jest.Mock
         }
         let aiInvokeService: {
-            invoke: jest.Mock
+            run: jest.Mock
         }
         let creditUsageService: {
             getSnapshot: jest.Mock
@@ -91,7 +94,7 @@ describe("InterviewGradingService",
                 }),
             }
             aiInvokeService = {
-                invoke: jest.fn(),
+                run: jest.fn(),
             }
             // happy-path default: user is under quota
             creditUsageService = {
@@ -127,14 +130,27 @@ describe("InterviewGradingService",
                         useValue: aiInvokeService,
                     },
                     {
-                        // Auto lane never calls the entitlement resolver, so a bare stub is enough
-                        provide: AiEntitlementService,
+                        // Auto pick (no model) validates to the default Auto lane; the
+                        // service then maps it to an Auto job selection (no pinned model).
+                        provide: GradingLaneValidationService,
                         useValue: {
+                            validate: jest.fn().mockResolvedValue({
+                                mode: AiMode.Auto,
+                            }),
                         },
                     },
                     {
                         provide: CreditUsageService,
                         useValue: creditUsageService,
+                    },
+                    {
+                        // best-effort attempt recording resolves a trial enrollment; a
+                        // bare stub keeps the (try/catch-wrapped) history write inert
+                        provide: UserService,
+                        useValue: {
+                            resolveOrCreateTrialEnrollment: jest.fn()
+                                .mockResolvedValue(null),
+                        },
                     },
                 ],
             }).compile()
@@ -157,13 +173,13 @@ describe("InterviewGradingService",
                     service.grade(gradeParams),
                 ).rejects.toBeInstanceOf(AiQuotaExhaustedException)
                 // no LLM call and no charge row when blocked
-                expect(aiInvokeService.invoke).not.toHaveBeenCalled()
+                expect(aiInvokeService.run).not.toHaveBeenCalled()
                 expect(entityManager.save).not.toHaveBeenCalled()
             })
 
         it("charges the Auto pool exactly once (no attempt) and busts the cache on a graded answer",
             async () => {
-                aiInvokeService.invoke.mockResolvedValueOnce({
+                aiInvokeService.run.mockResolvedValueOnce({
                     text: JSON.stringify({
                         score: 80,
                         verdict: "pass",
@@ -172,6 +188,10 @@ describe("InterviewGradingService",
                         modelAnswerHint: null,
                         followUpQuestion: null,
                     }),
+                    // Auto served the free pinned model → zero credits
+                    model: "gpt-4o",
+                    provider: undefined,
+                    cost: 0,
                 })
 
                 const result = await service.grade(gradeParams)
@@ -179,11 +199,17 @@ describe("InterviewGradingService",
                 expect(result.score).toBe(80)
                 expect(result.verdict).toBe(InterviewVerdict.Pass)
                 // exactly one Auto charge row, with no challenge attempt attached
-                expect(entityManager.save).toHaveBeenCalledTimes(1)
+                // (the interview-history attempt is a separate, best-effort save)
+                const creditSaveCalls = (
+                    entityManager.save.mock.calls as Array<[unknown, unknown]>
+                ).filter(
+                    ([entity]) => entity === CreditUsageHistoryEntity,
+                )
+                expect(creditSaveCalls).toHaveLength(1)
                 const [
-                    entity,
+                    ,
                     row,
-                ] = entityManager.save.mock.calls[0] as [
+                ] = creditSaveCalls[0] as [
                     unknown,
                     {
                         mode: AiMode
@@ -193,7 +219,6 @@ describe("InterviewGradingService",
                         }
                     },
                 ]
-                expect(entity).toBe(CreditUsageHistoryEntity)
                 expect(row).toMatchObject({
                     mode: AiMode.Auto,
                     attempt: null,
@@ -207,11 +232,14 @@ describe("InterviewGradingService",
 
         it("derives the verdict from the score when the model returns an unrecognized verdict literal",
             async () => {
-                aiInvokeService.invoke.mockResolvedValueOnce({
+                aiInvokeService.run.mockResolvedValueOnce({
                     text: JSON.stringify({
                         score: 82,
                         verdict: "strong",
                     }),
+                    model: "gpt-4o",
+                    provider: undefined,
+                    cost: 0,
                 })
 
                 const result = await service.grade(gradeParams)
@@ -224,8 +252,11 @@ describe("InterviewGradingService",
         it("charges before parsing so a malformed model response cannot leak a free call",
             async () => {
                 // unparseable output still consumed a real gpt-4o call → must be charged
-                aiInvokeService.invoke.mockResolvedValueOnce({
+                aiInvokeService.run.mockResolvedValueOnce({
                     text: "not json at all",
+                    model: "gpt-4o",
+                    provider: undefined,
+                    cost: 0,
                 })
 
                 await expect(

@@ -57,12 +57,10 @@ export class GeminiPingService extends AbstractProviderPingService {
 
     /**
      * @inheritdoc
+     * Reads from `.mount/terraform/keys/gemini-api-keys.key` (pool) only.
      */
     protected listMountKeys(): Array<string> {
-        return [
-            ...this.mountFilesystemService.geminiApiKeys(),
-            this.mountFilesystemService.geminiApiKey(),
-        ]
+        return this.mountFilesystemService.geminiApiKeys()
     }
 
     /**

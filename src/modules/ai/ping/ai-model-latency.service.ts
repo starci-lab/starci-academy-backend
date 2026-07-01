@@ -185,6 +185,14 @@ export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
                 latencyMs: result.latencyMs,
                 errorMessage: result.errorMessage,
             })
+
+            // surface WHY a model is down — the probe reason is otherwise only in the
+            // cache/tooltip, never logged. Warn = visible; 60s cadence = low noise.
+            if (!result.ok) {
+                this.logger.warn(
+                    `model probe DOWN [${model.provider}] ${model.name}: ${result.errorMessage ?? "unknown error"}`,
+                )
+            }
         } catch (error) {
             // a single probe blew up → log + record it down so the snapshot still
             // reflects this model (never abort the rest of the cycle)
@@ -235,6 +243,7 @@ export class AiModelLatencyService implements OnModuleInit, OnModuleDestroy {
                     ok: entry.ok,
                     latencyMs: entry.latencyMs,
                     checkedAt: entry.checkedAt,
+                    errorMessage: entry.errorMessage,
                 }))
 
             // fan out to the gateway (local) + other pods (NATS) for realtime UI

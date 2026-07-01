@@ -24,8 +24,6 @@ export class MountStorageService implements OnModuleInit {
     public encryptionKey: string
     public keycloakClientSecret: string
     public payosApiKey: string
-    public geminiApiKey: string
-    public openAiApiKey: string
     public sepayApiKey: string
     public stripeSecretKey: string
     public stripeWebhookSecret: string
@@ -58,10 +56,6 @@ export class MountStorageService implements OnModuleInit {
         this.keycloakClientSecret = this.mountFilesystemService.keycloakClientSecret()
         // get payos api key from mount filesystem service
         this.payosApiKey = this.mountFilesystemService.payosApiKey()
-        // get gemini api key from mount filesystem service
-        this.geminiApiKey = this.mountFilesystemService.geminiApiKey()
-        // get openai api key from mount filesystem service
-        this.openAiApiKey = this.mountFilesystemService.openAiApiKey()
         // get sepay api key from mount filesystem service
         this.sepayApiKey = this.mountFilesystemService.sepayApiKey()
         // get stripe secret api key from mount filesystem service

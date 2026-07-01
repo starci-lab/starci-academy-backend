@@ -42,22 +42,6 @@ export class SystemConfigAiAuto {
     @Field(
         () => Int,
         {
-            description: "Max complimentary gradings per rolling 5-hour window.",
-        },
-    )
-        usesPer5h: number
-
-    @Field(
-        () => Int,
-        {
-            description: "Max complimentary gradings per rolling 7-day window.",
-        },
-    )
-        usesPerWeek: number
-
-    @Field(
-        () => Int,
-        {
             description: "Max Auto credits per rolling 5-hour window.",
         },
     )

@@ -23,10 +23,10 @@ export type AiModelCatalogMd = {
     credit?: string | number
     /** Within-category order weight (decimals allowed); string or number from markdown. */
     weight?: string | number
-    /** Credits per 1,000,000 input tokens (token-based billing); string or number. */
-    creditPerMTokIn?: string | number
-    /** Credits per 1,000,000 output tokens (token-based billing); string or number. */
-    creditPerMTokOut?: string | number
+    /** Real provider price (USD) per 1,000,000 input tokens; string or number from markdown. */
+    priceInUsdPerMTok?: string | number
+    /** Real provider price (USD) per 1,000,000 output tokens; string or number from markdown. */
+    priceOutUsdPerMTok?: string | number
     /** Whether the model is enabled; string or boolean from markdown. */
     enabled?: string | boolean
     /** Whether the model is complimentary (free); string or boolean from markdown. */

@@ -212,6 +212,8 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
                             // load-balanced) so the submission result page can attribute it.
                             servedModel: grade.aiUsage?.model ?? null,
                             servedProvider: grade.aiUsage?.provider ?? null,
+                            promptTokens: grade.aiUsage?.promptTokens ?? null,
+                            completionTokens: grade.aiUsage?.completionTokens ?? null,
                             defaultLocale: payload.locale ?? Locale.En,
                             feedbacks,
                         }

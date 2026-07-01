@@ -164,6 +164,34 @@ export class UserMilestoneTaskAttemptEntity extends UuidAbstractEntity {
     })
         servedProvider: string | null
 
+    @Field(
+        () => Int,
+        {
+            description: "Input (prompt) tokens the grading model consumed; null for attempts before this was tracked.",
+            nullable: true,
+        },
+    )
+    @Column({
+        name: "prompt_tokens",
+        type: "int",
+        nullable: true,
+    })
+        promptTokens: number | null
+
+    @Field(
+        () => Int,
+        {
+            description: "Output (completion) tokens the grading model produced; null for legacy attempts.",
+            nullable: true,
+        },
+    )
+    @Column({
+        name: "completion_tokens",
+        type: "int",
+        nullable: true,
+    })
+        completionTokens: number | null
+
     /**
      * Default locale for this attempt.
      */

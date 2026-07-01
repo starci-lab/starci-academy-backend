@@ -17,9 +17,6 @@ import {
 import {
     ChallengeEvaluationParseService,
 } from "../shared/challenge-evaluation"
-import {
-    GradingRetrievalService,
-} from "../shared/grading-retrieval"
 
 @Module({
     providers: [
@@ -28,7 +25,6 @@ import {
         ProcessGitSubmissionGradeStepService,
         ProcessGitSubmissionCompleteStepService,
         ChallengeEvaluationParseService,
-        GradingRetrievalService,
     ],
 })
 export class ProcessGitSubmissionModule extends ConfigurableModuleClass {}

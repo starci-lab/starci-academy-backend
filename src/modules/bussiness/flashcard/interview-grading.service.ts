@@ -18,10 +18,9 @@ import type {
 } from "@modules/databases"
 import {
     AiInvokeService,
+    GradingLaneValidationService,
     extractJsonBlock,
-} from "@modules/ai"
-import type {
-    AiJobSelection,
+    validatedLaneToAiJobSelection,
 } from "@modules/ai"
 import {
     AiQuotaExhaustedException,
@@ -72,6 +71,7 @@ export class InterviewGradingService {
         private readonly flashcardDeckReadService: FlashcardDeckReadService,
         private readonly interviewGradePromptService: InterviewGradePromptService,
         private readonly aiInvokeService: AiInvokeService,
+        private readonly gradingLaneValidationService: GradingLaneValidationService,
         private readonly creditUsageService: CreditUsageService,
         private readonly userService: UserService,
     ) { }
@@ -94,9 +94,12 @@ export class InterviewGradingService {
             userId,
             flashcardDeckId,
             flashcardCardId,
+            interviewSessionId,
             transcript,
             locale,
             mode,
+            selectedModel,
+            selectedModelProvider,
         } = params
 
         // load the full deck (cards embedded) and pick the question card server-side —
@@ -131,14 +134,17 @@ export class InterviewGradingService {
             })
         }
 
-        // P0 only carries an optional mode; only an explicit Auto pick is constructible
-        // here (Premium / Byok need a model + provider the client does not send), so any
-        // other value falls through to the resolver's default Auto lane (pinned gpt-4o).
-        const selection: AiJobSelection | undefined = mode === AiMode.Auto
-            ? {
-                mode: AiMode.Auto,
-            }
-            : undefined
+        // validate the chosen grading lane (mode + optional model/provider) against the
+        // user's entitlement and the ai_models catalog, then collapse it into the AI job
+        // selection. No pick (Auto, no model) validates to the default Auto lane → behaves
+        // exactly as before. Mirrors the challenge-grading wiring.
+        const validatedLane = await this.gradingLaneValidationService.validate({
+            userId,
+            mode,
+            model: selectedModel,
+            provider: selectedModelProvider,
+        })
+        const selection = validatedLaneToAiJobSelection(validatedLane)
         // build the grading messages from the question + model-answer rubric + transcript
         const { messages } = this.interviewGradePromptService.build({
             question: card.question,
@@ -169,9 +175,14 @@ export class InterviewGradingService {
         await this.recordAttempt({
             userId,
             flashcardDeckId,
+            interviewSessionId,
             card,
             score: result.score,
             verdict: result.verdict,
+            // persist the feedback so a past run's detail can show it later
+            strengths: result.strengths,
+            gaps: result.gaps,
+            modelAnswerHint: result.modelAnswerHint,
         })
         return result
     }
@@ -188,17 +199,25 @@ export class InterviewGradingService {
         params: {
             userId: string
             flashcardDeckId: string
+            interviewSessionId?: string
             card: FlashcardCardEntity
             score: number
             verdict: string
+            strengths: Array<string>
+            gaps: Array<string>
+            modelAnswerHint: string | null
         },
     ): Promise<void> {
         const {
             userId,
             flashcardDeckId,
+            interviewSessionId,
             card,
             score,
             verdict,
+            strengths,
+            gaps,
+            modelAnswerHint,
         } = params
         try {
             // resolve the course (deck → course) and resolve-or-create the trial
@@ -237,6 +256,12 @@ export class InterviewGradingService {
                     // snapshot the level + tags at answer time for history aggregation
                     level: card.level ?? null,
                     tags: card.tags ?? [],
+                    // group this answer back into its run for session-level history
+                    interviewSessionId: interviewSessionId ?? null,
+                    // snapshot the feedback for the run-detail drawer
+                    strengths,
+                    gaps,
+                    modelAnswerHint,
                     ...(enrollment
                         ? {
                             enrollment,

@@ -84,6 +84,14 @@ jobs:
           # Background synchronizer master switch (runtime, separate from init scope).
           SYNCHRONIZER_ENABLE: ${{ vars.SYNCHRONIZER_ENABLE }}
 
+          # Lesson RAG index — builds the persistent `lesson_rag` Qdrant collection
+          # at init (content-AI chat retrieval). Default OFF in code; toggle via
+          # this repo Variable so ops can flip it without a code redeploy. Every
+          # boot with this on DROPS + REBUILDS the whole collection (embeds every
+          # lesson) — the embed calls hit the local Ollama lane over the
+          # qwen.starci.org tunnel, so each redeploy adds real load there.
+          LESSON_RAG_INDEX_ENABLED: ${{ vars.LESSON_RAG_INDEX_ENABLED }}
+
           # Container paths (/usr/src/app/.mount/...), not host /root/academy/...
           TERRAFORM_KEYCLOAK_ADMIN_MOUNT_PATH: ${{ vars.TERRAFORM_KEYCLOAK_ADMIN_MOUNT_PATH }}
           TERRAFORM_GITHUB_ACCESS_TOKEN_MOUNT_PATH: ${{ vars.TERRAFORM_GITHUB_ACCESS_TOKEN_MOUNT_PATH }}
@@ -91,8 +99,6 @@ jobs:
           TERRAFORM_S3_SECRET_ACCESS_KEY_MOUNT_PATH: ${{ vars.TERRAFORM_S3_SECRET_ACCESS_KEY_MOUNT_PATH }}
           TERRAFORM_KEYCLOAK_CLIENT_SECRET_MOUNT_PATH: ${{ vars.TERRAFORM_KEYCLOAK_CLIENT_SECRET_MOUNT_PATH }}
           TERRAFORM_PAYOS_API_KEY_MOUNT_PATH: ${{ vars.TERRAFORM_PAYOS_API_KEY_MOUNT_PATH }}
-          TERRAFORM_GEMINI_API_KEY_MOUNT_PATH: ${{ vars.TERRAFORM_GEMINI_API_KEY_MOUNT_PATH }}
-          TERRAFORM_OPENAI_API_KEY_MOUNT_PATH: ${{ vars.TERRAFORM_OPENAI_API_KEY_MOUNT_PATH }}
           TERRAFORM_SEPAY_API_KEY_MOUNT_PATH: ${{ vars.TERRAFORM_SEPAY_API_KEY_MOUNT_PATH }}
           API_SEPAY_ENV: ${{ vars.API_SEPAY_ENV }}
           API_SEPAY_MERCHANT_ID: ${{ vars.API_SEPAY_MERCHANT_ID }}

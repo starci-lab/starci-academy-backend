@@ -11,8 +11,6 @@ import {
     getSeedConfig,
     getS3SecretAccessKey,
     getPayosApiKey,
-    getGeminiApiKey,
-    getOpenAiApiKey,
     getKeycloakClientSecret,
     getEncryptionKey,
     getGithubAccessToken,
@@ -92,20 +90,6 @@ export class MountFilesystemService {
      */
     payosApiKey(): string {
         return getPayosApiKey()
-    }
-
-    /**
-     * Get gemini api key from mount path.
-     */
-    geminiApiKey(): string {
-        return getGeminiApiKey()
-    }
-
-    /**
-     * Get openai api key from mount path.
-     */
-    openAiApiKey(): string {
-        return getOpenAiApiKey()
     }
 
     /**

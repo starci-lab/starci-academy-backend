@@ -2,6 +2,7 @@ import type {
     AiMode,
     FlashcardLevel,
     Locale,
+    ModelProvider,
 } from "@modules/databases"
 import type {
     BaseMessage,
@@ -28,12 +29,18 @@ export interface GradeInterviewAnswerParams {
     flashcardDeckId: string
     /** Card whose question + model answer form the prompt + rubric. */
     flashcardCardId: string
+    /** Client-generated id grouping all answers of one run → groups the session in history; undefined for legacy callers. */
+    interviewSessionId?: string
     /** The candidate's answer, already transcribed from speech on the client. */
     transcript: string
     /** Locale to load the deck in and to write the feedback strings in. */
     locale: Locale
-    /** Optional lane override; only Auto is constructible from the mutation input (P0). */
+    /** Requested AI lane (auto/premium/byok); validated against entitlement at grade time. */
     mode?: AiMode
+    /** Concrete model the user picked in the grading dropdown; null/undefined = balancer default. */
+    selectedModel?: string
+    /** Provider serving {@link GradeInterviewAnswerParams.selectedModel}. */
+    selectedModelProvider?: ModelProvider
 }
 
 /** The graded result for one stateless interview answer. */

@@ -48,4 +48,8 @@ export interface GradingStepAiUsage {
     provider: ModelProvider
     /** Number of (model, key) attempts before success. */
     attempts: number
+    /** Input (prompt) tokens the model reported (0/undefined when unreported). */
+    promptTokens?: number
+    /** Output (completion) tokens the model reported (0/undefined when unreported). */
+    completionTokens?: number
 }

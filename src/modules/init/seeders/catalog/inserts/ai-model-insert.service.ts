@@ -79,6 +79,8 @@ export class AiModelInsertService {
                     priority: model.priority,
                     credit: model.credit,
                     weight: model.weight,
+                    priceInUsdPerMTok: model.priceInUsdPerMTok,
+                    priceOutUsdPerMTok: model.priceOutUsdPerMTok,
                     creditPerMTokIn: model.creditPerMTokIn,
                     creditPerMTokOut: model.creditPerMTokOut,
                     enabled: model.enabled,

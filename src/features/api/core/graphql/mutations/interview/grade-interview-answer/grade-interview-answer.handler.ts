@@ -42,8 +42,11 @@ export class GradeInterviewAnswerHandler
             request: {
                 flashcardDeckId,
                 flashcardCardId,
+                interviewSessionId,
                 transcript,
                 mode,
+                selectedModel,
+                selectedModelProvider,
             },
             user,
             locale,
@@ -59,9 +62,12 @@ export class GradeInterviewAnswerHandler
             userId: user.id,
             flashcardDeckId,
             flashcardCardId,
+            interviewSessionId,
             transcript,
             locale: locale ?? Locale.En,
             mode,
+            selectedModel,
+            selectedModelProvider,
         })
 
         // map the domain result 1:1 onto the GraphQL data shape

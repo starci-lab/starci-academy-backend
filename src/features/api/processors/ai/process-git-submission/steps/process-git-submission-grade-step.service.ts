@@ -35,18 +35,12 @@ import {
     envConfig,
 } from "@modules/env"
 import {
-    EmbeddingModelService,
-} from "@modules/langchain"
-import {
     HumanMessage,
     SystemMessage,
 } from "@langchain/core/messages"
 import {
     GithubRepoLoader,
 } from "@langchain/community/document_loaders/web/github"
-import {
-    RecursiveCharacterTextSplitter,
-} from "langchain/text_splitter"
 import {
     MountStorageService,
 } from "@modules/filesystem"
@@ -76,7 +70,7 @@ import {
 } from "../../shared/challenge-submission/utils"
 import {
     GradingRetrievalService,
-} from "../../shared/grading-retrieval"
+} from "@modules/rag"
 
 /**
  * SCHEMA V2 grade step (stepIndex 0). Mirrors the legacy git grade step but grades the submitted
@@ -96,7 +90,6 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
         private readonly mountStorageService: MountStorageService,
-        private readonly embeddingModelService: EmbeddingModelService,
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly challengeEvaluationParseService: ChallengeEvaluationParseService,
@@ -224,30 +217,24 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                     id: doc.id,
                 }),
         )
-        /** Split */
-        const splitter = new RecursiveCharacterTextSplitter({
-            chunkSize: envConfig().services.githubWorker.processGitSubmission.chunkSize,
-            chunkOverlap: envConfig().services.githubWorker.processGitSubmission.chunkOverlap,
-        })
-        const chunks = await splitter.splitDocuments(docs)
-
-        /** Resolve embedding model, then retrieve the most relevant source via the shared RAG service. */
-        const embeddingModel = this.embeddingModelService.get(
+        /** ONE high-level RAG call owns chunk → embed → retrieve; the worker only gathers
+            the source docs + criteria. The run namespace (submission + fencing token) isolates
+            a stalled re-dispatch: a zombie worker carries a different fencing token → a
+            different collection, so it can never corrupt the live owner's vectors. */
+        const gradingCfg = envConfig().services.githubWorker.processGitSubmission
+        const { excerpt: sourceExcerpt } = await this.gradingRetrievalService.retrieveGradingExcerpt(
             {
-                model: payload.embeddingModel ?? envConfig().services.githubWorker.processGitSubmission.embedding.model,
-                provider: payload.embeddingProvider ?? envConfig().services.githubWorker.processGitSubmission.embedding.provider as ModelProvider,
-            },
-        )
-        const { excerpt: sourceExcerpt } = await this.gradingRetrievalService.retrieveSourceExcerpt(
-            {
-                // per-run namespace (submission + fencing token) isolates a stalled re-dispatch:
-                // a zombie worker carries a different fencing token → a different collection
                 runKey: `${payload.userChallengeSubmissionId}-${context.job.fencingToken}`,
-                chunks,
+                documents: docs,
                 criteria,
-                embeddingModel,
-                maxChars: envConfig().services.githubWorker.processGitSubmission.gradingMaxSourceChars,
-                perCriterionTopK: envConfig().services.githubWorker.processGitSubmission.gradingPerCriterionTopK,
+                chunkSize: gradingCfg.chunkSize,
+                chunkOverlap: gradingCfg.chunkOverlap,
+                embedding: {
+                    model: payload.embeddingModel ?? gradingCfg.embedding.model,
+                    provider: payload.embeddingProvider ?? (gradingCfg.embedding.provider as ModelProvider),
+                },
+                maxChars: gradingCfg.gradingMaxSourceChars,
+                perCriterionTopK: gradingCfg.gradingPerCriterionTopK,
                 jobId: context.job.id ?? "",
             },
         )
@@ -345,7 +332,9 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         }
         // ONE shared entry: challenge grading floors at Economy (NOT by difficulty —
         // easy or hard both start Economy and climb to the ceiling) → served + cost
-        const { text: raw, model, provider, attempts, cost } = await this.aiInvokeService.run({
+        const {
+            text: raw, model, provider, attempts, cost, promptTokens, completionTokens,
+        } = await this.aiInvokeService.run({
             userId: enrollment.userId,
             messages: [
                 new SystemMessage(systemText),
@@ -389,6 +378,8 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                 model,
                 provider,
                 attempts,
+                promptTokens,
+                completionTokens,
             },
         }
     }

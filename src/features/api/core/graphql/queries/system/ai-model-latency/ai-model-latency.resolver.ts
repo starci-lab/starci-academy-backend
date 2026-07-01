@@ -88,6 +88,7 @@ export class AiModelLatencyResolver {
                     latencyMs: entry.latencyMs,
                     // cache stores ISO-8601; the GraphQL Date scalar wants a Date
                     checkedAt: new Date(entry.checkedAt),
+                    errorMessage: entry.errorMessage,
                 })),
         }
     }

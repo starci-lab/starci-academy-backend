@@ -70,6 +70,15 @@ export class AiModelLatencyData {
         },
     )
         checkedAt: Date
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Short failure reason when the probe failed, else null.",
+        },
+    )
+        errorMessage: string | null
 }
 
 /**

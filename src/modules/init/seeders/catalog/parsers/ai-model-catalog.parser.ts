@@ -102,13 +102,28 @@ export class AiModelCatalogParserService {
                     enMd.weight,
                     0,
                 ),
-                creditPerMTokIn: this.coerceMdScalarService.toRequiredNumber(
-                    enMd.creditPerMTokIn,
+                priceInUsdPerMTok: this.coerceMdScalarService.toRequiredNumber(
+                    enMd.priceInUsdPerMTok,
                     0,
                 ),
-                creditPerMTokOut: this.coerceMdScalarService.toRequiredNumber(
-                    enMd.creditPerMTokOut,
+                priceOutUsdPerMTok: this.coerceMdScalarService.toRequiredNumber(
+                    enMd.priceOutUsdPerMTok,
                     0,
+                ),
+                // credit rate is DERIVED from the real USD price (single source):
+                // round(price$/M × CREDITS_PER_USD), i.e. 1 credit ≡ $0.0002 cost.
+                // EVERY model bills at its derived rate — `complimentary` only
+                // grants free-lane ACCESS (no subscription), it does NOT zero the
+                // cost. This keeps the free pool (250/week) bounded: a free user
+                // gets a finite number of runs and the max loss per user is capped
+                // (250 credits ≈ $0.05/week), instead of unbounded free grading.
+                creditPerMTokIn: Math.round(
+                    this.coerceMdScalarService.toRequiredNumber(enMd.priceInUsdPerMTok, 0)
+                    * AI_CREDITS_PER_USD,
+                ),
+                creditPerMTokOut: Math.round(
+                    this.coerceMdScalarService.toRequiredNumber(enMd.priceOutUsdPerMTok, 0)
+                    * AI_CREDITS_PER_USD,
                 ),
                 enabled: this.coerceMdScalarService.toRequiredBoolean(
                     enMd.enabled,
@@ -196,6 +211,14 @@ export class AiModelCatalogParserService {
         }
     }
 }
+
+/**
+ * Credits per 1 USD of real model cost — the fixed billing scale. `1 credit ≡
+ * $0.0002` cost → `5000` credits per dollar. Per-Mtok credit rates are DERIVED
+ * from the real USD price (`round(price$/M × this)`), so the USD price in the
+ * markdown is the single source of truth for both cost auditing and billing.
+ */
+const AI_CREDITS_PER_USD = 5000
 
 /**
  * Parse the `# supportedTasks` markdown heading (a comma/newline-separated list)

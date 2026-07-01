@@ -15,6 +15,9 @@ import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
+import {
+    Logger,
+} from "@nestjs/common"
 import type {
     OnModuleDestroy,
     OnModuleInit,
@@ -40,6 +43,9 @@ export abstract class AbstractProviderPingService implements OnModuleInit, OnMod
     private staggerHandles: Array<NodeJS.Timeout> = []
     /** Whether a sweep is currently scheduling or awaiting stagger callbacks. */
     private sweepInProgress = false
+
+    /** Warn-level logger so per-key FAILURES are visible without enabling debug. */
+    private readonly logger = new Logger("AiKeyPing")
 
     /** Provider identity — used in logs and {@link AiPingService.pingKey} routing. */
     protected abstract readonly provider: ModelProvider
@@ -178,6 +184,14 @@ export abstract class AbstractProviderPingService implements OnModuleInit, OnMod
                     error: result.errorMessage ?? undefined,
                 },
             )
+
+            // surface FAILING keys at warn (always visible) → "what's wrong with each key"
+            // without flipping the console to debug. Safe: only the 4-char key suffix.
+            if (!result.success) {
+                this.logger.warn(
+                    `AI key ping FAIL [${this.provider}] ...${toKeySuffix(key)}: ${result.errorMessage ?? "unknown error"}`,
+                )
+            }
 
             if (result.success) {
                 await this.eventEmitterService.emit({

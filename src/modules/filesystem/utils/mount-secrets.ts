@@ -71,25 +71,6 @@ export const getPayosApiKey = (): string => {
     )
 }
 
-/**
- * Get Gemini API key (from terraform mount path).
- */
-export const getGeminiApiKey = (): string => {
-    return readFileSync(
-        envConfig().mountPath.terraform.geminiApiKey,
-        "utf8",
-    )
-}
-
-/**
- * Get OpenAI API key (from terraform mount path).
- */
-export const getOpenAiApiKey = (): string => {
-    return readFileSync(
-        envConfig().mountPath.terraform.openAiApiKey,
-        "utf8",
-    )
-}
 
 /**
  * Parse a mount key file into an array of trimmed, non-empty keys.

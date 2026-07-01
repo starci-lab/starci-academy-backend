@@ -13,9 +13,11 @@ import {
  * (loaded from MinIO) and enforces the premium-content gate, producing the
  * messages sent to the free model.
  *
- * `S3ReadService` / `S3NameResolverService` come from the global `S3Module`,
- * `UserService` from the bussiness `UserModule`, and the entity manager from
- * the global databases module — all global, so no explicit imports here.
+ * All collaborators come from globally-registered modules: `S3ReadService` /
+ * `S3NameResolverService` from `S3Module`, `UserService` from the bussiness
+ * `UserModule`, the entity manager from the databases module, and
+ * `LessonRagRetrievalService` from the app-root-global `RagModule` — so this
+ * module declares no imports.
  */
 @Module({
     providers: [

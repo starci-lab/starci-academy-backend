@@ -41,8 +41,9 @@ describe("SystemConfigHandler",
             // free Auto-lane caps surfaced under ai.auto
             aiAutoQuotaConfigService = {
                 getAutoQuota: jest.fn(() => ({
-                    usesPer5h: 30,
-                    usesPerWeek: 100,
+                    creditsPer5h: 50,
+                    creditsPerWeek: 250,
+                    creditCost: 10,
                 })),
             } as unknown as jest.Mocked<Pick<AiAutoQuotaConfigService, "getAutoQuota">>
 
@@ -83,8 +84,9 @@ describe("SystemConfigHandler",
                     maxAttempts: 5,
                 })
                 expect(result.ai.auto).toEqual({
-                    usesPer5h: 30,
-                    usesPerWeek: 100,
+                    creditsPer5h: 50,
+                    creditsPerWeek: 250,
+                    creditCost: 10,
                 })
             })
     })

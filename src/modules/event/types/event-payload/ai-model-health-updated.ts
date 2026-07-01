@@ -20,6 +20,8 @@ export interface AiModelHealthSnapshot {
     latencyMs: number
     /** ISO-8601 timestamp of the latest probe. */
     checkedAt: string
+    /** Short failure reason when the probe failed, else null. */
+    errorMessage: string | null
 }
 
 /**

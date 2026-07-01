@@ -17,10 +17,17 @@ import type {
     EmbeddingsInterface,
 } from "@langchain/core/embeddings"
 import {
+    RecursiveCharacterTextSplitter,
+} from "langchain/text_splitter"
+import {
+    EmbeddingModelService,
+} from "@modules/langchain"
+import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
 import type {
+    RetrieveGradingExcerptParams,
     RetrieveGradingSourceParams,
     RetrieveGradingSourceResult,
 } from "./types"
@@ -46,12 +53,66 @@ export class GradingRetrievalService {
     constructor(
         @InjectQdrantClient()
         private readonly qdrantClient: QdrantClient,
+        private readonly embeddingModelService: EmbeddingModelService,
         private readonly winstonService: WinstonService,
     ) { }
 
     /**
+     * High-level grading retrieval: own the WHOLE pipeline so callers never touch
+     * chunking, embedding, or the vector store.
+     *
+     * Chunks the raw `documents` with the caller's split config, resolves the FIXED
+     * embedding model for the given `{ model, provider }` (kept fixed so the index +
+     * query dimensions always match), then delegates to {@link retrieveSourceExcerpt}.
+     * The grading workers (challenge git / google-docs + milestone-task review) all
+     * call THIS instead of re-implementing the split → embed → retrieve dance.
+     *
+     * @param params - Run key, raw source documents, criteria, split + embedding config, budget.
+     * @returns The excerpt plus retrieval stats (truncated / degraded / chunk count).
+     */
+    async retrieveGradingExcerpt(
+        params: RetrieveGradingExcerptParams,
+    ): Promise<RetrieveGradingSourceResult> {
+        const {
+            runKey,
+            documents,
+            criteria,
+            chunkSize,
+            chunkOverlap,
+            embedding,
+            maxChars,
+            jobId,
+            perCriterionTopK,
+        } = params
+
+        // split the caller's raw source into retrieval chunks
+        const splitter = new RecursiveCharacterTextSplitter({
+            chunkSize,
+            chunkOverlap,
+        })
+        const chunks = await splitter.splitDocuments(documents)
+
+        // resolve the FIXED embedding model (not balancer-picked, so index + query dims match)
+        const embeddingModel = this.embeddingModelService.get(embedding)
+
+        return this.retrieveSourceExcerpt({
+            runKey,
+            chunks,
+            criteria,
+            embeddingModel,
+            maxChars,
+            jobId,
+            perCriterionTopK,
+        })
+    }
+
+    /**
      * Build a per-run vector index over `chunks`, retrieve the chunks most relevant to the
      * grading `criteria`, and assemble them into a single budget-bounded excerpt.
+     *
+     * Lower-level entry point (pre-split chunks + a resolved embedding model). Most
+     * callers should use {@link retrieveGradingExcerpt} instead, which owns the
+     * chunk + embed steps too.
      *
      * @param params - Run key, source chunks, criteria, embedding model, and char budget.
      * @returns The excerpt plus retrieval stats (truncated / degraded / chunk count).

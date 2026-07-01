@@ -1,0 +1,157 @@
+import {
+    Injectable,
+    Logger,
+} from "@nestjs/common"
+import {
+    QdrantVectorStore,
+} from "@langchain/qdrant"
+import type {
+    QdrantClient,
+} from "@qdrant/qdrant-js"
+import type {
+    Document,
+} from "@langchain/core/documents"
+import {
+    InjectQdrantClient,
+} from "@modules/databases"
+import {
+    EmbeddingModelService,
+} from "@modules/langchain"
+import {
+    envConfig,
+} from "@modules/env"
+
+/** Params for {@link LessonRagRetrievalService.retrieveContentExcerpt}. */
+export interface RetrieveContentExcerptParams {
+    /** Content the chunks must belong to (payload filter). */
+    contentId: string
+    /** The learner's question — the retrieval query. */
+    query: string
+    /** Optional override for how many chunks to pull (defaults to env top-k). */
+    topK?: number
+}
+
+/** Result of {@link LessonRagRetrievalService.retrieveContentExcerpt}. */
+export interface RetrieveContentExcerptResult {
+    /** Assembled excerpt (empty when retrieval missed / failed / index absent). */
+    excerpt: string
+    /** Number of chunks included in the excerpt. */
+    retrievedChunks: number
+}
+
+/**
+ * Retrieves the lesson chunks most relevant to a content-AI question from the
+ * persistent `lesson_rag` Qdrant collection (built by `LessonRagIndexService`).
+ *
+ * Opens the existing collection (no rebuild), runs ONE similarity search scoped
+ * to the question's `contentId` (Qdrant payload filter on `metadata.contentId`),
+ * and joins the hits into a single excerpt. Mirrors the grading RAG idioms
+ * (`QdrantVectorStore` + similarity search) but is read-only + persistent rather
+ * than per-run ephemeral.
+ *
+ * Degrades to an EMPTY excerpt on any failure (collection missing, embedder/
+ * Qdrant down) so the caller can fall back to whole-body stuffing — retrieval is
+ * never allowed to blackhole the chat.
+ */
+@Injectable()
+export class LessonRagRetrievalService {
+    /** Scoped logger for the (non-fatal) retrieval failures. */
+    private readonly logger = new Logger(LessonRagRetrievalService.name)
+
+    constructor(
+        @InjectQdrantClient()
+        private readonly qdrantClient: QdrantClient,
+        private readonly embeddingModelService: EmbeddingModelService,
+    ) { }
+
+    /**
+     * Retrieve the top-k lesson chunks for a content-AI question and assemble them
+     * into one excerpt. Returns an empty excerpt (so the caller falls back to
+     * whole-body stuffing) when the index is absent or retrieval fails.
+     *
+     * @param params - The content id, the question, and an optional top-k.
+     * @returns The assembled excerpt + how many chunks it includes.
+     */
+    async retrieveContentExcerpt(
+        {
+            contentId,
+            query,
+            topK,
+        }: RetrieveContentExcerptParams,
+    ): Promise<RetrieveContentExcerptResult> {
+        const trimmed = query.trim()
+        if (!trimmed) {
+            return {
+                excerpt: "",
+                retrievedChunks: 0,
+            }
+        }
+        const collectionName = envConfig().services.lessonRag.collection
+        const k = topK ?? envConfig().services.lessonRag.retrievalTopK
+        try {
+            // local-first embedder (must match the one the index was built with so
+            // query + stored vectors share the embedding space)
+            const embeddingModel = await this.embeddingModelService.getViaBalancer()
+            const vectorStore = await QdrantVectorStore.fromExistingCollection(
+                embeddingModel,
+                {
+                    client: this.qdrantClient,
+                    collectionName,
+                },
+            )
+            // LangChain stores doc metadata under a `metadata` payload sub-object →
+            // filter keys are prefixed `metadata.`
+            const hits = await vectorStore.similaritySearch(
+                trimmed,
+                k,
+                {
+                    must: [
+                        {
+                            key: "metadata.contentId",
+                            match: {
+                                value: contentId,
+                            },
+                        },
+                    ],
+                },
+            )
+            return {
+                excerpt: this.assemble(hits),
+                retrievedChunks: hits.length,
+            }
+        } catch (error) {
+            // index missing / Qdrant or embedder down → empty excerpt, caller falls
+            // back to whole-body stuffing (retrieval never blocks the chat)
+            this.logger.warn(
+                `Lesson RAG retrieval failed for content ${contentId} (falling back to whole body): ${error instanceof Error ? error.message : String(error)}`,
+            )
+            return {
+                excerpt: "",
+                retrievedChunks: 0,
+            }
+        }
+    }
+
+    /**
+     * Join retrieved chunk contents into one excerpt, de-duplicating identical
+     * chunk text.
+     *
+     * @param hits - The retrieved documents in similarity order.
+     * @returns The joined excerpt.
+     */
+    private assemble(
+        hits: Array<Document>,
+    ): string {
+        const seen = new Set<string>()
+        const parts: Array<string> = []
+        for (const hit of hits) {
+            const text = hit.pageContent
+            if (seen.has(text)) {
+                continue
+            }
+            seen.add(text)
+            parts.push(text)
+        }
+        return parts.join("\n\n")
+    }
+}
