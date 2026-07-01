@@ -27,9 +27,6 @@ import {
 import {
     SynchronizersModule,
 } from "./synchronizers"
-import {
-    RagModule,
-} from "@modules/rag"
 
 /**
  * Init module — canonical git-sourced initialization orchestrator.
@@ -56,9 +53,6 @@ export class InitModule extends ConfigurableModuleClass {
                     isGlobal: true,
                 }),
                 SynchronizersModule.register({
-                    isGlobal: true,
-                }),
-                RagModule.register({
                     isGlobal: true,
                 }),
             ],

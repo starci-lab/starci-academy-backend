@@ -26,7 +26,6 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
     MilestoneTaskEntity,
-    InjectQdrantClient,
     ModelProvider,
 } from "@modules/databases"
 import {
@@ -46,9 +45,6 @@ import {
     DayjsService,
 } from "@modules/mixin"
 import {
-    EmbeddingModelService,
-} from "@modules/langchain"
-import {
     HumanMessage,
     SystemMessage,
 } from "@langchain/core/messages"
@@ -56,14 +52,8 @@ import {
     GithubRepoLoader,
 } from "@langchain/community/document_loaders/web/github"
 import {
-    RecursiveCharacterTextSplitter,
-} from "langchain/text_splitter"
-import {
-    QdrantVectorStore,
-} from "@langchain/qdrant"
-import type {
-    QdrantClient,
-} from "@qdrant/qdrant-js"
+    GradingRetrievalService,
+} from "@modules/rag"
 import {
     MountStorageService,
 } from "@modules/filesystem"
@@ -103,9 +93,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
         private readonly jobActionService: JobActionService,
         private readonly winstonService: WinstonService,
         private readonly mountStorageService: MountStorageService,
-        private readonly embeddingModelService: EmbeddingModelService,
-        @InjectQdrantClient()
-        private readonly qdrantClient: QdrantClient,
+        private readonly gradingRetrievalService: GradingRetrievalService,
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly dayjsService: DayjsService,
@@ -277,63 +265,37 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 }),
         )
 
-        /** Split */
-        const splitter = new RecursiveCharacterTextSplitter({
-            chunkSize: envConfig().services.githubWorker.processGitSubmission.chunkSize,
-            chunkOverlap: envConfig().services.githubWorker.processGitSubmission.chunkOverlap,
-        })
-        const chunks = await splitter.splitDocuments(docs)
-
-        /** Vectorize into Qdrant. */
-        const collectionName = `review-milestone-task-${payload.enrollmentId}-${payload.taskId}`
-        const embeddingModel = this.embeddingModelService.get(
-            {
-                model: envConfig().services.githubWorker.processGitSubmission.embedding.model,
-                provider: envConfig().services.githubWorker.processGitSubmission.embedding.provider as ModelProvider,
-            },
-        )
-        await this.qdrantClient.deleteCollection(collectionName)
-        await QdrantVectorStore.fromDocuments(
-            chunks,
-            embeddingModel,
-            {
-                client: this.qdrantClient,
-                collectionName,
-            },
-        )
-        const vectorStore = await QdrantVectorStore.fromExistingCollection(
-            embeddingModel,
-            {
-                client: this.qdrantClient,
-                collectionName,
-            },
-        )
-
-        /** Build source excerpt using criteria translations for the target locale */
-        const criteriaQueryText = isV2Task
-            ? v2Criteria.map((criterion) => criterion.body).join("\n\n")
+        /** Map criteria → retrieval queries (V2 yes/no body, else legacy text + prompt). */
+        const retrievalCriteria = isV2Task
+            ? v2Criteria.map((criterion) => ({
+                body: criterion.body
+            }))
             : criteria
+                .slice()
                 .sort((prev, next) => prev.orderIndex - next.orderIndex)
-                .map((criterion) => {
-                    const text = criterion.text
-                    const promptText = criterion.promptText
-                    return `${text}\n${promptText}`
-                })
-                .join("\n\n")
-        const topChunks = await vectorStore.similaritySearch(
-            criteriaQueryText,
-            20,
+                .map((criterion) => ({
+                    body: `${criterion.text}\n${criterion.promptText}`
+                }))
+        /** ONE high-level RAG call owns chunk → embed → retrieve; the worker only gathers
+            the source docs + criteria. The run namespace includes the fencing token so a
+            stalled re-dispatch can never corrupt the live owner's vectors mid-search. */
+        const gradingCfg = envConfig().services.githubWorker.processGitSubmission
+        const { excerpt: sourceExcerpt } = await this.gradingRetrievalService.retrieveGradingExcerpt(
+            {
+                runKey: `review-milestone-task-${payload.enrollmentId}-${payload.taskId}-${context.job.fencingToken}`,
+                documents: docs,
+                criteria: retrievalCriteria,
+                chunkSize: gradingCfg.chunkSize,
+                chunkOverlap: gradingCfg.chunkOverlap,
+                embedding: {
+                    model: gradingCfg.embedding.model,
+                    provider: gradingCfg.embedding.provider as ModelProvider,
+                },
+                maxChars: gradingCfg.gradingMaxSourceChars,
+                perCriterionTopK: gradingCfg.gradingPerCriterionTopK,
+                jobId: context.job.id ?? "",
+            },
         )
-        let sourceExcerpt = (topChunks.length > 0 ? topChunks : chunks)
-            .map((chunk) => chunk.pageContent)
-            .join("\n\n")
-        const maxChars = envConfig().services.githubWorker.processGitSubmission.gradingMaxSourceChars
-        if (sourceExcerpt.length > maxChars) {
-            sourceExcerpt = sourceExcerpt.slice(
-                0,
-                maxChars
-            )
-        }
         const taskTitle = milestoneTask.title ?? "milestone task"
 
         /** V2 max total = sum of explicit criterion scores (e.g. 100); legacy = task.maxScore. */
@@ -465,7 +427,9 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
         }
         // ONE shared entry: floor by capstone-task difficulty → climb in tier ceiling.
         // The credit charge happens in the complete step (by the stored served model).
-        const { text: raw, model, provider, attempts } = await this.aiInvokeService.run({
+        const {
+            text: raw, model, provider, attempts, promptTokens, completionTokens,
+        } = await this.aiInvokeService.run({
             userId: enrollment.userId,
             messages: [
                 new SystemMessage(systemText),
@@ -486,6 +450,8 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 model,
                 provider,
                 attempts,
+                promptTokens,
+                completionTokens,
             },
         }
     }

@@ -79,6 +79,9 @@ import {
     LangchainModule
 } from "@modules/langchain"
 import {
+    RagModule
+} from "@modules/rag"
+import {
     CryptoModule
 } from "@modules/crypto"
 import {
@@ -431,6 +434,12 @@ import {
             ),
             /** LangChain module. */
             LangchainModule.register(
+                {
+                    isGlobal: true,
+                }
+            ),
+            /** RAG module (vector-store retrieval: lesson index/retrieval + grading retrieval). */
+            RagModule.register(
                 {
                     isGlobal: true,
                 }

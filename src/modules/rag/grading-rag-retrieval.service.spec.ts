@@ -9,7 +9,7 @@ import type {
 } from "@langchain/core/embeddings"
 import {
     GradingRetrievalService,
-} from "./grading-retrieval.service"
+} from "./grading-rag-retrieval.service"
 
 // the vector store is the only external dependency we stub at module level; everything else
 // (dedup / budget / round-robin / degrade) is pure logic exercised through the public method
@@ -44,6 +44,9 @@ describe("GradingRetrievalService",
         let winstonService: {
             log: jest.Mock
         }
+        let embeddingModelService: {
+            get: jest.Mock
+        }
         const embeddingModel = {
         } as EmbeddingsInterface
         const fromDocuments = QdrantVectorStore.fromDocuments as unknown as jest.Mock
@@ -55,8 +58,12 @@ describe("GradingRetrievalService",
             winstonService = {
                 log: jest.fn(),
             }
+            embeddingModelService = {
+                get: jest.fn().mockReturnValue(embeddingModel),
+            }
             service = new GradingRetrievalService(
                 qdrantClient as never,
+                embeddingModelService as never,
                 winstonService as never,
             )
             fromDocuments.mockReset()

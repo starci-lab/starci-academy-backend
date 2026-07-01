@@ -4,11 +4,47 @@ import type {
 import type {
     EmbeddingsInterface,
 } from "@langchain/core/embeddings"
+import type {
+    ModelProvider,
+} from "@modules/databases"
 
 /** One yes/no criterion whose prose steers retrieval toward the evidence that satisfies it. */
 export interface GradingRetrievalCriterion {
     /** Criterion prose used as the similarity query. */
     body: string
+}
+
+/**
+ * Params for {@link GradingRetrievalService.retrieveGradingExcerpt} — the
+ * high-level entry point that owns the WHOLE retrieval pipeline (chunk → embed →
+ * vector-retrieve → assemble). Callers (grading workers) hand over the raw
+ * gathered source documents plus their retrieval config; no chunking, embedding,
+ * or vector-store code leaks into the caller.
+ */
+export interface RetrieveGradingExcerptParams {
+    /** {@link RetrieveGradingSourceParams.runKey} — per-run Qdrant collection namespace. */
+    runKey: string
+    /** Raw, UN-split source documents (repo files / document text) — the service chunks them. */
+    documents: Array<Document>
+    /** Per-language yes/no criteria the retrieval is steered toward. */
+    criteria: Array<GradingRetrievalCriterion>
+    /** Chunk size for the recursive splitter. */
+    chunkSize: number
+    /** Chunk overlap for the recursive splitter. */
+    chunkOverlap: number
+    /** The exact embedding `{ model, provider }` to vectorize chunks + queries (kept fixed so dims match). */
+    embedding: {
+        /** Embedding model name. */
+        model: string
+        /** Embedding provider. */
+        provider: ModelProvider
+    }
+    /** Hard ceiling on the assembled excerpt length (characters). */
+    maxChars: number
+    /** Job id, for log correlation. */
+    jobId: string
+    /** Per-criterion retrieval depth (defaults to the service default). */
+    perCriterionTopK?: number
 }
 
 /** Params for {@link GradingRetrievalService.retrieveSourceExcerpt}. */
