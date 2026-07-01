@@ -64,7 +64,7 @@ describe("EmbeddingModelService",
         let module: TestingModule
         let service: EmbeddingModelService
         let useApiService: jest.Mocked<Pick<UseApiService, "useApi">>
-        let mountFilesystemService: jest.Mocked<Pick<MountFilesystemService, "openAiApiKeys" | "geminiApiKeys">>
+        let mountFilesystemService: jest.Mocked<Pick<MountFilesystemService, "openAiApiKeys" | "geminiApiKeys" | "localApiKeys">>
 
         beforeEach(async () => {
             jest.clearAllMocks()
@@ -76,7 +76,10 @@ describe("EmbeddingModelService",
                 geminiApiKeys: jest.fn(() => [
                     "sk-gemini",
                 ]),
-            } as unknown as jest.Mocked<Pick<MountFilesystemService, "openAiApiKeys" | "geminiApiKeys">>
+                localApiKeys: jest.fn(() => [
+                    "local-token",
+                ]),
+            } as unknown as jest.Mocked<Pick<MountFilesystemService, "openAiApiKeys" | "geminiApiKeys" | "localApiKeys">>
 
             // useApi runs the supplied action against a fake context, then echoes
             // the action's result back in the standard envelope
@@ -159,6 +162,11 @@ describe("EmbeddingModelService",
                             model: "nomic-embed-text",
                             // root URL — no /v1 (native Ollama embeddings API)
                             baseUrl: LOCAL_BASE_URL_ROOT,
+                            maxConcurrency: 8,
+                            // Bearer token from the pool — the prod tunnel gate requires it
+                            headers: {
+                                Authorization: "Bearer local-token",
+                            },
                         })
                     })
 
@@ -210,6 +218,7 @@ describe("EmbeddingModelService",
                         wireUseApi({
                             provider: ModelProvider.Local,
                             model: "nomic-embed-text",
+                            key: "resolved-local-token",
                         })
 
                         const embedder = await service.getViaBalancer() as unknown as Record<string, unknown>
@@ -218,6 +227,11 @@ describe("EmbeddingModelService",
                         expect(embedder.opts).toEqual({
                             model: "nomic-embed-text",
                             baseUrl: LOCAL_BASE_URL_ROOT,
+                            maxConcurrency: 8,
+                            // uses the balancer-ACQUIRED key (not the mount pool directly)
+                            headers: {
+                                Authorization: "Bearer resolved-local-token",
+                            },
                         })
                     })
 
