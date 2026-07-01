@@ -233,6 +233,8 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                             // load-balanced) so the task feedback page can attribute it.
                             servedModel: grade.aiUsage?.model ?? null,
                             servedProvider: grade.aiUsage?.provider ?? null,
+                            promptTokens: grade.aiUsage?.promptTokens ?? null,
+                            completionTokens: grade.aiUsage?.completionTokens ?? null,
                             feedbacks,
                             defaultLocale: payload.locale ?? Locale.En,
                         }

@@ -65,9 +65,13 @@ export interface AppConfigAiModel {
     credit: number
     /** Within-category Auto try-order key (higher first; decimals allowed). */
     weight: number
-    /** Token-based billing: credits per 1,000,000 input tokens. */
+    /** Real provider price (USD) per 1,000,000 input tokens — cost source of truth. */
+    priceInUsdPerMTok: number
+    /** Real provider price (USD) per 1,000,000 output tokens — cost source of truth. */
+    priceOutUsdPerMTok: number
+    /** Credits per 1,000,000 input tokens — DERIVED from {@link priceInUsdPerMTok}. */
     creditPerMTokIn: number
-    /** Token-based billing: credits per 1,000,000 output tokens. */
+    /** Credits per 1,000,000 output tokens — DERIVED from {@link priceOutUsdPerMTok}. */
     creditPerMTokOut: number
     /** Kill-switch — `false` removes the model from rotation without deleting the row. */
     enabled: boolean

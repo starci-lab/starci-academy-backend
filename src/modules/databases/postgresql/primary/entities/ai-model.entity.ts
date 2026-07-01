@@ -159,15 +159,49 @@ export class AiModelEntity extends UuidAbstractEntity {
         weight: number
 
     /**
+     * REAL provider price in USD per 1,000,000 INPUT tokens (the true cost to
+     * us). Source of truth for billing: {@link creditPerMTokIn} is DERIVED from
+     * this at seed time (`round(price × credits-per-USD)`). Kept in the DB for
+     * cost/margin auditing. Free / self-hosted models = 0.
+     */
+    @Field(
+        () => Float,
+        {
+            description: "Real provider price (USD) per 1,000,000 input tokens — cost source of truth.",
+        },
+    )
+    @Column({
+        name: "price_in_usd_per_mtok",
+        type: "double precision",
+        default: 0,
+    })
+        priceInUsdPerMTok: number
+
+    /** REAL provider price in USD per 1,000,000 OUTPUT tokens (cost source of truth). */
+    @Field(
+        () => Float,
+        {
+            description: "Real provider price (USD) per 1,000,000 output tokens — cost source of truth.",
+        },
+    )
+    @Column({
+        name: "price_out_usd_per_mtok",
+        type: "double precision",
+        default: 0,
+    })
+        priceOutUsdPerMTok: number
+
+    /**
      * Token-based billing rate: credits charged per 1,000,000 INPUT tokens.
-     * Proportional to the model's real `$/M` input price (× the fixed credit
-     * scale). A grading run is billed `ceil((promptTok·in + completionTok·out)/1e6)`;
-     * {@link credit} is the flat FALLBACK used only when token usage is unreported.
+     * DERIVED at seed from {@link priceInUsdPerMTok} (`round(price × 5000)`, i.e.
+     * 1 credit ≡ $0.0002 real cost). A grading run is billed
+     * `ceil((promptTok·in + completionTok·out)/1e6)`; {@link credit} is the flat
+     * FALLBACK used only when token usage is unreported.
      */
     @Field(
         () => Int,
         {
-            description: "Credits charged per 1,000,000 input tokens (token-based billing).",
+            description: "Credits charged per 1,000,000 input tokens (derived from price).",
         },
     )
     @Column({

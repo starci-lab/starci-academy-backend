@@ -19,7 +19,8 @@ import {
  * Exercises the shared {@link AbstractModelRouterService} logic through the
  * concrete grading router (tier resolution, reactive failover, proactive
  * quota re-check). The default env tier is "low" → grading chain is
- * [gpt-4o-mini (OpenAI), gemini-2.0-flash (Gemini)].
+ * [qwen2.5-coder:7b (Local), gpt-5.4-nano (OpenAI), gemini-2.5-flash-lite (Gemini)]
+ * — the free Auto lane runs the self-hosted Qwen first, then economy cloud.
  */
 describe("GradeModelRouterService",
     () => {
@@ -66,12 +67,12 @@ describe("GradeModelRouterService",
             () => {
                 it("picks the primary model in the chain when all providers are available",
                     () => {
-                        // fresh router → no provider marked unavailable → primary wins
+                        // fresh router → no provider marked unavailable → primary (local Qwen) wins
                         service.resolve()
 
                         expect(service.current).toEqual({
-                            model: "gpt-4o-mini",
-                            provider: ModelProvider.OpenAI,
+                            model: "qwen2.5-coder:7b",
+                            provider: ModelProvider.Local,
                         })
                     })
             })
@@ -80,24 +81,25 @@ describe("GradeModelRouterService",
             () => {
                 it("marks a provider unavailable and switches to the next fallback",
                     () => {
-                        // OpenAI quota error → fail over to the Gemini fallback
-                        service.failure(ModelProvider.OpenAI)
+                        // local Qwen down → fail over to the next fallback (gpt-5.4-nano)
+                        service.failure(ModelProvider.Local)
 
                         expect(service.current).toEqual({
-                            model: "gemini-2.0-flash",
-                            provider: ModelProvider.Gemini,
+                            model: "gpt-5.4-nano",
+                            provider: ModelProvider.OpenAI,
                         })
                     })
 
                 it("forces the first chain entry when every provider is unavailable",
                     () => {
-                        // both providers down → fall back to the chain head regardless
+                        // every provider down → fall back to the chain head (local Qwen) regardless
+                        service.failure(ModelProvider.Local)
                         service.failure(ModelProvider.OpenAI)
                         service.failure(ModelProvider.Gemini)
 
                         expect(service.current).toEqual({
-                            model: "gpt-4o-mini",
-                            provider: ModelProvider.OpenAI,
+                            model: "qwen2.5-coder:7b",
+                            provider: ModelProvider.Local,
                         })
                     })
             })
@@ -106,8 +108,8 @@ describe("GradeModelRouterService",
             () => {
                 it("clears the unavailable flag when a provider pings healthy again",
                     async () => {
-                        // OpenAI was down; a healthy ping must restore it as primary
-                        service.failure(ModelProvider.OpenAI)
+                        // local Qwen was down; a healthy ping must restore it as primary
+                        service.failure(ModelProvider.Local)
                         aiPingService.pingKey.mockResolvedValue({
                             success: true,
                             errorMessage: null,
@@ -115,39 +117,39 @@ describe("GradeModelRouterService",
 
                         await service.checkQuota()
 
-                        expect(service.current.provider).toBe(ModelProvider.OpenAI)
+                        expect(service.current.provider).toBe(ModelProvider.Local)
                     })
 
                 it("keeps a provider unavailable when its ping fails",
                     async () => {
-                        // OpenAI keeps failing → router stays on the Gemini fallback
+                        // local Qwen keeps failing → router stays on the next fallback (OpenAI)
                         aiPingService.pingKey.mockImplementation(
                             async ({
                                 provider,
                             }) => ({
-                                success: provider !== ModelProvider.OpenAI,
+                                success: provider !== ModelProvider.Local,
                                 errorMessage: null,
                             }),
                         )
 
                         await service.checkQuota()
 
-                        expect(service.current.provider).toBe(ModelProvider.Gemini)
+                        expect(service.current.provider).toBe(ModelProvider.OpenAI)
                     })
 
                 it("treats a provider with no keys as unavailable",
                     async () => {
-                        // no key for OpenAI → cannot ping → unavailable, use Gemini
+                        // no key for local Qwen → cannot ping → unavailable, use the next fallback (OpenAI)
                         aiPingService.listKeysForProvider.mockImplementation(
                             (provider) =>
-                                (provider === ModelProvider.OpenAI ? [] : [
+                                (provider === ModelProvider.Local ? [] : [
                                     "sk-key",
                                 ]),
                         )
 
                         await service.checkQuota()
 
-                        expect(service.current.provider).toBe(ModelProvider.Gemini)
+                        expect(service.current.provider).toBe(ModelProvider.OpenAI)
                     })
             })
     })
