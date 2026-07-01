@@ -104,6 +104,7 @@ export class EmbeddingModelService {
                 model,
                 baseUrl: this.localOllamaBaseUrl(),
                 maxConcurrency: OLLAMA_EMBED_MAX_CONCURRENCY,
+                headers: this.localOllamaAuthHeaders(),
             })
         }
         default: {
@@ -162,6 +163,7 @@ export class EmbeddingModelService {
                 model: context.model,
                 baseUrl: this.localOllamaBaseUrl(),
                 maxConcurrency: OLLAMA_EMBED_MAX_CONCURRENCY,
+                headers: this.authHeaders(context.key),
             })
         case ModelProvider.OpenAI:
             return new OpenAIEmbeddings({
@@ -191,5 +193,31 @@ export class EmbeddingModelService {
             /\/v1$/,
             "",
         )
+    }
+
+    /**
+     * Bearer-auth header for the Local (self-hosted Ollama) provider — resolves the
+     * token from the SAME key pool the chat lane's `Authorization: Bearer <token>`
+     * uses. Local dev's Ollama is ungated (any token is harmless there), but prod
+     * reaches Ollama through a Cloudflare-tunneled gate that rejects unauthenticated
+     * requests — `OllamaEmbeddings` talks to the native `/api/embed` endpoint
+     * directly (not through `ChatOpenAI`), so it needs this header wired explicitly.
+     *
+     * @returns `{ Authorization: "Bearer <token>" }` for the first pooled key.
+     */
+    private localOllamaAuthHeaders(): Record<string, string> {
+        return this.authHeaders(this.mountFilesystemService.localApiKeys()[0] ?? "")
+    }
+
+    /**
+     * Build the Bearer-auth header for a resolved Local-provider token.
+     *
+     * @param token - The acquired token (empty when no key is configured).
+     * @returns The header map to pass as `OllamaEmbeddings.headers`.
+     */
+    private authHeaders(token: string): Record<string, string> {
+        return {
+            Authorization: `Bearer ${token}`,
+        }
     }
 }
