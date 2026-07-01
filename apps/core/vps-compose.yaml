@@ -83,6 +83,10 @@ services:
 
       SYNCHRONIZER_ENABLE: ${SYNCHRONIZER_ENABLE:-false}
 
+      # Lesson RAG index — see the comment in deploy-core-vps.yml. Defaults OFF
+      # (safe) when the repo Variable is unset.
+      LESSON_RAG_INDEX_ENABLED: ${LESSON_RAG_INDEX_ENABLED:-false}
+
       # Kafka (CDC progress-projection listener). Reaches the cdc-kafka broker via
       # the docker0 gateway (same host-gateway pattern as Postgres). The broker's
       # HOST listener is published on 172.17.0.1:29092 (see .containers/cdc.yaml).

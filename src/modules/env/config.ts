@@ -1462,6 +1462,18 @@ export const envConfig = () => ({
                 key: "QDRANT_API_KEY",
                 defaultValue: "Cuong123_A",
             }),
+            /**
+             * Per-request HTTP timeout (ms) for the Qdrant REST client. The
+             * `@qdrant/js-client-rest` default is 300000 (5 min), which a
+             * first-time bulk upsert of a large corpus (e.g. the lesson RAG
+             * index, thousands of chunks in one `fromDocuments` call) can
+             * exceed — the client aborts with a generic "operation was
+             * aborted" error even though Qdrant itself is still healthy.
+             */
+            timeoutMs: parseEnvInt({
+                key: "QDRANT_TIMEOUT_MS",
+                defaultValue: 900_000,
+            }),
         },
         /** PostgreSQL configuration. */
         postgresql: {

@@ -49,6 +49,12 @@ interface SandpackFile {
 }
 
 /**
+ * Chunks per embed+upsert round. See the batching comment in {@link build} for
+ * why the whole corpus is never embedded in one `fromDocuments` call.
+ */
+const LESSON_RAG_EMBED_BATCH_SIZE = 200
+
+/**
  * Result of {@link LessonRagIndexService.build}.
  */
 export interface BuildLessonRagIndexResult {
@@ -140,14 +146,33 @@ export class LessonRagIndexService {
         )
 
         const docs: Array<Document> = []
-        for (const content of contents) {
+        for (const [
+            index,
+            content,
+        ] of contents.entries()) {
             const courseId = content.module?.course?.id ?? ""
-            await this.collectBodyDocs(content.id,
-                courseId,
-                docs)
-            await this.collectCodeDocs(content,
-                courseId,
-                docs)
+            // per-content isolation: a MinIO read / parse failure for ONE lesson must
+            // NOT abort the whole index build — log it + skip to the next content
+            // (mirrors the non-fatal swallow policy of the asset-mirror + init phases)
+            try {
+                await this.collectBodyDocs(content.id,
+                    courseId,
+                    docs)
+                await this.collectCodeDocs(content,
+                    courseId,
+                    docs)
+            } catch (error) {
+                this.logger.warn(
+                    `Lesson RAG: skipped content ${content.id}: ${error instanceof Error ? error.message : String(error)}`,
+                )
+            }
+            // progress heartbeat — this loop reads MinIO per content; without it a
+            // large corpus looks indistinguishable from "hung" for many minutes
+            if ((index + 1) % 50 === 0 || index === contents.length - 1) {
+                this.logger.log(
+                    `Lesson RAG: collected ${index + 1}/${contents.length} content(s), ${docs.length} doc(s) so far`,
+                )
+            }
         }
 
         // nothing to index (empty DB / MinIO not populated) → skip the upsert
@@ -170,18 +195,39 @@ export class LessonRagIndexService {
         }
 
         const chunks = await splitter.splitDocuments(docs)
+        this.logger.log(
+            `Lesson RAG: embedding + upserting ${chunks.length} chunk(s) in batches of ${LESSON_RAG_EMBED_BATCH_SIZE}`,
+        )
 
-        // drop + rebuild so a removed/renamed lesson does not leave stale vectors;
-        // fromDocuments auto-creates the collection sized to the embedder's dim
+        // drop + rebuild so a removed/renamed lesson does not leave stale vectors.
+        // Embed + upsert in BATCHES rather than one `fromDocuments` call over the
+        // whole corpus: a single call embeds every chunk (queued through the
+        // embedder's AsyncCaller) before issuing ANY upsert, so a large corpus
+        // (thousands of chunks) can run long enough to outlast every downstream
+        // client/library timeout with zero visibility into progress. Batching
+        // bounds each embed+upsert round AND gives a heartbeat between rounds.
         await this.safeDeleteCollection(collectionName)
-        await QdrantVectorStore.fromDocuments(
-            chunks,
+        const firstBatch = chunks.slice(0,
+            LESSON_RAG_EMBED_BATCH_SIZE)
+        const vectorStore = await QdrantVectorStore.fromDocuments(
+            firstBatch,
             embeddingModel,
             {
                 client: this.qdrantClient,
                 collectionName,
             },
         )
+        this.logger.log(
+            `Lesson RAG: embedded ${firstBatch.length}/${chunks.length} chunk(s)`,
+        )
+        for (let start = LESSON_RAG_EMBED_BATCH_SIZE; start < chunks.length; start += LESSON_RAG_EMBED_BATCH_SIZE) {
+            const batch = chunks.slice(start,
+                start + LESSON_RAG_EMBED_BATCH_SIZE)
+            await vectorStore.addDocuments(batch)
+            this.logger.log(
+                `Lesson RAG: embedded ${Math.min(start + batch.length, chunks.length)}/${chunks.length} chunk(s)`,
+            )
+        }
 
         this.winstonService.log(
             WinstonLog.ProcessStepExecuted,

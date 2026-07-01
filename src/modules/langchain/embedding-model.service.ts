@@ -36,6 +36,17 @@ import {
 } from "@langchain/community/embeddings/ollama"
 
 /**
+ * `OllamaEmbeddings` hardcodes `maxConcurrency: 1` internally (fully
+ * sequential embed calls) unless overridden. For any bulk embed job (e.g. the
+ * lesson RAG index — hundreds of lessons split into thousands of chunks),
+ * strictly sequential requests at ~300-500ms each take tens of minutes and
+ * can outlast every downstream client timeout. The local Ollama host (RTX
+ * 5060) comfortably serves several concurrent small embed requests, so raise
+ * this to parallelize the embed phase.
+ */
+const OLLAMA_EMBED_MAX_CONCURRENCY = 8
+
+/**
  * Service for getting embedding models.
  *
  * Two ways to obtain an {@link Embeddings} client:
@@ -92,6 +103,7 @@ export class EmbeddingModelService {
             return new OllamaEmbeddings({
                 model,
                 baseUrl: this.localOllamaBaseUrl(),
+                maxConcurrency: OLLAMA_EMBED_MAX_CONCURRENCY,
             })
         }
         default: {
@@ -149,6 +161,7 @@ export class EmbeddingModelService {
             return new OllamaEmbeddings({
                 model: context.model,
                 baseUrl: this.localOllamaBaseUrl(),
+                maxConcurrency: OLLAMA_EMBED_MAX_CONCURRENCY,
             })
         case ModelProvider.OpenAI:
             return new OpenAIEmbeddings({
