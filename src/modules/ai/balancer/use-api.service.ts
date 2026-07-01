@@ -766,8 +766,17 @@ export class UseApiService {
             apiKey: string
         },
     ): { url: string, headers: Record<string, string>, body: unknown } {
-        // shared OpenAI-style chat body — reused by every OpenAI-compatible gateway
-        const openAiBody = (capKey: "max_completion_tokens" | "max_tokens") => ({
+        // shared OpenAI-style chat body — reused by every OpenAI-compatible gateway.
+        // `tokens` defaults to 1 (cheapest possible probe) but REASONING-family
+        // models (gpt-5.x native + OpenRouter reasoning routes) burn part of that
+        // budget on hidden reasoning before emitting a single visible token — with
+        // `=1` they return a hard 400 ("could not finish the message") instead of an
+        // empty 2xx, which falsely marks a live model DOWN. 16 is the community/
+        // litellm-verified floor that lets reasoning finish before hitting the cap.
+        const openAiBody = (
+            capKey: "max_completion_tokens" | "max_tokens",
+            tokens: number = 1,
+        ) => ({
             model,
             messages: [
                 {
@@ -775,32 +784,42 @@ export class UseApiService {
                     content: "ping",
                 },
             ],
-            [capKey]: 1,
+            [capKey]: tokens,
         })
         switch (provider) {
         case ModelProvider.OpenAI:
-            // native OpenAI — `max_completion_tokens` (gpt-5.x reject `max_tokens`)
+            // native OpenAI — `max_completion_tokens` (gpt-5.x reject `max_tokens`);
+            // 16 tokens so reasoning-family models (gpt-5.4-nano/mini) clear their
+            // hidden reasoning pass instead of false-DOWN-ing on a 1-token cap
             return {
                 url: "https://api.openai.com/v1/chat/completions",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${apiKey}`,
                 },
-                body: openAiBody("max_completion_tokens"),
+                body: openAiBody(
+                    "max_completion_tokens",
+                    16,
+                ),
             }
         case ModelProvider.OpenRouter:
             // OpenRouter aggregator gateway (OpenAI-compatible) — reasoning models
-            // here also reject `max_tokens`, so use `max_completion_tokens`
+            // here also reject `max_tokens` AND need the same reasoning headroom,
+            // so use `max_completion_tokens` with the same 16-token floor
             return {
                 url: `${envConfig().ai.openrouter.baseUrl}/chat/completions`,
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${apiKey}`,
                 },
-                body: openAiBody("max_completion_tokens"),
+                body: openAiBody(
+                    "max_completion_tokens",
+                    16,
+                ),
             }
         case ModelProvider.Local:
-            // self-hosted OpenAI-compatible endpoint (Ollama / vLLM) — `max_tokens`
+            // self-hosted OpenAI-compatible endpoint (Ollama / vLLM) — non-reasoning
+            // models, `max_tokens`, 1 token is enough (cheapest probe)
             return {
                 url: `${envConfig().ai.local.baseUrl}/chat/completions`,
                 headers: {
