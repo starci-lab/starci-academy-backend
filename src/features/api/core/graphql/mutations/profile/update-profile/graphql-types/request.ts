@@ -8,11 +8,14 @@ import {
     IsOptional,
     IsString,
     IsUrl,
+    Matches,
     MaxLength,
 } from "class-validator"
 import {
     WorkMode,
     GraphQLTypeWorkMode,
+    BackgroundEffect,
+    GraphQLTypeBackgroundEffect,
 } from "@modules/databases"
 
 /**
@@ -177,4 +180,28 @@ export class UpdateProfileRequest {
     // cap matches the `website_url` varchar(255) column
     @MaxLength(255)
         websiteUrl?: string | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "User-chosen accent color (hex, e.g. #e84393); null clears it back to the default brand accent.",
+        },
+    )
+    @IsOptional()
+    @IsString()
+    // #RGB / #RRGGBB only — this is a display token, never render it unvalidated
+    @Matches(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/)
+        accentColor?: string | null
+
+    @Field(
+        () => GraphQLTypeBackgroundEffect,
+        {
+            nullable: true,
+            description: "Ambient background effect for the app chrome; omit to leave unchanged.",
+        },
+    )
+    @IsOptional()
+    @IsEnum(BackgroundEffect)
+        backgroundEffect?: BackgroundEffect
 }

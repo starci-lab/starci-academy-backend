@@ -75,7 +75,7 @@ export class UpdateProfileResolver {
     ): Promise<UserEntity> {
         // collect only the columns the client actually sent — `undefined` means
         // "leave as-is", so we must not include those keys in the update payload
-        const patch: Partial<Pick<UserEntity, "displayName" | "bio" | "avatar" | "profileLocked" | "openToWork" | "emailDigestEnabled" | "featuredAchievementSlug" | "roleTitle" | "location" | "workMode" | "linkedinUrl" | "websiteUrl">> = {
+        const patch: Partial<Pick<UserEntity, "displayName" | "bio" | "avatar" | "profileLocked" | "openToWork" | "emailDigestEnabled" | "featuredAchievementSlug" | "roleTitle" | "location" | "workMode" | "linkedinUrl" | "websiteUrl" | "accentColor" | "backgroundEffect">> = {
         }
 
         // display name: trim whitespace; an explicit null clears it
@@ -144,6 +144,16 @@ export class UpdateProfileResolver {
         // website URL: already validated (or null to clear); store verbatim
         if (request.websiteUrl !== undefined) {
             patch.websiteUrl = request.websiteUrl
+        }
+
+        // accent color: already hex-validated (or null to reset to the default brand accent)
+        if (request.accentColor !== undefined) {
+            patch.accentColor = request.accentColor
+        }
+
+        // ambient background effect: write only when the client sent it
+        if (request.backgroundEffect !== undefined) {
+            patch.backgroundEffect = request.backgroundEffect
         }
 
         // persist only when there is at least one field to change, otherwise skip

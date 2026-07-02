@@ -26,6 +26,8 @@ import {
     GraphQLTypeAuthenticationType,
     WorkMode,
     GraphQLTypeWorkMode,
+    BackgroundEffect,
+    GraphQLTypeBackgroundEffect,
 } from "../enums"
 
 /**
@@ -458,6 +460,41 @@ export class UserEntity extends UuidAbstractEntity {
         nullable: true,
     })
         websiteUrl: string | null
+
+    /**
+     * User-chosen accent color (hex, e.g. `#e84393`) overriding the default
+     * brand `--accent` token app-wide. Null = the app's default accent. Purely
+     * cosmetic — independent of light/dark mode (which stays a separate axis).
+     */
+    @Field(() => String,
+        {
+            nullable: true,
+            description: "User-chosen accent color (hex); null = default brand accent.",
+        })
+    @Column({
+        name: "accent_color",
+        type: "varchar",
+        length: 9,
+        nullable: true,
+    })
+        accentColor: string | null
+
+    /**
+     * Ambient background effect chosen for the app chrome (never the lesson
+     * reading column). Independent of light/dark mode. Defaults to `None`.
+     */
+    @Field(() => GraphQLTypeBackgroundEffect,
+        {
+            description: "Ambient background effect chosen for the app chrome.",
+        })
+    @Column({
+        type: "enum",
+        name: "background_effect",
+        enum: BackgroundEffect,
+        enumName: "background_effect",
+        default: BackgroundEffect.None,
+    })
+        backgroundEffect: BackgroundEffect
 
 
     @Field(
