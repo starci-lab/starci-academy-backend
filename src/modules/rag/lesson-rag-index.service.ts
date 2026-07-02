@@ -1,4 +1,7 @@
 import {
+    createHash,
+} from "crypto"
+import {
     Injectable,
     Logger,
 } from "@nestjs/common"
@@ -78,10 +81,18 @@ export interface BuildLessonRagIndexResult {
  * `QdrantVectorStore.fromDocuments`, which auto-creates the collection with the
  * embedder's vector size (the dim is never hard-coded — same idiom as the
  * grading RAG stack). Each chunk carries the payload
- * `{ contentId, courseId, kind, filePath, lang }` so content-AI chat can filter
- * by `contentId` at retrieval time.
+ * `{ contentId, courseId, kind, filePath, lang, sourceHash }` so content-AI chat
+ * can filter by `contentId` at retrieval time, and so this service can tell
+ * whether a content's source changed since it was last indexed.
  *
- * The collection is dropped + rebuilt each run so stale lessons never linger.
+ * DIFF-AWARE: like the ES/CDN sync, this never blindly rebuilds. Every run
+ * bulk-loads the `{contentId -> sourceHash}` pairs already sitting in the
+ * collection's payloads (one cheap no-vector scroll), then per content:
+ * unchanged hash → skip entirely (no re-embedding); changed/new → delete its
+ * stale points + re-embed; content no longer enumerated (deleted/renamed) →
+ * delete its stale points. A first run (empty/missing collection) naturally
+ * falls out of the same diff as "everything is new" — no separate full-rebuild
+ * flag needed.
  */
 @Injectable()
 export class LessonRagIndexService {
@@ -145,7 +156,25 @@ export class LessonRagIndexService {
             },
         )
 
+        // diff baseline: {contentId -> sourceHash} already sitting in the
+        // collection's payloads (empty on a first/missing-collection run, which
+        // then falls out of the loop below as "everything is new" for free)
+        const existingHashes = await this.loadExistingHashes(collectionName)
+        const currentContentIds = new Set(contents.map((content) => content.id))
+
+        // content rows that vanished since the last run (deleted/renamed) leave
+        // their vectors orphaned in Qdrant — drop them up front
+        const removedContentIds = [...existingHashes.keys()].filter(
+            (contentId) => !currentContentIds.has(contentId),
+        )
+        for (const contentId of removedContentIds) {
+            await this.safeDeleteByContentId(collectionName,
+                contentId)
+        }
+
         const docs: Array<Document> = []
+        const dirtyContentIds: Array<string> = []
+        let unchangedCount = 0
         for (const [
             index,
             content,
@@ -155,12 +184,28 @@ export class LessonRagIndexService {
             // NOT abort the whole index build — log it + skip to the next content
             // (mirrors the non-fatal swallow policy of the asset-mirror + init phases)
             try {
+                const contentDocs: Array<Document> = []
                 await this.collectBodyDocs(content.id,
                     courseId,
-                    docs)
+                    contentDocs)
                 await this.collectCodeDocs(content,
                     courseId,
-                    docs)
+                    contentDocs)
+                if (contentDocs.length === 0) {
+                    continue
+                }
+                // content-hash the RAW (unsplit) source text — cheaper than
+                // chunking/embedding just to find out nothing changed
+                const sourceHash = this.hashDocs(contentDocs)
+                if (existingHashes.get(content.id) === sourceHash) {
+                    unchangedCount += 1
+                    continue // source unchanged since the last index — its vectors stay as-is
+                }
+                for (const doc of contentDocs) {
+                    doc.metadata.sourceHash = sourceHash
+                }
+                dirtyContentIds.push(content.id)
+                docs.push(...contentDocs)
             } catch (error) {
                 this.logger.warn(
                     `Lesson RAG: skipped content ${content.id}: ${error instanceof Error ? error.message : String(error)}`,
@@ -170,13 +215,17 @@ export class LessonRagIndexService {
             // large corpus looks indistinguishable from "hung" for many minutes
             if ((index + 1) % 50 === 0 || index === contents.length - 1) {
                 this.logger.log(
-                    `Lesson RAG: collected ${index + 1}/${contents.length} content(s), ${docs.length} doc(s) so far`,
+                    `Lesson RAG: scanned ${index + 1}/${contents.length} content(s), ${dirtyContentIds.length} changed so far`,
                 )
             }
         }
 
-        // nothing to index (empty DB / MinIO not populated) → skip the upsert
-        if (docs.length === 0) {
+        // nothing changed and nothing was removed → the collection is already
+        // up to date, skip the (expensive) embed+upsert step entirely
+        if (docs.length === 0 && removedContentIds.length === 0) {
+            this.logger.log(
+                `Lesson RAG: no content changed — skipped all ${contents.length} content(s)`,
+            )
             this.winstonService.log(
                 WinstonLog.ProcessStepExecuted,
                 {
@@ -186,6 +235,8 @@ export class LessonRagIndexService {
                     meta: {
                         contents: contents.length,
                         chunks: 0,
+                        unchanged: unchangedCount,
+                        removed: removedContentIds.length,
                     },
                 },
             )
@@ -194,39 +245,53 @@ export class LessonRagIndexService {
             }
         }
 
-        const chunks = await splitter.splitDocuments(docs)
+        // delete the STALE points of changed content BEFORE re-inserting fresh
+        // ones — otherwise a content whose chunk count shrank (or split
+        // differently after an edit) would leave orphaned old chunks behind
+        // alongside the new ones
+        for (const contentId of dirtyContentIds) {
+            await this.safeDeleteByContentId(collectionName,
+                contentId)
+        }
+
+        const chunks = docs.length > 0 ? await splitter.splitDocuments(docs) : []
         this.logger.log(
-            `Lesson RAG: embedding + upserting ${chunks.length} chunk(s) in batches of ${LESSON_RAG_EMBED_BATCH_SIZE}`,
+            `Lesson RAG: embedding + upserting ${chunks.length} chunk(s) for ${dirtyContentIds.length} changed content(s) `
+            + `(${unchangedCount} unchanged, ${removedContentIds.length} removed) in batches of ${LESSON_RAG_EMBED_BATCH_SIZE}`,
         )
 
-        // drop + rebuild so a removed/renamed lesson does not leave stale vectors.
+        // `QdrantVectorStore.fromDocuments` never wipes an existing collection —
+        // it only creates one when missing (`ensureCollection`) then upserts —
+        // so it is safe to call every run without a preceding collection drop.
         // Embed + upsert in BATCHES rather than one `fromDocuments` call over the
         // whole corpus: a single call embeds every chunk (queued through the
         // embedder's AsyncCaller) before issuing ANY upsert, so a large corpus
         // (thousands of chunks) can run long enough to outlast every downstream
         // client/library timeout with zero visibility into progress. Batching
         // bounds each embed+upsert round AND gives a heartbeat between rounds.
-        await this.safeDeleteCollection(collectionName)
-        const firstBatch = chunks.slice(0,
-            LESSON_RAG_EMBED_BATCH_SIZE)
-        const vectorStore = await QdrantVectorStore.fromDocuments(
-            firstBatch,
-            embeddingModel,
-            {
-                client: this.qdrantClient,
-                collectionName,
-            },
-        )
-        this.logger.log(
-            `Lesson RAG: embedded ${firstBatch.length}/${chunks.length} chunk(s)`,
-        )
-        for (let start = LESSON_RAG_EMBED_BATCH_SIZE; start < chunks.length; start += LESSON_RAG_EMBED_BATCH_SIZE) {
-            const batch = chunks.slice(start,
-                start + LESSON_RAG_EMBED_BATCH_SIZE)
-            await vectorStore.addDocuments(batch)
-            this.logger.log(
-                `Lesson RAG: embedded ${Math.min(start + batch.length, chunks.length)}/${chunks.length} chunk(s)`,
+        if (chunks.length > 0) {
+            const firstBatch = chunks.slice(0,
+                LESSON_RAG_EMBED_BATCH_SIZE)
+            const vectorStore = await QdrantVectorStore.fromDocuments(
+                firstBatch,
+                embeddingModel,
+                {
+                    client: this.qdrantClient,
+                    collectionName,
+                },
             )
+            this.logger.log(
+                `Lesson RAG: embedded ${firstBatch.length}/${chunks.length} chunk(s)`,
+            )
+            for (let start = LESSON_RAG_EMBED_BATCH_SIZE; start < chunks.length; start += LESSON_RAG_EMBED_BATCH_SIZE) {
+                const batch = chunks.slice(start,
+                    start + LESSON_RAG_EMBED_BATCH_SIZE)
+                await vectorStore.addDocuments(batch)
+                this.logger.log(
+                    `Lesson RAG: embedded ${Math.min(start + batch.length,
+                        chunks.length)}/${chunks.length} chunk(s)`,
+                )
+            }
         }
 
         this.winstonService.log(
@@ -238,6 +303,9 @@ export class LessonRagIndexService {
                 meta: {
                     contents: contents.length,
                     chunks: chunks.length,
+                    changed: dirtyContentIds.length,
+                    unchanged: unchangedCount,
+                    removed: removedContentIds.length,
                 },
             },
         )
@@ -368,19 +436,102 @@ export class LessonRagIndexService {
     }
 
     /**
-     * Delete a Qdrant collection, swallowing "missing collection" / transient
-     * errors so the first build (collection absent) never throws. Mirrors the
-     * grading RAG service's safe-delete.
+     * Bulk-load the `{contentId -> sourceHash}` pairs already indexed in the
+     * collection, from payload alone (no vectors) — the whole diff baseline in a
+     * handful of paginated scroll calls instead of one lookup per content.
      *
-     * @param collectionName - The collection to drop.
+     * @param collectionName - The collection to read markers from.
+     * @returns Map of `contentId` to the `sourceHash` recorded when it was last
+     * indexed. Empty when the collection does not exist yet (first build).
      */
-    private async safeDeleteCollection(
+    private async loadExistingHashes(
         collectionName: string,
+    ): Promise<Map<string, string>> {
+        const hashes = new Map<string, string>()
+        let offset: string | number | undefined
+        for (; ;) {
+            let page
+            try {
+                page = await this.qdrantClient.scroll(collectionName,
+                    {
+                        limit: 1000,
+                        offset,
+                        with_payload: [
+                            "contentId",
+                            "sourceHash",
+                        ],
+                        with_vector: false,
+                    })
+            } catch {
+                // collection does not exist yet (first build) — empty baseline,
+                // every content is treated as new
+                return hashes
+            }
+            for (const point of page.points) {
+                const contentId = point.payload?.contentId
+                const sourceHash = point.payload?.sourceHash
+                if (typeof contentId === "string" && typeof sourceHash === "string" && !hashes.has(contentId)) {
+                    hashes.set(contentId,
+                        sourceHash)
+                }
+            }
+            if (page.next_page_offset === null || page.next_page_offset === undefined) {
+                return hashes
+            }
+            offset = page.next_page_offset as string | number
+        }
+    }
+
+    /**
+     * Delete every point tagged with `contentId` in its payload, swallowing
+     * "missing collection" / transient errors — a filter-delete against an
+     * absent collection (first build) or a content with nothing indexed yet
+     * must never fail the build.
+     *
+     * @param collectionName - The collection to delete points from.
+     * @param contentId - The content whose stale points should be dropped.
+     */
+    private async safeDeleteByContentId(
+        collectionName: string,
+        contentId: string,
     ): Promise<void> {
         try {
-            await this.qdrantClient.deleteCollection(collectionName)
+            await this.qdrantClient.delete(collectionName,
+                {
+                    filter: {
+                        must: [
+                            {
+                                key: "contentId",
+                                match: {
+                                    value: contentId,
+                                },
+                            },
+                        ],
+                    },
+                })
         } catch {
-            // collection may not exist yet (first build) — fine
+            // collection may not exist yet, or nothing to delete for this content — fine
         }
+    }
+
+    /**
+     * Content-hash a content's freshly-collected documents (body + code, before
+     * chunking) so it can be compared against the marker recorded when it was
+     * last indexed. sha1 over the concatenated page contents — order-stable
+     * because {@link collectBodyDocs}/{@link collectCodeDocs} always push in the
+     * same order (vi body, en body, then code files in MinIO map order).
+     *
+     * @param docs - The content's body + code documents (unsplit).
+     * @returns A sha1 hex digest of the content's current source text.
+     */
+    private hashDocs(
+        docs: Array<Document>,
+    ): string {
+        const hash = createHash("sha1")
+        for (const doc of docs) {
+            hash.update(doc.pageContent)
+            hash.update(" ")
+        }
+        return hash.digest("hex")
     }
 }
