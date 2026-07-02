@@ -78,28 +78,6 @@ export interface EnqueueProcessGoogleDocsSubmissionJobParams {
     ai?: AiJobSelection
 }
 
-/** Params for enqueuing a process-cv-submission job. */
-export interface EnqueueProcessCvSubmissionJobParams {
-    /** `users.id`. */
-    userId: string
-    /** `cv_submissions.id`. */
-    cvSubmissionId: string
-    /** Existing `jobs.id` to requeue (optional). */
-    jobId?: string
-    /** Embedding model id override. */
-    embeddingModel?: string
-    /** Embedding model provider override. */
-    embeddingProvider?: ModelProvider
-    /** Locale hint for filtering/prompting (e.g. "en", "vi"). */
-    locale?: Locale
-    /** `template_cvs.id` — which review rubric level to use. */
-    templateCvId?: string
-    /** `user_cv_submission_attempts.id` being reviewed. */
-    cvSubmissionAttemptId?: string
-    /** Validated AI lane + model pick (Auto / Premium / BYOK). */
-    ai?: AiJobSelection
-}
-
 /**
  * Params for enqueueing a process-personal-project job.
  */

@@ -13,8 +13,6 @@ export enum BullQueueName {
     ResolveGithub = "resolve-github",
     /** Queue for revoking GitHub organization/team membership (course access removal). */
     RevokeGithub = "revoke-github",
-    /** Queue for grading a CV challenge submission. */
-    ProcessCvSubmission = "process-cv-submission",
     /** Queue for processing video (encode mp4/mkv to mpeg-dash and hls). */
     ProcessVideo = "process-video",
     /** Queue for sending transactional emails via SMTP (Brevo). */
@@ -41,4 +39,6 @@ export enum BullQueueName {
     ReconcileTransaction = "reconcile-transaction",
     /** Queue for grading an AI Lab eval submission (prompt template) against an eval set. */
     ReviewAiLabEval = "review-ai-lab-eval",
+    /** Queue for AI-generating (or revising) a CV from user input / verified achievements. */
+    GenerateCv = "generate-cv",
 }

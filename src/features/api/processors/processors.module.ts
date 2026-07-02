@@ -23,9 +23,6 @@ import {
     ProcessGoogleDocsSubmissionModule,
 } from "./ai/process-google-docs-submission"
 import {
-    ReviewCvSubmissionModule,
-} from "./ai/review-cv-submission"
-import {
     JudgeCodingSubmissionModule,
 } from "./judge-coding-submission"
 import {
@@ -37,6 +34,9 @@ import {
 import {
     ReviewAiLabEvalModule,
 } from "./ai/review-ai-lab-eval"
+import {
+    GenerateCvModule,
+} from "./ai/generate-cv"
 
 /**
  * Module for API-side BullMQ processors.
@@ -55,9 +55,6 @@ import {
         ReviewMilestoneTaskModule.register({
             isGlobal: true,
         }),
-        ReviewCvSubmissionModule.register({
-            isGlobal: true,
-        }),
         ProcessGitSubmissionModule.register({
             isGlobal: true,
         }),
@@ -74,6 +71,9 @@ import {
             isGlobal: true,
         }),
         ReviewAiLabEvalModule.register({
+            isGlobal: true,
+        }),
+        GenerateCvModule.register({
             isGlobal: true,
         }),
     ],

@@ -13,6 +13,12 @@ import {
 import {
     CvUrlSingleQueryModule,
 } from "./cv-url"
+import {
+    CvGenerationSingleQueryModule,
+} from "./cv-generation"
+import {
+    MyCvGenerationsSingleQueryModule,
+} from "./my-cv-generations"
 
 /**
  * Module for CV submission related queries.
@@ -26,6 +32,12 @@ import {
             isGlobal: true,
         }),
         CvUrlSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        CvGenerationSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyCvGenerationsSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

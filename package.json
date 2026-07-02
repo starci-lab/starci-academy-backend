@@ -92,6 +92,7 @@
     "geoip-lite": "^2.0.2",
     "googleapis": "^171.4.0",
     "graphql-type-json": "^0.3.2",
+    "handlebars": "^4.7.9",
     "helmet": "^8.2.0",
     "ioredis": "^5.10.1",
     "iovalkey": "^0.3.3",

@@ -48,12 +48,6 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
         ),
         name: "revoke-github",
     },
-    [BullQueueName.ProcessCvSubmission]: {
-        prefix: formatWithBraces(
-            "process-cv-submission",
-        ),
-        name: "process-cv-submission",
-    },
     [BullQueueName.ProcessVideo]: {
         prefix: formatWithBraces(
             "process-video",
@@ -131,5 +125,11 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
             "review-ai-lab-eval",
         ),
         name: "review-ai-lab-eval",
+    },
+    [BullQueueName.GenerateCv]: {
+        prefix: formatWithBraces(
+            "generate-cv",
+        ),
+        name: "generate-cv",
     },
 }
