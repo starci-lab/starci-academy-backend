@@ -5,11 +5,11 @@ import {
     ConfigurableModuleClass,
 } from "./rag.module-definition"
 import {
-    LessonRagIndexService,
-} from "./lesson-rag-index.service"
+    ContentRagIndexService,
+} from "./content-rag-index.service"
 import {
-    LessonRagRetrievalService,
-} from "./lesson-rag-retrieval.service"
+    ContentRagRetrievalService,
+} from "./content-rag-retrieval.service"
 import {
     GradingRetrievalService,
 } from "./grading-rag-retrieval.service"
@@ -17,8 +17,8 @@ import {
 /**
  * RAG module — all vector-store retrieval for the app.
  *
- * Owns {@link LessonRagIndexService} (builds the persistent `lesson_rag` Qdrant
- * collection at init from MinIO content + code), {@link LessonRagRetrievalService}
+ * Owns {@link ContentRagIndexService} (builds the persistent `content_rag` Qdrant
+ * collection at init from MinIO content + code), {@link ContentRagRetrievalService}
  * (retrieves the chunks most relevant to a content-AI question at chat time), and
  * {@link GradingRetrievalService} (per-run criteria-based retrieval shared by
  * challenge git/google-docs grading + personal-project milestone grading).
@@ -29,13 +29,13 @@ import {
  */
 @Module({
     providers: [
-        LessonRagIndexService,
-        LessonRagRetrievalService,
+        ContentRagIndexService,
+        ContentRagRetrievalService,
         GradingRetrievalService,
     ],
     exports: [
-        LessonRagIndexService,
-        LessonRagRetrievalService,
+        ContentRagIndexService,
+        ContentRagRetrievalService,
         GradingRetrievalService,
     ],
 })
