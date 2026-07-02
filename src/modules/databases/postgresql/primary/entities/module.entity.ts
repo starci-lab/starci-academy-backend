@@ -137,7 +137,8 @@ export class ModuleEntity extends UuidAbstractEntity {
     @Field(
         () => GraphQLTypeCourseContentTier,
         {
-            description: "Learning tier of the module (foundation / intermediate / advanced).",
+            nullable: true,
+            description: "Learning tier of the module (foundation / intermediate / advanced). Null on rows seeded before this column existed (predates the DB default) — treat as unset, not a crash.",
         },
     )
     @Column({
@@ -145,9 +146,10 @@ export class ModuleEntity extends UuidAbstractEntity {
         type: "enum",
         enum: CourseContentTier,
         enumName: "course_content_tier",
+        nullable: true,
         default: CourseContentTier.Foundation,
     })
-        contentTier: CourseContentTier
+        contentTier: CourseContentTier | null
 
     /**
      * Default locale for the module.

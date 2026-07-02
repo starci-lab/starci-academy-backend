@@ -75,6 +75,8 @@ export class ModuleHandler
                     sortIndex: true,
                     defaultLocale: true,
                     numContents: true,
+                    contentTier: true,
+                    isPremium: true,
                     previewContents: {
                         id: true,
                         text: true,
