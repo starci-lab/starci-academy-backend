@@ -2,6 +2,12 @@ import {
     Field,
     InputType,
 } from "@nestjs/graphql"
+import {
+    AiMode,
+    GraphQLTypeAiMode,
+    GraphQLTypeModelProvider,
+    ModelProvider,
+} from "@modules/databases"
 
 /**
  * Request for {@link GenerateCvResponse}: build a brand-new CV from the user's
@@ -20,4 +26,33 @@ export class GenerateCvRequest {
         },
     )
         extraPrompts?: string
+
+    @Field(
+        () => GraphQLTypeAiMode,
+        {
+            nullable: true,
+            description: "AI lane to generate on (auto/premium/byok); validated against entitlement at generate time.",
+        },
+    )
+        mode?: AiMode
+
+    /** Concrete model the user picked in the CV-generation model picker (e.g. "gpt-4o"). */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Concrete model name the user picked for CV generation; null = balancer default (Auto).",
+        },
+    )
+        selectedModel?: string
+
+    /** Provider serving {@link selectedModel}. */
+    @Field(
+        () => GraphQLTypeModelProvider,
+        {
+            nullable: true,
+            description: "Provider serving the picked model.",
+        },
+    )
+        selectedModelProvider?: ModelProvider
 }

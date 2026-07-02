@@ -32,6 +32,7 @@ import {
 } from "@modules/assets"
 import {
     ContentRagIndexService,
+    CvRagIndexService,
 } from "@modules/rag"
 import {
     SeedScopeService,
@@ -89,6 +90,7 @@ export class InitService implements OnModuleInit {
         private readonly synchronizersService: SynchronizersService,
         private readonly assetsService: AssetsService,
         private readonly contentRagIndexService: ContentRagIndexService,
+        private readonly cvRagIndexService: CvRagIndexService,
     ) { }
 
     /**
@@ -211,6 +213,25 @@ export class InitService implements OnModuleInit {
                 } catch (error) {
                     this.logger.error(
                         `Content RAG index build failed: ${error instanceof Error ? error.message : String(error)}`,
+                    )
+                }
+            }
+            // phase 2d: build the CV-authoring reference RAG index (rubrics +
+            // skill/metric/etc. catalogs + sample CVs, from `.mount/data/cv/`)
+            // into its own persistent `cv_rag` Qdrant collection. Same window +
+            // same non-fatal policy as phase 2c — reuses the content-RAG flag
+            // (both are "build a persistent RAG index at init" toggles; a
+            // dedicated cvRag flag isn't worth a second env key yet). CV
+            // generation degrades to prompt-only (no reference grounding) when
+            // this index is absent, same as content-AI chat degrading to
+            // whole-body stuffing.
+            if (snapshotRoot && envConfig().services.contentRag.enabled) {
+                try {
+                    const { indexed } = await this.cvRagIndexService.build()
+                    this.logger.log(`Indexed ${indexed} CV RAG chunk(s) into Qdrant`)
+                } catch (error) {
+                    this.logger.error(
+                        `CV RAG index build failed: ${error instanceof Error ? error.message : String(error)}`,
                     )
                 }
             }

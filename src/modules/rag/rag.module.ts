@@ -28,6 +28,9 @@ import {
 import {
     CvRagRetrievalService,
 } from "./cv-rag-retrieval.service"
+import {
+    CvRagIndexService,
+} from "./cv-rag-index.service"
 
 /**
  * RAG module — all vector-store retrieval for the app.
@@ -57,6 +60,7 @@ import {
         PublicRagPlaygroundCleanupService,
         RagPlaygroundRunRegistryService,
         CvRagRetrievalService,
+        CvRagIndexService,
     ],
     exports: [
         ContentRagIndexService,
@@ -66,6 +70,7 @@ import {
         GithubRepoImportService,
         RagPlaygroundRunRegistryService,
         CvRagRetrievalService,
+        CvRagIndexService,
     ],
 })
 export class RagModule extends ConfigurableModuleClass {

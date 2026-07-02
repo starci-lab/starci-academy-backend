@@ -18,6 +18,8 @@ export enum AiModelTask {
     Grading = "grading",
     /** Vector embedding generation — RAG indexing / retrieval. */
     Embedding = "embedding",
+    /** CV generation / revision — shown in the CV-generation model picker. */
+    CVGenerating = "cv_generating",
 }
 
 /**
@@ -42,6 +44,9 @@ registerEnumType(
             },
             [AiModelTask.Embedding]: {
                 description: "Vector embedding generation.",
+            },
+            [AiModelTask.CVGenerating]: {
+                description: "CV generation/revision.",
             },
         },
     }

@@ -51,9 +51,11 @@ const DEFAULT_CV_RAG_TOP_K = 4
 /**
  * Qdrant collection holding the CV RAG reference vectors (rubric / catalog /
  * sample). Kept as a constant (no env dependency) so this read-only service is
- * self-contained; the indexing side owns building it.
+ * self-contained. Exported so {@link CvRagIndexService} (the write side, which
+ * builds this same collection) imports the identical literal — one source of
+ * truth for the collection name shared by both halves of the CV RAG stack.
  */
-const CV_RAG_COLLECTION = "cv_rag"
+export const CV_RAG_COLLECTION = "cv_rag"
 
 /**
  * Retrieves CV-authoring reference material (rubric / skill catalog / sample

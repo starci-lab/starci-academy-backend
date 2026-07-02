@@ -150,8 +150,8 @@ export class GenerateCvComposeStepService extends AbstractStepService<
 
         const humanText = this.buildHumanPrompt(gathered)
 
-        // invoke the LLM. Grading task/surface reuse the existing lane policy
-        // (floor Balanced → climb to ceiling); selection carries the user's lane.
+        // invoke the LLM. Dedicated CVGenerating task (floor Balanced → climb to
+        // ceiling, same policy shape as grading); selection carries the user's lane.
         const { text: raw } = await this.aiInvokeService.run({
             userId: payload.userId,
             messages: [
@@ -161,7 +161,7 @@ export class GenerateCvComposeStepService extends AbstractStepService<
             selection: payload.ai,
             floor: AiModelCategory.Balanced,
             surface: AiCeilSurface.Grading,
-            task: AiModelTask.Grading,
+            task: AiModelTask.CVGenerating,
         })
 
         return this.parseComposedCv(raw)
