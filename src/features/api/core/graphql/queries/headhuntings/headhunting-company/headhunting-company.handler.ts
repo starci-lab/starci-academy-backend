@@ -19,6 +19,9 @@ import {
     QueryHandler,
 } from "@nestjs/cqrs"
 import {
+    ConsultantContactGateService,
+} from "@modules/bussiness"
+import {
     HeadhunterCompanyQuery,
 } from "./headhunting-company.query"
 
@@ -29,6 +32,7 @@ export class HeadhuntingCompanyHandler
     implements IQueryHandler<HeadhunterCompanyQuery, HeadhuntingCompanyEntity> {
     constructor(
         private readonly elasticsearch: ElasticsearchService,
+        private readonly consultantContactGateService: ConsultantContactGateService,
     ) {
         super()
     }
@@ -42,6 +46,7 @@ export class HeadhuntingCompanyHandler
                 displayId,
             },
             locale,
+            user,
         } = query.params
 
         if (!id && !displayId) {
@@ -56,17 +61,30 @@ export class HeadhuntingCompanyHandler
             locale,
         })
 
-        if (id) {
-            return this.getById(
+        const company = id
+            ? await this.getById(
                 index,
                 id,
             )
+            : await this.getByDisplayId(
+                index,
+                displayId!,
+            )
+
+        // defense in depth: gate any nested consultants this company document
+        // carries (the ES mapping does not currently embed them, but a future
+        // sync change could), same rule as the standalone consultant(s) queries
+        if (company.consultants?.length) {
+            const bestCvScore = await this.consultantContactGateService.getBestCvScore({
+                userId: user?.id,
+            })
+            this.consultantContactGateService.gateConsultants(
+                company.consultants,
+                bestCvScore,
+            )
         }
 
-        return this.getByDisplayId(
-            index,
-            displayId!,
-        )
+        return company
     }
 
     private async getById(

@@ -16,6 +16,9 @@ import {
     QueryHandler,
 } from "@nestjs/cqrs"
 import {
+    ConsultantContactGateService,
+} from "@modules/bussiness"
+import {
     HeadhunterCompaniesQuery,
 } from "./headhunting-companies.query"
 
@@ -29,6 +32,7 @@ export class HeadhuntingCompaniesHandler
     implements IQueryHandler<HeadhunterCompaniesQuery, Array<HeadhuntingCompanyEntity>> {
     constructor(
         private readonly elasticsearch: ElasticsearchService,
+        private readonly consultantContactGateService: ConsultantContactGateService,
     ) {
         super()
     }
@@ -38,6 +42,7 @@ export class HeadhuntingCompaniesHandler
     ): Promise<Array<HeadhuntingCompanyEntity>> {
         const {
             locale,
+            user,
         } = query.params
 
         const esQuery = ElasticsearchQueryBuilder.buildSearchQuery({
@@ -59,8 +64,29 @@ export class HeadhuntingCompaniesHandler
             size: 1000,
         })
 
-        return response.hits.hits.map(
+        const companies = response.hits.hits.map(
             (hit) => hit._source as HeadhuntingCompanyEntity,
         )
+
+        // defense in depth: gate any nested consultants these company
+        // documents carry (the ES mapping does not currently embed them, but
+        // a future sync change could), same rule as the standalone
+        // consultant(s) queries — one score lookup shared across the page
+        const companiesWithConsultants = companies.filter(
+            (company) => company.consultants?.length,
+        )
+        if (companiesWithConsultants.length) {
+            const bestCvScore = await this.consultantContactGateService.getBestCvScore({
+                userId: user?.id,
+            })
+            companiesWithConsultants.forEach(
+                (company) => this.consultantContactGateService.gateConsultants(
+                    company.consultants,
+                    bestCvScore,
+                ),
+            )
+        }
+
+        return companies
     }
 }

@@ -25,6 +25,9 @@ import {
     SortOrder,
 } from "@modules/api"
 import {
+    ConsultantContactGateService,
+} from "@modules/bussiness"
+import {
     ConsultantsQuery,
 } from "./consultants.query"
 import {
@@ -43,6 +46,7 @@ export class ConsultantsHandler
     implements IQueryHandler<ConsultantsQuery, ConsultantsResponseData> {
     constructor(
         private readonly elasticsearch: ElasticsearchService,
+        private readonly consultantContactGateService: ConsultantContactGateService,
     ) {
         super()
     }
@@ -56,6 +60,7 @@ export class ConsultantsHandler
                 filters,
             },
             locale,
+            user,
         } = query.params
         const resolvedFilters: ConsultantsFilters = filters ?? {
             sorts: [
@@ -115,6 +120,16 @@ export class ConsultantsHandler
         const count = typeof total === "number" ? total : total?.value || 0
         const data = response.hits.hits.map(
             (hit) => hit._source as ConsultantEntity,
+        )
+
+        // gate contact fields server-side by the viewer's best CV score, using
+        // one score lookup for the whole page rather than per-consultant
+        const bestCvScore = await this.consultantContactGateService.getBestCvScore({
+            userId: user?.id,
+        })
+        this.consultantContactGateService.gateConsultants(
+            data,
+            bestCvScore,
         )
 
         return {

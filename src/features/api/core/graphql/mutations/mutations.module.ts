@@ -73,6 +73,9 @@ import {
 import {
     RagPlaygroundMutationsModule,
 } from "./rag-playground"
+import {
+    JobPostingsMutationsModule,
+} from "./job-postings"
 
 /**
  * GraphQL mutations (courses, authentication, etc.).
@@ -144,6 +147,9 @@ import {
             isGlobal: true,
         }),
         RagPlaygroundMutationsModule.register({
+            isGlobal: true,
+        }),
+        JobPostingsMutationsModule.register({
             isGlobal: true,
         }),
     ],

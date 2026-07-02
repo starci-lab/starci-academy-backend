@@ -168,14 +168,39 @@ export class ConsultantEntity extends UuidAbstractEntity {
 
     @Field(() => [ConsultantTranslationEntity],
         {
-            description: "Localized consultant fields." 
+            description: "Localized consultant fields."
         })
     @OneToMany(
         () => ConsultantTranslationEntity,
         (translation: ConsultantTranslationEntity) => translation.consultant,
         {
-            cascade: true 
+            cascade: true
         },
     )
         translations: Array<ConsultantTranslationEntity>
+
+    /**
+     * Whether the requesting viewer's CV score meets {@link CV_SCORE_UNLOCK_THRESHOLD},
+     * unlocking `email` / `phoneNumber` / `zaloNumber` / `linkedinUrl` below.
+     * Not a database column — stamped in-request by
+     * `ConsultantContactGateService` on every consultant returned from the
+     * `consultant(s)` / `headhuntingCompany(ies)` queries. Anonymous viewers
+     * always resolve to `false`.
+     */
+    @Field(() => Boolean,
+        {
+            description: "True when the viewer's CV score unlocks this consultant's direct contact details."
+        })
+        contactUnlocked: boolean
+
+    /**
+     * The CV score threshold contact unlock is gated on, echoed back so the
+     * client can render "Cần điểm CV ≥ X" without hardcoding the number.
+     * Not a database column — stamped alongside `contactUnlocked`.
+     */
+    @Field(() => Int,
+        {
+            description: "CV score (0-100) required to unlock this consultant's contact details."
+        })
+        cvScoreUnlockThreshold: number
 }

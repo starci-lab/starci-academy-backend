@@ -4,6 +4,7 @@ import {
     Resolver,
 } from "@nestjs/graphql"
 import {
+    UseGuards,
     UseInterceptors,
 } from "@nestjs/common"
 import {
@@ -18,7 +19,12 @@ import {
 import {
     HeadhuntingCompanyEntity,
     Locale,
+    UserEntity,
 } from "@modules/databases"
+import {
+    KeycloakGraphQLUser,
+    KeycloakOptionalAuthGraphQLGuard,
+} from "@modules/keycloak"
 import {
     HeadhuntingCompanyService,
 } from "./headhunting-company.service"
@@ -27,6 +33,10 @@ import {
     HeadhuntingCompanyResponse,
 } from "./graphql-types"
 
+/**
+ * Optional auth: any nested `consultants` this company carries are gated by
+ * the viewer's CV score, same as the standalone `consultant(s)` queries.
+ */
 @Resolver()
 export class HeadhuntingCompanyResolver {
     constructor(
@@ -38,6 +48,7 @@ export class HeadhuntingCompanyResolver {
         [Locale.En]: "Headhunting company fetched successfully",
         [Locale.Vi]: "Lấy thông tin công ty headhunter thành công",
     })
+    @UseGuards(KeycloakOptionalAuthGraphQLGuard)
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(
         () => HeadhuntingCompanyResponse,
@@ -49,10 +60,14 @@ export class HeadhuntingCompanyResolver {
     async headhuntingCompany(
         @Args("request") request: HeadhuntingCompanyRequest,
         @GraphQLLocale() locale: Locale,
+        @KeycloakGraphQLUser() user: UserEntity,
     ): Promise<HeadhuntingCompanyEntity> {
         return this.headhuntingCompanyService.execute({
             request,
             locale,
+            // set by KeycloakOptionalAuthGraphQLGuard only when a valid
+            // Bearer token was present; undefined for anonymous viewers
+            user,
         })
     }
 }

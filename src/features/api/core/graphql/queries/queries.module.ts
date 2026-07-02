@@ -53,6 +53,9 @@ import {
     HeadhuntingsModule,
 } from "./headhuntings"
 import {
+    JobPostingsModule,
+} from "./job-postings"
+import {
     AiQueriesModule,
 } from "./ai"
 import {
@@ -146,6 +149,9 @@ import {
             isGlobal: true,
         }),
         HeadhuntingsModule.register({
+            isGlobal: true,
+        }),
+        JobPostingsModule.register({
             isGlobal: true,
         }),
         AiQueriesModule.register({

@@ -19,6 +19,9 @@ import {
     QueryHandler,
 } from "@nestjs/cqrs"
 import {
+    ConsultantContactGateService,
+} from "@modules/bussiness"
+import {
     ConsultantQuery,
 } from "./consultant.query"
 
@@ -29,6 +32,7 @@ export class ConsultantHandler
     implements IQueryHandler<ConsultantQuery, ConsultantEntity> {
     constructor(
         private readonly elasticsearch: ElasticsearchService,
+        private readonly consultantContactGateService: ConsultantContactGateService,
     ) {
         super()
     }
@@ -42,6 +46,7 @@ export class ConsultantHandler
                 displayId,
             },
             locale,
+            user,
         } = query.params
 
         if (!id && !displayId) {
@@ -56,16 +61,24 @@ export class ConsultantHandler
             locale,
         })
 
-        if (id) {
-            return this.getById(
+        const consultant = id
+            ? await this.getById(
                 index,
                 id,
             )
-        }
+            : await this.getByDisplayId(
+                index,
+                displayId!,
+            )
 
-        return this.getByDisplayId(
-            index,
-            displayId!,
+        // gate contact fields server-side by the viewer's best CV score;
+        // anonymous viewers (user undefined) resolve to a score of 0 (locked)
+        const bestCvScore = await this.consultantContactGateService.getBestCvScore({
+            userId: user?.id,
+        })
+        return this.consultantContactGateService.gateConsultant(
+            consultant,
+            bestCvScore,
         )
     }
 

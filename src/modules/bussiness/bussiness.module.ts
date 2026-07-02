@@ -81,6 +81,9 @@ import {
 import {
     ContentAiModule,
 } from "./content-ai"
+import {
+    HeadhuntingsBussinessModule,
+} from "./headhuntings"
 
 /**
  * The module for the bussiness logics.
@@ -139,6 +142,8 @@ export class BussinessModule extends ConfigurableModuleClass {
             ChatModule.register(options),
             // import the content-AI module (grounded lesson Q&A, free model)
             ContentAiModule.register(options),
+            // import the headhuntings module (CV-score gate on consultant contact details)
+            HeadhuntingsBussinessModule.register(options),
         ]
         return {
             ...dynamicModule,
