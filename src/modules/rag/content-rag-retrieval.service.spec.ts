@@ -5,8 +5,8 @@ import type {
     Document,
 } from "@langchain/core/documents"
 import {
-    LessonRagRetrievalService,
-} from "./lesson-rag-retrieval.service"
+    ContentRagRetrievalService,
+} from "./content-rag-retrieval.service"
 
 // only externals are stubbed at module level; assemble/dedupe/degrade are pure logic
 // exercised through the public method
@@ -21,8 +21,8 @@ jest.mock("@modules/env",
     () => ({
         envConfig: () => ({
             services: {
-                lessonRag: {
-                    collection: "lesson_rag",
+                contentRag: {
+                    collection: "content_rag",
                     retrievalTopK: 4,
                 },
             },
@@ -52,9 +52,9 @@ const doc = (
         },
     }) as Document
 
-describe("LessonRagRetrievalService",
+describe("ContentRagRetrievalService",
     () => {
-        let service: LessonRagRetrievalService
+        let service: ContentRagRetrievalService
         let qdrantClient: Record<string, unknown>
         let embeddingModelService: {
             getViaBalancer: jest.Mock
@@ -68,7 +68,7 @@ describe("LessonRagRetrievalService",
                 getViaBalancer: jest.fn().mockResolvedValue({
                 }),
             }
-            service = new LessonRagRetrievalService(
+            service = new ContentRagRetrievalService(
                 qdrantClient as never,
                 embeddingModelService as never,
             )
@@ -124,7 +124,7 @@ describe("LessonRagRetrievalService",
                 // built from the existing collection (no rebuild) with the shared embedder
                 expect(embeddingModelService.getViaBalancer).toHaveBeenCalledTimes(1)
                 expect(fromExistingCollection.mock.calls[0][1]).toMatchObject({
-                    collectionName: "lesson_rag",
+                    collectionName: "content_rag",
                     client: qdrantClient,
                 })
             })

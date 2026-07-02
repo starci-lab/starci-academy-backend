@@ -2,8 +2,8 @@ import {
     QdrantVectorStore,
 } from "@langchain/qdrant"
 import {
-    LessonRagIndexService,
-} from "./lesson-rag-index.service"
+    ContentRagIndexService,
+} from "./content-rag-index.service"
 
 // external deps stubbed at module level; everything else (enumerate / collect /
 // diff-against-existing-hashes / chunk decision / non-fatal skip) is pure logic
@@ -37,8 +37,8 @@ jest.mock("@modules/env",
                     ...real,
                     services: {
                         ...real.services,
-                        lessonRag: {
-                            collection: "lesson_rag",
+                        contentRag: {
+                            collection: "content_rag",
                             // big chunk size so each source doc stays one chunk
                             chunkSize: 100000,
                             chunkOverlap: 0,
@@ -49,9 +49,9 @@ jest.mock("@modules/env",
         }
     })
 
-describe("LessonRagIndexService",
+describe("ContentRagIndexService",
     () => {
-        let service: LessonRagIndexService
+        let service: ContentRagIndexService
         let qdrantClient: {
             scroll: jest.Mock
             delete: jest.Mock
@@ -100,7 +100,7 @@ describe("LessonRagIndexService",
 
         beforeEach(() => {
             qdrantClient = {
-                // default: no `lesson_rag` collection yet (first build) — the diff
+                // default: no `content_rag` collection yet (first build) — the diff
                 // baseline is empty, every content is treated as new
                 scroll: jest.fn().mockRejectedValue(new Error("not found")),
                 delete: jest.fn().mockResolvedValue(undefined),
@@ -123,7 +123,7 @@ describe("LessonRagIndexService",
             winstonService = {
                 log: jest.fn(),
             }
-            service = new LessonRagIndexService(
+            service = new ContentRagIndexService(
                 qdrantClient as never,
                 entityManager as never,
                 embeddingModelService as never,
@@ -135,7 +135,7 @@ describe("LessonRagIndexService",
             fromDocuments.mockResolvedValue(undefined)
         })
 
-        it("enumerates contents, reads body+code from MinIO, and upserts into lesson_rag with contentId+sourceHash payload",
+        it("enumerates contents, reads body+code from MinIO, and upserts into content_rag with contentId+sourceHash payload",
             async () => {
                 entityManager.find.mockResolvedValue([
                     content("c1",
@@ -161,7 +161,7 @@ describe("LessonRagIndexService",
                 expect(result.indexed).toBe(3)
                 // a new content is "dirty" — its (empty, first-build) stale points are
                 // cleared before the fresh chunks are upserted
-                expect(qdrantClient.delete).toHaveBeenCalledWith("lesson_rag",
+                expect(qdrantClient.delete).toHaveBeenCalledWith("content_rag",
                     expect.objectContaining({
                         filter: {
                             must: [
@@ -183,7 +183,7 @@ describe("LessonRagIndexService",
                 ] = fromDocuments.mock.calls[0]
                 expect(model).toBe(embeddingModel)
                 expect(opts).toMatchObject({
-                    collectionName: "lesson_rag",
+                    collectionName: "content_rag",
                     client: qdrantClient,
                 })
                 // every chunk carries the contentId + sourceHash payload — the hash is
@@ -373,7 +373,7 @@ describe("LessonRagIndexService",
                 const result = await service.build()
 
                 expect(result.indexed).toBe(1)
-                expect(qdrantClient.delete).toHaveBeenCalledWith("lesson_rag",
+                expect(qdrantClient.delete).toHaveBeenCalledWith("content_rag",
                     expect.objectContaining({
                         filter: {
                             must: [
@@ -413,7 +413,7 @@ describe("LessonRagIndexService",
 
                 expect(result.indexed).toBe(0)
                 expect(fromDocuments).not.toHaveBeenCalled()
-                expect(qdrantClient.delete).toHaveBeenCalledWith("lesson_rag",
+                expect(qdrantClient.delete).toHaveBeenCalledWith("content_rag",
                     expect.objectContaining({
                         filter: {
                             must: [
@@ -465,7 +465,7 @@ describe("LessonRagIndexService",
                     offset: "cursor-2",
                 })
                 // both pages' contentIds are no longer enumerated in the DB → both stale
-                expect(qdrantClient.delete).toHaveBeenCalledWith("lesson_rag",
+                expect(qdrantClient.delete).toHaveBeenCalledWith("content_rag",
                     expect.objectContaining({
                         filter: {
                             must: [
@@ -478,7 +478,7 @@ describe("LessonRagIndexService",
                             ],
                         },
                     }))
-                expect(qdrantClient.delete).toHaveBeenCalledWith("lesson_rag",
+                expect(qdrantClient.delete).toHaveBeenCalledWith("content_rag",
                     expect.objectContaining({
                         filter: {
                             must: [

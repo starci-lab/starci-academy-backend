@@ -21,7 +21,7 @@ import {
     envConfig,
 } from "@modules/env"
 
-/** Params for {@link LessonRagRetrievalService.retrieveContentExcerpt}. */
+/** Params for {@link ContentRagRetrievalService.retrieveContentExcerpt}. */
 export interface RetrieveContentExcerptParams {
     /** Content the chunks must belong to (payload filter). */
     contentId: string
@@ -31,7 +31,7 @@ export interface RetrieveContentExcerptParams {
     topK?: number
 }
 
-/** Result of {@link LessonRagRetrievalService.retrieveContentExcerpt}. */
+/** Result of {@link ContentRagRetrievalService.retrieveContentExcerpt}. */
 export interface RetrieveContentExcerptResult {
     /** Assembled excerpt (empty when retrieval missed / failed / index absent). */
     excerpt: string
@@ -41,7 +41,7 @@ export interface RetrieveContentExcerptResult {
 
 /**
  * Retrieves the lesson chunks most relevant to a content-AI question from the
- * persistent `lesson_rag` Qdrant collection (built by `LessonRagIndexService`).
+ * persistent `content_rag` Qdrant collection (built by `ContentRagIndexService`).
  *
  * Opens the existing collection (no rebuild), runs ONE similarity search scoped
  * to the question's `contentId` (Qdrant payload filter on `metadata.contentId`),
@@ -54,9 +54,9 @@ export interface RetrieveContentExcerptResult {
  * never allowed to blackhole the chat.
  */
 @Injectable()
-export class LessonRagRetrievalService {
+export class ContentRagRetrievalService {
     /** Scoped logger for the (non-fatal) retrieval failures. */
-    private readonly logger = new Logger(LessonRagRetrievalService.name)
+    private readonly logger = new Logger(ContentRagRetrievalService.name)
 
     constructor(
         @InjectQdrantClient()
@@ -86,8 +86,8 @@ export class LessonRagRetrievalService {
                 retrievedChunks: 0,
             }
         }
-        const collectionName = envConfig().services.lessonRag.collection
-        const k = topK ?? envConfig().services.lessonRag.retrievalTopK
+        const collectionName = envConfig().services.contentRag.collection
+        const k = topK ?? envConfig().services.contentRag.retrievalTopK
         try {
             // local-first embedder (must match the one the index was built with so
             // query + stored vectors share the embedding space)
@@ -123,7 +123,7 @@ export class LessonRagRetrievalService {
             // index missing / Qdrant or embedder down → empty excerpt, caller falls
             // back to whole-body stuffing (retrieval never blocks the chat)
             this.logger.warn(
-                `Lesson RAG retrieval failed for content ${contentId} (falling back to whole body): ${error instanceof Error ? error.message : String(error)}`,
+                `Content RAG retrieval failed for content ${contentId} (falling back to whole body): ${error instanceof Error ? error.message : String(error)}`,
             )
             return {
                 excerpt: "",

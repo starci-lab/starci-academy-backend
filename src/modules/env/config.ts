@@ -660,11 +660,11 @@ export const envConfig = () => ({
             },
         },
         /**
-         * Lesson RAG index — builds a persistent Qdrant collection over every
+         * Content RAG index — builds a persistent Qdrant collection over every
          * lesson's body (+ sandbox code) at init so content-AI chat can retrieve
          * the most relevant chunks instead of stuffing the whole body.
          */
-        lessonRag: {
+        contentRag: {
             /**
              * Build the lesson RAG index on init. Default OFF: embedding every
              * lesson hits the embedding lane (local GPU first, cloud fallback)
@@ -672,27 +672,27 @@ export const envConfig = () => ({
              * RAG retrieval path is wanted.
              */
             enabled: parseEnvBoolean({
-                key: "LESSON_RAG_INDEX_ENABLED",
+                key: "CONTENT_RAG_INDEX_ENABLED",
                 defaultValue: false,
             }),
             /** Qdrant collection holding the lesson RAG vectors. */
             collection: parseEnvString({
-                key: "LESSON_RAG_COLLECTION",
-                defaultValue: "lesson_rag",
+                key: "CONTENT_RAG_COLLECTION",
+                defaultValue: "content_rag",
             }),
             /** Chunk size (chars) for splitting lesson body / code before embedding. */
             chunkSize: parseEnvInt({
-                key: "LESSON_RAG_CHUNK_SIZE",
+                key: "CONTENT_RAG_CHUNK_SIZE",
                 defaultValue: 1000,
             }),
             /** Chunk overlap (chars) between adjacent chunks. */
             chunkOverlap: parseEnvInt({
-                key: "LESSON_RAG_CHUNK_OVERLAP",
+                key: "CONTENT_RAG_CHUNK_OVERLAP",
                 defaultValue: 200,
             }),
             /** Top-k chunks retrieved per content-AI question. */
             retrievalTopK: parseEnvInt({
-                key: "LESSON_RAG_RETRIEVAL_TOP_K",
+                key: "CONTENT_RAG_RETRIEVAL_TOP_K",
                 defaultValue: 6,
             }),
             /**
@@ -701,7 +701,7 @@ export const envConfig = () => ({
              * falls back to RAG retrieval over the persistent collection.
              */
             stuffCharThreshold: parseEnvInt({
-                key: "LESSON_RAG_STUFF_CHAR_THRESHOLD",
+                key: "CONTENT_RAG_STUFF_CHAR_THRESHOLD",
                 defaultValue: 6000,
             }),
         },

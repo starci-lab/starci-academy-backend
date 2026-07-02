@@ -16,7 +16,7 @@ import {
  * All collaborators come from globally-registered modules: `S3ReadService` /
  * `S3NameResolverService` from `S3Module`, `UserService` from the bussiness
  * `UserModule`, the entity manager from the databases module, and
- * `LessonRagRetrievalService` from the app-root-global `RagModule` — so this
+ * `ContentRagRetrievalService` from the app-root-global `RagModule` — so this
  * module declares no imports.
  */
 @Module({

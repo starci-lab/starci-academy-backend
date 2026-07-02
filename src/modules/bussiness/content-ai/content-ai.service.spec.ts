@@ -21,7 +21,7 @@ import {
     S3ReadService,
 } from "@modules/s3"
 import {
-    LessonRagRetrievalService,
+    ContentRagRetrievalService,
 } from "@modules/rag"
 import {
     UserService,
@@ -55,8 +55,8 @@ jest.mock("@modules/env",
                     ...config,
                     services: {
                         ...config.services,
-                        lessonRag: {
-                            ...config.services.lessonRag,
+                        contentRag: {
+                            ...config.services.contentRag,
                             stuffCharThreshold: 100,
                         },
                     },
@@ -85,7 +85,7 @@ describe("ContentAiService",
         let userService: {
             checkEnrollment: jest.Mock
         }
-        let lessonRagRetrievalService: {
+        let contentRagRetrievalService: {
             retrieveContentExcerpt: jest.Mock
         }
 
@@ -129,7 +129,7 @@ describe("ContentAiService",
             userService = {
                 checkEnrollment: jest.fn().mockResolvedValue(false),
             }
-            lessonRagRetrievalService = {
+            contentRagRetrievalService = {
                 retrieveContentExcerpt: jest.fn().mockResolvedValue({
                     excerpt: "",
                 }),
@@ -166,8 +166,8 @@ describe("ContentAiService",
                         useValue: userService,
                     },
                     {
-                        provide: LessonRagRetrievalService,
-                        useValue: lessonRagRetrievalService,
+                        provide: ContentRagRetrievalService,
+                        useValue: contentRagRetrievalService,
                     },
                 ],
             }).compile()
@@ -186,7 +186,7 @@ describe("ContentAiService",
                 const { messages } = await service.prepareMessages(baseParams)
 
                 // small lesson → no retrieval round-trip
-                expect(lessonRagRetrievalService.retrieveContentExcerpt)
+                expect(contentRagRetrievalService.retrieveContentExcerpt)
                     .not.toHaveBeenCalled()
                 const system = messages[0] as SystemMessage
                 expect(system).toBeInstanceOf(SystemMessage)
@@ -200,14 +200,14 @@ describe("ContentAiService",
         it("calls retrieveContentExcerpt(contentId) and grounds on its excerpt when body > threshold",
             async () => {
                 s3ReadService.json.mockResolvedValueOnce(makeContent(largeBody))
-                lessonRagRetrievalService.retrieveContentExcerpt
+                contentRagRetrievalService.retrieveContentExcerpt
                     .mockResolvedValueOnce({
                         excerpt: "RELEVANT-CHUNK-ABOUT-INDEXES",
                     })
 
                 const { messages } = await service.prepareMessages(baseParams)
 
-                expect(lessonRagRetrievalService.retrieveContentExcerpt)
+                expect(contentRagRetrievalService.retrieveContentExcerpt)
                     .toHaveBeenCalledWith({
                         contentId,
                         query: baseParams.question,
@@ -221,14 +221,14 @@ describe("ContentAiService",
         it("falls back to the WHOLE body when retrieval returns an empty excerpt",
             async () => {
                 s3ReadService.json.mockResolvedValueOnce(makeContent(largeBody))
-                lessonRagRetrievalService.retrieveContentExcerpt
+                contentRagRetrievalService.retrieveContentExcerpt
                     .mockResolvedValueOnce({
                         excerpt: "   ",
                     })
 
                 const { messages } = await service.prepareMessages(baseParams)
 
-                expect(lessonRagRetrievalService.retrieveContentExcerpt)
+                expect(contentRagRetrievalService.retrieveContentExcerpt)
                     .toHaveBeenCalled()
                 const system = messages[0] as SystemMessage
                 // empty retrieval → never degrade below stuffing the whole body
@@ -288,7 +288,7 @@ describe("ContentAiService",
                     service.prepareMessages(baseParams),
                 ).rejects.toBeInstanceOf(ForbiddenException)
                 // never reach grounding when the gate trips
-                expect(lessonRagRetrievalService.retrieveContentExcerpt)
+                expect(contentRagRetrievalService.retrieveContentExcerpt)
                     .not.toHaveBeenCalled()
             })
 

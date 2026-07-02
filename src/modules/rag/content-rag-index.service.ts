@@ -55,12 +55,12 @@ interface SandpackFile {
  * Chunks per embed+upsert round. See the batching comment in {@link build} for
  * why the whole corpus is never embedded in one `fromDocuments` call.
  */
-const LESSON_RAG_EMBED_BATCH_SIZE = 200
+const CONTENT_RAG_EMBED_BATCH_SIZE = 200
 
 /**
- * Result of {@link LessonRagIndexService.build}.
+ * Result of {@link ContentRagIndexService.build}.
  */
-export interface BuildLessonRagIndexResult {
+export interface BuildContentRagIndexResult {
     /** Number of chunks embedded + upserted into the collection. */
     indexed: number
 }
@@ -77,7 +77,7 @@ export interface BuildLessonRagIndexResult {
  *
  * The documents are chunked, embedded via the balancer-routed embedder
  * ({@link EmbeddingModelService.getViaBalancer} — local-first, cloud fallback),
- * and upserted into ONE persistent collection (`lesson_rag`) via
+ * and upserted into ONE persistent collection (`content_rag`) via
  * `QdrantVectorStore.fromDocuments`, which auto-creates the collection with the
  * embedder's vector size (the dim is never hard-coded — same idiom as the
  * grading RAG stack). Each chunk carries the payload
@@ -95,9 +95,9 @@ export interface BuildLessonRagIndexResult {
  * flag needed.
  */
 @Injectable()
-export class LessonRagIndexService {
+export class ContentRagIndexService {
     /** Scoped logger for the non-fatal index build. */
-    private readonly logger = new Logger(LessonRagIndexService.name)
+    private readonly logger = new Logger(ContentRagIndexService.name)
 
     constructor(
         @InjectQdrantClient()
@@ -112,7 +112,7 @@ export class LessonRagIndexService {
 
     /**
      * Enumerate every seeded content, gather its body (per locale) + sandbox code
-     * from MinIO, chunk + embed, then upsert into the persistent `lesson_rag`
+     * from MinIO, chunk + embed, then upsert into the persistent `content_rag`
      * collection.
      *
      * Must run AFTER the seed phase (contents enumerable) and AFTER the
@@ -121,15 +121,15 @@ export class LessonRagIndexService {
      *
      * @returns The number of chunks indexed.
      */
-    async build(): Promise<BuildLessonRagIndexResult> {
-        const collectionName = envConfig().services.lessonRag.collection
+    async build(): Promise<BuildContentRagIndexResult> {
+        const collectionName = envConfig().services.contentRag.collection
 
         // local-first embedder: a healthy self-hosted GPU embeds for $0, climbing
         // to a cloud embedding model only when the local host is down
         const embeddingModel = await this.embeddingModelService.getViaBalancer()
         const splitter = new RecursiveCharacterTextSplitter({
-            chunkSize: envConfig().services.lessonRag.chunkSize,
-            chunkOverlap: envConfig().services.lessonRag.chunkOverlap,
+            chunkSize: envConfig().services.contentRag.chunkSize,
+            chunkOverlap: envConfig().services.contentRag.chunkOverlap,
         })
 
         // the DB is seeded by the time this runs → enumerate contents + owning course
@@ -208,14 +208,14 @@ export class LessonRagIndexService {
                 docs.push(...contentDocs)
             } catch (error) {
                 this.logger.warn(
-                    `Lesson RAG: skipped content ${content.id}: ${error instanceof Error ? error.message : String(error)}`,
+                    `Content RAG: skipped content ${content.id}: ${error instanceof Error ? error.message : String(error)}`,
                 )
             }
             // progress heartbeat — this loop reads MinIO per content; without it a
             // large corpus looks indistinguishable from "hung" for many minutes
             if ((index + 1) % 50 === 0 || index === contents.length - 1) {
                 this.logger.log(
-                    `Lesson RAG: scanned ${index + 1}/${contents.length} content(s), ${dirtyContentIds.length} changed so far`,
+                    `Content RAG: scanned ${index + 1}/${contents.length} content(s), ${dirtyContentIds.length} changed so far`,
                 )
             }
         }
@@ -224,13 +224,13 @@ export class LessonRagIndexService {
         // up to date, skip the (expensive) embed+upsert step entirely
         if (docs.length === 0 && removedContentIds.length === 0) {
             this.logger.log(
-                `Lesson RAG: no content changed — skipped all ${contents.length} content(s)`,
+                `Content RAG: no content changed — skipped all ${contents.length} content(s)`,
             )
             this.winstonService.log(
                 WinstonLog.ProcessStepExecuted,
                 {
                     jobId: "init",
-                    step: "lesson-rag-index",
+                    step: "content-rag-index",
                     success: true,
                     meta: {
                         contents: contents.length,
@@ -256,8 +256,8 @@ export class LessonRagIndexService {
 
         const chunks = docs.length > 0 ? await splitter.splitDocuments(docs) : []
         this.logger.log(
-            `Lesson RAG: embedding + upserting ${chunks.length} chunk(s) for ${dirtyContentIds.length} changed content(s) `
-            + `(${unchangedCount} unchanged, ${removedContentIds.length} removed) in batches of ${LESSON_RAG_EMBED_BATCH_SIZE}`,
+            `Content RAG: embedding + upserting ${chunks.length} chunk(s) for ${dirtyContentIds.length} changed content(s) `
+            + `(${unchangedCount} unchanged, ${removedContentIds.length} removed) in batches of ${CONTENT_RAG_EMBED_BATCH_SIZE}`,
         )
 
         // `QdrantVectorStore.fromDocuments` never wipes an existing collection —
@@ -271,7 +271,7 @@ export class LessonRagIndexService {
         // bounds each embed+upsert round AND gives a heartbeat between rounds.
         if (chunks.length > 0) {
             const firstBatch = chunks.slice(0,
-                LESSON_RAG_EMBED_BATCH_SIZE)
+                CONTENT_RAG_EMBED_BATCH_SIZE)
             const vectorStore = await QdrantVectorStore.fromDocuments(
                 firstBatch,
                 embeddingModel,
@@ -281,14 +281,14 @@ export class LessonRagIndexService {
                 },
             )
             this.logger.log(
-                `Lesson RAG: embedded ${firstBatch.length}/${chunks.length} chunk(s)`,
+                `Content RAG: embedded ${firstBatch.length}/${chunks.length} chunk(s)`,
             )
-            for (let start = LESSON_RAG_EMBED_BATCH_SIZE; start < chunks.length; start += LESSON_RAG_EMBED_BATCH_SIZE) {
+            for (let start = CONTENT_RAG_EMBED_BATCH_SIZE; start < chunks.length; start += CONTENT_RAG_EMBED_BATCH_SIZE) {
                 const batch = chunks.slice(start,
-                    start + LESSON_RAG_EMBED_BATCH_SIZE)
+                    start + CONTENT_RAG_EMBED_BATCH_SIZE)
                 await vectorStore.addDocuments(batch)
                 this.logger.log(
-                    `Lesson RAG: embedded ${Math.min(start + batch.length,
+                    `Content RAG: embedded ${Math.min(start + batch.length,
                         chunks.length)}/${chunks.length} chunk(s)`,
                 )
             }
@@ -298,7 +298,7 @@ export class LessonRagIndexService {
             WinstonLog.ProcessStepExecuted,
             {
                 jobId: "init",
-                step: "lesson-rag-index",
+                step: "content-rag-index",
                 success: true,
                 meta: {
                     contents: contents.length,

@@ -31,7 +31,7 @@ import {
     AssetsService,
 } from "@modules/assets"
 import {
-    LessonRagIndexService,
+    ContentRagIndexService,
 } from "@modules/rag"
 import {
     SeedScopeService,
@@ -88,7 +88,7 @@ export class InitService implements OnModuleInit {
         private readonly seedersService: SeedersService,
         private readonly synchronizersService: SynchronizersService,
         private readonly assetsService: AssetsService,
-        private readonly lessonRagIndexService: LessonRagIndexService,
+        private readonly contentRagIndexService: ContentRagIndexService,
     ) { }
 
     /**
@@ -204,13 +204,13 @@ export class InitService implements OnModuleInit {
             // costs boot time on every reseed) and non-fatal (a RAG build failure must
             // never roll back a successful seed — content-AI chat degrades to whole-body
             // stuffing when the index is absent).
-            if (snapshotRoot && envConfig().services.lessonRag.enabled) {
+            if (snapshotRoot && envConfig().services.contentRag.enabled) {
                 try {
-                    const { indexed } = await this.lessonRagIndexService.build()
+                    const { indexed } = await this.contentRagIndexService.build()
                     this.logger.log(`Indexed ${indexed} lesson RAG chunk(s) into Qdrant`)
                 } catch (error) {
                     this.logger.error(
-                        `Lesson RAG index build failed: ${error instanceof Error ? error.message : String(error)}`,
+                        `Content RAG index build failed: ${error instanceof Error ? error.message : String(error)}`,
                     )
                 }
             }

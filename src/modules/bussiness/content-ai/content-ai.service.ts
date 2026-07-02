@@ -29,7 +29,7 @@ import {
     ContentNotFoundException,
 } from "@modules/exceptions"
 import {
-    LessonRagRetrievalService,
+    ContentRagRetrievalService,
 } from "@modules/rag"
 import {
     envConfig,
@@ -116,7 +116,7 @@ export class ContentAiService {
         private readonly s3ReadService: S3ReadService,
         private readonly s3NameResolverService: S3NameResolverService,
         private readonly userService: UserService,
-        private readonly lessonRagRetrievalService: LessonRagRetrievalService,
+        private readonly contentRagRetrievalService: ContentRagRetrievalService,
     ) { }
 
     /**
@@ -267,7 +267,7 @@ export class ContentAiService {
                 return stuffed
             }
             // too big for the local model → RAG the most relevant body+code chunks
-            const { excerpt } = await this.lessonRagRetrievalService.retrieveContentExcerpt({
+            const { excerpt } = await this.contentRagRetrievalService.retrieveContentExcerpt({
                 contentId,
                 query: question,
             })
@@ -278,10 +278,10 @@ export class ContentAiService {
         }
 
         // prose-only lesson: small → stuff whole; large → RAG (fallback to body)
-        if (body.length <= envConfig().services.lessonRag.stuffCharThreshold) {
+        if (body.length <= envConfig().services.contentRag.stuffCharThreshold) {
             return body
         }
-        const { excerpt } = await this.lessonRagRetrievalService.retrieveContentExcerpt({
+        const { excerpt } = await this.contentRagRetrievalService.retrieveContentExcerpt({
             contentId,
             query: question,
         })
