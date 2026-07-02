@@ -17,8 +17,8 @@ import {
     ThrottlerConfig,
 } from "@modules/throttler"
 import {
-    KeycloakAuthGraphQLGuard,
     KeycloakGraphQLUser,
+    KeycloakOptionalAuthGraphQLGuard,
 } from "@modules/keycloak"
 import {
     Locale,
@@ -42,7 +42,7 @@ export class AutocompleteGlobalSearchResolver {
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
-    @UseGuards(KeycloakAuthGraphQLGuard)
+    @UseGuards(KeycloakOptionalAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Global search results fetched successfully",
         [Locale.Vi]: "Lấy kết quả tìm kiếm toàn cục thành công",
@@ -57,7 +57,7 @@ export class AutocompleteGlobalSearchResolver {
     )
     async execute(
         @KeycloakGraphQLUser()
-            user: UserEntity,
+            user: UserEntity | undefined,
         @Args(
             "request",
             {

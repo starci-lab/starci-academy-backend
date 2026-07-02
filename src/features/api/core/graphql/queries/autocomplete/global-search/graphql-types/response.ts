@@ -107,6 +107,42 @@ export class AutocompleteGlobalSearchItem {
         },
     )
         parentPath?: AutocompleteGlobalSearchParentPath
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Canonical, locale-agnostic route built server-side from the parent index. Client prepends /{locale} and pushes it. Null when the route can't be built (cache miss / unroutable kind).",
+        },
+    )
+        path?: string | null
+
+    @Field(
+        () => Boolean,
+        {
+            nullable: true,
+            description: "COURSE hits only: true when the authed user has a real enrollment in this course. Always false for guests; null for other kinds.",
+        },
+    )
+        isEnrolled?: boolean
+
+    @Field(
+        () => Boolean,
+        {
+            nullable: true,
+            description: "COURSE hits only: true when the course is free (no paid price / no priced pricing phase). No live pricing. Null for other kinds.",
+        },
+    )
+        isFree?: boolean
+
+    @Field(
+        () => Boolean,
+        {
+            nullable: true,
+            description: "CONTENT (lesson) hits only: mirrors ContentEntity.isPremium. Null for other kinds.",
+        },
+    )
+        isPremium?: boolean
 }
 
 @ObjectType({

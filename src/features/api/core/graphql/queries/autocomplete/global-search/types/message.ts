@@ -41,6 +41,23 @@ export interface GlobalSearchItem {
      * it. Null when the route can't be built (cache miss / unroutable kind).
      */
     path?: string | null
+    /**
+     * COURSE hits only: whether the authed user has a REAL enrollment
+     * (`EnrollmentEntity.isEnrolled === true`) in this course. Always false for
+     * guests. Undefined for non-course kinds / when enrichment was skipped.
+     */
+    isEnrolled?: boolean
+    /**
+     * COURSE hits only: whether the course is free — no paid price
+     * (`originalPrice` null/0 AND no pricing phase has `price > 0`). Undefined for
+     * non-course kinds / when enrichment was skipped. No live/discounted pricing.
+     */
+    isFree?: boolean
+    /**
+     * CONTENT (lesson) hits only: mirrors `ContentEntity.isPremium`. Undefined for
+     * non-content kinds / when enrichment was skipped.
+     */
+    isPremium?: boolean
 }
 
 /** Grouped autocomplete result buckets, one array per searchable entity kind. */

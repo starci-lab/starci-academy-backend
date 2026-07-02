@@ -1,6 +1,11 @@
 import {
     Injectable,
+    Logger,
 } from "@nestjs/common"
+import {
+    EntityManager,
+    In,
+} from "typeorm"
 import {
     ChallengeEntity,
     ContentEntity,
@@ -10,6 +15,8 @@ import {
     MilestoneEntity,
     MilestoneTaskEntity,
     FoundationEntity,
+    EnrollmentEntity,
+    InjectPrimaryPostgreSQLEntityManager,
     Locale,
 } from "@modules/databases"
 import {
@@ -24,6 +31,8 @@ import {
 } from "@modules/routing"
 import type {
     AttachParentPathsParams,
+    AttachStateFlagsParams,
+    AttachStateFlagsResult,
     AutocompleteGlobalSearchExecuteParams,
     AutocompleteGlobalSearchExecuteResult,
     GlobalSearchItem,
@@ -67,6 +76,8 @@ const EMPTY_RESULT: AutocompleteGlobalSearchExecuteResult = {
 
 @Injectable()
 export class AutocompleteGlobalSearchService {
+    private readonly logger = new Logger(AutocompleteGlobalSearchService.name)
+
     constructor(
         private readonly courseSearch: CourseGlobalSearchService,
         private readonly moduleSearch: ModuleGlobalSearchService,
@@ -77,12 +88,15 @@ export class AutocompleteGlobalSearchService {
         private readonly milestoneTaskSearch: MilestoneTaskGlobalSearchService,
         private readonly foundationSearch: FoundationGlobalSearchService,
         private readonly cacheService: CacheService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) {}
 
     async execute(
         {
             request,
             locale,
+            user,
         }: AutocompleteGlobalSearchExecuteParams,
     ): Promise<AutocompleteGlobalSearchExecuteResult> {
         const term = request.query?.trim() ?? ""
@@ -213,16 +227,231 @@ export class AutocompleteGlobalSearchService {
             }),
         ])
 
-        return {
+        // enrich course + content hits with state flags (enrolled / free / premium)
+        // so the client can render free-content-first, state-aware rows. Non-fatal:
+        // any failure logs and returns the buckets WITHOUT the new fields.
+        const {
+            courses: enrichedCourses,
+            contents: enrichedContents,
+        } = await this.attachStateFlags({
             courses: coursesWithPath,
+            contents: contentsWithPath,
+            user,
+        })
+
+        return {
+            courses: enrichedCourses,
             modules: modulesWithPath,
             challenges: challengesWithPath,
-            contents: contentsWithPath,
+            contents: enrichedContents,
             flashcardDecks: flashcardDecksWithPath,
             milestones: milestonesWithPath,
             milestoneTasks: milestoneTasksWithPath,
             foundations: foundationsWithPath,
         }
+    }
+
+    /**
+     * Enriches course + content hits with state flags for state-aware, free-first
+     * rendering — NO live/discounted pricing:
+     * - course `isEnrolled`: authed user has a real enrollment (is_enrolled = true);
+     *   always false for guests.
+     * - course `isFree`: no paid price (originalPrice null/0 AND no priced phase).
+     * - content `isPremium`: mirrors ContentEntity.isPremium.
+     *
+     * Batched: one query for the course rows (id + originalPrice + phase prices),
+     * one cached read for the user's enrolled-course set, one IN query for content
+     * premium flags. Non-fatal — on any error the original buckets are returned
+     * unchanged (search must not break).
+     *
+     * @param params - {@link AttachStateFlagsParams}
+     * @returns The course + content buckets, each hit carrying its state flags.
+     */
+    private async attachStateFlags(
+        {
+            courses,
+            contents,
+            user,
+        }: AttachStateFlagsParams,
+    ): Promise<AttachStateFlagsResult> {
+        try {
+            const courseIds = courses.map((item) => item.id)
+            const contentIds = contents.map((item) => item.id)
+
+            // batch: course free-detection rows + enrolled set + content premium map
+            const [
+                courseRows,
+                enrolledCourseIds,
+                premiumByContentId,
+            ] = await Promise.all([
+                this.loadCourseFreeRows(courseIds),
+                this.loadEnrolledCourseIds(user?.id),
+                this.loadContentPremiumMap(contentIds),
+            ])
+
+            const enrolledSet = new Set(enrolledCourseIds)
+
+            const enrichedCourses = courses.map((item) => ({
+                ...item,
+                isEnrolled: enrolledSet.has(item.id),
+                isFree: courseRows.get(item.id) ?? false,
+            }))
+
+            const enrichedContents = contents.map((item) => ({
+                ...item,
+                isPremium: premiumByContentId.get(item.id) ?? false,
+            }))
+
+            return {
+                courses: enrichedCourses,
+                contents: enrichedContents,
+            }
+        } catch (error) {
+            // enrichment is best-effort; never let it break the search response
+            this.logger.error(
+                "Failed to attach global-search state flags; returning buckets unenriched",
+                error instanceof Error ? error.stack : String(error),
+            )
+            return {
+                courses,
+                contents,
+            }
+        }
+    }
+
+    /**
+     * Loads free-detection data for the given course ids in ONE query and derives
+     * `isFree` per course: true when the course has no paid price — `originalPrice`
+     * is null or 0 AND no pricing phase has `price > 0`.
+     * @param courseIds - The course hit ids to resolve.
+     * @returns Map of course id → isFree (empty when there are no ids).
+     */
+    private async loadCourseFreeRows(
+        courseIds: Array<string>,
+    ): Promise<Map<string, boolean>> {
+        const result = new Map<string, boolean>()
+        if (courseIds.length === 0) {
+            return result
+        }
+        const rows = await this.entityManager.find(
+            CourseEntity,
+            {
+                where: {
+                    id: In(courseIds),
+                },
+                select: {
+                    id: true,
+                    originalPrice: true,
+                    pricingPhases: {
+                        id: true,
+                        price: true,
+                    },
+                },
+                relations: {
+                    pricingPhases: true,
+                },
+            },
+        )
+        for (const row of rows) {
+            const hasBasePrice = Boolean(row.originalPrice && row.originalPrice > 0)
+            const hasPhasePrice = (row.pricingPhases ?? []).some(
+                (phase) => Boolean(phase.price && phase.price > 0),
+            )
+            result.set(row.id,
+                !hasBasePrice && !hasPhasePrice)
+        }
+        return result
+    }
+
+    /**
+     * Loads the authed user's set of really-enrolled course ids (is_enrolled = true).
+     * Uses the same per-user cache as the enrollment authorization hot path: read
+     * once from cache, rebuilt with a single indexed query on miss. Returns an empty
+     * array for guests (no user).
+     * @param userId - The authed user id, or undefined for a guest.
+     * @returns The enrolled course ids (empty for guests).
+     */
+    private async loadEnrolledCourseIds(
+        userId: string | undefined,
+    ): Promise<Array<string>> {
+        // guests are never enrolled → skip the DB entirely
+        if (!userId) {
+            return []
+        }
+        // one cache entry per user holds every course id they are enrolled in
+        const cached = await this.cacheService.get({
+            key: CacheKey.UserEnrolledCourses,
+            args: [
+                userId,
+            ],
+        })
+        if (cached !== undefined) {
+            return cached
+        }
+        // cache miss → rebuild the whole set with a single indexed read on (user_id)
+        const rows = await this.entityManager.find(
+            EnrollmentEntity,
+            {
+                where: {
+                    user: {
+                        id: userId,
+                    },
+                    isEnrolled: true,
+                },
+                select: {
+                    id: true,
+                    course: {
+                        id: true,
+                    },
+                },
+                relations: {
+                    course: true,
+                },
+            },
+        )
+        const courseIds = rows
+            .map((row) => row.course?.id)
+            .filter((id): id is string => Boolean(id))
+        // cache the rebuilt set (TTL safety net; del-on-write keeps it correct)
+        await this.cacheService.set({
+            key: CacheKey.UserEnrolledCourses,
+            args: [
+                userId,
+            ],
+            cacheResult: courseIds,
+        })
+        return courseIds
+    }
+
+    /**
+     * Loads the `isPremium` flag for the given content ids in ONE `IN` query.
+     * @param contentIds - The content hit ids to resolve.
+     * @returns Map of content id → isPremium (empty when there are no ids).
+     */
+    private async loadContentPremiumMap(
+        contentIds: Array<string>,
+    ): Promise<Map<string, boolean>> {
+        const result = new Map<string, boolean>()
+        if (contentIds.length === 0) {
+            return result
+        }
+        const rows = await this.entityManager.find(
+            ContentEntity,
+            {
+                where: {
+                    id: In(contentIds),
+                },
+                select: {
+                    id: true,
+                    isPremium: true,
+                },
+            },
+        )
+        for (const row of rows) {
+            result.set(row.id,
+                Boolean(row.isPremium))
+        }
+        return result
     }
 
     /**

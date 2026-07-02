@@ -45,7 +45,8 @@ export interface BuildAutocompleteGlobalSearchPayloadResult {
 /** Params for executing the global search autocomplete query. */
 export type AutocompleteGlobalSearchExecuteParams =
     ExecuteParams<AutocompleteGlobalSearchRequest> & {
-        user: UserEntity
+        /** Undefined for guests — the query is public (free courses/challenges are searchable by anyone). */
+        user?: UserEntity
     }
 
 /** Result of global search autocomplete query. */
@@ -57,5 +58,23 @@ export interface AttachParentPathsParams {
     items: Array<GlobalSearchItem>
     /** The entity class name used as the parent-index cache namespace. */
     entityName: SearchableEntity
+}
+
+/** Params for enriching course + content hits with state flags (enrolled/free/premium). */
+export interface AttachStateFlagsParams {
+    /** Course hits to enrich with `isEnrolled` + `isFree`. */
+    courses: Array<GlobalSearchItem>
+    /** Content (lesson) hits to enrich with `isPremium`. */
+    contents: Array<GlobalSearchItem>
+    /** Undefined for guests — used to compute per-course `isEnrolled` (false for guests). */
+    user?: UserEntity
+}
+
+/** Result of enriching course + content hits with state flags. */
+export interface AttachStateFlagsResult {
+    /** Course hits carrying `isEnrolled` + `isFree`. */
+    courses: Array<GlobalSearchItem>
+    /** Content hits carrying `isPremium`. */
+    contents: Array<GlobalSearchItem>
 }
 
