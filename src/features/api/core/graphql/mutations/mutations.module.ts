@@ -70,6 +70,9 @@ import {
 import {
     ChatMutationsModule,
 } from "./chat"
+import {
+    RagPlaygroundMutationsModule,
+} from "./rag-playground"
 
 /**
  * GraphQL mutations (courses, authentication, etc.).
@@ -138,6 +141,9 @@ import {
             isGlobal: true,
         }),
         ChatMutationsModule.register({
+            isGlobal: true,
+        }),
+        RagPlaygroundMutationsModule.register({
             isGlobal: true,
         }),
     ],

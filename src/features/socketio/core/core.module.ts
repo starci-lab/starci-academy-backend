@@ -31,6 +31,9 @@ import {
 import {
     SystemHealthModule,
 } from "./system-health"
+import {
+    RagPlaygroundSocketModule,
+} from "./rag-playground"
 
 /**
  * Feature module bundling all real-time Socket.IO gateways of the app.
@@ -64,6 +67,9 @@ import {
             isGlobal: true,
         }),
         SystemHealthModule.register({
+            isGlobal: true,
+        }),
+        RagPlaygroundSocketModule.register({
             isGlobal: true,
         }),
     ],

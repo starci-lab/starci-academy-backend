@@ -14,6 +14,7 @@ export const COMMUNITY_FEED_NAMESPACE = "community_feed"
 export const COMMUNITY_CHAT_NAMESPACE = "community_chat"
 export const CONTENT_AI_NAMESPACE = "content_ai"
 export const SYSTEM_HEALTH_NAMESPACE = "system_health"
+export const RAG_PLAYGROUND_NAMESPACE = "rag_playground"
 
 /**
  * Decorator to mark a class as a WebSocket gateway for the autocomplete namespace.
@@ -147,6 +148,23 @@ export const ContentAiWebSocketGateway = () => WebSocketGateway(
 export const SystemHealthWebSocketGateway = () => WebSocketGateway(
     {
         namespace: SYSTEM_HEALTH_NAMESPACE,
+        transports: [
+            "websocket",
+            "polling"
+        ],
+        cors: createCorsOptions(),
+        perMessageDeflate: true,
+    }
+)
+
+/**
+ * Decorator to mark a class as a WebSocket gateway for the RAG Playground
+ * namespace (public, anonymous — grounded-answer token streaming for the
+ * marketing demo; no auth, mirrors {@link SystemHealthWebSocketGateway}).
+ */
+export const RagPlaygroundWebSocketGateway = () => WebSocketGateway(
+    {
+        namespace: RAG_PLAYGROUND_NAMESPACE,
         transports: [
             "websocket",
             "polling"
