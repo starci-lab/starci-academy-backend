@@ -82,6 +82,24 @@ export interface PrepareContentAiMessagesParams {
 const MAX_HISTORY_MESSAGES = 8
 
 /**
+ * Upper bound (chars) on the stuffed grounding when the FULL lesson code is
+ * included alongside the body. Under it we feed the tutor the whole body + every
+ * repo file (so it can read/explain any part of the lesson's source, even for a
+ * short lesson); over it we fall back to RAG chunk retrieval to stay inside the
+ * free local model's context window. ~24k chars ≈ ~6k tokens of grounding — the
+ * real lesson source (lockfiles/vendored dirs filtered out) fits well under this.
+ */
+const MAX_CODE_STUFF_CHARS = 24000
+
+/**
+ * Repo files skipped when stuffing the lesson's full source: generated lockfiles
+ * and minified/sourcemap artifacts. (`node_modules`/`dist`/`build`/`.git` are
+ * already dropped by the repo synchronizer, but a committed lockfile still lands
+ * in the file map and would blow the budget with noise the tutor never needs.)
+ */
+const NON_SOURCE_CODE_FILE = /(?:^|\/)(?:package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$|\.lock$|\.min\.(?:js|css)$|\.map$/i
+
+/**
  * Shared content-AI tutoring logic: turns a `(content, question, history)` into
  * the grounded LangChain messages to send to the model.
  *
@@ -183,6 +201,7 @@ export class ContentAiService {
         const body = this.resolveBodyText(content,
             locale)
         const grounding = await this.resolveGrounding({
+            content,
             contentId,
             question,
             body,
@@ -206,33 +225,59 @@ export class ContentAiService {
     }
 
     /**
-     * Resolve the lesson text to ground the answer on — HYBRID retrieval:
+     * Resolve the text to ground the answer on. The tutor must be able to read the
+     * lesson's FULL source — not just the prose, and not only for large lessons — so
+     * for a lesson that ships code we prefer to stuff the WHOLE body + EVERY repo
+     * file (a short lesson previously stuffed body-only, hiding its code):
      *
-     * - **Small body** (≤ the stuff-char threshold): return the WHOLE body. Cheap,
-     *   no retrieval miss, and the local model's context easily holds it.
-     * - **Large body**: retrieve the top-k most relevant chunks for `question` from
-     *   the persistent `lesson_rag` Qdrant collection (content + code, filtered to
-     *   this content). This keeps the prompt focused and within the free local
-     *   model's modest context window.
+     * - **Has code, and body + full code ≤ {@link MAX_CODE_STUFF_CHARS}**: stuff the
+     *   whole lesson (body + all repo files). The tutor sees every file, so it can
+     *   read/explain any snippet the student points at — regardless of lesson size.
+     * - **Has code but too big to stuff**: RAG-retrieve the top-k most relevant chunks
+     *   (body + code, filtered to this content) so the prompt stays within the free
+     *   local model's context window.
+     * - **No code (prose-only lesson)**: small body → stuff whole; large body → RAG.
      *
-     * Falls back to the whole body whenever retrieval misses (empty), fails, or the
-     * index is absent — so the chat never degrades below the current behavior.
+     * Falls back to the whole body whenever retrieval misses/fails/index absent — so
+     * the chat never degrades below body-only grounding.
      *
-     * @param params - The content id, the question, and the resolved whole body.
+     * @param params - The content snapshot, its id, the question, and the whole body.
      * @returns The grounding text to put in the system prompt.
      */
     private async resolveGrounding(
         {
+            content,
             contentId,
             question,
             body,
         }: {
+            content: ContentEntity
             contentId: string
             question: string
             body: string
         },
     ): Promise<string> {
-        // small lesson → stuff whole (no retrieval round-trip)
+        // full lesson code (all repo files) — "" for a prose-only lesson
+        const code = await this.loadFullCode(content)
+
+        if (code) {
+            const stuffed = `${body}\n\n=== LESSON CODE (full source) ===\n${code}`
+            // whole lesson fits → stuff body + every file (reads any snippet, any size)
+            if (stuffed.length <= MAX_CODE_STUFF_CHARS) {
+                return stuffed
+            }
+            // too big for the local model → RAG the most relevant body+code chunks
+            const { excerpt } = await this.lessonRagRetrievalService.retrieveContentExcerpt({
+                contentId,
+                query: question,
+            })
+            return excerpt.trim()
+                ? excerpt
+                : stuffed.slice(0,
+                    MAX_CODE_STUFF_CHARS)
+        }
+
+        // prose-only lesson: small → stuff whole; large → RAG (fallback to body)
         if (body.length <= envConfig().services.lessonRag.stuffCharThreshold) {
             return body
         }
@@ -240,10 +285,60 @@ export class ContentAiService {
             contentId,
             query: question,
         })
-        // retrieval miss / failure / index absent → fall back to the whole body
         return excerpt.trim()
             ? excerpt
             : body
+    }
+
+    /**
+     * Read a lesson's FULL source from MinIO — every repo file concatenated (each
+     * prefixed with its path), or "" for a prose-only lesson (no code in MinIO).
+     *
+     * Mirrors the repo-file read the lesson RAG indexer uses: the synchronizer
+     * writes the Sandpack file map to `repo/<repoName>/<githubDir>.json` where
+     * `repoName` is the last path segment of `githubBaseUrl`. Non-fatal: any
+     * read/parse failure returns "" so grounding degrades to body-only.
+     *
+     * @param content - The content snapshot (needs `isSandbox`/`githubBaseUrl`/`githubDir`).
+     * @returns The concatenated source, or "" when the lesson ships no code.
+     */
+    private async loadFullCode(
+        content: ContentEntity,
+    ): Promise<string> {
+        if (!content.isSandbox || !content.githubBaseUrl || !content.githubDir) {
+            return ""
+        }
+        const repoName = content.githubBaseUrl.split("/").at(-1)
+        if (!repoName) {
+            return ""
+        }
+        try {
+            const files = await this.s3ReadService.json<Record<string, { code: string }>>({
+                key: this.s3NameResolverService.repo(repoName,
+                    content.githubDir),
+                provider: S3Provider.Minio,
+            })
+            const parts: Array<string> = []
+            for (const [
+                filePath,
+                file,
+            ] of Object.entries(files ?? {
+                })) {
+                // skip lockfiles / minified artifacts / stray vendored files — real
+                // source only, so the budget isn't wasted on noise the tutor ignores
+                if (NON_SOURCE_CODE_FILE.test(filePath) || filePath.includes("node_modules/")) {
+                    continue
+                }
+                if (!file.code?.trim()) {
+                    continue
+                }
+                parts.push(`// ${filePath}\n${file.code}`)
+            }
+            return parts.join("\n\n")
+        } catch {
+            // MinIO miss / parse failure → degrade to body-only grounding
+            return ""
+        }
     }
 
     /**
