@@ -2,6 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "nivo-fe",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "D:/Repositories/nivo", "run", "dev"],
+      "port": 3011
+    },
+    {
       "name": "frontend",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "C:/Repositories/starci-academy", "run", "dev"],

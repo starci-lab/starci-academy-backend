@@ -339,7 +339,15 @@
       "WebFetch(domain:www.joyofreact.com)",
       "WebFetch(domain:www.opensourceceo.com)",
       "WebFetch(domain:openrouter.ai)",
-      "WebFetch(domain:costgoat.com)"
+      "WebFetch(domain:costgoat.com)",
+      "Bash(grep -iA0 \"\")",
+      "Bash(node -e \"const m=require\\('/d/Repositories/starci-academy/src/messages/vi.json'\\); const h=m.landing&&m.landing.hero; console.log\\(JSON.stringify\\(h,null,1\\)\\)\")",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('src/messages/vi.json','utf8'\\)\\);JSON.parse\\(require\\('fs'\\).readFileSync\\('src/messages/en.json','utf8'\\)\\);console.log\\('JSON ok'\\)\")",
+      "Bash(echo \"=== GlobalSearchModal \\(FE\\) ===\")",
+      "Bash(cat /d/Repositories/starci-academy/src/components/modals/GlobalSearchModal/index.tsx)",
+      "Bash(xargs grep -nE \"course|challenge|free|isFree|price|enroll|published|isPublic|where|filter|index\")",
+      "Bash(gh org *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\);console.log\\(JSON.stringify\\({deps:p.dependencies,dev:p.devDependencies},null,1\\)\\)\")"
     ]
   }
 }
