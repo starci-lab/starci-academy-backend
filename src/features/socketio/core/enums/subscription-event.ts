@@ -20,4 +20,5 @@ export enum SubscriptionEvent {
     ChatMessageCreated = "community_chat.message_created.subscription",
     ContentAiChunk = "content_ai.chunk.subscription",
     AiModelHealth = "system_health.ai_model_health.subscription",
+    RagPlaygroundRunChunk = "rag_playground.run_chunk.subscription",
 }

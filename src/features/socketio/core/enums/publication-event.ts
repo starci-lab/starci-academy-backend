@@ -10,4 +10,6 @@ export enum PublicationEvent {
     SubscribeCommunityChat = "community_chat.subscribe.publication",
     AskContentAi = "content_ai.ask.publication",
     AbortContentAi = "content_ai.abort.publication",
+    SubscribeRagPlaygroundRun = "rag_playground.subscribe_run.publication",
+    AbortRagPlaygroundRun = "rag_playground.abort_run.publication",
 }
