@@ -12,7 +12,9 @@ import {
     RelationId,
 } from "typeorm"
 import {
+    AiCeilSurface,
     AiMode,
+    GraphQLTypeAiCeilSurface,
     GraphQLTypeAiMode,
 } from "../enums"
 import {
@@ -197,4 +199,24 @@ export class CreditUsageHistoryEntity extends UuidAbstractEntity {
         default: 0,
     })
         credits: number
+
+    /**
+     * Which AI surface (chatbot / grading / interview) triggered this charge; null
+     * for rows recorded before this column existed.
+     */
+    @Field(
+        () => GraphQLTypeAiCeilSurface,
+        {
+            nullable: true,
+            description: "AI surface (chatbot / grading / interview) that triggered this charge.",
+        },
+    )
+    @Column({
+        name: "surface",
+        type: "enum",
+        enum: AiCeilSurface,
+        enumName: "ai_ceil_surface",
+        nullable: true,
+    })
+        surface: AiCeilSurface | null
 }

@@ -8,6 +8,10 @@ import {
     AbstractGraphQLResponse,
     IAbstractGraphQLResponse,
 } from "@modules/api"
+import {
+    AiCeilSurface,
+    GraphQLTypeAiCeilSurface,
+} from "@modules/databases"
 
 /**
  * One AI credit charge in the user's usage history.
@@ -74,6 +78,15 @@ export class CreditUsageHistoryItemObject {
         },
     )
         createdAt: Date
+
+    @Field(
+        () => GraphQLTypeAiCeilSurface,
+        {
+            nullable: true,
+            description: "AI surface (chatbot / grading / interview) that triggered this charge; null for rows recorded before this column existed.",
+        },
+    )
+        surface: AiCeilSurface | null
 }
 
 /**

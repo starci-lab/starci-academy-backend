@@ -125,6 +125,7 @@ export class CreditUsageService {
                     provider: true,
                     credits: true,
                     createdAt: true,
+                    surface: true,
                 },
                 order: {
                     createdAt: "DESC",
@@ -142,6 +143,7 @@ export class CreditUsageService {
                 provider: row.provider,
                 credits: row.credits,
                 createdAt: row.createdAt,
+                surface: row.surface,
             })),
             total,
         }

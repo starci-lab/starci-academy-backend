@@ -99,6 +99,7 @@ export class MyCreditUsageHistoryResolver {
                 provider: item.provider,
                 credits: item.credits,
                 createdAt: item.createdAt,
+                surface: item.surface,
             })),
             total: page.total,
         }

@@ -15,6 +15,7 @@ import {
 } from "@modules/bussiness"
 import {
     ActivityType,
+    AiCeilSurface,
     AiMode,
     ChallengeEntity,
     CreditUsageHistoryEntity,
@@ -454,6 +455,7 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                 model: pickedModel,
                 provider: pickedProvider,
                 credits,
+                surface: AiCeilSurface.Grading,
             },
         )
         return submissionUserId

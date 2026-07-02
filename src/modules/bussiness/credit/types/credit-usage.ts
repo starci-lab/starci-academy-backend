@@ -1,4 +1,5 @@
 import type {
+    AiCeilSurface,
     AiMode,
 } from "@modules/databases"
 import type {
@@ -41,6 +42,8 @@ export interface CreditUsageHistoryItem {
     credits: number
     /** When the charge was recorded. */
     createdAt: Date
+    /** AI surface (chatbot / grading / interview) that triggered this charge. */
+    surface: AiCeilSurface | null
 }
 
 /** A page of AI credit charge rows plus the total count. */

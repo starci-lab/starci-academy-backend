@@ -59,9 +59,11 @@ const PASS_SCORE_THRESHOLD = 75
 const BORDERLINE_SCORE_THRESHOLD = 50
 
 /**
- * Stateless interview-answer grading. Loads the question card from its deck,
- * builds the grading prompt from the card's model answer, invokes the shared AI
- * grading lane, and parses the strict-JSON result. Persists nothing (P0).
+ * Interview-answer grading. Loads the question card from its deck, builds the
+ * grading prompt from the card's model answer, invokes the shared AI grading
+ * lane, and parses the strict-JSON result. Also records the AI credit charge
+ * (surfaced on the "Lịch sử dùng AI" page) and an {@link InterviewAttemptEntity}
+ * row for cross-session history.
  */
 @Injectable()
 export class InterviewGradingService {
@@ -167,7 +169,8 @@ export class InterviewGradingService {
         await this.recordAutoCreditUsage(userId,
             model,
             provider,
-            cost)
+            cost,
+            AiCeilSurface.Interview)
 
         const result = this.parse(text)
         // record the graded attempt for cross-session interview history (best-effort —
@@ -285,12 +288,14 @@ export class InterviewGradingService {
      * @param servedModel - The model that actually served (free / economy fallback).
      * @param servedProvider - Provider of {@link servedModel}.
      * @param credits - The credit cost resolved by `run` (served model's catalog credit).
+     * @param surface - The AI surface this charge is for (labels the row in history).
      */
     private async recordAutoCreditUsage(
         userId: string,
         servedModel: string | undefined,
         servedProvider: ModelProvider | undefined,
         credits: number,
+        surface: AiCeilSurface,
     ): Promise<void> {
         await this.entityManager.save(
             CreditUsageHistoryEntity,
@@ -306,6 +311,7 @@ export class InterviewGradingService {
                 model: servedModel ?? null,
                 provider: servedProvider ?? null,
                 credits,
+                surface,
             },
         )
         // drop the cached totals so the next getSnapshot recomputes including this charge
