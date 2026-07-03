@@ -22,6 +22,7 @@ import {
     AiCeilSurface,
     AiMode,
     AiModelCategory,
+    AiModelTask,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
@@ -438,6 +439,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
             selection: payload.ai,
             floor: AiModelCategory.Economy,
             surface: AiCeilSurface.Grading,
+            task: AiModelTask.TaskGrading,
         })
 
         const parsed = this.projectEvaluationParseService.parse(raw)

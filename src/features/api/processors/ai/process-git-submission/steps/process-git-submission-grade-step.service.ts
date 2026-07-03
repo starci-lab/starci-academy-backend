@@ -16,6 +16,7 @@ import {
     AiCeilSurface,
     AiMode,
     AiModelCategory,
+    AiModelTask,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
@@ -343,6 +344,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
             selection: payload.ai,
             floor: AiModelCategory.Economy,
             surface: AiCeilSurface.Grading,
+            task: AiModelTask.ChallengeGrading,
         })
 
         // Charge for the LLM usage NOW (idempotently), BEFORE parsing — a parse failure must not

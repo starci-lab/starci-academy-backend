@@ -20,6 +20,10 @@ export enum AiModelTask {
     Embedding = "embedding",
     /** CV generation / revision — shown in the CV-generation model picker. */
     CVGenerating = "cv_generating",
+    /** Personal-project / capstone milestone-task review — shown in that grading model picker. */
+    TaskGrading = "task_grading",
+    /** Challenge submission grading (Git repo / Google Docs) — shown in that grading model picker. */
+    ChallengeGrading = "challenge_grading",
 }
 
 /**
@@ -47,6 +51,12 @@ registerEnumType(
             },
             [AiModelTask.CVGenerating]: {
                 description: "CV generation/revision.",
+            },
+            [AiModelTask.TaskGrading]: {
+                description: "Personal-project/capstone milestone-task review.",
+            },
+            [AiModelTask.ChallengeGrading]: {
+                description: "Challenge submission grading (Git/Google Docs).",
             },
         },
     }
