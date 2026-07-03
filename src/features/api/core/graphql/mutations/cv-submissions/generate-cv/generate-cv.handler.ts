@@ -74,7 +74,7 @@ export class GenerateCvHandler
         const selection = validatedLaneToAiJobSelection(validatedLane)
 
         // create the Pending cv_generations row + enqueue the build job.
-        const cvGeneration = await this.enqueueGenerateCvJobService.enqueue({
+        const { cvGeneration, jobId } = await this.enqueueGenerateCvJobService.enqueue({
             userId: user.id,
             mode: CvGenerationMode.Generate,
             extraPrompts: extraPrompts ?? undefined,
@@ -83,6 +83,7 @@ export class GenerateCvHandler
         })
 
         return {
+            jobId,
             cvGenerationId: cvGeneration.id,
         }
     }

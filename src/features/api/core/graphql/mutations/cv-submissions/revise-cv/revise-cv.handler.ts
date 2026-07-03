@@ -101,7 +101,7 @@ export class ReviseCvHandler
         const selection = validatedLaneToAiJobSelection(validatedLane)
 
         // create the Pending cv_generations row + enqueue the revise job.
-        const cvGeneration = await this.enqueueGenerateCvJobService.enqueue({
+        const { cvGeneration, jobId } = await this.enqueueGenerateCvJobService.enqueue({
             userId: user.id,
             mode: CvGenerationMode.Revise,
             sourceCvSubmissionId: cvSubmissionId,
@@ -111,6 +111,7 @@ export class ReviseCvHandler
         })
 
         return {
+            jobId,
             cvGenerationId: cvGeneration.id,
         }
     }

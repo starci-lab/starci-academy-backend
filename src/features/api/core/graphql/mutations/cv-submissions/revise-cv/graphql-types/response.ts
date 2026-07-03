@@ -16,6 +16,14 @@ export class ReviseCvData {
     @Field(
         () => ID,
         {
+            description: "jobs.id — subscribe to this over the job_notifications socket for realtime progress.",
+        },
+    )
+        jobId: string
+
+    @Field(
+        () => ID,
+        {
             description: "cv_generations.id of the newly created (Pending) revision run.",
         },
     )

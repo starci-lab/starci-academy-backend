@@ -96,7 +96,11 @@ export class EnqueueGenerateCvJobService {
      * Create the Pending generation row, persist the tracked job, then enqueue.
      *
      * @param params - {@link EnqueueGenerateCvJobParams}
-     * @returns The created `cv_generations` row (status `Pending`).
+     * @returns The created `cv_generations` row (status `Pending`) + the tracked
+     * `jobs.id` — callers need BOTH: `cvGenerationId` to poll/display the result,
+     * `jobId` to subscribe to realtime progress over the `job_notifications` socket
+     * (the FE's `subscribeJob` call needs this; it is NOT derivable from
+     * `cvGenerationId` — the two ids are unrelated UUIDs on separate tables).
      */
     async enqueue(
         {
@@ -107,7 +111,7 @@ export class EnqueueGenerateCvJobService {
             locale,
             ai,
         }: EnqueueGenerateCvJobParams,
-    ): Promise<UserCvGenerationEntity> {
+    ): Promise<{ cvGeneration: UserCvGenerationEntity, jobId: string }> {
         // 1) create the Pending generation row FIRST — the worker/steps update it.
         const cvGeneration = await this.entityManager.save(
             UserCvGenerationEntity,
@@ -186,6 +190,9 @@ export class EnqueueGenerateCvJobService {
             )
         })
 
-        return cvGeneration
+        return {
+            cvGeneration,
+            jobId,
+        }
     }
 }
