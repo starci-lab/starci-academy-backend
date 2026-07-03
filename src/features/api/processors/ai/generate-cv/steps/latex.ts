@@ -79,7 +79,7 @@ const CV_TEMPLATE_SOURCE = String.raw`\documentclass[11pt,a4paper]{article}
 \setlist[itemize]{leftmargin=1.2em,itemsep=2pt,parsep=0pt,topsep=2pt}
 \pagenumbering{gobble}
 \begin{document}
-{\centering \textbf{\Large {{{tex fullName}}}} \\[2pt] {{{tex headline}}} \\[2pt] {{{tex phone}}} \textbullet\ {{{tex email}}} \textbullet\ {{{tex linkedin}}} \textbullet\ {{{tex github}}} \textbullet\ {{{tex location}}} \par}
+{\centering \textbf{\Large {{{tex fullName}}} } \\[2pt] {{{tex headline}}} \\[2pt] {{{tex phone}}} \textbullet\ {{{tex email}}} \textbullet\ {{{tex linkedin}}} \textbullet\ {{{tex github}}} \textbullet\ {{{tex location}}} \par}
 \section*{Summary}
 {{{tex summary}}}
 \section*{Skills}
@@ -87,13 +87,13 @@ const CV_TEMPLATE_SOURCE = String.raw`\documentclass[11pt,a4paper]{article}
 {{#each skillGroups}}\item \textbf{ {{~tex category}}:} {{#each items}}{{tex this}}{{#unless @last}}, {{/unless}}{{/each}}
 {{/each}}\end{itemize}
 \section*{Experience}
-{{#each experiences}}\textbf{ {{~tex title}}} \hfill {{tex dateRange}} \\
+{{#each experiences}}\textbf{ {{~tex title}} } \hfill {{tex dateRange}} \\
 {{tex org}} --- {{tex location}}
 \begin{itemize}
 {{#each bullets}}\item {{tex this}}
 {{/each}}\end{itemize}
 {{/each}}\section*{Education}
-{{#each education}}\textbf{ {{~tex school}}} \hfill {{tex dateRange}} \\
+{{#each education}}\textbf{ {{~tex school}} } \hfill {{tex dateRange}} \\
 {{tex degree}}
 {{/each}}\end{document}
 `
