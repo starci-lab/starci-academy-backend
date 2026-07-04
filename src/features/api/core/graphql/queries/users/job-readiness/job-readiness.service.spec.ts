@@ -276,6 +276,73 @@ describe("JobReadinessService",
                         expect(result.tracks[1].courseId).toBe("course-weak")
                     })
 
+                // Recent-window interview pillar (WF-09): the query itself is mocked
+                // at the row level here, so this test locks the CONSUMPTION side —
+                // `avg_score` already reflects only the recent-N window by the time
+                // it reaches `buildTracks` (the window function lives in SQL, not in
+                // JS). What we assert is that a recent-window average (computed as if
+                // an old weak attempt had been excluded) produces a HIGH interview
+                // score, not one dragged down by history — i.e. the service trusts
+                // whatever recency-filtered average the query hands back, rather than
+                // re-averaging or otherwise diluting it in code.
+                it("reflects a recent high-score trend rather than being dragged down by an old low-score attempt",
+                    async () => {
+                        const enrollment = {
+                            id: "enrollment-recent",
+                            courseId: "course-recent",
+                            isEnrolled: true,
+                            course: {
+                                title: "Recent Window",
+                                displayId: "recent-window",
+                            },
+                        }
+
+                        entityManager.find.mockResolvedValueOnce([
+                            enrollment,
+                        ])
+                        entityManager.query
+                            // capstoneTotals
+                            .mockResolvedValueOnce([
+                                {
+                                    course_id: "course-recent",
+                                    total: "10",
+                                },
+                            ])
+                            // capstonePassed
+                            .mockResolvedValueOnce([
+                                {
+                                    enrollment_id: "enrollment-recent",
+                                    passed: "8",
+                                },
+                            ])
+                            // interviewAverages — an old attempt scored 20 (say, week 1),
+                            // then several recent attempts scored 95+; the recent-N window
+                            // query (mocked here at the row level) excludes the old attempt,
+                            // so the average handed back is the recent high, NOT the
+                            // all-time average (which would be ~30 if the old 20 were
+                            // still mixed in)
+                            .mockResolvedValueOnce([
+                                {
+                                    enrollment_id: "enrollment-recent",
+                                    avg_score: "96",
+                                },
+                            ])
+                            // loadTrackCvScores
+                            .mockResolvedValueOnce([])
+
+                        const result = await service.compute({
+                            userId: "user-recent",
+                        })
+
+                        const track = result.tracks.find(
+                            (candidate) => candidate.courseId === "course-recent",
+                        )
+                        expect(track?.interviewScore).toBe(96)
+                        // sanity: nowhere close to what an all-time average dragged down
+                        // by the old 20-point attempt would have produced
+                        expect(track?.interviewScore).toBeGreaterThan(60)
+                    })
+
                 // CV per-track pillar: a scored CV tied to a course lands on THAT
                 // track's cvScore; a course with no scored CV row → cvScore null.
                 it("attaches a scored CV to its own track's cvScore and leaves an unscored track's cvScore null",

@@ -15,6 +15,7 @@ import {
 } from "@modules/bussiness"
 import {
     JOB_READINESS_BUILDING_THRESHOLD,
+    JOB_READINESS_INTERVIEW_RECENT_WINDOW,
     JOB_READINESS_JOB_READY_THRESHOLD,
     JOB_READINESS_QUALIFIED_TRACK_MIN_DEPTH,
     JOB_READINESS_TRACK_CAPSTONE_WEIGHT,
@@ -247,7 +248,15 @@ export class JobReadinessService {
     }
 
     /**
-     * Average mock-interview overall score per enrollment.
+     * Average mock-interview overall score per enrollment, over ONLY that
+     * enrollment's {@link JOB_READINESS_INTERVIEW_RECENT_WINDOW} MOST RECENT
+     * attempts (by `created_at DESC`) — see that constant's doc for why an
+     * all-time average is deliberately avoided (it punishes early weak
+     * attempts forever).
+     *
+     * Implemented as a `ROW_NUMBER() OVER (PARTITION BY enrollment_id ORDER BY
+     * created_at DESC)` window filtered to `<= N`, then averaged per
+     * enrollment in an outer query.
      *
      * WF-04 (verified): migration `1721500000000-CreateMockInterviewAttempts`
      * + the entity exist, so the table is present once migrations run. The
@@ -256,19 +265,31 @@ export class JobReadinessService {
      * failing the whole query.
      *
      * @param enrollmentIds - the learner's enrollment ids.
-     * @returns one row per enrollment with an average score, or [] if the table is unavailable.
+     * @returns one row per enrollment with a recent-window average score, or [] if the table is unavailable.
      */
     private async loadInterviewAverages(enrollmentIds: Array<string>): Promise<Array<InterviewAvgRow>> {
         try {
             return await this.entityManager.query<Array<InterviewAvgRow>>(
                 `
+                WITH ranked_attempts AS (
+                    SELECT
+                        enrollment_id,
+                        overall_score,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY enrollment_id
+                            ORDER BY created_at DESC
+                        ) AS recency_rank
+                    FROM mock_interview_attempts
+                    WHERE enrollment_id = ANY($1)
+                )
                 SELECT enrollment_id AS enrollment_id, AVG(overall_score) AS avg_score
-                FROM mock_interview_attempts
-                WHERE enrollment_id = ANY($1)
+                FROM ranked_attempts
+                WHERE recency_rank <= $2
                 GROUP BY enrollment_id
                 `,
                 [
                     enrollmentIds,
+                    JOB_READINESS_INTERVIEW_RECENT_WINDOW,
                 ],
             )
         } catch {
