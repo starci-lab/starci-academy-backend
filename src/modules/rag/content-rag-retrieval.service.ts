@@ -39,6 +39,24 @@ export interface RetrieveContentExcerptResult {
     retrievedChunks: number
 }
 
+/** Params for {@link ContentRagRetrievalService.retrieveCourseExcerpt}. */
+export interface RetrieveCourseExcerptParams {
+    /** Course the chunks must belong to (payload filter — spans every lesson of the course). */
+    courseId: string
+    /** The retrieval query (e.g. an interviewer's next probe, or a grading question). */
+    query: string
+    /** Optional override for how many chunks to pull (defaults to env top-k). */
+    topK?: number
+}
+
+/** Result of {@link ContentRagRetrievalService.retrieveCourseExcerpt}. */
+export interface RetrieveCourseExcerptResult {
+    /** Assembled excerpt (empty when retrieval missed / failed / index absent). */
+    excerpt: string
+    /** Number of chunks included in the excerpt. */
+    retrievedChunks: number
+}
+
 /**
  * Retrieves the lesson chunks most relevant to a content-AI question from the
  * persistent `content_rag` Qdrant collection (built by `ContentRagIndexService`).
@@ -124,6 +142,81 @@ export class ContentRagRetrievalService {
             // back to whole-body stuffing (retrieval never blocks the chat)
             this.logger.warn(
                 `Content RAG retrieval failed for content ${contentId} (falling back to whole body): ${error instanceof Error ? error.message : String(error)}`,
+            )
+            return {
+                excerpt: "",
+                retrievedChunks: 0,
+            }
+        }
+    }
+
+    /**
+     * Retrieve the top-k chunks across an ENTIRE course (not one lesson) for a
+     * query and assemble them into one excerpt — grounds the System Design mock
+     * interview (interviewer probes + end-of-session grading) in "what this
+     * course actually taught", spanning every lesson instead of one. Returns an
+     * empty excerpt (caller degrades gracefully) when the index is absent or
+     * retrieval fails — mirrors {@link retrieveContentExcerpt} exactly, just
+     * filtered on `metadata.courseId` instead of `metadata.contentId` (both
+     * fields are written by {@link import("./content-rag-index.service").ContentRagIndexService}
+     * onto every indexed chunk).
+     *
+     * @param params - The course id, the retrieval query, and an optional top-k.
+     * @returns The assembled excerpt + how many chunks it includes.
+     */
+    async retrieveCourseExcerpt(
+        {
+            courseId,
+            query,
+            topK,
+        }: RetrieveCourseExcerptParams,
+    ): Promise<RetrieveCourseExcerptResult> {
+        const trimmed = query.trim()
+        if (!trimmed) {
+            return {
+                excerpt: "",
+                retrievedChunks: 0,
+            }
+        }
+        const collectionName = envConfig().services.contentRag.collection
+        const k = topK ?? envConfig().services.contentRag.retrievalTopK
+        try {
+            // same balancer-routed embedder the index was built with (query +
+            // stored vectors must share the embedding space)
+            const embeddingModel = await this.embeddingModelService.getViaBalancer()
+            const vectorStore = await QdrantVectorStore.fromExistingCollection(
+                embeddingModel,
+                {
+                    client: this.qdrantClient,
+                    collectionName,
+                },
+            )
+            // filter on courseId (spans every content of the course) instead of
+            // one contentId — the payload key is prefixed `metadata.` (LangChain
+            // nests doc metadata under a `metadata` sub-object)
+            const hits = await vectorStore.similaritySearch(
+                trimmed,
+                k,
+                {
+                    must: [
+                        {
+                            key: "metadata.courseId",
+                            match: {
+                                value: courseId,
+                            },
+                        },
+                    ],
+                },
+            )
+            return {
+                excerpt: this.assemble(hits),
+                retrievedChunks: hits.length,
+            }
+        } catch (error) {
+            // index missing / Qdrant or embedder down → empty excerpt, caller falls
+            // back gracefully (interviewer/grader still run, just un-grounded)
+            this.logger.warn(
+                `Content RAG course retrieval failed for course ${courseId} (falling back ungrounded): ${error instanceof Error ? error.message : String(error)}`,
             )
             return {
                 excerpt: "",

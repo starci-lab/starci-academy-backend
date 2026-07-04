@@ -15,6 +15,7 @@ export const COMMUNITY_CHAT_NAMESPACE = "community_chat"
 export const CONTENT_AI_NAMESPACE = "content_ai"
 export const SYSTEM_HEALTH_NAMESPACE = "system_health"
 export const RAG_PLAYGROUND_NAMESPACE = "rag_playground"
+export const MOCK_INTERVIEW_NAMESPACE = "mock_interview"
 
 /**
  * Decorator to mark a class as a WebSocket gateway for the autocomplete namespace.
@@ -165,6 +166,23 @@ export const SystemHealthWebSocketGateway = () => WebSocketGateway(
 export const RagPlaygroundWebSocketGateway = () => WebSocketGateway(
     {
         namespace: RAG_PLAYGROUND_NAMESPACE,
+        transports: [
+            "websocket",
+            "polling"
+        ],
+        cors: createCorsOptions(),
+        perMessageDeflate: true,
+    }
+)
+
+/**
+ * Decorator to mark a class as a WebSocket gateway for the mock interview
+ * namespace (on-rails interviewer turn token streaming, grounded in course
+ * content via RAG). Mirrors {@link ContentAiWebSocketGateway} exactly.
+ */
+export const MockInterviewWebSocketGateway = () => WebSocketGateway(
+    {
+        namespace: MOCK_INTERVIEW_NAMESPACE,
         transports: [
             "websocket",
             "polling"
