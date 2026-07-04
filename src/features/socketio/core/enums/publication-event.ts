@@ -12,4 +12,6 @@ export enum PublicationEvent {
     AbortContentAi = "content_ai.abort.publication",
     SubscribeRagPlaygroundRun = "rag_playground.subscribe_run.publication",
     AbortRagPlaygroundRun = "rag_playground.abort_run.publication",
+    AskMockInterviewTurn = "mock_interview.ask.publication",
+    AbortMockInterviewTurn = "mock_interview.abort.publication",
 }

@@ -219,12 +219,12 @@ export class AiLabRunEntity extends UuidAbstractEntity {
         provider: ModelProvider
 
     /**
-     * AI lane the run was billed on (auto / premium / byok).
+     * AI lane the run was billed on (auto / premium).
      */
     @Field(
         () => GraphQLTypeAiMode,
         {
-            description: "AI lane the run was billed on (auto / premium / byok).",
+            description: "AI lane the run was billed on (auto / premium).",
         },
     )
     @Column({

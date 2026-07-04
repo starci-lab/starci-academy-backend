@@ -47,3 +47,14 @@ export interface TcpProbeTarget {
     /** TCP port the socket connects to. */
     port: number
 }
+
+/**
+ * A memoized external-SaaS probe result. Cached per component so a
+ * rate-limited public API (GitHub) is not re-probed on every sweep.
+ */
+export interface ExternalProbeCacheEntry {
+    /** The cached health result for the component. */
+    result: ComponentHealth
+    /** Epoch ms the result was produced (drives TTL expiry). */
+    at: number
+}

@@ -68,8 +68,9 @@ const GENERATE_CV_QUEUE_NAME = "generate-cv"
 
 /**
  * Generate-CV worker: gather verified achievements → compose structured CV via
- * LLM → render LaTeX + upload → complete (persist onto `cv_generations`). Runs
- * the shared 4-step {@link AbstractStepService} pipeline; `maxSteps` is `4`.
+ * LLM → render LaTeX + upload → score (shared rubric) → complete (persist onto
+ * `cv_generations`). Runs the shared 5-step {@link AbstractStepService} pipeline;
+ * `maxSteps` is `5`.
  */
 @Worker(
     GENERATE_CV_QUEUE_NAME,

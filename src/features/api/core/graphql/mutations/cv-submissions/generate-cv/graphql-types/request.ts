@@ -1,5 +1,6 @@
 import {
     Field,
+    ID,
     InputType,
 } from "@nestjs/graphql"
 import {
@@ -31,7 +32,7 @@ export class GenerateCvRequest {
         () => GraphQLTypeAiMode,
         {
             nullable: true,
-            description: "AI lane to generate on (auto/premium/byok); validated against entitlement at generate time.",
+            description: "AI lane to generate on (auto/premium); validated against entitlement at generate time.",
         },
     )
         mode?: AiMode
@@ -55,4 +56,44 @@ export class GenerateCvRequest {
         },
     )
         selectedModelProvider?: ModelProvider
+
+    /** Optional course/track to tie this CV to (`courses.id`). */
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Optional course/track id to tie this CV to.",
+        },
+    )
+        courseId?: string
+
+    /** Optional user-facing name for this CV. */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Optional user-facing name for this CV.",
+        },
+    )
+        label?: string
+
+    /** Optional target role this CV is aimed at (free-text). */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Optional target role this CV is aimed at (free-text).",
+        },
+    )
+        targetRole?: string
+
+    /** Optional language/locale for this CV (free-text, e.g. "en" / "vi"). */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Optional language/locale for this CV (free-text).",
+        },
+    )
+        language?: string
 }

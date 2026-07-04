@@ -112,7 +112,8 @@ describe("UseApiService",
                     {
                         provide: AiModelLatencyCacheService,
                         useValue: aiModelLatencyCacheService = {
-                            getAll: jest.fn().mockResolvedValue({}),
+                            getAll: jest.fn().mockResolvedValue({
+                            }),
                         },
                     },
                     {
@@ -354,47 +355,6 @@ describe("UseApiService",
                     })
             })
 
-        describe("byok lane",
-            () => {
-                it("invokes once with the user's key and bypasses the pool",
-                    async () => {
-                        // BYOK never touches the balancer / catalog / cache
-                        const result = await service.useApi<string>({
-                            lane: AiMode.Byok,
-                            provider: ModelProvider.OpenAI,
-                            model: "gpt-4o-mini",
-                            key: "sk-user",
-                            action: async () => "byok-result",
-                        })
-
-                        expect(result).toEqual({
-                            result: "byok-result",
-                            model: "gpt-4o-mini",
-                            provider: ModelProvider.OpenAI,
-                            attempts: 1,
-                        })
-                        expect(aiBalancerService.acquire).not.toHaveBeenCalled()
-                        expect(aiPingCacheService.recordKeySuccess).not.toHaveBeenCalled()
-                        expect(aiPingCacheService.recordKeyCooldown).not.toHaveBeenCalled()
-                    })
-
-                it("propagates the action error without a pooled cache update",
-                    async () => {
-                        // BYOK failures surface raw — no rotation, no cache write
-                        await expect(
-                            service.useApi<string>({
-                                lane: AiMode.Byok,
-                                provider: ModelProvider.OpenAI,
-                                model: "gpt-4o-mini",
-                                key: "sk-user",
-                                action: async () => {
-                                    throw new Error("byok boom")
-                                },
-                            }),
-                        ).rejects.toThrow("byok boom")
-                    })
-            })
-
         describe("probeModel",
             () => {
                 let fetchSpy: jest.SpyInstance
@@ -442,7 +402,8 @@ describe("UseApiService",
                     async () => {
                         stubAcquire()
                         fetchSpy = jest
-                            .spyOn(global, "fetch")
+                            .spyOn(global,
+                                "fetch")
                             .mockResolvedValue(fakeResponse(200))
 
                         const result = await service.probeModel({
@@ -465,13 +426,15 @@ describe("UseApiService",
                     async (status) => {
                         stubAcquire()
                         fetchSpy = jest
-                            .spyOn(global, "fetch")
+                            .spyOn(global,
+                                "fetch")
                             .mockResolvedValue(
-                                fakeResponse(status, {
-                                    error: {
-                                        message: "boom detail",
-                                    },
-                                }),
+                                fakeResponse(status,
+                                    {
+                                        error: {
+                                            message: "boom detail",
+                                        },
+                                    }),
                             )
 
                         const result = await service.probeModel({
@@ -498,7 +461,8 @@ describe("UseApiService",
                         const abortErr = new Error("aborted")
                         abortErr.name = errorName
                         fetchSpy = jest
-                            .spyOn(global, "fetch")
+                            .spyOn(global,
+                                "fetch")
                             .mockRejectedValue(abortErr)
 
                         const result = await service.probeModel({
@@ -515,7 +479,8 @@ describe("UseApiService",
                 it("returns down when no eligible key can be acquired",
                     async () => {
                         stubAcquire(null)
-                        fetchSpy = jest.spyOn(global, "fetch")
+                        fetchSpy = jest.spyOn(global,
+                            "fetch")
 
                         const result = await service.probeModel({
                             provider: ModelProvider.OpenAI,
@@ -533,7 +498,8 @@ describe("UseApiService",
                     async () => {
                         stubAcquire()
                         fetchSpy = jest
-                            .spyOn(global, "fetch")
+                            .spyOn(global,
+                                "fetch")
                             .mockResolvedValue(fakeResponse(200))
 
                         await service.probeModel({
@@ -542,7 +508,8 @@ describe("UseApiService",
                             timeoutMs: 5_000,
                         })
 
-                        const [url, init] = fetchSpy.mock.calls[0]
+                        const [url,
+                            init] = fetchSpy.mock.calls[0]
                         expect(url).toBe("https://api.openai.com/v1/chat/completions")
                         const body = JSON.parse((init as RequestInit).body as string)
                         // 16 (not 1) — reasoning-family models need headroom past hidden
@@ -557,7 +524,8 @@ describe("UseApiService",
                     async () => {
                         stubAcquire()
                         fetchSpy = jest
-                            .spyOn(global, "fetch")
+                            .spyOn(global,
+                                "fetch")
                             .mockResolvedValue(fakeResponse(200))
 
                         await service.probeModel({
@@ -566,7 +534,8 @@ describe("UseApiService",
                             timeoutMs: 5_000,
                         })
 
-                        const [url, init] = fetchSpy.mock.calls[0]
+                        const [url,
+                            init] = fetchSpy.mock.calls[0]
                         expect(url).toContain("/chat/completions")
                         const body = JSON.parse((init as RequestInit).body as string)
                         expect(body.max_tokens).toBe(1)
@@ -577,7 +546,8 @@ describe("UseApiService",
                     async () => {
                         stubAcquire("gemini-key")
                         fetchSpy = jest
-                            .spyOn(global, "fetch")
+                            .spyOn(global,
+                                "fetch")
                             .mockResolvedValue(fakeResponse(200))
 
                         await service.probeModel({
@@ -594,7 +564,8 @@ describe("UseApiService",
                     async () => {
                         stubAcquire("anthropic-key")
                         fetchSpy = jest
-                            .spyOn(global, "fetch")
+                            .spyOn(global,
+                                "fetch")
                             .mockResolvedValue(fakeResponse(200))
 
                         await service.probeModel({
@@ -603,7 +574,8 @@ describe("UseApiService",
                             timeoutMs: 5_000,
                         })
 
-                        const [url, init] = fetchSpy.mock.calls[0]
+                        const [url,
+                            init] = fetchSpy.mock.calls[0]
                         expect(url).toBe("https://api.anthropic.com/v1/messages")
                         const headers = (init as RequestInit).headers as Record<string, string>
                         expect(headers["x-api-key"]).toBe("anthropic-key")
@@ -626,7 +598,9 @@ describe("UseApiService",
                             c: Array<AiModelCategory> | undefined,
                             t: AiModelTask | undefined,
                         ) => Promise<Array<AiModelEntity>>
-                    }).orderByHealthAndLatency(models, categories, task)
+                    }).orderByHealthAndLatency(models,
+                        categories,
+                        task)
 
                 /** Build a catalog row with category + provider + weight. */
                 const row = (
@@ -647,7 +621,8 @@ describe("UseApiService",
                 ) => {
                     const map: Record<string, unknown> = {
                     }
-                    for (const [name, { ok, latencyMs }] of Object.entries(entries)) {
+                    for (const [name,
+                        { ok, latencyMs }] of Object.entries(entries)) {
                         map[name] = {
                             provider: ModelProvider.Local,
                             ok,
@@ -661,10 +636,18 @@ describe("UseApiService",
 
                 it("sorts a healthy Free Local model FIRST within the Free tier",
                     async () => {
-                        const freeLocal = row("qwen-local", AiModelCategory.Free, ModelProvider.Local)
-                        const freeCloudA = row("free-a", AiModelCategory.Free, ModelProvider.OpenAI)
-                        const freeCloudB = row("free-b", AiModelCategory.Free, ModelProvider.Gemini)
-                        const economy = row("eco-1", AiModelCategory.Economy, ModelProvider.OpenAI)
+                        const freeLocal = row("qwen-local",
+                            AiModelCategory.Free,
+                            ModelProvider.Local)
+                        const freeCloudA = row("free-a",
+                            AiModelCategory.Free,
+                            ModelProvider.OpenAI)
+                        const freeCloudB = row("free-b",
+                            AiModelCategory.Free,
+                            ModelProvider.Gemini)
+                        const economy = row("eco-1",
+                            AiModelCategory.Economy,
+                            ModelProvider.OpenAI)
                         // local probed healthy
                         aiModelLatencyCacheService.getAll.mockResolvedValue(
                             snapshot({
@@ -695,8 +678,12 @@ describe("UseApiService",
 
                 it("pushes a probe-down Free Local model AFTER healthy cloud (downRank wins)",
                     async () => {
-                        const freeLocal = row("qwen-local", AiModelCategory.Free, ModelProvider.Local)
-                        const freeCloudA = row("free-a", AiModelCategory.Free, ModelProvider.OpenAI)
+                        const freeLocal = row("qwen-local",
+                            AiModelCategory.Free,
+                            ModelProvider.Local)
+                        const freeCloudA = row("free-a",
+                            AiModelCategory.Free,
+                            ModelProvider.OpenAI)
                         // local probed DOWN
                         aiModelLatencyCacheService.getAll.mockResolvedValue(
                             snapshot({
@@ -723,9 +710,17 @@ describe("UseApiService",
 
                 it("leaves Economy/paid order untouched across tiers",
                     async () => {
-                        const freeLocal = row("qwen-local", AiModelCategory.Free, ModelProvider.Local)
-                        const ecoHi = row("eco-hi", AiModelCategory.Economy, ModelProvider.OpenAI, 10)
-                        const ecoLo = row("eco-lo", AiModelCategory.Economy, ModelProvider.OpenAI, 1)
+                        const freeLocal = row("qwen-local",
+                            AiModelCategory.Free,
+                            ModelProvider.Local)
+                        const ecoHi = row("eco-hi",
+                            AiModelCategory.Economy,
+                            ModelProvider.OpenAI,
+                            10)
+                        const ecoLo = row("eco-lo",
+                            AiModelCategory.Economy,
+                            ModelProvider.OpenAI,
+                            1)
                         aiModelLatencyCacheService.getAll.mockResolvedValue(
                             snapshot({
                                 "qwen-local": {

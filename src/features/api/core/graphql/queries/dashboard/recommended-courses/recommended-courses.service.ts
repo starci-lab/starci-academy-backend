@@ -94,7 +94,9 @@ export class RecommendedCoursesService {
             percent,
             reason,
             enrolledCount,
-        } = await this.loyaltyDiscountService.computeLoyaltyDiscount(userId)
+        } = await this.loyaltyDiscountService.computeLoyaltyDiscount({
+            userId,
+        })
 
         const items: Array<RecommendedCourseItem> = []
         for (const courseId of courseIds) {

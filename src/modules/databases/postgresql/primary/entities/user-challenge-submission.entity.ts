@@ -153,7 +153,7 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
         submissionUrl: string
 
     /**
-     * AI grading lane the user last chose for this submission (auto/premium/byok);
+     * AI grading lane the user last chose for this submission (auto/premium);
      * null until they pick one. Persisted so the picker pre-fills on reopen.
      */
     @Field(

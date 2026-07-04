@@ -41,7 +41,7 @@ describe("GradingLaneValidationService",
     () => {
         let module: TestingModule
         let service: GradingLaneValidationService
-        let aiEntitlementService: jest.Mocked<Pick<AiEntitlementService, "resolve" | "getByokApiKey" | "assertCanUsePaidModels" | "resolveTierCategories">>
+        let aiEntitlementService: jest.Mocked<Pick<AiEntitlementService, "resolve" | "assertCanUsePaidModels" | "resolveTierCategories">>
         let aiModelCatalogService: jest.Mocked<Pick<AiModelCatalogService, "enabledModels">>
 
         const userId = "user-1"
@@ -55,14 +55,13 @@ describe("GradingLaneValidationService",
                         AiModelCategory.Economy,
                     ],
                 })),
-                getByokApiKey: jest.fn(async () => null),
                 // explicit-Premium gate (paid OR enrolled); default: unlocked
                 assertCanUsePaidModels: jest.fn(async () => undefined),
                 // enroll-aware unlocked categories for the Premium path
                 resolveTierCategories: jest.fn(async () => [
                     AiModelCategory.Economy,
                 ]),
-            } as unknown as jest.Mocked<Pick<AiEntitlementService, "resolve" | "getByokApiKey" | "assertCanUsePaidModels" | "resolveTierCategories">>
+            } as unknown as jest.Mocked<Pick<AiEntitlementService, "resolve" | "assertCanUsePaidModels" | "resolveTierCategories">>
 
             // catalog: empty by default so tests opt into a specific row set
             aiModelCatalogService = {
@@ -267,83 +266,6 @@ describe("GradingLaneValidationService",
                             service.validate({
                                 userId,
                                 mode: AiMode.Premium,
-                            }),
-                        ).rejects.toBeInstanceOf(AiByokInvalidException)
-                    })
-            })
-
-        describe("byok lane",
-            () => {
-                beforeEach(() => {
-                    // resolve to a BYOK entitlement
-                    aiEntitlementService.resolve.mockResolvedValue({
-                        mode: AiMode.Byok,
-                        allowedCategories: [],
-                    } as unknown as Awaited<ReturnType<AiEntitlementService["resolve"]>>)
-                })
-
-                it("accepts an inline key without consulting the stored key",
-                    async () => {
-                        // an inline key satisfies BYOK directly
-                        const result = await service.validate({
-                            userId,
-                            mode: AiMode.Byok,
-                            model: "gpt-4o-mini",
-                            provider: ModelProvider.OpenAI,
-                            byokApiKey: "sk-inline",
-                        })
-
-                        expect(result).toEqual({
-                            mode: AiMode.Byok,
-                            byokProvider: ModelProvider.OpenAI,
-                            byokModel: "gpt-4o-mini",
-                            byokApiKey: "sk-inline",
-                        })
-                        // the stored key lookup is skipped when a key came inline
-                        expect(aiEntitlementService.getByokApiKey).not.toHaveBeenCalled()
-                    })
-
-                it("accepts a stored key when no inline key is supplied",
-                    async () => {
-                        // fall back to the encrypted key on the subscription
-                        aiEntitlementService.getByokApiKey.mockResolvedValueOnce("sk-stored")
-
-                        const result = await service.validate({
-                            userId,
-                            mode: AiMode.Byok,
-                            model: "gpt-4o-mini",
-                            provider: ModelProvider.OpenAI,
-                        })
-
-                        expect(result).toEqual({
-                            mode: AiMode.Byok,
-                            byokProvider: ModelProvider.OpenAI,
-                            byokModel: "gpt-4o-mini",
-                        })
-                    })
-
-                it("rejects BYOK when neither inline nor stored key exists",
-                    async () => {
-                        // no key anywhere → cannot run the user's own lane
-                        aiEntitlementService.getByokApiKey.mockResolvedValueOnce(null)
-
-                        await expect(
-                            service.validate({
-                                userId,
-                                mode: AiMode.Byok,
-                                model: "gpt-4o-mini",
-                                provider: ModelProvider.OpenAI,
-                            }),
-                        ).rejects.toBeInstanceOf(AiByokInvalidException)
-                    })
-
-                it("rejects BYOK with no model pick",
-                    async () => {
-                        // BYOK requires an explicit model + provider
-                        await expect(
-                            service.validate({
-                                userId,
-                                mode: AiMode.Byok,
                             }),
                         ).rejects.toBeInstanceOf(AiByokInvalidException)
                     })

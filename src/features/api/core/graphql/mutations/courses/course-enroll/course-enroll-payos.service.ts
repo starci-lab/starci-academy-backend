@@ -154,7 +154,9 @@ export class CourseEnrollPayOsService {
         // loyalty discount applied at checkout (so charged === shown)
         const {
             percent: discountPercent,
-        } = await this.loyaltyDiscountService.computeLoyaltyDiscount(user.id)
+        } = await this.loyaltyDiscountService.computeLoyaltyDiscount({
+            userId: user.id,
+        })
         // create payment link
         const paymentLink = await this.retryService.retry(
             {

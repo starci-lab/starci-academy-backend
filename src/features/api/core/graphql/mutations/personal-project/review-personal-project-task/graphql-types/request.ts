@@ -57,7 +57,7 @@ export class ReviewPersonalProjectTaskRequest {
         () => GraphQLTypeAiMode,
         {
             nullable: true,
-            description: "AI lane for grading (auto / premium / byok).",
+            description: "AI lane for grading (auto / premium).",
         },
     )
         mode?: AiMode
@@ -66,7 +66,7 @@ export class ReviewPersonalProjectTaskRequest {
         () => String,
         {
             nullable: true,
-            description: "Concrete model for premium/BYOK grading (required for those lanes).",
+            description: "Concrete model for premium grading (required for that lane).",
         },
     )
         selectedModel?: string
@@ -79,15 +79,6 @@ export class ReviewPersonalProjectTaskRequest {
         },
     )
         selectedModelProvider?: ModelProvider
-
-    @Field(
-        () => String,
-        {
-            nullable: true,
-            description: "Optional one-shot BYOK API key when mode is byok.",
-        },
-    )
-        byokApiKey?: string
 
     @Field(
         () => String,

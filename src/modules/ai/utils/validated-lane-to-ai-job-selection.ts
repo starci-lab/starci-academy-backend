@@ -14,8 +14,8 @@ import type {
  * carried on grading job payloads.
  *
  * @param lane - Output of {@link GradingLaneValidationService.validate}.
- * @returns The lane-keyed selection (`Auto` has no model; `Premium`/`Byok` carry model + provider).
- * @throws AiByokInvalidException when a Premium/Byok lane is missing its model/provider
+ * @returns The lane-keyed selection (`Auto` has no model; `Premium` carries model + provider).
+ * @throws AiByokInvalidException when a Premium lane is missing its model/provider
  *   (should never happen — the validator guarantees them).
  */
 export function validatedLaneToAiJobSelection(
@@ -33,27 +33,6 @@ export function validatedLaneToAiJobSelection(
             mode: AiMode.Premium,
             model: lane.gradingModel,
             provider: lane.gradingProvider,
-        }
-    }
-    // BYOK → carry the user's model/provider (+ inline key when supplied on the request).
-    if (lane.mode === AiMode.Byok) {
-        // defensive: the validator always sets these on a BYOK lane
-        if (!lane.byokModel || !lane.byokProvider) {
-            throw new AiByokInvalidException({
-                reason: "byok lane is missing a model/provider",
-            })
-        }
-        return {
-            mode: AiMode.Byok,
-            model: lane.byokModel,
-            provider: lane.byokProvider,
-            // only thread the raw key when the client passed it inline this run
-            ...(lane.byokApiKey !== undefined
-                ? {
-                    apiKey: lane.byokApiKey,
-                }
-                : {
-                }),
         }
     }
     // Auto → load balancing picks the model; nothing to pin.

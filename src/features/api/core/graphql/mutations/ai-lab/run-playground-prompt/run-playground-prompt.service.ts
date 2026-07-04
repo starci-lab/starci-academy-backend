@@ -46,14 +46,12 @@ export class RunPlaygroundPromptService {
             mode,
             selectedModel,
             selectedModelProvider,
-            byokApiKey,
         } = input
         // collapse the loose lane fields into the discriminated selection (undefined → Auto)
         const ai = flatFieldsToAiJobSelection({
             mode,
             selectedModel,
             selectedModelProvider,
-            byokApiKey,
         })
         // delegate the full pre-stream orchestration to the business service
         const {

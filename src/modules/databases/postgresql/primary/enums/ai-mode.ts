@@ -14,15 +14,12 @@ import {
  *                            only models flagged `complimentary` are served.
  * - {@link AiMode.Premium} — paid tier (Plus / Pro / Max). Credit-based; any
  *                            model category is allowed, cost varies by category.
- * - {@link AiMode.Byok}    — bring-your-own-key. No pooled quota is debited.
  */
 export enum AiMode {
     /** Free Auto lane — debited by uses, complimentary models only. */
     Auto = "auto",
     /** Paid Premium lane — debited by credits, any category. */
     Premium = "premium",
-    /** Bring-your-own-key — no quota debited. */
-    Byok = "byok",
 }
 
 export const GraphQLTypeAiMode = createEnumType(AiMode)
@@ -31,16 +28,13 @@ registerEnumType(
     GraphQLTypeAiMode,
     {
         name: "AiMode",
-        description: "Which AI lane a request runs on (auto / premium / byok).",
+        description: "Which AI lane a request runs on (auto / premium).",
         valuesMap: {
             [AiMode.Auto]: {
                 description: "Free Auto lane — debited by uses, complimentary models only.",
             },
             [AiMode.Premium]: {
                 description: "Paid Premium lane — debited by credits, any category.",
-            },
-            [AiMode.Byok]: {
-                description: "Bring-your-own-key — no quota debited.",
             },
         },
     },

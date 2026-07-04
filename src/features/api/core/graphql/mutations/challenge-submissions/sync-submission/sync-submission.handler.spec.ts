@@ -88,8 +88,6 @@ describe("SyncSubmissionHandler",
                     mode: AiMode.Auto,
                     gradingModel: null,
                     gradingProvider: null,
-                    byokModel: null,
-                    byokProvider: null,
                 }),
             } as unknown as jest.Mocked<Pick<GradingLaneValidationService, "validate">>
 
@@ -210,8 +208,6 @@ describe("SyncSubmissionHandler",
                     mode: AiMode.Premium,
                     gradingModel: "gpt-4o",
                     gradingProvider: ModelProvider.OpenAI,
-                    byokModel: null,
-                    byokProvider: null,
                 } as never)
 
                 await handler.execute(

@@ -13,6 +13,4 @@ export interface ValidateGradingLaneParams {
     model?: string
     /** Provider for {@link ValidateGradingLaneParams.model}. */
     provider?: ModelProvider
-    /** Optional inline BYOK API key (otherwise loaded from subscription at grade time). */
-    byokApiKey?: string
 }

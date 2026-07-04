@@ -479,9 +479,8 @@ export class AiLabRunService {
      * Reconstruct the lane selection from a persisted run so the gateway can
      * re-resolve the exact same invoke options it was created with.
      *
-     * Auto carries no model (the resolver pins gpt-4o); Premium / Byok carry the
-     * run's stored `(model, provider)`. A Byok selection intentionally omits the
-     * inline key so `resolveGradingInvokeOptions` loads the user's stored key.
+     * Auto carries no model (the resolver pins gpt-4o); Premium carries the
+     * run's stored `(model, provider)`.
      *
      * @param run - The persisted run row.
      * @returns The lane selection matching the run's billed mode.
@@ -489,14 +488,6 @@ export class AiLabRunService {
     private runToSelection(
         run: AiLabRunEntity,
     ): AiJobSelection {
-        // Byok → reuse the stored model/provider; the key is loaded by the resolver
-        if (run.mode === AiMode.Byok) {
-            return {
-                mode: AiMode.Byok,
-                model: run.model,
-                provider: run.provider,
-            }
-        }
         // Premium → pin the run's concrete model/provider
         if (run.mode === AiMode.Premium) {
             return {
@@ -513,7 +504,7 @@ export class AiLabRunService {
 
     /**
      * Pull the loose `model` / `provider` out of a lane selection for the
-     * validation call (Auto carries neither; Premium / Byok carry both).
+     * validation call (Auto carries neither; Premium carries both).
      *
      * @param ai - The lane selection (absent → Auto).
      * @returns The model + provider fields, or an empty object for Auto.
@@ -526,7 +517,7 @@ export class AiLabRunService {
             return {
             }
         }
-        // Premium / Byok always carry the user-picked model + provider
+        // Premium always carries the user-picked model + provider
         return {
             model: ai.model,
             provider: ai.provider,
@@ -546,20 +537,12 @@ export class AiLabRunService {
         invokeOptions: ResolveGradingInvokeOptionsResult,
         ai?: AiJobSelection,
     ): ResolveModelProviderResult {
-        // BYOK → the user's own (provider, model) from the byok descriptor
-        if (invokeOptions.byok) {
-            return {
-                model: invokeOptions.byok.model,
-                provider: invokeOptions.byok.provider,
-                mode: AiMode.Byok,
-            }
-        }
         // Premium pins a concrete model/provider; Auto pins gpt-4o via the resolver default
         const mode = ai && ai.mode === AiMode.Premium
             ? AiMode.Premium
             : AiMode.Auto
         return {
-            // resolver always sets model+provider for the non-BYOK lanes
+            // resolver always sets model+provider
             model: invokeOptions.model ?? "",
             provider: invokeOptions.provider ?? ModelProvider.OpenAI,
             mode,

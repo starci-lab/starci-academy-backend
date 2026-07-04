@@ -86,7 +86,6 @@ export class SubmitChallengeSubmissionHandler
      * Reject the submission up-front when the user has no grading quota left for
      * the chosen lane (replaces the old fixed 3h cooldown).
      *
-     * - `byok`    → own key, never quota-limited.
      * - `auto` / `premium` → one shared credit pool (free base + tier); both
      *   rolling windows must cover the cost.
      *
@@ -98,10 +97,6 @@ export class SubmitChallengeSubmissionHandler
         userId: string,
         mode: AiMode,
     ): Promise<void> {
-        // BYOK runs on the user's own key — never gated
-        if (mode === AiMode.Byok) {
-            return
-        }
         // Auto + Premium share one credit pool → block when either rolling window
         // cannot cover this grading's cost
         const recommendation = envConfig().ai.modelRecommendation as ModelRecommendation
@@ -149,7 +144,6 @@ export class SubmitChallengeSubmissionHandler
             selectedModel,
             selectedModelProvider,
             lang,
-            byokApiKey,
         } = request
         const trimmedGithubUrl =
             typeof githubUrl === "string"
@@ -349,7 +343,6 @@ export class SubmitChallengeSubmissionHandler
             mode,
             model: selectedModel,
             provider: selectedModelProvider,
-            byokApiKey,
         })
         /**
          * Persist the user's grading-lane + model pick on the submission row so

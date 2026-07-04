@@ -27,8 +27,7 @@ import type {
  * Rules:
  * - **auto** — `model` / `provider` optional; when set, both required and the row must be
  *   `enabled` + `complimentary`.
- * - **premium** / **byok** — `model` + `provider` required; premium rows must exist in catalog
- *   and be `enabled`; BYOK does not require a catalog row.
+ * - **premium** — `model` + `provider` required; rows must exist in catalog and be `enabled`.
  */
 @Injectable()
 export class GradingLaneValidationService {
@@ -51,7 +50,6 @@ export class GradingLaneValidationService {
             mode: requestedMode,
             model,
             provider,
-            byokApiKey,
         }: ValidateGradingLaneParams,
     ): Promise<ValidatedGradingLane> {
         this.assertModelProviderPairing(
@@ -80,24 +78,13 @@ export class GradingLaneValidationService {
             )
         }
 
-        // auto / byok → natural resolution (Auto is always allowed; Byok handled)
+        // auto → natural resolution (Auto is always allowed)
         const entitlement = await this.aiEntitlementService.resolve({
             userId,
             requestedMode,
-            ephemeralByok: requestedMode === AiMode.Byok
-                && Boolean(byokApiKey?.trim()),
         })
 
         switch (entitlement.mode) {
-        case AiMode.Byok:
-            return this.validateByokLane(
-                {
-                    userId,
-                    model,
-                    provider,
-                    byokApiKey,
-                },
-            )
         case AiMode.Premium:
             return this.validatePremiumLane(
                 {
@@ -130,52 +117,6 @@ export class GradingLaneValidationService {
             throw new AiByokInvalidException({
                 reason: "model and provider must be supplied together",
             })
-        }
-    }
-
-    /**
-     * BYOK — model + provider required; key may be inline or on file.
-     */
-    private async validateByokLane(
-        {
-            userId,
-            model,
-            provider,
-            byokApiKey,
-        }: {
-            userId: string
-            model?: string
-            provider?: ValidateGradingLaneParams["provider"]
-            byokApiKey?: string
-        },
-    ): Promise<ValidatedGradingLane> {
-        if (!model?.trim() || !provider) {
-            throw new AiByokInvalidException({
-                reason: "model and provider are required for BYOK grading",
-            })
-        }
-
-        if (!byokApiKey?.trim()) {
-            const storedKey = await this.aiEntitlementService.getByokApiKey({
-                userId,
-            })
-            if (!storedKey) {
-                throw new AiByokInvalidException({
-                    reason: "no BYOK key on file — add a key in AI settings or pass byokApiKey",
-                })
-            }
-        }
-
-        return {
-            mode: AiMode.Byok,
-            byokProvider: provider,
-            byokModel: model.trim(),
-            ...(byokApiKey?.trim()
-                ? {
-                    byokApiKey: byokApiKey.trim(),
-                }
-                : {
-                }),
         }
     }
 

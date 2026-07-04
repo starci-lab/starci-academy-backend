@@ -132,4 +132,10 @@ export const bullData: Record<BullQueueName, BullQueueData> = {
         ),
         name: "generate-cv",
     },
+    [BullQueueName.ScoreUploadedCv]: {
+        prefix: formatWithBraces(
+            "score-uploaded-cv",
+        ),
+        name: "score-uploaded-cv",
+    },
 }

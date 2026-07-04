@@ -76,6 +76,9 @@ import {
 import {
     CourseLearningHistorySingleQueryModule,
 } from "./course-learning-history"
+import {
+    JobReadinessQueriesModule,
+} from "./job-readiness"
 
 /**
  * User query group — resolved fields layered onto the shared `UserEntity`
@@ -156,6 +159,9 @@ import {
             isGlobal: true,
         }),
         CourseLearningHistorySingleQueryModule.register({
+            isGlobal: true,
+        }),
+        JobReadinessQueriesModule.register({
             isGlobal: true,
         }),
     ],

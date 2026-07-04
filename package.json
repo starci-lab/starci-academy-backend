@@ -8,9 +8,9 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
+    "start": "nest start core",
+    "start:dev": "nest start core --watch",
+    "start:debug": "nest start core --debug --watch",
     "start:prod": "node dist/apps/starci-academy-backend/main",
     "cli": "nest start cli --",
     "start:mock": "nest start mock",

@@ -22,7 +22,7 @@ import {
  * Tests the lane-routing logic of {@link AiInvokeService.invoke}. The
  * underlying {@link UseApiService.useApi} is mocked so the LangChain client
  * build / network invoke (a thin SDK wrapper) never runs — only the
- * byok/premium/auto branch + result mapping is under test.
+ * premium/auto branch + result mapping is under test.
  */
 describe("AiInvokeService",
     () => {
@@ -101,27 +101,6 @@ describe("AiInvokeService",
                             promptTokens: 0,
                             completionTokens: 0,
                         })
-                    })
-
-                it("routes a BYOK request onto the Byok lane with the user's key",
-                    async () => {
-                        await service.invoke({
-                            messages,
-                            byok: {
-                                provider: ModelProvider.OpenAI,
-                                model: "gpt-4o-mini",
-                                key: "sk-user",
-                            },
-                        })
-
-                        expect(useApiService.useApi).toHaveBeenCalledWith(
-                            expect.objectContaining({
-                                lane: AiMode.Byok,
-                                provider: ModelProvider.OpenAI,
-                                model: "gpt-4o-mini",
-                                key: "sk-user",
-                            }),
-                        )
                     })
 
                 it("routes a non-Economy category onto the Premium lane",

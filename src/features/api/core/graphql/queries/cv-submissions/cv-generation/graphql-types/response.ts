@@ -1,14 +1,17 @@
 import {
     Field,
     ID,
+    Int,
     ObjectType,
 } from "@nestjs/graphql"
 import GraphQLJSON from "graphql-type-json"
 import {
     CvGenerationMode,
     CvGenerationStatus,
+    CvSource,
     GraphQLTypeCvGenerationMode,
     GraphQLTypeCvGenerationStatus,
+    GraphQLTypeCvSource,
 } from "@modules/databases"
 import {
     AbstractGraphQLResponse,
@@ -50,6 +53,14 @@ export class CvGenerationPayload {
         status: CvGenerationStatus
 
     @Field(
+        () => GraphQLTypeCvSource,
+        {
+            description: "Origin of this CV (system-generated vs. user-uploaded).",
+        },
+    )
+        source: CvSource
+
+    @Field(
         () => ID,
         {
             nullable: true,
@@ -57,6 +68,51 @@ export class CvGenerationPayload {
         },
     )
         sourceCvSubmissionId: string | null
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Id of the course this CV is tied to (null when untied).",
+        },
+    )
+        courseId: string | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "User-facing name for this CV (frontend falls back when empty).",
+        },
+    )
+        label: string | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Target role this CV is aimed at (free-text; no enforced taxonomy).",
+        },
+    )
+        targetRole: string | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Language/locale this CV is written in (free-text; no enforced taxonomy).",
+        },
+    )
+        language: string | null
+
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Holistic CV score (0–100); filled by the shared scoring step.",
+        },
+    )
+        score: number | null
 
     @Field(
         () => String,

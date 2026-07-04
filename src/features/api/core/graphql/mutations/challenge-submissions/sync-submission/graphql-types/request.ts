@@ -35,7 +35,7 @@ export class SyncSubmissionRequest {
         () => GraphQLTypeAiMode,
         {
             nullable: true,
-            description: "AI grading lane to persist on the submission row (auto/premium/byok).",
+            description: "AI grading lane to persist on the submission row (auto/premium).",
         },
     )
         selectedMode?: AiMode
@@ -57,13 +57,4 @@ export class SyncSubmissionRequest {
         },
     )
         selectedModelProvider?: ModelProvider
-
-    @Field(
-        () => String,
-        {
-            nullable: true,
-            description: "Optional one-shot BYOK API key when selectedMode is byok.",
-        },
-    )
-        byokApiKey?: string
 }

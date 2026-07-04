@@ -1,5 +1,6 @@
 import {
     ActivityType,
+    CartItemEntity,
     CourseEntity,
     CourseMetadataEntity,
     EnrollmentEntity,
@@ -148,6 +149,21 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                         },
                     )
                 }
+                // this course is now being enrolled → drop it from the buyer's cart
+                // so a bought course never lingers there. Idempotent (no-op when it
+                // was never carted / already cleared) and runs for every path below,
+                // covering both single-course and per-line multi-course enroll jobs.
+                await entityManager.delete(
+                    CartItemEntity,
+                    {
+                        user: {
+                            id: userId,
+                        },
+                        course: {
+                            id: courseId,
+                        },
+                    },
+                )
                 // get the current pricing phase
                 // default to EarlyBird (Pioneer is internal/sold) — NOT Regular — when metadata
                 // is absent, so a first enrollment does not wrongly jump the course to Regular.

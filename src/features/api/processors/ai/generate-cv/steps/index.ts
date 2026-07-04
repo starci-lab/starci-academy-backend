@@ -1,4 +1,5 @@
 export * from "./generate-cv-gather-step.service"
 export * from "./generate-cv-compose-step.service"
 export * from "./generate-cv-render-step.service"
+export * from "./generate-cv-score-step.service"
 export * from "./generate-cv-complete-step.service"

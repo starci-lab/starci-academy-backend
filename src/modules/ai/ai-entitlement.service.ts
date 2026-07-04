@@ -28,10 +28,6 @@ import {
     DayjsService,
 } from "@modules/mixin"
 import {
-    EncryptionService,
-} from "@modules/crypto"
-import {
-    AiByokInvalidException,
     AiModeNotEntitledException,
     AiQuotaExhaustedException,
 } from "@modules/exceptions"
@@ -41,9 +37,6 @@ import {
     WINDOW_5H_MS,
     WINDOW_WEEK_MS,
 } from "./constants"
-import {
-    toKeySuffix,
-} from "./ping/utils/dedupe-keys"
 import {
     AiAutoQuotaConfigService,
 } from "@modules/filesystem"
@@ -62,7 +55,7 @@ import type {
 /**
  * Resolves and debits a user's AI entitlement.
  *
- * Every non-BYOK run spends a single credit pool over two sliding-reset windows
+ * Every run spends a single credit pool over two sliding-reset windows
  * (5h + 1 week):
  *
  * - **Allowance** = the free base credits (`systemConfig.ai.auto`, see
@@ -70,7 +63,6 @@ import type {
  * - **Model access** is gated by tier: free is locked to `economy` models; any
  *   paid tier (Plus/Pro/Max) unlocks `balanced` + `premium`. Each call costs
  *   {@link CATEGORY_CREDIT_COST} credits by category.
- * - **BYOK**: the user supplies their own key → no quota.
  *
  * Windows reset lazily on read: when a `*ResetAt` timestamp is in the past the
  * matching counter drops to 0 and the timestamp rolls forward from "now".
@@ -83,7 +75,6 @@ export class AiEntitlementService {
         private readonly mountFilesystemService: MountFilesystemService,
         private readonly aiAutoQuotaConfigService: AiAutoQuotaConfigService,
         private readonly dayjsService: DayjsService,
-        private readonly encryptionService: EncryptionService,
     ) { }
 
     /**
@@ -99,7 +90,6 @@ export class AiEntitlementService {
     async resolve({
         userId,
         requestedMode,
-        ephemeralByok,
     }: ResolveEntitlementParams): Promise<AiEntitlement> {
         return this.entityManager.transaction(
             async (entityManager) => {
@@ -112,7 +102,6 @@ export class AiEntitlementService {
                 return this.toEntitlement(
                     subscription,
                     requestedMode,
-                    ephemeralByok,
                 )
             },
         )
@@ -125,9 +114,8 @@ export class AiEntitlementService {
      * path may touch `credit5hUsed`/`creditWeekUsed` or write a
      * {@link CreditUsageHistoryEntity} row.
      *
-     * No-op entirely for Byok (the user pays their own provider — not platform
-     * spend, not recorded). Locks the subscription row `FOR UPDATE` so
-     * concurrent debits serialize and never lose an update.
+     * Locks the subscription row `FOR UPDATE` so concurrent debits serialize
+     * and never lose an update.
      *
      * @param params - Owner, lane, cost, and the attribution fields to record.
      */
@@ -144,10 +132,6 @@ export class AiEntitlementService {
         completionTokens,
         attempts,
     }: ConsumeEntitlementParams): Promise<void> {
-        // byok is the user's own key — not platform spend, not recorded at all
-        if (mode === AiMode.Byok) {
-            return
-        }
         await this.entityManager.transaction(
             async (entityManager) => {
                 if (cost > 0) {
@@ -315,8 +299,7 @@ export class AiEntitlementService {
 
     /**
      * Read the user's AI settings — saved lane preference + the capabilities
-     * the UI needs to decide which lanes are selectable. Never returns the raw
-     * BYOK key.
+     * the UI needs to decide which lanes are selectable.
      *
      * @param params - the owning `userId`
      * @returns the user's {@link AiSettings}
@@ -344,22 +327,17 @@ export class AiEntitlementService {
     }
 
     /**
-     * Update the user's AI settings: optionally store/clear a BYOK key and set
-     * the preferred lane. Validates the chosen lane against the user's
-     * capabilities (after the BYOK change is applied) so an unusable lane can
+     * Update the user's AI settings: set the preferred lane. Validates the
+     * chosen lane against the user's capabilities so an unusable lane can
      * never be persisted.
      *
-     * @param params - lane + optional BYOK provider/key/clear flag
+     * @param params - lane to make the preferred lane
      * @returns the user's refreshed {@link AiSettings}
-     * @throws AiByokInvalidException on malformed BYOK input
      * @throws AiModeNotEntitledException when the chosen lane is unavailable
      */
     async updateSettings({
         userId,
         mode,
-        byokProvider,
-        byokApiKey,
-        clearByok,
     }: UpdateAiSettingsParams): Promise<AiSettings> {
         return this.entityManager.transaction(
             async (entityManager) => {
@@ -368,16 +346,6 @@ export class AiEntitlementService {
                     entityManager,
                 )
                 this.applyWindowResets(subscription)
-
-                // apply BYOK changes first so mode validation sees the new state
-                this.applyByokUpdate(
-                    subscription,
-                    {
-                        byokProvider,
-                        byokApiKey,
-                        clearByok,
-                    },
-                )
 
                 // validate + persist the chosen lane (when one was supplied)
                 if (mode) {
@@ -569,87 +537,9 @@ export class AiEntitlementService {
     }
 
     /**
-     * Decrypt the user's stored BYOK API key for a grading invoke.
-     *
-     * @param params - Owner of the subscription row.
-     * @returns Plaintext key, or `null` when nothing is stored.
-     */
-    async getByokApiKey(
-        {
-            userId,
-        }: ResolveEntitlementParams,
-    ): Promise<string | null> {
-        const subscription = await this.entityManager.findOne(
-            AiSubscriptionEntity,
-            {
-                where: {
-                    user: {
-                        id: userId,
-                    },
-                },
-            },
-        )
-        if (!subscription?.byokKeyEncrypted) {
-            return null
-        }
-        const payload = JSON.parse(subscription.byokKeyEncrypted)
-        return this.encryptionService.decrypt({
-            payload,
-        })
-    }
-
-    /**
-     * Mutate `subscription` BYOK fields per the requested change. Clearing wins
-     * over setting; a key without a provider (or vice versa) is rejected.
-     *
-     * @throws AiByokInvalidException on malformed input
-     */
-    private applyByokUpdate(
-        subscription: AiSubscriptionEntity,
-        {
-            byokProvider,
-            byokApiKey,
-            clearByok,
-        }: Pick<UpdateAiSettingsParams, "byokProvider" | "byokApiKey" | "clearByok">,
-    ): void {
-        // wipe the key on explicit request, dropping a now-orphaned preference
-        if (clearByok) {
-            subscription.byokProvider = null
-            subscription.byokKeyEncrypted = null
-            subscription.byokKeyLast4 = null
-            if (subscription.preferredMode === AiMode.Byok) {
-                subscription.preferredMode = null
-            }
-            return
-        }
-
-        // nothing to store
-        if (!byokApiKey && !byokProvider) {
-            return
-        }
-
-        // provider + key must arrive together
-        if (!byokApiKey || !byokProvider) {
-            throw new AiByokInvalidException({
-                reason: "both provider and API key are required",
-            })
-        }
-
-        // encrypt at rest (AES-256-GCM); the key never leaves this service
-        const payload = this.encryptionService.encrypt({
-            plainText: byokApiKey,
-        })
-        subscription.byokProvider = byokProvider
-        subscription.byokKeyEncrypted = JSON.stringify(payload)
-        // log-safe masked hint for the UI (plaintext is never returned again)
-        subscription.byokKeyLast4 = toKeySuffix(byokApiKey)
-    }
-
-    /**
-     * Assert the user may run on `mode` given the (post-BYOK-update) entity.
+     * Assert the user may run on `mode` given the entity.
      *
      * @throws AiModeNotEntitledException when the lane is unavailable
-     * @throws AiByokInvalidException when byok is chosen without a key on file
      */
     private assertModeAvailable(
         subscription: AiSubscriptionEntity,
@@ -667,13 +557,6 @@ export class AiEntitlementService {
                 })
             }
             return
-        case AiMode.Byok:
-            if (!subscription.byokProvider || !subscription.byokKeyEncrypted) {
-                throw new AiByokInvalidException({
-                    reason: "no BYOK key on file — supply provider + API key",
-                })
-            }
-            return
         }
     }
 
@@ -687,7 +570,6 @@ export class AiEntitlementService {
         subscription: AiSubscriptionEntity,
         unlocked = false,
     ): AiSettings {
-        const canByok = Boolean(subscription.byokProvider)
         const canPremium = unlocked
         const effectiveMode = this.resolveEffectiveMode(subscription)
         const tier = effectiveMode === AiMode.Premium
@@ -698,10 +580,6 @@ export class AiEntitlementService {
             preferredMode: subscription.preferredMode,
             effectiveMode,
             canPremium,
-            canByok,
-            byokProvider: subscription.byokProvider,
-            hasByokKey: Boolean(subscription.byokKeyEncrypted),
-            byokKeyLast4: subscription.byokKeyLast4,
             tier,
         }
     }
@@ -737,8 +615,6 @@ export class AiEntitlementService {
                 status: AiSubStatus.Active,
                 currentPeriodEnd: null,
                 autoRenew: false,
-                byokProvider: null,
-                byokKeyEncrypted: null,
                 window5hResetAt: now.add(WINDOW_5H_MS,
                     "millisecond").toDate(),
                 windowWeekResetAt: now.add(WINDOW_WEEK_MS,
@@ -786,12 +662,10 @@ export class AiEntitlementService {
     private toEntitlement(
         subscription: AiSubscriptionEntity,
         requestedMode?: AiMode,
-        ephemeralByok?: boolean,
     ): AiEntitlement {
         const mode = this.resolveEffectiveMode(
             subscription,
             requestedMode,
-            ephemeralByok,
         )
         const tier = mode === AiMode.Premium ? subscription.tier : null
         const allowedCategories = TIER_ALLOWED_CATEGORIES[tier ?? "free"]
@@ -803,7 +677,6 @@ export class AiEntitlementService {
         return {
             mode,
             allowedCategories,
-            byokProvider: subscription.byokProvider,
             creditRemaining5h: Math.max(
                 0,
                 limit5h - subscription.credit5hUsed,
@@ -976,7 +849,7 @@ export class AiEntitlementService {
     /**
      * Resolve the lane to run on.
      *
-     * Natural capability order is byok → premium → auto. Resolution precedence:
+     * Natural capability order is premium → auto. Resolution precedence:
      * 1. An explicit per-job `requestedMode` — strict: must be one the user is
      *    capable of, else throws.
      * 2. The user's saved `preferredMode` — lenient: used when still valid,
@@ -986,7 +859,6 @@ export class AiEntitlementService {
      * Capability rules for a chosen lane:
      * - `auto`    — always allowed (free lane).
      * - `premium` — requires an active paid subscription.
-     * - `byok`    — requires a BYOK provider on the subscription.
      *
      * @throws AiModeNotEntitledException when an explicit `requestedMode` is
      *  not available
@@ -994,15 +866,11 @@ export class AiEntitlementService {
     private resolveEffectiveMode(
         subscription: AiSubscriptionEntity,
         requestedMode?: AiMode,
-        ephemeralByok?: boolean,
     ): AiMode {
-        const canByok = Boolean(subscription.byokProvider)
         const canPremium = this.isPremiumActive(subscription)
-        const naturalMode = canByok
-            ? AiMode.Byok
-            : canPremium
-                ? AiMode.Premium
-                : AiMode.Auto
+        const naturalMode = canPremium
+            ? AiMode.Premium
+            : AiMode.Auto
 
         // no explicit per-job lane → fall back to the saved preference
         if (!requestedMode) {
@@ -1010,7 +878,6 @@ export class AiEntitlementService {
                 subscription.preferredMode,
                 naturalMode,
                 canPremium,
-                canByok,
             )
         }
 
@@ -1026,17 +893,6 @@ export class AiEntitlementService {
                 })
             }
             return AiMode.Premium
-        case AiMode.Byok:
-            if (ephemeralByok) {
-                return AiMode.Byok
-            }
-            if (!canByok) {
-                throw new AiModeNotEntitledException({
-                    requestedMode,
-                    reason: "no BYOK key on file",
-                })
-            }
-            return AiMode.Byok
         default:
             return naturalMode
         }
@@ -1051,7 +907,6 @@ export class AiEntitlementService {
         preferredMode: AiMode | null,
         naturalMode: AiMode,
         canPremium: boolean,
-        canByok: boolean,
     ): AiMode {
         if (!preferredMode) {
             return naturalMode
@@ -1062,8 +917,6 @@ export class AiEntitlementService {
             return AiMode.Auto
         case AiMode.Premium:
             return canPremium ? AiMode.Premium : naturalMode
-        case AiMode.Byok:
-            return canByok ? AiMode.Byok : naturalMode
         }
     }
 

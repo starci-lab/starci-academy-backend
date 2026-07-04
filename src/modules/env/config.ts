@@ -1806,9 +1806,10 @@ export const envConfig = () => ({
         },
         /** Process CV Submission job configuration. */
         processCvSubmission: {
+            // generate-cv pipeline steps: gather → compose → render → score → complete (5).
             maxSteps: parseEnvInt({
                 key: "JOB_PROCESS.CV_SUBMISSION_MAX_STEPS",
-                defaultValue: 4,
+                defaultValue: 5,
             }),
         },
         /** Process Git Submission job configuration. */

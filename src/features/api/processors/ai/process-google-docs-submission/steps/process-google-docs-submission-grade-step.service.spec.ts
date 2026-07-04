@@ -34,7 +34,7 @@ const makeContext = (overrides: Record<string, unknown> = {
         locale: Locale.En,
         lang: "typescript",
         ai: {
-            mode: AiMode.Byok,
+            mode: AiMode.Auto,
         },
         ...overrides,
     },

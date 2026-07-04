@@ -247,7 +247,7 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 },
             },
         )
-        /** Gate the grading run by lane: Auto → shared 50-credit pool; Premium → tier pool; Byok → none. */
+        /** Gate the grading run by lane: Auto → shared 50-credit pool; Premium → tier pool. */
         const aiMode = payload.ai?.mode ?? AiMode.Auto
         if (aiMode === AiMode.Auto) {
             // free Auto lane → block on the SAME unified credit pool as the Premium branch below

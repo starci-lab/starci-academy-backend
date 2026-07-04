@@ -34,6 +34,9 @@ import {
 import {
     RagPlaygroundSocketModule,
 } from "./rag-playground"
+import {
+    MockInterviewModule,
+} from "./mock-interview"
 
 /**
  * Feature module bundling all real-time Socket.IO gateways of the app.
@@ -64,6 +67,9 @@ import {
             isGlobal: true,
         }),
         ContentAiModule.register({
+            isGlobal: true,
+        }),
+        MockInterviewModule.register({
             isGlobal: true,
         }),
         SystemHealthModule.register({

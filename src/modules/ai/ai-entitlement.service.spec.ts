@@ -15,7 +15,6 @@ import {
     AiSubscriptionEntity,
     AiSubTier,
     CreditUsageHistoryEntity,
-    ModelProvider,
     TransactionStatus,
 } from "@modules/databases"
 import {
@@ -26,10 +25,6 @@ import {
     DayjsService,
 } from "@modules/mixin"
 import {
-    EncryptionService,
-} from "@modules/crypto"
-import {
-    AiByokInvalidException,
     AiModeNotEntitledException,
 } from "@modules/exceptions"
 import {
@@ -59,7 +54,7 @@ const pastDate = (): Date => new Date(Date.now() - 60 * 60 * 1000)
 
 /**
  * Build a subscription row with free-lane defaults; pass overrides to model a
- * premium / byok / expired-window state per test.
+ * premium / expired-window state per test.
  */
 const buildSubscription = (
     overrides: Partial<AiSubscriptionEntity> = {
@@ -70,8 +65,6 @@ const buildSubscription = (
     status: AiSubStatus.Active,
     currentPeriodEnd: null,
     autoRenew: false,
-    byokProvider: null,
-    byokKeyEncrypted: null,
     preferredMode: null,
     window5hResetAt: futureDate(),
     windowWeekResetAt: futureDate(),
@@ -87,7 +80,6 @@ describe("AiEntitlementService",
         let entityManager: EntityManagerMock
         let mountFilesystemService: jest.Mocked<Pick<MountFilesystemService, "appConfig">>
         let aiAutoQuotaConfigService: jest.Mocked<AiAutoQuotaConfigService>
-        let encryptionService: jest.Mocked<EncryptionService>
 
         const userId = "user-1"
 
@@ -118,14 +110,6 @@ describe("AiEntitlementService",
                 })),
             } as unknown as jest.Mocked<AiAutoQuotaConfigService>
 
-            // BYOK crypto: encrypt returns an opaque payload, decrypt echoes a key
-            encryptionService = {
-                encrypt: jest.fn(() => ({
-                    cipherText: "cipher",
-                })),
-                decrypt: jest.fn(() => "decrypted-key"),
-            } as unknown as jest.Mocked<EncryptionService>
-
             module = await Test.createTestingModule({
                 providers: [
                     AiEntitlementService,
@@ -142,10 +126,6 @@ describe("AiEntitlementService",
                     {
                         provide: AiAutoQuotaConfigService,
                         useValue: aiAutoQuotaConfigService,
-                    },
-                    {
-                        provide: EncryptionService,
-                        useValue: encryptionService,
                     },
                 ],
             }).compile()
@@ -208,21 +188,6 @@ describe("AiEntitlementService",
                         ).rejects.toBeInstanceOf(AiModeNotEntitledException)
                     })
 
-                it("allows an ephemeral BYOK request even when no key is stored",
-                    async () => {
-                        entityManager.findOne.mockResolvedValueOnce(
-                            buildSubscription(),
-                        )
-
-                        const result = await service.resolve({
-                            userId,
-                            requestedMode: AiMode.Byok,
-                            ephemeralByok: true,
-                        })
-
-                        expect(result.mode).toBe(AiMode.Byok)
-                    })
-
                 it("zeroes the counters when the 5h window has elapsed",
                     async () => {
                         entityManager.findOne.mockResolvedValueOnce(
@@ -246,18 +211,6 @@ describe("AiEntitlementService",
 
         describe("consume",
             () => {
-                it("is a no-op for the Byok lane (never opens a transaction, no history row either)",
-                    async () => {
-                        await service.consume({
-                            userId,
-                            mode: AiMode.Byok,
-                            cost: 5,
-                            surface: AiCeilSurface.Grading,
-                        })
-
-                        expect(entityManager.transaction).not.toHaveBeenCalled()
-                    })
-
                 it("still records a history row (but skips the debit) when the cost is not positive",
                     async () => {
                         await service.consume({
@@ -394,103 +347,8 @@ describe("AiEntitlementService",
                     })
             })
 
-        describe("getByokApiKey",
-            () => {
-                it("returns null when no BYOK key is stored",
-                    async () => {
-                        entityManager.findOne.mockResolvedValueOnce(
-                            buildSubscription(),
-                        )
-
-                        const result = await service.getByokApiKey({
-                            userId,
-                        })
-
-                        expect(result).toBeNull()
-                        expect(encryptionService.decrypt).not.toHaveBeenCalled()
-                    })
-
-                it("decrypts and returns the stored key",
-                    async () => {
-                        entityManager.findOne.mockResolvedValueOnce(
-                            buildSubscription({
-                                byokProvider: ModelProvider.OpenAI,
-                                byokKeyEncrypted: JSON.stringify({
-                                    cipherText: "cipher",
-                                }),
-                            }),
-                        )
-
-                        const result = await service.getByokApiKey({
-                            userId,
-                        })
-
-                        expect(result).toBe("decrypted-key")
-                        expect(encryptionService.decrypt).toHaveBeenCalledWith({
-                            payload: {
-                                cipherText: "cipher",
-                            },
-                        })
-                    })
-            })
-
         describe("updateSettings",
             () => {
-                it("clears a stored BYOK key and drops a now-orphaned preference",
-                    async () => {
-                        const subscription = buildSubscription({
-                            byokProvider: ModelProvider.OpenAI,
-                            byokKeyEncrypted: "stored",
-                            preferredMode: AiMode.Byok,
-                        })
-                        entityManager.findOne.mockResolvedValueOnce(subscription)
-
-                        await service.updateSettings({
-                            userId,
-                            clearByok: true,
-                        })
-
-                        expect(subscription.byokProvider).toBeNull()
-                        expect(subscription.byokKeyEncrypted).toBeNull()
-                        expect(subscription.preferredMode).toBeNull()
-                    })
-
-                it("rejects a BYOK key supplied without a provider",
-                    async () => {
-                        entityManager.findOne.mockResolvedValueOnce(
-                            buildSubscription(),
-                        )
-
-                        await expect(
-                            service.updateSettings({
-                                userId,
-                                byokApiKey: "sk-test",
-                            }),
-                        ).rejects.toBeInstanceOf(AiByokInvalidException)
-                    })
-
-                it("encrypts and stores a provider + key pair",
-                    async () => {
-                        const subscription = buildSubscription()
-                        entityManager.findOne.mockResolvedValueOnce(subscription)
-
-                        await service.updateSettings({
-                            userId,
-                            byokProvider: ModelProvider.OpenAI,
-                            byokApiKey: "sk-test",
-                        })
-
-                        expect(encryptionService.encrypt).toHaveBeenCalledWith({
-                            plainText: "sk-test",
-                        })
-                        expect(subscription.byokProvider).toBe(ModelProvider.OpenAI)
-                        expect(subscription.byokKeyEncrypted).toBe(
-                            JSON.stringify({
-                                cipherText: "cipher",
-                            }),
-                        )
-                    })
-
                 it("rejects choosing the Premium lane without an active subscription",
                     async () => {
                         entityManager.findOne.mockResolvedValueOnce(

@@ -21,4 +21,5 @@ export enum SubscriptionEvent {
     ContentAiChunk = "content_ai.chunk.subscription",
     AiModelHealth = "system_health.ai_model_health.subscription",
     RagPlaygroundRunChunk = "rag_playground.run_chunk.subscription",
+    MockInterviewChunk = "mock_interview.chunk.subscription",
 }

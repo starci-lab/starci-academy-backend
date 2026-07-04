@@ -7,14 +7,12 @@ import type {
  * Caller input when enqueueing or persisting a grading lane pick.
  */
 export interface GradingLaneRequest {
-    /** AI lane (`auto` / `premium` / `byok`); defaults to `auto` when omitted. */
+    /** AI lane (`auto` / `premium`); defaults to `auto` when omitted. */
     mode?: AiMode
     /** Concrete model name (GraphQL `selectedModel` / job `gradingModel`). */
     model?: string
     /** Provider for {@link GradingLaneRequest.model}. */
     provider?: ModelProvider
-    /** Optional one-shot BYOK key; otherwise the stored subscription key is used at grade time. */
-    byokApiKey?: string
 }
 
 /**
@@ -27,15 +25,6 @@ export interface ValidatedGradingLane {
     gradingModel?: string
     /** Provider for {@link ValidatedGradingLane.gradingModel}. */
     gradingProvider?: ModelProvider
-    /** BYOK provider (required when {@link ValidatedGradingLane.mode} is `byok`). */
-    byokProvider?: ModelProvider
-    /** BYOK model (required when mode is `byok`). */
-    byokModel?: string
-    /**
-     * Plaintext BYOK key when supplied inline on the request.
-     * Omitted when the worker should load the encrypted key from the DB.
-     */
-    byokApiKey?: string
 }
 
 /**

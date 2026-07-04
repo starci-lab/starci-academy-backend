@@ -18,3 +18,12 @@ export const PROBE_DEGRADED_THRESHOLD_MS = 1500
  * back-to-back reads inside this window return the cached snapshot.
  */
 export const PROBE_CACHE_TTL_MS = 5000
+
+/**
+ * How long (ms) an external-SaaS probe result is reused before re-probing.
+ * Kept far above {@link PROBE_CACHE_TTL_MS} because these are public APIs with
+ * their own rate limits — GitHub allows only ~60 unauthenticated requests per
+ * hour per IP, so reusing the sweep-wide TTL would trip that limit (and falsely
+ * report GitHub as down) under sustained polling of the public status query.
+ */
+export const EXTERNAL_PROBE_CACHE_TTL_MS = 120000

@@ -4,7 +4,6 @@ import type {
     AiModelCategory,
     AiModelTask,
     AiSubTier,
-    ModelProvider,
 } from "@modules/databases"
 
 /** A user's resolved AI entitlement after lazy window reset. */
@@ -17,8 +16,6 @@ export interface AiEntitlement {
     creditRemaining5h: number
     /** Remaining platform credits in the weekly window (tier overrides free base). */
     creditRemainingWeek: number
-    /** BYOK provider, or null when the user is not bringing their own key. */
-    byokProvider: ModelProvider | null
 }
 
 /** Unified platform credit quota for one user, per window. */
@@ -69,7 +66,7 @@ export interface AiQuotaSnapshot {
 
 /**
  * User-facing AI settings — the saved lane preference plus the capabilities
- * that gate which lanes the UI may offer. Never exposes the raw BYOK key.
+ * that gate which lanes the UI may offer.
  */
 export interface AiSettings {
     /** Lane the user chose by default; null = follow natural order. */
@@ -78,14 +75,6 @@ export interface AiSettings {
     effectiveMode: AiMode
     /** Whether the paid Premium lane is currently usable. */
     canPremium: boolean
-    /** Whether a BYOK key is on file (so the byok lane is selectable). */
-    canByok: boolean
-    /** Provider of the BYOK key on file, or null when none. */
-    byokProvider: ModelProvider | null
-    /** Whether an encrypted BYOK key is stored (key itself never leaves). */
-    hasByokKey: boolean
-    /** Last 4 chars of the BYOK key (log-safe masked hint), or null when none. */
-    byokKeyLast4: string | null
     /** Active paid tier, or null on the free lane. */
     tier: AiSubTier | null
 }
@@ -96,12 +85,6 @@ export interface UpdateAiSettingsParams {
     userId: string
     /** Lane to make the user's default; omitted = leave the preference as-is. */
     mode?: AiMode
-    /** BYOK provider to store (required alongside `byokApiKey`). */
-    byokProvider?: ModelProvider
-    /** Plaintext BYOK API key to encrypt + store. */
-    byokApiKey?: string
-    /** When true, wipe any stored BYOK key + provider. */
-    clearByok?: boolean
 }
 
 /** Params for {@link AiEntitlementService.grantTier}. */
@@ -120,24 +103,19 @@ export interface ResolveEntitlementParams {
     userId: string
     /**
      * Lane the caller picked when enqueuing the job. When omitted the natural
-     * mode is used (byok → premium → auto, by capability). When set it is
+     * mode is used (premium → auto, by capability). When set it is
      * validated against the user's capabilities and wins.
      */
     requestedMode?: AiMode
-    /**
-     * When true, {@link AiMode.Byok} is allowed without a stored subscription key
-     * (the plaintext key is supplied on the job payload instead).
-     */
-    ephemeralByok?: boolean
 }
 
 /** Params for {@link AiEntitlementService.consume}. */
 export interface ConsumeEntitlementParams {
     /** Owner of the entitlement. */
     userId: string
-    /** Lane that ran — every lane except {@link AiMode.Byok} debits the pool (Byok is also skipped in history — it's the user's own key, not platform spend). */
+    /** Lane that ran — debits the pool. */
     mode: AiMode
-    /** Credits to debit from the unified pool (ignored for Byok). */
+    /** Credits to debit from the unified pool. */
     cost: number
     /** AI surface this charge is for (chatbot / grading / interview) — labels the history row. */
     surface: AiCeilSurface
@@ -145,7 +123,7 @@ export interface ConsumeEntitlementParams {
     model?: string | null
     /** Provider of {@link model}. */
     provider?: string | null
-    /** Model-recommendation tier billed (low / medium / high) for a Premium pick; null for Auto/Byok. */
+    /** Model-recommendation tier billed (low / medium / high) for a Premium pick; null for Auto. */
     recommendation?: string | null
     /** Finer-grained task (challenge_grading / task_grading / cv_generating / chatting / …) than {@link surface}. */
     task?: AiModelTask | null

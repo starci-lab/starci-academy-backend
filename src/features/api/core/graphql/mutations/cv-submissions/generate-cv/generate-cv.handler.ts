@@ -50,6 +50,10 @@ export class GenerateCvHandler
                 mode,
                 selectedModel,
                 selectedModelProvider,
+                courseId,
+                label,
+                targetRole,
+                language,
             },
             user,
             locale,
@@ -80,6 +84,10 @@ export class GenerateCvHandler
             extraPrompts: extraPrompts ?? undefined,
             locale: locale ?? Locale.En,
             ai: selection,
+            courseId: courseId ?? undefined,
+            label: label ?? undefined,
+            targetRole: targetRole ?? undefined,
+            language: language ?? undefined,
         })
 
         return {

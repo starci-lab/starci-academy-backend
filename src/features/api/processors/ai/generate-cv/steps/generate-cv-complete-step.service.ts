@@ -37,12 +37,13 @@ import type {
 } from "../types"
 
 /**
- * Step 3 — complete. ATOMICALLY finalizes the run: reads the compose (structured
+ * Step 4 — complete. ATOMICALLY finalizes the run: reads the compose (structured
  * data) + render (latex cdn key) results, then in ONE transaction updates the
  * `cv_generations` row (created `Pending` at enqueue time) to `Done` with its
  * `structuredData` / `latexCdnKey` / `processedAt`, and advances the job step —
  * fenced so a stalled re-dispatch (a newer worker owns the job) rolls back
- * instead of double-writing.
+ * instead of double-writing. `score` / `feedback` are already persisted by the
+ * preceding score step (index 3).
  */
 @Injectable()
 export class GenerateCvCompleteStepService extends AbstractStepService<
@@ -59,7 +60,7 @@ export class GenerateCvCompleteStepService extends AbstractStepService<
         super()
     }
 
-    stepIndex = 3
+    stepIndex = 4
     stepName = "complete"
 
     /**

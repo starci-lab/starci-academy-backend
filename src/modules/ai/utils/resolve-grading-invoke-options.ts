@@ -7,7 +7,6 @@ import type {
     AiEntitlementService,
 } from "../ai-entitlement.service"
 import type {
-    AiInvokeByok,
     AiJobSelection,
 } from "../types"
 import {
@@ -54,12 +53,6 @@ export interface ResolveGradingInvokeOptionsResult {
     category?: AiModelCategory
     /** Ordered category chain the Auto lane climbs (floor → tier ceiling). */
     categories?: Array<AiModelCategory>
-    /**
-     * BYOK descriptor — DORMANT for grading (BYOK removed from the grading flow;
-     * `resolveGradingInvokeOptions` never sets this). Kept on the type for the AI
-     * Lab playground, which will re-introduce BYOK later.
-     */
-    byok?: AiInvokeByok
     /** User-pinned model (System Manual — an explicit model pick). */
     model?: string
     /** Provider for {@link ResolveGradingInvokeOptionsResult.model}. */
@@ -70,8 +63,7 @@ export interface ResolveGradingInvokeOptionsResult {
  * Map a job's {@link AiJobSelection} + difficulty + user entitlement to
  * {@link AiInvokeService.invoke} args — the ONE shared grading routing.
  *
- * Grading runs ONLY on the System pool (BYOK was removed from grading — it may
- * return later, scoped to the AI Lab playground). Two selection modes:
+ * Grading runs ONLY on the System pool. Two selection modes:
  * - **System Manual** → a user-pinned model (gated on a paid entitlement).
  * - **System Auto** (default) → the **floor→climb chain**: start at the difficulty
  *   floor, climb up to the tier ceiling, within each category the balancer tries

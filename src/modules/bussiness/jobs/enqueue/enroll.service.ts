@@ -7,7 +7,9 @@ import {
 } from "@nestjs/common"
 import {
     ActionType,
-    JobEntity
+    InjectPrimaryPostgreSQLEntityManager,
+    JobEntity,
+    TransactionItemEntity
 } from "@modules/databases"
 import {
     InjectSuperJson
@@ -19,6 +21,9 @@ import {
 import {
     Queue
 } from "bullmq"
+import type {
+    EntityManager
+} from "typeorm"
 import {
     InjectQueue
 } from "@nestjs/bullmq"
@@ -27,7 +32,9 @@ import {
     BullQueueName
 } from "@modules/bullmq"
 import {
-    EnqueueEnrollJobParams
+    EnqueueEnrollJobParams,
+    EnqueueEnrollmentsForTransactionParams,
+    EnqueueEnrollmentsForTransactionResult
 } from "../types"
 import {
     envConfig 
@@ -48,7 +55,66 @@ export class EnqueueEnrollJobService {
         private readonly superJson: SuperJSON,
         @InjectQueue(bullData[BullQueueName.Enroll].name)
         private readonly enrollQueue: Queue<string>,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) { }
+
+    /**
+     * Fan a paid Enroll transaction out to one enroll job per course, covering both
+     * multi-course orders (a `transaction_items` row per course) and legacy
+     * single-course orders (the course carried directly on `transaction.course`).
+     * Called by every gateway webhook + the reconcile worker on payment success.
+     *
+     * @param params - The paid Enroll transaction.
+     * @returns The number of enroll jobs enqueued (0 = malformed transaction).
+     */
+    async enqueueForTransaction(
+        {
+            transaction,
+        }: EnqueueEnrollmentsForTransactionParams,
+    ): Promise<EnqueueEnrollmentsForTransactionResult> {
+        // multi-course order → the courses live in transaction_items (transaction.course is null)
+        const items = await this.entityManager.find(
+            TransactionItemEntity,
+            {
+                where: {
+                    transaction: {
+                        id: transaction.id,
+                    },
+                },
+            },
+        )
+        if (items.length > 0) {
+            // enqueue sequentially (AWAITED per line) so a broker failure propagates:
+            // the webhook then returns non-2xx and the gateway re-delivers → no line stranded.
+            // Each enroll job is idempotent per (user, course), so a re-delivery is safe.
+            for (const item of items) {
+                await this.enqueue({
+                    userId: transaction.userId,
+                    courseId: item.courseId,
+                    transactionId: transaction.id,
+                })
+            }
+            return {
+                enqueuedCount: items.length,
+            }
+        }
+        // single-course legacy order → the course is carried directly on the transaction
+        if (transaction.courseId) {
+            await this.enqueue({
+                userId: transaction.userId,
+                courseId: transaction.courseId,
+                transactionId: transaction.id,
+            })
+            return {
+                enqueuedCount: 1,
+            }
+        }
+        // neither items nor a course → malformed Enroll transaction; let the caller surface it
+        return {
+            enqueuedCount: 0,
+        }
+    }
 
     /**
      * Enqueue an enroll job.
