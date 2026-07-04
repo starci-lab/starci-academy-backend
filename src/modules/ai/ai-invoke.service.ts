@@ -12,7 +12,6 @@ import {
 } from "@langchain/anthropic"
 import {
     AiCeilSurface,
-    AiMode,
     AiModelCategory,
     AiModelTask,
     ModelProvider,
@@ -293,7 +292,7 @@ export class AiInvokeService {
         } = isPremiumLane && category
             ? await this.useApiService.useApi<StreamActionResult>(
                 {
-                    lane: AiMode.Premium,
+                    lane: "pinned",
                     category,
                     model,
                     provider,
@@ -302,7 +301,7 @@ export class AiInvokeService {
             )
             : await this.useApiService.useApi<StreamActionResult>(
                 {
-                    lane: AiMode.Auto,
+                    lane: "chain",
                     category,
                     categories,
                     model,
@@ -445,7 +444,7 @@ export class AiInvokeService {
         } = isPremiumLane && category
             ? await this.useApiService.useApi<StreamActionResult>(
                 {
-                    lane: AiMode.Premium,
+                    lane: "pinned",
                     category,
                     model,
                     provider,
@@ -454,7 +453,7 @@ export class AiInvokeService {
             )
             : await this.useApiService.useApi<StreamActionResult>(
                 {
-                    lane: AiMode.Auto,
+                    lane: "chain",
                     category,
                     categories,
                     model,

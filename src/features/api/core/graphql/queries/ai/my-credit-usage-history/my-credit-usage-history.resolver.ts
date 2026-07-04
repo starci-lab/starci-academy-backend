@@ -93,7 +93,6 @@ export class MyCreditUsageHistoryResolver {
         return {
             items: page.items.map((item) => ({
                 id: item.id,
-                mode: item.mode,
                 recommendation: item.recommendation,
                 model: item.model,
                 provider: item.provider,

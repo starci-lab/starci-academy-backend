@@ -4,8 +4,6 @@ import {
     InputType,
 } from "@nestjs/graphql"
 import {
-    AiMode,
-    GraphQLTypeAiMode,
     GraphQLTypeModelProvider,
     GraphQLTypeMockInterviewPhase,
     ModelProvider,
@@ -105,15 +103,6 @@ export class GradeMockInterviewSessionRequest {
         },
     )
         sessionId: string
-
-    @Field(
-        () => GraphQLTypeAiMode,
-        {
-            nullable: true,
-            description: "AI lane to grade on (auto/premium/byok); validated against entitlement at grade time.",
-        },
-    )
-        mode?: AiMode
 
     /** Concrete model the user picked in the grading dropdown (e.g. "gpt-4o"). */
     @Field(

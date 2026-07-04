@@ -31,16 +31,8 @@ export class CreditUsageHistoryItemObject {
     @Field(
         () => String,
         {
-            description: "AI lane billed (auto / premium).",
-        },
-    )
-        mode: string
-
-    @Field(
-        () => String,
-        {
             nullable: true,
-            description: "Premium tier billed (low / medium / high); null for auto.",
+            description: "Model-recommendation tier billed (low / medium / high); null when unattributed.",
         },
     )
         recommendation: string | null

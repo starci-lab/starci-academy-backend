@@ -2,8 +2,6 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    AiMode,
-    AiModelCategory,
     AiModelEntity,
     ModelProvider,
 } from "@modules/databases"
@@ -22,12 +20,14 @@ import type {
 } from "./types"
 
 /**
- * Validates grading lane + model picks against entitlement and the `ai_models` catalog.
+ * Validates a grading model pick against entitlement and the `ai_models` catalog.
  *
  * Rules:
- * - **auto** — `model` / `provider` optional; when set, both required and the row must be
- *   `enabled` + `complimentary`.
- * - **premium** — `model` + `provider` required; rows must exist in catalog and be `enabled`.
+ * - **no model pinned** — nothing to validate; the balancer picks from the
+ *   user's entitled category chain.
+ * - **model + provider pinned** — both required together; gated on the UNLOCK
+ *   (paid OR enrolled) and the model's category must be in the user's tier
+ *   categories, with the row existing + `enabled`.
  */
 @Injectable()
 export class GradingLaneValidationService {
@@ -37,17 +37,16 @@ export class GradingLaneValidationService {
     ) { }
 
     /**
-     * Validate a grading lane request and return normalized job/DB fields.
+     * Validate a grading model pick and return normalized job/DB fields.
      *
-     * @param params - User id + lane/model selection from GraphQL or enqueue.
+     * @param params - User id + model selection from GraphQL or enqueue.
      * @returns Fields to spread onto BullMQ payloads or `user_challenge_submissions`.
-     * @throws AiModeNotEntitledException when the lane is unavailable.
+     * @throws AiModeNotEntitledException when a pinned model is not unlocked.
      * @throws AiByokInvalidException when model/provider rules are violated.
      */
     async validate(
         {
             userId,
-            mode: requestedMode,
             model,
             provider,
         }: ValidateGradingLaneParams,
@@ -57,50 +56,36 @@ export class GradingLaneValidationService {
             provider,
         )
 
-        // explicit Premium pick → gate on the UNLOCK (paid OR enrolled — the StarCi
-        // rule, same as the grade-time gate). `resolve({Premium})` alone rejects an
-        // enrolled-not-paid user ("no active paid subscription"); use the unlock +
-        // the enroll-aware tier categories instead.
-        if (requestedMode === AiMode.Premium) {
-            await this.aiEntitlementService.assertCanUsePaidModels({
-                userId,
-            })
-            const allowedCategories = await this.aiEntitlementService
-                .resolveTierCategories({
-                    userId,
-                })
-            return this.validatePremiumLane(
-                {
-                    model,
-                    provider,
-                    allowedCategories,
-                },
-            )
+        // no model pinned → the balancer picks from the entitled chain; nothing to validate
+        if (!model?.trim() || !provider) {
+            return {
+            }
         }
 
-        // auto → natural resolution (Auto is always allowed)
-        const entitlement = await this.aiEntitlementService.resolve({
+        // a pinned model requires the UNLOCK (paid OR enrolled — the StarCi rule,
+        // same as the grade-time gate) and its category must be in the user's tier
+        // categories (enroll-aware).
+        await this.aiEntitlementService.assertCanUsePaidModels({
             userId,
-            requestedMode,
         })
+        const allowedCategories = await this.aiEntitlementService
+            .resolveTierCategories({
+                userId,
+            })
 
-        switch (entitlement.mode) {
-        case AiMode.Premium:
-            return this.validatePremiumLane(
-                {
-                    model,
-                    provider,
-                    allowedCategories: entitlement.allowedCategories,
-                },
-            )
-        default:
-            return this.validateAutoLane(
-                {
-                    model,
-                    provider,
-                    allowedCategories: entitlement.allowedCategories,
-                },
-            )
+        const row = await this.findEnabledCatalogRow(
+            model.trim(),
+            provider,
+        )
+        if (!allowedCategories.includes(row.category)) {
+            throw new AiByokInvalidException({
+                reason: `model category "${row.category}" is not included in your subscription`,
+            })
+        }
+
+        return {
+            gradingModel: row.name,
+            gradingProvider: row.provider,
         }
     }
 
@@ -117,82 +102,6 @@ export class GradingLaneValidationService {
             throw new AiByokInvalidException({
                 reason: "model and provider must be supplied together",
             })
-        }
-    }
-
-    /**
-     * Premium — model + provider required and must match an enabled catalog row.
-     */
-    private async validatePremiumLane(
-        {
-            model,
-            provider,
-            allowedCategories,
-        }: {
-            model?: string
-            provider?: ValidateGradingLaneParams["provider"]
-            allowedCategories: Array<AiModelCategory>
-        },
-    ): Promise<ValidatedGradingLane> {
-        if (!model?.trim() || !provider) {
-            throw new AiByokInvalidException({
-                reason: "model and provider are required for Premium grading",
-            })
-        }
-
-        const row = await this.findEnabledCatalogRow(
-            model.trim(),
-            provider,
-        )
-        if (!allowedCategories.includes(row.category)) {
-            throw new AiByokInvalidException({
-                reason: `model category "${row.category}" is not included in your subscription`,
-            })
-        }
-
-        return {
-            mode: AiMode.Premium,
-            gradingModel: row.name,
-            gradingProvider: row.provider,
-        }
-    }
-
-    /**
-     * Auto — model optional; when set, the model's category must be unlocked by
-     * the user's entitlement (free is locked to Economy; a paid tier unlocks the
-     * higher categories).
-     */
-    private async validateAutoLane(
-        {
-            model,
-            provider,
-            allowedCategories,
-        }: {
-            model?: string
-            provider?: ValidateGradingLaneParams["provider"]
-            allowedCategories: Array<AiModelCategory>
-        },
-    ): Promise<ValidatedGradingLane> {
-        if (!model?.trim() || !provider) {
-            return {
-                mode: AiMode.Auto,
-            }
-        }
-
-        const row = await this.findEnabledCatalogRow(
-            model.trim(),
-            provider,
-        )
-        if (!allowedCategories.includes(row.category)) {
-            throw new AiByokInvalidException({
-                reason: `model category "${row.category}" is not available on your plan`,
-            })
-        }
-
-        return {
-            mode: AiMode.Auto,
-            gradingModel: row.name,
-            gradingProvider: row.provider,
         }
     }
 

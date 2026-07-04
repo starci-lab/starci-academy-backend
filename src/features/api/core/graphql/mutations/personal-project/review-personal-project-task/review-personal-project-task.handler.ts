@@ -180,7 +180,6 @@ export class ReviewPersonalProjectTaskHandler
         /** Enqueue grading job */
         const validatedLane = await this.gradingLaneValidationService.validate({
             userId: user.id,
-            mode: request.mode,
             model: request.selectedModel,
             provider: request.selectedModelProvider,
         })

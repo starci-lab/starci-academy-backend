@@ -47,7 +47,6 @@ export class GenerateCvHandler
         const {
             request: {
                 extraPrompts,
-                mode,
                 selectedModel,
                 selectedModelProvider,
                 courseId,
@@ -64,14 +63,12 @@ export class GenerateCvHandler
             })
         }
 
-        // validate the chosen CV-generation lane (mode + optional model/provider)
-        // against the user's entitlement and the ai_models catalog, then collapse
-        // it into the AI job selection carried on the async pipeline's payload.
-        // No pick (Auto, no model) validates to the default Auto lane. Mirrors
-        // the interview-grading wiring.
+        // validate the optional model/provider pick against the user's entitlement
+        // and the ai_models catalog, then collapse it into the AI job selection
+        // carried on the async pipeline's payload. No pick validates to an empty
+        // selection (the balancer picks). Mirrors the interview-grading wiring.
         const validatedLane = await this.gradingLaneValidationService.validate({
             userId: user.id,
-            mode,
             model: selectedModel,
             provider: selectedModelProvider,
         })

@@ -26,9 +26,6 @@ import {
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
-    AiMode,
-} from "@modules/databases"
-import {
     makeEntityManagerMock,
 } from "@modules/tests"
 import type {
@@ -81,10 +78,9 @@ describe("ReviewPersonalProjectTaskHandler",
                 }),
             } as unknown as jest.Mocked<Pick<EnqueueReviewPersonalProjectTaskJobService, "enqueue">>
 
-            // lane validation returns a resolved auto lane by default
+            // lane validation returns no pinned model by default
             gradingLaneValidationService = {
                 validate: jest.fn().mockResolvedValue({
-                    mode: AiMode.Auto,
                     gradingModel: null,
                     gradingProvider: null,
                 }),
@@ -156,7 +152,6 @@ describe("ReviewPersonalProjectTaskHandler",
                             courseId: "course-1",
                             taskId: "task-1",
                             githubUrl: "  https://github.com/me/fresh  ",
-                            mode: AiMode.Auto,
                         },
                         user: fakeUser("user-1"),
                         locale: undefined,
@@ -165,11 +160,10 @@ describe("ReviewPersonalProjectTaskHandler",
 
                 // the request url (trimmed) wins over the stored one and is validated
                 expect(urlValidatorService.isParsable).toHaveBeenCalledWith("https://github.com/me/fresh")
-                // the grading lane is validated for the user
+                // the grading model pick is validated for the user
                 expect(gradingLaneValidationService.validate).toHaveBeenCalledWith(
                     expect.objectContaining({
                         userId: "user-1",
-                        mode: AiMode.Auto,
                     }),
                 )
                 // the job is enqueued with the resolved url, task and enrollment

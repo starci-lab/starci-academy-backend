@@ -30,7 +30,6 @@ import {
 } from "@modules/bussiness"
 import {
     AiCeilSurface,
-    AiMode,
     AiModelCategory,
     AiModelTask,
     ModelProvider,
@@ -121,19 +120,15 @@ export class MockInterviewGateway {
             phase,
             history,
             latestAnswer,
-            mode,
             model,
             provider,
         } = payload.data
-        // a pinned model (mode "premium" + model + provider) routes Premium
-        // (gated on paid OR enrolled); otherwise the free/economy Auto chain.
-        // floor is set to Economy below (per the interview surface's grading
-        // floor), so Auto starts on the cheapest tier that still serves grading.
-        const selection: AiJobSelection | undefined = mode === AiMode.Premium
-            && model
-            && provider
+        // a pinned model (model + provider) routes to that single model (gated on
+        // paid OR enrolled); otherwise the balancer chain. floor is set to Economy
+        // below (per the interview surface's grading floor), so the chain starts on
+        // the cheapest tier that still serves grading.
+        const selection: AiJobSelection | undefined = model && provider
             ? {
-                mode: AiMode.Premium,
                 model,
                 provider: provider as ModelProvider,
             }
@@ -225,7 +220,6 @@ export class MockInterviewGateway {
             // bill by the model that actually served this turn
             await this.aiEntitlementService.consume({
                 userId,
-                mode: AiMode.Auto,
                 cost,
                 surface: AiCeilSurface.Interview,
                 task: AiModelTask.Chatting,

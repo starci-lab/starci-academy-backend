@@ -13,10 +13,8 @@ import {
 } from "typeorm"
 import {
     AiCeilSurface,
-    AiMode,
     AiModelTask,
     GraphQLTypeAiCeilSurface,
-    GraphQLTypeAiMode,
     GraphQLTypeAiModelTask,
 } from "../enums"
 import {
@@ -76,23 +74,6 @@ export class CreditUsageHistoryEntity extends UuidAbstractEntity {
         (creditUsageHistory: CreditUsageHistoryEntity) => creditUsageHistory.user,
     )
         userId: string
-
-    /**
-     * AI lane used for the run (auto / premium).
-     */
-    @Field(
-        () => GraphQLTypeAiMode,
-        {
-            description: "AI lane used for the run (auto / premium).",
-        },
-    )
-    @Column({
-        name: "mode",
-        type: "enum",
-        enum: AiMode,
-        enumName: "ai_mode",
-    })
-        mode: AiMode
 
     /**
      * AI surface (chatbot / grading / interview) that triggered this charge.

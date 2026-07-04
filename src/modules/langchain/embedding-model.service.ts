@@ -8,7 +8,6 @@ import {
     Embeddings,
 } from "@langchain/core/embeddings"
 import {
-    AiMode,
     AiModelCategory,
     AiModelTask,
     ModelProvider,
@@ -131,7 +130,7 @@ export class EmbeddingModelService {
      */
     async getViaBalancer(): Promise<Embeddings> {
         const { result } = await this.useApiService.useApi<Embeddings>({
-            lane: AiMode.Auto,
+            lane: "chain",
             task: AiModelTask.Embedding,
             // FREE floor — prefer the $0 self-hosted embedding model; the Auto
             // chain climbs to a cloud embedding model only when it is unavailable.

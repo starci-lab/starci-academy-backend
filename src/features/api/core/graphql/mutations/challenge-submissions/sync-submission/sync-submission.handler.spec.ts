@@ -13,7 +13,6 @@ import {
     GradingLaneValidationService,
 } from "@modules/ai"
 import {
-    AiMode,
     ModelProvider,
     PostgreSqlAdvisoryLockService,
 } from "@modules/databases"
@@ -82,10 +81,9 @@ describe("SyncSubmissionHandler",
                 Pick<PostgreSqlAdvisoryLockService, "acquireUserChallengeSubmissionXactLock">
             >
 
-            // lane validation resolves an auto lane by default
+            // lane validation resolves no pinned model by default
             gradingLaneValidationService = {
                 validate: jest.fn().mockResolvedValue({
-                    mode: AiMode.Auto,
                     gradingModel: null,
                     gradingProvider: null,
                 }),
@@ -188,12 +186,11 @@ describe("SyncSubmissionHandler",
                 expect(entityManager.save).toHaveBeenCalled()
             })
 
-        it("skips url validation on a selection-only sync and updates the lane",
+        it("skips url validation on a selection-only sync and updates the model pick",
             async () => {
                 const existing = {
                     id: "ucs-1",
                     submissionUrl: "https://github.com/me/repo",
-                    selectedMode: null,
                     selectedModel: null,
                     selectedModelProvider: null,
                 }
@@ -203,9 +200,8 @@ describe("SyncSubmissionHandler",
                         type: "githubUrl",
                     })
                     .mockResolvedValueOnce(existing)
-                // lane validation returns a concrete premium pick
+                // lane validation returns a concrete pinned model
                 gradingLaneValidationService.validate.mockResolvedValueOnce({
-                    mode: AiMode.Premium,
                     gradingModel: "gpt-4o",
                     gradingProvider: ModelProvider.OpenAI,
                 } as never)
@@ -214,8 +210,7 @@ describe("SyncSubmissionHandler",
                     new SyncSubmissionCommand({
                         request: {
                             id: "sub-1",
-                            // no url → validation skipped; only the lane is synced
-                            selectedMode: AiMode.Premium,
+                            // no url → validation skipped; only the model pick is synced
                             selectedModel: "gpt-4o",
                             selectedModelProvider: ModelProvider.OpenAI,
                         },
@@ -225,8 +220,7 @@ describe("SyncSubmissionHandler",
 
                 // url validation is skipped when no url is supplied
                 expect(urlValidatorService.isValid).not.toHaveBeenCalled()
-                // the validated lane is written onto the existing row + saved
-                expect(existing.selectedMode).toBe(AiMode.Premium)
+                // the validated model pick is written onto the existing row + saved
                 expect(existing.selectedModel).toBe("gpt-4o")
                 expect(entityManager.save).toHaveBeenCalled()
             })

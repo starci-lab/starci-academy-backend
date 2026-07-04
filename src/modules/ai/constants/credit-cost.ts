@@ -1,28 +1,3 @@
-import {
-    AiMode,
-} from "@modules/databases"
-import {
-    ModelRecommendation,
-} from "../types"
-
-/**
- * Credits charged for one grading run on the free Auto lane when the served
- * model is unknown (e.g. a pre-run quota estimate). 0 — the Auto lane normally
- * grades on the cheapest entitled model. The ACTUAL charge uses the served
- * model's catalog `credit` (see {@link resolveGradingCreditCost}).
- */
-export const AUTO_CREDIT_COST = 0
-
-/** Credits charged per model recommendation tier on the Premium lane (pre-run estimate). */
-export const RECOMMENDATION_CREDIT_COST: Record<ModelRecommendation, number> = {
-    /** Cheapest tier (economy). */
-    [ModelRecommendation.Low]: 5,
-    /** Balanced tier. */
-    [ModelRecommendation.Medium]: 20,
-    /** Best-quality tier (premium). */
-    [ModelRecommendation.High]: 50,
-}
-
 /**
  * Fallback credit for a served model missing from the catalog (balanced-tier
  * default). Callers pass this as the `fallback` to
@@ -42,39 +17,3 @@ export const DEFAULT_ESTIMATE_PROMPT_TOKENS = 1500
 
 /** Assumed completion tokens for the no-usage cost estimate — see above. */
 export const DEFAULT_ESTIMATE_COMPLETION_TOKENS = 800
-
-/**
- * Resolve how many AI credits a grading run costs.
- *
- * - **`credit` given (post-run charge)** → the served model's catalog `credit`
- *   (resolved by the caller via {@link AiModelCatalogService.creditForModel} —
- *   single source of cost). Free models = 0; economy/balanced/premium/frontier
- *   per the catalog.
- * - **`credit` absent (pre-run estimate / quota gate)** → by lane: Auto →
- *   {@link AUTO_CREDIT_COST}, Premium → {@link RECOMMENDATION_CREDIT_COST}.
- *
- * @param params - The lane, the recommendation tier, and (when known) the
- *   served model's resolved `credit`.
- * @returns The number of credits to charge.
- */
-export const resolveGradingCreditCost = (
-    {
-        mode,
-        recommendation,
-        credit,
-    }: {
-        mode: AiMode
-        recommendation: ModelRecommendation
-        credit?: number
-    },
-): number => {
-    // accurate, post-run charge: bill by the served model's catalog credit
-    if (credit !== undefined) {
-        return credit
-    }
-    // pre-run estimate (served model not yet known)
-    if (mode === AiMode.Auto) {
-        return AUTO_CREDIT_COST
-    }
-    return RECOMMENDATION_CREDIT_COST[recommendation] ?? 0
-}

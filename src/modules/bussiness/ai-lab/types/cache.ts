@@ -1,6 +1,5 @@
 import type {
     AiLabRunParams,
-    AiMode,
     ModelProvider,
 } from "@modules/databases"
 
@@ -38,8 +37,6 @@ export interface CachedRun {
     model: string
     /** Provider that served the cached run. */
     provider: ModelProvider
-    /** AI lane the cached run was billed on. */
-    mode: AiMode
     /** Prompt tokens consumed by the cached run. */
     promptTokens: number
     /** Completion tokens produced by the cached run. */

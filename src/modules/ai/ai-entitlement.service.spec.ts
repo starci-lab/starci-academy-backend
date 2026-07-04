@@ -10,7 +10,6 @@ import {
 } from "./ai-entitlement.service"
 import {
     AiCeilSurface,
-    AiMode,
     AiSubStatus,
     AiSubscriptionEntity,
     AiSubTier,
@@ -24,9 +23,6 @@ import {
 import {
     DayjsService,
 } from "@modules/mixin"
-import {
-    AiModeNotEntitledException,
-} from "@modules/exceptions"
 import {
     makeEntityManagerMock,
 } from "@modules/tests"
@@ -65,7 +61,6 @@ const buildSubscription = (
     status: AiSubStatus.Active,
     currentPeriodEnd: null,
     autoRenew: false,
-    preferredMode: null,
     window5hResetAt: futureDate(),
     windowWeekResetAt: futureDate(),
     credit5hUsed: 0,
@@ -139,7 +134,7 @@ describe("AiEntitlementService",
 
         describe("resolve",
             () => {
-                it("lazily creates a free row and resolves the Auto lane for a new user",
+                it("lazily creates a free row and resolves the free allowance for a new user",
                     async () => {
                         // findOne returns null → loadOrCreate must create + save
                         const result = await service.resolve({
@@ -148,13 +143,12 @@ describe("AiEntitlementService",
 
                         expect(entityManager.create).toHaveBeenCalled()
                         expect(entityManager.save).toHaveBeenCalled()
-                        expect(result.mode).toBe(AiMode.Auto)
                         // a brand-new free user has spent nothing → full base allowance
                         expect(result.creditRemaining5h).toBe(BASE_CREDITS_5H)
                         expect(result.creditRemainingWeek).toBe(BASE_CREDITS_WEEK)
                     })
 
-                it("resolves the Premium lane for an active paid subscriber (no requested mode)",
+                it("resolves the tier allowance for an active paid subscriber",
                     async () => {
                         entityManager.findOne.mockResolvedValueOnce(
                             buildSubscription({
@@ -169,23 +163,8 @@ describe("AiEntitlementService",
                             userId,
                         })
 
-                        expect(result.mode).toBe(AiMode.Premium)
                         // remaining = tier cap (overrides base) − used
                         expect(result.creditRemaining5h).toBe(PLUS_CREDITS_5H - 50)
-                    })
-
-                it("throws when an explicit Premium mode is requested without an active tier",
-                    async () => {
-                        entityManager.findOne.mockResolvedValueOnce(
-                            buildSubscription(),
-                        )
-
-                        await expect(
-                            service.resolve({
-                                userId,
-                                requestedMode: AiMode.Premium,
-                            }),
-                        ).rejects.toBeInstanceOf(AiModeNotEntitledException)
                     })
 
                 it("zeroes the counters when the 5h window has elapsed",
@@ -215,7 +194,6 @@ describe("AiEntitlementService",
                     async () => {
                         await service.consume({
                             userId,
-                            mode: AiMode.Premium,
                             cost: 0,
                             surface: AiCeilSurface.Grading,
                         })
@@ -231,7 +209,7 @@ describe("AiEntitlementService",
                         )
                     })
 
-                it("debits both windows under a pessimistic write lock for Premium",
+                it("debits both windows under a pessimistic write lock",
                     async () => {
                         const subscription = buildSubscription({
                             tier: AiSubTier.Plus,
@@ -246,7 +224,6 @@ describe("AiEntitlementService",
 
                         await service.consume({
                             userId,
-                            mode: AiMode.Premium,
                             cost: 5,
                             surface: AiCeilSurface.Grading,
                         })
@@ -262,7 +239,6 @@ describe("AiEntitlementService",
                             CreditUsageHistoryEntity,
                             expect.objectContaining({
                                 credits: 5,
-                                mode: AiMode.Premium,
                                 surface: AiCeilSurface.Grading,
                             }),
                         )
@@ -276,7 +252,6 @@ describe("AiEntitlementService",
 
                         await service.consume({
                             userId,
-                            mode: AiMode.Premium,
                             cost: 5,
                             surface: AiCeilSurface.Grading,
                         })
@@ -344,23 +319,6 @@ describe("AiEntitlementService",
                                 status: TransactionStatus.Succeeded,
                             },
                         )
-                    })
-            })
-
-        describe("updateSettings",
-            () => {
-                it("rejects choosing the Premium lane without an active subscription",
-                    async () => {
-                        entityManager.findOne.mockResolvedValueOnce(
-                            buildSubscription(),
-                        )
-
-                        await expect(
-                            service.updateSettings({
-                                userId,
-                                mode: AiMode.Premium,
-                            }),
-                        ).rejects.toBeInstanceOf(AiModeNotEntitledException)
                     })
             })
     })

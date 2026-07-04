@@ -11,8 +11,6 @@ import {
     RelationId,
 } from "typeorm"
 import {
-    AiMode,
-    GraphQLTypeAiMode,
     GraphQLTypeModelProvider,
     ModelProvider,
 } from "../enums"
@@ -151,26 +149,6 @@ export class UserChallengeSubmissionEntity extends UuidAbstractEntity {
         length: 2048,
     })
         submissionUrl: string
-
-    /**
-     * AI grading lane the user last chose for this submission (auto/premium);
-     * null until they pick one. Persisted so the picker pre-fills on reopen.
-     */
-    @Field(
-        () => GraphQLTypeAiMode,
-        {
-            nullable: true,
-            description: "AI grading lane last chosen for this submission; null until picked.",
-        },
-    )
-    @Column({
-        name: "selected_mode",
-        type: "enum",
-        enum: AiMode,
-        enumName: "ai_mode",
-        nullable: true,
-    })
-        selectedMode: AiMode | null
 
     /**
      * Concrete model name the user last chose for this submission (e.g.

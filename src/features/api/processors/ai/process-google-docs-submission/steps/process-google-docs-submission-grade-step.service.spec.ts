@@ -3,7 +3,6 @@ import {
     EntityManagerMock,
 } from "@modules/tests"
 import {
-    AiMode,
     Locale,
 } from "@modules/databases"
 import {
@@ -34,7 +33,6 @@ const makeContext = (overrides: Record<string, unknown> = {
         locale: Locale.En,
         lang: "typescript",
         ai: {
-            mode: AiMode.Auto,
         },
         ...overrides,
     },
@@ -222,11 +220,10 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
                 )
             })
 
-        it("blocks the Auto lane when the shared credit pool is over quota",
+        it("blocks when the shared credit pool is over quota",
             async () => {
                 aiEntitlementService.assertNotOverQuota.mockRejectedValueOnce(
                     new AiQuotaExhaustedException({
-                        mode: AiMode.Auto,
                         window: "5h",
                     }),
                 )
@@ -234,7 +231,6 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
                 await expect(
                     service.process(makeContext({
                         ai: {
-                            mode: AiMode.Auto,
                         },
                     })),
                 ).rejects.toBeInstanceOf(AiQuotaExhaustedException)

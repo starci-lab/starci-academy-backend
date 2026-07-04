@@ -2,7 +2,6 @@ import type {
     BaseMessage,
 } from "@langchain/core/messages"
 import type {
-    AiMode,
     Locale,
     ModelProvider,
     MockInterviewPhase,
@@ -75,8 +74,6 @@ export interface GradeMockInterviewSessionParams {
     sessionId: string
     /** Locale to write the feedback strings in. */
     locale: Locale
-    /** Requested AI lane (auto/premium/byok); validated against entitlement at grade time. */
-    mode?: AiMode
     /** Concrete model the user picked in the grading dropdown; null/undefined = balancer default. */
     selectedModel?: string
     /** Provider serving {@link GradeMockInterviewSessionParams.selectedModel}. */

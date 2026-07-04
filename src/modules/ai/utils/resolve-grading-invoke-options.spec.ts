@@ -1,5 +1,4 @@
 import {
-    AiMode,
     AiModelCategory,
     ModelProvider,
 } from "@modules/databases"
@@ -67,7 +66,6 @@ describe("resolveGradingInvokeOptions",
                 const result = await resolveGradingInvokeOptions({
                     userId,
                     selection: {
-                        mode: AiMode.Auto,
                     },
                     difficulty: "hard",
                     aiEntitlementService: entitlement as unknown as AiEntitlementService,
@@ -98,7 +96,7 @@ describe("resolveGradingInvokeOptions",
                 })
             })
 
-        it("explicit Premium model pick → that pinned model (gated on entitlement)",
+        it("explicit pinned model → that pinned model (gated on entitlement)",
             async () => {
                 const entitlement = makeEntitlementStub({
                     tierCategories: [
@@ -112,7 +110,6 @@ describe("resolveGradingInvokeOptions",
                 const result = await resolveGradingInvokeOptions({
                     userId,
                     selection: {
-                        mode: AiMode.Premium,
                         model: "gpt-4o",
                         provider: ModelProvider.OpenAI,
                     },
@@ -123,7 +120,7 @@ describe("resolveGradingInvokeOptions",
                     model: "gpt-4o",
                     provider: ModelProvider.OpenAI,
                 })
-                // a Premium pick is gated on the paid-OR-enrolled unlock
+                // a pinned model is gated on the paid-OR-enrolled unlock
                 expect(entitlement.assertCanUsePaidModels).toHaveBeenCalled()
             })
     })

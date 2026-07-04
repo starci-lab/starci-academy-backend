@@ -106,7 +106,6 @@ export class MockInterviewGradingService {
             turns,
             sessionId,
             locale,
-            mode,
             selectedModel,
             selectedModelProvider,
         } = params
@@ -118,13 +117,12 @@ export class MockInterviewGradingService {
             userId,
         })
 
-        // validate the chosen grading lane (mode + optional model/provider) against the
-        // user's entitlement and the ai_models catalog, then collapse it into the AI job
-        // selection. No pick (Auto, no model) validates to the default Auto lane. Mirrors
-        // the flashcard interview grading + challenge grading wiring exactly.
+        // validate the optional model/provider pick against the user's entitlement
+        // and the ai_models catalog, then collapse it into the AI job selection. No
+        // pick validates to an empty selection (the balancer picks). Mirrors the
+        // challenge grading wiring exactly.
         const validatedLane = await this.gradingLaneValidationService.validate({
             userId,
-            mode,
             model: selectedModel,
             provider: selectedModelProvider,
         })
@@ -170,12 +168,10 @@ export class MockInterviewGradingService {
         })
 
         // charge NOW — before parsing — so a malformed model response can never leak a
-        // free grading call. Billed by the model that served. Uses the RESOLVED lane
-        // (validatedLane.mode), not the raw request, matching the flashcard-interview
-        // and challenge-grading services exactly.
+        // free grading call. Billed by the model that served, matching the
+        // challenge-grading service exactly.
         await this.aiEntitlementService.consume({
             userId,
-            mode: validatedLane.mode,
             cost,
             surface: AiCeilSurface.Interview,
             task: AiModelTask.Grading,

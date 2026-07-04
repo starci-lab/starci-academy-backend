@@ -1,5 +1,4 @@
 import {
-    AiMode,
     AiModelCategory,
     ModelProvider,
 } from "@modules/databases"
@@ -18,7 +17,7 @@ import {
 export interface ResolveGradingInvokeOptionsParams {
     /** Submitter whose entitlement gates the requested lane + tier ceiling. */
     userId: string
-    /** The user's lane + model pick from the job payload (absent → Auto). */
+    /** The user's model pick from the job payload (absent → balancer picks). */
     selection?: AiJobSelection
     /** Entitlement resolver injected by the caller (avoids circular DI). */
     aiEntitlementService: AiEntitlementService
@@ -63,15 +62,16 @@ export interface ResolveGradingInvokeOptionsResult {
  * Map a job's {@link AiJobSelection} + difficulty + user entitlement to
  * {@link AiInvokeService.invoke} args — the ONE shared grading routing.
  *
- * Grading runs ONLY on the System pool. Two selection modes:
- * - **System Manual** → a user-pinned model (gated on a paid entitlement).
- * - **System Auto** (default) → the **floor→climb chain**: start at the difficulty
- *   floor, climb up to the tier ceiling, within each category the balancer tries
- *   highest-weight first. Free tier caps at Economy; paid tiers climb to Frontier.
+ * Grading runs ONLY on the System pool. Two selection paths:
+ * - **pinned model** → a user-pinned model + provider (gated on the unlock).
+ * - **balancer** (default, no pin) → the **floor→climb chain**: start at the
+ *   difficulty floor, climb up to the tier ceiling, within each category the
+ *   balancer tries highest-weight first. Free tier caps at Balanced; paid tiers
+ *   climb to Frontier.
  *
  * @param params - user id, selection, difficulty, entitlement service.
  * @returns the invoke args.
- * @throws AiModeNotEntitledException when a Premium/premium-only run is not entitled.
+ * @throws AiModeNotEntitledException when a pinned/premium-only run is not entitled.
  */
 export async function resolveGradingInvokeOptions(
     {
@@ -84,18 +84,19 @@ export async function resolveGradingInvokeOptions(
         ceil,
     }: ResolveGradingInvokeOptionsParams,
 ): Promise<ResolveGradingInvokeOptionsResult> {
-    // premium-only content (no free Auto) or an explicit Premium pick → require
-    // unlock (paid OR enrolled — the StarCi rule; throws for an unentitled user,
-    // no silent downgrade). Enrolled learners may pin a higher model too.
+    // premium-only content (no free Auto) or a pinned model → require unlock
+    // (paid OR enrolled — the StarCi rule; throws for an unentitled user, no
+    // silent downgrade). Enrolled learners may pin a higher model too.
+    const hasPinnedModel = Boolean(selection?.model && selection?.provider)
     const requiresPaid = !allowFreeAuto
-    if (selection?.mode === AiMode.Premium || requiresPaid) {
+    if (hasPinnedModel || requiresPaid) {
         await aiEntitlementService.assertCanUsePaidModels({
             userId,
         })
     }
 
-    // explicit pinned model (user picked Premium + a concrete model) wins
-    if (selection?.mode === AiMode.Premium && selection.model && selection.provider) {
+    // a pinned model (user picked a concrete model + provider) wins
+    if (hasPinnedModel && selection?.model && selection.provider) {
         return {
             model: selection.model,
             provider: selection.provider,

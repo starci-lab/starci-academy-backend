@@ -15,7 +15,6 @@ import {
 } from "@modules/common"
 import {
     AiCeilSurface,
-    AiMode,
     AiModelTask,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
@@ -106,15 +105,11 @@ export class ReviewAiLabEvalGradeStepService extends AbstractStepService<
         context: JobExtendedContext<ReviewAiLabEvalPayload, EmptyObject>,
     ): Promise<ReviewAiLabEvalGradeResult> {
         const { payload } = context
-        // default the grading lane to Auto when the submission pinned none
-        const mode = payload.ai?.mode ?? AiMode.Auto
 
-        // Auto lane → gate on the SAME unified credit pool the Premium lane resolves against
-        if (mode === AiMode.Auto) {
-            await this.aiEntitlementService.assertNotOverQuota({
-                userId: payload.userId,
-            })
-        }
+        // gate on the SAME unified credit pool everyone else resolves against
+        await this.aiEntitlementService.assertNotOverQuota({
+            userId: payload.userId,
+        })
 
         // resolve the concrete invoke options (chain / pinned model) for the lane —
         // AI Lab runs N per-case invokes, so it uses the resolver directly (not run())
@@ -142,9 +137,8 @@ export class ReviewAiLabEvalGradeStepService extends AbstractStepService<
         // case via the balancer (no single model) → falls back to the lane estimate
         await this.aiEntitlementService.consume({
             userId: payload.userId,
-            mode,
-            // charge by the pinned model's catalog credit (Manual); Auto multi-case
-            // has no single served model → 0 here (per-case spend not itemized)
+            // charge by the pinned model's catalog credit (Manual); a balancer-picked
+            // multi-case run has no single served model → 0 here (per-case spend not itemized)
             cost: invokeOptions.model
                 ? await this.aiModelCatalogService.creditForModel({
                     name: invokeOptions.model,
@@ -160,10 +154,9 @@ export class ReviewAiLabEvalGradeStepService extends AbstractStepService<
         return {
             grade,
             aiUsage: {
-                // invoke options surface the resolved model/provider for Premium + Auto pin
+                // invoke options surface the resolved model/provider when a model was pinned
                 model: invokeOptions.model ?? null,
                 provider: invokeOptions.provider ?? null,
-                mode,
             },
         }
     }

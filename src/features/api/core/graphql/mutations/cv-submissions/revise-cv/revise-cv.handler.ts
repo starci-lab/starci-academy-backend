@@ -56,7 +56,6 @@ export class ReviseCvHandler
             request: {
                 cvSubmissionId,
                 extraPrompts,
-                mode,
                 selectedModel,
                 selectedModelProvider,
                 courseId,
@@ -92,13 +91,12 @@ export class ReviseCvHandler
             })
         }
 
-        // validate the chosen CV-generation lane (mode + optional model/provider)
-        // against the user's entitlement and the ai_models catalog, then collapse
-        // it into the AI job selection carried on the async pipeline's payload.
-        // Mirrors generate-cv + interview-grading wiring.
+        // validate the optional model/provider pick against the user's entitlement
+        // and the ai_models catalog, then collapse it into the AI job selection
+        // carried on the async pipeline's payload. Mirrors generate-cv +
+        // interview-grading wiring.
         const validatedLane = await this.gradingLaneValidationService.validate({
             userId: user.id,
-            mode,
             model: selectedModel,
             provider: selectedModelProvider,
         })

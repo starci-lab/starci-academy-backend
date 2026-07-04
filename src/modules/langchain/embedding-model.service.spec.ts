@@ -3,7 +3,6 @@ import {
     TestingModule,
 } from "@nestjs/testing"
 import {
-    AiMode,
     AiModelTask,
     ModelProvider,
 } from "@modules/databases"
@@ -207,7 +206,7 @@ describe("EmbeddingModelService",
 
                         expect(useApiService.useApi).toHaveBeenCalledWith(
                             expect.objectContaining({
-                                lane: AiMode.Auto,
+                                lane: "chain",
                                 task: AiModelTask.Embedding,
                             }),
                         )

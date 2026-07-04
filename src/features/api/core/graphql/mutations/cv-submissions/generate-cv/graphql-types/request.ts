@@ -4,8 +4,6 @@ import {
     InputType,
 } from "@nestjs/graphql"
 import {
-    AiMode,
-    GraphQLTypeAiMode,
     GraphQLTypeModelProvider,
     ModelProvider,
 } from "@modules/databases"
@@ -27,15 +25,6 @@ export class GenerateCvRequest {
         },
     )
         extraPrompts?: string
-
-    @Field(
-        () => GraphQLTypeAiMode,
-        {
-            nullable: true,
-            description: "AI lane to generate on (auto/premium); validated against entitlement at generate time.",
-        },
-    )
-        mode?: AiMode
 
     /** Concrete model the user picked in the CV-generation model picker (e.g. "gpt-4o"). */
     @Field(

@@ -3,7 +3,6 @@ import {
     TestingModule,
 } from "@nestjs/testing"
 import {
-    AiMode,
     AiModelCategory,
     ModelProvider,
 } from "@modules/databases"
@@ -115,7 +114,7 @@ describe("AiInvokeService",
 
                         expect(useApiService.useApi).toHaveBeenCalledWith(
                             expect.objectContaining({
-                                lane: AiMode.Premium,
+                                lane: "pinned",
                                 category: AiModelCategory.Balanced,
                                 model: "gpt-4o",
                                 provider: ModelProvider.OpenAI,
@@ -133,7 +132,7 @@ describe("AiInvokeService",
 
                         expect(useApiService.useApi).toHaveBeenCalledWith(
                             expect.objectContaining({
-                                lane: AiMode.Auto,
+                                lane: "chain",
                                 category: AiModelCategory.Economy,
                             }),
                         )
@@ -148,7 +147,7 @@ describe("AiInvokeService",
 
                         expect(useApiService.useApi).toHaveBeenCalledWith(
                             expect.objectContaining({
-                                lane: AiMode.Auto,
+                                lane: "chain",
                             }),
                         )
                     })

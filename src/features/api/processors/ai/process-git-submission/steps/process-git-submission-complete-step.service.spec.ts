@@ -6,7 +6,6 @@ import {
     DayjsService,
 } from "@modules/mixin"
 import {
-    AiMode,
     EnrollmentEntity,
     Locale,
     UserChallengeSubmissionAttemptEntity,
@@ -45,7 +44,6 @@ const makeContext = () => ({
         enrollmentId: "enroll-1",
         locale: Locale.En,
         ai: {
-            mode: AiMode.Auto,
         },
     },
     extended: {

@@ -15,7 +15,6 @@ import {
 import {
     ActivityType,
     AiCeilSurface,
-    AiMode,
     AiModelTask,
     ChallengeEntity,
     EnrollmentEntity,
@@ -29,7 +28,6 @@ import {
     AiEntitlementService,
     AiModelCatalogService,
     DEFAULT_MODEL_CREDIT,
-    ModelRecommendation,
 } from "@modules/ai"
 import {
     envConfig,
@@ -331,10 +329,8 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
         })
         /** Debit + record history AFTER commit, only when this run created the attempt and grade didn't charge. */
         if (createdNewAttempt && chargedUserId && !alreadyCharged) {
-            const chargedMode = payload.ai?.mode ?? AiMode.Auto
             await this.aiEntitlementService.consume({
                 userId: chargedUserId,
-                mode: chargedMode,
                 // charge by the model that actually served (catalog credit)
                 cost: grade.aiUsage?.model
                     ? await this.aiModelCatalogService.creditForModel({
@@ -346,9 +342,7 @@ export class ProcessGitSubmissionCompleteStepService extends AbstractStepService
                 task: AiModelTask.ChallengeGrading,
                 model: grade.aiUsage?.model ?? null,
                 provider: grade.aiUsage?.provider ?? null,
-                recommendation: chargedMode === AiMode.Premium
-                    ? envConfig().ai.modelRecommendation as ModelRecommendation
-                    : null,
+                recommendation: null,
                 promptTokens: grade.aiUsage?.promptTokens ?? null,
                 completionTokens: grade.aiUsage?.completionTokens ?? null,
                 attempts: grade.aiUsage?.attempts ?? null,

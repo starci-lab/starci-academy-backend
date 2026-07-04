@@ -10,11 +10,9 @@ import {
     OneToOne,
 } from "typeorm"
 import {
-    AiMode,
     AiModelCategory,
     AiSubStatus,
     AiSubTier,
-    GraphQLTypeAiMode,
     GraphQLTypeAiSubStatus,
     GraphQLTypeAiSubTier,
 } from "../enums"
@@ -121,28 +119,6 @@ export class AiSubscriptionEntity extends UuidAbstractEntity {
         default: false,
     })
         autoRenew: boolean
-
-    /**
-     * Lane the user chose to run on by default; null = follow the natural
-     * capability order (premium → auto). Validated lazily on read — a
-     * preferred lane the user is no longer entitled to silently falls back to
-     * the natural mode.
-     */
-    @Field(
-        () => GraphQLTypeAiMode,
-        {
-            nullable: true,
-            description: "User's chosen default AI lane; null = natural order.",
-        },
-    )
-    @Column({
-        name: "preferred_mode",
-        type: "enum",
-        enum: AiMode,
-        enumName: "ai_mode",
-        nullable: true,
-    })
-        preferredMode: AiMode | null
 
     /** Timestamp when the 5-hour usage window resets. */
     @Column({
