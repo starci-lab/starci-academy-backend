@@ -1,5 +1,6 @@
 import {
     Field,
+    ID,
     Int,
     ObjectType,
 } from "@nestjs/graphql"
@@ -13,6 +14,14 @@ import {
     description: "A verified per-course competency track on a learner's profile.",
 })
 export class JobReadinessTrackItem {
+    @Field(
+        () => ID,
+        {
+            description: "Stable id of the course this track is built on — used as the row key + to resolve the course.",
+        },
+    )
+        courseId: string
+
     @Field(
         () => String,
         {
@@ -50,38 +59,8 @@ export class JobReadinessTrackItem {
     @Field(
         () => Int,
         {
-            description: "Domain competency depth (0–100): weighted(capstone, interview).",
-        },
-    )
-        depthScore: number
-}
-
-/** Composite job-readiness portfolio for one learner. */
-@ObjectType({
-    description: "Composite job-readiness score + verified-track portfolio + global foundation.",
-})
-export class JobReadinessData {
-    @Field(
-        () => Int,
-        {
-            description: "0–100 composite — strongest track leads + foundation blend + breadth bonus.",
-        },
-    )
-        compositeScore: number
-
-    @Field(
-        () => String,
-        {
-            description: "Coarse readiness band (\"needsWork\" | \"building\" | \"jobReady\").",
-        },
-    )
-        band: string
-
-    @Field(
-        () => Int,
-        {
             nullable: true,
-            description: "Latest CV review score (0–100), global — null if no CV reviewed yet.",
+            description: "Best unified-CV score (0–100) tied to this course — null when no scored CV is attached to it.",
         },
     )
         cvScore: number | null
@@ -90,10 +69,64 @@ export class JobReadinessData {
         () => Int,
         {
             nullable: true,
+            description: "Domain competency depth (0–100): weighted avg over present pillars only — null when every pillar is null.",
+        },
+    )
+        depthScore: number | null
+
+    @Field(
+        () => String,
+        {
+            description: "Coarse readiness band for this track (\"needsWork\" | \"building\" | \"jobReady\").",
+        },
+    )
+        band: string
+
+    @Field(
+        () => Boolean,
+        {
+            description: "Whether this track clears the qualified-depth floor — a badge flag only.",
+        },
+    )
+        isQualified: boolean
+}
+
+/** The global, person-level foundation signals (not scoped to any course). */
+@ObjectType({
+    description: "Global foundation signals — one per learner regardless of course count.",
+})
+export class JobReadinessFoundationData {
+    @Field(
+        () => Int,
+        {
+            nullable: true,
             description: "Challenge-strength percentile (0–100), global — null if no passed challenges.",
         },
     )
-        challengeScore: number | null
+        codingPercentile: number | null
+
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Best CV score (0–100) across all the learner's CVs (unified + legacy, unioned during migration) — null if no CV scored yet.",
+        },
+    )
+        cvScore: number | null
+}
+
+/** Job-readiness portfolio for one learner — per-track cards + global foundation, no blended composite. */
+@ObjectType({
+    description: "Job-readiness portfolio — a global foundation plus independent per-track competency cards.",
+})
+export class JobReadinessData {
+    @Field(
+        () => JobReadinessFoundationData,
+        {
+            description: "Global, person-level foundation signals (coding percentile + best CV).",
+        },
+    )
+        foundation: JobReadinessFoundationData
 
     @Field(
         () => [JobReadinessTrackItem],

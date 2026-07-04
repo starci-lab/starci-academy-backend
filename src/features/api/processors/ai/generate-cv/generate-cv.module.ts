@@ -18,6 +18,7 @@ import {
     GenerateCvGatherStepService,
     GenerateCvComposeStepService,
     GenerateCvRenderStepService,
+    GenerateCvScoreStepService,
     GenerateCvCompleteStepService,
 } from "./steps"
 import {
@@ -29,6 +30,10 @@ import {
 import {
     EnqueueGenerateCvJobService,
 } from "./enqueue-generate-cv.service"
+import {
+    CvScoringService,
+    ScoreUploadedCvService,
+} from "../shared/cv-scoring"
 
 @Module({
     providers: [
@@ -37,13 +42,22 @@ import {
         GenerateCvGatherStepService,
         GenerateCvComposeStepService,
         GenerateCvRenderStepService,
+        GenerateCvScoreStepService,
         GenerateCvCompleteStepService,
+        // SOURCE-AGNOSTIC scoring service (shared with the upload path).
+        CvScoringService,
+        // WF-07 upload-scoring path: buffers `uploadedCdnKey` → extracts text →
+        // scores via the shared CvScoringService (`cvText` branch) → persists.
+        ScoreUploadedCvService,
         EnqueueGenerateCvJobService,
     ],
     // EnqueueGenerateCvJobService is exported so the GraphQL CV-generation
     // mutation module can inject it (after importing the global GenerateCvModule).
+    // ScoreUploadedCvService is exported so the upload mutation/processor (the
+    // remaining WF-07 wiring) can inject it to grade an uploaded row.
     exports: [
         EnqueueGenerateCvJobService,
+        ScoreUploadedCvService,
     ],
 })
 export class GenerateCvModule extends ConfigurableModuleClass {}

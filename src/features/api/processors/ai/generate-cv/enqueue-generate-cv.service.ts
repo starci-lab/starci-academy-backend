@@ -32,6 +32,7 @@ import {
     ActionType,
     CvGenerationMode,
     CvGenerationStatus,
+    CvSource,
     InjectPrimaryPostgreSQLEntityManager,
     JobCategory,
     Locale,
@@ -70,6 +71,14 @@ export interface EnqueueGenerateCvJobParams {
     locale?: Locale
     /** Validated AI lane + model pick (Auto / Premium / BYOK). */
     ai?: AiJobSelection
+    /** Optional course/track to tie the created CV row to (`courses.id`). */
+    courseId?: string
+    /** Optional user-facing name for the created CV row. */
+    label?: string
+    /** Optional target role the CV is aimed at (free-text). */
+    targetRole?: string
+    /** Optional language/locale for the CV (free-text, e.g. "en" / "vi"). */
+    language?: string
 }
 
 /**
@@ -110,9 +119,15 @@ export class EnqueueGenerateCvJobService {
             extraPrompts,
             locale,
             ai,
+            courseId,
+            label,
+            targetRole,
+            language,
         }: EnqueueGenerateCvJobParams,
     ): Promise<{ cvGeneration: UserCvGenerationEntity, jobId: string }> {
         // 1) create the Pending generation row FIRST — the worker/steps update it.
+        // Both generate + revise flow through here, so this row is always
+        // `source = Generated`; the uploaded source is written by its own path.
         const cvGeneration = await this.entityManager.save(
             UserCvGenerationEntity,
             this.entityManager.create(
@@ -122,9 +137,16 @@ export class EnqueueGenerateCvJobService {
                         id: userId,
                     },
                     mode,
+                    source: CvSource.Generated,
                     status: CvGenerationStatus.Pending,
                     sourceCvSubmissionId: sourceCvSubmissionId ?? null,
                     extraPrompts: extraPrompts ?? null,
+                    course: courseId ? {
+                        id: courseId,
+                    } : null,
+                    label: label ?? null,
+                    targetRole: targetRole ?? null,
+                    language: language ?? null,
                 },
             ),
         )
@@ -158,7 +180,7 @@ export class EnqueueGenerateCvJobService {
             userId,
             actionType: ActionType.ProcessCvSubmission,
             category: JobCategory.ReviewCv,
-            // reuse the existing 4-step CV job config (default 4).
+            // CV job config: gather → compose → render → score → complete (default 5).
             maxSteps: envConfig().job.processCvSubmission.maxSteps,
             payload: this.superJson.stringify(payloadBody),
         })

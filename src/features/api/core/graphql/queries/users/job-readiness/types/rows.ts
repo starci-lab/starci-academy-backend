@@ -27,3 +27,17 @@ export interface InterviewAvgRow {
     /** `AVG(mock_interview_attempts.overall_score)` for that enrollment. */
     avg_score: string
 }
+
+/** One row of the "best unified-CV score per course" aggregate (sourced from `cv_generations`). */
+export interface CvScoreRow {
+    /** `courses.id` the best CV score belongs to. */
+    course_id: string
+    /** `MAX(cv_generations.score)` across the user's CVs tied to that course. */
+    max_score: string
+}
+
+/** Single-row aggregate: the learner's best-ever CV score (global), unioned across the unified + legacy tables. */
+export interface GlobalBestCvScoreRow {
+    /** `MAX(score)` across all of the learner's CVs, or `null` if none scored yet. */
+    best: string | null
+}

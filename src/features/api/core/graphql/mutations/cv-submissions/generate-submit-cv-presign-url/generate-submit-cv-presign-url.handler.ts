@@ -116,6 +116,9 @@ export class GenerateSubmitCvPresignUrlHandler
         return {
             url,
             cvSubmissionId: lastSubmission.id,
+            // WF-07: expose the object key so the client can register the upload
+            // into the unified `cv_generations` table via the `uploadCv` mutation.
+            cdnKey: fileKey,
         }
     }
 }

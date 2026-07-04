@@ -107,5 +107,17 @@ export interface GenerateCvRenderStepExecuteResult {
     latexCdnKey: string
 }
 
+/**
+ * Result of the score step: the holistic 0–100 score + structured feedback the
+ * shared {@link CvScoringService} produced from the composed CV. Persisted as the
+ * score step result; the complete step copies both onto `cv_generations`.
+ */
+export interface GenerateCvScoreStepExecuteResult {
+    /** Holistic CV score (0–100), or `null` when scoring degraded gracefully. */
+    score: number | null
+    /** Structured AI feedback (jsonb-assignable), or `null` when unavailable. */
+    feedback: Record<string, unknown> | null
+}
+
 /** Result of the generate-cv complete step. */
 export type GenerateCvCompleteStepExecuteResult = EmptyObject

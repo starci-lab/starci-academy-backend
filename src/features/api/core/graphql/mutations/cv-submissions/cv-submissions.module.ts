@@ -16,6 +16,9 @@ import {
 import {
     ReviseCvSingleMutationModule,
 } from "./revise-cv"
+import {
+    UploadCvSingleMutationModule,
+} from "./upload-cv"
 
 @Module({
     imports: [
@@ -29,6 +32,9 @@ import {
             isGlobal: true,
         }),
         ReviseCvSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        UploadCvSingleMutationModule.register({
             isGlobal: true,
         }),
     ],

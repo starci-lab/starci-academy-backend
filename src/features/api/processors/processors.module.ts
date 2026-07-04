@@ -37,6 +37,9 @@ import {
 import {
     GenerateCvModule,
 } from "./ai/generate-cv"
+import {
+    ScoreUploadedCvModule,
+} from "./ai/score-uploaded-cv"
 
 /**
  * Module for API-side BullMQ processors.
@@ -74,6 +77,12 @@ import {
             isGlobal: true,
         }),
         GenerateCvModule.register({
+            isGlobal: true,
+        }),
+        // WF-07 upload-scoring processor: single-step worker that grades an
+        // uploaded `cv_generations` row via the shared `ScoreUploadedCvService`
+        // (injected from the global GenerateCvModule) + its enqueue service.
+        ScoreUploadedCvModule.register({
             isGlobal: true,
         }),
     ],
