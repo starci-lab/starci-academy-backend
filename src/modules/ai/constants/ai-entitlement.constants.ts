@@ -28,17 +28,22 @@ export const SUBSCRIPTION_PERIOD_MONTHS = 1
 /**
  * Categories unlocked by each entitlement.
  *
- * `free` (no paid tier) is locked to **Economy** models only — the weak/auto
- * tier. Any paid tier (Plus / Pro / Max) unlocks **every** category (Balanced +
- * Premium on top); credit cost (see {@link CATEGORY_CREDIT_COST}) is then the
- * only limiter, so a Plus user can call a Premium model, it just burns more
- * credits from the shared pool.
+ * `free` (no paid tier, not enrolled) reaches up to **Balanced** — Free
+ * (self-hosted Qwen, 0 credit) + Economy cloud + Balanced. Balanced is included
+ * so unpaid learners can still be graded on CODE (challenge githubUrl + capstone
+ * tasks floor at Balanced — see the grading grade-steps), where eval evidence
+ * showed Free/Economy models grade too shallowly (miss subtle API-contract
+ * defects). Any paid tier (Plus / Pro / Max) additionally unlocks **Premium +
+ * Frontier**; credit cost (see {@link CATEGORY_CREDIT_COST}) is then the only
+ * limiter, so a Plus user can call a Premium model, it just burns more credits
+ * from the shared pool.
  */
 export const TIER_ALLOWED_CATEGORIES: Record<AiSubTier | "free", Array<AiModelCategory>> = {
-    // no plan → free (self-hosted Qwen, 0 credit) + economy cloud only
+    // no plan → free (self-hosted Qwen, 0 credit) + economy + balanced cloud
     free: [
         AiModelCategory.Free,
         AiModelCategory.Economy,
+        AiModelCategory.Balanced,
     ],
     [AiSubTier.Plus]: [
         AiModelCategory.Free,

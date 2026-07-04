@@ -5,13 +5,13 @@ import {
     JobActionService,
     EnqueueSendMailJobService,
     ProgressProjectionService,
-    CreditUsageService,
     writeActivity,
 } from "@modules/bussiness"
 import {
     AiEntitlementService,
     AiModelCatalogService,
     DEFAULT_MODEL_CREDIT,
+    ModelRecommendation,
 } from "@modules/ai"
 import {
     envConfig,
@@ -25,7 +25,9 @@ import {
 } from "@modules/common"
 import {
     ActivityType,
+    AiCeilSurface,
     AiMode,
+    AiModelTask,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
@@ -100,7 +102,6 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly aiModelCatalogService: AiModelCatalogService,
-        private readonly creditUsageService: CreditUsageService,
     ) {
         super()
     }
@@ -383,8 +384,17 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                             fallback: DEFAULT_MODEL_CREDIT,
                         })
                         : 0,
+                    surface: AiCeilSurface.Grading,
+                    task: AiModelTask.TaskGrading,
+                    model: grade.aiUsage?.model ?? null,
+                    provider: grade.aiUsage?.provider ?? null,
+                    recommendation: chargedMode === AiMode.Premium
+                        ? envConfig().ai.modelRecommendation as ModelRecommendation
+                        : null,
+                    promptTokens: grade.aiUsage?.promptTokens ?? null,
+                    completionTokens: grade.aiUsage?.completionTokens ?? null,
+                    attempts: grade.aiUsage?.attempts ?? null,
                 })
-                await this.creditUsageService.invalidate(enrollment.userId)
                 await enqueueLearnerEmail({
                     entityManager: this.entityManager,
                     enqueueSendMailJobService: this.enqueueSendMailJobService,

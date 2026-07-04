@@ -15,9 +15,7 @@ import {
     InterviewGradePromptService,
 } from "./interview-grade-prompt.service"
 import {
-    CreditUsageService,
-} from "../credit/credit-usage.service"
-import {
+    AiEntitlementService,
     AiInvokeService,
     GradingLaneValidationService,
 } from "@modules/ai"
@@ -25,8 +23,9 @@ import {
     UserService,
 } from "../user"
 import {
+    AiCeilSurface,
     AiMode,
-    CreditUsageHistoryEntity,
+    AiModelTask,
     Locale,
 } from "@modules/databases"
 import {
@@ -57,9 +56,9 @@ describe("InterviewGradingService",
         let aiInvokeService: {
             run: jest.Mock
         }
-        let creditUsageService: {
-            getSnapshot: jest.Mock
-            invalidate: jest.Mock
+        let aiEntitlementService: {
+            assertNotOverQuota: jest.Mock
+            consume: jest.Mock
         }
 
         const userId = "user-1"
@@ -96,12 +95,11 @@ describe("InterviewGradingService",
             aiInvokeService = {
                 run: jest.fn(),
             }
-            // happy-path default: user is under quota
-            creditUsageService = {
-                getSnapshot: jest.fn().mockResolvedValue({
-                    overQuota: false,
-                }),
-                invalidate: jest.fn(),
+            // happy-path default: user is under quota (unified pool); consume()
+            // is the SINGLE place that debits + records the history row now
+            aiEntitlementService = {
+                assertNotOverQuota: jest.fn().mockResolvedValue(undefined),
+                consume: jest.fn().mockResolvedValue(undefined),
             }
 
             module = await Test.createTestingModule({
@@ -140,8 +138,8 @@ describe("InterviewGradingService",
                         },
                     },
                     {
-                        provide: CreditUsageService,
-                        useValue: creditUsageService,
+                        provide: AiEntitlementService,
+                        useValue: aiEntitlementService,
                     },
                     {
                         // best-effort attempt recording resolves a trial enrollment; a
@@ -162,22 +160,25 @@ describe("InterviewGradingService",
             await module.close()
         })
 
-        it("blocks and never invokes / charges when the user is over the Auto credit quota",
+        it("blocks and never invokes / charges when the user is over the unified credit quota",
             async () => {
-                // over the shared rolling pool → the gate must short-circuit before any spend
-                creditUsageService.getSnapshot.mockResolvedValueOnce({
-                    overQuota: true,
-                })
+                // over the shared unified pool → the gate must short-circuit before any spend
+                aiEntitlementService.assertNotOverQuota.mockRejectedValueOnce(
+                    new AiQuotaExhaustedException({
+                        mode: AiMode.Auto,
+                        window: "5h",
+                    }),
+                )
 
                 await expect(
                     service.grade(gradeParams),
                 ).rejects.toBeInstanceOf(AiQuotaExhaustedException)
-                // no LLM call and no charge row when blocked
+                // no LLM call and no charge when blocked
                 expect(aiInvokeService.run).not.toHaveBeenCalled()
-                expect(entityManager.save).not.toHaveBeenCalled()
+                expect(aiEntitlementService.consume).not.toHaveBeenCalled()
             })
 
-        it("charges the Auto pool exactly once (no attempt) and busts the cache on a graded answer",
+        it("charges the resolved lane exactly once via the SAME unified consume() everything else uses",
             async () => {
                 aiInvokeService.run.mockResolvedValueOnce({
                     text: JSON.stringify({
@@ -192,42 +193,30 @@ describe("InterviewGradingService",
                     model: "gpt-4o",
                     provider: undefined,
                     cost: 0,
+                    promptTokens: 120,
+                    completionTokens: 40,
+                    attempts: 1,
                 })
 
                 const result = await service.grade(gradeParams)
 
                 expect(result.score).toBe(80)
                 expect(result.verdict).toBe(InterviewVerdict.Pass)
-                // exactly one Auto charge row, with no challenge attempt attached
-                // (the interview-history attempt is a separate, best-effort save)
-                const creditSaveCalls = (
-                    entityManager.save.mock.calls as Array<[unknown, unknown]>
-                ).filter(
-                    ([entity]) => entity === CreditUsageHistoryEntity,
-                )
-                expect(creditSaveCalls).toHaveLength(1)
-                const [
-                    ,
-                    row,
-                ] = creditSaveCalls[0] as [
-                    unknown,
-                    {
-                        mode: AiMode
-                        attempt: unknown
-                        user: {
-                            id: string
-                        }
-                    },
-                ]
-                expect(row).toMatchObject({
+                // consume() debits + records the history row atomically — no manual
+                // entityManager write in this service anymore
+                expect(aiEntitlementService.consume).toHaveBeenCalledTimes(1)
+                expect(aiEntitlementService.consume).toHaveBeenCalledWith({
+                    userId,
                     mode: AiMode.Auto,
-                    attempt: null,
-                    user: {
-                        id: userId,
-                    },
+                    cost: 0,
+                    surface: AiCeilSurface.Interview,
+                    task: AiModelTask.Grading,
+                    model: "gpt-4o",
+                    provider: undefined,
+                    promptTokens: 120,
+                    completionTokens: 40,
+                    attempts: 1,
                 })
-                // the cached usage is invalidated so the next gate sees this charge
-                expect(creditUsageService.invalidate).toHaveBeenCalledWith(userId)
             })
 
         it("derives the verdict from the score when the model returns an unrecognized verdict literal",
@@ -262,6 +251,8 @@ describe("InterviewGradingService",
                 await expect(
                     service.grade(gradeParams),
                 ).rejects.toBeInstanceOf(ParsingCriteriaResultsFromModelTextException)
-                expect(entityManager.save).toHaveBeenCalledTimes(1)
+                // charged BEFORE the parse failure — a malformed response still consumed
+                // a real model call and must not leak a free grading run
+                expect(aiEntitlementService.consume).toHaveBeenCalledTimes(1)
             })
     })

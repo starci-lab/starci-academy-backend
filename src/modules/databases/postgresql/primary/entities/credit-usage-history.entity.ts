@@ -14,8 +14,10 @@ import {
 import {
     AiCeilSurface,
     AiMode,
+    AiModelTask,
     GraphQLTypeAiCeilSurface,
     GraphQLTypeAiMode,
+    GraphQLTypeAiModelTask,
 } from "../enums"
 import {
     UuidAbstractEntity,
@@ -23,16 +25,19 @@ import {
 import {
     UserEntity,
 } from "./user.entity"
-import {
-    UserChallengeSubmissionAttemptEntity,
-} from "./user-challenge-submission-attempt.entity"
 
 /**
- * Audit row recording the AI credits charged to a user for one grading run.
- * Written after a challenge submission is graded.
+ * Audit row recording one AI credit charge — written ATOMICALLY by
+ * {@link AiEntitlementService.consume} alongside the unified pool debit (same
+ * transaction, same source of truth as the quota gate), so this ledger can
+ * never drift from `ai_subscriptions.credit5hUsed/creditWeekUsed`.
+ *
+ * Not tied to any specific attempt/submission row (deliberately — a charge can
+ * happen before that row exists, e.g. at grade-time before the attempt is
+ * persisted) — correlate by `userId` + `createdAt` + `surface`/`task` instead.
  */
 @ObjectType({
-    description: "AI credit charge recorded after a challenge submission is graded.",
+    description: "One AI credit charge, recorded atomically with the unified pool debit.",
 })
 @Entity("credit_usage_histories")
 export class CreditUsageHistoryEntity extends UuidAbstractEntity {
@@ -73,52 +78,13 @@ export class CreditUsageHistoryEntity extends UuidAbstractEntity {
         userId: string
 
     /**
-     * Challenge submission attempt that triggered the charge, or null when the
-     * AI grading run is not tied to a challenge attempt (e.g. interview practice).
-     */
-    @Field(
-        () => UserChallengeSubmissionAttemptEntity,
-        {
-            nullable: true,
-            description: "Challenge submission attempt that triggered the charge; null for non-challenge AI grading.",
-        },
-    )
-    @ManyToOne(
-        () => UserChallengeSubmissionAttemptEntity,
-        {
-            onDelete: "CASCADE",
-            nullable: true,
-        },
-    )
-    @JoinColumn({
-        name: "user_challenge_submission_attempt_id",
-        foreignKeyConstraintName:
-            "fk_attempt_id_credit_usage_histories_attempts",
-    })
-        attempt: UserChallengeSubmissionAttemptEntity | null
-
-    /**
-     * Attempt ID that triggered the charge, or null for non-challenge AI grading.
-     */
-    @Field(
-        () => ID,
-        {
-            nullable: true,
-            description: "Attempt ID that triggered the charge; null for non-challenge AI grading.",
-        },
-    )
-    @RelationId(
-        (creditUsageHistory: CreditUsageHistoryEntity) => creditUsageHistory.attempt,
-    )
-        attemptId: string | null
-
-    /**
-     * AI lane used for the grading (auto / premium / byok).
+     * AI lane used for the run (auto / premium). Byok is never recorded here —
+     * the user pays their own provider, not the platform pool.
      */
     @Field(
         () => GraphQLTypeAiMode,
         {
-            description: "AI lane used for the grading (auto / premium / byok).",
+            description: "AI lane used for the run (auto / premium).",
         },
     )
     @Column({
@@ -130,13 +96,51 @@ export class CreditUsageHistoryEntity extends UuidAbstractEntity {
         mode: AiMode
 
     /**
-     * Model recommendation tier billed (low / medium / high); null for auto / byok.
+     * AI surface (chatbot / grading / interview) that triggered this charge.
+     */
+    @Field(
+        () => GraphQLTypeAiCeilSurface,
+        {
+            description: "AI surface (chatbot / grading / interview) that triggered this charge.",
+        },
+    )
+    @Column({
+        name: "surface",
+        type: "enum",
+        enum: AiCeilSurface,
+        enumName: "ai_ceil_surface",
+    })
+        surface: AiCeilSurface
+
+    /**
+     * Finer-grained task (challenge grading / task grading / cv generating /
+     * chatting / …) than {@link surface} — null for charges recorded before this
+     * column existed or where the caller didn't have a task to attribute.
+     */
+    @Field(
+        () => GraphQLTypeAiModelTask,
+        {
+            nullable: true,
+            description: "Finer-grained AI task than surface (e.g. challenge_grading vs task_grading).",
+        },
+    )
+    @Column({
+        name: "task",
+        type: "enum",
+        enum: AiModelTask,
+        enumName: "ai_model_task",
+        nullable: true,
+    })
+        task: AiModelTask | null
+
+    /**
+     * Model recommendation tier billed (low / medium / high); null for auto.
      */
     @Field(
         () => String,
         {
             nullable: true,
-            description: "Model recommendation tier billed (low / medium / high); null for auto / byok.",
+            description: "Model recommendation tier billed (low / medium / high); null for auto.",
         },
     )
     @Column({
@@ -148,14 +152,14 @@ export class CreditUsageHistoryEntity extends UuidAbstractEntity {
         recommendation: string | null
 
     /**
-     * Concrete model billed (e.g. "gpt-5-mini" / "gemini-2.5-flash"); null for the free Auto lane
-     * where the balancer picks a complimentary model.
+     * Concrete model billed (e.g. "gpt-5-mini" / "gemini-2.5-flash"); null when
+     * the caller had no served-model attribution.
      */
     @Field(
         () => String,
         {
             nullable: true,
-            description: "Concrete model billed (e.g. gpt-5-mini); null for the free Auto lane.",
+            description: "Concrete model billed (e.g. gpt-5-mini); null when unattributed.",
         },
     )
     @Column({
@@ -167,13 +171,13 @@ export class CreditUsageHistoryEntity extends UuidAbstractEntity {
         model: string | null
 
     /**
-     * Provider of the billed model (gemini / openai); null for the free Auto lane.
+     * Provider of the billed model (gemini / openai); null when unattributed.
      */
     @Field(
         () => String,
         {
             nullable: true,
-            description: "Provider of the billed model (gemini / openai); null for the free Auto lane.",
+            description: "Provider of the billed model (gemini / openai); null when unattributed.",
         },
     )
     @Column({
@@ -185,12 +189,12 @@ export class CreditUsageHistoryEntity extends UuidAbstractEntity {
         provider: string | null
 
     /**
-     * Number of credits charged for this grading run.
+     * Number of credits charged for this run.
      */
     @Field(
         () => Int,
         {
-            description: "Number of credits charged for this grading run.",
+            description: "Number of credits charged for this run.",
         },
     )
     @Column({
@@ -201,22 +205,54 @@ export class CreditUsageHistoryEntity extends UuidAbstractEntity {
         credits: number
 
     /**
-     * Which AI surface (chatbot / grading / interview) triggered this charge; null
-     * for rows recorded before this column existed.
+     * Prompt (input) tokens the model consumed, when known.
      */
     @Field(
-        () => GraphQLTypeAiCeilSurface,
+        () => Int,
         {
             nullable: true,
-            description: "AI surface (chatbot / grading / interview) that triggered this charge.",
+            description: "Prompt (input) tokens the model consumed, when known.",
         },
     )
     @Column({
-        name: "surface",
-        type: "enum",
-        enum: AiCeilSurface,
-        enumName: "ai_ceil_surface",
+        name: "prompt_tokens",
+        type: "int",
         nullable: true,
     })
-        surface: AiCeilSurface | null
+        promptTokens: number | null
+
+    /**
+     * Completion (output) tokens the model produced, when known.
+     */
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Completion (output) tokens the model produced, when known.",
+        },
+    )
+    @Column({
+        name: "completion_tokens",
+        type: "int",
+        nullable: true,
+    })
+        completionTokens: number | null
+
+    /**
+     * Number of attempts the balancer needed to get a usable response
+     * (retries on a failed/empty completion), when known.
+     */
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Number of balancer attempts needed to get a usable response, when known.",
+        },
+    )
+    @Column({
+        name: "attempts",
+        type: "int",
+        nullable: true,
+    })
+        attempts: number | null
 }

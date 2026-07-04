@@ -64,7 +64,6 @@ describe("ProcessGitSubmissionCompleteStepService",
             saveExecutionResult: jest.Mock
         }
         let aiEntitlementService: { consume: jest.Mock }
-        let creditUsageService: { invalidate: jest.Mock }
         let eventEmitterService: { emit: jest.Mock }
         let service: ProcessGitSubmissionCompleteStepService
 
@@ -81,9 +80,6 @@ describe("ProcessGitSubmissionCompleteStepService",
             aiEntitlementService = {
                 consume: jest.fn(),
             }
-            creditUsageService = {
-                invalidate: jest.fn(),
-            }
             eventEmitterService = {
                 emit: jest.fn(),
             }
@@ -95,7 +91,6 @@ describe("ProcessGitSubmissionCompleteStepService",
                 } as never,
                 eventEmitterService as never,
                 new DayjsService(),
-                creditUsageService as never,
                 aiEntitlementService as never,
                 {
                     creditForModel: jest.fn().mockResolvedValue(0),

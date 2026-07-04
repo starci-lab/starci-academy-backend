@@ -6,15 +6,11 @@ import type {
 } from "../types"
 import {
     JobActionService,
-    CreditUsageService,
 } from "@modules/bussiness"
 import {
     AbstractStepService,
     JobExtendedContext,
 } from "@modules/bussiness"
-import {
-    AiQuotaExhaustedException,
-} from "@modules/exceptions"
 import {
     EmptyObject,
 } from "@modules/common"
@@ -99,7 +95,6 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly dayjsService: DayjsService,
         private readonly projectEvaluationParseService: ProjectEvaluationParseService,
-        private readonly creditUsageService: CreditUsageService,
         private readonly encryptionService: EncryptionService,
     ) {
         super()
@@ -416,18 +411,16 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 },
             },
         )
-        /** Auto lane → gate on the shared 50-credit pool; Premium/Byok are not billed for task review yet. */
+        /** Auto lane → gate on the SAME unified credit pool as everywhere else; Premium/Byok are not billed for task review yet. */
         if ((payload.ai?.mode ?? AiMode.Auto) === AiMode.Auto) {
-            const creditSnapshot = await this.creditUsageService.getSnapshot(enrollment.userId)
-            if (creditSnapshot.overQuota) {
-                throw new AiQuotaExhaustedException({
-                    mode: AiMode.Auto,
-                    window: "credit",
-                })
-            }
+            await this.aiEntitlementService.assertNotOverQuota({
+                userId: enrollment.userId,
+            })
         }
-        // ONE shared entry: floor by capstone-task difficulty → climb in tier ceiling.
-        // The credit charge happens in the complete step (by the stored served model).
+        // ONE shared entry: capstone tasks are CODE (github repo) → floor at Balanced
+        // like challenge code grading (Free/Economy grade code too shallowly per eval).
+        // Climbs to the tier ceiling. Credit charge happens in the complete step
+        // (by the stored served model).
         const {
             text: raw, model, provider, attempts, promptTokens, completionTokens,
         } = await this.aiInvokeService.run({
@@ -437,7 +430,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 new HumanMessage(humanText),
             ],
             selection: payload.ai,
-            floor: AiModelCategory.Economy,
+            floor: AiModelCategory.Balanced,
             surface: AiCeilSurface.Grading,
             task: AiModelTask.TaskGrading,
         })

@@ -31,9 +31,6 @@ import {
     CodingModule,
 } from "./coding"
 import {
-    CreditModule,
-} from "./credit"
-import {
     DiscussionModule,
 } from "./discussion"
 import {
@@ -108,8 +105,6 @@ export class BussinessModule extends ConfigurableModuleClass {
             FlashcardModule.register(options),
             // import the coding-practice module
             CodingModule.register(options),
-            // import the AI credit usage module
-            CreditModule.register(options),
             // import the content discussion (comments + reactions) module
             DiscussionModule.register(options),
             // import the AI Lab (playground + eval grading) module

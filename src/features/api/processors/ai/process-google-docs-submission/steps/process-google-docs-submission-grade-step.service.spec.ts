@@ -21,7 +21,8 @@ const parsedEvaluation = {
 }
 
 /** Minimal job + payload context the grade step reads. */
-const makeContext = (overrides: Record<string, unknown> = {}) => ({
+const makeContext = (overrides: Record<string, unknown> = {
+}) => ({
     job: {
         id: "job-1",
         fencingToken: 3,
@@ -64,10 +65,9 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
         let winstonService: { log: jest.Mock }
         let mountStorageService: { appConfig: unknown }
         let aiInvokeService: { run: jest.Mock }
-        let aiEntitlementService: { consume: jest.Mock; resolve: jest.Mock }
+        let aiEntitlementService: { consume: jest.Mock; resolve: jest.Mock; assertNotOverQuota: jest.Mock }
         let googleDriverApiService: { fetchGoogleDocsText: jest.Mock }
         let challengeEvaluationParseService: { parse: jest.Mock }
-        let creditUsageService: { getSnapshot: jest.Mock; invalidate: jest.Mock }
         let gradingRetrievalService: { retrieveGradingExcerpt: jest.Mock }
         let service: ProcessGoogleDocsSubmissionGradeStepService
 
@@ -91,7 +91,9 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
                 saveExecutionResult: jest.fn(),
                 failJob: jest.fn(),
             }
-            winstonService = { log: jest.fn() }
+            winstonService = {
+                log: jest.fn() 
+            }
             mountStorageService = {
                 appConfig: {
                     systemConfig: {
@@ -113,6 +115,7 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
             aiEntitlementService = {
                 consume: jest.fn(),
                 resolve: jest.fn(),
+                assertNotOverQuota: jest.fn().mockResolvedValue(undefined),
             }
             googleDriverApiService = {
                 fetchGoogleDocsText: jest.fn().mockResolvedValue({
@@ -121,12 +124,6 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
             }
             challengeEvaluationParseService = {
                 parse: jest.fn().mockReturnValue(parsedEvaluation),
-            }
-            creditUsageService = {
-                getSnapshot: jest.fn().mockResolvedValue({
-                    overQuota: false,
-                }),
-                invalidate: jest.fn(),
             }
             gradingRetrievalService = {
                 retrieveGradingExcerpt: jest.fn().mockResolvedValue({
@@ -143,7 +140,6 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
                 aiEntitlementService as never,
                 googleDriverApiService as never,
                 challengeEvaluationParseService as never,
-                creditUsageService as never,
                 gradingRetrievalService as never,
             )
         })
@@ -195,14 +191,13 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
             async () => {
                 await service.process(makeContext())
 
-                // charged by the served-model cost, then invalidated + marker saved
+                // charged by the served-model cost (debit + history row), marker saved
                 expect(aiEntitlementService.consume).toHaveBeenCalledWith(
                     expect.objectContaining({
                         userId: "user-1",
                         cost: 2,
                     }),
                 )
-                expect(creditUsageService.invalidate).toHaveBeenCalledWith("user-1")
                 expect(jobActionService.saveExecutionResult).toHaveBeenCalledWith(
                     expect.objectContaining({
                         key: "creditCharged",
@@ -217,9 +212,8 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
 
                 await service.process(makeContext())
 
-                // no second debit / no second invalidate on a stalled re-run
+                // no second debit on a stalled re-run
                 expect(aiEntitlementService.consume).not.toHaveBeenCalled()
-                expect(creditUsageService.invalidate).not.toHaveBeenCalled()
                 // grading + persistence still happen
                 expect(jobActionService.saveExecutionResult).toHaveBeenCalledWith(
                     expect.objectContaining({
@@ -230,9 +224,12 @@ describe("ProcessGoogleDocsSubmissionGradeStepService",
 
         it("blocks the Auto lane when the shared credit pool is over quota",
             async () => {
-                creditUsageService.getSnapshot.mockResolvedValue({
-                    overQuota: true,
-                })
+                aiEntitlementService.assertNotOverQuota.mockRejectedValueOnce(
+                    new AiQuotaExhaustedException({
+                        mode: AiMode.Auto,
+                        window: "5h",
+                    }),
+                )
 
                 await expect(
                     service.process(makeContext({

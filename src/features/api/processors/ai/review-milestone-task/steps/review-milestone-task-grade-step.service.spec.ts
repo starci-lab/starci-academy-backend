@@ -42,7 +42,9 @@ jest.mock(
             },
         ),
     }),
-    { virtual: true },
+    {
+        virtual: true 
+    },
 )
 
 import {
@@ -71,10 +73,8 @@ const makeService = (entityManager: EntityManagerMock) => {
             details: [],
         }),
     }
-    const creditUsageService = {
-        getSnapshot: jest.fn().mockResolvedValue({
-            overQuota: false,
-        }),
+    const aiEntitlementService = {
+        assertNotOverQuota: jest.fn().mockResolvedValue(undefined),
     }
     const mountStorageService = {
         githubAccessToken: "ORG-TOKEN",
@@ -104,11 +104,9 @@ const makeService = (entityManager: EntityManagerMock) => {
         mountStorageService as never,
         gradingRetrievalService as never,
         aiInvokeService as never,
-        {
-        } as never,
+        aiEntitlementService as never,
         new DayjsService(),
         projectEvaluationParseService as never,
-        creditUsageService as never,
         encryptionService as never,
     )
 
@@ -122,7 +120,8 @@ const makeService = (entityManager: EntityManagerMock) => {
 }
 
 /** Minimal job + payload context the grade step reads. */
-const makeContext = (overrides: Record<string, unknown> = {}) => ({
+const makeContext = (overrides: Record<string, unknown> = {
+}) => ({
     job: {
         id: "job-1",
         fencingToken: 7,

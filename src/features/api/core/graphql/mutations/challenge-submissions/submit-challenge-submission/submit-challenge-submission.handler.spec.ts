@@ -12,7 +12,7 @@ import {
 import {
     EnqueueProcessGitSubmissionJobService,
     EnqueueProcessGoogleDocsSubmissionJobService,
-    CreditUsageService,
+    UserService,
 } from "@modules/bussiness"
 import {
     AiEntitlementService,
@@ -140,16 +140,17 @@ describe("SubmitChallengeSubmissionHandler",
                         useValue: gradingLaneValidationService,
                     },
                     {
-                        // never reached on the BYOK happy path, but required by DI
-                        provide: CreditUsageService,
-                        useValue: {
-                            getSnapshot: jest.fn(),
-                        },
-                    },
-                    {
                         provide: AiEntitlementService,
                         useValue: {
                             snapshot: jest.fn(),
+                        },
+                    },
+                    {
+                        // best-effort trial-enrollment resolution — a bare stub keeps the
+                        // (try/catch-wrapped) capstone-attempt path inert for these specs
+                        provide: UserService,
+                        useValue: {
+                            resolveOrCreateTrialEnrollment: jest.fn().mockResolvedValue(null),
                         },
                     },
                     {

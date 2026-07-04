@@ -23,8 +23,8 @@ import {
     UserEntity,
 } from "@modules/databases"
 import {
-    CreditUsageService,
-} from "@modules/bussiness"
+    AiEntitlementService,
+} from "@modules/ai"
 import {
     MyCreditUsageResponse,
     MyCreditUsageResponseData,
@@ -32,13 +32,14 @@ import {
 
 /**
  * Per-user AI credit usage snapshot — used / quota / remaining / overQuota.
- * Source of truth is `credit_usage_histories`; the sum is Redis-cached by
- * {@link CreditUsageService} so this query stays cheap.
+ * Source of truth is the unified pool (`ai_subscriptions`, tier-aware) via
+ * {@link AiEntitlementService.snapshot} — the SAME source the quota gate reads,
+ * so this can never drift from what actually blocks a grading call.
  */
 @Resolver()
 export class MyCreditUsageResolver {
     constructor(
-        private readonly creditUsageService: CreditUsageService,
+        private readonly aiEntitlementService: AiEntitlementService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -54,30 +55,36 @@ export class MyCreditUsageResolver {
             name: "myCreditUsage",
             description:
                 "Returns the authenticated user's AI credit usage snapshot "
-                + "(used / quota / remaining / overQuota) from credit_usage_histories.",
+                + "(used / quota / remaining / overQuota) from the unified pool.",
         },
     )
     async execute(
         @KeycloakGraphQLUser()
             user: UserEntity,
     ): Promise<MyCreditUsageResponseData> {
-        const snapshot = await this.creditUsageService.getSnapshot(user.id)
-        const mapWindow = (
-            window: typeof snapshot.window5h,
-        ) => ({
-            usedCredits: window.usedCredits,
-            quota: window.quota,
-            remainingCredits: window.remainingCredits,
-            resetAt: window.resetAt,
+        const snapshot = await this.aiEntitlementService.snapshot({
+            userId: user.id,
         })
+        const overQuota = snapshot.credit.remaining5h <= 0
+            || snapshot.credit.remainingWeek <= 0
         return {
-            usedCredits: snapshot.usedCredits,
-            quota: snapshot.quota,
-            remainingCredits: snapshot.remainingCredits,
-            overQuota: snapshot.overQuota,
-            resetAt: snapshot.resetAt,
-            window5h: mapWindow(snapshot.window5h),
-            windowWeek: mapWindow(snapshot.windowWeek),
+            usedCredits: snapshot.credit.usedWeek,
+            quota: snapshot.credit.limitWeek,
+            remainingCredits: snapshot.credit.remainingWeek,
+            overQuota,
+            resetAt: snapshot.windowWeekResetAt,
+            window5h: {
+                usedCredits: snapshot.credit.used5h,
+                quota: snapshot.credit.limit5h,
+                remainingCredits: snapshot.credit.remaining5h,
+                resetAt: snapshot.window5hResetAt,
+            },
+            windowWeek: {
+                usedCredits: snapshot.credit.usedWeek,
+                quota: snapshot.credit.limitWeek,
+                remainingCredits: snapshot.credit.remainingWeek,
+                resetAt: snapshot.windowWeekResetAt,
+            },
         }
     }
 }

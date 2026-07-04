@@ -25,8 +25,8 @@ import {
     UserEntity,
 } from "@modules/databases"
 import {
-    CreditUsageService,
-} from "@modules/bussiness"
+    AiEntitlementService,
+} from "@modules/ai"
 import {
     MyCreditUsageHistoryResponse,
     MyCreditUsageHistoryResponseData,
@@ -36,14 +36,16 @@ import {
 const MAX_LIMIT = 200
 
 /**
- * Per-user AI credit charge history (newest first), paginated.
- * Source of truth is `credit_usage_histories`; read directly (not cached) since
- * the history is viewed on demand, not on the grading hot path.
+ * Per-user AI credit charge history (newest first), paginated. Source of truth
+ * is `credit_usage_histories`, written atomically by
+ * {@link AiEntitlementService.consume} alongside the unified pool debit — read
+ * directly here (not cached) since history is viewed on demand, not on the
+ * grading hot path.
  */
 @Resolver()
 export class MyCreditUsageHistoryResolver {
     constructor(
-        private readonly creditUsageService: CreditUsageService,
+        private readonly aiEntitlementService: AiEntitlementService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -80,16 +82,14 @@ export class MyCreditUsageHistoryResolver {
             })
             offset: number,
     ): Promise<MyCreditUsageHistoryResponseData> {
-        const page = await this.creditUsageService.getHistory(
-            user.id,
-            {
-                limit: Math.min(Math.max(limit ?? 50,
-                    1),
-                MAX_LIMIT),
-                offset: Math.max(offset ?? 0,
-                    0),
-            },
-        )
+        const page = await this.aiEntitlementService.history({
+            userId: user.id,
+            limit: Math.min(Math.max(limit ?? 50,
+                1),
+            MAX_LIMIT),
+            offset: Math.max(offset ?? 0,
+                0),
+        })
         return {
             items: page.items.map((item) => ({
                 id: item.id,

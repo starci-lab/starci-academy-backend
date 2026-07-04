@@ -3,9 +3,14 @@ import {
     EntityManagerMock,
 } from "@modules/tests"
 import {
+    AiCeilSurface,
     AiMode,
+    AiModelTask,
     Locale,
 } from "@modules/databases"
+import {
+    AiQuotaExhaustedException,
+} from "@modules/exceptions"
 
 /**
  * Mock `@modules/ai` so the module-level `resolveGradingInvokeOptions` resolver
@@ -40,15 +45,10 @@ const makeService = (entityManager: EntityManagerMock) => {
     }
     const aiEntitlementService = {
         consume: jest.fn().mockResolvedValue(undefined),
+        assertNotOverQuota: jest.fn().mockResolvedValue(undefined),
     }
     const aiModelCatalogService = {
         creditForModel: jest.fn().mockResolvedValue(42),
-    }
-    const creditUsageService = {
-        getSnapshot: jest.fn().mockResolvedValue({
-            overQuota: false,
-        }),
-        invalidate: jest.fn().mockResolvedValue(undefined),
     }
     const aiLabEvalService = {
         gradeEvalSet: jest.fn().mockResolvedValue({
@@ -63,7 +63,6 @@ const makeService = (entityManager: EntityManagerMock) => {
         winstonService as never,
         aiEntitlementService as never,
         aiModelCatalogService as never,
-        creditUsageService as never,
         aiLabEvalService as never,
     )
 
@@ -73,13 +72,13 @@ const makeService = (entityManager: EntityManagerMock) => {
         winstonService,
         aiEntitlementService,
         aiModelCatalogService,
-        creditUsageService,
         aiLabEvalService,
     }
 }
 
 /** Minimal job + payload context the grade step reads. */
-const makeContext = (payloadOverrides: Record<string, unknown> = {}) => ({
+const makeContext = (payloadOverrides: Record<string, unknown> = {
+}) => ({
     job: {
         id: "job-1",
     },
@@ -121,15 +120,16 @@ describe("ReviewAiLabEvalGradeStepService",
                     aiLabEvalService,
                     aiEntitlementService,
                     aiModelCatalogService,
-                    creditUsageService,
                     jobActionService,
                     winstonService,
                 } = makeService(entityManager)
 
                 await service.process(makeContext())
 
-                // quota gate consulted the credit pool for Auto
-                expect(creditUsageService.getSnapshot).toHaveBeenCalledWith("user-1")
+                // quota gate consulted the SAME unified credit pool for Auto
+                expect(aiEntitlementService.assertNotOverQuota).toHaveBeenCalledWith({
+                    userId: "user-1",
+                })
 
                 // graded the submitted template against the eval set
                 expect(aiLabEvalService.gradeEvalSet).toHaveBeenCalledTimes(1)
@@ -150,11 +150,12 @@ describe("ReviewAiLabEvalGradeStepService",
                     userId: "user-1",
                     mode: AiMode.Auto,
                     cost: 0,
+                    surface: AiCeilSurface.Grading,
+                    task: AiModelTask.Grading,
+                    model: null,
+                    provider: null,
                 })
                 expect(aiModelCatalogService.creditForModel).not.toHaveBeenCalled()
-
-                // cached Auto total invalidated after the charge
-                expect(creditUsageService.invalidate).toHaveBeenCalledWith("user-1")
 
                 // verdict persisted with resolved usage
                 expect(jobActionService.increaseJob).toHaveBeenCalledTimes(1)
@@ -205,6 +206,10 @@ describe("ReviewAiLabEvalGradeStepService",
                     userId: "user-1",
                     mode: AiMode.Premium,
                     cost: 42,
+                    surface: AiCeilSurface.Grading,
+                    task: AiModelTask.Grading,
+                    model: "gpt-x",
+                    provider: "openai",
                 })
 
                 const saveArg = jobActionService.saveExecutionResult.mock.calls[0][0]
@@ -222,7 +227,7 @@ describe("ReviewAiLabEvalGradeStepService",
                     provider: "openai",
                 })
 
-                const { service, creditUsageService, aiLabEvalService } =
+                const { service, aiEntitlementService, aiLabEvalService } =
                     makeService(entityManager)
 
                 await service.process(makeContext({
@@ -231,7 +236,7 @@ describe("ReviewAiLabEvalGradeStepService",
                     },
                 }))
 
-                expect(creditUsageService.getSnapshot).not.toHaveBeenCalled()
+                expect(aiEntitlementService.assertNotOverQuota).not.toHaveBeenCalled()
                 expect(aiLabEvalService.gradeEvalSet).toHaveBeenCalledTimes(1)
             })
 
@@ -239,13 +244,16 @@ describe("ReviewAiLabEvalGradeStepService",
             async () => {
                 const {
                     service,
-                    creditUsageService,
+                    aiEntitlementService,
                     aiLabEvalService,
                     jobActionService,
                 } = makeService(entityManager)
-                creditUsageService.getSnapshot.mockResolvedValue({
-                    overQuota: true,
-                })
+                aiEntitlementService.assertNotOverQuota.mockRejectedValueOnce(
+                    new AiQuotaExhaustedException({
+                        mode: AiMode.Auto,
+                        window: "5h",
+                    }),
+                )
 
                 await expect(service.process(makeContext())).rejects.toThrow()
 
@@ -278,7 +286,7 @@ describe("ReviewAiLabEvalGradeStepService",
 
         it("defaults the lane to Auto when the submission pinned no ai mode",
             async () => {
-                const { service, creditUsageService, aiEntitlementService } =
+                const { service, aiEntitlementService } =
                     makeService(entityManager)
 
                 await service.process(makeContext({
@@ -286,7 +294,9 @@ describe("ReviewAiLabEvalGradeStepService",
                 }))
 
                 // undefined ai → treated as Auto: pool gated + billed on Auto
-                expect(creditUsageService.getSnapshot).toHaveBeenCalledWith("user-1")
+                expect(aiEntitlementService.assertNotOverQuota).toHaveBeenCalledWith({
+                    userId: "user-1",
+                })
                 expect(aiEntitlementService.consume.mock.calls[0][0].mode).toBe(AiMode.Auto)
             })
     })

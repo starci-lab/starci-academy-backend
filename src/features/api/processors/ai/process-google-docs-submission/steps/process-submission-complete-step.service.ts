@@ -3,7 +3,6 @@ import type {
 } from "@modules/bullmq"
 import {
     JobActionService,
-    CreditUsageService,
     EnqueueSendMailJobService,
     ProgressProjectionService,
     ChallengeProgressService,
@@ -17,12 +16,11 @@ import {
     ActivityType,
     AiCeilSurface,
     AiMode,
+    AiModelTask,
     ChallengeEntity,
-    CreditUsageHistoryEntity,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
-    ModelProvider,
     UserChallengeSubmissionAttemptEntity,
     UserChallengeSubmissionEntity,
     XpSource,
@@ -93,7 +91,6 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
         private readonly winstonService: WinstonService,
         private readonly eventEmitterService: EventEmitterService,
         private readonly dayjsService: DayjsService,
-        private readonly creditUsageService: CreditUsageService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly aiModelCatalogService: AiModelCatalogService,
         private readonly progressProjectionService: ProgressProjectionService,
@@ -215,15 +212,14 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                         }
                     )
                     createdNewAttempt = true
-                    /** Record the AI credits charged for this grading run (same tx). */
-                    chargedUserId = await this.recordCreditUsage(
-                        {
-                            entityManager,
-                            payload,
-                            attemptId: attempt.id,
-                            servedModel: grade.aiUsage?.model,
-                            servedProvider: grade.aiUsage?.provider,
-                        },
+                    /** Resolve who is being charged (the credit debit + history row are
+                     * written by the after-commit fallback below, via the SAME
+                     * `AiEntitlementService.consume` every other grading surface uses —
+                     * see the V2 grade-step, which is the common path and already
+                     * charged before this step ran). */
+                    chargedUserId = await this.resolveChargedUserId(
+                        entityManager,
+                        payload,
                     )
                     /** Grant XP + reward points for a passed challenge (same tx, idempotent). */
                     if (grade.passed) {
@@ -319,13 +315,13 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
             throw error
         }
 
-        // The V2 grade step already debited at invoke time (marker set); only debit here for the
-        // legacy V1 grade path that does not charge up-front. Audit row is written either way (above).
+        // The V2 grade step already debited (+ recorded history) at invoke time (marker
+        // set); only debit here for the legacy V1 grade path that does not charge up-front.
         const alreadyCharged = await this.jobActionService.loadExecutionResult<boolean>({
             job,
             key: "creditCharged",
         })
-        /** Debit credit pools AFTER commit, only when this run created the attempt and grade didn't charge. */
+        /** Debit + record history AFTER commit, only when this run created the attempt and grade didn't charge. */
         if (createdNewAttempt && chargedUserId && !alreadyCharged) {
             const chargedMode = payload.ai?.mode ?? AiMode.Auto
             await this.aiEntitlementService.consume({
@@ -338,8 +334,17 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                         fallback: DEFAULT_MODEL_CREDIT,
                     })
                     : 0,
+                surface: AiCeilSurface.Grading,
+                task: AiModelTask.ChallengeGrading,
+                model: grade.aiUsage?.model ?? null,
+                provider: grade.aiUsage?.provider ?? null,
+                recommendation: chargedMode === AiMode.Premium
+                    ? envConfig().ai.modelRecommendation as ModelRecommendation
+                    : null,
+                promptTokens: grade.aiUsage?.promptTokens ?? null,
+                completionTokens: grade.aiUsage?.completionTokens ?? null,
+                attempts: grade.aiUsage?.attempts ?? null,
             })
-            await this.creditUsageService.invalidate(chargedUserId)
         }
 
         this.winstonService.log(
@@ -384,28 +389,18 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
     }
 
     /**
-     * Persist a {@link CreditUsageHistoryEntity} row for the grading run.
-     * @param params - Transaction manager, job payload, and the saved attempt id.
-     * @returns The id of the user that was charged.
+     * Resolve who is being charged from the user challenge submission — the
+     * actual debit + history row are written by {@link AiEntitlementService.consume}
+     * (either at grade-step time, the common V2 path, or by this step's own
+     * after-commit fallback for the legacy V1 path — see {@link process}).
+     * @param entityManager - Transaction manager.
+     * @param payload - Job payload carrying the submission id.
+     * @returns The id of the user to charge.
      */
-    private async recordCreditUsage(
-        {
-            entityManager,
-            payload,
-            attemptId,
-            servedModel,
-            servedProvider,
-        }: {
-            entityManager: EntityManager
-            payload: ProcessGoogleDocsSubmissionPayload
-            attemptId: string
-            /** The model that actually served (Auto is load-balanced — record what ran). */
-            servedModel?: string
-            /** Provider of {@link servedModel}. */
-            servedProvider?: ModelProvider
-        },
+    private async resolveChargedUserId(
+        entityManager: EntityManager,
+        payload: ProcessGoogleDocsSubmissionPayload,
     ): Promise<string> {
-        /** Resolve who is being charged from the user challenge submission. */
         const userChallengeSubmission = await entityManager.findOneOrFail(
             UserChallengeSubmissionEntity,
             {
@@ -414,50 +409,12 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                 },
             },
         )
-        /** The lane the user submitted on (defaults to the free Auto lane). */
-        const mode = payload.ai?.mode ?? AiMode.Auto
-        /** Recorded on the usage history for Premium spend attribution. */
-        const recommendation = envConfig().ai.modelRecommendation as ModelRecommendation
-        // credits billed by the model that actually served (catalog credit)
-        const credits = servedModel
-            ? await this.aiModelCatalogService.creditForModel({
-                name: servedModel,
-                fallback: DEFAULT_MODEL_CREDIT,
-            })
-            : 0
-        // Prefer the model that actually served (incl. the Auto-lane Qwen/economy pick);
-        // fall back to the user-picked Premium/BYOK model.
-        const pickedModel = servedModel
-            ?? (payload.ai && payload.ai.mode !== AiMode.Auto
-                ? payload.ai.model
-                : null)
-        const pickedProvider = servedProvider
-            ?? (payload.ai && payload.ai.mode !== AiMode.Auto
-                ? payload.ai.provider
-                : null)
         // user_id is nullable after the enrollment-centric migration; an AI-graded
         // submission always has an owner — guard so the credit-usage write stays typed.
         const submissionUserId = userChallengeSubmission.userId
         if (!submissionUserId) {
             throw new Error("Cannot record credit usage: submission has no owner user")
         }
-        await entityManager.save(
-            CreditUsageHistoryEntity,
-            {
-                user: {
-                    id: submissionUserId,
-                },
-                attempt: {
-                    id: attemptId,
-                },
-                mode,
-                recommendation: mode === AiMode.Premium ? recommendation : null,
-                model: pickedModel,
-                provider: pickedProvider,
-                credits,
-                surface: AiCeilSurface.Grading,
-            },
-        )
         return submissionUserId
     }
 }

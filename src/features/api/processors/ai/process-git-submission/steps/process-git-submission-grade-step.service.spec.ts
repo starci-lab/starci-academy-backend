@@ -3,8 +3,9 @@ import {
     EntityManagerMock,
 } from "@modules/tests"
 import {
+    AiCeilSurface,
     AiMode,
-    EnrollmentEntity,
+    AiModelTask,
     Locale,
 } from "@modules/databases"
 
@@ -65,6 +66,7 @@ const makeService = (entityManager: EntityManagerMock) => {
     const aiEntitlementService = {
         resolve: jest.fn(),
         consume: jest.fn(),
+        assertNotOverQuota: jest.fn().mockResolvedValue(undefined),
     }
     const challengeEvaluationParseService = {
         parse: jest.fn().mockReturnValue({
@@ -72,12 +74,6 @@ const makeService = (entityManager: EntityManagerMock) => {
             shortFeedback: "ok",
             details: [],
         }),
-    }
-    const creditUsageService = {
-        getSnapshot: jest.fn().mockResolvedValue({
-            overQuota: false,
-        }),
-        invalidate: jest.fn(),
     }
     const gradingRetrievalService = {
         retrieveGradingExcerpt: jest.fn().mockResolvedValue({
@@ -99,7 +95,6 @@ const makeService = (entityManager: EntityManagerMock) => {
         aiInvokeService as never,
         aiEntitlementService as never,
         challengeEvaluationParseService as never,
-        creditUsageService as never,
         gradingRetrievalService as never,
         encryptionService as never,
     )
@@ -110,13 +105,13 @@ const makeService = (entityManager: EntityManagerMock) => {
         aiInvokeService,
         aiEntitlementService,
         challengeEvaluationParseService,
-        creditUsageService,
         gradingRetrievalService,
     }
 }
 
 /** Minimal job + payload + extended context the grade step reads. */
-const makeContext = (overrides: Record<string, unknown> = {}) => ({
+const makeContext = (overrides: Record<string, unknown> = {
+}) => ({
     job: {
         id: "job-1",
         fencingToken: 7,
@@ -250,26 +245,28 @@ describe("ProcessGitSubmissionGradeStepService",
                 expect(jobActionService.increaseJob).toHaveBeenCalledTimes(1)
             })
 
-        it("charges the AI usage once before parsing, then marks the job",
+        it("charges the AI usage once before parsing (debit + history row), then marks the job",
             async () => {
                 const {
                     service,
                     aiEntitlementService,
-                    creditUsageService,
                     jobActionService,
                 } = makeService(entityManager)
 
                 await service.process(makeContext())
 
-                // consumed by the served cost (Auto lane), credit cache invalidated, marker saved
+                // consumed by the served cost (Auto lane), full attribution recorded, marker saved
                 expect(aiEntitlementService.consume).toHaveBeenCalledWith(
                     expect.objectContaining({
                         userId: "user-1",
                         mode: AiMode.Auto,
                         cost: 2,
+                        surface: AiCeilSurface.Grading,
+                        task: AiModelTask.ChallengeGrading,
+                        model: "m",
+                        provider: "p",
                     }),
                 )
-                expect(creditUsageService.invalidate).toHaveBeenCalledWith("user-1")
                 expect(jobActionService.saveExecutionResult).toHaveBeenCalledWith(
                     expect.objectContaining({
                         key: "creditCharged",

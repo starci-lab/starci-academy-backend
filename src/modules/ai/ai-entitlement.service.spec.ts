@@ -9,10 +9,12 @@ import {
     AiEntitlementService,
 } from "./ai-entitlement.service"
 import {
+    AiCeilSurface,
     AiMode,
     AiSubStatus,
     AiSubscriptionEntity,
     AiSubTier,
+    CreditUsageHistoryEntity,
     ModelProvider,
     TransactionStatus,
 } from "@modules/databases"
@@ -244,26 +246,36 @@ describe("AiEntitlementService",
 
         describe("consume",
             () => {
-                it("is a no-op for the Byok lane (never opens a transaction)",
+                it("is a no-op for the Byok lane (never opens a transaction, no history row either)",
                     async () => {
                         await service.consume({
                             userId,
                             mode: AiMode.Byok,
                             cost: 5,
+                            surface: AiCeilSurface.Grading,
                         })
 
                         expect(entityManager.transaction).not.toHaveBeenCalled()
                     })
 
-                it("is a no-op when the cost is not positive",
+                it("still records a history row (but skips the debit) when the cost is not positive",
                     async () => {
                         await service.consume({
                             userId,
                             mode: AiMode.Premium,
                             cost: 0,
+                            surface: AiCeilSurface.Grading,
                         })
 
-                        expect(entityManager.transaction).not.toHaveBeenCalled()
+                        // the transaction opens (to write the audit row) but the subscription
+                        // is never locked/debited for a zero-cost run
+                        expect(entityManager.transaction).toHaveBeenCalledTimes(1)
+                        expect(entityManager.save).toHaveBeenCalledWith(
+                            CreditUsageHistoryEntity,
+                            expect.objectContaining({
+                                credits: 0,
+                            }),
+                        )
                     })
 
                 it("debits both windows under a pessimistic write lock for Premium",
@@ -283,6 +295,7 @@ describe("AiEntitlementService",
                             userId,
                             mode: AiMode.Premium,
                             cost: 5,
+                            surface: AiCeilSurface.Grading,
                         })
 
                         // row is locked FOR UPDATE so concurrent debits serialize
@@ -291,9 +304,18 @@ describe("AiEntitlementService",
                         expect(subscription.credit5hUsed).toBe(15)
                         expect(subscription.creditWeekUsed).toBe(105)
                         expect(entityManager.save).toHaveBeenCalledWith(subscription)
+                        // AND the audit-history row is written atomically alongside the debit
+                        expect(entityManager.save).toHaveBeenCalledWith(
+                            CreditUsageHistoryEntity,
+                            expect.objectContaining({
+                                credits: 5,
+                                mode: AiMode.Premium,
+                                surface: AiCeilSurface.Grading,
+                            }),
+                        )
                     })
 
-                it("does nothing when the locked row is missing",
+                it("still records a history row when the locked row is missing (no debit, no crash)",
                     async () => {
                         const queryBuilder = entityManager
                             .createQueryBuilder() as unknown as QueryBuilderMock
@@ -303,9 +325,17 @@ describe("AiEntitlementService",
                             userId,
                             mode: AiMode.Premium,
                             cost: 5,
+                            surface: AiCeilSurface.Grading,
                         })
 
-                        expect(entityManager.save).not.toHaveBeenCalled()
+                        // no subscription to debit, but the audit row is still written
+                        expect(entityManager.save).toHaveBeenCalledTimes(1)
+                        expect(entityManager.save).toHaveBeenCalledWith(
+                            CreditUsageHistoryEntity,
+                            expect.objectContaining({
+                                credits: 5,
+                            }),
+                        )
                     })
             })
 

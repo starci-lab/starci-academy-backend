@@ -1,6 +1,8 @@
 import type {
+    AiCeilSurface,
     AiMode,
     AiModelCategory,
+    AiModelTask,
     AiSubTier,
     ModelProvider,
 } from "@modules/databases"
@@ -133,8 +135,62 @@ export interface ResolveEntitlementParams {
 export interface ConsumeEntitlementParams {
     /** Owner of the entitlement. */
     userId: string
-    /** Lane that ran — every lane except {@link AiMode.Byok} debits the pool. */
+    /** Lane that ran — every lane except {@link AiMode.Byok} debits the pool (Byok is also skipped in history — it's the user's own key, not platform spend). */
     mode: AiMode
     /** Credits to debit from the unified pool (ignored for Byok). */
     cost: number
+    /** AI surface this charge is for (chatbot / grading / interview) — labels the history row. */
+    surface: AiCeilSurface
+    /** Concrete model that served, when known (e.g. Auto free-chain fallback); null/omit for a plain Auto pick with no attribution. */
+    model?: string | null
+    /** Provider of {@link model}. */
+    provider?: string | null
+    /** Model-recommendation tier billed (low / medium / high) for a Premium pick; null for Auto/Byok. */
+    recommendation?: string | null
+    /** Finer-grained task (challenge_grading / task_grading / cv_generating / chatting / …) than {@link surface}. */
+    task?: AiModelTask | null
+    /** Prompt (input) tokens the model consumed, when known. */
+    promptTokens?: number | null
+    /** Completion (output) tokens the model produced, when known. */
+    completionTokens?: number | null
+    /** Number of balancer attempts needed to get a usable response, when known. */
+    attempts?: number | null
+}
+
+/** Params for {@link AiEntitlementService.history}. */
+export interface EntitlementHistoryParams {
+    /** Owner of the entitlement. */
+    userId: string
+    /** Page size. */
+    limit: number
+    /** Rows to skip. */
+    offset: number
+}
+
+/** One AI credit charge row for {@link AiEntitlementService.history}. */
+export interface EntitlementHistoryItem {
+    /** Charge row id. */
+    id: string
+    /** AI lane the charge was billed on (auto / premium). */
+    mode: AiMode
+    /** Premium tier billed (low / medium / high); null for auto. */
+    recommendation: string | null
+    /** Concrete model billed (e.g. gpt-5-mini); null when unattributed. */
+    model: string | null
+    /** Provider of the billed model. */
+    provider: string | null
+    /** Credits charged for this run. */
+    credits: number
+    /** When the charge was recorded. */
+    createdAt: Date
+    /** AI surface (chatbot / grading / interview) that triggered this charge. */
+    surface: AiCeilSurface
+}
+
+/** A page of AI credit charge rows plus the total count. */
+export interface EntitlementHistoryPage {
+    /** The charge rows for the requested page, newest first. */
+    items: Array<EntitlementHistoryItem>
+    /** Total number of charge rows for the user (across all pages). */
+    total: number
 }

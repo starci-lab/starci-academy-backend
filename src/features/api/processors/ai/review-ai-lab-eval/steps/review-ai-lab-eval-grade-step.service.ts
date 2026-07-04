@@ -7,18 +7,16 @@ import type {
 import {
     AbstractStepService,
     AiLabEvalService,
-    CreditUsageService,
     JobActionService,
     JobExtendedContext,
 } from "@modules/bussiness"
 import {
-    AiQuotaExhaustedException,
-} from "@modules/exceptions"
-import {
     EmptyObject,
 } from "@modules/common"
 import {
+    AiCeilSurface,
     AiMode,
+    AiModelTask,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
 } from "@modules/databases"
@@ -61,7 +59,6 @@ export class ReviewAiLabEvalGradeStepService extends AbstractStepService<
         private readonly winstonService: WinstonService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly aiModelCatalogService: AiModelCatalogService,
-        private readonly creditUsageService: CreditUsageService,
         private readonly aiLabEvalService: AiLabEvalService,
     ) {
         super()
@@ -112,15 +109,11 @@ export class ReviewAiLabEvalGradeStepService extends AbstractStepService<
         // default the grading lane to Auto when the submission pinned none
         const mode = payload.ai?.mode ?? AiMode.Auto
 
-        // Auto lane → gate on the shared credit pool before spending any tokens
+        // Auto lane → gate on the SAME unified credit pool the Premium lane resolves against
         if (mode === AiMode.Auto) {
-            const creditSnapshot = await this.creditUsageService.getSnapshot(payload.userId)
-            if (creditSnapshot.overQuota) {
-                throw new AiQuotaExhaustedException({
-                    mode: AiMode.Auto,
-                    window: "credit",
-                })
-            }
+            await this.aiEntitlementService.assertNotOverQuota({
+                userId: payload.userId,
+            })
         }
 
         // resolve the concrete invoke options (chain / pinned model) for the lane —
@@ -158,8 +151,11 @@ export class ReviewAiLabEvalGradeStepService extends AbstractStepService<
                     fallback: DEFAULT_MODEL_CREDIT,
                 })
                 : 0,
+            surface: AiCeilSurface.Grading,
+            task: AiModelTask.Grading,
+            model: invokeOptions.model ?? null,
+            provider: invokeOptions.provider ?? null,
         })
-        await this.creditUsageService.invalidate(payload.userId)
 
         return {
             grade,

@@ -7,30 +7,26 @@ import {
 import {
     AiCeilSurface,
     AiMode,
-    CreditUsageHistoryEntity,
+    AiModelTask,
     FlashcardDeckEntity,
     InjectPrimaryPostgreSQLEntityManager,
     InterviewAttemptEntity,
-    ModelProvider,
 } from "@modules/databases"
 import type {
     FlashcardCardEntity,
 } from "@modules/databases"
 import {
+    AiEntitlementService,
     AiInvokeService,
     GradingLaneValidationService,
     extractJsonBlock,
     validatedLaneToAiJobSelection,
 } from "@modules/ai"
 import {
-    AiQuotaExhaustedException,
     FlashcardCardMissingAnswerException,
     FlashcardCardNotFoundException,
     ParsingCriteriaResultsFromModelTextException,
 } from "@modules/exceptions"
-import {
-    CreditUsageService,
-} from "../credit/credit-usage.service"
 import {
     UserService,
 } from "../user"
@@ -74,7 +70,7 @@ export class InterviewGradingService {
         private readonly interviewGradePromptService: InterviewGradePromptService,
         private readonly aiInvokeService: AiInvokeService,
         private readonly gradingLaneValidationService: GradingLaneValidationService,
-        private readonly creditUsageService: CreditUsageService,
+        private readonly aiEntitlementService: AiEntitlementService,
         private readonly userService: UserService,
     ) { }
 
@@ -125,14 +121,12 @@ export class InterviewGradingService {
             })
         }
 
-        // gate the free Auto lane against the shared rolling credit pool — interview
-        // grading always runs on the pinned gpt-4o Auto lane, so block once the user is
-        // over quota instead of leaking unbounded free gpt-4o calls behind the throttler
-        const creditSnapshot = await this.creditUsageService.getSnapshot(userId)
-        if (creditSnapshot.overQuota) {
-            throw new AiQuotaExhaustedException({
-                mode: AiMode.Auto,
-                window: "credit",
+        // gate on the SAME unified credit pool every other grading surface reads
+        // (tier-aware — a paid Pro/Max user gets their tier's real ceiling, not the
+        // free 50/5h · 250/week base). Byok is never gated (user's own key).
+        if (mode !== AiMode.Byok) {
+            await this.aiEntitlementService.assertNotOverQuota({
+                userId,
             })
         }
 
@@ -157,7 +151,9 @@ export class InterviewGradingService {
         })
 
         // ONE shared entry (temperature defaults to 0 → deterministic grading)
-        const { text, model, provider, cost } = await this.aiInvokeService.run({
+        const {
+            text, model, provider, cost, promptTokens, completionTokens, attempts,
+        } = await this.aiInvokeService.run({
             userId,
             messages,
             selection,
@@ -166,11 +162,22 @@ export class InterviewGradingService {
 
         // charge NOW — before parsing — so a malformed model response can never leak a
         // free grading call. Billed by the model that served (free 0 / economy 5 / …).
-        await this.recordAutoCreditUsage(userId,
+        // Uses the RESOLVED lane (validatedLane.mode), not the raw request — an omitted
+        // mode resolves to Auto, matching the old hard-coded behavior for that case, but
+        // an explicit Premium/Byok pick is now billed/recorded correctly (was previously
+        // always recorded as Auto regardless of what actually ran).
+        await this.aiEntitlementService.consume({
+            userId,
+            mode: validatedLane.mode,
+            cost,
+            surface: AiCeilSurface.Interview,
+            task: AiModelTask.Grading,
             model,
             provider,
-            cost,
-            AiCeilSurface.Interview)
+            promptTokens,
+            completionTokens,
+            attempts,
+        })
 
         const result = this.parse(text)
         // record the graded attempt for cross-session interview history (best-effort —
@@ -276,46 +283,6 @@ export class InterviewGradingService {
         } catch {
             // history is non-critical — never fail the grade over a logging write
         }
-    }
-
-    /**
-     * Persist an Auto-lane {@link CreditUsageHistoryEntity} row for one interview
-     * grading run, then bust the user's cached usage so the next gate sees it.
-     * The row carries no attempt — interview practice is stateless and not tied to
-     * a challenge — but still counts toward the same rolling Auto credit pool.
-     *
-     * @param userId - The user charged for the grading call.
-     * @param servedModel - The model that actually served (free / economy fallback).
-     * @param servedProvider - Provider of {@link servedModel}.
-     * @param credits - The credit cost resolved by `run` (served model's catalog credit).
-     * @param surface - The AI surface this charge is for (labels the row in history).
-     */
-    private async recordAutoCreditUsage(
-        userId: string,
-        servedModel: string | undefined,
-        servedProvider: ModelProvider | undefined,
-        credits: number,
-        surface: AiCeilSurface,
-    ): Promise<void> {
-        await this.entityManager.save(
-            CreditUsageHistoryEntity,
-            {
-                user: {
-                    id: userId,
-                },
-                // stateless interview grading is not tied to a challenge attempt
-                attempt: null,
-                mode: AiMode.Auto,
-                recommendation: null,
-                // record the model that actually served (Auto is load-balanced)
-                model: servedModel ?? null,
-                provider: servedProvider ?? null,
-                credits,
-                surface,
-            },
-        )
-        // drop the cached totals so the next getSnapshot recomputes including this charge
-        await this.creditUsageService.invalidate(userId)
     }
 
     /**

@@ -27,12 +27,12 @@ import type {
 } from "@modules/ai"
 import {
     ContentAiService,
-    CreditUsageService,
 } from "@modules/bussiness"
 import {
     AiCeilSurface,
     AiMode,
     AiModelCategory,
+    AiModelTask,
     ModelProvider,
 } from "@modules/databases"
 import {
@@ -65,7 +65,6 @@ export class ContentAiGateway {
         private readonly contentAiService: ContentAiService,
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
-        private readonly creditUsageService: CreditUsageService,
         private readonly wsResponseService: WsResponseService,
     ) {}
 
@@ -173,7 +172,12 @@ export class ContentAiGateway {
             // ONE shared entry — stream on the free floor, climbing to the tier
             // ceiling (local Qwen → OpenRouter free → economy+ only if all free fail)
             const {
+                model,
+                provider,
                 cost,
+                promptTokens,
+                completionTokens,
+                attempts,
             } = await this.aiInvokeService.run({
                 userId,
                 messages,
@@ -202,8 +206,14 @@ export class ContentAiGateway {
                 userId,
                 mode: AiMode.Auto,
                 cost,
+                surface: AiCeilSurface.Chatbot,
+                task: AiModelTask.Chatting,
+                model,
+                provider,
+                promptTokens,
+                completionTokens,
+                attempts,
             })
-            await this.creditUsageService.invalidate(userId)
 
             // persist the completed (question → answer) turn under the learner's
             // enrollment — best-effort: a save failure must NOT turn a successful

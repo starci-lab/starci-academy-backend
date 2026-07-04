@@ -1,7 +1,6 @@
 import {
     EnqueueProcessGitSubmissionJobService,
     EnqueueProcessGoogleDocsSubmissionJobService,
-    CreditUsageService,
     UserService,
 } from "@modules/bussiness"
 import {
@@ -77,7 +76,6 @@ export class SubmitChallengeSubmissionHandler
         private readonly dayjsService: DayjsService,
         private readonly postgreSqlAdvisoryLockService: PostgreSqlAdvisoryLockService,
         private readonly gradingLaneValidationService: GradingLaneValidationService,
-        private readonly creditUsageService: CreditUsageService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly userService: UserService,
     ) {

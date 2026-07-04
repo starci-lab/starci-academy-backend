@@ -5,6 +5,7 @@ import {
     AiCeilSurface,
     AiMode,
     AiModelCategory,
+    AiModelTask,
     Locale,
 } from "@modules/databases"
 import {
@@ -13,7 +14,6 @@ import {
 } from "@modules/ai"
 import {
     ContentAiService,
-    CreditUsageService,
 } from "@modules/bussiness"
 import {
     UserNotFoundException,
@@ -40,7 +40,6 @@ export class AskContentAiHandler
     constructor(
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
-        private readonly creditUsageService: CreditUsageService,
         private readonly contentAiService: ContentAiService,
     ) {
         super()
@@ -81,7 +80,12 @@ export class AskContentAiHandler
         // economy+ within the tier ceiling.
         const {
             text,
+            model,
+            provider,
             cost,
+            promptTokens,
+            completionTokens,
+            attempts,
         } = await this.aiInvokeService.run({
             userId: user.id,
             messages,
@@ -95,8 +99,14 @@ export class AskContentAiHandler
             userId: user.id,
             mode: AiMode.Auto,
             cost,
+            surface: AiCeilSurface.Chatbot,
+            task: AiModelTask.Chatting,
+            model,
+            provider,
+            promptTokens,
+            completionTokens,
+            attempts,
         })
-        await this.creditUsageService.invalidate(user.id)
 
         return {
             answer: text,

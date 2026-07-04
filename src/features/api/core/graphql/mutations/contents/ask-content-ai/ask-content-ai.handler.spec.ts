@@ -6,6 +6,7 @@ import {
     AiCeilSurface,
     AiMode,
     AiModelCategory,
+    AiModelTask,
     Locale,
     UserEntity,
 } from "@modules/databases"
@@ -15,7 +16,6 @@ import {
 } from "@modules/ai"
 import {
     ContentAiService,
-    CreditUsageService,
 } from "@modules/bussiness"
 import {
     UserNotFoundException,
@@ -40,7 +40,6 @@ describe("AskContentAiHandler",
         let handler: AskContentAiHandler
         let aiInvokeService: jest.Mocked<Pick<AiInvokeService, "run">>
         let aiEntitlementService: jest.Mocked<Pick<AiEntitlementService, "consume">>
-        let creditUsageService: jest.Mocked<Pick<CreditUsageService, "invalidate">>
         let contentAiService: jest.Mocked<Pick<ContentAiService, "prepareMessages">>
 
         const user = {
@@ -77,17 +76,18 @@ describe("AskContentAiHandler",
             aiInvokeService = {
                 run: jest.fn(async () => ({
                     text: "Sharding splits data across nodes.",
+                    model: "qwen2.5-coder:7b",
+                    provider: "local",
                     cost: 0,
+                    promptTokens: 100,
+                    completionTokens: 50,
+                    attempts: 1,
                 } as never)),
             } as unknown as jest.Mocked<Pick<AiInvokeService, "run">>
 
             aiEntitlementService = {
                 consume: jest.fn(async () => undefined as never),
             } as unknown as jest.Mocked<Pick<AiEntitlementService, "consume">>
-
-            creditUsageService = {
-                invalidate: jest.fn(async () => undefined as never),
-            } as unknown as jest.Mocked<Pick<CreditUsageService, "invalidate">>
 
             module = await Test.createTestingModule({
                 providers: [
@@ -99,10 +99,6 @@ describe("AskContentAiHandler",
                     {
                         provide: AiEntitlementService,
                         useValue: aiEntitlementService,
-                    },
-                    {
-                        provide: CreditUsageService,
-                        useValue: creditUsageService,
                     },
                     {
                         provide: ContentAiService,
@@ -154,12 +150,17 @@ describe("AskContentAiHandler",
                 })
             })
 
-        it("bills the served cost on the Auto lane then invalidates the credit cache",
+        it("bills the served cost on the Auto lane, recording full attribution",
             async () => {
                 // a climbed economy+ model returns a non-zero cost → charge it
                 aiInvokeService.run.mockResolvedValueOnce({
                     text: "answer",
+                    model: "gpt-5.4-nano",
+                    provider: "openai",
                     cost: 42,
+                    promptTokens: 200,
+                    completionTokens: 80,
+                    attempts: 2,
                 } as never)
 
                 await handler.execute(buildCommand())
@@ -168,9 +169,14 @@ describe("AskContentAiHandler",
                     userId: "user-1",
                     mode: AiMode.Auto,
                     cost: 42,
+                    surface: AiCeilSurface.Chatbot,
+                    task: AiModelTask.Chatting,
+                    model: "gpt-5.4-nano",
+                    provider: "openai",
+                    promptTokens: 200,
+                    completionTokens: 80,
+                    attempts: 2,
                 })
-                // credit cache invalidated so the next read reflects the spend
-                expect(creditUsageService.invalidate).toHaveBeenCalledWith("user-1")
             })
 
         it("forwards prior history turns for short-term memory",

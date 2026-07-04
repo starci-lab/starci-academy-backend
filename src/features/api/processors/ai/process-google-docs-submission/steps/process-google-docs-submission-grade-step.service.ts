@@ -3,7 +3,6 @@ import type {
 } from "@modules/bullmq"
 import {
     JobActionService,
-    CreditUsageService,
 } from "@modules/bussiness"
 import {
     AbstractStepService,
@@ -91,7 +90,6 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly googleDriverApiService: GoogleDriverAPIService,
         private readonly challengeEvaluationParseService: ChallengeEvaluationParseService,
-        private readonly creditUsageService: CreditUsageService,
         private readonly gradingRetrievalService: GradingRetrievalService,
     ) {
         super()
@@ -252,14 +250,10 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
         /** Gate the grading run by lane: Auto → shared 50-credit pool; Premium → tier pool; Byok → none. */
         const aiMode = payload.ai?.mode ?? AiMode.Auto
         if (aiMode === AiMode.Auto) {
-            // free Auto lane → block when over the shared 50-credit rolling pool
-            const creditSnapshot = await this.creditUsageService.getSnapshot(enrollment.userId)
-            if (creditSnapshot.overQuota) {
-                throw new AiQuotaExhaustedException({
-                    mode: AiMode.Auto,
-                    window: "credit",
-                })
-            }
+            // free Auto lane → block on the SAME unified credit pool as the Premium branch below
+            await this.aiEntitlementService.assertNotOverQuota({
+                userId: enrollment.userId,
+            })
         } else if (aiMode === AiMode.Premium) {
             // Premium lane → block when the tier credit pool lacks headroom (pre-run estimate)
             const cost = resolveGradingCreditCost({
@@ -280,7 +274,10 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 })
             }
         }
-        // ONE shared entry: floor by difficulty → climb in tier ceiling → served model + cost
+        // ONE shared entry: TEXT grading (googleDocs submission = design-doc / write-up)
+        // floors at Economy — eval showed Economy models grade text/reading tasks
+        // correctly (right score ordering, no length bias). Only CODE grading
+        // (githubUrl + capstone) needs the higher Balanced floor. Climbs to ceiling.
         const {
             text: raw, model, provider, attempts, cost, promptTokens, completionTokens,
         } = await this.aiInvokeService.run({
@@ -309,8 +306,17 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 mode: chargedMode,
                 // charge by the model that actually served (from run)
                 cost,
+                surface: AiCeilSurface.Grading,
+                task: AiModelTask.ChallengeGrading,
+                model,
+                provider,
+                recommendation: chargedMode === AiMode.Premium
+                    ? envConfig().ai.modelRecommendation as ModelRecommendation
+                    : null,
+                promptTokens,
+                completionTokens,
+                attempts,
             })
-            await this.creditUsageService.invalidate(enrollment.userId)
             await this.jobActionService.saveExecutionResult({
                 job: context.job,
                 key: "creditCharged",

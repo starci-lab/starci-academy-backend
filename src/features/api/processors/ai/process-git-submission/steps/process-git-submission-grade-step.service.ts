@@ -3,7 +3,6 @@ import type {
 } from "@modules/bullmq"
 import {
     JobActionService,
-    CreditUsageService,
 } from "@modules/bussiness"
 import {
     AbstractStepService,
@@ -94,7 +93,6 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly challengeEvaluationParseService: ChallengeEvaluationParseService,
-        private readonly creditUsageService: CreditUsageService,
         private readonly gradingRetrievalService: GradingRetrievalService,
         private readonly encryptionService: EncryptionService,
     ) {
@@ -303,14 +301,10 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
         /** Gate the grading run by lane: Auto → shared 50-credit pool; Premium → tier pool; Byok → none. */
         const aiMode = payload.ai?.mode ?? AiMode.Auto
         if (aiMode === AiMode.Auto) {
-            // free Auto lane → block when over the shared 50-credit rolling pool
-            const creditSnapshot = await this.creditUsageService.getSnapshot(enrollment.userId)
-            if (creditSnapshot.overQuota) {
-                throw new AiQuotaExhaustedException({
-                    mode: AiMode.Auto,
-                    window: "credit",
-                })
-            }
+            // free Auto lane → block on the SAME unified credit pool as the Premium branch below
+            await this.aiEntitlementService.assertNotOverQuota({
+                userId: enrollment.userId,
+            })
         } else if (aiMode === AiMode.Premium) {
             // Premium lane → block when the tier credit pool lacks headroom (pre-run estimate)
             const cost = resolveGradingCreditCost({
@@ -331,8 +325,10 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                 })
             }
         }
-        // ONE shared entry: challenge grading floors at Economy (NOT by difficulty —
-        // easy or hard both start Economy and climb to the ceiling) → served + cost
+        // ONE shared entry: CODE grading (githubUrl submission) floors at Balanced
+        // — NOT by difficulty. Eval evidence: Free/Economy models grade code too
+        // shallowly (miss subtle API-contract defects); text grading (googleDocs /
+        // interview) stays at Economy. Climbs to the tier ceiling → served + cost.
         const {
             text: raw, model, provider, attempts, cost, promptTokens, completionTokens,
         } = await this.aiInvokeService.run({
@@ -342,7 +338,7 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                 new HumanMessage(humanText),
             ],
             selection: payload.ai,
-            floor: AiModelCategory.Economy,
+            floor: AiModelCategory.Balanced,
             surface: AiCeilSurface.Grading,
             task: AiModelTask.ChallengeGrading,
         })
@@ -361,8 +357,17 @@ export class ProcessGitSubmissionGradeStepService extends AbstractStepService<
                 mode: chargedMode,
                 // charge by the model that actually served (from run)
                 cost,
+                surface: AiCeilSurface.Grading,
+                task: AiModelTask.ChallengeGrading,
+                model,
+                provider,
+                recommendation: chargedMode === AiMode.Premium
+                    ? envConfig().ai.modelRecommendation as ModelRecommendation
+                    : null,
+                promptTokens,
+                completionTokens,
+                attempts,
             })
-            await this.creditUsageService.invalidate(enrollment.userId)
             await this.jobActionService.saveExecutionResult({
                 job: context.job,
                 key: "creditCharged",

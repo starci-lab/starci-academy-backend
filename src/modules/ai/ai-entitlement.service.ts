@@ -11,6 +11,7 @@ import {
     AiSubStatus,
     AiSubscriptionEntity,
     AiSubTier,
+    CreditUsageHistoryEntity,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     TransactionEntity,
@@ -32,6 +33,7 @@ import {
 import {
     AiByokInvalidException,
     AiModeNotEntitledException,
+    AiQuotaExhaustedException,
 } from "@modules/exceptions"
 import {
     SUBSCRIPTION_PERIOD_MONTHS,
@@ -50,6 +52,8 @@ import type {
     AiQuotaSnapshot,
     AiSettings,
     ConsumeEntitlementParams,
+    EntitlementHistoryPage,
+    EntitlementHistoryParams,
     GrantTierParams,
     ResolveEntitlementParams,
     UpdateAiSettingsParams,
@@ -115,53 +119,130 @@ export class AiEntitlementService {
     }
 
     /**
-     * Debit the unified credit pool after a successful run.
+     * Debit the unified credit pool after a successful run AND append the
+     * audit-history row for it — ONE atomic write, the single source for both
+     * the quota counters and the "Lịch sử dùng AI" history list. No other code
+     * path may touch `credit5hUsed`/`creditWeekUsed` or write a
+     * {@link CreditUsageHistoryEntity} row.
      *
-     * No-op for Byok (the user pays their own provider). Locks the subscription
-     * row `FOR UPDATE` so concurrent debits serialize and never lose an update —
-     * the counters always reflect true spend (so the pool can't be over-spent
-     * across concurrent gradings).
+     * No-op entirely for Byok (the user pays their own provider — not platform
+     * spend, not recorded). Locks the subscription row `FOR UPDATE` so
+     * concurrent debits serialize and never lose an update.
      *
-     * @param params - Owner, the lane that ran, and the credits to debit.
+     * @param params - Owner, lane, cost, and the attribution fields to record.
      */
     async consume({
         userId,
         mode,
         cost,
+        surface,
+        model,
+        provider,
+        recommendation,
+        task,
+        promptTokens,
+        completionTokens,
+        attempts,
     }: ConsumeEntitlementParams): Promise<void> {
-        // every platform lane spends the unified pool; only Byok is free
-        if (mode === AiMode.Byok || cost <= 0) {
+        // byok is the user's own key — not platform spend, not recorded at all
+        if (mode === AiMode.Byok) {
             return
         }
         await this.entityManager.transaction(
             async (entityManager) => {
-                // lock the subscription row FOR UPDATE — concurrent debits serialize here,
-                // so a read-modify-write race can never drop a debit (over-spend)
-                const subscription = await entityManager
-                    .createQueryBuilder(
-                        AiSubscriptionEntity,
-                        "subscription",
-                    )
-                    .setLock("pessimistic_write")
-                    .where(
-                        "subscription.user_id = :userId",
-                        {
-                            userId,
-                        },
-                    )
-                    .getOne()
-                // premium always has a row; nothing to debit otherwise
-                if (!subscription) {
-                    return
+                if (cost > 0) {
+                    // lock the subscription row FOR UPDATE — concurrent debits serialize
+                    // here, so a read-modify-write race can never drop a debit (over-spend)
+                    const subscription = await entityManager
+                        .createQueryBuilder(
+                            AiSubscriptionEntity,
+                            "subscription",
+                        )
+                        .setLock("pessimistic_write")
+                        .where(
+                            "subscription.user_id = :userId",
+                            {
+                                userId,
+                            },
+                        )
+                        .getOne()
+                    if (subscription) {
+                        // roll any due windows forward so the debit hits the live window
+                        this.applyWindowResets(subscription)
+                        // debit BOTH sliding windows by the grading cost under the held lock
+                        subscription.credit5hUsed += cost
+                        subscription.creditWeekUsed += cost
+                        await entityManager.save(subscription)
+                    }
                 }
-                // roll any due windows forward so the debit hits the live window
-                this.applyWindowResets(subscription)
-                // debit BOTH sliding windows by the grading cost under the held lock
-                subscription.credit5hUsed += cost
-                subscription.creditWeekUsed += cost
-                await entityManager.save(subscription)
+                // history row is written REGARDLESS of cost (even a free Auto pick is
+                // worth an audit entry) — same transaction as the debit above
+                await entityManager.save(
+                    CreditUsageHistoryEntity,
+                    {
+                        user: {
+                            id: userId,
+                        },
+                        mode,
+                        surface,
+                        task: task ?? null,
+                        recommendation: recommendation ?? null,
+                        model: model ?? null,
+                        provider: provider ?? null,
+                        credits: cost,
+                        promptTokens: promptTokens ?? null,
+                        completionTokens: completionTokens ?? null,
+                        attempts: attempts ?? null,
+                    },
+                )
             },
         )
+    }
+
+    /**
+     * Paginated AI credit charge history for the user, newest first — read
+     * directly from `credit_usage_histories` (not cached; viewed on demand, not
+     * on the grading hot path).
+     *
+     * @param params - Owner, page size, and offset.
+     * @returns the requested page of {@link EntitlementHistoryItem}.
+     */
+    async history({
+        userId,
+        limit,
+        offset,
+    }: EntitlementHistoryParams): Promise<EntitlementHistoryPage> {
+        const [
+            rows,
+            total,
+        ] = await this.entityManager.findAndCount(
+            CreditUsageHistoryEntity,
+            {
+                where: {
+                    user: {
+                        id: userId,
+                    },
+                },
+                order: {
+                    createdAt: "DESC",
+                },
+                take: limit,
+                skip: offset,
+            },
+        )
+        return {
+            items: rows.map((row) => ({
+                id: row.id,
+                mode: row.mode,
+                recommendation: row.recommendation,
+                model: row.model,
+                provider: row.provider,
+                credits: row.credits,
+                createdAt: row.createdAt,
+                surface: row.surface,
+            })),
+            total,
+        }
     }
 
     /**
@@ -194,6 +275,42 @@ export class AiEntitlementService {
                     unlocked)
             },
         )
+    }
+
+    /**
+     * Assert the user still has room in the UNIFIED credit pool (same source
+     * as {@link snapshot}/{@link consume} — tier-aware: a paid tier's own
+     * allowance, or the free Auto base when unset). Grade-time gate for
+     * surfaces that don't already gate at submit-time.
+     *
+     * Replaces the old free-base-only `CreditUsageService.getSnapshot(...)
+     * .overQuota` check that several grade-step services used — that read a
+     * SEPARATE, tier-blind counter (`credit_usage_histories`) always compared
+     * against the free 50/5h · 250/week base, so a paid Pro/Max user could
+     * still get incorrectly blocked. This reads the same pool everyone else's
+     * quota UI/gate reads.
+     *
+     * @param params - the owning `userId`
+     * @throws AiQuotaExhaustedException when either sliding window is spent.
+     */
+    async assertNotOverQuota({
+        userId,
+    }: ResolveEntitlementParams): Promise<void> {
+        const snapshot = await this.snapshot({
+            userId,
+        })
+        if (snapshot.credit.remaining5h <= 0) {
+            throw new AiQuotaExhaustedException({
+                mode: snapshot.mode,
+                window: "5h",
+            })
+        }
+        if (snapshot.credit.remainingWeek <= 0) {
+            throw new AiQuotaExhaustedException({
+                mode: snapshot.mode,
+                window: "week",
+            })
+        }
     }
 
     /**
