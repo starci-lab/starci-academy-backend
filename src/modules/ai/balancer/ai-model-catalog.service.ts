@@ -11,6 +11,10 @@ import {
 import type {
     EnabledModelsParams,
 } from "./types"
+import {
+    DEFAULT_ESTIMATE_COMPLETION_TOKENS,
+    DEFAULT_ESTIMATE_PROMPT_TOKENS,
+} from "../constants/credit-cost"
 
 /** TypeORM query-cache identifier for the enabled-models lookup. */
 export const AI_MODEL_CATALOG_CACHE_KEY = "ai-model-catalog:enabled"
@@ -130,14 +134,22 @@ export class AiModelCatalogService {
         const inputTokens = promptTokens ?? 0
         const outputTokens = completionTokens ?? 0
         const hasRates = found.creditPerMTokIn > 0 || found.creditPerMTokOut > 0
-        // bill by tokens only when the model has rates AND we observed usage;
-        // otherwise the flat `credit` (free models = 0, or usage unreported).
-        if (hasRates && (inputTokens > 0 || outputTokens > 0)) {
-            const credits = (inputTokens * found.creditPerMTokIn
-                + outputTokens * found.creditPerMTokOut) / 1_000_000
-            return Math.ceil(credits)
+        // A model WITHOUT per-token rates (e.g. a free self-hosted model, credit 0)
+        // charges its flat `credit`.
+        if (!hasRates) {
+            return found.credit
         }
-        return found.credit
+        // Rated model: bill by tokens. When the provider reported no usage at all,
+        // ESTIMATE with typical token counts × this model's rates rather than the
+        // flat per-model `credit` — the flat is a coarse cap that massively over-
+        // charges (Balanced flat 211 vs a real ~24), which would drain a free
+        // user's whole 5h pool on a single un-metered call.
+        const noUsage = inputTokens === 0 && outputTokens === 0
+        const billedInput = noUsage ? DEFAULT_ESTIMATE_PROMPT_TOKENS : inputTokens
+        const billedOutput = noUsage ? DEFAULT_ESTIMATE_COMPLETION_TOKENS : outputTokens
+        const credits = (billedInput * found.creditPerMTokIn
+            + billedOutput * found.creditPerMTokOut) / 1_000_000
+        return Math.ceil(credits)
     }
 
     /**
