@@ -38,8 +38,8 @@
 | WF-05 | FE profile: section Job-Readiness | FE | M | WF-02 | ✅ done |
 | WF-06 | FE dashboard widget + copy discipline | FE | M | WF-02, WF-05 | ✅ done |
 | WF-07 | Đường upload CV → unified (source=uploaded + chấm) | BE | M | 03a,03b | ✅ done |
-| WF-08 | Recruiter marketplace — filter/rank theo track | BE+FE | L | WF-02 | undone |
-| WF-09 | Interview pillar — cửa sổ recent-N | BE | S | WF-02 | undone |
+| WF-08 | Recruiter marketplace — filter/rank theo track | BE+FE | L | WF-02 | ✅ done |
+| WF-09 | Interview pillar — cửa sổ recent-N | BE | S | WF-02 | ✅ done |
 | WF-10 | Retire legacy CV (sau verify prod) | BE | M | WF-03c, WF-07 | undone |
 | WF-11 | FE upload CV UI (presign→PUT→uploadCv→poll) | FE | M | WF-07 | ✅ done (⚠️ 2 flag) |
 
