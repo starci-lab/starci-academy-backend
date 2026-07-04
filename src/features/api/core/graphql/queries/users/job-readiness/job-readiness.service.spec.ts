@@ -26,7 +26,8 @@ const POSTGRESQL_PRIMARY = "primary"
  * `entityManager.query` mock is ORDER-SENSITIVE because `buildTracks` issues its
  * four aggregate reads via `Promise.all` in a fixed order — capstoneTotals,
  * capstonePassed, interviewAverages, then loadTrackCvScores. The global
- * foundation adds `computeCvScore` (two `findOne` reads) + a projection call.
+ * foundation adds `computeCvScore` (a single unified-table `findOne` read) + a
+ * projection call.
  *
  * Locks the fair-monetization axiom (see
  * `.claude/rules/concepts/fair-monetization-axiom.md`): a track's numbers never

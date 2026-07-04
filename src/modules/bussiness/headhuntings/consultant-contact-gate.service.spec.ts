@@ -61,10 +61,9 @@ describe("ConsultantContactGateService",
 
         describe("getBestCvScore",
             () => {
-                it("returns GREATEST(unified, legacy) — the higher of the two table maxima",
+                it("returns MAX(cv_generations.score) for the viewer",
                     async () => {
-                        // the SQL computes GREATEST(...) server-side and returns one row;
-                        // legacy 60, unified 85 → the row's `max` is 85
+                        // the SQL computes MAX(...) server-side and returns one row
                         entityManager.query.mockResolvedValueOnce([
                             {
                                 max: "85",
@@ -78,9 +77,9 @@ describe("ConsultantContactGateService",
                         expect(best).toBe(85)
                     })
 
-                it("returns 0 when neither table has a scored CV (GREATEST → -1, clamped up)",
+                it("returns 0 when the viewer has no scored CV (COALESCE → -1, clamped up)",
                     async () => {
-                        // both COALESCE branches fall back to -1 → GREATEST is -1
+                        // the COALESCE branch falls back to -1 when there is no row
                         entityManager.query.mockResolvedValueOnce([
                             {
                                 max: "-1",

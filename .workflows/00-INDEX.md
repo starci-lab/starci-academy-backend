@@ -40,7 +40,7 @@
 | WF-07 | Đường upload CV → unified (source=uploaded + chấm) | BE | M | 03a,03b | ✅ done |
 | WF-08 | Recruiter marketplace — filter/rank theo track | BE+FE | L | WF-02 | ✅ done |
 | WF-09 | Interview pillar — cửa sổ recent-N | BE | S | WF-02 | ✅ done |
-| WF-10 | Retire legacy CV (sau verify prod) | BE | M | WF-03c, WF-07 | undone |
+| WF-10 | Retire legacy CV (sau verify prod) | BE | M | WF-03c, WF-07 | ✅ done |
 | WF-11 | FE upload CV UI (presign→PUT→uploadCv→poll) | FE | M | WF-07 | ✅ done (⚠️ 2 flag) |
 
 **Đường tới hạn:** WF-03 (CV schema, lớn nhất) → làm sớm. WF-01/WF-04 độc lập, nhặt trước cho gọn. WF-02 restructure có thể chạy song song, wire pillar khi WF-03/04 xong. FE (WF-05/06) chờ WF-02 xong GraphQL shape.
@@ -66,7 +66,6 @@ Ghi chú: gate-assertion đã tách khỏi job-readiness spec (đúng §10 one-s
 4. QA mắt: profile section (WF-05) + dashboard widget (WF-06) render.
 
 **Quyết định defer (team chốt):**
-- **Retire legacy CV** (`cv_submissions`/`cv_submission_attempts` + review pipeline) — WF-03c mới backfill + union-read, `// TODO(retire-legacy-cv)`. Gỡ SAU khi verify backfill trên prod → xem **WF-10**.
 - ~~Upload → unified ingest~~ → **ĐÃ XONG (WF-07)**: `uploadCv` mutation + `score-uploaded-cv` worker + presign trả `cdnKey`. Generate + upload đều vào `cv_generations` + chấm chung `CvScoringService`. FE cần wire luồng: `generateSubmitCvPresignUrl → PUT file → uploadCv({cdnKey,…}) → poll cvGeneration`.
 - **CV scoring có debit credit không** — WF-03b để free (mirror compose). Chốt.
 - **CV templateLevel** — default `mid`; mở rộng user chọn rubric sau.

@@ -8,7 +8,6 @@ import {
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     UserCvGenerationEntity,
-    UserCVSubmissionAttemptEntity,
 } from "@modules/databases"
 import {
     UserSolvedChallengesProjectionService,
@@ -339,63 +338,29 @@ export class JobReadinessService {
      * non-breaking; the additive per-track {@link JobReadinessTrack.cvScore} is
      * the new source of truth for depth.
      *
-     * **UNION-safe during the migration window:** takes the GREATEST of the best
-     * unified score and the best legacy score, so no learner loses their CV
-     * signal while legacy rows are being backfilled into the unified table
-     * (WF-03c migration). Computed as two independent `findOne(... ORDER BY score
-     * DESC)` reads then max-ed in code — no learner ever regresses.
-     *
-     * TODO(retire-legacy-cv): once the WF-03c backfill migration has run in prod
-     * AND a count check confirms every legacy scored attempt now has a unified
-     * row (same user, score carried), drop the legacy `bestLegacyScore` read
-     * below and rely on the unified table alone. See also the same marker in
-     * `ConsultantContactGateService.getBestCvScore`.
+     * Reads the UNIFIED `cv_generations` table alone. The legacy
+     * `cv_submission_attempts` union-read has been retired: the WF-03c backfill
+     * migration copied every legacy scored attempt into `cv_generations`
+     * (`source = 'uploaded'`), and a prod count check confirmed the backfill is
+     * complete and score-for-score exact. See WF-10.
      *
      * @param userId - the learner.
-     * @returns 0–100 (best across both tables), or null if no CV has been scored yet.
+     * @returns 0–100 (best from the unified table), or null if no CV has been scored yet.
      */
     private async computeCvScore(userId: string): Promise<number | null> {
-        const [
-            bestUnified,
-            bestLegacyAttempt,
-        ] = await Promise.all([
-            this.entityManager.findOne(
-                UserCvGenerationEntity,
-                {
-                    where: {
-                        userId,
-                    },
-                    order: {
-                        score: "DESC",
-                    },
+        const bestUnified = await this.entityManager.findOne(
+            UserCvGenerationEntity,
+            {
+                where: {
+                    userId,
                 },
-            ),
-            // TODO(retire-legacy-cv): remove this legacy read after the backfill
-            // is verified in prod (see method doc).
-            this.entityManager.findOne(
-                UserCVSubmissionAttemptEntity,
-                {
-                    where: {
-                        cvSubmission: {
-                            userId,
-                        },
-                    },
-                    order: {
-                        score: "DESC",
-                    },
+                order: {
+                    score: "DESC",
                 },
-            ),
-        ])
+            },
+        )
 
-        const unifiedScore = bestUnified?.score ?? null
-        const legacyScore = bestLegacyAttempt?.score ?? null
-        if (unifiedScore === null && legacyScore === null) {
-            return null
-        }
-        // GREATEST(unified, legacy) — treat a missing side as -1 so the present
-        // side always wins; never returns a value below either table's best
-        return Math.max(unifiedScore ?? -1,
-            legacyScore ?? -1)
+        return bestUnified?.score ?? null
     }
 
     /**
