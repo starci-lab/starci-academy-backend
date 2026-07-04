@@ -1,5 +1,4 @@
 import {
-    BadRequestException,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -17,13 +16,8 @@ import {
     ElasticsearchService,
 } from "@modules/elasticsearch"
 import {
-    FlashcardDeckNoGradableCardsException,
     FlashcardDeckNotFoundException,
 } from "@modules/exceptions"
-import type {
-    DrawRandomInterviewCardForCourseParams,
-    DrawRandomInterviewCardParams,
-} from "./types/draw-interview-card"
 import type {
     DeckStatRow,
 } from "./types/flashcard-deck"
@@ -201,78 +195,5 @@ export class FlashcardDeckReadService {
                 flashcardDeckId,
             })
         }
-    }
-
-    /**
-     * Draws one random gradable card from a deck for the voice-interview mode.
-     * Picks the card server-side so the client never sees the deck's other
-     * questions up front, and never receives the model answer — grading reloads
-     * the answer by id, so the draw can safely hide it.
-     *
-     * @param params - Deck id + locale to draw and localize the card in.
-     * @returns A random card whose `answer` is present (gradable).
-     * @throws FlashcardDeckNotFoundException when the deck is absent.
-     * @throws FlashcardDeckNoGradableCardsException when no card has a model answer.
-     */
-    async drawRandomCard(
-        {
-            flashcardDeckId,
-            locale,
-            level,
-        }: DrawRandomInterviewCardParams,
-    ): Promise<FlashcardCardEntity> {
-        // reuse the localized single-deck read (throws a typed 404 when missing)
-        const deck = await this.getById(
-            flashcardDeckId,
-            locale,
-        )
-        // only cards with a model answer can be graded — legacy cards predating
-        // the Q&A format carry a null answer and must be excluded from the draw;
-        // when a seniority level is requested, also restrict to that level
-        const gradable = (deck.cards ?? []).filter(
-            (card) => Boolean(card.answer) && (!level || card.level === level),
-        )
-        // an empty pool means the deck is not interview-ready → typed error, not a crash
-        if (gradable.length === 0) {
-            throw new FlashcardDeckNoGradableCardsException({
-                flashcardDeckId,
-            })
-        }
-        // uniform random pick across the gradable pool
-        const index = Math.floor(Math.random() * gradable.length)
-        return gradable[index]
-    }
-
-    /**
-     * Draws one random gradable card from ANY deck of a course — the "random
-     * interview" mode where the learner does not pick a topic. Pools every
-     * answer-bearing card across the course's decks (optionally restricted to a
-     * seniority level) and picks uniformly. The drawn card keeps its `deckId`, so
-     * grading + attempt logging work unchanged.
-     *
-     * @param params - Course id + locale (+ optional level) to draw across.
-     * @returns A random gradable card from the course.
-     * @throws BadRequestException when the course has no interview-ready cards.
-     */
-    async drawRandomCardForCourse(
-        {
-            courseId,
-            locale,
-            level,
-        }: DrawRandomInterviewCardForCourseParams,
-    ): Promise<FlashcardCardEntity> {
-        // load every deck of the course (localized, with cards) and pool the cards
-        const decks = await this.listByCourse(courseId,
-            locale)
-        const gradable = decks
-            .flatMap((deck) => deck.cards ?? [])
-            .filter((card) => Boolean(card.answer) && (!level || card.level === level))
-        // no answer-bearing card anywhere in the course → typed 400, not a crash
-        if (gradable.length === 0) {
-            throw new BadRequestException("This course has no interview-ready questions yet")
-        }
-        // uniform random pick across the whole-course gradable pool
-        const index = Math.floor(Math.random() * gradable.length)
-        return gradable[index]
     }
 }

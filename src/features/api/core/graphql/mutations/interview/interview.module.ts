@@ -2,19 +2,19 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    GradeInterviewAnswerSingleMutationModule,
-} from "./grade-interview-answer"
+    GradeMockInterviewSessionSingleMutationModule,
+} from "./grade-mock-interview-session"
 import {
     ConfigurableModuleClass,
 } from "./interview.module-definition"
 
 /**
- * Interview mutation group — stateless AI grading of transcribed flashcard
- * answers (mock-interview flow).
+ * Interview mutation group — whole-session grading for the System Design
+ * mock-interview rubric.
  */
 @Module({
     imports: [
-        GradeInterviewAnswerSingleMutationModule.register({
+        GradeMockInterviewSessionSingleMutationModule.register({
             isGlobal: true,
         }),
     ],

@@ -8,22 +8,11 @@ import {
     FlashcardDeckReadService,
 } from "./flashcard-deck.service"
 import {
-    InterviewGradePromptService,
-} from "./interview-grade-prompt.service"
-import {
-    InterviewGradingService,
-} from "./interview-grading.service"
-import {
-    InterviewHistoryService,
-} from "./interview-history.service"
-import {
     FlashcardReviewService,
 } from "./flashcard-review.service"
 
 /**
- * Module for interview-flashcard business logic (deck reads + stateless
- * AI grading of transcribed answers). Cards are open-ended Q&A: studied as flip
- * cards, and optionally graded against the card's model answer rubric.
+ * Module for flashcard business logic (deck reads + spaced-repetition review).
  * `AiInvokeService` / `AiEntitlementService` come from the globally-registered
  * `AiModule`, so no explicit AI import is needed here — the unified credit pool
  * (gate + charge + history) is metered entirely through `AiEntitlementService`.
@@ -31,16 +20,10 @@ import {
 @Module({
     providers: [
         FlashcardDeckReadService,
-        InterviewGradePromptService,
-        InterviewGradingService,
-        InterviewHistoryService,
         FlashcardReviewService,
     ],
     exports: [
         FlashcardDeckReadService,
-        InterviewGradePromptService,
-        InterviewGradingService,
-        InterviewHistoryService,
         FlashcardReviewService,
     ],
 })

@@ -14,27 +14,21 @@ import {
     FlashcardDeckSuggestionsSingleQueryModule,
 } from "./flashcard-deck-suggestions"
 import {
-    DrawInterviewCardSingleQueryModule,
-} from "./draw-interview-card"
-import {
     MyDueFlashcardsSingleQueryModule,
 } from "./my-due-flashcards"
 import {
     MyFlashcardStatsSingleQueryModule,
 } from "./my-flashcard-stats"
 import {
-    MyInterviewHistorySingleQueryModule,
-} from "./my-interview-history"
+    MockInterviewPromptsSingleQueryModule,
+} from "./mock-interview-prompts"
 import {
-    InterviewSessionsSingleQueryModule,
-} from "./interview-sessions"
-import {
-    InterviewSessionAttemptsSingleQueryModule,
-} from "./interview-session-attempts"
+    MyMockInterviewAttemptsSingleQueryModule,
+} from "./my-mock-interview-attempts"
 
 /**
  * Flashcard-deck query group (deck listing by course + single-deck detail +
- * typeahead + random interview-question draw).
+ * typeahead + mock-interview prompt/history reads).
  */
 @Module({
     imports: [
@@ -47,22 +41,16 @@ import {
         FlashcardDeckSuggestionsSingleQueryModule.register({
             isGlobal: true,
         }),
-        DrawInterviewCardSingleQueryModule.register({
-            isGlobal: true,
-        }),
         MyDueFlashcardsSingleQueryModule.register({
             isGlobal: true,
         }),
         MyFlashcardStatsSingleQueryModule.register({
             isGlobal: true,
         }),
-        MyInterviewHistorySingleQueryModule.register({
+        MockInterviewPromptsSingleQueryModule.register({
             isGlobal: true,
         }),
-        InterviewSessionsSingleQueryModule.register({
-            isGlobal: true,
-        }),
-        InterviewSessionAttemptsSingleQueryModule.register({
+        MyMockInterviewAttemptsSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

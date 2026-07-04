@@ -9,7 +9,6 @@ import {
     FlashcardDeckReadService,
 } from "./flashcard-deck.service"
 import {
-    FlashcardCardEntity,
     FlashcardDeckEntity,
     FlashcardDeckResolverService,
     Locale,
@@ -18,7 +17,6 @@ import {
     ElasticsearchService,
 } from "@modules/elasticsearch"
 import {
-    FlashcardDeckNoGradableCardsException,
     FlashcardDeckNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -219,122 +217,6 @@ describe("FlashcardDeckReadService",
 
                         await expect(
                             service.getById(flashcardDeckId),
-                        ).rejects.toBeInstanceOf(FlashcardDeckNotFoundException)
-                    })
-            })
-
-        describe("drawRandomCard",
-            () => {
-                /** Builds a deck (as served by the ES single-deck read) with the given cards. */
-                const deckWithCards = (
-                    cards: Array<Partial<FlashcardCardEntity>>,
-                ): FlashcardDeckEntity =>
-                    ({
-                        id: flashcardDeckId,
-                        cards,
-                    }) as unknown as FlashcardDeckEntity
-
-                afterEach(() => {
-                    // restore any Math.random spy so the uniform pick stays unbiased across tests
-                    jest.restoreAllMocks()
-                })
-
-                it("draws only from cards that have a model answer (gradable pool)",
-                    async () => {
-                        // legacy card with a null answer must be excluded from the draw
-                        const gradable = {
-                            id: "card-gradable",
-                            answer: "the model answer",
-                        }
-                        elasticsearchClient.get.mockResolvedValueOnce({
-                            _source: deckWithCards([
-                                {
-                                    id: "card-legacy",
-                                    answer: null,
-                                },
-                                gradable,
-                            ]),
-                        })
-                        // force the pick onto the first element of the filtered pool
-                        jest.spyOn(Math,
-                            "random").mockReturnValue(0)
-
-                        const result = await service.drawRandomCard({
-                            flashcardDeckId,
-                            locale: Locale.En,
-                        })
-
-                        // the legacy answerless card is filtered out, so index 0 is the gradable one
-                        expect(result.id).toBe("card-gradable")
-                    })
-
-                it("picks uniformly across the gradable pool (random maps to an index)",
-                    async () => {
-                        const cards = [
-                            {
-                                id: "card-0",
-                                answer: "a",
-                            },
-                            {
-                                id: "card-1",
-                                answer: "b",
-                            },
-                            {
-                                id: "card-2",
-                                answer: "c",
-                            },
-                        ]
-                        elasticsearchClient.get.mockResolvedValueOnce({
-                            _source: deckWithCards(cards),
-                        })
-                        // 0.5 * 3 = 1.5 → floor 1 → the middle card
-                        jest.spyOn(Math,
-                            "random").mockReturnValue(0.5)
-
-                        const result = await service.drawRandomCard({
-                            flashcardDeckId,
-                            locale: Locale.En,
-                        })
-
-                        expect(result.id).toBe("card-1")
-                    })
-
-                it("throws FlashcardDeckNoGradableCardsException when no card has an answer",
-                    async () => {
-                        // every card predates the Q&A format → empty gradable pool
-                        elasticsearchClient.get.mockResolvedValueOnce({
-                            _source: deckWithCards([
-                                {
-                                    id: "card-legacy-1",
-                                    answer: null,
-                                },
-                                {
-                                    id: "card-legacy-2",
-                                    answer: "",
-                                },
-                            ]),
-                        })
-
-                        await expect(
-                            service.drawRandomCard({
-                                flashcardDeckId,
-                                locale: Locale.En,
-                            }),
-                        ).rejects.toBeInstanceOf(FlashcardDeckNoGradableCardsException)
-                    })
-
-                it("propagates FlashcardDeckNotFoundException from the underlying deck read",
-                    async () => {
-                        // a missing deck surfaces through getById and must not be swallowed
-                        elasticsearchClient.get.mockRejectedValueOnce(
-                            new Error("404"),
-                        )
-
-                        await expect(
-                            service.drawRandomCard({
-                                flashcardDeckId,
-                                locale: Locale.En,
-                            }),
                         ).rejects.toBeInstanceOf(FlashcardDeckNotFoundException)
                     })
             })
