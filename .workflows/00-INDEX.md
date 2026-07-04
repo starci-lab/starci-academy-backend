@@ -42,6 +42,7 @@
 | WF-09 | Interview pillar — cửa sổ recent-N | BE | S | WF-02 | ✅ done |
 | WF-10 | Retire legacy CV (sau verify prod) | BE | M | WF-03c, WF-07 | ✅ done |
 | WF-11 | FE upload CV UI (presign→PUT→uploadCv→poll) | FE | M | WF-07 | ✅ done (⚠️ 2 flag) |
+| WF-remove-ai-mode | Xóa khái niệm AiMode (auto/premium/byok) | BE+FE | L | — | ✅ done |
 
 **Đường tới hạn:** WF-03 (CV schema, lớn nhất) → làm sớm. WF-01/WF-04 độc lập, nhặt trước cho gọn. WF-02 restructure có thể chạy song song, wire pillar khi WF-03/04 xong. FE (WF-05/06) chờ WF-02 xong GraphQL shape.
 
