@@ -77,7 +77,9 @@ export class CoursePricePreviewService {
             percent,
             reason,
             enrolledCount,
-        } = await this.loyaltyDiscountService.computeLoyaltyDiscount(userId)
+        } = await this.loyaltyDiscountService.computeLoyaltyDiscount({
+            userId,
+        })
 
         // original = LIST/MSRP price (struck "before"); discounted = active phase ×
         // (1 − loyalty) = the real charge. The gap therefore shows the FULL saving

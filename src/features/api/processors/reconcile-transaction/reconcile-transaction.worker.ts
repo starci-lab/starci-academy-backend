@@ -220,15 +220,12 @@ export class ReconcileTransactionWorker extends WorkerHost {
             }
             return
         }
-        // course enrollment: hand off to the enroll worker (marks tx succeeded)
+        // course enrollment: hand off to the enroll worker (marks tx succeeded).
+        // fans a multi-course order out to one enroll job per line (a malformed
+        // Enroll transaction with no items and no course simply enqueues nothing).
         case ActionType.Enroll: {
-            if (!transaction.courseId) {
-                return
-            }
-            await this.enqueueEnrollJobService.enqueue({
-                userId: transaction.userId,
-                courseId: transaction.courseId,
-                transactionId: transaction.id,
+            await this.enqueueEnrollJobService.enqueueForTransaction({
+                transaction,
             })
             return
         }

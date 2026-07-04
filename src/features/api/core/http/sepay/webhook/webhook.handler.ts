@@ -212,16 +212,19 @@ export class SepayWebhookHandler
         }
         // course enrollment: hand off to the enroll worker
         case ActionType.Enroll: {
-            if (!transaction.courseId) {
+            // fan the paid order out to one enroll job per course (single- or
+            // multi-course). a malformed Enroll transaction (no items, no course)
+            // is surfaced as course-not-found so the gateway re-delivers.
+            const {
+                enqueuedCount,
+            } = await this.enqueueEnrollJobService.enqueueForTransaction({
+                transaction,
+            })
+            if (enqueuedCount === 0) {
                 throw new TransactionCourseNotFoundException({
                     id: transaction.id,
                 })
             }
-            await this.enqueueEnrollJobService.enqueue({
-                userId: transaction.userId,
-                courseId: transaction.courseId,
-                transactionId: transaction.id,
-            })
             return
         }
         default:

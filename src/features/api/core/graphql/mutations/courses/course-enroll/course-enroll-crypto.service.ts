@@ -103,7 +103,9 @@ export class CourseEnrollCryptoService {
         // loyalty discount applied at checkout (so charged === shown)
         const {
             percent: discountPercent,
-        } = await this.loyaltyDiscountService.computeLoyaltyDiscount(user.id)
+        } = await this.loyaltyDiscountService.computeLoyaltyDiscount({
+            userId: user.id,
+        })
         // VND amount is kept on the transaction as a stable reference value
         const amount = this.coursePricingService.resolveAmountVnd({
             course,

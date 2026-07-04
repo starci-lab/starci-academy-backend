@@ -6,30 +6,45 @@ import {
     Socket,
 } from "net"
 import {
+    createTransport,
+} from "nodemailer"
+import {
     envConfig,
 } from "@modules/env"
+import {
+    getBrevoSmtpPassword,
+} from "@modules/filesystem"
+import {
+    AiBalancerService,
+} from "@modules/ai"
 import {
     PROBE_TIMEOUT_MS,
     PROBE_DEGRADED_THRESHOLD_MS,
     PROBE_CACHE_TTL_MS,
+    EXTERNAL_PROBE_CACHE_TTL_MS,
 } from "./constants"
 import type {
     ComponentHealth,
     ComponentStatus,
+    ExternalProbeCacheEntry,
     HttpProbeTarget,
     TcpProbeTarget,
 } from "./types"
 
 /**
  * Framework-light liveness prober for the platform's infrastructure
- * components. Instead of injecting the ten real clients (Postgres pool, Redis,
+ * components. Instead of injecting the real clients (Postgres pool, Redis,
  * Kafka, …) it reaches each component directly using only the configured URL or
  * `host:port` — a raw `fetch` for HTTP services and a raw TCP socket for the
- * rest. Every probe is best-effort: the service NEVER throws, it reports `down`
- * with the error message instead.
+ * rest — plus two special cases: an SMTP `verify()` for mail, and an in-process
+ * key-pool read for the AI Balancer. Every probe is best-effort: the service
+ * NEVER throws, it reports `down` with the error message instead.
  *
  * The last full sweep is cached in memory for {@link PROBE_CACHE_TTL_MS} so a
- * public status page polling every few seconds does not hammer infra.
+ * public status page polling every few seconds does not hammer infra. External
+ * SaaS targets (GitHub, payment gateways) get a second, much longer
+ * {@link EXTERNAL_PROBE_CACHE_TTL_MS} cache on top, since they are rate-limited
+ * public APIs the sweep-wide TTL alone would not protect.
  *
  * @example
  * const components = await systemHealthService.probeAll()
@@ -38,11 +53,18 @@ import type {
 export class SystemHealthService {
     private readonly logger = new Logger(SystemHealthService.name)
 
+    constructor(
+        private readonly aiBalancerService: AiBalancerService,
+    ) {}
+
     /** Last computed sweep, reused until {@link cachedAt} ages past the TTL. */
     private cached: Array<ComponentHealth> | null = null
 
     /** Epoch ms the cached sweep was produced (drives TTL expiry). */
     private cachedAt = 0
+
+    /** Per-component memoized external-SaaS results (rate-limit guard). */
+    private readonly externalCache = new Map<string, ExternalProbeCacheEntry>()
 
     /**
      * Returns the liveness of every infrastructure component, serving a cached
@@ -63,13 +85,45 @@ export class SystemHealthService {
         // resolve the configured endpoints once per sweep (cheap, pure reads)
         const httpTargets = this.resolveHttpTargets()
         const tcpTargets = this.resolveTcpTargets()
+        const externalTargets = this.resolveExternalHttpTargets()
+
+        // one flat, ordered descriptor per probe this sweep runs — lets every
+        // probe fire concurrently while still recovering a name-by-index on
+        // the (unexpected) rejection path below, without positional math
+        // across several differently-shaped target lists
+        const descriptors: Array<{
+            /** Component name reported in {@link ComponentHealth.name}. */
+            name: string
+            /** Runs this component's probe (never throws). */
+            run: () => Promise<ComponentHealth>
+        }> = [
+            ...httpTargets.map((target) => ({
+                name: target.name,
+                run: () => this.probeHttp(target),
+            })),
+            ...tcpTargets.map((target) => ({
+                name: target.name,
+                run: () => this.probeTcp(target),
+            })),
+            {
+                name: "mail",
+                run: () => this.probeMail(),
+            },
+            {
+                name: "aiBalancer",
+                run: () => this.probeAiBalancer(),
+            },
+            ...externalTargets.map((target) => ({
+                name: target.name,
+                run: () => this.probeExternalHttp(target),
+            })),
+        ]
 
         // fire every probe concurrently; allSettled guarantees one slow/failing
         // probe never blocks or rejects the whole sweep
-        const settled = await Promise.allSettled([
-            ...httpTargets.map((target) => this.probeHttp(target)),
-            ...tcpTargets.map((target) => this.probeTcp(target)),
-        ])
+        const settled = await Promise.allSettled(
+            descriptors.map((descriptor) => descriptor.run()),
+        )
 
         // each probe already swallows its own errors, so a rejected settlement
         // is an unexpected bug — fall back to a synthetic `down` to stay total
@@ -78,12 +132,8 @@ export class SystemHealthService {
             if (outcome.status === "fulfilled") {
                 return outcome.value
             }
-            // defensive: name the component by its position in the probe list
-            const name = this.probeNameByIndex({
-                index,
-                httpTargets,
-                tcpTargets,
-            })
+            // defensive: the descriptor at this index carries its own name
+            const { name } = descriptors[index]
             // log loudly because a thrown probe means a probe helper regressed
             this.logger.warn(`Health probe "${name}" rejected unexpectedly`)
             return this.downHealth({
@@ -180,6 +230,46 @@ export class SystemHealthService {
                 name: "kafka",
                 host: kafkaHost,
                 port: kafkaPort,
+            },
+        ]
+    }
+
+    /**
+     * Builds the list of external SaaS the platform integrates with over
+     * plain REST (GitHub, plus the payment gateways). Any HTTP response proves
+     * reachability, same as {@link resolveHttpTargets}; these are probed
+     * separately so {@link probeExternalHttp} can apply its own, much longer
+     * cache TTL and stay under each provider's rate limit.
+     *
+     * @returns One {@link HttpProbeTarget} per integrated external service.
+     */
+    private resolveExternalHttpTargets(): Array<HttpProbeTarget> {
+        const config = envConfig()
+        return [
+            // GitHub REST API (OAuth + repo/team management) — fixed public host
+            {
+                name: "github",
+                url: "https://api.github.com",
+            },
+            // Stripe API (international cards) — SDK's fixed base host
+            {
+                name: "stripe",
+                url: "https://api.stripe.com",
+            },
+            // PayPal API — env-driven so sandbox vs live is probed correctly
+            {
+                name: "paypal",
+                url: config.services.api.paypal.baseUrl,
+            },
+            // PayOS merchant API (domestic gateway) — fixed public host
+            {
+                name: "payos",
+                url: "https://api-merchant.payos.vn",
+            },
+            // SePay gateway API (domestic gateway) — fixed public host
+            {
+                name: "sepay",
+                url: "https://my.sepay.vn",
             },
         ]
     }
@@ -295,6 +385,131 @@ export class SystemHealthService {
     }
 
     /**
+     * Probes the transactional-mail service (Brevo SMTP). Opens a throwaway
+     * transporter mirroring the app's real Brevo config and runs `verify()` —
+     * which connects, EHLOs, and authenticates against the SMTP server,
+     * proving mail can actually be sent (host + port + credentials), not just
+     * that the port is reachable. The transporter is always closed after.
+     *
+     * @returns The probed {@link ComponentHealth} (never throws).
+     */
+    private async probeMail(): Promise<ComponentHealth> {
+        // read the same Brevo SMTP config + secret the real mailer uses
+        const {
+            host,
+            port,
+            secure,
+            username,
+        } = envConfig().services.brevo
+        // a short-lived, non-pooled transporter dedicated to this probe
+        const transporter = createTransport({
+            host,
+            port,
+            secure,
+            auth: {
+                user: username,
+                pass: getBrevoSmtpPassword().trim(),
+            },
+        })
+        // latency clock around the SMTP handshake
+        const startedAt = Date.now()
+        try {
+            // verify connects + authenticates — the real "can we send mail" check
+            await transporter.verify()
+            const latencyMs = Date.now() - startedAt
+            return this.reachableHealth({
+                name: "mail",
+                latencyMs,
+            })
+        } catch (error) {
+            // SMTP unreachable / auth rejected → down with the reason
+            return this.downHealth({
+                name: "mail",
+                message: this.toMessage(error),
+                latencyMs: null,
+            })
+        } finally {
+            // always release the SMTP connection pool for this throwaway transporter
+            transporter.close()
+        }
+    }
+
+    /**
+     * Probes the in-process AI Balancer — a first-class component even though
+     * it never leaves the process. Its liveness is its key pool: at least one
+     * active provider key is `up`, some keys disabled but others alive is
+     * `degraded`, zero active keys across every provider is `down` (the app
+     * can no longer route any AI call).
+     *
+     * @returns The probed {@link ComponentHealth} (never throws).
+     */
+    private async probeAiBalancer(): Promise<ComponentHealth> {
+        try {
+            // read the in-memory key-pool snapshot (merges mount keys + ping cache)
+            const snapshot = await this.aiBalancerService.healthSnapshot()
+            // total live keys = the routable capacity; zero means no AI call can go out
+            const activeKeys = snapshot.providers.reduce(
+                (sum, provider) => sum + provider.activeKeys,
+                0,
+            )
+            // total disabled keys = degraded capacity even when some remain alive
+            const disabledKeys = snapshot.providers.reduce(
+                (sum, provider) => sum + provider.disabledKeys,
+                0,
+            )
+            // no key alive anywhere → the balancer cannot serve → down
+            if (activeKeys === 0) {
+                return this.downHealth({
+                    name: "aiBalancer",
+                    message: "no active AI keys",
+                    latencyMs: null,
+                })
+            }
+            // some keys disabled but capacity remains → degraded; otherwise fully up
+            return {
+                name: "aiBalancer",
+                status: disabledKeys > 0 ? "degraded" : "up",
+                latencyMs: null,
+                message: null,
+                checkedAt: new Date(),
+            }
+        } catch (error) {
+            // snapshot read failed → down with the reason
+            return this.downHealth({
+                name: "aiBalancer",
+                message: this.toMessage(error),
+                latencyMs: null,
+            })
+        }
+    }
+
+    /**
+     * Probes one external SaaS component, serving a fresh-enough cached
+     * result when available. Wraps {@link probeHttp} (same "any response
+     * proves reachability" semantics) with a much longer, per-component TTL
+     * so a frequently-polled public status query never trips a provider's
+     * rate limit (notably GitHub's 60/hour unauthenticated cap).
+     *
+     * @param target - The component name + URL to probe.
+     * @returns The probed {@link ComponentHealth} (never throws).
+     */
+    private async probeExternalHttp(target: HttpProbeTarget): Promise<ComponentHealth> {
+        // reuse a recent result to stay under the provider's rate limit
+        const cached = this.externalCache.get(target.name)
+        if (cached && Date.now() - cached.at < EXTERNAL_PROBE_CACHE_TTL_MS) {
+            return cached.result
+        }
+        const result = await this.probeHttp(target)
+        // memoize for the TTL window so the next sweep reuses it
+        this.externalCache.set(target.name,
+            {
+                result,
+                at: Date.now(),
+            })
+        return result
+    }
+
+    /**
      * Maps a reachable component's latency onto an `up`/`degraded` health. Slow
      * but answering still proves liveness, so it is `degraded`, not `down`.
      *
@@ -370,35 +585,6 @@ export class SystemHealthService {
         const parsedPort = Number(hostPort.slice(lastColon + 1))
         return [host,
             Number.isFinite(parsedPort) ? parsedPort : 9092]
-    }
-
-    /**
-     * Recovers the probe name for a settlement by its index in the combined
-     * `[...http, ...tcp]` probe order — used only on the unexpected rejection
-     * path where the resolved health (which carries the name) is unavailable.
-     *
-     * @param params - Settlement index + the two ordered target lists.
-     * @returns The component name at that probe position.
-     */
-    private probeNameByIndex({
-        index,
-        httpTargets,
-        tcpTargets,
-    }: {
-        /** Index of the settlement within the combined probe array. */
-        index: number
-        /** HTTP targets, which occupy the first slots of the probe array. */
-        httpTargets: Array<HttpProbeTarget>
-        /** TCP targets, which follow the HTTP targets in the probe array. */
-        tcpTargets: Array<TcpProbeTarget>
-    }): string {
-        // HTTP probes are scheduled first, so an index inside their length
-        // resolves directly to an HTTP target name
-        if (index < httpTargets.length) {
-            return httpTargets[index].name
-        }
-        // otherwise shift past the HTTP block to land on the TCP target
-        return tcpTargets[index - httpTargets.length].name
     }
 
     /**

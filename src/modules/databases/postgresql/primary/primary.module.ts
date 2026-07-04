@@ -183,7 +183,9 @@ import {
     AiLabEvalCaseResultEntity,
     NotificationEntity,
     UserPinnedProjectEntity,
-    JobPostingEntity
+    JobPostingEntity,
+    CartItemEntity,
+    TransactionItemEntity
 } from "./entities"
 import {
     ResolversModule
@@ -418,6 +420,8 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     NotificationEntity,
                                     UserPinnedProjectEntity,
                                     JobPostingEntity,
+                                    CartItemEntity,
+                                    TransactionItemEntity,
                                 ],
                                 synchronize,
                                 logging: false,
@@ -618,6 +622,8 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         AiLabEvalCaseResultEntity,
                         UserPinnedProjectEntity,
                         JobPostingEntity,
+                        CartItemEntity,
+                        TransactionItemEntity,
                     ],
                     POSTGRESQL_PRIMARY
                 ),

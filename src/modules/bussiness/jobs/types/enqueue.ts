@@ -2,6 +2,7 @@ import type {
     AiLabRunParams,
     Locale,
     ModelProvider,
+    TransactionEntity,
 } from "@modules/databases"
 import type {
     AiJobSelection,
@@ -24,6 +25,29 @@ export interface EnqueueEnrollJobParams {
     courseId: string
     /** The ID of the job to requeue. */
     jobId?: string
+}
+
+/**
+ * Params for enqueuing enroll jobs for every course of a paid Enroll transaction
+ * (fans a multi-course order out to one enroll job per line).
+ */
+export interface EnqueueEnrollmentsForTransactionParams {
+    /**
+     * The paid Enroll transaction (order). Multi-course orders read their
+     * `transaction_items` (one enroll job per line); single-course orders use the
+     * course carried directly on `transaction.course`.
+     */
+    transaction: TransactionEntity
+}
+
+/** Result of fanning a paid transaction out to enroll jobs. */
+export interface EnqueueEnrollmentsForTransactionResult {
+    /**
+     * Number of enroll jobs enqueued (one per course). Zero means a malformed
+     * Enroll transaction (neither `transaction_items` nor a `course`) — the caller
+     * decides whether to surface that as an error.
+     */
+    enqueuedCount: number
 }
 
 /** Params for enqueuing a process-git-submission job. */

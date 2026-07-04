@@ -25,9 +25,21 @@ import {
 import {
     CoursePricePreviewSingleQueryModule,
 } from "./course-price-preview"
+import {
+    MyCartSingleQueryModule,
+} from "./my-cart"
+import {
+    CoursesCheckoutPreviewSingleQueryModule,
+} from "./courses-checkout-preview"
 
 @Module({
     imports: [
+        MyCartSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        CoursesCheckoutPreviewSingleQueryModule.register({
+            isGlobal: true,
+        }),
         CourseMindMapSingleQueryModule.register({
             isGlobal: true,
         }),
