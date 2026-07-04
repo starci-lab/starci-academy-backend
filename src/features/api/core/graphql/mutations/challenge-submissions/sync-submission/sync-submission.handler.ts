@@ -73,7 +73,6 @@ export class SyncSubmissionHandler
             selectedMode,
             selectedModel,
             selectedModelProvider,
-            byokApiKey,
         } = request
         await this.entityManager.transaction(async (entityManager) => {
             await this.postgreSqlAdvisoryLockService.acquireUserChallengeSubmissionXactLock(
@@ -89,7 +88,6 @@ export class SyncSubmissionHandler
                 selectedMode,
                 selectedModel,
                 selectedModelProvider,
-                byokApiKey,
             })
         })
     }
@@ -104,7 +102,6 @@ export class SyncSubmissionHandler
             selectedMode,
             selectedModel,
             selectedModelProvider,
-            byokApiKey,
         }: UpsertSubmissionParams,
     ): Promise<void> {
         const challengeSubmission = await entityManager.findOne(
@@ -201,26 +198,22 @@ export class SyncSubmissionHandler
         const hasLaneSelection = selectedMode !== undefined
             || selectedModel !== undefined
             || selectedModelProvider !== undefined
-            || byokApiKey !== undefined
         if (hasLaneSelection) {
             const validatedLane = await this.gradingLaneValidationService.validate({
                 userId: user.id,
                 mode: selectedMode,
                 model: selectedModel,
                 provider: selectedModelProvider,
-                byokApiKey,
             })
             if (selectedMode !== undefined) {
                 userChallengeSubmission.selectedMode = validatedLane.mode
             }
             if (selectedModel !== undefined) {
                 userChallengeSubmission.selectedModel = validatedLane.gradingModel
-                    ?? validatedLane.byokModel
                     ?? null
             }
             if (selectedModelProvider !== undefined) {
                 userChallengeSubmission.selectedModelProvider = validatedLane.gradingProvider
-                    ?? validatedLane.byokProvider
                     ?? null
             }
         }

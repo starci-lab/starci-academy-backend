@@ -15,7 +15,7 @@ import {
 
 /**
  * Input for the submitEvalChallenge mutation. Reuses the loose `mode` /
- * `selectedModel` / `selectedModelProvider` / `byokApiKey` lane fields (mapped
+ * `selectedModel` / `selectedModelProvider` lane fields (mapped
  * to `AiJobSelection` in the service layer) and the shared `AiLabRunParamsInput`.
  */
 @InputType({
@@ -66,12 +66,12 @@ export class SubmitEvalChallengeInput {
     )
         params?: AiLabRunParamsInput
 
-    /** AI lane to grade on (auto/premium/byok); validated against entitlement. */
+    /** AI lane to grade on (auto/premium); validated against entitlement. */
     @Field(
         () => GraphQLTypeAiMode,
         {
             nullable: true,
-            description: "AI lane to grade on (auto/premium/byok); validated against entitlement.",
+            description: "AI lane to grade on (auto/premium); validated against entitlement.",
         },
     )
         mode?: AiMode
@@ -95,14 +95,4 @@ export class SubmitEvalChallengeInput {
         },
     )
         selectedModelProvider?: ModelProvider
-
-    /** One-shot BYOK API key for this grading run only (not stored). */
-    @Field(
-        () => String,
-        {
-            nullable: true,
-            description: "Optional BYOK API key for this grading run only.",
-        },
-    )
-        byokApiKey?: string
 }

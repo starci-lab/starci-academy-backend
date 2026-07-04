@@ -55,7 +55,6 @@ import type {
     UseApiAction,
     UseApiActionContext,
     UseApiAutoParams,
-    UseApiByokParams,
     UseApiParams,
     UseApiPremiumParams,
     UseApiResult,
@@ -96,7 +95,7 @@ export class UseApiService {
     /**
      * Single entry point — dispatch to the right lane implementation by `lane`.
      *
-     * @param params - Discriminated lane params (auto / premium / byok).
+     * @param params - Discriminated lane params (auto / premium).
      * @returns The action result plus which model/provider/attempts served it.
      */
     async useApi<TResult>(
@@ -104,8 +103,6 @@ export class UseApiService {
     ): Promise<UseApiResult<TResult>> {
         // route by lane — each lane has different fallback / rotation semantics
         switch (params.lane) {
-        case AiMode.Byok:
-            return this.runByok(params)
         case AiMode.Premium:
             return this.runPremium(params)
         default:
@@ -431,30 +428,6 @@ export class UseApiService {
             provider: target.provider,
             totalKeysCount: eligibleCount,
         })
-    }
-
-    /**
-     * BYOK lane — single invoke with the user's key. Failures propagate
-     * immediately (no pooled cache update).
-     */
-    private async runByok<TResult>({
-        action,
-        provider,
-        model,
-        key,
-    }: UseApiByokParams<TResult>): Promise<UseApiResult<TResult>> {
-        const context = this.buildContext(
-            provider,
-            key,
-            model,
-        )
-        const result = await action(context)
-        return {
-            result,
-            model,
-            provider,
-            attempts: 1,
-        }
     }
 
     /**

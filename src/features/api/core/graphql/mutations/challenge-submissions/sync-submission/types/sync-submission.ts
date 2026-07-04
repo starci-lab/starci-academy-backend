@@ -36,6 +36,4 @@ export interface UpsertSubmissionParams {
     selectedModel?: string
     /** Provider serving the persisted model; omit to leave untouched. */
     selectedModelProvider?: ModelProvider
-    /** Optional one-shot BYOK key when syncing BYOK lane. */
-    byokApiKey?: string
 }

@@ -78,8 +78,7 @@ export class CreditUsageHistoryEntity extends UuidAbstractEntity {
         userId: string
 
     /**
-     * AI lane used for the run (auto / premium). Byok is never recorded here —
-     * the user pays their own provider, not the platform pool.
+     * AI lane used for the run (auto / premium).
      */
     @Field(
         () => GraphQLTypeAiMode,

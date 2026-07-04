@@ -14,7 +14,6 @@ import {
 } from "@modules/exceptions"
 import {
     AiMode,
-    ModelProvider,
 } from "@modules/databases"
 import type {
     UserEntity,
@@ -90,9 +89,6 @@ describe("UpdateMyAiSettingsHandler",
                     new UpdateMyAiSettingsCommand({
                         request: {
                             mode: AiMode.Premium,
-                            byokProvider: ModelProvider.OpenAI,
-                            byokApiKey: "sk-secret",
-                            clearByok: false,
                         },
                         user: fakeUser("user-1"),
                     }),
@@ -102,9 +98,6 @@ describe("UpdateMyAiSettingsHandler",
                 expect(aiEntitlementService.updateSettings).toHaveBeenCalledWith({
                     userId: "user-1",
                     mode: AiMode.Premium,
-                    byokProvider: ModelProvider.OpenAI,
-                    byokApiKey: "sk-secret",
-                    clearByok: false,
                 })
             })
     })

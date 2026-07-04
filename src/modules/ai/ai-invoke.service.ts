@@ -146,22 +146,20 @@ export class AiInvokeService {
             aiEntitlementService: this.aiEntitlementService,
         })
 
-        // cost = token-based credits for the served model (0 for BYOK). Billed by
-        // observed input/output tokens × the model's per-Mtok rates; falls back to
-        // the model's flat `credit` when usage is unreported (see creditForRun).
+        // cost = token-based credits for the served model. Billed by observed
+        // input/output tokens × the model's per-Mtok rates; falls back to the
+        // model's flat `credit` when usage is unreported (see creditForRun).
         const costFor = (
             model: string,
             promptTokens?: number,
             completionTokens?: number,
         ): Promise<number> =>
-            options.byok
-                ? Promise.resolve(0)
-                : this.aiModelCatalogService.creditForRun({
-                    name: model,
-                    promptTokens,
-                    completionTokens,
-                    fallback: DEFAULT_MODEL_CREDIT,
-                })
+            this.aiModelCatalogService.creditForRun({
+                name: model,
+                promptTokens,
+                completionTokens,
+                fallback: DEFAULT_MODEL_CREDIT,
+            })
 
         // stream when a chunk callback is supplied; otherwise a one-shot invoke
         if (onChunk) {
@@ -220,7 +218,6 @@ export class AiInvokeService {
             messages,
             category,
             categories,
-            byok,
             temperature,
             model,
             provider,
@@ -282,32 +279,6 @@ export class AiInvokeService {
             }
         }
 
-        // BYOK → user's own key, bypassing the shared pool / fallback chain
-        if (byok) {
-            const {
-                result,
-                model: usedModel,
-                provider: usedProvider,
-                attempts,
-            } = await this.useApiService.useApi<StreamActionResult>(
-                {
-                    lane: AiMode.Byok,
-                    provider: byok.provider,
-                    model: byok.model,
-                    key: byok.key,
-                    action: invokeAction,
-                },
-            )
-            return {
-                text: result.text,
-                model: usedModel,
-                provider: usedProvider,
-                attempts,
-                promptTokens: result.promptTokens,
-                completionTokens: result.completionTokens,
-            }
-        }
-
         // Premium lane = a single pinned category (set by the entitlement resolver).
         // Auto lane = `categories` (the entitled tier set) → balancer loops them
         // low→high by priority (Free → Economy → Balanced → Premium, capped here).
@@ -354,7 +325,7 @@ export class AiInvokeService {
      * Stream the given messages against the resolved lane, invoking `onChunk`
      * for every token delta as it arrives.
      *
-     * Mirrors {@link invoke} lane-for-lane (BYOK / Premium / Auto) but builds a
+     * Mirrors {@link invoke} lane-for-lane (Premium / Auto) but builds a
      * streaming client and consumes `chatModel.stream(...)` instead of a single
      * `invoke`. The accumulated text + observed token usage are returned once
      * the stream finishes; an aborted `signal` surfaces as a thrown error.
@@ -367,7 +338,6 @@ export class AiInvokeService {
             messages,
             category,
             categories,
-            byok,
             temperature,
             model,
             provider,
@@ -463,32 +433,6 @@ export class AiInvokeService {
             }
         }
 
-        // BYOK → user's own key, bypassing the shared pool / fallback chain
-        if (byok) {
-            const {
-                result,
-                model: usedModel,
-                provider: usedProvider,
-                attempts,
-            } = await this.useApiService.useApi<StreamActionResult>(
-                {
-                    lane: AiMode.Byok,
-                    provider: byok.provider,
-                    model: byok.model,
-                    key: byok.key,
-                    action: streamAction,
-                },
-            )
-            return {
-                text: result.text,
-                model: usedModel,
-                provider: usedProvider,
-                attempts,
-                promptTokens: result.promptTokens,
-                completionTokens: result.completionTokens,
-            }
-        }
-
         // Premium lane (any non-Economy category) pins one model; Auto runs the fallback chain
         const isPremiumLane = category !== undefined
             && category !== AiModelCategory.Economy
@@ -532,8 +476,7 @@ export class AiInvokeService {
     /**
      * Build the LangChain chat client for a resolved provider/model/key.
      *
-     * Shared by both the balancer-driven path (key picked by
-     * {@link UseApiService}) and the BYOK path (key supplied by the caller).
+     * Shared by the balancer-driven path (key picked by {@link UseApiService}).
      * @param params - The provider, model name, and raw API key.
      * @returns A provider-specific chat model wired with the given key.
      * @throws UnsupportedAiProviderException when the provider has no client.

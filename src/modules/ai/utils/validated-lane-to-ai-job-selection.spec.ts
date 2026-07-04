@@ -47,47 +47,4 @@ describe("validatedLaneToAiJobSelection",
                     gradingProvider: ModelProvider.OpenAI,
                 })).toThrow(AiByokInvalidException)
             })
-
-        it("carries model + provider but no key when none was supplied inline",
-            () => {
-                // omitting the inline key tells the worker to load the stored key
-                const selection = validatedLaneToAiJobSelection({
-                    mode: AiMode.Byok,
-                    byokModel: "gpt-4o-mini",
-                    byokProvider: ModelProvider.OpenAI,
-                })
-
-                expect(selection).toEqual({
-                    mode: AiMode.Byok,
-                    model: "gpt-4o-mini",
-                    provider: ModelProvider.OpenAI,
-                })
-            })
-
-        it("threads the inline BYOK key through when present on the lane",
-            () => {
-                // an inline key set on the lane must ride along on the selection
-                const selection = validatedLaneToAiJobSelection({
-                    mode: AiMode.Byok,
-                    byokModel: "gpt-4o-mini",
-                    byokProvider: ModelProvider.OpenAI,
-                    byokApiKey: "sk-inline",
-                })
-
-                expect(selection).toEqual({
-                    mode: AiMode.Byok,
-                    model: "gpt-4o-mini",
-                    provider: ModelProvider.OpenAI,
-                    apiKey: "sk-inline",
-                })
-            })
-
-        it("throws when a BYOK lane is missing its provider",
-            () => {
-                // defensive guard mirrors the Premium branch for BYOK fields
-                expect(() => validatedLaneToAiJobSelection({
-                    mode: AiMode.Byok,
-                    byokModel: "gpt-4o-mini",
-                })).toThrow(AiByokInvalidException)
-            })
     })

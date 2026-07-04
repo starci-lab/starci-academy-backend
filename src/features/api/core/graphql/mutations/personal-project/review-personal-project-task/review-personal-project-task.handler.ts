@@ -183,7 +183,6 @@ export class ReviewPersonalProjectTaskHandler
             mode: request.mode,
             model: request.selectedModel,
             provider: request.selectedModelProvider,
-            byokApiKey: request.byokApiKey,
         })
         // collapse the validated lane into the discriminated AI selection carried on the job
         const ai = validatedLaneToAiJobSelection(validatedLane)

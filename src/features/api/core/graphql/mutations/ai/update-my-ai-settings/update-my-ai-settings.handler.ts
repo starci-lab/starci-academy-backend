@@ -35,9 +35,6 @@ export class UpdateMyAiSettingsHandler
         const {
             request: {
                 mode,
-                byokProvider,
-                byokApiKey,
-                clearByok,
             },
             user,
         } = command.params
@@ -47,13 +44,10 @@ export class UpdateMyAiSettingsHandler
             })
         }
 
-        // delegate validation + encryption + persistence to the domain service
+        // delegate validation + persistence to the domain service
         await this.aiEntitlementService.updateSettings({
             userId: user.id,
             mode,
-            byokProvider,
-            byokApiKey,
-            clearByok,
         })
     }
 }

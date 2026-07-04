@@ -5,16 +5,13 @@ import {
 import {
     AiMode,
     GraphQLTypeAiMode,
-    GraphQLTypeModelProvider,
-    ModelProvider,
 } from "@modules/databases"
 
 /**
  * Request for updating the current user's AI lane settings.
  *
- * Supply `byokProvider` + `byokApiKey` together to store a key, or `clearByok`
- * to wipe it. `mode` sets the user's default lane and is validated against the
- * resulting capabilities (after any BYOK change is applied).
+ * `mode` sets the user's default lane and is validated against the user's
+ * capabilities.
  */
 @InputType({
     description: "Update the current user's AI lane settings.",
@@ -28,31 +25,4 @@ export class UpdateMyAiSettingsRequest {
         },
     )
         mode?: AiMode
-
-    @Field(
-        () => GraphQLTypeModelProvider,
-        {
-            nullable: true,
-            description: "BYOK provider to store (required with byokApiKey).",
-        },
-    )
-        byokProvider?: ModelProvider
-
-    @Field(
-        () => String,
-        {
-            nullable: true,
-            description: "Plaintext BYOK API key to encrypt + store.",
-        },
-    )
-        byokApiKey?: string
-
-    @Field(
-        () => Boolean,
-        {
-            nullable: true,
-            description: "When true, wipe any stored BYOK key + provider.",
-        },
-    )
-        clearByok?: boolean
 }

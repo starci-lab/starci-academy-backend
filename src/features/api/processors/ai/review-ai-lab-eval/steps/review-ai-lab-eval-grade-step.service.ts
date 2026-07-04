@@ -136,7 +136,7 @@ export class ReviewAiLabEvalGradeStepService extends AbstractStepService<
             },
         )
 
-        // debit the Premium tier pool once for this grading job (no-op for Auto/Byok),
+        // debit the Premium tier pool once for this grading job,
         // then invalidate the cached Auto credit total so the next read sees the charge.
         // charge by the resolved model when pinned (Premium); Auto grades each
         // case via the balancer (no single model) → falls back to the lane estimate

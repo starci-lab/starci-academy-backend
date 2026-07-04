@@ -45,7 +45,7 @@ const makeContext = () => ({
         enrollmentId: "enroll-1",
         locale: Locale.En,
         ai: {
-            mode: AiMode.Byok,
+            mode: AiMode.Auto,
         },
     },
     extended: {

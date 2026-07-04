@@ -39,7 +39,7 @@ export class SubmitChallengeSubmissionRequest {
         () => GraphQLTypeAiMode,
         {
             nullable: true,
-            description: "AI lane to grade on (auto/premium/byok); validated against entitlement at grade time.",
+            description: "AI lane to grade on (auto/premium); validated against entitlement at grade time.",
         },
     )
         mode?: AiMode
@@ -76,18 +76,5 @@ export class SubmitChallengeSubmissionRequest {
         },
     )
         lang?: string
-
-    /**
-     * One-shot BYOK API key for this submission only (not stored on the profile).
-     * Required with model + provider when {@link mode} is `byok` and no key is on file.
-     */
-    @Field(
-        () => String,
-        {
-            nullable: true,
-            description: "Optional BYOK API key for this grading run only.",
-        },
-    )
-        byokApiKey?: string
 
 }

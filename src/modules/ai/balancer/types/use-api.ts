@@ -174,30 +174,12 @@ export interface UseApiPremiumParams<TResult> {
 }
 
 /**
- * BYOK lane — a single invoke with the user's own key (bypasses the pool).
- * Failures propagate immediately (no pooled cache update).
- */
-export interface UseApiByokParams<TResult> {
-    /** Discriminant: bring-your-own-key lane. */
-    lane: AiMode.Byok
-    /** Worker callback — receives the user's key/model, returns the result. */
-    action: UseApiAction<TResult>
-    /** BYOK provider. */
-    provider: ModelProvider
-    /** BYOK model name. */
-    model: string
-    /** User's raw API key. */
-    key: string
-}
-
-/**
  * Discriminated lane params for {@link UseApiService.useApi}, keyed on the
  * {@link AiMode} `lane`. One entry point replaces the per-lane methods.
  */
 export type UseApiParams<TResult> =
     | UseApiAutoParams<TResult>
     | UseApiPremiumParams<TResult>
-    | UseApiByokParams<TResult>
 
 /**
  * Params for {@link UseApiService.probeModel} — probe ONE specific model with a

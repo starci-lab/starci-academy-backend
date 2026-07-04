@@ -17,8 +17,6 @@ import {
     GraphQLTypeAiMode,
     GraphQLTypeAiSubStatus,
     GraphQLTypeAiSubTier,
-    GraphQLTypeModelProvider,
-    ModelProvider,
 } from "../enums"
 
 /**
@@ -48,14 +46,12 @@ import {
 /**
  * Per-user AI entitlement (1-1 with {@link UserEntity}).
  *
- * Holds a single **credit** pool spent by every non-BYOK run, with two shared
+ * Holds a single **credit** pool spent by every run, with two shared
  * reset windows (5h + week).
  *
  * - Free / course users: `tier` is null → allowance = the free base credits.
  * - Paid users: `tier` set → allowance = free base + the tier catalog credits.
  *   A tier also unlocks the higher model categories (free = Economy only).
- * - BYOK users: `byokProvider` + `byokKeyEncrypted` set → bypass the balancer
- *   pool and quota entirely.
  *
  * Counters track credits spent WITHIN the current window; remaining = limit −
  * used, where the limit = free base + (tier catalog credits when subscribed).
@@ -126,46 +122,9 @@ export class AiSubscriptionEntity extends UuidAbstractEntity {
     })
         autoRenew: boolean
 
-    /** BYOK provider; null = not using own key. */
-    @Field(
-        () => GraphQLTypeModelProvider,
-        {
-            nullable: true,
-            description: "BYOK provider; null = not using own key.",
-        },
-    )
-    @Column({
-        name: "byok_provider",
-        type: "enum",
-        enum: ModelProvider,
-        nullable: true,
-    })
-        byokProvider: ModelProvider | null
-
-    /** Encrypted user-supplied API key (BYOK); never exposed via GraphQL. */
-    @Column({
-        name: "byok_key_encrypted",
-        type: "text",
-        nullable: true,
-    })
-        byokKeyEncrypted: string | null
-
-    /**
-     * Last 4 chars of the BYOK key — a log-safe masked hint so the UI can show
-     * "••••••••1234" (the key is paste-once + encrypted at rest; the plaintext
-     * is never shown again). Null when no key is on file. Safe to expose.
-     */
-    @Column({
-        name: "byok_key_last4",
-        type: "varchar",
-        length: 4,
-        nullable: true,
-    })
-        byokKeyLast4: string | null
-
     /**
      * Lane the user chose to run on by default; null = follow the natural
-     * capability order (byok → premium → auto). Validated lazily on read — a
+     * capability order (premium → auto). Validated lazily on read — a
      * preferred lane the user is no longer entitled to silently falls back to
      * the natural mode.
      */
@@ -203,7 +162,7 @@ export class AiSubscriptionEntity extends UuidAbstractEntity {
 
     /**
      * Platform credits consumed in the current 5-hour window. Single unified
-     * pool for every non-BYOK run (free + paid); allowance = free base + tier.
+     * pool for every run (free + paid); allowance = free base + tier.
      */
     @Field(
         () => Int,

@@ -108,7 +108,7 @@ export interface PrepareStreamResult {
      */
     messages: Array<BaseMessage>
     /**
-     * Invoke options (lane / category / byok / pinned model) the gateway hands
+     * Invoke options (lane / category / pinned model) the gateway hands
      * to {@link AiInvokeService.stream}; null for a cache hit.
      */
     invokeOptions: ResolveGradingInvokeOptionsResult | null
@@ -130,7 +130,7 @@ export interface MarkRunFailedParams {
 
 /**
  * Result of pulling the loose `model` / `provider` out of a lane selection for
- * the validation call. Auto carries neither field; Premium / Byok carry both.
+ * the validation call. Auto carries neither field; Premium carries both.
  */
 export interface SelectionModelProviderResult {
     /** Concrete model pinned by the selection; absent for the Auto lane. */

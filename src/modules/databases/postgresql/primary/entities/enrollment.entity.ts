@@ -176,8 +176,8 @@ export class EnrollmentEntity extends UuidAbstractEntity {
      * AES-256-GCM encrypted GitHub access token (JSON-stringified `{iv,authTag,ciphertext}`
      * payload) used to clone a PRIVATE personal-project repo for AI grading, or null when the
      * repo is public / no token supplied. **NOT exposed via GraphQL** — the plaintext token must
-     * never leave the server (mirrors `AiSubscriptionEntity.byokKeyEncrypted`). The masked
-     * {@link personalProjectGithubTokenLast4} is what the UI shows.
+     * never leave the server. The masked {@link personalProjectGithubTokenLast4} is what the
+     * UI shows.
      */
     @Column({
         name: "personal_project_github_token_encrypted",

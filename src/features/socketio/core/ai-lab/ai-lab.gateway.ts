@@ -137,7 +137,6 @@ export class AiLabGateway {
             const result = await this.aiInvokeService.stream({
                 messages: prepared.messages,
                 category: prepared.invokeOptions.category,
-                byok: prepared.invokeOptions.byok,
                 model: prepared.invokeOptions.model,
                 provider: prepared.invokeOptions.provider,
                 task: AiModelTask.Chatting,

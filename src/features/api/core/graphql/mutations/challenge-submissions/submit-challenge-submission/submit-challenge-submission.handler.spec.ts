@@ -65,13 +65,10 @@ const fakeUser = (
 }) as unknown as UserEntity
 
 /**
- * A validated BYOK grading lane — chosen so `assertGradingQuota` returns early
- * (BYOK is never quota-gated) and the AI-selection mapper has model + provider.
+ * A validated Auto grading lane — the default lane every test submits on.
  */
-const byokLane = {
-    mode: AiMode.Byok,
-    byokModel: "gpt-4o",
-    byokProvider: ModelProvider.OpenAI,
+const autoLane = {
+    mode: AiMode.Auto,
     gradingModel: null,
     gradingProvider: null,
 }
@@ -106,9 +103,9 @@ describe("SubmitChallengeSubmissionHandler",
                 }),
             } as unknown as jest.Mocked<Pick<EnqueueProcessGoogleDocsSubmissionJobService, "enqueue">>
 
-            // lane validation resolves a BYOK lane (skips the quota gate entirely)
+            // lane validation resolves the Auto lane
             gradingLaneValidationService = {
-                validate: jest.fn().mockResolvedValue(byokLane),
+                validate: jest.fn().mockResolvedValue(autoLane),
             } as unknown as jest.Mocked<Pick<GradingLaneValidationService, "validate">>
 
             // advisory lock is a no-op in the unit test
@@ -174,7 +171,7 @@ describe("SubmitChallengeSubmissionHandler",
                         new SubmitChallengeSubmissionCommand({
                             request: {
                                 challengeSubmissionId: "sub-1",
-                                mode: AiMode.Byok,
+                                mode: AiMode.Auto,
                             },
                             user: undefined,
                         }),
@@ -194,7 +191,7 @@ describe("SubmitChallengeSubmissionHandler",
                         new SubmitChallengeSubmissionCommand({
                             request: {
                                 challengeSubmissionId: "missing",
-                                mode: AiMode.Byok,
+                                mode: AiMode.Auto,
                             },
                             user: fakeUser("user-1"),
                         }),
@@ -218,7 +215,7 @@ describe("SubmitChallengeSubmissionHandler",
                         new SubmitChallengeSubmissionCommand({
                             request: {
                                 challengeSubmissionId: "sub-1",
-                                mode: AiMode.Byok,
+                                mode: AiMode.Auto,
                             },
                             user: fakeUser("user-1"),
                         }),
@@ -265,10 +262,9 @@ describe("SubmitChallengeSubmissionHandler",
                     new SubmitChallengeSubmissionCommand({
                         request: {
                             challengeSubmissionId: "sub-1",
-                            mode: AiMode.Byok,
+                            mode: AiMode.Auto,
                             selectedModel: "gpt-4o",
                             selectedModelProvider: ModelProvider.OpenAI,
-                            byokApiKey: "sk-key",
                         },
                         user: fakeUser("user-1"),
                         locale: undefined,
@@ -323,7 +319,7 @@ describe("SubmitChallengeSubmissionHandler",
                     new SubmitChallengeSubmissionCommand({
                         request: {
                             challengeSubmissionId: "sub-1",
-                            mode: AiMode.Byok,
+                            mode: AiMode.Auto,
                             lang: "typescript",
                         },
                         user: fakeUser("user-1"),
@@ -361,7 +357,7 @@ describe("SubmitChallengeSubmissionHandler",
                         new SubmitChallengeSubmissionCommand({
                             request: {
                                 challengeSubmissionId: "sub-1",
-                                mode: AiMode.Byok,
+                                mode: AiMode.Auto,
                             },
                             user: fakeUser("user-1"),
                         }),

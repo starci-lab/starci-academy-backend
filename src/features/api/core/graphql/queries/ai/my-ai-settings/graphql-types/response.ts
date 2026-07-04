@@ -11,14 +11,11 @@ import {
     AiSubTier,
     GraphQLTypeAiMode,
     GraphQLTypeAiSubTier,
-    GraphQLTypeModelProvider,
-    ModelProvider,
 } from "@modules/databases"
 
 /**
  * The authenticated user's AI lane settings + the capabilities the UI needs
- * to decide which lanes are selectable. The raw BYOK key is never exposed —
- * only whether one is on file.
+ * to decide which lanes are selectable.
  */
 @ObjectType({
     description: "Per-user AI lane settings (preference + capabilities).",
@@ -48,40 +45,6 @@ export class MyAiSettingsResponseData {
         },
     )
         canPremium: boolean
-
-    @Field(
-        () => Boolean,
-        {
-            description: "Whether a BYOK key is on file (byok lane selectable).",
-        },
-    )
-        canByok: boolean
-
-    @Field(
-        () => GraphQLTypeModelProvider,
-        {
-            nullable: true,
-            description: "Provider of the BYOK key on file, or null when none.",
-        },
-    )
-        byokProvider: ModelProvider | null
-
-    @Field(
-        () => Boolean,
-        {
-            description: "Whether an encrypted BYOK key is stored.",
-        },
-    )
-        hasByokKey: boolean
-
-    @Field(
-        () => String,
-        {
-            nullable: true,
-            description: "Last 4 chars of the BYOK key (masked hint), or null when none.",
-        },
-    )
-        byokKeyLast4: string | null
 
     @Field(
         () => GraphQLTypeAiSubTier,

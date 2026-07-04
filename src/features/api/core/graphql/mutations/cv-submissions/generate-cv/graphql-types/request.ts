@@ -31,7 +31,7 @@ export class GenerateCvRequest {
         () => GraphQLTypeAiMode,
         {
             nullable: true,
-            description: "AI lane to generate on (auto/premium/byok); validated against entitlement at generate time.",
+            description: "AI lane to generate on (auto/premium); validated against entitlement at generate time.",
         },
     )
         mode?: AiMode

@@ -54,7 +54,7 @@ export class AiLabRunParamsInput {
 
 /**
  * Input for the runPlaygroundPrompt mutation. The loose `mode` /
- * `selectedModel` / `selectedModelProvider` / `byokApiKey` fields map to the
+ * `selectedModel` / `selectedModelProvider` fields map to the
  * discriminated `AiJobSelection` in the service layer exactly as the
  * submit-challenge flow does (no nested AiJobSelection input exists today).
  */
@@ -98,12 +98,12 @@ export class RunPlaygroundPromptInput {
     )
         params?: AiLabRunParamsInput
 
-    /** AI lane to run on (auto/premium/byok); validated against entitlement. */
+    /** AI lane to run on (auto/premium); validated against entitlement. */
     @Field(
         () => GraphQLTypeAiMode,
         {
             nullable: true,
-            description: "AI lane to run on (auto/premium/byok); validated against entitlement.",
+            description: "AI lane to run on (auto/premium); validated against entitlement.",
         },
     )
         mode?: AiMode
@@ -127,14 +127,4 @@ export class RunPlaygroundPromptInput {
         },
     )
         selectedModelProvider?: ModelProvider
-
-    /** One-shot BYOK API key for this run only (not stored on the profile). */
-    @Field(
-        () => String,
-        {
-            nullable: true,
-            description: "Optional BYOK API key for this run only.",
-        },
-    )
-        byokApiKey?: string
 }

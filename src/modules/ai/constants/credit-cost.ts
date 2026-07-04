@@ -46,7 +46,6 @@ export const DEFAULT_ESTIMATE_COMPLETION_TOKENS = 800
 /**
  * Resolve how many AI credits a grading run costs.
  *
- * - **Byok lane → 0** (the user pays their own provider).
  * - **`credit` given (post-run charge)** → the served model's catalog `credit`
  *   (resolved by the caller via {@link AiModelCatalogService.creditForModel} —
  *   single source of cost). Free models = 0; economy/balanced/premium/frontier
@@ -69,9 +68,6 @@ export const resolveGradingCreditCost = (
         credit?: number
     },
 ): number => {
-    if (mode === AiMode.Byok) {
-        return 0
-    }
     // accurate, post-run charge: bill by the served model's catalog credit
     if (credit !== undefined) {
         return credit

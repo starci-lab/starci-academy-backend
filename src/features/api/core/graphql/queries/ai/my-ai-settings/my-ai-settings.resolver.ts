@@ -32,10 +32,10 @@ import {
 
 /**
  * Per-user AI lane settings — the saved lane preference plus the capabilities
- * the UI needs to decide which lanes are selectable (Auto / Premium / BYOK).
- * Drives the lane selector + BYOK form on the AI settings page.
+ * the UI needs to decide which lanes are selectable (Auto / Premium).
+ * Drives the lane selector on the AI settings page.
  *
- * Reads from Postgres (`ai_subscriptions`); never returns the raw BYOK key.
+ * Reads from Postgres (`ai_subscriptions`).
  */
 @Resolver()
 export class MyAiSettingsResolver {
@@ -56,7 +56,7 @@ export class MyAiSettingsResolver {
             name: "myAiSettings",
             description:
                 "Returns the authenticated user's AI lane settings — preferred + effective "
-                + "lane, BYOK provider/availability, and Premium/BYOK capability flags.",
+                + "lane and Premium capability flag.",
         },
     )
     async execute(
@@ -70,10 +70,6 @@ export class MyAiSettingsResolver {
             preferredMode: settings.preferredMode,
             effectiveMode: settings.effectiveMode,
             canPremium: settings.canPremium,
-            canByok: settings.canByok,
-            byokProvider: settings.byokProvider,
-            hasByokKey: settings.hasByokKey,
-            byokKeyLast4: settings.byokKeyLast4,
             tier: settings.tier,
         }
     }

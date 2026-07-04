@@ -31,7 +31,7 @@ export class CreditUsageHistoryItemObject {
     @Field(
         () => String,
         {
-            description: "AI lane billed (auto / premium / byok).",
+            description: "AI lane billed (auto / premium).",
         },
     )
         mode: string
@@ -40,7 +40,7 @@ export class CreditUsageHistoryItemObject {
         () => String,
         {
             nullable: true,
-            description: "Premium tier billed (low / medium / high); null for auto / byok.",
+            description: "Premium tier billed (low / medium / high); null for auto.",
         },
     )
         recommendation: string | null

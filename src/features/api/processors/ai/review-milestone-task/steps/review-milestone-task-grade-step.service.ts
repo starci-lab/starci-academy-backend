@@ -411,7 +411,7 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 },
             },
         )
-        /** Auto lane → gate on the SAME unified credit pool as everywhere else; Premium/Byok are not billed for task review yet. */
+        /** Auto lane → gate on the SAME unified credit pool as everywhere else; Premium is not billed for task review yet. */
         if ((payload.ai?.mode ?? AiMode.Auto) === AiMode.Auto) {
             await this.aiEntitlementService.assertNotOverQuota({
                 userId: enrollment.userId,

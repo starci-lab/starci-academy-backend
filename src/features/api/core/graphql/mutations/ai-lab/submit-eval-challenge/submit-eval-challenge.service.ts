@@ -65,7 +65,6 @@ export class SubmitEvalChallengeService {
             mode,
             selectedModel,
             selectedModelProvider,
-            byokApiKey,
         } = input
         // guard: the eval set must exist before we persist a run against it
         const evalSet = await this.entityManager.findOne(
@@ -89,13 +88,12 @@ export class SubmitEvalChallengeService {
             mode,
             selectedModel,
             selectedModelProvider,
-            byokApiKey,
         })
         // normalize the submitted params so the non-null jsonb column always has a value
         const submittedParams = params ?? {
         }
         // deterministic hash of every input that decides the verdict (prompts + params
-        // + lane selection); the BYOK key is excluded since it never changes the answer
+        // + lane selection)
         const submittedHash = createHash("sha256")
             .update(JSON.stringify({
                 systemPrompt: systemPrompt ?? "",
