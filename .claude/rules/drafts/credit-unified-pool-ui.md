@@ -1,5 +1,7 @@
 # Draft — UI credit/hạn mức bám "unified pool", không tách lane theo nguồn (2026-06-18)
 
+> **Bổ sung 2026-07-06 (STRICT):** **Lane "Tự động" (Auto model) LUÔN kèm credit hiển thị NGAY CẠNH picker** — user phải thấy "còn bao nhiêu credit" TRƯỚC khi bấm hành động tốn AI (chấm/generate), không giấu tới lúc hết mới báo. Đọc từ `myAiQuota.credit` (unified, tier-aware: `remainingWeek`/`limitWeek`) — dòng `body-xs muted` cạnh `GradeModelDropdown` khi `!selection.model` (Auto lane). Precedent logic: `resolveGradeCreditDisplay` (ChallengeSubmissionPanel) — nợ: trích thành block/util DÙNG CHUNG (`blocks/grading`) thay vì copy per-feature ([[single-source-render]]). Áp: `MockInterviewSession` setup (Auto + "Còn {remaining}/{quota} credit tuần này"). GradeModelDropdown (block chung) KHÔNG tự query credit (tránh bloat mọi caller) → credit render ở FEATURE cạnh dropdown.
+
 - File/§ đích khi `/merge`: `main.md` §14 (heuristics) + `starci-stats.md` (nếu có khối quota/credit).
 - Bài học: trang `ai-usage` render 2 lane riêng (Auto đọc `myCreditUsage` + Premium đọc `myAiQuota`) trong khi
   BE đã gộp về **1 pool credit thống nhất** (`myAiQuota.credit` 5h+week) → UI lệch model, trùng lặp, khó hiểu.

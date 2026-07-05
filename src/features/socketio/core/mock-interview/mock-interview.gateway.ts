@@ -34,6 +34,8 @@ import {
     AiModelTask,
     ModelProvider,
     MockInterviewPhase,
+    normalizeMockInterviewKind,
+    normalizeMockInterviewMode,
 } from "@modules/databases"
 import {
     PublicationEvent,
@@ -122,7 +124,19 @@ export class MockInterviewGateway {
             latestAnswer,
             model,
             provider,
+            level,
+            mode,
+            kind,
+            currentSeed,
+            questionIndex,
         } = payload.data
+        // absent/unrecognized mode → "design" (the pre-existing 5-phase flow),
+        // so an FE build that predates the mode split keeps working unchanged
+        const normalizedMode = normalizeMockInterviewMode(mode)
+        // THIS question's own kind — meaningful only for mode="qna" (a single
+        // qna session mixes kinds across its questions); absent/unrecognized
+        // falls back to "theory" (harmless for mode="design", which ignores kind)
+        const normalizedKind = normalizeMockInterviewKind(kind)
         // a pinned model (model + provider) routes to that single model (gated on
         // paid OR enrolled); otherwise the balancer chain. floor is set to Economy
         // below (per the interview surface's grading floor), so the chain starts on
@@ -172,18 +186,26 @@ export class MockInterviewGateway {
                 }),
             )
 
-            // build the on-rails, RAG-grounded interviewer prompt for this turn
+            // build the on-rails, RAG-grounded interviewer prompt for this turn —
+            // branches internally on mode (design's 5-phase flow vs the qna
+            // mode's N-question flow, where each question reads its OWN kind)
             const {
                 messages,
             } = await this.mockInterviewTurnService.prepareTurn({
                 courseId,
                 promptTitle,
+                mode: normalizedMode,
+                kind: normalizedKind,
                 // the wire payload carries the phase as a plain string; cast
                 // through the enum since the FE only ever sends a valid value
+                // (meaningful only for mode="design" — ignored otherwise)
                 phase: phase as MockInterviewPhase,
+                currentSeed,
+                questionIndex,
                 history: normalizedHistory,
                 latestAnswer,
                 locale: payload.locale,
+                level,
             })
 
             // ONE shared entry — stream on the Economy floor (mock-interview

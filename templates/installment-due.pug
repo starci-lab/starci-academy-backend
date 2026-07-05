@@ -1,0 +1,9 @@
+extends layouts/base
+
+block content
+  - var vi = locale === 'vi'
+  p.eyebrow= vi ? 'Trả góp' : 'Installment'
+  h1= vi ? 'Kỳ thanh toán của bạn đã đến hạn' : 'Your installment payment is due'
+  p= vi ? `Chào ${name}, kỳ trả góp tiếp theo của bạn đã đến hạn — tối thiểu ${minPaymentVnd.toLocaleString('vi-VN')}đ.` : `Hi ${name}, your next installment cycle is due — a minimum of ${minPaymentVnd.toLocaleString('en-US')}₫.`
+  p(style="margin-bottom:28px;")= vi ? 'Thanh toán sớm để giữ quyền truy cập khóa học không bị gián đoạn.' : 'Pay soon to keep your course access uninterrupted.'
+  a.btn-primary(href=dashboardUrl)= vi ? 'Trả góp ngay →' : 'Pay now →'

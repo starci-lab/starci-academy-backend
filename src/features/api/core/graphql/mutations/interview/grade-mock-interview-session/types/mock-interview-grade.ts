@@ -4,6 +4,7 @@ import type {
 import type {
     Locale,
     ModelProvider,
+    MockInterviewMode,
     MockInterviewPhase,
 } from "@modules/databases"
 
@@ -22,14 +23,25 @@ export enum MockInterviewVerdict {
     Fail = "fail",
 }
 
-/** One turn of the recorded mock-interview transcript. */
+/**
+ * One turn of the recorded mock-interview transcript. `phase` stays typed as
+ * the 5-value {@link MockInterviewPhase} GraphQL enum on the WIRE (the
+ * request schema is unchanged by the mode split) even for a `mode="qna"`
+ * session, where it carries NO semantic meaning —
+ * {@link MockInterviewGradePromptService.build} ignores `phase` for
+ * `mode="qna"` and groups turns by `questionIndex` instead (each question's
+ * own cognitive frame comes from the session's `seedQuestions` snapshot, not
+ * from any turn field).
+ */
 export interface MockInterviewTurnRecord {
     /** Who spoke this turn — the AI interviewer or the candidate. */
     role: string
-    /** Which of the 5 canonical phases this turn belongs to. */
+    /** Which of the 5 canonical phases this turn belongs to (wire shape unchanged; ignored for mode="qna"). */
     phase: MockInterviewPhase
     /** The turn's text content (candidate turns are speech-to-text transcribed). */
     content: string
+    /** 0-based question index this turn belongs to (mode="qna" only, additive field); undefined for mode="design". */
+    questionIndex?: number
 }
 
 /**
@@ -54,6 +66,31 @@ export interface MockInterviewAttributeScore {
     key: string
     /** Score 0–100 the model assigned to this attribute. */
     score: number
+}
+
+/**
+ * One seed flashcard's grading ground-truth, index-aligned with the
+ * transcript's `questionIndex` — carries the QUESTION'S OWN randomly-assigned
+ * {@link import("@modules/databases").MockInterviewKind}, since kind now
+ * lives per-question rather than per-session ("mode split", 2026-07-06). The
+ * `answer`/`keywords` reference is only MEANINGFUL when `kind === "theory"`
+ * (a real model answer to check coverage against); reasoning/scenario
+ * questions still carry a grounding entry (so the grader knows their kind)
+ * but their `answer`/`keywords` are ignored by the open rubric. Fetched by
+ * the grading service from the session's persisted `seedQuestions`, never
+ * trusted from the client.
+ */
+export interface MockInterviewSeedGrounding {
+    /** The seed `flashcard_cards.id`. */
+    cardId: string
+    /** This ONE question's cognitive frame ("theory" | "reasoning" | "scenario"), as drawn. */
+    kind: string
+    /** The seed's (localized) question — what the interviewer's question was framed around. */
+    question: string
+    /** The seed's authored model answer (Markdown, may be null on a legacy card) — meaningful only when `kind === "theory"`. */
+    answer: string | null
+    /** Keywords parsed out of the answer's trailing `:::chip` block — meaningful only when `kind === "theory"`. */
+    keywords: Array<string>
 }
 
 /** Params for {@link MockInterviewGradingService.grade}. */
@@ -112,12 +149,29 @@ export interface MockInterviewGradeSessionResult {
 export interface BuildMockInterviewGradePromptParams {
     /** Snapshot title of what the candidate worked through this session (e.g. "Design a URL shortener"). */
     promptTitle: string
+    /**
+     * The TOP-LEVEL flow this session ran in — branches the ENTIRE grading
+     * prompt between the existing 5-phase design rubric and the new
+     * per-question Q&A rubric (each question's OWN kind then drives whether
+     * it's graded as coverage-against-reference or an open rubric — see
+     * {@link seedGroundings}).
+     */
+    mode: MockInterviewMode
     /** Seniority level the session targets, scaling grading strictness; null when unknown. */
     level: string | null
     /** The full recorded transcript, one entry per conversational turn. */
     turns: Array<MockInterviewTurnRecord>
     /** RAG-retrieved excerpt of what the course actually taught, grounding the grading. */
     courseExcerpt: string
+    /**
+     * Per-question ground-truth for `mode="qna"` — one entry per drawn seed,
+     * in question order (index-aligned with the transcript's
+     * `questionIndex`), EACH carrying its own kind so the grader can pick the
+     * right rubric per-question (coverage for "theory", open rubric for
+     * "reasoning"/"scenario"). Empty for `mode="design"` (it has no seed
+     * questions — see {@link MockInterviewSeedGrounding}'s doc).
+     */
+    seedGroundings: Array<MockInterviewSeedGrounding>
     /** Locale the feedback strings must be written in. */
     locale: Locale
 }

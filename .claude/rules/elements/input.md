@@ -26,5 +26,10 @@
 - `TextArea` nhận `rows`, `placeholder`, `className="resize-none"`, + `value/onChange` (controlled) HOẶC `{...register(...)}` (RHF). Variant chọn theo nền y §3 (trên modal/card → `secondary`). Canonical: `CommunityComposer`.
 - Áp 2026-06-25: `ManagePinnedProjectsModal` 2 form (External/Course) đổi `<textarea bg-default/40>` → `TextField secondary + TextArea` → 4 ô đồng nhất.
 
+## 6. Input CÓ 2 CÁCH NHẬP (dán văn bản / tải file) = `TabsCard` tabs TRÊN + field TRỰC TIẾP DƯỚI (KHÔNG bọc Card ngoài), KHÔNG field-Label
+- 1 field text nhập được bằng 2 cách (dán chữ HOẶC upload file → cùng 1 `value`) → toggle = **`TabsCard`** (2 tab "Dán văn bản"/"Tải file lên"): **tabs float TRÊN, field ngay DƯỚI** (`<div className="flex flex-col gap-3"><TabsCard/>{field}</div>`). KHÔNG SegmentedControl (đây là đổi PANEL nội dung — [[single-select-among-options-use-tabs]]).
+- **KHÔNG bọc field trong `<Card>` ngoài** (thầy: *"đừng bọc card ngoài"*): field nằm trong 1 surface sẵn có (modal/card cha) → bọc thêm Card = card-in-card thừa ([[concepts/card]]). `TabsCard` = CHỈ thanh tab (không có body card riêng); field (TextArea/Dropzone) đặt thẳng dưới nó. (Khác FeedTabs bọc `<Card>` vì FeedTabs nằm trên PAGE bg, cần card cho feed; ở đây nền đã là modal surface.)
+- **BỎ field-`<Label>` riêng** (vd "Mô tả công việc"): tab đã nhãn cách-nhập + modal description đã nói nhập gì → Label thừa. TextArea giữ `aria-label` cho a11y. Paste = `TextField secondary + TextArea`; upload = `Dropzone` (block `reuseable/Dropzone`). File→text extract SERVER-SIDE (mutation dùng chung), ghi text vào cùng `value` + về tab paste để user review. Canonical: `CvTextOrFileInput`.
+
 ## Liên quan
 - [[surface-in-surface-inner-has-border]] (input có border + fill) · [[accordion-card-surface-on-standalone-pages]] (da theo nền) · [[elements/list]] (search+count+pager) · [[gap]] (concentric radius) · [[input-affordance-needs-surface-fill]] · [[input-variant-by-surface-and-search-result-count]] (drafts gốc).

@@ -17,9 +17,19 @@
 - **1 surface tối đa 1 nút icon+lg** (CTA chính). 2 nút icon+lg cạnh nhau → 1 cái sai vai.
 
 ## 3. Ngoại lệ
-- **FAB nổi** (rounded-full trên canvas, vd MindMap) · **thanh mobile compact** (CourseMobileEnrollBar) — context chật, có thể giữ `md`/icon khác; cân nhắc, không auto ép.
+- **FAB nổi** (rounded-full trên canvas, vd MindMap) · **thanh mobile compact** (CourseMobileEnrollBar) · **thanh toolbar/navbar-strip compact** (editor toolbar ở navbar bottom-layer) — context chật, giữ `md` (default), KHÔNG ép `lg` (nút lg làm strip cao/khó đoán height).
 - **Icon-only** (không label) → BẮT BUỘC `aria-label`. Cỡ icon `size-5` mặc định.
 - **Text bấm-được KHÔNG phải nút khối = `Link`** (href→navigate / `onPress`→overlay), KHÔNG `<button>`+style tay.
 
+## 4. Control-button trong item/block LẶP-ĐƯỢC: reorder = `tertiary` · delete = `danger-soft` (STRICT)
+- Header của 1 item/block lặp-được (RepeatableItemCard, block card) có cụm **↑↓ (đảo thứ tự) + xoá**. Phân vai màu theo NGHĨA, KHÔNG để chung `ghost` (không phân biệt destructive):
+  - **↑↓ (move up/down) = `variant="tertiary"`** (thao tác phụ, trung tính, quiet).
+  - **Xoá/remove = `variant="danger-soft"`** — đỏ **MỀM** (tint), KHÔNG `danger` ĐẶC. Trash lặp lại nhiều item/block → danger đặc quá loud/đỏ chói; `danger-soft` vẫn đọc ra destructive mà không hét. Thầy chốt 2026-07-06.
+  - Áp cả cấp **item** (RepeatableItemCard) LẪN **block lớn** (block card header — block cũng có ↑↓ đảo thứ tự cả block, không chỉ item).
+- Phân biệt với §1 "destructive = `danger`": nút xoá **ĐƠN LẺ, nổi bật** (vd xoá tài khoản, huỷ đơn) = `danger` đặc; nút xoá **lặp trong list control** (item/block) = `danger-soft` (mềm, đỡ chói khi nhiều).
+
+## 5. Nút màu WARNING (không có variant) = inline `--button-bg` (KHÔNG className `bg-*`)
+- HeroUI Button **KHÔNG có `variant="warning"`**. Muốn nút warning (vàng) → `variant="ghost"` + **inline `style`** override `--button-bg` / `--button-bg-hover` / `--button-color` (`var(--warning)` + `--warning-foreground`). KHÔNG `bg-warning` className (base `.button` đổ nền qua **`--button-bg` var**, className `bg-*` thua — [[elements/card]] §3f gotcha). Dùng cho **CTA trong alert warning** (nút tô màu theo status alert — [[elements/alert]] §4).
+
 ## Liên quan
-- [[elements/icon]] (arrow trailing, cỡ theo text) · [[elements/color]] (primary solid + accent-fg trắng; active tint) · [[primary-cta-icon-size-lg]] (size lg + scan).
+- [[elements/icon]] (arrow trailing, cỡ theo text) · [[elements/color]] (primary solid + accent-fg trắng; active tint) · [[primary-cta-icon-size-lg]] (size lg + scan) · [[elements/alert]] (nút CTA trong alert theo status) · [[editor-shell-navbar-toolbar-fullheight-sidebar-and-control-button-semantics]] (draft nguồn).

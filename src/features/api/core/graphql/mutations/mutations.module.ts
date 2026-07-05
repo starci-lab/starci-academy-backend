@@ -76,6 +76,9 @@ import {
 import {
     JobPostingsMutationsModule,
 } from "./job-postings"
+import {
+    InstallmentPlansMutationsModule,
+} from "./installment-plans"
 
 /**
  * GraphQL mutations (courses, authentication, etc.).
@@ -150,6 +153,9 @@ import {
             isGlobal: true,
         }),
         JobPostingsMutationsModule.register({
+            isGlobal: true,
+        }),
+        InstallmentPlansMutationsModule.register({
             isGlobal: true,
         }),
     ],

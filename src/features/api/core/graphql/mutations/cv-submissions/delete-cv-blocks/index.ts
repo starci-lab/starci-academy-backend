@@ -1,0 +1,6 @@
+export * from "./delete-cv-blocks.module"
+export * from "./delete-cv-blocks.resolver"
+export * from "./delete-cv-blocks.service"
+export * from "./delete-cv-blocks.handler"
+export * from "./delete-cv-blocks.command"
+export * from "./graphql-types"

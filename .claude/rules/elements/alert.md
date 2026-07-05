@@ -44,9 +44,17 @@
 - Mặc định `<Alert.Indicator/>` (icon theo status, `size-4`, tự tô `text-<status>-soft-foreground`).
 - **Icon riêng** → truyền **child** vào Indicator: `<Alert.Indicator><MyIcon className="size-5"/></Alert.Indicator>` (Phosphor `*Icon` hoặc `Spinner` — KHÔNG `@gravity-ui`, KHÔNG emoji, [[elements/icon]]). Child KHÔNG có `data-slot="alert-default-icon"` nên KHÔNG tự `size-4` → set `size-5` (hoặc `size-4` cho khớp default); KHÔNG cần set màu (indicator + `.alert--<status>` đã tô qua currentColor).
 
+## 5. Alert CÓ nút CTA (funnel-CTA) — nút tô màu THEO STATUS + compact thì BỎ Indicator (STRICT)
+- **Alert mang 1 nút CTA (vd empty-state kéo-về-khóa "Vào khóa học") → nút CTA tô màu THEO STATUS của alert** (đồng tông): warning alert → nút **warning (vàng)** · danger alert → nút **danger** · accent alert → nút **accent** · success → nút success. KHÔNG để nút accent-hồng trong alert warning (chọi tông). Thầy chốt 2026-07-06: *"alert CTA thì để [nút] theo [status] của alert"*.
+  - HeroUI Button KHÔNG có `variant="warning"` → nút warning tô qua inline `style` override `--button-bg`/`--button-bg-hover`/`--button-color` (= `var(--warning)` + `--warning-foreground`), `variant="ghost"` base ([[elements/button]] §5). KHÔNG `bg-warning` className (base `.button` đổ nền qua var, className thua).
+- **Vị trí nút trong CONTEXT HẸP (sidebar):** nút stack DỌC bên trong `Alert.Content` (`className="mt-2 w-full"`), KHÔNG dùng `action` ngang của `Callout` (alert ngang tràn khỏi sidebar hẹp — [[surface-in-surface-inner-has-border]] họ "1 dòng ngang không vừa cột hẹp"). Alert đứng 1 mình trên page rộng → `action` ngang OK.
+- **Compact funnel-CTA (sidebar) → BỎ `Alert.Indicator`** (icon cảnh báo). Tiêu đề đã tự nói; icon thừa + chật cột hẹp. Thầy chốt 2026-07-06: *"bỏ cái alert icon đi"*. (Alert vẫn render `Content` full-width khi vắng Indicator.) Alert đứng 1 mình trên page rộng thì GIỮ Indicator (không chật).
+- Cùng họ [[layout-must-funnel-to-courses-and-cover-full-data-state-matrix]] (vùng rỗng = phễu về khóa) — chỗ dựng phễu nhỏ trong rail editor.
+
 ## Áp đầu (2026-06-28)
 - Tạo block **`blocks/feedback/Callout`** (alert-trong-card: tint `/10` + no-shadow + CloseButton màu status).
 - `SelectionHintCallout` (mẹo "bôi đen để hỏi AI" — nằm TRONG reading card) → `<Callout status="accent" className="mb-4" icon={<CursorClickIcon size-5/>} title description onClose={markSeen} .../>`. Feature hết style inline. Ref [[content-ai-selection-discoverability]].
+- **(2026-07-06)** CV editor sidebar funnel-CTA "Vào khóa học" = `Alert status="warning"` (`bg-warning/10 shadow-none`, KHÔNG Indicator) + nút warning stack dọc trong `Alert.Content` (inline `--button-bg`=`var(--warning)`). Ref [[editor-shell-navbar-toolbar-fullheight-sidebar-and-control-button-semantics]].
 
 ## Liên quan
-- [[verdict-banner-and-separated-finding-cards]] (verdict = Alert status success/danger) · [[elements/icon]] (Phosphor) · [[elements/chip]] (chip ≠ alert) · [[no-emoji]] / [[no-uppercase-text]] (nội dung).
+- [[verdict-banner-and-separated-finding-cards]] (verdict = Alert status success/danger) · [[elements/button]] §5 (nút CTA warning inline `--button-bg`) · [[elements/icon]] (Phosphor) · [[elements/chip]] (chip ≠ alert) · [[layout-must-funnel-to-courses-and-cover-full-data-state-matrix]] (funnel-CTA) · [[no-emoji]] / [[no-uppercase-text]] (nội dung).

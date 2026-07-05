@@ -36,3 +36,15 @@
 
 ## 7. Spacing
 - Padding rail = `p-6` / `px-3 py-6` (collapsed) — KHÔNG rải `pr-6`/`pl-6` lẻ. Divider `mb-3`. Row `px-3 py-2`. Theo thang [[gap]] (0/2/3/6/8). Sticky offset theo [[sticky]] (`top-16` = navbar 4rem).
+
+## 8. EDITOR-SHELL — trang "làm-1-tài-liệu" (CV builder / doc editor): toolbar navbar bottom-layer + sidebar full-height flush + full-bleed
+Trang editor 1-tài-liệu (soạn CV/doc/sheet: có style-rail + canvas + preview) = **APP-SHELL full-bleed**, KHÔNG bọc content-column (`mx-auto max-w px-6`). 3 phần:
+- **(a) Toolbar (back · tên tài liệu · export) = LỚP DƯỚI NAVBAR** qua `useRegisterNavbarBottomLayer` (mirror `DashboardTabsBar`/`ProfileTabsBar`). `<nav>` sở hữu 1 `border-b` dưới lớp cuối → toolbar dính liền dưới row nav, **KHÔNG divider giữa** (đọc như "dòng 2 của navbar" — [[navbar-bottomlayer-system]]). Toolbar `w-full justify-between` (back trái · tên giữa `TextField` cap `max-w-sm` · export phải), padding `px-6 pb-3`, KHÔNG border/sticky/bg riêng.
+- **(b) Sidebar style/cấu hình = full-height flush-trái** `lg:w-64 lg:shrink-0 lg:overflow-y-auto border-r border-separator p-6`, chạm mép trái (route full-bleed), kiểu "Mục lục khoá học" (§4). Section chia bằng `<Label>` + `border-t` (Kiểu dáng · Trợ lý AI · Truy cập nhanh — [[elements/label]] §1b). Empty-state funnel-CTA (kéo-về-khóa) ghim `mt-auto` = `Alert status="warning"` nút stack dọc ([[elements/alert]] §4).
+- **(c) Content** = canvas/blocks + preview, mỗi cột `ScrollShadow` cuộn riêng, `p-6`.
+- **Node bottom-layer render TRONG subtree Navbar → chỉ đọc provider GLOBAL** (Redux/i18n/HeroUI/zustand). Toolbar có state ĐỘNG (tên sửa được, export disabled/loading) → **dùng store zustand riêng** (vd `cvEditorToolbar`) giữ `{label, canExport, exportingFormat, onBack, onLabelChange, onExport}`; node = component ĐỨNG YÊN (`useMemo(()=><Bar/>,[])`) đọc store → cập nhật live **KHÔNG remount** (giữ focus ô tên). Editor sync state → store + register node (clear on unmount). **ĐỪNG re-memoize node theo state động** (mỗi keystroke remount input = mất focus). Ref [[navbar-bottomlayer-system]].
+- **Chiều cao shell** = `lg:h-[calc(100dvh-Xrem)]` với X = chiều cao navbar-2-dòng (nav 4rem + toolbar ~3.5rem ≈ **`7.5rem`**). Sidebar + 2 cột content cùng height, `overflow` nội vùng → trang không cuộn cả khối. Nút export **default-size** (KHÔNG `lg` — compact-strip, [[elements/button]] §3).
+- **Full-bleed route:** route render editor BARE (không wrapper padded); editor tự sở hữu shell (đính chính [[learn-content-padding-shell-p6]]: shell-sở-hữu-p6 chỉ đúng khi có LearnShell; editor standalone tự lo). Ref [[editor-shell-navbar-toolbar-fullheight-sidebar-and-control-button-semantics]] (draft nguồn).
+
+## Liên quan
+- [[navbar-bottomlayer-system]] (toolbar = lớp dưới navbar) · [[learn-content-padding-shell-p6]] (shell sở hữu padding) · [[when-rail]] · [[sticky-rail-overflow-wrap-scrollshadow]] · [[elements/alert]] (funnel-CTA) · [[elements/label]] (section label).

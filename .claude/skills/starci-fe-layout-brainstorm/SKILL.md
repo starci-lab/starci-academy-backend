@@ -110,5 +110,4 @@ component. **KHÔNG viết code.** CHẠY MAX EFFORT.
    - **Chuẩn "đủ layout" = thầy nhìn widget là thấy ĐỦ: khung vùng + mọi state dữ liệu (rỗng/1/N/overflow/mixed) +
      nội dung từng tab + phễu-khóa ở mỗi state.** Thiếu 1 state hay không bung tab = CHƯA đạt, làm lại.
 
-→ Thầy duyệt layout → `/starci-fe-ux-apply` để dựng. **Thầy feedback bất cứ lúc nào → tự ghi
-`.claude/rules/drafts/<temp>.md`** (rút nguyên tắc tổng quát), KHÔNG sửa main.md/starci-*.md trực tiếp.
+→ Thầy duyệt layout → `/starci-fe-ux-apply` để dựng. **KHÔNG viết file `drafts/*.md` (thầy chốt 2026-07-06: tốn kém).** Rule mới → cập nhật THẲNG canonical **v2** (`.claude/rules/{elements,layouts,responsives,concepts}/*.md`), CHỈ khi tái dùng thật + giữ ngắn. (V1 `main.md`/`starci-*.md` đã bỏ.)

@@ -1,5 +1,8 @@
 # Draft — HeroUI v3 `TextField`: text con (hint/error) PHẢI có `slot` ("description"/"errorMessage") hoặc `<FieldError>`, KHÔNG `<Typography>` trần (2026-06-25)
 
+> **Mở rộng 2026-07-06 (STRICT):** lỗi *"A slot prop is required"* KHÔNG chỉ ở `TextField` — nó xảy ra với **`<Typography>` trần đặt bên trong BẤT KỲ React-Aria collection/field nào** (`Radio`/`RadioGroup`, `Checkbox`, `Select`, `Menu`…). Vd `SelectableCardGroup` (bọc `Radio`): truyền `badge={<Typography type="body-xs" color="muted">…</Typography>}` → render trong `Radio.Content` → nổ *"Valid slot names are description"*. **Fix chung: text con trong React-Aria component = `<span className="text-xs text-muted">` (plain), KHÔNG `<Typography>`** (trừ khi khai đúng `slot`). `SelectableCardGroup` đã dùng `<span>` cho `label`/`description` → `badge`/mọi node text truyền vào cũng phải là span thường, đừng bọc Typography. Đã sửa `MockInterviewSession` badge "Thiết kế disabled" (Typography → span). Quy tắc rút ra: **node truyền vào slot của 1 block-trên-React-Aria (badge/label/hint) = plain element, để Typography cho vùng NGOÀI React-Aria.**
+
+
 - File/§ đích khi `/merge`: `starci-ui.rules` (form/TextField) hoặc `elements/input.md`.
 - Bối cảnh: `ManagePinnedProjectsModal/ExternalProjectForm` — mở form "Thêm dự án bên ngoài" → **Runtime Error**:
   *"A slot prop is required. Valid slot names are 'description' and 'errorMessage'."* Gốc: `<Typography>` hint của field

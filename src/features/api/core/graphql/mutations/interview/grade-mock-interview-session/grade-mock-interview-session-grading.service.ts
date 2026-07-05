@@ -1,14 +1,22 @@
 import {
     Injectable,
+    Logger,
 } from "@nestjs/common"
 import {
     EntityManager,
+    In,
 } from "typeorm"
 import {
     AiCeilSurface,
     AiModelTask,
+    FlashcardCardEntity,
     InjectPrimaryPostgreSQLEntityManager,
     MockInterviewAttemptEntity,
+    MockInterviewMode,
+    MockInterviewSeedQuestion,
+    MockInterviewSessionEntity,
+    normalizeMockInterviewKind,
+    normalizeMockInterviewMode,
 } from "@modules/databases"
 import {
     AiEntitlementService,
@@ -31,11 +39,15 @@ import {
     MockInterviewGradePromptService,
 } from "./grade-mock-interview-session-prompt.service"
 import {
+    parseFlashcardAnswerKeywords,
+} from "./mock-interview-seed-grounding.util"
+import {
     MockInterviewVerdict,
     type GradeMockInterviewSessionParams,
     type MockInterviewAttributeScore,
     type MockInterviewGradeSessionResult,
     type MockInterviewPhaseScore,
+    type MockInterviewSeedGrounding,
 } from "./types"
 
 /** Minimum allowed interview score/attribute value. */
@@ -92,6 +104,9 @@ const MIN_SUBSTANTIVE_ANSWER_LENGTH = 100
  */
 @Injectable()
 export class MockInterviewGradingService {
+    /** Logger scoped to this service for the session-lookup-miss warning (see {@link resolveTrustedPromptIdentity}). */
+    private readonly logger = new Logger(MockInterviewGradingService.name)
+
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
@@ -118,15 +133,53 @@ export class MockInterviewGradingService {
         const {
             userId,
             courseId,
-            promptId,
-            promptTitle,
-            level,
+            promptId: clientPromptId,
+            promptTitle: clientPromptTitle,
+            level: clientLevel,
             turns,
             sessionId,
             locale,
             selectedModel,
             selectedModelProvider,
         } = params
+
+        // Pha 2 integrity fix: prefer the SERVER-stored prompt/level/mode from the
+        // `startMockInterviewSession` draw over whatever the client echoes back —
+        // a client-sent promptId/promptTitle/level can be tampered with (e.g. a
+        // learner claiming to have drawn a harder capstone prompt than they
+        // actually did, to inflate their job-readiness interview average), and
+        // `mode` in particular MUST come from the server draw (never the client)
+        // so a learner cannot claim "design" to dodge a Q&A rubric or vice versa.
+        // Falls back to the client-sent values (+ a warn log, mode falls back to
+        // "design") when no session row is found, so a mid-flight session started
+        // before this fix shipped (or a session from a different flow) never
+        // hard-fails the grade.
+        const {
+            promptId,
+            promptTitle,
+            level,
+            mode,
+            seedQuestions,
+            countsToReadiness,
+        } = await this.resolveTrustedPromptIdentity({
+            userId,
+            courseId,
+            sessionId,
+            clientPromptId,
+            clientPromptTitle,
+            clientLevel,
+        })
+
+        // mode="qna" grades each question against ITS OWN kind's rubric — a
+        // "theory" question needs its seed card's authored answer + `:::chip`
+        // keywords (fetched here, server-side, never trusted from the client, so
+        // a learner cannot forge/omit the reference answer used against them);
+        // reasoning/scenario questions carry a grounding entry too (so the
+        // grader still knows their kind) but their answer/keywords go unused by
+        // the open rubric. Empty for mode="design" (it has no seed questions).
+        const seedGroundings = mode === MockInterviewMode.Qna
+            ? await this.resolveSeedGroundings(seedQuestions)
+            : []
 
         // join the CANDIDATE's own words only — the interviewer's prompts would just
         // echo the rubric back at itself and dilute both the substance check and the
@@ -183,12 +236,16 @@ export class MockInterviewGradingService {
             topK: 10,
         })
 
-        // build the 5-phase rubric grading messages from the prompt title + level +
-        // full transcript + retrieved course excerpt
+        // build the grading messages — the design's 5-phase rubric or the qna
+        // mode's per-question rubric (each question graded by ITS OWN kind:
+        // coverage for theory, open for reasoning/scenario), branched inside the
+        // prompt service by `mode`
         const { messages } = this.mockInterviewGradePromptService.build({
             promptTitle,
+            mode,
             level,
             turns,
+            seedGroundings,
             courseExcerpt,
             locale,
         })
@@ -230,10 +287,170 @@ export class MockInterviewGradingService {
             promptId,
             promptTitle,
             level,
+            mode,
             sessionId,
             result,
+            countsToReadiness,
         })
         return result
+    }
+
+    /**
+     * Resolve the TRUSTED prompt/mode identity (`promptId` / `promptTitle` /
+     * `level` / `mode` / `seedQuestions`) for one grade call — looked up from
+     * the persisted {@link MockInterviewSessionEntity} row
+     * `startMockInterviewSession` wrote, scoped to the caller's OWN enrollment
+     * (a session can never be graded on behalf of a different enrollment's
+     * draw). `mode` is NEVER accepted from the client (there is no client-sent
+     * `mode` on the grading request at all — this is the ONLY place it can
+     * come from), so a learner cannot pick a lenient rubric for their own
+     * answers. Falls back to the client-sent prompt/level values (+
+     * `mode="design"`) when no session row is found (session predates this
+     * fix, or the caller supplied a stale/unknown `sessionId`) — logged as a
+     * WARN rather than thrown, so an in-flight session started before this
+     * change ships never hard-fails grading.
+     *
+     * @param params - The caller's identity + the client-sent prompt/level to fall back to.
+     * @returns the trusted (or client-fallback) prompt/mode identity, including whether it should feed job-readiness.
+     */
+    private async resolveTrustedPromptIdentity(
+        params: {
+            userId: string
+            courseId: string
+            sessionId: string
+            clientPromptId: string
+            clientPromptTitle: string
+            clientLevel: string | null
+        },
+    ): Promise<{
+        promptId: string
+        promptTitle: string
+        level: string | null
+        mode: MockInterviewMode
+        seedQuestions: Array<MockInterviewSeedQuestion>
+        countsToReadiness: boolean
+    }> {
+        const {
+            userId,
+            courseId,
+            sessionId,
+            clientPromptId,
+            clientPromptTitle,
+            clientLevel,
+        } = params
+
+        // resolve (or lazily create) the SAME trial enrollment persistAttempt uses,
+        // so the by-id session lookup is scoped to the caller's own enrollment
+        const enrollment = await this.userService.resolveOrCreateTrialEnrollment(
+            userId,
+            courseId,
+        )
+
+        const session = await this.entityManager.findOne(
+            MockInterviewSessionEntity,
+            {
+                where: {
+                    id: sessionId,
+                    enrollment: {
+                        id: enrollment.id,
+                    },
+                },
+                select: {
+                    id: true,
+                    promptId: true,
+                    promptTitle: true,
+                    level: true,
+                    mode: true,
+                    seedQuestions: true,
+                    countsToReadiness: true,
+                },
+            },
+        )
+
+        if (!session) {
+            this.logger.warn(
+                `No mock_interview_sessions row found for sessionId=${sessionId} enrollmentId=${enrollment.id} — falling back to client-sent prompt identity (mode="design").`,
+            )
+            return {
+                promptId: clientPromptId,
+                promptTitle: clientPromptTitle,
+                level: clientLevel,
+                // no session row → predates the mode split (or an unknown
+                // sessionId) → the only mode that could have existed is "design"
+                mode: MockInterviewMode.Design,
+                seedQuestions: [],
+                // a "design" fallback always counts towards job-readiness —
+                // there was no configurable-setup axis before this column existed
+                countsToReadiness: true,
+            }
+        }
+
+        return {
+            promptId: session.promptId,
+            promptTitle: session.promptTitle,
+            level: session.level,
+            mode: normalizeMockInterviewMode(session.mode),
+            seedQuestions: session.seedQuestions ?? [],
+            countsToReadiness: session.countsToReadiness,
+        }
+    }
+
+    /**
+     * Fetch each seed card's authored answer + parsed `:::chip` keywords for
+     * every drawn question, ALONGSIDE that question's own randomly-assigned
+     * kind — server-side, from the persisted `seedQuestions` snapshot (never
+     * re-derived from the client), preserving the ORDER the cards were asked
+     * in (index-aligned with the transcript's `questionIndex`). The
+     * answer/keywords are only USED by the prompt service for a "theory"-kind
+     * question's coverage rubric; reasoning/scenario questions still get a
+     * grounding entry (carrying their kind) even though their answer/keywords
+     * go unused. A card that no longer exists (deleted after the session
+     * started) is simply omitted — the prompt service's grouping already
+     * tolerates a shorter `seedGroundings` array than the transcript's
+     * question count.
+     *
+     * @param seedQuestions - The session's persisted seed questions (cardId + kind + title), in ask order.
+     * @returns the seed groundings, in the SAME order as `seedQuestions`.
+     */
+    private async resolveSeedGroundings(
+        seedQuestions: Array<MockInterviewSeedQuestion>,
+    ): Promise<Array<MockInterviewSeedGrounding>> {
+        if (seedQuestions.length === 0) {
+            return []
+        }
+        const cardIds = seedQuestions.map((seed) => seed.cardId)
+        const cards = await this.entityManager.find(
+            FlashcardCardEntity,
+            {
+                where: {
+                    id: In(cardIds),
+                },
+            },
+        )
+        const cardById = new Map(
+            cards.map((card) => [card.id,
+                card]),
+        )
+        // re-order by the PERSISTED draw order (entityManager.find does not
+        // guarantee IN(...) result order) and drop any seed whose card no longer resolves
+        const groundings: Array<MockInterviewSeedGrounding | undefined> = seedQuestions
+            .map((seed) => {
+                const card = cardById.get(seed.cardId)
+                if (!card) {
+                    return undefined
+                }
+                const grounding: MockInterviewSeedGrounding = {
+                    cardId: card.id,
+                    // widen the normalized enum to the interface's plain-string field
+                    // (persisted/round-tripped as a jsonb value, not the enum type)
+                    kind: normalizeMockInterviewKind(seed.kind) as string,
+                    question: card.question,
+                    answer: card.answer,
+                    keywords: parseFlashcardAnswerKeywords(card.answer),
+                }
+                return grounding
+            })
+        return groundings.filter((grounding): grounding is MockInterviewSeedGrounding => Boolean(grounding))
     }
 
     /**
@@ -251,8 +468,10 @@ export class MockInterviewGradingService {
             promptId: string
             promptTitle: string
             level: string | null
+            mode: MockInterviewMode
             sessionId: string
             result: MockInterviewGradeSessionResult
+            countsToReadiness: boolean
         },
     ): Promise<void> {
         const {
@@ -261,8 +480,10 @@ export class MockInterviewGradingService {
             promptId,
             promptTitle,
             level,
+            mode,
             sessionId,
             result,
+            countsToReadiness,
         } = params
         try {
             // resolve (or lazily create) the trial enrollment (user × course) so the
@@ -281,6 +502,7 @@ export class MockInterviewGradingService {
                     promptId,
                     promptTitle,
                     level,
+                    mode,
                     overallScore: result.overallScore,
                     verdict: result.verdict,
                     // jsonb columns are typed as Array<Record<string, unknown>> on the
@@ -293,6 +515,7 @@ export class MockInterviewGradingService {
                     gaps: result.gaps,
                     followUpQuestion: result.followUpQuestion,
                     matchedContentIds: result.matchedContentIds,
+                    countsToReadiness,
                 },
             )
         } catch {

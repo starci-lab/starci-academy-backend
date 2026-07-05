@@ -108,36 +108,40 @@ export class CvVerificationService {
     }
 
     /**
-     * Deterministic 0–100 "CV trust score" for a level — REPLACES the old
-     * AI-judged `cv_generations.score` rubric everywhere that number gated
-     * something (recruiter contact, job-readiness). No AI, no CV prose
-     * involved: this is a pure function of the SAME existence-checked signals
-     * {@link resolveLevel} already reads (passed capstone / graded challenge),
-     * so it is count-independent and payment-independent by construction — a
-     * learner with 1 enrollment who passed a capstone scores identically to
-     * one with 5 enrollments who also passed one, and nothing here can be
-     * inflated by writing more into a CV (there is no CV text in this
-     * computation at all). Quantized to 3 flat steps (not a continuous scale)
-     * on purpose — a continuous score invites the same "which count moved it"
-     * questions the old rubric had; a level only moves when the learner
-     * crosses a real, discrete threshold (graded a challenge / passed a
-     * capstone).
+     * Deterministic "CV trust score" for a level — REPLACES the old AI-judged
+     * `cv_generations.score` rubric everywhere that number gated something
+     * (recruiter contact, job-readiness). No AI, no CV prose involved: a pure
+     * function of the existence-checked signal, so it is count-independent and
+     * payment-independent by construction — a learner with 1 enrollment who
+     * passed a capstone scores identically to one with 5 enrollments who also
+     * passed one, and nothing here can be inflated by writing more into a CV
+     * (there is no CV text in this computation at all).
      *
-     * ⚠️ The exact step values (0/50/100) and the downstream unlock threshold
+     * CAPSTONE-ONLY SCORE (2026-07-05, teacher-approved). Only a passed
+     * CAPSTONE (`CapstoneVerified`) produces a positive gating score. A merely
+     * `ActivityBacked` learner (graded challenges but no capstone) scores 0
+     * like `SelfReported`: challenges are practice exercises that never go on
+     * the CV, so they must not silently unlock a recruiter's contact details
+     * either — "a recruiter trusts a real capstone project, not a pile of
+     * graded exercises". The 3-level classification is still kept for the
+     * marketplace tie-break ({@link rankOf}); it just no longer feeds the gate.
+     *
+     * ⚠️ The step value (100) and the downstream unlock threshold
      * ({@link import("./constants").CV_SCORE_UNLOCK_THRESHOLD}) are a
      * placeholder pending calibration — deliberately NOT tuned yet (2026-07-05:
      * "khoan check điểm thật đã, check điểm cv để fair cho mọi người trước").
      * Fairness of the FORMULA is what's locked here; the THRESHOLD is not.
      *
      * @param level - the verification level to score.
-     * @returns 100 (capstone) / 50 (activity) / 0 (self-reported).
+     * @returns 100 (passed capstone) / 0 (activity-backed or self-reported).
      */
     scoreOf(level: CvVerificationLevel): number {
         switch (level) {
         case CvVerificationLevel.CapstoneVerified:
             return 100
+        // challenges (activity-backed) do NOT count toward the CV/gate score —
+        // only a real passed capstone does; treated the same as self-reported
         case CvVerificationLevel.ActivityBacked:
-            return 50
         case CvVerificationLevel.SelfReported:
             return 0
         }

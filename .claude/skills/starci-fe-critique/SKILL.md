@@ -108,5 +108,4 @@ có chuyển đổi, có kéo về khóa, có công bằng, có bền không. **
 - Nguyên tắc: **phản biện KHÔNG phải để nói suông — thua 1 hole = phải dựng + build, NHƯNG build sau khi layout chốt.**
   Critique → (rebut | resolution → **chốt layout** → build).
 
-→ Thầy phản biện từng câu → thông suốt / lộ lỗ cần sửa (rebut = giữ · thua = dựng+build). **Thầy feedback/chốt nguyên
-tắc bất cứ lúc nào → tự ghi `.claude/rules/drafts/<temp>.md`**, KHÔNG sửa main.md/starci-*.md trực tiếp.
+→ Thầy phản biện từng câu → thông suốt / lộ lỗ cần sửa (rebut = giữ · thua = dựng+build). **KHÔNG viết file `drafts/*.md` (thầy chốt 2026-07-06: tốn kém).** Nguyên tắc mới → cập nhật THẲNG canonical **v2** (`.claude/rules/{elements,layouts,responsives,concepts}/*.md`), CHỈ khi tái dùng thật + giữ ngắn.

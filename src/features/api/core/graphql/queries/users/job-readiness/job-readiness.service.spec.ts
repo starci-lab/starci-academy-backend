@@ -73,11 +73,11 @@ describe("JobReadinessService",
                 resolveLevel: jest.fn().mockResolvedValue(CvVerificationLevel.SelfReported),
                 resolveLevelForCourse: jest.fn().mockResolvedValue(CvVerificationLevel.SelfReported),
                 scoreOf: jest.fn((level: CvVerificationLevel) => {
+                    // capstone-only score (2026-07-05): challenge/activity scores 0
                     switch (level) {
                     case CvVerificationLevel.CapstoneVerified:
                         return 100
                     case CvVerificationLevel.ActivityBacked:
-                        return 50
                     case CvVerificationLevel.SelfReported:
                         return 0
                     }

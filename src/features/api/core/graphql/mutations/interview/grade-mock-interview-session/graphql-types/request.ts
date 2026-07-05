@@ -1,6 +1,7 @@
 import {
     Field,
     ID,
+    Int,
     InputType,
 } from "@nestjs/graphql"
 import {
@@ -12,8 +13,9 @@ import {
 
 /**
  * One recorded turn of a completed mock-interview transcript. The candidate
- * answered across all 5 phases in a single conversation — the server grades
- * the WHOLE ordered list of turns at once, not one question at a time.
+ * answered across all 5 phases in a single conversation (kind="design") — the
+ * server grades the WHOLE ordered list of turns at once, not one question at
+ * a time.
  */
 @InputType({
     description: "One turn of a recorded mock-interview transcript.",
@@ -30,7 +32,7 @@ export class MockInterviewTurnInput {
     @Field(
         () => GraphQLTypeMockInterviewPhase,
         {
-            description: "Which of the 5 canonical interview phases this turn belongs to.",
+            description: "Which of the 5 canonical interview phases this turn belongs to (kind=\"design\" only — send any valid value for a Q&A-kind session; the server ignores it and uses questionIndex instead).",
         },
     )
         phase: MockInterviewPhase
@@ -42,6 +44,23 @@ export class MockInterviewTurnInput {
         },
     )
         content: string
+
+    /**
+     * 0-based index of the question this turn belongs to, for a Q&A-kind
+     * (theory/reasoning/scenario) session — additive field (nullable, so an
+     * older client omitting it still validates); REQUIRED for the server to
+     * group a Q&A session's turns into per-question `phaseScores` entries
+     * ("Câu 1", "Câu 2", …). Ignored for kind="design" (grouping there still
+     * comes from `phase`).
+     */
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "0-based question index this turn belongs to (Q&A kinds only); ignored for kind=\"design\".",
+        },
+    )
+        questionIndex?: number
 }
 
 /**

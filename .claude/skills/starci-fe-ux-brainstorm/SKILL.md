@@ -48,4 +48,4 @@ Bước này KHÔNG viết code — chỉ brainstorm + chốt hướng. CHẠY M
    - Mỗi scenario neo vào ref (web/memory/rules — search mạng nếu chưa có), kèm 1 dòng tagline + trade-off.
    - Đánh dấu scenario đề xuất (viền `--color-border-info`). Thầy chọn xong → `/starci-fe-ux-apply` mới dựng.
 
-→ Thầy duyệt hướng → `/starci-fe-ux-apply` để dựng. **Thầy feedback bất cứ lúc nào → tự ghi `.claude/rules/drafts/<temp>.md`** (rút nguyên tắc tổng quát), KHÔNG sửa main.md/starci-*.md trực tiếp.
+→ Thầy duyệt hướng → `/starci-fe-ux-apply` để dựng. **KHÔNG viết file `drafts/*.md` (thầy chốt 2026-07-06: tốn kém).** Rule mới → cập nhật THẲNG canonical **v2** (`.claude/rules/{elements,layouts,responsives,concepts}/*.md`), CHỈ khi tái dùng thật + giữ ngắn. (V1 `main.md`/`starci-*.md` đã bỏ.)

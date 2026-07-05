@@ -263,7 +263,10 @@ export class TalentCandidatesService {
                             ORDER BY created_at DESC
                         ) AS recency_rank
                     FROM mock_interview_attempts
-                    WHERE enrollment_id = ANY($1)
+                    -- Configurable "Tùy chỉnh" (luyện tủ) runs set counts_to_readiness=false;
+                    -- exclude them so the RECRUITER-FACING average stays a clean signal from
+                    -- random exam-like runs only — mirrors job-readiness.service (2026-07-06).
+                    WHERE enrollment_id = ANY($1) AND counts_to_readiness = true
                 )
                 SELECT enrollment_id AS enrollment_id, AVG(overall_score) AS avg_score
                 FROM ranked_attempts

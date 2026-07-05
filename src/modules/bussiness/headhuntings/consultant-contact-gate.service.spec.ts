@@ -39,11 +39,12 @@ describe("ConsultantContactGateService",
             cvVerificationService = {
                 resolveLevel: jest.fn(),
                 scoreOf: jest.fn((level: CvVerificationLevel) => {
+                    // capstone-only score (2026-07-05): only a passed capstone
+                    // scores; activity-backed (challenge) scores 0 like self-reported
                     switch (level) {
                     case CvVerificationLevel.CapstoneVerified:
                         return 100
                     case CvVerificationLevel.ActivityBacked:
-                        return 50
                     case CvVerificationLevel.SelfReported:
                         return 0
                     }

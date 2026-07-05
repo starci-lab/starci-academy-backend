@@ -251,13 +251,20 @@ export class JobReadinessService {
     /**
      * Average mock-interview overall score per enrollment, over ONLY that
      * enrollment's {@link JOB_READINESS_INTERVIEW_RECENT_WINDOW} MOST RECENT
-     * attempts (by `created_at DESC`) — see that constant's doc for why an
-     * all-time average is deliberately avoided (it punishes early weak
-     * attempts forever).
+     * attempts that ACTUALLY COUNT towards readiness (by `created_at DESC`)
+     * — see that constant's doc for why an all-time average is deliberately
+     * avoided (it punishes early weak attempts forever).
+     *
+     * "Configurable setup" (2026-07-06): a `WHERE counts_to_readiness = true`
+     * filter excludes every "Tùy chỉnh" (Configurable) qna attempt — deliberate,
+     * learner-picked question-count/kind practice must never dilute this
+     * exam-like signal. `counts_to_readiness` defaults `true` and every
+     * pre-existing row (Auto qna + all design attempts) was written before
+     * this column existed, so this filter is a no-op for historical data.
      *
      * Implemented as a `ROW_NUMBER() OVER (PARTITION BY enrollment_id ORDER BY
-     * created_at DESC)` window filtered to `<= N`, then averaged per
-     * enrollment in an outer query.
+     * created_at DESC)` window (over the already-filtered rows) filtered to
+     * `<= N`, then averaged per enrollment in an outer query.
      *
      * WF-04 (verified): migration `1721500000000-CreateMockInterviewAttempts`
      * + the entity exist, so the table is present once migrations run. The
@@ -266,7 +273,7 @@ export class JobReadinessService {
      * failing the whole query.
      *
      * @param enrollmentIds - the learner's enrollment ids.
-     * @returns one row per enrollment with a recent-window average score, or [] if the table is unavailable.
+     * @returns one row per enrollment with a recent-window average score (readiness-counting attempts only), or [] if the table is unavailable.
      */
     private async loadInterviewAverages(enrollmentIds: Array<string>): Promise<Array<InterviewAvgRow>> {
         try {
@@ -281,7 +288,7 @@ export class JobReadinessService {
                             ORDER BY created_at DESC
                         ) AS recency_rank
                     FROM mock_interview_attempts
-                    WHERE enrollment_id = ANY($1)
+                    WHERE enrollment_id = ANY($1) AND counts_to_readiness = true
                 )
                 SELECT enrollment_id AS enrollment_id, AVG(overall_score) AS avg_score
                 FROM ranked_attempts
