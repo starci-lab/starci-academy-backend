@@ -1,0 +1,30 @@
+# Draft — Surface HỌC/luyện: cơ chế học phải GROUNDED learning-science + KHỚP loại content; gamify thưởng ĐỘ SÂU/THÓI QUEN, không tốc độ (2026-07-05)
+
+- File/§ đích khi `/merge`: `concepts/` (learning/pedagogy) + liên quan [[progress-block-growing-quantity-headline-not-vanity-strip]] · [[meter-tracks-out-of-box-default-target]] · [[design-for-data-that-exists-coverless-lowvolume]].
+- Bối cảnh: brainstorm gamify "Hỏi nhanh" (flashcard quiz). Thầy đẩy 3 vòng: *"luyện kiểu này nói đâu hiệu quả"* · *"gamify ntn mới thuộc"* · *"trò đọc content chưa? có tham khảo đâu k?"* → bắt phải research learning-science thật + đọc content thật trước khi chốt cơ chế, KHÔNG phán từ trí nhớ.
+
+## Luật (STRICT)
+- **Thiết kế 1 surface HỌC/luyện (quiz, flashcard, drill, practice) → cơ chế học PHẢI grounded bằng learning-science CÓ NGUỒN, KHÔNG bịa "cho vui/cho game".** Trước khi chốt cách chấm/cách hỏi: (a) ĐỌC content thật (1 vài item) để biết nó là loại gì; (b) `WebSearch`/`WebFetch` learning-science cho loại đó; (c) mỗi quyết định cơ chế neo 1 nguồn. "Gamify" mà không grounded = re-skin dopamine, không tăng học (meta-analysis: gamification tác động **tối thiểu lên competency**).
+- **Cơ chế luyện phải KHỚP LOẠI CONTENT + FORMAT ĐÍCH (transfer-appropriate processing, Agarwal 2019):** luyện *fact* không cải thiện *higher-order* & ngược lại. → content **fact-recall đơn** (định nghĩa, 1 đáp án) hợp multiple-choice/tự-chấm nhanh; content **higher-order** (giải thích cơ chế/trade-off/bẫy, kiểu câu hỏi phỏng vấn) BẮT BUỘC luyện bằng **retrieval higher-order** (gõ/nói ra rồi đối chiếu), **KHÔNG** ép xuống trắc nghiệm (luyện sai kỹ năng). Đọc content TRƯỚC khi chọn cơ chế — đừng giả định "flashcard = fact".
+- **Retrieval phải EFFORTFUL:** bắt nhớ-lại/gõ-ra TRƯỚC khi lật đáp án (testing effect); tự-chấm "nhìn-xong-bấm-Đúng" = lừa mình. Chấm khách quan không-AI khi content có sẵn "từ khoá ăn điểm" → string-match coverage ("nhắc 3/6 từ khoá"), thay cảm-giác-chắc-đúng.
+- **Gamify thưởng ĐÚNG hành vi học, KHÔNG vanity:** XP/điểm scale theo **độ phủ/độ sâu** (keyword, tầng lý luận cover) + **thói quen (streak NGÀY = spacing)**, KHÔNG theo **tốc độ tap / combo-trong-phiên** (combo chỉ gia vị). Vì (a) overjustification: phần thưởng kỳ vọng dời chú ý sang thưởng, **giết** động lực học; (b) spacing (quay lại nhiều ngày) mới tạo trí nhớ dài hạn, không phải tốc độ trong 1 phiên. Recap khung theo **MASTERY** ("N thẻ trả lời được không cần gợi ý"), không raw points. Giữ điểm ở "equilibrium" — visible, không phải mục đích.
+- **1 engine, không hệ điểm song song:** nuôi lại SRS/XP/streak SẴN CÓ (vd `reviewFlashcard` SM-2 + `writeXpHistory` + hệ streak), đừng đẻ cơ chế điểm mới cho 1 surface ([[single-source-render]] · [[fair-monetization-axiom]] tinh thần "1 tín hiệu 1 nguồn").
+
+## Nguồn (kèm khi /merge)
+- Agarwal 2019 (transfer-appropriate) — https://pdf.poojaagarwal.com/Agarwal_2018_JEdPsych.pdf
+- Dunlosky 2013 (practice testing/spacing/interleaving/self-explanation high & moderate utility) — https://www.aft.org/ae/fall2013/dunlosky
+- Roediger & Karpicke (testing effect) — https://www.sciencedirect.com/science/article/abs/pii/S0749596X06001367
+- Zeng 2024 gamification meta (BJET) — https://bera-journals.onlinelibrary.wiley.com/doi/full/10.1111/bjet.13471
+- Gamification & intrinsic motivation SDT meta 2023 — https://link.springer.com/article/10.1007/s11423-023-10337-7 · Overjustification — https://en.wikipedia.org/wiki/Overjustification_effect
+
+## Cloze (điền chỗ trống) tự sinh KHÔNG-AI: khoét bằng từ-tác-giả-đã-đánh-dấu · mồi nhiễu từ thẻ anh em
+- **Khi content đã có sẵn "từ khoá quan trọng" do tác giả đánh dấu (vd chip `Từ khoá ăn điểm`) → dùng CHÍNH nó làm ô để khoét, KHÔNG cần AI/heuristic đoán từ nào quan trọng.** Đây là cách Anki (người đánh dấu `{{c1::…}}`) nhưng miễn phí vì data đã có. Grounded: cloze generation = 3 module (sentence → keyword → distractor selection); keyword selection tốt nhất = human-marked, không phải frequency/nth-word thô.
+- **Chọn CÂU để khoét:** ưu tiên câu có NHIỀU từ khoá nhất (prefer section "trả lời thẳng"/lõi, đứng đầu). Cap **2–3 ô/câu** (khoét hết = "phô mai lỗ", quá khó). Code token (`@Catch`) là ô lý tưởng (chỉ 1 đáp án đúng — gap score cao).
+- **Mồi nhiễu (distractor) = từ khoá của thẻ ANH EM cùng phiên, ƯU TIÊN CÙNG TAG** — KHÔNG random từ điển. Đây đúng cách Duolingo (word bank = mọi từ trong các câu của drill đó) + Quizlet (mồi = thẻ khác cùng bộ). Cùng-tag = gần nghĩa = plausible = buộc PHÂN BIỆT chứ không đoán bừa (chống "toy").
+- **StarCi hơn Duolingo:** họ khoét TỪ ĐƠN (vocab), mình khoét CỤM KHÁI NIỆM (`method → controller → global`) → phân biệt khái niệm, không nhớ mặt chữ — hợp audience phỏng vấn.
+- **Business lens (chốt 2026-07-05):** với surface "luyện nhanh mỗi ngày", cloze/word-bank (tap-chọn) thắng free-recall (gõ tự luận) về **retention/mobile/conversion** (ít ma sát, công bằng tất định, thân thiện ngón cái, screenshot-worthy) — đúng playbook Duolingo. Free-recall "authentic" hơn về học nhưng thua engagement. Giữ rigor bằng: **luôn lật full lời giải sau khi điền** + mồi cùng-tag.
+- **Fallback:** thẻ không có chip từ khoá → không cloze được → thẻ đó dùng lật + tự chấm SM-2 (đừng ép cloze rỗng). Chấm cloze = so khớp chính xác (tất định, công bằng), coverageScore = đúng/tổng ô → feed XP/combo.
+- Nguồn thêm: [Duolingo/Quizlet distractor from same set](https://telrp.springeropen.com/articles/10.1186/s41039-018-0082-z) · [cloze = 3 module](https://arxiv.org/html/2403.10326v1).
+
+## Áp đầu (2026-07-05)
+- "Hỏi nhanh" (`Flashcards/InterviewSession`): bỏ AI. **Chốt cuối = hướng B (cloze/điền chỗ trống)** sau khi cân business (retention > authentic-recall) — thay hướng A (gõ tự luận, thấy giống "làm bài tập"). Util `build-cloze.ts` (khoét bằng `parseAnswerKeywords` + mồi cùng-tag) + active phase tap-to-fill kiểu Duolingo → check tất định → lật full lời giải 5 tầng → SM-2. Gamify = streak-ngày + XP-theo-độ-phủ + combo (không thưởng tốc độ). Doc: `InterviewSession/UX-BRAINSTORM.md` (2026-07-05). Loại multiple-choice generic + tự-chấm-nhị-phân + free-recall-gõ-luận sau khi đọc content thật (đáp án 5 tầng).

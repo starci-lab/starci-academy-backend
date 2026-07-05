@@ -27,10 +27,11 @@ import {
 /**
  * PUBLIC "build in public" system health — the live liveness of every
  * infrastructure component (Postgres, Redis, NATS, Kafka, MinIO, Qdrant,
- * Elasticsearch, Keycloak, Judge0, Ollama). No guard: safe to render on a
- * public status page. Operational internals (fail counts, cooldowns) stay
- * behind the admin queries; this only exposes a traffic-light status, coarse
- * latency and a short message per component.
+ * Elasticsearch, Keycloak, Judge0, Ollama), plus live CPU/memory/network
+ * usage for the ones running as local Docker containers (cAdvisor via
+ * Prometheus). No guard: intentionally public — real numbers, not a demo.
+ * Operational internals that would actually help an attacker (fail counts,
+ * cooldowns, credentials) stay behind the admin queries.
  */
 @Resolver()
 export class SystemHealthStatusResolver {
@@ -49,8 +50,8 @@ export class SystemHealthStatusResolver {
         {
             name: "systemHealthStatus",
             description:
-                "Public system health — per-component liveness (status, latency, message). "
-                + "No guard; no operational counters.",
+                "Public system health — per-component liveness (status, latency, message) "
+                + "plus live CPU/memory/network usage where available. No guard.",
         },
     )
     async execute(): Promise<SystemHealthStatusResponseData> {
@@ -64,6 +65,7 @@ export class SystemHealthStatusResolver {
                 latencyMs: component.latencyMs,
                 message: component.message,
                 checkedAt: component.checkedAt,
+                metrics: component.metrics,
             })),
         }
     }

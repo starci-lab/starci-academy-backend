@@ -18,6 +18,9 @@ import {
 import {
     MyCvGenerationsQuery,
 } from "./my-cv-generations.query"
+import {
+    CvGenerationListItem,
+} from "./graphql-types"
 
 const DEFAULT_LIMIT = 20
 const MAX_LIMIT = 100
@@ -25,8 +28,8 @@ const MAX_LIMIT = 100
 @QueryHandler(MyCvGenerationsQuery)
 @Injectable()
 export class MyCvGenerationsHandler
-    extends ICQRSHandler<MyCvGenerationsQuery, Array<UserCvGenerationEntity>>
-    implements IQueryHandler<MyCvGenerationsQuery, Array<UserCvGenerationEntity>> {
+    extends ICQRSHandler<MyCvGenerationsQuery, Array<CvGenerationListItem>>
+    implements IQueryHandler<MyCvGenerationsQuery, Array<CvGenerationListItem>> {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
@@ -36,7 +39,7 @@ export class MyCvGenerationsHandler
 
     protected override async process(
         query: MyCvGenerationsQuery,
-    ): Promise<Array<UserCvGenerationEntity>> {
+    ): Promise<Array<CvGenerationListItem>> {
         const {
             user,
             request: {
@@ -58,7 +61,15 @@ export class MyCvGenerationsHandler
         const skip = Math.max(0,
             offset ?? 0)
 
-        return this.entityManager.find(
+        // fetched rows are mapped below into the lightweight `CvGenerationListItem`
+        // shape — `structuredData`/`latexCdnKey`/`uploadedCdnKey`/`feedback` are
+        // never exposed here; the FE resolves those (server-side, via
+        // `cvGeneration(id)`) only for the row it actually opens. (No partial
+        // `select` here — `courseId` is a `@RelationId` column and a restricted
+        // `select` can suppress TypeORM's automatic relation-id population.)
+        // `course` IS loaded (a cheap join) so the history dial can label each
+        // CV by its track without a per-row detail fetch.
+        const generations = await this.entityManager.find(
             UserCvGenerationEntity,
             {
                 where: {
@@ -66,12 +77,33 @@ export class MyCvGenerationsHandler
                         id: user.id,
                     },
                 },
+                relations: {
+                    course: true,
+                },
                 order: {
                     createdAt: "DESC",
                 },
                 take,
                 skip,
             },
+        )
+
+        return generations.map(
+            (generation): CvGenerationListItem => ({
+                id: generation.id,
+                mode: generation.mode,
+                status: generation.status,
+                source: generation.source,
+                courseId: generation.courseId,
+                courseTitle: generation.course?.title ?? null,
+                label: generation.label,
+                targetRole: generation.targetRole,
+                language: generation.language,
+                score: generation.score,
+                errorMessage: generation.errorMessage,
+                processedAt: generation.processedAt,
+                createdAt: generation.createdAt,
+            }),
         )
     }
 }

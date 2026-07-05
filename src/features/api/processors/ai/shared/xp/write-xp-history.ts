@@ -19,7 +19,7 @@ export interface WriteXpHistoryParams {
     source: XpSource
     /** XP amount earned (drives the leaderboard signal). */
     amount: number
-    /** Reward points granted by the same event (credited to `users.reward_points`). */
+    /** Coin granted by the same event (credited to `users.coin_balance`). */
     points: number
     /**
      * Stable id of the originating row (attempt / user-content / user-milestone-task).
@@ -30,7 +30,7 @@ export interface WriteXpHistoryParams {
 
 /**
  * Append one XP-earning event to the audit ledger AND credit the user's balances —
- * `users.total_points` by the XP `amount` and `users.reward_points` by the flat
+ * `users.total_points` by the XP `amount` and `users.coin_balance` by the flat
  * `points` reward — idempotently and in the caller's transaction. Guards on the
  * `(source, refId)` unique key: if the event was already recorded, NOTHING happens —
  * no duplicate ledger row and, crucially, no double credit on either balance.
@@ -92,14 +92,14 @@ export const writeXpHistory = async (
             amount,
         )
     }
-    // credit the spendable reward-points balance by the flat reward exactly once
+    // credit the spendable Coin balance by the flat reward exactly once
     if (points !== 0) {
         await entityManager.increment(
             UserEntity,
             {
                 id: userId,
             },
-            "rewardPoints",
+            "coinBalance",
             points,
         )
     }

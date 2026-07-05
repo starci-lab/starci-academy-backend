@@ -71,7 +71,7 @@ export class SearchUserData {
     @Field(
         () => Int,
         {
-            description: "Spendable reward-points balance (usable as a popularity signal).",
+            description: "Spendable Coin balance (usable as a popularity signal).",
         },
     )
         points: number

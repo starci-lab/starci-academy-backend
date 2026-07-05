@@ -7,15 +7,19 @@ import {
 import {
     SystemHealthService,
 } from "./system-health.service"
+import {
+    PrometheusMetricsService,
+} from "./prometheus-metrics.service"
 
 /**
- * Provides the {@link SystemHealthService} liveness prober. Register with
+ * Provides the {@link SystemHealthService} liveness prober and the
+ * {@link PrometheusMetricsService} resource-usage reader. Register with
  * `.register({ isGlobal: true })` so any feature (e.g. the public
- * `systemHealthStatus` query) can inject the service without re-importing the
+ * `systemHealthStatus` query) can inject either without re-importing the
  * module.
  */
 @Module({
-    providers: [SystemHealthService],
-    exports: [SystemHealthService],
+    providers: [SystemHealthService, PrometheusMetricsService],
+    exports: [SystemHealthService, PrometheusMetricsService],
 })
 export class HealthModule extends ConfigurableModuleClass {}

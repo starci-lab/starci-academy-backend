@@ -16,7 +16,7 @@ import {
     ModelProvider,
 } from "@modules/databases"
 import {
-    CvSubmissionNotFoundException,
+    CvGenerationNotFoundException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -131,9 +131,9 @@ describe("ReviseCvHandler",
                         expect(enqueueGenerateCvJobService.enqueue).not.toHaveBeenCalled()
                     })
 
-                it("throws when the source submission does not exist (or does not belong to the caller)",
+                it("throws when the source CV generation does not exist (or does not belong to the caller)",
                     async () => {
-                        // findOne resolves null → submission missing / not owned by this user
+                        // findOne resolves null → generation missing / not owned by this user
                         entityManager.findOne.mockResolvedValueOnce(null)
 
                         await expect(
@@ -145,7 +145,7 @@ describe("ReviseCvHandler",
                                     user: fakeUser("user-1"),
                                 }),
                             ),
-                        ).rejects.toBeInstanceOf(CvSubmissionNotFoundException)
+                        ).rejects.toBeInstanceOf(CvGenerationNotFoundException)
 
                         // never reaches lane validation or enqueue once ownership fails
                         expect(gradingLaneValidationService.validate).not.toHaveBeenCalled()

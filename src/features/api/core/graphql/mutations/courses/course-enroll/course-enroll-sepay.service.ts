@@ -46,11 +46,17 @@ import type {
 import {
     EnqueueReconcileTransactionJobService,
     LoyaltyDiscountService,
+    VoucherService,
 } from "@modules/bussiness"
 
 /**
  * Sepay-specific course enrollment via the SePay Payment Gateway. Signs the
  * order fields (form-POST checkout) and persists a pending preflight row.
+ *
+ * The ONLY gateway (of the 5) currently wired to honour `request.voucherCode` —
+ * the other 4 (PayOS/PayPal/Stripe/Crypto) need the same 3-step pattern
+ * (preview → reserve inside the same insert transaction → persist the code)
+ * added when their checkout is next touched.
  */
 @Injectable()
 export class CourseEnrollSepayService {
@@ -63,6 +69,7 @@ export class CourseEnrollSepayService {
         private readonly coursePricingService: CoursePricingService,
         private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
         private readonly loyaltyDiscountService: LoyaltyDiscountService,
+        private readonly voucherService: VoucherService,
     ) {}
 
     /**
@@ -74,6 +81,7 @@ export class CourseEnrollSepayService {
             courseId,
             payosReturnUrl,
             payosCancelUrl,
+            voucherCode,
         },
         user,
     }: ExecuteParams<CourseEnrollRequest>): Promise<CourseEnrollResponseData> {
@@ -104,12 +112,14 @@ export class CourseEnrollSepayService {
         } = await this.loyaltyDiscountService.computeLoyaltyDiscount({
             userId: user.id,
         })
-        const amount = this.coursePricingService.resolveAmountVnd({
+        const loyaltyAmount = this.coursePricingService.resolveAmountVnd({
             course,
             discountPercent,
         })
 
-        // reuse a still-fresh pending transaction (regenerate signed fields)
+        // reuse a still-fresh pending transaction (regenerate signed fields) — a
+        // voucher on a reused transaction is NOT re-evaluated (it was already
+        // reserved/priced when that transaction was first created)
         const existing = await this.entityManager.findOne(
             TransactionEntity,
             {
@@ -140,7 +150,22 @@ export class CourseEnrollSepayService {
             }
         }
 
-        // sign a fresh order + persist the pending transaction
+        // an invalid code throws HERE (before any row is written) — a valid one
+        // further discounts the loyalty-discounted amount
+        const amount = voucherCode
+            ? this.voucherService.applyToAmount(
+                loyaltyAmount,
+                await this.voucherService.previewDiscount({
+                    userId: user.id,
+                    code: voucherCode,
+                    courseId: course.id,
+                }),
+            )
+            : loyaltyAmount
+
+        // sign a fresh order + persist the pending transaction + (if given) RESERVE
+        // the voucher in the SAME db transaction, so a concurrent second checkout
+        // can never also claim the same code
         const orderCode = this.generateSepayOrderCode()
         const currentPhase = this.coursePricingService.getCurrentPricingPhase(course)
         const checkoutFields = this.signFields({
@@ -149,22 +174,37 @@ export class CourseEnrollSepayService {
             successUrl: payosReturnUrl,
             cancelUrl: payosCancelUrl,
         })
-        const transaction = this.entityManager.create(
-            TransactionEntity,
-            {
-                user,
-                course,
-                referenceId: String(orderCode),
-                amount,
-                discountPercent,
-                pricingPhase: currentPhase,
-                paymentType: PaymentType.Sepay,
-                checkoutUrl: this.sepay.checkout.initCheckoutUrl(),
-                status: TransactionStatus.Pending,
-                actionType: ActionType.Enroll,
-            },
-        )
-        await this.entityManager.save(transaction)
+        const transaction = await this.entityManager.transaction(async (manager) => {
+            const created = manager.create(
+                TransactionEntity,
+                {
+                    user,
+                    course,
+                    referenceId: String(orderCode),
+                    amount,
+                    discountPercent,
+                    voucherCode: voucherCode ?? null,
+                    pricingPhase: currentPhase,
+                    paymentType: PaymentType.Sepay,
+                    checkoutUrl: this.sepay.checkout.initCheckoutUrl(),
+                    status: TransactionStatus.Pending,
+                    actionType: ActionType.Enroll,
+                },
+            )
+            const saved = await manager.save(created)
+            if (voucherCode) {
+                // re-validate + reserve UNDER LOCK — the earlier previewDiscount() was
+                // advisory only (no lock held), so a race since then is still caught here
+                await this.voucherService.reserve({
+                    entityManager: manager,
+                    userId: user.id,
+                    code: voucherCode,
+                    courseId: course.id,
+                    transactionId: saved.id,
+                })
+            }
+            return saved
+        })
         // schedule the delayed reconcile poll (fires if no webhook arrives)
         await this.enqueueReconcileTransactionJobService.enqueue({
             transactionId: transaction.id,

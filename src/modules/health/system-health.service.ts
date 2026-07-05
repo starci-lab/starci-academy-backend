@@ -18,6 +18,9 @@ import {
     AiBalancerService,
 } from "@modules/ai"
 import {
+    PrometheusMetricsService,
+} from "./prometheus-metrics.service"
+import {
     PROBE_TIMEOUT_MS,
     PROBE_DEGRADED_THRESHOLD_MS,
     PROBE_CACHE_TTL_MS,
@@ -55,6 +58,7 @@ export class SystemHealthService {
 
     constructor(
         private readonly aiBalancerService: AiBalancerService,
+        private readonly prometheusMetricsService: PrometheusMetricsService,
     ) {}
 
     /** Last computed sweep, reused until {@link cachedAt} ages past the TTL. */
@@ -119,18 +123,27 @@ export class SystemHealthService {
             })),
         ]
 
-        // fire every probe concurrently; allSettled guarantees one slow/failing
-        // probe never blocks or rejects the whole sweep
-        const settled = await Promise.allSettled(
-            descriptors.map((descriptor) => descriptor.run()),
-        )
+        // fire every liveness probe + the Prometheus metrics sweep concurrently;
+        // allSettled guarantees one slow/failing probe never blocks or rejects
+        // the whole sweep, and metrics degrade to an empty map on their own
+        const [settled,
+            metricsByComponent] = await Promise.all([
+            Promise.allSettled(
+                descriptors.map((descriptor) => descriptor.run()),
+            ),
+            this.prometheusMetricsService.containerMetricsByName(),
+        ])
 
         // each probe already swallows its own errors, so a rejected settlement
         // is an unexpected bug — fall back to a synthetic `down` to stay total
         const components = settled.map((outcome, index) => {
-            // the probe resolved normally → use its ComponentHealth as-is
+            // the probe resolved normally → use its ComponentHealth as-is,
+            // topped up with live cAdvisor metrics when this component has one
             if (outcome.status === "fulfilled") {
-                return outcome.value
+                return {
+                    ...outcome.value,
+                    metrics: metricsByComponent.get(outcome.value.name) ?? null,
+                }
             }
             // defensive: the descriptor at this index carries its own name
             const { name } = descriptors[index]
@@ -472,6 +485,8 @@ export class SystemHealthService {
                 latencyMs: null,
                 message: null,
                 checkedAt: new Date(),
+                // in-process, no Docker container to scrape metrics from
+                metrics: null,
             }
         } catch (error) {
             // snapshot read failed → down with the reason
@@ -534,6 +549,8 @@ export class SystemHealthService {
             latencyMs,
             message: null,
             checkedAt: new Date(),
+            // filled in by the caller (probeAll) once the metrics sweep resolves
+            metrics: null,
         }
     }
 
@@ -561,6 +578,8 @@ export class SystemHealthService {
             latencyMs,
             message,
             checkedAt: new Date(),
+            // a down component has no meaningful resource usage to report
+            metrics: null,
         }
     }
 

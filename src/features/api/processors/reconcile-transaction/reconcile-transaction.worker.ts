@@ -12,6 +12,7 @@ import {
     EnqueueSendMailJobService,
     TransactionActionService,
     TransactionReconcileQueryService,
+    VoucherService,
 } from "@modules/bussiness"
 import {
     enqueueMembershipActiveEmail,
@@ -83,6 +84,7 @@ export class ReconcileTransactionWorker extends WorkerHost {
         private readonly membershipService: MembershipService,
         private readonly winstonService: WinstonService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
+        private readonly voucherService: VoucherService,
     ) {
         super()
     }
@@ -164,6 +166,11 @@ export class ReconcileTransactionWorker extends WorkerHost {
             id: transactionId,
             status: TransactionStatus.Unpaid,
             expectedStatus: TransactionStatus.Pending,
+        })
+        // give back any voucher this failed checkout reserved (no-op if none)
+        await this.voucherService.release({
+            entityManager: this.entityManager,
+            transactionId,
         })
         // we only reach here from a PENDING row (guarded above), so this is the
         // first-and-only unpaid transition → notify the buyer once.

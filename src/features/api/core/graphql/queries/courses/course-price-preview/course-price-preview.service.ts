@@ -11,6 +11,7 @@ import {
 } from "@modules/databases"
 import {
     LoyaltyDiscountService,
+    VoucherService,
 } from "@modules/bussiness"
 import {
     CoursePricingService,
@@ -25,13 +26,17 @@ export interface PreviewCoursePriceParams {
     userId: string
     /** The course to price. */
     courseId: string
+    /** An optional Coin-shop voucher code to preview ON TOP of the loyalty discount. */
+    voucherCode?: string
 }
 
 /**
  * Prices a single course for the payment modal exactly as it would be charged at
  * checkout: the active pricing phase resolved by {@link CoursePricingService} with
  * the viewer's {@link LoyaltyDiscountService} discount applied — so the shown price
- * equals the eventual charge (no FE price guessing).
+ * equals the eventual charge (no FE price guessing). Optionally previews a
+ * Coin-shop voucher code ON TOP (read-only — {@link VoucherService.previewDiscount}
+ * validates but does not reserve/consume the code).
  */
 @Injectable()
 export class CoursePricePreviewService {
@@ -40,11 +45,13 @@ export class CoursePricePreviewService {
         private readonly entityManager: EntityManager,
         private readonly coursePricingService: CoursePricingService,
         private readonly loyaltyDiscountService: LoyaltyDiscountService,
+        private readonly voucherService: VoucherService,
     ) {}
 
     /**
      * Resolve the original + loyalty-discounted price (VND always, USD when set)
-     * for a course and viewer.
+     * for a course and viewer, plus the further voucher-discounted price when a
+     * valid `voucherCode` is given.
      *
      * @param params - {@link PreviewCoursePriceParams}
      * @returns The course's price preview.
@@ -53,6 +60,7 @@ export class CoursePricePreviewService {
         {
             userId,
             courseId,
+            voucherCode,
         }: PreviewCoursePriceParams,
     ): Promise<CoursePricePreviewData> {
         // load the course with the relations the pricing service needs
@@ -107,6 +115,22 @@ export class CoursePricePreviewService {
             discountPercent: percent,
         })
 
+        // voucher preview is OPTIONAL and read-only — an invalid code throws
+        // (surfaces as a GraphQL error the FE shows inline), a valid one further
+        // discounts the ALREADY loyalty-discounted VND price
+        let voucherDiscountedPriceVnd: number | null = null
+        if (voucherCode) {
+            const preview = await this.voucherService.previewDiscount({
+                userId,
+                code: voucherCode,
+                courseId,
+            })
+            voucherDiscountedPriceVnd = this.voucherService.applyToAmount(
+                discountedPriceVnd,
+                preview,
+            )
+        }
+
         return {
             originalPriceVnd,
             phasePriceVnd,
@@ -117,6 +141,7 @@ export class CoursePricePreviewService {
             discountedPriceUsd,
             discountReason: reason,
             enrolledCount,
+            voucherDiscountedPriceVnd,
         }
     }
 }

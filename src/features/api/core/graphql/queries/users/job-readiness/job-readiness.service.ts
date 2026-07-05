@@ -56,8 +56,9 @@ interface PresentPillar {
  *   are present).
  * - **Global foundation** — cross-course challenge-strength percentile + best CV
  *   score across ALL the learner's CVs (a learner has ONE of each regardless of
- *   course count). CV is sourced from the unified `cv_generations` table, unioned
- *   with the legacy `cv_submission_attempts` table during the migration window.
+ *   course count). CV is sourced from the unified `cv_generations` table alone
+ *   (both `Generated` and `Uploaded` sources — the legacy `cv_submission_attempts`
+ *   union was retired once the migration completed).
  *
  * Keyed purely by `userId`, so it serves both the viewer's own profile and a
  * recruiter viewing someone else's.

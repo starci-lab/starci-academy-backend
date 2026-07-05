@@ -5,10 +5,10 @@ import {
     CvGenerationMode,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
-    UserCVSubmissionEntity,
+    UserCvGenerationEntity,
 } from "@modules/databases"
 import {
-    CvSubmissionNotFoundException,
+    CvGenerationNotFoundException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -72,10 +72,14 @@ export class ReviseCvHandler
             })
         }
 
-        // validate the source submission exists AND belongs to the caller before
-        // enqueueing — never revise someone else's (or a missing) submission.
-        const submission = await this.entityManager.findOne(
-            UserCVSubmissionEntity,
+        // validate the source CV generation exists AND belongs to the caller
+        // before enqueueing — never revise someone else's (or a missing) CV.
+        // `cvSubmissionId` here is a `cv_generations.id` (unified table — covers
+        // both `Generated` and `Uploaded` sources), NOT the legacy
+        // `cv_submissions.id`. The request field keeps its historical name to
+        // avoid a breaking GraphQL schema change.
+        const sourceGeneration = await this.entityManager.findOne(
+            UserCvGenerationEntity,
             {
                 where: {
                     id: cvSubmissionId,
@@ -85,9 +89,9 @@ export class ReviseCvHandler
                 },
             },
         )
-        if (!submission) {
-            throw new CvSubmissionNotFoundException({
-                cvSubmissionId,
+        if (!sourceGeneration) {
+            throw new CvGenerationNotFoundException({
+                cvGenerationId: cvSubmissionId,
             })
         }
 

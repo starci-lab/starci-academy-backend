@@ -46,4 +46,13 @@ export class CourseEnrollRequest {
         },
     )
         paymentType: PaymentType
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Optional Coin-shop voucher code to apply on top of the loyalty discount. Currently honoured by the Sepay gateway only.",
+        },
+    )
+        voucherCode?: string
 }

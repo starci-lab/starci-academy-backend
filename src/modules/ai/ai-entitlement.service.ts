@@ -547,6 +547,8 @@ export class AiEntitlementService {
                     "millisecond").toDate(),
                 credit5hUsed: 0,
                 creditWeekUsed: 0,
+                bonusCredit5h: 0,
+                bonusCreditWeek: 0,
             },
         )
         return entityManager.save(created)
@@ -555,6 +557,10 @@ export class AiEntitlementService {
     /**
      * Reset a window's counters to 0 and roll its `resetAt` forward when the
      * window has elapsed (or was never initialised). Mutates `subscription`.
+     *
+     * A Coin-shop `aiCredit` top-up (`bonusCredit5h`/`bonusCreditWeek`) resets
+     * to 0 in lockstep with its window — it funds the CURRENT cycle only, it is
+     * not a permanent allowance bump.
      */
     private applyWindowResets(subscription: AiSubscriptionEntity): void {
         const now = this.dayjsService.now()
@@ -563,6 +569,7 @@ export class AiEntitlementService {
             || now.isAfter(subscription.window5hResetAt)
         ) {
             subscription.credit5hUsed = 0
+            subscription.bonusCredit5h = 0
             subscription.window5hResetAt = now
                 .add(WINDOW_5H_MS,
                     "millisecond")
@@ -573,10 +580,61 @@ export class AiEntitlementService {
             || now.isAfter(subscription.windowWeekResetAt)
         ) {
             subscription.creditWeekUsed = 0
+            subscription.bonusCreditWeek = 0
             subscription.windowWeekResetAt = now
                 .add(WINDOW_WEEK_MS,
                     "millisecond")
                 .toDate()
+        }
+    }
+
+    /**
+     * Grant Coin-shop `aiCredit` bonus credit to the user's CURRENT windows.
+     * Rolls any due window reset forward FIRST (under a row lock) so the bonus
+     * always lands in the live window, never one that is about to reset away.
+     * Called by {@link RewardsService.redeem} when redeeming an `aiCredit`
+     * reward — never called from anywhere else (single writer of these two
+     * columns besides the reset itself).
+     *
+     * @param params - owner + the bonus amounts to add to each window.
+     * @returns the subscription's post-grant `bonusCredit5h`/`bonusCreditWeek`.
+     */
+    async grantBonusCredit(
+        {
+            userId,
+            amount5h,
+            amountWeek,
+            entityManager,
+        }: {
+            userId: string
+            amount5h: number
+            amountWeek: number
+            /** Share the caller's transaction (e.g. the reward-redemption txn). */
+            entityManager: EntityManager
+        },
+    ): Promise<{ bonusCredit5h: number, bonusCreditWeek: number }> {
+        const subscription = await entityManager
+            .createQueryBuilder(
+                AiSubscriptionEntity,
+                "subscription",
+            )
+            .setLock("pessimistic_write")
+            .where(
+                "subscription.user_id = :userId",
+                {
+                    userId,
+                },
+            )
+            .getOne()
+            ?? await this.loadOrCreate(userId,
+                entityManager)
+        this.applyWindowResets(subscription)
+        subscription.bonusCredit5h += amount5h
+        subscription.bonusCreditWeek += amountWeek
+        await entityManager.save(subscription)
+        return {
+            bonusCredit5h: subscription.bonusCredit5h,
+            bonusCreditWeek: subscription.bonusCreditWeek,
         }
     }
 
@@ -596,16 +654,20 @@ export class AiEntitlementService {
             limit5h,
             limitWeek,
         } = this.creditAllowance(tier)
+        // Coin-shop aiCredit top-up: magnitude-only extension of THIS window's
+        // budget, never a model-category unlock (that stays tier-gated above)
+        const effectiveLimit5h = limit5h + subscription.bonusCredit5h
+        const effectiveLimitWeek = limitWeek + subscription.bonusCreditWeek
 
         return {
             allowedCategories,
             creditRemaining5h: Math.max(
                 0,
-                limit5h - subscription.credit5hUsed,
+                effectiveLimit5h - subscription.credit5hUsed,
             ),
             creditRemainingWeek: Math.max(
                 0,
-                limitWeek - subscription.creditWeekUsed,
+                effectiveLimitWeek - subscription.creditWeekUsed,
             ),
         }
     }
@@ -652,22 +714,26 @@ export class AiEntitlementService {
             limit5h,
             limitWeek,
         } = this.creditAllowance(tier)
+        // Coin-shop aiCredit top-up: magnitude-only extension of THIS window's
+        // budget, folded into the shown limit (never a category unlock)
+        const effectiveLimit5h = limit5h + subscription.bonusCredit5h
+        const effectiveLimitWeek = limitWeek + subscription.bonusCreditWeek
 
         const overrides = subscription.ceilOverrides
         return {
             tier,
             credit: {
-                limit5h,
+                limit5h: effectiveLimit5h,
                 used5h: subscription.credit5hUsed,
                 remaining5h: Math.max(
                     0,
-                    limit5h - subscription.credit5hUsed,
+                    effectiveLimit5h - subscription.credit5hUsed,
                 ),
-                limitWeek,
+                limitWeek: effectiveLimitWeek,
                 usedWeek: subscription.creditWeekUsed,
                 remainingWeek: Math.max(
                     0,
-                    limitWeek - subscription.creditWeekUsed,
+                    effectiveLimitWeek - subscription.creditWeekUsed,
                 ),
             },
             window5hResetAt: subscription.window5hResetAt,

@@ -8,12 +8,10 @@ import {
     ExecuteParams,
 } from "@features/api/core/types"
 import {
-    UserCvGenerationEntity,
-} from "@modules/databases"
-import {
     MyCvGenerationsQuery,
 } from "./my-cv-generations.query"
 import {
+    CvGenerationListItem,
     MyCvGenerationsRequest,
 } from "./graphql-types"
 
@@ -25,7 +23,7 @@ export class MyCvGenerationsService {
 
     async execute(
         params: ExecuteParams<MyCvGenerationsRequest>,
-    ): Promise<Array<UserCvGenerationEntity>> {
+    ): Promise<Array<CvGenerationListItem>> {
         return this.queryBus.execute(
             new MyCvGenerationsQuery(params),
         )

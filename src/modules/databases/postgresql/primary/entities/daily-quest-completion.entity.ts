@@ -21,7 +21,7 @@ import {
  * for the same `(user_id, quest_date)` is rejected by the unique constraint.
  *
  * `quest_date` is the Asia/Ho_Chi_Minh calendar day (a `date`, no time), so a
- * user can claim once per VN day. `reward_points` snapshots the reward granted at
+ * user can claim once per VN day. `coin_reward` snapshots the Coin granted at
  * claim time (the catalog value can change without rewriting history).
  */
 @Index(["user"])
@@ -65,12 +65,12 @@ export class DailyQuestCompletionEntity extends UuidAbstractEntity {
     })
         questDate: string
 
-    /** Reward points granted by the claim (snapshot of the catalog value). */
+    /** Coin granted by the claim (snapshot of the catalog value). */
     @Column({
-        name: "reward_points",
+        name: "coin_reward",
         type: "int",
     })
-        rewardPoints: number
+        coinReward: number
 
     /** When the claim was processed. */
     @Column({

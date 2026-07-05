@@ -18,7 +18,7 @@ export interface UserSearchDoc {
     githubUsername: string | null
     /** "Open to work" hiring flag — surfaced as a badge / talent-directory filter. */
     openToWork: boolean
-    /** Spendable reward-points balance — usable as a popularity sort key. */
+    /** Spendable Coin balance — usable as a popularity sort key. */
     points: number
 }
 

@@ -186,6 +186,28 @@ export class TransactionEntity extends UuidAbstractEntity {
         discountPercent: number
 
     /**
+     * Coin-shop voucher code applied at checkout, if any (null = no voucher).
+     * Reserved on the voucher row the moment this transaction is created;
+     * flipped to `used` only once this transaction succeeds (see
+     * {@link VoucherService}), so a failed/expired checkout releases the code
+     * back to `unused` instead of burning it.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Coin-shop voucher code applied at checkout, if any.",
+        },
+    )
+    @Column({
+        name: "voucher_code",
+        type: "varchar",
+        length: 32,
+        nullable: true,
+    })
+        voucherCode: string | null
+
+    /**
      * The pricing phase applied to the preflight transaction.
      */
     @Field(

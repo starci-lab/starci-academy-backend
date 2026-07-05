@@ -230,6 +230,28 @@ export class UserCvGenerationEntity extends UuidAbstractEntity {
     })
         latexCdnKey: string | null
 
+    /**
+     * MinIO object key of the PDF compiled (server-side, via `tectonic`) from
+     * `latexCdnKey`'s `.tex` (`generated_pdf_cdn_key`). Set only for `Generated`
+     * source rows whose compile step succeeded; null otherwise (pre-compile
+     * rows, `Uploaded` source, or a failed compile — degrades to the raw
+     * `.tex` download).
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "MinIO object key of the PDF compiled from the generated .tex (null until compiled or on Uploaded CVs).",
+        },
+    )
+    @Column({
+        name: "generated_pdf_cdn_key",
+        type: "varchar",
+        length: 2048,
+        nullable: true,
+    })
+        generatedPdfCdnKey: string | null
+
     @Field(
         () => Date,
         {

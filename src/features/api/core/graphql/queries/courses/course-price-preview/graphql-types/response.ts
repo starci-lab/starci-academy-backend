@@ -98,6 +98,15 @@ export class CoursePricePreviewData {
         },
     )
         enrolledCount: number
+
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Final VND price after ALSO applying a valid `voucherCode` (on top of loyalty); null when no code was given.",
+        },
+    )
+        voucherDiscountedPriceVnd: number | null
 }
 
 /**

@@ -8,17 +8,39 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+/** The AI-credit bonus granted by redeeming an `aiCredit`-kind reward. */
+@ObjectType({
+    description: "Bonus AI credit granted for the current 5h + weekly window.",
+})
+export class RedeemRewardAiCreditGrant {
+    @Field(
+        () => Int,
+        {
+            description: "Bonus credit added to the current 5h window.",
+        },
+    )
+        amount5h: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Bonus credit added to the current weekly window.",
+        },
+    )
+        amountWeek: number
+}
+
 /**
  * The refreshed wallet + inventory after a redemption.
  */
 @ObjectType({
-    description: "Refreshed điểm quà balance + streak-freeze count after redeeming.",
+    description: "Refreshed Coin balance + streak-freeze count after redeeming.",
 })
 export class RedeemRewardData {
     @Field(
         () => Int,
         {
-            description: "The viewer's remaining điểm quà balance after the redemption.",
+            description: "The viewer's remaining Coin balance after the redemption.",
         },
     )
         balance: number
@@ -30,6 +52,24 @@ export class RedeemRewardData {
         },
     )
         streakFreezes: number
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "The freshly-minted voucher code, when redeeming a `voucher`-kind reward.",
+        },
+    )
+        voucherCode?: string
+
+    @Field(
+        () => RedeemRewardAiCreditGrant,
+        {
+            nullable: true,
+            description: "The bonus credit granted, when redeeming an `aiCredit`-kind reward.",
+        },
+    )
+        aiCreditGranted?: RedeemRewardAiCreditGrant
 }
 
 /**

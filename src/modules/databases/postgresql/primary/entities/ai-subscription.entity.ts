@@ -168,6 +168,40 @@ export class AiSubscriptionEntity extends UuidAbstractEntity {
         creditWeekUsed: number
 
     /**
+     * Bonus platform credit granted for the CURRENT 5-hour window by redeeming
+     * an `aiCredit`-kind Coin-shop reward — added on top of the tier/free
+     * allowance (magnitude only; it never unlocks a higher model category).
+     * Reset to 0 alongside {@link credit5hUsed} whenever the window rolls
+     * (see `AiEntitlementService`), so a top-up funds the CURRENT cycle only.
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Bonus Coin-shop credit for the current 5h window.",
+        },
+    )
+    @Column({
+        name: "bonus_credit_5h",
+        type: "int",
+        default: 0,
+    })
+        bonusCredit5h: number
+
+    /** Bonus platform credit granted for the current weekly window (see {@link bonusCredit5h}). */
+    @Field(
+        () => Int,
+        {
+            description: "Bonus Coin-shop credit for the current weekly window.",
+        },
+    )
+    @Column({
+        name: "bonus_credit_week",
+        type: "int",
+        default: 0,
+    })
+        bonusCreditWeek: number
+
+    /**
      * Per-surface model CEILING overrides the user set in AI settings (cost
      * control). jsonb `{ default?, chatbot?, grading?, interview? }` of
      * {@link AiModelCategory}. Null = no caps (only the plan ceiling applies).

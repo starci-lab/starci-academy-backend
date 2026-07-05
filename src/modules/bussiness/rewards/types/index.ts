@@ -4,10 +4,42 @@ import type {
 } from "@modules/databases"
 
 /**
- * Whether a reward is delivered instantly (digital, status `granted`) or must
- * be physically fulfilled by ops (physical, status `pending`).
+ * Whether a reward is delivered instantly (digital, status `granted`), must be
+ * physically fulfilled by ops (physical, status `pending`), mints a checkout
+ * discount voucher (voucher, status `granted`), or tops up the redeemer's AI
+ * credit allowance for the current window (aiCredit, status `granted`).
  */
-export type RewardKind = "digital" | "physical"
+export type RewardKind = "digital" | "physical" | "voucher" | "aiCredit"
+
+/** How a `voucher`-kind reward discounts a course price. */
+export type VoucherDiscountKind = "percent" | "flat"
+
+/**
+ * Voucher-kind config: the discount it mints + how long the minted code stays
+ * redeemable. `value` is a percent (0-100) when `discountType` is `"percent"`,
+ * or a flat VND amount when `"flat"`.
+ */
+export interface RewardVoucherConfig {
+    /** Percent-off or flat-VND-off. */
+    discountType: VoucherDiscountKind
+    /** Percent (0-100) or flat VND amount, depending on `discountType`. */
+    value: number
+    /** Days the minted code stays redeemable after granting (from `now()`). */
+    validityDays: number
+}
+
+/**
+ * AiCredit-kind config: the bonus platform credit granted on top of the
+ * redeemer's tier allowance for the CURRENT 5h + weekly window (the bonus is
+ * NOT a permanent allowance bump — it resets to 0 the same time the window
+ * counters reset, same as buying "more credit for this cycle").
+ */
+export interface RewardAiCreditConfig {
+    /** Bonus credit added to the current 5-hour window's allowance. */
+    amount5h: number
+    /** Bonus credit added to the current weekly window's allowance. */
+    amountWeek: number
+}
 
 /**
  * One code-defined reward in the catalog. Prices and copy live in code (no DB
@@ -26,8 +58,12 @@ export interface RewardDefinition {
     descVi: string
     /** Points cost to redeem. */
     cost: number
-    /** Delivery kind — drives the initial redemption status. */
+    /** Delivery kind — drives the initial redemption status + effect. */
     kind: RewardKind
+    /** Present only when `kind === "voucher"`: the discount it mints. */
+    voucher?: RewardVoucherConfig
+    /** Present only when `kind === "aiCredit"`: the bonus credit it grants. */
+    aiCredit?: RewardAiCreditConfig
 }
 
 /**
@@ -42,15 +78,19 @@ export interface LocalizedReward {
     description: string
     /** Points cost to redeem. */
     cost: number
-    /** Delivery kind (`digital` | `physical`). */
+    /** Delivery kind (`digital` | `physical` | `voucher` | `aiCredit`). */
     kind: RewardKind
+    /** Present only when `kind === "voucher"`: the discount it mints. */
+    voucher?: RewardVoucherConfig
+    /** Present only when `kind === "aiCredit"`: the bonus credit it grants. */
+    aiCredit?: RewardAiCreditConfig
 }
 
 /**
  * The viewer's reward wallet: spendable balance, lifetime spent, and history.
  */
 export interface RewardWalletResult {
-    /** Spendable balance = `user.reward_points - spent` (never negative in practice). */
+    /** Spendable balance = `user.coin_balance - spent` (never negative in practice). */
     balance: number
     /** Sum of cost across the viewer's non-cancelled redemptions. */
     spent: number
@@ -67,14 +107,20 @@ export interface RedeemRewardParams {
 }
 
 /**
- * Result of a successful redemption: the viewer's refreshed spendable balance
- * and streak-freeze inventory (the latter only changes for `streakFreeze`).
+ * Result of a successful redemption: the viewer's refreshed spendable balance,
+ * streak-freeze inventory (only changes for `streakFreeze`), the minted
+ * voucher code (only for `kind === "voucher"`), and the granted bonus credit
+ * (only for `kind === "aiCredit"`).
  */
 export interface RedeemRewardResult {
-    /** Spendable reward-points balance after the redemption. */
+    /** Spendable Coin balance after the redemption. */
     balance: number
     /** The user's streak-freeze count after the redemption. */
     streakFreezes: number
+    /** The freshly-minted voucher code, when the redeemed reward is `kind: "voucher"`. */
+    voucherCode?: string
+    /** The bonus credit granted this window, when the redeemed reward is `kind: "aiCredit"`. */
+    aiCreditGranted?: RewardAiCreditConfig
 }
 
 /**
