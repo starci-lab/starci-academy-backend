@@ -3,18 +3,16 @@ import {
 } from "@nestjs/common"
 import {
     ConsultantEntity,
-    InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
-import type {
-    EntityManager,
-} from "typeorm"
 import {
     CV_SCORE_UNLOCK_THRESHOLD,
 } from "./constants"
 import type {
     GetBestCvScoreParams,
-    MaxCvScoreRow,
 } from "./types"
+import {
+    CvVerificationService,
+} from "./cv-verification.service"
 
 /**
  * Gates a consultant's direct contact details (email / phone / Zalo /
@@ -30,64 +28,39 @@ import type {
 @Injectable()
 export class ConsultantContactGateService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
+        private readonly cvVerificationService: CvVerificationService,
     ) {}
 
     /**
-     * Computes the viewer's best-ever CV score across ALL of their scored CVs
-     * (upload OR generated) — reading the UNIFIED `cv_generations` table as the
-     * sole source of truth, **source-blind by design** ("Hướng A", chốt
-     * 2026-07-05: see `CV-VERIFIED-TRUST-TIER-WORKFLOW.md`). This gate stays
-     * OPEN regardless of source — StarCi sells CREDIBILITY (the separate
-     * {@link import("./cv-verification.service").CvVerificationService} trust
-     * tier, used for marketplace ranking), NOT access; hard-gating contact by
-     * source was evaluated and explicitly rejected (psychology: blocking a
-     * user's own resume triggers "loss of control" anxiety; see the doc's
-     * refs). A prior commit briefly source-filtered this method — reverted,
-     * that filter silently overturned this locked decision without approval.
+     * Computes the viewer's CV trust score — **deterministic, count-independent,
+     * no AI/CV-prose involved** (2026-07-05: replaced the old AI-judged
+     * `cv_generations.score` rubric entirely; see
+     * {@link import("./cv-verification.service").CvVerificationService.scoreOf}).
+     * A pure function of {@link import("./cv-verification.service").CvVerificationService.resolveLevel}
+     * (passed capstone / graded challenge, existence-checked) — **source-blind
+     * AND upload-vs-generate-irrelevant by construction**, since there is no
+     * CV row read here at all. This gate stays OPEN for everyone ("Hướng A",
+     * see `CV-VERIFIED-TRUST-TIER-WORKFLOW.md`): StarCi sells CREDIBILITY, not
+     * ACCESS.
      *
-     * The legacy `cv_submission_attempts` union-read has been retired: the
-     * WF-03c backfill migration copied every legacy scored attempt into
-     * `cv_generations` (`source = 'uploaded'`), and a prod count check confirmed
-     * the backfill is complete and score-for-score exact. See WF-10.
+     * ⚠️ Placeholder step values pending calibration — see
+     * {@link import("./cv-verification.service").CvVerificationService.scoreOf}.
      *
      * @param params - The viewer to score.
-     * @returns The viewer's highest recorded score (0–100), or `0` when the
-     *   viewer is anonymous or has no scored CV yet ("no CV" is treated the
-     *   same as "worst possible CV" for gating purposes).
+     * @returns 100 / 50 / 0 (see `scoreOf`), or `0` for an anonymous viewer.
      */
     async getBestCvScore(
         {
             userId,
         }: GetBestCvScoreParams,
     ): Promise<number> {
-        // anonymous viewer → always locked, skip the query entirely
+        // anonymous viewer → always locked, skip the lookup entirely
         if (!userId) {
             return 0
         }
 
-        // MAX(cv_generations.score) for this user across ALL sources; MAX()
-        // ignores null (unscored) rows; COALESCE(-1) covers the "no scored
-        // CV at all" case, then the outer result clamps up to 0.
-        const [
-            row,
-        ] = await this.entityManager.query<Array<MaxCvScoreRow>>(
-            `
-            SELECT COALESCE((
-                SELECT MAX(g.score) FROM cv_generations g
-                WHERE g.user_id = $1
-            ), -1) AS max
-            `,
-            [
-                userId,
-            ],
-        )
-
-        // Postgres MAX() over an int column comes back as a numeric string;
-        // no scored CV at all → "-1" → clamp up to 0
-        return Math.max(Number(row?.max) || 0,
-            0)
+        const level = await this.cvVerificationService.resolveLevel(userId)
+        return this.cvVerificationService.scoreOf(level)
     }
 
     /**

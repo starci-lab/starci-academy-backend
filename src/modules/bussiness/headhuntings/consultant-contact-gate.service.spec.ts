@@ -3,17 +3,14 @@ import {
     TestingModule,
 } from "@nestjs/testing"
 import {
-    getEntityManagerToken,
-} from "@nestjs/typeorm"
-import {
-    makeEntityManagerMock,
-} from "@modules/tests"
-import type {
-    EntityManagerMock,
-} from "@modules/tests"
+    CvVerificationLevel,
+} from "@modules/databases"
 import type {
     ConsultantEntity,
 } from "@modules/databases"
+import {
+    CvVerificationService,
+} from "./cv-verification.service"
 import {
     ConsultantContactGateService,
 } from "./consultant-contact-gate.service"
@@ -21,31 +18,46 @@ import {
     CV_SCORE_UNLOCK_THRESHOLD,
 } from "./constants"
 
-/** Connection name used by the primary PostgreSQL data source. */
-const POSTGRESQL_PRIMARY = "primary"
-
 /**
- * Unit suite for {@link ConsultantContactGateService}. `entityManager.query` is
- * mocked (no DB); `gateConsultant` is pure.
+ * Unit suite for {@link ConsultantContactGateService}. {@link CvVerificationService}
+ * is mocked (no DB); `gateConsultant` is pure.
  *
  * Locks the fair-monetization axiom: contact reveal keys ONLY on the viewer's
- * best CV score — never on how many CVs/courses produced it.
+ * deterministic CV trust score — never on how many CVs/courses produced it
+ * (2026-07-05: score is now `CvVerificationService.scoreOf(resolveLevel(...))`,
+ * count-independent by construction — no AI, no CV row, no `source` read here).
  */
 describe("ConsultantContactGateService",
     () => {
         let module: TestingModule
         let service: ConsultantContactGateService
-        let entityManager: EntityManagerMock
+        let cvVerificationService: jest.Mocked<
+            Pick<CvVerificationService, "resolveLevel" | "scoreOf">
+        >
 
         beforeEach(async () => {
-            entityManager = makeEntityManagerMock()
+            cvVerificationService = {
+                resolveLevel: jest.fn(),
+                scoreOf: jest.fn((level: CvVerificationLevel) => {
+                    switch (level) {
+                    case CvVerificationLevel.CapstoneVerified:
+                        return 100
+                    case CvVerificationLevel.ActivityBacked:
+                        return 50
+                    case CvVerificationLevel.SelfReported:
+                        return 0
+                    }
+                }),
+            } as unknown as jest.Mocked<
+                Pick<CvVerificationService, "resolveLevel" | "scoreOf">
+            >
 
             module = await Test.createTestingModule({
                 providers: [
                     ConsultantContactGateService,
                     {
-                        provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
-                        useValue: entityManager,
+                        provide: CvVerificationService,
+                        useValue: cvVerificationService,
                     },
                 ],
             }).compile()
@@ -61,30 +73,24 @@ describe("ConsultantContactGateService",
 
         describe("getBestCvScore",
             () => {
-                it("returns MAX(cv_generations.score) for the viewer",
+                it("returns the deterministic score for the viewer's verification level",
                     async () => {
-                        // the SQL computes MAX(...) server-side and returns one row
-                        entityManager.query.mockResolvedValueOnce([
-                            {
-                                max: "85",
-                            },
-                        ])
+                        cvVerificationService.resolveLevel.mockResolvedValueOnce(
+                            CvVerificationLevel.CapstoneVerified,
+                        )
 
                         const best = await service.getBestCvScore({
                             userId: "viewer-1",
                         })
 
-                        expect(best).toBe(85)
+                        expect(best).toBe(100)
                     })
 
-                it("returns 0 when the viewer has no scored CV (COALESCE → -1, clamped up)",
+                it("returns 0 for a self-reported (no graded StarCi work) viewer",
                     async () => {
-                        // the COALESCE branch falls back to -1 when there is no row
-                        entityManager.query.mockResolvedValueOnce([
-                            {
-                                max: "-1",
-                            },
-                        ])
+                        cvVerificationService.resolveLevel.mockResolvedValueOnce(
+                            CvVerificationLevel.SelfReported,
+                        )
 
                         const best = await service.getBestCvScore({
                             userId: "viewer-2",
@@ -93,15 +99,15 @@ describe("ConsultantContactGateService",
                         expect(best).toBe(0)
                     })
 
-                it("short-circuits an anonymous viewer to 0 without touching the DB",
+                it("short-circuits an anonymous viewer to 0 without resolving a level",
                     async () => {
-                        // no userId → always locked; the query must never run
+                        // no userId → always locked; the lookup must never run
                         const best = await service.getBestCvScore({
                             userId: null,
                         })
 
                         expect(best).toBe(0)
-                        expect(entityManager.query).not.toHaveBeenCalled()
+                        expect(cvVerificationService.resolveLevel).not.toHaveBeenCalled()
                     })
             })
 

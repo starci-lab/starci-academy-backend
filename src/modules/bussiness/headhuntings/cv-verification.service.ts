@@ -108,6 +108,42 @@ export class CvVerificationService {
     }
 
     /**
+     * Deterministic 0–100 "CV trust score" for a level — REPLACES the old
+     * AI-judged `cv_generations.score` rubric everywhere that number gated
+     * something (recruiter contact, job-readiness). No AI, no CV prose
+     * involved: this is a pure function of the SAME existence-checked signals
+     * {@link resolveLevel} already reads (passed capstone / graded challenge),
+     * so it is count-independent and payment-independent by construction — a
+     * learner with 1 enrollment who passed a capstone scores identically to
+     * one with 5 enrollments who also passed one, and nothing here can be
+     * inflated by writing more into a CV (there is no CV text in this
+     * computation at all). Quantized to 3 flat steps (not a continuous scale)
+     * on purpose — a continuous score invites the same "which count moved it"
+     * questions the old rubric had; a level only moves when the learner
+     * crosses a real, discrete threshold (graded a challenge / passed a
+     * capstone).
+     *
+     * ⚠️ The exact step values (0/50/100) and the downstream unlock threshold
+     * ({@link import("./constants").CV_SCORE_UNLOCK_THRESHOLD}) are a
+     * placeholder pending calibration — deliberately NOT tuned yet (2026-07-05:
+     * "khoan check điểm thật đã, check điểm cv để fair cho mọi người trước").
+     * Fairness of the FORMULA is what's locked here; the THRESHOLD is not.
+     *
+     * @param level - the verification level to score.
+     * @returns 100 (capstone) / 50 (activity) / 0 (self-reported).
+     */
+    scoreOf(level: CvVerificationLevel): number {
+        switch (level) {
+        case CvVerificationLevel.CapstoneVerified:
+            return 100
+        case CvVerificationLevel.ActivityBacked:
+            return 50
+        case CvVerificationLevel.SelfReported:
+            return 0
+        }
+    }
+
+    /**
      * Sort rank of a level — higher = stronger StarCi proof. Lets the marketplace
      * break equal-depth ties by surfacing verified candidates above self-reported
      * ones without importing the enum's ordering into another module.
@@ -125,6 +161,70 @@ export class CvVerificationService {
         case CvVerificationLevel.SelfReported:
             return 0
         }
+    }
+
+    /**
+     * Same classification as {@link resolveLevel}, but scoped to ONE course —
+     * "did this learner pass a capstone / get a challenge graded IN THIS
+     * course's enrollment", not anywhere on the platform. Powers the
+     * per-track CV pillar ({@link import("../../../features/api/core/graphql/queries/users/job-readiness/job-readiness.service").JobReadinessService}),
+     * which is per-course by design — reusing the platform-wide
+     * {@link resolveLevel} there would let 1 unrelated capstone in ANOTHER
+     * course inflate THIS track's depth, which is exactly the count/cross-track
+     * leak the fair-monetization axiom forbids. Existence-checked (not summed)
+     * within the course, so it stays count-independent the same way
+     * {@link resolveLevel} is platform-wide.
+     *
+     * @param params - the learner + the course to scope the check to.
+     * @returns the level, defaulting to `SelfReported` when neither signal is present.
+     */
+    async resolveLevelForCourse(
+        {
+            userId,
+            courseId,
+        }: { userId: string, courseId: string },
+    ): Promise<CvVerificationLevel> {
+        const [
+            capstoneRow,
+            challengeRow,
+        ] = await Promise.all([
+            this.entityManager.query<Array<CvVerificationUserIdRow>>(
+                `
+                SELECT DISTINCT e.user_id AS user_id
+                FROM enrollments e
+                JOIN user_milestone_tasks umt ON umt.enrollment_id = e.id
+                JOIN user_milestone_task_attempts umta ON umta.user_milestone_task_id = umt.id
+                WHERE e.user_id = $1 AND e.course_id = $2 AND umta.passed = true
+                LIMIT 1
+                `,
+                [
+                    userId,
+                    courseId,
+                ],
+            ),
+            this.entityManager.query<Array<CvVerificationUserIdRow>>(
+                `
+                SELECT DISTINCT ucs.user_id AS user_id
+                FROM user_challenge_submissions ucs
+                JOIN user_challenge_submission_attempts ucsa ON ucsa.user_challenge_submission_id = ucs.id
+                JOIN enrollments e ON e.id = ucs.enrollment_id
+                WHERE ucs.user_id = $1 AND e.course_id = $2 AND ucsa.score IS NOT NULL
+                LIMIT 1
+                `,
+                [
+                    userId,
+                    courseId,
+                ],
+            ),
+        ])
+
+        if (capstoneRow.length > 0) {
+            return CvVerificationLevel.CapstoneVerified
+        }
+        if (challengeRow.length > 0) {
+            return CvVerificationLevel.ActivityBacked
+        }
+        return CvVerificationLevel.SelfReported
     }
 
     /**
