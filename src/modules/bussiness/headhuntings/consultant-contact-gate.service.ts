@@ -3,7 +3,6 @@ import {
 } from "@nestjs/common"
 import {
     ConsultantEntity,
-    CvSource,
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import type {
@@ -36,15 +35,17 @@ export class ConsultantContactGateService {
     ) {}
 
     /**
-     * Computes the viewer's best-ever CV score across ALL of their scored,
-     * **achievement-backed** CVs — reading the UNIFIED `cv_generations` table
-     * as the sole source of truth, restricted to `source = 'generated'`.
-     *
-     * A merely `uploaded` CV is graded on prose alone (the rubric never
-     * cross-checks its claims against the viewer's real StarCi work) and must
-     * NEVER unlock a recruiter's direct contact details — that would let
-     * anyone paste a fabricated CV through this gate. Only a system-generated
-     * CV, assembled from the viewer's verified activity, counts.
+     * Computes the viewer's best-ever CV score across ALL of their scored CVs
+     * (upload OR generated) — reading the UNIFIED `cv_generations` table as the
+     * sole source of truth, **source-blind by design** ("Hướng A", chốt
+     * 2026-07-05: see `CV-VERIFIED-TRUST-TIER-WORKFLOW.md`). This gate stays
+     * OPEN regardless of source — StarCi sells CREDIBILITY (the separate
+     * {@link import("./cv-verification.service").CvVerificationService} trust
+     * tier, used for marketplace ranking), NOT access; hard-gating contact by
+     * source was evaluated and explicitly rejected (psychology: blocking a
+     * user's own resume triggers "loss of control" anxiety; see the doc's
+     * refs). A prior commit briefly source-filtered this method — reverted,
+     * that filter silently overturned this locked decision without approval.
      *
      * The legacy `cv_submission_attempts` union-read has been retired: the
      * WF-03c backfill migration copied every legacy scored attempt into
@@ -52,9 +53,9 @@ export class ConsultantContactGateService {
      * the backfill is complete and score-for-score exact. See WF-10.
      *
      * @param params - The viewer to score.
-     * @returns The viewer's highest recorded generated-CV score (0–100), or `0`
-     *   when the viewer is anonymous or has no scored generated CV yet ("no CV"
-     *   is treated the same as "worst possible CV" for gating purposes).
+     * @returns The viewer's highest recorded score (0–100), or `0` when the
+     *   viewer is anonymous or has no scored CV yet ("no CV" is treated the
+     *   same as "worst possible CV" for gating purposes).
      */
     async getBestCvScore(
         {
@@ -66,21 +67,20 @@ export class ConsultantContactGateService {
             return 0
         }
 
-        // MAX(cv_generations.score) for this user's GENERATED CVs only; MAX()
+        // MAX(cv_generations.score) for this user across ALL sources; MAX()
         // ignores null (unscored) rows; COALESCE(-1) covers the "no scored
-        // generated CV at all" case, then the outer result clamps up to 0.
+        // CV at all" case, then the outer result clamps up to 0.
         const [
             row,
         ] = await this.entityManager.query<Array<MaxCvScoreRow>>(
             `
             SELECT COALESCE((
                 SELECT MAX(g.score) FROM cv_generations g
-                WHERE g.user_id = $1 AND g.source = $2
+                WHERE g.user_id = $1
             ), -1) AS max
             `,
             [
                 userId,
-                CvSource.Generated,
             ],
         )
 

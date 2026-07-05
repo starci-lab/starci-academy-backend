@@ -5,7 +5,6 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    CvSource,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     UserCvGenerationEntity,
@@ -300,24 +299,21 @@ export class JobReadinessService {
     }
 
     /**
-     * Best GENERATED-CV score per course — the CV pillar of each track.
+     * Best CV score per course — the CV pillar of each track.
      *
      * Groups `MAX(cv_generations.score)` by `course_id` over the learner's CVs
-     * that are (a) tied to one of their enrolled courses, (b) already scored,
-     * and (c) `source = 'generated'` — an achievement-backed CV the system
-     * assembled from the learner's verified StarCi work. A merely `uploaded`
-     * CV is unchecked prose and must NEVER inflate a track's depth (the fair
-     *-monetization axiom: no scalar may move just because the learner brought
-     * in an outside file). A course with no scored generated CV attached simply
-     * produces no row → its track's CV pillar degrades to null (renormalized
-     * away in {@link depthOf}).
+     * that are (a) tied to one of their enrolled courses and (b) already
+     * scored — **source-blind by design** ("Hướng A", chốt 2026-07-05: see
+     * `CV-VERIFIED-TRUST-TIER-WORKFLOW.md`). A course with no scored CV
+     * attached simply produces no row → its track's CV pillar degrades to
+     * null (renormalized away in {@link depthOf}).
      *
      * Sourced ONLY from the unified table (`cv_generations`) — the legacy upload
      * table was never course-scoped, so it has no per-track dimension to read.
      *
      * @param userId - the learner.
      * @param courseIds - the learner's enrolled course ids.
-     * @returns one row per course that has a scored generated CV, with the best score.
+     * @returns one row per course that has a scored CV, with the best score.
      */
     private async loadTrackCvScores(
         userId: string,
@@ -330,29 +326,27 @@ export class JobReadinessService {
             WHERE user_id = $1
               AND course_id = ANY($2)
               AND score IS NOT NULL
-              AND source = $3
             GROUP BY course_id
             `,
             [
                 userId,
                 courseIds,
-                CvSource.Generated,
             ],
         )
     }
 
     /**
-     * Best GENERATED-CV score across ALL of the learner's CVs (global,
-     * person-level) — kept on the foundation so the FE (which reads
-     * `foundation.cvScore`) stays non-breaking; the additive per-track
-     * {@link JobReadinessTrack.cvScore} is the new source of truth for depth.
+     * Best CV score across ALL of the learner's CVs (global, person-level) —
+     * kept on the foundation so the FE (which reads `foundation.cvScore`)
+     * stays non-breaking; the additive per-track {@link JobReadinessTrack.cvScore}
+     * is the new source of truth for depth.
      *
-     * Filters to `source = 'generated'` — only an achievement-backed CV the
-     * system assembled from the learner's verified StarCi work counts toward
-     * job-readiness. A merely `uploaded` CV is unchecked prose (the rubric
-     * grades its prose, not the claims in it) and must never move this global
-     * signal, per the fair-monetization axiom (no scalar may move just because
-     * the learner brought in an outside file).
+     * **Source-blind by design** ("Hướng A", chốt 2026-07-05: see
+     * `CV-VERIFIED-TRUST-TIER-WORKFLOW.md`) — StarCi sells CREDIBILITY (the
+     * separate {@link import("../../../../../../modules/bussiness/headhuntings/cv-verification.service").CvVerificationService}
+     * trust tier, used for marketplace ranking), not ACCESS/opportunity-scoring
+     * by source. A prior commit briefly source-filtered this — reverted, that
+     * filter silently overturned this locked decision without approval.
      *
      * Reads the UNIFIED `cv_generations` table alone. The legacy
      * `cv_submission_attempts` union-read has been retired: the WF-03c backfill
@@ -361,15 +355,14 @@ export class JobReadinessService {
      * complete and score-for-score exact. See WF-10.
      *
      * @param userId - the learner.
-     * @returns 0–100 (best generated CV), or null if no generated CV has been scored yet.
+     * @returns 0–100 (best from the unified table), or null if no CV has been scored yet.
      */
     private async computeCvScore(userId: string): Promise<number | null> {
-        const bestGenerated = await this.entityManager.findOne(
+        const bestUnified = await this.entityManager.findOne(
             UserCvGenerationEntity,
             {
                 where: {
                     userId,
-                    source: CvSource.Generated,
                 },
                 order: {
                     score: "DESC",
@@ -377,7 +370,7 @@ export class JobReadinessService {
             },
         )
 
-        return bestGenerated?.score ?? null
+        return bestUnified?.score ?? null
     }
 
     /**
