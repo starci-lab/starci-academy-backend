@@ -7,6 +7,8 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 import {
+    CvVerificationLevel,
+    GraphQLTypeCvVerificationLevel,
     UserEntity,
 } from "@modules/databases"
 import {
@@ -39,6 +41,14 @@ export class TalentCandidateItem {
         },
     )
         track: JobReadinessTrackItem
+
+    @Field(
+        () => GraphQLTypeCvVerificationLevel,
+        {
+            description: "How strongly the candidate's readiness is backed by graded StarCi work (self-reported vs activity-backed vs capstone-verified) — a recruiter trust badge.",
+        },
+    )
+        verificationLevel: CvVerificationLevel
 }
 
 /**

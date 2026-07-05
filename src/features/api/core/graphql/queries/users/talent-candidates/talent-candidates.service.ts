@@ -5,9 +5,13 @@ import {
     EntityManager,
 } from "typeorm"
 import {
+    CvVerificationLevel,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
+import {
+    CvVerificationService,
+} from "@modules/bussiness"
 import {
     JOB_READINESS_BUILDING_THRESHOLD,
     JOB_READINESS_INTERVIEW_RECENT_WINDOW,
@@ -62,6 +66,8 @@ export class TalentCandidatesService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        // trust-tier classifier — badges each candidate + breaks equal-depth ties
+        private readonly cvVerificationService: CvVerificationService,
     ) {}
 
     /**
@@ -107,19 +113,24 @@ export class TalentCandidatesService {
         const enrollmentIds = enrollments.map((enrollment) => enrollment.id)
         const userIds = enrollments.map((enrollment) => enrollment.userId)
 
-        // batch the three course-scoped pillar aggregates for the candidate set.
-        // capstone total is a single per-course denominator shared by everyone.
+        // batch the three course-scoped pillar aggregates + the (course-agnostic)
+        // verification tier for the candidate set. capstone total is a single
+        // per-course denominator shared by everyone.
         const [
             capstoneTotalRows,
             capstonePassedRows,
             interviewAverageRows,
             cvScoreRows,
+            verificationLevels,
         ] = await Promise.all([
             this.loadCourseCapstoneTotal(courseId),
             this.loadCandidateCapstonePassed(enrollmentIds),
             this.loadCandidateInterviewAverages(enrollmentIds),
             this.loadCandidateCvScores(courseId,
                 userIds),
+            this.cvVerificationService.resolveLevels({
+                userIds 
+            }),
         ])
 
         // one shared denominator for the whole course (null when it has no capstone tasks)
@@ -165,14 +176,18 @@ export class TalentCandidatesService {
                     band: this.bandOf(depthScore),
                     isQualified: depthScore !== null && depthScore >= JOB_READINESS_QUALIFIED_TRACK_MIN_DEPTH,
                 },
+                // course-agnostic trust tier; absent from the map only for an empty
+                // batch (never here), so default to the lowest tier defensively
+                verificationLevel: verificationLevels.get(enrollment.userId) ?? CvVerificationLevel.SelfReported,
             }
         })
 
         // RANK strictly by THIS track's depth (nulls last) — never a cross-track
-        // blend. Then paginate the sorted list.
+        // blend; break exact depth ties by the stronger StarCi verification tier
+        // (capstone-verified above self-reported). Then paginate the sorted list.
         return candidates
-            .sort((prev, next) => this.sortByDepth(prev.track.depthScore,
-                next.track.depthScore))
+            .sort((prev, next) => this.sortByDepthThenVerification(prev,
+                next))
             .slice(offset,
                 offset + limit)
     }
@@ -384,5 +399,32 @@ export class TalentCandidatesService {
             return -1
         }
         return nextDepth - prevDepth
+    }
+
+    /**
+     * Marketplace comparator: strongest track depth first (null depths last),
+     * with EXACT depth ties broken by the stronger StarCi verification tier
+     * (capstone-verified above activity-backed above self-reported). Depth stays
+     * the primary key — verification only decides ties — so the per-track
+     * fairness contract holds while candidates whose readiness is backed by real,
+     * graded StarCi work surface above self-reported ones.
+     *
+     * @param prev - left candidate.
+     * @param next - right candidate.
+     * @returns a negative/zero/positive sort delta.
+     */
+    private sortByDepthThenVerification(
+        prev: TalentCandidate,
+        next: TalentCandidate,
+    ): number {
+        // depth is the primary key — never blended across tracks
+        const byDepth = this.sortByDepth(prev.track.depthScore,
+            next.track.depthScore)
+        if (byDepth !== 0) {
+            return byDepth
+        }
+        // exact depth tie → surface the more StarCi-verified candidate first (rank DESC)
+        return this.cvVerificationService.rankOf(next.verificationLevel)
+            - this.cvVerificationService.rankOf(prev.verificationLevel)
     }
 }

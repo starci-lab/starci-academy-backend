@@ -6,6 +6,12 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
+    CvVerificationLevel,
+} from "@modules/databases"
+import {
+    CvVerificationService,
+} from "@modules/bussiness"
+import {
     makeEntityManagerMock,
 } from "@modules/tests"
 import type {
@@ -33,9 +39,16 @@ describe("TalentCandidatesService",
         let module: TestingModule
         let service: TalentCandidatesService
         let entityManager: EntityManagerMock
+        let cvVerificationService: jest.Mocked<Pick<CvVerificationService, "resolveLevels" | "rankOf">>
 
         beforeEach(async () => {
             entityManager = makeEntityManagerMock()
+            // default: no verification signal for anyone (every candidate self-reported)
+            // and a neutral rank so the depth sort is unaffected unless a test overrides
+            cvVerificationService = {
+                resolveLevels: jest.fn().mockResolvedValue(new Map()),
+                rankOf: jest.fn().mockReturnValue(0),
+            } as unknown as jest.Mocked<Pick<CvVerificationService, "resolveLevels" | "rankOf">>
 
             module = await Test.createTestingModule({
                 providers: [
@@ -43,6 +56,10 @@ describe("TalentCandidatesService",
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
                         useValue: entityManager,
+                    },
+                    {
+                        provide: CvVerificationService,
+                        useValue: cvVerificationService,
                     },
                 ],
             }).compile()
@@ -271,6 +288,105 @@ describe("TalentCandidatesService",
 
                         expect(result).toEqual([])
                         expect(entityManager.query).not.toHaveBeenCalled()
+                    })
+
+                // With IDENTICAL track depth, the stronger StarCi verification tier
+                // breaks the tie — a capstone-verified candidate surfaces above a
+                // self-reported one. Depth stays the primary key; verification only
+                // decides exact ties.
+                it("breaks an exact depth tie by verification tier (verified above self-reported)",
+                    async () => {
+                        const enrollmentAliceA = {
+                            id: "enr-alice-a",
+                            courseId: "course-a",
+                            userId: "user-alice",
+                            isEnrolled: true,
+                            course: {
+                                title: "Track A",
+                                displayId: "track-a",
+                            },
+                            user: {
+                                id: "user-alice",
+                                openToWork: true,
+                            },
+                        }
+                        const enrollmentBobA = {
+                            id: "enr-bob-a",
+                            courseId: "course-a",
+                            userId: "user-bob",
+                            isEnrolled: true,
+                            course: {
+                                title: "Track A",
+                                displayId: "track-a",
+                            },
+                            user: {
+                                id: "user-bob",
+                                openToWork: true,
+                            },
+                        }
+
+                        // self-reported alice returned FIRST so we prove the tiebreak
+                        // actively re-orders her BELOW the capstone-verified bob
+                        entityManager.find.mockResolvedValueOnce([
+                            enrollmentAliceA,
+                            enrollmentBobA,
+                        ])
+                        entityManager.query
+                            // course-a capstone total
+                            .mockResolvedValueOnce([
+                                {
+                                    total: "10",
+                                },
+                            ])
+                            // BOTH passed 5/10 → identical capstone %, hence identical depth
+                            .mockResolvedValueOnce([
+                                {
+                                    enrollment_id: "enr-alice-a",
+                                    passed: "5",
+                                },
+                                {
+                                    enrollment_id: "enr-bob-a",
+                                    passed: "5",
+                                },
+                            ])
+                            // no interview rows (both null → depth is capstone-only, equal)
+                            .mockResolvedValueOnce([])
+                            // no cv rows
+                            .mockResolvedValueOnce([])
+
+                        // alice self-reported, bob capstone-verified
+                        cvVerificationService.resolveLevels.mockResolvedValueOnce(
+                            new Map([
+                                ["user-alice",
+                                    CvVerificationLevel.SelfReported],
+                                ["user-bob",
+                                    CvVerificationLevel.CapstoneVerified],
+                            ]),
+                        )
+                        // real rank ordering so the comparator can break the tie
+                        cvVerificationService.rankOf.mockImplementation((level) => {
+                            if (level === CvVerificationLevel.CapstoneVerified) {
+                                return 2
+                            }
+                            if (level === CvVerificationLevel.ActivityBacked) {
+                                return 1
+                            }
+                            return 0
+                        })
+
+                        const result = await service.rankByTrack({
+                            courseId: "course-a",
+                            limit: 24,
+                            offset: 0,
+                        })
+
+                        // equal depth → capstone-verified bob is surfaced first
+                        expect(result[0].track.depthScore).toBe(result[1].track.depthScore)
+                        expect(result[0].user.id).toBe("user-bob")
+                        expect(result[1].user.id).toBe("user-alice")
+                        // and each candidate carries its verification tier through
+                        expect(result[0].verificationLevel).toBe(CvVerificationLevel.CapstoneVerified)
+                        expect(result[1].verificationLevel).toBe(CvVerificationLevel.SelfReported)
                     })
             })
     })
