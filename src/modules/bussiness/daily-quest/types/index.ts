@@ -44,11 +44,11 @@ export interface DailyQuestResult {
 }
 
 /**
- * Result of a successful daily-quest claim: the user's refreshed reward-points
+ * Result of a successful daily-quest claim: the user's refreshed Coin
  * balance.
  */
 export interface ClaimDailyQuestResult {
-    /** Reward-points balance after the grant. */
+    /** Coin balance after the grant. */
     balance: number
 }
 

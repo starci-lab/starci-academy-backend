@@ -9,7 +9,7 @@ import {
 } from "@modules/api"
 
 /**
- * Payload of a successful daily-quest claim: the user's refreshed reward-points
+ * Payload of a successful daily-quest claim: the user's refreshed Coin
  * balance after the grant.
  */
 @ObjectType({
@@ -19,7 +19,7 @@ export class ClaimDailyQuestRewardData {
     @Field(
         () => Int,
         {
-            description: "The user's reward-points balance after the grant.",
+            description: "The user's Coin balance after the grant.",
         },
     )
         balance: number

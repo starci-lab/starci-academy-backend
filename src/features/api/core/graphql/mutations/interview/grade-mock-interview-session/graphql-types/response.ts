@@ -122,6 +122,14 @@ export class MockInterviewGradeSessionData {
         },
     )
         followUpQuestion?: string | null
+
+    @Field(
+        () => [String],
+        {
+            description: "Distinct content (lesson) ids the RAG grounding excerpt was retrieved from, in similarity order — one flat list for the whole session (retrieval is not phase-scoped). Empty when retrieval missed/failed or the index has no hits; the FE renders its \"unmatched\" fallback in that case.",
+        },
+    )
+        matchedContentIds: Array<string>
 }
 
 @ObjectType({

@@ -1,5 +1,6 @@
 import {
     Field,
+    Float,
     Int,
     ObjectType,
 } from "@nestjs/graphql"
@@ -9,9 +10,67 @@ import {
 } from "@modules/api"
 
 /**
- * Public-safe liveness of one infrastructure component. Exposes only the
- * traffic-light status, a coarse latency and a short message — enough to render
- * a "build in public" status page without leaking operational internals.
+ * Live cAdvisor/Prometheus resource usage of one component's Docker
+ * container. Every field is nullable: `null` means "no local container to
+ * measure" (Judge0, Ollama, mail, the AI balancer) or "Prometheus has not
+ * produced a sample yet" — never a fabricated zero.
+ */
+@ObjectType({
+    description: "Live container resource usage (cAdvisor via Prometheus).",
+})
+export class ComponentMetricsData {
+    @Field(
+        () => Float,
+        {
+            nullable: true,
+            description: "CPU usage as a percentage of one core (can exceed 100 on multi-core work).",
+        },
+    )
+        cpuPercent: number | null
+
+    @Field(
+        () => Float,
+        {
+            nullable: true,
+            description: "Resident memory usage in bytes.",
+        },
+    )
+        memoryUsedBytes: number | null
+
+    @Field(
+        () => Float,
+        {
+            nullable: true,
+            description: "Container memory limit in bytes, or null when unbounded.",
+        },
+    )
+        memoryLimitBytes: number | null
+
+    @Field(
+        () => Float,
+        {
+            nullable: true,
+            description: "Network receive throughput in bytes/sec (1m rate).",
+        },
+    )
+        networkRxBytesPerSec: number | null
+
+    @Field(
+        () => Float,
+        {
+            nullable: true,
+            description: "Network transmit throughput in bytes/sec (1m rate).",
+        },
+    )
+        networkTxBytesPerSec: number | null
+}
+
+/**
+ * Public-safe liveness of one infrastructure component. Exposes the
+ * traffic-light status, a coarse latency, a short message, and — when the
+ * component runs as a local Docker container — its live resource usage. This
+ * platform intentionally shows real operational numbers as a "build in
+ * public" proof-of-work surface, not a fabricated demo.
  */
 @ObjectType({
     description: "Public liveness of one infrastructure component.",
@@ -58,6 +117,15 @@ export class ComponentHealthData {
         },
     )
         checkedAt: Date
+
+    @Field(
+        () => ComponentMetricsData,
+        {
+            nullable: true,
+            description: "Live container resource usage, or null when unavailable for this component.",
+        },
+    )
+        metrics: ComponentMetricsData | null
 }
 
 /**

@@ -12,7 +12,6 @@ import {
     AiLabPlaygroundEntity,
     AiLabRunEntity,
     AiLabRunStatus,
-    AiMode,
     InjectPrimaryPostgreSQLEntityManager,
     ModelProvider,
 } from "@modules/databases"
@@ -109,23 +108,18 @@ export class AiLabRunService {
             aiEntitlementService: this.aiEntitlementService,
         })
 
-        // validate the model/provider pairing against the catalog / BYOK rules so a
+        // validate the model/provider pairing against the catalog rules so a
         // bad pick fails here rather than mid-stream on the gateway
         await this.gradingLaneValidationService.validate({
             userId,
-            mode: ai?.mode,
             ...this.selectionModelProvider(ai),
         })
 
-        // derive the concrete (model, provider, mode) used for the cache key + row
+        // derive the concrete (model, provider) used for the cache key + row
         const {
             model,
             provider,
-            mode,
-        } = this.resolveModelProvider(
-            invokeOptions,
-            ai,
-        )
+        } = this.resolveModelProvider(invokeOptions)
 
         // compute the deterministic input hash (prompts + params + model + provider)
         const inputHash = this.aiLabCacheService.computeInputHash({
@@ -180,7 +174,6 @@ export class AiLabRunService {
                 params,
                 model,
                 provider,
-                mode,
                 output: null,
                 promptTokens: 0,
                 completionTokens: 0,
@@ -273,12 +266,11 @@ export class AiLabRunService {
                 invokeOptions: null,
                 model: run.model,
                 provider: run.provider,
-                mode: run.mode,
             }
         }
 
-        // rebuild the lane selection from the persisted run so we resolve the same
-        // model/provider/lane (BYOK loads the stored key here, never persisted)
+        // rebuild the selection from the persisted run so we resolve the same
+        // model/provider (or none → the balancer picks)
         const selection = this.runToSelection(run)
         const invokeOptions = await resolveGradingInvokeOptions({
             userId: run.userId,
@@ -302,7 +294,6 @@ export class AiLabRunService {
             invokeOptions,
             model: run.model,
             provider: run.provider,
-            mode: run.mode,
         }
     }
 
@@ -350,7 +341,6 @@ export class AiLabRunService {
             output,
             model,
             provider,
-            mode,
             promptTokens,
             completionTokens,
         }: PersistRunOutputParams,
@@ -373,7 +363,6 @@ export class AiLabRunService {
         run.output = output
         run.model = model
         run.provider = provider
-        run.mode = mode
         run.promptTokens = promptTokens
         run.completionTokens = completionTokens
         run.status = AiLabRunStatus.Completed
@@ -389,7 +378,6 @@ export class AiLabRunService {
                 output,
                 model,
                 provider,
-                mode,
                 promptTokens,
                 completionTokens,
             },
@@ -476,48 +464,46 @@ export class AiLabRunService {
     }
 
     /**
-     * Reconstruct the lane selection from a persisted run so the gateway can
+     * Reconstruct the selection from a persisted run so the gateway can
      * re-resolve the exact same invoke options it was created with.
      *
-     * Auto carries no model (the resolver pins gpt-4o); Premium carries the
-     * run's stored `(model, provider)`.
+     * A run with a stored `(model, provider)` re-pins it; otherwise the
+     * balancer picks (empty selection).
      *
      * @param run - The persisted run row.
-     * @returns The lane selection matching the run's billed mode.
+     * @returns The selection matching the run's stored model.
      */
     private runToSelection(
         run: AiLabRunEntity,
     ): AiJobSelection {
-        // Premium → pin the run's concrete model/provider
-        if (run.mode === AiMode.Premium) {
+        // stored model → re-pin the run's concrete model/provider
+        if (run.model && run.provider) {
             return {
-                mode: AiMode.Premium,
                 model: run.model,
                 provider: run.provider,
             }
         }
-        // Auto → the resolver chooses the pinned grading model
+        // no pinned model → the balancer picks
         return {
-            mode: AiMode.Auto,
         }
     }
 
     /**
-     * Pull the loose `model` / `provider` out of a lane selection for the
-     * validation call (Auto carries neither; Premium carries both).
+     * Pull the loose `model` / `provider` out of a selection for the validation
+     * call (empty when nothing was pinned).
      *
-     * @param ai - The lane selection (absent → Auto).
-     * @returns The model + provider fields, or an empty object for Auto.
+     * @param ai - The selection (absent → nothing pinned).
+     * @returns The model + provider fields, or an empty object.
      */
     private selectionModelProvider(
         ai?: AiJobSelection,
     ): SelectionModelProviderResult {
-        // Auto pins nothing — the balancer / resolver chooses the model
-        if (!ai || ai.mode === AiMode.Auto) {
+        // nothing pinned — the balancer / resolver chooses the model
+        if (!ai?.model || !ai.provider) {
             return {
             }
         }
-        // Premium always carries the user-picked model + provider
+        // a pinned selection carries the user-picked model + provider
         return {
             model: ai.model,
             provider: ai.provider,
@@ -525,27 +511,19 @@ export class AiLabRunService {
     }
 
     /**
-     * Resolve the concrete `(model, provider, mode)` a run will use from the
-     * resolved invoke options and the original selection, for the cache key and
-     * the persisted row.
+     * Resolve the concrete `(model, provider)` a run will use from the resolved
+     * invoke options, for the cache key and the persisted row.
      *
      * @param invokeOptions - Output of {@link resolveGradingInvokeOptions}.
-     * @param ai - The original lane selection (absent → Auto).
-     * @returns The concrete model, provider, and billed lane.
+     * @returns The concrete model + provider.
      */
     private resolveModelProvider(
         invokeOptions: ResolveGradingInvokeOptionsResult,
-        ai?: AiJobSelection,
     ): ResolveModelProviderResult {
-        // Premium pins a concrete model/provider; Auto pins gpt-4o via the resolver default
-        const mode = ai && ai.mode === AiMode.Premium
-            ? AiMode.Premium
-            : AiMode.Auto
         return {
-            // resolver always sets model+provider
+            // resolver sets model+provider for a pinned run; empty otherwise
             model: invokeOptions.model ?? "",
             provider: invokeOptions.provider ?? ModelProvider.OpenAI,
-            mode,
         }
     }
 }

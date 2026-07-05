@@ -4,14 +4,12 @@ import {
     InputType,
 } from "@nestjs/graphql"
 import {
-    AiMode,
-    GraphQLTypeAiMode,
     GraphQLTypeModelProvider,
     ModelProvider,
 } from "@modules/databases"
 
 @InputType({
-    description: "Challenge submission id; optionally the URL and/or the grading lane + model to sync onto the user row (upserts, creating the row if missing).",
+    description: "Challenge submission id; optionally the URL and/or the grading model to sync onto the user row (upserts, creating the row if missing).",
 })
 export class SyncSubmissionRequest {
     @Field(
@@ -30,15 +28,6 @@ export class SyncSubmissionRequest {
         },
     )
         url?: string
-
-    @Field(
-        () => GraphQLTypeAiMode,
-        {
-            nullable: true,
-            description: "AI grading lane to persist on the submission row (auto/premium).",
-        },
-    )
-        selectedMode?: AiMode
 
     @Field(
         () => String,

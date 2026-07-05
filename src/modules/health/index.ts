@@ -1,5 +1,6 @@
 export * from "./health.module"
 export * from "./health.module-definition"
 export * from "./system-health.service"
+export * from "./prometheus-metrics.service"
 export * from "./constants"
 export * from "./types"

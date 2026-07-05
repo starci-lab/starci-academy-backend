@@ -17,7 +17,6 @@ import {
     AiLabEvalRunStatus,
     AiLabEvalSetEntity,
     AiLabMetricKind,
-    AiMode,
     CourseEntity,
     EnrollmentEntity,
     Locale,
@@ -220,7 +219,6 @@ describe("AI Lab eval-runner happy path (e2e)",
                         },
                         model: null,
                         provider: null,
-                        mode: null,
                         totalScore: 0,
                         maxScore: 0,
                         passed: false,
@@ -297,7 +295,6 @@ describe("AI Lab eval-runner happy path (e2e)",
                             passed: grade.passed,
                             model: AUTO_INVOKE_OPTIONS.model,
                             provider: AUTO_INVOKE_OPTIONS.provider,
-                            mode: AiMode.Auto,
                         },
                     )
                     await manager.delete(
@@ -350,7 +347,6 @@ describe("AI Lab eval-runner happy path (e2e)",
                 expect(persisted?.passed).toBe(true)
                 expect(persisted?.totalScore).toBe(2)
                 expect(persisted?.maxScore).toBe(2)
-                expect(persisted?.mode).toBe(AiMode.Auto)
                 expect(persisted?.model).toBe("gpt-4o")
 
                 // one persisted case-result row per eval case, scored correctly

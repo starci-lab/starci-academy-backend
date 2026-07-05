@@ -29,11 +29,9 @@ export type AskMockInterviewTurnSocketIoPayload = SocketIoPayload<{
     history?: Array<AskMockInterviewTurnHistoryEntry>
     /** The candidate's most recent answer; empty string on the opening turn. */
     latestAnswer: string
-    /** Lane: "auto" (free/economy chain) or "premium" (pin the chosen model). */
-    mode?: string
-    /** Pinned model name (only with mode "premium"). */
+    /** Pinned model name (absent → balancer picks from the chain). */
     model?: string | null
-    /** Provider of the pinned model. */
+    /** Provider of the pinned model (required together with `model`). */
     provider?: string | null
 }>
 

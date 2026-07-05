@@ -165,6 +165,14 @@ export class MockInterviewAttemptItem {
         followUpQuestion: string | null
 
     @Field(
+        () => [String],
+        {
+            description: "Distinct content (lesson) ids the RAG grounding excerpt was retrieved from at grade time (snapshot), in similarity order. Empty when retrieval missed/failed/index absent at grade time, or for attempts graded before this field existed.",
+        },
+    )
+        matchedContentIds: Array<string>
+
+    @Field(
         () => String,
         {
             description: "ISO timestamp of when this attempt was graded.",

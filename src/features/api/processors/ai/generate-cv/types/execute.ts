@@ -99,12 +99,15 @@ export interface GenerateCvComposeStepExecuteResult {
 }
 
 /**
- * Result of the render step: the MinIO object key of the generated `.tex` file.
- * Persisted as the render step result; the complete step copies it to
- * `cv_generations.latex_cdn_key`.
+ * Result of the render step: the MinIO object key of the generated `.tex` file,
+ * plus the object key of its compiled PDF (`tectonic`) when the compile
+ * succeeded — `null` when it failed (degrades to the `.tex` download). Persisted
+ * as the render step result; the complete step copies both to
+ * `cv_generations.latex_cdn_key` / `generated_pdf_cdn_key`.
  */
 export interface GenerateCvRenderStepExecuteResult {
     latexCdnKey: string
+    pdfCdnKey: string | null
 }
 
 /**

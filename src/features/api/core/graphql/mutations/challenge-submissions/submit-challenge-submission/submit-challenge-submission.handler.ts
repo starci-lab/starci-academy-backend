@@ -6,15 +6,12 @@ import {
 import {
     AiEntitlementService,
     GradingLaneValidationService,
-    ModelRecommendation,
-    resolveGradingCreditCost,
     validatedLaneToAiJobSelection,
 } from "@modules/ai"
 import {
     ICQRSHandler,
 } from "@modules/cqrs"
 import {
-    AiMode,
     ChallengeEntity,
     ChallengeSubmissionEntity,
     ContentEntity,
@@ -25,9 +22,6 @@ import {
     SubmissionType,
     UserChallengeSubmissionEntity,
 } from "@modules/databases"
-import {
-    envConfig,
-} from "@modules/env"
 import {
     ChallengeNotFoundException,
     ChallengePremiumLockedException,
@@ -83,39 +77,28 @@ export class SubmitChallengeSubmissionHandler
     }
 
     /**
-     * Reject the submission up-front when the user has no grading quota left for
-     * the chosen lane (replaces the old fixed 3h cooldown).
-     *
-     * - `auto` / `premium` → one shared credit pool (free base + tier); both
-     *   rolling windows must cover the cost.
+     * Reject the submission up-front when the user has no grading quota left in
+     * the shared credit pool (replaces the old fixed 3h cooldown). Both rolling
+     * windows (5h + week) must still have headroom.
      *
      * @param userId - Submitter whose quota is checked.
-     * @param mode - Resolved lane from the validated grading selection.
-     * @throws SubmissionQuotaExceededException when the lane is out of quota.
+     * @throws SubmissionQuotaExceededException when the pool is exhausted.
      */
     private async assertGradingQuota(
         userId: string,
-        mode: AiMode,
     ): Promise<void> {
-        // Auto + Premium share one credit pool → block when either rolling window
-        // cannot cover this grading's cost
-        const recommendation = envConfig().ai.modelRecommendation as ModelRecommendation
-        const cost = resolveGradingCreditCost({
-            mode,
-            recommendation,
-        })
         const snapshot = await this.aiEntitlementService.snapshot({
             userId,
         })
-        // the weekly window is the binding (later) wait when it is the blocker
-        const lacksWeek = snapshot.credit.remainingWeek < cost
-        const lacks5h = snapshot.credit.remaining5h < cost
+        // block when either rolling window is spent (the weekly window is the
+        // binding, later wait when it is the blocker)
+        const lacksWeek = snapshot.credit.remainingWeek <= 0
+        const lacks5h = snapshot.credit.remaining5h <= 0
         if (lacksWeek || lacks5h) {
             const resetAt = lacksWeek
                 ? snapshot.windowWeekResetAt
                 : snapshot.window5hResetAt
             throw new SubmissionQuotaExceededException({
-                mode,
                 waitUntil: resetAt
                     ? this.dayjsService.from(resetAt).format("HH:mm DD/MM/YYYY")
                     : null,
@@ -140,7 +123,6 @@ export class SubmitChallengeSubmissionHandler
         const {
             challengeSubmissionId,
             githubUrl,
-            mode,
             selectedModel,
             selectedModelProvider,
             lang,
@@ -340,24 +322,19 @@ export class SubmitChallengeSubmissionHandler
         const userChallengeSubmissionId = userChallengeSubmission.id
         const validatedLane = await this.gradingLaneValidationService.validate({
             userId: user.id,
-            mode,
             model: selectedModel,
             provider: selectedModelProvider,
         })
         /**
-         * Persist the user's grading-lane + model pick on the submission row so
-         * the picker pre-fills on reopen. Only overwrite fields the client sent
+         * Persist the user's grading model pick on the submission row so the
+         * picker pre-fills on reopen. Only overwrite fields the client sent
          * (undefined = leave the previous choice untouched).
          */
         if (
-            mode !== undefined
-            || selectedModel !== undefined
+            selectedModel !== undefined
             || selectedModelProvider !== undefined
             || lang !== undefined
         ) {
-            if (mode !== undefined) {
-                userChallengeSubmission.selectedMode = validatedLane.mode
-            }
             if (selectedModel !== undefined) {
                 userChallengeSubmission.selectedModel = validatedLane.gradingModel ?? null
             }
@@ -373,9 +350,8 @@ export class SubmitChallengeSubmissionHandler
                 userChallengeSubmission,
             )
         }
-        /** Quota gate (replaces the old fixed 3h cooldown): block when the chosen lane is out of quota. */
-        await this.assertGradingQuota(user.id,
-            validatedLane.mode)
+        /** Quota gate (replaces the old fixed 3h cooldown): block when the pool is exhausted. */
+        await this.assertGradingQuota(user.id)
         /** Submission URL. */
         const url = userChallengeSubmission.submissionUrl?.trim()
         /** Check if the submission URL is invalid. */

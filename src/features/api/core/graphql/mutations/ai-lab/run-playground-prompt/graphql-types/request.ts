@@ -6,8 +6,6 @@ import {
     Int,
 } from "@nestjs/graphql"
 import {
-    AiMode,
-    GraphQLTypeAiMode,
     GraphQLTypeModelProvider,
     ModelProvider,
 } from "@modules/databases"
@@ -53,10 +51,10 @@ export class AiLabRunParamsInput {
 }
 
 /**
- * Input for the runPlaygroundPrompt mutation. The loose `mode` /
- * `selectedModel` / `selectedModelProvider` fields map to the
- * discriminated `AiJobSelection` in the service layer exactly as the
- * submit-challenge flow does (no nested AiJobSelection input exists today).
+ * Input for the runPlaygroundPrompt mutation. The loose `selectedModel` /
+ * `selectedModelProvider` fields map to the `AiJobSelection` in the service
+ * layer exactly as the submit-challenge flow does (no nested AiJobSelection
+ * input exists today).
  */
 @InputType({
     description: "Run a prompt against an AI Lab playground; returns a run id the FE streams over Socket.IO.",
@@ -97,16 +95,6 @@ export class RunPlaygroundPromptInput {
         },
     )
         params?: AiLabRunParamsInput
-
-    /** AI lane to run on (auto/premium); validated against entitlement. */
-    @Field(
-        () => GraphQLTypeAiMode,
-        {
-            nullable: true,
-            description: "AI lane to run on (auto/premium); validated against entitlement.",
-        },
-    )
-        mode?: AiMode
 
     /** Concrete model the learner picked (e.g. "gpt-4o"); null = balancer default. */
     @Field(

@@ -30,7 +30,6 @@ import {
 } from "@modules/bussiness"
 import {
     AiCeilSurface,
-    AiMode,
     AiModelCategory,
     AiModelTask,
     ModelProvider,
@@ -111,18 +110,14 @@ export class ContentAiGateway {
             contentId,
             question,
             history,
-            mode,
             model,
             provider,
         } = payload.data
-        // a pinned model (mode "premium" + model + provider) routes Premium
-        // (gated on paid OR enrolled); otherwise the free Auto chain. floor stays
-        // Free so Auto starts on the 0-credit tier.
-        const selection: AiJobSelection | undefined = mode === AiMode.Premium
-            && model
-            && provider
+        // a pinned model (model + provider) routes to that single model (gated on
+        // paid OR enrolled); otherwise the balancer chain. floor stays Free so the
+        // chain starts on the 0-credit tier.
+        const selection: AiJobSelection | undefined = model && provider
             ? {
-                mode: AiMode.Premium,
                 model,
                 provider: provider as ModelProvider,
             }
@@ -204,7 +199,6 @@ export class ContentAiGateway {
             // a climbed economy+ model is charged to the user (platform doesn't eat it)
             await this.aiEntitlementService.consume({
                 userId,
-                mode: AiMode.Auto,
                 cost,
                 surface: AiCeilSurface.Chatbot,
                 task: AiModelTask.Chatting,

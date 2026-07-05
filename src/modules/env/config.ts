@@ -1688,6 +1688,15 @@ export const envConfig = () => ({
         }),
     },
 
+    /** Prometheus configuration (cAdvisor-scraped container resource metrics). */
+    prometheus: {
+        /** Prometheus HTTP API base URL — reached from the host, not from inside Docker. */
+        url: parseEnvString({
+            key: "PROMETHEUS_URL",
+            defaultValue: "http://localhost:9090",
+        }),
+    },
+
     /** Keycloak configuration. */
     keycloak: {
         url: parseEnvString({

@@ -162,7 +162,6 @@ export class AiLabGateway {
                 output: result.text,
                 model: result.model,
                 provider: result.provider,
-                mode: prepared.mode,
                 promptTokens: result.promptTokens,
                 completionTokens: result.completionTokens,
             })

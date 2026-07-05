@@ -1,20 +1,3 @@
-// ============================================================================
-// WIRING TODO (handled by the final wire step — do NOT wire these here):
-//   1. queue-name.ts   → add `GenerateCv = "generate-cv"` to `BullQueueName`.
-//   2. constants/queue.ts (bullData) → add the `[BullQueueName.GenerateCv]`
-//      entry `{ prefix: formatWithBraces("generate-cv"), name: "generate-cv" }`.
-//      (Once both exist, `BullModule.forRoot` auto-registers the queue globally
-//       for every `BullQueueName` — no manual queue registration needed, and the
-//       `@InjectQueue(bullData[BullQueueName.GenerateCv].name)` in the enqueue
-//       service resolves.)
-//   3. Register `GenerateCvModule.register({ isGlobal: true })` in
-//      `src/features/api/processors/processors.module.ts` (worker gets picked up
-//       via this module's providers below).
-//   NOTE: `ActionType.ProcessCvSubmission`, `JobCategory.ReviewCv`,
-//   `CvGenerationStatus`, and `envConfig().job.processCvSubmission.maxSteps`
-//   (default 4) already exist — no enum/env changes required.
-// ============================================================================
-
 import type {
     GenerateCvPayload,
 } from "@modules/bullmq"

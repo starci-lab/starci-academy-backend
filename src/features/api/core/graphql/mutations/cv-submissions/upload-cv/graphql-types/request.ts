@@ -4,8 +4,6 @@ import {
     InputType,
 } from "@nestjs/graphql"
 import {
-    AiMode,
-    GraphQLTypeAiMode,
     GraphQLTypeModelProvider,
     ModelProvider,
 } from "@modules/databases"
@@ -32,15 +30,6 @@ export class UploadCvRequest {
         },
     )
         cdnKey: string
-
-    @Field(
-        () => GraphQLTypeAiMode,
-        {
-            nullable: true,
-            description: "AI lane to score on (auto/premium); validated against entitlement at score time.",
-        },
-    )
-        mode?: AiMode
 
     /** Concrete model the user picked in the CV-scoring model picker (e.g. "gpt-4o"). */
     @Field(

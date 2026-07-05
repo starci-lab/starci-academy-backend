@@ -26,7 +26,7 @@ import {
 } from "./graphql-types"
 
 /**
- * The redeemable reward catalog ("điểm quà" gifts store), localized to the
+ * The redeemable reward catalog (the Coin shop), localized to the
  * request locale. Public (no auth) — the catalog is the same for everyone; the
  * viewer's balance lives in the separate `myRewardWallet` query.
  */

@@ -15,9 +15,7 @@ import {
 } from "typeorm"
 import {
     AiLabRunStatus,
-    AiMode,
     GraphQLTypeAiLabRunStatus,
-    GraphQLTypeAiMode,
     GraphQLTypeModelProvider,
     ModelProvider,
 } from "../enums"
@@ -217,23 +215,6 @@ export class AiLabRunEntity extends UuidAbstractEntity {
         enumName: "model_provider",
     })
         provider: ModelProvider
-
-    /**
-     * AI lane the run was billed on (auto / premium).
-     */
-    @Field(
-        () => GraphQLTypeAiMode,
-        {
-            description: "AI lane the run was billed on (auto / premium).",
-        },
-    )
-    @Column({
-        name: "ai_mode",
-        type: "enum",
-        enum: AiMode,
-        enumName: "ai_mode",
-    })
-        mode: AiMode
 
     /**
      * Full model output once the run completes (nullable while streaming).

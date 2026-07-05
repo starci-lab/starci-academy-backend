@@ -8,6 +8,9 @@ import {
     FlashcardDeckReadService,
 } from "./flashcard-deck.service"
 import {
+    FlashcardQuizSessionService,
+} from "./flashcard-quiz-session.service"
+import {
     FlashcardReviewService,
 } from "./flashcard-review.service"
 
@@ -20,10 +23,12 @@ import {
 @Module({
     providers: [
         FlashcardDeckReadService,
+        FlashcardQuizSessionService,
         FlashcardReviewService,
     ],
     exports: [
         FlashcardDeckReadService,
+        FlashcardQuizSessionService,
         FlashcardReviewService,
     ],
 })

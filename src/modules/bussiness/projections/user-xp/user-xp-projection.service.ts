@@ -20,7 +20,7 @@ import type {
 /**
  * CQRS projection service for a user's XP aggregate. The per-source SUM(amount)
  * over `xp_histories` runs ONLY in {@link recompute}, which folds
- * `{ challengeXp, milestoneXp, codingXp, lessonXp, totalPoints, rewardPoints }`
+ * `{ challengeXp, milestoneXp, codingXp, lessonXp, totalPoints, coinBalance }`
  * into the jsonb `value` keyed by user. {@link getXp} reads the flat row with a
  * TTL lazy-refresh; the CDC listener keeps it fresh on new ledger rows / balance
  * changes.
@@ -77,8 +77,8 @@ export class UserXpProjectionService {
                 "lessonXp"),
             totalPoints: this.numberAt(value,
                 "totalPoints"),
-            rewardPoints: this.numberAt(value,
-                "rewardPoints"),
+            coinBalance: this.numberAt(value,
+                "coinBalance"),
         }
     }
 
@@ -176,8 +176,8 @@ export class UserXpProjectionService {
                 'totalPoints', COALESCE((
                     SELECT u.total_points FROM users u WHERE u.id = $1
                 ), 0),
-                'rewardPoints', COALESCE((
-                    SELECT u.reward_points FROM users u WHERE u.id = $1
+                'coinBalance', COALESCE((
+                    SELECT u.coin_balance FROM users u WHERE u.id = $1
                 ), 0)
             )
             ON CONFLICT (user_id) DO UPDATE SET

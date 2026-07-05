@@ -16,9 +16,7 @@ import {
 } from "typeorm"
 import {
     AiLabEvalRunStatus,
-    AiMode,
     GraphQLTypeAiLabEvalRunStatus,
-    GraphQLTypeAiMode,
     GraphQLTypeModelProvider,
     ModelProvider,
 } from "../enums"
@@ -305,25 +303,6 @@ export class AiLabEvalRunEntity extends UuidAbstractEntity {
         nullable: true,
     })
         provider: ModelProvider | null
-
-    /**
-     * AI lane grading was billed on (nullable until resolved).
-     */
-    @Field(
-        () => GraphQLTypeAiMode,
-        {
-            nullable: true,
-            description: "AI lane grading was billed on.",
-        },
-    )
-    @Column({
-        name: "ai_mode",
-        type: "enum",
-        enum: AiMode,
-        enumName: "ai_mode",
-        nullable: true,
-    })
-        mode: AiMode | null
 
     /**
      * Total weighted score earned.

@@ -9,7 +9,7 @@ import {
 } from "./redeem-reward"
 
 /**
- * Rewards mutation group — redeem a reward from the điểm quà gifts store.
+ * Rewards mutation group — redeem a reward from the Coin shop.
  */
 @Module({
     imports: [

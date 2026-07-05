@@ -9,11 +9,7 @@ import {
     JobExtendedContext,
 } from "@modules/bussiness"
 import {
-    AiQuotaExhaustedException,
-} from "@modules/exceptions"
-import {
     AiCeilSurface,
-    AiMode,
     AiModelCategory,
     AiModelTask,
     EnrollmentEntity,
@@ -48,8 +44,6 @@ import template from "./template.json"
 import {
     AiInvokeService,
     AiEntitlementService,
-    ModelRecommendation,
-    resolveGradingCreditCost,
 } from "@modules/ai"
 import {
     GoogleDriverAPIService,
@@ -247,33 +241,10 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
                 },
             },
         )
-        /** Gate the grading run by lane: Auto → shared 50-credit pool; Premium → tier pool. */
-        const aiMode = payload.ai?.mode ?? AiMode.Auto
-        if (aiMode === AiMode.Auto) {
-            // free Auto lane → block on the SAME unified credit pool as the Premium branch below
-            await this.aiEntitlementService.assertNotOverQuota({
-                userId: enrollment.userId,
-            })
-        } else if (aiMode === AiMode.Premium) {
-            // Premium lane → block when the tier credit pool lacks headroom (pre-run estimate)
-            const cost = resolveGradingCreditCost({
-                mode: AiMode.Premium,
-                recommendation: envConfig().ai.modelRecommendation as ModelRecommendation,
-            })
-            const entitlement = await this.aiEntitlementService.resolve({
-                userId: enrollment.userId,
-                requestedMode: AiMode.Premium,
-            })
-            if (
-                entitlement.creditRemaining5h < cost
-                || entitlement.creditRemainingWeek < cost
-            ) {
-                throw new AiQuotaExhaustedException({
-                    mode: AiMode.Premium,
-                    window: "credit",
-                })
-            }
-        }
+        // block on the unified credit pool before spending on the grading run
+        await this.aiEntitlementService.assertNotOverQuota({
+            userId: enrollment.userId,
+        })
         // ONE shared entry: TEXT grading (googleDocs submission = design-doc / write-up)
         // floors at Economy — eval showed Economy models grade text/reading tasks
         // correctly (right score ordering, no length bias). Only CODE grading
@@ -300,19 +271,15 @@ export class ProcessGoogleDocsSubmissionGradeStepService extends AbstractStepSer
             key: "creditCharged",
         })
         if (!alreadyCharged) {
-            const chargedMode = payload.ai?.mode ?? AiMode.Auto
             await this.aiEntitlementService.consume({
                 userId: enrollment.userId,
-                mode: chargedMode,
                 // charge by the model that actually served (from run)
                 cost,
                 surface: AiCeilSurface.Grading,
                 task: AiModelTask.ChallengeGrading,
                 model,
                 provider,
-                recommendation: chargedMode === AiMode.Premium
-                    ? envConfig().ai.modelRecommendation as ModelRecommendation
-                    : null,
+                recommendation: null,
                 promptTokens,
                 completionTokens,
                 attempts,

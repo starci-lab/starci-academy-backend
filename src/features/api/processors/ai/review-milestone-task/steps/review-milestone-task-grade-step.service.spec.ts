@@ -3,7 +3,6 @@ import {
     EntityManagerMock,
 } from "@modules/tests"
 import {
-    AiMode,
     EnrollmentEntity,
     Locale,
     MilestoneTaskEntity,
@@ -135,7 +134,6 @@ const makeContext = (overrides: Record<string, unknown> = {
         locale: Locale.En,
         lang: "typescript",
         ai: {
-            mode: AiMode.Auto,
         },
         ...overrides,
     },

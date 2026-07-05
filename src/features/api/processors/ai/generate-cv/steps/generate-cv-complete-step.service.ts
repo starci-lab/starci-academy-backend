@@ -38,12 +38,12 @@ import type {
 
 /**
  * Step 4 — complete. ATOMICALLY finalizes the run: reads the compose (structured
- * data) + render (latex cdn key) results, then in ONE transaction updates the
- * `cv_generations` row (created `Pending` at enqueue time) to `Done` with its
- * `structuredData` / `latexCdnKey` / `processedAt`, and advances the job step —
- * fenced so a stalled re-dispatch (a newer worker owns the job) rolls back
- * instead of double-writing. `score` / `feedback` are already persisted by the
- * preceding score step (index 3).
+ * data) + render (latex/pdf cdn keys) results, then in ONE transaction updates
+ * the `cv_generations` row (created `Pending` at enqueue time) to `Done` with
+ * its `structuredData` / `latexCdnKey` / `generatedPdfCdnKey` / `processedAt`,
+ * and advances the job step — fenced so a stalled re-dispatch (a newer worker
+ * owns the job) rolls back instead of double-writing. `score` / `feedback` are
+ * already persisted by the preceding score step (index 3).
  */
 @Injectable()
 export class GenerateCvCompleteStepService extends AbstractStepService<
@@ -113,6 +113,7 @@ export class GenerateCvCompleteStepService extends AbstractStepService<
                             status: CvGenerationStatus.Done,
                             structuredData: composed as unknown as Record<string, unknown>,
                             latexCdnKey: rendered.latexCdnKey,
+                            generatedPdfCdnKey: rendered.pdfCdnKey,
                             processedAt: this.dayjsService.now().toDate(),
                             errorMessage: null,
                         } as QueryDeepPartialEntity<UserCvGenerationEntity>,

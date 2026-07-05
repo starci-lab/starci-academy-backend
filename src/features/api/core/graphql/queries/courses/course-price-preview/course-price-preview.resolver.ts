@@ -68,10 +68,20 @@ export class CoursePricePreviewResolver {
             },
         )
             courseId: string,
+        @Args(
+            "voucherCode",
+            {
+                type: () => String,
+                nullable: true,
+                description: "Optional Coin-shop voucher code to preview on top of the loyalty discount.",
+            },
+        )
+            voucherCode?: string,
     ): Promise<CoursePricePreviewData> {
         return this.coursePricePreviewService.preview({
             userId: user.id,
             courseId,
+            voucherCode,
         })
     }
 }

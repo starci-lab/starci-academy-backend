@@ -4,11 +4,9 @@ import {
     InputType,
 } from "@nestjs/graphql"
 import {
-    GraphQLTypeAiMode,
     GraphQLTypeModelProvider,
 } from "@modules/databases"
 import type {
-    AiMode,
     ModelProvider,
 } from "@modules/databases"
 
@@ -54,19 +52,10 @@ export class ReviewPersonalProjectTaskRequest {
         branch?: string | null
 
     @Field(
-        () => GraphQLTypeAiMode,
-        {
-            nullable: true,
-            description: "AI lane for grading (auto / premium).",
-        },
-    )
-        mode?: AiMode
-
-    @Field(
         () => String,
         {
             nullable: true,
-            description: "Concrete model for premium grading (required for that lane).",
+            description: "Concrete model to pin for grading (absent → balancer picks).",
         },
     )
         selectedModel?: string

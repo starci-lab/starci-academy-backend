@@ -60,13 +60,13 @@ export class RewardWalletRedemptionObject {
  * The viewer's reward wallet: spendable balance, lifetime spent, and history.
  */
 @ObjectType({
-    description: "The viewer's điểm quà wallet.",
+    description: "The viewer's Coin wallet.",
 })
 export class MyRewardWalletData {
     @Field(
         () => Int,
         {
-            description: "Current spendable điểm quà balance (= points - spent).",
+            description: "Current spendable Coin balance (= coin - spent).",
         },
     )
         balance: number
@@ -74,7 +74,7 @@ export class MyRewardWalletData {
     @Field(
         () => Int,
         {
-            description: "Lifetime điểm quà spent (non-cancelled redemptions).",
+            description: "Lifetime Coin spent (non-cancelled redemptions).",
         },
     )
         spent: number

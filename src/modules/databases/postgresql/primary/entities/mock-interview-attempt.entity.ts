@@ -159,4 +159,21 @@ export class MockInterviewAttemptEntity extends UuidAbstractEntity {
         nullable: true,
     })
         followUpQuestion: string | null
+
+    /**
+     * Distinct content (lesson) ids the RAG grounding excerpt was retrieved
+     * from at grade time, in similarity order — snapshotted so a re-opened
+     * past attempt (history) can still deep-link "study this" without
+     * re-running retrieval. A plain jsonb string array (not a FK/relation):
+     * the course's content tree can change after grading, and this is a
+     * point-in-time snapshot of what grounded THIS grade, not a live
+     * reference. Empty array when retrieval missed/failed/index absent at
+     * grade time.
+     */
+    @Column({
+        name: "matched_content_ids",
+        type: "jsonb",
+        default: () => "'[]'",
+    })
+        matchedContentIds: Array<string>
 }

@@ -151,8 +151,8 @@ export class XpHistoryEntity extends UuidAbstractEntity {
         amount: number
 
     /**
-     * Reward points granted by this same event (credited to `users.reward_points`).
-     * Tracked separately from XP so the points/XP formula can diverge later.
+     * Coin granted by this same event (credited to `users.coin_balance`).
+     * Tracked separately from XP so the Coin/XP formula can diverge later.
      */
     @Field(
         () => Int,

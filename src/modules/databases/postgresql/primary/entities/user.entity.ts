@@ -238,22 +238,23 @@ export class UserEntity extends UuidAbstractEntity {
         totalPoints: number
 
     /**
-     * The user's spendable reward-points balance — the account currency that funds
-     * the reward store + streak-freeze purchases and ranks the global leaderboard.
-     * Credited by the flat per-event reward (`xp_histories.points`: lessonRead=5,
-     * challengePassed=20, milestonePassed=30, coding=problem points) and debited by
-     * spending (streak freeze; reward redemptions are derived, not debited here).
+     * The user's spendable Coin balance — the account currency that funds the
+     * reward store (voucher + AI-credit top-up + streak-freeze + physical
+     * rewards) and ranks the global leaderboard. Credited by the flat per-event
+     * reward (`xp_histories.points`: lessonRead=5, challengePassed=20,
+     * milestonePassed=30, coding=problem points) and debited by spending
+     * (streak freeze; reward redemptions are derived, not debited here).
      */
     @Field(() => Int,
         {
-            description: "The user's spendable reward-points balance."
+            description: "The user's spendable Coin balance."
         })
     @Column({
-        name: "reward_points",
+        name: "coin_balance",
         type: "int",
         default: 0
     })
-        rewardPoints: number
+        coinBalance: number
 
     /**
      * Profile visibility toggle (Facebook-style "lock profile"). When true, only

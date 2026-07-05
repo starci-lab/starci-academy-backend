@@ -31,13 +31,20 @@ import type {
 import {
     renderCvLatex,
 } from "./latex"
+import {
+    compileCvPdf,
+} from "./compile-cv-pdf"
 
 /**
  * Step 2 — render. Reads the structured CV JSON from the compose step, fills the
  * LaTeX template (every user-supplied value is LaTeX-escaped inside the
  * template's `tex` helper), and uploads the `.tex` document to MinIO under
- * `cv-generations/{userId}/{jobId}.tex`. The object key is persisted as this
- * step's execution result for the complete step to copy onto the entity.
+ * `cv-generations/{userId}/{jobId}.tex`. Then compiles that `.tex` into a real
+ * PDF (`tectonic`, best-effort — {@link compileCvPdf}) and, when it succeeds,
+ * uploads the PDF alongside it. Both object keys are persisted as this step's
+ * execution result for the complete step to copy onto the entity — the PDF key
+ * is `null` when the compile failed, and the job still succeeds (degrades to
+ * the raw `.tex` download, same contract the FE preview already has).
  */
 @Injectable()
 export class GenerateCvRenderStepService extends AbstractStepService<
@@ -136,8 +143,41 @@ export class GenerateCvRenderStepService extends AbstractStepService<
             contentType: "application/x-tex",
         })
 
+        // best-effort compile — a failure here (missing `tectonic` binary in
+        // local dev, a compile error in the AI-generated .tex) must not fail the
+        // whole render step; the job still succeeds with `pdfCdnKey: null`.
+        let pdfCdnKey: string | null = null
+        const pdf = await compileCvPdf({
+            latex,
+            jobId: job.id ?? payload.userId,
+        })
+        if (pdf) {
+            pdfCdnKey = `cv-generations/${payload.userId}/${job.id}.pdf`
+            await this.s3UploadService.buffer({
+                name: pdfCdnKey,
+                buffer: pdf,
+                provider: S3Provider.Minio,
+                acl: "private",
+                contentType: "application/pdf",
+            })
+        } else {
+            this.winstonService.log(
+                WinstonLog.ProcessCVSubmissionStepExecuted,
+                {
+                    jobId: job.id ?? "",
+                    queueName: context.queueName,
+                    step: this.stepName,
+                    stepIndex: this.stepIndex,
+                    payload,
+                    success: false,
+                    error: "PDF compile failed or tectonic unavailable — degraded to .tex only",
+                },
+            )
+        }
+
         return {
             latexCdnKey,
+            pdfCdnKey,
         }
     }
 

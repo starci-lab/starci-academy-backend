@@ -143,7 +143,6 @@ export class ReviewAiLabEvalCompleteStepService extends AbstractStepService<
                         passed: grade.grade.passed,
                         model: grade.aiUsage.model,
                         provider: grade.aiUsage.provider,
-                        mode: grade.aiUsage.mode,
                     },
                 )
                 // home-feed activity when the eval is passed; the eval set hangs off a

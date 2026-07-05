@@ -55,8 +55,8 @@ export class MyAiSettingsResolver {
         {
             name: "myAiSettings",
             description:
-                "Returns the authenticated user's AI lane settings — preferred + effective "
-                + "lane and Premium capability flag.",
+                "Returns the authenticated user's AI capabilities — the paid-model "
+                + "unlock flag and the active tier.",
         },
     )
     async execute(
@@ -67,8 +67,6 @@ export class MyAiSettingsResolver {
             userId: user.id,
         })
         return {
-            preferredMode: settings.preferredMode,
-            effectiveMode: settings.effectiveMode,
             canPremium: settings.canPremium,
             tier: settings.tier,
         }

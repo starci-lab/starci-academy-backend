@@ -20,7 +20,7 @@ export const FLAT_POINTS = {
     milestonePassed: 30,
     /**
      * Solving a coding-practice problem (first clean Accepted solve, no reveal).
-     * The flat reward credited to `reward_points`; the XP `amount` for a coding
+     * The flat reward credited to `coin_balance`; the XP `amount` for a coding
      * solve is the problem's own point value (see the judge step).
      */
     codingSolved: 20,

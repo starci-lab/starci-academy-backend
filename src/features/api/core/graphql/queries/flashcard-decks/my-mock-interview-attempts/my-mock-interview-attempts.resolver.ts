@@ -122,6 +122,7 @@ export class MyMockInterviewAttemptsResolver {
                 strengths: attempt.strengths,
                 gaps: attempt.gaps,
                 followUpQuestion: attempt.followUpQuestion,
+                matchedContentIds: attempt.matchedContentIds,
                 createdAt: attempt.createdAt.toISOString(),
             })),
         }

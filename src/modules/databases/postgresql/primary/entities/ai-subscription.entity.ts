@@ -10,11 +10,9 @@ import {
     OneToOne,
 } from "typeorm"
 import {
-    AiMode,
     AiModelCategory,
     AiSubStatus,
     AiSubTier,
-    GraphQLTypeAiMode,
     GraphQLTypeAiSubStatus,
     GraphQLTypeAiSubTier,
 } from "../enums"
@@ -122,28 +120,6 @@ export class AiSubscriptionEntity extends UuidAbstractEntity {
     })
         autoRenew: boolean
 
-    /**
-     * Lane the user chose to run on by default; null = follow the natural
-     * capability order (premium → auto). Validated lazily on read — a
-     * preferred lane the user is no longer entitled to silently falls back to
-     * the natural mode.
-     */
-    @Field(
-        () => GraphQLTypeAiMode,
-        {
-            nullable: true,
-            description: "User's chosen default AI lane; null = natural order.",
-        },
-    )
-    @Column({
-        name: "preferred_mode",
-        type: "enum",
-        enum: AiMode,
-        enumName: "ai_mode",
-        nullable: true,
-    })
-        preferredMode: AiMode | null
-
     /** Timestamp when the 5-hour usage window resets. */
     @Column({
         name: "window_5h_reset_at",
@@ -190,6 +166,40 @@ export class AiSubscriptionEntity extends UuidAbstractEntity {
         default: 0,
     })
         creditWeekUsed: number
+
+    /**
+     * Bonus platform credit granted for the CURRENT 5-hour window by redeeming
+     * an `aiCredit`-kind Coin-shop reward — added on top of the tier/free
+     * allowance (magnitude only; it never unlocks a higher model category).
+     * Reset to 0 alongside {@link credit5hUsed} whenever the window rolls
+     * (see `AiEntitlementService`), so a top-up funds the CURRENT cycle only.
+     */
+    @Field(
+        () => Int,
+        {
+            description: "Bonus Coin-shop credit for the current 5h window.",
+        },
+    )
+    @Column({
+        name: "bonus_credit_5h",
+        type: "int",
+        default: 0,
+    })
+        bonusCredit5h: number
+
+    /** Bonus platform credit granted for the current weekly window (see {@link bonusCredit5h}). */
+    @Field(
+        () => Int,
+        {
+            description: "Bonus Coin-shop credit for the current weekly window.",
+        },
+    )
+    @Column({
+        name: "bonus_credit_week",
+        type: "int",
+        default: 0,
+    })
+        bonusCreditWeek: number
 
     /**
      * Per-surface model CEILING overrides the user set in AI settings (cost

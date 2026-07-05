@@ -90,6 +90,7 @@ export class MyMockInterviewAttemptsService {
                 strengths: attempt.strengths,
                 gaps: attempt.gaps,
                 followUpQuestion: attempt.followUpQuestion,
+                matchedContentIds: attempt.matchedContentIds,
                 createdAt: attempt.createdAt,
             })),
         }

@@ -3,6 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     ConsultantEntity,
+    CvSource,
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import type {
@@ -35,27 +36,25 @@ export class ConsultantContactGateService {
     ) {}
 
     /**
-     * Computes the viewer's best-ever CV score across ALL of their scored CVs,
-     * reading the UNIFIED `cv_generations` table as the source of truth while
-     * remaining UNION-safe during the WF-03c migration window.
+     * Computes the viewer's best-ever CV score across ALL of their scored,
+     * **achievement-backed** CVs — reading the UNIFIED `cv_generations` table
+     * as the sole source of truth, restricted to `source = 'generated'`.
      *
-     * **UNION-safe:** the score is `GREATEST(MAX(unified score), MAX(legacy
-     * attempt score))` so no viewer ever loses their gate score while legacy
-     * `cv_submission_attempts` rows are being backfilled into the unified table.
-     * Each side's `MAX()` ignores null (unscored) rows; `COALESCE(..., -1)`
-     * keeps a fully-empty side from suppressing the other, and the outer result
-     * clamps to `0`.
+     * A merely `uploaded` CV is graded on prose alone (the rubric never
+     * cross-checks its claims against the viewer's real StarCi work) and must
+     * NEVER unlock a recruiter's direct contact details — that would let
+     * anyone paste a fabricated CV through this gate. Only a system-generated
+     * CV, assembled from the viewer's verified activity, counts.
      *
-     * TODO(retire-legacy-cv): once the WF-03c backfill migration has run in prod
-     * AND a count check confirms every legacy scored attempt now has a matching
-     * unified `cv_generations` row (same user, score carried over), drop the
-     * legacy `cv_submission_attempts` sub-select below and gate on the unified
-     * table alone. Mirror marker in `JobReadinessService.computeCvScore`.
+     * The legacy `cv_submission_attempts` union-read has been retired: the
+     * WF-03c backfill migration copied every legacy scored attempt into
+     * `cv_generations` (`source = 'uploaded'`), and a prod count check confirmed
+     * the backfill is complete and score-for-score exact. See WF-10.
      *
      * @param params - The viewer to score.
-     * @returns The viewer's highest recorded score (0–100), or `0` when the
-     *   viewer is anonymous or has no scored CV yet ("no CV" is treated the same
-     *   as "worst possible CV" for gating purposes).
+     * @returns The viewer's highest recorded generated-CV score (0–100), or `0`
+     *   when the viewer is anonymous or has no scored generated CV yet ("no CV"
+     *   is treated the same as "worst possible CV" for gating purposes).
      */
     async getBestCvScore(
         {
@@ -67,34 +66,26 @@ export class ConsultantContactGateService {
             return 0
         }
 
-        // GREATEST of the two per-table maxima:
-        //  - unified: MAX(cv_generations.score) for this user
-        //  - legacy:  MAX(cv_submission_attempts.score) over the user's submissions
-        // MAX() ignores null (unscored) rows on each side; COALESCE(-1) keeps an
-        // empty side from dragging the other down; a row is always returned.
+        // MAX(cv_generations.score) for this user's GENERATED CVs only; MAX()
+        // ignores null (unscored) rows; COALESCE(-1) covers the "no scored
+        // generated CV at all" case, then the outer result clamps up to 0.
         const [
             row,
         ] = await this.entityManager.query<Array<MaxCvScoreRow>>(
             `
-            SELECT GREATEST(
-                COALESCE((
-                    SELECT MAX(g.score) FROM cv_generations g
-                    WHERE g.user_id = $1
-                ), -1),
-                COALESCE((
-                    SELECT MAX(a.score) FROM cv_submission_attempts a
-                    JOIN cv_submissions s ON s.id = a.cv_submission_id
-                    WHERE s.user_id = $1
-                ), -1)
-            ) AS max
+            SELECT COALESCE((
+                SELECT MAX(g.score) FROM cv_generations g
+                WHERE g.user_id = $1 AND g.source = $2
+            ), -1) AS max
             `,
             [
                 userId,
+                CvSource.Generated,
             ],
         )
 
-        // Postgres MAX()/GREATEST over an int column comes back as a numeric
-        // string; both sides empty → "-1" → clamp up to 0
+        // Postgres MAX() over an int column comes back as a numeric string;
+        // no scored CV at all → "-1" → clamp up to 0
         return Math.max(Number(row?.max) || 0,
             0)
     }

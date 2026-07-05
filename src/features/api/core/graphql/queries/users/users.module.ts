@@ -79,6 +79,9 @@ import {
 import {
     JobReadinessQueriesModule,
 } from "./job-readiness"
+import {
+    TalentCandidatesSingleQueryModule,
+} from "./talent-candidates"
 
 /**
  * User query group — resolved fields layered onto the shared `UserEntity`
@@ -162,6 +165,9 @@ import {
             isGlobal: true,
         }),
         JobReadinessQueriesModule.register({
+            isGlobal: true,
+        }),
+        TalentCandidatesSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

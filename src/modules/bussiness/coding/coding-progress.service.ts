@@ -101,8 +101,8 @@ export class CodingProgressService {
 
     /**
      * Compute the progress from coding_submissions + reveals + the user's spendable
-     * reward-points balance (`users.reward_points`). NOTE: `totalPoints` here is the
-     * whole reward-points balance, not a coding-only figure; the coding-specific XP
+     * Coin balance (`users.coin_balance`). NOTE: `totalPoints` here is the
+     * whole Coin balance, not a coding-only figure; the coding-specific XP
      * metric (`codingXp`) is derived per-source from the `xp_histories` ledger via
      * the `user_xp` projection — prefer that for a true "coding points" display.
      */
@@ -129,9 +129,9 @@ export class CodingProgressService {
              WHERE user_id = $1`,
             [userId],
         ) as Array<CodingProblemIdRow>
-        // the user's spendable reward-points balance (surfaced as the coding metric today)
+        // the user's spendable Coin balance (surfaced as the coding metric today)
         const pointsRows = await this.entityManager.query(
-            "SELECT reward_points AS \"points\" FROM users WHERE id = $1",
+            "SELECT coin_balance AS \"points\" FROM users WHERE id = $1",
             [userId],
         ) as Array<CodingPointsRow>
         return {

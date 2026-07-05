@@ -7,41 +7,22 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 import {
-    AiMode,
     AiSubTier,
-    GraphQLTypeAiMode,
     GraphQLTypeAiSubTier,
 } from "@modules/databases"
 
 /**
- * The authenticated user's AI lane settings + the capabilities the UI needs
- * to decide which lanes are selectable.
+ * The authenticated user's AI capabilities the UI needs to decide which models
+ * are selectable (unlock + active tier).
  */
 @ObjectType({
-    description: "Per-user AI lane settings (preference + capabilities).",
+    description: "Per-user AI capabilities (unlock + active tier).",
 })
 export class MyAiSettingsResponseData {
     @Field(
-        () => GraphQLTypeAiMode,
-        {
-            nullable: true,
-            description: "Lane the user chose by default; null = natural order.",
-        },
-    )
-        preferredMode: AiMode | null
-
-    @Field(
-        () => GraphQLTypeAiMode,
-        {
-            description: "Lane the user actually runs on now (preference validated).",
-        },
-    )
-        effectiveMode: AiMode
-
-    @Field(
         () => Boolean,
         {
-            description: "Whether the paid Premium lane is currently usable.",
+            description: "Whether the user may use paid-tier models (paid OR enrolled).",
         },
     )
         canPremium: boolean

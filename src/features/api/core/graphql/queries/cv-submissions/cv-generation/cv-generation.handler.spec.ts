@@ -13,11 +13,13 @@ import {
     CvGenerationMode,
     CvGenerationStatus,
     CvSource,
+    SubmissionFeedbackSeverity,
 } from "@modules/databases"
 import {
     CvGenerationNotFoundException,
 } from "@modules/exceptions"
 import {
+    S3BuildService,
     S3Provider,
     S3ReadService,
 } from "@modules/s3"
@@ -61,15 +63,21 @@ const makeGenerationRow = (overrides: Record<string, unknown> = {
     source: CvSource.Generated,
     sourceCvSubmissionId: null,
     courseId: "course-1",
+    course: {
+        title: "System Design Mastery",
+    },
     label: "My senior CV",
     targetRole: "Staff Engineer",
     language: "en",
     score: 87,
+    feedback: null,
     extraPrompts: "Ships production systems.",
     structuredData: {
         fullName: "Jane Doe",
     },
     latexCdnKey: null,
+    uploadedCdnKey: null,
+    generatedPdfCdnKey: null,
     processedAt: new Date("2026-01-01T00:00:00.000Z"),
     errorMessage: null,
     createdAt: new Date("2026-01-01T00:00:00.000Z"),
@@ -82,6 +90,7 @@ describe("CvGenerationHandler",
         let handler: CvGenerationHandler
         let entityManager: EntityManagerMock
         let s3ReadService: jest.Mocked<Pick<S3ReadService, "text">>
+        let s3BuildService: jest.Mocked<Pick<S3BuildService, "buildSignedGetObjectUrl">>
 
         beforeEach(async () => {
             // fresh jest-backed entity manager — only `findOne` (ownership lookup) is
@@ -94,12 +103,22 @@ describe("CvGenerationHandler",
                 text: jest.fn().mockResolvedValue(null),
             } as unknown as jest.Mocked<Pick<S3ReadService, "text">>
 
+            // s3 build (presign) is mocked wholesale — resolves a fake signed URL
+            // unless a test asserts it's never called (generated-source rows)
+            s3BuildService = {
+                buildSignedGetObjectUrl: jest.fn().mockResolvedValue("https://minio.local/signed"),
+            } as unknown as jest.Mocked<Pick<S3BuildService, "buildSignedGetObjectUrl">>
+
             module = await Test.createTestingModule({
                 providers: [
                     CvGenerationHandler,
                     {
                         provide: S3ReadService,
                         useValue: s3ReadService,
+                    },
+                    {
+                        provide: S3BuildService,
+                        useValue: s3BuildService,
                     },
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
@@ -133,6 +152,7 @@ describe("CvGenerationHandler",
                         // the ternary short-circuits to `null` before any lookup happens
                         expect(entityManager.findOne).not.toHaveBeenCalled()
                         expect(s3ReadService.text).not.toHaveBeenCalled()
+                        expect(s3BuildService.buildSignedGetObjectUrl).not.toHaveBeenCalled()
                     })
 
                 it("throws (not-found) when no row matches the id for the calling user",
@@ -185,15 +205,193 @@ describe("CvGenerationHandler",
                                 source: CvSource.Generated,
                                 score: 87,
                                 courseId: "course-1",
+                                courseTitle: "System Design Mastery",
                                 label: "My senior CV",
                                 targetRole: "Staff Engineer",
                                 language: "en",
                             }),
                         )
+                        // no feedback on this row yet → null (not an empty object)
+                        expect(result.feedback).toBeNull()
                         // no stored .tex key on this row → latexSource resolves to null,
                         // and the S3 read is skipped entirely
                         expect(result.latexSource).toBeNull()
                         expect(s3ReadService.text).not.toHaveBeenCalled()
+                        // Generated source, no uploaded file → uploadedCvUrl stays null and
+                        // the presign is never attempted
+                        expect(result.uploadedCvUrl).toBeNull()
+                        // Generated source, but no compiled PDF yet → generatedPdfUrl stays
+                        // null too, same "no presign attempted" contract
+                        expect(result.generatedPdfUrl).toBeNull()
+                        expect(s3BuildService.buildSignedGetObjectUrl).not.toHaveBeenCalled()
+                    })
+
+                it("resolves generatedPdfUrl via a presigned GET URL when source = Generated and the compile succeeded",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(makeGenerationRow({
+                            generatedPdfCdnKey: "cv-generations/cv-gen-1.pdf",
+                        }))
+
+                        const result = await handler.execute(
+                            new CvGenerationQuery({
+                                request: {
+                                    id: "cv-gen-1",
+                                },
+                                user: fakeUser("user-1"),
+                            }),
+                        )
+
+                        expect(s3BuildService.buildSignedGetObjectUrl).toHaveBeenCalledWith({
+                            key: "cv-generations/cv-gen-1.pdf",
+                            provider: S3Provider.Minio,
+                        })
+                        expect(result.generatedPdfUrl).toBe("https://minio.local/signed")
+                    })
+
+                it("does not presign generatedPdfUrl when source = Uploaded (even if the column were somehow set)",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(makeGenerationRow({
+                            source: CvSource.Uploaded,
+                            uploadedCdnKey: "cv-generations/cv-gen-1.pdf",
+                            generatedPdfCdnKey: "cv-generations/cv-gen-1.pdf",
+                        }))
+
+                        const result = await handler.execute(
+                            new CvGenerationQuery({
+                                request: {
+                                    id: "cv-gen-1",
+                                },
+                                user: fakeUser("user-1"),
+                            }),
+                        )
+
+                        expect(result.generatedPdfUrl).toBeNull()
+                    })
+
+                it("maps courseTitle from the loaded course relation, and null when untied",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(makeGenerationRow({
+                            courseId: null,
+                            course: null,
+                        }))
+
+                        const result = await handler.execute(
+                            new CvGenerationQuery({
+                                request: {
+                                    id: "cv-gen-1",
+                                },
+                                user: fakeUser("user-1"),
+                            }),
+                        )
+
+                        // the ownership lookup eagerly loads `course` so courseTitle
+                        // resolves without a second query
+                        expect(entityManager.findOne).toHaveBeenCalledWith(
+                            expect.anything(),
+                            expect.objectContaining({
+                                relations: {
+                                    course: true,
+                                },
+                            }),
+                        )
+                        expect(result.courseTitle).toBeNull()
+                    })
+
+                it("parses feedback.items (shape-coerced), defaulting an unrecognized severity to Low",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(makeGenerationRow({
+                            feedback: {
+                                shortFeedback: "Solid mid-level CV, needs measurable impact.",
+                                templateLevel: "mid",
+                                items: [
+                                    {
+                                        severity: "high",
+                                        section: "impact",
+                                        message: "Bullets lack quantified outcomes.",
+                                        suggestion: "Add metrics (%, time saved, users).",
+                                    },
+                                    {
+                                        severity: "not-a-real-severity",
+                                        section: "clarity",
+                                        message: "Summary is clear.",
+                                        suggestion: null,
+                                    },
+                                ],
+                            },
+                        }))
+
+                        const result = await handler.execute(
+                            new CvGenerationQuery({
+                                request: {
+                                    id: "cv-gen-1",
+                                },
+                                user: fakeUser("user-1"),
+                            }),
+                        )
+
+                        expect(result.feedback).toEqual({
+                            shortFeedback: "Solid mid-level CV, needs measurable impact.",
+                            templateLevel: "mid",
+                            items: [
+                                {
+                                    severity: SubmissionFeedbackSeverity.High,
+                                    section: "impact",
+                                    message: "Bullets lack quantified outcomes.",
+                                    suggestion: "Add metrics (%, time saved, users).",
+                                },
+                                {
+                                    // unrecognized raw value degrades to Low rather than
+                                    // propagating garbage into a typed GraphQL enum
+                                    severity: SubmissionFeedbackSeverity.Low,
+                                    section: "clarity",
+                                    message: "Summary is clear.",
+                                    suggestion: null,
+                                },
+                            ],
+                        })
+                    })
+
+                it("resolves uploadedCvUrl via a presigned GET URL when source = Uploaded",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(makeGenerationRow({
+                            source: CvSource.Uploaded,
+                            uploadedCdnKey: "cv-generations/cv-gen-1.pdf",
+                        }))
+
+                        const result = await handler.execute(
+                            new CvGenerationQuery({
+                                request: {
+                                    id: "cv-gen-1",
+                                },
+                                user: fakeUser("user-1"),
+                            }),
+                        )
+
+                        expect(s3BuildService.buildSignedGetObjectUrl).toHaveBeenCalledWith({
+                            key: "cv-generations/cv-gen-1.pdf",
+                            provider: S3Provider.Minio,
+                        })
+                        expect(result.uploadedCvUrl).toBe("https://minio.local/signed")
+                    })
+
+                it("does not presign uploadedCvUrl when source = Uploaded but no file was ever stored",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(makeGenerationRow({
+                            source: CvSource.Uploaded,
+                            uploadedCdnKey: null,
+                        }))
+
+                        const result = await handler.execute(
+                            new CvGenerationQuery({
+                                request: {
+                                    id: "cv-gen-1",
+                                },
+                                user: fakeUser("user-1"),
+                            }),
+                        )
+
+                        expect(result.uploadedCvUrl).toBeNull()
+                        expect(s3BuildService.buildSignedGetObjectUrl).not.toHaveBeenCalled()
                     })
 
                 it("resolves latexSource from MinIO when the row carries a latexCdnKey",

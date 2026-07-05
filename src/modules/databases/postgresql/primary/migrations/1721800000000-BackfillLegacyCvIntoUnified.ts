@@ -24,11 +24,13 @@ import {
  * never duplicates a backfilled CV.
  *
  * **Safety:** this migration is ADDITIVE ONLY — it never deletes or mutates any
- * legacy row. The legacy tables + review pipeline are retained; their safe
- * removal is deferred (see the `TODO(retire-legacy-cv)` markers in
- * `ConsultantContactGateService.getBestCvScore` +
- * `JobReadinessService.computeCvScore`), to be done only after this backfill is
- * verified in prod with a count check.
+ * legacy row. The legacy tables (`cv_submissions` / `cv_submission_attempts`)
+ * are retained (no DROP TABLE), but the code no longer reads or writes them:
+ * `ConsultantContactGateService.getBestCvScore` and
+ * `JobReadinessService.computeCvScore` were switched to read the unified
+ * `cv_generations` table alone once this backfill was verified in prod with a
+ * count check (WF-10). Dropping the legacy tables themselves is a separate,
+ * later migration.
  *
  * Dev runs schema via `synchronize`; this data migration applies everywhere.
  */

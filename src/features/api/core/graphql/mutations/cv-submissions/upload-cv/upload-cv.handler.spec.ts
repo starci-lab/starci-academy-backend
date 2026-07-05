@@ -16,7 +16,6 @@ import {
     GradingLaneValidationService,
 } from "@modules/ai"
 import {
-    AiMode,
     CvGenerationMode,
     CvGenerationStatus,
     CvSource,
@@ -79,10 +78,9 @@ describe("UploadCvHandler",
                 }),
             } as unknown as jest.Mocked<Pick<EnqueueScoreUploadedCvJobService, "enqueue">>
 
-            // lane validation resolves an auto lane by default (no model/provider pinned)
+            // lane validation resolves no pinned model by default
             gradingLaneValidationService = {
                 validate: jest.fn().mockResolvedValue({
-                    mode: AiMode.Auto,
                     gradingModel: null,
                     gradingProvider: null,
                 }),
@@ -135,9 +133,8 @@ describe("UploadCvHandler",
 
                 it("creates a Pending source=uploaded row with the cdnKey + customization, then enqueues scoring",
                     async () => {
-                        // an explicit Premium pick — proves selectedModel/provider flow through
+                        // an explicit model pick — proves selectedModel/provider flow through
                         gradingLaneValidationService.validate.mockResolvedValueOnce({
-                            mode: AiMode.Premium,
                             gradingModel: "gpt-4o",
                             gradingProvider: ModelProvider.OpenAI,
                         } as never)
@@ -146,7 +143,6 @@ describe("UploadCvHandler",
                             new UploadCvCommand({
                                 request: {
                                     cdnKey: "users/cv-submissions/user-1/resume.pdf",
-                                    mode: AiMode.Premium,
                                     selectedModel: "gpt-4o",
                                     selectedModelProvider: ModelProvider.OpenAI,
                                     courseId: "course-1",
@@ -158,11 +154,10 @@ describe("UploadCvHandler",
                             }),
                         )
 
-                        // the request's mode/model/provider are forwarded to lane validation
+                        // the request's model/provider are forwarded to lane validation
                         expect(gradingLaneValidationService.validate).toHaveBeenCalledWith(
                             expect.objectContaining({
                                 userId: "user-1",
-                                mode: AiMode.Premium,
                                 model: "gpt-4o",
                                 provider: ModelProvider.OpenAI,
                             }),
@@ -193,7 +188,6 @@ describe("UploadCvHandler",
                                 cvGenerationId: "cv-gen-upload-1",
                                 userId: "user-1",
                                 ai: expect.objectContaining({
-                                    mode: AiMode.Premium,
                                     model: "gpt-4o",
                                     provider: ModelProvider.OpenAI,
                                 }),
