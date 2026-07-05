@@ -65,14 +65,14 @@ export class CompleteFlashcardQuizSessionResolver {
         @KeycloakGraphQLUser()
             user: UserEntity,
     ): Promise<CompleteFlashcardQuizSessionData> {
-        // the service clamps inputs, computes the capped reward, and writes the
-        // single idempotent xp_histories row in one transaction
+        // the service re-derives coverage from the per-card answers (never trusting
+        // a client-sent aggregate), clamps inputs, computes the daily-capped reward,
+        // and writes the single idempotent xp_histories row in one transaction
         return this.flashcardQuizSessionService.complete({
             userId: user.id,
             sessionId: request.sessionId,
             courseId: request.courseId,
-            answeredCount: request.answeredCount,
-            coverageScore: request.coverageScore,
+            answers: request.answers,
         })
     }
 }

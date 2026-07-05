@@ -42,6 +42,13 @@ export interface MockInterviewAttemptSummary {
     gaps: Array<string>
     /** A follow-up an interviewer would ask next, or null. */
     followUpQuestion: string | null
+    /**
+     * Distinct content (lesson) ids the RAG grounding excerpt was retrieved
+     * from at grade time (snapshot), in similarity order. Empty when
+     * retrieval missed/failed/index absent at grade time, or for attempts
+     * graded before this field existed.
+     */
+    matchedContentIds: Array<string>
     /** When this attempt was graded. */
     createdAt: Date
 }

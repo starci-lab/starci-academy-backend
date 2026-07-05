@@ -55,6 +55,16 @@ export interface RetrieveCourseExcerptResult {
     excerpt: string
     /** Number of chunks included in the excerpt. */
     retrievedChunks: number
+    /**
+     * Distinct content (lesson) ids the retrieved chunks were pulled from, in
+     * similarity order (best-matching chunk's content first). Empty when
+     * retrieval missed / failed / index absent, or when a hit is missing its
+     * `contentId` payload (defensive — every chunk is written with one by
+     * `ContentRagIndexService`, but retrieval never trusts payload shape
+     * blindly). Lets a caller (e.g. mock-interview grading) deep-link "study
+     * this" straight to the real lesson the grounding excerpt came from.
+     */
+    matchedContentIds: Array<string>
 }
 
 /**
@@ -176,6 +186,7 @@ export class ContentRagRetrievalService {
             return {
                 excerpt: "",
                 retrievedChunks: 0,
+                matchedContentIds: [],
             }
         }
         const collectionName = envConfig().services.contentRag.collection
@@ -211,6 +222,7 @@ export class ContentRagRetrievalService {
             return {
                 excerpt: this.assemble(hits),
                 retrievedChunks: hits.length,
+                matchedContentIds: this.extractMatchedContentIds(hits),
             }
         } catch (error) {
             // index missing / Qdrant or embedder down → empty excerpt, caller falls
@@ -221,6 +233,7 @@ export class ContentRagRetrievalService {
             return {
                 excerpt: "",
                 retrievedChunks: 0,
+                matchedContentIds: [],
             }
         }
     }
@@ -246,5 +259,32 @@ export class ContentRagRetrievalService {
             parts.push(text)
         }
         return parts.join("\n\n")
+    }
+
+    /**
+     * Pull the distinct `contentId` each hit's chunk was written under
+     * (`ContentRagIndexService` stamps this on every point's metadata),
+     * preserving similarity order and de-duplicating repeats. Skips any hit
+     * whose payload is missing/malformed rather than throwing — a shape
+     * surprise here must never break grading/interview flows that only need
+     * the excerpt text.
+     *
+     * @param hits - The retrieved documents in similarity order.
+     * @returns Distinct content ids, best match first.
+     */
+    private extractMatchedContentIds(
+        hits: Array<Document>,
+    ): Array<string> {
+        const seen = new Set<string>()
+        const ids: Array<string> = []
+        for (const hit of hits) {
+            const contentId = hit.metadata?.contentId
+            if (typeof contentId !== "string" || !contentId || seen.has(contentId)) {
+                continue
+            }
+            seen.add(contentId)
+            ids.push(contentId)
+        }
+        return ids
     }
 }

@@ -96,6 +96,16 @@ export interface MockInterviewGradeSessionResult {
     gaps: Array<string>
     /** A natural follow-up an interviewer would ask next, or null when omitted. */
     followUpQuestion: string | null
+    /**
+     * Distinct content (lesson) ids the RAG grounding excerpt was retrieved
+     * from, in similarity order — lets the FE deep-link "study this" straight
+     * to the real lesson(s) the course excerpt came from. A single flat list
+     * for the WHOLE session (retrieval is one top-K pass over the candidate's
+     * combined answers, not scoped per phase). Empty when retrieval
+     * missed/failed/index absent — the FE must render its "unmatched"
+     * fallback in that case, never invent a link.
+     */
+    matchedContentIds: Array<string>
 }
 
 /** Params for {@link MockInterviewGradePromptService.build}. */

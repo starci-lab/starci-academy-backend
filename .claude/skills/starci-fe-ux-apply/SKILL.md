@@ -38,4 +38,5 @@ Dựng UX đã brainstorm. Tầng CẤU TRÚC (IA / section / flow / state) — 
 
 ## Sau khi làm
 - `npx tsc --noEmit` + `npm run lint` sạch (baseline 4 lỗi blog WIP). Verify bằng mắt (chạy → chụp → soi → sửa).
+- **NẾU thay đổi ĐỤNG backend (đổi resolver/gate/query) HOẶC feature PHỤ THUỘC BE data/runtime (dropdown từ catalog, list từ query, AI job, gate score…) → BẮT BUỘC CHECK BACKEND THẬT, không dừng ở "tsc FE sạch".** Chạy action thật (generate/submit…) + **đọc log BE** (`preview_logs` server backend) + query resolver xem data có tồn tại (empty UI thường = BE data/filter/enum-mismatch, không phải FE). Phân biệt **bug code vs config/env/data local** (vd model dropdown rỗng = local thiếu AI provider key → mọi model health-DOWN → nói rõ env-local, prod có key thì chạy; KHÔNG sửa code). Ref [[fe-change-touching-backend-must-verify-backend-runtime]]. Build xanh ≠ feature chạy.
 - **Thầy feedback → tự ghi `.claude/rules/drafts/<temp>.md`** (rút nguyên tắc tổng quát + nguyên nhân gốc), KHÔNG sửa main/element trực tiếp. Gộp khi thầy gõ `/merge`.

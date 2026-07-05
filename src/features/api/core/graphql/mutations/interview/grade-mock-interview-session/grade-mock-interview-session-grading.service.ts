@@ -18,6 +18,7 @@ import {
     validatedLaneToAiJobSelection,
 } from "@modules/ai"
 import {
+    MockInterviewSessionTooShortException,
     ParsingCriteriaResultsFromModelTextException,
 } from "@modules/exceptions"
 import {
@@ -59,6 +60,23 @@ const BORDERLINE_SCORE_THRESHOLD = 50
  * across the whole session.
  */
 const RAG_QUERY_MAX_CHARS = 2000
+
+/**
+ * Minimum total characters across the candidate's own turns (joined, the same
+ * text used to build the RAG query — see {@link RAG_QUERY_MAX_CHARS}) required
+ * before a session is considered substantive enough to grade. Below this, the
+ * transcript is functionally empty (a learner who clicked through without
+ * answering, or answered with a couple of filler words) — grading it would
+ * only ever produce a "fail", would burn a real AI credit charge on a
+ * non-attempt, and would pollute the rolling job-readiness interview average
+ * ({@link import("@modules/api/core/graphql/queries/users/job-readiness/job-readiness.service").JobReadinessService})
+ * with a data point that isn't a real attempt. 100 chars is roughly one short
+ * real sentence ("Chúng ta có thể dùng hàng đợi tin nhắn để tách rời các
+ * service." / "We could use a message queue to decouple the services.") —
+ * comfortably above a one-word/filler non-answer, comfortably below any
+ * genuine attempt at any of the 5 phases.
+ */
+const MIN_SUBSTANTIVE_ANSWER_LENGTH = 100
 
 /**
  * Grading for a WHOLE mock-interview SESSION (not one question — the
@@ -110,6 +128,27 @@ export class MockInterviewGradingService {
             selectedModelProvider,
         } = params
 
+        // join the CANDIDATE's own words only — the interviewer's prompts would just
+        // echo the rubric back at itself and dilute both the substance check and the
+        // retrieval query with phrasing that isn't what the candidate actually said.
+        // Used for BOTH the near-empty-session guard below AND the RAG query.
+        const candidateAnswerText = turns
+            .filter((turn) => turn.role === "candidate")
+            .map((turn) => turn.content)
+            .join(" ")
+            .trim()
+
+        // reject a near-empty session BEFORE charging credit or touching the AI lane
+        // at all — a learner who clicked through without answering must not burn a
+        // real charge, and must not get a persisted "fail" attempt polluting their
+        // rolling job-readiness interview average with a non-attempt.
+        if (candidateAnswerText.length < MIN_SUBSTANTIVE_ANSWER_LENGTH) {
+            throw new MockInterviewSessionTooShortException({
+                candidateCharCount: candidateAnswerText.length,
+                minRequired: MIN_SUBSTANTIVE_ANSWER_LENGTH,
+            })
+        }
+
         // gate on the SAME unified credit pool every other grading surface reads
         // (tier-aware — a paid Pro/Max user gets their tier's real ceiling, not the
         // free base).
@@ -128,20 +167,17 @@ export class MockInterviewGradingService {
         })
         const selection = validatedLaneToAiJobSelection(validatedLane)
 
-        // build a short retrieval query from the CANDIDATE's own words only — the
-        // interviewer's prompts would just echo the rubric back at itself and dilute
-        // the query with phrasing that isn't what the candidate actually said
-        const ragQuery = turns
-            .filter((turn) => turn.role === "candidate")
-            .map((turn) => turn.content)
-            .join(" ")
-            .slice(0,
-                RAG_QUERY_MAX_CHARS)
+        const ragQuery = candidateAnswerText.slice(0,
+            RAG_QUERY_MAX_CHARS)
 
         // ground the grading in what the course actually taught — degrades to an
         // empty excerpt (never throws) when the index is missing or retrieval fails,
-        // so a RAG outage can never block grading
-        const { excerpt: courseExcerpt } = await this.contentRagRetrievalService.retrieveCourseExcerpt({
+        // so a RAG outage can never block grading. `matchedContentIds` is a single
+        // flat list for the WHOLE session (retrieval is one top-K pass over the
+        // candidate's combined answers, not scoped per-phase) — surfaced so the FE
+        // can deep-link "study this" to the real lesson(s) the grounding excerpt
+        // came from; empty when retrieval missed/failed or the index has no hits.
+        const { excerpt: courseExcerpt, matchedContentIds } = await this.contentRagRetrievalService.retrieveCourseExcerpt({
             courseId,
             query: ragQuery,
             topK: 10,
@@ -182,7 +218,10 @@ export class MockInterviewGradingService {
             attempts,
         })
 
-        const result = this.parse(text)
+        const result: MockInterviewGradeSessionResult = {
+            ...this.parse(text),
+            matchedContentIds,
+        }
         // persist the graded session for cross-session interview history (best-effort —
         // a history write must never fail the grade the user is waiting on)
         await this.persistAttempt({
@@ -253,6 +292,7 @@ export class MockInterviewGradingService {
                     strengths: result.strengths,
                     gaps: result.gaps,
                     followUpQuestion: result.followUpQuestion,
+                    matchedContentIds: result.matchedContentIds,
                 },
             )
         } catch {
@@ -262,16 +302,18 @@ export class MockInterviewGradingService {
 
     /**
      * Parse + normalize the model's strict-JSON response into a
-     * {@link MockInterviewGradeSessionResult}, clamping scores and coercing the
-     * verdict + phase/attribute breakdowns.
+     * {@link MockInterviewGradeSessionResult} (minus `matchedContentIds`, which
+     * comes from RAG retrieval rather than the model's own response — the
+     * caller merges it in), clamping scores and coercing the verdict +
+     * phase/attribute breakdowns.
      *
      * @param raw - The raw model response text.
-     * @returns The normalized session grade result.
+     * @returns The normalized session grade result, without `matchedContentIds`.
      * @throws ParsingCriteriaResultsFromModelTextException when JSON parsing fails.
      */
     private parse(
         raw: string,
-    ): MockInterviewGradeSessionResult {
+    ): Omit<MockInterviewGradeSessionResult, "matchedContentIds"> {
         let parsed: Record<string, unknown>
         try {
             // strip any fence / prose then parse the JSON object

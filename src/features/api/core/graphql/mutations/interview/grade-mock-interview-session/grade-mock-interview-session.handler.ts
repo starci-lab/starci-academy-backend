@@ -82,6 +82,7 @@ export class GradeMockInterviewSessionHandler
             strengths: result.strengths,
             gaps: result.gaps,
             followUpQuestion: result.followUpQuestion,
+            matchedContentIds: result.matchedContentIds,
         }
     }
 }
