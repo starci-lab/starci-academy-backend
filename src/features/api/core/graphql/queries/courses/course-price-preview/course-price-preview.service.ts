@@ -7,7 +7,9 @@ import {
 } from "typeorm"
 import {
     CourseEntity,
+    EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
+    nextPricingPhase,
 } from "@modules/databases"
 import {
     LoyaltyDiscountService,
@@ -131,6 +133,52 @@ export class CoursePricePreviewService {
             )
         }
 
+        // Pricing-phase SCARCITY (real numbers only — never a fabricated countdown):
+        // how many seats remain at the CURRENT phase price (seat cap − PAID enrollments)
+        // and what a buyer pays once it sells out (the next tier's price). Powers an
+        // honest "Pioneer N/M · giá tăng lên X" urgency line on the paywall.
+        const currentPhase = this.coursePricingService.getCurrentPricingPhase(course)
+        const nextPhase = nextPricingPhase(currentPhase)
+        const hasNextPhase = nextPhase !== currentPhase
+        const currentPhaseRow = course.pricingPhases.find(
+            (pricingPhase) => pricingPhase.phase === currentPhase,
+        )
+        const slotAvailable = currentPhaseRow?.slotAvailable ?? null
+        const seatsTaken = await this.entityManager.count(
+            EnrollmentEntity,
+            {
+                where: {
+                    course: {
+                        id: courseId,
+                    },
+                    isEnrolled: true,
+                },
+            },
+        )
+        const seatsRemainingInCurrentPhase = slotAvailable != null
+            ? Math.max(0, slotAvailable - seatsTaken)
+            : null
+        // next-tier price (before loyalty — comparable to `phasePriceVnd`). VND can throw
+        // when a tier has no configured price → fall back to null so scarcity just hides
+        // the number rather than breaking the whole preview.
+        let nextPhasePriceVnd: number | null = null
+        if (hasNextPhase) {
+            try {
+                nextPhasePriceVnd = this.coursePricingService.resolveAmountVnd({
+                    course,
+                    phase: nextPhase,
+                })
+            } catch {
+                nextPhasePriceVnd = null
+            }
+        }
+        const nextPhasePriceUsd = hasNextPhase
+            ? this.coursePricingService.resolveAmountUsd({
+                course,
+                phase: nextPhase,
+            })
+            : null
+
         return {
             originalPriceVnd,
             phasePriceVnd,
@@ -142,6 +190,11 @@ export class CoursePricePreviewService {
             discountReason: reason,
             enrolledCount,
             voucherDiscountedPriceVnd,
+            currentPhase,
+            nextPhase: hasNextPhase ? nextPhase : null,
+            seatsRemainingInCurrentPhase,
+            nextPhasePriceVnd,
+            nextPhasePriceUsd,
         }
     }
 }

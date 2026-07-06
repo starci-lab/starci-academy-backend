@@ -8,6 +8,7 @@ import {
 import {
     ContentContextNotFound,
     ContentNotFoundException,
+    ContentScrapeRateLimitException,
 } from "@modules/exceptions"
 import {
     S3NameResolverService,
@@ -25,11 +26,35 @@ import {
     ContentQuery,
 } from "./content.query"
 import {
-    EntityManager 
+    EntityManager
 } from "typeorm"
 import {
     UserService,
 } from "@modules/bussiness"
+import {
+    InjectIoRedis,
+    IoRedisInstanceKey,
+} from "@modules/native"
+import type {
+    Redis,
+} from "ioredis"
+import {
+    WinstonLog,
+    WinstonService,
+} from "@modules/winston"
+
+/**
+ * Rolling window (seconds) over which a single user's lesson-content reads are
+ * counted for the anti-scraping guard.
+ */
+const CONTENT_ACCESS_WINDOW_SECONDS = 3600
+/**
+ * Max lesson-content reads one user may make inside the window before being
+ * blocked as a suspected scraper. Set generously above any human reading pace
+ * (the per-IP throttler already caps per-minute bursts) so it only trips on bulk
+ * automated harvesting.
+ */
+const CONTENT_ACCESS_LIMIT = 200
 
 @QueryHandler(ContentQuery)
 @Injectable()
@@ -42,6 +67,9 @@ export class ContentHandler
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly userService: UserService,
+        @InjectIoRedis(IoRedisInstanceKey.Cache)
+        private readonly redis: Redis,
+        private readonly winstonService: WinstonService,
     ) {
         super()
     }
@@ -52,7 +80,15 @@ export class ContentHandler
         const {
             request,
             locale,
+            user,
         } = query.params
+        // Anti-scraping: cap how many lesson contents ONE user may read per window,
+        // so a bought/trial account can't bulk-harvest the whole course. Runs before
+        // any DB/S3 work so a flagged scraper is cheap to reject.
+        await this.enforceContentAccessRate(
+            user?.id,
+            user?.email,
+        )
         if (!request.id && !request.displayId) {
             throw new ContentContextNotFound(
                 {
@@ -100,7 +136,8 @@ export class ContentHandler
         // table isn't seeded yet (authored `# outcomes` live only in `.contexts`, never
         // ported to the data-repo), so snapshots carry no outcomes. Stub a few bullets so
         // the FE "Bạn sẽ nắm được" callout renders. Remove once outcomes are seeded.
-        this.stubOutcomesIfEmpty(content, locale)
+        this.stubOutcomesIfEmpty(content,
+            locale)
 
         // Source the premium flag and owning course from the live DB row, not the
         // (possibly stale) S3 snapshot, so toggling `is_premium` takes effect at once.
@@ -147,6 +184,58 @@ export class ContentHandler
         }
 
         return content
+    }
+
+    /**
+     * Per-user anti-scraping guard: atomically count this user's content reads in a
+     * fixed rolling window (Redis INCR + first-hit EXPIRE) and reject once the count
+     * exceeds {@link CONTENT_ACCESS_LIMIT}. Complements the per-IP throttler (which
+     * only caps short bursts) by catching sustained bulk harvesting across IP/session
+     * rotation. On first breach we log the offender (with email) to Loki so the
+     * account can be reviewed / disabled and used as takedown evidence.
+     * @param userId Active user id (skips the guard for unauthenticated callers).
+     * @param email Active user email — recorded as evidence when the limit trips.
+     */
+    private async enforceContentAccessRate(
+        userId?: string,
+        email?: string | null,
+    ): Promise<void> {
+        if (!userId) {
+            return
+        }
+        const key = `content:access-rate:${userId}`
+        const count = await this.redis.incr(key)
+        // Set the window TTL only on the first hit so the window is FIXED (resets
+        // every `CONTENT_ACCESS_WINDOW_SECONDS`), not sliding — a steady human reader
+        // never accrues past the window. Guard against a stuck key with no TTL.
+        if (count === 1) {
+            await this.redis.expire(key,
+                CONTENT_ACCESS_WINDOW_SECONDS)
+        } else if (await this.redis.ttl(key) < 0) {
+            await this.redis.expire(key,
+                CONTENT_ACCESS_WINDOW_SECONDS)
+        }
+        if (count > CONTENT_ACCESS_LIMIT) {
+            // log ONCE, right when the limit is first crossed, to avoid log spam
+            // while the scraper keeps hammering inside the same window.
+            if (count === CONTENT_ACCESS_LIMIT + 1) {
+                this.winstonService.log(
+                    WinstonLog.ContentScrapeDetected,
+                    {
+                        userId,
+                        email: email ?? undefined,
+                        count,
+                        limit: CONTENT_ACCESS_LIMIT,
+                        windowSeconds: CONTENT_ACCESS_WINDOW_SECONDS,
+                    },
+                )
+            }
+            throw new ContentScrapeRateLimitException({
+                userId,
+                count,
+                limit: CONTENT_ACCESS_LIMIT,
+            })
+        }
     }
 
     /**

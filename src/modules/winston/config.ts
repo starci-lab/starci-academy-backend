@@ -89,7 +89,8 @@ import type {
     DataGitBootstrapFailedMessage,
     DataGitDiffScopedMessage,
     ReconcileOrphansSkippedMessage,
-    ReconcileOrphansDoneMessage
+    ReconcileOrphansDoneMessage,
+    ContentScrapeDetectedMessage
 } from "./types"
 
 /** Map of Winston log names to level, Loki flag, and message type. */
@@ -885,5 +886,13 @@ export const configMap = {
         console: true,
         messageType: {
         } as ReconcileOrphansDoneMessage
+    },
+    [WinstonLog.ContentScrapeDetected]: {
+        name: WinstonLog.ContentScrapeDetected,
+        level: WinstonLevel.Warn,
+        loki: true,
+        console: true,
+        messageType: {
+        } as ContentScrapeDetectedMessage
     }
 }
