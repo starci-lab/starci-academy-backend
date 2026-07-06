@@ -534,18 +534,31 @@ export class MockInterviewGradePromptService {
         const kind = grounding
             ? (Object.values(MockInterviewKind).find((candidate) => candidate === grounding.kind) ?? MockInterviewKind.Theory)
             : MockInterviewKind.Theory
-        const isTheory = kind === MockInterviewKind.Theory
+        // An interview-bank question carries an AUTHORED answer and/or rubric —
+        // grade the candidate by comparing to THAT reference, for EVERY kind (not
+        // just theory). Legacy flashcard seeds only ship a reference for theory.
+        const hasReference = Boolean(grounding) && (Boolean(grounding?.answer) || (grounding?.rubric?.length ?? 0) > 0)
 
-        const referenceLines = isTheory && grounding
+        const referenceLines = hasReference && grounding
             ? [
-                `Reference (seed question): ${grounding.question}`,
+                `Reference (câu hỏi): ${grounding.question}`,
                 grounding.answer
-                    ? `Reference (model answer): ${grounding.answer}`
-                    : "Reference (model answer): (none on file — grade on general soundness instead)",
+                    ? `Reference (đáp án mẫu — CHẤM BẰNG CÁCH SO SÁNH câu trả lời với đáp án này): ${grounding.answer}`
+                    : null,
+                grounding.rubric && grounding.rubric.length > 0
+                    ? `Reference (điểm lập luận ăn điểm — mỗi ý phủ được thì cộng điểm; đây là neo chấm chính): ${grounding.rubric.map((point, order) => `(${order + 1}) ${point}`).join(" ")}`
+                    : null,
+                // the GIVEN (buggy) code the candidate was asked to FIX — the grader
+                // compares the candidate's own "[Code lang=...]" workspace artifact
+                // against THIS baseline, so the FIX itself is scored (did they change
+                // the right line?), not just whether the final code looks plausible.
+                grounding.givenCode
+                    ? `Reference (CODE GỐC đề đưa — có thể chứa bug; chấm CÁCH SỬA của ứng viên bằng cách SO SÁNH artifact "[Code lang=...]" họ nộp với code gốc này, xem họ có sửa đúng chỗ không):\n\`\`\`${grounding.givenLang ?? ""}\n${grounding.givenCode}\n\`\`\``
+                    : null,
                 grounding.keywords.length > 0
-                    ? `Reference (keywords the answer should cover): ${grounding.keywords.join(", ")}`
-                    : "Reference (keywords the answer should cover): (none on file)",
-            ]
+                    ? `Reference (từ khóa nên phủ): ${grounding.keywords.join(", ")}`
+                    : null,
+            ].filter((line): line is string => line !== null)
             : []
 
         const transcriptLines = questionTurns

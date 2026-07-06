@@ -43,6 +43,24 @@ export class MockInterviewSeedTopic {
         },
     )
         title: string
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "GIVEN code the candidate should fix/read (bank debug/review/optimize questions) — split out of title so the FE seeds it into an editable code editor. Null otherwise.",
+        },
+    )
+        givenCode?: string | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Language of givenCode (e.g. \"typescript\"). Null when no given code.",
+        },
+    )
+        givenLang?: string | null
 }
 
 /** The server-drawn mock-interview session the learner is about to work through. */

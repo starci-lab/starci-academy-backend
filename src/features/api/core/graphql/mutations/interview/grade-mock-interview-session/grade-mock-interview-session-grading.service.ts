@@ -11,6 +11,7 @@ import {
     AiModelTask,
     FlashcardCardEntity,
     InjectPrimaryPostgreSQLEntityManager,
+    InterviewQuestionEntity,
     MockInterviewAttemptEntity,
     MockInterviewMode,
     MockInterviewSeedQuestion,
@@ -236,21 +237,21 @@ export class MockInterviewGradingService {
         })
         const selection = validatedLaneToAiJobSelection(validatedLane)
 
-        const ragQuery = candidateAnswerText.slice(0,
-            RAG_QUERY_MAX_CHARS)
-
-        // ground the grading in what the course actually taught — degrades to an
-        // empty excerpt (never throws) when the index is missing or retrieval fails,
-        // so a RAG outage can never block grading. `matchedContentIds` is a single
-        // flat list for the WHOLE session (retrieval is one top-K pass over the
-        // candidate's combined answers, not scoped per-phase) — surfaced so the FE
-        // can deep-link "study this" to the real lesson(s) the grounding excerpt
-        // came from; empty when retrieval missed/failed or the index has no hits.
-        const { excerpt: courseExcerpt, matchedContentIds } = await this.contentRagRetrievalService.retrieveCourseExcerpt({
-            courseId,
-            query: ragQuery,
-            topK: 10,
-        })
+        // qna (interview-bank) grades by comparing the candidate to each question's
+        // AUTHORED answer/rubric — the authored answer IS the ground truth, so NO
+        // content RAG (cheaper + more precise + immune to retrieval miss). `design`
+        // has no per-question reference, so it still grounds in course material.
+        const { excerpt: courseExcerpt, matchedContentIds } = mode === MockInterviewMode.Qna
+            ? {
+                excerpt: "",
+                matchedContentIds: [] as Array<string>,
+            }
+            : await this.contentRagRetrievalService.retrieveCourseExcerpt({
+                courseId,
+                query: candidateAnswerText.slice(0,
+                    RAG_QUERY_MAX_CHARS),
+                topK: 10,
+            })
 
         // build the grading messages — the design's 5-phase rubric or the qna
         // mode's per-question rubric (each question graded by ITS OWN kind:
@@ -453,22 +454,58 @@ export class MockInterviewGradingService {
             return []
         }
         const cardIds = seedQuestions.map((seed) => seed.cardId)
-        const cards = await this.entityManager.find(
-            FlashcardCardEntity,
-            {
-                where: {
-                    id: In(cardIds),
-                },
-            },
+        // PRIMARY source = the authored interview bank (`prompt`/`idealAnswer`/
+        // `rubric`); fall back to flashcards for any id not in the bank (legacy
+        // flashcard-seed sessions). Fetch both, resolve per-seed by whichever hits.
+        const [bankRows,
+            cards] = await Promise.all([
+            this.entityManager.find(InterviewQuestionEntity,
+                {
+                    where: {
+                        id: In(cardIds),
+                    },
+                }),
+            this.entityManager.find(FlashcardCardEntity,
+                {
+                    where: {
+                        id: In(cardIds),
+                    },
+                }),
+        ])
+        const bankById = new Map(
+            bankRows.map((row) => [row.id,
+                row]),
         )
         const cardById = new Map(
             cards.map((card) => [card.id,
                 card]),
         )
         // re-order by the PERSISTED draw order (entityManager.find does not
-        // guarantee IN(...) result order) and drop any seed whose card no longer resolves
+        // guarantee IN(...) result order) and drop any seed that no longer resolves
         const groundings: Array<MockInterviewSeedGrounding | undefined> = seedQuestions
             .map((seed) => {
+                const bank = bankById.get(seed.cardId)
+                if (bank) {
+                    // fold the behavioral "I vs we" ownership note in as an extra
+                    // rubric point so the grader is forced to score it (research §4)
+                    const rubricPoints = [...(bank.rubric ?? [])]
+                    if (bank.ownershipSignal) {
+                        rubricPoints.push(`[Ownership] ${bank.ownershipSignal}`)
+                    }
+                    const grounding: MockInterviewSeedGrounding = {
+                        cardId: bank.id,
+                        kind: normalizeMockInterviewKind(seed.kind) as string,
+                        question: bank.prompt,
+                        answer: bank.idealAnswer,
+                        keywords: bank.keywords ?? [],
+                        rubric: rubricPoints.length > 0 ? rubricPoints : undefined,
+                        // the GIVEN (buggy) code — lets the grader diff the candidate's
+                        // fix against the baseline (debug/review/optimize questions)
+                        givenCode: bank.givenCode,
+                        givenLang: bank.givenLang,
+                    }
+                    return grounding
+                }
                 const card = cardById.get(seed.cardId)
                 if (!card) {
                     return undefined

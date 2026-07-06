@@ -30,6 +30,16 @@ export interface DrawMockInterviewSeedTopic {
     kind: string
     /** Short title/snippet identifying the seed topic (the card's localized question, truncated). */
     title: string
+    /**
+     * GIVEN code the candidate should FIX/read (interview-bank `debug`/`review`/
+     * `optimize` questions only) — split OUT of {@link title} so the FE seeds it
+     * into an editable code editor instead of rendering it read-only in the chat
+     * bubble. Null for every other kind / source (flashcard seeds, EQ, questions
+     * with no code).
+     */
+    givenCode?: string | null
+    /** Language of {@link givenCode} (e.g. "typescript") — drives the editor's syntax mode. Null when no given code. */
+    givenLang?: string | null
 }
 
 /** The server-drawn mock-interview session result. */

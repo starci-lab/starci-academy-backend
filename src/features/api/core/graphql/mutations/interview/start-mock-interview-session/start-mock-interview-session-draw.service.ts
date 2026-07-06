@@ -10,6 +10,7 @@ import {
     EnrollmentEntity,
     FlashcardLevel,
     InjectPrimaryPostgreSQLEntityManager,
+    InterviewQuestionEntity,
     Locale,
     MilestoneTaskEntity,
     ModuleEntity,
@@ -388,10 +389,20 @@ export class MockInterviewSessionDrawService {
         // e.g. senior cards for a junior-level learner), (3) ANY module at ANY
         // level (a brand-new learner with zero read progress yet, or a module
         // set that predates progress tracking)
-        const allCards = await this.listCourseFlashcardCards({
+        // PRIMARY source = the authored interview bank (technical questions for
+        // this course); fall back to flashcard-seed for courses that have no
+        // interview bank authored yet (non-breaking).
+        const bankCards = await this.listCourseInterviewQuestions({
             courseId,
-            locale,
         })
+        const useBank = bankCards.length > 0
+        const allCards: Array<{ id: string, question: string, level: FlashcardLevel, moduleId: string | null, kind?: string, givenCode?: string | null, givenLang?: string | null }> = useBank
+            ? bankCards
+            : await this.listCourseFlashcardCards({
+                courseId,
+                locale,
+            })
+        const source = useBank ? "interview-bank" : "flashcard"
         if (allCards.length === 0) {
             throw new MockInterviewNoSeedCardsException({
                 courseId,
@@ -432,11 +443,28 @@ export class MockInterviewSessionDrawService {
         const seedTopics: Array<DrawMockInterviewSeedTopic> = drawnCards.map((card,
             index) => ({
             cardId: card.id,
-            kind: this.deriveSeedKind(card.id,
+            // bank questions carry their AUTHORED kind; flashcard seeds derive one
+            kind: useBank && card.kind ? card.kind : this.deriveSeedKind(card.id,
                 index,
                 resolvedKinds),
-            title: this.truncateTitle(card.question),
+            // bank questions are delivered VERBATIM by the interviewer → carry the
+            // composed prompt (+ folded diagram); flashcard seeds keep a short title
+            title: useBank ? card.question : this.truncateTitle(card.question),
+            // GIVEN code is delivered SEPARATELY so the FE seeds it into an editable
+            // editor (debug/review/optimize) — null for flashcard seeds
+            givenCode: useBank ? card.givenCode ?? null : null,
+            givenLang: useBank ? card.givenLang ?? null : null,
         }))
+
+        // mix in ONE behavioral/EQ question (from the GLOBAL bank) so a session
+        // covers both technical substance + soft skills, like a real interview
+        // loop. Bank sessions only (flashcard-fallback courses have no EQ concept).
+        if (useBank) {
+            const eqTopic = await this.drawOneEqQuestion(level)
+            if (eqTopic) {
+                seedTopics.push(eqTopic)
+            }
+        }
 
         // synthetic prompt identity for a qna-mode session — there is no single
         // "prompt", so promptId/promptTitle summarize the draw instead
@@ -451,7 +479,7 @@ export class MockInterviewSessionDrawService {
             promptId,
             promptTitle,
             difficulty,
-            source: "flashcard",
+            source,
             seedQuestions: seedTopics.map((topic) => ({
                 cardId: topic.cardId,
                 kind: topic.kind,
@@ -465,7 +493,7 @@ export class MockInterviewSessionDrawService {
             promptId,
             promptTitle,
             difficulty,
-            source: "flashcard",
+            source,
             level,
             mode: MockInterviewMode.Qna,
             seedTopics,
@@ -631,6 +659,95 @@ export class MockInterviewSessionDrawService {
                 level: card.level ?? FlashcardLevel.Middle,
                 moduleId,
             }))
+        })
+    }
+
+    /**
+     * Draw ONE behavioral/EQ question from the GLOBAL bank (not course-scoped —
+     * EQ competencies are universal), preferring the session's tier, widening to
+     * any tier if none match. Returned as a seed topic (delivered + graded the
+     * same way as technical seeds). Null when no EQ bank is seeded yet.
+     */
+    private async drawOneEqQuestion(
+        tier: string,
+    ): Promise<DrawMockInterviewSeedTopic | null> {
+        const rows = await this.entityManager.find(InterviewQuestionEntity,
+            {
+                where: {
+                    family: "behavioral",
+                },
+            })
+        if (rows.length === 0) {
+            return null
+        }
+        const atTier = rows.filter((row) => row.tier === tier)
+        const picked = this.pickRandomMany(atTier.length > 0 ? atTier : rows,
+            1)[0]
+        if (!picked) {
+            return null
+        }
+        return {
+            cardId: picked.id,
+            kind: picked.kind,
+            title: picked.prompt,
+        }
+    }
+
+    /** Map an authored interview `tier` (junior/middle/senior) to the FlashcardLevel the qna pool logic filters on. */
+    private tierToFlashcardLevel(
+        tier: string | null,
+    ): FlashcardLevel {
+        if (tier === "junior") {
+            return FlashcardLevel.Junior
+        }
+        if (tier === "senior") {
+            return FlashcardLevel.Senior
+        }
+        return FlashcardLevel.Middle
+    }
+
+    /**
+     * List a course's TECHNICAL interview-bank questions in the SAME shape the
+     * qna pool logic expects — but sourced from `interview_questions` (authored
+     * prompts) instead of flashcards. `question` is the FULL composed prompt
+     * (authored `prompt` + any given diagram/code folded in as Markdown so the
+     * room renders them inline) that the interviewer delivers VERBATIM; `kind`
+     * is the AUTHORED kind (not derived), so each seed keeps its designed frame.
+     * Empty when the course has no interview bank yet → caller falls back to
+     * flashcard-seed (non-breaking for un-authored courses).
+     */
+    private async listCourseInterviewQuestions(
+        params: {
+            courseId: string
+        },
+    ): Promise<Array<{ id: string, question: string, level: FlashcardLevel, moduleId: string | null, kind: string, givenCode: string | null, givenLang: string | null }>> {
+        const questions = await this.entityManager.find(InterviewQuestionEntity,
+            {
+                where: {
+                    courseId: params.courseId,
+                    family: "technical",
+                },
+            })
+        return questions.map((question) => {
+            // fold the prose prompt + any GIVEN diagram into the delivered `question`
+            // (the diagram is CONTEXT the candidate reasons over — it stays inline in
+            // the chat bubble), but keep the GIVEN CODE SEPARATE so the FE can seed it
+            // into an editable code editor for the candidate to FIX in place, instead
+            // of rendering it read-only alongside the question (`debug`/`review`/
+            // `optimize` questions). See the mock-interview WORKSPACE-ARTIFACT-SEED brainstorm.
+            const parts = [question.prompt]
+            if (question.diagram) {
+                parts.push(question.diagram)
+            }
+            return {
+                id: question.id,
+                question: parts.join("\n\n"),
+                level: this.tierToFlashcardLevel(question.tier),
+                moduleId: question.moduleId,
+                kind: question.kind,
+                givenCode: question.givenCode,
+                givenLang: question.givenLang,
+            }
         })
     }
 

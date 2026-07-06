@@ -126,10 +126,22 @@ export interface MockInterviewSeedGrounding {
     kind: string
     /** The seed's (localized) question — what the interviewer's question was framed around. */
     question: string
-    /** The seed's authored model answer (Markdown, may be null on a legacy card) — meaningful only when `kind === "theory"`. */
+    /** The seed's authored model answer (Markdown, may be null) — the grading reference for ANY kind when it's an interview-bank question. */
     answer: string | null
-    /** Keywords parsed out of the answer's trailing `:::chip` block — meaningful only when `kind === "theory"`. */
+    /** Keywords parsed out of the answer's trailing `:::chip` block — coverage checklist. */
     keywords: Array<string>
+    /** Authored rubric points (the reasoning that earns credit) — present for interview-bank questions; used as the grading anchor for every kind. */
+    rubric?: Array<string>
+    /**
+     * The GIVEN (possibly buggy) code the candidate was asked to FIX/read
+     * (interview-bank `debug`/`review`/`optimize`) — the baseline the grader
+     * diffs the candidate's own `[Code lang=...]` workspace artifact against, so
+     * the FIX is scored (not just the final code). Null for questions with no
+     * given code.
+     */
+    givenCode?: string | null
+    /** Language of {@link givenCode} (e.g. "typescript"). Null when no given code. */
+    givenLang?: string | null
 }
 
 /** Params for {@link MockInterviewGradingService.grade}. */

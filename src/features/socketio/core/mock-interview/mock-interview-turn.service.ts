@@ -320,7 +320,14 @@ export class MockInterviewTurnService {
         const isOpeningAskOfSeed = latestAnswer.trim().length === 0
         const displayIndex = (questionIndex ?? 0) + 1
 
-        const systemText = [
+        // interview-bank seeds carry a FULL authored question (long, and/or with a
+        // fenced code block / mermaid diagram folded in) — deliver it VERBATIM,
+        // never reframe. flashcard-fallback seeds are short topic labels → frame
+        // a {kind}-shaped question about them (the original behavior below).
+        const isAuthoredPrompt = seedTopic.length > 160
+            || /```|(?:^|\n)\s*(?:graph|flowchart|sequenceDiagram|erDiagram|classDiagram)\b/.test(seedTopic)
+
+        const framedSystemText = [
             `You are a senior technical interviewer running a live mock interview, question ${displayIndex}`
                 + ` of the session ("${promptTitle}"), grounded in what this course actually teaches.`,
             "",
@@ -374,14 +381,41 @@ export class MockInterviewTurnService {
             "fences, no meta-commentary, no restating these instructions.",
         ].join("\n")
 
+        // deliver an AUTHORED bank question verbatim (opening ask only); follow-ups
+        // still use the framed prompt above (they probe the candidate's answer).
+        const deliverSystemText = [
+            `You are a senior technical interviewer running a live mock interview, question ${displayIndex} of "${promptTitle}".`,
+            "",
+            "## Deliver this question (STRICT)",
+            `Below is the EXACT interview question to put to the candidate. Deliver it to them now, in ${targetLanguage}.`,
+            "Preserve EVERY code block (```), mermaid diagram, and detail EXACTLY as written — do NOT summarize, add,",
+            "remove, translate identifiers in, or rephrase the substance. You MAY prepend at most ONE short natural",
+            "spoken lead-in sentence (e.g. \"Câu tiếp theo:\") before it.",
+            "",
+            "## The question",
+            seedTopic,
+            "",
+            this.workspaceArtifactsGuidance(),
+            "",
+            "## Output format",
+            "Output the question as Markdown, keeping fenced code blocks and mermaid diagrams INTACT. No JSON, no",
+            "meta-commentary, no restating these instructions.",
+        ].join("\n")
+
+        const systemText = isAuthoredPrompt && isOpeningAskOfSeed
+            ? deliverSystemText
+            : framedSystemText
+
         const humanText = [
             "Transcript so far (for this question only):",
             "",
             this.transcriptLines(history),
             "",
-            isOpeningAskOfSeed
-                ? "Ask your opening question about the seed topic now."
-                : "Ask your next follow-up question now.",
+            isAuthoredPrompt && isOpeningAskOfSeed
+                ? "Deliver the question to the candidate now."
+                : isOpeningAskOfSeed
+                    ? "Ask your opening question about the seed topic now."
+                    : "Ask your next follow-up question now.",
         ].join("\n")
 
         return {
