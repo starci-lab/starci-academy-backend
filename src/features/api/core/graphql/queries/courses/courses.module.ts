@@ -31,9 +31,15 @@ import {
 import {
     CoursesCheckoutPreviewSingleQueryModule,
 } from "./courses-checkout-preview"
+import {
+    CourseQuestionsSingleQueryModule,
+} from "./course-questions"
 
 @Module({
     imports: [
+        CourseQuestionsSingleQueryModule.register({
+            isGlobal: true,
+        }),
         MyCartSingleQueryModule.register({
             isGlobal: true,
         }),
