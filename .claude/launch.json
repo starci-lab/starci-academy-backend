@@ -28,6 +28,12 @@
       "port": 3001
     },
     {
+      "name": "backend-nowatch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start"],
+      "port": 3001
+    },
+    {
       "name": "cmdk-lab",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "C:/Repositories/ac/starci-academy-backend/.repo/fullstack-mastery-module-16-interaction-and-accessibility/1-command-palette-with-cmdk/frontend", "run", "dev"],
