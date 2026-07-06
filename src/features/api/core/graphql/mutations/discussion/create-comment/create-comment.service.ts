@@ -11,6 +11,7 @@ import {
 import {
     ActivityType,
     ContentEntity,
+    CourseEntity,
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
@@ -55,35 +56,55 @@ export class CreateCommentService {
         // persist the comment via the domain service (also fans out the realtime event)
         const comment = await this.commentService.createComment({
             contentId: request.contentId,
+            courseId: request.courseId,
             parentCommentId: request.parentCommentId,
             body: request.body,
             user,
         })
-        // home-feed activity for the comment (idempotent per comment id); snapshot
-        // the content title as the token label, route resolved lazily on click
-        const content = await this.entityManager.findOne(
-            ContentEntity,
-            {
-                where: {
-                    id: request.contentId,
-                },
-                select: {
-                    id: true,
-                    title: true,
-                },
-            },
-        )
+        // home-feed activity for the comment (idempotent per comment id); target the
+        // actual scope the comment resolved to (a reply inherits its parent's scope,
+        // so `comment.contentId`/`comment.courseId` are the source of truth here, not
+        // the raw request — which may be a reply with no scope fields at all)
+        const target = comment.contentId
+            ? {
+                entityName: ContentEntity.name,
+                id: comment.contentId,
+                label: (await this.entityManager.findOne(
+                    ContentEntity,
+                    {
+                        where: {
+                            id: comment.contentId,
+                        },
+                        select: {
+                            id: true,
+                            title: true,
+                        },
+                    },
+                ))?.title ?? "",
+            }
+            : {
+                entityName: CourseEntity.name,
+                id: comment.courseId ?? "",
+                label: (await this.entityManager.findOne(
+                    CourseEntity,
+                    {
+                        where: {
+                            id: comment.courseId ?? "",
+                        },
+                        select: {
+                            id: true,
+                            title: true,
+                        },
+                    },
+                ))?.title ?? "",
+            }
         await writeActivity({
             entityManager: this.entityManager,
             userId: user.id,
             type: ActivityType.DiscussionCommented,
             idempotencyKey: comment.id,
             metadata: {
-                target: {
-                    entityName: ContentEntity.name,
-                    id: request.contentId,
-                    label: content?.title ?? "",
-                },
+                target,
             },
         })
         // a brand-new comment has no replies and no reactions yet

@@ -30,6 +30,35 @@ export class CommentNotFoundException extends AbstractException {
     }
 }
 
+/** Metadata when a top-level comment's scope is invalid (not exactly one of content/course). */
+export interface CommentInvalidScopeExceptionMetadata extends AbstractExceptionMetadata {
+    /** Content id supplied by the caller, if any. */
+    contentId?: string | null
+    /** Course id supplied by the caller, if any. */
+    courseId?: string | null
+}
+
+/** Thrown when a top-level comment is created without exactly one of contentId/courseId. */
+export class CommentInvalidScopeException extends AbstractException {
+    constructor(
+        {
+            contentId,
+            courseId,
+            originalError,
+        }: CommentInvalidScopeExceptionMetadata,
+    ) {
+        super(
+            "A top-level comment must be scoped to exactly one of a lesson content or a course",
+            "COMMENT_INVALID_SCOPE_EXCEPTION",
+            {
+                contentId,
+                courseId,
+                originalError,
+            },
+        )
+    }
+}
+
 /** Metadata when a user attempts to mutate a comment they do not own. */
 export interface CommentForbiddenExceptionMetadata extends AbstractExceptionMetadata {
     /** Id of the comment the action targeted. */
