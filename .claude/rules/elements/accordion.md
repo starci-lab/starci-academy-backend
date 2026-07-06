@@ -21,6 +21,7 @@
 - **Lesson reader / standalone page (nền sáng `bg-background`/`--overlay`), accordion là 1 card có nghĩa** → `variant="surface"` + `border border-default` (đọc ra card thật). Ref [[accordion-card-surface-on-standalone-pages]].
 - **Cụm code-block dark cần khớp màu** → `variant="default" + bg-default` (chỉ context đó). Ref [[lesson-accordion-contrast-and-size]].
 - Quy tắc rút ra: chọn da để accordion **tương phản với nền nó NẰM TRÊN** + đồng bộ "họ" xung quanh (card → surface; code-block cluster → default).
+- **Trang GIẢI challenge (`ChallengeView`, full-bleed standalone) → `variant="surface"`, KHÔNG `bg-default`.** Đây là "standalone page" (đứng trên `bg-background` như card thật), KHÔNG phải cụm markdown/code-block dark → đúng nhánh §3 dòng 1 (không phải dòng 2). Class: `variant="surface"` + `className="overflow-hidden border border-default"` (KHÔNG tự thêm `bg-*`/`rounded-*` — surface đã bake). Áp cho 3 accordion "Yêu cầu · Các bước hướng dẫn · Gợi ý".
 
 ## 4. Accordion Card (Card p-0 + Accordion surface) — landing/settings
 - Khi section là accordion đặt trong `LabeledCard flushContent` (Card `p-0`) → `Accordion variant="surface"` tràn sát mép (card lo khung, accordion lo nền/separator). Ref [[elements/card]] §3 Accordion Card.

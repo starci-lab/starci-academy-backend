@@ -13,6 +13,7 @@ import type {
     ListMyMockInterviewAttemptsResult,
     MockInterviewAttemptAttributeScore,
     MockInterviewAttemptPhaseScore,
+    MockInterviewAttemptQuestionReview,
 } from "./types"
 
 /**
@@ -91,6 +92,10 @@ export class MyMockInterviewAttemptsService {
                 gaps: attempt.gaps,
                 followUpQuestion: attempt.followUpQuestion,
                 matchedContentIds: attempt.matchedContentIds,
+                // same widening as phaseScores/attributeScores above — jsonb
+                // column, structurally compatible with what
+                // gradeMockInterviewSession wrote
+                questionReviews: attempt.questionReviews as unknown as Array<MockInterviewAttemptQuestionReview>,
                 createdAt: attempt.createdAt,
             })),
         }

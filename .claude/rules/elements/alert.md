@@ -31,8 +31,9 @@
 |---|---|---|
 | **page bg / đứng 1 mình** | KHÔNG override (chỉ placement `mb-*`) | `bg-surface` + `shadow-surface` mặc định = card nổi đúng trên nền trang |
 | **TRONG card / surface khác** (surface-in-surface) | **`shadow-none bg-<status>/10`** | default `bg-surface` + shadow đọc thành **card-in-card** ([[surface-in-surface-inner-has-border]] / [[card-in-card-border-not-double-fill]]); tint `/10` + phẳng = 1 dải nhấn mảnh trong card, không "hộp trong hộp" |
+| **VERDICT / result-banner** (scorecard chấm điểm) | **LUÔN `shadow-none bg-<status>/10`** (tint theo verdict) | nó là **dải kết quả tô màu theo verdict** (đạt=success/cận=warning/chưa=danger), thường render TRONG drawer/card (history) → tint đọc "banner kết quả" đúng hơn `bg-surface`+shadow; map tint = **class LITERAL** per status (`bg-success/10`/`bg-warning/10`/`bg-danger/10`) để Tailwind emit. Thầy chốt 2026-07-06. |
 
-- **className `<Alert>` chỉ được đụng:** placement (`mb-4`) + (khi nested) `shadow-none bg-<status>/10`. KHÔNG hơn.
+- **className `<Alert>` chỉ được đụng:** placement (`mb-4`) + (nested / verdict) `shadow-none bg-<status>/10`. KHÔNG hơn.
 - **Đính chính** bản 2026-06-28 trước (ghi "luôn dùng gốc, bỏ mọi override"): SAI sắc thái — `TaskLockedAlert` (`shadow-none bg-warning/10`) ĐÚNG vì nó nested trong panel. Quy tắc thật = **theo nền**: nested thì soften, standalone thì gốc.
 
 ### Impl block — `Callout` (alert TRONG card, dùng chung)

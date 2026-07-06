@@ -35,8 +35,14 @@
 - **Phân biệt:** icon trơ nhỏ chỉ hợp khi row GỌN 1 dòng (nhãn ngắn, không subtitle — vd `LabeledList` item) hoặc icon là **marker phụ** (check/bullet). Row "item đối tượng" (title+subtitle+meta, card-like) → IconTile. Hỏi: leading này là **avatar của 1 thứ** (→ IconTile) hay **marker phụ** (→ icon trơ)?
 - **Skeleton mirror tile:** `Skeleton size-12 rounded-xl shrink-0` + 2 dòng (`h-4 w-1/2` + `h-3 w-1/3`), KHÔNG 1 vạch đơn → không nhảy chiều cao. Ref [[row-leading-icontile-not-bare-small-icon]] + [[elements/icon]] §cỡ + [[item-card-meta-inside-bounded-object]]. Áp đầu: `Bookmarks/BookmarkCard`.
 
+## 6. STATUS LIST (trạng thái, không click) ≠ `ListBox` (chọn item, tương tác) — CHỐT 2026-07
+- **Rail thể hiện TRẠNG THÁI của 1 tiến trình có thứ tự (stepper phase, các bước job, timeline) mà item KHÔNG click-được → render STATUS LIST** (`<ul>` rows thường), KHÔNG `ListBox` (§4). `ListBox` = control **CHỌN item** (`selectionMode` + `onSelectionChange`); ép nó lên nội dung không-tương-tác = sai affordance (đọc "bấm được" trong khi không).
+- **Trạng thái do ICON mang màu, KHÔNG tint cả row** ([[accent-system]] §2/§4): done = `CheckCircleIcon text-success` · current = `CircleIcon text-accent` + label `text-accent` · todo = `CircleIcon text-muted` + label `text-muted`. Row nền trong suốt. (Khác "đang chọn" persistent selection của `ListBox` vốn tint `bg-accent/10` — phase-current là STATUS, không phải selection.)
+- **a11y:** phase hiện tại `aria-current="step"`; nhãn phase có TEXT (không chỉ màu).
+- **Câu hỏi phân biệt:** item này user **click để chọn/đổi view** (→ `ListBox` §4) hay chỉ **hiển thị hệ đang ở đâu, do hệ điều khiển** (→ status list)? Áp đầu: `SystemDesignInterview` rail 5 phase (Yêu cầu→Ước lượng→Tổng thể→Đào sâu→Tradeoff) — do AI/nút chuyển điều khiển, không click-được → status list (icon done/current/todo + timer), KHÔNG `ListBox`.
+
 ## Nguyên tắc chọn block
 - Item là **đoạn markdown dài** → KHÔNG `ListRow` (truncate) → row tự dựng + `MarkdownContent` ([[description-fields-render-markdown-compact]]).
 - Khối "label + list" cần khung card thật → `LabeledCard`; chỉ cần nhẹ (rail) → `LabeledList`.
-- List "brief có/không tick" (value props/outputs/prerequisites/outcomes) → `CheckListCard` ([[elements/card]] §3d). List click được nhìn như accordion card → `SurfaceListCard` (§3c). Rail chọn item phẳng no-card → `ListBox` (§4).
+- List "brief có/không tick" (value props/outputs/prerequisites/outcomes) → `CheckListCard` ([[elements/card]] §3d). List click được nhìn như accordion card → `SurfaceListCard` (§3c). Rail chọn item phẳng no-card, TƯƠNG TÁC → `ListBox` (§4). Rail trạng thái, KHÔNG tương tác → status list (§6).
 - Style chỉ ở block; feature ghép data.

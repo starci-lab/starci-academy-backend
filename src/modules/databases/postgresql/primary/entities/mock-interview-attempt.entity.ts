@@ -194,6 +194,27 @@ export class MockInterviewAttemptEntity extends UuidAbstractEntity {
         matchedContentIds: Array<string>
 
     /**
+     * Per-question model-answer review — one entry per `mode="qna"` question,
+     * `[{ questionIndex, kind, question, candidateAnswer, modelAnswer,
+     * feedback, score, max, matchedContentId }]` (see
+     * {@link import("../../../../../features/api/core/graphql/mutations/interview/grade-mock-interview-session/types/mock-interview-grade").MockInterviewQuestionReview}
+     * for the full shape) — the anti-ChatGPT feature: pairs the candidate's
+     * own answer against the course's authored answer for the exact same
+     * flashcard seed. Always empty for `mode="design"` (no single seed
+     * flashcard to source a model answer from). jsonb (not typed columns) for
+     * the same schema-evolution reason as every other breakdown column on
+     * this entity; defaults to an empty array so every attempt written before
+     * this column existed reads back as "no per-question review available"
+     * rather than null.
+     */
+    @Column({
+        name: "question_reviews",
+        type: "jsonb",
+        default: () => "'[]'",
+    })
+        questionReviews: Array<Record<string, unknown>>
+
+    /**
      * Whether THIS graded attempt should feed job-readiness's rolling
      * mock-interview average — "configurable setup" (2026-07-06): copied
      * verbatim from the session row's own

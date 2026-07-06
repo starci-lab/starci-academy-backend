@@ -47,8 +47,24 @@ import {
     type MockInterviewAttributeScore,
     type MockInterviewGradeSessionResult,
     type MockInterviewPhaseScore,
+    type MockInterviewQuestionReview,
     type MockInterviewSeedGrounding,
+    type MockInterviewTurnRecord,
 } from "./types"
+
+/**
+ * One `questionFeedback[]` entry as returned raw by the model (see
+ * {@link MockInterviewGradePromptService.buildQna}'s new output field) —
+ * intermediate shape between the raw JSON parse and the fully-built
+ * {@link MockInterviewQuestionReview} (which also needs the transcript +
+ * seed groundings, not available inside {@link MockInterviewGradingService.parse}).
+ */
+interface MockInterviewQuestionFeedbackItem {
+    /** 0-based question index this feedback line applies to. */
+    index: number
+    /** One-line what-was-missing summary for this specific question. */
+    feedback: string
+}
 
 /** Minimum allowed interview score/attribute value. */
 const MIN_SCORE = 0
@@ -275,9 +291,27 @@ export class MockInterviewGradingService {
             attempts,
         })
 
+        const parsed = this.parse(text)
+
+        // build the per-question model-answer reviews (qna only — see
+        // buildQuestionReviews's own doc for why design has none) from the
+        // SAME three server-held sources used to grade: the transcript's
+        // turns, the session's persisted seed groundings, and the model's own
+        // per-question phaseScores/questionFeedback just parsed above.
+        const questionReviews = mode === MockInterviewMode.Qna
+            ? this.buildQuestionReviews({
+                turns,
+                seedGroundings,
+                phaseScores: parsed.phaseScores,
+                questionFeedback: parsed.questionFeedback,
+                matchedContentIds,
+            })
+            : []
+
         const result: MockInterviewGradeSessionResult = {
-            ...this.parse(text),
+            ...parsed,
             matchedContentIds,
+            questionReviews,
         }
         // persist the graded session for cross-session interview history (best-effort —
         // a history write must never fail the grade the user is waiting on)
@@ -515,6 +549,7 @@ export class MockInterviewGradingService {
                     gaps: result.gaps,
                     followUpQuestion: result.followUpQuestion,
                     matchedContentIds: result.matchedContentIds,
+                    questionReviews: result.questionReviews as unknown as Array<Record<string, unknown>>,
                     countsToReadiness,
                 },
             )
@@ -525,18 +560,23 @@ export class MockInterviewGradingService {
 
     /**
      * Parse + normalize the model's strict-JSON response into a
-     * {@link MockInterviewGradeSessionResult} (minus `matchedContentIds`, which
-     * comes from RAG retrieval rather than the model's own response — the
-     * caller merges it in), clamping scores and coercing the verdict +
-     * phase/attribute breakdowns.
+     * {@link MockInterviewGradeSessionResult} (minus `matchedContentIds` —
+     * comes from RAG retrieval, not the model's response — and
+     * `questionReviews`, built separately by {@link buildQuestionReviews}
+     * once the transcript/seed groundings are also in scope), clamping scores
+     * and coercing the verdict + phase/attribute breakdowns. Also parses the
+     * new `questionFeedback` array (mode="qna" only; harmlessly ignored by
+     * mode="design", which never asks the model for it).
      *
      * @param raw - The raw model response text.
-     * @returns The normalized session grade result, without `matchedContentIds`.
+     * @returns The normalized session grade result (without `matchedContentIds`/`questionReviews`), plus the raw `questionFeedback` for {@link buildQuestionReviews} to consume.
      * @throws ParsingCriteriaResultsFromModelTextException when JSON parsing fails.
      */
     private parse(
         raw: string,
-    ): Omit<MockInterviewGradeSessionResult, "matchedContentIds"> {
+    ): Omit<MockInterviewGradeSessionResult, "matchedContentIds" | "questionReviews"> & {
+        questionFeedback: Array<MockInterviewQuestionFeedbackItem>
+    } {
         let parsed: Record<string, unknown>
         try {
             // strip any fence / prose then parse the JSON object
@@ -564,7 +604,150 @@ export class MockInterviewGradingService {
             strengths: this.normalizeStringArray(parsed.strengths),
             gaps: this.normalizeStringArray(parsed.gaps),
             followUpQuestion: this.normalizeNullableString(parsed.followUpQuestion),
+            questionFeedback: this.normalizeQuestionFeedback(parsed.questionFeedback),
         }
+    }
+
+    /**
+     * Coerce an unknown value to a clean array of
+     * {@link MockInterviewQuestionFeedbackItem}. A malformed or missing array
+     * degrades to empty rather than throwing — mode="design" never sends this
+     * field at all, and a model that omits/garbles it for mode="qna" must
+     * still let the rest of the grade through (the FE just shows no
+     * per-question feedback line for the affected index).
+     *
+     * @param value - The raw `questionFeedback` value from the parsed JSON.
+     * @returns A clean array of `{ index, feedback }` entries (possibly empty).
+     */
+    private normalizeQuestionFeedback(
+        value: unknown,
+    ): Array<MockInterviewQuestionFeedbackItem> {
+        if (!Array.isArray(value)) {
+            return []
+        }
+        return value
+            .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
+            .map((item) => {
+                const indexRaw = typeof item.index === "number"
+                    ? item.index
+                    : Number(item.index)
+                const index = Number.isFinite(indexRaw)
+                    ? Math.max(0,
+                        Math.trunc(indexRaw))
+                    : -1
+                const feedback = typeof item.feedback === "string"
+                    ? item.feedback.trim()
+                    : ""
+                return {
+                    index,
+                    feedback,
+                }
+            })
+            .filter((item) => item.index >= 0)
+    }
+
+    /**
+     * Build the per-question model-answer reviews for a `mode="qna"` session —
+     * the anti-ChatGPT feature: pairs the candidate's own words against the
+     * course's CANONICAL authored answer for the exact same question, which
+     * no generic tool can do (see {@link MockInterviewQuestionReview}'s doc).
+     * One review per question, in index order, spanning
+     * `max(transcript question count, seed grounding count)` so a question
+     * with turns but no resolved grounding (a deleted seed card) — or vice
+     * versa — still gets a row (with `modelAnswer: null` / empty
+     * question-answer text respectively) rather than being silently dropped.
+     *
+     * @param params - The full transcript, the session's seed groundings, the
+     *   model's normalized per-question `phaseScores`, its raw
+     *   `questionFeedback`, and the session-wide `matchedContentIds`.
+     * @returns One {@link MockInterviewQuestionReview} per question, in order.
+     */
+    private buildQuestionReviews(
+        params: {
+            turns: Array<MockInterviewTurnRecord>
+            seedGroundings: Array<MockInterviewSeedGrounding>
+            phaseScores: Array<MockInterviewPhaseScore>
+            questionFeedback: Array<MockInterviewQuestionFeedbackItem>
+            matchedContentIds: Array<string>
+        },
+    ): Array<MockInterviewQuestionReview> {
+        const {
+            turns, seedGroundings, phaseScores, questionFeedback, matchedContentIds,
+        } = params
+
+        const turnsByQuestion = new Map<number, Array<MockInterviewTurnRecord>>()
+        for (const turn of turns) {
+            if (turn.questionIndex === undefined || turn.questionIndex === null) {
+                continue
+            }
+            const existing = turnsByQuestion.get(turn.questionIndex)
+            if (existing) {
+                existing.push(turn)
+            } else {
+                turnsByQuestion.set(turn.questionIndex,
+                    [turn])
+            }
+        }
+
+        const feedbackByIndex = new Map(
+            questionFeedback.map((item) => [item.index,
+                item.feedback]),
+        )
+
+        // best-effort single per-question content match — the RAG retrieval is
+        // one flat top-K pass over the WHOLE session (see the caller's
+        // `contentRagRetrievalService.retrieveCourseExcerpt` call), so there is
+        // no real per-question ranking to draw from; the closest honest
+        // best-effort signal is "the single content id the retrieval ranked
+        // most relevant overall" attached to every question that resolves a
+        // grounding, and null otherwise — never invented when the whole
+        // session had zero matches.
+        const bestEffortContentId = matchedContentIds[0] ?? null
+
+        const questionCount = Math.max(
+            turnsByQuestion.size,
+            seedGroundings.length,
+        )
+
+        return Array.from(
+            {
+                length: questionCount,
+            },
+            (unused, index) => {
+                const questionTurns = turnsByQuestion.get(index) ?? []
+                const grounding = seedGroundings[index]
+                const phaseScore = phaseScores[index]
+
+                const question = questionTurns
+                    .filter((turn) => turn.role === "interviewer")
+                    .map((turn) => turn.content)
+                    .join(" ")
+                    .trim()
+                const candidateAnswer = questionTurns
+                    .filter((turn) => turn.role === "candidate")
+                    .map((turn) => turn.content)
+                    .join(" ")
+                    .trim()
+
+                const review: MockInterviewQuestionReview = {
+                    questionIndex: index,
+                    kind: grounding?.kind ?? "theory",
+                    // fall back to the seed's OWN question text when the interviewer
+                    // turn wasn't recorded/tagged with this index — still gives the
+                    // learner something to compare their answer against
+                    question: question || grounding?.question || "",
+                    candidateAnswer,
+                    modelAnswer: grounding?.answer ?? null,
+                    feedback: feedbackByIndex.get(index) ?? "",
+                    score: phaseScore?.score ?? MIN_SCORE,
+                    max: phaseScore?.max ?? DEFAULT_PHASE_MAX,
+                    matchedContentId: grounding
+                        ? bestEffortContentId
+                        : null,
+                }
+                return review
+            },
+        )
     }
 
     /**

@@ -123,6 +123,7 @@ export class MyMockInterviewAttemptsResolver {
                 gaps: attempt.gaps,
                 followUpQuestion: attempt.followUpQuestion,
                 matchedContentIds: attempt.matchedContentIds,
+                questionReviews: attempt.questionReviews,
                 createdAt: attempt.createdAt.toISOString(),
             })),
         }

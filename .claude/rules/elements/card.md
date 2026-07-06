@@ -77,6 +77,10 @@
 
 ## Gotcha render (HeroUI v3 unlayered)
 - `<Card variant="default">` style **unlayered** → ĐÈ utility `border`/`bg-*` thêm qua className (utility ở `@layer utilities` thua unlayered). Muốn list "nhiều card viền tách bạch" → dùng `PressableCard`/`<div>` + utility surface, KHÔNG `<Card>`. Cùng họ [[item-card-meta-inside-bounded-object]] + [[lesson-accordion-contrast-and-size]].
+- **Muốn 1 HÀNG NGANG (`flex items-center` thật) bên trong `<Card>` → dùng `<div>` THƯỜNG, KHÔNG `Card.Content`** (`.card__content` bake `flex flex-1 flex-col gap-1` — flex-COLUMN, không phải row). Đặt `className="flex items-center gap-4"` lên `Card.Content` chỉ căn giữa NGANG các hàng dọc, KHÔNG đổi hướng thành row → bug render câm lặng (không lỗi tsc/lint), item xếp dọc căn giữa thay vì 1 hàng ngang. `Card.Content` chỉ hợp khi layout MONG MUỐN đúng là cột (cover→text→footer). Muốn row → `<div className="flex items-center gap-4">` trực tiếp trong `<Card>`.
+- **Root `<Card>` (`.card` base) đã bake `p-4`** — inset quanh MỌI con (Header/Content/Footer). KHÔNG thêm `p-*` riêng lên con (Card.Content/div hàng ngang) trừ khi có lý do rõ (section riêng biệt trong 1 card nhiều block) — cộng dồn = double-pad.
+- **Media (cover/thumbnail) đặt TRONG card, có padding quanh (không full-bleed) = "inner" — dùng radius 1 nấc dưới radius của card** (card `rounded-3xl` → media `rounded-2xl`). Áp NHẤT QUÁN cho MỌI view hiển thị cùng 1 entity (vd grid card + line-view row của cùng 1 danh sách) — khác radius giữa 2 view = lệch, dễ bị bắt lỗi khi so sánh cạnh nhau. Full-bleed (không padding, tràn sát mép, card `overflow-hidden` tự clip theo góc bo) là lựa chọn KHÁC — chỉ dùng cho "hero image" tràn mép, không dùng khi ảnh là 1 thumbnail độc lập cạnh text.
+- Áp đầu (2026-07-02): `CourseCard` (blocks/cards) — layout `"line"` Card.Content→plain div (fix hàng dọc-căn-giữa); cover/thumbnail grid+line đồng bộ `rounded-2xl`; bỏ padding thừa (root `p-4` đã đủ).
 
 ## Spacing
 - Padding card = container sở hữu (`px-4 py-3`); nội dung trong card nhịp `gap-3` (related) / `gap-2` (cụm con). Section ↔ section = `gap-6`. KHÔNG gap-1/5/8/10.

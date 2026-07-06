@@ -69,6 +69,45 @@ export interface MockInterviewAttributeScore {
 }
 
 /**
+ * One `mode="qna"` QUESTION's full review — the anti-ChatGPT differentiator:
+ * StarCi is the only place that can show the CANONICAL course answer next to
+ * what the candidate actually said, because the flashcard seed carries an
+ * author-written `answer` for the exact topic being asked (a generic tool has
+ * no ground truth for what "correct" means in this course). Built by
+ * {@link MockInterviewGradingService.buildQuestionReviews} from three
+ * server-held sources — never trusted from the client:
+ * - the transcript's turns for this `questionIndex` (interviewer + candidate).
+ * - the session's persisted `seedQuestions[index]` grounding (kind + the
+ *   flashcard's authored `answer` as {@link modelAnswer}).
+ * - the model's per-question `phaseScores[index]` (score/max) and the new
+ *   `questionFeedback[index]` one-liner (see {@link MockInterviewGradePromptService.buildQna}).
+ *
+ * Empty for `mode="design"` — a capstone system has no single seed flashcard
+ * to source a model answer from, so there is nothing to review per-"question"
+ * (the existing phase-bar breakdown already covers that flow).
+ */
+export interface MockInterviewQuestionReview {
+    /** 0-based index of this question within the session (matches the transcript's `questionIndex` and `phaseScores[index]`). */
+    questionIndex: number
+    /** This question's cognitive frame ("theory" | "reasoning" | "scenario"), as drawn — a {@link import("@modules/databases").MockInterviewKind} value. */
+    kind: string
+    /** The interviewer's question text for this question (joined from the transcript's `role: "interviewer"` turns at this index). */
+    question: string
+    /** The candidate's OWN answer for this question (joined from the transcript's `role: "candidate"` turns at this index). */
+    candidateAnswer: string
+    /** The seed flashcard's authored model answer (Markdown) — the canonical, course-grounded correct answer; null when the seed card had none on file or no grounding resolved for this index (e.g. the card was deleted after the draw). */
+    modelAnswer: string | null
+    /** A one-line, model-generated summary of what the candidate's answer was missing relative to the reference — see {@link MockInterviewGradePromptService.buildQna}'s new `questionFeedback` output; empty string when the model omitted it for this index. */
+    feedback: string
+    /** Score assigned to this question (mirrors `phaseScores[questionIndex].score`). */
+    score: number
+    /** Maximum possible score for this question (mirrors `phaseScores[questionIndex].max`, always 100 for qna). */
+    max: number
+    /** Best-effort single matched course content (lesson) id for this question, resolved from the session-wide RAG retrieval; null when no confident per-question match exists (the FE must not invent a link — fall back to a generic "review the course" action). */
+    matchedContentId: string | null
+}
+
+/**
  * One seed flashcard's grading ground-truth, index-aligned with the
  * transcript's `questionIndex` — carries the QUESTION'S OWN randomly-assigned
  * {@link import("@modules/databases").MockInterviewKind}, since kind now
@@ -143,6 +182,13 @@ export interface MockInterviewGradeSessionResult {
      * fallback in that case, never invent a link.
      */
     matchedContentIds: Array<string>
+    /**
+     * Per-question model-answer review — one entry per `mode="qna"` question
+     * (see {@link MockInterviewQuestionReview}). ALWAYS empty for
+     * `mode="design"` (a capstone system has no single seed flashcard to
+     * source a model answer from).
+     */
+    questionReviews: Array<MockInterviewQuestionReview>
 }
 
 /** Params for {@link MockInterviewGradePromptService.build}. */

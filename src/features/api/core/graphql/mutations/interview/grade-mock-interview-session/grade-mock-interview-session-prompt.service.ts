@@ -101,10 +101,14 @@ const QNA_KIND_RUBRIC_MAP: Record<MockInterviewKind, string> = {
  *   "reasoning"/"scenario" ({@link buildQna}) — a single session can (and
  *   usually does) mix kinds across its questions.
  *
- * The response schema is UNCHANGED across every branch — `phaseScores` stays
+ * The core `phaseScores` shape is UNCHANGED across every branch —
  * `[{ phase, score, max }]`; the qna branch just labels each entry "Câu N"
  * instead of one of the 5 canonical design-phase literals, so the FE's
- * generic "render phaseScores as labeled bars" needs zero changes.
+ * generic "render phaseScores as labeled bars" needs zero changes. The qna
+ * branch additionally asks for a `questionFeedback: [{ index, feedback }]`
+ * array (2026-07-06, per-question model-answer review feature) — `buildDesign`
+ * never requests or reads it, so `mode="design"` output is byte-identical to
+ * before.
  */
 @Injectable()
 export class MockInterviewGradePromptService {
@@ -397,6 +401,28 @@ export class MockInterviewGradePromptService {
                     "Concrete thing that was missing, framed as what to add.",
                 ],
                 followUpQuestion: "A natural follow-up question, or null.",
+                questionFeedback: [
+                    {
+                        index: 0,
+                        feedback: "One line: what this specific answer was missing or got wrong, relative to the reference.",
+                    },
+                    {
+                        index: 1,
+                        feedback: "One line: what this specific answer was missing or got wrong, relative to the reference.",
+                    },
+                    {
+                        index: 2,
+                        feedback: "One line: what this specific answer was missing or got wrong, relative to the reference.",
+                    },
+                    {
+                        index: 3,
+                        feedback: "One line: what this specific answer was missing or got wrong, relative to the reference.",
+                    },
+                    {
+                        index: 4,
+                        feedback: "One line: what this specific answer was missing or got wrong, relative to the reference.",
+                    },
+                ],
             },
             null,
             2,
@@ -443,9 +469,15 @@ export class MockInterviewGradePromptService {
             "- strengths: concrete things the candidate got right across the session (may be empty).",
             "- gaps: concrete things missing or wrong, each framed as what to add (may be empty).",
             "- followUpQuestion: a natural follow-up an interviewer would ask next, or null.",
+            "- questionFeedback: EXACTLY one entry PER QUESTION (same count and order as `phaseScores`), each",
+            "  `{ index, feedback }` where `index` is the 0-based question number (0, 1, 2, …, matching the",
+            "  \"### Question N\" blocks below where N = index + 1) and `feedback` is ONE SHORT LINE stating what",
+            "  THIS SPECIFIC answer was missing or got wrong relative to its own reference/rubric above — this is",
+            "  DIFFERENT from `gaps` (which is a session-wide list); a strong answer still gets a short line noting",
+            "  what would make it even stronger, never an empty string.",
             "",
             "## Language",
-            `Write strengths, gaps, and followUpQuestion in **${targetLanguage}**.`,
+            `Write strengths, gaps, followUpQuestion, and questionFeedback[].feedback in **${targetLanguage}**.`,
             "JSON keys stay in English; `phaseScores[].phase` stays the literal Vietnamese \"Câu N\" labels above",
             "regardless of feedback language; verdict stays one of the lowercase English literals above.",
             "",
