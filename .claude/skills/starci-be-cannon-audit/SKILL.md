@@ -2,7 +2,7 @@
 name: starci-be-cannon-audit
 description: >
   Soi (audit) source backend CŨ xem lệch chuẩn "Code Cannon" của StarCi tới đâu. Đọc bộ cannon
-  (cannon/CODE-CANNON.md — code pattern chuẩn rút từ source thật) rồi quét file/module/diff được chỉ
+  (.claude/cannon/CODE-CANNON.md — code pattern chuẩn rút từ source thật) rồi quét file/module/diff được chỉ
   định, liệt kê VI PHẠM kèm rule bị phá · file:line · mức độ · cách sửa. KHÔNG tự sửa (chỉ báo cáo;
   fix khi user duyệt). Dùng cho code có sẵn / PR / module legacy. Trigger khi user gõ
   `/starci-be-cannon-audit <path|module|diff>`, hoặc nói "audit code chuẩn BE", "soi lệch chuẩn",
@@ -15,7 +15,7 @@ description: >
 **báo cáo vi phạm** để sửa. Audit = CHỈ BÁO CÁO; không tự ý đổi code.
 
 ## Bước 0 — đọc Cannon trước (bắt buộc)
-Đọc **`cannon/CODE-CANNON.md`** (bộ luật: Module & DI · GraphQL · REST · TypeORM data-access · CQRS &
+Đọc **`.claude/cannon/CODE-CANNON.md`** (bộ luật: Module & DI · GraphQL · REST · TypeORM data-access · CQRS &
 projection · Type-safety & naming · Cross-cutting). Đây là chuẩn để chấm; KHÔNG chấm theo cảm tính.
 
 ## Phạm vi
@@ -38,4 +38,4 @@ projection · Type-safety & naming · Cross-cutting). Đây là chuẩn để ch
 - Mức độ: **BLOCKER** = phá MUST/NEVER (sai tầng, sai data-access, lộ type inline); **WARN** = lệch SHOULD;
   **NIT** = style nhỏ.
 
-→ Sửa xong / user feedback nguyên tắc mới → ghi `cannon/drafts/<temp>.md` (đừng sửa CODE-CANNON.md trực tiếp; gộp khi `/merge`).
+→ Sửa xong / user chốt nguyên tắc BE mới → ghi THẲNG vào `.claude/cannon/CODE-CANNON.md` (đúng section), KHÔNG qua file staging.

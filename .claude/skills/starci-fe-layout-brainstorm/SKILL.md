@@ -3,7 +3,7 @@ name: starci-fe-layout-brainstorm
 description: >
   Draw the LAYOUT BLUEPRINT of a whole FEATURE (ALL its routes/tabs/modes — view, edit, create,
   detail — not one page in isolation) in the MAIN StarCi Academy web app
-  (`C:\Repositories\starci-academy`) — WHERE each region renders (nav/tabs, CTA buttons, cards,
+  (`D:\Repositories\starci-academy`) — WHERE each region renders (nav/tabs, CTA buttons, cards,
   rails, sections) and WHY it sits there, with EVERY tab's content expanded (not hidden behind a
   tab switch). Also decides ROUTING architecture (whether a surface should be a separate route vs
   a query-param mode of the same surface, e.g. `/cv/edit` → `?tab=cv&edit=true`) and unifies an
@@ -58,7 +58,7 @@ component. **KHÔNG viết code.** CHẠY MAX EFFORT.
   (loãng / thiếu state / CTA-khóa vắng / phân cấp sai). ĐỪNG bê cấu trúc legacy sang.
 - **Grounded in data:** mọi khối tựa trên field BE/DB THẬT — đừng vẽ vùng cho dữ liệu không tồn tại. Field CÓ nhưng
   CHƯA dùng = cơ hội đặt 1 khối mới.
-- **Mindset-first:** áp `main.md` §1 + skill **`ui-ux-pro-max`** (purpose trước pixel · 1 primary action/màn ·
+- **Mindset-first:** áp triết lý trong `.claude/rules/concepts/*.md` + skill **`ui-ux-pro-max`** (purpose trước pixel · 1 primary action/màn ·
   empty/loading/error · recruiter/user-first · nội dung > vanity · ăn cắp pattern đã chứng minh) + luật layout StarCi
   ([[when-rail]] · [[when-drawer]] · [[three-tier-page-layout]] · [[concepts/card]] · [[tabscard-two-secondary-groups]]
   · [[single-select-among-options-use-tabs]]).
@@ -71,7 +71,7 @@ component. **KHÔNG viết code.** CHẠY MAX EFFORT.
    cây component (mới + legacy) + tab/segment/rail + **URL scheme hiện tại của từng cái** → phát hiện chỗ RỜI/lệch
    (vd `?tab=cv` vs `/cv/edit`) để quyết hợp nhất (xem §SCOPE). Không chỉ khoanh 1 trang.
 2. **Research SONG SONG — spawn Explore agents (đừng đoán):**
-   - **BE** `C:\Repositories\ac\starci-academy-backend`: GraphQL query/mutation phục vụ trang + field trả về.
+   - **BE** `D:\Repositories\starci-academy-backend`: GraphQL query/mutation phục vụ trang + field trả về.
    - **DB**: Postgres entities — field/quan hệ thật → dữ liệu KHẢ DỤNG (kể cả field chưa khai thác) = khối tiềm năng.
    - **Legacy UX**: trang hiện render gì, có mấy tab/rail, CTA-khóa có/không + pain bố cục.
 3. **Skill `ui-ux-pro-max`** (`--design-system` + domain `product`/`ux`) cho loại trang → pattern layout + anti-pattern.
@@ -90,7 +90,7 @@ component. **KHÔNG viết code.** CHẠY MAX EFFORT.
      ĐỪNG chỉ vẽ "state có data đẹp" — thiếu 1 nhánh state = spec chưa đủ.
    - **Lý do đặt chỗ (WHY):** mỗi quyết định vị trí neo vào 1 nguyên tắc (F-pattern/đọc trên-xuống · primary-action-1 ·
      gom nhóm nghĩa · rỗng=CTA · ref sản phẩm). KHÔNG đặt chỗ "cho đẹp".
-5. **Output:** ghi **`<Feature>/LAYOUT-BRAINSTORM.md`** (cạnh trang) + tóm tắt chat:
+5. **Output:** ghi **`.brainstorm/<Feature>-LAYOUT.md`** (thư mục GITIGNORE ở gốc repo FE — KHÔNG commit, KHÔNG vào `src/`) + tóm tắt chat:
    khung màn · cây tab (mỗi tab render gì) · bảng khối→vị trí→vai→lý do · CTA-khóa nằm đâu · 3 state · điều cắt/thêm.
    **KHÔNG code.**
 6. **VẼ WIDGET — BẮT BUỘC, ĐÚNG FORMAT DƯỚI (mỗi lần chạy skill PHẢI render đủ):** dùng `show_widget` (gọi `read_me`

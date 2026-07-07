@@ -1,27 +1,30 @@
 ---
 name: merge
 description: >
-  Audit any LEGACY FE rule drafts still sitting in `.claude/rules/drafts/*.md` (backend repo,
-  D:\Repositories\starci-academy-backend) and fold them into the canonical v2 rule tree
+  Catch any STRAY FE rule draft that drifted back into a `.claude/rules/drafts/*.md` folder (backend
+  repo D:\Repositories\starci-academy-backend, OR — worse — inside the FE app repo
+  `D:\Repositories\starci-academy`) and fold it into the canonical v2 rule tree
   (`.claude/rules/{concepts,elements,layouts,responsives,debts}/*.md`) — the SSOT for the FE app's
-  design system. Drafts are a DEPRECATED workflow (chốt 2026-07-06): new rulings write STRAIGHT into
-  v2 canonical, no staging file. `/merge` only exists to clear out what's still unmerged from before
-  that cutover, and to catch/redirect anyone (including a different session) who accidentally
-  recreates a drafts-style file — especially a STRAY `.claude/rules/drafts/` folder inside the FE app
-  repo itself (`D:\Repositories\starci-academy`), which has NO canonical concepts/elements/layouts of
-  its own and must never hold rule content. Run ONLY when the user types `/merge`.
+  design system. Drafts are a DEPRECATED workflow (chốt 2026-07-06); the legacy backlog was folded +
+  the `drafts/` folder deleted 2026-07-07, so normally there is NOTHING to merge. New rulings write
+  STRAIGHT into v2 canonical, no staging file. `/merge` now only exists to redirect anyone (including
+  a different session) who accidentally recreates a drafts-style file. The FE app repo has NO
+  canonical concepts/elements/layouts of its own and must never hold rule content. Run ONLY when the
+  user types `/merge`.
 ---
 
-# /merge — Sweep any leftover drafts into v2 canonical (SSOT)
+# /merge — Fold any STRAY draft into v2 canonical (SSOT)
 
 **Canonical location (STRICT, the only one — read this before doing anything):**
 `D:\Repositories\starci-academy-backend\.claude\rules\{concepts,elements,layouts,responsives,debts}\*.md`
 This is **"rules v2"**. It is the ENTIRE FE design-system rule set (button/card/input/tabs/list/…
 styling + product/engineering heuristics), even though it documents the FE app that lives in a
 **separate repo** (`D:\Repositories\starci-academy`). There is no `main.md` / `starci-<element>.md`
-anymore (that was v1 — already retired). There is no `.claude/rules/drafts/` inside the FE app repo
-either — if one exists there, it is DRIFT and must be emptied into this backend repo's tree, never
-merged "in place" in the FE repo (it has no `concepts/`/`elements/`/`layouts/` to fold into locally).
+anymore (that was v1 — retired). The legacy `.claude/rules/drafts/` backlog was folded + the folder
+DELETED (2026-07-07), so normally there is nothing here to merge. There is no `.claude/rules/drafts/`
+inside the FE app repo either — if one exists in EITHER repo, it is DRIFT and must be emptied into
+this backend repo's canonical tree, never merged "in place" in the FE repo (it has no
+`concepts/`/`elements/`/`layouts/` to fold into locally).
 
 ## Khi nào
 - CHỈ khi thầy gõ `/merge`.

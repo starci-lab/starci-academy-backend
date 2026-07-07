@@ -10,4 +10,4 @@
 - **Phân biệt:** đây là "meter có mốc" (cần target). Khác meter "đại lượng lớn dần" (mastery — [[progress-block-growing-quantity-headline-not-vanity-strip]]) đã có mẫu số tự nhiên (tổng thẻ). Cả hai: KHÔNG để meter vô nghĩa/rỗng — luôn có mẫu số để fill.
 
 ## Áp đầu (2026-06-25)
-- `WeeklyGoals`: `DEFAULT_KPI_TARGETS` (lessons 5·studyDays 5·challenges 3·coding 3·flashcards 20); effective target cho bar/display/summary → có học là bar chạy. Ref [[weekly-goal-meter-defaults-and-heat-token-readd]].
+- `WeeklyGoals`: `DEFAULT_KPI_TARGETS` (lessons 5·studyDays 5·challenges 3·coding 3·flashcards 20); effective target cho bar/display/summary → có học là bar chạy. Token heatmap "mất màu" → [[heatmap-trong-la-bug-token-khong-redesign]] (bug token, không redesign).

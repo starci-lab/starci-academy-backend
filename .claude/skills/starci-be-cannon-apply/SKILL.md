@@ -2,7 +2,7 @@
 name: starci-be-cannon-apply
 description: >
   Khi viết code BACKEND MỚI (module/service/resolver/entity/handler...) trong repo StarCi, tự động ÁP
-  bộ "Code Cannon" (cannon/CODE-CANNON.md — code pattern chuẩn rút từ source thật) ngay từ lúc gõ, rồi
+  bộ "Code Cannon" (.claude/cannon/CODE-CANNON.md — code pattern chuẩn rút từ source thật) ngay từ lúc gõ, rồi
   tự-kiểm trước khi xong. Khác `-audit` (soi code cũ, chỉ báo cáo): skill này là chế độ VIẾT cho code
   mới sao cho đúng chuẩn từ đầu. Trigger khi user gõ `/starci-be-cannon-apply`, hoặc khi tạo
   module/service/resolver/entity/CQRS-handler mới trong backend, hoặc nói "viết code BE theo chuẩn",
@@ -14,7 +14,7 @@ description: >
 Chế độ VIẾT: mọi code backend mới phải tuân **Code Cannon** ngay khi sinh ra — không để lệch rồi mới sửa.
 
 ## Bước 0 — đọc Cannon trước (bắt buộc, trước khi gõ dòng code đầu)
-Đọc **`cannon/CODE-CANNON.md`** + các section liên quan đến thứ đang viết:
+Đọc **`.claude/cannon/CODE-CANNON.md`** + các section liên quan đến thứ đang viết:
 - Tạo **module** → §Module & DI (`.module-definition.ts` + `.module.ts` + register isGlobal + parent aggregator).
 - **Resolver/GraphQL** → §GraphQL (Input/ObjectType, @Query/@Mutation, gọi service).
 - **Entity / data-access** → §TypeORM (`InjectEntityManager`, KHÔNG `InjectRepository`; transaction).
@@ -37,7 +37,7 @@ Chế độ VIẾT: mọi code backend mới phải tuân **Code Cannon** ngay k
 - **Cannon là luật, không phải gợi ý.** Cần phá 1 rule → nêu lý do rõ + hỏi user, đừng phá lặng lẽ.
 - **Bắt chước source thật > trí nhớ.** Cấu trúc/naming theo file cùng loại đang có trong repo.
 - **Không lặp lại lỗi đã biết.** Pattern xấu Cannon cấm = tuyệt đối tránh ngay từ bản nháp đầu.
-- Học được nguyên tắc mới khi viết → ghi `cannon/drafts/<temp>.md` (gộp vào CODE-CANNON.md khi `/merge`),
-  KHÔNG sửa CODE-CANNON.md trực tiếp giữa lúc làm.
+- Học được nguyên tắc BE mới khi viết → ghi THẲNG vào `.claude/cannon/CODE-CANNON.md` (đúng section), KHÔNG
+  qua file staging. Chỉ ghi nguyên tắc đã chốt rõ; đừng nhét ghi chú tạm.
 
 → Viết xong: tóm tắt file đã tạo + xác nhận đã qua self-check Cannon. Muốn rà kỹ code cũ quanh đó → `/starci-be-cannon-audit`.

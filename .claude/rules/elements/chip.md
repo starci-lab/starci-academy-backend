@@ -22,7 +22,13 @@
 - **CẤM `font-mono` cho text UI thường** (model name, label, value, tên file inline trong row…) khi **chưa có lệnh thầy**. Mono đọc "lập trình/code", lệch da typography hệ (Inter sans), trông kỹ-thuật-thô. Vd "chấm bởi qwen2.5-coder:7b" → chữ THƯỜNG (sans), KHÔNG mono.
 - **Mono chỉ khi:** (a) là **code/inline-code thật** render qua `MarkdownContent` (renderer tự lo `<code>` — [[elements/richtext]]); (b) **thầy duyệt riêng** cho chỗ đó (vd language-strip landing §5 dưới — brand logo names). Mặc định mọi text khác = sans.
 
-## 5. Áp đầu (2026-06-26)
+## 5. Chip REMOVABLE (xoá được): X = trailing child của `<Chip>` (không sibling span), X = HeroUI `Link` accent + hover OPACITY (KHÔNG `CloseButton`) — CHỐT 2026-07-06
+- **Chip xoá được (skill/interest/tag picker) = `<Chip><Chip.Label>{name}</Chip.Label><X/></Chip>`** — X là trailing child TRỰC TIẾP TRONG pill (như example HeroUI `<Chip><Xmark/><Chip.Label/></Chip>`), KHÔNG bọc `<span inline-flex gap-2><Chip/><X/></span>` (cách đó vẽ "chip + nút X đứng CẠNH" = 2 khối rời).
+- **X = HeroUI `Link` màu accent, KHÔNG `CloseButton`:** `CloseButton` (`.close-button--default`) bake `bg-default` LUÔN → vòng tròn xám hằn quanh X trên chip nhỏ (nặng). Dùng `<Link className="text-accent no-underline opacity-60 transition-opacity hover:opacity-100 hover:no-underline" aria-label onPress>{<XIcon aria-hidden className="size-3"/>}</Link>` (`Link` không có `bg` baked → phẳng).
+- **Hover X = OPACITY** (`opacity-60→100`), KHÔNG underline, KHÔNG fill. Đây là 1 mode riêng "dismiss glyph nhỏ trong pill" — KHÁC 3 mode go-there/user/accordion của [[hover-style-matches-clickable-nature]] (X-trong-chip không phải link điều hướng, không phải identity-cụm). `XIcon size-3` (khớp `Chip size="sm"`), `aria-label` bắt buộc.
+- Chip KHÔNG xoá được (status/badge thông tin, vd "Đã xác thực") → KHÔNG có X.
+
+## 6. Áp đầu (2026-06-26)
 - `HeroBanner` (landing hero): eyebrow trả về `<Chip className="bg-accent/10 text-accent">` (bỏ custom span). Language strip = `<Chip className="font-mono bg-[#hex]/10 text-[#hex]">` per lang (brand color, literal trong `LANDING_HERO_KEYWORDS`, **mono = ngoại lệ thầy duyệt** cho tên ngôn ngữ) + prefix "Giải bằng". Hết hand-roll, hết "chìm".
 - `SubmissionResult`/`GradingByline` (2026-06-28): "chấm bởi `<model>`" từ `<Chip font-mono>` → **text thuần** (sparkle accent size-5 + chữ sans foreground) + `AiCategoryChip` chip bên cạnh. Hết chip-cạnh-chip, hết mono.
 

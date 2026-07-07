@@ -8,7 +8,7 @@
   - **`title`** — `Typography.Heading level={3}` (H3, KHÔNG H1/H2/H4). Đồng bộ MỌI header.
   - **`description`** — `body-sm muted`, dưới title (cặp title↔desc = `gap-2`).
   - **`meta`** — hàng chip/stat dưới title-block (vd `HighlightChip` "24 Module · 87 Nội dung", hoặc chips điểm/độ khó/trạng thái).
-  - **`actions`** — slot phải (`shrink-0`).
+  - **`actions`** — slot phải (`shrink-0`). Để dành cho **CTA CHÍNH của trang**, KHÔNG cho thao tác PHỤ (vd nút refresh/làm-mới của 1 board) — thao tác phụ đặt trong toolbar của chính khối đó, không tranh chỗ ngang tiêu đề trang.
 - Outer của PageHeader = `gap-3` (breadcrumb ↔ title-block ↔ meta); title↔desc bên trong = `gap-2`.
 
 ## 2. PageHeader là TIER HEADER RIÊNG — gap-10 xuống content (STRICT)
@@ -27,6 +27,8 @@
 
 ## 3. Slot `breadcrumb` = BACK-LINK cho trang LEAF (solve / result)
 - Trang **leaf "giải/làm/xem-kết-quả 1 item"** (challenge solve, submission result…) KHÔNG dùng breadcrumb-chain (chain generic dừng giữa chừng = vô nghĩa) → đặt **1 back-link vào slot `breadcrumb`** (vd "← Quay lại bài học" / "← Quay lại thử thách"). 1 affordance điều hướng-lùi duy nhất (ref [[leaf-page-one-nav-and-combined-tab-toolbar]]). Gate khi có `onBack`.
+- **Back-link = block `blocks/navigation/BackLink`, KHÔNG hand-roll `<Link>` + class tay** (1 element = 1 component — [[single-source-render]]). API `{ label?, target?, onPress, className? }`: omit hết → **"Trở lại"** (`common.goBack`); `target` → **"Trở lại {target}"** (`common.goBackTo`); `label` = override trọn nhãn (nhãn legacy "Quay lại thử thách"…). Da (block sở hữu): `Link group ... gap-2 text-sm text-muted no-underline hover:text-foreground` + `ArrowLeftIcon size-5` + label. Hover = **arrow TRƯỢT TRÁI** (`group-hover:-translate-x-1`) + **label UNDERLINE** (`group-hover:underline`, mode go-there — [[hover-style-matches-clickable-nature]]). KHÔNG text-accent (back không thuộc 4 vai accent — [[concepts/accent-system]]), KHÔNG pill/Button, KHÔNG action-button bên phải.
+- **View edit/compose (leaf "làm-1-việc") → back-link THAY luôn title + breadcrumb:** xóa Label/title thừa (form tự nói nó là gì), 1 affordance lùi duy nhất, nhãn generic "Trở lại".
 - Trang ĐỌC/duyệt (`/learn/*`, settings) → breadcrumb-chain thật (`LearnBreadcrumb` / `SettingsBreadcrumb`, DRY — chỉ truyền `current`). Ref [[header-gap2-and-breadcrumb-everywhere]] + [[settings-pages-breadcrumb-and-pageheader]].
 - **SUB-VIEW của 1 tab (không phải leaf-solve) → thêm crumb TRUNG GIAN clickable, KHÔNG back-link riêng.** Khi 1 tab có sub-view (vd bộ thẻ dưới "Ôn tập"): breadcrumb = `… › <tab>(clickable→overview) › <tên sub-view>`. Crumb `<tab>` click được CHÍNH LÀ đường lùi → **bỏ "← Tổng quan"** (1 affordance lùi, ref [[leaf-page-one-nav-and-combined-tab-toolbar]]). `LearnBreadcrumb` có prop **`section={{label,onPress}}`** chèn crumb giữa course↔current (chỉ khi có `current`). Khác back-link của leaf-SOLVE (§3): leaf solve dùng back-link vì chain generic dừng giữa chừng; sub-view của tab thì chain ĐỦ nghĩa (tab→sub) nên dùng chain.
 - Canvas full-bleed (mind-map) = NGOẠI LỆ: KHÔNG header/breadcrumb (ref [[fullbleed-canvas-no-chrome-and-orient-zoom]]).

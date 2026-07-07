@@ -90,4 +90,4 @@ Notes:
 - VPS: `103.173.229.250`, app root `/root/academy`, mount `/root/academy/.mount` ↔ container `/usr/src/app/.mount`.
 - Compose: `apps/core/vps-compose.yaml`. Deploy: `.github/workflows/deploy-core-vps.yml`.
 - Secrets map (no values): `.mount/terraform/SECRETS.md`. Token verify: `scratch/check-tokens.ps1`.
-- Working rule: secrets via env (user) → script+wiring+local-run via Claude → prod-trigger via workflow. See `.claude/rules/drafts/secrets-env-in-script-out-protocol.md`.
+- Working rule: secrets via env (user) → script+wiring+local-run via Claude → prod-trigger via workflow. See `.claude/rules/concepts/secrets-env-in-script-out-protocol.md`.

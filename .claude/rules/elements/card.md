@@ -2,13 +2,20 @@
 
 > Element doc cho `Card` (HeroUI v3 `@heroui/react`). Tổng hợp các biến thể/cách dùng card đã chốt. Chi tiết từng quyết định nằm ở `drafts/*` (link bên dưới) cho tới khi `/merge`.
 
+## ★ 0. DA CARD GLOBAL = ELEVATION (shadow), KHÔNG border (CHỐT 2026-06-30, đảo convention cũ)
+- **Card TOP-LEVEL (thẳng trên page `bg-background`) = `shadow-surface` (elevation mặc định HeroUI) + KHÔNG border.** `globals.css` `.card { border: none !important }` (giữ `shadow-surface` baked); `.card--transparent` = frameless (`border: none` + `box-shadow: none`). Đây **ĐẢO NGƯỢC** convention cũ "card = border `--default` + `shadow-none`" — mọi chỗ dưới ghi "border + no shadow" theo nghĩa cũ, đọc theo luật này.
+- **Card-LIKE block tự dựng bằng `<div>`/`<ul>`/`<Accordion variant="surface">` + utility → cũng đổi `border border-default` → `shadow-surface`** (bỏ border): `overflow-hidden rounded-3xl border border-default bg-surface` → `overflow-hidden rounded-3xl bg-surface shadow-surface`; accordion-card `overflow-hidden border border-default` → `overflow-hidden shadow-surface`. (`.card{border:none}` chỉ đụng class `.card`; block tự dựng phải tự đổi.) `overflow-hidden` KHÔNG clip outset shadow của chính nó → shadow vẫn hiện.
+- **GIỮ border (KHÔNG convert):** **surface-in-surface / nested** (card trong modal/drawer/reading-card; markdown accordion `::::accordion` trong lesson — `--surface-shadow` transparent ở DARK nên shadow vô hình → nested cần border để delineate); **input/field/dropzone/search** (giữ `shadow-field`); **divider** + **state/selection outline** (`border-accent` đang chọn/hover); **viz/decorative container**. → §4/§3b-3f nested vẫn dùng border.
+- **Card-radio (`SelectableCardGroup`/`FlexWrap*Radio`) cũng shadow:** chưa chọn = `bg-surface` + `shadow-surface` (KHÔNG border) · đang chọn = `bg-<color>/10` + `border-<color>` (border-color = SIGNAL chọn) + shadow. Dùng utility `shadow-surface` (KHÔNG inline `boxShadow` — sẽ clobber focus-ring compose).
+- **Blast radius:** component ép `shadow-none` thủ công (theo convention cũ) → giờ mất shadow, phải gỡ `shadow-none`. `border-accent` LOAD-BEARING trên `<Card>` (bị `.card{border:none}` giết) → chuyển `ring-accent` (ring = box-shadow, sống sót) hoặc dựng `<div>`.
+
 ## Biến thể / cách dùng card (đã chốt)
 
 ### 1. Card thường (surface bounded)
-- `<Card><CardContent>` — padding mặc định (`px-4 py-3` họ HeroUI). 1 nấc `bg-surface`. Flat (shadow chỉ overlay).
+- `<Card><CardContent>` — padding mặc định (`px-4 py-3` họ HeroUI). 1 nấc `bg-surface`. Da = `shadow-surface` no-border (§0).
 
 ### 2. LabeledCard (section có nhãn)
-- Block `blocks/cards/LabeledCard`: label + icon size-5 **NGOÀI** card, content + `AsyncContent` **TRONG** `<Card>`. Section trên dashboard/landing/profile dùng cái này, KHÔNG tự dựng card + header tay. Ref [[dashboard-labeledcard-and-tabscard]].
+- Block `blocks/cards/LabeledCard`: label + icon size-5 **NGOÀI** card, content + `AsyncContent` **TRONG** `<Card>`. Section trên dashboard/landing/profile dùng cái này, KHÔNG tự dựng card + header tay. Ref [[elements/tabs]].
 - `frameless`: content vốn-là-card(s) → bỏ frame ngoài (tránh card-in-card); nhưng empty/onboarding vẫn phải bọc 1 `<Card>` thật để khớp sibling — [[frameless-section-empty-state-needs-card]].
 
 ### 3. ★ ACCORDION CARD (Card p-0 + Accordion surface) — 2026-06-24
@@ -68,15 +75,35 @@
 - **Đổi card-grid (có badge "Sắp có") → dải PILL thì BỎ luôn mục disabled "Sắp có".** Nút-ma mờ trong dải pill rối hơn là card-grid disabled (card-grid disabled còn đọc ra "tính năng sắp tới"; pill disabled trong dải = clutter). Re-add khi tính năng ship. Ref [[selectable-card-group-surface-select-state]] + [[concepts/card]] (compose config card).
 - **NỢ:** 2 block trùng ~90% (chỉ khác shell class) → khi thầy chốt 1 bản, gộp về 1 (hoặc 1 core + prop `shape`). Để tạm 2 bản theo yêu cầu so-sánh.
 
+### 3g. ★ FLIP / 2-FACE CARD (block `FlipCard`) — CHIỀU CAO CỐ ĐỊNH, front center · back scroll
+- **Card 2-face (flip/lật, before/after, toggle-reveal) PHẢI có CHIỀU CAO CỐ ĐỊNH** (vd `h-80 sm:h-[22rem]`), KHÔNG để size theo max-of-both. 2 face chung 1 cell → card cao bằng face DÀI nhất → face ngắn trống hoác + flip jump.
+- **Front (prompt NGẮN) = CĂN GIỮA** (`items-center justify-center text-center`); **back (answer DÀI/code) = TOP-ALIGN + CUỘN** (`flex-1 min-h-0 overflow-y-auto`). 2 face xử lý KHÁC nhau — block tự lo (biết front vs back), feature KHÔNG style.
+- **Affordance lật = PILL rõ** (`rounded-full bg-default text-muted text-xs` + `CursorClickIcon`) ghim đáy face NGOÀI vùng cuộn (`shrink-0`). Block nhận `frontHint`/`backHint` (ReactNode) → render pill; feature KHÔNG nhét hint vào body.
+- Da = surface bounded theo §0 (`shadow-surface`, đã convert từ `border border-default bg-surface`). Skeleton mirror chiều cao + da. Ref [[flip-card-fixed-height-center-prompt-scroll-answer]].
+
+### 3h. ★ PAPER CARD — bài đọc markdown đứng-một-mình BỌC trong `<Card><CardContent>`
+- **Bài đọc markdown (full article / reading content đứng một mình) PHẢI nằm trong 1 `<Card><CardContent>` ("tờ giấy")**, KHÔNG để `MarkdownContent` trần trên `bg-background`. Pattern lesson reader `ContentBody` (`<Card><CardContent><div id="lesson-article">…</div></CardContent></Card>`). Áp: lesson content · foundation resource (Document) · trang bài-viết.
+- **Phân biệt markdown COMPACT** (mô tả ngắn trong card/list/panel — đã ở trong card cha, KHÔNG bọc thêm) — [[description-fields-render-markdown-compact]]. Video/external-link (đã có khung riêng) KHÔNG cần paper card — chỉ Document/markdown article. Ref [[reading-markdown-in-paper-card]].
+
 ### 4. Card lồng card / surface-in-surface
-- Card con đặt trên card/modal cha → con dùng **`border border-default` + bg inherit/trong suốt**, KHÔNG fill chồng fill. [[card-in-card-border-not-double-fill]] + [[surface-in-surface-inner-has-border]].
+- Card con đặt trên card/modal cha → con dùng **`border border-default` + bg inherit/trong suốt**, KHÔNG fill chồng fill (mỗi lớp `bg-surface`/`bg-default` = 1 nấc elevation; lồng 2 fill = màu đục, nặng). **3 mức lồng theo độ "ra dáng card":** (1) **border + bg inherit** `rounded-2xl border border-default bg-transparent p-4` (mặc định) · (2) **divider-only** `border-t border-default` + padding (nhóm field phụ) · (3) fill-in-fill = ANTI-PATTERN. Card CHA giữ fill (chỉ con bỏ). Ref [[card-in-card-border-not-double-fill]] + [[surface-in-surface-inner-has-border]].
+- **Gotcha:** card con ĐỪNG dùng HeroUI `<Card variant="default">` (unlayered → bake fill + đè utility `bg-transparent`/`border`) → dùng `<div>` thường + utility (áp sạch, không cần `!`). Cùng họ Gotcha render §dưới.
 - **Ngược lại — KHÔNG bọc outer card khi NỘI DUNG đã là các bounded object.** Cột/khối detail mà nội dung vốn là nhiều card/list có viền (vd findings) → để chúng đứng PHẲNG trên nền, **mỗi finding 1 card BORDERED TÁCH thẻ (`gap-3`)** — KHÔNG dồn vào 1 inset list dính separator, KHÔNG bọc thêm 1 outer surface card (thừa nấc + "hộp trong hộp"). Gom theo nhóm = eyebrow câm. Áp: `SubmissionResult` cột phải (bỏ outer card; findings = FeedbackCard bordered tách `gap-3`). Ref [[verdict-banner-and-separated-finding-cards]].
 
 ### 5. Item card (1 item = 1 card, bounded object)
-- Mọi meta/tiến độ của item sống TRONG card đó, đặt cạnh action. [[item-card-meta-inside-bounded-object]].
+- **1 item = 1 card. Mọi thuộc tính của item (kể cả progress cá nhân "đã thử N · điểm cao nhất") sống TRONG card đó** — KHÔNG tách card thứ 2, KHÔNG đẩy ra caption rời (mồ côi). Đặt progress cạnh action (footer `justify-between`: trái = dòng muted, phải = 1 nút primary). Chia khối TRONG 1 card bằng divider/vùng, KHÔNG tách 2 card.
+- **Icon = motif của LOẠI item, tách khỏi icon ngữ nghĩa khác** (challenge motif = `PuzzlePieceIcon`; `FlameIcon` chỉ cho ĐỘ KHÓ — đừng để 1 icon vừa motif vừa độ khó).
+- **Card có 1 nút action rõ → card TĨNH, KHÔNG clickable cả khối** (bỏ `role=button`/`onClick`/`cursor-pointer`/hover trên container). Whole-card-clickable CHỈ khi card KHÔNG có nút riêng (row nav thuần). Có nút → nút là affordance duy nhất; đừng nhân đôi (cả card + nút cùng action = thừa + mơ hồ). Đính chính [[interactive-needs-hover]] (hover cho phần TỬ THỰC SỰ bấm, không bắt container). Ref [[item-card-meta-inside-bounded-object]].
+- **Row hover theo VAI:** row-as-LINK (title là link, most-read list) → hover **underline title** (KHÔNG fill cả dòng); row là BOUNDED OBJECT (course + bar, payment method) → hover **fill `bg-default`**. `SurfaceListCardRow` có prop `hover?: "fill" | "underline"` (default `"fill"`). 2 hover khác nhau cùng 1 màn = ĐÚNG (khác semantic). Ref [[surfacelistcard-item-interactive-and-uniform-count-drop]] · [[hover-style-matches-clickable-nature]].
+
+## 6. Tách/gộp CONFIG CARD (setup dài) — gộp THEO NGHĨA, KHÔNG per-control
+- **Tách 1 card cấu hình dài thành nhiều `LabeledCard` → GỘP CONTROL THEO NGHĨA** (mỗi card = 1 nhóm có nghĩa rõ, vd *what-to-practice* = mode+level → 1 card; *how-graded* = model → 1 card), **KHÔNG per-control**. 1 control lẻ = 1 LabeledCard = card mỏng/thừa (vi phạm "card chỉ cho bounded object xứng đáng"). Nhiều LabeledCard ngang hàng (nhãn riêng, `gap-6`) HỢP LỆ.
+- **Control lẻ buộc đứng riêng card → thêm 1 dòng helper `body-xs muted`** (cho card có "thân"). **CTA đơn để PHẲNG** ngoài card (1 hành động ≠ card). **Meta-intro** (subtitle + chips "5 câu · giọng nói · AI chấm") = STRIP PHẲNG dưới page-header, KHÔNG bọc card. Đừng lặp tiêu đề trang trong card-label.
+- **DIVIDER trong card = `gap-3` hai bên** (KHÔNG gap-6 — divider đã gánh phân tách; block-dưới `border-t pt-3` + container `flex flex-col gap-3`). Ref [[split-config-card-by-meaning-not-per-control]] · [[concepts/card]] · [[whitespace-over-dividers]].
 
 ## Gotcha render (HeroUI v3 unlayered)
 - `<Card variant="default">` style **unlayered** → ĐÈ utility `border`/`bg-*` thêm qua className (utility ở `@layer utilities` thua unlayered). Muốn list "nhiều card viền tách bạch" → dùng `PressableCard`/`<div>` + utility surface, KHÔNG `<Card>`. Cùng họ [[item-card-meta-inside-bounded-object]] + [[lesson-accordion-contrast-and-size]].
+- **`.card` HeroUI bake `overflow-visible`** → KHÔNG dùng `LabeledCard flushContent` + bare rows làm "list trong card" (hover nền row tràn góc bo). Dùng `LabeledCard frameless` + `SurfaceListCard` (block bake `overflow-hidden` → tự clip). Ref [[surfacelistcard-item-interactive-and-uniform-count-drop]].
 - **Muốn 1 HÀNG NGANG (`flex items-center` thật) bên trong `<Card>` → dùng `<div>` THƯỜNG, KHÔNG `Card.Content`** (`.card__content` bake `flex flex-1 flex-col gap-1` — flex-COLUMN, không phải row). Đặt `className="flex items-center gap-4"` lên `Card.Content` chỉ căn giữa NGANG các hàng dọc, KHÔNG đổi hướng thành row → bug render câm lặng (không lỗi tsc/lint), item xếp dọc căn giữa thay vì 1 hàng ngang. `Card.Content` chỉ hợp khi layout MONG MUỐN đúng là cột (cover→text→footer). Muốn row → `<div className="flex items-center gap-4">` trực tiếp trong `<Card>`.
 - **Root `<Card>` (`.card` base) đã bake `p-4`** — inset quanh MỌI con (Header/Content/Footer). KHÔNG thêm `p-*` riêng lên con (Card.Content/div hàng ngang) trừ khi có lý do rõ (section riêng biệt trong 1 card nhiều block) — cộng dồn = double-pad.
 - **Media (cover/thumbnail) đặt TRONG card, có padding quanh (không full-bleed) = "inner" — dùng radius 1 nấc dưới radius của card** (card `rounded-3xl` → media `rounded-2xl`). Áp NHẤT QUÁN cho MỌI view hiển thị cùng 1 entity (vd grid card + line-view row của cùng 1 danh sách) — khác radius giữa 2 view = lệch, dễ bị bắt lỗi khi so sánh cạnh nhau. Full-bleed (không padding, tràn sát mép, card `overflow-hidden` tự clip theo góc bo) là lựa chọn KHÁC — chỉ dùng cho "hero image" tràn mép, không dùng khi ảnh là 1 thumbnail độc lập cạnh text.

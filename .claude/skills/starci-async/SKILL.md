@@ -2,7 +2,7 @@
 name: starci-async
 description: >
   Async / data-state conventions for the MAIN StarCi Academy web app
-  (`C:\Repositories\starci-academy`). Use whenever a UI region renders fetched
+  (`D:\Repositories\starci-academy`). Use whenever a UI region renders fetched
   data (SWR / query) and needs loading / error / empty / content branches —
   lists, feeds, popovers, dashboards, profile sections, any `useQueryXxxSwr`
   consumer. Encodes the `AsyncContent` / `EmptyContent` / `ErrorContent` block
@@ -17,10 +17,10 @@ Sibling of the **`/fe`** UI skill — `/fe` covers the whole UI system; this ski
 is the focused contract for **rendering fetched data** (the loading/error/empty/
 content switch). Read `/fe` first for architecture, then this for data states.
 
-Full rules (read before non-trivial work):
-- `C:\Repositories\starci-academy\.cursor\rules\starci-async.md` — the async/states doc
-- `C:\Repositories\starci-academy\.cursor\rules\starci-ui.rules.mdc` — §6 States, overall UI SSOT
-- `C:\Repositories\starci-academy\.cursor\rules\starci-popover.md` — popover lists
+Full rules (rules v2 SSOT, in the BE repo `D:\Repositories\starci-academy-backend\.claude\rules\`, read before non-trivial work):
+- `concepts/*.md` — design mindset + heuristics (empty/loading/error, single-source, grounded-in-data)
+- `elements/list.md` · `elements/richtext.md` — list/rows + rich content states
+- skeleton-matches-layout: see `/starci-fe-skeleton-apply` skill
 
 ## The one rule
 Every data-backed region renders **4 branches** via ONE block — never an ad-hoc

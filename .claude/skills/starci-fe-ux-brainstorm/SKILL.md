@@ -1,7 +1,7 @@
 ---
 name: starci-fe-ux-brainstorm
 description: >
-  Re-imagine the UX of a given page in the MAIN StarCi Academy web app (`C:\Repositories\starci-academy`)
+  Re-imagine the UX of a given page in the MAIN StarCi Academy web app (`D:\Repositories\starci-academy`)
   from first principles. Researches the BACKEND (GraphQL queries/mutations + Postgres entities = what
   data truly exists) and the CURRENT/legacy UX (ONLY as an inventory of features/data shown + pain
   points — NOT as the design to copy), then brainstorms a fresh information architecture and several
@@ -20,7 +20,7 @@ Bước này KHÔNG viết code — chỉ brainstorm + chốt hướng. CHẠY M
   `reuseable` …) CHỈ để liệt kê: đang cho xem dữ liệu/tính năng gì + điểm đau gì. ĐỪNG bê cấu trúc/tư duy legacy sang.
 - **Grounded in data:** mọi ý tưởng tựa trên field BE/DB THẬT — đừng vẽ UI cho dữ liệu không tồn tại. Field CÓ
   nhưng CHƯA dùng = cơ hội.
-- **Mindset-first:** áp `main.md` §1 (triết lý) + skill **`ui-ux-pro-max`** (purpose trước pixel · 1 primary action
+- **Mindset-first:** áp triết lý trong `.claude/rules/concepts/*.md` + skill **`ui-ux-pro-max`** (purpose trước pixel · 1 primary action
   · empty/loading/error · recruiter/user-first · nội dung > vanity · ăn cắp pattern đã chứng minh).
 - **Ref-grounded — KHÔNG bịa pattern:** nếu loại trang/khối đang thiết kế **CHƯA có ref trong memory** (auto-memory,
   `.claude/rules`, doc brainstorm cũ), thì **BẮT BUỘC lên mạng kiếm** (`WebSearch` + `WebFetch`) — đọc tài liệu UX/UI
@@ -30,7 +30,7 @@ Bước này KHÔNG viết code — chỉ brainstorm + chốt hướng. CHẠY M
 ## Quy trình (MAX effort)
 1. **Khoanh vùng trang:** route + cây component hiện tại (mới + legacy).
 2. **Research SONG SONG — spawn Explore agents (đừng đoán):**
-   - **BE** `C:\Repositories\ac\starci-academy-backend`: GraphQL query/mutation phục vụ trang + resolver + field trả về.
+   - **BE** `D:\Repositories\starci-academy-backend`: GraphQL query/mutation phục vụ trang + resolver + field trả về.
    - **DB**: Postgres entities (`src/modules/databases/postgresql/**/entities`) — field/quan hệ thật → dữ liệu KHẢ DỤNG (kể cả field chưa khai thác).
    - **Legacy UX**: trang hiện cho xem gì + pain (loãng / vanity / thiếu state / khó đọc / phân cấp sai).
 3. **Skill `ui-ux-pro-max`**: chạy `--design-system` + domain `product`/`ux` cho loại trang này → style/pattern/anti-pattern.
@@ -40,8 +40,10 @@ Bước này KHÔNG viết code — chỉ brainstorm + chốt hướng. CHẠY M
    - **≥2–3 HƯỚNG khác nhau** (vd recruiter-first vs learner-first), nêu trade-off, rồi **CHỐT 1 + lý do**.
    - Map mỗi section → field BE/DB cụ thể; đề xuất tận dụng field chưa dùng.
    - Empty/loading/error + a11y tính từ đầu.
-5. **Output:** ghi **`<Feature>/UX-BRAINSTORM.md`** (cạnh trang, kiểu `NEW-PROFILE.spec.md`) + tóm tắt trong chat:
-   mục tiêu · IA mới · các hướng + hướng chốt · bảng section→dữ liệu BE/DB · điều cắt/thêm. **KHÔNG code.**
+5. **Output:** ghi **`.brainstorm/<Feature>.md`** (thư mục GITIGNORE ở gốc repo FE — KHÔNG commit, KHÔNG vào `src/`:
+   tránh bloat repo + tránh Tailwind v4 scan `.md` làm vỡ build) + tóm tắt trong chat: mục tiêu · IA mới · các hướng +
+   hướng chốt · bảng section→dữ liệu BE/DB · điều cắt/thêm. **KHÔNG code.** Doc là EPHEMERAL (giá trị bền = tóm tắt
+   chat + widget); nếu `.brainstorm/` chưa có trong `.gitignore` repo FE → thêm dòng `.brainstorm/`. Xoá doc khi apply xong.
 6. **VẼ WIDGET — BẮT BUỘC khi đề xuất LAYOUT MỚI:** mỗi khi brainstorm ra layout/IA mới (không phải tweak nhỏ),
    PHẢI **vẽ widget mockup** bằng tool `show_widget` (gọi `read_me` module `mockup` trước) — render **1–3 scenario**
    layout cạnh nhau (flat, CSS vars, không nội dung thật rườm rà) cho thầy **NHÌN + CHỌN**, KHÔNG chỉ tả bằng chữ.

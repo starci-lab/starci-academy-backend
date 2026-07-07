@@ -52,10 +52,39 @@
 - **Câu hỏi quyết định:** field này đứng thẳng trên page bg hay lồng trong 1 card? Trên page → `shadow-field` (nổi). Trong card → `shadow-none` (border-only, card-in-card).
 - Áp đầu: `MockInterviewSession` setup — `GradeModelDropdown isDropdown` (model chấm) nằm trong `LabeledCard` "Cấu hình phiên" → `className="… shadow-none …"` (border-only). (CV editor sidebar `isDropdown` đứng cạnh Select trên sidebar-surface, KHÔNG lồng trong 1 card riêng → giữ shadow-field, khớp Select.)
 
-## 9. Hand-roll 1 trigger giả field (Select/TextField look) PHẢI wire hover CẢ 2 đường — 2026-07-06
+## 9. Text con (hint/error) BÊN TRONG `TextField` (React-Aria) PHẢI có `slot`, KHÔNG `<Typography>` trần — STRICT
+- **Mọi text con trong `<TextField>` (HeroUI v3 = React-Aria) PHẢI khai `slot`** — thiếu = crash RUNTIME (*"A slot prop is required"*), KHÔNG lỗi tsc:
+  - Hint (luôn hiện): `<Typography slot="description" type="body-xs" color="muted">…`.
+  - Error (gated `errors.x`, field `isInvalid`): `<Typography slot="errorMessage" …>` HOẶC block **`<FieldError>{errors.x}</FieldError>`** (gọn hơn).
+- **CẤM `<Typography>`/text trần làm con của `TextField`.** `<Label>`/`<Input>` là subcomponent nhận diện sẵn (khỏi slot); chỉ text PHỤ mới cần. Error gated `? … : null` → chỉ nổ khi field invalid → dễ lọt; gắn slot NGAY khi thêm hint/error.
+- **Tổng quát: text con trong BẤT KỲ React-Aria component nào** (`Radio`/`RadioGroup`/`Checkbox`/`Select`/`Menu`) = `<span className="text-xs text-muted">` PLAIN (KHÔNG `<Typography>` trừ khi khai đúng `slot`) — node truyền vào slot của block-trên-React-Aria (badge/label/hint) = plain element; để Typography cho vùng NGOÀI React-Aria. Ref [[heroui-textfield-helper-error-needs-slot]].
+
+## 10. Field kiểu URL (block editor tự-quản-state, KHÔNG RHF) = validate bằng zod, hiện lỗi khi BLUR — STRICT
+- Field URL trong editor mutate-JSON-trực-tiếp (không react-hook-form) → validate bằng **zod trực tiếp**: helper `isValidOptionalUrl(v) = z.union([z.literal(""), z.string().trim().url()]).safeParse(v.trim()).success`. Lỗi CHỈ hiện khi `touched && !isValidOptionalUrl(v)` (blur-triggered, không chặn gõ); touched tự quản `useState<Set<...>>` (field đơn key theo tên, field lặp key theo `item.id`).
+- Hiển thị = `TextField isInvalid` + `<FieldError>{t("…invalidUrl")}</FieldError>` (§9). KHÔNG chặn submit/autosave — chỉ tín hiệu lỗi thị giác.
+- **Placeholder field URL PHẢI có scheme `https://`** (vd `https://linkedin.com/in/…`) — url() đòi scheme; placeholder bare-domain → user gõ đúng-placeholder vẫn báo lỗi = mâu thuẫn.
+- **Chỉ validate field chứa URL TUYỆT ĐỐI** (linkedinUrl, credentialUrl…); field slug/username (`githubUsername`) KHÔNG validate url(). Xác nhận field thật sự là URL trước khi gắn zod. Ref [[submit-requires-valid-input-fe-disable-be-throw]] · [[disable-vs-lock-and-perrow-autosave]].
+
+## 11. Field NGÀY = HeroUI `DatePicker`; `variant` đặt trên `DateField.Group` (KHÔNG `DatePicker` root)
+- Field ngày (sinh/cấp…) = HeroUI **`DatePicker`** (`DateField` segmented + `Calendar` popover), KHÔNG `<Input>` text thô. Value ISO string (`@internationalized/date` `parseDate(str)` ↔ `date.toString()`); `maxValue={today(getLocalTimeZone())}` cho ngày-sinh.
+- **`variant="secondary"` đặt trên `<DateField.Group variant="secondary">`, KHÔNG trên `<DatePicker>` root** (khác `TextField` — variant ở root). Quên → Group mặc định `primary` (bg-field trắng) → lệch sibling secondary trên cùng card. Chọn variant theo nền vẫn theo §3. Precedent: `LivestreamCalendarModal`.
+
+## 12. Hand-roll 1 trigger giả field (Select/TextField look) PHẢI wire hover CẢ 2 đường — 2026-07-06
 - Khi hand-roll 1 trigger để TRÔNG NHƯ `Select.Trigger`/field chuẩn nhưng KHÔNG dùng chính component đó (vd `DropdownTrigger` giả-Select vì cần mở custom popover) — copy className KHÔNG đủ nếu chỉ copy phần `data-[hovered=true]:` (aria-state). `.select__trigger` thật bake **`&:hover, &[data-hovered="true"]`** CÙNG 1 rule (2 đường: CSS `:hover` thật + aria state).
 - **PHẢI wire CẢ 2: `hover:<class>` (CSS `:hover`) VÀ `data-[hovered=true]:<class>` (aria).** Thiếu 1 đường = silent bug — không lỗi build/lint, chỉ lộ khi so sánh trực tiếp cạnh Select thật (hover phản hồi khác/chậm hơn).
 - Áp đầu: `GradeModelDropdown isDropdown` trigger — thêm `hover:bg-field-hover hover:border-[color:var(--field-border-hover)]` song song `data-[hovered=true]:...` đã có.
 
+## 13. Popover picker (chọn 1-trong-N có search + lựa-chọn-MẶC-ĐỊNH): GHIM default trên · search NGAY DƯỚI · chỉ LIST cuộn ScrollShadow — 2026-06-30
+- **Popover/dropdown "chọn 1-trong-N" có (a) 1 lựa chọn MẶC ĐỊNH/đặc biệt (Auto/Tất cả/None) + (b) ô search + (c) list dài → bố cục 3 tầng cố định:**
+  1. **Default GHIM TRÊN CÙNG** — NGOÀI vùng search + scroll, luôn thấy, 1 click tới (không bị search lọc mất, không cuộn trôi). Nó KHÔNG phải "1 item trong list" → tách ra.
+  2. **Ô search NGAY DƯỚI default** — search chỉ lọc LIST, KHÔNG lọc default.
+  3. **List kết quả CUỘN trong `ScrollShadow`** (`hideScrollBar` + `max-h-*`, fade mép). Default + search đứng yên (ngoài ScrollShadow).
+- **Ngăn 3 tầng bằng WHITESPACE `gap-3`, KHÔNG divider** (bọc `flex flex-col gap-3`) — đặc biệt **KHÔNG divider DƯỚI search** → search liền mạch chảy vào list ([[whitespace-over-dividers]]).
+- **Search input = `variant="secondary"`** (popover là surface → §3, xám nổi trên mặt popover). HeroUI `SearchField` nhận `variant`.
+- **Đóng popover khi chọn default:** default ghim NGOÀI listbox (react-aria) → KHÔNG tự đóng theo menu-select → phải **controlled `isOpen`** (HeroUI `Dropdown isOpen/onOpenChange`) + nút default `onClick` gọi `onSelect(...)` rồi `setIsOpen(false)`. Item trong `DropdownMenu` vẫn auto-đóng.
+- **`onKeyDownCapture` chặn typeahead:** bọc search trong `<div onKeyDownCapture={e=>e.stopPropagation()}>` (KHÔNG đặt thẳng lên `SearchField` — HeroUI v3 root không nhận, lỗi type).
+- **Active state của default = accent ở CHI TIẾT** (`text-accent` khi đang chọn Auto), KHÔNG tô nền cả nút ([[highlight-accent-as-detail-not-block-fill]]).
+- **Phân biệt:** áp cho picker có **default đặc biệt + search + list dài**. List ngắn/không default đặc biệt → không cần tách tầng. Khác search-row của 1 LIST surface (§4, có count/pager) — đây POPOVER nhỏ, trọng tâm ghim-default + cuộn-kết-quả. Canonical: `GradeModelDropdown`. Ref [[picker-popover-pin-default-search-below-scroll-results]].
+
 ## Liên quan
-- [[surface-in-surface-inner-has-border]] (input có border + fill) · [[accordion-card-surface-on-standalone-pages]] (da theo nền) · [[elements/list]] (search+count+pager) · [[gap]] (concentric radius) · [[elements/button]] (tertiary/primary) · [[when-drawer]] · [[overlay-from-popover-render-in-panel]] (overlay phụ mở từ popover) · [[input-affordance-needs-surface-fill]] · [[input-variant-by-surface-and-search-result-count]] (drafts gốc).
+- [[surface-in-surface-inner-has-border]] (input có border + fill) · [[accordion-card-surface-on-standalone-pages]] (da theo nền) · [[elements/list]] (search+count+pager) · [[gap]] (concentric radius) · [[elements/button]] (tertiary/primary) · [[when-drawer]] · [[overlay-from-popover-render-in-panel]] (overlay phụ mở từ popover) · [[heroui-textfield-helper-error-needs-slot]] (text con cần slot) · [[submit-requires-valid-input-fe-disable-be-throw]] (validate URL) · [[text-or-file-input-shared-component-presign-extract]] (2 cách nhập) · [[picker-popover-pin-default-search-below-scroll-results]] (popover picker) · [[sticky-rail-overflow-wrap-scrollshadow]] (ScrollShadow).

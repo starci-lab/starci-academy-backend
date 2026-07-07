@@ -35,6 +35,21 @@
 - **Phân biệt:** icon trơ nhỏ chỉ hợp khi row GỌN 1 dòng (nhãn ngắn, không subtitle — vd `LabeledList` item) hoặc icon là **marker phụ** (check/bullet). Row "item đối tượng" (title+subtitle+meta, card-like) → IconTile. Hỏi: leading này là **avatar của 1 thứ** (→ IconTile) hay **marker phụ** (→ icon trơ)?
 - **Skeleton mirror tile:** `Skeleton size-12 rounded-xl shrink-0` + 2 dòng (`h-4 w-1/2` + `h-3 w-1/3`), KHÔNG 1 vạch đơn → không nhảy chiều cao. Ref [[row-leading-icontile-not-bare-small-icon]] + [[elements/icon]] §cỡ + [[item-card-meta-inside-bounded-object]]. Áp đầu: `Bookmarks/BookmarkCard`.
 
+## 5b. GIẢI PHẪU 1 LIST SURFACE duyệt-được = 4 phần dọc (search · count · list · pager) — CHỐT 2026-06-25
+- **List duyệt/chọn CÓ THỂ DÀI** (deck/catalog/submissions/results) render đủ 4 phần, theo thứ tự:
+  1. **Search** (lọc) — hàng đầu. Input variant theo nền ([[elements/input]] §3: trên background → không variant; trên card → `secondary`).
+  2. **Count** — bên PHẢI hàng search: `"Tìm thấy {n} …"` (muted `body-sm`, `shrink-0`), `n` = số ĐÃ LỌC. Hàng search = `flex flex-wrap items-center justify-between gap-3` (input `w-full sm:max-w-sm` trái · count phải). Count cạnh search CÓ NGHĨA (giữ), khác count vanity DƯỚI list ([[whitespace-over-dividers]]).
+  3. **List** — item `flex flex-col gap-3`, mỗi item theo bản chất (§1-6).
+  4. **Pager** = `PaginatedList` (§2): căn TRÁI thẳng mép item (`justify-start`, cả wrapper `Pagination` LẪN `Pagination.Content`), **tự ẩn `totalPages ≤ 1`**, search đổi list → reset page 1. HeroUI `Pagination.{Link,Previous,Next}` KHÔNG bake hover/cursor → tự thêm `cursor-pointer rounded-medium transition-colors hover:bg-default` + active `data-[active=true]:hover:bg-accent`; `isDisabled` tự bỏ pointer ([[interactive-needs-hover]]).
+- **Ngoại lệ:** list NGẮN cố định/ít item (rail "luyện tập bài này", ≤ vài row) → chỉ list (+ label), KHÔNG search/count/pager (thừa).
+- Cân nhắc block bọc (`SearchableList`/`PaginatedList`) để feature chỉ truyền data. Ref [[list-surface-anatomy-search-count-list-pagination]].
+
+## 5c. List item-card có thể DÀI → toggle Grid ⇆ Line (persist) — CHỐT 2026-06-21
+- **List item-card (deck/catalog) có thể dài → toggle `Grid ⇆ Line`** ở hàng search (phải, cạnh count) = block `SegmentedControl` icon-only (`SquaresFourIcon` grid · `ListIcon` line, `aria-label` a11y, KHÔNG hand-roll 2 nút). **Grid** (mặc định) = `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` giữ mô tả. **Line** = 1 hàng gọn (title + chip + meta + CTA, bỏ mô tả, bỏ bar). Persist `localStorage` (hydrate sau mount, SSR-safe). Chỉ đổi cách render phần "list" của §5b. Ref [[list-grid-line-view-toggle-and-thin-card-meter]].
+
+## 5d. Progress trong list: 1 thanh tại 1 thời điểm (group mở = bar · group gập = count) — CHỐT 2026-06-19
+- **Đừng lặp thanh progress full-width cho MỌI item/group trong list** (nhiều thanh = nhiễu). Chỉ progress TỔNG giữ thanh; per-section nhẹ. Trong list group gập/mở (accordion): **group ĐANG MỞ → 1 thanh progress** · **group GẬP → chỉ "n/m" muted** bên phải header (không thanh). → cả màn 1 thanh/section tại 1 lúc + tổng ở top. Cần accordion **controlled** (`expandedKeys`) để biết group nào mở. Ref [[one-progress-bar-at-a-time]].
+
 ## 6. STATUS LIST (trạng thái, không click) ≠ `ListBox` (chọn item, tương tác) — CHỐT 2026-07
 - **Rail thể hiện TRẠNG THÁI của 1 tiến trình có thứ tự (stepper phase, các bước job, timeline) mà item KHÔNG click-được → render STATUS LIST** (`<ul>` rows thường), KHÔNG `ListBox` (§4). `ListBox` = control **CHỌN item** (`selectionMode` + `onSelectionChange`); ép nó lên nội dung không-tương-tác = sai affordance (đọc "bấm được" trong khi không).
 - **Trạng thái do ICON mang màu, KHÔNG tint cả row** ([[accent-system]] §2/§4): done = `CheckCircleIcon text-success` · current = `CircleIcon text-accent` + label `text-accent` · todo = `CircleIcon text-muted` + label `text-muted`. Row nền trong suốt. (Khác "đang chọn" persistent selection của `ListBox` vốn tint `bg-accent/10` — phase-current là STATUS, không phải selection.)

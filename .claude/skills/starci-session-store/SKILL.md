@@ -2,11 +2,11 @@
 name: starci-session-store
 description: >
   Lưu checkpoint TRẠNG THÁI CÔNG VIỆC ĐANG DỞ (KHÔNG PHẢI toàn bộ lịch sử hội thoại) vào thư mục
-  `.session/` ở gốc repo — cho phép thầy đổi sang máy khác / mở session Claude Code mới mà vẫn tiếp
-  tục đúng chỗ đang làm dở. Mỗi checkpoint = 1 file `.session/<slug>.md` mô tả: đang làm gì, luồng
+  `.claude/session/` ở gốc repo — cho phép thầy đổi sang máy khác / mở session Claude Code mới mà vẫn tiếp
+  tục đúng chỗ đang làm dở. Mỗi checkpoint = 1 file `.claude/session/<slug>.md` mô tả: đang làm gì, luồng
   còn treo (workflow/agent/dev-server chạy nền — kèm cảnh báo chúng KHÔNG tự chuyển máy được), việc
   đã xong/đã chốt (khỏi làm lại), bước tiếp theo cụ thể, trạng thái git lúc lưu (chỉ phần liên quan).
-  Khi việc đã xong thật → XOÁ file (không tích luỹ rác, `.session/` chỉ chứa việc ĐANG DỞ). Trigger
+  Khi việc đã xong thật → XOÁ file (không tích luỹ rác, `.claude/session/` chỉ chứa việc ĐANG DỞ). Trigger
   khi user gõ `/starci-session-store`, hoặc nói "lưu session lại", "checkpoint công việc", "đổi máy
   làm tiếp", "lưu để mai làm tiếp", "resume lại việc đang dở".
 ---
@@ -17,17 +17,17 @@ description: >
 - **CHỈ lưu việc ĐANG DỞ hiện tại, KHÔNG gom cả session.** Đây không phải transcript/log hội thoại —
   đừng tóm tắt MỌI thứ đã làm trong session (cái đã xong/đã commit/đã chốt thì bỏ qua, hoặc chỉ nhắc
   1 dòng "đã xong, khỏi làm lại"). Chỉ tập trung vào: **luồng công việc CHƯA XONG tại thời điểm lưu**.
-- **1 checkpoint = 1 file `.session/<slug-viết-thường-gạch-ngang>.md`.** Nhiều việc dở song song (hiếm,
+- **1 checkpoint = 1 file `.claude/session/<slug-viết-thường-gạch-ngang>.md`.** Nhiều việc dở song song (hiếm,
   nhưng có thể) → nhiều file, KHÔNG gộp chung 1 file dài dòng.
-- **`.session/` SỐNG TRONG GIT** (không gitignore) — cơ chế "đổi máy" ở đây là qua git pull/push (giống
+- **`.claude/session/` SỐNG TRONG GIT** (không gitignore) — cơ chế "đổi máy" ở đây là qua git pull/push (giống
   mọi thứ khác trong dự án này). Nếu việc trải rộng ≥2 repo (vd BE + FE), ghi checkpoint ở **CẢ HAI
   repo** (nội dung tương đương), vì thầy có thể mở máy mới ở bất kỳ repo nào trước.
 - **XOÁ khi xong.** Khi 1 checkpoint đã hoàn thành thật (verify xong, đã commit/đã quyết định dừng),
-  xoá file — đừng để `.session/` phình thành nghĩa địa checkpoint cũ. `.session/` phản ánh ĐÚNG những
+  xoá file — đừng để `.claude/session/` phình thành nghĩa địa checkpoint cũ. `.claude/session/` phản ánh ĐÚNG những
   gì còn dở NGAY LÚC ĐỌC, không phải lịch sử.
 
 ## Khi SAVE (viết checkpoint mới / cập nhật checkpoint có sẵn)
-Viết `.session/<slug>.md` gồm các mục sau (bỏ mục nào không áp dụng, đừng ép đủ khung nếu thừa):
+Viết `.claude/session/<slug>.md` gồm các mục sau (bỏ mục nào không áp dụng, đừng ép đủ khung nếu thừa):
 
 1. **Đang làm gì** — 1-2 câu business context (không phải mô tả code, mà "đang giải quyết vấn đề gì").
 2. **Luồng còn treo (QUAN TRỌNG NHẤT)** — mọi thứ CHẠY NỀN mà không tự chuyển máy được:
@@ -47,11 +47,11 @@ Viết `.session/<slug>.md` gồm các mục sau (bỏ mục nào không áp d�
    việc đang dở này** — đừng liệt kê hết mọi file lạ không liên quan đang nằm trong working tree (dự
    án có thể có nhiều việc dở KHÁC không liên quan, đừng nhận vơ vào checkpoint này).
 
-6. **BẮT BUỘC commit + push file checkpoint lên git ngay sau khi viết** (đây là lý do `.session/` sống
+6. **BẮT BUỘC commit + push file checkpoint lên git ngay sau khi viết** (đây là lý do `.claude/session/` sống
    trong git — nếu chỉ lưu local mà không push thì máy khác `pull` về vẫn KHÔNG THẤY GÌ, mất hết tác
    dụng "đổi máy làm tiếp"). Quy tắc khi commit:
    - **CHỈ `git add` đúng các file MỚI của chính checkpoint này** (skill folder lần đầu tạo +
-     `.session/<slug>.md`) — **TUYỆT ĐỐI KHÔNG `git add -A`/`git add .`** vì working tree có thể đang
+     `.claude/session/<slug>.md`) — **TUYỆT ĐỐI KHÔNG `git add -A`/`git add .`** vì working tree có thể đang
      có RẤT NHIỀU file dở của việc KHÁC không liên quan (không phải của checkpoint đang lưu) — commit
      nhầm sẽ làm rối repo cho máy khác pull về.
    - Commit message ngắn, dạng `chore(session): checkpoint <slug>` — không cần xin duyệt nội dung
@@ -62,7 +62,7 @@ Viết `.session/<slug>.md` gồm các mục sau (bỏ mục nào không áp d�
      người/máy tiếp theo pull.
 
 ## Khi RESUME (mở lại trên máy khác / session mới)
-1. Đọc TOÀN BỘ file `.session/*.md` hiện có trong repo (đọc thật, đừng suy diễn) trước khi làm gì khác.
+1. Đọc TOÀN BỘ file `.claude/session/*.md` hiện có trong repo (đọc thật, đừng suy diễn) trước khi làm gì khác.
 2. Với MỖI luồng-còn-treo trong checkpoint → chủ động KIỂM TRA LẠI TRẠNG THÁI THẬT (đừng giả định nó
    vẫn đúng như lúc ghi): workflow còn chạy không (`/workflows`, hoặc theo runId), dev server có đang
    chạy trên máy này không (thường KHÔNG, vì máy khác), file đã có thay đổi thật trên disk chưa (`git
@@ -73,7 +73,7 @@ Viết `.session/<slug>.md` gồm các mục sau (bỏ mục nào không áp d�
 
 ## Không phải memory, không phải rule
 - Đây KHÔNG lưu vào auto-memory system (`~/.claude/.../memory/`) — memory là kiến thức DÀI HẠN xuyên
-  session (user profile, feedback, project facts). `.session/` là checkpoint NGẮN HẠN, biến mất khi
+  session (user profile, feedback, project facts). `.claude/session/` là checkpoint NGẮN HẠN, biến mất khi
   việc xong — 2 hệ khác mục đích, ĐỪNG trộn.
-- Đây KHÔNG phải rule doc (`.claude/rules/drafts/*`) — rule là NGUYÊN TẮC rút ra để áp dụng về sau;
-  checkpoint là TRẠNG THÁI 1 lần, không tổng quát hoá.
+- Đây KHÔNG phải rule doc (`.claude/rules/{concepts,elements,layouts,responsives}/*`) — rule là NGUYÊN TẮC
+  rút ra để áp dụng về sau; checkpoint là TRẠNG THÁI 1 lần, không tổng quát hoá.

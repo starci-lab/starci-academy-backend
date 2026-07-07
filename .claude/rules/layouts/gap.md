@@ -19,6 +19,13 @@
 - Impl đối xứng: block-trên + block-dưới(`border-t pt-3`) là 2 con của container `flex flex-col gap-3` → trên divider = gap-3 (container), dưới = `pt-3` → 12px mỗi bên. Nội bộ mỗi block giữ nhịp riêng (vd cụm control vẫn `gap-6`); chỉ vùng QUANH divider mới gap-3.
 - Cùng tinh thần [[whitespace-over-dividers]]: ưu tiên whitespace; nếu DÙNG divider thì đừng kèm gap lớn (thừa phân tách).
 
+## Course-home / stack dọc — 2 vùng: gap-6 CHIA, gap-3 TRONG (course-home-vertical-rhythm)
+- **`gap-6` chỉ dùng để CHIA 2 vùng KHÁC chức năng; mọi phần tử CÙNG 1 vùng = `gap-3`.** Đừng rải `gap-6` đều cho mọi khối xếp dọc (thưa), cũng đừng ép tất cả về `gap-3` (mất ranh giới vùng). Gom thành cụm `gap-3` rồi để `gap-6` ở đúng 1 đường chia.
+  - Vd course-home: **Vùng A** (định danh + hành động: breadcrumb · title · continue+progress) `gap-3` trong; **Vùng B** (duyệt nội dung: search · cây index) `gap-3` trong; giữa A↔B = `gap-6`.
+- **Khối "Tiếp tục học + tiến độ" để PHẲNG, KHÔNG bọc `Card`.** Nó là hành động chính + meter đặt thẳng trên nền trang (flat); bọc card = "hộp trong hộp" thừa (ref [[card]] "card chỉ cho bounded object", design restraint).
+- Skeleton mirror cùng cấu trúc/nhịp (gap-6 chia, gap-3 trong) → không nhảy layout.
+- ⚠️ **Đính chính khi dùng `PageHeader`:** khi trang dùng block `PageHeader`, header tách hẳn (header → content = `gap-10`, ngoại lệ có tên); continue/progress là CONTENT (trong cluster `gap-6`). Xem [[elements/header]] §2.
+
 ## Scroll
 - Khi scroll, **phần header trên (vùng "đỏ": breadcrumb + title + desc + chips) GIỮ NGUYÊN gap** — không bị nén/đổi nhịp. Nội dung dưới cuộn, header giữ rhythm. (Liên quan [[sticky]].)
 

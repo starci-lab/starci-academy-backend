@@ -22,4 +22,4 @@
 - Đếm thông tin trên surface: cái nào là "việc chính"? Cái còn lại nếu **không phải lúc nào cũng cần** → đừng nhồi inline (loãng + dài) → 1 nhãn mở Drawer. Surface gọn = quyết định nhanh (ref design-restraint, 1 primary action, Baymard checkout: phần phụ không cướp tâm điểm CTA).
 
 ## Áp đầu (2026-06-24)
-- `PaymentModal`: cổng **nội địa** (PayOS/Sepay — chính) bày thẳng List Card; cổng **quốc tế** (Stripe/PayPal/Crypto — phụ, audience VN ít dùng) → label-row "Thanh toán quốc tế ›" mở Drawer; ẩn khi `!hasUsd`. Ref [[payment-modal-flat-summary-listcard-drawer]] + [[elements/label]].
+- `PaymentModal`: cổng **nội địa** (PayOS/Sepay — chính) bày thẳng List Card; cổng **quốc tế** (Stripe/PayPal/Crypto — phụ, audience VN ít dùng) → label-row "Thanh toán quốc tế ›" mở Drawer; ẩn khi `!hasUsd`. Ref [[when-drawer]] + [[elements/label]].

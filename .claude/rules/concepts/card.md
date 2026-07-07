@@ -8,7 +8,7 @@
   1. **Hành động phụ → LINK phẳng** (không box): text + caret, hover underline, `text-accent`. KHÔNG bọc border/bg. (Vd "Thanh toán quốc tế ›" dưới List Card cổng nội địa → link, không phải card thứ 2.)
   2. **Nội dung phụ cùng nhóm → gộp VÀO card trên** (divider `border-t` trong cùng card) thay vì tách card mới.
   3. **2 nhóm NGANG HÀNG thật sự** (đều là card có nghĩa) → cách nhau `gap-6` + mỗi cái có nhãn/định danh riêng (LabeledCard) để đọc ra "2 vùng", không phải "2 hộp dính".
-- **Card chỉ cho thứ XỨNG là bounded object** (1 item, 1 section nội dung, 1 list lựa chọn). Hành động đơn / link điều hướng / 1 dòng meta → KHÔNG phải card. Ref design-restraint + [[course-home-vertical-rhythm-gap3]] (continue block để phẳng, không bọc card thừa).
+- **Card chỉ cho thứ XỨNG là bounded object** (1 item, 1 section nội dung, 1 list lựa chọn). Hành động đơn / link điều hướng / 1 dòng meta → KHÔNG phải card. Ref design-restraint + [[gap]] (continue block để phẳng, không bọc card thừa).
 
 ## Tách HAY gom card = quyết định theo MÀN (cả hai hợp lệ) — CHỐT 2026-06-30
 - **"Tách thành nhiều labeled card" và "gom về 1 card" đều hợp lệ; chọn theo từng màn + ý thầy, KHÔNG dogma "luôn tách"/"luôn gom".** 1 màn setup có thể tách N section thành N LabeledCard (rõ từng vùng) HOẶC gom hết vào 1 card (gọn, 1 surface). Đảo hướng giữa các vòng (tách → gom) là **có chủ đích**, không phải lỗi — bám yêu cầu hiện tại.
@@ -21,7 +21,7 @@
 ## Liên quan (đừng nhầm)
 - **Card-in-card** (lồng) → [[card-in-card-border-not-double-fill]] / [[surface-in-surface-inner-has-border]] (con bỏ fill / border + inherit). Đây là luật KHÁC: luật này nói về 2 card **kề nhau** (siblings), không phải lồng.
 - **Frameless** khi content vốn là card(s) → [[frameless-section-empty-state-needs-card]] + `LabeledCard frameless`.
-- **Summary phẳng trong modal** (không bọc card vì modal đã là surface) → [[payment-modal-flat-summary-listcard-drawer]].
+- **Summary phẳng trong modal** (không bọc card vì modal đã là surface) → [[when-drawer]].
 
 ## Áp đầu (2026-06-24)
 - `PaymentModal`: dưới List Card "Thanh toán trong nước" (bordered) → "Thanh toán quốc tế" để **link phẳng + caret** (mở Drawer), KHÔNG bọc thành card thứ 2 (thầy: *"không có card bọc ngoài, không render 2 card liên tiếp kiểu này"*). Bỏ luôn icon quả địa cầu ở link.

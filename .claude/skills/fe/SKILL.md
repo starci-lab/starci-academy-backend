@@ -2,7 +2,7 @@
 name: fe
 description: >
   Frontend conventions + design system (UI 2.0) for the MAIN StarCi Academy web app at
-  `C:\Repositories\starci-academy` (Next.js App Router + React 19 + HeroUI v3 + Tailwind v4 + SWR
+  `D:\Repositories\starci-academy` (Next.js App Router + React 19 + HeroUI v3 + Tailwind v4 + SWR
   + Redux + zustand + Phosphor). Use this skill whenever building, fixing, refactoring, or reviewing
   UI in that repo — pages, components, blocks, features, hooks, forms, API calls, styling. Encodes the
   4-layer architecture (Tokens → HeroUI+globals → Blocks → Features), design tokens, blocks library,
@@ -12,23 +12,20 @@ description: >
 
 # /fe — Main StarCi Academy frontend (UI 2.0)
 
-Repo: **`C:\Repositories\starci-academy`** (Next.js App Router · React 19 · Tailwind v4 · HeroUI v3
+Repo: **`D:\Repositories\starci-academy`** (Next.js App Router · React 19 · Tailwind v4 · HeroUI v3
 `@heroui/react` · next-themes · SWR · Redux Toolkit · react-hook-form+zod · zustand · **Phosphor Icons**).
 
-> ⚠️ FE thật ở `C:\Repositories\starci-academy` — KHÔNG phải `ac\starci-academy` (repo rỗng).
+> ⚠️ FE thật ở `D:\Repositories\starci-academy` — KHÔNG phải `ac\starci-academy` (repo rỗng).
 
 ## BƯỚC 0 — ĐỌC SSOT TRƯỚC (bắt buộc, non-trivial work)
 
-Rules ở **`C:\Repositories\starci-academy\.claude\rules\`**. Đọc trước khi sửa UI:
+Rules v2 (SSOT) sống ở repo BE: **`D:\Repositories\starci-academy-backend\.claude\rules\`** (dù mô tả app FE). Mindset thiết kế = `concepts/*.md` + skill **`ui-ux-pro-max`**. Đọc trước khi sửa UI:
 
-1. **`main.md`** — SSOT (luật + mindset + engineering): 0 protocol · 1 triết lý · 2 4-tầng · 3 style · 4 component
-   · 5 text&icon · 6 HeroUI · 7 AsyncContent · 8 async-feedback · 9 token&spacing · 10 bố cục hồ sơ · 11 i18n/a11y
-   · 12 engineering · 13 index element · 14 heuristics · 15 smells.
-2. **`starci-<element>.md`** khi đụng element đó (render NTN): `starci-{button,card,chip,dropdown,popover,tooltip}.md`.
-3. **`drafts/*.md`** (nếu có) — rule/feedback MỚI chưa merge; **mới nhất THẮNG** main/element khi mâu thuẫn. Đọc HẾT.
+1. **`concepts/*.md`** — triết lý + heuristics + when-to-use-what (accent · card · single-source · fair-monetization…).
+2. **`elements/*.md`** khi đụng element đó (render NTN): `elements/{button,card,chip,input,list,tabs,icon,label,header,sidebar,alert,accordion,color,price,richtext}.md`.
+3. **`layouts/*.md`** (gap/spacing/sticky/scrollbar) + **`responsives/*.md`** (overflow/co giãn) khi đụng bố cục/nhịp.
 
-**Khi thầy dạy/chốt 1 điều, hoặc feedback sau khi trò làm xong → GHI `drafts/<temp-name>.md`** (KHÔNG sửa
-main.md/starci-*.md trực tiếp). **Gộp vào file chính CHỈ khi thầy gõ `/merge`.** (Cơ chế: `drafts/README.md`.)
+**Khi thầy dạy/chốt 1 điều, hoặc feedback sau khi trò làm xong → GHI THẲNG vào canonical v2** (`.claude/rules/{concepts,elements,layouts,responsives}/*.md`, đúng file/section) — **CHỈ khi là nguyên tắc TÁI DÙNG thật, giữ ngắn.** (Workflow `drafts/*` đã khai tử 2026-07-06 — KHÔNG tạo draft.)
 
 ## Luật vàng
 
@@ -87,11 +84,11 @@ Cần `!important` đè chính code mình = quyết định nằm sai tầng.
 
 `text-[Npx]` · hex/`slate-*` · `gap/p` lệch scale (đặc biệt `1.5`) · `handleXxx` · arrow-logic inline JSX ·
 `toast.*` thô · mega-barrel · hardcode text · bọc/dựng lại HeroUI · `useEffect` trong hook SWR · style trong
-features · `<div>/<span>`+text class · raw empty/loading/error ngoài `AsyncContent` · sửa main.md/starci-*.md trực tiếp (→ drafts/).
+features · `<div>/<span>`+text class · raw empty/loading/error ngoài `AsyncContent` · tạo file `drafts/*` (workflow đã khai tử — ghi thẳng canonical v2).
 
 ## Workflow khi vào việc
 
-1. Đọc Bước 0 (main.md + starci-<element>.md + drafts/), rồi file chi tiết của phần đang sửa.
+1. Đọc Bước 0 (rules v2: `concepts/*` + `elements/*` + `layouts/*` + `responsives/*`), rồi file chi tiết của phần đang sửa.
 2. Thiết kế xám trước (layout/hierarchy), xác định 1 hành động chính.
 3. Lắp từ block + HeroUI có sẵn; chỉ tạo block mới khi thiếu. Feature chỉ ghép.
 4. Đủ 3 state qua `AsyncContent` + async feedback (`isPending`/saving) + toast cho write.

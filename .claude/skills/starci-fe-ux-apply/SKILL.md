@@ -2,18 +2,18 @@
 name: starci-fe-ux-apply
 description: >
   Implement the redesigned UX for a page in the MAIN StarCi Academy web app per the brainstorm from
-  /starci-fe-ux-brainstorm (its `<Feature>/UX-BRAINSTORM.md` / the agreed direction). Restructures information
+  /starci-fe-ux-brainstorm (its `.brainstorm/<Feature>.md` / the agreed direction). Restructures information
   architecture, sections, flows, and states using the blocks/features architecture and the /fe rules —
-  the structural "what goes where & why", NOT pixel polish (that is /ui-apply). Verifies tsc/eslint +
+  the structural "what goes where & why". Verifies tsc/eslint +
   visually. Trigger when the user types `/starci-fe-ux-apply <page>`.
 ---
 
 # /starci-fe-ux-apply — Build the redesigned UX (structure)
 
-Dựng UX đã brainstorm. Tầng CẤU TRÚC (IA / section / flow / state) — KHÔNG đánh bóng pixel (đó là `/ui-apply`).
+Dựng UX đã brainstorm. Tầng CẤU TRÚC (IA / section / flow / state).
 
 ## Trước khi làm
-- Đọc **`<Feature>/UX-BRAINSTORM.md`** (hướng đã chốt) + canonical rules trong `.claude/rules/{elements,layouts,responsives,concepts}/*.md` + `drafts/*.md` (mới nhất THẮNG canonical khi mâu thuẫn — chưa gộp).
+- Đọc **`.brainstorm/<Feature>.md`** (hướng đã chốt — thư mục gitignore ở gốc repo FE; nếu không có → hỏi thầy hoặc chạy brainstorm lại) + canonical rules trong `.claude/rules/{elements,layouts,responsives,concepts}/*.md` (SSOT duy nhất — KHÔNG còn `drafts/*.md`, workflow đó đã khai tử 2026-07-06).
 - Chưa có brainstorm → chạy **`/starci-fe-ux-brainstorm`** trước. ĐỪNG tự chế hướng.
 
 ## STRICT — đừng TỰ CHẾ primitive; tra rule + dùng block canonical; design MỚI thì HỎI thầy
@@ -26,7 +26,7 @@ Dựng UX đã brainstorm. Tầng CẤU TRÚC (IA / section / flow / state) — 
   - **Hover KIỂU GÌ** theo bản chất target ([[hover-style-matches-clickable-nature]]): go-there→underline · user→opacity · stay-here/accordion→fill. Đừng mặc định `hover:bg`.
   - **Variant theo NỀN** ([[elements/input]] §3 · [[accordion-card-surface-on-standalone-pages]]): input/accordion/card chọn da để TƯƠNG PHẢN nền nó nằm trên (background→primary/no-variant; surface→secondary).
 - **Phân biệt NGOẠI LỆ CÓ TÊN vs vi phạm:** vài chỗ CỐ Ý lệch primitive chuẩn (vd ô nhập composer-in-box dùng `<input>` flat — [[ai-chat-composer-box-controls-and-settings-modal]]). Chỉ lệch khi có **rule đặt tên ngoại lệ đó**; nếu không → dùng primitive chuẩn.
-- **DESIGN MỚI (không rule/block nào cover) → HỎI THẦY TRƯỚC, đừng tự quyết primitive.** Tự chế UI mới = sai nguyên tắc "đồng bộ hệ". Nếu brainstorm chưa chốt cách render 1 thứ mới → dừng, hỏi; hoặc `/starci-fe-ux-brainstorm` lại. Sau khi thầy duyệt → ghi `drafts/*` để thành rule.
+- **DESIGN MỚI (không rule/block nào cover) → HỎI THẦY TRƯỚC, đừng tự quyết primitive.** Tự chế UI mới = sai nguyên tắc "đồng bộ hệ". Nếu brainstorm chưa chốt cách render 1 thứ mới → dừng, hỏi; hoặc `/starci-fe-ux-brainstorm` lại. Sau khi thầy duyệt → ghi THẲNG vào canonical v2 (`.claude/rules/{elements,layouts,responsives,concepts}/*.md`), KHÔNG tạo `drafts/*`.
 - **Trước khi viết 1 cụm `<div className="...">` tự dựng, tự hỏi:** "element này có rule chưa? có block canonical chưa?" → có thì dùng; chưa chắc thì grep repo (`SearchInput`/`ListBox`/`TabsCard`/`InfiniteScrollSentinel`…) trước khi tự chế.
 
 ## Làm

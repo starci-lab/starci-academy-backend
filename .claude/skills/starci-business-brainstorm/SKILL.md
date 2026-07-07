@@ -59,7 +59,7 @@ viết code — chỉ brainstorm + chốt hướng + **vẽ widget**. CHẠY MAX
      blockchain"; mỗi ý nêu kênh + thông điệp + tài sản code làm bằng chứng.
    - **≥2–3 HƯỚNG** trade-off → **CHỐT 1 + lý do**.
 
-5. **Output doc:** ghi **`.business/BUSINESS-BRAINSTORM-<scope>-<topic>.md`** (tạo thư mục `.business/` nếu
+5. **Output doc:** ghi **`.claude/business/BUSINESS-BRAINSTORM-<scope>-<topic>.md`** (tạo thư mục `.claude/business/` nếu
    chưa có) + tóm tắt trong chat: inventory · positioning · ICP · packaging · growth loop · GTM/KOL · các
    hướng + hướng chốt · rủi ro/giả định. **KHÔNG code.**
 
@@ -73,5 +73,6 @@ viết code — chỉ brainstorm + chốt hướng + **vẽ widget**. CHẠY MAX
    - Flat, dùng CSS vars, đẹp cả light/dark; **NHÌN là hiểu code nào → bán cái gì**, không chỉ tả bằng chữ.
    - Loading messages giữ trung tính nếu topic nhạy cảm; còn lại được phép chơi chữ.
 
-→ Thầy duyệt hướng → triển khai (content/landing/pricing) ở bước riêng. **Thầy feedback bất cứ lúc nào →
-tự ghi `.business/drafts/<temp>.md`** (rút nguyên tắc business/marketing tổng quát) để lần sau tái dùng.
+→ Thầy duyệt hướng → triển khai (content/landing/pricing) ở bước riêng. **Thầy feedback nguyên tắc
+business/marketing tổng quát bất cứ lúc nào → ghi THẲNG vào doc `.claude/business/BUSINESS-BRAINSTORM-<scope>-<topic>.md`
+(mục "Nguyên tắc rút ra")** để lần sau tái dùng — KHÔNG qua file staging.

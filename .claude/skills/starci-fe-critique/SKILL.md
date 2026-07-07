@@ -53,7 +53,7 @@ có chuyển đổi, có kéo về khóa, có công bằng, có bền không. **
 3. **Bắn câu hỏi theo 8 LENS business (dưới)** — mỗi lens vài câu SẮC, grounded, có stance. Ưu tiên câu **lộ lỗ hổng
    thật** (nhánh cụt, không tạo demand, gaming được, không fair, không kéo về khóa).
 4. **Tổng hợp "HOLES FOUND":** 3–7 lỗ hổng business lớn nhất (nếu thầy không phản biện nổi = phải sửa thiết kế).
-5. **Output:** ghi **`<Feature>/CRITIQUE.md`** (English questions theo lens + holes) + tóm tắt chat (business job ·
+5. **Output:** ghi **`.brainstorm/<Feature>-CRITIQUE.md`** (thư mục GITIGNORE ở gốc repo FE — KHÔNG commit, KHÔNG vào `src/`) + tóm tắt chat (business job ·
    holes lớn nhất · lens nào yếu nhất). **KHÔNG code.**
 6. **Widget (TÙY CHỌN, chỉ khi có LOOP/FUNNEL đáng vẽ):** nếu phản biện xoay quanh 1 vòng (vd upload→score→demand→
    generate→enroll) hay 1 phễu chuyển đổi → có thể vẽ 1 diagram vòng/phễu (`show_widget`, `read_me` module `diagram`)
@@ -108,4 +108,8 @@ có chuyển đổi, có kéo về khóa, có công bằng, có bền không. **
 - Nguyên tắc: **phản biện KHÔNG phải để nói suông — thua 1 hole = phải dựng + build, NHƯNG build sau khi layout chốt.**
   Critique → (rebut | resolution → **chốt layout** → build).
 
-→ Thầy phản biện từng câu → thông suốt / lộ lỗ cần sửa (rebut = giữ · thua = dựng+build). **KHÔNG viết file `drafts/*.md` (thầy chốt 2026-07-06: tốn kém).** Nguyên tắc mới → cập nhật THẲNG canonical **v2** (`.claude/rules/{elements,layouts,responsives,concepts}/*.md`), CHỈ khi tái dùng thật + giữ ngắn.
+→ Thầy phản biện từng câu → thông suốt / lộ lỗ cần sửa (rebut = giữ · thua = dựng+build). Nguyên tắc business tái dùng được → ghi THẲNG vào rules v2 canonical (`.claude/rules/{concepts,elements,layouts,responsives}/*.md`, thường `concepts/`), CHỈ khi tái dùng thật + giữ ngắn. KHÔNG viết `drafts/*.md` (drafts workflow đã bỏ 2026-07-06).
+
+## Liên quan
+- `/starci-fe-layout-brainstorm` (chốt layout sau khi thua 1 hole — GATE trước workflow) · `/starci-fe-ux-brainstorm`
+  (vẽ UX) · `[[fair-monetization-axiom]]` (North Star công bằng) · rules v2 `.claude/rules/concepts/*.md`.

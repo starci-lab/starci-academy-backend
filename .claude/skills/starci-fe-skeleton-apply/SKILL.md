@@ -2,7 +2,7 @@
 name: starci-fe-skeleton-apply
 description: >
   Build / refine the LOADING SKELETON for a page in the MAIN StarCi Academy web app (`D:\Repositories\starci-academy`,
-  branch `final-mvp`) so every data-backed region renders a skeleton that MIRRORS its loaded layout (no collapse, no
+  branch `mtp`) so every data-backed region renders a skeleton that MIRRORS its loaded layout (no collapse, no
   jump on resolve) through `AsyncContent`, with the canonical nullish `isLoading` formula. Inspect the loading state
   via DevTools network throttle or a temporary fetcher `sleep` (the old `AsyncContent` `debug` hold was REMOVED — do
   NOT use it). The skeleton-state counterpart of `/starci-fe-ux-apply`; reads the `/fe` + `starci-async` SSOT. Trigger
@@ -14,18 +14,18 @@ description: >
 
 Make the **loading state** of a page correct: every data-backed region renders a skeleton that **mirrors the real
 layout**, so the box never collapses or jumps when data resolves. The skeleton-state sibling of `/starci-fe-ux-apply`
-(structure) and `/ui-apply` (pixel polish). It does NOT restructure IA or redesign — it only makes the skeleton match
-what's already there.
+(structure). It does NOT restructure IA or redesign — it only makes the skeleton match what's already there.
 
-> ⚠️ Repo FE thật = **`D:\Repositories\starci-academy`** (branch `final-mvp`). KHÔNG phải `C:\…` (bản cũ).
+> ⚠️ Repo FE thật = **`D:\Repositories\starci-academy`** (branch `mtp`). KHÔNG phải `C:\…` (bản cũ).
 
 > 🚫 **`AsyncContent` KHÔNG còn prop `debug`** (cơ chế 3s-hold đã bị BỎ HẲN — nó là footgun giữ skeleton 3s cho user
 > thật). ĐỪNG thêm `debug` vào bất kỳ `AsyncContent` nào; nếu thấy `debug` còn sót → XÓA. Soi loading bằng cách khác
 > (xem §Soi loading).
 
 ## Trước khi làm
-- Áp **`/fe`** (đọc `main.md` + `starci-<element>.md` + `drafts/*`) + **`starci-async`** (hợp đồng 4-state + luật
-  "skeleton mirrors loaded layout"). Skeleton là 1 nhánh của `AsyncContent`, không phải spinner trần.
+- Áp **`/fe`** (design system + rules v2 canonical `.claude/rules/{elements,layouts,responsives,concepts}/*.md`) +
+  **`starci-async`** (hợp đồng 4-state + luật "skeleton mirrors loaded layout"). Skeleton là 1 nhánh của
+  `AsyncContent`, không phải spinner trần.
 - Xác định **1 trang/feature** đích (arg). Liệt kê MỌI vùng fetch trong trang.
 
 ## Làm (loop)
@@ -73,4 +73,10 @@ what's already there.
 ## Sau khi làm
 - `npx tsc --noEmit` + `npm run lint` sạch (baseline: 4 lỗi blog WIP pre-existing). Grep `debug=` = 0.
 - Verify: skeleton khớp layout, resolve không nhảy. Chụp cho thầy 1 ảnh skeleton (qua throttle) + 1 ảnh loaded.
-- **Thầy feedback → ghi `.claude/rules/drafts/<temp>.md`** (rút nguyên tắc tổng quát), gộp khi `/merge`.
+- **Thầy feedback → rút nguyên tắc tổng quát ghi THẲNG vào rules v2 canonical**
+  (`.claude/rules/{concepts,elements,layouts,responsives}/*.md`, chọn file theo bản chất), CHỈ khi tái dùng thật.
+  KHÔNG viết `drafts/<temp>.md` (drafts workflow đã bỏ 2026-07-06).
+
+## Liên quan
+- Skill `/fe` (design system) · `starci-async` (hợp đồng 4-state, `AsyncContent`/`EmptyContent`/`ErrorContent`) ·
+  `/starci-fe-ux-apply` (structure sibling) · rules v2 `.claude/rules/{elements,layouts,responsives,concepts}/*.md`.
