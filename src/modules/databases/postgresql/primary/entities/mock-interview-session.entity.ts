@@ -33,6 +33,34 @@ export interface MockInterviewSeedQuestion {
 }
 
 /**
+ * One recorded turn of an IN-FLIGHT session's transcript, snapshotted onto
+ * {@link MockInterviewSessionEntity.turns} by `syncMockInterviewSessionTurns`
+ * so the conversation can be replayed exactly when the learner resumes —
+ * mirrors the shape of `gradeMockInterviewSession`'s
+ * `MockInterviewTurnInput` (and the FE's own `MockInterviewTurn`) field for
+ * field, since the eventual grade call re-sends this same transcript. Stored
+ * as a plain jsonb array (not typed columns), same reasoning as every other
+ * jsonb column on this entity.
+ */
+export interface MockInterviewSessionTurn {
+    /** Who spoke this turn — "interviewer" or "candidate". */
+    role: string
+    /** Which of the 5 canonical interview phases this turn belongs to (mode="design" only — carries no meaning for a "qna" turn). */
+    phase: string
+    /** The turn's Markdown content (candidate turns are speech-to-text transcribed client-side). */
+    content: string
+    /** 0-based index of the question this turn belongs to (mode="qna" only) — undefined/omitted for a "design" turn. */
+    questionIndex?: number
+    /**
+     * Set on an interviewer turn whose question shipped GIVEN code that was
+     * seeded into the editable code tool — lets a resumed session re-render
+     * the "code loaded into the editor" chip instead of the code inline,
+     * matching what the learner originally saw.
+     */
+    artifactHint?: "code"
+}
+
+/**
  * One SERVER-PICKED mock-interview prompt draw — created by
  * `startMockInterviewSession` at the moment the learner starts a session, so
  * `gradeMockInterviewSession` can look the draw back up by `id` and grade
@@ -183,4 +211,68 @@ export class MockInterviewSessionEntity extends UuidAbstractEntity {
         default: true,
     })
         countsToReadiness: boolean
+
+    /**
+     * The session's lifecycle state — "resume mock interview session"
+     * (2026-07-08): a learner who navigates away mid-session can pick their
+     * draw back up via `myInProgressMockInterviewSession` /
+     * `syncMockInterviewSessionTurns` as long as it is still "in_progress".
+     * `startMockInterviewSession` flips any PRIOR "in_progress" row for the
+     * same enrollment to "abandoned" before persisting a new draw (so a
+     * learner never has two resumable sessions at once), and
+     * `gradeMockInterviewSession` flips the row to "completed" once grading
+     * succeeds. Plain varchar (not a pg enum), same reasoning as every other
+     * free-form column on this entity (`level`/`source`/`mode`). Defaults to
+     * "in_progress" so a row written before this column existed still reads
+     * as a valid status (see the migration's own doc for why that default is
+     * safe — those rows are all already resolved one way or another in
+     * practice, "in_progress" is just their fallback label).
+     */
+    @Column({
+        name: "status",
+        type: "varchar",
+        default: "in_progress",
+    })
+        status: "in_progress" | "completed" | "abandoned"
+
+    /**
+     * Snapshot of the in-flight transcript, periodically overwritten by
+     * `syncMockInterviewSessionTurns` (never by `startMockInterviewSession`,
+     * which always leaves this null on a fresh draw) — the source a resumed
+     * session replays from. Null for a session that never synced a turn yet
+     * (drawn but not started, or predates this column).
+     */
+    @Column({
+        name: "turns",
+        type: "jsonb",
+        nullable: true,
+    })
+        turns: Array<MockInterviewSessionTurn> | null
+
+    /**
+     * 0-based index of the "qna"-mode question the learner was on at the
+     * last sync — together with {@link phaseIndex}, the resume position
+     * `myInProgressMockInterviewSession` reports back so the FE can restore
+     * the workspace to exactly where the learner left off. Defaults to 0 (a
+     * session always starts at its first question).
+     */
+    @Column({
+        name: "question_index",
+        type: "int",
+        default: 0,
+    })
+        questionIndex: number
+
+    /**
+     * 0-based index of the "design"-mode phase (requirements → estimation →
+     * highLevel → deepDive → tradeoffs) the learner was on at the last sync —
+     * the design-flow counterpart of {@link questionIndex}. Defaults to 0 (a
+     * session always starts at the first phase).
+     */
+    @Column({
+        name: "phase_index",
+        type: "int",
+        default: 0,
+    })
+        phaseIndex: number
 }

@@ -61,6 +61,26 @@ export class MockInterviewTurnInput {
         },
     )
         questionIndex?: number
+
+    /**
+     * Free-form string (not an enum — the only value that currently exists is
+     * "code") mirroring the FE's `MockInterviewTurn.artifactHint` — set on an
+     * interviewer turn whose question shipped GIVEN code seeded into the
+     * editable code tool, so a session resumed from
+     * `syncMockInterviewSessionTurns`'s snapshot can re-render the "code
+     * loaded into the editor" chip instead of the code inline, matching what
+     * the learner originally saw. Reused by (and additive to)
+     * `syncMockInterviewSessionTurns` — `gradeMockInterviewSession` itself
+     * never reads this field, only echoes/ignores it.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Set to \"code\" on an interviewer turn whose given code was seeded into the editable code tool; omitted otherwise.",
+        },
+    )
+        artifactHint?: string
 }
 
 /**

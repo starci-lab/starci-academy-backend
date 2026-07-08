@@ -9,7 +9,7 @@ description: >
   in `.claude/fe/{layouts,components,features,principles}` + the real source; researches the web when `fe/` doesn't
   cover a pattern or when unsure. SELF-VERIFIES against house-rules, then renders an INTERACTIVE clickable HTML
   prototype of the flow (walk it like slides) hosted on localhost:8080 for approval. On approval, writes a
-  `<feature>.proposal.md` into a QUEUE (`fe/proposals/`) that a SEPARATE `starci-fe-ux-apply` run builds — it does NOT
+  `<feature>.proposal.md` into a QUEUE (`fe/proposals/`) that a SEPARATE `starci-fe-layout-apply` run builds — it does NOT
   build itself. Opt-in "panel" mode fans out rival shell directions + an adversarial critic
   for hard flows. NOT per-component styling. Trigger when the user types `/starci-fe-layout-brainstorm`, asks to
   build/plan a page or FLOW layout, or suggests a feature-layout to build.
@@ -38,7 +38,7 @@ HTML bấm-được** (đi luồng như slide) trên **:8080**, không chỉ t�
 7. **SELF-VERIFY gate (always-on)** — tự chấm blueprint theo checklist dưới TRƯỚC khi show. Miss → sửa, đừng đẩy lỗi cho thầy.
 8. **PROTOTYPE bấm-được (:8080)** — dựng 1 file HTML self-contained (xem §Prototype) → host → thầy BẤM đi hết luồng + mọi state + phản biện.
 
-→ **Thầy duyệt/phản biện** → **9. CHỐT (KHÔNG build):** ghi `fe/proposals/<feature>.proposal.md` (spec đầy đủ, xem §Chốt) + 1 dòng **PENDING** vào `fe/proposals/BACKLOG.md`. **Brainstorm DỪNG ở đây** — build là việc của `starci-fe-ux-apply` (chạy sau, có thể session khác).
+→ **Thầy duyệt/phản biện** → **9. CHỐT (KHÔNG build):** ghi `fe/proposals/<feature>.proposal.md` (spec đầy đủ, xem §Chốt) + 1 dòng **PENDING** vào `fe/proposals/BACKLOG.md`. **Brainstorm DỪNG ở đây** — build là việc của `starci-fe-layout-apply` (chạy sau, có thể session khác).
 
 ## §Prototype — interactive HTML host :8080 (như slide pptx)
 - **Bắt đầu từ kit `.claude/fe/prototypes/_TEMPLATE.html`** — copy ra `scratchpad/<feature>-flow/index.html` rồi ĐIỀN màn theo comment; **KHÔNG dựng từ số 0**. 1 file self-contained (inline CSS/JS, KHÔNG external). Tra bản mẫu cũ: `fe/prototypes/INDEX.md`.
@@ -63,8 +63,8 @@ HTML bấm-được** (đi luồng như slide) trên **:8080**, không chỉ t�
 Sau khi thầy duyệt prototype/blueprint → ghi **1 `fe/proposals/<feature>.proposal.md`** (spec để session khác build):
 - **flow + shell per surface** (job→shell) · **zones** · **state matrix + lens conversion** (grounded) · **block briefs element-aware** (tên block THẬT) · **prototype ref** · **files to touch** (đường dẫn source cần sửa) · **verify plan**.
 - Thêm 1 dòng **PENDING** vào `fe/proposals/BACKLOG.md` (hàng đợi — nguồn duy nhất biết cái nào làm rồi/chưa).
-- **Brainstorm KHÔNG build** (không flip features, không ghi ruling layout) — đó là việc `starci-fe-ux-apply`.
-- **→ GỢI Ý APPLY NGAY (same-session):** proposal vào hàng đợi xong → **hỏi thầy "apply luôn session này không?"**. Đồng ý → chạy `starci-fe-ux-apply <feature>` NGAY session này. Không → để session sau (BACKLOG là bàn giao). KHÔNG bắt buộc tách session.
+- **Brainstorm KHÔNG build** (không flip features, không ghi ruling layout) — đó là việc `starci-fe-layout-apply`.
+- **→ GỢI Ý APPLY NGAY (same-session):** proposal vào hàng đợi xong → **hỏi thầy "apply luôn session này không?"**. Đồng ý → chạy `starci-fe-layout-apply <feature>` NGAY session này. Không → để session sau (BACKLOG là bàn giao). KHÔNG bắt buộc tách session.
 - Chốt có thể xác nhận nhanh bằng `AskUserQuestion` (*"chốt proposal này vào hàng đợi?"* · *"prototype giữ làm mẫu → `fe/prototypes/`?"*).
 
 ## Ràng (STRICT)
@@ -73,6 +73,6 @@ Sau khi thầy duyệt prototype/blueprint → ghi **1 `fe/proposals/<feature>.p
 - Mọi fetch → `AsyncContent`. 1 component = 1 folder `index.tsx`, props discipline.
 
 ## Bàn giao
-- **BUILD proposal → `starci-fe-ux-apply`** (đọc `fe/proposals/<feature>.proposal.md` → dựng → ✅ DONE + flip features).
+- **BUILD proposal → `starci-fe-layout-apply`** (đọc `fe/proposals/<feature>.proposal.md` → dựng → ✅ DONE + flip features).
 - Chi tiết/style block → `starci-fe-block-skill` · Skeleton → skill skeleton · Phản biện business → `starci-fe-critique`.
 - Bản đồ: `.claude/fe/README.md` · hàng đợi: `.claude/fe/proposals/BACKLOG.md`.

@@ -1,5 +1,5 @@
 ---
-name: starci-fe-ux-apply
+name: starci-fe-layout-apply
 description: >
   BUILD a queued layout proposal into real FE code for the MAIN StarCi Academy web app
   (`C:\Repositories\starci-academy`). Reads a `fe/proposals/<feature>.proposal.md` (produced + approved by
@@ -10,12 +10,12 @@ description: >
   writes reusable layout rulings back to `fe/`. Can run in a DIFFERENT session from the brainstorm — the backlog is the
   handoff. **Apply = OPUS writes a meticulous impl-spec, then SONNET agents code it; MAY also modify the backend
   (`starci-academy-backend/src`) + `.mount` content data when the feature needs it.** Trigger when the user types
-  `/starci-fe-ux-apply <feature|proposal>`, or asks to build/apply a
+  `/starci-fe-layout-apply <feature|proposal>`, or asks to build/apply a
   queued proposal or "dựng layout đã chốt".
 
 ---
 
-# /starci-fe-ux-apply — Build 1 proposal đã chốt thành code thật
+# /starci-fe-layout-apply — Build 1 proposal đã chốt thành code thật
 
 Pha **BUILD** (tách khỏi brainstorm). Đọc 1 `proposal.md` đã chốt trong hàng đợi → dựng **STRUCTURE** đúng spec →
 verify → đánh **✅ DONE** + flip features. Có thể chạy ở **session khác** với brainstorm (hàng đợi (BACKLOG) là bàn giao).

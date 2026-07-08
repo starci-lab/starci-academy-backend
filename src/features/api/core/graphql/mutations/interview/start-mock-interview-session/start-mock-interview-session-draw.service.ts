@@ -997,6 +997,23 @@ export class MockInterviewSessionDrawService {
             seedQuestions,
             countsToReadiness,
         } = params
+
+        // retire the enrollment's previous in-flight draw (if any) BEFORE
+        // persisting the new one, so resume-lookup never has two candidates —
+        // "resume mock interview session" (2026-07-08).
+        await this.entityManager.update(
+            MockInterviewSessionEntity,
+            {
+                enrollment: {
+                    id: enrollment.id,
+                },
+                status: "in_progress",
+            },
+            {
+                status: "abandoned",
+            },
+        )
+
         return this.entityManager.save(
             MockInterviewSessionEntity,
             {
@@ -1009,6 +1026,10 @@ export class MockInterviewSessionDrawService {
                 source,
                 seedQuestions,
                 countsToReadiness,
+                status: "in_progress",
+                turns: null,
+                questionIndex: 0,
+                phaseIndex: 0,
             },
         )
     }

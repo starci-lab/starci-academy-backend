@@ -4,7 +4,7 @@ description: >
   Build/refine the LOADING SKELETON for a page or region in the MAIN StarCi Academy web app
   (`C:\Repositories\starci-academy`) so every data-backed region renders a skeleton that MIRRORS its loaded layout
   (no collapse, no jump on resolve), through `AsyncContent`, using the canonical nullish `isLoading` formula. The
-  loading-state counterpart of `starci-fe-ux-apply` / `starci-fe-block-apply` — it does NOT restructure IA, only makes
+  loading-state counterpart of `starci-fe-layout-apply` / `starci-fe-block-apply` — it does NOT restructure IA, only makes
   the skeleton match what's already there. Grounded in `fe/patterns/` (AsyncContent priority · 3-tier loading) +
   `fe/components/skeleton` + `starci-async`. Inspect loading via DevTools Network throttle or a temp fetcher sleep
   (NO `debug` prop — removed). Trigger when the user types `/starci-fe-skeleton-apply <page>`, or asks to "làm skeleton
@@ -36,4 +36,4 @@ em loading-state của layout/block apply. **KHÔNG** restructure IA — chỉ l
 - Ruling tái dùng → ghi `fe/patterns/` hoặc `fe/components/skeleton`. Có sửa canon → **push private**; sạch → **public** (rule `.claude/CANON.md`).
 
 ## Liên quan
-- `starci-fe-ux-apply` (gọi skeleton SAU khi dựng structure) · `starci-fe-block-apply` (skeleton 1 block) · `starci-async` (AsyncContent/Empty/Error).
+- `starci-fe-layout-apply` (gọi skeleton SAU khi dựng structure) · `starci-fe-block-apply` (skeleton 1 block) · `starci-async` (AsyncContent/Empty/Error).

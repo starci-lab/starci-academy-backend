@@ -590,6 +590,24 @@ export class MockInterviewGradingService {
                     countsToReadiness,
                 },
             )
+
+            // "resume mock interview session" (2026-07-08): a session that just
+            // graded successfully is no longer resumable — flip it to "completed"
+            // so myInProgressMockInterviewSession stops offering it back, and a
+            // late/stale syncMockInterviewSessionTurns call for the same session
+            // no-ops instead of clobbering the now-finished transcript.
+            await this.entityManager.update(
+                MockInterviewSessionEntity,
+                {
+                    id: sessionId,
+                    enrollment: {
+                        id: enrollment.id,
+                    },
+                },
+                {
+                    status: "completed",
+                },
+            )
         } catch {
             // history is non-critical — never fail the grade over a persistence write
         }

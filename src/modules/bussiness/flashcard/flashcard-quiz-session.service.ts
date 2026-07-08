@@ -7,6 +7,7 @@ import {
 } from "typeorm"
 import {
     FlashcardCardEntity,
+    FlashcardQuizSessionEntity,
     InjectPrimaryPostgreSQLEntityManager,
     XpHistoryEntity,
     XpSource,
@@ -160,6 +161,30 @@ export class FlashcardQuizSessionService {
                     dailyCapReached: false,
                 }
             }
+
+            // "resume flashcard quiz session" (2026-07-08): flip the persisted
+            // draw (if `sessionId` is one — a server-issued
+            // `startFlashcardQuizSession` id, scoped to the CALLER's own
+            // enrollment) to "completed" so it stops surfacing as resumable via
+            // `myInProgressFlashcardQuizSession`. A no-op (never throws) when
+            // `sessionId` does not match any owned in-progress row — an older
+            // client that never called `startFlashcardQuizSession` still sends
+            // a client-generated id here, which simply matches nothing.
+            await manager.update(
+                FlashcardQuizSessionEntity,
+                {
+                    id: sessionId,
+                    enrollment: {
+                        user: {
+                            id: userId,
+                        },
+                    },
+                    status: "in_progress",
+                },
+                {
+                    status: "completed",
+                },
+            )
 
             // sum today's (VN calendar day) FlashcardQuiz XP for this (user, course) —
             // the daily cap headroom is the ceiling minus what has already been granted

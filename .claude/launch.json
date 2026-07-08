@@ -15,6 +15,13 @@
       "autoPort": true
     },
     {
+      "name": "frontend-8080",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "C:/Repositories/starci-academy", "run", "dev", "--", "-p", "8080"],
+      "port": 8080,
+      "autoPort": false
+    },
+    {
       "name": "fe-d",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "D:/Repositories/starci-academy", "run", "dev"],

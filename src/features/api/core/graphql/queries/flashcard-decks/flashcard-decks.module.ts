@@ -25,10 +25,13 @@ import {
 import {
     MyMockInterviewAttemptsSingleQueryModule,
 } from "./my-mock-interview-attempts"
+import {
+    MyInProgressMockInterviewSessionSingleQueryModule,
+} from "./my-in-progress-mock-interview-session"
 
 /**
  * Flashcard-deck query group (deck listing by course + single-deck detail +
- * typeahead + mock-interview prompt/history reads).
+ * typeahead + mock-interview prompt/history/resume reads).
  */
 @Module({
     imports: [
@@ -51,6 +54,9 @@ import {
             isGlobal: true,
         }),
         MyMockInterviewAttemptsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyInProgressMockInterviewSessionSingleQueryModule.register({
             isGlobal: true,
         }),
     ],
