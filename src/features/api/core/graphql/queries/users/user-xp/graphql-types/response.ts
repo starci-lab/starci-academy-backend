@@ -10,7 +10,7 @@ import {
 
 /**
  * A user's XP aggregate: the per-source XP totals derived from the `xp_histories`
- * ledger plus the two materialized balances (`total_points` / `reward_points`).
+ * ledger plus the two materialized balances (`total_points` / `coin_balance`).
  */
 @ObjectType({
     description: "A user's XP aggregate (per-source XP + the total/reward balances).",
@@ -59,17 +59,17 @@ export class UserXpData {
     @Field(
         () => Int,
         {
-            description: "The user's spendable reward-points balance.",
+            description: "The user's spendable Coin balance.",
         },
     )
-        rewardPoints: number
+        coinBalance: number
 }
 
 /**
  * Response wrapper for the userXp query.
  *
  * The named user's XP aggregate — per-source XP figures summed from the
- * `xp_histories` ledger, plus the total-XP and spendable reward-points balances.
+ * `xp_histories` ledger, plus the total-XP and spendable Coin balances.
  */
 @ObjectType({
     description: "Response wrapper for the userXp query.",

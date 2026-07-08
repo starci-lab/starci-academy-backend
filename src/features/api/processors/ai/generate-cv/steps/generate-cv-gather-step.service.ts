@@ -8,8 +8,9 @@ import {
 } from "@modules/bussiness"
 import {
     CvGenerationMode,
+    CvSource,
     InjectPrimaryPostgreSQLEntityManager,
-    UserCVSubmissionEntity,
+    UserCvGenerationEntity,
     UserEntity,
     UserXpProjectionEntity,
 } from "@modules/databases"
@@ -338,8 +339,11 @@ export class GenerateCvGatherStepService extends AbstractStepService<
     }
 
     /**
-     * `Revise` mode: buffer the uploaded source CV from MinIO and extract its
-     * text (pdf/docx). Non-Revise, missing source id, or missing/empty file →
+     * `Revise` mode: resolve the source `cv_generations` row (`sourceCvSubmissionId`
+     * — unified table, covers both `Uploaded` and `Generated` sources) and
+     * produce text for the compose prompt: buffer + extract the file for
+     * `Uploaded`, or serialize the already-assembled `structuredData` for
+     * `Generated`. Non-Revise, missing source id, or missing source material →
      * `null` (compose then behaves like Generate).
      */
     private async gatherSourceCvText(
@@ -348,35 +352,48 @@ export class GenerateCvGatherStepService extends AbstractStepService<
         if (payload.mode !== CvGenerationMode.Revise || !payload.sourceCvSubmissionId) {
             return null
         }
-        // resolve the uploaded file's object key from the legacy submission row
-        const submission = await this.entityManager.findOne(
-            UserCVSubmissionEntity,
+        const source = await this.entityManager.findOne(
+            UserCvGenerationEntity,
             {
                 where: {
                     id: payload.sourceCvSubmissionId,
                 },
                 select: {
                     id: true,
-                    cdnKey: true,
+                    source: true,
+                    uploadedCdnKey: true,
+                    structuredData: true,
                 },
             },
         )
-        const key = submission?.cdnKey
-        if (!key) {
+        if (!source) {
             return null
         }
-        const buffer = await this.s3ReadService.buffer({
-            key,
-            provider: S3Provider.Minio,
-        })
-        if (!buffer || buffer.length === 0) {
-            return null
+        if (source.source === CvSource.Uploaded) {
+            const key = source.uploadedCdnKey
+            if (!key) {
+                return null
+            }
+            const buffer = await this.s3ReadService.buffer({
+                key,
+                provider: S3Provider.Minio,
+            })
+            if (!buffer || buffer.length === 0) {
+                return null
+            }
+            const text = await extractCvText({
+                buffer,
+                key,
+            })
+            return text.length > 0 ? text : null
         }
-        const text = await extractCvText({
-            buffer,
-            key,
-        })
-        return text.length > 0 ? text : null
+        return source.structuredData
+            ? JSON.stringify(
+                source.structuredData,
+                null,
+                2,
+            )
+            : null
     }
 
     /**

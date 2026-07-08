@@ -164,7 +164,7 @@ export class DailyQuestService {
      * the quest is incomplete or already claimed today.
      *
      * @param userId - the claiming user's id.
-     * @returns the user's refreshed reward-points balance.
+     * @returns the user's refreshed Coin balance.
      */
     async claimReward(userId: string): Promise<ClaimDailyQuestResult> {
         return this.entityManager.transaction(async (manager) => {
@@ -191,7 +191,7 @@ export class DailyQuestService {
                 {
                     userId,
                     questDate: date,
-                    rewardPoints: DAILY_QUEST_REWARD,
+                    coinReward: DAILY_QUEST_REWARD,
                 })
             // grant the flat reward via the shared ledger helper (points only, no XP).
             // refId is unique per user+day so the grant is idempotent on its own too.
@@ -212,11 +212,11 @@ export class DailyQuestService {
                     },
                     select: {
                         id: true,
-                        rewardPoints: true,
+                        coinBalance: true,
                     },
                 })
             return {
-                balance: user.rewardPoints,
+                balance: user.coinBalance,
             }
         })
     }

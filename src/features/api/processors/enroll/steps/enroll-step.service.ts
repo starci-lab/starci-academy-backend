@@ -23,6 +23,7 @@ import {
     JobActionService,
     TransactionActionService,
     UserService,
+    VoucherService,
     writeActivity,
 } from "@modules/bussiness"
 import {
@@ -63,6 +64,7 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
         private readonly courseStatsProjectionService: CourseStatsProjectionService,
         private readonly userService: UserService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
+        private readonly voucherService: VoucherService,
     ) {
         super()
     }
@@ -198,6 +200,11 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                             entityManager,
                         },
                     )
+                    // settle any voucher this transaction reserved (no-op if none)
+                    await this.voucherService.markUsed({
+                        entityManager,
+                        transactionId,
+                    })
                     return
                 }
                 // either CONVERT the existing trial placeholder (is_enrolled=false) → paid,
@@ -289,6 +296,11 @@ export class EnrollStepService extends AbstractStepService<EnrollPayload, undefi
                         entityManager,
                     }
                 )
+                // settle any voucher this transaction reserved (no-op if none)
+                await this.voucherService.markUsed({
+                    entityManager,
+                    transactionId,
+                })
             }
         )
 

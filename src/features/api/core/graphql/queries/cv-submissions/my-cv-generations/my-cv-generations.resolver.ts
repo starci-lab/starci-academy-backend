@@ -18,7 +18,6 @@ import {
 } from "@modules/throttler"
 import {
     Locale,
-    UserCvGenerationEntity,
     UserEntity,
 } from "@modules/databases"
 import {
@@ -26,6 +25,7 @@ import {
     KeycloakGraphQLUser,
 } from "@modules/keycloak"
 import {
+    CvGenerationListItem,
     MyCvGenerationsRequest,
     MyCvGenerationsResponse,
 } from "./graphql-types"
@@ -71,7 +71,7 @@ export class MyCvGenerationsResolver {
             },
         )
             request?: MyCvGenerationsRequest,
-    ): Promise<Array<UserCvGenerationEntity>> {
+    ): Promise<Array<CvGenerationListItem>> {
         return this.myCvGenerationsService.execute(
             {
                 request: request ?? {

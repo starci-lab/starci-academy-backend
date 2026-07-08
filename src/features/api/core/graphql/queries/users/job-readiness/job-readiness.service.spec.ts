@@ -6,8 +6,12 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
+    CvVerificationService,
     UserSolvedChallengesProjectionService,
 } from "@modules/bussiness"
+import {
+    CvVerificationLevel,
+} from "@modules/databases"
 import {
     makeEntityManagerMock,
 } from "@modules/tests"
@@ -24,9 +28,12 @@ const POSTGRESQL_PRIMARY = "primary"
 /**
  * Unit suite for {@link JobReadinessService}. Every DB read is mocked; the
  * `entityManager.query` mock is ORDER-SENSITIVE because `buildTracks` issues its
- * four aggregate reads via `Promise.all` in a fixed order — capstoneTotals,
- * capstonePassed, interviewAverages, then loadTrackCvScores. The global
- * foundation adds `computeCvScore` (two `findOne` reads) + a projection call.
+ * THREE aggregate reads via `Promise.all` in a fixed order — capstoneTotals,
+ * capstonePassed, interviewAverages. The CV pillar (2026-07-05: deterministic,
+ * no AI/CV-row read) comes from {@link CvVerificationService} instead —
+ * `resolveLevelForCourse` per track, `resolveLevel` for the global foundation —
+ * mocked separately below, defaulting to `SelfReported` (→ null/0) unless a
+ * test overrides it.
  *
  * Locks the fair-monetization axiom (see
  * `.claude/rules/concepts/fair-monetization-axiom.md`): a track's numbers never
@@ -39,6 +46,9 @@ describe("JobReadinessService",
         let entityManager: EntityManagerMock
         let userSolvedChallengesProjectionService: jest.Mocked<
             Pick<UserSolvedChallengesProjectionService, "getChallengeStrength">
+        >
+        let cvVerificationService: jest.Mocked<
+            Pick<CvVerificationService, "resolveLevel" | "resolveLevelForCourse" | "scoreOf">
         >
 
         beforeEach(async () => {
@@ -56,12 +66,36 @@ describe("JobReadinessService",
                 Pick<UserSolvedChallengesProjectionService, "getChallengeStrength">
             >
 
+            // default: no graded StarCi work anywhere → every CV pillar (per-track
+            // AND global foundation) degrades to null/0, same as the old "no CV
+            // row" default — individual tests override per courseId/globally
+            cvVerificationService = {
+                resolveLevel: jest.fn().mockResolvedValue(CvVerificationLevel.SelfReported),
+                resolveLevelForCourse: jest.fn().mockResolvedValue(CvVerificationLevel.SelfReported),
+                scoreOf: jest.fn((level: CvVerificationLevel) => {
+                    // capstone-only score (2026-07-05): challenge/activity scores 0
+                    switch (level) {
+                    case CvVerificationLevel.CapstoneVerified:
+                        return 100
+                    case CvVerificationLevel.ActivityBacked:
+                    case CvVerificationLevel.SelfReported:
+                        return 0
+                    }
+                }),
+            } as unknown as jest.Mocked<
+                Pick<CvVerificationService, "resolveLevel" | "resolveLevelForCourse" | "scoreOf">
+            >
+
             module = await Test.createTestingModule({
                 providers: [
                     JobReadinessService,
                     {
                         provide: UserSolvedChallengesProjectionService,
                         useValue: userSolvedChallengesProjectionService,
+                    },
+                    {
+                        provide: CvVerificationService,
+                        useValue: cvVerificationService,
                     },
                     {
                         provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
@@ -99,8 +133,9 @@ describe("JobReadinessService",
                         entityManager.find.mockResolvedValueOnce([
                             enrollmentA,
                         ])
-                        // query order: capstoneTotals, capstonePassed, interviewAverages,
-                        // loadTrackCvScores (no CV row here → cv pillar absent)
+                        // query order: capstoneTotals, capstonePassed, interviewAverages
+                        // (CV pillar comes from CvVerificationService, mocked separately —
+                        // default SelfReported → cv pillar absent, same as the old "no CV row")
                         entityManager.query
                             .mockResolvedValueOnce([
                                 {
@@ -120,7 +155,6 @@ describe("JobReadinessService",
                                     avg_score: "88",
                                 },
                             ])
-                            .mockResolvedValueOnce([])
 
                         const resultWithOneTrack = await service.compute({
                             userId: "user-1",
@@ -178,7 +212,6 @@ describe("JobReadinessService",
                                     avg_score: "60",
                                 },
                             ])
-                            .mockResolvedValueOnce([])
 
                         const resultWithTwoTracks = await service.compute({
                             userId: "user-1",
@@ -266,7 +299,6 @@ describe("JobReadinessService",
                                     avg_score: "95",
                                 },
                             ])
-                            .mockResolvedValueOnce([])
 
                         const result = await service.compute({
                             userId: "user-2",
@@ -276,9 +308,76 @@ describe("JobReadinessService",
                         expect(result.tracks[1].courseId).toBe("course-weak")
                     })
 
-                // CV per-track pillar: a scored CV tied to a course lands on THAT
-                // track's cvScore; a course with no scored CV row → cvScore null.
-                it("attaches a scored CV to its own track's cvScore and leaves an unscored track's cvScore null",
+                // Recent-window interview pillar (WF-09): the query itself is mocked
+                // at the row level here, so this test locks the CONSUMPTION side —
+                // `avg_score` already reflects only the recent-N window by the time
+                // it reaches `buildTracks` (the window function lives in SQL, not in
+                // JS). What we assert is that a recent-window average (computed as if
+                // an old weak attempt had been excluded) produces a HIGH interview
+                // score, not one dragged down by history — i.e. the service trusts
+                // whatever recency-filtered average the query hands back, rather than
+                // re-averaging or otherwise diluting it in code.
+                it("reflects a recent high-score trend rather than being dragged down by an old low-score attempt",
+                    async () => {
+                        const enrollment = {
+                            id: "enrollment-recent",
+                            courseId: "course-recent",
+                            isEnrolled: true,
+                            course: {
+                                title: "Recent Window",
+                                displayId: "recent-window",
+                            },
+                        }
+
+                        entityManager.find.mockResolvedValueOnce([
+                            enrollment,
+                        ])
+                        entityManager.query
+                            // capstoneTotals
+                            .mockResolvedValueOnce([
+                                {
+                                    course_id: "course-recent",
+                                    total: "10",
+                                },
+                            ])
+                            // capstonePassed
+                            .mockResolvedValueOnce([
+                                {
+                                    enrollment_id: "enrollment-recent",
+                                    passed: "8",
+                                },
+                            ])
+                            // interviewAverages — an old attempt scored 20 (say, week 1),
+                            // then several recent attempts scored 95+; the recent-N window
+                            // query (mocked here at the row level) excludes the old attempt,
+                            // so the average handed back is the recent high, NOT the
+                            // all-time average (which would be ~30 if the old 20 were
+                            // still mixed in)
+                            .mockResolvedValueOnce([
+                                {
+                                    enrollment_id: "enrollment-recent",
+                                    avg_score: "96",
+                                },
+                            ])
+
+                        const result = await service.compute({
+                            userId: "user-recent",
+                        })
+
+                        const track = result.tracks.find(
+                            (candidate) => candidate.courseId === "course-recent",
+                        )
+                        expect(track?.interviewScore).toBe(96)
+                        // sanity: nowhere close to what an all-time average dragged down
+                        // by the old 20-point attempt would have produced
+                        expect(track?.interviewScore).toBeGreaterThan(60)
+                    })
+
+                // CV per-track pillar: a course with a passed capstone/graded challenge
+                // IN THAT COURSE lands on THAT track's cvScore; a course with no such
+                // signal → cvScore null. Scoped per-course on purpose (fair-monetization:
+                // a capstone passed in a DIFFERENT course must never leak in here).
+                it("attaches a deterministic CV score to its own track and leaves an unverified track's cvScore null",
                     async () => {
                         const enrollmentWithCv = {
                             id: "enrollment-cv",
@@ -337,13 +436,12 @@ describe("JobReadinessService",
                                     avg_score: "70",
                                 },
                             ])
-                            // loadTrackCvScores — only course-cv has a scored CV
-                            .mockResolvedValueOnce([
-                                {
-                                    course_id: "course-cv",
-                                    max_score: "91",
-                                },
-                            ])
+                        // only course-cv has a capstone-verified signal, scoped per-course
+                        cvVerificationService.resolveLevelForCourse.mockImplementation(
+                            async ({ courseId }) => courseId === "course-cv"
+                                ? CvVerificationLevel.CapstoneVerified
+                                : CvVerificationLevel.SelfReported,
+                        )
 
                         const result = await service.compute({
                             userId: "user-3",
@@ -355,7 +453,7 @@ describe("JobReadinessService",
                         const noCv = result.tracks.find(
                             (track) => track.courseId === "course-nocv",
                         )
-                        expect(withCv?.cvScore).toBe(91)
+                        expect(withCv?.cvScore).toBe(100)
                         expect(noCv?.cvScore).toBeNull()
                     })
 
@@ -403,8 +501,7 @@ describe("JobReadinessService",
                             ])
                             // interviewAverages — none
                             .mockResolvedValueOnce([])
-                            // loadTrackCvScores — none
-                            .mockResolvedValueOnce([])
+                        // CV pillar — none (default SelfReported for both courses)
 
                         const result = await service.compute({
                             userId: "user-4",

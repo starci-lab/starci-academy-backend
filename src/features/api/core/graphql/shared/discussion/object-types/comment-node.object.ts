@@ -98,4 +98,13 @@ export class CommentNodeObject {
         },
     )
         reactions: ReactionSummaryObject
+
+    /** Whether the comment author is the founder (drives the founder badge). */
+    @Field(
+        () => Boolean,
+        {
+            description: "Whether the comment author is the founder.",
+        },
+    )
+        isFounderAuthor: boolean
 }

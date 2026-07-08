@@ -64,6 +64,11 @@ RUN apk update && apk add --no-cache p7zip
 # Tools for backup encryption/compression
 RUN apk add --no-cache openssl gzip
 
+# tectonic — self-contained LaTeX engine (single binary, no TeXLive install) used
+# to compile AI-generated CVs' .tex into a real PDF (packages fetch on demand
+# from its bundle at compile time — the container needs network egress for this).
+RUN apk add --no-cache tectonic
+
 # Use production node environment by default.
 ENV NODE_ENV production
 

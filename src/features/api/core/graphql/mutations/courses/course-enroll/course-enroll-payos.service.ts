@@ -45,10 +45,15 @@ import {
 import {
     EnqueueReconcileTransactionJobService,
     LoyaltyDiscountService,
+    VoucherService,
 } from "@modules/bussiness"
 
 /**
  * PayOS-specific course enrollment: payment link + preflight row.
+ *
+ * Second gateway (of 5) wired to honour `request.voucherCode` — see
+ * {@link CourseEnrollSepayService} for the pattern (preview → reserve inside
+ * the same insert transaction → persist the code); PayPal/Stripe/Crypto still need it.
  */
 @Injectable()
 export class CourseEnrollPayOsService {
@@ -62,6 +67,7 @@ export class CourseEnrollPayOsService {
         private readonly retryService: RetryService,
         private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
         private readonly loyaltyDiscountService: LoyaltyDiscountService,
+        private readonly voucherService: VoucherService,
     ) {}
 
     /**
@@ -76,6 +82,7 @@ export class CourseEnrollPayOsService {
                 courseId,
                 payosReturnUrl,
                 payosCancelUrl,
+                voucherCode,
             },
             user,
         }: ExecuteParams<CourseEnrollRequest>,
@@ -157,16 +164,29 @@ export class CourseEnrollPayOsService {
         } = await this.loyaltyDiscountService.computeLoyaltyDiscount({
             userId: user.id,
         })
+        const loyaltyAmount = this.coursePricingService.resolveAmountVnd({
+            course,
+            discountPercent,
+        })
+        // an invalid code throws HERE (before the PayOS link is created) — a
+        // valid one further discounts the loyalty-discounted amount
+        const amount = voucherCode
+            ? this.voucherService.applyToAmount(
+                loyaltyAmount,
+                await this.voucherService.previewDiscount({
+                    userId: user.id,
+                    code: voucherCode,
+                    courseId: course.id,
+                }),
+            )
+            : loyaltyAmount
         // create payment link
         const paymentLink = await this.retryService.retry(
             {
                 action: async () => {
                     return await this.payos.paymentRequests.create(
                         {
-                            amount: this.coursePricingService.resolveAmountVnd({
-                                course,
-                                discountPercent,
-                            }),
+                            amount,
                             cancelUrl: payosCancelUrl,
                             description: "EN",
                             orderCode,
@@ -176,24 +196,40 @@ export class CourseEnrollPayOsService {
                 },
             }
         )
-        // create transaction row
-        transaction = this.entityManager.create(
-            TransactionEntity,
-            {
-                user,
-                course,
-                referenceId: String(paymentLink.orderCode),
-                amount: paymentLink.amount,
-                discountPercent,
-                pricingPhase: currentPhase,
-                paymentType: PaymentType.PayOS,
-                checkoutUrl: paymentLink.checkoutUrl,
-                status: TransactionStatus.Pending,
-                actionType: ActionType.Enroll,
-            },
-        )
-        // save transaction
-        await this.entityManager.save(transaction)
+        // create the pending transaction + (if given) RESERVE the voucher in the
+        // SAME db transaction, so a concurrent second checkout can never also
+        // claim the same code
+        transaction = await this.entityManager.transaction(async (manager) => {
+            const created = manager.create(
+                TransactionEntity,
+                {
+                    user,
+                    course,
+                    referenceId: String(paymentLink.orderCode),
+                    amount: paymentLink.amount,
+                    discountPercent,
+                    voucherCode: voucherCode ?? null,
+                    pricingPhase: currentPhase,
+                    paymentType: PaymentType.PayOS,
+                    checkoutUrl: paymentLink.checkoutUrl,
+                    status: TransactionStatus.Pending,
+                    actionType: ActionType.Enroll,
+                },
+            )
+            const saved = await manager.save(created)
+            if (voucherCode) {
+                // re-validate + reserve UNDER LOCK — the earlier previewDiscount() was
+                // advisory only (no lock held), so a race since then is still caught here
+                await this.voucherService.reserve({
+                    entityManager: manager,
+                    userId: user.id,
+                    code: voucherCode,
+                    courseId: course.id,
+                    transactionId: saved.id,
+                })
+            }
+            return saved
+        })
         // schedule the delayed reconcile poll (fires if no webhook arrives)
         await this.enqueueReconcileTransactionJobService.enqueue({
             transactionId: transaction.id,

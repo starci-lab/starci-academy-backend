@@ -1,6 +1,5 @@
 import type {
     AiCeilSurface,
-    AiMode,
     AiModelCategory,
     AiModelTask,
     AiSubTier,
@@ -8,8 +7,6 @@ import type {
 
 /** A user's resolved AI entitlement after lazy window reset. */
 export interface AiEntitlement {
-    /** Which lane the user is on right now. */
-    mode: AiMode
     /** Categories the user may invoke at this moment. */
     allowedCategories: Array<AiModelCategory>
     /** Remaining platform credits in the 5h window (tier overrides free base). */
@@ -48,8 +45,6 @@ export interface AiCeilSnapshot {
 
 /** Full per-user quota snapshot for the UI (single pool + reset times). */
 export interface AiQuotaSnapshot {
-    /** Natural lane the user is on right now. */
-    mode: AiMode
     /** Active paid tier, or null on the free lane. */
     tier: AiSubTier | null
     /** Unified platform credit quota (tier overrides free base). */
@@ -65,26 +60,14 @@ export interface AiQuotaSnapshot {
 }
 
 /**
- * User-facing AI settings — the saved lane preference plus the capabilities
- * that gate which lanes the UI may offer.
+ * User-facing AI settings — the capabilities that gate which models the UI may
+ * offer (unlock + active tier).
  */
 export interface AiSettings {
-    /** Lane the user chose by default; null = follow natural order. */
-    preferredMode: AiMode | null
-    /** Lane the user actually runs on right now (preference, validated). */
-    effectiveMode: AiMode
-    /** Whether the paid Premium lane is currently usable. */
+    /** Whether the user may use paid-tier models (paid OR enrolled). */
     canPremium: boolean
     /** Active paid tier, or null on the free lane. */
     tier: AiSubTier | null
-}
-
-/** Params for {@link AiEntitlementService.updateSettings}. */
-export interface UpdateAiSettingsParams {
-    /** Owner of the entitlement. */
-    userId: string
-    /** Lane to make the user's default; omitted = leave the preference as-is. */
-    mode?: AiMode
 }
 
 /** Params for {@link AiEntitlementService.grantTier}. */
@@ -101,20 +84,12 @@ export interface GrantTierParams {
 export interface ResolveEntitlementParams {
     /** Owner of the entitlement. */
     userId: string
-    /**
-     * Lane the caller picked when enqueuing the job. When omitted the natural
-     * mode is used (premium → auto, by capability). When set it is
-     * validated against the user's capabilities and wins.
-     */
-    requestedMode?: AiMode
 }
 
 /** Params for {@link AiEntitlementService.consume}. */
 export interface ConsumeEntitlementParams {
     /** Owner of the entitlement. */
     userId: string
-    /** Lane that ran — debits the pool. */
-    mode: AiMode
     /** Credits to debit from the unified pool. */
     cost: number
     /** AI surface this charge is for (chatbot / grading / interview) — labels the history row. */
@@ -149,9 +124,7 @@ export interface EntitlementHistoryParams {
 export interface EntitlementHistoryItem {
     /** Charge row id. */
     id: string
-    /** AI lane the charge was billed on (auto / premium). */
-    mode: AiMode
-    /** Premium tier billed (low / medium / high); null for auto. */
+    /** Model-recommendation tier billed (low / medium / high); null when unattributed. */
     recommendation: string | null
     /** Concrete model billed (e.g. gpt-5-mini); null when unattributed. */
     model: string | null

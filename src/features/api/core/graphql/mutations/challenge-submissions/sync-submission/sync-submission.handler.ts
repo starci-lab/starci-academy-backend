@@ -70,7 +70,6 @@ export class SyncSubmissionHandler
         const {
             id,
             url,
-            selectedMode,
             selectedModel,
             selectedModelProvider,
         } = request
@@ -85,7 +84,6 @@ export class SyncSubmissionHandler
                 user,
                 challengeSubmissionId: id,
                 url,
-                selectedMode,
                 selectedModel,
                 selectedModelProvider,
             })
@@ -99,7 +97,6 @@ export class SyncSubmissionHandler
             user,
             challengeSubmissionId,
             url,
-            selectedMode,
             selectedModel,
             selectedModelProvider,
         }: UpsertSubmissionParams,
@@ -194,20 +191,15 @@ export class SyncSubmissionHandler
         if (enrollment && !userChallengeSubmission.enrollmentId) {
             userChallengeSubmission.enrollment = enrollment
         }
-        // persist the grading lane + model pick when provided
-        const hasLaneSelection = selectedMode !== undefined
-            || selectedModel !== undefined
+        // persist the grading model pick when provided
+        const hasLaneSelection = selectedModel !== undefined
             || selectedModelProvider !== undefined
         if (hasLaneSelection) {
             const validatedLane = await this.gradingLaneValidationService.validate({
                 userId: user.id,
-                mode: selectedMode,
                 model: selectedModel,
                 provider: selectedModelProvider,
             })
-            if (selectedMode !== undefined) {
-                userChallengeSubmission.selectedMode = validatedLane.mode
-            }
             if (selectedModel !== undefined) {
                 userChallengeSubmission.selectedModel = validatedLane.gradingModel
                     ?? null

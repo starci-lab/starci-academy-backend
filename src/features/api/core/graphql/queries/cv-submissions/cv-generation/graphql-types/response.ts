@@ -12,6 +12,8 @@ import {
     GraphQLTypeCvGenerationMode,
     GraphQLTypeCvGenerationStatus,
     GraphQLTypeCvSource,
+    GraphQLTypeSubmissionFeedbackSeverity,
+    SubmissionFeedbackSeverity,
 } from "@modules/databases"
 import {
     AbstractGraphQLResponse,
@@ -19,10 +21,88 @@ import {
 } from "@modules/api"
 
 /**
+ * One observation (strength or gap) from the shared CV scoring rubric — mirrors
+ * `CvScoreFeedbackItem` (`shared/cv-scoring/types`), typed for GraphQL. Reuses
+ * the existing {@link SubmissionFeedbackSeverity} enum (`low`/`medium`/`high`)
+ * rather than a CV-specific one — same semantic, no duplicate type.
+ */
+@ObjectType({
+    description: "One CV scoring observation (a strength or a gap), with an optional fix suggestion.",
+})
+export class CvFeedbackItem {
+    @Field(
+        () => GraphQLTypeSubmissionFeedbackSeverity,
+        {
+            description: "Severity of this observation.",
+        },
+    )
+        severity: SubmissionFeedbackSeverity
+
+    @Field(
+        () => String,
+        {
+            description: "The rubric section this item relates to (e.g. \"impact\", \"clarity\").",
+        },
+    )
+        section: string
+
+    @Field(
+        () => String,
+        {
+            description: "Human-readable explanation of the strength or gap.",
+        },
+    )
+        message: string
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "A concrete suggestion to address this observation, when the model gave one.",
+        },
+    )
+        suggestion: string | null
+}
+
+/**
+ * Structured CV scoring feedback (`cv_generations.feedback`) — a one-line
+ * summary plus the per-observation breakdown. Null until scored.
+ */
+@ObjectType({
+    description: "Structured CV scoring feedback: a one-line summary plus per-observation findings.",
+})
+export class CvFeedback {
+    @Field(
+        () => String,
+        {
+            description: "One-line summary of the CV's overall quality.",
+        },
+    )
+        shortFeedback: string
+
+    @Field(
+        () => String,
+        {
+            description: "The rubric level this CV was graded against (junior | mid | senior).",
+        },
+    )
+        templateLevel: string
+
+    @Field(
+        () => [CvFeedbackItem],
+        {
+            description: "Per-observation feedback items (strengths + gaps).",
+        },
+    )
+        items: Array<CvFeedbackItem>
+}
+
+/**
  * One CV generation run, resolved for the FE: the assembled `structuredData`
- * exposed as a JSON scalar, and the generated `.tex` document resolved from
- * MinIO to its raw text (`latexSource`) server-side — so the client never needs
- * direct MinIO access.
+ * exposed as a JSON scalar, the generated `.tex` document resolved from MinIO
+ * to its raw text (`latexSource`) server-side — so the client never needs
+ * direct MinIO access — and the structured scoring `feedback` typed for the
+ * findings accordion.
  */
 @ObjectType({
     description: "A single CV generation run with resolved structured data + LaTeX source.",
@@ -82,6 +162,15 @@ export class CvGenerationPayload {
         () => String,
         {
             nullable: true,
+            description: "Title of the course this CV is tied to (resolved server-side; null when untied).",
+        },
+    )
+        courseTitle: string | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
             description: "User-facing name for this CV (frontend falls back when empty).",
         },
     )
@@ -115,6 +204,15 @@ export class CvGenerationPayload {
         score: number | null
 
     @Field(
+        () => CvFeedback,
+        {
+            nullable: true,
+            description: "Structured scoring feedback (parsed server-side from cv_generations.feedback); null until scored.",
+        },
+    )
+        feedback: CvFeedback | null
+
+    @Field(
         () => String,
         {
             nullable: true,
@@ -140,6 +238,24 @@ export class CvGenerationPayload {
         },
     )
         latexSource: string | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Presigned GET URL for the user's uploaded CV file (source = uploaded), resolved server-side from MinIO (uploaded_cdn_key). Null for generated CVs or a missing object.",
+        },
+    )
+        uploadedCvUrl: string | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Presigned GET URL for the PDF compiled server-side (tectonic) from the generated .tex (source = generated). Null until compiled, on a failed compile, or for uploaded CVs.",
+        },
+    )
+        generatedPdfUrl: string | null
 
     @Field(
         () => Date,

@@ -1,6 +1,3 @@
-import {
-    AiMode,
-} from "@modules/databases"
 import type {
     ModelProvider,
 } from "@modules/databases"
@@ -11,57 +8,46 @@ import type {
     AiJobSelection,
 } from "../types"
 
-/** Loose AI-lane fields carried on a GraphQL input (mirrors the submit-challenge shape). */
+/** Loose model-pick fields carried on a GraphQL input (mirrors the submit-challenge shape). */
 export interface FlatAiSelectionFields {
-    /** AI lane the learner picked (absent → Auto). */
-    mode?: AiMode
-    /** Concrete model the learner picked (Premium only). */
+    /** Concrete model the learner picked; absent → balancer picks. */
     selectedModel?: string
-    /** Provider serving the picked model (Premium only). */
+    /** Provider serving the picked model; required together with `selectedModel`. */
     selectedModelProvider?: ModelProvider
 }
 
 /**
- * Maps the loose `mode` / `selectedModel` / `selectedModelProvider`
- * fields carried on a GraphQL mutation input into the discriminated
- * {@link AiJobSelection} the business layer expects.
+ * Maps the loose `selectedModel` / `selectedModelProvider` fields carried on a
+ * GraphQL mutation input into the {@link AiJobSelection} the business layer
+ * expects.
  *
- * Mirrors the submit-challenge flow: `Auto` (or absent mode) carries no model;
- * `Premium` requires a model + provider. The downstream
+ * A model + provider pins that model; neither → undefined (the caller treats
+ * undefined as "balancer picks"). The downstream
  * `resolveGradingInvokeOptions` / `GradingLaneValidationService.validate` calls
- * re-validate the pairing against the catalog, so this only shapes the union.
+ * re-validate the pairing against the catalog, so this only shapes the object.
  *
- * @param fields - The loose lane fields from the mutation input.
- * @returns The discriminated selection, or undefined when no lane was supplied
- *   (the caller treats undefined as the Auto default).
- * @throws AiByokInvalidException when a Premium lane omits its model or provider.
+ * @param fields - The loose model-pick fields from the mutation input.
+ * @returns The selection, or undefined when no model was pinned.
+ * @throws AiByokInvalidException when a model is supplied without its provider (or vice-versa).
  */
 export function flatFieldsToAiJobSelection(
     fields: FlatAiSelectionFields,
 ): AiJobSelection | undefined {
     const {
-        mode,
         selectedModel,
         selectedModelProvider,
     } = fields
-    // no lane supplied → let the caller apply the Auto default
-    if (mode === undefined) {
+    // nothing pinned → let the caller apply the balancer default
+    if (!selectedModel && !selectedModelProvider) {
         return undefined
     }
-    // Auto → the balancer picks the model; nothing to pin
-    if (mode === AiMode.Auto) {
-        return {
-            mode: AiMode.Auto,
-        }
-    }
-    // Premium → requires a concrete model + provider pairing
+    // a model pin requires both the model AND its provider together
     if (!selectedModel || !selectedModelProvider) {
         throw new AiByokInvalidException({
-            reason: `${mode} lane requires a model and provider`,
+            reason: "a pinned model requires both a model and a provider",
         })
     }
     return {
-        mode: AiMode.Premium,
         model: selectedModel,
         provider: selectedModelProvider,
     }

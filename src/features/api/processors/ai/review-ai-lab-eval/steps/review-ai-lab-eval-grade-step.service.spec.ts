@@ -4,7 +4,6 @@ import {
 } from "@modules/tests"
 import {
     AiCeilSurface,
-    AiMode,
     AiModelTask,
     Locale,
 } from "@modules/databases"
@@ -93,7 +92,6 @@ const makeContext = (payloadOverrides: Record<string, unknown> = {
         },
         locale: Locale.En,
         ai: {
-            mode: AiMode.Auto,
         },
         ...payloadOverrides,
     },
@@ -113,7 +111,7 @@ describe("ReviewAiLabEvalGradeStepService",
             })
         })
 
-        it("happy path (Auto): gates quota, grades the eval set, debits 0 (no pinned model), invalidates, persists verdict",
+        it("happy path (no pinned model): gates quota, grades the eval set, debits 0, invalidates, persists verdict",
             async () => {
                 const {
                     service,
@@ -126,7 +124,7 @@ describe("ReviewAiLabEvalGradeStepService",
 
                 await service.process(makeContext())
 
-                // quota gate consulted the SAME unified credit pool for Auto
+                // quota gate consulted the SAME unified credit pool
                 expect(aiEntitlementService.assertNotOverQuota).toHaveBeenCalledWith({
                     userId: "user-1",
                 })
@@ -145,10 +143,9 @@ describe("ReviewAiLabEvalGradeStepService",
                     provider: null,
                 })
 
-                // Auto with no pinned model → cost 0, no catalog lookup
+                // no pinned model → cost 0, no catalog lookup
                 expect(aiEntitlementService.consume).toHaveBeenCalledWith({
                     userId: "user-1",
-                    mode: AiMode.Auto,
                     cost: 0,
                     surface: AiCeilSurface.Grading,
                     task: AiModelTask.Grading,
@@ -169,7 +166,6 @@ describe("ReviewAiLabEvalGradeStepService",
                     aiUsage: {
                         model: null,
                         provider: null,
-                        mode: AiMode.Auto,
                     },
                 })
 
@@ -177,7 +173,7 @@ describe("ReviewAiLabEvalGradeStepService",
                 expect(jobActionService.failJob).not.toHaveBeenCalled()
             })
 
-        it("Premium pinned model: debits the model's catalog credit (fallback DEFAULT_MODEL_CREDIT) + surfaces model/provider",
+        it("pinned model: debits the model's catalog credit (fallback DEFAULT_MODEL_CREDIT) + surfaces model/provider",
             async () => {
                 resolveGradingInvokeOptionsMock.mockResolvedValue({
                     model: "gpt-x",
@@ -193,7 +189,8 @@ describe("ReviewAiLabEvalGradeStepService",
 
                 await service.process(makeContext({
                     ai: {
-                        mode: AiMode.Premium,
+                        model: "gpt-x",
+                        provider: "openai",
                     },
                 }))
 
@@ -204,7 +201,6 @@ describe("ReviewAiLabEvalGradeStepService",
                 })
                 expect(aiEntitlementService.consume).toHaveBeenCalledWith({
                     userId: "user-1",
-                    mode: AiMode.Premium,
                     cost: 42,
                     surface: AiCeilSurface.Grading,
                     task: AiModelTask.Grading,
@@ -216,31 +212,10 @@ describe("ReviewAiLabEvalGradeStepService",
                 expect(saveArg.executionResult.aiUsage).toEqual({
                     model: "gpt-x",
                     provider: "openai",
-                    mode: AiMode.Premium,
                 })
             })
 
-        it("Premium lane does NOT gate the Auto credit pool",
-            async () => {
-                resolveGradingInvokeOptionsMock.mockResolvedValue({
-                    model: "gpt-x",
-                    provider: "openai",
-                })
-
-                const { service, aiEntitlementService, aiLabEvalService } =
-                    makeService(entityManager)
-
-                await service.process(makeContext({
-                    ai: {
-                        mode: AiMode.Premium,
-                    },
-                }))
-
-                expect(aiEntitlementService.assertNotOverQuota).not.toHaveBeenCalled()
-                expect(aiLabEvalService.gradeEvalSet).toHaveBeenCalledTimes(1)
-            })
-
-        it("Auto over-quota: throws AiQuotaExhaustedException, never grades, fails the job",
+        it("over-quota: throws AiQuotaExhaustedException, never grades, fails the job",
             async () => {
                 const {
                     service,
@@ -250,7 +225,6 @@ describe("ReviewAiLabEvalGradeStepService",
                 } = makeService(entityManager)
                 aiEntitlementService.assertNotOverQuota.mockRejectedValueOnce(
                     new AiQuotaExhaustedException({
-                        mode: AiMode.Auto,
                         window: "5h",
                     }),
                 )
@@ -284,7 +258,7 @@ describe("ReviewAiLabEvalGradeStepService",
                 expect(winstonService.log).not.toHaveBeenCalled()
             })
 
-        it("defaults the lane to Auto when the submission pinned no ai mode",
+        it("gates the pool + bills even when the submission pinned no model",
             async () => {
                 const { service, aiEntitlementService } =
                     makeService(entityManager)
@@ -293,10 +267,10 @@ describe("ReviewAiLabEvalGradeStepService",
                     ai: undefined,
                 }))
 
-                // undefined ai → treated as Auto: pool gated + billed on Auto
+                // undefined ai → balancer picks: pool still gated + a charge recorded
                 expect(aiEntitlementService.assertNotOverQuota).toHaveBeenCalledWith({
                     userId: "user-1",
                 })
-                expect(aiEntitlementService.consume.mock.calls[0][0].mode).toBe(AiMode.Auto)
+                expect(aiEntitlementService.consume).toHaveBeenCalledTimes(1)
             })
     })

@@ -7,10 +7,13 @@ import {
 } from "typeorm"
 import {
     CourseEntity,
+    EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
+    nextPricingPhase,
 } from "@modules/databases"
 import {
     LoyaltyDiscountService,
+    VoucherService,
 } from "@modules/bussiness"
 import {
     CoursePricingService,
@@ -25,13 +28,17 @@ export interface PreviewCoursePriceParams {
     userId: string
     /** The course to price. */
     courseId: string
+    /** An optional Coin-shop voucher code to preview ON TOP of the loyalty discount. */
+    voucherCode?: string
 }
 
 /**
  * Prices a single course for the payment modal exactly as it would be charged at
  * checkout: the active pricing phase resolved by {@link CoursePricingService} with
  * the viewer's {@link LoyaltyDiscountService} discount applied — so the shown price
- * equals the eventual charge (no FE price guessing).
+ * equals the eventual charge (no FE price guessing). Optionally previews a
+ * Coin-shop voucher code ON TOP (read-only — {@link VoucherService.previewDiscount}
+ * validates but does not reserve/consume the code).
  */
 @Injectable()
 export class CoursePricePreviewService {
@@ -40,11 +47,13 @@ export class CoursePricePreviewService {
         private readonly entityManager: EntityManager,
         private readonly coursePricingService: CoursePricingService,
         private readonly loyaltyDiscountService: LoyaltyDiscountService,
+        private readonly voucherService: VoucherService,
     ) {}
 
     /**
      * Resolve the original + loyalty-discounted price (VND always, USD when set)
-     * for a course and viewer.
+     * for a course and viewer, plus the further voucher-discounted price when a
+     * valid `voucherCode` is given.
      *
      * @param params - {@link PreviewCoursePriceParams}
      * @returns The course's price preview.
@@ -53,6 +62,7 @@ export class CoursePricePreviewService {
         {
             userId,
             courseId,
+            voucherCode,
         }: PreviewCoursePriceParams,
     ): Promise<CoursePricePreviewData> {
         // load the course with the relations the pricing service needs
@@ -107,6 +117,68 @@ export class CoursePricePreviewService {
             discountPercent: percent,
         })
 
+        // voucher preview is OPTIONAL and read-only — an invalid code throws
+        // (surfaces as a GraphQL error the FE shows inline), a valid one further
+        // discounts the ALREADY loyalty-discounted VND price
+        let voucherDiscountedPriceVnd: number | null = null
+        if (voucherCode) {
+            const preview = await this.voucherService.previewDiscount({
+                userId,
+                code: voucherCode,
+                courseId,
+            })
+            voucherDiscountedPriceVnd = this.voucherService.applyToAmount(
+                discountedPriceVnd,
+                preview,
+            )
+        }
+
+        // Pricing-phase SCARCITY (real numbers only — never a fabricated countdown):
+        // how many seats remain at the CURRENT phase price (seat cap − PAID enrollments)
+        // and what a buyer pays once it sells out (the next tier's price). Powers an
+        // honest "Pioneer N/M · giá tăng lên X" urgency line on the paywall.
+        const currentPhase = this.coursePricingService.getCurrentPricingPhase(course)
+        const nextPhase = nextPricingPhase(currentPhase)
+        const hasNextPhase = nextPhase !== currentPhase
+        const currentPhaseRow = course.pricingPhases.find(
+            (pricingPhase) => pricingPhase.phase === currentPhase,
+        )
+        const slotAvailable = currentPhaseRow?.slotAvailable ?? null
+        const seatsTaken = await this.entityManager.count(
+            EnrollmentEntity,
+            {
+                where: {
+                    course: {
+                        id: courseId,
+                    },
+                    isEnrolled: true,
+                },
+            },
+        )
+        const seatsRemainingInCurrentPhase = slotAvailable != null
+            ? Math.max(0, slotAvailable - seatsTaken)
+            : null
+        // next-tier price (before loyalty — comparable to `phasePriceVnd`). VND can throw
+        // when a tier has no configured price → fall back to null so scarcity just hides
+        // the number rather than breaking the whole preview.
+        let nextPhasePriceVnd: number | null = null
+        if (hasNextPhase) {
+            try {
+                nextPhasePriceVnd = this.coursePricingService.resolveAmountVnd({
+                    course,
+                    phase: nextPhase,
+                })
+            } catch {
+                nextPhasePriceVnd = null
+            }
+        }
+        const nextPhasePriceUsd = hasNextPhase
+            ? this.coursePricingService.resolveAmountUsd({
+                course,
+                phase: nextPhase,
+            })
+            : null
+
         return {
             originalPriceVnd,
             phasePriceVnd,
@@ -117,6 +189,12 @@ export class CoursePricePreviewService {
             discountedPriceUsd,
             discountReason: reason,
             enrolledCount,
+            voucherDiscountedPriceVnd,
+            currentPhase,
+            nextPhase: hasNextPhase ? nextPhase : null,
+            seatsRemainingInCurrentPhase,
+            nextPhasePriceVnd,
+            nextPhasePriceUsd,
         }
     }
 }

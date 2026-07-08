@@ -1,27 +1,24 @@
 import type {
-    AiMode,
     ModelProvider,
 } from "@modules/databases"
 
 /**
- * Caller input when enqueueing or persisting a grading lane pick.
+ * Caller input when enqueueing or persisting a grading model pick.
  */
 export interface GradingLaneRequest {
-    /** AI lane (`auto` / `premium`); defaults to `auto` when omitted. */
-    mode?: AiMode
-    /** Concrete model name (GraphQL `selectedModel` / job `gradingModel`). */
+    /** Concrete model name (GraphQL `selectedModel` / job `gradingModel`); absent → balancer picks. */
     model?: string
     /** Provider for {@link GradingLaneRequest.model}. */
     provider?: ModelProvider
 }
 
 /**
- * Normalized lane + model fields safe to persist on a row or BullMQ payload.
+ * Normalized model fields safe to persist on a row or BullMQ payload — the
+ * pinned model the validator resolved, or neither when nothing was pinned (the
+ * balancer picks).
  */
 export interface ValidatedGradingLane {
-    /** Resolved lane after entitlement check. */
-    mode: AiMode
-    /** Model for pooled invoke (premium, or optional auto pin). */
+    /** Model for a pinned pooled invoke; absent → balancer picks. */
     gradingModel?: string
     /** Provider for {@link ValidatedGradingLane.gradingModel}. */
     gradingProvider?: ModelProvider

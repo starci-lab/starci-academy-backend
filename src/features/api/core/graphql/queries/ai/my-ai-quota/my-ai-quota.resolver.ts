@@ -68,7 +68,6 @@ export class MyAiQuotaResolver {
             userId: user.id,
         })
         return {
-            mode: snapshot.mode,
             tier: snapshot.tier,
             credit: {
                 limit5h: snapshot.credit.limit5h,

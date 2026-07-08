@@ -61,6 +61,91 @@ export class MockInterviewAttemptAttributeScoreItem {
         score: number
 }
 
+/**
+ * One persisted per-question model-answer review inside a past attempt —
+ * mirrors {@link import("../../../../mutations/interview/grade-mock-interview-session/graphql-types/response").MockInterviewQuestionReviewItem}
+ * exactly, so the history drawer renders it identically to the live
+ * scorecard. Always empty on the parent for a `mode="design"` attempt.
+ */
+@ObjectType({
+    description: "Per-question model-answer review for one mode=\"qna\" question, on a past attempt.",
+})
+export class MockInterviewAttemptQuestionReviewItem {
+    @Field(
+        () => Int,
+        {
+            description: "0-based index of this question within the session.",
+        },
+    )
+        questionIndex: number
+
+    @Field(
+        () => String,
+        {
+            description: "This question's cognitive frame (\"theory\" | \"reasoning\" | \"scenario\"), as drawn.",
+        },
+    )
+        kind: string
+
+    @Field(
+        () => String,
+        {
+            description: "The interviewer's question text for this question.",
+        },
+    )
+        question: string
+
+    @Field(
+        () => String,
+        {
+            description: "The candidate's own answer for this question.",
+        },
+    )
+        candidateAnswer: string
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "The seed flashcard's authored model answer (Markdown); null when unavailable.",
+        },
+    )
+        modelAnswer: string | null
+
+    @Field(
+        () => String,
+        {
+            description: "A one-line summary of what the candidate's answer was missing relative to the reference.",
+        },
+    )
+        feedback: string
+
+    @Field(
+        () => Int,
+        {
+            description: "Score assigned to this question.",
+        },
+    )
+        score: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Maximum possible score for this question (always 100 for qna).",
+        },
+    )
+        max: number
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Best-effort matched course content (lesson) id for this question; null when no confident match exists.",
+        },
+    )
+        matchedContentId: string | null
+}
+
 /** One past graded mock-interview session, for the viewer's history list. */
 @ObjectType({
     description: "One past graded mock-interview session.",
@@ -106,6 +191,15 @@ export class MockInterviewAttemptItem {
         },
     )
         level: string | null
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "The top-level flow this session ran (\"qna\" | \"design\"), or null for an attempt graded before the \"mode split\" (treated as \"design\").",
+        },
+    )
+        mode: string | null
 
     @Field(
         () => Int,
@@ -163,6 +257,22 @@ export class MockInterviewAttemptItem {
         },
     )
         followUpQuestion: string | null
+
+    @Field(
+        () => [String],
+        {
+            description: "Distinct content (lesson) ids the RAG grounding excerpt was retrieved from at grade time (snapshot), in similarity order. Empty when retrieval missed/failed/index absent at grade time, or for attempts graded before this field existed.",
+        },
+    )
+        matchedContentIds: Array<string>
+
+    @Field(
+        () => [MockInterviewAttemptQuestionReviewItem],
+        {
+            description: "Per-question model-answer review — one entry per mode=\"qna\" question, snapshotted at grade time. Always empty for a mode=\"design\" attempt, or an attempt graded before this field existed.",
+        },
+    )
+        questionReviews: Array<MockInterviewAttemptQuestionReviewItem>
 
     @Field(
         () => String,

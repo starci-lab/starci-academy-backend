@@ -19,22 +19,36 @@ import {
     ContentEntity,
 } from "./content.entity"
 import {
+    CourseEntity,
+} from "./course.entity"
+import {
     UserEntity,
 } from "./user.entity"
 
 /**
- * A threaded comment on a lesson content. Replies point at a parent comment via
- * `parentComment` (self relation), enabling arbitrarily nested discussion. Deletion is
- * soft (`isDeleted`) so the thread shape and child replies survive.
+ * A threaded comment — either on a lesson content (per-lesson "Thảo luận"), OR a
+ * course-general question with no specific lesson ("hỏi chung khóa"). Exactly one of
+ * `content`/`course` is set (never both, never neither); enforced by a DB CHECK
+ * constraint (see the migration) since TypeORM cannot express XOR at the entity level.
+ * Replies point at a parent comment via `parentComment` (self relation), enabling
+ * arbitrarily nested discussion. Deletion is soft (`isDeleted`) so the thread shape and
+ * child replies survive.
  */
 @ObjectType({
-    description: "A threaded comment on a lesson content (supports nested replies).",
+    description: "A threaded comment on a lesson content or a course-general question.",
 })
 @Entity("content_comments")
 @Index(
     "IDX_content_comments_content_parent",
     [
         "content",
+        "parentComment",
+    ],
+)
+@Index(
+    "IDX_content_comments_course_parent",
+    [
+        "course",
         "parentComment",
     ],
 )
@@ -89,11 +103,13 @@ export class ContentCommentEntity extends UuidAbstractEntity {
         editedAt: Date | null
 
     /**
-     * Content this comment belongs to.
+     * Content this comment belongs to. Null for a course-general question (see
+     * `course` below) — exactly one of the two is ever set.
      */
     @ManyToOne(
         () => ContentEntity,
         {
+            nullable: true,
             onDelete: "CASCADE",
         },
     )
@@ -101,21 +117,56 @@ export class ContentCommentEntity extends UuidAbstractEntity {
         name: "content_id",
         foreignKeyConstraintName: "fk_content_id_content_comments_contents",
     })
-        content: ContentEntity
+        content: ContentEntity | null
 
     /**
-     * Owning content id (denormalized via relation).
+     * Owning content id (denormalized via relation). Null for a course-general question.
      */
     @Field(
         () => ID,
         {
-            description: "Owning content id.",
+            nullable: true,
+            description: "Owning content id; null for a course-general question.",
         },
     )
     @RelationId(
         (contentComment: ContentCommentEntity) => contentComment.content,
     )
-        contentId: string
+        contentId: string | null
+
+    /**
+     * Course this comment belongs to when it has no specific lesson ("hỏi chung khóa").
+     * Null for a per-lesson comment (where `content` carries the course transitively via
+     * content → module → course).
+     */
+    @ManyToOne(
+        () => CourseEntity,
+        {
+            nullable: true,
+            onDelete: "CASCADE",
+        },
+    )
+    @JoinColumn({
+        name: "course_id",
+        foreignKeyConstraintName: "fk_course_id_content_comments_courses",
+    })
+        course: CourseEntity | null
+
+    /**
+     * Owning course id for a course-general question (denormalized via relation). Null
+     * for a per-lesson comment.
+     */
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Owning course id for a course-general question; null for a per-lesson comment.",
+        },
+    )
+    @RelationId(
+        (contentComment: ContentCommentEntity) => contentComment.course,
+    )
+        courseId: string | null
 
     /**
      * Author of the comment.

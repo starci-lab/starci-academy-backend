@@ -34,7 +34,7 @@ import {
 } from "./graphql-types"
 
 /**
- * The authenticated viewer's reward wallet: spendable điểm quà balance (derived
+ * The authenticated viewer's reward wallet: spendable Coin balance (derived
  * from lifetime points minus what they've spent — never touching the leaderboard
  * score), plus their redemption history with localized titles.
  */
@@ -48,14 +48,14 @@ export class MyRewardWalletResolver {
     @UseGuards(KeycloakAuthGraphQLGuard)
     @GraphQLSuccessMessage({
         [Locale.En]: "Reward wallet fetched successfully",
-        [Locale.Vi]: "Lấy ví điểm quà thành công",
+        [Locale.Vi]: "Lấy ví Coin thành công",
     })
     @UseInterceptors(GraphQLTransformInterceptor)
     @Query(
         () => MyRewardWalletResponse,
         {
             name: "myRewardWallet",
-            description: "The viewer's spendable điểm quà balance + redemption history.",
+            description: "The viewer's spendable Coin balance + redemption history.",
         },
     )
     async execute(

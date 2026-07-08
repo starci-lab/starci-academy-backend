@@ -1,5 +1,4 @@
 import type {
-    AiMode,
     AiModelCategory,
     AiModelTask,
     ModelProvider,
@@ -124,12 +123,13 @@ export interface UseApiResult<TResult> {
 }
 
 /**
- * Auto lane — full model fallback chain + round-robin keys + Redis cache
- * updates on failure. Retries until the configured max attempts.
+ * Chain lane — full model fallback chain + round-robin keys + Redis cache
+ * updates on failure. Retries until the configured max attempts. Used when no
+ * concrete model is pinned (the balancer climbs the entitled category chain).
  */
 export interface UseApiAutoParams<TResult> {
-    /** Discriminant: free Auto lane. */
-    lane: AiMode.Auto
+    /** Discriminant: climb the balancer category chain (no pinned model). */
+    lane: "chain"
     /** Worker callback — receives the picked key/model, returns the result. */
     action: UseApiAction<TResult>
     /**
@@ -157,12 +157,13 @@ export interface UseApiAutoParams<TResult> {
 }
 
 /**
- * Premium lane — the single resolved model only (no model fallback). Keys still
- * rotate round-robin; each failure updates cache; throws when exhausted.
+ * Pinned lane — the single resolved model only (no model fallback). Keys still
+ * rotate round-robin; each failure updates cache; throws when exhausted. Used
+ * when a concrete model (category, or user pin) is resolved.
  */
 export interface UseApiPremiumParams<TResult> {
-    /** Discriminant: paid Premium lane. */
-    lane: AiMode.Premium
+    /** Discriminant: pin one resolved model (no chain climb). */
+    lane: "pinned"
     /** Worker callback — receives the picked key/model, returns the result. */
     action: UseApiAction<TResult>
     /** Paid-tier category the user is entitled to. */
@@ -175,7 +176,8 @@ export interface UseApiPremiumParams<TResult> {
 
 /**
  * Discriminated lane params for {@link UseApiService.useApi}, keyed on the
- * {@link AiMode} `lane`. One entry point replaces the per-lane methods.
+ * `lane` literal (`"chain"` = balancer climb · `"pinned"` = single model). One
+ * entry point replaces the per-lane methods.
  */
 export type UseApiParams<TResult> =
     | UseApiAutoParams<TResult>

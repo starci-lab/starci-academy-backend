@@ -20,12 +20,18 @@ import {
     UnknownRewardException,
 } from "@modules/exceptions"
 import {
+    AiEntitlementService,
+} from "@modules/ai"
+import {
     STREAK_FREEZE_MAX,
 } from "../streak/streak.service"
 import {
     REWARD_CATALOG,
     STREAK_FREEZE_REWARD_KEY,
 } from "./rewards.catalog"
+import {
+    VoucherService,
+} from "./voucher.service"
 import type {
     LocalizedReward,
     RedeemRewardResult,
@@ -36,17 +42,20 @@ import type {
 } from "./types"
 
 /**
- * Reward-store ("điểm quà") business logic. The spendable balance is DERIVED as
- * `user.reward_points - SUM(non-cancelled redemption cost)` so the reward-points
+ * Reward-store (the Coin shop) business logic. The spendable balance is DERIVED as
+ * `user.coin_balance - SUM(non-cancelled redemption cost)` so the Coin
  * balance that ranks the global leaderboard is NEVER debited by spending here.
  * Digital rewards apply their effect on redeem (status `granted`); physical
- * rewards land `pending` for ops to fulfil.
+ * rewards land `pending` for ops to fulfil; `voucher`/`aiCredit` rewards are
+ * digital effects too (mint a checkout code / top up the AI credit window).
  */
 @Injectable()
 export class RewardsService {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly voucherService: VoucherService,
+        private readonly aiEntitlementService: AiEntitlementService,
     ) {}
 
     /** Resolve a catalog reward's copy to one locale. */
@@ -61,6 +70,8 @@ export class RewardsService {
             description: isVi ? reward.descVi : reward.descEn,
             cost: reward.cost,
             kind: reward.kind,
+            voucher: reward.voucher,
+            aiCredit: reward.aiCredit,
         }
     }
 
@@ -128,7 +139,7 @@ export class RewardsService {
         return {
             // clamp: a balance can never go negative (spend always checks first)
             balance: Math.max(0,
-                user.rewardPoints - spent),
+                user.coinBalance - spent),
             spent,
             redemptions,
         }
@@ -137,11 +148,12 @@ export class RewardsService {
     /**
      * Redeem a catalog reward for the user. Runs the balance check + effect + the
      * ledger insert in one pessimistic-locked transaction so concurrent redeems
-     * cannot overspend. Never debits `user.reward_points`.
+     * cannot overspend. Never debits `user.coin_balance`.
      *
      * @param userId - the redeemer.
      * @param rewardKey - catalog key to redeem.
-     * @returns the refreshed balance + streak-freeze count.
+     * @returns the refreshed balance + streak-freeze count (+ voucher code /
+     * granted AI credit when the redeemed reward mints one).
      */
     async redeem(
         userId: string,
@@ -167,7 +179,7 @@ export class RewardsService {
                 })
             const spent = await this.computeSpent(manager,
                 userId)
-            const balance = user.rewardPoints - spent
+            const balance = user.coinBalance - spent
             if (balance < reward.cost) {
                 throw new InsufficientRewardPointsException({
                     balance,
@@ -192,7 +204,7 @@ export class RewardsService {
                     })
             }
             // snapshot shipping onto the metadata for physical rewards (ops uses it
-            // to fulfil); digital rewards carry no metadata
+            // to fulfil); digital/voucher/aiCredit rewards carry no metadata
             const hasShipping = Boolean(
                 shipping
                 && (shipping.recipientName || shipping.phone || shipping.address),
@@ -208,23 +220,48 @@ export class RewardsService {
                         address: shipping?.address ?? "",
                     }
                     : undefined
-            // record the redemption (digital → granted, physical → pending)
-            await manager.insert(RewardRedemptionEntity,
+            // record the redemption (digital/voucher/aiCredit → granted, physical → pending)
+            const inserted = await manager.insert(RewardRedemptionEntity,
                 {
                     userId,
                     rewardKey,
                     cost: reward.cost,
-                    status: reward.kind === "digital"
-                        ? RewardRedemptionStatus.Granted
-                        : RewardRedemptionStatus.Pending,
+                    status: reward.kind === "physical"
+                        ? RewardRedemptionStatus.Pending
+                        : RewardRedemptionStatus.Granted,
                     // cast: TypeORM's DeepPartial of a Record<string, unknown> jsonb
                     // column doesn't accept a concrete object literal directly
                     metadata: metadata as never,
                 })
+            const redemptionId = inserted.identifiers[0]?.id as string
+            // voucher-kind: mint a redeemable checkout code, echo it in the result
+            let voucherCode: string | undefined
+            if (reward.kind === "voucher" && reward.voucher) {
+                const voucher = await this.voucherService.mint({
+                    entityManager: manager,
+                    userId,
+                    redemptionId,
+                    config: reward.voucher,
+                })
+                voucherCode = voucher.code
+            }
+            // aiCredit-kind: top up the CURRENT 5h + weekly window's allowance
+            let aiCreditGranted: RedeemRewardResult["aiCreditGranted"]
+            if (reward.kind === "aiCredit" && reward.aiCredit) {
+                await this.aiEntitlementService.grantBonusCredit({
+                    userId,
+                    amount5h: reward.aiCredit.amount5h,
+                    amountWeek: reward.aiCredit.amountWeek,
+                    entityManager: manager,
+                })
+                aiCreditGranted = reward.aiCredit
+            }
             return {
-                // reward_points are never debited — the spendable balance is derived
+                // coin_balance is never debited — the spendable balance is derived
                 balance: balance - reward.cost,
                 streakFreezes,
+                voucherCode,
+                aiCreditGranted,
             }
         })
     }

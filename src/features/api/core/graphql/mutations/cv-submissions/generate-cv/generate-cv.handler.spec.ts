@@ -10,7 +10,6 @@ import {
     GradingLaneValidationService,
 } from "@modules/ai"
 import {
-    AiMode,
     ModelProvider,
 } from "@modules/databases"
 import {
@@ -60,10 +59,9 @@ describe("GenerateCvHandler",
                 }),
             } as unknown as jest.Mocked<Pick<EnqueueGenerateCvJobService, "enqueue">>
 
-            // lane validation resolves an auto lane by default (no model/provider pinned)
+            // lane validation resolves no pinned model by default
             gradingLaneValidationService = {
                 validate: jest.fn().mockResolvedValue({
-                    mode: AiMode.Auto,
                     gradingModel: null,
                     gradingProvider: null,
                 }),
@@ -112,10 +110,9 @@ describe("GenerateCvHandler",
 
                 it("threads courseId/label/targetRole/language plus the lane pick into the enqueue call",
                     async () => {
-                        // an explicit Premium pick — proves selectedModel/selectedModelProvider
+                        // an explicit model pick — proves selectedModel/selectedModelProvider
                         // flow through gradingLaneValidationService.validate(...)
                         gradingLaneValidationService.validate.mockResolvedValueOnce({
-                            mode: AiMode.Premium,
                             gradingModel: "gpt-4o",
                             gradingProvider: ModelProvider.OpenAI,
                         } as never)
@@ -124,7 +121,6 @@ describe("GenerateCvHandler",
                             new GenerateCvCommand({
                                 request: {
                                     extraPrompts: "Ships production systems.",
-                                    mode: AiMode.Premium,
                                     selectedModel: "gpt-4o",
                                     selectedModelProvider: ModelProvider.OpenAI,
                                     courseId: "course-1",
@@ -136,11 +132,10 @@ describe("GenerateCvHandler",
                             }),
                         )
 
-                        // the request's mode/model/provider are forwarded to lane validation
+                        // the request's model/provider are forwarded to lane validation
                         expect(gradingLaneValidationService.validate).toHaveBeenCalledWith(
                             expect.objectContaining({
                                 userId: "user-1",
-                                mode: AiMode.Premium,
                                 model: "gpt-4o",
                                 provider: ModelProvider.OpenAI,
                             }),
@@ -156,7 +151,6 @@ describe("GenerateCvHandler",
                                 targetRole: "Staff Engineer",
                                 language: "en",
                                 ai: expect.objectContaining({
-                                    mode: AiMode.Premium,
                                     model: "gpt-4o",
                                     provider: ModelProvider.OpenAI,
                                 }),

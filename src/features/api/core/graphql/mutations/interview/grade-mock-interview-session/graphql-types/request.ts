@@ -1,11 +1,10 @@
 import {
     Field,
     ID,
+    Int,
     InputType,
 } from "@nestjs/graphql"
 import {
-    AiMode,
-    GraphQLTypeAiMode,
     GraphQLTypeModelProvider,
     GraphQLTypeMockInterviewPhase,
     ModelProvider,
@@ -14,8 +13,9 @@ import {
 
 /**
  * One recorded turn of a completed mock-interview transcript. The candidate
- * answered across all 5 phases in a single conversation — the server grades
- * the WHOLE ordered list of turns at once, not one question at a time.
+ * answered across all 5 phases in a single conversation (kind="design") — the
+ * server grades the WHOLE ordered list of turns at once, not one question at
+ * a time.
  */
 @InputType({
     description: "One turn of a recorded mock-interview transcript.",
@@ -32,7 +32,7 @@ export class MockInterviewTurnInput {
     @Field(
         () => GraphQLTypeMockInterviewPhase,
         {
-            description: "Which of the 5 canonical interview phases this turn belongs to.",
+            description: "Which of the 5 canonical interview phases this turn belongs to (kind=\"design\" only — send any valid value for a Q&A-kind session; the server ignores it and uses questionIndex instead).",
         },
     )
         phase: MockInterviewPhase
@@ -44,6 +44,43 @@ export class MockInterviewTurnInput {
         },
     )
         content: string
+
+    /**
+     * 0-based index of the question this turn belongs to, for a Q&A-kind
+     * (theory/reasoning/scenario) session — additive field (nullable, so an
+     * older client omitting it still validates); REQUIRED for the server to
+     * group a Q&A session's turns into per-question `phaseScores` entries
+     * ("Câu 1", "Câu 2", …). Ignored for kind="design" (grouping there still
+     * comes from `phase`).
+     */
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "0-based question index this turn belongs to (Q&A kinds only); ignored for kind=\"design\".",
+        },
+    )
+        questionIndex?: number
+
+    /**
+     * Free-form string (not an enum — the only value that currently exists is
+     * "code") mirroring the FE's `MockInterviewTurn.artifactHint` — set on an
+     * interviewer turn whose question shipped GIVEN code seeded into the
+     * editable code tool, so a session resumed from
+     * `syncMockInterviewSessionTurns`'s snapshot can re-render the "code
+     * loaded into the editor" chip instead of the code inline, matching what
+     * the learner originally saw. Reused by (and additive to)
+     * `syncMockInterviewSessionTurns` — `gradeMockInterviewSession` itself
+     * never reads this field, only echoes/ignores it.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Set to \"code\" on an interviewer turn whose given code was seeded into the editable code tool; omitted otherwise.",
+        },
+    )
+        artifactHint?: string
 }
 
 /**
@@ -105,15 +142,6 @@ export class GradeMockInterviewSessionRequest {
         },
     )
         sessionId: string
-
-    @Field(
-        () => GraphQLTypeAiMode,
-        {
-            nullable: true,
-            description: "AI lane to grade on (auto/premium/byok); validated against entitlement at grade time.",
-        },
-    )
-        mode?: AiMode
 
     /** Concrete model the user picked in the grading dropdown (e.g. "gpt-4o"). */
     @Field(

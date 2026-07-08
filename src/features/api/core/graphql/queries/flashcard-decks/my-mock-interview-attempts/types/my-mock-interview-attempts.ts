@@ -16,6 +16,35 @@ export interface MockInterviewAttemptAttributeScore {
     score: number
 }
 
+/**
+ * One persisted per-question model-answer review inside a mock-interview
+ * attempt — the read-back shape mirrors
+ * {@link import("../../../../mutations/interview/grade-mock-interview-session/types/mock-interview-grade").MockInterviewQuestionReview}
+ * exactly (same fields, same jsonb-round-tripped shape) so the history
+ * drawer renders it identically to the live scorecard. Always empty for a
+ * `mode="design"` attempt.
+ */
+export interface MockInterviewAttemptQuestionReview {
+    /** 0-based index of this question within the session. */
+    questionIndex: number
+    /** This question's cognitive frame ("theory" | "reasoning" | "scenario"), as drawn. */
+    kind: string
+    /** The interviewer's question text for this question. */
+    question: string
+    /** The candidate's own answer for this question. */
+    candidateAnswer: string
+    /** The seed flashcard's authored model answer (Markdown); null when unavailable. */
+    modelAnswer: string | null
+    /** A one-line summary of what the candidate's answer was missing relative to the reference. */
+    feedback: string
+    /** Score assigned to this question. */
+    score: number
+    /** Maximum possible score for this question (always 100 for qna). */
+    max: number
+    /** Best-effort matched course content (lesson) id for this question; null when no confident match exists. */
+    matchedContentId: string | null
+}
+
 /** One past graded mock-interview session, for the viewer's history list. */
 export interface MockInterviewAttemptSummary {
     /** Attempt row id. */
@@ -28,6 +57,8 @@ export interface MockInterviewAttemptSummary {
     promptTitle: string
     /** Seniority level the session was graded against, or null (any level). */
     level: string | null
+    /** The top-level flow this session ran ("qna" | "design"), or null for an attempt graded before the "mode split" (treated as "design" by every reader). */
+    mode: string | null
     /** Integer 0–100 overall score. */
     overallScore: number
     /** Coarse pass/borderline/fail band. */
@@ -42,6 +73,19 @@ export interface MockInterviewAttemptSummary {
     gaps: Array<string>
     /** A follow-up an interviewer would ask next, or null. */
     followUpQuestion: string | null
+    /**
+     * Distinct content (lesson) ids the RAG grounding excerpt was retrieved
+     * from at grade time (snapshot), in similarity order. Empty when
+     * retrieval missed/failed/index absent at grade time, or for attempts
+     * graded before this field existed.
+     */
+    matchedContentIds: Array<string>
+    /**
+     * Per-question model-answer review — one entry per `mode="qna"`
+     * question. Always empty for a `mode="design"` attempt, or an attempt
+     * graded before this field existed.
+     */
+    questionReviews: Array<MockInterviewAttemptQuestionReview>
     /** When this attempt was graded. */
     createdAt: Date
 }
@@ -56,6 +100,13 @@ export interface ListMyMockInterviewAttemptsParams {
     limit: number
     /** Page offset (attempts to skip). */
     offset: number
+    /**
+     * Optional mode filter ("qna" | "design"); omitted = every mode. Filtering
+     * to "design" also matches a null-mode legacy attempt (predates the "mode
+     * split" — the only mode that could have existed then), mirroring how
+     * every other reader treats a null mode.
+     */
+    mode?: string
 }
 
 /** Result of listing a page of the viewer's mock-interview history. */

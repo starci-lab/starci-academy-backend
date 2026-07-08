@@ -97,6 +97,22 @@ export class MockInterviewAttemptEntity extends UuidAbstractEntity {
     })
         level: string | null
 
+    /**
+     * The TOP-LEVEL flow this graded session ran — a
+     * {@link import("../enums/mock-interview-mode").MockInterviewMode} value
+     * ("qna" | "design"), or null for an attempt graded before the "mode
+     * split" (2026-07-06) — history readers treat a null `mode` as "design"
+     * (the only mode that existed then). Each Q&A QUESTION's own cognitive
+     * frame is NOT stored here (it lives on the session's `seed_questions`
+     * snapshot at grade time, not re-persisted per attempt).
+     */
+    @Column({
+        name: "mode",
+        type: "varchar",
+        nullable: true,
+    })
+        mode: string | null
+
     /** Integer 0–100 overall score the model assigned to the whole session. */
     @Column({
         name: "overall_score",
@@ -159,4 +175,61 @@ export class MockInterviewAttemptEntity extends UuidAbstractEntity {
         nullable: true,
     })
         followUpQuestion: string | null
+
+    /**
+     * Distinct content (lesson) ids the RAG grounding excerpt was retrieved
+     * from at grade time, in similarity order — snapshotted so a re-opened
+     * past attempt (history) can still deep-link "study this" without
+     * re-running retrieval. A plain jsonb string array (not a FK/relation):
+     * the course's content tree can change after grading, and this is a
+     * point-in-time snapshot of what grounded THIS grade, not a live
+     * reference. Empty array when retrieval missed/failed/index absent at
+     * grade time.
+     */
+    @Column({
+        name: "matched_content_ids",
+        type: "jsonb",
+        default: () => "'[]'",
+    })
+        matchedContentIds: Array<string>
+
+    /**
+     * Per-question model-answer review — one entry per `mode="qna"` question,
+     * `[{ questionIndex, kind, question, candidateAnswer, modelAnswer,
+     * feedback, score, max, matchedContentId }]` (see
+     * {@link import("../../../../../features/api/core/graphql/mutations/interview/grade-mock-interview-session/types/mock-interview-grade").MockInterviewQuestionReview}
+     * for the full shape) — the anti-ChatGPT feature: pairs the candidate's
+     * own answer against the course's authored answer for the exact same
+     * flashcard seed. Always empty for `mode="design"` (no single seed
+     * flashcard to source a model answer from). jsonb (not typed columns) for
+     * the same schema-evolution reason as every other breakdown column on
+     * this entity; defaults to an empty array so every attempt written before
+     * this column existed reads back as "no per-question review available"
+     * rather than null.
+     */
+    @Column({
+        name: "question_reviews",
+        type: "jsonb",
+        default: () => "'[]'",
+    })
+        questionReviews: Array<Record<string, unknown>>
+
+    /**
+     * Whether THIS graded attempt should feed job-readiness's rolling
+     * mock-interview average — "configurable setup" (2026-07-06): copied
+     * verbatim from the session row's own
+     * {@link import("./mock-interview-session.entity").MockInterviewSessionEntity.countsToReadiness}
+     * at grade time (true for "Tự động"/design, false for a "Tùy chỉnh"
+     * qna draw). {@link import("../../../../../features/api/core/graphql/queries/users/job-readiness/job-readiness.service").JobReadinessService}'s
+     * recent-window average query MUST filter `WHERE counts_to_readiness =
+     * true` so deliberate, learner-picked practice never dilutes the exam-like
+     * signal. Defaults true so every row written before this column existed
+     * still counts.
+     */
+    @Column({
+        name: "counts_to_readiness",
+        type: "boolean",
+        default: true,
+    })
+        countsToReadiness: boolean
 }

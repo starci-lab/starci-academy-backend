@@ -2,9 +2,6 @@ import {
     Module,
 } from "@nestjs/common"
 import {
-    UpdateMyAiSettingsSingleMutationModule,
-} from "./update-my-ai-settings"
-import {
     PurchaseAiSubscriptionSingleMutationModule,
 } from "./purchase-ai-subscription"
 import {
@@ -15,13 +12,10 @@ import {
 } from "./ai.module-definition"
 
 /**
- * Per-user AI mutation group (lane settings + BYOK, subscription purchase, …).
+ * Per-user AI mutation group (subscription purchase, per-surface model ceiling, …).
  */
 @Module({
     imports: [
-        UpdateMyAiSettingsSingleMutationModule.register({
-            isGlobal: true,
-        }),
         PurchaseAiSubscriptionSingleMutationModule.register({
             isGlobal: true,
         }),

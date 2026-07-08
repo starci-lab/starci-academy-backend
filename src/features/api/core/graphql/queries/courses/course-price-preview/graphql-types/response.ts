@@ -11,6 +11,8 @@ import {
 import {
     DiscountReason,
     GraphQLTypeDiscountReason,
+    GraphQLTypePricingPhase,
+    PricingPhase,
 } from "@modules/databases"
 
 /**
@@ -98,6 +100,59 @@ export class CoursePricePreviewData {
         },
     )
         enrolledCount: number
+
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Final VND price after ALSO applying a valid `voucherCode` (on top of loyalty); null when no code was given.",
+        },
+    )
+        voucherDiscountedPriceVnd: number | null
+
+    @Field(
+        () => GraphQLTypePricingPhase,
+        {
+            description: "The course's current pricing phase (drives scarcity copy, e.g. 'Pioneer').",
+        },
+    )
+        currentPhase: PricingPhase
+
+    @Field(
+        () => GraphQLTypePricingPhase,
+        {
+            nullable: true,
+            description: "The phase the course advances to once the current one sells out; null when already at the final (Regular) phase.",
+        },
+    )
+        nextPhase: PricingPhase | null
+
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Seats left at the CURRENT phase price (slotAvailable − paid enrollments); null when the phase has no seat cap (unlimited).",
+        },
+    )
+        seatsRemainingInCurrentPhase: number | null
+
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "VND price a buyer pays AFTER the current phase sells out (the next tier, before loyalty); null when already at the final phase. Powers 'price rises to X' scarcity.",
+        },
+    )
+        nextPhasePriceVnd: number | null
+
+    @Field(
+        () => Float,
+        {
+            nullable: true,
+            description: "USD price after the current phase sells out (next tier); null when no next-phase USD price.",
+        },
+    )
+        nextPhasePriceUsd: number | null
 }
 
 /**

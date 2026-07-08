@@ -21,6 +21,28 @@ export interface ComponentHealth {
     message: string | null
     /** Timestamp the probe completed (used by the client to show freshness). */
     checkedAt: Date
+    /** cAdvisor-scraped container resource usage, or `null` when unavailable
+     * (component has no local Docker container, or Prometheus is unreachable). */
+    metrics: ContainerMetrics | null
+}
+
+/**
+ * Live resource usage of one Docker container, scraped from cAdvisor via
+ * Prometheus. Every field is a best-effort instant read — a missing metric
+ * (container just started, cAdvisor scrape not landed yet) is `null` rather
+ * than throwing.
+ */
+export interface ContainerMetrics {
+    /** CPU usage as a percentage of one core (can exceed 100 on multi-core work). */
+    cpuPercent: number | null
+    /** Resident memory usage in bytes. */
+    memoryUsedBytes: number | null
+    /** Container memory limit in bytes, or `null` when unbounded. */
+    memoryLimitBytes: number | null
+    /** Network receive throughput in bytes/sec (1m rate). */
+    networkRxBytesPerSec: number | null
+    /** Network transmit throughput in bytes/sec (1m rate). */
+    networkTxBytesPerSec: number | null
 }
 
 /**

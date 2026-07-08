@@ -1,0 +1,11 @@
+# Scrapes cAdvisor for per-container CPU/memory/network metrics. Feeds the
+# public "Hệ thống StarCi, đang sống" architecture page (systemHealthStatus
+# GraphQL query, via PrometheusMetricsService) — real numbers, not a demo.
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: cadvisor
+    static_configs:
+      - targets: ["cadvisor:8080"]

@@ -173,6 +173,38 @@ services:
       - "8089:8080"           # matches KEYCLOAK_URL=http://localhost:8089
     restart: unless-stopped
 
+  # ── cAdvisor — exposes per-container CPU/memory/network metrics that
+  #     Prometheus scrapes below. Powers the LIVE resource numbers on the
+  #     public architecture page (postgres/redis/kafka/… containers only —
+  #     Judge0/Ollama/mail/aiBalancer have no local container to measure). ──
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: starci-cadvisor
+    privileged: true
+    ports:
+      - "8085:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    restart: unless-stopped
+
+  # ── Prometheus — scrapes cAdvisor every 15s; queried by PrometheusMetricsService
+  #     (BE runs on the HOST, so it reaches this at http://localhost:9090). ──
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: starci-prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"           # matches PROMETHEUS_URL in .env.override
+    depends_on:
+      - cadvisor
+    restart: unless-stopped
+
 volumes:
   pg-data:
   redis-data:
@@ -181,3 +213,4 @@ volumes:
   kafka-data:
   minio-data:
   nats-data:
+  prometheus-data:

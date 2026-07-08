@@ -99,7 +99,7 @@ export interface GlobalLeaderboardMember {
     username: string | null
     /** Avatar URL; null when the user has no avatar. */
     avatar: string | null
-    /** The user's spendable reward-points balance. */
+    /** The user's spendable Coin balance. */
     points: number
     /** 1-based rank across all users, descending by points then user id. */
     rank: number
@@ -115,7 +115,7 @@ export interface GlobalLeaderboardResult {
     entries: Array<GlobalLeaderboardMember>
     /** The viewer's own 1-based rank across all users. */
     myRank: number
-    /** The viewer's spendable reward-points balance. */
+    /** The viewer's spendable Coin balance. */
     myPoints: number
 }
 
@@ -129,6 +129,6 @@ export interface GlobalLeaderboardRow {
     username: string | null
     /** Avatar URL (may be null). */
     avatar: string | null
-    /** The user's spendable reward-points balance. */
+    /** The user's spendable Coin balance. */
     points: string | number
 }

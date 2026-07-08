@@ -61,6 +61,92 @@ export class MockInterviewAttributeScoreItem {
         score: number
 }
 
+/**
+ * One `mode="qna"` question's full review — the candidate's own answer paired
+ * with the course's CANONICAL authored answer for the exact same flashcard
+ * seed, so the learner can see exactly what a "correct" answer for THIS
+ * course looks like (a generic tool has no ground truth to compare against).
+ * Always an empty array on the parent for `mode="design"`.
+ */
+@ObjectType({
+    description: "Per-question model-answer review for one mode=\"qna\" question.",
+})
+export class MockInterviewQuestionReviewItem {
+    @Field(
+        () => Int,
+        {
+            description: "0-based index of this question within the session.",
+        },
+    )
+        questionIndex: number
+
+    @Field(
+        () => String,
+        {
+            description: "This question's cognitive frame (\"theory\" | \"reasoning\" | \"scenario\"), as drawn.",
+        },
+    )
+        kind: string
+
+    @Field(
+        () => String,
+        {
+            description: "The interviewer's question text for this question.",
+        },
+    )
+        question: string
+
+    @Field(
+        () => String,
+        {
+            description: "The candidate's own answer for this question.",
+        },
+    )
+        candidateAnswer: string
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "The seed flashcard's authored model answer (Markdown) — the canonical, course-grounded correct answer; null when unavailable.",
+        },
+    )
+        modelAnswer: string | null
+
+    @Field(
+        () => String,
+        {
+            description: "A one-line summary of what the candidate's answer was missing relative to the reference; empty string when the model omitted it.",
+        },
+    )
+        feedback: string
+
+    @Field(
+        () => Int,
+        {
+            description: "Score assigned to this question.",
+        },
+    )
+        score: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Maximum possible score for this question (always 100 for qna).",
+        },
+    )
+        max: number
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Best-effort matched course content (lesson) id for this question; null when no confident match exists.",
+        },
+    )
+        matchedContentId: string | null
+}
+
 /** The graded result for one whole mock-interview session. */
 @ObjectType({
     description: "Grade for a whole mock-interview session, scored against the 5-phase rubric.",
@@ -122,6 +208,22 @@ export class MockInterviewGradeSessionData {
         },
     )
         followUpQuestion?: string | null
+
+    @Field(
+        () => [String],
+        {
+            description: "Distinct content (lesson) ids the RAG grounding excerpt was retrieved from, in similarity order — one flat list for the whole session (retrieval is not phase-scoped). Empty when retrieval missed/failed or the index has no hits; the FE renders its \"unmatched\" fallback in that case.",
+        },
+    )
+        matchedContentIds: Array<string>
+
+    @Field(
+        () => [MockInterviewQuestionReviewItem],
+        {
+            description: "Per-question model-answer review — one entry per mode=\"qna\" question. Always empty for mode=\"design\".",
+        },
+    )
+        questionReviews: Array<MockInterviewQuestionReviewItem>
 }
 
 @ObjectType({

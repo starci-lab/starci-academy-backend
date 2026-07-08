@@ -16,6 +16,6 @@ export interface UserSearchHitSource {
     bio?: string | null
     /** "Open to work" hiring flag. */
     openToWork?: boolean
-    /** Spendable reward-points balance. */
+    /** Spendable Coin balance. */
     points?: number
 }

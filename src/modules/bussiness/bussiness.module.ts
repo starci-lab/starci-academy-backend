@@ -52,6 +52,9 @@ import {
     StreakModule,
 } from "./streak"
 import {
+    InstallmentPlanModule,
+} from "./installment-plan"
+import {
     RewardsModule,
 } from "./rewards"
 import {
@@ -119,7 +122,9 @@ export class BussinessModule extends ConfigurableModuleClass {
             AchievementsModule.register(options),
             // import the streak-freeze module (buy + daily auto-protect cron)
             StreakModule.register(options),
-            // import the reward-store ("điểm quà") module (catalog + wallet + redeem)
+            // import the installment-plan module (trả góp — plan lifecycle + daily enforcement cron)
+            InstallmentPlanModule.register(options),
+            // import the reward-store (Coin shop) module (catalog + wallet + redeem)
             RewardsModule.register(options),
             // import the daily-quest module (today's tasks + claim reward)
             DailyQuestModule.register(options),

@@ -1,36 +1,18 @@
 import type {
-    AiMode,
     ModelProvider,
 } from "@modules/databases"
 
 /**
- * Auto lane — the balancer picks the model (load balancing); the user pins nothing.
- */
-export interface AiJobSelectionAuto {
-    /** Discriminant: free Auto lane (no user model pick). */
-    mode: AiMode.Auto
-}
-
-/**
- * Premium lane — the user pins a concrete catalog model + provider to grade on.
- */
-export interface AiJobSelectionPremium {
-    /** Discriminant: paid Premium lane. */
-    mode: AiMode.Premium
-    /** Catalog model name the user picked (e.g. "gpt-4o"). */
-    model: string
-    /** Provider serving {@link AiJobSelectionPremium.model}. */
-    provider: ModelProvider
-}
-
-/**
- * Discriminated AI lane + model pick carried on grading job payloads.
+ * The model pick carried on an AI job payload.
  *
- * Keyed on {@link AiMode}: `Auto` never carries a model (the balancer chooses),
- * while `Premium` always carries the user-picked `model` + `provider`.
- * This makes invalid combinations (Auto-with-model, Premium-without-model)
- * unrepresentable instead of relying on loose optional fields.
+ * A caller either **pins** a concrete catalog model (`model` + `provider`
+ * together) or pins nothing (both absent) — in which case the balancer picks
+ * the model from the user's entitled category chain. Presence of `model` IS the
+ * discriminant; there is no separate lane/mode label.
  */
-export type AiJobSelection =
-    | AiJobSelectionAuto
-    | AiJobSelectionPremium
+export interface AiJobSelection {
+    /** Catalog model name the user pinned (e.g. "gpt-4o"); absent → balancer picks. */
+    model?: string
+    /** Provider serving {@link AiJobSelection.model}; required together with `model`. */
+    provider?: ModelProvider
+}

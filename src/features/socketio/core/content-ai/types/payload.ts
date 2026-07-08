@@ -22,11 +22,9 @@ export type AskContentAiSocketIoPayload = SocketIoPayload<{
     question: string
     /** Recent prior turns (oldest first) for short-term memory; capped server-side. */
     history?: Array<ContentAiHistoryTurn>
-    /** Lane: "auto" (free chain) or "premium" (pin the chosen model). */
-    mode?: string
-    /** Pinned model name (only with mode "premium"). */
+    /** Pinned model name (absent → balancer picks from the free chain). */
     model?: string | null
-    /** Provider of the pinned model. */
+    /** Provider of the pinned model (required together with `model`). */
     provider?: string | null
 }>
 

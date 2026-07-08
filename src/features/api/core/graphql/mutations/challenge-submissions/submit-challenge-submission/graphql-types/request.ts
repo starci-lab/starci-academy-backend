@@ -4,8 +4,6 @@ import {
     InputType,
 } from "@nestjs/graphql"
 import {
-    AiMode,
-    GraphQLTypeAiMode,
     GraphQLTypeModelProvider,
     ModelProvider,
 } from "@modules/databases"
@@ -34,15 +32,6 @@ export class SubmitChallengeSubmissionRequest {
         },
     )
         githubUrl?: string
-
-    @Field(
-        () => GraphQLTypeAiMode,
-        {
-            nullable: true,
-            description: "AI lane to grade on (auto/premium); validated against entitlement at grade time.",
-        },
-    )
-        mode?: AiMode
 
     /** Concrete model the user picked in the grading dropdown (e.g. "gpt-4o"). */
     @Field(

@@ -10,8 +10,10 @@ import {
     EnqueueEnrollJobService,
     EnqueueReconcileTransactionJobService,
     EnqueueSendMailJobService,
+    InstallmentPlanService,
     TransactionActionService,
     TransactionReconcileQueryService,
+    VoucherService,
 } from "@modules/bussiness"
 import {
     enqueueMembershipActiveEmail,
@@ -83,6 +85,8 @@ export class ReconcileTransactionWorker extends WorkerHost {
         private readonly membershipService: MembershipService,
         private readonly winstonService: WinstonService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
+        private readonly voucherService: VoucherService,
+        private readonly installmentPlanService: InstallmentPlanService,
     ) {
         super()
     }
@@ -165,6 +169,11 @@ export class ReconcileTransactionWorker extends WorkerHost {
             status: TransactionStatus.Unpaid,
             expectedStatus: TransactionStatus.Pending,
         })
+        // give back any voucher this failed checkout reserved (no-op if none)
+        await this.voucherService.release({
+            entityManager: this.entityManager,
+            transactionId,
+        })
         // we only reach here from a PENDING row (guarded above), so this is the
         // first-and-only unpaid transition → notify the buyer once.
         await enqueuePaymentFailedEmail({
@@ -226,6 +235,20 @@ export class ReconcileTransactionWorker extends WorkerHost {
         case ActionType.Enroll: {
             await this.enqueueEnrollJobService.enqueueForTransaction({
                 transaction,
+            })
+            return
+        }
+        // installment (trả góp) cycle payment: advance/top-up the plan (also
+        // marks tx succeeded). A transaction of this action type is always
+        // created with `installmentPlanId` set (see `PayNextInstallmentHandler`).
+        case ActionType.InstallmentPayment: {
+            if (!transaction.installmentPlanId) {
+                return
+            }
+            await this.installmentPlanService.applyPaymentForTransaction({
+                transactionId: transaction.id,
+                planId: transaction.installmentPlanId,
+                paidAmountVnd: transaction.amount,
             })
             return
         }

@@ -8,10 +8,8 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 import {
-    AiMode,
     AiModelCategory,
     AiSubTier,
-    GraphQLTypeAiMode,
     GraphQLTypeAiModelCategory,
     GraphQLTypeAiSubTier,
 } from "@modules/databases"
@@ -124,14 +122,6 @@ export class MyAiCeilData {
     description: "Per-user AI quota snapshot (single credit pool).",
 })
 export class MyAiQuotaResponseData {
-    @Field(
-        () => GraphQLTypeAiMode,
-        {
-            description: "Natural lane the user is on right now.",
-        },
-    )
-        mode: AiMode
-
     @Field(
         () => GraphQLTypeAiSubTier,
         {

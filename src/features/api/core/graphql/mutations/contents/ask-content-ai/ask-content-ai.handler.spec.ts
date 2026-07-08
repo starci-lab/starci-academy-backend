@@ -4,7 +4,6 @@ import {
 } from "@nestjs/testing"
 import {
     AiCeilSurface,
-    AiMode,
     AiModelCategory,
     AiModelTask,
     Locale,
@@ -167,7 +166,6 @@ describe("AskContentAiHandler",
 
                 expect(aiEntitlementService.consume).toHaveBeenCalledWith({
                     userId: "user-1",
-                    mode: AiMode.Auto,
                     cost: 42,
                     surface: AiCeilSurface.Chatbot,
                     task: AiModelTask.Chatting,

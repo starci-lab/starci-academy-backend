@@ -16,7 +16,6 @@ import {
 } from "@modules/common"
 import {
     AiCeilSurface,
-    AiMode,
     AiModelCategory,
     AiModelTask,
     EnrollmentEntity,
@@ -411,12 +410,10 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
                 },
             },
         )
-        /** Auto lane → gate on the SAME unified credit pool as everywhere else; Premium is not billed for task review yet. */
-        if ((payload.ai?.mode ?? AiMode.Auto) === AiMode.Auto) {
-            await this.aiEntitlementService.assertNotOverQuota({
-                userId: enrollment.userId,
-            })
-        }
+        /** Gate on the SAME unified credit pool as everywhere else. */
+        await this.aiEntitlementService.assertNotOverQuota({
+            userId: enrollment.userId,
+        })
         // ONE shared entry: capstone tasks are CODE (github repo) → floor at Balanced
         // like challenge code grading (Free/Economy grade code too shallowly per eval).
         // Climbs to the tier ceiling. Credit charge happens in the complete step

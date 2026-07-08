@@ -4,8 +4,6 @@ import {
     InputType,
 } from "@nestjs/graphql"
 import {
-    AiMode,
-    GraphQLTypeAiMode,
     GraphQLTypeModelProvider,
     ModelProvider,
 } from "@modules/databases"
@@ -14,9 +12,9 @@ import {
 } from "../../run-playground-prompt/graphql-types"
 
 /**
- * Input for the submitEvalChallenge mutation. Reuses the loose `mode` /
- * `selectedModel` / `selectedModelProvider` lane fields (mapped
- * to `AiJobSelection` in the service layer) and the shared `AiLabRunParamsInput`.
+ * Input for the submitEvalChallenge mutation. Reuses the loose `selectedModel` /
+ * `selectedModelProvider` fields (mapped to `AiJobSelection` in the service
+ * layer) and the shared `AiLabRunParamsInput`.
  */
 @InputType({
     description: "Submit a prompt template for grading against an AI Lab eval set; enqueues an async grading job.",
@@ -65,16 +63,6 @@ export class SubmitEvalChallengeInput {
         },
     )
         params?: AiLabRunParamsInput
-
-    /** AI lane to grade on (auto/premium); validated against entitlement. */
-    @Field(
-        () => GraphQLTypeAiMode,
-        {
-            nullable: true,
-            description: "AI lane to grade on (auto/premium); validated against entitlement.",
-        },
-    )
-        mode?: AiMode
 
     /** Concrete model the learner picked; null = balancer default. */
     @Field(

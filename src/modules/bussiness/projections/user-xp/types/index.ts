@@ -48,6 +48,6 @@ export interface UserXpResult {
     lessonXp: number
     /** The user's total lifetime XP balance (`users.total_points`). */
     totalPoints: number
-    /** The user's spendable reward-points balance (`users.reward_points`). */
-    rewardPoints: number
+    /** The user's spendable Coin balance (`users.coin_balance`). */
+    coinBalance: number
 }

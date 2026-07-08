@@ -46,7 +46,6 @@ export class GradeMockInterviewSessionHandler
                 level,
                 turns,
                 sessionId,
-                mode,
                 selectedModel,
                 selectedModelProvider,
             },
@@ -70,7 +69,6 @@ export class GradeMockInterviewSessionHandler
             turns,
             sessionId,
             locale: locale ?? Locale.En,
-            mode,
             selectedModel,
             selectedModelProvider,
         })
@@ -84,6 +82,8 @@ export class GradeMockInterviewSessionHandler
             strengths: result.strengths,
             gaps: result.gaps,
             followUpQuestion: result.followUpQuestion,
+            matchedContentIds: result.matchedContentIds,
+            questionReviews: result.questionReviews,
         }
     }
 }

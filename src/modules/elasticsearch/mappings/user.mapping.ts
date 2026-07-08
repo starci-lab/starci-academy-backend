@@ -58,7 +58,7 @@ export const userIndexMapping: ElasticsearchIndexMapping = {
             openToWork: {
                 type: "boolean",
             },
-            // spendable reward-points balance — sortable for popularity ranking
+            // spendable Coin balance — sortable for popularity ranking
             points: {
                 type: "integer",
             },

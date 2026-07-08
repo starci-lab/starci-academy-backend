@@ -43,13 +43,11 @@ export class RunPlaygroundPromptService {
             systemPrompt,
             userPrompt,
             params,
-            mode,
             selectedModel,
             selectedModelProvider,
         } = input
-        // collapse the loose lane fields into the discriminated selection (undefined → Auto)
+        // collapse the loose model-pick fields into the selection (undefined → balancer picks)
         const ai = flatFieldsToAiJobSelection({
-            mode,
             selectedModel,
             selectedModelProvider,
         })

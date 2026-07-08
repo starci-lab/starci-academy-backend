@@ -186,6 +186,28 @@ export class TransactionEntity extends UuidAbstractEntity {
         discountPercent: number
 
     /**
+     * Coin-shop voucher code applied at checkout, if any (null = no voucher).
+     * Reserved on the voucher row the moment this transaction is created;
+     * flipped to `used` only once this transaction succeeds (see
+     * {@link VoucherService}), so a failed/expired checkout releases the code
+     * back to `unused` instead of burning it.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Coin-shop voucher code applied at checkout, if any.",
+        },
+    )
+    @Column({
+        name: "voucher_code",
+        type: "varchar",
+        length: 32,
+        nullable: true,
+    })
+        voucherCode: string | null
+
+    /**
      * The pricing phase applied to the preflight transaction.
      */
     @Field(
@@ -283,4 +305,26 @@ export class TransactionEntity extends UuidAbstractEntity {
         nullable: true,
     })
         aiSubTier: AiSubTier | null
+
+    /**
+     * The installment plan this transaction pays one cycle of, when
+     * {@link actionType} is `installmentPayment`; null for every other action
+     * type. Not a relation (the reconcile worker only ever needs the id to
+     * call `InstallmentPlanService`) — deliberately a plain column to avoid a
+     * circular entity reference (`InstallmentPlanEntity` already points back
+     * at a transaction via `originTransaction`).
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "The installment plan this transaction pays one cycle of (installment payments only).",
+        },
+    )
+    @Column({
+        name: "installment_plan_id",
+        type: "uuid",
+        nullable: true,
+    })
+        installmentPlanId: string | null
 }

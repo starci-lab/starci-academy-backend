@@ -86,3 +86,8 @@ __pycache__/
 # local recovery/agent artifacts
 scratch/
 .agents/
+.claude/_canon_tmp/
+.claude/fe/
+.claude/be/
+.claude/skills/
+claude-legacy/

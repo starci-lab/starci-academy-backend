@@ -90,6 +90,13 @@ export class MyMockInterviewAttemptsResolver {
                 description: "Page offset (attempts to skip); defaults to 0.",
             })
             offset: number | null,
+        @Args("mode",
+            {
+                type: () => String,
+                nullable: true,
+                description: "Optional mode filter (\"qna\" | \"design\"); omitted = every mode.",
+            })
+            mode: string | null,
     ): Promise<MyMockInterviewAttemptsData> {
         // clamp the client-provided page window so a bad request can't force a
         // huge unpaginated scan
@@ -105,6 +112,7 @@ export class MyMockInterviewAttemptsResolver {
             courseId,
             limit: safeLimit,
             offset: safeOffset,
+            mode: mode ?? undefined,
         })
         // project to the GraphQL shape — serialize each attempt's timestamp
         return {
@@ -115,6 +123,7 @@ export class MyMockInterviewAttemptsResolver {
                 promptId: attempt.promptId,
                 promptTitle: attempt.promptTitle,
                 level: attempt.level,
+                mode: attempt.mode,
                 overallScore: attempt.overallScore,
                 verdict: attempt.verdict,
                 phaseScores: attempt.phaseScores,
@@ -122,6 +131,8 @@ export class MyMockInterviewAttemptsResolver {
                 strengths: attempt.strengths,
                 gaps: attempt.gaps,
                 followUpQuestion: attempt.followUpQuestion,
+                matchedContentIds: attempt.matchedContentIds,
+                questionReviews: attempt.questionReviews,
                 createdAt: attempt.createdAt.toISOString(),
             })),
         }

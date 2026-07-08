@@ -22,7 +22,7 @@ import type {
 /**
  * CDC consumer that keeps `user_xp_projections` fresh — a new ledger row moves the
  * earner's per-source XP totals, and a `users` balance change moves their snapshot
- * of `total_points` / `reward_points`. Both topics resolve to a single user id.
+ * of `total_points` / `coin_balance`. Both topics resolve to a single user id.
  * Connection + per-message safety are owned by {@link AbstractProjectionListener}.
  */
 @Injectable()

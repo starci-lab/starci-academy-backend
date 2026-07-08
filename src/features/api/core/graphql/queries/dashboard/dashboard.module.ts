@@ -47,6 +47,9 @@ import {
     MyRewardWalletSingleQueryModule,
 } from "./my-reward-wallet"
 import {
+    MyVouchersSingleQueryModule,
+} from "./my-vouchers"
+import {
     MyDailyQuestSingleQueryModule,
 } from "./my-daily-quest"
 import {
@@ -100,6 +103,9 @@ import {
             isGlobal: true,
         }),
         MyRewardWalletSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyVouchersSingleQueryModule.register({
             isGlobal: true,
         }),
         MyDailyQuestSingleQueryModule.register({

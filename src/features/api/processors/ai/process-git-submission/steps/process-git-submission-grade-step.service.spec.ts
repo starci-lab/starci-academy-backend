@@ -4,7 +4,6 @@ import {
 } from "@modules/tests"
 import {
     AiCeilSurface,
-    AiMode,
     AiModelTask,
     Locale,
 } from "@modules/databases"
@@ -124,7 +123,6 @@ const makeContext = (overrides: Record<string, unknown> = {
         locale: Locale.En,
         lang: "typescript",
         ai: {
-            mode: AiMode.Auto,
         },
         ...overrides,
     },
@@ -259,7 +257,6 @@ describe("ProcessGitSubmissionGradeStepService",
                 expect(aiEntitlementService.consume).toHaveBeenCalledWith(
                     expect.objectContaining({
                         userId: "user-1",
-                        mode: AiMode.Auto,
                         cost: 2,
                         surface: AiCeilSurface.Grading,
                         task: AiModelTask.ChallengeGrading,

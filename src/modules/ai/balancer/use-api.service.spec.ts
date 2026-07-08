@@ -7,7 +7,6 @@ import {
     AiPingCacheService,
 } from "@modules/cache"
 import {
-    AiMode,
     AiModelCategory,
     AiModelEntity,
     AiModelTask,
@@ -142,7 +141,7 @@ describe("UseApiService",
                     async () => {
                         // the action succeeds immediately on the first key
                         const result = await service.useApi<string>({
-                            lane: AiMode.Auto,
+                            lane: "chain",
                             action: async () => "ok",
                         })
 
@@ -164,7 +163,7 @@ describe("UseApiService",
                     async () => {
                         // every Auto run must ensure the pool is hydrated first
                         await service.useApi<string>({
-                            lane: AiMode.Auto,
+                            lane: "chain",
                             action: async () => "ok",
                         })
 
@@ -176,7 +175,7 @@ describe("UseApiService",
                         // the action always throws → retry until max attempts → exhausted
                         await expect(
                             service.useApi<string>({
-                                lane: AiMode.Auto,
+                                lane: "chain",
                                 action: async () => {
                                     throw new Error("boom")
                                 },
@@ -214,7 +213,7 @@ describe("UseApiService",
                         ] as never)
 
                         const result = await service.useApi<string>({
-                            lane: AiMode.Auto,
+                            lane: "chain",
                             action: async () => "ok",
                         })
 
@@ -250,7 +249,7 @@ describe("UseApiService",
 
                         await expect(
                             service.useApi<string>({
-                                lane: AiMode.Auto,
+                                lane: "chain",
                                 action: async () => "ok",
                             }),
                         ).rejects.toBeInstanceOf(AllModelsExhaustedException)
@@ -269,7 +268,7 @@ describe("UseApiService",
                         ])
 
                         const result = await service.useApi<string>({
-                            lane: AiMode.Premium,
+                            lane: "pinned",
                             category: "balanced" as never,
                             model: "gpt-4o",
                             provider: ModelProvider.OpenAI,
@@ -292,7 +291,7 @@ describe("UseApiService",
 
                         await expect(
                             service.useApi<string>({
-                                lane: AiMode.Premium,
+                                lane: "pinned",
                                 category: "balanced" as never,
                                 model: "ghost-model",
                                 provider: ModelProvider.OpenAI,
@@ -310,7 +309,7 @@ describe("UseApiService",
                         ])
 
                         const result = await service.useApi<string>({
-                            lane: AiMode.Premium,
+                            lane: "pinned",
                             category: "balanced" as never,
                             action: async () => "ok",
                         })
@@ -331,7 +330,7 @@ describe("UseApiService",
 
                         await expect(
                             service.useApi<string>({
-                                lane: AiMode.Premium,
+                                lane: "pinned",
                                 category: "balanced" as never,
                                 model: "gpt-4o",
                                 provider: ModelProvider.OpenAI,
@@ -347,7 +346,7 @@ describe("UseApiService",
 
                         await expect(
                             service.useApi<string>({
-                                lane: AiMode.Premium,
+                                lane: "pinned",
                                 category: "balanced" as never,
                                 action: async () => "ok",
                             }),

@@ -8,8 +8,14 @@ import {
     FlashcardDeckReadService,
 } from "./flashcard-deck.service"
 import {
+    FlashcardQuizSessionService,
+} from "./flashcard-quiz-session.service"
+import {
     FlashcardReviewService,
 } from "./flashcard-review.service"
+import {
+    FlashcardReviewSessionService,
+} from "./flashcard-review-session.service"
 
 /**
  * Module for flashcard business logic (deck reads + spaced-repetition review).
@@ -20,11 +26,15 @@ import {
 @Module({
     providers: [
         FlashcardDeckReadService,
+        FlashcardQuizSessionService,
         FlashcardReviewService,
+        FlashcardReviewSessionService,
     ],
     exports: [
         FlashcardDeckReadService,
+        FlashcardQuizSessionService,
         FlashcardReviewService,
+        FlashcardReviewSessionService,
     ],
 })
 export class FlashcardModule extends ConfigurableModuleClass {

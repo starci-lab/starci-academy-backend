@@ -174,5 +174,7 @@ export enum WinstonLog {
     /** Reconcile: skipped pruning a target because the delete ratio was unsafe. */
     ReconcileOrphansSkipped = "ReconcileOrphansSkipped",
     /** Reconcile: finished pruning ES/CDN orphans for the boot. */
-    ReconcileOrphansDone = "ReconcileOrphansDone"
+    ReconcileOrphansDone = "ReconcileOrphansDone",
+    /** A user tripped the per-user content-access rate limit (suspected scraping). */
+    ContentScrapeDetected = "ContentScrapeDetected"
     }

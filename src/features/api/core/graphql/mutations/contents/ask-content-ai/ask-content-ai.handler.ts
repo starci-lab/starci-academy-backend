@@ -3,7 +3,6 @@ import {
 } from "@modules/cqrs"
 import {
     AiCeilSurface,
-    AiMode,
     AiModelCategory,
     AiModelTask,
     Locale,
@@ -97,7 +96,6 @@ export class AskContentAiHandler
         // a climbed economy+ model is charged to the user (platform doesn't eat it)
         await this.aiEntitlementService.consume({
             userId: user.id,
-            mode: AiMode.Auto,
             cost,
             surface: AiCeilSurface.Chatbot,
             task: AiModelTask.Chatting,

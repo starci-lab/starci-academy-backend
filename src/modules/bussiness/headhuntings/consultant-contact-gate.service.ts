@@ -3,18 +3,16 @@ import {
 } from "@nestjs/common"
 import {
     ConsultantEntity,
-    InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
-import type {
-    EntityManager,
-} from "typeorm"
 import {
     CV_SCORE_UNLOCK_THRESHOLD,
 } from "./constants"
 import type {
     GetBestCvScoreParams,
-    MaxCvScoreRow,
 } from "./types"
+import {
+    CvVerificationService,
+} from "./cv-verification.service"
 
 /**
  * Gates a consultant's direct contact details (email / phone / Zalo /
@@ -30,73 +28,39 @@ import type {
 @Injectable()
 export class ConsultantContactGateService {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
+        private readonly cvVerificationService: CvVerificationService,
     ) {}
 
     /**
-     * Computes the viewer's best-ever CV score across ALL of their scored CVs,
-     * reading the UNIFIED `cv_generations` table as the source of truth while
-     * remaining UNION-safe during the WF-03c migration window.
+     * Computes the viewer's CV trust score — **deterministic, count-independent,
+     * no AI/CV-prose involved** (2026-07-05: replaced the old AI-judged
+     * `cv_generations.score` rubric entirely; see
+     * {@link import("./cv-verification.service").CvVerificationService.scoreOf}).
+     * A pure function of {@link import("./cv-verification.service").CvVerificationService.resolveLevel}
+     * (passed capstone / graded challenge, existence-checked) — **source-blind
+     * AND upload-vs-generate-irrelevant by construction**, since there is no
+     * CV row read here at all. This gate stays OPEN for everyone ("Hướng A",
+     * see `CV-VERIFIED-TRUST-TIER-WORKFLOW.md`): StarCi sells CREDIBILITY, not
+     * ACCESS.
      *
-     * **UNION-safe:** the score is `GREATEST(MAX(unified score), MAX(legacy
-     * attempt score))` so no viewer ever loses their gate score while legacy
-     * `cv_submission_attempts` rows are being backfilled into the unified table.
-     * Each side's `MAX()` ignores null (unscored) rows; `COALESCE(..., -1)`
-     * keeps a fully-empty side from suppressing the other, and the outer result
-     * clamps to `0`.
-     *
-     * TODO(retire-legacy-cv): once the WF-03c backfill migration has run in prod
-     * AND a count check confirms every legacy scored attempt now has a matching
-     * unified `cv_generations` row (same user, score carried over), drop the
-     * legacy `cv_submission_attempts` sub-select below and gate on the unified
-     * table alone. Mirror marker in `JobReadinessService.computeCvScore`.
+     * ⚠️ Placeholder step values pending calibration — see
+     * {@link import("./cv-verification.service").CvVerificationService.scoreOf}.
      *
      * @param params - The viewer to score.
-     * @returns The viewer's highest recorded score (0–100), or `0` when the
-     *   viewer is anonymous or has no scored CV yet ("no CV" is treated the same
-     *   as "worst possible CV" for gating purposes).
+     * @returns 100 / 50 / 0 (see `scoreOf`), or `0` for an anonymous viewer.
      */
     async getBestCvScore(
         {
             userId,
         }: GetBestCvScoreParams,
     ): Promise<number> {
-        // anonymous viewer → always locked, skip the query entirely
+        // anonymous viewer → always locked, skip the lookup entirely
         if (!userId) {
             return 0
         }
 
-        // GREATEST of the two per-table maxima:
-        //  - unified: MAX(cv_generations.score) for this user
-        //  - legacy:  MAX(cv_submission_attempts.score) over the user's submissions
-        // MAX() ignores null (unscored) rows on each side; COALESCE(-1) keeps an
-        // empty side from dragging the other down; a row is always returned.
-        const [
-            row,
-        ] = await this.entityManager.query<Array<MaxCvScoreRow>>(
-            `
-            SELECT GREATEST(
-                COALESCE((
-                    SELECT MAX(g.score) FROM cv_generations g
-                    WHERE g.user_id = $1
-                ), -1),
-                COALESCE((
-                    SELECT MAX(a.score) FROM cv_submission_attempts a
-                    JOIN cv_submissions s ON s.id = a.cv_submission_id
-                    WHERE s.user_id = $1
-                ), -1)
-            ) AS max
-            `,
-            [
-                userId,
-            ],
-        )
-
-        // Postgres MAX()/GREATEST over an int column comes back as a numeric
-        // string; both sides empty → "-1" → clamp up to 0
-        return Math.max(Number(row?.max) || 0,
-            0)
+        const level = await this.cvVerificationService.resolveLevel(userId)
+        return this.cvVerificationService.scoreOf(level)
     }
 
     /**

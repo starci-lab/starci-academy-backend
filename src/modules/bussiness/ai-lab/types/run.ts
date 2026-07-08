@@ -4,7 +4,6 @@ import type {
 import type {
     AiLabRunParams,
     AiLabRunStatus,
-    AiMode,
     Locale,
     ModelProvider,
 } from "@modules/databases"
@@ -77,8 +76,6 @@ export interface PersistRunOutputParams {
     model: string
     /** Provider that served the run. */
     provider: ModelProvider
-    /** AI lane the run was billed on. */
-    mode: AiMode
     /** Prompt tokens consumed by the run. */
     promptTokens: number
     /** Completion tokens produced by the run. */
@@ -116,8 +113,6 @@ export interface PrepareStreamResult {
     model: string
     /** Provider the run is pinned to (for the persisted output row). */
     provider: ModelProvider
-    /** AI lane the run is billed on (for the persisted output row). */
-    mode: AiMode
 }
 
 /** Params for {@link AiLabRunService.markRunFailed}. */
@@ -140,16 +135,14 @@ export interface SelectionModelProviderResult {
 }
 
 /**
- * Result of resolving the concrete `(model, provider, mode)` a run will use, for
- * the cache key and the persisted row.
+ * Result of resolving the concrete `(model, provider)` a run will use, for the
+ * cache key and the persisted row.
  */
 export interface ResolveModelProviderResult {
     /** Concrete model name that will serve the run. */
     model: string
     /** Provider that will serve the run. */
     provider: ModelProvider
-    /** AI lane the run is billed on. */
-    mode: AiMode
 }
 
 /** Params for {@link AiLabRunService.getRemainingRuns}. */

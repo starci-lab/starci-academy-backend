@@ -4,7 +4,6 @@ import {
     isPingEntryEligible,
 } from "@modules/cache"
 import {
-    AiMode,
     AiModelCategory,
     AiModelTask,
     ModelProvider,
@@ -103,7 +102,7 @@ export class UseApiService {
     ): Promise<UseApiResult<TResult>> {
         // route by lane — each lane has different fallback / rotation semantics
         switch (params.lane) {
-        case AiMode.Premium:
+        case "pinned":
             return this.runPremium(params)
         default:
             return this.runAuto(params)

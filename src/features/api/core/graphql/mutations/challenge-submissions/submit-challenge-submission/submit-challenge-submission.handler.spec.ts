@@ -19,7 +19,6 @@ import {
     GradingLaneValidationService,
 } from "@modules/ai"
 import {
-    AiMode,
     ModelProvider,
     PostgreSqlAdvisoryLockService,
     SubmissionType,
@@ -65,10 +64,9 @@ const fakeUser = (
 }) as unknown as UserEntity
 
 /**
- * A validated Auto grading lane — the default lane every test submits on.
+ * A validated grading lane with no pinned model — the default every test submits on.
  */
 const autoLane = {
-    mode: AiMode.Auto,
     gradingModel: null,
     gradingProvider: null,
 }
@@ -139,7 +137,15 @@ describe("SubmitChallengeSubmissionHandler",
                     {
                         provide: AiEntitlementService,
                         useValue: {
-                            snapshot: jest.fn(),
+                            // quota snapshot with headroom so the pre-submit gate passes
+                            snapshot: jest.fn().mockResolvedValue({
+                                credit: {
+                                    remaining5h: 100,
+                                    remainingWeek: 100,
+                                },
+                                window5hResetAt: new Date(),
+                                windowWeekResetAt: new Date(),
+                            }),
                         },
                     },
                     {
@@ -171,7 +177,6 @@ describe("SubmitChallengeSubmissionHandler",
                         new SubmitChallengeSubmissionCommand({
                             request: {
                                 challengeSubmissionId: "sub-1",
-                                mode: AiMode.Auto,
                             },
                             user: undefined,
                         }),
@@ -191,7 +196,6 @@ describe("SubmitChallengeSubmissionHandler",
                         new SubmitChallengeSubmissionCommand({
                             request: {
                                 challengeSubmissionId: "missing",
-                                mode: AiMode.Auto,
                             },
                             user: fakeUser("user-1"),
                         }),
@@ -215,7 +219,6 @@ describe("SubmitChallengeSubmissionHandler",
                         new SubmitChallengeSubmissionCommand({
                             request: {
                                 challengeSubmissionId: "sub-1",
-                                mode: AiMode.Auto,
                             },
                             user: fakeUser("user-1"),
                         }),
@@ -262,7 +265,6 @@ describe("SubmitChallengeSubmissionHandler",
                     new SubmitChallengeSubmissionCommand({
                         request: {
                             challengeSubmissionId: "sub-1",
-                            mode: AiMode.Auto,
                             selectedModel: "gpt-4o",
                             selectedModelProvider: ModelProvider.OpenAI,
                         },
@@ -319,7 +321,6 @@ describe("SubmitChallengeSubmissionHandler",
                     new SubmitChallengeSubmissionCommand({
                         request: {
                             challengeSubmissionId: "sub-1",
-                            mode: AiMode.Auto,
                             lang: "typescript",
                         },
                         user: fakeUser("user-1"),
@@ -357,7 +358,6 @@ describe("SubmitChallengeSubmissionHandler",
                         new SubmitChallengeSubmissionCommand({
                             request: {
                                 challengeSubmissionId: "sub-1",
-                                mode: AiMode.Auto,
                             },
                             user: fakeUser("user-1"),
                         }),

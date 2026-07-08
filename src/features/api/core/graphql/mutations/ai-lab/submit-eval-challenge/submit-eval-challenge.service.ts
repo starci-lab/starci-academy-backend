@@ -62,7 +62,6 @@ export class SubmitEvalChallengeService {
             systemPrompt,
             userTemplate,
             params,
-            mode,
             selectedModel,
             selectedModelProvider,
         } = input
@@ -83,9 +82,8 @@ export class SubmitEvalChallengeService {
                 evalSetId,
             })
         }
-        // collapse the loose lane fields into the discriminated selection (undefined → Auto)
+        // collapse the loose model-pick fields into the selection (undefined → balancer picks)
         const ai = flatFieldsToAiJobSelection({
-            mode,
             selectedModel,
             selectedModelProvider,
         })
@@ -93,7 +91,7 @@ export class SubmitEvalChallengeService {
         const submittedParams = params ?? {
         }
         // deterministic hash of every input that decides the verdict (prompts + params
-        // + lane selection)
+        // + model pick)
         const submittedHash = createHash("sha256")
             .update(JSON.stringify({
                 systemPrompt: systemPrompt ?? "",
@@ -101,7 +99,6 @@ export class SubmitEvalChallengeService {
                 temperature: params?.temperature ?? null,
                 topP: params?.topP ?? null,
                 maxTokens: params?.maxTokens ?? null,
-                mode: mode ?? null,
                 model: selectedModel ?? null,
                 provider: selectedModelProvider ?? null,
             }))
@@ -147,10 +144,9 @@ export class SubmitEvalChallengeService {
                 submittedUserTemplate: userTemplate,
                 submittedParams,
                 submittedHash,
-                // model / provider / mode are resolved by the grading worker
+                // model / provider are resolved by the grading worker
                 model: null,
                 provider: null,
-                mode: null,
                 totalScore: 0,
                 maxScore: 0,
                 passed: false,

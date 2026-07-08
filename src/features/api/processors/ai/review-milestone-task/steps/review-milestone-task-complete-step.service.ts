@@ -11,7 +11,6 @@ import {
     AiEntitlementService,
     AiModelCatalogService,
     DEFAULT_MODEL_CREDIT,
-    ModelRecommendation,
 } from "@modules/ai"
 import {
     envConfig,
@@ -26,7 +25,6 @@ import {
 import {
     ActivityType,
     AiCeilSurface,
-    AiMode,
     AiModelTask,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
@@ -374,10 +372,8 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                 // bill the capstone review like a challenge: charge the served
                 // model's catalog credit from the pool (idempotent via the
                 // attempt's `idempotencyKey` = job id → createdNewAttempt gate)
-                const chargedMode = payload.ai?.mode ?? AiMode.Auto
                 await this.aiEntitlementService.consume({
                     userId: enrollment.userId,
-                    mode: chargedMode,
                     cost: grade.aiUsage?.model
                         ? await this.aiModelCatalogService.creditForModel({
                             name: grade.aiUsage.model,
@@ -388,9 +384,7 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                     task: AiModelTask.TaskGrading,
                     model: grade.aiUsage?.model ?? null,
                     provider: grade.aiUsage?.provider ?? null,
-                    recommendation: chargedMode === AiMode.Premium
-                        ? envConfig().ai.modelRecommendation as ModelRecommendation
-                        : null,
+                    recommendation: null,
                     promptTokens: grade.aiUsage?.promptTokens ?? null,
                     completionTokens: grade.aiUsage?.completionTokens ?? null,
                     attempts: grade.aiUsage?.attempts ?? null,
