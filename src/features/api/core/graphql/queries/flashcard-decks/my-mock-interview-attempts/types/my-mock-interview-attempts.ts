@@ -57,6 +57,8 @@ export interface MockInterviewAttemptSummary {
     promptTitle: string
     /** Seniority level the session was graded against, or null (any level). */
     level: string | null
+    /** The top-level flow this session ran ("qna" | "design"), or null for an attempt graded before the "mode split" (treated as "design" by every reader). */
+    mode: string | null
     /** Integer 0–100 overall score. */
     overallScore: number
     /** Coarse pass/borderline/fail band. */
@@ -98,6 +100,13 @@ export interface ListMyMockInterviewAttemptsParams {
     limit: number
     /** Page offset (attempts to skip). */
     offset: number
+    /**
+     * Optional mode filter ("qna" | "design"); omitted = every mode. Filtering
+     * to "design" also matches a null-mode legacy attempt (predates the "mode
+     * split" — the only mode that could have existed then), mirroring how
+     * every other reader treats a null mode.
+     */
+    mode?: string
 }
 
 /** Result of listing a page of the viewer's mock-interview history. */

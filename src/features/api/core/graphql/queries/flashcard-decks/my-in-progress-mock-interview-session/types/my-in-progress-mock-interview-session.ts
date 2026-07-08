@@ -6,6 +6,8 @@ export interface MyInProgressMockInterviewSeedQuestion {
     kind: string
     /** Short title/snippet identifying the seed topic. */
     title: string
+    /** GIVEN code the candidate should fix/read (debug/review/optimize questions only), one entry per authored language, so resuming re-seeds the SAME code into the workspace. Empty otherwise. */
+    givenCodes: Array<{ lang: string, code: string }>
 }
 
 /** One synced transcript turn, read back for a resumable session. */
@@ -61,4 +63,6 @@ export interface MyInProgressMockInterviewSessionResult {
     phaseIndex: number
     /** When this session was last synced/updated. */
     updatedAt: Date
+    /** When the persisted session row was drawn — the anchor for the 1-hour session time limit, so a RESUMED session's countdown reflects the true remaining time, not a freshly-reset hour. */
+    createdAt: Date
 }

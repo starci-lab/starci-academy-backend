@@ -11,6 +11,9 @@ import {
     Namespace,
 } from "socket.io"
 import {
+    EntityManager,
+} from "typeorm"
+import {
     MockInterviewWebSocketGateway,
     WsResponseService,
     socketIoKeycloakAuthMiddleware,
@@ -32,8 +35,11 @@ import {
     AiCeilSurface,
     AiModelCategory,
     AiModelTask,
+    InjectPrimaryPostgreSQLEntityManager,
     ModelProvider,
     MockInterviewPhase,
+    MockInterviewSessionEntity,
+    MOCK_INTERVIEW_SESSION_DURATION_MS,
     normalizeMockInterviewKind,
     normalizeMockInterviewMode,
 } from "@modules/databases"
@@ -75,6 +81,8 @@ export class MockInterviewGateway {
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly wsResponseService: WsResponseService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) {}
 
     /** The namespace server — used to attach the auth middleware. */
@@ -117,6 +125,7 @@ export class MockInterviewGateway {
     ): Promise<void> {
         const {
             streamId,
+            sessionId,
             courseId,
             promptTitle,
             phase,
@@ -164,6 +173,55 @@ export class MockInterviewGateway {
                     delta: "",
                     done: true,
                     error: "not authenticated",
+                },
+            })
+            return
+        }
+
+        // "session time limit" (2026-07-08): enforce the 1-hour ask-loop deadline
+        // SERVER-SIDE, anchored to the persisted session's OWN `createdAt` — never
+        // trust a client-side clock. Scoped by ownership (mirrors
+        // `syncMockInterviewSessionTurns`'s `enrollment.user.id` scoping) so a
+        // sessionId can never be used to probe another learner's draw. Checked
+        // BEFORE building the prompt / invoking AI so an expired ask never spends
+        // a real AI call.
+        const session = await this.entityManager.findOne(
+            MockInterviewSessionEntity,
+            {
+                where: {
+                    id: sessionId,
+                    enrollment: {
+                        user: {
+                            id: userId,
+                        },
+                    },
+                },
+                select: {
+                    id: true,
+                    createdAt: true,
+                },
+            },
+        )
+        if (!session) {
+            this.emitChunk({
+                client,
+                data: {
+                    streamId,
+                    delta: "",
+                    done: true,
+                    error: "session not found",
+                },
+            })
+            return
+        }
+        if (Date.now() - session.createdAt.getTime() > MOCK_INTERVIEW_SESSION_DURATION_MS) {
+            this.emitChunk({
+                client,
+                data: {
+                    streamId,
+                    delta: "",
+                    done: true,
+                    error: "SESSION_EXPIRED",
                 },
             })
             return

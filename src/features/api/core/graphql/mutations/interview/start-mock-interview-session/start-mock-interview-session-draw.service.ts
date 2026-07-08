@@ -39,6 +39,7 @@ import type {
     DrawMockInterviewSeedTopic,
     DrawMockInterviewSessionParams,
     DrawMockInterviewSessionResult,
+    MockInterviewGivenCodeVariant,
 } from "./types"
 
 /** One candidate prompt in the draw pool, normalized to a common shape regardless of source (mode="design" only). */
@@ -339,6 +340,7 @@ export class MockInterviewSessionDrawService {
             level,
             mode: MockInterviewMode.Design,
             seedTopics: [],
+            createdAt: session.createdAt,
         }
     }
 
@@ -396,7 +398,7 @@ export class MockInterviewSessionDrawService {
             courseId,
         })
         const useBank = bankCards.length > 0
-        const allCards: Array<{ id: string, question: string, level: FlashcardLevel, moduleId: string | null, kind?: string, givenCode?: string | null, givenLang?: string | null }> = useBank
+        const allCards: Array<{ id: string, question: string, level: FlashcardLevel, moduleId: string | null, kind?: string, givenCodes?: Array<MockInterviewGivenCodeVariant> }> = useBank
             ? bankCards
             : await this.listCourseFlashcardCards({
                 courseId,
@@ -451,9 +453,14 @@ export class MockInterviewSessionDrawService {
             // composed prompt (+ folded diagram); flashcard seeds keep a short title
             title: useBank ? card.question : this.truncateTitle(card.question),
             // GIVEN code is delivered SEPARATELY so the FE seeds it into an editable
-            // editor (debug/review/optimize) — null for flashcard seeds
-            givenCode: useBank ? card.givenCode ?? null : null,
-            givenLang: useBank ? card.givenLang ?? null : null,
+            // editor (debug/review/optimize), one variant per authored language —
+            // empty for flashcard seeds
+            givenCodes: useBank
+                ? (card.givenCodes ?? []).map((variant) => ({
+                    lang: variant.lang,
+                    code: this.stripCodeFence(variant.code) ?? variant.code,
+                }))
+                : [],
         }))
 
         // mix in ONE behavioral/EQ question (from the GLOBAL bank) so a session
@@ -484,6 +491,11 @@ export class MockInterviewSessionDrawService {
                 cardId: topic.cardId,
                 kind: topic.kind,
                 title: topic.title,
+                // snapshotted so a resumed session re-seeds the SAME given code into
+                // the workspace it was first delivered with (previously dropped here,
+                // which left a debug/review/optimize question's code editor empty on
+                // resume even though the question text still asked to read it).
+                givenCodes: topic.givenCodes ?? [],
             })),
             countsToReadiness,
         })
@@ -497,6 +509,7 @@ export class MockInterviewSessionDrawService {
             level,
             mode: MockInterviewMode.Qna,
             seedTopics,
+            createdAt: session.createdAt,
         }
     }
 
@@ -720,12 +733,15 @@ export class MockInterviewSessionDrawService {
         params: {
             courseId: string
         },
-    ): Promise<Array<{ id: string, question: string, level: FlashcardLevel, moduleId: string | null, kind: string, givenCode: string | null, givenLang: string | null }>> {
+    ): Promise<Array<{ id: string, question: string, level: FlashcardLevel, moduleId: string | null, kind: string, givenCodes: Array<MockInterviewGivenCodeVariant> }>> {
         const questions = await this.entityManager.find(InterviewQuestionEntity,
             {
                 where: {
                     courseId: params.courseId,
                     family: "technical",
+                },
+                relations: {
+                    givenCodes: true,
                 },
             })
         return questions.map((question) => {
@@ -745,8 +761,11 @@ export class MockInterviewSessionDrawService {
                 level: this.tierToFlashcardLevel(question.tier),
                 moduleId: question.moduleId,
                 kind: question.kind,
-                givenCode: question.givenCode,
-                givenLang: question.givenLang,
+                givenCodes: [...question.givenCodes]
+                    .sort((a, b) => a.sortIndex - b.sortIndex)
+                    .map((variant) => ({
+                        lang: variant.lang, code: variant.code 
+                    })),
             }
         })
     }
@@ -765,6 +784,28 @@ export class MockInterviewSessionDrawService {
             ? `${trimmed.slice(0,
                 SEED_TITLE_MAX_CHARS)}…`
             : trimmed
+    }
+
+    /**
+     * Strips a wrapping Markdown code fence (```lang\n…\n```) off an authored
+     * `given_code` value — `interview_questions.given_code` is a PLAIN editor
+     * buffer (seeded verbatim into the FE's Monaco tab), not Markdown, but at
+     * least one authored row was pasted in straight from a Markdown draft with
+     * the fence left on, so it leaked into the editor as literal text. Only
+     * strips when the WHOLE string is one fence (first line is the opener,
+     * last line is a bare closer) — never touches legitimate ``` occurring
+     * inside the code itself.
+     *
+     * @param code - Raw `given_code` value, or null.
+     * @returns `code` with its wrapping fence removed, or unchanged if unfenced.
+     */
+    private stripCodeFence(code: string | null): string | null {
+        if (!code) {
+            return code
+        }
+        const trimmed = code.trim()
+        const match = /^```[ \t]*\w*[ \t]*\r?\n([\s\S]*?)\r?\n```$/.exec(trimmed)
+        return match ? match[1] : code
     }
 
     /**
@@ -982,7 +1023,7 @@ export class MockInterviewSessionDrawService {
             promptTitle: string
             difficulty: ChallengeDifficulty
             source: string
-            seedQuestions: Array<{ cardId: string, kind: string, title: string }> | null
+            seedQuestions: Array<{ cardId: string, kind: string, title: string, givenCodes: Array<MockInterviewGivenCodeVariant> }> | null
             countsToReadiness: boolean
         },
     ): Promise<MockInterviewSessionEntity> {

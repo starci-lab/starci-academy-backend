@@ -193,6 +193,15 @@ export class MockInterviewAttemptItem {
         level: string | null
 
     @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "The top-level flow this session ran (\"qna\" | \"design\"), or null for an attempt graded before the \"mode split\" (treated as \"design\").",
+        },
+    )
+        mode: string | null
+
+    @Field(
         () => Int,
         {
             description: "Integer 0–100 overall score.",

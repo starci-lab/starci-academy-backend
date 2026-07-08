@@ -170,6 +170,18 @@ export class FlashcardQuizSessionService {
             // `sessionId` does not match any owned in-progress row — an older
             // client that never called `startFlashcardQuizSession` still sends
             // a client-generated id here, which simply matches nothing.
+            //
+            // "history + stats" (2026-07-08): also snapshot `coverage` and
+            // `weakTags` here (both already computed above, independent of the
+            // XP grant) — this and the `xpEarned` update below let
+            // `myFlashcardQuizHistory`/`myFlashcardQuizStats` read a finished
+            // session's outcome straight off its own row, without re-deriving
+            // coverage from `results` or joining `xp_histories`. Sitting AFTER
+            // the idempotency check above, a replay never re-touches the row;
+            // the `status: "in_progress"` WHERE clause means an already
+            // completed/abandoned row (or an older client's session id that
+            // never called `startFlashcardQuizSession`) simply matches nothing
+            // here, same as today.
             await manager.update(
                 FlashcardQuizSessionEntity,
                 {
@@ -183,6 +195,8 @@ export class FlashcardQuizSessionService {
                 },
                 {
                     status: "completed",
+                    coverage,
+                    weakTags,
                 },
             )
 
@@ -218,6 +232,19 @@ export class FlashcardQuizSessionService {
                 points: 0,
                 refId: sessionId,
             })
+
+            // snapshot the ACTUAL granted XP (post daily-cap clamp) onto the
+            // row — only known now, after the headroom calc above, so this is
+            // a second update rather than folding into the first
+            await manager.update(
+                FlashcardQuizSessionEntity,
+                {
+                    id: sessionId,
+                },
+                {
+                    xpEarned: amount,
+                },
+            )
 
             return {
                 xpEarned: amount,

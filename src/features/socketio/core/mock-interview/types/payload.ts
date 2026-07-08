@@ -17,6 +17,15 @@ export interface AskMockInterviewTurnHistoryEntry {
 export type AskMockInterviewTurnSocketIoPayload = SocketIoPayload<{
     /** Client-generated id correlating this turn's streamed chunks. */
     streamId: string
+    /**
+     * Id of the persisted `mock_interview_sessions` row this ask belongs to —
+     * "session time limit" (2026-07-08): lets the gateway look up the
+     * session's OWN `createdAt` and enforce the 1-hour ask-loop deadline
+     * server-side before spending an AI call, never trusting a client-side
+     * clock. Required (a turn ask with no session to enforce against is
+     * rejected).
+     */
+    sessionId: string
     /** Course the interview is grounded in (RAG scope + on-rails course content). */
     courseId: string
     /** Id of the interview prompt this session is running. */

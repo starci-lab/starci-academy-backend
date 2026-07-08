@@ -9,6 +9,32 @@ import {
 } from "@modules/api"
 
 /**
+ * One authored programming-language variant of a debug/review/optimize
+ * question's GIVEN code — same conceptual bug, one entry per language. The
+ * candidate freely switches between these client-side (no refetch).
+ */
+@ObjectType({
+    description: "One programming-language variant of a mock-interview question's given code.",
+})
+export class MockInterviewGivenCodeVariantItem {
+    @Field(
+        () => String,
+        {
+            description: "Programming language this variant is written in (e.g. \"typescript\").",
+        },
+    )
+        lang: string
+
+    @Field(
+        () => String,
+        {
+            description: "The given code itself, in lang.",
+        },
+    )
+        code: string
+}
+
+/**
  * One drawn flashcard seed topic for a `mode="qna"` session — the FE never
  * sees the seed card's answer/keywords (those stay server-side for grading),
  * only enough to identify + preview the topic AND the cognitive frame this
@@ -45,22 +71,12 @@ export class MockInterviewSeedTopic {
         title: string
 
     @Field(
-        () => String,
+        () => [MockInterviewGivenCodeVariantItem],
         {
-            nullable: true,
-            description: "GIVEN code the candidate should fix/read (bank debug/review/optimize questions) — split out of title so the FE seeds it into an editable code editor. Null otherwise.",
+            description: "GIVEN code the candidate should fix/read (bank debug/review/optimize questions), one entry per authored language — split out of title so the FE seeds it into an editable code editor. Empty otherwise.",
         },
     )
-        givenCode?: string | null
-
-    @Field(
-        () => String,
-        {
-            nullable: true,
-            description: "Language of givenCode (e.g. \"typescript\"). Null when no given code.",
-        },
-    )
-        givenLang?: string | null
+        givenCodes: Array<MockInterviewGivenCodeVariantItem>
 }
 
 /** The server-drawn mock-interview session the learner is about to work through. */
@@ -146,6 +162,21 @@ export class StartMockInterviewSessionData {
         },
     )
         seedTopics: Array<MockInterviewSeedTopic>
+
+    /**
+     * ISO timestamp of when the live interview loop must auto-end (server
+     * `createdAt + 1h`, uniform across every mode) — the FE derives its
+     * countdown from THIS, never from a local clock start; the server
+     * independently re-enforces the same deadline at ask-time (never
+     * trusted from the client).
+     */
+    @Field(
+        () => String,
+        {
+            description: "ISO timestamp of the session's 1-hour ask-loop deadline (createdAt + 1h).",
+        },
+    )
+        deadlineAt: string
 }
 
 @ObjectType({

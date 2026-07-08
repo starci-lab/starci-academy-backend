@@ -9,6 +9,31 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+/**
+ * One authored programming-language variant of a debug/review/optimize
+ * question's GIVEN code, read back for a resumable session.
+ */
+@ObjectType({
+    description: "One programming-language variant of a mock-interview question's given code.",
+})
+export class MyInProgressMockInterviewGivenCodeVariantItem {
+    @Field(
+        () => String,
+        {
+            description: "Programming language this variant is written in (e.g. \"typescript\").",
+        },
+    )
+        lang: string
+
+    @Field(
+        () => String,
+        {
+            description: "The given code itself, in lang.",
+        },
+    )
+        code: string
+}
+
 /** One drawn flashcard-card seed question, read back for a resumable session. */
 @ObjectType({
     description: "One drawn seed question of a resumable mock-interview session.",
@@ -37,6 +62,14 @@ export class MyInProgressMockInterviewSeedQuestionItem {
         },
     )
         title: string
+
+    @Field(
+        () => [MyInProgressMockInterviewGivenCodeVariantItem],
+        {
+            description: "GIVEN code the candidate should fix/read (debug/review/optimize questions only), one entry per authored language, so resuming re-seeds the SAME code into the workspace. Empty otherwise.",
+        },
+    )
+        givenCodes: Array<MyInProgressMockInterviewGivenCodeVariantItem>
 }
 
 /** One synced transcript turn, read back for a resumable session. */
@@ -194,6 +227,19 @@ export class MyInProgressMockInterviewSessionData {
         },
     )
         updatedAt: string
+
+    /**
+     * ISO timestamp of the session's 1-hour ask-loop deadline (`createdAt` +
+     * 1h) — a RESUMED session's countdown reflects the TRUE remaining time
+     * (anchored to the original draw), never a freshly-reset hour.
+     */
+    @Field(
+        () => String,
+        {
+            description: "ISO timestamp of the session's 1-hour ask-loop deadline (createdAt + 1h).",
+        },
+    )
+        deadlineAt: string
 }
 
 @ObjectType({

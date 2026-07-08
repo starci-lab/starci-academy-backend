@@ -7,6 +7,8 @@ import {
     ArrayMaxSize,
     ArrayMinSize,
     IsArray,
+    IsIn,
+    IsOptional,
     IsString,
 } from "class-validator"
 
@@ -48,4 +50,27 @@ export class StartFlashcardQuizSessionRequest {
         each: true,
     })
         cardIds: Array<string>
+
+    @Field(
+        () => String,
+        {
+            description: "Practice mode chosen at setup (\"quick\"|\"deep\") — persisted so history/stats can show it.",
+        },
+    )
+    @IsIn([
+        "quick",
+        "deep",
+    ])
+        mode: string
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Seniority level filter chosen at setup, or null for \"all levels\" — persisted so history/stats can show it.",
+        },
+    )
+    @IsOptional()
+    @IsString()
+        level: string | null
 }

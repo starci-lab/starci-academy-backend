@@ -14,6 +14,19 @@ import {
 } from "./enrollment.entity"
 
 /**
+ * Max wall-clock duration ONE mock-interview session's live interview loop
+ * may run, from the moment the server drew it ({@link MockInterviewSessionEntity.createdAt}) —
+ * uniform across `mode="qna"` and `mode="design"` (2026-07-08 "session time
+ * limit" ruling). Enforced server-side at ask-time
+ * ({@link import("../../../../../features/socketio/core/mock-interview/mock-interview.gateway").MockInterviewGateway.handleAskMockInterviewTurn}),
+ * never trusted from the client — a client-side countdown is DERIVED from
+ * `createdAt + this duration`, not the other way around. Does NOT gate
+ * `gradeMockInterviewSession` (a slightly-late final answer must still be
+ * gradable — the limit governs the ASK loop, not the grade call).
+ */
+export const MOCK_INTERVIEW_SESSION_DURATION_MS = 60 * 60 * 1000
+
+/**
  * One drawn question SEED for a `mode="qna"` session — one
  * `flashcard_cards.id` PLUS the cognitive frame ({@link import("../enums/mock-interview-kind").MockInterviewKind})
  * that was RANDOMLY assigned to it at draw time ("mode split", 2026-07-06).
@@ -30,6 +43,15 @@ export interface MockInterviewSeedQuestion {
     kind: string
     /** Short title/snippet identifying the seed topic (the card's question, truncated). */
     title: string
+    /**
+     * GIVEN code the candidate should FIX/read (interview-bank `debug`/`review`/
+     * `optimize` questions only), one entry per authored programming-language
+     * variant — snapshotted here (not re-derived at resume time) so
+     * `myInProgressMockInterviewSession` can re-seed the editable code tool on
+     * resume exactly as it was first delivered. Empty array for every other
+     * kind/source.
+     */
+    givenCodes: Array<{ lang: string, code: string }>
 }
 
 /**

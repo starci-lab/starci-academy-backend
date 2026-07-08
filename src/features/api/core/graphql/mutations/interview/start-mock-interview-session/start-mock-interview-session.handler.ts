@@ -6,6 +6,7 @@ import {
 } from "@modules/exceptions"
 import {
     Locale,
+    MOCK_INTERVIEW_SESSION_DURATION_MS,
 } from "@modules/databases"
 import {
     Injectable,
@@ -81,7 +82,11 @@ export class StartMockInterviewSessionHandler
             source: result.source,
             level: result.level,
             mode: result.mode,
-            seedTopics: result.seedTopics,
+            seedTopics: result.seedTopics.map((topic) => ({
+                ...topic,
+                givenCodes: topic.givenCodes ?? [],
+            })),
+            deadlineAt: new Date(result.createdAt.getTime() + MOCK_INTERVIEW_SESSION_DURATION_MS).toISOString(),
         }
     }
 }

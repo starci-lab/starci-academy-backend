@@ -54,6 +54,8 @@ export class StartFlashcardQuizSessionHandler
             request: {
                 courseId,
                 cardIds,
+                mode,
+                level,
             },
             user,
         } = command.params
@@ -94,6 +96,11 @@ export class StartFlashcardQuizSessionHandler
             {
                 enrollment,
                 cardIds,
+                // request.mode is validated to "quick"|"deep" by @IsIn, but the
+                // GraphQL field stays a plain string (mirrors the entity's own
+                // reasoning for a plain varchar column) — narrow it here
+                mode: mode as "quick" | "deep",
+                level,
                 currentIndex: 0,
                 results: [],
                 status: "in_progress",

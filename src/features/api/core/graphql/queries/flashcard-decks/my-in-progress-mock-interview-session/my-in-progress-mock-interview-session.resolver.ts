@@ -22,6 +22,7 @@ import {
 } from "@modules/throttler"
 import {
     Locale,
+    MOCK_INTERVIEW_SESSION_DURATION_MS,
     UserEntity,
 } from "@modules/databases"
 import {
@@ -92,6 +93,7 @@ export class MyInProgressMockInterviewSessionResolver {
             questionIndex: result.questionIndex,
             phaseIndex: result.phaseIndex,
             updatedAt: result.updatedAt.toISOString(),
+            deadlineAt: new Date(result.createdAt.getTime() + MOCK_INTERVIEW_SESSION_DURATION_MS).toISOString(),
         }
     }
 }

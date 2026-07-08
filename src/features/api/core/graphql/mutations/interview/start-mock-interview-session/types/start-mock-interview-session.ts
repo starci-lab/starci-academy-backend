@@ -22,6 +22,19 @@ export interface DrawMockInterviewSessionParams {
     countsToReadiness?: boolean
 }
 
+/**
+ * One authored programming-language variant of a debug/review/optimize
+ * question's GIVEN code — same conceptual bug, one entry per language
+ * (`typescript`/`java`/`csharp`/`go`, up to `DEFAULT_PROGRAMMING_LANGUAGES`).
+ * The candidate freely switches between these client-side (no refetch).
+ */
+export interface MockInterviewGivenCodeVariant {
+    /** Programming language this variant is written in (e.g. "typescript"). */
+    lang: string
+    /** The given code itself, in {@link lang}. */
+    code: string
+}
+
 /** One drawn flashcard-card seed question, in ask order, carrying its own randomly-assigned cognitive frame. */
 export interface DrawMockInterviewSeedTopic {
     /** The seed `flashcard_cards.id`. */
@@ -34,12 +47,10 @@ export interface DrawMockInterviewSeedTopic {
      * GIVEN code the candidate should FIX/read (interview-bank `debug`/`review`/
      * `optimize` questions only) — split OUT of {@link title} so the FE seeds it
      * into an editable code editor instead of rendering it read-only in the chat
-     * bubble. Null for every other kind / source (flashcard seeds, EQ, questions
-     * with no code).
+     * bubble, one entry per authored language. Empty for every other kind /
+     * source (flashcard seeds, EQ, questions with no code).
      */
-    givenCode?: string | null
-    /** Language of {@link givenCode} (e.g. "typescript") — drives the editor's syntax mode. Null when no given code. */
-    givenLang?: string | null
+    givenCodes?: Array<MockInterviewGivenCodeVariant>
 }
 
 /** The server-drawn mock-interview session result. */
@@ -60,4 +71,6 @@ export interface DrawMockInterviewSessionResult {
     mode: string
     /** Drawn flashcard-card seed questions, in ask order, each with its own kind. Empty for mode="design". */
     seedTopics: Array<DrawMockInterviewSeedTopic>
+    /** When the persisted session row was drawn — the anchor for the 1-hour session time limit (`createdAt + MOCK_INTERVIEW_SESSION_DURATION_MS`), never re-derived client-side. */
+    createdAt: Date
 }

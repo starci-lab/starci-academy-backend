@@ -2,10 +2,14 @@ import {
     Column,
     Entity,
     Index,
+    OneToMany,
 } from "typeorm"
 import {
     UuidAbstractEntity,
 } from "./abstract"
+import {
+    InterviewQuestionGivenCodeEntity,
+} from "./interview-question-given-code.entity"
 
 /**
  * One authored MOCK-INTERVIEW question — the static side of the "đề tĩnh · phản
@@ -16,7 +20,7 @@ import {
  *
  * Two FAMILIES share this table (routed by {@link family}):
  *  - `technical` — grounded in a course/module (`courseId`/`moduleId` set),
- *    graded on technical substance; carries the rich `diagram`/`givenCode`/
+ *    graded on technical substance; carries the rich `diagram`/`givenCodes`/
  *    `idealAnswer` fields per `kind`.
  *  - `behavioral` — GLOBAL (no course/module — universal EQ competencies),
  *    graded on STAR via `rubric` + `ownershipSignal`; no code/diagram.
@@ -97,17 +101,20 @@ export class InterviewQuestionEntity extends UuidAbstractEntity {
     })
         diagram: string | null
 
-    /** Optional GIVEN code (broken / to review) the candidate reads (technical `debug`/`review`/`optimize`). */
-    @Column({
-        name: "given_code", type: "text", nullable: true 
-    })
-        givenCode: string | null
-
-    /** Language of {@link givenCode} (e.g. "typescript"). */
-    @Column({
-        name: "given_lang", type: "varchar", length: 32, nullable: true 
-    })
-        givenLang: string | null
+    /**
+     * Optional GIVEN code (broken / to review) the candidate reads (technical
+     * `debug`/`review`/`optimize`) — one row per authored programming-language
+     * variant (up to the 4 in `DEFAULT_PROGRAMMING_LANGUAGES`), same conceptual
+     * bug/snippet in each. Empty array for every other `kind`.
+     */
+    @OneToMany(
+        () => InterviewQuestionGivenCodeEntity,
+        (givenCode: InterviewQuestionGivenCodeEntity) => givenCode.question,
+        {
+            cascade: true,
+        },
+    )
+        givenCodes: Array<InterviewQuestionGivenCodeEntity>
 
     /** EQ competency being probed — conflict/ownership/leadership/communication/growth (behavioral only). */
     @Column({

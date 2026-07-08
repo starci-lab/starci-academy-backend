@@ -195,7 +195,8 @@ export class MockInterviewGradingService {
         // grader still knows their kind) but their answer/keywords go unused by
         // the open rubric. Empty for mode="design" (it has no seed questions).
         const seedGroundings = mode === MockInterviewMode.Qna
-            ? await this.resolveSeedGroundings(seedQuestions)
+            ? await this.resolveSeedGroundings(seedQuestions,
+                turns)
             : []
 
         // join the CANDIDATE's own words only — the interviewer's prompts would just
@@ -445,10 +446,15 @@ export class MockInterviewGradingService {
      * question count.
      *
      * @param seedQuestions - The session's persisted seed questions (cardId + kind + title), in ask order.
+     * @param turns - The full recorded transcript — used ONLY to find each question's own
+     *   candidate-submitted `[Code lang=X]` artifact, so the GIVEN-code baseline handed to
+     *   the grader matches whichever language the candidate actually solved in (not just
+     *   whichever variant happens to be authored first).
      * @returns the seed groundings, in the SAME order as `seedQuestions`.
      */
     private async resolveSeedGroundings(
         seedQuestions: Array<MockInterviewSeedQuestion>,
+        turns: Array<MockInterviewTurnRecord>,
     ): Promise<Array<MockInterviewSeedGrounding>> {
         if (seedQuestions.length === 0) {
             return []
@@ -463,6 +469,9 @@ export class MockInterviewGradingService {
                 {
                     where: {
                         id: In(cardIds),
+                    },
+                    relations: {
+                        givenCodes: true,
                     },
                 }),
             this.entityManager.find(FlashcardCardEntity,
@@ -480,10 +489,25 @@ export class MockInterviewGradingService {
             cards.map((card) => [card.id,
                 card]),
         )
+        // the code lang the CANDIDATE actually submitted for question `index`, parsed off
+        // the same "[Code lang=X]" marker `submitQnaAnswer` (FE) writes — undefined when the
+        // candidate never touched the code tab for that question (shouldn't happen for a
+        // debug/review/optimize question, but a question can't assume it did)
+        const submittedLangByIndex = new Map<number, string>()
+        for (const turn of turns) {
+            if (turn.role !== "candidate" || turn.questionIndex === undefined) {
+                continue
+            }
+            const match = /^\[Code lang=([^\]]+)\]/.exec(turn.content)
+            if (match) {
+                submittedLangByIndex.set(turn.questionIndex,
+                    match[1])
+            }
+        }
         // re-order by the PERSISTED draw order (entityManager.find does not
         // guarantee IN(...) result order) and drop any seed that no longer resolves
         const groundings: Array<MockInterviewSeedGrounding | undefined> = seedQuestions
-            .map((seed) => {
+            .map((seed, index) => {
                 const bank = bankById.get(seed.cardId)
                 if (bank) {
                     // fold the behavioral "I vs we" ownership note in as an extra
@@ -492,6 +516,12 @@ export class MockInterviewGradingService {
                     if (bank.ownershipSignal) {
                         rubricPoints.push(`[Ownership] ${bank.ownershipSignal}`)
                     }
+                    // pick the variant matching what the candidate actually submitted in;
+                    // fall back to the first authored variant (DEFAULT_PROGRAMMING_LANGUAGES
+                    // order at authoring time) when nothing was submitted for this question
+                    const submittedLang = submittedLangByIndex.get(index)
+                    const givenCodeVariant = bank.givenCodes.find((variant) => variant.lang === submittedLang)
+                        ?? bank.givenCodes[0]
                     const grounding: MockInterviewSeedGrounding = {
                         cardId: bank.id,
                         kind: normalizeMockInterviewKind(seed.kind) as string,
@@ -501,8 +531,8 @@ export class MockInterviewGradingService {
                         rubric: rubricPoints.length > 0 ? rubricPoints : undefined,
                         // the GIVEN (buggy) code — lets the grader diff the candidate's
                         // fix against the baseline (debug/review/optimize questions)
-                        givenCode: bank.givenCode,
-                        givenLang: bank.givenLang,
+                        givenCode: givenCodeVariant?.code ?? null,
+                        givenLang: givenCodeVariant?.lang ?? null,
                     }
                     return grounding
                 }

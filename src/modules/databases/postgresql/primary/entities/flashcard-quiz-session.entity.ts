@@ -33,6 +33,25 @@ export interface FlashcardQuizSessionResult {
 }
 
 /**
+ * One weak tag surfaced from a finished session, snapshotted onto
+ * {@link FlashcardQuizSessionEntity.weakTags} at completion time — mirrors
+ * `QuizSessionWeakTagResult` in
+ * `src/modules/bussiness/flashcard/types/flashcard-quiz-session.ts` exactly,
+ * but is redeclared here so this entity file has no dependency on the
+ * bussiness module.
+ */
+export interface FlashcardQuizSessionWeakTag {
+    /** The technology tag (e.g. "NestJS", "Redis") this coverage is scoped to. */
+    tag: string
+    /** This tag's coverage across the session's cards carrying it, 0..1. */
+    coverage: number
+    /** The single module this tag's cards map back to; omitted when the deck-to-module mapping is ambiguous. */
+    moduleId?: string
+    /** The single content (lesson) this tag's cards map back to; omitted when the deck-to-content mapping is ambiguous. */
+    contentId?: string
+}
+
+/**
  * One resumable draw of the flashcard quick-quiz ("Hỏi nhanh") flow —
  * "resume flashcard quiz session" (2026-07-08), mirroring the SAME
  * resumable-session shape as
@@ -124,6 +143,71 @@ export class FlashcardQuizSessionEntity extends UuidAbstractEntity {
         default: () => "'[]'",
     })
         results: Array<FlashcardQuizSessionResult> | null
+
+    /**
+     * The practice mode chosen at setup ("quick" | "deep") — set ONCE at
+     * `startFlashcardQuizSession` time and never changes afterward; drives the
+     * history/stats display ("Nhanh"/"Sâu"). Defaults to "quick" so a row
+     * written before this column existed still reads as a valid mode.
+     */
+    @Column({
+        name: "mode",
+        type: "varchar",
+        default: "quick",
+    })
+        mode: "quick" | "deep"
+
+    /**
+     * The `FlashcardLevel` filter chosen at setup ("junior"/"middle"/"senior"/
+     * "staff"), or null for "all levels". Plain varchar (not the pg enum) so
+     * it can hold "all"-as-null without a schema dependency on
+     * `FlashcardLevel`.
+     */
+    @Column({
+        name: "level",
+        type: "varchar",
+        nullable: true,
+    })
+        level: string | null
+
+    /**
+     * The server-derived aggregate coverage (0..1) computed by
+     * `FlashcardQuizSessionService.complete()`, snapshotted onto the row at
+     * completion so `myFlashcardQuizHistory` never has to re-derive it from
+     * the `results` jsonb.
+     */
+    @Column({
+        name: "coverage",
+        type: "real",
+        nullable: true,
+    })
+        coverage: number | null
+
+    /**
+     * The XP actually granted this session (post daily-cap clamp),
+     * snapshotted at completion so history doesn't need to join
+     * `xp_histories`. Defaults to 0 (a fresh/never-completed draw grants
+     * nothing).
+     */
+    @Column({
+        name: "xp_earned",
+        type: "int",
+        default: 0,
+    })
+        xpEarned: number
+
+    /**
+     * Snapshot of the session's weak-tag ranking at completion time (same
+     * shape `FlashcardQuizSessionService.computeWeakTags` returns), so
+     * history can show "chủ đề yếu" per past session without re-deriving it.
+     */
+    @Column({
+        name: "weak_tags",
+        type: "jsonb",
+        nullable: true,
+        default: () => "'[]'",
+    })
+        weakTags: Array<FlashcardQuizSessionWeakTag> | null
 
     /**
      * The session's lifecycle state — "resume flashcard quiz session"

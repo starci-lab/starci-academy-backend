@@ -26,8 +26,14 @@ import {
     MyMockInterviewAttemptsSingleQueryModule,
 } from "./my-mock-interview-attempts"
 import {
+    MyMockInterviewAttemptBySessionSingleQueryModule,
+} from "./my-mock-interview-attempt-by-session"
+import {
     MyInProgressMockInterviewSessionSingleQueryModule,
 } from "./my-in-progress-mock-interview-session"
+import {
+    MyMockInterviewStatsSingleQueryModule,
+} from "./my-mock-interview-stats"
 
 /**
  * Flashcard-deck query group (deck listing by course + single-deck detail +
@@ -56,7 +62,13 @@ import {
         MyMockInterviewAttemptsSingleQueryModule.register({
             isGlobal: true,
         }),
+        MyMockInterviewAttemptBySessionSingleQueryModule.register({
+            isGlobal: true,
+        }),
         MyInProgressMockInterviewSessionSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyMockInterviewStatsSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

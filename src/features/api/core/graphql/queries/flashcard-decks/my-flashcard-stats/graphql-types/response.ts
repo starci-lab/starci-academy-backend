@@ -8,6 +8,44 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+/** Tally of graded reviews by SM-2 grade (Again/Hard/Good/Easy). */
+@ObjectType({
+    description: "Tally of graded reviews by SM-2 grade (Again/Hard/Good/Easy).",
+})
+export class FlashcardGradeDistribution {
+    @Field(
+        () => Int,
+        {
+            description: "Reviews graded \"Again\" (0) — forgotten.",
+        },
+    )
+        again: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Reviews graded \"Hard\" (1) — recalled with difficulty.",
+        },
+    )
+        hard: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Reviews graded \"Good\" (2) — recalled normally.",
+        },
+    )
+        good: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Reviews graded \"Easy\" (3) — recalled effortlessly.",
+        },
+    )
+        easy: number
+}
+
 /**
  * A user's flashcard study stats, derived from the `flashcard_review_events` log
  * via the per-user CQRS projection.
@@ -56,6 +94,14 @@ export class MyFlashcardStatsData {
         },
     )
         lastReviewedAt: string | null
+
+    @Field(
+        () => FlashcardGradeDistribution,
+        {
+            description: "Tally of graded reviews by SM-2 grade (Again/Hard/Good/Easy).",
+        },
+    )
+        gradeDistribution: FlashcardGradeDistribution
 }
 
 /**

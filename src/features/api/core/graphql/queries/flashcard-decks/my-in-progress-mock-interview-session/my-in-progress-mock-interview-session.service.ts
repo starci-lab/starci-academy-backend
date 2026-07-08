@@ -101,6 +101,7 @@ export class MyInProgressMockInterviewSessionService {
             questionIndex: session.questionIndex,
             phaseIndex: session.phaseIndex,
             updatedAt: session.updatedAt,
+            createdAt: session.createdAt,
         }
     }
 }
