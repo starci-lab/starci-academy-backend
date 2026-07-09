@@ -475,3 +475,30 @@ export interface GenerateMilestoneTaskApproachCriteriaLangIdParams extends Gener
     /** Zero-based programming-language brief-block index within the criterion. */
     langIndex: number
 }
+
+/**
+ * Input for {@link InterviewQuestionIdFactoryService.generate}. There is no bank
+ * entity/id (the bank folder only contributes a denormalized `bankSlug` string), so
+ * the question id is anchored directly on the owning course + its raw ordinals.
+ */
+export interface GenerateInterviewQuestionIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Zero-based bank folder under `courses/{course}/mock-interview/{bankIndex}`. */
+    bankIndex: number
+    /** Zero-based question folder under `mock-interview/{bank}/questions/{questionIndex}`. */
+    questionIndex: number
+}
+
+/**
+ * Input for {@link InterviewQuestionGivenCodeIdFactoryService.generate}. Given-code
+ * rows aren't ordinal-indexed like other seed children — they're keyed by the
+ * authored programming language — so the id is anchored on the parent question id
+ * plus its language instead of a numeric index.
+ */
+export interface GenerateInterviewQuestionGivenCodeIdParams {
+    /** Parent question id (FK target). */
+    interviewQuestionId: string
+    /** Programming language of this given-code variant (e.g. `"typescript"`). */
+    lang: string
+}

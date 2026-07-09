@@ -31,6 +31,9 @@ import {
 import {
     AchievementSeederService,
 } from "./achievements"
+import {
+    MockInterviewEqSeederService,
+} from "./mock-interview-eq"
 /**
  * Init seed orchestrator: each domain seeder reads envConfig().init seeders context itself.
  */
@@ -47,6 +50,7 @@ export class SeedersService {
         private readonly changelogSeederService: ChangelogSeederService,
         private readonly blogSeederService: BlogSeederService,
         private readonly achievementSeederService: AchievementSeederService,
+        private readonly mockInterviewEqSeederService: MockInterviewEqSeederService,
     ) { }
 
     /** Runs all init seed pipelines sequentially (env gates live inside each seeder). */
@@ -61,5 +65,6 @@ export class SeedersService {
         await this.changelogSeederService.seed()
         await this.blogSeederService.seed()
         await this.achievementSeederService.seed()
+        await this.mockInterviewEqSeederService.seed()
     }
 }

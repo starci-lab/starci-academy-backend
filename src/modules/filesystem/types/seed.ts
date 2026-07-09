@@ -43,6 +43,8 @@ export interface SeedCoursesConfig {
     tracks: Record<string, SeedCourseTrack>
     /** Flashcard deck/card seeding. */
     flashcard: SeedFlashcardConfig
+    /** Technical (course-scoped) mock-interview question seeding. */
+    interviewQuestions: boolean
 }
 
 /** Phase 1 — seeders (sources -> PostgreSQL). */
@@ -62,6 +64,8 @@ export interface SeedSeedersConfig {
     changelog: boolean
     blog: boolean
     achievements: boolean
+    /** Behavioral (global, non-course-scoped) EQ mock-interview question seeding. */
+    mockInterviewEq: boolean
 }
 
 /** Independent CDN / Elasticsearch / Repo sink scopes for one course track. */
@@ -159,6 +163,8 @@ export type InitSeedCourseValue = SeedScopeIndexes | {
     milestones?: SeedScopeIndexes | boolean
     /** Seed this course's flashcard decks. */
     flashcards?: boolean
+    /** Seed this course's technical mock-interview questions. */
+    interviewQuestions?: boolean
 }
 
 /** Phase 1 input — sources → PostgreSQL. Omit, or `enabled: false`, to skip seeding. */
@@ -175,6 +181,8 @@ export interface InitSeedBlock {
     changelog?: boolean
     blog?: boolean
     achievements?: boolean
+    /** Seed behavioral (global) EQ mock-interview questions from `mock-interview-eq/`. */
+    mockInterviewEq?: boolean
 }
 
 /** Per-sink scope value: a scope-indexes form, or a bool (`true` = all, `false` = off). */

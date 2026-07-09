@@ -35,6 +35,7 @@ const DEFAULT_SEED_CONFIG: SeedConfig = {
                 enabled: false,
                 linkContents: false,
             },
+            interviewQuestions: false,
         },
         cv: false,
         foundations: false,
@@ -46,6 +47,7 @@ const DEFAULT_SEED_CONFIG: SeedConfig = {
         changelog: false,
         blog: false,
         achievements: false,
+        mockInterviewEq: false,
     },
     synchronizers: {
         enabled: false,

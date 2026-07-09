@@ -26,6 +26,7 @@ import {
     ValuePropositionIdFactoryService,
     ChallengeParserService,
     FlashcardDeckParserService,
+    InterviewQuestionParserService,
     ContentParserService,
     ContentLegacyParserService,
     CourseParserService,
@@ -34,6 +35,9 @@ import {
     FlashcardDeckPathService,
     FlashcardDeckIdFactoryService,
     FlashcardCardIdFactoryService,
+    InterviewQuestionBankPathService,
+    InterviewQuestionIdFactoryService,
+    InterviewQuestionGivenCodeIdFactoryService,
     MilestoneIdFactoryService,
     MilestoneTaskIdFactoryService,
     MilestoneTaskPassCriteriaIdFactoryService,
@@ -58,6 +62,7 @@ import {
     ContentProcessorService,
     ModuleProcessorService,
     FlashcardDeckProcessorService,
+    InterviewQuestionProcessorService,
     MilestoneTaskProcessorService,
     MilestoneProcessorService,
     CourseProcessorService,
@@ -121,6 +126,12 @@ import {
     AchievementSeederService,
 } from "./achievements"
 import {
+    InterviewQuestionEqIdFactoryService,
+    InterviewQuestionEqParserService,
+    InterviewQuestionEqPathService,
+    MockInterviewEqSeederService,
+} from "./mock-interview-eq"
+import {
     SeedersService,
 } from "./seeders.service"
 import {
@@ -135,6 +146,7 @@ import {
     ContextLoaderService,
     PathResolverService,
     UpsertService,
+    InterviewQuestionFieldsService,
 } from "./shared"
 
 
@@ -156,6 +168,7 @@ export class SeedersModule extends ConfigurableModuleClass {
             S3ContextService,
             FilesystemContextService,
             ContextLoaderService,
+            InterviewQuestionFieldsService,
             CourseIdFactoryService,
             ModuleIdFactoryService,
             ContentIdFactoryService,
@@ -176,6 +189,9 @@ export class SeedersModule extends ConfigurableModuleClass {
             FlashcardDeckPathService,
             FlashcardDeckIdFactoryService,
             FlashcardCardIdFactoryService,
+            InterviewQuestionBankPathService,
+            InterviewQuestionIdFactoryService,
+            InterviewQuestionGivenCodeIdFactoryService,
             ChallengeIdFactoryService,
             ChallengeSubmissionIdFactoryService,
             ChallengeSubmissionPromptIdFactoryService,
@@ -190,6 +206,7 @@ export class SeedersModule extends ConfigurableModuleClass {
             ContentLegacyParserService,
             ChallengeParserService,
             FlashcardDeckParserService,
+            InterviewQuestionParserService,
             PathResolverService,
             UpsertService,
             MilestoneIdFactoryService,
@@ -210,6 +227,7 @@ export class SeedersModule extends ConfigurableModuleClass {
             ContentProcessorService,
             ModuleProcessorService,
             FlashcardDeckProcessorService,
+            InterviewQuestionProcessorService,
             MilestoneTaskProcessorService,
             MilestoneProcessorService,
             CourseProcessorService,
@@ -218,6 +236,10 @@ export class SeedersModule extends ConfigurableModuleClass {
             ChangelogSeederService,
             BlogSeederService,
             AchievementSeederService,
+            InterviewQuestionEqPathService,
+            InterviewQuestionEqIdFactoryService,
+            InterviewQuestionEqParserService,
+            MockInterviewEqSeederService,
             SeedersService,
             TemplateCvPathService,
             TemplateCvIdFactoryService,
