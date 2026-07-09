@@ -33,6 +33,9 @@ import {
     FlashcardDeckProcessorService,
 } from "./flashcard-deck-processor.service"
 import {
+    InterviewQuestionProcessorService,
+} from "./interview-question-processor.service"
+import {
     MilestoneProcessorService,
 } from "./milestone-processor.service"
 import {
@@ -52,6 +55,7 @@ export class CourseProcessorService {
         @Inject(forwardRef(() => ModuleProcessorService))
         private readonly moduleProcessorService: ModuleProcessorService,
         private readonly flashcardDeckProcessorService: FlashcardDeckProcessorService,
+        private readonly interviewQuestionProcessorService: InterviewQuestionProcessorService,
         @Inject(forwardRef(() => MilestoneProcessorService))
         private readonly milestoneProcessorService: MilestoneProcessorService,
     ) { }
@@ -68,6 +72,7 @@ export class CourseProcessorService {
             courseResults,
             moduleIndexFilterByDisplayId,
             flashcardLinkContents,
+            interviewQuestionsEnabled,
         } = params
         for (const courseResult of courseResults) {
             const course = courseResult.data
@@ -105,6 +110,11 @@ export class CourseProcessorService {
             await this.flashcardDeckProcessorService.process({
                 courseResult,
             })
+            if (interviewQuestionsEnabled) {
+                await this.interviewQuestionProcessorService.process({
+                    courseResult,
+                })
+            }
             await this.milestoneProcessorService.process({
                 courseResult,
                 courseId,

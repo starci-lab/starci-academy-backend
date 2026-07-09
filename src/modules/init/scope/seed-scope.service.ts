@@ -51,6 +51,11 @@ export class SeedScopeService {
         return this.seeders().courses.flashcard.linkContents
     }
 
+    /** Whether technical (course-scoped) mock-interview question seeding is enabled. */
+    isCoursesInterviewQuestionSeederEnabled(): boolean {
+        return this.seeders().courses.interviewQuestions
+    }
+
     /** Whether CV mount seeding is enabled. */
     isCvSeederEnabled(): boolean {
         return this.seeders().cv
@@ -99,6 +104,11 @@ export class SeedScopeService {
     /** Whether the achievements catalog seeding is enabled. */
     isAchievementsSeederEnabled(): boolean {
         return this.seeders().achievements
+    }
+
+    /** Whether behavioral (global) EQ mock-interview question seeding is enabled. */
+    isMockInterviewEqSeederEnabled(): boolean {
+        return this.seeders().mockInterviewEq
     }
 
     /**

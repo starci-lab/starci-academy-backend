@@ -205,6 +205,9 @@ export class SeedDiffOverlayService {
                         enabled: domains.flashcard,
                         linkContents: false,
                     },
+                    // the diff pipeline has no interview-question change detection yet
+                    // (unlike `flashcardChangedCourses`) — never auto-enabled by a diff sync
+                    interviewQuestions: false,
                 },
                 cv: domains.cv,
                 foundations: domains.foundations,
@@ -216,6 +219,9 @@ export class SeedDiffOverlayService {
                 changelog: false,
                 blog: false,
                 achievements: false,
+                // the diff pipeline has no behavioral-question change detection either
+                // (this bank is global, not per-course) — never auto-enabled by a diff sync
+                mockInterviewEq: false,
             },
             synchronizers: {
                 enabled: true,

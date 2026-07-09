@@ -1071,6 +1071,13 @@ export const envConfig = () => ({
                     "data",
                     "achievements"),
             }),
+            mockInterviewEq: parseEnvString({
+                key: "DATA_MOCK_INTERVIEW_EQ_MOUNT_PATH",
+                defaultValue: join(process.cwd(),
+                    ".mount",
+                    "data",
+                    "mock-interview-eq"),
+            }),
         },
         /** File paths: app config. */
         config: {

@@ -3,4 +3,5 @@ export * from "./content"
 export * from "./challenge"
 export * from "./flashcard-deck"
 export * from "./milestone"
+export * from "./interview-question"
 
