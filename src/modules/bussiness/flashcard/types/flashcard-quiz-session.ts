@@ -21,7 +21,15 @@ export interface QuizSessionAnswerParams {
 export interface CompleteFlashcardQuizSessionParams {
     /** The learner who finished the session. */
     userId: string
-    /** Client-generated session id — the idempotency key (becomes the xp_history refId). */
+    /**
+     * Session id — the idempotency key (becomes the `xp_history` refId).
+     * "Resume flashcard quiz session" (2026-07-08): for a session started via
+     * `startFlashcardQuizSession`, this is now the SERVER-ISSUED
+     * `flashcard_quiz_sessions.id` (not a client-generated uuid) — completing
+     * also flips that row to "completed" (ownership-scoped to this `userId`,
+     * a no-op for an id that does not match any owned in-progress row, e.g.
+     * an older client that never started a resumable draft).
+     */
     sessionId: string
     /** Course the session belongs to (scopes the xp_history course + daily cap). */
     courseId: string

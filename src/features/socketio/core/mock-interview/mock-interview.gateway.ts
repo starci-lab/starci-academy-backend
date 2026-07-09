@@ -11,6 +11,9 @@ import {
     Namespace,
 } from "socket.io"
 import {
+    EntityManager,
+} from "typeorm"
+import {
     MockInterviewWebSocketGateway,
     WsResponseService,
     socketIoKeycloakAuthMiddleware,
@@ -32,8 +35,13 @@ import {
     AiCeilSurface,
     AiModelCategory,
     AiModelTask,
+    InjectPrimaryPostgreSQLEntityManager,
     ModelProvider,
     MockInterviewPhase,
+    MockInterviewSessionEntity,
+    MOCK_INTERVIEW_SESSION_DURATION_MS,
+    normalizeMockInterviewKind,
+    normalizeMockInterviewMode,
 } from "@modules/databases"
 import {
     PublicationEvent,
@@ -73,6 +81,8 @@ export class MockInterviewGateway {
         private readonly aiInvokeService: AiInvokeService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly wsResponseService: WsResponseService,
+        @InjectPrimaryPostgreSQLEntityManager()
+        private readonly entityManager: EntityManager,
     ) {}
 
     /** The namespace server — used to attach the auth middleware. */
@@ -115,6 +125,7 @@ export class MockInterviewGateway {
     ): Promise<void> {
         const {
             streamId,
+            sessionId,
             courseId,
             promptTitle,
             phase,
@@ -122,7 +133,19 @@ export class MockInterviewGateway {
             latestAnswer,
             model,
             provider,
+            level,
+            mode,
+            kind,
+            currentSeed,
+            questionIndex,
         } = payload.data
+        // absent/unrecognized mode → "design" (the pre-existing 5-phase flow),
+        // so an FE build that predates the mode split keeps working unchanged
+        const normalizedMode = normalizeMockInterviewMode(mode)
+        // THIS question's own kind — meaningful only for mode="qna" (a single
+        // qna session mixes kinds across its questions); absent/unrecognized
+        // falls back to "theory" (harmless for mode="design", which ignores kind)
+        const normalizedKind = normalizeMockInterviewKind(kind)
         // a pinned model (model + provider) routes to that single model (gated on
         // paid OR enrolled); otherwise the balancer chain. floor is set to Economy
         // below (per the interview surface's grading floor), so the chain starts on
@@ -155,6 +178,55 @@ export class MockInterviewGateway {
             return
         }
 
+        // "session time limit" (2026-07-08): enforce the 1-hour ask-loop deadline
+        // SERVER-SIDE, anchored to the persisted session's OWN `createdAt` — never
+        // trust a client-side clock. Scoped by ownership (mirrors
+        // `syncMockInterviewSessionTurns`'s `enrollment.user.id` scoping) so a
+        // sessionId can never be used to probe another learner's draw. Checked
+        // BEFORE building the prompt / invoking AI so an expired ask never spends
+        // a real AI call.
+        const session = await this.entityManager.findOne(
+            MockInterviewSessionEntity,
+            {
+                where: {
+                    id: sessionId,
+                    enrollment: {
+                        user: {
+                            id: userId,
+                        },
+                    },
+                },
+                select: {
+                    id: true,
+                    createdAt: true,
+                },
+            },
+        )
+        if (!session) {
+            this.emitChunk({
+                client,
+                data: {
+                    streamId,
+                    delta: "",
+                    done: true,
+                    error: "session not found",
+                },
+            })
+            return
+        }
+        if (Date.now() - session.createdAt.getTime() > MOCK_INTERVIEW_SESSION_DURATION_MS) {
+            this.emitChunk({
+                client,
+                data: {
+                    streamId,
+                    delta: "",
+                    done: true,
+                    error: "SESSION_EXPIRED",
+                },
+            })
+            return
+        }
+
         // register an abort controller so `abort-mock-interview-turn` can cancel this stream
         const key = this.streamKey(client.id,
             streamId)
@@ -172,18 +244,26 @@ export class MockInterviewGateway {
                 }),
             )
 
-            // build the on-rails, RAG-grounded interviewer prompt for this turn
+            // build the on-rails, RAG-grounded interviewer prompt for this turn —
+            // branches internally on mode (design's 5-phase flow vs the qna
+            // mode's N-question flow, where each question reads its OWN kind)
             const {
                 messages,
             } = await this.mockInterviewTurnService.prepareTurn({
                 courseId,
                 promptTitle,
+                mode: normalizedMode,
+                kind: normalizedKind,
                 // the wire payload carries the phase as a plain string; cast
                 // through the enum since the FE only ever sends a valid value
+                // (meaningful only for mode="design" — ignored otherwise)
                 phase: phase as MockInterviewPhase,
+                currentSeed,
+                questionIndex,
                 history: normalizedHistory,
                 latestAnswer,
                 locale: payload.locale,
+                level,
             })
 
             // ONE shared entry — stream on the Economy floor (mock-interview

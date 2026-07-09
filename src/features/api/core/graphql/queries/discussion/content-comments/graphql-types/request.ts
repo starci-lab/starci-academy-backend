@@ -5,19 +5,34 @@ import {
     Int,
 } from "@nestjs/graphql"
 
-/** Request for listing comments of a content (top-level, or replies of one parent). */
+/**
+ * Request for listing comments — top-level of a lesson/course scope, or replies of one
+ * parent. A top-level listing (`parentCommentId` omitted) must set exactly one of
+ * `contentId`/`courseId`; a reply listing only needs `parentCommentId`.
+ */
 @InputType({
-    description: "Request for listing comments of a content.",
+    description: "Request for listing comments of a content or a course-general question.",
 })
 export class ContentCommentsRequest {
-    /** Content whose comments are listed. */
+    /** Content whose top-level comments are listed; omit for a course-general scope or a reply listing. */
     @Field(
         () => ID,
         {
-            description: "Content whose comments are listed.",
+            nullable: true,
+            description: "Content whose top-level comments are listed; omit for a course-general scope or a reply listing.",
         },
     )
-        contentId: string
+        contentId?: string | null
+
+    /** Course whose top-level (course-general) comments are listed; omit for a lesson scope or a reply listing. */
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Course whose top-level (course-general) comments are listed; omit for a lesson scope or a reply listing.",
+        },
+    )
+        courseId?: string | null
 
     /** When set, list replies of this comment; when null, list top-level comments. */
     @Field(

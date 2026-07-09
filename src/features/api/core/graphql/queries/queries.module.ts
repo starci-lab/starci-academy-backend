@@ -62,6 +62,9 @@ import {
     FlashcardDecksQueriesModule,
 } from "./flashcard-decks"
 import {
+    FlashcardQueriesModule,
+} from "./flashcard"
+import {
     CodingQueriesModule,
 } from "./coding"
 import {
@@ -158,6 +161,9 @@ import {
             isGlobal: true,
         }),
         FlashcardDecksQueriesModule.register({
+            isGlobal: true,
+        }),
+        FlashcardQueriesModule.register({
             isGlobal: true,
         }),
         CodingQueriesModule.register({

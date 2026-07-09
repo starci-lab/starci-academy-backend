@@ -19,6 +19,12 @@ import {
 import {
     MyCvGenerationsSingleQueryModule,
 } from "./my-cv-generations"
+import {
+    MyPickableCvAchievementsSingleQueryModule,
+} from "./my-pickable-cv-achievements"
+import {
+    MyCvBlocksSingleQueryModule,
+} from "./my-cv-blocks"
 
 /**
  * Module for CV submission related queries.
@@ -38,6 +44,12 @@ import {
             isGlobal: true,
         }),
         MyCvGenerationsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyPickableCvAchievementsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyCvBlocksSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

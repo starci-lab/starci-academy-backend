@@ -1,0 +1,33 @@
+import {
+    Module,
+} from "@nestjs/common"
+import {
+    CqrsModule,
+} from "@nestjs/cqrs"
+import {
+    SyncFlashcardReviewSessionProgressResolver,
+} from "./sync-flashcard-review-session-progress.resolver"
+import {
+    SyncFlashcardReviewSessionProgressService,
+} from "./sync-flashcard-review-session-progress.service"
+import {
+    SyncFlashcardReviewSessionProgressHandler,
+} from "./sync-flashcard-review-session-progress.handler"
+import {
+    ConfigurableModuleClass,
+} from "./sync-flashcard-review-session-progress.module-definition"
+
+@Module({
+    imports: [
+        CqrsModule,
+    ],
+    providers: [
+        SyncFlashcardReviewSessionProgressResolver,
+        SyncFlashcardReviewSessionProgressService,
+        SyncFlashcardReviewSessionProgressHandler,
+    ],
+    exports: [
+        SyncFlashcardReviewSessionProgressService,
+    ],
+})
+export class SyncFlashcardReviewSessionProgressSingleMutationModule extends ConfigurableModuleClass {}

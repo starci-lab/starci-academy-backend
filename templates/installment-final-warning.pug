@@ -1,0 +1,9 @@
+extends layouts/base
+
+block content
+  - var vi = locale === 'vi'
+  p.eyebrow= vi ? 'Trả góp' : 'Installment'
+  h1= vi ? 'Sắp bị khoá quyền truy cập khóa học' : 'Your course access is about to be locked'
+  p= vi ? `Chào ${name}, kỳ trả góp của bạn (tối thiểu ${minPaymentVnd.toLocaleString('vi-VN')}đ) vẫn chưa được thanh toán. Nếu không thanh toán trong ${daysUntilLockout} ngày tới, quyền truy cập khóa học sẽ bị tạm khoá.` : `Hi ${name}, your installment cycle (minimum ${minPaymentVnd.toLocaleString('en-US')}₫) is still unpaid. If it isn't settled within ${daysUntilLockout} days, your course access will be locked.`
+  p(style="margin-bottom:28px;")= vi ? 'Thanh toán ngay để tránh gián đoạn việc học.' : 'Pay now to avoid interrupting your learning.'
+  a.btn-primary(href=dashboardUrl)= vi ? 'Trả góp ngay →' : 'Pay now →'

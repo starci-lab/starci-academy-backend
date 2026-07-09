@@ -305,4 +305,26 @@ export class TransactionEntity extends UuidAbstractEntity {
         nullable: true,
     })
         aiSubTier: AiSubTier | null
+
+    /**
+     * The installment plan this transaction pays one cycle of, when
+     * {@link actionType} is `installmentPayment`; null for every other action
+     * type. Not a relation (the reconcile worker only ever needs the id to
+     * call `InstallmentPlanService`) — deliberately a plain column to avoid a
+     * circular entity reference (`InstallmentPlanEntity` already points back
+     * at a transaction via `originTransaction`).
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "The installment plan this transaction pays one cycle of (installment payments only).",
+        },
+    )
+    @Column({
+        name: "installment_plan_id",
+        type: "uuid",
+        nullable: true,
+    })
+        installmentPlanId: string | null
 }

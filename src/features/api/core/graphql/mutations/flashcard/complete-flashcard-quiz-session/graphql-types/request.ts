@@ -71,7 +71,7 @@ export class CompleteFlashcardQuizSessionRequest {
     @Field(
         () => ID,
         {
-            description: "Client-generated session id (idempotency key → xp_history refId).",
+            description: "Session id (idempotency key → xp_history refId) — the SERVER-ISSUED id from startFlashcardQuizSession's sessionId when resuming a persisted draft; a client-generated uuid is still accepted for a one-shot session that never called startFlashcardQuizSession.",
         },
     )
         sessionId: string

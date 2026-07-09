@@ -1,0 +1,6 @@
+export * from "./split-cv-from-text.module"
+export * from "./split-cv-from-text.resolver"
+export * from "./split-cv-from-text.service"
+export * from "./split-cv-from-text.handler"
+export * from "./split-cv-from-text.command"
+export * from "./graphql-types"

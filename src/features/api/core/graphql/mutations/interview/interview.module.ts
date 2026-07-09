@@ -5,16 +5,28 @@ import {
     GradeMockInterviewSessionSingleMutationModule,
 } from "./grade-mock-interview-session"
 import {
+    StartMockInterviewSessionSingleMutationModule,
+} from "./start-mock-interview-session"
+import {
+    SyncMockInterviewSessionTurnsSingleMutationModule,
+} from "./sync-mock-interview-session-turns"
+import {
     ConfigurableModuleClass,
 } from "./interview.module-definition"
 
 /**
- * Interview mutation group — whole-session grading for the System Design
- * mock-interview rubric.
+ * Interview mutation group — server-side prompt draw + whole-session grading
+ * for the System Design mock-interview rubric + in-flight session resume sync.
  */
 @Module({
     imports: [
+        StartMockInterviewSessionSingleMutationModule.register({
+            isGlobal: true,
+        }),
         GradeMockInterviewSessionSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        SyncMockInterviewSessionTurnsSingleMutationModule.register({
             isGlobal: true,
         }),
     ],

@@ -13,6 +13,9 @@ import {
 import {
     FlashcardReviewService,
 } from "./flashcard-review.service"
+import {
+    FlashcardReviewSessionService,
+} from "./flashcard-review-session.service"
 
 /**
  * Module for flashcard business logic (deck reads + spaced-repetition review).
@@ -25,11 +28,13 @@ import {
         FlashcardDeckReadService,
         FlashcardQuizSessionService,
         FlashcardReviewService,
+        FlashcardReviewSessionService,
     ],
     exports: [
         FlashcardDeckReadService,
         FlashcardQuizSessionService,
         FlashcardReviewService,
+        FlashcardReviewSessionService,
     ],
 })
 export class FlashcardModule extends ConfigurableModuleClass {

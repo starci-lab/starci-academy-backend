@@ -94,6 +94,10 @@ export enum ActionType {
      * Purchase a community membership (grants/extends membership on payment success).
      */
     MembershipPurchase = "membershipPurchase",
+    /**
+     * Pay one cycle of an installment (trả góp) plan (advances/tops up the plan on payment success).
+     */
+    InstallmentPayment = "installmentPayment",
 }
 
 export const GraphQLTypeActionType = createEnumType(ActionType)
@@ -163,6 +167,9 @@ registerEnumType(
             },
             [ActionType.MembershipPurchase]: {
                 description: "Purchase a community membership (grants/extends membership on payment success).",
+            },
+            [ActionType.InstallmentPayment]: {
+                description: "Pay one cycle of an installment (trả góp) plan (advances/tops up the plan on payment success).",
             },
         },
     },

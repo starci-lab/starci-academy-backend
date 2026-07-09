@@ -50,6 +50,7 @@ export class ContentCommentsService {
             total,
         } = await this.commentService.listComments({
             contentId: request.contentId,
+            courseId: request.courseId,
             parentCommentId: request.parentCommentId,
             page: request.page,
             limit: request.limit,

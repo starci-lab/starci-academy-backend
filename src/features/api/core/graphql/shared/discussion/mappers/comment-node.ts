@@ -4,6 +4,9 @@ import type {
 import type {
     ReactionSummaryResult,
 } from "@modules/bussiness"
+import {
+    envConfig,
+} from "@modules/env"
 import type {
     CommentNodeObject,
 } from "../object-types"
@@ -46,4 +49,6 @@ export const mapCommentNode = ({
     // computed aggregates passed in by the resolver
     replyCount,
     reactions,
+    // the author is the founder when their username matches config (drives the founder badge)
+    isFounderAuthor: comment.user.username === envConfig().community.founderUsername,
 })

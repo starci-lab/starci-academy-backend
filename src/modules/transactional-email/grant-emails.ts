@@ -91,3 +91,78 @@ export const enqueuePaymentFailedEmail = async (
         },
     })
 }
+
+/**
+ * Day-0 "your installment cycle is due" reminder. Best-effort — fired once per
+ * cycle by {@link import("@modules/bussiness").InstallmentPlanEnforcementCronService}
+ * (idempotent via `InstallmentPlanEntity.dueRemindedAt`).
+ */
+export const enqueueInstallmentDueEmail = async (
+    params: GrantEmailParams & { minPaymentVnd: number },
+): Promise<void> => {
+    await enqueueLearnerEmail({
+        entityManager: params.entityManager,
+        enqueueSendMailJobService: params.enqueueSendMailJobService,
+        userId: params.userId,
+        template: "installment-due",
+        locale: params.locale,
+        webBaseUrl: params.webBaseUrl,
+        subject: {
+            vi: "Kỳ thanh toán trả góp sắp đến hạn",
+            en: "Your installment payment is due soon",
+        },
+        extraContext: {
+            minPaymentVnd: params.minPaymentVnd,
+        },
+    })
+}
+
+/**
+ * Second (final-warning) reminder, sent `secondReminderAfterDays` past due —
+ * "pay now or your course access gets locked in N days". Best-effort, fired
+ * once per cycle (idempotent via `InstallmentPlanEntity.secondRemindedAt`).
+ */
+export const enqueueInstallmentFinalWarningEmail = async (
+    params: GrantEmailParams & { minPaymentVnd: number, daysUntilLockout: number },
+): Promise<void> => {
+    await enqueueLearnerEmail({
+        entityManager: params.entityManager,
+        enqueueSendMailJobService: params.enqueueSendMailJobService,
+        userId: params.userId,
+        template: "installment-final-warning",
+        locale: params.locale,
+        webBaseUrl: params.webBaseUrl,
+        subject: {
+            vi: "Sắp bị khoá quyền truy cập khóa học",
+            en: "Your course access is about to be locked",
+        },
+        extraContext: {
+            minPaymentVnd: params.minPaymentVnd,
+            daysUntilLockout: params.daysUntilLockout,
+        },
+    })
+}
+
+/**
+ * The plan just defaulted — course access has been locked. Best-effort, fired
+ * exactly once at the moment the enforcement cron flips the plan to `Defaulted`.
+ */
+export const enqueueInstallmentDefaultedEmail = async (
+    params: GrantEmailParams & { minPaymentVnd: number },
+): Promise<void> => {
+    await enqueueLearnerEmail({
+        entityManager: params.entityManager,
+        enqueueSendMailJobService: params.enqueueSendMailJobService,
+        userId: params.userId,
+        template: "installment-defaulted",
+        locale: params.locale,
+        webBaseUrl: params.webBaseUrl,
+        subject: {
+            vi: "Quyền truy cập khóa học đã bị tạm khoá",
+            en: "Your course access has been locked",
+        },
+        extraContext: {
+            minPaymentVnd: params.minPaymentVnd,
+        },
+    })
+}

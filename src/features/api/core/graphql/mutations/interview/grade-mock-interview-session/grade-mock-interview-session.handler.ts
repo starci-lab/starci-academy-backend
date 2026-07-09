@@ -83,6 +83,7 @@ export class GradeMockInterviewSessionHandler
             gaps: result.gaps,
             followUpQuestion: result.followUpQuestion,
             matchedContentIds: result.matchedContentIds,
+            questionReviews: result.questionReviews,
         }
     }
 }

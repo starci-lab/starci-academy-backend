@@ -1,0 +1,134 @@
+import {
+    Field,
+    Float,
+    ID,
+    Int,
+    ObjectType,
+} from "@nestjs/graphql"
+import {
+    AbstractGraphQLResponse,
+    IAbstractGraphQLResponse,
+} from "@modules/api"
+import {
+    QuizSessionWeakTagData,
+} from "@features/api/core/graphql/mutations/flashcard/complete-flashcard-quiz-session/graphql-types"
+
+/**
+ * One completed flashcard quick-quiz session, as read back for the viewer's
+ * history — "history + stats" (2026-07-08).
+ */
+@ObjectType({
+    description: "One completed flashcard quick-quiz session, as read back for the viewer's history.",
+})
+export class MyFlashcardQuizHistoryItem {
+    @Field(
+        () => ID,
+        {
+            description: "The session's persisted id.",
+        },
+    )
+        id: string
+
+    @Field(
+        () => String,
+        {
+            description: "ISO timestamp of when this session was last updated (its completion time).",
+        },
+    )
+        updatedAt: string
+
+    @Field(
+        () => String,
+        {
+            description: "Practice mode chosen at setup (\"quick\"|\"deep\").",
+        },
+    )
+        mode: string
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Seniority level filter chosen at setup, or null for \"all levels\".",
+        },
+    )
+        level: string | null
+
+    @Field(
+        () => Int,
+        {
+            description: "How many cards this session drew.",
+        },
+    )
+        cardCount: number
+
+    @Field(
+        () => Float,
+        {
+            nullable: true,
+            description: "The session's server-derived aggregate coverage (0..1), or null if never completed with a coverage snapshot.",
+        },
+    )
+        coverage: number | null
+
+    @Field(
+        () => Int,
+        {
+            description: "XP granted for this session (post daily-cap clamp).",
+        },
+    )
+        xpEarned: number
+
+    @Field(
+        () => [QuizSessionWeakTagData],
+        {
+            description: "This session's weakest-coverage tags, snapshotted at completion.",
+        },
+    )
+        weakTags: Array<QuizSessionWeakTagData>
+}
+
+/**
+ * A page of the viewer's completed flashcard quick-quiz sessions + the total
+ * count for pagination.
+ */
+@ObjectType({
+    description: "A page of the viewer's completed flashcard quick-quiz sessions.",
+})
+export class MyFlashcardQuizHistoryData {
+    @Field(
+        () => Int,
+        {
+            description: "Total completed sessions for this (viewer, course), independent of pagination.",
+        },
+    )
+        totalCount: number
+
+    @Field(
+        () => [MyFlashcardQuizHistoryItem],
+        {
+            description: "The requested page of sessions, newest first.",
+        },
+    )
+        items: Array<MyFlashcardQuizHistoryItem>
+}
+
+/**
+ * Response wrapper for the myFlashcardQuizHistory query.
+ */
+@ObjectType({
+    description: "Response wrapper for the myFlashcardQuizHistory query.",
+})
+export class MyFlashcardQuizHistoryResponse
+    extends AbstractGraphQLResponse
+    implements IAbstractGraphQLResponse<MyFlashcardQuizHistoryData>
+{
+    @Field(
+        () => MyFlashcardQuizHistoryData,
+        {
+            nullable: true,
+            description: "The requested page of the viewer's completed flashcard quick-quiz sessions.",
+        },
+    )
+        data: MyFlashcardQuizHistoryData
+}

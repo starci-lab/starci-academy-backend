@@ -16,6 +16,44 @@ export interface UserFlashcardStatsParams {
     userId: string
 }
 
+/** Params for reading a user's trailing daily flashcard-review activity window. */
+export interface UserFlashcardDailyActivityParams {
+    /** The user whose activity to read. */
+    userId: string
+    /** Trailing window length, in VN-calendar days (e.g. 14). */
+    days: number
+}
+
+/**
+ * One day's flashcard-review activity — cards graded that VN-calendar day,
+ * zero-filled for rest days by the read-time windowing so it reads as a "did
+ * I study each day" consistency series. GLOBAL per-user (mirrors the streak):
+ * a habit signal spans all courses, and `flashcard_review_events` carries no
+ * course anyway.
+ */
+export interface FlashcardDailyActivityPoint {
+    /** The VN-calendar day (`YYYY-MM-DD`). */
+    date: string
+    /** Cards graded that day across every deck/mode (0 = rest day). */
+    cardsReviewed: number
+}
+
+/**
+ * Tally of graded reviews by SM-2 grade (0=Again, 1=Hard, 2=Good, 3=Easy),
+ * across the SAME history scan {@link UserFlashcardStatsResult.retentionRate}
+ * is derived from — no extra query.
+ */
+export interface FlashcardGradeDistribution {
+    /** Reviews graded "Again" (0) — forgotten. */
+    again: number
+    /** Reviews graded "Hard" (1) — recalled with difficulty. */
+    hard: number
+    /** Reviews graded "Good" (2) — recalled normally. */
+    good: number
+    /** Reviews graded "Easy" (3) — recalled effortlessly. */
+    easy: number
+}
+
 /**
  * A user's flashcard study stats, derived from the `flashcard_review_events` log.
  */
@@ -30,6 +68,20 @@ export interface UserFlashcardStatsResult {
     totalReviewed: number
     /** ISO timestamp of the most recent review, or null when never reviewed. */
     lastReviewedAt: string | null
+    /** Tally of graded reviews by SM-2 grade. */
+    gradeDistribution: FlashcardGradeDistribution
+}
+
+/**
+ * The FULL persisted projection `value` — the read stats above PLUS a bounded
+ * per-VN-day count map (`YYYY-MM-DD` → cards graded that day) that powers the
+ * daily-activity chart. Kept in the SAME projection row (no new table): the
+ * existing CDC listener already recomputes it on every review event, and the
+ * read-time window slice (see `getDailyActivity`) avoids rolling-window drift.
+ */
+export interface PersistedUserFlashcardStatsValue extends UserFlashcardStatsResult {
+    /** Cards graded per VN day (`YYYY-MM-DD` → count), retained for a bounded window. */
+    dailyReviewCounts: Record<string, number>
 }
 
 /**

@@ -10,6 +10,7 @@ import {
     EnqueueEnrollJobService,
     EnqueueReconcileTransactionJobService,
     EnqueueSendMailJobService,
+    InstallmentPlanService,
     TransactionActionService,
     TransactionReconcileQueryService,
     VoucherService,
@@ -85,6 +86,7 @@ export class ReconcileTransactionWorker extends WorkerHost {
         private readonly winstonService: WinstonService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
         private readonly voucherService: VoucherService,
+        private readonly installmentPlanService: InstallmentPlanService,
     ) {
         super()
     }
@@ -233,6 +235,20 @@ export class ReconcileTransactionWorker extends WorkerHost {
         case ActionType.Enroll: {
             await this.enqueueEnrollJobService.enqueueForTransaction({
                 transaction,
+            })
+            return
+        }
+        // installment (trả góp) cycle payment: advance/top-up the plan (also
+        // marks tx succeeded). A transaction of this action type is always
+        // created with `installmentPlanId` set (see `PayNextInstallmentHandler`).
+        case ActionType.InstallmentPayment: {
+            if (!transaction.installmentPlanId) {
+                return
+            }
+            await this.installmentPlanService.applyPaymentForTransaction({
+                transactionId: transaction.id,
+                planId: transaction.installmentPlanId,
+                paidAmountVnd: transaction.amount,
             })
             return
         }

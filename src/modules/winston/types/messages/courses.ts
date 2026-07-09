@@ -8,6 +8,24 @@ export interface CoursesSeededSuccessfullyMessage {
     count: number
 }
 
+/**
+ * Message for when a single user trips the per-user content-access rate limit —
+ * i.e. suspected bulk scraping of lesson content. Logged (with the offender's
+ * email) so the account can be reviewed / disabled and used as takedown evidence.
+ */
+export interface ContentScrapeDetectedMessage {
+    /** The offending user's id. */
+    userId: string
+    /** The offending user's email (evidence / who to contact or ban). */
+    email?: string
+    /** How many content reads this user made inside the window. */
+    count: number
+    /** The configured per-window limit that was exceeded. */
+    limit: number
+    /** The rolling window length, in seconds. */
+    windowSeconds: number
+}
+
 /** Message for when a single mount entity is skipped during init seed. */
 export interface InitSeederEntitySkippedMessage {
     /** Entity kind (e.g. challenge, content). */

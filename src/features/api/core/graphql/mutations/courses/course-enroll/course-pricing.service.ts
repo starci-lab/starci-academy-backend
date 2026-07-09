@@ -134,9 +134,10 @@ export class CoursePricingService {
         {
             course,
             discountPercent = 0,
+            phase,
         }: ResolveCourseAmountVndParams,
     ): number {
-        const currentPhase = this.getCurrentPricingPhase(course)
+        const currentPhase = phase ?? this.getCurrentPricingPhase(course)
         if (currentPhase === PricingPhase.Regular) {
             const priceVnd = course.originalPrice
             if (priceVnd == null || priceVnd <= 0) {
@@ -176,10 +177,11 @@ export class CoursePricingService {
         {
             course,
             discountPercent = 0,
+            phase,
         }: ResolveCourseAmountUsdParams,
     ): number | null {
-        // determine which tier is currently active for this course
-        const currentPhase = this.getCurrentPricingPhase(course)
+        // determine which tier to price (an explicit `phase` previews a future tier)
+        const currentPhase = phase ?? this.getCurrentPricingPhase(course)
         // Regular phase has no pricing_phases row → only a VND originalPrice exists, no USD
         if (currentPhase === PricingPhase.Regular) {
             return null

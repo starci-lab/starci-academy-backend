@@ -298,14 +298,17 @@ export class ReactionService {
                     },
                 }))
         }
-        // notify the room (scoped to the comment's content) of the change
-        await this.eventEmitterService.emit({
-            event: EventName.CommentReactionChanged,
-            payload: {
-                contentId: comment.contentId,
-                commentId,
-            },
-        })
+        // notify the room (scoped to the comment's content) of the change — a
+        // course-general question has no content room (see comment.service.ts).
+        if (comment.contentId) {
+            await this.eventEmitterService.emit({
+                event: EventName.CommentReactionChanged,
+                payload: {
+                    contentId: comment.contentId,
+                    commentId,
+                },
+            })
+        }
         // recompute via the batch summarizer, then pick this comment's bucket
         const summaries = await this.summarizeComments({
             commentIds: [

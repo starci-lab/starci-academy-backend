@@ -5,12 +5,11 @@ import {
     EntityManager,
 } from "typeorm"
 import {
-    CvSource,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
-    UserCvGenerationEntity,
 } from "@modules/databases"
 import {
+    CvVerificationService,
     UserSolvedChallengesProjectionService,
 } from "@modules/bussiness"
 import {
@@ -70,6 +69,7 @@ export class JobReadinessService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly userSolvedChallengesProjectionService: UserSolvedChallengesProjectionService,
+        private readonly cvVerificationService: CvVerificationService,
     ) {}
 
     /**
@@ -251,13 +251,20 @@ export class JobReadinessService {
     /**
      * Average mock-interview overall score per enrollment, over ONLY that
      * enrollment's {@link JOB_READINESS_INTERVIEW_RECENT_WINDOW} MOST RECENT
-     * attempts (by `created_at DESC`) — see that constant's doc for why an
-     * all-time average is deliberately avoided (it punishes early weak
-     * attempts forever).
+     * attempts that ACTUALLY COUNT towards readiness (by `created_at DESC`)
+     * — see that constant's doc for why an all-time average is deliberately
+     * avoided (it punishes early weak attempts forever).
+     *
+     * "Configurable setup" (2026-07-06): a `WHERE counts_to_readiness = true`
+     * filter excludes every "Tùy chỉnh" (Configurable) qna attempt — deliberate,
+     * learner-picked question-count/kind practice must never dilute this
+     * exam-like signal. `counts_to_readiness` defaults `true` and every
+     * pre-existing row (Auto qna + all design attempts) was written before
+     * this column existed, so this filter is a no-op for historical data.
      *
      * Implemented as a `ROW_NUMBER() OVER (PARTITION BY enrollment_id ORDER BY
-     * created_at DESC)` window filtered to `<= N`, then averaged per
-     * enrollment in an outer query.
+     * created_at DESC)` window (over the already-filtered rows) filtered to
+     * `<= N`, then averaged per enrollment in an outer query.
      *
      * WF-04 (verified): migration `1721500000000-CreateMockInterviewAttempts`
      * + the entity exist, so the table is present once migrations run. The
@@ -266,7 +273,7 @@ export class JobReadinessService {
      * failing the whole query.
      *
      * @param enrollmentIds - the learner's enrollment ids.
-     * @returns one row per enrollment with a recent-window average score, or [] if the table is unavailable.
+     * @returns one row per enrollment with a recent-window average score (readiness-counting attempts only), or [] if the table is unavailable.
      */
     private async loadInterviewAverages(enrollmentIds: Array<string>): Promise<Array<InterviewAvgRow>> {
         try {
@@ -281,7 +288,7 @@ export class JobReadinessService {
                             ORDER BY created_at DESC
                         ) AS recency_rank
                     FROM mock_interview_attempts
-                    WHERE enrollment_id = ANY($1)
+                    WHERE enrollment_id = ANY($1) AND counts_to_readiness = true
                 )
                 SELECT enrollment_id AS enrollment_id, AVG(overall_score) AS avg_score
                 FROM ranked_attempts
@@ -300,84 +307,68 @@ export class JobReadinessService {
     }
 
     /**
-     * Best GENERATED-CV score per course — the CV pillar of each track.
+     * Deterministic CV trust score per course — the CV pillar of each track
+     * (2026-07-05: REPLACED the old AI-judged `cv_generations.score` rubric
+     * entirely — no AI, no CV prose read here). Scoped PER-COURSE on purpose:
+     * {@link import("../../../../../../modules/bussiness/headhuntings/cv-verification.service").CvVerificationService.resolveLevelForCourse}
+     * only counts a passed capstone / graded challenge that happened WITHIN
+     * that course's own enrollment — a capstone passed in a DIFFERENT course
+     * must never inflate THIS track's depth (that cross-track leak is exactly
+     * what the fair-monetization axiom forbids). `SelfReported` in a course
+     * (no capstone/challenge signal there yet) degrades to `null` so the pillar
+     * is renormalized away in {@link depthOf} rather than scored as a hard 0.
      *
-     * Groups `MAX(cv_generations.score)` by `course_id` over the learner's CVs
-     * that are (a) tied to one of their enrolled courses, (b) already scored,
-     * and (c) `source = 'generated'` — an achievement-backed CV the system
-     * assembled from the learner's verified StarCi work. A merely `uploaded`
-     * CV is unchecked prose and must NEVER inflate a track's depth (the fair
-     *-monetization axiom: no scalar may move just because the learner brought
-     * in an outside file). A course with no scored generated CV attached simply
-     * produces no row → its track's CV pillar degrades to null (renormalized
-     * away in {@link depthOf}).
-     *
-     * Sourced ONLY from the unified table (`cv_generations`) — the legacy upload
-     * table was never course-scoped, so it has no per-track dimension to read.
+     * ⚠️ Score-step values pending calibration (see `scoreOf`'s own doc) — the
+     * FORMULA'S fairness is locked here, not the threshold.
      *
      * @param userId - the learner.
      * @param courseIds - the learner's enrolled course ids.
-     * @returns one row per course that has a scored generated CV, with the best score.
+     * @returns one row per course, with its deterministic CV trust score (`null` when self-reported/no signal).
      */
     private async loadTrackCvScores(
         userId: string,
         courseIds: Array<string>,
     ): Promise<Array<CvScoreRow>> {
-        return this.entityManager.query<Array<CvScoreRow>>(
-            `
-            SELECT course_id AS course_id, MAX(score) AS max_score
-            FROM cv_generations
-            WHERE user_id = $1
-              AND course_id = ANY($2)
-              AND score IS NOT NULL
-              AND source = $3
-            GROUP BY course_id
-            `,
-            [
-                userId,
-                courseIds,
-                CvSource.Generated,
-            ],
+        const rows = await Promise.all(
+            courseIds.map(async (courseId) => {
+                const level = await this.cvVerificationService.resolveLevelForCourse({
+                    userId,
+                    courseId,
+                })
+                const score = this.cvVerificationService.scoreOf(level)
+                return {
+                    course_id: courseId,
+                    // self-reported → null (renormalized away), not a hard 0
+                    max_score: score > 0 ? String(score) : null,
+                }
+            }),
         )
+        return rows.filter((row): row is CvScoreRow => row.max_score !== null)
     }
 
     /**
-     * Best GENERATED-CV score across ALL of the learner's CVs (global,
-     * person-level) — kept on the foundation so the FE (which reads
-     * `foundation.cvScore`) stays non-breaking; the additive per-track
-     * {@link JobReadinessTrack.cvScore} is the new source of truth for depth.
+     * Deterministic CV trust score across the learner's WHOLE platform
+     * activity (global, person-level) — kept on the foundation so the FE
+     * (which reads `foundation.cvScore`) stays non-breaking; the additive
+     * per-track {@link JobReadinessTrack.cvScore} is the source of truth for depth.
      *
-     * Filters to `source = 'generated'` — only an achievement-backed CV the
-     * system assembled from the learner's verified StarCi work counts toward
-     * job-readiness. A merely `uploaded` CV is unchecked prose (the rubric
-     * grades its prose, not the claims in it) and must never move this global
-     * signal, per the fair-monetization axiom (no scalar may move just because
-     * the learner brought in an outside file).
-     *
-     * Reads the UNIFIED `cv_generations` table alone. The legacy
-     * `cv_submission_attempts` union-read has been retired: the WF-03c backfill
-     * migration copied every legacy scored attempt into `cv_generations`
-     * (`source = 'uploaded'`), and a prod count check confirmed the backfill is
-     * complete and score-for-score exact. See WF-10.
+     * (2026-07-05: REPLACED the old AI-judged `cv_generations.score` rubric
+     * entirely.) A pure function of
+     * {@link import("../../../../../../modules/bussiness/headhuntings/cv-verification.service").CvVerificationService.resolveLevel}
+     * (passed capstone / graded challenge, existence-checked ANYWHERE on the
+     * platform) — count-independent and payment-independent by construction,
+     * same guarantee as the recruiter-contact gate
+     * ({@link import("../../../../../../modules/bussiness/headhuntings/consultant-contact-gate.service").ConsultantContactGateService.getBestCvScore}),
+     * which now reads the exact same signal.
      *
      * @param userId - the learner.
-     * @returns 0–100 (best generated CV), or null if no generated CV has been scored yet.
+     * @returns 100 / 50, or `null` when self-reported (no graded StarCi work yet).
      */
     private async computeCvScore(userId: string): Promise<number | null> {
-        const bestGenerated = await this.entityManager.findOne(
-            UserCvGenerationEntity,
-            {
-                where: {
-                    userId,
-                    source: CvSource.Generated,
-                },
-                order: {
-                    score: "DESC",
-                },
-            },
-        )
-
-        return bestGenerated?.score ?? null
+        const level = await this.cvVerificationService.resolveLevel(userId)
+        const score = this.cvVerificationService.scoreOf(level)
+        // self-reported → null (no CV pillar signal yet), not a hard 0
+        return score > 0 ? score : null
     }
 
     /**
