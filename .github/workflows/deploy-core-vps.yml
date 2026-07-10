@@ -9,7 +9,6 @@ on:
     paths-ignore:
       - ".github/**"
       - "**.md"
-      - ".audits/**"
       - ".claude/**"
       - "scratch/**"
   workflow_dispatch:
@@ -84,13 +83,16 @@ jobs:
           # Background synchronizer master switch (runtime, separate from init scope).
           SYNCHRONIZER_ENABLE: ${{ vars.SYNCHRONIZER_ENABLE }}
 
-          # Lesson RAG index — builds the persistent `lesson_rag` Qdrant collection
-          # at init (content-AI chat retrieval). Default OFF in code; toggle via
-          # this repo Variable so ops can flip it without a code redeploy. Every
-          # boot with this on DROPS + REBUILDS the whole collection (embeds every
-          # lesson) — the embed calls hit the local Ollama lane over the
-          # qwen.starci.org tunnel, so each redeploy adds real load there.
-          LESSON_RAG_INDEX_ENABLED: ${{ vars.LESSON_RAG_INDEX_ENABLED }}
+          # Content RAG index — builds the persistent `content_rag` Qdrant collection
+          # at init (content-AI chat grounding + "search course content" / related
+          # content). Default OFF in code; toggle via this repo Variable so ops can
+          # flip it without a code redeploy. RENAMED from LESSON_RAG_INDEX_ENABLED
+          # (old code used `lesson_rag`); the current code reads CONTENT_RAG_* and the
+          # collection is `content_rag`. The indexer is now DIFF-AWARE (2026-07-11
+          # fix): the FIRST enabled boot embeds every lesson/challenge/deck/task once
+          # (real load on the local Ollama lane via the qwen.starci.org tunnel);
+          # subsequent boots skip unchanged content (no more re-embed-every-boot).
+          CONTENT_RAG_INDEX_ENABLED: ${{ vars.CONTENT_RAG_INDEX_ENABLED }}
 
           # Container paths (/usr/src/app/.mount/...), not host /root/academy/...
           TERRAFORM_KEYCLOAK_ADMIN_MOUNT_PATH: ${{ vars.TERRAFORM_KEYCLOAK_ADMIN_MOUNT_PATH }}
