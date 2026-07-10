@@ -1,13 +1,13 @@
 # StarCi FS — Rules Lean (cheat-sheet)
 
-Bản tinh gọn để audit nhanh. Chi tiết TỰ-ĐỦ trong `.audits`: `rules/fullstack/{contents,challenges}.md`, `rules/coding-problems.md` (LeetCode bank — Judge0-AC 5 lang). KHÔNG ref file ngoài.
+Bản tinh gọn để audit nhanh. Chi tiết TỰ-ĐỦ trong `.claude/docs`: `rules/fullstack/{contents,challenges}.md`, `rules/coding-problems.md` (LeetCode bank — Judge0-AC 5 lang). KHÔNG ref file ngoài.
 
 ## References (gold modules) — đọc TRƯỚC khi audit
-- `.audits/references.md` = registry module/lesson **đã PASS**, dùng làm GOLD theo từng **variant** (FE-Vite / BE-4lang / BE+Playwright). Đọc mục cùng variant trước khi bắt tay → bắt chước format chuẩn, đỡ lặp lỗi cũ.
+- `.claude/docs/references.md` = registry module/lesson **đã PASS**, dùng làm GOLD theo từng **variant** (FE-Vite / BE-4lang / BE+Playwright). Đọc mục cùng variant trước khi bắt tay → bắt chước format chuẩn, đỡ lặp lỗi cũ.
 - **Sau khi module mới hội tụ PASS:** runner tự **append** 1 block vào `references.md` (variant + lesson gold + bài học). Append-only, KHÔNG sửa block cũ.
 
 ## Nơi ghi artifact audit
-- `research.md` · `decision.md` · `claude_submitted.md` · `.code/` · `.e2e/` ghi **THẲNG vào mount** `.../modules/<slot>/contents/<lesson>/` (cạnh `audited.md`), **tiếng Việt**. KHÔNG để ở cây `.audits/` riêng.
+- `research.md` · `decision.md` · `claude_submitted.md` · `.code/` · `.e2e/` ghi **THẲNG vào mount** `.../modules/<slot>/contents/<lesson>/` (cạnh `audited.md`), **tiếng Việt**. KHÔNG để ở cây `.claude/docs/` riêng.
 
 ## Tiếng Việt CHUẨN (gate bắt — chuẩn `data/rules/audit-vietnamese.md`)
 - **Đủ dấu:** MỌI tiếng Việt — `vi.md` (body + challenge) + artifact (`research/decision/claude_submitted`) + `references.md` — PHẢI đủ dấu. CẤM không dấu (`khong`/`duoc`/`phai`/`kiem thu`/`ban chat`…). Code-fence comment English-only (không xét dấu trong code).
@@ -35,7 +35,7 @@ Bản tinh gọn để audit nhanh. Chi tiết TỰ-ĐỦ trong `.audits`: `rule
 #### 2.1.2. Kiến trúc / thành phần / Architecture / components
 #### 2.1.3. Giải thích code và bản chất / Code walkthrough and essence   (2.1.3.1/2/3)
 #### 2.1.4. Chuẩn bị & khởi chạy / Setup & run   (2.1.4.1 Điều kiện cần trước · 2.1.4.2 Khởi động)
-#### 2.1.5. Kiểm thử / Testing   (FE/WS: "Kiểm thử (Playwright)") — 3-5 Luồng 2.1.5.x
+#### 2.1.5. Kiểm thử / Testing   (FE/WS: "Kiểm thử (Playwright)") — 3-5 Luồng = intro bullet-list + `::::accordion` panels (KHÔNG `##### 2.1.5.x`)
 #### 2.1.6. Dọn tài nguyên / Cleanup
 #### 2.1.7. Đọc thêm / Further reading
 ### 2.2. Lý thuyết / Theory  → 2.2.1 Bản chất + 2.2.2 Các trường hợp biên (edge cases)  ← ĐÚNG 2 MỤC
@@ -44,7 +44,8 @@ Bản tinh gọn để audit nhanh. Chi tiết TỰ-ĐỦ trong `.audits`: `rule
 - Heading KHÔNG có dấu `.` cuối phần chữ. Code-walkthrough sub dùng `##### 2.1.3.1` (KHÔNG `(a)(b)`).
 
 ## Wording / format (CẤM sai)
-- **Bridge §1 + flow-list §2.1.5 = bullet list**, CẤM inline `**(1)** ...; **(2)**`.
+- **Bridge §1 = bullet list**, CẤM inline `**(1)** ...; **(2)**`.
+- **§2.1.5 Kiểm thử = ACCORDION** (convention hiện hành): intro 1 bullet-list `- **Luồng N — \`route\`:** <mục tiêu>` → rồi khối `::::accordion` (4 dấu `:` bọc 3) mỗi luồng 1 `:::panel{title="<tên, KHÔNG số>"}` … `:::` → đóng `::::`. KHÔNG còn `##### 2.1.5.x` (bài cũ → refactor). CẤM inline. GIỮ §2.1.3 nest `#####`. Chi tiết: `rules/<course>/contents.md`.
 - **Step/Requirement sub = callout `:::muted`**, CẤM heading `### 1./2./3.`.
 - Interview block: `- **Câu hỏi N: ...?**` → `  - Ý interviewer muốn nghe:` → `  - Trả lời mẫu (ngắn):` (EN: Question/What interviewers want to hear/Sample answer (concise)).
 - Flow conclusion `*Kết luận: ...*` (italic). Mermaid caption `*Hình N: ...*`.
@@ -74,4 +75,4 @@ Bản tinh gọn để audit nhanh. Chi tiết TỰ-ĐỦ trong `.audits`: `rule
 - Premium: 1-2 lesson cuối module `isPremium=true`.
 
 ## Gate nhanh
-`./.audits/check-lesson.ps1 -Path <module-dir>` → exit=#fail. Bắt: leak · inline-bullet · fence · theory=2 · 2.1.7 · challenge score/verified/ref-sub/`###N`/Σ30+70/critical/parity.
+`./.claude/docs/check-lesson.ps1 -Path <module-dir>` → exit=#fail. Bắt: leak · inline-bullet · fence · theory=2 · 2.1.7 · challenge score/verified/ref-sub/`###N`/Σ30+70/critical/parity.
