@@ -77,8 +77,14 @@ services:
     restart: unless-stopped
 
   # ── Qdrant (vector store for langchain/embeddings) ──
+  # v1.10+ required: the app's @qdrant/js-client-rest 1.17 (via QdrantVectorStore)
+  # speaks the Universal Query API (POST /points/query), introduced in Qdrant
+  # v1.10. On v1.9.2 that endpoint 404s and ContentRagRetrievalService swallows
+  # the error → empty results (content-linking, chat grounding, interview
+  # grounding all silently degrade). v1.10.1 = single-minor upgrade from v1.9.2
+  # (supported storage step) that adds the Query API.
   qdrant:
-    image: qdrant/qdrant:v1.9.2
+    image: qdrant/qdrant:v1.10.1
     container_name: starci-qdrant
     environment:
       QDRANT__SERVICE__API_KEY: "Cuong123_A"   # matches QDRANT_API_KEY

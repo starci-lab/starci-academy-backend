@@ -159,21 +159,11 @@ describe("ContentRagIndexService",
 
                 // 2 body docs + 1 code doc → 3 chunks (chunkSize huge → 1 chunk each)
                 expect(result.indexed).toBe(3)
-                // a new content is "dirty" — its (empty, first-build) stale points are
-                // cleared before the fresh chunks are upserted
-                expect(qdrantClient.delete).toHaveBeenCalledWith("content_rag",
-                    expect.objectContaining({
-                        filter: {
-                            must: [
-                                {
-                                    key: "contentId",
-                                    match: {
-                                        value: "c1",
-                                    },
-                                },
-                            ],
-                        },
-                    }))
+                // a BRAND-NEW content on a first build has nothing indexed yet → its
+                // delete is SKIPPED (the dirtyPreviouslyIndexedIds optimization avoids a
+                // wasted full-collection scan per new row; only previously-indexed
+                // changed content gets its stale points cleared before re-insert)
+                expect(qdrantClient.delete).not.toHaveBeenCalled()
                 expect(fromDocuments).toHaveBeenCalledTimes(1)
 
                 const [
@@ -332,8 +322,10 @@ describe("ContentRagIndexService",
                     points: [
                         {
                             payload: {
-                                contentId: "c1",
-                                sourceHash,
+                                metadata: {
+                                    contentId: "c1",
+                                    sourceHash,
+                                },
                             },
                         },
                     ],
@@ -362,8 +354,10 @@ describe("ContentRagIndexService",
                     points: [
                         {
                             payload: {
-                                contentId: "c1",
-                                sourceHash: "stale-hash-from-a-previous-version",
+                                metadata: {
+                                    contentId: "c1",
+                                    sourceHash: "stale-hash-from-a-previous-version",
+                                },
                             },
                         },
                     ],
@@ -378,7 +372,7 @@ describe("ContentRagIndexService",
                         filter: {
                             must: [
                                 {
-                                    key: "contentId",
+                                    key: "metadata.contentId",
                                     match: {
                                         value: "c1",
                                     },
@@ -401,8 +395,10 @@ describe("ContentRagIndexService",
                     points: [
                         {
                             payload: {
-                                contentId: "gone",
-                                sourceHash: "whatever",
+                                metadata: {
+                                    contentId: "gone",
+                                    sourceHash: "whatever",
+                                },
                             },
                         },
                     ],
@@ -418,7 +414,7 @@ describe("ContentRagIndexService",
                         filter: {
                             must: [
                                 {
-                                    key: "contentId",
+                                    key: "metadata.contentId",
                                     match: {
                                         value: "gone",
                                     },
@@ -439,8 +435,10 @@ describe("ContentRagIndexService",
                         points: [
                             {
                                 payload: {
-                                    contentId: "page1-content",
-                                    sourceHash: "h1",
+                                    metadata: {
+                                        contentId: "page1-content",
+                                        sourceHash: "h1",
+                                    },
                                 },
                             },
                         ],
@@ -450,8 +448,10 @@ describe("ContentRagIndexService",
                         points: [
                             {
                                 payload: {
-                                    contentId: "page2-content",
-                                    sourceHash: "h2",
+                                    metadata: {
+                                        contentId: "page2-content",
+                                        sourceHash: "h2",
+                                    },
                                 },
                             },
                         ],
@@ -470,7 +470,7 @@ describe("ContentRagIndexService",
                         filter: {
                             must: [
                                 {
-                                    key: "contentId",
+                                    key: "metadata.contentId",
                                     match: {
                                         value: "page1-content",
                                     },
@@ -483,7 +483,7 @@ describe("ContentRagIndexService",
                         filter: {
                             must: [
                                 {
-                                    key: "contentId",
+                                    key: "metadata.contentId",
                                     match: {
                                         value: "page2-content",
                                     },

@@ -339,9 +339,12 @@ export class CvRagIndexService {
                     {
                         limit: 1000,
                         offset,
+                        // LangChain nests doc metadata under a `metadata` payload
+                        // sub-object → read that, not top-level keys (which are
+                        // undefined). Same 28×-duplicate bug fixed in
+                        // ContentRagIndexService (2026-07-11).
                         with_payload: [
-                            "entryId",
-                            "sourceHash",
+                            "metadata",
                         ],
                         with_vector: false,
                     })
@@ -349,8 +352,9 @@ export class CvRagIndexService {
                 return hashes
             }
             for (const point of page.points) {
-                const entryId = point.payload?.entryId
-                const sourceHash = point.payload?.sourceHash
+                const metadata = point.payload?.metadata as { entryId?: unknown, sourceHash?: unknown } | undefined
+                const entryId = metadata?.entryId
+                const sourceHash = metadata?.sourceHash
                 if (typeof entryId === "string" && typeof sourceHash === "string" && !hashes.has(entryId)) {
                     hashes.set(entryId,
                         sourceHash)
@@ -378,7 +382,11 @@ export class CvRagIndexService {
                     filter: {
                         must: [
                             {
-                                key: "entryId",
+                                // LangChain nests metadata under `metadata` → filter on
+                                // `metadata.entryId`, not top-level (matched 0 → never
+                                // cleared stale → duplicates piled up). Same fix as
+                                // ContentRagIndexService (2026-07-11).
+                                key: "metadata.entryId",
                                 match: {
                                     value: entryId,
                                 },
