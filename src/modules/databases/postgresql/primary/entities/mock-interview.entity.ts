@@ -8,8 +8,11 @@ import {
     UuidAbstractEntity,
 } from "./abstract"
 import {
-    InterviewQuestionGivenCodeEntity,
-} from "./interview-question-given-code.entity"
+    MockInterviewTranslationEntity,
+} from "./mock-interview-translation.entity"
+import {
+    MockInterviewLangEntity,
+} from "./mock-interview-lang.entity"
 
 /**
  * One authored MOCK-INTERVIEW question — the static side of the "đề tĩnh · phản
@@ -31,16 +34,24 @@ import {
  * (`rubric`/`followUps`/`hints`/`keywords`/`tags`) land as jsonb arrays;
  * `family`/`kind`/`tier` are varchar (never pg_enum — same reasoning as
  * `mock_interview_sessions.mode`, avoids the synchronize enum-add trap).
+ *
+ * Bilingual override via {@link translations} ({@link MockInterviewTranslationEntity}) —
+ * same house pattern as content/milestone/challenge, added alongside the rename
+ * from `interview_questions`. Per-programming-language `givenCode` variants (for
+ * questions grounded in a multi-lang module) live in {@link langs}
+ * ({@link MockInterviewLangEntity}) — the inline `givenCode`/`givenLang` columns
+ * on this row stay as the single-language default; `langs` is populated only
+ * when a question needs more than one language variant.
  */
-@Entity("interview_questions")
+@Entity("mock_interviews")
 // technical draw scopes by (course, reached module) + tier; behavioral by tier only
-@Index("idx_interview_questions_course_module",
+@Index("idx_mock_interviews_course_module",
     ["courseId",
         "moduleId"])
-@Index("idx_interview_questions_family_tier",
+@Index("idx_mock_interviews_family_tier",
     ["family",
         "tier"])
-export class InterviewQuestionEntity extends UuidAbstractEntity {
+export class MockInterviewEntity extends UuidAbstractEntity {
     /** `technical` | `behavioral` — routes source, grading model + surfaced tools. */
     @Column({
         type: "varchar", length: 32 
@@ -97,24 +108,21 @@ export class InterviewQuestionEntity extends UuidAbstractEntity {
 
     /** Optional GIVEN diagram (mermaid) the candidate reasons over (technical `scenario`). */
     @Column({
-        type: "text", nullable: true 
+        type: "text", nullable: true
     })
         diagram: string | null
 
-    /**
-     * Optional GIVEN code (broken / to review) the candidate reads (technical
-     * `debug`/`review`/`optimize`) — one row per authored programming-language
-     * variant (up to the 4 in `DEFAULT_PROGRAMMING_LANGUAGES`), same conceptual
-     * bug/snippet in each. Empty array for every other `kind`.
-     */
-    @OneToMany(
-        () => InterviewQuestionGivenCodeEntity,
-        (givenCode: InterviewQuestionGivenCodeEntity) => givenCode.question,
-        {
-            cascade: true,
-        },
-    )
-        givenCodes: Array<InterviewQuestionGivenCodeEntity>
+    /** Optional GIVEN code (broken / to review) the candidate reads (technical `debug`/`review`/`optimize`). */
+    @Column({
+        name: "given_code", type: "text", nullable: true
+    })
+        givenCode: string | null
+
+    /** Language of {@link givenCode} (e.g. "typescript"). */
+    @Column({
+        name: "given_lang", type: "varchar", length: 32, nullable: true
+    })
+        givenLang: string | null
 
     /** EQ competency being probed — conflict/ownership/leadership/communication/growth (behavioral only). */
     @Column({
@@ -175,4 +183,24 @@ export class InterviewQuestionEntity extends UuidAbstractEntity {
         name: "default_locale", type: "varchar", length: 8, default: "vi" 
     })
         defaultLocale: string
+
+    /** Bilingual overrides for this row's translatable fields (see class doc). */
+    @OneToMany(
+        () => MockInterviewTranslationEntity,
+        (translation: MockInterviewTranslationEntity) => translation.mockInterview,
+        {
+            cascade: true,
+        },
+    )
+        translations: Array<MockInterviewTranslationEntity>
+
+    /** Per-programming-language `givenCode` variants (see class doc). */
+    @OneToMany(
+        () => MockInterviewLangEntity,
+        (lang: MockInterviewLangEntity) => lang.mockInterview,
+        {
+            cascade: true,
+        },
+    )
+        langs: Array<MockInterviewLangEntity>
 }

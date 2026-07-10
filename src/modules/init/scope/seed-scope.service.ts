@@ -51,9 +51,9 @@ export class SeedScopeService {
         return this.seeders().courses.flashcard.linkContents
     }
 
-    /** Whether technical (course-scoped) mock-interview question seeding is enabled. */
-    isCoursesInterviewQuestionSeederEnabled(): boolean {
-        return this.seeders().courses.interviewQuestions
+    /** Whether mock-interview technical bank seeding is enabled. */
+    isCoursesInterviewSeederEnabled(): boolean {
+        return this.seeders().courses.interview.enabled
     }
 
     /** Whether CV mount seeding is enabled. */

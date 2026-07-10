@@ -2,7 +2,7 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    InterviewQuestionEntity,
+    MockInterviewEntity,
 } from "@modules/databases"
 import {
     SeedScopeService,
@@ -24,7 +24,7 @@ import {
 /**
  * Seeds behavioral (global, non-course-scoped) EQ mock-interview questions from
  * `mock-interview-eq/{bank}/questions/{question}/vi.md`. Sibling of the technical
- * (course-scoped) `InterviewQuestionProcessorService`, but a top-level seeder like
+ * (course-scoped) `MockInterviewProcessorService`, but a top-level seeder like
  * {@link AchievementSeederService} since this family has no owning course/module to
  * hang off — every row's `courseId`/`moduleId` is `null`.
  */
@@ -50,21 +50,21 @@ export class MockInterviewEqSeederService {
         try {
             const interviewQuestions = await this.interviewQuestionEqParserService.parseMany()
             const partition = await this.upsertService.partitionUuidSync({
-                entityClass: InterviewQuestionEntity,
+                entityClass: MockInterviewEntity,
                 entities: interviewQuestions,
                 where: {
                     family: "behavioral",
                 },
             })
             await this.uuidPartitionPersistProcessorService.process({
-                entityClass: InterviewQuestionEntity,
+                entityClass: MockInterviewEntity,
                 partition,
             })
         } catch (error) {
             // a malformed behavioral tree must not abort the whole init pipeline
             logInitSeederEntitySkipped(
                 this.winstonService,
-                InterviewQuestionEntity,
+                MockInterviewEntity,
                 "mock-interview-eq",
                 error,
             )

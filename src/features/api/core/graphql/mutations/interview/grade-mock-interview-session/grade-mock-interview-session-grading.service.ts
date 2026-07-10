@@ -11,8 +11,8 @@ import {
     AiModelTask,
     FlashcardCardEntity,
     InjectPrimaryPostgreSQLEntityManager,
-    InterviewQuestionEntity,
     MockInterviewAttemptEntity,
+    MockInterviewEntity,
     MockInterviewMode,
     MockInterviewSeedQuestion,
     MockInterviewSessionEntity,
@@ -465,13 +465,13 @@ export class MockInterviewGradingService {
         // flashcard-seed sessions). Fetch both, resolve per-seed by whichever hits.
         const [bankRows,
             cards] = await Promise.all([
-            this.entityManager.find(InterviewQuestionEntity,
+            this.entityManager.find(MockInterviewEntity,
                 {
                     where: {
                         id: In(cardIds),
                     },
                     relations: {
-                        givenCodes: true,
+                        langs: true,
                     },
                 }),
             this.entityManager.find(FlashcardCardEntity,
@@ -518,10 +518,23 @@ export class MockInterviewGradingService {
                     }
                     // pick the variant matching what the candidate actually submitted in;
                     // fall back to the first authored variant (DEFAULT_PROGRAMMING_LANGUAGES
-                    // order at authoring time) when nothing was submitted for this question
+                    // order at authoring time) when nothing was submitted for this question.
+                    // Per-language `# langs` variants take priority; a question authored with
+                    // only the single givenCode/givenLang pair falls back to that as its one variant.
+                    const variants = (bank.langs ?? []).length > 0
+                        ? [...bank.langs]
+                            .sort((left, right) => left.sortIndex - right.sortIndex)
+                            .map((lang) => ({
+                                lang: lang.lang, code: lang.givenCode,
+                            }))
+                        : bank.givenCode
+                            ? [{
+                                lang: bank.givenLang ?? "agnostic", code: bank.givenCode,
+                            }]
+                            : []
                     const submittedLang = submittedLangByIndex.get(index)
-                    const givenCodeVariant = bank.givenCodes.find((variant) => variant.lang === submittedLang)
-                        ?? bank.givenCodes[0]
+                    const givenCodeVariant = variants.find((variant) => variant.lang === submittedLang)
+                        ?? variants[0]
                     const grounding: MockInterviewSeedGrounding = {
                         cardId: bank.id,
                         kind: normalizeMockInterviewKind(seed.kind) as string,

@@ -35,7 +35,9 @@ const DEFAULT_SEED_CONFIG: SeedConfig = {
                 enabled: false,
                 linkContents: false,
             },
-            interviewQuestions: false,
+            interview: {
+                enabled: false,
+            },
         },
         cv: false,
         foundations: false,

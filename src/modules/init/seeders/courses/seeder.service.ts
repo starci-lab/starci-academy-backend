@@ -32,7 +32,6 @@ export class CourseSeederService {
         }
         const flashcardEnabled = this.seedScopeService.isCoursesFlashcardSeederEnabled()
         const flashcardLinkContents = this.seedScopeService.isCoursesFlashcardLinkContentsEnabled()
-        const interviewQuestionsEnabled = this.seedScopeService.isCoursesInterviewQuestionSeederEnabled()
         const {
             moduleIndexFilterByDisplayId,
             milestoneIndexFilterByDisplayId,
@@ -44,7 +43,6 @@ export class CourseSeederService {
             milestoneIndexFilterByDisplayId,
             flashcardEnabled,
             flashcardLinkContents,
-            interviewQuestionsEnabled,
         })
     }
 }

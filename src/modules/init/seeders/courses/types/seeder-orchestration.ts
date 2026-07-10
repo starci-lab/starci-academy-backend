@@ -26,8 +26,6 @@ export interface ProcessCoursesParams {
     flashcardEnabled: boolean
     /** When true, build content path → id map for flashcard N:N links. */
     flashcardLinkContents: boolean
-    /** When true, parse and upsert technical mock-interview questions per course. */
-    interviewQuestionsEnabled: boolean
 }
 
 /** {@link ModuleProcessorService.process} input. */
@@ -70,8 +68,8 @@ export interface ProcessFlashcardDecksParams {
     courseResult: ResolvedFileResult<DeepPartial<CourseEntity>>
 }
 
-/** {@link InterviewQuestionProcessorService.process} input. */
-export interface ProcessInterviewQuestionsParams {
+/** {@link MockInterviewProcessorService.process} input. */
+export interface ProcessMockInterviewParams {
     /** Matching course parse result. */
     courseResult: ResolvedFileResult<DeepPartial<CourseEntity>>
 }

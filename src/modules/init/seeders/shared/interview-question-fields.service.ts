@@ -70,8 +70,8 @@ export interface ParsedInterviewQuestionCommonFields {
 /**
  * Parses the `# field` headings shared by every mock-interview question document
  * (technical `courses/{c}/mock-interview/…` and behavioral `mock-interview-eq/…`)
- * into their common {@link InterviewQuestionEntity} column values. Family-specific
- * fields (technical `diagram`/`givenCodes`, behavioral `competency`/`ownershipSignal`)
+ * into their common {@link MockInterviewEntity} column values. Family-specific
+ * fields (technical `diagram`/`givenCode`/`langs`, behavioral `competency`/`ownershipSignal`)
  * are parsed separately by each caller.
  */
 @Injectable()

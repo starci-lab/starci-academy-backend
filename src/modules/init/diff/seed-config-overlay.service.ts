@@ -205,9 +205,13 @@ export class SeedDiffOverlayService {
                         enabled: domains.flashcard,
                         linkContents: false,
                     },
-                    // the diff pipeline has no interview-question change detection yet
-                    // (unlike `flashcardChangedCourses`) — never auto-enabled by a diff sync
-                    interviewQuestions: false,
+                    // diff/full-reseed auto-detection doesn't track mock-interview bank
+                    // changes yet (no `DataGitDomain`/`DomainFlags` wiring) — only the
+                    // explicit `seed.courses.<course>.interview` block (via
+                    // `InitConfigParserService`) can turn this on today.
+                    interview: {
+                        enabled: false,
+                    },
                 },
                 cv: domains.cv,
                 foundations: domains.foundations,

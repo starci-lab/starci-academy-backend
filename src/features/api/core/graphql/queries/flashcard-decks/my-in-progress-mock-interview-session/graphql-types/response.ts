@@ -42,7 +42,7 @@ export class MyInProgressMockInterviewSeedQuestionItem {
     @Field(
         () => ID,
         {
-            description: "The seed flashcard_cards.id (or interview_questions.id for a bank-sourced draw).",
+            description: "The seed flashcard_cards.id (or mock_interviews.id for a bank-sourced draw).",
         },
     )
         cardId: string

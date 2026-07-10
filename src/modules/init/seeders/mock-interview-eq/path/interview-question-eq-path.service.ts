@@ -8,7 +8,7 @@ import {
 
 /**
  * Resolves indexed mock-interview-eq (behavioral, global) bank + question mount
- * folders. Unlike the technical {@link InterviewQuestionBankPathService} this walks
+ * folders. Unlike the technical {@link MockInterviewPathService} this walks
  * from the `mockInterviewEq` context root directly — there is no owning course to
  * scope under (`mock-interview-eq/{bank}/questions/{question}/`).
  */
@@ -24,7 +24,7 @@ export class InterviewQuestionEqPathService {
      */
     async bankPaths(): Promise<Array<ResolvedFilePath>> {
         return await this.pathResolverService.filePaths(
-            "mockInterviewEq",
+            "mock-interview-eq",
             "",
         )
     }
@@ -40,7 +40,7 @@ export class InterviewQuestionEqPathService {
         bankRelativePath: string,
     ): Promise<Array<ResolvedFilePath>> {
         return await this.pathResolverService.filePaths(
-            "mockInterviewEq",
+            "mock-interview-eq",
             `${bankRelativePath}/questions`,
         )
     }

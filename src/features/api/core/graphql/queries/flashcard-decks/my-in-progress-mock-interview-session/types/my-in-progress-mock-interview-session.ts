@@ -1,6 +1,6 @@
 /** One drawn flashcard-card seed question, read back for a resumable session. */
 export interface MyInProgressMockInterviewSeedQuestion {
-    /** The seed `flashcard_cards.id` (or `interview_questions.id` for a bank-sourced draw). */
+    /** The seed `flashcard_cards.id` (or `mock_interviews.id` for a bank-sourced draw). */
     cardId: string
     /** The cognitive frame this ONE question is asked in ("theory" | "reasoning" | "scenario"). */
     kind: string

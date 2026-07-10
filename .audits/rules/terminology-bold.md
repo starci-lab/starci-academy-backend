@@ -1,4 +1,4 @@
-# RULE — Terminology & Bold (content + challenges)
+# RULE — Terminology & Bold (mọi loại content)
 
 > **STRICT. KHÔNG ĐÙA.** Rule này quyết định: từ nào để tiếng Việt, từ nào giữ tiếng Anh, từ nào English+bold.
 > Đã có feedback thực tế vì làm sai. Đọc HẾT trước khi đụng 1 ký tự. Sai 1 chỗ = sai cả module.
@@ -8,11 +8,17 @@
 > lặp mọi lesson — định nghĩa ở `fullstack/contents.md §1`). **CHỈ CẤM** bold: nhấn ad-hoc cả câu/cụm giữa đoạn, từ Loại 1/2
 > giữa văn xuôi, và bold quanh/lấn inline code.
 >
-> Áp dụng cho **CẢ content LẪN challenges** của mọi khóa (Fullstack, System Design, DevOps):
+> **Áp dụng cho MỌI loại content** (ruling 2026-07-10, xem
+> `.audits/principles/translation-standard-all-content-types.md`) — không riêng content+
+> challenges: **content · challenges · flashcard · mock-interview · milestone**, mọi khóa
+> (Fullstack, System Design, DevOps):
 > - **Content**: `contents/<lesson>/bodies/<lang>/{vi,en}.md` — phần văn xuôi trong `# body`.
 > - **Challenges**: `contents/<lesson>/challenges/<N>-<slug>/{vi,en}.md` — văn xuôi trong `# title`, `# description`,
 >   các `##### body` của `# requirements`/`# steps` (gồm block `:::muted ... :::`), `# outputs`, `# prerequisites`.
 >   (Phần `##### lang`, `### score`, tên field heading KHÔNG đụng — chỉ chỉnh prose mô tả.)
+> - **Flashcard**: `# answer` (Interview Arc skeleton) — xem `flashcard-answer.md §2-§3`.
+> - **Mock-interview**: `# prompt`/`# idealAnswer`/`# rubric` item text/`# followUps`/`# hints` — xem `interview-answer.md §4`.
+> - **Milestone**: `### body`/`### outcome`/`### approach` per brief — xem plan personal-project-fix.
 > SSOT từ điển kèm theo: `docs/fs-term-bold-map.md`.
 
 ---

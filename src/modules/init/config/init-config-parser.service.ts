@@ -135,10 +135,9 @@ export class InitConfigParserService {
         const enabled = Boolean(seed) && (seed?.enabled ?? true)
         const tracks: Record<string, SeedCourseTrack> = {
         }
-        // flashcard/interview-question seeding are each a single global pass → on if
-        // ANY course opted in
+        // flashcard/interview seeding are single global passes → on if ANY course opted in
         let flashcardEnabled = false
-        let interviewQuestionsEnabled = false
+        let interviewEnabled = false
         for (const [
             displayId,
             value,
@@ -151,7 +150,7 @@ export class InitConfigParserService {
                 milestones: normalized.milestones,
             }
             flashcardEnabled = flashcardEnabled || normalized.flashcards
-            interviewQuestionsEnabled = interviewQuestionsEnabled || normalized.interviewQuestions
+            interviewEnabled = interviewEnabled || normalized.interview
         }
         return {
             enabled,
@@ -162,7 +161,9 @@ export class InitConfigParserService {
                     enabled: flashcardEnabled,
                     linkContents: false,
                 },
-                interviewQuestions: interviewQuestionsEnabled,
+                interview: {
+                    enabled: interviewEnabled,
+                },
             },
             cv: seed?.cv ?? false,
             foundations: seed?.foundations ?? false,
@@ -183,7 +184,7 @@ export class InitConfigParserService {
         modules: SeedScopeIndexes
         milestones: SeedScopeIndexes
         flashcards: boolean
-        interviewQuestions: boolean
+        interview: boolean
     } {
         // shorthand (scope string / index array) → modules only; other tracks off
         if (!this.isPlainObject(value)) {
@@ -191,7 +192,7 @@ export class InitConfigParserService {
                 modules: value,
                 milestones: [],
                 flashcards: false,
-                interviewQuestions: false,
+                interview: false,
             }
         }
         return {
@@ -199,7 +200,7 @@ export class InitConfigParserService {
             modules: value.modules ?? [],
             milestones: this.normalizeMilestoneScope(value.milestones),
             flashcards: value.flashcards === true,
-            interviewQuestions: value.interviewQuestions === true,
+            interview: value.interview === true,
         }
     }
 

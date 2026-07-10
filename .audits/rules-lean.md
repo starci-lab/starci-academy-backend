@@ -65,7 +65,7 @@ Bản tinh gọn để audit nhanh. Chi tiết TỰ-ĐỦ trong `.audits`: `rule
 
 ## Challenge V2
 - H1: title · description · requirements · steps · outputs · prerequisites · difficulty · score · verified. **KHÔNG** `# references`/`# submissions` inline.
-- requirements/steps/outputs/prerequisites = item-major: `## N → ### langs → #### M → ##### lang(+title/body/score/text)`. body sub = `:::muted` (KHÔNG `### N.`).
+- requirements/steps/outputs/prerequisites = item-major: `## N → ### langs → #### M → ##### lang(+title/body/score/text)`. body sub = `:::muted` (KHÔNG `### N.`); khi `# steps` body là 1 chuỗi thao tác TUẦN TỰ (không phải mô tả đơn) → dùng `::::accordion`+`:::panel` thay `:::muted` phẳng (xem `.audits/principles/accordion-for-sequential-steps.md`, áp dụng từ giờ, KHÔNG retroactive).
 - `# score = 100` mọi challenge (difficulty chỉ là tag). FE agnostic → lang bucket = `agnostic`.
 - `submissions/<N>/en.md`: `# type/title/description/score(100)` + `# outcomeCriterias` (Σ`### score`=**30**) + `# approachCriterias` (Σ=**70**, ≥1 `critical:true`=40). Criteria English-only; `vi.md` chỉ type/title/description.
 - Criteria mỗi item nêu **Kiểm gì / Bằng chứng quan sát / Fail nếu** — proof cơ chế thật, không chung chung.

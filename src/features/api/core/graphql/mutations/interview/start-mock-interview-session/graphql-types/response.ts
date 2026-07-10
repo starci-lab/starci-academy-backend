@@ -8,6 +8,28 @@ import {
     IAbstractGraphQLResponse,
 } from "@modules/api"
 
+/** One per-language GIVEN code variant of a multi-lang mock-interview question. */
+@ObjectType({
+    description: "One per-language GIVEN code variant of a multi-lang mock-interview question.",
+})
+export class MockInterviewCodeVariant {
+    @Field(
+        () => String,
+        {
+            description: "Programming language of this variant (e.g. \"typescript\", \"java\").",
+        },
+    )
+        lang: string
+
+    @Field(
+        () => String,
+        {
+            description: "GIVEN code for this language.",
+        },
+    )
+        givenCode: string
+}
+
 /**
  * One authored programming-language variant of a debug/review/optimize
  * question's GIVEN code — same conceptual bug, one entry per language. The

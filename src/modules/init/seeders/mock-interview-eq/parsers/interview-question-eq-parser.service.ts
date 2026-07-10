@@ -6,7 +6,7 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    InterviewQuestionEntity,
+    MockInterviewEntity,
 } from "@modules/databases"
 import {
     DeepPartial,
@@ -56,9 +56,9 @@ export class InterviewQuestionEqParserService {
      *
      * @returns Flat, global (course/module-less) question entity partials for TypeORM upsert.
      */
-    async parseMany(): Promise<Array<DeepPartial<InterviewQuestionEntity>>> {
+    async parseMany(): Promise<Array<DeepPartial<MockInterviewEntity>>> {
         const bankPaths = await this.interviewQuestionEqPathService.bankPaths()
-        const data: Array<DeepPartial<InterviewQuestionEntity>> = []
+        const data: Array<DeepPartial<MockInterviewEntity>> = []
         for (const bankPath of bankPaths) {
             try {
                 // parse one bank's questions; failures are isolated so siblings still seed
@@ -68,7 +68,7 @@ export class InterviewQuestionEqParserService {
                 // log + skip a malformed bank instead of aborting the seed
                 logInitSeederEntitySkipped(
                     this.winstonService,
-                    InterviewQuestionEntity,
+                    MockInterviewEntity,
                     bankPath.relativePath,
                     error,
                 )
@@ -85,12 +85,12 @@ export class InterviewQuestionEqParserService {
      */
     private async parseBank(
         bankPath: ResolvedFilePath,
-    ): Promise<Array<DeepPartial<InterviewQuestionEntity>>> {
+    ): Promise<Array<DeepPartial<MockInterviewEntity>>> {
         // the bank META file lives at the bank folder root, sibling of `questions/`
         // (read for authoring context only — no `# moduleRefs` to resolve, this bank is global)
         this.extractJsonFromMdService.extract<RawInterviewQuestionEqBank>(
             await this.contextLoaderService.load(
-                "mockInterviewEq",
+                "mock-interview-eq",
                 `${bankPath.relativePath}/vi.md`,
             ),
         )
@@ -109,13 +109,13 @@ export class InterviewQuestionEqParserService {
         bankRelativePath: string,
         bankIndex: number,
         bankSlug: string,
-    ): Promise<Array<DeepPartial<InterviewQuestionEntity>>> {
+    ): Promise<Array<DeepPartial<MockInterviewEntity>>> {
         const questionPaths = await this.interviewQuestionEqPathService.questionPaths(bankRelativePath)
-        const questions: Array<DeepPartial<InterviewQuestionEntity>> = []
+        const questions: Array<DeepPartial<MockInterviewEntity>> = []
         for (const questionPath of questionPaths) {
             const raw = this.extractJsonFromMdService.extract<RawInterviewQuestionEq>(
                 await this.contextLoaderService.load(
-                    "mockInterviewEq",
+                    "mock-interview-eq",
                     `${questionPath.relativePath}/vi.md`,
                 ),
             )
@@ -136,9 +136,9 @@ export class InterviewQuestionEqParserService {
                 // behavioral-only fields — never authored under the course-scoped technical tree
                 competency: this.coerceMdScalarService.toNullableStringColumn(raw.competency),
                 ownershipSignal: this.coerceMdScalarService.toNullableStringColumn(raw.ownershipSignal),
-                // no diagram/givenCodes for behavioral — no code/diagram to reason over
+                // no diagram/given-code for behavioral — no code/diagram to reason over
                 diagram: null,
-                givenCodes: [],
+                langs: [],
                 // global bank — never grounded in a course/module
                 courseId: null,
                 moduleId: null,

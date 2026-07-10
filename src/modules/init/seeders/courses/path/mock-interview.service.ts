@@ -1,5 +1,5 @@
 import type {
-    InterviewQuestionBankPathsParams,
+    MockInterviewBankPathsParams,
 } from "./types"
 import {
     Injectable,
@@ -10,11 +10,12 @@ import {
 } from "../../shared"
 
 /**
- * Resolves indexed mock-interview question bank mount folders under a course's
- * `mock-interview/` directory (`{index}-{slug}`).
+ * Resolves indexed mock-interview bank mount folders under a course's
+ * `mock-interview/` directory (`{index}-{slug}`), and per-question folders
+ * under a bank's `questions/` directory.
  */
 @Injectable()
-export class InterviewQuestionBankPathService {
+export class MockInterviewPathService {
     constructor(
         private readonly pathResolverService: PathResolverService,
     ) { }
@@ -27,12 +28,12 @@ export class InterviewQuestionBankPathService {
     public relativePath(
         courseRelativePath: string,
     ): string {
-        // banks live at the course root (sibling of `modules/` and `flashcard-decks/`)
+        // banks live at the course root (sibling of `modules/`/`flashcard-decks/`/`milestones/`)
         return `${courseRelativePath}/mock-interview`
     }
 
     /**
-     * Lists mock-interview question bank paths under `mock-interview/`.
+     * Lists mock-interview bank paths under `mock-interview/`.
      *
      * @param courseRelativePath - Course folder path segment under `courses/`
      * @returns Paths of the bank folders for that course
@@ -40,9 +41,8 @@ export class InterviewQuestionBankPathService {
     async paths(
         {
             courseRelativePath,
-        }: InterviewQuestionBankPathsParams,
+        }: MockInterviewBankPathsParams,
     ): Promise<Array<ResolvedFilePath>> {
-        // delegate to the shared resolver which lists `{index}-{slug}` folders
         return await this.pathResolverService.filePaths(
             "courses",
             this.relativePath(
@@ -53,7 +53,7 @@ export class InterviewQuestionBankPathService {
 
     /**
      * Lists per-question folders under a bank's `questions/` directory — one
-     * folder per mock-interview question (`{index}-{slug}/vi.md`).
+     * folder per authored interview question (`{index}-{slug}/{en,vi}.md`).
      *
      * @param bankRelativePath - The bank folder path segment under `courses/`
      * @returns Paths of the question folders for that bank (empty when no `questions/` dir)

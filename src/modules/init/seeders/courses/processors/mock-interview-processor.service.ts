@@ -2,10 +2,10 @@ import {
     Injectable,
 } from "@nestjs/common"
 import {
-    InterviewQuestionEntity,
+    MockInterviewEntity,
 } from "@modules/databases"
 import {
-    InterviewQuestionParserService,
+    MockInterviewParserService,
 } from "../parsers"
 import {
     logInitSeederEntitySkipped,
@@ -14,58 +14,68 @@ import {
 import {
     WinstonService,
 } from "@modules/winston"
+import {
+    SeedScopeService,
+} from "../../../scope"
 import type {
-    ProcessInterviewQuestionsParams,
+    ProcessMockInterviewParams,
 } from "../types"
 import {
     UuidPartitionPersistProcessorService,
 } from "./uuid-partition-persist-processor.service"
 
 /**
- * Parses and upserts course-scoped (technical) mock-interview questions.
+ * Parses and upserts course-level mock-interview TECHNICAL bank questions.
+ * Self-gates on `seed.yaml` scope (unlike the legacy flashcard flag, which
+ * threads `flashcardEnabled` through `ProcessCoursesParams` but is never
+ * actually read at this layer) — injects {@link SeedScopeService} directly.
  */
 @Injectable()
-export class InterviewQuestionProcessorService {
+export class MockInterviewProcessorService {
     constructor(
-        private readonly interviewQuestionParserService: InterviewQuestionParserService,
+        private readonly mockInterviewParserService: MockInterviewParserService,
         private readonly winstonService: WinstonService,
         private readonly upsertService: UpsertService,
         private readonly uuidPartitionPersistProcessorService: UuidPartitionPersistProcessorService,
+        private readonly seedScopeService: SeedScopeService,
     ) { }
 
     /**
-     * Parse and upsert mock-interview questions for one course.
+     * Parse and upsert mock-interview technical bank questions for one course.
      *
      * @param params - Course parse result.
      */
     async process(
-        params: ProcessInterviewQuestionsParams,
+        params: ProcessMockInterviewParams,
     ): Promise<void> {
+        if (!this.seedScopeService.isCoursesInterviewSeederEnabled()) {
+            return
+        }
         const {
             courseResult,
         } = params
         try {
             const courseId = courseResult.data.id as string
-            const interviewQuestions = await this.interviewQuestionParserService.parseMany({
+            const questionResults = await this.mockInterviewParserService.parseMany({
                 courseRelativePath: courseResult.relativePath,
                 courseIndex: courseResult.index,
                 courseId,
             })
             const partition = await this.upsertService.partitionUuidSync({
-                entityClass: InterviewQuestionEntity,
-                entities: interviewQuestions,
+                entityClass: MockInterviewEntity,
+                entities: questionResults.map((questionResult) => questionResult.data),
                 where: {
                     courseId,
                 },
             })
             await this.uuidPartitionPersistProcessorService.process({
-                entityClass: InterviewQuestionEntity,
+                entityClass: MockInterviewEntity,
                 partition,
             })
         } catch (error) {
             logInitSeederEntitySkipped(
                 this.winstonService,
-                InterviewQuestionEntity,
+                MockInterviewEntity,
                 courseResult.relativePath,
                 error,
             )

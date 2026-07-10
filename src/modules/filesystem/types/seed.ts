@@ -35,6 +35,12 @@ export interface SeedFlashcardConfig {
     linkContents: boolean
 }
 
+/** Mock-interview TECHNICAL bank seeding toggle (runs inside the course pipeline). */
+export interface SeedInterviewConfig {
+    /** When false, skip all mock-interview bank parsing/upsert. */
+    enabled: boolean
+}
+
 /** Course pipeline seed config (`seeders.courses`). */
 export interface SeedCoursesConfig {
     /** Master switch for the whole course pipeline. */
@@ -43,8 +49,8 @@ export interface SeedCoursesConfig {
     tracks: Record<string, SeedCourseTrack>
     /** Flashcard deck/card seeding. */
     flashcard: SeedFlashcardConfig
-    /** Technical (course-scoped) mock-interview question seeding. */
-    interviewQuestions: boolean
+    /** Mock-interview technical bank seeding. */
+    interview: SeedInterviewConfig
 }
 
 /** Phase 1 — seeders (sources -> PostgreSQL). */
@@ -163,8 +169,8 @@ export type InitSeedCourseValue = SeedScopeIndexes | {
     milestones?: SeedScopeIndexes | boolean
     /** Seed this course's flashcard decks. */
     flashcards?: boolean
-    /** Seed this course's technical mock-interview questions. */
-    interviewQuestions?: boolean
+    /** Seed this course's mock-interview technical banks. */
+    interview?: boolean
 }
 
 /** Phase 1 input — sources → PostgreSQL. Omit, or `enabled: false`, to skip seeding. */

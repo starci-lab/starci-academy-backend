@@ -14,23 +14,23 @@ import {
     v5 as uuidv5,
 } from "uuid"
 import type {
-    GenerateInterviewQuestionIdParams,
+    GenerateMockInterviewIdParams,
 } from "./types"
 
 /**
- * Mock-interview question root entity; parent id is {@link CourseIdFactoryService}.
- * There is no bank entity to anchor on (banks aren't persisted rows), so the
- * question id hashes the course id directly with its own bank/question ordinals.
+ * One authored mock-interview question row; parent id is {@link CourseIdFactoryService}.
+ * Banks have no entity of their own, so the bank ordinal is hashed straight into
+ * the question preimage instead of going through an intermediate bank factory.
  */
 @Injectable()
-export class InterviewQuestionIdFactoryService {
+export class MockInterviewIdFactoryService {
     constructor(
         private readonly sha256Service: Sha256Service,
         private readonly courseIdFactoryService: CourseIdFactoryService,
     ) { }
 
     /**
-     * @param params - Course ordinal, bank folder ordinal, and question folder ordinal.
+     * @param params - Course ordinal, bank index, question index.
      * @returns UUID v5 string.
      */
     generate(
@@ -38,13 +38,13 @@ export class InterviewQuestionIdFactoryService {
             courseIndex,
             bankIndex,
             questionIndex,
-        }: GenerateInterviewQuestionIdParams,
+        }: GenerateMockInterviewIdParams,
     ): string {
         // hash a typed preimage anchored on the owning course id so question ids
-        // stay stable across seeds as long as folder ordering is unchanged
+        // stay stable across seeds as long as bank/question folder ordering is unchanged
         return uuidv5(
             this.sha256Service.hash(
-                "interview-question",
+                "mock-interview",
                 this.courseIdFactoryService.generate(
                     {
                         courseIndex,

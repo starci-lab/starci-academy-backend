@@ -10,10 +10,10 @@ import {
     EnrollmentEntity,
     FlashcardLevel,
     InjectPrimaryPostgreSQLEntityManager,
-    InterviewQuestionEntity,
     Locale,
     MilestoneTaskEntity,
     ModuleEntity,
+    MockInterviewEntity,
     MockInterviewKind,
     MockInterviewMode,
     MockInterviewSessionEntity,
@@ -452,7 +452,6 @@ export class MockInterviewSessionDrawService {
             // bank questions are delivered VERBATIM by the interviewer → carry the
             // composed prompt (+ folded diagram); flashcard seeds keep a short title
             title: useBank ? card.question : this.truncateTitle(card.question),
-            // GIVEN code is delivered SEPARATELY so the FE seeds it into an editable
             // editor (debug/review/optimize), one variant per authored language —
             // empty for flashcard seeds
             givenCodes: useBank
@@ -684,7 +683,7 @@ export class MockInterviewSessionDrawService {
     private async drawOneEqQuestion(
         tier: string,
     ): Promise<DrawMockInterviewSeedTopic | null> {
-        const rows = await this.entityManager.find(InterviewQuestionEntity,
+        const rows = await this.entityManager.find(MockInterviewEntity,
             {
                 where: {
                     family: "behavioral",
@@ -721,7 +720,7 @@ export class MockInterviewSessionDrawService {
 
     /**
      * List a course's TECHNICAL interview-bank questions in the SAME shape the
-     * qna pool logic expects — but sourced from `interview_questions` (authored
+     * qna pool logic expects — but sourced from `mock_interviews` (authored
      * prompts) instead of flashcards. `question` is the FULL composed prompt
      * (authored `prompt` + any given diagram/code folded in as Markdown so the
      * room renders them inline) that the interviewer delivers VERBATIM; `kind`
@@ -734,14 +733,14 @@ export class MockInterviewSessionDrawService {
             courseId: string
         },
     ): Promise<Array<{ id: string, question: string, level: FlashcardLevel, moduleId: string | null, kind: string, givenCodes: Array<MockInterviewGivenCodeVariant> }>> {
-        const questions = await this.entityManager.find(InterviewQuestionEntity,
+        const questions = await this.entityManager.find(MockInterviewEntity,
             {
                 where: {
                     courseId: params.courseId,
                     family: "technical",
                 },
                 relations: {
-                    givenCodes: true,
+                    langs: true,
                 },
             })
         return questions.map((question) => {
@@ -755,17 +754,27 @@ export class MockInterviewSessionDrawService {
             if (question.diagram) {
                 parts.push(question.diagram)
             }
+            // per-language GIVEN code variants (`# langs`) — only populated for
+            // questions grounded in a multi-language module; mutually exclusive
+            // with the single givenCode/givenLang pair below (never both set).
+            const langVariants = (question.langs ?? []).length > 0
+                ? [...question.langs]
+                    .sort((left, right) => left.sortIndex - right.sortIndex)
+                    .map((lang) => ({
+                        lang: lang.lang, code: lang.givenCode,
+                    }))
+                : question.givenCode
+                    ? [{
+                        lang: question.givenLang ?? "agnostic", code: question.givenCode,
+                    }]
+                    : []
             return {
                 id: question.id,
                 question: parts.join("\n\n"),
                 level: this.tierToFlashcardLevel(question.tier),
                 moduleId: question.moduleId,
                 kind: question.kind,
-                givenCodes: [...question.givenCodes]
-                    .sort((a, b) => a.sortIndex - b.sortIndex)
-                    .map((variant) => ({
-                        lang: variant.lang, code: variant.code 
-                    })),
+                givenCodes: langVariants,
             }
         })
     }
