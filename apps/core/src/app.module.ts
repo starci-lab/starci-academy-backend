@@ -64,8 +64,12 @@ import {
     JwtModule
 } from "@nestjs/jwt"
 import {
+    APP_FILTER,
     APP_PIPE
 } from "@nestjs/core"
+import {
+    AbstractExceptionHttpFilter,
+} from "@modules/exceptions"
 import {
     BullModule
 } from "@modules/bullmq"
@@ -530,6 +534,10 @@ import {
             {
                 provide: APP_PIPE,
                 useClass: ValidationPipe,
+            },
+            {
+                provide: APP_FILTER,
+                useClass: AbstractExceptionHttpFilter,
             },
         ],
     }

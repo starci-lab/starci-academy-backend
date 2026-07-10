@@ -24,6 +24,9 @@ import {
     WinstonService,
 } from "@modules/winston"
 import {
+    CvGenerationStepResultMissingException,
+} from "@modules/exceptions"
+import {
     CvScoringService,
 } from "../../shared/cv-scoring"
 import type {
@@ -105,7 +108,10 @@ export class GenerateCvScoreStepService extends AbstractStepService<
             key: "compose",
         })
         if (!composed) {
-            throw new Error("Missing compose execution result for CV score step")
+            throw new CvGenerationStepResultMissingException({
+                step: "compose",
+                stage: "score",
+            })
         }
         // gather result is advisory here (level inference only) — its absence must
         // not fail scoring, so `mid` is the fallback rubric level.

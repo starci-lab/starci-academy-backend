@@ -26,9 +26,11 @@ import {
 } from "@modules/env"
 import {
     AiSubscriptionTierNotAvailableException,
+    InvalidNowpaymentsWebhookSignatureException,
     TransactionCourseNotFoundException,
     TransactionExpiredError,
     TransactionNotFoundException,
+    UnsupportedTransactionActionException,
 } from "@modules/exceptions"
 import {
     DayjsService,
@@ -37,10 +39,8 @@ import {
     NowPaymentsClient,
 } from "@modules/nowpayments"
 import {
-    BadRequestException,
     Injectable,
     Logger,
-    UnauthorizedException,
 } from "@nestjs/common"
 import {
     CommandHandler,
@@ -89,7 +89,9 @@ export class NowPaymentsWebhookHandler
         })
         if (!verified) {
             // mismatched signature means the payload is untrusted → reject
-            throw new UnauthorizedException("Invalid NOWPayments IPN signature")
+            throw new InvalidNowpaymentsWebhookSignatureException({
+                paymentId: body.payment_id != null ? String(body.payment_id) : undefined,
+            })
         }
 
         // only a finished/confirmed payment counts as paid
@@ -212,9 +214,9 @@ export class NowPaymentsWebhookHandler
             return
         }
         default:
-            throw new BadRequestException(
-                `Unsupported transaction action type: ${String(transaction.actionType)}`,
-            )
+            throw new UnsupportedTransactionActionException({
+                actionType: String(transaction.actionType),
+            })
         }
     }
 }

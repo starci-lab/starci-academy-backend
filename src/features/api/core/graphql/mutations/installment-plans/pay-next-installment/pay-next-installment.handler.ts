@@ -6,12 +6,16 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
     InstallmentPlanEntity,
     InstallmentPlanStatus,
+    InstallmentPlanType,
     PaymentType,
     PricingPhase,
     TransactionEntity,
     TransactionStatus,
 } from "@modules/databases"
 import {
+    InstallmentAmountBelowMinimumException,
+    InstallmentCurrencyNotSupportedException,
+    InstallmentCustomAmountNotAllowedException,
     InstallmentPlanNotFoundException,
     InstallmentPlanNotPayableException,
     PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError,
@@ -41,7 +45,6 @@ import {
     SePayPgClient,
 } from "sepay-pg-node"
 import {
-    BadRequestException,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -115,6 +118,7 @@ export class PayNextInstallmentHandler
                 paymentType,
                 returnUrl,
                 cancelUrl,
+                amountVnd,
             },
             user,
         } = command.params
@@ -148,7 +152,26 @@ export class PayNextInstallmentHandler
             })
         }
 
-        const amount = this.installmentPlanService.computeMinPaymentVnd(plan)
+        const minPaymentVnd = this.installmentPlanService.computeMinPaymentVnd(plan)
+        // FlexiblePool may top up MORE than the minimum (shrinks future cycles);
+        // Fixed always charges the fixed monthly amount, never a custom one.
+        let amount = minPaymentVnd
+        if (amountVnd != null) {
+            if (plan.planType !== InstallmentPlanType.FlexiblePool) {
+                throw new InstallmentCustomAmountNotAllowedException({
+                    planId,
+                    planType: plan.planType,
+                })
+            }
+            if (amountVnd < minPaymentVnd) {
+                throw new InstallmentAmountBelowMinimumException({
+                    planId,
+                    requestedVnd: amountVnd,
+                    minPaymentVnd,
+                })
+            }
+            amount = amountVnd
+        }
 
         // reuse a still-fresh pending transaction for the same plan + provider
         // (mirrors the AI-subscription / membership checkout reuse window) —
@@ -249,7 +272,7 @@ export class PayNextInstallmentHandler
      *
      * @param params - Payment type, the cycle's charged amount, order code, and redirect URLs.
      * @throws PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError when PayOS redirect URLs are missing.
-     * @throws BadRequestException when the payment type is not PayOS or Sepay.
+     * @throws InstallmentCurrencyNotSupportedException when the payment type is not PayOS or Sepay.
      */
     private async resolveCheckout({
         paymentType,
@@ -289,9 +312,9 @@ export class PayNextInstallmentHandler
             })
         }
         default:
-            throw new BadRequestException(
-                `Installment payments only support PayOS/Sepay (VND) — got: ${String(paymentType)}`,
-            )
+            throw new InstallmentCurrencyNotSupportedException({
+                paymentType: String(paymentType),
+            })
         }
     }
 

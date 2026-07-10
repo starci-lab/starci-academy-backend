@@ -11,7 +11,6 @@ import {
     S3ReadService,
 } from "@modules/s3"
 import {
-    ForbiddenException,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -30,6 +29,9 @@ import {
 import {
     AVATAR_KEY_PREFIX,
 } from "../shared/avatar"
+import {
+    AvatarKeyOwnershipMismatchException,
+} from "@modules/exceptions"
 
 /**
  * Confirms a direct avatar upload: authorises the key (must live under the
@@ -67,7 +69,8 @@ export class VerifyAvatarPresignUrlHandler
         // client could otherwise point their avatar at someone else's object
         const ownedPrefix = `${AVATAR_KEY_PREFIX}/${user.id}/`
         if (!request.key.startsWith(ownedPrefix)) {
-            throw new ForbiddenException("Avatar key does not belong to the authenticated user.")
+            throw new AvatarKeyOwnershipMismatchException({
+            })
         }
         // confirm the client actually completed the PUT before persisting
         const exists = await this.s3ReadService.exists({

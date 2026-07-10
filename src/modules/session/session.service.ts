@@ -1,6 +1,5 @@
 import {
     Injectable,
-    UnauthorizedException
 } from "@nestjs/common"
 import {
     Redis
@@ -39,7 +38,8 @@ import {
     enqueueLearnerEmail
 } from "@modules/transactional-email"
 import {
-    LoginSessionNotFoundException
+    LoginSessionNotFoundException,
+    SessionSupersededException,
 } from "@modules/exceptions"
 import {
     SESSION_KEY_PREFIX
@@ -228,7 +228,9 @@ export class SessionService {
         }
         // managed sessions exist but this request carries no id → unmanaged device
         if (!sessionId) {
-            throw new UnauthorizedException("Session has been superseded by a newer login")
+            throw new SessionSupersededException({
+                userId,
+            })
         }
         // the presented id must still be one of the account's active sessions
         const isActive = await this.redis.hexists(
@@ -237,7 +239,9 @@ export class SessionService {
         )
         // not active → this device was evicted by a newer login or revoked
         if (!isActive) {
-            throw new UnauthorizedException("Session has been superseded by a newer login")
+            throw new SessionSupersededException({
+                userId,
+            })
         }
     }
 

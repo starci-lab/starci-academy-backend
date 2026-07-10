@@ -23,6 +23,9 @@ import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
+import {
+    CvGenerationStepResultMissingException,
+} from "@modules/exceptions"
 import type {
     ExtendedGenerateCvContext,
     GenerateCvComposeStepExecuteResult,
@@ -106,7 +109,10 @@ export class GenerateCvRenderStepService extends AbstractStepService<
             key: "compose",
         })
         if (!composed) {
-            throw new Error("Missing compose execution result for CV render step")
+            throw new CvGenerationStepResultMissingException({
+                step: "compose",
+                stage: "render",
+            })
         }
 
         // header contact fields come from the profile the compose step already

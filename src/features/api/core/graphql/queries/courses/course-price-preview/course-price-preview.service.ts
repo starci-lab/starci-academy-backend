@@ -1,6 +1,5 @@
 import {
     Injectable,
-    NotFoundException,
 } from "@nestjs/common"
 import {
     EntityManager,
@@ -12,6 +11,10 @@ import {
     nextPricingPhase,
 } from "@modules/databases"
 import {
+    CourseNotFoundException,
+} from "@modules/exceptions"
+import {
+    InstallmentPlanService,
     LoyaltyDiscountService,
     VoucherService,
 } from "@modules/bussiness"
@@ -48,6 +51,7 @@ export class CoursePricePreviewService {
         private readonly coursePricingService: CoursePricingService,
         private readonly loyaltyDiscountService: LoyaltyDiscountService,
         private readonly voucherService: VoucherService,
+        private readonly installmentPlanService: InstallmentPlanService,
     ) {}
 
     /**
@@ -79,7 +83,9 @@ export class CoursePricePreviewService {
             },
         )
         if (!course) {
-            throw new NotFoundException("Course not found")
+            throw new CourseNotFoundException({
+                id: courseId,
+            })
         }
 
         // one loyalty computation for the viewer (same percent prices the course)
@@ -156,7 +162,8 @@ export class CoursePricePreviewService {
             },
         )
         const seatsRemainingInCurrentPhase = slotAvailable != null
-            ? Math.max(0, slotAvailable - seatsTaken)
+            ? Math.max(0,
+                slotAvailable - seatsTaken)
             : null
         // next-tier price (before loyalty — comparable to `phasePriceVnd`). VND can throw
         // when a tier has no configured price → fall back to null so scarcity just hides
@@ -179,6 +186,11 @@ export class CoursePricePreviewService {
             })
             : null
 
+        // installment terms priced off the ACTUAL VND charge base (voucher beats
+        // loyalty when present) so the modal's "X/month" equals the eventual charge
+        const installmentBaseVnd = voucherDiscountedPriceVnd ?? discountedPriceVnd
+        const installmentOptions = this.installmentPlanService.computeInstallmentOptions(installmentBaseVnd)
+
         return {
             originalPriceVnd,
             phasePriceVnd,
@@ -195,6 +207,7 @@ export class CoursePricePreviewService {
             seatsRemainingInCurrentPhase,
             nextPhasePriceVnd,
             nextPhasePriceUsd,
+            installmentOptions,
         }
     }
 }

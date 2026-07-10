@@ -11,6 +11,11 @@ import {
 import {
     platform,
 } from "os"
+import {
+    Bento4Mp4DashException,
+    Bento4Mp4FragmentException,
+    Bento4NoMovieFoundException,
+} from "@modules/exceptions"
 
 /**
  * Resolve the Bento4 binary directory based on the project root.
@@ -78,7 +83,8 @@ export class Bento4Service {
                 return true
             }
             if (lineData.includes("No movie found in the file")) {
-                throw new Error("No movie found in the file.")
+                throw new Bento4NoMovieFoundException({
+                })
             }
         }
         return false
@@ -109,7 +115,9 @@ export class Bento4Service {
         for (const line of lines) {
             const lineData = line.toString()
             if (lineData.includes("ERROR")) {
-                throw new Error("mp4fragment: " + lineData)
+                throw new Bento4Mp4FragmentException({
+                    stderr: lineData,
+                })
             }
         }
     }
@@ -144,7 +152,9 @@ export class Bento4Service {
         for (const line of lines) {
             const lineData = line.toString()
             if (lineData.includes("ERROR")) {
-                throw new Error("mp4dash: " + lineData)
+                throw new Bento4Mp4DashException({
+                    stderr: lineData,
+                })
             }
         }
     }

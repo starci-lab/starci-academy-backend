@@ -17,6 +17,8 @@ import {
     ModelProvider,
 } from "@modules/databases"
 import {
+    AiInvokeTimeoutException,
+    AiStreamTimeoutException,
     UnsupportedAiProviderException,
 } from "@modules/exceptions"
 import {
@@ -268,9 +270,9 @@ export class AiInvokeService {
                 }
             } catch (error) {
                 if (timedOut) {
-                    throw new Error(
-                        `AI invoke timed out after ${this.invokeTimeoutMs}ms`,
-                    )
+                    throw new AiInvokeTimeoutException({
+                        timeoutMs: this.invokeTimeoutMs,
+                    })
                 }
                 throw error
             } finally {
@@ -422,9 +424,9 @@ export class AiInvokeService {
                 }
             } catch (error) {
                 if (timedOut) {
-                    throw new Error(
-                        `AI stream timed out after ${this.invokeTimeoutMs}ms`,
-                    )
+                    throw new AiStreamTimeoutException({
+                        timeoutMs: this.invokeTimeoutMs,
+                    })
                 }
                 throw error
             } finally {

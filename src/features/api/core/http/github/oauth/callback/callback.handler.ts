@@ -1,5 +1,4 @@
 import {
-    BadRequestException,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -21,7 +20,9 @@ import {
 } from "@modules/mixin"
 import type SuperJson from "superjson"
 import {
+    InvalidOAuthStatePayloadException,
     MissingRequiredParameterException,
+    OAuthStateFieldMissingException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -85,9 +86,8 @@ export class GithubOauthCallbackHandler
         // Validate state payload.
         const { iv, authTag, ciphertext } = statePayload
         if (!iv || !authTag || !ciphertext) {
-            throw new BadRequestException(
-                "Invalid OAuth state payload",
-            )
+            throw new InvalidOAuthStatePayloadException({
+            })
         }
 
         // Decrypt state payload.
@@ -100,14 +100,14 @@ export class GithubOauthCallbackHandler
 
         // Validate decrypted state payload.
         if (!redirectUri || typeof redirectUri !== "string") {
-            throw new BadRequestException(
-                "Invalid state: redirectUri missing",
-            )
+            throw new OAuthStateFieldMissingException({
+                field: "redirectUri",
+            })
         }
         if (!userId || typeof userId !== "string") {
-            throw new BadRequestException(
-                "Invalid state: userId missing",
-            )
+            throw new OAuthStateFieldMissingException({
+                field: "userId",
+            })
         }
 
         // Exchange OAuth `code` for access token.

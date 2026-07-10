@@ -18,6 +18,9 @@ import {
     CvRagRetrievalService,
 } from "@modules/rag"
 import {
+    CvScoringInputMissingException,
+} from "@modules/exceptions"
+import {
     CV_LEVEL_EXPECTATIONS,
     CV_SCORE_MAX,
     CV_SCORE_MIN,
@@ -84,9 +87,8 @@ export class CvScoringService {
             cvText,
         })
         if (!cvContent) {
-            throw new Error(
-                "CV scoring requires either structuredData or cvText — both were empty",
-            )
+            throw new CvScoringInputMissingException({
+            })
         }
 
         const targetLanguage = (locale ?? Locale.En) === Locale.Vi

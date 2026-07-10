@@ -26,9 +26,12 @@ import {
 } from "@modules/env"
 import {
     AiSubscriptionTierNotAvailableException,
+    PaymentUnderpaidException,
+    SepayOrderNotPaidException,
     TransactionCourseNotFoundException,
     TransactionExpiredError,
     TransactionNotFoundException,
+    UnsupportedTransactionActionException,
 } from "@modules/exceptions"
 import {
     DayjsService,
@@ -40,7 +43,6 @@ import {
     SePayPgClient,
 } from "sepay-pg-node"
 import {
-    BadRequestException,
     Injectable,
     Logger,
 } from "@nestjs/common"
@@ -143,9 +145,10 @@ export class SepayWebhookHandler
                 "captured",
                 "approved"].includes(detailStatus)
         if (!isPaid) {
-            throw new BadRequestException(
-                `SePay order ${invoice} is not paid (status: ${detailStatus || "unknown"})`,
-            )
+            throw new SepayOrderNotPaidException({
+                invoice,
+                detailStatus: detailStatus || "unknown",
+            })
         }
         // underpayment guard: the gateway-reported amount must cover what we expect
         const reportedAmount = Number(
@@ -156,9 +159,12 @@ export class SepayWebhookHandler
             && reportedAmount > 0
             && reportedAmount < transaction.amount
         ) {
-            throw new BadRequestException(
-                `SePay order ${invoice} underpaid: ${reportedAmount} < ${transaction.amount}`,
-            )
+            throw new PaymentUnderpaidException({
+                orderId: invoice,
+                reportedAmountVnd: reportedAmount,
+                expectedAmountVnd: transaction.amount,
+                provider: "sepay",
+            })
         }
 
         const timeSinceCreationMs = this.dayjsService.now().diff(
@@ -228,9 +234,9 @@ export class SepayWebhookHandler
             return
         }
         default:
-            throw new BadRequestException(
-                `Unsupported transaction action type: ${String(transaction.actionType)}`,
-            )
+            throw new UnsupportedTransactionActionException({
+                actionType: String(transaction.actionType),
+            })
         }
     }
 }

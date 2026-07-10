@@ -6,6 +6,10 @@ import type {
     ReadinessWatcher,
     WatcherState
 } from "./types"
+import {
+    ReadinessWatcherAlreadyExistsException,
+    ReadinessWatcherNotFoundException,
+} from "@modules/exceptions"
 
 /**
  * Service for creating and managing readiness watchers.
@@ -21,7 +25,9 @@ export class ReadinessWatcherFactoryService {
      */
     createWatcher(name: string): ReadinessWatcher {
         if (this.watchers.has(name)) {
-            throw new Error(`Watcher '${name}' already exists`)
+            throw new ReadinessWatcherAlreadyExistsException({
+                name,
+            })
         }
         const deferred = pDefer<void>()
         const watcher: ReadinessWatcher = {
@@ -41,7 +47,11 @@ export class ReadinessWatcherFactoryService {
      */
     waitUntilReady(name: string): Promise<void> {
         const watcher = this.watchers.get(name)
-        if (!watcher) throw new Error(`Watcher '${name}' not found`)
+        if (!watcher) {
+            throw new ReadinessWatcherNotFoundException({
+                name,
+            })
+        }
         return watcher.deferred.promise
     }
 
@@ -51,7 +61,11 @@ export class ReadinessWatcherFactoryService {
      */
     setReady(name: string): void {
         const watcher = this.watchers.get(name)
-        if (!watcher) throw new Error(`Watcher '${name}' not found`)
+        if (!watcher) {
+            throw new ReadinessWatcherNotFoundException({
+                name,
+            })
+        }
         watcher.state = "ready"
         watcher.deferred.resolve()
     }
@@ -63,7 +77,11 @@ export class ReadinessWatcherFactoryService {
      */
     setErrored(name: string, error: Error): void {
         const watcher = this.watchers.get(name)
-        if (!watcher) throw new Error(`Watcher '${name}' not found`)
+        if (!watcher) {
+            throw new ReadinessWatcherNotFoundException({
+                name,
+            })
+        }
         watcher.state = "error"
         watcher.deferred.reject(error)
     }

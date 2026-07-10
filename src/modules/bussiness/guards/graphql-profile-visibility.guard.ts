@@ -1,7 +1,6 @@
 import {
     CanActivate,
     ExecutionContext,
-    ForbiddenException,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -10,6 +9,9 @@ import {
 import {
     UserEntity,
 } from "@modules/databases"
+import {
+    ProfileNotVisibleException,
+} from "@modules/exceptions"
 import {
     UserService,
 } from "../user"
@@ -64,7 +66,9 @@ export class GraphQLProfileVisibilityGuard implements CanActivate {
         }
         // cached lock flag (Redis); locked + not the owner → withhold the content
         if (await this.userService.isProfileLocked(userId)) {
-            throw new ForbiddenException("This profile is private")
+            throw new ProfileNotVisibleException({
+                profileUserId: userId,
+            })
         }
         return true
     }

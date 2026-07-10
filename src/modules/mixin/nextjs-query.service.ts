@@ -13,6 +13,9 @@ import type {
     NextJsQueryGetParams,
     NextJsQueryGetResult
 } from "./types"
+import {
+    NextJsQueryPageNotRegisteredException,
+} from "@modules/exceptions"
 
 puppeteer.use(StealthPlugin())
 
@@ -64,9 +67,9 @@ export class NextJsQueryService implements OnModuleInit, OnModuleDestroy {
         )
         const page = this.pageMap[baseUrl]
         if (!page) {
-            throw new Error(
-                `Page for URL "${baseUrl}" not found. Call addPage first.`,
-            )
+            throw new NextJsQueryPageNotRegisteredException({
+                baseUrl,
+            })
         }
         const query = new URLSearchParams(stringParams).toString()
         const fullPath = query ? `${path}?${query}` : path

@@ -1,13 +1,16 @@
 import {
     CanActivate,
     ExecutionContext,
-    ForbiddenException,
     Injectable,
-    UnauthorizedException,
 } from "@nestjs/common"
 import {
     MountStorageService,
 } from "@modules/filesystem"
+import {
+    AdminApiKeyNotConfiguredException,
+    AdminApiKeyRequiredException,
+    InvalidAdminApiKeyException,
+} from "@modules/exceptions"
 
 /**
  * Guard that grants access only when admin API key matches mounted secret.
@@ -24,7 +27,8 @@ export class AdminAccessGuard implements CanActivate {
     private readAdminApiKey(): string {
         const key = this.mountStorageService.adminApiKey
         if (!key) {
-            throw new UnauthorizedException("Admin API key is empty")
+            throw new AdminApiKeyNotConfiguredException({
+            })
         }
         return key
     }
@@ -39,10 +43,12 @@ export class AdminAccessGuard implements CanActivate {
             ? headerValue[0]
             : headerValue
         if (!apiKey) {
-            throw new UnauthorizedException("x-admin-api-key header is required")
+            throw new AdminApiKeyRequiredException({
+            })
         }
         if (apiKey !== this.readAdminApiKey()) {
-            throw new ForbiddenException("Invalid admin API key")
+            throw new InvalidAdminApiKeyException({
+            })
         }
         return true
     }

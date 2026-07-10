@@ -7,17 +7,27 @@ export class AbstractException extends Error {
     readonly code: string
     /** Additional metadata for debugging */
     readonly metadata?: Record<string, unknown>
+    /**
+     * Optional HTTP status this exception should map to when it crosses a
+     * REST boundary (via {@link AbstractExceptionHttpFilter}). Undefined →
+     * the filter defaults to 500 — most domain exceptions don't set this;
+     * it exists for cases (guards, auth) that need to preserve a specific
+     * status code (401/403/404/400) instead of the generic default.
+     */
+    readonly httpStatus?: number
 
     /**
          * @param message Human readable message
          * @param name Exception code (kept as `Error.name` for backward compatibility)
          * @param metadata Extra debugging metadata
+         * @param httpStatus Optional HTTP status override for REST responses (defaults to 500 when omitted)
          */
-    constructor(message: string, name: string, metadata?: Record<string, unknown>) {
+    constructor(message: string, name: string, metadata?: Record<string, unknown>, httpStatus?: number) {
         super(message)
         this.code = name
         this.name = name
         this.metadata = metadata
+        this.httpStatus = httpStatus
     }
 
     /**

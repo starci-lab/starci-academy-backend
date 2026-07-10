@@ -11,12 +11,15 @@ import {
 } from "@modules/databases"
 import {
     CoursesCheckoutEmptyException,
+    InstallmentCurrencyNotSupportedException,
     MissingUsdPriceException,
     PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError,
+    UnsupportedPaymentTypeException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
     EnqueueReconcileTransactionJobService,
+    InstallmentPlanService,
 } from "@modules/bussiness"
 import {
     RetryService,
@@ -47,7 +50,6 @@ import {
     NowPaymentsClient,
 } from "@modules/nowpayments"
 import {
-    BadRequestException,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -94,6 +96,7 @@ export class CoursesCheckoutHandler
         private readonly coursesCheckoutPricingService: CoursesCheckoutPricingService,
         private readonly retryService: RetryService,
         private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
+        private readonly installmentPlanService: InstallmentPlanService,
     ) {
         super()
     }
@@ -116,6 +119,7 @@ export class CoursesCheckoutHandler
                 paymentType,
                 returnUrl,
                 cancelUrl,
+                installmentMonths,
             },
             user,
         } = command.params
@@ -123,6 +127,14 @@ export class CoursesCheckoutHandler
         // an authenticated user is required to own the order + enrollments
         if (!user) {
             throw new UserNotFoundException({
+            })
+        }
+
+        // installments (trả góp) are VND-only per the design doc — the non-domestic
+        // gateways can't collect the later cycles, so refuse before creating anything
+        if (installmentMonths && paymentType !== PaymentType.PayOS && paymentType !== PaymentType.Sepay) {
+            throw new InstallmentCurrencyNotSupportedException({
+                paymentType: String(paymentType),
             })
         }
 
@@ -142,12 +154,23 @@ export class CoursesCheckoutHandler
             })
         }
 
+        // installment (trả góp): the plan owes the WHOLE cart total × (1+markup); the
+        // gateway collects only the FIRST cycle now (monthly), the intent is snapshotted
+        // onto the order transaction so the enroll fan-out creates the Fixed plan once
+        // on payment success (§2.2/§2.3). One-shot order charges the full VND total.
+        const installment = installmentMonths
+            ? this.installmentPlanService.computeInstallmentTotal(priced.totalChargedVnd,
+                installmentMonths)
+            : null
+        const chargedVnd = installment ? installment.monthlyAmountVnd : priced.totalChargedVnd
+
         // one order code identifies the whole order across the gateway + webhook
         const orderCode = this.generateOrderCode()
-        // create the single gateway checkout for the summed charged total
+        // create the single gateway checkout for the charged amount (monthly cycle
+        // for installments, else the summed total)
         const checkout = await this.resolveCheckout({
             paymentType,
-            amount: priced.totalChargedVnd,
+            amount: chargedVnd,
             priceUsd: priced.totalChargedUsd,
             orderCode,
             itemCount: priced.itemCount,
@@ -175,6 +198,9 @@ export class CoursesCheckoutHandler
                 status: TransactionStatus.Pending,
                 actionType: ActionType.Enroll,
                 aiSubTier: null,
+                installmentMonths: installment ? installment.months : null,
+                installmentMarkupPercent: installment ? installment.markupPercent : null,
+                installmentTotalVnd: installment ? installment.totalAmountVnd : null,
             },
         )
         await this.entityManager.save(transaction)
@@ -382,9 +408,9 @@ export class CoursesCheckoutHandler
             }
         }
         default:
-            throw new BadRequestException(
-                `Unsupported payment type: ${String(paymentType)}`,
-            )
+            throw new UnsupportedPaymentTypeException({
+                paymentType: String(paymentType),
+            })
         }
     }
 

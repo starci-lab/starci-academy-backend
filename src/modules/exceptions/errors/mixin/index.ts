@@ -1,2 +1,5 @@
 export * from "./wait-timeout.exception"
 export * from "./wait-condition-not-met.exception"
+export * from "./nextjs-query-page-not-registered.exception"
+export * from "./readiness-watcher-already-exists.exception"
+export * from "./readiness-watcher-not-found.exception"

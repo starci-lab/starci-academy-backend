@@ -1,5 +1,4 @@
 import {
-    ForbiddenException,
     Injectable,
 } from "@nestjs/common"
 import type {
@@ -27,6 +26,7 @@ import {
 } from "@modules/s3"
 import {
     ContentNotFoundException,
+    PremiumContentAiAccessDeniedException,
 } from "@modules/exceptions"
 import {
     ContentRagRetrievalService,
@@ -127,7 +127,7 @@ export class ContentAiService {
      * @param params - {@link PrepareContentAiMessagesParams}.
      * @returns The ordered messages to invoke/stream against the model.
      * @throws ContentNotFoundException when the content body is missing.
-     * @throws ForbiddenException when premium content is not entitled.
+     * @throws PremiumContentAiAccessDeniedException when premium content is not entitled.
      */
     async prepareMessages(
         {
@@ -190,9 +190,10 @@ export class ContentAiService {
                     courseId)
                 : false
             if (!entitled) {
-                throw new ForbiddenException(
-                    "Enroll in this course to ask AI about premium content",
-                )
+                throw new PremiumContentAiAccessDeniedException({
+                    userId,
+                    contentId,
+                })
             }
         }
 

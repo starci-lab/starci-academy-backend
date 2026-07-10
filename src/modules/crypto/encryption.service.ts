@@ -11,9 +11,13 @@ import type {
     EncryptParams,
     EncryptResult
 } from "./types"
-import { 
-    MountStorageService 
+import {
+    MountStorageService
 } from "@modules/filesystem"
+import {
+    DecryptionFailedException,
+    InvalidIvLengthException,
+} from "@modules/exceptions"
 
 /**
  * Service for AES-256-GCM encryption and decryption (authenticated encryption).
@@ -93,17 +97,23 @@ export class EncryptionService {
     }: DecryptParams): DecryptResult {
         const { iv, authTag, ciphertext } = payload
 
+        const ivBuffer = Buffer.from(iv,
+            "base64")
+        // validated BEFORE the try block so a malformed IV surfaces as its own
+        // typed exception instead of being swallowed into the generic decrypt
+        // failure below
+        if (ivBuffer.length !== IV_LENGTH) {
+            throw new InvalidIvLengthException({
+                actualLength: ivBuffer.length,
+                expectedLength: IV_LENGTH,
+            })
+        }
+
         try {
-            const ivBuffer = Buffer.from(iv,
-                "base64")
             const authTagBuffer = Buffer.from(authTag,
                 "base64")
             const encryptedBuffer = Buffer.from(ciphertext,
                 "base64")
-
-            if (ivBuffer.length !== IV_LENGTH) {
-                throw new Error("Invalid IV length")
-            }
 
             const decipher = crypto.createDecipheriv("aes-256-gcm",
                 this.getEncryptionKey(),
@@ -116,9 +126,11 @@ export class EncryptionService {
             ])
             return decryptedBuffer.toString("utf8")
         } catch (error) {
-            console.error("Error decrypting data",
-                error)
-            throw new Error("Failed to decrypt data")
+            // preserve the real crypto error via originalError — the previous
+            // console.error + generic re-throw discarded it, hurting debuggability
+            throw new DecryptionFailedException({
+                originalError: error instanceof Error ? error : new Error(String(error)),
+            })
         }
     }
 }

@@ -8,6 +8,9 @@ import {
     Locale,
 } from "@modules/databases"
 import {
+    CvBlockNotFoundException,
+    CvModelOutputParseException,
+    CvModelOutputShapeException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -98,7 +101,9 @@ export class RewriteCvBlockHandler
         }
 
         if (!block || typeof block !== "object") {
-            throw new Error("Cannot rewrite a missing CV block")
+            throw new CvBlockNotFoundException({
+                op: "rewrite",
+            })
         }
 
         // validate the optional model/provider pick against the user's entitlement
@@ -282,15 +287,17 @@ export class RewriteCvBlockHandler
         try {
             parsed = JSON.parse(extractJsonBlock(raw))
         } catch (error) {
-            throw new Error(
-                `Failed to parse rewritten CV block JSON from model output: ${
-                    error instanceof Error ? error.message : String(error)
-                }`,
-            )
+            throw new CvModelOutputParseException({
+                stage: "rewrite",
+                originalError: error instanceof Error ? error : new Error(String(error)),
+            })
         }
 
         if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-            throw new Error("Model output for the rewritten CV block was not a JSON object")
+            throw new CvModelOutputShapeException({
+                stage: "rewrite",
+                expected: "object",
+            })
         }
 
         const block = parsed as Record<string, unknown>

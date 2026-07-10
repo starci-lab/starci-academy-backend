@@ -56,6 +56,7 @@ import type {
 import {
     JobFencedOutException,
     MissingOrInvalidGradeExecutionResultException,
+    SubmissionOwnerMissingException,
 } from "@modules/exceptions"
 import {
     DayjsService,
@@ -407,7 +408,9 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
         // submission always has an owner — guard so the credit-usage write stays typed.
         const submissionUserId = userChallengeSubmission.userId
         if (!submissionUserId) {
-            throw new Error("Cannot record credit usage: submission has no owner user")
+            throw new SubmissionOwnerMissingException({
+                userChallengeSubmissionId: payload.userChallengeSubmissionId,
+            })
         }
         return submissionUserId
     }

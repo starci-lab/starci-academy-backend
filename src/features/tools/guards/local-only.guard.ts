@@ -1,11 +1,13 @@
 import {
     CanActivate,
     Injectable,
-    NotFoundException,
 } from "@nestjs/common"
 import {
     envConfig,
 } from "@modules/env"
+import {
+    ToolsRouteNotFoundException,
+} from "@modules/exceptions"
 
 /**
  * Guard that hard-blocks every tools route in production.
@@ -26,7 +28,8 @@ export class LocalOnlyGuard implements CanActivate {
     canActivate(): boolean {
         // pretend the route does not exist when deployed to production
         if (envConfig().isProduction) {
-            throw new NotFoundException()
+            throw new ToolsRouteNotFoundException({
+            })
         }
         // local/dev — let the tool run
         return true

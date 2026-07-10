@@ -28,6 +28,7 @@ import {
     DayjsService,
 } from "@modules/mixin"
 import {
+    CvGenerationStepResultMissingException,
     JobFencedOutException,
 } from "@modules/exceptions"
 import type {
@@ -91,8 +92,17 @@ export class GenerateCvCompleteStepService extends AbstractStepService<
             job,
             key: "render",
         })
-        if (!composed || !rendered?.latexCdnKey) {
-            throw new Error("Missing compose/render execution result for CV complete step")
+        if (!composed) {
+            throw new CvGenerationStepResultMissingException({
+                step: "compose",
+                stage: "complete",
+            })
+        }
+        if (!rendered?.latexCdnKey) {
+            throw new CvGenerationStepResultMissingException({
+                step: "render",
+                stage: "complete",
+            })
         }
 
         try {

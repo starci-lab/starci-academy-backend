@@ -1,16 +1,18 @@
 import {
-    BadRequestException,
     CanActivate,
     ExecutionContext,
-    ForbiddenException,
     Injectable,
 } from "@nestjs/common"
 import {
     UserEntity,
 } from "@modules/databases"
 import {
-    GqlExecutionContext 
+    GqlExecutionContext
 } from "@nestjs/graphql"
+import {
+    CourseIdRequiredException,
+    EnrollmentNotFoundException,
+} from "@modules/exceptions"
 import {
     UserService,
 } from "../user"
@@ -37,14 +39,18 @@ export class GraphQLMustEnrolledGuard implements CanActivate {
             ? rawCourseId[0]
             : rawCourseId
         if (!courseId) {
-            throw new BadRequestException("Course ID is required")
+            throw new CourseIdRequiredException({
+            })
         }
         const isEnrolled = await this.userService.checkEnrollment(
             user.id,
             courseId,
         )
         if (!isEnrolled) {
-            throw new ForbiddenException("User is not enrolled in the course")
+            throw new EnrollmentNotFoundException({
+                userId: user.id,
+                courseId,
+            })
         }
         return true
     }

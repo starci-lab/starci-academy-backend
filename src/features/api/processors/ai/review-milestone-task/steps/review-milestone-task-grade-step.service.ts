@@ -51,6 +51,12 @@ import {
     GradingRetrievalService,
 } from "@modules/rag"
 import {
+    GitRepositoryAccessDeniedException,
+    GitRepositoryEmptyException,
+    GitRepositoryLoadFailedException,
+    GitRepositoryNotFoundException,
+} from "@modules/exceptions"
+import {
     MountStorageService,
 } from "@modules/filesystem"
 import {
@@ -233,23 +239,29 @@ export class ReviewMilestoneTaskGradeStepService extends AbstractStepService<
         } catch (error) {
             const msg = error?.message ?? ""
             if (msg.includes("404")) {
-                throw new Error(
-                    `Repository not found: "${repoUrl}" (branch: "${branch}"). Please check that the repository exists, is public (or your GitHub token has access), and the branch name is correct.`
-                )
+                throw new GitRepositoryNotFoundException({
+                    repoUrl,
+                    branch,
+                    originalError: error instanceof Error ? error : new Error(String(error)),
+                })
             }
             if (msg.includes("403")) {
-                throw new Error(
-                    `Access denied to repository: "${repoUrl}". The GitHub token may lack permission or the rate limit has been exceeded.`
-                )
+                throw new GitRepositoryAccessDeniedException({
+                    repoUrl,
+                    originalError: error instanceof Error ? error : new Error(String(error)),
+                })
             }
-            throw new Error(
-                `Failed to load repository "${repoUrl}" (branch: "${branch}"): ${msg}`
-            )
+            throw new GitRepositoryLoadFailedException({
+                repoUrl,
+                branch,
+                originalError: error instanceof Error ? error : new Error(String(error)),
+            })
         }
         if (loadedDocs.length === 0) {
-            throw new Error(
-                `Repository "${repoUrl}" (branch: "${branch}") is empty or contains no reviewable files.`
-            )
+            throw new GitRepositoryEmptyException({
+                repoUrl,
+                branch,
+            })
         }
         const docs = loadedDocs.map(
             (doc) =>

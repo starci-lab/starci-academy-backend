@@ -1,6 +1,5 @@
 import {
     Injectable,
-    UnauthorizedException,
 } from "@nestjs/common"
 import {
     envConfig,
@@ -11,6 +10,10 @@ import {
 import {
     Octokit,
 } from "octokit"
+import {
+    GithubProfileMissingLoginException,
+    GithubTokenExchangeFailedException,
+} from "@modules/exceptions"
 import type {
     ExchangeGithubOAuthCodeForAccessTokenParams,
     ExchangeGithubOAuthCodeForAccessTokenResult,
@@ -55,9 +58,8 @@ export class GithubApiAuthService {
         const accessToken = response.data.access_token
 
         if (!accessToken) {
-            throw new UnauthorizedException(
-                "GitHub token exchange failed",
-            )
+            throw new GithubTokenExchangeFailedException({
+            })
         }
 
         return {
@@ -86,9 +88,8 @@ export class GithubApiAuthService {
         )
         const login = response.data.login
         if (!login) {
-            throw new UnauthorizedException(
-                "GitHub profile missing login",
-            )
+            throw new GithubProfileMissingLoginException({
+            })
         }
         return {
             user: {

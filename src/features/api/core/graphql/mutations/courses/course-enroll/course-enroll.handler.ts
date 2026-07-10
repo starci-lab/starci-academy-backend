@@ -8,10 +8,11 @@ import {
 } from "@modules/databases"
 import {
     CourseAlreadyEnrolledError,
+    InstallmentCurrencyNotSupportedException,
+    UnsupportedPaymentTypeException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
-    BadRequestException,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -77,7 +78,16 @@ export class CourseEnrollHandler
         const {
             courseId,
             paymentType,
+            installmentMonths,
         } = request
+
+        // installments (trả góp) are VND-only per the design doc — the non-domestic
+        // gateways can't collect the later cycles, so refuse before creating anything
+        if (installmentMonths && paymentType !== PaymentType.PayOS && paymentType !== PaymentType.Sepay) {
+            throw new InstallmentCurrencyNotSupportedException({
+                paymentType: String(paymentType),
+            })
+        }
 
         const alreadyEnrolled = await this.entityManager.exists(
             EnrollmentEntity,
@@ -116,9 +126,9 @@ export class CourseEnrollHandler
             return this.courseEnrollCryptoService.execute(params)
         }
         default:
-            throw new BadRequestException(
-                `Unsupported payment type: ${String(paymentType)}`,
-            )
+            throw new UnsupportedPaymentTypeException({
+                paymentType: String(paymentType),
+            })
         }
     }
 }

@@ -1,7 +1,6 @@
 import {
     ExecutionContext,
     Injectable,
-    UnauthorizedException,
 } from "@nestjs/common"
 import {
     GqlExecutionContext,
@@ -9,6 +8,11 @@ import {
 import {
     UserService,
 } from "@modules/bussiness/user"
+import {
+    GraphQLContextMissingRequestException,
+    KeycloakAuthHeaderInvalidFormatException,
+    KeycloakTokenInactiveException,
+} from "@modules/exceptions"
 import {
     KeycloakJwksService,
 } from "../jwks.service"
@@ -39,9 +43,8 @@ export class KeycloakOptionalAuthGraphQLGuard {
             }>()
         const request = gqlContext.req
         if (!request) {
-            throw new UnauthorizedException(
-                "GraphQL context is missing HTTP request",
-            )
+            throw new GraphQLContextMissingRequestException({
+            })
         }
         const authHeader = request.headers["authorization"]
         if (!authHeader || typeof authHeader !== "string") {
@@ -54,17 +57,15 @@ export class KeycloakOptionalAuthGraphQLGuard {
             " ",
         )
         if (scheme !== "Bearer" || !token) {
-            throw new UnauthorizedException(
-                "Invalid Authorization header format",
-            )
+            throw new KeycloakAuthHeaderInvalidFormatException({
+            })
         }
         const verified = await this.keycloakJwksService.verifyAccessToken(
             token,
         )
         if (!verified.active || !verified.sub) {
-            throw new UnauthorizedException(
-                "Invalid or inactive token",
-            )
+            throw new KeycloakTokenInactiveException({
+            })
         }
         const keycloakId = verified.sub
         const user = await this.userService.getUserByKeycloakId(keycloakId)

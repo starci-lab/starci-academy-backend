@@ -36,6 +36,9 @@ import {
 import type {
     JobExtendedContext,
 } from "@modules/bussiness"
+import {
+    StepNotFoundException,
+} from "@modules/exceptions"
 
 /**
  * Worker for enrolling a user in a course.
@@ -110,9 +113,9 @@ export class EnrollWorker extends WorkerHost {
                 // never advance currentStep → an infinite loop pinning this worker
                 const step = stepMap.get(syncedJob.currentStep)
                 if (!step) {
-                    throw new Error(
-                        `No enroll step mapped for index ${syncedJob.currentStep} (maxSteps ${syncedJob.maxSteps})`,
-                    )
+                    throw new StepNotFoundException({
+                        stepIndex: syncedJob.currentStep,
+                    })
                 }
                 // process the step
                 await step.process(

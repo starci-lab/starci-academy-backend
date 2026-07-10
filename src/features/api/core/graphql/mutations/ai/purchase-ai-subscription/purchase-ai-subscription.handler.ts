@@ -13,6 +13,7 @@ import {
     AiSubscriptionTierNotAvailableException,
     MissingUsdPriceException,
     PayOsReturnUrlAndPayOsCancelUrlMustBeRequiredError,
+    UnsupportedPaymentTypeException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -51,7 +52,6 @@ import {
     NowPaymentsClient,
 } from "@modules/nowpayments"
 import {
-    BadRequestException,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -387,9 +387,9 @@ export class PurchaseAiSubscriptionHandler
             }
         }
         default:
-            throw new BadRequestException(
-                `Unsupported payment type: ${String(paymentType)}`,
-            )
+            throw new UnsupportedPaymentTypeException({
+                paymentType: String(paymentType),
+            })
         }
     }
 

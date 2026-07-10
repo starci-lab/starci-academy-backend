@@ -17,6 +17,9 @@ import {
 import {
     S3CopySameBucketParams,
 } from "./types"
+import {
+    S3CopyUnsupportedProviderException,
+} from "@modules/exceptions"
 
 /**
  * Server-side copy within one S3-compatible bucket (used to freeze CV bytes under `attempts/…`).
@@ -42,9 +45,9 @@ export class S3CopyService {
             return
         }
         if (provider !== S3Provider.Minio) {
-            throw new Error(
-                `S3CopyService.copySameBucket: only ${S3Provider.Minio} is implemented (got ${provider}).`,
-            )
+            throw new S3CopyUnsupportedProviderException({
+                provider: String(provider),
+            })
         }
         const bucket = envConfig().s3.minio.bucket
         const encodedSource = sourceKey.split("/").map((segment) => encodeURIComponent(segment)).join("/")

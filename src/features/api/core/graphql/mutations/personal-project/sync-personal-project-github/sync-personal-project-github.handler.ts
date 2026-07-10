@@ -6,10 +6,13 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
+    PersonalProjectBranchTooLongException,
+    PersonalProjectGithubSyncInputMissingException,
+    PersonalProjectGithubUrlMissingException,
+    PersonalProjectInvalidBranchNameException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
-    BadRequestException,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -114,16 +117,14 @@ export class SyncPersonalProjectGithubHandler
         const shouldClearToken = clearGithubToken === true
 
         if (!hasUrl && !branchProvided && !hasToken && !shouldClearToken) {
-            throw new BadRequestException(
-                "Provide githubUrl, branch, githubToken, or clearGithubToken",
-            )
+            throw new PersonalProjectGithubSyncInputMissingException({
+            })
         }
 
         const storedUrlTrimmed = enrollment.personalProjectGithubUrl?.trim() ?? ""
         if (!hasUrl && branchProvided && storedUrlTrimmed.length === 0) {
-            throw new BadRequestException(
-                "Provide githubUrl or save a personal project GitHub URL on your enrollment first",
-            )
+            throw new PersonalProjectGithubUrlMissingException({
+            })
         }
 
         let didUpdate = false
@@ -134,14 +135,13 @@ export class SyncPersonalProjectGithubHandler
         }
         if (branchProvided) {
             if (branchTrimmed.length > BRANCH_MAX) {
-                throw new BadRequestException(
-                    `Branch must be at most ${BRANCH_MAX} characters`,
-                )
+                throw new PersonalProjectBranchTooLongException({
+                    max: BRANCH_MAX,
+                })
             }
             if (branchTrimmed.length > 0 && !BRANCH_PATTERN.test(branchTrimmed)) {
-                throw new BadRequestException(
-                    "Invalid branch name",
-                )
+                throw new PersonalProjectInvalidBranchNameException({
+                })
             }
             enrollment.personalProjectGithubBranch = branchTrimmed.length > 0
                 ? branchTrimmed
@@ -163,9 +163,8 @@ export class SyncPersonalProjectGithubHandler
             didUpdate = true
         }
         if (!didUpdate) {
-            throw new BadRequestException(
-                "Provide a non-empty githubUrl and/or branch",
-            )
+            throw new PersonalProjectGithubSyncInputMissingException({
+            })
         }
         await entityManager.save(
             EnrollmentEntity,

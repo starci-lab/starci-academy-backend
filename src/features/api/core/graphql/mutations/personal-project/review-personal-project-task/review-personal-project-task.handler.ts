@@ -7,7 +7,6 @@ import {
     MilestoneTaskEntity,
 } from "@modules/databases"
 import {
-    BadRequestException,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -29,6 +28,9 @@ import {
 } from "./review-personal-project-task.command"
 import {
     NoPersonalProjectTasksFoundException,
+    PersonalProjectBranchTooLongException,
+    PersonalProjectGithubUrlMissingException,
+    PersonalProjectInvalidBranchNameException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import type {
@@ -125,9 +127,8 @@ export class ReviewPersonalProjectTaskHandler
             ? urlFromRequest
             : (enrollment.personalProjectGithubUrl?.trim() ?? "")
         if (!resolvedGithubUrl) {
-            throw new BadRequestException(
-                "Provide githubUrl or save a personal project GitHub URL on your enrollment for this course",
-            )
+            throw new PersonalProjectGithubUrlMissingException({
+            })
         }
         await this.urlValidatorService.isParsable(resolvedGithubUrl)
 
@@ -139,14 +140,13 @@ export class ReviewPersonalProjectTaskHandler
         let resolvedBranchForEnqueue: string | undefined
         if (branchProvided) {
             if (branchTrimmed.length > BRANCH_MAX) {
-                throw new BadRequestException(
-                    `Branch must be at most ${BRANCH_MAX} characters`,
-                )
+                throw new PersonalProjectBranchTooLongException({
+                    max: BRANCH_MAX,
+                })
             }
             if (branchTrimmed.length > 0 && !BRANCH_PATTERN.test(branchTrimmed)) {
-                throw new BadRequestException(
-                    "Invalid branch name",
-                )
+                throw new PersonalProjectInvalidBranchNameException({
+                })
             }
             resolvedBranchForEnqueue = branchTrimmed.length > 0
                 ? branchTrimmed

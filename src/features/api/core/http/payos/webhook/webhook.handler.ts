@@ -26,8 +26,10 @@ import {
 } from "@modules/env"
 import {
     AiSubscriptionTierNotAvailableException,
+    PaymentUnderpaidException,
     TransactionCourseNotFoundException,
     TransactionExpiredError,
+    UnsupportedTransactionActionException,
 } from "@modules/exceptions"
 import {
     DayjsService,
@@ -36,7 +38,6 @@ import {
     InjectPayOS,
 } from "@modules/payos"
 import {
-    BadRequestException,
     Injectable,
     Logger,
 } from "@nestjs/common"
@@ -126,9 +127,12 @@ export class PayosWebhookHandler
             && paidAmount > 0
             && paidAmount < transaction.amount
         ) {
-            throw new BadRequestException(
-                `PayOS order ${orderCode} underpaid: ${paidAmount} < ${transaction.amount}`,
-            )
+            throw new PaymentUnderpaidException({
+                orderId: orderCode.toString(),
+                reportedAmountVnd: paidAmount,
+                expectedAmountVnd: transaction.amount,
+                provider: "payos",
+            })
         }
         const timeSinceCreationMs = this.dayjsService.now().diff(
             this.dayjsService.from(transaction?.createdAt),
@@ -197,9 +201,9 @@ export class PayosWebhookHandler
             return
         }
         default:
-            throw new BadRequestException(
-                `Unsupported transaction action type: ${String(transaction.actionType)}`,
-            )
+            throw new UnsupportedTransactionActionException({
+                actionType: String(transaction.actionType),
+            })
         }
     }
 }

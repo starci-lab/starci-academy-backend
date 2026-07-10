@@ -1,7 +1,6 @@
 import {
     ExecutionContext,
     Injectable,
-    UnauthorizedException,
 } from "@nestjs/common"
 import {
     GqlExecutionContext,
@@ -9,6 +8,9 @@ import {
 import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
+import {
+    GraphQLContextMissingRequestException,
+} from "@modules/exceptions"
 import {
     KeycloakJwksService,
 } from "../jwks.service"
@@ -56,7 +58,8 @@ export class KeycloakAuthGraphQLGuard extends AbstractKeycloakAuthGuard {
             req?: KeycloakAuthGuardRequest 
         }>()
         if (!gqlContext.req) {
-            throw new UnauthorizedException("GraphQL context is missing HTTP request")
+            throw new GraphQLContextMissingRequestException({
+            })
         }
         return gqlContext.req
     }

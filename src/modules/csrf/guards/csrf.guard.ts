@@ -1,7 +1,6 @@
 import {
     CanActivate,
     ExecutionContext,
-    ForbiddenException,
     Injectable
 } from "@nestjs/common"
 import {
@@ -20,6 +19,13 @@ import {
     CookieService,
     CookieName
 } from "@modules/cookie"
+import {
+    CsrfMissingHttpRequestException,
+    CsrfMissingTokenException,
+    CsrfTokenMismatchException,
+    InvalidCsrfTokenException,
+    UntrustedRequestOriginException,
+} from "@modules/exceptions"
 import {
     CsrfService
 } from "../csrf.service"
@@ -57,7 +63,8 @@ export class CsrfGuard implements CanActivate {
             .getContext<{ req?: Request }>().req
         // without an HTTP request there is nothing to validate — fail closed
         if (!request) {
-            throw new ForbiddenException("Missing HTTP request for CSRF check")
+            throw new CsrfMissingHttpRequestException({
+            })
         }
         // reject obviously cross-site requests before touching the token
         this.assertTrustedOrigin(request)
@@ -70,18 +77,21 @@ export class CsrfGuard implements CanActivate {
             CookieName.CsrfToken)
         // both halves of the double-submit must be present
         if (!headerToken || cookieTokens.length === 0) {
-            throw new ForbiddenException("Missing CSRF token")
+            throw new CsrfMissingTokenException({
+            })
         }
         // the header must match ONE of the cookies (constant-time compare). Matching
         // any is safe: every value present was signed + set by us, and a cross-site
         // attacker can neither read these cookies nor forge the HMAC below.
         if (!cookieTokens.some((cookieToken) => this.safeEqual(headerToken,
             cookieToken))) {
-            throw new ForbiddenException("CSRF token mismatch")
+            throw new CsrfTokenMismatchException({
+            })
         }
         // and the token must carry a signature we actually issued
         if (!this.csrfService.verify(headerToken)) {
-            throw new ForbiddenException("Invalid CSRF token")
+            throw new InvalidCsrfTokenException({
+            })
         }
         // all checks passed — allow the mutation through
         return true
@@ -119,7 +129,9 @@ export class CsrfGuard implements CanActivate {
         }
         // an explicit, non-allowlisted origin is a cross-site attempt
         if (!allowed.includes(origin)) {
-            throw new ForbiddenException("Untrusted request origin")
+            throw new UntrustedRequestOriginException({
+                origin,
+            })
         }
     }
 

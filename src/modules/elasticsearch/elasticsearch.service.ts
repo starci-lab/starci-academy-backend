@@ -29,6 +29,10 @@ import {
     ReadinessWatcherFactoryService
 } from "@modules/mixin"
 import {
+    ElasticsearchBulkIndexException,
+    ElasticsearchIndexConfigMissingException,
+} from "@modules/exceptions"
+import {
     configMap
 } from "./config"
 import {
@@ -90,9 +94,9 @@ export class ElasticsearchService implements OnModuleInit {
     ): string {
         const config = configMap[entity]
         if (!config) {
-            throw new Error(
-                `Elasticsearch index config is missing for entity: ${entity}`,
-            )
+            throw new ElasticsearchIndexConfigMissingException({
+                entity: String(entity),
+            })
         }
         // avoid generating `-undefined` suffix when locale is omitted
         return locale ? `${config.indices}-${locale}` : config.indices
@@ -270,9 +274,10 @@ export class ElasticsearchService implements OnModuleInit {
         // Surface per-item failures instead of silently leaving the index partial.
         if (result.errors) {
             const firstError = result.items.find((item) => item.index?.error)?.index?.error
-            throw new Error(
-                `Bulk index into "${index}" had errors: ${JSON.stringify(firstError)}`,
-            )
+            throw new ElasticsearchBulkIndexException({
+                index,
+                firstError,
+            })
         }
     }
 

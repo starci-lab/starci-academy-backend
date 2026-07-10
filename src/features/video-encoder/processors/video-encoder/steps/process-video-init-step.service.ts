@@ -26,6 +26,9 @@ import {
     WinstonService, WinstonLog,
 } from "@modules/winston"
 import {
+    VideoDownloadFailedException,
+} from "@modules/exceptions"
+import {
     S3ReadService,
     S3Provider,
 } from "@modules/s3"
@@ -131,7 +134,11 @@ export class ProcessVideoInitStepService extends AbstractStepService<FilenamePro
             key, provider 
         })
         if (!buffer || buffer.length === 0) {
-            throw new Error(`Failed to download video from ${url} (provider=${provider}, key=${key})`)
+            throw new VideoDownloadFailedException({
+                url,
+                provider: String(provider),
+                key,
+            })
         }
 
         const filePath = join(taskDir,

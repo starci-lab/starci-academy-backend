@@ -7,6 +7,9 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
+    CvSubmissionNotFoundException,
+} from "@modules/exceptions"
+import {
     S3ReadService,
     S3Provider,
 } from "@modules/s3"
@@ -63,7 +66,9 @@ export class VerifySubmitCvPresignUrlHandler
         )
 
         if (!submission) {
-            throw new Error(`CV Submission not found for ID: ${request.cvSubmissionId}`)
+            throw new CvSubmissionNotFoundException({
+                cvSubmissionId: request.cvSubmissionId,
+            })
         }
         let uploaded = false
         if (submission.cdnKey) {

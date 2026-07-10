@@ -7,6 +7,10 @@ import {
     Locale,
 } from "@modules/databases"
 import {
+    CvBlocksEmptyException,
+    CvModelOutputParseException,
+    CvModelOutputShapeException,
+    CvTailorMissingJobDescriptionException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -82,12 +86,15 @@ export class TailorCvBlocksHandler
         }
 
         if (!Array.isArray(blocks) || blocks.length === 0) {
-            throw new Error("Cannot tailor an empty CV blocks array")
+            throw new CvBlocksEmptyException({
+                op: "tailor",
+            })
         }
 
         const jd = jobDescription?.trim() ?? ""
         if (jd.length === 0) {
-            throw new Error("Cannot tailor a CV without a job description")
+            throw new CvTailorMissingJobDescriptionException({
+            })
         }
 
         const targetLanguage = (locale ?? Locale.En) === Locale.Vi
@@ -205,15 +212,17 @@ export class TailorCvBlocksHandler
         try {
             parsed = JSON.parse(extractJsonBlock(raw))
         } catch (error) {
-            throw new Error(
-                `Failed to parse tailored CV blocks JSON from model output: ${
-                    error instanceof Error ? error.message : String(error)
-                }`,
-            )
+            throw new CvModelOutputParseException({
+                stage: "tailor",
+                originalError: error instanceof Error ? error : new Error(String(error)),
+            })
         }
 
         if (!Array.isArray(parsed)) {
-            throw new Error("Model output for the tailored CV blocks was not a JSON array")
+            throw new CvModelOutputShapeException({
+                stage: "tailor",
+                expected: "array",
+            })
         }
 
         // index the model's blocks by id so we can merge onto the originals; this

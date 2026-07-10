@@ -14,7 +14,6 @@ import {
 } from "@modules/keycloak"
 import {
     Injectable,
-    UnauthorizedException,
 } from "@nestjs/common"
 import {
     CommandHandler,
@@ -32,6 +31,10 @@ import {
 import {
     KeycloakRegisterCommand,
 } from "./register.command"
+import {
+    KeycloakTokenPayloadInvalidException,
+    KeycloakTokenSubjectMissingException,
+} from "@modules/exceptions"
 
 @CommandHandler(KeycloakRegisterCommand)
 @Injectable()
@@ -70,12 +73,14 @@ export class KeycloakRegisterHandler
 
         const decoded = this.jwtService.decode<KeycloakJwtPayload>(tokenResponse.access_token)
         if (!decoded || typeof decoded === "string") {
-            throw new UnauthorizedException("Invalid Keycloak access token payload")
+            throw new KeycloakTokenPayloadInvalidException({
+            })
         }
 
         const keycloakId = decoded.sub ?? keycloakUserId
         if (!keycloakId) {
-            throw new UnauthorizedException("Missing Keycloak user id in token payload")
+            throw new KeycloakTokenSubjectMissingException({
+            })
         }
 
         let user = await this.entityManager.findOne(

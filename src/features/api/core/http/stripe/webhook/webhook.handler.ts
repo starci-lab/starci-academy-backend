@@ -32,6 +32,7 @@ import {
     TransactionCourseNotFoundException,
     TransactionExpiredError,
     TransactionNotFoundException,
+    UnsupportedTransactionActionException,
 } from "@modules/exceptions"
 import {
     DayjsService,
@@ -40,7 +41,6 @@ import {
     InjectStripe,
 } from "@modules/stripe"
 import {
-    BadRequestException,
     Injectable,
     Logger,
 } from "@nestjs/common"
@@ -208,9 +208,9 @@ export class StripeWebhookHandler
             return
         }
         default:
-            throw new BadRequestException(
-                `Unsupported transaction action type: ${String(transaction.actionType)}`,
-            )
+            throw new UnsupportedTransactionActionException({
+                actionType: String(transaction.actionType),
+            })
         }
     }
 }

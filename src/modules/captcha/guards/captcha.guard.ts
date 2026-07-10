@@ -1,7 +1,6 @@
 import {
     CanActivate,
     ExecutionContext,
-    ForbiddenException,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -10,6 +9,9 @@ import {
 import type {
     Request,
 } from "express"
+import {
+    CaptchaVerificationFailedException,
+} from "@modules/exceptions"
 import {
     CaptchaService,
 } from "../captcha.service"
@@ -52,7 +54,8 @@ export class CaptchaGuard implements CanActivate {
         })
         // a failed/absent captcha blocks the bot-sensitive mutation
         if (!valid) {
-            throw new ForbiddenException("Captcha verification failed")
+            throw new CaptchaVerificationFailedException({
+            })
         }
         // captcha satisfied → allow the mutation through
         return true

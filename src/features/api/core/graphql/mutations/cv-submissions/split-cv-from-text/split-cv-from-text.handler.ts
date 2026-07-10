@@ -8,6 +8,9 @@ import {
     Locale,
 } from "@modules/databases"
 import {
+    CvModelOutputParseException,
+    CvModelOutputShapeException,
+    CvSplitEmptyTextException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -128,7 +131,8 @@ export class SplitCvFromTextHandler
 
         const trimmed = text?.trim() ?? ""
         if (trimmed.length === 0) {
-            throw new Error("Cannot split an empty CV text into blocks")
+            throw new CvSplitEmptyTextException({
+            })
         }
 
         const targetLanguage = (locale ?? Locale.En) === Locale.Vi
@@ -270,15 +274,17 @@ export class SplitCvFromTextHandler
         try {
             parsed = JSON.parse(extractJsonBlock(raw))
         } catch (error) {
-            throw new Error(
-                `Failed to parse CV blocks JSON from model output: ${
-                    error instanceof Error ? error.message : String(error)
-                }`,
-            )
+            throw new CvModelOutputParseException({
+                stage: "split",
+                originalError: error instanceof Error ? error : new Error(String(error)),
+            })
         }
 
         if (!Array.isArray(parsed)) {
-            throw new Error("Model output for CV blocks was not a JSON array")
+            throw new CvModelOutputShapeException({
+                stage: "split",
+                expected: "array",
+            })
         }
 
         const asString = (value: unknown): string =>

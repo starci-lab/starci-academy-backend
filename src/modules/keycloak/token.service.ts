@@ -17,6 +17,9 @@ import {
     KeycloakPasswordLoginParams,
     KeycloakRegisterUserParams,
 } from "./types"
+import {
+    KeycloakUserIdResolutionFailedException,
+} from "@modules/exceptions"
 import type {
     KeycloakUserSummary,
 } from "./types"
@@ -222,7 +225,9 @@ export class KeycloakTokenService {
 
         const userId = usersResponse.data[0]?.id
         if (!userId) {
-            throw new Error("Could not resolve user id after Keycloak user creation")
+            throw new KeycloakUserIdResolutionFailedException({
+                username: params.username,
+            })
         }
 
         return userId

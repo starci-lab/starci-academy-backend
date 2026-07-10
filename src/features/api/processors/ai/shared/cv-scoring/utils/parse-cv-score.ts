@@ -3,6 +3,9 @@ import {
     normalizeGradingScore,
 } from "@modules/ai"
 import {
+    CvModelOutputParseException,
+} from "@modules/exceptions"
+import {
     CV_SCORE_MAX,
     CV_SCORE_MIN,
 } from "../constants"
@@ -42,11 +45,10 @@ export const parseCvScore = (
     try {
         parsed = JSON.parse(extractJsonBlock(text)) as Record<string, unknown>
     } catch (error) {
-        throw new Error(
-            `Failed to parse CV score JSON from model output: ${
-                error instanceof Error ? error.message : String(error)
-            }`,
-        )
+        throw new CvModelOutputParseException({
+            stage: "score",
+            originalError: error instanceof Error ? error : new Error(String(error)),
+        })
     }
 
     // clamp to the rubric range, then integer-normalize for the `int` column

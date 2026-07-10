@@ -33,6 +33,9 @@ import {
 import {
     OllamaEmbeddings,
 } from "@langchain/community/embeddings/ollama"
+import {
+    UnsupportedEmbeddingProviderException,
+} from "@modules/exceptions"
 
 /**
  * `OllamaEmbeddings` hardcodes `maxConcurrency: 1` internally (fully
@@ -107,7 +110,9 @@ export class EmbeddingModelService {
             })
         }
         default: {
-            throw new Error(`Unsupported provider: ${provider}`)
+            throw new UnsupportedEmbeddingProviderException({
+                provider: String(provider),
+            })
         }
         }
     }
@@ -176,7 +181,9 @@ export class EmbeddingModelService {
             })
         default:
             // OpenRouter / Anthropic do not serve an embeddings endpoint here
-            throw new Error(`Unsupported embedding provider: ${context.provider}`)
+            throw new UnsupportedEmbeddingProviderException({
+                provider: String(context.provider),
+            })
         }
     }
 

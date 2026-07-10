@@ -4,7 +4,6 @@ import {
     randomUUID,
 } from "crypto"
 import {
-    BadRequestException,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -17,6 +16,9 @@ import {
 import {
     KeycloakIdentityProvider,
 } from "./types"
+import {
+    OidcStateExpiredException,
+} from "@modules/exceptions"
 import type {
     KeycloakOidcPkceCacheResult,
 } from "@modules/cache"
@@ -151,9 +153,8 @@ export class KeycloakOidcRedirectService {
             ],
         })
         if (!cached) {
-            throw new BadRequestException(
-                "OAuth session expired or invalid state. Restart sign-in."
-            )
+            throw new OidcStateExpiredException({
+            })
         }
         return cached
     }

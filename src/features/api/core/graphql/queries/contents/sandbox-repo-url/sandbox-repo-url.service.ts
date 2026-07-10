@@ -1,7 +1,5 @@
 import {
-    ForbiddenException,
     Injectable,
-    NotFoundException,
 } from "@nestjs/common"
 import {
     InjectPrimaryPostgreSQLEntityManager,
@@ -9,6 +7,12 @@ import {
     EnrollmentEntity,
     UserEntity,
 } from "@modules/databases"
+import {
+    ContentNotFoundException,
+    ContentNotSandboxException,
+    EnrollmentNotFoundException,
+    SandboxSourceNotConfiguredException,
+} from "@modules/exceptions"
 import {
     type EntityManager,
 } from "typeorm"
@@ -52,15 +56,21 @@ export class SandboxRepoUrlService {
             })
 
         if (!content) {
-            throw new NotFoundException("Content not found")
+            throw new ContentNotFoundException({
+                id: request.contentId,
+            })
         }
 
         if (!content.isSandbox) {
-            throw new ForbiddenException("Content is not a sandbox lesson")
+            throw new ContentNotSandboxException({
+                contentId: request.contentId,
+            })
         }
 
         if (!content.githubBaseUrl || !content.githubDir) {
-            throw new NotFoundException("Sandbox source not configured for this lesson")
+            throw new SandboxSourceNotConfiguredException({
+                contentId: request.contentId,
+            })
         }
 
         // Premium lessons require active enrollment in the course.
@@ -78,7 +88,10 @@ export class SandboxRepoUrlService {
                     },
                 })
             if (!enrollment) {
-                throw new ForbiddenException("User is not enrolled in this course")
+                throw new EnrollmentNotFoundException({
+                    userId: user.id,
+                    courseId: content.module.course.id,
+                })
             }
         }
 

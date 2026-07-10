@@ -1,6 +1,5 @@
 import {
     Injectable,
-    UnauthorizedException,
 } from "@nestjs/common"
 import {
     CommandHandler,
@@ -26,7 +25,9 @@ import {
     GithubOauthRedirectService,
 } from "@modules/github"
 import {
+    InvalidRefreshTokenException,
     MissingRequiredParameterException,
+    UserNotFoundException,
 } from "@modules/exceptions"
 import {
     GithubOauthRedirectCommand,
@@ -73,14 +74,17 @@ export class GithubOauthRedirectCommandHandler
         )
 
         if (!introspect.active || !introspect.sub) {
-            throw new UnauthorizedException("Invalid refresh token")
+            throw new InvalidRefreshTokenException({
+            })
         }
 
         const user = await this.userService.getUserByKeycloakId(
             introspect.sub,
         )
         if (!user?.id) {
-            throw new UnauthorizedException("User not found")
+            throw new UserNotFoundException({
+                keycloakId: introspect.sub,
+            })
         }
 
         // Encode state for the frontend: { redirectUri, userId } encrypted then wrapped as superjson.

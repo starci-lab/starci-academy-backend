@@ -1,9 +1,7 @@
 import {
     CanActivate,
     ExecutionContext,
-    ForbiddenException,
     Injectable,
-    UnauthorizedException,
 } from "@nestjs/common"
 import {
     GqlExecutionContext,
@@ -11,6 +9,11 @@ import {
 import {
     MountStorageService,
 } from "@modules/filesystem"
+import {
+    AdminApiKeyNotConfiguredException,
+    AdminApiKeyRequiredException,
+    InvalidAdminApiKeyException,
+} from "@modules/exceptions"
 
 /**
  * GraphQL counterpart of {@link AdminAccessGuard} — grants access only when the
@@ -34,7 +37,8 @@ export class GraphQLAdminAccessGuard implements CanActivate {
     private readAdminApiKey(): string {
         const key = this.mountStorageService.adminApiKey
         if (!key) {
-            throw new UnauthorizedException("Admin API key is empty")
+            throw new AdminApiKeyNotConfiguredException({
+            })
         }
         return key
     }
@@ -51,10 +55,12 @@ export class GraphQLAdminAccessGuard implements CanActivate {
             ? headerValue[0]
             : headerValue
         if (!apiKey) {
-            throw new UnauthorizedException("x-admin-api-key header is required")
+            throw new AdminApiKeyRequiredException({
+            })
         }
         if (apiKey !== this.readAdminApiKey()) {
-            throw new ForbiddenException("Invalid admin API key")
+            throw new InvalidAdminApiKeyException({
+            })
         }
         return true
     }

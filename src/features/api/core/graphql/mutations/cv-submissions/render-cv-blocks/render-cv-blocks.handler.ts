@@ -6,6 +6,8 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
+    CvDocumentNotFoundException,
+    CvDocxBuildFailedException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -18,8 +20,6 @@ import {
 } from "@modules/s3"
 import {
     Injectable,
-    InternalServerErrorException,
-    NotFoundException,
 } from "@nestjs/common"
 import {
     CommandHandler,
@@ -98,7 +98,9 @@ export class RenderCvBlocksHandler
             },
         )
         if (!entity) {
-            throw new NotFoundException("CV document not found")
+            throw new CvDocumentNotFoundException({
+                cvBlocksId: id,
+            })
         }
 
         const isPdf = format === CvExportFormat.Pdf
@@ -189,6 +191,7 @@ export class RenderCvBlocksHandler
         if (result instanceof ArrayBuffer) {
             return Buffer.from(result)
         }
-        throw new InternalServerErrorException("Failed to build DOCX from CV HTML")
+        throw new CvDocxBuildFailedException({
+        })
     }
 }

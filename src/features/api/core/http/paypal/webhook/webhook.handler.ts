@@ -26,9 +26,12 @@ import {
 } from "@modules/env"
 import {
     AiSubscriptionTierNotAvailableException,
+    InvalidPaypalWebhookSignatureException,
+    PaypalCaptureNotConfirmedException,
     TransactionCourseNotFoundException,
     TransactionExpiredError,
     TransactionNotFoundException,
+    UnsupportedTransactionActionException,
 } from "@modules/exceptions"
 import {
     DayjsService,
@@ -40,10 +43,8 @@ import type {
     PaypalPurchaseUnit,
 } from "@modules/paypal"
 import {
-    BadRequestException,
     Injectable,
     Logger,
-    UnauthorizedException,
 } from "@nestjs/common"
 import {
     CommandHandler,
@@ -101,7 +102,9 @@ export class PaypalWebhookHandler
         })
         if (!verified) {
             // a failed verification means the payload is untrusted → reject
-            throw new UnauthorizedException("Invalid PayPal webhook signature")
+            throw new InvalidPaypalWebhookSignatureException({
+                eventId: body.id,
+            })
         }
 
         // two events matter: APPROVED (buyer agreed, funds NOT yet taken) and
@@ -131,9 +134,10 @@ export class PaypalWebhookHandler
             })
             if (!capture.captured) {
                 // funds were not taken → reject so nothing is granted for free
-                throw new BadRequestException(
-                    `PayPal order ${orderId} not captured (status ${capture.status})`,
-                )
+                throw new PaypalCaptureNotConfirmedException({
+                    orderId,
+                    status: capture.status,
+                })
             }
         }
 
@@ -231,9 +235,9 @@ export class PaypalWebhookHandler
             return
         }
         default:
-            throw new BadRequestException(
-                `Unsupported transaction action type: ${String(transaction.actionType)}`,
-            )
+            throw new UnsupportedTransactionActionException({
+                actionType: String(transaction.actionType),
+            })
         }
     }
 

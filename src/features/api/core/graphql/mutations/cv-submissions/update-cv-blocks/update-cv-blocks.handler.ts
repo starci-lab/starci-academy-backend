@@ -6,11 +6,11 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
+    CvDocumentNotFoundException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
     Injectable,
-    NotFoundException,
 } from "@nestjs/common"
 import {
     CommandHandler,
@@ -72,7 +72,9 @@ export class UpdateCvBlocksHandler
             },
         )
         if (!entity) {
-            throw new NotFoundException("CV document not found")
+            throw new CvDocumentNotFoundException({
+                cvBlocksId: id,
+            })
         }
 
         if (label !== undefined) {

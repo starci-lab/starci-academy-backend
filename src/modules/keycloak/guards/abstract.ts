@@ -1,12 +1,16 @@
 import {
     CanActivate,
     ExecutionContext,
-    UnauthorizedException,
 } from "@nestjs/common"
 import {
     InjectPrimaryPostgreSQLEntityManager,
     UserEntity,
 } from "@modules/databases"
+import {
+    KeycloakAuthHeaderInvalidFormatException,
+    KeycloakAuthHeaderMissingException,
+    KeycloakTokenInactiveException,
+} from "@modules/exceptions"
 import {
     KeycloakJwksService,
 } from "../jwks.service"
@@ -59,18 +63,21 @@ export abstract class AbstractKeycloakAuthGuard implements CanActivate {
 
         const authHeader = request.headers["authorization"]
         if (!authHeader || typeof authHeader !== "string") {
-            throw new UnauthorizedException("Missing Authorization header")
+            throw new KeycloakAuthHeaderMissingException({
+            })
         }
         const [
             scheme,
             token,
         ] = authHeader.split(" ")
         if (scheme !== "Bearer" || !token) {
-            throw new UnauthorizedException("Invalid Authorization header format")
+            throw new KeycloakAuthHeaderInvalidFormatException({
+            })
         }
         const verified = await this.keycloakJwksService.verifyAccessToken(token)
         if (!verified.active || !verified.sub) {
-            throw new UnauthorizedException("Invalid or inactive token")
+            throw new KeycloakTokenInactiveException({
+            })
         }
         request.keycloakToken = verified
         let user = await this.entityManager.findOne(

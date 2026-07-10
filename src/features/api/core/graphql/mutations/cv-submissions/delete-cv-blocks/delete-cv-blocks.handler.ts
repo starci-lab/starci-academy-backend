@@ -6,11 +6,11 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
+    CvDocumentNotFoundException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
     Injectable,
-    NotFoundException,
 } from "@nestjs/common"
 import {
     CommandHandler,
@@ -68,7 +68,9 @@ export class DeleteCvBlocksHandler
             },
         )
         if (!entity) {
-            throw new NotFoundException("CV document not found")
+            throw new CvDocumentNotFoundException({
+                cvBlocksId: id,
+            })
         }
 
         await this.entityManager.remove(entity)

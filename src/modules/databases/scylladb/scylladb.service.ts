@@ -10,6 +10,9 @@ import {
 import {
     InjectScyllaDBClient,
 } from "./scylladb.decorators"
+import {
+    InvalidScyllaIdentifierException,
+} from "@modules/exceptions"
 
 /** Shared ScyllaDB helper for schema bootstrap and document upsert operations. */
 @Injectable()
@@ -101,7 +104,9 @@ export class ScyllaDBService {
     private sanitizeIdentifier(value: string) {
         const trimmed = value.trim()
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(trimmed)) {
-            throw new Error(`Invalid Scylla identifier: ${value}`)
+            throw new InvalidScyllaIdentifierException({
+                value,
+            })
         }
         return trimmed
     }

@@ -1,5 +1,4 @@
 import {
-    ForbiddenException,
     Injectable,
 } from "@nestjs/common"
 import {
@@ -17,6 +16,7 @@ import {
     UserMilestoneTaskEntity,
 } from "@modules/databases"
 import {
+    PersonalTaskAttemptAccessDeniedException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -85,9 +85,10 @@ export class LastPersonalTaskAttemptHandler
             subjectUserId,
             realmRoles,
         )) {
-            throw new ForbiddenException(
-                "Not allowed to read this user's last attempt",
-            )
+            throw new PersonalTaskAttemptAccessDeniedException({
+                callerId: user.id,
+                subjectUserId,
+            })
         }
         const enrollment = await this.entityManager.findOne(
             EnrollmentEntity,

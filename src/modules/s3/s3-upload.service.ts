@@ -14,6 +14,9 @@ import {
     S3ProviderNotFoundException,
 } from "./exceptions/s3-provider-not-found.exception"
 import {
+    S3UploadFailedException,
+} from "@modules/exceptions"
+import {
     InjectDigitalOceanS3,
     InjectMinioS3,
 } from "./s3.decorators"
@@ -28,42 +31,6 @@ import {
     InjectSuperJson
 } from "@modules/mixin"
 import SuperJSON from "superjson"
-import type {
-    S3LikeError,
-} from "./types"
-
-/**
- * Build a compact error string for S3-compatible providers.
- */
-const formatS3UploadError = (params: {
-    provider: S3Provider
-    bucket: string
-    key: string
-    error: unknown
-}): string => {
-    const {
-        provider,
-        bucket,
-        key,
-        error,
-    } = params
-    const s3Like = error as S3LikeError
-    const statusCode = s3Like?.$metadata?.httpStatusCode
-    const requestId = s3Like?.RequestId ?? s3Like?.$metadata?.requestId
-    const providerCode = s3Like?.Code
-    const base = error instanceof Error
-        ? `${error.name}: ${error.message}`
-        : String(error)
-    return [
-        base,
-        `provider=${provider}`,
-        `bucket=${bucket}`,
-        `key=${key}`,
-        statusCode != null ? `status=${statusCode}` : null,
-        providerCode ? `code=${providerCode}` : null,
-        requestId ? `requestId=${requestId}` : null,
-    ].filter(Boolean).join(" | ")
-}
 
 /**
  * Service for uploading files to S3.
@@ -132,12 +99,12 @@ export class S3UploadService {
                                 }),
                             )
                         } catch (error) {
-                            throw new Error(formatS3UploadError({
-                                provider,
+                            throw new S3UploadFailedException({
+                                provider: String(provider),
                                 bucket,
                                 key: name,
-                                error,
-                            }))
+                                originalError: error instanceof Error ? error : new Error(String(error)),
+                            })
                         }
                     })())
                 break
@@ -159,12 +126,12 @@ export class S3UploadService {
                                 }),
                             )
                         } catch (error) {
-                            throw new Error(formatS3UploadError({
-                                provider,
+                            throw new S3UploadFailedException({
+                                provider: String(provider),
                                 bucket,
                                 key: name,
-                                error,
-                            }))
+                                originalError: error instanceof Error ? error : new Error(String(error)),
+                            })
                         }
                     })())
                 break

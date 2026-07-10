@@ -35,6 +35,10 @@ import {
     WinstonLog,
     WinstonService,
 } from "@modules/winston"
+import {
+    CvGenerationStepResultMissingException,
+    CvModelOutputParseException,
+} from "@modules/exceptions"
 import type {
     ComposedEducation,
     ComposedExperience,
@@ -122,7 +126,10 @@ export class GenerateCvComposeStepService extends AbstractStepService<
             key: "gather",
         })
         if (!gathered) {
-            throw new Error("Missing gather execution result for CV compose step")
+            throw new CvGenerationStepResultMissingException({
+                step: "gather",
+                stage: "compose",
+            })
         }
 
         // infer a rough seniority level + tech stack from the verified signals to
@@ -390,11 +397,10 @@ export class GenerateCvComposeStepService extends AbstractStepService<
         try {
             parsed = JSON.parse(extractJsonBlock(raw)) as Record<string, unknown>
         } catch (error) {
-            throw new Error(
-                `Failed to parse composed CV JSON from model output: ${
-                    error instanceof Error ? error.message : String(error)
-                }`,
-            )
+            throw new CvModelOutputParseException({
+                stage: "compose",
+                originalError: error instanceof Error ? error : new Error(String(error)),
+            })
         }
         const asString = (value: unknown): string =>
             typeof value === "string" ? value : ""

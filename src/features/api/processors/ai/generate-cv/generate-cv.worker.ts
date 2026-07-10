@@ -40,6 +40,7 @@ import {
     EntityManager,
 } from "typeorm"
 import {
+    CvGenerationNotFoundException,
     StepNotFoundException,
 } from "@modules/exceptions"
 
@@ -112,9 +113,9 @@ export class GenerateCvWorker extends WorkerHost {
                 },
             )
             if (!cvGeneration) {
-                throw new Error(
-                    `CV generation not found: ${payload.cvGenerationId}`,
-                )
+                throw new CvGenerationNotFoundException({
+                    cvGenerationId: payload.cvGenerationId,
+                })
             }
             const context: JobExtendedContext<
             GenerateCvPayload,
