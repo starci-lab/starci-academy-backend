@@ -73,6 +73,12 @@ export interface SearchCourseParams {
     courseId: string
     /** The learner's search query (keyword or natural-language question alike). */
     query: string
+    /**
+     * Optional corpus-kind filter (Qdrant payload `metadata.kind` — any of these).
+     * e.g. `["challenge"]` to search ONLY challenges, `["content", "code"]` for
+     * lessons. Omit to span every indexed kind (the default "search everything").
+     */
+    kinds?: Array<string>
     /** Optional override for how many DISTINCT sources to return (defaults to env top-k). */
     topK?: number
 }
@@ -294,6 +300,7 @@ export class ContentRagRetrievalService {
         {
             courseId,
             query,
+            kinds,
             topK,
         }: SearchCourseParams,
     ): Promise<SearchCourseResult> {
@@ -328,6 +335,19 @@ export class ContentRagRetrievalService {
                                 value: courseId,
                             },
                         },
+                        // optional corpus-kind scope: "tìm challenges" must search
+                        // ONLY challenge chunks, else a topical query returns a
+                        // content-dominated top-k that the caller's kind filter empties
+                        ...(kinds && kinds.length > 0
+                            ? [
+                                {
+                                    key: "metadata.kind",
+                                    match: {
+                                        any: kinds,
+                                    },
+                                },
+                            ]
+                            : []),
                     ],
                 },
             )

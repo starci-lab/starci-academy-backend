@@ -74,10 +74,20 @@ export class SearchCourseContentResolver {
             },
         )
             query: string,
+        @Args(
+            "kinds",
+            {
+                type: () => [String],
+                nullable: true,
+                description: "Optional corpus-kind filter (e.g. [\"challenge\"], [\"content\",\"code\"]); omit to search every kind.",
+            },
+        )
+            kinds: Array<string> | undefined,
     ): Promise<SearchCourseContentData> {
         const results = await this.searchCourseContentService.search({
             courseId,
             query,
+            kinds,
         })
         return {
             results,

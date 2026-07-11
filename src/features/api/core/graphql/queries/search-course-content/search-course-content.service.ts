@@ -31,6 +31,11 @@ export interface SearchCourseContentParams {
     courseId: string
     /** The learner's search query (keyword or natural-language question alike). */
     query: string
+    /**
+     * Optional corpus-kind filter (`["challenge"]`, `["milestone"]`, or
+     * `["content", "code"]` for lessons). Omit → search every indexed kind.
+     */
+    kinds?: Array<string>
 }
 
 /**
@@ -60,11 +65,13 @@ export class SearchCourseContentService {
         {
             courseId,
             query,
+            kinds,
         }: SearchCourseContentParams,
     ): Promise<Array<SearchCourseContentItem>> {
         const { hits } = await this.contentRagRetrievalService.searchCourse({
             courseId,
             query,
+            kinds,
         })
         if (hits.length === 0) {
             return []
