@@ -7,6 +7,7 @@ import {
 } from "typeorm"
 import {
     InjectPrimaryPostgreSQLEntityManager,
+    MOCK_INTERVIEW_SESSION_DURATION_MS,
     MockInterviewSessionEntity,
 } from "@modules/databases"
 import {
@@ -67,6 +68,15 @@ export class MyInProgressMockInterviewSessionService {
         const resumeWindowStart = new Date(
             Date.now() - RESUME_WINDOW_HOURS * 60 * 60 * 1000,
         )
+        // lazy-expiry, no cron (2026-07-11): a session drawn longer ago than
+        // its own 1h ask-loop duration has "hết giờ" even if it was synced
+        // more recently than the resume window above — both gates apply,
+        // whichever is stricter wins (MoreThanOrEqual on createdAt = "not yet
+        // expired"). Mirrors `MyInProgressFlashcardQuizSessionService`'s same
+        // addition.
+        const notExpiredSince = new Date(
+            Date.now() - MOCK_INTERVIEW_SESSION_DURATION_MS,
+        )
 
         const session = await this.entityManager.findOne(
             MockInterviewSessionEntity,
@@ -77,6 +87,7 @@ export class MyInProgressMockInterviewSessionService {
                     },
                     status: "in_progress",
                     updatedAt: MoreThanOrEqual(resumeWindowStart),
+                    createdAt: MoreThanOrEqual(notExpiredSince),
                 },
                 order: {
                     updatedAt: "DESC",

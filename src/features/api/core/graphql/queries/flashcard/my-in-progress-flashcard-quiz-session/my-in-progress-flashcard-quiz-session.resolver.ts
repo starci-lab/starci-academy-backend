@@ -21,6 +21,7 @@ import {
     ThrottlerConfig,
 } from "@modules/throttler"
 import {
+    FLASHCARD_QUIZ_SESSION_DURATION_MS,
     Locale,
     UserEntity,
 } from "@modules/databases"
@@ -85,6 +86,7 @@ export class MyInProgressFlashcardQuizSessionResolver {
             currentIndex: result.currentIndex,
             results: result.results,
             updatedAt: result.updatedAt.toISOString(),
+            deadlineAt: new Date(result.createdAt.getTime() + FLASHCARD_QUIZ_SESSION_DURATION_MS).toISOString(),
         }
     }
 }

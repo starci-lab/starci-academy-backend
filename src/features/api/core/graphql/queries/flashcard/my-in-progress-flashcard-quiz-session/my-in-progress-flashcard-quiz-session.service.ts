@@ -6,6 +6,7 @@ import {
     MoreThanOrEqual,
 } from "typeorm"
 import {
+    FLASHCARD_QUIZ_SESSION_DURATION_MS,
     FlashcardQuizSessionEntity,
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
@@ -69,6 +70,13 @@ export class MyInProgressFlashcardQuizSessionService {
         const resumeWindowStart = new Date(
             Date.now() - RESUME_WINDOW_HOURS * 60 * 60 * 1000,
         )
+        // lazy-expiry, no cron (2026-07-11): a session drawn longer ago than
+        // its own duration has "hết giờ" even if it was synced more recently
+        // than the resume window above — both gates apply, whichever is
+        // stricter wins (MoreThanOrEqual on createdAt = "not yet expired").
+        const notExpiredSince = new Date(
+            Date.now() - FLASHCARD_QUIZ_SESSION_DURATION_MS,
+        )
 
         const session = await this.entityManager.findOne(
             FlashcardQuizSessionEntity,
@@ -79,6 +87,7 @@ export class MyInProgressFlashcardQuizSessionService {
                     },
                     status: "in_progress",
                     updatedAt: MoreThanOrEqual(resumeWindowStart),
+                    createdAt: MoreThanOrEqual(notExpiredSince),
                 },
                 order: {
                     updatedAt: "DESC",
@@ -96,6 +105,7 @@ export class MyInProgressFlashcardQuizSessionService {
             currentIndex: session.currentIndex,
             results: session.results ?? [],
             updatedAt: session.updatedAt,
+            createdAt: session.createdAt,
         }
     }
 }

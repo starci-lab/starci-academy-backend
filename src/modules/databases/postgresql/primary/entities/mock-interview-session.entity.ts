@@ -249,6 +249,15 @@ export class MockInterviewSessionEntity extends UuidAbstractEntity {
      * as a valid status (see the migration's own doc for why that default is
      * safe — those rows are all already resolved one way or another in
      * practice, "in_progress" is just their fallback label).
+     *
+     * A session left "in_progress" past {@link MOCK_INTERVIEW_SESSION_DURATION_MS}
+     * is effectively timed out — "session lazy-expiry" (2026-07-11): there is
+     * NO cron flipping it to a 4th persisted value, every reader instead
+     * derives "timed out" at READ time from `status === "in_progress" &&
+     * createdAt + MOCK_INTERVIEW_SESSION_DURATION_MS < now` (see
+     * `myInProgressMockInterviewSession`, which simply excludes it from the
+     * resumable result). The row only actually flips to "abandoned" once the
+     * SAME enrollment starts a fresh draw (unchanged).
      */
     @Column({
         name: "status",

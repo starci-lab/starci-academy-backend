@@ -33,4 +33,6 @@ export interface MyInProgressFlashcardQuizSessionResultData {
     results: Array<MyInProgressFlashcardQuizSessionResult>
     /** When this session was last synced/updated. */
     updatedAt: Date
+    /** When the persisted session row was drawn — the anchor for the session's lazy-expiry deadline (createdAt + `FLASHCARD_QUIZ_SESSION_DURATION_MS`), so a RESUMED session's countdown reflects the true remaining time, not a freshly-reset window. */
+    createdAt: Date
 }
