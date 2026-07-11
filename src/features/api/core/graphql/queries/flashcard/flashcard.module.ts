@@ -22,6 +22,9 @@ import {
 import {
     MyFlashcardReviewStatsSingleQueryModule,
 } from "./my-flashcard-review-stats"
+import {
+    MyInProgressFlashcardDueReviewSessionSingleQueryModule,
+} from "./my-in-progress-flashcard-due-review-session"
 
 /**
  * Flashcard quick-quiz ("Hỏi nhanh") + review ("Học thẻ") resumable-session
@@ -49,6 +52,9 @@ import {
             isGlobal: true,
         }),
         MyFlashcardReviewStatsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyInProgressFlashcardDueReviewSessionSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

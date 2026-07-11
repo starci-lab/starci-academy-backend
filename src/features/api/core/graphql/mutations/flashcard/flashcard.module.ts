@@ -25,11 +25,20 @@ import {
 import {
     CompleteFlashcardReviewSessionSingleMutationModule,
 } from "./complete-flashcard-review-session"
+import {
+    StartFlashcardDueReviewSessionSingleMutationModule,
+} from "./start-flashcard-due-review-session"
+import {
+    SyncFlashcardDueReviewSessionProgressSingleMutationModule,
+} from "./sync-flashcard-due-review-session-progress"
+import {
+    CompleteFlashcardDueReviewSessionSingleMutationModule,
+} from "./complete-flashcard-due-review-session"
 
 /**
  * Flashcard mutation group (spaced-repetition review grading + quick-quiz XP
  * + resumable quick-quiz session draw/sync + resumable review session
- * draw/sync).
+ * draw/sync + resumable cross-deck due-review batch session draw/sync).
  */
 @Module({
     imports: [
@@ -52,6 +61,15 @@ import {
             isGlobal: true,
         }),
         CompleteFlashcardReviewSessionSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        StartFlashcardDueReviewSessionSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        SyncFlashcardDueReviewSessionProgressSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        CompleteFlashcardDueReviewSessionSingleMutationModule.register({
             isGlobal: true,
         }),
     ],
