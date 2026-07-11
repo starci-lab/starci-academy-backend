@@ -82,18 +82,51 @@ Sections, in order:
 3. **Trade-off** — the trade-off / when this choice breaks down.
 4. **Bẫy thường gặp** — the classic failure mode / anti-pattern.
 5. **Đào sâu tiếp** — one natural follow-up question (primes the next round of prep).
-6. *(optional)* **Từ khoá ăn điểm** — the exact terms an interviewer listens for, e.g.
-   `stderr · fd 2 · 2>&1 · &>`.
+
+There is NO separate "Từ khoá ăn điểm" / keywords section (retired 2026-07-12) — the
+`{{cN::…}}` cloze marker(s) inside the prose above ARE the card's key terms (drive both
+the FE "Hỏi nhanh" blank AND the flip-mode coverage stat directly; see §2.1). Every
+kept card MUST carry at least one marker on a real key term — a card with zero markers
+has no self-grading signal in "Hỏi nhanh" and silently falls back to plain flip.
 
 The body stays normal prose so it reads clearly — only the labels are muted. Do NOT wrap
 the body inside the `:::muted` block.
 
 **Level-adaptive depth:**
-- `junior`: TL;DR + Cơ chế (+ Từ khoá). Skip Trade-off / Bẫy if forcing them would be contrived.
-- `middle`: TL;DR + Cơ chế + Bẫy (+ Từ khoá).
+- `junior`: TL;DR + Cơ chế. Skip Trade-off / Bẫy if forcing them would be contrived.
+- `middle`: TL;DR + Cơ chế + Bẫy.
 - `senior` / `staff`: the full arc, with the Trade-off and Đào sâu carrying real design reasoning.
 
 Never pad a junior card with fake senior depth — depth must be real or omitted.
+
+---
+
+## §2.1. Cloze marker `{{cN::…}}` — NEVER straddled by a backtick code-span
+
+Anywhere a `{{cN::…}}` cloze marker appears inside `# answer` (they drive the FE
+"Hỏi nhanh" fill-in-the-blank), it must NOT sit inside a backtick code-span that
+also covers text outside the marker. The FE cuts the marker into its own blank
+chip before parsing markdown around it, so a code-span backtick pair that opens
+before the marker and closes after (or wraps just the marker) gets torn in half —
+each side keeps an orphan backtick that used to render as a literal `` ` `` char
+(fixed defensively in `build-cloze.ts`, but content should not rely on that).
+
+**Wrong** (backtick bắc ngang qua marker):
+```
+`{{c1::forwardRef}}(() => B)` bọc tham chiếu...
+`{{c1::forwardRef}}` bọc tham chiếu...
+```
+
+**Right** — pick one:
+1. **No backticks at all** — the blank chip already reads as a distinct term, code
+   styling is redundant: `{{c1::forwardRef}}(() => B)` bọc tham chiếu...
+2. **If code style is genuinely needed on the surrounding text, keep the marker
+   fully OUTSIDE both code-spans** (never straddled):
+   `{{c1::forwardRef}}` này gọi trong `` `(() => B)` `` — a lambda...
+
+Rationale: this is a known limitation of Anki itself (the origin of `{{cN::}}`
+syntax) — the Anki community's own guidance is to never let a code-span wrap
+across a cloze deletion; split the backticks instead.
 
 ---
 
@@ -103,8 +136,8 @@ Never pad a junior card with fake senior depth — depth must be real or omitted
 - `vi.md` is Vietnamese **with diacritics**; keep standard technical terms in English
   (`stderr`, `load average`, `2>&1`) rather than force-translating them.
 - The block labels are localized: `Chốt` / `Cơ chế` / `Trade-off` / `Bẫy thường gặp` /
-  `Đào sâu tiếp` / `Từ khoá ăn điểm` (vi) — English equivalents in `en.md`
-  (`TL;DR` / `How it works` / `Trade-off` / `Common pitfall` / `Go deeper` / `Keywords`).
+  `Đào sâu tiếp` (vi) — English equivalents in `en.md`
+  (`TL;DR` / `How it works` / `Trade-off` / `Common pitfall` / `Go deeper`).
 
 ---
 
