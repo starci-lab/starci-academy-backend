@@ -61,3 +61,11 @@ export interface FlashcardDecksFromDatabaseParams {
     /** Course ordinal on the mount. */
     courseIndex: number
 }
+
+/**
+ * Ordinals for {@link PlaygroundParserService.playgroundsFromDatabase}.
+ */
+export interface PlaygroundsFromDatabaseParams {
+    /** Course ordinal on the mount. */
+    courseIndex: number
+}

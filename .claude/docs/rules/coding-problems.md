@@ -1,7 +1,7 @@
 # Coding Problems — Audit rules (LeetCode-style practice bank) · đúc kết
 
 > Bản **TỰ-ĐỦ** để audit/viết coding problems trong
-> `.gitrefs/data/coding-problems/sets/<domain>/problems/<slug>/` — chỉ đọc trong `.audits`,
+> `.gitrefs/data/coding-problems/sets/<domain>/problems/<slug>/` — chỉ đọc trong `.claude/docs`,
 > **KHÔNG ref file ngoài**. Khác hẳn lesson content (`fullstack/contents.md`) và milestone task:
 > đây là bài LeetCode chấm bằng **Judge0** (stdin → stdout), không phải chấm bằng criteria.
 >

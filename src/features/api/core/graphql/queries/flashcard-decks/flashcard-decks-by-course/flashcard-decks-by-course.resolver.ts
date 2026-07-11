@@ -55,7 +55,7 @@ export class FlashcardDecksByCourseResolver {
         () => FlashcardDecksByCourseResponse,
         {
             name: "flashcardDecksByCourse",
-            description: "Lists the flashcard decks owned by a course (optionally filtered by content).",
+            description: "Lists the flashcard decks owned by a course.",
         },
     )
     async execute(
@@ -64,12 +64,6 @@ export class FlashcardDecksByCourseResolver {
                 type: () => ID,
             })
             courseId: string,
-        @Args("contentId",
-            {
-                type: () => ID,
-                nullable: true,
-            })
-            contentId: string | undefined,
         @KeycloakGraphQLUser()
             user: UserEntity,
         @GraphQLLocale()
@@ -79,7 +73,6 @@ export class FlashcardDecksByCourseResolver {
         // the request + annotated with the viewer's per-deck due / mastered counts
         return this.flashcardDeckReadService.listByCourse(courseId,
             locale,
-            contentId,
             user.id)
     }
 }

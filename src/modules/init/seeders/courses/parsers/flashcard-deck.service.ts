@@ -3,7 +3,6 @@ import type {
     ParseFlashcardDeckParams,
     FlashcardDecksFromDatabaseParams,
     RawFlashcardCardTag,
-    RawRef,
     RawFlashcardDeck,
     RawFlashcardCard,
 } from "./types"
@@ -14,8 +13,6 @@ import {
     ChallengeDifficulty,
     FlashcardLevel,
     Locale,
-    ContentEntity,
-    ModuleEntity,
     FlashcardCardEntity,
     FlashcardDeckEntity,
 } from "@modules/databases"
@@ -134,30 +131,16 @@ export class FlashcardDeckParserService {
                 flashcardDeckIndex,
             },
         )
-        // N:N refs — resolve `# contentRefs` / `# moduleRefs` displayIds to ids within
-        // this course (contents + modules are already seeded by the time decks run)
-        const linkedContentIds = await this.resolveContentRefIds(
-            courseId,
-            jsonMap.get(Locale.En)?.contentRefs,
-        )
-        const linkedModuleIds = await this.resolveModuleRefIds(
-            courseId,
-            jsonMap.get(Locale.En)?.moduleRefs,
-        )
+        // deck→content/module associations are no longer stored (M:N removed) —
+        // "which lesson/module this deck is about" is resolved at read time via RAG
+        // (searchCourse), so `# contentRefs` / `# moduleRefs` in the markdown are
+        // ignored here.
         return {
             id: flashcardDeckId,
             defaultLocale: Locale.En,
             displayId: path.displayId,
             // owning course FK
             courseId,
-            // many-to-many content references (`# contentRefs`)
-            contents: linkedContentIds.map((id) => ({
-                id,
-            })),
-            // many-to-many module references (`# moduleRefs`)
-            modules: linkedModuleIds.map((id) => ({
-                id,
-            })),
             // scalar copy is sourced from the merged default-locale doc
             title: merged.title ?? "",
             description: merged.description ?? "",
@@ -290,7 +273,8 @@ export class FlashcardDeckParserService {
                 level,
                 tags,
                 // `# isPremium` scalar → boolean, false when missing (first 20%/deck are free)
-                isPremium: this.coerceMdScalarService.toRequiredBoolean(merged.isPremium, false),
+                isPremium: this.coerceMdScalarService.toRequiredBoolean(merged.isPremium,
+                    false),
                 defaultLocale: Locale.En,
                 deck: {
                     id: flashcardDeckId,
@@ -308,96 +292,6 @@ export class FlashcardDeckParserService {
             })
         }
         return cards
-    }
-
-    /**
-     * Resolves `# contentRefs` displayIds to content ids within the owning course.
-     * Contents are already persisted by the time decks seed; unknown displayIds are
-     * dropped (logged-skip semantics — a typo shouldn't abort the deck).
-     *
-     * @param courseId - Owning course id (scopes the lookup).
-     * @param refs - Parsed `# contentRefs` rows (each a content `displayId`).
-     * @returns Deduped content ids for the many-to-many link.
-     */
-    private async resolveContentRefIds(
-        courseId: string,
-        refs: Array<RawRef> | undefined,
-    ): Promise<Array<string>> {
-        const displayIds = Array.from(
-            new Set(
-                (refs ?? [])
-                    .map((ref) => (ref.value ?? "").trim())
-                    .filter((value) => value.length > 0),
-            ),
-        )
-        if (displayIds.length === 0) {
-            return []
-        }
-        const ids: Array<string> = []
-        for (const displayId of displayIds) {
-            const content = await this.entityManager.findOne(ContentEntity,
-                {
-                    where: {
-                        displayId,
-                        module: {
-                            course: {
-                                id: courseId,
-                            },
-                        },
-                    },
-                    select: {
-                        id: true,
-                    },
-                })
-            if (content) {
-                ids.push(content.id)
-            }
-        }
-        return ids
-    }
-
-    /**
-     * Resolves `# moduleRefs` displayIds to module ids within the owning course.
-     *
-     * @param courseId - Owning course id (scopes the lookup).
-     * @param refs - Parsed `# moduleRefs` rows (each a module `displayId`).
-     * @returns Deduped module ids for the many-to-many link.
-     */
-    private async resolveModuleRefIds(
-        courseId: string,
-        refs: Array<RawRef> | undefined,
-    ): Promise<Array<string>> {
-        const displayIds = Array.from(
-            new Set(
-                (refs ?? [])
-                    .map((ref) => (ref.value ?? "").trim())
-                    .filter((value) => value.length > 0),
-            ),
-        )
-        if (displayIds.length === 0) {
-            return []
-        }
-        const ids: Array<string> = []
-        for (const displayId of displayIds) {
-            const module = await this.entityManager.findOne(ModuleEntity,
-                {
-                    where: {
-                        displayId,
-                        // `courseId` is a virtual @RelationId — not queryable in `where`;
-                        // scope through the relation instead (mirrors resolveContentRefIds).
-                        course: {
-                            id: courseId,
-                        },
-                    },
-                    select: {
-                        id: true,
-                    },
-                })
-            if (module) {
-                ids.push(module.id)
-            }
-        }
-        return ids
     }
 
     /**

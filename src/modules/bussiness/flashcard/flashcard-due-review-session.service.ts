@@ -15,6 +15,7 @@ import {
 import type {
     CompleteFlashcardDueReviewSessionParams,
     CompleteFlashcardDueReviewSessionResult,
+    FindFlashcardDueReviewSessionByIdParams,
     FindMyInProgressFlashcardDueReviewSessionParams,
     MyInProgressFlashcardDueReviewSessionResultData,
     StartFlashcardDueReviewSessionParams,
@@ -259,6 +260,52 @@ export class FlashcardDueReviewSessionService {
                 },
                 order: {
                     updatedAt: "DESC",
+                },
+            },
+        )
+
+        if (!session) {
+            return null
+        }
+
+        return {
+            sessionId: session.id,
+            cardIds: session.cardIds,
+            currentIndex: session.currentIndex,
+            reviewedCount: session.reviewedCount,
+            xpEarned: session.xpEarned,
+            updatedAt: session.updatedAt,
+        }
+    }
+
+    /**
+     * Find a due-review batch session directly by its id (ownership-checked
+     * against the caller) — mirrors
+     * `FlashcardReviewSessionService.findById`; no deck identity to attach
+     * here (a due-review batch spans multiple decks, per-card deckId comes
+     * from the drawn cards themselves, not the session row). NOT
+     * window/status-scoped like `findInProgress` — a direct link to a
+     * completed/abandoned session still resolves.
+     *
+     * @param params - {@link FindFlashcardDueReviewSessionByIdParams}
+     * @returns the session, or null when not found/not owned by the caller.
+     */
+    async findById(
+        {
+            userId,
+            sessionId,
+        }: FindFlashcardDueReviewSessionByIdParams,
+    ): Promise<MyInProgressFlashcardDueReviewSessionResultData | null> {
+        const session = await this.entityManager.findOne(
+            FlashcardDueReviewSessionEntity,
+            {
+                where: {
+                    id: sessionId,
+                    enrollment: {
+                        user: {
+                            id: userId,
+                        },
+                    },
                 },
             },
         )

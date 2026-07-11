@@ -46,11 +46,6 @@ export class SeedScopeService {
         return this.seeders().courses.flashcard.enabled
     }
 
-    /** Whether flashcard decks link to lesson contents (`flashcard_deck_contents`). */
-    isCoursesFlashcardLinkContentsEnabled(): boolean {
-        return this.seeders().courses.flashcard.linkContents
-    }
-
     /** Whether mock-interview technical bank seeding is enabled. */
     isCoursesInterviewSeederEnabled(): boolean {
         return this.seeders().courses.interview.enabled

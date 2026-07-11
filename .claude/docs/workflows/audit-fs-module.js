@@ -1,18 +1,18 @@
 export const meta = {
   name: 'audit-fs-module',
-  description: 'Audit 1 module Fullstack 2 GIAI DOAN. stage=review (mac dinh): Sonnet brief + Opus DE XUAT -> review.md -> STOP cho thay duyet. stage=apply (sau duyet): Opus apply review.md + gate -> convergence loop (Sonnet code/e2e -> Opus fix -> re-gate). Iter tung lesson song song.',
+  description: 'Audit 1 module Fullstack 2 GIAI DOAN (mac dinh Sonnet 5; Opus opt-in qua args.opus:true+only cho lesson kho). stage=review (mac dinh): brief + DE XUAT -> review.md -> STOP cho thay duyet. stage=apply (sau duyet): apply review.md + gate -> convergence loop (code/e2e -> decision -> re-gate). Iter tung lesson song song.',
   phases: [
     { title: 'Enumerate', detail: 'liet ke lesson folders', model: 'haiku' },
-    { title: 'Review', detail: 'stage=review: Sonnet brief + Opus DE XUAT (duyet/them-bot challenge/sua lesson) -> review.md -> STOP hoi thay', model: 'opus' },
-    { title: 'Apply', detail: 'stage=apply: Opus apply review.md da duyet (them/bot challenge, sua lesson)', model: 'opus' },
+    { title: 'Review', detail: 'stage=review: brief + DE XUAT (duyet/them-bot challenge/sua lesson) -> review.md -> STOP hoi thay', model: 'sonnet' },
+    { title: 'Apply', detail: 'stage=apply: apply review.md da duyet (them/bot challenge, sua lesson)', model: 'sonnet' },
     { title: 'Gate', detail: 'check-lesson.ps1 -Json (sau apply)', model: 'sonnet' },
     { title: 'Loop', detail: 'Sonnet viet code + test + doi chieu snippet (.code/.e2e)', model: 'sonnet' },
-    { title: 'Decision', detail: 'Opus duyet + fix + decision.md', model: 'opus' },
-    { title: 'References', detail: 'Append module vao .audits/references.md', model: 'haiku' },
+    { title: 'Decision', detail: 'duyet + fix + decision.md (Opus neu escalate opus:true)', model: 'sonnet' },
+    { title: 'References', detail: 'Append module vao .claude/docs/references.md', model: 'haiku' },
   ],
 }
 
-// invoke: Workflow({ scriptPath: ".audits/workflows/audit-fs-module.js", args: { module: "13-frontend-performance", guidance: "..." } })
+// invoke: Workflow({ scriptPath: ".claude/docs/workflows/audit-fs-module.js", args: { module: "13-frontend-performance", guidance: "..." } })
 // args co the la object {module, guidance?, only?, expand?}, JSON-string, hoac chuoi slug tran -> normalize het.
 // guidance = chi-dan rieng cho module (vd "FE thuan -> Vite + Sandbox, KHONG Next") chen vao moi phase.
 // LUONG (theo ruling thay): REVIEW TREN TRUOC (Sonnet brief + Opus check noi dung+challenges, duyet/curate)
@@ -38,12 +38,17 @@ const EXPAND = ARGS.expand === true || ARGS.expand === 'true'
 // NO_E2E: stage=apply nhung CHI sua content/challenge + gate + Opus fix format — KHONG chay Sonnet code/e2e loop.
 // Dung khi thay duyet "apply noi dung, e2e sau". Loop hoi tu chi Opus fix-format + re-gate.
 const NO_E2E = ARGS.noE2e === true || ARGS.noE2e === 'true'
+// MODEL TIER (dong bo ca he .claude/docs 2026-07-09, xem pipeline.md §Phan vai MODEL):
+//   DEFAULT = Sonnet 5 cho MOI viec nang (review/apply/decision/loop/author). Haiku giu enumerate/re-gate/refs.
+//   Opus = OPT-IN escalation qua args.opus:true (thuong kem only:"<lesson>") khi Sonnet 5 chua dat 1 lesson kho.
+const HEAVY = (ARGS.opus === true || ARGS.opus === 'true') ? 'opus' : 'sonnet'
+const HEAVY_TAG = '[' + (HEAVY === 'opus' ? 'Opus 4.8' : 'Sonnet 5') + ']'
 // STAGE (ruling thay): audit 2 giai doan, DUNG lai cho thay duyet giua chung.
 //   'review' (MAC DINH) = Enumerate + Sonnet brief + Opus DE XUAT -> ghi review.md -> STOP (khong gate/loop). Roi hoi thay.
 //   'apply'             = thay DA DUYET -> Opus apply review.md (them/bot challenge, sua lesson) + Gate -> convergence loop.
 const STAGE = (ARGS.stage === 'apply') ? 'apply' : (ARGS.stage === 'curate') ? 'curate' : 'review'
 const MODDIR = '.mount/data/courses/0-fullstack-mastery/modules/' + MOD
-const REFS = '.audits/references.md' // registry gold modules (append sau khi PASS, de lan sau tot hon)
+const REFS = '.claude/docs/references.md' // registry gold modules (append sau khi PASS, de lan sau tot hon)
 const MAX_ITER = 3 // so vong hoi tu toi da moi lesson
 
 // ONLY: chi xu ly 1 (hoac vai) lesson cu the — dung khi them/sua 1 lesson, khong dong cac lesson da xong.
@@ -105,19 +110,19 @@ if (STAGE === 'review') {
         'BRIEF (Sonnet) noi dung + challenges lesson ' + name + ', VIET TIENG VIET CO DAU DAY DU (CAM khong dau). DOC ' + dir + ' (bodies/*/{vi,en}.md + challenges/*/{vi,en}.md + submissions).\n' +
         'Tra brief: 1.purpose+phan quan trong 2.flow 2.1.5 make-sense? 3.loai bai (pure-BE/BE+Playwright/pure-FE) 4.challenges hien co (slug+tier+do hop ly) 5.cho con thieu/guong.\n' +
         GBLOCK +
-        'GHI ' + dir + '/research.md (tag [Sonnet 4.x], tieng Viet).',
+        'GHI ' + dir + '/research.md (tag [Sonnet 5], tieng Viet).',
         { label: 'brief:' + name, phase: 'Review', model: 'sonnet' }
       ).then(function () {
         // Opus DE XUAT (KHONG sua file) -> review.md
         return agent(
-          'REVIEW + DE XUAT (Opus) lesson ' + name + ', VIET TIENG VIET CO DAU DAY DU (CAM khong dau). Doc research.md (brief Sonnet) + ' + dir + '. Tham khao gold cung variant o .audits/references.md.\n' +
+          'REVIEW + DE XUAT (Opus) lesson ' + name + ', VIET TIENG VIET CO DAU DAY DU (CAM khong dau). Doc research.md (brief Sonnet) + ' + dir + '. Tham khao gold cung variant o .claude/docs/references.md.\n' +
           GBLOCK +
           'QUAN TRONG: stage REVIEW = CHI DE XUAT, TUYET DOI KHONG sua/them/xoa file noi dung hay challenge. Chi GHI de xuat ra review.md de thay duyet.\n' +
           'Danh gia: 1) Noi dung OK chua? (purpose, flow 2.1.5, theory 2 muc, khong sai khai niem) 2) Challenges DU + DUNG TIER chua? (easy/medium/hard/insane theo merit; cho nao guong/thieu) 3) Lesson cho nao sai/yeu can sua.\n' +
-          'GHI ' + dir + '/review.md (tag [Opus 4.8], tieng Viet) dang:\n' +
+          'GHI ' + dir + '/review.md (tag ' + HEAVY_TAG + ', tieng Viet) dang:\n' +
           '## Review: ' + name + '\n- **Verdict:** <DUYET LUON | CAN SUA>\n- **Noi dung:** <nhan xet + cho sua neu co>\n- **Challenges de xuat:** <THEM: ...(tier+ly do) | BOT: ...(ly do) | GIU NGUYEN>\n- **Sua lesson:** <liet ke cu the | khong>\n' +
           'TRA VE (text ngan 2-3 dong) tom tat verdict + de xuat de orchestrator gom lai hoi thay.',
-          { label: 'review:' + name, phase: 'Review', model: 'opus' }
+          { label: 'review:' + name, phase: 'Review', model: HEAVY }
         ).then(function (txt) { return { name: name, summary: txt } })
       })
     }
@@ -141,7 +146,7 @@ if (STAGE === 'curate') {
       const dir = MODDIR + '/contents/' + name
       return agent(
         'CURATE FIX (Opus) lesson ' + name + ' — CHI SUA LOI CO HOC, GIU 2-TIER, KHONG TEST/E2E. VIET TIENG VIET CO DAU DAY DU (CAM khong dau).\n' +
-        'Doc ' + dir + '/review.md (de xuat da co) + ' + dir + ' (bodies + challenges). Tham khao gold o .audits/references.md.\n' +
+        'Doc ' + dir + '/review.md (de xuat da co) + ' + dir + ' (bodies + challenges). Tham khao gold o .claude/docs/references.md.\n' +
         GBLOCK +
         'CHI APPLY cac fix CO HOC tu review.md (KHONG can hoi duyet):\n' +
         '- §2.1.5 liet ke "3 luong/muc tieu" LAP 2 lan -> bo 1 block, dong bo CA 4 lang + vi/en mirror.\n' +
@@ -150,15 +155,15 @@ if (STAGE === 'curate') {
         '- Criteria text lech domain (vd noi "counter" nhung bai dung "content") -> sua text khop domain (giu score).\n' +
         '- Loi cu the khac trong review.md: header/label sai, JSON demo lech challenge, repo intro sai lang (Go bcrypt vo nghia), envelope body<->challenge lech, id mau sai format, mock thieu state-note, submission thieu #type/githubUrl, message tieng Viet trong code -> sua theo review.md.\n' +
         'TUYET DOI KHONG: (a) them/bot TIER (giu nguyen easy+medium, KHONG gen hard/insane du review co de xuat); (b) chay e2e/test/server; (c) dao xao noi dung da chot.\n' +
-        'GHI ' + dir + '/decision.md (tag [Opus 4.8], tieng Viet) muc "## Curate (co-hoc, no-test, giu 2-tier)": da sua gi + bo qua de xuat tier nao.',
-        { label: 'curate:' + name, phase: 'Curate', model: 'opus' }
+        'GHI ' + dir + '/decision.md (tag ' + HEAVY_TAG + ', tieng Viet) muc "## Curate (co-hoc, no-test, giu 2-tier)": da sua gi + bo qua de xuat tier nao.',
+        { label: 'curate:' + name, phase: 'Curate', model: HEAVY }
       )
     }
   }))
   // Gate verify format sau khi sua (KHONG e2e loop) — chi bao fail format de biet con gi
   phase('Gate')
   const gc = await agent(
-    'GATE deterministic (KHONG sua file). Chay (Windows -> powershell.exe): powershell -NoProfile -File ".audits/check-lesson.ps1" -Path "' + MODDIR + '" -Json\n' +
+    'GATE deterministic (KHONG sua file). Chay (Windows -> powershell.exe): powershell -NoProfile -File ".claude/docs/check-lesson.ps1" -Path "' + MODDIR + '" -Json\n' +
     'BAT BUOC goi StructuredOutput {lessons:[{name,fails}]} copy nguyen van. Loi -> sua cach goi roi chay lai.',
     { label: 'gate:' + MOD, phase: 'Gate', model: 'sonnet', schema: MODULE_GATE }
   )
@@ -179,9 +184,9 @@ await parallel(names.map(function (name) {
     return agent(
       'APPLY (Opus) de xuat DA DUYET trong ' + dir + '/review.md, lesson ' + name + '. VIET TIENG VIET CO DAU DAY DU (CAM khong dau).\n' +
       GBLOCK +
-      'Doc review.md -> THUC HIEN dung de xuat da duyet: (a) sua lesson (bodies vi.md Opus viet, en.md mirror); (b) THEM/BOT challenge (tao/xoa folder challenges/<N>-<slug>-<diff>/ + submissions/0 theo rule .audits/rules/fullstack/challenges.md: outcome 30 + approach 70, >=1 critical, # verified, vi/en mirror, callout :::muted KHONG ### N.); (c) re-index challenge folder lien mach (0-,1-,2-,3-).\n' +
-      'GHI ' + dir + '/decision.md (tag [Opus 4.8], tieng Viet) muc "## Apply" liet ke da lam gi theo review.md.',
-      { label: 'apply:' + name, phase: 'Apply', model: 'opus' }
+      'Doc review.md -> THUC HIEN dung de xuat da duyet: (a) sua lesson (bodies vi.md Opus viet, en.md mirror); (b) THEM/BOT challenge (tao/xoa folder challenges/<N>-<slug>-<diff>/ + submissions/0 theo rule .claude/docs/rules/fullstack/challenges.md: outcome 30 + approach 70, >=1 critical, # verified, vi/en mirror, callout :::muted KHONG ### N.); (c) re-index challenge folder lien mach (0-,1-,2-,3-).\n' +
+      'GHI ' + dir + '/decision.md (tag ' + HEAVY_TAG + ', tieng Viet) muc "## Apply" liet ke da lam gi theo review.md.',
+      { label: 'apply:' + name, phase: 'Apply', model: HEAVY }
     )
   }
 }))
@@ -192,7 +197,7 @@ phase('Gate')
 const GATEDIR = (onlyList.length === 1) ? (MODDIR + '/contents/' + onlyList[0]) : MODDIR
 const gate0 = await agent(
   'GATE deterministic (KHONG sua file, KHONG doc tung file). Chay DUNG 1 lenh nay (Windows -> dung powershell.exe, KHONG pwsh, KHONG bash):\n' +
-  'powershell -NoProfile -File ".audits/check-lesson.ps1" -Path "' + GATEDIR + '" -Json\n' +
+  'powershell -NoProfile -File ".claude/docs/check-lesson.ps1" -Path "' + GATEDIR + '" -Json\n' +
   'Lenh IN RA JSON dang {lessons:[{name,fails:[...]}]} (fails rong = []). BAT BUOC goi StructuredOutput voi DUNG JSON do (copy nguyen van). Neu lenh loi, sua cach goi powershell roi chay lai — KHONG bo cuoc, KHONG tra loi text.',
   // Sonnet (not Haiku): module-wide gate JSON gets large when many lessons fail (scaffold+e2e),
   // and Haiku unreliably copies a big payload into StructuredOutput (fails after nudges). Sonnet is robust.
@@ -229,13 +234,13 @@ async function auditLesson(name, initialFails) {
         GBLOCK +
         'CHI sua CONTENT/CHALLENGE FORMAT de qua gate — TUYET DOI KHONG dung .repo source, KHONG chay server/e2e/test, KHONG viet .code/.e2e.\n' +
         'Sua cac loi gate hay gap khi them challenge: score=100; co # verified; criteria Sigma outcome=30 + Sigma approach=70; >=1 critical:true; KHONG ### N. (dung callout :::muted); KHONG # references/# submissions inline; separator chan; vi/en mirror (cung so heading/luong/fence); leak; inline-bullet 2.1.5; theory dung 2 muc; index challenge lien mach 0-/1-/2-/3-.\n' +
-        'APPEND ' + aud + '/decision.md (tag [Opus 4.8], tieng Viet) muc "## Fix vong ' + iter + ' (no-e2e)" — ghi da sua gi.',
-        { label: 'fix:' + name + ':' + iter, phase: 'Decision', model: 'opus' }
+        'APPEND ' + aud + '/decision.md (tag ' + HEAVY_TAG + ', tieng Viet) muc "## Fix vong ' + iter + ' (no-e2e)" — ghi da sua gi.',
+        { label: 'fix:' + name + ':' + iter, phase: 'Decision', model: HEAVY }
       )
       // Re-gate 1 lesson
       const gx = await agent(
         'RE-GATE 1 lesson (KHONG sua file). Chay DUNG lenh (Windows -> powershell.exe, KHONG pwsh/bash):\n' +
-        'powershell -NoProfile -File ".audits/check-lesson.ps1" -Path "' + dir + '" -Json\n' +
+        'powershell -NoProfile -File ".claude/docs/check-lesson.ps1" -Path "' + dir + '" -Json\n' +
         'Lenh in JSON {lessons:[{name,fails}]} (1 lesson). BAT BUOC goi StructuredOutput voi {fails: <mang fails cua lesson do, rong = []>}. Neu lenh loi -> sua cach goi powershell roi chay lai, KHONG bo cuoc, KHONG tra text.',
         { label: 'regate:' + name + ':' + iter, phase: 'Gate', model: 'haiku', schema: LESSON_GATE }
       )
@@ -252,7 +257,7 @@ async function auditLesson(name, initialFails) {
       'Ap cho CA luong 2.1.5 VA code-walkthrough §2.1.3 (snippet body phai khop .repo/src, khong bia).\n' +
       GBLOCK +
       '1) Code repo thieu lang nao -> VIET (contract bai + repo gold), ghi ' + aud + '/.code/. COMMENT CODE KI theo coding.md §A7 (JSDoc per-member + inline // gan tung dong giai thich WHY, English-only).\n' +
-      '1b) DOC HYGIENE (deterministic): `bash .audits/fix-doc-paths.sh ' + dir + '` (sua link source) -> `python3 .audits/fix-cd-format.py ' + dir + '` (cd clone->lesson, run->cd backend/<lang>). CD CONVENTION §A2: (i) XOA block SCAFFOLD from-scratch (npm/yarn create / create-vite / create-react-app) — dung repo clone san; (ii) block CLONE chi `git clone` + `cd <repo>/<lesson>` (KHONG kem npm install); (iii) FE run-block dung cd tuong minh: `cd backend` cai+chay BE -> `cd ..` -> `cd frontend` cai+chay FE (moi lenh npm co cd dung truoc). Gate (check-lesson.ps1) bat scaffold + run-block thieu cd-first.\n' +
+      '1b) DOC HYGIENE (deterministic): `bash .claude/docs/fix-doc-paths.sh ' + dir + '` (sua link source) -> `python3 .claude/docs/fix-cd-format.py ' + dir + '` (cd clone->lesson, run->cd backend/<lang>). CD CONVENTION §A2: (i) XOA block SCAFFOLD from-scratch (npm/yarn create / create-vite / create-react-app) — dung repo clone san; (ii) block CLONE chi `git clone` + `cd <repo>/<lesson>` (KHONG kem npm install); (iii) FE run-block dung cd tuong minh: `cd backend` cai+chay BE -> `cd ..` -> `cd frontend` cai+chay FE (moi lenh npm co cd dung truoc). Gate (check-lesson.ps1) bat scaffold + run-block thieu cd-first.\n' +
       '2) Test luong theo docs + doi chieu tung snippet voi .repo/src. 4-lang PARALLEL.\n' +
       '   PORT: TIM PORT RANH TRUOC ROI MOI ASSIGN (KHONG khoi dong o port mac dinh roi xu ly va cham). Cach (PowerShell): $u=(Get-NetTCPConnection -State Listen -EA SilentlyContinue).LocalPort; chon 4 port dau tien trong day 3000..3100 (hoac random 1000-9999) KHONG nam trong $u -> assign ts/java/net/go. Dat qua env/config (PORT=...), GIU NGUYEN flow logic, chi doi base URL theo port da assign. KHONG fail/skip e2e vi port.\n' +
       '   BIND 127.0.0.1 BAT BUOC (KHONG 0.0.0.0/::): server nghe 0.0.0.0 -> Windows Firewall bat popup "Allow access" -> TREO agent cho click. Loopback thi firewall KHONG quan. NestJS/Node (ke ca Socket.IO gateway): app.listen(port, "127.0.0.1"); Java: -Dserver.address=127.0.0.1; C#: ASPNETCORE_URLS=http://127.0.0.1:<p>; Go: ListenAndServe("127.0.0.1:<p>")/gin r.Run("127.0.0.1:<p>").\n' +
@@ -267,20 +272,20 @@ async function auditLesson(name, initialFails) {
     // Opus: decision + AP FIX (decision.md TIENG VIET, ghi thang vao mount)
     await agent(
       'DECISION (Opus) lesson ' + name + ', vong ' + iter + ', VIET TIENG VIET CO DAU DAY DU (CAM khong dau). Input: research + review (decision.md muc Review) + loop findings + gate fails ' + JSON.stringify(fails) + '.\n' +
-      'Tham khao gold modules cung variant o .audits/references.md TRUOC khi quyet.\n' +
+      'Tham khao gold modules cung variant o .claude/docs/references.md TRUOC khi quyet.\n' +
       GBLOCK +
       'DUYET + AP FIX: (a) challenge criteria/outputs/requirements; (b) lech code<->docs -> sua CODE hay DOCS; (c) sai-format -> rewrite theo gold; (d) leak/bullet/theory/mirror.\n' +
       '(e) ENV (coding.md §A9): chay out-of-box nho default committed? CO -> body KHONG mention .env (xoa disclosure thua); KHONG (can secret that: OAuth/payment) -> tro .env.local + ship .env.example placeholder. Code 4 lang doc env CO default, KHONG hard-code literal.\n' +
       '(f) CD (coding.md §A2): block CLONE ket thuc `cd <repo>/<lesson>`; block RUN mo bang `cd backend/<lang>` (3-step vao->cai->chay); block docker chay tu thu muc lesson. CAM block scaffold from-scratch.\n' +
       '(g) GIT/COMMENT: code .repo Sonnet vua viet/sua -> da comment KI chua (§A7)? Neu co thay doi .repo source -> ghi vao decision.md de chu nhiem commit+push (message conventional + Co-Authored-By), audit KHONG tu push (tranh push nham). KHONG commit secret (.env.local/.oauth.env).\n' +
-      'APPEND vao ' + aud + '/decision.md (tag [Opus 4.8], tieng Viet) muc "## Decision vong ' + iter + '" — ghi THANG vao folder contents/' + name + '/ trong mount (KHONG xoa muc Review o tren).',
-      { label: 'decision:' + name + ':' + iter, phase: 'Decision', model: 'opus' }
+      'APPEND vao ' + aud + '/decision.md (tag ' + HEAVY_TAG + ', tieng Viet) muc "## Decision vong ' + iter + '" — ghi THANG vao folder contents/' + name + '/ trong mount (KHONG xoa muc Review o tren).',
+      { label: 'decision:' + name + ':' + iter, phase: 'Decision', model: HEAVY }
     )
 
     // Re-gate CHI lesson nay -> cap nhat fails, quyet dinh lap tiep hay dung
     const g = await agent(
       'RE-GATE 1 lesson (KHONG sua file). Chay DUNG lenh (Windows -> powershell.exe, KHONG pwsh/bash):\n' +
-      'powershell -NoProfile -File ".audits/check-lesson.ps1" -Path "' + dir + '" -Json\n' +
+      'powershell -NoProfile -File ".claude/docs/check-lesson.ps1" -Path "' + dir + '" -Json\n' +
       'Lenh in JSON {lessons:[{name,fails}]} (1 lesson). BAT BUOC goi StructuredOutput voi {fails: <mang fails cua lesson do, rong = []>}. Neu lenh loi -> sua cach goi powershell roi chay lai, KHONG bo cuoc, KHONG tra text.',
       { label: 'regate:' + name + ':' + iter, phase: 'Gate', model: 'haiku', schema: LESSON_GATE }
     )
@@ -295,7 +300,7 @@ async function auditLesson(name, initialFails) {
     log(name + ': gate PASS sau apply noi dung (no-e2e) — KHONG ghi claude_submitted (e2e de sau).')
   } else if (pass) {
     await agent(
-      'Ghi ' + aud + '/claude_submitted.md (TIENG VIET CO DAU DAY DU, CAM khong dau; ghi THANG vao folder contents/' + name + '/ trong mount): gate PASS sau ' + iter + ' vong, review duyet + .e2e du proof. 1 dong tag [Sonnet 4.x].\n' +
+      'Ghi ' + aud + '/claude_submitted.md (TIENG VIET CO DAU DAY DU, CAM khong dau; ghi THANG vao folder contents/' + name + '/ trong mount): gate PASS sau ' + iter + ' vong, review duyet + .e2e du proof. 1 dong tag [Sonnet 5].\n' +
       'VA: neu ' + aud + '/synced.yaml CHUA co (lesson PASS khong qua loop) -> tao no: doi chieu body bodies/<lang>/{vi,en}.md voi .repo LOCAL (gitClone URL ton tai · moi `cd <path>` resolve · snippet khop code), ghi status(ok|mismatch|pending)+checks+log+issues theo schema pipeline.md.',
       { label: 'submit:' + name, phase: 'Decision', model: 'haiku' }
     )

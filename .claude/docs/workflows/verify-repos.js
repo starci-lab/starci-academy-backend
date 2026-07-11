@@ -6,7 +6,7 @@ export const meta = {
   ],
 }
 
-// invoke: Workflow({ scriptPath: ".audits/workflows/verify-repos.js", args: { modules: ["8-websocket-realtime-communication", ...] } })
+// invoke: Workflow({ scriptPath: ".claude/docs/workflows/verify-repos.js", args: { modules: ["8-websocket-realtime-communication", ...] } })
 function asObj(a) { if (!a) return {}; if (typeof a === 'object') return a; if (typeof a === 'string') { const s = a.trim(); if (s.startsWith('{')) { try { return JSON.parse(s) } catch (e) {} } if (s.startsWith('[')) { try { return { modules: JSON.parse(s) } } catch (e) {} } return { modules: [s] } } return {} }
 const ARGS = asObj(args)
 const MODULES = Array.isArray(ARGS.modules) ? ARGS.modules : (ARGS.modules ? [ARGS.modules] : [])

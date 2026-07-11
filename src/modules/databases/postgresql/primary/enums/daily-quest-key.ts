@@ -10,7 +10,9 @@ import {
  * "today" (Asia/Ho_Chi_Minh) activity counter the daily-quest service derives:
  * `readContent` from `xp_histories` (source `lessonRead`), `passChallenge` from
  * `xp_histories` (source `challenge`), `reviewFlashcards` from
- * `user_flashcard_reviews` reviewed today.
+ * `user_flashcard_reviews` reviewed today, `mockInterview` from
+ * `mock_interview_attempts` created today, `quizSession` from
+ * `flashcard_quiz_sessions` completed today.
  */
 export enum DailyQuestKey {
     /** Read at least one lesson/content today. */
@@ -19,6 +21,10 @@ export enum DailyQuestKey {
     PassChallenge = "passChallenge",
     /** Review a number of flashcards today. */
     ReviewFlashcards = "reviewFlashcards",
+    /** Complete one Mock Interview session today. */
+    MockInterview = "mockInterview",
+    /** Complete one Flashcard Quiz (Hoi nhanh) session today. */
+    QuizSession = "quizSession",
 }
 
 export const GraphQLTypeDailyQuestKey = createEnumType(DailyQuestKey)
@@ -37,6 +43,12 @@ registerEnumType(
             },
             [DailyQuestKey.ReviewFlashcards]: {
                 description: "Review a number of flashcards today.",
+            },
+            [DailyQuestKey.MockInterview]: {
+                description: "Complete one Mock Interview session today.",
+            },
+            [DailyQuestKey.QuizSession]: {
+                description: "Complete one Flashcard Quiz (Hoi nhanh) session today.",
             },
         },
     },

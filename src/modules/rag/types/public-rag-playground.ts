@@ -19,7 +19,28 @@ export interface IndexRagPlaygroundParams {
     fileName?: string | null
     /** Public GitHub repo URL (Github only), e.g. `https://github.com/owner/repo`. */
     githubUrl?: string | null
+    /**
+     * Which curated catalog entry to index (Sample only). Defaults to the
+     * first {@link RagPlaygroundSampleEntry} in the catalog when omitted, for
+     * backward compatibility with any in-flight client that doesn't send it yet.
+     */
+    sampleId?: string | null
 }
+
+/** One curated, self-contained code sample offered by the RAG Playground's built-in catalog. */
+export interface RagPlaygroundSampleEntry {
+    /** Stable catalog id, referenced by `IndexRagPlaygroundParams.sampleId`. */
+    id: string
+    /** Human-readable label shown in the sample picker (never the code itself). */
+    label: string
+    /** Display-only file path attached to the indexed chunk's citation metadata. */
+    filePath: string
+    /** The sample's source code — stays server-side, only revealed via indexing. */
+    code: string
+}
+
+/** A catalog entry's public listing shape — id + label only, never the code. */
+export type RagPlaygroundSampleSummary = Pick<RagPlaygroundSampleEntry, "id" | "label">
 
 /** Result of {@link PublicRagPlaygroundService.index}. */
 export interface IndexRagPlaygroundResult {

@@ -107,7 +107,7 @@ Test = **xác nhận source mới giống y gốc** + link sạch. Cụ thể, g
 Audit nội dung cũ KHÔNG soi visibility → từng lọt: free-lesson lỡ private = "source thiếu bài"; premium lỡ public = lộ source trả phí. Gate mới chặn cả 2 chiều:
 
 ```
-node .audits/check-repo-visibility.mjs [<course|module|lesson dir> ...]   # mặc định: mọi course .mount/data/courses
+node .claude/docs/check-repo-visibility.mjs [<course|module|lesson dir> ...]   # mặc định: mọi course .mount/data/courses
 ```
 - Đọc `# isPremium` (vi.md) + repo từ clone-URL trong `bodies/<lang>/{vi,en}.md`, đối chiếu `gh repo list StarCi-Academy`.
 - Rule: `isPremium=false ⇒ PUBLIC`, `true ⇒ PRIVATE`. Mismatch / repo-thiếu → in danh sách + exit 1.

@@ -203,7 +203,6 @@ export class SeedDiffOverlayService {
                     tracks,
                     flashcard: {
                         enabled: domains.flashcard,
-                        linkContents: false,
                     },
                     // diff/full-reseed auto-detection doesn't track mock-interview bank
                     // changes yet (no `DataGitDomain`/`DomainFlags` wiring) — only the

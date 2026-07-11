@@ -2,6 +2,7 @@ import {
     Field,
     ID,
     InputType,
+    Int,
 } from "@nestjs/graphql"
 import {
     GraphQLTypePaymentType,
@@ -55,4 +56,19 @@ export class PayNextInstallmentRequest {
         },
     )
         cancelUrl?: string
+
+    /**
+     * Custom charge amount — `FlexiblePool` only (a Pioneer buyer may top up
+     * more than the computed minimum, shrinking future cycles). Must be at
+     * least the current cycle's minimum; rejected for `Fixed` plans (those
+     * always charge the fixed monthly amount).
+     */
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Custom charge amount for a FlexiblePool plan (must be >= this cycle's minimum). Omit to charge exactly the minimum. Rejected for Fixed plans.",
+        },
+    )
+        amountVnd?: number
 }

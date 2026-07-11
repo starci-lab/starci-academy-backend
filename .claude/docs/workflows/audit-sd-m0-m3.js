@@ -9,7 +9,7 @@ export const meta = {
   ],
 }
 
-const SD_RUNNER = '.audits/workflows/audit-sd-module.js'
+const SD_RUNNER = '.claude/docs/workflows/audit-sd-module.js'
 
 const MODULES = [
   '0-fundamentals-of-system-design',

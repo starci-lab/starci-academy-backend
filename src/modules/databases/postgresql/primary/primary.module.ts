@@ -200,7 +200,9 @@ import {
     CartItemEntity,
     TransactionItemEntity,
     PlaygroundEntity,
+    PlaygroundTranslationEntity,
     PlaygroundStepEntity,
+    PlaygroundStepTranslationEntity,
     PlaygroundSessionEntity
 } from "./entities"
 import {
@@ -452,7 +454,9 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     CartItemEntity,
                                     TransactionItemEntity,
                                     PlaygroundEntity,
+                                    PlaygroundTranslationEntity,
                                     PlaygroundStepEntity,
+                                    PlaygroundStepTranslationEntity,
                                     PlaygroundSessionEntity,
                                 ],
                                 synchronize,
@@ -670,7 +674,9 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         CartItemEntity,
                         TransactionItemEntity,
                         PlaygroundEntity,
+                        PlaygroundTranslationEntity,
                         PlaygroundStepEntity,
+                        PlaygroundStepTranslationEntity,
                         PlaygroundSessionEntity,
                     ],
                     POSTGRESQL_PRIMARY

@@ -19,6 +19,7 @@ import {
     writeXpHistory,
 } from "@features/api/processors/ai/shared/xp"
 import {
+    DAILY_QUEST_MIN_TASKS_REQUIRED,
     DAILY_QUEST_REWARD,
     DAILY_QUEST_TASKS,
 } from "./daily-quest.catalog"
@@ -37,10 +38,13 @@ const QUEST_TIMEZONE = "Asia/Ho_Chi_Minh"
 /**
  * Daily-quest business logic. The quest is per-request DERIVED from TODAY's
  * (Asia/Ho_Chi_Minh) activity — read lessons + passed challenges come from the
- * `xp_histories` ledger, flashcard reviews from `user_flashcard_reviews` — so it
- * needs no projection table. Completing every task and claiming once per VN day
- * grants a flat reward via {@link writeXpHistory}; the grant is made idempotent
- * by the `(user_id, quest_date)` unique row on `daily_quest_completions`.
+ * `xp_histories` ledger, flashcard reviews from `user_flashcard_reviews`, mock
+ * interview sessions from `mock_interview_attempts`, and flashcard quiz
+ * sessions from `flashcard_quiz_sessions` — so it needs no projection table.
+ * Completing at least {@link DAILY_QUEST_MIN_TASKS_REQUIRED} of the 5 tasks and
+ * claiming once per VN day grants a flat reward via {@link writeXpHistory};
+ * the grant is made idempotent by the `(user_id, quest_date)` unique row on
+ * `daily_quest_completions`.
  */
 @Injectable()
 export class DailyQuestService {
@@ -87,7 +91,22 @@ export class DailyQuestService {
                 WHERE user_id = $1
                   AND (last_reviewed_at AT TIME ZONE $2)::date
                     = (now() AT TIME ZONE $2)::date
-              ), 0) AS "flashcardsToday"
+              ), 0) AS "flashcardsToday",
+              COALESCE((
+                SELECT COUNT(*) FROM mock_interview_attempts
+                JOIN enrollments ON enrollments.id = mock_interview_attempts.enrollment_id
+                WHERE enrollments.user_id = $1
+                  AND (mock_interview_attempts.created_at AT TIME ZONE $2)::date
+                    = (now() AT TIME ZONE $2)::date
+              ), 0) AS "mockInterviewToday",
+              COALESCE((
+                SELECT COUNT(*) FROM flashcard_quiz_sessions
+                JOIN enrollments ON enrollments.id = flashcard_quiz_sessions.enrollment_id
+                WHERE enrollments.user_id = $1
+                  AND flashcard_quiz_sessions.status = 'completed'
+                  AND (flashcard_quiz_sessions.updated_at AT TIME ZONE $2)::date
+                    = (now() AT TIME ZONE $2)::date
+              ), 0) AS "quizSessionToday"
             `,
             [
                 userId,
@@ -124,6 +143,8 @@ export class DailyQuestService {
             [DailyQuestKey.ReadContent]: Number(counts.lessonsToday) || 0,
             [DailyQuestKey.PassChallenge]: Number(counts.challengesToday) || 0,
             [DailyQuestKey.ReviewFlashcards]: Number(counts.flashcardsToday) || 0,
+            [DailyQuestKey.MockInterview]: Number(counts.mockInterviewToday) || 0,
+            [DailyQuestKey.QuizSession]: Number(counts.quizSessionToday) || 0,
         }
         return DAILY_QUEST_TASKS.map((task) => ({
             key: task.key,
@@ -134,7 +155,8 @@ export class DailyQuestService {
 
     /**
      * Read the viewer's daily quest for today: each task's progress + target,
-     * whether everything is done, and whether the reward was already claimed.
+     * whether at least {@link DAILY_QUEST_MIN_TASKS_REQUIRED} of the tasks are
+     * done, and whether the reward was already claimed.
      *
      * @param userId - the viewing user's id.
      * @returns the resolved daily-quest state.
@@ -147,7 +169,8 @@ export class DailyQuestService {
             userId,
             date)
         const tasks = this.buildTasks(counts)
-        const allDone = tasks.every((task) => task.current >= task.target)
+        const completedCount = tasks.filter((task) => task.current >= task.target).length
+        const allDone = completedCount >= DAILY_QUEST_MIN_TASKS_REQUIRED
         return {
             date,
             tasks,
@@ -161,7 +184,8 @@ export class DailyQuestService {
      * Claim the daily-quest reward. Runs the completeness + already-claimed checks,
      * the reward grant, and the completion insert in ONE transaction so a
      * concurrent double-claim cannot double-credit. Throws a typed exception when
-     * the quest is incomplete or already claimed today.
+     * fewer than {@link DAILY_QUEST_MIN_TASKS_REQUIRED} tasks are done or the
+     * quest was already claimed today.
      *
      * @param userId - the claiming user's id.
      * @returns the user's refreshed Coin balance.
@@ -172,7 +196,8 @@ export class DailyQuestService {
             const counts = await this.getTodayCounts(manager,
                 userId)
             const tasks = this.buildTasks(counts)
-            const allDone = tasks.every((task) => task.current >= task.target)
+            const completedCount = tasks.filter((task) => task.current >= task.target).length
+            const allDone = completedCount >= DAILY_QUEST_MIN_TASKS_REQUIRED
             if (!allDone) {
                 throw new DailyQuestNotCompleteException({
                     date,

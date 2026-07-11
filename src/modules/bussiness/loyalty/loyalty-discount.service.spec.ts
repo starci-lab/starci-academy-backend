@@ -19,7 +19,7 @@ import {
 } from "./loyalty-discount.service"
 import {
     UserStatsProjectionService,
-} from "../projections"
+} from "../projections/user-stats/user-stats-projection.service"
 import type {
     LoyaltyContext,
 } from "./types"

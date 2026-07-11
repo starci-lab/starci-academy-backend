@@ -6,7 +6,7 @@ export const meta = {
   ],
 }
 
-// invoke: Workflow({ scriptPath: ".audits/workflows/check-doc-code-drift.js", args: { targets: [{module, repo}] } })
+// invoke: Workflow({ scriptPath: ".claude/docs/workflows/check-doc-code-drift.js", args: { targets: [{module, repo}] } })
 function asObj(a) { if (!a) return {}; if (typeof a === 'object') return a; if (typeof a === 'string') { try { return JSON.parse(a) } catch (e) { return {} } } return {} }
 const ARGS = asObj(args)
 const TARGETS = Array.isArray(ARGS.targets) ? ARGS.targets : []

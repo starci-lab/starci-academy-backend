@@ -23,7 +23,7 @@ const MODULES = (args && Array.isArray(args.modules) && args.modules.length)
   ]
 
 const BASE = '.mount/data/courses/0-fullstack-mastery/modules'
-const RULE = '.audits/rules/terminology-bold.md'
+const RULE = '.claude/docs/rules/terminology-bold.md'
 const GOLD = BASE + '/0-nestjs-core-and-request-lifecycle/contents/0-frameworks-in-backend/bodies/0-typescript/vi.md'
 
 const LESSONS_SCHEMA = {
@@ -64,7 +64,7 @@ function refactorPrompt (modDir, les) {
     '',
     '=== VERIFY (bat buoc) ===',
     '- grep dam bao 0 con "**`" (bold-inline-code) trong bodies; 0 "***" vo (bold+italic hop le thi OK); body moi file > 200 ky tu, fence chan.',
-    '- Chay gate: powershell.exe -NoProfile -File "D:/Repositories/starci-academy-backend/.audits/check-lesson.ps1" -Path "' + modDir.replace(/\//g, '/') + '" -Json -> lesson nay KHONG co fail MOI (github-ref pre-existing thi bo qua).',
+    '- Chay gate: powershell.exe -NoProfile -File "D:/Repositories/starci-academy-backend/.claude/docs/check-lesson.ps1" -Path "' + modDir.replace(/\//g, '/') + '" -Json -> lesson nay KHONG co fail MOI (github-ref pre-existing thi bo qua).',
     '- Neu accordion: moi file §2.1.5 = 1 accordion + dung so panel.',
     '',
     'Tra ve dung schema. verify="ok" chi khi gate sach (tru github-ref) + 0 bold-inline-code + parser ok.',
@@ -89,7 +89,7 @@ for (const mod of MODULES) {
 
   phase('Gate')
   const gate = await agent(
-    'Chay gate module ' + mod + ': powershell.exe -NoProfile -File "D:/Repositories/starci-academy-backend/.audits/check-lesson.ps1" -Path "D:/Repositories/starci-academy-backend/' + modDir + '" -Json . Parse JSON, moi lesson liet ke fails; phan loai github-ref = pre-existing, con lai = regression. Tra text tieng Viet co dau.',
+    'Chay gate module ' + mod + ': powershell.exe -NoProfile -File "D:/Repositories/starci-academy-backend/.claude/docs/check-lesson.ps1" -Path "D:/Repositories/starci-academy-backend/' + modDir + '" -Json . Parse JSON, moi lesson liet ke fails; phan loai github-ref = pre-existing, con lai = regression. Tra text tieng Viet co dau.',
     { label: 'gate:' + mod, phase: 'Gate' },
   )
   allResults.push({ module: mod, lessons: res.filter(Boolean), gate })

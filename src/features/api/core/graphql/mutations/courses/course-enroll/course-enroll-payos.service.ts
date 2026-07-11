@@ -44,6 +44,7 @@ import {
 } from "./graphql-types"
 import {
     EnqueueReconcileTransactionJobService,
+    InstallmentPlanService,
     LoyaltyDiscountService,
     VoucherService,
 } from "@modules/bussiness"
@@ -68,6 +69,7 @@ export class CourseEnrollPayOsService {
         private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
         private readonly loyaltyDiscountService: LoyaltyDiscountService,
         private readonly voucherService: VoucherService,
+        private readonly installmentPlanService: InstallmentPlanService,
     ) {}
 
     /**
@@ -83,6 +85,7 @@ export class CourseEnrollPayOsService {
                 payosReturnUrl,
                 payosCancelUrl,
                 voucherCode,
+                installmentMonths,
             },
             user,
         }: ExecuteParams<CourseEnrollRequest>,
@@ -170,7 +173,7 @@ export class CourseEnrollPayOsService {
         })
         // an invalid code throws HERE (before the PayOS link is created) — a
         // valid one further discounts the loyalty-discounted amount
-        const amount = voucherCode
+        const discountedAmount = voucherCode
             ? this.voucherService.applyToAmount(
                 loyaltyAmount,
                 await this.voucherService.previewDiscount({
@@ -180,6 +183,15 @@ export class CourseEnrollPayOsService {
                 }),
             )
             : loyaltyAmount
+        // installment (trả góp): charge only the FIRST cycle now (monthly), snapshot
+        // the whole-schedule intent (months/markup/total) onto the Enroll transaction
+        // so the enroll worker creates the Fixed plan on payment success (§2.2). A
+        // one-shot purchase (no installmentMonths) charges the full discounted amount.
+        const installment = installmentMonths
+            ? this.installmentPlanService.computeInstallmentTotal(discountedAmount,
+                installmentMonths)
+            : null
+        const amount = installment ? installment.monthlyAmountVnd : discountedAmount
         // create payment link
         const paymentLink = await this.retryService.retry(
             {
@@ -214,6 +226,9 @@ export class CourseEnrollPayOsService {
                     checkoutUrl: paymentLink.checkoutUrl,
                     status: TransactionStatus.Pending,
                     actionType: ActionType.Enroll,
+                    installmentMonths: installment ? installment.months : null,
+                    installmentMarkupPercent: installment ? installment.markupPercent : null,
+                    installmentTotalVnd: installment ? installment.totalAmountVnd : null,
                 },
             )
             const saved = await manager.save(created)

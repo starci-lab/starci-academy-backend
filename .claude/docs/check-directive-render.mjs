@@ -1,4 +1,4 @@
-// node .audits/check-directive-render.mjs <file.md> ...  — RENDER-validate directive nesting
+// node .claude/docs/check-directive-render.mjs <file.md> ...  — RENDER-validate directive nesting
 // (accordion/panel/tab/code/preview/muted) bang CHINH parser cua FE (remark-directive). Neu nesting/colon
 // SAI -> parser de marker thanh TEXT thay vi directive node -> ta bat duoc. KHONG doan bang mat.
 // Import tu FE node_modules (remark-directive la cai MarkdownContent dung).

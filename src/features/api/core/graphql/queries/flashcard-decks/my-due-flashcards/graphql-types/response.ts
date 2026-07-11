@@ -8,47 +8,9 @@ import {
     AbstractGraphQLResponse,
     IAbstractGraphQLResponse,
 } from "@modules/api"
-
-/**
- * Per-grade next-interval preview (in days) computed from a card's current SM-2
- * state without persisting — powers the rating buttons.
- */
-@ObjectType({
-    description: "Per-grade next-interval preview (days) for a due card.",
-})
-export class FlashcardNextIntervalsObject {
-    @Field(
-        () => Int,
-        {
-            description: "Days until next review if graded Again (0).",
-        },
-    )
-        again: number
-
-    @Field(
-        () => Int,
-        {
-            description: "Days until next review if graded Hard (1).",
-        },
-    )
-        hard: number
-
-    @Field(
-        () => Int,
-        {
-            description: "Days until next review if graded Good (2).",
-        },
-    )
-        good: number
-
-    @Field(
-        () => Int,
-        {
-            description: "Days until next review if graded Easy (3).",
-        },
-    )
-        easy: number
-}
+import {
+    FlashcardNextIntervalsObject,
+} from "@modules/databases"
 
 /**
  * One due flashcard in the spaced-repetition queue, localized.

@@ -1,4 +1,5 @@
 export * from "./streak.module"
 export * from "./streak.service"
 export * from "./streak-freeze-cron.service"
+export * from "./streak-milestone.service"
 export * from "./types"

@@ -6,7 +6,7 @@ export const meta = {
   ],
 }
 
-// invoke: Workflow({ scriptPath: ".audits/workflows/fix-drift.js", args: { fixes: [ {module, lesson, repo, lessonPath, instruction} , ... ] } })
+// invoke: Workflow({ scriptPath: ".claude/docs/workflows/fix-drift.js", args: { fixes: [ {module, lesson, repo, lessonPath, instruction} , ... ] } })
 function asObj(a) { if (!a) return {}; if (typeof a === 'object') return a; if (typeof a === 'string') { const s = a.trim(); if (s.startsWith('{')) { try { return JSON.parse(s) } catch (e) {} } } return {} }
 const ARGS = asObj(args)
 const FIXES = Array.isArray(ARGS.fixes) ? ARGS.fixes : []
@@ -36,7 +36,7 @@ const results = await parallel(FIXES.map(function (F) {
       '1) Xac minh trong repo local: path/file/port/ten-component THAT la gi (vd doc vite.config.ts lay port that; ls thu muc lay path that).\n' +
       '2) Sua MOI body lang bi dinh (§2.1.2 path, cd-command, port trong §1/§2.1.5, ten component/file) cho khop repo. Mirror vi<->en (cung sua ca 2, cung cau truc).\n' +
       '3) Cap nhat ' + dir + '/synced.yaml: status: ok (neu da khop het), checks gitClone/cdPaths/contentMatch: ok, log ghi RO da sua gi (tieng Viet), issues: [].\n' +
-      '4) RE-GATE: powershell -NoProfile -File ".audits/check-lesson.ps1" -Path "' + dir + '" -> doc PASS/FAIL.\n' +
+      '4) RE-GATE: powershell -NoProfile -File ".claude/docs/check-lesson.ps1" -Path "' + dir + '" -> doc PASS/FAIL.\n' +
       'TRA VE StructuredOutput {lesson:"' + F.lesson + '", fixed, gatePass, notes:[da sua gi]}.',
       { label: 'fix:' + F.module + '/' + F.lesson, phase: 'FixDrift', model: 'sonnet', schema: RESULT }
     )

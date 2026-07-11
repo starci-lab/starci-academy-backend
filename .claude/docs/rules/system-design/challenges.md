@@ -2,7 +2,7 @@
 
 > Bản để audit/viết challenge **System Design**. SD dùng **CHUNG format V2 với Fullstack** — đọc **`../fullstack/challenges.md`** trước (cấu trúc file, H1 order, item-major, scoring outcome/approach, critical, parsing gotcha, gate). File này CHỈ liệt kê **SD deltas**. Content body → `contents.md`.
 >
-> ⚠️ **THUẬT NGỮ & BOLD trong prose challenge → BẮT BUỘC theo `.audits/rules/terminology-bold.md`. STRICT, đã có feedback.**
+> ⚠️ **THUẬT NGỮ & BOLD trong prose challenge → BẮT BUỘC theo `.claude/docs/rules/terminology-bold.md`. STRICT, đã có feedback.**
 >
 > **Đã verify với challenge thật (m0/m1):** SD challenge dùng ĐÚNG format FS V2 — `# score = 100` mọi tier; `submissions/0/en.md` = `outcomeCriterias` (Σ ### score = 30) + `approachCriterias` (Σ = 70, ≥1 `critical: true`). **Format 20/40/60/80 + inline `### promptText` trong `challenge-format.md` là STALE — KHÔNG dùng.**
 
@@ -43,6 +43,6 @@ Criteria `##### body` phải đo cơ chế distributed thật, KHÔNG happy-path
 
 ---
 
-## 3. Quy trình duyệt (Opus) + Gate — như FS
-- Script lo format (gate). Opus duyệt ngữ nghĩa: criteria đo đúng cơ chế distributed · outputs/requirements khớp topic · tier có nhồi không · lang set ⊆ body. Sai format → rewrite theo gold V2.
-- Gate `./.audits/check-lesson.ps1`: score=100 · có verified · no `# references`/`# submissions` inline · no `### N.` heading · Σ outcome=30 · Σ approach=70 · ≥1 critical:true · separator chẵn · vn-có-dấu. PASS structure mới Opus duyệt.
+## 3. Quy trình duyệt (reviewer — mặc định Sonnet 5, Opus nếu escalate `opus:true`) + Gate — như FS
+- Script lo format (gate). Reviewer duyệt ngữ nghĩa: criteria đo đúng cơ chế distributed · outputs/requirements khớp topic · tier có nhồi không · lang set ⊆ body. Sai format → rewrite theo gold V2.
+- Gate `./.claude/docs/check-lesson.ps1`: score=100 · có verified · no `# references`/`# submissions` inline · no `### N.` heading · Σ outcome=30 · Σ approach=70 · ≥1 critical:true · separator chẵn · vn-có-dấu. PASS structure mới duyệt ngữ nghĩa.

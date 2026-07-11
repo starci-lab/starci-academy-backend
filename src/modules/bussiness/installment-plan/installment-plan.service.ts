@@ -19,18 +19,17 @@ import {
 import {
     DayjsService,
 } from "@modules/mixin"
+import {
+    envConfig,
+} from "@modules/env"
 import type {
     ApplyInstallmentPaymentForTransactionParams,
     CreateFixedInstallmentPlanParams,
     CreateFlexiblePoolInstallmentPlanParams,
+    InstallmentOption,
     RecordInstallmentPaymentParams,
     RecordInstallmentPaymentResult,
 } from "./types"
-
-/** Default arrears-pool minimum-payment percent (2026-07-05 decision). */
-const DEFAULT_MIN_PAYMENT_PERCENT = 10
-/** Default arrears-pool minimum-payment absolute floor, VND (2026-07-05 decision). */
-const DEFAULT_MIN_PAYMENT_FLOOR_VND = 500_000
 
 /**
  * Owns installment-plan lifecycle: creating a plan at checkout (`Fixed`) or at
@@ -47,6 +46,52 @@ export class InstallmentPlanService {
         private readonly entityManager: EntityManager,
         private readonly dayjsService: DayjsService,
     ) { }
+
+    /**
+     * The markup schedule → offered term options for a given base price
+     * (loyalty/bundle-discounted, pre-markup). One entry per configured month
+     * option, in ascending-month order. Returns `[]` when `baseVnd <= 0` (a free
+     * course has no installment plan to offer).
+     *
+     * @param baseVnd - The discounted VND price installments are computed against.
+     * @returns The offered {@link InstallmentOption}s (empty for a non-positive base).
+     */
+    computeInstallmentOptions(
+        baseVnd: number,
+    ): Array<InstallmentOption> {
+        if (baseVnd <= 0) {
+            return []
+        }
+        return Object.keys(envConfig().installment.markupPercentByMonths)
+            .map((months) => this.computeInstallmentTotal(baseVnd,
+                Number(months)))
+            // ascending months so the modal renders 3 → 6 → 12 left-to-right
+            .sort((left, right) => left.months - right.months)
+    }
+
+    /**
+     * Resolve ONE term's markup/total/monthly for a base price — the single
+     * source used by BOTH the price preview (all options) and checkout (the
+     * chosen option), so the modal's shown numbers always equal what's charged.
+     * A month with no configured markup falls back to 0% (charged = base).
+     *
+     * @param baseVnd - The discounted VND price installments are computed against.
+     * @param months - The chosen term (must be a configured key to carry a markup).
+     * @returns The resolved {@link InstallmentOption} for that term.
+     */
+    computeInstallmentTotal(
+        baseVnd: number,
+        months: number,
+    ): InstallmentOption {
+        const markupPercent = envConfig().installment.markupPercentByMonths[months] ?? 0
+        const totalAmountVnd = Math.round(baseVnd * (1 + markupPercent / 100))
+        return {
+            months,
+            markupPercent,
+            totalAmountVnd,
+            monthlyAmountVnd: Math.round(totalAmountVnd / months),
+        }
+    }
 
     /**
      * The minimum amount owed THIS cycle:
@@ -133,8 +178,8 @@ export class InstallmentPlanService {
             userId,
             lockedCourseIds,
             remainingVnd,
-            minPaymentPercent = DEFAULT_MIN_PAYMENT_PERCENT,
-            minPaymentFloorVnd = DEFAULT_MIN_PAYMENT_FLOOR_VND,
+            minPaymentPercent = envConfig().installment.minPaymentPercent,
+            minPaymentFloorVnd = envConfig().installment.minPaymentFloorVnd,
             nextDueAt,
             entityManager,
         }: CreateFlexiblePoolInstallmentPlanParams,

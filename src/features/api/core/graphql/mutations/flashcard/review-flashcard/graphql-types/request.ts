@@ -6,6 +6,8 @@ import {
 } from "@nestjs/graphql"
 import {
     IsInt,
+    IsOptional,
+    IsUUID,
     Max,
     Min,
 } from "class-validator"
@@ -36,4 +38,16 @@ export class ReviewFlashcardRequest {
     @Min(0)
     @Max(3)
         grade: number
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "The review session this grade belongs to, so the event is attributed to the session for per-session stats. Omit for an untracked grade.",
+        },
+    )
+    // when present it must be a real session uuid; absent → the event's sessionId stays null
+    @IsOptional()
+    @IsUUID()
+        sessionId?: string | null
 }

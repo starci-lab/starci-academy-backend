@@ -1,6 +1,6 @@
 export const meta = {
   name: 'm12-analyze',
-  description: 'Phan tich SAU (Opus) m12 file-upload 4 lesson truoc audit: source code pattern moi lang, lang nao KHONG lam duoc contract (skip), .docker infra can them moi lesson, restructure lang@root -> backend/<lang> + .docker + .playwright, vi pham .audits. CHI BAO CAO.',
+  description: 'Phan tich SAU (Opus) m12 file-upload 4 lesson truoc audit: source code pattern moi lang, lang nao KHONG lam duoc contract (skip), .docker infra can them moi lesson, restructure lang@root -> backend/<lang> + .docker + .playwright, vi pham .claude/docs. CHI BAO CAO.',
   phases: [{ title: 'Analyze', detail: 'per-lesson: pattern + lang-skip + docker + restructure plan', model: 'opus' }],
 }
 
@@ -37,7 +37,7 @@ const results = await parallel(LESSONS.map(function (L) {
       '1) Doc 4-lang source (' + W + '/' + L.slug + '/{0-typescript,1-java,2-csharp,3-go}) + frontend: moi lang co implement DU contract upload nay khong? Lang nao KHONG lam duoc / phai bia (vd tus protocol thieu lib o Java/C#/Go?) -> skipRecommend=true + missing ghi RO ly do. TS la canonical (thay code chay duoc).\n' +
       '2) .docker infra can: lesson nay can MinIO/S3 (L1), postgres, hay khong can (L0 disk)? Ghi compose service can.\n' +
       '3) RESTRUCTURE plan: move {0..3-lang} -> backend/<lang>; them .docker/compose.yaml (infra); them .playwright (config + spec); cap nhat body cd-path + frontend VITE_API_BASE.\n' +
-      '4) .audits violations (rules/fullstack/coding.md): bind 127.0.0.1? English-only comment? port pin? hard-code secret (S3 key)? body .mount (' + MNT + '/' + L.slug + ') drift?\n' +
+      '4) .claude/docs violations (rules/fullstack/coding.md): bind 127.0.0.1? English-only comment? port pin? hard-code secret (S3 key)? body .mount (' + MNT + '/' + L.slug + ') drift?\n' +
       '5) Playwright plan: FE upload demo testid gi (file-input, upload-btn, progress, result)? bao nhieu flow? (it thoi vi cac lesson y chang — TS playwright, lang khac contract-verify).\n' +
       'TRA VE StructuredOutput {lesson, perLang, dockerNeeded, restructure, auditViolations, playwrightPlan, fixes}.',
       { label: 'm12:' + L.slug, phase: 'Analyze', model: 'opus', schema: RESULT }

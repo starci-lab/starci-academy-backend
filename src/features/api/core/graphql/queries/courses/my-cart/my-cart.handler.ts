@@ -27,8 +27,8 @@ import {
  *
  * Loads every cart row owned by the caller with its course relation (plus the
  * course sub-relations the client needs to render a card and price preview:
- * `metadata`, `pricingPhases`, `translations`), ordered oldest-first. Returns an
- * empty array when the cart is empty.
+ * `metadata`, `pricingPhases`, `translations`, `valuePropositions`), ordered
+ * oldest-first. Returns an empty array when the cart is empty.
  */
 @QueryHandler(MyCartQuery)
 @Injectable()
@@ -80,6 +80,7 @@ export class MyCartHandler
                         metadata: true,
                         pricingPhases: true,
                         translations: true,
+                        valuePropositions: true,
                     },
                 },
                 order: {

@@ -3,7 +3,7 @@ import {
 } from "nest-commander"
 import {
     PgSyncCommand,
-    PlaygroundSeedCommand,
+    PlaygroundSeedTestCommand,
 } from "./subs"
 import {
     WinstonLog, WinstonService,
@@ -14,7 +14,7 @@ import {
     description: "manage utils actions",
     subCommands: [
         PgSyncCommand,
-        PlaygroundSeedCommand,
+        PlaygroundSeedTestCommand,
     ],
 })
 export class UtilsCommand extends CommandRunner {

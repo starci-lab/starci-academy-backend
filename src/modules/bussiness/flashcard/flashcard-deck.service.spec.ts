@@ -122,8 +122,6 @@ describe("FlashcardDeckReadService",
                                     cards: {
                                         translations: true,
                                     },
-                                    contents: true,
-                                    modules: true,
                                     translations: true,
                                 },
                                 order: {
@@ -131,25 +129,6 @@ describe("FlashcardDeckReadService",
                                 },
                             },
                         )
-                    })
-
-                it("adds the linked-contents filter when a contentId is supplied",
-                    async () => {
-                        entityManager.find.mockResolvedValueOnce([])
-
-                        await service.listByCourse(courseId,
-                            Locale.En,
-                            "content-9")
-
-                        // the optional topical filter narrows to decks linked to the content
-                        const where = entityManager.find.mock.calls[0][1].where as {
-                            contents?: {
-                                id: string
-                            }
-                        }
-                        expect(where.contents).toEqual({
-                            id: "content-9",
-                        })
                     })
             })
 

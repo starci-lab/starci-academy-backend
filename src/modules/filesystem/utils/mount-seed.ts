@@ -33,7 +33,6 @@ const DEFAULT_SEED_CONFIG: SeedConfig = {
             },
             flashcard: {
                 enabled: false,
-                linkContents: false,
             },
             interview: {
                 enabled: false,

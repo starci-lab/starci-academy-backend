@@ -16,8 +16,12 @@ import {
 } from "crypto"
 import {
     InjectPrimaryPostgreSQLEntityManager,
+    Locale,
     PlaygroundEntity,
+    PlaygroundResolverService,
     PlaygroundSessionEntity,
+    PlaygroundSessionMode,
+    PlaygroundStepEntity,
 } from "@modules/databases"
 import {
     AiEntitlementService,
@@ -52,6 +56,7 @@ export class CreatePlaygroundSessionHandler
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly aiEntitlementService: AiEntitlementService,
+        private readonly playgroundResolver: PlaygroundResolverService,
     ) {
         super()
     }
@@ -62,8 +67,10 @@ export class CreatePlaygroundSessionHandler
         const {
             request: {
                 playgroundId,
+                mode,
             },
             user,
+            locale,
         } = command.params
         if (!user) {
             throw new UserNotFoundException({
@@ -74,6 +81,16 @@ export class CreatePlaygroundSessionHandler
             {
                 where: {
                     id: playgroundId,
+                },
+                relations: {
+                    steps: {
+                        translations: true,
+                    },
+                },
+                order: {
+                    steps: {
+                        sortIndex: "ASC",
+                    },
                 },
             },
         )
@@ -89,6 +106,7 @@ export class CreatePlaygroundSessionHandler
                 playgroundId,
             })
         }
+        const resolvedMode = mode ?? PlaygroundSessionMode.Guided
         const pairingCode = await this.uniquePairingCode()
         const created = this.entityManager.create(
             PlaygroundSessionEntity,
@@ -96,6 +114,7 @@ export class CreatePlaygroundSessionHandler
                 user,
                 playground,
                 pairingCode,
+                mode: resolvedMode,
                 connected: false,
                 currentStepIndex: 0,
                 passedStepIndexes: [],
@@ -105,10 +124,47 @@ export class CreatePlaygroundSessionHandler
             PlaygroundSessionEntity,
             created,
         )
+        // project each returned step's title/body to the request locale (and
+        // strip its raw translation rows) so a freshly-created session carries
+        // localized steps, not raw-English — mirrors the live `playground`
+        // query. Done after `save` (the session→playground relation has no
+        // TypeORM cascade) so the mutated steps never round-trip to Postgres.
+        const resolvedLocale = locale ?? Locale.En
+        for (const step of playground.steps ?? []) {
+            this.playgroundResolver.transformStep(
+                step,
+                resolvedLocale,
+                Locale.En,
+            )
+        }
         return {
             id: created.id,
             pairingCode: created.pairingCode,
+            mode: resolvedMode,
+            steps: this.redactStepsForMode(
+                playground.steps ?? [],
+                resolvedMode,
+            ),
         }
+    }
+
+    /**
+     * Server-side redaction: when `mode` is
+     * {@link PlaygroundSessionMode.Free}, every step's `commandHint` is
+     * nulled out here so the GraphQL response never carries the hint value —
+     * NOT merely hidden by the FE.
+     */
+    private redactStepsForMode(
+        steps: Array<PlaygroundStepEntity>,
+        mode: PlaygroundSessionMode,
+    ): Array<PlaygroundStepEntity> {
+        if (mode !== PlaygroundSessionMode.Free) {
+            return steps
+        }
+        for (const step of steps) {
+            step.commandHint = null
+        }
+        return steps
     }
 
     /**

@@ -45,6 +45,7 @@ import type {
 } from "./types"
 import {
     EnqueueReconcileTransactionJobService,
+    InstallmentPlanService,
     LoyaltyDiscountService,
     VoucherService,
 } from "@modules/bussiness"
@@ -70,6 +71,7 @@ export class CourseEnrollSepayService {
         private readonly enqueueReconcileTransactionJobService: EnqueueReconcileTransactionJobService,
         private readonly loyaltyDiscountService: LoyaltyDiscountService,
         private readonly voucherService: VoucherService,
+        private readonly installmentPlanService: InstallmentPlanService,
     ) {}
 
     /**
@@ -82,6 +84,7 @@ export class CourseEnrollSepayService {
             payosReturnUrl,
             payosCancelUrl,
             voucherCode,
+            installmentMonths,
         },
         user,
     }: ExecuteParams<CourseEnrollRequest>): Promise<CourseEnrollResponseData> {
@@ -152,7 +155,7 @@ export class CourseEnrollSepayService {
 
         // an invalid code throws HERE (before any row is written) — a valid one
         // further discounts the loyalty-discounted amount
-        const amount = voucherCode
+        const discountedAmount = voucherCode
             ? this.voucherService.applyToAmount(
                 loyaltyAmount,
                 await this.voucherService.previewDiscount({
@@ -162,6 +165,14 @@ export class CourseEnrollSepayService {
                 }),
             )
             : loyaltyAmount
+        // installment (trả góp): charge only the FIRST cycle now (monthly), snapshot
+        // the whole-schedule intent onto the Enroll transaction so the enroll worker
+        // creates the Fixed plan on payment success (§2.2). One-shot = full amount.
+        const installment = installmentMonths
+            ? this.installmentPlanService.computeInstallmentTotal(discountedAmount,
+                installmentMonths)
+            : null
+        const amount = installment ? installment.monthlyAmountVnd : discountedAmount
 
         // sign a fresh order + persist the pending transaction + (if given) RESERVE
         // the voucher in the SAME db transaction, so a concurrent second checkout
@@ -189,6 +200,9 @@ export class CourseEnrollSepayService {
                     checkoutUrl: this.sepay.checkout.initCheckoutUrl(),
                     status: TransactionStatus.Pending,
                     actionType: ActionType.Enroll,
+                    installmentMonths: installment ? installment.months : null,
+                    installmentMarkupPercent: installment ? installment.markupPercent : null,
+                    installmentTotalVnd: installment ? installment.totalAmountVnd : null,
                 },
             )
             const saved = await manager.save(created)

@@ -6,7 +6,7 @@ export const meta = {
   ],
 }
 
-// invoke: Workflow({ scriptPath: ".audits/workflows/repo-sync.js", args: { repos: ["fullstack-mastery-module-1-..."] } })
+// invoke: Workflow({ scriptPath: ".claude/docs/workflows/repo-sync.js", args: { repos: ["fullstack-mastery-module-1-..."] } })
 function asObj(a) { if (!a) return {}; if (typeof a === 'object') return a; if (typeof a === 'string') { const s = a.trim(); if (s.startsWith('{')) { try { return JSON.parse(s) } catch (e) {} } if (s.startsWith('[')) { try { return { repos: JSON.parse(s) } } catch (e) {} } return { repos: [s] } } return {} }
 const ARGS = asObj(args)
 const REPOS = Array.isArray(ARGS.repos) ? ARGS.repos : (ARGS.repos ? [ARGS.repos] : [])

@@ -1,4 +1,8 @@
 import {
+    Field,
+    ID,
+} from "@nestjs/graphql"
+import {
     Column,
     Entity,
     Index,
@@ -30,6 +34,11 @@ import {
     [
         "userId",
         "reviewedAt",
+    ])
+// fast aggregate of every event graded within one review session (per-session stats)
+@Index("idx_flashcard_review_events_session",
+    [
+        "sessionId",
     ])
 export class FlashcardReviewEventEntity extends UuidAbstractEntity {
     /** The user who graded the review. */
@@ -93,4 +102,24 @@ export class FlashcardReviewEventEntity extends UuidAbstractEntity {
         type: "timestamptz",
     })
         reviewedAt: Date
+
+    /**
+     * The review session this grade was graded within, when the client threaded a
+     * session id (deck-review or due-review). Nullable so pre-existing events (and
+     * any grade made outside a tracked session) stay valid — a session with no
+     * events carrying its id falls back to `reviewedCount`-only stats.
+     */
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "The review session this grade belongs to (null for untracked grades).",
+        },
+    )
+    @Column({
+        name: "session_id",
+        type: "uuid",
+        nullable: true,
+    })
+        sessionId: string | null
 }

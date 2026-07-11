@@ -46,6 +46,14 @@ export class RagPlaygroundSessionEntity extends UuidAbstractEntity {
     })
         sourceLabel: string | null
 
+    /** Which curated catalog entry was indexed, when `sourceKind` is "sample" (null otherwise). */
+    @Column({
+        name: "sample_id",
+        type: "varchar",
+        nullable: true,
+    })
+        sampleId: string | null
+
     /** How many chunks were indexed for this session. */
     @Column({
         name: "chunk_count",

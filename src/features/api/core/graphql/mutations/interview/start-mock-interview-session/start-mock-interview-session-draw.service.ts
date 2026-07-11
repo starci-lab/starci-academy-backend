@@ -7,6 +7,7 @@ import {
 } from "typeorm"
 import {
     ChallengeDifficulty,
+    ContentEntity,
     EnrollmentEntity,
     FlashcardLevel,
     InjectPrimaryPostgreSQLEntityManager,
@@ -26,6 +27,9 @@ import {
     PersonalProjectProgressService,
     UserService,
 } from "@modules/bussiness"
+import {
+    ContentRagRetrievalService,
+} from "@modules/rag"
 import {
     MOCK_INTERVIEW_CLASSIC_PROMPTS,
 } from "../../../queries/flashcard-decks/mock-interview-prompts/constants"
@@ -147,6 +151,7 @@ export class MockInterviewSessionDrawService {
         private readonly personalProjectProgressService: PersonalProjectProgressService,
         private readonly userService: UserService,
         private readonly flashcardDeckReadService: FlashcardDeckReadService,
+        private readonly contentRagRetrievalService: ContentRagRetrievalService,
     ) {}
 
     /**
@@ -661,8 +666,15 @@ export class MockInterviewSessionDrawService {
             courseId,
             locale,
         )
-        return decks.flatMap((deck) => {
-            const moduleId = deck.modules?.[0]?.id ?? null
+        // moduleId per deck is now derived via RAG (the deck→module relation was
+        // removed): semantic-search the course for the deck's topic and take the
+        // best-matching lesson's owning module. One retrieval per deck, tagged onto
+        // every card of that deck.
+        const perDeck = await Promise.all(decks.map(async (deck) => {
+            const moduleId = await this.resolveDeckModuleIdViaRag(
+                courseId,
+                deck.title,
+            )
             return (deck.cards ?? []).map((card) => ({
                 id: card.id,
                 question: card.question,
@@ -671,7 +683,52 @@ export class MockInterviewSessionDrawService {
                 level: card.level ?? FlashcardLevel.Middle,
                 moduleId,
             }))
+        }))
+        return perDeck.flat()
+    }
+
+    /**
+     * Resolve the module a flashcard deck belongs to via RAG — semantic-search the
+     * course's indexed content for the deck's topic and return the best-matching
+     * lesson's owning module id. Replaces the removed deck→module relation: the
+     * association is derived from what the course actually teaches, not stored.
+     * Null when the topic is blank, retrieval misses, or the content row is gone.
+     *
+     * @param courseId - the course to search within.
+     * @param query - the deck's topic (its title).
+     * @returns the resolved module id, or null when nothing relevant resolves.
+     */
+    private async resolveDeckModuleIdViaRag(
+        courseId: string,
+        query: string,
+    ): Promise<string | null> {
+        const trimmed = query.trim()
+        if (!trimmed) {
+            return null
+        }
+        const { hits } = await this.contentRagRetrievalService.searchCourse({
+            courseId,
+            query: trimmed,
         })
+        const lessonHit = hits.find(
+            (hit) => hit.kind === "content" || hit.kind === "code",
+        )
+        if (!lessonHit) {
+            return null
+        }
+        const content = await this.entityManager.findOne(
+            ContentEntity,
+            {
+                where: {
+                    id: lessonHit.contentId,
+                },
+                select: {
+                    id: true,
+                    moduleId: true,
+                },
+            },
+        )
+        return content?.moduleId ?? null
     }
 
     /**

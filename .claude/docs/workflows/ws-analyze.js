@@ -1,6 +1,6 @@
 export const meta = {
   name: 'ws-analyze',
-  description: 'Phan tich m9 websocket (4 lesson) de DUNG PLAN: per-lesson doc 4-lang backend + flows + frontend ?lang + body, xac dinh DEMO_SUPPORTED_LANGS (lang nao BE du contract moi flow), vi pham .audits rules, fix can lam. CHI BAO CAO (khong sua/khong build).',
+  description: 'Phan tich m9 websocket (4 lesson) de DUNG PLAN: per-lesson doc 4-lang backend + flows + frontend ?lang + body, xac dinh DEMO_SUPPORTED_LANGS (lang nao BE du contract moi flow), vi pham .claude/docs rules, fix can lam. CHI BAO CAO (khong sua/khong build).',
   phases: [{ title: 'Analyze', detail: 'per-lesson: lang-support + audit violations + fixes', model: 'opus' }],
 }
 
@@ -46,7 +46,7 @@ const results = await parallel(LESSONS.map(function (L) {
       '1) Doc 4-lang backend: ' + W + '/' + L.slug + '/backend/{0-typescript,1-java,2-csharp,3-go}/** (gateway/handler/auth). Voi MOI lang: co implement DU contract tren khong? (vd Java STOMP co room+broadcast nhu TS Socket.IO? C# SignalR co? Go WS co?). Lang nao thieu -> ghi missing.\n' +
       '2) Doc flows: ' + W + '/' + L.slug + '/.playwright/scripts/*.spec.ts — 3 flow logic make-sense? spec co parametrize theo ?lang khong? testid khop frontend?\n' +
       '3) Doc frontend: ' + W + '/' + L.slug + '/frontend/src/** — da co ?lang router + DEMO_SUPPORTED_LANGS + UnsupportedLangPage chua (theo PLAN.md thay)? client stack per-lang co chua?\n' +
-      '4) .audits violations (rules/fullstack/coding.md): BE bind 127.0.0.1 chua (KHONG 0.0.0.0 -> firewall)? comment English-only? FE vite port pin (khong CLI -p)? cd-first? body .mount (' + MNT + '/' + L.slug + ') co drift voi source/spec?\n' +
+      '4) .claude/docs violations (rules/fullstack/coding.md): BE bind 127.0.0.1 chua (KHONG 0.0.0.0 -> firewall)? comment English-only? FE vite port pin (khong CLI -p)? cd-first? body .mount (' + MNT + '/' + L.slug + ') co drift voi source/spec?\n' +
       '5) Quyet dinh DEMO_SUPPORTED_LANGS de xuat (lang du contract; TS thay noi chay duoc) + fixes can lam (uu tien cao->thap).\n' +
       'TRA VE StructuredOutput {lesson, demoSupportedLangs, perLang:[{lang,implementsContract,missing}], auditViolations, flowsOk, fixes}.',
       { label: 'ws:' + L.slug, phase: 'Analyze', model: 'opus', schema: RESULT }

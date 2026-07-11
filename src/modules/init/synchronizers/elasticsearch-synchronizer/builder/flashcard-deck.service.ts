@@ -48,8 +48,8 @@ export class ElasticsearchFlashcardDeckBuildService {
         flashcardDeckId: string,
     ): Promise<Array<LocalizedElasticsearchEntity<FlashcardDeckEntity>>> {
         // load the FULL deck graph the `flashcardDeck` detail query serves (cards →
-        // translations, linked contents, deck translations) so the document can be
-        // returned straight from ES with the exact same shape the DB read produced
+        // translations, deck translations) so the document can be returned straight
+        // from ES with the exact same shape the DB read produced
         const deck = await this.entityManager.findOneOrFail(
             FlashcardDeckEntity,
             {
@@ -60,8 +60,6 @@ export class ElasticsearchFlashcardDeckBuildService {
                     cards: {
                         translations: true,
                     },
-                    contents: true,
-                    modules: true,
                     translations: true,
                 },
                 order: {

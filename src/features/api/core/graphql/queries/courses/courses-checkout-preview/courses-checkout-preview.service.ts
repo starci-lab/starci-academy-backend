@@ -5,6 +5,9 @@ import {
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
+    InstallmentPlanService,
+} from "@modules/bussiness"
+import {
     CoursesCheckoutPricingService,
 } from "@features/api/core/graphql/mutations/courses/courses-checkout"
 import {
@@ -24,6 +27,7 @@ import type {
 export class CoursesCheckoutPreviewService {
     constructor(
         private readonly coursesCheckoutPricingService: CoursesCheckoutPricingService,
+        private readonly installmentPlanService: InstallmentPlanService,
     ) {}
 
     /**
@@ -72,6 +76,10 @@ export class CoursesCheckoutPreviewService {
             totalChargedUsd: priced.totalChargedUsd,
             bundleBonusPercent: priced.bundleBonusPercent,
             itemCount: priced.itemCount,
+            // installment terms priced off the WHOLE order's charged VND total
+            // (after per-line loyalty + order bundle bonus) — never per-line,
+            // per §2.3 of the design doc
+            installmentOptions: this.installmentPlanService.computeInstallmentOptions(priced.totalChargedVnd),
         }
     }
 }

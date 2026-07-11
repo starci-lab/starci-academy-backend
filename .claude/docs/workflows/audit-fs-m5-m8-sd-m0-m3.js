@@ -13,8 +13,8 @@ export const meta = {
   ],
 }
 
-const FS_RUNNER = '.audits/workflows/audit-fs-module.js'
-const SD_RUNNER = '.audits/workflows/audit-sd-module.js'
+const FS_RUNNER = '.claude/docs/workflows/audit-fs-module.js'
+const SD_RUNNER = '.claude/docs/workflows/audit-sd-module.js'
 
 const FS_MODULES = [
   '5-form-mastery-rhf-zod',

@@ -29,6 +29,49 @@ import {
 } from "./flashcard-card-translation.entity"
 
 /**
+ * Per-grade next-interval preview (in days) computed from a card's current SM-2
+ * state without persisting — powers the rating buttons. Lives in the databases
+ * layer (not `features/api`) so entities like {@link FlashcardCardEntity} can
+ * reference it directly.
+ */
+@ObjectType({
+    description: "Per-grade next-interval preview (days) for a flashcard.",
+})
+export class FlashcardNextIntervalsObject {
+    @Field(
+        () => Int,
+        {
+            description: "Days until next review if graded Again (0).",
+        },
+    )
+        again: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Days until next review if graded Hard (1).",
+        },
+    )
+        hard: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Days until next review if graded Good (2).",
+        },
+    )
+        good: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Days until next review if graded Easy (3).",
+        },
+    )
+        easy: number
+}
+
+/**
  * A single open-ended interview flashcard within a deck. `question` holds the
  * prompt (front), `answer` the model answer revealed on flip (back), and
  * `explanation` optional depth (follow-ups, gotchas) — all Markdown.
@@ -245,4 +288,18 @@ export class FlashcardCardEntity extends UuidAbstractEntity {
         },
     )
         translations: Array<FlashcardCardTranslationEntity>
+
+    /**
+     * Per-viewer next-interval preview (days per SM-2 grade) computed from the
+     * viewer's current review state for this card. Runtime-populated for the
+     * signed-in user — NOT a DB column; undefined when a query does not compute it.
+     */
+    @Field(
+        () => FlashcardNextIntervalsObject,
+        {
+            nullable: true,
+            description: "Per-grade next-interval preview (days) from the viewer's current SM-2 state (runtime, per-user).",
+        },
+    )
+        nextIntervals?: FlashcardNextIntervalsObject
 }

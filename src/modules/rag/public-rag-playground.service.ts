@@ -32,6 +32,7 @@ import {
 } from "@modules/langchain"
 import {
     RagPlaygroundImportException,
+    RagPlaygroundSampleNotFoundException,
     RagPlaygroundSessionNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -40,6 +41,8 @@ import {
 import type {
     IndexRagPlaygroundParams,
     IndexRagPlaygroundResult,
+    RagPlaygroundSampleEntry,
+    RagPlaygroundSampleSummary,
     RagPlaygroundSourceChunk,
     RetrieveRagPlaygroundContextParams,
     RetrieveRagPlaygroundContextResult,
@@ -64,11 +67,19 @@ const DEFAULT_TOP_K = 5
 const SNIPPET_DISPLAY_CHARS = 400
 
 /**
- * A short, curated code sample so a visitor can try the playground with zero
- * typing — deliberately RAG-relevant (a retrieval helper + its caller) so the
- * first question ("how does retrieval work here?") has a real, groundable answer.
+ * The RAG Playground's built-in, curated sample catalog — small, self-contained,
+ * realistic code so a visitor can try the demo with zero typing. Only `id` +
+ * `label` are ever sent to the client (see {@link PublicRagPlaygroundService.listSamples});
+ * `code` stays server-side and is only revealed by indexing it.
  */
-const SAMPLE_CODE = `// A tiny retrieval-augmented search helper.
+const SAMPLE_CATALOG: Array<RagPlaygroundSampleEntry> = [
+    {
+        id: "retrieval-helper",
+        label: "Retrieval helper (cosine similarity top-k)",
+        filePath: "sample.ts",
+        // deliberately RAG-relevant (a retrieval helper + its caller) so the
+        // first question ("how does retrieval work here?") has a real, groundable answer.
+        code: `// A tiny retrieval-augmented search helper.
 export interface Chunk {
   id: string
   text: string
@@ -98,7 +109,107 @@ export function retrieveTopK(
     .slice(0, k)
     .map((entry) => entry.chunk)
 }
-`
+`,
+    },
+    {
+        id: "express-todo-api",
+        label: "Express REST API (todos CRUD)",
+        filePath: "server.ts",
+        code: `// A minimal Express REST API for managing "todos".
+import express from "express"
+import type { Request, Response } from "express"
+
+interface Todo {
+  id: string
+  title: string
+  done: boolean
+}
+
+const app = express()
+app.use(express.json())
+
+const todos = new Map<string, Todo>()
+
+app.get("/todos", (_req: Request, res: Response) => {
+  res.json(Array.from(todos.values()))
+})
+
+app.post("/todos", (req: Request, res: Response) => {
+  const { title } = req.body as { title?: string }
+  if (!title?.trim()) {
+    return res.status(400).json({ error: "title is required" })
+  }
+  const todo: Todo = { id: crypto.randomUUID(), title, done: false }
+  todos.set(todo.id, todo)
+  res.status(201).json(todo)
+})
+
+app.patch("/todos/:id", (req: Request, res: Response) => {
+  const todo = todos.get(req.params.id)
+  if (!todo) {
+    return res.status(404).json({ error: "todo not found" })
+  }
+  const { done } = req.body as { done?: boolean }
+  if (typeof done === "boolean") {
+    todo.done = done
+  }
+  res.json(todo)
+})
+
+app.delete("/todos/:id", (req: Request, res: Response) => {
+  if (!todos.delete(req.params.id)) {
+    return res.status(404).json({ error: "todo not found" })
+  }
+  res.status(204).end()
+})
+
+app.listen(3000, () => {
+  console.log("Todo API listening on :3000")
+})
+`,
+    },
+    {
+        id: "docker-compose-api",
+        label: "Dockerfile + docker-compose (API + Postgres)",
+        filePath: "Dockerfile, docker-compose.yml",
+        code: `# Dockerfile — multi-stage build, runs a small Node.js API in production mode.
+FROM node:20-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY . .
+
+FROM node:20-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=build /app /app
+EXPOSE 3000
+CMD ["node", "server.js"]
+
+# docker-compose.yml — runs the API alongside a Postgres database.
+version: "3.9"
+services:
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/app
+    depends_on:
+      - db
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
+`,
+    },
+]
 
 /**
  * The PUBLIC (anonymous, no login) RAG Playground core: chunk + embed (local
@@ -144,6 +255,7 @@ export class PublicRagPlaygroundService {
         const {
             documents,
             sourceLabel,
+            sampleId,
         } = await this.resolveDocuments(params)
 
         const splitter = new RecursiveCharacterTextSplitter({
@@ -180,6 +292,7 @@ export class PublicRagPlaygroundService {
                 sessionId,
                 sourceKind: kind,
                 sourceLabel,
+                sampleId: sampleId ?? null,
                 chunkCount: chunks.length,
                 lastAccessedAt: new Date(),
             },
@@ -300,6 +413,20 @@ export class PublicRagPlaygroundService {
     }
 
     /**
+     * Lists the built-in curated sample catalog for the sample picker — id +
+     * label only, never the code itself (the code stays server-side and is
+     * only revealed once a session actually indexes it).
+     */
+    listSamples(): Array<RagPlaygroundSampleSummary> {
+        return SAMPLE_CATALOG.map(
+            ({ id, label }): RagPlaygroundSampleSummary => ({
+                id,
+                label,
+            }),
+        )
+    }
+
+    /**
      * Resolve the LangChain documents + a display label for the requested source.
      */
     private async resolveDocuments(
@@ -309,20 +436,23 @@ export class PublicRagPlaygroundService {
             language,
             fileName,
             githubUrl,
+            sampleId,
         }: IndexRagPlaygroundParams,
-    ): Promise<{ documents: Array<Document>; sourceLabel: string }> {
+    ): Promise<{ documents: Array<Document>; sourceLabel: string; sampleId?: string }> {
         switch (kind) {
         case RagPlaygroundSourceKind.Sample: {
+            const sample = this.findSample(sampleId)
             return {
                 documents: [
                     {
-                        pageContent: SAMPLE_CODE,
+                        pageContent: sample.code,
                         metadata: {
-                            filePath: "sample.ts",
+                            filePath: sample.filePath,
                         },
                     } as Document,
                 ],
-                sourceLabel: "Repo mẫu · StarCi RAG demo",
+                sourceLabel: `Repo mẫu · ${sample.label}`,
+                sampleId: sample.id,
             }
         }
         case RagPlaygroundSourceKind.Github: {
@@ -365,6 +495,28 @@ export class PublicRagPlaygroundService {
             }
         }
         }
+    }
+
+    /**
+     * Look up a catalog entry by id, defaulting to the first entry when
+     * `sampleId` is omitted (backward-compatible with any in-flight client
+     * that doesn't send it yet).
+     *
+     * @throws RagPlaygroundSampleNotFoundException when `sampleId` is set but unknown.
+     */
+    private findSample(
+        sampleId?: string | null,
+    ): RagPlaygroundSampleEntry {
+        if (!sampleId) {
+            return SAMPLE_CATALOG[0]
+        }
+        const sample = SAMPLE_CATALOG.find((entry) => entry.id === sampleId)
+        if (!sample) {
+            throw new RagPlaygroundSampleNotFoundException({
+                sampleId,
+            })
+        }
+        return sample
     }
 
     /**

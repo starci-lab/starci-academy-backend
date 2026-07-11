@@ -7,7 +7,7 @@ export const meta = {
     { title: 'M22 payment-integration' },
   ],
 }
-const RUNNER = 'D:/Repositories/starci-academy-backend/.audits/workflows/audit-fs-module.js'
+const RUNNER = 'D:/Repositories/starci-academy-backend/.claude/docs/workflows/audit-fs-module.js'
 const MODULES = ['20-ai-llm-integration', '21-graphql-api-design', '22-payment-integration']
 const GUIDANCE = [
   'RULE 4-challenge (thay chot 2026-06-21): MOI lesson PHAI du 4 tier easy+medium+hard+insane. M20-M22 hien moi 2 tier/lesson (8/16) -> DE XUAT them hard+insane cho TUNG lesson: topic cu the, criteria do co che that, depth production that (KHONG guong).',

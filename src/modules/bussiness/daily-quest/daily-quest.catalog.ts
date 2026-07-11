@@ -26,4 +26,19 @@ export const DAILY_QUEST_TASKS: ReadonlyArray<DailyQuestTaskDefinition> = [
         key: DailyQuestKey.ReviewFlashcards,
         target: 5,
     },
+    {
+        key: DailyQuestKey.MockInterview,
+        target: 1,
+    },
+    {
+        key: DailyQuestKey.QuizSession,
+        target: 1,
+    },
 ]
+
+/**
+ * Minimum number of tasks (out of {@link DAILY_QUEST_TASKS}'s 5) that must be
+ * complete today to unlock the reward — NOT all-or-nothing, since not every
+ * learner touches every category (e.g. mock interview) every day.
+ */
+export const DAILY_QUEST_MIN_TASKS_REQUIRED = 3

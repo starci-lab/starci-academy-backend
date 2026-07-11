@@ -14,9 +14,9 @@ const MODULES = [
   '19-deploy-and-devops-workflow',
 ]
 const BASE = '.mount/data/courses/0-fullstack-mastery/modules'
-const RULE = '.audits/rules/terminology-bold.md'
+const RULE = '.claude/docs/rules/terminology-bold.md'
 const GOLD = BASE + '/0-nestjs-core-and-request-lifecycle/contents/0-frameworks-in-backend/bodies/0-typescript/vi.md'
-const ABS = 'D:/Repositories/starci-academy-backend/.audits/check-lesson.ps1'
+const ABS = 'D:/Repositories/starci-academy-backend/.claude/docs/check-lesson.ps1'
 
 const LESSONS_SCHEMA = { type: 'object', additionalProperties: false, required: ['lessons'], properties: { lessons: { type: 'array', items: { type: 'string' } } } }
 const RES_SCHEMA = { type: 'object', additionalProperties: false, required: ['lesson', 'accordion', 'terminology', 'verify'], properties: { lesson: { type: 'string' }, accordion: { type: 'string' }, terminology: { type: 'string' }, verify: { type: 'string', enum: ['ok', 'issues'] } } }

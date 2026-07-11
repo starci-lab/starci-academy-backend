@@ -704,6 +704,25 @@ export const envConfig = () => ({
                 key: "CONTENT_RAG_STUFF_CHAR_THRESHOLD",
                 defaultValue: 6000,
             }),
+            /**
+             * Per-kind toggles for the "search course content" expansion — each
+             * corpus is a separate (slow) MinIO/Postgres enumeration + embed pass,
+             * so a kind can be disabled independently while iterating without
+             * re-embedding the other three. All default true when `enabled` above
+             * is true; this only narrows further.
+             */
+            indexChallenges: parseEnvBoolean({
+                key: "CONTENT_RAG_INDEX_CHALLENGES_ENABLED",
+                defaultValue: true,
+            }),
+            indexFlashcards: parseEnvBoolean({
+                key: "CONTENT_RAG_INDEX_FLASHCARDS_ENABLED",
+                defaultValue: true,
+            }),
+            indexMilestoneTasks: parseEnvBoolean({
+                key: "CONTENT_RAG_INDEX_MILESTONE_TASKS_ENABLED",
+                defaultValue: true,
+            }),
         },
         /** Cdn Synchronizer service configuration. */
         cdnSynchronizer: {
@@ -2255,6 +2274,54 @@ export const envConfig = () => ({
         masteredIntervalDays: parseEnvInt({
             key: "FLASHCARD_MASTERED_INTERVAL_DAYS",
             defaultValue: 21,
+        }),
+    },
+    /**
+     * Installment ("trả góp") payment tunables — see `docs/installment-payment-plan.md`.
+     * A NEW-buyer `Fixed` plan snapshots the markup for its chosen term at checkout
+     * (later config changes never re-price a live plan); a Pioneer `FlexiblePool`
+     * plan owes a real balance with no markup and pays a percentage-of-remaining
+     * floored minimum each cycle. The two grace windows drive the enforcement cron.
+     */
+    installment: {
+        /**
+         * Markup percent added to the (loyalty/bundle-discounted) price per
+         * chosen term — longer terms cost more. The keys ARE the offered month
+         * options (3/6/12); a value the map has no key for is not a valid term.
+         */
+        markupPercentByMonths: {
+            3: parseEnvInt({
+                key: "INSTALLMENT_MARKUP_PERCENT_3M",
+                defaultValue: 5,
+            }),
+            6: parseEnvInt({
+                key: "INSTALLMENT_MARKUP_PERCENT_6M",
+                defaultValue: 10,
+            }),
+            12: parseEnvInt({
+                key: "INSTALLMENT_MARKUP_PERCENT_12M",
+                defaultValue: 20,
+            }),
+        } as Record<number, number>,
+        /** FlexiblePool per-cycle minimum = max(remaining × this%, floor). */
+        minPaymentPercent: parseEnvInt({
+            key: "INSTALLMENT_MIN_PAYMENT_PERCENT",
+            defaultValue: 10,
+        }),
+        /** FlexiblePool absolute per-cycle minimum floor, VND. */
+        minPaymentFloorVnd: parseEnvInt({
+            key: "INSTALLMENT_MIN_PAYMENT_FLOOR_VND",
+            defaultValue: 500_000,
+        }),
+        /** Days after due before the 2nd (pre-lock) reminder fires. */
+        graceReminderDays: parseEnvInt({
+            key: "INSTALLMENT_GRACE_REMINDER_DAYS",
+            defaultValue: 7,
+        }),
+        /** Total days after due before the plan defaults and locks access. */
+        graceLockoutDays: parseEnvInt({
+            key: "INSTALLMENT_GRACE_LOCKOUT_DAYS",
+            defaultValue: 14,
         }),
     },
     /**

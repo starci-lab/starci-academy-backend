@@ -8,7 +8,7 @@ export const meta = {
 }
 
 const COURSE_DIR = '.mount/data/courses/1-system-design-mastery/modules'
-const RULES = '.audits/rules/system-design'
+const RULES = '.claude/docs/rules/system-design'
 
 // Default: M0 pilot. Override bang args.modules = ["1-database-fundamentals", ...]
 const MODULES = (args && Array.isArray(args.modules) && args.modules.length)
@@ -36,7 +36,7 @@ function applyPrompt (modDir, les) {
     'Ban APPLY mo rong challenge 4-tier cho 1 lesson System Design: ' + dir + '. VIET TIENG VIET DU DAU (cam khong dau); criteria trong submissions = English-only.',
     '',
     'NHIEM VU DUY NHAT: dam bao lesson co DU 4 challenge = dung 1 moi tier easy+medium+hard+insane, theo de xuat da duyet trong ' + dir + '/review.md.',
-    '1. Doc ' + dir + '/review.md (de xuat tier + topic cu the) + ' + dir + '/challenges/* (tier hien co) + ' + RULES + '/challenges.md + .audits/rules-lean.md. Tham khao gold .audits/references.md.',
+    '1. Doc ' + dir + '/review.md (de xuat tier + topic cu the) + ' + dir + '/challenges/* (tier hien co) + ' + RULES + '/challenges.md + .claude/docs/rules-lean.md. Tham khao gold .claude/docs/references.md.',
     '2. Xac dinh tier con THIEU (thuong hard + insane). Tao folder challenge cho tung tier thieu: challenges/<N>-<slug>-<tier>/{vi,en}.md + submissions/0/{vi,en}.md.',
     '   - Theo DUNG topic/goc trong review.md. Neu review canh bao OVERLAP module sau (vd Saga<->Communication, CDC<->Kafka) -> doi goc cho khoi trung (ghi ro trong notes).',
     '   - Format V2 (BAT BUOC): # score=100; requirements/steps/outputs/prerequisites item-major (## N -> ### langs -> #### M -> ##### lang), body sub = callout :::muted (KHONG ### N.); # verified; vi/en mirror; KHONG # references/# submissions inline.',
@@ -49,7 +49,7 @@ function applyPrompt (modDir, les) {
     '- KHONG chay docker / e2e / server. Challenge la spec cham diem, khong execute.',
     '- Neu lesson DA du 4 tier roi -> tiersAdded="none", chi verify gate, KHONG tao thua.',
     '',
-    'VERIFY truoc khi tra: chay gate "powershell.exe -NoProfile -File D:/Repositories/starci-academy-backend/.audits/check-lesson.ps1 -Path ' + modDir.replace(/\//g, '/') + ' -Json" -> lesson nay phai PASS phan challenge (score=100, Sigma30+Sigma70, >=1 critical, no ###N, verified, parity vi/en). Neu fail -> sua lai cho den khi pass.',
+    'VERIFY truoc khi tra: chay gate "powershell.exe -NoProfile -File D:/Repositories/starci-academy-backend/.claude/docs/check-lesson.ps1 -Path ' + modDir.replace(/\//g, '/') + ' -Json" -> lesson nay phai PASS phan challenge (score=100, Sigma30+Sigma70, >=1 critical, no ###N, verified, parity vi/en). Neu fail -> sua lai cho den khi pass.',
     'Tra ve dung schema.',
   ].join('\n')
 }
@@ -74,7 +74,7 @@ for (const mod of MODULES) {
 
   phase('Gate')
   const g = await agent(
-    'Chay gate module SD: powershell.exe -NoProfile -File "D:/Repositories/starci-academy-backend/.audits/check-lesson.ps1" -Path "D:/Repositories/starci-academy-backend/' + modDir + '" -Json . Parse JSON, voi MOI lesson liet ke fails. Phan loai: "github ref ... KHONG khop .repo" = pre-existing/bo qua; fail khac = can sua. Tra ve text tieng Viet co dau: bang lesson x (pass | fails).',
+    'Chay gate module SD: powershell.exe -NoProfile -File "D:/Repositories/starci-academy-backend/.claude/docs/check-lesson.ps1" -Path "D:/Repositories/starci-academy-backend/' + modDir + '" -Json . Parse JSON, voi MOI lesson liet ke fails. Phan loai: "github ref ... KHONG khop .repo" = pre-existing/bo qua; fail khac = can sua. Tra ve text tieng Viet co dau: bang lesson x (pass | fails).',
     { label: 'gate:' + mod, phase: 'Gate', model: 'sonnet' },
   )
   allResults[allResults.length - 1].gate = g

@@ -61,6 +61,7 @@ export class IndexRagPlaygroundResolver {
             language: request.language,
             fileName: request.fileName,
             githubUrl: request.githubUrl,
+            sampleId: request.sampleId,
         })
     }
 }

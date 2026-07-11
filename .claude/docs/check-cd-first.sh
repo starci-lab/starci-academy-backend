@@ -3,7 +3,7 @@
 # (npm install / nest start / mvn spring-boot / dotnet run / go run / dotnet build)
 # MUST start with a `cd <...>/backend/<lang>` line (rule coding.md §A2 cd-first).
 # Fails (exit = number of offending blocks) so it can be wired into audits / CI.
-# Usage: bash .audits/check-cd-first.sh <module-or-lesson-dir>
+# Usage: bash .claude/docs/check-cd-first.sh <module-or-lesson-dir>
 set -u
 [ "$#" -ge 1 ] || { echo "usage: bash check-cd-first.sh <dir>"; exit 2; }
 bad=0

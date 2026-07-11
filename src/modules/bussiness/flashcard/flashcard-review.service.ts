@@ -14,10 +14,14 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
     UserFlashcardReviewEntity,
+    XpSource,
 } from "@modules/databases"
 import {
     FlashcardCardNotFoundException,
 } from "@modules/exceptions"
+import {
+    writeXpHistory,
+} from "@features/api/processors/ai/shared/xp"
 import {
     UserService,
 } from "../user"
@@ -35,7 +39,7 @@ import type {
 } from "./types/flashcard-review"
 
 /** Default SM-2 scheduling state for a card the viewer has never reviewed. */
-const NEW_CARD_STATE: Omit<ApplySm2Params, "grade"> = {
+export const NEW_CARD_STATE: Omit<ApplySm2Params, "grade"> = {
     prevEase: 2.5,
     prevInterval: 0,
     prevRepetitions: 0,
@@ -43,6 +47,13 @@ const NEW_CARD_STATE: Omit<ApplySm2Params, "grade"> = {
 
 /** SM-2 grade value for "Again" (a lapse → reset). */
 const GRADE_AGAIN = 0
+
+/**
+ * Per-course weighted XP granted the FIRST time a user ever grades a given card
+ * (mirrors `mark-as-readed`'s `LESSON_READ_XP`). Repeat reviews grant nothing —
+ * the reward is for turning up a NEW card, not for re-drilling a known one.
+ */
+const FLASHCARD_FIRST_REVIEW_XP = 2
 
 /** Lower bound the SM-2 easiness factor may never drop below. */
 const EASE_FLOOR = 1.3
@@ -449,6 +460,7 @@ export class FlashcardReviewService {
             userId,
             cardId,
             grade,
+            sessionId,
         }: ReviewFlashcardParams,
     ): Promise<ReviewFlashcardResult> {
         return this.entityManager.transaction(async (manager) => {
@@ -512,7 +524,10 @@ export class FlashcardReviewService {
             const now = new Date()
             const dueAt = new Date(now.getTime() + next.intervalDays * 24 * 60 * 60 * 1000)
 
-            // upsert the per-(user, card) review row
+            // upsert the per-(user, card) review row. XP is granted ONLY on the
+            // first-ever review of this card by this user — the `!existing` branch
+            // (no prior review row). Repeat reviews grant 0.
+            let xpEarned = 0
             if (existing) {
                 await manager.update(
                     UserFlashcardReviewEntity,
@@ -556,10 +571,28 @@ export class FlashcardReviewService {
                     },
                 )
                 await manager.save(review)
+
+                // grant the flat first-review XP in the SAME tx. Idempotent on
+                // (source, refId) — the review-row id is the stable ref, so a retry
+                // of this exact grade never double-credits. Points/coin = 0 (the
+                // ruling is XP-only: +2/thẻ, no deck-bonus). A global deck with no
+                // course leaves courseId null (still a valid course-agnostic grant).
+                await writeXpHistory({
+                    entityManager: manager,
+                    userId,
+                    courseId,
+                    source: XpSource.FlashcardFirstReview,
+                    amount: FLASHCARD_FIRST_REVIEW_XP,
+                    points: 0,
+                    refId: review.id,
+                })
+                xpEarned = FLASHCARD_FIRST_REVIEW_XP
             }
 
             // append to the immutable review-event log so history-based stats
-            // (streak / retention / total) can be projected from it
+            // (streak / retention / total / per-session) can be projected from it.
+            // `sessionId` attributes the grade to the client's current review session
+            // (null when the client threaded none → an untracked grade).
             await manager.save(
                 manager.create(
                     FlashcardReviewEventEntity,
@@ -568,12 +601,14 @@ export class FlashcardReviewService {
                         flashcardCardId: cardId,
                         grade,
                         reviewedAt: now,
+                        sessionId: sessionId ?? null,
                     },
                 ),
             )
 
             return {
                 dueAt,
+                xpEarned,
             }
         })
     }

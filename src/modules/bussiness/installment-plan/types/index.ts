@@ -5,6 +5,22 @@ import type {
     InstallmentPlanEntity,
 } from "@modules/databases"
 
+/**
+ * One offered `Fixed`-plan term for a given base price — the shape the price
+ * preview surfaces so the payment modal can show "N months · X/month · total (+markup%)"
+ * before checkout.
+ */
+export interface InstallmentOption {
+    /** Number of monthly cycles (3, 6, or 12). */
+    months: number
+    /** Markup percent this term adds over the base price. */
+    markupPercent: number
+    /** Base price × (1 + markup%), rounded — the whole amount owed across the schedule. */
+    totalAmountVnd: number
+    /** `totalAmountVnd / months`, rounded — the amount charged each cycle (incl. the first at checkout). */
+    monthlyAmountVnd: number
+}
+
 /** Params for {@link import("../installment-plan.service").InstallmentPlanService.createFixedPlan}. */
 export interface CreateFixedInstallmentPlanParams {
     /** The buyer. */

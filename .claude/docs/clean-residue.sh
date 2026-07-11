@@ -5,7 +5,7 @@
 #   repo : test_spec.py, __pycache__/, generate-test.js, compose_test.yaml (old test scaffolding), leftover bare lang dirs
 # KEEP (audit trail / learner content):
 #   vi.md en.md bodies/ challenges/ audited.md research.md decision.md claude_submitted.md synced.yaml .code/ .e2e/
-# Usage: [DRYRUN=1] bash .audits/clean-residue.sh <mount-module-dir> [<repo-dir>]
+# Usage: [DRYRUN=1] bash .claude/docs/clean-residue.sh <mount-module-dir> [<repo-dir>]
 set -u
 DRYRUN="${DRYRUN:-1}"
 MODDIR="${1:-}"

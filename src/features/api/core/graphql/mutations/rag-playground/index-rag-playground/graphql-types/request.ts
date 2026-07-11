@@ -68,4 +68,13 @@ export class IndexRagPlaygroundRequest {
         },
     )
         githubUrl?: string
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Which curated catalog entry to index (Sample only; see the ragPlaygroundSamples query). Defaults to the first catalog entry when omitted.",
+        },
+    )
+        sampleId?: string
 }

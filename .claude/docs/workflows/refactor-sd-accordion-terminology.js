@@ -1,6 +1,6 @@
 export const meta = {
   name: 'refactor-sd-accordion-terminology',
-  description: 'Refactor SD: §2.1.5 testcase -> ::::accordion/:::panel (so luong bien thien N) + terminology+bold (.audits/rules/terminology-bold.md, course-agnostic) gom de-bold inline-code + source-code giu English. Per-lesson parallel theo module, moi agent tu verify (gate + parser). Report-only: KHONG push. Guard: chi §2.1.5 accordion, KHONG dung repo-ref/cd, KHONG docker.',
+  description: 'Refactor SD: §2.1.5 testcase -> ::::accordion/:::panel (so luong bien thien N) + terminology+bold (.claude/docs/rules/terminology-bold.md, course-agnostic) gom de-bold inline-code + source-code giu English. Per-lesson parallel theo module, moi agent tu verify (gate + parser). Report-only: KHONG push. Guard: chi §2.1.5 accordion, KHONG dung repo-ref/cd, KHONG docker.',
   phases: [
     { title: 'Refactor' },
     { title: 'Gate' },
@@ -8,7 +8,7 @@ export const meta = {
 }
 
 const COURSE_DIR = '.mount/data/courses/1-system-design-mastery/modules'
-const RULE = '.audits/rules/terminology-bold.md'
+const RULE = '.claude/docs/rules/terminology-bold.md'
 // Default M1-M3 (M0 dang chay challenge-apply). Override bang args.modules.
 const MODULES = (args && Array.isArray(args.modules) && args.modules.length)
   ? args.modules
@@ -49,7 +49,7 @@ function buildPrompt (modDir, les) {
     '- KHONG dung repo clone URL / cd path / code-context / .repo (blocker repo = bao nham, body tro repo THAT tren GitHub). KHONG chay docker/e2e.',
     '',
     '=== VERIFY truoc khi tra ===',
-    '- Gate: powershell.exe -NoProfile -File "D:/Repositories/starci-academy-backend/.audits/check-lesson.ps1" -Path "D:/Repositories/starci-academy-backend/' + modDir + '" -Json -> lesson nay KHONG co fail MOI (fail "github ref" = pre-existing, bo qua).',
+    '- Gate: powershell.exe -NoProfile -File "D:/Repositories/starci-academy-backend/.claude/docs/check-lesson.ps1" -Path "D:/Repositories/starci-academy-backend/' + modDir + '" -Json -> lesson nay KHONG co fail MOI (fail "github ref" = pre-existing, bo qua).',
     '- Parser: moi bodies/<lang>/vi.md da sua: body > 200 ky tu, fence chan, accordion = N panel khop so luong, 0 con "##### 2.1.5.".',
     '- grep: 0 con "**`" (bold-inline-code) trong bodies da sua; 0 "***" vo.',
     'Tra ve dung schema.',
@@ -75,7 +75,7 @@ for (const mod of MODULES) {
 
   phase('Gate')
   const g = await agent(
-    'Chay gate module: powershell.exe -NoProfile -File "D:/Repositories/starci-academy-backend/.audits/check-lesson.ps1" -Path "D:/Repositories/starci-academy-backend/' + modDir + '" -Json . Parse, moi lesson liet ke fails; phan loai github-ref=pre-existing vs regression. Tra ve text tieng Viet co dau.',
+    'Chay gate module: powershell.exe -NoProfile -File "D:/Repositories/starci-academy-backend/.claude/docs/check-lesson.ps1" -Path "D:/Repositories/starci-academy-backend/' + modDir + '" -Json . Parse, moi lesson liet ke fails; phan loai github-ref=pre-existing vs regression. Tra ve text tieng Viet co dau.',
     { label: 'gate:' + mod, phase: 'Gate', model: 'sonnet' },
   )
   allResults[allResults.length - 1].gate = g

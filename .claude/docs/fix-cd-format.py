@@ -3,7 +3,7 @@
   - CLONE/setup block (contains `git clone`)  -> `cd <repo>/<lesson>`        (lesson dir, strip /backend/<lang>)
   - RUN/startup block (npm install / nest start / mvn / dotnet / go run)      -> `cd backend/<lang>` (relative)
 Lang is derived from the body folder name (bodies/<lang>/{vi,en}.md).
-Idempotent. Usage: python3 .audits/fix-cd-format.py <dir> [<dir> ...]
+Idempotent. Usage: python3 .claude/docs/fix-cd-format.py <dir> [<dir> ...]
 """
 import os, re, sys
 

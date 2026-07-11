@@ -1,6 +1,7 @@
 export * from "./from-database"
 export * from "./challenge"
 export * from "./flashcard-deck"
+export * from "./playground"
 export * from "./mock-interview"
 export * from "./content"
 export * from "./course"

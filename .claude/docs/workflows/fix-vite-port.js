@@ -6,7 +6,7 @@ export const meta = {
   ],
 }
 
-// invoke: Workflow({ scriptPath: ".audits/workflows/fix-vite-port.js", args: { modules: ["5-form-mastery-rhf-zod", ...] } })
+// invoke: Workflow({ scriptPath: ".claude/docs/workflows/fix-vite-port.js", args: { modules: ["5-form-mastery-rhf-zod", ...] } })
 function asObj(a) { if (!a) return {}; if (typeof a === 'object') return a; if (typeof a === 'string') { const s = a.trim(); if (s.startsWith('{')) { try { return JSON.parse(s) } catch (e) {} } if (s.startsWith('[')) { try { return { modules: JSON.parse(s) } } catch (e) {} } return { modules: [s] } } return {} }
 const ARGS = asObj(args)
 const MODULES = Array.isArray(ARGS.modules) ? ARGS.modules : (ARGS.modules ? [ARGS.modules] : [])

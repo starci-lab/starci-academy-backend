@@ -6,7 +6,7 @@ export const meta = {
   ],
 }
 
-// invoke: Workflow({ scriptPath: ".audits/workflows/sync-check.js", args: { modules: ["0-nestjs-core-and-request-lifecycle", ...], force?: true } })
+// invoke: Workflow({ scriptPath: ".claude/docs/workflows/sync-check.js", args: { modules: ["0-nestjs-core-and-request-lifecycle", ...], force?: true } })
 function asObj(a) { if (!a) return {}; if (typeof a === 'object') return a; if (typeof a === 'string') { const s = a.trim(); if (s.startsWith('{')) { try { return JSON.parse(s) } catch (e) {} } if (s.startsWith('[')) { try { return { modules: JSON.parse(s) } } catch (e) {} } return { modules: [s] } } return {} }
 const ARGS = asObj(args)
 const MODULES = Array.isArray(ARGS.modules) ? ARGS.modules : (ARGS.modules ? [ARGS.modules] : [])

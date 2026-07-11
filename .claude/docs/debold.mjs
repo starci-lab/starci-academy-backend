@@ -1,4 +1,4 @@
-// node .audits/debold.mjs <dir> [<dir> ...]
+// node .claude/docs/debold.mjs <dir> [<dir> ...]
 // Go bo ** quanh inline-code va URL trong prose markdown (rule terminology-bold.md §3B: cam bold quanh code).
 // Bao ve code fence (```...```) — KHONG dung chu ben trong. Idempotent, an toan chay nhieu lan.
 import fs from "node:fs"

@@ -14,8 +14,6 @@ import {
     Column,
     Entity,
     JoinColumn,
-    JoinTable,
-    ManyToMany,
     ManyToOne,
     OneToMany,
     RelationId,
@@ -26,12 +24,6 @@ import {
 import {
     CourseEntity,
 } from "./course.entity"
-import {
-    ContentEntity,
-} from "./content.entity"
-import {
-    ModuleEntity,
-} from "./module.entity"
 import {
     FlashcardDeckTranslationEntity,
 } from "./flashcard-deck-translation.entity"
@@ -236,67 +228,6 @@ export class FlashcardDeckEntity extends UuidAbstractEntity {
         (deck: FlashcardDeckEntity) => deck.course,
     )
         courseId: string
-
-    /**
-     * Optional contents this deck is linked to (many-to-many) for topical
-     * grouping. Empty when the deck is course-wide.
-     */
-    @Field(
-        () => [ContentEntity],
-        {
-            nullable: true,
-            description: "Contents this deck is linked to (optional, many-to-many).",
-        },
-    )
-    @ManyToMany(
-        () => ContentEntity,
-        (content: ContentEntity) => content.flashcardDecks,
-        {
-            cascade: false,
-        },
-    )
-    @JoinTable({
-        name: "flashcard_deck_contents",
-        joinColumn: {
-            name: "flashcard_deck_id",
-            referencedColumnName: "id",
-        },
-        inverseJoinColumn: {
-            name: "content_id",
-            referencedColumnName: "id",
-        },
-    })
-        contents: Array<ContentEntity>
-
-    /**
-     * Optional modules this deck references (many-to-many) — `# moduleRefs` in the
-     * deck markdown, resolved by module `displayId` within the owning course.
-     */
-    @Field(
-        () => [ModuleEntity],
-        {
-            nullable: true,
-            description: "Modules this deck references (optional, many-to-many).",
-        },
-    )
-    @ManyToMany(
-        () => ModuleEntity,
-        {
-            cascade: false,
-        },
-    )
-    @JoinTable({
-        name: "flashcard_deck_modules",
-        joinColumn: {
-            name: "flashcard_deck_id",
-            referencedColumnName: "id",
-        },
-        inverseJoinColumn: {
-            name: "module_id",
-            referencedColumnName: "id",
-        },
-    })
-        modules: Array<ModuleEntity>
 
     /**
      * Per-viewer count of this deck's cards currently due for review (no review

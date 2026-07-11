@@ -10,6 +10,7 @@ import {
     Index,
     JoinColumn,
     ManyToOne,
+    OneToMany,
     RelationId,
 } from "typeorm"
 import {
@@ -18,6 +19,9 @@ import {
 import {
     PlaygroundEntity,
 } from "./playground.entity"
+import {
+    PlaygroundStepTranslationEntity,
+} from "./playground-step-translation.entity"
 
 /**
  * One ordered step of a {@link PlaygroundEntity}. Carries the learner-facing
@@ -166,4 +170,23 @@ export class PlaygroundStepEntity extends UuidAbstractEntity {
         nullable: true,
     })
         verifyExpectedStatus: string | null
+
+    /**
+     * Localized overrides for playground step fields (e.g. title, body).
+     */
+    @Field(
+        () => [PlaygroundStepTranslationEntity],
+        {
+            description: "Localized overrides for playground step fields (e.g. title, body).",
+        },
+    )
+    @OneToMany(
+        () => PlaygroundStepTranslationEntity,
+        (translation: PlaygroundStepTranslationEntity) => translation.playgroundStep,
+        {
+            cascade: true,
+            orphanedRowAction: "delete",
+        },
+    )
+        translations: Array<PlaygroundStepTranslationEntity>
 }

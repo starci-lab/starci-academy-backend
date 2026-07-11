@@ -1,6 +1,6 @@
 # Fullstack — Coding rules (code BE thế nào · code FE thế nào) · đúc kết
 
-> Bản **TỰ-ĐỦ** để audit/viết CODE trong `.repo/fullstack-mastery-module-*` — chỉ đọc trong `.audits`, **KHÔNG ref file ngoài**. Chép + đúc kết từ `coding-fullstack.md` / `coding-conventions` (`.cursor/rules/starci-academy.mdc`) / `lesson-ui.rules.md`, đã align **V2 (FE = Vite default)**. Content body → `contents.md`. Challenge → `challenges.md`. Quy trình → `../../pipeline.md`.
+> Bản **TỰ-ĐỦ** để audit/viết CODE trong `.repo/fullstack-mastery-module-*` — chỉ đọc trong `.claude/docs`, **KHÔNG ref file ngoài**. Chép + đúc kết từ `coding-fullstack.md` / `coding-conventions` (`.cursor/rules/starci-academy.mdc`) / `lesson-ui.rules.md`, đã align **V2 (FE = Vite default)**. Content body → `contents.md`. Challenge → `challenges.md`. Quy trình → `../../pipeline.md`.
 >
 > Nguyên tắc cứng: **mọi code block §2.1.3 + `# codeExplaining` = diff=0 với `.repo/.../src`** (xem `contents.md §4`). File này nói code TRONG repo phải viết thế nào.
 
@@ -22,7 +22,7 @@
 - **MỌI server backend nằm dưới `<lesson>/backend/<N>-<lang>/`** (`backend/0-typescript`/`backend/1-java`/`backend/2-csharp`/`backend/3-go`), mỗi lang 1 project root. Config native per-lang (`.env`/`application.yml`/`appsettings.json`/`config.yaml`). Lý do: đồng nhất + chừa chỗ **nhiều api server** sau này.
   - Lesson TS-only → chỉ `backend/0-typescript/`. Lesson đa ngôn ngữ → đủ `backend/{0-typescript,1-java,2-csharp,3-go}/`.
 - **Lesson có frontend** → thêm `<lesson>/frontend/` (Vite) + `<lesson>/.playwright/` (sibling, KHÔNG nằm trong frontend), song song với `<lesson>/backend/...`.
-- Migrate repo cũ (`<lesson>/<N>-<lang>` thẳng, hoặc `<lesson>/backend` đơn=TS) → `.audits/migrate-repo-backend.sh` (git mv, DRYRUN=1 preview). `code-context.md` trỏ `path: <repo>/<lesson>/backend/<N>-<lang>`.
+- Migrate repo cũ (`<lesson>/<N>-<lang>` thẳng, hoặc `<lesson>/backend` đơn=TS) → `.claude/docs/migrate-repo-backend.sh` (git mv, DRYRUN=1 preview). `code-context.md` trỏ `path: <repo>/<lesson>/backend/<N>-<lang>`.
 - Repo name `fullstack-mastery-module-<N>-<slug>`. FS **MATCH slot 1:1** (KHÔNG off-by-one) cho lesson mới — NHƯNG repo đời đầu có off-by-one (`module-<slot+1>`); verify repo đúng lesson trước khi đọc (xem `contents.md §4`).
 - Anti-pattern: lang dir thẳng ở lesson root (`<L>/0-typescript` thiếu `backend/`), `<L>/src/` (thiếu `backend/<lang>/`), `backend/` đơn chứa TS trực tiếp (phải `backend/0-typescript/`), `package.json` ở lesson/backend root (phải per-lang `backend/<lang>/`), `.server/`/`.client/` dot-prefix.
 
@@ -60,7 +60,7 @@
   - **Block RUN/startup — thứ tự BẮT BUỘC vào → cài → chạy** (vd để "Install" mà thiếu cd = SAI). vi/en + 4 lang đồng bộ. Lệnh per-lang: install `npm install | mvn install -DskipTests | dotnet restore | go mod download`; run `nest start --watch | mvn spring-boot:run | dotnet watch run | go run .`.
   - Checker bắt MỌI lệnh build/install/run thiếu cd-first: `npm (install|ci|run|start)` · `mvn`/`mvnw` · `dotnet (run|watch|restore|build)` · `go (run|build|mod)` · `gradle`/`pnpm`/`yarn` (xem `check-cd-first.sh` + `fix-cd-format.py`).
   - **Source "thư mục bài học"** (đầu §2.1.1): link trỏ **THƯ MỤC LESSON** `<repo>/tree/main/<lesson>` (KHÔNG `/backend/<lang>` — đó là folder lesson chung, không phải code 1 lang). `fix-cd-format.py` tự strip `/backend/<lang>` khỏi dòng "thư mục bài học"/"tree/main".
-  - Sai = học viên `npm install` nhầm chỗ. **Tự động:** `bash .audits/fix-doc-paths.sh` (links) → `python3 .audits/fix-cd-format.py` (cd lines clone→lesson, run→`cd backend/<lang>`) → `bash .audits/check-cd-first.sh <dir>` verify (exit 0 = sạch).
+  - Sai = học viên `npm install` nhầm chỗ. **Tự động:** `bash .claude/docs/fix-doc-paths.sh` (links) → `python3 .claude/docs/fix-cd-format.py` (cd lines clone→lesson, run→`cd backend/<lang>`) → `bash .claude/docs/check-cd-first.sh <dir>` verify (exit 0 = sạch).
 - `nest start --watch` trên **host port 3000**. `backend/0-typescript/package.json` scripts BẮT BUỘC: `"start:dev": "nest start --watch"` (exact, KHÔNG `nest start` plain/`nodemon`), `"build": "nest build"`, `"start": "node dist/main.js"`.
 - `main.ts` bootstrap: `ValidationPipe({ whitelist, forbidNonWhitelisted, transform })` + `setGlobalPrefix("api/v1")` + `enableCors()` + `listen(3000)` (KHÔNG cần `"0.0.0.0"` vì host).
 
@@ -188,4 +188,4 @@ src/
 ---
 
 ## Gate liên quan
-`./.audits/check-lesson.ps1` bắt `fe-vite-clean` (FE lesson: soi `.repo/.../frontend` qua code-context.md → FAIL nếu còn Next leftover). Code diff=0 verify bằng Loop code↔docs (Sonnet đối chiếu, Opus quyết khi lệch).
+`./.claude/docs/check-lesson.ps1` bắt `fe-vite-clean` (FE lesson: soi `.repo/.../frontend` qua code-context.md → FAIL nếu còn Next leftover). Code diff=0 verify bằng Loop code↔docs (đối chiếu + quyết khi lệch, mặc định Sonnet 5).

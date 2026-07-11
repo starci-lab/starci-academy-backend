@@ -12,6 +12,9 @@ import {
     ContentResolverService,
 } from "./content-resolver.service"
 import {
+    PlaygroundResolverService,
+} from "./playground-resolver.service"
+import {
     CourseResolverService,
 } from "./course-resolver.service"
 import {
@@ -86,6 +89,7 @@ const resolverProviders: Array<Provider> = [
     QnaResolverService,
     ValuePropositionResolverService,
     ContentResolverService,
+    PlaygroundResolverService,
     CourseResolverService,
     ModuleResolverService,
     PersonalProjectContextResolverService,

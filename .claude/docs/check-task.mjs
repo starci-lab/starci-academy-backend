@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * check-task.mjs — gate cho milestone/personal-project TASK md (.audits không có gate task sẵn).
+ * check-task.mjs — gate cho milestone/personal-project TASK md (.claude/docs không có gate task sẵn).
  *
- * Dùng: node .audits/check-task.mjs <task-dir> [<task-dir> ...]
+ * Dùng: node .claude/docs/check-task.mjs <task-dir> [<task-dir> ...]
  *   <task-dir> = thư mục chứa vi.md + en.md (…/milestones/<N>-<slug>/tasks/<M>-<slug>)
  *   Có thể truyền cả thư mục cha (milestone / tasks) — script tự walk tìm các task có vi.md.
  * Cờ: --json (in JSON), mặc định in người-đọc.
@@ -198,7 +198,7 @@ function collectTaskDirs (root) {
 const argv = process.argv.slice(2)
 const json = argv.includes("--json")
 const roots = argv.filter((a) => a !== "--json")
-if (!roots.length) { console.error("Dùng: node .audits/check-task.mjs <task-dir> [...] [--json]"); process.exit(2) }
+if (!roots.length) { console.error("Dùng: node .claude/docs/check-task.mjs <task-dir> [...] [--json]"); process.exit(2) }
 
 const taskDirs = roots.flatMap(collectTaskDirs)
 const results = taskDirs.map(checkTask)

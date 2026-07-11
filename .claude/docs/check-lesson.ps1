@@ -20,11 +20,11 @@
   The audit runner gate agent calls the script this way so it can copy the JSON straight into StructuredOutput.
 
 .EXAMPLE
-  ./.audits/check-lesson.ps1 -Path ".mount/data/courses/0-fullstack-mastery/modules/13-frontend-performance"
+  ./.claude/docs/check-lesson.ps1 -Path ".mount/data/courses/0-fullstack-mastery/modules/13-frontend-performance"
   Exit code = number of FAIL findings (0 = clean).
 
 .EXAMPLE
-  powershell -NoProfile -File ".audits/check-lesson.ps1" -Path "<module-dir>" -Json
+  powershell -NoProfile -File ".claude/docs/check-lesson.ps1" -Path "<module-dir>" -Json
   Prints JSON only; exit code still = number of FAIL findings.
 #>
 param(
@@ -120,13 +120,14 @@ function Check-Body { param([string]$File, [string]$Ctx)
   # 1b. Vietnamese diacritics — vi.md body PHẢI đủ dấu
   if ($Ctx -match '/vi$') { Check-Diacritics $text $Ctx }
 
-  # 2. Inline flow-list enumeration — scoped to the 2.1.5 intro (before first ##### flow).
+  # 2. Inline flow-list enumeration — scoped to the 2.1.5 intro (before first ##### flow,
+  #    or before the ::::accordion block for lessons already migrated to accordion format).
   #    (Prose elsewhere may legitimately use (1)(2); only the flow list must be bullets.)
   $t5 = ($lines | Select-String -Pattern '^#### 2\.1\.5\.' | Select-Object -First 1).LineNumber
   if ($t5) {
     $intro = ''
     for ($k = $t5; $k -lt $lines.Count; $k++) {
-      if ($lines[$k] -match '^##### ') { break }
+      if ($lines[$k] -match '^##### ' -or $lines[$k] -match '^::::accordion') { break }
       $intro += $lines[$k] + "`n"
     }
     if ($intro -match '\*\*\(1\)\*\*.*\*\*\(2\)\*\*') {
@@ -386,7 +387,7 @@ function Check-GithubRef { param([string]$LessonDir, [string]$Ctx)
   }
   Pass $Ctx 'github-consistent'
   # Khớp .repo THẬT: ref (1 giá trị) phải = tên folder .repo tồn tại (bắt off-by-one dù nội-bộ đồng nhất).
-  # repo root = cha của .audits (script ở .audits/check-lesson.ps1). Bỏ qua nếu .repo chưa checkout.
+  # repo root = cha của .claude/docs (script ở .claude/docs/check-lesson.ps1). Bỏ qua nếu .repo chưa checkout.
   $repoDir = Join-Path (Split-Path $PSScriptRoot -Parent) '.repo'
   if (Test-Path $repoDir) {
     if (-not (Test-Path (Join-Path $repoDir $distinct[0]))) {

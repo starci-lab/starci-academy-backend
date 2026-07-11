@@ -11,7 +11,7 @@ export const meta = {
     { title: 'M19 deploy-and-devops-workflow' },
   ],
 }
-const RUNNER = 'D:/Repositories/starci-academy-backend/.audits/workflows/audit-fs-module.js'
+const RUNNER = 'D:/Repositories/starci-academy-backend/.claude/docs/workflows/audit-fs-module.js'
 const MODULES = [
   '13-frontend-performance',
   '14-responsive-and-adaptive-rendering',

@@ -95,6 +95,12 @@ export interface ReviewFlashcardParams {
     cardId: string
     /** SM-2 grade: 0=Again, 1=Hard, 2=Good, 3=Easy. */
     grade: number
+    /**
+     * The review session this grade belongs to, threaded onto the appended
+     * review-event so per-session stats can aggregate by it. Optional — omitted
+     * (or null) leaves the event's `sessionId` null (an untracked grade).
+     */
+    sessionId?: string | null
 }
 
 /**
@@ -114,11 +120,13 @@ export interface DueCardIdRow {
 }
 
 /**
- * Result of a review: when the card is next due.
+ * Result of a review: when the card is next due, plus any XP the grade granted.
  */
 export interface ReviewFlashcardResult {
     /** When the card next becomes due. */
     dueAt: Date
+    /** XP granted by this grade: 2 on the first-ever review of the card by this user, 0 on a repeat. */
+    xpEarned: number
 }
 
 /**

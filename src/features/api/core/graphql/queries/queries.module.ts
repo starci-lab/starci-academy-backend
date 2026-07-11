@@ -104,11 +104,17 @@ import {
     ChatQueriesModule,
 } from "./chat"
 import {
+    InstallmentPlansQueriesModule,
+} from "./installment-plans"
+import {
     SearchCourseContentQueriesModule,
 } from "./search-course-content"
 import {
     PlaygroundsQueriesModule,
 } from "./playgrounds"
+import {
+    RagPlaygroundQueriesModule,
+} from "./rag-playground"
 
 @Module({
     imports: [
@@ -211,10 +217,16 @@ import {
         ChatQueriesModule.register({
             isGlobal: true,
         }),
+        InstallmentPlansQueriesModule.register({
+            isGlobal: true,
+        }),
         SearchCourseContentQueriesModule.register({
             isGlobal: true,
         }),
         PlaygroundsQueriesModule.register({
+            isGlobal: true,
+        }),
+        RagPlaygroundQueriesModule.register({
             isGlobal: true,
         }),
     ],

@@ -29,6 +29,8 @@ export * from "./challenge-submission-prompt.service"
 export * from "./challenge-submission-criteria.service"
 export * from "./flashcard-deck.service"
 export * from "./flashcard-card.service"
+export * from "./playground.service"
+export * from "./playground-step.service"
 export * from "./mock-interview.service"
 export * from "./mock-interview-lang.service"
 

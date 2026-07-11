@@ -31,7 +31,7 @@ const GUIDANCE = [
   'noE2e: KHONG chay server/test/e2e/.repo lan nay — chi content+challenge+gate. E2E o dot sau.',
 ].join(' ')
 
-const RUNNER = '.audits/workflows/audit-fs-module.js'
+const RUNNER = '.claude/docs/workflows/audit-fs-module.js'
 
 const results = []
 for (const mod of MODULES) {

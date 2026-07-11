@@ -35,11 +35,11 @@ const ENUM_SCHEMA = { type: 'object', properties: { lessons: { type: 'array', it
 phase('Migrate')
 const mig = await agent(
   'Migrate layout repo (giữ git history). cwd=' + ROOT + '. Bash:\n' +
-  'cd ' + ROOT + ' && DRYRUN=0 bash .audits/migrate-repo-backend.sh "' + REPO_NAME + '"\n' +
+  'cd ' + ROOT + ' && DRYRUN=0 bash .claude/docs/migrate-repo-backend.sh "' + REPO_NAME + '"\n' +
   'VERIFY: mỗi lesson trong ' + REPO + ' có backend/<lang> (lesson nào có lang đó), KHÔNG còn lang dir thẳng/__backend_new. git mv lỗi (untracked/locked DLL) → fallback mv/robocopy + git rm --cached cũ + git add mới. TẮT server e2e đang chạy trước nếu lock.\n' +
   'FIX PATH DOC + CD CONVENTION (chạy 2 script tuần tự):\n' +
-  '  (a) `DRYRUN=0 bash .audits/fix-doc-paths.sh ' + REPO + ' ' + MODDIR + '` — sửa link/path <lesson>/<lang> → <lesson>/backend/<lang>.\n' +
-  '  (b) `python3 .audits/fix-cd-format.py ' + MODDIR + '` — chuẩn hóa cd: block clone → `cd <repo>/<lesson>` (lesson dir), block run → `cd backend/<lang>` (relative). Idempotent.\n' +
+  '  (a) `DRYRUN=0 bash .claude/docs/fix-doc-paths.sh ' + REPO + ' ' + MODDIR + '` — sửa link/path <lesson>/<lang> → <lesson>/backend/<lang>.\n' +
+  '  (b) `python3 .claude/docs/fix-cd-format.py ' + MODDIR + '` — chuẩn hóa cd: block clone → `cd <repo>/<lesson>` (lesson dir), block run → `cd backend/<lang>` (relative). Idempotent.\n' +
   'TRẢ VỀ: backend/<lang> mỗi lesson, số file doc fix, lỗi gì.',
   { label: 'migrate:' + REPO_NAME, phase: 'Migrate', model: 'sonnet' }
 )
@@ -58,12 +58,12 @@ async function doLesson(lesson) {
   const dir = MODDIR + '/contents/' + lesson
   return agent(
     'XỬ LÝ 1 LESSON: ' + lesson + ' (module ' + MOD + '). cwd=' + ROOT + '. Repo đã migrate sang backend/<lang>, path doc đã fix sơ bộ.\n' +
-    'Đọc rule: .audits/pipeline.md (.e2e per-lang status) + .audits/rules/fullstack/coding.md (§A0 comment, §A2 cd-first).\n\n' +
+    'Đọc rule: .claude/docs/pipeline.md (.e2e per-lang status) + .claude/docs/rules/fullstack/coding.md (§A0 comment, §A2 cd-first).\n\n' +
     'BƯỚC 1 — code-context: ' + dir + '/code-context.md mọi path repo phải là `<lesson>/backend/<N>-<lang>`. Grep xác nhận không còn thiếu /backend/.\n\n' +
     'BƯỚC 2 — .e2e per-lang: tạo ' + dir + '/.e2e/<lang>/flow-<N>-<slug>-<status>.md (typescript/java/csharp/go). Có proof cũ (.e2e/proof.md) → tách per-lang per-flow (output thật) status done rồi xóa proof.md. KHÔNG proof → flow-0-<slug>-require-rerun.md (1 dòng; ĐỪNG tự build/run 4 lang — tốn quota). Cloud/cred → require-creds (ghi rõ tên cred).\n\n' +
-    'BƯỚC 3 — CD CONVENTION (rule §A2; fix-cd-format.py đã chạy ở phase Migrate): VERIFY `bash .audits/check-cd-first.sh ' + dir + '` = 0. Convention: block clone → `cd <repo>/' + lesson + '` (lesson dir); block run (npm install/nest start/mvn/dotnet/go run) → dòng đầu `cd backend/<lang>` (relative từ lesson). Còn sai → sửa tay, vi & en mirror.\n\n' +
+    'BƯỚC 3 — CD CONVENTION (rule §A2; fix-cd-format.py đã chạy ở phase Migrate): VERIFY `bash .claude/docs/check-cd-first.sh ' + dir + '` = 0. Convention: block clone → `cd <repo>/' + lesson + '` (lesson dir); block run (npm install/nest start/mvn/dotnet/go run) → dòng đầu `cd backend/<lang>` (relative từ lesson). Còn sai → sửa tay, vi & en mirror.\n\n' +
     'BƯỚC 4 — COMMENT CODE (cho thầy):\n' + COMMENT_RULE + '\nLàm cả 4 lang nếu lesson có (trong .repo, sẽ commit+push phase sau).\n\n' +
-    'BƯỚC 5 — re-gate: `powershell -NoProfile -File .audits/check-lesson.ps1 -Path "' + dir + '"` → 0 failures. Fail → sửa.\n\n' +
+    'BƯỚC 5 — re-gate: `powershell -NoProfile -File .claude/docs/check-lesson.ps1 -Path "' + dir + '"` → 0 failures. Fail → sửa.\n\n' +
     'TRẢ VỀ ngắn (data): lesson, code-context OK?, .e2e files (+require-rerun?), cd-first chèn mấy block, lang comment + ~số file, gate PASS/FAIL (số checks).',
     { label: 'lesson:' + lesson, phase: 'Lessons', model: 'sonnet' }
   )

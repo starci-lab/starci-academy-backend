@@ -25,6 +25,15 @@ import {
 import {
     MyInProgressFlashcardDueReviewSessionSingleQueryModule,
 } from "./my-in-progress-flashcard-due-review-session"
+import {
+    MyFlashcardReviewSessionBySessionIdSingleQueryModule,
+} from "./my-flashcard-review-session-by-session-id"
+import {
+    MyFlashcardReviewSessionStatsBySessionIdSingleQueryModule,
+} from "./my-flashcard-review-session-stats-by-session-id"
+import {
+    MyFlashcardQuizSessionBySessionIdSingleQueryModule,
+} from "./my-flashcard-quiz-session-by-session-id"
 
 /**
  * Flashcard quick-quiz ("Hỏi nhanh") + review ("Học thẻ") resumable-session
@@ -55,6 +64,15 @@ import {
             isGlobal: true,
         }),
         MyInProgressFlashcardDueReviewSessionSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyFlashcardReviewSessionBySessionIdSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyFlashcardReviewSessionStatsBySessionIdSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        MyFlashcardQuizSessionBySessionIdSingleQueryModule.register({
             isGlobal: true,
         }),
     ],

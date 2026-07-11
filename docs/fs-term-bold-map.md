@@ -25,7 +25,7 @@ Convention cho content Fullstack (ngành EN-heavy):
 - **Văn xuôi**: tiếng Việt phổ thông. KHÔNG dịch ép, KHÔNG bold.
 - **`**bold**`**: CHỈ dành cho **keyword kỹ thuật** = thuật ngữ EN canonical / khái niệm lõi.
 - **`inline code`**: định danh / API / literal (`useQuery`, `requestCert`, `Scope.REQUEST`, `ca.crt`).
-- **Bold = 2 nhóm** (theo `.audits/rules/terminology-bold.md §3A` — authority): (1) jargon Loại 3; (2) **nhãn cấu trúc theo template** (ĐƯỢC bold): `Phần 2.1`/`Phần 2.2` + `thực hành`/`lý thuyết` (bridge §1), `Senior Engineer`/`Mid-level Developer`, `Thực hành dẫn dắt Lý thuyết`, `Câu hỏi N:` (đồng nhất 3 câu), `Giải pháp:`/`Trade-off:`/`Cơ chế:`/`Lưu ý:`, challenge `Bước N:` + tên mục README (`Smoke Test`…).
+- **Bold = 2 nhóm** (theo `.claude/docs/rules/terminology-bold.md §3A` — authority): (1) jargon Loại 3; (2) **nhãn cấu trúc theo template** (ĐƯỢC bold): `Phần 2.1`/`Phần 2.2` + `thực hành`/`lý thuyết` (bridge §1), `Senior Engineer`/`Mid-level Developer`, `Thực hành dẫn dắt Lý thuyết`, `Câu hỏi N:` (đồng nhất 3 câu), `Giải pháp:`/`Trade-off:`/`Cơ chế:`/`Lưu ý:`, challenge `Bước N:` + tên mục README (`Smoke Test`…).
 - **CẤM bold**: nhấn ad-hoc cả câu/cụm, từ Loại 1/2 giữa văn xuôi (constructor/NestJS/contract…), bold quanh/lấn inline-code, bold trùm nhiều câu.
 - **De-bold** chỉ dọn nhóm CẤM; **GIỮ** jargon Loại 3 + nhãn template. (KHÔNG còn rule "strip mọi `**...:**`".)
 

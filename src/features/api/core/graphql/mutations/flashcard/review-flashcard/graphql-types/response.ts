@@ -1,5 +1,6 @@
 import {
     Field,
+    Int,
     ObjectType,
 } from "@nestjs/graphql"
 import {
@@ -21,6 +22,14 @@ export class ReviewFlashcardData {
         },
     )
         dueAt: Date
+
+    @Field(
+        () => Int,
+        {
+            description: "XP granted by THIS grade: 2 on the first-ever review of the card by this user, 0 on any repeat review.",
+        },
+    )
+        xpEarned: number
 }
 
 /**

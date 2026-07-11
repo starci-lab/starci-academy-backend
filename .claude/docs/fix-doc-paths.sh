@@ -6,7 +6,7 @@
 # SKIPS already-correct `backend/<lang>` (segment exactly "backend"), so it is idempotent
 # and safe even for lesson slugs that END in "backend" (e.g. 0-frameworks-in-backend).
 # Targets text docs: *.md, *.txt, README*, test.md. Skips .git / node_modules / build dirs.
-# Usage: [DRYRUN=1] bash .audits/fix-doc-paths.sh <dir> [<dir> ...]
+# Usage: [DRYRUN=1] bash .claude/docs/fix-doc-paths.sh <dir> [<dir> ...]
 set -u
 DRYRUN="${DRYRUN:-0}"
 LANGS_RE='0-typescript|1-java|2-csharp|3-go'

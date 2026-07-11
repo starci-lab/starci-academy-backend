@@ -9,6 +9,9 @@ import {
     AbstractGraphQLResponse,
     IAbstractGraphQLResponse,
 } from "@modules/api"
+import {
+    InstallmentOptionItem,
+} from "../../course-price-preview/graphql-types"
 
 /**
  * One priced line of the checkout preview: the list vs charged price of a single
@@ -157,6 +160,15 @@ export class CoursesCheckoutPreviewData {
         },
     )
         itemCount: number
+
+    /** Offered installment (trả góp) terms priced off the whole order's charged VND total — empty for a free/USD-only order. */
+    @Field(
+        () => [InstallmentOptionItem],
+        {
+            description: "Offered installment (trả góp) terms for the order's charged VND total — empty for a free order.",
+        },
+    )
+        installmentOptions: Array<InstallmentOptionItem>
 }
 
 /**

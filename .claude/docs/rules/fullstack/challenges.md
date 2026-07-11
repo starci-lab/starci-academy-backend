@@ -1,8 +1,8 @@
 # Fullstack — Challenge rules · đúc kết
 
-> Bản **TỰ-ĐỦ** để audit/viết challenge FS — chỉ đọc trong `.audits`, **KHÔNG ref file ngoài**. Đúc kết từ challenge gold (M0/M14) + migration M13 (16 ch V1→V2) trong session. Content body → `contents.md`. Quy trình → `../../pipeline.md`.
+> Bản **TỰ-ĐỦ** để audit/viết challenge FS — chỉ đọc trong `.claude/docs`, **KHÔNG ref file ngoài**. Đúc kết từ challenge gold (M0/M14) + migration M13 (16 ch V1→V2) trong session. Content body → `contents.md`. Quy trình → `../../pipeline.md`.
 >
-> ⚠️ **THUẬT NGỮ & BOLD trong prose challenge (title/description/`##### body`/outputs/prerequisites) → BẮT BUỘC theo `.audits/rules/terminology-bold.md`. STRICT, đã có feedback.**
+> ⚠️ **THUẬT NGỮ & BOLD trong prose challenge (title/description/`##### body`/outputs/prerequisites) → BẮT BUỘC theo `.claude/docs/rules/terminology-bold.md`. STRICT, đã có feedback.**
 
 ---
 
@@ -65,8 +65,8 @@ agnostic
 - Index liền mạch theo tier order: `0-<slug>-easy` · `1-<slug>-medium` · `2-<slug>-hard` · `3-<slug>-insane`.
 - Premium: 1–2 lesson cuối module.
 
-## 7. Quy trình duyệt (Opus)
-Script lo format (§gate). Opus DUYỆT ngữ nghĩa: **criteria có đo đúng cơ chế không · outputs/requirements khớp topic không · tier có nhồi không**. Sai format → Opus rewrite (dùng challenge V2 gold làm template, vd M14 `0-responsive-product-card-grid-easy`).
+## 7. Quy trình duyệt (reviewer — mặc định Sonnet 5; Opus nếu escalate `opus:true`)
+Script lo format (§gate). Reviewer DUYỆT ngữ nghĩa: **criteria có đo đúng cơ chế không · outputs/requirements khớp topic không · tier có nhồi không**. Sai format → rewrite (dùng challenge V2 gold làm template, vd M14 `0-responsive-product-card-grid-easy`).
 
 ## 8. Gate
-`./.audits/check-lesson.ps1 -Path <module-dir>` bắt: score=100 · có verified · no `# references`/`# submissions` · no `### N.` heading · Σ outcome=30 · Σ approach=70 · ≥1 critical:true · separator chẵn. PASS structure rồi mới Opus duyệt ngữ nghĩa.
+`./.claude/docs/check-lesson.ps1 -Path <module-dir>` bắt: score=100 · có verified · no `# references`/`# submissions` · no `### N.` heading · Σ outcome=30 · Σ approach=70 · ≥1 critical:true · separator chẵn. PASS structure rồi mới duyệt ngữ nghĩa.

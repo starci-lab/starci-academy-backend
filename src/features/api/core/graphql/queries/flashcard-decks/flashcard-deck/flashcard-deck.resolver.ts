@@ -15,6 +15,7 @@ import {
 } from "@modules/api"
 import {
     KeycloakAuthGraphQLGuard,
+    KeycloakGraphQLUser,
 } from "@modules/keycloak"
 import {
     UseThrottler,
@@ -23,6 +24,7 @@ import {
 import {
     Locale,
     FlashcardDeckEntity,
+    UserEntity,
 } from "@modules/databases"
 import {
     FlashcardDeckReadService,
@@ -61,11 +63,15 @@ export class FlashcardDeckResolver {
                 type: () => ID,
             })
             flashcardDeckId: string,
+        @KeycloakGraphQLUser()
+            user: UserEntity,
         @GraphQLLocale()
             locale: Locale,
     ): Promise<FlashcardDeckEntity> {
-        // load the full deck graph from the per-locale index; throws a typed 404 when missing
+        // load the full deck graph from the per-locale index; throws a typed 404 when missing;
+        // cards are annotated with the viewer's nextIntervals (rating-bar SM-2 preview)
         return this.flashcardDeckReadService.getById(flashcardDeckId,
-            locale)
+            locale,
+            user.id)
     }
 }

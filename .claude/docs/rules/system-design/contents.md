@@ -1,8 +1,8 @@
 # System Design — Content (lesson body) rules · đúc kết
 
-> Bản để audit/viết content lesson **System Design** trong `.audits`. SD dùng **CHUNG skeleton với Fullstack** — đọc **`../fullstack/contents.md`** trước (bố cục file V2, template heading `2.1.1–2.1.7`, theory=2, interview ở `3.1`, separator, code diff=0). File này CHỈ liệt kê **SD deltas**. Đúc kết từ `content-system-design.md` (delta-on-generic) + scan thật m1–m10 SD (2026-06-07). Code repo → `coding.md`. Challenge → `challenges.md`. Quy trình → `../../pipeline.md`.
+> Bản để audit/viết content lesson **System Design** trong `.claude/docs`. SD dùng **CHUNG skeleton với Fullstack** — đọc **`../fullstack/contents.md`** trước (bố cục file V2, template heading `2.1.1–2.1.7`, theory=2, interview ở `3.1`, separator, code diff=0). File này CHỈ liệt kê **SD deltas**. Đúc kết từ `content-system-design.md` (delta-on-generic) + scan thật m1–m10 SD (2026-06-07). Code repo → `coding.md`. Challenge → `challenges.md`. Quy trình → `../../pipeline.md`.
 >
-> ⚠️ **THUẬT NGỮ & BOLD → BẮT BUỘC theo `.audits/rules/terminology-bold.md`. STRICT, đã có feedback. Đọc TRƯỚC khi đụng chữ trong body.**
+> ⚠️ **THUẬT NGỮ & BOLD → BẮT BUỘC theo `.claude/docs/rules/terminology-bold.md`. STRICT, đã có feedback. Đọc TRƯỚC khi đụng chữ trong body.**
 >
 > **Đã verify với content thật:** body SD dùng ĐÚNG scheme FS `## 1 → ## 2 (2.1 Thực hành: 2.1.1…2.1.7 · 2.2 Lý thuyết = 2 mục) → ## 3 (3.1 interview)`. Code-walkthrough ở `##### 2.1.3.x`. KHÔNG có biến thể heading riêng cho SD.
 
@@ -60,7 +60,7 @@ Quyết định B (theo thứ tự): có manifest k8s → **K8s**; verify cần 
 | 3.9 | **§3.1 interview** | **5–7 câu** (SD strict) | 3–4 câu |
 | 3.10 | **§2.1.5 flow count** | 3–10 flow, SD điển hình **4–6**, flow cuối demo edge/failure mode | 3–5 |
 
-- Mọi rule **chung KHÔNG đổi**: opening 2-đoạn (Senior hỏi → Mid đáp sai → bridge bullet `- **Phần 2.1** … / - **Phần 2.2** …`), `§2 intro` "Thực hành dẫn dắt Lý thuyết", flow-list = bullet (`- **Luồng N:** …` CẤM inline), mỗi flow 1 block bash (Win PowerShell + macOS/Linux curl + Postman hint), conclusion `*Kết luận: …*`, 2.2.1 bullet facet đào sâu, 2.2.2 edge 3–5 bullet, em-dash `—`, **tiếng Việt đủ dấu**, code-fence comment English-only.
+- Mọi rule **chung KHÔNG đổi**: opening 2-đoạn (Senior hỏi → Mid đáp sai → bridge bullet `- **Phần 2.1** … / - **Phần 2.2** …`), `§2 intro` "Thực hành dẫn dắt Lý thuyết", **§2.1.5 = ACCORDION** (intro bullet `- **Luồng N — \`route\`:** …` + khối `::::accordion` (4 dấu `:` bọc 3) mỗi luồng 1 `:::panel{title="<tên, KHÔNG số>"}` … `:::` → đóng `::::`; KHÔNG còn `##### 2.1.5.x`; CẤM inline — dùng chung `refactor-sd-accordion-terminology.js`), mỗi flow (trong panel) 1 block bash (Win PowerShell + macOS/Linux curl + Postman hint), conclusion `*Kết luận: …*`, 2.2.1 bullet facet đào sâu, 2.2.2 edge 3–5 bullet, em-dash `—`, **tiếng Việt đủ dấu**, code-fence comment English-only.
 - **Tiếng Việt chuẩn (`data/rules/audit-vietnamese.md` §A — gate FAIL `Dịch ép thuật ngữ`):** KHÔNG dịch ép technical term, giữ tiếng Anh. SAI→ĐÚNG: `config/cấu hình có kiểu`→**Typed Config** · `trình nghe`/`bộ lắng nghe`→**Listener** · `lớp bọc`/`trình bao bọc`→**Wrapper** · `giàn giáo`/`khung sườn`→**Scaffold** · `phần mềm trung gian`→**Middleware** · `mã thông báo`→**Token** · `bộ nhớ đệm`→**Cache** · `khoá/khóa phân tán`→**Distributed lock** · `hàng đợi thư chết`→**DLQ** · `vỏ app`→**App Layout**. GIỮ theo ngữ cảnh: `nhà cung cấp`=vendor · `điểm cuối`=final score · `tải trọng`=load · `dưới lớp vỏ`=under the hood. KHÔNG calque word-by-word.
 
 ---
@@ -74,7 +74,7 @@ Quyết định B (theo thứ tự): có manifest k8s → **K8s**; verify cần 
 ---
 
 ## 5. Code trong bài = diff=0 với repo (CỨNG) — như FS
-- Mọi code block `##### 2.1.3.x` + `# codeImplementations` = copy NGUYÊN VĂN từ `.repo/system-design-mastery-module-<N+1>-<slug>/<lesson>/...`. Verify = Loop code↔docs (Sonnet đối chiếu → Opus quyết sửa code hay bài). Đọc `../fullstack/contents.md §4`.
+- Mọi code block `##### 2.1.3.x` + `# codeImplementations` = copy NGUYÊN VĂN từ `.repo/system-design-mastery-module-<N+1>-<slug>/<lesson>/...`. Verify = Loop code↔docs (đối chiếu + quyết sửa code hay bài, mặc định Sonnet 5). Đọc `../fullstack/contents.md §4`.
 - **CHÚ Ý repo naming SD off-by-one + lệ sử**: scan thật phát hiện một số repo lệch (slot 0 repo còn tên `module-1` đúng theo off-by-one; slot 2 k8s repo `module-2-…` SAI, đáng lẽ `module-3-…`; nhiều `code-context.md` ghi `NEEDS-RENAME`). **Verify tên `.repo` folder + git remote khớp ĐÚNG URL trong body trước khi tin** — RepoSynchronizer upload CDN theo tên `.repo`, sai = học viên clone repo không tồn tại. Trong 1 lesson + module + 4 lang + vi/en: DUY NHẤT 1 giá trị `system-design-mastery-module-N-slug`.
 
 ---
@@ -90,4 +90,4 @@ Quyết định B (theo thứ tự): có manifest k8s → **K8s**; verify cần 
 ---
 
 ## 7. Gate
-`./.audits/check-lesson.ps1 -Path <module-dir>` (free) — bắt chung: leak · inline-bullet (2.1.5) · fence chẵn · theory=2 · có 2.1.7 · `has-bodies` · `vn-có-dấu`. **SD bỏ `fe-vite-clean`** (không FE). Bài PASS structure mới lên LLM review ngữ nghĩa + đối chiếu §3 deltas (repo off-by-one, `.docker/` mention, table Port, mermaid TD, prerequisites 2-bullet, single `docker compose up`, interview 5–7, codeImpl order, cleanup plain).
+`./.claude/docs/check-lesson.ps1 -Path <module-dir>` (free) — bắt chung: leak · inline-bullet (2.1.5) · fence chẵn · theory=2 · có 2.1.7 · `has-bodies` · `vn-có-dấu`. **SD bỏ `fe-vite-clean`** (không FE). Bài PASS structure mới lên LLM review ngữ nghĩa + đối chiếu §3 deltas (repo off-by-one, `.docker/` mention, table Port, mermaid TD, prerequisites 2-bullet, single `docker compose up`, interview 5–7, codeImpl order, cleanup plain).

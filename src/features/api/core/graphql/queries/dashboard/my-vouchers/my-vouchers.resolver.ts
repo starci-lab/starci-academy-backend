@@ -69,6 +69,7 @@ export class MyVouchersResolver {
             value: voucher.value,
             courseId: voucher.courseId,
             courseTitle: voucher.course?.title ?? null,
+            courseDisplayId: voucher.course?.displayId ?? null,
             status: this.voucherService.isEffectivelyExpired(voucher)
                 ? VoucherStatus.Expired
                 : voucher.status,

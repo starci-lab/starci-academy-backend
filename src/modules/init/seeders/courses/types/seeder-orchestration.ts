@@ -24,8 +24,6 @@ export interface ProcessCoursesParams {
     milestoneIndexFilterByDisplayId: CourseIndexFilterByDisplayId | null
     /** When true, parse and upsert flashcard decks per course. */
     flashcardEnabled: boolean
-    /** When true, build content path → id map for flashcard N:N links. */
-    flashcardLinkContents: boolean
 }
 
 /** {@link ModuleProcessorService.process} input. */
@@ -34,8 +32,6 @@ export interface ProcessModulesParams {
     courseResult: ResolvedFileResult<DeepPartial<CourseEntity>>
     /** Module index filter from seed scope. */
     moduleIndexFilterByDisplayId: CourseIndexFilterByDisplayId | null
-    /** When true, populate {@link ProcessModulesResult.contentIdByPath}. */
-    flashcardLinkContents: boolean
 }
 
 /** {@link ModuleProcessorService.process} output (reserved for flashcard link map). */
@@ -70,6 +66,12 @@ export interface ProcessFlashcardDecksParams {
 
 /** {@link MockInterviewProcessorService.process} input. */
 export interface ProcessMockInterviewParams {
+    /** Matching course parse result. */
+    courseResult: ResolvedFileResult<DeepPartial<CourseEntity>>
+}
+
+/** {@link PlaygroundProcessorService.process} input. */
+export interface ProcessPlaygroundsParams {
     /** Matching course parse result. */
     courseResult: ResolvedFileResult<DeepPartial<CourseEntity>>
 }

@@ -14,6 +14,9 @@ import {
 import {
     UserStatsProjectionService,
 } from "./user-stats-projection.service"
+import {
+    StreakMilestoneService,
+} from "../../streak/streak-milestone.service"
 import type {
     NotificationCdcRow,
     UserFollowCdcRow,
@@ -41,6 +44,7 @@ export class UserStatsProjectionListener extends AbstractProjectionListener<stri
     constructor(
         kafkaService: KafkaService,
         private readonly userStatsProjectionService: UserStatsProjectionService,
+        private readonly streakMilestoneService: StreakMilestoneService,
     ) {
         // base owns the Kafka wiring
         super(kafkaService)
@@ -89,7 +93,9 @@ export class UserStatsProjectionListener extends AbstractProjectionListener<stri
     }
 
     /**
-     * Recompute one user's stats projection (idempotent UPSERT).
+     * Recompute one user's stats projection (idempotent UPSERT), then check
+     * whether the refreshed streak just crossed a platform-wide milestone
+     * (7/30/100 consecutive days) and grant the one-time Coin bonus if so.
      *
      * @param userId - the affected user id.
      */
@@ -97,5 +103,6 @@ export class UserStatsProjectionListener extends AbstractProjectionListener<stri
         await this.userStatsProjectionService.recompute({
             userId,
         })
+        await this.streakMilestoneService.checkAndGrant(userId)
     }
 }

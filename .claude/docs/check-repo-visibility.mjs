@@ -2,13 +2,13 @@
 /**
  * check-repo-visibility.mjs — gate: GitHub source-repo visibility MUST match `# isPremium`.
  *
- * Rule (`.audits/rules/migrate-github.md` §0/§4): biên repo = biên phân quyền.
+ * Rule (`.claude/docs/rules/migrate-github.md` §0/§4): biên repo = biên phân quyền.
  *   - isPremium = false (free)  ⇒ repo PUBLIC  (học viên clone được).
  *   - isPremium = true  (paid)  ⇒ repo PRIVATE (khoá độc lập).
  * Lọt khỏi audit nội dung cũ vì check-lesson chỉ soi body/challenge, KHÔNG soi visibility →
  * free-lesson lỡ private = "source code thiếu bài"; premium lỡ public = lộ source trả phí.
  *
- * Dùng: node .audits/check-repo-visibility.mjs [<dir> ...] [--json]
+ * Dùng: node .claude/docs/check-repo-visibility.mjs [<dir> ...] [--json]
  *   <dir> = course / module / lesson dir (tự walk tìm lesson = thư mục có vi.md + bodies/).
  *           Không truyền → mặc định quét MỌI course dưới .mount/data/courses.
  * Nguồn visibility: `gh repo list StarCi-Academy --limit 1000` (cần `gh auth login`).

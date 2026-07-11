@@ -1,6 +1,7 @@
 import {
     Field,
     ID,
+    Int,
     InputType,
 } from "@nestjs/graphql"
 import {
@@ -55,4 +56,13 @@ export class CourseEnrollRequest {
         },
     )
         voucherCode?: string
+
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Pay in installments (trả góp) over this many months (3/6/12). Omit/null = pay in full (unchanged behaviour). Only the domestic VND gateways (PayOS/Sepay) support it.",
+        },
+    )
+        installmentMonths?: number
 }

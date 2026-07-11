@@ -159,7 +159,6 @@ export class InitConfigParserService {
                 tracks,
                 flashcard: {
                     enabled: flashcardEnabled,
-                    linkContents: false,
                 },
                 interview: {
                     enabled: interviewEnabled,

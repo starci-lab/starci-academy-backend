@@ -1,4 +1,4 @@
-// node .audits/fix-panel-title-quotes.mjs <file.md> ...  — safety-net SAU accordion.
+// node .claude/docs/fix-panel-title-quotes.mjs <file.md> ...  — safety-net SAU accordion.
 // remark-directive dung " lam delimiter cho attribute -> title chua inner " hoac \" -> VO directive (panel
 // thanh TEXT, render ra raw ":::panel"). Doi MOI inner quote trong title thanh ' (single). Idempotent.
 import fs from "node:fs"

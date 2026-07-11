@@ -8,9 +8,13 @@ import {
 import {
     ActionType,
     InjectPrimaryPostgreSQLEntityManager,
+    InstallmentPlanEntity,
     JobEntity,
     TransactionItemEntity
 } from "@modules/databases"
+import {
+    InstallmentPlanService,
+} from "../../installment-plan"
 import {
     InjectSuperJson
 } from "@modules/mixin"
@@ -57,6 +61,7 @@ export class EnqueueEnrollJobService {
         private readonly enrollQueue: Queue<string>,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly installmentPlanService: InstallmentPlanService,
     ) { }
 
     /**
@@ -84,36 +89,76 @@ export class EnqueueEnrollJobService {
                 },
             },
         )
-        if (items.length > 0) {
-            // enqueue sequentially (AWAITED per line) so a broker failure propagates:
-            // the webhook then returns non-2xx and the gateway re-delivers → no line stranded.
-            // Each enroll job is idempotent per (user, course), so a re-delivery is safe.
-            for (const item of items) {
-                await this.enqueue({
-                    userId: transaction.userId,
-                    courseId: item.courseId,
-                    transactionId: transaction.id,
-                })
-            }
+        // resolve the course ids of this order (multi-course items, else the single
+        // course on the transaction) — drives both the per-course enroll fan-out AND
+        // the installment plan's `lockedCourseIds` (all courses gated together)
+        const courseIds = items.length > 0
+            ? items.map((item) => item.courseId)
+            : (transaction.courseId ? [transaction.courseId] : [])
+        // neither items nor a course → malformed Enroll transaction; let the caller surface it
+        if (courseIds.length === 0) {
             return {
-                enqueuedCount: items.length,
+                enqueuedCount: 0,
             }
         }
-        // single-course legacy order → the course is carried directly on the transaction
-        if (transaction.courseId) {
+        // enqueue sequentially (AWAITED per line) so a broker failure propagates:
+        // the webhook then returns non-2xx and the gateway re-delivers → no line stranded.
+        // Each enroll job is idempotent per (user, course), so a re-delivery is safe.
+        for (const courseId of courseIds) {
             await this.enqueue({
                 userId: transaction.userId,
-                courseId: transaction.courseId,
+                courseId,
                 transactionId: transaction.id,
             })
-            return {
-                enqueuedCount: 1,
-            }
         }
-        // neither items nor a course → malformed Enroll transaction; let the caller surface it
+        // installment (trả góp) first cycle: create the Fixed plan ONCE per paid
+        // checkout (the enroll jobs above grant access; this only records the
+        // schedule + gated courses). Idempotent against re-delivery (webhook + poll)
+        // by the plan's unique origin transaction.
+        await this.createInstallmentPlanIfNeeded(transaction,
+            courseIds)
         return {
-            enqueuedCount: 0,
+            enqueuedCount: courseIds.length,
         }
+    }
+
+    /**
+     * When a paid Enroll transaction carries installment intent (the buyer chose
+     * trả góp at checkout), create its `Fixed` {@link InstallmentPlanEntity} —
+     * exactly once. A no-op for a one-shot purchase (no `installmentMonths`) or a
+     * re-delivered confirmation (a plan already exists for this origin transaction).
+     *
+     * @param transaction - The paid Enroll transaction (carries the installment snapshot).
+     * @param lockedCourseIds - Every course this plan gates access to (locked/unlocked together).
+     */
+    private async createInstallmentPlanIfNeeded(
+        transaction: EnqueueEnrollmentsForTransactionParams["transaction"],
+        lockedCourseIds: Array<string>,
+    ): Promise<void> {
+        if (!transaction.installmentMonths || !transaction.installmentTotalVnd) {
+            return
+        }
+        const existing = await this.entityManager.findOne(
+            InstallmentPlanEntity,
+            {
+                where: {
+                    originTransaction: {
+                        id: transaction.id,
+                    },
+                },
+            },
+        )
+        if (existing) {
+            return
+        }
+        await this.installmentPlanService.createFixedPlan({
+            userId: transaction.userId,
+            originTransactionId: transaction.id,
+            lockedCourseIds,
+            totalAmountVnd: transaction.installmentTotalVnd,
+            months: transaction.installmentMonths,
+            markupPercent: transaction.installmentMarkupPercent ?? 0,
+        })
     }
 
     /**

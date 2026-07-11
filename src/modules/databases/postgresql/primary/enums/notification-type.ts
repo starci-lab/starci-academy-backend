@@ -32,6 +32,8 @@ export enum NotificationType {
     SubscriptionGranted = "subscriptionGranted",
     /** A broadcast announcement fanned out to the recipient. */
     Announcement = "announcement",
+    /** The viewer reached a platform-wide streak milestone (7/30/100 consecutive days). */
+    StreakMilestone = "streakMilestone",
 }
 
 /** GraphQL enum mirror of {@link NotificationType}. */
@@ -69,6 +71,9 @@ registerEnumType(
             },
             [NotificationType.Announcement]: {
                 description: "A broadcast announcement fanned out to the recipient.",
+            },
+            [NotificationType.StreakMilestone]: {
+                description: "The viewer reached a streak milestone.",
             },
         },
     },

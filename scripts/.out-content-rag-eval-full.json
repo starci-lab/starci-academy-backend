@@ -1,0 +1,4799 @@
+{
+  "config": {
+    "collection": "content_rag",
+    "embedModel": "nomic-embed-text",
+    "topK": 6,
+    "fetchDistinct": 20,
+    "target": 500
+  },
+  "summary": {
+    "total": 474,
+    "recall": {
+      "@1": 355,
+      "@3": 421,
+      "@6": 436,
+      "@10": 438
+    },
+    "misses": 36,
+    "neverIndexed": 9,
+    "rankedOut": 27
+  },
+  "cases": [
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "0024c05a-b0f0-5699-b85a-c1f733ede983",
+      "query": "DataLoader và N+1",
+      "rank": 1,
+      "top1Id": "0024c05a-b0f0-5699-b85a-c1f733ede983"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "052857c4-f344-5684-9a58-e190f66c250d",
+      "query": "An atom is a dependency graph: derived atoms and async atoms with Suspense in Jotai",
+      "rank": 1,
+      "top1Id": "052857c4-f344-5684-9a58-e190f66c250d"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "13666e43-14c8-505c-b71f-e22dc811a84d",
+      "query": "Checkout và Payment Intent: server làm chủ số tiền",
+      "rank": 4,
+      "top1Id": "fbf1bc33-086d-5cfc-9fba-70b6a31682ae"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "159b62d0-9ad0-5cdc-8d2f-5a108dfac654",
+      "query": "Caching strategy: three cache tiers (response / logic / data)",
+      "rank": 1,
+      "top1Id": "159b62d0-9ad0-5cdc-8d2f-5a108dfac654"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "1cad0734-855a-541f-b46c-653898c15718",
+      "query": "Feature Flag và Canary Rollout",
+      "rank": 0,
+      "top1Id": "889c2b73-a857-5716-8e76-5ea24b94ee67",
+      "indexedChunks": 0
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "21ff2b16-595c-5f0e-9020-1b1aa78fc4cf",
+      "query": "Refund & Reconciliation: independent ledger, idempotency, and drift detection",
+      "rank": 2,
+      "top1Id": "e6d21ea1-ff7d-5c85-924d-36c632143f1b"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "286d18cb-f917-5b72-8df0-4d78125e15ed",
+      "query": "Output contract: envelope thống nhất và chuẩn hóa exception",
+      "rank": 4,
+      "top1Id": "a4abe2aa-f6e4-54f5-830a-e24c67a627c8"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "2986d12a-53ed-5171-b1ee-58f47099ce7c",
+      "query": "File upload with Multer: validation, storage, and server-side protection",
+      "rank": 1,
+      "top1Id": "2986d12a-53ed-5171-b1ee-58f47099ce7c"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "2b17ec9b-d579-5437-9654-a809acdb99ed",
+      "query": "Cổng SePay: thanh toán QR chuyển khoản và webhook báo có",
+      "rank": 1,
+      "top1Id": "2b17ec9b-d579-5437-9654-a809acdb99ed"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "2f3764c2-c2df-53f9-bae7-2be39ef6a682",
+      "query": "Direct browser upload to S3/MinIO via presigned URL: bypass server, save bandwidth",
+      "rank": 3,
+      "top1Id": "3ed191ac-71eb-565a-9738-ea4262f5fc58"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "35ccbbc2-3276-5b91-aafd-eca8f4e32d3d",
+      "query": "Adaptive loading — điều chỉnh payload theo mạng và thiết bị",
+      "rank": 1,
+      "top1Id": "35ccbbc2-3276-5b91-aafd-eca8f4e32d3d"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "41a65acc-43a4-564b-974e-d625b4eb2199",
+      "query": "Next.js vs Vite: how a build tool differs from a framework",
+      "rank": 1,
+      "top1Id": "41a65acc-43a4-564b-974e-d625b4eb2199"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "4af561a7-cb12-5afe-859b-f1984dd97461",
+      "query": "CI/CD với GitHub Actions cho project Fullstack",
+      "rank": 0,
+      "top1Id": "13666e43-14c8-505c-b71f-e22dc811a84d",
+      "indexedChunks": 936
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "4f312cdb-442a-5386-92dc-517b2e45643b",
+      "query": "Stateless authentication with JWT",
+      "rank": 2,
+      "top1Id": "5eb39410-1291-5316-bed1-0e7d78c482ea"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "59fe3c45-b310-5f37-8e06-ccf73d23f0fc",
+      "query": "Race condition trong effect: huỷ và bỏ qua phản hồi cũ",
+      "rank": 3,
+      "top1Id": "dfb5bb77-be9d-57d8-afb4-eb7029a0757f"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "5a9a1f2b-131a-58e5-bf98-80da614c54c7",
+      "query": "XSS, CSRF, and CORS Defenses",
+      "rank": 3,
+      "top1Id": "fe84a0f3-60d1-5f1b-9749-03e560f0ca6b"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "5b1235b3-61d7-5b30-96b1-e3977a9515ec",
+      "query": "Dynamic fields với useFieldArray: line item động, validate per-row và aggregate",
+      "rank": 3,
+      "top1Id": "d93644df-8927-570c-9c6c-abfe4d701f4b"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "5bcd078f-27ee-5be3-a762-d66969b948f3",
+      "query": "Worker scaling and concurrency: parallel processing and horizontal scale-out",
+      "rank": 1,
+      "top1Id": "5bcd078f-27ee-5be3-a762-d66969b948f3"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "5fea5a82-48ff-5297-ae2c-14a3e6f4c733",
+      "query": "Logging chuẩn production",
+      "rank": 2,
+      "top1Id": "92af5aad-4e43-50a1-b534-176da4051a7c"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "60a163a3-0955-5789-b602-490402088921",
+      "query": "Responsive layout without media-query soup: container queries, intrinsic sizing and clamp()",
+      "rank": 1,
+      "top1Id": "60a163a3-0955-5789-b602-490402088921"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "60fc8472-dcc4-5727-94e9-a86f280052a0",
+      "query": "Ghi → Vô hiệu → Đồng bộ: hợp đồng Mutation-Cache",
+      "rank": 1,
+      "top1Id": "60fc8472-dcc4-5727-94e9-a86f280052a0"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "62fa5461-e0fa-5027-8213-9393ff6869d4",
+      "query": "The relational model and ORM: mapping 1-1, 1-N, N-N",
+      "rank": 1,
+      "top1Id": "62fa5461-e0fa-5027-8213-9393ff6869d4"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "6397594c-b945-5c97-9706-444a4e107f25",
+      "query": "HTTP E2E Test cho Controller NestJS với Supertest",
+      "rank": 2,
+      "top1Id": "1cfcf852-0acf-5f2f-9d4a-a966ee7a0121"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "6c3bc794-a18d-5a38-bde3-124cd58ac024",
+      "query": "Persist and cross-tab sync: state that survives reload and syncs across two tabs",
+      "rank": 1,
+      "top1Id": "6c3bc794-a18d-5a38-bde3-124cd58ac024"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "6e774630-5cc7-597b-95d1-b05f253547c4",
+      "query": "Unit Test NestJS Service với Vitest",
+      "rank": 2,
+      "top1Id": "9ee4d661-3c15-5730-8723-588ea9d724f7"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "6fd91500-e878-547a-997b-9e884fe7f440",
+      "query": "Integrating SMS with Twilio: send messages and manage credentials safely",
+      "rank": 1,
+      "top1Id": "6fd91500-e878-547a-997b-9e884fe7f440"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "772aab7f-d2ad-556b-8869-91b37fcc44a9",
+      "query": "Gửi email với Nodemailer: SMTP, template và dependency injection",
+      "rank": 1,
+      "top1Id": "772aab7f-d2ad-556b-8869-91b37fcc44a9"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "79adcb35-bc7b-59fc-ae86-857ada40c49c",
+      "query": "Webhook confirmation and idempotency: trust events, defeat duplicates",
+      "rank": 1,
+      "top1Id": "79adcb35-bc7b-59fc-ae86-857ada40c49c"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "800ed9b3-1ca8-5cfc-a00b-2d70f91fb74f",
+      "query": "Lên lịch tác vụ: cron jobs, task scheduling và quản lý công việc định kỳ",
+      "rank": 1,
+      "top1Id": "800ed9b3-1ca8-5cfc-a00b-2d70f91fb74f"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "81b7229f-846f-5ce4-b4fa-aee64df4cffb",
+      "query": "The schema is the source of truth: wiring React Hook Form to Zod via zodResolver",
+      "rank": 1,
+      "top1Id": "81b7229f-846f-5ce4-b4fa-aee64df4cffb"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "871b43bf-77fb-5239-b43a-413fef3a06a6",
+      "query": "Command palette với cmdk: Cmd+K toàn cục, fuzzy filter và ngữ nghĩa Listbox ARIA",
+      "rank": 2,
+      "top1Id": "a57d7e14-0ab9-5578-ad92-9a9ddd54d5ea"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "888149b2-57a0-5e72-a5de-be1b999a5fa0",
+      "query": "The document model and ODM: embedding vs referencing, atomic updates",
+      "rank": 1,
+      "top1Id": "888149b2-57a0-5e72-a5de-be1b999a5fa0"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "8c91ec8b-27ca-5536-98a2-66a3c39a3ecf",
+      "query": "Focus trap và các pattern accessibility: dialog đúng chuẩn WAI-ARIA, không cần thư viện",
+      "rank": 4,
+      "top1Id": "f6662885-c348-5507-824b-6308369bfcff"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "8e95cd60-c984-5fcf-8080-bb73726523f9",
+      "query": "Socket.IO Security: JWT authentication on connect",
+      "rank": 3,
+      "top1Id": "4213d29d-bee8-54ab-823b-4f4b870e3424"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "8ec7c76a-1128-5582-8337-631516da975e",
+      "query": "Lớp gác chi phí và tốc độ cho LLM",
+      "rank": 1,
+      "top1Id": "8ec7c76a-1128-5582-8337-631516da975e"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "927c6932-7754-5050-b0e5-829b13fc6f70",
+      "query": "Suspense and streaming HTML: parallel loading, selective hydration",
+      "rank": 1,
+      "top1Id": "927c6932-7754-5050-b0e5-829b13fc6f70"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "9548d5ae-70c0-56c5-a104-8fc8744b0ef6",
+      "query": "Machine-readable contract: OpenAPI spec và docs sinh từ decorator",
+      "rank": 1,
+      "top1Id": "9548d5ae-70c0-56c5-a104-8fc8744b0ef6"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "972b6ffb-3a24-5610-988f-856e0877f193",
+      "query": "Assume success, prepare for failure: optimistic updates + rollback",
+      "rank": 1,
+      "top1Id": "972b6ffb-3a24-5610-988f-856e0877f193"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "9f1a8882-48f5-52ae-bd6d-33f00408216a",
+      "query": "Server Actions và form mutation: mutate dữ liệu không cần API route",
+      "rank": 1,
+      "top1Id": "9f1a8882-48f5-52ae-bd6d-33f00408216a"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "9fca66a3-d23b-599d-834e-bf124a60d7c6",
+      "query": "useSyncExternalStore: subscribe to an external store without tearing",
+      "rank": 2,
+      "top1Id": "f502642d-3b71-5f39-991d-5ef61d09c158"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "a821319a-bc30-5a7b-be71-4b60850e7d99",
+      "query": "List virtualization với TanStack Virtual: render 10k dòng mượt",
+      "rank": 2,
+      "top1Id": "84971e8f-e275-577a-91b1-efde6533c6b5"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "ab677ef5-168a-5b36-a2e9-77db47fc8457",
+      "query": "Resumable upload with tus protocol: resume after network interruption",
+      "rank": 2,
+      "top1Id": "74f93abc-ee73-55da-9e5e-eaec28c09d00"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "b51064c2-d730-5be2-a4e6-92f58ba63c1d",
+      "query": "Async validation với debounce: chống race và gộp request khi kiểm tra username",
+      "rank": 4,
+      "top1Id": "e15c0b9b-4fc4-5b2b-90a6-ccdbef41833e"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "b987fd75-36ab-5d91-a55f-0ffd93183729",
+      "query": "Job queue and worker with BullMQ: Redis-backed message queue",
+      "rank": 1,
+      "top1Id": "b987fd75-36ab-5d91-a55f-0ffd93183729"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "b99660b9-efe7-57f3-8fef-65395a640e91",
+      "query": "Pino và correlation ID: structured logging gắn ID xuyên suốt request",
+      "rank": 3,
+      "top1Id": "30ea6cc1-3ed5-5beb-ad5f-7c9fc6a3fd85"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "bfdc4a14-9a53-5320-a6dd-a07e77f51492",
+      "query": "Schema and Resolvers",
+      "rank": 1,
+      "top1Id": "bfdc4a14-9a53-5320-a6dd-a07e77f51492"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "c20d99a9-83cb-5134-8f6b-6529e247302d",
+      "query": "Realtime chat với Socket.IO: rooms và broadcast",
+      "rank": 3,
+      "top1Id": "e7a12253-b762-5f09-bbfe-6f1ff7efc5c9"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "c8d31dcb-4b41-54fb-8032-3c8a8f64ada7",
+      "query": "One store, many slices: type-safe composition with StateCreator (user/cart/theme)",
+      "rank": 1,
+      "top1Id": "c8d31dcb-4b41-54fb-8032-3c8a8f64ada7"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "d261b695-7ecd-51cb-9ac2-759d001e4bb3",
+      "query": "Pagination và Subscriptions",
+      "rank": 1,
+      "top1Id": "d261b695-7ecd-51cb-9ac2-759d001e4bb3"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "d41fc7c0-139f-568d-af03-7c367c5137d1",
+      "query": "Streaming LLM Responses over Server-Sent Events",
+      "rank": 1,
+      "top1Id": "d41fc7c0-139f-568d-af03-7c367c5137d1"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "daece07a-b880-52a7-9fcd-82c82eeaf3bd",
+      "query": "Xác thực OTP với Redis: TTL, rate limiting và brute-force protection",
+      "rank": 7,
+      "top1Id": "bd703296-b96d-5c7e-9fe9-aab735f7cdaf"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "dd3d74b1-80a1-5a17-af23-9b81f5123fdb",
+      "query": "The cache is the source of truth: the useQuery lifecycle (staleTime/gcTime)",
+      "rank": 2,
+      "top1Id": "f193f454-ef27-5396-8403-a1cfb88379ac"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "e2c817f5-6090-53e8-8cb6-428f39af252f",
+      "query": "Wizard nhiều bước với FormProvider — một form, ba view, validate từng bước",
+      "rank": 3,
+      "top1Id": "02a0b88c-76bd-5334-a3d8-a95d748631c0"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "e8348776-68b4-57d0-a562-fa4c8d822eb9",
+      "query": "Server Component vs Client Component boundaries in Next.js",
+      "rank": 1,
+      "top1Id": "e8348776-68b4-57d0-a562-fa4c8d822eb9"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "e88d69ce-315e-5350-9672-adbb62f0f9b4",
+      "query": "Vòng đời request/response",
+      "rank": 0,
+      "top1Id": "fc1cc79f-c9c1-50d6-b8a1-7aa051b49b5b",
+      "indexedChunks": 1456
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "ec30cd13-1643-5493-9727-c3e6f90afb02",
+      "query": "Job Priorities, Retries and Dead Letter Queue",
+      "rank": 6,
+      "top1Id": "21f3bc4f-8ee0-5535-8be6-4a88132b9bad"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "ed307eea-b7b0-58c1-8cbf-8ec404f0cb25",
+      "query": "SQL vs NoSQL — chọn mô hình lưu trữ dữ liệu",
+      "rank": 1,
+      "top1Id": "ed307eea-b7b0-58c1-8cbf-8ec404f0cb25"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "f0f8034e-fd95-55af-af50-53aa55f15914",
+      "query": "Error handling & response shaping",
+      "rank": 1,
+      "top1Id": "f0f8034e-fd95-55af-af50-53aa55f15914"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "f22fff99-63da-5806-a427-057b34638f36",
+      "query": "UI End-to-End Test với Playwright và Page Object",
+      "rank": 6,
+      "top1Id": "4eb87792-61d7-5603-bf15-fd2abb0b8341"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "fd27d2fe-c5be-51c1-b497-8cb66b674ab8",
+      "query": "Secrets Management with HashiCorp Vault and ConfigModule",
+      "rank": 1,
+      "top1Id": "fd27d2fe-c5be-51c1-b497-8cb66b674ab8"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "000c0faf-a917-5d17-bc76-f5660ff887e9",
+      "query": "Multi-stage Dockerfile với Node Alpine",
+      "rank": 1,
+      "top1Id": "000c0faf-a917-5d17-bc76-f5660ff887e9"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "02abee38-1e0d-52b8-88ad-670e185eced2",
+      "query": "Per-request cache and DataLoader batch correctness",
+      "rank": 1,
+      "top1Id": "02abee38-1e0d-52b8-88ad-670e185eced2"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "07848e38-1968-51e1-b523-52d355046270",
+      "query": "Sắp xếp lại danh sách kiểu optimistic với rollback bằng snapshot toàn danh sách",
+      "rank": 1,
+      "top1Id": "07848e38-1968-51e1-b523-52d355046270"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "0c352454-7470-58c5-bd79-48ee967fc99e",
+      "query": "Build a realtime presence server with heartbeat tracking, typing indicators, and a background inactivity sweeper",
+      "rank": 1,
+      "top1Id": "0c352454-7470-58c5-bd79-48ee967fc99e"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "10b91350-dba6-5500-95a0-a7e054cf1dc4",
+      "query": "Xây dựng Streaming Dashboard với Skeleton Placeholder",
+      "rank": 1,
+      "top1Id": "10b91350-dba6-5500-95a0-a7e054cf1dc4"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "121b2929-6169-56c4-9433-2d88963a3f05",
+      "query": "Network-aware media: adapt the payload to the connection and device",
+      "rank": 0,
+      "top1Id": "35ccbbc2-3276-5b91-aafd-eca8f4e32d3d",
+      "indexedChunks": 2
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "1870909e-1185-5305-8756-681f715d1063",
+      "query": "Dựng WebSocket gateway multi-tenant với JWKS xác thực RS256 và scale ngang qua nhiều instance",
+      "rank": 1,
+      "top1Id": "1870909e-1185-5305-8756-681f715d1063"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "1ba19884-1853-5890-a196-81b968907c76",
+      "query": "useMediaQuery and useWindowSize without infinite loops",
+      "rank": 1,
+      "top1Id": "1ba19884-1853-5890-a196-81b968907c76"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "1ef389d6-f3fa-599d-a46e-13dfb77c1b28",
+      "query": "Dựng **invalidation graph** nhiều node: list cộng detail, một edit làm tươi cả hai",
+      "rank": 1,
+      "top1Id": "1ef389d6-f3fa-599d-a46e-13dfb77c1b28"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "21255786-db09-5a1a-a4b3-5d1b9b27948a",
+      "query": "Dynamic line-item array with stable reorder and per-item validation",
+      "rank": 1,
+      "top1Id": "21255786-db09-5a1a-a4b3-5d1b9b27948a"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "259237a0-6a42-5ec0-9dda-5df30234c199",
+      "query": "Tích hợp OpenTelemetry và Jaeger: auto-instrument HTTP span",
+      "rank": 1,
+      "top1Id": "259237a0-6a42-5ec0-9dda-5df30234c199"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "2b54e6ec-5a70-578b-a3db-f0fab6d9b933",
+      "query": "Pure Redis ZSET sliding window rate limit and adaptive throttle headers",
+      "rank": 1,
+      "top1Id": "2b54e6ec-5a70-578b-a3db-f0fab6d9b933"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "30941b37-31c1-5a80-9447-ab3be99c8dbd",
+      "query": "Giữ chỗ cho ảnh để một product grid tải chậm vẫn render với CLS=0",
+      "rank": 1,
+      "top1Id": "30941b37-31c1-5a80-9447-ab3be99c8dbd"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "368f6106-6d2b-541c-a24a-7179cef8d070",
+      "query": "Build a chat endpoint with per-user token-bucket rate limiting and a per-token cost log",
+      "rank": 1,
+      "top1Id": "368f6106-6d2b-541c-a24a-7179cef8d070"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "3b89db0b-7189-5dd5-a308-15a68606f4d4",
+      "query": "Bảo mật Server Action với Redis Rate Limiting và Optimistic Rollback",
+      "rank": 1,
+      "top1Id": "3b89db0b-7189-5dd5-a308-15a68606f4d4"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "429ff5a8-9f5e-5810-8df7-a647cc2d6ba0",
+      "query": "A cancellable LLM stream that stops generation mid-flight and returns a unified error envelope when the stream breaks",
+      "rank": 1,
+      "top1Id": "429ff5a8-9f5e-5810-8df7-a647cc2d6ba0"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "445907e9-7996-50f4-9a60-211d65800734",
+      "query": "Kiểm tra username available với Debounce 500ms",
+      "rank": 1,
+      "top1Id": "445907e9-7996-50f4-9a60-211d65800734"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "4962d18d-e4e6-5d00-8099-c41d477fc15b",
+      "query": "Fix RSC Props Serialization with the Children Slot Pattern",
+      "rank": 1,
+      "top1Id": "4962d18d-e4e6-5d00-8099-c41d477fc15b"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "4c2d6b6d-f097-5a67-a3b7-f2798bc02a6d",
+      "query": "Comlink RPC và Transferables cho tác vụ tính toán ngoài main thread",
+      "rank": 1,
+      "top1Id": "4c2d6b6d-f097-5a67-a3b7-f2798bc02a6d"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "4f72bd40-620a-5e37-a031-cb8f2730cbc5",
+      "query": "A 3-step wizard that saves, resumes, and shows progress",
+      "rank": 1,
+      "top1Id": "4f72bd40-620a-5e37-a031-cb8f2730cbc5"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "534ad8d7-ad11-5a46-b24b-76b62eab8b44",
+      "query": "Khử N+1 cho field resolver lồng nhau bằng DataLoader",
+      "rank": 1,
+      "top1Id": "534ad8d7-ad11-5a46-b24b-76b62eab8b44"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "5aeaf806-726c-5251-9916-efb03af9354b",
+      "query": "Document a multi-version API with an enforced security guard and environment-gated spec",
+      "rank": 1,
+      "top1Id": "5aeaf806-726c-5251-9916-efb03af9354b"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "5eb39410-1291-5316-bed1-0e7d78c482ea",
+      "query": "Phát hành và verify một JWT để bảo vệ route mà không cần session phía server",
+      "rank": 1,
+      "top1Id": "5eb39410-1291-5316-bed1-0e7d78c482ea"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "63dac521-c566-5592-b33c-cd0f4bee32d8",
+      "query": "Multi-tab document editor with cross-tab sync using a custom Zustand storage adapter",
+      "rank": 1,
+      "top1Id": "63dac521-c566-5592-b33c-cd0f4bee32d8"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "68973968-e57e-52da-ab7e-88ace152152b",
+      "query": "Optimistic UI cho kho hàng với rollback chính xác khi server lỗi",
+      "rank": 1,
+      "top1Id": "68973968-e57e-52da-ab7e-88ace152152b"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "713bcad3-e56b-5334-8c12-d5de3f63410f",
+      "query": "Virtualized Infinite Scroll Feed with Dynamic Item Heights using TanStack Virtual",
+      "rank": 1,
+      "top1Id": "713bcad3-e56b-5334-8c12-d5de3f63410f"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "7311da8b-b244-5935-be56-069fadbe4616",
+      "query": "Dịch vụ gửi và xác thực OTP với Redis",
+      "rank": 1,
+      "top1Id": "7311da8b-b244-5935-be56-069fadbe4616"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "77d88015-8042-54ab-8349-674076c74c8e",
+      "query": "Command Palette with Race-Safe Remote Search and a Virtual List",
+      "rank": 1,
+      "top1Id": "77d88015-8042-54ab-8349-674076c74c8e"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "7c5cd233-ef24-5a9d-848b-7fb857fcdf91",
+      "query": "Tách store thành hai slice typed: auth và settings",
+      "rank": 1,
+      "top1Id": "7c5cd233-ef24-5a9d-848b-7fb857fcdf91"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "81c6d843-720e-512d-ae69-f9f66b08b3ab",
+      "query": "Visual regression testing with Playwright snapshots + masked dynamic regions + CI diff",
+      "rank": 1,
+      "top1Id": "81c6d843-720e-512d-ae69-f9f66b08b3ab"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "867095d2-4a94-5599-a26c-c1e7c0a1f1a2",
+      "query": "Xây dựng Product Detail Page với các Suspense Section Stream Song Song",
+      "rank": 1,
+      "top1Id": "867095d2-4a94-5599-a26c-c1e7c0a1f1a2"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "89e82281-1a0e-5230-8609-2dc7217d3e6b",
+      "query": "Fetch a list with useQuery and observe the cache lifecycle",
+      "rank": 1,
+      "top1Id": "89e82281-1a0e-5230-8609-2dc7217d3e6b"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "907383b6-69f8-54bd-971a-e03fae09ddc3",
+      "query": "Health Checks và Memory Probes với NestJS Terminus",
+      "rank": 1,
+      "top1Id": "907383b6-69f8-54bd-971a-e03fae09ddc3"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "95206196-eefc-5cd7-8fc3-c7361cdb5c42",
+      "query": "CSP Enforce + SRI + Structured Violation Audit Log — Blog API",
+      "rank": 1,
+      "top1Id": "95206196-eefc-5cd7-8fc3-c7361cdb5c42"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "982036cc-b822-543e-8644-73299abb49dc",
+      "query": "Kiểm Tra Toàn Vẹn Chunk Có Thể Resume",
+      "rank": 0,
+      "top1Id": "b987fd75-36ab-5d91-a55f-0ffd93183729",
+      "indexedChunks": 2
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "9d650f91-04b7-5292-9e57-495840572c89",
+      "query": "Build a Dynamic Widget Loader with superjson Serialization and Lazy Hydration",
+      "rank": 1,
+      "top1Id": "9d650f91-04b7-5292-9e57-495840572c89"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "9ee4d661-3c15-5730-8723-588ea9d724f7",
+      "query": "Kiểm thử Đơn vị Dịch vụ NestJS với Vitest",
+      "rank": 1,
+      "top1Id": "9ee4d661-3c15-5730-8723-588ea9d724f7"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "a4abe2aa-f6e4-54f5-830a-e24c67a627c8",
+      "query": "Wrap every success and every error into one response envelope",
+      "rank": 1,
+      "top1Id": "a4abe2aa-f6e4-54f5-830a-e24c67a627c8"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "a71baf2f-624f-53ef-9fef-d5d3aa278474",
+      "query": "Dựng cụm hiện diện phân tán đa node với Redis TTL và sự kiện keyspace hết hạn",
+      "rank": 1,
+      "top1Id": "a71baf2f-624f-53ef-9fef-d5d3aa278474"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "ac3d3a4c-740b-5d35-9a8b-87d56c26a811",
+      "query": "Track SMS delivery: signature-verified webhook, paginated history, and failure alerting",
+      "rank": 1,
+      "top1Id": "ac3d3a4c-740b-5d35-9a8b-87d56c26a811"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "b17b8bca-f06a-538f-991b-b9b13895a0c8",
+      "query": "Dựng hero image responsive với srcset và sizes",
+      "rank": 1,
+      "top1Id": "b17b8bca-f06a-538f-991b-b9b13895a0c8"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "b36aa948-e4e2-5bdb-ad95-05f59b0389d0",
+      "query": "Offline sync and conflict resolution on reconnect with Zustand",
+      "rank": 0,
+      "top1Id": "1d4f7cdb-92a5-5487-9fd6-99661f2609a1",
+      "indexedChunks": 2
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "b7844dbe-d041-571a-9425-1559931a5b58",
+      "query": "Containerisation Đa Nền Tảng với Distroless Runtime",
+      "rank": 1,
+      "top1Id": "b7844dbe-d041-571a-9425-1559931a5b58"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "b8113760-8ca5-5381-aa25-0ef3c4d38748",
+      "query": "Notification preference CRUD and consent check",
+      "rank": 1,
+      "top1Id": "b8113760-8ca5-5381-aa25-0ef3c4d38748"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "becc797d-d2f5-5b24-90c9-7a396f6c291a",
+      "query": "Custom parent-based sampler và span DB an toàn (không lộ thông tin nhạy cảm)",
+      "rank": 1,
+      "top1Id": "becc797d-d2f5-5b24-90c9-7a396f6c291a"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "c8bd784f-8ebb-52d7-97e2-a88a8eebd1d5",
+      "query": "Sign in with Google via the OAuth2 authorization-code flow",
+      "rank": 1,
+      "top1Id": "c8bd784f-8ebb-52d7-97e2-a88a8eebd1d5"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "cb96bf3d-0823-5062-b651-6184e0e7edd1",
+      "query": "Zero-Downtime Migration sử dụng mô hình Expand-Contract",
+      "rank": 1,
+      "top1Id": "cb96bf3d-0823-5062-b651-6184e0e7edd1"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "ce88aae6-9b55-5d2d-8ee9-47e0ac02a957",
+      "query": "Attach a correlation ID across the whole envelope and localize error messages by Accept-Language",
+      "rank": 1,
+      "top1Id": "ce88aae6-9b55-5d2d-8ee9-47e0ac02a957"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "d54b693b-65b4-53d4-86b8-4985787bccd6",
+      "query": "Xác Minh Checksum Từng Phần và Ghép File Bất Đồng Bộ",
+      "rank": 0,
+      "top1Id": "2b17ec9b-d579-5437-9654-a809acdb99ed",
+      "indexedChunks": 2
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "d9960fb4-cb18-5f95-8a98-eebbeca2bf4b",
+      "query": "Embed documents into pgvector and retrieve top-k by cosine similarity",
+      "rank": 1,
+      "top1Id": "d9960fb4-cb18-5f95-8a98-eebbeca2bf4b"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "dc81d410-2273-5bf3-a03b-9b7c67a656e8",
+      "query": "Tối ưu hóa giá trị dẫn xuất đắt bằng useMemo",
+      "rank": 0,
+      "top1Id": "8ec7c76a-1128-5582-8337-631516da975e",
+      "indexedChunks": 2
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "dee4b01b-f3ac-523e-88c5-657e668e5d56",
+      "query": "Guard a write endpoint with a typed input contract and validation",
+      "rank": 1,
+      "top1Id": "dee4b01b-f3ac-523e-88c5-657e668e5d56"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "dfb5bb77-be9d-57d8-afb4-eb7029a0757f",
+      "query": "Fetch trong Effect an toàn race + view derived trong render",
+      "rank": 1,
+      "top1Id": "dfb5bb77-be9d-57d8-afb4-eb7029a0757f"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "e4c5dabd-a3d7-5320-81a4-88b5f05d3369",
+      "query": "Persistent shopping cart with Zustand persist",
+      "rank": 1,
+      "top1Id": "e4c5dabd-a3d7-5320-81a4-88b5f05d3369"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "e9d8ba01-bdda-5bf8-b5aa-6553ac07cc5f",
+      "query": "Liên kết nhiều OAuth provider về một local user",
+      "rank": 1,
+      "top1Id": "e9d8ba01-bdda-5bf8-b5aa-6553ac07cc5f"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "ede2579b-b2cf-5dde-a7a7-ed67cd3c84a5",
+      "query": "Form builder that renders fields FROM Zod introspection: one schema produces UI, validation, and type",
+      "rank": 1,
+      "top1Id": "ede2579b-b2cf-5dde-a7a7-ed67cd3c84a5"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "f2dcd664-d5d0-5de9-9438-0135529b264d",
+      "query": "Xây cache hai tầng (L1 in-memory + L2 Redis) đồng bộ giữa các instance bằng Pub/Sub",
+      "rank": 1,
+      "top1Id": "f2dcd664-d5d0-5de9-9438-0135529b264d"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "f7a89e0e-5f35-5b28-915d-a0bd07990b41",
+      "query": "Build a fan-out/fan-in media pipeline on a Redis-backed job queue and prove cascade failure",
+      "rank": 1,
+      "top1Id": "f7a89e0e-5f35-5b28-915d-a0bd07990b41"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "fb057ebc-3188-5b05-ad5d-3e4cece2ef1f",
+      "query": "Form phơi focusFirstInvalid() qua imperative handle",
+      "rank": 1,
+      "top1Id": "fb057ebc-3188-5b05-ad5d-3e4cece2ef1f"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "fbf05f7f-064a-5521-8411-0e885db603e5",
+      "query": "Collapse a chain of syncing Effects into derived + key-reset",
+      "rank": 1,
+      "top1Id": "fbf05f7f-064a-5521-8411-0e885db603e5"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "1d325660-196f-5f2a-a3b1-4cdfe2a0560d",
+      "query": "Auth, Phân quyền & Web Security",
+      "rank": 1,
+      "top1Id": "1d325660-196f-5f2a-a3b1-4cdfe2a0560d"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "36dece11-c52b-5cba-bfdc-440c70eac52d",
+      "query": "Caching, Performance & Scalability",
+      "rank": 1,
+      "top1Id": "36dece11-c52b-5cba-bfdc-440c70eac52d"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "3ed191ac-71eb-565a-9738-ea4262f5fc58",
+      "query": "Deployment, CI/CD & Tích hợp",
+      "rank": 1,
+      "top1Id": "3ed191ac-71eb-565a-9738-ea4262f5fc58"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "4213d29d-bee8-54ab-823b-4f4b870e3424",
+      "query": "Realtime: WebSockets & Events",
+      "rank": 3,
+      "top1Id": "3c57aa57-9f1e-515b-b592-b6d0f98d3c49"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "49d69b01-01e7-5657-ad2b-dbc82dfea6d9",
+      "query": "Observability & Khả Năng Phục Hồi",
+      "rank": 1,
+      "top1Id": "49d69b01-01e7-5657-ad2b-dbc82dfea6d9"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "5d9cef1f-a76b-5727-9478-f0a4913b5635",
+      "query": "TypeScript & Node.js Runtime",
+      "rank": 0,
+      "top1Id": "ad4cc001-57db-57a0-92dc-26e7620e7dcc",
+      "indexedChunks": 64
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "5ec8b980-2a67-5767-a2fc-79caefd39762",
+      "query": "Client State & Forms",
+      "rank": 1,
+      "top1Id": "5ec8b980-2a67-5767-a2fc-79caefd39762"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "805d867c-e7bb-5152-84dc-2c0a95237ef3",
+      "query": "API Design: REST & GraphQL Contracts",
+      "rank": 1,
+      "top1Id": "805d867c-e7bb-5152-84dc-2c0a95237ef3"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "87c1d06b-5662-5aaf-84d7-b2531eb5e61e",
+      "query": "NestJS Core & Vòng đời Request",
+      "rank": 1,
+      "top1Id": "87c1d06b-5662-5aaf-84d7-b2531eb5e61e"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "979f7f0e-8ca8-51bb-8d10-132f364b13c7",
+      "query": "React Rendering & Hooks",
+      "rank": 1,
+      "top1Id": "979f7f0e-8ca8-51bb-8d10-132f364b13c7"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "c4b27284-9ec0-598b-a3db-3bc76fc1a5f4",
+      "query": "Server State & Data Fetching",
+      "rank": 1,
+      "top1Id": "c4b27284-9ec0-598b-a3db-3bc76fc1a5f4"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "f193a849-b820-5fa3-b607-dc2d87de74c4",
+      "query": "Background Jobs, Queues & Messaging",
+      "rank": 3,
+      "top1Id": "21f3bc4f-8ee0-5535-8be6-4a88132b9bad"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "f5b1d977-39b3-564b-9848-95db573a5700",
+      "query": "Database & ORM",
+      "rank": 2,
+      "top1Id": "62fa5461-e0fa-5027-8213-9393ff6869d4"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "f6662885-c348-5507-824b-6308369bfcff",
+      "query": "UX, Styling & Accessibility",
+      "rank": 1,
+      "top1Id": "f6662885-c348-5507-824b-6308369bfcff"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "fc1761cf-3ba1-5b3e-ac48-adf92375695f",
+      "query": "Next.js, RSC & Chiến lược Rendering",
+      "rank": 1,
+      "top1Id": "fc1761cf-3ba1-5b3e-ac48-adf92375695f"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "03852105-94af-5c9c-9778-f7feb5f5c70a",
+      "query": "Infinite-Scroll Danh Mục (IntersectionObserver)",
+      "rank": 1,
+      "top1Id": "03852105-94af-5c9c-9778-f7feb5f5c70a"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "12a1d955-d926-5e7b-ad86-75bc556ad4d4",
+      "query": "Scaffold the Storefront (Next.js + HeroUI)",
+      "rank": 1,
+      "top1Id": "12a1d955-d926-5e7b-ad86-75bc556ad4d4"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "1cc6cf90-083c-5fed-9243-26da3b9bee39",
+      "query": "UI Checkout Retry-Safe + Chống Double-Submit",
+      "rank": 1,
+      "top1Id": "1cc6cf90-083c-5fed-9243-26da3b9bee39"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "26349146-c219-57e7-899b-1186b2e5fc42",
+      "query": "Shop Shell + Routing (App Router)",
+      "rank": 1,
+      "top1Id": "26349146-c219-57e7-899b-1186b2e5fc42"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "2b952658-d220-5914-b4dc-b4fa4ceceaba",
+      "query": "Infinite-Scroll Catalog qua Cursor",
+      "rank": 1,
+      "top1Id": "2b952658-d220-5914-b4dc-b4fa4ceceaba"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "324abf41-1688-55e2-a069-60901a36d98f",
+      "query": "Block Login Brute-Force on the Shop (Rate-Limit + Lockout)",
+      "rank": 1,
+      "top1Id": "324abf41-1688-55e2-a069-60901a36d98f"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "4109d663-a5b3-58bd-b9d0-9894a89007c6",
+      "query": "Toast + Theme Switcher cho Shop (next-themes)",
+      "rank": 1,
+      "top1Id": "4109d663-a5b3-58bd-b9d0-9894a89007c6"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "483bc06f-8724-5617-81b1-dddd71bb566c",
+      "query": "Admin Slow-Query Dashboard (pg_stat_statements)",
+      "rank": 1,
+      "top1Id": "483bc06f-8724-5617-81b1-dddd71bb566c"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "58310c4c-9c7b-5682-87c0-b0f93ddc3c95",
+      "query": "Trang Trạng Thái Dịch Vụ (API Client + /health)",
+      "rank": 1,
+      "top1Id": "58310c4c-9c7b-5682-87c0-b0f93ddc3c95"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "6606d49b-d884-51e9-8d3a-4a8c4df274dc",
+      "query": "Catalog Search, Filter & Sort",
+      "rank": 1,
+      "top1Id": "6606d49b-d884-51e9-8d3a-4a8c4df274dc"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "710bb2cb-0c02-5053-994e-f331cb1304c2",
+      "query": "Flash-Sale: Waiting-Room & Rate-Limit Quá Tải",
+      "rank": 1,
+      "top1Id": "710bb2cb-0c02-5053-994e-f331cb1304c2"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "750bca3e-6a6f-56c4-957c-8db8dbc9cc33",
+      "query": "Cache the Product Page (Redis + TTL)",
+      "rank": 1,
+      "top1Id": "750bca3e-6a6f-56c4-957c-8db8dbc9cc33"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "8b42087c-dc25-5b68-bf89-548ee5be73cd",
+      "query": "Hoàn tiền đơn đã trả (Reversing Ledger Entry)",
+      "rank": 1,
+      "top1Id": "8b42087c-dc25-5b68-bf89-548ee5be73cd"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "941b4e49-d207-5ba9-bdc8-b767140e37a8",
+      "query": "Speed Up My Orders with Indexes",
+      "rank": 1,
+      "top1Id": "941b4e49-d207-5ba9-bdc8-b767140e37a8"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "9f2d6bb9-f0fc-52a0-9a09-834a4a782b0f",
+      "query": "Hiện Độ Tươi Sản Phẩm + Nút Làm Mới",
+      "rank": 1,
+      "top1Id": "9f2d6bb9-f0fc-52a0-9a09-834a4a782b0f"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "b4844d5c-6071-5055-9eca-97484e403a5c",
+      "query": "One Error Shape for StarCi Shop (Filter + Validation)",
+      "rank": 1,
+      "top1Id": "b4844d5c-6071-5055-9eca-97484e403a5c"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "bf0a039d-02f6-5613-9e36-c0d073ee26fc",
+      "query": "Hiển Thị Profile Khách Đã Đăng Nhập (/auth/me + Auth Guard)",
+      "rank": 1,
+      "top1Id": "bf0a039d-02f6-5613-9e36-c0d073ee26fc"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "c60b1b31-c603-5a2d-ba11-df0255dea6f1",
+      "query": "Build the Shop Search Page (React)",
+      "rank": 1,
+      "top1Id": "c60b1b31-c603-5a2d-ba11-df0255dea6f1"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "ca0a002f-59f9-57fa-a8c4-39935dfedc65",
+      "query": "Bắt Sự Cố Shop Bằng Sentry",
+      "rank": 0,
+      "top1Id": "dd365bf6-a373-5bc6-be0d-41ffa01274f0",
+      "indexedChunks": 21
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "d302c0a8-c4e2-5bd8-b8c1-8ab83e2efd8c",
+      "query": "StarCi Shop Shell (App Router)",
+      "rank": 1,
+      "top1Id": "d302c0a8-c4e2-5bd8-b8c1-8ab83e2efd8c"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "dddaaafb-4a73-570c-8465-bc53e4552dab",
+      "query": "Bộ UI Shop + Trạng Thái Loading/Lỗi (HeroUI)",
+      "rank": 1,
+      "top1Id": "dddaaafb-4a73-570c-8465-bc53e4552dab"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "e7f21d5c-3863-501a-acd3-04cde45b0b0e",
+      "query": "Protect Shop Accounts with 2FA (TOTP)",
+      "rank": 1,
+      "top1Id": "e7f21d5c-3863-501a-acd3-04cde45b0b0e"
+    },
+    {
+      "courseSlug": "fullstack",
+      "courseId": "b359da45-9d91-5189-8374-bda0248167b3",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "f1f8cc99-ea96-5af5-a9af-896fbf151457",
+      "query": "Chi Tiết Sản Phẩm + Thêm Vào Giỏ (Dynamic Route)",
+      "rank": 2,
+      "top1Id": "5e6abba8-1096-52c5-bc35-83e414188fd7"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "00de0cdc-1b0a-5339-851d-a3054a9db0dc",
+      "query": "Cập nhật vị trí realtime ở quy mô lớn bằng Redis GEO",
+      "rank": 3,
+      "top1Id": "6df885ab-794d-5828-ab2d-512299db843f"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "0420a2fe-0dc1-5b19-a8b5-ad4bf06f660a",
+      "query": "mTLS and Zero-Trust: mutual authentication between internal services",
+      "rank": 1,
+      "top1Id": "0420a2fe-0dc1-5b19-a8b5-ad4bf06f660a"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "04b3ff1e-f75c-50f3-aeca-3fc9cd23abd9",
+      "query": "API Gateway: một điểm vào cho nhiều service",
+      "rank": 2,
+      "top1Id": "f1615495-02fd-5351-ba59-a23192d05f82"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "0dc1cb0c-1d52-5156-aee1-4b1051a2852c",
+      "query": "Video ingestion and transcoding: FFmpeg pipeline in NestJS",
+      "rank": 1,
+      "top1Id": "0dc1cb0c-1d52-5156-aee1-4b1051a2852c"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "0e022687-6df8-5797-a4f5-f0dfee578866",
+      "query": "etcd Strong Consensus (Raft) và Sequential Queue",
+      "rank": 1,
+      "top1Id": "0e022687-6df8-5797-a4f5-f0dfee578866"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "21b76e5a-d271-5ec6-8c85-47bf10c9c33b",
+      "query": "WebSocket Gateway & Redis Pub/Sub",
+      "rank": 2,
+      "top1Id": "8c412917-8ad2-5652-b0b3-c192efb5f804"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "24291cd1-ab6a-515d-bbb4-8485eb0e879f",
+      "query": "Indexing và tối ưu truy vấn: từ sequential scan tới B-tree",
+      "rank": 1,
+      "top1Id": "24291cd1-ab6a-515d-bbb4-8485eb0e879f"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "263c74a5-2440-59b8-9b16-d280c06fe745",
+      "query": "Rate Limit & Priority",
+      "rank": 1,
+      "top1Id": "263c74a5-2440-59b8-9b16-d280c06fe745"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "273688e8-a0e4-5324-bcca-8f41fb32d934",
+      "query": "Distributed tracing: OpenTelemetry, Jaeger và theo dõi yêu cầu xuyên dịch vụ",
+      "rank": 1,
+      "top1Id": "273688e8-a0e4-5324-bcca-8f41fb32d934"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "28309f8b-4f9b-5cfd-8d81-f869ebd33420",
+      "query": "Adaptive bitrate streaming: HLS and DASH with object storage",
+      "rank": 1,
+      "top1Id": "28309f8b-4f9b-5cfd-8d81-f869ebd33420"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "287968cf-c893-5c45-bda3-d28b770d324e",
+      "query": "Sliding window: log chính xác O(N) so với counter ước lượng O(1)",
+      "rank": 1,
+      "top1Id": "287968cf-c893-5c45-bda3-d28b770d324e"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "2891a1d4-f654-50e9-95e9-9f7c48b3571f",
+      "query": "Database-per-Service: Each Service Owns Its Data",
+      "rank": 1,
+      "top1Id": "2891a1d4-f654-50e9-95e9-9f7c48b3571f"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "2ff38b66-11c2-5e5f-b966-bf96413cc207",
+      "query": "Phân phối CDN toàn cầu: edge cache nginx và origin shielding",
+      "rank": 1,
+      "top1Id": "2ff38b66-11c2-5e5f-b966-bf96413cc207"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "38408f72-9a42-5b1a-a727-cd7ea7a540d4",
+      "query": "Metrics: Prometheus collection and Grafana visualization",
+      "rank": 5,
+      "top1Id": "525b7304-1ced-5e60-a3e0-dad8ce278d25"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "40af4c4a-766d-52a1-8e44-006ab24b08c0",
+      "query": "Saga Pattern: Orchestration vs Choreography",
+      "rank": 2,
+      "top1Id": "a2a10b72-b90c-5624-9cd3-89b1005c9652"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "42a7c8fa-e37e-5f2f-8131-82eb09073899",
+      "query": "Sharding: hash shard key, targeted vs scatter-gather",
+      "rank": 1,
+      "top1Id": "42a7c8fa-e37e-5f2f-8131-82eb09073899"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "4a344717-e1dd-5fb4-b163-48560f8d8878",
+      "query": "Giao tiếp đồng bộ: REST vs gRPC (hybrid)",
+      "rank": 1,
+      "top1Id": "4a344717-e1dd-5fb4-b163-48560f8d8878"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "4e7a9cae-7a2d-5067-bb85-e0f04ac3b522",
+      "query": "Monolith vs Microservices: Architectural Trade-offs and When to Split",
+      "rank": 1,
+      "top1Id": "4e7a9cae-7a2d-5067-bb85-e0f04ac3b522"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "591c517c-899c-5ff5-aab1-5cc414295583",
+      "query": "Redis Cluster: 16384 hash slot, định tuyến CRC16, hash-tag co-location, MOVED/ASK",
+      "rank": 1,
+      "top1Id": "591c517c-899c-5ff5-aab1-5cc414295583"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "5a917e8b-256c-512d-ba06-ed69102cfa7e",
+      "query": "Driver matching and dynamic surge pricing",
+      "rank": 1,
+      "top1Id": "5a917e8b-256c-512d-ba06-ed69102cfa7e"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "5d7e1e37-9540-5fe9-a379-dc6a1a8c022f",
+      "query": "Envelope encryption và KMS: bảo vệ data-at-rest với DEK, KEK, key rotation và crypto-shredding",
+      "rank": 1,
+      "top1Id": "5d7e1e37-9540-5fe9-a379-dc6a1a8c022f"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "60b9c8e0-b012-59d8-a9d8-6dd2429bfec8",
+      "query": "High-concurrency inventory management: atomic Lua decrement vs pessimistic lock",
+      "rank": 2,
+      "top1Id": "e204dbe9-3279-5834-b95e-4844ff092fd2"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "6563a0ef-f721-50c6-8856-5fac7d369d39",
+      "query": "Ứng dụng multi-tier trên K8s: ConfigMap, Secret, Service DNS, state",
+      "rank": 4,
+      "top1Id": "bf2db784-1a47-5d66-b259-d670cce7557f"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "6cba3902-b9c9-5076-98ea-f42221fbce66",
+      "query": "Redlock and Fencing Tokens",
+      "rank": 2,
+      "top1Id": "0f12951c-0fe2-5b07-9ec6-7caeaea8af65"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "70b9dd5a-6fb9-598e-a1ed-ea5735ef4e33",
+      "query": "Hàng đợi công việc dựa trên Redis: enqueue, worker, priority, delayed, retry và DLQ",
+      "rank": 2,
+      "top1Id": "263c74a5-2440-59b8-9b16-d280c06fe745"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "722f6800-5fed-5fa0-a66e-c0486ce8e96d",
+      "query": "Crawling Architecture and Politeness",
+      "rank": 1,
+      "top1Id": "722f6800-5fed-5fa0-a66e-c0486ce8e96d"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "77332996-739e-5708-9429-7d5e1e529ddf",
+      "query": "Event Sourcing: event log là nguồn sự thật",
+      "rank": 2,
+      "top1Id": "d957f59b-e1ba-5416-b5b4-3f1e232d4bd2"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "82315a29-3a23-57c2-95ec-29fd90b4ac75",
+      "query": "Kubernetes Foundations: Deployment, Service, Load Balancing Across Replicas",
+      "rank": 2,
+      "top1Id": "6563a0ef-f721-50c6-8856-5fac7d369d39"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "825f5f85-36a1-51b7-9c1d-bf249e67820d",
+      "query": "Quota phân tầng đa tenant trên Redis Cluster: chống hàng xóm ồn ào",
+      "rank": 1,
+      "top1Id": "825f5f85-36a1-51b7-9c1d-bf249e67820d"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "8abb8954-58fe-5ad5-bc92-e8108f586319",
+      "query": "Windowed Aggregation: bucket clicks by tumbling window and store in ClickHouse",
+      "rank": 2,
+      "top1Id": "9f588ac4-6085-5ef7-8372-1de94577472c"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "8b018008-8e5b-5c1e-a5cc-76acaf78543e",
+      "query": "Fanout tới group lớn: room sharding và hot-room batching",
+      "rank": 3,
+      "top1Id": "a32458d8-c141-56c8-a348-d766ef8498cc"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "8fa72996-a694-5473-9065-d5e41bf96a54",
+      "query": "Service discovery with Consul: health check, DNS, KV store",
+      "rank": 2,
+      "top1Id": "6f14fbe3-6af4-5fd4-9a8e-3a69f8e43c68"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "920723ed-ab8b-5627-9d91-1e4975ee7ddd",
+      "query": "Vector search với embeddings: tìm theo ngữ nghĩa bằng pgvector và HNSW",
+      "rank": 1,
+      "top1Id": "920723ed-ab8b-5627-9d91-1e4975ee7ddd"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "92b3622e-2748-5094-a6a3-9a4539be08a1",
+      "query": "Presence with Redis Bitmaps",
+      "rank": 2,
+      "top1Id": "941f13af-c7a6-5ebc-b2ef-0c542150ad46"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "9690b16f-d934-51f8-bd5a-f26ee61b56d1",
+      "query": "Transactional Outbox và Idempotent Delivery",
+      "rank": 5,
+      "top1Id": "427396a3-3618-5572-a612-b7ce5b1c7e69"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "96e58504-1bd5-50e3-b935-015ffda4c67b",
+      "query": "Reliability, replay, and deduplication (idempotent consumer)",
+      "rank": 0,
+      "top1Id": "b820a311-5ecd-5c50-ac7f-f2a157dd25f5",
+      "indexedChunks": 1554
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "9b139321-26f6-540c-9d5a-6b641a1f332f",
+      "query": "Bảo mật API edge: WAF và phòng thủ OWASP",
+      "rank": 1,
+      "top1Id": "9b139321-26f6-540c-9d5a-6b641a1f332f"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "a2a10b72-b90c-5624-9cd3-89b1005c9652",
+      "query": "Two-Phase Commit vs Saga Choreography",
+      "rank": 2,
+      "top1Id": "40af4c4a-766d-52a1-8e44-006ab24b08c0"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "a407dc60-f0e7-5347-b705-c7f0edcbb33a",
+      "query": "Geospatial indexing: băm tọa độ thành cell bằng H3",
+      "rank": 0,
+      "top1Id": "5a917e8b-256c-512d-ba06-ed69102cfa7e",
+      "indexedChunks": 1278
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "aaad9a07-1857-5267-8570-3ee7ca7b595d",
+      "query": "Data deduplication and resumable uploads",
+      "rank": 3,
+      "top1Id": "0b98b493-226f-57c3-adb3-c79b583c6b7a"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "b646115c-b799-55ad-bc91-5c1b78f3c9fc",
+      "query": "Bầu cử leader bằng lease",
+      "rank": 3,
+      "top1Id": "8751c9ca-99a0-50ae-8a74-f7ace6141540"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "b820a311-5ecd-5c50-ac7f-f2a157dd25f5",
+      "query": "Event ingestion with Kafka: producer, idempotency key and offset resume",
+      "rank": 2,
+      "top1Id": "1e49a76d-a562-5d2f-bcf3-54dfbf13e7c0"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "b82ad513-ff7d-54ef-8f5a-020389dce729",
+      "query": "Ledger Idempotent + Bút toán kép",
+      "rank": 2,
+      "top1Id": "7f784df8-96a5-5bf9-8f94-8647a19aae17"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "bce8c69c-9253-5503-9fb0-c5602e2fad3d",
+      "query": "Inverted index and BM25 from scratch: ranking text without a search library",
+      "rank": 4,
+      "top1Id": "fb2d6f27-d4d9-5f72-b412-a0c53dfcf27c"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "bf64dfeb-2daf-5db2-b439-c536acb46294",
+      "query": "Tối ưu hiệu suất feed bằng Redis Sorted Set",
+      "rank": 5,
+      "top1Id": "5ba4f23a-2c68-573e-81a8-62ec1da71e49"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "c1353543-d18e-5261-a695-3fd33b23f5b9",
+      "query": "Virtual waiting room: fair queuing with Redis Sorted Set",
+      "rank": 2,
+      "top1Id": "2ccedf87-6862-5bf7-82fd-5b854c4417b7"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "c373d1f2-c2f6-5b3c-9eca-3cd0bfdb69b6",
+      "query": "CDC với Debezium: đồng bộ Postgres sang Kafka và Elasticsearch theo thời gian thực",
+      "rank": 4,
+      "top1Id": "c1098ce8-8161-5c31-a2db-41acbe55c5f4"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "c6174ac3-b043-58ff-bec5-2afe2d138eeb",
+      "query": "Webhook Signing and In-Process Retry",
+      "rank": 2,
+      "top1Id": "addb144e-3a32-53f6-b396-d35adcbe6866"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "c8a970f5-6b7a-5aea-be28-1094b9f4169c",
+      "query": "Hybrid fanout và kỹ thuật giảm tải hotkey Redis",
+      "rank": 4,
+      "top1Id": "263c74a5-2440-59b8-9b16-d280c06fe745"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "ccb3b697-2149-54e1-b0eb-553c433dd4fc",
+      "query": "HTML Parsing, Indexing and PageRank",
+      "rank": 1,
+      "top1Id": "ccb3b697-2149-54e1-b0eb-553c433dd4fc"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "ce2f8816-4b29-5ad2-bd30-d3cc49b08ee7",
+      "query": "Late data và phát hiện fraud: watermark cho event muộn và đếm theo cửa sổ để bắt click giả",
+      "rank": 1,
+      "top1Id": "ce2f8816-4b29-5ad2-bd30-d3cc49b08ee7"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "d034ebe4-d213-59fa-8979-a500541c86cc",
+      "query": "Lua scripting and GEO in Redis: EVAL/EVALSHA, GEOADD, GEOSEARCH",
+      "rank": 1,
+      "top1Id": "d034ebe4-d213-59fa-8979-a500541c86cc"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "d957f59b-e1ba-5416-b5b4-3f1e232d4bd2",
+      "query": "CQRS: tách Command/Query và read model",
+      "rank": 1,
+      "top1Id": "d957f59b-e1ba-5416-b5b4-3f1e232d4bd2"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "d99249cf-5954-5343-87b9-e4b6cde10408",
+      "query": "Reconciliation and Compensating Transactions",
+      "rank": 3,
+      "top1Id": "40af4c4a-766d-52a1-8e44-006ab24b08c0"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "e04d2c71-3f6b-5829-ae7b-ab8bcc5853ec",
+      "query": "Token bucket và tính nguyên tử bằng Redis Lua: rate limit không bị race",
+      "rank": 3,
+      "top1Id": "252bbdc3-7313-550a-8987-a4d7c9be3732"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "ea1bceb4-7911-50d5-8dd0-aa812ca190ab",
+      "query": "Tamper-evident audit logging: hash-chaining an append-only security trail",
+      "rank": 1,
+      "top1Id": "ea1bceb4-7911-50d5-8dd0-aa812ca190ab"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "ed5585ce-b791-5d21-a48a-2d3c9145b867",
+      "query": "Chiến lược mở rộng hệ thống",
+      "rank": 0,
+      "top1Id": "d6de1cf0-c44d-5754-bd05-9f4f9723c411",
+      "indexedChunks": 1166
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "f14daa72-303c-5de7-889a-3e084e1942ad",
+      "query": "Standard System Design Process",
+      "rank": 3,
+      "top1Id": "58f3cdd3-aee1-58f4-9a50-b5ea22ac8004"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "fa29223e-f13e-5061-a847-42edc0e66580",
+      "query": "RabbitMQ cơ bản: exchange, routing và ack/prefetch",
+      "rank": 1,
+      "top1Id": "fa29223e-f13e-5061-a847-42edc0e66580"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "fc146cd5-0f5e-5b34-8519-6068eee4304d",
+      "query": "Kubernetes on managed cloud (DOKS): Ingress, TLS, automatic certificates",
+      "rank": 1,
+      "top1Id": "fc146cd5-0f5e-5b34-8519-6068eee4304d"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "021a4084-b386-50d4-b7b3-693e0ca6b82c",
+      "query": "Dedup hai pha: lock trước, confirm sau khi giao thành công",
+      "rank": 1,
+      "top1Id": "021a4084-b386-50d4-b7b3-693e0ca6b82c"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "04b6d482-30bb-540a-ab65-724391622ea7",
+      "query": "1M TPS sharded ledger with cross-shard transactions, a cross-shard audit invariant, and rebalance proof",
+      "rank": 1,
+      "top1Id": "04b6d482-30bb-540a-ab65-724391622ea7"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "07f4dc85-c731-589c-b9ec-7bdf5e6b3830",
+      "query": "Đo write amplification do index, chống bloat bằng HOT update + covering index và REINDEX CONCURRENTLY",
+      "rank": 1,
+      "top1Id": "07f4dc85-c731-589c-b9ec-7bdf5e6b3830"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "0c375751-7984-5e16-997d-c8df84493860",
+      "query": "Prove tiered storage migrates log segments to object storage, retention reclaims them, and compaction keeps the latest value per key",
+      "rank": 1,
+      "top1Id": "0c375751-7984-5e16-997d-c8df84493860"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "0ff5c13d-c62d-5695-b93f-8691ca480ad9",
+      "query": "Dựng distributed cron scheduler với Redis leader election chịu 100k job/ngày và sống sót qua leader failover",
+      "rank": 1,
+      "top1Id": "0ff5c13d-c62d-5695-b93f-8691ca480ad9"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "12247c14-2882-51f2-ba49-5955d6eaa58b",
+      "query": "Add a headers exchange and route messages by header arguments, not by routing key",
+      "rank": 1,
+      "top1Id": "12247c14-2882-51f2-ba49-5955d6eaa58b"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "1414c3b2-7b3d-5727-9347-37c2816c3fe5",
+      "query": "Khử trùng giao tin (idempotent worker) để retry không gửi hai lần",
+      "rank": 1,
+      "top1Id": "1414c3b2-7b3d-5727-9347-37c2816c3fe5"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "164dd6ad-cde3-5d66-8073-d6a707120f46",
+      "query": "Build a per-endpoint token-bucket rate limiter that returns 429 with retry-after",
+      "rank": 1,
+      "top1Id": "164dd6ad-cde3-5d66-8073-d6a707120f46"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "1d27cede-1ed4-5e87-99be-b07d0a10f633",
+      "query": "Xây inverted index, tokenizer, và bộ tính điểm tần suất từ từ đầu",
+      "rank": 1,
+      "top1Id": "1d27cede-1ed4-5e87-99be-b07d0a10f633"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "22e72bf4-728f-5247-b877-3947f26fbfdb",
+      "query": "Build a multi-region Consul Connect service mesh with WAN federation, prepared-query failover, and a region-partition chaos test",
+      "rank": 1,
+      "top1Id": "22e72bf4-728f-5247-b877-3947f26fbfdb"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "2956dc04-323c-5578-a9ee-31bf0eb1e7ea",
+      "query": "KEK theo từng tenant và crypto-shredding cho xóa GDPR trên backup bất biến",
+      "rank": 1,
+      "top1Id": "2956dc04-323c-5578-a9ee-31bf0eb1e7ea"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "2de6c117-1a79-55c2-aa37-49eb436500b5",
+      "query": "Real-time surge pricing and offline fare calculator",
+      "rank": 1,
+      "top1Id": "2de6c117-1a79-55c2-aa37-49eb436500b5"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "30891292-ea8f-5f9a-8aad-a6a32f227145",
+      "query": "Scale độc lập một service nóng lên N replica sau gateway round-robin và chứng minh bằng số đo rằng chỉ service đó nở ra, monolith thì không thể",
+      "rank": 1,
+      "top1Id": "30891292-ea8f-5f9a-8aad-a6a32f227145"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "35efa0ad-3837-56b0-826e-6b5ecbfd5eff",
+      "query": "Atomic idempotent transfer with deterministic lock ordering and replay detection",
+      "rank": 1,
+      "top1Id": "35efa0ad-3837-56b0-826e-6b5ecbfd5eff"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "3a0339dd-4fa8-5fd3-ad1c-4603dbe3fc55",
+      "query": "Dựng read model xuyên service trả lời truy vấn order + tồn kho mà KHÔNG cross-DB join",
+      "rank": 1,
+      "top1Id": "3a0339dd-4fa8-5fd3-ad1c-4603dbe3fc55"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "3d115d60-30de-506c-9ddd-4dc9a714ccdc",
+      "query": "100k concurrent purchase zero oversell multi-region with chaos tests and a capacity model",
+      "rank": 1,
+      "top1Id": "3d115d60-30de-506c-9ddd-4dc9a714ccdc"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "437964f0-3548-5c3a-aa2d-cf5cc821d607",
+      "query": "Dựng pipeline log-based metrics quy mô 1TB/ngày: instrument app, ship structured log vào Loki, derive metric Prometheus và chứng minh dưới tải bền vững",
+      "rank": 1,
+      "top1Id": "437964f0-3548-5c3a-aa2d-cf5cc821d607"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "47037cb0-c8ac-51e0-ad11-83b458422b9b",
+      "query": "Hold the p99 SLO under overload: admission control + load shedding instead of letting the cluster collapse on tail latency",
+      "rank": 1,
+      "top1Id": "47037cb0-c8ac-51e0-ad11-83b458422b9b"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "4b544cf9-26b8-5798-80e5-af0d60ab39fa",
+      "query": "Dựng search API trên Elasticsearch kết hợp bool query đa điều kiện, sub-aggregations và phân trang sắp xếp",
+      "rank": 1,
+      "top1Id": "4b544cf9-26b8-5798-80e5-af0d60ab39fa"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "4d6d7c09-0847-5180-9d73-fccf19d142bb",
+      "query": "Serve HLS manifest and segments from a transcoding service",
+      "rank": 1,
+      "top1Id": "4d6d7c09-0847-5180-9d73-fccf19d142bb"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "50be1160-0093-533a-a7f9-da0e95c32c1d",
+      "query": "Ghi outbox giao dịch và worker quét skip-locked",
+      "rank": 1,
+      "top1Id": "50be1160-0093-533a-a7f9-da0e95c32c1d"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "53f784f2-9bfb-53bb-b98b-2d10a803d176",
+      "query": "Scale tamper-evidence to 1M events across sharded chains with periodic checkpoint roots and bounded verify",
+      "rank": 1,
+      "top1Id": "53f784f2-9bfb-53bb-b98b-2d10a803d176"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "562ea4ec-2b00-5885-b613-88a53b9c39eb",
+      "query": "Deploy một app lên local kind cluster đứng sau Service và chứng minh vòng đời pod",
+      "rank": 1,
+      "top1Id": "562ea4ec-2b00-5885-b613-88a53b9c39eb"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "5d3aa8dc-1fb4-5a82-b9d9-7871ed818033",
+      "query": "Build a 60-second sliding-window rate limiter entirely in atomic Lua on Redis with a per-client + per-route cascade",
+      "rank": 1,
+      "top1Id": "5d3aa8dc-1fb4-5a82-b9d9-7871ed818033"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "65e272ba-216c-553d-9fa7-32954024fa28",
+      "query": "Politeness phân tán bằng đồng hồ Redis chia sẻ và lưu trang vào Postgres",
+      "rank": 0,
+      "top1Id": "d57e841f-1883-5da4-887e-db3bd0d77ef6",
+      "indexedChunks": 2
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "68d388f3-f486-5ca4-a3f9-0432d3a4f35a",
+      "query": "Per-endpoint Redis circuit breaker with fail-fast and a half-open single probe",
+      "rank": 1,
+      "top1Id": "68d388f3-f486-5ca4-a3f9-0432d3a4f35a"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "6b00c3ff-cab8-5ba7-8354-f3556e7c8c35",
+      "query": "Distributed PageRank 1B page với Spark/Flink, budget 24h và chaos test",
+      "rank": 1,
+      "top1Id": "6b00c3ff-cab8-5ba7-8354-f3556e7c8c35"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "6fc282bc-63af-5670-a593-08e7b02c39b7",
+      "query": "Multi-currency double-entry ledger with FX-rate snapshot, per-currency balance, and daily reconcile",
+      "rank": 1,
+      "top1Id": "6fc282bc-63af-5670-a593-08e7b02c39b7"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "72e1a0ad-1571-5172-be33-c598b78824e5",
+      "query": "Mở rộng bitrate ladder và transcode an toàn khi gọi đồng thời",
+      "rank": 1,
+      "top1Id": "72e1a0ad-1571-5172-be33-c598b78824e5"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "790061cd-b956-5534-8c3a-70b0550760a8",
+      "query": "Durability for chunked storage: Reed-Solomon erasure coding vs 3x replication — cost, throughput, and failure-recovery analysis",
+      "rank": 1,
+      "top1Id": "790061cd-b956-5534-8c3a-70b0550760a8"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "7bda6826-3e5e-578b-b964-30723a7aeff7",
+      "query": "Thêm một rule ABAC vào policy OPA và chứng minh quyền được cấp bởi attribute, không phải role",
+      "rank": 1,
+      "top1Id": "7bda6826-3e5e-578b-b964-30723a7aeff7"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "7f42da64-2f68-58f4-9bf9-0a3d8c4e97f2",
+      "query": "Redlock vs ZooKeeper vs etcd benchmark at 1k RPS with correctness verification and a capacity model",
+      "rank": 1,
+      "top1Id": "7f42da64-2f68-58f4-9bf9-0a3d8c4e97f2"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "80cb26c1-59bd-53e2-abbd-46835672658d",
+      "query": "Dựng rate limiter sliding-window-log trên Redis ZSET và so sánh với token bucket",
+      "rank": 1,
+      "top1Id": "80cb26c1-59bd-53e2-abbd-46835672658d"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "83e35fb1-4202-5f1b-9d87-6fcdd106e761",
+      "query": "Insane — Multi-region tenant quota with a CRDT G-Counter and chaos cross-region partition",
+      "rank": 1,
+      "top1Id": "83e35fb1-4202-5f1b-9d87-6fcdd106e761"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "88df7489-cc8b-50ac-812e-ad35403f4cd4",
+      "query": "Umbrella chart cho MongoDB sharded cluster: chứng minh dữ liệu trải đều qua các shard và scale ngang thật",
+      "rank": 1,
+      "top1Id": "88df7489-cc8b-50ac-812e-ad35403f4cd4"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "8ad66f33-510a-584e-84f7-019e1f98fc28",
+      "query": "Detect and self-heal data divergence between two services when events are LOST",
+      "rank": 1,
+      "top1Id": "8ad66f33-510a-584e-84f7-019e1f98fc28"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "8f6f0735-40c1-5eab-8605-1c9c1685add3",
+      "query": "Saga compensation với retry exponential-backoff và một dead-letter queue",
+      "rank": 1,
+      "top1Id": "8f6f0735-40c1-5eab-8605-1c9c1685add3"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "937f549d-94cf-5fff-91af-5dff1d9192e0",
+      "query": "Build a three-service choreography saga over Kafka with a happy path and a compensation path",
+      "rank": 1,
+      "top1Id": "937f549d-94cf-5fff-91af-5dff1d9192e0"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "96c93027-d837-5e2c-b783-3253d74a0e3f",
+      "query": "Dựng Keycloak federation 3 realm broker SAML + OIDC, cross-realm SSO qua Token Exchange, chaos test RTO ≤ 30s và benchmark 500 SSO/giây",
+      "rank": 1,
+      "top1Id": "96c93027-d837-5e2c-b783-3253d74a0e3f"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "99bd3b77-53e6-58e9-9288-719a20ef465e",
+      "query": "Authenticate to Vault with AppRole and prove the app boots on a short-lived least-privilege token instead of root",
+      "rank": 1,
+      "top1Id": "99bd3b77-53e6-58e9-9288-719a20ef465e"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "9c59f15f-84b9-5b93-a39b-283c08defa79",
+      "query": "Tính capacity estimate cho một hệ thống thực, xác định bottleneck và đề xuất khắc phục",
+      "rank": 1,
+      "top1Id": "9c59f15f-84b9-5b93-a39b-283c08defa79"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "9ff14f44-6ab8-59a9-9b17-303c12bb4a2f",
+      "query": "Multi-tenant rate limit on Redis Cluster: per-client atomic token bucket in Lua and a shared worker limiter at 1M rps scale",
+      "rank": 1,
+      "top1Id": "9ff14f44-6ab8-59a9-9b17-303c12bb4a2f"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "a32458d8-c141-56c8-a348-d766ef8498cc",
+      "query": "Hot-room batching: gom burst tin thành một emit và đo fanout breadth",
+      "rank": 1,
+      "top1Id": "a32458d8-c141-56c8-a348-d766ef8498cc"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "a5ff3c7f-accc-54c8-83b2-149396cffffd",
+      "query": "Rotate the KEK and rewrap DEKs without re-encrypting data, proving old records stay decryptable",
+      "rank": 1,
+      "top1Id": "a5ff3c7f-accc-54c8-83b2-149396cffffd"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "a907b72d-3c31-56c5-9ac4-6c9a12122631",
+      "query": "Hàng đợi strict-FIFO với VIP bypass lane và ETA vị trí chính xác",
+      "rank": 1,
+      "top1Id": "a907b72d-3c31-56c5-9ac4-6c9a12122631"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "b205e667-f1ba-5389-a260-5024c072f583",
+      "query": "Outbox with transactional publish and CDC via Debezium Kafka",
+      "rank": 1,
+      "top1Id": "b205e667-f1ba-5389-a260-5024c072f583"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "b88bf529-9a6d-5562-9a5c-6d9ca8ad4e46",
+      "query": "Dựng quorum queue 3 replica, priority queue, dead-letter exchange và publisher confirms cho RabbitMQ",
+      "rank": 1,
+      "top1Id": "b88bf529-9a6d-5562-9a5c-6d9ca8ad4e46"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "bd3cf161-c917-5165-8a63-95aa31949f12",
+      "query": "Build a blue-green cutover via Consul service tags and prove zero-downtime with a k6 soak test",
+      "rank": 1,
+      "top1Id": "bd3cf161-c917-5165-8a63-95aa31949f12"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "bfebc233-1fed-5521-8a96-dfaaa98a049f",
+      "query": "Sustain 100k msg/sec trên Kafka cluster tiered storage, chứng minh kinh tế retention 1TB/day rồi sống sót qua ba failure mode",
+      "rank": 1,
+      "top1Id": "bfebc233-1fed-5521-8a96-dfaaa98a049f"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "c6734cb4-eb8c-54e8-8882-9d7b6bb44146",
+      "query": "Metric-driven circuit breaker with a sliding-window error rate and Prometheus metrics",
+      "rank": 1,
+      "top1Id": "c6734cb4-eb8c-54e8-8882-9d7b6bb44146"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "d0738409-0071-5455-8b49-559ee88cfc59",
+      "query": "Dựng nginx edge cache và origin header để quan sát MISS rồi HIT",
+      "rank": 1,
+      "top1Id": "d0738409-0071-5455-8b49-559ee88cfc59"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "d2a0f558-f915-57fb-8cb8-1b317a0fa568",
+      "query": "Multi-CDN failover with RUM-based selection + auto failover + cost optimization",
+      "rank": 1,
+      "top1Id": "d2a0f558-f915-57fb-8cb8-1b317a0fa568"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "d791b173-d756-5c12-8762-100c25958db2",
+      "query": "Saga event-sourced, multi-region với disaster recovery dựa trên replay",
+      "rank": 1,
+      "top1Id": "d791b173-d756-5c12-8762-100c25958db2"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "db950154-80aa-58f0-93cf-3257a62ede49",
+      "query": "Drive an app from a ConfigMap and a Secret, then prove config changes propagate without hardcoding",
+      "rank": 1,
+      "top1Id": "db950154-80aa-58f0-93cf-3257a62ede49"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "dfbdd76a-596b-5341-a371-7916fcec20ea",
+      "query": "Token bucket trên Redis Cluster với hash-tag co-location chịu tải 1M RPS p99 <= 2ms",
+      "rank": 1,
+      "top1Id": "dfbdd76a-596b-5341-a371-7916fcec20ea"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "e3cc5d95-d0ac-5910-94b4-372aaa230c57",
+      "query": "Compare accuracy under concurrency: client-side Read-Modify-Write versus Redis Lua script",
+      "rank": 1,
+      "top1Id": "e3cc5d95-d0ac-5910-94b4-372aaa230c57"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "eed37f66-5b9a-5464-9b23-9fc1f9781a12",
+      "query": "Đẩy một node vào memory pressure và chứng minh kubelet evict đúng theo QoS class trong khi một app Guaranteed sống sót",
+      "rank": 1,
+      "top1Id": "eed37f66-5b9a-5464-9b23-9fc1f9781a12"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "f1615495-02fd-5351-ba59-a23192d05f82",
+      "query": "Build an API Gateway that routes to user, product, and order services as the single entry point",
+      "rank": 1,
+      "top1Id": "f1615495-02fd-5351-ba59-a23192d05f82"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "f7b4280c-df75-513f-aa26-a9e310e8e5c2",
+      "query": "Tìm điểm cross-over của mô hình dữ liệu: embed vs reference vs normalize dưới một fan-out update",
+      "rank": 1,
+      "top1Id": "f7b4280c-df75-513f-aa26-a9e310e8e5c2"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "f9b01b07-dad3-5460-9716-85b17cbe402f",
+      "query": "1M RPS multi-CDN with real-user monitoring routing and cross-provider failover",
+      "rank": 1,
+      "top1Id": "f9b01b07-dad3-5460-9716-85b17cbe402f"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "1e49a76d-a562-5d2f-bcf3-54dfbf13e7c0",
+      "query": "Messaging & Event Streaming",
+      "rank": 1,
+      "top1Id": "1e49a76d-a562-5d2f-bcf3-54dfbf13e7c0"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "2634fb00-80a6-5b9c-8c7d-7ef372624302",
+      "query": "API & Communication Design",
+      "rank": 1,
+      "top1Id": "2634fb00-80a6-5b9c-8c7d-7ef372624302"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "2f5db4dd-4f16-562e-ac23-a8dd5b1edbf9",
+      "query": "Khả năng chống chịu & Rate Limiting",
+      "rank": 0,
+      "top1Id": "70b9dd5a-6fb9-598e-a1ed-ea5735ef4e33",
+      "indexedChunks": 40
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "30a8933b-4d8e-5cf7-a9b8-317478cf0573",
+      "query": "Storage & Content Delivery",
+      "rank": 1,
+      "top1Id": "30a8933b-4d8e-5cf7-a9b8-317478cf0573"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "4039c670-455c-5395-b5d3-2a2193d180a6",
+      "query": "Nhất Quán & Transaction",
+      "rank": 0,
+      "top1Id": "40af4c4a-766d-52a1-8e44-006ab24b08c0",
+      "indexedChunks": 59
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "4758fa28-bae8-56ac-8ed9-6e147369b29c",
+      "query": "Reliability & Observability",
+      "rank": 0,
+      "top1Id": "38408f72-9a42-5b1a-a727-cd7ea7a540d4",
+      "indexedChunks": 53
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "69f60d77-09e3-561c-9031-441c7be17bd0",
+      "query": "Case Study: Walkthrough Toàn Trình End-to-End",
+      "rank": 0,
+      "top1Id": "c8a970f5-6b7a-5aea-be28-1094b9f4169c",
+      "indexedChunks": 62
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "7376bfd0-8019-541e-ac54-6bc72a3e918a",
+      "query": "Caching & CDN",
+      "rank": 2,
+      "top1Id": "51703469-b723-586d-91d7-47ad2dcbc0f1"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "89bca8c8-75aa-55b0-b7a3-b6448c42a53e",
+      "query": "Microservices & Service Mesh",
+      "rank": 1,
+      "top1Id": "89bca8c8-75aa-55b0-b7a3-b6448c42a53e"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "9217ec72-0a8f-559c-b7c6-808487ce4b4d",
+      "query": "Security & Identity",
+      "rank": 0,
+      "top1Id": "900a7cb4-0b0b-55c9-91c7-b4c94b7c746e",
+      "indexedChunks": 58
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "af39d33f-93c1-5004-8a87-a90ec6e6ef1b",
+      "query": "Tìm Kiếm, News Feed & Ranking",
+      "rank": 1,
+      "top1Id": "af39d33f-93c1-5004-8a87-a90ec6e6ef1b"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "b312e652-0fd9-5cf7-ae6f-6ed64ea93ef0",
+      "query": "Core Concepts & Tradeoffs",
+      "rank": 2,
+      "top1Id": "d6de1cf0-c44d-5754-bd05-9f4f9723c411"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "cba167be-1270-55a6-95c5-4300b4cbdf81",
+      "query": "Phối Hợp Phân Tán & Consensus",
+      "rank": 0,
+      "top1Id": "1e90238f-0b7a-59b5-ab30-638a29b0e1c2",
+      "indexedChunks": 60
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "cdb4d596-66d4-5736-85cf-f2a428a1bbaf",
+      "query": "Data at Scale & Partitioning",
+      "rank": 1,
+      "top1Id": "cdb4d596-66d4-5736-85cf-f2a428a1bbaf"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "f2ef549c-b00b-5acb-a5e4-239fc0e1fa44",
+      "query": "Khả Năng Mở Rộng & Ước Lượng Nhanh",
+      "rank": 0,
+      "top1Id": "a407dc60-f0e7-5347-b705-c7f0edcbb33a",
+      "indexedChunks": 55
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "0808bebd-2811-5c29-ae05-7cf722dc12ad",
+      "query": "Đấu Nối Redis Cho Catalog Sản Phẩm",
+      "rank": 2,
+      "top1Id": "7370e383-ae4f-5d54-a446-849d8a6b1cee"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "0cd9d84f-0bf6-5bc1-8b7c-72f145f3c0bf",
+      "query": "Share Rate-Limit State Across Nodes via Redis",
+      "rank": 1,
+      "top1Id": "0cd9d84f-0bf6-5bc1-8b7c-72f145f3c0bf"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "0f4a1ae8-ce4d-5841-afbd-763a6b817c9e",
+      "query": "Lọc và sắp xếp danh mục sản phẩm",
+      "rank": 0,
+      "top1Id": "13b6899c-ca67-53a0-8792-cce665fb3755",
+      "indexedChunks": 14
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "16247044-2b1d-5781-a226-ff0334ee00d5",
+      "query": "Relay Catalog Events from Outbox to Kafka",
+      "rank": 1,
+      "top1Id": "16247044-2b1d-5781-a226-ff0334ee00d5"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "29f5fd79-97dc-5caf-86f1-5953ede49ca0",
+      "query": "Khôi Phục Thanh Toán Treo Sau Sự Cố",
+      "rank": 1,
+      "top1Id": "29f5fd79-97dc-5caf-86f1-5953ede49ca0"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "402daf76-94bb-5db1-abf6-c20b6f9db780",
+      "query": "Migrate the Catalog Service Schema Independently",
+      "rank": 1,
+      "top1Id": "402daf76-94bb-5db1-abf6-c20b6f9db780"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "4a0d0b43-75a9-5783-9bb9-d4737a68f277",
+      "query": "Phát Tán Webhook Merchant Qua Gateway",
+      "rank": 1,
+      "top1Id": "4a0d0b43-75a9-5783-9bb9-d4737a68f277"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "54356219-0cd6-5d27-b53f-e6994b710930",
+      "query": "Guard Merchant Endpoints by Role & Scope",
+      "rank": 0,
+      "top1Id": "fc146cd5-0f5e-5b34-8519-6068eee4304d",
+      "indexedChunks": 14
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "5dd0f7c3-5209-5cfe-a743-90a695b0cfda",
+      "query": "Phác Họa Vấn Đề Bán Vượt Kho Trong Flash-Sale",
+      "rank": 1,
+      "top1Id": "5dd0f7c3-5209-5cfe-a743-90a695b0cfda"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "66e30f1c-2626-5c05-9cf4-24b0a0c280e2",
+      "query": "Compose Up the Whole Shop with Its Database",
+      "rank": 1,
+      "top1Id": "66e30f1c-2626-5c05-9cf4-24b0a0c280e2"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "76fa1633-be89-5a05-aa32-05628f04a31a",
+      "query": "Đảm Bảo Nhất Quán Khi Chuyển Tiền Ví Sang Đơn",
+      "rank": 1,
+      "top1Id": "76fa1633-be89-5a05-aa32-05628f04a31a"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "79824480-85ee-5a5b-b656-a85bd27103f1",
+      "query": "Make Restock Idempotent Under the Lock",
+      "rank": 1,
+      "top1Id": "79824480-85ee-5a5b-b656-a85bd27103f1"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "83562eac-fefe-50cf-95fe-9c16f1529518",
+      "query": "Bước Thanh Toán Idempotent và An Toàn Khi Retry",
+      "rank": 1,
+      "top1Id": "83562eac-fefe-50cf-95fe-9c16f1529518"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "8a739b11-cbf5-51d6-9e6a-ed26e6f00407",
+      "query": "Build the Wallet Double-Entry Ledger",
+      "rank": 1,
+      "top1Id": "8a739b11-cbf5-51d6-9e6a-ed26e6f00407"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "949e0164-29c9-55fd-b9c8-ec94d4d56c38",
+      "query": "Tìm Kiếm Sản Phẩm Hoạt Động Thế Nào: Inverted Index",
+      "rank": 1,
+      "top1Id": "949e0164-29c9-55fd-b9c8-ec94d4d56c38"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "a5081712-00ff-55c1-a8f9-d3e4e36907e6",
+      "query": "Run Catalog and Order on Separate PostgreSQL Databases",
+      "rank": 1,
+      "top1Id": "a5081712-00ff-55c1-a8f9-d3e4e36907e6"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "a93dfbb1-8e50-50ff-94f8-8ac696d2f331",
+      "query": "Duyệt danh mục với phân trang offset",
+      "rank": 0,
+      "top1Id": "aaad9a07-1857-5267-8570-3ee7ca7b595d",
+      "indexedChunks": 12
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "add7faf2-a0a1-50db-8760-76a26a10028c",
+      "query": "Sign Merchant Webhooks with HMAC",
+      "rank": 1,
+      "top1Id": "add7faf2-a0a1-50db-8760-76a26a10028c"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "b9ca969d-7879-5da5-b2f9-78825ed9ebd9",
+      "query": "Chọn chiến lược phân trang cho danh mục",
+      "rank": 2,
+      "top1Id": "a407dc60-f0e7-5347-b705-c7f0edcbb33a"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "cfa7c616-5dbc-5dfe-a414-e543161d9a34",
+      "query": "Dockerize the Product Catalog Service",
+      "rank": 1,
+      "top1Id": "cfa7c616-5dbc-5dfe-a414-e543161d9a34"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "d805ef7d-350f-59c8-a3f1-d08841a004c1",
+      "query": "Vẽ Bản Đồ Cổng Vào Của Shop: Nhập Môn API Gateway",
+      "rank": 1,
+      "top1Id": "d805ef7d-350f-59c8-a3f1-d08841a004c1"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "f01e2bd7-a487-5e74-ab56-eb9c76ab6a2b",
+      "query": "Record Catalog & Order Changes in a Transactional Outbox",
+      "rank": 1,
+      "top1Id": "f01e2bd7-a487-5e74-ab56-eb9c76ab6a2b"
+    },
+    {
+      "courseSlug": "systemdesign",
+      "courseId": "1ab239c8-ebb5-53ee-b255-dc7839a6b959",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "f3a809bb-f175-5637-9b37-db8091d5db5a",
+      "query": "Kiểm Tải Flash-Sale Đảm Bảo Không Bán Vượt",
+      "rank": 1,
+      "top1Id": "f3a809bb-f175-5637-9b37-db8091d5db5a"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "000fa8e2-846f-57f6-bcab-dac37a17916f",
+      "query": "GCE Instance & Persistent Disk: machine type, boot image, attach/detach và snapshot bằng Terraform",
+      "rank": 1,
+      "top1Id": "000fa8e2-846f-57f6-bcab-dac37a17916f"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "0392e247-237b-57e5-91d2-4917163a55bf",
+      "query": "Networking Basics & SSH — connectivity, ports, and key-based auth",
+      "rank": 1,
+      "top1Id": "0392e247-237b-57e5-91d2-4917163a55bf"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "095cc9dc-78ae-553e-b010-0f6a6f9a84b6",
+      "query": "Restore drill & failover",
+      "rank": 0,
+      "top1Id": "6bedc5a4-43a6-5ed5-9f9e-a494fab94f92",
+      "indexedChunks": 0
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "0b051eb8-6c18-5f0b-873b-8110a6ec713a",
+      "query": "EC2 Instances & AMI: instance family, IMDSv2, root volume, golden AMI with Terraform",
+      "rank": 1,
+      "top1Id": "0b051eb8-6c18-5f0b-873b-8110a6ec713a"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "134fe2d4-3b81-5743-a02a-fa49da550081",
+      "query": "Pipeline Security & Supply Chain",
+      "rank": 1,
+      "top1Id": "134fe2d4-3b81-5743-a02a-fa49da550081"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "16067f9e-26cb-534e-a15b-4de56e9f75c7",
+      "query": "Runners on Kubernetes with ARC",
+      "rank": 1,
+      "top1Id": "16067f9e-26cb-534e-a15b-4de56e9f75c7"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "1f0b1459-3ec5-5849-aa1e-9b9106252cff",
+      "query": "Organizations & Service Control Policies",
+      "rank": 1,
+      "top1Id": "1f0b1459-3ec5-5849-aa1e-9b9106252cff"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "243246fa-5fd1-56cf-a515-f60ce76dde2f",
+      "query": "RTO/RPO & backup strategy",
+      "rank": 0,
+      "top1Id": "86b47fb5-cb17-5b14-aed6-32e159bba747",
+      "indexedChunks": 0
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "27f4b076-14ca-53cc-8eb8-0966195836fd",
+      "query": "Terraform nhập môn: Infrastructure as Code, cài về và chạy",
+      "rank": 2,
+      "top1Id": "04ad1818-f2b5-5bea-b928-53dd6daa4dce"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "2ad002be-2e7a-57c0-8162-6eb755090c4f",
+      "query": "Control Plane — apiserver, etcd, scheduler",
+      "rank": 1,
+      "top1Id": "2ad002be-2e7a-57c0-8162-6eb755090c4f"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "30f90843-a41a-5e8e-9e41-eabdf2a437d1",
+      "query": "Trace context & spans",
+      "rank": 0,
+      "top1Id": "e5619163-30d1-57db-a804-c058ebf143e5",
+      "indexedChunks": 0
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "3590cd98-b3dc-544b-9d35-6a676aa218e4",
+      "query": "BigQuery — Partition + Cluster and Slot reservation vs On-demand",
+      "rank": 1,
+      "top1Id": "3590cd98-b3dc-544b-9d35-6a676aa218e4"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "38cec6c1-9e4a-5e8b-ba4e-13c38e2f5b9d",
+      "query": "IRSA: gắn ServiceAccount với IAM Role qua OIDC trên EKS",
+      "rank": 3,
+      "top1Id": "8e75eee3-8296-5bb4-a850-3ef2de9f9f33"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "3c16a309-35d5-55b8-b3f8-b11120a80332",
+      "query": "Managed Identity and Workload Identity Federation on Azure with Terraform",
+      "rank": 1,
+      "top1Id": "3c16a309-35d5-55b8-b3f8-b11120a80332"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "3d69c3f0-15ac-5212-97a5-a5065fe713de",
+      "query": "SLI/SLO & error budget: chọn chỉ số, đặt target, đo burn rate bằng recording rule",
+      "rank": 0,
+      "top1Id": "856f2d23-a719-5cbe-bc35-5de42ca48a6d",
+      "indexedChunks": 0
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "41498be0-4167-5f5f-a265-5f592c6438c0",
+      "query": "Service Account impersonation and Workload Identity Federation",
+      "rank": 1,
+      "top1Id": "41498be0-4167-5f5f-a265-5f592c6438c0"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "470abacb-85f9-51fc-8072-d7cc3b62a132",
+      "query": "Namespaces, RBAC và Quotas — chia một cluster thành nhiều tenant an toàn trong Kubernetes",
+      "rank": 1,
+      "top1Id": "470abacb-85f9-51fc-8072-d7cc3b62a132"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "4b4225e2-6ee1-5af6-9f1a-bc07c7e1a004",
+      "query": "Firewall Rules and Cloud NAT for Private Egress",
+      "rank": 5,
+      "top1Id": "fac34250-4e00-5543-be23-5dfe0a6c549f"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "4ced3edd-72da-5eb6-a285-3a9fd1426c54",
+      "query": "Storage trên EKS — EBS, EFS CSI và S3",
+      "rank": 1,
+      "top1Id": "4ced3edd-72da-5eb6-a285-3a9fd1426c54"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "5346df00-2d38-59c3-a1b5-a49d536545f8",
+      "query": "Azure Linux & Windows VM: Resource Group, NIC, image reference and admin auth with Terraform",
+      "rank": 1,
+      "top1Id": "5346df00-2d38-59c3-a1b5-a49d536545f8"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "55fbfa89-82a4-58c4-bc1d-3119d2b3dafc",
+      "query": "Gom log: Fluent Bit → Loki",
+      "rank": 0,
+      "top1Id": "db9e8761-28ff-52e6-a6a1-7d10ea9daf4a",
+      "indexedChunks": 0
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "5a85f542-451e-5ebd-9056-c18511516387",
+      "query": "Release lifecycle & rollback",
+      "rank": 0,
+      "top1Id": "2bbca4db-c35f-5a46-9501-19e837579012",
+      "indexedChunks": 0
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "5bd5de9d-7e71-5722-a446-e1d0d71f790c",
+      "query": "Firestore và Bigtable — Document DB realtime vs Wide-column throughput",
+      "rank": 1,
+      "top1Id": "5bd5de9d-7e71-5722-a446-e1d0d71f790c"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "66b20ddf-134c-59c6-b0f6-cc72c4c300d4",
+      "query": "ConfigMaps, Secrets, and Volumes — decoupling config and storage from Pods in Kubernetes",
+      "rank": 1,
+      "top1Id": "66b20ddf-134c-59c6-b0f6-cc72c4c300d4"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "6aad21fa-0e25-50ab-9f1b-b106bb8e65f7",
+      "query": "Cloud Firewall theo tag và Reserved IP cho failover trên DigitalOcean",
+      "rank": 2,
+      "top1Id": "172fc87f-ff15-513f-b330-ab1224fc2758"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "6d34475b-b307-51d6-9938-78dec0f0d1a1",
+      "query": "Services and Ingress — getting traffic from outside into Pods in Kubernetes",
+      "rank": 1,
+      "top1Id": "6d34475b-b307-51d6-9938-78dec0f0d1a1"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "7328b346-6861-5ee1-ac53-d701f2ba10b1",
+      "query": "EBS Volumes cho EC2: gp3, io2, st1, attach/detach, snapshot và encryption",
+      "rank": 1,
+      "top1Id": "7328b346-6861-5ee1-ac53-d701f2ba10b1"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "765e0f44-113b-54ec-9960-cd2270af19eb",
+      "query": "CSI & Storage Lifecycle",
+      "rank": 1,
+      "top1Id": "765e0f44-113b-54ec-9960-cd2270af19eb"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "7b090c08-af07-5261-a694-6e9946452e32",
+      "query": "GCP Project, IAM Binding và Service Account — nền tảng least-privilege",
+      "rank": 5,
+      "top1Id": "e3fa12a2-67bd-54e3-a063-2f5f12f2ea1b"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "801b46f8-8a0e-5f37-af8c-50fade008c14",
+      "query": "Variables, Outputs & Modules",
+      "rank": 1,
+      "top1Id": "801b46f8-8a0e-5f37-af8c-50fade008c14"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "83002f32-7bb7-5728-8e0a-2eb6305e0df2",
+      "query": "Load test & capacity planning: k6 đo p95/RPS, quan sát HPA và tính capacity mỗi pod",
+      "rank": 1,
+      "top1Id": "83002f32-7bb7-5728-8e0a-2eb6305e0df2"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "89a8c02a-b4e0-513e-812d-78b125e545c9",
+      "query": "State Lifecycle & Remote Backend",
+      "rank": 1,
+      "top1Id": "89a8c02a-b4e0-513e-812d-78b125e545c9"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "8c457c2c-f59e-5848-b23d-ba24eb7b644d",
+      "query": "Kết nối vào EC2 bằng SSM Session Manager: không SSH, không port 22, không public IP",
+      "rank": 2,
+      "top1Id": "c6bf63a1-a1ea-5d32-b46d-c6a86862a7eb"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "8eefaa6a-fa02-5385-9fe1-88ac1c8374eb",
+      "query": "Azure Managed Disks with Terraform: OS disk vs data disk, Standard/Premium/Ultra tiers, attach/detach and snapshots",
+      "rank": 1,
+      "top1Id": "8eefaa6a-fa02-5385-9fe1-88ac1c8374eb"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "903076ab-ccbf-5127-9776-b57cbf0c0c50",
+      "query": "Processes & Services — quản lý tiến trình và systemd",
+      "rank": 2,
+      "top1Id": "c34a60a6-9530-57ec-8c92-5e0dcb1d097d"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "97184019-cd40-58aa-b87c-4c8188e80b56",
+      "query": "Policy-as-Code — OPA & Kyverno",
+      "rank": 2,
+      "top1Id": "96e3d348-51e1-5b38-95c7-720a13663e34"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "99e8026d-c4e4-58c9-9ce8-f78db8cd7c71",
+      "query": "Probes, autoscaling và rollouts — để Kubernetes tự chữa lành và phát hành an toàn",
+      "rank": 3,
+      "top1Id": "91c27c7e-81b1-541a-8327-110a4b56e24f"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "9d61d299-6d0c-54a8-808e-61906ca15b5b",
+      "query": "Security Groups and Network ACLs",
+      "rank": 1,
+      "top1Id": "9d61d299-6d0c-54a8-808e-61906ca15b5b"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "a3dcba0b-61fa-590d-a346-58e35db9ebe9",
+      "query": "IAM Deny Policy và Permission Boundary trên GCP",
+      "rank": 1,
+      "top1Id": "a3dcba0b-61fa-590d-a346-58e35db9ebe9"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "ab4429be-c8c9-5ef6-aac1-c3eb07e781c1",
+      "query": "GitLab CI Fundamentals",
+      "rank": 2,
+      "top1Id": "164904cf-f5d5-5970-abd7-e012e9ca9b31"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "b331bff3-1c81-5bf3-9478-7e0d0e2e0381",
+      "query": "HCL2 Syntax và Provider Model",
+      "rank": 1,
+      "top1Id": "b331bff3-1c81-5bf3-9478-7e0d0e2e0381"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "b50d9cda-c1eb-5081-b339-57473ee95842",
+      "query": "ASG & Launch Templates: target tracking, lifecycle hooks, instance refresh and multi-AZ",
+      "rank": 1,
+      "top1Id": "b50d9cda-c1eb-5081-b339-57473ee95842"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "ba0c1990-e8e3-5f83-bdca-2d96302c5e7b",
+      "query": "DynamoDB Single-Table Design",
+      "rank": 1,
+      "top1Id": "ba0c1990-e8e3-5f83-bdca-2d96302c5e7b"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "bb1dfe38-9d97-5187-81bc-1337a92e7946",
+      "query": "Building S3-compatible object storage on DigitalOcean Spaces with CORS, a bucket policy, and an uploaded object using Terraform",
+      "rank": 1,
+      "top1Id": "bb1dfe38-9d97-5187-81bc-1337a92e7946"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "c26a97fe-df3f-54ac-81fb-f63e97b8fe90",
+      "query": "ArgoCD App-of-Apps & Sync Strategies",
+      "rank": 2,
+      "top1Id": "cd1af2f1-e365-5f58-bfe9-968d09e185e4"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "cf67a9f3-2afa-5058-b49d-430469449797",
+      "query": "Global GCP VPC and Shared VPC — one network spanning regions with no peering",
+      "rank": 2,
+      "top1Id": "14084fb1-9032-55e5-87e6-c4d8c0bcd752"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "d38a53ab-38c2-5aa0-943d-053b56171fdb",
+      "query": "Node Runtime — kubelet, kube-proxy, CRI",
+      "rank": 1,
+      "top1Id": "d38a53ab-38c2-5aa0-943d-053b56171fdb"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "d88d3c6e-c7bf-53c4-958b-5331fbd8d579",
+      "query": "Package Management & Text Processing — the glue skills of automation",
+      "rank": 3,
+      "top1Id": "fe7d95ba-b86c-543f-be98-cea45f60c8fa"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "dbe091bc-72b4-5f84-888d-bcd44b4c7fda",
+      "query": "RDS & Aurora — MySQL, Postgres, Multi-AZ Failover",
+      "rank": 1,
+      "top1Id": "dbe091bc-72b4-5f84-888d-bcd44b4c7fda"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "df4bfddb-a8a3-564f-8a58-566ad24dadab",
+      "query": "VPC, Subnet, Routing and IGW",
+      "rank": 3,
+      "top1Id": "b18e22a0-b199-5ef6-85b2-57ff33ceac1a"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "dfc2ebcd-4445-58a4-adf1-1c13f6ffed35",
+      "query": "Shell & Filesystem — điều hướng và vận hành Linux từ dòng lệnh",
+      "rank": 1,
+      "top1Id": "dfc2ebcd-4445-58a4-adf1-1c13f6ffed35"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "e1f04439-cfdf-5ab1-b326-6e6bcc4d7092",
+      "query": "Collector, Tempo & trace analysis",
+      "rank": 0,
+      "top1Id": "e5619163-30d1-57db-a804-c058ebf143e5",
+      "indexedChunks": 0
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "e4e9ff0e-e5e9-5616-af45-05e2c0e647b3",
+      "query": "Permissions Boundary và IAM Policy Simulator",
+      "rank": 3,
+      "top1Id": "defd7080-65ad-50ec-8f3c-428b55f535de"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "e6c77c65-5801-53b6-baac-cb09e015b76a",
+      "query": "GCS Storage Classes and Lifecycle Management",
+      "rank": 1,
+      "top1Id": "e6c77c65-5801-53b6-baac-cb09e015b76a"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "ec5ce817-4c83-5c72-b473-fa8ad53c395b",
+      "query": "Jenkins Pipeline Fundamentals",
+      "rank": 1,
+      "top1Id": "ec5ce817-4c83-5c72-b473-fa8ad53c395b"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "f25947ae-58fe-5bd6-b475-eda87db4f737",
+      "query": "S3 Storage Classes & Lifecycle Management",
+      "rank": 1,
+      "top1Id": "f25947ae-58fe-5bd6-b475-eda87db4f737"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "f5769bdb-1c22-5d9a-ac47-16178cfffc1e",
+      "query": "Đặt CDN trước Spaces, custom domain với certificate và cache TTL trên DigitalOcean bằng Terraform",
+      "rank": 1,
+      "top1Id": "f5769bdb-1c22-5d9a-ac47-16178cfffc1e"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "f97e02b2-3fa2-5fd8-af98-b69a10b498b9",
+      "query": "Instance Template & Regional MIG: CPU autoscaler, autohealer and rolling update",
+      "rank": 1,
+      "top1Id": "f97e02b2-3fa2-5fd8-af98-b69a10b498b9"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "vi",
+      "expectedId": "fa1bc9c5-e1f1-5f1e-be05-0dc2f919afcd",
+      "query": "Helm chart: templating & values",
+      "rank": 0,
+      "top1Id": "6951921e-4b68-5d3f-9977-917fb77aadf8",
+      "indexedChunks": 0
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "content",
+      "lang": "en",
+      "expectedId": "fdc95c8e-c2ea-5a73-9ad4-27f2b6b29f3c",
+      "query": "DO App Platform PaaS and secrets — inject Managed DB credentials via SECRET-typed env with Terraform",
+      "rank": 2,
+      "top1Id": "cb2d3f79-f2d1-51f8-bffd-445e03d59753"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "00061585-d7bb-560a-987e-e1e48ec43b48",
+      "query": "Thiết kế landing zone guardrail nhiều lớp và tính cấu hình hiệu lực qua cây Folder lồng nhau",
+      "rank": 1,
+      "top1Id": "00061585-d7bb-560a-987e-e1e48ec43b48"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "07f53bc3-4be4-51e9-af98-b40b1b9690b7",
+      "query": "Prove explicit deny beats allow with a layered guardrail",
+      "rank": 1,
+      "top1Id": "07f53bc3-4be4-51e9-af98-b40b1b9690b7"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "0e485101-fc5f-5e91-85d2-ff04ec79c178",
+      "query": "Bật prefix delegation cho VPC CNI qua configuration_values bằng Terraform",
+      "rank": 1,
+      "top1Id": "0e485101-fc5f-5e91-85d2-ff04ec79c178"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "128ea3bb-0d97-56cb-8bdc-995286a3877f",
+      "query": "Narrow a grant with an IAM Condition CEL by time and resource",
+      "rank": 1,
+      "top1Id": "128ea3bb-0d97-56cb-8bdc-995286a3877f"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "164904cf-f5d5-5970-abd7-e012e9ca9b31",
+      "query": "Tạo GitLab project và CI/CD variable masked bằng provider gitlabhq/gitlab và xác nhận idempotent qua terraform plan",
+      "rank": 1,
+      "top1Id": "164904cf-f5d5-5970-abd7-e012e9ca9b31"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "17ccdcf5-aac3-5c9a-ac99-37638b655596",
+      "query": "Secret scan gate — gitleaks blocks secrets + branch protection enforced",
+      "rank": 1,
+      "top1Id": "17ccdcf5-aac3-5c9a-ac99-37638b655596"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "1c4146df-2de9-5a6e-9854-fc10a8361714",
+      "query": "Tính capacity (RPS mỗi pod) từ k6, quan sát scale-in và size HPA cho một mục tiêu RPS",
+      "rank": 1,
+      "top1Id": "1c4146df-2de9-5a6e-9854-fc10a8361714"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "1ec6686b-9eb2-5299-8a03-c0451937a555",
+      "query": "Build, tag, port-map, volume and push an image to a registry with a multi-stage Dockerfile",
+      "rank": 1,
+      "top1Id": "1ec6686b-9eb2-5299-8a03-c0451937a555"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "2257ce41-db2f-537a-b1c1-e98987ff2fd0",
+      "query": "Khai báo một public managed zone với A record trỏ vào IP anycast của Cloud LB",
+      "rank": 1,
+      "top1Id": "2257ce41-db2f-537a-b1c1-e98987ff2fd0"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "268593cb-b310-5dda-9567-9fd313644d4e",
+      "query": "Spread pods across AZs and preserve replicas on drain with topology spread + a PDB",
+      "rank": 1,
+      "top1Id": "268593cb-b310-5dda-9567-9fd313644d4e"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "28ae3bbf-c3f0-5841-b1b6-4a3789c4cc9d",
+      "query": "Chứng minh rolling update zero-downtime và rollback bằng kubectl thật, có đo downtime",
+      "rank": 1,
+      "top1Id": "28ae3bbf-c3f0-5841-b1b6-4a3789c4cc9d"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "2f53bd8e-39f6-53dc-a111-bce0bf8fed21",
+      "query": "Deploy Jenkins via helm_release and declare the kubernetes cloud through JCasC so builds spawn agent pods",
+      "rank": 1,
+      "top1Id": "2f53bd8e-39f6-53dc-a111-bce0bf8fed21"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "3699d0c9-e254-52c8-b892-06395143f487",
+      "query": "Viết bảng BigQuery partition + cluster và validate offline",
+      "rank": 1,
+      "top1Id": "3699d0c9-e254-52c8-b892-06395143f487"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "3889d652-563b-526c-852f-5ea5cc933e9c",
+      "query": "Debug a Pod stuck at ContainerCreating with crictl and containerd logs",
+      "rank": 1,
+      "top1Id": "3889d652-563b-526c-852f-5ea5cc933e9c"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "3f359236-3245-5a5a-9f5e-9c6633f2047d",
+      "query": "Viết IAM policy với condition keys hạn chế quyền",
+      "rank": 1,
+      "top1Id": "3f359236-3245-5a5a-9f5e-9c6633f2047d"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "43d17528-b895-568e-94e0-db27261755ff",
+      "query": "A private subnet reaches S3 via a Gateway endpoint, not NAT",
+      "rank": 1,
+      "top1Id": "43d17528-b895-568e-94e0-db27261755ff"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "46ea067d-6dfd-5069-b4e3-81a8adbd31a7",
+      "query": "Egress allow-list bằng firewall priority trên GCP",
+      "rank": 1,
+      "top1Id": "46ea067d-6dfd-5069-b4e3-81a8adbd31a7"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "49d45dd9-7759-567b-8cd2-17bd5d3c0bb3",
+      "query": "CPU autoscaling and protecting the secret-in-state with an encrypted Spaces remote backend",
+      "rank": 1,
+      "top1Id": "49d45dd9-7759-567b-8cd2-17bd5d3c0bb3"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "4eaf8baa-716d-55a6-994c-711d44806774",
+      "query": "Gán cùng một principal ở scope subscription và scope resource group, rồi chứng minh kế thừa",
+      "rank": 2,
+      "top1Id": "fde61745-6dce-5df6-a3e9-8c955fe8942a"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "51f35f02-aeee-5831-913a-35a31f51b579",
+      "query": "Scan CVEs with Trivy, refactor single-stage to distroless, and prove HIGH+CRITICAL CVEs drop sharply",
+      "rank": 1,
+      "top1Id": "51f35f02-aeee-5831-913a-35a31f51b579"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "574a6d21-b071-5cac-ae3c-5d196056101e",
+      "query": "Cấu hình backend S3 với khoá native use_lockfile và hoà giải drift",
+      "rank": 1,
+      "top1Id": "574a6d21-b071-5cac-ae3c-5d196056101e"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "59ebbb16-11fc-57f0-84e0-1f0adc4bca20",
+      "query": "Build keyless Workload Identity Federation for GitHub Actions",
+      "rank": 1,
+      "top1Id": "59ebbb16-11fc-57f0-84e0-1f0adc4bca20"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "61b8bb94-12be-5a37-bccb-d431f89c03f9",
+      "query": "Khai báo Instance Template + Regional MIG đa-zone với health check và validate",
+      "rank": 1,
+      "top1Id": "61b8bb94-12be-5a37-bccb-d431f89c03f9"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "64c582f5-1a1f-50cc-9adb-18904289582f",
+      "query": "Enable Cloud CDN with USE_ORIGIN_HEADERS and add cell-based per-IP rate limiting",
+      "rank": 1,
+      "top1Id": "64c582f5-1a1f-50cc-9adb-18904289582f"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "6bc2e041-d75a-51b0-9ded-6fa8b900cf39",
+      "query": "Debug một container distroless không có shell bằng ephemeral/sidecar share namespace",
+      "rank": 1,
+      "top1Id": "6bc2e041-d75a-51b0-9ded-6fa8b900cf39"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "7003a1cc-4240-5515-a501-2bb9b603cfa3",
+      "query": "Stand up an EFS file system + CSI driver for a shared RWX volume with Terraform",
+      "rank": 1,
+      "top1Id": "7003a1cc-4240-5515-a501-2bb9b603cfa3"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "746a8662-cb1c-5fc4-a4a0-76be9e5dfe21",
+      "query": "Bucket private, truy cập object qua presigned URL và chứng minh thứ tự đánh giá policy trên Spaces bằng Terraform",
+      "rank": 1,
+      "top1Id": "746a8662-cb1c-5fc4-a4a0-76be9e5dfe21"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "7903e734-5716-5e88-be14-ae34f29f9bbb",
+      "query": "Map layer digests back to Dockerfile instructions",
+      "rank": 1,
+      "top1Id": "7903e734-5716-5e88-be14-ae34f29f9bbb"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "7d77b2ac-152b-5a9f-a642-f2b95ef68538",
+      "query": "Provision Redis cache với eviction LRU và connect từ GCE chứng minh cache hit",
+      "rank": 1,
+      "top1Id": "7d77b2ac-152b-5a9f-a642-f2b95ef68538"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "84f60a87-4cd6-555d-81aa-b9fd00f23c75",
+      "query": "SLSA provenance and cosign keyless — sign artifact and verify with pinned identity",
+      "rank": 1,
+      "top1Id": "84f60a87-4cd6-555d-81aa-b9fd00f23c75"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "8b4c1345-0996-5c9f-99bf-e0d94dc5e557",
+      "query": "Delegation chain và khoá federation theo branch production",
+      "rank": 1,
+      "top1Id": "8b4c1345-0996-5c9f-99bf-e0d94dc5e557"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "91bc1c75-624f-5399-9453-c304ec5a6adc",
+      "query": "Add GSIs for two access patterns and compare projection cost",
+      "rank": 1,
+      "top1Id": "91bc1c75-624f-5399-9453-c304ec5a6adc"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "9323f917-62f2-5814-936b-1475537fad02",
+      "query": "Sửa target DOWN và thêm node-exporter scrape qua ServiceMonitor trên kind",
+      "rank": 1,
+      "top1Id": "9323f917-62f2-5814-936b-1475537fad02"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "97c2b79f-949c-50df-bfac-2c310256f5f0",
+      "query": "Prove first-match-wins with a low-priority deny shadowing an allow, and the subnet vs NIC attach points",
+      "rank": 1,
+      "top1Id": "97c2b79f-949c-50df-bfac-2c310256f5f0"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "9b0a99d3-bd9e-56cc-9c94-7c440681cc17",
+      "query": "URL map path-based routing + Cloud CDN + firewall health-check cho global LB",
+      "rank": 1,
+      "top1Id": "9b0a99d3-bd9e-56cc-9c94-7c440681cc17"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "a08ef264-a4a8-5f04-b5e7-5f3d361771de",
+      "query": "Configure the Jenkins Kubernetes plugin podTemplate with Kaniko (daemonless) via JCasC in helm_release",
+      "rank": 1,
+      "top1Id": "a08ef264-a4a8-5f04-b5e7-5f3d361771de"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "a3fbddc7-901a-5f0b-ad4c-8a8a2ed52d84",
+      "query": "Chứng minh authoritative policy thay sạch binding additive và gây drift dao động khi trộn",
+      "rank": 1,
+      "top1Id": "a3fbddc7-901a-5f0b-ad4c-8a8a2ed52d84"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "a6ec58a8-1206-5a61-b01d-14065bdd536e",
+      "query": "Attach a custom domain with a Let's Encrypt certificate and prove the CDN's TTL behavior",
+      "rank": 1,
+      "top1Id": "a6ec58a8-1206-5a61-b01d-14065bdd536e"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "ac09f9d9-5d9f-537f-9625-bd7e7c535e63",
+      "query": "Thắt least-privilege: IRSA chỉ đọc đúng một bucket S3, bucket khác bị từ chối",
+      "rank": 1,
+      "top1Id": "ac09f9d9-5d9f-537f-9625-bd7e7c535e63"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "af8ad442-c748-575a-9998-46810e57bf8b",
+      "query": "Write a lifecycle policy that auto-tiers Hot → Cool → Archive → delete by blob age",
+      "rank": 1,
+      "top1Id": "af8ad442-c748-575a-9998-46810e57bf8b"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "b3ae67fd-219f-54df-acc4-3f6580e984d1",
+      "query": "Gateway endpoint (S3) và Interface endpoint trên một VPC private",
+      "rank": 1,
+      "top1Id": "b3ae67fd-219f-54df-acc4-3f6580e984d1"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "b6f73935-e2e3-57f8-acb0-bdfd77399b12",
+      "query": "Hardening OIDC trust policy — scope per-environment, deny branch wildcard, and verify sub mismatch",
+      "rank": 1,
+      "top1Id": "b6f73935-e2e3-57f8-acb0-bdfd77399b12"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "b8ef4fc9-de54-5914-a340-ff0ff0615106",
+      "query": "Xây dựng pipeline GitHub Actions build, push image lên GHCR và deploy multi-environment với approval gate",
+      "rank": 1,
+      "top1Id": "b8ef4fc9-de54-5914-a340-ff0ff0615106"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "c0911d5b-bb37-57b2-a242-bcb1c1e3f834",
+      "query": "Bastion + private app + NAT Gateway with SSH chain using Terraform",
+      "rank": 1,
+      "top1Id": "c0911d5b-bb37-57b2-a242-bcb1c1e3f834"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "c761772e-0d33-5a3c-8a20-eaab635331fd",
+      "query": "Pipeline SLSA L2 — sinh provenance attestation và verify bằng slsa-verifier",
+      "rank": 1,
+      "top1Id": "c761772e-0d33-5a3c-8a20-eaab635331fd"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "ca6051c0-7ed7-5919-9599-929ca571abba",
+      "query": "RDS vs Aurora — Benchmark end-to-end RTO including client reconnect and custom retry logic",
+      "rank": 1,
+      "top1Id": "ca6051c0-7ed7-5919-9599-929ca571abba"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "cd486d7c-9187-5415-922c-ac04d5187729",
+      "query": "Tạo crypto key và secret được CMEK-encrypt bằng Terraform",
+      "rank": 1,
+      "top1Id": "cd486d7c-9187-5415-922c-ac04d5187729"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "d0178ae4-f53c-52e9-8076-8a3a3b8fdb88",
+      "query": "Prove envelope encryption via version swap and Cloud Audit Logs",
+      "rank": 1,
+      "top1Id": "d0178ae4-f53c-52e9-8076-8a3a3b8fdb88"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "d3453e8b-2b8c-5454-a7f8-495bd3733f5b",
+      "query": "Multi-region Cosmos: BoundedStaleness, geo replica, failover và đánh đổi consistency",
+      "rank": 1,
+      "top1Id": "d3453e8b-2b8c-5454-a7f8-495bd3733f5b"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "d84fa2d2-5c5a-5c4d-8f8d-aacf6a3e139f",
+      "query": "Build a two-level OU hierarchy and attach an SCP, proving inheritance via an offline plan",
+      "rank": 1,
+      "top1Id": "d84fa2d2-5c5a-5c4d-8f8d-aacf6a3e139f"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "db150ad2-1191-567a-9a51-46d87c7cb987",
+      "query": "Khai báo slot reservation và lập luận on-demand vs reserved",
+      "rank": 0,
+      "top1Id": "3590cd98-b3dc-544b-9d35-6a676aa218e4",
+      "indexedChunks": 2
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "dda8e533-2c19-5788-bc6c-3dbdde190cc8",
+      "query": "Cross-account least-privilege: org-scoped trust + escalation-proof permission boundary + audit trail",
+      "rank": 1,
+      "top1Id": "dda8e533-2c19-5788-bc6c-3dbdde190cc8"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "e2588e34-cf7b-5538-b65b-72981afb1d76",
+      "query": "Phân biệt block types và viết local_file từ locals + variable",
+      "rank": 1,
+      "top1Id": "e2588e34-cf7b-5538-b65b-72981afb1d76"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "e3fa12a2-67bd-54e3-a063-2f5f12f2ea1b",
+      "query": "Least-privilege custom role — define a minimal role and bind it to a service account",
+      "rank": 1,
+      "top1Id": "e3fa12a2-67bd-54e3-a063-2f5f12f2ea1b"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "e7f187e1-d96a-58b4-a5e5-0f2d1ae45a2d",
+      "query": "Áp dụng NetworkPolicy deny-all rồi allow-from-web cross-namespace, chứng minh timeout → 200 bằng curl thật",
+      "rank": 1,
+      "top1Id": "e7f187e1-d96a-58b4-a5e5-0f2d1ae45a2d"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "ed3a7297-ba10-5063-bd11-4d15f8520ecd",
+      "query": "Least-privilege access entries replacing aws-auth without locking yourself out",
+      "rank": 1,
+      "top1Id": "ed3a7297-ba10-5063-bd11-4d15f8520ecd"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "f0bd5011-97c4-5239-a940-34a5cd6b1a2a",
+      "query": "Inject secrets, environment và OIDC trust",
+      "rank": 1,
+      "top1Id": "f0bd5011-97c4-5239-a940-34a5cd6b1a2a"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "f485a3a2-ee0d-5ea6-bcfd-13e2ae51e8b1",
+      "query": "CMEK-encrypted bucket + tiered lifecycle, IAM for the GCS service agent",
+      "rank": 1,
+      "top1Id": "f485a3a2-ee0d-5ea6-bcfd-13e2ae51e8b1"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "vi",
+      "expectedId": "f7f0509a-c613-5834-90df-e70c89cc78e0",
+      "query": "Thiết lập OIDC assume role — CI không dùng static key",
+      "rank": 0,
+      "top1Id": "31497ef8-fe50-5e88-96e6-26a8aaf5b5b0",
+      "indexedChunks": 2
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "challenge",
+      "lang": "en",
+      "expectedId": "fcbf1dec-f1e8-5539-9be8-f94134d03566",
+      "query": "Prove versioning + soft delete recover an overwritten and an accidentally deleted blob",
+      "rank": 1,
+      "top1Id": "fcbf1dec-f1e8-5539-9be8-f94134d03566"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "04ad1818-f2b5-5bea-b928-53dd6daa4dce",
+      "query": "Infrastructure as Code (Terraform)",
+      "rank": 1,
+      "top1Id": "04ad1818-f2b5-5bea-b928-53dd6daa4dce"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "0762bf4b-c404-53a8-9115-22fa937b8a2e",
+      "query": "SRE & Incident Response",
+      "rank": 1,
+      "top1Id": "0762bf4b-c404-53a8-9115-22fa937b8a2e"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "42ae11e6-cdca-50aa-8c99-bc2f88170172",
+      "query": "CI/CD & Pipeline",
+      "rank": 1,
+      "top1Id": "42ae11e6-cdca-50aa-8c99-bc2f88170172"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "707be95e-a8eb-5f2b-8cdc-f37aa49b93ec",
+      "query": "Observability & Monitoring",
+      "rank": 1,
+      "top1Id": "707be95e-a8eb-5f2b-8cdc-f37aa49b93ec"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "7213909a-892e-52d1-a137-a1f2938cf3ea",
+      "query": "Cloud Compute & Containers",
+      "rank": 1,
+      "top1Id": "7213909a-892e-52d1-a137-a1f2938cf3ea"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "7c059715-c657-585f-8263-103689eb38e6",
+      "query": "Database & Stateful Operations",
+      "rank": 1,
+      "top1Id": "7c059715-c657-585f-8263-103689eb38e6"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "86131432-73b2-5181-9c28-90c564297321",
+      "query": "Nền Tảng Linux & CLI",
+      "rank": 1,
+      "top1Id": "86131432-73b2-5181-9c28-90c564297321"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "86b47fb5-cb17-5b14-aed6-32e159bba747",
+      "query": "Managed Services: Data & Messaging",
+      "rank": 1,
+      "top1Id": "86b47fb5-cb17-5b14-aed6-32e159bba747"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "8d3e456f-4142-58c8-98c5-7b047662e99c",
+      "query": "Nền Tảng Cloud & Networking",
+      "rank": 1,
+      "top1Id": "8d3e456f-4142-58c8-98c5-7b047662e99c"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "91c27c7e-81b1-541a-8327-110a4b56e24f",
+      "query": "Kubernetes & Orchestration",
+      "rank": 1,
+      "top1Id": "91c27c7e-81b1-541a-8327-110a4b56e24f"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "a0f899ab-247f-524f-8020-0477a7ea0d9a",
+      "query": "IAM & Bảo Mật Cloud",
+      "rank": 0,
+      "top1Id": "a3fbddc7-901a-5f0b-ad4c-8a8a2ed52d84",
+      "indexedChunks": 59
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "dd39de9c-6604-5d77-b90c-6ffc7e29c773",
+      "query": "GitOps & Progressive Delivery",
+      "rank": 2,
+      "top1Id": "cafd0c31-e5e1-5b84-8ef4-a118ec04a04d"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "e95a529c-3467-5a57-b3b9-82041ede44f4",
+      "query": "Đào sâu Networking & Quản lý Traffic",
+      "rank": 1,
+      "top1Id": "e95a529c-3467-5a57-b3b9-82041ede44f4"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "flashcard",
+      "lang": "en",
+      "expectedId": "eb1809a9-bb71-507b-8e03-2b9820237275",
+      "query": "Container Images & Supply-Chain Security",
+      "rank": 0,
+      "top1Id": "134fe2d4-3b81-5743-a02a-fa49da550081",
+      "indexedChunks": 55
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "flashcard",
+      "lang": "vi",
+      "expectedId": "f77cd396-598d-502f-b540-cff57d0cfce6",
+      "query": "Quản Lý Secrets & Mã Hóa",
+      "rank": 1,
+      "top1Id": "f77cd396-598d-502f-b540-cff57d0cfce6"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "0141c95b-206c-5207-a4ec-de2efbc3b774",
+      "query": "AMI và Launch Template cho Opsboard",
+      "rank": 1,
+      "top1Id": "0141c95b-206c-5207-a4ec-de2efbc3b774"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "0b425069-4a1e-53a8-b312-18e857198da8",
+      "query": "Admission Policy with Kyverno for Opsboard",
+      "rank": 1,
+      "top1Id": "0b425069-4a1e-53a8-b312-18e857198da8"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "186200f8-5380-5be7-9d3c-ae79b05f5559",
+      "query": "Bản Thiết Kế DR cho Opsboard",
+      "rank": 9,
+      "top1Id": "322d5ed6-bb91-5085-b506-7fdb58feec4e"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "22638ef3-5f98-51d5-9572-422464f22ea0",
+      "query": "Image Build and Push for Opsboard",
+      "rank": 1,
+      "top1Id": "22638ef3-5f98-51d5-9572-422464f22ea0"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "2a919c82-d737-5035-aafb-aa8376dfe71a",
+      "query": "Bản Thiết Kế Topology Compute cho Opsboard",
+      "rank": 1,
+      "top1Id": "2a919c82-d737-5035-aafb-aa8376dfe71a"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "36d348ad-a262-5d4f-b82a-bc2974242e61",
+      "query": "Minimal & Non-Root Images for Opsboard",
+      "rank": 1,
+      "top1Id": "36d348ad-a262-5d4f-b82a-bc2974242e61"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "418610ce-fd94-5c0a-9051-51e55ff0f03b",
+      "query": "Ingress Routing cho Opsboard",
+      "rank": 1,
+      "top1Id": "418610ce-fd94-5c0a-9051-51e55ff0f03b"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "4e0ea630-b208-54dd-a189-dcf51d3302c2",
+      "query": "Private S3 Bucket for Opsboard Artifacts",
+      "rank": 1,
+      "top1Id": "4e0ea630-b208-54dd-a189-dcf51d3302c2"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "532861e5-7495-56de-9f23-2ded6205c23b",
+      "query": "Instance Role least-privilege cho Opsboard",
+      "rank": 1,
+      "top1Id": "532861e5-7495-56de-9f23-2ded6205c23b"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "627313cd-de9d-5fb2-ac46-e04ba9382161",
+      "query": "The Scaling Primer for Opsboard",
+      "rank": 1,
+      "top1Id": "627313cd-de9d-5fb2-ac46-e04ba9382161"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "653dda52-68b0-51e0-872b-3bb9fdda60b7",
+      "query": "Blue-Green với Preview cho Opsboard",
+      "rank": 1,
+      "top1Id": "653dda52-68b0-51e0-872b-3bb9fdda60b7"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "6bedc5a4-43a6-5ed5-9f9e-a494fab94f92",
+      "query": "Multi-AZ Failover for Opsboard's Postgres",
+      "rank": 1,
+      "top1Id": "6bedc5a4-43a6-5ed5-9f9e-a494fab94f92"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "7ea5c926-37e7-5517-a1cf-0ef7d3b38f3b",
+      "query": "Provider Auth và Remote State (AWS)",
+      "rank": 1,
+      "top1Id": "7ea5c926-37e7-5517-a1cf-0ef7d3b38f3b"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "8e75eee3-8296-5bb4-a850-3ef2de9f9f33",
+      "query": "IRSA — Workload Identity for the Opsboard Pod on EKS",
+      "rank": 1,
+      "top1Id": "8e75eee3-8296-5bb4-a850-3ef2de9f9f33"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "984fc03e-ac4f-54ed-9388-24853a2d5934",
+      "query": "Bản Thiết Kế Managed Cluster cho Opsboard trên EKS",
+      "rank": 1,
+      "top1Id": "984fc03e-ac4f-54ed-9388-24853a2d5934"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "a2225cee-92da-576b-8402-2b23d4383a19",
+      "query": "Auto Scaling Group and Self-Healing Health Checks",
+      "rank": 1,
+      "top1Id": "a2225cee-92da-576b-8402-2b23d4383a19"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "b60bf6f0-1b0c-5e61-bc41-29b8abb636df",
+      "query": "Build, Tag và Push lên Registry",
+      "rank": 1,
+      "top1Id": "b60bf6f0-1b0c-5e61-bc41-29b8abb636df"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "bc07f199-0743-5dfd-9bc8-61e270b63914",
+      "query": "The GitOps Primer for Opsboard",
+      "rank": 1,
+      "top1Id": "bc07f199-0743-5dfd-9bc8-61e270b63914"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "c34a60a6-9530-57ec-8c92-5e0dcb1d097d",
+      "query": "Bản Thiết Kế Runbook Capstone cho Opsboard",
+      "rank": 1,
+      "top1Id": "c34a60a6-9530-57ec-8c92-5e0dcb1d097d"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "cd1af2f1-e365-5f58-bfe9-968d09e185e4",
+      "query": "An ArgoCD Application for Opsboard",
+      "rank": 1,
+      "top1Id": "cd1af2f1-e365-5f58-bfe9-968d09e185e4"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "d33b0e5b-f627-5fc6-b126-fb8e790c08bf",
+      "query": "EKS Cluster qua Terraform",
+      "rank": 2,
+      "top1Id": "479d46df-bf36-5844-83ef-b4596708e597"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "en",
+      "expectedId": "e3e2dcd5-64c8-5cc9-a0c7-78f1669057ca",
+      "query": "Cloud Ingress and Load Balancer for Opsboard on EKS",
+      "rank": 1,
+      "top1Id": "e3e2dcd5-64c8-5cc9-a0c7-78f1669057ca"
+    },
+    {
+      "courseSlug": "devops",
+      "courseId": "f22c2da0-fc2d-5145-bf01-1b60426423b4",
+      "kind": "milestone",
+      "lang": "vi",
+      "expectedId": "e8b0435a-863e-596e-8582-dfd6246742f9",
+      "query": "SQS Queue và DLQ cho Opsboard Worker",
+      "rank": 1,
+      "top1Id": "e8b0435a-863e-596e-8582-dfd6246742f9"
+    }
+  ]
+}

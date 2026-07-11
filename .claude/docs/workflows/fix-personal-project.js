@@ -17,8 +17,8 @@ const A = (typeof args === 'string') ? JSON.parse(args) : (args || {})
 const COURSE = A.course || '1-system-design-mastery' // 0-fullstack | 1-system-design | 2-devops
 const STAGE = A.stage || 'enumerate'                 // enumerate | review | apply
 const BASE = '.mount/data/courses/' + COURSE + '/milestones'
-const RULE = '.audits/rules/terminology-bold.md'
-const GATE = REPO + '/.audits/check-task.mjs'
+const RULE = '.claude/docs/rules/terminology-bold.md'
+const GATE = REPO + '/.claude/docs/check-task.mjs'
 // gold: task da 4-brief dung chuan (shape dich)
 const GOLD = '.mount/data/courses/0-fullstack-mastery/milestones/0-project-foundation/tasks/0-clean-architecture-and-health/vi.md'
 // milestone-set: mac dinh tat ca; truyen args.milestones=[...] de gioi han
@@ -149,7 +149,7 @@ if (STAGE === 'apply') {
   phase('Apply')
   const applied = await parallel(taskDirs.map((d) => () =>
     agent(applyPrompt(d, noSplit), { label: 'apply:' + d.split('/').slice(-3, -2)[0].split('-')[0] + '/' + d.split('/').pop().split('-')[0], phase: 'Apply', model: 'opus', schema: APPLY_SCHEMA })))
-  // KHONG gate trong workflow: operator verify DOC LAP bang node .audits/check-task.mjs + check-directive-render.mjs
+  // KHONG gate trong workflow: operator verify DOC LAP bang node .claude/docs/check-task.mjs + check-directive-render.mjs
   // (agent gate hay tu-tay implement lai gate -> phi token + bao PASS sai). Gate that = chay script ngoai.
   return { course: COURSE, stage: 'apply', tasks: taskDirs.length, applied: applied.filter(Boolean) }
 }

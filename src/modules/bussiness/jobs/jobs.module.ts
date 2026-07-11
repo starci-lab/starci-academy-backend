@@ -26,9 +26,12 @@ import {
     EnqueueReviewAiLabEvalJobService,
 } from "./enqueue"
 import {
-    JobActionService, 
-    JobStalledService 
+    JobActionService,
+    JobStalledService
 } from "./atomic"
+import {
+    InstallmentPlanModule,
+} from "../installment-plan"
 
 /**
  * Module for job management.
@@ -40,6 +43,12 @@ export class JobsModule extends ConfigurableModuleClass {
         const dynamicModule = super.register(options)
         return {
             ...dynamicModule,
+            // the enroll fan-out (EnqueueEnrollJobService) creates the Fixed
+            // installment plan once per paid installment checkout
+            imports: [
+                ...(dynamicModule.imports ?? []),
+                InstallmentPlanModule.register(options),
+            ],
             providers: [
                 ...(dynamicModule.providers ?? []),
                 JobActionService,

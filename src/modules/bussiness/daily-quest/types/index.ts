@@ -35,7 +35,7 @@ export interface DailyQuestResult {
     date: string
     /** Each daily task with its current progress + target. */
     tasks: Array<DailyQuestTaskResult>
-    /** True when every task's current >= target. */
+    /** True when at least `DAILY_QUEST_MIN_TASKS_REQUIRED` tasks have current >= target. */
     allDone: boolean
     /** True when the reward was already claimed today. */
     claimed: boolean
@@ -63,6 +63,10 @@ export interface DailyQuestTodayCountsRow {
     challengesToday: string
     /** Flashcards reviewed today (user_flashcard_reviews), as a numeric string. */
     flashcardsToday: string
+    /** Mock Interview sessions created today (mock_interview_attempts), as a numeric string. */
+    mockInterviewToday: string
+    /** Flashcard Quiz sessions completed today (flashcard_quiz_sessions), as a numeric string. */
+    quizSessionToday: string
 }
 
 /**

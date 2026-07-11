@@ -18,7 +18,7 @@ import {
 } from "@modules/exceptions"
 import {
     UserStatsProjectionService,
-} from "../projections"
+} from "../projections/user-stats/user-stats-projection.service"
 import type {
     CreateNotificationParams,
     ListNotificationsParams,

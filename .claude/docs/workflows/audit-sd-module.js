@@ -1,22 +1,22 @@
 export const meta = {
   name: 'audit-sd-module',
-  description: 'Audit 1 module System Design 2 GIAI DOAN. stage=review (mac dinh): Sonnet brief + Opus DE XUAT -> review.md -> STOP cho thay duyet. stage=apply (sau duyet): Opus apply review.md + gate -> convergence loop (Sonnet docker-compose e2e -> Opus fix -> re-gate). Iter tung lesson song song. SD: 4-lang/agnostic, repo off-by-one, single docker compose up.',
+  description: 'Audit 1 module System Design 2 GIAI DOAN (mac dinh Sonnet 5; Opus opt-in qua args.opus:true+only cho lesson kho). stage=review (mac dinh): brief + DE XUAT -> review.md -> STOP cho thay duyet. stage=apply (sau duyet): apply review.md + gate -> convergence loop (docker-compose e2e -> decision -> re-gate). Iter tung lesson song song. SD: 4-lang/agnostic, repo off-by-one, single docker compose up.',
   phases: [
     { title: 'Enumerate', detail: 'liet ke lesson folders', model: 'haiku' },
-    { title: 'Review', detail: 'stage=review: Sonnet brief + Opus DE XUAT -> review.md -> STOP hoi thay', model: 'opus' },
-    { title: 'Apply', detail: 'stage=apply: Opus apply review.md da duyet', model: 'opus' },
+    { title: 'Review', detail: 'stage=review: brief + DE XUAT -> review.md -> STOP hoi thay', model: 'sonnet' },
+    { title: 'Apply', detail: 'stage=apply: apply review.md da duyet', model: 'sonnet' },
     { title: 'Gate', detail: 'check-lesson.ps1 -Json (sau apply)', model: 'sonnet' },
     { title: 'Loop', detail: 'Sonnet docker-compose e2e + doi chieu snippet (.code/.e2e)', model: 'sonnet' },
-    { title: 'Decision', detail: 'Opus duyet + fix + decision.md', model: 'opus' },
-    { title: 'References', detail: 'Append module vao .audits/references.md', model: 'haiku' },
+    { title: 'Decision', detail: 'duyet + fix + decision.md (Opus neu escalate opus:true)', model: 'sonnet' },
+    { title: 'References', detail: 'Append module vao .claude/docs/references.md', model: 'haiku' },
   ],
 }
 
-// invoke: Workflow({ scriptPath: ".audits/workflows/audit-sd-module.js", args: { module: "0-fundamentals-of-system-design", guidance: "..." } })
+// invoke: Workflow({ scriptPath: ".claude/docs/workflows/audit-sd-module.js", args: { module: "0-fundamentals-of-system-design", guidance: "..." } })
 // args: object {module, guidance?, only?, expand?, stage?}, JSON-string, hoac chuoi slug tran.
 // SD-specific (khac audit-fs-module.js):
 //  - course = 1-system-design-mastery (KHONG 0-fullstack-mastery)
-//  - rules = .audits/rules/system-design/{contents,challenges,coding}.md
+//  - rules = .claude/docs/rules/system-design/{contents,challenges,coding}.md
 //  - repo name OFF-BY-ONE: system-design-mastery-module-<N+1>-<slug> (slot 0 -> module-1)
 //  - lang track: 4-lang (typescript/java/csharp/go) default, single-track 0-agnostic cho pure-infra (k8s)
 //  - e2e = SINGLE `docker compose up -d --build` (KHONG 4-port host-bind nhu FS); verify curl/CLI/dashboard; cleanup `docker compose down -v`
@@ -38,9 +38,14 @@ const GUIDANCE = (ARGS.guidance || '').trim()
 const GBLOCK = GUIDANCE ? ('\n>>> CHI DAN RIENG MODULE (uu tien tuyet doi): ' + GUIDANCE + '\n') : ''
 const EXPAND = ARGS.expand === true || ARGS.expand === 'true'
 const STAGE = (ARGS.stage === 'apply') ? 'apply' : (ARGS.stage === 'curate') ? 'curate' : 'review'
+// MODEL TIER (dong bo ca he .claude/docs 2026-07-09, xem pipeline.md §Phan vai MODEL):
+//   DEFAULT = Sonnet 5 cho MOI viec nang (review/apply/decision/loop/author). Haiku giu enumerate/re-gate/refs.
+//   Opus = OPT-IN escalation qua args.opus:true (thuong kem only:"<lesson>") khi Sonnet 5 chua dat 1 lesson kho.
+const HEAVY = (ARGS.opus === true || ARGS.opus === 'true') ? 'opus' : 'sonnet'
+const HEAVY_TAG = '[' + (HEAVY === 'opus' ? 'Opus 4.8' : 'Sonnet 5') + ']'
 const MODDIR = '.mount/data/courses/1-system-design-mastery/modules/' + MOD
-const REFS = '.audits/references.md'
-const RULES = '.audits/rules/system-design'
+const REFS = '.claude/docs/references.md'
+const RULES = '.claude/docs/rules/system-design'
 const MAX_ITER = 3
 
 const ONLY = (ARGS.only || '').trim()
@@ -99,18 +104,18 @@ if (STAGE === 'review') {
         'BRIEF (Sonnet) noi dung + challenges lesson SD ' + name + ', VIET TIENG VIET CO DAU DAY DU (CAM khong dau). DOC ' + dir + ' (bodies/*/{vi,en}.md + challenges/*/{vi,en}.md + submissions) + ' + RULES + '/{contents,challenges}.md.\n' +
         'Tra brief: 1.purpose+phan quan trong 2.flow 2.1.5 make-sense (4-6 luong, cuoi = edge/failure)? 3.VARIANT SD (4-lang vs 0-agnostic; generic/flexible/microservices-docker/k8s) 4.challenges hien co (slug+tier+do hop ly; slot<=3 chi easy+medium, slot>=4 full pyramid) 5.cho con thieu/guong.\n' +
         GBLOCK +
-        'GHI ' + dir + '/research.md (tag [Sonnet 4.x], tieng Viet).',
+        'GHI ' + dir + '/research.md (tag [Sonnet 5], tieng Viet).',
         { label: 'brief:' + name, phase: 'Review', model: 'sonnet' }
       ).then(function () {
         return agent(
-          'REVIEW + DE XUAT (Opus) lesson SD ' + name + ', VIET TIENG VIET CO DAU DAY DU (CAM khong dau). Doc research.md (brief Sonnet) + ' + dir + ' + ' + RULES + '/{contents,challenges,coding}.md. Tham khao gold cung variant o .audits/references.md.\n' +
+          'REVIEW + DE XUAT (Opus) lesson SD ' + name + ', VIET TIENG VIET CO DAU DAY DU (CAM khong dau). Doc research.md (brief Sonnet) + ' + dir + ' + ' + RULES + '/{contents,challenges,coding}.md. Tham khao gold cung variant o .claude/docs/references.md.\n' +
           GBLOCK +
           'QUAN TRONG: stage REVIEW = CHI DE XUAT, TUYET DOI KHONG sua/them/xoa file noi dung hay challenge. Chi GHI de xuat ra review.md de thay duyet.\n' +
           'Danh gia theo rule SD: 1) Noi dung OK? (purpose, flow 2.1.5 4-6 luong, theory 2 muc, interview 5-7 cau, mermaid TD, repo off-by-one system-design-mastery-module-<N+1>, table cot Cong/Port, prerequisites 2-bullet, single `docker compose up`, codeImpl order typescript->csharp->go->java KHONG dotnet) 2) Challenges DU + DUNG TIER? (slot<=3 easy+medium; slot>=4 easy/medium/hard/insane theo merit; score=100 outcome30/approach70 >=1 critical) 3) Lesson cho nao sai/yeu can sua.\n' +
-          'GHI ' + dir + '/review.md (tag [Opus 4.8], tieng Viet) dang:\n' +
+          'GHI ' + dir + '/review.md (tag ' + HEAVY_TAG + ', tieng Viet) dang:\n' +
           '## Review: ' + name + '\n- **Verdict:** <DUYET LUON | CAN SUA>\n- **Variant:** <4-lang|agnostic + generic|flexible|microservices-docker|k8s>\n- **Noi dung:** <nhan xet + cho sua neu co>\n- **Challenges de xuat:** <THEM: ...(tier+ly do) | BOT: ...(ly do) | GIU NGUYEN>\n- **Sua lesson:** <liet ke cu the | khong>\n' +
           'TRA VE (text ngan 2-3 dong) tom tat verdict + de xuat de orchestrator gom lai hoi thay.',
-          { label: 'review:' + name, phase: 'Review', model: 'opus' }
+          { label: 'review:' + name, phase: 'Review', model: HEAVY }
         ).then(function (txt) { return { name: name, summary: txt } })
       })
     }
@@ -129,7 +134,7 @@ if (STAGE === 'curate') {
       const dir = MODDIR + '/contents/' + name
       return agent(
         'CURATE FIX (Opus) lesson SD ' + name + ' — CHI SUA LOI CO HOC, KHONG TEST/E2E. VIET TIENG VIET CO DAU DAY DU (CAM khong dau).\n' +
-        'Doc ' + dir + '/review.md (de xuat da co) + ' + dir + ' (bodies + challenges) + ' + RULES + '/{contents,challenges}.md. Tham khao gold o .audits/references.md.\n' +
+        'Doc ' + dir + '/review.md (de xuat da co) + ' + dir + ' (bodies + challenges) + ' + RULES + '/{contents,challenges}.md. Tham khao gold o .claude/docs/references.md.\n' +
         GBLOCK +
         'CHI APPLY cac fix CO HOC tu review.md (KHONG can hoi duyet):\n' +
         '- §2.1.5 recap "muc tieu" inline (1)(2)(3) -> bullet list, dong bo CA lang + vi/en mirror.\n' +
@@ -140,14 +145,14 @@ if (STAGE === 'curate') {
         '- Mermaid flowchart LR >3 node -> TD; caption khong italic -> italic; table thieu cot Cong/Port -> them.\n' +
         '- Criteria text lech domain -> sua khop domain (giu score).\n' +
         'TUYET DOI KHONG: (a) them/bot TIER (giu nguyen tier hien co du review co de xuat); (b) chay e2e/test/docker; (c) dao xao noi dung da chot.\n' +
-        'GHI ' + dir + '/decision.md (tag [Opus 4.8], tieng Viet) muc "## Curate (co-hoc, no-test)": da sua gi + bo qua de xuat tier nao.',
-        { label: 'curate:' + name, phase: 'Curate', model: 'opus' }
+        'GHI ' + dir + '/decision.md (tag ' + HEAVY_TAG + ', tieng Viet) muc "## Curate (co-hoc, no-test)": da sua gi + bo qua de xuat tier nao.',
+        { label: 'curate:' + name, phase: 'Curate', model: HEAVY }
       )
     }
   }))
   phase('Gate')
   const gc = await agent(
-    'GATE deterministic (KHONG sua file). Chay (Windows -> powershell.exe): powershell -NoProfile -File ".audits/check-lesson.ps1" -Path "' + MODDIR + '" -Json\n' +
+    'GATE deterministic (KHONG sua file). Chay (Windows -> powershell.exe): powershell -NoProfile -File ".claude/docs/check-lesson.ps1" -Path "' + MODDIR + '" -Json\n' +
     'BAT BUOC goi StructuredOutput {lessons:[{name,fails}]} copy nguyen van. Loi -> sua cach goi roi chay lai.',
     { label: 'gate:' + MOD, phase: 'Gate', model: 'sonnet', schema: MODULE_GATE }
   )
@@ -168,8 +173,8 @@ await parallel(names.map(function (name) {
       'APPLY (Opus) de xuat DA DUYET trong ' + dir + '/review.md, lesson SD ' + name + '. VIET TIENG VIET CO DAU DAY DU (CAM khong dau).\n' +
       GBLOCK +
       'Doc review.md + ' + RULES + '/{contents,challenges}.md -> THUC HIEN dung de xuat da duyet: (a) sua lesson (bodies vi.md Opus viet, en.md mirror); (b) THEM/BOT challenge (tao/xoa folder challenges/<N>-<slug>-<diff>/ + submissions/0 theo ' + RULES + '/challenges.md: score=100, outcome 30 + approach 70, >=1 critical, # verified, vi/en mirror, callout :::muted KHONG ### N.); (c) re-index challenge folder lien mach (0-,1-,2-,3-).\n' +
-      'GHI ' + dir + '/decision.md (tag [Opus 4.8], tieng Viet) muc "## Apply" liet ke da lam gi theo review.md.',
-      { label: 'apply:' + name, phase: 'Apply', model: 'opus' }
+      'GHI ' + dir + '/decision.md (tag ' + HEAVY_TAG + ', tieng Viet) muc "## Apply" liet ke da lam gi theo review.md.',
+      { label: 'apply:' + name, phase: 'Apply', model: HEAVY }
     )
   }
 }))
@@ -179,7 +184,7 @@ phase('Gate')
 const GATEDIR = (onlyList.length === 1) ? (MODDIR + '/contents/' + onlyList[0]) : MODDIR
 const gate0 = await agent(
   'GATE deterministic (KHONG sua file, KHONG doc tung file). Chay DUNG 1 lenh nay (Windows -> dung powershell.exe, KHONG pwsh, KHONG bash):\n' +
-  'powershell -NoProfile -File ".audits/check-lesson.ps1" -Path "' + GATEDIR + '" -Json\n' +
+  'powershell -NoProfile -File ".claude/docs/check-lesson.ps1" -Path "' + GATEDIR + '" -Json\n' +
   'Lenh IN RA JSON dang {lessons:[{name,fails:[...]}]} (fails rong = []). BAT BUOC goi StructuredOutput voi DUNG JSON do (copy nguyen van). Neu lenh loi, sua cach goi powershell roi chay lai — KHONG bo cuoc, KHONG tra loi text.',
   { label: 'gate:' + MOD, phase: 'Gate', model: 'sonnet', schema: MODULE_GATE }
 )
@@ -227,19 +232,19 @@ async function auditLesson(name, initialFails) {
     // Opus: decision + AP FIX
     await agent(
       'DECISION (Opus) lesson SD ' + name + ', vong ' + iter + ', VIET TIENG VIET CO DAU DAY DU (CAM khong dau). Input: research + review (decision.md muc Review) + loop findings + gate fails ' + JSON.stringify(fails) + '. Doc ' + RULES + '/{contents,challenges,coding}.md.\n' +
-      'Tham khao gold modules cung variant o .audits/references.md TRUOC khi quyet.\n' +
+      'Tham khao gold modules cung variant o .claude/docs/references.md TRUOC khi quyet.\n' +
       GBLOCK +
       'DUYET + AP FIX: (a) challenge criteria/outputs/requirements (score=100, outcome30/approach70, >=1 critical); (b) lech code<->docs -> sua CODE hay DOCS; (c) sai-format -> rewrite theo gold; (d) leak/bullet/theory/mirror/interview-5-7.\n' +
       '(e) SD-specific: repo off-by-one system-design-mastery-module-<N+1>; §2.1.1 mention .docker + cd vao /.docker; table cot Cong/Port; mermaid TD + caption italic; prerequisites 2-bullet; single `docker compose up -d --build`; cleanup `docker compose down -v` plain; codeImpl order typescript->csharp->go->java KHONG dotnet.\n' +
       '(f) ENV (coding.md): chay out-of-box nho ConfigModule default committed? -> body KHONG mention .env (ngoai tru lesson day env). Code doc env CO default, KHONG hard-code; container bind 0.0.0.0 (Docker).\n' +
       '(g) GIT/COMMENT: code .repo Sonnet vua viet/sua -> comment KI chua? Neu co thay doi .repo source -> ghi vao decision.md de chu nhiem commit+push (conventional + Co-Authored-By), audit KHONG tu push. KHONG commit secret.\n' +
-      'APPEND vao ' + aud + '/decision.md (tag [Opus 4.8], tieng Viet) muc "## Decision vong ' + iter + '" — ghi THANG vao folder contents/' + name + '/ (KHONG xoa muc Review).',
-      { label: 'decision:' + name + ':' + iter, phase: 'Decision', model: 'opus' }
+      'APPEND vao ' + aud + '/decision.md (tag ' + HEAVY_TAG + ', tieng Viet) muc "## Decision vong ' + iter + '" — ghi THANG vao folder contents/' + name + '/ (KHONG xoa muc Review).',
+      { label: 'decision:' + name + ':' + iter, phase: 'Decision', model: HEAVY }
     )
 
     const g = await agent(
       'RE-GATE 1 lesson (KHONG sua file). Chay DUNG lenh (Windows -> powershell.exe, KHONG pwsh/bash):\n' +
-      'powershell -NoProfile -File ".audits/check-lesson.ps1" -Path "' + dir + '" -Json\n' +
+      'powershell -NoProfile -File ".claude/docs/check-lesson.ps1" -Path "' + dir + '" -Json\n' +
       'Lenh in JSON {lessons:[{name,fails}]} (1 lesson). BAT BUOC goi StructuredOutput voi {fails: <mang fails cua lesson do, rong = []>}. Neu lenh loi -> sua cach goi powershell roi chay lai, KHONG bo cuoc, KHONG tra text.',
       { label: 'regate:' + name + ':' + iter, phase: 'Gate', model: 'haiku', schema: LESSON_GATE }
     )
@@ -250,7 +255,7 @@ async function auditLesson(name, initialFails) {
 
   if (pass) {
     await agent(
-      'Ghi ' + aud + '/claude_submitted.md (TIENG VIET CO DAU DAY DU, CAM khong dau; ghi THANG vao folder contents/' + name + '/): gate PASS sau ' + iter + ' vong, review duyet + .e2e du proof. 1 dong tag [Sonnet 4.x].\n' +
+      'Ghi ' + aud + '/claude_submitted.md (TIENG VIET CO DAU DAY DU, CAM khong dau; ghi THANG vao folder contents/' + name + '/): gate PASS sau ' + iter + ' vong, review duyet + .e2e du proof. 1 dong tag [Sonnet 5].\n' +
       'VA: neu ' + aud + '/synced.yaml CHUA co -> tao no: doi chieu body bodies/<lang>/{vi,en}.md voi .repo LOCAL (gitClone URL off-by-one ton tai · moi `cd <path>` resolve · snippet khop code), ghi status(ok|mismatch|pending)+checks+log+issues.',
       { label: 'submit:' + name, phase: 'Decision', model: 'haiku' }
     )

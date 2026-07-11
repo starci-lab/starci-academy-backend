@@ -10,8 +10,8 @@ export const meta = {
 }
 
 const COURSE_DIR = '.mount/data/courses/1-system-design-mastery/modules'
-const RULES = '.audits/rules/system-design'
-const TERM_RULE = '.audits/rules/terminology-bold.md'
+const RULES = '.claude/docs/rules/system-design'
+const TERM_RULE = '.claude/docs/rules/terminology-bold.md'
 const ABS = 'C:/Repositories/ac/starci-academy-backend'
 
 const MODULES = (args && Array.isArray(args.modules) && args.modules.length)
@@ -75,7 +75,7 @@ function contentPrompt (dir, les) {
     '- KHONG sua/them/bot challenge (Opus stage da lo). KHONG repo clone/cd/.repo/docker/e2e.',
     '',
     '=== VERIFY truoc khi tra ===',
-    '- Gate: powershell.exe -NoProfile -File "' + ABS + '/.audits/check-lesson.ps1" -Path "' + ABS + '/' + dir + '" -Json -> KHONG fail MOI (fail "github ref" = pre-existing, bo qua).',
+    '- Gate: powershell.exe -NoProfile -File "' + ABS + '/.claude/docs/check-lesson.ps1" -Path "' + ABS + '/' + dir + '" -Json -> KHONG fail MOI (fail "github ref" = pre-existing, bo qua).',
     '- Parser: bodies/<lang>/vi.md da sua: body > 200 ky tu, fence chan, accordion = N panel khop, 0 con "##### 2.1.5."; 0 con "**`" (bold-inline-code); 0 "***" vo.',
     'Tra ve dung schema.',
   ].join('\n')
@@ -103,7 +103,7 @@ for (const mod of MODULES) {
 
   phase('Gate')
   const g = await agent(
-    'Chay gate module: powershell.exe -NoProfile -File "' + ABS + '/.audits/check-lesson.ps1" -Path "' + ABS + '/' + modDir + '" -Json . Parse, moi lesson liet ke fails; phan loai github-ref=pre-existing vs regression MOI. Tra ve text tieng Viet co dau.',
+    'Chay gate module: powershell.exe -NoProfile -File "' + ABS + '/.claude/docs/check-lesson.ps1" -Path "' + ABS + '/' + modDir + '" -Json . Parse, moi lesson liet ke fails; phan loai github-ref=pre-existing vs regression MOI. Tra ve text tieng Viet co dau.',
     { label: 'gate:' + mod, phase: 'Gate', model: 'sonnet' },
   )
   allResults[allResults.length - 1].gate = g

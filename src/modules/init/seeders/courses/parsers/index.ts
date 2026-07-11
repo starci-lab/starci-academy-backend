@@ -1,5 +1,7 @@
 export * from "./challenge.service"
 export * from "./flashcard-deck.service"
+export * from "./playground.service"
+export * from "./playground-step.service"
 export * from "./mock-interview.service"
 export * from "./content.service"
 export * from "./content-legacy.service"

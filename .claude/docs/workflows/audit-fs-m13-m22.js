@@ -34,7 +34,7 @@ const GUIDANCE = [
 ].join(' ')
 
 // ABSOLUTE path: nested workflow() resolve theo cwd; cwd co the la .mount/data sau git ops -> dung absolute cho chac.
-const RUNNER = 'D:/Repositories/starci-academy-backend/.audits/workflows/audit-fs-module.js'
+const RUNNER = 'D:/Repositories/starci-academy-backend/.claude/docs/workflows/audit-fs-module.js'
 const results = []
 for (const mod of MODULES) {
   log('=== Audit REVIEW module ' + mod + ' ===')

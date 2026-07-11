@@ -74,7 +74,7 @@ log('Author xong ' + authored.filter(Boolean).length + '/' + LESSONS.length + ' 
 phase('Gate')
 const GATE = { type: 'object', properties: { lessons: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, fails: { type: 'array', items: { type: 'string' } } }, required: ['name', 'fails'] } } }, required: ['lessons'] }
 const gate = await agent(
-  'GATE (KHONG sua file). Chay: powershell -NoProfile -File ".audits/check-lesson.ps1" -Path "' + MODDIR + '/' + MODNEW + '" -Json. BAT BUOC StructuredOutput {lessons:[{name,fails}]} copy nguyen van.',
+  'GATE (KHONG sua file). Chay: powershell -NoProfile -File ".claude/docs/check-lesson.ps1" -Path "' + MODDIR + '/' + MODNEW + '" -Json. BAT BUOC StructuredOutput {lessons:[{name,fails}]} copy nguyen van.',
   { label: 'gate:react-effects', phase: 'Gate', model: 'sonnet', schema: GATE }
 )
 const bad = ((gate && gate.lessons) || []).filter(function (l) { return l.fails && l.fails.length })

@@ -24,6 +24,10 @@ export enum XpSource {
     DailyQuest = "dailyQuest",
     /** XP from finishing a flashcard quick-quiz session (amount = capped coverage reward). */
     FlashcardQuiz = "flashcardQuiz",
+    /** XP from grading a flashcard for the FIRST time ever (amount = 2, once per user × card). */
+    FlashcardFirstReview = "flashcardFirstReview",
+    /** Coin bonus for reaching a platform-wide streak milestone (7/30/100 consecutive days). */
+    StreakMilestone = "streakMilestone",
 }
 
 export const GraphQLTypeXpSource = createEnumType(XpSource)
@@ -51,6 +55,12 @@ registerEnumType(
             },
             [XpSource.FlashcardQuiz]: {
                 description: "XP from finishing a flashcard quick-quiz session.",
+            },
+            [XpSource.FlashcardFirstReview]: {
+                description: "XP from grading a flashcard for the first time ever.",
+            },
+            [XpSource.StreakMilestone]: {
+                description: "Coin bonus for reaching a streak milestone.",
             },
         },
     },

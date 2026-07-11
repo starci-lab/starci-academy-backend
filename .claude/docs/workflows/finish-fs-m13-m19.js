@@ -11,10 +11,10 @@ export const meta = {
 }
 
 const ROOT = 'D:/Repositories/starci-academy-backend'
-const RUNNER = ROOT + '/.audits/workflows/audit-fs-module.js'
-const GATE = ROOT + '/.audits/check-lesson.ps1'
+const RUNNER = ROOT + '/.claude/docs/workflows/audit-fs-module.js'
+const GATE = ROOT + '/.claude/docs/check-lesson.ps1'
 const BASE = '.mount/data/courses/0-fullstack-mastery/modules'
-const RULE = '.audits/rules/terminology-bold.md'
+const RULE = '.claude/docs/rules/terminology-bold.md'
 const GOLD = BASE + '/0-nestjs-core-and-request-lifecycle/contents/0-frameworks-in-backend/bodies/0-typescript/vi.md'
 
 const MODULES = [
@@ -44,9 +44,9 @@ await workflow({ scriptPath: RUNNER }, {
 // ---- Phase 3: de-bold script (covers M19 new challenges + any residue) ----
 phase('De-bold')
 await agent(
-  'Chay de-bold script (go ** quanh inline-code/URL) cho M13-M19. Viet file ' + ROOT + '/.audits/workflows/_db_tmp.mjs noi dung:\n' +
+  'Chay de-bold script (go ** quanh inline-code/URL) cho M13-M19. Viet file ' + ROOT + '/.claude/docs/workflows/_db_tmp.mjs noi dung:\n' +
   'import fs from "node:fs";import path from "node:path";const files=[];const walk=d=>{for(const e of fs.readdirSync(d,{withFileTypes:true})){const p=path.join(d,e.name);if(e.isDirectory())walk(p);else if(e.name.endsWith(".md"))files.push(p)}};for(const r of process.argv.slice(2))walk(r);let tf=0,th=0;for(const f of files){const s=fs.readFileSync(f,"utf8");const parts=s.split(/(```[\\s\\S]*?```)/g);let h=0;const o=parts.map(g=>g.startsWith("```")?g:g.replace(/\\*\\*(`[^`]+`)\\*\\*/g,(_,x)=>{h++;return x}).replace(/\\*\\*(https?:\\/\\/[^\\s*]+)\\*\\*/g,(_,x)=>{h++;return x})).join("");if(h>0){fs.writeFileSync(f,o);tf++;th+=h}}console.log(`de-bold: ${th} chops in ${tf} files`)\n' +
-  'Roi chay: node "' + ROOT + '/.audits/workflows/_db_tmp.mjs" ' + MODULES.map((m) => '"' + ROOT + '/' + BASE + '/' + m + '"').join(' ') + '\n' +
+  'Roi chay: node "' + ROOT + '/.claude/docs/workflows/_db_tmp.mjs" ' + MODULES.map((m) => '"' + ROOT + '/' + BASE + '/' + m + '"').join(' ') + '\n' +
   'Xoa file tmp sau khi xong. Tra ve so chops.',
   { label: 'debold:m13-m19', phase: 'De-bold', model: 'haiku' },
 )

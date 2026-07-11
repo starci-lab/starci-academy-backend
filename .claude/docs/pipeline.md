@@ -9,13 +9,14 @@ Mục tiêu: kiểm content + challenge **từng module một, có kiểm soát*
 4. **Cơ học (LLM tự làm OK):** sửa format (`###`→`:::muted`), score sum, §2.1.5 lặp, mirror vi/en, dấu tiếng Việt, cd-first, doc-path, snippet↔repo. Đây là sửa-cho-đúng-rule, không phải quyết-định-nội-dung.
 
 
-Files trong `.audits/`:
+Files trong `.claude/docs/`:
 - `check-lesson.ps1` — gate deterministic (free, 0 token).
 - `pipeline.md` — file này (quy trình + phân vai model).
-- `rules-lean.md` + `rules/fullstack/{contents,challenges,coding}.md` — rules tự-đủ (`coding.md` = code BE/FE thế nào).
+- `rules-lean.md` + `rules/<course>/{contents,challenges,coding}.md` — rules tự-đủ (`coding.md` = code BE/FE thế nào).
+- `rules/<course>/domain.md` — **ĐẶC TẢ DOMAIN từng khóa** (định vị · bản đồ giáo trình · quy ước RIÊNG). Đọc TRƯỚC khi gen/audit 1 khóa để biết "khóa DẠY GÌ + đặc thù". **Map course-slug → rules folder:** `0-fullstack-mastery`→`fullstack` · `1-system-design-mastery`→`system-design` · `2-devops-mastery`→`devops` · `3-ai-llm-mastery`→`ai-llm` · `4-claude-mastery`→`claude`. FS/SD grounded đủ contents/challenges/coding; **devops** có content nhưng chưa soạn 3 file kia; **ai-llm/claude** = brief đề xuất (thầy chốt định vị trước khi gen).
 - `references.md` — **registry gold modules** (append sau mỗi module PASS để lần sau audit tốt hơn).
 - `workflows/audit-fs-module.js` — **runner** (xem dưới). Tự ghi `synced.yaml` mỗi lesson (Loop + submit).
-- `workflows/sync-check.js` — **backfill `synced.yaml`** cho lesson đã done: per-lesson check body↔`.repo` local → ghi `synced.yaml`. Idempotent (status=ok → skip; `force:true` ép re-check). `Workflow({ scriptPath:".audits/workflows/sync-check.js", args:{ modules:[...] } })`.
+- `workflows/sync-check.js` — **backfill `synced.yaml`** cho lesson đã done: per-lesson check body↔`.repo` local → ghi `synced.yaml`. Idempotent (status=ok → skip; `force:true` ép re-check). `Workflow({ scriptPath:".claude/docs/workflows/sync-check.js", args:{ modules:[...] } })`.
 - `workflows/verify-repos.js` — verify body↔repo **PUBLISHED** (clone GitHub) — chạy SAU push để xác nhận remote khớp.
 
 ---
@@ -24,7 +25,7 @@ Files trong `.audits/`:
 Toàn bộ pipeline chạy như **một Workflow per module**, không gọi agent lẻ tay. Đảm bảo mỗi module qua y hệt các phase + đúng model tier.
 
 ```
-Workflow({ scriptPath: ".audits/workflows/audit-fs-module.js", args: { module: "13-frontend-performance" } })
+Workflow({ scriptPath: ".claude/docs/workflows/audit-fs-module.js", args: { module: "13-frontend-performance" } })
 ```
 > Runner nhận `args` cả 3 dạng: object `{module}`, chuỗi-JSON `'{"module":"..."}'`, hoặc chuỗi tên-module trần `"13-frontend-performance"` (harness có lúc serialize args thành string → đừng để fail vì arg-shape).
 > Thêm `args.guidance` (tùy chọn) = chỉ-dẫn-riêng-module, chèn vào brief/loop/decision với **ưu tiên tuyệt đối** — vd `{ module: "15-interaction-and-accessibility", guidance: "FE thuần → Vite + Sandbox, KHÔNG Next.js" }`.
@@ -35,13 +36,13 @@ Workflow({ scriptPath: ".audits/workflows/audit-fs-module.js", args: { module: "
 Tách rõ **PHÂN TÍCH + CHỐT** (rẻ, có thầy) khỏi **EXECUTION** (nặng). KHÔNG chạy thẳng workflow nặng nữa.
 
 ### PHASE 1 — Phân tích & chốt (KHÔNG đụng code/repo)
-1. **Gate (free)** + **Haiku brief** mỗi lesson: purpose, phần quan trọng, flow, loại bài, sơ bộ challenge.
-2. **Opus phân tích** (đọc brief + gate + content/challenge + repo hiện trạng) → ra **đề xuất**:
+1. **Gate (free)** + **brief** mỗi lesson (mặc định Sonnet 5): purpose, phần quan trọng, flow, loại bài, sơ bộ challenge.
+2. **Phân tích** (Sonnet 5; đọc brief + gate + content/challenge + repo hiện trạng) → ra **đề xuất**:
    - **Đổi gì / sửa gì** (content, code, format).
    - **Lang nào GIỮ / lang nào BỎ** (theo content-check applicability — bỏ lang phải bịa concept vô nghĩa).
    - **Challenge nào HỢP / không hợp** (tier, criteria, có cần thêm/bớt/đổi).
    - **Rủi ro pivot** (vd Next↔Vite, 4-lang↔agnostic, gộp/tách lesson).
-3. **Opus HỎI THẦY** các câu hỏi chốt (dùng AskUserQuestion) để quyết **có pivot không** cho phù hợp — KHÔNG tự quyết mấy thứ thay đổi định hướng.
+3. **HỎI THẦY** các câu hỏi chốt (dùng AskUserQuestion) để quyết **có pivot không** cho phù hợp — KHÔNG tự quyết mấy thứ thay đổi định hướng.
 4. **Thầy CONFIRM** → chốt scope (lang giữ/bỏ, challenge, pivot) → mới sang Phase 2.
 
 → Output Phase 1: 1 bản tóm tắt phân tích + quyết định đã chốt (ghi `research.md`/`decision.md` sơ bộ). **Đây là cổng người-duyệt: chưa confirm thì KHÔNG sang Phase 2.**
@@ -53,24 +54,34 @@ Chạy workflow nặng theo scope đã chốt: migrate `backend/<lang>` → fix-
 
 ---
 
-Phase ↔ model (cố định trong runner):
+## Phân vai MODEL (đồng bộ CẢ HỆ `.claude/docs` — CHỐT 2026-07-09)
+
+**DEFAULT = Sonnet 5 cho MỌI việc nặng · Haiku cho cơ học rẻ · Opus = opt-in escalation.** Lý do: pipeline là **human-in-loop** (thầy chốt mọi quyết định substantive ở cổng review) → "đề xuất" của model chỉ là nháp thầy duyệt, không cần Opus; + rules `.claude/docs` rất prescriptive (làm-theo-luật, không cần suy luận sâu) → Sonnet 5 thừa sức. **Tiết kiệm theo mặc định, đắt-tiền chỉ khi ngoại lệ** (đúng tinh thần "gate rẻ chạy trước").
+
+| Tier | Dùng cho |
+|---|---|
+| **Haiku 4.5** | enumerate · re-gate (1-lesson JSON) · references append · submit-marker |
+| **Sonnet 5** (DEFAULT) | gate parse · brief · review+đề xuất · apply · loop (viết code + e2e + đối chiếu) · decision (quyết khi lệch, duyệt criteria/outputs) · author `vi.md` + mirror `en.md` · curate · fix-format |
+| **Opus 4.8** (opt-in) | **KHÔNG mặc định.** Bật `args.opus: true` (thường kèm `only:"<lesson>"`) → escalate ĐÚNG 1 lesson KHÓ khi bản Sonnet 5 chưa đạt: author `vi.md` pedagogically-hard / thiết kế criteria hard-insane phức tạp |
+
+> **Escalate Opus 1 lesson:** `Workflow({ scriptPath, args: { module, only: "<lesson-khó>", opus: true } })` — lesson đó chạy Opus, phần còn lại Sonnet 5. Runner tự resolve: `HEAVY = args.opus ? 'opus' : 'sonnet'`.
 
 **THỨ TỰ (ruling thầy): REVIEW TRÊN TRƯỚC → rồi mới VÔ LUỒNG mechanical.** Khi thầy nói "audit" = làm review nội dung+challenges trước, sau đó mới gate→loop.
 
 | # | Phase | Model | Việc | Output |
 |---|---|---|---|---|
 | 1 | Enumerate | Haiku | liệt kê lesson folders (TRƯỚC gate) | (names) |
-| 2 | **Review (trên trước)** | **Sonnet brief + Opus check** | Sonnet brief nội dung+challenges → Opus **DUYỆT / thêm-bớt challenge / sửa lesson** | `research.md` `decision.md` (§Review) |
-| 3 | Gate (module-wide) | **Sonnet** | `check-lesson.ps1 -Json` + copy JSON (sau review) | (structured) |
-| 4 | Loop | Sonnet | viết code thiếu + test luồng + đối chiếu snippet↔repo + e2e per-flow | `.code/` `.e2e/` |
-| 5 | Decision | Opus | duyệt mechanical + áp fix (env/cd/git) | `decision.md` (§Decision) |
+| 2 | **Review (trên trước)** | **Sonnet 5** | brief nội dung+challenges → **đề xuất** DUYỆT / thêm-bớt challenge / sửa lesson → STOP hỏi thầy | `research.md` `review.md` |
+| 3 | Gate (module-wide) | **Sonnet 5** | `check-lesson.ps1 -Json` + copy JSON (sau review) | (structured) |
+| 4 | Loop | Sonnet 5 | viết code thiếu + test luồng + đối chiếu snippet↔repo + e2e per-flow | `.code/` `.e2e/` |
+| 5 | Decision | Sonnet 5 (Opus nếu escalate) | duyệt mechanical + áp fix (env/cd/git) | `decision.md` (§Decision) |
 | 6 | Re-gate (1 lesson) | Haiku | gate lại 1 lesson (JSON nhỏ) | (structured) |
 | 7 | References | Haiku | append gold registry | `references.md` |
 
-- **Review (Phase 2) = "làm trên" TRƯỚC gate:** Opus đọc brief Sonnet rồi quyết nội dung+challenges đã ổn chưa → **duyệt**, hoặc **thêm/bớt challenge** (theo merit, cấm gượng) + **sửa lesson** (vi.md Opus viết, en.md mirror) + re-index challenge liền mạch. XONG mới vô luồng mechanical (Gate→Loop).
-- **2 tầng loop (Phase 3-6):** `parallel` iter TỪNG lesson · mỗi lesson chạy **vòng hội tụ `while`** = `[Sonnet loop → Opus fix → re-gate]` **lặp tới khi gate PASS** hoặc hết `MAX_ITER` (3).
-- **Phase cuối `References`:** sau khi cả module hội tụ, append 1 block vào `.audits/references.md` (variant + lesson gold + bài học) → lần audit sau đọc gold cùng variant cho chuẩn.
-- **Artifact ghi THẲNG vào mount, trong từng `contents/<lesson>/`** (cạnh `audited.md`), KHÔNG để ở cây `.audits/` riêng. Nội dung **tiếng Việt**.
+- **Review (Phase 2) = "làm trên" TRƯỚC gate:** Sonnet 5 đọc brief rồi quyết nội dung+challenges đã ổn chưa → **duyệt**, hoặc **thêm/bớt challenge** (theo merit, cấm gượng) + **sửa lesson** (vi.md tác giả viết, en.md mirror) + re-index challenge liền mạch. XONG mới vô luồng mechanical (Gate→Loop). (Escalate Opus qua `opus:true` khi lesson khó.)
+- **2 tầng loop (Phase 3-6):** `parallel` iter TỪNG lesson · mỗi lesson chạy **vòng hội tụ `while`** = `[Sonnet loop → Sonnet decision → re-gate]` **lặp tới khi gate PASS** hoặc hết `MAX_ITER` (3). (Decision escalate Opus khi `opus:true`.)
+- **Phase cuối `References`:** sau khi cả module hội tụ, append 1 block vào `.claude/docs/references.md` (variant + lesson gold + bài học) → lần audit sau đọc gold cùng variant cho chuẩn.
+- **Artifact ghi THẲNG vào mount, trong từng `contents/<lesson>/`** (cạnh `audited.md`), KHÔNG để ở cây `.claude/docs/` riêng. Nội dung **tiếng Việt**.
 - Sửa runner: Edit `audit-fs-module.js` rồi re-invoke `{scriptPath}`. ĐỪNG nhắn khi workflow chạy (bị giết).
 
 ---
@@ -78,10 +89,10 @@ Phase ↔ model (cố định trong runner):
 ## Gate trước tiên (free)
 
 ```powershell
-./.audits/check-lesson.ps1 -Path ".mount/data/courses/0-fullstack-mastery/modules/<module>"
+./.claude/docs/check-lesson.ps1 -Path ".mount/data/courses/0-fullstack-mastery/modules/<module>"
 # thêm -Mermaid để parse mermaid (chậm). Exit code = số FAIL (0 = sạch).
 # Runner gọi kèm -Json để in JSON {lessons:[{name,fails}]} (agent copy thẳng vào StructuredOutput):
-#   powershell -NoProfile -File ".audits/check-lesson.ps1" -Path "<module-dir>" -Json
+#   powershell -NoProfile -File ".claude/docs/check-lesson.ps1" -Path "<module-dir>" -Json
 # Trên Windows PHẢI dùng powershell.exe (KHÔNG pwsh/bash) → agent gate khỏi retry vô ích rồi chết.
 # GATE MODULE-WIDE = SONNET (không Haiku): khi nhiều lesson fail (scaffold + e2e) JSON to → Haiku copy
 #   không nổi vào StructuredOutput → workflow chết "subagent completed without calling StructuredOutput"
@@ -98,14 +109,14 @@ Check: leak Opus/chủ-nhiệm/Gemini · inline-bullet (scope 2.1.5) · fence ch
 | # | Việc | Model | Output |
 |---|---|---|---|
 | 0 | Gate structure/format/sums | **Script** (free) | exit code |
-| 1 | Bài PASS → brief: purpose, phần quan trọng, flow make-sense, **loại bài**, challenges sơ bộ | **Haiku** | `research.md` |
-| 2 | **Loop code↔docs**: code có chưa (thiếu→Sonnet viết) → test luồng theo docs → sai→Opus sửa code/docs → lặp tới khớp | **Sonnet** test + **Opus** sửa | `.code/` `.e2e/` |
-| 3 | E2E từng luồng (4-lang **parallel**, port-mapped) → output file tạm → check chuẩn chưa | **Sonnet** (code thiếu → Sonnet viết) | log |
-| 4 | Challenge: script lo format → duyệt **chấm bài (criteria) + outputs + requirements**, quyết nâng cấp/giữ tier | **Haiku** brief → **Opus** duyệt | `decision.md` |
+| 1 | Bài PASS → brief: purpose, phần quan trọng, flow make-sense, **loại bài**, challenges sơ bộ | **Sonnet 5** (brief nhẹ) | `research.md` |
+| 2 | **Loop code↔docs**: code có chưa (thiếu→viết) → test luồng theo docs → sai→sửa code/docs → lặp tới khớp | **Sonnet 5** (loop + decision) | `.code/` `.e2e/` |
+| 3 | E2E từng luồng (4-lang **parallel**, port-mapped) → output file tạm → check chuẩn chưa | **Sonnet 5** (code thiếu → tự viết) | log |
+| 4 | Challenge: script lo format → duyệt **chấm bài (criteria) + outputs + requirements**, quyết nâng cấp/giữ tier | **Sonnet 5** (Opus nếu escalate) | `decision.md` |
 | 5 | Ghi done-marker + **DỌN TÀN DƯ** (module done) | **Script** | `claude_submitted.md` |
 
 ### Dọn tàn dư khi module DONE (dọn dần, mỗi module xong 1 lần)
-Khi module **đã hội tụ** (gate PASS + e2e proof + pushed) → chạy `bash .audits/clean-residue.sh <mount-module-dir> [<repo-dir>]` (DRYRUN=1 xem trước):
+Khi module **đã hội tụ** (gate PASS + e2e proof + pushed) → chạy `bash .claude/docs/clean-residue.sh <mount-module-dir> [<repo-dir>]` (DRYRUN=1 xem trước):
 - **XÓA (tàn dư):** `antigravity_test.md` (module-level test junk) · `code-context.md` (spec pre-audit, hết cần sau khi done) · repo test-scaffolding (`test_spec.py`, `__pycache__/`, `generate-test.js`, `compose_test.yaml`) · leftover bare lang dir sau migrate.
 - **GIỮ (audit trail + learner):** `vi.md` `en.md` `bodies/` `challenges/` `audited.md` `research.md` `decision.md` `claude_submitted.md` `synced.yaml` `.code/` `.e2e/`.
 - Xóa `code-context.md` KHÔNG phá gate (BE lesson không cần; Check-FrontendVite return sớm). Mount gitignored → chỉ recover từ DB, nên chỉ dọn KHI module thực sự done.
@@ -117,7 +128,7 @@ Backend có 2 nhóm git riêng — push 2 chỗ sau khi audit/e2e PASS:
 
 ### Verify repo PUBLISHED ↔ body (clone-temp, BẮT BUỘC trước/sau push)
 Body có thể trỏ path sai vs repo thật (vd cd-path off, lang@root vs backend/<lang>) mà gate không bắt hết. Bước verify (ruling thầy 2026-06-07): **clone repo từ GitHub vào TEMP** (KHÔNG đụng `.repo` live) → **test mọi `cd <path>` trong body có resolve thật** trong clone không → **Haiku brief nội-dung-trong-clone vs body-ngoài** confirm khớp → **XÓA temp**.
-- Tool: `Workflow({ scriptPath: ".audits/workflows/verify-repos.js", args: { modules: [...] } })`.
+- Tool: `Workflow({ scriptPath: ".claude/docs/workflows/verify-repos.js", args: { modules: [...] } })`.
 - Clone `git clone --depth 1 <remote> $env:TEMP/verify-<slug>` (GIT_TERMINAL_PROMPT=0); xóa temp `[System.IO.Directory]::Delete($path,$true)` (Remove-Item bị chặn).
 - Bắt: body `cd backend/<lang>` mà repo lang@root (hoặc ngược) → cdResolve=false; body §2.1.2/§2.1.3 mô tả file repo không có → contentMatch=false.
 - Repo CHƯA push (migration local) → clone GitHub ra layout cũ → verify FAIL = đúng (nhắc push trước).
@@ -134,10 +145,10 @@ Body có thể trỏ path sai vs repo thật (vd cd-path off, lang@root vs backe
 
 ### Artifacts per lesson — ghi THẲNG vào mount `.../modules/<slot>/contents/<lesson>/` (cạnh `audited.md`), **tiếng Việt**
 ```
-research.md           [Haiku] brief: purpose + phần quan trọng + flow make-sense + loại bài + challenges sơ bộ
-decision.md           [Opus]  duyệt: findings + quyết định (criteria/outputs/requirements) + việc đã fix
-.code/                [Sonnet] TRACK code Sonnet đã viết: liệt kê file tạo/sửa + tóm tắt + diff/lý do (mỗi lang nếu 4-lang)
-.e2e/<lang>/          [Sonnet] CHỨNG MINH đã test — TÁCH 4 sub theo lang (typescript/java/csharp/go); mỗi luồng = 1 file flow-<N>-<slug>-<status>.md (status: done|fail|require-creds) + output thật + log lệnh
+research.md           [Sonnet 5] brief: purpose + phần quan trọng + flow make-sense + loại bài + challenges sơ bộ
+decision.md           [Sonnet 5] duyệt: findings + quyết định (criteria/outputs/requirements) + việc đã fix (tag [Opus 4.8] nếu escalate)
+.code/                [Sonnet 5] TRACK code đã viết: liệt kê file tạo/sửa + tóm tắt + diff/lý do (mỗi lang nếu 4-lang)
+.e2e/<lang>/          [Sonnet 5] CHỨNG MINH đã test — TÁCH 4 sub theo lang (typescript/java/csharp/go); mỗi luồng = 1 file flow-<N>-<slug>-<status>.md (status: done|fail|require-creds) + output thật + log lệnh
 claude_submitted.md   done-marker: ghi khi gate PASS + đã duyệt + .e2e đủ proof
 synced.yaml           [Haiku/agent] marker ĐỒNG NHẤT body↔repo (xem mục dưới): git clone + cd resolve + content match. status: ok → lần sau SKIP re-check
 ```
@@ -161,7 +172,7 @@ log: |
   <log tiếng Việt: đã đối chiếu gì, kết quả>
 issues: []
 ```
-> Trước (cũ): các file này nằm ở `.audits/0-fullstack-mastery/<module>/<lesson>/`. Nay **ghi thẳng vào folder `contents/<lesson>/` trong mount** để review tại chỗ cùng nội dung bài. Seeder bỏ qua các file ngoài schema (giống `audited.md`).
+> Trước (cũ): các file này nằm ở `.claude/docs/0-fullstack-mastery/<module>/<lesson>/`. Nay **ghi thẳng vào folder `contents/<lesson>/` trong mount** để review tại chỗ cùng nội dung bài. Seeder bỏ qua các file ngoài schema (giống `audited.md`).
 - **`.code/`** — Sonnet viết/sửa code gì PHẢI ghi vào đây để track (file path + tóm tắt + vì sao). 4-lang → ghi mỗi lang.
 - **`.e2e/` — TÁCH 4 SUB THEO LANG** (thay luật cũ "gộp 1 record"): `.e2e/typescript/`, `.e2e/java/`, `.e2e/csharp/`, `.e2e/go/`. Trong mỗi sub, **mỗi luồng = 1 file** `flow-<N>-<slug>-<status>.md` chứa: lệnh chạy, **output thật**, port đã assign, kết luận. `<status>`:
   - **`done`** — chạy thật, PASS. Thôi.
@@ -172,42 +183,43 @@ issues: []
 
 Mỗi log entry gắn tag model để thầy biết ai làm gì:
 ```
-[Haiku 4.5] brief: bài dạy responsive layout không media-query-soup; flow 2.1.5 hợp lý...
-[Opus 4.8] duyệt: challenge easy criteria tổng outcome=35 (sai, phải 30) → fix về 30/70...
-[Sonnet 4.x] viết code: thêm backend/java SmsController port 3001; .e2e/flow-1: POST /sms 201 {messageSid} → PASS.
+[Sonnet 5] brief: bài dạy responsive layout không media-query-soup; flow 2.1.5 hợp lý...
+[Sonnet 5] duyệt: challenge easy criteria tổng outcome=35 (sai, phải 30) → fix về 30/70...
+[Sonnet 5] viết code: thêm backend/java SmsController port 3001; .e2e/flow-1: POST /sms 201 {messageSid} → PASS.
+[Opus 4.8] duyệt (escalate): lesson khó, criteria insane distributed-lock — thầy bật opus:true...
 ```
 
 ---
 
 ## Viết content — chống vi/en divergence
-- **Opus viết `vi.md`** (tiếng Việt = bản gốc). **Sonnet dịch sang `en.md`** (mirror 1-1 từ vi) — KHÔNG author `en` độc lập. → vi/en luôn cùng bài, cùng cấu trúc.
+- **`vi.md` = bản GỐC (tác giả viết, mặc định Sonnet 5; escalate Opus qua `opus:true` khi lesson khó).** `en.md` = **mirror 1-1 từ vi** (KHÔNG author `en` độc lập) → vi/en luôn cùng bài, cùng cấu trúc. Vai "tác giả vi / mirror en" độc lập với tier model — tier theo §Phân vai MODEL.
 - Backstop: gate so vi↔en (cùng số heading · cùng số luồng · cùng số fence). Lệch = en đã trôi thành bài khác.
 
-## Loop code ↔ docs (step 2) — **Sonnet loop → Opus decision**
+## Loop code ↔ docs (step 2) — **loop + decision (mặc định Sonnet 5)**
 Áp cho **CẢ HAI**: **(A) luồng 2.1.5** + **(B) code-walkthrough §2.1.3 viết TRONG bài** (snippet body PHẢI khớp `.repo/src`, không bịa — vd Twilio bài cũ ghi `/sms/send` nhưng repo là `POST /sms`).
 
 **Sonnet chạy vòng lặp:**
 1. Code có chưa? thiếu lang nào → Sonnet viết (contract bài + repo gold). Ghi `.code/`.
 2. Test luồng theo docs **+ đối chiếu snippet §2.1.3 với code repo thật** (4-lang port-mapped). Ghi `.e2e/` (output thật + log).
-3. Lệch? (luồng sai **HOẶC** snippet bài ≠ repo) → **Opus decision: sửa CODE hay sửa DOCS** (tùy mục đích bài).
+3. Lệch? (luồng sai **HOẶC** snippet bài ≠ repo) → **decision: sửa CODE hay sửa DOCS** (tùy mục đích bài).
 4. Lặp 2↔3 tới khi **mọi luồng + mọi snippet khớp** → done. (LOOP, KHÔNG one-shot diff.)
 
-> Công thức chung: **Sonnet loop (viết/test/đối chiếu) · Opus decision (quyết khi lệch).**
+> Công thức chung: **loop (viết/test/đối chiếu) · decision (quyết khi lệch)** — cùng tier Sonnet 5 mặc định.
 
-## Phân vai model
+## Phân vai (VAI TRÒ, độc lập tier — tier xem §Phân vai MODEL ở trên)
 - **Script (free):** structure / format / criteria-sum / leak / fence / parity / vi↔en mirror.
-- **Haiku:** brief/skim content, brief challenge.
-- **Sonnet:** **viết code nếu repo thiếu/chưa có**; **chạy E2E test (4-lang, parallel)**; check output luồng đúng chưa; viết body 4-lang số lượng lớn.
-- **Opus:** quyết định — criteria/outputs/requirements, diff lesson-vs-code (sửa bên nào), rewrite sai-format, update rules.
+- **Brief/skim** content + challenge → Sonnet 5 (trước Haiku; xem §Phân vai MODEL).
+- **Author/loop:** viết code nếu repo thiếu · chạy E2E 4-lang parallel · check output luồng · viết body 4-lang số lượng lớn → **Sonnet 5**.
+- **Decision:** criteria/outputs/requirements · diff lesson-vs-code (sửa bên nào) · rewrite sai-format · update rules → **Sonnet 5** (escalate **Opus** qua `opus:true` cho lesson khó).
 
-E2E test = **Sonnet** chạy thật trên host (xem "Test 4-lang" dưới). Chủ nhiệm/Gemini chỉ ký duyệt cuối nếu cần.
+E2E test = chạy THẬT trên host (Sonnet 5, xem "Test 4-lang" dưới).
 
 ---
 
 ## Layout `.repo` THỐNG NHẤT (backend grouped)
 - Mỗi lesson trong repo GitHub theo cấu trúc: **`<repo>/<lesson>/backend/<N>-<lang>/`** cho server (0-typescript, 1-java, 2-csharp, 3-go) + **`<repo>/<lesson>/frontend/`** cho FE. File lẻ (README/test.md/.docker/...) ở cấp lesson.
 - Lý do: đồng nhất + chừa chỗ **nhiều api server** sau này (backend/ chứa được >1 service). FE check gate vẫn dùng `.repo/.../frontend`.
-- Migrate repo cũ (`<lesson>/<N>-<lang>` thẳng, hoặc `<lesson>/backend` đơn = TS) → dùng script `.audits/migrate-repo-backend.sh` (DRYRUN=1 xem trước, DRYRUN=0 chạy `git mv` giữ history). `code-context.md` phải trỏ `path: <repo>/<lesson>/backend/<N>-<lang>`.
+- Migrate repo cũ (`<lesson>/<N>-<lang>` thẳng, hoặc `<lesson>/backend` đơn = TS) → dùng script `.claude/docs/migrate-repo-backend.sh` (DRYRUN=1 xem trước, DRYRUN=0 chạy `git mv` giữ history). `code-context.md` phải trỏ `path: <repo>/<lesson>/backend/<N>-<lang>`.
 
 ## Test 4-lang (parallel + PORT MAPPING)
 - **Không có code / repo thiếu lang nào → Sonnet viết** (theo contract bài + repo gold), rồi mới test.

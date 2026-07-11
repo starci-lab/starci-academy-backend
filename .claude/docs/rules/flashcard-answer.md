@@ -76,8 +76,10 @@ Output) sections. The label renders muted-gray; the body stays readable.
 ```
 
 Sections, in order:
-1. **Chốt (TL;DR)** — 1–2 sentences: the direct answer you would open with in the room.
-   This is the line the learner self-checks against the instant they flip.
+1. **Trả lời thẳng (TL;DR)** — 1–2 sentences: the direct answer you would open with in the room.
+   This is the line the learner self-checks against the instant they flip. (Nhãn CHỐT
+   2026-07-12: `Trả lời thẳng` — thống nhất theo content chủ đạo 411/450; các biến thể
+   `Chốt`/`Giải pháp` đã normalize về đây. KHÔNG dùng `Chốt`.)
 2. **Cơ chế / vì sao** — the substance: how it works + the key commands/terms.
 3. **Trade-off** — the trade-off / when this choice breaks down.
 4. **Bẫy thường gặp** — the classic failure mode / anti-pattern.
@@ -135,9 +137,11 @@ across a cloze deletion; split the backticks instead.
 `en.md` and `vi.md` mirror the same skeleton and the same KEEP/DELETE decision.
 - `vi.md` is Vietnamese **with diacritics**; keep standard technical terms in English
   (`stderr`, `load average`, `2>&1`) rather than force-translating them.
-- The block labels are localized: `Chốt` / `Cơ chế` / `Trade-off` / `Bẫy thường gặp` /
+- The block labels are localized: `Trả lời thẳng` / `Cơ chế` / `Trade-off` / `Bẫy thường gặp` /
   `Đào sâu tiếp` (vi) — English equivalents in `en.md`
-  (`TL;DR` / `How it works` / `Trade-off` / `Common pitfall` / `Go deeper`).
+  (`TL;DR` / `How it works` / `Trade-off` / `Common pitfall` / `Go deeper`). Bộ CHỐT
+  2026-07-12; các biến thể cũ (Chốt/Giải pháp/Lỗi thường gặp/Solution/Pitfall*/`*`-suffix)
+  đã normalize.
 
 ---
 

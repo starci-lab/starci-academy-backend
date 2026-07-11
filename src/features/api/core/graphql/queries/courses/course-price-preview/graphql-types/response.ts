@@ -16,6 +16,48 @@ import {
 } from "@modules/databases"
 
 /**
+ * One offered installment ("trả góp") term for this course's discounted price —
+ * the payment modal renders these as the 3/6/12-month choices with each term's
+ * per-month + total (markup already applied). Empty for a free course.
+ */
+@ObjectType({
+    description: "One offered installment term (months + markup + total + per-month) for a course.",
+})
+export class InstallmentOptionItem {
+    @Field(
+        () => Int,
+        {
+            description: "Number of monthly cycles (3, 6, or 12).",
+        },
+    )
+        months: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Markup percent this term adds over the discounted price.",
+        },
+    )
+        markupPercent: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Whole amount owed across the schedule (discounted price + markup).",
+        },
+    )
+        totalAmountVnd: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Amount charged each cycle (incl. the first at checkout) = total / months.",
+        },
+    )
+        monthlyAmountVnd: number
+}
+
+/**
  * Pre-checkout price preview for a single course: the original vs loyalty-discounted
  * price (VND always; USD when the active phase has one) plus the discount metadata,
  * computed with the SAME services applied at checkout so the shown price equals the
@@ -153,6 +195,14 @@ export class CoursePricePreviewData {
         },
     )
         nextPhasePriceUsd: number | null
+
+    @Field(
+        () => [InstallmentOptionItem],
+        {
+            description: "Offered installment (trả góp) terms for the discounted VND price — empty for a free course or USD-only checkout.",
+        },
+    )
+        installmentOptions: Array<InstallmentOptionItem>
 }
 
 /**

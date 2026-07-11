@@ -22,6 +22,10 @@ import {
 import {
     PlaygroundEntity,
 } from "./playground.entity"
+import {
+    GraphQLTypePlaygroundSessionMode,
+    PlaygroundSessionMode,
+} from "../enums"
 
 /**
  * One learner's run of a {@link PlaygroundEntity}. The learner's browser
@@ -107,6 +111,27 @@ export class PlaygroundSessionEntity extends UuidAbstractEntity {
         (session: PlaygroundSessionEntity) => session.playground,
     )
         playgroundId: string
+
+    /**
+     * How much scaffolding this session gives the learner — "guided" (default,
+     * step `commandHint`s shown) or "free" (hints redacted server-side, see
+     * {@link PlaygroundSessionMode}). Row count was 0 at the time this column
+     * was added, so it is safe as NOT NULL with a default.
+     */
+    @Field(
+        () => GraphQLTypePlaygroundSessionMode,
+        {
+            description: "How much scaffolding this session gives the learner (guided / free).",
+        },
+    )
+    @Column({
+        name: "mode",
+        type: "enum",
+        enum: PlaygroundSessionMode,
+        enumName: "playground_session_mode",
+        default: PlaygroundSessionMode.Guided,
+    })
+        mode: PlaygroundSessionMode
 
     /**
      * Short random code (e.g. 6 chars) the learner types into the CLI agent to

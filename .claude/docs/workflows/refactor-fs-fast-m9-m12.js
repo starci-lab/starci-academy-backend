@@ -15,7 +15,7 @@ const MODULES = [
   '12-server-components-suspense-streaming',
 ]
 const BASE = '.mount/data/courses/0-fullstack-mastery/modules'
-const RULE = '.audits/rules/terminology-bold.md'
+const RULE = '.claude/docs/rules/terminology-bold.md'
 const GOLD = BASE + '/0-nestjs-core-and-request-lifecycle/contents/0-frameworks-in-backend/bodies/0-typescript/vi.md'
 
 const LESSONS_SCHEMA = { type: 'object', additionalProperties: false, required: ['lessons'], properties: { lessons: { type: 'array', items: { type: 'string' } } } }
@@ -58,7 +58,7 @@ const res = await parallel(tasks.map((t) => () =>
 
 phase('Gate')
 const gate = await parallel(MODULES.map((m) => () =>
-  agent('Gate module ' + m + ': powershell.exe -NoProfile -File "D:/Repositories/starci-academy-backend/.audits/check-lesson.ps1" -Path "D:/Repositories/starci-academy-backend/' + BASE + '/' + m + '" -Json. Liet ke fails moi lesson; github-ref=pre-existing. Tra text tieng Viet.',
+  agent('Gate module ' + m + ': powershell.exe -NoProfile -File "D:/Repositories/starci-academy-backend/.claude/docs/check-lesson.ps1" -Path "D:/Repositories/starci-academy-backend/' + BASE + '/' + m + '" -Json. Liet ke fails moi lesson; github-ref=pre-existing. Tra text tieng Viet.',
     { label: 'gate:' + m.split('-')[0], phase: 'Gate', model: 'sonnet' })))
 
 return { refactored: MODULES, lessons: tasks.length, results: res.filter(Boolean), gate }

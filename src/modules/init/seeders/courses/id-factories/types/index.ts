@@ -360,6 +360,28 @@ export interface GenerateFlashcardCardIdParams {
 }
 
 /**
+ * Input for {@link PlaygroundIdFactoryService.generate}.
+ */
+export interface GeneratePlaygroundIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Zero-based playground folder under `courses/{course}/playgrounds/{playgroundIndex}`. */
+    playgroundIndex: number
+}
+
+/**
+ * Input for {@link PlaygroundStepIdFactoryService.generate}.
+ */
+export interface GeneratePlaygroundStepIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent playground ordinal. */
+    playgroundIndex: number
+    /** Zero-based step index within the playground. */
+    playgroundStepIndex: number
+}
+
+/**
  * Input for {@link MockInterviewIdFactoryService.generate} — one authored
  * mock-interview question. Banks have no entity/id of their own (a bank is
  * just a `bankSlug` grouping folder), so the question id hashes the bank +

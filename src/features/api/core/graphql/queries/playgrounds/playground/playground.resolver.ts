@@ -11,6 +11,7 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
+    GraphQLLocale,
     GraphQLSuccessMessage,
     GraphQLTransformInterceptor,
 } from "@modules/api"
@@ -22,6 +23,7 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
     PlaygroundEntity,
+    PlaygroundResolverService,
 } from "@modules/databases"
 import {
     KeycloakOptionalAuthGraphQLGuard,
@@ -42,6 +44,7 @@ export class PlaygroundResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly playgroundResolver: PlaygroundResolverService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -67,6 +70,8 @@ export class PlaygroundResolver {
             },
         )
             slug: string,
+        @GraphQLLocale()
+            locale: Locale,
     ): Promise<PlaygroundEntity> {
         const playground = await this.entityManager.findOne(
             PlaygroundEntity,
@@ -75,7 +80,10 @@ export class PlaygroundResolver {
                     slug,
                 },
                 relations: {
-                    steps: true,
+                    translations: true,
+                    steps: {
+                        translations: true,
+                    },
                 },
                 order: {
                     steps: {
@@ -89,6 +97,13 @@ export class PlaygroundResolver {
                 slug,
             })
         }
+        // project title/description (playground) + title/body (each step) to the
+        // request locale and strip the raw translation rows before returning
+        this.playgroundResolver.transform(
+            playground,
+            locale,
+            Locale.En,
+        )
         return playground
     }
 }

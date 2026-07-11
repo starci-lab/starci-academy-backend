@@ -327,4 +327,56 @@ export class TransactionEntity extends UuidAbstractEntity {
         nullable: true,
     })
         installmentPlanId: string | null
+
+    /**
+     * Installment ("trả góp") INTENT carried by a FIRST-cycle checkout — set on
+     * an `Enroll` transaction when the buyer chose to pay in installments (null
+     * for a normal one-shot purchase). The enroll worker reads these on payment
+     * success to create the `Fixed` {@link InstallmentPlanEntity} exactly once
+     * (see `docs/installment-payment-plan.md` §2.2). Distinct from
+     * {@link installmentPlanId} (set on SUBSEQUENT `installmentPayment` cycles).
+     */
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Chosen installment term (3/6/12 months) for a first-cycle enroll; null for a one-shot purchase.",
+        },
+    )
+    @Column({
+        name: "installment_months",
+        type: "int",
+        nullable: true,
+    })
+        installmentMonths: number | null
+
+    /** Markup percent snapshot for the chosen term; null when not an installment checkout. */
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Markup percent applied for the chosen installment term; null for a one-shot purchase.",
+        },
+    )
+    @Column({
+        name: "installment_markup_percent",
+        type: "int",
+        nullable: true,
+    })
+        installmentMarkupPercent: number | null
+
+    /** Whole schedule total (markup applied) the created plan owes; null when not an installment checkout. */
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Whole installment-schedule total (markup applied); null for a one-shot purchase.",
+        },
+    )
+    @Column({
+        name: "installment_total_vnd",
+        type: "int",
+        nullable: true,
+    })
+        installmentTotalVnd: number | null
 }

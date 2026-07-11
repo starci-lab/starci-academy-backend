@@ -49,10 +49,6 @@ export interface RawFlashcardDeck {
     description?: string
     /** Deck difficulty tier. */
     difficulty?: ChallengeDifficulty
-    /** Referenced content `displayId`s (many-to-many). */
-    contentRefs?: Array<RawRef>
-    /** Referenced module `displayId`s (many-to-many). */
-    moduleRefs?: Array<RawRef>
     /** Index signature so the markdown→JSON extractor generic is satisfied. */
     [key: string]: unknown
 }

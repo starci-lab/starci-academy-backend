@@ -8,6 +8,18 @@
       "port": 3011
     },
     {
+      "name": "nivo-backend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "D:/Repositories/nivo-backend", "run", "start:dev"],
+      "port": 3010
+    },
+    {
+      "name": "nivo-mock-server",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "D:/Repositories/nivo", "run", "mock-server"],
+      "port": 4400
+    },
+    {
       "name": "frontend",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "C:/Repositories/starci-academy", "run", "dev"],

@@ -1,6 +1,7 @@
 export * from "./translation.service"
 export * from "./challenge-resolver.service"
 export * from "./content-resolver.service"
+export * from "./playground-resolver.service"
 export * from "./course-resolver.service"
 export * from "./code-explaining-resolver.service"
 export * from "./code-implementation-resolver.service"

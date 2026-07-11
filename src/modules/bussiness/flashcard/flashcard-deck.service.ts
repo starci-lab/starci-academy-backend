@@ -3,6 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     EntityManager,
+    In,
 } from "typeorm"
 import {
     InjectPrimaryPostgreSQLEntityManager,
@@ -21,6 +22,13 @@ import {
 import type {
     DeckStatRow,
 } from "./types/flashcard-deck"
+import type {
+    ApplySm2Params,
+} from "./types/flashcard-review"
+import {
+    FlashcardReviewService,
+    NEW_CARD_STATE,
+} from "./flashcard-review.service"
 
 /** SM-2 repetition count at/above which a card is considered "mastered". */
 const MASTERED_REPETITIONS = 2
@@ -38,23 +46,21 @@ export class FlashcardDeckReadService {
         private readonly entityManager: EntityManager,
         private readonly elasticsearchService: ElasticsearchService,
         private readonly flashcardDeckResolver: FlashcardDeckResolverService,
+        private readonly flashcardReviewService: FlashcardReviewService,
     ) { }
 
     /**
-     * Lists decks owned by a course, in display order. When `contentId` is
-     * given, only decks linked to that content (many-to-many) are returned.
+     * Lists decks owned by a course, in display order.
      *
      * @param courseId - Owning course id.
      * @param locale - Locale to localize deck/card text into.
-     * @param contentId - Optional content id to filter linked decks.
      * @param userId - Optional viewer id; when given, each deck is annotated with
      *   the viewer's `dueCount` + `masteredCount`.
-     * @returns Decks with their cards and contents, localized to `locale`.
+     * @returns Decks with their cards, localized to `locale`.
      */
     async listByCourse(
         courseId: string,
         locale: Locale = Locale.En,
-        contentId?: string,
         userId?: string,
     ): Promise<Array<FlashcardDeckEntity>> {
         // load the full deck graph so the GraphQL object type serializes directly
@@ -65,22 +71,11 @@ export class FlashcardDeckReadService {
                     course: {
                         id: courseId,
                     },
-                    // optional topical filter on the linked-contents join
-                    ...(contentId
-                        ? {
-                            contents: {
-                                id: contentId,
-                            },
-                        }
-                        : {
-                        }),
                 },
                 relations: {
                     cards: {
                         translations: true,
                     },
-                    contents: true,
-                    modules: true,
                     translations: true,
                 },
                 order: {
@@ -164,11 +159,14 @@ export class FlashcardDeckReadService {
      *
      * @param flashcardDeckId - Deck id (also the ES document `_id`).
      * @param locale - Locale index to read from.
+     * @param userId - Optional viewer id; when given, each card is annotated
+     *   with the viewer's `nextIntervals` (SM-2 preview for the rating bar).
      * @returns The deck with cards and translations.
      */
     async getById(
         flashcardDeckId: string,
         locale: Locale = Locale.En,
+        userId?: string,
     ): Promise<FlashcardDeckEntity> {
         const index = this.elasticsearchService.indicateName({
             entity: FlashcardDeckEntity.name,
@@ -186,7 +184,12 @@ export class FlashcardDeckReadService {
                     flashcardDeckId,
                 })
             }
-            return document._source
+            const deck = document._source
+            if (userId && deck.cards?.length > 0) {
+                await this.annotateNextIntervals(deck.cards,
+                    userId)
+            }
+            return deck
         } catch (error) {
             if (error instanceof FlashcardDeckNotFoundException) {
                 throw error
@@ -194,6 +197,60 @@ export class FlashcardDeckReadService {
             throw new FlashcardDeckNotFoundException({
                 flashcardDeckId,
             })
+        }
+    }
+
+    /**
+     * Annotate each card (in place) with the viewer's `nextIntervals` — the
+     * SM-2 preview (days per grade) computed from the viewer's current review
+     * state, without persisting. Mirrors {@link annotateViewerStats}'s
+     * always-`user_id` keying (this ES-backed read has no course/enrollment
+     * context to key by enrollment instead).
+     *
+     * @param cards - The deck's cards to annotate (mutated in place).
+     * @param userId - The viewer whose review state is read.
+     */
+    private async annotateNextIntervals(
+        cards: Array<FlashcardCardEntity>,
+        userId: string,
+    ): Promise<void> {
+        const reviews = await this.entityManager.find(
+            UserFlashcardReviewEntity,
+            {
+                where: {
+                    flashcardCard: {
+                        id: In(cards.map((card) => card.id)),
+                    },
+                    user: {
+                        id: userId,
+                    },
+                },
+                select: {
+                    ease: true,
+                    intervalDays: true,
+                    repetitions: true,
+                    flashcardCard: {
+                        id: true,
+                    },
+                },
+                relations: {
+                    flashcardCard: true,
+                },
+            },
+        )
+        const priorByCardId = new Map<string, Omit<ApplySm2Params, "grade">>()
+        for (const review of reviews) {
+            priorByCardId.set(review.flashcardCard.id,
+                {
+                    prevEase: review.ease ?? NEW_CARD_STATE.prevEase,
+                    prevInterval: review.intervalDays ?? NEW_CARD_STATE.prevInterval,
+                    prevRepetitions: review.repetitions ?? NEW_CARD_STATE.prevRepetitions,
+                })
+        }
+        for (const card of cards) {
+            card.nextIntervals = this.flashcardReviewService.previewIntervals(
+                priorByCardId.get(card.id) ?? NEW_CARD_STATE,
+            )
         }
     }
 }

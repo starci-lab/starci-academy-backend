@@ -1,8 +1,8 @@
 # Fullstack — Content (lesson body) rules · đúc kết
 
-> Bản **TỰ-ĐỦ** để audit/viết content lesson FS — chỉ đọc trong `.audits`, **KHÔNG ref file ngoài**. Đúc kết từ bài gold (M0/M1) + các bài đã sửa trong session (M10–M14). Challenge → `challenges.md`. **Code BE/FE viết thế nào → `coding.md`** (cùng thư mục). Quy trình → `../../pipeline.md`.
+> Bản **TỰ-ĐỦ** để audit/viết content lesson FS — chỉ đọc trong `.claude/docs`, **KHÔNG ref file ngoài**. Đúc kết từ bài gold (M0/M1) + các bài đã sửa trong session (M10–M14). Challenge → `challenges.md`. **Code BE/FE viết thế nào → `coding.md`** (cùng thư mục). Quy trình → `../../pipeline.md`.
 >
-> ⚠️ **THUẬT NGỮ & BOLD (tiếng Việt phổ thông vs English vs English+bold) → BẮT BUỘC theo `.audits/rules/terminology-bold.md`. STRICT, đã có feedback. Đọc TRƯỚC khi đụng chữ trong body.**
+> ⚠️ **THUẬT NGỮ & BOLD (tiếng Việt phổ thông vs English vs English+bold) → BẮT BUỘC theo `.claude/docs/rules/terminology-bold.md`. STRICT, đã có feedback. Đọc TRƯỚC khi đụng chữ trong body.**
 
 ---
 
@@ -31,10 +31,10 @@ modules/<slot>/contents/<lesson>/
 ├── challenges/<N>-<slug>-<diff>/  ← xem challenges.md
 ├── code-context.md                ← spec repo (FE-only viết tay)
 ├── audited.md                     ← log audit nội bộ (KHÔNG hiện học viên)
-├── research.md / decision.md / claude_submitted.md  ← artifact audit (tiếng Việt, ghi thẳng đây — KHÔNG để ở .audits/)
+├── research.md / decision.md / claude_submitted.md  ← artifact audit (tiếng Việt, ghi thẳng đây — KHÔNG để ở .claude/docs/)
 └── .code/ · .e2e/<lang>/flow-<N>-<slug>-<status>.md  ← code track + proof e2e TÁCH 4 sub theo lang (status: done|fail|require-creds; xem pipeline.md)
 ```
-- Artifact audit (research/decision/claude_submitted/.code/.e2e) = **nội bộ, tiếng Việt**, ghi cạnh `audited.md`; seeder bỏ qua. Gold để học theo: `.audits/references.md` (đọc mục cùng variant trước khi audit).
+- Artifact audit (research/decision/claude_submitted/.code/.e2e) = **nội bộ, tiếng Việt**, ghi cạnh `audited.md`; seeder bỏ qua. Gold để học theo: `.claude/docs/references.md` (đọc mục cùng variant trước khi audit).
 - bodies order: `0-typescript → 1-java → 2-csharp → 3-go` hoặc `0-agnostic`.
 - ROOT H1 order: `title · description · body · codeExplaining · codeImplementations · databases(opt) · references · minutesRead · isPremium · verified`.
 - Separator literal `<!-- @starci/seperator -->` (typo CỐ Ý). Block rỗng = 2 sep, KHÔNG `[]`. KHÔNG sep trong code fence. Mỗi scalar leaf = đúng 2 sep (đếm sep mỗi section phải CHẴN).
@@ -52,7 +52,7 @@ modules/<slot>/contents/<lesson>/
 #### 2.1.2. Kiến trúc / thành phần                   / Architecture / components
 #### 2.1.3. Giải thích code và bản chất              / Code walkthrough and essence    (2.1.3.1 / .2 / .3)
 #### 2.1.4. Chuẩn bị & khởi chạy                     / Setup & run    (2.1.4.1 Điều kiện cần trước · 2.1.4.2 Khởi động)
-#### 2.1.5. Kiểm thử  (FE/WS: "Kiểm thử (Playwright)") / Testing       (3–5 × "Luồng N — …" = 2.1.5.x)
+#### 2.1.5. Kiểm thử  (FE/WS: "Kiểm thử (Playwright)") / Testing       (3–5 Luồng = intro bullet-list + `::::accordion` panels; KHÔNG `##### 2.1.5.x`)
 #### 2.1.6. Dọn tài nguyên                           / Cleanup
 #### 2.1.7. Đọc thêm                                 / Further reading
 ### 2.2. Lý thuyết                                   / Theory     → 2.2.1 Bản chất + 2.2.2 Các trường hợp biên (edge cases)
@@ -72,7 +72,7 @@ modules/<slot>/contents/<lesson>/
   - **GIT PHẢI ĐỒNG NHẤT (rule chốt):** `module-<N>-<slug>` trong MỌI URL/clone của bài đọc PHẢI khớp CHÍNH XÁC tên folder `.repo` + git remote (RepoSynchronizer đọc theo tên `.repo` để upload CDN — sai = học viên clone repo trùng/không tồn tại). **N = số repo thật (theo `.repo`/remote), KHÔNG phải slot-prefix của folder content** — 2 cái LỆCH +1 (vd content folder `3-authentication` ↔ repo `module-4-authentication`; `9-background-jobs` ↔ `module-10-...`). Trong 1 lesson + cả module + 4 lang + vi/en: dùng DUY NHẤT 1 `module-N-slug`, KHÔNG trộn. Verify: `grep -rhoE "fullstack-mastery-module-[0-9]+-[a-z-]+" bodies/` ra đúng 1 giá trị = tên `.repo` folder. (Đã dính off-by-one + trùng số ở auth/form/client/bg-jobs + database — fix 2026-06-07.)
 - **2.1.2**: bullet component + table `Thành phần | … | Vai trò` + Mermaid (caption italic `*Hình N: …*`, verify `mmdc`).
 - **2.1.4.2**: blockquote `.env`/ConfigModule **TRƯỚC** bash. Docker: `docker compose -f .docker/compose.yaml up -d` → `npm install` → `nest start --watch` (no `npx`). KHÔNG docker-hoá backend.
-- **2.1.5 flow-list = bullet** (`- **Luồng N:** …`), CẤM inline `**(1)** …; **(2)**`. Mỗi flow 1 block bash (`# Windows (PowerShell)` Invoke-RestMethod + `# macOS / Linux` curl + Postman hint). Conclusion `*Kết luận: …*`.
+- **2.1.5 Kiểm thử = ACCORDION** (convention hiện hành — `refactor-fs-accordion-terminology.js`; gold `0-nestjs-core-and-request-lifecycle/contents/0-frameworks-in-backend`): **intro** = 1 bullet-list `- **Luồng N — \`route\`:** <mục tiêu>` (EN `- **Flow N — …:** <goal>`), CẤM inline `**(1)** …; **(2)**`; **rồi** 1 khối `::::accordion` (**4 dấu `:` bọc 3 dấu**) chứa mỗi luồng 1 `:::panel{title="<tên luồng, KHÔNG số>"}` … nội dung flow (block bash `# Windows (PowerShell)` Invoke-RestMethod + `# macOS / Linux` curl + Postman hint; conclusion `*Kết luận: …*`) … `:::`, đóng `::::`. Bài còn `##### 2.1.5.x` (bullet-flow cũ) = format V2 sớm → refactor sang accordion. GIỮ nguyên §2.1.3 nest `#####`.
 - **2.2.1 Bản chất**: bullet facet `- **<facet>.** <cơ chế + VÌ SAO + trade-off>`, đào sâu, liên kết ≥1 luồng. **2.2.2 edge cases**: 3–5 bullet `- **<tên>:** <vấn đề>. **Giải pháp:** <…>.`
 - **3.1 interview**: 3–4 câu, block `- **Câu hỏi N: …?**` → `  - Ý interviewer muốn nghe: …` → `  - Trả lời mẫu (ngắn): …` (EN: Question / What interviewers want to hear / Sample answer (concise)).
 - Em-dash `—` trong prose; `--` giữ trong code/CLI/URL/separator. **Tiếng Việt PHẢI đủ dấu — CẤM không dấu** (`khong`/`duoc`/`phai`/`kiem thu`/`ban chat`…); áp cho `vi.md` (body + challenge) + artifact (`research/decision/claude_submitted`) + `references.md`. Gate bắt `Vietnamese KHÔNG DẤU`. **Code-fence comment = English-only** (cả vi.md lẫn en.md; không xét dấu trong code).
@@ -84,7 +84,7 @@ modules/<slot>/contents/<lesson>/
 - **MỌI code block trong body** — `##### 2.1.3.x` (code-walkthrough) **và** `# codeExplaining` — = **copy NGUYÊN VĂN** từ `.repo/<repo>/<lesson>/src/...`. **diff=0**: không paraphrase, không simplify, không bịa.
 - Áp cho **TẤT CẢ**, không chỉ logic nghiệp vụ: `@Module({ controllers, providers, exports })`, `imports`, decorator, DTO, config, import statement... mọi dòng phải GIỐNG repo. Đổi `exports: [CatService]` ↔ repo phải khớp 100%.
 - Code refactor trong repo → update snippet bài song song (bidirectional lock-step).
-- Verify = **Loop code↔docs** (xem `../../pipeline.md`): Sonnet đối chiếu từng snippet với file repo thật → lệch → Opus quyết sửa code hay bài.
+- Verify = **Loop code↔docs** (xem `../../pipeline.md`): đối chiếu từng snippet với file repo thật → lệch → quyết sửa code hay bài (mặc định Sonnet 5, Opus nếu escalate).
 - Repo name `fullstack-mastery-module-<N>-<slug>`. **CHÚ Ý off-by-one:** một số repo FE đánh số `module-<slot+1>` (slot 13 frontend-performance → repo `module-14-...`). Verify repo đúng lesson trước khi đọc code.
 
 ---
@@ -116,4 +116,4 @@ modules/<slot>/contents/<lesson>/
 ---
 
 ## 7. Gate
-`./.audits/check-lesson.ps1 -Path <module-dir>` (free; `-Json` cho runner). Bắt: leak · inline-bullet (scope 2.1.5) · fence chẵn · theory=2 · có 2.1.7 · **`fe-vite-clean`** (FE lesson: soi `.repo/.../frontend` qua code-context.md, FAIL nếu còn `next.config.*`/`next-env.d.ts`/`app/`/dep `next`/thiếu `index.html`+`vite` → chặn false-PASS khi repo còn Next) · **`has-bodies`** (FAIL nếu lesson có root `vi.md` mà KHÔNG có `bodies/<lang>/` = V1 chưa tách → chặn false-PASS khi body chưa migrate) · **`vn-có-dấu`** (FAIL nếu `vi.md`/challenge-vi/artifact viết tiếng Việt KHÔNG DẤU — toàn file 0 dấu hoặc token không-dấu lọt prose). Chỉ bài PASS mới lên LLM review ngữ nghĩa.
+`./.claude/docs/check-lesson.ps1 -Path <module-dir>` (free; `-Json` cho runner). Bắt: leak · inline-bullet (scope 2.1.5) · fence chẵn · theory=2 · có 2.1.7 · **`fe-vite-clean`** (FE lesson: soi `.repo/.../frontend` qua code-context.md, FAIL nếu còn `next.config.*`/`next-env.d.ts`/`app/`/dep `next`/thiếu `index.html`+`vite` → chặn false-PASS khi repo còn Next) · **`has-bodies`** (FAIL nếu lesson có root `vi.md` mà KHÔNG có `bodies/<lang>/` = V1 chưa tách → chặn false-PASS khi body chưa migrate) · **`vn-có-dấu`** (FAIL nếu `vi.md`/challenge-vi/artifact viết tiếng Việt KHÔNG DẤU — toàn file 0 dấu hoặc token không-dấu lọt prose). Chỉ bài PASS mới lên LLM review ngữ nghĩa.

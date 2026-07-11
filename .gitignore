@@ -81,7 +81,7 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 __pycache__/
 *.pyc
 # embedded scratch/migration repos — never track as gitlinks
-.audits/.migrate-tmp/
+.claude/docs/.migrate-tmp/
 
 # local recovery/agent artifacts
 scratch/

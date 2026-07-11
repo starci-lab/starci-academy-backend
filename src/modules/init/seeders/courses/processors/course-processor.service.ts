@@ -36,6 +36,9 @@ import {
     MockInterviewProcessorService,
 } from "./mock-interview-processor.service"
 import {
+    PlaygroundProcessorService,
+} from "./playground-processor.service"
+import {
     MilestoneProcessorService,
 } from "./milestone-processor.service"
 import {
@@ -56,6 +59,7 @@ export class CourseProcessorService {
         private readonly moduleProcessorService: ModuleProcessorService,
         private readonly flashcardDeckProcessorService: FlashcardDeckProcessorService,
         private readonly mockInterviewProcessorService: MockInterviewProcessorService,
+        private readonly playgroundProcessorService: PlaygroundProcessorService,
         @Inject(forwardRef(() => MilestoneProcessorService))
         private readonly milestoneProcessorService: MilestoneProcessorService,
     ) { }
@@ -71,7 +75,6 @@ export class CourseProcessorService {
         const {
             courseResults,
             moduleIndexFilterByDisplayId,
-            flashcardLinkContents,
         } = params
         for (const courseResult of courseResults) {
             const course = courseResult.data
@@ -100,7 +103,6 @@ export class CourseProcessorService {
             await this.moduleProcessorService.process({
                 courseResult,
                 moduleIndexFilterByDisplayId,
-                flashcardLinkContents,
             })
             // propagate each module's hard `isPremium` flag down to its contents (logical OR:
             // only ever sets true, so a content's own premium flag is preserved). Runs after
@@ -110,6 +112,9 @@ export class CourseProcessorService {
                 courseResult,
             })
             await this.mockInterviewProcessorService.process({
+                courseResult,
+            })
+            await this.playgroundProcessorService.process({
                 courseResult,
             })
             await this.milestoneProcessorService.process({

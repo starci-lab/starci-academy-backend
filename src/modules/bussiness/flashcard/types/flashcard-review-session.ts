@@ -94,3 +94,24 @@ export interface MyInProgressFlashcardReviewSessionResultData {
     /** When this session was last synced/updated. */
     updatedAt: Date
 }
+
+/** Params for looking up a review session directly by its id (ownership-checked, no deckId needed upfront). */
+export interface FindFlashcardReviewSessionByIdParams {
+    /** Viewer whose session this must belong to (ownership check). */
+    userId: string
+    /** Id of the session to look up. */
+    sessionId: string
+}
+
+/**
+ * A review session found by id, with its deck identity attached — so the FE's
+ * unified `/review/sessions/[sessionId]` route can resolve full context
+ * (which deck, its title) from the id ALONE, no `deckId` carried in the URL
+ * (thầy 2026-07-11: "ý là không cần &deckId ấy, session đã persist hết rồi").
+ */
+export interface FlashcardReviewSessionByIdResultData extends MyInProgressFlashcardReviewSessionResultData {
+    /** The deck this session reviews. */
+    deckId: string
+    /** The deck's display title (for the work-session header identity). */
+    deckTitle: string
+}

@@ -31,8 +31,6 @@ export interface SeedCourseTrack {
 export interface SeedFlashcardConfig {
     /** When false, skip all flashcard deck parsing/upsert. */
     enabled: boolean
-    /** When true, resolve `# contents` links in deck markdown -> flashcard_deck_contents. */
-    linkContents: boolean
 }
 
 /** Mock-interview TECHNICAL bank seeding toggle (runs inside the course pipeline). */

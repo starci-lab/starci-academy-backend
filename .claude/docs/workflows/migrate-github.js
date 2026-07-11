@@ -13,7 +13,7 @@ export const meta = {
 // ─── args (minimal per-module; workflow TỰ discover contents) ─────────────────
 // Workflow runtime có thể truyền args dạng STRING → parse phòng hờ.
 const A = typeof args === 'string' ? JSON.parse(args) : args
-const RULES = '.audits/rules/migrate-github.md'
+const RULES = '.claude/docs/rules/migrate-github.md'
 const REPO_ROOT = A.repoRoot
 const COURSE = A.course
 const MODULE_FOLDER = A.moduleFolder            // vd "1-database-integration-and-caching"
@@ -27,7 +27,7 @@ const OLD_REPO = A.oldRepo || `fullstack-mastery-module-${MODULE_NUM}-${OLD_SLUG
 const GITREFS = `.gitrefs/data/courses/${COURSE}/modules/${MODULE_FOLDER}`
 // repoDir = folder .repo chứa SOURCE CODE thật (SD: tên có thể KHÁC oldRepo vì số .repo lệch số trong body).
 const REPO_DIR = `.repo/${A.repoDir || OLD_REPO}`
-const STAGE = `.audits/.migrate-tmp/${MODULE_FOLDER}`
+const STAGE = `.claude/docs/.migrate-tmp/${MODULE_FOLDER}`
 const repoName = (c) => `${PREFIX}-${MODULE_NUM}-${MODULE_SLUG_NEW}-${c.idx}-${c.slugNoIdx}`
 
 // ─── Phase 0: DISCOVER (deterministic grep qua agent; script không có FS) ─────

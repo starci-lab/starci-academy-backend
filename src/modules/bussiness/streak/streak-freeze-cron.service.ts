@@ -14,7 +14,7 @@ import {
 } from "@modules/databases"
 import {
     UserStatsProjectionService,
-} from "../projections"
+} from "../projections/user-stats/user-stats-projection.service"
 import type {
     StreakFreezeCandidate,
     StreakFreezeProtectIdRow,

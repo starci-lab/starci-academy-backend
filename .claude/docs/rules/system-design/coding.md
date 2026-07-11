@@ -55,4 +55,4 @@
 - Comment **English-only**, JSDoc/doc-block per-member mọi cấp + inline `//` giải thích *why* gần từng dòng (A0/A7). TS strict, `npm run lint` sạch. `throw new Error` CẤM → `AbstractException`. Config qua `envConfig()` có default committed (chạy out-of-box → body KHÔNG mention `.env`; ngoại lệ lesson dạy env). Em-dash prose, code-fence comment English-only, tiếng Việt prose đủ dấu.
 
 ## Gate liên quan
-`./.audits/check-lesson.ps1` (SD bỏ `fe-vite-clean`). Code diff=0 verify bằng Loop code↔docs (Sonnet đối chiếu `.repo`, Opus quyết khi lệch). Verify image DockerHub đã push (microservices-docker) + manifest k8s có probe/resources (k8s) trước khi PASS.
+`./.claude/docs/check-lesson.ps1` (SD bỏ `fe-vite-clean`). Code diff=0 verify bằng Loop code↔docs (đối chiếu `.repo` + quyết khi lệch, mặc định Sonnet 5). Verify image DockerHub đã push (microservices-docker) + manifest k8s có probe/resources (k8s) trước khi PASS.

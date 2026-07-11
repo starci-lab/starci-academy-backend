@@ -1,4 +1,4 @@
-// node .audits/strip-step-bold.mjs <file.md> ...  — safety-net SAU apply accordion.
+// node .claude/docs/strip-step-bold.mjs <file.md> ...  — safety-net SAU apply accordion.
 // Go bold step-header TRUNG ben trong panel: dong "^**Buoc N — <ten>.** <desc>" -> "<desc>"
 // (panel title da la step name; bold trong body la duplicate -> render 2 lan). Idempotent (no-op neu da sach).
 // Bat ca "Buoc N" (vi) lan "Step N" (en).

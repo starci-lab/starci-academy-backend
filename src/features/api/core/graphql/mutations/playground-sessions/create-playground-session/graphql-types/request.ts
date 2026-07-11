@@ -3,6 +3,10 @@ import {
     ID,
     InputType,
 } from "@nestjs/graphql"
+import {
+    GraphQLTypePlaygroundSessionMode,
+    PlaygroundSessionMode,
+} from "@modules/databases"
 
 /** Request for the createPlaygroundSession mutation. */
 @InputType({
@@ -16,4 +20,17 @@ export class CreatePlaygroundSessionRequest {
         },
     )
         playgroundId: string
+
+    /**
+     * How much scaffolding the session should give the learner. Omitted =
+     * {@link PlaygroundSessionMode.Guided} (the previous, only behavior).
+     */
+    @Field(
+        () => GraphQLTypePlaygroundSessionMode,
+        {
+            nullable: true,
+            description: "How much scaffolding the session gives the learner. Defaults to guided when omitted.",
+        },
+    )
+        mode?: PlaygroundSessionMode
 }

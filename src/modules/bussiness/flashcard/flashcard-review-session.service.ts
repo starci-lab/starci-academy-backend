@@ -19,7 +19,9 @@ import {
 import type {
     CompleteFlashcardReviewSessionParams,
     CompleteFlashcardReviewSessionResult,
+    FindFlashcardReviewSessionByIdParams,
     FindMyInProgressFlashcardReviewSessionParams,
+    FlashcardReviewSessionByIdResultData,
     MyInProgressFlashcardReviewSessionResultData,
     StartFlashcardReviewSessionParams,
     StartFlashcardReviewSessionResult,
@@ -335,6 +337,60 @@ export class FlashcardReviewSessionService {
 
         return {
             sessionId: session.id,
+            cardIds: session.cardIds,
+            currentIndex: session.currentIndex,
+            reviewedCount: session.reviewedCount,
+            xpEarned: session.xpEarned,
+            updatedAt: session.updatedAt,
+        }
+    }
+
+    /**
+     * Find a review session directly by its id (ownership-checked against the
+     * caller) — no `deckId` needed upfront, unlike {@link findInProgress}. The
+     * FE's unified `/review/sessions/[sessionId]` route uses this to resolve
+     * full context (deck + progress) from just the id in the URL (thầy
+     * 2026-07-11: "session đã persist hết rồi", no `deckId` query hint
+     * needed). NOT window/status-scoped like `findInProgress` — a direct link
+     * to a completed/abandoned session still resolves (so a stale link shows
+     * the real state instead of a false 404); the caller decides what to do
+     * with a non-"in_progress" row.
+     *
+     * @param params - {@link FindFlashcardReviewSessionByIdParams}
+     * @returns the session with its deck identity attached, or null when not
+     * found/not owned by the caller.
+     */
+    async findById(
+        {
+            userId,
+            sessionId,
+        }: FindFlashcardReviewSessionByIdParams,
+    ): Promise<FlashcardReviewSessionByIdResultData | null> {
+        const session = await this.entityManager.findOne(
+            FlashcardReviewSessionEntity,
+            {
+                where: {
+                    id: sessionId,
+                    enrollment: {
+                        user: {
+                            id: userId,
+                        },
+                    },
+                },
+                relations: {
+                    deck: true,
+                },
+            },
+        )
+
+        if (!session) {
+            return null
+        }
+
+        return {
+            sessionId: session.id,
+            deckId: session.deckId,
+            deckTitle: session.deck.title,
             cardIds: session.cardIds,
             currentIndex: session.currentIndex,
             reviewedCount: session.reviewedCount,

@@ -22,7 +22,7 @@ const GUIDANCE = [
   'Phan loai loai bai dung (pure-BE curl / BE+Playwright cho email-sms/file-upload/server-components / pure-FE Vite). Van review noi dung body nhu thuong (purpose, flow 2.1.5, theory 2 muc, sai khai niem). Day la stage REVIEW: CHI de xuat ra review.md, KHONG sua/tao/xoa file.',
 ].join(' ')
 
-const RUNNER = '.audits/workflows/audit-fs-module.js'
+const RUNNER = '.claude/docs/workflows/audit-fs-module.js'
 
 const results = []
 for (const mod of MODULES) {

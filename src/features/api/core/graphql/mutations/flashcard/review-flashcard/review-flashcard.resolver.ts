@@ -65,11 +65,13 @@ export class ReviewFlashcardResolver {
         @KeycloakGraphQLUser()
             user: UserEntity,
     ): Promise<ReviewFlashcardData> {
-        // the service applies SM-2 + upserts the review row in one txn
+        // the service applies SM-2 + upserts the review row in one txn, threads the
+        // session id onto the review-event log, and grants first-review XP
         return this.flashcardReviewService.review({
             userId: user.id,
             cardId: request.cardId,
             grade: request.grade,
+            sessionId: request.sessionId,
         })
     }
 }

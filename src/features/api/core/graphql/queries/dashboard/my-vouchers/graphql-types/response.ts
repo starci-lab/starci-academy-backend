@@ -74,6 +74,15 @@ export class MyVoucherObject {
         courseTitle: string | null
 
     @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Display id (slug) of the scoped course, for deep-linking; null = any course.",
+        },
+    )
+        courseDisplayId: string | null
+
+    @Field(
         () => GraphQLTypeVoucherStatus,
         {
             description: "Lifecycle status — a stale `unused` past its expiresAt is surfaced as `expired`.",

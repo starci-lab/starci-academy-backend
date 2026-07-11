@@ -94,3 +94,11 @@ export interface MyInProgressFlashcardDueReviewSessionResultData {
     /** When this session was last synced/updated. */
     updatedAt: Date
 }
+
+/** Params for looking up a due-review batch session directly by its id (ownership-checked). */
+export interface FindFlashcardDueReviewSessionByIdParams {
+    /** Viewer whose session this must belong to (ownership check). */
+    userId: string
+    /** Id of the session to look up. */
+    sessionId: string
+}

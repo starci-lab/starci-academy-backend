@@ -49,7 +49,7 @@ const fixes = await parallel(MODULES.map(function (M, i) {
     return agent(
       'QUYẾT + SỬA (Sonnet) env mention module ' + M.slug + '. cwd=' + ROOT + '. Repo: .repo/' + M.repo + '.\n' +
       'Check từ Haiku: ' + JSON.stringify(checks[i]) + '\n\n' + DECIDE + '\n\n' +
-      'LÀM 3 việc: (a) CODE 4 lang env-driven — grep hard-code (Go jwtSecret/port literal, port literal mọi lang) → đổi đọc env CÓ default; (b) SHIP file env/config committed default non-secret (out-of-box); (c) BODY mention theo nhánh (out-of-box→silent; topic-env L2 M0→giữ; secret thật→.env.local). Sửa body (' + MODDIR + '/contents/*/bodies/*/*.md vi/en mirror). Re-gate `powershell -NoProfile -File .audits/check-lesson.ps1 -Path "' + MODDIR + '"` = 0 fail.\n' +
+      'LÀM 3 việc: (a) CODE 4 lang env-driven — grep hard-code (Go jwtSecret/port literal, port literal mọi lang) → đổi đọc env CÓ default; (b) SHIP file env/config committed default non-secret (out-of-box); (c) BODY mention theo nhánh (out-of-box→silent; topic-env L2 M0→giữ; secret thật→.env.local). Sửa body (' + MODDIR + '/contents/*/bodies/*/*.md vi/en mirror). Re-gate `powershell -NoProfile -File .claude/docs/check-lesson.ps1 -Path "' + MODDIR + '"` = 0 fail.\n' +
       'Repo đổi → `git -C .repo/' + M.repo + ' status` xác nhận KHÔNG secret → add (force .env nếu cần) → commit "fix(env): mention env only when needed + ship committed config" + Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com> → push. Chỉ body → không push.\n' +
       'TRẢ VỀ: lesson/lang nào BỎ mention, lesson/lang nào GIỮ+ship (file gì), repo commit/push (hash), gate.',
       { label: 'decide:' + M.slug, phase: 'Decide', model: 'sonnet' }

@@ -17,7 +17,6 @@ import {
     Column,
     Entity,
     JoinColumn,
-    ManyToMany,
     ManyToOne,
     OneToMany,
     RelationId,
@@ -46,9 +45,6 @@ import {
 import {
     ContentLearningOutcomeEntity,
 } from "./content-learning-outcome.entity"
-import {
-    FlashcardDeckEntity,
-} from "./flashcard-deck.entity"
 
 /**
  * Content attached to a module (title, optional description, body).
@@ -293,23 +289,6 @@ export class ContentEntity extends UuidAbstractEntity {
         },
     )
         challenges: Array<ChallengeEntity>
-
-    /**
-     * Interview-prep flashcard decks linked to this content (many-to-many; a deck
-     * is owned by a course and may be linked to several contents).
-     */
-    @Field(
-        () => [FlashcardDeckEntity],
-        {
-            nullable: true,
-            description: "Flashcard decks linked to this content (many-to-many).",
-        },
-    )
-    @ManyToMany(
-        () => FlashcardDeckEntity,
-        (deck: FlashcardDeckEntity) => deck.contents,
-    )
-        flashcardDecks: Array<FlashcardDeckEntity>
 
     /**
      * Critical code snippets with explanations and multi-language implementations.

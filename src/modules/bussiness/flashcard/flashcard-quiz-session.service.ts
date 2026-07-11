@@ -6,12 +6,16 @@ import {
     In,
 } from "typeorm"
 import {
+    ContentEntity,
     FlashcardCardEntity,
     FlashcardQuizSessionEntity,
     InjectPrimaryPostgreSQLEntityManager,
     XpHistoryEntity,
     XpSource,
 } from "@modules/databases"
+import {
+    ContentRagRetrievalService,
+} from "@modules/rag"
 import {
     writeXpHistory,
 } from "@features/api/processors/ai/shared/xp"
@@ -72,6 +76,7 @@ export class FlashcardQuizSessionService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly userFlashcardStatsProjectionService: UserFlashcardStatsProjectionService,
+        private readonly contentRagRetrievalService: ContentRagRetrievalService,
     ) {}
 
     /**
@@ -342,10 +347,10 @@ export class FlashcardQuizSessionService {
                     id: In(cardIds),
                 },
                 relations: {
-                    deck: {
-                        contents: true,
-                        modules: true,
-                    },
+                    // deck loaded for its courseId — the "review this lesson" link is
+                    // now resolved via RAG (searchCourse), not the old deck→content/
+                    // module relations (removed).
+                    deck: true,
                 },
             },
         )
@@ -394,57 +399,74 @@ export class FlashcardQuizSessionService {
             .slice(0,
                 MAX_WEAK_TAGS)
 
-        // resolve each tag's deep link (only when unambiguous)
-        return ranked.map(({ tag, coverage }) => {
-            const card = representativeCardByTag.get(tag)
-            const link = card ? this.resolveWeakTagLink(card) : {
-            }
+        // resolve each tag's deep link via RAG (query = the weak tag itself → the
+        // most relevant lesson in this course), scoped by the representative card's
+        // deck courseId
+        return Promise.all(ranked.map(async ({ tag, coverage }) => {
+            const courseId = representativeCardByTag.get(tag)?.deck?.courseId
+            const link = await this.resolveWeakTagLink(courseId,
+                tag)
             return {
                 tag,
                 coverage,
                 ...link,
             }
-        })
+        }))
     }
 
     /**
-     * Resolve a single card's "review this lesson" link through its deck's
-     * content/module associations — a deck is many-to-many with both, so the
-     * link is only unambiguous when EXACTLY one is linked.
+     * Resolve a weak tag's "review this lesson" link via RAG — semantic-search the
+     * course's indexed content for the tag and deep-link the best-matching lesson
+     * (+ its owning module). Replaces the old deck→content/module relations
+     * (removed): the association is now derived from what the course actually
+     * teaches, not a stored many-to-many. Degrades to no link when the course id
+     * or tag is missing, retrieval misses, or the matched content row is gone.
      *
-     * @param card - the card whose deck to inspect (with `deck.contents`/`deck.modules` loaded).
-     * @returns `{ moduleId?, contentId? }`, empty when the mapping is ambiguous.
+     * @param courseId - the course to search within (the tag's deck's course).
+     * @param query - the weak tag (the concept to find a lesson for).
+     * @returns `{ moduleId?, contentId? }`, empty when nothing relevant resolves.
      */
-    private resolveWeakTagLink(
-        card: FlashcardCardEntity,
-    ): Pick<QuizSessionWeakTagResult, "moduleId" | "contentId"> {
-        const deck = card.deck
-        if (!deck) {
-            // no deck loaded (should not happen given the relations query) → no link
+    private async resolveWeakTagLink(
+        courseId: string | undefined,
+        query: string,
+    ): Promise<Pick<QuizSessionWeakTagResult, "moduleId" | "contentId">> {
+        const trimmed = query.trim()
+        if (!courseId || !trimmed) {
             return {
             }
         }
-        // a deck linked to EXACTLY one content has an unambiguous "review this
-        // lesson" target — its owning module comes along with it for free
-        if (deck.contents?.length === 1) {
-            const [content] = deck.contents
+        const { hits } = await this.contentRagRetrievalService.searchCourse({
+            courseId,
+            query: trimmed,
+        })
+        // only a lesson (content/code chunk) is a valid "review this" target — a
+        // challenge/flashcard/milestone hit is not a lesson to re-read
+        const lessonHit = hits.find(
+            (hit) => hit.kind === "content" || hit.kind === "code",
+        )
+        if (!lessonHit) {
             return {
+            }
+        }
+        const content = await this.entityManager.findOne(
+            ContentEntity,
+            {
+                where: {
+                    id: lessonHit.contentId,
+                },
+                select: {
+                    id: true,
+                    moduleId: true,
+                },
+            },
+        )
+        return content
+            ? {
                 contentId: content.id,
                 moduleId: content.moduleId,
             }
-        }
-        // no single content, but the deck is scoped to EXACTLY one module → still
-        // a useful (coarser) "review this module" link, just no specific lesson
-        if (deck.modules?.length === 1) {
-            const [mod] = deck.modules
-            return {
-                moduleId: mod.id,
+            : {
             }
-        }
-        // zero or multiple contents/modules linked → ambiguous, omit the link
-        // rather than fabricating one
-        return {
-        }
     }
 
     /**

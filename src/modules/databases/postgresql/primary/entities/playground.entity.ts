@@ -23,6 +23,9 @@ import {
 import {
     PlaygroundStepEntity,
 } from "./playground-step.entity"
+import {
+    PlaygroundTranslationEntity,
+} from "./playground-translation.entity"
 
 /**
  * An in-course hands-on Docker/Kubernetes playground (e.g. "docker",
@@ -172,4 +175,23 @@ export class PlaygroundEntity extends UuidAbstractEntity {
         },
     )
         steps: Array<PlaygroundStepEntity>
+
+    /**
+     * Localized overrides for playground fields (e.g. title, description).
+     */
+    @Field(
+        () => [PlaygroundTranslationEntity],
+        {
+            description: "Localized overrides for playground fields (e.g. title, description).",
+        },
+    )
+    @OneToMany(
+        () => PlaygroundTranslationEntity,
+        (translation: PlaygroundTranslationEntity) => translation.playground,
+        {
+            cascade: true,
+            orphanedRowAction: "delete",
+        },
+    )
+        translations: Array<PlaygroundTranslationEntity>
 }

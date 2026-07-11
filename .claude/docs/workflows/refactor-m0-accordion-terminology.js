@@ -1,6 +1,6 @@
 export const meta = {
   name: 'refactor-m0-accordion-terminology',
-  description: 'Refactor toan bo M0 fullstack: (1) §2.1.5 testcase -> ::::accordion/:::panel; (2) ap quy uoc terminology+bold (.audits/rules/terminology-bold.md). Per-lesson parallel, moi agent tu verify (gate + parser extract). Report-only: KHONG push/seed.',
+  description: 'Refactor toan bo M0 fullstack: (1) §2.1.5 testcase -> ::::accordion/:::panel; (2) ap quy uoc terminology+bold (.claude/docs/rules/terminology-bold.md). Per-lesson parallel, moi agent tu verify (gate + parser extract). Report-only: KHONG push/seed.',
   phases: [
     { title: 'Refactor', detail: 'moi lesson 1 agent: accordion §2.1.5 (skip neu da accordion) + terminology sweep tat ca lang vi+en + challenges prose, roi verify' },
     { title: 'Gate', detail: 'gate toan module sau refactor (chi con github-ref fail la chap nhan)' },
@@ -32,7 +32,7 @@ const SCHEMA = {
   },
 }
 
-const RULE = '.audits/rules/terminology-bold.md'
+const RULE = '.claude/docs/rules/terminology-bold.md'
 const GOLD = MOD_DIR + '/0-frameworks-in-backend/bodies/0-typescript/vi.md'
 
 function buildPrompt (les) {
@@ -64,7 +64,7 @@ function buildPrompt (les) {
     '',
     '=== VERIFY (bat buoc truoc khi tra ket qua) ===',
     '- Chay parser that tren MOI bodies/<lang>/vi.md da sua: node -e bang ExtractJsonFromMdService hoac don gian doc lai dam bao body > 200 ky tu, fence chan, KHONG vo cau truc.',
-    '- Chay gate: powershell.exe -NoProfile -File "D:/Repositories/starci-academy-backend/.audits/check-lesson.ps1" -Path "D:/Repositories/starci-academy-backend/.mount/data/courses/0-fullstack-mastery/modules/' + MOD + '" -Json  -> dam bao lesson nay KHONG co fail MOI (fail "github ref ... KHONG khop folder .repo" la PRE-EXISTING, BO QUA; bat ky fail khac = phai sua lai cho den khi het).',
+    '- Chay gate: powershell.exe -NoProfile -File "D:/Repositories/starci-academy-backend/.claude/docs/check-lesson.ps1" -Path "D:/Repositories/starci-academy-backend/.mount/data/courses/0-fullstack-mastery/modules/' + MOD + '" -Json  -> dam bao lesson nay KHONG co fail MOI (fail "github ref ... KHONG khop folder .repo" la PRE-EXISTING, BO QUA; bat ky fail khac = phai sua lai cho den khi het).',
     '- Neu accordion: verify directive parse (1 accordion + 3 panel moi file §2.1.5).',
     '',
     'Tra ve dung schema. terminology = liet ke ngan file + loai thay doi (vd "java/vi: bold 4 jargon, dich 2 L1"). verify="ok" chi khi gate sach (tru github-ref) + parser ok.',
@@ -83,7 +83,7 @@ const issues = done.filter((r) => r.verify === 'issues')
 
 phase('Gate')
 const gateOut = await agent(
-  'Chay gate toan module M0 va bao cao. Lenh: powershell.exe -NoProfile -File "D:/Repositories/starci-academy-backend/.audits/check-lesson.ps1" -Path "D:/Repositories/starci-academy-backend/.mount/data/courses/0-fullstack-mastery/modules/' + MOD + '" -Json . ' +
+  'Chay gate toan module M0 va bao cao. Lenh: powershell.exe -NoProfile -File "D:/Repositories/starci-academy-backend/.claude/docs/check-lesson.ps1" -Path "D:/Repositories/starci-academy-backend/.mount/data/courses/0-fullstack-mastery/modules/' + MOD + '" -Json . ' +
   'Parse JSON, voi MOI lesson liet ke fails. PHAN LOAI: "github ref ... KHONG khop folder .repo" = PRE-EXISTING (chap nhan); MOI fail khac = REGRESSION can sua. Tra ve text tieng Viet co dau: bang lesson x (pre-existing | regression).',
   { label: 'gate:module', phase: 'Gate' },
 )

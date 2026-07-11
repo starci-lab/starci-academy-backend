@@ -1,2 +1,2 @@
 export * from "./pg-sync"
-export * from "./playground-seed"
+export * from "./playground-seed-test"
