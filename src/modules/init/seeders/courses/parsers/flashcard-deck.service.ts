@@ -161,8 +161,14 @@ export class FlashcardDeckParserService {
             // scalar copy is sourced from the merged default-locale doc
             title: merged.title ?? "",
             description: merged.description ?? "",
-            // difficulty comes from the `# difficulty` heading; default to easy
-            difficulty: merged.difficulty ?? ChallengeDifficulty.Easy,
+            // difficulty comes from the `# difficulty` heading; VALIDATE against the enum
+            // (an unknown value like a seniority word "senior" would otherwise pass through
+            // raw and blow up the `challenge_difficulty` enum insert) → fall back to easy.
+            difficulty: this.coerceMdScalarService.toRequiredEnum(
+                merged.difficulty,
+                ChallengeDifficulty,
+                ChallengeDifficulty.Easy,
+            ),
             orderIndex: flashcardDeckIndex,
             // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
             sortIndex: this.toSortIndex(
