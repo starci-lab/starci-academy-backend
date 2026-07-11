@@ -36,6 +36,40 @@ each block separated by `<!-- @starci/seperator -->` lines). Card folders are
 
 ---
 
+## §0.1. Language scope — optional `# langs` field (convention only, NOT yet in schema/FE)
+
+**Default: no `# langs` field.** A card without it is language-agnostic — its substance
+(system design, HTTP/API semantics, architecture reasoning, edge cases) applies the same
+regardless of stack. This is the default and should be the overwhelming majority of cards.
+A question should test *interview-common thinking* (system design, the essence of a
+language/runtime, edge cases) — not one language's function/API trivia.
+
+**Add `# langs` ONLY when the question's substance is genuinely bound to one or more
+specific languages' internals** — e.g. "how does Go's GC handle X" (`# langs: go`), or a
+card that explicitly compares languages, "Rust's ownership model vs Go's GC — what's the
+actual trade-off?" (`# langs: go, rust`). Format (comma-separated, lowercase):
+
+```
+# langs
+<!-- @starci/seperator -->
+go
+<!-- @starci/seperator -->
+```
+
+**Illustrative pseudocode does NOT trigger this.** A snippet used only to explain a
+language-agnostic concept (e.g. `{ ...existingEntity, ...dto }` shown once to illustrate
+"read-then-merge") does not make the card language-bound — the test is whether the
+*question itself* depends on that language, not whether a code example happens to use one
+syntax.
+
+Intent (thầy's ruling, 2026-07-12): a future FE lets the learner pick which language(s)
+they want to be interviewed on; `# langs`-tagged cards filter into that selection,
+language-agnostic cards always show. **Status: content-authoring convention only** — no
+DB column, GraphQL field, or FE picker exists yet. Do not assume any current deck is
+filterable by language.
+
+---
+
 ## §1. Quality gate — "Is this a deep interview question?"
 
 A card is KEPT **only if** its question is a genuine, open-ended technical interview
