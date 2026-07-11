@@ -8,6 +8,7 @@ import {
     EntityManager,
 } from "typeorm"
 import {
+    FLASHCARD_QUIZ_SESSION_DURATION_MS,
     FlashcardQuizSessionEntity,
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
@@ -109,6 +110,7 @@ export class StartFlashcardQuizSessionHandler
 
         return {
             sessionId: session.id,
+            deadlineAt: new Date(session.createdAt.getTime() + FLASHCARD_QUIZ_SESSION_DURATION_MS).toISOString(),
         }
     }
 }
