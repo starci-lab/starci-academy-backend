@@ -43,21 +43,16 @@ export class PlaygroundSeedCommand extends CommandRunner {
         const course = await this.entityManager.findOne(
             CourseEntity,
             {
-                where: [
-                    {
-                        displayId: "2-devops-mastery",
-                    },
-                    {
-                        slug: "2-devops-mastery",
-                    },
-                ],
+                where: {
+                    displayId: "devops-mastery",
+                },
             },
         )
         if (!course) {
             this.winstonService.log(
                 WinstonLog.CommandError,
                 {
-                    error: "Course '2-devops-mastery' not found — seed the DevOps Mastery course first.",
+                    error: "Course 'devops-mastery' not found — seed the DevOps Mastery course first.",
                 },
             )
             process.exit(1)
@@ -75,7 +70,7 @@ export class PlaygroundSeedCommand extends CommandRunner {
         this.winstonService.log(
             WinstonLog.CommandSuccess,
             {
-                message: `Seeded ${PLAYGROUND_SEED_DEFINITIONS.length} playground(s) for course '2-devops-mastery'.`,
+                message: `Seeded ${PLAYGROUND_SEED_DEFINITIONS.length} playground(s) for course 'devops-mastery'.`,
             },
         )
         process.exit(0)

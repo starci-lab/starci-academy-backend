@@ -3,7 +3,7 @@ import type {
 } from "../types"
 
 /**
- * Seed data for the DevOps Mastery course's ("2-devops-mastery") playgrounds.
+ * Seed data for the DevOps Mastery course's ("devops-mastery") playgrounds.
  * Consumed by the `playground-seed` CLI command — idempotent on
  * `playgrounds.slug` / `playground_steps.sortIndex`.
  */
