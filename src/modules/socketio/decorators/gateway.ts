@@ -16,6 +16,7 @@ export const CONTENT_AI_NAMESPACE = "content_ai"
 export const SYSTEM_HEALTH_NAMESPACE = "system_health"
 export const RAG_PLAYGROUND_NAMESPACE = "rag_playground"
 export const MOCK_INTERVIEW_NAMESPACE = "mock_interview"
+export const PLAYGROUND_BYOM_NAMESPACE = "playground_byom"
 
 /**
  * Decorator to mark a class as a WebSocket gateway for the autocomplete namespace.
@@ -183,6 +184,25 @@ export const RagPlaygroundWebSocketGateway = () => WebSocketGateway(
 export const MockInterviewWebSocketGateway = () => WebSocketGateway(
     {
         namespace: MOCK_INTERVIEW_NAMESPACE,
+        transports: [
+            "websocket",
+            "polling"
+        ],
+        cors: createCorsOptions(),
+        perMessageDeflate: true,
+    }
+)
+
+/**
+ * Decorator to mark a class as a WebSocket gateway for the Playground BYOM
+ * (Bring-Your-Own-Machine) namespace — relays shell commands + resource
+ * reports between a browser and a learner's local CLI agent. Unauthenticated
+ * (no Keycloak guard): the agent side is gated by a short-lived pairing code
+ * instead of a JWT.
+ */
+export const PlaygroundByomWebSocketGateway = () => WebSocketGateway(
+    {
+        namespace: PLAYGROUND_BYOM_NAMESPACE,
         transports: [
             "websocket",
             "polling"

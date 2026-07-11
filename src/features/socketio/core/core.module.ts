@@ -37,6 +37,9 @@ import {
 import {
     MockInterviewModule,
 } from "./mock-interview"
+import {
+    PlaygroundByomSocketModule,
+} from "./playground-byom"
 
 /**
  * Feature module bundling all real-time Socket.IO gateways of the app.
@@ -76,6 +79,9 @@ import {
             isGlobal: true,
         }),
         RagPlaygroundSocketModule.register({
+            isGlobal: true,
+        }),
+        PlaygroundByomSocketModule.register({
             isGlobal: true,
         }),
     ],

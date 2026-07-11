@@ -106,6 +106,9 @@ import {
 import {
     SearchCourseContentQueriesModule,
 } from "./search-course-content"
+import {
+    PlaygroundsQueriesModule,
+} from "./playgrounds"
 
 @Module({
     imports: [
@@ -209,6 +212,9 @@ import {
             isGlobal: true,
         }),
         SearchCourseContentQueriesModule.register({
+            isGlobal: true,
+        }),
+        PlaygroundsQueriesModule.register({
             isGlobal: true,
         }),
     ],

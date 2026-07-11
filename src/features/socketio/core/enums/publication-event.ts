@@ -14,4 +14,12 @@ export enum PublicationEvent {
     AbortRagPlaygroundRun = "rag_playground.abort_run.publication",
     AskMockInterviewTurn = "mock_interview.ask.publication",
     AbortMockInterviewTurn = "mock_interview.abort.publication",
+    // Playground BYOM — literal wire event names (NOT the dotted convention
+    // above): the agent side is a plain socket.io-client CLI tool that must
+    // match these names exactly, and the browser side mirrors them.
+    PlaygroundAgentPair = "agent:pair",
+    PlaygroundBrowserSubscribe = "browser:subscribe",
+    PlaygroundCommandRun = "command:run",
+    PlaygroundCommandOutput = "command:output",
+    PlaygroundResourcesReport = "resources:report",
 }

@@ -431,6 +431,24 @@ export class AiEntitlementService {
     }
 
     /**
+     * Public wrapper around {@link hasActiveEnrollment} for gates OUTSIDE this
+     * service that need the raw "has an active enrollment" check without
+     * duplicating the query (e.g. the Playground `createPlaygroundSession`
+     * mutation gate).
+     *
+     * @param userId - the owning user.
+     * @param entityManager - optional manager (to share a transaction).
+     * @returns true when an active enrollment exists.
+     */
+    async hasAnyActiveEnrollment(
+        userId: string,
+        entityManager?: EntityManager,
+    ): Promise<boolean> {
+        return this.hasActiveEnrollment(userId,
+            entityManager)
+    }
+
+    /**
      * Whether the user has at least one active enrollment (`is_enrolled = true`).
      *
      * @param userId - the owning user.

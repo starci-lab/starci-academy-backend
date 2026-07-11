@@ -197,7 +197,10 @@ import {
     UserPinnedProjectEntity,
     JobPostingEntity,
     CartItemEntity,
-    TransactionItemEntity
+    TransactionItemEntity,
+    PlaygroundEntity,
+    PlaygroundStepEntity,
+    PlaygroundSessionEntity
 } from "./entities"
 import {
     ResolversModule
@@ -446,6 +449,9 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                                     JobPostingEntity,
                                     CartItemEntity,
                                     TransactionItemEntity,
+                                    PlaygroundEntity,
+                                    PlaygroundStepEntity,
+                                    PlaygroundSessionEntity,
                                 ],
                                 synchronize,
                                 logging: false,
@@ -660,6 +666,9 @@ export class PrimaryPostgreSQLModule extends ConfigurableModuleClass {
                         JobPostingEntity,
                         CartItemEntity,
                         TransactionItemEntity,
+                        PlaygroundEntity,
+                        PlaygroundStepEntity,
+                        PlaygroundSessionEntity,
                     ],
                     POSTGRESQL_PRIMARY
                 ),

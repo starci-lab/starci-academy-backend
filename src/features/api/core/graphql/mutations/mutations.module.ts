@@ -79,6 +79,9 @@ import {
 import {
     InstallmentPlansMutationsModule,
 } from "./installment-plans"
+import {
+    PlaygroundSessionsMutationsModule,
+} from "./playground-sessions"
 
 /**
  * GraphQL mutations (courses, authentication, etc.).
@@ -156,6 +159,9 @@ import {
             isGlobal: true,
         }),
         InstallmentPlansMutationsModule.register({
+            isGlobal: true,
+        }),
+        PlaygroundSessionsMutationsModule.register({
             isGlobal: true,
         }),
     ],

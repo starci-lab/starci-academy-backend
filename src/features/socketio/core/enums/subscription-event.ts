@@ -22,4 +22,11 @@ export enum SubscriptionEvent {
     AiModelHealth = "system_health.ai_model_health.subscription",
     RagPlaygroundRunChunk = "rag_playground.run_chunk.subscription",
     MockInterviewChunk = "mock_interview.chunk.subscription",
+    // Playground BYOM — literal wire event names, see PublicationEvent above.
+    // `PlaygroundCommandRun` (server → agent) reuses the SAME literal name as
+    // the publication event since it is a pure relay.
+    PlaygroundCommandRun = "command:run",
+    PlaygroundCommandOutput = "command:output",
+    PlaygroundResourcesReport = "resources:report",
+    PlaygroundStepVerified = "step:verified",
 }

@@ -10,12 +10,14 @@ import {
 } from "./utils.command"
 import {
     PgSyncCommand,
+    PlaygroundSeedCommand,
 } from "./subs"
 
 @Module({
     providers: [
         UtilsCommand,
         PgSyncCommand,
+        PlaygroundSeedCommand,
     ],
 })
 export class UtilsModule extends ConfigurableModuleClass {}
