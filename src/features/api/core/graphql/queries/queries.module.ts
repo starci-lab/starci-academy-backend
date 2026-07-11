@@ -103,6 +103,9 @@ import {
 import {
     ChatQueriesModule,
 } from "./chat"
+import {
+    SearchCourseContentQueriesModule,
+} from "./search-course-content"
 
 @Module({
     imports: [
@@ -203,6 +206,9 @@ import {
             isGlobal: true,
         }),
         ChatQueriesModule.register({
+            isGlobal: true,
+        }),
+        SearchCourseContentQueriesModule.register({
             isGlobal: true,
         }),
     ],

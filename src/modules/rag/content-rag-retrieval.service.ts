@@ -67,6 +67,36 @@ export interface RetrieveCourseExcerptResult {
     matchedContentIds: Array<string>
 }
 
+/** Params for {@link ContentRagRetrievalService.searchCourse}. */
+export interface SearchCourseParams {
+    /** Course the chunks must belong to (payload filter — spans every kind indexed for the course). */
+    courseId: string
+    /** The learner's search query (keyword or natural-language question alike). */
+    query: string
+    /** Optional override for how many DISTINCT sources to return (defaults to env top-k). */
+    topK?: number
+}
+
+/** One distinct source (lesson/challenge/flashcard-deck/milestone-task) matched by {@link ContentRagRetrievalService.searchCourse}. */
+export interface SearchCourseHit {
+    /** The matched row's own id (content/challenge/flashcard-deck/milestone-task — shared UUID id-space). */
+    contentId: string
+    /** Which corpus this id belongs to — `"content"` | `"code"` | `"challenge"` | `"flashcard"` | `"milestone"`. */
+    kind: string
+    /** Locale the matched chunk was embedded in. */
+    lang: string
+    /** Cosine similarity of the BEST-matching chunk for this source (0-1, higher = closer). */
+    score: number
+    /** The best-matching chunk's raw text (for a result-list snippet — NOT html-safe, caller truncates/escapes). */
+    snippet: string
+}
+
+/** Result of {@link ContentRagRetrievalService.searchCourse}. */
+export interface SearchCourseResult {
+    /** Distinct sources, best match first. Empty when the index is absent/failed or nothing matched. */
+    hits: Array<SearchCourseHit>
+}
+
 /**
  * Retrieves the lesson chunks most relevant to a content-AI question from the
  * persistent `content_rag` Qdrant collection (built by `ContentRagIndexService`).
@@ -234,6 +264,107 @@ export class ContentRagRetrievalService {
                 excerpt: "",
                 retrievedChunks: 0,
                 matchedContentIds: [],
+            }
+        }
+    }
+
+    /**
+     * "Tìm nội dung khóa" search — unlike {@link retrieveCourseExcerpt} (which
+     * ASSEMBLES chunks into one prompt-ready string for an LLM), this returns
+     * STRUCTURED per-source hits with a real similarity score, for rendering a
+     * search-results list (title/breadcrumb resolved by the caller per `kind` —
+     * this service only knows vectors, not entity metadata).
+     *
+     * Spans every kind indexed for the course (content/code/challenge/
+     * flashcard/milestone — {@link ContentRagIndexService} stamps `kind` on
+     * every chunk), filtered on `metadata.courseId`. Multiple chunks from the
+     * SAME source (e.g. 2 chunks of one long lesson) collapse to ONE hit
+     * (its best-scoring chunk) — a learner wants one result per lesson/
+     * challenge/deck/task, not the same source competing for multiple slots in
+     * a short top-k list.
+     *
+     * Degrades to an EMPTY result on any failure (collection missing, embedder/
+     * Qdrant down) — search is never allowed to 500 the panel, it just shows
+     * "no results".
+     *
+     * @param params - The course id, the search query, and an optional top-k.
+     * @returns The distinct matched sources, best match first.
+     */
+    async searchCourse(
+        {
+            courseId,
+            query,
+            topK,
+        }: SearchCourseParams,
+    ): Promise<SearchCourseResult> {
+        const trimmed = query.trim()
+        if (!trimmed) {
+            return {
+                hits: [],
+            }
+        }
+        const collectionName = envConfig().services.contentRag.collection
+        const k = topK ?? envConfig().services.contentRag.retrievalTopK
+        try {
+            const embeddingModel = await this.embeddingModelService.getViaBalancer()
+            const vectorStore = await QdrantVectorStore.fromExistingCollection(
+                embeddingModel,
+                {
+                    client: this.qdrantClient,
+                    collectionName,
+                },
+            )
+            // over-fetch chunks (a source can have several) then collapse below —
+            // 4x the requested distinct-source count is enough headroom without a
+            // second round-trip in the common case
+            const results = await vectorStore.similaritySearchWithScore(
+                trimmed,
+                k * 4,
+                {
+                    must: [
+                        {
+                            key: "metadata.courseId",
+                            match: {
+                                value: courseId,
+                            },
+                        },
+                    ],
+                },
+            )
+            const bestByContentId = new Map<string, SearchCourseHit>()
+            for (const [
+                doc,
+                score,
+            ] of results) {
+                const contentId = doc.metadata?.contentId
+                if (typeof contentId !== "string" || !contentId) {
+                    continue
+                }
+                const existing = bestByContentId.get(contentId)
+                if (existing && existing.score >= score) {
+                    continue
+                }
+                bestByContentId.set(contentId,
+                    {
+                        contentId,
+                        kind: typeof doc.metadata?.kind === "string" ? doc.metadata.kind : "content",
+                        lang: typeof doc.metadata?.lang === "string" ? doc.metadata.lang : "",
+                        score,
+                        snippet: doc.pageContent,
+                    })
+            }
+            return {
+                hits: [...bestByContentId.values()]
+                    .sort((left, right) => right.score - left.score)
+                    .slice(0,
+                        k),
+            }
+        } catch (error) {
+            this.logger.warn(
+                `Content RAG course search failed for course ${courseId} (returning no results): ${error instanceof Error ? error.message : String(error)}`,
+            )
+            return {
+                hits: [],
             }
         }
     }
