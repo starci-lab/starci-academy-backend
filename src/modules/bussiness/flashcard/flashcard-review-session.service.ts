@@ -92,7 +92,12 @@ export class FlashcardReviewSessionService {
                 },
                 select: {
                     id: true,
-                    courseId: true,
+                    course: {
+                        id: true,
+                    },
+                },
+                relations: {
+                    course: true,
                 },
             },
         )
@@ -108,7 +113,7 @@ export class FlashcardReviewSessionService {
         // carries deckId, not courseId.
         const enrollment = await this.userService.resolveOrCreateTrialEnrollment(
             userId,
-            deck.courseId,
+            deck.course.id,
         )
 
         // retire the enrollment+deck's previous in-flight draw (if any) BEFORE
@@ -281,7 +286,12 @@ export class FlashcardReviewSessionService {
                 },
                 select: {
                     id: true,
-                    courseId: true,
+                    course: {
+                        id: true,
+                    },
+                },
+                relations: {
+                    course: true,
                 },
             },
         )
@@ -293,7 +303,7 @@ export class FlashcardReviewSessionService {
 
         const enrollment = await this.userService.resolveOrCreateTrialEnrollment(
             userId,
-            deck.courseId,
+            deck.course.id,
         )
 
         const resumeWindowStart = new Date(
