@@ -83,9 +83,13 @@ services:
 
       SYNCHRONIZER_ENABLE: ${SYNCHRONIZER_ENABLE:-false}
 
-      # Lesson RAG index — see the comment in deploy-core-vps.yml. Defaults OFF
-      # (safe) when the repo Variable is unset.
-      LESSON_RAG_INDEX_ENABLED: ${LESSON_RAG_INDEX_ENABLED:-false}
+      # Content RAG index — see the comment in deploy-core-vps.yml. Defaults OFF
+      # (safe) when the repo Variable is unset. RENAMED from LESSON_RAG_INDEX_ENABLED
+      # (2026-07-11) — this line was the ACTUAL cause of content_rag staying empty
+      # on prod: the workflow's outer env var was renamed but this compose file
+      # (which is what really injects the var into the container) still referenced
+      # the old name, so the flag never reached the app.
+      CONTENT_RAG_INDEX_ENABLED: ${CONTENT_RAG_INDEX_ENABLED:-false}
 
       # Kafka (CDC progress-projection listener). Reaches the cdc-kafka broker via
       # the docker0 gateway (same host-gateway pattern as Postgres). The broker's
