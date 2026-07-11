@@ -14,6 +14,20 @@ import {
 } from "./enrollment.entity"
 
 /**
+ * Max wall-clock duration ONE flashcard quick-quiz ("Hỏi nhanh") session may
+ * stay resumable, from the moment it was drawn ({@link FlashcardQuizSessionEntity.createdAt})
+ * — "session lazy-expiry" (2026-07-11), mirroring
+ * {@link import("./mock-interview-session.entity").MOCK_INTERVIEW_SESSION_DURATION_MS}'s
+ * own reasoning: a quiz run has no cron sweeping stale rows, so a session past
+ * this window simply stops being offered as resumable
+ * (`myInProgressFlashcardQuizSession` excludes it) and its status is derived
+ * as "timed out" wherever it is read — never written back by a scheduled job.
+ * Đính chính 2026-07-11 (thầy): 60 phút — cùng khung với mock-interview, thay
+ * vì 4h self-paced ban đầu.
+ */
+export const FLASHCARD_QUIZ_SESSION_DURATION_MS = 60 * 60 * 1000
+
+/**
  * One card's outcome within an IN-FLIGHT flashcard quick-quiz ("Hỏi nhanh")
  * session, snapshotted onto {@link FlashcardQuizSessionEntity.results} by
  * `syncFlashcardQuizSessionProgress` so a resumed session can restore exactly
@@ -224,6 +238,15 @@ export class FlashcardQuizSessionEntity extends UuidAbstractEntity {
      * and uses the SAME 3 string values for consistency across both
      * resumable-session tables. Defaults to "in_progress" so a row written
      * before this column existed still reads as a valid status.
+     *
+     * A session left "in_progress" past {@link FLASHCARD_QUIZ_SESSION_DURATION_MS}
+     * is effectively timed out — "session lazy-expiry" (2026-07-11): there is
+     * NO cron flipping it to a 4th persisted value, every reader instead
+     * derives "timed out" at READ time from `status === "in_progress" &&
+     * createdAt + FLASHCARD_QUIZ_SESSION_DURATION_MS < now` (see
+     * `myInProgressFlashcardQuizSession`, which simply excludes it from the
+     * resumable result). The row only actually flips to "abandoned" once the
+     * SAME enrollment starts a fresh draw (unchanged).
      */
     @Column({
         name: "status",
