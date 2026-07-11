@@ -29,6 +29,7 @@ import type {
     DueFlashcardsResult,
     FlashcardNextIntervals,
     ListDueFlashcardsParams,
+    ListFlashcardsByIdsParams,
     ReviewFlashcardParams,
     ReviewFlashcardResult,
 } from "./types/flashcard-review"
@@ -276,6 +277,159 @@ export class FlashcardReviewService {
             newTotalCount,
             cards: localized,
         }
+    }
+
+    /**
+     * List flashcards by an EXACT set of ids, regardless of current due status —
+     * unlike {@link listDue}, a card graded (and so no longer "due") since the
+     * batch was drawn is NOT dropped. Rehydrates a resumable due-review batch to
+     * its ORIGINAL draw: a `DueReviewSession`'s persisted `cardIds` intersected
+     * against a fresh `listDue` call shrinks every time a card in it gets graded
+     * (its `dueAt` moves to the future) — a small/near-finished batch easily hits
+     * zero overlap on the very next visit, silently discarding a legitimately
+     * in-progress session and starting a new one (thầy 2026-07-11: "due review
+     * cũng mở session mới"). Output order matches `cardIds` (a card id that no
+     * longer exists is simply dropped, not errored).
+     *
+     * @param params - {@link ListFlashcardsByIdsParams}
+     * @returns the requested cards, localized, in `cardIds` order.
+     */
+    async listByIds(
+        {
+            userId,
+            courseId,
+            cardIds,
+            locale,
+        }: ListFlashcardsByIdsParams,
+    ): Promise<Array<DueFlashcard>> {
+        if (cardIds.length === 0) {
+            return []
+        }
+
+        // same enrollment-vs-user review-row keying as `listDue` (course page →
+        // enrollment; no course context → user-wide).
+        const enrollmentId = courseId
+            ? (
+                await this.entityManager.findOne(
+                    EnrollmentEntity,
+                    {
+                        where: {
+                            user: {
+                                id: userId,
+                            },
+                            course: {
+                                id: courseId,
+                            },
+                        },
+                        select: {
+                            id: true,
+                        },
+                    },
+                )
+            )?.id ?? null
+            : null
+
+        // a course-scoped call with NO resolved enrollment has no course-scoped
+        // review rows to find (mirrors `listDue`'s raw-SQL `review.enrollment_id
+        // = :enrollmentId` with a null param — always zero rows) — skip the
+        // query rather than pass `undefined` into the `where`, which TypeORM
+        // reads as "no filter on this field" and would match every OTHER
+        // user's enrollment-scoped reviews instead of none.
+        const reviews = courseId && !enrollmentId
+            ? []
+            : await this.entityManager.find(
+                UserFlashcardReviewEntity,
+                {
+                    where: courseId
+                        ? {
+                            flashcardCard: {
+                                id: In(cardIds),
+                            },
+                            enrollment: {
+                                id: enrollmentId as string,
+                            },
+                        }
+                        : {
+                            flashcardCard: {
+                                id: In(cardIds),
+                            },
+                            user: {
+                                id: userId,
+                            },
+                        },
+                    select: {
+                        ease: true,
+                        intervalDays: true,
+                        repetitions: true,
+                        flashcardCard: {
+                            id: true,
+                        },
+                    },
+                    relations: {
+                        flashcardCard: true,
+                    },
+                },
+            )
+        const priorByCardId = new Map<string, Omit<ApplySm2Params, "grade">>()
+        for (const review of reviews) {
+            priorByCardId.set(review.flashcardCard.id,
+                {
+                    prevEase: review.ease ?? NEW_CARD_STATE.prevEase,
+                    prevInterval: review.intervalDays ?? NEW_CARD_STATE.prevInterval,
+                    prevRepetitions: review.repetitions ?? NEW_CARD_STATE.prevRepetitions,
+                })
+        }
+
+        // load + localize exactly like `listDue`'s tail (deck + translations,
+        // localize once per distinct deck).
+        const cards = await this.entityManager.find(
+            FlashcardCardEntity,
+            {
+                where: {
+                    id: In(cardIds),
+                },
+                relations: {
+                    deck: {
+                        translations: true,
+                    },
+                    translations: true,
+                },
+            },
+        )
+        const localizedDeckTitleById = new Map<string, string>()
+        const cardById = new Map<string, FlashcardCardEntity>()
+        for (const card of cards) {
+            const deck = card.deck
+            if (deck && !localizedDeckTitleById.has(deck.id)) {
+                deck.cards = [
+                    card,
+                ]
+                this.flashcardDeckResolver.transform(
+                    deck,
+                    locale,
+                    deck.defaultLocale ?? Locale.En,
+                )
+                localizedDeckTitleById.set(deck.id,
+                    deck.title)
+            }
+            cardById.set(card.id,
+                card)
+        }
+
+        return cardIds
+            .map((id) => cardById.get(id))
+            .filter((card): card is FlashcardCardEntity => Boolean(card))
+            .map((card) => ({
+                cardId: card.id,
+                deckTitle: card.deck
+                    ? (localizedDeckTitleById.get(card.deck.id) ?? card.deck.title)
+                    : "",
+                front: card.question,
+                back: card.answer ?? "",
+                nextIntervals: this.previewIntervals(
+                    priorByCardId.get(card.id) ?? NEW_CARD_STATE,
+                ),
+            }))
     }
 
     /**

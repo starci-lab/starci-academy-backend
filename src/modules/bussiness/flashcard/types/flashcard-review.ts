@@ -70,6 +70,22 @@ export interface ListDueFlashcardsParams {
 }
 
 /**
+ * Params for listing flashcards by an EXACT set of ids, regardless of their
+ * current due status — used to rehydrate a resumable due-review batch to its
+ * original draw (see {@link import("../flashcard-review.service").FlashcardReviewService.listByIds}).
+ */
+export interface ListFlashcardsByIdsParams {
+    /** The viewer (for the review-row join → next-interval preview). */
+    userId: string
+    /** Owning course — scopes the review-row join by enrollment, mirrors {@link ListDueFlashcardsParams.courseId}. */
+    courseId?: string
+    /** The exact card ids to fetch, in caller order — preserved on output. */
+    cardIds: Array<string>
+    /** Locale to localize deck/card text into. */
+    locale: Locale
+}
+
+/**
  * Params for applying an SM-2 review grade to one card.
  */
 export interface ReviewFlashcardParams {

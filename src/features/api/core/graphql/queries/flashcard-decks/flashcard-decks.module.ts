@@ -17,6 +17,9 @@ import {
     MyDueFlashcardsSingleQueryModule,
 } from "./my-due-flashcards"
 import {
+    FlashcardCardsByIdsSingleQueryModule,
+} from "./flashcard-cards-by-ids"
+import {
     MyFlashcardStatsSingleQueryModule,
 } from "./my-flashcard-stats"
 import {
@@ -51,6 +54,9 @@ import {
             isGlobal: true,
         }),
         MyDueFlashcardsSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        FlashcardCardsByIdsSingleQueryModule.register({
             isGlobal: true,
         }),
         MyFlashcardStatsSingleQueryModule.register({
