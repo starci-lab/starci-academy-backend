@@ -117,7 +117,25 @@ export class MonolithicApolloServerModule extends ConfigurableModuleClass {
                                 },
                             }
                         }
-                        return formattedError
+                        // any OTHER error (graphql-js's own execution errors — e.g. "Cannot
+                        // return null for non-nullable field", resolver throws not wrapped in
+                        // AbstractException, etc.) is by definition an UNEXPECTED server bug,
+                        // never the client's fault — default it to 500 too, so
+                        // `httpStatusFromExceptionsPlugin` above surfaces it as a real 5xx on
+                        // the wire instead of silently staying 200. Thầy 2026-07-11: "lỗi kiểu
+                        // này trả về 400/500 dc không" — chốt 500 (server bug, không phải client
+                        // gửi sai). Never overrides an EXISTING extensions.http.status (e.g. a
+                        // raw HttpException Nest may have already stamped).
+                        return {
+                            ...formattedError,
+                            extensions: {
+                                ...formattedError.extensions,
+                                http: {
+                                    status: 500,
+                                    ...(formattedError.extensions?.http as { status?: number } | undefined),
+                                },
+                            },
+                        }
                     },
                 }),
             ],
