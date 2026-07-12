@@ -4,6 +4,7 @@ import {
 import {
     EntityManager,
     MoreThanOrEqual,
+    Not,
 } from "typeorm"
 import {
     FlashcardDueReviewSessionEntity,
@@ -177,10 +178,21 @@ export class FlashcardDueReviewSessionService {
     /**
      * Record a finished due-review batch session — flips the row to
      * "completed" and snapshots the final reviewed-count/xpEarned the caller
-     * reports. Ownership-scoped via the `status: "in_progress"` WHERE clause
-     * (mirrors `FlashcardReviewSessionService.complete`'s own update guard):
-     * a replay or an id that does not match any owned in-progress row simply
-     * matches nothing, so this is safe to call more than once.
+     * reports. Ownership-scoped via `status: Not("completed")` (loosened
+     * 2026-07-12 — was `status: "in_progress"`, mirroring
+     * `FlashcardReviewSessionService.complete`'s own guard): the STRICT
+     * `"in_progress"` match silently updated ZERO rows (TypeORM `update()`
+     * never throws on a no-match) whenever the row had ALREADY been raced to
+     * "abandoned" by a concurrent `start()` (retires every prior in_progress
+     * row for the enrollment — e.g. a duplicate resolve-or-start effect fire)
+     * BEFORE this call landed — the FE still reported "success" (the mutation
+     * itself never errored), but the row was permanently stuck un-completed,
+     * so a later revisit-by-URL/resume kept re-entering the review instead of
+     * showing the recap (thầy 2026-07-12: "sao có kết quả phiên ôn rồi mà F5
+     * lại ra flashcard cuối"). `Not("completed")` still refuses to re-flip an
+     * ALREADY-completed row (replay-safe, same as before) while tolerating
+     * "abandoned" — the learner genuinely finished, so their completion
+     * should win regardless of what else raced the row's status meanwhile.
      *
      * NO XP is granted here — see the class doc's XP DECISION. `xpEarned` is
      * echoed straight through as a bookkeeping snapshot, never written to
@@ -206,7 +218,7 @@ export class FlashcardDueReviewSessionService {
                         id: userId,
                     },
                 },
-                status: "in_progress",
+                status: Not("completed"),
             },
             {
                 status: "completed",

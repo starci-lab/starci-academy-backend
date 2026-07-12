@@ -4,6 +4,7 @@ import {
 import {
     EntityManager,
     MoreThanOrEqual,
+    Not,
 } from "typeorm"
 import {
     FlashcardDeckEntity,
@@ -219,10 +220,15 @@ export class FlashcardReviewSessionService {
     /**
      * Record a finished flashcard review session — flips the row to
      * "completed" and snapshots the final reviewed-count/xpEarned the caller
-     * reports. Ownership-scoped via the `status: "in_progress"` WHERE clause
-     * (mirrors `FlashcardQuizSessionService.complete`'s own update guard): a
-     * replay or an id that does not match any owned in-progress row simply
-     * matches nothing, so this is safe to call more than once.
+     * reports. Ownership-scoped via `status: Not("completed")` (loosened
+     * 2026-07-12 — was `status: "in_progress"`; see
+     * `FlashcardDueReviewSessionService.complete`'s own doc for the full
+     * root-cause: a STRICT `"in_progress"` match silently updates ZERO rows
+     * — no throw — whenever the row got raced to "abandoned" by a concurrent
+     * `start()` first, permanently stranding the session un-completed even
+     * though the FE mutation call itself reported success). `Not("completed")`
+     * stays replay-safe (refuses to re-flip an already-completed row) while
+     * tolerating a raced "abandoned" status.
      *
      * NO XP is granted here — see the class doc's XP DECISION. `xpEarned` is
      * echoed straight through as a bookkeeping snapshot, never written to
@@ -248,7 +254,7 @@ export class FlashcardReviewSessionService {
                         id: userId,
                     },
                 },
-                status: "in_progress",
+                status: Not("completed"),
             },
             {
                 status: "completed",

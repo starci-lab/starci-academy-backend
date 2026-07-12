@@ -4,6 +4,7 @@ import {
 import {
     EntityManager,
     In,
+    Not,
 } from "typeorm"
 import {
     ContentEntity,
@@ -182,11 +183,15 @@ export class FlashcardQuizSessionService {
             // `myFlashcardQuizHistory`/`myFlashcardQuizStats` read a finished
             // session's outcome straight off its own row, without re-deriving
             // coverage from `results` or joining `xp_histories`. Sitting AFTER
-            // the idempotency check above, a replay never re-touches the row;
-            // the `status: "in_progress"` WHERE clause means an already
-            // completed/abandoned row (or an older client's session id that
-            // never called `startFlashcardQuizSession`) simply matches nothing
-            // here, same as today.
+            // the idempotency check above, a replay never re-touches the row.
+            // WHERE `status: Not("completed")` (loosened 2026-07-12 — was
+            // `status: "in_progress"`; see `FlashcardDueReviewSessionService
+            // .complete`'s doc for the full root-cause) so a row raced to
+            // "abandoned" by a concurrent `start()` still gets its real
+            // completion recorded instead of silently matching zero rows (an
+            // older client's session id that never called
+            // `startFlashcardQuizSession` still matches nothing, same as
+            // before — the row itself doesn't exist under that id).
             await manager.update(
                 FlashcardQuizSessionEntity,
                 {
@@ -196,7 +201,7 @@ export class FlashcardQuizSessionService {
                             id: userId,
                         },
                     },
-                    status: "in_progress",
+                    status: Not("completed"),
                 },
                 {
                     status: "completed",
