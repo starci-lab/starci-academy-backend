@@ -78,6 +78,14 @@ export class MyFlashcardReviewSessionBySessionIdData {
         reviewedCount: number
 
     @Field(
+        () => [Int],
+        {
+            description: "0-indexed card positions graded so far this session (order-independent) — rehydrates the FE per-segment green on resume, distinct from the plain reviewedCount.",
+        },
+    )
+        gradedIndexes: Array<number>
+
+    @Field(
         () => Int,
         {
             description: "Client-reported XP bookkeeping snapshot so far this session (not a server grant).",

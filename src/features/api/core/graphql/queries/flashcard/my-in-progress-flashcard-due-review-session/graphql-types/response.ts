@@ -51,6 +51,14 @@ export class MyInProgressFlashcardDueReviewSessionData {
         reviewedCount: number
 
     @Field(
+        () => [Int],
+        {
+            description: "0-indexed card positions graded this batch (order-independent) — rehydrates the FE per-segment green on resume, distinct from the plain reviewedCount.",
+        },
+    )
+        gradedIndexes: Array<number>
+
+    @Field(
         () => Int,
         {
             description: "Client-reported XP bookkeeping snapshot so far this batch (not a server grant).",

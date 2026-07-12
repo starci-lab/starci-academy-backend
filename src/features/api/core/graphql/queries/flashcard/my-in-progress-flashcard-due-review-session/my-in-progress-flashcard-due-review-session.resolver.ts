@@ -83,6 +83,7 @@ export class MyInProgressFlashcardDueReviewSessionResolver {
             cardIds: result.cardIds,
             currentIndex: result.currentIndex,
             reviewedCount: result.reviewedCount,
+            gradedIndexes: result.gradedIndexes ?? [],
             xpEarned: result.xpEarned,
             updatedAt: result.updatedAt.toISOString(),
         }

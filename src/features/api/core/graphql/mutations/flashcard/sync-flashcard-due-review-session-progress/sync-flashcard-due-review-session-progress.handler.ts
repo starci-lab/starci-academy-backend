@@ -46,6 +46,7 @@ export class SyncFlashcardDueReviewSessionProgressHandler
                 sessionId,
                 currentIndex,
                 reviewedCount,
+                gradedIndexes,
                 xpEarned,
             },
             user,
@@ -65,6 +66,7 @@ export class SyncFlashcardDueReviewSessionProgressHandler
             sessionId,
             currentIndex,
             reviewedCount,
+            gradedIndexes,
             xpEarned,
         })
     }

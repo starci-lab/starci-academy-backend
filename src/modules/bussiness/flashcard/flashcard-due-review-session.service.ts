@@ -105,6 +105,7 @@ export class FlashcardDueReviewSessionService {
                 cardIds,
                 currentIndex: 0,
                 reviewedCount: 0,
+                gradedIndexes: [],
                 xpEarned: 0,
                 status: "in_progress",
             },
@@ -131,6 +132,7 @@ export class FlashcardDueReviewSessionService {
             sessionId,
             currentIndex,
             reviewedCount,
+            gradedIndexes,
             xpEarned,
         }: SyncFlashcardDueReviewSessionProgressParams,
     ): Promise<SyncFlashcardDueReviewSessionProgressResult> {
@@ -166,6 +168,13 @@ export class FlashcardDueReviewSessionService {
             {
                 currentIndex,
                 reviewedCount,
+                // only overwrite the graded-index set when the caller sent one
+                // — omitting it must leave the column untouched (same tolerance
+                // the rest of the sync payload has), not wipe it to undefined.
+                ...(gradedIndexes !== undefined ? {
+                    gradedIndexes,
+                } : {
+                }),
                 xpEarned,
             },
         )
@@ -285,6 +294,7 @@ export class FlashcardDueReviewSessionService {
             cardIds: session.cardIds,
             currentIndex: session.currentIndex,
             reviewedCount: session.reviewedCount,
+            gradedIndexes: session.gradedIndexes ?? [],
             xpEarned: session.xpEarned,
             updatedAt: session.updatedAt,
         }
@@ -331,6 +341,7 @@ export class FlashcardDueReviewSessionService {
             cardIds: session.cardIds,
             currentIndex: session.currentIndex,
             reviewedCount: session.reviewedCount,
+            gradedIndexes: session.gradedIndexes ?? [],
             xpEarned: session.xpEarned,
             updatedAt: session.updatedAt,
         }

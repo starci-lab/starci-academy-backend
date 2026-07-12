@@ -27,6 +27,13 @@ export interface SyncFlashcardDueReviewSessionProgressParams {
     currentIndex: number
     /** Cards actually graded so far this batch (via `reviewFlashcard`). */
     reviewedCount: number
+    /**
+     * 0-indexed card positions graded this batch (order-independent) — drives
+     * the FE per-segment green, distinct from the plain `reviewedCount`.
+     * Optional: when omitted the column is left unchanged (same tolerance the
+     * sync already has); when provided it overwrites the row's set.
+     */
+    gradedIndexes?: Array<number>
     /** Client-reported XP bookkeeping snapshot so far this batch (no server grant — see {@link CompleteFlashcardDueReviewSessionParams}). */
     xpEarned: number
 }
@@ -89,6 +96,8 @@ export interface MyInProgressFlashcardDueReviewSessionResultData {
     currentIndex: number
     /** Cards actually graded so far this batch. */
     reviewedCount: number
+    /** 0-indexed card positions graded this batch (order-independent) — rehydrates the FE per-segment green on resume. */
+    gradedIndexes: Array<number>
     /** Client-reported XP bookkeeping snapshot so far this batch. */
     xpEarned: number
     /** When this session was last synced/updated. */

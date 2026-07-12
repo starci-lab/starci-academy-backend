@@ -109,6 +109,22 @@ export class FlashcardReviewSessionEntity extends UuidAbstractEntity {
         cardIds: Array<string>
 
     /**
+     * 0-indexed card positions graded this session (order-independent) —
+     * drives the FE per-segment green; distinct from `reviewedCount` which is
+     * a plain count. Snapshotted by `syncFlashcardReviewSessionProgress` and
+     * rehydrated on resume, so a learner who grades cards out of order (or
+     * navigates away mid-review) keeps the exact set of segments already
+     * coloured, not just how many. Defaults to `[]` (a fresh session has
+     * graded nothing yet).
+     */
+    @Column({
+        name: "graded_indexes",
+        type: "jsonb",
+        default: () => "'[]'",
+    })
+        gradedIndexes: Array<number>
+
+    /**
      * 0-based index of the card the learner was on at the last sync — the
      * resume position `myInProgressFlashcardReviewSession` reports back so the
      * FE can restore the reviewer to exactly where the learner left off.

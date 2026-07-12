@@ -6,6 +6,7 @@ import {
 } from "@nestjs/graphql"
 import {
     IsInt,
+    IsOptional,
     Min,
 } from "class-validator"
 
@@ -52,6 +53,25 @@ export class SyncFlashcardReviewSessionProgressRequest {
     @IsInt()
     @Min(0)
         reviewedCount: number
+
+    @Field(
+        () => [Int],
+        {
+            nullable: true,
+            description: "0-indexed card positions graded this session (order-independent) — drives the FE per-segment green, distinct from the plain reviewedCount. When provided it overwrites the row's set; when omitted the column is left unchanged.",
+        },
+    )
+    // optional — a sync that does not carry the graded set leaves it untouched
+    @IsOptional()
+    // each entry is a non-negative card index
+    @IsInt({
+        each: true,
+    })
+    @Min(0,
+        {
+            each: true,
+        })
+        gradedIndexes?: Array<number>
 
     @Field(
         () => Int,

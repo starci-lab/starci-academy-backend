@@ -91,6 +91,7 @@ export class MyFlashcardReviewSessionBySessionIdResolver {
                 cardIds: deckSession.cardIds,
                 currentIndex: deckSession.currentIndex,
                 reviewedCount: deckSession.reviewedCount,
+                gradedIndexes: deckSession.gradedIndexes ?? [],
                 xpEarned: deckSession.xpEarned,
                 updatedAt: deckSession.updatedAt.toISOString(),
             }
@@ -107,6 +108,7 @@ export class MyFlashcardReviewSessionBySessionIdResolver {
                 cardIds: dueSession.cardIds,
                 currentIndex: dueSession.currentIndex,
                 reviewedCount: dueSession.reviewedCount,
+                gradedIndexes: dueSession.gradedIndexes ?? [],
                 xpEarned: dueSession.xpEarned,
                 updatedAt: dueSession.updatedAt.toISOString(),
             }
