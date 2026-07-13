@@ -176,5 +176,7 @@ export enum WinstonLog {
     /** Reconcile: finished pruning ES/CDN orphans for the boot. */
     ReconcileOrphansDone = "ReconcileOrphansDone",
     /** A user tripped the per-user content-access rate limit (suspected scraping). */
-    ContentScrapeDetected = "ContentScrapeDetected"
+    ContentScrapeDetected = "ContentScrapeDetected",
+    /** Best-effort in-app notification create failed (swallowed — must not fail the caller). */
+    NotificationCreateFailed = "NotificationCreateFailed"
     }

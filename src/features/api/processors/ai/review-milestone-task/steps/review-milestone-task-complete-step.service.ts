@@ -4,6 +4,7 @@ import type {
 import {
     JobActionService,
     EnqueueSendMailJobService,
+    NotificationService,
     ProgressProjectionService,
     writeActivity,
 } from "@modules/bussiness"
@@ -30,6 +31,7 @@ import {
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
     MilestoneTaskEntity,
+    NotificationType,
     UserMilestoneTaskAttemptEntity,
     UserMilestoneTaskEntity,
     XpSource,
@@ -100,6 +102,7 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly aiModelCatalogService: AiModelCatalogService,
+        private readonly notificationService: NotificationService,
     ) {
         super()
     }
@@ -369,6 +372,21 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                 },
             )
             if (enrollment) {
+                // this section runs OUTSIDE the grading transaction (gated only by
+                // createdNewAttempt), so re-fetch the milestone task here rather
+                // than relying on the tx-scoped lookup inside the `grade.passed` branch above
+                const milestoneTask = await this.entityManager.findOne(
+                    MilestoneTaskEntity,
+                    {
+                        where: {
+                            id: payload.taskId,
+                        },
+                        select: {
+                            id: true,
+                            title: true,
+                        },
+                    },
+                )
                 // bill the capstone review like a challenge: charge the served
                 // model's catalog credit from the pool (idempotent via the
                 // attempt's `idempotencyKey` = job id → createdNewAttempt gate)
@@ -406,6 +424,41 @@ export class ReviewMilestoneTaskCompleteStepService extends AbstractStepService<
                         feedback: grade.evaluation.shortFeedback ?? "",
                     },
                 })
+                // a failed notification write must never crash grading — the
+                // attempt + email already landed; just log and move on
+                try {
+                    await this.notificationService.createNotification({
+                        userId: enrollment.userId,
+                        type: NotificationType.MilestoneGraded,
+                        title: {
+                            key: "notification.milestoneGraded.title",
+                            params: {
+                                title: milestoneTask?.title ?? "",
+                                result: grade.passed ? "passed" : "failed",
+                            },
+                        },
+                        target: milestoneTask
+                            ? {
+                                entityName: MilestoneTaskEntity.name,
+                                id: milestoneTask.id,
+                                label: milestoneTask.title,
+                            }
+                            : undefined,
+                    })
+                } catch (error) {
+                    this.winstonService.log(
+                        WinstonLog.ProcessStepExecuted,
+                        {
+                            jobId: job.id ?? "",
+                            queueName,
+                            step: this.stepName,
+                            stepIndex: this.stepIndex,
+                            payload,
+                            success: false,
+                            error: error instanceof Error ? error.message : String(error),
+                        },
+                    )
+                }
             }
         }
     }

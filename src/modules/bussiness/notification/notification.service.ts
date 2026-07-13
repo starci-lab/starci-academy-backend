@@ -117,6 +117,7 @@ export class NotificationService {
         limit,
         offset,
         unreadOnly,
+        type,
     }: ListNotificationsParams): Promise<ListNotificationsResult> {
         // scope to the recipient; when unread-only, also require readAt to be null
         const [
@@ -133,6 +134,14 @@ export class NotificationService {
                     ...(unreadOnly
                         ? {
                             readAt: IsNull(),
+                        }
+                        : {
+                        }),
+                    // spread the type filter only when provided so the listing is
+                    // unfiltered by kind on the default (all) listing
+                    ...(type
+                        ? {
+                            type,
                         }
                         : {
                         }),

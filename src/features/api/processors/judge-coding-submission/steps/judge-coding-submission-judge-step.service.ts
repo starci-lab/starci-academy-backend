@@ -10,6 +10,7 @@ import {
     EnqueueSendMailJobService,
     JobActionService,
     JobExtendedContext,
+    NotificationService,
     writeActivity,
 } from "@modules/bussiness"
 import {
@@ -28,6 +29,7 @@ import {
     CodingSubmissionEntity,
     CodingVerdict,
     InjectPrimaryPostgreSQLEntityManager,
+    NotificationType,
     XpSource,
 } from "@modules/databases"
 import {
@@ -79,6 +81,7 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
         private readonly winstonService: WinstonService,
         private readonly codingProgressService: CodingProgressService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
+        private readonly notificationService: NotificationService,
     ) {
         super()
     }
@@ -210,6 +213,38 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
                     totalCount: perCaseResults.length,
                 },
             })
+            // best-effort in-app notification (bell) for the same first-terminal-verdict
+            // moment; must never fail the already-persisted judge result
+            try {
+                await this.notificationService.createNotification({
+                    userId: submission.userId,
+                    type: NotificationType.CodingGraded,
+                    title: {
+                        key: "notification.codingGraded.title",
+                        params: {
+                            title: problem.title,
+                            verdictLabel:
+                                JudgeCodingSubmissionJudgeStepService.VERDICT_LABELS[verdict]
+                                    ?? verdict,
+                        },
+                    },
+                    target: {
+                        entityName: CodingSubmissionEntity.name,
+                        id: submission.id,
+                        label: problem.title,
+                    },
+                })
+            } catch (error) {
+                this.winstonService.log(
+                    WinstonLog.NotificationCreateFailed,
+                    {
+                        jobId: context.job.id ?? "",
+                        queueName: context.queueName,
+                        step: this.stepName,
+                        error: error instanceof Error ? error.message : String(error),
+                    },
+                )
+            }
         }
         // return the summary for the step execution-result store
         return {
