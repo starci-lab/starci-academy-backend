@@ -88,6 +88,8 @@ export class MyFlashcardQuizStatsResolver {
             byTag: result.byTag,
             byDeck: result.byDeck,
             weakTagLinks: result.weakTagLinks,
+            hardCards: result.hardCards,
+            completedSessionCount: result.completedSessionCount,
         }
     }
 }

@@ -34,6 +34,24 @@ export interface FlashcardQuizTagStatData {
     coverage: number
 }
 
+/** One "hard" quiz card — a card the learner keeps under-answering (lowest per-card coverage), the quiz analogue of a review leech. */
+export interface FlashcardQuizHardCardData {
+    /** The card id (deep-link target). */
+    cardId: string
+    /** The card's question text (default-locale snapshot). */
+    question: string
+    /** Times this card was answered across the scanned quiz sessions (sample size). */
+    attempts: number
+    /** Times this card was answered with at least one blank wrong (coverage < 1). */
+    wrongCount: number
+    /** Aggregate coverage for this card = ΣcorrectBlanks / ΣtotalBlanks across attempts, 0..1 (ranking key). */
+    coverage: number
+    /** Owning deck id (deep-link target). */
+    deckId: string
+    /** Owning deck title (default-locale snapshot). */
+    deckTitle: string
+}
+
 /** One tag's most-recent weak-spot occurrence, carrying a study deep-link back to its source module/content. */
 export interface FlashcardQuizWeakTagLinkData {
     /** The technology tag (e.g. "NestJS", "Redis"). */
@@ -82,6 +100,52 @@ export interface FlashcardDueForecastPointData {
     count: number
 }
 
+/** One "leech" card — a card the learner keeps grading Again (forgetting), most-forgotten first. */
+export interface FlashcardLeechCardData {
+    /** The card id (open it in the reviewer). */
+    cardId: string
+    /** The card's question text (default-locale snapshot — the reviewer re-localizes on open). */
+    question: string
+    /** How many times this card was graded Again (grade 0) across the scanned event window. */
+    forgotCount: number
+    /** Owning deck id (deep-link target). */
+    deckId: string
+    /** Owning deck title (default-locale snapshot). */
+    deckTitle: string
+}
+
+/** The single weakest technology tag by review retention (lowest recalled/total), or null when none qualifies. */
+export interface FlashcardWeakReviewTagData {
+    /** The technology tag (e.g. "NestJS"). */
+    tag: string
+    /** Retention for this tag = graded Good/Easy (>=2) / total graded, 0..100. */
+    retention: number
+    /** Total graded reviews of cards carrying this tag (sample size). */
+    reviewCount: number
+}
+
+/** One deck's REVIEW retention (recalled/total), the outcome analogue of the footprint `reviewByDeck`. */
+export interface FlashcardDeckRetentionData {
+    /** The deck this retention is scoped to. */
+    deckId: string
+    /** The deck's title. */
+    deckTitle: string
+    /** Retention = graded Good/Easy (>=2) / total graded for this deck's cards, 0..100. */
+    retention: number
+    /** Total graded reviews for this deck's cards (sample size). */
+    reviewCount: number
+}
+
+/** One VN-day's review retention — powers the "đang cải thiện?" trend line. */
+export interface FlashcardRetentionTrendPointData {
+    /** The VN-calendar day (`YYYY-MM-DD`). */
+    date: string
+    /** Retention that day = recalled/total, 0..100. */
+    retention: number
+    /** Reviews graded that day (sample size; 0 = no reviews, retention 0). */
+    reviewCount: number
+}
+
 /** The enrollment's card-maturity breakdown, by `repetitions` on `user_flashcard_reviews`. */
 export interface FlashcardMasteryBreakdownData {
     /** Cards with `repetitions >= 2` — considered mastered. */
@@ -106,6 +170,8 @@ export interface UserFlashcardCourseStatsResult {
     quizByDeck: Array<FlashcardDeckStatData>
     /** Weakest tags with a study deep-link, each tag's MOST RECENT occurrence, ranked coverage ascending. */
     weakTagLinks: Array<FlashcardQuizWeakTagLinkData>
+    /** Cards the learner keeps under-answering in quizzes (lowest coverage), hardest first, bounded — the "câu hay sai" diagnosis. */
+    quizHardCards: Array<FlashcardQuizHardCardData>
     /** Completed quiz sessions scanned (bounded by the service's session-scan cap) — drives the insufficient-data gate. */
     completedSessionCount: number
     /** Per-deck aggregate review footprint across the scanned sessions. */
@@ -116,6 +182,14 @@ export interface UserFlashcardCourseStatsResult {
     dueForecast: Array<FlashcardDueForecastPointData>
     /** The enrollment's card-maturity breakdown (mastered / learning / new). */
     masteryBreakdown: FlashcardMasteryBreakdownData
+    /** Cards the learner keeps forgetting (grade Again), most-forgotten first, bounded — the "cần ôn lại" hero. */
+    leechCards: Array<FlashcardLeechCardData>
+    /** The single weakest tag by review retention, or null when none has enough samples. */
+    weakReviewTag: FlashcardWeakReviewTagData | null
+    /** Per-deck review RETENTION (outcome), weakest first — the outcome analogue of `reviewByDeck` footprint. */
+    deckRetention: Array<FlashcardDeckRetentionData>
+    /** Per-VN-day review retention across the trailing window — the "đang cải thiện?" trend. */
+    retentionTrend: Array<FlashcardRetentionTrendPointData>
 }
 
 /**

@@ -133,10 +133,79 @@ export class FlashcardMasteryBreakdown {
         new: number
 }
 
+/** One "leech" card the learner keeps forgetting (graded Again), most-forgotten first. */
+@ObjectType({
+    description: "A card the learner keeps forgetting (graded Again), for the 'cần ôn lại' hero.",
+})
+export class FlashcardLeechCard {
+    @Field(() => ID, { description: "The card id (open it in the reviewer)." })
+        cardId: string
+
+    @Field(() => String, { description: "The card's question text (default-locale snapshot)." })
+        question: string
+
+    @Field(() => Int, { description: "How many times this card was graded Again (grade 0)." })
+        forgotCount: number
+
+    @Field(() => ID, { description: "Owning deck id (deep-link target)." })
+        deckId: string
+
+    @Field(() => String, { description: "Owning deck title." })
+        deckTitle: string
+}
+
+/** The single weakest technology tag by review retention, or null when none has enough samples. */
+@ObjectType({
+    description: "The single weakest tag by review retention.",
+})
+export class FlashcardWeakReviewTag {
+    @Field(() => String, { description: "The technology tag (e.g. NestJS)." })
+        tag: string
+
+    @Field(() => Int, { description: "Retention for this tag = graded Good/Easy / total graded, 0..100." })
+        retention: number
+
+    @Field(() => Int, { description: "Total graded reviews of cards carrying this tag." })
+        reviewCount: number
+}
+
+/** One deck's review RETENTION (recalled/total) — the outcome analogue of the footprint `byDeck`. */
+@ObjectType({
+    description: "One deck's review retention (outcome), weakest first.",
+})
+export class FlashcardDeckRetention {
+    @Field(() => ID, { description: "The deck this retention is scoped to." })
+        deckId: string
+
+    @Field(() => String, { description: "The deck's title." })
+        deckTitle: string
+
+    @Field(() => Int, { description: "Retention = graded Good/Easy / total graded for this deck, 0..100." })
+        retention: number
+
+    @Field(() => Int, { description: "Total graded reviews for this deck." })
+        reviewCount: number
+}
+
+/** One VN-day's review retention — powers the 'đang cải thiện?' trend line. */
+@ObjectType({
+    description: "One VN-day's review retention (improvement trend point).",
+})
+export class FlashcardRetentionTrendPoint {
+    @Field(() => String, { description: "The VN-calendar day (YYYY-MM-DD)." })
+        date: string
+
+    @Field(() => Int, { description: "Retention that day = recalled/total, 0..100." })
+        retention: number
+
+    @Field(() => Int, { description: "Reviews graded that day." })
+        reviewCount: number
+}
+
 /**
- * The viewer's aggregated flashcard review ("Học thẻ") stats for one course —
- * mirrors `MyFlashcardQuizStatsData`, minus `byTag` (review sessions carry no
- * per-card correctness breakdown to derive a tag-coverage aggregate from).
+ * The viewer's aggregated flashcard review ("Học thẻ") stats for one course.
+ * Outcome aggregates (`leechCards`/`weakReviewTag`/`deckRetention`/`retentionTrend`,
+ * thầy 2026-07-13 "render lại") lead; the older footprint/activity fields support.
  */
 @ObjectType({
     description: "The viewer's aggregated flashcard review stats for one course.",
@@ -181,6 +250,39 @@ export class MyFlashcardReviewStatsData {
         },
     )
         masteryBreakdown: FlashcardMasteryBreakdown
+
+    @Field(
+        () => [FlashcardLeechCard],
+        {
+            description: "Cards the learner keeps forgetting, most-forgotten first — the 'cần ôn lại' hero.",
+        },
+    )
+        leechCards: Array<FlashcardLeechCard>
+
+    @Field(
+        () => FlashcardWeakReviewTag,
+        {
+            nullable: true,
+            description: "The single weakest tag by review retention, or null when none qualifies.",
+        },
+    )
+        weakReviewTag: FlashcardWeakReviewTag | null
+
+    @Field(
+        () => [FlashcardDeckRetention],
+        {
+            description: "Per-deck review retention (outcome), weakest first.",
+        },
+    )
+        deckRetention: Array<FlashcardDeckRetention>
+
+    @Field(
+        () => [FlashcardRetentionTrendPoint],
+        {
+            description: "Per-VN-day review retention across the trailing window — the improvement trend.",
+        },
+    )
+        retentionTrend: Array<FlashcardRetentionTrendPoint>
 }
 
 /**

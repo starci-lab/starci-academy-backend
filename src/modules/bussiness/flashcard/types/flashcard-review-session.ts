@@ -9,6 +9,15 @@ export interface StartFlashcardReviewSessionParams {
     deckId: string
     /** The `flashcard_cards.id` set for this deck, in the order they will be reviewed. */
     cardIds: Array<string>
+    /**
+     * Which cards to actually persist into the session (thầy 2026-07-13 "modal
+     * chọn mode, full hoặc quên"):
+     * - `"full"` (default) — keep the whole `cardIds` set (review the entire deck).
+     * - `"due"` — keep only the cards that need review (no review row yet OR past
+     *   `due_at`), matching the deck's `dueCount` semantics. When the filter would
+     *   yield ZERO cards the full set is kept instead (never persist an empty draw).
+     */
+    mode?: "full" | "due"
 }
 
 /** Result of persisting a new resumable flashcard review session. */

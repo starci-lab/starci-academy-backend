@@ -3,6 +3,7 @@ import {
 } from "@nestjs/common"
 import {
     EntityManager,
+    In,
     MoreThanOrEqual,
     Not,
 } from "typeorm"
@@ -10,6 +11,7 @@ import {
     FlashcardDeckEntity,
     FlashcardReviewSessionEntity,
     InjectPrimaryPostgreSQLEntityManager,
+    UserFlashcardReviewEntity,
 } from "@modules/databases"
 import {
     FlashcardDeckNotFoundException,
@@ -85,6 +87,7 @@ export class FlashcardReviewSessionService {
             userId,
             deckId,
             cardIds,
+            mode = "full",
         }: StartFlashcardReviewSessionParams,
     ): Promise<StartFlashcardReviewSessionResult> {
         const deck = await this.entityManager.findOne(
@@ -108,6 +111,58 @@ export class FlashcardReviewSessionService {
             throw new FlashcardDeckNotFoundException({
                 flashcardDeckId: deckId,
             })
+        }
+
+        // "Chỉ thẻ cần ôn" (thầy 2026-07-13): narrow the requested cardIds down to
+        // the ones actually DUE — no review row yet (never learned) OR past their
+        // `due_at`. Same predicate as `FlashcardDeckService.annotateViewerStats`'
+        // `dueCount` (keyed by user_id so the count shown on the deck card and the
+        // set persisted here match exactly), and the whole point of the "quên"
+        // mode: cards graded Good/Easy recently (due_at in the future) drop out.
+        // A filter that would leave NOTHING keeps the full set — never persist an
+        // empty draw (the modal already disables this mode when dueCount is 0, so
+        // this is only a defensive floor).
+        let effectiveCardIds = cardIds
+        if (mode === "due") {
+            const now = new Date()
+            const reviews = await this.entityManager.find(
+                UserFlashcardReviewEntity,
+                {
+                    where: {
+                        userId,
+                        flashcardCard: {
+                            id: In(cardIds),
+                        },
+                    },
+                    select: {
+                        dueAt: true,
+                        flashcardCard: {
+                            id: true,
+                        },
+                    },
+                    relations: {
+                        flashcardCard: true,
+                    },
+                },
+            )
+            const dueAtByCardId = new Map<string, Date | null>()
+            for (const review of reviews) {
+                dueAtByCardId.set(review.flashcardCard.id,
+                    review.dueAt)
+            }
+            const dueCardIds = cardIds.filter((id) => {
+                // a card with NO review row was never in the map → never reviewed → due.
+                // `has` distinguishes that from a row whose `dueAt` is null.
+                if (!dueAtByCardId.has(id)) {
+                    return true
+                }
+                const dueAt = dueAtByCardId.get(id)
+                // a null due_at (unscheduled) counts as due; else due when past due_at
+                return !dueAt || dueAt <= now
+            })
+            if (dueCardIds.length > 0) {
+                effectiveCardIds = dueCardIds
+            }
         }
 
         // review sessions are anchored to the SAME (user, course) trial
@@ -144,7 +199,7 @@ export class FlashcardReviewSessionService {
                 deck: {
                     id: deckId,
                 },
-                cardIds,
+                cardIds: effectiveCardIds,
                 currentIndex: 0,
                 reviewedCount: 0,
                 gradedIndexes: [],

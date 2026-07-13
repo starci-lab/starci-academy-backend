@@ -63,6 +63,8 @@ export class MyFlashcardQuizStatsService {
             byTag: stats.quizByTag,
             byDeck: stats.quizByDeck,
             weakTagLinks: stats.weakTagLinks,
+            hardCards: stats.quizHardCards,
+            completedSessionCount: stats.completedSessionCount,
         }
     }
 }

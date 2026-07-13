@@ -45,6 +45,7 @@ export class StartFlashcardReviewSessionHandler
             request: {
                 deckId,
                 cardIds,
+                mode,
             },
             user,
         } = command.params
@@ -58,6 +59,7 @@ export class StartFlashcardReviewSessionHandler
             userId: user.id,
             deckId,
             cardIds,
+            mode,
         })
     }
 }

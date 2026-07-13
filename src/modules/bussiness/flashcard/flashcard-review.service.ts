@@ -277,6 +277,8 @@ export class FlashcardReviewService {
                     : "",
                 front: card.question,
                 back: card.answer ?? "",
+                level: card.level ?? null,
+                tags: card.tags ?? [],
                 nextIntervals: this.previewIntervals(
                     priorByCardId.get(card.id) ?? NEW_CARD_STATE,
                 ),
@@ -437,6 +439,8 @@ export class FlashcardReviewService {
                     : "",
                 front: card.question,
                 back: card.answer ?? "",
+                level: card.level ?? null,
+                tags: card.tags ?? [],
                 nextIntervals: this.previewIntervals(
                     priorByCardId.get(card.id) ?? NEW_CARD_STATE,
                 ),

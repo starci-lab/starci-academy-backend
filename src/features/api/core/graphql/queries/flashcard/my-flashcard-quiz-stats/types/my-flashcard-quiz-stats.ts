@@ -36,6 +36,24 @@ export interface FlashcardQuizStatsWeakTagLinkData {
     contentId: string | null
 }
 
+/** One "hard" quiz card — the quiz analogue of a review leech, lowest per-card coverage first. */
+export interface FlashcardQuizStatsHardCardData {
+    /** The card id (deep-link target). */
+    cardId: string
+    /** The card's question text (default-locale snapshot). */
+    question: string
+    /** Times this card was answered across the scanned quiz sessions (sample size). */
+    attempts: number
+    /** Times this card was answered with at least one blank wrong (coverage < 1). */
+    wrongCount: number
+    /** Aggregate coverage for this card = ΣcorrectBlanks / ΣtotalBlanks across attempts, 0..1. */
+    coverage: number
+    /** Owning deck id (deep-link target). */
+    deckId: string
+    /** Owning deck title. */
+    deckTitle: string
+}
+
 /** One deck's aggregate practice footprint across the scanned sessions. */
 export interface FlashcardQuizStatsDeckItemData {
     /** The deck this aggregate is scoped to. */
@@ -62,4 +80,8 @@ export interface MyFlashcardQuizStatsResultData {
     byDeck: Array<FlashcardQuizStatsDeckItemData>
     /** Weakest tags with a study deep-link, each tag's most recent occurrence, ranked coverage ascending. */
     weakTagLinks: Array<FlashcardQuizStatsWeakTagLinkData>
+    /** Cards the learner keeps under-answering (lowest coverage), hardest first — the "câu hay sai" diagnosis. */
+    hardCards: Array<FlashcardQuizStatsHardCardData>
+    /** Completed quiz sessions scanned — a raw count for the "N phiên" tile. */
+    completedSessionCount: number
 }

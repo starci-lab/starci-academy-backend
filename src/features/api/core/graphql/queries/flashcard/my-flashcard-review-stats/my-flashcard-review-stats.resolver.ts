@@ -83,6 +83,10 @@ export class MyFlashcardReviewStatsResolver {
             dueToday: result.dueToday,
             dueForecast: result.dueForecast,
             masteryBreakdown: result.masteryBreakdown,
+            leechCards: result.leechCards,
+            weakReviewTag: result.weakReviewTag,
+            deckRetention: result.deckRetention,
+            retentionTrend: result.retentionTrend,
         }
     }
 }

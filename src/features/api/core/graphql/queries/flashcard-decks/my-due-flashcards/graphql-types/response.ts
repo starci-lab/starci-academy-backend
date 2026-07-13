@@ -52,6 +52,23 @@ export class DueFlashcardObject {
         back: string
 
     @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Interview seniority level (junior/middle/senior/staff), or null — drives the level chip.",
+        },
+    )
+        level: string | null
+
+    @Field(
+        () => [String],
+        {
+            description: "Technology tags for this card — drives the tag chips (same as deck-review).",
+        },
+    )
+        tags: Array<string>
+
+    @Field(
         () => FlashcardNextIntervalsObject,
         {
             description: "Per-grade next-interval preview (days) from the card's current state.",

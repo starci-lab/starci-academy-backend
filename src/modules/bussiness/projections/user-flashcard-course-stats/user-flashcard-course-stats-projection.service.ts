@@ -18,13 +18,18 @@ import {
     envConfig,
 } from "@modules/env"
 import type {
+    FlashcardDeckRetentionData,
     FlashcardDeckStatData,
     FlashcardDueForecastPointData,
+    FlashcardLeechCardData,
     FlashcardMasteryBreakdownData,
+    FlashcardQuizHardCardData,
     FlashcardQuizTagStatData,
     FlashcardQuizTrendPointData,
     FlashcardQuizWeakTagLinkData,
+    FlashcardRetentionTrendPointData,
     FlashcardReviewDeckStatData,
+    FlashcardWeakReviewTagData,
     RecomputeUserFlashcardCourseStatsParams,
     UserFlashcardCourseStatsParams,
     UserFlashcardCourseStatsResult,
@@ -44,11 +49,32 @@ const STATS_TREND_LENGTH = 10
 /** Upper bound on tags returned in `quizByTag` — a sane ceiling for the response payload. */
 const STATS_MAX_TAGS = 20
 
+/** Max "câu hay sai" hard quiz cards surfaced — a tight, actionable list (mirrors `LEECH_LIMIT`). */
+const QUIZ_HARD_CARD_LIMIT = 5
+
+/** Minimum times a card must be answered before it's eligible to be a "hard" card (avoid a 1-off miss). */
+const QUIZ_HARD_CARD_MIN_ATTEMPTS = 2
+
 /** How many VN-days forward `dueForecast` covers. */
 const DUE_FORECAST_DAYS = 7
 
 /** A card counts as "mastered" once its SM-2 repetitions reach this floor. */
 const MASTERED_REPETITIONS = 2
+
+/** SM-2 grade at/above which a review counts as a successful recall (retention numerator). */
+const RECALLED_GRADE = 2
+
+/** Max leech cards surfaced ("cần ôn lại" hero) — a tight, actionable list. */
+const LEECH_LIMIT = 5
+
+/** Minimum graded reviews a card needs before it can be flagged a leech (avoid a 1-off Again). */
+const LEECH_MIN_AGAIN = 2
+
+/** Minimum graded reviews a TAG needs before it's eligible to be "the weakest tag" (sample-size floor). */
+const WEAK_TAG_MIN_SAMPLE = 4
+
+/** How many trailing VN-days the retention trend covers. */
+const RETENTION_TREND_DAYS = 30
 
 /** Milliseconds in one day (for epoch-day math on `YYYY-MM-DD` strings). */
 const MS_PER_DAY = 24 * 60 * 60 * 1000
@@ -83,6 +109,37 @@ interface MasteryRow {
 
 /** Raw row: total card count across the enrollment's course decks. */
 interface TotalCardsRow {
+    total: string
+}
+
+/** Raw row: one leech card (most-forgotten), with its owning deck. */
+interface LeechCardRow {
+    card_id: string
+    question: string
+    forgot_count: string
+    deck_id: string
+    deck_title: string
+}
+
+/** Raw row: one tag's review recalled/total (retention numerator/denominator). */
+interface TagRetentionRow {
+    tag: string
+    recalled: string
+    total: string
+}
+
+/** Raw row: one deck's review recalled/total. */
+interface DeckRetentionRow {
+    deck_id: string
+    deck_title: string
+    recalled: string
+    total: string
+}
+
+/** Raw row: one VN-day's review recalled/total. */
+interface RetentionTrendRow {
+    day: string
+    recalled: string
     total: string
 }
 
@@ -126,6 +183,7 @@ export class UserFlashcardCourseStatsProjectionService {
             quizByTag,
             quizByDeck,
             weakTagLinks,
+            quizHardCards,
             completedSessionCount,
         } = await this.computeQuiz(manager,
             enrollmentId)
@@ -133,17 +191,29 @@ export class UserFlashcardCourseStatsProjectionService {
             enrollmentId)
         const { dueToday, dueForecast, masteryBreakdown } = await this.computeDueAndMastery(manager,
             enrollmentId)
+        const {
+            leechCards,
+            weakReviewTag,
+            deckRetention,
+            retentionTrend,
+        } = await this.computeReviewOutcome(manager,
+            enrollmentId)
 
         const value: UserFlashcardCourseStatsResult = {
             quizTrend,
             quizByTag,
             quizByDeck,
             weakTagLinks,
+            quizHardCards,
             completedSessionCount,
             reviewByDeck,
             dueToday,
             dueForecast,
             masteryBreakdown,
+            leechCards,
+            weakReviewTag,
+            deckRetention,
+            retentionTrend,
         }
 
         await manager.query(
@@ -178,8 +248,20 @@ export class UserFlashcardCourseStatsProjectionService {
                 },
             },
         )
-        // missing / past freshness window → recompute + re-read
-        if (!row || this.isStale(row.updatedAt)) {
+        // missing / past freshness window / SCHEMA-DRIFTED (a fresh row written
+        // before the outcome fields existed lacks `leechCards` etc. — recompute
+        // once so those keys populate instead of reading as empty forever, thầy
+        // 2026-07-13: "sao không thấy leech/chart") → recompute + re-read.
+        const missingOutcomeFields = row
+            ? (() => {
+                const value = row.value as Partial<UserFlashcardCourseStatsResult> | undefined
+                // leechCards = review-outcome drift (2026-07-13); quizHardCards =
+                // quiz-outcome drift (added later) — either absent means the row
+                // predates that fold, so recompute once to populate it.
+                return value?.leechCards === undefined || value?.quizHardCards === undefined
+            })()
+            : false
+        if (!row || this.isStale(row.updatedAt) || missingOutcomeFields) {
             await this.recompute({
                 enrollmentId,
             })
@@ -198,6 +280,7 @@ export class UserFlashcardCourseStatsProjectionService {
             quizByTag: value?.quizByTag ?? [],
             quizByDeck: value?.quizByDeck ?? [],
             weakTagLinks: value?.weakTagLinks ?? [],
+            quizHardCards: value?.quizHardCards ?? [],
             completedSessionCount: value?.completedSessionCount ?? 0,
             reviewByDeck: value?.reviewByDeck ?? [],
             dueToday: value?.dueToday ?? 0,
@@ -207,6 +290,10 @@ export class UserFlashcardCourseStatsProjectionService {
                 learning: 0,
                 new: 0,
             },
+            leechCards: value?.leechCards ?? [],
+            weakReviewTag: value?.weakReviewTag ?? null,
+            deckRetention: value?.deckRetention ?? [],
+            retentionTrend: value?.retentionTrend ?? [],
         }
     }
 
@@ -223,6 +310,7 @@ export class UserFlashcardCourseStatsProjectionService {
         quizByTag: Array<FlashcardQuizTagStatData>
         quizByDeck: Array<FlashcardDeckStatData>
         weakTagLinks: Array<FlashcardQuizWeakTagLinkData>
+        quizHardCards: Array<FlashcardQuizHardCardData>
         completedSessionCount: number
     }> {
         const sessions = await manager.find(
@@ -269,6 +357,7 @@ export class UserFlashcardCourseStatsProjectionService {
                 quizByTag: [],
                 quizByDeck: [],
                 weakTagLinks,
+                quizHardCards: [],
                 completedSessionCount,
             }
         }
@@ -286,6 +375,7 @@ export class UserFlashcardCourseStatsProjectionService {
                 },
                 select: {
                     id: true,
+                    question: true,
                     tags: true,
                     deckId: true,
                     deck: {
@@ -305,14 +395,81 @@ export class UserFlashcardCourseStatsProjectionService {
         const quizByDeck = await this.computeByDeck(manager,
             sessions,
             cardById)
+        const quizHardCards = this.computeQuizHardCards(sessions,
+            cardById)
 
         return {
             quizTrend,
             quizByTag,
             quizByDeck,
             weakTagLinks,
+            quizHardCards,
             completedSessionCount,
         }
+    }
+
+    /**
+     * The quiz OUTCOME diagnosis (thầy 2026-07-13 quiz-stats redesign — dẫn bằng
+     * lỗ hổng, not vanity) — the "câu hay sai" list, the quiz analogue of a review
+     * leech. Folds each (session, result) pair from `results[]` per card:
+     * aggregate coverage = ΣcorrectBlanks / ΣtotalBlanks, `attempts` = times
+     * answered, `wrongCount` = attempts with any blank missed (coverage < 1). Only
+     * cards answered >= {@link QUIZ_HARD_CARD_MIN_ATTEMPTS} times qualify (avoid a
+     * 1-off miss), ranked lowest coverage first, capped at
+     * {@link QUIZ_HARD_CARD_LIMIT}. Derived from the same in-memory `sessions` +
+     * `cardById` the tag/deck folds use — no extra query.
+     */
+    private computeQuizHardCards(
+        sessions: Array<FlashcardQuizSessionEntity>,
+        cardById: Map<string, FlashcardCardEntity>,
+    ): Array<FlashcardQuizHardCardData> {
+        const correctByCard = new Map<string, number>()
+        const totalByCard = new Map<string, number>()
+        const attemptsByCard = new Map<string, number>()
+        const wrongByCard = new Map<string, number>()
+
+        for (const session of sessions) {
+            for (const result of session.results ?? []) {
+                if (!cardById.has(result.cardId)) {
+                    // card id not found (deleted / bad input) — skip silently
+                    continue
+                }
+                const total = Math.max(0,
+                    Math.trunc(result.totalBlanks))
+                const correct = Math.max(0,
+                    Math.min(Math.trunc(result.correctBlanks),
+                        total))
+                correctByCard.set(result.cardId,
+                    (correctByCard.get(result.cardId) ?? 0) + correct)
+                totalByCard.set(result.cardId,
+                    (totalByCard.get(result.cardId) ?? 0) + total)
+                attemptsByCard.set(result.cardId,
+                    (attemptsByCard.get(result.cardId) ?? 0) + 1)
+                if (correct < total) {
+                    wrongByCard.set(result.cardId,
+                        (wrongByCard.get(result.cardId) ?? 0) + 1)
+                }
+            }
+        }
+
+        return [...attemptsByCard.entries()]
+            .filter(([, attempts]) => attempts >= QUIZ_HARD_CARD_MIN_ATTEMPTS)
+            .map(([cardId]) => {
+                const card = cardById.get(cardId)
+                const total = totalByCard.get(cardId) ?? 0
+                return {
+                    cardId,
+                    question: card?.question ?? "",
+                    attempts: attemptsByCard.get(cardId) ?? 0,
+                    wrongCount: wrongByCard.get(cardId) ?? 0,
+                    coverage: total === 0 ? 0 : (correctByCard.get(cardId) ?? 0) / total,
+                    deckId: card?.deckId ?? "",
+                    deckTitle: card?.deck?.title ?? "",
+                }
+            })
+            .sort((prev, next) => prev.coverage - next.coverage || next.wrongCount - prev.wrongCount)
+            .slice(0,
+                QUIZ_HARD_CARD_LIMIT)
     }
 
     /** One per-card result's own correct/total ratio, guarding against a zero denominator. */
@@ -660,6 +817,148 @@ export class UserFlashcardCourseStatsProjectionService {
                     totalCards - reviewedTotal),
             },
         }
+    }
+
+    /**
+     * The review-OUTCOME side of the aggregate (thầy 2026-07-13 "thống kê vô
+     * nghĩa quá, render lại" — dẫn bằng việc-CẦN-SỬA, not vanity effort): the 4
+     * outcome aggregates that turn the stats tab into a fix-funnel — `leechCards`
+     * (kept forgetting), `weakReviewTag` (worst-retention tag), `deckRetention`
+     * (outcome per deck vs the footprint `reviewByDeck`), and `retentionTrend`
+     * ("đang cải thiện?"). All derived from `flashcard_review_events` (the SM-2
+     * grade log) joined to the enrollment's course cards — scoped to this
+     * enrollment's USER (events are user-keyed) and COURSE (card → deck →
+     * course), and folded HERE only (CDC-triggered), never per-request
+     * (`.claude/be/rules/cqrs-no-inline-aggregate.md`). `recalled` = grade >=
+     * {@link RECALLED_GRADE}; retention = recalled/total × 100.
+     */
+    private async computeReviewOutcome(
+        manager: EntityManager,
+        enrollmentId: string,
+    ): Promise<{
+        leechCards: Array<FlashcardLeechCardData>
+        weakReviewTag: FlashcardWeakReviewTagData | null
+        deckRetention: Array<FlashcardDeckRetentionData>
+        retentionTrend: Array<FlashcardRetentionTrendPointData>
+    }> {
+        // Shared scope: this enrollment's own user's events on THIS course's cards.
+        // `enrollments en` resolves both the user (event owner) and the course
+        // (deck filter) from the single enrollment id, so every query below joins
+        // events ⋈ cards ⋈ decks ⋈ enrollment without leaking another user's grades.
+        const scopeJoin = `
+            FROM flashcard_review_events e
+            JOIN enrollments en ON en.id = $1 AND e.user_id = en.user_id
+            JOIN flashcard_cards card ON card.id = e.flashcard_card_id
+            JOIN flashcard_decks deck ON deck.id = card.flashcard_deck_id AND deck.course_id = en.course_id`
+
+        // 1. LEECH — cards graded Again the most (>= LEECH_MIN_AGAIN times), top LEECH_LIMIT.
+        const leechRows = await manager.query<Array<LeechCardRow>>(
+            `SELECT card.id AS card_id,
+                    card.question AS question,
+                    COUNT(*) FILTER (WHERE e.grade = 0)::text AS forgot_count,
+                    deck.id AS deck_id,
+                    deck.title AS deck_title
+             ${scopeJoin}
+             GROUP BY card.id, card.question, deck.id, deck.title
+             HAVING COUNT(*) FILTER (WHERE e.grade = 0) >= ${LEECH_MIN_AGAIN}
+             ORDER BY forgot_count DESC, card.id ASC
+             LIMIT ${LEECH_LIMIT}`,
+            [
+                enrollmentId,
+            ],
+        )
+        const leechCards: Array<FlashcardLeechCardData> = leechRows.map((row) => ({
+            cardId: row.card_id,
+            question: row.question ?? "",
+            forgotCount: Number(row.forgot_count) || 0,
+            deckId: row.deck_id,
+            deckTitle: row.deck_title ?? "",
+        }))
+
+        // 2. WEAK TAG — the single lowest-retention tag with >= WEAK_TAG_MIN_SAMPLE graded reviews.
+        // `card.tags` is a jsonb string array → unnest with jsonb_array_elements_text.
+        const tagRows = await manager.query<Array<TagRetentionRow>>(
+            `SELECT tag.value AS tag,
+                    COUNT(*) FILTER (WHERE e.grade >= ${RECALLED_GRADE})::text AS recalled,
+                    COUNT(*)::text AS total
+             ${scopeJoin}
+             CROSS JOIN LATERAL jsonb_array_elements_text(card.tags) AS tag(value)
+             GROUP BY tag.value
+             HAVING COUNT(*) >= ${WEAK_TAG_MIN_SAMPLE}
+             ORDER BY (COUNT(*) FILTER (WHERE e.grade >= ${RECALLED_GRADE})::float / COUNT(*)) ASC,
+                      total DESC
+             LIMIT 1`,
+            [
+                enrollmentId,
+            ],
+        )
+        const weakReviewTag: FlashcardWeakReviewTagData | null = tagRows.length > 0
+            ? {
+                tag: tagRows[0].tag,
+                retention: this.retentionPercent(tagRows[0].recalled,
+                    tagRows[0].total),
+                reviewCount: Number(tagRows[0].total) || 0,
+            }
+            : null
+
+        // 3. DECK RETENTION — recalled/total per deck, weakest first (outcome, not footprint).
+        const deckRows = await manager.query<Array<DeckRetentionRow>>(
+            `SELECT deck.id AS deck_id,
+                    deck.title AS deck_title,
+                    COUNT(*) FILTER (WHERE e.grade >= ${RECALLED_GRADE})::text AS recalled,
+                    COUNT(*)::text AS total
+             ${scopeJoin}
+             GROUP BY deck.id, deck.title
+             ORDER BY (COUNT(*) FILTER (WHERE e.grade >= ${RECALLED_GRADE})::float / COUNT(*)) ASC,
+                      total DESC`,
+            [
+                enrollmentId,
+            ],
+        )
+        const deckRetention: Array<FlashcardDeckRetentionData> = deckRows.map((row) => ({
+            deckId: row.deck_id,
+            deckTitle: row.deck_title ?? "",
+            retention: this.retentionPercent(row.recalled,
+                row.total),
+            reviewCount: Number(row.total) || 0,
+        }))
+
+        // 4. RETENTION TREND — recalled/total per VN-day over the trailing window,
+        // only days WITH reviews (the FE line skips gaps), most-recent last.
+        const trendRows = await manager.query<Array<RetentionTrendRow>>(
+            `SELECT (e.reviewed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date::text AS day,
+                    COUNT(*) FILTER (WHERE e.grade >= ${RECALLED_GRADE})::text AS recalled,
+                    COUNT(*)::text AS total
+             ${scopeJoin}
+             AND e.reviewed_at >= now() - interval '${RETENTION_TREND_DAYS} days'
+             GROUP BY day
+             ORDER BY day ASC`,
+            [
+                enrollmentId,
+            ],
+        )
+        const retentionTrend: Array<FlashcardRetentionTrendPointData> = trendRows.map((row) => ({
+            date: row.day,
+            retention: this.retentionPercent(row.recalled,
+                row.total),
+            reviewCount: Number(row.total) || 0,
+        }))
+
+        return {
+            leechCards,
+            weakReviewTag,
+            deckRetention,
+            retentionTrend,
+        }
+    }
+
+    /** recalled/total as an integer percent 0..100, guarding a zero denominator. */
+    private retentionPercent(recalled: string, total: string): number {
+        const totalNum = Number(total) || 0
+        if (totalNum === 0) {
+            return 0
+        }
+        return Math.round(((Number(recalled) || 0) / totalNum) * 100)
     }
 
     /**

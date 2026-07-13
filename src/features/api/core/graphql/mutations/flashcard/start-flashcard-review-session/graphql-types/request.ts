@@ -7,8 +7,13 @@ import {
     ArrayMaxSize,
     ArrayMinSize,
     IsArray,
+    IsIn,
+    IsOptional,
     IsString,
 } from "class-validator"
+
+/** The two "Học thẻ" scopes the deck-review mode modal offers. */
+export type FlashcardReviewMode = "full" | "due"
 
 /** Upper bound on the card set a single review session may draw — generous
  *  since a deck's full card set (unlike a quiz's fixed 5/10 draw) can run
@@ -51,4 +56,18 @@ export class StartFlashcardReviewSessionRequest {
         each: true,
     })
         cardIds: Array<string>
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Which cards to persist: \"full\" (whole deck, default) or \"due\" (only cards needing review — no review row yet or past due_at). An empty \"due\" filter falls back to the full set.",
+        },
+    )
+    @IsOptional()
+    @IsIn([
+        "full",
+        "due",
+    ])
+        mode?: FlashcardReviewMode
 }

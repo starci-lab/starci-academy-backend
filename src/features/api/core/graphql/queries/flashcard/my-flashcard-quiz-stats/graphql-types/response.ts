@@ -102,6 +102,68 @@ export class FlashcardQuizWeakTagLink {
         contentId: string | null
 }
 
+/** One "hard" quiz card — the quiz analogue of a review leech, lowest per-card coverage first. */
+@ObjectType({
+    description: "One card the viewer keeps under-answering in quizzes, carrying a deep-link to study it.",
+})
+export class FlashcardQuizStatsHardCard {
+    @Field(
+        () => ID,
+        {
+            description: "The card id (deep-link target).",
+        },
+    )
+        cardId: string
+
+    @Field(
+        () => String,
+        {
+            description: "The card's question text (default-locale snapshot).",
+        },
+    )
+        question: string
+
+    @Field(
+        () => Int,
+        {
+            description: "Times this card was answered across the scanned quiz sessions (sample size).",
+        },
+    )
+        attempts: number
+
+    @Field(
+        () => Int,
+        {
+            description: "Times this card was answered with at least one blank wrong (coverage < 1).",
+        },
+    )
+        wrongCount: number
+
+    @Field(
+        () => Float,
+        {
+            description: "Aggregate coverage for this card across attempts, 0..1 (ranking key).",
+        },
+    )
+        coverage: number
+
+    @Field(
+        () => ID,
+        {
+            description: "Owning deck id (deep-link target).",
+        },
+    )
+        deckId: string
+
+    @Field(
+        () => String,
+        {
+            description: "Owning deck title.",
+        },
+    )
+        deckTitle: string
+}
+
 /** One deck's aggregate practice footprint across the scanned sessions. */
 @ObjectType({
     description: "One deck's aggregate practice footprint across the viewer's scanned quiz sessions.",
@@ -195,6 +257,22 @@ export class MyFlashcardQuizStatsData {
         },
     )
         weakTagLinks: Array<FlashcardQuizWeakTagLink>
+
+    @Field(
+        () => [FlashcardQuizStatsHardCard],
+        {
+            description: "Cards the viewer keeps under-answering (lowest coverage), hardest first — the \"câu hay sai\" diagnosis.",
+        },
+    )
+        hardCards: Array<FlashcardQuizStatsHardCard>
+
+    @Field(
+        () => Int,
+        {
+            description: "Completed quiz sessions scanned — a raw count for the \"N phiên\" tile.",
+        },
+    )
+        completedSessionCount: number
 }
 
 /**

@@ -75,13 +75,21 @@ export class MyFlashcardReviewStatsService {
             days: DAILY_ACTIVITY_DAYS,
         })
 
-        // per-deck footprint + due/mastery: point-read the shared
-        // enrollment-keyed course-stats projection, NOT a live session scan —
-        // see the class doc.
-        const { reviewByDeck, dueToday, dueForecast, masteryBreakdown } =
-            await this.userFlashcardCourseStatsProjectionService.getStats({
-                enrollmentId: enrollment.id,
-            })
+        // per-deck footprint + due/mastery + outcome aggregates (leech / weak-tag /
+        // deck-retention / retention-trend): point-read the shared enrollment-keyed
+        // course-stats projection, NOT a live session scan — see the class doc.
+        const {
+            reviewByDeck,
+            dueToday,
+            dueForecast,
+            masteryBreakdown,
+            leechCards,
+            weakReviewTag,
+            deckRetention,
+            retentionTrend,
+        } = await this.userFlashcardCourseStatsProjectionService.getStats({
+            enrollmentId: enrollment.id,
+        })
 
         return {
             dailyActivity,
@@ -89,6 +97,10 @@ export class MyFlashcardReviewStatsService {
             dueToday,
             dueForecast,
             masteryBreakdown,
+            leechCards,
+            weakReviewTag,
+            deckRetention,
+            retentionTrend,
         }
     }
 }
