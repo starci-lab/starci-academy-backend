@@ -166,11 +166,46 @@ across a cloze deletion; split the backticks instead.
 
 ---
 
+## §2.2. `# answer` is PLAIN TEXT — no markdown at all (thầy 2026-07-13)
+
+**Zero markdown formatting anywhere inside `# answer`, in either locale.** No backtick
+code-spans, no `**bold**`, no `*italic*` — not even around a proper noun, a keyword,
+or a snippet like `main`/`repo.save(...)`. Write it as a plain sentence: "typically the
+main function", not `` typically `main` ``. This is stricter than `terminology-bold.md`
+(which governs lesson/challenge/content prose and DOES allow Loại-3 jargon bold) —
+**flashcard `# answer` is the one exception with NO bold at all**, because the `{{cN::…}}`
+blank chip already carries the visual emphasis a bold/code span would add, and stray
+formatting has repeatedly slipped through as literal backtick characters in the rendered
+card (caught 2026-07-13 in a shipped card). Verify by grepping the card's `# answer` block
+for `` ` ``, `**`, or a lone `*` before considering it done — any hit is a FAIL to fix.
+
+---
+
+## §2.3. Cloze distractors `{{cN::term::distractorA,distractorB}}` (optional, thầy 2026-07-13)
+
+A cloze marker MAY carry a third segment — comma-separated near-synonym "confuser" terms
+for the FE's "Hỏi nhanh" word-bank multiple-choice quiz: `{{c1::container::factory
+function,service locator}}`. These curated distractors are preferred over the generic
+sibling-card distractor pool (`build-cloze.ts`) because they're sharper — pick real,
+plausible-but-wrong terms from the SAME card's own domain (never invented, never a random
+unrelated word). Not mandatory on every marker, but when the card's content naturally
+suggests a real confusable alternative (a similar-but-wrong pattern/concept mentioned or
+implied nearby), add 1-2. Same PLAIN TEXT rule applies inside the distractor list — no
+backtick/bold there either.
+
+---
+
 ## §3. Bilingual
 
 `en.md` and `vi.md` mirror the same skeleton and the same KEEP/DELETE decision.
 - `vi.md` is Vietnamese **with diacritics**; keep standard technical terms in English
   (`stderr`, `load average`, `2>&1`) rather than force-translating them.
+- **Ngữ pháp tiếng Việt phải đúng và TỰ NHIÊN** — đủ dấu thôi chưa đủ. Câu vi phải đọc như
+  người Việt viết ra thật, không phải bản dịch word-for-word từ cấu trúc câu tiếng Anh
+  (tránh: lặp chủ ngữ kiểu Anh, mệnh đề quan hệ dịch cứng "mà nó", trạng ngữ đặt sai vị trí
+  theo trật tự Anh, câu bị động dịch máy). Viết vi.md như diễn đạt lại cùng một ý bằng tiếng
+  Việt bản xứ — không convert từng từ/từng mệnh đề từ bản Anh — rồi mới đối chiếu khớp
+  skeleton + số lượng/vị trí cloze với `en.md`.
 - The block labels are localized: `Trả lời thẳng` / `Cơ chế` / `Trade-off` / `Bẫy thường gặp` /
   `Đào sâu tiếp` (vi) — English equivalents in `en.md`
   (`TL;DR` / `How it works` / `Trade-off` / `Common pitfall` / `Go deeper`). Bộ CHỐT
