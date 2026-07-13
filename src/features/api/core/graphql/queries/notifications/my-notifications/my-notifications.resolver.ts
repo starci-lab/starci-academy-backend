@@ -21,7 +21,9 @@ import {
     ThrottlerConfig,
 } from "@modules/throttler"
 import {
+    GraphQLTypeNotificationType,
     Locale,
+    NotificationType,
     UserEntity,
 } from "@modules/databases"
 import {
@@ -86,6 +88,12 @@ export class MyNotificationsResolver {
                 defaultValue: false,
             })
             unreadOnly: boolean,
+        @Args("type",
+            {
+                type: () => GraphQLTypeNotificationType,
+                nullable: true,
+            })
+            type: NotificationType | null,
     ): Promise<MyNotificationsResponseData> {
         // run the page query + unread count together — both are cheap index reads
         const [
@@ -102,6 +110,12 @@ export class MyNotificationsResolver {
                 offset: Math.max(offset ?? 0,
                     0),
                 unreadOnly: unreadOnly ?? false,
+                ...(type
+                    ? {
+                        type,
+                    }
+                    : {
+                    }),
             }),
             this.notificationService.countUnread(user.id),
         ])

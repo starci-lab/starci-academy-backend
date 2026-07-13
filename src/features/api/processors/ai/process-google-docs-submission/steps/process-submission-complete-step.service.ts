@@ -4,6 +4,7 @@ import type {
 import {
     JobActionService,
     EnqueueSendMailJobService,
+    NotificationService,
     ProgressProjectionService,
     ChallengeProgressService,
     writeActivity,
@@ -20,6 +21,7 @@ import {
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
+    NotificationType,
     UserChallengeSubmissionAttemptEntity,
     UserChallengeSubmissionEntity,
     XpSource,
@@ -95,6 +97,7 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
         private readonly progressProjectionService: ProgressProjectionService,
         private readonly challengeProgressService: ChallengeProgressService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
+        private readonly notificationService: NotificationService,
     ) {
         super()
     }
@@ -380,6 +383,59 @@ export class ProcessGoogleDocsSubmissionCompleteStepService extends AbstractStep
                 webBaseUrl: envConfig().web.baseUrl,
                 locale: payload.locale,
             })
+            // Best-effort in-app notification — a failure here can never fail the
+            // already-committed grading job (mirrors the email best-effort above).
+            try {
+                const userChallengeSubmission = await this.entityManager.findOne(
+                    UserChallengeSubmissionEntity,
+                    {
+                        where: {
+                            id: payload.userChallengeSubmissionId,
+                        },
+                        relations: {
+                            submission: {
+                                challenge: true,
+                            },
+                        },
+                    },
+                )
+                const challenge = userChallengeSubmission?.submission?.challenge
+                const notifiedUserId = await this.resolveChargedUserId(
+                    this.entityManager,
+                    payload,
+                )
+                await this.notificationService.createNotification({
+                    userId: notifiedUserId,
+                    type: NotificationType.ChallengeGraded,
+                    title: {
+                        key: "notification.challengeGraded.title",
+                        params: {
+                            title: challenge?.title ?? "",
+                            result: grade.passed ? "passed" : "failed",
+                        },
+                    },
+                    target: challenge
+                        ? {
+                            entityName: ChallengeEntity.name,
+                            id: challenge.id,
+                            label: challenge.title,
+                        }
+                        : undefined,
+                })
+            } catch (error) {
+                this.winstonService.log(
+                    WinstonLog.ProcessGitSubmissionStepExecuted,
+                    {
+                        jobId: job.id ?? "",
+                        queueName,
+                        step: this.stepName,
+                        stepIndex: this.stepIndex,
+                        payload,
+                        success: false,
+                        error: error instanceof Error ? error.message : String(error),
+                    },
+                )
+            }
         }
     }
 

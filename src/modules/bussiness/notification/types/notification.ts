@@ -38,6 +38,8 @@ export interface ListNotificationsParams {
     offset: number
     /** When true, restrict the page to unread (`readAt IS NULL`) rows only. */
     unreadOnly: boolean
+    /** Optional kind filter; when omitted, notifications of every type are listed. */
+    type?: NotificationType
 }
 
 /** Result of {@link NotificationService.listNotifications}. */

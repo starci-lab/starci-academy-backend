@@ -1,6 +1,7 @@
 import {
     EnqueueEnrollJobService,
     EnqueueSendMailJobService,
+    NotificationService,
 } from "@modules/bussiness"
 import {
     enqueueMembershipActiveEmail,
@@ -12,6 +13,7 @@ import {
 import {
     ActionType,
     InjectPrimaryPostgreSQLEntityManager,
+    NotificationType,
     TransactionEntity,
     TransactionStatus,
 } from "@modules/databases"
@@ -71,6 +73,7 @@ export class SepayWebhookHandler
         private readonly aiEntitlementService: AiEntitlementService,
         private readonly membershipService: MembershipService,
         private readonly enqueueSendMailJobService: EnqueueSendMailJobService,
+        private readonly notificationService: NotificationService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly dayjsService: DayjsService,
@@ -197,6 +200,24 @@ export class SepayWebhookHandler
                     tier: transaction.aiSubTier,
                     webBaseUrl: envConfig().web.baseUrl,
                 })
+                try {
+                    await this.notificationService.createNotification({
+                        userId: transaction.userId,
+                        type: NotificationType.SubscriptionGranted,
+                        title: {
+                            key: "notification.subscriptionGranted.title",
+                            params: {
+                                tier: transaction.aiSubTier,
+                            },
+                        },
+                    })
+                } catch (error) {
+                    // best-effort: a notification failure must never fail a webhook
+                    // that already granted a paid tier
+                    this.logger.error(
+                        `Failed to create subscription-granted notification for user ${transaction.userId}: ${String(error)}`,
+                    )
+                }
             }
             return
         }

@@ -102,6 +102,9 @@ describe("ProcessGitSubmissionCompleteStepService",
                 {
                     enqueue: jest.fn(),
                 } as never,
+                {
+                    createNotification: jest.fn(),
+                } as never,
             )
         })
 

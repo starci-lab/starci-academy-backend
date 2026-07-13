@@ -9,6 +9,7 @@ import {
 import {
     JobActionService,
     JobExtendedContext,
+    NotificationService,
 } from "@modules/bussiness"
 import {
     DayjsService,
@@ -36,6 +37,7 @@ import {
     CodingVerdict,
     InjectPrimaryPostgreSQLEntityManager,
     JobEntity,
+    NotificationType,
 } from "@modules/databases"
 import {
     CodingProblemNotFoundException,
@@ -65,6 +67,12 @@ import type {
     },
 )
 export class JudgeCodingSubmissionWorker extends WorkerHost {
+    /** Human-readable verdict labels for the timed-out/errored notification (English source copy). */
+    private static readonly VERDICT_LABELS: Record<string, string> = {
+        timeLimitExceeded: "Time limit exceeded",
+        internalError: "Internal error",
+    }
+
     constructor(
         private readonly jobActionService: JobActionService,
         @InjectSuperJson()
@@ -74,6 +82,7 @@ export class JudgeCodingSubmissionWorker extends WorkerHost {
         private readonly dayjsService: DayjsService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly notificationService: NotificationService,
     ) {
         super()
     }
@@ -200,6 +209,53 @@ export class JudgeCodingSubmissionWorker extends WorkerHost {
                     : CodingVerdict.InternalError
                 await this.entityManager.save(CodingSubmissionEntity,
                     submission)
+                // this IS a genuine terminal, user-facing result (the judge step never
+                // ran far enough to send its own notification) — tell the solver their
+                // submission errored out. Best-effort: must never fail the outer catch.
+                try {
+                    const problem = await this.entityManager.findOne(
+                        CodingProblemEntity,
+                        {
+                            where: {
+                                id: submission.codingProblemId,
+                            },
+                            select: {
+                                id: true,
+                                title: true,
+                            },
+                        },
+                    )
+                    await this.notificationService.createNotification({
+                        userId: submission.userId,
+                        type: NotificationType.CodingGraded,
+                        title: {
+                            key: "notification.codingGraded.title",
+                            params: {
+                                title: problem?.title ?? "",
+                                verdictLabel:
+                                    JudgeCodingSubmissionWorker.VERDICT_LABELS[submission.verdict]
+                                        ?? submission.verdict,
+                            },
+                        },
+                        target: {
+                            entityName: CodingSubmissionEntity.name,
+                            id: submission.id,
+                            label: problem?.title ?? "",
+                        },
+                    })
+                } catch (notificationError) {
+                    this.winstonService.log(
+                        WinstonLog.NotificationCreateFailed,
+                        {
+                            jobId: job?.id ?? "",
+                            queueName: bullmqJob.queueName,
+                            step: "judge",
+                            error: notificationError instanceof Error
+                                ? notificationError.message
+                                : String(notificationError),
+                        },
+                    )
+                }
             }
             // now mark the job failed → emits the failed Socket.IO status update
             if (job) {

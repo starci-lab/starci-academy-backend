@@ -193,6 +193,14 @@ export const configMap = {
         messageType: {
         } as JobExecutedMessage
     },
+    [WinstonLog.NotificationCreateFailed]: {
+        name: WinstonLog.NotificationCreateFailed,
+        level: WinstonLevel.Warn,
+        loki: true,
+        console: true,
+        messageType: {
+        } as StepExecutedMessage
+    },
     // CDN synchronizer: errors.
     [WinstonLog.CdnSynchronizerCoursesSyncing]: {
         name: WinstonLog.CdnSynchronizerCoursesSyncing,

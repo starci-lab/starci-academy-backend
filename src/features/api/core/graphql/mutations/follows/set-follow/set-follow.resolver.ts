@@ -22,6 +22,7 @@ import {
     ActivityType,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
+    NotificationType,
     UserEntity,
     UserFollowEntity,
 } from "@modules/databases"
@@ -30,6 +31,7 @@ import {
     KeycloakGraphQLUser,
 } from "@modules/keycloak"
 import {
+    NotificationService,
     UserStatsProjectionService,
     writeActivity,
 } from "@modules/bussiness"
@@ -51,6 +53,7 @@ export class SetFollowResolver {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly userStatsProjectionService: UserStatsProjectionService,
+        private readonly notificationService: NotificationService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -81,6 +84,8 @@ export class SetFollowResolver {
             return {
             } as SetFollowResponse
         }
+
+        let followed = false
 
         await this.entityManager.transaction(
             async (entityManager) => {
@@ -118,6 +123,7 @@ export class SetFollowResolver {
                             },
                         ),
                     )
+                    followed = true
                     // snapshot the followed user's name for the feed text
                     const target = await entityManager.findOne(
                         UserEntity,
@@ -163,6 +169,24 @@ export class SetFollowResolver {
         await this.userStatsProjectionService.recompute({
             userId: followingId,
         })
+
+        if (followed) {
+            await this.notificationService.createNotification({
+                userId: followingId,
+                type: NotificationType.NewFollower,
+                title: {
+                    key: "notification.newFollower.title",
+                    params: {
+                        actor: user.username,
+                    },
+                },
+                target: {
+                    entityName: UserEntity.name,
+                    id: followerId,
+                    label: user.username,
+                },
+            })
+        }
 
         return {
         } as SetFollowResponse
