@@ -41,9 +41,34 @@ Jobs:
   failed on `varchar(32)` overflow because `family` came out as
   `"technical\n<!-- @starci/seperator -->"`). List-type field values use `## 0` / `## 1` /
   … sub-items, each ALSO separator-wrapped the same way.
-- **Technical:** each course has one bank per module (module count varies per course —
-  mirror the course's flashcard-decks module list). **Behavioral:** bank count/topic is
-  curated by the teacher, not derived from any course structure.
+### Target shape — mirror flashcard's `15 × 10` (thầy 2026-07-12: "mock interview có concept khá giống flashcard, ngoại trừ các câu hỏi sâu hỏi mang tính suy luận hơn")
+
+The technical family is the reasoning-question TWIN of the flashcard catalog — same
+catalog shape, deeper prompts. So it inherits flashcard's §0 numbers verbatim:
+
+- **Technical:** each course has **EXACTLY 15 banks** — one per coherent sub-topic,
+  the SAME 15 sub-topics as the course's 15 flashcard decks (a fact-recall deck and its
+  reasoning-question bank are two views of one sub-topic). Order `0-<slug>` … `14-<slug>`,
+  `# sortIndex` matching, and `# moduleRefs` grounding the same module(s) as the paired
+  deck. (Supersedes the earlier "one bank per module" — banks track the 15 curated
+  sub-topics, NOT the raw module count.)
+- **Each technical bank has EXACTLY 10 questions** (`0-question` … `9-question`,
+  contiguous `# sortIndex`).
+- **Tier distribution per bank** (mirror flashcard's level buckets — interview `# tier`
+  has no `staff`, so its top bucket is `senior`): at least **3 `junior`** and at least
+  **3 `senior`**, the rest `middle`; order questions easy→hard inside the bank.
+- **Curate-then-fill to 10** (same as flashcard): a sub-topic with >10 worthwhile
+  reasoning prompts → keep the strongest 10 per §1, drop the rest (shallow / contrived /
+  near-duplicate); <10 → author NEW deep prompts (real interview questions, not padding)
+  biased toward the short tier buckets.
+- The DIFFERENCE from flashcard is only the QUESTION nature (§1): a flashcard card is
+  fact-recall (read the answer, self-grade); an interview question is a situation/problem
+  the candidate reasons through OUT LOUD and the AI grades against `# rubric` +
+  `# idealAnswer`. Same catalog, deeper prompts.
+
+- **Behavioral/EQ:** bank count/topic is curated by the teacher, not derived from any
+  course structure (universal competencies, one shared global bank set) — it does NOT
+  follow the per-course `15 × 10` shape.
 
 ---
 

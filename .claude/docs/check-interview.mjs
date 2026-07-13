@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 /**
- * check-interview.mjs — gate cho mock-interview bank (technical + behavioral/EQ), .audits không có gate sẵn.
+ * check-interview.mjs — gate cho mock-interview bank (technical + behavioral/EQ).
  *
- * Dùng: node .audits/check-interview.mjs <bank-dir | mock-interview(-eq)-root> [...] [--json]
+ * Dùng: node .claude/docs/check-interview.mjs <bank-dir | mock-interview(-eq)-root> [...] [--json]
  *   <bank-dir> = .../mock-interview/<N>-bank (technical) hoặc .../mock-interview-eq/<N>-bank (behavioral)
  *   Có thể truyền thư mục cha — script tự walk tìm bank con (có vi.md).
- * Spec đầy đủ: .audits/rules/interview-answer.md
+ * Spec đầy đủ: .claude/docs/rules/interview-answer.md
+ *
+ * WARN cấu trúc (mục tiêu §0 target shape — mirror flashcard 15×10): technical bank ≠ 10 câu ·
+ * <3 junior / <3 senior mỗi bank · (course) ≠ 15 bank technical. EQ global KHÔNG theo shape này.
  *
  * Parser mirror ĐÚNG grammar thật của `ExtractJsonFromMdService`
  * (src/modules/init/seeders/shared/extracts/extract-json-from-md.service.ts) — heading-level
@@ -271,14 +274,24 @@ function checkBank (bankDir) {
         const m = path.basename(q.q).match(/^(\d+)-question$/)
         if (m && Number(m[1]) !== i) meta.fails.push(`question folder lệch thứ tự: vị trí ${i} là '${path.basename(q.q)}'`)
     })
+    // WARN cấu trúc (mục tiêu §0 target shape — mirror flashcard 10 card + ≥3/≥3):
+    // technical bank = 10 câu, ≥3 junior + ≥3 senior. EQ global KHÔNG theo shape này.
+    const bankWarns = []
+    if (family === "technical") {
+        if (questions.length !== 10) bankWarns.push(`bank có ${questions.length} câu (mục tiêu 10)`)
+        const juniors = questions.filter((q) => q.tier === "junior").length
+        const seniors = questions.filter((q) => q.tier === "senior").length
+        if (juniors < 3) bankWarns.push(`chỉ ${juniors} junior (mục tiêu ≥3)`)
+        if (seniors < 3) bankWarns.push(`chỉ ${seniors} senior (mục tiêu ≥3)`)
+    }
     const totalFails = meta.fails.length + questions.reduce((s, q) => s + q.fails.length, 0)
-    return { bank: bankDir, family, fails: meta.fails, questions, totalFails }
+    return { bank: bankDir, family, fails: meta.fails, warns: bankWarns, questions, totalFails }
 }
 
 const argv = process.argv.slice(2)
 const json = argv.includes("--json")
 const roots = argv.filter((a) => a !== "--json")
-if (!roots.length) { console.error("Dùng: node .audits/check-interview.mjs <bank-dir | mock-interview(-eq) root> [...] [--json]"); process.exit(2) }
+if (!roots.length) { console.error("Dùng: node .claude/docs/check-interview.mjs <bank-dir | mock-interview(-eq) root> [...] [--json]"); process.exit(2) }
 
 const bankDirs = roots.flatMap(collectBankDirs)
 if (!bankDirs.length) { console.error("Không tìm thấy bank nào (cần vi.md trong 1 thư mục dưới mock-interview/ hoặc mock-interview-eq/)"); process.exit(2) }
@@ -294,6 +307,7 @@ if (json) {
         const n = r.totalFails ?? r.fails.length
         console.log(`${n ? "✗" : "✓"} ${rel}  [${r.family || "?"}]`)
         for (const f of r.fails) console.log(`    - ${f}`)
+        for (const w of r.warns || []) console.log(`    ~ ${w}`)
         for (const q of r.questions || []) {
             if (q.fails.length) {
                 console.log(`    ✗ ${path.basename(q.q)}`)
@@ -301,6 +315,18 @@ if (json) {
             }
             for (const w of q.warns || []) console.log(`    ~ ${path.basename(q.q)}: ${w}`)
         }
+    }
+    // WARN 15-bank/khóa (mirror flashcard "course ≠ 15 deck"): gom technical bank
+    // theo course, cảnh báo course nào ≠ 15 bank. EQ global bỏ qua.
+    const byCourse = new Map()
+    for (const r of results) {
+        if (r.family !== "technical") continue
+        const m = r.bank.replace(/\\/g, "/").match(/courses\/([^/]+)\//)
+        if (!m) continue
+        byCourse.set(m[1], (byCourse.get(m[1]) ?? 0) + 1)
+    }
+    for (const [course, count] of byCourse) {
+        if (count !== 15) console.log(`~ course '${course}': ${count} bank technical (mục tiêu 15)`)
     }
     console.log(`\n${results.length} bank · ${failedBanks.length} fail`)
 }
