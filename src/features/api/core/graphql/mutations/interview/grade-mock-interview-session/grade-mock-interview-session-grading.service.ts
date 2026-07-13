@@ -177,6 +177,7 @@ export class MockInterviewGradingService {
             level,
             mode,
             seedQuestions,
+            lang: sessionLang,
             countsToReadiness,
         } = await this.resolveTrustedPromptIdentity({
             userId,
@@ -196,7 +197,8 @@ export class MockInterviewGradingService {
         // the open rubric. Empty for mode="design" (it has no seed questions).
         const seedGroundings = mode === MockInterviewMode.Qna
             ? await this.resolveSeedGroundings(seedQuestions,
-                turns)
+                turns,
+                sessionLang)
             : []
 
         // join the CANDIDATE's own words only — the interviewer's prompts would just
@@ -364,6 +366,7 @@ export class MockInterviewGradingService {
         level: string | null
         mode: MockInterviewMode
         seedQuestions: Array<MockInterviewSeedQuestion>
+        lang: string | null
         countsToReadiness: boolean
     }> {
         const {
@@ -396,6 +399,7 @@ export class MockInterviewGradingService {
                     promptId: true,
                     promptTitle: true,
                     level: true,
+                    lang: true,
                     mode: true,
                     seedQuestions: true,
                     countsToReadiness: true,
@@ -415,6 +419,7 @@ export class MockInterviewGradingService {
                 // sessionId) → the only mode that could have existed is "design"
                 mode: MockInterviewMode.Design,
                 seedQuestions: [],
+                lang: null,
                 // a "design" fallback always counts towards job-readiness —
                 // there was no configurable-setup axis before this column existed
                 countsToReadiness: true,
@@ -427,6 +432,7 @@ export class MockInterviewGradingService {
             level: session.level,
             mode: normalizeMockInterviewMode(session.mode),
             seedQuestions: session.seedQuestions ?? [],
+            lang: session.lang,
             countsToReadiness: session.countsToReadiness,
         }
     }
@@ -455,6 +461,7 @@ export class MockInterviewGradingService {
     private async resolveSeedGroundings(
         seedQuestions: Array<MockInterviewSeedQuestion>,
         turns: Array<MockInterviewTurnRecord>,
+        sessionLang?: string | null,
     ): Promise<Array<MockInterviewSeedGrounding>> {
         if (seedQuestions.length === 0) {
             return []
@@ -521,31 +528,31 @@ export class MockInterviewGradingService {
                     // order at authoring time) when nothing was submitted for this question.
                     // Per-language `# langs` variants take priority; a question authored with
                     // only the single givenCode/givenLang pair falls back to that as its one variant.
-                    const variants = (bank.langs ?? []).length > 0
-                        ? [...bank.langs]
-                            .sort((left, right) => left.sortIndex - right.sortIndex)
-                            .map((lang) => ({
-                                lang: lang.lang, code: lang.givenCode,
-                            }))
-                        : bank.givenCode
-                            ? [{
-                                lang: bank.givenLang ?? "agnostic", code: bank.givenCode,
-                            }]
-                            : []
+                    // Resolve the per-language body: the session language wins (chosen
+                    // at start), then the language the candidate actually submitted in,
+                    // then the first authored body. Its prompt + idealAnswer + givenCode
+                    // are what we grade against; a legacy variant (prompt/idealAnswer
+                    // null) falls back to the parent's shared prompt/idealAnswer.
+                    const bodies = [...(bank.langs ?? [])]
+                        .sort((left, right) => left.sortIndex - right.sortIndex)
                     const submittedLang = submittedLangByIndex.get(index)
-                    const givenCodeVariant = variants.find((variant) => variant.lang === submittedLang)
-                        ?? variants[0]
+                    const chosenBody = bodies.find((body) => body.lang === sessionLang)
+                        ?? bodies.find((body) => body.lang === submittedLang)
+                        ?? bodies[0]
+                        ?? null
                     const grounding: MockInterviewSeedGrounding = {
                         cardId: bank.id,
                         kind: normalizeMockInterviewKind(seed.kind) as string,
-                        question: bank.prompt,
-                        answer: bank.idealAnswer,
+                        // per-language body prompt/answer win; parent is the agnostic
+                        // fallback (empty for a full-4-body code question)
+                        question: chosenBody?.prompt ?? bank.prompt,
+                        answer: chosenBody?.idealAnswer ?? bank.idealAnswer,
                         keywords: bank.keywords ?? [],
                         rubric: rubricPoints.length > 0 ? rubricPoints : undefined,
                         // the GIVEN (buggy) code — lets the grader diff the candidate's
                         // fix against the baseline (debug/review/optimize questions)
-                        givenCode: givenCodeVariant?.code ?? null,
-                        givenLang: givenCodeVariant?.lang ?? null,
+                        givenCode: chosenBody?.givenCode ?? bank.givenCode ?? null,
+                        givenLang: chosenBody?.lang ?? bank.givenLang ?? null,
                     }
                     return grounding
                 }

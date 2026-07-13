@@ -66,4 +66,22 @@ export class MockInterviewPathService {
             `${bankRelativePath}/questions`,
         )
     }
+
+    /**
+     * Lists per-language body folders under a code question's `bodies/` directory
+     * (`{index}-{lang}/{en,vi}.md`, e.g. `0-typescript`, `3-go` — mirrors lesson
+     * content `bodies/`). Empty when the question has no `bodies/` dir (a no-code
+     * kind, or a legacy single-`givenCode` question).
+     *
+     * @param questionRelativePath - The question folder path segment under `courses/`
+     * @returns Paths of the per-language body folders for that question
+     */
+    async bodyPaths(
+        questionRelativePath: string,
+    ): Promise<Array<ResolvedFilePath>> {
+        return await this.pathResolverService.filePaths(
+            "courses",
+            `${questionRelativePath}/bodies`,
+        )
+    }
 }

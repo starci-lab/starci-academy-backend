@@ -30,6 +30,24 @@ export interface RawMockInterviewLang {
     [key: string]: unknown
 }
 
+/**
+ * One per-language body document (`<question>/bodies/{index}-{lang}/{en,vi}.md`) for a
+ * code question — carries that stack's `prompt` + `givenCode` + `idealAnswer` (mirrors
+ * lesson content `bodies/`; the parent question holds the shared rubric/tags/followUps).
+ */
+export interface RawMockInterviewBody {
+    /** Programming language of this body (`typescript`|`java`|`csharp`|`go`). */
+    lang?: string
+    /** This stack's concrete prompt framing. */
+    prompt?: string
+    /** GIVEN code snippet for this language. */
+    givenCode?: string
+    /** This stack's ground-truth answer outline. */
+    idealAnswer?: string
+    /** Index signature so the markdown→JSON extractor generic is satisfied. */
+    [key: string]: unknown
+}
+
 /** A bank META document (`<N>-bank/{en,vi}.md`) — questions live in `questions/` folders. */
 export interface RawMockInterviewBank {
     /** Bank title (display-only, not persisted — no bank entity). */

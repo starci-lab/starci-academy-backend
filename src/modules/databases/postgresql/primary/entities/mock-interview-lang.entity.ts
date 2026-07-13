@@ -52,6 +52,32 @@ export class MockInterviewLangEntity extends UuidAbstractEntity {
     })
         givenCode: string
 
+    /**
+     * Per-language PROMPT (default-locale body). Populated from
+     * `bodies/<lang>/{vi,en}.md` — a code question renders THIS language's prompt,
+     * not just its code. Null for legacy single-`givenCode` variants that carry no
+     * own prompt (the parent's shared prompt is used instead).
+     */
+    @Column({
+        name: "prompt",
+        type: "text",
+        nullable: true,
+    })
+        prompt: string | null
+
+    /**
+     * Per-language IDEAL ANSWER / grading ground-truth (default-locale body).
+     * Populated from `bodies/<lang>/{vi,en}.md`; the fix differs per stack
+     * (AsyncLocalStorage vs ThreadLocal vs context.Context …). Null for legacy
+     * variants (the parent's shared idealAnswer is used).
+     */
+    @Column({
+        name: "ideal_answer",
+        type: "text",
+        nullable: true,
+    })
+        idealAnswer: string | null
+
     /** Display order among this question's language variants. */
     @Column({
         name: "order_index",

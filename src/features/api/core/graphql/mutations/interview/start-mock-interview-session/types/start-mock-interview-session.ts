@@ -12,6 +12,8 @@ export interface DrawMockInterviewSessionParams {
     level: string
     /** Raw mode string from the request ("qna" | "design"); unrecognized falls back to "qna". */
     mode: string
+    /** Programming language chosen at session start ("typescript" | "java" | "csharp" | "go"); code questions render + grade in this language. Omitted falls back to "typescript". */
+    lang?: string
     /** Locale to render the drawn prompt's title in (capstone titles are pre-localized by the course tree; classics render per-locale here). */
     locale: Locale
     /** How many Q&A questions to draw (mode="qna" only); unrecognized/omitted falls back to the default (5). */

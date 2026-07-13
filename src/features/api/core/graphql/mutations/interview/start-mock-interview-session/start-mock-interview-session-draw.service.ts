@@ -168,6 +168,7 @@ export class MockInterviewSessionDrawService {
             courseId,
             level,
             mode,
+            lang,
             locale,
             questionCount,
             kinds,
@@ -203,6 +204,7 @@ export class MockInterviewSessionDrawService {
                 courseId,
                 enrollment,
                 level: normalizedLevel,
+                lang,
                 locale,
                 questionCount,
                 kinds,
@@ -274,6 +276,23 @@ export class MockInterviewSessionDrawService {
             (level) => level === candidate,
         )
         return match ?? MockInterviewLevel.Middle
+    }
+
+    /**
+     * Coerce a raw language string (session-start picker) to one of the four
+     * authored body languages, falling back to "typescript" for anything
+     * unrecognized/omitted (never throws — an unknown label must not break the
+     * draw; a question with no matching body then uses its agnostic root).
+     *
+     * @param value - The raw `lang` field from the request.
+     * @returns A known language literal ("typescript" | "java" | "csharp" | "go").
+     */
+    private normalizeLang(
+        value: string | undefined,
+    ): string {
+        const known = new Set(["typescript", "java", "csharp", "go"])
+        const candidate = (value ?? "").trim().toLowerCase()
+        return known.has(candidate) ? candidate : "typescript"
     }
 
     /**
@@ -369,6 +388,7 @@ export class MockInterviewSessionDrawService {
             courseId: string
             enrollment: EnrollmentEntity
             level: MockInterviewLevel
+            lang?: string
             locale: Locale
             questionCount?: number
             kinds?: Array<string>
@@ -385,6 +405,8 @@ export class MockInterviewSessionDrawService {
         const levelPool = LEVEL_FLASHCARD_POOL[level]
         const resolvedQuestionCount = this.normalizeQuestionCount(params.questionCount)
         const resolvedKinds = this.normalizeKinds(params.kinds)
+        // language chosen at session start — code questions render + grade in it
+        const resolvedLang = this.normalizeLang(params.lang)
 
         const reachedModuleIds = await this.listReachedModuleIds({
             courseId,
@@ -401,6 +423,7 @@ export class MockInterviewSessionDrawService {
         // interview bank authored yet (non-breaking).
         const bankCards = await this.listCourseInterviewQuestions({
             courseId,
+            lang: resolvedLang,
         })
         const useBank = bankCards.length > 0
         const allCards: Array<{ id: string, question: string, level: FlashcardLevel, moduleId: string | null, kind?: string, givenCodes?: Array<MockInterviewGivenCodeVariant> }> = useBank
@@ -486,6 +509,7 @@ export class MockInterviewSessionDrawService {
         const session = await this.persistSession({
             enrollment,
             level,
+            lang: resolvedLang,
             mode: MockInterviewMode.Qna,
             promptId,
             promptTitle,
@@ -788,6 +812,8 @@ export class MockInterviewSessionDrawService {
     private async listCourseInterviewQuestions(
         params: {
             courseId: string
+            /** Session language — resolves each code question to its `bodies/<lang>` prompt + givenCode (fallback: first body, then agnostic root). */
+            lang?: string
         },
     ): Promise<Array<{ id: string, question: string, level: FlashcardLevel, moduleId: string | null, kind: string, givenCodes: Array<MockInterviewGivenCodeVariant> }>> {
         const questions = await this.entityManager.find(MockInterviewEntity,
@@ -807,19 +833,27 @@ export class MockInterviewSessionDrawService {
             // into an editable code editor for the candidate to FIX in place, instead
             // of rendering it read-only alongside the question (`debug`/`review`/
             // `optimize` questions). See the mock-interview WORKSPACE-ARTIFACT-SEED brainstorm.
-            const parts = [question.prompt]
+            // Per-language bodies/ carry this stack's OWN prompt + givenCode (+ an
+            // idealAnswer used at grade time). Resolve the session language's body;
+            // fall back to the first authored body, then to the agnostic root prompt.
+            const bodies = [...(question.langs ?? [])]
+                .sort((left, right) => left.sortIndex - right.sortIndex)
+            const chosenBody = bodies.find((body) => body.lang === params.lang)
+                ?? bodies[0]
+                ?? null
+            // body prompt (per-language) wins; root prompt is the agnostic fallback
+            // (empty for a full-4-body code question, populated for legacy/no-code)
+            const promptText = (chosenBody?.prompt ?? question.prompt) ?? ""
+            const parts = [promptText]
             if (question.diagram) {
                 parts.push(question.diagram)
             }
-            // per-language GIVEN code variants (`# langs`) — only populated for
-            // questions grounded in a multi-language module; mutually exclusive
-            // with the single givenCode/givenLang pair below (never both set).
-            const langVariants = (question.langs ?? []).length > 0
-                ? [...question.langs]
-                    .sort((left, right) => left.sortIndex - right.sortIndex)
-                    .map((lang) => ({
-                        lang: lang.lang, code: lang.givenCode,
-                    }))
+            // deliver ONLY the chosen language's given code (lang was picked at
+            // session start) — legacy single-`givenCode` questions fall back to it.
+            const langVariants: Array<MockInterviewGivenCodeVariant> = chosenBody
+                ? [{
+                    lang: chosenBody.lang, code: chosenBody.givenCode,
+                }]
                 : question.givenCode
                     ? [{
                         lang: question.givenLang ?? "agnostic", code: question.givenCode,
@@ -1084,6 +1118,7 @@ export class MockInterviewSessionDrawService {
         params: {
             enrollment: EnrollmentEntity
             level: MockInterviewLevel
+            lang?: string | null
             mode: MockInterviewMode
             promptId: string
             promptTitle: string
@@ -1128,6 +1163,7 @@ export class MockInterviewSessionDrawService {
                 promptId,
                 promptTitle,
                 level,
+                lang: params.lang ?? null,
                 mode,
                 difficulty,
                 source,

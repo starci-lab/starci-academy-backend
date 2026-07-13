@@ -164,6 +164,21 @@ export class MockInterviewSessionEntity extends UuidAbstractEntity {
     })
         level: string | null
 
+    /**
+     * Programming language CHOSEN at session start (the setup screen's language
+     * picker). Code questions (debug/review/optimize with per-language `bodies/`)
+     * were drawn + are graded in THIS language: the delivered prompt/givenCode and
+     * the grading `idealAnswer` all resolve to this language's body. Null for a
+     * legacy session or a session with no code questions. Free-form varchar
+     * ("typescript" | "java" | "csharp" | "go").
+     */
+    @Column({
+        name: "lang",
+        type: "varchar",
+        nullable: true,
+    })
+        lang: string | null
+
     /** Difficulty tier the drawn prompt belongs to ("easy" | "medium" | "hard"). */
     @Column({
         name: "difficulty",

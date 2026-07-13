@@ -59,6 +59,24 @@ export class StartMockInterviewSessionRequest {
         mode: string
 
     /**
+     * Programming language CHOSEN at session start (the setup screen's language
+     * picker, like {@link level}). For a code-rendering question (debug/review/
+     * optimize authored with per-language `bodies/`) the server renders THIS
+     * language's `prompt` + `givenCode` and grades against THIS language's
+     * `idealAnswer`. Free-form string ("typescript" | "java" | "csharp" | "go");
+     * omitted/unrecognized falls back to "typescript" (or the question's agnostic
+     * root when its chosen-language body is absent). No-code questions ignore it.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Programming language chosen at session start (\"typescript\" | \"java\" | \"csharp\" | \"go\"); code questions render + grade in this language. Omitted falls back to \"typescript\".",
+        },
+    )
+        lang?: string
+
+    /**
      * How many Q&A questions to draw ("mode=\"qna\"" only) — the "Tùy chỉnh"
      * (Configurable) setup screen's "Số câu" control (3 | 5 | 10). Omitted
      * (or an unrecognized value) falls back to the same default the "Tự

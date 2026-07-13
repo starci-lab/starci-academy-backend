@@ -1,6 +1,7 @@
 import type {
     ParseMockInterviewBankManyParams,
     RawMockInterviewBank,
+    RawMockInterviewBody,
     RawMockInterviewLang,
     RawMockInterviewListItem,
     RawMockInterviewQuestion,
@@ -196,6 +197,15 @@ export class MockInterviewParserService {
                         questionIndex,
                     },
                 )
+                // Per-language bodies/ (folder per lang, carries prompt+givenCode+idealAnswer)
+                // take priority; a legacy question with only inline `# langs` falls back to that.
+                const bodyLangs = await this.parseBodies(
+                    questionPath.relativePath,
+                    courseIndex,
+                    bankIndex,
+                    questionIndex,
+                    mockInterviewId,
+                )
                 questions.push({
                     data: {
                         id: mockInterviewId,
@@ -238,13 +248,15 @@ export class MockInterviewParserService {
                             field,
                             value,
                         })),
-                        langs: this.toLangs(
-                            merged.langs,
-                            courseIndex,
-                            bankIndex,
-                            questionIndex,
-                            mockInterviewId,
-                        ),
+                        langs: bodyLangs.length > 0
+                            ? bodyLangs
+                            : this.toLangs(
+                                merged.langs,
+                                courseIndex,
+                                bankIndex,
+                                questionIndex,
+                                mockInterviewId,
+                            ),
                     },
                     index: questionIndex,
                     relativePath: questionPath.relativePath,
@@ -269,6 +281,95 @@ export class MockInterviewParserService {
             return null
         }
         return items.map((item) => (item.value ?? "").trim()).filter((value) => value.length > 0)
+    }
+
+    /**
+     * Reads a code question's per-language `bodies/{index}-{lang}/{vi,en}.md` folders
+     * into language-variant rows carrying `prompt` + `givenCode` + `idealAnswer` (each
+     * bilingual). This is the canonical multi-language shape (mirrors lesson content
+     * `bodies/`); the parent row's `prompt`/`idealAnswer` are the agnostic fallback used
+     * only when a session language has no body here.
+     *
+     * @returns Language-variant entity partials (empty when the question has no `bodies/`).
+     */
+    private async parseBodies(
+        questionRelativePath: string,
+        courseIndex: number,
+        bankIndex: number,
+        questionIndex: number,
+        mockInterviewId: string,
+    ): Promise<Array<DeepPartial<MockInterviewLangEntity>>> {
+        const bodyPaths = await this.mockInterviewPathService.bodyPaths(questionRelativePath)
+        const result: Array<DeepPartial<MockInterviewLangEntity>> = []
+        for (const bodyPath of bodyPaths) {
+            try {
+                const bodyJsonMap = new Map<Locale, RawMockInterviewBody>()
+                for (const locale of Object.values(Locale)) {
+                    bodyJsonMap.set(
+                        locale,
+                        this.extractJsonFromMdService.extract<RawMockInterviewBody>(
+                            await this.contextLoaderService.load(
+                                "courses",
+                                `${bodyPath.relativePath}/${locale}.md`,
+                            ),
+                        ),
+                    )
+                }
+                const merged = this.mergeJsonService.merge({
+                    jsons: Object.values(Locale).map((locale) => ({
+                        locale,
+                        json: (bodyJsonMap.get(locale) ?? {
+                        }) as Record<string, unknown>,
+                    })),
+                    translateFields: [
+                        "prompt",
+                        "givenCode",
+                        "idealAnswer",
+                    ],
+                }) as MergeJsonResult<RawMockInterviewBody>
+                const langIndex = bodyPath.orderIndex
+                const mockInterviewLangId = this.mockInterviewLangIdFactoryService.generate(
+                    {
+                        courseIndex,
+                        bankIndex,
+                        questionIndex,
+                        langIndex,
+                    },
+                )
+                result.push({
+                    id: mockInterviewLangId,
+                    // `# lang` in the body, falling back to the folder slug (e.g. `0-typescript` → `typescript`).
+                    lang: this.coerceMdScalarService.toRequiredString(merged.lang, bodyPath.displayId),
+                    givenCode: this.coerceMdScalarService.toRequiredString(merged.givenCode, ""),
+                    prompt: this.coerceMdScalarService.toNullableStringColumn(merged.prompt),
+                    idealAnswer: this.coerceMdScalarService.toNullableStringColumn(merged.idealAnswer),
+                    orderIndex: langIndex,
+                    sortIndex: langIndex,
+                    defaultLocale: Locale.En,
+                    mockInterview: {
+                        id: mockInterviewId,
+                    },
+                    translations: (merged.translations ?? []).map(({
+                        locale,
+                        field,
+                        value,
+                    }) => ({
+                        mockInterviewLangId,
+                        locale,
+                        field,
+                        value,
+                    })),
+                })
+            } catch (error) {
+                logInitSeederEntitySkipped(
+                    this.winstonService,
+                    MockInterviewLangEntity,
+                    bodyPath.relativePath,
+                    error,
+                )
+            }
+        }
+        return result
     }
 
     /** Builds the per-language `givenCode` variant rows (`# langs`) for one question. */

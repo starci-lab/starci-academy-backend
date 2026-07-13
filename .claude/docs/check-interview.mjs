@@ -7,8 +7,9 @@
  *   Có thể truyền thư mục cha — script tự walk tìm bank con (có vi.md).
  * Spec đầy đủ: .claude/docs/rules/interview-answer.md
  *
- * WARN cấu trúc (mục tiêu §0 target shape — mirror flashcard 15×10): technical bank ≠ 10 câu ·
- * <3 junior / <3 senior mỗi bank · (course) ≠ 15 bank technical. EQ global KHÔNG theo shape này.
+ * WARN cấu trúc (mục tiêu §0 target shape — 1 bank/module × 15 câu, 7 category): technical bank ≠ 15 câu ·
+ * lệch phân bố category (theory2/scenario2/reasoning3/debug2/review2/optimize2/design-lite2) ·
+ * <3 junior / <3 senior mỗi bank · (course) bank ≠ số module. EQ global KHÔNG theo shape này.
  *
  * Parser mirror ĐÚNG grammar thật của `ExtractJsonFromMdService`
  * (src/modules/init/seeders/shared/extracts/extract-json-from-md.service.ts) — heading-level
@@ -34,7 +35,12 @@
 import fs from "node:fs"
 import path from "node:path"
 
-const TECH_KINDS = new Set(["theory", "reasoning", "scenario", "debug", "review", "optimize", "coding", "design"])
+const TECH_KINDS = new Set(["theory", "reasoning", "scenario", "debug", "review", "optimize", "design-lite", "coding", "design"])
+// Per-language body folders (mirror lesson content) for code-rendering questions.
+const BODY_LANGS = ["0-typescript", "1-java", "2-csharp", "3-go"]
+const CODE_KINDS = new Set(["debug", "review", "optimize", "coding"])
+// Per-module bank target distribution (§0): 15 questions across 7 spoken categories.
+const TECH_DIST = { theory: 2, scenario: 2, reasoning: 3, debug: 2, review: 2, optimize: 2, "design-lite": 2 }
 const BEH_KINDS = new Set(["behavioral", "situational", "culture"])
 const TIERS = new Set(["junior", "middle", "senior"])
 const DIMS_4 = new Set(["communication", "problemSolving", "technical", "testing"])
@@ -143,24 +149,41 @@ function checkQuestion (dir, pathFamily) {
     if (!tier) fails.push("thiếu # tier")
     else if (!TIERS.has(tier)) fails.push(`tier sai enum: '${tier}'`)
     if (!kind) fails.push("thiếu # kind")
-    if (!val(vi, "prompt")) fails.push("thiếu # prompt")
+    // Per-language bodies/ (folder per lang, mirrors lesson content) for code questions.
+    const isCodeKind = CODE_KINDS.has(kind)
+    const bodiesRoot = path.join(dir, "bodies")
+    const bodyDirs = fs.existsSync(bodiesRoot)
+        ? fs.readdirSync(bodiesRoot, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name).sort()
+        : []
+    const hasBodies = bodyDirs.length > 0
+    const fullBodies = hasBodies && BODY_LANGS.every((l) => bodyDirs.includes(l))
+    // Root # prompt / # idealAnswer are the agnostic fallback — required UNLESS all 4 bodies exist.
+    const rootNeedsAgnostic = !(isCodeKind && fullBodies)
+    if (rootNeedsAgnostic && !val(vi, "prompt")) fails.push("thiếu # prompt (root agnostic bắt buộc khi chưa đủ 4 bodies)")
 
     if (family === "technical") {
         if (kind && !TECH_KINDS.has(kind)) fails.push(`kind '${kind}' không hợp lệ cho family technical`)
-        const langs = list(vi, "langs")
-        const hasLangs = langs.length > 0
-        if (hasLangs && (val(vi, "givenCode") || val(vi, "givenLang"))) {
-            fails.push("có # langs thì không được có # givenCode/# givenLang top-level (mutually exclusive)")
-        }
-        if (hasLangs) {
-            langs.forEach((item, idx) => {
-                if (!val(item, "lang")) fails.push(`langs item ${idx}: thiếu ### lang`)
-                if (!val(item, "givenCode")) fails.push(`langs item ${idx}: thiếu ### givenCode`)
-            })
-        }
-        if (["debug", "review", "optimize"].includes(kind) && !hasLangs) {
-            if (!val(vi, "givenCode")) fails.push(`kind=${kind}: thiếu # givenCode (hoặc dùng # langs)`)
-            if (!val(vi, "givenLang")) fails.push(`kind=${kind}: thiếu # givenLang (hoặc dùng # langs)`)
+        if (hasBodies) {
+            if (!isCodeKind) fails.push(`kind=${kind} không dùng bodies/ (chỉ debug/review/optimize/coding)`)
+            for (const b of bodyDirs) {
+                if (!BODY_LANGS.includes(b)) { fails.push(`bodies/: thư mục '${b}' không thuộc {0-typescript,1-java,2-csharp,3-go}`); continue }
+                const bviP = path.join(bodiesRoot, b, "vi.md")
+                const benP = path.join(bodiesRoot, b, "en.md")
+                if (!fs.existsSync(bviP)) { fails.push(`bodies/${b}: thiếu vi.md`); continue }
+                const bvi = parseFields(fs.readFileSync(bviP, "utf8"))
+                if (!val(bvi, "lang")) fails.push(`bodies/${b}: thiếu # lang`)
+                if (!val(bvi, "prompt")) fails.push(`bodies/${b}: thiếu # prompt`)
+                if (!val(bvi, "givenCode")) fails.push(`bodies/${b}: thiếu # givenCode`)
+                if (!val(bvi, "idealAnswer")) fails.push(`bodies/${b}: thiếu # idealAnswer`)
+                if (!fs.existsSync(benP)) fails.push(`bodies/${b}: thiếu en.md (mirror)`)
+                else if (val(parseFields(fs.readFileSync(benP, "utf8")), "lang") !== val(bvi, "lang")) fails.push(`bodies/${b}: vi/en lệch # lang`)
+            }
+            if (!fullBodies) warns.push(`bodies/ mới có ${bodyDirs.length}/4 lang (${bodyDirs.join(",")}) — cần root agnostic # prompt/# idealAnswer làm fallback`)
+            if (val(vi, "givenCode") || val(vi, "givenLang")) warns.push("đã có bodies/ mà root vẫn còn # givenCode/# givenLang — nên bỏ (code nằm trong bodies)")
+        } else if (["debug", "review", "optimize"].includes(kind)) {
+            // Legacy single-stack inline (no per-lang bodies).
+            if (!val(vi, "givenCode")) fails.push(`kind=${kind}: thiếu # givenCode (hoặc tách bodies/ theo lang)`)
+            if (!val(vi, "givenLang")) fails.push(`kind=${kind}: thiếu # givenLang (hoặc tách bodies/ theo lang)`)
         }
         if (kind === "design") {
             const rbt = list(vi, "rubricByTier")
@@ -177,7 +200,7 @@ function checkQuestion (dir, pathFamily) {
                 })
             }
         }
-        if (!val(vi, "idealAnswer")) fails.push("thiếu # idealAnswer (ground-truth)")
+        if (rootNeedsAgnostic && !val(vi, "idealAnswer")) fails.push("thiếu # idealAnswer (root agnostic bắt buộc khi chưa đủ 4 bodies)")
         if (val(vi, "competency")) fails.push("technical question không được có # competency (behavioral-only)")
         if (val(vi, "ownershipSignal")) fails.push("technical question không được có # ownershipSignal (behavioral-only)")
     } else if (family === "behavioral") {
@@ -257,10 +280,11 @@ function collectBankDirs (root) {
 function collectQuestionDirs (bankDir) {
     const qRoot = path.join(bankDir, "questions")
     if (!fs.existsSync(qRoot)) return []
+    const numOf = (p) => { const m = path.basename(p).match(/^(\d+)-/); return m ? Number(m[1]) : Number.MAX_SAFE_INTEGER }
     return fs.readdirSync(qRoot, { withFileTypes: true })
         .filter((e) => e.isDirectory())
         .map((e) => path.join(qRoot, e.name))
-        .sort()
+        .sort((a, b) => numOf(a) - numOf(b) || a.localeCompare(b))
 }
 
 function checkBank (bankDir) {
@@ -274,15 +298,23 @@ function checkBank (bankDir) {
         const m = path.basename(q.q).match(/^(\d+)-question$/)
         if (m && Number(m[1]) !== i) meta.fails.push(`question folder lệch thứ tự: vị trí ${i} là '${path.basename(q.q)}'`)
     })
-    // WARN cấu trúc (mục tiêu §0 target shape — mirror flashcard 10 card + ≥3/≥3):
-    // technical bank = 10 câu, ≥3 junior + ≥3 senior. EQ global KHÔNG theo shape này.
+    // WARN cấu trúc (mục tiêu §0 target shape — 1 bank/module × 15 câu, 7 category + ≥3/≥3 tier):
     const bankWarns = []
     if (family === "technical") {
-        if (questions.length !== 10) bankWarns.push(`bank có ${questions.length} câu (mục tiêu 10)`)
+        if (questions.length !== 15) bankWarns.push(`bank có ${questions.length} câu (mục tiêu 15)`)
         const juniors = questions.filter((q) => q.tier === "junior").length
         const seniors = questions.filter((q) => q.tier === "senior").length
         if (juniors < 3) bankWarns.push(`chỉ ${juniors} junior (mục tiêu ≥3)`)
         if (seniors < 3) bankWarns.push(`chỉ ${seniors} senior (mục tiêu ≥3)`)
+        // Category distribution vs §0 target (soft — curate-then-fill may deviate mid-build).
+        const byKind = {}
+        questions.forEach((q) => { if (q.kind) byKind[q.kind] = (byKind[q.kind] ?? 0) + 1 })
+        for (const [k, want] of Object.entries(TECH_DIST)) {
+            const got = byKind[k] ?? 0
+            if (got !== want) bankWarns.push(`kind '${k}': ${got} câu (mục tiêu ${want})`)
+        }
+        const offShape = Object.keys(byKind).filter((k) => !(k in TECH_DIST))
+        for (const k of offShape) bankWarns.push(`kind '${k}' không thuộc 7 category per-module (coding→/practice, design→capstone)`)
     }
     const totalFails = meta.fails.length + questions.reduce((s, q) => s + q.fails.length, 0)
     return { bank: bankDir, family, fails: meta.fails, warns: bankWarns, questions, totalFails }
@@ -316,17 +348,26 @@ if (json) {
             for (const w of q.warns || []) console.log(`    ~ ${path.basename(q.q)}: ${w}`)
         }
     }
-    // WARN 15-bank/khóa (mirror flashcard "course ≠ 15 deck"): gom technical bank
-    // theo course, cảnh báo course nào ≠ 15 bank. EQ global bỏ qua.
+    // WARN 1-bank/module: gom technical bank theo course, cảnh báo course nào có số bank
+    // ≠ số module thật (đọc courses/<c>/modules/). EQ global bỏ qua.
     const byCourse = new Map()
     for (const r of results) {
         if (r.family !== "technical") continue
-        const m = r.bank.replace(/\\/g, "/").match(/courses\/([^/]+)\//)
+        const m = r.bank.replace(/\\/g, "/").match(/(.*\/courses\/([^/]+))\/mock-interview\//)
         if (!m) continue
-        byCourse.set(m[1], (byCourse.get(m[1]) ?? 0) + 1)
+        const entry = byCourse.get(m[2]) ?? { count: 0, root: m[1] }
+        entry.count += 1
+        byCourse.set(m[2], entry)
     }
-    for (const [course, count] of byCourse) {
-        if (count !== 15) console.log(`~ course '${course}': ${count} bank technical (mục tiêu 15)`)
+    for (const [course, { count, root }] of byCourse) {
+        let modCount = null
+        try {
+            modCount = fs.readdirSync(path.join(root, "modules"), { withFileTypes: true })
+                .filter((e) => e.isDirectory()).length
+        } catch { /* modules dir not reachable from this run */ }
+        if (modCount != null && count !== modCount) {
+            console.log(`~ course '${course}': ${count} bank technical / ${modCount} module (mục tiêu 1 bank/module)`)
+        }
     }
     console.log(`\n${results.length} bank · ${failedBanks.length} fail`)
 }
