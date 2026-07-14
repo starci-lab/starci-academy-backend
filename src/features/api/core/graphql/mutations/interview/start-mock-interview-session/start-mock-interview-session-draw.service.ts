@@ -490,13 +490,24 @@ export class MockInterviewSessionDrawService {
                 : [],
         }))
 
-        // mix in ONE behavioral/EQ question (from the GLOBAL bank) so a session
-        // covers both technical substance + soft skills, like a real interview
-        // loop. Bank sessions only (flashcard-fallback courses have no EQ concept).
+        // Bookend the technical block with TWO behavioral/EQ questions (from the
+        // GLOBAL bank), mirroring a real interview loop: a light culture/motivation
+        // question OPENS (recruiter-screen warm-up — also lowers anxiety), and a
+        // deep behavioral/situational STAR question CLOSES (the hiring-manager
+        // behavioral round near the end). Bank sessions only (flashcard-fallback
+        // courses have no EQ concept). Either draw may be null (bank not seeded) —
+        // the session still works, just without that bookend.
         if (useBank) {
-            const eqTopic = await this.drawOneEqQuestion(level)
-            if (eqTopic) {
-                seedTopics.push(eqTopic)
+            const eqOpener = await this.drawEqQuestion(level,
+                ["culture"])
+            const eqCloser = await this.drawEqQuestion(level,
+                ["behavioral", "situational"],
+                eqOpener?.cardId)
+            if (eqCloser) {
+                seedTopics.push(eqCloser)
+            }
+            if (eqOpener) {
+                seedTopics.unshift(eqOpener)
             }
         }
 
@@ -757,24 +768,34 @@ export class MockInterviewSessionDrawService {
 
     /**
      * Draw ONE behavioral/EQ question from the GLOBAL bank (not course-scoped —
-     * EQ competencies are universal), preferring the session's tier, widening to
-     * any tier if none match. Returned as a seed topic (delivered + graded the
-     * same way as technical seeds). Null when no EQ bank is seeded yet.
+     * EQ competencies are universal), restricted to the given `# kind`(s), and
+     * preferring the session's tier (widening to any tier if none match).
+     * `excludeId` skips an already-drawn question (so the opener and closer are
+     * never the same row). Returned as a seed topic (delivered + graded the same
+     * way as technical seeds). Null when no matching EQ question is seeded yet.
+     *
+     * @param tier - Preferred tier ("junior"|"middle"|"senior").
+     * @param kinds - EQ kinds to draw from (`culture` for the opener; `behavioral`/`situational` for the closer).
+     * @param excludeId - Optional question id to exclude (the other bookend).
      */
-    private async drawOneEqQuestion(
+    private async drawEqQuestion(
         tier: string,
+        kinds: Array<string>,
+        excludeId?: string,
     ): Promise<DrawMockInterviewSeedTopic | null> {
         const rows = await this.entityManager.find(MockInterviewEntity,
             {
                 where: {
                     family: "behavioral",
+                    kind: In(kinds),
                 },
             })
-        if (rows.length === 0) {
+        const pool = rows.filter((row) => row.id !== excludeId)
+        if (pool.length === 0) {
             return null
         }
-        const atTier = rows.filter((row) => row.tier === tier)
-        const picked = this.pickRandomMany(atTier.length > 0 ? atTier : rows,
+        const atTier = pool.filter((row) => row.tier === tier)
+        const picked = this.pickRandomMany(atTier.length > 0 ? atTier : pool,
             1)[0]
         if (!picked) {
             return null
