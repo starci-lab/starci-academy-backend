@@ -105,6 +105,16 @@ export class UserSolvedChallengeDetailService {
                     location: feedback.location,
                     suggestion: feedback.suggestion,
                 })),
+            attempts: (userSubmission.attempts ?? [])
+                .slice()
+                .sort((a, b) => b.attemptNumber - a.attemptNumber)
+                .map((attempt) => ({
+                    attemptNumber: attempt.attemptNumber,
+                    score: attempt.score,
+                    submissionUrl: attempt.submissionUrl,
+                    shortFeedback: attempt.shortFeedback,
+                    processedAt: attempt.processedAt,
+                })),
         }
     }
 }

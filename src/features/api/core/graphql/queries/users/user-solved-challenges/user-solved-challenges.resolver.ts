@@ -87,6 +87,7 @@ export class UserSolvedChallengesResolver {
                 ? toGlobalId(CourseEntity.name,
                     challenge.courseId)
                 : null,
+            courseSlug: challenge.courseSlug,
             passedAt: challenge.passedAt,
         }))
     }

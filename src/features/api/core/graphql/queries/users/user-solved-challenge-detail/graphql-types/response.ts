@@ -67,6 +67,59 @@ export class UserSolvedChallengeDetailFeedbackData {
 }
 
 /**
+ * One recorded attempt against a solved challenge submission (mirrors
+ * {@link UserChallengeSubmissionAttemptEntity}, trimmed to what a profile
+ * visitor should see) — the attempts record, newest first.
+ */
+@ObjectType({
+    description: "One recorded attempt against a solved challenge submission.",
+})
+export class UserSolvedChallengeDetailAttemptData {
+    @Field(
+        () => Int,
+        {
+            description: "The sequence number of this attempt for this submission.",
+        },
+    )
+        attemptNumber: number
+
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Score achieved in this attempt, or null when not graded.",
+        },
+    )
+        score: number | null
+
+    @Field(
+        () => String,
+        {
+            description: "The link (GitHub repo or Google Docs URL) submitted in this attempt.",
+        },
+    )
+        submissionUrl: string
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Short feedback summary for this attempt, or null.",
+        },
+    )
+        shortFeedback: string | null
+
+    @Field(
+        () => Date,
+        {
+            nullable: true,
+            description: "When this attempt finished processing, or null.",
+        },
+    )
+        processedAt: Date | null
+}
+
+/**
  * Detail of one passed challenge submission on a user's public profile —
  * the same fields as a `userSolvedChallenges` list item, plus the structured
  * AI feedback list from the attempt that passed it.
@@ -159,6 +212,14 @@ export class UserSolvedChallengeDetailData {
         },
     )
         feedbacks: Array<UserSolvedChallengeDetailFeedbackData>
+
+    @Field(
+        () => [UserSolvedChallengeDetailAttemptData],
+        {
+            description: "This submission's attempts record, newest first.",
+        },
+    )
+        attempts: Array<UserSolvedChallengeDetailAttemptData>
 }
 
 /**

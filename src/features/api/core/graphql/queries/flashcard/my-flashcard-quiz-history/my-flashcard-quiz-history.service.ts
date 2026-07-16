@@ -87,6 +87,7 @@ export class MyFlashcardQuizHistoryService {
                 mode: session.mode,
                 level: session.level,
                 cardCount: session.cardIds.length,
+                correctCount: (session.results ?? []).filter((result) => result.totalBlanks > 0 && result.correctBlanks >= result.totalBlanks).length,
                 coverage: session.coverage,
                 xpEarned: session.xpEarned,
                 weakTags: session.weakTags ?? [],

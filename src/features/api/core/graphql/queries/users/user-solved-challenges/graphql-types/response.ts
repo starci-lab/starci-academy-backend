@@ -97,6 +97,15 @@ export class UserSolvedChallengeItemData {
         courseGlobalId: string | null
 
     @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "SEO-friendly slug of the course this challenge belongs to — pass to `.challenges().course(courseSlug)` to route to the per-course manage page. Null when the parent course is unresolved or has no slug.",
+        },
+    )
+        courseSlug: string | null
+
+    @Field(
         () => Date,
         {
             nullable: true,

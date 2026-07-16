@@ -116,6 +116,7 @@ export class MyFlashcardQuizHistoryResolver {
                 mode: item.mode,
                 level: item.level,
                 cardCount: item.cardCount,
+                correctCount: item.correctCount,
                 coverage: item.coverage,
                 xpEarned: item.xpEarned,
                 weakTags: item.weakTags,

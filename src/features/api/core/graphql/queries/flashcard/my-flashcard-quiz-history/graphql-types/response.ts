@@ -63,6 +63,14 @@ export class MyFlashcardQuizHistoryItem {
         cardCount: number
 
     @Field(
+        () => Int,
+        {
+            description: "How many cards the learner got fully correct (all cloze blanks) — the discrete score (correctCount/cardCount).",
+        },
+    )
+        correctCount: number
+
+    @Field(
         () => Float,
         {
             nullable: true,

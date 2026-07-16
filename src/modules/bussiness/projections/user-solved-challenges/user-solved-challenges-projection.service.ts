@@ -95,6 +95,7 @@ export class UserSolvedChallengesProjectionService {
             score: challenge.score ?? null,
             courseId: challenge.courseId ?? null,
             courseTitle: challenge.courseTitle ?? null,
+            courseSlug: challenge.courseSlug ?? null,
             passedAt: challenge.passedAt ? new Date(challenge.passedAt) : null,
         }))
     }
@@ -215,6 +216,7 @@ export class UserSolvedChallengesProjectionService {
                             'score',          t.score,
                             'courseId',       t.course_id,
                             'courseTitle',    t.course_title,
+                            'courseSlug',     t.course_slug,
                             'passedAt',       t.passed_at
                         ) ORDER BY t.passed_at DESC NULLS LAST
                     )
@@ -260,6 +262,7 @@ export class UserSolvedChallengesProjectionService {
                    ucsa.score        AS score,
                    crs.id            AS course_id,
                    crs.title         AS course_title,
+                   crs.slug          AS course_slug,
                    ucsa.processed_at AS passed_at
             FROM user_challenge_submissions ucs
             JOIN challenge_submissions cs ON cs.id = ucs.submission_id

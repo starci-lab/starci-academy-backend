@@ -11,6 +11,7 @@
 - **Cùng `seed` → cùng mặt ở MỌI nơi trong app** (deterministic). Luôn truyền `seed` (email) khi có; đừng để mỗi
   chỗ tự suy seed khác nhau (2 avatar khác mặt cho cùng 1 user).
 - `size`: `sm` | `md` | `lg` (HeroUI Avatar preset).
+- **HÌNH DẠNG = TRÒN (`rounded-full`) LUÔN, mọi nơi (thầy chốt 2026-07-17 "tròn hết").** HeroUI `Avatar` MẶC ĐỊNH squircle (bo góc vuông) → `UserAvatar` override `rounded-full` NGAY TRONG component, KHÔNG rắc `rounded-full` từng call-site. "Mặt người dùng" = hình tròn là chuẩn phổ quát; toàn app 1 shape thống nhất (24+ surface + mọi `UserCell`/`AvatarGroup` dựng trên nó tự áp). *Ca gốc: podium/list trang `/league` lộ avatar squircle cạnh nhau → sửa ở `UserAvatar` 1 chỗ.* Ngoại-lệ hình khác (vuông cho logo/brand-entity) KHÔNG dùng `UserAvatar` — đó là `IconTile` (tile bo góc, [[icon]] §4).
 
 ## `AvatarGroup` (`blocks/identity/AvatarGroup`) — nhiều avatar chồng lên nhau
 - Row `-space-x-2` + `ring-2 ring-background` mỗi avatar (tách khỏi nền chồng lấp). `max` (default 5) cắt số

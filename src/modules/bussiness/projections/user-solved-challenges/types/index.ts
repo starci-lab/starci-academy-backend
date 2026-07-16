@@ -42,6 +42,8 @@ export interface UserSolvedChallengeValue {
     courseId?: string | null
     /** Title of the course the challenge belongs to (default-locale snapshot), or null when the parent course is unresolved. */
     courseTitle: string | null
+    /** SEO-friendly slug of the course the challenge belongs to, or null when unresolved / unset. Absent on a cache row written before this field existed (self-heals on next recompute). */
+    courseSlug?: string | null
     /** Passed timestamp as an ISO string (jsonb), or null. */
     passedAt: string | null
 }
@@ -90,6 +92,8 @@ export interface UserSolvedChallengeResult {
     courseId: string | null
     /** Title of the course the challenge belongs to (default-locale snapshot), or null when the parent course is unresolved. */
     courseTitle: string | null
+    /** SEO-friendly slug of the course the challenge belongs to, or null when unresolved / unset — the resolver exposes this for public routing. */
+    courseSlug: string | null
     /** Passed time, or null. */
     passedAt: Date | null
 }
