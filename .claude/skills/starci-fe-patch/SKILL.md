@@ -4,9 +4,10 @@ description: >
   Quét code FE của app chính (`$FE_SOURCE`, branch mtp) còn viết theo CONVENTION CŨ — pattern đã
   bị `.claude/patterns/fe` (code-style FORCE) hoặc `.claude/fe` (design rules) ĐÍNH CHÍNH sau đó — rồi patch lên chuẩn
   hiện hành. Đây là rule DRIFT theo thời gian (code đúng lúc viết, rule đổi sau), KHÔNG phải tìm code trùng hay bug
-  logic. ĐỌC: `.claude/patterns/fe` + `.claude/fe` (read-only, tín hiệu "Đính chính"/nhiều mốc "CHỐT") + source thật
-  trong scope. GHI: patch nhỏ cơ học sửa NGAY same-session (kèm story `news` nếu block đổi hình hài); patch lớn queue
-  proposal vào `.artifacts/proposals/` (trong SOURCE FE) chờ apply-skill build — TUYỆT ĐỐI không ghi `.claude/`.
+  logic. ĐỌC: `.claude/patterns/fe` + `.claude/fe` (read-only, tín hiệu "Đính chính"/nhiều mốc "CHỐT") + `.artifacts/states`
+  (fe-sync giữ, biết block/story hiện có) + source thật trong scope. GHI: patch nhỏ cơ học sửa NGAY same-session (kèm
+  story `news` nếu block đổi hình hài); patch lớn queue
+  proposal vào `.artifacts/proposals/` (trong SOURCE FE) chờ `starci-fe-build` build — TUYỆT ĐỐI không ghi `.claude/`.
   Quy trình: grep-GATE deterministic tìm marker đính chính → fan-out reader rẻ xác nhận call-site thật còn dùng
   pattern cũ (neo file:line, không đoán) → rank + patch spec. Trigger khi user gõ `/starci-fe-patch [scope]`, hoặc
   nói "patch code cũ lên chuẩn mới · sync code với rule đã đổi · dọn convention cũ · chỗ nào còn viết kiểu cũ".
@@ -15,8 +16,8 @@ description: >
 # /starci-fe-patch — Đồng bộ code FE theo rule ĐÃ ĐỔI
 
 Code **đúng lúc được viết, nhưng rule đã đổi sau đó** — canon có "Đính chính" hoặc mốc CHỐT mới hơn mà code chưa theo
-kịp. Skill này tìm và vá đúng loại lệch đó. Không phải consolidate (code trùng), không phải quality-audit (i18n/a11y),
-không phải block-brainstorm (thiết kế mới).
+kịp. Skill này tìm và vá đúng loại lệch đó. Không phải `starci-fe-audit` (code trùng/i18n/a11y), không phải
+`starci-fe-block` (thiết kế block mới).
 
 ## Nguồn — đọc/ghi ở đâu (STRICT)
 - **ĐỌC rule (read-only):** `.claude/patterns/fe` (code-style FORCE — import, naming, hook, component shape) +
@@ -47,7 +48,7 @@ nhóm rule đã đổi.
      đẩy STORY `tags: ['news']` + caption "Chờ duyệt" lên Storybook cho thầy soi — **KHÔNG tự ghi `.artifacts/states`**
      (fe-sync ghi sau).
    - **Lớn** (đổi cấu trúc, rải nhiều feature, cần quyết định thêm) → ghi `.artifacts/proposals/patch-<scope>.proposal.md`
-     + 1 dòng PENDING vào backlog proposals, để apply-skill build — không tự ôm.
+     + 1 dòng PENDING vào backlog proposals, để `starci-fe-build` build — không tự ôm.
 6. **Grep lại signature cũ sau patch** — sạch hẳn khỏi scope mới đánh ✅; patch nửa vời còn sót = chưa xong.
 
 ## ★ Luật-hoá sau patch ([[methodology/enforcement]])
@@ -62,6 +63,12 @@ Patch tay = INTERIM. Mỗi rule cơ học patch xong, hỏi *"máy giữ đượ
 - Không ghi `.claude/` · không đụng `.storybook/{main.ts,preview.tsx}` · không browser-verify Storybook (thầy tự soi).
 
 ## Liên quan
-Patch cần layout mới → `starci-fe-layout-apply` · gói trong 1 block → `starci-fe-block-apply` · rule CHƯA ghi doc,
-thầy vừa nói mồm → `starci-fe-ui-feedback` (intake) · doc tự nó bệnh (link chết/stale) → `starci-doc-audit` ·
-biến rule thành máy → `starci-fe-enforce`. Hàng đợi chung: `.artifacts/proposals/`.
+Patch cần layout mới → `starci-fe-build` (apply proposal layout đã chốt) · gói trong 1 block → `starci-fe-build`
+(apply proposal block đã chốt) · rule CHƯA ghi doc, thầy vừa nói mồm → `starci-fe-feedback` (intake) · doc tự nó bệnh
+(link chết/stale) → `starci-doc-audit` · biến rule thành máy → `starci-fe-enforce`. Hàng đợi chung: `.artifacts/proposals/`.
+
+## Phân model (fan-out / nhiều pha)
+Khi skill này fan-out hoặc chia pha, phân model theo VAI:
+- **fable — deep thinking**: rescan/phân tích/ra nhận định nhanh, quyết hướng (decide).
+- **sonnet — action**: quét · scan · build · sửa (làm việc thật). **LUÔN ghi brief** kết quả lại (file/`.artifacts`), đừng giữ trong đầu — pha finalize cần đọc.
+- **opus — finalize**: đọc mọi brief → synthesize · chốt · quyết định cuối + ghi state.

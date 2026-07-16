@@ -50,3 +50,9 @@ Gate deterministic: đủ field theo family · family/tier/kind enum · kind-fam
 
 ## Phân biệt
 - **generate interview** = tạo câu tự-nói-AI-chấm. Khác **flashcard** (fact recall — `/starci-flashcard-generate`). **technical vs behavioral = 2 rổ** (nơi đặt + chấm khác) — chọn đúng, đừng trộn.
+
+## Phân model (fan-out / nhiều pha)
+Khi skill này fan-out hoặc chia pha, phân model theo VAI:
+- **fable — deep thinking**: rescan/phân tích/ra nhận định nhanh, quyết hướng (decide).
+- **sonnet — action**: quét · scan · build · sửa (làm việc thật). **LUÔN ghi brief** kết quả lại (file/`.artifacts`), đừng giữ trong đầu — pha finalize cần đọc.
+- **opus — finalize**: đọc mọi brief → synthesize · chốt · quyết định cuối + ghi state.

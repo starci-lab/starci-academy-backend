@@ -53,3 +53,9 @@ FAIL (cứng): thiếu field/answer rỗng · level sai enum · sortIndex≠fold
 
 ## Phân biệt
 - **flashcard = 1 fact recall** (đọc đáp án, tự chấm). Khác **mock-interview** (tự NÓI lời giải, AI chấm — dùng `/starci-interview-*`). Đừng trộn 2 rổ.
+
+## Phân model (fan-out / nhiều pha)
+Khi skill này fan-out hoặc chia pha, phân model theo VAI:
+- **fable — deep thinking**: rescan/phân tích/ra nhận định nhanh, quyết hướng (decide).
+- **sonnet — action**: quét · scan · build · sửa (làm việc thật). **LUÔN ghi brief** kết quả lại (file/`.artifacts`), đừng giữ trong đầu — pha finalize cần đọc.
+- **opus — finalize**: đọc mọi brief → synthesize · chốt · quyết định cuối + ghi state.

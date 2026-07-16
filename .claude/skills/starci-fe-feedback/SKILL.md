@@ -9,7 +9,7 @@ description: >
   có chủ đích — skill này ĐƯỢC PHÉP ghi `.claude/` (ngoại lệ duy nhất so với vòng lặp động vốn chỉ ĐỌC `.claude`).
   Fix nhỏ same-session (1-2 call-site: class/prop/token, tuân `.claude/patterns/fe`), verify tsc/eslint, để Storybook
   HMR tự áp cho thầy soi — KHÔNG tự ghi `.artifacts/states` (fe-sync ghi sau). Fix hoá ra lớn → queue
-  `.artifacts/proposals/` route sang `starci-fe-block-apply`/`starci-fe-layout-apply`. Trigger khi user gõ
+  `.artifacts/proposals/` route sang `starci-fe-build`. Trigger khi user gõ
   `/starci-fe-feedback [note]`, hoặc đưa screenshot + 1 câu chỉnh về cái đang trên màn hình và muốn vừa FIX vừa NHỚ
   thành rule.
 ---
@@ -47,11 +47,10 @@ Thầy đang nhìn UI CHẠY THẬT (app hoặc Storybook), chỉ tay 1 chỗ, n
 4. **Fix code same-session (CHỈ khi nhỏ/cơ học)** — 1-2 call-site, đổi class/prop/token, không đổi cấu trúc/IA. Code
    tuân `.claude/patterns/fe`. Sửa ĐÚNG câu feedback, không tự thêm ý.
    - **Lớn hơn** (nhiều call-site rải feature, đổi cấu trúc/layout, cần quyết định thêm) → KHÔNG ôm: ghi
-     `.artifacts/proposals/<tên>.proposal.md` (PENDING) → route `starci-fe-block-apply` (1 block) /
-     `starci-fe-layout-apply` (flow/trang).
+     `.artifacts/proposals/<tên>.proposal.md` (PENDING) → route `starci-fe-build`.
 5. **Verify** — `npx tsc --noEmit` + eslint file đã sửa. Storybook :6006 đang mở → HMR tự áp, **báo thầy refresh soi
    bằng mắt**, KHÔNG drive browser verify hộ (chậm, treo pane). Fix đổi hẳn variant/state của block có story mà story
-   chưa demo → giao `starci-fe-story-fix` bổ sung; KHÔNG tự ghi `.artifacts/states`.
+   chưa demo → giao `starci-fe-story` bổ sung; KHÔNG tự ghi `.artifacts/states`.
 
 ## ★ Tự phản biện TRƯỚC khi báo "đã sửa" (bắt buộc)
 Chuỗi lỗi CourseCard 2026-07-14 (danger→secondary→danger-soft; sửa `"line"` quên `"grid"`) đều sửa được <1s SAU khi
@@ -72,7 +71,7 @@ thầy chỉ — thiếu tự soát, không thiếu kiến thức. Trước khi 
   build/apply khi có surface/block MỚI.
 
 ## Liên quan
-- `starci-fe-block-apply` / `starci-fe-layout-apply` — nhận escalate qua `.artifacts/proposals/`.
-- `starci-fe-story-fix` — bổ sung story khi fix lộ state chưa demo · `starci-fe-sync` — ghi `.artifacts/states` sau.
+- `starci-fe-build` — nhận escalate qua `.artifacts/proposals/` (build cả proposal block lẫn layout).
+- `starci-fe-story` — bổ sung story khi fix lộ state chưa demo · `starci-fe-sync` — ghi `.artifacts/states` sau.
 - `starci-fe-enforce` — build dòng lint-candidate thành ESLint rule thật (skill này KHÔNG tự build lint).
 - Bản đồ canon: `fe/README.md` (3 trục + methodology) · [[methodology/three-axis]] · [[methodology/enforcement]].

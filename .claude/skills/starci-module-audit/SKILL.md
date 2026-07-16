@@ -79,3 +79,9 @@ Workflow({ scriptPath: ".claude/docs/workflows/<runner>", args: { module: "<modu
 - **vi.md = Opus viết · en.md = Sonnet dịch** (mirror 1-1, chống divergence).
 - **Mọi code block §2.1.3 + codeExplaining = diff=0 với repo.**
 - Sai-format = block → Opus rewrite theo gold. Sửa runner = Edit file rồi re-invoke `{scriptPath}`; ĐỪNG nhắn khi chạy.
+
+## Phân model (fan-out / nhiều pha)
+Khi skill này fan-out hoặc chia pha, phân model theo VAI:
+- **fable — deep thinking**: rescan/phân tích/ra nhận định nhanh, quyết hướng (decide).
+- **sonnet — action**: quét · scan · build · sửa (làm việc thật). **LUÔN ghi brief** kết quả lại (file/`.artifacts`), đừng giữ trong đầu — pha finalize cần đọc.
+- **opus — finalize**: đọc mọi brief → synthesize · chốt · quyết định cuối + ghi state.

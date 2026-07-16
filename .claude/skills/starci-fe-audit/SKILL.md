@@ -7,7 +7,9 @@ description: >
   chuyển đổi + điều hướng có make sense không), (5) COMPONENT TRÙNG cần gom về block canonical. ĐỌC rule
   read-only từ `.claude/fe/{axis-1-rules,axis-2-biz-ui,axis-3-layout,methodology,enforcement}` + patterns;
   GROUND từ Storybook qua `.artifacts/states/{snapshot.json,diff.md}` (fe-sync giữ, KHỎI rescan src) + source
-  thật; GHI kết quả vào `.artifacts/proposals/` (bản đồ audit + finding ranked + PENDING vào BACKLOG.md) —
+  thật + i18n dictionaries vi/en + entities BE/`.mount` (khi phán CTA/link) + `.artifacts/concepts` (định
+  hướng feature, fallback khi thiếu dữ kiện); GHI kết quả vào `.artifacts/proposals/` (bản đồ audit + finding
+  ranked + PENDING vào BACKLOG.md) —
   KHÔNG sửa code, KHÔNG ghi `.claude/`, KHÔNG đụng `states/`. Đây là lane NẶNG (quét toàn app, nhiều agent,
   chạy nền) — CHỈ chạy khi thầy chủ động gọi audit; lane thường ngày là `starci-fe-sync` (incremental).
   Trigger khi user gõ `/starci-fe-audit [scope|trục]`, hoặc nói "audit FE", "quét sức khỏe UI toàn app",
@@ -69,10 +71,11 @@ Sonnet xác, Opus chốt.
    `BACKLOG.md`. **STOP — không sửa code trong lượt audit.**
 
 ### Pha C — BÀN GIAO
-7. Route mỗi finding đã chốt: story-only/component nhỏ → skill build block; shell/flow → skill layout;
-   gom trùng → build theo proposal gom; pattern cơ học → đề xuất lint-candidate cho `starci-fe-enforce`.
-   Mọi code do build/apply viết sau đó phải theo `.claude/patterns/fe` + đẩy story `tags: ['news']` caption
-   "Chờ duyệt" lên Storybook — audit KHÔNG tự làm hộ.
+7. Route mỗi finding đã chốt: story-only/component nhỏ → `starci-fe-build` build thẳng theo proposal;
+   shell/flow cần thiết-kế-lại → `starci-fe-layout` chốt layout rồi mới `starci-fe-build`; gom trùng →
+   `starci-fe-build` theo proposal gom; pattern cơ học → đề xuất lint-candidate cho `starci-fe-enforce`.
+   Mọi code do `starci-fe-build` viết sau đó phải theo `.claude/patterns/fe` + đẩy story `tags: ['news']`
+   caption "Chờ duyệt" lên Storybook — audit KHÔNG tự làm hộ.
 
 ## §Checklist 5 trục (bake — mỗi surface/block trong scope)
 - **1 · Coverage story:** block thật trong `src/components/blocks/**` có story chưa (so `snapshot.json`)?
@@ -99,8 +102,8 @@ gánh mãi cái máy nên gánh.
 
 ## Ràng buộc (STRICT)
 - **KHÔNG sửa code, KHÔNG ghi `.claude/`, KHÔNG đụng `.artifacts/states/`** — output duy nhất là
-  `.artifacts/proposals/`. Fix là việc của build/apply theo BACKLOG.
-- Path FE = `$FE_SOURCE`
+  `.artifacts/proposals/`. Fix là việc của `starci-fe-build` theo BACKLOG.
+- Path FE = `$FE_SOURCE` (khai ở `$BE_SOURCE/.artifacts/config.json`)
 - Không đoán — mọi finding neo file:line thật; không chắc → đánh "cần verify", không phán.
 - KHÔNG search web; thiếu dữ kiện (định hướng feature, ý đồ) → đọc `.artifacts/concepts/` hoặc DỪNG hỏi thầy.
 - Fan-out trong **1 Workflow** (nhiều agent con), không launch 1 workflow/nhóm; agent con READ-ONLY trên app.
@@ -109,7 +112,13 @@ gánh mãi cái máy nên gánh.
 
 ## Liên quan
 - `starci-fe-sync` — lane thường ngày (incremental, giữ `states/`); audit là ảnh chụp toàn phần khi cần.
-- Build finding → skill layout/block build-apply (đẩy story `news` chờ duyệt) · pattern cơ học →
-  `starci-fe-enforce`.
+- Build finding → `starci-fe-build` (đẩy story `news` chờ duyệt), thiết-kế-lại lớn thì qua `starci-fe-layout`/
+  `starci-fe-block` trước · pattern cơ học → `starci-fe-enforce`.
 - Canon: [[methodology/three-axis]] · [[methodology/enforcement]] · [[methodology/storybook-story-conventions]]
   · `fe/axis-{1,2,3}*/RULES.md` · hàng đợi `.artifacts/proposals/BACKLOG.md`.
+
+## Phân model (fan-out / nhiều pha)
+Khi skill này fan-out hoặc chia pha, phân model theo VAI:
+- **fable — deep thinking**: rescan/phân tích/ra nhận định nhanh, quyết hướng (decide).
+- **sonnet — action**: quét · scan · build · sửa (làm việc thật). **LUÔN ghi brief** kết quả lại (file/`.artifacts`), đừng giữ trong đầu — pha finalize cần đọc.
+- **opus — finalize**: đọc mọi brief → synthesize · chốt · quyết định cuối + ghi state.

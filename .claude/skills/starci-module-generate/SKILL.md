@@ -77,3 +77,9 @@ Workflow({ scriptPath: ".claude/docs/workflows/<runner>", args: {
 - **generate** = author/mở-rộng nội dung MỚI (bật `expand`/`only`, gen từ seed) — dùng khi content còn thiếu/muốn thêm.
 - **audit** = nghiệm thu module ĐÃ CÓ (review → gate → loop → e2e, sửa cơ học) — dùng khi content đã đủ, chỉ kiểm+chuẩn hóa.
 - Cùng runner + rules + nguyên tắc tối thượng; khác INTENT + args.
+
+## Phân model (fan-out / nhiều pha)
+Khi skill này fan-out hoặc chia pha, phân model theo VAI:
+- **fable — deep thinking**: rescan/phân tích/ra nhận định nhanh, quyết hướng (decide).
+- **sonnet — action**: quét · scan · build · sửa (làm việc thật). **LUÔN ghi brief** kết quả lại (file/`.artifacts`), đừng giữ trong đầu — pha finalize cần đọc.
+- **opus — finalize**: đọc mọi brief → synthesize · chốt · quyết định cuối + ghi state.

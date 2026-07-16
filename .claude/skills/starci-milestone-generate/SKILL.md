@@ -46,3 +46,9 @@ Sạch (brief index · lang hợp lệ · đủ lang/body/outcome/approach · 1 
 
 ## Phân biệt với `/starci-milestone-audit`
 - **generate** = tạo milestone/task MỚI. **audit** = chuẩn-hoá task đã có (split/accordion/terminology) qua `fix-personal-project.js`. Cùng gate `check-task.mjs` + convention.
+
+## Phân model (fan-out / nhiều pha)
+Khi skill này fan-out hoặc chia pha, phân model theo VAI:
+- **fable — deep thinking**: rescan/phân tích/ra nhận định nhanh, quyết hướng (decide).
+- **sonnet — action**: quét · scan · build · sửa (làm việc thật). **LUÔN ghi brief** kết quả lại (file/`.artifacts`), đừng giữ trong đầu — pha finalize cần đọc.
+- **opus — finalize**: đọc mọi brief → synthesize · chốt · quyết định cuối + ghi state.

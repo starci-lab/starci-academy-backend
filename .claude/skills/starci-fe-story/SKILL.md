@@ -20,7 +20,8 @@ không ai sửa. Lane này: thầy đang mở Storybook, thấy 1 story sai/thi�
 mắt là xong. Không quét, không workflow, không browser.
 
 **Cross-repo:**
-- Story sống ở FE source: `$FE_SOURCE\src\**\*.stories.tsx` (branch **mtp**, path **D:**
+- Story sống ở FE source: `$FE_SOURCE\src\**\*.stories.tsx` (branch **mtp**; `$FE_SOURCE` khai ở
+  `$BE_SOURCE/.artifacts/config.json`).
 - Rule đọc ở `.claude/fe` (design) + `.claude/patterns/fe` (code-style FORCE) — **READ-ONLY, không ghi .claude**.
 - Artifacts động ghi ở FE source: `.artifacts/proposals/` (khi cần queue migration component).
 
@@ -81,7 +82,7 @@ không biết — hỏi thầy trước, đừng tự dựng server.
 - **KHÔNG thêm story cho sướng tay** — rubric "bộ story tối thiểu" trong canon: 1 story phải cho thấy điều
   KHÔNG suy ra được từ story khác. Story filler làm loãng gallery.
 - **KHÔNG tự generate story hàng loạt** cho block chưa có story — đó là backlog của lane audit/build (story
-  "news" gắn `tags: ['news']` là của block/layout-apply khi build block MỚI), không phải việc lane này.
+  "news" gắn `tags: ['news']` là của `starci-fe-build` khi build block/layout MỚI), không phải việc lane này.
 - **Mỗi story mới/sửa phải ĐỦ JSDoc + `parameters.usage`** khớp nhau — thiếu `usage` là mất note "Cách dùng",
   đó là lý do story tồn tại.
 - Mock data tiếng Việt thực tế, ngày ISO cố định (`new Date()` làm story nhảy), callback no-op.
@@ -90,6 +91,6 @@ không biết — hỏi thầy trước, đừng tự dựng server.
 
 ## Liên quan
 - `starci-fe-sync` — chủ sở hữu `.artifacts/states` (ghi sau khi component/story đổi qua git). Skill này không đụng.
-- `starci-fe-block-apply` / `starci-fe-layout-apply` — khi proposal migration được duyệt và tới lúc đổi
-  component thật; build mới thì tự đẩy story "news" (tag `news` + caption "Chờ duyệt").
+- `starci-fe-build` — khi proposal migration được duyệt và tới lúc đổi component thật; build mới thì tự đẩy
+  story "news" (tag `news` + caption "Chờ duyệt").
 - [[fe/methodology/storybook-story-conventions]] — SSOT luật story. `.artifacts/proposals/` — hàng đợi chốt→apply.

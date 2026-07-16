@@ -42,3 +42,9 @@ lần sau **khỏi rescan** — chỉ soi phần code vừa đổi (như `starci
 ## Liên quan
 - Chuẩn tĩnh: `.claude/patterns/fe/` · biến thành lint: `starci-fe-enforce` · UX/story/coverage: `starci-fe-audit` + `starci-fe-sync`.
 - BE song sinh: `starci-be-patterns-audit`.
+
+## Phân model (fan-out / nhiều pha)
+Khi skill này fan-out hoặc chia pha, phân model theo VAI:
+- **fable — deep thinking**: rescan/phân tích/ra nhận định nhanh, quyết hướng (decide).
+- **sonnet — action**: quét · scan · build · sửa (làm việc thật). **LUÔN ghi brief** kết quả lại (file/`.artifacts`), đừng giữ trong đầu — pha finalize cần đọc.
+- **opus — finalize**: đọc mọi brief → synthesize · chốt · quyết định cuối + ghi state.

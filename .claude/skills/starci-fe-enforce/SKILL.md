@@ -5,10 +5,11 @@ description: >
   biến 1 dòng lint-candidate ([[enforcement/lint-candidates]]) hoặc 1 code-style rule trong `.claude/patterns/fe` thành
   ESLint rule thật trong `eslint-plugin-starci-fe`, roll-out warn→burn-debt→error (make-illegal), thêm/chỉnh
   husky+lint-staged gate, story-ize block cho Storybook+axe (visual/a11y tier), và giữ vòng "AUDIT TÌM 1 LẦN · LINT GIỮ
-  MÃI". ĐỌC rule ở `.claude/{fe,patterns/fe}` (read-only — KHÔNG ghi .claude trong vòng lặp); GHI kết quả roll-out +
+  MÃI". ĐỌC rule ở `.claude/{fe,patterns/fe}` (read-only — KHÔNG ghi .claude trong vòng lặp) + `.artifacts/states`
+  (inventory block/story do `fe-sync` giữ); GHI kết quả roll-out +
   status vào `.artifacts/proposals/` trong SOURCE FE; story mới đẩy tag 'news' cho thầy duyệt trên Storybook. Skill
   đóng từ việc đã dựng thật (eslint-plugin-starci-fe 4 rule 'error' + jsx-a11y + husky + Storybook 2026-07-14). KHÁC
-  `ui-patch` (sửa code lệch rule ĐÃ CÓ) — skill này TẠO cơ chế MÁY để rule tự-enforce, không cần audit-LLM lặp lại.
+  `starci-fe-patch` (sửa code lệch rule ĐÃ CÓ) — skill này TẠO cơ chế MÁY để rule tự-enforce, không cần audit-LLM lặp lại.
   Trigger khi thầy nói "thêm lint rule cho X", "chặn Y tại commit", "burn nợ rule Z lên error", "make-illegal cái này",
   "story-ize block", "set up storybook/chromatic/axe".
 ---
@@ -32,7 +33,7 @@ Tầng máy = thứ chặn drift TẠI lúc gõ/commit, deterministic, chạy CI
 - **Cơ học + máy-nhận-diện-được** (icon import, spacing lẻ, chip-cạnh-chip, `titleClassName`, uppercase, arbitrary value) → **LINT rule**. Xúc.
 - **Value-existence** (giá trị không nên tồn tại) → **make-illegal** qua token/type (nhưng **Tailwind v4 spacing = dynamic calc, KHÔNG prune được** → lint là công cụ đúng; đừng cố prune theme).
 - **Render/pixel** (contrast, fill-chồng-fill, vỡ dark-mode) → **Storybook + axe + Chromatic** (visual tier).
-- **Judgment** (block đúng data? shell đúng job?) → **KHÔNG phải lint** → để `audit-sweep`/`layout-brainstorm` + mắt người. Đừng nhét judgment vào lint.
+- **Judgment** (block đúng data? shell đúng job?) → **KHÔNG phải lint** → để `starci-fe-audit`/`starci-fe-layout` + mắt người. Đừng nhét judgment vào lint.
 
 ## A. Thêm 1 ESLint rule (từ lint-candidate / patterns-rule)
 1. Đọc dòng nguồn: [[enforcement/lint-candidates]] hoặc rule trong `.claude/patterns/fe` (pattern + ví dụ thật + cơ chế đề xuất).
@@ -65,5 +66,11 @@ Tầng máy = thứ chặn drift TẠI lúc gõ/commit, deterministic, chạy CI
 Rule vừa viết có false-positive trên pattern hợp lệ nào không (grep thử)? Nợ đã về 0 thật trước khi nâng 'error' chưa? Có đang cố make-illegal cái v4/stack không cho (prune spacing) không? Cái này có thực sự cơ học, hay là judgment tôi đang ép vào máy? Có lỡ ghi gì vào `.claude/` không?
 
 ## Bàn giao / liên quan
-- Rule tìm nợ để burn → **`starci-fe-audit-sweep`** (fan-out fix). · Feedback trục-1 mới từ thầy → `ui-feedback` (log candidate) → skill này build. · Story 'news' duyệt xong → `starci-fe-sync` ghi `.artifacts/states`.
+- Rule tìm nợ để burn → **`starci-fe-audit`** (fan-out fix). · Feedback trục-1 mới từ thầy → `starci-fe-feedback` (log candidate) → skill này build. · Story 'news' duyệt xong → `starci-fe-sync` ghi `.artifacts/states`.
 - Canon (đọc): [[methodology/enforcement]] · [[enforcement/lint-candidates]] · [[methodology/storybook-story-conventions]] · `.claude/patterns/fe`. Code (ghi): `eslint-plugin-starci-fe/` · `.husky/` · `.storybook/` · `.artifacts/proposals/`.
+
+## Phân model (fan-out / nhiều pha)
+Khi skill này fan-out hoặc chia pha, phân model theo VAI:
+- **fable — deep thinking**: rescan/phân tích/ra nhận định nhanh, quyết hướng (decide).
+- **sonnet — action**: quét · scan · build · sửa (làm việc thật). **LUÔN ghi brief** kết quả lại (file/`.artifacts`), đừng giữ trong đầu — pha finalize cần đọc.
+- **opus — finalize**: đọc mọi brief → synthesize · chốt · quyết định cuối + ghi state.

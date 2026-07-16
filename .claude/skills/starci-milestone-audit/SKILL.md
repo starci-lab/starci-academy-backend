@@ -51,3 +51,9 @@ Workflow({ scriptPath: ".claude/docs/workflows/fix-personal-project.js", args: {
 
 ## Phân biệt
 - Task milestone = **brief hướng dẫn học viên tự xây capstone** (per-lang, không code chạy trong skill — học viên build; chấm là flow riêng). Khác lesson (`/starci-module-audit`) + challenge.
+
+## Phân model (fan-out / nhiều pha)
+Khi skill này fan-out hoặc chia pha, phân model theo VAI:
+- **fable — deep thinking**: rescan/phân tích/ra nhận định nhanh, quyết hướng (decide).
+- **sonnet — action**: quét · scan · build · sửa (làm việc thật). **LUÔN ghi brief** kết quả lại (file/`.artifacts`), đừng giữ trong đầu — pha finalize cần đọc.
+- **opus — finalize**: đọc mọi brief → synthesize · chốt · quyết định cuối + ghi state.
