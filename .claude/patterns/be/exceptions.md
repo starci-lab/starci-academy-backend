@@ -5,7 +5,7 @@ Nguồn: `src/modules/exceptions/` (errors + filters) — hạ tầng đã DONE 
 
 ## LUẬT
 
-1. **CẤM `throw new Error(...)`** — `src/` hiện có **0** chỗ; giữ nguyên con số đó.
+1. **CẤM `throw new Error(...)`** — code chạy thật trong `src/` hiện có **0** chỗ (chỉ còn trong `*.spec.ts` mock); giữ nguyên con số đó.
 2. **CẤM Nest built-in** (`BadRequestException`, `NotFoundException`, `UnauthorizedException`, `ForbiddenException`, …) trong `src/modules/**` + `src/features/api/**` — kể cả khi edit BE qua skill FE (`starci-fe-layout-apply`…). Nợ cũ chỉ còn ở `features/mock` (demo dạy) + `features/tools` — đừng thêm mới.
 3. Mọi lỗi domain = **1 class riêng extends `AbstractException`**, sống tại `src/modules/exceptions/errors/<domain>/<ten-loi>.ts`, export qua `index.ts` của domain đó (+ domain mới thì thêm vào `errors/index.ts`).
 4. Cần status HTTP khác 500 (guard/auth: 401/403/404/400) → truyền `HttpStatus.*` làm **arg thứ 4** của `super`. Domain exception thường KHÔNG set → filter mặc định 500. ĐỪNG set httpStatus tuỳ hứng cho lỗi business.

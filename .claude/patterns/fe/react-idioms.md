@@ -1,88 +1,76 @@
-# React/TSX idioms — STRICT
+# React hooks & render idioms — STRICT
 
-## 1. Phân tầng: block THUẦN vs feature CÓ DATA
+Phạm vi: luật VIẾT hook + effect + memo/callback + đặt tên handler + giữ render sạch trong `src/components/**` và `src/hooks/**`. Ground 100% từ code thật; ví dụ trích thẳng, đường dẫn tương đối `src/…`.
 
-- **`components/blocks/**` = presentational, props-only.** KHÔNG `useSWR`, KHÔNG zustand, KHÔNG `useTranslations` — caller đưa hết text + data qua props (mẫu: `UserCell` — "Pure and props-only — no store or data access"). Text hiển thị của block = prop `ReactNode`/`string`.
-- **`components/features/**` (+ `modals/`, `drawers/`) = container.** Được gọi `useQueryXxxSwr`/`useMutateXxxSwr`, `useXxxOverlayState`, `useTranslations()` với key đầy đủ `t("dashboard.adModalTitle")`.
-- ❌ Block gọi SWR = sai tầng (repo chỉ còn 1 file lệch `blocks/learn/RelatedContentList` — đừng nhân bản).
-- ❌ Hardcode chuỗi UI tiếng Việt/Anh trong feature — mọi chuỗi qua `t("…")` (messages `src/messages/{vi,en}.json`).
+## 1. Hook chỉ ở top-level, không gọi có điều kiện
 
-## 2. Không hand-roll primitive
+- Mọi `use*` gọi thẳng đầu component, KHÔNG trong `if`/loop/callback. Cần cắt render sớm thì gọi hết hook TRƯỚC rồi mới `return null` (guard sau hook, không trước).
+- ✅ `src/components/blocks/async/InfiniteScrollSentinel/index.tsx` — `useRef` + `useEffect` ở top-level, guard `if (!node || disabled) return` nằm TRONG effect chứ không chặn hook.
+- ✅ `src/components/blocks/layout/SocketConnectionStatus/index.tsx` — 4 `useEffect` xếp thẳng hàng đầu component, guard `if (phase !== "recovered") return` bên trong từng effect.
+- ❌ `if (!data) return null` đặt TRÊN một `useMemo`/`useEffect` phía dưới → đổi số lượng hook giữa các render.
 
-- Button/Modal/Tabs/Select/Card/Chip/Typography/Spinner… = **`@heroui/react`** hoặc block canon đã có (`ModalShell`, `AsyncContent`, `UserAvatar`, `ExtendedTabs`…). Grep `src/components/blocks` trước khi viết mới.
-- ❌ `<div onClick>` giả button (jsx-a11y bắt) · ❌ tự vẽ modal bằng fixed-div · ❌ copy component gần giống thay vì tái dùng (→ consolidate).
-- Text luôn qua `<Typography type="body-sm" color="muted" truncate>` chứ không `<p className="text-sm text-gray-500">`.
+## 2. useEffect: deps hand-managed, `exhaustive-deps` OFF
 
-## 3. Overlay (modal/drawer) — zustand registry, KHÔNG useState cục bộ
-
-- Mỗi overlay có key trong `OverlayKey` (`hooks/zustand/overlay/store.ts`) + accessor `useXxxOverlayState()` trong `hooks.ts`.
-- Modal component pattern (mẫu thật `AdModal`):
-
+- `react-hooks/exhaustive-deps` = `"off"` (`eslint.config.mjs`). Deps là TRÁCH NHIỆM tay — liệt kê đúng tín hiệu cần chạy lại, cố ý loại cái không muốn re-run. Lint KHÔNG bắt hộ.
+- Callback thay đổi mỗi render mà KHÔNG được vào deps → giữ qua ref "latest", deps chỉ chứa tín hiệu tái-subscribe thật:
 ```tsx
-export const AdModal = ({ className }: WithClassNames<undefined>) => {
-    const t = useTranslations()
-    const { isOpen, setOpen, context } = useAdModalOverlayState()
-    if (!context) {
-        return null            // guard sớm, không render vỏ rỗng
-    }
-    return (
-        <ModalShell isOpen={isOpen} onOpenChange={setOpen} className={className} title={t("…")}>
-            …
-        </ModalShell>
-    )
-}
+// src/components/blocks/async/InfiniteScrollSentinel/index.tsx
+const onReachRef = React.useRef(onReach)
+onReachRef.current = onReach          // cập nhật mỗi render, KHÔNG re-subscribe observer
+React.useEffect(() => {
+    …
+    observer.observe(node)
+    return () => observer.disconnect()
+}, [disabled, root])                  // cố ý KHÔNG có onReach
 ```
+- ❌ nhét `onReach` vào deps → observer dựng lại mỗi render; ❌ để deps trống khi effect đọc prop/state đang đổi.
 
-- Thêm overlay mới = thêm key vào `OverlayKey` + `OVERLAY_KEYS` + accessor — KHÔNG chế store riêng.
+## 3. useEffect PHẢI cleanup mọi thứ tự đăng ký
 
-## 4. Render idiom
+- Timer/observer/subscription/toast tồn dư → return cleanup. Đây là idiom cứng của repo.
+- ✅ timer: `const handle = setTimeout(() => setDebouncedQuery(query), SEARCH_DEBOUNCE_MS); return () => clearTimeout(handle)` (`src/components/features/course/CourseCatalog/index.tsx`).
+- ✅ observer: `return () => observer.disconnect()` (`InfiniteScrollSentinel`).
+- ✅ resource ngoài queue: `return () => { if (downToastKey.current) toast.close(downToastKey.current) }` + effect unmount riêng dọn mọi timer (`SocketConnectionStatus`).
+- ❌ `setTimeout`/`setInterval`/`addEventListener`/`new IntersectionObserver` mà không có cleanup.
 
-- Conditional: `x ? <… /> : null` — KHÔNG `x && <… />` cho giá trị có thể là `0`/`""`; repo dùng `? :` + `: null` nhất quán (`trailing ? <div>…</div> : null`).
-- Guard sớm `return null` khi thiếu data (AdModal `if (!context) return null`).
-- List: `.map()` với `key` = id ổn định (`item.key`), KHÔNG index trừ khi list tĩnh thật.
-- Helper render trong component = arrow const có JSDoc (`renderGroup`, `renderSelect` trong TabsCard), KHÔNG tách component mới nếu chỉ dùng nội bộ 1 chỗ.
-- Comment giải thích QUYẾT ĐỊNH (tại sao sr-only, tại sao suppress indicator…) đặt ngay JSX bằng `{/* … */}` — repo coi comment ngữ cảnh là bắt buộc cho hành vi không hiển nhiên.
+## 4. Effect chạy trên `window`/storage phải guard SSR + try/catch
 
-## 5. className merge
+- Truy cập `window`/`sessionStorage`/`localStorage` trong effect: guard môi trường, bọc `try/catch`, nuốt lỗi im lặng (private mode).
+- ✅ `if (typeof window === "undefined") return` rồi `try { sessionStorage.getItem(…) } catch { /* ignore storage errors */ }` (`src/hooks/effects/useSessionSuperseded.ts`).
+- ✅ `try { window.localStorage.setItem(…) } catch { /* storage unavailable (private mode) */ }` (`CourseCatalog`).
+- ❌ đọc `localStorage` thẳng trong thân component (chạy lúc SSR/hydrate) hoặc không try/catch.
 
-- Root: `className={cn("flex min-w-0 items-center gap-2", className)}` — base trước, prop sau. `cn` từ `@heroui/react`.
-- Điều kiện: `cn(variant === "secondary" && TAB_CLASS_ACCENT, size === "sm" && TAB_SIZE_SM, item.muted && "text-muted")`.
-- Chuỗi class dài/tái dùng → hằng SCREAMING_SNAKE module-level có JSDoc (`TAB_CLASS_NEUTRAL`).
+## 5. Tách effect theo mối quan tâm, nối chuỗi qua state
 
-## 6. SWR hook pattern (file mới copy đúng khung)
+- Mỗi `useEffect` MỘT việc, deps riêng; luồng nhiều bước = chuỗi effect nối bằng state trung gian, KHÔNG gộp 1 effect khổng lồ.
+- ✅ `CourseCatalog`: effect debounce `[query]→setDebouncedQuery` → effect reset trang `[debouncedQuery]→setPageNumber(0)` → SWR đọc `debouncedQuery`.
+- ✅ `SocketConnectionStatus`: effect "react tín hiệu socket" `[anyDown]`, effect "hết giờ recovered→hidden" `[phase]`, effect "đẩy toast theo phase" `[phase, t]`, effect "dọn khi unmount" `[]` — bốn việc bốn effect.
 
-```ts
-// queries/useQueryXxxSwr.ts — KHÔNG "use client"
-export const useQueryXxxSwr = (request?: XxxRequest) => {
-    return useSWR(
-        ["QUERY_XXX_SWR", request?.param ?? null],   // key mảng: TÊN + mọi param (null-normalized)
-        async () => {
-            const data = await queryXxx({ request })
-            return data.data?.xxx?.data ?? null       // unwrap tại hook, caller nhận data sạch
-        },
-    )
-}
+## 6. useMemo/useCallback: dùng khi CÓ lý do, không rải bừa
 
-// mutations/useMutateXxxSwr.ts
-export const useMutateXxxSwr = () => {
-    const swr = useSWRMutation<Result, Error, string, XxxRequest>(
-        "MUTATE_XXX_SWR",
-        async (_key, { arg }) => mutateXxx({ request: arg }),
-    )
-    return swr
-}
-```
+- `useMemo` cho phép tính phái sinh không tầm thường (sort/filter/split), deps = nguồn dữ liệu thật. Giá trị rẻ (đếm, cộng, so sánh) tính THẲNG trong thân, KHÔNG memo.
+- ✅ memo cần: `const list = useMemo(() => [...data].sort((l, r) => rankOf(l.displayId) - rankOf(r.displayId)), [payload])` (`CourseCatalog`).
+- ✅ để THẲNG: `const totalPages = Math.max(1, Math.ceil(count / PAGE_SIZE))`, `const currentPage = pageNumber + 1` — cùng file, KHÔNG memo.
+- `useCallback` cho handler truyền xuống child/effect hoặc bind vào ref; deps đúng.
+- ✅ `const onChangeView = useCallback((next) => { setView(next); … }, [])`; `const selectAt = useCallback((index) => {…}, [items, onSelectSuggestion])` (`SearchInput`).
+- ❌ bọc `useMemo` cho `a + b`; ❌ `useCallback` cho handler chỉ dùng inline 1 chỗ (JSX `onChange`) mà không truyền đi đâu.
 
-- Gọi API thô nằm ở `@/modules/api/…` — hook CHỈ wrap SWR, không fetch tay, không axios trong component.
+## 7. Đặt tên handler = `onXxx` (idiom trội), không `handleXxx`
 
-## 7. RHF form hook (mẫu `useContactForm`)
+- Repo trội hẳn `on*` (~354 chỗ / 175 file) so với `handle*` (~25 chỗ / 14 file) cho handler nội bộ. VIẾT MỚI theo `onXxx`.
+- ✅ `onChangeView`, `onNavigateHome` (`CourseCatalog`); `onKeyDown`, `onMouseDown` (`SearchInput`).
+- ⚠️ `handleXxx` còn tồn tại (vd `handleDiagramChange` trong `src/components/features/learn/MockInterview/MockInterviewSession/index.tsx`) nhưng là số ít — đừng nhân bản, dùng `onXxx`.
+- Prop callback ra ngoài = `onXxx` bắt buộc: `onReach`, `onValueChange`, `onSelectSuggestion` (`InfiniteScrollSentinel`, `SearchInput`).
 
-- `"use client"` + `useForm` + `zodResolver`; schema trong `useMemo(() => z.object({…}), [t])` để message i18n; max-length = hằng SCREAMING_SNAKE đầu file; submit qua `useMutateXxxSwr` + `useGraphQLWithToast`; export values interface JSDoc đủ.
+## 8. Không logic nặng trong thân render / trong JSX
 
-## 8. Callback ổn định
+- Thân component (đường chạy mỗi render) chỉ derive rẻ + memo hoá cái đắt. Sort/filter/parse/regex → `useMemo`. KHÔNG dựng mảng lớn hay tính vòng lặp thẳng trong render.
+- ✅ split-để-bôi-đậm nằm trong memo: `const segments = useMemo(() => { … indexOf … slice … }, [suggestion.label, query])` (`SearchInput`), JSX chỉ đọc `segments.before/match/after`.
+- Side-effect (fetch/storage/toast/timer) TUYỆT ĐỐI không đặt trong render — chỉ trong `useEffect` hoặc handler.
+- ❌ `<ul>{items.filter(...).sort(...).map(...)}</ul>` inline; ❌ `localStorage.getItem(...)` hay `toast(...)` giữa thân render.
 
-- Handler truyền xuống store-bound: bọc `useCallback` với deps đúng (mẫu `useOverlayHandle`). `react-hooks/exhaustive-deps` đang off — TỰ chịu trách nhiệm deps, đừng ỷ lint.
+## 9. Comment WHY cho mỗi effect/callback không hiển nhiên
 
-## 9. Exception/error
-
-- Async UI: mọi vùng data-backed đi qua `AsyncContent` (error → loading → empty → content). KHÔNG tự if-else 4 nhánh tay ngoài wrapper này.
+- Repo coi 1 dòng `//` giải thích LÝ DO đứng ngay trên effect/callback là bắt buộc khi hành vi không tự-rõ (vì sao loại deps, vì sao mousedown thay click, vì sao grace timer).
+- ✅ `// keep the latest callback without re-subscribing the observer each render`; `// mousedown (not click) so it runs before the input blur closes the dropdown`; `// debounce the search input before it reaches the backend`.
+- ❌ effect có deps "lạ" (thiếu biến effect đọc) mà không 1 dòng giải thích tại sao cố ý.

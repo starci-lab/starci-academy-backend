@@ -69,15 +69,17 @@ LUẬT:
 
 - `request.ts`: `@InputType({ description })`; mỗi `@Field` có `description`; validate bằng class-validator NGAY tại field (`@IsInt() @Min(0) @Max(3)`, `@IsOptional() @IsUUID()`); optional → `nullable: true` + `?:`.
 - `response.ts`: 2 class — `<Op>Data` (`@ObjectType`, payload thật) và `<Op>Response extends AbstractGraphQLResponse implements IAbstractGraphQLResponse<<Op>Data>` (từ `@modules/api`) với `data` nullable. KHÔNG tự chế wrapper.
+- **Enum: thunk dùng wrapper `GraphQLType*`, kiểu TS là native enum** — hai thứ khác nhau. `@Field(() => GraphQLTypePaymentType) paymentType: PaymentType` (mẫu thật `courses-checkout/graphql-types/request.ts`). ❌ `@Field(() => PaymentType)` (native enum làm thunk → schema sai).
+- ID: `@Field(() => ID)` nhưng kiểu TS là `string` (list là `() => [ID]` + `Array<string>`).
 
 ## REST controller (ít dùng hơn — admin/oauth/webhook)
 
 Mẫu `PresignedUrlController`:
 
-- Path/tags KHÔNG hardcode string: `@ApiTags(httpConfig().admin().tags)` + `@Controller({ path: httpConfig().admin().tags, version: "1" })` + `@Post(httpConfig().admin().presignedUrl().path)` — mọi path khai trong `httpConfig()`.
-- Swagger đủ bộ: `@ApiOperation({ summary, description })` + `@ApiResponse({ status, description })`.
-- `@UseInterceptors(RestTransformInterceptor)` cho response chuẩn.
-- DTO ở `dtos/` (barrel index): request dùng `@ApiProperty`/`@ApiPropertyOptional` (có `description` + `example`) + class-validator (`@IsString() @IsNotEmpty()`); response class cũng `@ApiProperty` đầy đủ.
+- Path/tags KHÔNG hardcode string: `@ApiTags(httpConfig().admin().tags)` + `@Controller({ path: httpConfig().admin().tags, version: "1" })` + `@Post(httpConfig().admin().presignedUrl().path)` — mọi path khai trong `httpConfig()`; controller LUÔN có `version: "1"`.
+- Message thành công: `@RestSuccessMessage("...")` (chuỗi đơn, KHÔNG song ngữ như GraphQL) + `@UseInterceptors(RestTransformInterceptor)`.
+- Swagger đủ bộ: `@ApiOperation({ summary, description })` + `@ApiResponse({ status, description, type })`.
+- DTO ở `dtos/` (barrel index): request dùng `@ApiProperty`/`@ApiPropertyOptional` (có `description` + `example`) + class-validator BẮT BUỘC (`@Type(() => Number) @IsInt() @Min(1)`, `@IsUrl(...)`, `@IsOptional() @IsString()`) — đây là chốt chặn validate duy nhất của REST; response `<Op>Response extends AbstractRestResponse<<Op>Data>` với `declare data: <Op>Data` (mẫu `payos/create-payment-link/dtos/response.ts`).
 - Controller cũng MỎNG như resolver: gọi 1 service, không business logic.
 
 ## ❌ Cấm ở API surface

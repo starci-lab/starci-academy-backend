@@ -6,8 +6,9 @@ nhưng codebase sạch gần tuyệt đối, và giữ sạch là LUẬT, không
 
 ## 1. CẤM `any` — dùng `unknown` + narrow
 
-`src/` production hiện có đúng **1** chỗ `: any` thật (nợ cũ `argsExtractor` trong
-`src/modules/cache/types/graphql-cache.ts`) — ĐỪNG thêm chỗ thứ 2. Input không biết kiểu
+`src/` production gần như sạch `any`: chỉ còn `argsExtractor` (`src/modules/cache/types/graphql-cache.ts`,
+`(request: any, user: any) => Array<any>`) và `any[]` trong tuple raw-SQL của `process-video`
+(`src/modules/bullmq/types/payloads/process-video.ts`) — nợ cũ, ĐỪNG thêm chỗ mới. Input không biết kiểu
 (catch, payload ngoài) = `unknown`, rồi narrow bằng `typeof`/`instanceof`/duck-typing:
 
 ```ts

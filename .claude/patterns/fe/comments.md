@@ -7,17 +7,17 @@
 - Ghi comment khi có **ràng buộc · workaround · quyết định không hiển nhiên** mà người sửa sau CẦN biết để không phá:
 
 ```tsx
-// ✅ blocks/cards/GroupPressableCard/index.tsx — giải thích VÌ SAO opt-in
+// ✅ src/components/blocks/cards/GroupPressableCard/index.tsx — giải thích VÌ SAO opt-in
 // Press 1–N to act without reaching for the mouse. Opt-in: the listener is
 // on `window`, so a group that isn't the screen's main action would steal
 // every digit the page sees.
 
-// ✅ blocks/chips/StatusChip/index.tsx — ghi luật thiết kế đằng sau nhánh render
+// ✅ src/components/blocks/chips/StatusChip/index.tsx — ghi luật thiết kế đằng sau nhánh render
 {/* leading status icon — DROPPED when the chip is removable (has a
     trailing cancel-X): a chip carries EITHER a status icon OR a cancel-X,
     never both. */}
 
-// ✅ features/architecture/hooks/useSystemHealthPoll.ts — vì sao useMemo rỗng deps
+// ✅ src/components/features/architecture/hooks/useSystemHealthPoll.ts — vì sao useMemo rỗng deps
 // stable per-mount jitter (not re-rolled every render)
 ```
 
@@ -40,14 +40,14 @@
 - Mọi prop/field của interface export: 1 dòng `/** … */` nói **làm gì + default + khi nào ẩn/fallback**:
 
 ```ts
-// ✅ blocks/async/AsyncContent/index.tsx
+// ✅ src/components/blocks/async/AsyncContent/index.tsx
 /**
  * Truthy → the {@link ErrorContent} is shown (takes priority over loading).
  * Pass the SWR `error` (only when there is no cached data to fall back to).
  */
 error?: unknown
 
-// ✅ features/architecture/hooks/useSystemHealthPoll.ts — ngữ nghĩa null ghi TẠI field
+// ✅ src/components/features/architecture/hooks/useSystemHealthPoll.ts — ngữ nghĩa null ghi TẠI field
 /** Live health keyed by component name, or `null` before the first resolve. */
 healthByName: HealthByName | null
 ```
@@ -67,7 +67,7 @@ healthByName: HealthByName | null
 - TODO hợp lệ = nói rõ **vì sao chưa làm + khi nào làm** — người lạ đọc hiểu được mà không cần hỏi:
 
 ```ts
-// ✅ features/learn/MockInterview/MockInterviewSession/index.tsx
+// ✅ src/components/features/learn/MockInterview/MockInterviewSession/index.tsx
 // "Luyện thiết kế hệ thống" is only offered for a System-Design course — its
 // capstones are architecture systems, the only ones the unchanged 5-phase
 // script fits.

@@ -1,30 +1,16 @@
-# BE Patterns — CODE-STYLE FORCE
+# INDEX — code-style patterns BE
 
-> **FORCE**: đây là quy ước BẮT BUỘC khi viết/sửa bất kỳ dòng TypeScript nào trong
-> `$BE_SOURCE` (NestJS, branch `mtp`). Skill BUILD/APPLY
-> đọc bộ này TRƯỚC KHI code. Không phải gợi ý — code lệch là code SAI, dù tsc/eslint pass.
-> INFER từ code thật trong `src/` + `eslint.config.mjs` (2026-07-16).
+> **Code-style FORCE cho BE** — skills đọc để viết code đúng chuẩn; ground từ source THẬT (không bịa). Skills tham chiếu qua `$BE_SOURCE` (khai ở `.artifacts/config.json`).
 
-## Files
-
-| File | Nội dung |
+| File | Chủ đề |
 |---|---|
-| [[format-and-imports]] | Format cơ học (eslint-gated): indent 4 · double quotes · no semi · mọi object/import/call-args xuống dòng · import order · `Array<T>` · JSDoc |
-| [[modules-and-di]] | Cấu trúc module NestJS: folder anatomy · `ConfigurableModuleBuilder` · DI constructor · barrel `index.ts` · naming suffixes · path alias |
-| [[exceptions]] | ⭐ LUẬT SẮT: LUÔN `AbstractException` — cấm `new Error` / Nest built-in; anatomy 1 exception file; `httpStatus` chỉ cho guard/auth |
-| [[api-surface]] | GraphQL resolver (1 operation = 1 folder) + REST controller + DTO validation (class-validator + swagger) |
-| [[type-safety]] | Type-safety STRICT: cấm `any` (→ `unknown`+narrow) · DTO validate boundary · enum state/kind · return type tường minh · cấm `!`/`as` bừa (`satisfies` + type guard) · generics/`as const` · typed config `envConfig()` (không đọc `process.env` rải) |
-| [[comments]] | Comment ghi LÚC NÀO: WHY không WHAT · xoá comment thừa + code comment-out · JSDoc cho public surface + hằng số/field có nghĩa ngầm · TODO(tag) kèm ngữ cảnh · comment sống cùng code |
-
-## Verify sau khi code
-
-```bash
-npx tsc --noEmit -p tsconfig.json   # type-check
-npm run lint                        # eslint --fix (format rules là 'error')
-```
-
-## Phạm vi STRICT vs nới
-
-- **STRICT toàn bộ**: `src/modules/**` + `src/features/api/**` (core app surface).
-- **Nới (không chạm thì thôi)**: `src/features/mock/**` (demo dạy học) và `src/features/tools/**`
-  hiện còn Nest built-in exceptions — code MỚI ở đó vẫn nên theo chuẩn, nhưng không burn nợ cũ trong lượt build feature.
+| [`api-surface.md`](api-surface.md) | API surface — GraphQL resolver & REST controller & DTO |
+| [`async-and-messaging.md`](async-and-messaging.md) | Async & Messaging — hàng đợi · sự kiện · lịch (idiom THẬT) |
+| [`comments.md`](comments.md) | Comment — ghi LÚC NÀO (WHY, không WHAT) |
+| [`config-and-env.md`](config-and-env.md) | Config & Env — code-style |
+| [`database-and-entities.md`](database-and-entities.md) | BE code-style — Database & Entities (TypeORM) |
+| [`exceptions.md`](exceptions.md) | Exceptions — LUÔN AbstractException (luật sắt ⭐) |
+| [`imports-and-format.md`](imports-and-format.md) | BE — Import order, `@modules`/`@features` alias & format |
+| [`modules-and-di.md`](modules-and-di.md) | Module structure & DI |
+| [`type-safety.md`](type-safety.md) | Type-safety BE — STRICT (NestJS/TypeScript) |
+| [`validation.md`](validation.md) | Validation BE — DTO + class-validator ở boundary (STRICT) |
