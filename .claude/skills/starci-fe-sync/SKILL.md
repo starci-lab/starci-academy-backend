@@ -16,6 +16,8 @@ description: >
 
 # /starci-fe-sync — Đồng bộ FE↔Storybook incremental, ghi `.artifacts/states`
 
+> ★ **Đồng bộ 3 lớp** (chân lý `.claude/fe` · story = UI-ref · component = UI-trên-nền): mọi thay đổi skill này tạo ra PHẢI reconcile CẢ 3 → luật `.claude/fe/principles/three-layer-sync-truth-story-ui.md` · recipe `.claude/fe/patterns/reconcile-three-layers-on-change.md`.
+
 Storybook = nguồn sự thật UI. Skill này giữ **cache trạng thái đã-biết** trong
 `.artifacts/states/` của SOURCE FE, để `starci-fe-layout` / `starci-fe-block`
 đọc DIFF thay vì quét lại cả `src/`. Chạy nhanh, thường xuyên, grounded vào GIT.
@@ -41,6 +43,13 @@ Storybook = nguồn sự thật UI. Skill này giữ **cache trạng thái đã-
 
 Sibling trong `.artifacts/`: `concepts/` · `prototypes/` · `proposals/` — skill này **KHÔNG đụng**,
 chỉ ghi `states/`.
+
+- **`registry.md`** — REGISTRY tra cứu **block ↔ story ↔ principles/concepts** (thầy cần 2026-07-17, "search cho dễ").
+  CHỈ **block** (design-system có luật riêng) — feature-component KHÔNG liệt kê (chúng ghép block, luật ở block đó).
+  Mỗi dòng: block · canon (`.claude/fe/**`) · concepts. Path theo convention (ghi ở đầu file). `⌀` = coverage hole.
+  - **Search:** grep tên block → ra luật chi phối; grep tên luật (`icon.md §6`) → ra mọi block dính.
+  - **Bảo trì:** chạm block nào (feedback/build/patch) → cập nhật đúng dòng đó. Dòng `✎` = đã enrich per-block; còn lại
+    canon mặc định theo NHÓM (từ [[stories/INDEX]] §1), bồi dần. Story mới/mất thì cập nhật cùng lúc với snapshot.
 
 ## Quy trình (incremental, theo git)
 
@@ -87,5 +96,5 @@ chỉ ghi `states/`.
   thầy duyệt trên Storybook → lần sync sau vào diff).
 - Full-scan coverage: `starci-fe-audit` · story lặt vặt: `starci-fe-story`
   (cả hai KHÔNG ghi states).
-- Bản đồ canon: [[fe/README]] · rule element/token: [[fe/axis-1-rules/RULES]] · quy ước story caption:
+- Bản đồ canon: [[fe/README]] · rule element/token: [[fe/components/INDEX]] · [[fe/foundations/INDEX]] · quy ước story caption:
   [[fe/methodology/storybook-story-conventions]].

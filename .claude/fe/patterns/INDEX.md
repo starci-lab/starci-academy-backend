@@ -49,6 +49,12 @@
 | [[overlay-from-popover-render-in-panel]] | ✓ | Overlay phụ mở TỪ 1 popover → render in-panel, không Drawer/Modal body-level | — |
 | breadcrumb-trail | TODO | Breadcrumb-chain vs back-link theo loại trang (đọc vs leaf-solve) | Rải ở `components/header.md` §3 |
 
+## 4. Process / workflow (recipe THAO TÁC — không phải khung trang)
+
+| Pattern | Trạng thái | Vì sao dùng | Ghi chú |
+|---|---|---|---|
+| [[reconcile-three-layers-on-change]] | ✓ | ⭐⭐ Khi chạm 1 lớp (chân lý `.claude/fe` · story · component) → các bước reconcile CẢ 3 để không lệch. Luật gốc: [[../principles/three-layer-sync-truth-story-ui]] | Mọi skill FE (feedback/story/build/patch/sync) |
+
 ## Ghi chú — ứng viên GỘP (khi `/merge`)
 
 - **`when-rail` + `solving-surface-fullbleed-no-course-rails` + `fullbleed-canvas-no-chrome-and-orient-zoom`** → nội dung ĐẦY ĐỦ đã nằm ở 3 file riêng; `page-shell-selection.md` (mới) là LỚP DECISION đứng trên, KHÔNG thay thế. Khi `/merge`: cân nhắc rút "quy tắc gốc" của cả 3 vào `page-shell-selection.md` làm nguồn chính, 3 file cũ giữ làm phụ lục "Áp đầu"/case-by-case (đã có tiền lệ ở `accent-system` ⊇ `highlight-accent-as-detail-not-block-fill`, xem `README.md`).

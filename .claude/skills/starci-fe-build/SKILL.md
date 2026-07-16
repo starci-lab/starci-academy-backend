@@ -16,6 +16,8 @@ description: >
 
 # /starci-fe-build — Build 1 proposal đã chốt thành code FE thật
 
+> ★ **Đồng bộ 3 lớp** (chân lý `.claude/fe` · story = UI-ref · component = UI-trên-nền): mọi thay đổi skill này tạo ra PHẢI reconcile CẢ 3 → luật `.claude/fe/principles/three-layer-sync-truth-story-ui.md` · recipe `.claude/fe/patterns/reconcile-three-layers-on-change.md`.
+
 Pha **BUILD** (tách khỏi brainstorm). Đọc 1 proposal ⏳ PENDING trong `.artifacts/proposals/` → code thật tuân
 [[patterns/fe]] + block canonical [[fe/axis-2-biz-ui/RULES]] → verify → đẩy **story "news"** cho thầy duyệt trên
 Storybook → ✅ DONE trong BACKLOG. Chạy được ở **session khác** với brainstorm — hàng đợi là bàn giao.

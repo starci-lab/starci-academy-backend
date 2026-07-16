@@ -1,6 +1,6 @@
 {
-  "lastAuditCommit": "5e694f91433028f83420fb112b6871630c1abdd3",
-  "generatedAt": "2026-07-16T07:19:38Z",
+  "lastAuditCommit": "fbd55905987db885d5f85c6c20e715638077a1f3",
+  "generatedAt": "2026-07-16T00:00:00Z",
   "openViolations": [
     { "rule": "api-surface/reverse-import", "file": "src/modules/bussiness/daily-quest/daily-quest.service.ts", "line": 20, "note": "@modules/bussiness imports from @features/api/processors/ai/shared/xp — breaks api->bussiness dependency direction; move shared XP const down to @modules/bussiness" },
     { "rule": "api-surface/reverse-import", "file": "src/modules/bussiness/flashcard/flashcard-quiz-session.service.ts", "line": 22, "note": "reverse-import xp const from features/api" },

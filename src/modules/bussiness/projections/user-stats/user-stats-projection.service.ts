@@ -96,6 +96,7 @@ export class UserStatsProjectionService {
             weeklyChallenges: Number(value.weeklyChallenges) || 0,
             weeklyCoding: Number(value.weeklyCoding) || 0,
             weeklyFlashcards: Number(value.weeklyFlashcards) || 0,
+            weeklyMilestones: Number(value.weeklyMilestones) || 0,
             last7Days: Array.isArray(value.last7Days)
                 ? (value.last7Days as Array<StreakDay>).map((day) => ({
                     date: String(day.date),
@@ -174,6 +175,14 @@ export class UserStatsProjectionService {
                     SELECT COUNT(*) FROM user_flashcard_reviews
                     WHERE user_id = $1
                       AND last_reviewed_at >= now() - interval '7 days'
+                ), 0),
+                -- personal-project milestone tasks passed in the rolling 7-day window
+                -- (xp source=milestone — one row per passed user_milestone_task_attempt)
+                'weeklyMilestones', COALESCE((
+                    SELECT COUNT(*) FROM xp_histories
+                    WHERE user_id = $1
+                      AND source = 'milestone'
+                      AND created_at >= now() - interval '7 days'
                 ), 0),
                 -- consecutive-day streak ending today: gaps-and-islands over the
                 -- distinct active days. Subtracting the ascending row number from

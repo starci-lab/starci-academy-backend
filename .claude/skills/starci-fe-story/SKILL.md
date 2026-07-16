@@ -15,6 +15,8 @@ description: >
 
 # /starci-fe-story — sửa story, KHÔNG đụng component, KHÔNG mở browser
 
+> ★ **Đồng bộ 3 lớp** (chân lý `.claude/fe` · story = UI-ref · component = UI-trên-nền): mọi thay đổi skill này tạo ra PHẢI reconcile CẢ 3 → luật `.claude/fe/principles/three-layer-sync-truth-story-ui.md` · recipe `.claude/fe/patterns/reconcile-three-layers-on-change.md`.
+
 Storybook = nguồn sự thật UI, là tài liệu sống của design system. Sửa story phải RẺ và NHANH, nếu không sẽ
 không ai sửa. Lane này: thầy đang mở Storybook, thấy 1 story sai/thiếu/thừa → sửa ngay, tsc/eslint, thầy nhìn
 mắt là xong. Không quét, không workflow, không browser.

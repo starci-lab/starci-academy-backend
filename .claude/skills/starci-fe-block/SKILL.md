@@ -16,6 +16,8 @@ description: >
 
 # /starci-fe-block — Thiết kế/nắn 1 BLOCK (nhẹ, 1 component, opt-in fan-out)
 
+> ★ **Đồng bộ 3 lớp** (chân lý `.claude/fe` · story = UI-ref · component = UI-trên-nền): mọi thay đổi skill này tạo ra PHẢI reconcile CẢ 3 → luật `.claude/fe/principles/three-layer-sync-truth-story-ui.md` · recipe `.claude/fe/patterns/reconcile-three-layers-on-change.md`.
+
 Bản NHẸ của `starci-fe-layout`: chỉ **1 block**, KHÔNG cả flow/page. Dùng khi thay đổi **nằm trong 1 block**.
 Skill này chỉ THIẾT KẾ — code là việc của `starci-fe-build`.
 

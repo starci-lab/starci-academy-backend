@@ -18,6 +18,8 @@ description: >
 
 # /starci-fe-layout — Brainstorm LAYOUT cả FLOW → prototype :8080 → chốt proposal
 
+> ★ **Đồng bộ 3 lớp** (chân lý `.claude/fe` · story = UI-ref · component = UI-trên-nền): mọi thay đổi skill này tạo ra PHẢI reconcile CẢ 3 → luật `.claude/fe/principles/three-layer-sync-truth-story-ui.md` · recipe `.claude/fe/patterns/reconcile-three-layers-on-change.md`.
+
 Layout chọn theo **CÔNG VIỆC của bề mặt**, không theo thói quen. **FLOW-first:** khoanh CẢ luồng (mọi
 surface/pha/route/mode), không thiết kế 1 trang lẻ. Tập trung **SHAPE**; nội dung block dừng ở **BRIEF 1 dòng**
 (internals → `starci-fe-block`). Output = **prototype HTML bấm-được** trên **:8080** — không tả chữ suông.

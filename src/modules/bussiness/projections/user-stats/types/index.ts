@@ -72,6 +72,8 @@ export interface UserStatsResult {
     weeklyCoding: number
     /** Flashcards reviewed in the last 7 days (user_flashcard_reviews). */
     weeklyFlashcards: number
+    /** Personal-project milestone tasks passed in the last 7 days (xp_histories source=milestone). */
+    weeklyMilestones: number
     /** The last 7 calendar days (oldest → today) flagged active. */
     last7Days: Array<StreakDay>
 }

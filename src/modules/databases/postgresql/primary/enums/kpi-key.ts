@@ -21,6 +21,8 @@ export enum KpiKey {
     Coding = "coding",
     /** Flashcards reviewed this week. */
     Flashcards = "flashcards",
+    /** Personal-project milestone tasks passed this week. */
+    Milestones = "milestones",
 }
 
 export const GraphQLTypeKpiKey = createEnumType(KpiKey)
@@ -29,7 +31,7 @@ registerEnumType(
     GraphQLTypeKpiKey,
     {
         name: "KpiKey",
-        description: "A weekly KPI a learner can set a target for (lessons / studyDays / challenges / coding / flashcards).",
+        description: "A weekly KPI a learner can set a target for (lessons / studyDays / challenges / coding / flashcards / milestones).",
         valuesMap: {
             [KpiKey.Lessons]: {
                 description: "Lessons read this week.",
@@ -45,6 +47,9 @@ registerEnumType(
             },
             [KpiKey.Flashcards]: {
                 description: "Flashcards reviewed this week.",
+            },
+            [KpiKey.Milestones]: {
+                description: "Personal-project milestone tasks passed this week.",
             },
         },
     },

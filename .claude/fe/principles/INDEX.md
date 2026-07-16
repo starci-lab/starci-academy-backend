@@ -64,6 +64,7 @@
 | Principle | Trạng thái | Rule of thumb | Chi phối |
 |---|---|---|---|
 | [[self-critique-before-presenting]] | ✓ | ⭐ Tự đóng vai thầy phản biện TRƯỚC khi trình (hướng · code · finding · "xong") — đọc hết section canon (không chỉ 1 rule), kiểm chứng bằng grep không bằng lời kể, đừng chốt ở lựa chọn đầu tiên | MỌI skill `starci-fe-*` (brainstorm · apply · scan · feedback) |
+| [[three-layer-sync-truth-story-ui]] | ✓ | ⭐⭐ `.claude/fe`=CHÂN LÝ · story=UI-REF · component=UI-trên-nền; chạm 1 lớp → reconcile CẢ 3 (chỉnh component → đối chiếu luật + cập nhật story). Recipe: [[../patterns/reconcile-three-layers-on-change]] | MỌI skill `starci-fe-*` |
 
 ## Ghi chú — dọn shelf (2026-07-07, dời/xoá KHÔNG viết lại nội dung)
 

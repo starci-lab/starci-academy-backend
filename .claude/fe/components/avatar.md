@@ -32,6 +32,11 @@
 
 > Block: `reuseable/UserAvatar` (primitive) · `blocks/identity/{AvatarGroup,AvatarUploadButton,UserCell}`
 
+## Ring seniority/rank quanh avatar (`ProfileMenuCard` · `ProfileRankAvatar`) — CHỐT 2026-07-17
+- **Ring MỎNG `ring-2`** (2px), **KHÔNG** padding-halo (`p-*` + `bg` màu) — halo dày đọc như 1 khối, không phải viền. Màu ring set qua **inline `--tw-ring-color`** (màu động theo rank nên không dùng class tĩnh): `style={{ "--tw-ring-color": ringColor } as React.CSSProperties}`.
+- **Màu ring = hue rank THẬT**: junior=đồng `#B06A2C` · middle=bạc `#AEB8C4` · senior=vàng `#F0B429`. **beginner/unranked** có rank-hue là xám `#8C95A1` ≈ neutral → **DÙNG token `--border`** thay cho hex xám đó (theme-clean, tự đổi light/dark; hardcode xám chỉ trùng màu divider mà không theo theme). Tức: `const ringColor = info.ring && info.rank !== "beginner" ? info.ring : "var(--border)"`.
+- Ca thật: dashboard `ProfileMenuCard` — thầy: *"ring xám, để mỏng size-2 màu border"*. `p-1 halo + bg-default` → `ring-2` + ring color rank-hue/`--border`. ⚠️ `ProfileRankAvatar` vẫn hiện xám hardcode cho beginner — candidate đồng bộ (chưa đụng, ngoài câu feedback).
+
 ## Liên quan
 - [[single-source-render]] (1 fallback chain dùng chung) · [[hover-style-matches-clickable-nature]] (identity
   row hover = opacity cả cụm, không underline riêng chữ) · `sidebar` (leading avatar trong nav row → `IconTile`

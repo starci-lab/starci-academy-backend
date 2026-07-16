@@ -41,6 +41,12 @@
       "autoPort": true
     },
     {
+      "name": "storybook",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "D:/Repositories/starci-academy", "run", "storybook"],
+      "port": 6006
+    },
+    {
       "name": "backend",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "start:dev"],
@@ -69,6 +75,18 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "C:/Repositories/starci-plugins/example/amazon-app", "run", "dev"],
       "port": 6001
+    },
+    {
+      "name": "agency-be",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "D:/Repositories/starci-agency/backend", "run", "start:dev"],
+      "port": 5006
+    },
+    {
+      "name": "agency-fe",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "D:/Repositories/starci-agency/frontend", "run", "dev"],
+      "port": 5005
     }
   ]
 }

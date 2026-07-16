@@ -15,6 +15,8 @@ description: >
 
 # /starci-fe-patch — Đồng bộ code FE theo rule ĐÃ ĐỔI
 
+> ★ **Đồng bộ 3 lớp** (chân lý `.claude/fe` · story = UI-ref · component = UI-trên-nền): mọi thay đổi skill này tạo ra PHẢI reconcile CẢ 3 → luật `.claude/fe/principles/three-layer-sync-truth-story-ui.md` · recipe `.claude/fe/patterns/reconcile-three-layers-on-change.md`.
+
 Code **đúng lúc được viết, nhưng rule đã đổi sau đó** — canon có "Đính chính" hoặc mốc CHỐT mới hơn mà code chưa theo
 kịp. Skill này tìm và vá đúng loại lệch đó. Không phải `starci-fe-audit` (code trùng/i18n/a11y), không phải
 `starci-fe-block` (thiết kế block mới).

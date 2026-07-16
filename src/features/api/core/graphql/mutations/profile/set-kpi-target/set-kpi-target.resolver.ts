@@ -40,6 +40,7 @@ const MAX_TARGET: Record<KpiKey, number> = {
     [KpiKey.Challenges]: 100,
     [KpiKey.Coding]: 100,
     [KpiKey.Flashcards]: 1000,
+    [KpiKey.Milestones]: 20,
 }
 
 /**

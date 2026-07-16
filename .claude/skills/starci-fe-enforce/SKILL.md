@@ -16,6 +16,8 @@ description: >
 
 # /starci-fe-enforce — Dựng luật MÁY (không để audit-LLM gánh trục-1)
 
+> ★ **Đồng bộ 3 lớp** (chân lý `.claude/fe` · story = UI-ref · component = UI-trên-nền): mọi thay đổi skill này tạo ra PHẢI reconcile CẢ 3 → luật `.claude/fe/principles/three-layer-sync-truth-story-ui.md` · recipe `.claude/fe/patterns/reconcile-three-layers-on-change.md`.
+
 Tầng máy = thứ chặn drift TẠI lúc gõ/commit, deterministic, chạy CI. Skill này TẠO nó. Nguyên tắc gốc:
 **đẩy luật về tầng rẻ nhất bắt được nó** — `LÀM-BẤT-HỢP-LỆ > LINT > CI/VISUAL > AUDIT-LLM > MẮT NGƯỜI` ([[methodology/enforcement]]).
 

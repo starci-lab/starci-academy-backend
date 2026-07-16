@@ -73,6 +73,7 @@ export class MyKpisResolver {
             [KpiKey.Challenges]: stats.weeklyChallenges,
             [KpiKey.Coding]: stats.weeklyCoding,
             [KpiKey.Flashcards]: stats.weeklyFlashcards,
+            [KpiKey.Milestones]: stats.weeklyMilestones,
         }
         // self-set targets map off the user row (absent / 0 = no target)
         const targets = user.weeklyKpiTargets ?? {

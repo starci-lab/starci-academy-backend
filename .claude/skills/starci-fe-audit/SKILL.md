@@ -18,6 +18,8 @@ description: >
 
 # /starci-fe-audit — Full-scan sức khỏe FE 5 trục → bản đồ + findings ranked
 
+> ★ **Đồng bộ 3 lớp** (chân lý `.claude/fe` · story = UI-ref · component = UI-trên-nền): mọi thay đổi skill này tạo ra PHẢI reconcile CẢ 3 → luật `.claude/fe/principles/three-layer-sync-truth-story-ui.md` · recipe `.claude/fe/patterns/reconcile-three-layers-on-change.md`.
+
 Lane NẶNG, chạy khi thầy gọi. Gom 5 lượt quét cũ (story-book · sweep · quality · cta-link · consolidate)
 thành 1 skill vì chúng cùng skeleton: enumerate surface → fan-out chấm → synthesize rank → proposal. Đọc
 source 1 lần, chấm đủ trục — không đọc lại app 5 lần cho 5 skill.

@@ -83,3 +83,19 @@ Synthesize từ 6 brief sonnet trong `_audit/` (api-surface · type-safety · va
 - `pg-backup.service.ts:152` spread `...process.env` cho spawn — cùng loại ngoại lệ hợp lệ như `pg.service.ts` nhưng rubric chưa liệt tên ⇒ **thiếu ở rubric-doc**, không phải bug.
 - `sentry/instrument.ts:11` đọc `process.env.NODE_ENV` — chạy TRƯỚC bootstrap nên có thể là exception hợp lý như `parse-env.ts`; chốt rule.
 - `presigned-url.controller.ts` (mold REST chuẩn) lại KHÔNG có `@RestSuccessMessage` dù rule yêu cầu ⇒ rule/mold có thể đã trôi; chốt rubric trước khi patch `@RestSuccessMessage` hàng loạt (đa số controller còn lại là webhook M2M, ngoại lệ hợp lý).
+
+---
+
+## Re-audit 2026-07-16 — KHÔNG có code mới (baseline dời `5e694f91` → `fbd55905`)
+
+`git diff 5e694f91..fbd55905 -- src` = **0 file**. Các commit xen giữa toàn `.claude/` (skills · patterns · model-allocation), không đụng `src/`. Nên:
+- Không có file BE mới để chấm — code khớp rubric tới HEAD (không drift mới).
+- **40 openViolations của lần trước GIỮ NGUYÊN** (code chưa ai sửa → không cái nào đóng). Backlog nợ code-style vẫn đúng như block "2026-07-16 (baseline)" ở trên.
+- `lastAuditCommit` bump sang `fbd55905` (src byte-identical, an toàn) → lần audit sau chỉ diff từ đây.
+
+**Ưu tiên khi thầy muốn trả nợ** (không cái nào là leak/bảo mật, đều là code-style/hướng phụ thuộc):
+1. `validation/no-boundary-validator` — **SEVERE**, 66/66 GraphQL query request.ts KHÔNG decorator → pagination unbounded, input unauthed không chặn. Đây là cái đáng đụng nhất (gần ranh giới đúng-sai an toàn, không chỉ style).
+2. `type-safety/as-unknown-as` (13 file) — nhiều cụm lặp (JSONB cast, ES builder ×10, webhook body); gom helper `satisfies`/type-guard.
+3. `api-surface/reverse-import` (5) — bussiness import ngược từ features/api, sai chiều phụ thuộc; dời const XP xuống bussiness.
+4. `exceptions/nest-builtin-in-features-api` (2) — mount-foundations throw `NotFoundException` Nest thay AbstractException (đúng luật StarCi).
+5. Còn lại (fat-resolver, hardcoded-duration ×6, method-not-execute ×15, swagger-apitags ×10, magic-number-length) — cơ học/DRY, nhiều cái **nên thành ESLint rule** thay vì audit tay lặp.
