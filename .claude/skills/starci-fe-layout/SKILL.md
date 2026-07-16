@@ -94,6 +94,19 @@ Thầy duyệt xong → ghi **`.artifacts/proposals/<feature>.proposal.md`** —
 - Xong → hỏi thầy *"build luôn session này không?"* — đồng ý thì gọi `starci-fe-build <feature>`; không thì
   BACKLOG là bàn giao cho session sau.
 
+## Bàn giao brainstorm — GHI RÕ 3 THỨ (BẮT BUỘC, trong proposal + báo thầy)
+
+Mỗi lần brainstorm xong, KHÔNG chỉ tả chữ — proposal + tin nhắn chốt PHẢI nêu đủ:
+
+1. **Prototype :8080 (HTML bấm-được)** — URL đang host + đường dẫn file (`.artifacts/prototypes/<feature>/index.html`). Đi luồng như slide, mọi state. (Layout = flow; nếu là 1 BLOCK lẻ → xem `starci-fe-block`, block CŨNG render prototype riêng.)
+2. **BẢNG component → Storybook** — liệt kê BAO NHIÊU / component NÀO sẽ thêm/sửa story sau khi build (để thầy biết Storybook sắp phình gì):
+
+   | Component | Story | Mới / Sửa | State demo thêm |
+   |---|---|---|---|
+   | `TabsCard` | `TabsCard.stories` | sửa | + state `overflow` |
+
+3. **Nguồn tham khảo** — ground vào ĐÂU (liệt kê THẬT, không chung chung): `.artifacts/concepts/<x>` · `.artifacts/states/diff.md` (Storybook) · `.claude/fe/{layouts,components,...}/<doc>` · source `<file:line>`. **KHÔNG web** — thiếu thì đã hỏi thầy.
+
 ## Ràng (STRICT)
 
 - **KHÔNG build code** — không sửa `src/`, không đẩy story; đó là `starci-fe-build`.

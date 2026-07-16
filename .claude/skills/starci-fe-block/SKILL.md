@@ -34,7 +34,7 @@ Skill này chỉ THIẾT KẾ — code là việc của `starci-fe-build`.
 4. **States** — có data: loading(skeleton mirror)/empty/error; luôn: default/hover/focus/disabled/selected. Hover **theo bản chất** (go-there→underline · user→opacity · stay→fill).
 5. **Props** — `*Props extends WithClassNames`; container tự đọc store/SWR, KHÔNG prop-drill data/callback thừa; 1 component = 1 folder `index.tsx`.
 6. **Element-compliance** — ráp từ **primitive canonical** (HeroUI/block sẵn trong [[fe/components/INDEX]]), CẤM hand-roll `<div border>`/`<button hover:bg>`; icon = Phosphor. Element mới không có canon → hỏi thầy.
-7. **(tuỳ) preview nhẹ** — vài variant/state cạnh nhau cho thầy nhìn nhanh (không cả flow, không bắt buộc).
+7. **Prototype :8080 (BẮT BUỘC)** — render 1 trang HTML bấm-được cho block: các variant + đủ state (default/hover/focus/disabled/loading/empty/error) cạnh nhau, host :8080, lưu `.artifacts/prototypes/<block>.html`. Block CŨNG có prototype — thầy phải NHÌN được block thật, không chỉ tả chữ.
 
 ## Fan-out mode (OPT-IN — khi thầy muốn "cho xem options")
 Thay vì chốt 1 đáp án, đẻ **3–5 hướng KHÁC NHAU THẬT** cho cùng block:
@@ -51,8 +51,18 @@ Thay vì chốt 1 đáp án, đẻ **3–5 hướng KHÁC NHAU THẬT** cho cùn
 (đừng chỉ áp đúng 1 rule đang chăm chú)? Đã cân phương án thứ 2 chưa hay chốt ngay cái đầu nghe hợp lý? Tìm ra lỗ
 → sửa TRƯỚC khi trình.
 
+## Bàn giao brainstorm — GHI RÕ 3 THỨ (BẮT BUỘC)
+Xong brainstorm block, proposal + tin chốt PHẢI nêu đủ:
+1. **Prototype :8080** — URL đang host + `.artifacts/prototypes/<block>.html` (variant + state bấm-được). Block cũng có prototype, không chỉ tả chữ.
+2. **BẢNG component → Storybook** — block này (+ sub-component nếu có) sẽ THÊM/SỬA story nào, state demo gì:
+
+   | Component | Story | Mới / Sửa | State demo thêm |
+   |---|---|---|---|
+
+3. **Nguồn tham khảo** — ground vào đâu (THẬT): `.artifacts/concepts/<x>` · `.artifacts/states/diff.md` · `.claude/fe/{components,foundations,principles}/<doc>` · source `<file:line>`. **KHÔNG web** — thiếu thì đã hỏi thầy.
+
 ## Ghi / bàn giao — STRICT
-- **GHI:** `.artifacts/proposals/<block>.proposal.md` (spec block đã chốt: anatomy · variants · states · props · element map · files-to-touch) + (fan-out) `.artifacts/prototypes/<block>-variants.html`.
+- **GHI:** `.artifacts/proposals/<block>.proposal.md` (spec block đã chốt: anatomy · variants · states · props · element map · files-to-touch) + prototype `.artifacts/prototypes/<block>.html` (+ fan-out: `<block>-variants.html`).
 - **CẤM GHI:** `.claude/**` (rule read-only trong vòng lặp) · `.artifacts/states` (chỉ `starci-fe-sync` ghi).
 - **Bàn giao `starci-fe-build`** (thường ngay session này — block nhỏ): build theo spec + đẩy STORY "news" (`tags: ['news']` + caption "Chờ duyệt") lên Storybook cho thầy duyệt.
 - Thay đổi trải nhiều surface/cả trang → sang `starci-fe-layout`, không cố nhét vào block.
