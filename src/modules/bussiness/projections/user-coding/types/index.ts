@@ -64,6 +64,8 @@ export interface UserCodingSkillsResult {
 export interface UserCodingHistoryValue {
     /** Coding-problem title. */
     problemTitle: string
+    /** Stable URL slug of the problem (drives `/profile/<username>/skills/<slug>`). */
+    slug: string
     /** Difficulty value (easy/medium/hard). */
     difficulty: string
     /** Problem domain value (arrays/strings/trees/dynamicProgramming/…). */
@@ -78,6 +80,8 @@ export interface UserCodingHistoryValue {
 export interface UserCodingHistoryResult {
     /** Coding-problem title. */
     problemTitle: string
+    /** Stable URL slug of the problem (drives `/profile/<username>/skills/<slug>`). */
+    slug: string
     /** Difficulty value (easy/medium/hard). */
     difficulty: string
     /** Problem domain value (arrays/strings/trees/dynamicProgramming/…). */

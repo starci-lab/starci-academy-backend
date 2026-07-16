@@ -5,13 +5,13 @@ import {
     EntityManager,
 } from "typeorm"
 import {
+    CoinHistoryEntity,
+    CoinSource,
     InjectPrimaryPostgreSQLEntityManager,
     NotificationType,
-    XpHistoryEntity,
-    XpSource,
 } from "@modules/databases"
 import {
-    writeXpHistory,
+    writeCoinHistory,
 } from "@features/api/processors/ai/shared/xp"
 import {
     NotificationService,
@@ -19,6 +19,16 @@ import {
 import {
     UserStatsProjectionService,
 } from "../projections/user-stats/user-stats-projection.service"
+
+/**
+ * Coin bonus for keeping the streak alive on ONE calendar day (Asia/Ho_Chi_Minh),
+ * granted once per day on top of whatever per-activity coin the day's actions
+ * already earned. Finalized deliberately LOW (below dailyQuest's 20) — "streak
+ * still alive" is an easier bar than "3/5 daily tasks done", so it's a thin
+ * consistency layer, not a competing reward (see
+ * `.artifacts/proposals/coin-xp-economy-numbers.proposal.md`).
+ */
+export const STREAK_DAILY_BONUS_COIN = 5
 
 /** One platform-wide streak length that grants a one-time Coin bonus. */
 export interface StreakMilestone {
@@ -58,11 +68,11 @@ export const STREAK_MILESTONES: ReadonlyArray<StreakMilestone> = [
  * so its idempotency guard is load-bearing rather than defensive: without the
  * pre-check-before-grant, a user sitting ABOVE an already-granted milestone
  * (e.g. on day 45, past the day-30 bonus) would be re-notified — and, absent
- * `writeXpHistory`'s own (source, refId) guard, re-credited — on every single
- * recompute while their streak stays there. The XP-history row keyed by
+ * `writeCoinHistory`'s own (source, refId) guard, re-credited — on every single
+ * recompute while their streak stays there. The Coin-history row keyed by
  * `streak:<userId>:<days>` is the single source of truth for "already granted",
  * so the check-then-grant here is really a fast-path avoiding the wasted
- * transaction, with `writeXpHistory` as the hard backstop against races.
+ * transaction, with `writeCoinHistory` as the hard backstop against races.
  */
 @Injectable()
 export class StreakMilestoneService {
@@ -87,17 +97,17 @@ export class StreakMilestoneService {
             if (milestone.days > streak) {
                 continue
             }
-            // stable per-(user, milestone) key — doubles as the XP-history refId
+            // stable per-(user, milestone) key — doubles as the Coin-history refId
             // and the "already granted" lookup key
             const refId = `streak:${userId}:${milestone.days}`
             // fast-path: skip the transaction entirely when already granted, so a
             // streak sitting above a past milestone does not re-notify on every
             // recompute (see class doc)
             const existing = await this.entityManager.findOne(
-                XpHistoryEntity,
+                CoinHistoryEntity,
                 {
                     where: {
-                        source: XpSource.StreakMilestone,
+                        source: CoinSource.StreakMilestone,
                         refId,
                     },
                     select: {
@@ -112,12 +122,10 @@ export class StreakMilestoneService {
             // notification never fires for a bonus that failed to persist (and
             // vice versa)
             await this.entityManager.transaction(async (manager) => {
-                await writeXpHistory({
+                await writeCoinHistory({
                     entityManager: manager,
                     userId,
-                    courseId: null,
-                    source: XpSource.StreakMilestone,
-                    amount: 0,
+                    source: CoinSource.StreakMilestone,
                     points: milestone.coin,
                     refId,
                 })
@@ -135,5 +143,48 @@ export class StreakMilestoneService {
                 })
             })
         }
+    }
+
+    /**
+     * Grant {@link STREAK_DAILY_BONUS_COIN} once for TODAY (Asia/Ho_Chi_Minh)
+     * when the user was active today — reuses `last7Days`' last entry (today's
+     * slot) rather than a fresh query, since {@link checkAndGrant} already
+     * forces a fresh {@link UserStatsProjectionService.getStats} read on every
+     * streak-affecting event. A non-active today (e.g. a stats read with no new
+     * activity) is a no-op — idempotent via the `(source, refId)` Coin-history
+     * key, same backstop pattern as {@link checkAndGrant}.
+     *
+     * @param userId - the user whose stats just changed.
+     */
+    async checkAndGrantDailyBonus(userId: string): Promise<void> {
+        const { last7Days } = await this.userStatsProjectionService.getStats(userId)
+        // last7Days is ordered oldest → today; the last entry IS today (VN calendar)
+        const today = last7Days[last7Days.length - 1]
+        if (!today?.active) {
+            return
+        }
+        const refId = `streakDaily:${userId}:${today.date}`
+        const existing = await this.entityManager.findOne(
+            CoinHistoryEntity,
+            {
+                where: {
+                    source: CoinSource.StreakDailyBonus,
+                    refId,
+                },
+                select: {
+                    id: true,
+                },
+            },
+        )
+        if (existing) {
+            return
+        }
+        await writeCoinHistory({
+            entityManager: this.entityManager,
+            userId,
+            source: CoinSource.StreakDailyBonus,
+            points: STREAK_DAILY_BONUS_COIN,
+            refId,
+        })
     }
 }

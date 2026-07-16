@@ -56,6 +56,8 @@ export interface UserCapstoneTaskResult {
 
 /** One milestone task inside the capstone-progress jsonb `value.courses` (raw jsonb shape). */
 export interface UserCapstoneProgressTaskValue {
+    /** Milestone-task raw DB id (turned into a global id by the resolver). */
+    id: string
     /** Milestone-task title. */
     title: string
     /** Task ordering position within its milestone (ascending). */
@@ -70,6 +72,8 @@ export interface UserCapstoneProgressTaskValue {
 
 /** One milestone inside the capstone-progress jsonb `value.courses` (raw jsonb shape). */
 export interface UserCapstoneProgressMilestoneValue {
+    /** Milestone raw DB id (turned into a global id by the resolver). */
+    id: string
     /** Milestone title. */
     title: string
     /** Milestone ordering position within its course (ascending). */
@@ -102,6 +106,8 @@ export interface UserCapstoneProgressCourseValue {
 
 /** One milestone task in the typed capstone-progress view returned by the service. */
 export interface UserCapstoneProgressTaskResult {
+    /** Milestone-task raw DB id (turned into a global id by the resolver). */
+    id: string
     /** Milestone-task title. */
     title: string
     /** Task ordering position within its milestone (ascending). */
@@ -116,6 +122,8 @@ export interface UserCapstoneProgressTaskResult {
 
 /** One milestone in the typed capstone-progress view returned by the service. */
 export interface UserCapstoneProgressMilestoneResult {
+    /** Milestone raw DB id (turned into a global id by the resolver). */
+    id: string
     /** Milestone title. */
     title: string
     /** Milestone ordering position within its course (ascending). */

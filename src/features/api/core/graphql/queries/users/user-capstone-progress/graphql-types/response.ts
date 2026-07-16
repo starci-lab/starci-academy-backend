@@ -19,6 +19,14 @@ export class CapstoneTaskItemObject {
     @Field(
         () => String,
         {
+            description: "Opaque global id of the milestone task — feed to resolveRoute.",
+        },
+    )
+        taskGlobalId: string
+
+    @Field(
+        () => String,
+        {
             description: "Milestone-task title.",
         },
     )
@@ -58,6 +66,14 @@ export class CapstoneTaskItemObject {
     description: "A milestone on a user's capstone roadmap.",
 })
 export class CapstoneMilestoneProgressObject {
+    @Field(
+        () => String,
+        {
+            description: "Opaque global id of the milestone — feed to resolveRoute.",
+        },
+    )
+        milestoneGlobalId: string
+
     @Field(
         () => String,
         {

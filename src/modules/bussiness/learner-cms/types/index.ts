@@ -78,16 +78,16 @@ export interface MilestoneTaskAttemptResult {
 }
 
 /**
- * One merged learning-feedback row from any of the three sources (challenge
- * submission feedback, milestone-task attempt feedback, or CV review). Already
- * normalised to the same shape so the resolver can return a single list.
+ * One merged learning-feedback row from either source (challenge submission
+ * feedback or milestone-task attempt feedback). Already normalised to the
+ * same shape so the resolver can return a single list.
  */
 export interface LearningFeedbackResult {
-    /** Source bucket — "challenge" | "task" | "cv". */
+    /** Source bucket — "challenge" | "task". */
     source: string
-    /** Short human title (challenge / task title, or "CV review"). */
+    /** Short human title (challenge / task title). */
     title: string
-    /** Owning course title, or null when the source has no course (CV). */
+    /** Owning course title. */
     courseTitle: string | null
     /** The feedback message / summary text. */
     summary: string
@@ -143,13 +143,13 @@ export interface MilestoneTaskAttemptRow {
     attempted_at: Date
 }
 
-/** Raw merged feedback row across all three sources (snake_case SQL columns). */
+/** Raw merged feedback row across both sources (snake_case SQL columns). */
 export interface LearningFeedbackRow {
-    /** Source bucket — "challenge" | "task" | "cv". */
+    /** Source bucket — "challenge" | "task". */
     source: string
     /** Short human title. */
     title: string
-    /** Owning course title, or null (CV). */
+    /** Owning course title. */
     course_title: string | null
     /** Feedback message / summary text. */
     summary: string

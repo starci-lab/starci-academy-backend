@@ -91,6 +91,7 @@ export class UserCodingProjectionService {
         // map the stored ISO string back to a Date for the GraphQL Date scalar
         return history.map((item) => ({
             problemTitle: item.problemTitle,
+            slug: item.slug,
             difficulty: item.difficulty,
             domain: item.domain,
             languages: Array.isArray(item.languages) ? item.languages : [],
@@ -312,6 +313,7 @@ export class UserCodingProjectionService {
                     SELECT jsonb_agg(
                         jsonb_build_object(
                             'problemTitle', h.title,
+                            'slug',         h.slug,
                             'difficulty',   h.difficulty,
                             'domain',       h.domain,
                             'languages',    h.languages,
@@ -321,6 +323,7 @@ export class UserCodingProjectionService {
                     FROM (
                         SELECT cp.id,
                                cp.title,
+                               cp.slug,
                                cp.difficulty::text AS difficulty,
                                cp.domain::text AS domain,
                                array_agg(DISTINCT cs.language::text) AS languages,
@@ -328,7 +331,7 @@ export class UserCodingProjectionService {
                         FROM coding_submissions cs
                         JOIN coding_problems cp ON cp.id = cs.coding_problem_id
                         WHERE cs.user_id = $1 AND cs.verdict = 'accepted'
-                        GROUP BY cp.id, cp.title, cp.difficulty, cp.domain
+                        GROUP BY cp.id, cp.title, cp.slug, cp.difficulty, cp.domain
                     ) h
                 ), '[]'::jsonb)
             )

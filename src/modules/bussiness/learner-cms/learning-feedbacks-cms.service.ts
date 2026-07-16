@@ -23,13 +23,17 @@ import type {
  *     items attached to a challenge-submission attempt) → challenge + course.
  *   - "task": `user_milestone_task_attempt_feedbacks` (structured feedback items
  *     attached to a milestone-task review attempt) → task + course.
- *   - "cv": `cv_submission_attempts` rows that carry a `detail_feedback` (the AI
- *     CV review) → no course.
  *
- * Plain paginated list keyed by the viewer (the LIST exception) — the three
- * source SELECTs are merged with `UNION ALL` in a single normalised CTE, then
- * ordered newest-first and windowed in SQL so paging stays correct across all
- * three sources without fetch-merge-slice in memory.
+ * (A third "cv" source — `cv_submission_attempts.detail_feedback` — was dropped
+ * along with the legacy `cv_submissions`/`cv_submission_attempts` tables; the
+ * unified `cv_generations.feedback` is jsonb-shaped differently, so it wasn't a
+ * drop-in replacement. Re-add as a new UNION branch if CV feedback needs to
+ * resurface here.)
+ *
+ * Plain paginated list keyed by the viewer (the LIST exception) — the source
+ * SELECTs are merged with `UNION ALL` in a single normalised CTE, then ordered
+ * newest-first and windowed in SQL so paging stays correct across all sources
+ * without fetch-merge-slice in memory.
  */
 @Injectable()
 export class LearningFeedbacksCmsService {
@@ -131,20 +135,6 @@ export class LearningFeedbacksCmsService {
             JOIN enrollments e ON e.id = umt.enrollment_id
             JOIN courses c ON c.id = e.course_id
             WHERE e.user_id = $1
-
-            UNION ALL
-
-            -- CV review attempts that produced an AI review → no course
-            SELECT
-                'cv'::text AS source,
-                'CV review'::text AS title,
-                NULL::varchar AS course_title,
-                cva.detail_feedback AS summary,
-                cva.created_at AS created_at
-            FROM cv_submission_attempts cva
-            JOIN cv_submissions cvs ON cvs.id = cva.cv_submission_id
-            WHERE cvs.user_id = $1
-              AND cva.detail_feedback IS NOT NULL
         `
     }
 

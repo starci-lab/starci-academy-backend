@@ -96,6 +96,23 @@ export class WeeklyChallengeObject {
         },
     )
         leaderboard: Array<WeeklyChallengeEntryObject>
+
+    @Field(
+        () => Boolean,
+        {
+            description: "Whether the viewer already claimed the reward this week.",
+        },
+    )
+        claimed: boolean
+
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Coin reward for claiming; null when the viewer hasn't passed yet.",
+        },
+    )
+        coinReward: number | null
 }
 
 /**

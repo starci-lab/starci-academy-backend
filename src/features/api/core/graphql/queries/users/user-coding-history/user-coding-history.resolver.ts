@@ -72,6 +72,7 @@ export class UserCodingHistoryResolver {
         const history = await this.userCodingProjectionService.getHistory(userId)
         return history.map((item) => ({
             problemTitle: item.problemTitle,
+            slug: item.slug,
             difficulty: item.difficulty,
             domain: item.domain,
             languages: item.languages,

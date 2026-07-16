@@ -53,6 +53,12 @@ import {
     UserSolvedChallengesSingleQueryModule,
 } from "./user-solved-challenges"
 import {
+    UserSolvedChallengeDetailSingleQueryModule,
+} from "./user-solved-challenge-detail"
+import {
+    UserCodingProblemDetailSingleQueryModule,
+} from "./user-coding-problem-detail"
+import {
     UserChallengeStrengthSingleQueryModule,
 } from "./user-challenge-strength"
 import {
@@ -138,6 +144,12 @@ import {
             isGlobal: true,
         }),
         UserSolvedChallengesSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserSolvedChallengeDetailSingleQueryModule.register({
+            isGlobal: true,
+        }),
+        UserCodingProblemDetailSingleQueryModule.register({
             isGlobal: true,
         }),
         UserChallengeStrengthSingleQueryModule.register({

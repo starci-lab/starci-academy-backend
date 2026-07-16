@@ -7,20 +7,11 @@ import {
     TestingModule,
 } from "@nestjs/testing"
 import {
-    getEntityManagerToken,
-} from "@nestjs/typeorm"
-import {
     S3BuildService,
 } from "@modules/s3"
 import {
     NotAllowExtensionsException,
 } from "@modules/exceptions"
-import {
-    makeEntityManagerMock,
-} from "@modules/tests"
-import type {
-    EntityManagerMock,
-} from "@modules/tests"
 import type {
     UserEntity,
 } from "@modules/databases"
@@ -30,9 +21,6 @@ import {
 import {
     GenerateSubmitCvPresignUrlHandler,
 } from "./generate-submit-cv-presign-url.handler"
-
-/** Connection name used by the primary PostgreSQL data source. */
-const POSTGRESQL_PRIMARY = "primary"
 
 /**
  * Build a minimal user stand-in carrying only the id the handler reads.
@@ -50,13 +38,9 @@ describe("GenerateSubmitCvPresignUrlHandler",
     () => {
         let module: TestingModule
         let handler: GenerateSubmitCvPresignUrlHandler
-        let entityManager: EntityManagerMock
         let s3BuildService: jest.Mocked<Pick<S3BuildService, "buildSignedPutObjectUrl">>
 
         beforeEach(async () => {
-            // fresh jest-backed entity manager — `transaction` runs the callback inline
-            entityManager = makeEntityManagerMock()
-
             // presigned-URL builder — returns a fixed signed PUT URL
             s3BuildService = {
                 buildSignedPutObjectUrl: jest.fn().mockResolvedValue("https://minio/signed-put"),
@@ -69,10 +53,6 @@ describe("GenerateSubmitCvPresignUrlHandler",
                         provide: S3BuildService,
                         useValue: s3BuildService,
                     },
-                    {
-                        provide: getEntityManagerToken(POSTGRESQL_PRIMARY),
-                        useValue: entityManager,
-                    },
                 ],
             }).compile()
 
@@ -83,7 +63,7 @@ describe("GenerateSubmitCvPresignUrlHandler",
             await module.close()
         })
 
-        it("rejects a non-pdf extension before any URL or DB work",
+        it("rejects a non-pdf extension before signing",
             async () => {
                 await expect(
                     handler.execute(
@@ -96,16 +76,12 @@ describe("GenerateSubmitCvPresignUrlHandler",
                     ),
                 ).rejects.toBeInstanceOf(NotAllowExtensionsException)
 
-                // the disallowed extension short-circuits before signing / persistence
+                // the disallowed extension short-circuits before signing
                 expect(s3BuildService.buildSignedPutObjectUrl).not.toHaveBeenCalled()
-                expect(entityManager.findOne).not.toHaveBeenCalled()
             })
 
-        it("signs a per-user pdf key and creates a new pending submission",
+        it("signs a per-user pdf key and returns the url + cdn key",
             async () => {
-                // no prior submission for this user → a new row is created
-                entityManager.findOne.mockResolvedValueOnce(null)
-
                 const result = await handler.execute(
                     new GenerateSubmitCvPresignUrlCommand({
                         request: {
@@ -122,35 +98,9 @@ describe("GenerateSubmitCvPresignUrlHandler",
                         contentType: "application/pdf",
                     }),
                 )
-                // a new submission is created and saved inside the transaction
-                expect(entityManager.create).toHaveBeenCalled()
-                expect(entityManager.save).toHaveBeenCalled()
-                // the signed URL is returned to the client
+                // the signed URL + object key are returned to the client (WF-07: the
+                // client passes cdnKey into `uploadCv` to register it in cv_generations)
                 expect(result.url).toBe("https://minio/signed-put")
-            })
-
-        it("reuses the latest submission and re-points it at the new key",
-            async () => {
-                // an existing submission is found → it is repointed, not recreated
-                const existing = {
-                    id: "cv-1",
-                    status: "uploaded",
-                    cdnKey: "old-key",
-                }
-                entityManager.findOne.mockResolvedValueOnce(existing)
-
-                const result = await handler.execute(
-                    new GenerateSubmitCvPresignUrlCommand({
-                        request: {
-                            fileName: "resume.pdf",
-                        },
-                        user: fakeUser("user-1"),
-                    }),
-                )
-
-                // the existing row is reset to pending + given the new key
-                expect(entityManager.create).not.toHaveBeenCalled()
-                expect(existing.cdnKey).toBe("users/cv-submissions/user-1/resume.pdf")
-                expect(result.cvSubmissionId).toBe("cv-1")
+                expect(result.cdnKey).toBe("users/cv-submissions/user-1/My Resume.pdf")
             })
     })

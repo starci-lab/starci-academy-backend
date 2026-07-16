@@ -135,11 +135,13 @@ export class UserCapstoneProjectionService {
             totalTasks: Number(course.totalTasks) || 0,
             completedTasks: Number(course.completedTasks) || 0,
             milestones: (course.milestones ?? []).map((milestone) => ({
+                id: milestone.id,
                 title: milestone.title,
                 position: Number(milestone.position) || 0,
                 totalTasks: Number(milestone.totalTasks) || 0,
                 passedTasks: Number(milestone.passedTasks) || 0,
                 tasks: (milestone.tasks ?? []).map((task) => ({
+                    id: task.id,
                     title: task.title,
                     position: Number(task.position) || 0,
                     passed: Boolean(task.passed),
@@ -236,6 +238,7 @@ export class UserCapstoneProjectionService {
                             COALESCE(SUM(milestone_row.passed_tasks), 0) AS completed_tasks,
                             COALESCE(jsonb_agg(
                                 jsonb_build_object(
+                                    'id',          milestone_row.milestone_id,
                                     'title',       milestone_row.milestone_title,
                                     'position',    milestone_row.milestone_position,
                                     'totalTasks',  milestone_row.total_tasks,
@@ -256,6 +259,7 @@ export class UserCapstoneProjectionService {
                                 COUNT(*) FILTER (WHERE task_row.passed) AS passed_tasks,
                                 COALESCE(jsonb_agg(
                                     jsonb_build_object(
+                                        'id',       task_row.task_id,
                                         'title',    task_row.task_title,
                                         'position', task_row.task_position,
                                         'passed',   task_row.passed,

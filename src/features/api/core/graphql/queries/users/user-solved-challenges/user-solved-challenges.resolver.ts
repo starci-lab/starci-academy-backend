@@ -20,12 +20,16 @@ import {
     ThrottlerConfig,
 } from "@modules/throttler"
 import {
+    CourseEntity,
     Locale,
 } from "@modules/databases"
 import {
     GraphQLProfileVisibilityGuard,
     UserSolvedChallengesProjectionService,
 } from "@modules/bussiness"
+import {
+    toGlobalId,
+} from "@modules/routing"
 import {
     UserSolvedChallengeItemData,
     UserSolvedChallengesResponse,
@@ -71,6 +75,7 @@ export class UserSolvedChallengesResolver {
         // thin projection read (newest-first)
         const challenges = await this.userSolvedChallengesProjectionService.getChallenges(userId)
         return challenges.map((challenge) => ({
+            id: challenge.id,
             title: challenge.title,
             submissionUrl: challenge.submissionUrl,
             submissionType: challenge.submissionType,
@@ -78,6 +83,10 @@ export class UserSolvedChallengesResolver {
             difficulty: challenge.difficulty,
             score: challenge.score,
             courseTitle: challenge.courseTitle,
+            courseGlobalId: challenge.courseId
+                ? toGlobalId(CourseEntity.name,
+                    challenge.courseId)
+                : null,
             passedAt: challenge.passedAt,
         }))
     }

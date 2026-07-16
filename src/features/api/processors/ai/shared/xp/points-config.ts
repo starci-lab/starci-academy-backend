@@ -24,6 +24,16 @@ export const FLAT_POINTS = {
      * solve is the problem's own point value (see the judge step).
      */
     codingSolved: 20,
-    /** Claiming the completed daily quest (all tasks done that VN day). */
-    dailyQuest: 20,
+    /**
+     * Completing a flashcard quiz session (anchored to `lessonRead` — a
+     * "finish a study unit" action; grind is self-limiting since it only pays
+     * on the session's XP-earning slice, capped at `DAILY_QUIZ_XP_CAP`/day).
+     */
+    flashcardQuizSession: 5,
+    /**
+     * Grading one flashcard for the FIRST time ever (once per user × card).
+     * Deliberately the smallest flat reward — lowest-effort, highest-volume
+     * action, bounded only by total distinct cards (not a renewable faucet).
+     */
+    flashcardFirstReview: 1,
 } as const

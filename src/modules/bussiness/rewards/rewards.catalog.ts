@@ -70,7 +70,11 @@ export const REWARD_CATALOG: ReadonlyArray<RewardDefinition> = [
         titleVi: "Áo thun StarCi",
         descEn: "An exclusive StarCi T-shirt shipped to you.",
         descVi: "Áo thun StarCi độc quyền gửi tận tay bạn.",
-        cost: 1500,
+        // ~6 months of grinding for a Consistent learner (~414 coin/week × ~26
+        // weeks ≈ 10,764 → rounded), up from 1500 (~1 month) — thầy 2026-07-17:
+        // the flagship physical item should be a genuine long-term goal, not a
+        // 1-month grind (see .artifacts/proposals/coin-xp-economy-numbers.proposal.md)
+        cost: 11000,
         kind: "physical",
     },
 ]

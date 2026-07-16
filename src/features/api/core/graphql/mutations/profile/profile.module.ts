@@ -34,6 +34,12 @@ import {
 import {
     ClaimDailyQuestRewardSingleMutationModule,
 } from "./claim-daily-quest-reward"
+import {
+    ClaimKpiRewardSingleMutationModule,
+} from "./claim-kpi-reward"
+import {
+    ClaimWeeklyChallengeRewardSingleMutationModule,
+} from "./claim-weekly-challenge-reward"
 
 /**
  * Profile mutation group (edit display name, bio, avatar). Avatar upload is a
@@ -70,6 +76,12 @@ import {
             isGlobal: true,
         }),
         ClaimDailyQuestRewardSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        ClaimKpiRewardSingleMutationModule.register({
+            isGlobal: true,
+        }),
+        ClaimWeeklyChallengeRewardSingleMutationModule.register({
             isGlobal: true,
         }),
     ],

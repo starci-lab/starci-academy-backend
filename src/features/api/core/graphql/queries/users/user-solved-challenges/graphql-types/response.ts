@@ -1,5 +1,6 @@
 import {
     Field,
+    ID,
     Int,
     ObjectType,
 } from "@nestjs/graphql"
@@ -17,6 +18,15 @@ import {
     description: "A passed challenge submission with its submission link + language.",
 })
 export class UserSolvedChallengeItemData {
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Stable id for this submission (`user_challenge_submissions.id`) — pass as `submissionId` to `userSolvedChallengeDetail`. Null only for a not-yet-recomputed cache row (self-heals within the projection TTL).",
+        },
+    )
+        id: string | null
+
     @Field(
         () => String,
         {
@@ -76,6 +86,15 @@ export class UserSolvedChallengeItemData {
         },
     )
         courseTitle: string | null
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Opaque global id of the course this challenge belongs to — pass to `.challenges().course(courseGlobalId)` to route to the per-course manage page. Null when the parent course is unresolved.",
+        },
+    )
+        courseGlobalId: string | null
 
     @Field(
         () => Date,

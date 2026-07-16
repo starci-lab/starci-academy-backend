@@ -8,9 +8,6 @@ import {
     GenerateSubmitCvPresignUrlSingleMutationModule,
 } from "./generate-submit-cv-presign-url"
 import {
-    VerifySubmitCvPresignUrlSingleMutationModule,
-} from "./verify-submit-cv-presign-url"
-import {
     GenerateCvSingleMutationModule,
 } from "./generate-cv"
 import {
@@ -47,9 +44,6 @@ import {
 @Module({
     imports: [
         GenerateSubmitCvPresignUrlSingleMutationModule.register({
-            isGlobal: true,
-        }),
-        VerifySubmitCvPresignUrlSingleMutationModule.register({
             isGlobal: true,
         }),
         GenerateCvSingleMutationModule.register({

@@ -61,6 +61,9 @@ import {
     DailyQuestModule,
 } from "./daily-quest"
 import {
+    KpiRewardModule,
+} from "./kpi-reward"
+import {
     LearnerCmsModule,
 } from "./learner-cms"
 import {
@@ -128,6 +131,8 @@ export class BussinessModule extends ConfigurableModuleClass {
             RewardsModule.register(options),
             // import the daily-quest module (today's tasks + claim reward)
             DailyQuestModule.register(options),
+            // import the kpi-reward module (weekly-KPI floor tracking + coin claim)
+            KpiRewardModule.register(options),
             // import the learner self-management CMS reads (plain paginated lists)
             LearnerCmsModule.register(options),
             // import the weekly-challenge module (auto-rotate read-only event)

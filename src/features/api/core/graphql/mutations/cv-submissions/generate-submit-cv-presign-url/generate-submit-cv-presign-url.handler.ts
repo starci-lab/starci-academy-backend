@@ -2,11 +2,6 @@ import {
     ICQRSHandler
 } from "@modules/cqrs"
 import {
-    UserCVSubmissionEntity,
-    CvSubmissionStatus,
-    InjectPrimaryPostgreSQLEntityManager,
-} from "@modules/databases"
-import {
     S3BuildService,
     S3Provider,
 } from "@modules/s3"
@@ -17,9 +12,6 @@ import {
     CommandHandler,
     ICommandHandler,
 } from "@nestjs/cqrs"
-import {
-    EntityManager,
-} from "typeorm"
 import path from "path"
 import {
     GenerateSubmitCvPresignUrlCommand,
@@ -37,8 +29,6 @@ export class GenerateSubmitCvPresignUrlHandler
     extends ICQRSHandler<GenerateSubmitCvPresignUrlCommand, GenerateSubmitCvPresignUrlResponseData>
     implements ICommandHandler<GenerateSubmitCvPresignUrlCommand, GenerateSubmitCvPresignUrlResponseData> {
     constructor(
-        @InjectPrimaryPostgreSQLEntityManager()
-        private readonly entityManager: EntityManager,
         private readonly s3BuildService: S3BuildService,
     ) {
         super()
@@ -81,41 +71,8 @@ export class GenerateSubmitCvPresignUrlHandler
             provider: S3Provider.Minio,
         })
 
-        let lastSubmission = await this.entityManager.findOne(
-            UserCVSubmissionEntity,
-            {
-                where: {
-                    user: {
-                        id: user.id,
-                    },
-                },
-                order: {
-                    createdAt: "DESC",
-                },
-            },
-        )
-        if (!lastSubmission) {
-            lastSubmission = this.entityManager.create(
-                UserCVSubmissionEntity,
-                {
-                    user,
-                    status: CvSubmissionStatus.Pending,
-                    cdnKey: fileKey,
-                },
-            )
-        } else {
-            lastSubmission.status = CvSubmissionStatus.Pending
-            lastSubmission.cdnKey = fileKey
-        }
-       
-        await this.entityManager.transaction(
-            async (entityManager) => {
-                await entityManager.save(lastSubmission)
-            },
-        )
         return {
             url,
-            cvSubmissionId: lastSubmission.id,
             // WF-07: expose the object key so the client can register the upload
             // into the unified `cv_generations` table via the `uploadCv` mutation.
             cdnKey: fileKey,

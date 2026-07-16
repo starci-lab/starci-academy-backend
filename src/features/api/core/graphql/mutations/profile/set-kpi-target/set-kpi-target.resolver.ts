@@ -29,6 +29,9 @@ import {
     KeycloakGraphQLUser,
 } from "@modules/keycloak"
 import {
+    KpiRewardService,
+} from "@modules/bussiness"
+import {
     SetKpiTargetRequest,
     SetKpiTargetResponse,
 } from "./graphql-types"
@@ -55,6 +58,7 @@ export class SetKpiTargetResolver {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
+        private readonly kpiRewardService: KpiRewardService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -101,6 +105,15 @@ export class SetKpiTargetResolver {
                 target,
             ],
         )
+        // lower this week's anti-gaming floor (never raises it) — skip for a
+        // clear (target 0), which isn't a real commitment to track
+        if (target > 0) {
+            await this.kpiRewardService.lowerFloor(
+                user.id,
+                request.key,
+                target,
+            )
+        }
         // no payload — the client already knows the value it sent (post-clamp it can
         // re-fetch via myKpis if it needs the canonical number)
         return {

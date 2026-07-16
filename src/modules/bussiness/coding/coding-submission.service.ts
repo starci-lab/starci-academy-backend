@@ -24,6 +24,9 @@ import {
     DeviceService,
 } from "../device"
 import type {
+    AcceptedSubmissionSummaryRow,
+    AcceptedSubmissionSummaryResult,
+    GetAcceptedSubmissionSummaryParams,
     ListMyCodingSubmissionsParams,
     ListMyCodingSubmissionsResult,
     RecordSolutionRevealResult,
@@ -254,6 +257,55 @@ export class CodingSubmissionService {
         return {
             submissions,
             total,
+        }
+    }
+
+    /**
+     * Read a target user's accepted-submission summary for one problem — the
+     * language(s) used across ALL accepted attempts, plus the testcase counts
+     * and first-solve time from the EARLIEST accepted attempt. Backs the
+     * public profile's `userCodingProblemDetail` read; deliberately hand-rolled
+     * (never returns a raw {@link CodingSubmissionEntity}) so `sourceCode` /
+     * `perCaseResults` / reference solutions can never leak through it.
+     *
+     * @param params - {@link GetAcceptedSubmissionSummaryParams}
+     * @returns the summary, or null when the target user has no accepted submission for the problem
+     */
+    async getAcceptedSummary(
+        {
+            userId,
+            problemId,
+        }: GetAcceptedSubmissionSummaryParams,
+    ): Promise<AcceptedSubmissionSummaryResult | null> {
+        const rows = await this.entityManager.query<Array<AcceptedSubmissionSummaryRow>>(
+            `
+            WITH accepted AS (
+                SELECT language, passed_count, total_count, created_at
+                FROM coding_submissions
+                WHERE user_id = $1 AND coding_problem_id = $2 AND verdict = 'accepted'
+            )
+            SELECT
+                (SELECT array_agg(DISTINCT language::text) FROM accepted) AS languages,
+                (SELECT passed_count FROM accepted ORDER BY created_at ASC LIMIT 1) AS passed_count,
+                (SELECT total_count FROM accepted ORDER BY created_at ASC LIMIT 1) AS total_count,
+                (SELECT MIN(created_at) FROM accepted) AS first_solved_at
+            `,
+            [
+                userId,
+                problemId,
+            ],
+        )
+        const row = rows[0]
+        // no accepted attempt for this user+problem → nothing to show
+        if (!row?.first_solved_at) {
+            return null
+        }
+        return {
+            languages: row.languages ?? [],
+            verdict: CodingVerdict.Accepted,
+            passedCount: Number(row.passed_count) || 0,
+            totalCount: Number(row.total_count) || 0,
+            firstSolvedAt: row.first_solved_at,
         }
     }
 }

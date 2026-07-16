@@ -323,8 +323,8 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
      * once) and the user did NOT reveal its reference solution before solving (a
      * reveal row forfeits the points). The award is routed through the XP ledger
      * (`writeXpHistory` with `source = coding`), which writes the `xp_histories`
-     * row AND increments both `users.total_points` (by the problem's XP value) and
-     * `users.coin_balance` (by the flat coding reward) in one idempotent call.
+     * row (feeding the global "Points" figure, derived live from the ledger) AND
+     * credits `users.coin_balance` (by the flat coding reward) in one idempotent call.
      *
      * @param userId - the solver's user id
      * @param problem - the solved problem (carries its point value)
@@ -367,9 +367,9 @@ export class JudgeCodingSubmissionJudgeStepService extends AbstractStepService<
         if (revealedCount > 0) {
             return
         }
-        // first clean solve → record a coding XP ledger row, which credits both
-        // users.total_points (by the problem's XP value) and users.coin_balance
-        // (by the flat coding reward). Coding is course-agnostic (no course id).
+        // first clean solve → record a coding XP ledger row (feeds the global
+        // "Points" figure, derived live from xp_histories) and credit
+        // users.coin_balance (flat coding reward). Coding is course-agnostic (no course id).
         // refId = the submission id (unique + stable): the (source, refId) unique
         // key keeps the credit idempotent even if this step is re-run.
         await writeXpHistory({

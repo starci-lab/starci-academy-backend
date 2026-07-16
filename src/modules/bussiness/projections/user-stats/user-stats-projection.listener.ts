@@ -95,7 +95,8 @@ export class UserStatsProjectionListener extends AbstractProjectionListener<stri
     /**
      * Recompute one user's stats projection (idempotent UPSERT), then check
      * whether the refreshed streak just crossed a platform-wide milestone
-     * (7/30/100 consecutive days) and grant the one-time Coin bonus if so.
+     * (7/30/100 consecutive days) and grant the one-time Coin bonus if so, plus
+     * the smaller once-per-day "kept the streak alive today" bonus.
      *
      * @param userId - the affected user id.
      */
@@ -104,5 +105,6 @@ export class UserStatsProjectionListener extends AbstractProjectionListener<stri
             userId,
         })
         await this.streakMilestoneService.checkAndGrant(userId)
+        await this.streakMilestoneService.checkAndGrantDailyBonus(userId)
     }
 }

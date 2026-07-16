@@ -156,11 +156,11 @@ export class UserCvGenerationEntity extends UuidAbstractEntity {
         source: CvSource
 
     /**
-     * When `mode` = `Revise`, the id of the legacy `UserCVSubmissionEntity`
-     * being revised (`source_cv_submission_id`). Plain nullable uuid column
-     * (no FK relation) so the generation history survives even if the source
-     * submission is later deleted, and to avoid coupling the new generation
-     * flow to the legacy upload entity.
+     * When `mode` = `Revise`, the id of the earlier `cv_generations` row being
+     * revised (`source_cv_submission_id` — legacy-named column, now points at
+     * another `UserCvGenerationEntity`, not the removed legacy upload table).
+     * Plain nullable uuid column (no FK relation) so the generation history
+     * survives even if the source row is later deleted.
      */
     @Field(
         () => ID,

@@ -16,6 +16,9 @@ import type {
     StreakDay,
     UserStatsResult,
 } from "./types"
+import {
+    KPI_WEEK_START_SQL,
+} from "./kpi-week.util"
 
 /**
  * CQRS projection service for per-user social + inbox counters (follower /
@@ -97,6 +100,8 @@ export class UserStatsProjectionService {
             weeklyCoding: Number(value.weeklyCoding) || 0,
             weeklyFlashcards: Number(value.weeklyFlashcards) || 0,
             weeklyMilestones: Number(value.weeklyMilestones) || 0,
+            weeklyStudyDays: Number(value.weeklyStudyDays) || 0,
+            weekResetAt: String(value.weekResetAt ?? ""),
             last7Days: Array.isArray(value.last7Days)
                 ? (value.last7Days as Array<StreakDay>).map((day) => ({
                     date: String(day.date),
@@ -140,50 +145,68 @@ export class UserStatsProjectionService {
                     SELECT COUNT(*) FROM notifications
                     WHERE user_id = $1 AND read_at IS NULL
                 ), 0),
-                -- flat reward POINTS earned in the rolling 7-day window (the "this
-                -- week" widget is a fair cross-course momentum number → sum points,
-                -- the course-agnostic flat currency, NOT the weighted per-course xp).
-                -- jsonb key kept as weeklyXp to avoid churning the GraphQL/FE contract;
-                -- it now holds points. Rename to weeklyPoints when the FE label flips.
+                -- flat reward POINTS earned since the current KPI week started (the
+                -- "this week" widget is a fair cross-course momentum number → sum
+                -- points, the course-agnostic flat currency, NOT the weighted
+                -- per-course xp). jsonb key kept as weeklyXp to avoid churning the
+                -- GraphQL/FE contract; it now holds points. Rename to weeklyPoints
+                -- when the FE label flips.
                 'weeklyXp', COALESCE((
                     SELECT SUM(points) FROM xp_histories
-                    WHERE user_id = $1 AND created_at >= now() - interval '7 days'
+                    WHERE user_id = $1 AND created_at >= ${KPI_WEEK_START_SQL}
                 ), 0),
-                -- lessons read in the rolling 7-day window (one row per first read)
+                -- lessons read since the current KPI week started (one row per first read)
                 'weeklyLessons', COALESCE((
                     SELECT COUNT(*) FROM xp_histories
                     WHERE user_id = $1
                       AND source = 'lessonRead'
-                      AND created_at >= now() - interval '7 days'
+                      AND created_at >= ${KPI_WEEK_START_SQL}
                 ), 0),
-                -- challenges passed in the rolling 7-day window (xp source=challenge)
+                -- challenges passed since the current KPI week started (xp source=challenge)
                 'weeklyChallenges', COALESCE((
                     SELECT COUNT(*) FROM xp_histories
                     WHERE user_id = $1
                       AND source = 'challenge'
-                      AND created_at >= now() - interval '7 days'
+                      AND created_at >= ${KPI_WEEK_START_SQL}
                 ), 0),
-                -- coding problems accepted in the rolling 7-day window
+                -- coding problems accepted since the current KPI week started
                 'weeklyCoding', COALESCE((
                     SELECT COUNT(*) FROM coding_submissions
                     WHERE user_id = $1
                       AND verdict = 'accepted'
-                      AND created_at >= now() - interval '7 days'
+                      AND created_at >= ${KPI_WEEK_START_SQL}
                 ), 0),
-                -- flashcards reviewed in the rolling 7-day window
+                -- flashcards reviewed since the current KPI week started
                 'weeklyFlashcards', COALESCE((
                     SELECT COUNT(*) FROM user_flashcard_reviews
                     WHERE user_id = $1
-                      AND last_reviewed_at >= now() - interval '7 days'
+                      AND last_reviewed_at >= ${KPI_WEEK_START_SQL}
                 ), 0),
-                -- personal-project milestone tasks passed in the rolling 7-day window
-                -- (xp source=milestone — one row per passed user_milestone_task_attempt)
+                -- personal-project milestone tasks passed since the current KPI week
+                -- started (xp source=milestone — one row per passed user_milestone_task_attempt)
                 'weeklyMilestones', COALESCE((
                     SELECT COUNT(*) FROM xp_histories
                     WHERE user_id = $1
                       AND source = 'milestone'
-                      AND created_at >= now() - interval '7 days'
+                      AND created_at >= ${KPI_WEEK_START_SQL}
                 ), 0),
+                -- distinct active days since the current KPI week started — a SEPARATE
+                -- calendar-week count from last7Days below (that one stays a rolling
+                -- 7-day window for the streak strip; this one resets Monday like every
+                -- other weekly KPI).
+                'weeklyStudyDays', COALESCE((
+                    SELECT COUNT(DISTINCT (created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date)
+                    FROM xp_histories
+                    WHERE user_id = $1 AND created_at >= ${KPI_WEEK_START_SQL}
+                ), 0),
+                -- the NEXT KPI weekly reset instant (current week's start + 7 days),
+                -- formatted as an unambiguous ISO-8601 UTC string ("Z" suffix) so
+                -- FE's new Date(...) parses it identically in Node and the browser —
+                -- FE computes the "resets in Xd Xh" countdown from this.
+                'weekResetAt', to_char(
+                    (${KPI_WEEK_START_SQL} + interval '7 days') AT TIME ZONE 'UTC',
+                    'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'
+                ),
                 -- consecutive-day streak ending today: gaps-and-islands over the
                 -- distinct active days. Subtracting the ascending row number from
                 -- each day yields a constant "island" date per consecutive run; the

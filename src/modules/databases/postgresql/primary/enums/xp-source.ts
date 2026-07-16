@@ -6,9 +6,12 @@ import {
 } from "@nestjs/graphql"
 
 /**
- * Where a unit of XP was earned from. Mirrors the three signals the per-course
- * leaderboard sums (`leaderboard.service.ts`): passed challenge attempts, read
- * lessons, and passed milestone tasks. Used as the `source` of an append-only
+ * Where a unit of real, weighted XP was earned from — every value here grants
+ * a non-zero `amount` (the per-course leaderboard signal; also feeds the
+ * global "Points" figure, `SUM(amount)` across every course, computed live by
+ * `UserXpProjectionService` — never a maintained counter). Coin-ONLY rewards
+ * (never XP) live in the separate {@link CoinSource} enum instead — see
+ * `CoinHistoryEntity`. Used as the `source` of an append-only
  * {@link XpHistoryEntity} audit row.
  */
 export enum XpSource {
@@ -20,14 +23,10 @@ export enum XpSource {
     Milestone = "milestone",
     /** XP from a first clean coding-practice solve (amount = problem points). */
     Coding = "coding",
-    /** Reward from claiming the completed daily quest (points only, amount = 0). */
-    DailyQuest = "dailyQuest",
     /** XP from finishing a flashcard quick-quiz session (amount = capped coverage reward). */
     FlashcardQuiz = "flashcardQuiz",
     /** XP from grading a flashcard for the FIRST time ever (amount = 2, once per user × card). */
     FlashcardFirstReview = "flashcardFirstReview",
-    /** Coin bonus for reaching a platform-wide streak milestone (7/30/100 consecutive days). */
-    StreakMilestone = "streakMilestone",
 }
 
 export const GraphQLTypeXpSource = createEnumType(XpSource)
@@ -36,7 +35,7 @@ registerEnumType(
     GraphQLTypeXpSource,
     {
         name: "XpSource",
-        description: "Where a unit of XP was earned (challenge / lessonRead / milestone).",
+        description: "Where a unit of real, weighted XP was earned (challenge / lessonRead / milestone).",
         valuesMap: {
             [XpSource.Challenge]: {
                 description: "XP from a passed challenge submission attempt.",
@@ -50,17 +49,11 @@ registerEnumType(
             [XpSource.Coding]: {
                 description: "XP from a first clean coding-practice solve.",
             },
-            [XpSource.DailyQuest]: {
-                description: "Reward from claiming the completed daily quest.",
-            },
             [XpSource.FlashcardQuiz]: {
                 description: "XP from finishing a flashcard quick-quiz session.",
             },
             [XpSource.FlashcardFirstReview]: {
                 description: "XP from grading a flashcard for the first time ever.",
-            },
-            [XpSource.StreakMilestone]: {
-                description: "Coin bonus for reaching a streak milestone.",
             },
         },
     },

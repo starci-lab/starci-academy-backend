@@ -18,6 +18,7 @@ import {
     ContentRagRetrievalService,
 } from "@modules/rag"
 import {
+    FLAT_POINTS,
     writeXpHistory,
 } from "@features/api/processors/ai/shared/xp"
 import {
@@ -230,16 +231,18 @@ export class FlashcardQuizSessionService {
                 }
             }
 
-            // append the single xp_histories row (points = 0 → XP only, no Coin) — this
-            // feeds streak / weekly XP / course leaderboard, which all read xp_histories.
-            // writeXpHistory ALSO guards on (source, refId), so the grant is doubly safe.
+            // append the single xp_histories row — feeds streak / weekly XP /
+            // course leaderboard, which all read xp_histories. Also grants the
+            // flat Coin reward (anchored to lessonRead) on any session that
+            // actually earned XP this cap window; writeXpHistory guards on
+            // (source, refId), so the grant is doubly safe.
             await writeXpHistory({
                 entityManager: manager,
                 userId,
                 courseId,
                 source: XpSource.FlashcardQuiz,
                 amount,
-                points: 0,
+                points: FLAT_POINTS.flashcardQuizSession,
                 refId: sessionId,
             })
 

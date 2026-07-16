@@ -7,8 +7,8 @@ import {
 
 /**
  * How a CV generation run assembles its output: build a brand-new CV from the
- * user's free-text input, or revise an existing uploaded submission
- * (`UserCVSubmissionEntity`) referenced by `source_cv_submission_id`.
+ * user's free-text input, or revise an earlier `cv_generations` row
+ * referenced by `source_cv_submission_id`.
  */
 export enum CvGenerationMode {
     /** Build a brand-new CV from the user's supplied prompts. */

@@ -29,11 +29,16 @@ export interface WriteXpHistoryParams {
 }
 
 /**
- * Append one XP-earning event to the audit ledger AND credit the user's balances —
- * `users.total_points` by the XP `amount` and `users.coin_balance` by the flat
- * `points` reward — idempotently and in the caller's transaction. Guards on the
- * `(source, refId)` unique key: if the event was already recorded, NOTHING happens —
- * no duplicate ledger row and, crucially, no double credit on either balance.
+ * Append one XP-earning event to the audit ledger AND credit `users.coin_balance`
+ * by the flat `points` reward — idempotently and in the caller's transaction.
+ * Guards on the `(source, refId)` unique key: if the event was already recorded,
+ * NOTHING happens — no duplicate ledger row and, crucially, no double credit.
+ *
+ * The global "Points" figure (total XP summed across every course + coding) is
+ * NOT a separately-maintained counter — it's `SUM(amount) FROM xp_histories`,
+ * computed live by {@link UserXpProjectionService} (single source of truth,
+ * ledger-derived, same as the per-course/per-source breakdowns). This function
+ * intentionally does NOT increment any XP counter on the user row.
  *
  * @param params - See {@link WriteXpHistoryParams}.
  */
@@ -81,17 +86,9 @@ export const writeXpHistory = async (
             refId,
         },
     )
-    // credit the total lifetime XP balance by the weighted amount (only it tracks XP)
-    if (amount !== 0) {
-        await entityManager.increment(
-            UserEntity,
-            {
-                id: userId,
-            },
-            "totalPoints",
-            amount,
-        )
-    }
+    // XP itself is never counter-maintained — the ledger row above IS the
+    // source of truth; UserXpProjectionService derives every XP figure
+    // (per-source + global "Points") from `SUM(amount) FROM xp_histories`.
     // credit the spendable Coin balance by the flat reward exactly once
     if (points !== 0) {
         await entityManager.increment(

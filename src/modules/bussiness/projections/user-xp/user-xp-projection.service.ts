@@ -173,8 +173,12 @@ export class UserXpProjectionService {
                     FROM xp_histories x
                     WHERE x.user_id = $1 AND x.source = 'lessonRead'
                 ), 0),
+                -- global Points = SUM of every XP grant across ALL courses +
+                -- course-agnostic sources (coding) — computed straight from the
+                -- ledger, same as the 4 per-source figures above, so there is
+                -- ONE source of truth (no separately-maintained counter to drift)
                 'totalPoints', COALESCE((
-                    SELECT u.total_points FROM users u WHERE u.id = $1
+                    SELECT SUM(x.amount)::int FROM xp_histories x WHERE x.user_id = $1
                 ), 0),
                 'coinBalance', COALESCE((
                     SELECT u.coin_balance FROM users u WHERE u.id = $1

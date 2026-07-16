@@ -74,6 +74,10 @@ export interface UserStatsResult {
     weeklyFlashcards: number
     /** Personal-project milestone tasks passed in the last 7 days (xp_histories source=milestone). */
     weeklyMilestones: number
+    /** Distinct calendar days with an XP event since the current KPI week started (Mon 8am Asia/Ho_Chi_Minh). */
+    weeklyStudyDays: number
+    /** ISO timestamp of the NEXT KPI weekly reset (current week's start + 7 days). */
+    weekResetAt: string
     /** The last 7 calendar days (oldest → today) flagged active. */
     last7Days: Array<StreakDay>
 }

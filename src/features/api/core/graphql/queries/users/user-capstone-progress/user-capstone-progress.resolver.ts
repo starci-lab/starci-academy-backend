@@ -22,6 +22,8 @@ import {
 import {
     CourseEntity,
     Locale,
+    MilestoneEntity,
+    MilestoneTaskEntity,
 } from "@modules/databases"
 import {
     GraphQLProfileVisibilityGuard,
@@ -39,7 +41,10 @@ import {
  * Public profile query: a user's per-course capstone roadmap — for each enrolled
  * course, the ordered milestones with totals / passed counts plus every task and the
  * user's pass state. Thin read of the CQRS capstone projection (the nested aggregate
- * runs in the projection's recompute). Maps each stored course id to an opaque global id.
+ * runs in the projection's recompute). Maps each stored course/milestone/task id to an
+ * opaque global id (milestone/task ids let the FE key rows and deep-link a single
+ * milestone later; no enrolled-only criteria/code is exposed here — see the
+ * viewer-gated `milestone`/`task` queries for that).
  * Optional auth; a locked profile is withheld by {@link GraphQLProfileVisibilityGuard}.
  */
 @Resolver()
@@ -84,11 +89,15 @@ export class UserCapstoneProgressResolver {
             totalTasks: course.totalTasks,
             completedTasks: course.completedTasks,
             milestones: course.milestones.map((milestone) => ({
+                milestoneGlobalId: toGlobalId(MilestoneEntity.name,
+                    milestone.id),
                 title: milestone.title,
                 position: milestone.position,
                 totalTasks: milestone.totalTasks,
                 passedTasks: milestone.passedTasks,
                 tasks: milestone.tasks.map((task) => ({
+                    taskGlobalId: toGlobalId(MilestoneTaskEntity.name,
+                        task.id),
                     title: task.title,
                     passed: task.passed,
                     score: task.score,

@@ -21,8 +21,11 @@ import type {
 
 /**
  * CDC consumer that keeps `user_xp_projections` fresh — a new ledger row moves the
- * earner's per-source XP totals, and a `users` balance change moves their snapshot
- * of `total_points` / `coin_balance`. Both topics resolve to a single user id.
+ * earner's per-source XP totals AND the global `totalPoints` (both are
+ * `SUM(amount) FROM xp_histories`, so any ledger insert moves both); a `users`
+ * row change moves their `coin_balance` snapshot (the one figure NOT
+ * ledger-derived — `users.total_points` itself was dropped, it's no longer a
+ * column on `UserEntity` at all). Both topics resolve to a single user id.
  * Connection + per-message safety are owned by {@link AbstractProjectionListener}.
  */
 @Injectable()

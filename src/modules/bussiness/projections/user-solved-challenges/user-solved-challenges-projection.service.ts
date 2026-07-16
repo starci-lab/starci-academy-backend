@@ -86,12 +86,14 @@ export class UserSolvedChallengesProjectionService {
         const challenges = (row?.value?.challenges as Array<UserSolvedChallengeValue> | undefined) ?? []
         // map the stored ISO string back to a Date (already newest-first in jsonb)
         return challenges.map((challenge) => ({
+            id: challenge.id ?? null,
             title: challenge.title,
             submissionUrl: challenge.submissionUrl,
             submissionType: challenge.submissionType,
             selectedLang: challenge.selectedLang ?? null,
             difficulty: challenge.difficulty ?? null,
             score: challenge.score ?? null,
+            courseId: challenge.courseId ?? null,
             courseTitle: challenge.courseTitle ?? null,
             passedAt: challenge.passedAt ? new Date(challenge.passedAt) : null,
         }))
@@ -204,12 +206,14 @@ export class UserSolvedChallengesProjectionService {
                 'challenges', COALESCE((
                     SELECT jsonb_agg(
                         jsonb_build_object(
+                            'id',             t.id,
                             'title',          t.title,
                             'submissionUrl',  t.submission_url,
                             'submissionType', t.submission_type,
                             'selectedLang',   t.selected_lang,
                             'difficulty',     t.difficulty,
                             'score',          t.score,
+                            'courseId',       t.course_id,
                             'courseTitle',    t.course_title,
                             'passedAt',       t.passed_at
                         ) ORDER BY t.passed_at DESC NULLS LAST
@@ -247,12 +251,14 @@ export class UserSolvedChallengesProjectionService {
     private buildPassedAttemptsSubquery(): string {
         return `
             SELECT DISTINCT ON (ucs.id)
+                   ucs.id            AS id,
                    COALESCE(ch.title, cs.title) AS title,
                    ucs.submission_url AS submission_url,
                    cs.type::text     AS submission_type,
                    ucs.selected_lang AS selected_lang,
                    ch.difficulty::text AS difficulty,
                    ucsa.score        AS score,
+                   crs.id            AS course_id,
                    crs.title         AS course_title,
                    ucsa.processed_at AS passed_at
             FROM user_challenge_submissions ucs

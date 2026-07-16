@@ -4,6 +4,7 @@ import type {
     CodingProblemEntity,
     CodingProblemSolutionEntity,
     CodingSubmissionEntity,
+    CodingVerdict,
     Locale,
 } from "@modules/databases"
 import type {
@@ -160,4 +161,47 @@ export interface CodingProblemIdRow {
 export interface CodingPointsRow {
     /** The user's cumulative coding score (Postgres may return it as text). */
     points: number | string
+}
+
+/** Params for reading a target user's accepted-submission summary for one problem. */
+export interface GetAcceptedSubmissionSummaryParams {
+    /** The target user's id (the profile owner being viewed, not necessarily the caller). */
+    userId: string
+    /** The problem's id (`coding_problems.id`). */
+    problemId: string
+}
+
+/**
+ * Raw row from the accepted-submission-summary SQL aggregate. Always exactly
+ * one row (scalar subqueries with no FROM), with every field null when the
+ * user has no accepted submission for the problem.
+ */
+export interface AcceptedSubmissionSummaryRow {
+    /** Distinct languages used across ALL accepted attempts, or null when none. */
+    languages: Array<CodingLanguage> | null
+    /** `passed_count` from the EARLIEST accepted attempt (Postgres may return int as text). */
+    passed_count: number | string | null
+    /** `total_count` from the EARLIEST accepted attempt (Postgres may return int as text). */
+    total_count: number | string | null
+    /** Earliest accepted attempt's `created_at`, or null when none. */
+    first_solved_at: Date | null
+}
+
+/**
+ * A target user's accepted-submission summary for one coding problem — backs
+ * the public profile's `userCodingProblemDetail` read. Deliberately a
+ * hand-rolled shape (never the raw {@link CodingSubmissionEntity}): it never
+ * carries `sourceCode` / `perCaseResults` / reference solutions.
+ */
+export interface AcceptedSubmissionSummaryResult {
+    /** Distinct languages the user solved this problem in, across all accepted attempts. */
+    languages: Array<CodingLanguage>
+    /** Always {@link CodingVerdict.Accepted} — this summary only exists when at least one accepted attempt exists. */
+    verdict: CodingVerdict
+    /** Passed-testcase count from the earliest accepted attempt. */
+    passedCount: number
+    /** Total-testcase count from the earliest accepted attempt. */
+    totalCount: number
+    /** When the problem was first solved. */
+    firstSolvedAt: Date
 }

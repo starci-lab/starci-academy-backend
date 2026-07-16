@@ -220,24 +220,6 @@ export class UserEntity extends UuidAbstractEntity {
         isDeleted: boolean
 
     /**
-     * The user's total lifetime XP — the cumulative weighted experience the user
-     * has earned across every XP-granting event (passed challenges, read lessons,
-     * passed milestone tasks, solved coding problems). Materialized by summing
-     * `xp_histories.amount` as events land (see `writeXpHistory`). This is the
-     * "total XP" number; it only ever grows and is NEVER debited by spending.
-     */
-    @Field(() => Int,
-        {
-            description: "The user's total lifetime XP (cumulative, never spent)."
-        })
-    @Column({
-        name: "total_points",
-        type: "int",
-        default: 0
-    })
-        totalPoints: number
-
-    /**
      * The user's spendable Coin balance — the account currency that funds the
      * reward store (voucher + AI-credit top-up + streak-freeze + physical
      * rewards) and ranks the global leaderboard. Credited by the flat per-event

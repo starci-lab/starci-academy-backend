@@ -46,7 +46,7 @@ export interface UserXpResult {
     codingXp: number
     /** Total XP earned from read lessons (SUM amount WHERE source = lessonRead). */
     lessonXp: number
-    /** The user's total lifetime XP balance (`users.total_points`). */
+    /** The user's global lifetime XP (SUM amount across EVERY source, no filter). */
     totalPoints: number
     /** The user's spendable Coin balance (`users.coin_balance`). */
     coinBalance: number

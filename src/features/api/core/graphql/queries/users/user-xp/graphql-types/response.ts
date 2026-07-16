@@ -9,8 +9,9 @@ import {
 } from "@modules/api"
 
 /**
- * A user's XP aggregate: the per-source XP totals derived from the `xp_histories`
- * ledger plus the two materialized balances (`total_points` / `coin_balance`).
+ * A user's XP aggregate: every XP figure (per-source totals + the global
+ * `totalPoints`) is derived live from the `xp_histories` ledger; `coinBalance`
+ * is the one materialized balance (`users.coin_balance`).
  */
 @ObjectType({
     description: "A user's XP aggregate (per-source XP + the total/reward balances).",

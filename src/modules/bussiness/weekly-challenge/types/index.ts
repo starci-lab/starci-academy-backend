@@ -32,6 +32,26 @@ export interface WeekEndRow {
 }
 
 /**
+ * One raw row from the week-start computation query (`SELECT ... AS week_start`),
+ * giving the start of the current ISO week (Monday 00:00).
+ */
+export interface WeekStartRow {
+    /** Start of the current ISO week, as a raw DB timestamp. */
+    week_start: Date
+}
+
+/**
+ * Result of a successful weekly-challenge reward claim: the user's refreshed
+ * Coin balance and the amount just granted.
+ */
+export interface ClaimWeeklyChallengeResult {
+    /** Coin balance after the grant. */
+    balance: number
+    /** Coin amount granted by this claim. */
+    coinReward: number
+}
+
+/**
  * One raw row from the viewer-passed `EXISTS(...)` query, telling whether the
  * viewer has a qualifying passing attempt this week.
  */
@@ -68,4 +88,8 @@ export interface WeeklyChallenge {
     passedCount: number
     /** Up to ~10 most-recent passers this week (newest first). */
     leaderboard: Array<WeeklyChallengeEntry>
+    /** Whether the viewer already claimed the reward this week (false when anonymous/not passed). */
+    claimed: boolean
+    /** Coin reward for claiming; null when the viewer hasn't passed (nothing to claim yet). */
+    coinReward: number | null
 }

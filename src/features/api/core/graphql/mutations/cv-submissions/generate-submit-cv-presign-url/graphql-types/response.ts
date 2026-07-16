@@ -25,14 +25,6 @@ export class GenerateSubmitCvPresignUrlResponseData {
     )
         url: string
 
-    @Field(
-        () => String,
-        {
-            description: "ID of the created CV submission attempt.",
-        },
-    )
-        cvSubmissionId: string
-
     /**
      * The storage object key the file is PUT to. WF-07: the client passes this
      * same key into the `uploadCv` mutation so the uploaded CV lands in the

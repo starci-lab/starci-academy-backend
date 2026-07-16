@@ -1,6 +1,5 @@
 export * from "./graphql"
 export * from "./not-allow-extensions"
-export * from "./cv-submission-not-found"
 export * from "./cv-generation-not-found"
 export * from "./review-cv-submission-extract"
 export * from "./review-cv-submission-plan"

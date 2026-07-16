@@ -24,6 +24,8 @@ export interface SolvedSubmissionUserIdRow {
 
 /** One passed challenge submission in the projection's jsonb `value.challenges` (raw jsonb shape). */
 export interface UserSolvedChallengeValue {
+    /** Stable id for this submission (`user_challenge_submissions.id`) — the detail-lookup key. Absent on a cache row written before this field existed (self-heals on next recompute). */
+    id?: string
     /** Challenge / submission-requirement title. */
     title: string
     /** Submitted link (GitHub repo or Google Docs URL). */
@@ -36,6 +38,8 @@ export interface UserSolvedChallengeValue {
     difficulty: string | null
     /** Score from the passing attempt (the attempt that set passedAt), or null when not graded. */
     score: number | null
+    /** Raw id (`courses.id`) of the course the challenge belongs to, or null when unresolved. Absent on a cache row written before this field existed (self-heals on next recompute). */
+    courseId?: string | null
     /** Title of the course the challenge belongs to (default-locale snapshot), or null when the parent course is unresolved. */
     courseTitle: string | null
     /** Passed timestamp as an ISO string (jsonb), or null. */
@@ -68,6 +72,8 @@ export interface ChallengeStrengthRow {
 
 /** One passed challenge submission in the typed view returned by the service. */
 export interface UserSolvedChallengeResult {
+    /** Stable id for this submission (`user_challenge_submissions.id`) — the detail-lookup key, or null for a not-yet-recomputed cache row. */
+    id: string | null
     /** Challenge / submission-requirement title. */
     title: string
     /** Submitted link (GitHub repo or Google Docs URL). */
@@ -80,6 +86,8 @@ export interface UserSolvedChallengeResult {
     difficulty: string | null
     /** Score from the passing attempt (the attempt that set passedAt), or null when not graded. */
     score: number | null
+    /** Raw id (`courses.id`) of the course the challenge belongs to, or null when unresolved — the resolver turns this into `courseGlobalId`. */
+    courseId: string | null
     /** Title of the course the challenge belongs to (default-locale snapshot), or null when the parent course is unresolved. */
     courseTitle: string | null
     /** Passed time, or null. */

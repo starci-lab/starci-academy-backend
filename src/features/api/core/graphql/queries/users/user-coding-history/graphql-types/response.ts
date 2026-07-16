@@ -26,6 +26,14 @@ export class UserCodingHistoryItemData {
     @Field(
         () => String,
         {
+            description: "Stable URL slug of the problem (drives `/profile/<username>/skills/<slug>`).",
+        },
+    )
+        slug: string
+
+    @Field(
+        () => String,
+        {
             description: "Difficulty value (easy/medium/hard).",
         },
     )

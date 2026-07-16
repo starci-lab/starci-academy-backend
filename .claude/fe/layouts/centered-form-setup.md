@@ -7,7 +7,7 @@
 
 ## Region map
 1. **`PageHeader`** (title + description; KHÔNG breadcrumb-chain nếu là leaf tác-vụ — xem header component §3, back-link).
-2. **Body** — `mx-auto max-w-2xl`/`max-w-3xl`, `gap-10` (header→content) rồi `gap-6`/`gap-3` nội bộ:
+2. **Body** — `mx-auto max-w-2xl`/`max-w-3xl` **`p-6`** (KHÔNG `p-3` — `p-3` là padding NỘI BỘ 1 card/row, page container của cả shell này luôn `p-6`; ref `CartView:150`, `JobPostForm:77`, `RewardsPage:52` — cả 3 đều `p-6`), `gap-10` header→content ([[gap]] §"Ngoại lệ có tên" — named exception, ÁP DỤNG MỌI trang dùng `PageHeader`, không phân biệt có/không CTA cuối) rồi `gap-6`/`gap-3` nội bộ:
    - **Review/summary** (`CartView`: `SurfaceListCard` các dòng + tổng tiền `PriceTag`) HOẶC **section theo NGHĨA** (`JobPostForm`: `LabeledCard` mỗi nhóm field — company/position/apply-method — KHÔNG 1 card/field, ref card component §6).
    - **CTA cuối** — primary `size="lg" fullWidth` + secondary/tertiary phụ dưới (huỷ, xoá giỏ…).
 3. **Success THAY layout** — khi form LÀ 1 trang (không phải modal), submit xong render `SubmitSuccess` thay hẳn form, KHÔNG toast (`JobPostForm`).

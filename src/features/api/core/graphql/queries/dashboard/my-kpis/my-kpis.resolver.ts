@@ -24,7 +24,10 @@ import {
     UserEntity,
 } from "@modules/databases"
 import {
+    KpiRewardService,
     UserStatsProjectionService,
+    computeKpiCoinReward,
+    getKpiCurrentValues,
 } from "@modules/bussiness"
 import {
     KpiItemData,
@@ -33,15 +36,18 @@ import {
 } from "./graphql-types"
 
 /**
- * Weekly-KPI query: every KPI's rolling-7-day current value vs the user's
- * self-set target, plus a composite score over the KPIs that have a target.
- * Current values come from the user-stats projection (no inline aggregate); the
- * targets live on the user row (set via `setKpiTarget`).
+ * Weekly-KPI query: every KPI's current-week value (resets Monday 8am
+ * Asia/Ho_Chi_Minh) vs the user's self-set target, its coin reward + claim
+ * state, plus a composite score over the KPIs that have a target. Current
+ * values come from the user-stats projection (no inline aggregate); the
+ * targets live on the user row (set via `setKpiTarget`); reward/floor state
+ * comes from {@link KpiRewardService} (claimed via `claimKpiReward`).
  */
 @Resolver()
 export class MyKpisResolver {
     constructor(
         private readonly userStatsProjectionService: UserStatsProjectionService,
+        private readonly kpiRewardService: KpiRewardService,
     ) {}
 
     @UseThrottler(ThrottlerConfig.Soft)
@@ -62,29 +68,37 @@ export class MyKpisResolver {
         @KeycloakGraphQLUser()
             user: UserEntity,
     ): Promise<MyKpisData> {
-        // single projection read — rolling-7-day counters are precomputed there
+        // single projection read — current-week counters are precomputed there
         const stats = await this.userStatsProjectionService.getStats(user.id)
-        // distinct active days this week (derived from the 7-day strip)
-        const studyDays = stats.last7Days.filter((day) => day.active).length
-        // the current value for each KPI, keyed by KpiKey
-        const currentByKey: Record<KpiKey, number> = {
-            [KpiKey.Lessons]: stats.weeklyLessons,
-            [KpiKey.StudyDays]: studyDays,
-            [KpiKey.Challenges]: stats.weeklyChallenges,
-            [KpiKey.Coding]: stats.weeklyCoding,
-            [KpiKey.Flashcards]: stats.weeklyFlashcards,
-            [KpiKey.Milestones]: stats.weeklyMilestones,
-        }
+        // the current value for each KPI, keyed by KpiKey (shared with the reward claim)
+        const currentByKey = getKpiCurrentValues(stats)
         // self-set targets map off the user row (absent / 0 = no target)
         const targets = user.weeklyKpiTargets ?? {
         }
+        // this week's anti-gaming floor + claimed state per KPI (only present for
+        // KPIs that have EITHER a floor row this week or a current target)
+        const floorStates = await this.kpiRewardService.getFloorStates({
+            userId: user.id,
+            currentTargets: targets,
+        })
         // build one item per KPI in a stable display order
         const items: Array<KpiItemData> = Object.values(KpiKey).map((key) => {
             const raw = Number(targets[key]) || 0
+            const target = raw > 0 ? raw : null
+            const floorState = floorStates[key]
+            const current = currentByKey[key]
             return {
                 key,
-                current: currentByKey[key],
-                target: raw > 0 ? raw : null,
+                current,
+                target,
+                coinReward: floorState ? computeKpiCoinReward(key,
+                    floorState.floorTarget) : null,
+                claimed: floorState?.claimed ?? false,
+                canClaim: Boolean(
+                    floorState
+                    && !floorState.claimed
+                    && current >= floorState.floorTarget,
+                ),
             }
         })
         // composite over the KPIs that have a target set
@@ -93,7 +107,8 @@ export class MyKpisResolver {
         const percent = targeted.length > 0
             ? Math.round(
                 (targeted.reduce(
-                    (acc, item) => acc + Math.min(1, item.current / (item.target ?? 1)),
+                    (acc, item) => acc + Math.min(1,
+                        item.current / (item.target ?? 1)),
                     0,
                 ) / targeted.length) * 100,
             )
@@ -105,6 +120,7 @@ export class MyKpisResolver {
                 completed,
                 total: targeted.length,
             },
+            resetAt: new Date(stats.weekResetAt),
         }
     }
 }

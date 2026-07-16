@@ -83,6 +83,13 @@ surface/pha/route/mode), không thiết kế 1 trang lẻ. Tập trung **SHAPE**
 - [ ] brief map **block THẬT** (không bịa)
 - [ ] **(page DATA)** đã map trần-dữ-liệu; mỗi block data neo **field THẬT**; hero khớp JOB
 - [ ] flow-first (đã khoanh MỌI pha/surface, không bỏ sibling)
+- [ ] **(page-level — route RIÊNG, không phải modal/drawer/1-block-lẻ)** đã có `PageHeader` (block
+  `blocks/layout/PageHeader`) làm header, KHÔNG hand-roll `<h1>`/`<span>` rời. Breadcrumb đúng loại theo
+  `.claude/fe/components/breadcrumb.md`: trang ĐỌC/duyệt/settings (không leaf) → `ResponsiveBreadcrumb`
+  trong slot `breadcrumb` (responsive tự desktop-chain/mobile-back-link, KHỎI code riêng); trang LEAF
+  (giải/xem-kết-quả 1 item) → `BackLink` thay breadcrumb-chain (`.claude/fe/components/back-link.md`).
+  Thiếu 1 trong 2 (không PageHeader, hoặc PageHeader không breadcrumb/BackLink) → SỬA TRƯỚC khi trình
+  thầy, đừng đợi thầy chỉ ra (ca 2026-07-17: brainstorm `/kpi` ban đầu bỏ sót cả hai).
 
 ## §Chốt → proposal (skill này CHỐT thôi, KHÔNG build)
 

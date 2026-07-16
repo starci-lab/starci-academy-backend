@@ -14,10 +14,11 @@ import {
 /**
  * CQRS projection of a user's XP aggregate — ONE ROW PER user. The inherited
  * jsonb `value` holds `{ challengeXp, milestoneXp, codingXp, lessonXp,
- * totalPoints, coinBalance }`: the per-source XP figures are SUM(amount) of the
- * `xp_histories` ledger GROUP BY source, while `totalPoints` / `coinBalance`
- * snapshot the user's two materialized balances (`users.total_points` /
- * `users.coin_balance`). The heavy GROUP BY runs only in the projection's
+ * totalPoints, coinBalance }`: every XP figure — the 4 per-source breakdowns
+ * AND the global `totalPoints` — is `SUM(amount)` of the `xp_histories` ledger
+ * (per-source is `GROUP BY source`, `totalPoints` has no filter). `coinBalance`
+ * is the one figure NOT ledger-derived here — it snapshots the materialized
+ * `users.coin_balance`. The heavy aggregates run only in the projection's
  * recompute, never inline at read time. Read with a TTL lazy-refresh; kept fresh
  * by CDC on `xp_histories` + `users`.
  */

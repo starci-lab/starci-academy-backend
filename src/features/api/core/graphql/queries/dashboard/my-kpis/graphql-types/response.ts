@@ -13,8 +13,9 @@ import {
 } from "@modules/databases"
 
 /**
- * One weekly KPI: the rolling-7-day `current` value vs the user's self-set
- * `target` (null = no target set yet for this KPI).
+ * One weekly KPI: the current-week `current` value (resets Monday 8am
+ * Asia/Ho_Chi_Minh) vs the user's self-set `target` (null = no target set yet
+ * for this KPI).
  */
 @ObjectType({
     description: "One weekly KPI with its current value and target.",
@@ -31,7 +32,7 @@ export class KpiItemData {
     @Field(
         () => Int,
         {
-            description: "The rolling-7-day current value for this KPI.",
+            description: "The current-week (resets Monday 8am GMT+7) value for this KPI.",
         },
     )
         current: number
@@ -44,6 +45,31 @@ export class KpiItemData {
         },
     )
         target: number | null
+
+    @Field(
+        () => Int,
+        {
+            nullable: true,
+            description: "Coin reward for claiming this KPI this week; null when no target is set.",
+        },
+    )
+        coinReward: number | null
+
+    @Field(
+        () => Boolean,
+        {
+            description: "Whether this KPI's reward was already claimed this week.",
+        },
+    )
+        claimed: boolean
+
+    @Field(
+        () => Boolean,
+        {
+            description: "Whether this KPI's reward can be claimed right now (met + not yet claimed).",
+        },
+    )
+        canClaim: boolean
 }
 
 /**
@@ -100,6 +126,14 @@ export class MyKpisData {
         },
     )
         composite: KpiCompositeData
+
+    @Field(
+        () => Date,
+        {
+            description: "The next weekly KPI reset instant (Monday 8am Asia/Ho_Chi_Minh).",
+        },
+    )
+        resetAt: Date
 }
 
 /**

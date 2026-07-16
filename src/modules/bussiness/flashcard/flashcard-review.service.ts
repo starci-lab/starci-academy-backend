@@ -20,6 +20,7 @@ import {
     FlashcardCardNotFoundException,
 } from "@modules/exceptions"
 import {
+    FLAT_POINTS,
     writeXpHistory,
 } from "@features/api/processors/ai/shared/xp"
 import {
@@ -576,10 +577,9 @@ export class FlashcardReviewService {
                 )
                 await manager.save(review)
 
-                // grant the flat first-review XP in the SAME tx. Idempotent on
+                // grant the flat first-review XP + Coin in the SAME tx. Idempotent on
                 // (source, refId) — the review-row id is the stable ref, so a retry
-                // of this exact grade never double-credits. Points/coin = 0 (the
-                // ruling is XP-only: +2/thẻ, no deck-bonus). A global deck with no
+                // of this exact grade never double-credits. A global deck with no
                 // course leaves courseId null (still a valid course-agnostic grant).
                 await writeXpHistory({
                     entityManager: manager,
@@ -587,7 +587,7 @@ export class FlashcardReviewService {
                     courseId,
                     source: XpSource.FlashcardFirstReview,
                     amount: FLASHCARD_FIRST_REVIEW_XP,
-                    points: 0,
+                    points: FLAT_POINTS.flashcardFirstReview,
                     refId: review.id,
                 })
                 xpEarned = FLASHCARD_FIRST_REVIEW_XP

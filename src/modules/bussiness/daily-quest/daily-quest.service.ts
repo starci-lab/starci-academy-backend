@@ -5,18 +5,18 @@ import {
     EntityManager,
 } from "typeorm"
 import {
+    CoinSource,
     DailyQuestCompletionEntity,
     DailyQuestKey,
     InjectPrimaryPostgreSQLEntityManager,
     UserEntity,
-    XpSource,
 } from "@modules/databases"
 import {
     DailyQuestAlreadyClaimedException,
     DailyQuestNotCompleteException,
 } from "@modules/exceptions"
 import {
-    writeXpHistory,
+    writeCoinHistory,
 } from "@features/api/processors/ai/shared/xp"
 import {
     DAILY_QUEST_MIN_TASKS_REQUIRED,
@@ -218,14 +218,12 @@ export class DailyQuestService {
                     questDate: date,
                     coinReward: DAILY_QUEST_REWARD,
                 })
-            // grant the flat reward via the shared ledger helper (points only, no XP).
+            // grant the flat reward via the shared coin ledger helper (never XP).
             // refId is unique per user+day so the grant is idempotent on its own too.
-            await writeXpHistory({
+            await writeCoinHistory({
                 entityManager: manager,
                 userId,
-                courseId: null,
-                source: XpSource.DailyQuest,
-                amount: 0,
+                source: CoinSource.DailyQuest,
                 points: DAILY_QUEST_REWARD,
                 refId: `daily:${date}`,
             })

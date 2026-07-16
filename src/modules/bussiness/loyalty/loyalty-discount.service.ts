@@ -7,11 +7,13 @@ import {
 import {
     DiscountReason,
     InjectPrimaryPostgreSQLEntityManager,
-    UserEntity,
 } from "@modules/databases"
 import {
     UserStatsProjectionService,
 } from "../projections/user-stats/user-stats-projection.service"
+import {
+    UserXpProjectionService,
+} from "../projections/user-xp/user-xp-projection.service"
 import type {
     ApplyBundleBonusParams,
     ComputeLoyaltyDiscountParams,
@@ -64,6 +66,7 @@ export class LoyaltyDiscountService {
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
         private readonly userStatsProjectionService: UserStatsProjectionService,
+        private readonly userXpProjectionService: UserXpProjectionService,
     ) {}
 
     /**
@@ -229,20 +232,12 @@ export class LoyaltyDiscountService {
         if (stats.streak >= DILIGENT_STREAK_THRESHOLD) {
             return true
         }
-        // total points are materialized on the user row
-        const user = await this.entityManager.findOne(
-            UserEntity,
-            {
-                where: {
-                    id: userId,
-                },
-                select: {
-                    id: true,
-                    totalPoints: true,
-                },
-            },
-        )
-        return (user?.totalPoints ?? 0) >= DILIGENT_POINTS_THRESHOLD
+        // global Points — SUM of every XP grant across all courses + coding —
+        // read from the XP projection (single source of truth: xp_histories)
+        const { totalPoints } = await this.userXpProjectionService.getXp({
+            userId,
+        })
+        return totalPoints >= DILIGENT_POINTS_THRESHOLD
     }
 
     /**
