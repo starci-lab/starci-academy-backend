@@ -435,4 +435,18 @@ export class CourseEntity extends UuidAbstractEntity {
         },
     )
         enrollmentCount: number
+
+    /**
+     * Whether the current viewer has a REAL (paid) enrollment in this course.
+     * Null for anonymous viewers (no viewer to check); computed per-request by
+     * `CoursesResolver`, batched across the page's course ids — never persisted.
+     */
+    @Field(
+        () => Boolean,
+        {
+            nullable: true,
+            description: "Whether the current viewer is enrolled in this course; null when anonymous.",
+        },
+    )
+        isEnrolled?: boolean | null
 }

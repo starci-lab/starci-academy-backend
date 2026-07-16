@@ -2286,21 +2286,16 @@ export const envConfig = () => ({
     installment: {
         /**
          * Markup percent added to the (loyalty/bundle-discounted) price per
-         * chosen term — longer terms cost more. The keys ARE the offered month
-         * options (3/6/12); a value the map has no key for is not a valid term.
+         * chosen term. The keys ARE the offered month options — a value the map
+         * has no key for is not a valid term. Fixed to 3-month ONLY (thầy
+         * 2026-07-14: "không cho extend thời gian" — no 6/12-month terms
+         * offered; a single fixed term keeps the plan simple, no term picker
+         * needed on the FE).
          */
         markupPercentByMonths: {
             3: parseEnvInt({
                 key: "INSTALLMENT_MARKUP_PERCENT_3M",
-                defaultValue: 5,
-            }),
-            6: parseEnvInt({
-                key: "INSTALLMENT_MARKUP_PERCENT_6M",
                 defaultValue: 10,
-            }),
-            12: parseEnvInt({
-                key: "INSTALLMENT_MARKUP_PERCENT_12M",
-                defaultValue: 20,
             }),
         } as Record<number, number>,
         /** FlexiblePool per-cycle minimum = max(remaining × this%, floor). */

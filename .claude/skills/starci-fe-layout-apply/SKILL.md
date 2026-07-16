@@ -36,6 +36,7 @@ verify → đánh **✅ DONE** + flip features. Có thể chạy ở **session k
 ## Verify (bắt buộc trước khi ✅)
 - `npx tsc --noEmit` + `npm run lint` sạch.
 - **Chạy app soi bằng mắt** theo **verify-plan trong proposal** (đi ma trận state + cả flow); chụp cho thầy. Build xanh ≠ chạy đúng.
+- **★ Tự phản biện TRƯỚC khi ✅ (bắt buộc — `.claude/fe/principles/self-critique-before-presenting.md`):** đóng vai thầy đi HẾT ma trận state trong proposal, hỏi *"surface nào tôi dựng lệch spec · state nào chưa cover · claim 'đã build đúng cả flow' đã KIỂM (đi thật từng pha) hay chỉ narrate?"*. "tsc/lint sạch" KHÔNG phải bằng chứng chạy đúng — verify bằng đi thật, không bằng lời kể. Sót → sửa trước khi đánh DONE.
 
 ## Xong → cập nhật BACKLOG + feedback (làm `fe/` LỰC HƠN)
 1. `fe/proposals/BACKLOG.md`: proposal → **✅ DONE** + điền ngày Xong.

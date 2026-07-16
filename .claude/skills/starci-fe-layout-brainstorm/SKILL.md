@@ -63,7 +63,8 @@ Cho page/flow render DATA từ backend, "thiết kế nên render gì" KHÔNG đ
 - **Host (STRICT — tránh phục vụ nhầm prototype CŨ):** serve tĩnh trong thư mục file, chạy nền. Cổng ưu tiên 8080 nhưng **KHÔNG tin server sẵn có**: (1) **KILL** process giữ :8080 (`netstat -ano | grep :8080 | grep LISTENING` → `taskkill //F //PID <pid>`) **HOẶC scan port +1 tới khi free**; (2) start `python -m http.server <port>`; (3) **BẮT BUỘC VERIFY nội dung** — `curl :<port>` grep 1 marker DUY NHẤT của prototype này (vd `<title>` = tên feature), **KHÔNG dừng ở HTTP 200** (200 có thể là prototype CŨ còn sống trên 8080 — đây là lỗi đã mắc). Sai marker → kill + serve lại. Đưa URL SAU khi verified. Không có python → `npx http-server -p <port>` / preview MCP.
 - Nhà prototype = **`.claude/fe/prototypes/`** (`INDEX.md` để tra). Instance riêng-1-lần → scratch (ephemeral); instance đáng tái dùng → lưu `fe/prototypes/<feature>.html` + ghi 1 dòng vào `INDEX.md`. **KIT `_TEMPLATE.html` UPGRADE in-place** → mọi prototype sau kế thừa. Giá trị bền = ruling ghi `fe/` + kit + bản mẫu.
 
-## §Self-verify checklist (bake — tự chấm bước 7)
+## §Self-verify checklist (bake — tự chấm bước 7; hiện thân của `.claude/fe/principles/self-critique-before-presenting.md`)
+> Bước 7 = tự đóng vai thầy phản biện TRƯỚC khi show prototype: đừng chỉ tick checklist máy móc — hỏi thẳng *"thầy sẽ đập chỗ nào? shell nào sai JOB · state nào hở · phễu nào đứt · block nào bịa?"*. Tìm ra → sửa trong blueprint, đừng đẩy lỗi cho thầy bấm ra.
 - [ ] MỌI state có đường **CTA vào khóa** (rỗng = mời học, không ngõ cụt)
 - [ ] `when-rail` đúng (KHÔNG rail rỗng < 5 item)
 - [ ] shell theo JOB (KHÔNG nhồi work-surface vào cột đọc hẹp; work = full-bleed 2-pane)

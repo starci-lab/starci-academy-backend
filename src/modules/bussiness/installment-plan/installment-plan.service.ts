@@ -8,6 +8,7 @@ import type {
     EntityManager,
 } from "typeorm"
 import {
+    CartItemEntity,
     EnrollmentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     InstallmentPlanEntity,
@@ -405,6 +406,19 @@ export class InstallmentPlanService {
             },
             {
                 isEnrolled: true,
+            },
+        )
+        // mirror EnrollStepService: a course just (re-)enrolled must never linger
+        // in the cart — the user could have added it back while it was locked
+        await manager.delete(
+            CartItemEntity,
+            {
+                user: {
+                    id: plan.userId,
+                },
+                course: {
+                    id: In(plan.lockedCourseIds),
+                },
             },
         )
     }

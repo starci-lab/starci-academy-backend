@@ -33,6 +33,7 @@ em loading-state của layout/block apply. **KHÔNG** restructure IA — chỉ l
 
 ## Verify
 - `npx tsc --noEmit` + `npm run lint` sạch. Soi skeleton (throttle) vs loaded → **không nhảy**. Chụp 1 ảnh skeleton + 1 loaded.
+- **★ Tự phản biện TRƯỚC khi nói "xong" (bắt buộc — `.claude/fe/principles/self-critique-before-presenting.md`):** "skeleton mirror" phải KIỂM bằng cách so THẬT (throttle + đối chiếu row/width/radius/mép), không tự nhận "khớp rồi" theo lời kể. Nhiều vùng fetch trong trang → đã migrate HẾT sang AsyncContent chưa hay còn sót 1 vùng `if(isLoading)` tay? Hỏi thẳng *"thầy sẽ chỉ chỗ nào còn nhảy / còn spinner trần / còn lệch?"* trước khi báo xong.
 - Ruling tái dùng → ghi `fe/patterns/` hoặc `fe/components/skeleton`. Có sửa canon → **push private**; sạch → **public** (rule `.claude/CANON.md`).
 
 ## Liên quan
