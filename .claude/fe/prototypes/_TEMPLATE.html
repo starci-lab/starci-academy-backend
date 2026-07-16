@@ -1,0 +1,157 @@
+<!doctype html>
+<!-- =============================================================================
+  PROTOTYPE KIT — /starci-fe-layout-brainstorm  (reusable, upgrade-in-place)
+  Interactive clickable flow prototype (walk like pptx slides), host on :8080.
+
+  HOW TO USE (mỗi lần chạy skill):
+    1. Copy file này ra scratchpad/<feature>-flow/index.html.
+    2. Đổi <title> + .top>b (tên feature).
+    3. Trong #stage: mỗi SURFACE/PHA = 1 <section class="screen" data-screen="N">.
+       - Đầu mỗi màn: <div class="shelltag"> ghi shell + job (vd "centered · job = quyết").
+       - Màn LÀM-VIỆC: dùng .work + 2×.pane (full-bleed 2-pane), thêm .fullbleed-note.
+       - Đánh dấu conversion-lens bằng <span class="tag cta|psy|fn">…</span> ĐÚNG vùng.
+       - ELEMENT-AWARE (bắt buộc): mỗi khối GẮN TÊN block THẬT bằng <span class="blocktag">…</span>
+         (nút→components/button · card→LabeledCard · tabs→TabsCard · avatar→UserAvatar/IconTile · chip→components/chip)
+         — wireframe low-fi nhưng chỉ đúng block canonical, để build khỏi mơ hồ + không hand-roll.
+    4. Cập nhật JS: total = số màn, names[] = tên màn. Thêm state-toggle bằng
+       onclick gọi hàm nhỏ (mẫu toggleState/setMode/tab bên dưới).
+    5. CTA/hotspot: onclick="go(i)" để đi màn; onclick tự viết để toggle state.
+    6. Host: python -m http.server 8080 --directory <thư mục file>.
+
+  UPGRADE: sửa CSS/JS khung ở ĐÂY (template) → mọi prototype sau kế thừa.
+  Giữ MÀU theo token fe/foundations/color (semantic, không hardcode ngoài :root).
+============================================================================= -->
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>&lt;Feature&gt; — flow prototype</title>
+<style>
+  /* --- TOKENS (mirror fe/foundations/color) --- */
+  :root{--bg:#f4f4f6;--fg:#1a1a1e;--mut:#6b6b76;--line:#e2e2e8;--card:#fff;--acc:#c0407a;--psy:#7b6bd0;--link:#2f6bd4;--ok:#3b7d4f;--warn:#b06a1f;--radius:14px}
+  @media (prefers-color-scheme:dark){:root{--bg:#161619;--fg:#eaeaef;--mut:#9a9aa6;--line:#2a2a30;--card:#1d1d21}}
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.45 ui-sans-serif,system-ui,-apple-system,sans-serif;color:var(--fg);background:var(--bg)}
+  /* --- TOP BAR + legend + desktop/mobile toggle --- */
+  .top{position:sticky;top:0;z-index:10;background:var(--card);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+  .top b{font-size:15px}.top .sub{color:var(--mut);font-size:12px}
+  .legend{display:flex;gap:10px;margin-left:auto;font-size:11px;font-weight:700}
+  .legend .cta{color:var(--acc)}.legend .psy{color:var(--psy)}.legend .fn{color:var(--ok)}
+  .devtog{border:1px solid var(--line);border-radius:8px;overflow:hidden;display:flex}
+  .devtog button{border:0;background:var(--card);padding:4px 10px;cursor:pointer;font:inherit;font-size:12px;color:var(--mut)}
+  .devtog button.on{background:var(--acc);color:#fff}
+  /* --- STAGE + screens --- */
+  .stagewrap{padding:22px 16px 90px;display:flex;justify-content:center}
+  .stage{width:100%;transition:max-width .2s}
+  .stage.desktop{max-width:960px}.stage.mobile{max-width:390px}
+  .shelltag{text-align:center;font:12px ui-monospace,Menlo,monospace;color:var(--mut);margin-bottom:8px}
+  .fullbleed-note{font:11px ui-monospace,monospace;color:var(--warn);text-align:center;margin-bottom:8px}
+  .screen{display:none;animation:fade .25s}.screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  /* --- WIREFRAME PRIMITIVES (dùng lại) --- */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .stack{display:flex;flex-direction:column;gap:12px}
+  .row{display:flex;gap:12px;align-items:center}
+  .mono{width:44px;height:44px;border-radius:50%;background:color-mix(in oklab,var(--acc) 12%,transparent);color:var(--acc);display:flex;align-items:center;justify-content:center;font-weight:600}
+  .muted{color:var(--mut)}.sm{font-size:12px}.xs{font-size:11px}
+  .btn{border:0;border-radius:10px;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+  .btn.primary{background:var(--acc);color:#fff}
+  .btn.ghost{background:transparent;color:var(--mut);border:1px solid var(--line)}
+  .btn.sec{background:color-mix(in oklab,var(--acc) 8%,transparent);color:var(--acc)}
+  .statetog{font-size:11px;color:var(--link);cursor:pointer;text-decoration:underline;margin-top:6px;display:inline-block}
+  /* conversion-lens tags — đặt ĐÚNG vùng */
+  .tag{font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;vertical-align:middle;margin-left:5px}
+  .tag.cta{color:var(--acc);background:color-mix(in oklab,var(--acc) 14%,transparent)}
+  .tag.psy{color:var(--psy);background:color-mix(in oklab,var(--psy) 14%,transparent)}
+  .tag.fn{color:var(--ok);background:color-mix(in oklab,var(--ok) 14%,transparent)}
+  /* block-name label — prototype element-aware: khối chỉ đúng block canonical trong fe/components */
+  .blocktag{font:9px ui-monospace,Menlo,monospace;color:var(--mut);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:6px;vertical-align:middle}
+  /* full-bleed 2-pane work surface (làm-việc + tool) */
+  .work{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .stage.mobile .work{grid-template-columns:1fr}
+  .pane{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;min-height:200px;display:flex;flex-direction:column;gap:10px}
+  .paneh{font-size:11px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.03em}
+  .tabs{display:flex;gap:4px}
+  .tabs button{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:4px 10px;cursor:pointer;font:inherit;font-size:12px;color:var(--mut)}
+  .tabs button.on{border-color:var(--acc);color:var(--acc);font-weight:700;background:color-mix(in oklab,var(--acc) 7%,transparent)}
+  .canvas{flex:1;border:1px dashed var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:12px;text-align:center;padding:10px}
+  /* progress dots (goal-gradient) */
+  .dots{display:flex;gap:4px}.dots span{height:5px;flex:1;border-radius:3px;background:var(--line)}
+  .dots span.done{background:var(--ok)}.dots span.cur{background:var(--acc)}
+  /* --- BOTTOM NAV (steps) --- */
+  .nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;gap:12px;justify-content:center}
+  .nav .steps{display:flex;gap:6px;flex-wrap:wrap}
+  .nav .steps button{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:4px 11px;cursor:pointer;font:inherit;font-size:12px;color:var(--mut)}
+  .nav .steps button.on{border-color:var(--acc);color:var(--acc);font-weight:700}
+</style>
+</head>
+<body>
+<div class="top">
+  <b>&lt;Feature&gt;</b><span class="sub">flow prototype · bấm đi luồng như slide</span>
+  <div class="legend"><span class="cta">◆CTA</span><span class="psy">◆tâm lý</span><span class="fn">◆phễu</span></div>
+  <div class="devtog"><button id="dtDesk" class="on" onclick="setDev('desktop')">Desktop</button><button id="dtMob" onclick="setDev('mobile')">Mobile</button></div>
+</div>
+
+<div class="stagewrap">
+<div class="stage desktop" id="stage">
+
+  <!-- ==== MÀN 0 (mẫu: centered) — copy khối này cho mỗi surface ==== -->
+  <section class="screen active" data-screen="0">
+    <div class="shelltag">shell: centered · max-w-2xl  (job = &lt;quyết/đọc/kết-quả&gt;)</div>
+    <div class="stack">
+      <div class="card">
+        <h3 style="margin:0">&lt;Tiêu đề màn&gt;<span class="blocktag">LabeledCard</span></h3>
+        <p class="sm muted">&lt;mô tả ngắn&gt;</p>
+        <button class="btn primary" onclick="go(1)">&lt;CTA chính&gt; <span class="tag cta" style="background:rgba(255,255,255,.2);color:#fff">1 primary</span></button>
+      </div>
+      <div class="card sm" id="opt">&lt;section phụ&gt; <span class="statetog" onclick="toggleState('opt')">↔ toggle state rỗng/có</span></div>
+    </div>
+  </section>
+
+  <!-- ==== MÀN 1 (mẫu: full-bleed 2-pane work surface) ==== -->
+  <section class="screen" data-screen="1">
+    <div class="fullbleed-note">★ shell ĐỔI: full-bleed · BỎ rail  (job = làm-việc + tool)</div>
+    <div class="work" id="work">
+      <div class="pane">
+        <div class="paneh">context / hội thoại</div>
+        <div class="dots" id="dots"><span class="cur"></span><span></span><span></span></div>
+        <div class="card sm">&lt;nội dung/câu hỏi&gt; <span class="tag psy">tâm lý</span></div>
+        <button class="btn primary" onclick="go(0)">&lt;hành động chính&gt; <span class="tag cta">1 hành động</span></button>
+      </div>
+      <div class="pane">
+        <div class="paneh">workspace <span class="blocktag">TabsCard</span></div>
+        <div class="tabs"><button class="on" onclick="tab(this,'A')">Tab A</button><button onclick="tab(this,'B')">Tab B</button></div>
+        <div class="canvas" id="canvas">vùng làm việc (A)</div>
+      </div>
+    </div>
+    <p class="xs muted" style="text-align:center;margin-top:10px">state cuối → thêm <b class="tag fn" style="color:var(--ok)">phễu về khóa</b> (không ngõ cụt)</p>
+  </section>
+
+</div>
+</div>
+
+<div class="nav">
+  <button class="btn ghost" onclick="prev()">◀ Trước</button>
+  <div class="steps" id="steps"></div>
+  <button class="btn ghost" onclick="next()">Sau ▶</button>
+</div>
+
+<script>
+  /* ==== KHUNG (đừng sửa trừ khi upgrade template) ==== */
+  var cur=0, total=2, names=['Màn 0','Màn 1'];   // ← cập nhật total + names theo flow
+  function render(){
+    document.querySelectorAll('.screen').forEach(function(s){s.classList.toggle('active',+s.dataset.screen===cur)});
+    document.querySelectorAll('#steps button').forEach(function(b,i){b.classList.toggle('on',i===cur)});
+  }
+  function go(i){cur=Math.max(0,Math.min(total-1,i));window.scrollTo(0,0);render()}
+  function next(){go(cur+1)} function prev(){go(cur-1)}
+  function setDev(m){document.getElementById('stage').className='stage '+m;document.getElementById('dtDesk').classList.toggle('on',m==='desktop');document.getElementById('dtMob').classList.toggle('on',m==='mobile')}
+  (function(){var st=document.getElementById('steps');for(var i=0;i<total;i++){(function(i){var b=document.createElement('button');b.textContent=(i+1)+' '+names[i];b.onclick=function(){go(i)};st.appendChild(b)})(i)}render()})();
+
+  /* ==== HELPER mẫu cho state-toggle (copy/sửa theo nhu cầu) ==== */
+  function toggleState(id){var el=document.getElementById(id);el.style.display=el.style.display==='none'?'':'none'}
+  function tab(b,name){b.parentNode.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');document.getElementById('canvas').textContent='vùng làm việc ('+name+')'}
+  /* mode toggle (qna 1-cột ↔ design 2-pane): đổi #work gridTemplateColumns — xem mock-interview instance */
+</script>
+</body>
+</html>

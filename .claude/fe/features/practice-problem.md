@@ -1,0 +1,9 @@
+# Feature — PracticeProblem
+> Trang giải 1 bài coding (LeetCode-style) — statement trái, Monaco editor phải. Nguồn: `features/practice/PracticeProblem`.
+
+- **Job**: giải ĐÚNG 1 bài, tập trung tuyệt đối, không nav khóa học → shell [[full-bleed-work-surface]] (2-pane `h-[calc(100vh-4rem)]`, cùng họ Mock Interview/challenge-solve).
+- **CTA**: primary "Nộp bài"/"Đang chấm…" (disabled khi code trống, pending khi đang judge qua socket); phụ "Xem gợi ý"/"Xem lời giải" — lời giải BẮT BUỘC `window.confirm` xác nhận (mất điểm nếu xem) trước khi gọi mutation reveal-gated. → [[call-to-action]]
+- **Links (onward)**: chuyển ngôn ngữ (tab); lịch sử submission cuối trang — KHÔNG dẫn đi đâu tiếp (tool tự đóng, không funnel ra ngoài, đúng vì đây là full-bleed-work-surface). → [[content-linking]]
+- **Psychology**: feedback loop tức thời (socket "Đang chấm…" → verdict chip màu success/danger/warning ngay khi có kết quả — giữ flow, không phải chờ F5); loss-aversion có chủ đích trên "Xem lời giải" (confirm dialog biến việc "lén xem đáp án" thành quyết định cân nhắc được, không phải shortcut miễn phí). → [[persuasion-psychology]]
+- **Ghi chú**: telemetry (paste count/kích thước paste/keystroke/tab-blur) được ghi NGẦM để chống gian lận, không hiển thị cho người dùng biết đang bị theo dõi — một khoảng thiếu minh bạch (có thể là chủ đích anti-cheat, nhưng nên cân nhắc 1 dòng disclosure).
+- **Độc lập với khóa học**: `CodingProblem` KHÔNG có FK tới Course/Module/Content/Challenge/Enrollment — đây là bank practice đứng riêng (`.mount/data/coding-problems`, LeetCode-style). Sợi dây THẬT DUY NHẤT về phía khóa học là nguồn XP `coding` (`XpSource.Coding` — "first clean coding-practice solve", `xp_histories.course_id` = NULL cho sự kiện này, tức course-agnostic, khác challenge/lessonRead/milestone luôn gắn `courseId`). Không có link "giải xong bài này → mở khóa/challenge X" nào cả — đừng thêm phễu khóa học ở trang này ngoài khoản XP đã ghi nhận.

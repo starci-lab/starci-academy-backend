@@ -1,0 +1,8 @@
+# Feature — Challenge
+> Giải 1 thử thách của bài học: đọc đề (yêu cầu · bước hướng dẫn · gợi ý) rồi nộp URL cho từng deliverable, AI chấm theo criteria. Nguồn: `features/learn/Challenge`.
+
+- **Job**: đọc-rồi-nộp 1 việc có nhiều deliverable con → shell SPLIT (đọc trái `max-w-3xl` + act phải sticky `~360px`), mirror [[full-bleed-work-surface]] 2-pane nhưng KHÔNG full-bleed — docstring tự nhận "the course-tree rail stays (the learn shell)". Đây là điểm LỆCH với [[when-rail]]/`solving-surface-fullbleed-no-course-rails` (đáng ra "giải-đề tập trung" phải bỏ rail); code thật giữ rail.
+- **CTA**: KHÔNG 1 CTA tổng — mỗi *requirement* là 1 accordion row tự có nút "Nộp bài" riêng (`SubmissionRow`); accordion tự mở đúng deliverable ĐẦU chưa đạt (`firstOpenId`) → luôn chỉ ra "làm cái này tiếp". → [[call-to-action]]
+- **Links (onward)**: "Xem lịch sử làm bài" điều hướng sang trang riêng `SubmissionResult` (`?submission=`); trang đó có back-link ("← Quay lại thử thách") quay về đúng challenge. Không có link tiến ra ngoài challenge (đứng lẻ trong tab "Thử thách" của 1 lesson). → [[content-linking]]
+- **Psychology**: accordion auto-open next-unsolved = goal-gradient effect (luôn thấy 1 bước kế tiếp rõ ràng, không phải chọn giữa N việc ngang hàng); icon done/failed/todo trên mỗi header = progress visibility liên tục; card "Kết quả của bạn" sticky bên phải trong lúc đọc đề = giữ điểm số luôn trong tầm mắt (loss-aversion nhẹ khi còn đang làm). → [[persuasion-psychology]]
+- **Ghi chú**: `ChallengeSubmissionPanel` là ví dụ sạch của goal-gradient qua accordion auto-open — nhưng cả feature còn giữ course rail dù rule layout gọi bỏ; nếu áp `page-shell-selection`, đây là ứng viên full-bleed đầu tiên cần soát lại (không chỉ MockInterview).

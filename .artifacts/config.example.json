@@ -1,0 +1,4 @@
+{
+  "feSource": "<đường dẫn tuyệt đối tới repo FE starci-academy trên máy bạn>",
+  "beSource": "<đường dẫn tuyệt đối tới repo BE starci-academy-backend>"
+}

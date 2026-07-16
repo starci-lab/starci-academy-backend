@@ -1,0 +1,8 @@
+# Feature — CourseQa
+> Hỏi-đáp CHUNG khóa (không gắn 1 bài) — filter Chưa trả lời/Đã trả lời/Của tôi/Tất cả + search + composer + list + pager. Nguồn: `features/learn/CourseQa`.
+
+- **Job**: hỏi-và-tìm-câu-trả-lời trong phạm vi cả khóa → shell centered single-column (`max-w-3xl`) với toolbar `TabsCard` (filter) + `SearchInput` + count — pattern "list surface" (search·count·list·pager, elements/list §5b) hơn là 1 archetype trang riêng; rail khóa của [[docs-three-pane-reader]] vẫn giữ nguyên từ `LearnShell`.
+- **CTA**: `CommentComposer collapsible` (avatar-led pill → mở thành textarea khi bấm) là PRIMARY action của trang; khi danh sách rỗng THẬT (0 câu hỏi, chưa filter/search) → 1 Card lời-mời to với CTA "Vào nội dung khóa" (mandatory course funnel), KHÔNG phải "chưa có gì". → [[call-to-action]]
+- **Links (onward)**: CTA rỗng route thẳng vào `/learn/content` (funnel về khóa, đúng [[layout-must-funnel-to-courses-and-cover-full-data-state-matrix]] Luật 1); filter/search đều URL-synced (`?filter=`) nên shareable + back/forward hoạt động đúng. → [[content-linking]]
+- **Psychology**: "honest strip" (số học viên thật + tỉ lệ đã-trả-lời thật) khai rõ trong docstring là KHÔNG social-proof giả — một ví dụ chống dark-pattern chủ đích, đáng trích dẫn khi cần bảo vệ quyết định "không thêm số ảo"; filter mặc định = "Chưa trả lời" đóng khung trang thành "hàng đợi cần giúp" thay vì "kho lưu trữ để lướt", tự nhiên kéo câu hỏi mới lên đầu. → [[persuasion-psychology]]
+- **Ghi chú**: empty-state của `CourseQa` là ví dụ SẠCH cho [[layout-must-funnel-to-courses-and-cover-full-data-state-matrix]] Luật 1 (rỗng = phễu về khóa) — dùng làm mẫu khi audit các surface khác có empty-state còn là "Chưa có gì" cụt.

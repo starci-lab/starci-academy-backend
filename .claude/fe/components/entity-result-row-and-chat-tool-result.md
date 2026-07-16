@@ -1,0 +1,13 @@
+# Concept — `EntityResultRow` (1 dòng kết quả RAG dùng chung) + `ChatToolResult` (generative-UI widget trong chat)
+
+> Heuristic (họ `concepts/*`). Rút từ 2026-07-11: 3 bề mặt render CÙNG 1 dòng kết quả `searchCourseContent` (kind·title·snippet·jump) — `RelatedContentList` (gợi ý cuối bài), ContentAiChat **search-view** (kính lúp), và widget mới trong luồng chat. Gom về 1 row + 1 widget. Bổ trợ [[related-content-list-row-accent-read-cta-not-snippet-panel]] · [[hover-style-matches-clickable-nature]] mode-1 · [[card]] §4 · [[content-linking]] · research generative-UI (Vercel AI SDK message-parts: tool-result render component theo kind, fallback text khi loading/empty).
+
+## Quy tắc (STRICT)
+- **`EntityResultRow` = SSOT cho 1 hit RAG pickable.** `blocks/learn/EntityResultRow`. Trái: (chip-kind TÙY CHỌN `showKindChip`) HOẶC breadcrumb + title (truncate) + (snippet 1 dòng TÙY CHỌN `showSnippet`). Phải: CTA accent **theo kind** (content→Đọc · flashcard→Ôn · challenge→Làm · milestone→Mở, keys `entityResult.*`) + arrow; `ctaLabel` override để 1 nhãn cố định. `onSelect(item)` — CALLER lo điều hướng (row không tự route). Hover = underline TITLE + arrow nhích + `cursor-pointer`, KHÔNG fill (nav go-there, [[hover-style-matches-clickable-nature]] mode-1). 3 bề mặt PHẢI dùng row này, không lặp lại markup.
+  - `RelatedContentList` → `ctaLabel` cố định (giữ 1 nhãn "Đọc" như bản thầy duyệt), no chip.
+  - ContentAiChat search-view + `ChatToolResult` → per-kind CTA; search-view `showKindChip` (mixed kind).
+- **`ChatToolResult` = widget kết quả tool render INLINE trong assistant `ChatBubble`** (generative-UI part). `blocks/learn/ChatToolResult`: card **surface-in-surface** (`border + bg-transparent`, [[card]] §4 — nằm trong popover chat) → header (eyebrow icon phosphor theo kind + nhãn + count) → N `EntityResultRow` → footer optional "Xem tất cả →" (mở full search-view). **States:** loading = skeleton rows mirror (KHÔNG spinner); empty = **KHÔNG dựng card rỗng** — caller render 1 câu text fallback ([[labeled-section-render-empty-not-self-hide]] tinh thần); error = degrade text.
+- **Message = có `parts`, không chỉ text.** Khi chat trả structured result, assistant turn mang `toolResult` (kind·items) → render `ChatToolResult` thay markdown; giữ luồng stream text cho câu hỏi thường. Intent "tìm <kind>" nhận diện ở BE (classifier nhẹ) — KHÔNG dựa LLM tool-calling của model free local (không ổn định). *(MVP 2026-07-11 chạy intent client-side để chứng minh UX; BE classifier + persist turn = phase 2.)*
+
+## Liên quan
+- [[related-content-list-row-accent-read-cta-not-snippet-panel]] (row gốc) · [[hover-style-matches-clickable-nature]] mode-1 · [[card]] §4 (surface-in-surface) · [[content-linking]] (gợi ý = đường-đi) · [[interactive-needs-hover]].

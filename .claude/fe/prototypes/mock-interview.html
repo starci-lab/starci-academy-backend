@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mock Interview — flow prototype (element-aware)</title>
+<style>
+  :root{--bg:#f4f4f6;--fg:#1a1a1e;--mut:#6b6b76;--line:#e2e2e8;--card:#fff;--acc:#c0407a;--psy:#7b6bd0;--link:#2f6bd4;--ok:#3b7d4f;--warn:#b06a1f;--radius:14px}
+  @media (prefers-color-scheme:dark){:root{--bg:#161619;--fg:#eaeaef;--mut:#9a9aa6;--line:#2a2a30;--card:#1d1d21}}
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.45 ui-sans-serif,system-ui,-apple-system,sans-serif;color:var(--fg);background:var(--bg)}
+  .top{position:sticky;top:0;z-index:10;background:var(--card);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+  .top b{font-size:15px}.top .sub{color:var(--mut);font-size:12px}
+  .legend{display:flex;gap:10px;margin-left:auto;font-size:11px;font-weight:700}
+  .legend .cta{color:var(--acc)}.legend .psy{color:var(--psy)}.legend .fn{color:var(--ok)}.legend .bl{color:var(--mut)}
+  .devtog{border:1px solid var(--line);border-radius:8px;overflow:hidden;display:flex}
+  .devtog button{border:0;background:var(--card);padding:4px 10px;cursor:pointer;font:inherit;font-size:12px;color:var(--mut)}
+  .devtog button.on{background:var(--acc);color:#fff}
+  .stagewrap{padding:22px 16px 90px;display:flex;justify-content:center}
+  .stage{width:100%;transition:max-width .2s}
+  .stage.desktop{max-width:960px}.stage.mobile{max-width:390px}
+  .shelltag{text-align:center;font:12px ui-monospace,Menlo,monospace;color:var(--mut);margin-bottom:8px}
+  .fullbleed-note{font:11px ui-monospace,monospace;color:var(--warn);text-align:center;margin-bottom:8px}
+  .screen{display:none;animation:fade .25s}.screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .stack{display:flex;flex-direction:column;gap:12px}
+  .row{display:flex;gap:12px;align-items:center}
+  .mono{width:44px;height:44px;border-radius:50%;background:color-mix(in oklab,var(--acc) 12%,transparent);color:var(--acc);display:flex;align-items:center;justify-content:center;font-weight:600;flex:0 0 auto}
+  .muted{color:var(--mut)}.sm{font-size:12px}.xs{font-size:11px}
+  h3{margin:.2em 0}
+  .btn{border:0;border-radius:10px;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+  .btn.primary{background:var(--acc);color:#fff}
+  .btn.ghost{background:transparent;color:var(--mut);border:1px solid var(--line)}
+  .btn.sec{background:color-mix(in oklab,var(--acc) 8%,transparent);color:var(--acc)}
+  .tag{font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;vertical-align:middle;margin-left:5px}
+  .tag.cta{color:var(--acc);background:color-mix(in oklab,var(--acc) 14%,transparent)}
+  .tag.psy{color:var(--psy);background:color-mix(in oklab,var(--psy) 14%,transparent)}
+  .tag.fn{color:var(--ok);background:color-mix(in oklab,var(--ok) 14%,transparent)}
+  /* block-name label — element-aware: khối chỉ đúng block canonical trong fe/components */
+  .blocktag{font:9px ui-monospace,Menlo,monospace;color:var(--mut);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:6px;vertical-align:middle;white-space:nowrap}
+  .work{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .stage.mobile .work{grid-template-columns:1fr}
+  .pane{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;min-height:230px;display:flex;flex-direction:column;gap:10px}
+  .paneh{font-size:11px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.03em}
+  .tabs{display:flex;gap:4px}
+  .tabs button{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:4px 10px;cursor:pointer;font:inherit;font-size:12px;color:var(--mut)}
+  .tabs button.on{border-color:var(--acc);color:var(--acc);font-weight:700;background:color-mix(in oklab,var(--acc) 7%,transparent)}
+  .canvas{flex:1;border:1px dashed var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:12px;text-align:center;padding:10px}
+  .hud{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--mut)}
+  .bubble{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;flex:1}
+  .mic{border:2px solid var(--acc);color:var(--acc);border-radius:12px;padding:12px;text-align:center;font-weight:700;cursor:pointer}
+  .modetog{display:flex;gap:6px;justify-content:center;margin-bottom:10px}
+  .modetog button{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:3px 10px;font:inherit;font-size:11px;cursor:pointer;color:var(--mut)}
+  .modetog button.on{border-color:var(--acc);color:var(--acc);font-weight:700}
+  .statetog{font-size:11px;color:var(--link);cursor:pointer;text-decoration:underline;margin-top:6px;display:inline-block}
+  .nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;gap:12px;justify-content:center}
+  .nav .steps{display:flex;gap:6px;flex-wrap:wrap}
+  .nav .steps button{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:4px 11px;cursor:pointer;font:inherit;font-size:12px;color:var(--mut)}
+  .nav .steps button.on{border-color:var(--acc);color:var(--acc);font-weight:700}
+  .grade{display:flex;flex-direction:column;align-items:center;gap:12px;padding:34px 16px}
+  .spinner{width:26px;height:26px;border:3px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .verdict{font-size:30px;font-weight:800;color:var(--warn)}
+  .phaselist{display:flex;flex-direction:column;gap:6px}
+  .phaselist .p{display:flex;justify-content:space-between;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px}
+  .dots{display:flex;gap:4px}.dots span{height:5px;flex:1;border-radius:3px;background:var(--line)}
+  .dots span.done{background:var(--ok)}.dots span.cur{background:var(--acc)}
+</style>
+</head>
+<body>
+<div class="top">
+  <b>Mock Interview</b><span class="sub">flow prototype · element-aware (khối = block thật)</span>
+  <div class="legend"><span class="cta">◆CTA</span><span class="psy">◆tâm lý</span><span class="fn">◆phễu</span><span class="bl">▢block</span></div>
+  <div class="devtog"><button id="dtDesk" class="on" onclick="setDev('desktop')">Desktop</button><button id="dtMob" onclick="setDev('mobile')">Mobile</button></div>
+</div>
+
+<div class="stagewrap">
+<div class="stage desktop" id="stage">
+
+  <!-- 1 SETUP -->
+  <section class="screen active" data-screen="0">
+    <div class="shelltag">shell: centered · max-w-2xl  (job = quyết / green-room)</div>
+    <div class="stack">
+      <div class="card" id="track" style="border-style:dashed">
+        <div class="sm muted">Độ sẵn sàng 62% <span class="tag psy">goal-gradient</span><span class="blocktag">MockInterviewTrackSnapshot</span></div>
+        <span class="statetog" onclick="toggleHistory()">↔ toggle state: có / chưa có lịch sử</span>
+      </div>
+      <div class="card">
+        <div class="row"><div class="mono">SN<span class="blocktag" style="margin:0">UserAvatar</span></div><div><h3 style="margin:0">Stacy Nguyễn <span class="tag psy">room-feel</span></h3><div class="xs muted">Senior Engineer · sắp phỏng vấn bạn</div></div></div>
+        <p class="sm muted">5 câu · mức Trung · ~15 phút. Câu chỉ hiện sau khi vào phòng (như thi thật).</p>
+        <button class="btn primary" onclick="go(1)">🚪 Vào phòng <span class="tag cta" style="background:rgba(255,255,255,.2);color:#fff">1 primary · Fogg</span></button>
+        <div class="xs muted" style="margin-top:6px">↑ card = <b>LabeledCard</b> · nút = <b>components/button</b> primary</div>
+      </div>
+      <div class="card sm muted" style="border-style:dashed">⌄ Tùy chỉnh: tier <span class="blocktag">FlexWrapButtonRadio</span> · model <span class="blocktag">GradeModelDropdown</span> · credit <span class="blocktag">GradeCreditCaption</span></div>
+      <div class="card sm" id="hist">History — 3 lần (58·64·71) <span class="tag psy">progress</span><span class="blocktag">MockInterviewHistory</span></div>
+      <div class="card" id="resumeCard" style="border-color:var(--acc)">
+        <div class="row" style="justify-content:space-between">
+          <div><b class="sm">Đánh đổi consistency vs availability</b><span class="blocktag">ContinueCard</span></div>
+          <span class="tag cta">tiếp tục</span>
+        </div>
+        <div class="xs muted" style="margin:4px 0 8px">Câu 3/5 · mức Trung</div>
+        <div style="height:4px;border-radius:3px;background:var(--line);overflow:hidden;margin-bottom:8px"><div style="height:100%;width:60%;background:var(--acc)"></div></div>
+        <button class="btn primary" style="width:100%;justify-content:center" onclick="resumeGo()">▸ Tiếp tục <span class="tag cta" style="background:rgba(255,255,255,.2);color:#fff">/interview/[sessionId]</span></button>
+        <div class="xs muted" style="margin-top:6px">↑ đứng NGAY DƯỚI History — chỉ hiện khi có phiên đang-dở (đồng bộ 24h, resume 1-phiên-duy-nhất)</div>
+      </div>
+      <span class="statetog" onclick="toggleResume()">↔ toggle state: có / không có phiên đang-dở</span>
+    </div>
+  </section>
+
+  <!-- 2 INTERVIEW -->
+  <section class="screen" data-screen="1">
+    <div class="fullbleed-note">★ shell ĐỔI: full-bleed · BỎ rail  (job = làm-việc + tool) — route bật fullBleed khi phase===interview</div>
+    <div class="modetog">
+      <button id="mQna" class="on" onclick="setMode('qna')">qna — 1 cột, workspace bung theo yêu cầu</button>
+      <button id="mDes" onclick="setMode('design')">design — 2-pane cứng</button>
+    </div>
+    <div class="work" id="work">
+      <div class="pane">
+        <div class="paneh">hội thoại <span class="blocktag">InterviewerPresence</span></div>
+        <div class="hud"><span>← Thoát</span><span>⏱ 04:12</span><span id="qc">Câu 2/5 · Tình huống</span></div>
+        <div class="dots" id="dots"></div>
+        <div class="row" style="align-items:flex-start"><div class="mono" style="width:34px;height:34px;font-size:12px">SN</div><div class="bubble sm" id="q">"Hệ thống chậm giờ cao điểm. Bạn khoanh vùng nút thắt thế nào?" <span class="tag psy">persona</span></div></div>
+        <div class="mic" onclick="answer()">🎙 Trả lời (nói / gõ) <span class="tag cta">1 hành động → câu sau</span><span class="blocktag" style="border-color:var(--acc);color:var(--acc)">VoiceHero</span></div>
+      </div>
+      <div class="pane" id="wspane">
+        <div class="paneh">workspace <span class="blocktag">MockInterviewWorkspace · TabsCard</span></div>
+        <div class="tabs"><button onclick="tab(this,'Whiteboard')">Whiteboard</button><button class="on" onclick="tab(this,'Code')">Code</button><button onclick="tab(this,'Ghi chú')">Ghi chú</button></div>
+        <div class="canvas" id="canvas">vùng làm việc (Code) — pane hạng nhất, hết toggle ẩn</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 GRADING -->
+  <section class="screen" data-screen="2">
+    <div class="shelltag">shell: centered interstitial  (job = chờ)</div>
+    <div class="card grade">
+      <div class="mono">SN</div>
+      <div class="spinner"></div>
+      <div class="muted sm">Stacy đang chấm bài… <span class="tag psy">grade-at-end HONEST (không điểm real-time)</span></div>
+      <button class="btn ghost" onclick="go(3)">(demo) → xem kết quả</button>
+    </div>
+  </section>
+
+  <!-- 4 SCORECARD -->
+  <section class="screen" data-screen="3">
+    <div class="shelltag">shell: centered · max-w-2xl  (job = kết quả + phễu)</div>
+    <div class="stack">
+      <div class="row"><div class="mono" style="width:36px;height:36px">SN</div><div><b>Debrief</b><div class="xs muted">Stacy Nguyễn · Senior</div></div></div>
+      <div class="card" style="text-align:center"><div class="verdict">64<span style="font-size:16px">/100</span></div><div class="sm muted">Khá — chắc nền, yếu ở đánh đổi</div><div class="xs muted" style="margin-top:6px">toàn khối này = <b>MockInterviewScorecard</b></div></div>
+      <div class="phaselist">
+        <div class="p"><span>Yêu cầu</span><b>8/10</b></div>
+        <div class="p"><span>Ước lượng</span><b>7/10</b></div>
+        <div class="p" style="border-color:var(--warn)"><span>Đánh đổi ⚠️ yếu</span><b>4/10</b></div>
+      </div>
+      <button class="btn primary" onclick="alert('deep-link → khóa: mở đúng bài Trade-off')">▸ Học "Đánh đổi" trong khóa <span class="tag fn" style="background:rgba(255,255,255,.2);color:#fff">phễu · deep-link</span></button>
+      <button class="btn sec" onclick="go(1)">↻ Phỏng vấn lại (đề mới) <span class="tag psy">hook loop</span></button>
+      <div class="card xs muted" style="border-style:dashed;text-align:center">vòng khép: điểm ⇐ làm thật ⇐ HỌC — fair-monetization (nudge để học, không bán tắt)</div>
+    </div>
+  </section>
+
+</div>
+</div>
+
+<div class="nav">
+  <button class="btn ghost" onclick="prev()">◀ Trước</button>
+  <div class="steps" id="steps"></div>
+  <button class="btn ghost" onclick="next()">Sau ▶</button>
+</div>
+
+<script>
+  var cur=0, total=4, names=['Setup','Interview','Grading','Scorecard'];
+  var qi=1, mode='qna';
+  function render(){
+    document.querySelectorAll('.screen').forEach(function(s){s.classList.toggle('active',+s.dataset.screen===cur)});
+    document.querySelectorAll('#steps button').forEach(function(b,i){b.classList.toggle('on',i===cur)});
+    if(cur===1) drawDots();
+  }
+  function go(i){cur=Math.max(0,Math.min(total-1,i));window.scrollTo(0,0);render()}
+  function next(){go(cur+1)} function prev(){go(cur-1)}
+  function setDev(m){document.getElementById('stage').className='stage '+m;document.getElementById('dtDesk').classList.toggle('on',m==='desktop');document.getElementById('dtMob').classList.toggle('on',m==='mobile')}
+  function toggleHistory(){var h=document.getElementById('hist');h.style.display=h.style.display==='none'?'':'none'}
+  function toggleResume(){var r=document.getElementById('resumeCard');r.style.display=r.style.display==='none'?'':'none'}
+  function resumeGo(){qi=3;go(1);drawDots();document.getElementById('q').innerHTML='"(resumed) Đánh đổi consistency vs availability ở tình huống này?" <span class=\"tag psy\">rehydrated từ turns đã sync</span>'}
+  function setMode(m){mode=m;document.getElementById('mQna').classList.toggle('on',m==='qna');document.getElementById('mDes').classList.toggle('on',m==='design');
+    var w=document.getElementById('work');var wp=document.getElementById('wspane');
+    if(m==='qna'){w.style.gridTemplateColumns='1fr';wp.style.opacity='.5';document.getElementById('canvas').textContent='(qna) workspace bung theo yêu cầu — câu code tự mở pane';}
+    else{w.style.gridTemplateColumns='1fr 1fr';wp.style.opacity='1';document.getElementById('canvas').textContent='(design) whiteboard mở suốt';}
+  }
+  function tab(b,name){b.parentNode.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');document.getElementById('canvas').textContent='vùng làm việc ('+name+')'}
+  function drawDots(){var d=document.getElementById('dots');d.innerHTML='';for(var i=0;i<5;i++){var s=document.createElement('span');s.className=i<qi-1?'done':i===qi-1?'cur':'';d.appendChild(s)}document.getElementById('qc').textContent='Câu '+qi+'/5 · Tình huống'}
+  function answer(){ if(qi>=5){go(2);return} qi++; drawDots(); document.getElementById('q').innerHTML='"Câu tiếp: đánh đổi consistency vs availability ở tình huống này?" <span class=\"tag psy\">persona</span>'; }
+  (function(){var st=document.getElementById('steps');for(var i=0;i<total;i++){(function(i){var b=document.createElement('button');b.textContent=(i+1)+' '+names[i];b.onclick=function(){go(i)};st.appendChild(b)})(i)}render()})();
+</script>
+</body>
+</html>

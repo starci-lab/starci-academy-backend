@@ -1,0 +1,8 @@
+# Feature — Headhunting
+> Danh bạ tư vấn tuyển dụng (`Headhuntings`) + chợ tài năng cho nhà tuyển dụng lọc theo track (`TalentDirectory`). Nguồn: `features/careers/Headhunting`.
+
+- **Job**: `Headhuntings` = duyệt N consultant + tìm nhanh 1 công ty tuyển dụng; `TalentDirectory` = recruiter chọn 1 track (course) rồi duyệt candidate xếp hạng theo track đó → cả hai shell [[catalog-grid]].
+- **CTA**: card consultant → mở profile modal; card candidate (`PressableCard`) → dẫn thẳng public profile (không CTA nút riêng, cả card là link). → [[call-to-action]]
+- **Links (onward)**: search company (debounced, ES completion-suggester) → chọn gợi ý deep-link ngay tới trang company; `TalentDirectory` track filter (`TabsCard`) đổi selection → re-query SERVER-SIDE re-rank (không lọc client giả). → [[content-linking]]
+- **Psychology**: authority/qualification bằng chip ĐỊNH TÍNH duy nhất per-track (`isQualified` + band `jobReady`/`building`/`needsWork`, tính từ 3 pillar THẬT weighted — capstone (milestone task pass %) 0.4 · mock-interview (điểm TB N lần gần nhất) 0.3 · CV score (điểm CV gắn khóa đó) 0.3, renormalize khi thiếu pillar) — code comment nói rõ "never a blended cross-track score, never a raw meaningless number"; ranking server-side theo đúng track đang lọc (join `milestone_tasks`/`user_milestone_task_attempts`/`mock_interview_attempts`/`cv_generations` SCOPED THEO 1 `courseId`), không cộng dồn nhiều track để "trông giỏi hơn". → [[persuasion-psychology]]
+- **Ghi chú**: đây là ví dụ SGK cho [[fair-monetization-axiom]] — tín hiệu tuyển dụng KHÔNG phồng theo số khóa/CV đã có; chọn track khác → điểm/band đổi đúng theo track đó, không kéo theo tổng điểm ảo.

@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hỏi nhanh (Interview) — flow prototype</title>
+<style>
+  :root{--bg:#f4f4f6;--fg:#1a1a1e;--mut:#6b6b76;--line:#e2e2e8;--card:#fff;--acc:#c0407a;--psy:#7b6bd0;--link:#2f6bd4;--ok:#3b7d4f;--warn:#b06a1f;--radius:14px}
+  @media (prefers-color-scheme:dark){:root{--bg:#161619;--fg:#eaeaef;--mut:#9a9aa6;--line:#2a2a30;--card:#1d1d21}}
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.45 ui-sans-serif,system-ui,-apple-system,sans-serif;color:var(--fg);background:var(--bg)}
+  .top{position:sticky;top:0;z-index:10;background:var(--card);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+  .top b{font-size:15px}.top .sub{color:var(--mut);font-size:12px}
+  .legend{display:flex;gap:10px;margin-left:auto;font-size:11px;font-weight:700}
+  .legend .cta{color:var(--acc)}.legend .psy{color:var(--psy)}.legend .fn{color:var(--ok)}
+  .devtog{border:1px solid var(--line);border-radius:8px;overflow:hidden;display:flex}
+  .devtog button{border:0;background:var(--card);padding:4px 10px;cursor:pointer;font:inherit;font-size:12px;color:var(--mut)}
+  .devtog button.on{background:var(--acc);color:#fff}
+  .stagewrap{padding:22px 16px 90px;display:flex;justify-content:center}
+  .stage{width:100%;transition:max-width .2s}
+  .stage.desktop{max-width:960px}.stage.mobile{max-width:390px}
+  .shelltag{text-align:center;font:12px ui-monospace,Menlo,monospace;color:var(--mut);margin-bottom:8px}
+  .fullbleed-note{font:11px ui-monospace,monospace;color:var(--warn);text-align:center;margin-bottom:8px}
+  .screen{display:none;animation:fade .25s}.screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .stack{display:flex;flex-direction:column;gap:12px}
+  .row{display:flex;gap:12px;align-items:center}
+  .mono{width:44px;height:44px;border-radius:50%;background:color-mix(in oklab,var(--acc) 12%,transparent);color:var(--acc);display:flex;align-items:center;justify-content:center;font-weight:600}
+  .muted{color:var(--mut)}.sm{font-size:12px}.xs{font-size:11px}
+  .btn{border:0;border-radius:10px;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+  .btn.primary{background:var(--acc);color:#fff}
+  .btn.ghost{background:transparent;color:var(--mut);border:1px solid var(--line)}
+  .btn.sec{background:color-mix(in oklab,var(--acc) 8%,transparent);color:var(--acc)}
+  .btn.outline{background:transparent;border:1px solid var(--line);color:var(--fg)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .statetog{font-size:11px;color:var(--link);cursor:pointer;text-decoration:underline;margin-top:6px;display:inline-block}
+  .tag{font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;vertical-align:middle;margin-left:5px}
+  .tag.cta{color:var(--acc);background:color-mix(in oklab,var(--acc) 14%,transparent)}
+  .tag.psy{color:var(--psy);background:color-mix(in oklab,var(--psy) 14%,transparent)}
+  .tag.fn{color:var(--ok);background:color-mix(in oklab,var(--ok) 14%,transparent)}
+  .blocktag{font:9px ui-monospace,Menlo,monospace;color:var(--mut);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:6px;vertical-align:middle}
+  .work{display:grid;grid-template-columns:1fr;gap:14px}
+  .pane{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px}
+  .paneh{font-size:11px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.03em}
+  .dots{display:flex;gap:4px}.dots span{height:5px;flex:1;border-radius:3px;background:var(--line)}
+  .dots span.done{background:var(--ok)}.dots span.cur{background:var(--acc)}
+  .chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--mut)}
+  .chip.on{background:color-mix(in oklab,var(--acc) 12%,transparent);border-color:var(--acc);color:var(--acc)}
+  .chip.warn{background:color-mix(in oklab,var(--warn) 14%,transparent);color:var(--warn);border-color:transparent}
+  .chip.ok{background:color-mix(in oklab,var(--ok) 14%,transparent);color:var(--ok);border-color:transparent}
+  .segbar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--line)}
+  .segbar span{height:100%}
+  .blank{display:inline-flex;min-width:64px;justify-content:center;border:1px dashed var(--line);border-radius:8px;padding:1px 10px;margin:0 3px;font-weight:600;font-size:13px}
+  .blank.filled{border-style:solid;border-color:var(--acc);background:color-mix(in oklab,var(--acc) 10%,transparent);color:var(--acc)}
+  .blank.correct{border-style:solid;border-color:var(--ok);background:color-mix(in oklab,var(--ok) 10%,transparent);color:var(--ok)}
+  .blank.wrong{border-style:solid;border-color:#c0392b;background:color-mix(in oklab,#c0392b 10%,transparent);color:#c0392b}
+  .bank{display:flex;flex-wrap:wrap;gap:8px}
+  .bankterm{border:1px solid var(--line);border-radius:8px;padding:5px 11px;font-size:12px;font-weight:600;background:var(--bg);cursor:pointer}
+  .bankterm.used{opacity:.35;cursor:default}
+  .metricrow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .metric{border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}
+  .metric b{font-size:18px;display:block}
+  .callout{display:flex;gap:10px;border-radius:12px;padding:12px 14px;align-items:flex-start}
+  .callout.locked{background:var(--bg);border:1px solid var(--line)}
+  .callout.unlocked{background:color-mix(in oklab,var(--ok) 10%,transparent);border:1px solid color-mix(in oklab,var(--ok) 30%,transparent)}
+  .weakrow{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--bg)}
+  .nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;gap:12px;justify-content:center}
+  .nav .steps{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .nav .steps button{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:4px 11px;cursor:pointer;font:inherit;font-size:12px;color:var(--mut)}
+  .nav .steps button.on{border-color:var(--acc);color:var(--acc);font-weight:700}
+  .centered-wrap{max-width:680px;margin:0 auto}
+  .wide-wrap{max-width:100%;margin:0 auto}
+</style>
+</head>
+<body>
+<div class="top">
+  <b>Flashcards · Hỏi nhanh (InterviewSession)</b><span class="sub">flow prototype · bấm đi luồng như slide</span>
+  <div class="legend"><span class="cta">◆CTA</span><span class="psy">◆tâm lý</span><span class="fn">◆phễu</span></div>
+  <div class="devtog"><button id="dtDesk" class="on" onclick="setDev('desktop')">Desktop</button><button id="dtMob" onclick="setDev('mobile')">Mobile</button></div>
+</div>
+
+<div class="stagewrap">
+<div class="stage desktop" id="stage">
+
+  <!-- ==== MÀN 0 — SETUP (redesigned: 3 zone thay vì 1 Card đơn) ==== -->
+  <section class="screen active" data-screen="0">
+    <div class="shelltag">shell: centered · max-w-3xl  (job = quyết/nhập — giữ nguyên, chỉ ENRICH nội dung)</div>
+    <div class="centered-wrap stack">
+
+      <!-- Zone 0 (MỚI — resume-session): chỉ hiện khi myInProgressFlashcardQuizSession trả về non-null
+           (status=inProgress · updatedAt<24h). Tái dùng NGUYÊN block ContinueCard, không tự chế —
+           cùng block/props-shape với resume-card của Mock Interview (chỉ khác nguồn data). -->
+      <div id="resumeZone" class="card stack" style="display:none;border-color:var(--acc)">
+        <div class="row" style="justify-content:space-between;align-items:flex-start">
+          <div class="stack" style="gap:2px">
+            <span class="sm" style="font-weight:700">Hỏi nhanh dở dang<span class="blocktag">ContinueCard</span></span>
+            <span class="xs muted">Câu 2/5 · rate-limiter, redis, idempotency…</span>
+          </div>
+          <span class="sm" style="color:var(--acc);font-weight:700">Tiếp tục ›</span>
+        </div>
+        <div class="segbar"><span style="width:40%;background:var(--acc)"></span><span style="width:60%;background:var(--line)"></span></div>
+        <button class="btn primary" style="align-self:flex-start" onclick="go(1)">
+          Tiếp tục phiên → <span class="tag cta" style="background:rgba(255,255,255,.25);color:#fff">1 primary khi có phiên dở</span>
+        </button>
+        <span class="xs muted">Route: <code>.../flashcards/quiz/[sessionId]</code> — vào đúng câu 2, giữ nguyên cardIds đã bốc + kết quả 1 câu đã làm. (Đổi tên "interview"→"quiz" 2026-07-08, tránh nhầm với Mock Interview.)</span>
+      </div>
+
+      <!-- Zone 1: tái dùng FlashcardStatsStrip — parity với tab "Học thẻ" thay vì tự chế ProgressMeter đơn -->
+      <div class="card stack">
+        <div class="row" style="justify-content:space-between">
+          <span class="sm" style="font-weight:700">Đã thuộc 62/243 · 25%<span class="blocktag">LabeledCard label="Tiến bộ"</span></span>
+          <span class="chip warn">🔥 streak 4 ngày</span>
+        </div>
+        <div class="segbar"><span style="width:25%;background:var(--ok)"></span><span style="width:20%;background:var(--warn)"></span><span style="width:55%;background:var(--line)"></span></div>
+        <span class="xs muted">Đã thuộc · Đang học · Chưa học<span class="blocktag">SegmentBar</span> — ghi nhớ 82% (dựa trên 40 lượt ôn gần nhất)</span>
+      </div>
+
+      <!-- Zone 2: config — mode + level, giữ nguyên FlexWrapButtonRadio đã có, chỉ tách card riêng có label rõ -->
+      <div class="card stack">
+        <div class="stack" style="gap:6px">
+          <span class="xs muted" style="font-weight:700;text-transform:uppercase">Kiểu luyện<span class="blocktag">Label</span></span>
+          <div class="row">
+            <span class="chip on">⚡ Nhanh · 5 câu</span>
+            <span class="chip">🗂 Sâu · 10 câu</span>
+            <span class="blocktag">FlexWrapButtonRadio</span>
+          </div>
+        </div>
+        <div class="stack" style="gap:6px">
+          <span class="xs muted" style="font-weight:700;text-transform:uppercase">Cấp độ câu hỏi</span>
+          <div class="row" style="flex-wrap:wrap">
+            <span class="chip on">Tất cả cấp</span><span class="chip">Junior</span><span class="chip">Middle</span><span class="chip">Senior</span><span class="chip">Staff / SA</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zone 3: CTA — hạ xuống secondary khi có phiên dở (resume chiếm slot primary ở Zone 0) -->
+      <button id="startBtn" class="btn primary" style="align-self:flex-start" onclick="go(1)">
+        Bắt đầu luyện → <span class="tag cta" style="background:rgba(255,255,255,.25);color:#fff">1 primary</span>
+        <span class="blocktag" style="background:rgba(255,255,255,.15);color:#fff;border-color:transparent">Button</span>
+      </button>
+      <span class="xs muted">3 zone tách bạch (thay vì 1 Card dồn hết) — cùng nhịp thị giác với tab "Học thẻ" (Hero + StatsStrip + DeckList) bên cạnh, không còn lệch cân.</span>
+      <span class="statetog" onclick="toggleResume()">↔ toggle: chưa có phiên dở ⇄ ĐANG có phiên dở (resume-session, mới thêm)</span>
+    </div>
+  </section>
+
+  <!-- ==== MÀN 1 — ACTIVE: cloze trước khi Kiểm tra ==== -->
+  <section class="screen" data-screen="1">
+    <div class="fullbleed-note">★ shell RỘNG hơn max-w-3xl dùng chung với tab "Học thẻ" (job = làm-việc-tập-trung) — theo luật surface-job-drives-layout, đúng như Mock Interview đã áp (setup/recap centered, active rộng). Vẫn rail-less, không 2-pane (task nhẹ, không cần workspace phụ).</div>
+    <div class="wide-wrap work" id="work1">
+      <div class="pane">
+        <div class="row" style="justify-content:space-between;flex-wrap:wrap">
+          <div style="flex:1;min-width:160px"><div class="dots"><span class="done"></span><span class="cur"></span><span></span><span></span><span></span></div><span class="xs muted">Câu 2/5<span class="blocktag">ProgressMeter</span></span></div>
+          <span class="chip warn">🔥 combo x2</span>
+        </div>
+        <div class="row" style="flex-wrap:wrap"><span class="chip on">Senior</span><span class="chip">rate-limiter</span><span class="chip">redis</span></div>
+        <div class="card sm stack">
+          <span class="xs muted" style="font-weight:700">CÂU HỎI</span>
+          <span>Vì sao thuật toán <b>token bucket</b> được ưa chuộng hơn fixed-window khi giới hạn burst traffic?</span>
+          <div class="xs muted" style="border-top:1px solid var(--line);padding-top:8px">Điền vào chỗ trống:</div>
+          <p style="line-height:2.1">Token bucket cho phép <span class="blank filled">burst</span> có kiểm soát vì nó tách biệt <span class="blank">tốc độ nạp</span> khỏi <span class="blank">dung lượng chứa</span>, trong khi fixed-window bị lỗi <span class="blank">biên cửa sổ</span> (double burst ở rìa 2 window).</p>
+        </div>
+        <div class="stack" style="gap:8px">
+          <div class="bank">
+            <span class="bankterm">burst</span><span class="bankterm used">tốc độ nạp</span><span class="bankterm">dung lượng chứa</span><span class="bankterm">biên cửa sổ</span><span class="bankterm">sliding window</span><span class="bankterm">leaky bucket</span>
+            <span class="blocktag">word bank · Button variant=outline</span>
+          </div>
+          <button class="btn primary" style="align-self:flex-start" onclick="go(2)">Kiểm tra <span class="tag cta">1 primary</span></button>
+        </div>
+      </div>
+    </div>
+    <p class="xs muted" style="text-align:center;margin-top:10px">Rộng hơn giúp câu cloze dài + word bank nhiều thuật ngữ không bị vỡ dòng liên tục như ở max-w-3xl.</p>
+  </section>
+
+  <!-- ==== MÀN 2 — ACTIVE: sau khi Kiểm tra → xem lời giải → SM-2 rate ==== -->
+  <section class="screen" data-screen="2">
+    <div class="fullbleed-note">★ cùng shell rộng — pha vẫn "làm-việc" (đọc lời giải + tự chấm)</div>
+    <div class="wide-wrap work">
+      <div class="pane">
+        <div class="row" style="justify-content:space-between;flex-wrap:wrap">
+          <div style="flex:1;min-width:160px"><div class="dots"><span class="done"></span><span class="cur"></span><span></span><span></span><span></span></div><span class="xs muted">Câu 2/5</span></div>
+          <span class="chip warn">🔥 combo x2</span>
+        </div>
+        <div class="card sm stack">
+          <span class="xs muted" style="font-weight:700">CÂU HỎI</span>
+          <p style="line-height:2.1">Token bucket cho phép <span class="blank correct">burst</span> có kiểm soát vì nó tách biệt <span class="blank correct">tốc độ nạp</span> khỏi <span class="blank wrong">sliding window</span> chứa, trong khi fixed-window bị lỗi <span class="blank correct">biên cửa sổ</span>.</p>
+          <span class="xs" style="color:#c0392b">✕ Đúng 3/4 ô — 1 ô sai (đáp án: "dung lượng chứa")</span>
+        </div>
+        <div class="card sm stack">
+          <span class="xs muted" style="font-weight:700">LỜI GIẢI ĐẦY ĐỦ<span class="blocktag">MarkdownContent</span></span>
+          <span class="sm">Token bucket tách "rate" (tốc độ nạp token) khỏi "capacity" (dung lượng chứa) — cho phép burst tới capacity ngay cả khi rate thấp, còn fixed-window đếm request trong khung cố định nên bị double-count ở biên 2 khung liền kề…</span>
+        </div>
+        <div class="stack" style="gap:6px;align-items:center">
+          <span class="xs muted">Tự chấm mức nhớ của bạn<span class="blocktag">RatingBar</span></span>
+          <div class="row">
+            <button class="btn outline sm">Quên</button><button class="btn outline sm">Khó</button><button class="btn outline sm">Được</button><button class="btn primary sm" onclick="go(3)">Dễ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==== MÀN 3 — RECAP: 6 zone hiện có, giữ nguyên centered (job = kết-quả/debrief, ĐÚNG rồi) ==== -->
+  <section class="screen" data-screen="3">
+    <div class="shelltag">shell: centered · max-w-3xl  (job = kết quả/debrief — giữ nguyên, đã đúng chuẩn 6-zone từ brainstorm trước)</div>
+    <div class="centered-wrap stack">
+      <!-- Zone A+B -->
+      <div class="card stack">
+        <span class="xs muted" style="font-weight:700">ÔN TẬP XONG</span>
+        <span style="font-size:18px;font-weight:700">Trả lời đúng không gợi ý 3/5 câu</span>
+        <div class="metricrow">
+          <div class="metric"><b>x3</b><span class="xs muted">Combo tốt nhất</span></div>
+          <div class="metric"><b>+42</b><span class="xs muted">XP nhận<span class="blocktag">MetricCard</span></span></div>
+          <div class="metric"><b>78%</b><span class="xs muted">Độ phủ TB</span></div>
+        </div>
+        <span class="xs muted">XP đã cộng vào bảng xếp hạng<span class="tag psy">tâm lý</span></span>
+      </div>
+
+      <!-- Zone toggle: trial vs enrolled -->
+      <span class="statetog" onclick="toggleTrial()">↔ toggle trạng thái: học thử ⇄ đã mua khoá</span>
+
+      <div id="zoneE" class="card stack" style="align-items:center;text-align:center">
+        <span class="xs muted">🔥</span>
+        <b>Giữ đà học — mở khoá cả khoá học</b>
+        <span class="xs muted">Bạn vừa ôn xong với momentum tốt — đăng ký để không mất đà.</span>
+        <button class="btn primary" style="width:100%;max-width:260px">Đăng ký khoá học <span class="tag cta">primary khi TRIAL</span></button>
+        <span class="blocktag">Zone E · RecapEnrollUpsell</span>
+      </div>
+
+      <div id="zoneC" class="card stack" style="display:none">
+        <span class="xs muted" style="font-weight:700">3 CHỦ ĐỀ YẾU NHẤT</span>
+        <div class="weakrow"><span class="sm">rate-limiter <span class="xs muted">· phủ 40%</span></span><span class="sm" style="color:var(--acc);font-weight:600">Ôn lại bài →</span></div>
+        <div class="weakrow"><span class="sm">redis-cluster <span class="xs muted">· phủ 55%</span></span><span class="sm" style="color:var(--acc);font-weight:600">Ôn lại bài →</span></div>
+        <div class="weakrow"><span class="sm">idempotency <span class="xs muted">· phủ 60%</span></span><span class="sm" style="color:var(--acc);font-weight:600">Ôn lại bài →</span></div>
+        <span class="blocktag">Zone C · primary khi ENROLLED — cùng danh sách nhưng nhỏ hơn (tertiary link) khi trial</span>
+      </div>
+
+      <div id="zoneD" class="callout unlocked" style="display:none">
+        <span>🎙️</span>
+        <div class="stack" style="gap:2px;flex:1">
+          <b class="sm">Đủ điều kiện AI Mock Interview</b>
+          <span class="xs muted">Điểm trung bình 78% ≥ ngưỡng 70% — thử phỏng vấn thật với AI chấm điểm.</span>
+        </div>
+        <button class="btn sec sm">Thử ngay <span class="blocktag">Callout status=success</span></button>
+      </div>
+
+      <button class="btn ghost" style="align-self:flex-start" onclick="go(0)">Luyện thêm <span class="tag cta">secondary — Zone F</span></button>
+    </div>
+  </section>
+
+  <!-- ==== MÀN 4 — EMPTY: hết thẻ ở level đã chọn ==== -->
+  <section class="screen" data-screen="4">
+    <div class="shelltag">shell: centered · max-w-3xl  (state rỗng — vẫn có phễu quay lại, không ngõ cụt)</div>
+    <div class="centered-wrap card stack" style="align-items:center;text-align:center;padding:32px 16px">
+      <span style="font-size:28px">✅</span>
+      <b>Không còn thẻ ở cấp độ này</b>
+      <span class="xs muted">Đổi "Cấp độ câu hỏi" sang "Tất cả cấp" hoặc chọn cấp khác.</span>
+      <button class="btn outline" onclick="go(0)">Về Setup <span class="tag fn">phễu</span><span class="blocktag">EmptyState</span></button>
+    </div>
+  </section>
+
+</div>
+</div>
+
+<div class="nav">
+  <button class="btn ghost" onclick="prev()">◀ Trước</button>
+  <div class="steps" id="steps"></div>
+  <button class="btn ghost" onclick="next()">Sau ▶</button>
+</div>
+
+<script>
+  var cur=0, total=5, names=['0 Setup','1 Active·cloze','2 Active·rate','3 Recap','4 Empty'];
+  function render(){
+    document.querySelectorAll('.screen').forEach(function(s){s.classList.toggle('active',+s.dataset.screen===cur)});
+    document.querySelectorAll('#steps button').forEach(function(b,i){b.classList.toggle('on',i===cur)});
+  }
+  function go(i){cur=Math.max(0,Math.min(total-1,i));window.scrollTo(0,0);render()}
+  function next(){go(cur+1)} function prev(){go(cur-1)}
+  function setDev(m){document.getElementById('stage').className='stage '+m;document.getElementById('dtDesk').classList.toggle('on',m==='desktop');document.getElementById('dtMob').classList.toggle('on',m==='mobile')}
+  (function(){var st=document.getElementById('steps');for(var i=0;i<total;i++){(function(i){var b=document.createElement('button');b.textContent=(i+1)+' '+names[i];b.onclick=function(){go(i)};st.appendChild(b)})(i)}render()})();
+
+  var hasResume=false;
+  function toggleResume(){
+    hasResume=!hasResume;
+    document.getElementById('resumeZone').style.display=hasResume?'flex':'none';
+    var b=document.getElementById('startBtn');
+    b.className=hasResume?'btn ghost':'btn primary';
+    b.innerHTML=hasResume
+      ? 'Bắt đầu phiên MỚI (bỏ phiên dở) <span class="blocktag" style="border-color:var(--line)">Button ghost — hạ cấp, resume mới là primary</span>'
+      : 'Bắt đầu luyện → <span class="tag cta" style="background:rgba(255,255,255,.25);color:#fff">1 primary</span><span class="blocktag" style="background:rgba(255,255,255,.15);color:#fff;border-color:transparent">Button</span>';
+  }
+
+  var trial=true;
+  function toggleTrial(){
+    trial=!trial;
+    document.getElementById('zoneE').style.display=trial?'flex':'none';
+    document.getElementById('zoneC').style.display=trial?'none':'flex';
+    document.getElementById('zoneD').style.display=trial?'none':'flex';
+  }
+</script>
+</body>
+</html>
