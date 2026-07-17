@@ -46,6 +46,8 @@ export interface RawPlayground {
     description?: string
     /** Icon shown next to the playground title (emoji or icon key). */
     icon?: string
+    /** Interaction kind (`terminal` | `rag`); absent → `terminal`. */
+    kind?: string
     /** Index signature so the markdown→JSON extractor generic is satisfied. */
     [key: string]: unknown
 }
@@ -58,6 +60,10 @@ export interface RawPlaygroundStep {
     body?: string
     /** Sample command shown to the student. */
     commandHint?: string
+    /** RAG-kind sample action shown to the student. */
+    actionHint?: string
+    /** RAG-kind verify predicate (`imported` | `asked` | `answered`). */
+    verifyKind?: string
     /** Resource kind matched against the agent's self-reported resource list. */
     verifyResourceKind?: string
     /** Substring/prefix matched against the reported resource name (empty = any name). */

@@ -149,6 +149,12 @@ export class PlaygroundParserService {
             icon: this.coerceMdScalarService.toNullableStringColumn(
                 merged.icon,
             ),
+            // interaction kind (`terminal` | `rag`); absent `# kind` → `terminal`
+            // so legacy Docker/K8s playgrounds keep their existing behaviour
+            kind: this.coerceMdScalarService.toRequiredString(
+                merged.kind,
+                "terminal",
+            ),
             // pure display-ordering index — explicit `# sortIndex`, else falls back to orderIndex
             sortIndex: this.toSortIndex(
                 (merged as { sortIndex?: unknown }).sortIndex,

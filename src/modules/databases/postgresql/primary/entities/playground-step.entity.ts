@@ -137,6 +137,38 @@ export class PlaygroundStepEntity extends UuidAbstractEntity {
         commandHint: string | null
 
     /**
+     * RAG-kind counterpart of {@link commandHint}: the learner-facing action to
+     * perform in the right-hand widget (e.g. "Dán code mẫu vào khung trái rồi
+     * bấm Nạp"). Null for `terminal` steps (which use {@link commandHint}).
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Sample action shown to the student for a RAG-kind step.",
+        },
+    )
+    @Column({
+        name: "action_hint",
+        type: "text",
+        nullable: true,
+    })
+        actionHint: string | null
+
+    /**
+     * RAG-kind verify predicate (`imported` | `asked` | `answered`) checked
+     * against the paired RAG session state. Null for `terminal` steps (which use
+     * the `verifyResource*` triple). Server-only — NOT exposed via GraphQL.
+     */
+    @Column({
+        name: "verify_kind",
+        type: "varchar",
+        length: 32,
+        nullable: true,
+    })
+        verifyKind: string | null
+
+    /**
      * Resource kind to match against the agent's self-reported resource list
      * (e.g. "Pod", "Deployment", "Service", "Container", "Image"). Server-only —
      * NOT exposed via GraphQL.

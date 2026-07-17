@@ -108,6 +108,26 @@ export class PlaygroundEntity extends UuidAbstractEntity {
         icon: string | null
 
     /**
+     * Interaction kind driving the right-hand widget + verify family:
+     * `terminal` (Docker/K8s — CLI agent + resource verify) or `rag`
+     * (import code → ask → cite). Stored as varchar (NOT a PG enum) to dodge
+     * the synchronize enum ADD-VALUE trap; legacy rows default to `terminal`.
+     */
+    @Field(
+        () => String,
+        {
+            description: "Interaction kind for the playground (terminal | rag).",
+        },
+    )
+    @Column({
+        name: "kind",
+        type: "varchar",
+        length: 32,
+        default: "terminal",
+    })
+        kind: string
+
+    /**
      * Course this playground belongs to.
      */
     @Field(

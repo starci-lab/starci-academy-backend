@@ -138,6 +138,13 @@ export class PlaygroundStepParserService {
                 commandHint: this.coerceMdScalarService.toNullableStringColumn(
                     merged.commandHint,
                 ),
+                // RAG-kind counterparts — nullable: absent heading → null (terminal steps)
+                actionHint: this.coerceMdScalarService.toNullableStringColumn(
+                    merged.actionHint,
+                ),
+                verifyKind: this.coerceMdScalarService.toNullableStringColumn(
+                    merged.verifyKind,
+                ),
                 // NOT NULL server-only verify columns — empty pattern (`""` = match any) is
                 // intentional and must stay an empty string, NOT collapse to null
                 verifyResourceKind: this.coerceMdScalarService.toRequiredString(
