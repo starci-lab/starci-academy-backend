@@ -10,9 +10,16 @@ import type {
 import {
     ContentEntity,
     CourseEntity,
+    FlashcardDeckEntity,
     InjectPrimaryPostgreSQLEntityManager,
     MindMapNodeEntityType,
     ModuleEntity,
+} from "@modules/databases"
+import type {
+    CourseMindMapLink,
+    CourseMindMapNode,
+    CourseMindMapTree,
+    Locale as LocaleType,
 } from "@modules/databases"
 import {
     CourseNotFoundException,
@@ -93,6 +100,7 @@ export class CourseMindMapService {
     private async buildGraph(
         {
             courseId,
+            locale,
         }: BuildCourseMindMapParams,
     ): Promise<CourseMindMapResponseData> {
         // the route passes a slug (`fullstack-mastery`) but callers may hold a UUID — branch on shape
@@ -123,6 +131,12 @@ export class CourseMindMapService {
                     displayId: courseId 
                 },
             )
+        }
+
+        // an AUTHORED concept map wins: it is the real "sơ đồ tư duy" (keywords + cross-links).
+        // Courses without one (or the public/guest map) fall back to the derived module graph below.
+        if (course.mindMap) {
+            return this.buildConceptGraph(course, course.mindMap, locale)
         }
 
         // load this course's modules in display order — they become the middle column
@@ -198,6 +212,9 @@ export class CourseMindMapService {
                         // lesson URL needs its module id → carry it on the node
                         moduleId: module.id,
                         displayId: content.displayId,
+                        // derived graph nodes point at ONE entity (via entityId) — no cross-links
+                        links: [],
+                        desc: null,
                     },
                 })
                 // connect the module to this lesson
@@ -231,6 +248,8 @@ export class CourseMindMapService {
                     entityId: module.id,
                     moduleId: null,
                     displayId: module.displayId,
+                    links: [],
+                    desc: null,
                 },
             })
             edges.push({
@@ -261,6 +280,179 @@ export class CourseMindMapService {
                 entityId: course.id,
                 moduleId: null,
                 displayId: course.displayId,
+                links: [],
+                desc: null,
+            },
+        })
+
+        return {
+            nodes,
+            edges,
+        }
+    }
+
+    /**
+     * Builds the AUTHORED concept mind-map: the course's `mind_map` jsonb keyword tree laid out as
+     * a tidy left-to-right tree (depth → column, leaves stacked, parents centered against their
+     * children). Concept nodes carry `kind = custom` and a LIST of cross-links to the surfaces that
+     * teach/drill/test them — resolved from authored mount slugs to routable ids here so the client
+     * only builds URLs.
+     *
+     * Only `lesson`/`challenge` links need id resolution (their route is module+content scoped);
+     * `milestone`/`interview` open their section page, so they carry the slug and a null id.
+     *
+     * @param course - The resolved course row (its `mindMap` is non-null).
+     * @param tree - The authored concept tree.
+     * @param locale - Active request locale, picks the bilingual label.
+     * @returns Nodes + edges in `@xyflow/react` shape.
+     */
+    private async buildConceptGraph(
+        course: CourseEntity,
+        tree: CourseMindMapTree,
+        locale: LocaleType,
+    ): Promise<CourseMindMapResponseData> {
+        // ---- resolve authored slugs → routable ids (batched; no N+1) ----
+        const modules = await this.entityManager.find(ModuleEntity,
+            {
+                where: {
+                    course: {
+                        id: course.id
+                    },
+                },
+            })
+        const moduleBySlug = new Map(modules.map((module) => [module.displayId, module]))
+        const contents = modules.length > 0
+            ? await this.entityManager.find(ContentEntity,
+                {
+                    where: {
+                        module: {
+                            id: In(modules.map((module) => module.id)),
+                        },
+                    },
+                })
+            : []
+        // lesson slugs repeat across modules → key by owning module + slug
+        const contentByModuleAndSlug = new Map(
+            contents.map((content) => [`${content.moduleId}:${content.displayId}`, content]),
+        )
+        const decks = await this.entityManager.find(FlashcardDeckEntity,
+            {
+                where: {
+                    course: {
+                        id: course.id
+                    },
+                },
+            })
+        const deckBySlug = new Map(decks.map((deck) => [deck.displayId, deck]))
+
+        /** Resolve one authored link into the ids the client needs to build its href. */
+        const resolveLink = (link: CourseMindMapLink) => {
+            if (link.kind === "lesson" || link.kind === "challenge") {
+                const owningModule = link.module ? moduleBySlug.get(link.module) : undefined
+                const content = owningModule
+                    ? contentByModuleAndSlug.get(`${owningModule.id}:${link.ref}`)
+                    : undefined
+                return {
+                    kind: link.kind === "lesson"
+                        ? MindMapNodeEntityType.Lesson
+                        : MindMapNodeEntityType.Challenge,
+                    entityId: content?.id ?? null,
+                    moduleId: owningModule?.id ?? null,
+                    displayId: link.ref,
+                }
+            }
+            if (link.kind === "flashcard") {
+                return {
+                    kind: MindMapNodeEntityType.Flashcard,
+                    entityId: deckBySlug.get(link.ref)?.id ?? null,
+                    moduleId: null,
+                    displayId: link.ref,
+                }
+            }
+            // milestone / interview open their section page — the slug is enough, no id lookup
+            return {
+                kind: link.kind === "milestone"
+                    ? MindMapNodeEntityType.Milestone
+                    : MindMapNodeEntityType.Interview,
+                entityId: null,
+                moduleId: null,
+                displayId: link.ref,
+            }
+        }
+
+        /** Pick the bilingual label for the active locale (falls back to the other side). */
+        const text = (value: { en: string; vi: string }) =>
+            (locale === "vi" ? (value.vi || value.en) : (value.en || value.vi))
+
+        // ---- lay out the tree: depth → column, leaves stacked, parents centered ----
+        const nodes: Array<MindMapNode> = []
+        const edges: Array<MindMapEdge> = []
+        let rowCursor = 0
+        const rootNodeId = `course-${course.id}`
+
+        /**
+         * Emit one concept subtree and return its vertical centre, so the caller can centre
+         * itself against its children (recursive post-order layout).
+         */
+        const walk = (node: CourseMindMapNode, depth: number, parentId: string): number => {
+            const nodeId = `concept-${node.id}`
+            const children = node.children ?? []
+            // leaves take the next free row; parents centre between their first/last child
+            let y: number
+            if (children.length === 0) {
+                y = rowCursor * ROW_Y
+                rowCursor += 1
+            } else {
+                const childYs = children.map((child) => walk(child, depth + 1, nodeId))
+                y = (childYs[0] + childYs[childYs.length - 1]) / 2
+            }
+            nodes.push({
+                id: nodeId,
+                type: "concept",
+                position: {
+                    x: COLUMN_X * depth,
+                    y,
+                },
+                data: {
+                    label: text(node.label),
+                    // an authored keyword is not an entity — it POINTS at them via `links`
+                    kind: MindMapNodeEntityType.Custom,
+                    entityId: null,
+                    moduleId: null,
+                    displayId: node.id,
+                    links: (node.links ?? []).map(resolveLink),
+                    desc: node.desc ? text(node.desc) : null,
+                },
+            })
+            edges.push({
+                id: `${parentId}--${nodeId}`,
+                source: parentId,
+                target: nodeId,
+                type: null,
+                animated: null,
+            })
+            return y
+        }
+
+        const branchYs = (tree.children ?? []).map((branch) => walk(branch, 1, rootNodeId))
+        // root sits in column 0, centred against its branches
+        nodes.unshift({
+            id: rootNodeId,
+            type: "course",
+            position: {
+                x: 0,
+                y: branchYs.length > 0
+                    ? (branchYs[0] + branchYs[branchYs.length - 1]) / 2
+                    : 0,
+            },
+            data: {
+                label: text(tree.root),
+                kind: MindMapNodeEntityType.Course,
+                entityId: course.id,
+                moduleId: null,
+                displayId: course.displayId,
+                links: [],
+                desc: null,
             },
         })
 

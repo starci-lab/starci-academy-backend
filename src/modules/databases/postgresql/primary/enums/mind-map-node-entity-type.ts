@@ -18,6 +18,12 @@ export enum MindMapNodeEntityType {
     Lesson = "lesson",
     /** Node links to a ChallengeEntity row. */
     Challenge = "challenge",
+    /** Node links to a MilestoneEntity row (capstone chapter). */
+    Milestone = "milestone",
+    /** Node links to a FlashcardDeckEntity row. */
+    Flashcard = "flashcard",
+    /** Node links to a mock-interview bank. */
+    Interview = "interview",
     /** Node has no entity link (decorative or custom-authored). */
     Custom = "custom",
 }
@@ -46,6 +52,15 @@ registerEnumType(
             },
             [MindMapNodeEntityType.Challenge]: {
                 description: "Node links to a ChallengeEntity row.",
+            },
+            [MindMapNodeEntityType.Milestone]: {
+                description: "Node links to a MilestoneEntity row (capstone chapter).",
+            },
+            [MindMapNodeEntityType.Flashcard]: {
+                description: "Node links to a FlashcardDeckEntity row.",
+            },
+            [MindMapNodeEntityType.Interview]: {
+                description: "Node links to a mock-interview bank.",
             },
             [MindMapNodeEntityType.Custom]: {
                 description: "Node has no entity link (decorative or custom-authored).",

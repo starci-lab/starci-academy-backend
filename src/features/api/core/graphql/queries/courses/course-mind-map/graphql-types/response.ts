@@ -81,6 +81,67 @@ export class MindMapNodeData {
             description: "Stable mount slug (displayId) of the represented entity.",
         })
         displayId: string | null
+
+    /**
+     * Surfaces this node links to. Populated on AUTHORED concept nodes (a keyword can be taught
+     * by a lesson, drilled by a deck and tested by an interview bank at once); empty on the
+     * derived module graph, whose nodes carry their single target in `entityId` above.
+     */
+    @Field(() => [MindMapNodeLink],
+        {
+            description: "Cross-links to the surfaces that teach/drill/test this concept.",
+        })
+        links: Array<MindMapNodeLink>
+
+    /** Optional one-line gloss shown on hover (authored concept nodes only). */
+    @Field(() => String,
+        {
+            nullable: true,
+            description: "Optional one-line gloss (authored concept nodes).",
+        })
+        desc: string | null
+}
+
+/**
+ * ONE cross-link from a concept node to a learning surface that teaches / drills / tests it.
+ * A concept typically cuts across several surfaces (a lesson to learn it, a flashcard deck to
+ * drill it, an interview bank to be tested on it), so concept nodes carry a LIST of these —
+ * unlike the derived module graph, whose nodes point at a single entity.
+ */
+@ObjectType({
+    description: "A cross-link from a concept node to a learning surface.",
+})
+export class MindMapNodeLink {
+    /** Which surface kind this link opens. */
+    @Field(() => GraphQLTypeMindMapNodeEntityType,
+        {
+            description: "Surface kind (lesson / challenge / milestone / flashcard / interview).",
+        })
+        kind: MindMapNodeEntityType
+
+    /** Resolved primary-key id of the target, or null when the slug did not resolve. */
+    @Field(() => ID,
+        {
+            nullable: true,
+            description: "Resolved id of the target entity (null when unresolved).",
+        })
+        entityId: string | null
+
+    /** Owning module id — set for lesson/challenge links so the client can build the URL. */
+    @Field(() => ID,
+        {
+            nullable: true,
+            description: "Owning module id (set on lesson/challenge links for URL building).",
+        })
+        moduleId: string | null
+
+    /** Authored mount slug of the target (kept even when unresolved, for debugging). */
+    @Field(() => String,
+        {
+            nullable: true,
+            description: "Authored mount slug (displayId) of the target.",
+        })
+        displayId: string | null
 }
 
 /**

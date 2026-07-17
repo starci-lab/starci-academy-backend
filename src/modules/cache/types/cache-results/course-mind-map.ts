@@ -10,18 +10,34 @@ export interface CourseMindMapCacheNodePosition {
     y: number
 }
 
+/** One cached cross-link from a concept node to a learning surface. */
+export interface CourseMindMapCacheNodeLink {
+    /** Surface kind this link opens. */
+    kind: MindMapNodeEntityType
+    /** Resolved id of the target entity, or null when the slug did not resolve. */
+    entityId: string | null
+    /** Owning module id — set for lesson/challenge links. */
+    moduleId: string | null
+    /** Authored mount slug of the target. */
+    displayId: string | null
+}
+
 /** Cached payload carried on a course mind-map node (label + navigation refs). */
 export interface CourseMindMapCacheNodeData {
-    /** Human-facing node label (course / module / lesson title). */
+    /** Human-facing node label (concept keyword, or course / module / lesson title). */
     label: string
-    /** What the node represents (course / module / lesson). */
+    /** What the node represents (concept `custom`, or course / module / lesson). */
     kind: MindMapNodeEntityType
-    /** Id of the represented entity (course/module/content), null for decorative nodes. */
+    /** Id of the represented entity (course/module/content), null for concept nodes. */
     entityId: string | null
     /** Owning module id — set on lesson nodes so the client can build the lesson URL. */
     moduleId: string | null
     /** Stable mount slug (displayId) of the represented entity. */
     displayId: string | null
+    /** Cross-links to surfaces teaching/drilling/testing this concept (authored nodes). */
+    links: Array<CourseMindMapCacheNodeLink>
+    /** Optional one-line gloss (authored concept nodes). */
+    desc: string | null
 }
 
 /** Cached `@xyflow/react`-shaped course mind-map node. */
