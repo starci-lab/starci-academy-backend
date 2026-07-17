@@ -232,4 +232,20 @@ export class MockInterviewAttemptEntity extends UuidAbstractEntity {
         default: true,
     })
         countsToReadiness: boolean
+
+    /**
+     * Optional user-chosen name for the practice session this attempt was
+     * graded from, copied verbatim from
+     * {@link import("./mock-interview-session.entity").MockInterviewSessionEntity.name}
+     * at grade time — so the history row keeps the name even after the
+     * source session's 24h resume TTL expires. Null when the learner didn't
+     * name the session — the FRONTEND renders a time-based fallback label in
+     * that case (the server never invents one).
+     */
+    @Column({
+        name: "name",
+        type: "text",
+        nullable: true,
+    })
+        name: string | null
 }

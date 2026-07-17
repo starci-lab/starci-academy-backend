@@ -148,6 +148,28 @@ export class MockInterviewStatsWeakest {
         matchedContentId: string | null
 }
 
+/** One normalized-and-tallied recurring gap across the viewer's scanned attempts. */
+@ObjectType({
+    description: "One recurring gap (normalized + tallied across the viewer's scanned attempts), most-frequent first.",
+})
+export class MockInterviewStatsRecurringGap {
+    @Field(
+        () => String,
+        {
+            description: "Display text for this recurring gap (most-recently-seen original casing).",
+        },
+    )
+        text: string
+
+    @Field(
+        () => Int,
+        {
+            description: "How many scanned attempts recorded this (normalized) gap.",
+        },
+    )
+        count: number
+}
+
 /** How many sessions of each top-level mode the scanned window contains. */
 @ObjectType({
     description: "Mode split across the viewer's scanned mock-interview attempts.",
@@ -252,6 +274,30 @@ export class MyMockInterviewStatsData {
         },
     )
         byAttribute: Array<MockInterviewStatsBreakdownItem>
+
+    @Field(
+        () => [MockInterviewStatsBreakdownItem],
+        {
+            description: "Per-seniority-level aggregate (junior/middle/senior), across every attempt regardless of mode.",
+        },
+    )
+        byLevel: Array<MockInterviewStatsBreakdownItem>
+
+    @Field(
+        () => [MockInterviewStatsBreakdownItem],
+        {
+            description: "Per-drawn-language aggregate — mode=\"qna\" code questions only, grouped by the language the question was drawn in; low-sample languages are dropped.",
+        },
+    )
+        byLanguage: Array<MockInterviewStatsBreakdownItem>
+
+    @Field(
+        () => [MockInterviewStatsRecurringGap],
+        {
+            description: "Top recurring gaps across every scanned attempt's gaps[], most-frequent first; only gaps seen at least twice qualify.",
+        },
+    )
+        recurringGaps: Array<MockInterviewStatsRecurringGap>
 
     @Field(
         () => MockInterviewStatsWeakest,

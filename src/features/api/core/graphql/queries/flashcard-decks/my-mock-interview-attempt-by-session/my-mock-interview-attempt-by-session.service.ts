@@ -141,6 +141,7 @@ export class MyMockInterviewAttemptBySessionService {
                     }] : []
                 }),
             createdAt: attempt.createdAt,
+            name: attempt.name,
         }
     }
 }

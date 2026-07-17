@@ -3,11 +3,14 @@ import {
 } from "@nestjs/common"
 import {
     EntityManager,
+    In,
 } from "typeorm"
 import {
+    FlashcardLevel,
     InjectPrimaryPostgreSQLEntityManager,
     MockInterviewAttemptEntity,
     MockInterviewPhase,
+    MockInterviewSessionEntity,
     UserMockInterviewCourseStatsProjectionEntity,
 } from "@modules/databases"
 import {
@@ -15,6 +18,7 @@ import {
 } from "@modules/env"
 import type {
     MockInterviewCourseStatsBreakdownItemData,
+    MockInterviewCourseStatsRecurringGapData,
     MockInterviewCourseStatsTrendPointData,
     MockInterviewCourseStatsWeakestData,
     RecomputeUserMockInterviewCourseStatsParams,
@@ -43,6 +47,18 @@ const ATTRIBUTE_SCORE_MAX = 100
 /** The 5 canonical design phase literals — `byPhase` only ever aggregates these (a legacy/garbled phase literal is dropped, never silently mixed in). */
 const DESIGN_PHASE_KEYS: ReadonlySet<string> = new Set(Object.values(MockInterviewPhase))
 
+/** The 3 canonical seniority-level literals — `byLevel` only ever aggregates these (a null/legacy level is dropped, never silently mixed in). */
+const VALID_LEVEL_KEYS: ReadonlySet<string> = new Set(Object.values(FlashcardLevel))
+
+/** A `byLanguage` entry needs at least this many scored questions before it's trustworthy enough to compare against another language — a language drawn once ever is noise, not a signal. */
+const MIN_LANGUAGE_BREAKDOWN_SAMPLE = 2
+
+/** A gap must recur at least this many times across scanned attempts to count as "recurring" (one mention is just one bad session, not a pattern). */
+const RECURRING_GAP_MIN_COUNT = 2
+
+/** How many of the most-frequent recurring gaps to surface. */
+const RECURRING_GAPS_TOP_N = 5
+
 /** One phase-score entry, as persisted (loosely typed jsonb on the entity). */
 interface RawPhaseScore {
     phase?: unknown
@@ -52,6 +68,7 @@ interface RawPhaseScore {
 
 /** One question-review entry, as persisted (loosely typed jsonb on the entity). */
 interface RawQuestionReview {
+    questionIndex?: unknown
     kind?: unknown
     score?: unknown
     max?: unknown
@@ -74,6 +91,14 @@ interface BreakdownAccumulator {
     weakMatches: Array<{ createdAt: Date, matchedContentId: string | null }>
 }
 
+/** Accumulator for one normalized recurring-gap key while scanning attempts. */
+interface RecurringGapAccumulator {
+    /** Most-recently-seen original casing (attempts are scanned newest-first) — used for display. */
+    text: string
+    /** How many scanned attempts recorded this (normalized) gap. */
+    count: number
+}
+
 /** Empty/zeroed result shape for `insufficientData: true`. */
 const EMPTY_RESULT: UserMockInterviewCourseStatsResult = {
     insufficientData: true,
@@ -85,6 +110,9 @@ const EMPTY_RESULT: UserMockInterviewCourseStatsResult = {
     byPhase: [],
     byKind: [],
     byAttribute: [],
+    byLevel: [],
+    byLanguage: [],
+    recurringGaps: [],
     weakest: null,
     verdictCounts: {
         pass: 0,
@@ -187,6 +215,9 @@ export class UserMockInterviewCourseStatsProjectionService {
             byPhase: value.byPhase ?? [],
             byKind: value.byKind ?? [],
             byAttribute: value.byAttribute ?? [],
+            byLevel: value.byLevel ?? [],
+            byLanguage: value.byLanguage ?? [],
+            recurringGaps: value.recurringGaps ?? [],
             weakest: value.weakest ?? null,
             verdictCounts: value.verdictCounts ?? EMPTY_RESULT.verdictCounts,
         }
@@ -221,6 +252,26 @@ export class UserMockInterviewCourseStatsProjectionService {
             return EMPTY_RESULT
         }
 
+        // `byLanguage` needs each qna attempt's DRAWN session (the language
+        // lives on `seedQuestions[i].givenCodes`, not on the attempt itself)
+        // — batch-fetch once instead of a per-attempt N+1 lookup.
+        const qnaSessionIds = [...new Set(
+            attempts
+                .filter((attempt) => attempt.mode === "qna")
+                .map((attempt) => attempt.sessionId),
+        )]
+        const sessions = qnaSessionIds.length > 0
+            ? await manager.find(
+                MockInterviewSessionEntity,
+                {
+                    where: {
+                        id: In(qnaSessionIds),
+                    },
+                },
+            )
+            : []
+        const sessionById = new Map(sessions.map((session) => [session.id, session]))
+
         // `attempts` is newest-first (DESC); reverse to oldest-first, then take
         // the last N of that ascending list — i.e. the most recent N attempts,
         // oldest-of-those-first, which is what a left-to-right trend line wants
@@ -241,6 +292,9 @@ export class UserMockInterviewCourseStatsProjectionService {
         const phaseAcc = new Map<string, BreakdownAccumulator>()
         const kindAcc = new Map<string, BreakdownAccumulator>()
         const attributeAcc = new Map<string, BreakdownAccumulator>()
+        const levelAcc = new Map<string, BreakdownAccumulator>()
+        const languageAcc = new Map<string, BreakdownAccumulator>()
+        const gapTally = new Map<string, RecurringGapAccumulator>()
         const verdictCounts = {
             pass: 0,
             borderline: 0,
@@ -256,6 +310,12 @@ export class UserMockInterviewCourseStatsProjectionService {
                     attempt.createdAt,
                     kindAcc,
                 )
+                this.accumulateQuestionReviewsByLanguage(
+                    attempt.questionReviews as unknown as Array<RawQuestionReview>,
+                    sessionById.get(attempt.sessionId),
+                    attempt.createdAt,
+                    languageAcc,
+                )
             } else {
                 designCount += 1
                 this.accumulatePhaseScores(
@@ -265,13 +325,24 @@ export class UserMockInterviewCourseStatsProjectionService {
                     phaseAcc,
                 )
             }
-            // attributeScores is graded on EVERY attempt regardless of mode
-            // (not gated by isQna like phase/kind are)
+            // attributeScores/level are graded on EVERY attempt regardless of
+            // mode (not gated by isQna like phase/kind are)
             this.accumulateAttributeScores(
                 attempt.attributeScores as unknown as Array<RawAttributeScore>,
                 attempt.createdAt,
                 attempt.matchedContentIds,
                 attributeAcc,
+            )
+            this.accumulateLevel(
+                attempt.level,
+                attempt.overallScore,
+                attempt.createdAt,
+                attempt.matchedContentIds,
+                levelAcc,
+            )
+            this.accumulateGaps(
+                attempt.gaps,
+                gapTally,
             )
             if (attempt.verdict === "pass" || attempt.verdict === "borderline" || attempt.verdict === "fail") {
                 verdictCounts[attempt.verdict] += 1
@@ -281,6 +352,10 @@ export class UserMockInterviewCourseStatsProjectionService {
         const byPhase = this.finalizeBreakdown(phaseAcc)
         const byKind = this.finalizeBreakdown(kindAcc)
         const byAttribute = this.finalizeBreakdown(attributeAcc)
+        const byLevel = this.finalizeBreakdown(levelAcc)
+        const byLanguage = this.finalizeBreakdown(languageAcc)
+            .filter((item) => item.attemptCount >= MIN_LANGUAGE_BREAKDOWN_SAMPLE)
+        const recurringGaps = this.finalizeRecurringGaps(gapTally)
         const weakest = this.resolveWeakest(byPhase,
             phaseAcc,
             byKind,
@@ -298,6 +373,9 @@ export class UserMockInterviewCourseStatsProjectionService {
             byPhase,
             byKind,
             byAttribute,
+            byLevel,
+            byLanguage,
+            recurringGaps,
             weakest,
             verdictCounts,
         }
@@ -369,6 +447,48 @@ export class UserMockInterviewCourseStatsProjectionService {
     }
 
     /**
+     * Fold one `mode="qna"` attempt's `questionReviews[]` into the per-language
+     * accumulator — the language a question was drawn in lives on the SESSION
+     * (`seedQuestions[questionIndex].givenCodes[0].lang`), not on the attempt,
+     * so this joins each review to its drawn session (batch-fetched by the
+     * caller) by `questionIndex`. Only CODE questions (a non-empty
+     * `givenCodes`) carry a language — a theory/reasoning question with no
+     * given code is skipped, never defaulted into a fake "no language"
+     * bucket. Missing session (drawn before session rows existed, or
+     * resolved as undefined) skips the whole attempt's reviews.
+     */
+    private accumulateQuestionReviewsByLanguage(
+        questionReviews: Array<RawQuestionReview> | null | undefined,
+        session: MockInterviewSessionEntity | undefined,
+        createdAt: Date,
+        acc: Map<string, BreakdownAccumulator>,
+    ): void {
+        if (!session || !session.seedQuestions) {
+            return
+        }
+        for (const entry of questionReviews ?? []) {
+            const questionIndex = typeof entry.questionIndex === "number" ? entry.questionIndex : -1
+            const seed = questionIndex >= 0 ? session.seedQuestions[questionIndex] : undefined
+            const lang = seed?.givenCodes?.[0]?.lang
+            if (!seed || !lang) {
+                continue
+            }
+            const score = typeof entry.score === "number" ? entry.score : 0
+            const max = typeof entry.max === "number" && entry.max > 0 ? entry.max : 0
+            if (max <= 0) {
+                continue
+            }
+            const matchedContentId = typeof entry.matchedContentId === "string" ? entry.matchedContentId : null
+            this.fold(acc,
+                lang,
+                score,
+                max,
+                createdAt,
+                matchedContentId)
+        }
+    }
+
+    /**
      * Fold one attempt's `attributeScores[]` into the per-attribute
      * accumulator — reads EVERY attempt regardless of mode (unlike
      * `accumulatePhaseScores`/`accumulateQuestionReviews`, which are gated by
@@ -398,6 +518,78 @@ export class UserMockInterviewCourseStatsProjectionService {
                 createdAt,
                 matchedContentIds[0] ?? null)
         }
+    }
+
+    /**
+     * Fold one attempt's `overallScore` into its seniority-level accumulator —
+     * reads EVERY attempt regardless of mode, same as
+     * {@link accumulateAttributeScores}. A null/legacy level (not one of the 3
+     * canonical {@link VALID_LEVEL_KEYS}) is dropped rather than mixed into a
+     * fake "any level" bucket.
+     */
+    private accumulateLevel(
+        level: string | null,
+        overallScore: number,
+        createdAt: Date,
+        matchedContentIds: Array<string>,
+        acc: Map<string, BreakdownAccumulator>,
+    ): void {
+        if (!level || !VALID_LEVEL_KEYS.has(level)) {
+            return
+        }
+        this.fold(acc,
+            level,
+            overallScore,
+            ATTRIBUTE_SCORE_MAX,
+            createdAt,
+            matchedContentIds[0] ?? null)
+    }
+
+    /**
+     * Tally one attempt's `gaps[]` into the recurring-gap map — each entry is
+     * trimmed+lowercased to a dedupe key (so "Trade-off" and "trade-off "
+     * count as the same recurring gap), while the map keeps the
+     * MOST-RECENTLY-SEEN original casing for display (attempts are scanned
+     * newest-first).
+     */
+    private accumulateGaps(
+        gaps: Array<string> | null | undefined,
+        tally: Map<string, RecurringGapAccumulator>,
+    ): void {
+        for (const raw of gaps ?? []) {
+            if (typeof raw !== "string") {
+                continue
+            }
+            const text = raw.trim()
+            if (text.length === 0) {
+                continue
+            }
+            const key = text.toLowerCase()
+            const existing = tally.get(key)
+            if (existing) {
+                existing.count += 1
+            } else {
+                tally.set(key, {
+                    text,
+                    count: 1,
+                })
+            }
+        }
+    }
+
+    /** Turn the recurring-gap tally into the top-N, most-frequent-first array the response returns — gaps seen fewer than {@link RECURRING_GAP_MIN_COUNT} times don't qualify (one mention is one bad session, not a pattern). */
+    private finalizeRecurringGaps(
+        tally: Map<string, RecurringGapAccumulator>,
+    ): Array<MockInterviewCourseStatsRecurringGapData> {
+        return [...tally.values()]
+            .filter((entry) => entry.count >= RECURRING_GAP_MIN_COUNT)
+            .sort((left, right) => right.count - left.count)
+            .slice(0,
+                RECURRING_GAPS_TOP_N)
+            .map((entry) => ({
+                text: entry.text,
+                count: entry.count,
+            }))
     }
 
     /** Fold one (score, max) observation for `key` into its accumulator, tracking a deep-link candidate when it's weak. */

@@ -124,6 +124,21 @@ export interface FlashcardWeakReviewTagData {
     reviewCount: number
 }
 
+/**
+ * One tag's full review-retention breakdown, worst-first — the un-truncated
+ * sibling of {@link FlashcardWeakReviewTagData} (thầy 2026-07-17 stats-insight
+ * redesign: "bỏ LIMIT 1" so the whole per-tag ranking is visible, not just the
+ * single worst tag).
+ */
+export interface FlashcardWeakTagData {
+    /** The technology tag (e.g. "NestJS"). */
+    tag: string
+    /** Retention for this tag = graded Good/Easy (>=2) / total graded, 0..100. */
+    retention: number
+    /** Distinct cards (not reviews) carrying this tag that were graded at least once. */
+    cardCount: number
+}
+
 /** One deck's REVIEW retention (recalled/total), the outcome analogue of the footprint `reviewByDeck`. */
 export interface FlashcardDeckRetentionData {
     /** The deck this retention is scoped to. */
@@ -146,6 +161,70 @@ export interface FlashcardRetentionTrendPointData {
     reviewCount: number
 }
 
+/**
+ * A "leech FOCUS" card — the reason-tagged sibling of {@link FlashcardLeechCardData}
+ * (thầy 2026-07-17: "9 thẻ ăn 30% lần Quên → viết lại"). Two distinct failure
+ * shapes get a different fix: `lapsed` (the learner once recalled it fine,
+ * then forgot — SUSPEND/rewrite the card) vs `stuckHard` (never forgets
+ * outright, but never firms up to Good/Easy either — the CARD is probably
+ * worded ambiguously).
+ */
+export interface FlashcardLeechFocusCardData {
+    /** The card id (open it in the reviewer). */
+    cardId: string
+    /** The card's question text (default-locale snapshot). */
+    question: string
+    /** Owning deck id (deep-link target). */
+    deckId: string
+    /** Owning deck title (default-locale snapshot). */
+    deckTitle: string
+    /** Times this card exhibited its `reason` (Again-after-a-prior-recall count, or repeated-Hard count). */
+    lapseCount: number
+    /** `"lapsed"` = forgot after once recalling it; `"stuckHard"` = repeatedly graded Hard, never Again but never firms up either. */
+    reason: "lapsed" | "stuckHard"
+}
+
+/**
+ * Cards about to go overdue in the near term — the "sẽ quên" headline (thầy
+ * 2026-07-17: "12 thẻ sẽ tuột trước Thứ 5"). `byDay` is the SAME 7-day-forward
+ * series as {@link FlashcardDueForecastPointData} (no extra query); `count` is
+ * just its first-2-days sum, the number worth a headline.
+ */
+export interface FlashcardForgetSoonData {
+    /** Cards due within the next 2 days — the headline "sẽ quên sớm" count. */
+    count: number
+    /** How many days forward `byDay` covers. */
+    horizonDays: number
+    /** Per-VN-day due-card counts across the forward window (same series as `dueForecast`). */
+    byDay: Array<FlashcardDueForecastPointData>
+}
+
+/** The single hour-of-day (VN time) with the best review retention, or null when no hour has enough samples. */
+export interface FlashcardBestReviewHourData {
+    /** Hour of day, 0..23 (VN local time). */
+    hour: number
+    /** Retention during this hour = recalled/total, 0..100. */
+    retention: number
+}
+
+/** Completed quiz sessions bucketed by the `level` filter chosen at setup. */
+export interface FlashcardDifficultyMixData {
+    /** Sessions drawn with the Junior filter. */
+    junior: number
+    /** Sessions drawn with the Middle filter. */
+    middle: number
+    /** Sessions drawn with the Senior filter (Staff sessions fold in here too — the FE only has 3 buckets). */
+    senior: number
+}
+
+/** How many of the course's technology tags the learner has attempted at least once, vs how many exist. */
+export interface FlashcardConceptCoverageData {
+    /** Distinct tags touched by at least one scanned quiz session's cards. */
+    covered: number
+    /** Distinct tags across every card in this course's decks. */
+    total: number
+}
+
 /** The enrollment's card-maturity breakdown, by `repetitions` on `user_flashcard_reviews`. */
 export interface FlashcardMasteryBreakdownData {
     /** Cards with `repetitions >= 2` — considered mastered. */
@@ -154,6 +233,21 @@ export interface FlashcardMasteryBreakdownData {
     learning: number
     /** Cards in the course's decks never yet reviewed. */
     new: number
+}
+
+/**
+ * The enrollment's card-maturity LADDER, by `interval_days` on
+ * `user_flashcard_reviews` (thầy 2026-07-17 stats-insight redesign: "chỉ 8%
+ * chín = tiến độ THẬT" — a coarser, interval-based cut than
+ * {@link FlashcardMasteryBreakdownData}'s `repetitions`-based one).
+ */
+export interface FlashcardMaturityLadderData {
+    /** `interval_days < 1`, OR never reviewed — freshly seen, not yet spaced out. */
+    learning: number
+    /** `1 <= interval_days <= 21` — spacing out, not yet long-term. */
+    young: number
+    /** `interval_days > 21` — committed to long-term memory. */
+    mature: number
 }
 
 /**
@@ -174,6 +268,10 @@ export interface UserFlashcardCourseStatsResult {
     quizHardCards: Array<FlashcardQuizHardCardData>
     /** Completed quiz sessions scanned (bounded by the service's session-scan cap) — drives the insufficient-data gate. */
     completedSessionCount: number
+    /** Completed quiz sessions bucketed by their `level` filter (Staff folds into `senior`). */
+    difficultyMix: FlashcardDifficultyMixData
+    /** Distinct tags attempted vs distinct tags existing in this course, or null when the course has no tag data at all. */
+    conceptCoverage: FlashcardConceptCoverageData | null
     /** Per-deck aggregate review footprint across the scanned sessions. */
     reviewByDeck: Array<FlashcardReviewDeckStatData>
     /** Cards due for review right now (`due_at <= now()`), scoped to this enrollment. */
@@ -182,10 +280,24 @@ export interface UserFlashcardCourseStatsResult {
     dueForecast: Array<FlashcardDueForecastPointData>
     /** The enrollment's card-maturity breakdown (mastered / learning / new). */
     masteryBreakdown: FlashcardMasteryBreakdownData
+    /** The enrollment's card-maturity LADDER (learning / young / mature), by `interval_days`. */
+    maturityLadder: FlashcardMaturityLadderData
+    /** Cards due within the next 2 days, out of the 7-day `dueForecast` window — the "sẽ quên sớm" headline. */
+    forgetSoon: FlashcardForgetSoonData
     /** Cards the learner keeps forgetting (grade Again), most-forgotten first, bounded — the "cần ôn lại" hero. */
     leechCards: Array<FlashcardLeechCardData>
+    /** Reason-tagged leech cards (lapsed vs stuck-on-Hard), worst first, bounded — the "viết lại" fix-list. */
+    leechFocus: Array<FlashcardLeechFocusCardData>
     /** The single weakest tag by review retention, or null when none has enough samples. */
     weakReviewTag: FlashcardWeakReviewTagData | null
+    /** EVERY tag's review retention, worst first (un-truncated sibling of `weakReviewTag`). */
+    weakTags: Array<FlashcardWeakTagData>
+    /** Review retention for cards with `interval_days >= 21` (recall on already-committed cards). */
+    matureRetention: number
+    /** Review retention for cards with `interval_days < 21` (recall while still spacing a card out). */
+    youngRetention: number
+    /** The hour-of-day (VN time) with the best review retention, or null when no hour has enough samples. */
+    bestReviewHour: FlashcardBestReviewHourData | null
     /** Per-deck review RETENTION (outcome), weakest first — the outcome analogue of `reviewByDeck` footprint. */
     deckRetention: Array<FlashcardDeckRetentionData>
     /** Per-VN-day review retention across the trailing window — the "đang cải thiện?" trend. */

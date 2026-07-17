@@ -87,6 +87,7 @@ export class MyInProgressFlashcardQuizSessionResolver {
             results: result.results,
             updatedAt: result.updatedAt.toISOString(),
             deadlineAt: new Date(result.createdAt.getTime() + FLASHCARD_QUIZ_SESSION_DURATION_MS).toISOString(),
+            name: result.name,
         }
     }
 }

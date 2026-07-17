@@ -18,11 +18,17 @@ import {
     envConfig,
 } from "@modules/env"
 import type {
+    FlashcardBestReviewHourData,
+    FlashcardConceptCoverageData,
     FlashcardDeckRetentionData,
     FlashcardDeckStatData,
+    FlashcardDifficultyMixData,
     FlashcardDueForecastPointData,
+    FlashcardForgetSoonData,
     FlashcardLeechCardData,
+    FlashcardLeechFocusCardData,
     FlashcardMasteryBreakdownData,
+    FlashcardMaturityLadderData,
     FlashcardQuizHardCardData,
     FlashcardQuizTagStatData,
     FlashcardQuizTrendPointData,
@@ -30,6 +36,7 @@ import type {
     FlashcardRetentionTrendPointData,
     FlashcardReviewDeckStatData,
     FlashcardWeakReviewTagData,
+    FlashcardWeakTagData,
     RecomputeUserFlashcardCourseStatsParams,
     UserFlashcardCourseStatsParams,
     UserFlashcardCourseStatsResult,
@@ -78,6 +85,31 @@ const RETENTION_TREND_DAYS = 30
 
 /** Milliseconds in one day (for epoch-day math on `YYYY-MM-DD` strings). */
 const MS_PER_DAY = 24 * 60 * 60 * 1000
+
+/**
+ * `interval_days` cut between "young" and "mature" for {@link FlashcardMaturityLadderData}
+ * (young: 1..this inclusive; mature: strictly above). A SEPARATE, slightly
+ * different cut from {@link RETENTION_MATURE_THRESHOLD_DAYS} — the ladder is a
+ * headcount bucket (3-way split), the retention split is a 2-way "is recall
+ * worse on new material or on stuff I've already committed" diagnosis; thầy's
+ * 2026-07-17 spec gave each its own boundary.
+ */
+const MATURITY_LADDER_YOUNG_MAX_DAYS = 21
+
+/** `interval_days` cut for the mature-vs-young RETENTION split (>= this = mature). See {@link MATURITY_LADDER_YOUNG_MAX_DAYS} for why this isn't shared. */
+const RETENTION_MATURE_THRESHOLD_DAYS = 21
+
+/** Out of the 7-day `dueForecast` window, how many leading days sum into the `forgetSoon.count` headline. */
+const FORGET_SOON_HEADLINE_DAYS = 2
+
+/** Minimum repeated-Hard grades before a card counts as "stuck" (never forgets outright, never firms up either). */
+const STUCK_HARD_MIN_COUNT = 2
+
+/** Max cards surfaced in `leechFocus` — a tight, actionable rewrite list (mirrors `LEECH_LIMIT`). */
+const LEECH_FOCUS_LIMIT = 8
+
+/** Minimum graded reviews an HOUR-of-day bucket needs before it's eligible to be "the best review hour" (sample-size floor). */
+const BEST_HOUR_MIN_SAMPLE = 5
 
 /** Raw groupBy row for "total cards per deck". */
 interface DeckCardCountRow {
@@ -143,6 +175,51 @@ interface RetentionTrendRow {
     total: string
 }
 
+/** Raw groupBy row: one tag's review recalled/total + distinct card count. */
+interface TagRetentionWithCardCountRow {
+    tag: string
+    recalled: string
+    total: string
+    card_count: string
+}
+
+/** Raw row: `user_flashcard_reviews` bucketed by `interval_days` into the 3-way maturity ladder. */
+interface MaturityLadderRow {
+    learning: string
+    young: string
+    mature: string
+}
+
+/** Raw row: recalled/total split by whether the card's CURRENT `interval_days` is mature or young. */
+interface MaturityRetentionRow {
+    matureRecalled: string
+    matureTotal: string
+    youngRecalled: string
+    youngTotal: string
+}
+
+/** Raw row: one card's lapsed/stuck-Hard tallies (see {@link FlashcardLeechFocusCardData}). */
+interface LeechFocusRow {
+    card_id: string
+    question: string
+    deck_id: string
+    deck_title: string
+    lapsed_count: string
+    hard_count: string
+}
+
+/** Raw row: one hour-of-day's recalled/total (VN local time). */
+interface BestHourRow {
+    hour: number
+    recalled: string
+    total: string
+}
+
+/** Raw row: distinct tag count across every card in a course's decks. */
+interface CourseTagCountRow {
+    total: string
+}
+
 /**
  * CQRS projection service for a user's flashcard COURSE stats — shared by both
  * the quick-quiz and review recap surfaces. The heavy scan/fold over
@@ -185,15 +262,28 @@ export class UserFlashcardCourseStatsProjectionService {
             weakTagLinks,
             quizHardCards,
             completedSessionCount,
+            difficultyMix,
+            conceptCoverage,
         } = await this.computeQuiz(manager,
             enrollmentId)
         const reviewByDeck = await this.computeReview(manager,
             enrollmentId)
-        const { dueToday, dueForecast, masteryBreakdown } = await this.computeDueAndMastery(manager,
+        const {
+            dueToday,
+            dueForecast,
+            masteryBreakdown,
+            maturityLadder,
+            forgetSoon,
+        } = await this.computeDueAndMastery(manager,
             enrollmentId)
         const {
             leechCards,
+            leechFocus,
             weakReviewTag,
+            weakTags,
+            matureRetention,
+            youngRetention,
+            bestReviewHour,
             deckRetention,
             retentionTrend,
         } = await this.computeReviewOutcome(manager,
@@ -206,12 +296,21 @@ export class UserFlashcardCourseStatsProjectionService {
             weakTagLinks,
             quizHardCards,
             completedSessionCount,
+            difficultyMix,
+            conceptCoverage,
             reviewByDeck,
             dueToday,
             dueForecast,
             masteryBreakdown,
+            maturityLadder,
+            forgetSoon,
             leechCards,
+            leechFocus,
             weakReviewTag,
+            weakTags,
+            matureRetention,
+            youngRetention,
+            bestReviewHour,
             deckRetention,
             retentionTrend,
         }
@@ -256,9 +355,13 @@ export class UserFlashcardCourseStatsProjectionService {
             ? (() => {
                 const value = row.value as Partial<UserFlashcardCourseStatsResult> | undefined
                 // leechCards = review-outcome drift (2026-07-13); quizHardCards =
-                // quiz-outcome drift (added later) — either absent means the row
-                // predates that fold, so recompute once to populate it.
-                return value?.leechCards === undefined || value?.quizHardCards === undefined
+                // quiz-outcome drift (added later); maturityLadder = the
+                // stats-insight-redesign drift (2026-07-17, this batch of new
+                // fields) — any absent means the row predates that fold, so
+                // recompute once to populate it.
+                return value?.leechCards === undefined
+                    || value?.quizHardCards === undefined
+                    || value?.maturityLadder === undefined
             })()
             : false
         if (!row || this.isStale(row.updatedAt) || missingOutcomeFields) {
@@ -282,6 +385,12 @@ export class UserFlashcardCourseStatsProjectionService {
             weakTagLinks: value?.weakTagLinks ?? [],
             quizHardCards: value?.quizHardCards ?? [],
             completedSessionCount: value?.completedSessionCount ?? 0,
+            difficultyMix: value?.difficultyMix ?? {
+                junior: 0,
+                middle: 0,
+                senior: 0,
+            },
+            conceptCoverage: value?.conceptCoverage ?? null,
             reviewByDeck: value?.reviewByDeck ?? [],
             dueToday: value?.dueToday ?? 0,
             dueForecast: value?.dueForecast ?? [],
@@ -290,8 +399,23 @@ export class UserFlashcardCourseStatsProjectionService {
                 learning: 0,
                 new: 0,
             },
+            maturityLadder: value?.maturityLadder ?? {
+                learning: 0,
+                young: 0,
+                mature: 0,
+            },
+            forgetSoon: value?.forgetSoon ?? {
+                count: 0,
+                horizonDays: DUE_FORECAST_DAYS,
+                byDay: [],
+            },
             leechCards: value?.leechCards ?? [],
+            leechFocus: value?.leechFocus ?? [],
             weakReviewTag: value?.weakReviewTag ?? null,
+            weakTags: value?.weakTags ?? [],
+            matureRetention: value?.matureRetention ?? 0,
+            youngRetention: value?.youngRetention ?? 0,
+            bestReviewHour: value?.bestReviewHour ?? null,
             deckRetention: value?.deckRetention ?? [],
             retentionTrend: value?.retentionTrend ?? [],
         }
@@ -312,6 +436,8 @@ export class UserFlashcardCourseStatsProjectionService {
         weakTagLinks: Array<FlashcardQuizWeakTagLinkData>
         quizHardCards: Array<FlashcardQuizHardCardData>
         completedSessionCount: number
+        difficultyMix: FlashcardDifficultyMixData
+        conceptCoverage: FlashcardConceptCoverageData | null
     }> {
         const sessions = await manager.find(
             FlashcardQuizSessionEntity,
@@ -331,6 +457,7 @@ export class UserFlashcardCourseStatsProjectionService {
 
         const weakTagLinks = this.computeWeakTagLinks(sessions)
         const completedSessionCount = sessions.length
+        const difficultyMix = this.computeDifficultyMix(sessions)
 
         // `sessions` is newest-first (DESC); reverse to oldest-first, then take
         // the last N of that ascending list — i.e. the most recent N sessions,
@@ -359,6 +486,10 @@ export class UserFlashcardCourseStatsProjectionService {
                 weakTagLinks,
                 quizHardCards: [],
                 completedSessionCount,
+                difficultyMix,
+                conceptCoverage: await this.computeConceptCoverage(manager,
+                    enrollmentId,
+                    new Set()),
             }
         }
 
@@ -397,6 +528,12 @@ export class UserFlashcardCourseStatsProjectionService {
             cardById)
         const quizHardCards = this.computeQuizHardCards(sessions,
             cardById)
+        // distinct tags actually attempted = every tag on every scanned card,
+        // straight off the same `cards` fetch above (no extra query)
+        const attemptedTags = new Set(cards.flatMap((card) => card.tags))
+        const conceptCoverage = await this.computeConceptCoverage(manager,
+            enrollmentId,
+            attemptedTags)
 
         return {
             quizTrend,
@@ -405,6 +542,76 @@ export class UserFlashcardCourseStatsProjectionService {
             weakTagLinks,
             quizHardCards,
             completedSessionCount,
+            difficultyMix,
+            conceptCoverage,
+        }
+    }
+
+    /**
+     * Bucket completed quiz sessions by their `level` filter — Staff folds
+     * into `senior` (the FE only shows 3 difficulty buckets) and sessions
+     * drawn with NO level filter ("all levels") are excluded, since they
+     * can't be attributed to a single difficulty.
+     */
+    private computeDifficultyMix(
+        sessions: Array<FlashcardQuizSessionEntity>,
+    ): FlashcardDifficultyMixData {
+        const mix: FlashcardDifficultyMixData = {
+            junior: 0,
+            middle: 0,
+            senior: 0,
+        }
+        for (const session of sessions) {
+            switch (session.level) {
+            case "junior":
+                mix.junior += 1
+                break
+            case "middle":
+                mix.middle += 1
+                break
+            case "senior":
+            case "staff":
+                mix.senior += 1
+                break
+            default:
+                // null ("all levels") — not attributable to one bucket, skip
+                break
+            }
+        }
+        return mix
+    }
+
+    /**
+     * How many of the course's technology tags the learner has attempted vs
+     * how many exist — `total` is a real `COUNT(DISTINCT tag)` over the
+     * course's decks (cheap: one query, mirrors the `totalCardsRow` pattern in
+     * {@link computeDueAndMastery}), not the byTag-length approximation the
+     * spec allows as a fallback. Null only when the course itself has no tag
+     * data to compare against (guards a divide-by-zero on the FE).
+     */
+    private async computeConceptCoverage(
+        manager: EntityManager,
+        enrollmentId: string,
+        attemptedTags: Set<string>,
+    ): Promise<FlashcardConceptCoverageData | null> {
+        const [row] = await manager.query<Array<CourseTagCountRow>>(
+            `SELECT COUNT(DISTINCT tag.value)::text AS total
+             FROM flashcard_cards card
+             JOIN flashcard_decks deck ON deck.id = card.flashcard_deck_id
+             JOIN enrollments enrollment ON enrollment.course_id = deck.course_id
+             CROSS JOIN LATERAL jsonb_array_elements_text(card.tags) AS tag(value)
+             WHERE enrollment.id = $1`,
+            [
+                enrollmentId,
+            ],
+        )
+        const total = Number(row?.total) || 0
+        if (total === 0) {
+            return null
+        }
+        return {
+            covered: attemptedTags.size,
+            total,
         }
     }
 
@@ -717,9 +924,10 @@ export class UserFlashcardCourseStatsProjectionService {
 
     /**
      * The due/mastery side of the aggregate — `dueToday`/`dueForecast`/
-     * `masteryBreakdown`, all scoped to this enrollment via
-     * `user_flashcard_reviews.enrollment_id` (+ the enrollment's course for
-     * `totalCards`). 3 small raw aggregates, run ONLY here (never per-request).
+     * `masteryBreakdown`/`maturityLadder`/`forgetSoon`, all scoped to this
+     * enrollment via `user_flashcard_reviews.enrollment_id` (+ the
+     * enrollment's course for `totalCards`). Small raw aggregates, run ONLY
+     * here (never per-request).
      */
     private async computeDueAndMastery(
         manager: EntityManager,
@@ -728,6 +936,8 @@ export class UserFlashcardCourseStatsProjectionService {
         dueToday: number
         dueForecast: Array<FlashcardDueForecastPointData>
         masteryBreakdown: FlashcardMasteryBreakdownData
+        maturityLadder: FlashcardMaturityLadderData
+        forgetSoon: FlashcardForgetSoonData
     }> {
         // 1. cards due right now
         const [dueTodayRow] = await manager.query<Array<DueTodayRow>>(
@@ -807,15 +1017,50 @@ export class UserFlashcardCourseStatsProjectionService {
         )
         const totalCards = Number(totalCardsRow?.total) || 0
 
+        // 4. maturity LADDER — a coarser, interval_days-based 3-way cut
+        // (learning/young/mature) than the repetitions-based masteryBreakdown
+        // above; "never reviewed" cards fold into `learning` (thầy 2026-07-17:
+        // "chỉ 8% chín = tiến độ THẬT").
+        const [ladderRow] = await manager.query<Array<MaturityLadderRow>>(
+            `SELECT COUNT(*) FILTER (WHERE interval_days < 1)::text AS learning,
+                    COUNT(*) FILTER (WHERE interval_days >= 1 AND interval_days <= ${MATURITY_LADDER_YOUNG_MAX_DAYS})::text AS young,
+                    COUNT(*) FILTER (WHERE interval_days > ${MATURITY_LADDER_YOUNG_MAX_DAYS})::text AS mature
+             FROM user_flashcard_reviews
+             WHERE enrollment_id = $1`,
+            [
+                enrollmentId,
+            ],
+        )
+        const neverReviewed = Math.max(0,
+            totalCards - reviewedTotal)
+        const maturityLadder: FlashcardMaturityLadderData = {
+            learning: (Number(ladderRow?.learning) || 0) + neverReviewed,
+            young: Number(ladderRow?.young) || 0,
+            mature: Number(ladderRow?.mature) || 0,
+        }
+
+        // 5. forget SOON — same 7-day-forward series as `dueForecast` (no
+        // extra query), just a leading-window sum for the "sẽ quên sớm" headline.
+        const forgetSoon: FlashcardForgetSoonData = {
+            count: dueForecast
+                .slice(0,
+                    FORGET_SOON_HEADLINE_DAYS)
+                .reduce((sum, point) => sum + point.count,
+                    0),
+            horizonDays: DUE_FORECAST_DAYS,
+            byDay: dueForecast,
+        }
+
         return {
             dueToday,
             dueForecast,
             masteryBreakdown: {
                 mastered,
                 learning: reviewedTotal - mastered,
-                new: Math.max(0,
-                    totalCards - reviewedTotal),
+                new: neverReviewed,
             },
+            maturityLadder,
+            forgetSoon,
         }
     }
 

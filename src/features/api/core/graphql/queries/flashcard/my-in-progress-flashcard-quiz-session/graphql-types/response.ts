@@ -102,6 +102,15 @@ export class MyInProgressFlashcardQuizSessionData {
         },
     )
         deadlineAt: string
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Optional user-chosen name for this practice session; null when the learner didn't name it (FE renders a time-based fallback).",
+        },
+    )
+        name: string | null
 }
 
 @ObjectType({

@@ -321,4 +321,17 @@ export class MockInterviewSessionEntity extends UuidAbstractEntity {
         default: 0,
     })
         phaseIndex: number
+
+    /**
+     * Optional user-chosen name for this practice session (e.g. "Vòng 2 -
+     * Backend"), set at `startMockInterviewSession` time. Null when the
+     * learner didn't name it — the FRONTEND renders a time-based fallback
+     * label in that case (the server never invents one).
+     */
+    @Column({
+        name: "name",
+        type: "text",
+        nullable: true,
+    })
+        name: string | null
 }

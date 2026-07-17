@@ -281,6 +281,15 @@ export class MockInterviewAttemptItem {
         },
     )
         createdAt: string
+
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Optional user-chosen name for this practice session, copied from the session at grade time; null when the learner didn't name it (FE renders a time-based fallback).",
+        },
+    )
+        name: string | null
 }
 
 /** Data payload for the `myMockInterviewAttempts` query. */

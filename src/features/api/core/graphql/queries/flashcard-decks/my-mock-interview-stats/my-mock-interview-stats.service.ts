@@ -27,6 +27,9 @@ const EMPTY_RESULT: MyMockInterviewStatsResultData = {
     byPhase: [],
     byKind: [],
     byAttribute: [],
+    byLevel: [],
+    byLanguage: [],
+    recurringGaps: [],
     weakest: null,
     verdictCounts: {
         pass: 0,

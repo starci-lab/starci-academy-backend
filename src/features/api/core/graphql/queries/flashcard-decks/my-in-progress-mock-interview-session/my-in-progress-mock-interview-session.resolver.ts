@@ -94,6 +94,7 @@ export class MyInProgressMockInterviewSessionResolver {
             phaseIndex: result.phaseIndex,
             updatedAt: result.updatedAt.toISOString(),
             deadlineAt: new Date(result.createdAt.getTime() + MOCK_INTERVIEW_SESSION_DURATION_MS).toISOString(),
+            name: result.name,
         }
     }
 }

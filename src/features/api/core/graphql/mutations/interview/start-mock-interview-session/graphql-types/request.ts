@@ -151,4 +151,19 @@ export class StartMockInterviewSessionRequest {
         },
     )
         countsToReadiness?: boolean
+
+    /**
+     * Optional user-chosen name for this practice session (e.g. "Vòng 2 -
+     * Backend"), set at the setup screen. Stored verbatim — omitted/blank
+     * stays null, and the server never generates one on the caller's behalf;
+     * the FRONTEND renders a time-based fallback label when null.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Optional user-chosen name for this practice session; omitted stays null (FE renders a time-based fallback).",
+        },
+    )
+        name?: string
 }

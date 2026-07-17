@@ -73,4 +73,22 @@ export class StartFlashcardQuizSessionRequest {
     @IsOptional()
     @IsString()
         level: string | null
+
+    /**
+     * Optional user-chosen name for this practice session (e.g. "Ôn NestJS
+     * trước phỏng vấn"), set at the setup screen. Stored verbatim —
+     * omitted/blank stays null, and the server never generates one on the
+     * caller's behalf; the FRONTEND renders a time-based fallback label when
+     * null.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "Optional user-chosen name for this practice session; omitted stays null (FE renders a time-based fallback).",
+        },
+    )
+    @IsOptional()
+    @IsString()
+        name?: string
 }

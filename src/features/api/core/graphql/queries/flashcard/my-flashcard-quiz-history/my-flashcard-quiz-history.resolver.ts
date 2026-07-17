@@ -120,6 +120,7 @@ export class MyFlashcardQuizHistoryResolver {
                 coverage: item.coverage,
                 xpEarned: item.xpEarned,
                 weakTags: item.weakTags,
+                name: item.name,
             })),
         }
     }

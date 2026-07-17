@@ -57,6 +57,7 @@ export class StartFlashcardQuizSessionHandler
                 cardIds,
                 mode,
                 level,
+                name,
             },
             user,
         } = command.params
@@ -105,6 +106,9 @@ export class StartFlashcardQuizSessionHandler
                 currentIndex: 0,
                 results: [],
                 status: "in_progress",
+                // stored verbatim — omitted/blank stays null, never
+                // server-generated (the FE renders a time-based fallback)
+                name: name?.trim() || null,
             },
         )
 

@@ -49,6 +49,7 @@ export class StartMockInterviewSessionHandler
                 questionCount,
                 kinds,
                 countsToReadiness,
+                name,
             },
             user,
             locale,
@@ -75,6 +76,7 @@ export class StartMockInterviewSessionHandler
             questionCount,
             kinds,
             countsToReadiness,
+            name,
         })
 
         // map the domain result 1:1 onto the GraphQL data shape

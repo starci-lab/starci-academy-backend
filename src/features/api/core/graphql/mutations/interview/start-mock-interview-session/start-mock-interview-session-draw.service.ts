@@ -174,6 +174,7 @@ export class MockInterviewSessionDrawService {
             questionCount,
             kinds,
             countsToReadiness,
+            name,
         } = params
 
         const normalizedLevel = this.normalizeLevel(level)
@@ -200,6 +201,7 @@ export class MockInterviewSessionDrawService {
                 level: normalizedLevel,
                 locale,
                 countsToReadiness: resolvedCountsToReadiness,
+                name,
             })
             : this.drawQna({
                 courseId,
@@ -211,6 +213,7 @@ export class MockInterviewSessionDrawService {
                 questionCount,
                 kinds,
                 countsToReadiness: resolvedCountsToReadiness,
+                name,
             })
     }
 
@@ -364,6 +367,7 @@ export class MockInterviewSessionDrawService {
             level: MockInterviewLevel
             locale: Locale
             countsToReadiness: boolean
+            name?: string
         },
     ): Promise<DrawMockInterviewSessionResult> {
         const {
@@ -372,6 +376,7 @@ export class MockInterviewSessionDrawService {
             level,
             locale,
             countsToReadiness,
+            name,
         } = params
         const difficultyPool = LEVEL_DIFFICULTY_POOL[level]
 
@@ -406,6 +411,7 @@ export class MockInterviewSessionDrawService {
             source: drawn.source,
             seedQuestions: null,
             countsToReadiness,
+            name,
         })
 
         return {
@@ -447,6 +453,7 @@ export class MockInterviewSessionDrawService {
             questionCount?: number
             kinds?: Array<string>
             countsToReadiness: boolean
+            name?: string
         },
     ): Promise<DrawMockInterviewSessionResult> {
         const {
@@ -455,6 +462,7 @@ export class MockInterviewSessionDrawService {
             level,
             locale,
             countsToReadiness,
+            name,
         } = params
         const levelPool = LEVEL_FLASHCARD_POOL[level]
         const resolvedQuestionCount = this.normalizeQuestionCount(params.questionCount)
@@ -596,6 +604,7 @@ export class MockInterviewSessionDrawService {
                 givenCodes: topic.givenCodes ?? [],
             })),
             countsToReadiness,
+            name,
         })
 
         return {
@@ -1232,6 +1241,7 @@ export class MockInterviewSessionDrawService {
             source: string
             seedQuestions: Array<{ cardId: string, kind: string, title: string, givenCodes: Array<MockInterviewGivenCodeVariant> }> | null
             countsToReadiness: boolean
+            name?: string
         },
     ): Promise<MockInterviewSessionEntity> {
         const {
@@ -1244,6 +1254,7 @@ export class MockInterviewSessionDrawService {
             source,
             seedQuestions,
             countsToReadiness,
+            name,
         } = params
 
         // retire the enrollment's previous in-flight draw (if any) BEFORE
@@ -1279,6 +1290,9 @@ export class MockInterviewSessionDrawService {
                 turns: null,
                 questionIndex: 0,
                 phaseIndex: 0,
+                // stored verbatim — omitted/blank stays null, never
+                // server-generated (the FE renders a time-based fallback)
+                name: name?.trim() || null,
             },
         )
     }

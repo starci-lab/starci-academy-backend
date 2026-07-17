@@ -254,4 +254,17 @@ export class FlashcardQuizSessionEntity extends UuidAbstractEntity {
         default: "in_progress",
     })
         status: "in_progress" | "completed" | "abandoned"
+
+    /**
+     * Optional user-chosen name for this quick-quiz ("Hỏi nhanh") session
+     * (e.g. "Ôn NestJS trước phỏng vấn"), set at `startFlashcardQuizSession`
+     * time. Null when the learner didn't name it — the FRONTEND renders a
+     * time-based fallback label in that case (the server never invents one).
+     */
+    @Column({
+        name: "name",
+        type: "text",
+        nullable: true,
+    })
+        name: string | null
 }

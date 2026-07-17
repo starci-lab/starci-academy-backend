@@ -106,6 +106,7 @@ export class MyInProgressFlashcardQuizSessionService {
             results: session.results ?? [],
             updatedAt: session.updatedAt,
             createdAt: session.createdAt,
+            name: session.name,
         }
     }
 }

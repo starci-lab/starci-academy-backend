@@ -42,6 +42,8 @@ export interface MyFlashcardQuizHistoryItemData {
     xpEarned: number
     /** This session's weakest-coverage tags, snapshotted at completion. */
     weakTags: Array<MyFlashcardQuizHistoryWeakTagData>
+    /** Optional user-chosen name for this practice session; null when the learner didn't name it (FE renders a time-based fallback). */
+    name: string | null
 }
 
 /** A page of the viewer's completed flashcard quick-quiz sessions + the total count for pagination. */

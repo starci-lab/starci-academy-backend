@@ -65,4 +65,6 @@ export interface MyInProgressMockInterviewSessionResult {
     updatedAt: Date
     /** When the persisted session row was drawn — the anchor for the 1-hour session time limit, so a RESUMED session's countdown reflects the true remaining time, not a freshly-reset hour. */
     createdAt: Date
+    /** Optional user-chosen name for this practice session; null when the learner didn't name it (FE renders a time-based fallback). */
+    name: string | null
 }

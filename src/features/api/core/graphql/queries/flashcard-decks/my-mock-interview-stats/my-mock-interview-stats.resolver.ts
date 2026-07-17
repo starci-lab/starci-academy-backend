@@ -90,6 +90,9 @@ export class MyMockInterviewStatsResolver {
             byPhase: result.byPhase,
             byKind: result.byKind,
             byAttribute: result.byAttribute,
+            byLevel: result.byLevel,
+            byLanguage: result.byLanguage,
+            recurringGaps: result.recurringGaps,
             weakest: result.weakest,
             verdictCounts: result.verdictCounts,
         }

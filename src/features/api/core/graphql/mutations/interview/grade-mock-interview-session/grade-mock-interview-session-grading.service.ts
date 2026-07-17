@@ -179,6 +179,7 @@ export class MockInterviewGradingService {
             seedQuestions,
             lang: sessionLang,
             countsToReadiness,
+            name,
         } = await this.resolveTrustedPromptIdentity({
             userId,
             courseId,
@@ -329,6 +330,7 @@ export class MockInterviewGradingService {
             sessionId,
             result,
             countsToReadiness,
+            name,
         })
         return result
     }
@@ -368,6 +370,7 @@ export class MockInterviewGradingService {
         seedQuestions: Array<MockInterviewSeedQuestion>
         lang: string | null
         countsToReadiness: boolean
+        name: string | null
     }> {
         const {
             userId,
@@ -403,6 +406,7 @@ export class MockInterviewGradingService {
                     mode: true,
                     seedQuestions: true,
                     countsToReadiness: true,
+                    name: true,
                 },
             },
         )
@@ -423,6 +427,8 @@ export class MockInterviewGradingService {
                 // a "design" fallback always counts towards job-readiness —
                 // there was no configurable-setup axis before this column existed
                 countsToReadiness: true,
+                // no session row → no user-chosen name to copy
+                name: null,
             }
         }
 
@@ -434,6 +440,7 @@ export class MockInterviewGradingService {
             seedQuestions: session.seedQuestions ?? [],
             lang: session.lang,
             countsToReadiness: session.countsToReadiness,
+            name: session.name,
         }
     }
 
@@ -596,6 +603,7 @@ export class MockInterviewGradingService {
             sessionId: string
             result: MockInterviewGradeSessionResult
             countsToReadiness: boolean
+            name: string | null
         },
     ): Promise<void> {
         const {
@@ -608,6 +616,7 @@ export class MockInterviewGradingService {
             sessionId,
             result,
             countsToReadiness,
+            name,
         } = params
         try {
             // resolve (or lazily create) the trial enrollment (user × course) so the
@@ -641,6 +650,9 @@ export class MockInterviewGradingService {
                     matchedContentIds: result.matchedContentIds,
                     questionReviews: result.questionReviews as unknown as Array<Record<string, unknown>>,
                     countsToReadiness,
+                    // copied verbatim from the session row so the history row
+                    // keeps the name after the session's 24h resume TTL expires
+                    name,
                 },
             )
 

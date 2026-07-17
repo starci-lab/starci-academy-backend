@@ -91,6 +91,7 @@ export class MyFlashcardQuizHistoryService {
                 coverage: session.coverage,
                 xpEarned: session.xpEarned,
                 weakTags: session.weakTags ?? [],
+                name: session.name,
             })),
         }
     }

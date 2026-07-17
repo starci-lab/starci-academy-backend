@@ -88,6 +88,8 @@ export interface MockInterviewAttemptSummary {
     questionReviews: Array<MockInterviewAttemptQuestionReview>
     /** When this attempt was graded. */
     createdAt: Date
+    /** Optional user-chosen name for this practice session, copied from the session at grade time; null when the learner didn't name it (FE renders a time-based fallback). */
+    name: string | null
 }
 
 /** Params for {@link import("../my-mock-interview-attempts.service").MyMockInterviewAttemptsService.list}. */

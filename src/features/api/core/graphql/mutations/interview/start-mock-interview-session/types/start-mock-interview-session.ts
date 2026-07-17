@@ -24,6 +24,8 @@ export interface DrawMockInterviewSessionParams {
     kinds?: Array<string>
     /** Whether the eventual graded attempt should feed job-readiness; defaults to true (a "Tùy chỉnh"/Configurable qna draw sends false). */
     countsToReadiness?: boolean
+    /** Optional user-chosen name for this practice session; omitted/blank persists as null (the FE renders a time-based fallback). */
+    name?: string
 }
 
 /**

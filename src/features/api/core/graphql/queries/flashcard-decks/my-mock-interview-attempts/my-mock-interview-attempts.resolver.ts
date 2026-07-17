@@ -134,6 +134,7 @@ export class MyMockInterviewAttemptsResolver {
                 matchedContentIds: attempt.matchedContentIds,
                 questionReviews: attempt.questionReviews,
                 createdAt: attempt.createdAt.toISOString(),
+                name: attempt.name,
             })),
         }
     }

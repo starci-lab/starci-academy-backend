@@ -67,6 +67,19 @@ export interface MockInterviewCourseStatsWeakestData {
     matchedContentId: string | null
 }
 
+/**
+ * One normalized-and-tallied recurring gap — `attempt.gaps[]` entries across
+ * the scanned window, trimmed+lowercased for tallying so "Trade-off" and
+ * "trade-off " count as the same recurring pattern; `text` keeps the
+ * MOST-RECENTLY-SEEN casing (attempts are scanned newest-first) for display.
+ */
+export interface MockInterviewCourseStatsRecurringGapData {
+    /** Display text for this recurring gap (most-recently-seen original casing). */
+    text: string
+    /** How many scanned attempts recorded this (normalized) gap. */
+    count: number
+}
+
 /** How many sessions of each top-level mode the scanned window contains. */
 export interface MockInterviewCourseStatsModeSplitData {
     /** Completed `mode="qna"` attempts in the scanned window. */
@@ -108,6 +121,18 @@ export interface UserMockInterviewCourseStatsResult {
     byKind: Array<MockInterviewCourseStatsBreakdownItemData>
     /** Per-attribute aggregate (communication/structuredThinking/tradeoffAwareness), across EVERY attempt regardless of mode. */
     byAttribute: Array<MockInterviewCourseStatsBreakdownItemData>
+    /** Per-seniority-level aggregate (junior/middle/senior), across EVERY attempt regardless of mode — `attempt.level` is null-skipped (no "any level" bucket). */
+    byLevel: Array<MockInterviewCourseStatsBreakdownItemData>
+    /**
+     * Per-drawn-language aggregate — `mode="qna"` CODE questions only (those
+     * whose seed carried `givenCodes`), scored per question and grouped by
+     * the language the question was drawn in. Entries below the service's
+     * min-sample guard (a language drawn once ever is noise, not a
+     * comparison) are dropped.
+     */
+    byLanguage: Array<MockInterviewCourseStatsBreakdownItemData>
+    /** Top recurring gaps across every scanned attempt's `gaps[]`, worst (most-frequent) first; only gaps seen ≥2 times qualify. */
+    recurringGaps: Array<MockInterviewCourseStatsRecurringGapData>
     /** The single weakest phase/kind/attribute across all three axes, when it qualifies; null otherwise. */
     weakest: MockInterviewCourseStatsWeakestData | null
     /** Tally of `attempt.verdict` across the scanned window. */

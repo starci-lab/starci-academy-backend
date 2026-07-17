@@ -175,6 +175,7 @@ export class MyMockInterviewAttemptsService {
                         }] : []
                     }),
                 createdAt: attempt.createdAt,
+                name: attempt.name,
             })),
         }
     }
