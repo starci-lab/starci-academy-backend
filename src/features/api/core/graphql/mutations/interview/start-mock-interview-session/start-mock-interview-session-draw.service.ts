@@ -169,6 +169,7 @@ export class MockInterviewSessionDrawService {
             level,
             mode,
             lang,
+            langs,
             locale,
             questionCount,
             kinds,
@@ -205,6 +206,7 @@ export class MockInterviewSessionDrawService {
                 enrollment,
                 level: normalizedLevel,
                 lang,
+                langs,
                 locale,
                 questionCount,
                 kinds,
@@ -293,6 +295,57 @@ export class MockInterviewSessionDrawService {
         const known = new Set(["typescript", "java", "csharp", "go"])
         const candidate = (value ?? "").trim().toLowerCase()
         return known.has(candidate) ? candidate : "typescript"
+    }
+
+    /**
+     * Resolve the SET of implementation-track languages a qna draw should serve
+     * code questions in — the multi-select language picker (2026-07-17). Keeps only
+     * the 4 known tracks (deduped, preserving `DEFAULT_PROGRAMMING_LANGUAGES`
+     * order); an empty result falls back to the deprecated single {@link lang}
+     * (one-element set) and, failing that, to ALL FOUR tracks (widest draw — a
+     * missing/garbage selection must never exclude every code question). Callers
+     * intersect this per-question against each question's authored tracks: a
+     * 4-track question is served in a RANDOM member of the intersection, and one
+     * with an EMPTY intersection is dropped from the pool entirely.
+     *
+     * @param langs - Raw language set from the request (may be undefined/empty/garbage).
+     * @param fallbackSingle - The deprecated single-language field, used only when `langs` yields nothing.
+     * @returns A non-empty, order-stable set of known track languages.
+     */
+    private normalizeLangs(
+        langs: Array<string> | undefined,
+        fallbackSingle: string | undefined,
+    ): Array<string> {
+        const order = ["typescript", "java", "csharp", "go"]
+        const known = new Set(order)
+        const picked = new Set(
+            (langs ?? [])
+                .map((value) => value.trim().toLowerCase())
+                .filter((value) => known.has(value)),
+        )
+        if (picked.size > 0) {
+            return order.filter((lang) => picked.has(lang))
+        }
+        const single = (fallbackSingle ?? "").trim().toLowerCase()
+        if (known.has(single)) {
+            return [single]
+        }
+        return [...order]
+    }
+
+    /**
+     * Pick one element uniformly at random from a non-empty list (generic sibling
+     * of {@link pickRandom}, which is typed to prompt candidates). Used to assign a
+     * 4-track code question its ONE served language from the intersection of the
+     * candidate's selected languages and the question's authored tracks.
+     *
+     * @param items - The candidate list (caller guarantees non-empty).
+     * @returns One randomly chosen element.
+     */
+    private pickRandomFrom<Type>(
+        items: Array<Type>,
+    ): Type {
+        return items[Math.floor(Math.random() * items.length)]
     }
 
     /**
@@ -389,6 +442,7 @@ export class MockInterviewSessionDrawService {
             enrollment: EnrollmentEntity
             level: MockInterviewLevel
             lang?: string
+            langs?: Array<string>
             locale: Locale
             questionCount?: number
             kinds?: Array<string>
@@ -405,8 +459,10 @@ export class MockInterviewSessionDrawService {
         const levelPool = LEVEL_FLASHCARD_POOL[level]
         const resolvedQuestionCount = this.normalizeQuestionCount(params.questionCount)
         const resolvedKinds = this.normalizeKinds(params.kinds)
-        // language chosen at session start — code questions render + grade in it
-        const resolvedLang = this.normalizeLang(params.lang)
+        // languages the candidate selected at setup — each 4-track code question is
+        // served in a RANDOM member of (this ∩ its authored tracks); a code question
+        // authored in none of these is dropped from the pool (see listCourseInterviewQuestions)
+        const resolvedLangs = this.normalizeLangs(params.langs, params.lang)
 
         const reachedModuleIds = await this.listReachedModuleIds({
             courseId,
@@ -423,7 +479,7 @@ export class MockInterviewSessionDrawService {
         // interview bank authored yet (non-breaking).
         const bankCards = await this.listCourseInterviewQuestions({
             courseId,
-            lang: resolvedLang,
+            langs: resolvedLangs,
         })
         const useBank = bankCards.length > 0
         const allCards: Array<{ id: string, question: string, level: FlashcardLevel, moduleId: string | null, kind?: string, givenCodes?: Array<MockInterviewGivenCodeVariant> }> = useBank
@@ -520,7 +576,10 @@ export class MockInterviewSessionDrawService {
         const session = await this.persistSession({
             enrollment,
             level,
-            lang: resolvedLang,
+            // representative session language (per-question served languages now live
+            // on each seedQuestion's own givenCodes[0].lang, snapshotted below) — kept
+            // for back-compat with the session row's `lang` column + older readers
+            lang: resolvedLangs[0],
             mode: MockInterviewMode.Qna,
             promptId,
             promptTitle,
@@ -833,8 +892,17 @@ export class MockInterviewSessionDrawService {
     private async listCourseInterviewQuestions(
         params: {
             courseId: string
-            /** Session language — resolves each code question to its `bodies/<lang>` prompt + givenCode (fallback: first body, then agnostic root). */
-            lang?: string
+            /**
+             * The candidate's selected implementation-track languages. A question authored
+             * across the 4 tracks (`langs` bodies) is served in a RANDOM member of
+             * (this ∩ its authored tracks); a track-authored question whose tracks
+             * DON'T intersect this set is DROPPED (excluded from the returned pool, so
+             * a different question gets drawn instead of rendering a language the
+             * candidate didn't pick). A non-track question (single `givenCode`/`givenLang`
+             * like `dockerfile`, or a no-code question) ignores this — its language is
+             * fixed by the question itself, so it is always eligible.
+             */
+            langs: Array<string>
         },
     ): Promise<Array<{ id: string, question: string, level: FlashcardLevel, moduleId: string | null, kind: string, givenCodes: Array<MockInterviewGivenCodeVariant> }>> {
         const questions = await this.entityManager.find(MockInterviewEntity,
@@ -847,47 +915,64 @@ export class MockInterviewSessionDrawService {
                     langs: true,
                 },
             })
-        return questions.map((question) => {
+        // flatMap so a track-authored question with NO selected-language overlap can
+        // return [] (dropped from the pool) — the candidate is never handed a code
+        // question in a language they didn't pick; the draw simply fills from others.
+        return questions.flatMap((question) => {
             // fold the prose prompt + any GIVEN diagram into the delivered `question`
             // (the diagram is CONTEXT the candidate reasons over — it stays inline in
             // the chat bubble), but keep the GIVEN CODE SEPARATE so the FE can seed it
             // into an editable code editor for the candidate to FIX in place, instead
             // of rendering it read-only alongside the question (`debug`/`review`/
             // `optimize` questions). See the mock-interview WORKSPACE-ARTIFACT-SEED brainstorm.
-            // Per-language bodies/ carry this stack's OWN prompt + givenCode (+ an
-            // idealAnswer used at grade time). Resolve the session language's body;
-            // fall back to the first authored body, then to the agnostic root prompt.
             const bodies = [...(question.langs ?? [])]
                 .sort((left, right) => left.sortIndex - right.sortIndex)
-            const chosenBody = bodies.find((body) => body.lang === params.lang)
-                ?? bodies[0]
-                ?? null
-            // body prompt (per-language) wins; root prompt is the agnostic fallback
-            // (empty for a full-4-body code question, populated for legacy/no-code)
-            const promptText = (chosenBody?.prompt ?? question.prompt) ?? ""
+            // TRACK-authored code question (per-language `bodies/`): serve it in a
+            // RANDOM one of the candidate's selected languages that this question is
+            // actually authored in. No overlap → drop the whole question (return []).
+            if (bodies.length > 0) {
+                const eligible = bodies.filter((body) => params.langs.includes(body.lang))
+                if (eligible.length === 0) {
+                    return []
+                }
+                const chosenBody = this.pickRandomFrom(eligible)
+                // body prompt (per-language) wins; root prompt is the agnostic fallback
+                // (empty for a full-4-body code question)
+                const promptText = (chosenBody.prompt ?? question.prompt) ?? ""
+                const parts = [promptText]
+                if (question.diagram) {
+                    parts.push(question.diagram)
+                }
+                return [{
+                    id: question.id,
+                    question: parts.join("\n\n"),
+                    level: this.tierToFlashcardLevel(question.tier),
+                    moduleId: question.moduleId,
+                    kind: question.kind,
+                    // deliver ONLY the randomly-chosen language's given code — snapshotted
+                    // per-question so grade time re-resolves THIS body (not session.lang)
+                    givenCodes: [{ lang: chosenBody.lang, code: chosenBody.givenCode }],
+                }]
+            }
+            // NON-track question — a legacy/agnostic single `givenCode` (e.g. a
+            // `dockerfile` debug question, whose language is fixed by the question,
+            // not chosen by the candidate) or a no-code question. Always eligible.
+            const promptText = question.prompt ?? ""
             const parts = [promptText]
             if (question.diagram) {
                 parts.push(question.diagram)
             }
-            // deliver ONLY the chosen language's given code (lang was picked at
-            // session start) — legacy single-`givenCode` questions fall back to it.
-            const langVariants: Array<MockInterviewGivenCodeVariant> = chosenBody
-                ? [{
-                    lang: chosenBody.lang, code: chosenBody.givenCode,
-                }]
-                : question.givenCode
-                    ? [{
-                        lang: question.givenLang ?? "agnostic", code: question.givenCode,
-                    }]
-                    : []
-            return {
+            const langVariants: Array<MockInterviewGivenCodeVariant> = question.givenCode
+                ? [{ lang: question.givenLang ?? "agnostic", code: question.givenCode }]
+                : []
+            return [{
                 id: question.id,
                 question: parts.join("\n\n"),
                 level: this.tierToFlashcardLevel(question.tier),
                 moduleId: question.moduleId,
                 kind: question.kind,
                 givenCodes: langVariants,
-            }
+            }]
         })
     }
 

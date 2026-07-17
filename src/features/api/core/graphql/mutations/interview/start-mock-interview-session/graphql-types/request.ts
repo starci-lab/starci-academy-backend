@@ -71,10 +71,33 @@ export class StartMockInterviewSessionRequest {
         () => String,
         {
             nullable: true,
-            description: "Programming language chosen at session start (\"typescript\" | \"java\" | \"csharp\" | \"go\"); code questions render + grade in this language. Omitted falls back to \"typescript\".",
+            deprecationReason: "Superseded by `langs` (multi-select). Kept so an older single-select FE build still resolves to a one-element `langs`.",
+            description: "DEPRECATED single programming language chosen at session start. Use `langs` instead. When `langs` is omitted, this seeds a one-element language set.",
         },
     )
         lang?: string
+
+    /**
+     * The SET of implementation-track languages the candidate selected at setup
+     * (the multi-select language picker). Each drawn code question authored across
+     * the 4 tracks is served in a RANDOM one of these (∩ the languages that
+     * question is actually authored in); a code question authored in NONE of the
+     * selected languages is EXCLUDED from the draw entirely (a different question
+     * is drawn instead) rather than rendered in a language the candidate didn't
+     * pick. A non-track given-code question (e.g. `dockerfile`) and every no-code
+     * question ignore this — their language is fixed by the question itself.
+     * Free-form strings ("typescript" | "java" | "csharp" | "go"); unrecognized
+     * entries are dropped, and an empty/omitted set falls back to `lang` (if sent)
+     * else ALL four tracks (widest draw — nothing excluded).
+     */
+    @Field(
+        () => [String],
+        {
+            nullable: true,
+            description: "Implementation-track languages selected at setup; each 4-track code question is served in a RANDOM one of these, a question authored in none is excluded. Omitted/empty falls back to `lang` then all 4 tracks.",
+        },
+    )
+        langs?: Array<string>
 
     /**
      * How many Q&A questions to draw ("mode=\"qna\"" only) — the "Tùy chỉnh"

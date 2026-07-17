@@ -523,21 +523,24 @@ export class MockInterviewGradingService {
                     if (bank.ownershipSignal) {
                         rubricPoints.push(`[Ownership] ${bank.ownershipSignal}`)
                     }
-                    // pick the variant matching what the candidate actually submitted in;
-                    // fall back to the first authored variant (DEFAULT_PROGRAMMING_LANGUAGES
-                    // order at authoring time) when nothing was submitted for this question.
-                    // Per-language `# langs` variants take priority; a question authored with
-                    // only the single givenCode/givenLang pair falls back to that as its one variant.
-                    // Resolve the per-language body: the session language wins (chosen
-                    // at start), then the language the candidate actually submitted in,
-                    // then the first authored body. Its prompt + idealAnswer + givenCode
-                    // are what we grade against; a legacy variant (prompt/idealAnswer
-                    // null) falls back to the parent's shared prompt/idealAnswer.
+                    // Resolve the per-language body to grade this question against. With the
+                    // multi-language draw (2026-07-17) each question is served in its OWN
+                    // randomly-chosen track language, snapshotted on the seed at draw time —
+                    // so `seed.givenCodes[0].lang` (the language THIS question was actually
+                    // rendered in) is the authoritative match, NOT `session.lang` (now only a
+                    // single representative across a session that may mix languages; grading
+                    // against it would score a Go-drawn question against the TypeScript
+                    // idealAnswer/givenCode). Fall back in order: the drawn language →
+                    // the language the candidate actually submitted in (`[Code lang=X]`) →
+                    // the legacy session language → the first authored body. A legacy variant
+                    // (prompt/idealAnswer null) still falls back to the parent's shared prompt.
                     const bodies = [...(bank.langs ?? [])]
                         .sort((left, right) => left.sortIndex - right.sortIndex)
+                    const drawnLang = seed.givenCodes?.[0]?.lang
                     const submittedLang = submittedLangByIndex.get(index)
-                    const chosenBody = bodies.find((body) => body.lang === sessionLang)
+                    const chosenBody = bodies.find((body) => body.lang === drawnLang)
                         ?? bodies.find((body) => body.lang === submittedLang)
+                        ?? bodies.find((body) => body.lang === sessionLang)
                         ?? bodies[0]
                         ?? null
                     const grounding: MockInterviewSeedGrounding = {
