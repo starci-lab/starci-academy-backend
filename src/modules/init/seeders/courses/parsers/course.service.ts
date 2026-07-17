@@ -34,6 +34,7 @@ import {
 } from "typeorm"
 import {
     CourseEntity,
+    CourseMindMapTree,
     InjectPrimaryPostgreSQLEntityManager,
 } from "@modules/databases"
 import {
@@ -154,8 +155,21 @@ export class CourseParserService {
                 courseIndex,
             },
         )
+        // authored concept mind-map (optional sibling `mind-map.json`) — absent/invalid →
+        // null, and the mind-map query falls back to a module-derived graph.
+        let mindMap: CourseMindMapTree | null = null
+        try {
+            const raw = await this.contextLoaderService.load(
+                "courses",
+                `${path.relativePath}/mind-map.json`,
+            )
+            mindMap = raw ? (JSON.parse(raw) as CourseMindMapTree) : null
+        } catch {
+            mindMap = null
+        }
         return {
             id: courseId,
+            mindMap,
             defaultLocale: Locale.En,
             title: merged.title ?? "",
             description: merged.description ?? "",

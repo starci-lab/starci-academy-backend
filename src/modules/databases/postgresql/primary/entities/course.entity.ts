@@ -449,4 +449,64 @@ export class CourseEntity extends UuidAbstractEntity {
         },
     )
         isEnrolled?: boolean | null
+
+    /**
+     * Authored concept mind-map: a keyword tree with cross-links to the learning
+     * surfaces (lesson / challenge / milestone / flashcard / interview / …) that
+     * teach each concept. Seeded from `.mount/courses/<course>/mind-map.json`; null
+     * when the course has no authored map (the mind-map query then falls back to a
+     * module-derived graph). Not exposed on this type — read via the mind-map query.
+     */
+    @Column({
+        name: "mind_map",
+        type: "jsonb",
+        nullable: true,
+    })
+        mindMap!: CourseMindMapTree | null
+}
+
+/** Bilingual label on a concept-map node. */
+export interface CourseMindMapText {
+    en: string
+    vi: string
+}
+
+/** The learning-surface kinds a concept can link to. */
+export type CourseMindMapLinkKind =
+    | "lesson"
+    | "challenge"
+    | "milestone"
+    | "flashcard"
+    | "interview"
+
+/** A cross-link from a concept to a surface that teaches / drills / tests it. */
+export interface CourseMindMapLink {
+    /** Which surface kind this points at. */
+    kind: CourseMindMapLinkKind
+    /** Owning module slug — required for `lesson`/`challenge` (to resolve the route). */
+    module?: string
+    /** Slug/displayId of the target surface within the course. */
+    ref: string
+}
+
+/** One concept node of the authored mind-map tree. */
+export interface CourseMindMapNode {
+    /** Stable slug, unique within the course (React key + anchor). */
+    id: string
+    /** Keyword shown on the node. */
+    label: CourseMindMapText
+    /** Optional one-line gloss (tooltip). */
+    desc?: CourseMindMapText
+    /** Surfaces that teach/drill/test this concept (0..N). */
+    links?: Array<CourseMindMapLink>
+    /** Nested sub-concepts. */
+    children?: Array<CourseMindMapNode>
+}
+
+/** The full authored concept mind-map for a course: a root + a tree of concepts. */
+export interface CourseMindMapTree {
+    /** Bilingual root label (the course/domain). */
+    root: CourseMindMapText
+    /** Top-level concept branches. */
+    children: Array<CourseMindMapNode>
 }
