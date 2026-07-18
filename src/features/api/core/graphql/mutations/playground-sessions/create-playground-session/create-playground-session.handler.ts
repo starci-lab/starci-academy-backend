@@ -12,7 +12,7 @@ import {
     type EntityManager,
 } from "typeorm"
 import {
-    randomBytes,
+    randomUUID,
 } from "crypto"
 import {
     InjectPrimaryPostgreSQLEntityManager,
@@ -107,7 +107,12 @@ export class CreatePlaygroundSessionHandler
             })
         }
         const resolvedMode = mode ?? PlaygroundSessionMode.Guided
-        const pairingCode = await this.uniquePairingCode()
+        // UUID pairing code: 122 bits of entropy → unguessable (no brute-force), and
+        // collision-free (the `@Unique` constraint is a belt-and-braces safety). The
+        // learner copies the whole `npx … <code>` command, so length/typeability is a
+        // non-issue. Server-side hardening (rate-limit, 30-min expiry, single-agent,
+        // owner-only command:run) still applies in the gateway.
+        const pairingCode = randomUUID()
         const created = this.entityManager.create(
             PlaygroundSessionEntity,
             {
@@ -165,39 +170,5 @@ export class CreatePlaygroundSessionHandler
             step.commandHint = null
         }
         return steps
-    }
-
-    /**
-     * Generates an 8-char uppercase alphanumeric pairing code, retrying on the
-     * (astronomically unlikely) chance of a collision with an existing row.
-     */
-    private async uniquePairingCode(): Promise<string> {
-        for (;;) {
-            const code = this.generateCode()
-            const existing = await this.entityManager.findOne(
-                PlaygroundSessionEntity,
-                {
-                    where: {
-                        pairingCode: code,
-                    },
-                },
-            )
-            if (!existing) {
-                return code
-            }
-        }
-    }
-
-    /** An 8-char, unambiguous (no 0/O/1/I) uppercase pairing code, e.g. "7K4PQXBM".
-     * 31^8 ≈ 8.5e11 combos — with the gateway's per-IP rate limit + 30-min expiry
-     * this is well out of brute-force reach. */
-    private generateCode(): string {
-        const alphabet = "23456789ABCDEFGHJKMNPQRSTUVWXYZ"
-        const bytes = randomBytes(8)
-        let code = ""
-        for (const byte of bytes) {
-            code += alphabet[byte % alphabet.length]
-        }
-        return code
     }
 }
