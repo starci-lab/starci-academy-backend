@@ -127,6 +127,7 @@
     "remove-markdown": "^0.6.3",
     "rxjs": "^7.8.1",
     "sepay-pg-node": "^1.0.0",
+    "socket.io-client": "^4.8.1",
     "stripe": "^22.2.0",
     "superjson": "^2.2.6",
     "tar": "^7.5.16",

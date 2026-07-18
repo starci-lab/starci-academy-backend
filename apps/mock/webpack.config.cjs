@@ -49,9 +49,10 @@ module.exports = (options) => ({
     target: "node",
     externals: [nodeExternals()],
     plugins: [
+        // ForkTsChecker disabled by default — repo-wide type-check on build OOMs;
+        // rely on `tsc --noEmit` / the IDE for type safety instead.
         ...(options.plugins ?? []).filter(
-            (plugin) => process.env.DISABLE_FORK_TS_CHECKER !== "true"
-                || !/ForkTsChecker/i.test(plugin?.constructor?.name ?? ""),
+            (plugin) => !/ForkTsChecker/i.test(plugin?.constructor?.name ?? ""),
         ),
         new GeneratePackageJsonPlugin(
             basePackage,

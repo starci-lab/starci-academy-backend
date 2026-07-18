@@ -58,7 +58,10 @@ const basePackage = {
     }
 }
 
-module.exports = {
+module.exports = (options) => ({
+    // spread the Nest-CLI defaults (ts-loader + @modules/* resolution) before overriding.
+    ...options,
+
     /**
      * TypeScript entry point for the CLI application
      */
@@ -93,6 +96,11 @@ module.exports = {
      * Plugins used during the build process
      */
     plugins: [
+        // ForkTsChecker disabled by default — repo-wide type-check on build OOMs;
+        // rely on `tsc --noEmit` / the IDE for type safety instead.
+        ...(options.plugins ?? []).filter(
+            (plugin) => !/ForkTsChecker/i.test(plugin?.constructor?.name ?? ""),
+        ),
         new GeneratePackageJsonPlugin(
             basePackage,
             {
@@ -113,4 +121,4 @@ module.exports = {
             }
         ),
     ],
-}
+})

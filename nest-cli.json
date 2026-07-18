@@ -10,6 +10,39 @@
   "monorepo": true,
   "root": "apps/core",
   "projects": {
+    "playground-docker-agent": {
+      "type": "application",
+      "root": "apps/playground-docker-agent",
+      "entryFile": "main",
+      "sourceRoot": "apps/playground-docker-agent/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/playground-docker-agent/tsconfig.app.json",
+        "webpack": true,
+        "webpackConfigPath": "apps/playground-docker-agent/webpack.config.cjs"
+      }
+    },
+    "playground-k8s-agent": {
+      "type": "application",
+      "root": "apps/playground-k8s-agent",
+      "entryFile": "main",
+      "sourceRoot": "apps/playground-k8s-agent/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/playground-k8s-agent/tsconfig.app.json",
+        "webpack": true,
+        "webpackConfigPath": "apps/playground-k8s-agent/webpack.config.cjs"
+      }
+    },
+    "playground-rag-agent": {
+      "type": "application",
+      "root": "apps/playground-rag-agent",
+      "entryFile": "main",
+      "sourceRoot": "apps/playground-rag-agent/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/playground-rag-agent/tsconfig.app.json",
+        "webpack": true,
+        "webpackConfigPath": "apps/playground-rag-agent/webpack.config.cjs"
+      }
+    },
     "backup": {
       "type": "application",
       "root": "apps/backup",
