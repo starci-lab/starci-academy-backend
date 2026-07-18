@@ -1,6 +1,8 @@
 # Mock-interview checklist grading
 
-> Chấm phỏng vấn thử grounded bằng CHECKLIST (thay "AI tự brainstorm"). Trạng thái: **audit data đang chạy (~209/660)**, build BE chưa bắt đầu.
+> Chấm phỏng vấn thử grounded bằng CHECKLIST (thay "AI tự brainstorm"). Trạng thái: **idx 0–449 audit XONG + đã ghi .mount + push main** (446 câu, giữ rubric). idx 450–660 = session khác. Build BE chưa bắt đầu.
+>
+> ⚠️ **PHÁT HIỆN (2026-07-19):** nguồn audit `_all.json` = **DB (660 câu)** nhưng .mount thật có **985 câu** mock-interview → DB stale ở fullstack (188 vs 345) + SD (192 vs 360); devops khớp (280=280). Kể cả xong 660 vẫn thiếu ~325 câu .mount. Cần chuyển audit sang **folder-driven từ .mount (985)**.
 
 ## Vấn đề
 Chấm câu OPEN (reasoning / scenario / design) hiện để model tự nghĩ ra chuẩn rồi chấm → **rộng tay ~+15đ, loạn ±10–33** dù temp 0. Câu theory thì đã chấm coverage theo `idealAnswer` authored (grounded OK).
@@ -28,10 +30,12 @@ Bằng chứng: FULL idealAnswer → **100% deterministic**; partial chấm th�
 `scratch/_wf_audit.js` — đọc `scratch/_all.json` (660 câu) theo index; per-câu: Sonnet gen→review · Sonnet sinh 5 mức trả lời (xuất sắc→kém) · **Sonnet+Haiku batch-chấm** (5 đáp án/1 agent) · enhance ≤5. **~5.5 agent/câu, ~260K token/câu** (phần lớn cache-read → cost thực ~/10). Batch 100 câu/workflow. Kết quả → `.artifacts/interview-audit/results/batch_*.json`.
 
 ## Trạng thái + còn làm
-- ✅ ~209/660 câu audit xong (đều coherent), lưu `results/`. Đang chạy batch tiếp. Câu lỗi StructuredOutput → `results/_failed_idx.json`.
-- ⬜ Chốt **en/vi** checkpoint (1 ngôn ngữ hay gen cả 2).
-- ⬜ Ghi kết quả vào `.mount` interview `.md` (checklist + exampleResults, xóa rubric).
-- ⬜ Build: parser đọc `# checklist`/`# exampleResults` · entity `MockInterviewCheckpointEntity` + cột `example_results jsonb` · processor · migration.
+- ✅ **idx 0–449 XONG** (450/450 coherent, 187+377 re-run ok): batch_000-010 → batch_410-449 + batch_rerun.json trong `results/`. `_failed_idx.json` rỗng.
+- ✅ **Đã ghi .mount + push main** (`starci-lab/data` 077808e4→24c5319e4): 446 câu (devops 280 + fullstack 166; 4 câu fullstack orphan không có folder). **GIỮ rubric** (option A an toàn) — chưa xóa vì parser đọc `# checklist` chưa build.
+- 🔄 idx 450–660 (SD-DB 192 + FS-DB 18) = **session khác** đang chạy DB-driven → sẽ ghi SD + phần fullstack còn lại.
+- ⬜ **325 câu .mount không có trong DB** (FS 157 + SD 168) → audit **folder-driven** (đọc prompt/ideal thẳng từ .mount, key theo folder — bỏ `_all.json`). Chờ session kia xong rồi quét folder thiếu `# checklist`.
+- ⬜ Chốt **en/vi** checkpoint (hiện 1 ngôn ngữ ghi cả en.md+vi.md).
+- ⬜ Build: parser đọc `# checklist`/`# exampleResults` · entity `MockInterviewCheckpointEntity` + cột `example_results jsonb` · processor · migration → rồi mới **xóa rubric** (1 flag).
 - ⬜ Đổi grading prompt câu open → coverage-per-checkpoint; điểm tính code.
 
 Ref: `.artifacts/proposals/mock-interview-checklist-grading.proposal.md` · `.artifacts/interview-audit/{STATUS.md,pilot.md}`.
