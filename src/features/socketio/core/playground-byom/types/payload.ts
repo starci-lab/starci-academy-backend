@@ -91,3 +91,12 @@ export interface AgentPongSocketIoPayload {
     /** Timestamp (ms) echoed back unchanged from the `agent:ping` payload. */
     t: number
 }
+
+/**
+ * Browser → server: verify the current step NOW — relayed to the paired agent,
+ * which pushes a fresh `resources:report`. Owner-gated (same as `command:run`).
+ */
+export interface VerifyNowSocketIoPayload {
+    /** Session whose paired agent should report its resources immediately. */
+    sessionId: string
+}

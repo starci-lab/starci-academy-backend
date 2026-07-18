@@ -24,4 +24,5 @@ export enum PublicationEvent {
     PlaygroundResourcesReport = "resources:report",
     PlaygroundAgentPing = "agent:ping",
     PlaygroundAgentPong = "agent:pong",
+    PlaygroundVerifyNow = "verify:now",
 }

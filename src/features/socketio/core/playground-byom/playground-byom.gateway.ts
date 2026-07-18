@@ -53,6 +53,7 @@ import type {
     CommandOutputSocketIoPayload,
     CommandRunSocketIoPayload,
     ResourcesReportSocketIoPayload,
+    VerifyNowSocketIoPayload,
 } from "./types"
 
 /** Pairing code lifetime (ms). After this, `agent:pair` is rejected — bounds how
@@ -379,6 +380,31 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
     }
 
     /**
+     * Relays a "verify now" request from the owner browser to the paired agent,
+     * which responds by pushing a fresh `resources:report` (so the current step
+     * verifies immediately instead of waiting for the next periodic snapshot).
+     * Read-only on the agent (just a resource snapshot), but owner-gated for
+     * consistency with `command:run`.
+     *
+     * @param payload - Carries the target `sessionId`.
+     * @param client - The browser's socket (excluded from the relay).
+     */
+    @SubscribeMessage(PublicationEvent.PlaygroundVerifyNow)
+    handleVerifyNow(
+        @MessageBody() payload: VerifyNowSocketIoPayload,
+        @ConnectedSocket() client: TypedSocket,
+    ): void {
+        if (client.data.ownedSessionId !== payload.sessionId) {
+            return
+        }
+        client.to(this.playgroundByomRoomService.name(payload.sessionId)).emit(
+            SubscriptionEvent.PlaygroundVerifyNow,
+            {
+            },
+        )
+    }
+
+    /**
      * Relays one chunk of command output from the agent up to the browser room.
      *
      * @param payload - Carries the `output` text (no `sessionId` — derived from `socket.data.sessionId`).
@@ -549,10 +575,15 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
         if (!matched) {
             return
         }
+        const passedIndex = session.currentStepIndex
         session.passedStepIndexes = [
             ...session.passedStepIndexes,
-            session.currentStepIndex,
+            passedIndex,
         ]
+        // advance the SERVER-SIDE pointer so the next `resources:report` verifies the
+        // NEXT step. Nothing else moves `currentStepIndex` — without this, verify is
+        // pinned to step 0 forever and steps 1..N can never pass.
+        session.currentStepIndex = passedIndex + 1
         await this.entityManager.save(
             PlaygroundSessionEntity,
             session,
@@ -560,7 +591,7 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
         this.wsResponseService.successToRoom({
             message: "Playground step verified",
             data: {
-                stepIndex: session.currentStepIndex,
+                stepIndex: passedIndex,
             },
             room,
             namespace: this.server,

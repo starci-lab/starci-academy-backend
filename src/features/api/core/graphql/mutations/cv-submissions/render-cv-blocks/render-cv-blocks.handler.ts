@@ -7,7 +7,7 @@ import {
 } from "@modules/databases"
 import {
     CvDocumentNotFoundException,
-    CvDocxBuildFailedException,
+    CvLatexCompileFailedException,
     UserNotFoundException,
 } from "@modules/exceptions"
 import {
@@ -25,8 +25,24 @@ import {
     CommandHandler,
     ICommandHandler,
 } from "@nestjs/cqrs"
-import puppeteer from "puppeteer"
-import HTMLtoDOCX from "html-to-docx"
+import {
+    execFile,
+} from "node:child_process"
+import {
+    mkdtemp,
+    readFile,
+    rm,
+    writeFile,
+} from "node:fs/promises"
+import {
+    tmpdir,
+} from "node:os"
+import {
+    join,
+} from "node:path"
+import {
+    promisify,
+} from "node:util"
 import {
     EntityManager,
 } from "typeorm"
@@ -40,18 +56,25 @@ import {
     CvExportFormat,
 } from "./cv-export-format.enum"
 
+const execFileAsync = promisify(execFile)
+
+/** Hard cap on a single compile (a runaway/looping LaTeX source can't hang a worker). */
+const TECTONIC_TIMEOUT_MS = 60_000
+/** Max stdout/stderr captured from tectonic (its log can be chatty on errors). */
+const TECTONIC_MAX_BUFFER = 16 * 1024 * 1024
+
 /**
- * Handler for `renderCvBlocks` — SYNCHRONOUS export of a block-editor CV to PDF
- * or DOCX (HTML-first, single-source). The FE renders the ONE shared CV template
- * and sends its self-contained HTML; this handler is a dumb converter:
- * - PDF  → Puppeteer (`page.setContent` + `page.pdf`, A4).
- * - DOCX → `html-to-docx`.
- * The output is uploaded to MinIO and a fresh presigned GET URL returned;
- * ownership is enforced (the `cv_blocks` row must belong to the caller).
+ * Handler for `renderCvBlocks` — SYNCHRONOUS compile of a block-editor CV's
+ * **LaTeX source** to a PDF. The FE builds the `.tex` (from the block document,
+ * or the user's own edits to it) and sends it here; this handler compiles it
+ * with **`tectonic`** (the self-contained LaTeX engine already in the `core`
+ * Docker image), uploads the PDF to MinIO, and returns a fresh presigned GET URL.
+ * Ownership is enforced (the `cv_blocks` row must belong to the caller).
  *
- * No LaTeX/`tectonic` anymore (see `CV-BUILDER-BLOCK-EDITOR-BRAINSTORM.md`,
- * "PIVOT: RENDER = HTML-FIRST") — this yields both PDF and Word from one source
- * and keeps the export byte-consistent with the live HTML preview.
+ * PIVOT (2026-07-18): render is **full LaTeX** again — no HTML/Puppeteer/DOCX.
+ * The `.tex` is the single source (persisted as `tex_source`, user-editable); the
+ * `.tex` itself is downloaded client-side, so this endpoint only produces the PDF.
+ * User-supplied LaTeX is compiled `--untrusted` (no shell-escape / `\write18`).
  */
 @CommandHandler(RenderCvBlocksCommand)
 @Injectable()
@@ -73,8 +96,7 @@ export class RenderCvBlocksHandler
         const {
             request: {
                 id,
-                html,
-                format,
+                tex,
             },
             user,
         } = command.params
@@ -103,31 +125,22 @@ export class RenderCvBlocksHandler
             })
         }
 
-        const isPdf = format === CvExportFormat.Pdf
-        const buffer = isPdf
-            ? await this.htmlToPdf(html)
-            : await this.htmlToDocx(html)
+        const buffer = await this.texToPdf(tex)
 
-        const extension = isPdf ? "pdf" : "docx"
-        const contentType = isPdf
-            ? "application/pdf"
-            : "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        const cdnKey = `cv-blocks/${user.id}/${entity.id}.${extension}`
-
+        const cdnKey = `cv-blocks/${user.id}/${entity.id}.pdf`
         await this.s3UploadService.buffer({
             name: cdnKey,
             buffer,
             provider: S3Provider.Minio,
             acl: "private",
-            contentType,
+            contentType: "application/pdf",
         })
 
-        // persist only the PDF key back onto the row (mirrors the old
-        // `generated_pdf_cdn_key`); DOCX is a one-off download.
-        if (isPdf) {
-            entity.pdfCdnKey = cdnKey
-            await this.entityManager.save(entity)
-        }
+        // persist the LaTeX source the PDF was compiled from + the PDF key back
+        // onto the row (so a reopen restores the user's edits + the last export).
+        entity.texSource = tex
+        entity.pdfCdnKey = cdnKey
+        await this.entityManager.save(entity)
 
         const url = await this.s3BuildService.buildSignedGetObjectUrl({
             key: cdnKey,
@@ -138,60 +151,53 @@ export class RenderCvBlocksHandler
         return {
             url,
             cdnKey,
-            format,
+            format: CvExportFormat.Pdf,
         }
     }
 
     /**
-     * Renders self-contained HTML to a PDF buffer via headless Chromium
-     * (Puppeteer, already a project dependency). Same launch args as
-     * {@link import("@modules/mixin").NextJsQueryService} for container safety.
+     * Compiles a `.tex` source into a PDF buffer via `tectonic` in a throwaway
+     * temp dir. `--untrusted` blocks shell-escape / `\write18` (the source is
+     * USER-EDITABLE). A non-zero exit (LaTeX error / unresolved package) surfaces
+     * as {@link CvLatexCompileFailedException} carrying the compile log.
      */
-    private async htmlToPdf(html: string): Promise<Buffer> {
-        const browser = await puppeteer.launch({
-            headless: true,
-            args: [
-                "--no-sandbox",
-                "--disable-setuid-sandbox",
-            ],
-        })
+    private async texToPdf(tex: string): Promise<Buffer> {
+        const dir = await mkdtemp(join(tmpdir(),
+            "cv-tex-"))
+        const texPath = join(dir,
+            "cv.tex")
+        const pdfPath = join(dir,
+            "cv.pdf")
         try {
-            const page = await browser.newPage()
-            await page.setContent(html,
+            await writeFile(texPath,
+                tex,
+                "utf8")
+            await execFileAsync(
+                "tectonic",
+                [
+                    "-X",
+                    "compile",
+                    "--untrusted",
+                    "--outdir",
+                    dir,
+                    texPath,
+                ],
                 {
-                    waitUntil: "networkidle0",
-                })
-            const pdf = await page.pdf({
-                format: "A4",
-                printBackground: true,
-            })
-            return Buffer.from(pdf)
-        } finally {
-            await browser.close()
-        }
-    }
-
-    /**
-     * Renders self-contained HTML to a .docx buffer via `html-to-docx`.
-     */
-    private async htmlToDocx(html: string): Promise<Buffer> {
-        const result = await HTMLtoDOCX(html,
-            null,
-            {
-                table: {
-                    row: {
-                        cantSplit: true,
-                    },
+                    timeout: TECTONIC_TIMEOUT_MS,
+                    maxBuffer: TECTONIC_MAX_BUFFER,
                 },
+            )
+            return await readFile(pdfPath)
+        } catch (originalError) {
+            throw new CvLatexCompileFailedException({
+                originalError,
             })
-        if (result instanceof Buffer) {
-            return result
+        } finally {
+            await rm(dir,
+                {
+                    recursive: true,
+                    force: true,
+                }).catch(() => undefined)
         }
-        // html-to-docx may resolve an ArrayBuffer depending on the environment
-        if (result instanceof ArrayBuffer) {
-            return Buffer.from(result)
-        }
-        throw new CvDocxBuildFailedException({
-        })
     }
 }
