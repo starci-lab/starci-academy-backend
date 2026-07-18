@@ -2,6 +2,10 @@ import {
     Module,
 } from "@nestjs/common"
 import {
+    IoRedisModule,
+    IoRedisInstanceKey,
+} from "@modules/native"
+import {
     ConfigurableModuleClass,
 } from "./playground-byom.module-definition"
 import {
@@ -15,8 +19,19 @@ import {
  * Module providing the Socket.IO Playground BYOM gateway (relays shell
  * commands + resource reports between a browser and a learner's local CLI
  * agent, in the `/playground_byom` namespace).
+ *
+ * Imports the `Cache` ioredis instance so the gateway can rate-limit the
+ * unauthenticated `agent:pair` endpoint (atomic INCR+EXPIRE) — shared across
+ * app instances, unlike an in-memory counter.
  */
 @Module({
+    imports: [
+        IoRedisModule.register({
+            instanceKeys: [
+                IoRedisInstanceKey.Cache,
+            ],
+        }),
+    ],
     providers: [
         PlaygroundByomGateway,
         PlaygroundByomRoomService,

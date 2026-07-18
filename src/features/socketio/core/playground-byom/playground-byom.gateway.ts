@@ -37,6 +37,13 @@ import {
 import {
     KeycloakTokenService,
 } from "@modules/keycloak"
+import {
+    InjectIoRedis,
+    IoRedisInstanceKey,
+} from "@modules/native"
+import type {
+    Redis,
+} from "ioredis"
 import type {
     AgentPairAck,
     AgentPairSocketIoPayload,
@@ -48,13 +55,14 @@ import type {
     ResourcesReportSocketIoPayload,
 } from "./types"
 
-/** Pairing code lifetime (ms). After this, `agent:pair` is rejected — caps the
- * brute-force window for the short code (defense-in-depth with the rate limit). */
+/** Pairing code lifetime (ms). After this, `agent:pair` is rejected — bounds how
+ * long a leaked pairing code stays usable (the code is a UUID, so this + the rate
+ * limit are defense-in-depth, not the primary guard). */
 const PAIRING_CODE_TTL_MS = 30 * 60 * 1000
-/** Max `agent:pair` attempts allowed per source IP within {@link PAIR_RATE_WINDOW_MS}. */
+/** Max `agent:pair` attempts allowed per source IP within {@link PAIR_RATE_WINDOW_SECONDS}. */
 const PAIR_RATE_LIMIT = 20
-/** Sliding window (ms) for the per-IP `agent:pair` rate limit. */
-const PAIR_RATE_WINDOW_MS = 60 * 1000
+/** Fixed window (seconds) for the per-IP `agent:pair` rate limit (Redis key TTL). */
+const PAIR_RATE_WINDOW_SECONDS = 60
 
 /**
  * WebSocket gateway for the `/playground_byom` namespace — relays shell
@@ -78,6 +86,10 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
         private readonly entityManager: EntityManager,
         private readonly playgroundByomRoomService: PlaygroundByomRoomService,
         private readonly wsResponseService: WsResponseService,
+        // `Cache` ioredis instance — SHARED across app instances, so the pairing
+        // rate limit holds cluster-wide (unlike an in-memory per-instance counter).
+        @InjectIoRedis(IoRedisInstanceKey.Cache)
+        private readonly redis: Redis,
     ) {}
 
     /** The namespace server instance used to emit to per-session rooms. */
@@ -87,10 +99,6 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
     /** Logger for best-effort verify failures (never fatal to the relay). */
     private readonly logger = new Logger(PlaygroundByomGateway.name)
 
-    /** Per-IP sliding window of `agent:pair` timestamps — throttles the
-     * unauthenticated pairing endpoint against brute-force (in-memory, per instance). */
-    private readonly pairAttempts = new Map<string, Array<number>>()
-
     /** sessionId → the currently-bound agent socket id. Enforces ONE live agent per
      * session: a 2nd concurrent `agent:pair` with the same code (while the first
      * agent is still connected) is rejected, so a leaked code can't attach a rogue
@@ -98,18 +106,31 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
     private readonly boundAgentSocketId = new Map<string, string>()
 
     /**
-     * Records an `agent:pair` attempt from `ip` and returns whether it is within
-     * the per-IP budget. Prunes timestamps older than the window on each call.
+     * Records an `agent:pair` attempt from `ip` in Redis (shared across instances)
+     * and returns whether it is within the per-IP budget. Fixed window via an atomic
+     * INCR + first-hit EXPIRE. Fails OPEN on a Redis blip — a cache outage must never
+     * lock a legit learner out of pairing.
      */
-    private withinPairRateLimit(ip: string): boolean {
-        const now = Date.now()
-        const recent = (this.pairAttempts.get(ip) ?? []).filter(
-            (at) => now - at < PAIR_RATE_WINDOW_MS,
-        )
-        recent.push(now)
-        this.pairAttempts.set(ip,
-            recent)
-        return recent.length <= PAIR_RATE_LIMIT
+    private async withinPairRateLimit(ip: string): Promise<boolean> {
+        try {
+            const key = `playground-byom:pair-rate:${ip}`
+            const count = await this.redis.incr(key)
+            // set the fixed-window TTL only on the first hit; guard a stuck key.
+            if (count === 1 || (await this.redis.ttl(key)) < 0) {
+                await this.redis.expire(
+                    key,
+                    PAIR_RATE_WINDOW_SECONDS,
+                )
+            }
+            return count <= PAIR_RATE_LIMIT
+        } catch (error) {
+            this.logger.warn(
+                `pair rate-limit check failed (allowing): ${
+                    error instanceof Error ? error.message : String(error)
+                }`,
+            )
+            return true
+        }
     }
 
     /**
@@ -132,7 +153,7 @@ export class PlaygroundByomGateway implements OnGatewayDisconnect {
     ): Promise<void> {
         // (D) throttle the UNAUTHENTICATED pairing endpoint per source IP so the
         // short code can't be brute-forced.
-        if (!this.withinPairRateLimit(client.handshake.address)) {
+        if (!(await this.withinPairRateLimit(client.handshake.address))) {
             ack({
                 error: "Too many attempts — wait a moment and try again.",
             })

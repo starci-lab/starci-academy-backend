@@ -145,8 +145,10 @@ export class PlaygroundSessionEntity extends UuidAbstractEntity {
     )
     @Column({
         name: "pairing_code",
+        // holds a UUID (36 chars) — the pairing code is `randomUUID()` (unguessable,
+        // no brute-force). Widened from the old short-code length via `synchronize`.
         type: "varchar",
-        length: 16,
+        length: 36,
     })
         pairingCode: string
 
