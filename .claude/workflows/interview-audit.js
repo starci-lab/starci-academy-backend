@@ -1,7 +1,10 @@
 // ============================================================================
 // INTERVIEW CHECKLIST AUDIT — chạy ở session KHÁC cho idx 450–659
 // ============================================================================
-// Nguồn câu hỏi: D:\Repositories\starci-academy-backend\scratch\_all.json (660 câu, id/kind/course/prompt/ideal)
+// Nguồn câu hỏi: .artifacts/interview-audit/_all.json (660 câu, id/kind/course/prompt/ideal — GIT-TRACKED, pull mtp là có).
+// ⚠️ MÁY KHÁC: đổi hằng FILE bên dưới cho khớp REPO ROOT máy đó
+//    (vd C:\Repositories\ac\starci-academy-backend\.artifacts\interview-audit\_all.json).
+//    File này = CÙNG thứ tự với batch 0–309 đã chạy → index 450–660 khớp, KHÔNG regen _all.json (regen có thể đổi order).
 //
 // CÁCH CHẠY (210 câu > cap 1000 agent nên CHIA 2 LẦN):
 //   Workflow({ scriptPath: "D:\\Repositories\\starci-academy-backend\\.claude\\workflows\\interview-audit.js", args: [450, 105] })
@@ -22,7 +25,7 @@ export const meta = {
   ],
 }
 
-const FILE = 'D:\\Repositories\\starci-academy-backend\\scratch\\_all.json'
+const FILE = 'D:\\Repositories\\starci-academy-backend\\.artifacts\\interview-audit\\_all.json'
 const CP = { type: 'object', properties: { items: { type: 'array', items: { type: 'string' } } }, required: ['items'], additionalProperties: false }
 const ANS = { type: 'object', properties: { answers: { type: 'array', items: { type: 'object', properties: { level: { type: 'integer' }, text: { type: 'string' } }, required: ['level', 'text'], additionalProperties: false } } }, required: ['answers'], additionalProperties: false }
 const BG = { type: 'object', properties: { results: { type: 'array', items: { type: 'object', properties: { level: { type: 'integer' }, covered: { type: 'array', items: { type: 'boolean' } } }, required: ['level', 'covered'], additionalProperties: false } } }, required: ['results'], additionalProperties: false }
