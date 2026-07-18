@@ -77,19 +77,10 @@ export class MyFlashcardQuizStatsResolver {
             userId: user.id,
             courseId,
         })
-        // project to the GraphQL shape — serialize each trend point's timestamp
         return {
             insufficientData: result.insufficientData,
-            trend: result.trend.map((point) => ({
-                completedAt: point.completedAt.toISOString(),
-                coverage: point.coverage,
-                xpEarned: point.xpEarned,
-            })),
             byTag: result.byTag,
-            byDeck: result.byDeck,
-            weakTagLinks: result.weakTagLinks,
-            hardCards: result.hardCards,
-            completedSessionCount: result.completedSessionCount,
+            conceptCoverage: result.conceptCoverage,
         }
     }
 }

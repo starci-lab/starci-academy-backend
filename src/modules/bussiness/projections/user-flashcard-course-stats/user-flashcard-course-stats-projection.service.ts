@@ -153,13 +153,6 @@ interface LeechCardRow {
     deck_title: string
 }
 
-/** Raw row: one tag's review recalled/total (retention numerator/denominator). */
-interface TagRetentionRow {
-    tag: string
-    recalled: string
-    total: string
-}
-
 /** Raw row: one deck's review recalled/total. */
 interface DeckRetentionRow {
     deck_id: string
@@ -283,6 +276,8 @@ export class UserFlashcardCourseStatsProjectionService {
             weakTags,
             matureRetention,
             youngRetention,
+            reviewedTotal,
+            courseRetention,
             bestReviewHour,
             deckRetention,
             retentionTrend,
@@ -310,6 +305,8 @@ export class UserFlashcardCourseStatsProjectionService {
             weakTags,
             matureRetention,
             youngRetention,
+            reviewedTotal,
+            courseRetention,
             bestReviewHour,
             deckRetention,
             retentionTrend,
@@ -357,11 +354,14 @@ export class UserFlashcardCourseStatsProjectionService {
                 // leechCards = review-outcome drift (2026-07-13); quizHardCards =
                 // quiz-outcome drift (added later); maturityLadder = the
                 // stats-insight-redesign drift (2026-07-17, this batch of new
-                // fields) — any absent means the row predates that fold, so
-                // recompute once to populate it.
+                // fields); reviewedTotal = the course-scoped floor/hero drift
+                // (2026-07-17, same day, added after maturityLadder shipped) —
+                // any absent means the row predates that fold, so recompute once
+                // to populate it.
                 return value?.leechCards === undefined
                     || value?.quizHardCards === undefined
                     || value?.maturityLadder === undefined
+                    || value?.reviewedTotal === undefined
             })()
             : false
         if (!row || this.isStale(row.updatedAt) || missingOutcomeFields) {
@@ -415,6 +415,8 @@ export class UserFlashcardCourseStatsProjectionService {
             weakTags: value?.weakTags ?? [],
             matureRetention: value?.matureRetention ?? 0,
             youngRetention: value?.youngRetention ?? 0,
+            reviewedTotal: value?.reviewedTotal ?? 0,
+            courseRetention: value?.courseRetention ?? 0,
             bestReviewHour: value?.bestReviewHour ?? null,
             deckRetention: value?.deckRetention ?? [],
             retentionTrend: value?.retentionTrend ?? [],
@@ -504,11 +506,18 @@ export class UserFlashcardCourseStatsProjectionService {
                 relations: {
                     deck: true,
                 },
+                // NO `deckId` here: it is a virtual `@RelationId` on
+                // FlashcardCardEntity, and TypeORM's find `select` only accepts real
+                // columns/relations — listing it throws EntityPropertyNotFoundError
+                // ("Property \"deckId\" was not found in \"FlashcardCardEntity\"") at
+                // RUNTIME, which killed `recompute()` on its FIRST fold (computeQuiz)
+                // and so silently left EVERY flashcard course-stat empty since
+                // b0c780f4. Nothing reads `card.deckId` here anyway — the deck comes
+                // from the `deck` relation below (2026-07-17 fix).
                 select: {
                     id: true,
                     question: true,
                     tags: true,
-                    deckId: true,
                     deck: {
                         id: true,
                         title: true,
@@ -1066,14 +1075,16 @@ export class UserFlashcardCourseStatsProjectionService {
 
     /**
      * The review-OUTCOME side of the aggregate (thầy 2026-07-13 "thống kê vô
-     * nghĩa quá, render lại" — dẫn bằng việc-CẦN-SỬA, not vanity effort): the 4
-     * outcome aggregates that turn the stats tab into a fix-funnel — `leechCards`
-     * (kept forgetting), `weakReviewTag` (worst-retention tag), `deckRetention`
-     * (outcome per deck vs the footprint `reviewByDeck`), and `retentionTrend`
-     * ("đang cải thiện?"). All derived from `flashcard_review_events` (the SM-2
-     * grade log) joined to the enrollment's course cards — scoped to this
-     * enrollment's USER (events are user-keyed) and COURSE (card → deck →
-     * course), and folded HERE only (CDC-triggered), never per-request
+     * nghĩa quá, render lại" — dẫn bằng việc-CẦN-SỬA, not vanity effort): the
+     * outcome aggregates that turn the stats tab into a fix-funnel —
+     * `leechCards`/`leechFocus` (kept forgetting), `weakReviewTag`/`weakTags`
+     * (worst-retention tag(s)), `deckRetention` (outcome per deck vs the
+     * footprint `reviewByDeck`), `retentionTrend` ("đang cải thiện?"), the
+     * mature-vs-young retention split, and `bestReviewHour`. All derived from
+     * `flashcard_review_events` (the SM-2 grade log) joined to the
+     * enrollment's course cards — scoped to this enrollment's USER (events
+     * are user-keyed) and COURSE (card → deck → course), and folded HERE only
+     * (CDC-triggered), never per-request
      * (`.claude/be/rules/cqrs-no-inline-aggregate.md`). `recalled` = grade >=
      * {@link RECALLED_GRADE}; retention = recalled/total × 100.
      */
@@ -1082,7 +1093,14 @@ export class UserFlashcardCourseStatsProjectionService {
         enrollmentId: string,
     ): Promise<{
         leechCards: Array<FlashcardLeechCardData>
+        leechFocus: Array<FlashcardLeechFocusCardData>
         weakReviewTag: FlashcardWeakReviewTagData | null
+        weakTags: Array<FlashcardWeakTagData>
+        matureRetention: number
+        youngRetention: number
+        reviewedTotal: number
+        courseRetention: number
+        bestReviewHour: FlashcardBestReviewHourData | null
         deckRetention: Array<FlashcardDeckRetentionData>
         retentionTrend: Array<FlashcardRetentionTrendPointData>
     }> {
@@ -1120,23 +1138,32 @@ export class UserFlashcardCourseStatsProjectionService {
             deckTitle: row.deck_title ?? "",
         }))
 
-        // 2. WEAK TAG — the single lowest-retention tag with >= WEAK_TAG_MIN_SAMPLE graded reviews.
-        // `card.tags` is a jsonb string array → unnest with jsonb_array_elements_text.
-        const tagRows = await manager.query<Array<TagRetentionRow>>(
+        // 2. WEAK TAGS — EVERY tag's retention with >= WEAK_TAG_MIN_SAMPLE graded
+        // reviews, worst-first (thầy 2026-07-17: "bỏ LIMIT 1" — the old query
+        // only ever surfaced the single worst tag; `weakReviewTag` below is now
+        // just this same list's head, no second query). `card.tags` is a jsonb
+        // string array → unnest with jsonb_array_elements_text.
+        const tagRows = await manager.query<Array<TagRetentionWithCardCountRow>>(
             `SELECT tag.value AS tag,
                     COUNT(*) FILTER (WHERE e.grade >= ${RECALLED_GRADE})::text AS recalled,
-                    COUNT(*)::text AS total
+                    COUNT(*)::text AS total,
+                    COUNT(DISTINCT card.id)::text AS card_count
              ${scopeJoin}
              CROSS JOIN LATERAL jsonb_array_elements_text(card.tags) AS tag(value)
              GROUP BY tag.value
              HAVING COUNT(*) >= ${WEAK_TAG_MIN_SAMPLE}
              ORDER BY (COUNT(*) FILTER (WHERE e.grade >= ${RECALLED_GRADE})::float / COUNT(*)) ASC,
-                      total DESC
-             LIMIT 1`,
+                      total DESC`,
             [
                 enrollmentId,
             ],
         )
+        const weakTags: Array<FlashcardWeakTagData> = tagRows.map((row) => ({
+            tag: row.tag,
+            retention: this.retentionPercent(row.recalled,
+                row.total),
+            cardCount: Number(row.card_count) || 0,
+        }))
         const weakReviewTag: FlashcardWeakReviewTagData | null = tagRows.length > 0
             ? {
                 tag: tagRows[0].tag,
@@ -1189,9 +1216,134 @@ export class UserFlashcardCourseStatsProjectionService {
             reviewCount: Number(row.total) || 0,
         }))
 
+        // 5. MATURE vs YOUNG retention — is forgetting concentrated on freshly-seen
+        // cards (young, still spacing out) or on stuff already committed (mature)?
+        // Joins the event log to the CURRENT `user_flashcard_reviews.interval_days`
+        // (an approximation: buckets by the card's interval NOW, not at each past
+        // event's time — cheap and stable enough for a "where's the problem" split).
+        const [maturityRetentionRow] = await manager.query<Array<MaturityRetentionRow>>(
+            `SELECT COUNT(*) FILTER (WHERE r.interval_days >= ${RETENTION_MATURE_THRESHOLD_DAYS} AND e.grade >= ${RECALLED_GRADE})::text AS "matureRecalled",
+                    COUNT(*) FILTER (WHERE r.interval_days >= ${RETENTION_MATURE_THRESHOLD_DAYS})::text AS "matureTotal",
+                    COUNT(*) FILTER (WHERE r.interval_days < ${RETENTION_MATURE_THRESHOLD_DAYS} AND e.grade >= ${RECALLED_GRADE})::text AS "youngRecalled",
+                    COUNT(*) FILTER (WHERE r.interval_days < ${RETENTION_MATURE_THRESHOLD_DAYS})::text AS "youngTotal"
+             ${scopeJoin}
+             JOIN user_flashcard_reviews r ON r.flashcard_card_id = card.id AND r.enrollment_id = en.id`,
+            [
+                enrollmentId,
+            ],
+        )
+        const matureRetention = this.retentionPercent(
+            maturityRetentionRow?.matureRecalled ?? "0",
+            maturityRetentionRow?.matureTotal ?? "0",
+        )
+        const youngRetention = this.retentionPercent(
+            maturityRetentionRow?.youngRecalled ?? "0",
+            maturityRetentionRow?.youngTotal ?? "0",
+        )
+        // COURSE-SCOPED review volume + retention — the mature/young split above
+        // already scanned exactly this course's graded events, so summing its two
+        // buckets costs no extra query. These are what the "Thống kê" tab's floor +
+        // memory-health hero must read: the per-USER lifetime `totalReviewed`/
+        // `retentionRate` blend every course together, which is wrong for a
+        // course-scoped tab (2026-07-17).
+        const reviewedTotal = (Number(maturityRetentionRow?.matureTotal) || 0)
+            + (Number(maturityRetentionRow?.youngTotal) || 0)
+        const courseRetention = this.retentionPercent(
+            String((Number(maturityRetentionRow?.matureRecalled) || 0)
+                + (Number(maturityRetentionRow?.youngRecalled) || 0)),
+            String(reviewedTotal),
+        )
+
+        // 6. LEECH FOCUS — reason-tagged rewrite list: `lapsed` = graded Again
+        // AFTER at least one prior Good/Easy on the SAME card (learned it once,
+        // then forgot); `stuckHard` = repeatedly graded Hard (never forgets
+        // outright, never firms up either). The window function looks ONLY at
+        // rows strictly BEFORE the current one (`ROWS BETWEEN UNBOUNDED
+        // PRECEDING AND 1 PRECEDING`) so "prior recall" never counts the
+        // current grade against itself.
+        const leechFocusRows = await manager.query<Array<LeechFocusRow>>(
+            `WITH events AS (
+                 SELECT card.id AS card_id,
+                        card.question AS question,
+                        deck.id AS deck_id,
+                        deck.title AS deck_title,
+                        e.grade,
+                        MAX(CASE WHEN e.grade >= ${RECALLED_GRADE} THEN 1 ELSE 0 END) OVER (
+                            PARTITION BY card.id
+                            ORDER BY e.reviewed_at
+                            ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
+                        ) AS had_prior_recall
+                 ${scopeJoin}
+             ),
+             tally AS (
+                 SELECT card_id, question, deck_id, deck_title,
+                        COUNT(*) FILTER (WHERE grade = 0 AND had_prior_recall = 1) AS lapsed_count,
+                        COUNT(*) FILTER (WHERE grade = 1) AS hard_count
+                 FROM events
+                 GROUP BY card_id, question, deck_id, deck_title
+             )
+             SELECT card_id, question, deck_id, deck_title,
+                    lapsed_count::text AS lapsed_count,
+                    hard_count::text AS hard_count
+             FROM tally
+             WHERE lapsed_count > 0 OR hard_count >= ${STUCK_HARD_MIN_COUNT}
+             ORDER BY GREATEST(lapsed_count, hard_count) DESC, card_id ASC
+             LIMIT ${LEECH_FOCUS_LIMIT}`,
+            [
+                enrollmentId,
+            ],
+        )
+        const leechFocus: Array<FlashcardLeechFocusCardData> = leechFocusRows.map((row) => {
+            const lapsedCount = Number(row.lapsed_count) || 0
+            const hardCount = Number(row.hard_count) || 0
+            // lapsed takes priority — "learned it once, then forgot" is the
+            // sharper signal than "keeps grading Hard"
+            const reason: "lapsed" | "stuckHard" = lapsedCount > 0 ? "lapsed" : "stuckHard"
+            return {
+                cardId: row.card_id,
+                question: row.question ?? "",
+                deckId: row.deck_id,
+                deckTitle: row.deck_title ?? "",
+                lapseCount: reason === "lapsed" ? lapsedCount : hardCount,
+                reason,
+            }
+        })
+
+        // 7. BEST REVIEW HOUR — the hour-of-day (VN time) with the best
+        // retention, guarded by BEST_HOUR_MIN_SAMPLE so a single lucky review
+        // at 3am can't "win".
+        const [bestHourRow] = await manager.query<Array<BestHourRow>>(
+            `SELECT EXTRACT(HOUR FROM e.reviewed_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::int AS hour,
+                    COUNT(*) FILTER (WHERE e.grade >= ${RECALLED_GRADE})::text AS recalled,
+                    COUNT(*)::text AS total
+             ${scopeJoin}
+             GROUP BY hour
+             HAVING COUNT(*) >= ${BEST_HOUR_MIN_SAMPLE}
+             ORDER BY (COUNT(*) FILTER (WHERE e.grade >= ${RECALLED_GRADE})::float / COUNT(*)) DESC,
+                      total DESC
+             LIMIT 1`,
+            [
+                enrollmentId,
+            ],
+        )
+        const bestReviewHour: FlashcardBestReviewHourData | null = bestHourRow
+            ? {
+                hour: bestHourRow.hour,
+                retention: this.retentionPercent(bestHourRow.recalled,
+                    bestHourRow.total),
+            }
+            : null
+
         return {
             leechCards,
+            leechFocus,
             weakReviewTag,
+            weakTags,
+            matureRetention,
+            youngRetention,
+            reviewedTotal,
+            courseRetention,
+            bestReviewHour,
             deckRetention,
             retentionTrend,
         }

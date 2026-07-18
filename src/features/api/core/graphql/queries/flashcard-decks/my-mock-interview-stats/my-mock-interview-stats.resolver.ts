@@ -77,24 +77,13 @@ export class MyMockInterviewStatsResolver {
             userId: user.id,
             courseId,
         })
-        // project to the GraphQL shape — serialize each trend point's timestamp
         return {
             insufficientData: result.insufficientData,
             modeSplit: result.modeSplit,
             trend: result.trend.map((point) => ({
-                completedAt: point.completedAt.toISOString(),
                 overallScore: point.overallScore,
-                mode: point.mode,
-                verdict: point.verdict,
             })),
             byPhase: result.byPhase,
-            byKind: result.byKind,
-            byAttribute: result.byAttribute,
-            byLevel: result.byLevel,
-            byLanguage: result.byLanguage,
-            recurringGaps: result.recurringGaps,
-            weakest: result.weakest,
-            verdictCounts: result.verdictCounts,
         }
     }
 }

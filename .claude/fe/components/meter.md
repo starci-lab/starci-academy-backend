@@ -15,6 +15,22 @@
 - **1 THANH TẠI 1 THỜI ĐIỂM cho 1 cụm** — đừng lặp `ProgressMeter` cho MỌI item/group cùng lúc trong 1 list.
   Ref [[one-progress-bar-at-a-time]] (dead-link tên gọi — nội dung thật sống ở [[list]] §5d: group mở = 1
   thanh, group gập = chỉ "n/m" muted).
+- **`target?` + `targetLabel?` — MỐC mục tiêu trên track, render qua sub-component `ProgressMeterTargetMark` (CHỐT 2026-07-18):**
+  meter có mốc "coi như đạt" (vd 85% retention, 80% coverage, pass-bar 70) → truyền `target` (+ `targetLabel` ngắn
+  như `"85%"`). Marker tách **component riêng** `blocks/stats/ProgressMeter/TargetMark` (thầy: *"màu đỏ tách thành
+  component riêng"*), KHÔNG vẽ tay overlay trong meter. Anchor = **pill dọc `w-1 h-5 rounded` + `bg-surface` +
+  `border border-default` hairline** (thầy chốt cỡ + màu; KHÔNG `w-px bg-foreground/40` như bản cũ) — pill cao hơn
+  bar (`h-5` vs track `h-1`) nên đọc như 1 "khấc mốc", `bg-surface` cắt sạch qua fill/track bất kể band màu, hairline
+  để nổi trên track sáng + trong vùng overshoot (nằm trên `bg-surface` của card). Center dọc `top-1/2 -translate-y-1/2`,
+  center ngang `-translate-x-1/2` tại `target/max %`. **Chống overlap:** khi có `targetLabel`, meter thêm `mt-5` chừa
+  chỗ label nổi → cao hơn 1 tí, label KHÔNG đè caption phía trên (thầy: *"component này cao hơn 1 tí tránh overlap với
+  text"* — ca `VerdictHeroCard` review, label "85%" đè "Tỷ lệ nhớ…"). Áp: 3 hero `VerdictHeroCard` (review/quiz/interview).
+  - **Đính chính (2026-07-18, cùng ngày):** (1) **màu pill = `bg-accent`, KHÔNG `bg-surface`** (thầy đảo: *"để màu accent
+    được k?"*) — mốc mục tiêu là 1 tông brand trung tính, tách khỏi band màu-giá-trị của fill (danger/warning/success),
+    đọc là "vạch cần chạm" chứ không phải 1 giá trị nữa; accent solid đủ nổi → bỏ luôn hairline `border-default`.
+    (2) **Center nấc ĐÚNG trên track:** bản đầu pill lệch LÊN trên (thầy: *"nấc này ở giữa"*) vì `.relative` cao bằng BOX
+    của `ProgressBar` (> track `h-1`) nên `top-1/2` rơi phía trên vạch. Fix: khi có target, hàng bar ép `flex h-5 items-center`
+    (bằng chiều cao pill) + bar bọc `<div className="w-full">` → pill `h-5` trùng đúng tâm track.
 
 ## `SegmentBar` (`blocks/stats/SegmentBar`) — 1 thanh chia N MÀU theo tỉ lệ (GitHub-style)
 - `{ segments: {key,label,value,color?}[], ariaLabel, max?, hideLegend? }`. Track `bg-default` (KHÔNG

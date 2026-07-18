@@ -100,6 +100,14 @@ export class MindMapNodeData {
             description: "Optional one-line gloss (authored concept nodes).",
         })
         desc: string | null
+
+    /** Authored popularity tier (`high`/`medium`/`low`) — drives the node's ring colour. Null on the root. */
+    @Field(() => String,
+        {
+            nullable: true,
+            description: "Authored popularity tier (high/medium/low) driving the node ring colour.",
+        })
+        popularity: string | null
 }
 
 /**

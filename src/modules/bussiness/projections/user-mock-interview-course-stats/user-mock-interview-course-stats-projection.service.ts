@@ -270,7 +270,10 @@ export class UserMockInterviewCourseStatsProjectionService {
                 },
             )
             : []
-        const sessionById = new Map(sessions.map((session) => [session.id, session]))
+        const sessionById = new Map(sessions.map((session) => [
+            session.id,
+            session,
+        ]))
 
         // `attempts` is newest-first (DESC); reverse to oldest-first, then take
         // the last N of that ascending list — i.e. the most recent N attempts,
@@ -569,10 +572,13 @@ export class UserMockInterviewCourseStatsProjectionService {
             if (existing) {
                 existing.count += 1
             } else {
-                tally.set(key, {
-                    text,
-                    count: 1,
-                })
+                tally.set(
+                    key,
+                    {
+                        text,
+                        count: 1,
+                    },
+                )
             }
         }
     }

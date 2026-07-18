@@ -25,24 +25,13 @@ const EMPTY_RESULT: MyMockInterviewStatsResultData = {
     },
     trend: [],
     byPhase: [],
-    byKind: [],
-    byAttribute: [],
-    byLevel: [],
-    byLanguage: [],
-    recurringGaps: [],
-    weakest: null,
-    verdictCounts: {
-        pass: 0,
-        borderline: 0,
-        fail: 0,
-    },
 }
 
 /**
- * Reads the viewer's mock-interview stats for one course — an overall-score
- * trend, a mode split, two breakdown axes (`byPhase` for `mode="design"`,
- * `byKind` for `mode="qna"`), and the weakest entry across both axes. The
- * heavy attempts scan + fold runs ONLY in
+ * Reads the viewer's mock-interview stats for one course — the readiness
+ * hero (vs the pass bar, projected from the trend delta) + the per-phase
+ * breakdown that `MockInterviewStats` renders (`stats-canonical-fold` — 1
+ * hero + 1 zone). The heavy attempts scan + fold runs ONLY in
  * `UserMockInterviewCourseStatsProjectionService.recompute` (CQRS projection,
  * CDC on `mock_interview_attempts`) — this service is a pure point-read (TTL
  * lazy-refresh), never re-scans/folds inline (per
@@ -60,7 +49,7 @@ export class MyMockInterviewStatsService {
      * Read the viewer's mock-interview stats for one course.
      *
      * @param params - {@link ComputeMyMockInterviewStatsParams}
-     * @returns the trend line, mode split, both breakdown axes, and the weakest entry.
+     * @returns the trend line, mode split, and the phase breakdown.
      */
     async compute(
         {

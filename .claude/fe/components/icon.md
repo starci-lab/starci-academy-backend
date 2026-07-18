@@ -64,5 +64,9 @@
 - **1 row/item chỉ được có TỐI ĐA 1 icon ở cụm leading.** KHÔNG đặt 2 icon dính nhau đầu row (vd: radio-state-marker `○/✓` + icon-loại-nội-dung ngay sau) — 2 glyph liên tiếp đọc rối, tranh nhau vai "điểm neo", và thường 1 trong 2 là thừa. Có state-marker (checkbox/status) rồi → BỎ icon-loại; muốn giữ icon-loại-định-danh → dùng `IconTile` (§4) làm leading DUY NHẤT, đừng thêm radio cạnh nó.
 - **Ca thật:** dashboard `DailyQuest` ("Nhiệm vụ hôm nay") — mỗi task row từng render `radio(○/✓) + task-type-icon (Microphone/BookOpen/Cards/Puzzle/Timer)` = 2 icon liên tiếp. Thầy: *"cấm 2 icon liên tiếp, bỏ cái icon micro, icon cuốn sách đi"*. Fix: bỏ hẳn `DAILY_QUEST_ICON_MAP` (xoá `map.tsx`), leading chỉ còn radio-state-marker. Loại nhiệm vụ đã hiện đủ ở **title** ("Đọc bài học"/"Ôn flashcard"…), icon-loại không thêm thông tin.
 
+## 8. Arrow đuôi CTA = `ArrowRightIcon` COMPONENT, KHÔNG glyph "→" nhét trong chuỗi i18n — CHỐT 2026-07-18
+- **Mũi tên "đi tiếp" cuối 1 nút/label PHẢI là icon phosphor** (`<ArrowRightIcon className="size-4" aria-hidden focusable="false" />`), KHÔNG bao giờ baked ký tự `"→"` vào chuỗi dịch. Glyph text: cỡ/nét/baseline không khớp icon phosphor cạnh nó, không a11y-hide được, và khi caller ĐÃ render 1 icon thật → **double-arrow** (2 mũi tên). Chuỗi i18n giữ THUẦN text, arrow do JSX gắn.
+- **Ca thật (thầy chỉ trên 3 trang Thống kê, 2026-07-18):** cả 5 CTA `reduceNewCardsCta`/`reviewWeakestCta`/`weakTopicDrillCta`/`quizStatsCoverageDrillCta`/`statsReadinessPracticeMoreCta` đều baked `" →"`; riêng `quizStatsCoverageDrillCta` JSX đã có `<ArrowRightIcon>` → hiện **"…còn trống → →"**. Thầy: *"arrow cuối là icon mà"*. Fix: strip `" →"` khỏi 5 chuỗi (vi+en), thêm `<ArrowRightIcon size-4>` vào JSX nút review/interview (quiz đã có). Áp cho cả 3 hero.
+
 ## Liên quan
 - [[no-emoji]] (icon thay emoji) · [[status-icon-overrides-base]] (lock ghi đè icon gốc khi khoá) · [[disable-vs-lock-and-perrow-autosave]] (WarningCircle=disable vs Lock=khoá).

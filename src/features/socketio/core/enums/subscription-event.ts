@@ -28,5 +28,11 @@ export enum SubscriptionEvent {
     PlaygroundCommandRun = "command:run",
     PlaygroundCommandOutput = "command:output",
     PlaygroundResourcesReport = "resources:report",
+    PlaygroundAgentPing = "agent:ping",
+    PlaygroundAgentPong = "agent:pong",
     PlaygroundStepVerified = "step:verified",
+    // server → browser: the learner's local CLI agent paired / dropped, so the
+    // UI can gate steps behind a real connection instead of guessing.
+    PlaygroundAgentConnected = "agent:connected",
+    PlaygroundAgentDisconnected = "agent:disconnected",
 }

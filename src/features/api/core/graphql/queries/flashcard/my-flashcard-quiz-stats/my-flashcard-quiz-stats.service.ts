@@ -15,8 +15,8 @@ const MIN_SESSIONS_FOR_STATS = 3
 
 /**
  * Reads the viewer's flashcard quick-quiz ("Hỏi nhanh") stats for one course —
- * a trend line (coverage/XP over recent sessions), a per-tag coverage
- * breakdown, and a per-deck practice footprint. The heavy scan/fold over
+ * the coverage-vs-target hero + weak-topic map that `FlashcardQuizStats`
+ * renders (`stats-canonical-fold` — 1 hero + 1 zone). The heavy scan/fold over
  * `flashcard_quiz_sessions` + `flashcard_cards` runs ONLY in
  * `UserFlashcardCourseStatsProjectionService.recompute` (CQRS projection, CDC
  * on `flashcard_quiz_sessions`/`flashcard_review_sessions`) — this service is
@@ -34,7 +34,7 @@ export class MyFlashcardQuizStatsService {
      * Read the viewer's flashcard quick-quiz stats for one course.
      *
      * @param params - {@link ComputeMyFlashcardQuizStatsParams}
-     * @returns the trend line, per-tag coverage, and per-deck footprint.
+     * @returns the insufficient-data gate, per-tag coverage, and concept coverage.
      *
      * @example
      * await service.compute({ userId, courseId })
@@ -59,12 +59,8 @@ export class MyFlashcardQuizStatsService {
 
         return {
             insufficientData: stats.completedSessionCount < MIN_SESSIONS_FOR_STATS,
-            trend: stats.quizTrend,
             byTag: stats.quizByTag,
-            byDeck: stats.quizByDeck,
-            weakTagLinks: stats.weakTagLinks,
-            hardCards: stats.quizHardCards,
-            completedSessionCount: stats.completedSessionCount,
+            conceptCoverage: stats.conceptCoverage,
         }
     }
 }

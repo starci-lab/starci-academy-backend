@@ -8,7 +8,7 @@
 ## Region map
 1. **`PageHeader`** — breadcrumb + title, + `actions` khi có CTA phụ (vd "Đăng tin" ở `JobList`).
 2. **Search row** — input trái (`w-full sm:max-w-sm`) + phải: result-count muted + (optional) toggle grid⇆line (`SegmentedControl` icon-only, persist `localStorage`).
-3. **Filter row** (optional, khi có facet) — mỗi facet 1 `FlexWrapButtonRadio` single-select, XUỐNG DÒNG riêng dưới search row (không dồn chung 1 hàng).
+3. **Filter facet** (optional, khi có facet) — ⚠️ **Đính chính 2026-07-17: facet giờ SAU 1 PHỄU cạnh search, KHÔNG còn hàng chip riêng-dòng.** `FunnelIcon` `Button isIconOnly variant="ghost"` cạnh search + `Badge` `activeFacetCount`; bấm mở `Popover w-72` chứa mỗi facet 1 khối (heading `body-xs muted` + `FlexWrapButtonRadio`). Full anatomy + ca đã áp (`JobList`, `ProfileCoding`): [[search-filter-list-surface]] §Đính chính. (Rule cũ "mỗi facet 1 dòng riêng dưới search" RETIRED.)
 4. **List** qua `AsyncContent` — skeleton MIRROR đúng view đang chọn (grid skeleton ≠ line skeleton, tránh nhảy layout khi resolve); grid = `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`, line/row-only = `SurfaceListCard` + rows.
 5. **Pager** — `Pagination` trái-align thẳng mép item; HeroUI không bake hover — tự thêm `hover:bg-default`.
 - **Empty 2 kiểu** (`JobList`): platform-empty (0 item toàn hệ thống, KHÔNG filter) → funnel 2 chiều ("chưa ai đăng — bạn đăng thử?"); filtered-empty (có filter, 0 khớp) → CTA "xoá bộ lọc". Đừng gộp chung 1 empty-state cho cả 2 nguyên nhân.

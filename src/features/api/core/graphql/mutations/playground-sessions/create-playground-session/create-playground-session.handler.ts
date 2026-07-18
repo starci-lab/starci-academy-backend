@@ -168,7 +168,7 @@ export class CreatePlaygroundSessionHandler
     }
 
     /**
-     * Generates a 6-char uppercase alphanumeric pairing code, retrying on the
+     * Generates an 8-char uppercase alphanumeric pairing code, retrying on the
      * (astronomically unlikely) chance of a collision with an existing row.
      */
     private async uniquePairingCode(): Promise<string> {
@@ -188,10 +188,12 @@ export class CreatePlaygroundSessionHandler
         }
     }
 
-    /** A short, unambiguous (no 0/O/1/I) uppercase pairing code, e.g. "7K4PQX". */
+    /** An 8-char, unambiguous (no 0/O/1/I) uppercase pairing code, e.g. "7K4PQXBM".
+     * 31^8 ≈ 8.5e11 combos — with the gateway's per-IP rate limit + 30-min expiry
+     * this is well out of brute-force reach. */
     private generateCode(): string {
         const alphabet = "23456789ABCDEFGHJKMNPQRSTUVWXYZ"
-        const bytes = randomBytes(6)
+        const bytes = randomBytes(8)
         let code = ""
         for (const byte of bytes) {
             code += alphabet[byte % alphabet.length]

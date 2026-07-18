@@ -296,6 +296,23 @@ export interface UserFlashcardCourseStatsResult {
     matureRetention: number
     /** Review retention for cards with `interval_days < 21` (recall while still spacing a card out). */
     youngRetention: number
+    /**
+     * Graded review events for THIS COURSE only (= mature + young totals of the
+     * same split that feeds {@link matureRetention}). The course-scoped sibling of
+     * the per-USER lifetime `totalReviewed` — the "Thống kê" tab is course-scoped,
+     * so its empty-state floor must count THIS course's reviews, not the learner's
+     * lifetime across every course (2026-07-17: a learner with reviews elsewhere but
+     * none here used to clear the lifetime floor and get a hero built from foreign
+     * numbers).
+     */
+    reviewedTotal: number
+    /**
+     * Review retention for THIS COURSE only (recalled/total over the same
+     * course-scoped events {@link reviewedTotal} counts) — what the memory-health
+     * hero must show, instead of the per-USER lifetime `retentionRate` that blends
+     * every course together.
+     */
+    courseRetention: number
     /** The hour-of-day (VN time) with the best review retention, or null when no hour has enough samples. */
     bestReviewHour: FlashcardBestReviewHourData | null
     /** Per-deck review RETENTION (outcome), weakest first — the outcome analogue of `reviewByDeck` footprint. */

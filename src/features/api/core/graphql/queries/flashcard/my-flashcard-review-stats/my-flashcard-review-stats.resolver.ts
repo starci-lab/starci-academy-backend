@@ -78,15 +78,13 @@ export class MyFlashcardReviewStatsResolver {
             courseId,
         })
         return {
-            dailyActivity: result.dailyActivity,
-            byDeck: result.byDeck,
-            dueToday: result.dueToday,
-            dueForecast: result.dueForecast,
-            masteryBreakdown: result.masteryBreakdown,
-            leechCards: result.leechCards,
-            weakReviewTag: result.weakReviewTag,
+            leechFocus: result.leechFocus,
+            weakTags: result.weakTags,
+            matureRetention: result.matureRetention,
+            youngRetention: result.youngRetention,
+            reviewedTotal: result.reviewedTotal,
+            courseRetention: result.courseRetention,
             deckRetention: result.deckRetention,
-            retentionTrend: result.retentionTrend,
         }
     }
 }

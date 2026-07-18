@@ -90,3 +90,6 @@ scratch/
 .claude/worktrees/
 claude-legacy/
 # .claude/{fe,be,skills,patterns} giờ COMMIT vào repo này (backend tự chứa canon+skills, 2026-07-14)
+
+# cloudflare tunnel token (never commit)
+.secrets/

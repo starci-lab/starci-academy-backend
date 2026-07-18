@@ -78,8 +78,32 @@ export interface PrepareContentAiMessagesParams {
     locale: Locale
 }
 
-/** Max prior chat messages fed back to the model (caps token growth / cost). */
-const MAX_HISTORY_MESSAGES = 8
+/**
+ * Rolling TOKEN-BUDGET window for replayed history (behaves like a general chat
+ * app, not a flat message count): a content-AI call may fill up to
+ * {@link MAX_INPUT_CHARS} of input (grounding + history + question); whatever is
+ * left after grounding + the question + a reserved slice for the answer becomes
+ * the budget for prior turns. So a big-grounding lesson keeps fewer turns and a
+ * small one keeps far more than the old flat cap of 8. Measured in CHARS (not
+ * tokens) to match {@link MAX_CODE_STUFF_CHARS}.
+ *
+ * TUNED TO THE HOST'S ACTUAL num_ctx, not the model's native max. History (this
+ * budget) + grounding + the question must all fit the loaded context or Ollama
+ * silently truncates the prompt HEAD (= the grounding). 2026-07-18: the local
+ * `qwen2.5-coder:7b` was loading at Ollama's DEFAULT num_ctx=4096 (grounding was
+ * being truncated!); it's now baked to **num_ctx=8192** via a Modelfile
+ * (`PARAMETER num_ctx 8192`, persists across restarts). The 8 GB RTX 5060 caps it
+ * there — at 8192 ~17% of layers offload to CPU (still ~43 tok/s, fine); 32768
+ * would OOM. So the full input budget is ~8192 tokens ≈ ~24k chars (Vietnamese/
+ * code ~3 chars/token, under-counted for safety). If num_ctx changes, scale this.
+ */
+const MAX_INPUT_CHARS = 24000
+/** Input chars kept free for the model's own answer (never spent on history);
+ *  ~1k tokens of reply at ~3 chars/token. */
+const RESPONSE_RESERVE_CHARS = 3000
+/** Absolute safety bound on how many recent turns we even walk — the token budget
+ * is the real gate; this only stops a pathological history array. */
+const MAX_HISTORY_MESSAGES = 100
 
 /**
  * Upper bound (chars) on the stuffed grounding when the FULL lesson code is
@@ -208,15 +232,33 @@ export class ContentAiService {
             body,
         })
 
-        // replay the recent turns (capped) for short-term memory, then the question
-        const historyMessages = (history ?? [])
-            .slice(-MAX_HISTORY_MESSAGES)
-            .map((message) => message.role === "assistant"
-                ? new AIMessage(message.content)
-                : new HumanMessage(message.content))
+        // replay recent turns as a ROLLING TOKEN-BUDGET window: keep as many of the
+        // NEWEST turns as fit in the input left after grounding + the question + the
+        // answer reserve, walking newest→oldest and stopping at the budget. A large
+        // lesson (big grounding) keeps fewer turns; a small one keeps many — the
+        // long-conversation memory a general chat app has, without overflowing the
+        // free local model's context.
+        const systemPromptText = this.buildSystemPrompt(grounding,
+            locale)
+        const historyBudgetChars = Math.max(
+            0,
+            MAX_INPUT_CHARS - systemPromptText.length - question.length - RESPONSE_RESERVE_CHARS,
+        )
+        const windowedHistory: Array<ContentAiHistoryMessage> = []
+        let usedChars = 0
+        for (const message of (history ?? []).slice(-MAX_HISTORY_MESSAGES).reverse()) {
+            usedChars += message.content.length
+            if (usedChars > historyBudgetChars) {
+                break
+            }
+            // rebuild oldest-first as we accept newest-first
+            windowedHistory.unshift(message)
+        }
+        const historyMessages = windowedHistory.map((message) => message.role === "assistant"
+            ? new AIMessage(message.content)
+            : new HumanMessage(message.content))
         const messages: Array<BaseMessage> = [
-            new SystemMessage(this.buildSystemPrompt(grounding,
-                locale)),
+            new SystemMessage(systemPromptText),
             ...historyMessages,
             new HumanMessage(question),
         ]

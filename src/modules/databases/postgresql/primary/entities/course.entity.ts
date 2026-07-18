@@ -489,6 +489,9 @@ export interface CourseMindMapLink {
     ref: string
 }
 
+/** How common/important a keyword is in real work / interviews — drives the node's ring colour (high=green, medium=yellow, low=red). */
+export type CourseMindMapPopularity = "high" | "medium" | "low"
+
 /** One concept node of the authored mind-map tree. */
 export interface CourseMindMapNode {
     /** Stable slug, unique within the course (React key + anchor). */
@@ -497,6 +500,8 @@ export interface CourseMindMapNode {
     label: CourseMindMapText
     /** Optional one-line gloss (tooltip). */
     desc?: CourseMindMapText
+    /** Authored popularity tier — how common the keyword is; drives the node ring colour. */
+    popularity?: CourseMindMapPopularity
     /** Surfaces that teach/drill/test this concept (0..N). */
     links?: Array<CourseMindMapLink>
     /** Nested sub-concepts. */

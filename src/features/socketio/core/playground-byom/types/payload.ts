@@ -71,3 +71,23 @@ export interface ResourcesReportSocketIoPayload {
     /** Resources currently reported by the agent. */
     resources: Array<PlaygroundResourceReport>
 }
+
+/**
+ * Browser → server: relay a ping down to the paired agent so the browser can
+ * measure round-trip latency to the learner's machine.
+ */
+export interface AgentPingSocketIoPayload {
+    /** Session whose paired agent should echo back the pong. */
+    sessionId: string
+    /** Browser-side timestamp (ms), echoed back unchanged by the agent. */
+    t: number
+}
+
+/**
+ * Agent → server: relay the echoed pong timestamp up to the browser.
+ * `sessionId` is NOT carried — see {@link CommandOutputSocketIoPayload}.
+ */
+export interface AgentPongSocketIoPayload {
+    /** Timestamp (ms) echoed back unchanged from the `agent:ping` payload. */
+    t: number
+}

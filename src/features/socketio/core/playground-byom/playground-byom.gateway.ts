@@ -5,6 +5,7 @@ import {
     Ack,
     ConnectedSocket,
     MessageBody,
+    type OnGatewayDisconnect,
     SubscribeMessage,
     WebSocketServer,
 } from "@nestjs/websockets"
@@ -33,14 +34,27 @@ import {
 import {
     PlaygroundByomRoomService,
 } from "./playground-byom-room.service"
+import {
+    KeycloakTokenService,
+} from "@modules/keycloak"
 import type {
     AgentPairAck,
     AgentPairSocketIoPayload,
+    AgentPingSocketIoPayload,
+    AgentPongSocketIoPayload,
     BrowserSubscribeSocketIoPayload,
     CommandOutputSocketIoPayload,
     CommandRunSocketIoPayload,
     ResourcesReportSocketIoPayload,
 } from "./types"
+
+/** Pairing code lifetime (ms). After this, `agent:pair` is rejected — caps the
+ * brute-force window for the short code (defense-in-depth with the rate limit). */
+const PAIRING_CODE_TTL_MS = 30 * 60 * 1000
+/** Max `agent:pair` attempts allowed per source IP within {@link PAIR_RATE_WINDOW_MS}. */
+const PAIR_RATE_LIMIT = 20
+/** Sliding window (ms) for the per-IP `agent:pair` rate limit. */
+const PAIR_RATE_WINDOW_MS = 60 * 1000
 
 /**
  * WebSocket gateway for the `/playground_byom` namespace — relays shell
@@ -58,7 +72,7 @@ import type {
  * — a substring/prefix + optional status match, no AI grading.
  */
 @PlaygroundByomWebSocketGateway()
-export class PlaygroundByomGateway {
+export class PlaygroundByomGateway implements OnGatewayDisconnect {
     constructor(
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
@@ -72,6 +86,31 @@ export class PlaygroundByomGateway {
 
     /** Logger for best-effort verify failures (never fatal to the relay). */
     private readonly logger = new Logger(PlaygroundByomGateway.name)
+
+    /** Per-IP sliding window of `agent:pair` timestamps — throttles the
+     * unauthenticated pairing endpoint against brute-force (in-memory, per instance). */
+    private readonly pairAttempts = new Map<string, Array<number>>()
+
+    /** sessionId → the currently-bound agent socket id. Enforces ONE live agent per
+     * session: a 2nd concurrent `agent:pair` with the same code (while the first
+     * agent is still connected) is rejected, so a leaked code can't attach a rogue
+     * agent that spoofs the learner's terminal output / step verification. */
+    private readonly boundAgentSocketId = new Map<string, string>()
+
+    /**
+     * Records an `agent:pair` attempt from `ip` and returns whether it is within
+     * the per-IP budget. Prunes timestamps older than the window on each call.
+     */
+    private withinPairRateLimit(ip: string): boolean {
+        const now = Date.now()
+        const recent = (this.pairAttempts.get(ip) ?? []).filter(
+            (at) => now - at < PAIR_RATE_WINDOW_MS,
+        )
+        recent.push(now)
+        this.pairAttempts.set(ip,
+            recent)
+        return recent.length <= PAIR_RATE_LIMIT
+    }
 
     /**
      * Pairs a freshly-started CLI agent with its session: resolves the
@@ -91,6 +130,14 @@ export class PlaygroundByomGateway {
         @ConnectedSocket() client: TypedSocket,
         @Ack() ack: (response: AgentPairAck) => void,
     ): Promise<void> {
+        // (D) throttle the UNAUTHENTICATED pairing endpoint per source IP so the
+        // short code can't be brute-forced.
+        if (!this.withinPairRateLimit(client.handshake.address)) {
+            ack({
+                error: "Too many attempts — wait a moment and try again.",
+            })
+            return
+        }
         const session = await this.entityManager.findOne(
             PlaygroundSessionEntity,
             {
@@ -108,6 +155,24 @@ export class PlaygroundByomGateway {
             })
             return
         }
+        // (C) reject an expired code — bounds the window a leaked/guessed code stays usable.
+        if (Date.now() - session.createdAt.getTime() > PAIRING_CODE_TTL_MS) {
+            ack({
+                error: "This pairing code has expired — restart the lab for a new one.",
+            })
+            return
+        }
+        // (B) one LIVE agent per session. A reconnect is fine (the old socket's
+        // disconnect clears the binding, and a dead socket id is gone from the
+        // namespace); a 2nd concurrent agent on the same code is rejected so a
+        // rogue agent can't spoof the learner's terminal output / step verification.
+        const boundId = this.boundAgentSocketId.get(session.id)
+        if (boundId && boundId !== client.id && this.server.sockets.get(boundId)) {
+            ack({
+                error: "This session already has a connected machine.",
+            })
+            return
+        }
         session.connected = true
         await this.entityManager.save(
             PlaygroundSessionEntity,
@@ -117,7 +182,17 @@ export class PlaygroundByomGateway {
         // resources:report handlers can derive the room without the agent
         // having to carry sessionId on every emit
         client.data.sessionId = session.id
+        this.boundAgentSocketId.set(session.id,
+            client.id)
         await client.join(this.playgroundByomRoomService.name(session.id))
+        // tell the observing browser(s) the learner's machine is now paired, so
+        // the UI can lift its install-gate. `client.to(room)` excludes the agent.
+        client.to(this.playgroundByomRoomService.name(session.id)).emit(
+            SubscriptionEvent.PlaygroundAgentConnected,
+            {
+                connected: true,
+            },
+        )
         ack({
             sessionId: session.id,
             playgroundSlug: session.playground.slug,
@@ -137,11 +212,124 @@ export class PlaygroundByomGateway {
         @MessageBody() payload: BrowserSubscribeSocketIoPayload,
         @ConnectedSocket() client: TypedSocket,
     ): Promise<void> {
+        // load with the owner so we can BOTH seed pairing state AND verify ownership.
+        const session = await this.entityManager.findOne(
+            PlaygroundSessionEntity,
+            {
+                where: {
+                    id: payload.sessionId,
+                },
+                relations: {
+                    user: true,
+                },
+            },
+        )
+        // (A) verify this browser OWNS the session (its Keycloak `sub` matches the
+        // owner) and stamp `data.ownedSessionId` — the flag `command:run` checks so
+        // ONLY the owner browser can push commands to the paired agent.
+        await this.markOwnerBrowser(client,
+            session)
         await client.join(this.playgroundByomRoomService.name(payload.sessionId))
+        // seed the freshly-subscribed browser with the CURRENT pairing state —
+        // the agent may already have paired before the browser opened, so the UI
+        // must not sit on "waiting" forever.
+        client.emit(
+            session?.connected
+                ? SubscriptionEvent.PlaygroundAgentConnected
+                : SubscriptionEvent.PlaygroundAgentDisconnected,
+            {
+                connected: Boolean(session?.connected),
+            },
+        )
+    }
+
+    /**
+     * Verifies a browser socket's Keycloak token and, when the token's `sub`
+     * matches the session's owner, stamps `data.ownedSessionId` (+ `userId`).
+     * Best-effort: a missing/invalid/foreign token just leaves the socket
+     * UNMARKED — it can still observe the room, but `command:run` will reject it.
+     */
+    private async markOwnerBrowser(
+        client: TypedSocket,
+        session: PlaygroundSessionEntity | null,
+    ): Promise<void> {
+        const ownerKeycloakId = session?.user?.keycloakId
+        if (!ownerKeycloakId) {
+            return
+        }
+        const token = client.handshake.auth?.token || client.handshake.query?.token
+        if (!token || typeof token !== "string") {
+            return
+        }
+        try {
+            const keycloakTokenService = globalThis.__APP__.get(
+                KeycloakTokenService,
+                {
+                    strict: false,
+                },
+            )
+            const introspect = await keycloakTokenService.verifyAccessToken(token)
+            if (introspect?.active && introspect.sub === ownerKeycloakId) {
+                client.data.userId = introspect.sub
+                client.data.ownedSessionId = session!.id
+            }
+        } catch {
+            // unverifiable token → leave unmarked (read-only observer).
+        }
+    }
+
+    /**
+     * A socket dropped. Only the AGENT stamps `data.sessionId` (on pair), so a
+     * socket carrying one is the learner's machine leaving: mark the session
+     * disconnected and tell the browser room the machine went away (re-gating the
+     * UI). A browser drop carries no sessionId → no-op.
+     *
+     * @param client - The socket that disconnected.
+     */
+    async handleDisconnect(
+        client: TypedSocket,
+    ): Promise<void> {
+        const sessionId = client.data.sessionId
+        if (!sessionId) {
+            return
+        }
+        const session = await this.entityManager.findOne(
+            PlaygroundSessionEntity,
+            {
+                where: {
+                    id: sessionId,
+                },
+            },
+        )
+        if (session) {
+            session.connected = false
+            await this.entityManager.save(
+                PlaygroundSessionEntity,
+                session,
+            )
+        }
+        // release the single-agent binding so the learner can reconnect (or pair a
+        // different machine). Only clear if THIS socket held it.
+        if (this.boundAgentSocketId.get(sessionId) === client.id) {
+            this.boundAgentSocketId.delete(sessionId)
+        }
+        // the agent is already gone; broadcast via the namespace to the room.
+        this.server.to(this.playgroundByomRoomService.name(sessionId)).emit(
+            SubscriptionEvent.PlaygroundAgentDisconnected,
+            {
+                connected: false,
+            },
+        )
     }
 
     /**
      * Relays a shell command from the browser down to the room's paired agent.
+     *
+     * (A) AUTHORIZATION: only the socket VERIFIED as the session owner on
+     * `browser:subscribe` (`data.ownedSessionId === sessionId`) may issue commands.
+     * This is the gate that stops a paired agent — or any other socket that merely
+     * guessed the pairing code and learned the `sessionId` — from relaying a command
+     * that the learner's agent would run as an arbitrary shell (RCE).
      *
      * @param payload - Carries the target `sessionId` and the `command` to run.
      * @param client - The browser's socket (excluded from the relay).
@@ -151,6 +339,14 @@ export class PlaygroundByomGateway {
         @MessageBody() payload: CommandRunSocketIoPayload,
         @ConnectedSocket() client: TypedSocket,
     ): void {
+        if (client.data.ownedSessionId !== payload.sessionId) {
+            // not the verified owner browser (an agent, or an unauthorized socket) —
+            // never relay a command it could run on the learner's machine.
+            this.logger.warn(
+                `command:run rejected — socket ${client.id} is not the owner of session ${payload.sessionId}`,
+            )
+            return
+        }
         const room = this.playgroundByomRoomService.name(payload.sessionId)
         // socket.to(room) excludes the sender — only the paired agent gets this
         client.to(room).emit(
@@ -182,6 +378,52 @@ export class PlaygroundByomGateway {
             SubscriptionEvent.PlaygroundCommandOutput,
             {
                 output: payload.output,
+            },
+        )
+    }
+
+    /**
+     * Relays a browser ping down to the room's agent so the browser can measure
+     * round-trip latency to the learner's machine.
+     *
+     * @param payload - Carries the target `sessionId` and the browser timestamp `t`.
+     * @param client - The browser's socket (excluded from the relay).
+     */
+    @SubscribeMessage(PublicationEvent.PlaygroundAgentPing)
+    handleAgentPing(
+        @MessageBody() payload: AgentPingSocketIoPayload,
+        @ConnectedSocket() client: TypedSocket,
+    ): void {
+        const room = this.playgroundByomRoomService.name(payload.sessionId)
+        client.to(room).emit(
+            SubscriptionEvent.PlaygroundAgentPing,
+            {
+                t: payload.t,
+            },
+        )
+    }
+
+    /**
+     * Relays the agent's pong (echoed browser timestamp) back up to the browser
+     * room so the browser can compute `Date.now() - t` as the round-trip latency.
+     *
+     * @param payload - Carries the echoed timestamp `t` (no `sessionId` — derived from `socket.data.sessionId`).
+     * @param client - The agent's socket (excluded from the relay; carries `data.sessionId`).
+     */
+    @SubscribeMessage(PublicationEvent.PlaygroundAgentPong)
+    handleAgentPong(
+        @MessageBody() payload: AgentPongSocketIoPayload,
+        @ConnectedSocket() client: TypedSocket,
+    ): void {
+        const sessionId = client.data.sessionId
+        if (!sessionId) {
+            return
+        }
+        const room = this.playgroundByomRoomService.name(sessionId)
+        client.to(room).emit(
+            SubscriptionEvent.PlaygroundAgentPong,
+            {
+                t: payload.t,
             },
         )
     }
