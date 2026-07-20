@@ -1,0 +1,1 @@
+{"prompt": "Here's a handler from a NestJS Socket.IO gateway that powers a realtime chat feature. When a client emits `sendMessage` with `{ roomId, text }`, the handler builds the message, broadcasts it to the room, and then saves it to the database. Walk me through your review of this handler as if it were up for a merge — what's wrong with it, and how would you fix it?"}
