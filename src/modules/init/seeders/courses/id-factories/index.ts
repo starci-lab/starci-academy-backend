@@ -33,6 +33,7 @@ export * from "./playground.service"
 export * from "./playground-step.service"
 export * from "./mock-interview.service"
 export * from "./mock-interview-lang.service"
+export * from "./mock-interview-checklist.service"
 
 
 export * from "./milestone.service"

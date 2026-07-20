@@ -4,6 +4,7 @@ import type {
     RawMockInterviewBody,
     RawMockInterviewLang,
     RawMockInterviewListItem,
+    RawMockInterviewChecklistItem,
     RawMockInterviewQuestion,
 } from "./types"
 import {
@@ -14,6 +15,7 @@ import {
     ModuleEntity,
     MockInterviewEntity,
     MockInterviewLangEntity,
+    MockInterviewChecklistEntity,
 } from "@modules/databases"
 import {
     DeepPartial,
@@ -22,6 +24,7 @@ import {
 import {
     MockInterviewIdFactoryService,
     MockInterviewLangIdFactoryService,
+    MockInterviewChecklistIdFactoryService,
 } from "../id-factories"
 import {
     InjectPrimaryPostgreSQLEntityManager,
@@ -66,6 +69,7 @@ export class MockInterviewParserService {
         private readonly mergeJsonService: MergeJsonService,
         private readonly mockInterviewIdFactoryService: MockInterviewIdFactoryService,
         private readonly mockInterviewLangIdFactoryService: MockInterviewLangIdFactoryService,
+        private readonly mockInterviewChecklistIdFactoryService: MockInterviewChecklistIdFactoryService,
         private readonly winstonService: WinstonService,
         @InjectPrimaryPostgreSQLEntityManager()
         private readonly entityManager: EntityManager,
@@ -218,6 +222,13 @@ export class MockInterviewParserService {
                             ""),
                         idealAnswer: this.coerceMdScalarService.toNullableStringColumn(merged.idealAnswer),
                         rubric: this.toStringArray(merged.rubric),
+                        checklists: this.toChecklists(
+                            merged.checklist as Array<MergeJsonResult<RawMockInterviewChecklistItem>> | undefined,
+                            courseIndex,
+                            bankIndex,
+                            questionIndex,
+                            mockInterviewId,
+                        ),
                         followUps: this.toStringArray(merged.followUps),
                         hints: this.toStringArray(merged.hints),
                         keywords: this.toStringArray(merged.keywords),
@@ -370,6 +381,41 @@ export class MockInterviewParserService {
             }
         }
         return result
+    }
+
+    /**
+     * Builds the coverage checkpoint rows (`# checklist`) for one question. English-only
+     * in both locales, so no `translations` are attached (unlike `# langs`).
+     */
+    private toChecklists(
+        items: Array<MergeJsonResult<RawMockInterviewChecklistItem>> | undefined,
+        courseIndex: number,
+        bankIndex: number,
+        questionIndex: number,
+        mockInterviewId: string,
+    ): Array<DeepPartial<MockInterviewChecklistEntity>> {
+        if (!items || items.length === 0) {
+            return []
+        }
+        return items.map((item, checklistIndex) => ({
+            id: this.mockInterviewChecklistIdFactoryService.generate(
+                {
+                    courseIndex,
+                    bankIndex,
+                    questionIndex,
+                    checklistIndex,
+                },
+            ),
+            text: this.coerceMdScalarService.toRequiredString(item.text, ""),
+            dimension: this.coerceMdScalarService.toNullableStringColumn(item.dimension),
+            critical: this.coerceMdScalarService.toRequiredBoolean(item.critical, false),
+            scoreBand: this.coerceMdScalarService.toRequiredNumber(item.scoreBand, 0),
+            orderIndex: checklistIndex,
+            sortIndex: checklistIndex,
+            mockInterview: {
+                id: mockInterviewId,
+            },
+        }))
     }
 
     /** Builds the per-language `givenCode` variant rows (`# langs`) for one question. */

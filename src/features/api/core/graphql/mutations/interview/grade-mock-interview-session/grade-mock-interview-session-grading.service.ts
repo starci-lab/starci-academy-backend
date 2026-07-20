@@ -486,6 +486,7 @@ export class MockInterviewGradingService {
                     },
                     relations: {
                         langs: true,
+                        checklists: true,
                     },
                 }),
             this.entityManager.find(FlashcardCardEntity,
@@ -526,7 +527,27 @@ export class MockInterviewGradingService {
                 if (bank) {
                     // fold the behavioral "I vs we" ownership note in as an extra
                     // rubric point so the grader is forced to score it (research §4)
-                    const rubricPoints = [...(bank.rubric ?? [])]
+                    // authored checkpoints win over the legacy flat `rubric` — each carries
+                    // its dimension / must-hit flag / score band, which the grader scores
+                    // against directly. `rubric` remains the fallback for any question
+                    // whose content has not been converted to `# checklist` yet.
+                    const checkpoints = [...(bank.checklists ?? [])]
+                        .sort((left, right) => left.sortIndex - right.sortIndex)
+                        .map((checkpoint) => {
+                            const dimension = checkpoint.dimension
+                                ? `[${checkpoint.dimension}] `
+                                : ""
+                            const mustHit = checkpoint.critical
+                                ? " (MUST-HIT)"
+                                : ""
+                            const band = checkpoint.scoreBand > 0
+                                ? ` (${checkpoint.scoreBand} pts)`
+                                : ""
+                            return `${dimension}${checkpoint.text}${mustHit}${band}`
+                        })
+                    const rubricPoints = checkpoints.length > 0
+                        ? checkpoints
+                        : [...(bank.rubric ?? [])]
                     if (bank.ownershipSignal) {
                         rubricPoints.push(`[Ownership] ${bank.ownershipSignal}`)
                     }
