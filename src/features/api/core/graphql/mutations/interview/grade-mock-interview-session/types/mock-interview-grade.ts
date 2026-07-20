@@ -133,6 +133,23 @@ export interface MockInterviewSeedGrounding {
     /** Authored rubric points (the reasoning that earns credit) — present for interview-bank questions; used as the grading anchor for every kind. */
     rubric?: Array<string>
     /**
+     * Authored coverage checkpoints, index-aligned with what the grader is asked to report
+     * back as covered. Present once a question's content carries `# checklist`; the score
+     * is then the sum of the covered `scoreBand`s rather than a number the model picks,
+     * so the same answer always earns the same score and the total is explainable
+     * ("missing checkpoint 2 cost 16"). Absent for questions still on `rubric` alone.
+     */
+    checkpoints?: Array<{
+        /** The checkpoint statement. */
+        text: string
+        /** technical | problemSolving | communication | testing. */
+        dimension: string | null
+        /** Missing this should sink the answer rather than cost partial credit. */
+        critical: boolean
+        /** Points this checkpoint is worth; a question's bands sum to 100. */
+        scoreBand: number
+    }>
+    /**
      * The GIVEN (possibly buggy) code the candidate was asked to FIX/read
      * (interview-bank `debug`/`review`/`optimize`) — the baseline the grader
      * diffs the candidate's own `[Code lang=...]` workspace artifact against, so
