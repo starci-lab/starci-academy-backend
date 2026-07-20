@@ -559,30 +559,30 @@ export class MockInterviewGradePromptService {
 
         const referenceLines = hasReference && grounding
             ? [
-                `Reference (câu hỏi): ${grounding.question}`,
+                `Reference (question): ${grounding.question}`,
                 grounding.answer
-                    ? `Reference (đáp án mẫu — CHẤM BẰNG CÁCH SO SÁNH câu trả lời với đáp án này): ${grounding.answer}`
+                    ? `Reference (model answer — GRADE BY COMPARING the candidate's answer against this): ${grounding.answer}`
                     : null,
                 // Authored checkpoints replace the flat rubric line when the question has
                 // them: each is numbered so the model can report WHICH ones the candidate
                 // covered, and the score is then summed from those bands in code rather
                 // than picked by the model.
                 grounding.checkpoints && grounding.checkpoints.length > 0
-                    ? `Reference (CHECKPOINT ăn điểm — neo chấm chính; báo lại checkpoint nào ứng viên PHỦ ĐƯỢC qua "coveredCheckpoints"): ${grounding.checkpoints
-                        .map((checkpoint, order) => `(${order}) [${checkpoint.dimension ?? "technical"}${checkpoint.critical ? ", BẮT BUỘC" : ""}, ${checkpoint.scoreBand}đ] ${checkpoint.text}`)
+                    ? `Reference (scoring CHECKPOINTS — the primary grading anchor; report which ones the candidate COVERED via "coveredCheckpoints"): ${grounding.checkpoints
+                        .map((checkpoint, order) => `(${order}) [${checkpoint.dimension ?? "technical"}${checkpoint.critical ? ", MUST-HIT" : ""}, ${checkpoint.scoreBand} pts] ${checkpoint.text}`)
                         .join(" ")}`
                     : grounding.rubric && grounding.rubric.length > 0
-                        ? `Reference (điểm lập luận ăn điểm — mỗi ý phủ được thì cộng điểm; đây là neo chấm chính): ${grounding.rubric.map((point, order) => `(${order + 1}) ${point}`).join(" ")}`
+                        ? `Reference (scoring reasoning points — each one covered earns credit; this is the primary grading anchor): ${grounding.rubric.map((point, order) => `(${order + 1}) ${point}`).join(" ")}`
                         : null,
                 // the GIVEN (buggy) code the candidate was asked to FIX — the grader
                 // compares the candidate's own "[Code lang=...]" workspace artifact
                 // against THIS baseline, so the FIX itself is scored (did they change
                 // the right line?), not just whether the final code looks plausible.
                 grounding.givenCode
-                    ? `Reference (CODE GỐC đề đưa — có thể chứa bug; chấm CÁCH SỬA của ứng viên bằng cách SO SÁNH artifact "[Code lang=...]" họ nộp với code gốc này, xem họ có sửa đúng chỗ không):\n\`\`\`${grounding.givenLang ?? ""}\n${grounding.givenCode}\n\`\`\``
+                    ? `Reference (the GIVEN code — may contain a bug; grade the candidate's FIX by COMPARING the "[Code lang=...]" artifact they submitted against this baseline, checking whether they changed the right thing):\n\`\`\`${grounding.givenLang ?? ""}\n${grounding.givenCode}\n\`\`\``
                     : null,
                 grounding.keywords.length > 0
-                    ? `Reference (từ khóa nên phủ): ${grounding.keywords.join(", ")}`
+                    ? `Reference (keywords worth covering): ${grounding.keywords.join(", ")}`
                     : null,
             ].filter((line): line is string => line !== null)
             : []
