@@ -399,6 +399,66 @@ describe("ContentAiService",
                             .toContain("TASK-BRIEF-CHUNK")
                     })
 
+                it("CHALLENGE · not enrolled → NO brief/test-cases fetched (no leak)",
+                    async () => {
+                        // challenge → content → module → course row
+                        entityManager.findOne.mockResolvedValueOnce({
+                            id: "challenge-1",
+                            content: {
+                                id: "content-1",
+                                module: {
+                                    id: "module-1",
+                                    course: {
+                                        id: courseId,
+                                    },
+                                },
+                            },
+                        })
+                        userService.checkEnrollment.mockResolvedValueOnce(false)
+
+                        const { messages } = await service.prepareMessages({
+                            userId,
+                            challengeId: "challenge-1",
+                            question: "What does this challenge want?",
+                            locale: Locale.En,
+                        })
+
+                        expect(userService.checkEnrollment)
+                            .toHaveBeenCalledWith(userId,
+                                courseId)
+                        expect(contentRagRetrievalService.retrieveContentExcerpt)
+                            .not.toHaveBeenCalled()
+                        expect((messages[0] as SystemMessage).content)
+                            .toContain("CHALLENGE MATERIAL")
+                    })
+
+                it("QUIZ · not enrolled → NO answers fetched (no leak)",
+                    async () => {
+                        // quiz deck → course (direct course_id)
+                        entityManager.findOne.mockResolvedValueOnce({
+                            id: "deck-1",
+                            course: {
+                                id: courseId,
+                            },
+                        })
+                        userService.checkEnrollment.mockResolvedValueOnce(false)
+
+                        const { messages } = await service.prepareMessages({
+                            userId,
+                            quizId: "deck-1",
+                            question: "Why is A correct?",
+                            locale: Locale.En,
+                        })
+
+                        expect(userService.checkEnrollment)
+                            .toHaveBeenCalledWith(userId,
+                                courseId)
+                        expect(contentRagRetrievalService.retrieveContentExcerpt)
+                            .not.toHaveBeenCalled()
+                        expect((messages[0] as SystemMessage).content)
+                            .toContain("QUIZ MATERIAL")
+                    })
+
                 it("COURSE · not enrolled → NO course RAG fetched (premium-safe)",
                     async () => {
                         userService.checkEnrollment.mockResolvedValueOnce(false)

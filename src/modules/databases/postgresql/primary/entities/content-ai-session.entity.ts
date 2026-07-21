@@ -22,6 +22,9 @@ import {
     ChallengeEntity,
 } from "./challenge.entity"
 import {
+    FlashcardDeckEntity,
+} from "./flashcard-deck.entity"
+import {
     FoundationEntity,
 } from "./foundation.entity"
 import {
@@ -36,7 +39,7 @@ import {
  * - `foundation` → `originFoundation` (a GLOBAL foundation-library doc; no course).
  * - `course`   → the enrollment's course itself (no per-item anchor).
  */
-export type ContentAiSessionScope = "content" | "task" | "challenge" | "foundation" | "course"
+export type ContentAiSessionScope = "content" | "task" | "challenge" | "quiz" | "foundation" | "course"
 
 /**
  * One content-AI conversation thread — a named chat a learner keeps about a lesson,
@@ -209,6 +212,34 @@ export class ContentAiSessionEntity extends UuidAbstractEntity {
         (session: ContentAiSessionEntity) => session.originChallenge,
     )
         originChallengeId: string | null
+
+    /**
+     * Flashcard-quiz deck the conversation is anchored to (quiz scope). NULL unless
+     * scope = quiz.
+     */
+    @ManyToOne(
+        () => FlashcardDeckEntity,
+        {
+            onDelete: "CASCADE",
+            nullable: true,
+        },
+    )
+    @JoinColumn({
+        name: "origin_quiz_id",
+        foreignKeyConstraintName: "fk_origin_quiz_id_content_ai_sessions_flashcard_decks",
+    })
+        originQuiz: FlashcardDeckEntity | null
+
+    /** Owning (origin) quiz deck id (null unless scope = quiz). */
+    @Column({
+        name: "origin_quiz_id",
+        type: "uuid",
+        nullable: true,
+    })
+    @RelationId(
+        (session: ContentAiSessionEntity) => session.originQuiz,
+    )
+        originQuizId: string | null
 
     /**
      * Global foundation-library doc the conversation is anchored to (foundation

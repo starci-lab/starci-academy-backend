@@ -17,6 +17,7 @@ import {
     ContentAiMessageEntity,
     ContentAiSessionEntity,
     ContentEntity,
+    FlashcardDeckEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
     MilestoneTaskEntity,
@@ -49,7 +50,7 @@ import {
  * - `"foundation"`: a global foundation-library doc (single-doc RAG, no course gate).
  * - `"course"`: the whole course (course-wide RAG, enrolled-only).
  */
-export type ContentAiScope = "content" | "task" | "challenge" | "foundation" | "course"
+export type ContentAiScope = "content" | "task" | "challenge" | "quiz" | "foundation" | "course"
 
 /** One prior chat turn replayed to the model as short-term memory. */
 export interface ContentAiHistoryMessage {
@@ -89,6 +90,8 @@ export interface PrepareContentAiMessagesParams {
     taskId?: string | null
     /** Hands-on challenge the question is about (challenge scope, enrolled-only). */
     challengeId?: string | null
+    /** Flashcard-quiz deck the question is about (quiz scope, enrolled-only; FE hides chat during a live attempt). */
+    quizId?: string | null
     /** Global foundation-library doc the question is about (foundation scope). */
     foundationId?: string | null
     /** Course the question is about when no lesson/task/foundation is open (course scope, enrolled-only). */
@@ -182,6 +185,7 @@ export class ContentAiService {
             contentId,
             taskId,
             challengeId,
+            quizId,
             foundationId,
             courseId,
             question,
@@ -217,6 +221,13 @@ export class ContentAiService {
                 question,
             })
             scope = "challenge"
+        } else if (quizId) {
+            grounding = await this.resolveQuizGrounding({
+                userId,
+                quizId,
+                question,
+            })
+            scope = "quiz"
         } else if (foundationId) {
             grounding = await this.resolveFoundationGrounding({
                 userId,
@@ -451,6 +462,50 @@ export class ContentAiService {
             excerpt,
         } = await this.contentRagRetrievalService.retrieveContentExcerpt({
             contentId: challengeId,
+            query: question,
+        })
+        return excerpt
+    }
+
+    /**
+     * Quiz-scope grounding: pull a flashcard-quiz's question/answer material from
+     * the content RAG index. A StarCi quiz draws from a flashcard DECK; deck chunks
+     * are indexed with `metadata.contentId = deckId` (`kind = "flashcard"`), so the
+     * same single-doc retrieval returns exactly this quiz's Q&A. `quizId` is the
+     * deck the quiz is drawn from.
+     *
+     * Entitlement: ENROLLED-ONLY. We resolve the deck's owning course (decks carry
+     * a direct `course_id`) and gate on enrollment; a non-enrolled viewer gets an
+     * empty excerpt (no leak of answers). The FE additionally HIDES the chat during
+     * a live attempt (integrity) — this scope is used only while reviewing.
+     *
+     * @param params - The learner, the quiz deck id, and the question.
+     * @returns The grounding text, or empty when the viewer is not enrolled.
+     */
+    private async resolveQuizGrounding(
+        {
+            userId,
+            quizId,
+            question,
+        }: {
+            userId: string
+            quizId: string
+            question: string
+        },
+    ): Promise<string> {
+        // resolve the quiz deck's owning course so we can enforce the enrolled-only gate
+        const courseId = await this.resolveCourseIdOfQuiz(quizId)
+        const entitled = courseId
+            ? await this.userService.checkEnrollment(userId,
+                courseId)
+            : false
+        if (!entitled) {
+            return ""
+        }
+        const {
+            excerpt,
+        } = await this.contentRagRetrievalService.retrieveContentExcerpt({
+            contentId: quizId,
             query: question,
         })
         return excerpt
@@ -830,6 +885,36 @@ export class ContentAiService {
     }
 
     /**
+     * Resolve a quiz deck's owning course. A flashcard deck carries a direct
+     * `course_id`, so this is a single lookup.
+     *
+     * @param quizId - The flashcard deck the quiz is drawn from.
+     * @returns The owning course id, or `null` when the deck / course is unknown.
+     */
+    private async resolveCourseIdOfQuiz(
+        quizId: string,
+    ): Promise<string | null> {
+        const deck = await this.entityManager.findOne(
+            FlashcardDeckEntity,
+            {
+                where: {
+                    id: quizId,
+                },
+                relations: {
+                    course: true,
+                },
+                select: {
+                    id: true,
+                    course: {
+                        id: true,
+                    },
+                },
+            },
+        )
+        return deck?.course?.id ?? null
+    }
+
+    /**
      * Resolve the real `users.id` (uuid) from a Keycloak subject id. The socket
      * gateway stamps the Keycloak sub, but course-scoped data keys off
      * `enrollments.user_id` (= `users.id`) — so the sub must be resolved first.
@@ -869,6 +954,7 @@ export class ContentAiService {
             contentId,
             taskId,
             challengeId,
+            quizId,
             foundationId,
             courseId,
             archived,
@@ -878,6 +964,7 @@ export class ContentAiService {
             contentId?: string | null
             taskId?: string | null
             challengeId?: string | null
+            quizId?: string | null
             foundationId?: string | null
             courseId?: string | null
             /**
@@ -897,11 +984,13 @@ export class ContentAiService {
                     ? "task"
                     : challengeId
                         ? "challenge"
-                        : foundationId
-                            ? "foundation"
-                            : courseId
-                                ? "course"
-                                : null)
+                        : quizId
+                            ? "quiz"
+                            : foundationId
+                                ? "foundation"
+                                : courseId
+                                    ? "course"
+                                    : null)
         if (!resolvedScope) {
             return null
         }
@@ -940,6 +1029,23 @@ export class ContentAiService {
                 scope: "challenge",
                 enrollmentId,
                 originChallengeId: challengeId,
+            }
+        } else if (resolvedScope === "quiz") {
+            if (!quizId) {
+                return null
+            }
+            const quizCourseId = await this.resolveCourseIdOfQuiz(quizId)
+            const enrollmentId = quizCourseId
+                ? await this.resolveEnrollmentByCourse(userId,
+                    quizCourseId)
+                : null
+            if (!enrollmentId) {
+                return null
+            }
+            toCreate = {
+                scope: "quiz",
+                enrollmentId,
+                originQuizId: quizId,
             }
         } else if (resolvedScope === "task") {
             if (!taskId) {
@@ -1022,6 +1128,7 @@ export class ContentAiService {
             contentId,
             taskId,
             challengeId,
+            quizId,
             foundationId,
             courseId,
             search,
@@ -1034,6 +1141,7 @@ export class ContentAiService {
             contentId?: string | null
             taskId?: string | null
             challengeId?: string | null
+            quizId?: string | null
             foundationId?: string | null
             courseId?: string | null
             search?: string
@@ -1058,11 +1166,13 @@ export class ContentAiService {
                     ? "task"
                     : challengeId
                         ? "challenge"
-                        : foundationId
-                            ? "foundation"
-                            : courseId
-                                ? "course"
-                                : null)
+                        : quizId
+                            ? "quiz"
+                            : foundationId
+                                ? "foundation"
+                                : courseId
+                                    ? "course"
+                                    : null)
 
         // CONTENT: original behaviour, verbatim (list this content, or course-wide
         // search) — no regression to the shipped lesson list.
@@ -1096,6 +1206,7 @@ export class ContentAiService {
             scope: resolvedScope,
             taskId,
             challengeId,
+            quizId,
             foundationId,
             courseId,
             search: trimmed,
@@ -1126,6 +1237,7 @@ export class ContentAiService {
             scope,
             taskId,
             challengeId,
+            quizId,
             foundationId,
             courseId,
             search,
@@ -1137,6 +1249,7 @@ export class ContentAiService {
             scope: ContentAiScope
             taskId?: string | null
             challengeId?: string | null
+            quizId?: string | null
             foundationId?: string | null
             courseId?: string | null
             search: string
@@ -1149,7 +1262,7 @@ export class ContentAiService {
         // names are whitelisted (never client input) so they interpolate safely.
         let ownerColumn: "enrollment_id" | "user_id"
         let ownerId: string | null
-        let anchorColumn: "origin_task_id" | "origin_challenge_id" | "origin_foundation_id" | null = null
+        let anchorColumn: "origin_task_id" | "origin_challenge_id" | "origin_quiz_id" | "origin_foundation_id" | null = null
         let anchorId: string | null = null
         if (scope === "task") {
             if (!taskId) {
@@ -1175,6 +1288,18 @@ export class ContentAiService {
                 : null
             anchorColumn = "origin_challenge_id"
             anchorId = challengeId
+        } else if (scope === "quiz") {
+            if (!quizId) {
+                return []
+            }
+            const quizCourseId = await this.resolveCourseIdOfQuiz(quizId)
+            ownerColumn = "enrollment_id"
+            ownerId = quizCourseId
+                ? await this.resolveEnrollmentByCourse(userId,
+                    quizCourseId)
+                : null
+            anchorColumn = "origin_quiz_id"
+            anchorId = quizId
         } else if (scope === "course") {
             if (!courseId) {
                 return []
@@ -1683,6 +1808,18 @@ export class ContentAiService {
                 `Reply in ${language}. Keep it short, concrete and practical.`,
                 "",
                 "=== CHALLENGE MATERIAL ===",
+                grounding,
+            ].join("\n")
+        }
+        if (scope === "quiz") {
+            return [
+                "You are StarCi AI, a tutor helping the student REVIEW a quiz question.",
+                "The QUIZ MATERIAL below is the question, its options and the correct answer with explanation — it is your primary source: read it, prefer it, and explain WHY the right answer is right and why a tempting wrong option is wrong.",
+                "The student is reviewing after answering (not mid-attempt), so it is fine to discuss the answer. Teach the underlying idea so they get the next one — don't just restate the letter.",
+                "A student message may contain <display>the question</display> and <context>the highlighted passage plus its surrounding paragraph and section</context>. Use <context> only to understand WHICH part they mean; answer the <display> question. Never repeat or mention the tags or the raw context back to the student.",
+                `Reply in ${language}. Keep it short, concrete and practical.`,
+                "",
+                "=== QUIZ MATERIAL ===",
                 grounding,
             ].join("\n")
         }

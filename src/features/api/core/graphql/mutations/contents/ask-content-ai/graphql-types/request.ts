@@ -69,6 +69,15 @@ export class AskContentAiRequest {
         () => ID,
         {
             nullable: true,
+            description: "Flashcard-quiz deck the question is about (quiz scope, enrolled-only; chat hidden during a live attempt).",
+        },
+    )
+        quizId?: string
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
             description: "Global foundation-library doc the question is about (foundation scope).",
         },
     )

@@ -74,6 +74,7 @@ export class ContentAiSessionsResolver {
             contentId: request.contentId,
             taskId: request.taskId,
             challengeId: request.challengeId,
+            quizId: request.quizId,
             foundationId: request.foundationId,
             courseId: request.courseId,
             search: request.search,

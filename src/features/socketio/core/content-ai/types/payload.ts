@@ -22,6 +22,8 @@ export type AskContentAiSocketIoPayload = SocketIoPayload<{
     taskId?: string | null
     /** Hands-on challenge the question is grounded on (challenge scope, enrolled-only). */
     challengeId?: string | null
+    /** Flashcard-quiz deck the question is grounded on (quiz scope, enrolled-only; hidden during a live attempt). */
+    quizId?: string | null
     /** Global foundation-library doc the question is grounded on (foundation scope). */
     foundationId?: string | null
     /** Course the question is grounded on when no lesson/task/foundation is open (course scope, enrolled-only). */

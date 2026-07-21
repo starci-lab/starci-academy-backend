@@ -52,6 +52,15 @@ export class CreateContentAiSessionRequest {
         () => ID,
         {
             nullable: true,
+            description: "Flashcard-quiz deck the conversation starts in (quiz scope, enrolled-only).",
+        },
+    )
+        quizId?: string
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
             description: "Global foundation-library doc the conversation starts in (foundation scope).",
         },
     )

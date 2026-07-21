@@ -54,6 +54,15 @@ export class ContentAiSessionsRequest {
         () => ID,
         {
             nullable: true,
+            description: "Current flashcard-quiz deck (quiz scope).",
+        },
+    )
+        quizId?: string
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
             description: "Current global foundation-library doc (foundation scope).",
         },
     )
