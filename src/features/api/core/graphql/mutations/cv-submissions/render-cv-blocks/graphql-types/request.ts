@@ -9,13 +9,13 @@ import {
 } from "../cv-export-format.enum"
 
 /**
- * Export an owned CV document to a file. HTML-first: the FE renders the ONE
- * shared CV template and sends its serialized, self-contained HTML here; the
- * server is a dumb converter (Puppeteer → PDF, html-to-docx → DOCX). `id` scopes
- * ownership + lets the PDF key be persisted back onto the row.
+ * Compile an owned CV document to a PDF. Full-LaTeX: the FE builds the `.tex`
+ * (from the block document, or the user's own edits) and sends it here; the
+ * server compiles it with `tectonic`. `id` scopes ownership + lets the PDF key
+ * (and the `.tex` source) be persisted back onto the row.
  */
 @InputType({
-    description: "Export an owned CV document (block editor) to PDF or DOCX from its rendered HTML.",
+    description: "Compile an owned CV document (block editor) to a PDF from its LaTeX source.",
 })
 export class RenderCvBlocksRequest {
     @Field(
@@ -29,16 +29,17 @@ export class RenderCvBlocksRequest {
     @Field(
         () => String,
         {
-            description: "The self-contained HTML of the rendered CV template (single source; converted server-side).",
+            description: "The CV's LaTeX (`.tex`) source (single source of truth; compiled server-side via tectonic).",
         },
     )
-        html: string
+        tex: string
 
     @Field(
         () => GraphQLTypeCvExportFormat,
         {
-            description: "Target file format (PDF or DOCX).",
+            nullable: true,
+            description: "Target file format — PDF only now (kept for API compatibility).",
         },
     )
-        format: CvExportFormat
+        format?: CvExportFormat
 }

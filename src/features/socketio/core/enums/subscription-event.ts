@@ -35,4 +35,7 @@ export enum SubscriptionEvent {
     // UI can gate steps behind a real connection instead of guessing.
     PlaygroundAgentConnected = "agent:connected",
     PlaygroundAgentDisconnected = "agent:disconnected",
+    // server → agent: the browser asked to verify the current step now → the agent
+    // pushes a fresh `resources:report` immediately.
+    PlaygroundVerifyNow = "verify:now",
 }

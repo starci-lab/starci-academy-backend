@@ -152,4 +152,25 @@ export class CvBlocksEntity extends UuidAbstractEntity {
         nullable: true,
     })
         pdfCdnKey: string | null
+
+    /**
+     * The CV's LaTeX source (`tex_source`) — generated once from `blocks`+`style`
+     * (the FE `buildCvTexSource`), then USER-EDITABLE: whatever `.tex` the last
+     * `renderCvBlocks` compiled is stored here, so reopening restores the user's
+     * hand-edits (the `.tex`, not the blocks, is the source of truth once touched).
+     * Null until the first compile.
+     */
+    @Field(
+        () => String,
+        {
+            nullable: true,
+            description: "The CV's LaTeX (.tex) source — user-editable; null until the first compile.",
+        },
+    )
+    @Column({
+        name: "tex_source",
+        type: "text",
+        nullable: true,
+    })
+        texSource: string | null
 }
