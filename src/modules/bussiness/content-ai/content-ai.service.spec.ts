@@ -656,4 +656,107 @@ describe("ContentAiService",
                         expect(insert).not.toHaveBeenCalled()
                     })
             })
+
+        // ── SCOPE-AWARE HISTORY LISTING — the reload/re-open surface ─────────────
+        // Listing must fetch only the CURRENT scope's conversations, keyed off the
+        // right owner: a task lists by (enrollment, origin_task_id); a GLOBAL
+        // foundation lists by (user_id, origin_foundation_id) with NO enrollment.
+        // These lock the owner/anchor params so a refactor can't cross the streams.
+        describe("scope-aware listing",
+            () => {
+                const taskId = "task-1"
+                const foundationId = "foundation-1"
+                const courseId = "course-9"
+                const enrollmentId = "enr-1"
+
+                const taskRow = {
+                    id: taskId,
+                    milestone: {
+                        id: "milestone-1",
+                        course: {
+                            id: courseId,
+                        },
+                    },
+                }
+
+                it("TASK → lists keyed on (enrollment_id, scope='task', origin_task_id)",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(taskRow)
+                        entityManager.query
+                            // resolveEnrollmentByCourse
+                            .mockResolvedValueOnce([
+                                {
+                                    id: enrollmentId,
+                                },
+                            ])
+                            // the list query
+                            .mockResolvedValueOnce([])
+
+                        await service.sessions({
+                            userId,
+                            scope: "task",
+                            taskId,
+                        })
+
+                        // the SECOND query is the list; its params carry the owner +
+                        // scope + task anchor
+                        const listCall = entityManager.query.mock.calls[1]
+                        const [
+                            sql,
+                            params,
+                        ] = listCall
+                        expect(sql).toContain("s.enrollment_id = $1")
+                        expect(sql).toContain("s.scope = $2")
+                        expect(sql).toContain("s.origin_task_id = $3")
+                        expect(params.slice(0,
+                            3)).toEqual([
+                            enrollmentId,
+                            "task",
+                            taskId,
+                        ])
+                    })
+
+                it("FOUNDATION → lists keyed on the USER (no enrollment), scope='foundation'",
+                    async () => {
+                        entityManager.query.mockResolvedValueOnce([])
+
+                        await service.sessions({
+                            userId,
+                            scope: "foundation",
+                            foundationId,
+                        })
+
+                        // global doc → NO enrollment lookup, single (list) query
+                        expect(entityManager.findOne).not.toHaveBeenCalled()
+                        expect(entityManager.query).toHaveBeenCalledTimes(1)
+                        const [
+                            sql,
+                            params,
+                        ] = entityManager.query.mock.calls[0]
+                        expect(sql).toContain("s.user_id = $1")
+                        expect(sql).toContain("s.origin_foundation_id = $3")
+                        expect(params.slice(0,
+                            3)).toEqual([
+                            userId,
+                            "foundation",
+                            foundationId,
+                        ])
+                    })
+
+                it("COURSE · not enrolled → empty list, no leak",
+                    async () => {
+                        // resolveEnrollmentByCourse → no enrollment
+                        entityManager.query.mockResolvedValueOnce([])
+
+                        const list = await service.sessions({
+                            userId,
+                            scope: "course",
+                            courseId,
+                        })
+
+                        expect(list).toEqual([])
+                        // never ran the list query (bailed at the owner resolve)
+                        expect(entityManager.query).toHaveBeenCalledTimes(1)
+                    })
+            })
     })

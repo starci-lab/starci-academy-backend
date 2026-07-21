@@ -48,12 +48,21 @@ export class ContentAiSessionType {
         messageCount: number
 
     @Field(
-        () => ID,
+        () => String,
         {
-            description: "Content the conversation is anchored to.",
+            description: "Which surface the conversation grounds on: 'content' | 'task' | 'foundation' | 'course'.",
         },
     )
-        originContentId: string
+        scope: string
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Content the conversation is anchored to (content scope only; null for task/foundation/course).",
+        },
+    )
+        originContentId: string | null
 
     @Field(
         () => String,

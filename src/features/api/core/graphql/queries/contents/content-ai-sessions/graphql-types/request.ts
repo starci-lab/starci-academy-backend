@@ -11,16 +11,53 @@ import {
  * ALL their conversations in the content's course (title + message text).
  */
 @InputType({
-    description: "List or search the current user's content-AI conversations.",
+    description: "List or search the current user's content-AI conversations for a scope.",
 })
 export class ContentAiSessionsRequest {
     @Field(
-        () => ID,
+        () => String,
         {
-            description: "Current content (anchors the list / scopes search to its course).",
+            nullable: true,
+            description: "Which surface to list: 'content' | 'task' | 'foundation' | 'course'. Omitted → derived from whichever anchor id is present (priority content > task > foundation > course).",
         },
     )
-        contentId: string
+        scope?: string
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Current content (content scope) — anchors the list / scopes search to its course.",
+        },
+    )
+        contentId?: string
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Current capstone / personal-project task (task scope).",
+        },
+    )
+        taskId?: string
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Current global foundation-library doc (foundation scope).",
+        },
+    )
+        foundationId?: string
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Current course (course scope) — lists the whole-course conversations.",
+        },
+    )
+        courseId?: string
 
     @Field(
         () => String,

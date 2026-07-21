@@ -68,8 +68,10 @@ export interface ContentAiSessionSummary {
     updatedAt: Date
     /** Number of turns in the conversation. */
     messageCount: number
-    /** Content the conversation is anchored to. */
-    originContentId: string
+    /** Which surface the conversation grounds on. */
+    scope: ContentAiScope
+    /** Content the conversation is anchored to (content scope only; null otherwise). */
+    originContentId: string | null
     /** Title of the anchoring content (only resolved for cross-lesson search results). */
     originContentTitle: string | null
     /** First message matching the search query (only for search results). */
@@ -870,24 +872,39 @@ export class ContentAiService {
     }
 
     /**
-     * List the learner's conversations for a content (recency-first), OR — when a
-     * non-empty `search` is given — search ALL their conversations in the course
-     * (title or message text) so an old "kafka" / "nginx" chat can be found again.
+     * List the learner's conversations for the CURRENT scope (recency-first): a
+     * lesson lists that content's chats, a task lists that task's, a foundation
+     * lists that foundation doc's, a course lists the whole-course chats. When a
+     * non-empty `search` is given the CONTENT scope searches ALL the learner's
+     * course conversations (so an old "kafka"/"nginx" chat is findable); the other
+     * scopes filter their own list by title/message text.
      *
-     * @param params - The learner, the current content, and an optional search.
+     * The scope is taken explicitly when given, else derived by anchor priority
+     * (content > task > foundation > course), mirroring `prepareMessages` /
+     * `createSession`.
+     *
+     * @param params - The learner, the (optional) scope, the anchor ids, and paging.
      * @returns Conversation summaries (recency-first).
      */
     async sessions(
         {
             userId,
+            scope,
             contentId,
+            taskId,
+            foundationId,
+            courseId,
             search,
             limit,
             offset,
             includeArchived,
         }: {
             userId: string
-            contentId: string
+            scope?: ContentAiScope | null
+            contentId?: string | null
+            taskId?: string | null
+            foundationId?: string | null
+            courseId?: string | null
             search?: string
             limit?: number
             offset?: number
@@ -901,21 +918,202 @@ export class ContentAiService {
         const pageOffset = Math.max(offset ?? 0,
             0)
         const trimmed = (search ?? "").trim()
-        if (trimmed) {
-            // search ALWAYS spans archived rows — digging up an archived (or
-            // born-archived selection) chat is exactly when search is used, so
-            // `includeArchived` is not threaded here.
-            return this.searchSessions(userId,
+
+        // derive scope by anchor priority when not pinned
+        const resolvedScope: ContentAiScope | null = scope
+            ?? (contentId
+                ? "content"
+                : taskId
+                    ? "task"
+                    : foundationId
+                        ? "foundation"
+                        : courseId
+                            ? "course"
+                            : null)
+
+        // CONTENT: original behaviour, verbatim (list this content, or course-wide
+        // search) — no regression to the shipped lesson list.
+        if (resolvedScope === "content") {
+            if (!contentId) {
+                return []
+            }
+            if (trimmed) {
+                // search ALWAYS spans archived rows — digging up an archived (or
+                // born-archived selection) chat is exactly when search is used, so
+                // `includeArchived` is not threaded here.
+                return this.searchSessions(userId,
+                    contentId,
+                    trimmed,
+                    pageLimit,
+                    pageOffset)
+            }
+            return this.listSessions(userId,
                 contentId,
-                trimmed,
                 pageLimit,
-                pageOffset)
+                pageOffset,
+                includeArchived ?? false)
         }
-        return this.listSessions(userId,
-            contentId,
-            pageLimit,
-            pageOffset,
-            includeArchived ?? false)
+
+        // TASK / FOUNDATION / COURSE: scope-anchored list (the session-per-scope slice)
+        if (!resolvedScope) {
+            return []
+        }
+        return this.listScopedSessions({
+            userId,
+            scope: resolvedScope,
+            taskId,
+            foundationId,
+            courseId,
+            search: trimmed,
+            limit: pageLimit,
+            offset: pageOffset,
+            includeArchived: includeArchived ?? false,
+        })
+    }
+
+    /**
+     * List (or in-scope search) conversations for a NON-content scope — task,
+     * foundation, or course. Resolves the scope's owner + anchor, then runs one
+     * recency-first paged query. A task/course session is owned via the
+     * enrollment; a GLOBAL foundation session is owned via the raw user. The anchor
+     * isolates the surface (`origin_task_id` / `origin_foundation_id`); a course
+     * session has no per-item anchor and is selected by `scope = 'course'`.
+     *
+     * A non-empty `search` narrows THIS scope's list by title/message text (no
+     * cross-content JOIN — task/foundation/course rows have no content title) and
+     * spans archived rows, matching the content-scope search semantics.
+     *
+     * @param params - The learner, the scope, the anchor ids, search + paging.
+     * @returns Conversation summaries (recency-first), or empty when unauthorized.
+     */
+    private async listScopedSessions(
+        {
+            userId,
+            scope,
+            taskId,
+            foundationId,
+            courseId,
+            search,
+            limit,
+            offset,
+            includeArchived,
+        }: {
+            userId: string
+            scope: ContentAiScope
+            taskId?: string | null
+            foundationId?: string | null
+            courseId?: string | null
+            search: string
+            limit: number
+            offset: number
+            includeArchived: boolean
+        },
+    ): Promise<Array<ContentAiSessionSummary>> {
+        // resolve the owner predicate + the anchor predicate for this scope. Column
+        // names are whitelisted (never client input) so they interpolate safely.
+        let ownerColumn: "enrollment_id" | "user_id"
+        let ownerId: string | null
+        let anchorColumn: "origin_task_id" | "origin_foundation_id" | null = null
+        let anchorId: string | null = null
+        if (scope === "task") {
+            if (!taskId) {
+                return []
+            }
+            const taskCourseId = await this.resolveCourseIdOfTask(taskId)
+            ownerColumn = "enrollment_id"
+            ownerId = taskCourseId
+                ? await this.resolveEnrollmentByCourse(userId,
+                    taskCourseId)
+                : null
+            anchorColumn = "origin_task_id"
+            anchorId = taskId
+        } else if (scope === "course") {
+            if (!courseId) {
+                return []
+            }
+            ownerColumn = "enrollment_id"
+            ownerId = await this.resolveEnrollmentByCourse(userId,
+                courseId)
+        } else {
+            // foundation: GLOBAL — owned by the raw user, anchored on the doc
+            if (!foundationId) {
+                return []
+            }
+            ownerColumn = "user_id"
+            ownerId = userId
+            anchorColumn = "origin_foundation_id"
+            anchorId = foundationId
+        }
+        if (!ownerId) {
+            return []
+        }
+
+        // Build the parametrized query incrementally: $1 owner, $2 scope, then the
+        // optional anchor, then the search-or-archived clause, then paging. Column
+        // names are whitelisted above (never client input) so they interpolate safe.
+        const params: Array<unknown> = [
+            ownerId,
+            scope,
+        ]
+        let anchorClause = ""
+        if (anchorColumn) {
+            params.push(anchorId)
+            anchorClause = `AND s.${anchorColumn} = $${params.length}`
+        }
+        // search spans archived rows (same as content search); a plain list hides
+        // archived unless includeArchived is set. When searching, the snippet reuses
+        // the SAME pattern param.
+        let searchClause: string
+        let snippetExpr = "NULL"
+        if (search) {
+            params.push(`%${search}%`)
+            const patternParam = params.length
+            searchClause = `AND (s.title ILIKE $${patternParam}
+                    OR EXISTS (SELECT 1 FROM content_ai_messages m2
+                                WHERE m2.session_id = s.id AND m2.message ILIKE $${patternParam}))`
+            snippetExpr = `(SELECT m3.message FROM content_ai_messages m3
+                                WHERE m3.session_id = s.id AND m3.message ILIKE $${patternParam}
+                                ORDER BY m3.created_at LIMIT 1)`
+        } else {
+            params.push(includeArchived)
+            searchClause = `AND ($${params.length} OR s.archived_at IS NULL)`
+        }
+        params.push(limit)
+        const limitParam = params.length
+        params.push(offset)
+        const offsetParam = params.length
+
+        const rows = await this.entityManager.query<Array<{
+            id: string
+            title: string | null
+            updatedAt: Date
+            messageCount: number
+            snippet: string | null
+        }>>(
+            `SELECT s.id, s.title, s.updated_at AS "updatedAt",
+                    COUNT(m.id)::int AS "messageCount",
+                    ${snippetExpr} AS "snippet"
+             FROM content_ai_sessions s
+             LEFT JOIN content_ai_messages m ON m.session_id = s.id
+             WHERE s.${ownerColumn} = $1 AND s.scope = $2
+               ${anchorClause}
+               ${searchClause}
+             GROUP BY s.id
+             HAVING COUNT(m.id) > 0
+             ORDER BY s.updated_at DESC
+             LIMIT $${limitParam} OFFSET $${offsetParam}`,
+            params,
+        )
+        return rows.map((row) => ({
+            id: row.id,
+            title: row.title,
+            updatedAt: row.updatedAt,
+            messageCount: row.messageCount,
+            scope,
+            originContentId: null,
+            originContentTitle: null,
+            snippet: row.snippet,
+        }))
     }
 
     /**
@@ -967,6 +1165,7 @@ export class ContentAiService {
             title: row.title,
             updatedAt: row.updatedAt,
             messageCount: row.messageCount,
+            scope: "content" as const,
             originContentId: contentId,
             originContentTitle: null,
             snippet: null,
@@ -1030,6 +1229,7 @@ export class ContentAiService {
             title: row.title,
             updatedAt: row.updatedAt,
             messageCount: row.messageCount,
+            scope: "content" as const,
             originContentId: row.originContentId,
             originContentTitle: row.originContentTitle,
             snippet: row.snippet,
