@@ -18,6 +18,7 @@ import {
     ContentEntity,
     InjectPrimaryPostgreSQLEntityManager,
     Locale,
+    MilestoneTaskEntity,
 } from "@modules/databases"
 import {
     S3NameResolverService,
@@ -42,14 +43,12 @@ import {
 /**
  * Which surface a content-AI question is grounded on. A session is one
  * `(scope + anchor)`; the scope selects WHICH grounding path runs:
- * - `"lesson"`: a course lesson (MinIO body + repo code, premium-gated).
+ * - `"content"`: a course lesson/content item (MinIO body + repo code, premium-gated).
  * - `"task"`: a capstone / personal-project task (milestone RAG chunk, enrolled-only).
  * - `"foundation"`: a global foundation-library doc (single-doc RAG, no course gate).
- *
- * NOTE: a `"course"` scope (whole-course RAG) is a separate slice and is not
- * wired here yet — this module still only grounds a single lesson/task/foundation.
+ * - `"course"`: the whole course (course-wide RAG, enrolled-only).
  */
-export type ContentAiScope = "lesson" | "task" | "foundation" | "course"
+export type ContentAiScope = "content" | "task" | "foundation" | "course"
 
 /** One prior chat turn replayed to the model as short-term memory. */
 export interface ContentAiHistoryMessage {
@@ -197,7 +196,7 @@ export class ContentAiService {
                 question,
                 locale,
             })
-            scope = "lesson"
+            scope = "content"
         } else if (taskId) {
             grounding = await this.resolveTaskGrounding({
                 userId,
@@ -363,15 +362,13 @@ export class ContentAiService {
      * material. Degrades to an empty excerpt (un-grounded) when the index is
      * absent / retrieval misses — retrieval never blocks the chat.
      *
-     * Entitlement: capstone material is enrolled-only. Gating needs the task's
-     * owning course, which requires the milestone/task entity — not wired into
-     * this business module yet.
-     * TODO(content-ai-rail-scope §3): resolve taskId → milestone → course and
-     * call `userService.checkEnrollment(userId, courseId)` before returning, so a
-     * non-enrolled viewer cannot pull capstone material through the AI.
+     * Entitlement: capstone material is ENROLLED-ONLY. We resolve the task's
+     * owning course (task → milestone → course) and gate on enrollment; a
+     * non-enrolled viewer gets an empty excerpt (no leak), so the model never
+     * reveals capstone briefs/criteria through the AI. Mirrors the course scope.
      *
      * @param params - The learner, the task id, and the question.
-     * @returns The grounding text for the task system prompt.
+     * @returns The grounding text, or empty when the viewer is not enrolled.
      */
     private async resolveTaskGrounding(
         {
@@ -384,9 +381,37 @@ export class ContentAiService {
             question: string
         },
     ): Promise<string> {
-        // userId is carried for the enrolled-only gate documented above (not yet
-        // enforced — the task → course lookup is not wired into this module).
-        void userId
+        // resolve the task's owning course so we can enforce the enrolled-only gate
+        const task = await this.entityManager.findOne(
+            MilestoneTaskEntity,
+            {
+                where: {
+                    id: taskId,
+                },
+                relations: {
+                    milestone: {
+                        course: true,
+                    },
+                },
+                select: {
+                    id: true,
+                    milestone: {
+                        id: true,
+                        course: {
+                            id: true,
+                        },
+                    },
+                },
+            },
+        )
+        const courseId = task?.milestone?.course?.id
+        const entitled = courseId
+            ? await this.userService.checkEnrollment(userId,
+                courseId)
+            : false
+        if (!entitled) {
+            return ""
+        }
         const {
             excerpt,
         } = await this.contentRagRetrievalService.retrieveContentExcerpt({

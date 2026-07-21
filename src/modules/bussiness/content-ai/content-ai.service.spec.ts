@@ -6,9 +6,6 @@ import {
     getEntityManagerToken,
 } from "@nestjs/typeorm"
 import {
-    ForbiddenException,
-} from "@nestjs/common"
-import {
     AIMessage,
     HumanMessage,
     SystemMessage,
@@ -31,6 +28,7 @@ import {
 } from "@modules/databases"
 import {
     ContentNotFoundException,
+    PremiumContentAiAccessDeniedException,
 } from "@modules/exceptions"
 import {
     makeEntityManagerMock,
@@ -87,6 +85,7 @@ describe("ContentAiService",
         }
         let contentRagRetrievalService: {
             retrieveContentExcerpt: jest.Mock
+            retrieveCourseExcerpt: jest.Mock
         }
 
         const userId = "user-1"
@@ -131,6 +130,9 @@ describe("ContentAiService",
             }
             contentRagRetrievalService = {
                 retrieveContentExcerpt: jest.fn().mockResolvedValue({
+                    excerpt: "",
+                }),
+                retrieveCourseExcerpt: jest.fn().mockResolvedValue({
                     excerpt: "",
                 }),
             }
@@ -235,11 +237,12 @@ describe("ContentAiService",
                 expect(system.content).toContain(largeBody)
             })
 
-        it("caps replayed history to the last MAX_HISTORY_MESSAGES turns",
+        it("caps replayed history at the last MAX_HISTORY_MESSAGES turns",
             async () => {
-                // 12 prior turns; only the last 8 should be replayed
+                // 105 short prior turns; the window caps at MAX_HISTORY_MESSAGES
+                // (100) — the turns are tiny so all 100 also fit the char budget.
                 const history = Array.from({
-                    length: 12,
+                    length: 105,
                 },
                 (_unused, index) => ({
                     role: index % 2 === 0
@@ -253,19 +256,20 @@ describe("ContentAiService",
                     history,
                 })
 
-                // messages = system + 8 history + question = 10
-                expect(messages).toHaveLength(10)
+                // messages = system + 100 history + question = 102
+                expect(messages).toHaveLength(102)
                 const replayed = messages.slice(1,
                     -1)
-                expect(replayed).toHaveLength(8)
-                // oldest replayed is turn-4 (12 - 8), newest is turn-11
+                expect(replayed).toHaveLength(100)
+                // oldest replayed is turn-5 (105 - 100), newest is turn-104
                 expect((replayed[0] as HumanMessage | AIMessage).content)
-                    .toBe("turn-4")
-                expect((replayed[7] as HumanMessage | AIMessage).content)
-                    .toBe("turn-11")
+                    .toBe("turn-5")
+                expect((replayed[99] as HumanMessage | AIMessage).content)
+                    .toBe("turn-104")
                 // assistant turns map to AIMessage, user turns to HumanMessage
-                expect(replayed[0]).toBeInstanceOf(HumanMessage)
-                expect(replayed[1]).toBeInstanceOf(AIMessage)
+                // (turn-5 = odd index = assistant, turn-104 = even = user)
+                expect(replayed[0]).toBeInstanceOf(AIMessage)
+                expect(replayed[99]).toBeInstanceOf(HumanMessage)
             })
 
         it("blocks premium content when the learner is not entitled",
@@ -286,7 +290,7 @@ describe("ContentAiService",
 
                 await expect(
                     service.prepareMessages(baseParams),
-                ).rejects.toBeInstanceOf(ForbiddenException)
+                ).rejects.toBeInstanceOf(PremiumContentAiAccessDeniedException)
                 // never reach grounding when the gate trips
                 expect(contentRagRetrievalService.retrieveContentExcerpt)
                     .not.toHaveBeenCalled()
@@ -323,5 +327,144 @@ describe("ContentAiService",
                 await expect(
                     service.prepareMessages(baseParams),
                 ).rejects.toBeInstanceOf(ContentNotFoundException)
+            })
+
+        // ── ENTITLEMENT PER SCOPE — the security surface ────────────────────────
+        // A content-AI answer must never surface material the viewer is not
+        // entitled to. Each non-content scope has its own gate; these lock the
+        // enrolled/not-enrolled behaviour so a future refactor can't silently
+        // re-open the leak.
+        describe("entitlement per scope",
+            () => {
+                const taskId = "task-1"
+                const foundationId = "foundation-1"
+                const courseId = "course-9"
+
+                /** A milestone-task row joined to its owning course (task→course gate). */
+                const taskRow = {
+                    id: taskId,
+                    milestone: {
+                        id: "milestone-1",
+                        course: {
+                            id: courseId,
+                        },
+                    },
+                }
+
+                it("TASK · not enrolled → NO capstone material fetched (no leak)",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(taskRow)
+                        userService.checkEnrollment.mockResolvedValueOnce(false)
+
+                        const { messages } = await service.prepareMessages({
+                            userId,
+                            taskId,
+                            question: "What does this task need?",
+                            locale: Locale.En,
+                        })
+
+                        // gate resolved the owning course...
+                        expect(userService.checkEnrollment)
+                            .toHaveBeenCalledWith(userId,
+                                courseId)
+                        // ...and refused BEFORE retrieval → no capstone brief pulled
+                        expect(contentRagRetrievalService.retrieveContentExcerpt)
+                            .not.toHaveBeenCalled()
+                        const system = messages[0] as SystemMessage
+                        expect(system.content).toContain("TASK MATERIAL")
+                    })
+
+                it("TASK · enrolled → grounds on the task's own material",
+                    async () => {
+                        entityManager.findOne.mockResolvedValueOnce(taskRow)
+                        userService.checkEnrollment.mockResolvedValueOnce(true)
+                        contentRagRetrievalService.retrieveContentExcerpt
+                            .mockResolvedValueOnce({
+                                excerpt: "TASK-BRIEF-CHUNK",
+                            })
+
+                        const { messages } = await service.prepareMessages({
+                            userId,
+                            taskId,
+                            question: "What does this task need?",
+                            locale: Locale.En,
+                        })
+
+                        expect(contentRagRetrievalService.retrieveContentExcerpt)
+                            .toHaveBeenCalledWith({
+                                contentId: taskId,
+                                query: "What does this task need?",
+                            })
+                        expect((messages[0] as SystemMessage).content)
+                            .toContain("TASK-BRIEF-CHUNK")
+                    })
+
+                it("COURSE · not enrolled → NO course RAG fetched (premium-safe)",
+                    async () => {
+                        userService.checkEnrollment.mockResolvedValueOnce(false)
+
+                        await service.prepareMessages({
+                            userId,
+                            courseId,
+                            question: "What does this course cover?",
+                            locale: Locale.En,
+                        })
+
+                        expect(userService.checkEnrollment)
+                            .toHaveBeenCalledWith(userId,
+                                courseId)
+                        expect(contentRagRetrievalService.retrieveCourseExcerpt)
+                            .not.toHaveBeenCalled()
+                    })
+
+                it("COURSE · enrolled → grounds on course-wide RAG",
+                    async () => {
+                        userService.checkEnrollment.mockResolvedValueOnce(true)
+                        contentRagRetrievalService.retrieveCourseExcerpt
+                            .mockResolvedValueOnce({
+                                excerpt: "COURSE-WIDE-CHUNK",
+                            })
+
+                        const { messages } = await service.prepareMessages({
+                            userId,
+                            courseId,
+                            question: "What does this course cover?",
+                            locale: Locale.En,
+                        })
+
+                        expect(contentRagRetrievalService.retrieveCourseExcerpt)
+                            .toHaveBeenCalledWith({
+                                courseId,
+                                query: "What does this course cover?",
+                            })
+                        expect((messages[0] as SystemMessage).content)
+                            .toContain("COURSE-WIDE-CHUNK")
+                    })
+
+                it("FOUNDATION · global library → grounds WITHOUT an enrollment gate",
+                    async () => {
+                        contentRagRetrievalService.retrieveContentExcerpt
+                            .mockResolvedValueOnce({
+                                excerpt: "FOUNDATION-DOC-CHUNK",
+                            })
+
+                        const { messages } = await service.prepareMessages({
+                            userId,
+                            foundationId,
+                            question: "Explain this concept",
+                            locale: Locale.En,
+                        })
+
+                        // foundation is a global library → NO enrollment check at all
+                        expect(userService.checkEnrollment)
+                            .not.toHaveBeenCalled()
+                        expect(contentRagRetrievalService.retrieveContentExcerpt)
+                            .toHaveBeenCalledWith({
+                                contentId: foundationId,
+                                query: "Explain this concept",
+                            })
+                        expect((messages[0] as SystemMessage).content)
+                            .toContain("FOUNDATION-DOC-CHUNK")
+                    })
             })
     })
