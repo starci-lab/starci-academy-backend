@@ -19,6 +19,9 @@ import {
     MilestoneTaskEntity,
 } from "./milestone-task.entity"
 import {
+    ChallengeEntity,
+} from "./challenge.entity"
+import {
     FoundationEntity,
 } from "./foundation.entity"
 import {
@@ -33,7 +36,7 @@ import {
  * - `foundation` → `originFoundation` (a GLOBAL foundation-library doc; no course).
  * - `course`   → the enrollment's course itself (no per-item anchor).
  */
-export type ContentAiSessionScope = "content" | "task" | "foundation" | "course"
+export type ContentAiSessionScope = "content" | "task" | "challenge" | "foundation" | "course"
 
 /**
  * One content-AI conversation thread — a named chat a learner keeps about a lesson,
@@ -178,6 +181,34 @@ export class ContentAiSessionEntity extends UuidAbstractEntity {
         (session: ContentAiSessionEntity) => session.originTask,
     )
         originTaskId: string | null
+
+    /**
+     * Hands-on challenge the conversation is anchored to (challenge scope). NULL
+     * unless scope = challenge.
+     */
+    @ManyToOne(
+        () => ChallengeEntity,
+        {
+            onDelete: "CASCADE",
+            nullable: true,
+        },
+    )
+    @JoinColumn({
+        name: "origin_challenge_id",
+        foreignKeyConstraintName: "fk_origin_challenge_id_content_ai_sessions_challenges",
+    })
+        originChallenge: ChallengeEntity | null
+
+    /** Owning (origin) challenge id (null unless scope = challenge). */
+    @Column({
+        name: "origin_challenge_id",
+        type: "uuid",
+        nullable: true,
+    })
+    @RelationId(
+        (session: ContentAiSessionEntity) => session.originChallenge,
+    )
+        originChallengeId: string | null
 
     /**
      * Global foundation-library doc the conversation is anchored to (foundation

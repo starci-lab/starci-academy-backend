@@ -868,6 +868,7 @@ export class ContentAiService {
             scope,
             contentId,
             taskId,
+            challengeId,
             foundationId,
             courseId,
             archived,
@@ -876,6 +877,7 @@ export class ContentAiService {
             scope?: ContentAiScope | null
             contentId?: string | null
             taskId?: string | null
+            challengeId?: string | null
             foundationId?: string | null
             courseId?: string | null
             /**
@@ -893,11 +895,13 @@ export class ContentAiService {
                 ? "content"
                 : taskId
                     ? "task"
-                    : foundationId
-                        ? "foundation"
-                        : courseId
-                            ? "course"
-                            : null)
+                    : challengeId
+                        ? "challenge"
+                        : foundationId
+                            ? "foundation"
+                            : courseId
+                                ? "course"
+                                : null)
         if (!resolvedScope) {
             return null
         }
@@ -919,6 +923,23 @@ export class ContentAiService {
                 scope: "content",
                 enrollmentId,
                 originContentId: contentId,
+            }
+        } else if (resolvedScope === "challenge") {
+            if (!challengeId) {
+                return null
+            }
+            const challengeCourseId = await this.resolveCourseIdOfChallenge(challengeId)
+            const enrollmentId = challengeCourseId
+                ? await this.resolveEnrollmentByCourse(userId,
+                    challengeCourseId)
+                : null
+            if (!enrollmentId) {
+                return null
+            }
+            toCreate = {
+                scope: "challenge",
+                enrollmentId,
+                originChallengeId: challengeId,
             }
         } else if (resolvedScope === "task") {
             if (!taskId) {
@@ -1000,6 +1021,7 @@ export class ContentAiService {
             scope,
             contentId,
             taskId,
+            challengeId,
             foundationId,
             courseId,
             search,
@@ -1011,6 +1033,7 @@ export class ContentAiService {
             scope?: ContentAiScope | null
             contentId?: string | null
             taskId?: string | null
+            challengeId?: string | null
             foundationId?: string | null
             courseId?: string | null
             search?: string
@@ -1033,11 +1056,13 @@ export class ContentAiService {
                 ? "content"
                 : taskId
                     ? "task"
-                    : foundationId
-                        ? "foundation"
-                        : courseId
-                            ? "course"
-                            : null)
+                    : challengeId
+                        ? "challenge"
+                        : foundationId
+                            ? "foundation"
+                            : courseId
+                                ? "course"
+                                : null)
 
         // CONTENT: original behaviour, verbatim (list this content, or course-wide
         // search) — no regression to the shipped lesson list.
@@ -1070,6 +1095,7 @@ export class ContentAiService {
             userId,
             scope: resolvedScope,
             taskId,
+            challengeId,
             foundationId,
             courseId,
             search: trimmed,
@@ -1099,6 +1125,7 @@ export class ContentAiService {
             userId,
             scope,
             taskId,
+            challengeId,
             foundationId,
             courseId,
             search,
@@ -1109,6 +1136,7 @@ export class ContentAiService {
             userId: string
             scope: ContentAiScope
             taskId?: string | null
+            challengeId?: string | null
             foundationId?: string | null
             courseId?: string | null
             search: string
@@ -1121,7 +1149,7 @@ export class ContentAiService {
         // names are whitelisted (never client input) so they interpolate safely.
         let ownerColumn: "enrollment_id" | "user_id"
         let ownerId: string | null
-        let anchorColumn: "origin_task_id" | "origin_foundation_id" | null = null
+        let anchorColumn: "origin_task_id" | "origin_challenge_id" | "origin_foundation_id" | null = null
         let anchorId: string | null = null
         if (scope === "task") {
             if (!taskId) {
@@ -1135,6 +1163,18 @@ export class ContentAiService {
                 : null
             anchorColumn = "origin_task_id"
             anchorId = taskId
+        } else if (scope === "challenge") {
+            if (!challengeId) {
+                return []
+            }
+            const challengeCourseId = await this.resolveCourseIdOfChallenge(challengeId)
+            ownerColumn = "enrollment_id"
+            ownerId = challengeCourseId
+                ? await this.resolveEnrollmentByCourse(userId,
+                    challengeCourseId)
+                : null
+            anchorColumn = "origin_challenge_id"
+            anchorId = challengeId
         } else if (scope === "course") {
             if (!courseId) {
                 return []

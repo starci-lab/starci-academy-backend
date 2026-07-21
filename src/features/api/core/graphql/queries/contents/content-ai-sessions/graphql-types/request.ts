@@ -45,6 +45,15 @@ export class ContentAiSessionsRequest {
         () => ID,
         {
             nullable: true,
+            description: "Current hands-on challenge (challenge scope).",
+        },
+    )
+        challengeId?: string
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
             description: "Current global foundation-library doc (foundation scope).",
         },
     )

@@ -43,6 +43,15 @@ export class CreateContentAiSessionRequest {
         () => ID,
         {
             nullable: true,
+            description: "Hands-on challenge the conversation starts in (challenge scope, enrolled-only).",
+        },
+    )
+        challengeId?: string
+
+    @Field(
+        () => ID,
+        {
+            nullable: true,
             description: "Global foundation-library doc the conversation starts in (foundation scope).",
         },
     )

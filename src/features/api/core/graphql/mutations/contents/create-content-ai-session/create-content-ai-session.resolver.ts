@@ -72,6 +72,7 @@ export class CreateContentAiSessionResolver {
             scope: request.scope as ContentAiScope | undefined,
             contentId: request.contentId,
             taskId: request.taskId,
+            challengeId: request.challengeId,
             foundationId: request.foundationId,
             courseId: request.courseId,
             archived: request.archived,
