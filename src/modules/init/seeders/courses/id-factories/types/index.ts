@@ -412,6 +412,20 @@ export interface GenerateMockInterviewLangIdParams {
 }
 
 /**
+ * Input for {@link MockInterviewChecklistIdFactoryService.generate}.
+ */
+export interface GenerateMockInterviewChecklistIdParams {
+    /** Parent course ordinal. */
+    courseIndex: number
+    /** Parent bank ordinal. */
+    bankIndex: number
+    /** Parent question ordinal. */
+    questionIndex: number
+    /** Zero-based checkpoint index within the question's `# checklist` list. */
+    checklistIndex: number
+}
+
+/**
  * Input for {@link MilestoneIdFactoryService.generate}.
  */
 export interface GenerateMilestoneIdParams {

@@ -351,7 +351,12 @@
       "Bash(git pull *)",
       "Bash(find /c/Repositories/ac/starci-academy-backend/.claude/skills -maxdepth 1 -type d | head -50)",
       "Bash(npm install *)",
-      "Bash(find /c/Repositories/starci-academy -type d -iname \"PriceTag\" 2>/dev/null; echo \"---\"; find /d/Repositories -maxdepth 2 -type d -iname \"*starci*\" 2>/dev/null)"
+      "Bash(find /c/Repositories/starci-academy -type d -iname \"PriceTag\" 2>/dev/null; echo \"---\"; find /d/Repositories -maxdepth 2 -type d -iname \"*starci*\" 2>/dev/null)",
+      "Bash(git -C \"C:\\\\Repositories\\\\ac\\\\starci-academy-backend\" status)",
+      "Bash(git -C \"C:\\\\Repositories\\\\ac\\\\starci-academy-backend\" remote -v)",
+      "Bash(ls \"C:\\\\Repositories\\\\starci-academy\" 2>&1 | head -30)",
+      "Bash(python -c \"import json; print\\('actionable', len\\(json.load\\(open\\('scratch/_mount_todo.json'\\)\\)\\)\\)\")",
+      "Bash(node -e \"const a=require\\('./.artifacts/interview-audit/mount-scripts/_mount_todo_705_skipped.json'\\); console.log\\('entries:', a.length\\); const by={}; a.forEach\\(x=>by[x.course]=\\(by[x.course]||0\\)+1\\); console.log\\(by\\); const byk={}; a.forEach\\(x=>byk[x.kind]=\\(byk[x.kind]||0\\)+1\\); console.log\\(byk\\);\")"
     ]
   }
 }

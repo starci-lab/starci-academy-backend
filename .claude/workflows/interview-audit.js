@@ -25,7 +25,7 @@ export const meta = {
   ],
 }
 
-const FILE = 'D:\\Repositories\\starci-academy-backend\\.artifacts\\interview-audit\\_all.json'
+const FILE = 'C:\\Repositories\\ac\\starci-academy-backend\\.artifacts\\interview-audit\\_all.json'
 const CP = { type: 'object', properties: { items: { type: 'array', items: { type: 'string' } } }, required: ['items'], additionalProperties: false }
 const ANS = { type: 'object', properties: { answers: { type: 'array', items: { type: 'object', properties: { level: { type: 'integer' }, text: { type: 'string' } }, required: ['level', 'text'], additionalProperties: false } } }, required: ['answers'], additionalProperties: false }
 const BG = { type: 'object', properties: { results: { type: 'array', items: { type: 'object', properties: { level: { type: 'integer' }, covered: { type: 'array', items: { type: 'boolean' } } }, required: ['level', 'covered'], additionalProperties: false } } }, required: ['results'], additionalProperties: false }

@@ -31,6 +31,25 @@ export interface RawMockInterviewLang {
 }
 
 /**
+ * One `# checklist` checkpoint (`## N` → `### text` / `### dimension` / `### critical` /
+ * `### scoreBand`). English-only in both locales, so it carries no `translations`.
+ */
+export interface RawMockInterviewChecklistItem {
+    /** Zero-based ordinal. */
+    orderIndex: number
+    /** The checkpoint statement. */
+    text?: string
+    /** `technical` | `problemSolving` | `communication` | `testing`. */
+    dimension?: string
+    /** Whether missing this point should sink the answer. */
+    critical?: boolean
+    /** Points this checkpoint is worth; a question's checkpoints sum to 100. */
+    scoreBand?: number
+    /** Index signature so `MergeJsonResult` recognizes this as mergeable. */
+    [key: string]: unknown
+}
+
+/**
  * One per-language body document (`<question>/bodies/{index}-{lang}/{en,vi}.md`) for a
  * code question — carries that stack's `prompt` + `givenCode` + `idealAnswer` (mirrors
  * lesson content `bodies/`; the parent question holds the shared rubric/tags/followUps).
@@ -74,6 +93,8 @@ export interface RawMockInterviewQuestion {
     idealAnswer?: string
     /** Reasoning points that earn credit. */
     rubric?: Array<RawMockInterviewListItem>
+    /** Coverage checkpoints — succeeds `rubric` as the grading anchor. */
+    checklist?: Array<RawMockInterviewChecklistItem>
     /** Probe questions the interviewer may ask next. */
     followUps?: Array<RawMockInterviewListItem>
     /** Progressive hints. */

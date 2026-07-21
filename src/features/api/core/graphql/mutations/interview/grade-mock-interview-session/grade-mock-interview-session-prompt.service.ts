@@ -401,6 +401,18 @@ export class MockInterviewGradePromptService {
                     "Concrete thing that was missing, framed as what to add.",
                 ],
                 followUpQuestion: "A natural follow-up question, or null.",
+                coveredCheckpoints: [
+                    {
+                        index: 0,
+                        covered: [0,
+                            2,
+                            5],
+                    },
+                    {
+                        index: 1,
+                        covered: [1],
+                    },
+                ],
                 questionFeedback: [
                     {
                         index: 0,
@@ -469,6 +481,12 @@ export class MockInterviewGradePromptService {
             "- strengths: concrete things the candidate got right across the session (may be empty).",
             "- gaps: concrete things missing or wrong, each framed as what to add (may be empty).",
             "- followUpQuestion: a natural follow-up an interviewer would ask next, or null.",
+            "- coveredCheckpoints: one entry PER QUESTION that has a numbered CHECKPOINT reference,",
+            "  `{ index, covered }` where `index` is the 0-based question number and `covered` lists the",
+            "  checkpoint numbers THIS answer actually established (the numbers shown as `(0) (1) (2) …` in that",
+            "  question's Reference). Judge coverage on SUBSTANCE — a paraphrase counts, a vague gesture at the",
+            "  topic does not. List only what the candidate genuinely said; omitting a checkpoint is how it scores",
+            "  zero for that point. Leave `covered` empty when the answer established none of them.",
             "- questionFeedback: EXACTLY one entry PER QUESTION (same count and order as `phaseScores`), each",
             "  `{ index, feedback }` where `index` is the 0-based question number (0, 1, 2, …, matching the",
             "  \"### Question N\" blocks below where N = index + 1) and `feedback` is ONE SHORT LINE stating what",
@@ -541,22 +559,30 @@ export class MockInterviewGradePromptService {
 
         const referenceLines = hasReference && grounding
             ? [
-                `Reference (câu hỏi): ${grounding.question}`,
+                `Reference (question): ${grounding.question}`,
                 grounding.answer
-                    ? `Reference (đáp án mẫu — CHẤM BẰNG CÁCH SO SÁNH câu trả lời với đáp án này): ${grounding.answer}`
+                    ? `Reference (model answer — GRADE BY COMPARING the candidate's answer against this): ${grounding.answer}`
                     : null,
-                grounding.rubric && grounding.rubric.length > 0
-                    ? `Reference (điểm lập luận ăn điểm — mỗi ý phủ được thì cộng điểm; đây là neo chấm chính): ${grounding.rubric.map((point, order) => `(${order + 1}) ${point}`).join(" ")}`
-                    : null,
+                // Authored checkpoints replace the flat rubric line when the question has
+                // them: each is numbered so the model can report WHICH ones the candidate
+                // covered, and the score is then summed from those bands in code rather
+                // than picked by the model.
+                grounding.checkpoints && grounding.checkpoints.length > 0
+                    ? `Reference (scoring CHECKPOINTS — the primary grading anchor; report which ones the candidate COVERED via "coveredCheckpoints"): ${grounding.checkpoints
+                        .map((checkpoint, order) => `(${order}) [${checkpoint.dimension ?? "technical"}${checkpoint.critical ? ", MUST-HIT" : ""}, ${checkpoint.scoreBand} pts] ${checkpoint.text}`)
+                        .join(" ")}`
+                    : grounding.rubric && grounding.rubric.length > 0
+                        ? `Reference (scoring reasoning points — each one covered earns credit; this is the primary grading anchor): ${grounding.rubric.map((point, order) => `(${order + 1}) ${point}`).join(" ")}`
+                        : null,
                 // the GIVEN (buggy) code the candidate was asked to FIX — the grader
                 // compares the candidate's own "[Code lang=...]" workspace artifact
                 // against THIS baseline, so the FIX itself is scored (did they change
                 // the right line?), not just whether the final code looks plausible.
                 grounding.givenCode
-                    ? `Reference (CODE GỐC đề đưa — có thể chứa bug; chấm CÁCH SỬA của ứng viên bằng cách SO SÁNH artifact "[Code lang=...]" họ nộp với code gốc này, xem họ có sửa đúng chỗ không):\n\`\`\`${grounding.givenLang ?? ""}\n${grounding.givenCode}\n\`\`\``
+                    ? `Reference (the GIVEN code — may contain a bug; grade the candidate's FIX by COMPARING the "[Code lang=...]" artifact they submitted against this baseline, checking whether they changed the right thing):\n\`\`\`${grounding.givenLang ?? ""}\n${grounding.givenCode}\n\`\`\``
                     : null,
                 grounding.keywords.length > 0
-                    ? `Reference (từ khóa nên phủ): ${grounding.keywords.join(", ")}`
+                    ? `Reference (keywords worth covering): ${grounding.keywords.join(", ")}`
                     : null,
             ].filter((line): line is string => line !== null)
             : []

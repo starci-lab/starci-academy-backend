@@ -8,9 +8,11 @@
 
 ## In-flight
 - Audit 660 cau, batch 100. Ket qua: .artifacts/interview-audit/results/batch_*.json
-- SESSION NAY (68c2bc60) DA XONG range 0-449: 450/450, 0 thieu 0 loi (batch_000-010, 010-110, 110-210, 210-310, 310-409, 410-449, + batch_rerun.json cho 187+377). idx 392 borderline (giu). _failed_idx.json = rong.
-- SESSION KHAC lam 450-660 qua .claude/workflows/interview-audit.js (args [450,105]+[555,105]) — FILE trong do tro .artifacts/_all.json (git-tracked, pull mtp la co).
-- _all.json = 660 cau (id,kind,course,prompt,ideal). Workflow doc theo index. Thu tu: devops(0-279) · fullstack(280-...) · SD(...-659).
+- Range 0-449: 450/450 audit xong (batch_000-010, 010-110, 110-210, 210-310, 310-409, 410-449, + batch_rerun.json cho 187+377). idx 392 borderline (giu).
+- Range 450-659: 210/210 audit xong (batch_450-555, batch_555-660). Failed idx (StructuredOutput loi/rate-limit, chua chay lai): [452, 461, 474, 515, 530, 587, 649].
+- _all.json = 660 cau (id,kind,course,prompt,ideal), GIT-TRACKED tai .artifacts/interview-audit/_all.json. Thu tu: devops(0-279) · fullstack(280-...) · SD(...-659).
+- **2026-07-19: DA GHI vao .mount qua _id2folder.json (id->folder, 985 entry, KHONG dung prompt-text match vi content da drift giua DB-seed-time va .mount hien tai).** Ket qua ghi 450-659: **173/210 ghi thanh cong** (346 file en+vi), **30/210 SKIP vi drift** (file .mount hien tai da doi kind/schema so voi luc seed DB — vd idx451 DB ghi kind=theory nhung file that su la kind=debug, khong con # idealAnswer de chen vao). Danh sach 30 idx skip: xem scratch/_merge-450-659-report.json (khong git-track, local C:\Repositories\ac\starci-academy-backend). Range 0-449 CHUA kiem tra co ghi vao .mount hay chua — can hoi/xac nhan session kia.
+- **.mount coverage rieng (khong qua DB):** quet truc tiep .mount thay 539/985 cau chua co checklist, nhung chi 316/539 la "actionable" (co # prompt + # idealAnswer — kind theory/reasoning/scenario/design-lite + vai cau review/optimize/debug hiem hoi co prompt). 223/539 con lai (kind coding/debug/review/optimize da co # rubric gan nhan 4-chieu [technical]/[problemSolving]/[technical]/[testing] san, KHONG can chuyen checklist). Danh sach: scratch/_mount_todo.json (316 actionable) + scratch/_mount_todo_skipped.json (223 loai ra) — local, khong git-track. Dang audit dan (workflow batch [0,158] idx cua todo list nay).
 
 ## Con lam
 1. Chot en/vi checkpoint.

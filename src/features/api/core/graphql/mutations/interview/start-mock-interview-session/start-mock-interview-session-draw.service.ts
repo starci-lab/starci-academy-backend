@@ -939,8 +939,18 @@ export class MockInterviewSessionDrawService {
             // TRACK-authored code question (per-language `bodies/`): serve it in a
             // RANDOM one of the candidate's selected languages that this question is
             // actually authored in. No overlap → drop the whole question (return []).
+            //
+            // A SINGLE authored body means the question's language is fixed by the question
+            // itself, not chosen by the candidate — `agnostic` prose, or a `hcl`/`yaml`/
+            // `dockerfile` (and even `typescript`) snippet that only makes sense in that one
+            // language. Those are always eligible, exactly like the root-authored non-track
+            // branch below. Gating them on the candidate's track selection would silently
+            // drop them for anyone who picked a different track; the body count, not the
+            // language label, is what distinguishes "authored per track" from "fixed".
             if (bodies.length > 0) {
-                const eligible = bodies.filter((body) => params.langs.includes(body.lang))
+                const eligible = bodies.length === 1
+                    ? bodies
+                    : bodies.filter((body) => params.langs.includes(body.lang))
                 if (eligible.length === 0) {
                     return []
                 }

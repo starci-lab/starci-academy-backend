@@ -13,6 +13,9 @@ import {
 import {
     MockInterviewLangEntity,
 } from "./mock-interview-lang.entity"
+import {
+    MockInterviewChecklistEntity,
+} from "./mock-interview-checklist.entity"
 
 /**
  * One authored MOCK-INTERVIEW question — the static side of the "đề tĩnh · phản
@@ -203,4 +206,17 @@ export class MockInterviewEntity extends UuidAbstractEntity {
         },
     )
         langs: Array<MockInterviewLangEntity>
+
+    /**
+     * Coverage checkpoints — the grading anchor that succeeds {@link rubric}. Each row
+     * carries the structure a bare rubric string could not (dimension/critical/weight).
+     */
+    @OneToMany(
+        () => MockInterviewChecklistEntity,
+        (checklist: MockInterviewChecklistEntity) => checklist.mockInterview,
+        {
+            cascade: true,
+        },
+    )
+        checklists: Array<MockInterviewChecklistEntity>
 }

@@ -67,6 +67,21 @@ interface MockInterviewQuestionFeedbackItem {
     feedback: string
 }
 
+/**
+ * One `coveredCheckpoints[]` entry as returned raw by the model — which authored
+ * checkpoints the candidate actually established for one question. The SCORE is derived
+ * from these in code, so the model reports evidence rather than picking a number.
+ */
+interface MockInterviewCoveredCheckpointItem {
+    /** 0-based question index this coverage applies to. */
+    index: number
+    /** 0-based checkpoint numbers this answer established. */
+    covered: Array<number>
+}
+
+/** Ceiling applied when an answer missed a checkpoint marked `critical`. */
+const CRITICAL_MISS_SCORE_CAP = 60
+
 /** Minimum allowed interview score/attribute value. */
 const MIN_SCORE = 0
 
@@ -298,6 +313,38 @@ export class MockInterviewGradingService {
 
         const parsed = this.parse(text)
 
+        // Where a question carries authored checkpoints AND the model reported which of
+        // them the answer established, the score becomes the SUM of those bands instead of
+        // a number the model chose: the same answer now always earns the same score, and
+        // the total is explainable per checkpoint ("missing #2 cost 16"). Questions with no
+        // checkpoints, or a model that omitted the field, keep the model's own score.
+        const coveredByIndex = new Map(
+            parsed.coveredCheckpoints.map((item) => [item.index,
+                item.covered]),
+        )
+        let rescored = false
+        const phaseScores = parsed.phaseScores.map((phase, index) => {
+            const checkpoints = seedGroundings[index]?.checkpoints
+            const covered = coveredByIndex.get(index)
+            if (!checkpoints || checkpoints.length === 0 || !covered) {
+                return phase
+            }
+            rescored = true
+            return {
+                ...phase,
+                score: this.scoreFromCheckpoints(checkpoints,
+                    covered),
+            }
+        })
+        // keep the headline consistent with the per-question scores it summarises —
+        // leaving the model's own overall next to recomputed question scores would let
+        // the two contradict each other on the same scorecard
+        const overallScore = rescored && phaseScores.length > 0
+            ? Math.round(
+                phaseScores.reduce((sum, phase) => sum + phase.score, 0) / phaseScores.length,
+            )
+            : parsed.overallScore
+
         // build the per-question model-answer reviews (qna only — see
         // buildQuestionReviews's own doc for why design has none) from the
         // SAME three server-held sources used to grade: the transcript's
@@ -307,7 +354,7 @@ export class MockInterviewGradingService {
             ? this.buildQuestionReviews({
                 turns,
                 seedGroundings,
-                phaseScores: parsed.phaseScores,
+                phaseScores,
                 questionFeedback: parsed.questionFeedback,
                 matchedContentIds,
             })
@@ -315,6 +362,10 @@ export class MockInterviewGradingService {
 
         const result: MockInterviewGradeSessionResult = {
             ...parsed,
+            overallScore,
+            phaseScores,
+            verdict: this.normalizeVerdict(parsed.verdict,
+                overallScore),
             matchedContentIds,
             questionReviews,
         }
@@ -486,6 +537,7 @@ export class MockInterviewGradingService {
                     },
                     relations: {
                         langs: true,
+                        checklists: true,
                     },
                 }),
             this.entityManager.find(FlashcardCardEntity,
@@ -526,7 +578,28 @@ export class MockInterviewGradingService {
                 if (bank) {
                     // fold the behavioral "I vs we" ownership note in as an extra
                     // rubric point so the grader is forced to score it (research §4)
-                    const rubricPoints = [...(bank.rubric ?? [])]
+                    // authored checkpoints win over the legacy flat `rubric` — each carries
+                    // its dimension / must-hit flag / score band, which the grader scores
+                    // against directly. `rubric` remains the fallback for any question
+                    // whose content has not been converted to `# checklist` yet.
+                    const orderedCheckpoints = [...(bank.checklists ?? [])]
+                        .sort((left, right) => left.sortIndex - right.sortIndex)
+                    const checkpoints = orderedCheckpoints
+                        .map((checkpoint) => {
+                            const dimension = checkpoint.dimension
+                                ? `[${checkpoint.dimension}] `
+                                : ""
+                            const mustHit = checkpoint.critical
+                                ? " (MUST-HIT)"
+                                : ""
+                            const band = checkpoint.scoreBand > 0
+                                ? ` (${checkpoint.scoreBand} pts)`
+                                : ""
+                            return `${dimension}${checkpoint.text}${mustHit}${band}`
+                        })
+                    const rubricPoints = checkpoints.length > 0
+                        ? checkpoints
+                        : [...(bank.rubric ?? [])]
                     if (bank.ownershipSignal) {
                         rubricPoints.push(`[Ownership] ${bank.ownershipSignal}`)
                     }
@@ -559,6 +632,17 @@ export class MockInterviewGradingService {
                         answer: chosenBody?.idealAnswer ?? bank.idealAnswer,
                         keywords: bank.keywords ?? [],
                         rubric: rubricPoints.length > 0 ? rubricPoints : undefined,
+                        // structured form of the same checkpoints — lets the score be
+                        // summed from the bands the grader reports as covered instead of
+                        // taken on trust from a number it picked
+                        checkpoints: orderedCheckpoints.length > 0
+                            ? orderedCheckpoints.map((checkpoint) => ({
+                                text: checkpoint.text,
+                                dimension: checkpoint.dimension,
+                                critical: checkpoint.critical,
+                                scoreBand: checkpoint.scoreBand,
+                            }))
+                            : undefined,
                         // the GIVEN (buggy) code — lets the grader diff the candidate's
                         // fix against the baseline (debug/review/optimize questions)
                         givenCode: chosenBody?.givenCode ?? bank.givenCode ?? null,
@@ -696,6 +780,7 @@ export class MockInterviewGradingService {
         raw: string,
     ): Omit<MockInterviewGradeSessionResult, "matchedContentIds" | "questionReviews"> & {
         questionFeedback: Array<MockInterviewQuestionFeedbackItem>
+        coveredCheckpoints: Array<MockInterviewCoveredCheckpointItem>
     } {
         let parsed: Record<string, unknown>
         try {
@@ -725,6 +810,7 @@ export class MockInterviewGradingService {
             gaps: this.normalizeStringArray(parsed.gaps),
             followUpQuestion: this.normalizeNullableString(parsed.followUpQuestion),
             questionFeedback: this.normalizeQuestionFeedback(parsed.questionFeedback),
+            coveredCheckpoints: this.normalizeCoveredCheckpoints(parsed.coveredCheckpoints),
         }
     }
 
@@ -739,6 +825,78 @@ export class MockInterviewGradingService {
      * @param value - The raw `questionFeedback` value from the parsed JSON.
      * @returns A clean array of `{ index, feedback }` entries (possibly empty).
      */
+    /**
+     * Coerce the raw `coveredCheckpoints` value into clean `{ index, covered }` entries.
+     * Missing or malformed degrades to empty, which simply leaves the model's own score in
+     * place — the same tolerance `questionFeedback` gets.
+     *
+     * @param value - The raw `coveredCheckpoints` value from the parsed JSON.
+     * @returns A clean array (possibly empty).
+     */
+    private normalizeCoveredCheckpoints(
+        value: unknown,
+    ): Array<MockInterviewCoveredCheckpointItem> {
+        if (!Array.isArray(value)) {
+            return []
+        }
+        return value
+            .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
+            .map((item) => {
+                const indexRaw = typeof item.index === "number"
+                    ? item.index
+                    : Number(item.index)
+                const index = Number.isFinite(indexRaw)
+                    ? Math.max(0,
+                        Math.trunc(indexRaw))
+                    : -1
+                const covered = Array.isArray(item.covered)
+                    ? item.covered
+                        .map((entry) => Number(entry))
+                        .filter((entry) => Number.isFinite(entry) && entry >= 0)
+                        .map((entry) => Math.trunc(entry))
+                    : []
+                return {
+                    index,
+                    covered,
+                }
+            })
+            .filter((item) => item.index >= 0)
+    }
+
+    /**
+     * Score ONE question as the sum of the score bands it actually covered.
+     *
+     * Missing a checkpoint marked `critical` caps the result: a candidate who skipped the
+     * point the question exists to test has not passed it, however much peripheral credit
+     * they accumulated. Duplicate or out-of-range checkpoint numbers from the model are
+     * ignored rather than allowed to inflate the total past 100.
+     *
+     * @param checkpoints - The question's authored checkpoints, in authored order.
+     * @param covered - Checkpoint numbers the model reported as established.
+     * @returns Integer 0-100.
+     */
+    private scoreFromCheckpoints(
+        checkpoints: NonNullable<MockInterviewSeedGrounding["checkpoints"]>,
+        covered: Array<number>,
+    ): number {
+        const hit = new Set(
+            covered.filter((index) => index >= 0 && index < checkpoints.length),
+        )
+        const score = checkpoints.reduce(
+            (sum, checkpoint, index) => (hit.has(index) ? sum + checkpoint.scoreBand : sum),
+            0,
+        )
+        const missedCritical = checkpoints.some(
+            (checkpoint, index) => checkpoint.critical && !hit.has(index),
+        )
+        const capped = missedCritical
+            ? Math.min(score, CRITICAL_MISS_SCORE_CAP)
+            : score
+        return Math.max(0,
+            Math.min(100,
+                Math.round(capped)))
+    }
+
     private normalizeQuestionFeedback(
         value: unknown,
     ): Array<MockInterviewQuestionFeedbackItem> {
