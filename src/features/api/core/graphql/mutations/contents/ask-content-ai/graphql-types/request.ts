@@ -66,6 +66,15 @@ export class AskContentAiRequest {
         foundationId?: string
 
     @Field(
+        () => ID,
+        {
+            nullable: true,
+            description: "Course the question is about when no lesson/task/foundation is open (course scope, enrolled-only).",
+        },
+    )
+        courseId?: string
+
+    @Field(
         () => String,
         {
             description: "The learner's question about this content.",

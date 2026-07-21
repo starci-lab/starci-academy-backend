@@ -49,7 +49,7 @@ import {
  * NOTE: a `"course"` scope (whole-course RAG) is a separate slice and is not
  * wired here yet — this module still only grounds a single lesson/task/foundation.
  */
-export type ContentAiScope = "lesson" | "task" | "foundation"
+export type ContentAiScope = "lesson" | "task" | "foundation" | "course"
 
 /** One prior chat turn replayed to the model as short-term memory. */
 export interface ContentAiHistoryMessage {
@@ -87,6 +87,8 @@ export interface PrepareContentAiMessagesParams {
     taskId?: string | null
     /** Global foundation-library doc the question is about (foundation scope). */
     foundationId?: string | null
+    /** Course the question is about when no lesson/task/foundation is open (course scope, enrolled-only). */
+    courseId?: string | null
     /** The learner's question about this content. */
     question: string
     /** Recent prior turns (oldest first) for short-term memory; capped here. */
@@ -176,6 +178,7 @@ export class ContentAiService {
             contentId,
             taskId,
             foundationId,
+            courseId,
             question,
             history,
             locale,
@@ -209,6 +212,13 @@ export class ContentAiService {
                 question,
             })
             scope = "foundation"
+        } else if (courseId) {
+            grounding = await this.resolveCourseGrounding({
+                userId,
+                courseId,
+                question,
+            })
+            scope = "course"
         } else {
             throw new ContentNotFoundException({
             })
@@ -416,6 +426,50 @@ export class ContentAiService {
             excerpt,
         } = await this.contentRagRetrievalService.retrieveContentExcerpt({
             contentId: foundationId,
+            query: question,
+        })
+        return excerpt
+    }
+
+    /**
+     * Course-scope grounding: course-wide RAG for a surface with no material of its
+     * own (mind-map, leaderboard, the course home, …).
+     *
+     * ENROLLED-ONLY, deliberately. `retrieveCourseExcerpt` on this branch has no
+     * premium-exclusion filter (the `excludeContentIds` widening lives in the
+     * still-uncommitted `content-ai-chat-app-wide` work), so answering a
+     * non-enrolled viewer course-wide could surface premium lessons the RAG index
+     * holds. Until that filter lands, we gate: enrolled → full course RAG; not
+     * enrolled → NO course grounding (empty excerpt, the model answers from general
+     * knowledge, never from premium course material). This trades the trial→paid
+     * "chat about the whole course" funnel for safety; re-enable trial course chat
+     * with premium exclusion once app-wide lands.
+     * TODO(content-ai-rail-scope): swap the gate for excludeContentIds-based
+     * premium filtering when `retrieveCourseExcerpt` gains that param on mtp.
+     *
+     * @param params - The learner, the course id, and the question.
+     * @returns The grounding text, or empty when the viewer is not enrolled.
+     */
+    private async resolveCourseGrounding(
+        {
+            userId,
+            courseId,
+            question,
+        }: {
+            userId: string
+            courseId: string
+            question: string
+        },
+    ): Promise<string> {
+        const enrolled = await this.userService.checkEnrollment(userId,
+            courseId)
+        if (!enrolled) {
+            return ""
+        }
+        const {
+            excerpt,
+        } = await this.contentRagRetrievalService.retrieveCourseExcerpt({
+            courseId,
             query: question,
         })
         return excerpt
@@ -1126,6 +1180,18 @@ export class ContentAiService {
                 `Reply in ${language}. Keep it short, concrete and practical.`,
                 "",
                 "=== TASK MATERIAL ===",
+                grounding,
+            ].join("\n")
+        }
+        if (scope === "course") {
+            return [
+                "You are StarCi AI, a sharp and friendly tutor for the student's COURSE as a whole (no single lesson is open).",
+                "The COURSE MATERIAL below is retrieved from across the course's lessons and is your primary source: read it, prefer it, and ground your answer in it.",
+                "It may be EMPTY (the student is browsing, not yet enrolled, or nothing matched). When it is, answer from your general programming knowledge and, if useful, suggest which part of the course to open — never invent specific lesson content you were not given.",
+                "A student message may contain <display>the question</display> and <context>a highlighted passage</context>. Use <context> only to understand WHICH part they mean; answer the <display> question. Never repeat or mention the tags or the raw context back to the student.",
+                `Reply in ${language}. Keep it short, concrete and practical.`,
+                "",
+                "=== COURSE MATERIAL ===",
                 grounding,
             ].join("\n")
         }

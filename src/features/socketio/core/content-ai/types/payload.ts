@@ -22,6 +22,8 @@ export type AskContentAiSocketIoPayload = SocketIoPayload<{
     taskId?: string | null
     /** Global foundation-library doc the question is grounded on (foundation scope). */
     foundationId?: string | null
+    /** Course the question is grounded on when no lesson/task/foundation is open (course scope, enrolled-only). */
+    courseId?: string | null
     /** The learner's question about this content. */
     question: string
     /** Recent prior turns (oldest first) for short-term memory; capped server-side. */
