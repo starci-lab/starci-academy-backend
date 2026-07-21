@@ -56,4 +56,13 @@ export class CreateContentAiSessionRequest {
         },
     )
         courseId?: string
+
+    @Field(
+        () => Boolean,
+        {
+            nullable: true,
+            description: "Born-archived: create the conversation already archived (kept out of the default history list, still searchable). Used for selection-passage 'explain this' side-threads.",
+        },
+    )
+        archived?: boolean
 }

@@ -74,6 +74,7 @@ export class CreateContentAiSessionResolver {
             taskId: request.taskId,
             foundationId: request.foundationId,
             courseId: request.courseId,
+            archived: request.archived,
         })
         return {
             id,

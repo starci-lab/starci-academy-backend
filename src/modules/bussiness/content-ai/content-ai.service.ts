@@ -775,6 +775,7 @@ export class ContentAiService {
             taskId,
             foundationId,
             courseId,
+            archived,
         }: {
             userId: string
             scope?: ContentAiScope | null
@@ -782,6 +783,13 @@ export class ContentAiService {
             taskId?: string | null
             foundationId?: string | null
             courseId?: string | null
+            /**
+             * Born-archived: stamp `archived_at = now()` at creation so the
+             * conversation never clutters the default history list yet stays
+             * searchable. Used for selection-passage ("explain this") chats — a
+             * one-off side-thread that inherits the surface grounding + the passage.
+             */
+            archived?: boolean | null
         },
     ): Promise<string | null> {
         // derive scope by anchor priority when the caller did not pin one
@@ -865,6 +873,11 @@ export class ContentAiService {
             {
                 ...toCreate,
                 title: null,
+                // born-archived side-threads (selection asks) are stamped now so
+                // they stay out of the default list but remain searchable
+                archivedAt: archived
+                    ? new Date()
+                    : null,
             },
         )
         await this.entityManager.save(session)

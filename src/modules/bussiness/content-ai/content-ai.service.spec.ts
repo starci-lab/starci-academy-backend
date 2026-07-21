@@ -532,6 +532,22 @@ describe("ContentAiService",
                             enrollmentId,
                             originContentId: contentId,
                         })
+                        // a plain (non-selection) session is NOT born-archived
+                        expect(created.archivedAt).toBeNull()
+                    })
+
+                it("createSession · archived flag → BORN-ARCHIVED (archived_at stamped)",
+                    async () => {
+                        // foundation scope keeps the case free of DB lookups
+                        await service.createSession({
+                            userId,
+                            scope: "foundation",
+                            foundationId,
+                            archived: true,
+                        })
+
+                        const created = entityManager.create.mock.calls[0][1]
+                        expect(created.archivedAt).toBeInstanceOf(Date)
                     })
 
                 it("createSession TASK → resolves task→course→enrollment, anchors on origin_task_id",
