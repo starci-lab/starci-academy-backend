@@ -56,7 +56,7 @@ export class KeycloakRegisterHandler
     ): Promise<KeycloakAuthResponse> {
         const keycloakUsername = command.params.email
 
-        const keycloakUserId = await this.keycloakUserService.registerUserWithPassword({
+        const keycloakUserId = await this.keycloakTokenService.registerUserWithPassword({
             username: keycloakUsername,
             email: command.params.email,
             password: command.params.password,
@@ -64,7 +64,7 @@ export class KeycloakRegisterHandler
             lastName: command.params.lastName,
         })
 
-        await this.keycloakUserService.sendVerifyEmail(keycloakUserId)
+        await this.keycloakTokenService.sendVerifyEmail(keycloakUserId)
 
         const tokenResponse = await this.keycloakTokenService.exchangePasswordForToken({
             username: keycloakUsername,

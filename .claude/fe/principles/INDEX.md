@@ -29,6 +29,7 @@
 |---|---|---|---|
 | [[single-source-render]] | ✓ | 1 đại lượng hiển thị ở N nơi = ĐÚNG 1 component render dùng chung, không copy logic ra từng feature | price, card, list, chip |
 | [[grounded-in-data]] | STUB | Thiết kế cho dữ liệu THẬT đang có (kể cả null/rỗng phổ biến), không cho schema lý tưởng chưa ai điền | landing-marketing, mọi empty-state |
+| [[expose-the-criterion-not-just-the-verdict]] | ✓ | Máy chọn hộ / chấm đỗ-trượt → bày TIÊU CHÍ (bảng lựa chọn, điều kiện để xanh), không chỉ hiện kết quả đã resolve | PlaygroundPrepare, mọi readiness/pending row |
 
 ## 4. Interaction (tương tác)
 
